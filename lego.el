@@ -5,6 +5,11 @@
 
 
 ;; $Log$
+;; Revision 1.44  1998/05/12 14:52:50  hhg
+;; Added hook `proof-shell-insert-hook', which is initalized to
+;; lego-shell-adjust-line-width.
+;; This replaces `lego-shell-config'.
+;;
 ;; Revision 1.43  1998/05/08 17:09:13  hhg
 ;; Made separated indentation more elegant.
 ;; 	Separated consideration of {}'s so it only happens for LEGO.
@@ -647,7 +652,8 @@
 ;; hooks and callbacks
 
   (add-hook 'proof-shell-exit-hook 'lego-zap-line-width nil t)
-  (add-hook 'proof-pre-shell-start-hook 'lego-pre-shell-start nil t))
+  (add-hook 'proof-pre-shell-start-hook 'lego-pre-shell-start nil t)
+  (add-hook 'proof-shell-insert-hook 'lego-shell-adjust-line-width))
 
 ;; insert standard header and footer in fresh buffers	       
 
@@ -676,7 +682,6 @@
         proof-shell-end-goals-regexp "\372 End of Goals \373"
         proof-shell-init-cmd lego-process-config
 	proof-shell-analyse-structure 'lego-shell-analyse-structure
-        proof-shell-config 'lego-shell-adjust-line-width
         lego-shell-current-line-width nil)
   (proof-shell-config-done)
 )
