@@ -142,7 +142,7 @@ phox-comments-regexp
    (concat
     "^"
     phox-comments-regexp
-    "\\(constraints\\|flag\\|goals\\|print\\(_sort\\)?\\|eshow\\|search\\|priority\\|depend\\)")
+    "\\(constraints\\|flag\\|goals\\|pri\\(nt\\(_sort\\)?\\|ority\\)\\|eshow\\|search\\|depend\\)")
    proof-non-undoables-regexp       
    (concat
     "^"
