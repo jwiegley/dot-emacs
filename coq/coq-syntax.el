@@ -301,6 +301,7 @@ Print and Check commands, put the following line in your .emacs:
 	    "Add\\s-+Rec\\s-+LoadPath"
 	    "Cd"
 	    "Check"
+		 "Comments"
 	    "DelPath"
 	    "Eval"
 	    "Extraction"
