@@ -249,4 +249,5 @@ is
 ;;  (pg-xml-closeelt)
 ;;  (pg-xml-doc))
 
+(provide 'pg-xml)
 ;; End of `pg-xml.el'
