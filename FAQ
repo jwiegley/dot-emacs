@@ -7,6 +7,24 @@ For latest version, see http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/FAQ
 
 -----------------------------------------------------------------
 
+Q. I'm afraid I got stuck very early on.  I sent the following line:
+      by (swap_res_tac [psubsetI] 1;
+   Notice that I forgot the right bracket.  The line went pink, the
+   buffer went read-only and nothing I tried would let me fix the
+   error.  
+
+A. The proof process is waiting for more input, but Proof General
+   doesn't realise this and waits for a response.  You
+   should type something in the proof shell, or interrupt the process
+   with C-c C-c or the Stop button.
+
+   [ In case of Isabelle under Poly/ML, you should start PG 3.1 
+     using the Isabelle script because it adds a hack to send "f" 
+     after an interrupt is sent. With PG 3.2, the hack is added for
+     Poly/ML even if you start Emacs first. ]
+
+-----------------------------------------------------------------
+
 Q. How can I keep the Proof General option settings across sessions?
 
 A. Simply use the ordinary XEmacs menu: Options -> Save Options
