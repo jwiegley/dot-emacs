@@ -1698,6 +1698,42 @@ in some cases.   May be called by proof-shell-invisible-command."
 Calls proof-state-change-hook."
   (run-hooks 'proof-state-change-hook))
 
+; new code to go in after 3.0
+;(defun proof-shell-done-invisible (&optional span)
+;  "Callback for proof-shell-invisible-command.  
+;Calls proof-state-change-hook."
+;  (run-hooks 'proof-state-change-hook)
+;  (remove-hook 'proof-shell-handle-error-or-interrupt-hook
+;	       'proof-shell-invisible-hook-fn))
+;; Seems to be hard to write this stuff without a temporary variable
+;; (or higher-order functions, sob).
+;(defun proof-shell-invisible-hook-fn ()
+;  "Temporary function holding hook for proof-shell-invisible-command.")
+
+;(defmacro proof-shell-invisible-failure-msg (errormsg)
+;  "Construct a value for `proof-shell-handle-error-or-interrupt-hook'.
+;Give error message ERRORMSG, then remove self from queue."
+;  `(lambda ()
+;     (proof-shell-done-invisible)
+;     (error ,(eval errormsg))))
+
+;(defmacro proof-shell-invisible-failure-fn (fn)
+;  "Construct a value for `proof-shell-handle-error-or-interrupt-hook'.
+;Call function fn, then remove self from queue."
+;  `(lambda ()
+;     (proof-shell-done-invisible)
+;     (,(eval fn))))
+;
+; extra arg ERRORMSGFN to proof-shell-invisible-command:
+;
+;If ERRORMSGFN is non-nil, if the command leads to an error or interrupt
+;in the proof assistant, we will give an error.  If ERRORMSGFN
+;is a string, (error ERRORMSGFN) is called; if ERRORMSGFN is a function, 
+;it is called directly.  If ERRORMSGFN is not a string or function,
+;we will give standard error messages for interrupts and errors."
+;
+; Other (sensible) possibility is to call
+; proof-shell-handle-error-or-interrupt-hook with span as argument.
 
 (defun proof-shell-invisible-command (cmd &optional wait)
   "Send CMD to the proof process.  Add terminal string if necessary.
@@ -1712,7 +1748,6 @@ If WAIT is an integer, wait for that many seconds afterwards."
   (proof-start-queue nil nil
 		     (list (list nil cmd 'proof-shell-done-invisible)))
   (if wait (proof-shell-wait (if (numberp wait) wait))))
-
 
 
 
