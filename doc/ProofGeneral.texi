@@ -187,6 +187,7 @@ Experimental support is provided for several other provers.
 * Coq Proof General::           
 * Isabelle Proof General::    
 * HOL Proof General::
+* Shell Proof General::
 @c * PhoX Proof General::
 * Obtaining and Installing::  
 * Known bugs and workarounds::  
