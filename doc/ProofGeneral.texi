@@ -1066,7 +1066,7 @@ the text is also deleted from the proof script.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point-interactive
-@deffn Command proof-retract-until-point-interactive delete-region
+@deffn Command proof-retract-until-point-interactive &optional delete-region
 Tell the proof process to retract until point.
 If invoked outside a locked region, undo the last successfully processed
 command.  If called with a prefix argument (@var{delete-region} non-nil), also
