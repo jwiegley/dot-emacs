@@ -85,6 +85,7 @@
 
 ;; ----- coq specific menu
 
+;TODO: build the command submenu automatically from abbrev table
 (defpgdefault menu-entries
   '(
     ("Insert Command" 
@@ -92,14 +93,26 @@
      ["Definition            def<ctrl-backspace>" (insert-and-expand "def") t]
      ["Fixpoint              fix<ctrl-backspace>" (insert-and-expand "fix") t]
      ["Functional Scheme     fs<ctrl-backspace>" (insert-and-expand "fs") t]
-     ["Functional Scheme w   fs<ctrl-backspace>" (insert-and-expand "fs") t]
+     ["Functional Scheme w   fsw<ctrl-backspace>" (insert-and-expand "fsw") t]
      ["Inductive             indv<ctrl-backspace>" (insert-and-expand "indv") t]
      ["Inductive1            indv1<ctrl-backspace>" (insert-and-expand "indv1") t]
      ["Inductive2             indv2<ctrl-backspace>" (insert-and-expand "indv2") t]
      ["Inductive3            indv3<ctrl-backspace>" (insert-and-expand "indv3") t]
      ["Inductive4            indv4<ctrl-backspace>" (insert-and-expand "indv4") t]
      ["Lemma                 l<ctrl-backspace>" (insert-and-expand "l") t]
+     ["Module                mo<ctrl-backspace>" (insert-and-expand "mo") t]
+     ["Module (<:)           mo2<ctrl-backspace>" (insert-and-expand "mo") t]
+     ["Module (interactive)  moi<ctrl-backspace>" (insert-and-expand "moi") t]
+     ["Module (interactive <:) moi2<ctrl-backspace>" (insert-and-expand "moi2") t]
+     ["Module Type           mt<ctrl-backspace>" (insert-and-expand "mt") t]
+     ["Module Type (interactive) mti<ctrl-backspace>" (insert-and-expand "mti") t]
+     ["Declare Module        dm<ctrl-backspace>" (insert-and-expand "dm") t]
+     ["Declare Module (<:)   dm2<ctrl-backspace>" (insert-and-expand "dm") t]
+     ["Declare Module (inter.) dmi<ctrl-backspace>" (insert-and-expand "dmi") t]
+     ["Declare Module (inter. <:) dmi2<ctrl-backspace>" (insert-and-expand "dmi2") t]
+
      ["Scheme                sc<ctrl-backspace>" (insert-and-expand "sc") t]
+     ["hint Constructors     hc<ctrl-backspace>" (insert-and-expand "hc") t]
      ["hint Immediate        hi<ctrl-backspace>" (insert-and-expand "hi") t]
      ["hint Resolve          hr<ctrl-backspace>" (insert-and-expand "hr") t]
      ["hint extern           he<ctrl-backspace>" (insert-and-expand "he") t]
@@ -124,39 +137,70 @@
      ["match2        m2<ctrl-backspace>"  (insert-and-expand "m2") t]
      ["match3        m3<ctrl-backspace>"  (insert-and-expand "m3") t]
      ["match4        m4<ctrl-backspace>"  (insert-and-expand "m4") t]
-     ["match5        m5<ctrl-backspace>"  (insert-and-expand "m5") t]
      )
 
-    ("Insert tactic" 
+    ("Insert tactic (a-f)" 
      "TACTIC           ABBREVIATION"
      ["absurd                 ab<ctrl-bacspace>"  (insert-and-expand "ab") t]
      ["absurd                 abs<ctrl-bacspace>"  (insert-and-expand "abs") t]
      ["assumption             as<ctrl-bacspace>"  (insert-and-expand "as") t]
+     ["assert                 ass<ctrl-bacspace>"  (insert-and-expand "ass") t]
      ["auto                   a<ctrl-bacspace>"  (insert-and-expand "a") t]
      ["auto with              aw<ctrl-bacspace>"  (insert-and-expand "aw") t]
      ["auto with arith        awa<ctrl-bacspace>"  (insert-and-expand "awa") t]
+     ["autorewrite            ar<ctrl-bacspace>"  (insert-and-expand "ar") t]
      ["cases                  c<ctrl-bacspace>"  (insert-and-expand "c") t]
+     ["change                 ch<ctrl-bacspace>"  (insert-and-expand "ch") t]
+     ["change in              chi<ctrl-bacspace>"  (insert-and-expand "chi") t]
+     ["change with in         chwi<ctrl-bacspace>"  (insert-and-expand "chwi") t]
+     ["constructor            con<ctrl-bacspace>"  (insert-and-expand "con") t]
+     ["congruence             cong<ctrl-bacspace>"  (insert-and-expand "cong") t]
      ["decompose              dec<ctrl-bacspace>"  (insert-and-expand "dec") t]
-     ["discriminate           di<ctrl-bacspace>"  (insert-and-expand "di") t]
+     ["decide equality        deg<ctrl-bacspace>"  (insert-and-expand "deg") t]
+     ["destruct               des<ctrl-bacspace>"  (insert-and-expand "des") t]
+     ["destruct using         desu<ctrl-bacspace>"  (insert-and-expand "desu") t]
+     ["destruct as            desa<ctrl-bacspace>"  (insert-and-expand "desa") t]
+     ["discriminate           dis<ctrl-bacspace>"  (insert-and-expand "dis") t]
      ["eauto                  ea<ctrl-bacspace>"  (insert-and-expand "ea") t]
      ["eauto with             eaw<ctrl-bacspace>"  (insert-and-expand "dec") t]
      ["elim                   e<ctrl-bacspace>"  (insert-and-expand "e") t]
      ["elim using             elu<ctrl-bacspace>"  (insert-and-expand "elu") t]
      ["exists                 ex<ctrl-bacspace>"  (insert-and-expand "ex") t]
+     ["field                  fld<ctrl-bacspace>"  (insert-and-expand "fld") t]
+     ["firstorder             fsto<ctrl-bacspace>"  (insert-and-expand "fsto") t]
+     ["fourier                fou<ctrl-bacspace>"  (insert-and-expand "fou") t]
      ["functional induction   fi<ctrl-bacspace>"  (insert-and-expand "fi") t]
+     )
+
+    ("Insert tactic (g-z)" 
+     "TACTIC           ABBREVIATION"
      ["generalize             g<ctrl-bacspace>"  (insert-and-expand "g") t]
      ["induction              ind<ctrl-bacspace>"  (insert-and-expand "ind") t]
+     ["injection              inj<ctrl-bacspace>"  (insert-and-expand "inj") t]
      ["intro                  i<ctrl-bacspace>"  (insert-and-expand "i") t]
      ["intros                 is<ctrl-bacspace>"  (insert-and-expand "is") t]
+     ["intuition              intu<ctrl-bacspace>"  (insert-and-expand "intu") t]
      ["inversion              inv<ctrl-bacspace>"  (insert-and-expand "inv") t]
      ["omega                  om<ctrl-bacspace>"  (insert-and-expand "om") t]
+     ["pose                   po<ctrl-bacspace>"  (insert-and-expand "om") t]
+     ["reflexivity            refl<ctrl-bacspace>"  (insert-and-expand "refl") t]
+     ["replace                rep<ctrl-bacspace>"  (insert-and-expand "rep") t]
      ["rewrite                r<ctrl-bacspace>"  (insert-and-expand "r") t]
+     ["rewrite in             ri<ctrl-bacspace>"  (insert-and-expand "r") t]
+     ["rewrite <-             rl<ctrl-bacspace>"  (insert-and-expand "r") t]
+     ["rewrite <- in          ril<ctrl-bacspace>"  (insert-and-expand "r") t]
+     ["set                    set<ctrl-bacspace>"  (insert-and-expand "set") t]
+     ["set in hyp             seth<ctrl-bacspace>"  (insert-and-expand "seth") t]
+     ["set in goal            setg<ctrl-bacspace>"  (insert-and-expand "setg") t]
+     ["set in                 seti<ctrl-bacspace>"  (insert-and-expand "seti") t]
      ["simpl                  s<ctrl-bacspace>"  (insert-and-expand "s") t]
      ["simpl                  si<ctrl-bacspace>"  (insert-and-expand "si") t]
      ["split                  sp<ctrl-bacspace>"  (insert-and-expand "sp") t]
+     ["subst                  su<ctrl-bacspace>"  (insert-and-expand "su") t]
      ["symmetry               sym<ctrl-bacspace>"  (insert-and-expand "sym") t]
+     ["transitivity           trans<ctrl-bacspace>"  (insert-and-expand "trans") t]
      ["trivial                t<ctrl-bacspace>"  (insert-and-expand "t") t]
-     ["trivial                tr<ctrl-bacspace>"  (insert-and-expand "tr") t]
+     ["tauto                  ta<ctrl-bacspace>"  (insert-and-expand "ta") t]
      ["unfold                 u<ctrl-bacspace>"  (insert-and-expand "u") t]
      )
 
