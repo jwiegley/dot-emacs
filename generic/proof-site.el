@@ -38,8 +38,7 @@
   :prefix "proof-")
 
 
-;; Master table of supported assistants.  May not enable both kinds of
-;; Isabelle interfaces at the same time!
+;; Master table of supported assistants.  
 (defcustom proof-assistant-table
   '(;; For demonstration instance of Proof General,
     ;; set PROOFGENERAL_ASSISANTS=demoisa. 
@@ -50,7 +49,8 @@
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
-    (plastic	"Plastic"	"\\.lf$"))
+    (plastic	"Plastic"	"\\.lf$")
+    (hol98	"HOL"		"\\.sml$"))
   "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
