@@ -9,7 +9,9 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A Write function proof-retract-file. (hhg? 30min)
+A Write function proof-retract-file. (30min)
+  Currently, the command ForgetMark (for LEGO) is hardwired in
+  proof-steal-process.
 
 A Update source documentation and manual, in particular document bugs
   and workarounds
@@ -43,20 +45,17 @@ C XEmacs sessions seem to grow excessively in terms of memory
   Setting a limit on the size of the process buffer doesn't seem to
   help. 
 
-A Fixing up errors caused by pbp-generated commands; currently, script
-  management unwisely assumes that pbp commands cannot fail (2h tms)
-
-C pbp code doesn't quite accord with the tech report; in particular it
-  decodes annotations eagerly. Lazily would be faster, and it's what
-  the tech report claims
-  --- djs: probably not much faster, actually.
-
-B file handling could be more robust; perhaps one should always cd to
+A file handling could be more robust; perhaps one should always cd to
   the directory corresponding to the script buffer (currently only
   done for the buffer which starts up the proof system) (30min tms)
 
-B replace (current-buffer) by proof-shell-buffer/proof-script-buffer
+A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
+
+A Replace "You are not authorised for this information." by a proper
+  documentation 
+
+A Reengineer *-count-undos and *-find-and-forget at generic level
 
 B Allow bib-cite style clicking on Load/Import commands to go to file.
 
@@ -73,16 +72,36 @@ B Remove LEGO-specific code in proof.el: for example,
   proof-shell-eager-annotation-end, proof-included-files-list.
   (added by hhg)
 
+B support font-lock in response buffer
+
+B Response buffer: after an error message has been displayed; ensure
+  that the error message is visible
+
+B Introduce keybinding to save the proof e.g., in LEGO, this should
+  insert "Save id" or "$Save id" depending on the name of the theorem. 
+
+* Proof-by-Pointing
+===================
+
+A Fixing up errors caused by pbp-generated commands; currently, script
+  management unwisely assumes that pbp commands cannot fail (2h tms)
+
+A Rename pbp-mode to response-mode (which doesn't support any actual
+  proof-by-pointing)  
+
+A Outsource actual pbp functionality
+
+C pbp code doesn't quite accord with the tech report; in particular it
+  decodes annotations eagerly. Lazily would be faster, and it's what
+  the tech report claims
+  --- djs: probably not much faster, actually.
+
 * Here are things to be done to Lego mode
 =========================================
 
-A set up regular definitions to support definitions of the form
-  id == term (10min; tms)
-
 A fix Pbp implementation (10h; tms)
 
-A LEGO mode might incorporate changes to Coq mode menu, in particular
-  making help refer to the info file (30min tms)
+A Implement menu at generic level. (30min tms)
 
 A Sometimes e.g., ~tms/lego/imperative/recursion/Prepare_vc.l,
   annotations are recorded in the object file. This needs to be
@@ -90,7 +109,7 @@ A Sometimes e.g., ~tms/lego/imperative/recursion/Prepare_vc.l,
 
 C Mechanism to save object file
 
-A Equiv, Next,... aren't handled properly, because LEGO does not
+B Equiv, Next,... aren't handled properly, because LEGO does not
   refresh the proof state. Perhaps it would be easiest to get LEGO to
   output more information in proof script mode (2h tms)
 
@@ -132,6 +151,11 @@ B The proof-locked-span isn't set to read-only, because overlays don't
   have that capability.  This needs to be done with text-regions.
   (2hr hhg)
 
-B Replace running-(xemacs|emacs19) in proof.el by fboundp. (20min tms)
+* Release
+=========
 
-A Replace recursion with while-loop in span-overlay. (2h hhg)
+A remove CVS history in all files
+
+A extend Copyright to 1998
+
+A Release Number 2.0

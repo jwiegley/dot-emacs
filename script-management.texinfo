@@ -28,6 +28,7 @@ support building and secure editing of proof scripts.  Currently custom
 modes exist for LEGO and Coq.
 
 @menu
+* Credits::               The people Involved
 * Introduction::          Introduction to Script Management
 * Commands::              Proof mode Commands
 * Multiple Files::        Proof developments spanning several files
@@ -40,7 +41,16 @@ modes exist for LEGO and Coq.
 * Known Problems::        Caveat Emptor
 @end menu
 
-@node Introduction, Commands, Top, Top
+@node Credits, Introduction, Top, Top
+@section Credits
+
+Inspired by Yves Bertot's Centaur-based proof environment CtCoq, Healf
+Goguen, Thomas Kleymann and Dilip Sequeira have implented a generic
+proof mode for Emacs. The original proof-by-pointing algorithm has been
+implemented by Yves Bertot. This manual was originally written by Dilip
+Sequeira. 
+
+@node Introduction, Credits, Commands, Top
 @section Introduction
 
 Each script resides in an Emacs buffer, called a @emph{script buffer},
@@ -121,6 +131,15 @@ you to the active one.
 
 @item C-c C-e
 move the point to the next terminator
+
+@item C-c C-p
+display the proof state in the response buffer
+
+@item C-c c
+display the context in the response buffer
+
+@item C-c h
+print LEGO help text in the response buffer
 
 @item C-c C-c
 interrupt the process process. This may leave script management or the
@@ -326,7 +345,7 @@ goal by pointing now, but we'll stay with the keyboard.
 
 finishes the Goal. 
 
-@samp{Save;}
+@samp{Save bland_commutes;}
 
 Moving the mouse pointer over the locked region now reveals that the
 entire proof has been aggregated into a single segment. Suppose we
@@ -341,22 +360,7 @@ processing and executes them.
 @section LEGO mode
 
 LEGO mode is a mode derived from proof mode for editing LEGO scripts.
-As well as custom popup menus, it has the following commands:
-
-@table @kbd
-
-@item C-c C-p
-display the proof state in the response buffer
-
-@item C-c c
-display the context in the response buffer
-
-@item C-c c
-print LEGO help text in the response buffer
-
-@end table
-
-In addition, there are some abbreviations for common commands, which
+There are some abbreviations for common commands, which
 add text to the buffer:
 
 @table @kbd
@@ -377,15 +381,9 @@ As well as custom popup menus, it has the following commands:
 
 @table @kbd
 
-@item C-c C-p
-display the proof state in the response buffer
-
 @item C-c C-s
 search for items in the library of a given type.  This runs the
 @kbd{Search} command of Coq.
-
-@item C-c c
-display the context in the response buffer
 
 @end table
 
