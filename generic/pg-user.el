@@ -177,19 +177,6 @@ handling of interrupt signals."
     ;; on whether locked or not.
     (skip-chars-forward " \t\n")))
 
-;;      FIXME!! UNIFNISHED
-;(defun proof-forward-command (&optional arg)
-;  "Move forward to end of next command.  With argument, repeat.
-;With negative argument, move backward repeatedly."
-;  (interactive "p")
-;  (or arg (setq arg 1))
-;  (if (< arg 0) 
-;      (proof-backward-command (- arg))
-
-;; FIXME: these aren't quite the functions I want yet
-(defalias 'proof-forward-command 'proof-goto-command-start)
-(defalias 'proof-backward-command 'proof-goto-command-end)
-
 (defun proof-goto-command-end ()
   "Set point to end of command at point."
   (interactive)
@@ -705,92 +692,141 @@ last use time, to discourage saving these into the users database."
      (point)))
   (own-clipboard (car kill-ring)))
 
-;; 3.3: these functions are experimental and slightly buggy.
-;; Could combine using negative num values.
+;; 3.3: these functions are experimental, in that they haven't
+;; been rigorously tested.  They don't work well in FSF Emacs.
 
-(defun pg-numth-span-higher (span num &optional noerr)
+(defun pg-numth-span-higher-or-lower (span num &optional noerr)
+  "Find NUM'th span after/before SPAN.  NUM is positive for after."
   (unless (and span (<= (span-end span) (proof-unprocessed-begin)))
-    (unless noerr (error "No processed region under point")))
-  (while (and (> num 0)
-	      (setq prevspan (prev-span span 'type)))
-    (setq num (1- num)))
-  (unless (= num 0)
-    (unless noerr
-      (error "Can't find previous processed region %i." num)))
-  prevspan)
+    (if noerr 
+	nil
+      (error "No processed region under point")))
+  (let ((downflag (> num 0))
+	(num      (abs num))
+	nextspan)
+    (while (and (> num 0)
+		(setq nextspan (if downflag
+				   (next-span span 'type)
+				 (prev-span span 'type)))
+		(if downflag
+		    ;; If moving down, check we don't go beyond
+		    ;; end of processed region
+		    (<= (span-end span) (proof-unprocessed-begin))
+		  t))
+      (setq num (1- num))
+      (setq span nextspan))
+    (if (= num 0)
+	span
+      (if noerr
+	  nil
+	(error "No region to move past" num)))))
 
-(defun pg-move-span-contents-up (span &optional num)
-  "Move SPAN under point upwards in the buffer, past NUM spans."
-  ;; FIXME: maybe num arg is overkill, should only have 1/
-  (save-excursion
-    (let ((num     (or num 1))
-	  (count   num)
-	  prevspan)
-      ;; Move the control span instead.
-      (set-span-property span 'duplicable 't)
-      (if (and span (span-property span 'controlspan))
-	  (setq span (span-property span 'controlspan)))
-      (setq prevspan (pg-numth-span-higher span num))
-      (set-span-property prevspan 'start-open t)
-      (set-span-property span 'duplicable 't)
-      (let* ((start    (span-start span))
-	     (end      (span-end span))
-	     (contents (buffer-substring start end)))
-	(let ((inhibit-read-only t))
-	  (undo-boundary)
-	  (delete-region start end)
-	  (goto-char (span-start prevspan))
-	  (insert contents)
-	  (undo-boundary))))))
+(defun pg-control-span-of (span)
+  "Return the controlling span of SPAN, or SPAN itself."
+  (or (span-property span 'controlspan)
+      span))
 
-(defun pg-move-region-up (&optional num)
-  "Move the region under point upwards in the buffer, past NUM spans."
-  (interactive "p")
-  (let ((span  (span-at (point) 'type)))
-    (and span (pg-move-span-contents-up span num))))
-
-  
-(defun pg-numth-span-lower (span num &optional noerr)
-  (unless (and span (<= (span-end span) (proof-unprocessed-begin)))
-    (unless noerr (error "No processed region under point")))
-  (while (and (> num 0)
-	      (setq nextspan (next-span span 'type))
-	      (<= (span-end span) (proof-unprocessed-begin)))
-    (setq num (1- num)))
-  (unless (= num 0)
-    (unless noerr
-      (error "Can't find following processed region %i." num)))
-  nextspan)
-
-(defun pg-move-span-contents-down (span &optional num)
-  "Move SPAN downwards in the buffer, past NUM spans."
+(defun pg-move-span-contents (span num)
+  "Move SPAN up/downwards in the buffer, past NUM spans.
+If NUM is negative, move upwards.  Return new span."
   ;; FIXME: maybe num arg is overkill, should only have 1?
   (save-excursion
-    (let  ((num     (or num 1))
-	  (count   num)
-	  prevspan)
-      ;; Move the control span instead.
+    (let  ((downflag (> num 0)) nextspan)
+      ;; Always move a control span instead; it contains
+      ;; children span which move together with it.
+      (setq span (pg-control-span-of span))
+      (setq nextspan (pg-numth-span-higher-or-lower span num))
+      ;; We're going to move the span to before/after nextspan.
+      ;; First make sure inserting there doesn't extend the span.
+      (if downflag
+	  (set-span-property nextspan 'end-open t)
+	(set-span-property nextspan 'start-open t))
+      ;; When we delete the span, we want to duplicate it
+      ;; to recreate in the new position.
       (set-span-property span 'duplicable 't)
-      (if (and span (span-property span 'controlspan))
-	  (setq span (span-property span 'controlspan)))
-      (setq nextspan (pg-numth-span-lower span num))
-      (set-span-property nextspan 'end-open nil)
-      (set-span-property span 'duplicable 't)
-      (let* ((start    (span-start span))
-	     (end      (span-end span))
-	     (contents (buffer-substring start end)))
+      (let* ((start     (span-start span))
+	     (end       (span-end span))
+	     (contents  (buffer-substring start end))
+	     ;; Locked end may move up when we delete
+	     ;; region: we'll make sure to reset it
+	     ;; again later, it shouldn't change.  
+	     ;; NB: (rely on singlethreadedness here, so
+	     ;; lockedend doesn't move while in this code).
+	     (lockedend (span-end proof-locked-span)))
 	(let ((inhibit-read-only t))
+	  ;; FIXME: undo behaviour isn't quite right yet.
 	  (undo-boundary)
 	  (delete-region start end)
-	  (goto-char (span-end nextspan))
-	  (insert contents)
-	  (undo-boundary))))))
+	  (let ((insertpos (if downflag
+			       (span-end nextspan)
+			     (span-start nextspan))))
+	    (goto-char insertpos)
+	    ;; Let XEmacs duplicate extents as needed, then repair
+	    ;; their associations
+	    (insert contents)
+	    (let ((new-span 
+		   (span-at insertpos 'type)));should be one we deleted.
+	      (set-span-property 
+	       new-span 'children
+	       (append 
+		(mapcar-spans 'pg-fixup-children-span 
+			      insertpos (point) 'type)))
+	      (set-span-end proof-locked-span lockedend)
+	      (undo-boundary)
+	      new-span)))))))
+
+(defun pg-fixup-children-span (span)
+  (if (span-property span 'controlspan)
+      ;; WARNING: dynamic binding
+      (progn
+	(set-span-property span 'controlspan new-span)
+	(list span))))
       
+(defun pg-move-region-down (&optional num)
+  "Move the region under point downwards in the buffer, past NUM spans."
+  (interactive "p")
+  (let ((span  (span-at (point) 'type)))
+    (and span 
+	 (goto-char (span-start
+		     (pg-move-span-contents span num)))
+	 (skip-chars-forward " \t\n"))))
+
 (defun pg-move-region-up (&optional num)
   "Move the region under point upwards in the buffer, past NUM spans."
   (interactive "p")
-  (let ((span  (span-at (point) 'type)))
-    (and span (pg-move-span-contents-up span num))))
+  (pg-move-region-down (- num)))
+
+;; FIXME: not working right yet, sigh...
+(defun proof-forward-command (&optional num)
+  "Move forward to the start of the next proof region."
+  (interactive "p")
+  (skip-chars-forward " \t\n")
+  (let* ((span  (or (span-at (point) 'type)
+		    (and (skip-chars-backward " \t\n")
+			 (> (point) (point-min))
+			 (span-at (1- (point)) 'type))))
+	 (nextspan (and span (pg-numth-span-higher-or-lower 
+			      (pg-control-span-of span) num 'noerr))))
+    (cond
+     ((and nextspan (> num 0))
+      (goto-char (span-start nextspan))
+      (skip-chars-forward " \t\n"))
+     ((and nextspan (< num 0))
+      (goto-char (span-end nextspan)))
+     ((and span (> num 0))
+      (goto-char (span-end span)))
+     ((and span (< num 0))
+      (goto-char (span-start span))))))
+
+(defun proof-backward-command (&optional num)
+  (interactive "p")
+  (proof-forward-command (- num)))
+  
+
+   
+
+
+
   
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -824,6 +860,17 @@ last use time, to discourage saving these into the users database."
 	 (portname   (span-property span 'name)))
       (popup-menu (pg-create-in-span-context-menu span idiomnm portname)))))
 
+(defun pg-toggle-visibility ()
+  "Toggle visibility of region under point."
+  (interactive)
+  (let* ((span (span-at (point) 'type))
+	 (idiom      (and span (span-property span 'idiom)))
+	 (idiomnm    (and idiom (symbol-name idiom)))
+	 (portname   (and span (span-property span 'name))))
+    (and portname idiomnm
+	 (pg-toggle-element-visibility idiomnm portname))))
+
+
 (defun pg-create-in-span-context-menu (span idiom name)
   "Create the dynamic context-sensitive menu for a span."
   ;; FIXME: performance here, consider caching in the span itself?
@@ -841,12 +888,12 @@ last use time, to discourage saving these into the users database."
 	  "Copy"	(list 'pg-copy-span-contents span) t))
    (if proof-experimental-features
        (list (vector
-	      "Move up"     (list 'pg-move-span-contents-up span)
-	      (pg-numth-span-higher span 1 'noerr))))
+	      "Move up"     (list 'pg-move-span-contents span -1)
+	      (pg-numth-span-higher-or-lower (pg-control-span-of span) -1 'noerr))))
    (if proof-experimental-features
        (list (vector
-	      "Move down"   (list 'pg-move-span-contents-down span)
-	      (pg-numth-span-lower span 1 'noerr))))
+	      "Move down"   (list 'pg-move-span-contents span 1)
+	      (pg-numth-span-higher-or-lower (pg-control-span-of span) 1 'noerr))))
    (if (and proof-experimental-features (featurep 'proof-depends))
        (proof-dependency-in-span-context-menu span))))
 
