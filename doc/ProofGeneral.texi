@@ -228,8 +228,8 @@ See the @file{CHANGES} file in the distribution for more complete
 details of changes since 3.3.
 
 
-@node Old news for 3.3
-@unnumberedsec Old news for 3.3
+@node Old News for 3.3
+@unnumberedsec Old News for 3.3
 
 Proof General 3.3 includes a few feature additions, but mainly the focus
 has been on compatibility improvements for new versions of provers (in
