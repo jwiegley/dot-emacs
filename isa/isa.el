@@ -159,7 +159,7 @@ and script mode."
 
    proof-shell-proof-completed-regexp
    (concat proof-shell-start-goals-regexp
-	   "\\(\\(.\\|\n\\)*\nNo subgoals!\n\\)"
+	   "\\([\000-\377]*\nNo subgoals!\n\\)"
 	   proof-shell-end-goals-regexp)
 
    ;; initial command configures Isabelle by hacking print functions.
