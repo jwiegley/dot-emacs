@@ -1,3 +1,7 @@
+Wed Nov 17 13:43:11 GMT 1999
+
+ Tested compiled version.  Seems to work well for XEmacs!
+
 Tue Nov 16 15:28:51 GMT 1999
 
  Tested automatic multiple file handling: see etc/demoisa

@@ -1544,8 +1544,16 @@ menu version 2.63, which suggests the following code for your
 (we have found that the extra @code{t} argument to @code{add-hook}
  may be important although it isn't suggested in @file{func-menu.el}).
 
+
 If you have another version of Emacs, you should check the
 @file{func-menu.el} (or @file{fume-func.el}) file supplied with it.
+
+FSF Emacs 20.4 does not have the function menu library built in, but you
+may be able to download it from the elisp archives.  A similar mode
+which is supported is @code{imenu}, also in XEmacs.  Proof General would
+be grateful if anyone can send patches for using @code{imenu}
+as an alternative to function menu.
+
 
 @node Support for outline mode
 @section Support for outline mode
@@ -1947,7 +1955,7 @@ information about what Proof General is doing.
 To avoid erasing the messages shortly after they're printed, 
 you should set @samp{@code{proof-tidy-response}} to nil.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 
@@ -4163,7 +4171,7 @@ scripting.
 @code{proof-assert-next-command} is a variant of this function.
 
 @c TEXI DOCSTRING MAGIC: proof-assert-next-command
-@defun proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command
+@deffn Command proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command
 Process until the end of the next unprocessed command after point.@*
 If inside a comment, just process until the start of the comment.  
 
@@ -4172,7 +4180,7 @@ If @var{ignore-proof-process-p} is set, no commands will be added to the queue.
 Afterwards, move forward to near the next command afterwards, unless
 @var{dont-move-forward} is non-nil.  If @var{for-new-command} is non-nil,
 a space or newline will be inserted automatically.
-@end defun
+@end deffn
 
 The main command for retracting parts of a script is
 @code{proof-retract-until-point}.
@@ -4410,7 +4418,7 @@ Input is actually inserted into the shell buffer and sent to the process
 by the low-level function @code{proof-shell-insert}.  
 
 @c TEXI DOCSTRING MAGIC: proof-shell-insert
-@defun proof-shell-insert string action
+@defun proof-shell-insert string &optional action
 Insert @var{string} at the end of the proof shell, call @code{comint-send-input}.
 
 First call @code{proof-shell-insert-hook}.  The argument @var{action} may be
@@ -4577,7 +4585,7 @@ information about what Proof General is doing.
 To avoid erasing the messages shortly after they're printed, 
 you should set @samp{@code{proof-tidy-response}} to nil.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 For more information about debugging Emacs lisp, consult the Emacs Lisp
@@ -4732,14 +4740,14 @@ you're doing.
 
 Compilation of the Emacs lisp files improves efficiency but can
 sometimes cause compatibility problems, especially if you use more than
-one version of Emacs at the same time.  Furthermore, we develop Proof
-General with source files so may miss problems with the byte compiled
-versions.  If you discover problems using the byte-compiled @code{.elc}
-files which aren't present using the source @code{.el} files, please
-report them to us.
+one version of Emacs with the same @code{.elc} files.  Furthermore, we
+develop Proof General with source files so may miss problems with the
+byte compiled versions.  If you discover problems using the
+byte-compiled @code{.elc} files which aren't present using the source
+@code{.el} files, please report them to us.
 
 You can compile Proof General by typing @code{make} in the directory
-where you installed it.
+where you installed it.  
 
 
 @unnumberedsubsec Site-wide installation

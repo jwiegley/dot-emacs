@@ -2,27 +2,27 @@ Dear Proof General users,
 
 This is a newsy note to tell you that Proof General 3.0 is ready for
 release Very Soon Now.  In the meantime, I'd be very grateful to
-anyone who can test a pre-release and tell me how it goes.  (I try to
-do as much testing as I can, but it's getting more difficult as more
-proof assistants are supported).
+anyone who can test a pre-release and tell me how it goes.  
 
 I'm quite excited about this release.  I've concentrated on usability,
 making the code clean and robust, and making PG easier to adapt for
 new proof assistants.  But there are some important new features too...
 
-David von Oheimb's patches for X-Symbol have been made generic now,
-and easy to turn on and off.  I've added some basic support for Coq
-and LEGO, so Greek letters and symbols like /\ and -> display as you
-would like.  Break free from ASCII!
+David von Oheimb's patches for X-Symbol have been made a proper
+generic part of Proof General now, and easy to turn on and off.  
+I've added some basic support for Coq and LEGO, so Greek letters and
+symbols like /\ and -> display as you would like.  Break free
+from ASCII!
 
-Proof-by-pointing has been resurrected!  The interface relies on the
+Proof-by-pointing has been resurrected.  The interface relies on the
 proof assistant to construct the proof commands, and the only prover
-supported currently LEGO.  One reason PBP was disabled was that LEGO's
-implementation is experimental and incomplete.  But I hope that people
-can see PBP almost working in LEGO and be encouraged to implement it
-for other provers.  We can certainly hope for support in Coq, since
-the CtCoq proof-by-pointing code has been moved into the Coq kernel
-now.  I hope the Coq community can encourage somebody to do this.
+supported currently is LEGO.  One reason PBP was disabled was that
+LEGO's implementation is experimental and incomplete.  But I hope that
+people can see PBP almost working in LEGO and be encouraged to
+implement it for other provers.  We can certainly hope for support in
+Coq, since the CtCoq proof-by-pointing code has been moved into the
+Coq kernel now.  I hope the Coq community can encourage somebody to do
+this.
 
 Visit http://zermelo.dcs.ed.ac.uk/~proofgen/ for more.
 

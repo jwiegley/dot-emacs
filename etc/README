@@ -9,9 +9,18 @@ announce	       Announcement
 lego		       Files for testing LEGO Proof General
 isa					 Isabelle Proof General
 isar					 Isar PG
+demoisa					 Isabelle Demo PG
+
 
 README                 this file
 
 example                test protocol for example proof scripts
 
 notes.txt	       Misc notes
+
+debugging-tips.txt     Notes on  debugging
+profiling.txt			 profiling
+
+testing-log.txt	       Notes on tests carried out
+
+release-log.txt	       A record of official releases 
