@@ -538,6 +538,9 @@ We assume that module identifiers coincide with file names."
         proof-shell-field-char ?\374
         proof-shell-goal-char ?\375
         proof-shell-eager-annotation-start "\376"
+	;; FIXME da: if p-s-e-a-s is implemented, you should set
+	;; proof-shell-eager-annotation-start-length=1 to
+	;; avoid possibility of duplicating short messages.
         proof-shell-eager-annotation-end "\377"
 
         proof-shell-annotated-prompt-regexp "LF> \371"

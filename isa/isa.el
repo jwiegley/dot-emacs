@@ -172,6 +172,7 @@ and script mode."
    proof-shell-quit-cmd			"quit();"
    
    proof-shell-eager-annotation-start   "\360\\|\362"
+   proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-end     "\361\\|\363"
 
    ;; Some messages delimited by eager annotations

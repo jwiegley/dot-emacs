@@ -453,6 +453,7 @@ We assume that module identifiers coincide with file names."
         proof-shell-field-char ?\374
         proof-shell-goal-char ?\375
 	proof-shell-eager-annotation-start "\376"
+	proof-shell-eager-annotation-start-length 1
 	proof-shell-eager-annotation-end "\377"
         proof-shell-annotated-prompt-regexp "Lego> \371"
         proof-shell-result-start "\372 Pbp result \373"

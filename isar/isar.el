@@ -250,6 +250,7 @@
    proof-shell-restart-cmd		"ProofGeneral.restart;"
    proof-shell-quit-cmd			(isar-verbatim "quit();")
    
+   proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-end     "\361\\|\363"
 

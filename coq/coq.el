@@ -502,6 +502,7 @@
         proof-shell-field-char ?\374 ; not done
         proof-shell-goal-char ?\375 ; done
 	proof-shell-eager-annotation-start "\376" ; done
+	proof-shell-eager-annotation-start-length 1
 	proof-shell-eager-annotation-end "\377" ; done
         proof-shell-annotated-prompt-regexp
 	(concat proof-shell-prompt-pattern
