@@ -20,7 +20,7 @@
 
 ;; Nuke some byte-compiler warnings
 (eval-when-compile
-  (require 'func-menu)
+  (if (locate-library "func-menu") (require 'func-menu))
   (require 'comint))
 
 ;; FIXME:
@@ -299,7 +299,8 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  (and buffer
 	       (buffer-modified-p buffer)
 	       (proof-warning (concat "Changes to "
-				      (buffer-name buffer) " have not been saved!")))
+				      (buffer-name buffer)
+				      " have not been saved!")))
 	  (setq proof-included-files-list
 		(cons cfile proof-included-files-list))
 	  ;; If the file is loaded into a buffer, which isn't

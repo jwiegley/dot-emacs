@@ -19,8 +19,11 @@
 
 (require 'proof-splash)			; splash screen
 
+;; cl is dumped with my XEmacs 20.4, but not FSF Emacs 20.2.
+(require 'cl)				
+
+
 ;; FIXME da: I think these should all be autoloaded!!
-;; (require 'cl)
 ;; (require 'compile)
 ;; (require 'comint)
 ;; (require 'etags)			
@@ -92,8 +95,12 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       (set-buffer proof-response-buffer)
       (setq start (goto-char (point-max)))
       (insert str)
-      (font-lock-fontify-region start (point-max))
-      (font-lock-append-text-property start (point-max) 'face face)
+      ;; FIXME da: recurring bug here???
+      (if (string-match "XEmacs" emacs-version)
+	  (progn
+	    (font-lock-fontify-region start (point-max))
+	    (font-lock-append-text-property start (point-max) 'face face)))
+      ;; 
       (insert "\n"))))
 
 ;;;
