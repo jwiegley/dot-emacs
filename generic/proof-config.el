@@ -2006,10 +2006,10 @@ A string with %s replaced by the dependency name."
 (defcustom proof-shell-identifier-under-mouse-cmd nil
   "Command sent to the prover to query about an identifier under the mouse.
 This is typically a command used to print a theorem, constant, or whatever.
-A string with %s replaced by the identifier."
-  :type 'string
+A string with %s replaced by the identifier, or maybe an association
+list between values for `proof-buffer-syntactic-context' and strings."
+  :type '(or string (list (cons (choice 'nil 'string 'comment)  string)))
   :group 'proof-shell)
-
 
 (defcustom proof-shell-trace-output-regexp nil
   "Matches tracing output which should be displayed in trace buffer.

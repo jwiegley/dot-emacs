@@ -1043,18 +1043,36 @@ The function `substitute-command-keys' is called on the argument."
 (defun pg-identifier-under-mouse-query (event)
   (interactive "e")
   (if proof-shell-identifier-under-mouse-cmd
-      (let ((identifier (save-selected-window
-			  (save-selected-frame
-			    (save-excursion
-			      (mouse-set-point event)
-			      (current-word))))))
+      (let (identifier ctxt oldend) 
+	(save-selected-window
+	  (save-selected-frame
+	    (save-excursion
+	      (if (event-window event)
+		  (progn
+		    (select-window (event-window event))
+		    (setq oldend (if (region-exists-p)
+				     (region-end)))))
+	      (mouse-set-point event)
+	      (setq identifier
+		    ;; If there's an active region in this buffer, use that
+		    ;; instead of the identifier under point.  Since
+		    ;; region-end moves immediately to new point with 
+		    ;; zmacs-regions we use oldend instead of current.
+		    (if (region-exists-p)
+			(buffer-substring (region-beginning) 
+					  (or oldend (region-end)))
+		     (setq identifier (current-word))))
+	      (setq ctxt (proof-buffer-syntactic-context)))))
 	(unless (or (null identifier)
 		    (string-equal identifier ""))
 	  (proof-shell-invisible-command 
-	   (format proof-shell-identifier-under-mouse-cmd
-		   identifier))))))
-				    
-
+	   (if (stringp proof-shell-identifier-under-mouse-cmd)
+	       ;; simple customization
+	       (format proof-shell-identifier-under-mouse-cmd identifier)
+	     ;; buffer-syntactic context dependent, as an alist
+	     ;; (handy for Isabelle: not a true replacement for parsing)
+	     (format (nth 1 (assq ctxt proof-shell-identifier-under-mouse-cmd))
+		     identifier)))))))
 
 
 
