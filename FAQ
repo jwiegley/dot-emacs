@@ -24,7 +24,7 @@ Q. How can I keep the Proof General option settings across sessions?
 
 A. Simply use the ordinary XEmacs menu: Options -> Save Options
 
-   In FSF Emacs, you can do M-x customize-save-customized
+   In GNU Emacs, you can do M-x customize-save-customized
    or use the Custom->Save menu in a customize buffer.
 
 -----------------------------------------------------------------
@@ -41,14 +41,15 @@ A. Unfortunately the architecture of Proof General is designed so
 -----------------------------------------------------------------
 
 
-Q. How do I use Proof General for Isabelle/Isar instead of Isabelle classic?
+Q. How do I use Proof General for Isabelle classic instead of Isabelle/Isar?
 
 A. There are several ways:
 
    1. Use the Isabelle settings mechanism, invoke with "Isabelle"
-   2. Set the environment variable PROOFGENERAL_ASSISTANTS=isar
+   2. Set the environment variable PROOFGENERAL_ASSISTANTS=isa
       before starting Emacs.
-   3. Put the line (* -*- isar -*- *) at the top of your Isar files.
+   3. Put the line (* -*- isa -*- *) at the top of your files.
+   4. Disable Isar support by removing PG's isar/ directory.
 
    Unfortunately Isabelle/Isar and Isabelle classic are two quite
    separate Proof General instances.  Ideally they should be
