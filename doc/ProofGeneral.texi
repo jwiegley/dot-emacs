@@ -2591,10 +2591,10 @@ The default value is @code{t}.
 
 @c TEXI DOCSTRING MAGIC: PA-x-symbol-enable
 @defopt PA-x-symbol-enable 
-Whether to use x-symbol in Proof General for this assistant.@*
-If you activate this variable, whether or not you really get x-symbol
-support depends on whether your proof assistant supports it and
-whether X-Symbol is installed in your Emacs.
+Whether to use x-symbol in Proof General buffers.@*
+If you activate this variable, whether or not you get x-symbol support
+depends on whether your proof assistant supports it and whether
+X-Symbol is installed in your Emacs.
 
 The default value is @code{nil}.
 @end defopt
@@ -2641,6 +2641,8 @@ Notes:
 otherwise be disabled.
 * If you change this variable it will only be noticed when you 
 next start Proof General.
+* The default value for XEmacs built for solaris is nil, because
+of unreliabilities with enablers there.
 
 The default value is @code{t}.
 @end defopt
@@ -2669,7 +2671,7 @@ The default value is @code{t}.
 If non-nil, enable indentation code for proof scripts.@*
 Currently the indentation code can be rather slow for large scripts,
 and is critical on the setting of regular expressions for particular
-provers.  Enable it if it works for you, turn it off if it's too slow.
+provers.  Enable it if it works for you.
 
 The default value is @code{nil}.
 @end defopt
@@ -3759,7 +3761,7 @@ script buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
-Character which terminates a command in a script buffer, or nil if none.@*
+Character which terminates a command in a script buffer.@*
 You must set this variable in script mode configuration.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-comment-start
@@ -4914,7 +4916,7 @@ buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-invisible-command
 @defun proof-shell-invisible-command cmd &optional wait
-Send @var{cmd} to the proof process.  @*
+Send @var{cmd} to the proof process.  Add terminal string if necessary.@*
 By default, let the command be processed asynchronously.
 But if optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
@@ -5083,21 +5085,19 @@ same way as @code{defcustom}, except that the symbol declared will
 automatically be prefixed by the current proof assistant symbol.
 
 @c TEXI DOCSTRING MAGIC: defpgcustom
-@deffn Macro defpgcustom 
+@defun defpgcustom 
 Define a new customization variable <PA>-sym for the current proof assistant.@*
 The function proof-assistant-<SYM> is also defined, which can be used in the 
 generic portion of Proof General to set and retrieve the value for the current p.a.
 Arguments as for @samp{defcustom}, which see.
-@end deffn
+@end defun
 In specific instances of Proof General, the macro @code{defpgdefault}
 can be used to give a default value for a generic setting.
 
 @c TEXI DOCSTRING MAGIC: defpgdefault
-@deffn Macro defpgdefault 
-Set default for the proof assistant specific variable <PA>@var{-sym} to @var{value}.@*
-This should be used in prover-specific code to alter the default values
-for prover specific settings.
-@end deffn
+@defun defpgdefault 
+Not documented.
+@end defun
 
 All new instantiation variables are best declared using the
 @code{defpgcustom} mechanism (old code may be converted gradually).
@@ -5153,15 +5153,8 @@ Set a customize variable using @code{set-default} and a function.@*
 We first call @samp{@code{set-default}} to set @var{sym} to @var{value}.
 Then if there is a function @var{sym} (i.e. with the same name as the
 variable @var{sym}), it is called to take some dynamic action for the new
-setting.  
-
-If there is no function @var{sym}, we try stripping 
-@code{proof-assistant-symbol} and adding "proof-" instead to get
-a function name.  This extends @code{proof-set-value} to work with
-generic individual settings.
-
-The dynamic action call only happens when values @strong{change}: as an
-approximation we test whether proof-config is fully-loaded yet.
+setting.  This only happens when values @strong{change}: we test whether
+proof-config is fully-loaded yet.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-deftoggle
@@ -5376,14 +5369,12 @@ The next function is the main one used for parsing the proof script
 buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-segment-up-to
-@defun proof-segment-up-to 
-Create a list of (type, string, int) tuples from end of queue/locked region to POS.
-
+@defun proof-segment-up-to pos &optional next-command-end
+Create a list of (type, int, string) tuples from end of queue/locked region to @var{pos}.@*
 Each tuple denotes the command and the position of its terminator,
 type is one of @code{'comment}, or @code{'cmd}. @code{'unclosed-comment} may be consed onto
 the start if the segment finishes with an unclosed comment.
-
-If optional @var{next-command-end} is non-nil, we contine past POS until
+If optional @var{next-command-end} is non-nil, we contine past @var{pos} until
 the next command end.
 @end defun
 
