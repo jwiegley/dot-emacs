@@ -7,7 +7,7 @@ $Id$
 
 Status:		   supported
 Maintainer:	   David Aspinall
-Isabelle version:  99-1
+Isabelle version:  99-1, 99-2
 Isabelle homepage: http://www.cl.cam.ac.uk/Research/HVG/Isabelle/
 
 ========================================
@@ -26,4 +26,3 @@ There is no support for proof by pointing yet, and no tags program.
 The script `interface' and file 'interface-setup.el' are used to start
 Isabelle Proof General via the 'Isabelle' shell command.  These files
 were provided by Markus Wenzel.
-

@@ -17,9 +17,6 @@ Isabelle's pretty-printing subsystem);
 ** C tune behaviour of goals/response buffers (e.g. hide empty
 response buffers when using 2 buffer model);
 
-** D Combine with isa/ to get single Isabelle PG instance, somehow?
-Then users could use both proof languages in the same session.
-
 ** D Fixup so that typing in shell buffer updates locked buffer status.
 It works in Isabelle/classic, why not here?  (But users shouldn't
 type in shell buffer, anyway).
