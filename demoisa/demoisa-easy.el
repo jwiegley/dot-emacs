@@ -16,7 +16,8 @@
 ;; It is easy to augment with additional elisp functions and
 ;; other settings.
 ;;
-;; See demoisa.el and the Proof General manual for more documentation.
+;; See demoisa.el and the Adapting Proof General manual for more
+;; documentation.
 ;;
 ;; To test this file you must rename it demoisa.el.
 ;;
