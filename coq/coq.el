@@ -261,19 +261,6 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
           ;; we need to set the "master reset" command which
           ;; subsumes the others, but still count the depth.
           (decf proof-nesting-depth))
-        (message "debut")
-        (message (concat "0=" (match-string 0 str)))
-        (message (concat "1=" (match-string 1 str)))
-        (message (concat "2=" (match-string 2 str)))
-        (message (concat "3=" (match-string 3 str)))
-        (message (concat "4=" (match-string 4 str)))
-        (message (concat "5=" (match-string 5 str)))
-        (message (concat "6=" (match-string 6 str)))
-        (message (concat "7=" (match-string 7 str)))
-        (message (concat "8=" (match-string 8 str)))
-        (message "fin")
-
-
         (if (equal (match-string 2 str) "Type") ;Module Type id: take the third word
             (progn 
               (setq ans (format coq-forget-id-command (match-string 5 str))))
