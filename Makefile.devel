@@ -96,7 +96,7 @@ CVSNAME = ProofGeneral
 # CVSROOT = :ext:$(USER)@$(MACHINE).dcs.ed.ac.uk:/home/proofgen/src
 # CVSROOT = /home/proofgen/src
 # CVS_RSH=ssh
-MACHINE=craro
+MACHINE=scar
 CVSROOT = :ext:da@$(MACHINE).dcs.ed.ac.uk:/home/proofgen/src
 
 # Emacs
