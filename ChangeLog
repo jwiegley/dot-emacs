@@ -1,3 +1,62 @@
+2003-02-20  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2003-02-20  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el, coq/ex-module.v, coq/coq-syntax.el:
+	corrected a bug of pg/coq, the following line was not recognized as a
+	module start:
+	Module M:T with Definition A:=u.
+
+	I had to count the number of 'with' and ':=' to know if the last ':='
+	was a Module given explicitely (--> no module start) or only part of a
+	'with ...:=' (--> module start).
+
+2003-02-19  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* generic/proof-x-symbol.el, generic/pg-goals.el, generic/pg-response.el, generic/proof-autoloads.el, generic/proof-shell.el:
+	Cleanups/renaming: remove some dead code, also, hide results of X-Sym enabling.
+
+	* isar/isar-mmm.el: Documentation.
+
+	* generic/proof-menu.el:
+	Docs; same safe-fail for MMM as X-Symbol.
+
+	* generic/proof-x-symbol.el:
+	Documentation.
+
+	* generic/proof-mmm.el:
+	Use bundled version off mmm first
+
+	* x-symbol/README.ProofGeneral:
+	New files.
+
+	* mmm/ProofGeneral.txt, mmm/README.ProofGeneral:
+	Renamed file
+
+	* isar/todo, ChangeLog:
+	Updated.
+
+	* etc/isar/Depends.thy: New files.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* CHANGES, BUGS:
+	Updated.
+
+	* generic/proof-mmm.el, generic/proof-script.el, generic/proof-x-symbol.el, generic/proof-autoloads.el, generic/proof-menu.el:
+	Leave packages' own hooks (X-Symbol, MMM) to deal with turning on or
+	off minor modes in buffers automatically.  Now the PG setting controls
+	the "default global for PG buffers" for each of these.  The menu
+	checkbox simply displays the current minor mode status.  When this
+	is changed, the PG global mode follows suit.  We do not try to
+	apply the change to all PG buffers (30 minutes of fontification!).
+
 2003-02-19  David Aspinall  <da@proofgeneral.org>
 
 	* generic/proof-x-symbol.el, generic/pg-goals.el, generic/pg-response.el, generic/proof-autoloads.el, generic/proof-shell.el:
