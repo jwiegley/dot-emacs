@@ -228,10 +228,10 @@ Restrict to BUFLIST if it's set."
 	"(Very) brief summary of problem or suggestion: "))
     (reporter-submit-bug-report
      "proofgen@dcs.ed.ac.uk"
-     proof-version
-     (list 'proof-assistant)
+     "Proof General" 
+     (list 'proof-version 'proof-assistant)
      nil nil
-     "When reporting a bug, please include a small test case for us to repeat it.")))
+     "[When reporting a bug, please include a small test case for us to repeat it.]")))
 
 
 (provide 'proof)
