@@ -49,7 +49,7 @@ elibdir = $(lispdir)/elib
 infodir = $(prefix)/info
 docdir = $(prefix)/doc
 
-EMACS	= xemacs --debug-init --no-site-file --no-init-file --eval '(setq debug-on-error t)'
+EMACS	= xemacs --debug-init --no-site-file --no-init-file -q --eval '(setq debug-on-error t)'
 #EMACS	= emacs
 MAKEINFO= makeinfo
 TEXI2DVI= texi2dvi
