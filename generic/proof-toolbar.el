@@ -198,7 +198,7 @@ Initialised in proof-toolbar-setup.")
 ;; GENERIC PROOF TOOLBAR FUNCTIONS
 ;;
 
-(defun proof-toolbar-process-available-p 
+(defun proof-toolbar-process-available-p ()
   "Enabler for toolbar functions.
 Checks based on those in proof-check-process-available, but
 without giving error messages."
@@ -253,7 +253,7 @@ Move point if the end of the locked position is invisible."
   ;; processed already.
   t)
 
-(defun proof-toolbar-use 
+(defun proof-toolbar-use ()
   "Process the whole buffer"
   (interactive)
   (save-excursion
@@ -267,8 +267,8 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-restart  ()
   (interactive)
   (if (proof-toolbar-restart-enable-p)
-      ((if (yes-or-no-p (concat "Restart " proof-assistant " scripting?"))
-	   (proof-restart-script)))))
+      (if (yes-or-no-p (concat "Restart " proof-assistant " scripting?"))
+	   (proof-restart-script))))
 
 (defun proof-toolbar-goal-enable-p ()
   ;; Goals are always allowed: will crank up process if need be.
@@ -282,7 +282,7 @@ Move point if the end of the locked position is invisible."
   (and proof-shell-proof-completed
        (proof-toolbar-process-available-p)))
 
-(defun proof-toolbar-qed 
+(defun proof-toolbar-qed () 
   "Insert a save theorem command into the script buffer, issue it."
   (interactive)
   (if (proof-toolbar-qed-enable-p)
