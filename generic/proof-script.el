@@ -496,16 +496,6 @@ Names must be unique for a given "
   (interactive)
   (pg-show-all-portions "proof" 'hide))
 
-;;(defun pg-toggle-proof-visibility ()
-;;  (interactive))
-;; If any proof element is invisible, show all, else hide all.
-
-; see pg-user.el for span-context-menu default.
-; (defun pg-proof-element-menu (name)
-;  `(,(concat "Proof of " name)
-;    ["Show"  (pg-make-element-visible "proof" ,name)]
-;    ["Hide"  (pg-make-element-invisible "proof" ,name)]))
-
 (defun pg-add-proof-element (name span)
   (pg-add-element "proof" name span)
   (set-span-property span 'name name)
@@ -1248,14 +1238,13 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; the name of a dependency of that span 
 	;; depcs-within-file returns the names of all the theorems that
 	;; the span depends on which are in the same file as the theorem.
-
+	;; See proof-depends.el for code.
 	(if proof-last-theorem-dependencies
 	    (progn 
 	      (if (boundp 'proof-deps-menu) 
 		  (easy-menu-remove proof-deps-menu))
 	      (set-span-property gspan 'dependencies 
 				 proof-last-theorem-dependencies)
-	      (set-span-property gspan 'keymap pg-span-context-menu-keymap)
 	      (if buffer-file-name
 		  (let* 
 		      ((buffer-file-name-sans-path
@@ -1263,12 +1252,12 @@ the ACS is marked in the current buffer. If CMD does not match any,
 		       (buffer-file-name-sans-extension
 			(car (split-string buffer-file-name-sans-path "\\.")))
 		       (depcs-within-file-list 
-			(dependencies-within-file-list 
+			(proof-dependencies-within-file-list 
 			 proof-last-theorem-dependencies 
 			 buffer-file-name-sans-extension)))
 		    (set-span-property gspan 'dependencies-within-file
 				       depcs-within-file-list)
-		    (update-dependents depcs-within-file-list 
+		    (proof-update-dependents depcs-within-file-list 
 				       buffer-file-name-sans-path 
 				       buffer-file-name-sans-extension 
 				       (span-property gspan 'name))
@@ -1284,9 +1273,10 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	      ;; da: this code was outside if, I've put it inside now
 	      (setq proof-last-theorem-dependencies nil)
 	      (setq proof-thm-names-of-files 
-		    (merge-names-list-it (span-property gspan 'name) 
-					 (buffer-name (span-object gspan)) 
-					 proof-thm-names-of-files))))
+		    (proof-merge-names-list-it 
+		     (span-property gspan 'name) 
+		     (buffer-name (span-object gspan)) 
+		     proof-thm-names-of-files))))
 
 	;; In Coq, we have the invariant that if we've done a save and
 	;; there's a top-level declaration then it must be the
