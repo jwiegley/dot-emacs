@@ -136,7 +136,7 @@ Isabelle.
 * LEGO Proof General::          
 * Coq Proof General::           
 * Isabelle Proof General::      
-* Adapting Proof General to New Provers::  
+* Adapting Proof General to Other Provers::  
 * Internals of Proof General::  
 * Obtaining and Installing Proof General::  
 * Known bugs and workarounds::  
@@ -213,7 +213,7 @@ Isabelle Proof General
 * Isabelle specific commands::  
 * Isabelle customizations::     
 
-Adapting Proof General to New Provers
+Adapting Proof General to Other Provers
 
 * Overview of adding a new prover::            
 * Major modes used by Proof General::  
@@ -263,7 +263,7 @@ Plans and ideas
 @end ifinfo
 
 @node Preface
-@chapter Preface
+@unnumbered Preface
 
 @menu
 * Credits::                     
@@ -324,14 +324,13 @@ Back then, Emacs militants worked directly with the Emacs shell to
 interact with the LEGO system. 
 
 David Aspinall managed to convince Thomas Kleymann that programming in
-Emacs Lisp isn't so difficult after all. In fact, Aspinall had at the
-time already implemented an Emacs interface for Isabelle with bells and
-whistles, called
-@uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}. Soon after, the
-package @code{lego-mode} was born. Users were able to develop proof
-scripts in one buffer. Support was provided to automatically send parts
-of the script to the proof process. The last official version with the
-name @code{lego-mode} (1.9) was released in May 1995.
+Emacs Lisp isn't so difficult after all. In fact, Aspinall had already
+implemented an Emacs interface for Isabelle with bells and whistles,
+called @uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}. Soon
+after, the package @code{lego-mode} was born. Users were able to develop
+proof scripts in one buffer. Support was provided to automatically send
+parts of the script to the proof process. The last official version with
+the name @code{lego-mode} (1.9) was released in May 1995.
 
 @cindex proof by pointing 
 The interface project really took off the ground in November 1996. Yves
@@ -563,7 +562,7 @@ proof assistants if you know a little bit of Emacs Lisp.
 @itemize @bullet
 @item
 @b{Your Proof General} for your favourite proof assistant@*
-@xref{Adapting Proof General to New Provers}
+@xref{Adapting Proof General to Other Provers}
 for more details of how to make Proof General work
 with another proof assistant.
 @end itemize
@@ -978,8 +977,8 @@ Set point after next @samp{@code{proof-terminal-char}}.
 
 @vindex proof-terminal-char
 The variable @code{proof-terminal-char} is a prover-specific character to
-terminate proof commands. LEGO and Isabelle use @code{;}. Coq employs
-@code{.}. 
+terminate proof commands. LEGO and Isabelle use @samp{;}. Coq employs
+@samp{.}. 
 
 
 @c TEXI DOCSTRING MAGIC: proof-goto-command-start
@@ -1072,7 +1071,7 @@ Process the current buffer and set point at the end of the buffer.
 @c TEXI DOCSTRING MAGIC: proof-active-terminator-minor-mode
 @deffn Command proof-active-terminator-minor-mode &optional arg
 Toggle Proof General's active terminator minor mode.
-With arg, turn on the Active Terminator minor mode if and only if arg
+With @var{arg}, turn on the Active Terminator minor mode if and only if @var{arg}
 is positive.
 
 If active terminator mode is enabled, pressing a terminator will automatically activate @samp{@code{proof-assert-next-command}} for convenience.
@@ -1539,7 +1538,7 @@ There are two kinds of customization for Proof General: it can be
 customized for a user's preferences using a particular proof assistant,
 or it can be customized by an Emacs expert to add a new proof assistant.
 Here we cover the user-level customization for Proof General,
-see @ref{Adapting Proof General to New Provers} for how to configure
+see @ref{Adapting Proof General to Other Provers} for how to configure
 for a new proof assistant.
 
 We only consider settings for Proof General itself.  The support for a
@@ -1852,7 +1851,7 @@ Web address for information on proof assistant
 @end defvar
 
 Most of the others are more complicated.  For more details of the settings,
-see @ref{Adapting Proof General to New Provers}.  To browse
+see @ref{Adapting Proof General to Other Provers}.  To browse
 them, you can look through the customization groups
 @code{prover-config}, @code{proof-script} and @code{proof-shell}.  The
 group @code{proof-script} contains the configuration variables for
@@ -2187,8 +2186,8 @@ You can use the following format characters:
 
 
 
-@node Adapting Proof General to New Provers
-@chapter Adapting Proof General to New Provers
+@node Adapting Proof General to Other Provers
+@chapter Adapting Proof General to Other Provers
 
 Proof General has about 60 configuration variables which are set on a
 per-prover basis to configure the various features.  It may sound like a
@@ -2198,7 +2197,7 @@ can begin by setting just a few variables to get the basic features of
 script management working.
 
 The configuration variables are declared in the file
-@file{generic/proof-config.el}.  Documentation below is based on the
+@file{generic/proof-config.el}.  The documentation below is based on the
 contents of that file.
 
 @menu
@@ -2252,8 +2251,9 @@ more details.
  variables.
 @end itemize
 
-You could begin by setting minimum number of the variables, then adjust
-the settings via the customize menus, under Proof-General -> Internals.
+You could begin by setting a minimum number of the variables, then
+adjust the settings via the customize menus, under Proof-General ->
+Internals.
 
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-table
@@ -2329,14 +2329,14 @@ Command to display proof state in proof assistant.
 @c TEXI DOCSTRING MAGIC: proof-goal-command
 @defvar proof-goal-command 
 Command to set a goal in the proof assistant.  String or fn.
-If a string, the format character %s will be replaced by the
+If a string, the format character @samp{%s} will be replaced by the
 goal string. If a function, should return a command string to
 insert when called interactively.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-save-command
 @defvar proof-save-command 
 Command to save a proved theorem in the proof assistant.  String or fn.
-If a string, the format character %s will be replaced by the
+If a string, the format character @samp{%s} will be replaced by the
 theorem name. If a function, should return a command string to
 insert when called interactively.
 @end defvar
@@ -2387,7 +2387,7 @@ func-menu configuration in proof-script-find-next-goalsave.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-script-next-entity-regexps
 @defvar proof-script-next-entity-regexps 
-Regular expressions to control finding definitions in script.
+Regular expressions to help find definitions and proofs in a script.
 This is the list of the form
 @lisp
    (@var{anyentity-regexp}
@@ -2632,15 +2632,14 @@ Hooks run by @code{proof-shell-insert} before inserting a command.
 Can be used to configure the proof assistant to the interface in
 various ways -- for example, to observe or alter the commands sent to
 the prover, or to sneak in extra commands to configure the 
-prover (e.g. setting the pretty printer's line width if a window 
-width size has changed).
+prover (@var{lego} uses this to set the pretty printer's line width if 
+the window width has changed).
 
-This hook is called by @code{proof-shell-insert}.  The call takes place
-inside a @code{save-excursion} with the @code{proof-shell-buffer} current, just
-before inserting the text in the variable @var{string}.  The hook can
-massage @var{string} or insert additional text directly into the
-@code{proof-shell-buffer}.  Before sending @var{string}, it will be stripped of
-carriage returns.
+This hook is called inside a @code{save-excursion} with the @code{proof-shell-buffer} 
+current, just before inserting and sending the text in the 
+variable @var{string}.  The hook can massage @var{string} or insert additional 
+text directly into the @code{proof-shell-buffer}.  
+Before sending @var{string}, it will be stripped of carriage returns.
 
 NB: You should be very careful about setting this hook.  Proof General
 relies on a careful synchronization with the process between inputs
@@ -2753,7 +2752,7 @@ are disabled.
 
 @c TEXI DOCSTRING MAGIC: pbp-change-goal
 @defvar pbp-change-goal 
-Command to change to the goal %s
+Command to change to the goal @samp{%s}
 @end defvar
 @c TEXI DOCSTRING MAGIC: pbp-goal-command
 @defvar pbp-goal-command 
@@ -3031,7 +3030,7 @@ Flag indicating that a completed proof has just been observed.
 
 The @file{proof.el} also loads @file{proof-config.el} which declares the
 proof assistant configuration variables for Proof General.
-@xref{Adapting Proof General to New Provers} for details.
+@xref{Adapting Proof General to Other Provers} for details.
 
 
 @node Proof script mode
