@@ -53,15 +53,14 @@ all:	$(ELC)
 .el.elc:
 	$(BYTECOMP) $*.el
 
+## scripts: try to patch bash scripts with path to bash 
+## 
 ##
-##
-##
-
 scripts:
 	@(bash="`which bash`"; \
 	 if [ -z "$$bash" ]; then \
-	   echo "could not find bash!" >&2; \
-	   exit 1; \
+	   echo "Could not find bash - bash path not checked" >&2; \
+	   exit 0; \
 	 fi; \
 	 for i in $(BASH_SCRIPTS); do \
 	   sed "s|^#.*!.*/bin/bash.*$$|#!$$bash|" < $$i > .tmp \
