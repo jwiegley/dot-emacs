@@ -3,7 +3,7 @@ FAQs for using Proof General
 
 With thanks to the anonymous authors of questions/answers below.
 
-For latest version, see http://www.proofgeneral.org/FAQ
+For latest version, see http://proofgeneral.inf.ed.ac.uk/FAQ
 Please also check the BUGS file.
 
 -----------------------------------------------------------------
@@ -52,7 +52,7 @@ A. Please check the documentation carefully, particularly the
    requirements for a full-featured and recent Emacs version, as
    mentioned in INSTALL (see "Dependency on Other Emacs Packages").  
    If you still cannot solve your problem, send a message to
-   support@proofgeneral.org in the first instance.
+   da+pg-support@inf.ed.ac.uk in the first instance.
 
 -----------------------------------------------------------------
 

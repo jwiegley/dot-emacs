@@ -1,9 +1,9 @@
 -*- outline -*-
 
----   This is a development release of Proof General,     ---
----   some features may be incomplete or buggy.  Please   ---
----   report any problems to support@proofgeneral.org,    ---
----   thanks.  Check files BUGS and <prover>/BUGS first.  ---
+---   This is a development release of Proof General,      ---
+---   some features may be incomplete or buggy.  Please    ---
+---   report any problems to da+pg-support@inf.ed.ac.uk    ---
+---   thanks.  Check files BUGS and <prover>/BUGS first.   ---
 
 
 * Summary of Changes for Proof General 3.5pre from 3.4
