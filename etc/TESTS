@@ -54,6 +54,11 @@ Some test cases for Proof General.
 
   Process should exit cleanly.
   
+15.1.99  LONG-LINE AND BACKSLASH PROBLEM ON SOLARIS
+===================================================
+
+  Test that etc/isa/long-line-backslash.ML can be processed
+  successfully.
 
     
   
