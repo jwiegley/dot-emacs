@@ -6,6 +6,22 @@ Test cases for PG and/or Emacs bugs.
 
 ----------------
 
+* Coq, and others bug: synchronization not gained until second line.
+
+Test in Coq buffer:
+
+  Print foo.
+
+Should give error, but PG ignores it and colours command blue.
+Similar errors for some other provers.
+
+[ Now fixed in 3.2pre ]
+
+
+
+
+----------------
+
 * XEmacs bug: buffer-syntactic-context-depth returns weird values
 
 Seems to depend on previous history.  Test in Coq buffer:
