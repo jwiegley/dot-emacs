@@ -70,7 +70,7 @@
 @ifinfo
 @format
 START-INFO-DIR-ENTRY 
-* Proof General Adapting: (PG-adapting). How to adapt Proof General for new provers
+* Adapting Proof General: (PG-adapting).  Adapt Proof General to new provers
 END-INFO-DIR-ENTRY
 @end format
 @end ifinfo
