@@ -257,11 +257,8 @@ files which are out of date with respect to the loaded buffers!"
   :type 'boolean
   :group 'proof-user-options)
 
-(defpgcustom script-indent nil
-  "*If non-nil, enable indentation code for proof scripts.
-Currently the indentation code can be rather slow for large scripts,
-and is critical on the setting of regular expressions for particular
-provers.  Enable it if it works for you, turn it off if it's too slow."  
+(defpgcustom script-indent t
+  "*If non-nil, enable indentation code for proof scripts."
   :type 'boolean 
   :group 'proof-user-options)
 
@@ -966,6 +963,8 @@ default."
 ;; FIXME da: why do you need the span below?   I would like to replace
 ;;  this mess by single config variables which are allowed to be
 ;;  regexps or functions, handled in proof-string-match.
+;; FIXME mmw: the span is required to scan backwards through the text,
+;;  determining the depth of proof nesting.
 (defcustom proof-really-save-command-p (lambda (span cmd) t)
   "Is this really a save command?"
   :type 'function
@@ -1142,26 +1141,58 @@ for scripting commands), unless activated-interactively is set."
 
 ;;
 ;; Proof script indentation
-;; FIXME: document this stuff
 ;;
 
-(defcustom proof-stack-to-indent nil
-  "Prover-specific code for indentation."
-  :type 'sexp
+(defcustom proof-indent 2
+  "Amount of proof script indentation."
+  :type 'number
   :group 'proof-script)
 
-(defcustom proof-parse-indent nil
-  "Proof-assistant specific function for parsing.
-Invoked in `proof-parse-to-point'. Must be a
-function taking two arguments, a character (the current character)
-and a stack reflecting indentation, and must return a stack. The
-stack is a list of the form (c . p) where `c' is a character
-representing the type of indentation and `p' records the column for
-indentation. The generic `proof-parse-to-point' function supports
-parentheses and commands. It represents these with the characters
-`?\(', `?\[' and `proof-terminal-char'. "
-  :type 'sexp
+(defcustom proof-indent-hang nil
+  "Enable 'hanging' indentation for proof script."
+  :type 'boolean
   :group 'proof-script)
+
+(defcustom proof-indent-enclose-offset 1
+  "Extra offset for enclosing indentation syntax elements."
+  :type 'number
+  :group 'proof-script)
+
+(defcustom proof-indent-open-offset 1
+  "Extra offset for opening indentation syntax elements."
+  :type 'number
+  :group 'proof-script)
+
+(defcustom proof-indent-close-offset 1
+  "Extra offset for closing indentation syntax elements."
+  :type 'number
+  :group 'proof-script)
+
+(defcustom proof-indent-any-regexp "\\s(\\|\\s)"
+  "Regexp for *any* syntax element guiding proof script indentation."
+  :type 'string
+  :group 'proof-script)
+
+(defcustom proof-indent-inner-regexp nil
+  "Regexp for text within syntax elements of proof script indentation."
+  :type 'string
+  :group 'proof-script)
+
+(defcustom proof-indent-enclose-regexp nil
+  "Regexp for enclosing syntax elements of proof script indentation."
+  :type 'string
+  :group 'proof-script)
+
+(defcustom proof-indent-open-regexp "\\s("
+  "Regexp for opening syntax elements of proof script indentation."
+  :type 'string
+  :group 'proof-script)
+
+(defcustom proof-indent-close-regexp "\\s)"
+  "Regexp for closing syntax elements of proof script indentation."
+  :type 'string
+  :group 'proof-script)
+
 
 (defcustom proof-font-lock-zap-commas nil
   "If non-nil, enable a font-lock hack which unfontifies commas.
