@@ -508,4 +508,34 @@ See `x-symbol-language-access-alist' for details."
 (defvar x-symbol-isabelle-nomule-encode-exec nil
   "Internal.  File name of Isasym encode executable.")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; DA: experiments here for X-Symbol 4.45
+;;
+(defcustom x-symbol-isabelle-auto-style
+  '((not (memq major-mode '(isar-mode isa-mode)))
+    (x-symbol-auto-coding-alist x-symbol-isabelle-auto-coding-alist)
+    x-symbol-coding (not x-symbol-mode)
+    x-symbol-mode x-symbol-mode)
+  "TODO"
+  :group 'x-symbol-isabelle
+  :group 'x-symbol-mode
+  :type 'x-symbol-auto-style)
+
+(defcustom x-symbol-isabelle-auto-coding-alist
+  '((
+     ("iso-8859-1" . iso-8859-1)
+     ("iso-8859-2" . iso-8859-2)
+     ("iso-8859-3" . iso-8859-3)
+     ("iso-8859-9" . iso-8859-9)
+     ("iso-8859-15" . iso-8859-15)))
+  "*Alist used to determine the file coding of ISABELLE buffers.
+Used in the default value of `x-symbol-auto-mode-alist'.  See
+variable `x-symbol-auto-coding-alist' for details."
+  :group 'x-symbol-isabelle
+  :group 'x-symbol-mode
+  :type 'x-symbol-auto-coding)
+
+     
+
 (provide 'x-symbol-isabelle)
