@@ -1,6 +1,12 @@
 (require 'proof)			; load generic parts
 (require 'sym-lock)
 
+;; Adjust toolbar entries.  (Must be done
+;; before proof-toolbar is loaded).
+
+(setq af2-toolbar-entries
+      (remassoc 'state af2-toolbar-entries))
+
 ;; ======== User settings for Af2 ========
 ;;
 ;; Defining variables using customize is pretty easy.
@@ -100,7 +106,7 @@
 (defun af2-tags-add-table(table)
   "add tags table"
   (interactive "D directory, location of a file named TAGS to add : ")
-  (if af2-with-xemacs
+  (if proof-running-on-XEmacs
       (let ((association (cons buffer-file-name table)))
 	(if (member association tag-table-alist)
 	    (message (concat table " already loaded."))
@@ -118,7 +124,7 @@
   "Set tags-table-list to nil."
   (interactive)
 ;  (make-local-variable 'tags-table-list)
-  (if af2-with-xemacs
+  (if proof-running-on-XEmacs
       (setq tag-table-alist (remassoc buffer-file-name tag-table-alist))
     (setq tags-table-list nil))
   )
