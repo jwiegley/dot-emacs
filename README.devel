@@ -1,0 +1,48 @@
+-*- outline -*-
+
+* Developers Notes for Proof General
+====================================
+
+David Aspinall,  March 2000.
+
+$Id$
+
+Notes here about development conventions and compatibility
+issues.  Please read if you contribute to Proof General!
+
+
+
+** Coding Standards
+
+When writing your modes, please follow the Emacs Lisp Conventions
+See the Emacs Lisp reference manual, node Style Tips.
+
+
+** Using custom library
+
+Please use custom library for all variable declarations, apart from
+very low-level variables.  Follow the customize group conventions
+laid out in generic/proof-config.el
+
+
+** Compatibility with different Emacsen
+
+One of the greatest problems in developing Proof General is
+maintaining compatibility across different versions of Emacs.
+
+XEmacs is the primary development (and use) platform, but we'd like to
+maintain compatibility with FSF Emacs, and the Japanicised versions of
+that.
+
+Hopefully one day we may have a proper test suite and mechanism to
+test across different versions of Emacs.  For the time being, be care
+of the following tips (gathered from experience).
+
+*** Common Lisp macros  -- Japan Emacsen have older versions
+
+ - Use (dolist (var list) body), not (dolist (var list result) body).
+
+
+
+
+
