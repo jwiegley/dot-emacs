@@ -5,6 +5,10 @@
 
 
 ;; $Log$
+;; Revision 1.41  1998/05/06 15:54:50  hhg
+;; Changed lego-undoable-commands-regexp to have "andI" and "andE"
+;; instead of "AndI" and "AndE".
+;;
 ;; Revision 1.40  1998/05/06 15:29:30  hhg
 ;; Added lego-info-dir so that location of script-management.info can be
 ;; hard-coded.
@@ -204,7 +208,7 @@
 (defvar lego-undoable-commands-regexp
   (ids-to-regexp '("Dnf" "Refine" "Intros" "intros" "Next" "Normal"
   "Qrepl" "Claim" "For" "Repeat" "Succeed" "Fail" "Try" "Assumption"
-  "UTac" "Qnify" "AndE" "AndI" "exE" "exI" "orIL" "orIR" "orE" "ImpI"
+  "UTac" "Qnify" "andE" "andI" "exE" "exI" "orIL" "orIR" "orE" "ImpI"
   "impE" "notI" "notE" "allI" "allE" "Expand" "Induction" "Immed"
   "Invert")) "Undoable list")
 
