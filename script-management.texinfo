@@ -43,7 +43,7 @@ modes exist for LEGO and Coq.
 
 @node Credits, Introduction, Top, Top
 @comment node-name, next,          previous, up
-@section Credits
+@unnumberedsec Credits
 
 Inspired by Yves Bertot's Centaur-based proof environment CtCoq, Healf
 Goguen, Thomas Kleymann and Dilip Sequeira have implented a generic
@@ -53,7 +53,7 @@ Sequeira.
 
 @node Introduction, Commands, Credits, Top
 @comment node-name, next,          previous, up
-@section Introduction
+@unnumberedsec Introduction
 
 Each script resides in an Emacs buffer, called a @emph{script buffer},
 which is divided into three regions:
@@ -105,7 +105,7 @@ assertion and retraction commands can only be issued when the queue is
 empty.
 
 @node Commands, Multiple Files, Introduction, Top
-@section Proof Mode Commands
+@unnumberedsec Proof Mode Commands
 
 @table @kbd
 
@@ -141,7 +141,7 @@ display the proof state in the response buffer
 display the context in the response buffer
 
 @item C-c h
-print LEGO help text in the response buffer
+print proof-system specific help text in the response buffer
 
 @item C-c C-c
 interrupt the process process. This may leave script management or the
@@ -168,12 +168,12 @@ restart script management.
 
 
 @node Multiple Files, An Active Terminator, Commands, Top
-@section Multiple Files
+@unnumberedsec Multiple Files
 
 Proof mode has a rudimentary facility for operating with multiple files
-in a LEGO proof development. If the user invokes script management in a
-different buffer from the one in which it is running, one of two prompts
-will appear:
+in a proof development. This is currently only supported for LEGO. If
+the user invokes script management in a different buffer from the one in
+which it is running, one of two prompts will appear:
 
 @itemize @bullet
 @item ``Steal script management?'' 
@@ -205,7 +205,7 @@ LEGOPATH will be the LEGOPATH you started with. No concept of
 @end itemize
 
 @node An Active Terminator, Proof by Pointing, Multiple Files, Top
-@section An Active Terminator
+@unnumberedsec An Active Terminator
 
 Proof mode has a minor mode which causes the terminator to become
 active. When this mode is active, pressing the terminator key (@kbd{;}
@@ -217,7 +217,7 @@ This mode can be toggled with the command
 `proof-active-terminator-minor-mode' (@kbd{C-c ;} or @kbd{C-c .})
 
 @node Proof by Pointing, Walkthrough, An Active Terminator, Top
-@section Proof by Pointing
+@unnumberedsec Proof by Pointing
 
 @emph{This mode is currently very unreliable, and we do not guarantee
 that it will work as discussed in this document.}
@@ -315,7 +315,7 @@ Clicking on @samp{q x} proves the goal.
 
 
 @node Walkthrough, LEGO mode, Proof by Pointing, Top
-@section A Walkthrough
+@unnumberedsec A Walkthrough
 
 Here's a LEGO example of how script management is used.
 
@@ -359,7 +359,7 @@ buffer, and type @kbd{C-c return}.  Proof mode queues the commands for
 processing and executes them.
 
 @node LEGO mode, Coq mode, Walkthrough, Top
-@section LEGO mode
+@unnumberedsec LEGO mode
 
 LEGO mode is a mode derived from proof mode for editing LEGO scripts.
 There are some abbreviations for common commands, which
@@ -376,7 +376,7 @@ Refine
 
 
 @node Coq mode, Known Problems, LEGO mode, Top
-@section Coq mode
+@unnumberedsec Coq mode
 
 Coq mode is a mode derived from proof mode for editing Coq scripts.
 As well as custom popup menus, it has the following commands:
@@ -400,7 +400,7 @@ Apply
 @end table
 
 @node Known Problems, Internals, Coq mode, Top
-@section Known Problems
+@unnumberedsec Known Problems
 
 Since Emacs is pretty flexible, there are a whole bunch of things you
 can do to confuse script management. When it gets confused, it may
@@ -433,7 +433,7 @@ because the relevant mark is in the namespace.
 Fixes for some of these may be provided in a future release.
 
 @node Internals,  , Known Problems, Top
-@section Internals
+@unnumberedsec Internals
 
 I may one day document the script management internals here. Until then,
 UtSL.
