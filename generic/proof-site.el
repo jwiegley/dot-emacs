@@ -59,19 +59,20 @@ variable proof-home-directory."
   :group 'proof-general-internals)
 
 
+
+
 ;; Directories
+
 (defun proof-home-directory-fn ()
   "Used to set proof-home-directory"
   (let ((s (getenv  "PROOFGENERAL_HOME")))
-    (cond 
-     (s (if (string-match "/$" s) 
-	    s
-	  (concat s "/")))
-     (let ((curdir 
-	    (or
-	     (and load-in-progress (file-name-directory load-file-name))
-	     (file-name-directory (buffer-file-name)))))
-       (file-name-directory (substring curdir 0 -1))))))
+    (if s
+	(if (string-match "/$" s) s (concat s "/"))
+      (let ((curdir 
+	     (or
+	      (and load-in-progress (file-name-directory load-file-name))
+	      (file-name-directory (buffer-file-name)))))
+	(file-name-directory (substring curdir 0 -1))))))
 
 (defcustom proof-home-directory
   (proof-home-directory-fn)
