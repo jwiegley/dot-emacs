@@ -800,17 +800,25 @@ The default value is \"\\n\" to match up to the end of the line."
 (defcustom proof-shell-insert-hook nil 
   "Hooks run by proof-shell-insert before inserting a command.
 Can be used to configure the proof assistant to the interface in
-various ways (for example, setting the line width of output).
-Any text inserted by these hooks will be sent to the proof process
-before every command issued by Proof General.
+various ways -- for example, to observe or alter the commands sent to
+the prover, or to sneak in extra commands to configure the 
+prover (e.g. setting the pretty printer's line width if a window 
+width size has changed).
 
-NB: You should be very careful about setting this hook. 
-Proof General relies on a careful synchronization with
-the process between inputs and outputs.  It expects to see
-a prompt for each input it sends from the queue.  If your
-extra input here causes more prompts than expected, things
-will break!  Probably any insertions made should not have 
-carriage returns."
+This hook is called by proof-shell-insert.  The call takes place
+inside a save-excursion with the proof-shell-buffer current, just
+before inserting the text in the variable STRING.  The hook can
+massage STRING or insert additional text directly into the
+proof-shell-buffer.  Before sending STRING, it will be stripped of
+carriage returns.
+
+NB: You should be very careful about setting this hook.  Proof General
+relies on a careful synchronization with the process between inputs
+and outputs.  It expects to see a prompt for each input it sends from
+the queue.  If you add extra input here and it causes more prompts
+than expected, things will break!  Massaging the STRING variable
+may be safer since it is stripped of carriage returns 
+before being sent."
   :type '(repeat function)
   :group 'proof-shell)
 
@@ -888,13 +896,6 @@ documentation of `proof-shell-process-output' for the required
 output format."
   :type '(cons (function function))
   :group 'proof-shell)
-
-(defcustom proof-shell-preprocess-command nil
-   "Any preprocessing required for a command, e.g. stripping comments.
-This function will be applied to each string sent to the process."
-   :type 'function
-   :group 'proof-shell)
-
 
 
 
