@@ -54,14 +54,6 @@
 ;; Internal variables used by proof shell
 ;;
 
-(defvar proof-re-end-of-cmd nil 
-  "Regexp matching end of command.  Based on proof-terminal-string.
-Set in proof-shell-mode.")
-
-(defvar proof-re-term-or-comment nil 
-  "Regexp matching terminator, comment start, or comment end.
-Set in proof-shell-mode.")
-
 (defvar proof-marker nil 
   "Marker in proof shell buffer pointing to previous command input.")
 
@@ -1770,15 +1762,13 @@ Calls proof-state-change-hook."
 
 ;;;###autoload
 (defun proof-shell-invisible-command (cmd &optional wait)
-  "Send CMD to the proof process.  Add terminal string if necessary.
+  "Send CMD to the proof process.  
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
 If WAIT is an integer, wait for that many seconds afterwards."
   (if wait (proof-shell-wait))
   (proof-shell-ready-prover)		; start proof assistant; set vars.
-  (if (not (string-match proof-re-end-of-cmd cmd))
-      (setq cmd (concat cmd proof-terminal-string)))
   (proof-start-queue nil nil
 		     (list (proof-shell-command-queue-item 
 			    cmd 'proof-done-invisible)))
@@ -1837,14 +1827,6 @@ If WAIT is an integer, wait for that many seconds afterwards."
   (setq proof-shell-urgent-message-scanner (make-marker))
   (set-marker proof-shell-urgent-message-scanner (point-min))
 
-  (setq proof-re-end-of-cmd 
-	(concat "\\s_*" 
-		(regexp-quote proof-terminal-string)
-		"\\s_*\\\'"))
-  (setq proof-re-term-or-comment 
-	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
-		"\\|" (regexp-quote proof-comment-end)))
-  
   ;; easy-menu-add must be in the mode function for XEmacs.
   (easy-menu-add proof-shell-mode-menu proof-shell-mode-map)
 
@@ -1895,17 +1877,20 @@ processing."
 
       ;; Flush pending output from startup (it gets hidden from the user)
       ;; while waiting for the prompt to appear
-      (while (null (marker-position proof-marker))
+      (while (and (process-live-p proc)
+		  (null (marker-position proof-marker)))
 	(accept-process-output proc 1))
 
-      ;; Send main intitialization command and wait for it to be
-      ;; processed.   Also ensure that proof-action-list is initialised. 
-      (setq proof-action-list nil)
-      (if proof-shell-init-cmd
-	  (proof-shell-invisible-command proof-shell-init-cmd t))
+      (if (process-live-p proc)
+	  (progn
+	    ;; Send main intitialization command and wait for it to be
+	    ;; processed.   Also ensure that proof-action-list is initialised. 
+	    (setq proof-action-list nil)
+	    (if proof-shell-init-cmd
+		(proof-shell-invisible-command proof-shell-init-cmd t))
       
-      ;; Configure for x-symbol
-      (proof-x-symbol-shell-config))))
+	    ;; Configure for x-symbol
+	    (proof-x-symbol-shell-config))))))
 
 
 ;;
