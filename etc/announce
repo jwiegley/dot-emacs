@@ -51,11 +51,12 @@ To users of LEGO, Coq, and Isabelle:
 This release of Proof General should be stable enough for you to use
 happily.  Please try it and let us know what you think of it!
 
-We have put a lot of work into making Proof General robust and easy to
-install.  Ideally you should use it with XEmacs, but it also works
-with limited features in FSF Emacs.  We have tested on XEmacs 20.4 and
-Emacs 20.2, 20.3.  (It probably works with earlier versions of either
-Emacs but we cannot guarantee this).
+We have put a lot of work into the user documentation for Proof
+General and making it robust and easy to install.  Ideally you should
+use it with XEmacs, but it also works with limited features in FSF
+Emacs.  We have tested on XEmacs 20.4 and Emacs 20.2, 20.3.  (It
+probably works with earlier versions of either Emacs but we cannot
+guarantee this).
 
 To users of other proof assistants:
 -----------------------------------
