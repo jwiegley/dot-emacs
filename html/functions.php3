@@ -1,11 +1,12 @@
 <?php
 //
-// Dave's PHP3 Header
+// Dave's PHP Header
 //
 // Included in every page.  
-// Prints DTD and defines some useful functions.
+// Prints DTD, <html> opening tag,
+// and defines some useful functions.
 //
-// David Aspinall, June 1999.
+// David Aspinall, June 1999/2002.
 //
 // $Id$
 //
@@ -31,12 +32,26 @@ $project_full_title = $project_title . " --- " . $project_subtitle;
 
 if ($title == "") { $title = $project_title; }  // default page title.
 
+///////////////////////////////////////////////////////////////////
+//
 // DTD 
+//
 
 $dtd_strict = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n";
 $dtd_loose = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n";
+$xml_header="<?xml version=\"1.0\"?>";
+$dtd_xml_loose ="<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+$dtd_xml_strict ="<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
+$html="<html>\n";
+$xhtml="<html xmlns=\"http://www.w3.org/1999/xhtml\">\n";
 
 print $dtd_loose;
+print $html;
+
+//print $xml_header;
+//print $dtd_xml_strict;
+//print $xhtml;
+
 
 // Validator address
 
@@ -128,8 +143,6 @@ function date_modified($filename) {
 }
 
 function small_header($title) {
-  print $dtd;
-  print "<html>";
   include('head.html');
   include('smallheader.html'); 
   print "<h1>" . $title . "</h1>\n</td>\n</table>\n";
