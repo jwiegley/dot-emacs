@@ -56,7 +56,7 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
         same mechanism as proof-mmm. [Done; in testing]
      -- Check x-symbol support in provers other than Isabelle
 
-*** Finish/cleanup MMM support for Isar.  Document (but who reads it?)
+*** Finish/cleanup MMM support for Isar.  Document.
        Add MMM for other provers where relevant
 
 *** Isabelle support: can we somehow add "legacy" support for old 
@@ -69,6 +69,7 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
      (dependency info *after* response display loses)
 
 *** Check multiple file support in Isabelle -- maybe has become buggy
+     -- Test cases seem to work, still
 
 *** Coq issues that may be problematic:
      -- Auto-compile-vos (prob impossible to fix)
