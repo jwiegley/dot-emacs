@@ -324,7 +324,7 @@ dist:
 ############################################################
 ##
 ## develdist: make a distribution for developers from 
-##	  raw CVS sources.
+##	  raw CVS sources, updating the ChangeLog.
 ##	    
 develdist:
 	@echo "*************************************************"
@@ -332,7 +332,7 @@ develdist:
 	@echo "*************************************************"
 	mkdir -p $(DISTBUILDIR)
 	if [ -z "$(NOCVS)" ]; then \
-           (cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME)) \
+           (make devel.ChangeLog; cvs commit -m"Updated." ChangeLog; cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME)) \
 	else \
 	   mkdir -p $(DISTBUILDIR)/$(DEVELRELEASENAME); \
 	   cp -pr . $(DISTBUILDIR)/$(DEVELRELEASENAME); \
