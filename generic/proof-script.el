@@ -2555,7 +2555,7 @@ Clean up before a script buffer is killed.
 If killing the active scripting buffer, run proof-deactivate-scripting.
 Otherwise just do proof-restart-buffers to delete some spans from memory."
   ;; Deactivate scripting in the current buffer if need be, forcing
-  ;; retraction.
+  ;; automatic retraction if the buffer is not fully processed.
   (unwind-protect
       (if (eq (current-buffer) proof-script-buffer)
 	  (proof-deactivate-scripting 'retract))
