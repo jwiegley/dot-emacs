@@ -54,6 +54,7 @@ X Solaris bugs: font locking and button enabling.
 
 *** Scheduled improvements for 3.2
 
+**** A Doc new bits: proof-next-error
 
 **** A Doc new bits: font lock keywords, filename %e, %r.
   Added proof-{script,shell,goals,resp}-font-lock-keywords.
@@ -849,9 +850,6 @@ C New modules:
 
 
 ** 5. Things to do for Web Pages, Distribution
-
-
-*** A Update ETAPS demo
 
 *** B Add some one-stop-shop pages.  Ask permission to redistribute
   packages for PAs.  Maybe do Windows and Linux versions.
