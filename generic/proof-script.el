@@ -1764,7 +1764,7 @@ This sends an interrupt signal to the proof assistant, if Proof General
 thinks it is busy.  
 
 This command is risky because when an interrupt is trapped in the
-proof assistant, we don't know whether the last command succeeeded or
+proof assistant, we don't know whether the last command succeeded or
 not.  The assumption is that it didn't, which should be true most of
 the time, and all of the time if the proof assistant has a careful
 handling of interrupt signals."
