@@ -1,8 +1,21 @@
 Quick test for automatic multiple files:
 
+
+------
+
+1.
+
 Process a.v, b.v, c.v in turn.
-
 Undo in b.v
-
 Should automatically unlock c.v.
+
+
+------
+
+2. 
+
+Process as before.  
+Delete buffer b.v.
+Retract in a.v
+
 
