@@ -3,8 +3,14 @@
 ;;  Copyright   1998 Technische Universitaet Muenchen
 ;;; token language "Isabelle Symbols" for package x-symbol
 
-(provide 'x-symbol-isa)
 (defvar x-symbol-isa-required-fonts nil)
+
+;; FIXME da: these next two are also set in proof-x-symbol.el, but
+;; it's handy to use this file away from PG.  In future could
+;; fix things so just (require 'proof-x-symbol) would be enough
+;; here.
+(defvar x-symbol-isa-name "Isabelle Symbol")
+(defvar x-symbol-isa-modeline-name "isa")
 
 (defvar x-symbol-isa-header-groups-alist nil)
 ;'(("Operator" bigop operator)
@@ -223,3 +229,5 @@
 ;(global-set-key [(meta m)] 'x-symbol-INSERT-arrowdblright)
 
 ;(global-set-key [(meta i)] 'x-symbol-INSERT-longarrowright)
+
+(provide 'x-symbol-isa)
