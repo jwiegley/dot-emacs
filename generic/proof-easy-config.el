@@ -70,6 +70,7 @@
     (customize-set-variable 'proof-assistant name)
     (customize-set-variable 'proof-assistant-symbol sym))))
 
+;;;###autoload
 (defmacro proof-easy-config (sym name &rest body)
   "Configure Proof General for proof-assistant using BODY as a setq body."
   `(progn

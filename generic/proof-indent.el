@@ -5,16 +5,16 @@
 ;;
 ;; $Id$
 ;;
-;; FIXME: byte compile complains about not knowing
-;; proof-goto-end-of-locked, proof-locked-end
 
-(require 'proof)
+(require 'proof)			; loader
+(require 'proof-script)			; indent code is for script editing
 
+;;; FIXME: for compilation might be  nice
 ;;;
 ;;; To nuke byte compile warnings
 ;;;
-(require 'proof-syntax)			; for proof-indent-commands-regexp.
-(require 'proof-script)			; for proof-goto-end-of-locked,
+;(require 'proof-syntax)			; for proof-indent-commands-regexp.
+;(require 'proof-script)			; for proof-goto-end-of-locked,
 					; proof-locked-end
 
 
@@ -80,7 +80,8 @@
 
 	(forward-char forward-amount))
       (list instring cmt-level stack))))
-      
+
+;;;###autoload      
 (defun proof-indent-line ()
   "Indent current line of proof script"
   (interactive)
