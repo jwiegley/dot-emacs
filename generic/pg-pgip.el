@@ -46,8 +46,16 @@
 	 ((eq elt 'usespgml)
 	  (proof-debug "Received usespgml message, version %s"
 		       (pg-pgip-get-version "usespgml" attrs)))
-	 ;; <haspref>
+
+	 ;; FIXME: this next will be replaced by current version of
+	 ;; <haspref> in PG 4.0.  The <oldhaspref> is for
+	 ;; compatibility with Isabelle2004.
+	 ;; (Isabelle2003 will break with PG 4.0)
 	 ((eq elt 'haspref)
+	  (pg-pgip-haspref attrs (car-safe body)))
+	 
+	 ;; <oldhaspref>
+	 ((eq elt 'oldhaspref)
 	  (pg-pgip-haspref attrs (car-safe body)))
 	 
 	 ;; <prefval>
