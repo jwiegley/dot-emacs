@@ -924,14 +924,14 @@ scripting."
       ;; Give error if no non-whitespace between point and end of locked region.
       ;; FIXME da: a nasty mess
       (if (proof-only-whitespace-to-locked-region-p)
-	  (error "I don't know what I should be doing in this buffer!"))
+	  (error "There's nothing to do in this buffer!"))
       ;; NB: (point) has now been moved backwards to first non-whitespace char.
       (setq semis (proof-segment-up-to (point))))
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (null semis))
-	  (error "I don't know what I should be doing in this buffer!"))
+	  (error "There's nothing to do in this buffer!"))
       (goto-char (nth 2 (car semis)))
       (and (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
