@@ -1,69 +1,82 @@
-(* depends.ML
+(* ProofGenearal/isa/depends.ML
 
    Experimental code for communicating theorem dependencies from Isabelle
    to Proof General.
 
-   This code is taken from thm_deps.ML in Isabelle 99-2.  It's incompatible
-   with other Isabelle versions.
+   This code is taken from thm_deps.ML in Isabelle 2002.  
+   It's probably incompatible with other Isabelle versions.
 
    It is duplicated almost verbatim because what we need is
    hardwired to a call on the browser tool.
 *)
 
+(*  Title:      Pure/Thy/thm_deps.ML
+    ID:         Id: thm_deps.ML,v 1.12 2001/11/19 16:42:00 berghofe Exp
+    Author:     Stefan Berghofer, TU Muenchen
+    License:    GPL (GNU GENERAL PUBLIC LICENSE)
 
-fun depends_enable () = Thm.keep_derivs := ThmDeriv;
-fun depends_disable () = Thm.keep_derivs := MinDeriv;
+Visualize dependencies of theorems.
+*)
 
+signature BASIC_THM_DEPS =
+sig
+  val new_thm_deps : thm list -> unit
+end;
 
+signature PG_THM_DEPS =
+sig
+  include BASIC_THM_DEPS
+  val enable : unit -> unit
+  val disable : unit -> unit
+end;
 
-fun is_internal (name, tags) = name = "" orelse Drule.has_internal tags;
+structure PGThmDeps : PG_THM_DEPS =
+struct
 
-fun is_thm_axm (Theorem x) = not (is_internal x)
-  | is_thm_axm (Axiom x) = not (is_internal x)
-  | is_thm_axm _ = false;
+open Proofterm;
 
-fun get_name (Theorem (s, _)) = s
-  | get_name (Axiom (s, _)) = s
-  | get_name _ = "";
+fun enable () = if ! proofs = 0 then proofs := 1 else ();
+fun disable () = proofs := 0;
 
-fun make_deps_graph ((gra, parents), Join (ta, ders)) =
-  let
-    val name = get_name ta;
-  in
-    if is_thm_axm ta then
-      if is_none (Symtab.lookup (gra, name)) then
-        let
-          val (gra', parents') = foldl make_deps_graph ((gra, []), ders);
-          val prefx = #1 (Library.split_last (NameSpace.unpack name));
-          val session =
-            (case prefx of
-              (x :: _) =>
-                (case ThyInfo.lookup_theory x of
-                  Some thy =>
-                    let val name = #name (Present.get_info thy)
-                    in if name = "" then [] else [name] end 
-                | None => [])
-             | _ => ["global"]);
-        in
-          (Symtab.update ((name,
-            {name = Sign.base_name name, ID = name,
-             dir = space_implode "/" (session @ prefx),
-             unfold = false, path = "", parents = parents'}), gra'), name ins parents)
-        end
-      else (gra, name ins parents)
-    else
-      foldl make_deps_graph ((gra, parents), ders)
-  end;
+fun dest_thm_axm (PThm (nt, prf, _, _)) = (nt, prf)
+  | dest_thm_axm (PAxm (n, _, _)) = ((n ^ " (Ax)", []), MinProof [])
+  | dest_thm_axm _ = (("", []), MinProof []);
 
-fun thm_deps thms =
-  let
-    val _ = writeln "Generating graph ...";
-    val gra = map snd (Symtab.dest (fst (foldl make_deps_graph ((Symtab.empty, []),
-      map (#2 o #der o Thm.rep_thm) thms))));
-    val path = File.tmp_path (Path.unpack "theorems.graph");
-    val _ = Present.write_graph gra path;
-    val _ = system ("$ISATOOL browser -d " ^ Path.pack (Path.expand path) ^ " &");
-  in () end;
+fun make_deps_graph (p, AbsP (_, _, prf)) = make_deps_graph (p, prf)
+  | make_deps_graph (p, Abst (_, _, prf)) = make_deps_graph (p, prf)
+  | make_deps_graph (p, prf1 %% prf2) =
+      make_deps_graph (make_deps_graph (p, prf1), prf2)
+  | make_deps_graph (p, prf % _) = make_deps_graph (p, prf)
+  | make_deps_graph (p, MinProof prfs) = foldl make_deps_graph (p, prfs)
+  | make_deps_graph (p as (gra, parents), prf) =
+      let val ((name, tags), prf') = dest_thm_axm prf
+      in
+        if name <> "" andalso not (Drule.has_internal tags) then
+          if is_none (Symtab.lookup (gra, name)) then
+            let
+              val (gra', parents') = make_deps_graph ((gra, []), prf');
+              val prefx = #1 (Library.split_last (NameSpace.unpack name));
+              val session =
+                (case prefx of
+                  (x :: _) =>
+                    (case ThyInfo.lookup_theory x of
+                      Some thy =>
+                        let val name = #name (Present.get_info thy)
+                        in if name = "" then [] else [name] end 
+                    | None => [])
+                 | _ => ["global"]);
+            in
+              if name mem parents' then (gra', parents union parents')
+              else (Symtab.update ((name,
+                {name = Sign.base_name name, ID = name,
+                 dir = space_implode "/" (session @ prefx),
+                 unfold = false, path = "", parents = parents'}), gra'),
+               name ins parents)
+            end
+          else (gra, name ins parents)
+        else
+          make_deps_graph ((gra, parents), prf')
+      end;
 
 fun new_thm_deps thms =
   let
@@ -73,6 +86,15 @@ fun new_thm_deps thms =
     val deps = sort_strings (foldl (op union) ([],(map #parents gra)))
     val msg = header ^ (space_implode " " deps) ^ "\""
   in priority msg end;
+
+
+
+end;
+
+(* Adjust global context [ how can we do this for Isar? ] *)
+
+structure PGBasicThmDeps : BASIC_THM_DEPS = PGThmDeps;
+open PGBasicThmDeps;
 
 val old_qed = qed;
 fun qed name = 
@@ -98,3 +120,5 @@ fun qed_spec_mp name =
   let val _ = old_qed_spec_mp name
       val proved_thm = thm name
    in new_thm_deps [proved_thm] end;
+
+
