@@ -12,7 +12,7 @@
 ;;
 (require 'proof)
 
-(defvar proof-easy-config-derived-modes-table
+(defconst proof-easy-config-derived-modes-table
   '((""         "script"     proof-mode (proof-config-done))
     ("shell"    "shell"      proof-shell-mode (proof-shell-config-done))
     ("response" "response"   proof-response-mode (proof-response-config-done))
@@ -32,16 +32,16 @@
 	   (modename  (concat proof-assistant " " suffixnm))
 	   (varname   (intern (concat "proof-mode-for-" suffixnm)))
 	   ;; FIXME: declare these variables in proof-config:
-	   ;;	proof-script-font-lock-keywords, etc.
-	   ;;   proof-script-syntax-table-entries, etc.
+	   ;;	proof-script-font-lock-keywords, -shell-, etc.
+	   ;;   proof-script-syntax-table-entries, -shell-, etc.
 	   ;; FIXME: in future versions, use these settings in *-config-done
 	   ;;        to simplify elisp code elsewhere.
 	   (fntlcks   (intern (concat "proof-" suffixnm "-font-lock-keywords")))
 	   (modsyn    (intern (concat "proof-" suffixnm "-syntax-table-entries")))
 	   (fullbody  (append
-		       (if (boundp fntlcks)
+		       (if (and (boundp fntlcks) (eval fntlcks))
 			   (list `(setq font-lock-keywords ,fntlcks)))
-		       (if (boundp modsyn)
+		       (if (and (boundp modsyn) (eval modsyn))
 			   (list `(let ((syn ,modsyn))
 				    (while syn
 				      (modify-syntax-entry 
@@ -56,23 +56,40 @@
 
 (defun proof-easy-config-check-setup (sym name)
   "A number of simple checks."
-  (cond
-   ((or 
-     (and (boundp 'proof-assistant) proof-assistant 
-	  (not (equal proof-assistant ""))
-	  (not (equal proof-assistant name)))
-     (and (boundp 'proof-assistant-symbol) proof-assistant-symbol
-	  (not (eq proof-assistant-symbol sym))))
-    (error "proof-easy-config: Proof General is already in use for a different prover! %s" proof-assistant-symbol))
-   (t
-    ;; Setting these here is nice for testing: no need to get
-    ;; proof-assistant-table right first.
-    (customize-set-variable 'proof-assistant name)
-    (customize-set-variable 'proof-assistant-symbol sym))))
+  (let ((msg ""))
+    ;; At the moment we just check that the symbol/name used
+    ;; in the macro matches that in `proof-assistant-table'
+    ;; and have the right type.
+    (unless (symbolp sym)
+      (error "proof-easy-config: first argument (%s) should be a symbol"
+	     sym))
+    (unless (stringp name)
+      (error "proof-easy-config: second argument (%s) should be a string"
+	     string))
+    (cond
+     ((or 
+       (and (boundp 'proof-assistant) proof-assistant 
+	    (not (equal proof-assistant ""))
+	    (not (equal proof-assistant name))
+	    (setq msg (format "\nproof-assistant name: \"%s\" doesn't match expected \"%s\"" 
+			      proof-assistant name)))
+       (and (boundp 'proof-assistant-symbol) proof-assistant-symbol
+	    (not (eq proof-assistant-symbol sym))
+	    (setq msg (format "\nproof-assistant symbol: '%s doesn't match expected '%s" 
+			      proof-assistant-symbol sym))))
+      (error "proof-easy-config: PG already in use or name/symbol mismatch %s" 
+	     msg))
+     (t
+      ;; Setting these here is nice for testing: no need to get
+      ;; proof-assistant-table right first.
+      (customize-set-variable 'proof-assistant name)
+      (customize-set-variable 'proof-assistant-symbol sym)))))
 
 ;;;###autoload
 (defmacro proof-easy-config (sym name &rest body)
-  "Configure Proof General for proof-assistant using BODY as a setq body."
+  "Configure Proof General for proof-assistant using BODY as a setq body.
+The symbol SYM and string name NAME must match those given in
+the `proof-assistant-table', which see."
   `(progn
      (proof-easy-config-check-setup ,sym ,name)
      (setq
