@@ -17,13 +17,22 @@ Proof General includes these features, amongst others:
 . Display of real logical symbols, greek letters, etc with X-Symbol
 . Activation of prover output for subterm navigation, proof-by-pointing
 . Simplified communication: proof assistant verbosity hidden
-. Menu for jumping to theorems in a proof script
+. Menus for jumping to theorems/definitions, etc in a proof script
 . Provision to easily run proof assistant on a remote host
 . Works on any platform Emacs does, in window system or plain console 
 
 Summary of changes since 3.4:
 
-. FIXME
+. Speedbar and Index Menu.  Speedbar provides a handy file/tag tree.
+. Improved display management.  
+. RPM packages with freedesktop.org integration and compiled files
+. Keyboard hints and other messages displayed in minibuffer
+. Auxiliary modes bundled: X-Symbol and MMM Mode
+. Improved menus, user options, script colouring and active highlighting
+. Many changes for compatibility with latest Emacsen and provers
+. Many other minor improvements and editing features
+. For Coq: a new "holes" system, for editing structured expressions
+. New instances of PG: Casl Consistency Checker, Shell Script
 
 For details of changes since 3.4, see
 http://proofgeneral.inf.ed.ac.uk/fileshow.php?file=ProofGeneral-3.5%2FCHANGES
@@ -32,11 +41,11 @@ For the latest user manual, see http://proofgeneral.inf.ed.ac.uk/doc
 
 Proof General needs a recent version of Emacs to run with.  
 Proof General 3.5 has been tested with XEmacs 21.1 and 21.4, and 
-GNU Emacs 21.2.  Older versions of either XEmacs may work but are not
+GNU Emacs 21.3.  Older versions of either Emacs may work but are not
 guaranteed.
 
 Installing Proof General is easy.  Why not give it a try?
 
  - David Aspinall.
-   XXX 2004.
+   April 2004.
 
