@@ -17,6 +17,7 @@
 
 
 (require 'proof)
+;;FIXME: proof-script should be autoloaded
 (require 'proof-script)
 
 ;;FIXME: proof-shell should be autoloaded
@@ -390,10 +391,10 @@ Given is the first SPAN which needs to be undone."
   (setq proof-assistant-home-page plastic-www-home-page)
   (setq proof-mode-for-script 'plastic-mode)
 
-  (setq proof-prf-string   (concat plastic-lit-string " &S PrfCtxt")
-	proof-goal-command (concat plastic-lit-string " Claim %s;")
-	proof-save-command (concat plastic-lit-string " Save %s;") ;; analogue? 
-	proof-ctxt-string  (concat plastic-lit-string " &S Ctxt 20"))
+  (setq proof-showproof-command (concat plastic-lit-string " &S PrfCtxt")
+	proof-goal-command      (concat plastic-lit-string " Claim %s;")
+	proof-save-command      (concat plastic-lit-string " Save %s;") ;; analogue? 
+	proof-context-command   (concat plastic-lit-string " &S Ctxt 20"))
 
   (setq proof-showproof-command  (concat plastic-lit-string " &S PrfCtxt")
 	proof-goal-command   (concat plastic-lit-string " Claim %s;")
@@ -427,10 +428,11 @@ Given is the first SPAN which needs to be undone."
 
   (setq font-lock-keywords plastic-font-lock-keywords-1)
 
-;; if we don't have the following in xemacs, zap-commas fails to work.
+;; FIXME da: this is done generically now.  If you want
+;; the zap commas behaviour, set proof-font-lock-zap-commas=t here.
+;;  (and (boundp 'font-lock-always-fontify-immediately)
+;;       (setq font-lock-always-fontify-immediately t))
 
-  (and (boundp 'font-lock-always-fontify-immediately)
-       (setq font-lock-always-fontify-immediately t))
 
   (proof-config-done)
 
@@ -593,7 +595,7 @@ We assume that module identifiers coincide with file names."
 
 			;; remaining lines are the Else. (what, no 'return'?)
    (setq string (concat "\n" string " "))   ;; seed routine below, & extra char
-   (let 
+   (let* ;; da: let* not really needed, added to nuke byte-comp warnings. 
      ( (i 0)
        (l (length string))
        (eat-rest (lambda () 
@@ -647,14 +649,19 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-send-one-undo ()
 	"send an Undo cmd"
-    (proof-shell-insert (concat plastic-lit-string " &S Undo;")))
+    ;; FIXME da IMPORTANT: please use proof-shell-invisible-command
+    ;; instead here, or tell me why you can't if it doesn't work.
+    ;; Interface to proof-shell-insert now requires two args (for the
+    ;; sake of plastic!) and shouldn't be called from PG instances 
+    (proof-shell-insert (concat plastic-lit-string " &S Undo;")
+			'proof-shell-done-invisible))
 
 (defun plastic-try-cmd ()
     "undo whatever was tried, if error-free"
     (interactive)
     (plastic-reset-error)
     (let ((proof-state-preserving-p nil)) ; allow any command
-      (proof-minibuffer-cmd))
+      (call-interactively 'proof-minibuffer-cmd))
     (plastic-call-if-no-error 'plastic-send-one-undo))
 
 (defun plastic-minibuf ()
