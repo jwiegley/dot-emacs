@@ -94,17 +94,18 @@
 
 ** Isabelle Changes
 
-   Support for theorem dependency tracking: in-context menu provides
-   facility for browsing the ancestors and child theorems of a
-   theorem, and highlighting them.  This facility is not yet closely
-   integrated with Isabelle and relies on an auxiliary ML file which
-   is only compatible with Isabelle99-2.  It is only supplied for
-   Isabelle/classic.
+   Support for theorem dependency tracking: context-sensitive menu  
+   (right button on a completed proof) provides a facility for browsing 
+   the ancestors and child theorems of a theorem, and highlighting them.  
 
    The idea of this feature is that it can help you untangle and
    rearrange big proof scripts, by seeing which parts are
    interdependent.
  
+   This facility is not yet closely integrated with Isabelle and
+   relies on an auxiliary ML file which is only compatible with
+   Isabelle99-2.  It is only supplied for Isabelle/classic.
+
    To activate the feature, use the Isabelle setting option "Theorem
    Dependencies."  Notice that you need to switch this on *after*
    starting an Isabelles session, and must switch on/off on every
