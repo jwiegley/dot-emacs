@@ -343,7 +343,8 @@ isa-proofscript-mode."
 	 (string-match ".thy" (buffer-file-name)))
     (thy-mode)
     ;; Hack for splash screen
-    (if (memq 'proof-splash-timeout-waiter proof-mode-hook)
+    (if (and proof-mode-hook
+	     (memq 'proof-splash-timeout-waiter proof-mode-hook))
 	(proof-splash-timeout-waiter))
     ;; Has this theory file already been loaded by Isabelle?
     ;; Colour it blue if so.  
