@@ -894,9 +894,13 @@ assistant."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar proof-shell-insert-space-fudge 
-  (if (string-match "XEmacs" emacs-version) "" " ")
+  (cond
+   ((string-match "21.*XEmacs" emacs-version) " ")
+   ((string-match "XEmacs" emacs-version) "")
+   (t " "))
   "String to insert after setting proof marker to prevent it moving.
-Fixes a bug/problem with FSF Emacs.")
+Allows for a difference between different versions of comint across
+different Emacs versions.")
 
 (defun proof-shell-insert (string)
   "Insert STRING at the end of the proof shell, call comint-send-input.
