@@ -1,5 +1,64 @@
 2002-07-19  David Aspinall  <da@proofgeneral.org>
 
+	* BUGS: Known issues
+
+	* isa/isabelle-system.el:
+	Support missing/faked isatool
+
+	* isa/x-symbol-isabelle.el:
+	Merge changes and comments sent by Christoph Wedler
+
+	* ChangeLog: Updated.
+
+	* generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-site.el: Replace
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* phox/phox.el, plastic/plastic.el, twelf/twelf.el, isar/isar.el, lego/lego.el, hol98/hol98.el, isa/isa.el, generic/proof-script.el, generic/proof-shell.el, generic/proof-syntax.el, demoisa/demoisa.el, doc/PG-adapting.texi, acl2/acl2.el, coq/coq.el, demoisa/demoisa-easy.el, Makefile.devel, ChangeLog:
+	Variable name change proof-comment-{start,end}-regexp -> proof-script-comment-{start,end}-regexp.
+
+	* FAQ: Spacing
+
+	* isa/isabelle-system.el:
+	Bug in load-isar-keywords
+
+	* etc/isar/Persistent.thy: Updated.
+
+	* CHANGES: Mention fav improvs
+
+	* todo: Updated
+
+	* generic/proof-config.el:
+	Reduce proof-shell-quite-timeout
+
+	* Makefile.devel: Ignore todo.defunct
+
+	* todo.defunct: New files.
+
+	* Makefile.devel: Add todo to tags
+
+	* generic/proof-compat.el, generic/proof-splash.el:
+	Move imagep compat code to splash
+
+	* generic/proof-menu.el:
+	Make favourites mechanism more robust; add delete command.
+
+	* generic/proof-compat.el:
+	Trivially simulate events-to-keys
+
+2002-07-18  David Aspinall  <da@proofgeneral.org>
+
+	* coq/BUGS: X-sym bug
+
+	* coq/x-symbol-coq.el:
+	Add yet more settings X-Sym complains about.
+
+2002-07-19  David Aspinall  <da@proofgeneral.org>
+
 	* generic/proof-site.el:
 	Set version tag for new release.
 
