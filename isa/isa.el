@@ -202,7 +202,7 @@ no regular or easily discernable structure."
    ;; could be last bracket on end of line, or with ### and ***.
 
    ;; Dirty hack to allow font-locking for output based on hidden
-   ;; annotations, see isa-output-font-lock-terms
+   ;; annotations, see isa-output-font-lock-keywords-1
    proof-shell-leave-annotations-in-output t
 
 
@@ -610,12 +610,12 @@ Resulting output from Isabelle will be parsed by Proof General."
 (defun isa-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle."
   (isa-init-output-syntax-table)
-  (setq font-lock-keywords isa-output-font-lock-terms)
+  (setq font-lock-keywords isa-output-font-lock-keywords-1)
   (isa-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
 (defun isa-response-mode-config ()
-  (setq font-lock-keywords isa-output-font-lock-terms)
+  (setq font-lock-keywords isa-output-font-lock-keywords-1)
   (isa-init-output-syntax-table)
   (proof-response-config-done))
 
@@ -624,7 +624,7 @@ Resulting output from Isabelle will be parsed by Proof General."
   (setq pbp-change-goal "Show %s.")	
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isa-init-output-syntax-table)
-  (setq font-lock-keywords isa-output-font-lock-terms)
+  (setq font-lock-keywords isa-output-font-lock-keywords-1)
   (proof-goals-config-done))
 
 (provide 'isa)
