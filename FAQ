@@ -25,6 +25,26 @@ A. We distribute .elcs for XEmacs, so you will have to delete
 
 -----------------------------------------------------------------
 
+Q. Where have my buffers gone?   They used to be on the Buffers menu!
+
+A. The PG "associated buffers" which display the proof state and
+prover responses (and trace information when used) are now hidden from
+the XEmacs tabs and buffer menus, to reduce clutter.
+
+The idea is that you should only rarely need to select the buffer to
+display explicitly.  Sometimes Emacs does its own thing, though!  To
+find the buffers you can use the convenient keystrokes `C-c C-o'
+(proof-display-some-buffers) or `C-c C-l' (proof-layout-windows).
+See the manual for more details about the display mechanisms.
+
+The buffers are hidden from menus by the standard Emacs mechanism of
+beginning their names with a space.  So if you are looking for
+"*prover-goals*" by keyboard `C-x b' the buffer is now called 
+" *prover-goals*".  
+
+
+-----------------------------------------------------------------
+
 Q. Emacs appears to hang when the prover process is started.
 
 A. This may be because of UTF-8 issues e.g in Red Hat 8.0/9/glibc 2.2
