@@ -22,7 +22,6 @@
     "is"
     "monos"
     "output"
-    "simpset"
     "where"))
 
 (defconst isar-keywords-control
