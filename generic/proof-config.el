@@ -93,9 +93,11 @@ Toolbar buttons can be automatically enabled/disabled according to
 the context.  Set this variable to nil if you don't like this feature
 or if you find it unreliable.
 
-Note: Toolbar enablers are only available with XEmacs 21 and later.
-
-Note 2: If you change this variable it will only be noticed when you 
+Notes: 
+ - Toolbar enablers are only available with XEmacs 21 and later.
+ - With this variable nil, buttons do nothing when they would
+otherwise be disabled.
+ - If you change this variable it will only be noticed when you 
 next start Proof General."
   :type 'boolean
   :group 'proof-general)
