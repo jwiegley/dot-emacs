@@ -31,9 +31,10 @@ send a compile command to af2 for the theorem which name is under the cursor."
 )
 
 (defun af2-find-and-forget (span)
-  (let (str ans tmp)
-    (while span
+  (let (str ans tmp (lsp -1))
+    (while span 
       (setq str (proof-remove-comment (span-property span 'cmd)))
+
       (cond
 
        ((eq (span-property span 'type) 'comment))       
@@ -52,6 +53,7 @@ send a compile command to af2 for the theorem which name is under the cursor."
 				      (match-string 2 str)) ans))))
 
 
+      (setq lsp (span-start span))
       (setq span (next-span span 'type)))
 
       (or ans proof-no-command)))
