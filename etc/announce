@@ -30,24 +30,24 @@ tag for comp.lang.ml, comp.lang.functional:
 
  
         
-Subject: Proof General --- Version 3.1 release
+Subject: Proof General --- Version 3.2 release
 
 [Apologies for multiple copies]
 
 
-            Announcing  Proof General  Version 3.1
+            Announcing  Proof General  Version 3.2
 
    A Generic Emacs interface for Interactive Proof Assistants
 
-            http://www.lfcs.informatics.ed.ac.uk/proofgen
+                 http://www.proofgeneral.org
 
-           contact: David Aspinall <da@dcs.ed.ac.uk>
+          contact: David Aspinall <da@dcs.ed.ac.uk>
 
 		 =========================
 
-Proof General is an Emacs interface for developing proof scripts.
-It can be instantiated for the proof assistant of your choice,
-and is supplied ready-customised for Isabelle, Coq, LEGO, and HOL.
+Proof General is an (X)Emacs interface for developing proof scripts.
+It can be instantiated for the proof assistant of your choice, and is
+supplied ready-customised for Isabelle, Coq, LEGO, and HOL.
 
 Proof General includes these features, amongst others:
 
@@ -60,18 +60,20 @@ Proof General includes these features, amongst others:
 . Provision to easily run proof assistant on a remote host
 . Works on any platform Emacs does, in window system or plain console 
 
-Summary of changes since 3.0:
+Summary of changes since 3.1:
 
-. New instantiation for HOL98!  
-. Minor cosmetic improvements 
-. Bug fixes for Emacs compatibility (FSF, Japanese versions, XEmacs on win32)
-. Fix for infamous Solaris ^G bug
-. Several other bug fixes
-. For full details, see
-   http://www.lfcs.ed.ac.uk/proofgen/ProofGeneral-3.1/CHANGES
+. Support for new provers: AF2 (full) Twelf (in progress) 
+. Each proof assistant now has its own menu with specific functions
+. Documentation is now split into user manual and "adapting" manual
+. Improvements in window management
+. New commands, including parsing of error messages 
+. Efficiency improvements
+. Internal improvements: more flexible parsing and easier configuration
+. Several bug fixes 
+. For details, see http://www.proofgeneral.org/ProofGeneral-3.2/CHANGES
 
 The user manual contains full details, and is available on-line at: 
-http://www.lfcs.informatics.ed.ac.uk/proofgen/index.phtml?page=doc
+http://www.proofgeneral.org/index.phtml?page=doc
 
 Proof General needs a recent version of Emacs to run with, and it much
 prefers XEmacs to FSF GNU Emacs.  Proof General 3.1 has been tested
@@ -81,5 +83,5 @@ and Emacs 20.2, though).
 Installing Proof General is easy.  Why not give it a try?
 
  - David Aspinall <da@dcs.ed.ac.uk>
-   May 2000.
+   November 2000.
 
