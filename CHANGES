@@ -14,7 +14,7 @@
 
     Proof General can now (almost) be reliably run as compiled code.
 
-    *** Please help me iron out any finaly difficulties 
+    *** Please help me iron out any final difficulties 
         by reporting problems ***
   
     However, compiled Emacs Lisp files sometimes have incompatibilities
@@ -78,14 +78,6 @@ NB: Not yet enabled for Isabelle/Isar.
 
 Electric terminator menu option more visible. 
 Reduce contrast for mouse highlighting of regions.
-
-*** Support formatted input which contains newlines [for Coq]
-
-A patch from Stefan Monnier, to allow Coq input to have newlines
-remaining, so that input formatting is not broken.  A much better way
-to address this would be to alter the Coq output routines so that they
-do not print multiple identical prompts for continued lines.  
-[this is in testing: please notify me of problems in other provers]
 
 
 ** GNU Emacs compatibility, simplified font-lock, handling nested comments
