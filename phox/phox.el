@@ -108,7 +108,7 @@
    proof-comment-end               "*)"
    proof-state-command             "goals."
    proof-goal-command-regexp       
-    "\\`\\(goal\\|pro\\(p\\(osition\\)?\\|ve_claim\\)\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
+    "\\`\\(goal[ \t\n\r]\\|pro\\(p\\(osition\\)?\\|ve_claim\\)\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
    proof-save-command-regexp       "\\`save"
    proof-goal-with-hole-regexp  
    (concat 
@@ -147,10 +147,25 @@
    proof-shell-prompt-pattern      "\\(>phox> \\)\\|\\(%phox% \\)"
    proof-shell-annotated-prompt-regexp  "\\(>phox> \\)\\|\\(%phox% \\)"
    proof-shell-interrupt-regexp    "Interrupt"
-   proof-shell-start-goals-regexp  "^\\(Here are the goal\\)\\|\\([0-9]+ goal\\(s?\\) created\\)"
+   proof-shell-start-goals-regexp  "^\\(Here \\(are\\|is\\) the goal\\)\\|\\([0-9]* goals\\? created\\)"
    proof-shell-quit-cmd            "quit."
    proof-shell-restart-cmd         "restart."
    proof-shell-proof-completed-regexp   "^.*^proved"
+   ;; proof-shell-first-special-char ?\371
+   ;; proof-shell-wakeup-char ?\371
+   ;; proof-shell-start-char ?\371
+   ;; proof-shell-end-char ?\372
+   ;; proof-shell-goal-char ?\373
+   ;; proof-shell-field-char ?\374
+   ;; proof-shell-eager-annotation-start "\376"
+   ;; proof-shell-eager-annotation-start-length 1
+   ;; proof-shell-eager-annotation-end "\377"
+;    proof-shell-annotated-prompt-regexp "Lego> \371"
+;    proof-shell-result-start "\372 Pbp result \373"
+;    proof-shell-result-end "\372 End Pbp result \373"
+;    proof-shell-start-goals-regexp "\372 Start of Goals \373"
+;    proof-shell-end-goals-regexp "\372 End of Goals \373"
+;    proof-shell-pre-sync-init-cmd "Configure AnnotateOn;"
 ))
 
 
