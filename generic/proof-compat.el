@@ -73,7 +73,7 @@ that use a window system such as X, and false for text-only terminals."
 ;;; GNU Emacs compatibility
 ;;;
 
-;; completion not autoloaded in FSF 20.6.1; we must call 
+;; completion not autoloaded in GNU 20.6.1; we must call 
 ;; dynamic-completion-mode after loading it.
 (or (fboundp 'complete)
     (autoload 'complete "completion"))
@@ -82,28 +82,28 @@ that use a window system such as X, and false for text-only terminals."
     '(dynamic-completion-mode)))
 
 
-;; These days cl is dumped with XEmacs (20.4,21.1) but not FSF Emacs
+;; These days cl is dumped with XEmacs (20.4,21.1) but not GNU Emacs
 ;; 20.2.  Would rather it was autoloaded but the autoloads are broken
-;; in FSF so we load it now.
+;; in GNU so we load it now.
 (require 'cl)				
 
 ;; Give a warning,
 (or (fboundp 'warn)
 (defun warn (str &rest args)
-      "Issue a warning STR.  Defined by PG for FSF compatibility."
+      "Issue a warning STR.  Defined by PG for GNU compatibility."
       (apply 'message str args)
       (sit-for 2)))
 
 ;; Modeline redrawing (actually force-mode-line-update is alias on XEmacs)
 (or (fboundp 'redraw-modeline)
 (defun redraw-modeline (&rest args)
-  "Dummy function for Proof General on FSF Emacs."
+  "Dummy function for Proof General on GNU Emacs."
   (force-mode-line-update)))
 
 ;; Interactive flag
 (or (fboundp 'noninteractive)
     (defun noninteractive ()
-      "Dummy function for Proof General on FSF Emacs."
+      "Dummy function for Proof General on GNU Emacs."
       nil)) ;; pretend always interactive.
 
 ;; Replacing in string (useful function from subr.el in XEmacs 21.1.9)
@@ -116,7 +116,7 @@ Otherwise treat \\ in NEWTEXT string as special:
   \\& means substitute original matched text,
   \\N means substitute match for \(...\) number N,
   \\\\ means insert one \\."
-  ;; Not present in FSF
+  ;; Not present in GNU
   ;; (check-argument-type 'stringp str)
   ;; (check-argument-type 'stringp newtext)
   (let ((rtn-str "")
@@ -156,7 +156,7 @@ Otherwise treat \\ in NEWTEXT string as special:
 			 newtext ""))))))
     (concat rtn-str (substring str start)))))
 
-;; An implemenation of buffer-syntactic-context for FSF Emacs
+;; An implemenation of buffer-syntactic-context for GNU Emacs
 (defun proof-buffer-syntactic-context-emulate (&optional buffer)
   "Return the syntactic context of BUFFER at point.
 If BUFFER is nil or omitted, the current buffer is assumed.
@@ -174,7 +174,7 @@ The returned value is one of the following symbols:
        ;; "Stefan Monnier" <monnier+misc/news@rum.cs.yale.edu> suggests
        ;; distinguishing between block comments and ordinary comments
        ;; is problematic: not what XEmacs claims and different to what
-       ;; (nth 7 pp) tells us in FSF Emacs.
+       ;; (nth 7 pp) tells us in GNU Emacs.
        ((nth 4 pp) 'comment)))))
 
 
@@ -182,21 +182,21 @@ The returned value is one of the following symbols:
 ;; we duplicate some code adjusted from minibuf.el distributed 
 ;; with XEmacs 21.1.9
 ;;
-;; This code is still required as of FSF Emacs 20.6.1
+;; This code is still required as of GNU Emacs 20.6.1
 ;;
 ;; da: I think bothering with this just to give completion for
 ;; when proof-prog-name-ask=t is rather a big overkill!
 ;; Still, now it's here we'll leave it in as a pleasant surprise
-;; for FSF Emacs users.
+;; for GNU Emacs users.
 ;;	
 (or (fboundp 'read-shell-command)
 (defvar read-shell-command-map
   (let ((map (make-sparse-keymap 'read-shell-command-map)))
     (if (not (fboundp 'set-keymap-parents))
 	(if (fboundp 'set-keymap-parent)
-	    ;; FSF Emacs 20.2
+	    ;; GNU Emacs 20.2
 	    (set-keymap-parent map minibuffer-local-map)
-	  ;; Earlier FSF Emacs
+	  ;; Earlier GNU Emacs
 	  (setq map (append minibuffer-local-map map))
 	  ;; XEmacs versions without read-shell-command?
 	  (set-keymap-parents map minibuffer-local-map)))
@@ -282,17 +282,19 @@ The modified ALIST is returned."
 
 
 ;; Handle buggy buffer-syntactic-context workaround in XEmacs 21.1,
-;; and FSF non-implementation.
+;; and GNU non-implementation.
 
 (cond
  ((not (fboundp 'buffer-syntactic-context))
   (defalias 'proof-buffer-syntactic-context 
     'proof-buffer-syntactic-context-emulate))
- ((string-match "21.1 .*XEmacs" emacs-version)
+ ((or
+   (string-match "21\.1 .*XEmacs" emacs-version)
+   (string-match "21\.4 .*XEmacs" emacs-version)) ;; still buggy in 21.4
   (defalias 'proof-buffer-syntactic-context 
     'proof-buffer-syntactic-context-emulate))
  (t
-  ;; Assume this version has a good implementation
+  ;; Rashly assume this version has a good implementation
   (defalias 'proof-buffer-syntactic-context
     'buffer-syntactic-context)))
    
@@ -302,7 +304,7 @@ The modified ALIST is returned."
 ;;;
 
 
-;; Error in FSF emacs that this is undefined.  I haven't time to
+;; Error in GNU emacs that this is undefined.  I haven't time to
 ;; investigate why.
 (unless proof-running-on-XEmacs
   (defvar font-lock-preprocessor-face nil))
