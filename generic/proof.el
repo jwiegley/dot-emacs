@@ -75,8 +75,8 @@ an error.")
 
 (defvar proof-included-files-list nil 
   "List of files currently included in proof process.
-Whenever a new file is being processed, it gets added to the front of
-the list. When the prover retracts across file boundaries, this list
+Whenever a new file is being processed, it gets added.
+When the prover retracts across file boundaries, this list 
 is resynchronised. It contains files in canonical truename format")
 
 (defvar proof-script-buffer-list nil
@@ -134,17 +134,24 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
          (define-key map k f)))
    kbl))
 
+;; FIXME: this function should be combined with
+;; proof-shell-maybe-erase-response-buffer.  Should allow
+;; face of nil for unfontified output.
 (defun proof-response-buffer-display (str face)
   "Display STR with FACE in response buffer and return fontified STR."
   (let (start end)
-    (save-current-buffer
-      (set-buffer proof-response-buffer)
-      (setq start (goto-char (point-max)))
+    (with-current-buffer proof-response-buffer
+      ;; da: I've moved newline before the string itself, to match
+      ;; the other cases when messages are inserted and to cope
+      ;; with warnings after delayed output (non newline terminated).
+      ;; Also assume that point is at end of buffer already.
+      (newline)				
+      (setq start (point))
       (insert str) (setq end (point))
-      (newline)
-      (font-lock-set-defaults)		;required for FSF Emacs 20.2
-      (font-lock-fontify-region start end)
-      (font-lock-append-text-property start end 'face face)
+      (save-excursion
+	(font-lock-set-defaults)		;required for FSF Emacs 20.2
+	(font-lock-fontify-region start end)
+	(font-lock-append-text-property start end 'face face))
       (buffer-substring start end))))
 
 
@@ -165,6 +172,9 @@ Also ensures that point is visible."
 	     ;; tms: I don't understand why the point in
 	     ;; proof-response-buffer is not at the end anyway.
 	     ;; Is there a superfluous save-excursion somewhere?
+	     ;; da replies: I think it's because of a *missing*
+	     ;; save-excursion above around the font-lock stuff.
+	     ;; Adding one has maybe fixed this problem.
 	     (goto-char (point-max))
 
 	     (or (pos-visible-in-window-p (point) window)
