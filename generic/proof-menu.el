@@ -26,6 +26,9 @@ If in three window or multiple frame mode, display two buffers."
   ;; The GUI-tessence here is to implement a humane toggle, which
   ;; allows habituation.  E.g. two taps of C-c C-l always
   ;; shows the goals buffer, three the trace buffer, etc.
+  ;; (That behaviour makes less sense from the menu, though,
+  ;;  where it seems more natural just to rotate from last 
+  ;;  position)
   (cond 
    ((and (interactive-p) 
 	 (eq last-command 'proof-display-some-buffers))
@@ -35,10 +38,11 @@ If in three window or multiple frame mode, display two buffers."
   (let* ((assocbufs   (remove-if-not 'buffer-live-p 
 				    (list proof-response-buffer
 					  proof-goals-buffer
-					  proof-trace-buffer
-					  proof-shell-buffer)))
-	(selectedbuf (nth (mod proof-display-some-buffers-count 
-			       (length assocbufs)) assocbufs)))
+					  proof-thms-buffer
+					  proof-trace-buffer)))
+					;proof-shell-buffer
+	 (selectedbuf (nth (mod proof-display-some-buffers-count 
+				(length assocbufs)) assocbufs)))
     (cond
      ((or proof-three-window-mode proof-multiple-frames-enable)
       ;; Display two buffers: next in rotation and goals/response
@@ -153,17 +157,19 @@ If in three window or multiple frame mode, display two buffers."
 	     (concat "Exit " proof-assistant)
 	     'proof-shell-exit
 	     ':active '(proof-shell-live-buffer)))
-	   '("----")
-	   (list
-	    (cons "Help"
-		  (append 
-		   `(;; FIXME: should only put these two on the
-		     ;; menu if the settings are non-nil.
-		     [,(concat proof-assistant " information")
-		      (proof-help) t]
-		     [,(concat proof-assistant " web page")
-		      (browse-url proof-assistant-home-page) t])
-		   (proof-ass help-menu-entries))))))))
+	   '("----")))))
+;	   (list
+;	    (cons "Help"
+;		  (append 
+;		   (if proof-info-command
+;		       (list 
+;			(vector (concat proof-assistant " information")
+;				'(proof-help) t)))
+;		   (if proof-assistant-home-page
+;		       (list 
+;			(vector (concat proof-assistant " web page")
+;				'(browse-url proof-assistant-home-page) t)))
+;		   (proof-ass help-menu-entries))))))))
     
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -202,9 +208,9 @@ If in three window or multiple frame mode, display two buffers."
 	   ;;["Response"
 	   ;; (proof-switch-to-buffer proof-response-buffer t)
 	   ;; :active (buffer-live-p proof-response-buffer)]
-	   ;;["Shell"
-	   ;; (proof-switch-to-buffer proof-shell-buffer)
-	   ;; :active (buffer-live-p proof-shell-buffer)])
+	   ["Shell"
+	    (proof-switch-to-buffer proof-shell-buffer)
+	    :active (buffer-live-p proof-shell-buffer)]
 	   ;; FIXME: this next test doesn't work since menus
 	   ;; loaded before proof-shell-trace-output-regexp is
 	   ;; set (in proof-shell hook).  Should be better with
@@ -311,10 +317,7 @@ If in three window or multiple frame mode, display two buffers."
 (defconst proof-advanced-menu
   (cons "Advanced..."
 	(append
-	 '(["Electric Terminator" proof-electric-terminator-toggle
-	    :style toggle
-	    :selected proof-electric-terminator-enable]
-	   ["Function Menu" function-menu
+	 '(["Function Menu" function-menu
 	    :active (fboundp 'function-menu)]
 	   ["Complete Identifier" complete t]
 	   ["Next Error" proof-next-error
@@ -331,7 +334,10 @@ If in three window or multiple frame mode, display two buffers."
 
 
 (defvar proof-menu  
-  '(["Scripting Active" proof-toggle-active-scripting
+  '(["Electric Terminator" proof-electric-terminator-toggle
+     :style toggle
+     :selected proof-electric-terminator-enable]
+    ["Scripting Active" proof-toggle-active-scripting
      :style toggle
      :selected (eq proof-script-buffer (current-buffer))])
   "The Proof General generic menu for scripting buffers.")
