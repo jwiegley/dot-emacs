@@ -18,7 +18,7 @@
   (mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
 
 (defun proof-anchor-regexp (e)
-  "Anchor (^) and group the regexp."
+  "Anchor (^) and group the regexp E."
   (concat "^\\(" e "\\)"))
 
 (defun proof-regexp-alt (&rest args)
