@@ -26,7 +26,7 @@ You can join the
 Proof General
 <a href="mailinglist">mailing list</a>
 for announcements of new versions.
-Developers and beta-testers may like to download
+Developers and early-adopters may like to download
 a <a href="develdownload.html">development release</a>
 of Proof General.
 If you use an old version of a proof assistant and/or an
@@ -34,7 +34,7 @@ old Emacs version, you may need to download one of the
 <a href="oldrel.php">previous releases</a>.
 </p>
 <h2><a name="stable">
-    Proof General Version 3.4, to be released August 2002.
+    Proof General Version 3.4, released 29th August 2002.
     </a>
 </h2>
 <p>
@@ -46,65 +46,51 @@ See <a href="#prereq">below</a> for software pre-requisites for running Proof Ge
 </p>
 
 <p>
-The next stable version of Proof General will be 3.4, to be released
-in August.  Until then, please try a 
-<a href="develdownload.html">development release</a> and
-<a href="feedback">report any difficulties</a>, 
-to help make the next release of Proof General as 
-robust as possible.  Thanks!
-
-<!--
-<p>
 Proof General is available as an archive and an RPM package.
 </p>
 <table width="80%" cellspacing=8>
 <tr>
 <td width=150>gzip'ed tar file</td>
-<td><?php download_link("ProofGeneral-3.3.tar.gz") ?></td>
+<td><?php download_link("ProofGeneral-3.4.tar.gz") ?></td>
 </tr>
 <tr>
 <td>zip file</td>
-<td><?php download_link("ProofGeneral-3.3.zip") ?></td>
+<td><?php download_link("ProofGeneral-3.4.zip") ?></td>
 </tr>
 <tr>
 <td>RPM package </td>
-<td><?php download_link("ProofGeneral-3.3-1.noarch.rpm") ?></td>
+<td><?php download_link("ProofGeneral-3.4-1.noarch.rpm") ?>
+<br>NB: to buld yourself use tarball and <tt>rpm -ta</tt>.</td>
 </tr>
 <tr>
 <td>individual files</td>
-<td><a href="ProofGeneral-3.3">browse individual files</a>
+<td><a href="ProofGeneral-3.4">browse individual files</a>
 </tr>
 </table>
 <p>
-Both the tarball and the RPM package include the generic elisp
-code, 
-code for the supported provers, installation instructions
-and documentation in Info and HTML formats.
+The archives and RPM include almost everything: the generic 
+code, specific code for the supported provers, installation 
+instructions and documentation in Info and HTML formats.
 Documentation is available in other formats
 here <a href="doc">here</a>.  
-If you want to format the documentation yourself,
-you may like to download the
-<?php download_link("ProofGeneralPortrait.eps.gz", 
-"front page image") ?>.
-Note that we don't ship an SRPM now, since you can build the RPM directly 
-from the source tarball using <tt>rpm -ta</tt>.
+<!-- If you want to format the documentation yourself, 
+ you may like to download the 
+ <?php download_link("ProofGeneralPortrait.eps.gz",  
+ "front page image") ?>. -->
 </p>
-<p>
--->
 
-<!--
+<p>
 This version of Proof General has been tested
-with XEmacs 21.4 and (briefly with) GNU Emacs 20.7.
-It supports earlier versions of both Emacsen, but
-we recommend using these versions.
-This version of Proof General does <b>not</b> support 
-GNU Emacs 21.x, please try out a <a href="develdownload.html">development release</a>
-instead.
+with XEmacs 21.4 and GNU Emacs 21.2.
+It should work with <i>some</i> earlier versions of XEmacs, but
+we recommend using these Emacs versions for most
+reliable results.
 </p>
 <p>
-Check the <?php fileshow("ProofGeneral-3.3/CHANGES","CHANGES"); ?> file
-for a summary of changes since version 3.2.
+Check the <?php fileshow("ProofGeneral-3.4/CHANGES","CHANGES"); ?> file
+for a summary of changes since version 3.3.
 </p>
+
 <p>
 Check the latest <?php fileshow("ProofGeneral/BUGS","BUGS"); ?> file
 (also 
@@ -116,9 +102,7 @@ before reporting problems.  If you find a problem not already mentioned,
 please 
 <?php hlink("feedback.html","send us a note","Feedback form")?>.
 </p>
--->
 
-<br>
 <br>
 
 <h2><a name="prereq">
