@@ -139,14 +139,14 @@ The protocol used should be configured so that no user interaction
   :type 'string
   :group 'proof-general)
 
-(defcustom proof-auto-delete-windows t
+(defcustom proof-auto-delete-windows nil
   "*If non-nil, automatically remove windows when they are cleaned.
 For example, at the end of a proof the goals buffer window will
 be cleared; if this flag is set it will automatically be removed.
 If you want to fix the sizes of your windows you may want to set this
 variable to 'nil' to avoid windows being deleted automatically.
 If you use multiple frames, only the windows in the currently
-selected frame will be affected."
+selected frame will be automatically deleted."
   :type 'boolean
   :group 'proof-general)
 
