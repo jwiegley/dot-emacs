@@ -140,6 +140,7 @@ See -k option for Isabelle interface script."
    proof-save-command-regexp    isar-save-command-regexp
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-named-entity-regexp ; da
+   proof-goal-with-hole-result	1
    proof-save-with-hole-regexp  nil
    proof-script-next-entity-regexps isar-next-entity-regexps
 
