@@ -1,12 +1,39 @@
 
 theory Example = Main:;
 
-lemma "A --> B --> A";
+
+lemma I: "A --> A";
+proof;
+  assume A;
+  show A; .;
+qed;
+
+lemma K: "A --> B --> A";
 proof;
   assume A;
   show "B --> A";
   proof;
+    show A; .;
   qed;
 qed;
+
+lemma S: "(A --> B --> C) --> (A --> B) --> A --> C";
+proof;
+  assume "A --> B --> C";
+  show "(A --> B) --> A --> C";
+  proof;
+    assume "A --> B";
+    show "A --> C";
+    proof;
+      assume A;
+      show C;
+      proof (rule mp);
+	show "B --> C"; by (rule mp);
+        show B; by (rule mp);
+      qed;
+    qed;
+  qed;
+qed;
+
 
 end;
