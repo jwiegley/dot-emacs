@@ -237,7 +237,11 @@ Otherwise set the locked region to be from the start of the
 buffer to END."
   (if (>= (point-min) end)
       (proof-detach-locked)
-    (set-span-endpoints proof-locked-span (point-min) end)))
+    (set-span-endpoints proof-locked-span (point-min) end)
+    ;; FIXME: this doesn't fix the disappearing regions
+    ;; span property is lost in latest FSF Emacs, maybe
+    ;; (set-span-property proof-locked-span 'face 'proof-locked-face)
+    ))
 
 (defun proof-unprocessed-begin ()
   "Return end of locked region in current buffer or (point-min) otherwise."
@@ -826,7 +830,8 @@ the function proof-segment-up-to."
 				    (or callback-fn 'proof-done-advancing))
 			      alist)))
 	(set-span-property span 'type 'comment)
-	(setq alist (cons (list span proof-no-command 'proof-done-advancing) alist)))
+	(setq alist (cons (list span proof-no-command 'proof-done-advancing) 
+			  alist)))
 	(setq semis (cdr semis)))
     (nreverse alist)))
 
