@@ -1,7 +1,21 @@
 -*- outline -*-
 
-[ Temporarily: this devel release is currently a bug fix / tweaked 
-  version of 3.3, which will be wrapped back into a patched 3.3 shortly. ]
+* Summary of Changes for Proof General 3.4pre from 3.2
+
+** Isabelle Changes
+
+   Isabelle/Isar syntax changes.
+
+
+
+
+
+-----------------------------------------------------------------
+
+
+OLDER CHANGES
+=============
+
 
 * Summary of Changes for Proof General 3.3 from 3.2
 
