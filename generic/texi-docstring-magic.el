@@ -67,7 +67,6 @@
 ;;
 ;; Useful enhancements to do:
 ;;
-;;  * Insert a line break after the first sentence of docstring.
 ;;  * Use customize properties (e.g. group, simple types)
 ;;  * Look for a "texi-docstring" property for symbols
 ;;    so TeXInfo can be defined directly in case automatic markup
