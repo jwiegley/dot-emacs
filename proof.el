@@ -168,7 +168,7 @@
        (cond ((looking-at proof-terminal-string) 
               (forward-char)
 	      (proof-skip-comments))
-	     ((looking-at   (substring proof-comment-start 0 1) nil))
+	     ((looking-at (substring proof-comment-start 0 1)) nil)
 	     ((looking-at (substring proof-comment-end 0 1))
 	      (if (search-backward proof-comment-start nil t)
 		  (if (equal (point) (point-min)) 
