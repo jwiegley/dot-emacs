@@ -451,5 +451,3 @@ B According to the documentation of font-lock for Emacs 20.2, it
 B add links *from* Coq, Lego & Isabelle Web pages
 
 B add instructions for byte compilation
-
-B update screenshot so that it displays most recent icons
