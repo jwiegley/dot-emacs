@@ -45,8 +45,17 @@ all: buttons webpix
 
 dist:   all install distclean
 
+# Edit xpm files to add a substitution background colour for
+# the XEmacs toolbar background -- a hack that almost works
+# (only almost because the images have anti-aliasing with
+#  a different background colour, and xpm files only allow
+#  one-bit alpha).
+backgroundize-xpm: $(BUTTONS)
+	for f in *.xpm; do sed 's/#BCBCBC"/#BCBCBC s backgroundToolBarColor"/g' $$f > $$f.new; mv $$f.new $$f; done
+
 buttons: $(BUTTONS)
 	$(GIMP) '(script-fu-proofgeneral-make-all-buttons 1)' '(gimp-quit 0)'
+	$(MAKE) backgroundize-xpm
 	touch buttons
 
 webpix: $(WEBPIX)

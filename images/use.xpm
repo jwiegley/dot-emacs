@@ -2,7 +2,7 @@
 static char * use_xpm[] = {
 "32 32 26 1",
 " 	c None",
-".	c #BCBCBC",
+".	c #BCBCBC s backgroundToolBarColor",
 "+	c #984747",
 "@	c #A46E6E",
 "#	c #870D0D",

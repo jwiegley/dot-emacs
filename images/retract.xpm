@@ -2,7 +2,7 @@
 static char * retract_xpm[] = {
 "32 32 26 1",
 " 	c None",
-".	c #BCBCBC",
+".	c #BCBCBC s backgroundToolBarColor",
 "+	c #B09595",
 "@	c #AA8181",
 "#	c #984747",
