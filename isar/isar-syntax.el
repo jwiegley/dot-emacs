@@ -128,17 +128,6 @@
   (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
   "Regexp matching Isabelle/Isar names, with contents grouped.")
 
-(defvar isar-output-font-lock-terms
-  (list
-   (cons (concat "\351" isar-id "\350") 'proof-declaration-name-face)    ; class
-   (cons (concat "\352'" isar-id "\350") 'proof-tacticals-name-face)     ; tfree
-   (cons (concat "\353\\?'" isar-idx "\350") 'font-lock-type-face)       ; tvar
-   (cons (concat "\354" isar-id "\350") 'font-lock-keyword-face)         ; free
-   (cons (concat "\355" isar-id "\350") 'font-lock-keyword-face)         ; bound
-   (cons (concat "\356" isar-idx "\350") 'font-lock-function-name-face)  ; var
-   )
-  "*Font-lock table for Isabelle terms.")
-
 (defconst isar-save-command-regexp
   (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-save)))
 
@@ -153,6 +142,89 @@
 (defconst isar-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
   "Regexp matching goal commands in Isabelle/Isar which name a theorem")
+
+
+;; ----- Isabelle term / type hiliting
+
+(defface isabelle-class-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "red"))
+    (((type x) (class color) (background dark))   
+     (:foreground "red3"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-tfree-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "purple"))
+    (((type x) (class color) (background dark))   
+     (:foreground "purple3"))
+    (t
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-tvar-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "purple"))
+    (((type x) (class color) (background dark))   
+     (:foreground "purple3"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-free-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "blue"))
+    (((type x) (class color) (background dark))   
+     (:foreground "blue3"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-bound-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "green4"))
+    (((type x) (class color) (background dark))   
+     (:foreground "green"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-var-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "blue"))
+    (((type x) (class color) (background dark))   
+     (:foreground "blue3"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defconst isabelle-class-name-face 'isabelle-class-name-face)
+(defconst isabelle-tfree-name-face 'isabelle-tfree-name-face)
+(defconst isabelle-tvar-name-face 'isabelle-tvar-name-face)
+(defconst isabelle-free-name-face 'isabelle-free-name-face)
+(defconst isabelle-bound-name-face 'isabelle-bound-name-face)
+(defconst isabelle-var-name-face 'isabelle-var-name-face)
+
+
+(defvar isar-output-font-lock-terms
+  (list
+   (cons (concat "\351" isar-id "\350") 'isabelle-class-name-face)
+   (cons (concat "\352'" isar-id "\350") 'isabelle-tfree-name-face)
+   (cons (concat "\353\\?'" isar-idx "\350") 'isabelle-tvar-name-face)
+   (cons (concat "\354" isar-id "\350") 'isabelle-free-name-face)
+   (cons (concat "\355" isar-id "\350") 'isabelle-bound-name-face)
+   (cons (concat "\356" isar-idx "\350") 'isabelle-var-name-face)
+   (cons (concat "\357" isar-idx "\350") 'proof-declaration-name-face)
+   )
+  "*Font-lock table for Isabelle terms.")
 
 
 (defvar isar-font-lock-keywords-1
