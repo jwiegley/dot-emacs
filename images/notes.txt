@@ -1,8 +1,9 @@
 $Id$
 
-Notes about how I made the icons and logos here  (not for distribution).
-========================================================================
-					David Aspinall <da@dcs.ed.ac.uk>
+Notes about how I made the icons and logos here  (not in core distribution).
+============================================================================
+
+					    David Aspinall <da@dcs.ed.ac.uk>
 
 ICONS
 =====
