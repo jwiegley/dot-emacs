@@ -11,14 +11,21 @@ Put this line in your .emacs file:
     (load-file "<proofgeneral-home>/generic/proof-site.el")
 
 Where <proofgeneral-home> is replaced by the full path name to
-Proof-General-<something>.
+Proof-General-<something>.  If you prefer not to edit .emacs,
+you can use the script in bin/proofgeneral to launch Emacs with 
+Proof General loaded.
 
 The command above will set the Emacs load path and add auto-loads for
 the assistants below:
 
   .v	    Coq files
   .l	    LEGO files
-  .thy,.ML  Isabelle files
+  .thy      Isabelle files
+  .ML       Isabelle files
+  .af2	    AF2 files
+  .sml	    HOL98 files
+  .elf	    Twelf files
+  .acl2	    ACL2 files
 
 When you load a file with one of these extensions, the corresponding
 Proof General mode will be entered.
@@ -29,13 +36,13 @@ via the address below.
 				- David Aspinall.
 
    
-   Proof General maintainer <proofgen@dcs.ed.ac.uk>
+   Proof General maintainer <support@proofgeneral.org>
    LFCS,
    Division Of Informatics,
    University of Edinburgh.
    Edinburgh.
    
-   http://www.dcs.ed.ac.uk/home/proofgen
+   http://www.proofgeneral.org
 
 
 
