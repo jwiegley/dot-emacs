@@ -1,0 +1,26 @@
+Proof General is Copyright (C) 1998 LFCS.
+
+You are allowed to freely copy and modify this software
+for non-commercial use, providing you observe these 
+conditions:
+
+1. Title to and copyright of the Proof General system remains with the
+Laboratory for Foundations of Computer Science at the University of
+Edinburgh.
+
+2. Proof General may be used freely for research and educational
+purposes.
+
+3. You accept Proof General "as is".  The University of Edinburgh
+makes no warranty in respect of Proof General.  Nevertheless you are
+encouraged to report to LFCS any problems with or suggestions for
+improvement of Proof General.
+
+5. The licensee may modify Proof General on condition that any
+significant changes are notified to LFCS and made available to LFCS
+such that they may be incorporated within future releases of Proof
+General and licenced under the conditions of this licence agreement.
+
+6. You will acknowledge LFCS and The University of Edinburgh as the
+designers and implementors of Proof in any relevant document or
+publication.
