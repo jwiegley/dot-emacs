@@ -169,7 +169,8 @@ to the default toolbar."
       (if (and	
 	   proof-toolbar-enable
 	   ;; NB for FSFmacs use window-system, not console-type
-	   (eq (console-type) 'x))
+	   (or (eq (console-type) 'x)
+	       (eq (console-type) 'mswindows)))
 	  (let
 	      ((icontype   (if (featurep 'xpm)
 			       (if (< (device-pixel-depth) 16)
