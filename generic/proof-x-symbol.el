@@ -14,7 +14,7 @@
 ;; for particular proof assistants may be used elsewhere (e.g. in
 ;; document modes), without loading all of Proof General.
 ;;
-;; proof-x-symbol.el,v 2.4 1999/08/23 18:38:40 da Exp
+;; $Id$
 ;;
 
 (defvar proof-x-symbol-initialized nil
@@ -334,12 +334,6 @@ Assumes that the current buffer is the proof shell buffer."
   ;  (if (boundp 'x-symbol-language)
   ;	;; If we're turning off x-symbol, convert back to tokens.
   ;     (x-symbol-encode))))
-
-
-;; Compatibility with completion package
-
-(put 'completion-separator-self-insert-command 'x-symbol-input t)
-(put 'completion-separator-self-insert-autofilling 'x-symbol-input t)
 
 
 ;;
