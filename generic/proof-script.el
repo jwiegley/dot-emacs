@@ -1577,7 +1577,7 @@ to the function which parses the script segment by segment."
 		(setq prevtype type)))))
       ;; Return segment list
       segs)))
-
+ 
 (defun proof-script-generic-parse-find-comment-end ()
   "Find the end of the comment point is at the start of. Nil if not found."
   (let ((notout t))
@@ -1823,10 +1823,14 @@ This version is used when `proof-script-command-end-regexp' is set."
 		;; (FIXME: ignore nested comments here, we should
 		;; have a consistent policy!)
 		(unless
+		    (if (fboundp 'comment-forward)
+			(progn
+			  (goto-char (or (match-end 1) (match-beginning 0)))
+			  (comment-forward))
 		    (proof-re-search-forward 
-		     proof-script-comment-end-regexp cmdend t)
+		     proof-script-comment-end-regexp cmdend t))
 		  (error
-		   "PG error: proof-segment-up-to-cmd-end didn't find comment end."))
+		   "PG error: proof-segment-up-to-cmd-end didn't find comment end"))
 		(setq alist (cons (list 'comment "" (point)) alist)))
 	      ;; There should be something left: a command.
 	      (skip-chars-forward " \t\n")
