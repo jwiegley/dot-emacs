@@ -3,6 +3,11 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.13  1997/11/26 17:23:51  hhg
+;; Added C-c C-s to run "Search" in Coq.
+;; Moved coq-goal-with-hole-regexp etc to coq-fontlock.
+;; Removed various superfluous definitions for COQPATH etc.
+;;
 ;; Revision 1.12  1997/11/24 19:15:08  djs
 ;; Added proof-execute-minibuffer-cmd and scripting minor mode.
 ;;
@@ -71,10 +76,7 @@
 (defvar coq-tags "/net/pauillac/constr/V6.2/theories/TAGS"
   "the default TAGS table for the Coq library")
 
-(defconst coq-process-config
-"AddPath \"/home/pauillac/formel/fguestb/src/coq/pbp\".
-Add ML Path \"/home/pauillac/formel/fguestb/src/coq/pbp\".
-Require Emacs."
+(defconst coq-process-config ""
   "Command to configure pretty printing of the Coq process for emacs.")
 
 ;; This doesn't exist at the moment
@@ -85,29 +87,6 @@ Require Emacs."
 (defconst coq-interrupt-regexp "Interrupted"
   "Regexp corresponding to an interrupt")
 
-;; This doesn't exist at the moment
-(defvar coq-test-all-name "test_all"
-  "The name of the Coq module which inherits all other modules of the
-  library.")
-
-;; Could be set to "Load". To cite Mark, "Although this may sound
-;; strange at first side, the Make command is much, much slower for my
-;; files then the load command. That is because .o files do not save
-;; Equiv's. So a Make of a .o file needs to find the proper
-;; conversions itself, and hence will be much slower in some
-;; cases. Especially when doing larger examples."
-
-(defvar coq-make-command "Make")
-
-(defvar coq-path-name "COQPATH"
-  "The name of the environmental variable to search for modules. This
-  is used by \\{coqgrep} to find the files corresponding to a
-  search.")
-
-(defvar coq-path-separator ":"
-  "A character indicating how the items in the \\{coq-path-name} are
-  separated.") 
-
 (defvar coq-save-query t
   "*If non-nil, ask user for permission to save the current buffer before
   processing a module.")
@@ -116,17 +95,6 @@ Require Emacs."
 ;; ----- web documentation
 
 (defvar coq-www-home-page "http://pauillac.inria.fr/coq/")
-
-;; ----- coqstat and coqgrep, courtesy of Mark Ruys
-
-(defvar coqgrep-command (concat "coqgrep -n \"\" " coq-test-all-name)
-  "Last coqgrep command used in \\{coqgrep}; default for next coqgrep.")
-
-(defvar coqstat-command "coqstat -t")
-
-(defvar coqgrep-regexp-alist
-  '(("^\\([^:( \t\n]+\\)[:( \t]+\\([0-9]+\\)[:) \t]" 1 2 nil ("%s.l")))
-  "Regexp used to match coqgrep hits.  See `compilation-error-regexp-alist'.")
 
 ;; ----- coq-shell configuration options
 
@@ -162,19 +130,10 @@ Require Emacs."
 (defvar coq-shell-outline-regexp coq-goal-regexp)
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
 
-(defvar coq-save-command-regexp
-  (concat "^" (ids-to-regexp coq-keywords-save)))
-(defvar coq-save-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-save) "\\)\\s-+\\([^.]+\\)"))
-(defvar coq-goal-command-regexp
-  (concat "^" (ids-to-regexp coq-keywords-goal)))
-(defvar coq-goal-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-goal) "\\)\\s-+\\([^:]+\\)"))
+(defconst coq-kill-goal-command "Abort.")
+(defconst coq-forget-id-command "Reset ")
 
-(defvar coq-kill-goal-command "Abort.")
-(defvar coq-forget-id-command "Reset ")
-
-(defvar coq-undoable-commands-regexp (ids-to-regexp coq-tactics))
+(defconst coq-undoable-commands-regexp (ids-to-regexp coq-tactics))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
@@ -243,13 +202,6 @@ Require Emacs."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's coq specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun coq-get-path ()
-  (let ((path-name (getenv coq-path-name)))
-    (cond ((not path-name)
-           (message "Warning: COQPATH has not been set!")
-           (setq path-name ".")))       
-    (string-to-list path-name coq-path-separator)))
 
 (defun coq-count-undos (sext)
   (let ((ct 0) str i)
@@ -393,6 +345,14 @@ Require Emacs."
   "List proof state."  
   (interactive) 
   (insert "Apply "))
+
+(defun coq-Search ()
+  "Search for type in goals."
+  (interactive)
+  (let (cmd)
+    (proof-check-process-available)
+    (setq cmd (read-string "Search Type: " nil 'proof-minibuffer-history))
+    (proof-invisible-command (concat "Search " cmd proof-terminal-string))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
@@ -598,6 +558,7 @@ Require Emacs."
   (define-key (current-local-map) [(control c) h] 'coq-help)
   (define-key (current-local-map) [(control c) I] 'coq-Intros)
   (define-key (current-local-map) [(control c) a] 'coq-Apply)
+  (define-key (current-local-map) [(control c) (control s)] 'coq-Search)
   (define-key (current-local-map) [tab]      'coq-indent-line)
 
 ;; outline
@@ -617,11 +578,7 @@ Require Emacs."
 
 ;; Info
   (setq Info-directory-list
-	(cons "/home/pauillac/formel/fguestb/src/info" Info-directory-list))
-
-;; where to find files
-
-  (setq compilation-search-path (cons nil (coq-get-path)))
+	(cons "/home/hhg/src/info" Info-directory-list))
 
 ;; keymaps and menus
   (easy-menu-add coq-mode-menu coq-mode-map)
