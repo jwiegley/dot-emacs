@@ -19,3 +19,64 @@
 a  -- TAB here loops forever
 
 
+=================================================================
+
+
+;; coq-mmm.el	  Configure MMM mode for Coq (for LaTeX/coqdoc)
+;;
+;; Copyright     (C) 2004 David Aspinall
+;; Authors:       David Aspinall <David.Aspinall@ed.ac.uk>
+;; Licence:	 GPL
+;;
+;; $Id$
+;; 
+;; Presently, we deal with several cases of (** text *).
+;; 
+;; TODO:
+;;  -- complete this
+;;
+
+(require 'mmm-auto)
+
+(defconst coq-start-latex-regexp 
+  (concat
+   "\\(" 
+   (proof-ids-to-regexp 
+    ;; Perhaps section is too much?  The fontification is nice but
+    ;; section headers are a bit short to use LaTeX mode in.
+    (list "text" "header" ".*section"))  
+   ;; Next one is nice but hammers font lock a bit too much
+   ;; if there are lots of -- {* short comments *}
+   ;; "\\|\-\-" ;; NB: doesn't work with \\<--\\>
+   "\\)[ \t]+{\\*"))
+
+(defconst coq-start-sml-regexp 
+  (concat
+   "\\(" 
+   (proof-ids-to-regexp (list "ML" "ML_command" "ML_setup"
+			      "typed_print_translation"))
+   "\\)[ \t]+{\\*"))
+
+
+(mmm-add-group
+ 'coq
+ `((coq-latex
+   :submode LaTeX-mode
+   :face mmm-comment-submode-face
+   :front ,coq-start-latex-regexp 
+   :back  "\\*}"
+   :insert ((?t coqtext nil @ "text {*" @ " " _ " " @ "*}" @))
+   :save-matches 1)
+
+  (coq-sml
+   :submode sml-mode
+   :face mmm-code-submode-face
+   :front ,coq-start-sml-regexp
+   :back  "\\*}"
+   :insert ((?M coqml nil @ "ML_setup {*" @ " " _ " " @ "*}" @))
+   :save-matches 1)))
+   
+
+(provide 'coq-mmm)
+
+;;; coq-mmm.el ends here

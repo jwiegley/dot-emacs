@@ -7,8 +7,9 @@ advertised verison of PG 3.5, including:
   -- multiple file handling
   -- automatic adjusting of line width
 
-There are other minor improvements to documentation.
+There are other minor improvements to documentation, and some
+minor improvements for Isabelle.
 	
-[da, 24/4/04].
+[da, 7/5/04].
 
 
