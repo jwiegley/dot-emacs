@@ -12,4 +12,6 @@ by (assume_tac 1);
 by (assume_tac 1);
 qed "and_comms";
 
-Goal "P(x) --> Q(x)";
+Goal "(ALL x. P(x) --> Q) --> ((EX x. P(x)) --> Q)";
+
+
