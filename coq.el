@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.27  1998/06/03 13:57:10  hhg
+;; Added definition of proof-commands-regexp for coq
+;;
 ;; Revision 1.26  1998/06/02 15:34:43  hhg
 ;; Generalized proof-retract-target, now parameterized by
 ;; proof-count-undos and proof-find-and-forget.
@@ -419,7 +422,8 @@
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
-	proof-kill-goal-command coq-kill-goal-command)
+	proof-kill-goal-command coq-kill-goal-command
+	proof-commands-regexp (ids-to-regexp coq-keywords))
 
   (modify-syntax-entry ?\$ ".")
   (modify-syntax-entry ?\/ ".")
