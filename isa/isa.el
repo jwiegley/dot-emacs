@@ -125,9 +125,9 @@ and script mode."
 
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
    proof-shell-inform-file-processed-cmd 
-   "ProofGeneral.inform_file_processed \"%s\";"
+   "ProofGeneral.inform_file_processed \"%e\";"
    proof-shell-inform-file-retracted-cmd 
-   "ProofGeneral.inform_file_retracted \"%s\";"))
+   "ProofGeneral.inform_file_retracted \"%e\";"))
 
 
 (defun isa-shell-mode-config-set-variables ()
@@ -250,8 +250,9 @@ and script mode."
 (defun isa-update-thy-only (file try wait)
   "Tell Isabelle to update current buffer's theory, and all ancestors."
   (proof-shell-invisible-command
-   (format "ProofGeneral.%supdate_thy_only \"%s\";"
-	   (if try "try_" "") (file-name-sans-extension file))
+   (proof-format-filename
+    (format "ProofGeneral.%supdate_thy_only \"%%e\";" (if try "try_" ""))
+    (file-name-sans-extension file))
    wait))
 
 (defun isa-shell-update-thy ()
@@ -379,7 +380,7 @@ isa-proofscript-mode."
   (save-some-buffers)
   (isa-update-thy-only file nil nil))
 
-(defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%s\";"
+(defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%e\";"
   "Sent to Isabelle to forget theory file and descendants.
 Resulting output from Isabelle will be parsed by Proof General."
   :type 'string
@@ -393,8 +394,9 @@ you will be asked to retract the file or process the remainder of it."
   (interactive (list buffer-file-name))
   (proof-deactivate-scripting)
   (proof-shell-invisible-command
-   (format isa-retract-thy-file-command
-	   (file-name-nondirectory (file-name-sans-extension file)))))
+   (proof-format-filename isa-retract-thy-file-command
+			  (file-name-nondirectory 
+			   (file-name-sans-extension file)))))
 
 
 ;; Next bits taken from isa-load.el

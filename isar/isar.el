@@ -299,8 +299,8 @@
    proof-shell-retract-files-regexp
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
-   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\";"
-   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\";")
+   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%e\";"
+   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%e\";")
   (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting))
 
 
