@@ -19,7 +19,6 @@ and old settings if you want to change back).
 Toolbar and splash screen supported.  
 
 X-Symbol support in progress
-
 Fontification (as ever) is tricky.
 Current status for X-symbol:
 
@@ -56,8 +55,11 @@ communication.
 ** Isabelle Changes
 
 Isabelle/Isar syntax changes, other tweaks for Isabelle2002.
+Switch to using Isabelle/Isar by default for .thy files.
+Support next error function.
 
-isa mode: highlighting improvements by Lucas Dixon (lucasd@dai.ed.ac.uk)
+Isabelle classic mode: add highlighting improvements for ML code
+contributed by Lucas Dixon (lucasd@dai.ed.ac.uk)
 
 
 ** Changes for other provers
