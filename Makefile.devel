@@ -51,7 +51,7 @@
 
 # PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
 # line in tag target below, which edits $(DOWNLOADHTML)
-PRERELEASE_PREFIX=3\.0pre
+PRERELEASE_PREFIX=3\.1pre
 PRERELEASE_TAG=3.1pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
