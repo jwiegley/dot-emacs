@@ -91,7 +91,8 @@ If ignore, point is never moved after toolbar movement commands."
 
 (defgroup proof-faces nil
   "Faces used by Proof General."
-  :group 'proof)
+  :group 'proof
+  :prefix "proof-")
   
 
 (defface proof-queue-face
@@ -180,7 +181,8 @@ Could come either from proof assistant or Proof General itself."
 
 (defgroup prover-config nil
   "Configuration of Proof General for the prover in use."
-  :group 'proof-internal)
+  :group 'proof-internal
+  :prefix "proof-")
 
 ;; The variables in the "prover-config" (NB: not "proof config"!!)
 ;; customize group are those which are intended to be set by the
@@ -307,7 +309,8 @@ This variable should be set before requiring proof.el"
 
 (defgroup proof-script nil
   "Proof General configuration of scripting buffer mode."
-  :group 'prover-config)
+  :group 'prover-config
+  :prefix "proof-")
 
 
 (defcustom proof-terminal-char nil
@@ -435,7 +438,8 @@ This is used to handle nested goals allowed by some provers."
 
 (defgroup proof-shell nil
   "Settings for output from the proof assistant in the proof shell."
-  :group 'prover-config)
+  :group 'prover-config
+  :prefix "proof-")
 
 
 ;; 

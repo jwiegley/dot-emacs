@@ -21,7 +21,8 @@
 (defgroup proof nil
   "Customization of Proof General."
   :group 'external
-  :group 'processes)
+  :group 'processes
+  :prefix "proof-")
 
 
 ;; This customization group gathers together
@@ -31,7 +32,8 @@
 ;; user-level customization, so this group does
 ;; not belong to 'proof (or any other group).
 (defgroup proof-internal nil
-  "Customization of Proof General internals.")
+  "Customization of Proof General internals."
+  :prefix "proof-")
 
 
 ;; Master table of supported assistants.
