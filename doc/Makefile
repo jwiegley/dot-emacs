@@ -82,22 +82,21 @@ ProofGeneralPortrait.eps:
 	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; fi
 	if [ -f ProofGeneralPortrait.eps ]; then \
 	  sed 's/@clear haveeps/@set haveeps/g' ProofGeneral.texi > $(TMPFILE); \
-	  sed 's/@c image{ProofGeneral}/@image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
+	  sed 's/@c image{ProofGeneralPortrait}/@image{ProofGeneralPortrait}/g' $(TMPFILE) > ProofGeneral.texi; \
 	else   \
 	  sed 's/@set haveeps/@clear haveeps/g' ProofGeneral.texi > $(TMPFILE); \
-	  sed 's/@image{ProofGeneral}/@c image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
+	  sed 's/@image{ProofGeneralPortrait}/@c image{ProofGeneralPortrait}/g' $(TMPFILE) > ProofGeneral.texi; \
 	fi
 	rm -f $(TMPFILE)
 
 ProofGeneralPortrait.pdf:
-	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; fi
-	epstopdf ProofGeneralPortrait.eps
+	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; epstopdf ProofGeneralPortrait.eps; fi
 	if [ -f ProofGeneralPortrait.pdf ]; then \
 	  sed 's/@clear haveeps/@set haveeps/g' ProofGeneral.texi > $(TMPFILE); \
-	  sed 's/@c image{ProofGeneral}/@image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
+	  sed 's/@c image{ProofGeneralPortrait}/@image{ProofGeneralPortrait}/g' $(TMPFILE) > ProofGeneral.texi; \
 	else   \
 	  sed 's/@set haveeps/@clear haveeps/g' ProofGeneral.texi > $(TMPFILE); \
-	  sed 's/@image{ProofGeneral}/@c image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
+	  sed 's/@image{ProofGeneralPortrait}/@c image{ProofGeneralPortrait}/g' $(TMPFILE) > ProofGeneral.texi; \
 	fi
 	rm -f $(TMPFILE)
 
@@ -117,7 +116,7 @@ all:    dvi ps html info pdf
 ##
 ## dist: build distribution targets
 ##
-dist:   info html psz
+dist:   info html psz pdf
 
 dvi:    ProofGeneralPortrait.eps $(DOCNAME).dvi
 ps:	dvi $(DOCNAME).ps
