@@ -213,6 +213,16 @@ lines than are actually needed in the case where some error may be present."
 ;;; GNU Emacs compatibility with XEmacs
 ;;;
 
+(unless (fboundp 'save-selected-frame)
+(defmacro save-selected-frame (&rest body)
+  "Execute forms in BODY, then restore the selected frame.
+The value returned is the value of the last form in BODY."
+  (let ((old-frame (gensym "ssf")))
+    `(let ((,old-frame (selected-frame)))
+       (unwind-protect
+           (progn ,@body)
+         (select-frame ,old-frame))))))
+
 ;; Chars (borrowed from x-symbol-emacs.el compatability file)
 
 (unless (fboundp 'characterp) (defalias 'characterp 'integerp))
