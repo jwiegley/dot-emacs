@@ -85,7 +85,7 @@ all:    dvi ps html info pdf
 ##
 ## dist: build distribution targets
 ##
-dist:   html psz
+dist:   info html psz
 
 dvi:    ProofGeneral.eps $(DOCNAME).dvi
 ps:	dvi $(DOCNAME).ps
