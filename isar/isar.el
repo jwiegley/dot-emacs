@@ -196,7 +196,7 @@
    proof-shell-prompt-pattern           "^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd                   "ML_command {* Library.cd \"%s\" *}"
+   proof-shell-cd-cmd                   "ML_command {* ThyLoad.add_path \"%s\" *}"
 
    ;; Escapes for filenames inside ML strings.
    ;; We also make a hack for a bug in Isabelle, by switching from

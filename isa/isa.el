@@ -160,7 +160,7 @@ and script mode."
    proof-shell-prompt-pattern		"^2?[ML-=#>]>? \372?"
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd			"Library.cd \"%s\";"
+   proof-shell-cd-cmd			"ThyLoad.add_path \"%s\";"
 
    ;; Escapes for filenames inside ML strings.
    ;; We also make a hack for Isabelle, by switching from backslashes
