@@ -72,6 +72,11 @@ B BUGLETS:
   - If Proof General is loaded with M-x load-library, it gets set up
     for *no* proof assistant!!
   - Repetition of "load .emacs" on menu bar even when it's been loaded.
+  - Response buffer doesn't scroll to display o/p (it does for debug msgs,
+    oddly).  This might have been a 1998 design decision.
+    Maybe it should be a user option?
+
+  - XEmacs pg forces on font-lock!
 
 B SMALL DELTAS:
   - Consider setting proof-mode-for-script automatically?
@@ -81,6 +86,11 @@ B SMALL DELTAS:
   (problem synchronizing)
   - Difference in menubar appearance depending on whether X-Symbol
   is loaded before Proof General or not.
+  - Improvements to script navigation commands.  Would like some
+  uniformity with proof-find-next-terminator, and a better
+  implementation.  Maybe we have four commands: find command start,
+  command end, and move to next command/previous command.
+
 
 B Have seen "confused" bug: shows up when do lots of C-c C-n as
   process is starting up.
@@ -99,11 +109,6 @@ B Making undoing better.
 
 D Why don't PG's minor modes appear on XEmacs minor mode menu?
   (C-right on status bar)
-
-A Markus's bug reminder list:
-  - cut&paste from hilited Isabelle output includes invisible specials;
-  - c-c c-c does not work reliably;
-  - c-c c-a is broken;
 
 A Bugs in x-symbol support: 
    - visiting multiple files sometimes doesn't display them properly
@@ -143,11 +148,9 @@ C C-x C-v does not seem to run kill buffer hooks properly: at
   (e.g.) a completely processed file doesn't get added to the
   included files list.  Auto retraction appears to work.
 
-B Nested error problem:  conceptually, activate scripting should fail
-  if the hook function which causes loading of more files (for isabelle)
-  fails.  Maybe fix by adding a new piece of state: 
-  "proof-shell-error-flagged" and testing it before allowing
-  scripting to start.
+B Now we have proof-shell-error-or-interrupt-seen flag, we maybe don't
+  need proof-shell-handle-error-hook: presently only use is in Plastic
+  to set a similar flag.
 
 B Add something to better document two-buffer versus three-buffer
   interaction modes, and the use of proof-window-dedicated to

@@ -37,12 +37,15 @@ Generic Changes
   (it was too easy for the user to accidently type C-u C-c C-u !)
 
 * User options have been re-organized and renamed to be
-  more suggestive.  "Active terminator minor mode" is now 
-  called "electric terminator".  Boolean options can be
+  more suggestive.  Boolean options can be
   toggled from the menu and saved with "Save options"
   on the ordinary Emacs "Options" menu.  (Others can
   be set via Customize).
-  
+
+* "Active terminator minor mode" is now called "electric 
+  terminator".   It has one setting for all buffers, and
+  you can customize it if you want it permanently on.
+
 * Command C-c C-t (proof-try-command) removed in favour of C-c C-v
   (proof-execute-minibuffer-cmd), which now uses the
   filter proof-state-preserving-p to check that a command is safe.
@@ -172,13 +175,16 @@ Internal changes for developers to note
 * proof-shell-leave-annotations-in-output variable has been added.
   This allows quick and dirty mark up of output from the proof
   assistant using special characters with codes above 128 and
-  font-lock.  Such characters are hidden from display in the
+  font-lock.  Such characters are removed from display in the
   output buffers.  
-  However, it is NOT recommended to use this mechanism, because
-  it breaks the usability of cut and paste (which copies the
-  special characters).  Furthermore the entire mechanism of
-  using special character codes is fragile and needs replacing
-  in future versions of Proof General!
+  However, it is NOT recommended to use this mechanism heavily,
+  because the entire mechanism of using 8 bit character codes as 
+  "special" characters is fragile and needs replacing in future
+  versions of Proof General!
+
+* proof-font-lock-zap-commas has been added to control whether
+  or not the excrutiating font-lock hack to unhighlight commas
+  is enabled.
 
 * Many code cleanups and improvements.
 

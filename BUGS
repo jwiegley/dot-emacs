@@ -37,15 +37,18 @@ the best of all possible worlds, switch to XEmacs.
 
 * As of FSFmacs 20.3, multi-byte character codes are used.  This
 breaks some of the code in Proof General, which is turned off in
-case the suspicious looking function
-toggle-enable-multibyte-characters is present.  This could effect
-forthcoming versions of XEmacs (but hasn't as far as XEmacs 21.1).
-Workaround: use FSFmacs 20.2, or XEmacs 20.4/later.
+case the suspicious looking function toggle-enable-multibyte-characters 
+is present.  The code that is turned off deals with term markup
+for proof by pointing, which only affects LEGO at the moment.
+This problem could affect forthcoming versions of XEmacs (but hasn't
+as far as XEmacs 21.1).  Can anybody tell me if it affects Mule
+versions of Emacs?
+Workaround: for LEGO pbp, use FSFmacs 20.2, or XEmacs 20.4/later.
 
 * Using C-g can leave script management in a mess.  The code
 needs to have some regions protected from Emacs interrupts.
-Workaround: Don't type C-g while script management is processing.  If
-you do, use proof-restart-scripting.
+Workaround: Don't type C-g while script management is processing.  
+If you do, use proof-restart-scripting.
 
 * Outline-mode does not work in processed proof script files due to
 read-only restrictions of the protected region.  This is an inherent
@@ -130,6 +133,9 @@ mechanism.
 * User defined tactics cannot be retracted. Workaround: you may need
 to retract to the beginning of the proof.
 
+* Surely others that aren't mentioned here.  Please report them
+to proofgen@dcs.ed.ac.uk.
+
 
 Isabelle Proof General Bugs
 ===========================
@@ -144,15 +150,5 @@ interface unless you use your own "goal" or "qed" forms.
 
 * Blocking when processing multiple files, beginning from a .ML file.
 Proof General will block the Emacs process when it is waiting for a
-theory file (and it's ancestors) to be read.  To avoid this, assert
-the theory file rather than the ML file, or use C-c C-s to start
-scripting (which triggers reading the theory) before using one of
-the assertion commands.
-
-* Cut-and-paste from Isabelle output (e.g. goals buffer) is
-problematic.  You will find that this inserts otherwise-invisible
-special characters into the script buffer, which are used to do the
-highlighting.  If you really need to do cut-and-paste, customize the
-variable proof-shell-leave-annotations-in-output to nil.
-Unfortunately this will turn off variable colouring.
-
+theory file (and it's ancestors) to be read as scripting is turned
+on.  To avoid this, assert the theory file rather than the ML file.
