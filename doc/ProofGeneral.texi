@@ -729,10 +729,15 @@ assistant are required, typically.
 
 @node Prerequisites for this manual
 @section Prerequisites for this manual
+@cindex Meta
+@cindex Alt
+@cindex key sequences
 
 This manual assumes that you understand a little about using Emacs, for
 example, switching between buffers using @kbd{C-x b} and understanding
-that a key sequence like @kbd{C-x b} means "control-x followed by b".
+that a key sequence like @kbd{C-x b} means "control with x, followed by b".
+A key sequence like @kbd{M-z} means "meta with z".  (@key{Meta} may be
+labelled @key{Alt} on your keyboard).
 
 The manual also assumes you have a basic understanding of your proof
 assistant and the language and files it uses for proof scripts.  But
@@ -1328,6 +1333,7 @@ does.
 @kindex C-c C-b
 @kindex C-c C-r
 @kindex C-c C-RET
+@cindex prefix argument
 
 Here are the commands for asserting and retracting portions of the proof
 script, together with their default key-bindings.  Sometimes assertion
@@ -1424,21 +1430,29 @@ It was constructed with @samp{@code{proof-deftoggle-fn}}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-assert-until-point-interactive
-
 @deffn Command proof-assert-until-point-interactive 
 Process the region from the end of the locked-region until point.@*
 Default action if inside a comment is just process as far as the start of
 the comment.
 @end deffn
+
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point-interactive
-
-
 @deffn Command proof-retract-until-point-interactive &optional delete-region
 Tell the proof process to retract until point.@*
 If invoked outside a locked region, undo the last successfully processed
 command.  If called with a prefix argument (@var{delete-region} non-nil), also
 delete the retracted region from the proof-script.
 @end deffn
+
+As experienced Emacs users will know, a @i{prefix argument} is a numeric
+argument supplied by some key sequence typed before a command key
+sequence.  You can supply a specific number by typing @key{Meta} with
+the digits, or a ``universal'' prefix of @kbd{C-u}.  See
+@inforef{Arguments, ,(xemacs)} for more details.  Several Proof General
+commands, like @code{proof-retract-until-point-interactive}, may accept
+a @i{prefix argument} to adjust their behaviour somehow.
+
+
 @node Proof assistant commands
 @section Proof assistant commands
 @kindex C-c C-p
@@ -1452,6 +1466,8 @@ There are several commands for interacting with the proof assistant away
 from a proof script.  Here are the key-bindings and functions.
 
 @table @kbd
+@item C-c C-l
+@code{proof-display-some-buffers}
 @item C-c C-p
 @code{proof-prf}
 @item C-c C-t
@@ -1465,6 +1481,14 @@ from a proof script.  Here are the key-bindings and functions.
 @item C-c C-v
 @code{proof-minibuffer-cmd}
 @end table
+
+
+@c TEXI DOCSTRING MAGIC: proof-display-some-buffers
+@deffn Command proof-display-some-buffers 
+Display the reponse buffer, and maybe also the goals buffer.@*
+If in three window or multiple frame mode, the goals buffer
+is also displayed.
+@end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-prf
 @deffn Command proof-prf 
@@ -3767,8 +3791,8 @@ script buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
-Character which terminates a command in a script buffer, or nil if none.@*
-You must set this variable in script mode configuration.
+Character which terminates every command sent to proof assistant.  nil if none.@*
+You should set this variable in script mode configuration.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-comment-start
 @defvar proof-comment-start 
@@ -4217,7 +4241,8 @@ NB: Terminator not added to command.
 @defvar proof-shell-silent-threshold 
 Number of waiting commands in the proof queue needed to trigger silent mode.@*
 Default is 2, but you can raise this in case switching silent mode
-on or off is particularly expensive.
+on or off is particularly expensive (or make it ridiculously large
+to disable silent mode altogether).
 @end defvar
 @xref{Handling multiple files},
 for more details about the final two settings in this group,
@@ -4939,7 +4964,7 @@ buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-invisible-command
 @defun proof-shell-invisible-command cmd &optional wait
-Send @var{cmd} to the proof process.  @*
+Send @var{cmd} to the proof process.  Automatically add @code{proof-terminal-char} if nec.@*
 By default, let the command be processed asynchronously.
 But if optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
