@@ -3,6 +3,12 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.11  1997/11/20 13:03:08  hhg
+;; Added coq-global-p for global declarations and definitions.  These now
+;; get lifted in the same way as lemmas.
+;; Changed [meta (control i)] to [meta tab] in key definition.
+;; Changed menu, and made help in menu refer to info mode.
+;;
 ;; Revision 1.10  1997/11/17 17:11:15  djs
 ;; Added some magic commands: proof-frob-locked-end, proof-try-command,
 ;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
@@ -52,22 +58,29 @@
 (require 'coq-fontlock)
 (require 'outline)
 (require 'proof)
+(require 'info)
 
 ; Configuration                                  
 
 (defconst coq-mode-version-string
   "Coq-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
 
-(defvar coq-tags "/usr/local/share/coq/lib-alpha/lib_all/TAGS"
+(defvar coq-tags "/net/pauillac/constr/V6.2/theories/TAGS"
   "the default TAGS table for the Coq library")
 
-(defconst coq-process-config nil
+(defconst coq-process-config
+"AddPath \"/home/pauillac/formel/fguestb/src/coq/pbp\".
+Add ML Path \"/home/pauillac/formel/fguestb/src/coq/pbp\".
+Require Emacs."
   "Command to configure pretty printing of the Coq process for emacs.")
 
 ;; This doesn't exist at the moment
 (defconst coq-pretty-set-width ""
   "Command to adjust the linewidth for pretty printing of the Coq
   process.") 
+
+(defconst coq-interrupt-regexp "Interrupted"
+  "Regexp corresponding to an interrupt")
 
 ;; This doesn't exist at the moment
 (defvar coq-test-all-name "test_all"
@@ -99,24 +112,7 @@
 
 ;; ----- web documentation
 
-(defvar coq-www-home-page "http://www.dcs.ed.ac.uk/home/lego/")
-
-(defvar coq-www-refcard (concat (w3-remove-file-name coq-www-home-page)
-				 "refcard.dvi.gz"))
-
-;; `coq-www-refcard' ought to be set to
-;; "ftp://ftp.dcs.ed.ac.uk/pub/coq/refcard.dvi.gz", but  
-;;    a) w3 fails to decode the image before invoking xdvi
-;;    b) ange-ftp and efs cannot handle Solaris ftp servers
-
-
-(defvar coq-library-www-page
-  (concat (w3-remove-file-name coq-www-home-page)
-          "html/library/newlib.html"))
-
-(defvar coq-www-customisation-page
-  (concat (w3-remove-file-name coq-www-home-page)
-          "html/emacs-customisation.html"))
+(defvar coq-www-home-page "http://pauillac.inria.fr/coq/")
 
 ;; ----- coqstat and coqgrep, courtesy of Mark Ruys
 
@@ -131,7 +127,7 @@
 
 ;; ----- coq-shell configuration options
 
-(defvar coq-prog-name "/obj/local/coq/V6.1.beta/bin/sun4/coqtop -bindir /obj/local/coq/V6.1.beta/bin/sun4"
+(defvar coq-prog-name "coqtop"
   "*Name of program to run as Coq.")
 
 (defvar coq-shell-working-dir ""
@@ -203,26 +199,20 @@
 	      :active (proof-shell-live-buffer)]
             ["Display proof state" coq-prf
 	      :active (proof-shell-live-buffer)]
-           ["Kill the current refinement proof"
-            coq-killref  :active (proof-shell-live-buffer)]
-           ["Exit Coq" proof-shell-exit
+	    ["Abort the current proof" coq-abort
 	     :active (proof-shell-live-buffer)]
-           "----"
-           ["Find definition/declaration" find-tag-other-window t]
-           ("Help"
-            ["The Coq Reference Card" (w3-fetch coq-www-refcard) t]
-            ["The Coq library (WWW)"
-             (w3-fetch coq-library-www-page)  t]
-            ["The Coq Proof-assistant (WWW)"
-             (w3-fetch coq-www-home-page)  t]
-            ["Help on Emacs Coq-mode" describe-mode  t]
-            ["Customisation" (w3-fetch coq-www-customisation-page)
-	      t]
-            ))))
+	    ["Exit Coq" coq-exit :active (proof-shell-live-buffer)]
+	    "----"
+	    ["Find definition/declaration" find-tag-other-window t]
+	    ("Help"
+	     ["The Coq Proof-assistant (WWW)"
+	      (w3-fetch coq-www-home-page)  t]
+	     ["Help on Emacs Coq-mode" coq-info-mode t]
+	     ))))
 
 (defvar coq-menu  
   (append '("Coq Commands"
-            ["Toggle active ;" proof-active-terminator-minor-mode
+            ["Toggle active terminator" proof-active-terminator-minor-mode
 	     :active t
 	     :style toggle
              :selected proof-active-terminator-minor-mode]
@@ -236,27 +226,20 @@
 (defvar coq-shell-menu coq-shared-menu
   "The menu for the Coq shell")
 
-;(easy-menu-define coq-shell-menu
-;		  coq-shell-mode-map
-;		  "Menu used in the coq shell."
-;		  (cons "Coq" (cdr coq-shell-menu)))
+(easy-menu-define coq-shell-menu
+		  coq-shell-mode-map
+		  "Menu used in the coq shell."
+		  (cons "Coq" (cdr coq-shell-menu)))
 
-;(easy-menu-define coq-mode-menu  
-;		  coq-mode-map
-;		  "Menu used coq mode."
-;		  (cons "Coq" (cdr coq-menu)))
+(easy-menu-define coq-mode-menu  
+		  coq-mode-map
+		  "Menu used coq mode."
+		  (cons "Coq" (cdr coq-menu)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's coq specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Martin Steffen <mnsteffe@informatik.uni-erlangen.de> has pointed
-;; out that calling coq-get-path has to deal with a user who hasn't
-;; set the environmental variable COQPATH. It is probably best if
-;; coq is installed as a shell script which sets a sensible default
-;; for COQPATH if the user hasn't done so before. See the
-;; documentation of the library for further details.
 
 (defun coq-get-path ()
   (let ((path-name (getenv coq-path-name)))
@@ -266,12 +249,20 @@
     (string-to-list path-name coq-path-separator)))
 
 (defun coq-count-undos (sext)
-  (let ((ct 0) str)
+  (let ((ct 0) str i)
     (while sext
+      (setq str (span-property sext 'cmd))
       (cond ((eq (span-property sext 'type) 'vanilla)
-	     (setq str (span-property sext 'cmd))
 	     (if (string-match coq-undoable-commands-regexp str)
-		 (setq ct (+ 1 ct)))))
+		 (setq ct (+ 1 ct))))
+	    ((eq (span-property sext 'type) 'pbp)
+	     (cond ((string-match coq-undoable-commands-regexp str)
+		    (setq i 0)
+		    (while (< i (length str))
+		      (if (= (aref str i) proof-terminal-char)
+			  (setq ct (+ 1 ct)))
+		      (setq i (+ 1 i))))
+		   (t nil))))
       (setq sext (next-span sext 'type)))
     (concat "Undo " (int-to-string ct) proof-terminal-string)))
 
@@ -302,17 +293,27 @@
 
       (or ans "COMMENT")))
 
+(defvar coq-current-goal 1
+  "Last goal that emacs looked at.")
+
 (defun coq-goal-hyp ()
   (cond 
    ((looking-at "============================\n")
     (goto-char (match-end 0))
-    (cons 'goal "1"))
-   ((looking-at "subgoal \\([0-9]\\)+ is:\n")
+    (cons 'goal (int-to-string coq-current-goal)))
+   ((looking-at "subgoal \\([0-9]+\\) is:\n")
     (goto-char (match-end 0))
-    (cons 'goal (match-string 1)))
+    (cons 'goal (match-string 1))
+    (setq coq-current-goal (string-to-int (match-string 1))))
    ((looking-at proof-shell-assumption-regexp)
     (cons 'hyp (match-string 1)))
    (t nil)))
+
+(defun coq-state-preserving-p (cmd)
+  (not (string-match coq-undoable-commands-regexp cmd)))
+
+(defun coq-global-p (cmd)
+  (string-match coq-keywords-decl-defn-regexp cmd))
 
 (defun coq-retract-target (target delete-region)
   (let ((end (proof-locked-end))
@@ -350,6 +351,11 @@
 ;;   Commands specific to coq                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun coq-info-mode ()
+  "Info mode on Coq."
+  (interactive)
+  (info "script-management"))
+
 (defun coq-help ()
   "Print help message giving syntax."
   (interactive)
@@ -360,10 +366,20 @@
   (interactive)
   (proof-invisible-command "Show."))
 
+(defun coq-abort ()
+  "Kill current proof."
+  (interactive)
+  (proof-invisible-command "Abort."))
+
+(defun coq-exit ()
+  "Exit Coq."
+  (interactive)
+  (proof-restart-script))
+
 (defun coq-ctxt ()
   "List context."
   (interactive) 
-  (proof-invisible-command "Show Context."))
+  (proof-invisible-command "Show."))
 
 (defun coq-Intros () 
   "List proof state." 
@@ -419,8 +435,10 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-retract-target-fn 'coq-retract-target)
-  (setq proof-goal-hyp-fn 'coq-goal-hyp)
+  (setq proof-retract-target-fn 'coq-retract-target
+        proof-goal-hyp-fn 'coq-goal-hyp
+	proof-state-preserving-p 'coq-state-preserving-p
+	proof-global-p 'coq-global-p)
 
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
@@ -451,15 +469,17 @@
 
   (proof-config-done)
 
-  (define-key (current-local-map) "\M-\C-i"
+  (define-key (current-local-map) [(meta tab)]
     (if (fboundp 'complete-tag)
 	'complete-tag		; Emacs 19.31 (superior etags)
       'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
-  (define-key (current-local-map) "\C-c\C-p" 'coq-prf)
-  (define-key (current-local-map) "\C-cc"    'coq-ctxt)
-  (define-key (current-local-map) "\C-ch"    'coq-help)
-  (define-key (current-local-map) "\C-cI"    'coq-Intros)
+  (define-key (current-local-map) [(control c) (control p)] 'coq-prf)
+  (define-key (current-local-map) [(control c) c] 'coq-ctxt)
+  (define-key (current-local-map) [(control c) h] 'coq-help)
+  (define-key (current-local-map) [(control c) I] 'coq-Intros)
   (define-key (current-local-map) "\C-ca"    'coq-Apply)
+
+;;  (define-key (current-local-map) [tab]      'lego-indent-line)
 
 ;; outline
   
@@ -470,24 +490,22 @@
   (setq outline-heading-end-regexp coq-outline-heading-end-regexp)
 
 ;; tags
-  (cond ((boundp 'tags-table-list)
-	 (make-local-variable 'tags-table-list)
-	 (setq tags-table-list (cons coq-tags tags-table-list))))
-
   (and (boundp 'tag-table-alist)
        (setq tag-table-alist
-	     (append '(("\\.l$" . coq-tags)
+	     (append '(("\\.v$" . coq-tags)
 		       ("coq"  . coq-tags))
 		     tag-table-alist)))
+
+;; Info
+  (setq Info-directory-list
+	(cons "/home/pauillac/formel/fguestb/src/info" Info-directory-list))
 
 ;; where to find files
 
   (setq compilation-search-path (cons nil (coq-get-path)))
 
 ;; keymaps and menus
-
-;; The following doesn't work:
-;;  (easy-menu-add coq-mode-menu coq-mode-map)
+  (easy-menu-add coq-mode-menu coq-mode-map)
 
   (setq blink-matching-paren-dont-ignore-comments t)
 
@@ -503,6 +521,7 @@
         proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
         proof-shell-error-regexp coq-error-regexp
+	proof-shell-interrupt-regexp coq-interrupt-regexp
         proof-shell-noise-regexp ""
         proof-shell-assumption-regexp coq-id
         proof-shell-goal-regexp coq-goal-regexp
