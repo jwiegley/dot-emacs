@@ -166,14 +166,14 @@ DEVELMAKE=make -f Makefile.devel
 # FIXME: really this should be an opt-in list!
 UNFINISHED_ELISP=generic/pg-metadata.el generic/pg-xhhtml.el generic/_pkg.el
 ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt pgkit etc/Mailman
-NONDISTFILES=.cvsignore */.cvsignore Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile $(UNFINISHED_ELISP) $(ETC_FILES)
+NONDISTFILES=.cvsignore */.cvsignore Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneral.jpg images/*.xcf images/notes.txt images/gimp images/Makefile $(UNFINISHED_ELISP) $(ETC_FILES)
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog* ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo etc/TESTS *.cvsignore */*.cvsignore
+IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog* ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral*/doc/docstring-magic.el ProofGeneral*/*/todo ProofGeneral*/etc/TESTS ProofGeneral*/*.cvsignore ProofGeneral*/*/*.cvsignore
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -202,7 +202,7 @@ RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
 DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
-ELISP_DIRS=generic acl2 coq demoisa hol98 isa isar lclam lego pgkit phox plastic twelf
+ELISP_DIRS=acl2 coq demoisa generic hol98 isa isar lclam lego mmm phox plastic twelf
 SUBDIRS=$(ELISP_DIRS) etc doc images
 
 PWD=$(shell pwd)
@@ -302,10 +302,6 @@ autoloads: $(EL)
 #
 # Documentation
 #
-doc:	FORCE
-	@echo "***** MAKING DOCS  ****"
-	(cd doc; $(MAKE) doc)
-
 distdocs: FORCE
 	@echo "***** MAKING DISTRIBUTION DOCS  ****"
 	(cd doc; ln -s $(HTMLDIR)/ProofGeneralPortrait.eps.gz .; $(MAKE) dist)
@@ -405,10 +401,6 @@ dist:
 #	@echo " Copying doc files .."
 #	@echo "*************************************************"
 #	(cp -pr $(DISTBUILDIR)/$(RELEASENAME)/doc $(DISTBUILDIR))
-#	@echo "*************************************************"
-#	@echo " Moving html files .."
-#	@echo "*************************************************"
-#	(cd $(DISTBUILDIR)/$(RELEASENAME)/html; mv * ../..)
 	@echo "*************************************************"
 	@echo " Cleaning non-distributed files .."
 	@echo "*************************************************"
@@ -416,11 +408,10 @@ dist:
 	@echo "*************************************************"
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
-	for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done
+	-(cd $(DISTBUILDIR); ls $(IGNOREDFILES) > ignoredfiles; echo ignoredfiles >> ignoredfiles)
 #	link the long name to short name for convenience of user
 	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
-	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X ignoredfiles
-	rm -f ignoredfiles
+	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X $(DISTBUILDIR)/ignoredfiles
 	@echo "*************************************************"
 	@echo " Making zip file..."
 	@echo "*************************************************"
@@ -502,7 +493,7 @@ releaseclean:
 ##	  
 ## 
 fakereleaseall: 
-	$(MAKE) -f Makefile.devel release rpmrelease  releaseclean golive NOCVS="no" 
+	$(MAKE) -f Makefile.devel release rpmrelease  releaseclean NOCVS="no" 
 
 ############################################################
 ##
