@@ -443,13 +443,14 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 
 (defconst isar-undo-fail-regexp
-  (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end)))
+  (proof-anchor-regexp
+   (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))))
 
 (defconst isar-undo-skip-regexp
-  (proof-ids-to-regexp isar-keywords-diag))
+  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-diag)))
 
 (defconst isar-undo-kill-regexp
-  (proof-ids-to-regexp isar-keywords-theory-begin))
+  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-begin)))
 
 
 ;; undo proof commands

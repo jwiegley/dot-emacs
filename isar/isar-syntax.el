@@ -108,15 +108,15 @@
   "*Font-lock table for Isabelle terms.")
 
 (defconst isar-save-command-regexp
-  (concat "^" (proof-ids-to-regexp isar-keywords-save)))
+  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-save)))
 
 (defconst isar-save-with-hole-regexp "$^") ; n.a.
 
 (defconst isar-goal-command-regexp
-  (proof-ids-to-regexp isar-keywords-theory-goal))
+  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-goal)))
 
 (defconst isar-local-goal-command-regexp
-  (proof-ids-to-regexp isar-keywords-proof-goal))
+  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-proof-goal)))
 
 (defconst isar-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
