@@ -475,6 +475,18 @@ The script buffer's comment-end is set to this string plus a space."
   :type 'string
   :group 'proof-script)
 
+(defcustom proof-string-start-regexp "\""
+  "Regexp which matches the start of a quoted string in the proof
+assistant command language."
+  :type 'string
+  :group 'proof-script)
+
+(defcustom proof-string-end-regexp "\""
+  "Regexp which matches the end of a quoted string in the proof
+assistant command language."
+  :type 'string
+  :group 'proof-script)
+
 (defcustom proof-case-fold-search nil
   "Value for case-fold-search when recognizing portions of proof scripts.
 The default value is 'nil'.  If your prover has a case *insensitive*
