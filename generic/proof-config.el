@@ -1570,9 +1570,13 @@ If nil, just use the rest of the output following proof-shell-start-goals-regexp
 (defcustom proof-shell-eager-annotation-start nil
   "Eager annotation field start.  A regular expression or nil.
 An eager annotation indicates to Proof General that some following output
-should be displayed immediately and not accumulated for parsing later.
-It's nice to recognize warnings or file-reading messages with this
-regexp.  
+should be displayed (or processed) immediately and not accumulated for 
+parsing later. 
+
+It is nice to recognize (starts of) warnings or file-reading messages
+with this regexp.  You must also recognize any special messages
+from the prover to PG with this regexp (e.g. `proof-shell-clear-goals-regexp', 
+`proof-shell-retract-files-regexp', etc.)
 
 See also `proof-shell-eager-annotation-start-length',
 `proof-shell-eager-annotation-end'.
@@ -1595,7 +1599,14 @@ filter to avoid unnecessary searching."
 (defcustom proof-shell-eager-annotation-end "\n"
   "Eager annotation field end.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
-should be displayed immediately and not accumulated for parsing.
+should be displayed or processed immediately.
+
+See also `proof-shell-eager-annotation-start'.
+
+It is nice to recognize (ends of) warnings or file-reading messages
+with this regexp.  You must also recognize (ends of) any special messages
+from the prover to PG with this regexp (e.g. `proof-shell-clear-goals-regexp', 
+`proof-shell-retract-files-regexp', etc.)
 
 The default value is \"\\n\" to match up to the end of the line."
   :type '(choice regexp (const :tag "Unset" nil))
