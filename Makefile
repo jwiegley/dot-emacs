@@ -6,7 +6,9 @@
 ## Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ##
 ##
-##  make compile
+##  make compile	- make .elc's in a single session
+##  make all		- make .elc's in separate sessions
+##
 ##
 ## $Id$
 ## 
