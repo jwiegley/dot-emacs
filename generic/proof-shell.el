@@ -1789,6 +1789,9 @@ If WAIT is an integer, wait for that many seconds afterwards."
   ;; (Problem to fix is that process can die before sentinel is set:
   ;;  it ought to be set just here, perhaps: but setting hook here
   ;;  had no effect for some odd reason).
+  ;; What actually happens: an obscure infinite loop somewhere
+  ;; that can lead to "lisp nesting exceeded" somewhere, when
+  ;; shell startup fails.  Ugly, but low priority to fix.
   ))
 
 ;; watch difference with proof-shell-menu, proof-shell-mode-menu.
