@@ -1391,7 +1391,12 @@ however, are always processed; hence their name)."
   (save-excursion
     (and proof-shell-eager-annotation-start
 	 (proof-shell-process-urgent-messages))
-       
+
+    ;; FIXME da: some optimization possible here by customizing
+    ;; filter according to whether proof-shell-wakeup-char, etc,
+    ;; are non-nil.  Make proof-shell-filter into a macro to do
+    ;; this.
+
     (if ;; Some proof systems can be hacked to have annotated prompts;
 	;; for these we set proof-shell-wakeup-char to the annotation 
 	;; special.  
@@ -1446,17 +1451,13 @@ however, are always processed; hence their name)."
 		(if (and urgnt
 			 (< (point) urgnt))
 		    (setq startpos (goto-char urgnt)))
-		;; EXPERIMENTAL OPTIMIZATION
-		;; Let's search backwards from end of buffer, to check
-		;; newly inserted text for a prompt.
-		;; For this to work well, we assume that 
 		;; Find next prompt.  
 		(if (re-search-forward 
 		     proof-shell-annotated-prompt-regexp nil t)
 		    (progn
 		      (backward-char (- (match-end 0) (match-beginning 0)))
 		      (setq string (buffer-substring startpos (point)))
-		      (goto-char (point-max))	; da: why?
+		      (goto-char (point-max))	
 		      (proof-shell-filter-process-output string)))))))))
 
 
