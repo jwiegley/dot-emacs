@@ -139,7 +139,11 @@ ISABELLE will always override this setting."
 		  (getenv "ISABELLE")	; overrides default, may be updated
 		  isabelle-program-name ; calculated earlier
 		  "isabelle"))		; to be really sure
-       (opts (if isa-running-isar " -PI" ""))
+       (isabelle-opts (getenv "ISABELLE_OPTIONS"))
+       (opts (concat
+	      (if isa-running-isar " -PI" "")
+	      (if (and isabelle-opts (not (equal isabelle-opts "")))
+		  (concat " " isabelle-opts) "")))
        (logic (or isabelle-chosen-logic
 		  (getenv "PROOFGENERAL_LOGIC")))
        (logicarg (if (and logic (not (equal logic "")))
