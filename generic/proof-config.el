@@ -1175,7 +1175,10 @@ The possibilities are:
     'extend  -  keep extending the closed region until a save or goal.
 
 If your proof assistant allows nested goals, it will be wrong to close
-off the portion of proof so far, so this variable should be set to nil."
+off the portion of proof so far, so this variable should be set to nil.
+
+NB: 'extend behaviour is not currently compatible with appearance of
+save commands, so don't use that if your prover has save commands."
   :type '(choice
 	  (const :tag "Close on save only" nil)
 	  (const :tag "Close next command" closeany)

@@ -1199,7 +1199,7 @@ With ARG, turn on scripting iff ARG is positive."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Processing the script management queue -- PART 1: advancing
+;; Processing the script management queue -- PART 1: "advancing"
 ;;
 ;; The proof-action-list contains a list of (span,command,action)
 ;; triples. The loop looks like: Execute the command, and if it's
@@ -1209,277 +1209,295 @@ With ARG, turn on scripting iff ARG is positive."
 ;; When a span has been processed, it is classified as 
 ;; 'comment, 'goalsave, 'vanilla, etc. 
 ;;
-
+;; The main function for dealing with processed spans is
+;; `proof-done-advancing'
 
 (defun proof-done-advancing (span)
   "The callback function for assert-until-point."
   ;; FIXME da: if the buffer dies, this function breaks horribly.
-  ;; Needs robustifying.
   (if (not (span-live-p span))
-      ;; FIXME da: Sometimes this function is called with a destroyed
-      ;; extent as argument.  When?  Isn't this a bug?
-      ;; (one case would be if the buffer is killed while
-      ;; a proof is completing)
-      ;; NB: this patch doesn't work!  Are spans being destroyed
-      ;; sometime *during* this code??
+      ;; NB: Sometimes this function is called with a destroyed
+      ;; extent as argument.  Seems odd.
       (proof-debug 
        "Proof General idiosyncrasy: proof-done-advancing called with a dead span!")
-  ;; 
-  (let ((end (span-end span)) cmd)
-    ;; State of spans after advancing: 
-    (proof-set-locked-end end)
-    ;; FIXME: bug here, can sometimes arrive with queue span already detached.
-    ;; (I think when complete file process is requested during scripting)
-    (if (span-live-p proof-queue-span)
-	(proof-set-queue-start end))
-    (setq cmd (span-property span 'cmd))
-    (cond
+    ;; 
+    (let ((end     (span-end span))
+	  (cmd     (span-property span 'cmd)))
+      ;; State of spans after advancing: 
+      (proof-set-locked-end end)
+      ;; FIXME: buglet here, can sometimes arrive with queue span already detached.
+      ;; (I think when complete file process is requested during scripting)
+      (if (span-live-p proof-queue-span)
+	  (proof-set-queue-start end))
 
-     ;; CASE 1: Comments just get highlighted
-     ((eq (span-property span 'type) 'comment)
-      (pg-set-span-helphighlights span)
-      ;; Add an element for a new span, which should span
-      ;; the text of the comment.
-      (let ((bodyspan  (make-span 
-			(+ (length comment-start) (span-start span))
-			(- (span-end span) (length comment-end))))
-	    (id        (proof-next-element-id 'comment)))
-	(pg-add-element "comment" id bodyspan)
-	(set-span-property span 'id (intern id))
-	(set-span-property span 'idiom 'comment)))
+      (cond
+       ;; CASE 1: Comments just get highlighted
+       ((eq (span-property span 'type) 'comment)
+	(proof-done-advancing-comment span))
+
+       ;; CASE 2: Save command seen, now we may amalgamate spans.
+       ((and proof-save-command-regexp
+	     (proof-string-match proof-save-command-regexp cmd)
+	     ;; FIXME: would like to get rid of proof-really-save-command-p
+	     ;; and use nested goals mechanism instead.
+	     (funcall proof-really-save-command-p span cmd)
+	     (decf proof-nesting-depth) ;; [always non-nil/true]
+	     (if proof-nested-goals-history-p
+		 ;; For now, we only support this nesting behaviour: 
+		 ;; don't amalgamate unless the nesting depth is 0,
+		 ;; i.e. we're in a top-level proof.
+		 ;; This assumes prover keeps history for nested proofs.
+		 ;; (True for Isabelle/Isar).
+		 (eq proof-nesting-depth 0)
+	       t))
+	(proof-done-advancing-save span))
+
+       ;; CASE 3: Proof completed one step or more ago, non-save
+       ;; command seen, no nested goals allowed.
+       ;; 
+       ;; We make a fake goal-save from any previous 
+       ;; goal to the command before the present one.
+       ;;
+       ;; This allows smooth undoing in proofs which have no "qed"
+       ;; statements.  If your proof assistant doesn't allow these
+       ;; "unclosed" proofs, then you can safely set
+       ;; proof-completed-proof-behaviour.
+       ((and
+	 proof-shell-proof-completed
+	 (or (and (eq proof-completed-proof-behaviour 'extend)
+		  (>= proof-shell-proof-completed 0))
+	     (and (eq proof-completed-proof-behaviour 'closeany)
+		  (> proof-shell-proof-completed 0))
+	     (and (eq proof-completed-proof-behaviour 'closegoal)
+		  (funcall proof-goal-command-p cmd))))
+	(proof-done-advancing-autosave span))
       
-     ;; CASE 2: Save command seen, now we may amalgamate spans.
-     ((and proof-save-command-regexp
-	   (proof-string-match proof-save-command-regexp cmd)
-	   ;; FIXME: would like to get rid of proof-really-save-command-p
-	   ;; and use nested goals mechanism instead.
-	   (funcall proof-really-save-command-p span cmd)
-	   (decf proof-nesting-depth) ;; [always non-nil/true]
-	   (if proof-nested-goals-history-p
-	       ;; For now, we only support this nesting behaviour: 
-	       ;; don't amalgamate unless the nesting depth is 0,
-	       ;; i.e. we're in a top-level proof.
-	       ;; This assumes prover keeps history for nested proofs.
-	       ;; (True for Isabelle/Isar).
-	       (eq proof-nesting-depth 0)
-	     t))
-
-      (unless (eq proof-shell-proof-completed 1)
-	;; We expect saves to succeed only for recently completed proofs.
-	;; Give a hint to the proof assistant implementor in case something
-	;; odd is going on.  (NB: this is normal for nested proofs, though).
-	(proof-debug 
-	 (format
-	  "PG: save command with proof-shell-proof-completed=%s, proof-nesting-depth=%s"
-	  proof-shell-proof-completed proof-nesting-depth)))
-
-      (setq proof-shell-proof-completed nil)
-
-      ;; FIXME: need subroutine here:
-      (let ((gspan     span)		  ; putative goal span
-	    (savestart (span-start span))
-	    (saveend   (span-end span))
-	    lev nestedundos goalend nam next ncmd)
-
-	;; Try to set the name of the theorem from the save
-	;; (message "%s" cmd)   3.4: remove this message.
-
-	(and proof-save-with-hole-regexp
-	     (proof-string-match proof-save-with-hole-regexp cmd)
-	     ;; Give a message of a name if one can be determined
-	     (message "%s"
-	      (setq nam 
-		    (if (stringp proof-save-with-hole-result)
-			(replace-match proof-save-with-hole-result nil nil cmd)
-		      (match-string proof-save-with-hole-result cmd)))))
-
-	;; Search backwards for matching goal command, deleting spans
-	;; along the way: they will be amalgamated into a single
-	;; goal-save region, which corresponds to the prover
-	;; discarding the proof history.
-	;; Provers without flat history yet nested proofs (i.e. Coq)
-	;; need to keep a record of the undo count for nested goalsaves.
-	;; FIXME: should also remove nested 'idiom spans.
-	(setq lev 1)
-	(setq nestedundos 0)
-	(while (and gspan (> lev 0))
-	  (setq next (prev-span gspan 'type))
-	  (delete-span gspan)
-	  (setq gspan next)
-	  (if gspan 
-	      (progn
-		(setq cmd (span-property gspan 'cmd))
-		(cond
-		 ;; Ignore comments [may have null cmd setting]
-		 ((eq (span-property gspan 'type) 'comment))	
-		 ;; Nested goal saves: add in any nestedcmds
-		 ((eq (span-property gspan 'type) 'goalsave)
-		  (setq nestedundos
-			(+ nestedundos 1
-			   (or (span-property gspan 'nestedundos) 0))))
-		 ;; Increment depth for a nested save, in case
-		 ;; prover supports history of nested proofs
-		 ((and proof-nested-goals-history-p
-		       proof-save-command-regexp
-		       (proof-string-match proof-save-command-regexp cmd))
-		  (incf lev))
-		 ;; Decrement depth when a goal is hit
-		 ((funcall proof-goal-command-p cmd)
-		  (decf lev))
-		 ;; Remainder cases: see if command matches something we
-		 ;; should count for a global undo
-		 ((and proof-nested-undo-regexp
-		       (proof-string-match proof-nested-undo-regexp cmd))
-		  (incf nestedundos))
-		 ))))
-
-	(if (not gspan)
-	    ;; No goal span found!  Issue a warning and do nothing more.
-	    (proof-warning
-	     "Proof General: script management confused, couldn't find goal span for save.")
-
-	  ;; If the name isn't set, try to set it from the goal. 
-	  (unless nam
-	    (let ((cmdstr (span-property gspan 'cmd)))
-	      (message "%s" cmdstr)
-	      (and proof-goal-with-hole-regexp
-		   (proof-string-match proof-goal-with-hole-regexp cmdstr)
-		   (setq nam 
-			 (if (stringp proof-goal-with-hole-result)
-			     (replace-match proof-goal-with-hole-result nil nil cmdstr)
-			   (match-string proof-goal-with-hole-result cmdstr))))))
-	  
-	  ;; As a final desparate attempt, set the name to
-	  ;; proof-unnamed-theorem-name (Coq actually uses a default
-	  ;; name for unnamed theorems, believe it or not, and issues
-	  ;; a name-binding error for two unnamed theorems in a row!).
-	  (unless nam
-	    (setq nam proof-unnamed-theorem-name))
-
-	  ;; FIXME: this needs to be abstracted out into a function
-	  ;; pg-add-new-proof-span
-
-	  ;; Now make the new goal-save span
-	  (setq goalend (span-end gspan))
-	  (set-span-end gspan end)
-	  (set-span-property gspan 'type 'goalsave)
-	  (set-span-property gspan 'idiom 'proof);; links to nested proof element
-	  (set-span-property gspan 'name nam)
-	  (set-span-property gspan 'nestedundos nestedundos)
-	  (pg-set-span-helphighlights gspan)
-
-	  ;; Make a nested span which contains the purported body of the
-	  ;; proof, and add to buffer-local list of elements, maybe
-	  ;; making invisible.
-	  ;; FIXME: could consider adding nested spans for nested
-	  ;; proofs too?
-	  (let ((proofbodyspan
-		 (make-span goalend (if proof-script-integral-proofs 
-					saveend savestart))))
-	    (pg-add-proof-element nam proofbodyspan gspan))
-
-	  ;; *** Theorem dependencies ***
-	  (if proof-last-theorem-dependencies
-	      (proof-depends-process-dependencies nam gspan)))))
-
-     ;; CASE 3: Proof completed one step or more ago, non-save
-     ;; command seen, no nested goals allowed.
-     ;; 
-     ;; We make a fake goal-save from any previous 
-     ;; goal to the command before the present one.
-     ;;
-     ;; This is a hack to allow smooth undoing in proofs which have no
-     ;; "qed" statements.  If your proof assistant doesn't allow
-     ;; these "unclosed" proofs, then you can safely set
-     ;; proof-completed-proof-behaviour.
-     ;;
-     ;; FIXME: abstract common part of this case and case above,
-     ;; to improve code by making a useful subroutine.
-     ;; FIXME: add proof element here for hiding.
-     ((and
-       proof-shell-proof-completed
-       (or (and (eq proof-completed-proof-behaviour 'extend)
-		(>= proof-shell-proof-completed 0))
-	   (and (eq proof-completed-proof-behaviour 'closeany)
-		(> proof-shell-proof-completed 0))
-	   (and (eq proof-completed-proof-behaviour 'closegoal)
-		(funcall proof-goal-command-p cmd))))
-
-      (if (eq proof-completed-proof-behaviour 'extend)
-	  ;; In the extend case, the context of the proof grows
-	  ;; until we hit a save or new goal.
-	  (incf proof-shell-proof-completed)
-	(setq proof-shell-proof-completed nil))
-
-      (let* ((swallow  (eq proof-completed-proof-behaviour 'extend))
-	     (gspan    (if swallow span (prev-span span 'type)))
-	     (newend   (if swallow (span-end span) (span-start span)))
-	    nam hitsave dels ncmd)
-	;; Search backwards to see if we can find a previous goal
-	;; before a save or the start of the buffer.
-	(while 
-	    (and 
-	     gspan
-	     (or 
-	      (eq (span-property gspan 'type) 'comment)
-	      (and
-	       (setq ncmd (span-property gspan 'cmd))
-	       (not (funcall proof-goal-command-p (setq cmd ncmd)))
-	       (not
-		(and proof-save-command-regexp
-		     (proof-string-match proof-save-command-regexp cmd)
-		     (funcall proof-really-save-command-p span cmd)
-		     (setq hitsave t))))))
-	  (setq dels (cons gspan dels))
-	  (setq gspan (prev-span gspan 'type)))
-	(if (or hitsave (null gspan))
-	    (proof-debug
-     "Proof General strangeness: unclosed proof completed, but couldn't find its start!")
-	  ;; If we haven't hit a save or the start of the buffer,
-	  ;; we make a fake goal-save region.
-
-	  ;; Delete spans between the previous goal and new command
-	  (mapcar 'delete-span dels)
-
-	  ;; Try to set a name from the goal
-	  ;; (useless for provers like Isabelle)
-	  (let ((cmdstr (span-property gspan 'cmd)))
-	    (message "%s" cmdstr)
-	    (and proof-goal-with-hole-regexp
-		 (proof-string-match proof-goal-with-hole-regexp cmdstr)
-		 (setq nam 
-		       (if (stringp proof-goal-with-hole-result)
-			   (replace-match proof-goal-with-hole-result nil nil cmdstr)
-			 (match-string proof-goal-with-hole-result cmdstr)))))
-
-	  ;; As a final desparate attempt, set the name to "Unnamed_thm".
-	  (unless nam
-	    (setq nam proof-unnamed-theorem-name))
-	  
-	  ;; Now make the new or extended goal-save span
-	  ;; Don't bother with Coq's lift global stuff, we assume this
-	  ;; case is only good for non-nested goals.
-	  (set-span-end gspan newend)
-	  (set-span-property gspan 'type 'goalsave)
-	  (set-span-property gspan 'name nam)
-	  (pg-set-span-helphighlights span))
-	;; Finally, do the usual thing with highlighting for the span.
-	(unless swallow
-	  (pg-set-span-helphighlights span))))
-
-
      ;; CASE 4:  Some other kind of command (or a nested goal).
      (t
-      (if (funcall proof-goal-command-p cmd)
+      (proof-done-advancing-other span))))
+
+  ;; Finally: state of scripting may have changed now, run hooks.
+  (run-hooks 'proof-state-change-hook)))
+
+
+
+(defun proof-done-advancing-comment (span)
+  "A subroutine of `proof-done-advancing'"
+  ;; Add an element for a new span, which should span
+  ;; the text of the comment.
+  ;; FIXME: might be better to use regexps for matching
+  ;; start/end of comments, rather than comment-start-skip
+  (let ((bodyspan  (make-span 
+		    (+ (length comment-start) (span-start span))
+		    (- (span-end span) (length comment-end))))
+	(id        (proof-next-element-id 'comment)))
+    (pg-add-element "comment" id bodyspan)
+    (set-span-property span 'id (intern id))
+    (set-span-property span 'idiom 'comment)
+    (pg-set-span-helphighlights span)))
+
+
+(defun proof-done-advancing-save (span)
+  "A subroutine of `proof-done-advancing'"
+  (unless (eq proof-shell-proof-completed 1)
+    ;; We expect saves to succeed only for recently completed proofs.
+    ;; Give a hint to the proof assistant implementor in case something
+    ;; odd is going on.  (NB: this is normal for nested proofs, though).
+    (proof-debug 
+     (format
+      "PG: save command with proof-shell-proof-completed=%s, proof-nesting-depth=%s"
+      proof-shell-proof-completed proof-nesting-depth)))
+
+  (setq proof-shell-proof-completed nil)
+
+  ;; FIXME: need subroutine here:
+  (let ((gspan     span)		  ; putative goal span
+	(savestart (span-start span))
+	(saveend   (span-end span))
+	(cmd       (span-property span 'cmd))
+	lev nestedundos nam next ncmd)
+    
+    ;; Try to set the name of the theorem from the save
+    ;; (message "%s" cmd)   3.4: remove this message.
+    
+    (and proof-save-with-hole-regexp
+	 (proof-string-match proof-save-with-hole-regexp cmd)
+	 ;; Give a message of a name if one can be determined
+	 (message "%s"
+		  (setq nam 
+			(if (stringp proof-save-with-hole-result)
+			    (replace-match proof-save-with-hole-result nil nil cmd)
+			  (match-string proof-save-with-hole-result cmd)))))
+
+    ;; Search backwards for matching goal command, deleting spans
+    ;; along the way: they will be amalgamated into a single
+    ;; goal-save region, which corresponds to the prover
+    ;; discarding the proof history.
+    ;; Provers without flat history yet nested proofs (i.e. Coq)
+    ;; need to keep a record of the undo count for nested goalsaves.
+    ;; FIXME: should also remove nested 'idiom spans, perhaps.
+    (setq lev 1)
+    (setq nestedundos 0)
+    (while (and gspan (> lev 0))
+      (setq next (prev-span gspan 'type))
+      (delete-span gspan)
+      (setq gspan next)
+      (if gspan 
+	  (progn
+	    (setq cmd (span-property gspan 'cmd))
+	    (cond
+	     ;; Ignore comments [may have null cmd setting]
+	     ((eq (span-property gspan 'type) 'comment))	
+	     ;; Nested goal saves: add in any nestedcmds
+	     ((eq (span-property gspan 'type) 'goalsave)
+	      (setq nestedundos
+		    (+ nestedundos 1
+		       (or (span-property gspan 'nestedundos) 0))))
+	     ;; Increment depth for a nested save, in case
+	     ;; prover supports history of nested proofs
+	     ((and proof-nested-goals-history-p
+		   proof-save-command-regexp
+		   (proof-string-match proof-save-command-regexp cmd))
+	      (incf lev))
+	     ;; Decrement depth when a goal is hit
+	     ((funcall proof-goal-command-p cmd)
+	      (decf lev))
+	     ;; Remainder cases: see if command matches something we
+	     ;; should count for a global undo
+	     ((and proof-nested-undo-regexp
+		   (proof-string-match proof-nested-undo-regexp cmd))
+	      (incf nestedundos))
+	     ))))
+
+    (if (not gspan)
+	;; No goal span found!  Issue a warning and do nothing more.
+	(proof-warning
+	 "Proof General: script management confused, couldn't find goal span for save.")
+
+      ;; If the name isn't set, try to set it from the goal,
+      ;; or as a final desparate attempt, set the name to
+      ;; proof-unnamed-theorem-name (Coq actually uses a default
+      ;; name for unnamed theorems, believe it or not, and issues
+      ;; a name-binding error for two unnamed theorems in a row!).
+      (setq nam (or nam
+		    (proof-get-name-from-goal gspan)
+		    proof-unnamed-theorem-name))
+
+      (proof-make-goalsave gspan (span-end gspan) 
+			   savestart saveend nam nestedundos)
+
+      ;; *** Theorem dependencies ***
+      (if proof-last-theorem-dependencies
+	  (proof-depends-process-dependencies nam gspan)))))
+
+(defun proof-make-goalsave (gspan goalend savestart saveend nam &optional nestedundos)
+  "Make new goal-save span, using GSPAN. Subroutine of `proof-done-advancing-save'"
+  (set-span-end gspan saveend)
+  (set-span-property gspan 'type 'goalsave)
+  (set-span-property gspan 'idiom 'proof);; links to nested proof element
+  (set-span-property gspan 'name nam)
+  (and nestedundos (set-span-property gspan 'nestedundos nestedundos))
+  (pg-set-span-helphighlights gspan)
+  ;; Now make a nested span covering the purported body of the
+  ;; proof, and add to buffer-local list of elements.  
+  (let ((proofbodyspan
+	 (make-span goalend (if proof-script-integral-proofs 
+				saveend savestart))))
+    (pg-add-proof-element nam proofbodyspan gspan)))
+  
+(defun proof-get-name-from-goal (gspan)
+  "Try to return a goal name from GSPAN.  Subroutine of `proof-done-advancing-save'"
+  (let ((cmdstr (span-property gspan 'cmd)))
+    (and proof-goal-with-hole-regexp
+	 (proof-string-match proof-goal-with-hole-regexp cmdstr)
+	 (if (stringp proof-goal-with-hole-result)
+	     (replace-match proof-goal-with-hole-result nil nil cmdstr)
+	   (match-string proof-goal-with-hole-result cmdstr)))))
+
+
+;; FIXME: this next function should be more like proof-done-advancing-save,
+;; perhaps simplifying the proof-completed-proof-behaviour functionality,
+;; which isn't seriously used in any prover.  At the moment the behaviour
+;; here is incomplete compared with proof-done-advancing-save.
+;; NB: in this function we assume non-nested proofs, which explains
+;; some of the logic.  There is no attempt to fix up proof-nesting-depth.
+;; NB: 'extend behaviour is not currently compatible with appearance of
+;; save commands, since proof-done-advancing-save allow for goalspan
+;; already existing.
+(defun proof-done-advancing-autosave (span)
+  "A subroutine of `proof-done-advancing'"
+
+  ;; In the extend case, the context of proof grows until hit a save
+  ;; or new goal.
+  (if (eq proof-completed-proof-behaviour 'extend)
+      (incf proof-shell-proof-completed)
+    (setq proof-shell-proof-completed nil))
+
+  (let* ((swallow  (eq proof-completed-proof-behaviour 'extend))
+	 (gspan    (if swallow span (prev-span span 'type)))
+	 (newend   (if swallow (span-end span) (span-start span)))
+	 (cmd      (span-property span 'cmd))
+	 (newgoal  (funcall proof-goal-command-p cmd))
+	 nam hitsave dels ncmd)
+    ;; Search backwards to see if we can find a previous goal
+    ;; before a save or the start of the buffer.
+    ;; FIXME: this should really do the work done in 
+    ;; proof-done-advancing-save above, too, with nested undos, etc.
+    (while ;; YUK!
+	(and 
+	 gspan
+	 (or 
+	  (eq (span-property gspan 'type) 'comment)
+	  (and
+	   (setq ncmd (span-property gspan 'cmd))
+	   (not (funcall proof-goal-command-p (setq cmd ncmd)))
+	   (not
+	    (and proof-save-command-regexp
+		 (proof-string-match proof-save-command-regexp cmd)
+		 (funcall proof-really-save-command-p span cmd)
+		 (setq hitsave t))))))
+      (setq dels (cons gspan dels))
+      (setq gspan (prev-span gspan 'type)))
+    (cond
+     ((or hitsave (null gspan))
+      (proof-debug
+	 "Proof General strangeness: unclosed proof completed, but couldn't find its start!")
+      (pg-set-span-helphighlights span))
+     ((and swallow newgoal)
+      ;; If extending the region, goalsave already there; just highlight new region
+      (setq proof-shell-proof-completed nil)
+      (pg-set-span-helphighlights span))
+     (t
+      ;; If, search back through spans, we haven't hit a save or the
+      ;; start of the buffer, we make a fake goal-save region.
+
+      ;; Delete spans between the previous goal and new command
+      (mapcar 'delete-span dels)
+
+      ;; Try to set the name from the goal... [as above]
+      (setq nam (or (proof-get-name-from-goal gspan)
+		    proof-unnamed-theorem-name))
+
+      ;; NB: if extending an already closed region, ought to delete
+      ;; the body and extend that too: this makes multiple nested bodies.[?]
+      ;; (NB: savestart used for nested region: here use saveend)
+      (proof-make-goalsave gspan
+			   (+ (span-start gspan) 
+			      (length (or (span-property-safe gspan 'cmd))))
+			   newend newend nam)))))
+
+(defun proof-done-advancing-other (span)
+  ;; We might add hidable regions also for commands: the problem
+  ;; is that they have no natural surrounding region, so makes
+  ;; it difficult to define a region for revealing again.
+  ;; [ best solution would be to support clicking on ellipsis]
+  (if (funcall proof-goal-command-p (span-property span 'cmd))
 	  (incf proof-nesting-depth))
 
-      (if proof-shell-proof-completed
-	  (incf proof-shell-proof-completed))
+  (if proof-shell-proof-completed
+      (incf proof-shell-proof-completed))
       
-      (pg-set-span-helphighlights span))))
-
-  ;; State of scripting may have changed now
-  (run-hooks 'proof-state-change-hook)))
+  (pg-set-span-helphighlights span))
 
 
 
