@@ -1,0 +1,43 @@
+This is our brief list of planned things to do to Proof General.
+
+Please send any suggestions, comments, or offers of help to
+proofgen@dcs.ed.ac.uk.  Thanks!
+
+SHORT TERM
+----------
+* Fix bugs and improve code
+
+MEDIUM TERM
+-----------
+* Revise and improve the documentation
+
+* Provide a sensible default frame/buffer layout
+
+* Add an example instantiation of Proof General
+  with no prover-specific extensions
+  (probably for Isabelle)
+
+* Implement a new buffer model:
+
+    1. Script buffers
+    2. Response buffer
+    3. (optionally part of response buffer) goals buffer
+    4. (hidden) process buffer
+    5. Minibuffer for additionally sending information to the process
+
+* Add support for putting a locked region in processed files,
+  and querying the process about which files have been processed.
+
+LONGER TERM
+-----------
+* Add a browser mode for browsing script files and/or
+  theory data-structures in the prover.
+
+* Add more per-prover functions: menus for tactics, etc.  
+
+  
+      
+
+    
+ 
+
