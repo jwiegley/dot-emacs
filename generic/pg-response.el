@@ -57,6 +57,14 @@
 ;;   -- three window mode
 ;;
 
+;; FIXME: 3.5: things are better than before but still quite bad.
+;; To really do this well I think we simply have to write specialised
+;; frame handling code --- and do it twice, once for each Emacs.
+;;
+;; Choice comment from XEmacs frame.el before special-display-popup-frame:
+;; "#### Change, not compatible with FSF: This stuff is all so incredibly
+;; junky anyway that I doubt it makes any difference."
+
 (defvar proof-shell-special-display-regexp nil
   "Regexp for special-display-regexps for multiple frame use.
 Internal variable, setting this will have no effect!")
@@ -193,10 +201,17 @@ This uses a canonical layout."
 	      ;; We may lose with just selected window
 	      (selected-window)))))
       (proof-map-buffers (proof-associated-buffers)
-	(let ((fm (window-frame
-		   (proof-get-window-for-buffer (current-buffer)))))
+	(let* ((win  
+		;; NB: g-w-f-b will re-display in new frame if
+		;; the buffer isn't selected/visible.  This causes
+		;; new frame to flash up and be deleted if already
+		;; deleted!  
+		;; (proof-get-window-for-buffer (current-buffer))
+		;; This next choice is probably better:
+		(get-buffer-window (current-buffer) 'visible))
+	       (fm (and win (window-frame win))))
 	  (unless (equal mainframe fm)
-	    (delete-frame fm)))))))
+	    (if fm (delete-frame fm))))))))
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
