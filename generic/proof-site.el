@@ -44,10 +44,8 @@
     ;; export PROOFGENERAL_ASSISTANTS=isar
     ;;
     (demoisa    "Isabelle Demo"	"\\.ML$")
-    (isar       "Isabelle/Isar" "\\.thy$")
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
-    ;; Next line for testing only
-    ;; (pgip	"PGIP/Isa"	"\\.ML$\\|\\.thy$")
+    (isar       "Isabelle/Isar" "\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
     (phox	"PhoX"		"\\.phx$")
@@ -56,9 +54,11 @@
     ;; (please volunteer to improve them!)
     (hol98	"HOL"		"\\.sml$")
     (acl2	"ACL2"		"\\.acl2$")
+    (twelf	"Twelf"		"\\.elf$")
     ;; The following provers have experimental support
     (plastic	"Plastic"	"\\.lf$")
-    (twelf	"Twelf"		"\\.elf$")
+    ;; Next line for testing only
+    ;; (pgip	"PGIP/Isa"	"\\.ML$\\|\\.thy$")
     )
   "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
@@ -309,7 +309,7 @@ Note: to change proof assistant, you must start a new Emacs session.")
 ;; WARNING: do not edit below here 
 ;; (the next constant is set automatically, also its form is
 ;;  relied upon in proof-config.el, for proof-splash-contents)
-(defconst proof-general-version "Proof General Version 3.4pre020423. Released by da."
+(defconst proof-general-version "Proof General Version 3.4pre020322. Released by da."
  "Version string identifying Proof General release.")
 
 ;; Now define a few autoloads and basic variables.
