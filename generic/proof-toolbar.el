@@ -167,7 +167,7 @@ Initialised in proof-toolbar-setup.")
     (proof-toolbar-prev-icon "right")
     (proof-toolbar-goal-icon "goal")
     (proof-toolbar-qed-icon  "qed")
-    (proof-toolbar-restart-icon "recycle"))
+    (proof-toolbar-restart-icon "restart"))
   "List of icon variable names and their associated image files")
 
 ;;
