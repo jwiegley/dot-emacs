@@ -21,7 +21,7 @@
        ((eq elt 'pgip))			;; ignore pgip attributes for now
        ;; <usespgml>
        ((eq elt 'usespgml)
-	(message "Recieved usespgml message, version %s"
+	(message "Received usespgml message, version %s"
 		 (pg-pgip-get-version "usespgml" attrs)))
        ;; <haspref>
        ((eq elt 'haspref)
