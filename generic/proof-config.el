@@ -716,10 +716,13 @@ defining functions, images.")
 (defpgcustom toolbar-entries proof-toolbar-entries-default
   "List of entries for Proof General toolbar and Scripting menu.
 Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
+
 For each TOKEN, we expect an icon with base filename TOKEN,
-		          a function proof-toolbar-<TOKEN>,
-         and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.
+a function proof-toolbar-<TOKEN>, and (optionally) an enabler 
+proof-toolbar-<TOKEN>-enable-p.
+
 If MENUNAME is nil, item will not appear on the scripting menu.
+
 If TOOLTIP is nil, item will not appear on the toolbar.
 
 The default value is `proof-toolbar-entries-default' which contains
