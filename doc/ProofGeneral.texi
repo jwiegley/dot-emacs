@@ -416,7 +416,7 @@ The main aim of Proof General is to provide a powerful and configurable
 Emacs mode to help user-interaction with numerous interactive proof
 assistants.  Please help us with this aim!  Configure Proof General for
 your own proof assistant, by adding features at the generic level of
-Proof General wherever possible.  See @ref{Adapting Proof General to New
+Proof General wherever possible.  See @ref{Adapting Proof General to Other
 Provers} for more details, and send ideas, comments, patches, and code
 to @code{proofgen@@dcs.ed.ac.uk}.
 
