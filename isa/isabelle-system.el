@@ -264,6 +264,11 @@ until Proof General is restarted."
   :type 'boolean
   :setting "trace_simp:=%b;")
 
+(defpacustom quick-and-dirty  nil
+  "Whether to take a few short cuts in interactive mode."
+  :type 'boolean
+  :setting "quick_and_dirty:=%b;")
+
 ; FIXME: for Isabelle99-1
 ; (defpacustom global-timing  nil
 ;  "Whether to enable timing in Isabelle."
