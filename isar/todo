@@ -4,6 +4,8 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** B make help key bindings appear in "Show me ..." menu;
+
 ** C undo 'use' command: unlock corresponding ML file;
 
 ** C provide template for empty theory (or even just for Scratch.thy);
