@@ -52,6 +52,7 @@ Check the values of coq-tags and coq-prog-name in coq.el to see that
 they correspond to the paths for coqtop and the library on your system.
 
 Install coqtags in a standard place or add <proof-home>/coq to your PATH.
+NB: You may need to change the path to perl at the top of the file.
 
 If you are running Coq, generate a TAGS file for the library by running
 	coqtags `find . -name \*.v -print`
@@ -66,6 +67,7 @@ Customization for LEGO
 
 Install legotags in a standard place or add <proof-home>/lego 
 to your PATH.
+NB: You may need to change the path to perl at the top of the file.
 
 
 ----------------------------------------------------------------------
