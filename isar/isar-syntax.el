@@ -308,8 +308,9 @@
    (cons (isar-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
-   (cons isar-tac-regexp 'font-lock-reference-face)
-   '(isar-match-antiq (0 'font-lock-variable-name-face prepend))))
+   (cons isar-tac-regexp 'font-lock-reference-face)))
+;; da: this function is expensive and buggy, or at least trips bugs in XEmacs/font lock
+;;  '(isar-match-antiq (0 'font-lock-variable-name-face prepend)))
 
 (defvar isar-output-font-lock-keywords-1
   (list
