@@ -74,54 +74,24 @@
 
 
 ;;;
-;;; ======== User settings for Isabelle/Isar ========
-;;;
-
-;;; proof-site provides us with the cusomization groups
-;;;
-;;; 'isabelle-isar         -  User options for Isabelle/Isar Proof General
-;;; 'isabelle-isar-config  -  Configuration of Isabelle/Isar Proof General
-;;;	   		      (constants, but may be nice to tweak)
-
-(defcustom isabelle-prog-name "isabelle"
-  "*Name of program to run Isabelle/Isar."
-  :type 'file
-  :group 'isabelle-isar)
-
-
-;;;
 ;;; ======== Configuration of generic modes ========
 ;;;
 
-
-
 ;; ===== outline mode
+;; FIXME not working yet!
 
-(defcustom isar-outline-regexp
+(defconst isar-outline-regexp
   (isar-ids-to-regexp isar-keywords-outline)
-  "Outline regexp for Isabelle/Isar documents"
-  :type 'regexp
-  :group 'isabelle-isar-config)
+  "Outline regexp for Isabelle/Isar documents")
 
 ;;; End of a command needs parsing to find, so this is approximate.
-(defcustom isar-outline-heading-end-regexp ";[ \t\n]*"
-  "Outline heading end regexp for Isabelle/Isar ML files."
-  :type 'regexp
-  :group 'isabelle-isar-config)
+(defconst isar-outline-heading-end-regexp ";[ \t\n]*"
+  "Outline heading end regexp for Isabelle/Isar ML files.")
 
 ;; FIXME: not sure about this one
 (defvar isar-shell-outline-regexp "\370[ \t]*\\([0-9]+\\)\\.")
 (defvar isar-shell-outline-heading-end-regexp "$")
 
-;(defun isar-outline-setup ()
-;  (if (and window-system (string-match "XEmacs" emacs-version))
-;      (progn
-;	(custom-set-variables     ;custom value dictatorship!
-;	 '(outline-mac-style t))
-;	(outl-mouse-minor-mode))
-;    (outline-minor-mode)))
-;
-; FIXME tmp
 (defun isar-outline-setup () t)
 
 
@@ -503,7 +473,7 @@ proof-shell-retract-files-regexp."
     ans))
 
 (defun isar-pre-shell-start ()
-  (setq proof-prog-name		isabelle-prog-name)
+  (setq proof-prog-name		(isabelle-command-line))
   (setq proof-mode-for-shell    'isar-shell-mode)
   (setq proof-mode-for-goals	'isar-goals-mode)
   (setq proof-mode-for-response 'isar-response-mode))
