@@ -1,5 +1,66 @@
 2000-10-02  David Aspinall  <da@proofgeneral.org>
 
+	* etc/announce:
+	Mention Isabelle99-1 change
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* CHANGES:
+	Whoops, left pre-release header in
+
+	* etc/release-log.txt:
+	Upcoming patch anticipated already.
+
+	* doc/Makefile.doc: Fix recursive make
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.html:
+	Set version tag for new release.
+
+	* html/develdownload.html:
+	Note about current pre-release being outdated wrt 3.2
+
+	* ChangeLog: Updated.
+
+	* todo: Updated
+
+	* Makefile.devel:
+	Remove ps and pdf for PG-adapting from distrib to redue size to normal proportions.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* etc/release-log.txt:
+	Add todays date, 3.2
+
+	* html/doc.html, html/download.html, html/index.html, html/news.html, html/oldnews.html:
+	Updated web pages for 3.2 release
+
+	* todo: Updated, cleaned up
+
+	* coq/coqtags, lego/legotags:
+	Note about alternative path to perl
+
+	* doc/PG-adapting.texi: Updated magic
+
+	* INSTALL: Caveats about using elcs.
+
+	* af2/README: New file
+
+	* bin/proofgeneral:
+	Pass extra args to emacs.
+
+	* doc/Makefile.doc:
+	Attempt to force image build
+
+	* doc/PG-adapting.texi: Subtitle caps
+
+2000-10-02  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.html:
 	Set version tag for new release.
 
