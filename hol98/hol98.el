@@ -31,7 +31,8 @@
  proof-showproof-command         "p()"
  proof-undo-n-times-cmd          "(pg_repeat backup %s; p());"
  proof-auto-multiple-files       t
- proof-shell-cd-cmd              "FileSys.chDir \"%e\""
+ proof-shell-cd-cmd              "FileSys.chDir \"%s\""
+ proof-shell-filename-escapes    '(("\\\\" . "\\\\") ("\""   . "\\\""))
  proof-shell-prompt-pattern      "^[->] "
  proof-shell-interrupt-regexp    "Interrupted"
  proof-shell-start-goals-regexp  
