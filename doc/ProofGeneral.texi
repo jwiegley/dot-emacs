@@ -479,8 +479,8 @@ prepared whilst David Aspinall was visiting ETL, Japan, supported by the
 British Council.
 
 For testing and feedback for older versions of Proof General, thanks go
-to Rod Burstall, Martin Hofmann, and James McKinna, as well as some
-those who continued to help with the latest 3.x series.
+to Rod Burstall, Martin Hofmann, and James McKinna, and some of those
+who continued to help with the latest 3.x series.
 
 @c FIXME HERE!
 During the development of Proof General 3.x releases, 
@@ -492,12 +492,14 @@ Pascal Brisset,
 Martin Buechi,
 Matt Fairtlough, 
 Kim Hyung Ho,
+Pierre Lescanne,
 John Longley, 
 Tobias Nipkow, 
 Leonor Prensa-Nieto, 
 David von Oheimb,
-and 
-Randy Pollack.  Thanks to all of you!
+Randy Pollack,
+and
+Mike Squire.  Thanks to all of you!
 
 
 
