@@ -21,7 +21,8 @@ X (Low)    probably not worth wasting time on
 
 A Clarify licence situation for Proof General after question from 
   a potential user. Will the LFCS allow it to be used in a commercial 
-  environment without a special licence agreement?
+  environment without a special licence agreement? A new licence is
+  currently [22 Jan 1999] being drafted by UNIVED
 
 B Add a "register" page for registering downloads.  Perhaps filling
   will be mandatory for users in a non-academic environment.
@@ -480,7 +481,11 @@ X Add support for changing directory when scripting buffer changes
   (see proof-activate-scripting-hook).  This would alleviate users
   from some messing with LEGOPATH.  (Possibly contentious).
 
-X Mechanism to save object file
+X Mechanism to save object file. Specifically, after having processed
+  a script (interactively), it would be nice if one could now save the
+  buffer in object format. At the moment, it only gets converted
+  (automatically) when it is read in indirectly at a later stage.
+  However, there is currently no LEGO command to do this.  [4h]
 
 
 * Here are things to be done to Coq mode
