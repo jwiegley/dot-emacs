@@ -516,9 +516,17 @@ Warning messages can come from proof assistant or from Proof General itself."
   "*Face for boring text in proof assistant output."
   :group 'proof-faces)
 
+(defface proof-mouse-highlight-face
+  (proof-face-specs
+   (:background "paleturquoise")
+   (:background "steelblue")
+   (:italic t))
+  "*General mouse highlighting face."
+  :group 'proof-faces)
+
 (defface proof-highlight-dependent-face
   (proof-face-specs
-   (:foreground "black")
+   (:background "orange")
    (:background "darkorange")
    (:italic t))
   "*Face for showing (backwards) dependent parts."
@@ -526,7 +534,7 @@ Warning messages can come from proof assistant or from Proof General itself."
   
 (defface proof-highlight-dependency-face
   (proof-face-specs
-   (:foreground "black")
+   (:background "khaki")
    (:background "peru")
    (:italic t))
   "*Face for showing (forwards) dependencies."
