@@ -64,7 +64,7 @@ gzip ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info ${RPM_BUILD_ROOT}/usr/info/PG-a
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
-cp -pr af2 coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
+cp -pr af2 acl2 twelf coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 
 %clean
