@@ -37,12 +37,16 @@
 ;; Master table of supported assistants.  May not enable both kinds of
 ;; Isabelle interfaces at the same time!
 (defcustom proof-assistant-table
-  '((isar       "Isabelle/Isar" "\\.thy$")
+  '(;; For demonstration instance of Proof General,
+    ;; set PROOFGENERAL_ASSISANTS=demoisa. It really works!
+    ;; To use Isabelle/Isar instead of classic Isabelle,
+    ;; set PROOFGENERAL_ASSISANTS=isar
+    (demoisa    "Isabelle Demo"	"\\.ML$")
+    (isar       "Isabelle/Isar" "\\.thy$")
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
-    (plastic	"Plastic"	"\\.lf$")
-    )
+    (plastic	"Plastic"	"\\.lf$"))
   "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
@@ -205,9 +209,9 @@ Note: to change proof assistant, you must start a new Emacs session.")
 	 ;; NB: Mode name for each prover is <symbol name>-mode!
 	 (proofgen-mode  (intern (concat sname "-mode")))
 	 ;; NB: Customization group for each prover is its l.c.'d name!
-	 (cusgrp	 (intern (downcase assistant-name)))
-	 (cus-internals  (intern (concat (downcase assistant-name)
-					 "-config")))
+	 (cusgrp-rt	 (substitute ?\- ?\ (downcase assistant-name)))
+	 (cusgrp	 (intern cusgrp-rt))
+	 (cus-internals  (intern (concat cusgrp-rt "-config")))
 
 	 ;; Stub to do some automatic initialization and load
 	 ;; the specific code.
