@@ -61,7 +61,7 @@
 					'x-symbol-tex-auto-coding-alist)))
     x-symbol-coding (not x-symbol-mode)
     x-symbol-mode x-symbol-mode)
-  "TODO"
+  "See the documentation of `x-symbol-auto-style'."
   :group 'x-symbol-tex
   :group 'x-symbol-mode
   :type 'x-symbol-auto-style)
@@ -142,19 +142,11 @@ according to `x-symbol-token-input', it will not insert the space."
     :encode-spec x-symbol-tex-encode
     :decode-regexp "\\\\\\(?:[@A-Za-z]+\\|[-{}#_&|%$]\\|[.~^\"'`=]\\(?:[A-Za-z]\\|{}\\|\\(\\\\\\)[ij][@A-Za-z]?\\)\\)"
     :decode-spec x-symbol-tex-decode
+    :input-regexp ("\\\\\\(?:[.~^\"'`=]\\\\[ij]\\|[ckvuHr]\\(?: [A-Za-z]\\|{ ?}\\)\\)\\'" "\\\\\\(?:[@A-Za-z]+\\|[-{}#_&|%$]\\|[.~^\"'`=]\\(?:[A-Za-z]\\|{}\\)\\)\\'")
+    :input-spec x-symbol-tex-token-input
     :token-list x-symbol-tex-default-token-list
     :after-init x-symbol-tex-after-init-language)
   "Token grammar for language `tex'.")
-
-(defvar x-symbol-tex-input-token-grammar
-  '("\\\\\\(?:[@A-Za-z]+\\|[-{}#_&|%$]\\|[.~^\"'`=]\\(?:[A-Za-z]\\|{}\\)\\)\\'"
-    . x-symbol-tex-token-input)
-  "Grammar of input method Token for language `tex', part 1.")
-
-(defvar x-symbol-tex-input-token-extra-grammar
-  '("\\\\\\(?:[.~^\"'`=]\\\\[ij]\\|[ckvuHr]\\(?: [A-Za-z]\\|{ ?}\\)\\)\\'"
-    ?\\ (math . "[a-z@-Z]") (t . "[a-z@-Z]"))
-  "Grammar of input method Token for language `tex', part 2.")
 
 ;; The following vars could be made customizable, but it would not be a good
 ;; idea if different users have a different decode behavior:
@@ -1044,13 +1036,13 @@ See `x-symbol-init-language' and `x-symbol-tex-token-list'.")
 
 (defun x-symbol-tex-token-input (input-regexp decode-obarray command-char)
   (let ((res (x-symbol-match-token-before
-	      (cdr x-symbol-tex-input-token-extra-grammar)
-	      (list (car x-symbol-tex-input-token-extra-grammar) input-regexp)
-	      decode-obarray command-char)))
+	      '(?\\ (math . "[a-z@-Z]") (t . "[a-z@-Z]"))
+	      input-regexp decode-obarray command-char)))
     (and x-symbol-tex-token-suppress-space
 	 (eq (caddr res) t)		; text mode \MACRO
 	 (eq command-char ?\ )
-	 (null prefix-arg) (setq prefix-arg 0))
+	 (null prefix-arg)
+	 (setq prefix-arg 0))
     res))
 
 
