@@ -5,6 +5,11 @@
 
 
 ;; $Log$
+;; Revision 1.46  1998/05/16 14:52:07  tms
+;; implementation of `lego-shell-adjust-line-width' can now be called as
+;; part of a hook. This change has been caused by replacing
+;; `proof-shell-config' with `proof-shell-insert-hook'
+;;
 ;; Revision 1.45  1998/05/15 16:17:41  hhg
 ;; Changed variable names [s]ext to span.
 ;;
@@ -559,14 +564,16 @@
 (defun lego-shell-adjust-line-width ()
   "Uses LEGO's pretty printing facilities to adjust the line width of
   the output."
-  (if (proof-shell-live-buffer)
-      (let ((current-width
-	     (window-width (get-buffer-window proof-shell-buffer))))
-	 (if (equal current-width lego-shell-current-line-width)
-	     ""
-	   (setq lego-shell-current-line-width current-width)
-	   (format lego-pretty-set-width (- current-width 1))))
-    ""))
+  (save-excursion 
+    (set-buffer proof-shell-buffer)
+    (and (proof-shell-live-buffer)
+	 (let ((current-width
+		(window-width (get-buffer-window proof-shell-buffer))))
+	   (if (equal current-width lego-shell-current-line-width) ()
+	     ; else
+	     (setq lego-shell-current-line-width current-width)
+	     (insert (format lego-pretty-set-width (- current-width 1)))
+	     )))))
 
 (defun lego-pre-shell-start ()
   (setq proof-prog-name lego-prog-name)
