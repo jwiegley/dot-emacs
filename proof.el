@@ -9,6 +9,17 @@
 
 
 ;; $Log$
+;; Revision 1.55  1998/06/10 12:39:14  hhg
+;; Added proof-unprocessed-begin as general function to find beginning of
+;; unprocessed region.  This should be used instead of proof-locked-end
+;; if we're not guaranteed to be in scripting buffer.
+;; proof-locked-end now calls proof-unprocessed-begin if we're in the
+;; proof-script-buffer.
+;; We set the goal name to "Unnamed_thm" if we can't find any other name
+;; for the theorem.
+;; proof-process-active-terminator now calls proof-unprocessed-begin.
+;; proof-shell-config-done now calls 'proof-mode-hook.
+;;
 ;; Revision 1.54  1998/06/09 13:14:25  tms
 ;; o fixed bug in setting proof-queue-face on a colour terminal for GNU
 ;;   Emacs (19.34)
@@ -589,10 +600,19 @@
       (proof-detach-locked)
     (set-span-endpoints proof-locked-span (point-min) end)))
 
-(defsubst proof-locked-end ()
+(defun proof-unprocessed-begin ()
+  "proof-unprocessed-begin returns end of locked region in script
+  buffer and point-min otherwise."
+  (or 
+   (and (eq proof-script-buffer (current-buffer))
+	proof-locked-span (span-end proof-locked-span))
+   (point-min)))
+
+(defun proof-locked-end ()
+  "proof-locked-end returns the end of the locked region.  It should
+  only be called if we're in the scripting buffer."
   (if (eq proof-script-buffer (current-buffer))
-      (or (and proof-locked-span (span-end proof-locked-span))
-	  (point-min))
+      (proof-unprocessed-begin)
     (error "bug: proof-locked-end called from wrong buffer")))
 
 (defsubst proof-end-of-queue ()
@@ -1261,11 +1281,11 @@ arrive."
       (setq span (prev-span span 'type)))
     span)))
     
-;; This allows us to steal the process if we want to change the buffer
-;; in which script management is running.
 ;; This needs some work to make it generic, since most of the code
 ;; doesn't apply to Coq at all.
 (defun proof-steal-process ()
+  "This allows us to steal the process if we want to change the buffer
+   in which script management is running."
   (proof-start-shell)
   (if proof-shell-busy (error "Proof Process Busy!"))
   (if (not (eq proof-buffer-type 'script))
@@ -1273,7 +1293,7 @@ arrive."
   (cond
    ((eq proof-script-buffer (current-buffer))
     nil)
-   (t 
+   (t
     (let ((flist proof-included-files-list) 
 	  (file (expand-file-name (buffer-file-name))) span (cmd ""))
       (if (string-match "\\(.*\\)\\.." file) (setq file (match-string 1 file)))
@@ -1400,7 +1420,9 @@ arrive."
 	  (if (string-match proof-goal-with-hole-regexp
 			    (span-property gspan 'cmd))
 	      (setq nam (match-string 2 (span-property gspan 'cmd)))
-	    (error "Can't find Goal name")))
+	    ;; This only works for Coq, but LEGO raises an error if
+	    ;; there's no name.
+	    (setq nam "Unnamed_thm")))
 
       (set-span-end gspan end)
       (set-span-property gspan 'mouse-face 'highlight)
@@ -1494,7 +1516,7 @@ function) to a set of vanilla extents."
    unclosed-comment-fun. If ignore-proof-process-p is set, no commands
    will be added to the queue."
   (interactive)
-  (let ((pt  (point))
+  (let ((pt (point))
 	(crowbar (or ignore-proof-process-p (proof-steal-process)))
 	semis)
     (save-excursion
@@ -1626,7 +1648,7 @@ deletes the region corresponding to the proof sequence."
    the comment. If you want something different, put it inside
    unclosed-comment-fun."
   (interactive)
-  (let ((pt  (point)) semis crowbar test)
+  (let ((pt (point)) semis crowbar test)
     (setq crowbar (proof-steal-process))
     (save-excursion
       (if (not (re-search-backward "\\S-" (proof-locked-end) t))
@@ -1848,17 +1870,12 @@ current command."
       (redraw-modeline)
     (force-mode-line-update)))
 
-(defun proof-active-terminator ()
-  (interactive)
-  (if proof-active-terminator-minor-mode 
-      (proof-process-active-terminator)
-    (self-insert-command 1)))
-
 (defun proof-process-active-terminator ()
-  "Insert the terminator in an intelligent way and assert until the new terminator."
+  "Insert the terminator in an intelligent way and assert until the
+  new terminator.  Fire up proof process if necessary."
   (let ((mrk (point)) ins)
     (if (looking-at "\\s-\\|\\'\\|\\w") 
-	(if (not (re-search-backward "\\S-" (proof-locked-end) t))
+	(if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
 	    (error "Nothing to do!")))
     (if (not (= (char-after (point)) proof-terminal-char))
 	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
@@ -1866,6 +1883,12 @@ current command."
      (function (lambda ()
 		 (if ins (backward-delete-char 1))
 		 (goto-char mrk) (insert proof-terminal-string))))))
+
+(defun proof-active-terminator ()
+  (interactive)
+  (if proof-active-terminator-minor-mode 
+      (proof-process-active-terminator)
+    (self-insert-command 1)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2008,7 +2031,9 @@ current command."
   (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
-      (error "Failed to initialise proof process"))))
+      (error "Failed to initialise proof process")))
+
+  (run-hooks 'proof-mode-hook))
 
 (define-derived-mode pbp-mode fundamental-mode 
   "Proof" "Proof by Pointing"
