@@ -769,8 +769,8 @@ conversion, etc.  (No changes are done if nil)."
 
 
 (defcustom proof-terminal-char nil
-  "Character which terminates a command in a script buffer, or nil if none.
-You must set this variable in script mode configuration."
+  "Character which terminates every command sent to proof assistant.  nil if none.
+You should set this variable in script mode configuration."
   :type 'character
   :group 'proof-script)
 
@@ -1306,7 +1306,8 @@ NB: Terminator not added to command."
 (defcustom proof-shell-silent-threshold 2
   "Number of waiting commands in the proof queue needed to trigger silent mode.
 Default is 2, but you can raise this in case switching silent mode
-on or off is particularly expensive."
+on or off is particularly expensive (or make it ridiculously large
+to disable silent mode altogether)."
   :type 'integer
   :group 'proof-shell)
 
@@ -1430,7 +1431,52 @@ The engine matches interrupts before errors, see proof-shell-interrupt-regexp.
 
 It is safe to leave this variable unset (as nil)."
   :type '(choice nil regexp)
-  :group 'proof-shell) 
+  :group 'proof-shell)
+
+(defcustom proof-shell-next-error-regexp nil
+  "Regular expression which matches an error message, perhaps with line/column.
+Used by `proof-next-error' to jump to line numbers causing 
+errors during some batch processing of the proof assistant.
+(During \"manual\" script processing, script usually automatically
+jumps to the end of the locked region)
+
+Match number 2 should be the line number, if present.
+Match number 3 should be the column number, if present.
+
+The filename may be matched by `proof-shell-next-error-filename-regexp'."
+  :type 'string
+  :group 'proof-shell)
+
+(defcustom proof-shell-next-error-filename-regexp nil
+  "Used to locate a filename that an error message refers to.
+Used by `proof-next-error' to jump to locations causing 
+errors during some batch processing of the proof assistant.
+(During \"manual\" script processing, the script usually automatically
+jumps to the end of the locked region).
+
+Match number 2 should be the file name, if present.
+
+Errors must first be matched by `proof-shell-next-error-regexp'
+(whether they contain a line number or not).  The response buffer
+is then searched *backwards* for a regexp matching this variable,
+`proof-shell-next-error-filename-regexp'.  (So if the
+filename appears after the line number, make the first regexp
+match the whole line).  Finally 
+`proof-shell-next-error-extract-filename'
+may be used to extract the filename from 
+This regexp should be set to match messages also matched by
+`proof-shell-error-message-line-number-regexp'.  
+Match number 1 should be the filename."
+  :type 'string
+  :group 'proof-shell)
+
+;; FIXME: generalize this to string-or-function scheme
+(defcustom proof-shell-next-error-extract-filename nil
+  "A string used to extract filename from error message.  %s replaced.
+NB: this is only used if the match itself does not already correspond
+to a filename."
+  :type 'string
+  :group 'proof-shell)
 
 (defcustom proof-shell-interrupt-regexp nil
   "Regexp matching output indicating the assistant was interrupted.
@@ -2019,7 +2065,8 @@ If this table is empty or needs adjusting, please make changes using
 ;; various PG modes?
 (defcustom proof-universal-keys
   '(([(control c) (control c)] . proof-interrupt-process)
-    ([(control c) (control v)] . proof-minibuffer-cmd))
+    ([(control c) (control v)] . proof-minibuffer-cmd)
+    ([(control c) \`] . proof-next-error))
 "List of key-bindings made for the script, goals and response buffer. 
 Elements of the list are tuples `(k . f)' 
 where `k' is a key-binding (vector) and `f' the designated function."
