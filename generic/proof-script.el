@@ -10,6 +10,7 @@
 ;;
 
 (require 'proof)
+
 (require 'proof-syntax)
 
 ;; If it's disabled by proof-script-indent, it won't need to be
@@ -252,6 +253,28 @@ buffer to END."
     ;; (set-span-property proof-locked-span 'face 'proof-locked-face)
     ))
 
+
+;; FIXME: get rid of this function.  Some places expect this
+;; to return nil if locked region is empty.	Moreover,
+;; it confusingly returns the point past the end of the 
+;; locked region.
+(defun proof-locked-end ()
+  "Return end of the locked region of the current buffer.
+Only call this from a scripting buffer."
+  (proof-unprocessed-begin))
+  
+
+(defsubst proof-end-of-queue ()
+  "Return the end of the queue region, or nil if none."
+  (and proof-queue-span (span-end proof-queue-span)))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Buffer position functions
+;;
+
 (defun proof-unprocessed-begin ()
   "Return end of locked region in current buffer or (point-min) otherwise."
   (or 
@@ -259,13 +282,20 @@ buffer to END."
 	(span-end proof-locked-span))
    (point-min)))
 
-;; da: NEW function added 28.10.98.  This seems more
-;; appropriate point to move point to (or make sure is displayed)
-;; when a queue of commands is being processed.  The locked
-;; end may be further away.
+(defun proof-script-end ()
+  "Return the character beyond the last non-whitespace character.
+This is the same position proof-locked-end ends up at when asserting
+the script."
+  (save-excursion
+    (goto-char (point-max))
+    (skip-chars-backward " \t\n")
+    (point)))
+
 (defun proof-queue-or-locked-end ()
   "Return the end of the queue region, or locked region, or (point-min).
-This position should be the first writable position in the buffer."
+This position should be the first writable position in the buffer.
+An appropriate point to move point to (or make sure is displayed)
+when a queue of commands is being processed."
   (cond (proof-queue-span
 	 (span-end proof-queue-span))
 	(proof-locked-span
@@ -273,16 +303,40 @@ This position should be the first writable position in the buffer."
 	(t
 	 (point-min))))
 
-;; FIXME: get rid of this function.  Some places expect this
-;; to return nil if locked region is empty.	
-(defun proof-locked-end ()
-  "Return end of the locked region of the current buffer.
-Only call this from a scripting buffer."
-  (proof-unprocessed-begin))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Predicates for locked region.  
+;;
+;; These work on any buffer, so that non-script buffers can be locked
+;; (as processed files) too.
+;;
 
-(defsubst proof-end-of-queue ()
-  "Return the end of the queue region, or nil if none."
-  (and proof-queue-span (span-end proof-queue-span)))
+(defun proof-locked-region-full-p ()
+  "Non-nil if the locked region covers all the buffer's non-whitespace.
+Works on any buffer."
+  (save-excursion
+    (goto-char (point-max))
+    (skip-chars-backward " \t\n")
+    (>= (proof-unprocessed-begin) (point))))
+
+(defun proof-locked-region-empty-p ()
+  "Non-nil if the locked region is empty.  Works on any buffer."
+  (eq (proof-unprocessed-begin) (point-min)))
+
+(defun proof-only-whitespace-to-locked-region-p ()
+  "Non-nil if only whitespace separates point from end of locked region.
+Point should be after the locked region.
+NB: If nil, point is left at first non-whitespace character found.
+If non-nil, point is left where it was."
+  (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Multiple file handling
+;;
 
 (defun proof-mark-buffer-atomic (buffer)
   "Mark BUFFER as having been processed in a single step.
@@ -299,7 +353,7 @@ to allow other files loaded by proof assistants to be marked read-only."
       (if (eq proof-buffer-type 'script) 
 	  ;; For a script buffer
 	  (progn
-	    (goto-char (point-min))
+	   (goto-char (point-min))
 	    (proof-find-next-terminator)
 	    (let ((cmd-list (member-if
 			     (lambda (entry) (equal (car entry) 'cmd))
@@ -325,7 +379,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 	(proof-init-segmentation)
 	(set-span-property span 'type 'comment))
       ;; End of locked region is always end of buffer
-      (proof-set-locked-end (point-max)))))
+      (proof-set-locked-end (proof-script-end)))))
 
 (defun proof-file-truename (filename)
   "Returns the true name of the file FILENAME or nil."
@@ -342,15 +396,13 @@ to allow other files loaded by proof assistants to be marked read-only."
 		    :test 'equal)))
     (and pos (nth pos buffers))))
 
-(defun proof-warning (str)
-  "Issue the warning STR."
-    (proof-response-buffer-display str 'proof-warning-face)
-    (proof-display-and-keep-buffer proof-response-buffer))
-
 (defun proof-register-possibly-new-processed-file (file)
   "Register a possibly new FILE as having been processed by the prover."
   (let* ((cfile (file-truename file))
 	 (buffer (proof-file-to-buffer cfile)))
+    (proof-debug (concat "Registering file " cfile 
+			 (if (member cfile proof-included-files-list)
+			     " (already registered)." ".")))
     (if (not (member cfile proof-included-files-list))
 	(progn
 	  (and buffer
@@ -370,116 +422,188 @@ to allow other files loaded by proof assistants to be marked read-only."
 No effect if the current buffer has no file name."
   (if buffer-file-name
       (let ((cfile (file-truename buffer-file-name)))
+	(proof-debug (concat "Unregistering file " cfile 
+			       (if (not (member cfile 
+						proof-included-files-list))
+				   " (not registered)." ".")))
 	(setq proof-included-files-list
 	      (delete cfile proof-included-files-list)))))
 
-;; three NEW predicates, let's use them!
-
-(defun proof-locked-region-full-p ()
-  "Non-nil if the locked region covers all the buffer's non-whitespace.
-Should be called from a proof script buffer."
-  (save-excursion
-    (goto-char (point-max))
-    (skip-chars-backward " \t\n")
-    (>= (proof-unprocessed-begin) (point))))
-
-;; FIXME: doesn't need to be called from proof script buffer now
-;; proof-unprocessed-begin is generalised.
-(defun proof-locked-region-empty-p ()
-  "Non-nil if the locked region is empty."
-  (eq (proof-unprocessed-begin) (point-min)))
-
-(defun proof-only-whitespace-to-locked-region-p ()
-  "Non-nil if only whitespace separates point from end of locked region.
-Point should be after the locked region.
-NB: If nil, point is left at first non-whitespace character found.
-If non-nil, point is left where it was."
-  (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
 
 
-(defun proof-activate-scripting ()
-  "Activate scripting for the current script buffer.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Activating and Deactivating Scripting
+;;
+;; 
 
-The current buffer is prepared for scripting.  No changes are
+(defun proof-deactivate-scripting (&optional forcedaction)
+  "Deactivate scripting for the active scripting buffer.
+
+Set proof-script-buffer to nil and turn off the modeline indicator.
+No action if there is no active scripting buffer.  
+
+We make sure that the active scripting buffer either has no locked
+region or everything in it has been processed. This is done by
+prompting the user or by automatically taking the action indicated in
+the user option `proof-auto-action-when-deactivating-scripting.'
+
+If the scripting buffer is (or has become) fully processed, and
+it is associated with a file, it is registered on 
+`proof-included-files-list'.  Conversely, if it is (or has become)
+empty, make sure that it is *not* registered.  This is to
+make sure that the included files list behaves as we might expect
+with respect to the active scripting buffer, in an attempt to 
+harmonize mixed scripting and file reading in the prover.
+
+This function either succeeds, fails because the user 
+refused to process or retract a partly finished buffer,
+or gives an error message because retraction or processing failed.
+If this function succeeds, then proof-script-buffer=nil afterwards.
+
+The optional argument FORCEDACTION overrides the user option
+`proof-auto-action-when-deactivating-scripting' and prevents
+questioning the user.  It is used to make a value for
+the kill-buffer-hook for scripting buffers, so that when
+a scripting buffer is killed it is always retracted."
+  (interactive)
+  (if proof-script-buffer
+      (with-current-buffer proof-script-buffer
+	;; Examine buffer.
+
+	;; We must ensure that the locked region is either 
+	;; empty or full, to make sense for multiple-file
+	;; scripting.  (A proof assistant won't be able to
+	;; process just part of a file typically).
+	(if (or (proof-locked-region-empty-p) 
+		(proof-locked-region-full-p)
+		;; Buffer is partly-processed
+		(let*
+		    ((action 
+		      (or
+		       forcedaction
+		       proof-auto-action-when-deactivating-scripting
+		       (progn
+			 (save-window-excursion
+			   (unless
+			       ;; Test to see whether to display the 
+			       ;; buffer or not.
+			       ;; Could have user option here to avoid switching
+			       ;; or maybe borrow similar standard setting
+			       ;; save-some-buffers-query-display-buffer
+			       (or
+				(eq (current-buffer)
+				    (window-buffer (selected-window)))
+				(eq (selected-window) (minibuffer-window)))
+			     (progn
+			       (unless (one-window-p)
+				 (delete-other-windows))
+			       (switch-to-buffer proof-script-buffer t)))
+			   ;; Would be nicer to ask a single question, but
+			   ;; a nuisance to define our own dialogue since it
+			   ;; doesn't really fit with one of the standard ones.
+			   (cond
+			    ((y-or-n-p
+			      (format
+			       "Scripting incomplete in buffer %s, retract? "
+			       proof-script-buffer))
+			     'retract)
+			    ((y-or-n-p
+			      (format
+			       "Completely process buffer %s instead? "
+			       proof-script-buffer))
+			     'process))))))
+		     (name  (if (eq action 'process) 
+				"Processing" "Retracting"))
+		     (fn    (if (eq action 'process)
+				'proof-process-buffer 'proof-retract-buffer)))
+		  ;; Take the required action
+		  (if action
+		      (unwind-protect
+			  (progn
+			    (message "%s buffer %s..." 
+				     name proof-script-buffer)
+			    (funcall fn)
+			    (while proof-shell-busy ; busy wait
+			      (sit-for 1))
+			    (message "%s buffer %s...done." 
+				     name proof-script-buffer))
+			;; Test again to see if action happened/was successful
+			(or (proof-locked-region-empty-p)
+			    (proof-locked-region-full-p)
+			    (error "%s of %s failed!" 
+				   name proof-script-buffer)))
+		    (message "Scripting still active in %s" 
+			     proof-script-buffer)
+		    (sit-for 1)
+		    nil)))
+
+	    ;; If we get here, then the locked region is (now) either 
+	    ;; completely empty or completely full.
+	    (progn
+
+	      (if (proof-locked-region-full-p)
+		  ;; If locked region is full, make sure that this buffer
+		  ;; is registered on the included files list.
+		  (if buffer-file-name
+		      (proof-register-possibly-new-processed-file 
+		       buffer-file-name)))
+	      
+	      (if (proof-locked-region-empty-p)
+		  ;; If locked region is empty, make sure this buffer is
+		  ;; *off* the included files list.  
+		  (proof-unregister-buffer-file-name))
+
+	      ;; Turn off Scripting here.
+	      (setq proof-active-buffer-fake-minor-mode nil)
+
+	      ;; Make status of inactive scripting buffer show up
+	      ;; FIXME da:
+	      ;; not really necessary when called by kill buffer, at least.
+	      (if (fboundp 'redraw-modeline)
+		  (redraw-modeline)
+		(force-mode-line-update))
+	      
+	      ;; And now there is no active scripting buffer
+	      (setq proof-script-buffer nil))))))
+  
+(defun proof-activate-scripting (&optional nosaves)
+  "Ready prover and activate scripting for the current script buffer.
+
+The current buffer is prepared for scripting. No changes are
 necessary if it is already in Scripting minor mode. Otherwise, it
-will become the current scripting buffer provided the current
-scripting buffer has either no locked region or everything in it has
-been processed.
+will become the new active scripting buffer, provided scripting
+can be switched off in the previous active scripting buffer
+with `proof-deactivate-scripting'.
 
-If we're changing scripting buffer and the old one is associated with
-a file, add it to proof-included-files-list.
+Activating a new script buffer may be a good time to ask if the 
+user wants to save some buffers; this is done if the user
+option `proof-query-file-save-when-activating-scripting' is set
+and provided the optional argument NOSAVES is non-nil.
 
-When a new script buffer has scripting minor mode turned on,
-the hooks `proof-activate-scripting-hook' are run.  This can
-be a useful place to configure the proof assistant for
+Finally, the hooks `proof-activate-scripting-hook' are run.  
+This can be a useful place to configure the proof assistant for
 scripting in a particular file, for example, loading the
-correct theory, or whatever.
-
-Finally, this may be a good time to ask if the user wants to save some
-buffers."
+correct theory, or whatever."
+  (proof-shell-ready-prover)
   (cond 
    ((not (eq proof-buffer-type 'script)) 
-    (error "Must be running in a script buffer"))
+    (error "Must be running in a script buffer!"))
 
    ;; If the current buffer is the active one there's nothing to do.
    ((equal (current-buffer) proof-script-buffer))
 
    ;; Otherwise we need to activate a new Scripting buffer.
    (t
+    ;; If there's another buffer currently active, we need to 
+    ;; deactivate it (also fixing up the included files list).
     (if proof-script-buffer
-	(save-excursion
-	  ;; We're switching from another scripting buffer
-	  ;; to a new one.  Examine the old buffer.
-	  (set-buffer proof-script-buffer)
+	(progn
+	  (proof-deactivate-scripting)
+	  ;; Test whether deactivation worked
+	  (if proof-script-buffer
+	      (error "You cannot have more than one active scripting buffer!"))))
 	    
-	  ;; We only allow switching of the Scripting buffer if the
-	  ;; locked region is either empty or full for all buffers.
-	  ;; Give the user the chance to retract previous buffer here.
-	  ;; FIXME: ponder alternative of trying to complete rest
-	  ;; of current scripting buffer?  Allowing to switch when
-	  ;; a goal has been completed?
-	  (or (proof-locked-region-empty-p) 
-	      (proof-locked-region-full-p)
-	      (if (or
-		   ;; User option to always force retaction
-		   proof-auto-retract-other-buffers
-		   (yes-or-no-p 
-		    (format
-		     "Scripting already active in buffer: %s, retract there? "
-		     proof-script-buffer)))
-		  (progn
-		    ;; FIXME: Maybe want unwind protect here
-		    (proof-retract-buffer)
-		    ;; Test again to see if retracting happened/was successful
-		    (or (proof-locked-region-empty-p)
-			(proof-locked-region-full-p))))
-	      (error "You cannot have more than one active scripting buffer!"))
-
-	    
-	  ;; Mess around a little bit with the included files
-	  ;; list to make sure it behaves as we expect
-	  ;; with respect to the active scripting buffer.
-	  ;; This is and attempt to harmonize mixed scripting/file
-	  ;; reading in the prover.
-
-	  (if (proof-locked-region-full-p)
-	      ;; We're switching from a buffer which has been
-	      ;; completely processed.  Make sure that it's
-	      ;; registered on the included files list.
-	      (if buffer-file-name
-		  (proof-register-possibly-new-processed-file 
-		   buffer-file-name)))
-
-	  ;; 11.12.98 Added this.
-	  (if (proof-locked-region-empty-p)
-	      ;; We switching from a buffer which is empty.
-	      ;; Make sure that it's *off* the included files
-	      ;; list now.  
-	      (proof-unregister-buffer-file-name))
-
-	  ;; Turn off Scripting in the old buffer.
-	  (setq proof-active-buffer-fake-minor-mode nil)))
-
     ;; Set the active scripting buffer, and initialise the 
     ;; queue and locked regions if necessary.
     (setq proof-script-buffer (current-buffer))
@@ -489,11 +613,8 @@ buffers."
 	;; so mustn't do this.
 	(proof-init-segmentation))
 
-    ;; Turn on the minor mode, run hooks.
+    ;; Turn on the minor mode, make it show up.
     (setq proof-active-buffer-fake-minor-mode t)
-    (run-hooks 'proof-activate-scripting-hook)
-
-    ;; Make status of active scripting buffer show up
     (if (fboundp 'redraw-modeline)
 	(redraw-modeline)
       (force-mode-line-update))
@@ -501,51 +622,93 @@ buffers."
     ;; This may be a good time to ask if the user wants to save some
     ;; buffers.  On the other hand, it's jolly annoying to be
     ;; queried on the active scripting buffer if we've started
-    ;; writing in it.  So pretend that one is unmodified.
-    (let ((modified (buffer-modified-p)))
-      (set-buffer-modified-p nil)
-      (unwind-protect
-	  (save-some-buffers)
-	(set-buffer-modified-p modified))))))
+    ;; writing in it.  So pretend that one is unmodified, at least
+    ;; (we certainly don't expect the proof assitant to load it)
+    (if (and
+	  proof-query-file-save-when-activating-scripting
+	  (not nosaves))
+      (let ((modified (buffer-modified-p)))
+	(set-buffer-modified-p nil)
+	(unwind-protect
+	    (save-some-buffers)
+	  (set-buffer-modified-p modified))))
 
-;; This could be a subroutine to the above for a more sophisticated
-;; behaviour upon switching.
-(defun proof-deactivate-scripting ()
-  "Deactivate scripting, if the current script buffer is active.
-Set proof-script-buffer to nil and turn off the modeline indicator.
-If the locked region doesn't cover the entire file, retract it."
-  (interactive)
-  (if (eq (current-buffer) proof-script-buffer)
-      (let ((bname  (buffer-name proof-script-buffer)))
-	(message "Turning off scripting in %s..." bname)
-	(if (proof-locked-region-full-p)
-	;; If the buffer *was* fully processed, 
-	;; lets add it into the list of processed files.  
-	    (if buffer-file-name
-		(proof-register-possibly-new-processed-file 
-		 buffer-file-name))
-	  ;; If the buffer is not fully processed, 
-	  ;; ensure it's removed from the list of included files
-	  ;; and retract it if the locked region is non-empty.  
-	  (goto-char (point-min))
-	  (proof-unregister-buffer-file-name)
-	  (unless (proof-locked-region-empty-p)
-	    (condition-case nil
-		;; If retraction fails (e.g. proof proc busy), 
-		;; never mind.
-		(proof-retract-until-point)
-	      (error nil))))
-	;; In any case, turn off the fake minor mode
-	(setq proof-active-buffer-fake-minor-mode nil)
-	;; Make status of active scripting buffer show up
-	;; FIXME da:
-	;; not really necessary when called by kill buffer, at least.
-	(if (fboundp 'redraw-modeline)
-	    (redraw-modeline)
-	  (force-mode-line-update))
-	;; And now there is no active scripting buffer
-	(setq proof-script-buffer nil)
-	(message "Turning off scripting in %s... done." bname))))
+    ;; Run hooks
+    (run-hooks 'proof-activate-scripting-hook))))
+
+(defun proof-toggle-active-scripting (&optional arg)
+  "Toggle active scripting mode in the current buffer.
+With ARG, turn on scripting iff ARG is positive."
+  (interactive "P")
+  ;; A little less obvious than it may seem: toggling scripting in the
+  ;; current buffer may involve turning it off in some other buffer
+  ;; first!
+  (if (if (null arg)
+	  (not (eq proof-script-buffer (current-buffer)))
+	(> (prefix-numeric-value arg) 0))
+      (progn
+	(if proof-script-buffer (proof-deactivate-scripting))
+	(proof-activate-scripting))
+    (proof-deactivate-scripting)))
+  
+(defun proof-auto-deactivate-scripting ()
+  "Turn off scripting if the current scripting buffer is empty of full.
+This is a possible value for proof-state-change-hook.
+
+FIXME: this currently doesn't quite work properly as a value for 
+proof-state-change-hook, in fact: maybe because the
+hook is called somewhere where proof-script-buffer
+should not be nullified!"
+  ;; FIXME: note above.
+  (if proof-script-buffer
+      (with-current-buffer proof-script-buffer
+	(if (or (proof-locked-region-empty-p)
+		(proof-locked-region-full-p))
+	    (proof-deactivate-scripting)))))
+
+
+;;
+;;  End of activating and deactivating scripting section
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Old function:
+;(defun proof-deactivate-scripting ()
+;  "Deactivate scripting, if the current script buffer is active.
+;Set proof-script-buffer to nil and turn off the modeline indicator.
+;If the locked region doesn't cover the entire file, retract it."
+;  (interactive)
+;  (if (eq (current-buffer) proof-script-buffer)
+;      (let ((bname  (buffer-name proof-script-buffer)))
+;	(message "Turning off scripting in %s..." bname)
+;	(if (proof-locked-region-full-p)
+;	;; If the buffer *was* fully processed, 
+;	;; lets add it into the list of processed files.  
+;	    (if buffer-file-name
+;		(proof-register-possibly-new-processed-file 
+;		 buffer-file-name))
+;	  ;; If the buffer is not fully processed, 
+;	  ;; ensure it's removed from the list of included files
+;	  ;; and retract it if the locked region is non-empty.  
+;	  (goto-char (point-min))
+;	  (proof-unregister-buffer-file-name)
+;	  (unless (proof-locked-region-empty-p)
+;	    (condition-case nil
+;		;; If retraction fails (e.g. proof proc busy), 
+;		;; never mind.
+;		(proof-retract-until-point)
+;	      (error nil))))
+;	;; In any case, turn off the fake minor mode
+;	(setq proof-active-buffer-fake-minor-mode nil)
+;	;; Make status of active scripting buffer show up
+;	;; FIXME da:
+;	;; not really necessary when called by kill buffer, at least.
+;	(if (fboundp 'redraw-modeline)
+;	    (redraw-modeline)
+;	  (force-mode-line-update))
+;	;; And now there is no active scripting buffer
+;	(setq proof-script-buffer nil)
+;	(message "Turning off scripting in %s... done." bname))))
 
 
 
@@ -734,7 +897,6 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
   ;; State of scripting may have changed now
   (run-hooks 'proof-state-change-hook))
-
 
 
 ;; FIXME da: Below it would probably be faster to use the primitive
@@ -942,21 +1104,22 @@ UNCLOSED-COMMENT-FUN. If IGNORE-PROOF-PROCESS-P is set, no commands
 will be added to the queue and the buffer will not be activated for
 scripting."
   (unless ignore-proof-process-p 
-    (proof-shell-ready-prover)
     (proof-activate-scripting))
   (let ((semis))
     (save-excursion
       ;; Give error if no non-whitespace between point and end of locked region.
       ;; FIXME da: a nasty mess
+      ;; FIXME: this test meaningful for assert *exactly* to point, not
+      ;; when we assert to next command beyond point.
       (if (proof-only-whitespace-to-locked-region-p)
-	  (error "There's nothing to do in this buffer!"))
+	  (error "There's nothing to do to!"))
       ;; NB: (point) has now been moved backwards to first non-whitespace char.
       (setq semis (proof-segment-up-to (point))))
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (null semis))
-	  (error "There's nothing to do in this buffer!"))
+	  (error "I can't see any complete commands to process!"))
       (goto-char (nth 2 (car semis)))
       (and (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
@@ -995,8 +1158,6 @@ Afterwards, move forward to near the next command afterwards, unless
 DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
 a space or newline will be inserted automatically."
   (unless ignore-proof-process-p
-    (proof-shell-ready-prover)
-    ;; FIXME: check this
     (proof-activate-scripting))
   (or ignore-proof-process-p
       (if (proof-locked-region-full-p)
@@ -1018,7 +1179,7 @@ a space or newline will be inserted automatically."
       (if (eq 'unclosed-comment (car-safe semis))
 	  (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (null semis))
-	  (error "I don't know what I should be doing in this buffer!"))
+	  (error "I can't see any complete commands to process!"))
       (goto-char (nth 2 (car semis)))
       (if (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
@@ -1037,7 +1198,6 @@ a space or newline will be inserted automatically."
 ;;         command for us to run                                    ;;
 
 (defun proof-insert-pbp-command (cmd)
-  (proof-shell-ready-prover)			; FIXME
   (proof-activate-scripting)
   (let (span)
     (proof-goto-end-of-locked)
@@ -1152,7 +1312,6 @@ If DELETE-REGION is non-nil, delete the region in the proof script
 corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
 command."
-  (proof-shell-ready-prover)
   (proof-activate-scripting)
   (let ((span (span-at (point) 'type)))
     ;; FIXME da: shouldn't this test be earlier??
@@ -1570,6 +1729,8 @@ No action if BUF is nil."
      ["Start proof assistant"
       proof-shell-start
       :active (not (proof-shell-live-buffer))]
+     ["Toggle scripting"
+      proof-toggle-active-scripting]
 ;     ["Restart scripting"
 ;      proof-shell-restart
 ;      :active (proof-shell-live-buffer)]
@@ -1709,9 +1870,10 @@ sent to the assistant."
 Clean up before a script buffer is killed.
 If killing the active scripting buffer, run proof-deactivate-scripting.
 Otherwise just do proof-restart-buffers to delete some spans from memory."
-  ;; Deactivate scripting in the current buffer if need be.
+  ;; Deactivate scripting in the current buffer if need be, forcing
+  ;; retraction.
   (if (eq (current-buffer) proof-script-buffer)
-      (proof-deactivate-scripting))
+      (proof-deactivate-scripting 'retract))
   (proof-restart-buffers (list (current-buffer)))
   ;; Hide away goals and response: this is a hack because otherwise
   ;; we can lead the user to frustration with the dedicated windows
@@ -1736,7 +1898,10 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) (control n)] 'proof-toolbar-next)
 (define-key map [(control c) (control u)] 'proof-toolbar-undo)
 (define-key map [(control c) (control b)] 'proof-toolbar-use)
-(define-key map [(control c) (control r)] 'proof-toolbar-retract) ;; new binding
+
+;; newer bindings
+(define-key map [(control c) (control r)] 'proof-toolbar-retract)
+(define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
 
 ;;;; (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
 ;; FIXME : This ought to be set to 'proof-assert-until point
@@ -1956,7 +2121,6 @@ Default action if inside a comment is just to go until the start of
 the comment. If you want something different, put it inside
 UNCLOSED-COMMENT-FUN."
   (interactive)
-  (proof-shell-ready-prover)
   (proof-activate-scripting)
   (let ((pt (point)) semis test)
     (save-excursion
