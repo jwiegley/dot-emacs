@@ -251,7 +251,7 @@ until Proof General is restarted."
 
 (proof-defassfun trace-simplifier ()
   (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd trace-simplifier)))
+   (isabelle-set-default-cmd 'trace-simplifier)))
 
 (defun isa-proof-invisible-command-ifposs (cmd)
   ;; Better would be to queue the command, or even interrupt a queue
