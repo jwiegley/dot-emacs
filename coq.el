@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.17  1998/05/06 15:29:11  hhg
+;; Added coq-info-dir so that script-management.info can be hard-coded.
+;;
 ;; Revision 1.16  1998/05/05 14:21:48  hhg
 ;; Made updates to fix problem with Definition, which couldn't be
 ;; used with proof scripts.
@@ -90,6 +93,8 @@
 
 (defvar coq-tags "/obj/local/coq/V6.2/theories/TAGS"
   "the default TAGS table for the Coq library")
+
+(defconst coq-info-dir "/usr/local/share/info")
 
 (defconst coq-process-config nil
   "Command to configure pretty printing of the Coq process for emacs.")
@@ -630,8 +635,8 @@
 		     tag-table-alist)))
 
 ;; Info
-  (setq Info-directory-list
-	(cons "/home/hhg/src/doc/info" Info-directory-list))
+  (if (not (memq coq-info-dir Info-directory-list))
+      (setq Info-directory-list	(cons coq-info-dir Info-directory-list)))
 
 ;; keymaps and menus
   (easy-menu-add coq-mode-menu coq-mode-map)
