@@ -256,8 +256,13 @@ Does nothing if proof assistant is already running."
 	      " "))
 	    ;; Experimental fix for backslash/long line problem.  
 	    ;; Make start-process (called by make-comint)
-	    ;; use a pipe, not a pty.
+	    ;; use a pipe, not a pty.  Seems to work.
 	    (process-connection-type nil))
+
+	;; An improvement here might be to catch failure of
+	;; make-comint and then kill off the buffer.  Then we 
+	;; could add back code above for multiple shells <2> <3>, etc.
+	;; Seems hardly worth it.
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
       
