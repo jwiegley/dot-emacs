@@ -169,7 +169,7 @@
   (concat "\\(" (proof-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
   "Regexp matching goal commands in Isabelle/Isar which name a theorem")
 
-(defconst isar-verbatim-regexp "^\^VERBATIM: \\(.*\\)"
+(defconst isar-verbatim-regexp "^\^VERBATIM: \\(\\(.\\|\n\\)*\\)$"
   "Regexp matching internal marker for verbatim command output")
 
 (defun isar-verbatim (str)

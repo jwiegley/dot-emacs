@@ -278,10 +278,6 @@
    proof-shell-init-cmd                 (concat
 					 (isar-verbatim 
 					  "ProofGeneral.init true;")
-					 ;; FIXME: markus, could you sort this?
-					 ;; Doesn't seem to work, maybe
-					 ;; should be done later?  with verb?
-					 ;; or before PG.init without m/u?
 					 "\n"
 					 (isabelle-set-default-cmd))
    proof-shell-restart-cmd		"ProofGeneral.restart;"
