@@ -195,28 +195,31 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news::                     
+* Latest news, for 3.1::                     
 * News for 3.0::                     
 * History::                     
 * Credits::                     
 @end menu
 
 
-@node Latest news
-@unnumberedsec Latest news
+@node Latest news, for 3.1
+@unnumberedsec Latest news, for 3.1
 @cindex news
 
-Proof General 3.1 is mainly a bug-fix improvement over version 3.0.  It
-solves a few minor problems which came to light since the final testing
-stages for 3.0.  It also solves some compatibility problems, so now it
-works with various versions of Emacs which we hadn't tested with before
-(non-mule FSF Emacs, certain Japanese Emacs versions).
+Proof General 3.1 is released as a bug-fix improvement over version 3.0.
+There are some minor cosmetic improvements, but large changes have been
+held back to ensure stability.  This release solves a few minor problems
+which came to light since the final testing stages for 3.0.  It also
+solves some compatibility problems, so now it works with various
+versions of Emacs which we hadn't tested with before (non-mule FSF
+Emacs, certain Japanese Emacs versions).
 
-We're also pleased to annouce HOL Proof General, a new instance of Proof
-General for HOL98.  This is supplied as a "technology demonstration"
-for HOL users in the hope that somebody from the HOL community will
-adopt it and become an official maintainer and developer.  (Otherwise
-work on HOL Proof General will not continue).
+We're also pleased to announce HOL Proof General, a new instance of
+Proof General for HOL98.  This is supplied as a "technology
+demonstration" for HOL users in the hope that somebody from the HOL
+community will volunteer to adopt it and become a maintainer and
+developer.  (Otherwise, work on HOL Proof General will not
+continue).
 
 Apart from that there are a few other small improvements.  Check the
 CHANGES file in the distribution for full details.
@@ -241,17 +244,19 @@ Second, there are improvements, extensions, and bug fixes in the generic
 basis. Proofs which are unfinished and not explicitly closed by a
 ``save'' type command are supported by the core, if they are allowed by
 the prover.  The design of switching the active scripting buffer has
-been streamlined.  The management of the queue of commands waiting to
-be sent to the shell has been improved, so there are fewer unnecessary
-"Proof Process Busy!" messages.  The proof shell filter has been
-optimized to give hungry proof assistants a better share of CPU cycles.
-Proof-by-pointing has been resurrected; even though LEGO's
-implementation is incomplete, it seems worth maintaining the code in
-Proof General so that the implementors of other proof assistants are
-encouraged to provide support.  For one example, we can certainly hope
-for support in Coq, since the CtCoq proof-by-pointing code has been
-moved into the Coq kernel lately.  We need a volunteer from the Coq
-community to help to do this.
+been streamlined.  The management of the queue of commands waiting to be
+sent to the shell has been improved, so there are fewer unnecessary
+"Proof Process Busy!" messages.  The support for scripting with multiple
+files was improved so that it behaves reliably with Isabelle99; file
+reading messages can be communicated in both directions now.  The proof
+shell filter has been optimized to give hungry proof assistants a better
+share of CPU cycles.  Proof-by-pointing has been resurrected; even
+though LEGO's implementation is incomplete, it seems worth maintaining
+the code in Proof General so that the implementors of other proof
+assistants are encouraged to provide support.  For one example, we can
+certainly hope for support in Coq, since the CtCoq proof-by-pointing
+code has been moved into the Coq kernel lately.  We need a volunteer
+from the Coq community to help to do this.
 
 An important new feature in Proof General 3.0 is support for
 @uref{http://www.fmi.uni-passau.de/~wedler/x-symbol/,X-Symbol}, 
@@ -277,10 +282,11 @@ internal changes.
 
 Most of the work for Proof General 3.0 has been done by David Aspinall.
 Markus Wenzel helped with Isabelle support, and provided invaluable
-feedback and testing.  Pierre Courtieu took responsibility from Patrick
-Loiseleur for Coq support, although the improvements in both the Coq and
-LEGO code for this release were made by David Aspinall.  Markus Wenzel
-also provided support for his Isar language, a new proof language for
+feedback and testing, especially for the improvements to multiple file
+handling.  Pierre Courtieu took responsibility from Patrick Loiseleur
+for Coq support, although the improvements in both the Coq and LEGO code
+for this release were made by David Aspinall.  Markus Wenzel also
+provided support for his Isar language, a new proof language for
 Isabelle.  David von Oheimb helped to develop and debug the generic
 version of his X-Symbol patch which he originally provided for Isabelle.
 
@@ -338,9 +344,9 @@ demonstrated at UITP'97.
 
 In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Part
 of the generic code in the @code{lego} package was outsourced (and made
-more generic) in a new generic package called @code{proof}. Dilip
-Sequeira provided some LEGO-specific support for handling multiple files
-and wrote a few manual pages. The system was reasonably robust and we
+more generic) in a new package called @code{proof}. Dilip Sequeira
+provided some LEGO-specific support for handling multiple files and
+wrote a few manual pages. The system was reasonably robust and we
 shipped out the package to friends.
 
 In June 1998, David Aspinall reentered the picture by providing an
@@ -481,13 +487,14 @@ Proof General keeps track of which proof steps have been processed by
 the prover, and prevents you editing them accidently.  You can undo
 steps as usual.
 
-The main aim of Proof General is to provide a powerful and configurable
-Emacs mode to help user-interaction with numerous interactive proof
-assistants.  Please help us with this aim!  Configure Proof General for
-your own proof assistant, by adding features at the generic level of
-Proof General wherever possible.  @xref{Adapting Proof General to Other
-Provers}, for more details, and send ideas, comments, patches, and code
-to @code{proofgen@@dcs.ed.ac.uk}.
+The aim of Proof General is to provide a powerful and configurable
+interface for numerous interactive proof assistants.  We target Proof
+General mainly at intermediate or expert users, so that the interface
+should be useful for large proof developments.  Please help us!
+Configure Proof General for your own proof assistant, by adding features
+at the generic level of Proof General wherever possible.  @xref{Adapting
+Proof General to Other Provers}, for more details, and send ideas,
+comments, patches, and code to @code{proofgen@@dcs.ed.ac.uk}.
 
 @menu
 * Quick start guide::           
@@ -765,55 +772,145 @@ The file you are asked to type below is included in the distribution as
 from a simple proof for your proof assistant, or consult the example
 file provided with Proof General.
 
-First, find a new file by doing @kbd{C-x C-f} and typing as the filename
-@file{example.l}.  This should load LEGO Proof General and the
-toolbar and Proof General menus will appear.  This walkthrough is
-keyboard based, although you could easily use the toolbar and menu
-functions instead.
+This walkthrough is keyboard based, but you could easily use the toolbar
+and menu functions instead.  The best way to learn Emacs key bindings is
+by using the menus.  You'll find the keys named below listed on the
+menus.
 
+@itemize @bullet
+@item
+First, find a new file by @kbd{C-x C-f} and typing as the filename
+@file{example.l}.  This should load LEGO Proof General and the toolbar
+and Proof General menus will appear.  You should have an empty buffer
+displayed.
+@end itemize
 
+The notation @kbd{C-x C-f} means control key with `x' followed by
+control key with `f'.  This is a standard notation for Emacs key
+bindings, used throughout this manual.  This function also
+appears on the @code{File} menu of Emacs.  The remaining commands
+used will be on the @code{Proof-General} menu.
 
-Now turn on @dfn{electric terminator minor mode} by typing @kbd{C-c ;} and
+If you're not using LEGO, you must choose a different file extension,
+appropriately for your proof assistant.  If you don't know what to use,
+see the previous chapter for the list of supported assistants and file
+extensions.
+
+@itemize @bullet
+@item
+Turn on @dfn{electric terminator} by typing @kbd{C-c ;} and
 enter:
 @lisp
 Module example Import lib_logic;
 @end lisp
-Electric terminator minor mode sends commands to the proof assistant as
-you type them.  The command should now be lit in pink (or inverse video
-if you don't have a colour display).  As LEGO imports each module, a
-line will appear in the minibuffer showing the creation of context
+This first command defines a file header and tells LEGO to use logic; 
+these steps are usually not necessary in other proof assistants.
+@end itemize
+
+Electric terminator sends commands to the proof assistant as you type
+them.  The exact key binding is based on the terminator used for your
+proof assistant, but you can always check the menu if you're not sure.
+
+Electric terminator mode is popular, but not enabled by default because
+of the principle of least surprise.  You can customize Proof General to
+enable it everytime if you want, @xref{Customizing Proof General}.  In
+XEmacs, this is particularly easy: just use the menu item @code{Options
+-> Save Options} to save some common options while using Proof General.
+
+The @code{Module} command should now be lit in pink (or inverse video if
+you don't have a colour display).  As LEGO imports each module, a line
+will appear in the minibuffer showing the creation of context
 marks. Eventually the command should turn blue, indicating that LEGO has
-successfully processed it. Then type (on a new line if you like):
+successfully processed it.
+
+@itemize @bullet
+@item
+Next type (on a new line if you like):
 @lisp
 Goal bland_commutes: @{A,B:Prop@} (and A B) -> (and B A);
 @end lisp
-The goal should be echoed in the goals buffer.
+@end itemize
+
+The goal should be displayed in the goals buffer.
+
+@itemize @bullet
+@item 
+Now type:
 @lisp
 Intros;
 @end lisp
-Whoops! That was the wrong command. Press @kbd{C-c C-u} to pretend that didn't happen.
+@end itemize
+This will update the goals buffer.
+
+But whoops! That was the wrong command.
+
+@itemize @bullet
+@item
+Press @kbd{C-c C-BS} to pretend that didn't happen.
+@end itemize
+Note: @kbd{BS} means the backspace key.  This key press sends an undo
+command to LEGO, and deletes the @code{Intros;} command from the proof
+script.  If you just want to undo without deleting, you can type
+@kbd{C-c C-u} instead, or use the toolbar navigation button.
+
+@itemize @bullet
+@item
+Instead, let's try:
 @lisp
 intros; andI;
 @end lisp
-A proof summary will appear in the goals buffer.
-@c We could solve the goal by pointing now, but we'll stay with the keyboard.
+We've used the conjunction-introduction rule.
+
+To finish off, use these commands:
 @lisp
 Refine H; intros; Immed; Refine H; intros; Immed;
 @end lisp
-finishes the Goal. 
+@end itemize
+Now you should see LEGO display the QED message.
+
+@itemize @bullet
+@item
+Finally, type:
 @lisp
 Save bland_commutes;
 @end lisp
+@end itemize
+
+This last command closes the proof and saves the proved theorem.
 
 Moving the mouse pointer over the locked region now reveals that the
-entire proof has been aggregated into a single segment. Suppose we
-decide to call the goal something more sensible. Moving the cursor up
-into the locked region, somewhere between @samp{Goal} and @samp{Save},
-we enter @kbd{C-c C-RET}.  The segment is transferred back into the
-editing region. Now we correct the goal name, move the cursor to the end
-of the buffer, and type @kbd{C-c C-RET}.  Proof General queues the commands
-for processing and executes them.
+entire proof has been aggregated into a single segment. This reflects
+the fact that LEGO has thrown away the history of the proof, so if we
+want to undo now, the whole proof must be retracted.
 
+@itemize
+@item 
+Suppose we decide to call the goal something more sensible. Move the
+cursor up into the locked region, somewhere between @samp{Goal} and
+@samp{Save}, enter @kbd{C-c C-RET}.  
+@end itemize
+
+You see that the locked segment for the whole proof is now unlocked (and
+uncoloured): it is transferred back into the editing region.
+
+The command @kbd{C-c C-RET} moves the end of the locked region to the
+cursor position, sending undoing commands or proof commands as
+necessary.
+
+@itemize
+@item 
+Now correct the goal name, for example:
+@lisp
+Goal and_commutes: @{A,B:Prop@} (and A B) -> (and B A);
+@end lisp
+Move the cursor to the end of the buffer, and
+type @kbd{C-c C-RET} again.  
+@end itemize
+
+Proof General queues the commands for processing and executes them one
+by one.  You should see the proof turn pink, then quickly command by
+command it is turned blue.  The progress of pink to blue can be
+much slower with long and complicated proofs!
 
 
 
@@ -823,22 +920,22 @@ for processing and executes them.
 @cindex scripting
 
 A @dfn{proof script} is a sequence of commands which constructs
-definitions, declarations and proofs in a proof assistant. Proof General
-is designed to work with text-based @i{interactive} proof assistants,
-where the mode of working is usually a dialogue between the human and
-the proof assistant.
+definitions, declarations, theories, and proofs in a proof
+assistant. Proof General is designed to work with text-based
+@i{interactive} proof assistants, where the mode of working is usually a
+dialogue between the human and the proof assistant.  
 
-Primitive interfaces for proof assistants simply present a shell-like
-view of this dialogue: the human repeatedly types commands to the shell
-until the proof is completed.  The system responds at each step, perhaps
-with a new list of subgoals to be solved, or perhaps with a failure
-report.  Proof General manages the dialogue to only show the human the
-information which is relevant at each step.
+Primitive interfaces for proof assistants simply present a @dfn{shell}
+(command interpreter) view of this dialogue: the human repeatedly types
+commands to the shell until the proof is completed.  The system responds
+at each step, perhaps with a new list of subgoals to be solved, or
+perhaps with a failure report.  Proof General manages the dialogue to
+show the human only the information which is relevant at each step.
 
 Often we want to keep a record of the proof commands used to prove a
 theorem, to build up a library of proved results.  An easy way to store
-a proof is to keep a text file which contains a proof script; the proof
-assistant usually provides facilities to read a proof script from a file
+a proof is to keep a text file which contains a proof script; proof
+assistants usually provide facilities to read a proof script from a file
 instead of the terminal.  Using the file, we can @dfn{replay} the proof
 script to prove the theorem again.
 @c Re-playing a proof script is a non-interactive procedure,
@@ -854,9 +951,10 @@ proof step-by-step, to see the progress at each stage.
 @dfn{Scripting} is the process of building up a proof script file or
 replaying a proof.  When scripting, Proof General sends proof commands
 to the proof assistant one at a time, and prevents you from editing
-commands which have been successfully completed by the proof assistant.
-Regions of the proof script are analysed based on syntax and the
-behaviour of the proof assistant after each proof command.
+commands which have been successfully completed by the proof assistant,
+to keep synchronization.  Regions of the proof script are analysed
+based on their syntax and the behaviour of the proof assistant after each
+proof command.
 
 
 @node Script buffers
@@ -890,7 +988,7 @@ in the script buffer can include a number of
 @cindex pink text
 
 
-The three regions that a script buffer can be divided into are: @c 
+The three regions that a script buffer is divided into are: @c 
 
 @itemize @bullet
 @item The @emph{locked} region, which appears in blue (underlined on monochrome
@@ -1021,14 +1119,18 @@ either, Proof General will give an error message:
 
 To turn off active scripting, the buffer must be completely processed
 (all blue), or completely unprocessed.  There are two reasons for this.
-First, it would be confusing if it were possible to split parts of a
-proof arbitrarily between different buffers; the dependency between the
-commands would be lost and it would be tricky to replay the proof.
-Second, we want to interface with file management in the proof
-assistant.  Proof General assumes that a proof assistant may have a
-notion of which files have been processed, but that it will only record
-files that have been @i{completely} processed.  For more explanation of
-the handling of multiple files, @xref{Switching between proof scripts}.
+First, it would certainly be confusing if it were possible to split
+parts of a proof arbitrarily between different buffers; the dependency
+between the commands would be lost and it would be tricky to replay the
+proof.@footnote{Some proof assistants provide some level of support for
+switching between multiple concurrent proofs, but Proof General does not
+use this.  Generally the exact context for such proofs is hard to define
+to easily split them into multiple files.}  Second, we want to interface
+with file management in the proof assistant.  Proof General assumes that
+a proof assistant may have a notion of which files have been processed,
+but that it will only record files that have been @i{completely}
+processed.  For more explanation of the handling of multiple files,
+@xref{Switching between proof scripts}.
 
 @c TEXI DOCSTRING MAGIC: proof-toggle-active-scripting
 @deffn Command proof-toggle-active-scripting &optional arg
@@ -1175,6 +1277,7 @@ does.
 @section Script processing commands
 @kindex C-c C-n
 @kindex C-c C-u
+@kindex C-c C-BS
 @kindex C-c C-b
 @kindex C-c C-r
 @kindex C-c C-RET
@@ -1195,6 +1298,8 @@ design, by allowing successive assertion commands without complaining.}
 @code{proof-assert-next-command-interactive}
 @item C-c C-u
 @code{proof-undo-last-successful-command}
+@item C-c C-BS
+@code{proof-undo-and-delete-successful-command}
 @item C-c C-RET
 @code{proof-goto-point}
 @item C-c C-b
@@ -1234,13 +1339,26 @@ If inside a comment, just process until the start of the comment.
 Undo last successful command at end of locked region.
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-goto-point
+@c TEXI DOCSTRING MAGIC: proof-undo-and-delete-last-successful-command
+@deffn Command proof-undo-and-delete-last-successful-command 
+Undo and delete last successful command at end of locked region.@*
+Useful if you typed completely the wrong command.
+Also handy for proof by pointing, in case the last proof-by-pointing
+command took the proof in a direction you don't like.
 
+Notice that the deleted command is put into the Emacs kill ring, so
+you can use the usual @samp{yank} and similar commands to retrieve the
+deleted text.
+@end deffn
+
+
+@c TEXI DOCSTRING MAGIC: proof-goto-point
 @deffn Command proof-goto-point 
 Assert or retract to the command at current position.@*
 Calls @code{proof-assert-until-point} or @code{proof-retract-until-point} as
 appropriate.
 @end deffn
+
 @c TEXI DOCSTRING MAGIC: proof-process-buffer
 @deffn Command proof-process-buffer 
 Process the current buffer, and maybe move point to the end.
@@ -1498,13 +1616,6 @@ proof script buffer, and immediately sent back to the proof assistant.
 If it succeeds, the locked region will be extended to cover the
 proof-by-pointing command, just as for any proof command the 
 user types by hand.
-@end deffn
-@c TEXI DOCSTRING MAGIC: proof-undo-and-delete-last-successful-command
-
-@deffn Command proof-undo-and-delete-last-successful-command 
-Undo and delete last successful command at end of locked region.@*
-Handy for proof by pointing, in case the last proof-by-pointing
-command took the proof in a direction you don't like.
 @end deffn
 
 Proof-by-pointing uses markup describing the term structure of the
@@ -3017,8 +3128,7 @@ Process the theory file @var{file}.  If interactive, use @code{buffer-file-name}
 Retract the theory file @var{file}. If interactive, use @code{buffer-file-name}.@*
 To prevent inconsistencies, scripting is deactivated before doing this. 
 So if scripting is active in an ML file which is not completely processed, 
-you will be asked to retract the file or process the remainder of it.  
-(If you process the rest of it it may subsequently be unlocked anyway). 
+you will be asked to retract the file or process the remainder of it.
 @end deffn
 
 
@@ -5749,6 +5859,9 @@ Thus, user-defined tactics cannot be retracted.
 @subsection Sections
 
 Coq Proof General does not know about Coq's Section mechanism.
+Problems similar to LEGO's discharge.
+See @ref{Granularity of atomic command sequences}, for a proposal
+on how to fix this bug.
 
 @c 
 @c Isabelle Bugs
@@ -5882,7 +5995,7 @@ This is a proposal by Thomas Kleymann for generalising the way Proof
 General handles sequences of proof commands (@pxref{Goal-save
 sequences}), particularly to make retraction more flexible.
 
-The locked region of a script buffer contains the initial segment of
+The blue region of a script buffer contains the initial segment of
 the proof script which has been processed successfully. It consists of
 atomic sequences of commands (ACS). Retraction is supported to the
 beginning of every ACS. By default, every command is an ACS. But the
