@@ -1175,7 +1175,7 @@ UNCLOSED-COMMENT-FUN."
 ;; FIXME: it turns out that this function is identical to the one below.
 (defun proof-undo-last-successful-command-interactive (delete)
   "Undo last successful command at end of locked region.
-If optional DELETE argument is set (called with a prefix argument), 
+If DELETE argument is set (called with a prefix argument), 
 the text is also deleted from the proof script."
   (interactive "P")
   (proof-undo-last-successful-command delete))
