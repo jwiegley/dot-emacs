@@ -4,4 +4,4 @@
     Logic Image: Pure
 *)
 
-A  =  Main
+A  =  Pure
