@@ -290,6 +290,7 @@
     "^proof (prove):"
     "^proof (state):"
     "^proof (chain):"
+    "^goal (corollary.*):"
     "^goal (theorem.*):"
     "^goal (lemma.*):"
     "^goal (have.*):"
