@@ -232,22 +232,22 @@ Restrict to BUFLIST if it's set."
 	  (setq bufs-got (cons buf bufs-got))))))
 
 
-(defun proof-message (str)
-  "Issue the message STR in the response buffer and display it."
-    (proof-response-buffer-display str)
+(defun proof-message (&rest args)
+  "Issue the message ARGS in the response buffer and display it."
+    (proof-response-buffer-display (apply 'concat args))
     (proof-display-and-keep-buffer proof-response-buffer))
 
-(defun proof-warning (str)
-  "Issue the warning STR in the response buffer and display it.
+(defun proof-warning (&rest args)
+  "Issue the warning ARGS in the response buffer and display it.
 The warning is coloured with proof-warning-face."
-    (proof-response-buffer-display str 'proof-warning-face)
+    (proof-response-buffer-display (apply 'concat args) 'proof-warning-face)
     (proof-display-and-keep-buffer proof-response-buffer))
 
-(defmacro proof-debug (str)
-  "Issue the debugging message STR in the response buffer, display it.
+(defmacro proof-debug (&rest args)
+  "Issue the debugging messages ARGS in the response buffer, display it.
 If proof-show-debug-messages is nil, do nothing."
   (if proof-show-debug-messages
-      `(proof-warning ,str)))
+      `(proof-warning ,@args)))
 
 ;; Function for submitting bug reports.
 (defun proof-submit-bug-report ()
