@@ -32,7 +32,8 @@
       '(0 'font-lock-keyword-face t))
 ;proof command
     (cons (concat "\\([ \t]\\|^\\)\\("
-       "a\\(b\\(bort\\|surd\\)\\|pply\\|xiom\\)\\|"
+       "a\\(bort\\|fter\\|pply\\|xiom\\)\\|"
+       "by_absurd\\|"
        "constraints\\|"
        "elim\\|"
        "from\\|"
@@ -40,8 +41,9 @@
        "in\\(tros?\\|stance\\)\\|"
        "l\\(oc\\(al\\|k\\)\\|efts?\\)\\|"
        "next\\|"
+       "prove\\|"
        "r\\(e\\(write\\(_hyp\\)?\\|name\\)\\|mh\\)\\|"
-       "slh\\|"
+       "s\\(elect\\|lh\\)\\|"
        "trivial\\|" 
        "u\\(se\\|n\\(do\\|fold\\(_hyp\\)?\\|lock\\)\\)" 
        "\\)[ \t.]")
@@ -49,14 +51,14 @@
 
 ;;--------------------------------------------------------------------------;;
 ;;--------------------------------------------------------------------------;;
-;;                       Sym-lock tables
+;;                       phox-sym-lock tables
 ;;--------------------------------------------------------------------------;;
 
 (if proof-running-on-XEmacs (require 'phox-sym-lock))
 
 ;; to change this table, xfd -fn '-adobe-symbol-*--12-*' may be
 ;; used to determine the symbol character codes.
-(defvar phox-sym-lock-keywords
+(defconst phox-sym-lock-keywords-table
   '((">=" 0 1 179)
     ("<=" 0 1 163)
     ("!=" 0 1 185)
@@ -67,18 +69,18 @@
     ("\\<or\\>" 0 3 218) 
     ("&" 0 1 217) 
     ("<->" 0 1 171)
-    ("-->" 0 1 222)
+    ("-->" 0 3 222)
     ("->" 0 1 174)
     ("~" 0 1 216)
-    ("\\\\" 0 1 108))
-  "If non nil: Overrides default Sym-Lock patterns for PhoX.")
+    ("\\\\" 0 1 108)))
+;  "If non nil: Overrides default Phox-Sym-Lock patterns for PhoX.")
 
 (defun phox-sym-lock-start ()
-	(if (and (featurep 'sym-lock) phox-sym-lock)
+	(if (and (featurep 'phox-sym-lock) phox-sym-lock)
 	    (progn
-	      (setq sym-lock-color
+	      (setq phox-sym-lock-color
 		    (face-foreground 'font-lock-function-name-face))
-	      (if (not sym-lock-keywords)
-		  (sym-lock phox-sym-lock-keywords)))))
+	      (if (not phox-sym-lock-keywords)
+		  (phox-sym-lock phox-sym-lock-keywords-table)))))
 
 (provide 'phox-font)

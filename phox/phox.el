@@ -33,7 +33,7 @@
   :group 'phox)
 
 (defcustom phox-sym-lock t
-  "*Whether to use sym-lock or not."
+  "*Whether to use phox-sym-lock or not."
   :type 'boolean
   :group 'phox)
 
@@ -142,7 +142,7 @@
    proof-shell-prompt-pattern      "\\(>phox> \\)\\|\\(%phox% \\)"
    proof-shell-annotated-prompt-regexp  "\\(>phox> \\)\\|\\(%phox% \\)"
    proof-shell-interrupt-regexp    "Interrupt"
-   proof-shell-start-goals-regexp  "^Goals left to prove:"
+   proof-shell-start-goals-regexp  "^\\(Here are the goal\\)\\|\\([0-9]+ goal\\(s?\\) created\\)"
    proof-shell-quit-cmd            "quit."
    proof-shell-restart-cmd         "restart."
    proof-shell-proof-completed-regexp   "^.*^proved"

@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; sym-lock.el - Extension of Font-Lock mode for symbol fontification.
+;; phox-sym-lock.el - Extension of Font-Lock mode for symbol fontification.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;        Copyright © 1997-1998 Albert Cohen, all rights reserved.
@@ -24,64 +24,68 @@
 ;; new symbol-face format and ergonomy improvement by Albert Cohen 2-98
 ;; major step towards portability and customization by Albert Cohen 5-98
 ;; removed bug with multiple appends in hook by Albert Cohen 3-99
-;; removed sym-lock-face&atom which where not working by C Raffalli 4-2000 
+;; removed phox-sym-lock-face&atom which where not working by C Raffalli 4-2000 
 
 ;; more about symbol font ? check out: xfd -fn '-adobe-symbol-*--12-*'
 
 (require 'font-lock)
 (require 'atomic-extents)
 
-(defvar sym-lock-sym-count 0
+(defvar phox-sym-lock-sym-count 0
   "Counter for internal symbols.")
 
-(defvar sym-lock-ext-start nil "Temporary for atomicization.")
-(make-variable-buffer-local 'sym-lock-ext-start)
-(defvar sym-lock-ext-end nil "Temporary for atomicization.")
-(make-variable-buffer-local 'sym-lock-ext-end)
+(defvar phox-sym-lock-ext-start nil "Temporary for atomicization.")
+(make-variable-buffer-local 'phox-sym-lock-ext-start)
+(defvar phox-sym-lock-ext-end nil "Temporary for atomicization.")
+(make-variable-buffer-local 'phox-sym-lock-ext-end)
 
-(defvar sym-lock-font-size nil
-  "Default size for Sym-Lock symbol font.")
-(make-variable-buffer-local 'sym-lock-font-size)
-(put 'sym-lock-font-size 'permanent-local t)
+(defvar phox-sym-lock-font-size nil
+  "Default size for Phox-Sym-Lock symbol font.")
+(make-variable-buffer-local 'phox-sym-lock-font-size)
+(put 'phox-sym-lock-font-size 'permanent-local t)
 
-(defvar sym-lock-keywords nil
+(defvar phox-sym-lock-keywords nil
   "Similar to `font-lock-keywords'.")
-(make-variable-buffer-local 'sym-lock-keywords)(put 'sym-lock-keywords 'permanent-local t)
+(make-variable-buffer-local 'phox-sym-lock-keywords)(put 'phox-sym-lock-keywords 'permanent-local t)
 
-(defvar sym-lock-enabled nil
-  "Sym-Lock switch.")
-(make-variable-buffer-local 'sym-lock-enabled)
-(put 'sym-lock-enabled 'permanent-local t)
+(defvar phox-sym-lock-enabled nil
+  "Phox-Sym-Lock switch.")
+(make-variable-buffer-local 'phox-sym-lock-enabled)
+(put 'phox-sym-lock-enabled 'permanent-local t)
 
-(defvar sym-lock-color (face-foreground 'default)
-  "*Sym-Lock default color in `font-lock-use-colors' mode.")
-(make-variable-buffer-local 'sym-lock-color)
-(put 'sym-lock-color 'permanent-local t)
+(defvar phox-sym-lock-color (face-foreground 'default)
+  "*Phox-Sym-Lock default color in `font-lock-use-colors' mode.")
+(make-variable-buffer-local 'phox-sym-lock-color)
+(put 'phox-sym-lock-color 'permanent-local t)
 
-(defvar sym-lock-mouse-face 'default
+(defvar phox-sym-lock-mouse-face 'highlight
   "*Face for symbols when under mouse.")
-(make-variable-buffer-local 'sym-lock-mouse-face)
-(put 'sym-lock-mouse-face 'permanent-local t)
+(make-variable-buffer-local 'phox-sym-lock-mouse-face)
+(put 'phox-sym-lock-mouse-face 'permanent-local t)
 
-(defvar sym-lock-mouse-face-enabled t
+(defvar phox-sym-lock-mouse-face-enabled t
   "Mouse face switch.")
-(make-variable-buffer-local 'sym-lock-mouse-face-enabled)
-(put 'sym-lock-mouse-face-enabled 'permanent-local t)
+(make-variable-buffer-local 'phox-sym-lock-mouse-face-enabled)
+(put 'phox-sym-lock-mouse-face-enabled 'permanent-local t)
 
-(defun sym-lock-gen-symbol (&optional prefix)
+(defconst phox-sym-lock-with-mule (featurep 'mule)
+  "Are we using Mule Xemacs ?")
+
+(defun phox-sym-lock-gen-symbol (&optional prefix)
   "Generate a new internal symbol."
   ;; where is the standard function to do this ?
-  (setq sym-lock-sym-count (+ sym-lock-sym-count 1))
-  (intern (concat "sym-lock-gen-" (or prefix "") 
-		  (int-to-string sym-lock-sym-count))))
+  (setq phox-sym-lock-sym-count (+ phox-sym-lock-sym-count 1))
+  (intern (concat "phox-sym-lock-gen-" (or prefix "") 
+		  (int-to-string phox-sym-lock-sym-count))))
 
-(defun sym-lock-make-symbols-atomic (&optional begin end)
+
+(defun phox-sym-lock-make-symbols-atomic (&optional begin end)
   "Function to make symbol faces atomic."
-  (if sym-lock-enabled
+  (if phox-sym-lock-enabled
       (map-extents 
        (lambda (extent maparg)
 	 (let ((face (extent-face extent)) (ext))
-	   (if (and face (setq ext (face-property face 'sym-lock-remap)))
+	   (if (and face (setq ext (face-property face 'phox-sym-lock-remap)))
 	       (progn
 		 (if (numberp ext)
 		     (set-extent-endpoints
@@ -89,9 +93,9 @@
 		      (extent-end-position extent)))
 		 (if ext
 		     (progn
-		       (if sym-lock-mouse-face-enabled
+		       (if phox-sym-lock-mouse-face-enabled
 			   (set-extent-property extent 'mouse-face
-						sym-lock-mouse-face))
+						phox-sym-lock-mouse-face))
 		       (set-extent-property extent 'atomic t)
 		       (set-extent-property extent 'start-open t))))))
 	 nil)
@@ -102,7 +106,7 @@
 	 (point-max))
        nil nil)))
 
-(defun sym-lock-compute-font-size ()
+(defun phox-sym-lock-compute-font-size ()
   "Computes the size of the \"better\" symbol font."
   (let ((num (if (fboundp 'face-height)
 		 (face-height 'default)
@@ -126,26 +130,43 @@
       (setq lf (cdr lf)))
     (number-to-string (if (and oldsize (< oldsize 100)) oldsize num))))
 
-(defvar sym-lock-font-name
+(defvar phox-sym-lock-font-name
   (if window-system
       (concat "-adobe-symbol-medium-r-normal--"
-	      (if sym-lock-font-size sym-lock-font-size
-		(sym-lock-compute-font-size))
+	      (if phox-sym-lock-font-size phox-sym-lock-font-size
+		(phox-sym-lock-compute-font-size))
 	      "-*-*-*-p-*-adobe-fontspecific")
     "")
-  "Name of the font used by Sym-Lock.")
-(make-variable-buffer-local 'sym-lock-font-name)
-(put 'sym-lock-font-name 'permanent-local t)
+  "Name of the font used by Phox-Sym-Lock.")
+(make-variable-buffer-local 'phox-sym-lock-font-name)
+(put 'phox-sym-lock-font-name 'permanent-local t)
 
-(make-face 'sym-lock-adobe-symbol-face)
-(set-face-font 'sym-lock-adobe-symbol-face sym-lock-font-name)
+(make-face 'phox-sym-lock-adobe-symbol-face)
+(if phox-sym-lock-with-mule
+    (progn
+      (make-charset 'phox-sym-lock-cset-left "Char set for symbol font"
+		    (list 'registry "adobe-fontspecific"
+			  'dimension 1
+			  'chars 94
+			  'final 53
+			  'graphic 0))
+      (make-charset 'phox-sym-lock-cset-right "Char set for symbol font"
+		    (list 'registry "adobe-fontspecific"
+			  'dimension 1
+			  'chars 94
+			  'final 54
+			  'graphic 1))
+      (set-face-property 'phox-sym-lock-adobe-symbol-face 
+			 'font phox-sym-lock-font-name nil
+			 '(mule-fonts) 'prepend))
+  (set-face-font 'phox-sym-lock-adobe-symbol-face phox-sym-lock-font-name))
 
-(defun sym-lock-set-foreground ()
-  "Set foreground color of Sym-Lock faces."
-  (if (and (boundp 'sym-lock-defaults) sym-lock-defaults)
-      (let ((l (car sym-lock-defaults))
+(defun phox-sym-lock-set-foreground ()
+  "Set foreground color of Phox-Sym-Lock faces."
+  (if (and (boundp 'phox-sym-lock-defaults) phox-sym-lock-defaults)
+      (let ((l (car phox-sym-lock-defaults))
 	    (color (if (and (boundp 'font-lock-use-fonts) font-lock-use-fonts)
-		       (face-foreground 'default) sym-lock-color)))
+		       (face-foreground 'default) phox-sym-lock-color)))
 	(if (and (consp l) (eq (car l) 'quote)) (setq l (eval l)))
 	(if (symbolp l) (setq l (eval l)))
 	(dolist (c l)
@@ -154,129 +175,144 @@
 	  (if (string-match "-adobe-symbol-" (font-name (face-font c)))
 	      (set-face-foreground c color))))))
 
-(defun sym-lock-remap-face (pat pos obj atomic)
+(defun phox-sym-lock-translate-char (char)
+  (if phox-sym-lock-with-mule
+      (let ((code (if (integerp char) char (char-int char))))
+	(if (< code 128)
+	    (make-char 'phox-sym-lock-cset-left obj)
+	    (make-char 'phox-sym-lock-cset-right (- obj 128))))
+    char))
+
+(defun phox-sym-lock-translate-char-or-string (obj)
+  (if (stringp obj)
+    (if phox-sym-lock-with-mule
+	(concat (mapcar phox-sym-lock-translate-char obj))
+      (obj))
+    (make-string 1 (phox-sym-lock-translate-char obj))))
+
+(defun phox-sym-lock-remap-face (pat pos obj atomic)
   "Make a temporary face which remaps the POS char of PAT to the
-given OBJ under `sym-lock-adobe-symbol-face' and all other characters to
+given OBJ under `phox-sym-lock-adobe-symbol-face' and all other characters to
 the empty string. OBJ may either be a string or a character."
-  (let* ((name (sym-lock-gen-symbol "face"))
+  (let* ((name (phox-sym-lock-gen-symbol "face"))
 	 (table (make-display-table))
-	 (tface (make-face name "sym-lock-remap-face" t)))
+	 (tface (make-face name "phox-sym-lock-remap-face" t)))
     (fillarray table "")
     (aset table (string-to-char (substring pat (1- pos) pos))
-	  (if (stringp obj) obj (make-string 1 obj)))
+	  (phox-sym-lock-translate-char-or-string obj))
     (set-face-foreground tface (if (and (boundp 'font-lock-use-fonts)
 					font-lock-use-fonts)
-				   (face-foreground 'default) sym-lock-color))
+				   (face-foreground 'default) phox-sym-lock-color))
     (set-face-property tface 'display-table table)
-    (set-face-property tface 'font (face-font 'sym-lock-adobe-symbol-face))
-    (set-face-property tface 'sym-lock-remap atomic) ; mark it
+    (set-face-property tface 'font (face-font 'phox-sym-lock-adobe-symbol-face))
+    (set-face-property tface 'phox-sym-lock-remap atomic) ; mark it
     tface  ; return face value and not face name
 	   ; the temporary face would be otherwise GCed
     ))
 
-(defvar sym-lock-clear-face
-  (let* ((name (sym-lock-gen-symbol "face"))
+(defvar phox-sym-lock-clear-face
+  (let* ((name (phox-sym-lock-gen-symbol "face"))
 	 (table (make-display-table))
-	 (tface (make-face name "sym-lock-remap-face" t)))
+	 (tface (make-face name "phox-sym-lock-remap-face" t)))
     (fillarray table "")
     (set-face-property tface 'display-table table)
-    (set-face-property tface 'sym-lock-remap 1) ; mark it
+    (set-face-property tface 'phox-sym-lock-remap 1) ; mark it
     tface 
     ;; return face value and not face name
     ;; the temporary face would be otherwise GCed
     ))
 
-(defun sym-lock (fl)
+(defun phox-sym-lock (fl)
   "Create font-lock table entries from a list of (PAT NUM POS OBJ) where
-PAT (at NUM) is substituted by OBJ under `sym-lock-adobe-symbol-face'. The
+PAT (at NUM) is substituted by OBJ under `phox-sym-lock-adobe-symbol-face'. The
 face's extent will become atomic."
-  (message "Computing Sym-Lock faces...")
-  (setq sym-lock-keywords (sym-lock-rec fl))
-  (setq sym-lock-enabled t)
-  (message "Computing Sym-Lock faces... done."))
+  (message "Computing Phox-Sym-Lock faces...")
+  (setq phox-sym-lock-keywords (phox-sym-lock-rec fl))
+  (setq phox-sym-lock-enabled t)
+  (message "Computing Phox-Sym-Lock faces... done."))
 
-(defun sym-lock-rec (fl)
+(defun phox-sym-lock-rec (fl)
   (let ((f (car fl)))
     (if f 	      
-	(cons (apply 'sym-lock-atom-face f)
-	      (sym-lock-rec (cdr fl))))))
+	(cons (apply 'phox-sym-lock-atom-face f)
+	      (phox-sym-lock-rec (cdr fl))))))
 
-(defun sym-lock-atom-face (pat num pos obj &optional override)
+(defun phox-sym-lock-atom-face (pat num pos obj &optional override)
   "Define an entry for the font-lock table which substitutes PAT (at NUM) by
-OBJ under `sym-lock-adobe-symbol-face'. The face extent will become atomic."
-  (list pat num (sym-lock-remap-face pat pos obj t) override))
+OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic."
+  (list pat num (phox-sym-lock-remap-face pat pos obj t) override))
 
-(defun sym-lock-pre-idle-hook-first ()
+(defun phox-sym-lock-pre-idle-hook-first ()
   (condition-case nil
-      (if (and sym-lock-enabled font-lock-old-extent)
-	  (setq sym-lock-ext-start (extent-start-position font-lock-old-extent)
-		sym-lock-ext-end (extent-end-position font-lock-old-extent))
-	(setq sym-lock-ext-start nil))
-    (error (warn "Error caught in `sym-lock-pre-idle-hook-first'"))))
+      (if (and phox-sym-lock-enabled font-lock-old-extent)
+	  (setq phox-sym-lock-ext-start (extent-start-position font-lock-old-extent)
+		phox-sym-lock-ext-end (extent-end-position font-lock-old-extent))
+	(setq phox-sym-lock-ext-start nil))
+    (error (warn "Error caught in `phox-sym-lock-pre-idle-hook-first'"))))
 
-(defun sym-lock-pre-idle-hook-last ()
+(defun phox-sym-lock-pre-idle-hook-last ()
   (condition-case nil
-      (if (and sym-lock-enabled sym-lock-ext-start)
-	  (sym-lock-make-symbols-atomic sym-lock-ext-start sym-lock-ext-end))
-    (error (warn "Error caught in `sym-lock-pre-idle-hook-last'"))))
+      (if (and phox-sym-lock-enabled phox-sym-lock-ext-start)
+	  (phox-sym-lock-make-symbols-atomic phox-sym-lock-ext-start phox-sym-lock-ext-end))
+    (error (warn "Error caught in `phox-sym-lock-pre-idle-hook-last'"))))
 
 (add-hook 'font-lock-after-fontify-buffer-hook
-	  'sym-lock-make-symbols-atomic)
+	  'phox-sym-lock-make-symbols-atomic)
 
-(defun sym-lock-enable ()
-  "Enable Sym-Lock on this buffer."
+(defun phox-sym-lock-enable ()
+  "Enable Phox-Sym-Lock on this buffer."
   (interactive)
-  (if (not sym-lock-keywords)
-      (error "No Sym-Lock keywords defined!")
-    (setq sym-lock-enabled t)
+  (if (not phox-sym-lock-keywords)
+      (error "No Phox-Sym-Lock keywords defined!")
+    (setq phox-sym-lock-enabled t)
     (if font-lock-mode
 	(progn
 	  (setq font-lock-keywords nil) ; Font-Lock explicit-defaults bug!
 	  (font-lock-set-defaults t)
 	  (font-lock-fontify-buffer)))
-    (message "Sym-Lock enabled.")))
+    (message "Phox-Sym-Lock enabled.")))
 
-(defun sym-lock-disable ()
-  "Disable Sym-Lock on this buffer."
+(defun phox-sym-lock-disable ()
+  "Disable Phox-Sym-Lock on this buffer."
   (interactive)
-  (if (not sym-lock-keywords)
-      (error "No Sym-Lock keywords defined!")
-    (setq sym-lock-enabled nil)
+  (if (not phox-sym-lock-keywords)
+      (error "No Phox-Sym-Lock keywords defined!")
+    (setq phox-sym-lock-enabled nil)
     (if font-lock-mode
 	(progn
 	  (setq font-lock-keywords nil) ; Font-Lock explicit-defaults bug!
 	  (font-lock-set-defaults t)
 	  (font-lock-fontify-buffer)))
-    (message "Sym-Lock disabled.")))
+    (message "Phox-Sym-Lock disabled.")))
 
-(defun sym-lock-mouse-face-enable ()
+(defun phox-sym-lock-mouse-face-enable ()
   "Enable special face for symbols under mouse."
   (interactive)
-  (setq sym-lock-mouse-face-enabled t)
-  (if sym-lock-enabled
+  (setq phox-sym-lock-mouse-face-enabled t)
+  (if phox-sym-lock-enabled
       (font-lock-fontify-buffer)))
 
-(defun sym-lock-mouse-face-disable ()
+(defun phox-sym-lock-mouse-face-disable ()
   "Disable special face for symbols under mouse."
   (interactive)
-  (setq sym-lock-mouse-face-enabled nil)
-  (if sym-lock-enabled
+  (setq phox-sym-lock-mouse-face-enabled nil)
+  (if phox-sym-lock-enabled
       (font-lock-fontify-buffer)))
 
-(defun sym-lock-font-lock-hook ()
+(defun phox-sym-lock-font-lock-hook ()
   "Function called by `font-lock-mode' for initialization purposes."
-  (add-hook 'pre-idle-hook 'sym-lock-pre-idle-hook-first)
-  (add-hook 'pre-idle-hook 'sym-lock-pre-idle-hook-last t)
+  (add-hook 'pre-idle-hook 'phox-sym-lock-pre-idle-hook-first)
+  (add-hook 'pre-idle-hook 'phox-sym-lock-pre-idle-hook-last t)
   (add-menu-button '("Options" "Syntax Highlighting")
-		   ["Sym-Lock"
-		    (if sym-lock-enabled (sym-lock-disable) (sym-lock-enable))
-		    :style toggle :selected sym-lock-enabled
-		    :active sym-lock-keywords] "Automatic")  
-  (if (and (featurep 'sym-lock) sym-lock-enabled
-	   font-lock-defaults (boundp 'sym-lock-keywords))
+		   ["Phox-Sym-Lock"
+		    (if phox-sym-lock-enabled (phox-sym-lock-disable) (phox-sym-lock-enable))
+		    :style toggle :selected phox-sym-lock-enabled
+		    :active phox-sym-lock-keywords] "Automatic")  
+  (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled
+	   font-lock-defaults (boundp 'phox-sym-lock-keywords))
       (progn
-	(sym-lock-patch-keywords)
-	(sym-lock-set-foreground))))
+	(phox-sym-lock-patch-keywords)
+	(phox-sym-lock-set-foreground))))
 
 (defun font-lock-set-defaults (&optional explicit-defaults)
   (when
@@ -286,24 +322,24 @@ OBJ under `sym-lock-adobe-symbol-face'. The face extent will become atomic."
            (not (memq major-mode font-lock-mode-disable-list))
          (memq major-mode font-lock-mode-enable-list))
        (font-lock-set-defaults-1 explicit-defaults)
-       (sym-lock-patch-keywords))
+       (phox-sym-lock-patch-keywords))
     (turn-on-font-lock)))
 
-(defun sym-lock-patch-keywords ()
-  (if (and font-lock-keywords sym-lock-enabled
-	   (boundp 'sym-lock-keywords)
+(defun phox-sym-lock-patch-keywords ()
+  (if (and font-lock-keywords phox-sym-lock-enabled
+	   (boundp 'phox-sym-lock-keywords)
 	   (listp (car font-lock-keywords))
 	   (listp (cdar font-lock-keywords))
 	   (listp (cddar font-lock-keywords))
 	   (or (listp (caddar font-lock-keywords))
 	       (not (string-match
-		     "sym-lock"
+		     "phox-sym-lock"
 		     (symbol-name
 		      (face-name (cadr (cdar
 					font-lock-keywords))))))))
-      (setq font-lock-keywords (append sym-lock-keywords
+      (setq font-lock-keywords (append phox-sym-lock-keywords
 				       font-lock-keywords))) t)
 
-(add-hook 'font-lock-mode-hook 'sym-lock-font-lock-hook)
+(add-hook 'font-lock-mode-hook 'phox-sym-lock-font-lock-hook)
 
 (provide 'phox-sym-lock)
