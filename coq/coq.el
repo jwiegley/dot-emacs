@@ -260,20 +260,23 @@
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
        ((coq-goal-command-p str)
-	(setq aborts (concat coq-kill-goal-command " " aborts)))
+	(setq aborts (concat coq-kill-goal-command " " aborts))
+	(setq proof-nesting-depth (min 0 (1- proof-nesting-depth))))
 
        ;; FIXME da: should we forget sections and Definitions using
        ;; Back?
-       ((proof-string-match 
-	 (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
-		 proof-id 
-		 ;; Section .. End Section should be atomic!
-		 "\\)\\s-*[\\[,:.]") str)
+       ((and 
+	 (eq proof-nesting-depth 0)
+	 (proof-string-match 
+	  (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
+		  proof-id 
+		  ;; Section .. End Section should be atomic!
+		  "\\)\\s-*[\\[,:.]") str))
 	(setq ans (format coq-forget-id-command (match-string 2 str))))
 
        ;; If it's not a goal but it contains "Definition" then it's a
-       ;; declaration
-       ((and (not (coq-goal-command-p str))
+       ;; declaration  [ da: is this not covered by above case??? ]
+       ((and (eq proof-nesting-depth 0)
 	     (proof-string-match
 	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
 	(setq ans (format coq-forget-id-command (match-string 2 str))))
@@ -286,7 +289,6 @@
        ;; definable elisp variables coq-user... to avoid this problem
        ;; anyway.
        ((and 
-	 (not (coq-goal-command-p str)) ;; unsaved goals
 	 ;; now we should match all things that do not deal with Back
 	 (not (proof-string-match 
 	       (concat "\\`\\(" coq-tactics-regexp "\\)")
