@@ -458,13 +458,15 @@ proof assistant and Emacs has a modified buffer visiting the file."
       ;; Tell the proof assistant, if we should and if we can
       (if (and informprover proof-shell-inform-file-processed-cmd)
 	  (proof-shell-invisible-command 
-	   (format proof-shell-inform-file-processed-cmd cfile) 
+	   (proof-format-filename proof-shell-inform-file-processed-cmd 
+				  cfile) 
 	   'wait)))))
 
 (defun proof-inform-prover-file-retracted (rfile)
   (if proof-shell-inform-file-retracted-cmd
       (proof-shell-invisible-command
-       (format proof-shell-inform-file-retracted-cmd rfile)
+       (proof-format-filename proof-shell-inform-file-retracted-cmd 
+			      rfile)
        'wait)))
 
 (defun proof-auto-retract-dependencies (cfile &optional informprover)
@@ -2198,11 +2200,9 @@ Typically, a list of syntax of commands available."
 (proof-define-assistant-command proof-cd
   "Change directory to the default directory for the current buffer."
   proof-shell-cd-cmd
-  (format proof-shell-cd-cmd
-	  ;; Use expand-file-name to avoid problems with dumb
-	  ;; proof assistants and "~"
+  (proof-format-filename proof-shell-cd-cmd 
 	  ;; FSF fix: use default-directory rather than fn
-	  (expand-file-name default-directory)))
+	  default-directory))
 
 (defun proof-cd-sync ()
   "If proof-shell-cd-cmd is set, do proof-cd and wait for prover ready.
