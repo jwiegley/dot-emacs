@@ -28,9 +28,10 @@ A Clarify licence situation for Proof General after question from
   currently [22 Jan 1999] being drafted by UNIVED.
   (And I understand the answer is "yes", so long as no money 
    is derived directly from ProofGeneral itself).
-  Will wait for this before releasing 2.1.
+  Latest [23 Aug 1999] is that license is not ready!
+  Will ship with 2.2
 
-B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
+C Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
 
    * Fix page rearrangement to insert a blank page
@@ -42,25 +43,8 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
    * Update menus in texi
   [6 hours]
 
-A Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
+C Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.
-
-X Web pages:
-   - Check appearance in V3 browsers.
-   - Make front page logo be an image map.  
-   - Reduce text size and front page image, for 1024x768 screens.
-   - Validate pages.  
-      Current failures for HTML 4.0 to do with CGI-style arguments with "&",
-      this is a problem with PHP3 really.
-   - Restructure so that page titles are different to help
-      browsing.  (Move links_arr from header.phtml somewhere new,
-      and set $pg_title appropriately before head.phtml is included).
-   - Add pdf documentation as soon as DCS upgrades its ancient
-      TeX installation, or as soon as making release from elsewhere
-      works.  Also need to fix inclusion of image in pdf. 
-   - Add status bar messages to navigation bar
-   - Get rid of footer() function.
-   - Convert to SSI only plus a meta-generation phase?
 
 C Check compilation okay, check on use of eval-and-compile.
 
@@ -356,15 +340,31 @@ D Make wellclean target remove images in html/images which are
   generated from the image directory.  Consider putting all the
   image sources in images/
 
+X Web pages:
+   - Check appearance in V3 browsers.
+   - Make front page logo be an image map.  
+   - Reduce text size and front page image, for 1024x768 screens.
+   - Validate pages.  
+      Current failures for HTML 4.0 to do with CGI-style arguments with "&",
+      this is a problem with PHP3 really.
+   - Restructure so that page titles are different to help
+      browsing.  (Move links_arr from header.phtml somewhere new,
+      and set $pg_title appropriately before head.phtml is included).
+   - Add pdf documentation as soon as DCS upgrades its ancient
+      TeX installation, or as soon as making release from elsewhere
+      works.  Also need to fix inclusion of image in pdf. 
+   - Add status bar messages to navigation bar
+   - Get rid of footer() function.
+   - Convert to SSI only plus a meta-generation phase?
+
 X Is it possible to let C-c C-c (SIGINT) issue additional process input?
   Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
   rather, to fail gracefully.
+  [ This item reduced to X since Poly/ML is now obsolete.  This may
+    still be useful for future proof assistants, though. ]
 
 X Consider filtering out special annotations from shell buffer
   rather than merely making them invisible.
-
-X Add ChangeLog to developers distribution to give them
-  something more to look at.  (30mins).
 
 X Allow bib-cite style clicking on Load/Import commands to go
   to file.
