@@ -236,9 +236,12 @@ buffer to END."
 (defun proof-unprocessed-begin ()
   "Return end of locked region in current buffer or (point-min) otherwise."
   (or 
-   (and (member (current-buffer) proof-script-buffer-list)
-	proof-locked-span 
-	(span-end proof-locked-span))
+   (and
+      ;; FIXME da: removed this superfluous and bug-causing test: we
+      ;; actually allow locked regions in non script buffers too.  
+      ;; (member (current-buffer) proof-script-buffer-list)
+    proof-locked-span 
+    (span-end proof-locked-span))
    (point-min)))
 
 ;; da: NEW function added 28.10.98.  This seems more
@@ -352,11 +355,12 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  ;; the current scripting buffer, then put an
 	  ;; atomic locked region in it.
 	  (if (and buffer
-		   proof-script-buffer-list
-		   (not (equal cfile
-			       (file-truename 
-				(buffer-file-name
-				 (car proof-script-buffer-list))))))
+		   (if proof-script-buffer-list
+		       (not (equal cfile
+				   (file-truename 
+				    (buffer-file-name
+				     (car proof-script-buffer-list)))))
+		     t))
 	      (proof-mark-buffer-atomic buffer))))))
 
 ;; three NEW predicates, let's use them!
@@ -376,6 +380,7 @@ Should be called from a proof script buffer."
 
 (defun proof-only-whitespace-to-locked-region-p ()
   "Non-nil if only whitespace separates point from end of locked region.
+Point should be after the locked region.
 NB: If nil, point is left at first non-whitespace character found.
 If non-nil, point is left where it was."
   (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
@@ -1119,12 +1124,14 @@ the proof script."
   (proof-assert-until-point))
 
 (defun proof-restart-buffer (buffer)
-  "Remove all extents in BUFFER and update `proof-script-buffer-list'."
+  "Remove all extents in BUFFER and update `proof-script-buffer-list'.
+No effect if BUFFER is nil."
   (save-excursion
     (if (buffer-live-p buffer)
 	(progn
 	  (set-buffer buffer)
-	  (setq proof-active-buffer-fake-minor-mode nil)
+	  (if proof-active-buffer-fake-minor-mode
+	      (setq proof-active-buffer-fake-minor-mode nil))
 	  (delete-spans (point-min) (point-max) 'type)
 	  (proof-detach-segments)))
     (setq proof-script-buffer-list
@@ -1147,6 +1154,14 @@ the proof script."
 Kill off the proof assistant process and remove all markings in the
 script buffers."
   (interactive)
+  ;; First clear any buffers for files on included filelist
+  (proof-restart-buffers
+   (mapcar 'proof-file-to-buffer proof-included-files-list))
+  ;; Now clear any remaining script buffers
+  ;; FIXME da: probably there should be at most the active
+  ;; scripting buffer here.  When proof-script-buffer-list is
+  ;; rationalized, this command can become
+  ;; (proof-restart-buffer proof-active-script-buffer)
   (proof-restart-buffers proof-script-buffer-list)
   ;; { (equal proof-script-buffer-list nil) }
    (setq proof-shell-busy nil
@@ -1499,10 +1514,6 @@ sent to the assistant."
 \\{proof-mode-map}"
   (setq proof-buffer-type 'script)
 
-  ;; Has buffer already been processed?
-  (and (member buffer-file-truename proof-included-files-list)
-       (proof-mark-buffer-atomic (current-buffer)))
-
   (make-local-variable 'kill-buffer-hook)
   (add-hook 'kill-buffer-hook
 	    (lambda ()
@@ -1541,6 +1552,10 @@ sent to the assistant."
   "Finish setup of Proof General scripting mode.
 Call this function in the derived mode for the proof assistant to
 finish setup which depends on specific proof assistant configuration."
+    ;; Has buffer already been processed?
+  (and (member buffer-file-truename proof-included-files-list)
+       (proof-mark-buffer-atomic (current-buffer)))
+
   ;; calculate some strings and regexps for searching
   (setq proof-terminal-string (char-to-string proof-terminal-char))
 
