@@ -182,7 +182,7 @@
   "If nil, input to the proof shell will not be echoed")
 
 (defvar proof-terminal-string nil 
-  "You are not authorised for this information.")
+  "End-of-line string for proof process.")
 
 (defvar proof-re-end-of-cmd nil 
   "You are not authorised for this information.")
@@ -607,6 +607,8 @@
 (defvar proof-shell-assumption-regexp nil
   "A regular expression matching the name of assumptions.")
 
+;; FIXME: da: where is this variable used?  
+;;	      dropped in favour of goal-char?
 (defvar proof-shell-goal-regexp nil
   "A regular expressin matching the identifier of a goal.")
 
@@ -647,6 +649,7 @@
 (defvar proof-analyse-using-stack nil
   "Are annotations sent by proof assistant local or global")
 
+;; FIXME: da: what's magical value 128 below? should be in defconst?
 (defun proof-shell-analyse-structure (string)
   (save-excursion
     (let* ((ip 0) (op 0) ap (l (length string)) 
@@ -996,21 +999,34 @@ arrive."
   set proof-marker to keep track of how far we've got."
   (if (string-match proof-shell-eager-annotation-end str)
       (proof-shell-popup-eager-annotation))
-  (if (string-match (char-to-string proof-shell-wakeup-char) str)
+  (if (or
+       ;; Some proof systems can be hacked to have annotated prompts;
+       ;; for these we set proof-shell-wakeup-char to the annotation special.  
+       (and proof-shell-wakeup-char
+	   (string-match (char-to-string proof-shell-wakeup-char) str))
+       ;; Others rely on a standard top-level (e.g. SML) whose prompt can't
+       ;; be hacked.  For those we use the prompt regexp.
+       (string-match proof-shell-annotated-prompt-regexp str))
       (if (null (marker-position proof-marker))
+	  ;; Set marker to first prompt in output buffer, and sleep again.
 	  (progn
 	    (goto-char (point-min))
 	    (re-search-forward proof-shell-annotated-prompt-regexp)
+	    ;; FIXME: da: why is this next line here?  to delete the 
+	    ;;        possibly several character prompt? why?
 	    (backward-delete-char 1)
 	    (set-marker proof-marker (point)))
+	;; We've matched against a second prompt in str now.  Search
+	;; the output buffer for the second prompt after the one previously
+	;; marked.
 	(let (string res cmd)	
 	  (goto-char (marker-position proof-marker))
 	  (re-search-forward proof-shell-annotated-prompt-regexp nil t)
 	  (backward-char (- (match-end 0) (match-beginning 0)))
 	  (setq string (buffer-substring (marker-position proof-marker)
 					 (point)))
-	  (goto-char (point-max))
-	  (backward-delete-char 1)
+	  (goto-char (point-max))	; da: assumed to be after a prompt?
+	  (backward-delete-char 1)	; da: WHY? nasty assumption.
 	  (setq cmd (nth 1 (car proof-action-list)))
 	  (save-excursion
 	    (setq res (proof-shell-process-output cmd string))
