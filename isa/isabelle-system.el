@@ -288,10 +288,11 @@ until Proof General is restarted."
   :type 'boolean
   :setting "quick_and_dirty:=%b;")
 
-(defpacustom global-timing  nil
-  "Whether to enable timing in Isabelle."
-  :type 'boolean
-  :setting "Library.timing:=%b;")
+;; FIXME: for 99-1
+; (defpacustom global-timing  nil
+;  "Whether to enable timing in Isabelle."
+;  :type 'boolean
+;  :setting "Library.timing:=%b;")
 
 (defpacustom print-depth  10
   "Setting for the ML print depth in Isabelle."
