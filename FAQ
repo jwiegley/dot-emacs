@@ -69,13 +69,22 @@ A. The proof process is waiting for more input, but Proof General
 
 Q. How can I keep the Proof General option settings across sessions?
 
-A. Simply use the ordinary XEmacs menu: Options -> Save Options
+A. For options set in the Proof General -> Options menu use the 
+   "Save Options" menu item (Proof General -> Options -> Save Options).
 
-   In GNU Emacs, you can do M-x customize-save-customized
-   or use the Custom->Save menu in a customize buffer.
+   For other options set via customize (Proof General -> Advanced -> 
+   Customize), use the customize buttons, or M-x customize-save-customized.
 
 -----------------------------------------------------------------
 
+Q. I'm experiencing debilitating performance problems with font-lock
+   and X-Symbol under XEmacs 21.4.  Can you help?
+
+A. There are some settings that can improve things:
+
+      [ FIXME ]
+
+-----------------------------------------------------------------
 
 Q. How do I use Proof General for Isabelle classic instead of Isabelle/Isar?
 
@@ -102,9 +111,13 @@ A. These are part of the 8 bit character codes used by X Symbol to
    (That's being rather unkind to X-Symbol: several things can 
     go wrong one way or another).
 
-   To fix, type M-x font-lock-fontify-buffer or M-x x-symbol-fontify.
-   If that doesn't work, type M-x font-lock-mode twice to turn
-   font-lock off then on.  Or reload the file.
+   To fix, type 
+
+	M-x font-lock-fontify-buffer 
+
+   or M-x x-symbol-fontify. If that doesn't work, type M-x
+   font-lock-mode twice to turn font-lock off then on. 
+   Or reload the file.
    
    Note that X-Symbol is more robust when used with XEmacs/Mule.
 
