@@ -25,10 +25,10 @@ Gif filename depends on colour depth of display."
   (cond
    ((and window-system (featurep 'jpeg) (not nojpeg))
     (vector 'jpeg :file
-	    (concat proof-internal-images-directory name ".jpg")))
+	    (concat proof-images-directory name ".jpg")))
    ((and window-system (featurep 'gif))
     (vector 'gif :file
-	    (concat proof-internal-images-directory 
+	    (concat proof-images-directory 
 		    (concat name
 			    (or (and
 				 (fboundp 'device-pixel-depth)
@@ -64,12 +64,12 @@ inserted."
   :type 'sexp
   :group 'proof-config)
 
-(defcustom proof-internal-display-splash-time 1.5
+(defcustom proof-splash-time 1.5
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise proof mode."
   :type 'number
-  :group 'proof-internal)
+  :group 'proof-general-internals)
 
 ;; Would be nice to get rid of this variable, but it's tricky
 ;; to construct a hook function, with a higher order function,
@@ -148,7 +148,7 @@ Only do it if proof-splash-display is nil."
 	  (sit-for 0))
 	(setq proof-splash-timeout-conf
 	      (cons
-	       (add-timeout proof-internal-display-splash-time
+	       (add-timeout proof-splash-time
 			    'proof-splash-remove-screen
 			    winconf)
 	       winconf))))))
@@ -161,7 +161,7 @@ Only do it if proof-splash-display is nil."
 ;; To approximate the best behaviour, we assume that this file is
 ;; loaded by a call to proof-mode.  We display the screen now and add
 ;; a wait procedure temporarily to proof-mode-hook which prevents
-;; redisplay until proof-internal-display-splash-time has elapsed. 
+;; redisplay until proof-splash-time has elapsed. 
 
 ;; Display the screen ASAP...
 (proof-splash-display-screen)

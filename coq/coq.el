@@ -330,7 +330,7 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-www-home-page coq-www-home-page)
+  (setq proof-assistant-home-page coq-www-home-page)
 
   (setq proof-mode-for-script 'coq-mode)
 

@@ -91,7 +91,7 @@ to set outline heading regexp.")
 (defun isa-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle."
   (setq
-   proof-www-home-page		isabelle-web-page
+   proof-assistant-home-page	isabelle-web-page
    proof-mode-for-script	'isa-proofscript-mode
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
@@ -159,7 +159,7 @@ to set outline heading regexp.")
    ;; /home/da/devel/lego/elisp/   or  $PROOFGENERIC_HOME ?
    proof-shell-init-cmd			(concat
 					 "use \""
-					 proof-internal-home-directory
+					 proof-home-directory
 					  "isa/ProofGeneral.ML\";")
    proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"  ; "^---\\|^\\[opening "
    ;; could be last bracket on end of line, or with ### and ***.

@@ -46,18 +46,18 @@
 (defcustom proof-prog-name-ask-p nil
   "*If non-nil, query user which program to run for the inferior process."
   :type 'boolean
-  :group 'proof)
+  :group 'proof-general)
 
 (defcustom proof-one-command-per-line nil
   "*If non-nil, format for newlines after each proof command in a script."
   :type 'boolean
-  :group 'proof)
+  :group 'proof-general)
 
 (and (featurep 'toolbar)
 (defcustom proof-toolbar-wanted t
   "*Whether to use toolbar in proof mode."
   :type 'boolean
-  :group 'proof))
+  :group 'proof-general))
 
 (defcustom proof-toolbar-follow-mode 'follow
   "*Choice of how point moves with toolbar commands.
@@ -69,7 +69,7 @@ If ignore, point is never moved after toolbar movement commands."
 	  (const :tag "Follow locked region" locked)
 	  (const :tag "Keep locked region displayed" follow)
 	  (const :tag "Never move" ignore))
-  :group 'proof)
+  :group 'proof-general)
 
 
 ;;
@@ -181,7 +181,7 @@ Could come either from proof assistant or Proof General itself."
 
 (defgroup prover-config nil
   "Configuration of Proof General for the prover in use."
-  :group 'proof-internal
+  :group 'proof-general-internals
   :prefix "proof-")
 
 ;; The variables in the "prover-config" (NB: not "proof config"!!)
@@ -196,21 +196,14 @@ Could come either from proof assistant or Proof General itself."
 ;; not liable to work, because the prover specific elisp usually
 ;; overrides with a series of setq's in <assistant>-mode-config type
 ;; functions.  This is why prover-config appears under the
-;; proof-internal group.
-
-;; Note: The XEmacs customization menus would be nicer if the
-;; variables in prover-config group were uniformly renamed
-;; prover-config-* (and similarly for other variables/groups).  
-;; But it's somewhat of a horror in the code!
-
+;; proof-general-internal group.
 
 (defcustom proof-assistant ""
   "Name of the proof assistant Proof General is using.
 This is set automatically by the mode stub defined in proof-site,
-from the name given in proof-internal-assistant-table."
+from the name given in proof-assistant-table."
   :type 'string
   :group 'prover-config)
-
 
 
 
@@ -251,7 +244,7 @@ Suggestion: this can be set in the script mode configuration."
 ;; 3. Configuration for menus, user-level commands, etc.
 ;;
 
-(defcustom proof-www-home-page ""
+(defcustom proof-asssistant-home-page ""
   "Web address for information on proof assistant"
   :type 'string
   :group 'prover-config)
@@ -439,7 +432,7 @@ This is used to handle nested goals allowed by some provers."
 (defgroup proof-shell nil
   "Settings for output from the proof assistant in the proof shell."
   :group 'prover-config
-  :prefix "proof-")
+  :prefix "proof-shell-")
 
 
 ;; 
@@ -661,13 +654,13 @@ data triggered by `proof-shell-retract-files-regexp'."
   "Root name for proof script mode.  
 Used internally and in menu titles."
   :type 'string
-  :group 'proof-internal)
+  :group 'proof-general-internals)
 
-(defcustom proof-general-home-page
+(defcustom proof-proof-general-home-page
   "http://www.dcs.ed.ac.uk/home/proofgen"
   "*Web address for Proof General"
   :type 'string
-  :group 'proof-internal)
+  :group 'proof-general-internals)
 
 ;; FIXME: da: could we put these into another keymap already?
 ;; FIXME: da: it's offensive to experienced users to rebind global stuff
@@ -683,7 +676,7 @@ Used internally and in menu titles."
 Elements of the list are tuples (k . f) 
 where `k' is a keybinding (vector) and `f' the designated function."
   :type 'sexp
-  :group 'proof-internal)
+  :group 'proof-general-internals)
 
 
 
@@ -712,7 +705,7 @@ return a non-nil value. Then (actf cmd string) is invoked. See the
 documentation of `proof-shell-process-output' for the required
 output format."
   :type '(cons (function function))
-  :group 'prover-config)
+  :group 'proof-shell)
 
 (defcustom proof-activate-scripting-hook nil
   "Hook run when a buffer is switched into scripting mode.
@@ -721,7 +714,7 @@ The current buffer will be the newly active scripting buffer.
 This hook may be useful for synchronizing with the proof
 assistant, for example, to switch to a new theory."
   :type '(repeat function)
-  :group 'prover-config)
+  :group 'proof-script)
 
 
 

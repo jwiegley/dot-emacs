@@ -19,15 +19,15 @@ diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.
 *** 76,82 ****
     :group 'proof-internal)
   
-  (defcustom proof-internal-info-directory
-!   (concat proof-internal-home-directory "doc/")
+  (defcustom proof-info-directory
+!   (concat proof-home-directory "doc/")
     "*Where Proof General Info files are installed."
     :type 'directory
     :group 'proof-internal)
 --- 76,82 ----
     :group 'proof-internal)
   
-  (defcustom proof-internal-info-directory
+  (defcustom proof-info-directory
 !   "/usr/info/"
     "*Where Proof General Info files are installed."
     :type 'directory

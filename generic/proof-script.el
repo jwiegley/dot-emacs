@@ -1285,9 +1285,9 @@ Start up the proof assistant if necessary."
 (defvar proof-help-menu
   `("Help"
     [,(concat proof-assistant " web page")
-     (browse-url proof-www-home-page) t]
+     (browse-url proof-assistant-home-page) t]
     ["Proof General home page"
-     (browse-url proof-general-home-page) t]
+     (browse-url proof-proof-general-home-page) t]
     ["Proof General Info" proof-info-mode t]
     )
   "The Help Menu in Script Management.")
@@ -1506,9 +1506,10 @@ finish setup which depends on specific proof assistant configuration."
 			   ;; older/non-existent customize doesn't have 
 			   ;; this function.  
 			   (if (fboundp 'customize-menu-create)
-			       (list (customize-menu-create 'proof)
-				     (customize-menu-create 'proof-internal
-							    "Internals"))
+			       (list (customize-menu-create 'proof-general)
+				     (customize-menu-create
+				      'proof-general-internals
+				      "Internals"))
 			     nil)
 			   ;; end UGLY COMPATIBILTY HACK
 			   )))

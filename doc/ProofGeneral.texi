@@ -1256,7 +1256,7 @@ called myassistant.
 directory, to put the specific customization and associated files in.
 @item Add a file myassistant.el to the new directory.  
 @item Edit proof-site.el to add a new entry to the
-  @var{proof-internal-assistants-table} variable.  The new entry should
+  @var{proof-assistants-table} variable.  The new entry should
 look like this:
 
     (myassistant "My New Assistant" "\\.myasst$")
@@ -1266,7 +1266,7 @@ for the new mode as well as the directory and file where it loads
 from.  The second is a string, naming the proof assistant.
 The third item is a regular expression to match names of 
 proof script files for this assistant.  See the documentation
-of @var{proof-internal-assistants-table} for more details.
+of @var{proof-assistants-table} for more details.
 @item Define the new modes in myassistant.el, by looking at 
  the files for the currently supported assistants for example.
  Basically you need to define some modes using @code{define-derived-mode}

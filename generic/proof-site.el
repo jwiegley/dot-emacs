@@ -18,7 +18,7 @@
 ;; end UGLY COMPATIBILITY HACK
 
 
-(defgroup proof nil
+(defgroup proof-general nil
   "Customization of Proof General."
   :group 'external
   :group 'processes
@@ -30,14 +30,14 @@
 ;; configuration to different proof assistants.
 ;; This is for development purposes rather than
 ;; user-level customization, so this group does
-;; not belong to 'proof (or any other group).
-(defgroup proof-internal nil
+;; not belong to 'proof-general (or any other group).
+(defgroup proof-general-internals nil
   "Customization of Proof General internals."
   :prefix "proof-")
 
 
 ;; Master table of supported assistants.
-(defcustom proof-internal-assistant-table
+(defcustom proof-assistant-table
   '((isa	"Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$"))
@@ -58,12 +58,12 @@ directory and elisp file for the mode, which will be
 where `<proof-directory-home>/' is the value of the
 variable proof-directory-home."
   :type '(repeat (list symbol string string))
-  :group 'proof-internal)
+  :group 'proof-general-internals)
 
 
 ;; Directories
 
-(defcustom proof-internal-home-directory
+(defcustom proof-home-directory
   ;; FIXME: make sure compiling does not evaluate next expression.
   (or (getenv "PROOFGENERAL_HOME") 
       (let ((curdir 
@@ -76,19 +76,19 @@ Default value taken from environment variable PROOFGENERAL_HOME if set,
 otherwise based on where the file proof-site was loaded from.
 You can use customize to set this variable."
   :type 'directory
-  :group 'proof-internal)
+  :group 'proof-general-internals)
 
-(defcustom proof-internal-images-directory
-  (concat proof-internal-home-directory "images/")
+(defcustom proof-images-directory
+  (concat proof-home-directory "images/")
     "*Where Proof General image files are installed. Ends with slash."
   :type 'directory
-  :group 'proof-internal)
+  :group 'proof-general-internals)
 
-(defcustom proof-internal-info-directory
-  (concat proof-internal-home-directory "doc/")
+(defcustom proof-info-directory
+  (concat proof-home-directory "doc/")
   "*Where Proof General Info files are installed."
   :type 'directory
-  :group 'proof-internal)
+  :group 'proof-general-internals)
 
 ;; Add the info directory to the end of Emacs Info path if need be.
 ;; It's easier to do this after Info has loaded because of the
@@ -96,10 +96,10 @@ You can use customize to set this variable."
 
 (eval-after-load
  "info"
- '(or (member proof-internal-info-directory Info-directory-list)
+ '(or (member proof-info-directory Info-directory-list)
      (progn
        (setq Info-directory-list
-	     (cons proof-internal-info-directory
+	     (cons proof-info-directory
 		   Info-directory-list))
        ;; Clear cache of info dir
        (setq Info-dir-contents nil))))
@@ -108,13 +108,13 @@ You can use customize to set this variable."
 ;; Might be nicer to have a boolean for each supported assistant.
 (defcustom proof-assistants
   (mapcar (lambda (astnt) (car astnt))
-	  proof-internal-assistant-table)
+	  proof-assistant-table)
   (concat
    "*Choice of proof assitants to use with Proof General.
 A list of symbols chosen from:" 
    (apply 'concat (mapcar (lambda (astnt) 
 			    (concat " '" (symbol-name (car astnt))))
-			  proof-internal-assistant-table)) 
+			  proof-assistant-table)) 
 ".\nEach proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
@@ -124,12 +124,12 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
   :type (cons 'set 
 	      (mapcar (lambda (astnt)
 			(list 'const ':tag (car (cdr astnt)) (car astnt)))
-		      proof-internal-assistant-table))
-  :group 'proof)
+		      proof-assistant-table))
+  :group 'proof-general)
 
 ;; Extend load path for the generic files.
 (let ((proof-lisp-path
-       (concat proof-internal-home-directory "generic/")))
+       (concat proof-home-directory "generic/")))
   (or (member proof-lisp-path load-path)
       (setq load-path
 	    (cons proof-lisp-path load-path))))
@@ -139,8 +139,8 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 ;; FIXME: this doesn't work quite right.  We want to test
 ;; whether we are running during a compilation.  How?
 ; (eval-when-compile
-;  (dolist (assistant proof-internal-assistant-table)
-;    (let ((path (concat proof-internal-home-directory
+;  (dolist (assistant proof-assistant-table)
+;    (let ((path (concat proof-home-directory
 ;			(concat (symbol-name (car assistant)) "/"))))
 ;      (or (member path load-path)
 ;	  (setq load-path
@@ -156,9 +156,9 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 	  (or 
 	   (cdr-safe 
 	    (assoc assistant
-		   proof-internal-assistant-table))
+		   proof-assistant-table))
 	   (error "proof-site: symbol " (symbol-name assistant) 
-		  "is not in proof-internal-assistant-table")))
+		  "is not in proof-assistant-table")))
 	 (assistant-name (car nameregexp))
 	 (regexp	 (car (cdr nameregexp)))
 	 (sname		 (symbol-name assistant))
@@ -184,12 +184,12 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 	      (defgroup ,cusgrp nil
 		,(concat "Customization of " assistant-name
 			 " specific settings for Proof General.")
-		:group 'proof)
+		:group 'proof-general)
 	      ;; Set the proof-assistant configuration variable
 	      (setq proof-assistant ,assistant-name)
 	      ;; Extend the load path, load the real mode and invoke it.
 	      (setq load-path 
-		    (cons (concat proof-internal-home-directory ,elisp-dir "/")
+		    (cons (concat proof-home-directory ,elisp-dir "/")
 			  load-path))
 	      (load-library ,elisp-file)
 	      (,proofgen-mode))))

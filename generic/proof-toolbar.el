@@ -36,7 +36,7 @@ prover specific buttons, see proof-toolbar.el.")
     (proof-toolbar-restart-icon "restart"))
   "List of icon variable names and their associated image files.
 A list of lists of the form (VAR IMAGE).  IMAGE is the root name
-for an image file in proof-internal-images-directory.  The toolbar
+for an image file in proof-images-directory.  The toolbar
 code expects to find files IMAGE.xbm, IMAGE.xpm, IMAGE.8bit.xpm
 and chooses the best one for the display properites.")
 
@@ -82,7 +82,7 @@ to the default toolbar."
 	 (lambda (buttons)
 	   (let ((var	(car buttons))
 		 (iconfiles (mapcar (lambda (name)
-				      (concat proof-internal-images-directory
+				      (concat proof-images-directory
 					      name
 					      icontype)) (cdr buttons))))
 	     (set var (toolbar-make-button-list iconfiles))))

@@ -378,7 +378,7 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-www-home-page lego-www-home-page)
+  (setq proof-assistant-home-page lego-www-home-page)
 
   (setq proof-mode-for-script 'lego-mode)
 
