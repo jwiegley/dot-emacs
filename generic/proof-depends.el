@@ -174,11 +174,15 @@ If LIST is empty, return a disabled menu item with NAME."
   (if proof-shell-show-dependency-cmd ;; robustness
       (proof-shell-invisible-command (format proof-shell-show-dependency-cmd thm))))
 
+(defconst pg-dep-span-priority 500)
+(defconst pg-ordinary-span-priority 100)
+
 (defun proof-highlight-depcs (name nmspans)
   (let ((helpmsg  (concat "This item is a dependency (ancestor) of " name)))
     (while nmspans
       (let ((span (cadar nmspans)))
 	(set-span-property span 'face 'proof-highlight-dependency-face)
+	(set-span-property span 'priority pg-dep-span-priority)
 	(set-span-property span 'mouse-highlight nil)
 	(set-span-property span 'help-echo helpmsg))
       (setq nmspans (cdr nmspans)))))
@@ -188,6 +192,7 @@ If LIST is empty, return a disabled menu item with NAME."
     (while nmspans
       (let ((span (cadar nmspans)))
 	(set-span-property span 'face 'proof-highlight-dependent-face)
+	(set-span-property span 'priority pg-dep-span-priority)
 	(set-span-property span 'mouse-highlight nil)
 	(set-span-property span 'help-echo helpmsg)
 	(set-span-property span 'balloon-help helpmsg))
@@ -203,6 +208,7 @@ If LIST is empty, return a disabled menu item with NAME."
       (while span
 	(pg-set-span-helphighlights span 'nohighlight)
 	(set-span-property span 'face 'proof-locked-face)
+	(set-span-property span 'priority pg-ordinary-span-priority)
 	(setq span (next-span span 'type))))))
 
 
