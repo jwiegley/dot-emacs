@@ -22,7 +22,7 @@
   :group 'thy)
 
 (defcustom thy-indent-level 2
-  "Indentation level for Isabelle theory files.  An integer."
+  "*Indentation level for Isabelle theory files.  An integer."
   :type  'integer
   :group 'thy)
 
