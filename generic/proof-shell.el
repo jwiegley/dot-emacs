@@ -1888,6 +1888,16 @@ If WAIT is an integer, wait for that many seconds afterwards."
 		  "Menu used in Proof General shell mode."
 		  (cons proof-general-name proof-shell-menu))
 
+
+;;
+;; Sanity checks on important settings
+;;
+
+(defconst proof-shell-important-settings
+  '(proof-shell-annotated-prompt-regexp ; crucial
+    ))
+
+
 (defun proof-shell-config-done ()
   "Initialise the specific prover after the child has been configured.
 Every derived shell mode should call this function at the end of
@@ -1895,7 +1905,11 @@ processing."
   (save-excursion			
     (set-buffer proof-shell-buffer)
 
-    ;; We do not enable font-lock here 
+    ;; Give warnings if some crucial settings haven't been made
+    (dolist (sym proof-shell-important-settings)
+      (proof-warn-if-unset "proof-shell-config-done" sym))
+
+    ;; We do not enable font-lock here, it's a waste of cycles.
     ;; (proof-font-lock-configure-defaults)
 
     (let ((proc (get-buffer-process proof-shell-buffer)))
