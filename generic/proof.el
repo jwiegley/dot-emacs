@@ -17,8 +17,7 @@
 
 (require 'proof-config)			; variables
 
-(if (string-match "XEmacs" emacs-version)
-    (require 'proof-splash))			; splash screen
+(require 'proof-splash)			; splash screen
 
 ;; FIXME da: I think these ones should be autoloaded!!
 (require 'cl)
