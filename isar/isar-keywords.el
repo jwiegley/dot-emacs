@@ -314,6 +314,11 @@
 (defconst isar-keywords-qed-global
   '("oops"))
 
+(defconst isar-keywords-proof-heading
+  '("sect"
+    "subsect"
+    "subsubsect"))
+
 (defconst isar-keywords-proof-goal
   '("have"
     "hence"
@@ -342,9 +347,6 @@
     "let"
     "moreover"
     "note"
-    "sect"
-    "subsect"
-    "subsubsect"
     "txt"
     "txt_raw"))
 
