@@ -3,6 +3,11 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.23  1998/05/15 16:16:55  hhg
+;; Changed variable names [s]ext to span.
+;; Fixed coq-find-and-forget pattern for declarations and definitions
+;; following Pascal Brisset's suggestion.
+;;
 ;; Revision 1.22  1998/05/14 11:52:32  hhg
 ;; Changes to indentation code:
 ;; 	Changed "case" to "Case".
@@ -250,18 +255,19 @@
 (defun coq-set-undo-limit (undos)
   (proof-invisible-command (format "Set Undo %s." undos)))
 
-(defun coq-count-undos (sext)
+(defun coq-count-undos (span)
   (let ((ct 0) str i)
-    (if (and sext (prev-span sext 'type)
-	     (not (eq (span-property (prev-span sext 'type) 'type) 'comment))
-	     (coq-goal-command-p (span-property (prev-span sext 'type) 'cmd)))
+    (if (and span (prev-span span 'type)
+	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
+	     (coq-goal-command-p
+	      (span-property (prev-span span 'type) 'cmd)))
 	(concat "Restart" proof-terminal-string)
-      (while sext
-	(setq str (span-property sext 'cmd))
-	(cond ((eq (span-property sext 'type) 'vanilla)
+      (while span
+	(setq str (span-property span 'cmd))
+	(cond ((eq (span-property span 'type) 'vanilla)
 	       (if (string-match coq-undoable-commands-regexp str)
 		   (setq ct (+ 1 ct))))
-	      ((eq (span-property sext 'type) 'pbp)
+	      ((eq (span-property span 'type) 'pbp)
 	       (cond ((string-match coq-undoable-commands-regexp str)
 		      (setq i 0)
 		      (while (< i (length str))
@@ -269,7 +275,7 @@
 			    (setq ct (+ 1 ct)))
 			(setq i (+ 1 i))))
 		     (t nil))))
-	(setq sext (next-span sext 'type)))
+	(setq span (next-span span 'type)))
       (concat "Undo " (int-to-string ct) proof-terminal-string))))
 
 (defconst coq-keywords-decl-defn-regexp
@@ -281,22 +287,22 @@
   (and (string-match coq-goal-command-regexp str)
        (not (string-match "Definition.*:=" str))))
 
-(defun coq-find-and-forget (sext)
+(defun coq-find-and-forget (span)
   (let (str ans)
-    (while (and sext (not ans))
-      (setq str (span-property sext 'cmd))
+    (while (and span (not ans))
+      (setq str (span-property span 'cmd))
       (cond
 
-       ((eq (span-property sext 'type) 'comment))       
+       ((eq (span-property span 'type) 'comment))       
 
-       ((eq (span-property sext 'type) 'goalsave)
+       ((eq (span-property span 'type) 'goalsave)
 	(setq ans (concat coq-forget-id-command
-			  (span-property sext 'name) proof-terminal-string)))
+			  (span-property span 'name) proof-terminal-string)))
 
        ;; I'm not sure match-string 2 is correct with proof-id
        ;; Furthermore, decl's can have proof-ids rather than proof-id
        ((string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
-			      "\\)\\s-*\\(" proof-id "\\)\\s-*:") str)
+                              "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)
 	(setq ans (concat coq-forget-id-command
 			  (match-string 2 str) proof-terminal-string)))
 
@@ -308,7 +314,7 @@
 	(setq ans (concat coq-forget-id-command
 			  (match-string 2 str) proof-terminal-string))))
 
-      (setq sext (next-span sext 'type)))
+      (setq span (next-span span 'type)))
 
       (or ans "COMMENT")))
 
@@ -340,25 +346,25 @@
 (defun coq-retract-target (target delete-region)
   (let ((end (proof-locked-end))
 	(start (span-start target))
-	(ext (proof-last-goal-or-goalsave))
+	(span (proof-last-goal-or-goalsave))
 	actions)
     
-    (if (and ext (not (eq (span-property ext 'type) 'goalsave)))
-	(if (< (span-end ext) (span-end target))
+    (if (and span (not (eq (span-property span 'type) 'goalsave)))
+	(if (< (span-end span) (span-end target))
 	    (progn
-	      (setq ext target)
-	      (while (and ext (eq (span-property ext 'type) 'comment))
-		(setq ext (next-span ext 'type)))
+	      (setq span target)
+	      (while (and span (eq (span-property span 'type) 'comment))
+		(setq span (next-span span 'type)))
 	      (setq actions (proof-setup-retract-action
 			     start end 
-			     (if (null ext) "COMMENT" (coq-count-undos ext))
+			     (if (null span) "COMMENT" (coq-count-undos span))
 			     delete-region)
 		    end start))
 	  
-	  (setq actions (proof-setup-retract-action (span-start ext) end
+	  (setq actions (proof-setup-retract-action (span-start span) end
 						    proof-kill-goal-command
 						    delete-region)
-		end (span-start ext))))
+		end (span-start span))))
     
     (if (> end start) 
 	(setq actions
@@ -374,7 +380,7 @@
     (let* ((ip 0) (op 0) ap (l (length string)) 
 	   (ann (make-string (length string) ?x))
            (stack ()) (topl ()) 
-	   (out (make-string l ?x )) c ext)
+	   (out (make-string l ?x )) c span)
       (while (< ip l)	
 	(if (< (setq c (aref string ip)) 128) (progn (aset out op c)
 						     (incf op)))
@@ -400,9 +406,9 @@
 	    (incf ip))
 	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
 	 ((= c proof-shell-field-char)
-	  (setq ext (make-span (car stack) op))
-	  (set-span-property ext 'mouse-face 'highlight)
-	  (set-span-property ext 'proof (car (cdr stack)))
+	  (setq span (make-span (car stack) op))
+	  (set-span-property span 'mouse-face 'highlight)
+	  (set-span-property span 'proof (car (cdr stack)))
 					; Pop annotation off stack
 	  (setq ap 0)
 	  (while (< ap (length (cadr stack)))
