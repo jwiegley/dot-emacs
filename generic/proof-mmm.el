@@ -29,7 +29,9 @@
 	   (progn
 	     ;; try bundled version
 	     (setq load-path
-		   (cons proof-home-directory "mmm/" load-path))
+		   (cons 
+		    (concat proof-home-directory "mmm/") 
+		    load-path))
 	     (proof-try-require 'mmm-auto))))
    ;; Load prover-specific config in <foo>-mmm.el
    (proof-try-require (proof-ass-sym mmm))))
