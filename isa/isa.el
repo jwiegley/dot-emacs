@@ -180,6 +180,9 @@ no regular or easily discernable structure."
    ;; initial command configures Isabelle by hacking print functions.
    proof-shell-init-cmd
      (concat "use \"" proof-home-directory "isa/ProofGeneral.ML\";")
+   proof-shell-restart-cmd		"ProofGeneral.restart();"
+   proof-shell-quit-cmd			"exit 1;"
+   
    proof-shell-eager-annotation-start   "\360\\|\362\\|\364"
    proof-shell-eager-annotation-end     "\361\\|\363\\|\365"
 
@@ -346,6 +349,7 @@ isa-proofscript-mode."
 (define-key map "\C-c\C-b" 'isa-process-thy-file)
 (define-key map "\C-c\C-u" 'isa-retract-thy-file)))
 
+;; FIXME: could test that the buffer isn't already locked.
 (defun isa-process-thy-file (file)
   "Process the theory file FILE.  If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))

@@ -37,6 +37,7 @@ sig
    val retract_thy_file : string -> unit
    val list_loaded_files : unit -> unit
    val update : unit -> unit
+   val restart : unit -> unit
    
    (*  visible only for testing *)
    val loaded_parents_of : string -> string list
@@ -44,6 +45,7 @@ sig
    val apply_and_update_files : ('a -> 'b) -> 'a -> unit
    val use_thy_and_update : string -> unit  (* not used *)
    val use_thy : string -> unit
+   val initial_loaded_thys : thy_info Symtab.table ref
    val special_theories : string list ref
    val retracted_files : string list ref
 end;
@@ -68,6 +70,9 @@ structure ProofGeneral : PROOFGENERAL =
 
     (* Cache of retracted files: see notes below. *)
     val retracted_files = ref [] : string list ref;
+
+    (* Copy of theory database *)
+    val initial_loaded_thys = ref (!loaded_thys);
 
     (* Messages to Proof General *)
 
@@ -116,13 +121,24 @@ structure ProofGeneral : PROOFGENERAL =
    *)
    fun list_loaded_files () =
    let
-     val thys_list = Symtab.dest (!loaded_thys)
      val _ = retracted_files := []
    in     
     (writeln "Setting loaded files list...";
      seq (msg_unless_empty process_msg) (loaded_files());
      writeln "Done.")
    end
+
+   (* RESTARTING *)
+
+   fun restart () =
+     let val _ = (loaded_thys := !initial_loaded_thys)
+         val _ = (retracted_files := [])
+      in
+         (list_loaded_files();
+          clear_response_buffer();
+          writeln "Isabelle Proof General: Isabelle process ready!")
+      end;
+
 
     (*
       RETRACTION:
@@ -244,6 +260,7 @@ structure ProofGeneral : PROOFGENERAL =
     (* Use a theory file but not it's top-level ML file *)
     val use_thy = use_thy1 use_thy_no_topml;
 
+    
 
    (* Function to do an "update" operation.
        This is like the use operation above except that we
@@ -386,9 +403,7 @@ print_current_goals_fn := print_current_goals_with_plain_output;
 
 (* Get Proof General to cache the loaded files.  *)
 
-ProofGeneral.list_loaded_files();
-ProofGeneral.clear_response_buffer();
-writeln "Isabelle Proof General: Isabelle process ready!";
+ProofGeneral.restart();
 
 
 
