@@ -51,33 +51,6 @@ no regular or easily discernable structure."
   :type 'number
   :group 'isabelle)
 
-(defcustom isabelle-web-page
-  "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
-  ;; "http://www.dcs.ed.ac.uk/home/isabelle"
-  "URL of web page for Isabelle."
-  :type 'string
-  :group 'isabelle)
-
-;; FIXME: deftoggle should only define toggler, not setter?
-(proof-deftoggle isabelle-show-sorts)
-(proof-deftoggle isabelle-show-types)
-
-(defcustom isabelle-menu-entries
-  (append
-   '(["Switch to theory" thy-find-other-file t])
-   (list "----")
-   '(["Show types" isabelle-show-types-toggle
-     :active t :style toggle
-     :selected isabelle-show-types]
-    ["Show sorts" isabelle-show-sorts-toggle
-     :active t :style toggle
-     :selected isabelle-show-sorts])
-   (list "----")
-   (list isa-docs-menu))
-  "Entries for Isabelle menu.")
-
-
-
 
 ;;;
 ;;; ======== Configuration of generic modes ========
@@ -205,7 +178,7 @@ and script mode."
    ;; initial command configures Isabelle by hacking print functions.
    ;; FIXME: temporary hack for almost enabling/disabling printing.
    ;; Also for setting default values.
-   proof-shell-init-cmd                 (concat (isa-set-default-cmd)
+   proof-shell-init-cmd                 (concat (isabelle-set-default-cmd)
  "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0); ProofGeneral.init false;")
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
