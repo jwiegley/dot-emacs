@@ -20,7 +20,7 @@ little bit of Emacs Lisp.
 
 To use Proof General, add the line
 
-   (load-file "/usr/lib/ProofGeneral/generic/proof-site.el")
+   (load-file "/usr/lib/emacs/ProofGeneral/generic/proof-site.el")
 
 to your .emacs file.
 
@@ -37,7 +37,7 @@ rm -f */*.orig
 
 %install
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/ProofGeneral
-cp -pr coq lego isa images generic ${RPM_BUILD_ROOT}/usr/lib/ProofGeneral
+cp -pr coq lego isa images generic ${RPM_BUILD_ROOT}/usr/lib/emacs/ProofGeneral
 
 %clean
 if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
@@ -46,17 +46,17 @@ fi
 
 %files
 %attr(-,root,root) %doc BUGS INSTALL doc/*
-%attr(0755,root,root) %dir /usr/lib/ProofGeneral
-%attr(0755,root,root) %dir /usr/lib/ProofGeneral/coq
-%attr(-,root,root) %dir /usr/lib/ProofGeneral/coq/*
-%attr(0755,root,root) %dir /usr/lib/ProofGeneral/lego
-%attr(-,root,root) %dir /usr/lib/ProofGeneral/lego/*
-%attr(0755,root,root) %dir /usr/lib/ProofGeneral/isa
-%attr(-,root,root) %dir /usr/lib/ProofGeneral/isa/*
-%attr(0755,root,root) %dir /usr/lib/ProofGeneral/images
-%attr(-,root,root) %dir /usr/lib/ProofGeneral/images/*
-%attr(0755,root,root) %dir /usr/lib/ProofGeneral/generic
-%attr(-,root,root) %dir /usr/lib/ProofGeneral/generic/*
+%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral
+%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/coq
+%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/coq/*
+%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/lego
+%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/lego/*
+%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/isa
+%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/isa/*
+%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/images
+%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/images/*
+%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/generic
+%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/generic/*
 
 
 
