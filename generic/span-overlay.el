@@ -276,25 +276,26 @@ A span is before PT if it covers the character before PT."
 
 ; overlays are [start, end)
  
-; Since Emacs 20.6 or so, next-span started being buggy.
-; Original version:
-;(defun next-span (span prop)
-;  "Return span after SPAN with property PROP. If there are two spans overlapping then this won't work."
-;  (let ((l (member-if (lambda (span) (span-property span prop))
-;		      (overlays-at
-;		       (next-overlay-change (overlay-start span))))))
-;    (car-safe l)))
-; Hacked version by Christophe Raffalli:
 (defun next-span (span prop)
-  "Return span after SPAN with property PROP. If there are two spans overlapping then this won't work."
-  (let (spanres (l (member-if (lambda (span) (span-property span prop))
-			      (overlays-at
-			       (next-overlay-change (overlay-start span))))))
-    (setq spanres (car-safe l))
-    ;; The test is for a dirty bug fix with FSF Emacs with next-span not 
-    ;; advancing the span!
-    (if (and spanres (<= (span-start spanres) (span-start span))) 
-	nil spanres)))
+  "Return span after SPAN with property PROP."
+  (let* ((start     (overlay-start span))
+	 (pos       start)
+	 (searching t)
+	 nextos ovs spanres)
+    ;; 3.4 fix: Now we do a proper search, so this should work with
+    ;; nested overlays, after a fashion.  (We begin from the next
+    ;; overlay change, but search nested ones).
+    (while (and searching (< pos (point-max)))
+      (setq pos (next-overlay-change (+ pos 1)))
+      (setq nextos  (overlays-at pos))
+      (while (and nextos searching)
+	(setq spanres (car nextos))
+	(if (and (span-property spanres prop)
+		 (< start (span-start spanres)))
+	    (setq searching nil)
+	  (setq nextos (cdr nextos)))))
+    (unless searching
+      spanres)))
 
 (defsubst span-live-p (span)
   "Return non-nil if SPAN is in a live buffer."
