@@ -148,10 +148,10 @@ no regular or easily discernable structure."
 (defun isa-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle."
   (setq
-   proof-shell-first-special-char	?\360
+   proof-shell-first-special-char	?\350
 
    proof-shell-wakeup-char		 ?\372
-   proof-shell-annotated-prompt-regexp   "\\(val it = () : unit\n\\)?>\372"
+   proof-shell-annotated-prompt-regexp   "\\(val it = () : unit\n\\)?> \372"
    ;; "^\\(val it = () : unit\n\\)?> "
    ;; non-annotation, with val it's: "^\\(val it = () : unit\n\\)?> "
 
@@ -161,7 +161,7 @@ no regular or easily discernable structure."
 
    ;; for issuing command, not used to track cwd in any way.
    proof-shell-cd			"cd \"%s\";"
-   proof-shell-proof-completed-regexp   "No subgoals!"
+   proof-shell-proof-completed-regexp   "$^"         ; "No subgoals!" deactivated
 
    ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-error-regexp		"^.*Error:\\|^\364\\*\\*\\*"
@@ -181,10 +181,9 @@ no regular or easily discernable structure."
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle by hacking print functions.
-   proof-shell-init-cmd
-     (concat "use \"" proof-home-directory "isa/ProofGeneral.ML\";")
-   proof-shell-restart-cmd		"ProofGeneral.restart();"
-   proof-shell-quit-cmd			"exit 0;"
+   proof-shell-init-cmd                 "ProofGeneral.init false;"
+   proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
+   proof-shell-quit-cmd			"quit();"
    
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-end     "\361\\|\363"
@@ -230,16 +229,10 @@ no regular or easily discernable structure."
 
 
 ;;;
-;;;  use_thy and friends.
-;;;
-;;; Quite tricky to get these right.  By default, Isabelle's
-;;; theory loader glues together theory and ML files whenever
-;;; it can, but that's not what we want here.
-;;;
-;;; So we rely on some hacked versions.
+;;; Theory loader operations
 ;;;
 
-(defcustom isa-usethy-notopml-command "ProofGeneral.use_thy \"%s\";"
+(defcustom isa-usethy-notopml-command "update_thy_only \"%s\";"
   "Sent to Isabelle to process theory for this ML file, and all ancestors."
   :type 'string
   :group 'isabelle-config)
@@ -286,26 +279,6 @@ proof-shell-retract-files-regexp."
   ;;		  proof-included-files-list))
   (remove (file-truename (match-string 1 str)) 
 	  proof-included-files-list))
-
-;;
-;; Hack for update
-;;
-
-(defcustom isa-update-command "ProofGeneral.update();"
-  "Sent to Isabelle to re-load theory files as needed and synchronise."
-  :type 'string
-  :group 'isabelle-config)
-  
-(defun isa-update ()
-  "Issue an update command to the Isabelle process.
-This re-reads any theory files as necessary and resynchronizes
-proof-included-files-list."
-  (interactive)
-  (save-some-buffers)
-  (proof-shell-insert isa-update-command))
-
-  
-
 
 
 ;;
@@ -378,20 +351,8 @@ isa-proofscript-mode."
    (format isa-usethy-notopml-command
 	   (file-name-sans-extension file))))
 
-(defcustom isa-retract-thy-file-command "ProofGeneral.retract_thy_file \"%s\";"
+(defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%s\";"
   "Sent to Isabelle to forget theory file and descendants.
-Resulting output from Isabelle will be parsed by Proof General."
-  :type 'string
-  :group 'isabelle-config)
-
-(defcustom isa-retract-ML-file-command "ProofGeneral.retract_ML_file \"%s\";"
-  "Sent to Isabelle to forget ML file and descendants.
-Resulting output from Isabelle will be parsed by Proof General."
-  :type 'string
-  :group 'isabelle-config)
-
-(defcustom isa-retract-ML-files-children-command "ProofGeneral.retract_ML_files_children \"%s\";"
-  "Sent to Isabelle to forget the descendants of an ML file.
 Resulting output from Isabelle will be parsed by Proof General."
   :type 'string
   :group 'isabelle-config)
@@ -509,24 +470,28 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;; backwards in isa-find-and-forget, rather than forwards as
 ;; the old code below does.
 
+;; MMW: this version even does nothing at all
 (defun isa-find-and-forget (span)
-  "Return a command to be used to forget SPAN."
-  (save-excursion
-    ;; FIXME: bug here: too much gets retracted.
-    ;; See if we are going to part way through a completely processed
-    ;; buffer, in which case it should be removed from 
-    ;; proof-included-files-list along with any other buffers
-    ;; depending on it.  However, even though we send the retraction
-    ;; command to Isabelle we don't want to *completely* unlock
-    ;; the current buffer.  How can this be avoided?
-    (goto-char (point-max))
-    (skip-chars-backward " \t\n") 
-    (if (>= (proof-unprocessed-begin) (point))
-	(format isa-retract-ML-files-children-command
-		(file-name-sans-extension 
-		 (file-name-nondirectory
-		  (buffer-file-name))))
-      proof-no-command)))
+  proof-no-command)
+
+;(defun isa-find-and-forget (span)
+;  "Return a command to be used to forget SPAN."
+;  (save-excursion
+;    ;; FIXME: bug here: too much gets retracted.
+;    ;; See if we are going to part way through a completely processed
+;    ;; buffer, in which case it should be removed from 
+;    ;; proof-included-files-list along with any other buffers
+;    ;; depending on it.  However, even though we send the retraction
+;    ;; command to Isabelle we don't want to *completely* unlock
+;    ;; the current buffer.  How can this be avoided?
+;    (goto-char (point-max))
+;    (skip-chars-backward " \t\n") 
+;    (if (>= (proof-unprocessed-begin) (point))
+;	(format isa-retract-thy-file-command
+;		(file-name-sans-extension 
+;		 (file-name-nondirectory
+;		  (buffer-file-name))))
+;      proof-no-command)))
 
 
 ;; BEGIN Old code  (taken from Coq.el)
@@ -622,8 +587,9 @@ Resulting output from Isabelle will be parsed by Proof General."
   (modify-syntax-entry ?<  ".")
   (modify-syntax-entry ?>  ".")
   (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?_  "_")
-  (modify-syntax-entry ?\' "_")
+  (modify-syntax-entry ?.  "w")
+  (modify-syntax-entry ?_  "w")
+  (modify-syntax-entry ?\' "w")
   (modify-syntax-entry ?\| ".")
   (modify-syntax-entry ?\* ". 23")
   (modify-syntax-entry ?\( "()1")
