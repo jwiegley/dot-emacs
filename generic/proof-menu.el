@@ -537,8 +537,9 @@ If SETTING is non-nil, return a string for just that setting.
 Otherwise return a string for configuring all settings."
   (let
       ((evalifneeded (lambda (expr)
-			(if (or (not setting) 
-				(eq setting (car expr)))
+			(if (and (cadr expr) ;; setting has PA string?
+				 (or (not setting) 
+				     (eq setting (car expr))))
 			    (proof-assistant-format 
 			     (cadr expr) 
 			     (eval (proof-ass-symv (car expr))))))))
