@@ -416,7 +416,8 @@ dist:
 	@echo "*************************************************"
 	(cd $(DISTBUILDIR); for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done)
 	(cd $(DISTBUILDIR); $(ZIP) -r $(RELEASENAMEZIP) $(RELEASENAME) -x@ignoredfiles)
-	rm -f ignoredfiles
+#	remove temporary files made for tar/zip only
+	(cd $(DISTBUILDIR); rm -f ignoredfiles $(NAME))
 	@echo "*************************************************"
 	@echo " Finished making dist."
 	@echo "*************************************************"
