@@ -816,15 +816,21 @@ mouse activation."
 ;; Context-senstive in-span menu additions 
 ;;
 
+;; da: message to Pierre: I just put these in as examples,
+;; maybe you can suggest some better commands to use on
+;; `thm'.  (Check maybe not much use since appears before
+;; in the buffer anyway)
 (defun coq-create-span-menu (span idiom name)
   (if (string-equal idiom "proof")
       (let ((thm (span-property span 'name)))
-        (list (vector
+        (list ;(vector
+              ; "Check"
+              ; `(proof-shell-invisible-command 
+              ;   ,(format "Check %s." thm)))
+              (vector
                "Print Proof"
                `(proof-shell-invisible-command 
                  ,(format "Print Proof %s." thm)))))))
-
-
 
 ;;;   Local Variables: ***
 ;;;   tab-width:2 ***
