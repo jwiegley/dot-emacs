@@ -1,0 +1,70 @@
+<?php  
+  require('functions.php3');
+  small_header("Proof General Standalone Components"); 
+  ?>
+
+<p> As part of the Proof General project, some components have been
+developed which might be useful in a wider context.  They are
+presented on this page.
+</p>
+
+<p>As usual with free software, these programs
+come with no guarantees of any sort.
+Nonetheless, please <a href="feedback">contact us</a> with
+any comments, suggestions, or problems.
+</p>
+
+<h2>Spans: Emacs and XEmacs compatibility library for overlays/extents</h2>
+
+<p>
+<i>Spans</i> are an abstraction of XEmacs <i>extents</i> used to help
+bridge the gulf between GNU Emacs and XEmacs.  In GNU Emacs, spans are
+implemented using <i>overlays</i>.  
+</p>
+<p>
+The library consists of two Emacs lisp files,
+<ul>
+<li><a href="ProofGeneral-latest/generic/span-extent.el">span-extent.el</a>
+</li>
+<li><a href="ProofGeneral-latest/generic/span-overlay.el">span-overlay.el</a>
+</li>
+</ul>
+which implement a common interface for overlays/extents.
+This library was originally implemented by Healfdene Goguen.
+</p>
+<p>
+See the files for further documentation, and 
+<a href="adapting_13.html#SEC40">section 12.1</a>
+of the <a href="adapting">Proof General adapting manual</a>
+for more details.
+</p>
+
+
+<h2>Docstring magic: Elisp documentation to TeXinfo extraction</h2>
+
+<p>
+This package generates Texinfo source fragments from Emacs 
+docstrings.   This avoids documenting functions and variables
+in more than one place, and automatically adds Texinfo markup
+to docstrings.  It's a bit like <tt>javadoc</tt> for 
+Emacs Lisp, except that you must write a skeleton <tt>texi</tt>
+file which contains magic comments mentioning the function or
+variable names you want documented.
+</p>
+<p>
+The package consists of one file:
+<ul>
+<li><a href="ProofGeneral-latest/generic/texi-docstring-magic.el">texi-docstring-magic.el</a></li>
+</ul>
+which contains documentation and usage hints.
+For an extensive example of it's use, see
+the <a href="ProofGeneral-latest/doc/PG-adapting.texi">source</a>
+for the <a href="adapting">PG adapting manual</a>.
+</p>
+
+<hr>
+
+<?php
+   click_to_go_back();
+   footer();
+?>
