@@ -13,7 +13,7 @@
 ;;;
 ;;; To nuke byte compile warnings
 ;;;
-(require 'proof-syntax)			; for proof-commands-regexp.
+(require 'proof-syntax)			; for proof-indent-commands-regexp.
 (require 'proof-script)			; for proof-goto-end-of-locked,
 					; proof-locked-end
 
@@ -28,48 +28,58 @@
 ;; triple.
 
 (defun proof-parse-to-point (&optional from state)
-  (let ((comment-level 0) (stack (list (list nil 0)))
-	(end (point)) instring c)
+  (let ((cmt-level 0) (stack (list (list nil 0)))
+	(end (point)) instring c forward-amount
+	(cmt-end-regexp (regexp-quote proof-comment-end))
+	(cmt-start-regexp (regexp-quote proof-comment-start)))
     (save-excursion
       (if (null from)
 	  (proof-goto-end-of-locked)
 	(goto-char from)
 	(setq instring (car state)
-	      comment-level (nth 1 state)
+	      cmt-level (nth 1 state)
 	      stack (nth 2 state)))
       (while (< (point) end)
 	(setq c (char-after (point)))
+	(setq forward-amount 1)   ; may be subject to dynamic scoping!
 	(cond 
-	 (instring 
-	  (if (eq c ?\") (setq instring nil)))
-	 (t (cond
-	     ((eq c ?\()
-	      (cond
-	       ;; FIXME broken: comment strings are not generic.
-	       ((looking-at "(\\*")
-		(progn
-		  (incf comment-level)
-		  (forward-char)))
-	       ((eq comment-level 0)
-		(setq stack (cons (list ?\( (point)) stack)))))
-	     ((and (eq c ?\*) (looking-at "\\*)"))
-	      (decf comment-level)
-	      (forward-char))
-	     ((> comment-level 0))
-	     ((eq c ?\") (setq instring t))
-	     ((eq c ?\[)
-	      (setq stack (cons (list ?\[ (point)) stack)))
-	     ((or (eq c ?\)) (eq c ?\]))
-	      (setq stack (cdr stack)))
-	     ((looking-at proof-commands-regexp)
-	      (setq stack (cons (list proof-terminal-char (point)) stack)))
-	     ((and (eq c proof-terminal-char)
-		   (eq (car (car stack)) proof-terminal-char))
-	      (setq stack (cdr stack)))
-	     (proof-parse-indent
-	      (setq stack (funcall proof-parse-indent c stack))))))
-	(forward-char))
-    (list instring comment-level stack))))
+	 ;; strings
+	 ((and instring (looking-at proof-string-end-regexp))
+	  (setq forward-amount (length (match-string 0)))
+	  (setq instring nil))
+	 (instring)
+	 ((looking-at proof-string-start-regexp)
+	  (setq forward-amount (length (match-string 0)))
+	  (setq instring t))
+
+	 ;; comments
+	 ((looking-at cmt-start-regexp)
+	  (setq forward-amount (length (match-string 0)))
+	  (incf cmt-level))
+	 ((looking-at cmt-end-regexp)
+	  (setq forward-amount (length (match-string 0)))
+	  (decf cmt-level))
+	 ((> cmt-level 0))
+
+	 ;; parentheses
+	 ((looking-at "\\s(")
+	  (setq stack (cons (list c (point)) stack)))
+	 ((looking-at "\\s)")
+	  (setq stack (cdr stack)))
+	 
+	 ;; basic indentation for commands
+	 ((looking-at proof-indent-commands-regexp)
+	  (setq stack (cons (list proof-terminal-char (point)) stack)))
+	 ((and (eq c proof-terminal-char)
+	       (eq (car (car stack)) proof-terminal-char))
+	  (setq stack (cdr stack)))
+
+	 ;; prover specific plugin
+	 (proof-parse-indent
+	  (setq stack (funcall proof-parse-indent c stack))))
+
+	(forward-char forward-amount))
+      (list instring cmt-level stack))))
       
 (defun proof-indent-line ()
   "Indent current line of proof script"
