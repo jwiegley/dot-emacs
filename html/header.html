@@ -1,7 +1,9 @@
 <!-- This is the header -->
-<table width="600">
+<table width="650">
 <tr>
 <td width="100">
+<!-- FIXME: this used to link to root, not reliable now: neither does / or ..
+  do the right thing. -->
 <a href="">
 <img src="images/ProofGeneral.jpg" alt="Proof General" align=top
      width=90 height=119 border=0 >
@@ -21,7 +23,7 @@
     $urlbits = parse_url($REQUEST_URI);
     $file = ereg_replace("^(.*/)+","",$urlbits["path"]);
     $WANTED = ereg_replace(".html","",$file);
-    print "<table class=\"menubar\"><tr>\n"; 
+    print "<table width=\"80%\" class=\"menubar\"><tr>\n"; 
     $links_arr  =  array(
           "Home"          =>  "main", 
 	  "Features"	  =>  "features",
@@ -46,7 +48,7 @@
     for  (reset($links_arr);  $name  =  key($links_arr);  next($links_arr))  {
         print  $separator;
         if  ($WANTED  ==  $links_arr[$name])  {
-	  print "<b>" . $name . "</b>";
+	  print "<font color=\"white\">" . $name . "</font></b>";
 	  }
 	else {
           print "<a href=\"$links_arr[$name]\">$name</a>";
