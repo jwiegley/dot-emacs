@@ -1790,7 +1790,8 @@ No action if BUF is nil."
       proof-shell-start
       :active (not (proof-shell-live-buffer))]
      ["Toggle scripting"
-      proof-toggle-active-scripting]
+      proof-toggle-active-scripting
+      :active t]
 ;     ["Restart scripting"
 ;      proof-shell-restart
 ;      :active (proof-shell-live-buffer)]
