@@ -14,56 +14,33 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-
-A* Stuff for release (da):
+A* FINAL STUFF BEFORE RELEASE (da):
 
     1. Display of goals on Isabelle start up: hack it somehow.
+    2. NewDoc.texi polish, becomes ProofGeneral.texi
+    3. Problems:
 
+      kill-buffer hook
+      Isabelle: reports .ML loaded after doing use-theory.
 
-A* multiple files bug fix:
-   It can happen (in Isabelle) that the prover retracts a file
-   which asks for another to be retracted which is *not* on
-   proof-included-files-list.  The same case could perhaps 
-   happen in lego if we relax the restriction on switching
-   scripting buffer?  We need to remove the locked regions
-   from *any* buffer which is matched by the retract_files_regexp,
-   not just those in proof-shell-compute-new-files-list.
-   --> One case now fixed by allowing current scripting buffer to
-    be retracted.  Are there other cases?  (da to investigate)
-
-
-    TODO:
-
-     example.thy -> process it -> Doesn't get locked.
-     
 
 A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2+2 days; da + tms)
 
 A Check that byte compilation (and compiled code!) 
   works for both varieties of Emacs. 
-  Fill out Makefile.dist (2hr da)
 
-A* Fixup for non-script buffer locking:
-
-    proof-locked-end called from wrong buffer when error message
-    is output.
-
-    proof-restart-script is now broken (2h da)
-
-B Make completion more generic. For Isabelle and Lego, we can build a
-  completion table by querying the process, which is better than
-  messing with tags.  
-A* fix any bits I've broken  (da, 1hr)
 
 A* Is it possible to let C-c C-c (SIGINT) issue additional process input?
    Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
    rather fail gracefully.
 
+B Make completion more generic. For Isabelle and Lego, we can build a
+  completion table by querying the process, which is better than
+  messing with tags.  
 
 B outline configuration should be generic  (or else documented for
   each prover separately, since not guaranteed to work for all).
-
 
 B Add proof-quit-command: some provers may like a quit command to be
   sent to the shell, not just EOF !  (see proof-stop-shell).
