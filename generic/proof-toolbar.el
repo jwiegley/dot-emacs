@@ -334,8 +334,7 @@ Move point if the end of the locked position is invisible."
   ;; proof-retract-file might be better here!
   (interactive)
   (proof-toolbar-move
-   (goto-char (point-min))
-   (proof-retract-until-point-interactive))	; gives error if process busy
+   (proof-retract-buffer))	; gives error if process busy
   (proof-toolbar-follow))
 
 ;;

@@ -434,13 +434,27 @@ buffers."
 	    
 	  ;; We only allow switching of the Scripting buffer if the
 	  ;; locked region is either empty or full for all buffers.
+	  ;; Give the user the chance to retract previous buffer here.
 	  ;; FIXME: ponder alternative of trying to complete rest
 	  ;; of current scripting buffer?  Allowing to switch when
 	  ;; a goal has been completed?
-	  (or (proof-locked-region-empty-p)
+	  (or (proof-locked-region-empty-p) 
 	      (proof-locked-region-full-p)
-	      (error 
-	       "Cannot have more than one active scripting buffer!"))
+	      (if (or
+		   ;; User option to always force retaction
+		   proof-auto-retract-other-buffers
+		   (yes-or-no-p 
+		    (format
+		     "Scripting already active in buffer: %s, retract there? "
+		     proof-script-buffer)))
+		  (progn
+		    ;; FIXME: Maybe want unwind protect here
+		    (proof-retract-buffer)
+		    ;; Test again to see if retracting happened/was successful
+		    (or (proof-locked-region-empty-p)
+			(proof-locked-region-full-p))))
+	      (error "You cannot have more than one active scripting buffer!"))
+
 	    
 	  ;; Mess around a little bit with the included files
 	  ;; list to make sure it behaves as we expect
@@ -1274,6 +1288,12 @@ the proof script."
   (interactive)
   (goto-char (point-max))
   (proof-assert-until-point-interactive))
+
+(defun proof-retract-buffer ()
+  "Retract the current buffer and set point at the start of the buffer."
+  (interactive)
+  (goto-char (point-min))
+  (proof-retract-until-point-interactive))
 
 ;; FIXME da: this could do with some tweaking.  Be careful to
 ;; avoid memory leaks.  If a buffer is killed and it's local

@@ -137,9 +137,26 @@ With this option active, the locked region will automatically be
 unlocked when the user attempts to edit it.   To make use of this
 option, proof-strict-read-only should be turned off.
 
-Note: this feature has not been implemented yet, it's only an idea."
+Note: this feature has not been implemented yet, it is only an idea."
   :type 'boolean
   :group 'proof-general)
+
+(defcustom proof-auto-retract-other-buffers
+  nil
+  "*If non-nil, retract automatically when switching scripting buffer.
+With this option active, when scripting is activated in a new
+buffer with an old one partly processed, the old buffer will be
+retracted automatically.  
+
+With this option inactive, the user is questioned instead.
+
+Proof General insists that only one script buffer can be partly 
+processed: all others have to be completely processed or
+completely unprocessed.  This is to make sure that handling of
+multiple files makes sense withing the proof assistant."
+  :type 'boolean
+  :group 'proof-general)
+
 
 (defcustom proof-script-indent nil
   ;; Particular proof assistants can enable this if they feel
