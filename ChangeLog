@@ -19,6 +19,25 @@
 
 2000-12-07  David Aspinall  <da@proofgeneral.org>
 
+	* ChangeLog: Updated.
+
+	* generic/pg-pgip.el: Typo.
+
+	* etc/ProofGeneral.spec, Makefile, Makefile.devel:
+	Name change af2 -> phox
+
+	* generic/pg-pgip.el:
+	Beginnings of pgip processing
+
+	* generic/pg-xml.el: Add provide
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2000-12-07  David Aspinall  <da@proofgeneral.org>
+
 	* generic/pg-pgip.el: Typo.
 
 	* etc/ProofGeneral.spec, Makefile, Makefile.devel:
