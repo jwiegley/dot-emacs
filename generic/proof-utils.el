@@ -363,7 +363,9 @@ Returns new END value."
   ;; We fontify first because X-sym decoding changes char positions.
   ;; It's okay because x-symbol-decode works even without font lock.
   ;; Possible disadvantage is that font lock patterns can't refer
-  ;; to X-Symbol characters.  
+  ;; to X-Symbol characters.
+  ;; NB: perhaps we can narrow within the whole function, but there
+  ;; was an earlier problem with doing that.
   (if proof-output-fontify-enable
       (progn
 	;; Temporarily set font-lock defaults
@@ -379,11 +381,18 @@ Returns new END value."
 	      (progn
 		(setq font-lock-cache-position (make-marker))
 		(set-marker font-lock-cache-position 0)))
-
-	  (run-hooks 'pg-before-fontify-output-hook)
+	  
+	  (save-restriction
+	    (narrow-to-region start end)
+	    (run-hooks 'pg-before-fontify-output-hook)
+	    (setq end (point-max)))
 	  (font-lock-default-fontify-region start end nil)
-	  ;; after-fontify hook might do this ugly zap commas thing.
+	  ;; FIXME: after-fontify hook might do this ugly zap commas thing.
 	  (proof-zap-commas-region start end))))
+  (save-restriction
+    (narrow-to-region start end)
+    (run-hooks 'pg-after-fontify-output-hook)
+    (setq end (point-max)))
   (if (and pg-use-specials-for-fontify (not keepspecials))
       (progn
 	(pg-remove-specials start end)

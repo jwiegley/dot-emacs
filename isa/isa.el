@@ -219,7 +219,7 @@ and script mode."
    pg-subterm-start-char		?\372
    pg-subterm-sep-char			?\373
    pg-subterm-end-char			?\374
-   pg-before-subterm-markup-hook	'isabelle-convert-idmarkup-to-subterm
+   pg-after-fontify-output-hook		'isabelle-convert-idmarkup-to-subterm
 					;'pg-remove-specials
    ;; FIXME: next one doesn't do quite the right thing, always returns 'a?
    pg-subterm-help-cmd			"printyp (type_of (read \"%s\"))"

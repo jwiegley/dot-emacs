@@ -243,7 +243,7 @@ See -k option for Isabelle interface script."
    pg-subterm-start-char                ?\372
    pg-subterm-sep-char                  ?\373
    pg-subterm-end-char                  ?\374
-   pg-before-subterm-markup-hook	'isabelle-convert-idmarkup-to-subterm
+   pg-after-fontify-output-hook	'isabelle-convert-idmarkup-to-subterm
 					;'pg-remove-specials
    pg-subterm-help-cmd			"term %s" 
 

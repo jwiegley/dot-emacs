@@ -101,7 +101,6 @@ and properly fontifies STRING using proof-fontify-region."
 	  ;; but keep specials in case also used for subterm markup.
 	  (proof-fontify-region (point-min) (point-max) 'keepspecials))
       
-      (run-hooks 'pg-before-subterm-markup-hook)
       (pg-goals-analyse-structure (point-min) (point-max))
 
       (unless pg-use-specials-for-fontify

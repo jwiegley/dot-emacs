@@ -30,7 +30,7 @@
 ;;  6. Goals buffer configuration
 ;;  [ 7. Splash screen settings  -- moved to proof-splash.el now ]
 ;;  8. X-Symbol support
-;;  9. Prover specific settings [NEW in 3.2 -- using new mechanism]
+;;  9. Prover specific settings
 ;; 10. Global constants 
 ;;
 ;; The user options don't need to be set on a per-prover basis,
@@ -1014,6 +1014,9 @@ match the entire command"
 
 (defcustom proof-non-undoables-regexp nil
   "Regular expression matching commands which are *not* undoable.
+These are commands which should not appear in proof scripts,
+for example, undo commands themselves (if the proof assistant
+cannot \"redo\" an \"undo\").
 Used in default functions `proof-generic-state-preserving-p' 
 and `proof-generic-count-undos'.  If you don't use those,
 may be left as nil."
@@ -2155,7 +2158,9 @@ requested on an assumption."
   :group 'proof-goals)
 
 (defcustom pg-subterm-help-cmd nil
-  "Command to display help about a subterm."
+  "Command to display mouse help about a subterm.
+This command is sent to the proof assistant, replacing %s by the
+subterm that the mouse is over."
   :type '(choice nil string)
   :group 'proof-goals)
 
@@ -2244,13 +2249,16 @@ See also proof-{script,shell,resp}-font-lock-keywords."
   :group 'proof-goals)
 
 (defcustom pg-before-fontify-output-hook nil
-  "This hook is called before fonfitying a region in an output buffer.
+  "This hook is called before fontifying a region in an output buffer.
+A function on this hook can alter the region of the buffer within
+the current restriction, and must return the final value of (point-max).
 [This hook is presently only used by phox-sym-lock]."
   :type '(repeat function)
   :group 'proof-goals)
 
-(defcustom pg-before-subterm-markup-hook nil
-  "This hook is called before analysiing a region for subterm markup."
+(defcustom pg-after-fontify-output-hook nil
+  "This hook is called before fonfitying a region in an output buffer.
+[This hook is presently only used by Isabelle]."
   :type '(repeat function)
   :group 'proof-goals)
 
