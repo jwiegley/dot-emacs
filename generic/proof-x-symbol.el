@@ -1,13 +1,19 @@
-;; proof-x-symbol.el  Support for x-symbol package
+;; proof-x-symbol.el  Support for X-Symbol package
 ;;
 ;; Copyright (C) 1998,9 LFCS Edinburgh. 
 ;; Author: David Aspinall <da@dcs.ed.ac.uk>
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;;
+;; The X-Symbol package is currently available at
+;; http://www.fmi.uni-passau.de/~wedler/x-symbol
 ;;
 ;; With thanks to David von Oheimb for providing the original 
 ;; patches for using X-Symbol with Isabelle Proof General, 
 ;; and helping to write this file.
 ;;
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; This file is standalone so that the X-Symbol mode for particular
+;; proof assistants may be used elsewhere (e.g. in document modes),
+;; without loading all of Proof General.
 ;;
 ;; proof-x-symbol.el,v 2.4 1999/08/23 18:38:40 da Exp
 ;;
