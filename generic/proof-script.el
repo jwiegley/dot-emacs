@@ -389,8 +389,17 @@ will become the current scripting buffer provided the current
 scripting buffer has either no locked region or everything in it has
 been processed.
 
+If we're changing scripting buffer and the old one is associated with
+a file, add it to proof-included-files-list.
+
 When a new script buffer has scripting minor mode turned on,
-the hooks `proof-activate-scripting-hook' are run."
+the hooks `proof-activate-scripting-hook' are run.  This can
+be a useful place to configure the proof assistant for
+scripting in a particular file, for example, loading the
+correct theory, or whatever.
+
+Finally, this may be a good time to ask if the user wants to save some
+buffers."
   (cond 
    ((not (eq proof-buffer-type 'script)) 
     (error "Must be running in a script buffer"))
@@ -445,7 +454,6 @@ the hooks `proof-activate-scripting-hook' are run."
 
     ;; This may be a good time to ask if the user wants to save some
     ;; buffers
-    ;; FIXME: no, move it elsewhere.
     (save-some-buffers))))
 
 

@@ -699,7 +699,7 @@ by setting proof-shell-delayed-output to a cons cell of
 (insert . txt) where TXT is the text to be inserted.
 
 To extend this function, set
-`proof-shell-process-output-system-specific'.
+proof-shell-process-output-system-specific.
 
 This function - it can return one of 4 things: 'error, 'interrupt,
 'loopback, or nil. 'loopback means this was output from pbp, and
