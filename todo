@@ -219,7 +219,11 @@ D Add support to proof.el for *not* setting variables for
   in Isabelle there is no such thing as killing a goal.
   For the minimum set of variables to cover, see FIXME's in isa.el
   (da, 1.5hrs)						   
-				    
+
+D proof-find-next-terminator is too slow when it needs to parse
+  a long buffer.   Generally a performance problem with
+  proof-segment-up-to.
+  				    
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
 
