@@ -1,37 +1,44 @@
 -*- outline -*-
 
-Summary of Changes for Proof General 3.1 from 3.0
-=================================================
+* Summary of Changes for Proof General 3.1 from 3.0
 
 
 ** Generic Changes
 
-* Fixes for supporting Japan versions of Emacs which have older CL macs
-with Japanicised documentation.  (Japan users, please report any other
-problems you find, they may be fixable for similar reasons).
+*** Fixes for supporting Japan versions of Emacs which have older CL macs.
+ 
+  CL macs with Japanicised documentation, defined in "egg.el".
+  Japanese Emacs users, please report any other problems you find, they 
+  may be fixable for similar reasons.
 
-* Minor bug fix for duplicated short output.
- (set proof-shell-eager-annotation-start-length appropriately)
+*** Minor bug fix for duplicated short output.
+  
+  Only seen with "val x=1" or similar messages.
+  We now set proof-shell-eager-annotation-start-length appropriately.
 
-* Bug fix with .thy files and X-Symbol mode: subsequently visited
- theory files would have X-Symbols broken.  
+*** Bug fix with .thy files and X-Symbol mode
+  
+  Subsequently visited theory files would have X-Symbols broken.  
 
-* Bug fix for (non-mule) FSF Emacs 20.5.  (Emacs would freeze when
-starting proof assistant due to character matching problem).
+*** Bug fix for (non-mule) FSF Emacs 20.5.  
 
-* Fix for infamous Solaris ^G problem, by setting
-process-connection-type=nil to force piped communication instead of
-ptys.  (This may have other side effects so please report any you
-suspect).
+  Emacs would freeze when starting proof assistant due to character 
+  matching problem.
 
+*** Fix for infamous Solaris ^G problem, now PG uses pipes
 
+  We now set process-connection-type=nil to force piped communication
+  instead of ptys.  However, ptys are to be prefered over pipes
+  because pipes can become full or lose data.  Please report any
+  problems of this nature you may suspect; if any are found we
+  will only use pipes for Solaris.
 
 ** Coq Changes
 
 
 ** LEGO Changes
 
-* Fix for error messages, now properly displays "cannot assume" message.
+*** Fix for error messages, now properly displays "cannot assume" message.
 
 
 ** Isabelle Changes
@@ -39,19 +46,25 @@ suspect).
 
 ** Isar Changes
 
-* Minor syntax tweaks.
+*** Minor syntax tweaks.
 
 
 
-** Only in the developers' release
+** New instantiations of Proof General for:
 
+*** Plastic (http://www.dur.ac.uk/CARG/plastic.html)
+  
+   by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
+   The Plastic system itself is not yet publicly available.
 
-* Provisional instantiation of Proof General for
-  Plastic (http://www.dur.ac.uk/CARG/plastic.html)
-  by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
+*** HOL 98 (http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html)
+
+   by David Aspinall.  This is a bare-bones Proof General instance
+   only, hopefully to entice HOL users so that someone may improve it.
+   See README in the hol98 directory for more details.
 
 
 ** Changes for developers to note
 
-* Added README.devel and todo files for individual provers.
+
 
