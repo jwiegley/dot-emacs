@@ -2023,7 +2023,6 @@ General.
 
 @node Coq-specific commands
 @section Coq-specific commands
-@kindex C-c C-s
 @kindex C-c I 
 @kindex C-c a
 @kindex C-c s
@@ -2035,9 +2034,6 @@ Coq Proof General supplies the following key-bindings:
 Inserts ``Intros '' into proof buffer.
 @item C-c a
 Inserts ``Apply '' into proof buffer.
-@item C-c C-s
-Runs Coq's search utility on a user-provided string, using
-the @code{Search} command of Coq.
 @item C-c s
 Inserts ``Section '' into proof buffer
 @item C-c e
@@ -2086,7 +2082,7 @@ recognize.
 
 @node Suggested Coq abbreviations
 @section Suggested Coq abbreviations
-@c could be generic
+@c FIXME: could make this generic
 
 Coq has many command strings that are long, such as ``Reflexivity,''
 ``Inductive,'' ``Definition'' and ``Discriminate.''  Although it is
