@@ -188,8 +188,9 @@ ISABELLE will always override this setting."
 (defun isa-tool-list-logics ()
   "Generate a list of available object logics."
   (if (isa-set-isatool-command)
-      (split-string (isa-shell-command-to-string
-		     (concat isa-isatool-command " findlogics")) "[ \t]")))
+      (delete "" (split-string 
+		  (isa-shell-command-to-string
+		   (concat isa-isatool-command " findlogics")) "[ \t]"))))
 
 (defun isa-view-doc (docname)
   "View Isabelle document DOCNAME, using Isabelle tools."
@@ -303,41 +304,68 @@ until Proof General is restarted."
   "Isabelle documentation menu.  Constructed when PG is loaded.")
 
 
+;; PG 3.5: logics menu is now refreshed automatically.  Rather
+;; a big effort for such a small effect.
 (defun isabelle-logics-menu-calculate ()
-  (cons "Logics" 
-	(cons
-	 ["Default" 
-	  (isabelle-choose-logic nil)
-	  :active (not (proof-shell-live-buffer))
-	  :style radio
-	  :selected (not isabelle-chosen-logic)]
-	 (mapcar (lambda (l) 
+  (setq isabelle-logics-menu-entries
+	(cons "Logics"
+	      (append
+	       '(["Default" 
+		  (isabelle-choose-logic nil)
+		  :active (not (proof-shell-live-buffer))
+		  :style radio
+		  :selected (not isabelle-chosen-logic)])
+	       (mapcar (lambda (l) 
 		   (vector l (list 'isabelle-choose-logic l)
 			   :active '(not (proof-shell-live-buffer))
 			   :style 'radio
 			   :selected (list 'equal 'isabelle-chosen-logic l)))
-		 (isa-tool-list-logics)))))
+		       isabelle-logics-available)))))
 
-;; Status: remove-menu-item seems broken??
+(defvar isabelle-time-to-refresh-logics t
+  "Non-nil if we should refresh the logics list")
+
 (defun isabelle-logics-menu-refresh ()
-  "Refresh isabelle-logics-menu."
+  "Refresh isabelle-logics-menu-entries, returning new entries."
   (interactive)
-  (if isabelle-refresh-logics
+  (if (and isabelle-refresh-logics
+	   (or isabelle-time-to-refresh-logics (interactive-p)))
       (progn
 	(setq isabelle-logics-available (isa-tool-list-logics))
-	(setq isabelle-logics-menu (isabelle-logics-menu-calculate))
-	;;(easy-menu-remove-item proof-assistant-menu
-	;;		       (list (car proof-assistant-menu))
-	;;		       "Logics")
-	(easy-menu-add-item 
-	 proof-assistant-menu 
-	 nil ;; NB: nil doesn't work: buggy or other reason?
-	 ;; Frustrating.  A workaround was found at great effort in
-	 ;; proof-menu.el for the favourites.
-	 isabelle-logics-menu))))
+	(isabelle-logics-menu-calculate)
+	(if proof-running-on-Emacs21 
+	    ;; update the menu manually
+	    (easy-menu-add-item proof-assistant-menu nil 
+				isabelle-logics-menu-entries))
+	(setq isabelle-time-to-refresh-logics nil) ;; just done it, don't repeat!
+	(run-with-timer 2 nil ;; short delay to avoid doing this too often
+			(lambda () (setq isabelle-time-to-refresh-logics t))))))
+
+;; Function for XEmacs only
+(defun isabelle-logics-menu-filter (&optional ignored)
+  (isabelle-logics-menu-refresh)
+  (cdr isabelle-logics-menu-entries))
+
+;; Functions for GNU Emacs only to update logics menu
+(if proof-running-on-Emacs21
+(defun isabelle-menu-bar-update-logics ()
+  ;; standard check we're being invoked
+  (and (current-local-map)
+       (keymapp (lookup-key (current-local-map) 
+ 			    (vector 'menu-bar (intern proof-assistant))))
+       (isabelle-logics-menu-refresh))))
+
+(if proof-running-on-Emacs21
+    (add-hook 'menu-bar-update-hook 'isabelle-menu-bar-update-logics))
 
 
-(defconst isabelle-logics-menu (isabelle-logics-menu-calculate)
+(defvar isabelle-logics-menu-entries (isabelle-logics-menu-calculate))
+
+(defvar isabelle-logics-menu 
+   (if proof-running-on-XEmacs
+       (cons (car isabelle-logics-menu-entries)
+	     (list :filter 'isabelle-logics-menu-filter)) ;; generates menu on click
+     isabelle-logics-menu-entries)
   "Isabelle logics menu.  Calculated when Proof General is loaded.")
 
 ;; Added in PG 3.4: load isar-keywords file.
