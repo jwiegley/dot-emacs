@@ -17,6 +17,11 @@ observe this, please submit a bug report with details of your system
 and any other information you think may be relevant.  Workaround:
 switch to using XEmacs.
 
+* Toolbar enablers for XEmacs 21: since these have been switched on,
+it is apparent that the recognition of completed proofs is unreliable.
+Please report cases where the buttons are enabled/disabled at the 
+wrong time.  
+
 * Ordinary undo in script buffer can edit the "uneditable region"
 in XEmacs.  This doesn't happen in FSFmacs.  Test case:
   Insert some nonsense text after the locked region.
