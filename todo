@@ -21,7 +21,10 @@ A* Fixup multiple files -- needs debugging.
       (partly fixed)
    2. Improve test for locked region being whole of buffer
       (probably fixed)
-   3. Management of proof-script-buffer-list maybe wrong.
+   3. Add save-some-buffers or similar to try to make sure that a
+      modified buffer is saved before it can be read to the prover.  
+      If a buffer is put onto the proof-included-files-list when it is
+      modified, we should warn the user about possible inconsistency.  
 
    (3hrs)
 
