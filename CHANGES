@@ -4,7 +4,42 @@
 
 ** Generic Changes
 
+*** Addition of visibility control for completed proofs
+
+     You can make proofs invisible using a context sensitive menu
+     (right button on a completed proof), or as soon as they are
+     completed with the "Options -> Disappearing Proofs" option.
+     To reveal all proofs again, use the "Make proofs visible"
+     command.
+
+     [ in progress, feedback welcome ]
+
+*** Command to insert last output as comment in proof script.
+
+     Sometimes it is useful to paste some of the output from
+     goals or response buffer into the proof script.  A new
+     function `pg-insert-last-output-as-comment' (C-c C-;)
+     inserts the last output and converts it into a comment
+     using `comment-region'.
+
 ** Coq Changes
+
+     Compatibility for V7 added.
+
+     Experimental enhancements to handling of compiled files and 
+     file dependency:
+
+     1) At the end of scripting foo.v (i.e. when activing scripting is
+     switched off), "Reset Initial. Compile Module <foo>" is
+     automatically issued. This clears the context and writes a .vo file,
+     to keep your .vo files up to date. It means that when using PG Coq, 
+     you should use the correct commands ("Require foo.") to load all
+     the modules you depend on, so that scripting can continue in the
+     next file.
+
+     2)
+     
+
 
 ** LEGO Changes
 
@@ -16,3 +51,7 @@
 
 ** Changes for developers to note
 
+*** proof-shell-process-output now sets proof-shell-last-output and
+    proof-shell-last-output-kind which gives clearer interface internally
+    and with rest of code.   See docs.
+  
