@@ -34,17 +34,8 @@
   "An indication in the modeline that this is the *active* script buffer")
 
 (defvar proof-last-theorem-dependencies nil
-  "Contains the dependencies of the last theorem 
+  "Contains the dependencies of the last theorem.  A list of strings.
 Set in proof-shell-process-urgent-message.")
-
-;; FIXME da: is this Isabelle specific?
-(defvar thy-mode-deps-menu nil
-  "Contains the dependence menu for thy mode")
-
-(defvar proof-thm-names-of-files nil
-  "Names of files.
-A list of lists; the first element of each list is a file-name, the
-second element a list of all the thm names in that file")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -496,11 +487,12 @@ Names must be unique for a given "
   (interactive)
   (pg-show-all-portions "proof" 'hide))
 
-(defun pg-add-proof-element (name span)
+(defun pg-add-proof-element (name span controlspan)
   (pg-add-element "proof" name span)
   (set-span-property span 'name name)
   (set-span-property span 'type 'proof)
   (set-span-property span 'idiom 'proof)
+  (set-span-property span 'controlspan controlspan)
   ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
   (if proof-disappearing-proofs 
       (pg-make-element-invisible "proof" name)))
@@ -1143,8 +1135,11 @@ the ACS is marked in the current buffer. If CMD does not match any,
     (cond
      ;; CASE 1: Comments just get highlighted
      ((eq (span-property span 'type) 'comment)
-      (set-span-property span 'mouse-face 'highlight))
-     
+      (set-span-property span 'mouse-face 'proof-mouse-highlight-face))
+      ;; Testing for 3.4:
+      ;; (pg-add-element "comment" "everycomment" span)
+      ;; (set-span-property span 'keymap pg-span-context-menu-keymap))
+      
      ;; CASE 2: Save command seen, now we'll amalgamate spans.
      ((and proof-save-command-regexp
 	   (proof-string-match proof-save-command-regexp cmd)
@@ -1218,7 +1213,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; Now make the new goal-save span
 	(setq goalend (span-end gspan))
 	(set-span-end gspan end)
-	(set-span-property gspan 'mouse-face 'highlight)
+	(set-span-property gspan 'mouse-face 'proof-mouse-highlight-face)
 	(set-span-property gspan 'type 'goalsave)
 	(set-span-property gspan 'idiom 'proof);; links to nested proof element
 	(set-span-property gspan 'name nam)
@@ -1228,55 +1223,14 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; making invisible.
 	(let ((proofbodyspan
 	       (make-span goalend (if proof-script-integral-proofs saveend savestart))))
-	  (pg-add-proof-element nam proofbodyspan))
+	  (pg-add-proof-element nam proofbodyspan gspan))
 
 	;; Set the context sensitive menu/keys
 	(set-span-property gspan 'keymap pg-span-context-menu-keymap)
 	
 	;; *** Theorem dependencies ***
-	;; Dependencies returns a list of strings, each string being
-	;; the name of a dependency of that span 
-	;; depcs-within-file returns the names of all the theorems that
-	;; the span depends on which are in the same file as the theorem.
-	;; See proof-depends.el for code.
 	(if proof-last-theorem-dependencies
-	    (progn 
-	      (if (boundp 'proof-deps-menu) 
-		  (easy-menu-remove proof-deps-menu))
-	      (set-span-property gspan 'dependencies 
-				 proof-last-theorem-dependencies)
-	      (if buffer-file-name
-		  (let* 
-		      ((buffer-file-name-sans-path
-			(car (last (split-string buffer-file-name "/"))))
-		       (buffer-file-name-sans-extension
-			(car (split-string buffer-file-name-sans-path "\\.")))
-		       (depcs-within-file-list 
-			(proof-dependencies-within-file-list 
-			 proof-last-theorem-dependencies 
-			 buffer-file-name-sans-extension)))
-		    (set-span-property gspan 'dependencies-within-file
-				       depcs-within-file-list)
-		    (proof-update-dependents depcs-within-file-list 
-				       buffer-file-name-sans-path 
-				       buffer-file-name-sans-extension 
-				       (span-property gspan 'name))
-		    (proof-menu-define-deps buffer-file-name-sans-path)
-		    (easy-menu-add proof-deps-menu proof-mode-map)
-		    ;; FIXME: this is Isabelle specific, needs moving out
-		    (let ((thy-file (concat 
-				     buffer-file-name-sans-extension ".thy")))
-		      (find-file-noselect thy-file)
-		      (save-excursion
-			(set-buffer thy-file)
-			(thy-add-menus buffer-file-name-sans-path)))))
-	      ;; da: this code was outside if, I've put it inside now
-	      (setq proof-last-theorem-dependencies nil)
-	      (setq proof-thm-names-of-files 
-		    (proof-merge-names-list-it 
-		     (span-property gspan 'name) 
-		     (buffer-name (span-object gspan)) 
-		     proof-thm-names-of-files))))
+	    (proof-depends-process-dependencies nam gspan))
 
 	;; In Coq, we have the invariant that if we've done a save and
 	;; there's a top-level declaration then it must be the
@@ -1363,12 +1317,12 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  ;; Don't bother with Coq's lift global stuff, we assume this
 	  ;; case is only good for non-nested goals.
 	  (set-span-end gspan newend)
-	  (set-span-property gspan 'mouse-face 'highlight)
+	  (set-span-property gspan 'mouse-face 'proof-mouse-highlight-face)
 	  (set-span-property gspan 'type 'goalsave)
 	  (set-span-property gspan 'name nam))
 	;; Finally, do the usual thing with highlighting for the span.
 	(unless swallow
-	  (set-span-property span 'mouse-face 'highlight))))
+	  (set-span-property span 'mouse-face 'proof-mouse-highlight-face))))
 
 
      ;; "ACS" for possible future implementation
@@ -1378,7 +1332,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
      (t
       (if proof-shell-proof-completed
 	  (incf proof-shell-proof-completed))
-      (set-span-property span 'mouse-face 'highlight)
+      (set-span-property span 'mouse-face 'proof-mouse-highlight-face)
       (and proof-global-p 
 	   (funcall proof-global-p cmd)
 	   proof-lift-global
