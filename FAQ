@@ -10,8 +10,8 @@ Please also check the BUGS file.
 
 Q. Emacs appears to hang when the prover process is started.
 
-A. Perhaps this because of UTF-8 in recent linuxes with glibc 2.2 or later
-   (e.g in Red Hat 8.0, 9, Fedora Core 1,2, Suse 9.1, ...)
+A. This is caused by UTF-8 support in recent linuxes with glibc 2.2 or later
+   (e.g in Red Hat 8.0, 9, Fedora Core 1,2,3, Suse 9.1, ...)
 
    Glibc 2.2 and later may be enabled with UTF8 encoded output in your
    default locale.  Unfortunately Proof General relies on 8-bit
@@ -32,7 +32,8 @@ A. Perhaps this because of UTF-8 in recent linuxes with glibc 2.2 or later
    the string UTF in the current value of LC_CTYPE.
 
    Alternatively you can set LC_CTYPE inside a file ~/.i18n, which will
-   be read the shell.  This will affect all applications, though.
+   be read the shell.  Put a line such as "LC_CTYPE=en_GB" into this file.
+   However, this action will affect all applications.
    [ suggestions for a better workaround inside Emacs would be welcome ]
 
    NB: a related issue is warnings from x-symbol: "Emacs language 
