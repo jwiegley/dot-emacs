@@ -319,7 +319,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; "Case" is represented by 'c' on the stack, and
-;; "CoInductive is represented by 'C'.
+;; "CoInductive" is represented by 'C'.
 (defun coq-stack-to-indent (stack)
   (cond
    ((null stack) 0)
