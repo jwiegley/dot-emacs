@@ -68,43 +68,23 @@
 "Focus"
 ))
 
-
-(defvar coq-keywords-not-undoable-commands
+(defvar coq-keywords-not-undoable-not-backable-commands
   '(
 "(*" ;;Pierre comments must not be undone
 "Add\\s-+LoadPath"
 "Add\\s-+Rec\\s-+LoadPath"
 "Add\\s-+ML\\s-+Path"
 "AddPath"
-"Begin\\s-+Silent"
 "Cd"
 "Check"
-"Class"
-"Coercion"
 "DelPath"
 "End"
 "End\\s-+Silent"
 "Eval"
 "Extraction"
-;; moving this to coq-keywords-undoable-commands
-;;"Focus"
-"Grammar"
-"Hints\\s-+Resolve"
-"Hints\\s-+Immediate"
-"Hints\\s-+Unfold"
-"HintRewrite"
-"Hint"
-"Infix"
-"Initialize"
-"Implicits";; undoable??
-"Implicit\\s-+Arguments\\s-+On"
-"Implicit\\s-+Arguments\\s-+Off"
-"Load"
-"Local\\s-+Coercion"
 "Locate\\s-+File"
 "Locate\\s-+Library"
 "Locate"
-"Opaque"
 "Print\\s-+Classes"
 "Print\\s-+Coercions"
 "Print\\s-+Graph"
@@ -117,25 +97,54 @@
 "Print"
 "Proof"
 "Pwd"
-"Require\\s-+Export"
-"Require\\s-+Import"
-"Require"
 "Reset"
 "Search"
 "SearchIsos"
 "SearchPattern"
 "SearchRewrite"
-;; da: testing moving this 
-;; "Section"
 "Show\\s-+Programs"
 "Show\\s-+Proof"
 "Show\\s-+Script"
 "Show"
+	 )
+)
+
+
+
+
+
+
+
+(defvar coq-keywords-backable-commands
+  '(
+"Begin\\s-+Silent"
+"Class"
+"Coercion"
+"Grammar"
+"Hints\\s-+Resolve"
+"Hints\\s-+Immediate"
+"Hints\\s-+Unfold"
+"HintRewrite"
+"Hint"
+"Implicits";; undoable??
+"Implicit\\s-+Arguments\\s-+On"
+"Implicit\\s-+Arguments\\s-+Off"
+"Infix"
+"Initialize" ;; What is that ??
+"Load"
+"Local\\s-+Coercion"
+"Opaque"
+"Require\\s-+Export"
+"Require\\s-+Import"
+"Require"
 "Syntax"
-;;Pierre: moving this to coq-keywords-decl
-;;"Tactic\\s-+Definition"
 "Transparent"
-))
+	 )
+)
+
+(defvar coq-keywords-not-undoable-commands
+  (append coq-keywords-backable-commands coq-keywords-not-undoable-not-backable-commands)
+)
 
 
 (defvar coq-keywords-commands

@@ -115,10 +115,13 @@
 
 (defconst coq-kill-goal-command "Abort.")
 (defconst coq-forget-id-command "Reset %s.")
+(defconst coq-back-n-command "Back %s. ") ; Pierre: added 
 
 (defconst coq-undoable-commands-regexp (proof-ids-to-regexp (append coq-tactics coq-keywords-undoable-commands)))
 
 (defconst coq-not-undoable-commands-regexp (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-not-undoable-commands)))
+
+(defconst coq-backable-commands-regexp (proof-ids-to-regexp coq-keywords-backable-commands))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
@@ -200,7 +203,7 @@
 ;; TODO : add the stuff to handle the "Correctness" command
 
 (defun coq-find-and-forget (span)
-  (let (str ans)
+  (let (str ans (nbacks 0) answers) 
     (while (and span (not ans))
       (setq str (span-property span 'cmd))
       (cond
@@ -237,11 +240,26 @@
        ((and (not (coq-goal-command-p str))
 	     (proof-string-match
 	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
-	(setq ans (format coq-forget-id-command (match-string 2 str)))))
+	(setq ans (format coq-forget-id-command (match-string 2 str))))
+
+		 ; Pierre: added may 29
+		 ((proof-string-match 
+			(concat "\\`\\(" coq-backable-commands-regexp	"\\)") str)
+		  (setq nbacks (+ nbacks 1)))
+		 )
 
       (setq span (next-span span 'type)))
 
-      (or ans proof-no-command)))
+	 (if (= nbacks 0) () 
+		(setq answers (cons (concat " Back " (int-to-string nbacks) ". ") nil)))
+	 (if ans (setq answers (cons ans answers)))
+	 (if (null answers) proof-no-command (apply 'concat answers))
+  ))
+
+;  (or ans proof-no-command)
+
+  
+  
 
 (defvar coq-current-goal 1
   "Last goal that emacs looked at.")
