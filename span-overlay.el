@@ -1,4 +1,20 @@
-;;; This file implements spans in terms of overlays, for emacs19.
+;;; This file implements spans in terms of extents, for xemacs.
+;;; Copyright (C) 1998 LFCS Edinburgh
+;;; Author: Healfdene Goguen
+
+;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+
+;; $Log$
+;; Revision 1.2  1998/05/19 15:31:37  hhg
+;; Added header and log message.
+;; Fixed set-span-endpoints so it preserves invariant.
+;; Changed add-span and remove-span so that they update last-span
+;; correctly themselves, and don't take last-span as an argument.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;               Bridging the emacs19/xemacs gulf                   ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; last-span represents a linked list of spans for each buffer.
 ;; It has the invariant of being ordered wrt the starting point of
@@ -16,31 +32,24 @@
 (defsubst span-end (span)
   (overlay-end span))
 
-(defun add-span (span l)
+(defun add-span-aux (span l)
   (cond (l (if (or (not (span-start l))
 		   (and (span-start span)
 			(< (span-start span) (span-start l))))
 	       (progn
 		 (overlay-put l 'before
-			      (add-span span (overlay-get l 'before)))
+			      (add-span-aux span (overlay-get l 'before)))
 		 l)
 	     (overlay-put span 'before l)
 	     span))
 	(t span)))
 
-(defsubst make-span (start end)
-  (let ((new-span (make-overlay start end)))
-    (setq last-span (add-span new-span last-span))
-    new-span))
+(defun add-span (span)
+  (setq last-span (add-span-aux span last-span))
+  span)
 
-(defsubst set-span-endpoints (span start end)
-  (move-overlay span start end))
-
-(defsubst set-span-start (span value)
-  (set-span-endpoints span value (span-end span)))
-
-(defsubst set-span-end (span value)
-  (set-span-endpoints span (span-start span) value))
+(defun make-span (start end)
+  (add-span (make-overlay start end)))
 
 (defsubst span-property (span name)
   (overlay-get span name))
@@ -50,23 +59,41 @@
 
 ;; relies on only being called from detach-span or delete-span, and so
 ;; resets value of last-span
-(defun remove-span (span l)
-  (cond ((not l) ())
-	((eq span l) (setq last-span (span-property l 'before)))
+(defun remove-span-aux (span l)
+  (cond ((not l) (error "Bug: removing span from empty list"))
 	((eq span (span-property l 'before))
 	 (set-span-property l 'before (span-property span 'before))
 	 l)
-	(t (remove-span span (span-property l 'before)))))
+	(t (remove-span-aux span (span-property l 'before)))))
+
+(defun remove-span (span)
+  (cond ((not last-span) (error "Bug: empty span list"))
+	((eq span last-span)
+	 (setq last-span (span-property last-span 'before)))
+	(t (remove-span-aux span last-span))))
 
 (defsubst detach-span (span)
-  (remove-span span last-span)
+  (remove-span span)
   (cond (running-emacs19 (delete-overlay span))
 	(running-xemacs (detach-extent span)))
-  (add-span span last-span))
+  (add-span span))
 
 (defsubst delete-span (span)
-  (remove-span span last-span)
+  (remove-span span)
   (delete-overlay span))
+
+;; The next two change ordering of list of spans:
+(defsubst set-span-endpoints (span start end)
+  (remove-span span)
+  (move-overlay span start end)
+  (add-span span))
+
+(defsubst set-span-start (span value)
+  (set-span-endpoints span value (span-end span)))
+
+;; This doesn't affect invariant:
+(defsubst set-span-end (span value)
+  (set-span-endpoints span (span-start span) value))
 
 (defun spans-at (start end)
   (let ((overlays nil) (pos start) (os nil))
