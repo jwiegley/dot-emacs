@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.29  1997/11/18 19:24:55  djs
+;; Added indentation for lego-mode.
+;;
 ;; Revision 1.28  1997/11/17 17:11:17  djs
 ;; Added some magic commands: proof-frob-locked-end, proof-try-command,
 ;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
@@ -398,6 +401,102 @@
   (insert "Refine "))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Lego Indentation                                               ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; This is quite different from sml-mode, but borrows some bits of
+;; code.  It's quite a lot less general, but works with nested
+;; comments.
+
+;; proof-parse-to-point:
+;; If from is nil, parsing starts from locked-end. Otherwise state
+;; must contain a valid triple.
+
+(defun lego-parse-to-point (&optional from state)
+  (let ((comment-level 0) (stack (list (list nil 0)))
+	(end (point)) instring c)
+    (save-excursion
+      (if (null from)
+	  (proof-goto-end-of-locked)
+	(goto-char from)
+	(setq instring (car state)
+	      comment-level (nth 1 state)
+	      stack (nth 2 state)))
+      (while (< (point) end)
+	(setq c (char-after (point)))
+	(cond 
+	 (instring 
+	  (if (eq c ?\") (setq instring nil)))
+	 (t (cond
+	     ((eq c ?\()
+	      (if (looking-at "(\\*") (progn 
+					(incf comment-level)
+					(forward-char))
+		(if (>= 0 comment-level) 
+		    (setq stack (cons (list c (point)) stack)))))
+	     ((eq c ?\*)
+	      (if (looking-at "\\*)") (progn
+					(decf comment-level)
+					(forward-char))))
+	     ((> comment-level 0))
+	     ((eq c ?\") (setq instring t))
+	     ((or (eq c ?\{) (eq c ?\[))
+	      (setq stack (cons (list c (point)) stack)))
+	     ((or (eq c ?\)) (eq c ?\}) (eq c ?\]))
+	      (setq stack (cdr stack))))))
+	(forward-char))
+    (list instring comment-level stack))))
+      
+(defun lego-stack-to-indent (stack)
+  (cond
+   ((null stack) 0)
+   ((null (car (car stack)))
+    (nth 1 (car stack)))
+   (t (save-excursion
+	(goto-char (nth 1 (car stack)))
+	(1+ (current-column))))))
+
+(defun lego-indent-line ()
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (if (< (point) (proof-locked-end))
+	(error "can't indent locked region!"))
+    (let* ((state (lego-parse-to-point))
+	   (beg (point))
+	   (indent (cond ((car state) 1)
+			 ((> (nth 1 state) 0) 1)
+			 (t (lego-stack-to-indent (nth 2 state))))))
+      (skip-chars-forward "\t ")
+      (delete-region beg (point))
+      (indent-to indent)))
+  (if (< (current-column) (current-indentation))
+      (skip-chars-forward "\t ")))
+
+(defun lego-indent-region (start end)
+  (interactive "r")
+  (save-excursion
+    (goto-char start)
+    (beginning-of-line)
+    (if (< (point) (proof-locked-end))
+	(error "can't indent locked region!"))
+    (let* ((beg (point))
+	   (state (lego-parse-to-point))
+	   indent)
+      (while (<= (point) end)
+	(setq indent (cond ((car state) 1)
+			   ((> (nth 1 state) 0) 1)
+			   (t (lego-stack-to-indent (nth 2 state)))))	
+	(skip-chars-forward "\t ")
+	(delete-region beg (point))
+	(indent-to indent)
+	(end-of-line)
+	(if (< (point) (point-max)) (forward-char))
+	(setq state (lego-parse-to-point beg state)
+	      beg (point))))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Lego shell startup and exit hooks                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -458,16 +557,17 @@
 
   (proof-config-done)
 
-  (define-key (current-local-map) "\M-\C-i"
+  (define-key (current-local-map) [(meta (control i))]
     (if (fboundp 'complete-tag)
 	'complete-tag		; Emacs 19.31 (superior etags)
       'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
-  (define-key (current-local-map) "\C-c\C-p" 'lego-prf)
-  (define-key (current-local-map) "\C-cc"    'lego-ctxt)
-  (define-key (current-local-map) "\C-ch"    'lego-help)
-  (define-key (current-local-map) "\C-ci"    'lego-intros)
-  (define-key (current-local-map) "\C-cI"    'lego-Intros)
-  (define-key (current-local-map) "\C-cr"    'lego-Refine)
+  (define-key (current-local-map) [(control c) (control p)] 'lego-prf)
+  (define-key (current-local-map) [(control c) c] 'lego-ctxt)
+  (define-key (current-local-map) [(control c) h] 'lego-help)
+  (define-key (current-local-map) [(control c) i] 'lego-intros)
+  (define-key (current-local-map) [(control c) I] 'lego-Intros)
+  (define-key (current-local-map) [(control c) r] 'lego-Refine)
+  (define-key (current-local-map) [tab]      'lego-indent-line)
 
 ;; outline
   

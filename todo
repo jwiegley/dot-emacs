@@ -18,7 +18,7 @@ This is a list of things which need doing to the lego mode.
   require some work.
 
 * Indentation - LEGO should indent only with brackets; Coq for Inductive
-  definitions and 'case' constructs also.
+  definitions and 'case' constructs also. LEGO NOW DONE.
 
 * file handling could be more robust
 
