@@ -1,3 +1,52 @@
+2000-12-07  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2000-12-06  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* generic/proof-script.el:
+	fixed format strings for (message ...);
+
+	* isar/isar-syntax.el:
+	tuned font-lock-keywords;
+
+2000-12-01  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/isabelle-system.el:
+	isabelle-command-line: getenv "ISABELLE_OPTIONS";
+
+	* isar/interface, isa/interface:
+	added -m option;
+
+2000-12-01  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/sym-lock.el, phox/phox-outline.el, phox/phox-tags.el, phox/phox-font.el, phox/phox-fun.el, phox/example.af2, phox/README, af2/sym-lock.el, af2/phox.el, af2/phox-tags.el, af2/phox-outline.el, af2/phox-font.el, af2/phox-fun.el, af2/example.af2, af2/README, README, generic/proof-site.el, af2/af2.el, af2/af2-outline.el, af2/af2-tags.el, af2/af2-fun.el, af2/af2-font.el:
+	af2 is now called PhoX
+
+2000-12-01  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec:
+	Change info globs to work with mandrake
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* doc/ProofGeneral.texi, doc/PG-adapting.texi:
+	3.2 -> 3.3pre
+
+2000-12-01  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* af2/af2-font.el, af2/af2-fun.el:
+	add rewrite list
+
+	* af2/af2.el, af2/af2-font.el, af2/af2-fun.el:
+	*** empty log message ***
+
 2000-12-01  David Aspinall  <da@proofgeneral.org>
 
 	* ChangeLog: Updated.
