@@ -4,16 +4,15 @@
 ;; Author:    David Aspinall <da@dcs.ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; The X-Symbol package is currently available at
-;; http://x-symbol.sourceforge.net/
+;; The X-Symbol package is at http://x-symbol.sourceforge.net/
 ;;
-;; With thanks to David von Oheimb for providing the original 
-;; patches for using X-Symbol with Isabelle Proof General, 
-;; and helping to write this file.
+;; With enormous thanks to David von Oheimb for providing the original
+;; patches for using X-Symbol with Isabelle Proof General, and helping
+;; to write this file.
 ;;
-;; This file is standalone so that the X-Symbol mode for particular
-;; proof assistants may be used elsewhere (e.g. in document modes),
-;; without loading all of Proof General.
+;; Ideally this file ought to be standalone so that the X-Symbol mode
+;; for particular proof assistants may be used elsewhere (e.g. in
+;; document modes), without loading all of Proof General.
 ;;
 ;; proof-x-symbol.el,v 2.4 1999/08/23 18:38:40 da Exp
 ;;
