@@ -8,6 +8,16 @@
 @paragraphindent 0
 @c %**end of header
 
+@ignore
+@ifinfo
+@format
+START-INFO-DIR-ENTRY
+* ProofGeneral::Organize your proofs with Emacs!
+END-INFO-DIR-ENTRY
+@end format
+@end ifinfo
+@end ignore
+
 @setchapternewpage odd
 
 @titlepage
