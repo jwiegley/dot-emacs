@@ -1,0 +1,32 @@
+Some test cases for Proof General.
+==================================
+
+8.12.98  INHIBIT VARIABLES
+==========================
+
+  Test with proof-splash-inhibit=t
+
+  Test with proof-toolbar-inhibit=t
+  
+
+8.12.98  SCRIPTING FOR BUFFERS WITHOUT FILES.
+=============================================
+
+  Switch to a fresh buffer FOO which doesn't visit a file.
+  Do  M-x isa-mode RET.
+  Should succeed.
+  Try asserting commands, e.g. Goal "P-->P";
+
+  Switch to another fresh buffer BAR, turn on isa-mode.
+  Should succeed again.
+  Try asserting commands here, e.g. Goal "Q&Q --> Q";
+  Should give error "Cannot have more than one active scripting buffer".
+
+  Exit emacs.  Should query whether we want to save these
+  scripting buffers (maybe XEmacs only).
+
+  
+
+    
+  
+
