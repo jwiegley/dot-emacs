@@ -105,7 +105,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998,9 Proof General team, LFCS Edinburgh.
 
 
 @c
@@ -209,9 +209,14 @@ for x-symbol support.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
 Goguen and Aspinall (in order of appearance). It follows some of the
-ideas used in Project @uref{http://www.inria.fr/croap/,CROAP}. The Proof
-General project was initiated in 1994 and coordinated until October 1998
-by Thomas Kleymann. Since October 1998, David Aspinall is in charge of
+ideas used in Project @uref{http://www.inria.fr/croap/,CROAP}. The
+project to implement a proof mode for LEGO was initiated in 1994 and
+coordinated until October 1998 by Thomas Kleymann. Since October 1998,
+
+Proof
+General project was 
+
+David Aspinall is in charge of
 Proof General.
 
 An early version of this manual was prepared by Dilip.  The present
@@ -540,7 +545,7 @@ All features of Proof General are supported except multiple files.
 For more details @xref{Coq Proof General}.
 
 @item 
-@b{Isabelle Proof General} for Isabelle 99@*
+@b{Isabelle Proof General} for Isabelle99@*
 @c written by David Aspinall.
 All features of Proof General are supported, except for an external tags
 program.  Isabelle Proof General handles theory files as well as ML
@@ -2424,7 +2429,7 @@ completely unlocked, because they are processed atomically.
 
 Proof General attempts to load the theory file for a @file{.ML} file
 automatically before you start scripting.  This relies on new support
-built especially for Proof General into Isabelle 99's theory loader.
+built especially for Proof General into Isabelle99's theory loader.
 
 However, because scripting cannot begin until the theory is loaded, and
 it should not begin if an error occurs during loading the theory, Proof
