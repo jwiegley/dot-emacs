@@ -54,7 +54,7 @@ EMACS = xemacs -batch
 	$(TEXI2PDF) $< 
 
 .dvi.ps:
-	$(DVI2PS) $< 
+	$(DVI2PS) $< -o $*.ps
 
 .texi.html:	
 	$(TEXI2HTML) -split_chapter $< 
