@@ -1,3 +1,77 @@
+2003-03-05  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* isa/x-symbol-isabelle.el:
+	Tweaks to auto-style; remove x-symbol-set-cache-variable because breaks compile
+
+	* isa/isabelle-system.el:
+	Add function to parse consts part of syntax output
+
+	* Makefile:
+	clean does distclean for x-symbol
+
+	* generic/proof-utils.el:
+	Make sure selected window never changes
+
+2003-03-03  David Aspinall  <da@proofgeneral.org>
+
+	* README: Updated.
+
+	* CHANGES:
+	Remove newlines patch for Coq
+
+	* ChangeLog: Updated.
+
+	* Makefile:
+	Add mmm.  Ignore byte compile errors
+
+	* Makefile.devel, CHANGES:
+	Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-script.el:
+	Fix sticky mode properties for X-Symbol
+
+	* x-symbol/README.x-symbol-for-ProofGeneral:
+	Updated.
+
+	* x-symbol/lisp/makefile.pkg, x-symbol/lisp/Makefile:
+	New files.
+
+	* x-symbol/man/.ispell_xsymb:
+	Deleted file
+
+	* doc/ProofGeneral.texi:
+	Note about M-x x-symbol-mode
+
+	* Makefile.devel:
+	Add distcompile target
+
+	* isa/x-symbol-isabelle.el:
+	Improved version from Gerwin Klein/Christoph Wedler; simplified auto-mode-style setting.
+
+	* generic/proof-x-symbol.el:
+	Fix sticky mode properties for X-Symbol
+
+	* CHANGES, x-symbol/README.x-symbol-for-ProofGeneral:
+	Updated.
+
+	* x-symbol/README, x-symbol/man/x-symbol.texi-exp, x-symbol/man/x-symbol.texi.2, x-symbol/lisp/x-symbol-site.el, x-symbol/lisp/x-symbol-myuc.el:
+	Deleted file
+
+	* x-symbol/fonts/xsymb1_12.bdf, x-symbol/fonts/xsymb1_14.bdf, x-symbol/fonts/nilxs.bdf, x-symbol/fonts/xsymb0_12.bdf, x-symbol/fonts/xsymb0_14.bdf, x-symbol/fonts/heriR18.bdf, x-symbol/fonts/heriR24.bdf, x-symbol/fonts/makesub, x-symbol/fonts/heriR10.bdf, x-symbol/fonts/heriR12.bdf, x-symbol/fonts/heriR14.bdf, x-symbol/fonts/5etl24.bdf, x-symbol/fonts/heriR08.bdf, x-symbol/fonts/Makefile, x-symbol/fonts/3helvR24.bdf, x-symbol/fonts/5etl14.bdf, x-symbol/fonts/5etl16.bdf, x-symbol/fonts/3helvR12.bdf, x-symbol/fonts/3helvR14.bdf, x-symbol/fonts/3helvR18.bdf, x-symbol/fonts/2helvR24.bdf, x-symbol/fonts/3helvR08.bdf, x-symbol/fonts/3helvR10.bdf, x-symbol/fonts/2helvR12.bdf, x-symbol/fonts/2helvR14.bdf, x-symbol/fonts/2helvR18.bdf, x-symbol/fonts/2helvR08.bdf, x-symbol/fonts/2helvR10.bdf:
+	Delete
+
+	* x-symbol/etc/stopsign.xbm, x-symbol/etc/splat.xbm, x-symbol/etc/scroll2.xbm, x-symbol/etc/rgb.txt, x-symbol/etc/filing.xbm, x-symbol/etc/colormap66.xpm, x-symbol/etc/abacus.xbm:
+	Deleted file
+
+	* x-symbol/README.x-symbol-for-ProofGeneral:
+	Updated.
+
 2003-03-03  David Aspinall  <da@proofgeneral.org>
 
 	* Makefile:
