@@ -688,6 +688,43 @@ If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
+(defconst proof-toolbar-entries-default
+  `((state	"Display proof state" "Display the current proof state" t)
+    (context	"Display context"     "Display the current context" t)
+    (goal	"Start a new proof"   "Start a new proof" t)
+    (retract	"Retract buffer"      "Retract (undo) whole buffer" t)
+    (undo	"Undo step"           "Undo the previous proof command" t)
+    (delete	"Delete step"         nil t)
+    (next	"Next step"           "Process the next proof command" t)
+    (use	"Use buffer"  	      "Process whole buffer" t)
+    (goto	"Goto point"	      "Process or undo to the cursor position" t)
+    (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
+    (qed	"Finish proof"        "Close/save proved theorem" t)
+    (lockedend  "Locked end"	      nil t)
+    (find	"Find theorems"	      "Find theorems" t)
+    (command    "Issue command"	      "Issue a non-scripting command" t)
+    (interrupt  "Interrupt prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
+    (info	nil		      "Show online proof assistant information" t)
+    (help	nil		      "Proof General manual" t))
+"Example value for proof-toolbar-entries.  Also used to define Scripting menu.
+This gives a bare toolbar that works for any prover, providing the
+appropriate configuration variables are set.
+To add/remove prover specific buttons, adjust the `<PA>-toolbar-entries' 
+variable, and follow the pattern in `proof-toolbar.el' for 
+defining functions, images.")
+
+(defpgcustom toolbar-entries proof-toolbar-entries-default
+  "List of entries for Proof General toolbar and Scripting menu.
+Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
+For each TOKEN, we expect an icon with base filename TOKEN,
+		          a function proof-toolbar-<TOKEN>,
+         and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.
+If MENUNAME is nil, item will not appear on the scripting menu.
+If TOOLTIP is nil, item will not appear on the toolbar.
+
+The default value is `proof-toolbar-entries-default' which contains
+the standard Proof General buttons.")
+
 (defcustom proof-assistant-true-value "true"
   "String for true values in proof assistant, used for setting flags.
 Default is the string \"true\"."
@@ -723,45 +760,6 @@ function  is applied as a final step to do any extra markup, or
 conversion, etc.  (No changes are done if nil)."
   :type '(choice string nil)
   :group 'prover-config)
-
-(defconst proof-toolbar-entries-default
-  `((state	"Display proof state" "Display the current proof state" t)
-    (context	"Display context"     "Display the current context" t)
-    (goal	"Start a new proof"   "Start a new proof" t)
-    (retract	"Retract buffer"      "Retract (undo) whole buffer" t)
-    (undo	"Undo step"           "Undo the previous proof command" t)
-    (delete	"Delete step"         nil t)
-    (next	"Next step"           "Process the next proof command" t)
-    (use	"Use buffer"  	      "Process whole buffer" t)
-    (goto	"Goto point"	      "Process or undo to the cursor position" t)
-    (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
-    (qed	"Finish proof"        "Close/save proved theorem" t)
-    (lockedend  "Locked end"	      nil t)
-    (find	"Find theorems"	      "Find theorems" t)
-    (command    "Issue command"	      "Issue a non-scripting command" t)
-    (interrupt  "Interrupt prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
-    (info	nil		      "Show online proof assistant information" t)
-    (help	nil		      "Proof General manual" t))
-"Example value for proof-toolbar-entries.  Also used to define Scripting menu.
-This gives a bare toolbar that works for any prover, providing the
-appropriate configuration variables are set.
-To add/remove prover specific buttons, adjust the `<PA>-toolbar-entries' 
-variable, and follow the pattern in `proof-toolbar.el' for 
-defining functions, images.")
-
-
-(defpgcustom toolbar-entries proof-toolbar-entries-default
-  "List of entries for Proof General toolbar and Scripting menu.
-Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
-For each TOKEN, we expect an icon with base filename TOKEN,
-		          a function proof-toolbar-<TOKEN>,
-         and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.
-If MENUNAME is nil, item will not appear on the scripting menu.
-If TOOLTIP is nil, item will not appear on the toolbar.
-
-The default value is `proof-toolbar-entries-default' which contains
-the standard Proof General buttons.")
-
 
 
 
