@@ -662,7 +662,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
      ((eq (span-property span 'type) 'comment)
       (set-span-property span 'mouse-face 'highlight))
      ((proof-check-atomic-sequents-lists span cmd end))
-     ((proof-string-match proof-save-command-regexp cmd)
+     ((and (proof-string-match proof-save-command-regexp cmd)
+	   (funcall proof-really-save-command-p span cmd))
       ;; In coq, we have the invariant that if we've done a save and
       ;; there's a top-level declaration then it must be the
       ;; associated goal.  (Notice that because it's a callback it
