@@ -2169,8 +2169,12 @@ deletes the region corresponding to the proof sequence."
 Unless optional NO-DELETE is set, the text is also deleted from
 the proof script."
   (interactive "p")
-  (goto-char (span-start (span-at-before (proof-locked-end) 'type)))
-  (proof-retract-until-point (not no-delete)))
+  (let ((lastspan (span-at-before (proof-locked-end) 'type)))
+    (if lastspan
+	(progn
+	  (goto-char (span-start lastspan))
+	  (proof-retract-until-point (not no-delete)))
+      (error "Nothing to undo!"))))
 
 (defun proof-interrupt-process ()
   (interactive)
