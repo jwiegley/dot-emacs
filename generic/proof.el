@@ -21,8 +21,6 @@
 ;; cl is dumped with my XEmacs 20.4, but not FSF Emacs 20.2.
 (require 'cl)				
 
-
-
 (require 'proof-config)			; configuration variables
 
 (require 'proof-splash)			; display splash screen
@@ -148,6 +146,11 @@ read.")
 ;;; Utilities/macros used in several files  (-> proof-utils)
 ;;;
 
+;;
+;; 
+
+
+
 ;; -----------------------------------------------------------------
 ;; Handy macros
 
@@ -156,6 +159,18 @@ read.")
   `(if (buffer-live-p ,buf)
        (with-current-buffer ,buf
 	 ,@body)))
+
+(defmacro proof-customize-toggle (var)
+  "Make a function for toggling a boolean customize setting VAR."
+  `(lambda (arg)
+     ,(concat "Toggle " (symbol-name var) ". With ARG, turn on iff ARG>0.
+This function simply uses customize-set-variable to set the variable.
+It was constructed with the macro proof-customize-toggle.")
+     (interactive "P")
+     (customize-set-variable 
+      (quote ,var)
+      (if (null arg) (not ,var)
+	(> (prefix-numeric-value arg) 0)))))
 
 ;; -----------------------------------------------------------------
 ;; Buffers and filenames

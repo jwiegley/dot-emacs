@@ -12,11 +12,6 @@
 ;; proof-x-symbol.el,v 2.4 1999/08/23 18:38:40 da Exp
 ;;
 
-;; Idea is that Proof General will only let this next variable
-;; become t if all the necessary infrastructure is in place.
-(defvar proof-x-symbol-support-on nil
-  "Non-nil if x-symbol support is currently switched on.")
-
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
 
@@ -28,16 +23,6 @@
 	   (require 'x-symbol-autoloads) 
 	 (t (featurep 'x-symbol-autoloads)))))
 
-;;;###autoload
-(defun proof-x-symbol-toggle (&optional force-on)
-  "Toggle support for x-symbol.  With optional ARG, force on."
-  (interactive "P")
-  (let ((enable  (or force-on (not proof-x-symbol-support-on))))
-    ;; Initialize if it hasn't been done already
-    (if (and enable (not proof-x-symbol-initialized))
-	(proof-x-symbol-initialize 'giveerrors))
-    (setq proof-x-symbol-support-on enable)
-    (proof-x-symbol-mode-all-buffers)))
 
 (defun proof-x-symbol-initialize (&optional error)
   "Initialize x-symbol support for Proof General, if possible.
@@ -126,10 +111,21 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	;; Finished.
 	(setq proof-x-symbol-initialized t))))))
 
+;;;###autoload
+(defun proof-x-symbol-enable ()
+  "Turn on or off support for x-symbol, initializing if necessary."
+  (if (and proof-x-symbol-enable (not proof-x-symbol-initialized))
+      (proof-x-symbol-initialize 'giveerrors))
+  (proof-x-symbol-mode-all-buffers))
+
+;; A toggling function for the menu.
+;;;###autload
+(fset 'proof-x-symbol-toggle
+      (proof-customize-toggle proof-x-symbol-enable))
 
 (defun proof-x-symbol-decode-region (start end) 
   "Call (x-symbol-decode-region START END), if x-symbol support is enabled."
-  (if proof-x-symbol-support-on
+  (if proof-x-symbol-enable
       (x-symbol-decode-region start end)))
 
 (defun proof-x-symbol-encode-shell-input ()
@@ -151,13 +147,13 @@ A value for proof-shell-insert-hook."
 
 ;; ### autoload
 (defun proof-x-symbol-mode ()
-  "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-support-on."
+  "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable."
   (interactive)
   (if proof-x-symbol-initialized
       (progn
 	(setq x-symbol-language proof-assistant-symbol)
 	(if (eq x-symbol-mode 
-		(not proof-x-symbol-support-on))
+		(not proof-x-symbol-enable))
 	    (x-symbol-mode)) ;; DvO: this is a toggle
 	;; Needed ?  Should let users do this in the 
 	;; usual way, if it works.
@@ -173,7 +169,7 @@ A value for proof-shell-insert-hook."
 
 (defun proof-x-symbol-mode-all-buffers ()
   "Activate/deactivate x-symbol mode in all Proof General buffers.
-A subroutine of proof-x-symbol-toggle"
+A subroutine of proof-x-symbol-enable."
   (proof-with-current-buffer-if-exists 
    proof-shell-buffer
    (proof-x-symbol-shell-config))
@@ -194,7 +190,7 @@ Assumes that the current buffer is the proof shell buffer."
   (if proof-x-symbol-initialized
       (progn
 	(cond
-	 (proof-x-symbol-support-on
+	 (proof-x-symbol-enable
 	  (if (and proof-xsym-activate-command 
 		   (proof-shell-live-buffer))
 	      (proof-shell-invisible-command 
@@ -202,7 +198,7 @@ Assumes that the current buffer is the proof shell buffer."
 	  ;; Do the encoding as the first step of input manipulation
 	  (add-hook 'proof-shell-insert-hook
 		    'proof-x-symbol-encode-shell-input))
-	 ((not proof-x-symbol-support-on)
+	 ((not proof-x-symbol-enable)
 	  (if (and proof-xsym-deactivate-command 
 		   (proof-shell-live-buffer))
 	      (proof-shell-invisible-command 
@@ -217,11 +213,14 @@ Assumes that the current buffer is the proof shell buffer."
 
 
 ;;
-;; Initialize x-symbol-support on load-up if user has asked for it
+;; Try to initialize x-symbol-support on load-up if user has asked for it
 ;;
+(if proof-x-symbol-enable (proof-x-symbol-initialize))
 ;;
-(if proof-x-symbol-support (proof-x-symbol-initialize))
-
+;; If initialization failed, the next line will turn off
+;; proof-x-symbol-enable for the session.
+;;
+(customize-set-variable 'proof-x-symbol-enable proof-x-symbol-initialized)
 
 
 

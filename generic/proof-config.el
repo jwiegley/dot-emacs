@@ -66,6 +66,17 @@
 ;;
 ;; ==================================================
 
+
+;; Function for setting boolean values
+(defun proof-set-bool (sym value)
+  "Set a boolean customize variable using set-default and a function.
+If there is a function <blah> with the same name as the variable <blah>,
+it is called to take some action for the new setting."
+  (set-default sym value)
+  (if (fboundp sym) (funcall sym)))
+
+
+
 
 ;;
 ;; 1. User options for proof mode
@@ -80,49 +91,56 @@
   :group 'proof-general
   :prefix "proof-")
 
-(defcustom proof-prog-name-ask nil
-  "*If non-nil, query user which program to run for the inferior process."
+(defcustom proof-splash-enable t
+  "*If non-nil, display a splash screen when Proof General is loaded."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-prog-name-guess nil
-  "*If non-nil, use `proof-guess-command-line' to guess proof-prog-name.
-This option is compatible with proof-prog-name-ask.
-No effect if proof-guess-command-line is nil."
+
+(defcustom proof-electric-terminator-enable nil 
+  "*If non-nil, use electric terminator mode on start-up.
+If electric terminator mode is enabled, pressing a terminator will 
+automatically issue `proof-assert-next-command' for convenience,
+to send the command straight to the proof process.  Electric!"
   :type 'boolean
+  :set 'proof-set-bool
   :group 'proof-user-options)
 
-(defcustom proof-toolbar-inhibit nil
-  "*Non-nil prevents toolbar being used for script buffers.
+(defcustom proof-toolbar-enable t
+  "*If non-nil, display Proof General toolbar for script buffers.
 NB: the toolbar is only available with XEmacs."
   :type 'boolean
+  :set 'proof-set-bool
   :group 'proof-user-options)
 
-(defcustom proof-toolbar-use-enablers t
-  "*If non-nil, toolbars buttons may be enabled/disabled automatically.
-Toolbar buttons can be automatically enabled/disabled according to
-the context.  Set this variable to nil if you don't like this feature
-or if you find it unreliable.
-
-Notes: 
-* Toolbar enablers are only available with XEmacs 21 and later.
-* With this variable nil, buttons do nothing when they would
-otherwise be disabled.
-* If you change this variable it will only be noticed when you 
-next start Proof General."
+(defcustom proof-x-symbol-enable nil
+  "*Whether to use x-symbol in Proof General buffers.
+If you activate this variable, whether or not you get x-symbol support
+depends on if your proof assistant supports it and it is enabled
+inside your Emacs."
   :type 'boolean
+  :set 'proof-set-bool
   :group 'proof-user-options)
 
-(defcustom proof-toolbar-follow-mode 'locked
-  "*Choice of how point moves with toolbar commands.
-One of the symbols: 'locked, 'follow, 'ignore.
-If 'locked, point sticks to the end of the locked region with toolbar commands.
-If 'follow, point moves just when needed to display the locked region end.
-If 'ignore, point is never moved after toolbar movement commands."
-  :type '(choice
-	  (const :tag "Follow locked region" locked)
-	  (const :tag "Keep locked region displayed" follow)
-	  (const :tag "Never move" ignore))
+
+(defcustom proof-strict-read-only 
+  ;; For FSF Emacs, strict read only is buggy when used in
+  ;; conjunction with font-lock.
+  ;; The second conjunctive ensures that the expression is either
+  ;; `nil' or `strict' (and not 15!!).  
+  (and (string-match "XEmacs" emacs-version) 'strict)
+  "*Whether Proof General is strict about the read-only region in buffers.
+If non-nil, an error is given when an attempt is made to edit the
+read-only region.  If nil, Proof General is more relaxed (but may give
+you a reprimand!).
+
+If you change proof-strict-read-only during a session, you must use
+\"Restart\" (proof-shell-restart)
+
+The default value for proof-strict-read-only depends on which
+version of Emacs you are using.  In FSF Emacs, strict read only is buggy
+when it used in conjunction with font-lock, so it is disabled by default."
+  :type 'boolean
   :group 'proof-user-options)
 
 (defcustom proof-window-dedicated nil
@@ -149,23 +167,29 @@ experienced Emacs users."
   :type 'boolean 
   :group 'proof-user-options)
 
-(defcustom proof-strict-read-only 
-  ;; For FSF Emacs, strict read only is buggy when used in
-  ;; conjunction with font-lock.
-  ;; The second conjunctive ensures that the expression is either
-  ;; `nil' or `strict' (and not 15!!).  
-  (and (string-match "XEmacs" emacs-version) 'strict)
-  "*Whether Proof General is strict about the read-only region in buffers.
-If non-nil, an error is given when an attempt is made to edit the
-read-only region.  If nil, Proof General is more relaxed (but may give
-you a reprimand!).
+(defcustom proof-auto-delete-windows nil
+  "*If non-nil, automatically remove windows when they are cleaned.
+For example, at the end of a proof the goals buffer window will
+be cleared; if this flag is set it will automatically be removed.
+If you want to fix the sizes of your windows you may want to set this
+variable to 'nil' to avoid windows being deleted automatically.
+If you use multiple frames, only the windows in the currently
+selected frame will be automatically deleted."
+  :type 'boolean
+  :group 'proof-user-options)
 
-If you change proof-strict-read-only during a session, you must use
-\"Restart\" (proof-shell-restart)
+(defcustom proof-toolbar-use-button-enablers t
+  "*If non-nil, toolbars buttons may be enabled/disabled automatically.
+Toolbar buttons can be automatically enabled/disabled according to
+the context.  Set this variable to nil if you don't like this feature
+or if you find it unreliable.
 
-The default value for proof-strict-read-only depends on which
-version of Emacs you are using.  In FSF Emacs, strict read only is buggy
-when it used in conjunction with font-lock, so it is disabled by default."
+Notes: 
+* Toolbar enablers are only available with XEmacs 21 and later.
+* With this variable nil, buttons do nothing when they would
+otherwise be disabled.
+* If you change this variable it will only be noticed when you 
+next start Proof General."
   :type 'boolean
   :group 'proof-user-options)
 
@@ -196,30 +220,6 @@ files which are out of date with respect to the lodead buffers!"
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-auto-action-when-deactivating-scripting
-  nil
-  "*If 'retract or 'process, do that when deactivating scripting.
-
-With this option set to 'retract or 'process, when scripting 
-is turned off in a partly processed buffer, the buffer will be 
-retracted or processed automatically.
-
-With this option unset (nil), the user is questioned instead.
-
-Proof General insists that only one script buffer can be partly
-processed: all others have to be completely processed or completely
-unprocessed.  This is to make sure that handling of multiple files
-makes sense within the proof assistant.
-
-NB: A buffer is completely processed when all non-whitespace is
-locked (coloured blue); a buffer is completely unprocessed when there
-is no locked region."
-  :type '(choice
-	  (const :tag "No automatic action; query user" nil)
-	  (const :tag "Automatically retract" retract)
-	  (const :tag "Automatically process" process))
-  :group 'proof-user-options)
-
 (defcustom proof-script-indent nil
   ;; Particular proof assistants can enable this if they feel
   ;; confident about it.  (I don't). -da
@@ -230,49 +230,22 @@ provers.  Enable it if it works for you."
   :type 'boolean 
   :group 'proof-user-options)
 
+(defcustom proof-prog-name-ask nil
+  "*If non-nil, query user which program to run for the inferior process."
+  :type 'boolean
+  :group 'proof-user-options)
+
+(defcustom proof-prog-name-guess nil
+  "*If non-nil, use `proof-guess-command-line' to guess proof-prog-name.
+This option is compatible with proof-prog-name-ask.
+No effect if proof-guess-command-line is nil."
+  :type 'boolean
+  :group 'proof-user-options)
+
 ;; FIXME: rationalize and combine next two
 (defcustom proof-one-command-per-line nil
   "*If non-nil, format for newlines after each proof command in a script.
 This option is not fully-functional at the moment."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-script-command-separator " "
-  "*String separating commands in proof scripts.
-For example, if a proof assistant prefers one command per line, then 
-this string should be set to a newline.  Otherwise it should be
-set to a space."
-  :type 'string
-  :group 'proof-user-options)
-
-(defcustom proof-rsh-command ""
-  "*Shell command prefix to run a command on a remote host.  
-For example,
-
-   ssh bigjobs
-
-Would cause Proof General to issue the command `ssh bigjobs isabelle'
-to start Isabelle remotely on our large compute server called `bigjobs'.
-
-The protocol used should be configured so that no user interaction
-(passwords, or whatever) is required to get going."
-  :type 'string
-  :group 'proof-user-options)
-
-(defcustom proof-auto-delete-windows nil
-  "*If non-nil, automatically remove windows when they are cleaned.
-For example, at the end of a proof the goals buffer window will
-be cleared; if this flag is set it will automatically be removed.
-If you want to fix the sizes of your windows you may want to set this
-variable to 'nil' to avoid windows being deleted automatically.
-If you use multiple frames, only the windows in the currently
-selected frame will be automatically deleted."
-  :type 'boolean
-  :group 'proof-user-options)
-
-(defcustom proof-splash-inhibit
-  nil
-  "*Non-nil prevents splash screen display when Proof General is loaded."
   :type 'boolean
   :group 'proof-user-options)
 
@@ -298,6 +271,65 @@ To avoid erasing the messages shortly after they're printed,
 you should set `proof-tidy-response' to nil."
   :type 'boolean
   :group 'proof-user-options)
+
+(defcustom proof-toolbar-follow-mode 'locked
+  "*Choice of how point moves with toolbar commands.
+One of the symbols: 'locked, 'follow, 'ignore.
+If 'locked, point sticks to the end of the locked region with toolbar commands.
+If 'follow, point moves just when needed to display the locked region end.
+If 'ignore, point is never moved after toolbar movement commands."
+  :type '(choice
+	  (const :tag "Follow locked region" locked)
+	  (const :tag "Keep locked region displayed" follow)
+	  (const :tag "Never move" ignore))
+  :group 'proof-user-options)
+
+(defcustom proof-auto-action-when-deactivating-scripting nil
+  "*If 'retract or 'process, do that when deactivating scripting.
+
+With this option set to 'retract or 'process, when scripting 
+is turned off in a partly processed buffer, the buffer will be 
+retracted or processed automatically.
+
+With this option unset (nil), the user is questioned instead.
+
+Proof General insists that only one script buffer can be partly
+processed: all others have to be completely processed or completely
+unprocessed.  This is to make sure that handling of multiple files
+makes sense within the proof assistant.
+
+NB: A buffer is completely processed when all non-whitespace is
+locked (coloured blue); a buffer is completely unprocessed when there
+is no locked region."
+  :type '(choice
+	  (const :tag "No automatic action; query user" nil)
+	  (const :tag "Automatically retract" retract)
+	  (const :tag "Automatically process" process))
+  :group 'proof-user-options)
+
+(defcustom proof-script-command-separator " "
+  "*String separating commands in proof scripts.
+For example, if a proof assistant prefers one command per line, then 
+this string should be set to a newline.  Otherwise it should be
+set to a space."
+  :type 'string
+  :group 'proof-user-options)
+
+(defcustom proof-rsh-command ""
+  "*Shell command prefix to run a command on a remote host.  
+For example,
+
+   ssh bigjobs
+
+Would cause Proof General to issue the command `ssh bigjobs isabelle'
+to start Isabelle remotely on our large compute server called `bigjobs'.
+
+The protocol used should be configured so that no user interaction
+(passwords, or whatever) is required to get going."
+  :type 'string
+  :group 'proof-user-options)
+
+
 
 
 
@@ -1432,16 +1464,8 @@ These are evaluated and appended to `proof-splash-contents'."
 
 
 ;;
-;; 8. x-symbol support
+;; 8. x-symbol configuration
 ;;
-
-(defcustom proof-x-symbol-support nil
-  "*Whether to use x-symbol in Proof General buffers.
-If you activate this variable, whether or not you get x-symbol support
-depends on if your proof assistant supports it and it is enabled
-inside your Emacs."
-  :type 'boolean
-  :group 'proof-user-options)
 
 (defgroup proof-x-symbol nil
   "Configuration of x-symbol for Proof General."

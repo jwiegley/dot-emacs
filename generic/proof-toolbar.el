@@ -128,7 +128,7 @@ and chooses the best one for the display properites.")
        (menuname      (cadr tle))
        (tooltip       (nth 2 tle))
        (existsenabler (nth 3 tle))
-       (enablep	      (and proof-toolbar-use-enablers
+       (enablep	      (and proof-toolbar-use-button-enablers
 			   (>= emacs-major-version 21)
 			   existsenabler))
        (enabler	      (proof-toolbar-enabler token))
@@ -170,7 +170,7 @@ to the default toolbar."
   (interactive)
   (if (featurep 'toolbar)		; won't work in FSF Emacs
       (if (and	
-	   (not proof-toolbar-inhibit)
+	   proof-toolbar-enable
 	   ;; NB for FSFmacs use window-system, not console-type
 	   (eq (console-type) 'x))
 	  (let
@@ -215,12 +215,10 @@ to the default toolbar."
 	(if proof-toolbar-itimer (delete-itimer proof-toolbar-itimer))
 	(setq proof-toolbar-itimer nil))))
 
-(defun proof-toolbar-toggle (&optional force-on)
-  "Toggle display of Proof General toolbar.  With optional ARG, force on."
-  (interactive "P")
-  (setq proof-toolbar-inhibit
-       (or force-on (not proof-toolbar-inhibit)))
-  (proof-toolbar-setup))
+;; Action to take after altering proof-toolbar-enable
+(defalias 'proof-toolbar-enable 'proof-toolbar-setup)
+(fset 'proof-toolbar-toggle 
+      (proof-customize-toggle proof-toolbar-enable))
 
 (deflocal proof-toolbar-refresh-flag nil
   "Flag indicating that the toolbar should be refreshed.")

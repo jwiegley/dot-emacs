@@ -84,10 +84,11 @@ Borrowed from startup-center-spaces."
   "Save window config and display Proof General splash screen.
 Only do it if proof-splash-display is nil."
   (if (and
+       proof-splash-enable
+       ;; FIXME: UGLY COMPATIBILITY HACK
        ;; Next check avoids XEmacs giving "Arithmetic Error"
        ;; during byte compilation.
-       (if (fboundp 'noninteractive) (not (noninteractive)) t)
-       (not proof-splash-inhibit))
+       (if (fboundp 'noninteractive) (not (noninteractive)) t))
     (let
 	;; Keep win config explicitly instead of pushing/popping because
 	;; if the user switches windows by hand in some way, we want
@@ -157,7 +158,7 @@ Only do it if proof-splash-display is nil."
       (setq unread-command-event (next-command-event)))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
-(unless proof-splash-inhibit
+(if proof-splash-enable
   (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
 (provide 'proof-splash)

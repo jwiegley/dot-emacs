@@ -1276,7 +1276,7 @@ the comment."
 
 
 ; Assert until point - We actually use this to implement the 
-; assert-until-point, active terminator keypress, and find-next-terminator. 
+; assert-until-point, electric terminator keypress, and find-next-terminator. 
 ; In different cases we want different things, but usually the information
 ; (i.e. are we inside a comment) isn't available until we've actually run
 ; proof-segment-up-to (point), hence all the different options when we've
@@ -1974,9 +1974,6 @@ No action if BUF is nil."
      ["Start proof assistant"
       proof-shell-start
       :active (not (proof-shell-live-buffer))]
-     ["Toggle scripting"
-      proof-toggle-active-scripting
-      :active t]
 ;     ["Restart scripting"
 ;      proof-shell-restart
 ;      :active (proof-shell-live-buffer)]
@@ -2006,18 +2003,23 @@ No action if BUF is nil."
 
 
 (defvar proof-menu  
-  (append '(["Active terminator" proof-active-terminator-minor-mode
+  (append '("----"
+	    ["Scripting active" proof-toggle-active-scripting
 	     :active t
 	     :style toggle
-             :selected proof-active-terminator-minor-mode]
+	     :selected (eq proof-script-buffer (current-buffer))]
+	    ["Electric terminator" proof-electric-terminator-toggle
+	     :active t
+	     :style toggle
+             :selected proof-electric-terminator-enable]
 	    ["Toolbar" proof-toolbar-toggle
 	     :active (featurep 'toolbar)
 	     :style toggle
-	     :selected (not proof-toolbar-inhibit)]
+	     :selected proof-toolbar-enable]
 	    ["X symbol" proof-x-symbol-toggle
 	     :active (proof-x-symbol-support-maybe-available)
 	     :style toggle
-	     :selected proof-x-symbol-support-on]
+	     :selected proof-x-symbol-enable]
 	    "----")
 	  ;; UGLY COMPATIBILITY  FIXME: remove this soon
           (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
@@ -2029,39 +2031,30 @@ No action if BUF is nil."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;          Active terminator minor mode                            ;;
+;;          Electric terminator minor mode                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; FIXME: Paul Callaghan wants to make the default for this be
-;; 't'.  Perhaps we need a user option which configures the default.
-;; Moreover, this minor mode is only relevant to scripting
-;; buffers, so a buffer-local setting may be inappropriate.
-(deflocal proof-active-terminator-minor-mode nil 
-  "Active terminator minor mode flag")
+;; Make sure proof-electric-terminator-enable is registered as
+;; a minor mode.
 
-;; Make sure proof-active-terminator-minor-mode is registered
-(or (assq 'proof-active-terminator-minor-mode minor-mode-alist)
+(or (assq 'proof-electric-terminator-enable minor-mode-alist)
     (setq minor-mode-alist
 	  (append minor-mode-alist
-		  (list '(proof-active-terminator-minor-mode
+		  (list '(proof-electric-terminator-enable
 			  (concat " " proof-terminal-string))))))
 
-(defun proof-active-terminator-minor-mode (&optional arg)
-  "Toggle Proof General's active terminator minor mode.
-With ARG, turn on the Active Terminator minor mode if and only if ARG
-is positive.
+;; This is a value used by custom-set property = proof-set-bool.
+(defun proof-electric-terminator-enable ()
+  "Make sure the modeline is updated to display new value for electric terminator."
+  ;; FIMXE: UGLY COMPATIBILITY HACK 
+  (if (fboundp 'redraw-modeline)
+      (redraw-modeline)
+    (force-mode-line-update)))
 
-If active terminator mode is enabled, pressing a terminator will 
-automatically activate `proof-assert-next-command' for convenience."
- (interactive "P")
- (setq proof-active-terminator-minor-mode
-       (if (null arg) (not proof-active-terminator-minor-mode)
-	 (> (prefix-numeric-value arg) 0)))
- (if (fboundp 'redraw-modeline)
-     (redraw-modeline)
-   (force-mode-line-update)))
+(fset 'proof-electric-terminator-toggle 
+      (proof-customize-toggle proof-electric-terminator-enable))
 
-(defun proof-process-active-terminator ()
+(defun proof-process-electric-terminator ()
   "Insert the proof command terminator, and assert up to it."
   (let ((mrk (point)) ins incomment)
     (if (looking-at "\\s-\\|\\'\\|\\w") 
@@ -2078,13 +2071,13 @@ automatically activate `proof-assert-next-command' for convenience."
     (or incomment
 	(proof-script-next-command-advance))))
 
-(defun proof-active-terminator ()
+(defun proof-electric-terminator ()
   "Insert the terminator, perhaps sending the command to the assistant.
-If proof-active-terminator-minor-mode is non-nil, the command will be
+If proof-electric-terminator-enable is non-nil, the command will be
 sent to the assistant."
   (interactive)
-  (if proof-active-terminator-minor-mode 
-      (proof-process-active-terminator)
+  (if proof-electric-terminator-enable 
+      (proof-process-electric-terminator)
     (self-insert-command 1)))
 
 
@@ -2221,14 +2214,14 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Additional key definitions which depend on configuration for
   ;; specific proof assistant.
-  ;; This is rather fragile: we assume terminal char is something
-  ;; sensible (and exists) for this to be set.
+  ;; FIXME da: robustify here.  
+  ;;   This is rather fragile: we assume terminal char is something
+  ;;   sensible (and exists) for this to be set.
   (define-key proof-mode-map
     (vconcat [(control c)] (vector proof-terminal-char))
-    'proof-active-terminator-minor-mode)
-
+    'proof-electric-terminator-toggle)
   (define-key proof-mode-map (vector proof-terminal-char)
-    'proof-active-terminator)
+    'proof-electric-terminator)
 
   (make-local-variable 'indent-line-function)
   (if proof-script-indent
