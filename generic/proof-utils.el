@@ -696,7 +696,7 @@ If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
 			(string-match proof-comment-end-regexp str lpos) epos))
 	      (if (and spos (or (not epos) (< spos epos)))
 		  (progn
-		    (if (= lvl 0) (setq astr 
+		    (if (<= lvl 0) (setq astr 
 					(concat astr 
 						(substring str pos spos))))
 		    (setq lpos (+ spos 1) lvl (+ lvl 1)))

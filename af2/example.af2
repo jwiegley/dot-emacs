@@ -4,4 +4,6 @@
     $Id$
 *)
 
-test.
+goal /\X (X -> X).
+trivial.
+save th.

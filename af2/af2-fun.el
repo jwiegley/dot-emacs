@@ -26,8 +26,8 @@ send a compile command to af2 for the theorem which name is under the cursor."
 
 (setq
  af2-forget-id-command "del %s.\n"
- af2-sy-definition-regexp "^[ \t\n\r]*\\(Cst\\|def\\)[ \t\n\r]+\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)" 
- af2-definition-regexp "\\(Cst\\|def\\|claim\\|Sort\\)[ \t\n\r]+\\([^ =\\[]+\\)"
+ af2-sy-definition-regexp "[ \t\n\r]\\(Cst\\|def\\)[ \t\n\r]+\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)" 
+ af2-definition-regexp "[ \t\n\r]\\(Cst\\|def\\|claim\\|Sort\\)[ \t\n\r]+\\([^ =\\[]+\\)"
 )
 
 (defun af2-find-and-forget (span)

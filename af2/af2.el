@@ -107,14 +107,14 @@
   "Configure Proof General scripting for Af2."
   (setq
    proof-terminal-char		?\.	; ends every command
-   proof-script-command-end-regexp "[.][ \n\t\r]"
+   proof-script-command-end-regexp "[.]\\([ \t]\\|$\\)"
    proof-comment-start             "(*"
    proof-comment-end               "*)"
    proof-state-command             "goals."
    proof-goal-command-regexp       "goal\\|prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem"
    proof-save-command-regexp       "save"
    proof-goal-with-hole-regexp     "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)[ \n\t\r]+\\([^ \n\t\r]+\\)"
-   proof-save-with-hole-regexp     "save[ \n\t\r]+\\(\\([^ \n\t\r]+\\)\\)[ \n\t\r]*\.[ \n\t\r]"
+   proof-save-with-hole-regexp     "save[ \n\t\r]+\\(\\([^ \n\t\r]+\\)\\)"
    proof-shell-error-regexp        "^\\([^ \n\t\r]* \\)?\\(e\\|E\\)rror"
    proof-non-undoables-regexp      "undo"
    proof-goal-command              "goal %s."
