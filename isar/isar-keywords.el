@@ -23,7 +23,8 @@
     "is"
     "monos"
     "output"
-    "simpset"))
+    "simpset"
+    "where"))
 
 (defconst isar-keywords-control
   '("ProofGeneral\\.context_thy_only"
