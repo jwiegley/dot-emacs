@@ -135,8 +135,7 @@
     "translations"
     "typed_print_translation"
     "typedecl"
-    "types"
-    "variables"))
+    "types"))
 
 (defconst isar-keywords-theory-goal
   '("instance"
@@ -172,6 +171,7 @@
   '("finally"
     "from"
     "then"
+    "ultimately"
     "with"))
 
 (defconst isar-keywords-proof-decl
