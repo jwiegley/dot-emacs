@@ -40,12 +40,13 @@
       (proof-locate-executable "isatool")
       ;; FIXME: use same mechanism as isabelle-program-name below.
       (let ((possibilities
-	     '("/usr/bin/isatool"
-	       "/usr/share/Isabelle/bin/isatool"
-	       "/usr/local/bin/isatool"
-	       "/usr/local/Isabelle/bin/isatool"
-	       "/opt/bin/isatool"
-	       "/opt/Isabelle/bin/isatool")))
+	     (list
+	      (concat (getenv "HOME") "/Isabelle/bin/isatool")
+	      "/usr/share/Isabelle/bin/isatool"
+	      "/usr/local/bin/isatool"
+	      "/usr/local/Isabelle/bin/isatool"
+	      "/opt/bin/isatool"
+	      "/opt/Isabelle/bin/isatool")))
 	(while (and possibilities
 		    (not (file-executable-p
 			  (car possibilities))))
