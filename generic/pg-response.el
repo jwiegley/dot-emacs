@@ -81,9 +81,10 @@ Internal variable, setting this will have no effect!")
 (defun proof-map-multiple-frame-specifiers (multiframep locale)
   "Set XEmacs specifiers according to MULTIFRAMEP in LOCALE."
   (dolist (spec proof-multiframe-specifiers)
-    (set-specifier (car spec) 
-		   (if multiframep (cadr spec) (caddr spec) )
-		   locale)))
+    (if (boundp (car spec)) ;; FIXME: this is for backwards compatibility XE 21.1
+	(set-specifier (car spec) 
+		       (if multiframep (cadr spec) (caddr spec) )
+		       locale))))
 
 (defconst proof-multiframe-parameters
   '((minibuffer . nil)
