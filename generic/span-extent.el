@@ -4,25 +4,7 @@
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
-;; $Log$
-;; Revision 2.0  1998/09/09 13:57:45  da
-;; Fixup branch number
-;;
-;; Revision 1.1  1998/09/03 13:51:33  da
-;; Renamed for new subdirectory structure
-;;
-;; Revision 2.0  1998/08/11 15:00:13  da
-;; New branch
-;;
-;; Revision 1.4  1998/06/10 14:01:48  hhg
-;; Wrote generic span functions for making spans read-only or read-write.
-;;
-;; Revision 1.3  1998/06/02 15:36:44  hhg
-;; Corrected comment about this being for xemacs.
-;;
-;; Revision 1.2  1998/05/19 15:30:27  hhg
-;; Added header and log message.
-;;
+;; $Id$
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;               Bridging the emacs19/xemacs gulf                   ;;

@@ -1,5 +1,7 @@
 #!/usr/local/bin/perl
-
+#
+# $Id$
+#
 undef $/;
 
 if($#ARGV<$[) {die "No Files\n";}

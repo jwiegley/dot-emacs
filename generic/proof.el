@@ -6,6 +6,7 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 ;; Thanks to Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens
+;;
 ;; $Id$
 
 (require 'proof-site)

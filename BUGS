@@ -1,5 +1,7 @@
-Known bugs and workarounds.
+Known Bugs and Workarounds.
 ===========================
+
+$Id$
 
 * Outline-mode does not work in proof script files due to read-only
 restrictions of protected region

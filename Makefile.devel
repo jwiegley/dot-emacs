@@ -1,8 +1,11 @@
+#
 #  TODO (da):
 #    - tag the release in the sources
 #    - build docs
 #    - distrib is built by running 'make dist' in
 #      exported source dir
+#
+# $Id$
 
 CVSROOT = /home/lego/src
 EXPORTDIR = /home/lego/pub/emacs

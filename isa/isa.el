@@ -1,7 +1,7 @@
 ;; isa.el Major mode for Isabelle proof assistant
 ;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;; Author: David Aspinall
-
+;;
 ;; $Id$
 ;;
 

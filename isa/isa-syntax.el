@@ -1,5 +1,9 @@
 ;; isa-syntax.el Syntax expressions for Isabelle
 ;;
+;; David Aspinall <da@dcs.ed.ac.uk>
+;;
+;; $Id$
+;;
 
 (require 'proof-syntax)
 

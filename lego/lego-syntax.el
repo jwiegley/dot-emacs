@@ -2,6 +2,9 @@
 ;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;;
+;; $Id$
+;;
 
 (require 'proof-syntax)
 

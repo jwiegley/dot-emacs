@@ -1,4 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
+@c
+@c $Id$
+@c
 @c %**start of header
 @setfilename proof.info
 @settitle Generic Proof Assistant Mode
