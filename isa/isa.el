@@ -65,8 +65,6 @@
 (defvar isa-shell-outline-heading-end-regexp "$")
 
 
-
-
 (defun isa-mode-config-set-variables ()
   "Configure generic proof scripting/thy mode variables for Isabelle.
 Settings here are the ones which are needed for both shell mode
@@ -142,6 +140,7 @@ and script mode."
    "\\(Loading theory \"\\|Error: in '\\)\\([^\"']+\\)[\"']"
    proof-shell-next-error-extract-filename
    "%s.thy"))
+
   
 
 
@@ -378,7 +377,8 @@ isa-proofscript-mode."
     (unless proof-terminal-char
       (require 'proof-script)
       (proof-menu-define-specific)	
-      (isa-mode-config-set-variables))
+      (isa-mode-config-set-variables)
+      )
 
     (thy-mode)
 
@@ -573,7 +573,9 @@ you will be asked to retract the file or process the remainder of it."
 
 ;; These hooks are added on load because proof shells can
 ;; be started from .thy (not in scripting mode) or .ML files.
-(add-hook 'proof-pre-shell-start-hook 'isa-pre-shell-start nil t)
+;; 3.4: pre-shell-start-hook was a local hook, but then caused
+;; new probs in E21 with not setting in correct buffer for shell(?)
+(add-hook 'proof-pre-shell-start-hook 'isa-pre-shell-start); nil t
 (add-hook 'proof-shell-insert-hook 'isa-preprocessing)
 
 (defun isa-shell-mode-config ()
