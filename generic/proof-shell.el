@@ -1356,16 +1356,14 @@ MESSAGE should be a string annotated with
      
      ;; CASE clear response: prover asks PG to clear response buffer
      ((and proof-shell-clear-response-regexp
-	   (string-match proof-shell-clear-response-regexp message)
-	   proof-response-buffer)
+	   (string-match proof-shell-clear-response-regexp message))
       ;; Erase response buffer and possibly its windows.
       (proof-shell-maybe-erase-response nil t t))
      
      ;; CASE clear goals: prover asks PG to clear goals buffer
      ((and proof-shell-clear-goals-regexp
-	   (string-match proof-shell-clear-goals-regexp message)
-	   proof-goals-buffer)
-      ;; Erase goals buffer but and possibly its windows
+	   (string-match proof-shell-clear-goals-regexp message))
+      ;; Erase goals buffer and possibly its windows
       (proof-clean-buffer proof-goals-buffer))
    
      ;; CASE variable setting: prover asks PG to set some variable 
