@@ -9,28 +9,30 @@
 ;;
 
 
-(eval-when-compile
-  (require 'proof-config))
+
+
+;; FIXME: this most be done before loading proof-config, shame.
+(setq proof-tags-support nil) ; we don't want it, no isatags prog. 
 
 ;; Add Isabelle image onto splash screen
 (custom-set-variables
  '(proof-splash-extensions
-   (list
-    nil
-    (proof-splash-display-image "isabelle_transparent" t))))
-(custom-set-variables
- '(proof-tags-support nil))  ; we don't want it, no isatags prog.
+   '(list
+     nil
+     (proof-splash-display-image "isabelle_transparent" t))))
 
 (require 'proof)
 (require 'isa-syntax)
 
 ;; To make byte compiler be quiet.
-(eval-when-compile
-  (require 'proof-shell)
-  (require 'proof-script)
-  (require 'outline)
-  (cond ((fboundp 'make-extent) (require 'span-extent))
-	((fboundp 'make-overlay) (require 'span-overlay))))
+;; NASTY: these result in loads when evaluated 
+;; ordinarily (from non-byte compiled code).
+;(eval-when-compile
+;  (require 'proof-script)
+;  (require 'proof-shell)
+;  (require 'outline)
+;  (cond ((fboundp 'make-extent) (require 'span-extent))
+;	((fboundp 'make-overlay) (require 'span-overlay))))
 
 
 

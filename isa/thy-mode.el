@@ -32,7 +32,7 @@ any of the usual bracket characters in unusual ways."
   :type 'boolean
   :group 'thy)
 
-(defcustom thy-use-sml-mode isabelle-use-sml-mode
+(defcustom thy-use-sml-mode nil
   "*If non-nil, invoke sml-mode inside \"ML\" section of theory files."
   :type 'boolean
   :group 'thy)
