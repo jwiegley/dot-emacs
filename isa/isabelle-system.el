@@ -199,10 +199,10 @@ Called with one argument: t to save database, nil otherwise."
   "Mark internal command for verbatim output"
   (concat "\^VERBATIM: " str))
 
-;;; Set proof-shell-pre-interrupt-hook for PolyML.
+;;; Set proof-shell-pre-interrupt-hook for PolyML 3.
 (if (and
      (not proof-shell-pre-interrupt-hook)
-     (string-match "\\`polyml" (isa-getenv "ML_SYSTEM")))
+     (string-match "\\`polyml-3" (isa-getenv "ML_SYSTEM")))
     (add-hook
      'proof-shell-pre-interrupt-hook
      (lambda () (proof-shell-insert (isabelle-verbatim "f") nil))))
