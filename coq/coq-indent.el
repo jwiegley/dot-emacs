@@ -1,4 +1,4 @@
-;; coq-syntax.el indentation stuff for Coq
+; coq-syntax.el indentation stuff for Coq
 ;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
 ;; Authors: Pierre Courtieu
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
@@ -323,7 +323,7 @@
 
   ; we are at an end command -> one ident left
   ; FIX: we should count the number of closing item on the line
-	((coq-save-command-p (coq-current-command-string)) 
+	((coq-save-command-p nil (coq-current-command-string)) 
 	 (- proof-indent))
 
 	((proof-looking-at-safe "\\<Proof\\>") 0) ; no indentation at "Proof ..."
@@ -334,7 +334,7 @@
 			(or (and ;"Proof ..." is a proof start (but not really a goal command)
                   ;  unless followed by a term (catch by coq-save-command-p above
 				  (proof-looking-at-safe "\\<Proof\\>")
-				  (not (coq-save-command-p (coq-current-command-string))))
+				  (not (coq-save-command-p nil (coq-current-command-string))))
 				 (coq-goal-command-p (coq-current-command-string))))
 	 proof-indent)
 
