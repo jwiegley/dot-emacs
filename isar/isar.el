@@ -1,11 +1,10 @@
-;; isar.el Major mode for Isabelle proof assistant
+;; isar.el Major mode for Isabelle/Isar proof assistant
 ;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer:  Isabelle maintainer <isabelle@dcs.ed.ac.uk>
-
+;; Maintainer:  Markus Wenzel <wenzelm@in.tum.de>
 ;;
-;; $Id isar.el,v 2.44 1998/11/10 18:08:50 da Exp$
+;; $Id$
 ;;
 
 
@@ -159,7 +158,7 @@
    proof-indent-commands-regexp	isar-indent-regexp
    ;; proof engine commands (first five for menus, last for undo)
    proof-prf-string		"pr"
-   proof-goal-command		"lemma \"%s\""
+   proof-goal-command		"lemma \"%s\";"
    proof-save-command		"qed"
    proof-ctxt-string		"print_theory"
    proof-help-string		"help"
@@ -506,10 +505,38 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;;   Isar shell startup and exit hooks                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;borrowed from plastic.el
+(defvar isar-shell-current-line-width nil
+  "Current line width of the Isabelle process's pretty printing module.
+  Its value will be updated whenever the corresponding screen gets
+  selected.")
+
+;borrowed from plastic.el
+(defun isar-shell-adjust-line-width ()
+  "Use Isabelle's pretty printing facilities to adjust output line width.
+   Checks the width in the `proof-goals-buffer'"
+  (let ((ans ""))
+    (and (buffer-live-p proof-goals-buffer)
+	 (proof-shell-live-buffer)
+	 (save-excursion
+	   (set-buffer proof-goals-buffer)
+	   (let ((current-width
+		  ;; Actually, one might sometimes
+		  ;; want to get the width of the proof-response-buffer
+		  ;; instead. Never mind.
+		  (max 20 (window-width (get-buffer-window proof-goals-buffer)))))
+	     
+	     (if (equal current-width isar-shell-current-line-width) ()
+	       (setq isar-shell-current-line-width current-width)
+	       (set-buffer proof-shell-buffer)
+	       (setq ans (format "pretty_setmargin %d;" (- current-width 4)))))))
+    ans))
+
 (defun isar-pre-shell-start ()
   (setq proof-prog-name		isabelle-isar-prog-name)
   (setq proof-mode-for-shell    'isar-shell-mode)
   (setq proof-mode-for-pbp	'isar-pbp-mode))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
@@ -518,7 +545,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 (defun isar-preprocessing ()
   "insert sync markers - acts on variable string by dynamic scoping"
   (if (not (string-match "^cd \\|^ProofGeneral\\.init " string))   ;; FIXME hack to detect initial ML stuff
-      (setq string (concat "\\<^sync>" string "\\<^sync>;"))))
+      (setq string (concat "\\<^sync>" (isar-shell-adjust-line-width) string "\\<^sync>;"))))
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
@@ -539,13 +566,9 @@ Resulting output from Isabelle will be parsed by Proof General."
   ;		       ("\\.thy$" . thy-file-tags-table))
   ;		     tag-table-alist)))
   (setq blink-matching-paren-dont-ignore-comments t)
+  (add-hook 'proof-pre-shell-start-hook 'isar-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook 'isar-preprocessing))
 
-
-;; MMW FIXME: ??
-;; This hook is added on load because proof shells can
-;; be started from .thy (not in scripting mode) or .ML files.
-(add-hook 'proof-pre-shell-start-hook 'isar-pre-shell-start nil t)
 
 (defun isar-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle/Isar."
@@ -559,5 +582,6 @@ Resulting output from Isabelle will be parsed by Proof General."
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isar-outline-setup))
+
 
 (provide 'isar)
