@@ -31,7 +31,8 @@ Some icons I drew, some I stole from free sources.
 the general, making background colour transparent, save as gif then:
   convert pgminia.gif pgminia.ppm (ImageMagick) 
   ppmtowinicon pgminia.ppm > favicon.ico
-Seems to work.  
+Seems to work (but would be better to create both 16x16 and 32x32 sized
+icons in file, for desktop links).
 See http://msdn.microsoft.com/workshop/Author/dhtml/howto/ShortcutIcon.asp
 and http://www.favicon.com
 
