@@ -26,9 +26,12 @@
 
 (require 'proof-splash)			; splash screen
 
+;;;
+;;; Emacs libraries
+;;;
+
 ;; cl is dumped with my XEmacs 20.4, but not FSF Emacs 20.2.
 (require 'cl)				
-
 
 ;; browse-url function doesn't seem to be autoloaded in
 ;; XEmacs 20.4, but it is in FSF Emacs 20.2.
@@ -36,7 +39,12 @@
     (autoload 'browse-url "browse-url"
       "Ask a WWW browser to load URL." t))
 
+(autoload 'font-lock-fontify-region "font-lock")
+(autoload 'font-lock-append-text-property "font-lock")
+
+;;;
 ;;; Autoloads for main code
+;;;
 
 (autoload 'proof-mode "proof-script"
   "Proof General major mode class for proof scripts.")
@@ -55,8 +63,6 @@
 (autoload 'proof-shell-available-p "proof-shell"
   "Returns non-nil if there is a proof shell active and available.")
 
-(autoload 'font-lock-fontify-region "font-lock")
-(autoload 'font-lock-append-text-property "font-lock")
 ;;;
 ;;; Global variables
 ;;;
@@ -100,7 +106,6 @@ The cdr of the list of corresponding file names is a subset of
 
 (defvar proof-terminal-string nil 
   "End-of-line string for proof process.")
-
 
 
 

@@ -786,11 +786,25 @@ arrive."
 	 (let ((current-included proof-included-files-list))
 	   (setq proof-included-files-list
 		 (funcall proof-shell-compute-new-files-list message))
-	   (proof-restart-buffers
-	    (remove (car-safe proof-script-buffer-list)
-		    (proof-files-to-buffers
-		     (set-difference current-included
-				     proof-included-files-list))))))
+	   (let
+	       ((scrbuf (car-safe proof-script-buffer-list)))
+	       (proof-restart-buffers
+		;; FIXME: multiple files needs fixing here!!
+		;; (remove (car-safe proof-script-buffer-list)
+		(proof-files-to-buffers
+		 (set-difference current-included
+				 proof-included-files-list)))
+					; )
+	       (cond
+		((not scrbuf))
+		((eq scrbuf (car-safe proof-script-buffer-list)))
+		(t	
+		 (setq proof-script-buffer-list 
+		       (cons scrbuf proof-script-buffer-list))
+		 (save-excursion
+		   (set-buffer scrbuf)
+		   (proof-init-segmentation)))))
+	   ))
 	(t
 	 (proof-shell-message message)
 	 (proof-response-buffer-display message
