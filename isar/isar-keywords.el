@@ -108,6 +108,7 @@
     "qed"
     "quit"
     "recdef"
+    "recdef_tc"
     "record"
     "redo"
     "remove_thy"
@@ -322,6 +323,7 @@
 (defconst isar-keywords-theory-goal
   '("instance"
     "lemma"
+    "recdef_tc"
     "theorem"
     "typedef"))
 
