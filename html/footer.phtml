@@ -1,11 +1,13 @@
 <hr>
 <?php
- print "<a href=\"http://validator.dcs.ed.ac.uk/check?uri=http://www.dcs.ed.ac.uk"
-  . $REQUEST_URI . ";pw;ss\">";
- ?> 
-      <img border=0
-	src="images/vh40.gif"
-	alt="Valid HTML 4.0!" height=31 width=88 align=right>
+ print 
+ "<a href=\"http://validator.dcs.ed.ac.uk/check?uri=http://zermelo.dcs.ed.ac.uk"
+ . getenv("REQUEST_URI")
+ . ";pw;ss\">";
+?> 
+ <img border=0
+      src="images/vh40.gif"
+      alt="Valid HTML 4.0!" height=31 width=88 align=right>
 </a>
 <address>
 Web pages by
