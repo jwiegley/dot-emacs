@@ -128,9 +128,15 @@ Otherwise treat \\ in NEWTEXT string as special:
 			 newtext ""))))))
     (concat rtn-str (substring str start)))))
 
+;; An implemenation of buffer-syntactic-context for FSF Emacs
+(defun proof-buffer-syntactic-context-emulate (&optional buffer)
+  "Return the syntactic context of BUFFER at point.
+If BUFFER is nil or omitted, the current buffer is assumed.
+The returned value is one of the following symbols:
 
-(or (fboundp 'buffer-syntactic-context)
-(defun buffer-syntactic-context (&optional buffer)
+	nil		; meaning no special interpretation
+	string		; meaning point is within a string
+	comment		; meaning point is within a line comment"
   (save-excursion
     (if buffer (set-buffer buffer))
     (let ((pp (parse-partial-sexp 1 (point))))
@@ -141,8 +147,7 @@ Otherwise treat \\ in NEWTEXT string as special:
        ;; distinguishing between block comments and ordinary comments
        ;; is problematic: not what XEmacs claims and different to what
        ;; (nth 7 pp) tells us in FSF Emacs.
-       ((nth 4 pp) 'comment))))))
-
+       ((nth 4 pp) 'comment)))))
 
 
 ;; In case Emacs is not aware of the function read-shell-command,
@@ -216,7 +221,6 @@ Otherwise treat \\ in NEWTEXT string as special:
 
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; General Emacs version compatibility
@@ -234,7 +238,21 @@ Otherwise treat \\ in NEWTEXT string as special:
     (autoload 'font-lock-append-text-property "font-lock"))
 
 
+;; Handle buggy buffer-syntactic-context workaround in XEmacs 21.1,
+;; and FSF non-implementation.
 
+(cond
+ ((not (fboundp 'buffer-syntactic-context))
+  (defalias 'proof-buffer-syntactic-context 
+    'proof-buffer-syntactic-context-emulate))
+ ((string-match "21.1 .*XEmacs" emacs-version)
+  (defalias 'proof-buffer-syntactic-context 
+    'proof-buffer-syntactic-context-emulate))
+ (t
+  ;; Assume this version has a good implementation
+  (defalias 'proof-buffer-syntactic-context
+    'buffer-syntactic-context)))
+   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;; Nasty: Emacs bug/problem fix section
