@@ -98,7 +98,8 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 			      (or  proof-mode-for-pbp
 				   (intern (concat assistant "-pbp-mode")))))
 	     (all-xs-modes   (append xs-std-modes xs-xtra-modes))
-	     (am-entry       (list proof-xsym-extra-modes t xs-lang))
+	     (am-entry       (list proof-xsym-extra-modes t 
+				   `(quote ,xs-lang)))
 	     (symmode-nm     (concat assistant "sym-mode"))
 	     (symmode        (intern symmode-nm))
 	     (symnamevar     (intern (concat xs-feature "-name")))
