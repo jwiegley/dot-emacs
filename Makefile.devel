@@ -437,9 +437,11 @@ release: distclean tag  dist develdist
 ##
 ##	  
 rpm:	
-#	rm -rf $(RPMTOPDIR)
-	$(RPM) -tb $(RELEASENAMETARGZ)
-
+        rm -rf $(RPMTOPDIR)
+        mkdir -p $(RPMTOPDIR)/RPMS
+        mkdir -p $(RPMTOPDIR)/SPECS
+        mkdir -p $(RPMTOPDIR)/SOURCES
+        $(RPM) -tb $(DISTBUILDIR)/$(RELEASENAMETARGZ)
 
 ############################################################
 ##
