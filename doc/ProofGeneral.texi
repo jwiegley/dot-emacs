@@ -329,8 +329,8 @@ line:
 into your @file{~/.emacs} file, where @var{proof-general-home} is the
 top-level directory that was created when Proof General was unpacked.
 
-For more details on obtaining and installing Proof General,
-see @ref{Obtaining and Installing Proof General}.
+@xref{Obtaining and Installing Proof General} if you need more
+information.
 
 
 @node Features of Proof General
@@ -366,8 +366,8 @@ be edited.  Proof General has functions for @emph{asserting} or
 regions.
 
 For more details, see @ref{Basic Script Management},
-@xef{Script processing commands}.
-and @xref{Advanced Script Management}.
+@ref{Script processing commands}.
+and @ref{Advanced Script Management}.
 @item @i{Script editing mode}@*
 Proof General provides useful facilities for editing proof scripts,
 including syntax hilighting and a menu to jump to particular goals,
