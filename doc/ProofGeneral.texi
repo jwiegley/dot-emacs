@@ -220,12 +220,13 @@ other documentation, system downloads, etc.
 @unnumberedsec Latest news for 3.3
 @cindex news
 
-[ in progress ]
+Proof General 3.3 includes a few small features additions, but mainly
+the focus has been on compatibility improvements for new versions of
+provers (in particular, Coq 7), and new versions of emacs (in
+particular, XEmacs 21.4).
 
-Proof General 3.3 is a minor release.  It includes a few small features
-additions, but mainly the focus has been on compatibility improvements
-for new versions of provers (in particular, Coq 7), and new versions of
-emacs (in particular, XEmacs 21.4).
+One new feature is control over visibility of completed proofs,
+@xref{Visibility of completed proofs}.
 
 See the @file{CHANGES} file in the distribution for more complete
 details of changes since 3.2.
@@ -1828,16 +1829,20 @@ If you are working with large proof developments, you may want to know
 about the advanced script management features of Proof General covered
 in this chapter.
 
+Large developments may contain files with many long proofs.  Proof
+General provides functions that let you hide completed proofs from view,
+temporarily.  
+
 Large proof developments are typically spread across various files which
 depend on each other in some way.  Proof General knows enough about the
 dependencies to allow script management across multiple files.
-
 With large developments particularly, users may occasionally need to
 escape from script management, in case Proof General loses
 synchronization with the proof assistant.  Proof General provides
 you with several escape mechanisms if you want to do this.
 
 @menu
+* Visibility of completed proofs::
 * Switching between proof scripts::  
 * View of processed files ::    
 * Retracting across files::     
@@ -1845,6 +1850,54 @@ you with several escape mechanisms if you want to do this.
 * Automatic multiple file handling::
 * Escaping script management::
 @end menu
+
+@node Visibility of completed proofs
+@section Visibility of completed proofs
+@cindex Visibility of proofs
+
+Large developments may consist of large files with many proofs.
+To help see what has been proved without the detail of the
+proof itself, Proof General can hide completed proofs.
+
+You can toggle the visibility of a proof by using a context sensitive
+menu triggered by @b{clicking the right mouse button on a completed
+proof}.   You can also select the ``disappearing proofs'' mode from
+the menu, 
+@lisp
+  Proof-General -> Options -> Disappearing Proofs
+@end lisp
+This automatically hides each proof as it is completed by the
+proof assistant.
+
+Finally, two menu commands in the main Proof-General menu,
+@emph{Show proofs} and @emph{Hide proofs} apply to all the completed
+proofs in the buffer.
+
+Notice that by design, this feature only applies to completed proofs,
+@emph{after} they have been processed by the proof assistant.  When
+files are first visited in Proof General, no information is stored about
+proof boundaries.
+
+The relevant elisp functions and settings are mentioned below.
+
+
+@c TEXI DOCSTRING MAGIC: pg-show-all-proofs
+@deffn Command pg-show-all-proofs 
+Display all completed proofs in the buffer.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: pg-hide-all-proofs
+@deffn Command pg-hide-all-proofs 
+Hide all completed proofs in the buffer.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-disappearing-proofs
+@defopt proof-disappearing-proofs 
+Non-nil causes Proof General to hide proofs as they are completed.
+
+The default value is @code{nil}.
+@end defopt
+
 
 @node Switching between proof scripts
 @section Switching between proof scripts
