@@ -78,9 +78,11 @@
 (autoload 'proof-x-symbol-decode-region "proof-x-symbol"
   "Call (x-symbol-decode-region START END), if x-symbol support is enabled.")
 
-(autoload 'proof-x-symbol-mode-all-buffers "proof-x-symbol"
+(autoload 'proof-x-symbol-shell-config "proof-x-symbol"
   "Activate/deactivate x-symbol in Proof General shell, goals, and response buffer.")
 
+(autoload 'proof-x-symbol-mode "proof-x-symbol"
+  "Turn on or off x-symbol mode in the current buffer.")
 
 ;;;
 ;;; Global variables
@@ -155,6 +157,12 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
      (let ((k (car kbl)) (f (cdr kbl)))
          (define-key map k f)))
    kbl))
+
+(defmacro proof-with-current-buffer-if-exists (buf &rest body)
+  "As with-current-buffer if BUF exists, otherwise nothing."
+  `(if (buffer-live-p ,buf)
+       (with-current-buffer ,buf
+	 ,@body)))
 
 ;; FIXME: this function should be combined with
 ;; proof-shell-maybe-erase-response-buffer.  Should allow

@@ -292,13 +292,6 @@ Does nothing if proof assistant is already running."
 	    proof-response-buffer (get-buffer-create 
 				     (concat "*" proc "-response*")))
 
-      ;; FIXME: this function should be invoked elsewhere: 
-      ;; probably via hook functions.
-;       (proof-x-symbol-toggle (if proof-x-symbol-support 1 0))     ;; DvO
-;       (and (featurep 'x-symbol)
-; 	   (proof-x-symbol-mode-all-buffers proof-x-symbol-support-on)) ;; DvO
-      (proof-x-symbol-mode-all-buffers)
-
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	
@@ -1708,7 +1701,9 @@ before and after sending the command."
     (set-buffer proof-goals-buffer)
     (proof-font-lock-minor-mode)
     ;; Turn off the display of annotations here
-    (proof-shell-dont-show-annotations)))
+    (proof-shell-dont-show-annotations)
+    ;; Maybe turn on x-symbols
+    (proof-x-symbol-mode)))
 
 (defun proof-response-config-done ()
   "Initialise the response buffer after the child has been configured."
@@ -1716,11 +1711,15 @@ before and after sending the command."
     (set-buffer proof-response-buffer)
     (proof-font-lock-minor-mode)
     ;; Turn off the display of annotations here
-    (proof-shell-dont-show-annotations)))
+    (proof-shell-dont-show-annotations)
+    ;; Maybe turn on x-symbols
+    (proof-x-symbol-mode)))
 
 
 (defun proof-shell-config-done ()
-  "Initialise the specific prover after the child has been configured."
+  "Initialise the specific prover after the child has been configured.
+Every derived shell mode should call this function at the end of
+processing."
   (save-excursion			
     (set-buffer proof-shell-buffer)
     (let ((proc (get-buffer-process proof-shell-buffer)))
@@ -1738,7 +1737,10 @@ before and after sending the command."
       ;; initialised. 
       (if proof-shell-init-cmd
 	  (proof-shell-invisible-command proof-shell-init-cmd t)
-	(setq proof-action-list nil)))))
+	(setq proof-action-list nil))
+      
+      ;; Configure for x-symbol
+      (proof-x-symbol-shell-config))))
 
 (eval-and-compile
 (define-derived-mode proof-universal-keys-only-mode fundamental-mode
@@ -1761,7 +1763,6 @@ before and after sending the command."
   "PGResp" "Responses from Proof Assistant"
   (setq proof-buffer-type 'response)
   (easy-menu-add proof-response-mode-menu proof-response-mode-map)))
-
 
 (easy-menu-define proof-response-mode-menu
 		  proof-response-mode-map

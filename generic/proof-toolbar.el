@@ -216,7 +216,7 @@ to the default toolbar."
 	(setq proof-toolbar-itimer nil))))
 
 (defun proof-toolbar-toggle (&optional force-on)
-  "Toggle display of Proof General toolbar."
+  "Toggle display of Proof General toolbar.  With optional ARG, force on."
   (interactive "P")
   (setq proof-toolbar-inhibit
        (or force-on (not proof-toolbar-inhibit)))

@@ -2022,9 +2022,13 @@ No action if BUF is nil."
 	     :style toggle
              :selected proof-active-terminator-minor-mode]
 	    ["Toolbar" proof-toolbar-toggle
-	       :active (featurep 'toolbar)
-	       :style toggle
-	       :selected (not proof-toolbar-inhibit)]
+	     :active (featurep 'toolbar)
+	     :style toggle
+	     :selected (not proof-toolbar-inhibit)]
+	    ["X symbol" proof-x-symbol-toggle
+	     :active (proof-x-symbol-support-maybe-available)
+	     :style toggle
+	     :selected proof-x-symbol-support-on]
 	    "----")
 	  ;; UGLY COMPATIBILITY  FIXME: remove this soon
           (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)

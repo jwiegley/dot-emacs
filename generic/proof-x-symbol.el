@@ -20,36 +20,29 @@
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
 
+;;; ###autoload
+(defun proof-x-symbol-support-maybe-available ()
+  "A test to see whether x-symbol support may be available."
+  (and (eq (console-type) 'x)
+       (condition-case ()
+	   (require 'x-symbol-autoloads) 
+	 (t (featurep 'x-symbol-autoloads)))))
+
 ;;;###autoload
-(defun proof-x-symbol-toggle (&optional arg)
-  "Toggle support for x-symbol.  With optional ARG, force on if ARG<>0.
-In other words, you can type M-1 M-x proof-x-symbol-toggle to turn it
-on, M-0 M-x proof-x-symbol-toggle to turn it off."
-  (interactive "p")
-  (let ((enable  (or (and arg (> arg 0))
-		     (if arg;;DvO to DA: why that difficult calculations?
-			 ;; da: see explanation I've put in docstring.
-			 ;; probably over the top!
-			 (and (not (= arg 0))
-			      (not proof-x-symbol-support-on))
-		       (not proof-x-symbol-support-on)))))
+(defun proof-x-symbol-toggle (&optional force-on)
+  "Toggle support for x-symbol.  With optional ARG, force on."
+  (interactive "P")
+  (let ((enable  (or force-on (not proof-x-symbol-support-on))))
     ;; Initialize if it hasn't been done already
-    (if (and (eq proof-x-symbol-support-on 'init) enable)
+    (if (and enable (not proof-x-symbol-initialized))
 	(proof-x-symbol-initialize 'giveerrors))
-    ;; Turn on or off support in prover
-    ;; FIXME: need to decide how best to do this?
-    ;; maybe by editing proof-init-cmd, but also want to turn
-    ;; x-symbol on/off during use perhaps.
-    ;; Hacking init command is a bit ugly!
-    (if (and enable proof-xsym-activate-command)
-	(proof-shell-invisible-command proof-xsym-activate-command))
-    (if (and (not enable) proof-xsym-deactivate-command)
-	(proof-shell-invisible-command proof-xsym-activate-command))
-    (setq proof-x-symbol-support-on enable)))
+    (setq proof-x-symbol-support-on enable)
+    (proof-x-symbol-mode-all-buffers)))
 
 (defun proof-x-symbol-initialize (&optional error)
   "Initialize x-symbol support for Proof General, if possible.
 If ERROR is non-nil, give error on failure, otherwise a warning."
+  (interactive)
   (unless proof-x-symbol-initialized
     (let* 
 ;;; Values for x-symbol-register-language are constructed
@@ -156,67 +149,71 @@ A value for proof-shell-insert-hook."
                (prog1 (buffer-substring)
                  (kill-buffer (current-buffer)))))))
 
-(defun proof-x-symbol-mode ()
-  "Hook function to turn on/off x-symbol mode in the current buffer."
-    (setq x-symbol-language proof-assistant-symbol)
-    (if (eq x-symbol-mode 
-	    (not proof-x-symbol-support-on))
-	(x-symbol-mode)) ;; DvO: this is a toggle
-    ;; Needed ?  Should let users do this in the 
-    ;; usual way, if it works.
-    (if (and x-symbol-mode 
-	     (not font-lock-mode));;DvO
-	(font-lock-mode)
-      (unless (featurep 'mule)
-	(x-symbol-nomule-fontify-cstrings))));;DvO
-
-;; FIXME: this is called in proof-shell-start, but perhaps
-;; it would be better enabled via hooks for the mode 
-;; functions?  Or somewhere else?  (Problem at the moment
-;; is that we don't get x-symbol in script buffers before
-;; proof assistant is started, presumably).
-;;
-;; Suggestion: add functions
-;;
-;;  proof-x-symbol-activate
-;;  proof-x-symbol-deactivate
-;;
-;; which do what this function does, but also add/remove
-;; hooks for shell mode, etc, 'proof-x-symbol-mode. 
-;; (or variation of that function to just turn x-symbol mode
-;;  *on*).
-
 ;; ### autoload
-(defun proof-x-symbol-mode-all-buffers ()
-  "Activate/deactivate x-symbol in Proof General shell, goals, and response buffer."
+(defun proof-x-symbol-mode ()
+  "Turn on or off x-symbol mode in the current buffer."
   (if proof-x-symbol-initialized
       (progn
-	(if proof-x-symbol-support-on
-	    (add-hook 'proof-shell-insert-hook
-		      'proof-x-symbol-encode-shell-input)
-	  (remove-hook 'proof-shell-insert-hook
-		       'proof-x-symbol-encode-shell-input)
-	  (remove-hook 'comint-output-filter-functions
-		       'x-symbol-comint-output-filter))
-	(save-excursion
-	  (and proof-shell-buffer
-	       (set-buffer proof-shell-buffer)
-	       (proof-x-symbol-mode))
-	  (and proof-goals-buffer
-	       (set-buffer proof-goals-buffer)
-	       (proof-x-symbol-mode))
-	  (and proof-response-buffer
-	       (set-buffer proof-response-buffer)
-	       (proof-x-symbol-mode))))))
+	(setq x-symbol-language proof-assistant-symbol)
+	(if (eq x-symbol-mode 
+		(not proof-x-symbol-support-on))
+	    (x-symbol-mode)) ;; DvO: this is a toggle
+	;; Needed ?  Should let users do this in the 
+	;; usual way, if it works.
+	(if (and x-symbol-mode 
+		 (not font-lock-mode));;DvO
+	    (font-lock-mode)
+	  ;; da: Is this supposed to be called only if we don't turn on
+	  ;; font-lock???
+	  (unless (featurep 'mule)
+	    (if (fboundp 'x-symbol-nomule-fontify-cstrings)
+		(x-symbol-nomule-fontify-cstrings)))))));;DvO
+
+
+(defun proof-x-symbol-mode-all-buffers ()
+  "Activate/deactivate x-symbol mode in all Proof General buffers.
+A subroutine of proof-x-symbol-toggle"
+  (proof-with-current-buffer-if-exists 
+   proof-shell-buffer
+   (proof-x-symbol-shell-config))
+  (let
+      ((bufs   (append
+		(list proof-goals-buffer proof-response-buffer)
+		(proof-buffers-in-mode proof-mode-for-script))))
+    (while bufs
+      ;; mapcar doesn't work with macros
+      (proof-with-current-buffer-if-exists (car bufs)
+					   (proof-x-symbol-mode))
+      (setq bufs (cdr bufs)))))
+
+;; #### autoload
+(defun proof-x-symbol-shell-config ()
+  "Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil."
+  (if proof-x-symbol-initialized
+      (cond
+       (proof-x-symbol-support-on
+	(if (and proof-xsym-activate-command (proof-shell-live-buffer))
+	    (proof-shell-invisible-command proof-xsym-activate-command 'wait))
+	(add-hook 'proof-shell-insert-hook
+		  'proof-x-symbol-encode-shell-input))
+       ((not proof-x-symbol-support-on)
+	(if (and proof-xsym-deactivate-command (proof-shell-live-buffer))
+	    (proof-shell-invisible-command proof-xsym-deactivate-command 'wait))
+	(remove-hook 'proof-shell-insert-hook
+		     'proof-x-symbol-encode-shell-input)
+	(remove-hook 'comint-output-filter-functions
+		     'x-symbol-comint-output-filter)))
+    ;; switch the mode on/off in the buffer
+    (proof-x-symbol-mode)))
+
 
 
 ;;
 ;; Initialize x-symbol-support on load-up if user has asked for it
 ;;
+;;
 (if proof-x-symbol-support (proof-x-symbol-initialize))
 
-;; Need a hook in shell to do this, maybe
-;; (if proof-x-symbol-initialized (proof-x-symbol-toggle 1))
 
 
 
