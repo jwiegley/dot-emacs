@@ -26,7 +26,7 @@
 @c Some URLs.
 @c FIXME: unfortunately, broken in buggy pdftexinfo.
 @c so removed for now.
-@set URLxsymbol  http://www.fmi.uni-passau.de/~wedler/x-symbol/
+@set URLxsymbol  http://x-symbol.sourceforge.net
 @set URLisamode  http://www.proofgeneral.org/~isamode
 @set URLpghome   http://www.proofgeneral.org
 @set URLpglatestrpm  http://www.proofgeneral.org/ProofGeneral-latest.noarch.rpm
