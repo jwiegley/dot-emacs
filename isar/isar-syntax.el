@@ -149,7 +149,8 @@
 
 (defvar isar-font-lock-keywords-1
   (append
-   isar-font-lock-terms
+;FIXME n.a.
+;   isar-font-lock-terms
    (list
     (cons (proof-ids-to-regexp isar-keywords-minor) 'font-lock-type-face)
     (cons (proof-ids-to-regexp isar-keywords-control) 'proof-error-face)
