@@ -15,10 +15,6 @@
 ;;; ======== User settings for Isabelle ========
 ;;;
 
-(defgroup isabelle-settings nil
-  "Customization of Isabelle specifics for proof mode."
-  :group 'proof)
-  
 (defcustom isa-prog-name "/usr/lib/Isabelle98/bin/isabelle"
   "*Name of program to run Isabelle."
   :type 'file
@@ -55,6 +51,10 @@ no regular or easily discernable structure."
 ;;; ======== Configuration of generic modes ========
 ;;;
 
+;;; NB!  Disadvantage of *not* shadowing variables is that user
+;;; cannot override them.  It might be nice to override some
+;;; variables, which ones?
+
 (defun isa-mode-config-set-variables
   "Configure generic proof scripting mode variables for Isabelle."
   (setq
@@ -69,11 +69,12 @@ no regular or easily discernable structure."
    proof-save-with-hole-regexp  isa-save-with-hole-regexp
    proof-goal-with-hole-regexp  isa-goal-with-hole-regexp
    proof-commands-regexp	(ids-to-regexp isa-keywords)
-   ;; proof engine commands
-   proof-prf-string		"pr()"
-   proof-kill-goal-command	"Goal \"PROP no_goal_supplied\""
+   ;; proof engine commands (first three for menus, last for undo)
+   proof-prf-string		"pr();"
    proof-ctxt-string		"the_context();"
    proof-help-string		"print version;"
+   proof-kill-goal-command	"Goal \"PROP no_goal_supplied\";"
+   proof-goal-command-string	"Goal \"%s\";"
    ;; command hooks
    proof-goal-command-p		'isa-goal-command-p
    proof-count-undos-fn		'isa-count-undos
@@ -144,35 +145,33 @@ to set outline heading regexp.")
 ;;; ---- end-outline
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;
+;;   Define the derived modes 
+;;
 (define-derived-mode isa-shell-mode proof-shell-mode
-   "isa-shell" "Inferior shell mode for isabelle shell"
+   "Isabelle shell" nil
    (isa-shell-mode-config))
 
 (define-derived-mode isa-pbp-mode pbp-mode
-  "pbp" "Proof-by-pointing support for Isabelle"
+  "Isabelle proofstate" nil
   (isa-pbp-mode-config))
 
-(define-derived-mode isa-proofgeneral-mode proof-mode
-   "Isabelle" "Isabelle Proof General Mode"
+(define-derived-mode isa-proofscript-mode proof-mode
+   "Isabelle script" nil
    (isa-mode-config))
 
-
-;; Automatically selecting theory mode or Proof General mode.
+;; Automatically selecting theory mode or Proof General script mode.
 
 (defun isa-mode ()
-  "Mode for Isabelle buffers: either isa-proofgeneral-mode or isa-thy-mode.
+  "Mode for Isabelle buffers: either isa-proofscript-mode or isa-thy-mode.
 Files with extension .thy will be in isa-thy-mode, otherwise we choose
-isa-proofgeneral-mode."
+isa-proofscript-mode."
   (interactive)
   (cond
    ((string-match ".thy" (buffer-file-name))
     (isa-thy-mode))
    (t 
-    (isa-proofgeneral-mode))))
+    (isa-proofscript-mode))))
 
 ;; Next portion taken from isa-load.el
 ;; isa-load.el,v 3.8 1998/09/01 
