@@ -1234,7 +1234,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (let ((gspan     span)		  ; putative goal span
 	    (savestart (span-start span))
 	    (saveend   (span-end span))
-	    lev goalend nam next ncmd)
+	    lev nestedundos goalend nam next ncmd)
 
 	;; Try to set the name of the theorem from the save
 	;; (message "%s" cmd)   3.4: remove this message.
@@ -1252,7 +1252,10 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; along the way: they will be amalgamated into a single
 	;; goal-save region, which corresponds to the prover
 	;; discarding the proof history.
+	;; Provers without flat history yet nested proofs (i.e. Coq)
+	;; need to keep a record of the undo count for nested goalsaves.
 	(setq lev 1)
+	(setq nestedundos 0)
 	(while (and gspan (> lev 0))
 	  (setq next (prev-span gspan 'type))
 	  (delete-span gspan)
@@ -1261,9 +1264,13 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	      (progn
 		(setq cmd (span-property gspan 'cmd))
 		(cond
-		 ;; Ignore comments, any nested goalsaves
-		 ((eq (span-property gspan 'type) 'comment))
-		 ((eq (span-property gspan 'type) 'goalsave))
+		 ;; Ignore comments [may have null cmd setting]
+		 ((eq (span-property gspan 'type) 'comment))	
+		 ;; Nested goal saves: add in any nestedcmds
+		 ((eq (span-property gspan 'type) 'goalsave)
+		  (setq nestedundos
+			(+ nestedundos 1
+			   (or (span-property gspan 'nestedundos) 0))))
 		 ;; Increment depth for a nested save, in case
 		 ;; prover supports history of nested proofs
 		 ((and proof-nested-goals-p
@@ -1272,7 +1279,13 @@ the ACS is marked in the current buffer. If CMD does not match any,
 		  (incf lev))
 		 ;; Decrement depth when a goal is hit
 		 ((funcall proof-goal-command-p cmd)
-		  (decf lev))))))
+		  (decf lev))
+		 ;; Remainder cases: see if command matches something we
+		 ;; should count for a global undo
+		 ((and proof-nested-undo-regexp
+		       (proof-string-match proof-nested-undo-regexp cmd))
+		  (incf nestedundos))
+		 ))))
 
 	(if (not gspan)
 	    ;; No goal span found!  Issue a warning and do nothing more.
@@ -1306,6 +1319,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  (set-span-property gspan 'type 'goalsave)
 	  (set-span-property gspan 'idiom 'proof);; links to nested proof element
 	  (set-span-property gspan 'name nam)
+	  (set-span-property gspan 'nestedundos nestedundos)
 	  (pg-set-span-helphighlights gspan)
 
 	  ;; Make a nested span which contains the purported body of the

@@ -1019,6 +1019,13 @@ may be left as nil."
   :type '(choice nil regexp)
   :group 'proof-script)
 
+;; FIXME: doc this next one.
+(defcustom proof-nested-undo-regexp nil
+  "Regexp for commands that must be counted in nested goal-save regions.
+Used for provers which allow nested-goal saves but a flat history."
+  :type '(choice nil regexp)
+  :group 'proof-script)
+
 (defcustom proof-ignore-for-undo-count nil
   "Matcher for script commands to be ignored in undo count.
 May be left as nil, in which case it will be set to
@@ -1274,8 +1281,10 @@ need to set this variable."
 
 
 (defcustom proof-nested-goals-p nil
-  "Whether the prover supports nested proofs or not.
-Proof General will try to do something sensible if it does."
+  "Whether the prover supports recovery of history for nested proofs.
+If it does, Proof General will retain history inside nested proofs;
+otherwise Proof General will amalgamate nested proofs into single
+steps."
   :type 'boolean
   :group 'proof-script)
 
