@@ -508,9 +508,9 @@ Names must be unique for a given "
 
 (defun pg-add-proof-element (name span)
   (pg-add-element "proof" name span)
-  (set-span-property proofbodyspan 'name name)
-  (set-span-property proofbodyspan 'type 'proof)
-  (set-span-property proofbodyspan 'idiom 'proof)
+  (set-span-property span 'name name)
+  (set-span-property span 'type 'proof)
+  (set-span-property span 'idiom 'proof)
   ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
   (if proof-disappearing-proofs 
       (pg-make-element-invisible "proof" name)))
@@ -1174,6 +1174,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
       ;; FIXME: subroutine here:
       (let ((gspan     span)
 	    (savestart (span-start span))
+	    (saveend (span-end span))
 	    goalend nam next ncmd)
 
 	;; Try to set the name of the theorem from the save
@@ -1235,7 +1236,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; Make a nested span which contains the purported body of the
 	;; proof, and add to buffer-local list of elements, maybe
 	;; making invisible.
-	(let ((proofbodyspan (make-span goalend savestart)))
+	(let ((proofbodyspan
+	       (make-span goalend (if proof-script-integral-proofs saveend savestart))))
 	  (pg-add-proof-element nam proofbodyspan))
 
 	;; Set the context sensitive menu/keys
@@ -2028,13 +2030,14 @@ others)."
 (defun proof-last-goal-or-goalsave ()
   (save-excursion
     (let ((span (span-at-before (proof-locked-end) 'type)))
-    (while (and span 
-		(not (eq (span-property span 'type) 'goalsave))
-		(or (eq (span-property span 'type) 'comment)
-		    (not (funcall proof-goal-command-p
-				  (span-property span 'cmd)))))
-      (setq span (prev-span span 'type)))
-    span)))
+      (while (and span 
+		  (not (eq (span-property span 'type) 'goalsave))
+		  (or (eq (span-property span 'type) 'proof)
+		      (eq (span-property span 'type) 'comment)
+		      (not (funcall proof-goal-command-p
+				    (span-property span 'cmd)))))
+	(setq span (prev-span span 'type)))
+      span)))
 
 (defun proof-retract-target (target delete-region)
   "Retract the span TARGET and delete it if DELETE-REGION is non-nil.
@@ -2044,6 +2047,7 @@ up to the end of the locked region."
 	(start (span-start target))
 	(span  (proof-last-goal-or-goalsave))
 	actions)
+
 
     ;; Examine the last span in the locked region.  
     
@@ -2141,6 +2145,9 @@ command."
 	   (proof-goto-end-of-locked) 
 	   (backward-char)
 	   (setq span (span-at (point) 'type))))
+    ;; FIXME mmw: make sure we pass by a proof body overlay (is there a better way?)
+    (and (eq (span-property span 'type) 'proof)
+	 (setq span (prev-span span 'type)))
     (proof-retract-target span delete-region)))
 
 
