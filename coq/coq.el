@@ -119,7 +119,12 @@
 (defun coq-set-undo-limit (undos)
   (proof-shell-invisible-command (format "Set Undo %s." undos)))
 
+;;
+;; FIXME Papageno 05/1999: must take sections in account.
+;;
+
 (defun coq-count-undos (span)
+  "Count number of undos in a span, return the command needed to undo that far."
   (let ((ct 0) str i)
     (if (and span (prev-span span 'type)
 	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
@@ -202,28 +207,32 @@
    ((looking-at proof-shell-assumption-regexp)
     (cons 'hyp (match-string 1)))
    (t nil)))
+;;
+;; Papageno 05/1999 : this feature is (1) broken (2) extemely annoying
+;;
+;; I remove that waiting a better solution to be found
 
-(defun coq-lift-global (glob-span)
-  "This function lifts local lemmas from inside goals out to top level."
-  (let (start (next (span-at 1 'type)) str (goal-p nil))
-    (while (and next (and (not (eq next glob-span)) (not goal-p)))
-      (if (and (eq (span-property next 'type) 'vanilla)
-	       (funcall proof-goal-command-p (span-property next 'cmd)))
-	  (setq goal-p t)
-	(setq next (next-span next 'type))))
+;(defun coq-lift-global (glob-span)
+;  "This function lifts local lemmas from inside goals out to top level."
+;  (let (start (next (span-at 1 'type)) str (goal-p nil))
+;    (while (and next (and (not (eq next glob-span)) (not goal-p)))
+;      (if (and (eq (span-property next 'type) 'vanilla)
+;	       (funcall proof-goal-command-p (span-property next 'cmd)))
+;	  (setq goal-p t)
+;	(setq next (next-span next 'type))))
 
-    (if (and next (not (eq next glob-span)))
-	(progn
-	  (proof-unlock-locked)
-	  (setq str (buffer-substring (span-start glob-span)
-				      (span-end glob-span)))
-	  (delete-region (span-start glob-span) (span-end glob-span))
-	  (goto-char (span-start next))
-	  (setq start (point))
-	  (insert str "\n")
-	  (set-span-endpoints glob-span start (point))
-	  (set-span-start next (point))
-	  (proof-lock-unlocked)))))
+;    (if (and next (not (eq next glob-span)))
+;	(progn
+;	  (proof-unlock-locked)
+;	  (setq str (buffer-substring (span-start glob-span)
+;				      (span-end glob-span)))
+;	  (delete-region (span-start glob-span) (span-end glob-span))
+;	  (goto-char (span-start next))
+;	  (setq start (point))
+;	  (insert str "\n")
+;	  (set-span-endpoints glob-span start (point))
+;	  (set-span-start next (point))
+;	  (proof-lock-unlocked)))))
 
 (defun coq-state-preserving-p (cmd)
   (not (proof-string-match coq-undoable-commands-regexp cmd)))
@@ -429,7 +438,7 @@
         proof-shell-init-cmd coq-process-config
 	proof-shell-restart-cmd coq-process-config
 	proof-analyse-using-stack t
-	proof-lift-global 'coq-lift-global
+;;	proof-lift-global 'coq-lift-global
 	)
 
   ;; The following hook is removed once it's called.
