@@ -1,0 +1,19 @@
+AF2 Proof General, for AF2.
+
+Written by Christophe Raffalli
+
+$Id$
+
+Status:	       supported
+Maintainer:    Christophe Raffalli <Christophe.Raffalli@univ-savoie.fr>
+AF2 version:   
+AF2 homepage:  http://www.lama.univ-savoie.fr/~RAFFALLI/af2.html
+
+========================================
+
+This mode has support for script management with AF2, and some
+other features ported from AF2's own Emacs mode.
+
+
+
+
