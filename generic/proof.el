@@ -17,7 +17,7 @@
 ;; da: I propose splitting this file as follows:
 ;;
 ;;  proof.el         Controls loading.  Requires proof-script, proof-shell.
-;;		     Retains misc utils and user options.
+;;		     Retains misc utils, user options, splash screen.
 ;;  proof-script.el  Script management mode.
 ;;  proof-shell.el   Proof shell mode.
 ;;
@@ -551,10 +551,10 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
 (defcustom proof-shell-process-file nil
   "A tuple of the form (regexp . function) to match a processed file name.
 
-If REGEXP matches output, then the function FUNCTION is invoked. It
-must return a script file name (with complete path) the system is
-currently processing. In practice, FUNCTION is likely to inspect the
-match data.
+If REGEXP matches output, then the function FUNCTION is invoked on the
+output string chunk. It must return a script file name (with complete
+path) the system is currently processing. In practice, FUNCTION is
+likely to inspect the match data.
 
 Care has to be taken in case the prover only reports on compiled
 versions of files it is processing. In this case, FUNCTION needs to
@@ -840,15 +840,18 @@ buffer is closed off atomically."
       ;; compute first command of buffer
       (goto-char (point-min))
       (proof-find-next-terminator)
-      ;; skip comments
-      (setq cmd
-	    (second (car (member-if
-			 (lambda (entry) (equal (car entry) 'cmd))
-			 (proof-segment-up-to (point))))))
-      
-      (proof-init-segmentation)
-      (set-span-property span 'type 'vanilla)
-      (set-span-property span 'cmd cmd)
+      (let ((cmd-list (member-if
+		       (lambda (entry) (equal (car entry) 'cmd))
+		       (proof-segment-up-to (point)))))
+	(proof-init-segmentation)
+	(if cmd-list 
+	    (progn
+	      (setq cmd (second (car cmd-list)))
+	      (set-span-property span 'type 'vanilla)
+	      (set-span-property span 'cmd cmd))
+	  ;; If there was no command in the buffer, atomic
+	  ;; span becomes a comment.
+	  (set-span-property span 'type 'comment)))
       (proof-set-locked-end (point-max))
       (or (member buffer proof-script-buffer-list)
 	  (setq proof-script-buffer-list
@@ -1515,11 +1518,13 @@ locked region or everything in it has been processed."
 	  (current-buffer (current-buffer)))
       (save-excursion
 	(set-buffer script-buffer)
-
+	;; FIXME: Here we try to find the last bit of blue in a
+	;; completed buffer --- probably not quite right yet!
+	(goto-char (point-max))
+	(skip-chars-backward "\\S-")
 	;; We only allow switching of the Scripting buffer if the
 	;; locked region is either empty of full for all buffers.
-	(if (member (proof-unprocessed-begin) (list (point-min)
-						     (point-max)))
+	(if (member (proof-unprocessed-begin) (list (point-min) (point)))
 
 	    ;; we are changing the scripting buffer
 	   (progn
