@@ -366,8 +366,13 @@ Resulting output from Isabelle will be parsed by Proof General."
   :group 'isabelle-config)
 
 (defun isa-retract-thy-file (file)
-  "Retract the theory file FILE. If interactive, use buffer-file-name."
+  "Retract the theory file FILE. If interactive, use buffer-file-name.
+To prevent inconsistencies, scripting is deactivated before doing this. 
+So if scripting is active in an ML file which is not completely processed, 
+you will be asked to retract the file or process the remainder of it.  
+(If you process the rest of it it may subsequently be unlocked anyway). "
   (interactive (list buffer-file-name))
+  (proof-deactivate-scripting)
   (proof-shell-invisible-command
    (format isa-retract-thy-file-command
 	   (file-name-nondirectory (file-name-sans-extension file)))))
