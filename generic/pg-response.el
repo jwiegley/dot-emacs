@@ -8,19 +8,14 @@
 ;; $Id$
 ;;
 
+;; A sub-module of proof-shell; assumes proof-script loaded.
+(require 'pg-assoc)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Response buffer mode
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(eval-and-compile
-(define-derived-mode proof-universal-keys-only-mode fundamental-mode
-    proof-general-name "Universal keymaps only"
-    ;; Doesn't seem to supress TAB, RET
-    (suppress-keymap proof-universal-keys-only-mode-map 'all)
-    (proof-define-keys proof-universal-keys-only-mode-map 
-		       proof-universal-keys)))
 
 (eval-and-compile
 (define-derived-mode proof-response-mode proof-universal-keys-only-mode
@@ -30,7 +25,7 @@
   (easy-menu-add proof-response-mode-menu proof-response-mode-map)
   (easy-menu-add proof-assistant-menu proof-response-mode-map)
   (proof-toolbar-setup)
-  (setq proof-shell-next-error nil)	; all error msgs lost!
+  (setq pg-response-next-error nil)	; all error msgs lost!
   (erase-buffer)))
 
 (easy-menu-define proof-response-mode-menu
@@ -130,7 +125,7 @@ Returns non-nil if response buffer was cleared."
 	  ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
 	  ;; (erase-buffer proof-response-buffer)
 	    (with-current-buffer proof-response-buffer
-	      (setq proof-shell-next-error nil)	; all error msgs lost!
+	      (setq pg-response-next-error nil)	; all error msgs lost!
 	      (erase-buffer))))
       (setq pg-response-erase-flag erase-next-time)
       doit)))
@@ -138,7 +133,7 @@ Returns non-nil if response buffer was cleared."
 (defun pg-response-display (str)
   "Show STR as a response in the response buffer."
   (unless pg-use-specials-for-fontify
-    (setq str (pg-goals-strip-subterm-markup str)))
+    (setq str (pg-assoc-strip-subterm-markup str)))
   (proof-shell-maybe-erase-response t nil)
   (pg-response-display-with-face str)
   (proof-display-and-keep-buffer proof-response-buffer))
@@ -175,6 +170,99 @@ Returns non-nil if response buffer was cleared."
 
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Next error function.
+;;
+
+(defvar pg-response-next-error nil
+  "Error counter in response buffer to count for next error message.")
+
+;;;###autoload
+(defun proof-next-error (&optional argp)
+  "Jump to location of next error reported in the response buffer.
+
+A prefix arg specifies how many error messages to move;
+negative means move back to previous error messages.
+Just C-u as a prefix means reparse the error message buffer
+and start at the first error."
+  (interactive "P")
+  (if (and ;; At least one setting must be configured
+       pg-next-error-regexp
+       ;; Response buffer must be live
+       (or
+	(buffer-live-p proof-response-buffer)
+	(error "proof-next-error: no response buffer to parse!")))
+      (let ((wanted-error    (or (and (not (consp argp))
+				      (+ (prefix-numeric-value argp)
+					 (or pg-response-next-error 0)))
+				 (and (consp argp) 1)
+				 (or pg-response-next-error 1)))
+	    line column file errpos)
+	(set-buffer proof-response-buffer)
+	(goto-char (point-min))
+	(if (re-search-forward pg-next-error-regexp 
+			       nil t wanted-error)
+	    (progn
+	      (setq errpos (save-excursion
+			     (goto-char (match-beginning 0))
+			     (beginning-of-line)
+			     (point)))
+	      (setq line (match-string 2)) ; may be unset
+	      (if line (setq line (string-to-int line)))
+	      (setq column (match-string 3)) ; may be unset
+	      (if column (setq column (string-to-int column)))
+	      (setq pg-response-next-error wanted-error)
+	      (if (and
+		   pg-next-error-filename-regexp
+		     ;; Look for the most recently mentioned filename
+		     (re-search-backward
+		      pg-next-error-filename-regexp nil t))
+		    (setq file 
+			  (if (file-exists-p (match-string 2))
+			      (match-string 2)
+			    ;; May need post-processing to extract filename
+			    (if pg-next-error-extract-filename
+				(format 
+				 pg-next-error-extract-filename 
+				 (match-string 2))))))
+		;; Now find the other buffer we need to display
+		(let*
+		    ((errbuf	
+		      (if file
+			  (find-file-noselect file)
+			(or proof-script-buffer 
+			    ;; We could make more guesses here,
+			    ;; e.g. last script buffer active 
+			    ;; (keep a record of it?)
+			    (error 
+			     "proof-next-error: can't guess file for error message"))))
+		     (pop-up-windows t)
+		     (rebufwindow
+		      (or (get-buffer-window proof-response-buffer 'visible)
+			  ;; Pop up a window.
+			  (display-buffer proof-response-buffer))))
+		  ;; Make sure the response buffer stays where it is,
+		  ;; and make sure source buffer is visible
+		  (select-window rebufwindow)
+		  (pop-to-buffer errbuf)
+		  ;; Display the error message in the response buffer
+		  (set-window-point rebufwindow errpos)
+		  (set-window-start rebufwindow errpos)
+		  ;; Find the error location in the error buffer
+		  (set-buffer errbuf)
+		  ;; FIXME: no handling of selective display here
+		  (goto-line line)
+		  (if (and column (> column 1))
+		      (move-to-column (1- column)))))
+	    (setq pg-response-next-error nil)
+	    (error "proof-next-error: couldn't find next error.")))))
+
+   
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Tracing buffers
@@ -183,7 +271,7 @@ Returns non-nil if response buffer was cleared."
 ;; An analogue of pg-response-display-with-face 
 (defun proof-trace-buffer-display (str)
   "Display STR in the trace buffer."
-  (let (start end)
+  (let (start)
     (with-current-buffer proof-trace-buffer
       (goto-char (point-max))
       (newline)				
@@ -191,6 +279,7 @@ Returns non-nil if response buffer was cleared."
       (insert str)
       (unless (bolp) (newline))
       (proof-fontify-region start (point)))))
+
 
 
 

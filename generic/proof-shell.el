@@ -519,10 +519,21 @@ object files, used by Lego and Coq)."
 
 
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Response buffer processing
 ;;
+
+(defvar proof-shell-no-response-display nil
+  "A setting to disable displays in the response buffer.")
+
+(defvar proof-shell-urgent-message-marker nil
+  "Marker in proof shell buffer pointing to end of last urgent message.")
+
+(defvar proof-shell-urgent-message-scanner nil
+  "Marker in proof shell buffer pointing to scan start for urgent messages.")
+
+
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
   "Displays output from `proof-shell-buffer' in `proof-response-buffer'.
 The region in `proof-shell-buffer begins with the first match 
@@ -554,7 +565,7 @@ This is a subroutine of proof-shell-handle-error."
       (setq string
 	    (if pg-use-specials-for-fontify
 		(buffer-substring start end)
-	      (pg-goals-strip-subterm-markup
+	      (pg-assoc-strip-subterm-markup
 	       (buffer-substring start end)))))
     ;; Erase if need be, and erase next time round too.
     (proof-shell-maybe-erase-response t nil)
@@ -706,7 +717,7 @@ which see."
     ((proof-shell-string-match-safe proof-shell-error-regexp string)
      ;; FIXME: is the next setting correct or even needed?
      (setq proof-shell-last-output
-	   (pg-goals-strip-subterm-markup
+	   (pg-assoc-strip-subterm-markup
 	    (substring string (match-beginning 0))))
      (setq proof-shell-last-output-kind 'error))
     
@@ -742,7 +753,7 @@ which see."
 		pg-subterm-first-special-char
 		(not (string-equal 
 		      proof-shell-start-goals-regexp
-		      (pg-goals-strip-subterm-markup 
+		      (pg-assoc-strip-subterm-markup 
 		       proof-shell-start-goals-regexp))))
 	 (setq start (match-beginning 0)))
        (setq end (if proof-shell-end-goals-regexp
@@ -1231,7 +1242,7 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
       (proof-trace-buffer-display 
        (if pg-use-specials-for-fontify
 	   message
-	 (pg-goals-strip-subterm-markup message)))
+	 (pg-assoc-strip-subterm-markup message)))
       (proof-display-and-keep-buffer proof-trace-buffer)
       ;; Force redisplay in case in a fast loop which keeps Emacs
       ;; fully-occupied processing prover output
@@ -1249,8 +1260,7 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
       ;; Don't bother remove the window for the response buffer
       ;; because we're about to put a message in it.
       (proof-shell-maybe-erase-response nil nil)
-      (let ((stripped	(pg-goals-strip-subterm-markup message))
-	    firstline)
+      (let ((stripped	(pg-assoc-strip-subterm-markup message)))
 	;; Display first chunk of output in minibuffer.
 	;; Maybe this should be configurable, it can get noisy.
 	(proof-shell-message 
@@ -1261,15 +1271,6 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
 	     message
 	   stripped)
 	 'proof-eager-annotation-face)))))
-
-(defvar proof-shell-no-response-display nil
-  "A setting to disable displays in the response buffer.")
-
-(defvar proof-shell-urgent-message-marker nil
-  "Marker in proof shell buffer pointing to end of last urgent message.")
-
-(defvar proof-shell-urgent-message-scanner nil
-  "Marker in proof shell buffer pointing to scan start for urgent messages.")
 
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
@@ -1680,14 +1681,11 @@ usual, unless NOERROR is non-nil."
 ;; Proof General shell mode definition
 ;;
 
-
 (eval-and-compile			; to define vars
 ;;; NB: autoload tag below doesn't work for d-d-m, autoload is in proof.el
 ;;;###autoload
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof General shell mode class for proof assistant processes"
-
-
 
   (setq proof-buffer-type 'shell)
   
@@ -1800,100 +1798,6 @@ processing."
       
 	    ;; Configure for x-symbol
 	    (proof-x-symbol-shell-config))))))
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Next error function.
-;;
-
-(defvar proof-shell-next-error nil
-  "Error counter in response buffer to count for next error message.")
-
-;;;###autoload
-(defun proof-next-error (&optional argp)
-  "Jump to location of next error reported in the response buffer.
-
-A prefix arg specifies how many error messages to move;
-negative means move back to previous error messages.
-Just C-u as a prefix means reparse the error message buffer
-and start at the first error."
-  (interactive "P")
-  (if (and ;; At least one setting must be configured
-       proof-shell-next-error-regexp
-       ;; Response buffer must be live
-       (or
-	(buffer-live-p proof-response-buffer)
-	(error "proof-next-error: no response buffer to parse!")))
-      (let ((wanted-error    (or (and (not (consp argp))
-				      (+ (prefix-numeric-value argp)
-					 (or proof-shell-next-error 0)))
-				 (and (consp arg) 1)
-				 (or proof-shell-next-error 1)))
-	    line column file errpos)
-	(set-buffer proof-response-buffer)
-	(goto-char (point-min))
-	(if (re-search-forward proof-shell-next-error-regexp 
-			       nil t wanted-error)
-	    (progn
-	      (setq errpos (save-excursion
-			     (goto-char (match-beginning 0))
-			     (beginning-of-line)
-			     (point)))
-	      (setq line (match-string 2)) ; may be unset
-	      (if line (setq line (string-to-int line)))
-	      (setq column (match-string 3)) ; may be unset
-	      (if column (setq column (string-to-int column)))
-	      (setq proof-shell-next-error wanted-error)
-	      (if (and
-		   proof-shell-next-error-filename-regexp
-		     ;; Look for the most recently mentioned filename
-		     (re-search-backward
-		      proof-shell-next-error-filename-regexp nil t))
-		    (setq file 
-			  (if (file-exists-p (match-string 2))
-			      (match-string 2)
-			    ;; May need post-processing to extract filename
-			    (if proof-shell-next-error-extract-filename
-				(format 
-				 proof-shell-next-error-extract-filename 
-				 (match-string 2))))))
-		;; Now find the other buffer we need to display
-		(let*
-		    ((errbuf	
-		      (if file
-			  (find-file-noselect file)
-			(or proof-script-buffer 
-			    ;; We could make more guesses here,
-			    ;; e.g. last script buffer active 
-			    ;; (keep a record of it?)
-			    (error 
-			     "proof-next-error: can't guess file for error message"))))
-		     (pop-up-windows t)
-		     (rebufwindow
-		      (or (get-buffer-window proof-response-buffer 'visible)
-			  ;; Pop up a window.
-			  (display-buffer proof-response-buffer))))
-		  ;; Make sure the response buffer stays where it is,
-		  ;; and make sure source buffer is visible
-		  (select-window rebufwindow)
-		  (pop-to-buffer errbuf)
-		  ;; Display the error message in the response buffer
-		  (set-window-point rebufwindow errpos)
-		  (set-window-start rebufwindow errpos)
-		  ;; Find the error location in the error buffer
-		  (set-buffer errbuf)
-		  ;; FIXME: no handling of selective display here
-		  (goto-line line)
-		  (if (and column (> column 1))
-		      (move-to-column (1- column)))))
-	    (setq proof-shell-next-error nil)
-	    (error "proof-next-error: couldn't find next error.")))))
-
-   
 
 
 (provide 'proof-shell)

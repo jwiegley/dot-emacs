@@ -8,12 +8,18 @@
 ;; $Id$
 ;;
 
+;; A sub-module of proof-shell; assumes proof-script loaded.
+
+(require 'pg-assoc)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Goals buffer mode
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;
+;; The mode itself
+;;
 (eval-and-compile			; to define proof-goals-mode-map
 (define-derived-mode proof-goals-mode proof-universal-keys-only-mode
   proof-general-name 
@@ -56,6 +62,10 @@ May enable proof-by-pointing or similar features.
 		  "Menu for Proof General goals buffer."
 		  proof-aux-menu)
 
+
+;;
+;; The completion of init
+;;
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."
   (proof-font-lock-configure-defaults nil)
@@ -235,12 +245,12 @@ commands which can be sent to the prover."
 
     ;; Finally: strip the specials.  This should
     ;; leave the spans in exactly the right place.
-    (pg-goals-strip-subterm-markup-buf start end))))
+    (pg-assoc-strip-subterm-markup-buf start end))))
 
 
 (defun pg-goals-make-top-span (start end)
   "Make a top span (goal/hyp area) for mouse active output."
-  (let (span name)
+  (let (span typname)
     (goto-char start)
     ;; skip the pg-topterm-char itself
     (forward-char)
@@ -257,78 +267,6 @@ commands which can be sent to the prover."
     (set-span-property span 'mouse-face 'highlight)
     (set-span-property span 'proof-top-element typname)))
 
-
-(defun pg-goals-strip-subterm-markup (string)
-  "Return STRING with subterm and pbp annotations removed.
-Special annotations are characters with codes higher than
-'pg-subterm-first-special-char'.
-If pg-subterm-first-special-char is unset, return STRING unchanged."
-  (if pg-subterm-first-special-char
-      (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
-	(while (< ip l)
-	  (if (>= (aref string ip) pg-subterm-first-special-char)
-	      (if (char-equal (aref string ip) pg-subterm-start-char)
-		  (progn (incf ip)
-			 ;; da: this relies on annotations being
-			 ;; characters between \200 and first special
-			 ;; char (e.g. \360).  Why not just look for
-			 ;; the sep char??
-			 (while 
-			     (< (aref string ip) 
-				pg-subterm-first-special-char)
-			   (incf ip))))
-	    (aset out op (aref string ip))
-	    (incf op))
-	  (incf ip))
-	(substring out 0 op))
-    string))
-
-(defun pg-goals-strip-subterm-markup-buf (start end)
-  "Remove subterm and pbp annotations from region."
-  ;; FIXME: create these regexps ahead of time.
-  (if pg-subterm-start-char
-      (let ((ann-regexp 
-	     (concat 
-	      (regexp-quote (char-to-string pg-subterm-start-char))
-	      "[^" 
-	      (regexp-quote (char-to-string pg-subterm-sep-char))
-	      "]*"
-	      (regexp-quote (char-to-string pg-subterm-sep-char)))))
-	(save-restriction
-	  (narrow-to-region start end)
-	  (goto-char start)
-	  (proof-replace-regexp ann-regexp "")
-	  (goto-char start)
-	  (proof-replace-string (char-to-string pg-subterm-end-char) "")
-	  (goto-char start)
-	  (if pg-topterm-char
-	      (proof-replace-string (char-to-string pg-topterm-char) ""))))))
-	  
-	 
-
-(defun pg-goals-strip-subterm-markup-buf-old (start end)
-  "Remove subterm and pbp annotations from region."
-  (let (c)
-    (goto-char start)
-    (while (< (point) end)
-      ;; FIXME: small OBO here: if char at end is special
-      ;; it won't be removed.
-      (if (>= (setq c (char-after (point))) 
-	      pg-subterm-first-special-char)
-	  (progn
-	    (delete-char 1)
-	    (decf end)
-	    (if (char-equal c pg-subterm-start-char)
-		(progn 
-		  ;; FIXME: could simply replace this by replace
-		  ;; match, matching on sep-char??
-		  (while (and (< (point) end)
-			      (< (char-after (point))
-				 pg-subterm-first-special-char))
-		    (delete-char 1)
-		    (decf end)))))
-	(forward-char)))
-    end))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
