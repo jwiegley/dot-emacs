@@ -1,6 +1,6 @@
 ;; proof-utils.el   Proof General utility functions
 ;;
-;; Copyright (C) 1998-2000 LFCS Edinburgh. 
+;; Copyright (C) 1998-2001 LFCS Edinburgh. 
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk> and others
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
@@ -325,7 +325,11 @@ Returns new END value."
   ;; It's okay because x-symbol-decode works even without font lock.
   ;; Possible disadvantage is that font lock patterns can't refer
   ;; to X-Symbol characters.  Probably they shouldn't!
-  (narrow-to-region start end)
+
+  ;; 3.5.01: narrowing causes failure in parse-sexp in XEmacs 21.4.
+  ;; I don't think we need it now we use a function to fontify
+  ;; just the region.
+  ;; (narrow-to-region start end)
 
   (if proof-output-fontify-enable
       (progn
@@ -336,6 +340,16 @@ Returns new END value."
 	  ;; FIXME: should set other bits of font lock defaults,
 	  ;; perhaps, such as case fold etc.  What happened to
 	  ;; the careful buffer local font-lock-defaults??
+	  ;; ================================================
+	  ;; 3.5.01: call to font-lock-fontify-region breaks
+	  ;; in xemacs 21.4.  Following hack to fix
+	  (if (and (string-match "21\\.4.*XEmacs" emacs-version)
+		   (not font-lock-cache-position))
+	      (progn
+		(setq font-lock-cache-position (make-marker))
+		(set-marker font-lock-cache-position 0)))
+
+	  ;; ================================================
 	  (font-lock-fontify-region start end)
 	  (proof-zap-commas-region start end))))
   (if proof-shell-leave-annotations-in-output
@@ -349,8 +363,10 @@ Returns new END value."
 	    (delete-char -1)))
 	(goto-char p)))
   (proof-x-symbol-decode-region start (point-max))
-  (prog1 (point-max)
-    (widen)))
+  (point-max))
+;; old ending:
+;; (prog1 (point-max)
+;; (widen)))
 
 ;; FIXME todo: add toggle for fontify region which turns it on/off
 ;; (maybe).
