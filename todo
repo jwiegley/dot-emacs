@@ -14,6 +14,9 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+C  Func menu: add setting for proof-save-with-hole-regexp to
+   extend support for goals named at the end of proofs.
+
 D  Customization mechanism: is there a way to make saved settings
    not be overwritten by setq's in the code?  Need to think how
    to do this, something like customize-set-variable-if-unchanged
