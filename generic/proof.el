@@ -77,7 +77,8 @@ an error.")
   "List of files currently included in proof process.
 Whenever a new file is being processed, it gets added.
 When the prover retracts across file boundaries, this list 
-is resynchronised. It contains files in canonical truename format")
+is resynchronised. It contains files in canonical truename format.
+Only files which have been *fully* processed should be included here.")
 
 (defvar proof-script-buffer nil
   "The currently active scripting buffer or nil if none.")
@@ -216,6 +217,21 @@ Restrict to BUFLIST if it's set."
       (if (with-current-buffer buf (eq mode major-mode))
 	  (setq bufs-got (cons buf bufs-got))))))
 
+
+;; Function for submitting bug reports.
+(defun proof-submit-bug-report ()
+  "Submit an bug report or other report for Proof General."
+  (interactive)
+  (require 'reporter)
+  (let
+      ((reporter-prompt-for-summary-p 
+	"(Very) brief summary of problem or suggestion: "))
+    (reporter-submit-bug-report
+     "proofgen@dcs.ed.ac.uk"
+     proof-version
+     (list 'proof-assistant)
+     nil nil
+     "When reporting a bug, please include a small test case for us to repeat it.")))
 
 
 (provide 'proof)
