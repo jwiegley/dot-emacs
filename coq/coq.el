@@ -489,7 +489,7 @@
 
 (defun coq-shell-mode-config ()
   (setq proof-shell-prompt-pattern coq-shell-prompt-pattern
-        proof-shell-cd coq-shell-cd
+        proof-shell-cd-cmd coq-shell-cd
         proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
         proof-shell-error-regexp coq-error-regexp
