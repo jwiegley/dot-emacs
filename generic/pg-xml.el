@@ -183,6 +183,7 @@ is
 ;;
 ;; Producing functions: state-based writing of an XML doc,
 ;;			built up in pg-xml-doc
+;;
 
 (defconst pg-xml-header 
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
@@ -195,6 +196,16 @@ is
 
 (defvar pg-xml-indentp nil
   "Whether to indent written XML documents")
+
+(defun pg-xml-encode-entities (string)
+  (progn
+    ;; rather inefficiently...
+    (setq string (replace-regexp-in-string (regexp-quote "<") "&lt;" string))
+    (setq string (replace-regexp-in-string (regexp-quote ">") "&rt;" string))
+    (setq string (replace-regexp-in-string (regexp-quote "'") "&apos;" string))
+    (setq string (replace-regexp-in-string (regexp-quote "&") "&amp;" string))
+    (setq string (replace-regexp-in-string (regexp-quote "\"") "&quot;" string))
+    string))
 
 (defun pg-xml-begin-write (&optional header)
   "Start writing an XML document.  If HEADER is non-nil, add <?xml ?>"
