@@ -189,8 +189,7 @@ ChangeLog:	FORCE
 # Clean up intermediate files and Emacs backup files
 #
 clean:	
-	rm -f *~
-	for f in $(SUBDIRS); do rm -f $$f/*~; done
+	for f in . $(SUBDIRS); do rm -f $$f/*~ $$f/\#*\# $$f/.\#* ; done
 	(cd doc; $(MAKE) clean)
 	(cd images; $(MAKE) clean)
 
