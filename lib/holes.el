@@ -20,6 +20,7 @@
 
 
 (require 'span)
+(require 'cl)
 
 (defun holes-short-doc ()
   "prints a short doc for holes"
@@ -51,15 +52,14 @@ TO DEFINE A HOLE, two methods:
 
  o Select a region with keyboard (ctrl-space) or mouse, then hit
 ctrl-c h. If the selected region is empty (i.e. if you just hit
-ctrl+meta+h), then a hole containing '#' is created.
+ctrl-c h), then a hole containing '#' is created.
 
  o Select text with mouse while pressing ctrl + meta.  If the selected
 region is empty (i.e. if you just click while pressing ctrl+meta),
 then a hole containing '#' is created.
 
-TO ACTIVATE A HOLE, click on it with the button 1 of your mouse. You
-can also hit meta-space, it will activate the first hole following the
-point. The previous active hole will be deactivated.
+TO ACTIVATE A HOLE, click on it with the button 1 of your mouse.  The
+previous active hole will be deactivated.
 
 TO FORGET A HOLE without deleting its text, click on it with the
 button 2 (middle) of your mouse.
@@ -70,7 +70,7 @@ of your mouse.
 TO FILL A HOLE with a text selection, first make sure it is active,
 then two methods:
 
- o Select text with keyboard (ctrl-space) or mouse and hit ctrl-c meta-y
+ o Select text with keyboard (ctrl-space) or mouse and hit ctrl-c ctrl-y
 
  o Select text with mouse while pressing ctrl + meta + shift. This is
 a generalization of the mouse-track-insert feature (ctrl + select
@@ -78,7 +78,7 @@ text, if you don't know this trick, try it :-)). This method allows to
 fill different holes faster than with the usual copy-paste method.
 
 After replacement the next hole is automatically made active so you
-can fill it immediately by hitting again ctrl-meta-y or ctrl + meta +
+can fill it immediately by hitting again ctrl-c ctrl-y or ctrl + meta +
 shift + mouse select.
 
 TO JUMP TO THE ACTIVE HOLE, just hit meta-return. You must be in the
@@ -737,28 +737,33 @@ and this is this one. This is not buffer local.")
       (define-key map [(mouse-3)] 'holes-mouse-destroy-hole)
       (define-key map [(mouse-2)] 'holes-mouse-forget-hole)))
     map)
-  "Keymap to use on the holes's overlays.")
+  "Keymap to use on the holes's overlays. This keymap is used only when
+on a hole. see `holes-mode-map' for the keymap of holes-mode.")
 
 (defvar holes-mode-map
   (let ((map (make-sparse-keymap)))
-	 (define-key map [(control c) h] 'holes-set-make-active-hole)
-	 (define-key map [(control c) (meta y)] 'holes-replace-update-active-hole)
-	 (define-key map [(control meta down-mouse-1)] 'holes-mouse-set-make-active-hole)
-	 (define-key map [(control meta shift down-mouse-1)] 'holes-mouse-replace-active-hole)
-	 (define-key map [(meta return)] 'holes-set-point-next-hole-destroy)
+    (cond
+     ((featurep 'xemacs)
+		(define-key map [(control c) h] 'holes-set-make-active-hole)
+		(define-key map [(control c) (control y)] 'holes-replace-update-active-hole)
+		(define-key map [(control meta down-mouse-1)] 'holes-mouse-set-make-active-hole)
+		(define-key map [(control meta shift down-mouse-1)] 'holes-mouse-replace-active-hole)
+		(define-key map [(meta return)] 'holes-set-point-next-hole-destroy))
+     (t ;emacs
+		(define-key map [(control c) (h)] 'holes-set-make-active-hole)
+		(define-key map [(control c) (control y)] 'holes-replace-update-active-hole)
+		(define-key map [(control meta down-mouse-1)] 'holes-mouse-set-make-active-hole)
+		(define-key map [(control meta shift down-mouse-1)] 'holes-mouse-replace-active-hole)
+		(define-key map [(meta return)] 'holes-set-point-next-hole-destroy)))
     map)
   "Keymap of holes-mode. This is not the keymap used on holes's overlay
 (see `hole-map' instead). This one is active whenever we are on a
 buffer where holes-mode is active.")  
 
-(message "holes: milieu")
-
 (or (assq 'holes-mode minor-mode-map-alist)
     (setq minor-mode-map-alist
           (cons (cons 'holes-mode holes-mode-map)
                 minor-mode-map-alist)))
-
-(message "holes: milieu après")
 
 ;(global-set-key  [(control meta **WRONG** space ) ] 'holes-set-active-hole-next)
 
