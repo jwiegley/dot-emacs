@@ -22,6 +22,8 @@
   "PGResp" "Responses from Proof Assistant"
   (setq proof-buffer-type 'response)
   (define-key proof-response-mode-map [q] 'bury-buffer)
+  (make-local-hook 'kill-buffer-hook)
+  (add-hook 'kill-buffer-hook 'pg-save-from-death nil t)
   (easy-menu-add proof-response-mode-menu proof-response-mode-map)
   (easy-menu-add proof-assistant-menu proof-response-mode-map)
   (proof-toolbar-setup)

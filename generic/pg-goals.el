@@ -26,8 +26,9 @@
   "Mode for goals display.  
 May enable proof-by-pointing or similar features.
 \\{proof-goals-mode-map}"
-  ;; defined-derived-mode proof-goals-mode initialises proof-goals-mode-map
   (setq proof-buffer-type 'goals)
+  (make-local-hook 'kill-buffer-hook)
+  (add-hook 'kill-buffer-hook 'pg-save-from-death nil t)
   (easy-menu-add proof-goals-mode-menu proof-goals-mode-map)
   (easy-menu-add proof-assistant-menu proof-goals-mode-map)
   (proof-toolbar-setup)

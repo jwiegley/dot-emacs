@@ -244,6 +244,24 @@ Restrict to BUFLIST if it's set."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; Associated buffers
+;;
+
+(defun pg-save-from-death ()
+  "Prevent this associated buffer from being killed.
+A hook function for `kill-buffer-hook'.
+This is a fairly crude and not-entirely-robust way to prevent the 
+user accidently killing an associated buffer."
+  (if (and (proof-shell-live-buffer) proof-buffer-type)
+      (progn
+	(let ((bufname (buffer-name)))
+	  (bury-buffer)
+	  (message 
+	   "Warning: buffer %s not killed; still associated with prover process."
+	   bufname)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Key functions
 
 (defun proof-define-keys (map kbl)
