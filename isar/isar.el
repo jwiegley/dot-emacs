@@ -71,6 +71,7 @@
 ;;; ======== Configuration of generic modes ========
 ;;;
 
+
 ;; ===== outline mode
 
 (defcustom isar-outline-regexp
@@ -188,7 +189,7 @@
    proof-shell-prompt-pattern		"^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd			"cd \"%s\";"
+   proof-shell-cd			(isar-verbatim "cd \"%s\";")
 
    proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\360Interrupt"
@@ -207,9 +208,9 @@
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle/Isar by modifying print functions etc.
-   proof-shell-init-cmd                 "ProofGeneral.init true;"
+   proof-shell-init-cmd                 (isar-verbatim "ProofGeneral.init true;")
    proof-shell-restart-cmd		"init_toplevel; touch_all_thys; welcome;"
-   proof-shell-quit-cmd			"quit();"
+   proof-shell-quit-cmd			(isar-verbatim "quit();")
    
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-end     "\361\\|\363"
@@ -488,10 +489,11 @@ proof-shell-retract-files-regexp."
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun isar-preprocessing ()
+(defun isar-preprocessing ()  ;dynamic scoping of `string'
   "insert sync markers - acts on variable string by dynamic scoping"
-  (if (not (string-match "^cd \\|^ProofGeneral\\.init " string))   ;; FIXME hack to detect initial ML stuff
-      (setq string (concat "\\<^sync>" (isar-shell-adjust-line-width) string "\\<^sync>;"))))
+  (if (string-match isar-verbatim-regexp string)
+      (setq string (match-string 1 string))
+    (setq string (concat "\\<^sync>" (isar-shell-adjust-line-width) string "\\<^sync>;"))))
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)

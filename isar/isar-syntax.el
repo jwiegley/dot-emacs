@@ -143,8 +143,15 @@
   (concat "\\(" (proof-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
   "Regexp matching goal commands in Isabelle/Isar which name a theorem")
 
+(defconst isar-verbatim-regexp "^\^VERBATIM: \\(.*\\)"
+  "Regexp matching internal marker for verbatim command output")
 
-;; ----- Isabelle term / type hiliting
+(defun isar-verbatim (str)
+  "Mark internal command for verbatim output"
+  (concat "\^VERBATIM: " str))
+
+
+;; ----- Isabelle inner syntax hilite
 
 (defface isabelle-class-name-face
   '((((type x) (class color) (background light))   
