@@ -7,8 +7,9 @@
 
 *** HOL 98 (http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html)
 
-   by David Aspinall.  This is a bare-bones Proof General instance
-   only, hopefully to entice HOL users so that someone may improve it.
+   by David Aspinall.  This is a fairly basic Proof General instance
+   only, hopefully to entice HOL users so that one of them may improve it.
+   I don't plan to maintain or improve this instantiation myself.
    See README in the hol98 directory for more details.
 
 *** Plastic (http://www.dur.ac.uk/CARG/plastic.html)
@@ -19,6 +20,12 @@
 
 
 ** Generic Changes
+
+*** Names of shell, goals, script buffers now based on proof assistant name
+
+  Basing the name on the command isn't very abstract and leads to strange 
+  names for some provers, "coqtop" and "hol.unquote".  Now we just use
+  the lower case of the proof assistant name.
 
 *** README file added for each supported prover, explaining support.
 
@@ -50,7 +57,7 @@
   appear.  
   
   The default setting for proof-shell-process-connection-type is made
-  by examining the ARCH environment variable.  If this contains "sun"
+  by calling uname, if possible.  If this contains "sun"
   then proof-shell-process-connection-type is set to nil for using
   pipes.  Otherwise we use ptys which are to be prefered over pipes
   because pipes can become full or lose data, and pipes don't work
@@ -60,7 +67,12 @@
   
 *** Added new configuration hook:  proof-shell-pre-interrupt-hook
 
-  This is 
+  This is added particularly for Isabelle running with Poly/ML,
+  which requires interaction after an interrupt.
+
+*** Minor cosmetic improvements
+
+  Name of proof assistant "Start Isabelle" etc. in menu.
 
 ** Coq Changes
 
@@ -72,7 +84,7 @@
 
 ** Isabelle Changes
 
-***
+*** Fix for Poly/ML with interrupts: use proof-shell-pre-interrupt-hook
 
 
 ** Isar Changes

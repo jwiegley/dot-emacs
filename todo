@@ -45,8 +45,19 @@ X (Low)		e.g. probably not worth spending time on
 * Scheduled improvements for 3.2
 ================================
 
-** Scheme to detect type of buffer
-** More proof assistants supported
+B Scheme to detect type of buffer and choose between possible modes.
+  Help select Isar over Isa, maybe sml over HOL etc?
+
+B Yet more proof assistants supported.  Perhaps we will introduce
+  class of "unsupported" Proof General interfaces.
+
+B Add to proof-config those variables created in proof-easy-config for
+  font lock and syntax entries.  Use these instead of primitive
+  elisp in the other configs, too.
+
+C More flexible help configuration is needed.  HOL has some nice
+  on-line help but no way in PG to help by library.  Perhaps
+  a help browser is needed?  At least, optional arg to help command.
 
 
 
@@ -54,10 +65,6 @@ X (Low)		e.g. probably not worth spending time on
 
 * Things to in the generic interface
 ====================================
-
-C More flexible help configuration is needed.  HOL has some nice
-  on-line help but no way in PG to help by library.  Perhaps
-  a help browser is needed?
 
 B Manual improvements before techreport publishing (see notes at end also):
   - Mention configuring function menus, outline.
