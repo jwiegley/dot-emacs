@@ -1,3 +1,164 @@
+2003-01-20  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* FAQ: Updated.
+
+2003-01-16  David Aspinall  <da@proofgeneral.org>
+
+	* html/links.html: Updated.
+
+	* html/doc.html: Toward XHTML
+
+	* html/doc.html, html/kit.php, html/main.html, html/news.html, html/projects.html:
+	Update my email and web
+
+2002-12-29  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-compat.el:
+	Fake customize menu create for latest Emacs release -- workaround new bug there
+
+	* isa/isabelle-system.el:
+	Fix use of replace-regexp-in-string
+
+	* generic/pg-response.el:
+	Try to catch nesting too deep ugliness (esp in Isabelle tracing)
+
+	* CHANGES, generic/pg-user.el, generic/proof-config.el:
+	Add followdown
+
+	* generic/proof-menu.el:
+	Add followdown mode; compat note
+
+	* generic/proof-shell.el:
+	Buglet in proof-shell-ready-prover
+
+2002-11-28  David Aspinall  <da@proofgeneral.org>
+
+	* Makefile, todo, CHANGES, BUGS:
+	Updated.
+
+	* isa/isabelle-system.el:
+	Documentation.
+
+	* isar/isar.el: Docstring
+
+	* generic/pg-pgip.el: Doc
+
+	* generic/pg-xml.el:
+	Add pg-xml-encode-entities.
+
+	* generic/proof-shell.el:
+	Revert proof-shell-handle-output version, add failsafe.
+
+2002-11-22  David Aspinall  <da@proofgeneral.org>
+
+	* html/about.html: Fix link to Isamode.
+
+2002-11-21  David Aspinall  <da@proofgeneral.org>
+
+	* isar/isar.el: Updated.
+
+	* isa/isabelle-system.el:
+	markup ml for Isar
+
+2002-11-20  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-autoloads.el, generic/proof-menu.el:
+	Autoload proof-definvisible
+
+	* coq/BUGS: Updated.
+
+	* isar/isar.el, isa/isa.el:
+	Make proof-assistants-settings-cmd be evaluated at right time.
+
+	* isa/isabelle-system.el:
+	Improve isabelle-choose-logic, and make it clear preferences.  Remove all defpacustom usages.
+
+	* generic/pg-thymodes.el: Remove junk
+
+	* generic/proof-autoloads.el: Updated.
+
+	* generic/proof-menu.el: Comment
+
+	* generic/proof-shell.el:
+	proof-shell-invisible-cmd also accepts a function yielding a command.
+
+	* generic/proof-menu.el: Fix typo.
+
+	* generic/proof-menu.el:
+	Add reset options, and save/reset settings items.
+
+	* generic/proof-utils.el:
+	Add pg-custom-reset-vars.  Make proofdefintset display current value
+
+	* generic/proof-config.el: FIXME
+
+	* generic/pg-pgip.el: Add pg-issue-pgip
+
+2002-11-18  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-utils.el:
+	Add undefpgcustom
+
+	* generic/proof-menu.el:
+	Support redefinitions in proof-defpacustom-fn, by removing custom settings.
+
+	* generic/pg-pgip.el:
+	Fixup code to interpret default values.
+
+	* generic/proof-compat.el:
+	Add pg-custom-undeclare-variable.
+
+	* isar/isar.el, isa/isabelle-system.el, isa/isa.el:
+	Add proof-shell-issue-pgip-cmd using ProofGeneral.process_pgip.
+
+	* etc/testsuite/pg-pgip-test.el, etc/testsuite/pg-test.el:
+	Updated.
+
+	* etc/testsuite/pg-pgip-test.el, etc/testsuite/pg-test.el:
+	New files.
+
+2002-11-14  David Aspinall  <da@proofgeneral.org>
+
+	* generic/pg-pgip.el:
+	Next iteration: add post-processing step, descriptions in haspref.
+
+	* generic/pg-xml.el:
+	Disable message display when parsing xml strings.
+
+	* generic/proof-menu.el:
+	Add proof-assistant-menu-update, allow redefine of setting in pacustom.
+
+	* generic/proof-shell.el:
+	Tweak calling of pg-pgip processing commands.
+
+	* generic/proof-config.el:
+	Add proof-shell-issue-pgip-cmd
+
+	* generic/proof-utils.el:
+	Erase buffer in kill action.  Tweak proof-debug arguments.
+
+2002-11-13  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-shell.el:
+	Fix to proof-shell-handle-output (or rather, to setting of proof-shell-last-output)
+
+2002-11-11  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.php, generic/proof-site.el:
+	Set version tag for new release.
+
+	* BUGS: Updated.
+
+	* generic/proof-shell.el:
+	(Failed) Attempt to fix UTF-8 problem for RH8.
+
+	* BUGS: Updated.
+
 2002-11-11  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.php, generic/proof-site.el:
