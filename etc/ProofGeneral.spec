@@ -54,8 +54,8 @@ mv lego/legotags coq/coqtags ${RPM_BUILD_ROOT}/usr/bin
 mkdir -p ${RPM_BUILD_ROOT}/usr/info
 mv doc/ProofGeneral.info doc/ProofGeneral.info-* ${RPM_BUILD_ROOT}/usr/info
 mv doc/PG-adapting.info  doc/PG-adapting.info-*  ${RPM_BUILD_ROOT}/usr/info
-gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info 
-gzip ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info*
+gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info  ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info-*
+gzip ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info-*
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
