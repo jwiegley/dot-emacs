@@ -38,6 +38,7 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   [6 hours]
 
 C Web pages improvements:
+   - Validate.  Check appearance of V3 browsers.
    - Restructure so that page titles are different to help
    browsing.  (Move links_arr from header.phtml somewhere new,
    and set $pg_title appropriately before head.phtml is included).
@@ -45,6 +46,7 @@ C Web pages improvements:
    TeX installation, or as soon as making release from elsewhere
    works.  Also need to fix inclusion of image in pdf. 
    - Add status bar messages to navigation bar
+   - Get rid of footer() function.
 
 C Check compilation okay, check on use of eval-and-compile.
 
