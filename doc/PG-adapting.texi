@@ -62,7 +62,7 @@
 @set version 3.2prerelease
 @set xemacsversion 21.1
 @set fsfversion 20.5
-@set last-update August 2000
+@set last-update September 2000
 @set rcsid $Id$
 
 @ifinfo
@@ -195,18 +195,27 @@ For full details about how to use Proof General, and information on its
 availability and installation, please see the main Proof General manual
 which should accompany this one.
 
+We positively encourage the support of new systems.  Proof General has
+grown more flexible and useful as it has been adapted to more proof
+assistants.  Typically, adding support for a new prover improves support
+for others, both because the code becomes more robust, and because new
+ideas are brought into the generic setting.  You should understand that
+the Proof General framework has been built as a product line
+architecture: generality has been introduced piecemeal in a
+demand-driven way, rather than at the outset as a grand design.
+(Despite this strategy, the interface has a surprisingly clean
+structure).  This approach means that we fully expect hiccups when
+adding support for new assistants, so the generic core may need
+extension or modification.  To support this we have an open development
+style: if you require changes in the generic support, please contact us,
+or make adjustments yourself and send them to us.
+
 Proof General has a home page at
 @uref{http://www.lfcs.informatics.ed.ac.uk/proofgen}.  Visit this page
 for the latest version of the manuals, other documentation, system
 downloads, etc.
 
-FIXME: 
 
-Add new features at the generic level of Proof General whenever it seems
-that they may also be used in other systems.
-
-Product line architecture: contact us if the generic basis needs
-significant extension, or you need help.
 
 
 
@@ -235,8 +244,8 @@ and user-level commands}, and continuing until @ref{Global constants}.
 Other chapters cover the details of configuring for multiple files and
 for supporting the other Emacs packages mentioned in the user manual
 (@i{Support for other Packages}).  If you write additional Elisp code
-interfacing to Proof General, some functions you are allowed to use are
-described in @ref{Writing more lisp code}.  The last chapter of this
+interfacing to Proof General, you can find out about some useful functions
+by reading @ref{Writing more lisp code}.  The last chapter of this
 manual describes some of the internals of Proof General, in case you are
 interested, maybe because you need to extend the generic core to do
 something new.
@@ -319,7 +328,7 @@ use the new easy configuration mechanism of Proof General 3.0 described
 in the next section, which calls @code{define-derived-mode} for you.
 You still need to know which configuration variables should be set, and
 how to set them.  The documentation below (and inside Emacs) should help
-with that, but the best way to begin is by using an existing Proof
+with that, but the best way to begin might be to use an existing Proof
 General instance as an example.
 
 
@@ -534,11 +543,33 @@ The variables described in this chapter should be set in the script mode
 before @code{proof-config-done} is called.  These configure the mode for
 the script buffer.
 
+The first three settings configure the parsing strategy for commands
+in the proof script.  Usually only one of these three needs to be set.
+@xref{Proof script mode} for more details of the parsing functions.
+
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
 Character which terminates every command sent to proof assistant.  nil if none.@*
 You should set this variable in script mode configuration.
 @end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-script-command-start-regexp
+@defvar proof-script-command-start-regexp 
+Regular expression which matches start of commands in proof script.@*
+To configure command recognition properly, you must set at least one
+of these: @samp{@code{proof-script-command-end-regexp}}, 
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-script-command-end-regexp
+@defvar proof-script-command-end-regexp 
+Regular expression which matches end of commands in proof script.@*
+To configure command recognition properly, you must set at least one
+of these: @samp{@code{proof-script-command-end-regexp}}, 
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
+@end defvar
+The next four settings configure the comment syntax.
+
 @c TEXI DOCSTRING MAGIC: proof-comment-start
 @defvar proof-comment-start 
 String which starts a comment in the proof assistant command language.@*
@@ -567,14 +598,13 @@ You should set this variable for reliable working of Proof General,
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-comment-end-regexp
-
-
 @defvar proof-comment-end-regexp 
 Regexp which matches a comment end in the proof command language.
 
 The default value for this is set as (@code{regexp-quote} @code{proof-comment-end})
 but you can set this variable to something else more precise if necessary.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-case-fold-search
 @defvar proof-case-fold-search 
 Value for @code{case-fold-search} when recognizing portions of proof scripts.@*
@@ -583,10 +613,12 @@ The default value is @samp{nil}.  If your prover has a case @strong{insensitive}
 input syntax, @code{proof-case-fold-search} should be set to @samp{t} instead.  
 NB: This setting is not used for matching output from the prover.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-save-command-regexp
 @defvar proof-save-command-regexp 
 Matches a save command.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-save-with-hole-regexp
 @defvar proof-save-with-hole-regexp 
 Regexp which matches a command to save a named theorem.@*
@@ -596,6 +628,7 @@ Used for setting names of goal..save regions and for default
 
 It's safe to leave this setting as nil.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-goal-command-regexp
 @defvar proof-goal-command-regexp 
 Matches a goal command in the proof script.   @*
@@ -604,6 +637,7 @@ used as an important part of script management to find the start
 of an atomic undo block, and (2) to construct the default 
 for @samp{@code{proof-script-next-entity-regexps}} used for function menus.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-goal-with-hole-regexp
 @defvar proof-goal-with-hole-regexp 
 Regexp which matches a command used to issue and name a goal.@*
@@ -613,6 +647,7 @@ Used for setting names of goal..save regions and for default
 
 It's safe to leave this setting as nil.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-non-undoables-regexp
 @defvar proof-non-undoables-regexp 
 Regular expression matching commands which are @strong{not} undoable.@*
@@ -620,6 +655,7 @@ Used in default functions @samp{@code{proof-generic-state-preserving-p}}
 and @samp{@code{proof-generic-count-undos}}.  If you don't use those,
 may be left as nil.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-ignore-for-undo-count
 @defvar proof-ignore-for-undo-count 
 Matcher for script commands to be ignored in undo count.@*
@@ -627,6 +663,7 @@ May be left as nil, in which case it will be set to
 @samp{@code{proof-non-undoables-regexp}}.
 Used in default function @samp{@code{proof-generic-count-undos}}.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-script-next-entity-regexps
 @defvar proof-script-next-entity-regexps 
 Regular expressions to help find definitions and proofs in a script.@*
@@ -687,7 +724,6 @@ default.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-goal-command-p
-
 @defvar proof-goal-command-p 
 A function to test: is this really a goal command?
 @end defvar
@@ -723,6 +759,7 @@ This function takes the local goalsave span as an argument. Leave this
 set this at @samp{nil} if the proof assistant does not support nested goals,
 or if you don't want to write a function to do move them around.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-count-undos-fn
 @defvar proof-count-undos-fn 
 Function to calculate a command to issue undos to reach a target span.@*
@@ -734,6 +771,7 @@ The default setting @samp{@code{proof-generic-count-undos}} is based on the
 settings @samp{@code{proof-non-undoables-regexp}} and
 @samp{@code{proof-non-undoables-regexp}}.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-generic-count-undos
 @defun proof-generic-count-undos span
 Count number of undos in a span, return command needed to undo that far.@*
@@ -744,6 +782,7 @@ A default value for @samp{@code{proof-count-undos-fn}}.
 For this function to work properly, you must configure
 @samp{@code{proof-undo-n-times-cmd}} and @samp{@code{proof-ignore-for-undo-count}}.
 @end defun
+
 @c TEXI DOCSTRING MAGIC: proof-find-and-forget-fn
 @defvar proof-find-and-forget-fn 
 Function that returns a command to forget back to before its argument span.@*
@@ -765,7 +804,6 @@ or leave it set to the default function @samp{@code{proof-generic-find-and-forge
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-generic-find-and-forget
-
 @defun proof-generic-find-and-forget span
 Calculate a forget/undo command to forget back to @var{span}.@*
 This is a long-range forget: we know that there is no
@@ -779,6 +817,7 @@ functions for examples of how to write this function.
 In the next release of Proof General, there will be
 a generic implementation of this.
 @end defun
+
 @c TEXI DOCSTRING MAGIC: proof-goal-hyp-fn
 @defvar proof-goal-hyp-fn 
 Function which returns cons cell if point is at a goal/hypothesis.@*
@@ -790,11 +829,13 @@ string: the goal or hypothesis itself.
 If you leave this variable unset, no proof-by-pointing markup
 will be attempted.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-kill-goal-command
 @defvar proof-kill-goal-command 
 Command to kill the currently open goal.@*
 You must set this (perhaps to a no-op) for script management to work.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-global-p
 @defvar proof-global-p 
 Whether a command is a global declaration.  Predicate on strings or nil.@*
@@ -804,6 +845,7 @@ proof script.
 
 May be left as nil to disable this function.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-state-preserving-p
 @defvar proof-state-preserving-p 
 A predicate, non-nil if its argument (a command) preserves the proof state.@*
@@ -813,8 +855,8 @@ commands which should be entered directly into the script itself.
 The default setting for this function, @samp{@code{proof-generic-state-preserving-p}}
 tests by negating the match on @samp{@code{proof-non-undoables-regexp}}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-generic-state-preserving-p
 
+@c TEXI DOCSTRING MAGIC: proof-generic-state-preserving-p
 @defun proof-generic-state-preserving-p cmd
 Is @var{cmd} state preserving?  Match on @code{proof-non-undoables-regexp}.
 @end defun
@@ -904,6 +946,13 @@ group.  This allows different proof assistants to coexist
 
 @c TEXI DOCSTRING MAGIC: proof-shell-auto-terminate-commands
 
+@defvar proof-shell-auto-terminate-commands 
+Non-nil if Proof General should try to add terminator to every command.@*
+If non-nil, whenever a command is sent to the prover using
+@samp{@code{proof-shell-invisible-command}}, Proof General will check to see if it
+ends with @code{proof-terminal-char}, and add it if not.
+If @code{proof-terminal-char} is nil, this has no effect.
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-pre-sync-init-cmd
 @defvar proof-shell-pre-sync-init-cmd 
 The command for configuring the proof process to gain synchronization.@*
@@ -1190,7 +1239,8 @@ The default action for urgent messages is to display them in the
 response buffer, highlighted.  But we also allow for some control
 messages, issued from the proof assistant to Proof General and not
 intended for the user to see.  These are recognized in the same way as
-urgent messages so they are acted on as soon as they are issued.
+urgent messages (marked with eager annotations), so they will
+be acted on as soon as they are issued by the prover.
 
 
 @c TEXI DOCSTRING MAGIC: proof-shell-clear-response-regexp
@@ -1825,7 +1875,9 @@ buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-invisible-command
 @defun proof-shell-invisible-command cmd &optional wait
-Send @var{cmd} to the proof process.  Automatically add @code{proof-terminal-char} if nec.@*
+Send @var{cmd} to the proof process.  @*
+Automatically add @code{proof-terminal-char} if necessary, examining
+proof-shell-no-auto-terminate-commands.
 By default, let the command be processed asynchronously.
 But if optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
@@ -2302,9 +2354,9 @@ the proof script buffer.  There are several variants of this function
 available corresponding to different parsing strategies; the appropriate
 one is aliased to @code{proof-segment-up-to} according to which
 configuration variables have been set.  If only
-@code{proof-command-end-regexp} or @code{proof-terminal-char} are set,
+@code{proof-script-command-end-regexp} or @code{proof-terminal-char} are set,
 then the default is @code{proof-segment-up-to-cmdend}.  If
-@code{proof-command-start-regexp} is set, the choice is
+@code{proof-script-command-start-regexp} is set, the choice is
 @code{proof-segment-up-to-cmdstart}.  
 
 @c TEXI DOCSTRING MAGIC: proof-segment-up-to-cmdend
@@ -2321,6 +2373,21 @@ which continues past @var{pos}, if any.
 
 This version is used when @samp{@code{proof-script-command-end-regexp}} is set.
 @end defun
+
+@c TEXI DOCSTRING MAGIC: proof-segment-up-to-cmdstart
+@defun proof-segment-up-to-cmdstart pos &optional next-command-end
+Parse the script buffer from end of locked to @var{pos}.@*
+Return a list of (type, string, int) tuples.
+
+Each tuple denotes the command and the position of its terminator,
+type is one of @code{'comment}, or @code{'cmd}.
+
+If optional @var{next-command-end} is non-nil, we include the command
+which continues past @var{pos}, if any.  (NOT @var{implemented} IN @var{this} @var{version}).
+
+This version is used when @samp{@code{proof-script-command-start-regexp}} is set.
+@end defun
+
 
 The function @code{proof-semis-to-vanillas} is used to convert
 a parsed region of the script into a series of commands to
