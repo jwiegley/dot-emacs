@@ -63,7 +63,7 @@
 	  (not (equal proof-assistant name)))
      (and (boundp 'proof-assistant-symbol) proof-assistant-symbol
 	  (not (eq proof-assistant-symbol sym))))
-    (error "proof-easy-config: Proof General is already in use for a different prover!"))
+    (error "proof-easy-config: Proof General is already in use for a different prover! %s" proof-assistant-symbol))
    (t
     ;; Setting these here is nice for testing: no need to get
     ;; proof-assistant-table right first.
