@@ -2277,13 +2277,12 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
       (if (eq (current-buffer) proof-script-buffer)
 	  (proof-deactivate-scripting 'retract))
     (proof-restart-buffers (list (current-buffer)))
-    ;; Hide away goals and response: this is a hack because otherwise
-    ;; we can lead the user to frustration with the dedicated windows
-    ;; nonsense.
-    (if (buffer-live-p proof-goals-buffer) 
-	(bury-buffer proof-goals-buffer))
-    (if (buffer-live-p proof-response-buffer)
-	(bury-buffer proof-response-buffer))))
+    ;; Hide away goals, response, and tracing.  This is a hack because
+    ;; otherwise we can lead the user to frustration with the
+    ;; dedicated windows nonsense.
+    (proof-map-buffers 
+     (list proof-goals-buffer proof-response-buffer proof-trace-buffer)
+     (bury-buffer (current-buffer)))))
 
 
 ;; Notes about how to deal with killing/reverting/renaming buffers:
