@@ -28,7 +28,7 @@
 (defconst isar-keywords-control
   '("cannot_undo"
     "cd"
-    "clear_undo"
+    "clear_undos"
     "exit"
     "init_toplevel"
     "kill"
@@ -44,6 +44,7 @@
     "commit"
     "disable_pr"
     "enable_pr"
+    "header"
     "help"
     "pr"
     "pretty_setmargin"
@@ -83,8 +84,7 @@
   '("chapter"
     "section"
     "subsection"
-    "subsubsection"
-    "title"))
+    "subsubsection"))
 
 (defconst isar-keywords-theory-decl
   '("ML_setup"
@@ -123,7 +123,8 @@
     "translations"
     "typed_print_translation"
     "typedecl"
-    "types"))
+    "types"
+    "verbatim"))
 
 (defconst isar-keywords-theory-goal
   '("instance"
@@ -166,7 +167,8 @@
     "sect"
     "subsect"
     "subsubsect"
-    "txt"))
+    "txt"
+    "verb"))
 
 (defconst isar-keywords-proof-asm
   '("assume"
