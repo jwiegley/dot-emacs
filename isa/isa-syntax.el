@@ -36,7 +36,12 @@
   (isa-init-syntax-table)
   ;; ignore strings so font-locking works
   ;; inside them
-  (modify-syntax-entry ?\" " "))
+  (modify-syntax-entry ?\" " ")
+  (modify-syntax-entry ?\* ".")
+  (modify-syntax-entry ?\( "()")
+  (modify-syntax-entry ?\) ")(")
+  (modify-syntax-entry ?\{ "(}")
+  (modify-syntax-entry ?\} "){"))
 
 ;;
 ;; Syntax for font-lock and other features
