@@ -473,45 +473,46 @@ Otherwise move point to the end of the buffer.
 Ensure that point is visible in window."
   (let (window)
     (save-excursion
-      (set-buffer buffer)
-      ;; Here's a hack: if we're asking to display BUFFER from a
-      ;; secondary window and the (next) other one is displaying the
-      ;; script buffer, then we do switch-buffer instead.  This means
-      ;; that goals and response buffer are swapped as expected in
-      ;; two-pane mode even if either one is used to "drive" the
-      ;; scripting.
-      ;; FIXME: would be better to deduce here which buffer
-      ;; we're displaying, and use get-buffer-window-list to do
-      ;; something sensible.
-      (if (and 
-	   (not proof-three-window-mode)
-	   (not (eq (next-window) (selected-window)))
-	   (eq (window-buffer (next-window nil 'ignoreminibuf))
-	       proof-script-buffer))
-	  (if (eq (selected-window) (minibuffer-window))
-	      ;; 17.8.01: avoid switching the minibuffer's contents 
-	      ;; -- terrrible confusion -- use next-window after
-	      ;; script buffer instead.
-	      ;; (another hack which is mostly right)
-	      (set-window-buffer 
-	       (next-window 
-		(car-safe (get-buffer-window-list proof-script-buffer))
-		'ignoreminibuf) buffer)
-	    (set-window-buffer (selected-window) buffer))
-	(display-buffer buffer))
-      ;; Suggestion: it might be nice to cache the previous
-      ;; height of the window to attempt to regenerate the
-      ;; display as the user last had it.  (But how to clear
-      ;; the cache?)
-      (setq window (get-buffer-window buffer 'visible))
-      (set-window-dedicated-p window proof-three-window-mode)
-      (and window
-	   (save-selected-window
+      (save-selected-window
+	(set-buffer buffer)
+	(if (and 
+	     ;; If we're in two-window mode and already displaying a
+	     ;; script/response/goals, try to just switch the buffer
+	     ;; instead of calling display-buffer which alters sizes.
+	     ;; Gives user some stability on display.
+	     (not proof-three-window-mode)
+	     (not (eq (next-window) (selected-window)))
+	     (memq (window-buffer (next-window nil 'ignoreminibuf))
+		   (list proof-script-buffer 
+			 proof-response-buffer
+			 proof-goals-buffer)))
+	    (if (eq (selected-window) (minibuffer-window))
+		;; 17.8.01: avoid switching the minibuffer's contents 
+		;; -- terrrible confusion -- use next-window after
+		;; script buffer instead.
+		;; (another hack which is mostly right)
+		(set-window-buffer 
+		 (next-window 
+		  (car-safe (get-buffer-window-list proof-script-buffer))
+		  'ignoreminibuf) buffer)
+	      (if (eq (window-buffer (next-window nil 'ignoreminibuf))
+		      proof-script-buffer)
+		  ;; switch this window
+		  (set-window-buffer (selected-window) buffer)
+		;; switch other window
+		(set-window-buffer (next-window nil 'ignoreminibuf) buffer)))
+	  ;; o/w: call display buffer to configure windows nicely.
+	  (display-buffer buffer))
+	;; Suggestion: cache previous height of other window to attempt
+	;; to regenerate the display as the user last had it.
+	(setq window (get-buffer-window buffer 'visible))
+	(set-window-dedicated-p window proof-three-window-mode)
+	(and window
 	     (select-window window)
 	     (if proof-shrink-windows-tofit
-		 ;; NB: actually we also want to expand to fit ---
-		 ;; otherwise the window will adopt to the smallest
-		 ;; sized output for good.
+		 ;; NB: actually we also expand to fit --- otherwise
+		 ;; the window will adopt to the smallest sized output
+		 ;; for good!
 		 (proof-resize-window-tofit))
 	     ;; For various reasons, point may get moved around in
 	     ;; response buffer.  Attempt to normalise its position.
