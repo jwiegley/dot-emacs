@@ -206,6 +206,7 @@
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-end     "\361\\|\363"
+   proof-shell-spill-output-regexp      "\375"
 
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
@@ -263,7 +264,8 @@ proof-shell-retract-files-regexp."
       (isar-remove-file (file-truename name) proof-included-files-list nil))))
 
 (defun isar-activate-scripting ()
-  "Make sure the Isabelle/Isar toplevel is in a sane state.")
+  "Make sure the Isabelle/Isar toplevel is in a sane state."
+  (proof-cd-sync))
 
 
 ;;
