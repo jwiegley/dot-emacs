@@ -80,7 +80,8 @@ END-INFO-DIR-ENTRY
 @iftex
 @image{ProofGeneral}
 @end iftex
-@author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
+@c @author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
+@author David Aspinall and Thomas Kleymann
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
@@ -949,7 +950,7 @@ Process the current buffer and set point at the end of the buffer.
 
 
 @c TEXI DOCSTRING MAGIC: proof-active-terminator-minor-mode
-@deffn Command proof-active-terminator-minor-mode 
+@deffn Command proof-active-terminator-minor-mode &optional arg
 Toggle Proof General's active terminator minor mode.
 With arg, turn on the Active Terminator minor mode if and only if arg
 is positive.
@@ -1056,7 +1057,7 @@ Interrupt the proof assistant.  Warning! This may confuse Proof General.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-try-command
-@deffn Command proof-try-command 
+@deffn Command proof-try-command &optional unclosed-comment-fun
 Process the command at point, but don't add it to the locked region. 
 
 Supplied to let the user to test the types and values of
@@ -2005,10 +2006,10 @@ URL of web page for Isabelle.
 
 @c TEXI DOCSTRING MAGIC: thy-use-sml-mode
 @defopt thy-use-sml-mode 
-If non-nil, invoke @code{sml-mode} inside "ML" section of theory files.
+If non-nil, invoke sml-mode inside "ML" section of theory files.
 This option is left-over from Isamode.  Really, it would be more
 useful if the script editing mode of Proof General itself could be based 
-on @code{sml-mode}, but at the moment there is no way to do this.
+on sml-mode, but at the moment there is no way to do this.
 
 The default value is @code{nil}.
 @end defopt
@@ -2710,10 +2711,21 @@ processes a file and retracts across file boundaries. The variable
 @c TEXI DOCSTRING MAGIC: proof-included-files-list
 @defvar proof-included-files-list 
 List of files currently included in proof process.
-Whenever a new file is being processed, it gets added.
+This list contains files in canonical truename format.
+
+Whenever a new file is being processed, it gets added to this list
+via the @code{proof-shell-process-file} configuration settings.
 When the prover retracts across file boundaries, this list 
-is resynchronised. It contains files in canonical truename format.
+is resynchronised via the @code{proof-shell-retract-files-regexp} and
+@code{proof-shell-compute-new-files-list} configuration settings. 
+
 Only files which have been @strong{fully} processed should be included here.
+Proof General itself will automatically add the filenames of script
+buffers which are completely read, when scripting is deactivated or
+switched to another buffer.
+
+Currently there is no generic provision for removing files which
+are only partly read-in due to an error.
 @end defvar
 
 @vindex proof-shell-process-file
@@ -2867,10 +2879,21 @@ Symbol indicating the type of this buffer: @code{'script}, @code{'shell}, or @co
 @c TEXI DOCSTRING MAGIC: proof-included-files-list
 @defvar proof-included-files-list 
 List of files currently included in proof process.
-Whenever a new file is being processed, it gets added.
+This list contains files in canonical truename format.
+
+Whenever a new file is being processed, it gets added to this list
+via the @code{proof-shell-process-file} configuration settings.
 When the prover retracts across file boundaries, this list 
-is resynchronised. It contains files in canonical truename format.
+is resynchronised via the @code{proof-shell-retract-files-regexp} and
+@code{proof-shell-compute-new-files-list} configuration settings. 
+
 Only files which have been @strong{fully} processed should be included here.
+Proof General itself will automatically add the filenames of script
+buffers which are completely read, when scripting is deactivated or
+switched to another buffer.
+
+Currently there is no generic provision for removing files which
+are only partly read-in due to an error.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-proof-completed
@@ -2921,7 +2944,7 @@ buffer, so the locked region is made empty by this function.
 For locking files loaded by a proof assistant, we use the next function.
 
 @c TEXI DOCSTRING MAGIC: proof-mark-buffer-atomic
-@defun proof-mark-buffer-atomic 
+@defun proof-mark-buffer-atomic buffer
 Mark @var{buffer} as having been processed in a single step.
 
 If buffer already contains a locked region, only the remainder of the
@@ -2936,7 +2959,7 @@ variables @code{proof-included-files-list} documented earlier
 (@pxref{Handling multiple files} and @pxref{Global variables}).
 
 @c TEXI DOCSTRING MAGIC: proof-register-possibly-new-processed-file
-@defun proof-register-possibly-new-processed-file 
+@defun proof-register-possibly-new-processed-file file
 Register a possibly new @var{file} as having been processed by the prover.
 @end defun
 
@@ -2971,12 +2994,12 @@ The next function is the main one used for parsing the proof script
 buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-segment-up-to
-@defun proof-segment-up-to 
-Create a list of (type,int,string) tuples from end of locked region to POS.
+@defun proof-segment-up-to pos &optional next-command-end
+Create a list of (type,int,string) tuples from end of locked region to @var{pos}.
 Each tuple denotes the command and the position of its terminator,
 type is one of @code{'comment}, or @code{'cmd}. @code{'unclosed-comment} may be consed onto
 the start if the segment finishes with an unclosed comment.
-If optional @var{next-command-end} is non-nil, we contine past POS until
+If optional @var{next-command-end} is non-nil, we contine past @var{pos} until
 the next command end.
 @end defun
 
@@ -2985,7 +3008,7 @@ a parsed region of the script into a series of commands to
 be sent to the proof assistant.
 
 @c TEXI DOCSTRING MAGIC: proof-semis-to-vanillas
-@defun proof-semis-to-vanillas 
+@defun proof-semis-to-vanillas semis &optional callback-fn
 Convert a sequence of terminator positions to a set of vanilla extents.
 Proof terminator positions @var{semis} has the form returned by
 the function @code{proof-segment-up-to}.
@@ -3000,7 +3023,7 @@ available until we've actually run @code{proof-segment-up-to (point)},
 hence all the different options when we've done so.
 
 @c TEXI DOCSTRING MAGIC: proof-assert-until-point
-@defun proof-assert-until-point 
+@defun proof-assert-until-point &optional unclosed-comment-fun ignore-proof-process-p
 Process the region from the end of the locked-region until point.
 Default action if inside a comment is just process as far as the start of
 the comment. 
@@ -3014,7 +3037,7 @@ scripting.
 @code{proof-assert-next-command} is a variant of this function.
 
 @c TEXI DOCSTRING MAGIC: proof-assert-next-command
-@defun proof-assert-next-command 
+@defun proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command
 Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment.  
 
@@ -3029,7 +3052,7 @@ The main command for retracting parts of a script is
 @code{proof-retract-until-point}.
 
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point
-@defun proof-retract-until-point 
+@defun proof-retract-until-point &optional delete-region
 Set up the proof process for retracting until point.
 In particular, set a flag for the filter process to call 
 @samp{@code{proof-done-retracting}} after the proof process has successfully 
@@ -3045,7 +3068,7 @@ use the functions @code{proof-restart-buffers}, and
 @code{proof-script-remove-all-spans-and-deactivate}.
 
 @c TEXI DOCSTRING MAGIC: proof-restart-buffers
-@defun proof-restart-buffers 
+@defun proof-restart-buffers buffers
 Remove all extents in @var{buffers} and maybe reset @samp{@code{proof-script-buffer}}.
 No effect on a buffer which is nil or killed.  If one of the buffers
 is the current scripting buffer, then @code{proof-script-buffer} 
@@ -3134,9 +3157,11 @@ restarting the process.
 @c TEXI DOCSTRING MAGIC: proof-shell-kill-function
 @defun proof-shell-kill-function 
 Function run when a proof-shell buffer is killed.
-Value for @code{kill-buffer-hook} in shell buffer.
 Attempt to shut down the proof process nicely and
-clears up all the locked regions and state variables.
+clear up all the locked regions and state variables.
+Value for @code{kill-buffer-hook} in shell buffer.
+Also called by @code{proof-shell-bail-out} if the process is
+exited by hand (or exits by itself).
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
@@ -3148,7 +3173,7 @@ This simply kills the @code{proof-shell-buffer} relying on the hook function
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-bail-out
-@defun proof-shell-bail-out 
+@defun proof-shell-bail-out process event
 Value for the process sentinel for the proof assistant process.
 If the proof assistant dies, run @code{proof-shell-kill-function} to
 cleanup and remove the associated buffers.  The shell buffer is
@@ -3172,9 +3197,9 @@ Input to the proof shell via the queue region is managed by the
 functions @code{proof-start-queue} and @code{proof-shell-exec-loop}.
 
 @c TEXI DOCSTRING MAGIC: proof-start-queue
-@defun proof-start-queue 
+@defun proof-start-queue start end alist
 Begin processing a queue of commands in @var{alist}.
-If @var{start} is non-nil, @var{start} and END are buffer positions in the
+If @var{start} is non-nil, @var{start} and @var{end} are buffer positions in the
 active scripting buffer for the queue region.
 @end defun
 
@@ -3202,8 +3227,8 @@ user-level functions rather than attempting to manipulate the proof
 action list directly.  
 
 @c TEXI DOCSTRING MAGIC: proof-shell-invisible-command
-@defun proof-shell-invisible-command 
-Send CMD to the proof process.
+@defun proof-shell-invisible-command cmd &optional wait
+Send @var{cmd} to the proof process.
 If optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
 @end defun
@@ -3212,8 +3237,8 @@ Input is actually inserted into the shell buffer and sent to the process
 by the low-level function @code{proof-shell-insert}.  
 
 @c TEXI DOCSTRING MAGIC: proof-shell-insert
-@defun proof-shell-insert 
-Insert @var{string} at the end of the proof shell, call comint-send-input.
+@defun proof-shell-insert string
+Insert @var{string} at the end of the proof shell, call @code{comint-send-input}.
 First call @code{proof-shell-insert-hook}. Then strip @var{string} of carriage
 returns before inserting it and updating @code{proof-marker} to point to 
 the end of the newly inserted text.
@@ -3245,9 +3270,9 @@ the last urgent message seen.
 
 @vindex proof-action-list
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output
-@defun proof-shell-process-output 
-Process shell output (resulting from CMD) by matching on @var{string}.
-CMD is the first part of the @code{proof-action-list} that lead to this
+@defun proof-shell-process-output cmd string
+Process shell output (resulting from @var{cmd}) by matching on @var{string}.
+@var{cmd} is the first part of the @code{proof-action-list} that lead to this
 output.
 This function deals with errors, start of proofs, abortions of
 proofs and completions of proofs. All other output from the proof
@@ -3270,7 +3295,7 @@ Marker in proof shell buffer pointing to end of last urgent message.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-urgent-message
-@defun proof-shell-process-urgent-message 
+@defun proof-shell-process-urgent-message message
 Analyse urgent @var{message} for various cases.
 Included file, retracted file, cleared response buffer, or
 if none of these apply, display.
@@ -3280,9 +3305,9 @@ The main processing point which triggers other actions is
 @code{proof-shell-filter}.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-filter
-@defun proof-shell-filter 
+@defun proof-shell-filter str
 Filter for the proof assistant shell-process.
-A function for comint-output-filter-functions.
+A function for @code{comint-output-filter-functions}.
 
 Deal with output and issue new input from the queue.
 
@@ -3291,7 +3316,7 @@ using the function @samp{@code{proof-shell-process-urgent-messages}}.
 
 Otherwise wait until an annotated prompt appears in the input.  
 If @code{proof-shell-wakeup-char} is set, wait until we see that in the
-output chunk STR.  This optimizes the filter a little bit.
+output chunk @var{str}.  This optimizes the filter a little bit.
 
 If a prompt is seen, run @code{proof-shell-process-output} on the output
 between the new prompt and the last input (position of @code{proof-marker})
@@ -3321,7 +3346,7 @@ however, are always processed).
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-filter-process-output
-@defun proof-shell-filter-process-output 
+@defun proof-shell-filter-process-output string
 Subroutine of @code{proof-shell-filter} to process output @var{string}.
 
 Appropriate action is taken depending on the what
@@ -3370,14 +3395,14 @@ LEGO Proof General (the successor of @code{lego-mode}) was crafted by
 Thomas Kleymann and Dilip Sequeira. It is now maintained by Paul
 Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. Coq Proof General was
 crafted by Healfdene Goguen. It is now maintained by Patrick Loiseleur
-@i{<Patrick.Loiseleur@@lri.fr>} Isabelle Proof General was crafted and
+@i{<Patrick.Loiseleur@@lri.fr>}. Isabelle Proof General was crafted and
 is being maintained by David Aspinall @i{<isabelle@@dcs.ed.ac.uk>}.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
-Goguen and Aspinall. It follows ideas used in Project CROAP. The Proof
-General project was initiated in 1994 and coordinated until October 1998
-by Thomas Kleymann. Since October 1998, Dave Aspinall is in charge of
-Proof General.
+Goguen and Aspinall (in order of appearance). It follows some of the
+ideas used in Project CROAP. The Proof General project was initiated in
+1994 and coordinated until October 1998 by Thomas Kleymann. Since
+October 1998, David Aspinall is in charge of Proof General.
 
 An early version of this manual was prepared by Dilip Sequeira.  The
 present version was written by David Aspinall and Thomas Kleymann.
@@ -3407,11 +3432,12 @@ interact with the LEGO system.
 David Aspinall managed to convince Thomas Kleymann that programming in
 Emacs Lisp isn't so difficult after all. In fact, Aspinall had at the
 time already implemented an Emacs interface for Isabelle with bells and
-whistles. Soon after, the package @code{lego-mode} was born. Users were
-able to develop proof scripts in one buffer. Support was provided to
-automatically send parts of the script to the proof process. The last
-official version with the name @code{lego-mode} (1.9) was released in
-May 1995.
+whistles, called
+@uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}. Soon after, the
+package @code{lego-mode} was born. Users were able to develop proof
+scripts in one buffer. Support was provided to automatically send parts
+of the script to the proof process. The last official version with the
+name @code{lego-mode} (1.9) was released in May 1995.
 
 @cindex proof by pointing 
 The interface project really took off the ground in November 1996. Yves
