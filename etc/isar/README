@@ -5,5 +5,4 @@ bad1.thy:
 bad2.thy:
   Bug test case: synchronization problem on starting Isar process,
   doesn't catch the first error.
-  Unresolved as of 13.9.00.
-
+  Resolved as of 17.9.00
