@@ -4,6 +4,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.7  1997/11/26 17:12:55  hhg
+;; Incorporated tms's suggestion for simplifying coq-font-lock-keywords-1
+;;
 ;; Revision 1.6  1997/11/06 16:46:20  hhg
 ;; Updates to Coq fontlock tables
 ;;
@@ -194,6 +197,21 @@
 		   coq-id ")\\)?") 'font-lock-type-face))
   "*Font-lock table for Coq terms.")
 
+;; Instead of "[^:]+", it may be better to use "lego-id". Furthermore,
+;; it might be safer to append "\\s-*:".
+(defconst coq-save-command-regexp
+  (concat "^" (ids-to-regexp coq-keywords-save)))
+(defconst coq-save-with-hole-regexp
+  (concat "\\(" (ids-to-regexp coq-keywords-save) "\\)\\s-+\\([^.]+\\)"))
+(defconst coq-goal-command-regexp
+  (concat "^" (ids-to-regexp coq-keywords-goal)))
+(defconst coq-goal-with-hole-regexp
+  (concat "\\(" (ids-to-regexp coq-keywords-goal) "\\)\\s-+\\([^:]+\\)"))
+(defconst coq-decl-with-hole-regexp
+  (concat "\\(" (ids-to-regexp coq-keywords-decl) "\\)\\s-*\\([^:]+\\)"))
+(defconst coq-defn-with-hole-regexp
+  (concat "\\(" (ids-to-regexp coq-keywords-defn) "\\)\\s-*\\([^:]+\\)"))
+
 (defvar coq-font-lock-keywords-1
    (append
     coq-font-lock-terms
@@ -201,24 +219,9 @@
      (cons (ids-to-regexp coq-keywords) 'font-lock-keyword-face)
      (cons (ids-to-regexp coq-tacticals) 'font-lock-tacticals-name-face)
 
-     (list (concat "\\("
-		   (ids-to-regexp coq-keywords-goal)
-		   "\\)\\s *\\(" coq-id "\\)\\s *:")
-             2 'font-lock-function-name-face)
-
-     (list (concat "\\("
-		   (ids-to-regexp coq-keywords-decl)
-		   "\\)\\s *\\(" coq-id "\\)\\s *:")
-             2 'font-lock-declaration-name-face)
-
-     (list (concat "\\("
-		   (ids-to-regexp coq-keywords-defn)
-		   "\\)\\s *\\(" coq-id "\\)\\s *:")
-             2 'font-lock-function-name-face)
-
-     (list (concat "\\("
-		   (ids-to-regexp coq-keywords-save)
-		   "\\)\\s *\\(" coq-id "\\)")
-             2 'font-lock-function-name-face))))
+     (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face)
+     (list coq-decl-with-hole-regexp 2 'font-lock-declaration-name-face)
+     (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
+     (list coq-save-with-hole-regexp 2 'font-lock-function-name-face))))
 
 (provide 'coq-fontlock)
