@@ -353,6 +353,14 @@ X proof-mark-buffer-atomic marks the buffer as only containing
   comments if the first ACS is a goal-save span. This is however not a 
   problem for LEGO and Isabelle. (30 min)
 
+X Idea for future re-engineering:
+   Indirect Buffers seem to be a cunning way
+   to implement the response buffer and goals buffer, since they're
+   basically variants on displaying fragments of the shell buffer
+   output. Unfortunately seems to be implemented only in FSFmacs at the
+   moment.
+
+
 * Proof-by-Pointing
 ===================
 
