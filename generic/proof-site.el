@@ -368,7 +368,7 @@ proof-assistant-table."
 (defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
   "Non-nil if Proof General is running on XEmacs.")
 (defvar proof-running-on-Emacs21 (and (not proof-running-on-XEmacs)
-				      (>= 21 emacs-major-version))
+				      (>= emacs-major-version 21))
   "Non-nil if Proof General is running on GNU Emacs 21 or later.")
 ;; rough test for XEmacs on win32, anyone know about GNU Emacs on win32?
 (defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
