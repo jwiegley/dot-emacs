@@ -364,9 +364,13 @@ exited by hand (or exits by itself)."
 	    proof-shell-proof-completed nil)
       ;; Kill buffers associated with shell buffer
       (if (buffer-live-p proof-goals-buffer)
-	  (kill-buffer proof-goals-buffer))
+	  (progn 
+	    (kill-buffer proof-goals-buffer)
+	    (setq proof-goals-buffer nil)))
       (if (buffer-live-p proof-response-buffer)
-	  (kill-buffer proof-response-buffer))
+	  (progn 
+	    (kill-buffer proof-response-buffer)
+	    (setq proof-response-buffer nil)))
       (message "%s exited." bufname))))
 
 (defun proof-shell-exit ()
