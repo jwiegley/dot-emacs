@@ -173,8 +173,8 @@ RPMTOPDIR=/tmp/$(NAME)-rpm
 # now wants a macro file included and stuck in ~/.rpmmacros.
 # Alternative is to use --define from command line.
 # RPMRC=$(RPMTOPDIR)/rpmrc
-# RPM=rpm --rcfile $(RPMRC)
-RPM=rpm --define '_topdir $(RPMTOPDIR)'
+# RPMBUILD=rpmbuild --rcfile $(RPMRC)
+RPMBUILD=rpmbuild --define '_topdir $(RPMTOPDIR)'
 
 RELEASENAMETAR = $(RELEASENAME).tar
 RELEASENAMETARGZ = $(RELEASENAMETAR).gz
@@ -461,7 +461,7 @@ rpm:
 	mkdir -p $(RPMTOPDIR)/SPECS
 	mkdir -p $(RPMTOPDIR)/SOURCES
 	mkdir -p $(RPMTOPDIR)/BUILD
-	$(RPM) -tb $(DISTBUILDIR)/$(RELEASENAMETARGZ)
+	$(RPMBUILD) -tb $(DISTBUILDIR)/$(RELEASENAMETARGZ)
 
 ############################################################
 ##
