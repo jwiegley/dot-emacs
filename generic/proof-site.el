@@ -278,8 +278,6 @@ Note: to change proof assistant, you must start a new Emacs session.")
 (defconst proof-general-version "Proof General Version 3.2pre000505. Released by da."
  "Version string identifying Proof General release.")
 
-(require 'proof-autoloads)		; PG autoloads.
-
 (provide 'proof-site))
 
 ;; proof-site.el ends here

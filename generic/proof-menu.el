@@ -117,6 +117,8 @@ It was constructed with the macro proof-customize-toggle.")
 
 ;; FIXME: combine this with above, and remove messing calls in
 ;; proof-script.
+;; This is autoloaded for some specific PAs to define commands.
+;;;###autoload
 (defmacro proof-deftoggle (var)
   "Define a function VAR-toggle for toggling a boolean customize setting VAR.
 The toggle function uses customize-set-variable to change the variable."

@@ -11,6 +11,7 @@
 ;;
 
 (require 'proof-site)			; site config
+(require 'proof-autoloads)		; autoloaded functions
 (require 'proof-compat)			; Emacs and OS compatibility
 (require 'proof-utils)			; utilities
 (require 'proof-config)			; configuration variables
@@ -19,6 +20,18 @@
 (if (and proof-splash-enable
 	 (not (noninteractive)))
     (proof-splash-display-screen))	
+
+
+;;;
+;;; Extra autoloads that aren't automatic 
+;;; (defined with define-derived-mode)
+;;;
+
+(autoload 'proof-mode "proof-script"
+  "Proof General major mode class for proof scripts.")
+
+(autoload 'proof-shell-mode "proof-shell"
+  "Proof General shell mode class for proof assistant processes")
 
 
 ;;;

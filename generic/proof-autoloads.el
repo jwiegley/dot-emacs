@@ -15,13 +15,17 @@ Indent current line of proof script" t nil)
 
 ;;;***
 
-;;;### (autoloads (proof-menu-define-specific proof-menu-define-main proof-menu-define-keys) "proof-menu" "generic/proof-menu.el")
+;;;### (autoloads (proof-deftoggle proof-menu-define-specific proof-menu-define-main proof-menu-define-keys) "proof-menu" "generic/proof-menu.el")
 
 (autoload 'proof-menu-define-keys "proof-menu" nil nil nil)
 
 (autoload 'proof-menu-define-main "proof-menu" nil nil nil)
 
 (autoload 'proof-menu-define-specific "proof-menu" nil nil nil)
+
+(autoload 'proof-deftoggle "proof-menu" "\
+Define a function VAR-toggle for toggling a boolean customize setting VAR.
+The toggle function uses customize-set-variable to change the variable." nil 'macro)
 
 ;;;***
 
@@ -76,8 +80,7 @@ If WAIT is an integer, wait for that many seconds afterwards." nil nil)
 ;;;### (autoloads (proof-splash-display-screen) "proof-splash" "generic/proof-splash.el")
 
 (autoload 'proof-splash-display-screen "proof-splash" "\
-Save window config and display Proof General splash screen.
-Only do it if proof-splash-enable is non-nil." nil nil)
+Save window config and display Proof General splash screen." nil nil)
 
 ;;;***
 

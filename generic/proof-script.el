@@ -2321,6 +2321,7 @@ sent to the assistant."
 ;;
 
 (eval-and-compile			; to define vars
+;;; NB: autoload tag below doesn't work
 ;;;###autoload
 (define-derived-mode proof-mode fundamental-mode 
   proof-general-name
