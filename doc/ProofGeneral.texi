@@ -127,6 +127,7 @@ supplied ready customized for the proof assistants Coq, Lego, and
 Isabelle.
 
 @menu
+* Preface::                     
 * Introducing Proof General::   
 * Basic Script Management::     
 * Advanced Script Management::  
@@ -137,10 +138,10 @@ Isabelle.
 * Isabelle Proof General::      
 * Adapting Proof General to New Provers::  
 * Internals of Proof General::  
-* Credits History and References::  
 * Obtaining and Installing Proof General::  
 * Known bugs and workarounds::  
 * Plans and ideas::             
+* References::                  
 * Function Index::              
 * Variable Index::              
 * Keystroke Index::             
@@ -260,6 +261,125 @@ Plans and ideas
 * Browser mode for script files and theories::  
 @end detailmenu
 @end ifinfo
+
+@node Preface
+@chapter Preface
+
+@menu
+* Credits::                     
+* History::                     
+@end menu
+
+@node Credits
+@unnumberedsec Credits
+@cindex @code{lego-mode}
+@cindex maintenance
+
+Proof General has been developed by
+
+@itemize @bullet
+@item @b{David Aspinall},
+@item @b{Healfdene Goguen},
+@item @b{Thomas Kleymann} and
+@item @b{Dilip Sequeira}.
+@end itemize
+
+LEGO Proof General (the successor of @code{lego-mode}) was crafted by
+Thomas Kleymann and Dilip Sequeira. It is now maintained by Paul
+Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. Coq Proof General was
+crafted by Healfdene Goguen. It is now maintained by Patrick Loiseleur
+@i{<Patrick.Loiseleur@@lri.fr>}. Isabelle Proof General was crafted and
+is being maintained by David Aspinall @i{<isabelle@@dcs.ed.ac.uk>}.
+
+The generic base for Proof General was developed by Kleymann, Sequeira,
+Goguen and Aspinall (in order of appearance). It follows some of the
+ideas used in Project @uref{http://www.inria.fr/croap/,CROAP}. The Proof
+General project was initiated in 1994 and coordinated until October 1998
+by Thomas Kleymann. Since October 1998, David Aspinall is in charge of
+Proof General.
+
+An early version of this manual was prepared by Dilip Sequeira.  The
+present version was written by David Aspinall and Thomas Kleymann.
+
+
+The project has benefited from funding by EPSRC (Applicatins of a Type
+Theory Based Proof Assistant) and the EC (Types for Proofs and Programs).
+During the development of Proof General, the following people helped
+by providing feedback, testing, or code:
+Pascal Brisset,
+Rod Burstall, 
+Paul Callaghan,
+Martin Hofmann,
+James McKinna, 
+and Markus Wenzel.  Thanks to all of you!
+
+
+@node History
+@unnumberedsec History
+@cindex @code{lego-mode}
+@cindex history
+@cindex CtCoq
+It all started some time in 1994. There was no Emacs interface for LEGO.
+Back then, Emacs militants worked directly with the Emacs shell to
+interact with the LEGO system. 
+
+David Aspinall managed to convince Thomas Kleymann that programming in
+Emacs Lisp isn't so difficult after all. In fact, Aspinall had at the
+time already implemented an Emacs interface for Isabelle with bells and
+whistles, called
+@uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}. Soon after, the
+package @code{lego-mode} was born. Users were able to develop proof
+scripts in one buffer. Support was provided to automatically send parts
+of the script to the proof process. The last official version with the
+name @code{lego-mode} (1.9) was released in May 1995.
+
+@cindex proof by pointing 
+The interface project really took off the ground in November 1996. Yves
+Bertot had been working on a sophisticated user interface for the Coq
+system (CtCoq) based on the generic environment Centaur. He visited the
+Edinburgh LEGO group for a week to transfer proof-by-pointing
+technology. Even though proof-by-pointing is an inherently
+structure-conscious algorithm, within a week, Yves Bertot, Dilip Sequeira 
+and Thomas Kleymann managed to implement a first prototype of
+proof-by-pointing in the Emacs interface for LEGO.
+
+@cindex structure editor
+@cindex script management
+Perhaps we could reuse even more of the CtCoq system. It being a
+structure editor did no longer seem to be such an obstacle. Moreover,
+to conveniently use proof-by-pointing in actual developments, one would
+need better support for script management.
+
+@cindex generic
+In 1997, Dilip Sequeira implemented script management in our Emacs
+interface for LEGO following the recipe in
+[BT98] @footnote{Notice the publication date. We really do provide
+cutting-edge technology!}. Inspired by the project CROAP, the
+implementation made some effort to be generic. 
+
+In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Parts
+of the generic code in the @code{lego} package was outsourced (and made
+even more generic) in a new generic package called @code{proof}. Dilip
+Sequeira wrote a manual and we shipped out the package to friends for
+testing. 
+
+In June 1998, David Aspinall reentered the picture by providing an
+instantiation for Isabelle. Actually, our previous version wasn't quite
+as generic as we had hoped. Whereas LEGO and Coq are similar systems in
+many ways, Isabelle was really a different beast. Fierce reengineering
+and various improvements were provided by David Aspinall and Thomas
+Kleymann to really make the code generic. 
+
+It was time to come up with a
+better name than just @code{proof} mode. David Aspinall suggested
+@emph{Proof General}. He also cooked up some images and a toolbar. Proof
+General 2.0 is the first official release, ready to conquer the world.
+Why not adapt Proof General to your favourite proof system?
+
+
+
+
+
 
 @c
 @c CHAPTER: Introduction
@@ -3393,141 +3513,6 @@ output.
 
 
 
-@node Credits History and References
-@chapter Credits, History and References
-
-@menu
-* Credits::                     
-* History::                     
-* References::                  
-@end menu
-
-@node Credits
-@unnumberedsec Credits
-@cindex @code{lego-mode}
-@cindex maintenance
-
-LEGO Proof General (the successor of @code{lego-mode}) was crafted by
-Thomas Kleymann and Dilip Sequeira. It is now maintained by Paul
-Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. Coq Proof General was
-crafted by Healfdene Goguen. It is now maintained by Patrick Loiseleur
-@i{<Patrick.Loiseleur@@lri.fr>}. Isabelle Proof General was crafted and
-is being maintained by David Aspinall @i{<isabelle@@dcs.ed.ac.uk>}.
-
-The generic base for Proof General was developed by Kleymann, Sequeira,
-Goguen and Aspinall (in order of appearance). It follows some of the
-ideas used in Project @uref{http://www.inria.fr/croap/,CROAP}. The Proof
-General project was initiated in 1994 and coordinated until October 1998
-by Thomas Kleymann. Since October 1998, David Aspinall is in charge of
-Proof General.
-
-An early version of this manual was prepared by Dilip Sequeira.  The
-present version was written by David Aspinall and Thomas Kleymann.
-
-
-The project has benefited from funding by EPSRC (Applicatins of a Type
-Theory Based Proof Assistant) and the EC (Types for Proofs and Programs).
-During the development of Proof General, the following people helped
-by providing feedback, testing, or code:
-Pascal Brisset,
-Rod Burstall, 
-Paul Callaghan,
-Martin Hofmann,
-James McKinna, 
-and Markus Wenzel.  Thanks to all of you!
-
-
-@node History
-@unnumberedsec History
-@cindex @code{lego-mode}
-@cindex history
-@cindex CtCoq
-It all started some time in 1994. There was no Emacs interface for LEGO.
-Back then, Emacs militants worked directly with the Emacs shell to
-interact with the LEGO system. 
-
-David Aspinall managed to convince Thomas Kleymann that programming in
-Emacs Lisp isn't so difficult after all. In fact, Aspinall had at the
-time already implemented an Emacs interface for Isabelle with bells and
-whistles, called
-@uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}. Soon after, the
-package @code{lego-mode} was born. Users were able to develop proof
-scripts in one buffer. Support was provided to automatically send parts
-of the script to the proof process. The last official version with the
-name @code{lego-mode} (1.9) was released in May 1995.
-
-@cindex proof by pointing 
-The interface project really took off the ground in November 1996. Yves
-Bertot had been working on a sophisticated user interface for the Coq
-system (CtCoq) based on the generic environment Centaur. He visited the
-Edinburgh LEGO group for a week to transfer proof-by-pointing
-technology. Even though proof-by-pointing is an inherently
-structure-conscious algorithm, within a week, Yves Bertot, Dilip Sequeira 
-and Thomas Kleymann managed to implement a first prototype of
-proof-by-pointing in the Emacs interface for LEGO.
-
-@cindex structure editor
-@cindex script management
-Perhaps we could reuse even more of the CtCoq system. It being a
-structure editor did no longer seem to be such an obstacle. Moreover,
-to conveniently use proof-by-pointing in actual developments, one would
-need better support for script management.
-
-@cindex generic
-In 1997, Dilip Sequeira implemented script management in our Emacs
-interface for LEGO following the recipe in
-[BT98] @footnote{Notice the publication date. We really do provide
-cutting-edge technology!}. Inspired by the project CROAP, the
-implementation made some effort to be generic. 
-
-In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Parts
-of the generic code in the @code{lego} package was outsourced (and made
-even more generic) in a new generic package called @code{proof}. Dilip
-Sequeira wrote a manual and we shipped out the package to friends for
-testing. 
-
-In June 1998, David Aspinall reentered the picture by providing an
-instantiation for Isabelle. Actually, our previous version wasn't quite
-as generic as we had hoped. Whereas LEGO and Coq are similar systems in
-many ways, Isabelle was really a different beast. Fierce reengineering
-and various improvements were provided by David Aspinall and Thomas
-Kleymann to really make the code generic. 
-
-It was time to come up with a
-better name than just @code{proof} mode. David Aspinall suggested
-@emph{Proof General}. He also cooked up some images and a toolbar. Proof
-General 2.0 is the first official release, ready to conquer the world.
-Why not adapt Proof General to your favourite proof system?
-
-
-
-
-
-
-@node References
-@unnumberedsec References
-
-Script management as used in Proof General is described in the paper:
-
-@itemize @bullet
-@item @b{[BT98]}
-Yves Bertot and Laurent Th@'ery. @i{A generic approach to building
-user interfaces for theorem provers}. Journal of
-Symbolic Computation, 25(7), pp. 161-194, February 1998.
-@end itemize
-
-Proof General has the beginnings of support for proof by pointing,
-as described in the document:
-
-@itemize @bullet
-@item @b{[BKS97]}
-Yves Bertot, Thomas Kleymann-Schreiber and Dilip Sequeira. @i{Implementing
-Proof by Pointing without a
-Structure Editor}. LFCS Technical Report ECS-LFCS-97-368. Also published as Rapport de recherche de
-l'INRIA Sophia Antipolis RR-3286 
-@end itemize
-
-
 @c
 @c
 @c APPENDIX: Obtaining and Installing Proof General
@@ -4002,6 +3987,30 @@ A browser would be useful to:
 The last point is the most important. We should be able to integrate a
 search mechanism for proofs of similar theorems, theorems containing
 particular constants, etc.
+
+
+@node References
+@unnumbered References
+
+Script management as used in Proof General is described in the paper:
+
+@itemize @bullet
+@item @b{[BT98]}
+Yves Bertot and Laurent Th@'ery. @i{A generic approach to building
+user interfaces for theorem provers}. Journal of
+Symbolic Computation, 25(7), pp. 161-194, February 1998.
+@end itemize
+
+Proof General has the beginnings of support for proof by pointing,
+as described in the document:
+
+@itemize @bullet
+@item @b{[BKS97]}
+Yves Bertot, Thomas Kleymann-Schreiber and Dilip Sequeira. @i{Implementing
+Proof by Pointing without a
+Structure Editor}. LFCS Technical Report ECS-LFCS-97-368. Also published as Rapport de recherche de
+l'INRIA Sophia Antipolis RR-3286 
+@end itemize
 
 
 
