@@ -31,6 +31,7 @@ to your .emacs file.
 %prep
 %setup
 %patch -p1
+rm -f */*.orig
 
 %build
 
