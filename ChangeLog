@@ -1,3 +1,51 @@
+2001-08-28  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-script.el:
+	Change of proof span type back to goalsave fix
+
+	* lego/lego.el, coq/coq.el, phox/phox-fun.el, isar/isar.el:
+	Change of proof span type back to goalsave
+
+	* generic/proof-splash.el:
+	Remove dependent setting of timeout, since bin calls different fn now.
+
+	* bin/proofgeneral:
+	Call function which always waits to prevent odd mode selection bug.
+
+	* generic/proof-splash.el: Trivial
+
+	* generic/proof-splash.el:
+	Remove mention of toolbar variable.  Make timeouts vary according to how started.
+
+	* generic/proof-splash.el:
+	Timeout happens as intended now, while loading some parts of PG.
+
+	* html/header.html, html/proofgen.css:
+	Improve stylesheet syntax, make menubar smaller
+
+2001-08-17  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-script.el:
+	Trim visibility implementation:
+	   - remove visibility specs and script portion records during undo
+	   - clear visibility specs on restart
+
+	* generic/span-extent.el, generic/span-overlay.el:
+	Add span-delete-action hook
+
+	* CHANGES: Minibuffer contents bug fix
+
+	* generic/proof-utils.el:
+	Fix bug in proof-display-and-keep-buffer which had resulted in switching minibuffer windows buffer.
+
 2001-08-17  David Aspinall  <da@proofgeneral.org>
 
 	* ChangeLog: Updated.
