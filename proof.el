@@ -9,6 +9,12 @@
 
 
 ;; $Log$
+;; Revision 1.28  1997/11/26 14:19:45  tms
+;; o The response buffer focusses on the first goal
+;; o If proof-retract-until-point is is invoked outside a locked region,
+;;   the last successfully processed command is undone.
+;; o Added support for func-menu
+;;
 ;; Revision 1.27  1997/11/24 19:15:16  djs
 ;; Added proof-execute-minibuffer-cmd and scripting minor mode.
 ;;
@@ -47,7 +53,7 @@
 ;; more compatible with Coq pbp code
 ;;
 ;; Revision 1.20  1997/10/31 15:11:28  tms
-;; o implented proof-find-next-terminator available via C-c C-e
+;; o implemented proof-find-next-terminator available via C-c C-e
 ;; o fixed a bug in proof-done-retracting
 ;;
 ;; Revision 1.19  1997/10/30 15:58:33  hhg
@@ -187,6 +193,12 @@
 (defvar proof-shell-init-cmd nil
    "The command for initially configuring the proof process")
 
+(defvar proof-shell-handle-delayed-output-hook
+  '(proof-pbp-focus-on-first-goal)
+  "*This hook is called after output from the PROOF process has been
+  displayed in the RESPONSE buffer.")
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Generic config for script management                            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -288,7 +300,7 @@
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; A couple of small utilities ;;
+;; A couple of small utilities                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun string-to-list (s separator) 
@@ -541,6 +553,7 @@
 		   topl (cdr topl))
 	(pbp-make-top-span ip (car topl))))))
 
+
 (defun proof-shell-strip-annotations (string)
   (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
     (while (< ip l)
@@ -601,8 +614,22 @@
 	(proof-shell-analyse-structure str))
        (t (set-buffer proof-pbp-buffer)
 	  (insert "\n\nbug???")))))
+  (run-hooks 'proof-shell-handle-delayed-output-hook)
   (setq proof-shell-delayed-output (cons 'insert "done")))
 
+(defun proof-goals-pos (span maparg)
+  "Given a span, this function returns the start of it if corresponds
+  to a goal and nil otherwise."
+ (and (eq 'goal (car (span-property span 'proof-top-element)))
+		(span-start span)))
+
+(defun proof-pbp-focus-on-first-goal ()
+  "If the `proof-pbp-buffer' contains goals, the first one is brought
+  into view."
+  (let
+      ((pos (map-extents 'proof-goals-pos proof-pbp-buffer
+			 nil nil nil nil 'proof-top-element)))
+    (and pos (set-window-point (get-buffer-window proof-pbp-buffer t) pos))))
 
 (defun proof-shell-process-output (cmd string)
   (cond 
@@ -1126,14 +1153,17 @@ deletes the region corresponding to the proof sequence."
    particular, it sets a flag for the filter process to call
    `proof-done-retracting' after the proof process has actually
    successfully reset its state. It optionally deletes the region in
-   the proof script corresponding to the proof command sequence."
+   the proof script corresponding to the proof command sequence. If
+   this function is invoked outside a locked region, the last
+   successfully processed command is undone."
   (interactive)
-  (proof-check-process-available)
-  (let ((sext (span-at (point) 'type)))
-    (if (null (proof-locked-end)) (error "No locked region"))
-    (if (null sext) (error "Outside locked region"))
-    (funcall proof-retract-target-fn sext delete-region)))
-
+    (proof-check-process-available)
+    (let ((sext (span-at (point) 'type)))
+      (if (null (proof-locked-end)) (error "No locked region"))
+      (and (null sext)
+	   (progn (proof-goto-end-of-locked) (backward-char)
+		  (setq sext (span-at (point) 'type))))
+      (funcall proof-retract-target-fn sext delete-region)))
 
 (defun proof-undo-last-successful-command ()
   "Undo last successful command, both in the buffer recording the
@@ -1261,6 +1291,10 @@ current command."
 	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
 		"\\|" (regexp-quote proof-comment-end)))
 
+;; func-menu --- Jump to a goal within a buffer
+  (and (boundp 'fume-function-name-regexp-alist)
+       (push `(,major-mode . proof-goal-with-hole-regexp)
+	     fume-function-name-regexp-alist))
 
 ;; keymap
 
