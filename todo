@@ -23,6 +23,10 @@ A* FINAL STUFF BEFORE RELEASE (da):
       kill-buffer hook
       Isabelle: reports .ML loaded after doing use-theory.
 
+  Suspected problem with process handling:
+
+    Isabelle outputs a prompt so that PG can recognize stream of
+    urgent messages.      
 
 A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2+2 days; da + tms)
@@ -34,6 +38,17 @@ A Check that byte compilation (and compiled code!)
 A* Is it possible to let C-c C-c (SIGINT) issue additional process input?
    Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
    rather fail gracefully.
+
+B Fixup display problems.
+   The window dedicated stuff is a real pain and I've
+   spent ages inserting workarounds.  Why do we want it??
+   The latest problem is that with
+    (setq special-display-regexps
+	 (cons "\\*Inferior .*-\\(goals\\|response\\)\\*"
+		     special-display-regexps))
+   I get the script buffer made into a dedicated buffer,
+   presumably because the wrong window is selected in
+   proof-display-and-keep-buffer?
 
 B Make completion more generic. For Isabelle and Lego, we can build a
   completion table by querying the process, which is better than
