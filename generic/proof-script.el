@@ -415,11 +415,11 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  (proof-set-locked-end (proof-script-end))))))
 
 (defun proof-file-truename (filename)
-  "Returns the true name of the file FILENAME or nil."
+  "Returns the true name of the file FILENAME or nil if file non-existent."
   (and filename (file-exists-p filename) (file-truename filename)))
 
 (defun proof-file-to-buffer (filename)
-  "Converts a FILENAME  into a buffer name"
+  "Find a buffer visiting file FILENAME, or nil if there isn't one."
   (let* ((buffers (buffer-list))
 	 (pos
 	  (position (file-truename filename)
@@ -456,6 +456,7 @@ proof assistant and Emacs is has a modified buffer visiting the file."
 	   (proof-warning (concat "Changes to "
 				  (buffer-name buffer)
 				  " have not been saved!")))
+      ;; Add the new file onto the front of the list
       (setq proof-included-files-list
 	    (cons cfile proof-included-files-list))
       ;; If the file is loaded into a buffer, make sure it is completely locked
@@ -467,27 +468,92 @@ proof assistant and Emacs is has a modified buffer visiting the file."
 	   (format proof-shell-inform-file-processed-cmd cfile) 
 	   'wait)))))
 
+(defun proof-inform-prover-file-retracted (rfile)
+  (if (and informprover proof-shell-inform-file-retracted-cmd)
+      (proof-shell-invisible-command
+       (format proof-shell-inform-file-retracted-cmd rfile)
+       'wait)))
+
+(defun proof-auto-retract-dependencies (cfile &optional informprover)
+  "Perhaps automatically retract the (linear) dependencies of CFILE.
+If proof-auto-multiple-files is nil, no action is taken.
+If CFILE does not appear on proof-included-files-list, no action taken.
+
+Any buffers which are visiting files in proof-included-files-list
+before CFILE are retracted using proof-protected-process-or-retract.
+They are retracted in reverse order.
+
+Since the proof-included-files-list is examined, we expect scripting
+to be turned off before calling here (because turning it off could
+otherwise change proof-included-files-list).
+
+If INFORMPROVER is non-nil,  the proof assistant will be told about this,
+using proof-shell-inform-file-retracted-cmd, to co-ordinate with its 
+internal file-management.
+
+Files which are not visited by any buffer are not retracted, on the
+basis that we may not have the information necessary to retract them
+-- spans that cover the buffer with definition/declaration
+information.  A warning message is given for these cases, since it
+could cause inconsistency problems.
+
+NB!  Retraction can cause recursive calls of this function.
+This is a subroutine for proof-unregister-buffer-file-name."
+  (if proof-auto-multiple-files
+      (let ((depfiles (cdr-safe
+		       (member cfile (reverse proof-included-files-list))))
+	    rfile rbuf)
+	(while (setq rfile (car-safe depfiles))
+	  ;; If there's a buffer visiting a dependent file, retract it.
+	  ;; We test that the file to retract hasn't been retracted
+	  ;; already by a recursive call here.  (But since we do retraction
+	  ;; in reverse order, this shouldn't happen...)
+	  (if (and (member rfile proof-included-files-list) 
+		   (setq rbuf (proof-file-to-buffer rfile)))
+	      (progn
+		(proof-debug "Automatically retracting " rfile)
+		(proof-protected-process-or-retract 'retract rbuf)
+		(setq proof-included-files-list 
+		      (delete rfile proof-included-files-list))
+		;; Tell the proof assistant, if we should and we can.
+		;; This may be useful if we synchronise the *prover* with
+		;; PG's management of multiple files.  If the *prover*
+		;; informs PG (better case), then we hope the prover will
+		;; retract dependent files and we shouldn't use this
+		;; degenerate (linear dependency) code.
+		(if informprover
+		    (proof-inform-prover-file-retracted rfile)))
+	    ;; If no buffer available, issue a warning that nothing was done
+	    (proof-warning "Not retracting unvisited file " rfile))
+	  (setq depfiles (cdr depfiles))))))
+
 (defun proof-unregister-buffer-file-name (&optional informprover)
   "Remove current buffer's filename from the list of included files.
 No effect if the current buffer has no file name.
 If INFORMPROVER is non-nil,  the proof assistant will be told about this,
 using proof-shell-inform-file-retracted-cmd, to co-ordinate with its 
-internal file-management."
+internal file-management.
+
+If proof-auto-multiple-files is non-nil, any buffers on 
+proof-included-files-list before this one will be automatically
+retracted using proof-auto-retract-dependencies."
   (if buffer-file-name
       (let ((cfile (file-truename buffer-file-name)))
-	(proof-debug (concat "Unregistering file " cfile 
-			       (if (not (member cfile 
-						proof-included-files-list))
-				   " (not registered, no action)." ".")))
+	(proof-debug 
+	 (concat "Unregistering file " cfile 
+		 (if (not (member cfile 
+				  proof-included-files-list))
+		     " (not registered, no action)." ".")))
 	(if (member cfile proof-included-files-list)
 	    (progn
+	      (proof-auto-retract-dependencies cfile informprover)
 	      (setq proof-included-files-list
 		    (delete cfile proof-included-files-list))
 	      ;; Tell the proof assistant, if we should and we can.
-	      (if (and informprover proof-shell-inform-file-retracted-cmd)
-		  (proof-shell-invisible-command
-		   (format proof-shell-inform-file-retracted-cmd cfile) 
-		   'wait)))))))
+	      ;; This case may be useful if there is a combined 
+	      ;; management of multiple files between PG and prover.
+	      (if informprover
+		  (proof-inform-prover-file-retracted cfile)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -496,6 +562,35 @@ internal file-management."
 ;;
 ;; 
 ;; da: cleaned
+
+(defun proof-protected-process-or-retract (action &optional buffer)
+  "If ACTION='process, process, If ACTION='retract, retract.
+Process or retract the current buffer, which should be the active
+scripting buffer, according to ACTION.
+Retract buffer BUFFER if set, otherwise use the current buffer.
+Gives a message in the minibuffer and busy-waits for the retraction
+or processing to complete.  If it fails for some reason, 
+an error is signalled here."
+  (let ((fn   (cond ((eq action 'process) 'proof-process-buffer)
+		    ((eq action 'retract) 'proof-retract-buffer)))
+	(name (cond ((eq action 'process) "Processing")
+		    ((eq action 'retract) "Retracting")))
+	(buf  (or buffer (current-buffer))))
+    (if fn
+	(unwind-protect
+	    (with-current-buffer buf
+	      (message "%s buffer %s..." name buf)
+	      (funcall fn)
+	      (while proof-shell-busy ; busy wait
+		(sit-for 1))
+	      (message "%s buffer %s...done." name buf)
+	      (sit-for 0))
+	  ;; Test to see if action was successful
+	  (with-current-buffer buf
+	    (or (and (eq action 'retract) (proof-locked-region-empty-p))
+		(and (eq action 'process) (proof-locked-region-full-p))
+		(error "%s of %s failed!" name buf)))))))
+
 
 (defun proof-deactivate-scripting (&optional forcedaction)
   "Deactivate scripting for the active scripting buffer.
@@ -534,7 +629,9 @@ a scripting buffer is killed it is always retracted."
 	;; We must ensure that the locked region is either 
 	;; empty or full, to make sense for multiple-file
 	;; scripting.  (A proof assistant won't be able to
-	;; process just part of a file typically).
+	;; process just part of a file typically; moreover
+	;; switching between buffers during a proof makes
+	;; no sense.)
 	(if (or (proof-locked-region-empty-p) 
 		(proof-locked-region-full-p)
 		;; Buffer is partly-processed
@@ -572,27 +669,10 @@ a scripting buffer is killed it is always retracted."
 			      (format
 			       "Completely process buffer %s instead? "
 			       proof-script-buffer))
-			     'process))))))
-		     (name  (if (eq action 'process) 
-				"Processing" "Retracting"))
-		     (fn    (if (eq action 'process)
-				'proof-process-buffer 'proof-retract-buffer)))
+			     'process)))))))
 		  ;; Take the required action
 		  (if action
-		      (unwind-protect
-			  (progn
-			    (message "%s buffer %s..." 
-				     name proof-script-buffer)
-			    (funcall fn)
-			    (while proof-shell-busy ; busy wait
-			      (sit-for 1))
-			    (message "%s buffer %s...done." 
-				     name proof-script-buffer))
-			;; Test again to see if action happened/was successful
-			(or (proof-locked-region-empty-p)
-			    (proof-locked-region-full-p)
-			    (error "%s of %s failed!" 
-				   name proof-script-buffer)))
+		      (proof-protected-process-or-retract action)
 		    ;; Give an acknowledgement to user's choice
 		    ;; neither to assert or retract.  
 		    (message "Scripting still active in %s" 
@@ -604,8 +684,11 @@ a scripting buffer is killed it is always retracted."
 		    nil)))
 
 	    ;; If we get here, then the locked region is (now) either 
-	    ;; completely empty or completely full.
+	    ;; completely empty or completely full.  
 	    (progn
+	      ;; We can immediately indicate that there is no active
+	      ;; scripting buffer
+	      (setq proof-script-buffer nil)
 
 	      (if (proof-locked-region-full-p)
 		  ;; If locked region is full, make sure that this buffer
@@ -623,11 +706,14 @@ a scripting buffer is killed it is always retracted."
 		  ;; file should be unregistered by the retract
 		  ;; action, or in any case since it was only
 		  ;; partly processed.
+		  ;; FIXME 2: be careful about automatic
+		  ;; multiple file handling here, since it calls
+		  ;; for activating scripting elsewhere.
 		  ;; We move the onus on unregistering now to
 		  ;; the activate-scripting action.
 		  (proof-unregister-buffer-file-name))
 
-	      ;; Turn off Scripting here.
+	      ;; Turn off Scripting indicator here.
 	      (setq proof-active-buffer-fake-minor-mode nil)
 
 	      ;; Make status of inactive scripting buffer show up
@@ -635,10 +721,7 @@ a scripting buffer is killed it is always retracted."
 	      ;; not really necessary when called by kill buffer, at least.
 	      (if (fboundp 'redraw-modeline)
 		  (redraw-modeline)
-		(force-mode-line-update))
-	      
-	      ;; And now there is no active scripting buffer
-	      (setq proof-script-buffer nil))))))
+		(force-mode-line-update)))))))
   
 (defun proof-activate-scripting (&optional nosaves queuemode)
   "Ready prover and activate scripting for the current script buffer.
@@ -687,8 +770,28 @@ correct theory, or whatever."
 	    (proof-deactivate-scripting)
 	    ;; Test whether deactivation worked
 	    (if proof-script-buffer
-		(error "You cannot have more than one active scripting buffer!"))))
+		(error 
+		 "You cannot have more than one active scripting buffer!"))))
 	    
+      ;; Now make sure that this buffer is off the included files
+      ;; list.  In case we re-activate scripting in an already
+      ;; completed buffer, it may be that the proof assistant
+      ;; needs to retract some of this buffer's dependencies.
+      (proof-unregister-buffer-file-name 'tell-the-prover)
+
+      ;; If automatic retraction happened in the above step, we may
+      ;; have inadvertently activated scripting somewhere else.
+      ;; Better turn it off again.   This should succeed trivially.
+      ;; NB: it seems that we could move the first test for an already
+      ;; active buffer here, but it is more subtle: the first
+      ;; deactivation can extend the proof-included-files list, which
+      ;; would affect what retraction was done in
+      ;; proof-unregister-buffer-file-name.
+      (if proof-script-buffer
+	  (proof-deactivate-scripting))
+      (assert (null proof-script-buffer) 
+	      "Bug in proof-activate-scripting: deactivate failed.")
+
       ;; Set the active scripting buffer, and initialise the 
       ;; queue and locked regions if necessary.
       (setq proof-script-buffer (current-buffer))
@@ -698,12 +801,6 @@ correct theory, or whatever."
 	  ;; so mustn't do this.
 	  (proof-init-segmentation))
 
-      ;; Now make sure that this buffer is off the included files
-      ;; list.  In case we re-activate scripting in an already
-      ;; completed buffer, it may be that the proof assistant
-      ;; needs to retract some of this buffer's dependencies.
-      (proof-unregister-buffer-file-name 'tell-the-prover)
-      
       ;; Turn on the minor mode, make it show up.
       (setq proof-active-buffer-fake-minor-mode t)
       (if (fboundp 'redraw-modeline)
@@ -722,7 +819,7 @@ correct theory, or whatever."
 	    (set-buffer-modified-p nil)
 	    (unwind-protect
 		(save-some-buffers)
-	      (set-buffer-modified-p modified))))
+ 	      (set-buffer-modified-p modified))))
 
       ;; Run hooks
       (run-hooks 'proof-activate-scripting-hook)))))
@@ -741,21 +838,22 @@ With ARG, turn on scripting iff ARG is positive."
 	(if proof-script-buffer (proof-deactivate-scripting))
 	(proof-activate-scripting))
     (proof-deactivate-scripting)))
-  
-(defun proof-auto-deactivate-scripting ()
-  "Turn off scripting if the current scripting buffer is empty of full.
-This is a possible value for proof-state-change-hook.
 
-FIXME: this currently doesn't quite work properly as a value for 
-proof-state-change-hook, in fact: maybe because the
-hook is called somewhere where proof-script-buffer
-should not be nullified!"
-  ;; FIXME: note above.
-  (if proof-script-buffer
-      (with-current-buffer proof-script-buffer
-	(if (or (proof-locked-region-empty-p)
-		(proof-locked-region-full-p))
-	    (proof-deactivate-scripting)))))
+;; This function isn't such a wise idea: the buffer will often be fully
+;; locked when writing a script, but we don't want to keep toggling
+;; switching mode!
+;;(defun proof-auto-deactivate-scripting ()
+;;  "Turn off scripting if the current scripting buffer is empty or full.
+;;This is a possible value for proof-state-change-hook.
+;;FIXME: this currently doesn't quite work properly as a value for 
+;;proof-state-change-hook, in fact: maybe because the
+;;hook is called somewhere where proof-script-buffer
+;;should not be nullified!"
+;;  (if proof-script-buffer
+;;      (with-current-buffer proof-script-buffer
+;;	(if (or (proof-locked-region-empty-p)
+;;		(proof-locked-region-full-p))
+;;	    (proof-deactivate-scripting)))))
 
 ;;
 ;;  End of activating and deactivating scripting section
