@@ -187,25 +187,41 @@ may be a string or sexp evaluated to get a string."
   string)
 
 (defun proof-format-filename (string filename)
-  "Format STRING by replacing %e, %r by escaped version of FILENAME.
+  "Format STRING by replacing quoted chars by escaped version of FILENAME.
 
 %e uses the canonicalized expanded version of filename (including
 directory, using default-directory -- see `expand-file-name').
 
 %r uses the unadjusted (possibly relative) version of FILENAME.
 
+%m ('module') uses the basename of the file, without directory
+or extension.
+
 %s means the same as %e.
 
 Using %e can avoid problems with dumb proof assistants who don't
-understand ~, for example."  
-  (proof-format 
-   (list (cons "%s" (proof-format proof-shell-filename-escapes 
-				  (expand-file-name filename)))
-	 (cons "%e" (proof-format proof-shell-filename-escapes 
-				  (expand-file-name filename)))
-	 (cons "%r" (proof-format proof-shell-filename-escapes 
-				  filename)))
-   string))
+understand ~, for example.
+
+For all these cases, the escapes in `proof-shell-filename-escapes'
+are processed.
+
+If STRING is in fact a function, instead invoke it on FILENAME and
+return the resulting (string) value."
+  (cond
+   ((functionp string)
+    (funcall string filename))
+   (t
+    (proof-format 
+     (list (cons "%s" (proof-format proof-shell-filename-escapes 
+				    (expand-file-name filename)))
+	   (cons "%e" (proof-format proof-shell-filename-escapes 
+				    (expand-file-name filename)))
+	   (cons "%r" (proof-format proof-shell-filename-escapes 
+				    filename))
+	   (cons "%m" (proof-format proof-shell-filename-escapes 
+				    (file-name-nondirectory 
+				     (file-name-sans-extension filename)))))
+     string))))
  
 
 ;;
