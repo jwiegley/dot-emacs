@@ -1,4 +1,4 @@
-;; isa-thy-mode.el - Mode for Isabelle theory files.
+;; thy-mode.el - Mode for Isabelle theory files.
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Isabelle maintainer <isabelle@dcs.ed.ac.uk>
@@ -171,7 +171,7 @@ You can use the following format characters:
       (define-key map "\C-k" 'thy-kill-line)
       (setq thy-mode-map map)))
 
-(defun thy-add-menus ()
+(defun thy-add-menus (&optional file)
   "Add Proof General and Isabelle menu to current menu bar."
   (require 'proof-script)		; Later: proof-menu, autoloaded
   (easy-menu-define thy-mode-pg-menu
@@ -210,8 +210,13 @@ You can use the following format characters:
 			    :active (proof-locked-region-full-p)]
 			   ["Next error" proof-next-error t]
 			   ["Switch to script" thy-find-other-file t])))
-    (easy-menu-add thy-mode-pg-menu thy-mode-map)
-    (easy-menu-add thy-mode-isa-menu thy-mode-map))
+  (easy-menu-add thy-mode-pg-menu thy-mode-map)
+  (easy-menu-add thy-mode-isa-menu thy-mode-map)
+  
+  (if file
+     (progn (easy-menu-remove thy-mode-deps-menu)
+	    (thy-menu-define-deps file)
+	    (easy-menu-add thy-mode-deps-menu thy-mode-map))))
 
 
 (defun thy-mode (&optional nomessage)
