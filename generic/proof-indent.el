@@ -15,12 +15,8 @@
 ;;; To nuke byte compile warnings
 ;;;
 (require 'proof-syntax)			; for proof-commands-regexp.
-(autoload 'proof-goto-end-of-locked "proof-script"
-  "Jump to the end of the locked region.")
-(autoload 'proof-locked-end "proof-script"
-  "Return end of the locked region of the current buffer.")
-;;;
-;;;
+(require 'proof-script)			; for proof-goto-end-of-locked,
+					; proof-locked-end
 
 
 ;; This is quite different from sml-mode, but borrows some bits of
@@ -77,6 +73,7 @@
     (list instring comment-level stack))))
       
 (defun proof-indent-line ()
+  "Indent current line of proof script"
   (interactive)
   (if (and (member (current-buffer) proof-script-buffer-list)
 	   (< (point) (proof-locked-end)))

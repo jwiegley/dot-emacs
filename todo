@@ -64,13 +64,9 @@ A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
 
 A* Bug in proof-mode configuration of func-menu.  (30mins)
 
-A* FIX INDENTATION CODE, EDITING .ML (& other?) FILES IS CHRONICALLY SLOW.
-  This is going to hit us hard as soon as the mode gets used in
-  earnest.
-  (da, 10mins: disable it!)
-  (da, 2hrs: will investigate if fault lies with Isabelle syntax config)
-  (8hrs, estimated time to fixup indentation code otherwise.  May be
-         best removed altogether, or replaced with elisp code clone)
+C Improve indentation code and see why it's so slow (at
+  least for Isabelle).   Enable it for particular provers if
+  it works okay  (but must test in on large files).
 
 C Regions in script buffer have nice "name" property and configurers
   have to set regexps carefully so that it works, but is it actually

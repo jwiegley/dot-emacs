@@ -11,7 +11,12 @@
 
 (require 'proof)
 (require 'proof-syntax)
-(require 'proof-indent)
+
+;; If it's disabled by proof-script-indent, it won't need to be
+;; loaded.
+(autoload 'proof-indent-line "proof-indent" 
+	   "Indent current line of proof script")
+
 
 ;; Spans are our abstraction of extents/overlays.
 (eval-and-compile
@@ -1444,9 +1449,6 @@ sent to the assistant."
 (define-key map [(control c) ?h]	  'proof-help)
 (define-key map [(meta p)]		  'proof-previous-matching-command)
 (define-key map [(meta n)]		  'proof-next-matching-command)
-;; FIXME da: this shouldn't need setting, because it works
-;; via indent-line-function which is set below.  Check this.
-(define-key map [tab] 'proof-indent-line)
 (proof-define-keys map proof-universal-keys))
 
 
@@ -1498,8 +1500,8 @@ finish setup which depends on specific proof assistant configuration."
     'proof-active-terminator)
 
   (make-local-variable 'indent-line-function)
-  (setq indent-line-function 'proof-indent-line)
-
+  (if proof-script-indent
+      (setq indent-line-function 'proof-indent-line))
 
   ;; Toolbar
   ;; (NB: autloads proof-toolbar, which extends proof-menu variable)

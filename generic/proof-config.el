@@ -107,6 +107,16 @@ you a reprimand!)"
   :type 'boolean
   :group 'proof-general)
 
+(defcustom proof-script-indent nil
+  ;; Particular proof assistants can enable this if they feel
+  ;; confident about it.  (I don't). -da
+  "If non-nil, enable indentation code for proof scripts.
+Currently the indentation code can be rather slow for large scripts,
+or may be critical on the setting of regular expressions for 
+particular provers."
+  :type 'boolean
+  :group 'proof-general)
+
 ;;
 ;; Faces.
 ;; We ought to test that these work sensibly:
