@@ -1,3 +1,66 @@
+2003-02-24  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-x-symbol.el:
+	Set x-symbol-data-directory
+
+	* generic/proof-menu.el:
+	Fix proofdefinvisible, proofdefshortcut to work in compiled version
+
+	* etc/ProofGeneral.spec:
+	Add mmm and x-symbol
+
+	* coq/coq.el, coq/coq-syntax.el, lego/lego.el, plastic/plastic.el, generic/span-overlay.el, isa/x-symbol-isabelle.el, generic/proof-script.el, generic/proof-site.el, generic/proof-utils.el, generic/pg-metadata.el, generic/pg-pgip.el, generic/pg-response.el, generic/pg-user.el:
+	Fix some compile errors
+
+2003-02-22  David Aspinall  <da@proofgeneral.org>
+
+	* html/develdownload.php: Say Coq 7.4
+
+	* mmm/README.mmm-for-ProofGeneral, mmm/README.ProofGeneral, x-symbol/README.ProofGeneral, x-symbol/README.x-symbol-for-ProofGeneral:
+	Renamed file
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* x-symbol/lisp/TEMPLATE.el.tpl, x-symbol/lisp/Makefile:
+	Deleting
+
+	* x-symbol/lisp/makefile.pkg:
+	Deleted file
+
+	* generic/proof-x-symbol.el:
+	Fixes to work with bundled version
+
+	* generic/proof-script.el:
+	Temporarily disable mode-class prop on script major mode (for X-sym 4.45beta)
+
+	* mmm/README.ProofGeneral, todo, CHANGES, README:
+	Updated.
+
+	* isa/x-symbol-isabelle.el:
+	auto-coding-alist
+
+	* isa/x-symbol-isa.el: New files.
+
+	* isa/isa.el:
+	Move x-sym config to x-symbol-isa.el
+
+	* isar/isar.el:
+	Move x-sym config to x-symbol-isar.el
+
+	* isar/x-symbol-isar.el: New files.
+
+	* isa/x-symbol-isabelle.el:
+	Experiments with auto-style
+
+	* generic/proof-x-symbol.el:
+	Add code to use bundled version, commented out since broken.
+
 2003-02-22  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
