@@ -183,14 +183,23 @@ If in three window or multiple frame mode, display both buffers."
 ;; Make the togglers used in options menu below
 
 (proof-deftoggle proof-dont-switch-windows)
+(proof-deftoggle proof-script-fly-past-comments)
 (proof-deftoggle proof-delete-empty-windows)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
 (proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 
 (defvar proof-quick-opts-menu
-  `("Options"
-    ["Three window mode" proof-dont-switch-windows-toggle
+  (cons 
+   "Options"
+   (append
+    ;; FIXME: remove after 3.2, and promote this setting to proper option
+    (if proof-script-use-new-parser
+	'(["Fly past comments" proof-script-fly-past-comments-toggle
+	   :style toggle
+	   :selected proof-script-fly-past-comments])
+      nil)
+  '(["Three window mode" proof-dont-switch-windows-toggle
      :style toggle
      :selected proof-dont-switch-windows]
     ["Delete empty windows" proof-delete-empty-windows-toggle
@@ -225,7 +234,7 @@ If in three window or multiple frame mode, display both buffers."
      ["Never move" 
       (customize-set-variable 'proof-follow-mode 'ignore)
      :style radio
-     :selected (eq proof-follow-mode 'ignore)]))
+     :selected (eq proof-follow-mode 'ignore)]))))
   "Proof General quick options.")
 
 (defconst proof-shared-menu
@@ -497,7 +506,8 @@ The function `proof-assistant-format' is used to format VAL."
 	;; FIXME: should only do if goals display is active,
 	;; messy otherwise. 
 	;; (we need a new flag for "active goals display").  
-	(proof-prf) 
+	(if proof-showproof-command 
+	    (proof-shell-invisible-command proof-showproof-command))
 	;;  Could also repeat last command if non-state destroying.
 	)))
 
