@@ -30,7 +30,9 @@ Current "experimental" features
 
    Only works for Isabelle/classic at the moment (support is
    required from proof assistant authors: please mention to them).  
-   You must also select the Isabelle option "Theorem Dependencies".
+   You must select the Isabelle option "Theorem Dependencies",
+   and then restart Isabelle.
+
 
 
 
