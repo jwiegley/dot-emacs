@@ -1,0 +1,66 @@
+Patch below doesn't work because it examines the head of the
+proof-action-list which is empty by the time
+proof-handle-delayed-output gets called!
+
+Best thing may be to temporarily extend
+proof-handle-delayed-output-hook with a function to clear the erase
+flag... BUT can't remove it from proof-shell-done-invisible, 
+because that's too early!!!  Argh.
+
+Maybe we need a special test in the exec loop for just one element in
+the action list, and then call the callback *after* handling delayed
+output?
+
+Um.  Not for 3.0, then.
+
+
+
+
+*** ProofGeneral.prev/generic/proof-shell.el	Thu Nov 18 13:07:33 1999
+--- ProofGeneral/generic/proof-shell.el	Thu Nov 18 13:03:25 1999
+***************
+*** 676,682 ****
+        ;; Erase the response buffer if need be, maybe also removing the
+        ;; window.  Indicate that it should be erased before the next
+        ;; output.
+!       (proof-shell-maybe-erase-response t t)
+  
+        (set-buffer proof-goals-buffer)
+  
+--- 676,684 ----
+        ;; Erase the response buffer if need be, maybe also removing the
+        ;; window.  Indicate that it should be erased before the next
+        ;; output.
+!       (proof-shell-maybe-erase-response 
+!        (or proof-shell-erase-response-flag t)  ; preserve invisible cmd o/p
+!        t)
+  
+        (set-buffer proof-goals-buffer)
+  
+***************
+*** 829,835 ****
+        (unless proof-shell-leave-annotations-in-output
+  	(setq str (proof-shell-strip-special-annotations str)))
+        
+!       (proof-shell-maybe-erase-response t nil)
+        (proof-response-buffer-display str)
+        (proof-display-and-keep-buffer proof-response-buffer))
+       ;;
+--- 831,847 ----
+        (unless proof-shell-leave-annotations-in-output
+  	(setq str (proof-shell-strip-special-annotations str)))
+        
+!       (proof-shell-maybe-erase-response 
+!        ;; Magical detection of invisible commands, whose output
+!        ;; gets preserved specially.
+!        (if (and 
+! 	    (not (eq proof-shell-erase-response-flag 'invisible))
+! 	    (eq (nth 2 (car-safe proof-action-list))
+! 		'proof-shell-done-invisible))
+! 	   'invisible
+! 	 t)				; erase next time, probably
+!        t)				; clean.
+! 
+        (proof-response-buffer-display str)
+        (proof-display-and-keep-buffer proof-response-buffer))
+       ;;
