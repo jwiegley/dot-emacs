@@ -68,7 +68,7 @@ send a compile command to PhoX for the theorem which name is under the cursor."
 
        ((eq (span-property span 'type) 'comment))       
 
-       ((eq (span-property span 'type) 'goalsave)
+       ((eq (span-property span 'type) 'proof)
 	(setq ans (concat (format phox-forget-id-command
 				  (span-property span 'name)) ans)))
 
