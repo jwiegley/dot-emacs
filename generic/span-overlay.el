@@ -280,7 +280,7 @@ A span is before PT if it covers the character before PT."
   ;; list may be huge: is it a bottleneck?)
   ;; [Why has this function never used the before-list ?]
   (let* ((start     (overlay-start span))
-	 (pos       start)
+	 ;; (pos       start)
 	 (nextos    (overlays-in 
 		     (1+ start)
 		     (point-max)))

@@ -847,7 +847,6 @@ This is specific to coq-mode."
 		proof-shell-process-file nil
 		proof-shell-inform-file-retracted-cmd nil)))
 
-(provide 'coq)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -895,6 +894,9 @@ mouse activation."
                `(proof-shell-invisible-command 
                  ,(format "Check %s." thm))))))
   )
+
+(provide 'coq)
+
 
 ;;;   Local Variables: ***
 ;;;   tab-width:2 ***

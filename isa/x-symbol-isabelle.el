@@ -175,6 +175,8 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
 ;;;  Charsym Info
 ;;;===========================================================================
 
+;;; FIXME: da: attempting to compile these defcustoms gives error on
+;;;   !! Symbol's function definition is void ((x-symbol-set-cache-variable))
 (defcustom x-symbol-isabelle-class-alist
   '((VALID "Isabelle Symbol" (x-symbol-info-face))
     (INVALID "no Isabelle Symbol" (red x-symbol-info-face)))

@@ -1839,10 +1839,9 @@ This version is used when `proof-script-command-end-regexp' is set."
 		;; (FIXME: ignore nested comments here, we should
 		;; have a consistent policy!)
 		(unless
-		    (if (fboundp 'comment-forward)
-			(progn
+		    (if (progn
 			  (goto-char (or (match-end 1) (match-beginning 0)))
-			  (comment-forward))
+			  (forward-comment))
 		    (proof-re-search-forward 
 		     proof-script-comment-end-regexp cmdend t))
 		  (error
@@ -2385,7 +2384,7 @@ with `proof-script-set-buffer-hooks' which is what this function does,
 as well as setting `proof-script-buffer-file-name' (which see).
 
 This hook also gives a warning in case this is the active scripting buffer."
-  (setq proof-script-buffer-file-true buffer-file-name)
+  (setq proof-script-buffer-file-name buffer-file-name)
   (if (eq (current-buffer) proof-script-buffer)
       (proof-warning 
 "Active scripting buffer changed name; synchronization risked if prover tracks filenames!"))

@@ -59,7 +59,7 @@
 	     (modtime	    (nth 5 (file-attributes scriptfile)))
 	     (metadatafile  (pg-metadata-filename-for scriptfile))
 	     (metadatabuf   (find-file-noselect metadatafile 'nowarn))
-	     (span	   (span-at (point-min) 'type)))
+	     (span	   (span-at (point-min) 'type))
 	     type)
 	(pg-xml-begin-write)
 	(pg-xml-openelt 'script-file 
@@ -86,7 +86,7 @@
 	(with-current-buffer metadatabuf
 	  (delete-region (point-min) (point-max))
 	  (insert (pg-xml-doc))
-	  (write-file metadatafile))))
+	  (write-file metadatafile)))))
 
 
 ;(defun pg-read-metadata-file (buffer)

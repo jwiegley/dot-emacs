@@ -782,7 +782,7 @@ EXTRAPATH is a list of extra path components"
        (executable-find progname)))	;; PG 3.4: try a new Emacs function.
     ((fboundp 'locate-file)
      (locate-file progname
-		  (append (split-path (getenv "PATH") extrapth)) 
+		  (append (split-path (getenv "PATH") extrapath)) 
 		  (if proof-running-on-win32 '(".exe"))
 		  1)))
    (if returnnopath progname)))

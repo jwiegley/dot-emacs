@@ -350,11 +350,11 @@ Checks the width in the `proof-goals-buffer'"
   (setq outline-heading-end-regexp lego-outline-heading-end-regexp)
 
 ;; tags
-  (cond ((boundp 'tags-table-list)
+  (cond ((boundp 'tags-table-list) ;; GNU Emacs
 	 (make-local-variable 'tags-table-list)
 	 (setq tags-table-list (cons lego-tags tags-table-list))))
 
-  (and (boundp 'tag-table-alist)
+  (and (boundp 'tag-table-alist)  ;; XEmacs
        (setq tag-table-alist
 	     (append '(("\\.l$" . lego-tags)
 		       ("lego"  . lego-tags))

@@ -325,13 +325,14 @@ and start at the first error."
 (defun pg-thms-buffer-clear ()
   "Clear the theorems buffer."
   (with-current-buffer proof-thms-buffer
+    (let (start str)
       (goto-char (point-max))
       (newline)				
       (setq start (point))
       (insert str)
       (unless (bolp) (newline))
       (proof-fontify-region start (point))
-      (set-buffer-modified-p nil)))
+      (set-buffer-modified-p nil))))
 
 
 

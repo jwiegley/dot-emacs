@@ -552,7 +552,7 @@ Make sure the modeline is updated to display new value for electric terminator."
 
 (defun proof-electric-term-incomment-fn ()
   "Used as argument to proof-assert-until-point."
-  ;; CAREFUL: (1) dynamic scoping here 
+  ;; CAREFUL: (1) dynamic scoping here  (incomment, ins, mrk)
   ;;          (2) needs this name to be recognized in 
   ;;		  proof-assert-until-point
   (setq incomment t)
@@ -803,7 +803,7 @@ If NUM is negative, move upwards.  Return new span."
 
 (defun pg-fixup-children-span (span)
   (if (span-property span 'controlspan)
-      ;; WARNING: dynamic binding
+      ;; WARNING: dynamic binding for new-span
       (progn
 	(set-span-property span 'controlspan new-span)
 	(list span))))

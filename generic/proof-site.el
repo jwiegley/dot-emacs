@@ -83,9 +83,9 @@ You can use customize to set this variable."
 		    (cons proof-info-directory Info-directory-list))
 	      (setq Info-dir-contents nil)))
       ;; Info is not yet initialized.  Change its default.
-      (if (not (member proof-info-directory Info-default-directory-list))
-	  (setq Info-default-directory-list
-		(cons proof-info-directory Info-default-directory-list)))))
+      (if (not (member proof-info-directory Info-directory-list))
+	  (setq Info-directory-list
+		(cons proof-info-directory Info-directory-list)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

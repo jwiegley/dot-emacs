@@ -247,15 +247,16 @@
      (or (string-equal value "true") (string-equal value "false")))
     (pg-pgip-interpret-value value 'boolean))
    ((and 
-     (memq 'integer (cdr type))
+     (memq 'integer choices)
      (string-match "[0-9]+$" value))
     (pg-pgip-interpret-value value 'integer))
-   ((memq 'string (cdr type))
+   ((memq 'string choices)
     ;; FIXME: No special syntax for string inside PGIP yet, should be?
     (pg-pgip-interpret-value value 'string))
    (t
-    (pg-pgip-error "pg-pgip-interpret-choice: mismatching value %s for choices %s" 
-		   value choices))))
+    (pg-pgip-error 
+     "pg-pgip-interpret-choice: mismatching value %s for choices %s" 
+     value choices))))
 
 (defun pg-pgip-interpret-value (value type)
   (cond

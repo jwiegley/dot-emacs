@@ -540,60 +540,55 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-large-bar () (interactive) (insert "%-------------------------------------------------------------------------------\n"))
 
-(defun plastic-preprocessing () 
+(defun plastic-preprocessing () ;; NB: dynamic scoping of string
    "clear comments and remove literate marks (ie, \\n> ) - acts on var string"
 
-   ;; might want to use proof-string-match here if matching is going to be
-   ;; case sensitive (see docs)
+   ;; might want to use proof-string-match here if matching is going
+   ;; to be case sensitive (see docs)
 
    (if (= 0 (length plastic-lit-string)) 
-	string		;; no-op if non-literate
-
-			;; remaining lines are the Else. (what, no 'return'?)
+       string				; no-op if non-literate
+     					; remaining lines are the
+     					; Else. (what, no 'return'?)
    (setq string (concat "\n" string " "))   ;; seed routine below, & extra char
    (let* ;; da: let* not really needed, added to nuke byte-comp warnings. 
-     ( (i 0)
-       (l (length string))
-       (eat-rest (lambda () 
+       (x 
+	(i 0)
+	(l (length string))
+	(eat-rest (lambda () 
                     (aset string i ?\ )  ;; kill the \n or "-" at least
                     (incf i)
                     (while (and (< i l) (/= (aref string i) ?\n))
-                           (aset string i ?\ )
-                           (incf i) )))
-       (keep-rest (lambda () 
-                    (loop for x in (string-to-list plastic-lit-string)
-                          do (aset string i ?\ ) (incf i))
-                    (while (and (< i l) 
-                                (/= (aref string i) ?\n)
-                                (/= (aref string i) ?-))
-                           (incf i) )))
-   )
-   (while (< i l)
-          (cond
-               ((eq 0 (string-match "--" (substring string i)))
-                   (funcall eat-rest))           ;; comment.
-               ((eq 0 (string-match "\n\n" (substring string i)))
-                   (aset string i ?\ ) 
-                   (incf i)) ;; kill repeat \n
-
-               ((= (aref string i) ?\n)		;; start of new line
-                   (aset string i ?\ ) (incf i) ;; remove \n
-
-	               (if (eq 0 (string-match plastic-lit-string 
-					         (substring string i)))
-                       (funcall keep-rest)       ;; code line.
-                       (funcall eat-rest)        ;; non-code line
-                   ))
-
-               (t (incf i))                      ;; else include.
-            )
-   )
-   (setq string (replace-in-string string "  *" " "))
-   (setq string (replace-in-string string "^ *" ""))
+		      (aset string i ?\ )
+		      (incf i) )))
+	(keep-rest (lambda () 
+		     (loop for x in (string-to-list plastic-lit-string)
+		       do (aset string i ?\ ) (incf i))
+		     (while (and (< i l) 
+				 (/= (aref string i) ?\n)
+				 (/= (aref string i) ?-))
+		       (incf i) ))))
+     (while (< i l)
+       (cond
+	((eq 0 (string-match "--" (substring string i)))
+	 (funcall eat-rest))		; comment.
+	((eq 0 (string-match "\n\n" (substring string i)))
+	 (aset string i ?\ ) 
+	 (incf i))			; kill repeat \n
+	((= (aref string i) ?\n)	; start of new line
+	 (aset string i ?\ ) (incf i)	; remove \n
+	 (if (eq 0 (string-match plastic-lit-string 
+				 (substring string i)))
+	     (funcall keep-rest)	; code line.
+	   (funcall eat-rest)		; non-code line
+	   ))
+	(t 
+	 (incf i))))			; else include.
+     (setq string (replace-in-string string "  *" " "))
+     (setq string (replace-in-string string "^ *" ""))
    (if (string-match "^\\s-*$" string)
        (setq string (concat "ECHO comment line" proof-terminal-string))
-       string)
-   )))
+     string))))
 
 
 (defun plastic-all-ctxt () 
