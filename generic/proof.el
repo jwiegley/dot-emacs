@@ -11,16 +11,12 @@
 ;;
 
 (require 'proof-site)			; site config
-(require 'proof-autoloads)		; autoloaded functions
 (require 'proof-compat)			; Emacs and OS compatibility
 (require 'proof-utils)			; utilities
 (require 'proof-config)			; configuration variables
 
 
-(if (and proof-splash-enable
-	 (not (noninteractive)))
-    (proof-splash-display-screen t))	; display splash
-
+(proof-splash-message)                  ; welcome the user now.
 
 ;;;
 ;;; Extra autoloads that aren't automatic 
