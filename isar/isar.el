@@ -214,6 +214,8 @@
    proof-info-command		"help"
    proof-kill-goal-command	"ProofGeneral.kill_proof;"
    proof-find-theorems-command  "thms_containing %s;"
+   proof-shell-start-silent-cmd "disable_pr;"
+   proof-shell-stop-silent-cmd  "enable_pr;"   
    ;; command hooks
    proof-goal-command-p		'isar-goal-command-p
    proof-really-save-command-p	'isar-global-save-command-p
@@ -536,7 +538,7 @@ proof-shell-retract-files-regexp."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun isar-preprocessing ()  ;dynamic scoping of `string'
-  "Insert sync markers - acts on variable string by dynamic scoping"
+  "Insert sync markers - acts on variable STRING by dynamic scoping"
   (if (string-match isar-verbatim-regexp string)
       (setq string (match-string 1 string))
     (setq string (concat "\\<^sync>" (isar-shell-adjust-line-width) string "\\<^sync>;"))))
