@@ -19,7 +19,7 @@
 
 (if (and proof-splash-enable
 	 (not (noninteractive)))
-    (proof-splash-display-screen))	
+    (proof-splash-display-screen t))	; display splash
 
 
 ;;;
