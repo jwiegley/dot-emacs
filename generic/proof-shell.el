@@ -230,8 +230,6 @@ Does nothing if proof assistant is already running."
 	    "-response*")))
       (save-excursion
 	(set-buffer proof-shell-buffer)
-	(make-variable-buffer-local 'kill-buffer-hook)
-	(add-hook 'kill-buffer-hook 'proof-shell-kill-function t)
 	(funcall proof-mode-for-shell)
 	(set-buffer proof-response-buffer)
 	(funcall proof-mode-for-response)
@@ -279,20 +277,22 @@ of the queue region."
 Value for kill-buffer-hook in shell buffer.
 It shuts down the proof process nicely and clears up all locked regions
 and state variables."
-  (let ((alive    (comint-check-proc (current-buffer)))
+  (let* ((alive    (comint-check-proc (current-buffer)))
 	(proc     (get-buffer-process (current-buffer)))
 	(procname (and proc (process-name proc))))
-	
+    (message "%s, cleaning up and exiting..." procname)
     (if alive				; process still there
 	(progn
-	  (mesage "%s exiting..." procname)
 	  ;; Try to shut it down politely
 	  (if proof-shell-quit-cmd
-	      (comint-send-string proof-shell-quit-cmd)
+	      (comint-send-string proc proof-shell-quit-cmd)
 	    (comint-send-eof))
 	  ;; Wait a while for it to die
+	  ;; Do this before deleting other buffers, etc, so that
+	  ;; any closing down processing works okay.
+	  ;; FIXME: want to protect this region, however.
 	  (while (> 1 (process-exit-status proc))
-	    (accept-process-output proc 15))))
+	    (sit-for 1))))
     ;; Restart all scripting buffers
     (proof-script-remove-all-spans-and-deactivate)
     ;; Clear state
@@ -1283,6 +1283,10 @@ Annotations are characters 128-255."
     (if proof-shell-init-cmd
 	(proof-shell-insert proof-shell-init-cmd))
 
+    ;; Add the kill buffer function
+    (make-variable-buffer-local 'kill-buffer-hook)
+    (add-hook 'kill-buffer-hook 'proof-shell-kill-function t)
+    
     ;; Note that proof-marker actually gets set in proof-shell-filter.
     ;; This is manifestly a hack, but finding somewhere more convenient
     ;; to do the setup is tricky.
