@@ -110,6 +110,7 @@
    proof-script-command-start-regexp (proof-regexp-alt
                                       isar-any-command-regexp
                                       (regexp-quote ";"))
+   proof-script-integral-proofs t
    proof-comment-start          isar-comment-start
    proof-comment-end            isar-comment-end
    proof-comment-start-regexp   isar-comment-start-regexp
