@@ -252,6 +252,10 @@ C Make completion more generic. For Isabelle and Lego, we can build a
   completion table by querying the process, which is better than
   messing with tags.
 
+X Oddity in RPM build: reports
+	 /var/tmp/rpm-tmp.65808: line 29: 30875 Broken pipe             /bin/gzip -dc /tmp/ProofGeneral-rpm/SOURCES/ProofGeneral-2.0pre981012.tar.gz
+  Why?  It still seems okay otherwise.
+
 X Support for x-symbols package.
   Provers with sophisticated/configurable syntax should tell Emacs
   about their syntax somehow, rather than trying to duplicate
