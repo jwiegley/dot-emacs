@@ -256,10 +256,17 @@ rpm:
 rpmrelease: rpm
 	cp -pf $(RPMTOPDIR)/SRPMS/* $(RPMTOPDIR)/RPMS/noarch/* $(RELEASEDIR)
 
+############################################################
+##
+## releaseclean:
+##     Cleanup after building release.
+##	  
+releaseclean:
+	rm -rf $(DISTBUILDIR) $(RPMTOPDIR)
 
 ############################################################
 ##
 ## releaseall:
 ##     Do everything!
 ##	  
-releaseall: release rpmrelease
+releaseall: release rpmrelease releaseclean
