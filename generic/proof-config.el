@@ -71,8 +71,6 @@
 
 (require 'proof-utils)			;; Macros used below
 
-
-
 
 ;;
 ;; 1. User options for proof mode
