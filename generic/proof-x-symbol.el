@@ -294,6 +294,10 @@ Assumes that the current buffer is the proof shell buffer."
   ;     (x-symbol-encode))))
 
 
+;; Compatibility with completion package
+
+(put 'completion-separator-self-insert-command 'x-symbol-input t)
+(put 'completion-separator-self-insert-autofilling 'x-symbol-input t)
 
 
 ;;
