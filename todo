@@ -80,7 +80,7 @@ B proof-shell-exit has a time delay of 10 secs built-in,
   example writing persistent databases out or the like.
   Also this fact should be documented.
 
-B Is it possible to let C-c C-c (SIGINT) issue additional process input?
+X Is it possible to let C-c C-c (SIGINT) issue additional process input?
   Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
   rather, to fail gracefully.
 
@@ -575,6 +575,7 @@ X Write perl scripts to generate TAGS file for ML and thy files.
 
 X Manage multiple proofs (markers in possibly different buffers)
 	 
+
 * FSF Emacs
 ===========
 
