@@ -140,6 +140,8 @@
    font-lock-keywords              (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    )
   (phox-init-syntax-table)
+  (setq pbp-goal-command "intro %s;")
+  (setq pbp-hyp-command "elim %s;")
 ;; the following is only useful for xemacs
   (define-key phox-mode-map [(meta ?.)] 'phox-complete-tag)
 )
