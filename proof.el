@@ -9,6 +9,12 @@
 
 
 ;; $Log$
+;; Revision 1.39  1998/05/08 15:41:32  hhg
+;; Merged indentation code for LEGO and Coq into proof.el.
+;;
+;; Fixed problem with active terminator mode: [proof-terminal-char] isn't
+;; the same as (vector proof-terminal-char).
+;;
 ;; Revision 1.38  1998/05/06 16:39:42  hhg
 ;; Fixed bug with inserting commands and proof-shell-config.
 ;;
@@ -231,6 +237,9 @@
 
 (defvar proof-state-preserving-p nil
   "whether a command preserves the proof state")
+
+(defvar proof-stack-to-indent nil
+  "Prover-specific code for indentation.")
 
 (defvar pbp-change-goal nil
   "*Command to change to the goal %s")
@@ -681,11 +690,13 @@
 (defun proof-pbp-focus-on-first-goal ()
   "If the `proof-pbp-buffer' contains goals, the first one is brought
   into view."
-;  (let
-;      ((pos (map-spans 'proof-goals-pos proof-pbp-buffer
-;			 nil nil nil nil 'proof-top-element)))
-;    (and pos (set-window-point (get-buffer-window proof-pbp-buffer t) pos))))
-  ())
+  (cond (running-xemacs
+	 (let
+	     ((pos (map-extents 'proof-goals-pos proof-pbp-buffer
+			      nil nil nil nil 'proof-top-element)))
+	   (and pos (set-window-point
+		     (get-buffer-window proof-pbp-buffer t) pos))))
+	(t nil)))
 
 ;;   The basic output processing function - it can return one of 4  ;;  
 ;;   things: 'error, 'interrupt, 'loopback, or nil. 'loopback means ;;
@@ -1273,6 +1284,108 @@ deletes the region corresponding to the proof sequence."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Indentation                                                    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; This is quite different from sml-mode, but borrows some bits of
+;; code.  It's quite a lot less general, but works with nested
+;; comments.
+
+;; parse-to-point: If from is nil, parsing starts from either
+;; proof-locked-end if we're in the proof-script-buffer or the
+;; beginning of the buffer. Otherwise state must contain a valid
+;; triple.
+
+(defun proof-parse-to-point (&optional from state)
+  (let ((comment-level 0) (stack (list (list nil 0)))
+	(end (point)) instring c)
+    (save-excursion
+      (if (null from)
+	  (if (eq proof-script-buffer (current-buffer))
+	      (proof-goto-end-of-locked)
+	    (goto-char 1))
+	(goto-char from)
+	(setq instring (car state)
+	      comment-level (nth 1 state)
+	      stack (nth 2 state)))
+      (while (< (point) end)
+	(setq c (char-after (point)))
+	(cond 
+	 (instring 
+	  (if (eq c ?\") (setq instring nil)))
+	 (t (cond
+	     ((eq c ?\()
+	      (if (looking-at "(\\*") (progn 
+					(incf comment-level)
+					(forward-char))
+		(if (>= 0 comment-level) 
+		    (setq stack (cons (list c (point)) stack)))))
+	     ((and (eq c ?\*) (looking-at "\\*)"))
+	      (decf comment-level)
+	      (forward-char))
+	     ((> comment-level 0))
+	     ((eq c ?\") (setq instring t))
+	     ((or (eq c ?\{) (eq c ?\[))
+	      (setq stack (cons (list c (point)) stack)))
+	     ((or (eq c ?\)) (eq c ?\}) (eq c ?\]))
+	      (setq stack (cdr stack)))
+	     ((eq proof-terminal-char '\.))
+	     ;; Coq-specific code starts here:
+	     ((and (eq c ?c) (looking-at "case"))
+	      (setq stack (cons (list c (point)) stack)))
+	     ((and (eq c ?e) (looking-at "end") (eq (car (car stack)) ?c))
+	      (setq stack (cdr stack)))
+
+	     ((and (eq c ?I) (looking-at "Inductive"))
+	      (setq stack (cons (list c (point)) stack)))
+	     ((and (eq c ?.) (eq (car (car stack)) ?I))
+	      (setq stack (cdr stack))))))
+	     ;; Coq specific code ends.
+	(forward-char))
+    (list instring comment-level stack))))
+      
+(defun proof-indent-line ()
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (if (and (eq proof-script-buffer (current-buffer))
+	     (< (point) (proof-locked-end)))
+	(error "can't indent locked region!"))
+    (let* ((state (proof-parse-to-point))
+	   (beg (point))
+	   (indent (cond ((car state) 1)
+			 ((> (nth 1 state) 0) 1)
+			 (t (funcall proof-stack-to-indent (nth 2 state))))))
+      (skip-chars-forward "\t ")
+      (delete-region beg (point))
+      (indent-to indent)))
+  (if (< (current-column) (current-indentation))
+      (skip-chars-forward "\t ")))
+
+(defun proof-indent-region (start end)
+  (interactive "r")
+  (save-excursion
+    (goto-char start)
+    (beginning-of-line)
+    (if (and (eq proof-script-buffer (current-buffer))
+	     (< (point) (proof-locked-end)))
+	(error "can't indent locked region!"))
+    (let* ((beg (point))
+	   (state (proof-parse-to-point))
+	   indent)
+      (while (<= (point) end)
+	(setq indent (cond ((car state) 1)
+			   ((> (nth 1 state) 0) 1)
+			   (t (funcall proof-stack-to-indent (nth 2 state)))))	
+	(skip-chars-forward "\t ")
+	(delete-region beg (point))
+	(indent-to indent)
+	(end-of-line)
+	(if (< (point) (point-max)) (forward-char))
+	(setq state (proof-parse-to-point beg state)
+	      beg (point))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;         misc other user functions                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1460,7 +1573,8 @@ current command."
     'proof-find-next-terminator)
   (define-key proof-mode-map [(control c) (control c)]
     'proof-interrupt-process)
-  (define-key proof-mode-map [proof-terminal-char] 'proof-active-terminator)
+  (define-key proof-mode-map (vector proof-terminal-char)
+    'proof-active-terminator)
   (define-key proof-mode-map [(control c) (return)] 'proof-assert-until-point)
   (define-key proof-mode-map [(control c) (control t)] 'proof-try-command)
   (define-key proof-mode-map [(control c) ?u] 'proof-retract-until-point)
@@ -1473,7 +1587,9 @@ current command."
   (define-key proof-mode-map [(control c) (control b)] 'proof-process-buffer)
   (define-key proof-mode-map [(control c) (control z)] 'proof-frob-locked-end)
 
-  ;; For fontlock
+  (define-key proof-mode-map [tab]      'proof-indent-line)
+
+;; For fontlock
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
   (add-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer nil t)
   (remove-hook 'font-lock-mode-hook 'proof-unfontify-separator t)
