@@ -1,5 +1,22 @@
 2001-09-13  David Aspinall  <da@proofgeneral.org>
 
+	* html/htmlshow.php:
+	Fix two more gaping holes letting people examine whole filesystem
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/feedback: Feedback quick link
+
+	* CHANGES: No changes msg
+
+	* html/kit.html, html/mailinglist.html, html/develdownload.html, html/doc.html, html/feedback.html, html/kit, html/.htaccess:
+	Try to fix PHP/html nonsense, by disabling SSI and enabling php for .html files
+
+2001-09-13  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
