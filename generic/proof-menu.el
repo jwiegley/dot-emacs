@@ -674,6 +674,8 @@ the form of the menu entry for the setting.")
 			 ["Save Settings" (proof-settings-save)
 			  (proof-settings-changed-from-saved-p)]))
 	    ents)
+	;; TODO: for a large number of settings, we could generate
+	;; sub-menus according to the group.  
 	(while setgs
 	  (setq ents (cons 
 		      (apply 'proof-menu-entry-for-setting (car setgs)) ents))
@@ -684,9 +686,16 @@ the form of the menu entry for the setting.")
 
 (defun proof-menu-entry-name (symbol)
   "Return a nice menu entry name for SYMBOL."
-  (upcase-initials 
-   (replace-in-string (symbol-name symbol) "-" " ")))
-
+  ;; NB: for grouped settings, there is a pggroup symbol property and
+  ;; by convention the name of the setting begins with grp:
+  ;; We strip the group name from the menu entry name.
+  (let ((grp (get symbol 'pggroup))
+	(nm  (symbol-name symbol)))
+    (upcase-initials
+     (replace-in-string 
+      (if grp (replace-in-string nm (concat (downcase grp) ":") "") nm)
+      "-" " "))))
+	
 (defun proof-menu-entry-for-setting (symbol setting type)
   (let ((entry-name  (proof-menu-entry-name symbol))
 	(pasym	     (proof-ass-symv symbol)))
@@ -742,9 +751,20 @@ the form of the menu entry for the setting.")
        ((eq (car args) :eval)
 	(setq evalform (cadr args))
 	(setq args (cdr args)))
+       ((eq (car args) :pgipcmd)
+	;; Construct a function which yields a PGIP string 
+	(setq setting `(lambda (x) 
+			  (pg-pgip-string-of-command (proof-assistant-format ,(cadr args) x))))
+	(setq args (cdr args)))
+       ((eq (car args) :pggroup) 
+	;; use the group as a prefix to the name, and set a pggroup property on it
+	(setq name (intern (concat (downcase (cadr args)) ":" (symbol-name name))))
+	(put name 'pggroup (cadr args))
+	(setq args (cdr args)))
        ((eq (car args) :type)
 	(setq type (cadr args))
-	(setq newargs (cons (car args) newargs)))
+	(setq args (cdr args))
+	(setq newargs (cons type (cons :type newargs))))
        (t
 	(setq newargs (cons (car args) newargs))))
       (setq args (cdr args)))
@@ -801,7 +821,7 @@ the form of the menu entry for the setting.")
 NAME can correspond to some internal setting, flag, etc, for the
 proof assistant, in which case a :setting and :type value should be provided.
 The :type of NAME should be one of 'integer, 'boolean, 'string.
-The customization variable is automatically in group `proof-assistant-setting.
+The customization variable is automatically in group `proof-assistant-setting'.
 The function `proof-assistant-format' is used to format VAL.
 If NAME corresponds instead to a PG internal setting, then a form :eval to
 evaluate can be provided instead."
@@ -858,14 +878,21 @@ NB: if no settings are configured, this has no effect."
 Formatting suitable for current proof assistant, controlled by
 `proof-assistant-format-table' which see.
 Finally, apply `proof-assistant-setting-format' if non-nil.
-As a special case for boolean settings: the setting STRING 
+Alternatively, STRING can be a function which yields a string when applied
+to the CURVALUE.
+As another special case for boolean settings: the setting STRING 
 can be a cons cell of two strings, the first one for true (non-nil
 value) and the second for false."
   (let ((setting
-	 (if (consp string)
-	     (if curvalue (car string) (cdr string))
-	   ;; Otherwise must use % format characters
-	   (proof-format proof-assistant-format-table string))))
+	 (cond
+	  ((stringp string)   ;; use % format characters
+	   (proof-format proof-assistant-format-table string))
+	  ((functionp string) ;; call the function
+	   (funcall string curvalue))
+	  ((consp string)     ;; true/false options
+	   (if curvalue (car string) (cdr string)))
+	  (t ;; no idea what to do
+	   (error "proof-assistant-format: called with invalid string arg %s" string)))))
     (if proof-assistant-setting-format
 	(funcall proof-assistant-setting-format setting)
       setting)))
