@@ -8,15 +8,31 @@
 
 ** Generic Changes
 
+*** Makefile has new target "scripts" to fix paths in bash/perl scripts
+
 *** Bug fix: "next" button enabled more often.  Solaris turns off enablers.
 
-*** Menu reorganization, including new proof assistant specific menus.  
+*** Bug fix: first line ignored problem fixed for Coq and others.
+ 
+  To fix this properly, we have added `proof-shell-pre-sync-init-cmd'
+  for provers need initialization before synchronization can be secured.
+  [Developers note: LEGO needs to wait for second prompt before sync,
+   whereas Isabelle managed to sync on first prompt.  Coq was best,
+   with sync set before startup, using a command line option.]
 
-  Specific menus added for Coq, LEGO, Isabelle.
+*** Bug fix: script management is now more robust against C-x C-v, C-x C-w
+
+  Please let me know of any cases where this fails.  
+
+*** Menu reorganization, including new proof assistant specific menus.  
 
 *** Favourites: user-defined commands added proof assistant specific menu
 
   WORK ONGOING: PRESENTLY INCOMPLETE, DO NOT REPORT!
+
+*** Menu reorganization, including new proof assistant specific menus.  
+
+  Specific menus added for Coq, LEGO, Isabelle.
 
 *** Proof assistant specific keymap added
 
@@ -93,9 +109,26 @@
 
 *** Changed buffer mode name: pbp-mode -> proof-goals-mode, for uniformity.
 
+*** Removed proof-terminal-string to simplify command setting
+
+  [ONGOING]
+  As a simplification of the code, and to allow possibility of
+  PAs without a terminal string, more smoothly.
+  It is now the responsibility of each proof assistant's customization
+  to add proof-terminal-string to commands where necessary.  
+
+*** New parsing mechanism in testing
+
+  To allow more flexible proof script syntax for new provers.  
+  Also efficiency improvements.
+  This change results in a few known oddities at the moment, e.g. 
+  process whole buffer leaves off last line.  
+  Also broken with FSF Emacs.
+  To test it, do 
+    (defalias 'proof-segment-up-to 'proof-segment-up-to-new)
+
 *** Other minor things (interest only to independent developers of PG modes):
 
       No need for match string 1 in proof-shell-proof-completed
       Added proof-shell-pre-sync-init-cmd, see doc.
-
 
