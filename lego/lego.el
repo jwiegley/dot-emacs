@@ -44,9 +44,9 @@
     ["LEGO library (WWW)" (browse-url lego-library-www-page)  t]))
 
 (proof-defass-default menu-entries
-  '(["intros" lego-intros]
-    ["Intros" lego-Intros]
-    ["Refine" lego-Refine]))
+  '(["intros" lego-intros t]
+    ["Intros" lego-Intros t]
+    ["Refine" lego-Refine t]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
