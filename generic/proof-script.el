@@ -2296,12 +2296,14 @@ This is intended as a value for proof-activate-scripting-hook"
 (defvar proof-shared-menu
   (append
     (list
-     ["Start proof assistant"
-      proof-shell-start
-      :active (not (proof-shell-live-buffer))]
-     ["Exit proof assistant"
-      proof-shell-exit
-      :active (proof-shell-live-buffer)])
+     (vector
+      (concat "Start " proof-assistant)
+      'proof-shell-start
+      ':active '(not (proof-shell-live-buffer)))
+     (vector
+      (concat "Exit " proof-assistant)
+      'proof-shell-exit
+      ':active '(proof-shell-live-buffer)))
     (list proof-buffer-menu)
     (list proof-quick-opts-menu)
     (list proof-help-menu))
