@@ -215,7 +215,7 @@
 
 (defun isar-match-antiq (limit)
   "Match Isabelle/Isar antiquotations."
-  (save-match-data
+  ;;(save-match-data
     (or
      (and (proof-looking-at-syntactic-context)
 	  (proof-looking-at isar-antiq-regexp))
@@ -225,7 +225,7 @@
 	     (and (proof-looking-at-syntactic-context)
 		  (setq done t) (setq ans t))
 	   (setq done t)))
-       ans))))
+       ans)));; )
 
 
 ;; ----- Isabelle inner syntax hilite
@@ -308,9 +308,9 @@
    (cons (isar-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
-   (cons isar-tac-regexp 'font-lock-reference-face)))
+   (cons isar-tac-regexp 'font-lock-reference-face))
 ;; da: this function is expensive and buggy, or at least trips bugs in XEmacs/font lock
-;;  '(isar-match-antiq (0 'font-lock-variable-name-face prepend)))
+  '(isar-match-antiq (0 'font-lock-variable-name-face prepend)))
 
 (defvar isar-output-font-lock-keywords-1
   (list
