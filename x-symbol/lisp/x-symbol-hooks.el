@@ -370,48 +370,48 @@ and is used for input methods, not for decoding and encoding.  See
   :type 'string)
 
 (defcustom x-symbol-tex-name "TeX macro"
-  "Name of token language `tex'.  See `x-symbol-register-language'."
+  "Name of token language `tex'.  See `x-symbol-name'."
   :group 'x-symbol-tex
   :type 'string)
 
 (defcustom x-symbol-tex-modes
   '(tex-mode latex-mode plain-tex-mode noweb-mode)
-  "Major modes using language `tex'.  See `x-symbol-register-language'."
+  "Major modes using language `tex'.  See `x-symbol-mode'."
   :group 'x-symbol-tex
   :group 'x-symbol-mode
   :type '(repeat function))
 
 (defcustom x-symbol-sgml-name "SGML entity"
-  "Name of token language `sgml'.  See `x-symbol-register-language'."
+  "Name of token language `sgml'.  See `x-symbol-name'."
   :group 'x-symbol-sgml
   :type 'string)
 
 (defcustom x-symbol-sgml-modes
   ;;'(sgml-mode xml-mode html-mode hm--html-mode html-helper-mode)
   '(html-mode hm--html-mode html-helper-mode)
-  "Major modes using language `sgml'.  See `x-symbol-register-language'."
+  "Major modes using language `sgml'.  See `x-symbol-modes'."
   :group 'x-symbol-sgml
   :group 'x-symbol-mode
   :type '(repeat function))
 
 (defcustom x-symbol-bib-name "BibTeX macro"
-  "Name of token language `bib'.  See `x-symbol-register-language'."
+  "Name of token language `bib'.  See `x-symbol-name'."
   :group 'x-symbol-bib
   :type 'string)
 
 (defcustom x-symbol-bib-modes '(bibtex-mode)
-  "Major modes using language `bib'.  See `x-symbol-register-language'."
+  "Major modes using language `bib'.  See `x-symbol-modes'."
   :group 'x-symbol-bib
   :group 'x-symbol-mode
   :type '(repeat function))
 
 (defcustom x-symbol-texi-name "TeXinfo command"
-  "Name of token language `tex'.  See `x-symbol-register-language'."
+  "Name of token language `tex'.  See `x-symbol-name'."
   :group 'x-symbol-texi
   :type 'string)
 
 (defcustom x-symbol-texi-modes '(texinfo-mode)
-  "Major modes using language `texi'.  See `x-symbol-register-language'."
+  "Major modes using language `texi'.  See `x-symbol-modes'."
   :group 'x-symbol-texi
   :group 'x-symbol-mode
   :type '(repeat function))
@@ -1007,7 +1007,7 @@ value other than nil or `fast'.  Refontifies buffer if
 	(if (featurep 'xemacs)
 	    (call-with-transparent-undo
 	     (lambda ()
-	       (x-symbol-encode-all)	; not the safe version!
+	       (x-symbol-encode-all)
 	       (continue-save-buffer)))
 	  (let ((buffer-undo-list nil)
 		;; Kludge to prevent undo list truncation:
@@ -1016,9 +1016,19 @@ value other than nil or `fast'.  Refontifies buffer if
 		(undo-high-threshold -1)	; XEmacs
 		(undo-threshold -1))		; XEmacs
 	    (unwind-protect
-		(progn
-		  (x-symbol-encode-all)	; not the safe version!
-		  (continue-save-buffer))
+		(let ((file-hooks (cdr (memq 'x-symbol-write-file-hook
+					     (default-value
+					       'write-file-hooks))))
+		      setmodes)
+		  (x-symbol-encode-all)
+		  (or (run-hook-with-args-until-success 'file-hooks)
+		      (setq setmodes (basic-save-buffer-1)))
+		  ;; See `basic-save-buffer'.  TODO: do I also have to set the
+		  ;; coding system and `buffer-file-number'?
+		  (if setmodes
+		      (condition-case ()
+			  (set-file-modes buffer-file-name setmodes)
+			(error nil))))
 	      (let ((tail buffer-undo-list))
 		(setq buffer-undo-list t)
 		(while tail
@@ -1050,7 +1060,7 @@ Its value is set by `x-symbol-update-modeline'.")
 
 (defvar x-symbol-early-language-access-alist
   '((x-symbol-name "name" nil stringp)
-    (x-symbol-modes "modes" t listp)
+    (x-symbol-modes "modes" t listp)	; TODO: non-optional
     (x-symbol-auto-style "auto-style" require)))
 
 (defun x-symbol-init-language-accesses (language alist)
@@ -1089,15 +1099,13 @@ See also `x-symbol-language-access-alist'."
 FEATURE is a feature which `provide's LANGUAGE.  MODES are major modes
 which typically use LANGUAGE.  Using LANGUAGE's accesses will initialize
 LANGUAGE, see `x-symbol-language-value'."
-  ;; TODO: modes are ignored
-  ;; set (dolist (mode modes) (put mode 'x-symbol-style (cons language t)))
   (unless (get language 'x-symbol-feature)
     (put language 'x-symbol-feature feature))
   (unless
       (x-symbol-init-language-accesses language
 				       x-symbol-early-language-access-alist)
     (error "Registration of X-Symbol language `%s' has failed" language))
-;;  (x-symbol-init-language-accesses language '((x-symbol-name . "name")))
+  (dolist (mode modes) (put mode 'x-symbol-style (cons language t)))
   (unless (assq language x-symbol-language-alist)
     (setq x-symbol-language-alist
 	  (nconc x-symbol-language-alist
@@ -1230,6 +1238,9 @@ and `x-symbol-auto-conversion-method'.  Also add elements to
 	   ;; added to the hook, must run first (BTW, also for format.el...).
 	   (add-hook 'write-region-annotate-functions
 		     'x-symbol-write-region-annotate-function))
+	  ((and (not (featurep 'xemacs))
+		(local-variable-p 'write-file-hooks))
+	   (error "Cannot use X-Symbol with crypt.el/crypt++.el and local `write-file-hooks'"))
 	  (t
 	   (add-hook 'write-file-hooks 'x-symbol-write-file-hook))))
   ;; misc user additions to `auto-mode-alist':
