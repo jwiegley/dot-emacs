@@ -3885,10 +3885,11 @@ support for provers you don't use.
 @appendix Known bugs and workarounds
 
 We mention some of the known problems with Proof General here.  The list
-is not a description of all bugs and may be out of date.  @* 
-Please consult the file
+was written for Proof General 2.0.  It is not a description of all bugs
+and may be out of date.  @* Please consult the file
 @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS,@file{BUGS}}
 in the distribution for more detailed and up-to-date information.  @* 
+
 If you discover a problem which isn't mentioned in @file{BUGS}, please
 let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
@@ -3999,7 +4000,8 @@ If LEGO 1.3.1 attempts to write a (object) file in a non-writable
 directory, it forgets the protocol mechanism on how to interact with 
 Proof General and gets stuck. 
 
-@strong{Workaround:} Directly enter @kbd{Configure AnnotateOn;} in the Proof Shell to recover.
+@strong{Workaround:} Directly enter @kbd{Configure AnnotateOn;} in the 
+Proof Shell to recover.
 
 @node Bugs specific to Coq Proof General
 @section Bugs specific to Coq Proof General
@@ -4013,7 +4015,7 @@ Thus, user-defined tactics cannot be retracted.
 
 @subsection Sections
 
-The Coq Proof General does not know about Coq's section mechanism.
+Coq Proof General does not know about Coq's Section mechanism.
 
 @c 
 @c Isabelle Bugs
