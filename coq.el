@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.6  1997/10/24 14:51:09  hhg
+;; Fixed coq-count-undos for comments
+;;
 ;; Revision 1.5  1997/10/17 14:51:48  hhg
 ;; Fixed coq-shell-prompt-pattern to reflect proof-id
 ;; Changed ";" to "." in coq-save-with-hole-regexp
@@ -128,7 +131,8 @@
 
 ;; ----- outline
 
-(defvar coq-goal-regexp "============================\n")
+(defvar coq-goal-regexp
+  "\\(============================\\)\\|\\(subgoal [0-9]+ is:\\)\n")
 
 (defvar coq-outline-regexp
   (concat "[[*]\\|"
@@ -246,17 +250,16 @@
 (defun coq-count-undos (sext)
   (let ((ct 0) str)
     (while sext
-      (setq str (span-property sext 'cmd))
-      (if (string-match coq-undoable-commands-regexp str)
-	  (setq ct (+ 1 ct)))
+      (cond ((eq (span-property sext 'type) 'vanilla)
+	     (setq str (span-property sext 'cmd))
+	     (if (string-match coq-undoable-commands-regexp str)
+		 (setq ct (+ 1 ct)))))
       (setq sext (next-span sext 'type)))
     (concat "Undo " (int-to-string ct) proof-terminal-string)))
 
 (defconst coq-keywords-decl-defn-regexp
   (ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
-
-
 
 (defun coq-find-and-forget (sext)
   (let (str ans)
@@ -474,10 +477,11 @@
         proof-shell-goal-regexp coq-goal-regexp
         proof-shell-first-special-char ?\360
         proof-shell-wakeup-char ?\371 ; done: prompt
-        proof-shell-start-char ?\372 ; not done
+        ; The next three represent path annotation information
+	proof-shell-start-char ?\372 ; not done
         proof-shell-end-char ?\373 ; not done
-        proof-shell-field-char ?\374
-        proof-shell-goal-char ?\375
+        proof-shell-field-char ?\374 ; not done
+        proof-shell-goal-char ?\375 ; done but not working
 	proof-shell-eager-annotation-start "\376" ; done
 	proof-shell-eager-annotation-end "\377" ; done
         proof-shell-annotated-prompt-regexp
