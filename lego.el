@@ -5,6 +5,12 @@
 
 
 ;; $Log$
+;; Revision 1.47  1998/05/23 12:50:42  tms
+;; improved support for Info
+;;   o employed `Info-default-directory-list' rather than
+;;     `Info-directory-list' so that code also works for Emacs 19.34
+;;   o setting of `Info-default-directory-list' now at proof level
+;;
 ;; Revision 1.46  1998/05/16 14:52:07  tms
 ;; implementation of `lego-shell-adjust-line-width' can now be called as
 ;; part of a hook. This change has been caused by replacing
@@ -124,8 +130,6 @@
 
 (defvar lego-tags "/home/tms/lib/lib_Type/TAGS"
   "the default TAGS table for the LEGO library")
-
-(defconst lego-info-dir "/usr/local/share/info")
 
 (defconst lego-process-config "Configure PrettyOn; Configure AnnotateOn;"
   "Command to enable pretty printing of the LEGO process.")
@@ -639,10 +643,6 @@
 		     tag-table-alist)))
 
   (setq font-lock-keywords lego-font-lock-keywords-1)
-
-;; Info
-  (if (not (memq lego-info-dir Info-directory-list))
-      (setq Info-directory-list	(cons lego-info-dir Info-directory-list)))
 
 ;; where to find files
 

@@ -3,6 +3,12 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.25  1998/05/23 12:50:40  tms
+;; improved support for Info
+;;   o employed `Info-default-directory-list' rather than
+;;     `Info-directory-list' so that code also works for Emacs 19.34
+;;   o setting of `Info-default-directory-list' now at proof level
+;;
 ;; Revision 1.24  1998/05/22 11:31:33  hhg
 ;; Correct path for coq-prog-name and coq-tags.
 ;;
@@ -123,8 +129,6 @@
 
 (defvar coq-tags "/usr/local/lib/coq/theories/TAGS"
   "the default TAGS table for the Coq library")
-
-(defconst coq-info-dir "/usr/local/share/info")
 
 (defconst coq-process-config nil
   "Command to configure pretty printing of the Coq process for emacs.")
@@ -599,10 +603,6 @@
 	     (append '(("\\.v$" . coq-tags)
 		       ("coq"  . coq-tags))
 		     tag-table-alist)))
-
-;; Info
-  (if (not (memq coq-info-dir Info-directory-list))
-      (setq Info-directory-list	(cons coq-info-dir Info-directory-list)))
 
 ;; keymaps and menus
   (easy-menu-add coq-mode-menu coq-mode-map)

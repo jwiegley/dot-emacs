@@ -9,6 +9,12 @@
 
 
 ;; $Log$
+;; Revision 1.46  1998/05/23 12:50:44  tms
+;; improved support for Info
+;;   o employed `Info-default-directory-list' rather than
+;;     `Info-directory-list' so that code also works for Emacs 19.34
+;;   o setting of `Info-default-directory-list' now at proof level
+;;
 ;; Revision 1.45  1998/05/22 09:46:58  tms
 ;; fixed a bug in proof-frob-locked-end
 ;;
@@ -243,6 +249,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;               Configuration                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconst proof-info-dir "/usr/local/share/info")
 
 (defvar proof-shell-cd nil
   "*Command of the inferior process to change the directory.") 
@@ -1767,6 +1775,11 @@ current command."
   (and (boundp 'fume-find-function-name-method-alist)
        (push (cons major-mode 'fume-match-find-next-function-name)
 	     fume-find-function-name-method-alist))
+
+;; Info
+  (or (memq proof-info-dir Info-default-directory-list)
+      (setq Info-default-directory-list
+	    (cons proof-info-dir Info-default-directory-list)))
 
 ;; keymap
 
