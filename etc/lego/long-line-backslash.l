@@ -18,5 +18,5 @@ echo "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 (* Test something with eager annotations *)
 
-Load lib_logic;
+Load "/usr/local/share/lego/lib-alpha/lib_Type/lib_logic";
 
