@@ -18,8 +18,6 @@
 ;; da: 3.2 I added Section here, to try to fix undo for Sections working
 ;; better.
 ;;Pierre : Chapter also
-"Chapter"
-"Section"
 "Variable[s]?"
 "Global\\s-+Variable"
 ;;added tactic def here because it needs Reset to be undone correctly
@@ -38,10 +36,13 @@
 "Mutual\\s-+Inductive"
 "Record"
 "Scheme"
+"Syntactic\\-+Definition"
+"Structure"
 ))
 
 (defvar coq-keywords-goal
   '(
+"Chapter"
 "Section"
 "Correctness"
 "Definition"
@@ -102,46 +103,43 @@ Print and Check commands, put the following line in your .emacs:
   (append '(
 "(*" ;;Pierre comments must not be undone
 "Add\\s-+LoadPath"
-"Add\\s-+Rec\\s-+LoadPath"
 "Add\\s-+ML\\s-+Path"
-"AddPath"
+"Add\\s-+Rec\\s-+ML\\s-+Path"
+"Add\\s-+Rec\\s-+LoadPath"
 "Cd"
 "Check"
 "DelPath"
-"Define"
-"Qed"
-"End"
-"End\\s-+Silent"
 "Eval"
 "Extraction"
+"Extraction Module"
 "Focus" ;; ???
+"Hint\\-+Rewrite"
+"Inspect"
+"Locate"
 "Locate\\s-+File"
 "Locate\\s-+Library"
-"Locate"
-"Print\\s-+Classes"
-"Print\\s-+Coercions"
-"Print\\s-+Graph"
-"Print\\s-+Grammar"
-"Print\\s-+HintDb"
-"Print\\s-+Hint"
-"Print\\s-+LoadPath"
-"Print\\s-+ML\\s-+Path"
-"Print\\s-+ML\\s-+Modules"
+"Opaque"
 "Print"
-"Proof"
+"Proof"; also in non-undoable-tactic
+"Recursive\\-+Extraction"
+"Recursive\\-+Extraction\\-+Module"
+"Remove\\-+LoadPath"
 "Pwd"
+"Qed"
 "Reset"
+"Save"
 "Search"
 "SearchIsos"
 "SearchPattern"
 "SearchRewrite"
-"Show\\s-+Programs"
-"Show\\s-+Proof"
-"Show\\s-+Script"
 "Show"
-"Save"
+"Test\\s-+Printing\\s-+If"
+"Test\\s-+Printing\\s-+Let"
+"Test\\s-+Printing\\s-+Synth"
+"Test\\s-+Printing\\s-+Wildcard"
 "Unfocus" ; ???
-)
+"Transparent"
+"Write\\s-+State")
 			 coq-user-non-backable-commands
 			 )
   )
@@ -151,30 +149,81 @@ Print and Check commands, put the following line in your .emacs:
 
 (defvar coq-keywords-backable-misc-commands
  '(
+"Add\\s-+Abstract\\s-+Ring"
+"Add\\s-+Abstract\\s-+Semi\\s-+Ring"
+"Add\\s-+Field"
+"Add\\s-+Morphism"
+"Add\\s-+Printing"
+"Add\\s-+Ring"
+"Add\\s-+Semi\\s-+Ring"
+"Add\\s-+Setoid"
 "Begin\\s-+Silent"
-"Class"
+"Canonical\\s-+Structure"
+"CoFixpoint"
+"CoInductive"
 "Coercion"
+"Declare\\s-+ML\\s-+Module"
+"End\\s-+Silent"
+"Derive\\s-+Dependent\\s-+Inversion"
+"Derive\\s-+Dependent\\s-+Inversion_clear"
+"Derive\\s-+Inversion"
+"Derive\\s-+Inversion_clear"
+"Extract\\s-+Constant"
+"Extract\\s-+Inductive"
+"Extraction\\s-+Inline"
+"Extraction\\s-+Language"
+"Extraction\\s-+NoInline"
 "Grammar"
-"Hints\\s-+Resolve"
-"Hints\\s-+Immediate"
-"Hints\\s-+Unfold"
-"HintRewrite"
 "Hint"
-"Implicits";; undoable??
-"Implicit\\s-+Arguments\\s-+On"
+"Hints"
+"Identity\\s-+Coercion"
 "Implicit\\s-+Arguments\\s-+Off"
+"Implicit\\s-+Arguments\\s-+On"
+"Implicits"
 "Infix"
-"Initialize" ;; What is that ??
 "Load"
-"Local\\s-+Coercion"
-"Opaque"
-"Require\\s-+Export"
-"Require\\s-+Import"
+"Read\\s-+Module"
+"Remove\\s-+LoadPath"
+"Remove\\s-+Printing\\s-+If\\s-+ident"
+"Remove\\s-+Printing\\s-+Let\\s-+ident"
 "Require"
+"Require\\s-+Export"
+"Reset\\s-+Extraction\\s-+Inline"
+"Reset\\s-+Initial"
+"Restart"
+"Restore\\s-+State"
+"Remove\\s-+Printing\\s-+If\\s-+ident"
+"Remove\\s-+Printing\\s-+Let\\s-+ident"
+"Restore\\s-+State"
+"Set" ; wrong see below
+"Unset" ; wrong
 "Syntax"
 "Transparent"
 )
  )
+
+
+;
+;Set Hyps_limit  ------------> pour tous les Set/Unset, fais un
+;Set Implicit Arguments        "Print Tables" ; les synchroneous sont
+;Set Undo                      les backable
+;Set Extraction AutoInline
+;Set Extraction Optimize
+;Set Printing Coercion
+;Set Printing Coercions
+;Set Printing Synth
+;Set Printing Wildcard
+;Unset Extraction AutoInline
+;Unset Extraction Optimize
+;Unset Hyps_limit
+;Unset Implicit Arguments
+;Unset Printing Coercion
+;Unset Printing Coercions
+;Unset Printing Synth
+;Unset Printing Wildcard
+;Unset Undo
+;
+
 
 (defvar coq-keywords-backable-commands
   (append
@@ -215,63 +264,82 @@ Intro and Elim tactics, put the following line in your .emacs:
 "Auto"
 "AutoRewrite"
 "Case"
+"Cbv"
 "Change"
 "Clear"
 "ClearBody"
 "Cofix"
+"Compare"
 "Compute"
 "Constructor"
 "Contradiction"
 "Cut"
-"DHyp"
-"DInd"
+"CutRewrite"
+;"DHyp"
+;"DInd"
+"Decide Equality"
 "Decompose"
-"Dependent\\s-+Inversion_clear"
+"Dependent Inversion"
+"Dependent Inversion_clear"
+"Dependent Rewrite ->"
+"Dependent Rewrite <-"
 "Dependent\\s-+Inversion"
+"Dependent\\s-+Inversion_clear"
 "Destruct"
+"DiscrR"
 "Discriminate"
-"Double"
+"Double\\-+Induction"
 "EApply"
 "EAuto"
 "Elim"
+"ElimType"
 "Exact"
 "Exists"
 "Field"
-"Fourier"
 "Fix"
+"Fold"
+"Fourier"
 "Generalize"
 "Hnf"
 "Induction"
 "Injection"
 "Intro[s]?"
 "Intuition"
-"Inversion_clear"
 "Inversion"
+"Inversion_clear"
 "LApply"
+"Lazy"
 "Left"
 "LetTac"
 "Linear"
 "Load"
+"Move"
 "NewDestruct"
 "NewInduction"
-"Omega"
+"Omega "
 "Pattern"
 "Pose"
-"Program_all"
 "Program"
+"Program_all"
 "Prolog"
+"Quote"
 "Realizer"
 "Red"
+"Refine"
 "Reflexivity"
 "Rename"
 "Replace"
 "Rewrite"
 "Right"
 "Ring"
-"Simplify_eq"
+"Setoid_replace"
 "Simpl"
+"Simple Inversion"
+"Simplify_eq"
 "Specialize"
 "Split"
+"SplitAbsolu"
+"SplitRmult"
 "Symmetry"
 "Tauto"
 "Transitivity"
@@ -299,7 +367,8 @@ Proof (Nop) tactic, put the following line in your .emacs:
 
 (defvar coq-non-undoable-tactics 
   (append '(
-"Proof"
+"Proof" ; also in non-backable-command
+"Idtac"
 )
 			 coq-user-non-undoable-tactics
 )
@@ -327,7 +396,7 @@ Proof (Nop) tactic, put the following line in your .emacs:
   '(
     "Abstract"
     "Do"
-    "Idtac"
+    "Idtac" ; also in  non-undoable-tactic
     "Orelse"
     "Repeat"
     "Try")
