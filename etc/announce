@@ -41,7 +41,7 @@ Subject: Proof General --- Version 3.4 release
 Proof General is a generic (X)Emacs interface for proof assistants.
 It can be instantiated for the proof assistant of your choice, and is
 supplied ready-customised for Isabelle, Coq, LEGO, and PhoX, and, 
-experimentally, for HOL, Twelf, and ACL2.
+experimentally, for HOL98, Twelf, and ACL2.
 
 Proof General includes these features, amongst others:
 
@@ -58,7 +58,7 @@ Proof General includes these features, amongst others:
 Summary of changes since 3.3:
 
 . GPL license
-. In Isabelle: tracing buffers and active highlighting of variables
+. In Isabelle: tracing buffers, dependency highlighting
 . In Coq: much improved synchronization (inc sections, nested proofs)
 . Improvements to generic code, instantiation mechanisms.
 . Bug fixes 
@@ -71,10 +71,11 @@ For the latest user manual, see http://www.proofgeneral.org/doc
 
 Proof General needs a recent version of Emacs to run with.  Proof
 General 3.4 has been tested with XEmacs 21.1 and 21.4, and GNU Emacs
-21.2.  Older versions of XEmacs may work but are not guaranteed.
+21.2.  Older versions of either XEmacs may work but are not
+guaranteed.
 
 Installing Proof General is easy.  Why not give it a try?
 
- - David Aspinall <da@dcs.ed.ac.uk>
+ - David Aspinall <da@proofgeneral.org>
    August 2002.
 
