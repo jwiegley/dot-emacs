@@ -7,4 +7,4 @@
 
 *)    
 
-example = Main
+Example = Main
