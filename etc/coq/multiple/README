@@ -1,5 +1,27 @@
 New in 3.3: experimental proper handling of multiple files.
   Not expected to be robust, see comments in coq.el
-  Should be improved for Coq 7, I hope!
+  Should be improved for new versions of Coq 7, I hope!
   Test also for automatic compilation.
 
+Expected behaviour: 
+
+       1) At the end of scripting foo.v (i.e. when activing scripting is
+       switched off), "Reset Initial. Compile Module <foo>" is
+       automatically issued. This clears the context and writes a .vo file,
+       to keep your .vo files up to date. It means that when using PG Coq, 
+       you should use the correct commands ("Require foo.") to load all
+       the modules you depend on, so that scripting can continue in the
+       next file.
+
+       2) PG tracks file dependencies by noticing "Reinterning" messages
+       from Coq.  When a file "b.v" is processed which has a "Require a", 
+       command, PG will try to find "a.v" and will automatically lock
+       it.  (This part of the process is fragile, for two reasons: it
+       is hard to find the directory for a.v, since Coq doesn't report
+       it, and the reinterning message is only issued the first time the
+       file is reinterned).
+
+       3) When a file is retracted, PG attempts to automatically unlock
+       all the dependent files, by issuing a coqdep command to determine
+       the dependencies.  (This is a rather nasty hack, it's hoped for
+       the future that Coq will support this functionality directly).
