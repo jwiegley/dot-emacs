@@ -161,7 +161,7 @@ Proof General.
 @menu
 * Introduction::
 * Beginning with a new prover::
-* Menus and user-level commands::  
+* Menus and toolbar and user-level commands::  
 * Proof script settings::       
 * Proof shell settings::        
 * Goals buffer settings::  
@@ -239,7 +239,7 @@ Tips, ,lispref}.
 
 The configuration variables are declared in the file
 @file{generic/proof-config.el}.  The details in the central part of this
-manual are based on the contents of that file, beginning in @ref{Menus
+manual are based on the contents of that file, beginning in @ref{Menus and toolbar
 and user-level commands}, and continuing until @ref{Global constants}.
 Other chapters cover the details of configuring for multiple files and
 for supporting the other Emacs packages mentioned in the user manual
@@ -466,30 +466,22 @@ Usually customised for specific prover.
 Suggestion: this can be set a function called by @samp{pre-shell-start-hook}.
 @end defvar
 
-@node Menus and user-level commands
-@chapter Menus and user-level commands
+@node Menus and toolbar and user-level commands
+@chapter Menus, toolbar, and user-level commands
 
 The variables described in this chapter should be set in the script mode
-before @code{proof-config-done} is called.  These make some settings for
-the commands and menus available in Proof General.
+before @code{proof-config-done} is called.  (Toolbar configuration must
+be made before @file{proof-toolbar.el} is loaded, which usually is
+triggered automatically by an attempt to display the toolbar).
 
-The first two settings adjust the proof-assistant specific menu.
+@menu
+* Settings for generic user-level commands::
+* Menu configuration::
+* Toolbar configuration::
+@end menu
 
-@c TEXI DOCSTRING MAGIC: PA-menu-entries
-@defvar PA-menu-entries 
-Extra entries for proof assistant specific menu. @*
-A list of menu items [@var{name} @var{callback} @var{enabler} ...].  See the documentation
-of @samp{@code{easy-menu-define}} for more details.
-@end defvar
-
-@c TEXI DOCSTRING MAGIC: PA-help-menu-entries
-@defvar PA-help-menu-entries 
-Extra entries for help submenu for proof assistant specific help menu.@*
-A list of menu items [@var{name} @var{callback} @var{enabler} ...].  See the documentation
-of @samp{@code{easy-menu-define}} for more details.
-@end defvar
-The remaining settings control the standard commands available
-from the generic menu and the toolbar.
+@node Settings for generic user-level commands
+@section Settings for generic user-level commands
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-home-page
 @defvar proof-assistant-home-page 
@@ -533,6 +525,77 @@ If a function, it should return the command string to insert.
 
 
 
+@node Menu configuration
+@section Menu configuration
+
+As well as the generic Proof General menu, each proof assistant is
+provided with a specific menu which can have prover-specific commands.
+Proof General puts some default things on this menu, including the
+commands to start/stop the prover, and the user-extensible "Favourites"
+menu.
+
+@c TEXI DOCSTRING MAGIC: PA-menu-entries
+@defvar PA-menu-entries 
+Extra entries for proof assistant specific menu. @*
+A list of menu items [@var{name} @var{callback} @var{enabler} ...].  See the documentation
+of @samp{@code{easy-menu-define}} for more details.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: PA-help-menu-entries
+@defvar PA-help-menu-entries 
+Extra entries for help submenu for proof assistant specific help menu.@*
+A list of menu items [@var{name} @var{callback} @var{enabler} ...].  See the documentation
+of @samp{@code{easy-menu-define}} for more details.
+@end defvar
+
+
+@node Toolbar configuration
+@section Toolbar configuration
+
+Unlike the menus, Proof General has only one toolbar.  For the "generic"
+aspect of Proof General to work well, we shouldn't change (the meaning
+of) the existing toolbar buttons too far.  This would discourage people
+from experimenting with different proof assistants when they don't
+really know them, which is one of the advantages that Proof General
+brings.
+
+But in case it is hard to map some of the generic buttons
+onto functions in particular provers, and to allow extra
+buttons, there is a mechanism for adjustment.
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-entries-default
+@defvar proof-toolbar-entries-default 
+Example value for proof-toolbar-entries.  Also used to define Scripting menu.@*
+This gives a bare toolbar that works for any prover, providing the
+appropriate configuration variables are set.
+To add/remove prover specific buttons, adjust the @samp{<PA>-toolbar-entries} 
+variable, and follow the pattern in @samp{@code{proof-toolbar}.el} for 
+defining functions, images.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: PA-toolbar-entries
+@defvar PA-toolbar-entries 
+List of entries for Proof General toolbar and Scripting menu.@*
+Format of each entry is (@var{token} @var{menuname} @var{tooltip} @var{enabler-p}).
+
+For each @var{token}, we expect an icon with base filename @var{token},
+a function proof-toolbar-<TOKEN>, and (optionally) an enabler 
+proof-toolbar-<TOKEN>-enable-p.
+
+If @var{menuname} is nil, item will not appear on the scripting menu.
+
+If @var{tooltip} is nil, item will not appear on the toolbar.
+
+The default value is @samp{@code{proof-toolbar-entries-default}} which contains
+the standard Proof General buttons.
+@end defvar
+
+Here's an example of how to remove a button, from @file{af2.el}:
+@lisp
+(setq af2-toolbar-entries
+      (remassoc 'state af2-toolbar-entries))
+@end lisp
+
 
 
 @c defgroup proof-script
@@ -545,7 +608,7 @@ the script buffer.
 
 The first three settings configure the parsing strategy for commands
 in the proof script.  Usually only one of these three needs to be set.
-@xref{Proof script mode} for more details of the parsing functions.
+@xref{Proof script mode}, for more details of the parsing functions.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
@@ -810,12 +873,11 @@ This is a long-range forget: we know that there is no
 open goal at the moment, so forgetting involves unbinding
 declarations, etc, rather than undoing proof steps.
 
-@var{currently} @var{unimplemented}: just returns @code{proof-no-command}.
+Currently this has a trivial implementation: it 
+just returns @code{proof-no-command}, meaning @samp{do nothing}.
+
 Check the @code{lego-find-and-forget} or @code{coq-find-and-forget}
 functions for examples of how to write this function.
-
-In the next release of Proof General, there will be
-a generic implementation of this.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-goal-hyp-fn
