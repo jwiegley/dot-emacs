@@ -63,7 +63,7 @@
      Compatibility for V7 added.
 
      Experimental enhancements to handling of compiled files and 
-     file dependency:
+     file dependency.  (Only tested with Coq 6.3.1)
 
        1) At the end of scripting foo.v (i.e. when activing scripting is
        switched off), "Reset Initial. Compile Module <foo>" is
