@@ -32,17 +32,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Misc backward compatibility
-;;;
-
-(or (fboundp 'process-live-p)
-(defun process-live-p (obj)
-  "Return t if OBJECT is a process that is alive"
-  (memq (process-status proc) '(open run stop))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; XEmacs compatibility
 ;;;
 
@@ -58,6 +47,14 @@
 ;;; FSF compatibility
 ;;;
 
+;; completion not autoloaded in FSF 20.6.1; we must call 
+;; dynamic-completion-mode after loading it.
+(or (fboundp 'complete)
+    (autoload 'complete "completion"))
+(unless proof-running-on-XEmacs
+  (eval-after-load "completion"
+    '(dynamic-completion-mode)))
+
 
 ;; These days cl is dumped with XEmacs (20.4,21.1) but not FSF Emacs
 ;; 20.2.  Would rather it was autoloaded but the autoloads are broken
@@ -65,7 +62,6 @@
 (require 'cl)				
 
 ;; Give a warning,
-
 (or (fboundp 'warn)
 (defun warn (str &rest args)
       "Issue a warning STR.  Defined by PG for FSF compatibility."
@@ -73,7 +69,6 @@
       (sit-for 2)))
 
 ;; Modeline redrawing (actually force-mode-line-update is alias on XEmacs)
-
 (or (fboundp 'redraw-modeline)
 (defun redraw-modeline (&rest args)
   "Dummy function for Proof General on FSF Emacs."
@@ -178,6 +173,20 @@ Otherwise treat \\ in NEWTEXT string as special:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; A naughty hack to completion.el 
+;;;
+;;; At the moment IMO completion too eagerly adds stuff to
+;;; its database: the completion-before-command function
+;;; makes every suffix be added as a completion!
+
+(eval-after-load "completion"
+'(defun completion-before-command ()
+  (if (and (symbolp this-command) (get this-command 'completion-function))
+	(funcall (get this-command 'completion-function)))))
+      
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; Old Emacs version compatibility
 ;;;
 
@@ -187,6 +196,12 @@ Otherwise treat \\ in NEWTEXT string as special:
 (defun customize-menu-create (&rest args)
   "Dummy function for PG; please upgrade your Emacs."
   nil))
+
+(or (fboundp 'process-live-p)
+(defun process-live-p (obj)
+  "Return t if OBJECT is a process that is alive"
+  (memq (process-status proc) '(open run stop))))
+
 
 
 
@@ -206,9 +221,6 @@ Otherwise treat \\ in NEWTEXT string as special:
 (or (fboundp 'font-lock-append-text-property)
     (autoload 'font-lock-append-text-property "font-lock"))
 
-;; completion not autoloaded in FSF
-(or (fboundp 'complete)
-    (autoload 'complete "completion"))
 
 
 ;; FIXME: todo: keybinding compat here, esp for mouse.
