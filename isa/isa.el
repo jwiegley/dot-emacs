@@ -211,6 +211,7 @@ and script mode."
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
+   proof-shell-set-elisp-variable-regexp "Proof General, please set the variable \\([^ ]+\\) to: #\\([^#]+\\)#\\."
    proof-shell-theorem-dependency-list-regexp    "Proof General, the theorem dependencies are: \"\\([^\"]*\\)\"" 
    
    ;; Dirty hack to allow font-locking for output based on hidden
