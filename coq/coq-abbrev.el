@@ -203,7 +203,7 @@
       )
      )
 
-    ("Insert term" 
+    ("Insert Term" 
      "FORM           ABBREVIATION"
      ["forall        fo<C-BS>"  (insert-and-expand "fo") t]
      ["forall1       fo1<C-BS>"  (insert-and-expand "fo1") t]
@@ -226,7 +226,7 @@
      ["match4        m4<C-BS>"  (insert-and-expand "m4") t]
      )
 
-    ("Insert tactic (a-f)" 
+    ("Insert Tactic (a-f)" 
      "TACTIC           ABBREVIATION"
      ["absurd                 abs<C-BS>"  (insert-and-expand "abs") t]
      ["assumption              as<C-BS>"  (insert-and-expand "as") t]
@@ -258,7 +258,7 @@
      ["functional induction    fi<C-BS>"  (insert-and-expand "fi") t]
      )
 
-    ("Insert tactic (g-z)" 
+    ("Insert Tactic (g-z)" 
      "TACTIC           ABBREVIATION"
      ["generalize             g<C-BS>"  (insert-and-expand "g") t]
      ["induction              ind<C-BS>"  (insert-and-expand "ind") t]
@@ -289,29 +289,58 @@
      ["tauto                  ta<C-BS>"  (insert-and-expand "ta") t]
      ["unfold                 u<C-BS>"  (insert-and-expand "u") t]
      )
+    ;; da: I added Show sub menu, not sure if it's helpful, but why not.
+    ;; FIXME: submenus should be split off here.  Also, these commands
+    ;; should only be available when a proof is open.
+    ("Show"
+     ["Show ith goal..." coq-Show t]
+     ["Show Tree" coq-show-tree t]
+     ["Show Proof" coq-show-proof t]
+     ["Show Conjectures" coq-show-conjectures t]) ;; maybe not so useful with editing in PG?
 
-    ["What are those highlighted chars??" (holes-short-doc) t]
-    ("holes" 
-     "make a hole active   click on it"
-     "disable a hole   click on it (button 2)"
-     "destroy a hole   click on it (button 3)"
-     "make a hole with mouse  C-M-select"
-     ["make a hole at point   C-M-h"  (set-make-active-hole) t]
-     ["make selection a hole  C-M-h"  (set-make-active-hole) t]
-     ["replace active hole by selection C-M-y"  (replace-update-active-hole) t]
-     "replace active hole with mouse  C-M-Shift select"
-     ["jump to active hole M-return"  (set-point-next-hole-destroy) t]
-     ["forget all holes in this buffer"  (clear-all-buffer-holes) t]
-     ["What are those holes?" (holes-short-doc) t]
+    ("Holes" 
+     ;; da: I tidied this menu a bit.  I personally think this "trick"
+     ;; of inserting strings to add documentation looks like a real
+     ;; mess in menus ... I've removed it for the three below since 
+     ;; the docs below appear in popup in messages anyway.
+     ;; 
+     ;; "Make a hole active   click on it"
+     ;; "Disable a hole   click on it (button 2)"
+     ;; "Destroy a hole   click on it (button 3)"
+     ["Make hole at point"  set-make-active-hole t]
+     ["Make selection a hole"  set-make-active-hole t]
+     ["Replace active hole by selection"  replace-update-active-hole t]
+     ["Jump to active hole"  set-point-next-hole-destroy t]
+     ["Forget all holes in buffer"  clear-all-buffer-holes t]
+     ["Tell me about holes?" holes-short-doc t]
+     ;; look a bit better at the bottom
+     "Make hole with mouse: C-M-select"
+     "Replace hole with mouse: C-M-Shift select"  ;; da: does this one work??
      )
-    ["expand abbrev at point" expand-abbrev t]
-    ["list abbrevs" list-abbrevs t]
+
+    ;; da: I also added abbrev submenu.  Surprising Emacs doesn't have one?
+    ("Abbrevs"
+     ["Expand at point" expand-abbrev t]
+     ["Unexpand last" unexpand-abbrev t]
+     ["List abbrevs" list-abbrevs t]
+     ["Edit abbrevs" edit-abbrevs t]    ;; da: is it OK to add edit?
+     ["Abbrev mode" abbrev-mode 
+      :style toggle
+      :selected (and (boundp 'abbrev-mode) abbrev-mode)])
+    ;; With all these submenus you have to wonder if these things belong
+    ;; on the main menu.  Are they the most often used?
+    ["Insert intros" coq-intros t]
     ["Print..." coq-Print t]
     ["Check..." coq-Check t]
     ["Hints" coq-PrintHint t]
-    ["Show ith goal..." coq-Show t]
     ["Search isos/pattern..." coq-SearchIsos t]
     ["Compile" coq-Compile t] ))
+
+;; da: Moved this from the main menu to the Help submenu.  
+;; It also appears under Holes, anyway.
+(defpgdefault help-menu-entries
+  '(["Tell me about holes?" holes-short-doc t]))
+
 
 (provide 'coq-abbrev)
 
