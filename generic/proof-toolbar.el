@@ -33,10 +33,12 @@
 ;; not set, then the Info button should not be shown. 
 
 
-;;; IMPORT declaration 
-(require 'proof-script)
-(autoload 'proof-shell-live-buffer "proof-shell")
-(autoload 'proof-shell-restart "proof-shell")
+;;; IMPORT declaration  (only to suppress warnings for byte compile)
+;;; NB: can't put require proof-script here: leads to circular
+;;; requirement via proof-menu.
+;; (require 'proof-script)
+;; (autoload 'proof-shell-live-buffer "proof-shell")
+;; (autoload 'proof-shell-restart "proof-shell")
 
 
 ;;
@@ -85,7 +87,7 @@
   "List of icon variable names and their associated image files.
 A list of lists of the form (VAR IMAGE).  IMAGE is the root name
 for an image file in proof-images-directory.  The toolbar
-code expects to find files IMAGE.xbm, IMAGE.xpm, IMAGE.8bit.xpm
+code expects to find files IMAGE.xpm or IMAGE.8bit.xpm
 and chooses the best one for the display properites.")
 
 (defun proof-toolbar-make-toolbar-item (tle)
@@ -133,60 +135,60 @@ will work for any proof assistant.")
 
 ;;;###autoload
 (defun proof-toolbar-setup ()
-  "Initialize Proof General toolbar and enable it for the current buffer.
+  "Initialize Proof General toolbar and enable it for current buffer.
 If proof-mode-use-toolbar is nil, change the current buffer toolbar
 to the default toolbar."
   (interactive)
-  (if (featurep 'toolbar)		; won't work in FSF Emacs
-      (if (and	
-	   proof-toolbar-enable
-	   ;; NB for FSFmacs use window-system, not console-type
-	   (memq (console-type) '(x mswindows gtk)))
-	  (let
-	      ((icontype   (if (featurep 'xpm)
-			       (if (< (device-pixel-depth) 16)
-				   ".8bit.xpm" ".xpm")
-			     ".xbm")))
-	    ;; First set the button variables to glyphs.  
-	    (mapcar
-	     (lambda (buttons)
-	       (let ((var	(car buttons))
-		     (iconfiles (mapcar (lambda (name)
-					  (concat proof-images-directory
-						  name
-						  icontype)) (cdr buttons))))
-		 (set var (toolbar-make-button-list iconfiles))))
-	     proof-toolbar-iconlist)
-	    ;; Now evaluate the toolbar descriptor
-	    (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
-	    ;; Ensure current buffer will display this toolbar
-	    (set-specifier default-toolbar proof-toolbar (current-buffer))
-	    (if proof-toolbar-use-button-enablers
-	    (progn
-	    ;; Set the callback for updating the enablers
-	    (add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
-	    ;; Also call it whenever text changes in this buffer,
-	    ;; provided it's a script buffer.
-	    (if (eq proof-buffer-type 'script)
-		(add-hook 'after-change-functions 
-			  'proof-toolbar-refresh nil t))
-	    ;; And the interval timer for really refreshing the toolbar
-	    (setq proof-toolbar-itimer
-		  (start-itimer "proof toolbar refresh"
-				'proof-toolbar-really-refresh
-				0.5		 ; seconds of delay
-				0.5		 ; repeated
-				t		 ; count idle time
-				t		 ; pass argument
-				(current-buffer))))) ;  - current buffer
-	    ;; Attempt to refresh to display toolbar
-	    (sit-for 0))
-	;; Disabling toolbar: remove specifier, hooks, timer.
-	(remove-specifier default-toolbar (current-buffer))
-	(remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
-	(remove-hook 'after-change-functions 'proof-toolbar-refresh)
-	(if proof-toolbar-itimer (delete-itimer proof-toolbar-itimer))
-	(setq proof-toolbar-itimer nil))))
+  (if (and (featurep 'toolbar)		; won't work in FSF Emacs
+	   (featurep 'xpm))		; images in XPM format
+    (if (and	
+	 proof-toolbar-enable
+	 ;; NB for FSFmacs use window-system, not console-type
+	 (memq (console-type) '(x mswindows gtk)))
+	(let
+	    ((icontype   
+	      (if (< (device-pixel-depth) 16)
+		  ".8bit.xpm" ".xpm")))
+	  ;; First set the button variables to glyphs.  
+	  (mapcar
+	   (lambda (buttons)
+	     (let ((var	(car buttons))
+		   (iconfiles (mapcar (lambda (name)
+					(concat proof-images-directory
+						name
+						icontype)) (cdr buttons))))
+	       (set var (toolbar-make-button-list iconfiles))))
+	   proof-toolbar-iconlist)
+	  ;; Now evaluate the toolbar descriptor
+	  (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
+	  ;; Ensure current buffer will display this toolbar
+	  (set-specifier default-toolbar proof-toolbar (current-buffer))
+	  (if proof-toolbar-use-button-enablers
+	      (progn
+		;; Set the callback for updating the enablers
+		(add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
+		;; Also call it whenever text changes in this buffer,
+		;; provided it's a script buffer.
+		(if (eq proof-buffer-type 'script)
+		    (add-hook 'after-change-functions 
+			      'proof-toolbar-refresh nil t))
+		;; And the interval timer for really refreshing the toolbar
+		(setq proof-toolbar-itimer
+		      (start-itimer "proof toolbar refresh"
+				    'proof-toolbar-really-refresh
+				    0.5		 ; seconds of delay
+				    0.5		 ; repeated
+				    t		 ; count idle time
+				    t		 ; pass argument
+				    (current-buffer))))) ;  - current buffer
+	  ;; Attempt to refresh to display toolbar
+	  (sit-for 0))
+      ;; Disabling toolbar: remove specifier, hooks, timer.
+      (remove-specifier default-toolbar (current-buffer))
+      (remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
+      (remove-hook 'after-change-functions 'proof-toolbar-refresh)
+      (if proof-toolbar-itimer (delete-itimer proof-toolbar-itimer))
+      (setq proof-toolbar-itimer nil))))
 
 ;; Action to take after altering proof-toolbar-enable
 (defalias 'proof-toolbar-enable 'proof-toolbar-setup)
@@ -237,16 +239,23 @@ changed state."
 ;;
 ;; To add support for more buttons or alter the default
 ;; images, <PA>-toolbar-entries should be adjusted.
+;; See proof-config.el for that.
+;;
+;; Note that since the toolbar is displayed for goals and response
+;; buffers too, enablers and command functions must potentially
+;; switch buffer first.
 ;;
 ;;
+
 
 ;;
 ;; Undo button
 ;;
 
 (defun proof-toolbar-undo-enable-p () 
-  (and (proof-shell-available-p)
-       (> (proof-unprocessed-begin) (point-min))))
+  (proof-with-script-buffer
+   (and (proof-shell-available-p)
+	(> (proof-unprocessed-begin) (point-min)))))
 
 (defalias 'proof-toolbar-undo 'proof-undo-last-successful-command)
 
@@ -255,9 +264,10 @@ changed state."
 ;;
 
 (defun proof-toolbar-delete-enable-p () 
-  (and (not buffer-read-only)
-       (proof-shell-available-p)
-       (> (proof-unprocessed-begin) (point-min))))
+  (proof-with-script-buffer
+   (and (not buffer-read-only)
+	(proof-shell-available-p)
+	(> (proof-unprocessed-begin) (point-min)))))
 
 (defalias 'proof-toolbar-delete 'proof-undo-and-delete-last-successful-command)
 
@@ -279,7 +289,8 @@ changed state."
 ;;
 
 (defun proof-toolbar-next-enable-p ()
-  (not (proof-locked-region-full-p)))
+  (proof-with-script-buffer
+   (not (proof-locked-region-full-p))))
 
 (defalias 'proof-toolbar-next 'proof-assert-next-command-interactive)
 
@@ -289,15 +300,7 @@ changed state."
 ;;
 
 (defun proof-toolbar-goto-enable-p ()
-  ;; we don't want to update the toolbar on every movement of point
-  ;; so no test here.
-  ;;  (and
-  ;;   (not (equal (point) (proof-locked-end))) ; bug in powtlrp
-  ;;   (or
-  ;;    (< (point) (proof-locked-end))
-  ;;    (not (save-excursion
-  ;;          (proof-only-whitespace-to-locked-region-p))))))
-  t)  
+  (eq proof-buffer-type 'script))
 
 (defalias 'proof-toolbar-goto 'proof-goto-point)
 
@@ -307,7 +310,8 @@ changed state."
 ;;
 
 (defun proof-toolbar-retract-enable-p ()
-  (not (proof-locked-region-empty-p)))
+  (proof-with-script-buffer
+   (not (proof-locked-region-empty-p))))
 
 (defalias 'proof-toolbar-retract 'proof-retract-buffer)
 
@@ -316,9 +320,7 @@ changed state."
 ;; Use button
 ;;
 
-(defun proof-toolbar-use-enable-p ()
-  (not (proof-locked-region-full-p)))
-
+(defalias 'proof-toolbar-use-enable-p 'proof-toolbar-next-enable-p)
 (defalias 'proof-toolbar-use 'proof-process-buffer)
 
 ;;
@@ -328,9 +330,7 @@ changed state."
 (defun proof-toolbar-restart-enable-p ()
   ;; Could disable this unless there's something running.
   ;; But it's handy to clearup extents, etc, I suppose.
-  (eq proof-buffer-type 'script)	; should always be t 
-					; (toolbar only in scripts)
-  )
+  t)
 
 (defalias 'proof-toolbar-restart 'proof-shell-restart)
 
@@ -351,8 +351,9 @@ changed state."
 ;;
 
 (defun proof-toolbar-qed-enable-p ()
-  (and proof-shell-proof-completed
-       (proof-shell-available-p)))
+  (proof-with-script-buffer
+   (and proof-shell-proof-completed
+	(proof-shell-available-p))))
 
 (defalias 'proof-toolbar-qed 'proof-issue-save)
 
