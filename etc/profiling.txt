@@ -9,11 +9,36 @@ NB: Must ignore calls to accept-process-output and sit-for, these
  are from proof-shell-wait (only).
 
 
+Testing by processing first line of src/HOL/Real/ROOT.ML (i.e. loading
+RealDef)
+
+Best case scenarios:
+
+ * Running Isabelle in ordinary shell buffer in Emacs, PIII:
+             ~8% Emacs (PIII), ~90% SML   if shell hidden
+            ~15% X, ~25% xemacs, ~60% SML if shell displayed!
+
+ * Running Isabelle in xterm:
+	    ~3% xterm, ~2% X, 95% SML   if xterm hidden
+            ~4% xterm, ~16% X, 90% SML  if xterm revealed
+
+
+Before optimization:
+
+ * CPU time split about 70%/30% (Cel 366) or 65%/35% (PIII 500) SML/xemacs
+
+
+
+   
+    
+
+
 
 Sample Runs. Tue Oct  5
 -----------------------
 
-Processing first line of src/HOL/Real/ROOT.ML  (i.e. loading RealDef)
+[On Cel 366 64M]
+
 
 Function Name                          Ticks    %/Total   Call Count
 ===================================    =====    =======   ==========
@@ -76,9 +101,106 @@ Total                                  2632     100.00
 One tick = 1 ms
 
 
-*** After some optimization attempt in proof-shell-process-urgent-messages,
- to remove re-search-forward hog:
+[On PIII 256M]  top shows roughly 65% SML / 35% xemacs.
 
+Function Name                             Ticks    %/Total   Call Count
+======================================    =====    =======   ==========
+(in redisplay)                            3529     55.166    
+re-search-forward                         1520     23.761    31627
+sit-for                                   356      5.565     33870
+comint-output-filter                      265      4.143     12980
+accept-process-output                     125      1.954     33870
+font-lock-pre-idle-hook                   67       1.047     73094
+insert-before-markers                     51       0.797     12981
+(in garbage collection)                   46       0.719     
+string-match                              44       0.688     27686
+byte-code                                 27       0.422     74822
+let                                       23       0.360     39724
+#<compiled-function (window) "...(134)" [window-buffer window current window-point process-mark process scroll t all this selected others string set-window-point comint-scroll-show-maximum-output pos-visible-in-window-p recenter floatp floor window-height 1 -1 sit-for 0] 4>    21       0.328     25962
+selected-window                           20       0.313     51951
+comint-postoutput-scroll-to-bottom        19       0.297     12981
+setq                                      15       0.234     39971
+if                                        15       0.234     72709
+walk-windows                              13       0.203     12981
+proof-toolbar-refresh                     13       0.203     14429
+marker-position                           12       0.188     51925
+proof-shell-filter                        12       0.188     12981
+goto-char                                 12       0.188     53685
+run-hook-with-args                        12       0.188     13219
+next-window                               11       0.172     25962
+and                                       9        0.141     40761
+save-excursion                            8        0.125     13756
+buffer-name                               7        0.109     13783
+window-buffer                             7        0.109     26077
+log-message                               7        0.109     237
+process-mark                              7        0.109     26208
+point                                     7        0.109     27554
+while                                     7        0.109     13727
+#<compiled-function (place &optional x) "...(29)" [place setq x + 1+ callf 1] 5 553442>    6        0.094     11268
+char-to-string                            6        0.094     12981
+force-mode-line-update                    6        0.094     12980
+<                                         5        0.078     19216
+itimer-run-expired-timers                 4        0.063     415
+aref                                      4        0.063     11953
+get-buffer-process                        4        0.063     13290
+proof-shell-process-urgent-messages       4        0.063     12981
+redisplay-echo-area                       4        0.063     238
+insert-string                             4        0.063     238
+font-lock-fontify-keywords-region         4        0.063     740
+window-minibuffer-p                       3        0.047     12981
+window-start                              3        0.047     12980
+marker-buffer                             3        0.047     12980
+process-buffer                            3        0.047     12980
+featurep                                  3        0.047     2120
+comint-watch-for-password-prompt          3        0.047     12981
+set-buffer                                2        0.031     259
+or                                        2        0.031     26285
+font-lock-after-change-function-1         2        0.031     494
+font-lock-default-fontify-region          2        0.031     740
+event-over-toolbar-p                      1        0.016     107
+get-buffer                                1        0.016     433
+extent-object                             1        0.016     988
+itimerp                                   1        0.016     9136
+itimer-is-idle                            1        0.016     3735
+set-extent-property                       1        0.016     1024
+make-string                               1        0.016     247
+next-single-property-change               1        0.016     246
+expand-file-name                          1        0.016     96
+incf                                      1        0.016     11268
+center-to-window-line                     1        0.016     9
+proof-done-advancing                      1        0.016     2
+itimer-time-difference                    1        0.016     1660
+itimer-timer-driver                       1        0.016     415
+1+                                        1        0.016     11268
+length                                    1        0.016     249
+append-message                            1        0.016     238
+concat                                    1        0.016     246
+proof-shell-strip-special-annotations     1        0.016     246
+proof-shell-process-urgent-message        1        0.016     246
+buffer-substring                          1        0.016     493
+save-current-buffer                       1        0.016     248
+newline                                   1        0.016     246
+insert                                    1        0.016     249
+current-time                              1        0.016     831
+match-beginning                           1        0.016     247
+font-lock-append-text-property            1        0.016     246
+progn                                     1        0.016     1034
+proof-response-buffer-display             1        0.016     246
+font-lock-fontify-syntactically-region    1        0.016     740
+font-lock-fontify-glumped-region          1        0.016     494
+#<compiled-function (buffer &rest body) "...(8)" [save-current-buffer set-buffer buffer body] 3 540150>    1        0.016     248
+font-lock-after-change-function           1        0.016     494
+-----------------------------------------------------------------------
+Total                                     6397     100.00
+
+
+One tick = 1 ms
+
+
+*** After some optimization attempt in proof-shell-process-urgent-messages,
+    to remove re-search-forward hog:
+
+[Cel 366]
 
 Function Name                          Ticks    %/Total   Call Count
 ===================================    =====    =======   ==========
@@ -160,3 +282,116 @@ Total                                  5257     100.00
 
 
 One tick = 1 ms
+
+
+[PIII]  split now about 70%/30%
+
+Function Name                             Ticks    %/Total   Call Count
+======================================    =====    =======   ==========
+(in redisplay)                            3638     72.082    
+sit-for                                   358      7.093     34176
+comint-output-filter                      247      4.894     12963
+accept-process-output                     132      2.615     34176
+font-lock-pre-idle-hook                   70       1.387     74389
+insert-before-markers                     67       1.328     12964
+string-match                              50       0.991     27655
+(in garbage collection)                   43       0.852     
+#<compiled-function (window) "...(134)" [window-buffer window current window-point process-mark process scroll t all this selected others string set-window-point comint-scroll-show-maximum-output pos-visible-in-window-p recenter floatp floor window-height 1 -1 sit-for 0] 4>    29       0.575     25928
+re-search-forward                         25       0.495     18630
+comint-postoutput-scroll-to-bottom        24       0.476     12964
+byte-code                                 22       0.436     76129
+selected-window                           20       0.396     51883
+walk-windows                              19       0.376     12964
+let                                       18       0.357     13746
+next-window                               16       0.317     25928
+proof-toolbar-refresh                     13       0.258     14445
+while                                     13       0.258     13710
+proof-shell-filter                        11       0.218     12964
+process-mark                              11       0.218     39137
+save-excursion                            10       0.198     13741
+setq                                      10       0.198     27010
+and                                       9        0.178     27701
+goto-char                                 8        0.159     27695
+run-hook-with-args                        8        0.159     13211
+if                                        7        0.139     33491
+font-lock-fontify-keywords-region         6        0.119     740
+#<compiled-function (place &optional x) "...(29)" [place setq x + 1+ callf 1] 5 553442>    6        0.119     11268
+get-buffer-process                        6        0.119     26242
+char-to-string                            6        0.119     12964
+redisplay-echo-area                       6        0.119     253
+specifier-instance                        6        0.119     656
+itimerp                                   5        0.099     5713
+1-                                        5        0.099     13209
+point                                     5        0.099     27523
+buffer-name                               4        0.079     13766
+current-buffer                            4        0.079     13210
+window-start                              4        0.079     12963
+<                                         4        0.079     6236
+itimer-timer-driver                       4        0.079     380
+default-mouse-motion-handler              4        0.079     656
+featurep                                  4        0.079     2693
+force-mode-line-update                    4        0.079     12963
+comint-watch-for-password-prompt          4        0.079     12964
+proof-shell-process-urgent-messages       3        0.059     12964
+font-lock-fontify-syntactically-region    3        0.059     740
+incf                                      3        0.059     11268
+marker-position                           3        0.059     12968
+set-marker                                3        0.059     13210
+itimer-time-difference                    3        0.059     1140
+process-buffer                            3        0.059     12963
+event-window                              2        0.040     1312
+window-minibuffer-p                       2        0.040     12964
+window-buffer                             2        0.040     26524
+-                                         2        0.040     12967
+move-to-left-margin                       2        0.040     246
+remove-message                            2        0.040     253
+event-buffer                              2        0.040     656
+font-lock-default-unfontify-region        2        0.040     740
+font-lock-after-change-function           2        0.040     494
+buffer-substring                          2        0.040     493
+insert-string                             2        0.040     253
+event-over-modeline-p                     1        0.020     537
+event-glyph-extent                        1        0.020     656
+set-syntax-table                          1        0.020     740
+pointer-image-instance-p                  1        0.020     1913
+extent-start-position                     1        0.020     494
+make-extent                               1        0.020     527
+detach-extent                             1        0.020     495
+extent-at                                 1        0.020     363
+itimer-value                              1        0.020     2660
+itimer-is-idle                            1        0.020     2280
+set-extent-property                       1        0.020     1024
+highlight-extent                          1        0.020     656
+pos-visible-in-window-p                   1        0.020     9
+glyph-property-instance                   1        0.020     656
+get-text-property                         1        0.020     492
+put-nonduplicable-text-property           1        0.020     1480
+next-single-property-change               1        0.020     246
+quote                                     1        0.020     13798
+marker-buffer                             1        0.020     12963
+itimer-run-expired-timers                 1        0.020     380
+aset                                      1        0.020     5280
+log-message                               1        0.020     246
+min                                       1        0.020     13209
+current-left-margin                       1        0.020     246
+display-message                           1        0.020     246
+fw-frame                                  1        0.020     656
+font-lock-fontify-region                  1        0.020     740
+font-lock-append-text-property            1        0.020     246
+substring                                 1        0.020     247
+proof-response-buffer-display             1        0.020     246
+delq                                      1        0.020     246
+syntactically-sectionize                  1        0.020     740
+format                                    1        0.020     238
+proof-file-truename                       1        0.020     88
+newline                                   1        0.020     246
+store-match-data                          1        0.020     742
+proof-zap-commas-region                   1        0.020     494
+specifierp                                1        0.020     656
+log-message-filter                        1        0.020     246
+-----------------------------------------------------------------------
+Total                                     5047     100.00
+
+
+One tick = 1 ms
+
