@@ -2,6 +2,6 @@
   needs=X11\
   section="Applications/Sciences/Computer science"\
   title="Proof General"\
-  longtitle="A generic interface for interactive theorem provers"\
+  longtitle="Interface to Proof Assistants"\
   command="/usr/bin/proofgeneral"\
   icon="pgicon.png"
