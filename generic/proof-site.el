@@ -88,13 +88,20 @@ You can use customize to set this variable."
   :type 'directory
   :group 'proof-internal)
 
-;; Add the info directory to the end of Emacs Info path 
-;; if need be. 
-(or (member proof-internal-info-directory Info-default-directory-list)
-    (setq Info-default-directory-list
-	  (append 
-	   Info-default-directory-list 
-	   (list proof-internal-info-directory))))
+;; Add the info directory to the end of Emacs Info path if need be.
+;; It's easier to do this after Info has loaded because of the
+;; complicated way the Info-directory-list is set.
+
+(eval-after-load
+ "info"
+ '(or (member proof-internal-info-directory Info-directory-list)
+     (progn
+       (setq Info-directory-list
+	     (cons proof-internal-info-directory
+		   Info-directory-list))
+       ;; Clear cache of info dir
+       (setq Info-dir-contents nil))))
+
 
 ;; Might be nicer to have a boolean for each supported assistant.
 (defcustom proof-assistants
