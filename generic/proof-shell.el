@@ -231,7 +231,18 @@ Does nothing if proof assistant is already running."
 	    "-response*")))
       (save-excursion
 	(set-buffer proof-shell-buffer)
-	(funcall proof-mode-for-shell)
+	
+	;; Disable 16 Bit
+	;; We noticed that for LEGO, it otherwise converts annotations
+	;; to characters with (non-ASCII) code around 3000 which screws
+	;; up our conventions that annotations lie between 128 and
+	;; 256. We only observed the problem with FSF GNU Emacs 20.3 at
+	;; present.
+      (and (fboundp 'toggle-enable-multibyte-characters)
+	   (toggle-enable-multibyte-characters -1))
+
+
+      (funcall proof-mode-for-shell)
 	;; Check to see that the process is still going.
 	;; Otherwise the sentinel will have killed off the
 	;; other buffers and there's no point initialising
@@ -241,6 +252,9 @@ Does nothing if proof assistant is already running."
 	      (set-buffer proof-response-buffer)
 	      (funcall proof-mode-for-response)
 	      (set-buffer proof-goals-buffer)
+	      (and (fboundp 'toggle-enable-multibyte-characters)
+		   (toggle-enable-multibyte-characters -1))
+	      
 	      (funcall proof-mode-for-pbp))
 	  (switch-to-buffer proof-shell-buffer)
 	  (error "%s process exited!" proc)))
@@ -546,7 +560,10 @@ This is a list of tuples of the form (type . string). type is either
 	    (incf ap)
 	    (incf ip))
 	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
-	 ((= c proof-shell-field-char)
+	 ((and (consp stack) (= c proof-shell-field-char))
+	  ;; (consp stack) has been added to make the code more robust.
+	  ;; In fact, this condition is violated when using
+	  ;; lego/example.l and FSF GNU Emacs 20.3
 	  (setq span (make-span (car stack) op))
 	  (set-span-property span 'mouse-face 'highlight)
 	  (set-span-property span 'proof (car (cdr stack)))
