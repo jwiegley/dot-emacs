@@ -13,6 +13,8 @@
 $pg_email = "proofgen@dcs.ed.ac.uk";
 $pg_list = "proofgeneral@dcs.ed.ac.uk";
 
+$pg_title = "Proof General --- Organize your Proofs!";
+
 function mlink($addr) {
   print "<a href=\"mailto:" . $addr . "\">" . $addr . "</a>";
 }
