@@ -339,8 +339,6 @@ Checks the width in the `proof-goals-buffer'"
 
   (setq proof-assistant-home-page lego-www-home-page)
   
-  (setq proof-assistant-menu-entries lego-menu-entries)
-
   (setq proof-mode-for-script 'lego-mode)
 
   (setq proof-showproof-command "Prf"

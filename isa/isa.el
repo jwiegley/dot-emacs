@@ -81,7 +81,6 @@ and script mode."
   (setq
    proof-assistant-home-page	isabelle-web-page
    proof-mode-for-script	'isa-proofscript-mode
-   proof-assistant-menu-entries isabelle-menu-entries
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
    proof-comment-start		"(*"	; comment in a proof
