@@ -1356,6 +1356,11 @@ for scripting commands), unless activated-interactively is set."
   :type 'number
   :group 'proof-script)
 
+(defcustom proof-indent-pad-eol t
+  "*Whether to add spaces to end of lines."
+  :type 'boolean
+  :group 'proof-script)
+
 (defcustom proof-indent-hang nil
   "Enable 'hanging' indentation for proof script."
   :type 'boolean
