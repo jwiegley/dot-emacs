@@ -4,6 +4,10 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.13  1998/06/10 11:38:04  hhg
+;; Added "Mutual Inductive" as definition keyword.
+;; Changed "\\s " into "\\s-" as whitespace pattern.
+;;
 ;; Revision 1.12  1998/06/03 18:01:54  hhg
 ;; Changed Compute from command to tactic.
 ;; Added Fix, Destruct and Cofix as tactics.
@@ -74,6 +78,7 @@
 "CoInductive"
 "Fixpoint"
 "Inductive"
+"Mutual\\s-+Inductive"
 ))
 
 (defvar coq-keywords-goal
@@ -209,7 +214,7 @@
 (defvar coq-ids (proof-ids coq-id))
 
 (defun coq-abstr-regexp (paren char)
-    (concat paren "\\s *\\(" coq-ids "\\)\\s *" char))
+    (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" char))
 
 (defvar coq-font-lock-terms
   (list
@@ -221,7 +226,7 @@
    (list (coq-abstr-regexp "(" ":") 1 'font-lock-declaration-name-face)
    
    ;; Kinds
-   (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s *\\(("
+   (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s-*\\(("
 		   coq-id ")\\)?") 'font-lock-type-face))
   "*Font-lock table for Coq terms.")
 
