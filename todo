@@ -19,6 +19,10 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
       not, if this is even beyond what Isar interface would allow
       (unless we send an ML file line-by-line with ML_command?)
 
+*** Isabelle tweaks
+     -- theorem dependencies on spoils ordinary response buffer output
+     (dependency info *after* response display loses)
+
  
 * Proof General Infeasibly Long Low-Level List of Things to Do
 
