@@ -2946,5 +2946,4 @@ Choice of function depends on configuration setting."
 
 
 (provide 'proof-script)
-
 ;;; proof-script.el ends here
