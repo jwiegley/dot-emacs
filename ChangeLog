@@ -1,5 +1,35 @@
 2003-02-24  David Aspinall  <da@proofgeneral.org>
 
+	* generic/proof-utils.el:
+	Fix to shrink-windows-tofit
+
+	* etc/ProofGeneral.spec:
+	Install x-sym/mmm
+
+	* ChangeLog: Updated.
+
+	* generic/proof-x-symbol.el:
+	Documentation.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-x-symbol.el:
+	Set x-symbol-data-directory
+
+	* generic/proof-menu.el:
+	Fix proofdefinvisible, proofdefshortcut to work in compiled version
+
+	* etc/ProofGeneral.spec:
+	Add mmm and x-symbol
+
+	* coq/coq.el, coq/coq-syntax.el, lego/lego.el, plastic/plastic.el, generic/span-overlay.el, isa/x-symbol-isabelle.el, generic/proof-script.el, generic/proof-site.el, generic/proof-utils.el, generic/pg-metadata.el, generic/pg-pgip.el, generic/pg-response.el, generic/pg-user.el:
+	Fix some compile errors
+
+2003-02-24  David Aspinall  <da@proofgeneral.org>
+
 	* generic/proof-x-symbol.el:
 	Documentation.
 
