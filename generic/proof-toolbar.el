@@ -452,8 +452,7 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-find-enable-p () 
   (proof-shell-available-p))
 
-(defun proof-toolbar-find ()
-  nil)
+(defalias 'proof-toolbar-find 'proof-find-theorems)
 
  
 ;; 
