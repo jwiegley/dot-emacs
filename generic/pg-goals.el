@@ -86,47 +86,48 @@ May enable proof-by-pointing or similar features.
 Converts term substructure markup into mouse-highlighted extents,
 and properly fontifies STRING using proof-fontify-region."
   (save-excursion
-      ;; Response buffer may be out of date. It may contain (error)
-      ;; messages relating to earlier proof states
-      
-      ;; FIXME da: this isn't always the case.  In Isabelle
-      ;; we get <WARNING MESSAGE> <CURRENT GOALS> output,
-      ;; or <WARNING MESSAGE> <ORDINARY MESSAGE>.  Both times
-      ;; <WARNING MESSAGE> would be relevant.
-      ;; We should only clear the output that was displayed from
-      ;; the *previous* prompt.
+    ;; Response buffer may be out of date. It may contain (error)
+    ;; messages relating to earlier proof states
+    
+    ;; FIXME da: this isn't always the case.  In Isabelle
+    ;; we get <WARNING MESSAGE> <CURRENT GOALS> output,
+    ;; or <WARNING MESSAGE> <ORDINARY MESSAGE>.  Both times
+    ;; <WARNING MESSAGE> would be relevant.
+    ;; We should only clear the output that was displayed from
+    ;; the *previous* prompt.
+    
+    ;; Erase the response buffer if need be, maybe removing the
+    ;; window.  Indicate it should be erased before the next output.
+    (proof-shell-maybe-erase-response t t)
 
-      ;; Erase the response buffer if need be, maybe also removing the
-      ;; window.  Indicate that it should be erased before the next
-      ;; output.
-      (proof-shell-maybe-erase-response t t)
-
-      ;; Erase the goals buffer and add in the new string
-      (set-buffer proof-goals-buffer)
-      (erase-buffer)
+    ;; Erase the goals buffer and add in the new string
+    (set-buffer proof-goals-buffer)
+    (erase-buffer)
+    ;; Only bother processing and displaying, etc, if string is
+    ;; non-empty.
+    (unless (string-equals string "")
       (insert string)
 
       (if pg-use-specials-for-fontify
 	  ;; With special chars for fontification, do that first,
 	  ;; but keep specials in case also used for subterm markup.
 	  (proof-fontify-region (point-min) (point-max) 'keepspecials))
-      
       (pg-goals-analyse-structure (point-min) (point-max))
 
       (unless pg-use-specials-for-fontify
 	;; provers which use ordinary keywords to fontify output must
 	;; do fontification second after subterm specials are removed.
 	(proof-fontify-region (point-min) (point-max)))
-
+      
       ;; Record a cleaned up version of output string
       (setq proof-shell-last-output 
 	    (buffer-substring (point-min) (point-max)))
-
+    
       (set-buffer-modified-p nil)	; nicety
-
+      
       ;; Keep point at the start of the buffer.  
       (proof-display-and-keep-buffer 
-       proof-goals-buffer (point-min))))
+       proof-goals-buffer (point-min)))))
 
 
 (defun pg-goals-analyse-structure (start end)
