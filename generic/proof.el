@@ -1860,7 +1860,7 @@ insert when called interactively.")
   (interactive
    (if proof-goal-command 
        (if (stringp proof-goal-command)
-	   (list (format proof-goal-command-string
+	   (list (format proof-goal-command
 			 (read-string "Goal: " ""
 				      proof-issue-goal-history)))
 	 (proof-goal-command))
@@ -1877,7 +1877,7 @@ insert when called interactively.")
   (interactive
    (if proof-save-command
        (if (stringp proof-save-command)
-	   (list (format proof-save-command-string
+	   (list (format proof-save-command
 			 (read-string "Save as: " ""
 				      proof-issue-save-history)))
 	 (proof-save-command))
