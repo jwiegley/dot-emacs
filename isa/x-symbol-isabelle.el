@@ -135,6 +135,7 @@ Return nil if `x-symbol-mode' or `x-symbol-subscripts' is nil.  Uses
     (bigsqunion "\\<Squnion>")
     (perpendicular "\\<bottom>")
     (dotequal "\\<doteq>")
+    (wrong "\\<wrong>")
     (equivalence "\\<equiv>")
     (notequal "\\<noteq>")
     (propersqsubset "\\<sqsubset>")
