@@ -510,7 +510,7 @@ Names must be unique for a given "
   "Add a nested span proof element."
   (pg-add-element "proof" name span)
   (set-span-property span 'name name)
-  (set-span-property span 'type 'proof)
+  ;;(set-span-property span 'type 'proof)
   (set-span-property span 'idiom 'proof)
   ;; Make a navigable link between the two spans.
   (set-span-property span 'controlspan controlspan)
@@ -1211,15 +1211,17 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	    goalend nam next ncmd)
 
 	;; Try to set the name of the theorem from the save
-	(message "%s" cmd)
+	;; (message "%s" cmd)   3.4: remove this message.
+
 
 	(and proof-save-with-hole-regexp
 	     (proof-string-match proof-save-with-hole-regexp cmd)
-	     (setq nam 
+	     ;; Give a message of a name if one can be determined
+	     (message "%s"
+	      (setq nam 
 		   (if (stringp proof-save-with-hole-result)
 		       (replace-match proof-save-with-hole-result nil nil cmd)
-		     (match-string proof-save-with-hole-result cmd))))
-	(message "%s" nam)
+		     (match-string proof-save-with-hole-result cmd)))))
 
 	;; Search backwards for first goal command, 
 	;; deleting spans along the way.
@@ -2036,6 +2038,11 @@ others)."
 	(setq span (prev-span span 'type)))
       span)))
 
+;; NB: Should carefully explain/document this behaviour somewhere.
+;; The undo is three-phase:
+;;    undo-cmd - ...  - undo-cmd  within proof
+;;    kill proof		  exit proof
+;;    forget-to-declaration       forget target span
 (defun proof-retract-target (target delete-region)
   "Retract the span TARGET and delete it if DELETE-REGION is non-nil.
 Notice that this necessitates retracting any spans following TARGET,
@@ -2143,8 +2150,11 @@ command."
 	   (backward-char)
 	   (setq span (span-at (point) 'type))))
     ;; FIXME mmw: make sure we pass by a proof body overlay (is there a better way?)
-    (and (eq (span-property span 'type) 'proof)
-	 (setq span (prev-span span 'type)))
+    ;; FIXME da: why do this??  
+    ;; Seems to break expected behaviour.
+    ;; (
+    ;; (and (eq (span-property span 'type) 'proof)
+    ;; (setq span (prev-span span 'type)))
     (proof-retract-target span delete-region)))
 
 
@@ -2449,13 +2459,34 @@ This is a long-range forget: we know that there is no
 open goal at the moment, so forgetting involves unbinding
 declarations, etc, rather than undoing proof steps.
 
-Currently this has a trivial implementation: it 
-just returns proof-no-command, meaning `do nothing'.
+This generic implementation assumes it is enough to find the 
+nearest following span with a `name' property, and retract
+that using `proof-forget-id-command' with the given name.
 
-Check the lego-find-and-forget or coq-find-and-forget
-functions for examples of how to write this function."
-  ;; FIXME: implement a useful generic find-and-forget
-  proof-no-command)
+If this behaviour is not correct, you must customize the function
+with something different."
+  ;; Modelled on Isar's find-and-forget function, but less
+  ;; general at the moment: will only issue one und command.
+  ;; FIXME: would be much cleaner to wrap up the undo behaviour
+  ;; also within proofs in this function. 
+  (let (str ans typ name answers)
+    (while span
+      (setq ans nil)
+      (setq str (span-property span 'cmd))
+      (setq typ (span-property span 'type))
+      (cond
+       ;; comment, diagnostic, nested proof command: skip
+       ((or (eq typ 'comment)
+	    (eq typ 'proof)
+	    (and proof-ignore-for-undo-count cmd
+		 (proof-string-match proof-ignore-for-undo-count cmd))))
+       ;; some named element: use generic forget-id function; finish.
+       ((setq name (span-property span 'name))
+        (setq ans (format proof-forget-id-command name))
+	(setq span nil)))
+      (if ans (setq answers (cons ans answers)))
+      (if span (setq span (next-span span 'type))))
+    (if (null answers) proof-no-command (apply 'concat answers))))
 
 ;;
 ;; End of new generic functions
@@ -2474,10 +2505,10 @@ functions for examples of how to write this function."
     proof-save-command-regexp
 ;    proof-goal-with-hole-regexp		; non-essential?
 ;    proof-save-with-hole-regexp		; non-essential?
-    proof-showproof-command		; non-essential?
-    proof-goal-command			; non-essential
-    proof-save-command			; do
-    proof-kill-goal-command		; do
+;    proof-showproof-command		; non-essential
+;    proof-goal-command			; non-essential
+;    proof-save-command			; do
+;    proof-kill-goal-command		; do
     ))
 
 (defun proof-config-done () 
@@ -2549,7 +2580,7 @@ finish setup which depends on specific proof assistant configuration."
   (unless (fboundp 'proof-segment-up-to)
     (if (or proof-script-use-new-parser
 	    proof-script-sexp-commands)
-	;; 3.3 mechanism here
+	;; 3.3 and later mechanism here
 	(progn
 	  (defalias 'proof-segment-up-to 'proof-segment-up-to-parser)
 	  (cond   
