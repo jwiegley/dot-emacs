@@ -16,7 +16,7 @@ Generic Changes
 
 * Demonstration instance of Proof General for Isabelle shows
   how you can get the interface going with a minimum of fuss.
-  It has just 30 simple settings.
+  It has less than 30 simple settings.
 
 * Proof General is now more cany about the queue of commands.
   You can now add more proof commands on the end of the queue,
