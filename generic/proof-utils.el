@@ -535,7 +535,7 @@ Returns non-nil if response buffer was cleared."
       ((reporter-prompt-for-summary-p 
 	"(Very) brief summary of problem or suggestion: "))
     (reporter-submit-bug-report
-     "proofgen@dcs.ed.ac.uk"
+     "bugs@proofgeneral.org"
      "Proof General" 
      (list 'proof-general-version 'proof-assistant)
      nil nil
