@@ -833,6 +833,13 @@ or `proof-script-parse-function'."
   "Regular expression which matches end of commands in proof script.
 You should set this variable in script mode configuration.
 
+The end of the command is considered to be the end of the match
+of this regexp.  The regexp may include a nested group, which
+can be used to recognize the start of the following command
+(or white space).  If there is a nested group, the end of the
+command is considered to be the start of the nested group,
+i.e. (match-beginning 1), rather than (match-end 0).
+
 To configure command recognition properly, you must set at least one
 of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
 `proof-script-command-start-regexp', `proof-terminal-char',
