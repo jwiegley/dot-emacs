@@ -49,7 +49,7 @@
 @c And each section with lower levels must have a menu command in
 @c it.  Menu updating with Emacs is a bit better than node updating,
 @c but tends to delete the first section of the file in XEmacs!
-@c (it's better in FSF Emacs at the time of writing).
+@c (it's better in GNU Emacs at the time of writing).
 @c
 @c LINE BREAKS: For html generated from this to look good, it is
 @c important that there are lots of line breaks/blank lines, esp
@@ -63,10 +63,10 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.3
+@set version 3.4pre
 @set xemacsversion 21.4
 @set fsfversion 20.7
-@set last-update September 2001
+@set last-update December 2001
 @set rcsid $Id$
 
 @ifinfo
@@ -139,7 +139,7 @@ preserved on all copies.
 @sp 2
 
 This manual documents Proof General, Version @value{version}, for use
-with XEmacs @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}
+with XEmacs @value{xemacsversion} and GNU Emacs @value{fsfversion}
 or later versions.
 
 @sp 1
@@ -162,7 +162,7 @@ This file documents version @value{version} of @b{Proof General}, a
 generic Emacs interface for proof assistants.
 
 Proof General @value{version} has been tested with XEmacs
-@value{xemacsversion} and FSF GNU Emacs @value{fsfversion}.  It is
+@value{xemacsversion} and GNU Emacs @value{fsfversion}.  It is
 supplied ready customized for the proof assistants PhoX, Coq, Lego, 
 Isabelle, and HOL.  
 
@@ -339,7 +339,7 @@ changes have been held back to ensure stability.  This release solves a
 few minor problems which came to light since the final testing stages
 for 3.0.  It also solves some compatibility problems, so now it works
 with various versions of Emacs which we hadn't tested with before
-(non-mule FSF Emacs, certain Japanese Emacs versions).
+(non-mule GNU Emacs, certain Japanese Emacs versions).
 
 We're also pleased to announce HOL Proof General, a new instance of
 Proof General for HOL98.  This is supplied as a "technology
@@ -611,7 +611,7 @@ developing mathematical proofs.  For short, we sometimes call it a
 @dfn{prover}, although we always have in mind an interactive system
 rather than a fully automated theorem prover.} developed at the LFCS in
 the University of Edinburgh.  It works best under XEmacs, but can also
-be used with FSF GNU Emacs.
+be used with GNU Emacs.
 
 You do not have to be an Emacs militant to use Proof General!  
 
@@ -914,8 +914,9 @@ then describe the concepts and functions in more detail.
 * Summary of Proof General buffers::               
 * Script editing commands::     
 * Script processing commands::  
-* Toolbar commands::            
 * Proof assistant commands::    
+* Toolbar commands::            
+* Interrupting during trace output::
 @end menu
 
 @node Walkthrough example in LEGO
@@ -1324,6 +1325,12 @@ proofs.
  assistant, for example error messages or informative messages.
  The response buffer is displayed whenever Proof General puts
  a new message in it.
+@item The @dfn{trace buffer} is a special version of the response
+ buffer.  It may be used to display unusual debugging output from the
+ prover, for example, tracing proof tactics or rewriting procedures.
+ This buffer is also displayed whenever Proof General puts a new message
+ in it (although it may be quickly replaced with the response or goals
+ buffer in two-buffer mode).
 @end itemize
 
 Normally Proof General will automatically reveal and hide the goals and
@@ -1726,6 +1733,39 @@ Issues a command based on @var{arg} to the assistant, using @code{proof-save-com
 The user is prompted for an argument.
 @end deffn
 
+
+@node Interrupting during trace output
+@section Interrupting during trace output
+
+If your prover generates output which is recognized as tracing output in
+Proof General, you may need to know about a special provision for
+interrupting the prover process.
+@c %
+If the trace output is voluminous, perhaps looping, it may be difficult
+to interrupt with the ordinary @kbd{C-c C-c}
+(@code{proof-interrupt-process}) or the corresponding button/menu.  In
+this case, you should try Emacs's @b{quit key}, @kbd{C-g}.  This will
+cause a quit in any current editing commands, as usual, but during
+tracing output it will also send an interrupt signal to the prover.
+Hopefully this will stop the tracing output, and Emacs should catch up
+after a short delay.
+
+Here's an explanation of the reason for this special provision.  When
+large volumes of output from the prover arrive quickly in Emacs, as
+typically is the case during tracing (especially tracing looping
+tactics!), Emacs may hog the CPU and spend all its time updating the
+display with the trace output.  This is especially the case when
+features like output fontification and X-Symbol display are active.  If
+this happens, ordinary user input in Emacs is not processed, and it
+becomes difficult to do normal editing.  The root of the problem is that
+Emacs runs in a single thread, and pending process output is dealt with
+before pending user input.  Whether or not you see this problem depends
+partly on the processing power of your machine (or CPU available to
+Emacs when the prover is running).  One way to test is to start an Emacs
+shell with @kbd{M-x shell} and type a command such as @code{yes} which
+produces output indefinitely.  Now see if you can interrupt the process!
+(Warning --- on slower machines especially, this can cause lockups, so
+use a fresh Emacs.)
 
 
 
@@ -2176,7 +2216,7 @@ decorates the output from the proof assistant, also using
 @code{font-lock}.
 
 In XEmacs, fontification is automatically turned on. To automatically
-switch on fontification in FSF GNU Emacs 20.4, you may need to engage
+switch on fontification in GNU Emacs 20.4, you may need to engage
 @code{M-x global-font-lock-mode}.  The old mechanism of adding hooks to
 the mode hooks (@code{lego-mode-hooks}, @code{coq-mode-hooks}, etc) is
 no longer recommended; it should not be needed in latest Emacs versions
@@ -2258,7 +2298,7 @@ default every time you visit a buffer.  To enable it by default
 (i.e. avoid typing @code{M-x function-menu}), you should find the file
 @file{func-menu.el} and follow the instructions there.
 
-FSF Emacs 20.4 does not have the function menu library built in, but you
+GNU Emacs 20.4 does not have the function menu library built in, but you
 may be able to download it from the elisp archives.  A similar mode
 which is supported is @code{imenu}, also in XEmacs.  Proof General would
 be grateful if anyone can send patches for using @code{imenu}
@@ -2320,7 +2360,7 @@ If this table is empty or needs adjusting, please make changes using
 @end defvar
 
 The completion facility uses a library @file{completion.el} which
-usually ships with XEmacs and FSF Emacs, and supplies the
+usually ships with XEmacs and GNU Emacs, and supplies the
 @code{complete} function.
 
 @c FIXME: edited from default.
@@ -2615,7 +2655,7 @@ other (non-script) buffers.  In XEmacs, the menu path is:
 @lisp
    Options -> Customize -> Emacs -> External -> Proof General
 @end lisp
-in XEmacs.  In FSF GNU Emacs, use the menu:
+in XEmacs.  In GNU Emacs, use the menu:
 @lisp
    Help -> Customize -> Top-level Customization Group
 @end lisp
@@ -2767,7 +2807,7 @@ The default value is @code{nil}.
 @c TEXI DOCSTRING MAGIC: proof-toolbar-enable
 @defopt proof-toolbar-enable 
 If non-nil, display Proof General toolbar for script buffers.@*
-NB: the toolbar is only available with XEmacs.
+NB: the toolbar is only available with XEmacs and GNU Emacs>=21.
 
 The default value is @code{t}.
 @end defopt
@@ -2805,7 +2845,7 @@ use the "Restart" button (or M-x @code{proof-shell-restart}) before
 you can see the effect in buffers.
 
 The default value for @code{proof-strict-read-only} depends on which
-version of Emacs you are using.  In FSF Emacs, strict read only is buggy
+version of Emacs you are using.  In GNU Emacs, strict read only is buggy
 when it used in conjunction with font-lock, so it is disabled by default.
 
 The default value is @code{strict}.
@@ -2827,7 +2867,7 @@ next start Proof General.
 * The default value for XEmacs built for solaris is nil, because
 of unreliabilities with enablers there.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 @c This one removed: proof-auto-retract
@@ -3990,13 +4030,13 @@ let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
 When @code{proof-strict-read-only} is non-nil, ordinary undo in the
 script buffer can edit the "uneditable region" in XEmacs.  This doesn't
-happen in FSF GNU Emacs.  Test case: Insert some nonsense text after the
+happen in GNU Emacs.  Test case: Insert some nonsense text after the
 locked region.  Kill the line. Process to the next command.  Press
 @kbd{C-x u}, nonsense text appears in locked region.
 
 @strong{Workaround:} be careful with undo.
 
-@subsection Font locking and read-only in FSF GNU Emacs
+@subsection Font locking and read-only in GNU Emacs
 
 When @code{proof-strict-read-only} is set and font lock is switched on,
 spurious "Region read only" errors are given which break font lock.
