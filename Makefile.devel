@@ -149,6 +149,8 @@ CVSNAME = ProofGeneral
 # Remote commands to use CVS in server mode and install files.
 # With these settings the build can be done remotely.
 # CVSROOT = :pserver:da@cvs.inf.ed.ac.uk:/disk/cvs/proofgen
+# FIXME: this command causes an error on some recursive calls, e.g. to do
+# make clean in a non cvs directory.
 CVSROOT=$(shell cat CVS/Root)
 
 # Emacs for batch compiling
