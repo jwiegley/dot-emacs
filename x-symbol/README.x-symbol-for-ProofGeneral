@@ -14,3 +14,4 @@ Moreover, lisp/Makefile and lisp/makefile.pkg were copied from
 X-Symbol source package, and lisp/makefile.pkg edited to remove
 x-symbol-emacs from list of compiled files (since it breaks 
 on XEmacs compile).
+
