@@ -7,10 +7,41 @@
 
 ;;;***
 
-;;;### (autoloads (pg-pgip-process-cmd) "pg-pgip" "generic/pg-pgip.el")
+;;;### (autoloads (pg-pgip-askprefs pg-pgip-process-packet) "pg-pgip" "generic/pg-pgip.el")
 
-(autoload 'pg-pgip-process-cmd "pg-pgip" "\
-Process the command in PGIP, which should be parsed XML according to pg-xml-parse-*." nil nil)
+(autoload 'pg-pgip-process-packet "pg-pgip" "\
+Process the command packet PGIP, which is parsed XML according to pg-xml-parse-*" nil nil)
+
+(autoload 'pg-pgip-askprefs "pg-pgip" nil nil nil)
+
+;;;***
+
+;;;### (autoloads (proof-next-error) "pg-response" "generic/pg-response.el")
+
+(autoload 'proof-next-error "pg-response" "\
+Jump to location of next error reported in the response buffer.
+
+A prefix arg specifies how many error messages to move;
+negative means move back to previous error messages.
+Just C-u as a prefix means reparse the error message buffer
+and start at the first error." t nil)
+
+;;;***
+
+;;;### (autoloads (pg-defthymode) "pg-thymodes" "generic/pg-thymodes.el")
+
+(autoload 'pg-defthymode "pg-thymodes" "\
+Define a Proof General mode for theory files.
+Mode name is SYM-mode, named NAMED.  BODY is the body of a setq and
+can define a number of variables for the mode, viz:
+
+  SYM-<font-lock-keywords>      (value for font-lock-keywords)
+  SYM-<syntax-table-entries>	(list of pairs: used for modify-syntax-entry calls)
+  SYM-<menu>			(menu for the mode, arg of easy-menu-define)
+  SYM-<parent-mode>		(defaults to fundamental-mode)
+  SYM-<filename-regexp>	        (regexp matching filenames for auto-mode-alist)
+
+All of these settings are optional." nil 'macro)
 
 ;;;***
 
@@ -62,7 +93,7 @@ STRING is inserted using `proof-insert', which see.
 KEY is added onto proof-assistant map." nil 'macro)
 
 (autoload 'proof-defpacustom-fn "proof-menu" "\
-As for macro `defpacustom' but evaluation arguments." nil nil)
+As for macro `defpacustom' but evaluating arguments." nil nil)
 
 (autoload 'defpacustom "proof-menu" "\
 Define a setting NAME for the current proof assitant, default VAL.
@@ -80,12 +111,12 @@ evaluate can be provided instead." nil 'macro)
 
 ;;;***
 
-;;;### (autoloads (proof-next-error proof-shell-invisible-command proof-shell-wait proof-extend-queue proof-start-queue proof-shell-available-p proof-shell-live-buffer proof-shell-ready-prover) "proof-shell" "generic/proof-shell.el")
+;;;### (autoloads (proof-shell-invisible-command proof-shell-wait proof-extend-queue proof-start-queue proof-shell-available-p proof-shell-live-buffer proof-shell-ready-prover) "proof-shell" "generic/proof-shell.el")
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
 Make sure the proof assistant is ready for a command.
 If QUEUEMODE is set, succeed if the proof shell is busy but
-has mode QUEUEMODE.
+has mode QUEUEMODE, which is a symbol or list of symbols.
 Otherwise, if the shell is busy, give an error.
 No change to current buffer or point." nil nil)
 
@@ -110,10 +141,10 @@ for processing a region from (buffer-queue-or-locked-end) to END.
 The queue mode is set to 'advancing" nil nil)
 
 (autoload 'proof-shell-wait "proof-shell" "\
-Busy wait for proof-shell-busy to become nil, or for TIMEOUT seconds.
+Busy wait for `proof-shell-busy' to become nil, or for TIMEOUT seconds.
 Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
-in some cases.   May be called by proof-shell-invisible-command." nil nil)
+in some cases.   May be called by `proof-shell-invisible-command'." nil nil)
 
 (autoload 'proof-shell-invisible-command "proof-shell" "\
 Send CMD to the proof process.  
@@ -124,14 +155,6 @@ But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
 If WAIT is an integer, wait for that many seconds afterwards." nil nil)
 
-(autoload 'proof-next-error "proof-shell" "\
-Jump to location of next error reported in the response buffer.
-
-A prefix arg specifies how many error messages to move;
-negative means move back to previous error messages.
-Just C-u as a prefix means reparse the error message buffer
-and start at the first error." t nil)
-
 ;;;***
 
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen) "proof-splash" "generic/proof-splash.el")
@@ -139,7 +162,7 @@ and start at the first error." t nil)
 (autoload 'proof-splash-display-screen "proof-splash" "\
 Save window config and display Proof General splash screen.
 If TIMEOUT is non-nil, time out outside this function, definitely
-by end of configuring proof mode. 
+by end of configuring proof mode.
 Otherwise, timeout inside this function after 10 seconds or so." t nil)
 
 (autoload 'proof-splash-message "proof-splash" "\
