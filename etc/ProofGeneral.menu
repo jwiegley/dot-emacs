@@ -1,6 +1,6 @@
 ?package(ProofGeneral):\
   needs=X11\
-  section=Applications/Sciences/Computer Science\
+  section="Applications/Sciences/Computer Science"\
   title="Proof General"\
   longtitle="A generic interface for interactive theorem provers"\
   command="/usr/bin/proofgeneral"\
