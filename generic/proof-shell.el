@@ -423,13 +423,17 @@ object files, used by Lego and Coq)."
       (progn
 	(proof-interrupt-process)
 	(proof-shell-wait)))
-  ;; Now clear all context
-  (proof-script-remove-all-spans-and-deactivate)
-  (proof-shell-clear-state)
-  (if (and (buffer-live-p proof-shell-buffer)
-	   proof-shell-restart-cmd)
-	   (proof-shell-invisible-command
-	    proof-shell-restart-cmd)))
+  (if (not (proof-shell-live-buffer))
+      ;; If shell not running, start one now.
+      ;; (Behaviour suggested by Robert Schneck)
+      (proof-shell-start)
+    ;; Otherwise, clear all context for running prover
+    (proof-script-remove-all-spans-and-deactivate)
+    (proof-shell-clear-state)
+    (if (and (buffer-live-p proof-shell-buffer)
+	     proof-shell-restart-cmd)
+	(proof-shell-invisible-command
+	 proof-shell-restart-cmd))))
 
 
 
@@ -938,7 +942,7 @@ which see."
        ;; Find the last goal string in the output
        (while (string-match proof-shell-start-goals-regexp string start)
 	 (setq start (match-end 0)))
-       ;; Ugly hack: provers with special characters don't include
+       ;; Convention: provers with special characters don't include
        ;; the match in their goals output.  Others do.
        (unless proof-shell-first-special-char
 	 (setq start (match-beginning 0)))
