@@ -687,6 +687,24 @@ is resynchronised. It contains files in canonical truename format")
 ;; A few small utilities					    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun proof-match-find-next-function-name (buffer)
+  "General next function name in BUFFER finder using match.
+The regexp is assumed to be a two item list the car of which is the regexp
+to use, and the cdr of which is the match position of the function
+name. Moves point after the match.
+
+The package fume-func provides the function
+`fume-match-find-next-function-name' with the same specification.
+However, fume-func's version is incorrec"
+  ;; DO NOT USE save-excursion; we need to move point!
+  ;; save-excursion is called at a higher level in the func-menu
+  ;; package 
+    (set-buffer buffer)
+    (let ((r (car fume-function-name-regexp))
+	  (p (cdr fume-function-name-regexp)))
+      (and (re-search-forward r nil t)
+	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))
+
 (defun proof-message (str)
   "Output STR in minibuffer."
   (message (concat "[" proof-assistant "] " str)))
@@ -950,25 +968,6 @@ buffer is closed off atomically."
         (read-from-minibuffer prompt initial-input read-shell-command-map
                               nil (or history
                               'shell-command-history)))))
-
-;; The package fume-func provides a function with the same name and
-;; specification. However, fume-func's version is incorrect.
-;; da: make this hack more prominent so someone remembers to remove it
-;; later on.
-(and (fboundp 'fume-match-find-next-function-name)
-(defun fume-match-find-next-function-name (buffer)
-  "General next function name in BUFFER finder using match.
-The regexp is assumed to be a two item list the car of which is the regexp
-to use, and the cdr of which is the match position of the function
-name. Moves point after the match."
-  ;; DO NOT USE save-excursion; we need to move point!
-  ;; save-excursion is called at a higher level in the func-menu
-  ;; package 
-    (set-buffer buffer)
-    (let ((r (car fume-function-name-regexp))
-	  (p (cdr fume-function-name-regexp)))
-      (and (re-search-forward r nil t)
-	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p)))))
 
 
 ;;; end messy COMPATIBILITY HACKING
@@ -2864,7 +2863,7 @@ finish setup which depends on specific proof assistant configuration."
        (push (cons major-mode 'fume-function-name-regexp-proof)
 	     fume-function-name-regexp-alist))
   (and (boundp 'fume-find-function-name-method-alist)
-       (push (cons major-mode 'fume-match-find-next-function-name)
+       (push (cons major-mode 'proof-match-find-next-function-name)
 	     fume-find-function-name-method-alist))
 
   ;; Additional key definitions which depend on configuration for
