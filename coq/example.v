@@ -4,6 +4,7 @@
     $Id$
 
     Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+    Please let us know if you could maintain this example file!
 *)    
 
 (****************************************************************************)

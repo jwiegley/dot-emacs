@@ -2,7 +2,7 @@
    Isabelle configuration for Proof General.
 
    Author:  David Aspinall <da@dcs.ed.ac.uk>
-   Contact: Proof General maintainer <proofgen@dcs.ed.ac.uk>
+   Contact: Isabelle maintainer <isabelle@dcs.ed.ac.uk>
 
    $Id$
 

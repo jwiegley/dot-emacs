@@ -4,15 +4,19 @@ $Id$
 
 * Priorities
 ============
-A (High)   to be fixed before release (Version 2.0)
-B          would be nice to fix before release of 2.0; but not crucial
+A (URGENT) to be fixed immediately for pre-release 
+B (High)   to be fixed before release (Version 2.0)
+C          would be nice to fix before release of 2.0; but not crucial
 D (Medium) desirable to fix at some point
 X (Low)    probably not worth wasting time on
 
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-B Improve proof-goal-command and proof-save-command:
+B Revise ProofGeneral.texi and publish LaTeX version as an LFCS
+  Technical Report
+
+C Improve proof-goal-command and proof-save-command:
   `proof-goal-command' should be more flexible and support a
   placeholder for the name and the actual goal. In LEGO, we have
     Goal foo : absurd;
@@ -23,42 +27,40 @@ B Improve proof-goal-command and proof-save-command:
 
      (setq proof-goal-command  (proof-prompt-named-goal "Goal %s :" "%s;"))
 
-A Change mail address to proofgen@dcs.ed.ac.uk everywhere.
-
-B Cleanup handling of proof-terminal-string.  At the moment some
+C Cleanup handling of proof-terminal-string.  At the moment some
   commands need to have the terminal string, some don't.
   da: I suggest removing proof-terminal-string altogether and
   adding back the semi-colons or fullstops at the specific level.
   It's not a big deal and would support other provers which
   may use a mixture of terminators, or no terminators at all.
 
-B Investigate and improve indentation/font-locking code.
+C Investigate and improve indentation/font-locking code.
   At the moment editing .ML files in Isabelle Proof General is
   *very* slow.  Moreover the indentation is screwy.  Also
   seems screwy in LEGO/Coq PG.  (da, 2hr)
 
-A Add support for people typing directly into the inferior process.
+B Add support for people typing directly into the inferior process.
   The error messages are going to drive experienced Isabelle users
   mad otherwise!  Fair enough to hide the buffer from those
   dumb users "not authorized for this information", but lets not
   get in the way of experienced users.
   (da, 1hr: I'm not sure of the best way of doing this)
 
-A proof-toolbar:  Fixup movement of point (choice of
+B proof-toolbar:  Fixup movement of point (choice of
   up and down functions).  Add toolbar to response mode too.  
   (30mins, da)
 
-A toolbar icons: Fixup for low-colour modes again.  Improve restart
+B toolbar icons: Fixup for low-colour modes again.  Improve restart
   and qed icon (30mins, da).
 
-B toolbar icons: Automatically generate reduced and
+C toolbar icons: Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
   xcf files under CVS rather than xpm files.  (2h, da)
 
-B Better support for adding a new prover: give error messages which
+C Better support for adding a new prover: give error messages which
   hint at what variable to set (see proof-issue-goal for example).
 
-B Functions for next,previous input a la shell mode, but in proof
+C Functions for next,previous input a la shell mode, but in proof
   script buffer (3h, da).
 
 X Read-only mode of extents sometimes gets in the way: for example,
@@ -66,7 +68,7 @@ X Read-only mode of extents sometimes gets in the way: for example,
   Can this be improved?  Always have to retract first, and that
   always leaves stuff around.
 
-B User-level functions: 
+C User-level functions: 
   1. add new version of undo-until-point which behaves analogously to 
   proof-assert-next-command.
   2. make version of proof-restart-script which will start or
@@ -74,10 +76,10 @@ B User-level functions:
   a direct function to start the proof assistant).
   (1hr, da)
 
-B Write test schedule for things to try out with a new instantiation
+C Write test schedule for things to try out with a new instantiation
   of Proof General.
 
-B Add skeleton instantiation files for a dummy prover "myassistant" to
+C Add skeleton instantiation files for a dummy prover "myassistant" to
   make it easier to add support for new assistants -- looking at
   any of the existing modes is confusing because of the
   prover-specific stuff.  Ideally it should work for one of
@@ -95,7 +97,7 @@ X Make process handling smarter: because Emacs is single-threaded,
   we have to wait until something becomes blue to undo it by sending
   a command to the process.
 
-A Clean up proof-assert-until-point behaviour.  At the moment we
+B Clean up proof-assert-until-point behaviour.  At the moment we
   get an odd error if it is run in the locked region.  If point
   is on the start of a command it says "nothing to do", but if
   it is one character into the command, it asserts the whole command!
@@ -108,7 +110,7 @@ A Clean up proof-assert-until-point behaviour.  At the moment we
   proof-assert-next-command does not advance point. 
   (da, tms/others to assess)
   
-A A less drastic version of proof-restart-script would be useful:
+B A less drastic version of proof-restart-script would be useful:
   one that doesn't involve killing off the proof assistant process
   and restarting that -- it can take ages!  (da, 20mins)
 
@@ -127,7 +129,7 @@ D Add support to proof.el for *not* setting variables for
 D Outsource script management features from proof.el to
   proof-script.el 		(1h)
 
-A Write function proof-retract-file. (30min tms)
+B Write function proof-retract-file. (30min tms)
   Currently, the command ForgetMark (for LEGO) is hardwired in
   proof-steal-process.
 
@@ -135,7 +137,7 @@ D Improve documentation in proof.el to help porting/understanding
   Also add notes into proof.texinfo.
   (ongoing, da).
 
-B Fixup sources to follow Elisp conventions better.
+C Fixup sources to follow Elisp conventions better.
   1. The first line of documentation of functions and
      variables should be a whole sentence.  Subsequent lines should
      *not* be indented.  See output of hyper-apropos and
@@ -143,14 +145,14 @@ B Fixup sources to follow Elisp conventions better.
   2. Replace defvar's by defconst's where appropriate.
      Introduce new defconsts.
 
-A Update source documentation and manual, in particular document bugs
+B Update source documentation and manual, in particular document bugs
   and workarounds
   (4h hhg & tms & da) 
 
 D Technical documentation to record expertise and allow users of other
   proof systems to adopt generic package (40h h)
 
-A Implement more generic mechanism for large undos (2h tms)
+B Implement more generic mechanism for large undos (2h tms)
 
     COQ: C-c u inside a Section should reset the whole section, then
          redo defns 
@@ -158,7 +160,7 @@ A Implement more generic mechanism for large undos (2h tms)
     LEGO: consider Discharge; perhaps unrol to the beginning of the
           module?
 
-A Multiple files are sometimes handled incorrectly, because the
+B Multiple files are sometimes handled incorrectly, because the
   function `proof-steal-process' cannot figure out that some files have
   already been processed. This is most likely caused by the ad-hoc
   equality test on file names. Instead, one could employ
@@ -173,16 +175,16 @@ X Support for x-symbols package.
   about their syntax somehow, rather than trying to duplicate
   specifications inside Emacs.
 
-A file handling could be more robust; perhaps one should always cd to
+B file handling could be more robust; perhaps one should always cd to
   the directory corresponding to the script buffer (currently only
   done for the buffer which starts up the proof system). This could be 
   achieved with a hook which is not set by default. [Remember to add
   user documentation] (30min tms)
 
-A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
+B replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
 
-A Reengineer *-count-undos and *-find-and-forget at generic level
+B Reengineer *-count-undos and *-find-and-forget at generic level
   (3h)
 
 D Allow bib-cite style clicking on Load/Import commands to go to file.
@@ -195,13 +197,13 @@ X We need to go over to piped communication rather than ptys to fix
   tested for future versions. [Currently the problem is documented in
   Email messages sent to lego]
 
-B Introduce keybinding to save the proof e.g., in LEGO, this should
+C Introduce keybinding to save the proof e.g., in LEGO, this should
   insert "Save id" or "$Save id" depending on the name of the theorem. 
   Do the same thing for Goal, to add as a toolbar function.
 
-B Unify toolbar and menu functions.
+C Unify toolbar and menu functions.
 
-A use proof buffer instead of response buffer and leave non-proof
+B use proof buffer instead of response buffer and leave non-proof
   state output in the process buffer (2h tms)
 
 D Remove duplication of variables e.g., proof-prog-name and
@@ -214,7 +216,7 @@ X Comment support is not very generic: we don't support end-of-line
   terminated comments.  Is there any case where this might be
   worthwhile?  (2h to add it).
 
-B Make completion more generic.  For Isabelle we can build a
+C Make completion more generic.  For Isabelle we can build a
   completion table by querying the process, which is better than
   messing with tags.
 
@@ -236,15 +238,15 @@ X Ideas for efficiency improvements.  Rather than repeatedly
 * Proof-by-Pointing
 ===================
 
-A Change proof by pointing (pbp) stuff into proofstate buffer stuff.
+B Change proof by pointing (pbp) stuff into proofstate buffer stuff.
 
-A Fixing up errors caused by pbp-generated commands; currently, script
+B Fixing up errors caused by pbp-generated commands; currently, script
   management unwisely assumes that pbp commands cannot fail (2h)
 
-A Rename pbp-mode to response-mode or goals-mode (which doesn't
+B Rename pbp-mode to response-mode or goals-mode (which doesn't
   support any actual proof-by-pointing) (30min) 
 
-A Outsource actual pbp/goals functionality (30min)
+B Outsource actual pbp/goals functionality (30min)
   (separate pbp annotations from other annotations).
   Make a file proof-goals.el.
 
@@ -257,15 +259,15 @@ X pbp code doesn't quite accord with the tech report; in particular it
 * Here are things to be done to Lego mode
 =========================================
 
-A fix Pbp implementation (10h)
+B fix Pbp implementation (10h)
 
-A release new version of the LEGO proof engine (4h tms)
+B release new version of the LEGO proof engine (4h tms)
 
-B Equiv, Next,... aren't handled properly, because LEGO does not
+C Equiv, Next,... aren't handled properly, because LEGO does not
   refresh the proof state. Perhaps it would be easiest to get LEGO to
   output more information in proof script mode (2h)
 
-B LEGO should not issue warning messages triggered by the interactive
+C LEGO should not issue warning messages triggered by the interactive
   use of the Module command when invoked by the interface e.g.,
 
     Lego> Module nstderror Import stderror;
@@ -276,7 +278,7 @@ B LEGO should not issue warning messages triggered by the interactive
 
 X Mechanism to save object file
 
-B Improve legotags. I cannot handle lists e.g., with 	
+C Improve legotags. I cannot handle lists e.g., with 	
 
     [x,y:nat];
 
@@ -292,7 +294,7 @@ D Add Patrick Loiseleur's commands to search for vernac or ml files.
 
 X Sections and files are handled incorrectly.
 
-A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
+B Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
   correct command if I undo up to the lower lemma, but the buffer
   undoes to the upper lemma.  I.e., if I start Lemma x, then prove
   Lemma y, then finish x, and undo lemma x, then lemma y gets undone
@@ -301,10 +303,10 @@ A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
 
 D Proof-by-Pointing (10h hhg)
 
-A Add coq-add-tactic with a tactic name, which adds that tactic to the 
+B Add coq-add-tactic with a tactic name, which adds that tactic to the 
   undoable tactics and to the font-lock. (2h hhg)
 
-B Improve coqtags. I cannot handle lists e.g., with 	
+C Improve coqtags. I cannot handle lists e.g., with 	
 
 	Parameter x,y:nat
 
@@ -313,7 +315,7 @@ B Improve coqtags. I cannot handle lists e.g., with
 * Here are things to be done to Isabelle Mode
 =============================================
 
-A Get basic features working:
+B Get basic features working:
     proof state extraction  -- okay.
     undo		    -- needs work (undoes to much).
     error detection	    -- seems okay.
@@ -329,7 +331,7 @@ A Get basic features working:
   BUG: undo after last step undoes till top of proof in
   process buffer, not in script!  
 
-A CRUCIAL: Do something to manage .thy and .ML files coherently.
+B CRUCIAL: Do something to manage .thy and .ML files coherently.
   At the moment loading one into Isabelle will force the
   processing of the other.  We could ask that users develop
   proof scripts in another kind of file entirely, or a file
@@ -369,16 +371,16 @@ D The proof-locked-span isn't set to read-only, because overlays don't
 * Release
 =========
 
-A validate/fix web pages.
+B validate/fix web pages.
 
-A remove CVS history in all files  (replace with idents $Id)
+B remove CVS history in all files  (replace with idents $Id)
 
-A extend Copyright to 1998
+B extend Copyright to 1998
 
-A fix INSTALL file, add COPYING note
+B fix INSTALL file, add COPYING note
 
-A fix branches after renames
+B fix branches after renames
 
-A write Makefile targets to build documentation formats, .elc
+B write Makefile targets to build documentation formats, .elc
 
-A write release message
+B write release message

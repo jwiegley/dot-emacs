@@ -2,6 +2,7 @@
 ;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
 ;; Author: Thomas Kleymann and Healfdene Goguen
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Please let us know if you could maintain this package!
 
 ;; $Id$
 

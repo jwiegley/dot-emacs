@@ -1,7 +1,7 @@
 ;; isa-thy-mode.el - Mode for Isabelle theory files.
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Maintainer:  Isabelle maintainer <isabelle@dcs.ed.ac.uk>
 ;;
 ;; Taken from Isamode, version: 3.6 1998/09/02 11:40:45
 ;;

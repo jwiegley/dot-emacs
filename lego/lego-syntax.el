@@ -1,7 +1,8 @@
 ;; lego-fontlock.el Font lock expressions for LEGO
 ;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;; Please let us know if you could maintain this package!
 ;;
 ;; $Id$
 ;;
