@@ -1,6 +1,46 @@
 Some test cases for Proof General.
 ==================================
 
+See testing-log.txt for log of tests conducted.
+Please add to that file!
+
+
+15.1.99  LONG-LINE AND BACKSLASH PROBLEM ON SOLARIS
+===================================================
+
+  Test that etc/isa/long-line-backslash.ML can be processed
+  successfully.
+
+
+16.12.98 KILLING THE PROOF PROCESS
+==================================
+
+  Process some proof script buffer. Invoke 
+
+    M-x proof-shell-exit
+
+  Process should exit cleanly.
+  
+11.12.98  RUDELY KILLING THE ACTIVE SCRIPTING BUFFER
+====================================================
+
+  Start scripting with some buffer, after
+  having processed another buffer.
+
+  Kill it when scripting is only partly finished.
+
+  Scripting should be cleanly turned off and it
+  should be possible to resume retraction in the 
+  first buffer.
+
+  Moreover, this ensures that if the file is on the included
+  files list, yet has been only partly processed (e.g. because
+  Undo steps were taken), then it will be retracted and
+  removed from the included files list.
+
+  FIXME: Using C-x C-v to revert to saved version doesn't
+  seem to work because it renames the buffer or something.
+
 8.12.98  INHIBIT VARIABLES
 ==========================
 
@@ -25,40 +65,6 @@ Some test cases for Proof General.
   Exit emacs.  Should query whether we want to save these
   scripting buffers (maybe XEmacs only).
 
-11.12.98  RUDELY KILLING THE ACTIVE SCRIPTING BUFFER
-====================================================
-
-  Start scripting with some buffer, after
-  having processed another buffer.
-
-  Kill it when scripting is only partly finished.
-
-  Scripting should be cleanly turned off and it
-  should be possible to resume retraction in the 
-  first buffer.
-
-  Moreover, this ensures that if the file is on the included
-  files list, yet has been only partly processed (e.g. because
-  Undo steps were taken), then it will be retracted and
-  removed from the included files list.
-
-  FIXME: Using C-x C-v to revert to saved version doesn't
-  seem to work because it renames the buffer or something.
-
-16.12.98 KILLING THE PROOF PROCESS
-==================================
-
-  Process some proof script buffer. Invoke 
-
-    M-x proof-shell-exit
-
-  Process should exit cleanly.
-  
-15.1.99  LONG-LINE AND BACKSLASH PROBLEM ON SOLARIS
-===================================================
-
-  Test that etc/isa/long-line-backslash.ML can be processed
-  successfully.
 
     
   
