@@ -980,9 +980,13 @@ default."
 ;; values as well as regexps. 
 ;; FIXME: could just as easily give default value of 
 ;; proof-std-goal-command-p here, why not?
-
 (defcustom proof-goal-command-p 'proof-generic-goal-command-p
-  "A function to test: is this really a goal command?"
+  "A function to test: is this really a goal command?
+
+This is added as a more refined addition to proof-goal-command-regexp,
+to solve the problem that Coq and some other provers can have goals which 
+look like definitions, etc.  (In the future we may generalize 
+proof-goal-command-regexp instead)."
   :type 'function
   :group 'proof-script)
 
@@ -998,9 +1002,18 @@ default."
 ;;  Why not let PG track this as in spans, changing the value based
 ;;  on some regexps for 'open' / 'close' commands? This would basically
 ;;  move the code of isar-global-save-command-p to proof-done-advancing.
+;; FIXME da: sounds like a good idea, then that would give us a proper 
+;;  handling of nested proofs?
 ;;
 (defcustom proof-really-save-command-p (lambda (span cmd) t)
-  "Is this really a save command?"
+  "Is this really a save command?
+
+This is a more refined addition to proof-save-command-regexp.
+It should be a function taking a span and command as argument,
+and can be used to track nested proofs.  (See what is done in
+isar/ for example). In the future, this setting should be
+removed when the generic core is extended to handle nested
+proofs smoothly."
   :type 'function
   :group 'proof-script)
 
