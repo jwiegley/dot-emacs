@@ -14,7 +14,7 @@
 	 (setq load-path (cons "/usr/local/share/elisp/lego" load-path))
 	 (load "lego"))
 	((string= version "latest")
-	 (load-file "/usr/local/share/elisp/proofgeneral/generic/proof-site.el"))))
+	 (load-file "/usr/local/share/elisp/ProofGeneral/generic/proof-site.el"))))
 	 
 
 	 

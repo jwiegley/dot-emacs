@@ -90,7 +90,7 @@ FILES_NONCVS = ChangeLog
 # Where to install a distribution 
 # DISTINSTALLDIR=/usr/local/share/elisp/proofgeneral
 # value for dcs.ed.ac.uk:
-DISTINSTALLDIR=/export/local/share/elisp/proofgeneral
+DISTINSTALLDIR=/export/local/share/elisp
 
 
 FORCE:
@@ -321,6 +321,8 @@ releaseall: release rpmrelease releaseclean
 #   special places.
 #
 distinstall:
-	rm -rf $(DISTINSTALLDIR)
+	rm -rf $(DISTINSTALLDIR)/$(NAME)
 	mkdir -p $(DISTINSTALLDIR)
-	(cd $(DISTINSTALLDIR); $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ))
+	(cd $(DISTINSTALLDIR); \
+	 $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) \
+	 mv $(RELEASENAME) $(NAME))
