@@ -561,7 +561,8 @@ If proof-show-debug-messages is nil, do nothing."
 	(proof-display-and-keep-buffer proof-response-buffer))))
 
 
-;;; A handy utility function used in the "Buffers" menu.
+;;; A handy utility function used in the "Buffers" menu, and throughout
+;; the code.
 (defun proof-switch-to-buffer (buf &optional noselect)
   "Switch to or display buffer BUF in other window unless already displayed.
 If optional arg NOSELECT is true, don't switch, only display it.
@@ -571,8 +572,12 @@ No action if BUF is nil or killed."
   (and (buffer-live-p buf)
        (unless (eq buf (window-buffer (selected-window)))
 	 (if noselect
-	     (display-buffer buf t)
-	   (switch-to-buffer-other-window buf)))))
+	     ;; FIXME: would like 'norecord arg here to override
+	     ;; previous window entering top of MRU list here.
+	     (display-buffer buf 'not-this-window)
+	   (let ((pop-up-windows t))
+	     (pg-pop-to-buffer buffer 'not-this-window 'norecord))))))  
+  
 
 ;; Originally based on `shrink-window-if-larger-than-buffer', which
 ;; has a pretty wierd implementation.
