@@ -13,13 +13,21 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+B proof-find-next-terminator doesn't work properly:
+
+     first;second;third
+           ^
+     Invoking proof-find-next-terminator in cursor position (^) should 
+     move point to "t". Currently, it doesn't do anything. This is a
+     bug. 
+
 A Fix Non Sequitur nonsense with Isabelle when warnings appear before
   proofstate.  (da, 1hr?)
 
 A Check & fix support for a recent version of FSFmacs.  (da, 2hr).
 
 A Add support for putting a locked region in processed files.
-  (tms? how long?)
+  (tms 4h)
 
 A Clean up proof-assert-until-point behaviour.  At the moment we
   get an odd error if it is run in the locked region.  If point
@@ -192,12 +200,20 @@ C Fixup sources to follow Elisp conventions better.
   3. Check on use of "*" in docstrings.  Should be used for
      variables which are user-level options, only.
 
-B Update source documentation and manual, in particular document bugs
-  and workarounds
-  (4h hhg & tms & da) 
+A Implement more generic mechanism for large undos (2h tms)
 
-D Technical documentation to record expertise and allow users of other
-  proof systems to adopt generic package (40h h)
+    COQ: C-c u inside a Section should reset the whole section, then
+         redo defns 
+
+    LEGO: consider Discharge; perhaps unrol to the beginning of the
+          module?
+
+A Multiple files are sometimes handled incorrectly, because the
+  function `proof-steal-process' cannot figure out that some files have
+  already been processed. This is most likely caused by the ad-hoc
+  equality test on file names. Instead, one could employ
+  the built-in `file-truename' to trigger *canonical* file names.
+  (1h tms)
 
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
@@ -227,9 +243,6 @@ X We need to go over to piped communication rather than ptys to fix
   Email messages sent to lego]
 
 C Unify toolbar and menu functions.
-
-B use proof buffer instead of response buffer and leave non-proof
-  state output in the process buffer (2h tms)
 
 D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
