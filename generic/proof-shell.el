@@ -279,7 +279,7 @@ Does nothing if proof assistant is already running."
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	
-	;; PG 3.4: clear output from previous sessions.
+	;; clear output from previous sessions.
 	(erase-buffer)
 
 	;; Disable multi-byte characters in GNU Emacs.
