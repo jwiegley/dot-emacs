@@ -20,7 +20,7 @@ Red background for web is 80,0,48
 CD player buttons based on font wptypographicsymbols, point size 28,
 placed at 5,2.
 
-Text is lucidafax at point size 8.
+Text is lucidafax demibold italic at point size 8.
 
 blank.xcf -- blank with correct background colour.
 
