@@ -113,6 +113,32 @@ to examine proof-shell-last-output.")
 
 
 ;;
+;; Indicator and fake minor mode for active scripting buffer
+;; 
+
+(defcustom proof-shell-active-scripting-indicator
+  (if proof-running-on-XEmacs
+      (cons (make-extent nil nil) " Scripting ")
+    " Scripting")
+  "Modeline indicator for active scripting buffer.
+If first component is extent it will automatically follow the colour
+of the queue region."
+  :type 'sexp
+  :group 'proof-general-internals)
+
+(unless
+    (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
+  (setq minor-mode-alist
+	(append minor-mode-alist
+		(list 
+		 (list
+		  'proof-active-buffer-fake-minor-mode
+		  proof-shell-active-scripting-indicator)))))
+
+
+
+
+;;
 ;; Implementing the process lock
 ;;
 ;; da: In fact, there is little need for a lock.  Since Emacs Lisp
@@ -354,30 +380,6 @@ Does nothing if proof assistant is already running."
 	  (error "%s process exited!" proc)))
 
       (message "Starting %s process... done." proc))))
-
-
-;;
-;; Indicator and fake minor mode for active scripting buffer
-;; 
-
-(defcustom proof-shell-active-scripting-indicator
-  (if proof-running-on-XEmacs
-      (cons (make-extent nil nil) " Scripting ")
-    " Scripting")
-  "Modeline indicator for active scripting buffer.
-If first component is extent it will automatically follow the colour
-of the queue region."
-  :type 'sexp
-  :group 'proof-general-internals)
-
-(unless
-    (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
-  (setq minor-mode-alist
-	(append minor-mode-alist
-		(list 
-		 (list
-		  'proof-active-buffer-fake-minor-mode
-		  proof-shell-active-scripting-indicator)))))
 
 
 ;;

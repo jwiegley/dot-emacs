@@ -285,7 +285,7 @@ A span is before PT if it covers the character before PT."
 		     (1+ start)
 		     (point-max)))
 	 (resstart  (1+ (point-max)))
-	 spanres newres)
+	 spanres)
     ;; overlays are returned in an unspecified order; we
     ;; must search whole list for a closest-next one.
     (dolist (newres nextos spanres)

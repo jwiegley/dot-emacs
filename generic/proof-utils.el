@@ -580,7 +580,7 @@ No action if BUF is nil or killed."
 	     ;; that gives much nicer behaviour than XEmacs here.
 	     (display-buffer buf 'not-this-window)
 	   (let ((pop-up-windows t))
-	     (pg-pop-to-buffer buffer 'not-this-window 'norecord))))))  
+	     (pg-pop-to-buffer buf 'not-this-window 'norecord))))))
   
 
 ;; Originally based on `shrink-window-if-larger-than-buffer', which

@@ -1357,7 +1357,7 @@ With ARG, turn on scripting iff ARG is positive."
 	(savestart (span-start span))
 	(saveend   (span-end span))
 	(cmd       (span-property span 'cmd))
-	lev nestedundos nam next ncmd)
+	lev nestedundos nam next)
     
     ;; Try to set the name of the theorem from the save
     ;; (message "%s" cmd)   3.4: remove this message.
@@ -1745,7 +1745,7 @@ to the function which parses the script segment by segment."
 (defun proof-cmdstart-add-segment-for-cmd (comstart prev)
   (let ((tmp (point))
 	(commentre   (concat "[ \t\n]*" proof-script-comment-start-regexp))
-	(commentend   (concat proof-script-comment-end-regexp "[ \t\n]*" )))
+	(commentend  (concat proof-script-comment-end-regexp "[ \t\n]*" ))) ;; FIXME: used?
     ;; Find end of previous command...
     (goto-char comstart)
     ;; Special hack: terminal char is included in a command, if set.
@@ -1806,7 +1806,7 @@ which continues past POS, if any.  (NOT IMPLEMENTED IN THIS VERSION).
 
 This version is used when `proof-script-command-start-regexp' is set."
   (save-excursion
-    (let* (alist prev cmdfnd startpos comstart first)
+    (let* (alist prev cmdfnd startpos comstart)
       (goto-char (proof-queue-or-locked-end))
       (setq prev (point))
       (skip-chars-forward " \t\n")
