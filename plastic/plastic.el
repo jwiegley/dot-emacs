@@ -638,7 +638,7 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-send-one-undo ()
 	"send an Undo cmd"
-    (proof-send (concat plastic-lit-string " &S Undo;")))
+    (proof-shell-insert (concat plastic-lit-string " &S Undo;")))
 
 (defun plastic-try-cmd ()
     "undo whatever was tried, if error-free"
