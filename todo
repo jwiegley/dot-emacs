@@ -11,38 +11,14 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 *** Fixup HTML on mailing list pages
 
-*** Display management improvement (ongoing; it's a nightmare)
-    Glitches to resolve:
-     -- with multiple frame mode, new frames get selected on creation
-        (solution: create them eagerly when mode is activated).
-     -- code to delete frames isn't working
-     -- suggestion to cache window height: could implement this
-	by resize change functions (also doing the pretty-print hack?)
-        which set a symbol property for associated buffer symbol
-     -- longer term improvements: allow window preferences per 
-	associated buffer.  Either separate frame or merged into
-	switching mode.  
-     -- Stuck-withs: XEmacs frames always have minibuffer.
-		     GNU Emacs frames always have modelines.
-
 *** Update documentation.  
 
 *** Emacs Bug Roundup
     --- xemacs support for nested comments??
     --- xemacs undo in read-only regions 
 
-*** Clean up X-symbol support
-     -- token configuration for latest version of X-Symbol (Gerwin Klein, done?)
-     -- Check x-symbol support in provers other than Isabelle 
-	[Coq: OK; others?]
-
 *** Finish/cleanup MMM support for Isar.  Document.
        Add MMM for other provers where relevant
-
-*** Isabelle support: can we somehow add "legacy" support for old 
-      theory files and even allow scripting in ML files?   Maybe
-      not, if this is even beyond what Isar interface would allow
-      (unless we send an ML file line-by-line with ML_command?)
 
 *** Isabelle tweaks
      -- theorem dependencies on spoils ordinary response buffer output
@@ -54,10 +30,6 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
     Automatically processing files before deactivating scripting: warning
     messages from Isabelle when asking it to remove files that it says
     are already removed (noticed with auto action set to process).
-
-*** Coq issues that may be problematic:
-     -- Auto-compile-vos (prob impossible to fix)
-     -- Loss of synchronisation with silent mode (?)
 
 *** Finish clean-up of web page, broken link fixes.
 
@@ -92,7 +64,18 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to do in the generic interface
 
-*** PGIP SUPPORT (minimal for Isabelle patch):
+*** C Further display management improvement (it's a nightmare)
+    Glitches to resolve:
+     -- suggestion to cache window height: could implement this
+	by resize change functions (also doing the pretty-print hack?)
+        which set a symbol property for associated buffer symbol
+     -- longer term improvements: allow window preferences per 
+	associated buffer.  Either separate frame or merged into
+	switching mode.  Very messy to implement.
+     -- Stuck-withs: XEmacs frames always have minibuffer.
+		     GNU Emacs frames always have modelines.
+
+*** A PGIP SUPPORT (minimal for Isabelle patch):
       -- settings with categories
 
 *** A Oddity: Weirdness with regions turning blue even though they
@@ -100,8 +83,12 @@ X (Low)		e.g. probably not worth spending time on
     Send a few regions queueing, no result from interpreter, yet sometimes
     turns blue.  Why???
 
-*** Allow empty retract action that doesn't produce new prompt
+*** C Allow empty retract action that doesn't produce new prompt
     (Noticed with HOL4).
+
+*** unify format for syntax table entries with imenu (make alist);
+    use config setting for syntax table entries everywhere rather than
+    modify-syntax-entry.
 
 *** [ Don't query save before retraction ?? ]
 

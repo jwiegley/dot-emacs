@@ -6,20 +6,25 @@
 
 *** Support for Speedbar and Index menu ("Imenu")
 
-Imenu is an alternative to Function Menu (which is described in the
-Proof General manual).  It displays a menu of named definitions,
-theorems, etc, in the file and allows quick navigation to them.
+Imenu is an alternative to Function Menu (which has been supported for
+some time, but is not built-in to GNU Emacs).  It displays a menu of
+named definitions, theorems, etc, in the file and allows quick
+navigation to them.
 
 Speedbar displays a file tree in a separate window on the display,
 allowing quick navigation.  Middle/double-clicking or pressing + on a
 file icon opens up to display tags (definitions, theorems, etc) within
 the file.  Middle/double-clicking on a file or tag jumps to that file/tag.
 
-To use Imenu, select Proof General -> Options -> Index Menu.
+To use Imenu, select Proof General -> Options -> Index Menu.  This adds
+an "Index" menu to the main menu bar.  You can also use M-x imenu for
+keyboard-driven completion.
 
 To use Speedbar, use Tools -> Display Speedbar (GNU Emacs), or
 Proof General -> Advanced -> Speedbar (XEmacs).  Or if you prefer
 the old fashioned way, `M-x speedbar' does the same job.
+
+For more about Speedbar, see http://cedet.sourceforge.net/speedbar.shtml
 
 *** Improved display management
 
