@@ -129,7 +129,7 @@ For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'.")
 ;;    only call to proof-start-queue with this arg is in
 ;;    proof-shell-invisible-command.
 ;;   only call of proof-shell-invisible-command with relaxed arg
-;;   is in proof-execute-minibuffer-cmd.
+;;   is in proof-minibuffer-cmd.
 ;;  --- presumably so that command could be executed from any
 ;;  buffer, not just a scripting one?
 ;;
@@ -170,7 +170,7 @@ No error messages.  Useful as menu or toolbar enabler."
 Runs proof-state-change-hook to notify state change.
 Clears the proof-shell-error-or-interrupt-seen flag.
 If QUEUEMODE is supplied, set the lock to that value."
-  (proof-shell-ready-prover)
+  (proof-shell-ready-prover queuemode)
   (setq proof-shell-error-or-interrupt-seen nil)
   (setq proof-shell-busy (or queuemode t))
   (run-hooks 'proof-state-change-hook))
@@ -1187,8 +1187,12 @@ Returns the possibly shortened list."
     (if alist
 	(if proof-action-list
 	    (progn
-	      ;; internal check: correct queuemode in force
-	      (and queuemode (assert (eq proof-shell-busy queuemode)))
+	      ;; internal check: correct queuemode in force if busy
+	      ;; (should have proof-action-list<>nil -> busy)
+	      (and proof-shell-busy queuemode
+		   (unless (eq proof-shell-busy queuemode)
+		     (proof-debug "proof-append-alist: wrong queuemode detected for busy shell")
+		     (assert (eq proof-shell-busy queuemode))))
 	      ;; append to the current queue
 	      (setq proof-action-list
 		    (nconc proof-action-list alist)))
@@ -1698,12 +1702,9 @@ in some cases.   May be called by proof-shell-invisible-command."
 Calls proof-state-change-hook."
   (run-hooks 'proof-state-change-hook))
 
-;; FIXME da: I find the name of this command misleading.
-;; Nothing much is invisible really.  Old docstring was
-;; also misleading.
 
 (defun proof-shell-invisible-command (cmd &optional wait)
-  "Send CMD to the proof process.
+  "Send CMD to the proof process.  Add terminal string if necessary.
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
