@@ -27,20 +27,20 @@
 
 (defcustom proof-home
   (or (getenv "PROOF_HOME") "~/devel/lego/elisp/")
-  "Directory where proof mode is installed. Ends with slash.
+  "*Directory where proof mode is installed. Ends with slash.
 Default value taken from PROOF_HOME, or use customize to set it."
   :type 'directory
   :group 'proof)
 
 (defcustom proof-image-directory
   (concat proof-home "images/")
-    "Where proof mode image files are installed. Ends with slash."
+    "*Where proof mode image files are installed. Ends with slash."
   :type 'directory
   :group 'proof)
 
 (defcustom proof-assistant
   'isa
-  "Choice of proof assitant to run generic mode with.
+  "*Choice of proof assitant to run generic mode with.
 A symbol chosen from: 'lego 'coq 'isa
 To change proof assistant, you must start a new Emacs session."
   :type '(choice (const :tag "Isabelle" isa)
