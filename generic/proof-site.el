@@ -136,13 +136,7 @@ If S is nil, return empty list."
 					  s end-of-word-occurence)) 
 		 separator))))))
 
-(defcustom proof-assistants
-  ;; FIXME: we could check that this setting is sensible.
-  (or (mapcar 'intern
-	      (proof-string-to-list
-	       (getenv "PROOFGENERAL_ASSISTANTS") " "))
-      (mapcar (lambda (astnt) (car astnt))
-	      proof-assistant-table))
+(defcustom proof-assistants nil
   (concat
    "*Choice of proof assistants to use with Proof General.
 A list of symbols chosen from:" 
@@ -167,6 +161,7 @@ Note: to change proof assistant, you must start a new Emacs session.")
 			(list 'const ':tag (car (cdr astnt)) (car astnt)))
 		      proof-assistant-table))
   :group 'proof-general)
+
 
 ;; Extend load path for the generic files.
 (let ((proof-lisp-path
@@ -235,7 +230,12 @@ Note: to change proof assistant, you must start a new Emacs session.")
 
 ;; Now add auto-loads and load-path elements to support the 
 ;; proof assistants selected, and define a stub 
-(let ((assistants proof-assistants))
+(let ((assistants
+       (or (mapcar 'intern
+		   (proof-string-to-list
+		    (getenv "PROOFGENERAL_ASSISTANTS") " "))
+	   proof-assistants
+	   (mapcar (lambda (astnt) (car astnt)) proof-assistant-table))))
   (while assistants
     (let*  
 	((assistant (car assistants))	; compiler bogus warning here
