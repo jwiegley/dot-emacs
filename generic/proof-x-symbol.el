@@ -44,12 +44,8 @@
 
 ;; Current TODO here:
 ;;
-;; -- Investigate outstanding problems reported by GK: esp subscripts
 ;; -- Fix code at end so that (proof-ass x-symbol-enable) setting works,
 ;;    startup follows sequence recommended by CW
-;; -- Test use of X-Symbol's comint input filter function
-;; -- If necessary, modify that function (or provide a wrapper) which
-;;    works also from buffers which do not have x-symbol enabled
 ;;
 
 
@@ -166,12 +162,6 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	  (set symnamevar symname)
 	  (set symmodelinevar symmodelinenm)
 	  (x-symbol-register-language xs-lang xs-feature-sym all-xs-modes)
-	  ;; Put the extra modes on the auto-mode-alist (temporarily
-	  ;; disabled: may be okay to re-add now, if necessary)
-
-	  ;; (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
-	  ;; (isa-latex).
-
 	  ;; FIXME: Need for Isabelle sup/sub scripts presently; loads
 	  ;; too early and extends in modedef setups.  Adjust here.
 	  (if flks
@@ -181,20 +171,6 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	  (setq proof-x-symbol-initialized t)))))))
 
 
-;;!!!FIXME: x-symbol 4.45 no longer seems to use x-symbol-auto-mode-alist? !!!!
-(defvar x-symbol-auto-mode-alist nil)
-
-(defun proof-x-symbol-set-global (enable)
-  "Set global status of X-Symbol mode for PG buffers to be ENABLE."
-  (let ((automode-entry 
-	 `(( ,(proof-ass-sym mode))
-	   t (quote ,(proof-ass x-symbol-language)))))
-    (if enable
-	(add-to-list 'x-symbol-auto-mode-alist
-		   automode-entry)
-      (setq x-symbol-auto-mode-alist
-	    (delete automode-entry x-symbol-auto-mode-alist)))))
-  
 
 ;;;###autoload
 (defun proof-x-symbol-enable ()
@@ -209,14 +185,6 @@ in future if we have just activated it for this buffer."
 	(set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
 	(set (proof-ass-sym x-symbol-enable) t)))
-  (proof-x-symbol-set-global (not x-symbol-mode))
-  ;; DA: FIXME temp repair for XS 4.45: registration for Isabelle
-  ;; doesn't set language buffer local variable after invoking
-  ;; x-symbol-mode, contrary to docs/previous behaviour.
-  ;; This means that
-  ;; x-symbol-mode must be turned on via this function for the first
-  ;; time.
-  ;;(setq x-symbol-language (proof-ass x-symbol-language))
   (x-symbol-mode)
   (proof-x-symbol-mode-associated-buffers))
 
@@ -366,15 +334,10 @@ Assumes that the current buffer is the proof shell buffer."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Try to initialize x-symbol-support on load-up if user has asked for it
+;; Initialize x-symbol-support on load-up if user has asked for it
 ;;
 (if (proof-ass x-symbol-enable) 
-    (progn
-      (proof-x-symbol-initialize)	;; might as well do it now
-      (if proof-x-symbol-initialized	;; if succeeded,
-	  (proof-x-symbol-set-global t) ;; turn on in all PG buffers
-	;; If init failed, turn off x-symbol-enable for the session.
-	(customize-set-variable (proof-ass-sym x-symbol-enable) nil))))
+      (proof-x-symbol-initialize))
 
 (provide 'proof-x-symbol)
 ;; End of proof-x-symbol.el
