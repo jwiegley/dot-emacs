@@ -486,7 +486,7 @@ Ensure that point is visible in window."
       ;; two-pane mode even if either one is used to "drive" the
       ;; scripting.
       ;; FIXME: would be better to deduce here which buffer
-      ;; we're displaying, and use windows-of-buffer to do
+      ;; we're displaying, and use get-buffer-window-list to do
       ;; something sensible.
       (if (and 
 	   (not proof-dont-switch-windows)
@@ -500,7 +500,7 @@ Ensure that point is visible in window."
 	      ;; (another hack which is mostly right)
 	      (set-window-buffer 
 	       (next-window 
-		(car-safe (windows-of-buffer proof-script-buffer))
+		(car-safe (get-buffer-window-list proof-script-buffer))
 		'ignoreminibuf) buffer)
 	    (set-window-buffer (selected-window) buffer))
 	(display-buffer buffer))
