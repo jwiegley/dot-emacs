@@ -4,9 +4,18 @@
 
 theory XSymbolTests = Main:
 
-(* At the moment, electric token input doesn't work
-despite being enabled.  So writing a token 
-like  \<alpha> doesn't immediately replace it. *)
+
+(* 28.8.02: bug in pg-remove-specials broke this; now fixed *)
+
+lemma "A ==> A" .  -- OK
+
+consts A :: bool
+lemma "A ==> A" .  -- "xsymbols not displayed?"
+
+
+(* Test electric token input: writing a token 
+like \ <alpha>  (without space, \<alpha>) should immediately 
+replace it. *)
 
 constdefs
  P1 :: bool   ("P\<^sub>1")    (* subscript *)
@@ -29,7 +38,7 @@ consts
  "\<^bold>X"  :: bool   (* bold character *)
 
 
-(* Markus reports that · is saved in the file as
+(* Markus reports that \<cdot> is saved in the file as
 an 8-bit character.  I can't repeat that with XEmacs 21.4,
 unless I set the relevant X-Symbol menu option. *)
 
