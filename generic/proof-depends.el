@@ -1,15 +1,22 @@
 ;; proof-depends.el  Functions
 ;;
 ;; Copyright (C) 2000 University of Edinburgh. 
-;; Author:   Fiona McNeill
+;; Author:      Fiona McNeill
 ;;
+;; Status:      Experimental code, currently dormant
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;; 
+;; This file contains code written by Fiona McNeill for
+;; her MSc project on analysing dependencies within proofs.
+;; The code is currently experimental, rather Isabelle specific,
+;; and not integrated with the rest of PG.
+;;
 ;; FIXME:
 ;;
-;;  All functions should be renamed to proof-depends-<blah>
+;; * Clean up, rationalize and integrate
+;; * All functions should be renamed to proof-depends-<blah>
 ;;
 
 
