@@ -11,9 +11,11 @@
 ;; --------------------------------------------------------------
 ;;
 
-(require 'proof)
+(require 'proof)			; for proof-assistant-symbol, etc.
+(require 'proof-syntax)			; for proof-string-match
 
-(defconst isa-running-isar (eq proof-assistant-symbol 'isar))
+(defconst isa-running-isar 
+  (eq proof-assistant-symbol 'isar))
 
 ;; If we're using Isabelle/Isar then the isabelle custom
 ;; group won't have been defined yet.
@@ -264,6 +266,27 @@ until Proof General is restarted."
 		 (isa-tool-list-logics))))
   "Isabelle logics menu.  Constructed when PG is loaded.")
 
+
+;; Added in PG 3.4: load isar-keywords file.
+;; This roughly follows the method given in the interface script.
+;; It could be used to add an elisp command at the bottom of
+;; a theory file, if we sorted out the load order a bit, or
+;; added a facility to reconfigure.
+;; TODO: also add something to spill out a keywords file?
+(defun isabelle-load-isar-keywords (&optional kw)
+  (interactive "Load isar keywords: %s")
+  (let ((userhome  (isa-getenv "ISABELLE_HOME_USER"))
+	(isahome   (isa-getenv "ISABELLE_HOME"))
+	(isarkwel  "%s/etc/isar-keywords-%s.el")
+	(isarel    "%s/etc/isar-keywords.el")
+	(ifrdble   (lambda (f) (if (file-readable-p f) f))))
+    (load-file
+     (or
+      (and kw (funcall ifrdble (format isarkwel userhome kw)))
+      (and kw (funcall ifrdble (format isarkwel isahome kw)))
+      (funcall ifrdble (format isarel userhome))
+      (funcall ifrdble (format isarel isahome))
+      (locate-library "isar-keywords")))))
 
 
 ;;; ========== Mirroring Proof General options in Isabelle process ========
