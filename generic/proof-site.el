@@ -280,11 +280,12 @@ Note: to change proof assistant, you must start a new Emacs session.")
 	      ;; already set: things go wrong if proof general is
 	      ;; loaded for more than one prover.
 	      (cond
-	       ((boundp 'proof-assistant)
+	       ((and (boundp 'proof-assistant)
+		     (not (string-equal proof-assistant "")))
 		(or (string-equal proof-assistant ,assistant-name)
-		  ;; If Proof General was partially loaded last time
-		  ;; and mode function wasn't redefined,  be silent.
-		  (message 
+		    ;; If Proof General was partially loaded last time
+		    ;; and mode function wasn't redefined,  be silent.
+		    (message 
 		     (concat 
 		      ,assistant-name 
 		      " Proof General error: Proof General already in use for "
@@ -310,6 +311,57 @@ Note: to change proof assistant, you must start a new Emacs session.")
 ;;  relied upon in proof-config.el, for proof-splash-contents)
 (defconst proof-general-version "Proof General Version 3.3pre010508. Released by da."
  "Version string identifying Proof General release.")
+
+;; Now define a few autoloads and basic variables.
+
+(require 'proof-autoloads)		; autoloaded functions
+
+(defcustom proof-assistant-cusgrp nil
+  "Symbol for the customization group of the user options for the proof assistant.
+Do not change this variable! It is set automatically by the mode 
+stub defined in proof-site, from the name given in 
+proof-assistant-table."
+  :type 'sexp
+  :group 'prover-config)
+
+(defcustom proof-assistant-internals-cusgrp nil
+  "Symbol for the customization group of the PG internal settings proof assistant.
+Do not change this variable! It is set automatically by the mode 
+stub defined in proof-site, from the name given in
+proof-assistant-table."
+  :type 'sexp
+  :group 'prover-config)
+
+(defcustom proof-assistant ""
+  "Name of the proof assistant Proof General is using.
+Do not change this variable! It is set automatically by the mode 
+stub defined in proof-site, from the name given in 
+proof-assistant-table."
+  :type 'string
+  :group 'prover-config)
+
+(defcustom proof-assistant-symbol nil
+  "Symbol for the proof assistant Proof General is using.
+Used for automatic configuration based on standard variable names.
+Settings will be found by looking for names beginning with this
+symbol as a prefix.
+Do not change this variable! It is set automatically by the mode 
+stub defined in proof-site, from the symbols given in 
+proof-assistant-table."
+  :type 'sexp
+  :group 'prover-config)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Architecture flags
+;;;
+
+(eval-and-compile
+(defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
+  "Non-nil if Proof General is running on XEmacs.")
+;; rough test for XEmacs on win32, anyone know about FSF on win32?
+(defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
+  "Non-nil if Proof General is running on a win32 system."))
 
 (provide 'proof-site))
 ;; proof-site.el ends here
