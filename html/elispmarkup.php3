@@ -66,9 +66,9 @@ function outline_markup($filename,$thispage,$expanded)  {
        print "This is a flattened outline file: click on a title to hide/reveal the leaf underneath it.";
        print "<br>Click "; 
        print "<a href=\"$thispage?file=" . urlencode($filename);
-       print "&expanded=all\">here</a> to show body, or ";
+       print "&expanded=all\">here</a> to show whole body, or ";
        print "<a href=\"$thispage?file=" . urlencode($filename);
-       print "\">here</a> to hide all.";
+       print "\">here</a> to hide whole body.";
        print "</i></p>\n";
      } elseif ($outline) {
        if (ereg("^ *\n",$line)) {

@@ -1,5 +1,5 @@
 <!-- This is the header -->
-<table width="100%">
+<table width="500">
 <tr>
 <td width="190">
 <a href="index.phtml">
@@ -8,8 +8,8 @@
 </a>
 </td>
 <td>
-  <img src="images/pg-text.gif" alt="Proof General">
-  <br>
+  <center>
+  <img src="images/pg-text.gif" alt="Proof General" width=175 height=76>
   <h1>Organize your proofs!</h1>
 <?php
       /* Header link generator.  David Aspinall, June 1999.
@@ -17,20 +17,20 @@
        * Look for $WANTED in array.  If not found, use default of "Home"
        * and fix $WANTED.  Hrefs are given by page parameter to current doc.
        */
-    $separator='<td><img src="images/bullethole.gif" alt="." align="top">';
+    $separator='<td><img src="images/bullethole.gif" width=15 height=15 alt="." align="top">';
     $WANTED=$HTTP_GET_VARS["page"];
     print "<small><table><tr>\n"; 
     $links_arr  =  array(
           "Home"          =>  "main", 
-          "News"          =>  "news", 
 	  "Features"	  =>  "features",
 	  "Download"      =>  "download",
           "Documentation" =>  "doc",
+          "News"          =>  "news", 
 	  "Development"	  =>  "devel",
 	  "About"	  =>  "about",
 	  "Links"	  =>  "links"
     );
-    $midpoint = "Download";
+    $midpoint = 
     $DEFAULT = $links_arr["Home"];
     $wanted_okay = 0;
     for  (reset($links_arr);  $name  =  key($links_arr);  next($links_arr))  {
@@ -50,10 +50,10 @@
             link_root($links_arr[$name],$name);
 	}
         print "</td>\n";
-        if ($name==$midpoint) print "</tr><tr>";
+        if ($name=="Download" || $name=="Development") print "</tr><tr>";
     }
     print "</tr></table></small>\n"; 
 ?>
- </tr>
+</td></tr>
 </table>
 <!-- End of header -->
