@@ -2481,6 +2481,7 @@ contents of that file.
 * Goals buffer settings::  
 * Global constants::            
 * Handling multiple files::     
+* Configuring X-Symbol::
 @end menu
 
 
@@ -3372,6 +3373,52 @@ script management, use
  commands}.  Finally, set the flag @code{proof-auto-multiple-files} 
 for a automatic approximation to multiple file handling.
 @xref{Proof script settings}.
+
+
+
+
+@node Configuring X-Symbol::
+@section Configuring X-Symbol::
+@cindex X-Symbol
+
+The X-Symbol package (by Christoph Wedler) displays characters from a
+variety of fonts in Emacs buffers, automatically converting between
+codes for special characters and @i{tokens} which are character
+sequences stored in files.
+
+Proof General can use X-Symbol to allow interaction between the user and
+the proof assistant to use tokens, yet appear to be using special
+characters.  So proof scripts and proofs themselves can be processed
+with non-ascii characters for mathematical symbols.
+
+To configure X-Symbol for Proof General, you must understand a little
+bit of how X-Symbol works: read the documentation that is supplied with
+it.  The basic task is to set up a @i{token language} for your proof
+assistant.  If your assistant is stored in the subdirectory
+@var{myprover}, the token language will be called @var{myprover} and be
+defined in a file @file{x-symbol-@var{myprover}.el} which is
+automatically loaded by X-Symbol.  The name of the token language mode
+will be @code{@var{myprover}sym}.
+
+In the usual configuration file @file{@var{myprover}.el}, you must set
+several variables that Proof General uses to configure X-Symbol with.
+
+@c FIXME: more here!! unfinished!!
+
+@code{@var{myprover}sym-font-lock-keywords}
+
+@c TEXI DOCSTRING MAGIC: proof-xsym-activate-command
+
+@c TEXI DOCSTRING MAGIC: proof-xsym-deactivate-command
+
+We expect tokens to be used uniformly, so that along with each script
+mode buffer, the response buffer, goals buffer, and shell buffer are all
+kept in X-Symbol minor mode to display special characters.  This happens
+automatically.  If you want additional modes, you can set 
+@code{proof-xsym-extra-modes}.
+
+@c TEXI DOCSTRING MAGIC: proof-xsym-extra-modes
+
 
 
 

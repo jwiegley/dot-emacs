@@ -238,11 +238,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       (insert str) 
       (proof-x-symbol-decode-region start (point))
       (setq end (point-max))
-      (save-excursion
-	(font-lock-set-defaults)		;required for FSF Emacs 20.2
-;; FIXME da: does this break anything in LEGO or others?
-;DvO	(font-lock-fontify-region start end)
-	(if face (font-lock-append-text-property start end 'face face)))
+      (if face (font-lock-append-text-property start end 'face face))
       (buffer-substring start end))))
 
 ;; FIXME da: this window dedicated stuff is a real pain and I've

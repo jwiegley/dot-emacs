@@ -1676,10 +1676,6 @@ before and after sending the command."
   ;; (Problem to fix is that process can die before sentinel is set:
   ;;  it ought to be set just here, perhaps: but setting hook here
   ;;  had no effect for some odd reason).
-
-  ;; da added this 23/8/99.  LEGO sets font-lock-terms in shell,
-  ;; but didn't use it until now.
-  (proof-font-lock-minor-mode)
   ))
 
 ;; watch difference with proof-shell-menu, proof-shell-mode-menu.
@@ -1693,19 +1689,24 @@ before and after sending the command."
 
 
 
-(defun proof-font-lock-minor-mode ()
-  "Start font-lock as a minor mode in the current buffer."
+(defun proof-font-lock-configure-defaults ()
+  "Set defaults for font-lock based on current font-lock-keywords."
   ;; setting font-lock-defaults explicitly is required by FSF Emacs
   ;; 20.2's version of font-lock
-  (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults '(font-lock-keywords))
-  (font-lock-set-defaults))
+  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
+  (make-local-variable 'proof-font-lock-defaults)
+  (setq proof-font-lock-defaults font-lock-keywords)
+  (setq font-lock-defaults '(proof-font-lock-defaults))
+  ;; Turn on fontification only if the user has configured it
+  ;; everywhere in general.
+  (if font-lock-auto-fontify
+      (turn-on-font-lock)))
 
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."
   (save-excursion
     (set-buffer proof-goals-buffer)
-    (proof-font-lock-minor-mode)
+    (proof-font-lock-configure-defaults)
     ;; Turn off the display of annotations here
     (proof-shell-dont-show-annotations)
     ;; Maybe turn on x-symbols
@@ -1715,7 +1716,7 @@ before and after sending the command."
   "Initialise the response buffer after the child has been configured."
   (save-excursion
     (set-buffer proof-response-buffer)
-    (proof-font-lock-minor-mode)
+    (proof-font-lock-configure-defaults)
     ;; Turn off the display of annotations here
     (proof-shell-dont-show-annotations)
     ;; Maybe turn on x-symbols
@@ -1728,6 +1729,9 @@ Every derived shell mode should call this function at the end of
 processing."
   (save-excursion			
     (set-buffer proof-shell-buffer)
+
+    (proof-font-lock-configure-defaults)
+
     (let ((proc (get-buffer-process proof-shell-buffer)))
       ;; Add the kill buffer function and process sentinel
       (make-local-hook 'kill-buffer-hook)

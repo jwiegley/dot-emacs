@@ -52,6 +52,9 @@ re-enabled), proof-toggle-scripting, new configuration options.
     - noticeable delay when loading ML files for Isabelle (fontification?)
     - clean up assert-until-point stuff at last!
 
+B Have seen "confused" bug: shows up when do lots of C-c C-n as
+  process is starting up.
+
 D Why don't PG's minor modes appear on XEmacs minor mode menu?
   (C-right on status bar)
 
@@ -59,11 +62,6 @@ A Markus's bug reminder list:
   - cut&paste from hilited Isabelle output includes invisible specials;
   - c-c c-c does not work reliably;
   - c-c c-a is broken;
-
-A bug in response filtering:
-   The response filtering seems to have changed again.  E.g. 'Info' button in
-   PG/isar (without a theory context) omits most of the result (commands,
-   ...).
 
 A Bugs in x-symbol support: 
    - visiting multiple files sometimes doesn't display them properly

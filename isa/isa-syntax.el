@@ -297,7 +297,7 @@
    (cons (concat "\353\\?'" isa-idx "\350") 'isabelle-tvar-name-face)
    (cons (concat "\354" isa-id "\350") 'isabelle-free-name-face)
    (cons (concat "\355" isa-id "\350") 'isabelle-bound-name-face)
-   (cons (concat "\356" isa-idx "\350") 'isabelle-var-name-face)
+   (cons (concat "\356" "\\?" isa-idx "\350") 'isabelle-var-name-face)
    (cons (concat "\357" isa-idx "\350") 'proof-declaration-name-face)
    )
   "*Font-lock table for Isabelle terms.")

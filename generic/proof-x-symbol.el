@@ -5,7 +5,7 @@
 ;;
 ;; With thanks to David von Oheimb for providing the original 
 ;; patches for using x-symbol with Isabelle Proof General, 
-;; and suggesting improvements here.
+;; and helping to write this file.
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
@@ -28,44 +28,16 @@
   "Initialize x-symbol support for Proof General, if possible.
 If ERROR is non-nil, give error on failure, otherwise a warning."
   (interactive)
-  (unless proof-x-symbol-initialized
-    (let* 
-;;; Values for x-symbol-register-language are constructed
-;;; from proof-assistant-symbol.
-;;; To initialise we call, for example:
-;;;
-;;;  (x-symbol-register-language 'isa x-symbol-isa x-symbol-isa-modes)
-;;;
-	((assistant	(symbol-name proof-assistant-symbol))
-	 (xs-lang	proof-assistant-symbol)
-	 (xs-feature	(intern (concat "x-symbol-" assistant)))
-	 (xs-modes	(intern (concat "x-symbol-" assistant "-modes")))
-	 (am-entry      (list xs-modes t xs-lang))
-	 (symmode-nm	(concat assistant "sym-mode"))
-	 (sym-flks	(intern (concat symmode-nm "-font-lock-keywords")))
-	 (symmode       (intern symmode-nm))
-	 ;;
-	 ;; Standard modes for using x-symbol. 
-	 ;;
-	 ;; NB: there is a problem with initialization order here,
-	 ;; these variables are set in script/shell mode initialization.
-	 ;; They ought to be set earlier, and enforced as part of the
-	 ;; generic scheme.   For the time being, these should appear 
-	 ;; on xs-modes (later that setting could be optional).
-;	 (stnd-modes	(list
-;			 proof-mode-for-script
-;			 proof-mode-for-shell
-;			 proof-mode-for-pbp
-;			 proof-mode-for-response))
-	 ;; 
-	 ;;
+  ; (unless proof-x-symbol-initialized
+    (let*
+	((assistant	 (symbol-name proof-assistant-symbol))
+	 (xs-feature     (concat "x-symbol-" assistant))
+	 (xs-feature-sym (intern xs-feature))
 	 ;; utility fn
 	 (error-or-warn	 
 	  (lambda (str) (if error (error str) (warn str)))))
-
       ;;
-      ;; Now check that support is provided.
-      ;;
+      ;; Check that support is provided.
       (cond
        ;;
        ;; First, some checks on x-symbol.
@@ -73,7 +45,7 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
        ((and (not (featurep 'x-symbol-autoloads))
 	     ;; try requiring it
 	     (not (condition-case ()
-		      (require 'x-symbol) ;; NB: lose any errors!
+		      (require 'x-symbol) ;; NB: lose all errors!
 		    (t (featurep 'x-symbol)))))
 	(funcall error-or-warn
  "Proof General: x-symbol package must be installed for x-symbol-support!
@@ -88,34 +60,72 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
        ;;
        ;; Now check proof assistant has support provided
        ;;
-       ((or 
-	 (not (boundp xs-modes))
-	 ;; FIXME: add here a test that we can find file
-	 ;; x-symbol-<xs-lang>.el but maybe let x-symbol-load it.
-	 ;; [might be okay to do condition-case require as above]
-	 )
-	(funcall error-or-warn
+       ;; FIXME: maybe we should let x-symbol load the feature, in
+       ;; case it uses x-symbol stuff inside.
+       ;; Is there an easy way of testing for library exists?
+       ((not (condition-case ()
+		 (require xs-feature-sym) ;; NB: lose all errors!
+	       (t (featurep xs-feature-sym))))
  (format
-  "Proof General: for x-symbol support, you must set %s."
-  (symbol-name xs-modes))))
+  "Proof General: for x-symbol support, you must provide a library %s.el"
+  xs-feature))
        (t
 	;;
 	;; We've got everything we need!   So initialize.
 	;; 
-	(x-symbol-initialize)    ;; No harm in doing this multiple times
-	(x-symbol-register-language xs-lang xs-feature (eval xs-modes))
-	(push am-entry x-symbol-auto-mode-alist)
-	;; Font lock support is optional
-	(if (boundp sym-flks)
-	    (put symmode 'font-lock-defaults (list sym-flks)))
-	;;
-	;; Finished.
-	(setq proof-x-symbol-initialized t))))))
+	(let*
+	    ((xs-lang	     proof-assistant-symbol)
+	     (xs-xtra-modes  proof-xsym-extra-modes)
+	     (xs-std-modes   (list
+			      ;; NB: there is a problem with
+			      ;; initialization order here, these
+			      ;; variables are set in script/shell mode
+			      ;; initialization.  They ought to be set
+			      ;; earlier, and enforced as part of the
+			      ;; generic scheme.  For the time being,
+			      ;; we use default constructed names
+			      ;; [which every prover should follow]
+			      (or proof-mode-for-shell
+				  (intern (concat assistant "-shell-mode")))
+			      (or proof-mode-for-response
+				  (intern (concat assistant "-response-mode")))
+			      (or proof-mode-for-script
+				  ;; FIXME: next one only correct for isabelle
+				  (intern (concat assistant "-proofscript-mode")))
+			      (or  proof-mode-for-pbp
+				   (intern (concat assistant "-pbp-mode")))))
+	     (all-xs-modes   (append xs-std-modes xs-xtra-modes))
+	     (am-entry       (list proof-xsym-extra-modes t xs-lang))
+	     (symmode-nm     (concat assistant "sym-mode"))
+	     (symmode        (intern symmode-nm))
+	     (symnamevar     (intern (concat xs-feature "-name")))
+	     (symname	     (concat proof-assistant " Symbols"))
+	     (symmodelinevar (intern (concat xs-feature "-modeline-name")))
+	     (symmodelinenm  assistant)
+	     (flks	     proof-xsym-font-lock-keywords))
+
+
+	  (x-symbol-initialize)    ;; No harm in doing this multiple times
+	  ;; Set default name and modeline indicator for the symbol
+	  ;; minor mode
+	  (set symnamevar symname)
+	  (set symmodelinevar symmodelinenm)
+	  (x-symbol-register-language xs-lang xs-feature-sym all-xs-modes)
+	  ;; Put just the extra modes on the auto-mode-alist
+	  (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
+	  ;; Font lock support is optional
+	  (if flks
+	      (put symmode 'font-lock-defaults (list flks)))
+	  ;;
+	  ;; Finished.
+	  (setq proof-x-symbol-initialized t))))))
+;)
 
 ;;;###autoload
 (defun proof-x-symbol-enable ()
   "Turn on or off support for x-symbol, initializing if necessary."
-  (if (and proof-x-symbol-enable (not proof-x-symbol-initialized))
+  (if ;(and proof-x-symbol-enable (not proof-x-symbol-initialized))
+      proof-x-symbol-enable
       (progn
 	(setq proof-x-symbol-enable nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
@@ -157,21 +167,20 @@ A value for proof-shell-insert-hook."
     (if proof-x-symbol-initialized
 	(progn
 	  (setq x-symbol-language proof-assistant-symbol)
-	  (if (eq x-symbol-mode 
-		  (not proof-x-symbol-enable))
-	      (x-symbol-mode)) ;; DvO: this is a toggle
-	  ;; Needed ?  Should let users do this in the 
-	  ;; usual way, if it works.
-	  (if (and x-symbol-mode 
-		   (not font-lock-mode));;DvO
-	      (font-lock-mode)
-	    ;; da: Is this supposed to be called only if we don't turn on
-	    ;; font-lock???
-	    (unless (featurep 'mule)
-	      (if (fboundp 'x-symbol-nomule-fontify-cstrings)
-		  (x-symbol-nomule-fontify-cstrings))))))));;DvO
-
-
+	  (if (eq x-symbol-mode (not proof-x-symbol-enable))
+	      ;; toggle x-symbol-mode
+	      (x-symbol-mode))
+	  ;; Font lock mode must be engaged for x-symbol to do its job
+          ;; properly, at least when there is no mule around.
+	  (if (and x-symbol-mode (not (featurep 'mule)))
+	      (if (not font-lock-mode)
+		  (font-lock-mode)
+		;; Even if font-lock was on before we may need
+		;; to refontify now that the patterns (and buffer
+		;; contents) have changed. I think x-symbol
+		;; ought to do this really!
+		(font-lock-fontify-buffer)))))))
+	  
 (defun proof-x-symbol-mode-all-buffers ()
   "Activate/deactivate x-symbol mode in all Proof General buffers.
 A subroutine of proof-x-symbol-enable."

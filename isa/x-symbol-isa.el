@@ -6,8 +6,6 @@
 (provide 'x-symbol-isa)
 (defvar x-symbol-isa-required-fonts nil)
 
-;(defvar x-symbol-isa-name "Isabelle Symbol")
-(defvar x-symbol-isa-modeline-name "isa")
 (defvar x-symbol-isa-header-groups-alist nil)
 ;'(("Operator" bigop operator)
 ;    ("Relation" relation)

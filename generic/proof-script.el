@@ -2040,7 +2040,7 @@ No action if BUF is nil."
 	     :active (featurep 'toolbar)
 	     :style toggle
 	     :selected proof-toolbar-enable]
-	    ["X symbol" proof-x-symbol-toggle
+	    ["X-Symbol" proof-x-symbol-toggle
 	     :active (proof-x-symbol-support-maybe-available)
 	     :style toggle
 	     :selected proof-x-symbol-enable]
@@ -2280,12 +2280,22 @@ finish setup which depends on specific proof assistant configuration."
   ;; Put the ProofGeneral menu on the menubar
   (easy-menu-add proof-mode-menu proof-mode-map)
 
-  ;; For fontlock
-
-  ;; setting font-lock-defaults explicitly is required by FSF Emacs
-  ;; 20.2's version of font-lock
-  (make-local-variable 'font-lock-defaults)
-  (setq font-lock-defaults '(font-lock-keywords))
+  ;;
+  ;; Fontlock.
+  ;; 
+  ;; At the moment, the specific code hacks font-lock-keywords.
+  ;; Here we use the value there to hack font-lock-defaults, which
+  ;; is used by font-lock to set font-lock-keywords from again!!  
+  ;; Yuk.
+  ;; Previously, font-lock-keywords was used directly as a setting
+  ;; for the defaults.  This has a bad interaction with x-symbol
+  ;; which edits font-lock-keywords and loses the setting.  
+  ;; So we make a copy of it in a new variable.
+  ;; 
+  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
+  (make-local-variable 'proof-font-lock-defaults)
+  (setq proof-font-lock-defaults font-lock-keywords)
+  (setq font-lock-defaults '(proof-font-lock-defaults))
 
   ;; FIXME (da): zap commas support is too specific, should be enabled
   ;; by each proof assistant as it likes.
@@ -2299,6 +2309,7 @@ finish setup which depends on specific proof assistant configuration."
   (if (boundp 'font-lock-always-fontify-immediately)
       (progn
 	(make-local-variable 'font-lock-always-fontify-immediately)
+;; FIXME testing: this was "t".
 	(setq font-lock-always-fontify-immediately nil)))
 
   ;; Assume font-lock case folding follows proof-case-fold-search
@@ -2362,7 +2373,9 @@ finish setup which depends on specific proof assistant configuration."
   (or (buffer-file-name)
       (setq buffer-offer-save t))
 
-  ;; Maybe turn on x-symbol mode
+  ;; Maybe turn on x-symbol mode  
+  ;;  [no need for script mode files to be on xsymbol-auto-mode-alist;
+  ;;   having the switch here takes care of non-files]
   (proof-x-symbol-mode))
 
 

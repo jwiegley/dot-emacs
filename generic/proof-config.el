@@ -1,8 +1,7 @@
 ;; proof-config.el  Proof General configuration for proof assistant
 ;;
 ;; Copyright (C) 1998,9 LFCS Edinburgh. 
-;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
-;;          Thomas Kleymann and Dilip Sequeira
+;; Authors: David Aspinall
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
@@ -29,7 +28,7 @@
 ;;     5c. hooks
 ;;  6. Goals buffer configuration
 ;;  7. Splash screen settings
-;;  8. x-symbol support
+;;  8. X-Symbol support
 ;;  9. Global constants 
 ;;
 ;; The user options don't need to be set on a per-prover basis,
@@ -1464,38 +1463,46 @@ These are evaluated and appended to `proof-splash-contents'."
 
 
 ;;
-;; 8. x-symbol configuration
+;; 8. X-Symbol configuration
 ;;
 
 (defgroup proof-x-symbol nil
-  "Configuration of x-symbol for Proof General."
+  "Configuration of X-Symbol for Proof General."
   :group 'proof
   :prefix "proof-xsym-")
 
-(defcustom proof-xsym-activate-command nil
-  "Command to activate symbol printing for x-symbols.
-If non-nil, this command is sent to the proof assistant when 
-x-symbol support is activated."
-  :type 'string
+(defcustom proof-xsym-extra-modes nil
+  "List of additional mode names to use X-Symbol with Proof General tokens.
+These modes will have X-Symbol enabled for the proof assistant token language,
+in addition to the four modes for Proof General (script, shell, response, pbp).
+
+Set this variable if you want additional modes to also display 
+tokens (for example, editing documentation or source code files)."
+  :type '(repeat symbol)
+  :group 'proof-x-symbol)
+
+(defcustom proof-xsym-extra-modes nil
+  "List of additional mode names to use X-Symbol with Proof General tokens.
+These modes will have X-Symbol enabled for the proof assistant token language,
+in addition to the four modes for Proof General (script, shell, response, pbp).
+
+Set this variable if you want additional modes to also display 
+tokens (for example, editing documentation or source code files)."
+  :type '(repeat symbol)
+  :group 'proof-x-symbol)
+
+(defcustom proof-xsym-font-lock-keywords nil
+  "Font lock keywords to use for the proof assistants X-Symbol token language."
+  :type 'sexp
   :group 'proof-x-symbol)
 
 (defcustom proof-xsym-deactivate-command nil
-  "Command to activate symbol printing for x-symbols.
+  "Command to deactivate token input/output for X-Symbol.
 If non-nil, this command is sent to the proof assistant when 
-x-symbol support is activated."
+X-Symbol support is deactivated."
   :type 'string
   :group 'proof-x-symbol)
 
-
-;; FIXME: add here the variables which have per-prover names at the
-;; moment.  Later we can autogenerate aliases for the prover-specific
-;; instances.  Will also need to rename, if possible.
-;; 
-;;  e.g.   x-symbol-isa-modes   becomes   isa-x-symbol-modes
-;;			       alias for  proof-x-symbol-modes
-;;
-
-  
 
 
 

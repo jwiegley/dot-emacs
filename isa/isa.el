@@ -313,7 +313,7 @@ proof-shell-retract-files-regexp."
 
 (eval-and-compile			; to define vars for byte comp.
 (define-derived-mode isa-pbp-mode pbp-mode
-  "Isabelle proofstate" nil
+  "Isabelle goals" nil
   (isa-pbp-mode-config)))
 
 (eval-and-compile			; to define vars for byte comp.
@@ -650,29 +650,16 @@ you will be asked to retract the file or process the remainder of it.
 ;; x-symbol support for Isabelle PG, provided by David von Oheimb.
 ;;
 ;; The following settings configure the generic PG package.
-;;
 ;; The token language "Isabelle Symbols" is in file x-symbol-isa.el
 ;;
 
-;; name of minor isa mode
-(defvar x-symbol-isa-name "Isabelle Symbols")
-
-(defvar x-symbol-isa-modes 
-  '(isasym-mode 
-    isa-proofscript-mode 
-    proof-response-mode			; should be isa-response-mode?
-    proofstate-mode			; isa-proofstate-mode?
-    isa-shell-mode 
-    isa-pbp-mode
-    thy-mode				; necessary?
-    isa-thy-mode
-    shell-mode				; necessary?
-    ))
-
-(defvar isasym-font-lock-keywords
-  '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face))))
-
-(setq proof-xsym-activate-command
+(setq proof-xsym-extra-modes
+      '(isasym-mode ; necessary?
+	thy-mode
+	shell-mode) ; necessary?
+      proof-xsym-font-lock-keywords
+      '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
+      proof-xsym-activate-command
       "print_mode := (!print_mode union [\"xsymbols\",\"symbols\"])"
       proof-xsym-deactivate-command
       "print_mode := filter_out (fn x=>(rev (explode \"symbols\") prefix rev (explode x))) (!print_mode)")
