@@ -1288,7 +1288,7 @@ Move point to start of current (or final) command of the script.
 
 @c TEXI DOCSTRING MAGIC: proof-goto-command-end
 @deffn Command proof-goto-command-end 
-Set point to next @samp{@code{proof-terminal-char}}.
+Set point to end of command at point.
 @end deffn
 
 @vindex proof-terminal-char
@@ -2674,7 +2674,7 @@ next start Proof General.
 * The default value for XEmacs built for solaris is nil, because
 of unreliabilities with enablers there.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 @c This one removed: proof-auto-retract
@@ -3847,10 +3847,16 @@ Regexp which matches a command to save a named theorem.@*
 Match number 2 should be the name of the theorem saved.
 Used for setting names of goal..save regions and for default
 @code{function-menu} configuration in @code{proof-script-find-next-entity}.
+
+It's safe to leave this setting as nil.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-command-regexp
 @defvar proof-goal-command-regexp 
-Matches a goal command in the proof script.   Must be set.
+Matches a goal command in the proof script.   @*
+This is used (1) to make the default value for @samp{@code{proof-goal-command-p}},
+used as an important part of script management to find the start
+of an atomic undo block, and (2) to construct the default 
+for @samp{@code{proof-script-next-entity-regexps}} used for function menus.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-with-hole-regexp
 @defvar proof-goal-with-hole-regexp 
@@ -3858,13 +3864,15 @@ Regexp which matches a command used to issue and name a goal.@*
 Match number 2 should be the name of the goal issued.
 Used for setting names of goal..save regions and for default
 @code{function-menu} configuration in @code{proof-script-find-next-entity}.
+
+It's safe to leave this setting as nil.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-non-undoables-regexp
 @defvar proof-non-undoables-regexp 
 Regular expression matching commands which are @strong{not} undoable.@*
 Used in default functions @samp{@code{proof-generic-state-preserving-p}} 
 and @samp{@code{proof-generic-count-undos}}.  If you don't use those,
-May be left as nil.
+may be left as nil.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-ignore-for-undo-count
 @defvar proof-ignore-for-undo-count 
@@ -3887,12 +3895,13 @@ the start or the end of the entity.  The discriminators then test
 which kind of entity has been found, to get its name.  A
 @var{discriminator-regexp} has one of the forms
 @lisp
-  (@var{regexp} @var{matchno}) 
-  (@var{regexp} @var{matchno} @code{'backward} @var{backregexp}) 
-  (@var{regexp} @var{matchno} @code{'forward} @var{forwardregexp})
+  (@var{regexp} @var{matchnos})
+  (@var{regexp} @var{matchnos} @code{'backward} @var{backregexp})
+  (@var{regexp} @var{matchnos} @code{'forward} @var{forwardregexp})
 @end lisp
 If @var{regexp} matches the string captured by @var{anyentity-regexp}, then
-@var{matchno} is the match number for the substring which names the entity.
+@var{matchnos} are the match numbers for the substrings which name the entity
+(these may be either a single number or a list of numbers).
 
 If @code{'backward} @var{backregexp} is present, then the start of the entity
 is found by searching backwards for @var{backregexp}.
@@ -5079,7 +5088,7 @@ edit the file @samp{proof-site.el} itself.
 
 Note: to change proof assistant, you must start a new Emacs session.
 
-The default value is @code{(demoisa isar isa lego coq plastic hol98)}.
+The default value is @code{nil}.
 @end defopt
 
 The file @file{proof-site.el} also defines a version variable.
