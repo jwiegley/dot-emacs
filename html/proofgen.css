@@ -7,7 +7,7 @@ body{
  font-family: Verdana, Arial, sans-serif;	/* font for the doc body */
  background: #2D1D03;					/* background brown */
  background-image: 
-	url(http://zermelo.dcs.ed.ac.uk/~proofgen/images/canvaswallpaper.jpg);
+	url(images/canvaswallpaper.jpg);
  background-attachment: fixed;				/* background shouldn't scroll */
  color: #FFFFFF						/* text colour is white */
 }

@@ -458,12 +458,12 @@ inside Isabelle.  David von Oheimb supplied the original patches for
 X-Symbol support.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
-Goguen and Aspinall (in order of appearance). It follows some of the
-ideas used in Project @uref{http://www.inria.fr/croap/,CROAP}. The
-project to implement a proof mode for LEGO was initiated in 1994 and
-coordinated until October 1998 by Thomas Kleymann, becoming generic
-along the way.  In October 1998, the project became Proof General and
-has been managed by David Aspinall since then.
+Goguen and Aspinall. It follows some of the ideas used in Project
+@uref{http://www.inria.fr/croap/,CROAP}. The project to implement a
+proof mode for LEGO was initiated in 1994 and coordinated until October
+1998 by Thomas Kleymann, becoming generic along the way.  In October
+1998, the project became Proof General and has been managed by David
+Aspinall since then.
 
 This manual was written by David Aspinall and Thomas Kleymann.  Some
 words found their way here from the user documentation of LEGO mode,
