@@ -2528,7 +2528,7 @@ dependent code in one place).
 
 
 @c TEXI DOCSTRING MAGIC: proof-running-on-Emacs21
-@defvar proof-running-on-Emacs21
+@defvar proof-running-on-Emacs21 
 Non-nil if Proof General is running on GNU Emacs 21 or later.
 @end defvar
 
