@@ -35,6 +35,15 @@ and old settings if you want to change back).
 Visibility controls now work for comments as well as proofs in
 proof scripts.  An image is used in XEmacs to signal hidden text.
 
+*** Context-sensitive menu (right mouse) now has additional features
+
+The context sensitive menu for regions of the buffer which have
+been processed allows several features, including hiding/revealing
+the area, copying it, and some prover-specific commands -- in
+Isabelle you can ask for a graph of the theorem dependencies (thm_deps),
+in Coq you can ask for the proof term to be printed.  
+(Please send us suggestions for other useful features here).
+
 *** Menu improvements (Favourites, options saving)
 
 Favourites are now more robust.  You can delete them and save them
@@ -65,7 +74,7 @@ Support next error function.
 Isabelle classic mode: highlighting tweaks for ML code contributed by
 Lucas Dixon (lucasd@dai.ed.ac.uk)
 
-*** Active highlighting of variables  [ EXPERIMENTAL FEATURE: has issues ]
+*** Active highlighting of variables  [ EXPERIMENTAL FEATURE: see README.exper ]
 
 Variables are made active in the goals buffer.  Hovering the mouse
 over an identifier shows its type.  
