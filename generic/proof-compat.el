@@ -15,7 +15,20 @@
 ;; XEmacs advice on removing obsolete function calls.
 ;;
 
-(require 'proof-site)			; for architecture flags
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Architecture flags
+;;;
+
+(eval-and-compile
+(defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
+  "Non-nil if Proof General is running on XEmacs.")
+(defvar proof-running-on-Emacs21 (and (not proof-running-on-XEmacs)
+				      (>= emacs-major-version 21))
+  "Non-nil if Proof General is running on GNU Emacs 21 or later.")
+;; rough test for XEmacs on win32, anyone know about GNU Emacs on win32?
+(defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
+  "Non-nil if Proof General is running on a win32 system."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -107,6 +120,7 @@ Unless optional argument INPLACE is non-nil, return a new string."
 	  (aset newstr i tochar)))
     newstr)))
 
+;; Required by xmltok.el [not used at present], proof-shell.el
 (or (fboundp 'replace-regexp-in-string)
 ;; Code is taken from Emacs 21.1.1/subr.el 
 (defun replace-regexp-in-string (regexp rep string &optional
