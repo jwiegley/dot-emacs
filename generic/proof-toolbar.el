@@ -41,8 +41,9 @@
 
 
 ;;
-;; The default generic toolbar
+;; The default generic toolbar and toolbar variable
 ;;
+
 (defconst proof-toolbar-entries-default
   `((state	"Display proof state" "Display the current proof state" t)
     (context	"Display context"     "Display the current context" t)
@@ -57,19 +58,21 @@
     (command    "Issue command"	      "Issue a non-scripting command" t)
     (info	nil		      "Show proof assistant information" t)
     (help	nil		      "Proof General manual" t))
-"Example value for proof-toolbar-entries.
+"Example value for proof-toolbar-entries.  Also used to define Scripting menu.
 This gives a bare toolbar that works for any prover.  To add
 prover specific buttons, see documentation for proof-toolbar-entries
 and the file proof-toolbar.el.")
 
+;; FIXME: defcustom next one, to set on a per-prover basis
 (defvar proof-toolbar-entries
   proof-toolbar-entries-default
-  "List of entries for Proof General toolbar.
+  "List of entries for Proof General toolbar and Scripting menu.
 Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
 For each TOKEN, we expect an icon with base filename TOKEN,
 		          a function proof-toolbar-<TOKEN>,
          and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.
 If MENUNAME is nil, item will not appear on the \"Scripting\" menu.")
+
 
 
 ;;
@@ -85,40 +88,6 @@ If MENUNAME is nil, item will not appear on the \"Scripting\" menu.")
 (defun proof-toolbar-enabler (token)
   (intern (concat "proof-toolbar-" (symbol-name token) "-enable-p")))
 
-;;
-;; Menu built from toolbar functions
-;;
-
-(defun proof-toolbar-make-menu-item (tle)
-  "Make a menu item from a proof-toolbar-entries entry."
-  (let
-      ((token	  (car tle))
-       (menuname  (cadr tle))
-       (tooltip   (nth 2 tle))
-       (enablep	  (nth 3 tle)))
-    (if menuname
-	(list 
-	 (apply 'vector
-	   (append
-	    (list menuname (proof-toolbar-function token))
-	    (if enablep 
-		(list ':active (list (proof-toolbar-enabler token))))))))))
-   
-(defconst proof-toolbar-scripting-menu
-  ;; Toolbar contains commands to manipulate script and
-  ;; other handy stuff.  Called "Scripting"
-  (append
-   '("Scripting")
-   (apply 'append
-	  (mapcar 'proof-toolbar-make-menu-item 
-		  proof-toolbar-entries)))
-  "Menu made from the Proof General toolbar commands.")
-
-;;
-;; Add this menu to proof-menu
-;;
-; (setq proof-menu
-;      (append proof-menu (list proof-toolbar-menu)))
 
 ;;
 ;; Now the toolbar icons and buttons
@@ -172,6 +141,10 @@ and chooses the best one for the display properites.")
 Specifically, a list of sexps which evaluate to entries in a toolbar
 descriptor.   The default value proof-toolbar-default-button-list
 will work for any proof assistant.")
+
+;;
+;; Code for displaying and refreshing toolbar
+;;
 
 (defvar proof-toolbar nil
   "Proof mode toolbar button list.  Set in proof-toolbar-setup.")
@@ -460,6 +433,50 @@ Move point if the end of the locked position is invisible."
 
 (defalias 'proof-toolbar-find 'proof-find-theorems)
 
+
+;;
+;; =================================================================
+;;
+;; Scripting menu built from toolbar functions
+;;
+
+(defun proof-toolbar-make-menu-item (tle)
+  "Make a menu item from a proof-toolbar-entries entry."
+  (let*
+      ((token	  (car tle))
+       (menuname  (cadr tle))
+       (tooltip   (nth 2 tle))
+       (enablep	  (nth 3 tle))
+       (fnname	  (proof-toolbar-function token))
+       ;; fnval: remove defalias to get keybinding onto menu; 
+       ;; NB: function and alias must both be defined for this 
+       ;; to work!!
+       (fnval	  (if (symbolp (symbol-function fnname))
+		      (symbol-function fnname)
+		    fnname)))
+    (if menuname
+	(list 
+	 (apply 'vector
+	   (append
+	    (list menuname fnval)
+	    (if enablep 
+		(list ':active (list (proof-toolbar-enabler token))))))))))
+   
+(defconst proof-toolbar-scripting-menu
+  ;; Toolbar contains commands to manipulate script and
+  ;; other handy stuff.  Called "Scripting"
+  (apply 'append
+	  (mapcar 'proof-toolbar-make-menu-item 
+		  proof-toolbar-entries))
+  "Menu made from the Proof General toolbar commands.")
+
+;;
+;; Add this menu to proof-menu
+;;
+; (setq proof-menu
+;      (append proof-menu (list proof-toolbar-menu)))
+
  
 ;; 
 (provide 'proof-toolbar)
+

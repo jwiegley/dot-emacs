@@ -1585,25 +1585,26 @@ No action if BUF is nil."
 (defvar proof-shared-menu
   (append
     (list
-     ["Display proof state"
-      proof-prf
-      :active (proof-shell-live-buffer)]
-     ["Display context"
-      proof-ctxt
-      :active (proof-shell-live-buffer)]
-     ["Find theorems"
-      proof-find-theorems
-      :active (proof-shell-live-buffer)]
+;     ["Display proof state"
+;      proof-prf
+;      :active (proof-shell-live-buffer)]
+;     ["Display context"
+;      proof-ctxt
+;      :active (proof-shell-live-buffer)]
+;     ["Find theorems"
+;      proof-find-theorems
+;      :active (proof-shell-live-buffer)]
      ["Start proof assistant"
       proof-shell-start
       :active (not (proof-shell-live-buffer))]
-     ["Restart scripting"
-      proof-shell-restart
-      :active (proof-shell-live-buffer)]
+;     ["Restart scripting"
+;      proof-shell-restart
+;      :active (proof-shell-live-buffer)]
      ["Exit proof assistant"
       proof-shell-exit
       :active (proof-shell-live-buffer)])
     (list proof-help-menu)
+    (list proof-buffer-menu)
     ;; Would be nicer to put this at the bottom, but it's
     ;; a bit tricky then to get it in all menus.
     ;; UGLY COMPATIBILITY  FIXME: remove this soon
@@ -1616,12 +1617,11 @@ No action if BUF is nil."
     ;; UGLY COMPATIBILITY  FIXME: remove this soon
     (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
 	      "--:doubleLine" "----"))
-    (list proof-buffer-menu))
+    )
   "Proof General menu for various modes.")
 
 (defvar proof-menu  
-  (append '("Commands"
-            ["Active terminator" proof-active-terminator-minor-mode
+  (append '(["Active terminator" proof-active-terminator-minor-mode
 	     :active t
 	     :style toggle
              :selected proof-active-terminator-minor-mode]
@@ -1824,10 +1824,6 @@ finish setup which depends on specific proof assistant configuration."
   ;; Toolbar and scripting menu
   ;; NB: autloads proof-toolbar, which defines proof-toolbar-scripting-menu.
   (proof-toolbar-setup)
-  (easy-menu-define proof-mode-script-menu
-		    proof-mode-map
-		    "Scripting menu of Proof General"
-		    proof-toolbar-scripting-menu)
 
   ;; Menu
   (easy-menu-define proof-mode-menu  
@@ -1835,7 +1831,8 @@ finish setup which depends on specific proof assistant configuration."
 		    "Proof General menu"
 		    (cons proof-general-name
 			  (append
-			   (cdr proof-menu)
+			   proof-toolbar-scripting-menu
+			   proof-menu
 			   ;; begin UGLY COMPATIBILTY HACK
 			   ;; older/non-existent customize doesn't have 
 			   ;; this function.  
@@ -1848,11 +1845,8 @@ finish setup which depends on specific proof assistant configuration."
 			   ;; end UGLY COMPATIBILTY HACK
 			   )))
 
-  ;; Put the ProofGeneral menu first on the menubar, then Scripting menu
-  ;; (makes Scripting menu more obvious)
+  ;; Put the ProofGeneral menu on the menubar
   (easy-menu-add proof-mode-menu proof-mode-map)
-  (easy-menu-add proof-mode-script-menu proof-mode-map)
-
 
   ;; For fontlock
 

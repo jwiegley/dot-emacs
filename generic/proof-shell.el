@@ -1514,7 +1514,7 @@ before and after sending the command."
 (easy-menu-define proof-shell-mode-menu
 		  proof-shell-mode-map
 		  "Menu used in Proof General shell mode."
-		  (cons proof-general-name (cdr proof-shell-menu)))
+		  (cons proof-general-name proof-shell-menu))
 
 
 
