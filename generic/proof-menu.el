@@ -516,6 +516,21 @@ without adjusting window layout."
   
 ;;; Define stuff from favourites
 
+`substitute-command-keys' is a built-in function
+(substitute-command-keys STRING)
+
+Documentation:
+Substitute key descriptions for command names in STRING.
+Return a new string which is STRING with substrings of the form \[COMMAND]
+replaced by either:  a keystroke sequence that will invoke COMMAND,
+or "M-x COMMAND" if COMMAND is not on any keys.
+Substrings of the form \{MAPVAR} are replaced by summaries
+(made by `describe-bindings') of the value of MAPVAR, taken as a keymap.
+Substrings of the form \<MAPVAR> specify to use the value of MAPVAR
+as the keymap for future \[COMMAND] substrings.
+\= quotes the following character and is discarded;
+thus, \=\= puts \= into the output, and \=\[ puts \[ into the output.
+
 ;;;###autoload
 (defmacro proof-defshortcut (fn string &optional key)
   "Define shortcut function FN to insert STRING, optional keydef KEY.
@@ -526,7 +541,9 @@ KEY is added onto proof-assistant map."
      (if ,key
 	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
      (defun ,fn ()
-       ,(concat "Shortcut command to insert " string " into the current buffer.")
+       ,(concat "Shortcut command to insert " 
+		(replace-in-string  string "\\\\" "\\=") ;; for substitute-command-keys
+		" into the current buffer.\nThis simply calls `proof-insert', which see.")
        (interactive)
        (proof-insert ,string))))
 
@@ -540,7 +557,9 @@ KEY is added onto proof-assistant map."
      (if ,key
 	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
      (defun ,fn ()
-       ,(concat "Command to send " string " to the proof assistant.")
+       ,(concat "Command to send " 
+		(replace-in-string  string "\\\\" "\\=") ;; for substitute-command-keys
+		" to the proof assistant.")
        (interactive)
        (proof-shell-invisible-command ,string))))
 
