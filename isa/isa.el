@@ -76,7 +76,8 @@ no regular or easily discernable structure."
    proof-goal-hyp-fn		'isa-goal-hyp
    proof-state-preserving-p	'isa-state-preserving-p
    proof-parse-indent		'isa-parse-indent
-   proof-stack-to-indent	'isa-stack-to-indent))
+   proof-stack-to-indent	'isa-stack-to-indent
+   proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list))
 
 
 (defun isa-shell-mode-config-set-variables ()
@@ -144,11 +145,39 @@ no regular or easily discernable structure."
    proof-shell-retract-files-regexp
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
-   ))
+   )
+  (add-hook 'proof-activate-scripting-hook 'isa-shell-hack-use-thy)
+  )
+
+;; NB: could consider doing update() here, but hopefully this
+;; will be managed automatically by the interaction with
+;; retraction and unlocking files.
+(defconst isa-usethy-notopml-command "use_thy_no_topml \"%s\";"
+  "Command to send to Isabelle to process theory for this ML file.")
+
+(defun isa-shell-hack-use-thy ()
+  "Send a use_thy_no_topml command to the process for the current ML file.
+This makes Isabelle read the theory corresponding to the current ML file.
+This is a hook function for proof-activate-scripting-hook."
+  (if (and
+       buffer-file-name
+       (file-exists-p 
+	(concat (file-name-sans-extension buffer-file-name) ".thy")))
+      ;; Send a use_thy command if there is a corresponding .thy file.
+      ;; Let Isabelle do the work of checking whether any work needs
+      ;; doing.  Really this should be force_use_thy, too.
+      (proof-shell-insert
+       (format isa-usethy-notopml-command
+	       (file-name-sans-extension buffer-file-name)))))
 
 (defun isa-shell-compute-new-files-list (str)
-  (assert (member (file-truename (match-string 1 str))
-		  proof-included-files-list))
+  "Compute the new list of files read by the proof assistant.
+This is called when Proof General spots output matching
+proof-shell-retract-files-regexp."
+  ;; This assertion is supposed to test that we only remove
+  ;; what was in the list anyway.  But 
+  ;;(assert (member (file-truename (match-string 1 str))
+  ;;		  proof-included-files-list))
   (remove (file-truename (match-string 1 str)) 
 	  proof-included-files-list))
 
@@ -277,22 +306,21 @@ isa-proofscript-mode."
   "Command sent to Isabelle for forgetting")
 
 (defun isa-find-and-forget (span)
-  ;; See if we are going to part way through a completely processed
-  ;; buffer.
-  (if (eq (current-buffer) (car-safe proof-script-buffer-list))
-      ;; Special return value to indicate nothing needs to be done.
-      proof-no-command 
-    (progn
-      (save-excursion
-	(goto-char (point-max))
-	(skip-chars-backward "\\S-")
-	(if (member (proof-unprocessed-begin) (list (point-min) (point)))
-	    ;; 
-	    (format isa-retract-file-command 
-		    (file-name-sans-extension 
-		     (file-name-nondirectory
-		      (buffer-file-name))))
-	  prog-no-command)))))
+  "Return a command to be used to forget SPAN."
+  (save-excursion
+    ;; See if we are going to part way through a completely processed
+    ;; buffer, in which case it should be removed from 
+    ;; proof-included-files-list along with any other buffers
+    ;; depending on it.  NB: perhaps this is called too often for
+    ;; a bunch of spans in a region?
+    (goto-char (point-max))
+    (skip-chars-backward " \t\n") 
+    (if (>= (proof-unprocessed-begin) (point))
+	(format isa-retract-file-command 
+		(file-name-sans-extension 
+		 (file-name-nondirectory
+		  (buffer-file-name))))
+      proof-no-command)))
 
 
 ;; BEGIN Old code  (taken from Coq.el)
