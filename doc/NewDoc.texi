@@ -3523,7 +3523,19 @@ of the @code{goal} or @code{qed} forms.
 functions, or customize some of the variables from @file{isa.el} and
 @file{isa-syntax.el} appropriately.
 
+@unnumberedsubsec Interaction with theory database
 
+Isabelle Proof General has a fragment written in ML which defines a
+modified interface to the theory database.  In particular, some internal
+state records which files have been retracted by the interface, although
+no changes are made inside Isabelle itself.  This means that
+re-asserting a retracted file does not need to re-load it if it has not
+changed.  (It is a shame that the standard theory loader provides no
+such "retraction" mechanism for unlinking loaded theories).
+
+This means that Proof General can get confused if you use the theory
+loader primitives directly in the proof shell, and the state inside
+Emacs may not agree with Isabelle.  You have been warned!
 
 @node Plans and ideas
 @appendix Plans and ideas
@@ -3533,16 +3545,46 @@ General.  Please send us contributions to this wish list, or better
 still, offers to implement something from it!
 
 @menu
+* Proof by pointing and similar features::
 * Granularity of atomic command sequences::  
 * Browser mode for script files and theories::  
 @end menu
+
+@node Proof by pointing and similar features
+@section Proof by pointing and similar features
+@cindex proof by pointing
+
+This is a note by David Aspinall about proof by pointing and similar
+features.
+
+In fact, Proof General already contains code for proof by pointing, for
+a reference @xref{Credits and References}.  However, it is slightly LEGO
+specific and not robust enough.
+
+Proof-by-pointing requires rather heavy support from the proof
+assistant.  There are two aspects to the support:
+@itemise @bullet
+@item term structure mark-up
+@item proof by pointing command generation
+@end itemise
+Term structure mark-up is useful in itself: it allows the user to
+explore the structure of a term using the mouse (the smallest
+subexpression that the mouse is over is highlighted), and easily copy
+subterms from the output to a proof script.
+
+Command generation for proof by pointing might be specific to a
+particular logic in use, if we hope to generate a proof command
+unambiguously for any particular click.  However, it could easily be
+generalised to offer the user a context-sensitive choice of next
+commands to apply, which may be more useful in practice, and a worthy
+addition to Proof General.
 
 @node Granularity of atomic command sequences
 @section Granularity of atomic command sequences
 @c @cindex Granularity of Atomic Sequences
 @c @cindex Retraction
 @c @cindex Goal
-@c @cindex ACS (Atomic Command Sequence)
+@cindex ACS (Atomic Command Sequence)
 
 This is a proposal by Thomas Kleymann for generalising the way Proof
 General handles sequences of proof commands @pxref{Goal-save sequences},
