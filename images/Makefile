@@ -19,7 +19,7 @@
 ###########################################################################
 
 # Sources
-BUTTONS=goal.xcf next.xcf qed.xcf restart.xcf retract.xcf undo.xcf use.xcf state.xcf context.xcf info.xcf command.xcf help.xcf find.xcf interrupt.xcf goto.xcf abort.xcf
+BUTTONS=pg-goal.xcf pg-next.xcf pg-qed.xcf pg-restart.xcf pg-retract.xcf pg-undo.xcf pg-use.xcf pg-state.xcf pg-context.xcf pg-info.xcf pg-command.xcf pg-help.xcf pg-find.xcf pg-interrupt.xcf pg-goto.xcf pg-abort.xcf
 WEBPIX=ProofGeneral.xcf pg-text.xcf
 
 # Targets for html directory
@@ -51,7 +51,8 @@ dist:   all install distclean
 #  a different background colour, and xpm files only allow
 #  one-bit alpha).
 backgroundize-xpm: $(BUTTONS)
-	for f in *.xpm; do sed 's/#BCBCBC"/#BCBCBC s backgroundToolBarColor"/g' $$f > $$f.new; mv $$f.new $$f; done
+#	for f in *.xpm; do sed 's/c None.*"/c None s backgroundToolBarColor"/g' $$f > $$f.new; mv $$f.new $$f; done
+	for f in *.xpm; do sed 's/c #E0E0E0.*"/c #E0E0E0 s backgroundToolBarColor"/g' $$f > $$f.new; mv $$f.new $$f; done
 
 # NB: gimp sometimes fails with this argument, in case it is built
 # without support for one of the image formats.
