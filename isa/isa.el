@@ -175,7 +175,9 @@ and script mode."
 
    proof-shell-proof-completed-regexp	"^No subgoals!"
 
-   ;; initial command configures Isabelle by hacking print functions.
+   ;; initial command configures Isabelle by hacking print functions,
+   ;; restoring settings saved by Proof General, etc.
+
    ;; FIXME: temporary hack for almost enabling/disabling printing.
    ;; Also for setting default values.
    proof-shell-init-cmd                 (concat (isabelle-set-default-cmd)
