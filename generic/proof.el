@@ -101,14 +101,15 @@ This list contains files in canonical truename format
 
 Whenever a new file is being processed, it gets added to this list
 via the proof-shell-process-file configuration settings.
-When the prover retracts across file boundaries, this list 
-is resynchronised via the proof-shell-retract-files-regexp and
-proof-shell-compute-new-files-list configuration settings. 
+When the prover retracts a file, this list is resynchronised via the
+proof-shell-retract-files-regexp and proof-shell-compute-new-files-list 
+configuration settings.
 
 Only files which have been *fully* processed should be included here.
-Proof General itself will automatically add the filenames of script
-buffers which are completely read, when scripting is deactivated or
-switched to another buffer.
+Proof General itself will automatically add the filenames of a script
+buffer which has been completely read when scripting is deactivated.
+It will automatically remove the filename of a script buffer which
+is completely unread when scripting is deactivated.
 
 NB: Currently there is no generic provision for removing files which
 are only partly read-in due to an error, so ideally the proof assistant
