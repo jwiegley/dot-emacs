@@ -11,15 +11,27 @@
 
 theory Example = Main:
 
+text {* Proper proof text. *}
+
 theorem and_comms: "A & B --> B & A"
 proof
   assume "A & B"
   thus "B & A"
   proof
-    assume A B
-    show ?thesis 
-      ..
+    assume B and A
+    thus ?thesis ..
   qed
 qed
+
+
+text {* Proof script. *}
+
+theorem "A & B --> B & A"
+  apply (rule impI)
+  apply (erule conjE)
+  apply (rule conjI)
+   apply assumption
+  apply assumption
+  done
 
 end
