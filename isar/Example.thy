@@ -1,7 +1,11 @@
-(*
+(*  -*- isar -*-
+
     Example proof document for Isabelle/Isar Proof General.
  
     $Id$
+
+    The first line forces Isabelle/Isar Proof General, otherwise
+    you may get the theory mode of ordinary Isabelle Proof General
 *)
 
 
