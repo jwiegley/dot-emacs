@@ -22,10 +22,17 @@ How deep is too deep?
   (parse-partial-sexp 1 72319 20)
   (parse-partial-sexp 1 72319 80)
   (parse-partial-sexp 1 72319 99)     -- gets to char 51927
-  (parse-partial-sexp 1 72319 100)    -- Gives error on XEmacs 21.4.15 !
+  (parse-partial-sexp 1 72319 100)    -- Gives error on XEmacs 21.4.15 
+				     -- still on
+    Value: "21.5  (beta17) \"chayote\" (+CVS-20040622) XEmacs Lucid"
 
   (parse-partial-sexp 1 72319 200)    -- reaches end of this text at
 					 depth 130 in Emacs 21.3.1
+
+In fact Emacs 21.3.1 isn't bothered by a buffer containing 40,000 left-parens.
+Bug report at bottom [23.6.04].
+
+-----------------
 
 
 "$ISATOOL" document -c -o 'ps' '/tmp/isabelle-da4586/document' 2>&1
@@ -1576,3 +1583,37 @@ Overfull \hbox (240.89508pt too wide) in paragraph at lines 967--968
 Output written on root.dvi (20 pages, 43848 bytes).
 Transcript written on root.log.
 request id is kyo-603 (1 file(s))
+
+
+=================================================================
+
+To: XEmacs Beta <xemacs-beta@xemacs.org>
+Subject: [Bug: 21.4.15] parse-partial-sexp gives stack overflow 
+--text follows this line--
+================================================================
+Dear Bug Team!
+
+
+This bug/issue has been bothering me and (users of my Proof General
+package) for some time.  I have just verified that with the current CVS
+version of XEmacs the same problem is still present.
+
+Test case:
+
+1. switch to *scratch*
+2. C-u 100 ( 
+3. Eval expression (parse-partial-sexp 1 (point-max))
+
+The symptom I get is "nesting too deep for parser" error messages.
+(These are triggered e.g. by font-lock-fontify-region on large regions which
+contained ill-balanced parens; I also use parse-partial-sexp
+elsewhere in the PG code because of problems with buffer-syntactic-context.
+
+I notice some old comments in font-lock.el concerning this issue.
+It might be worth looking at GNU Emacs implementation if these are
+really supposed to be equivalent functions: on GNU Emacs 21.3.1 
+I tested a buffer containing 40000 left parens and parse-partial-sexp
+returned a result without missing a beat...
+
+
+================================================================
