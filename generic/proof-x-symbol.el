@@ -3,6 +3,7 @@
 ;; Copyright (C) 1998-2002 LFCS Edinburgh
 ;; Author:    David Aspinall <da@dcs.ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
+;; Id:	      $Id$
 ;;
 ;; The X-Symbol package is at http://x-symbol.sourceforge.net/
 ;;
@@ -14,11 +15,10 @@
 ;;
 ;; ================================================================
 ;;
-;; Ideally this file ought to be standalone so that the X-Symbol mode
-;; for particular proof assistants may be used elsewhere (e.g. in
-;; document modes), without loading all of Proof General.
-;;
-;; $Id$
+;; NB: X-Symbol is now bundled with Proof General, and PG will select
+;; it's own version before any other version on the Emacs load path.
+;; If you want to override this, simply load your version before
+;; starting Emacs, with (require 'x-symbol-hooks).
 ;;
 ;; =================================================================
 ;;
@@ -34,6 +34,13 @@
 ;; set `x-symbol-language', and call `x-symbol-decode' or
 ;; `x-symbol-decode-region', via `proof-fontify-region' (which see).
 ;;
+;; ================================================================
+;;
+;; Ideally this file ought to be standalone so that the X-Symbol mode
+;; for particular proof assistants may be used elsewhere (e.g. in
+;; document modes), without loading all of Proof General.
+;;
+
 
 
 (defvar proof-x-symbol-initialized nil
