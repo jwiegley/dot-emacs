@@ -5,6 +5,22 @@ See testing-log.txt for log of tests conducted.
 Please add to that file!
 
 
+22.3.00 FILENAME ESCAPES PROBLEM [All provers, probably]
+========================================================
+
+  Filename substitution %s in settings including proof-shell-cd-cmd,
+  proof-shell-inform-file-{retracted,processed}-cmd, may need
+  to add escape characters peculiar to the proof assistant syntax.
+
+  Test cases:
+
+     ln -s ProofGeneral \\backslash  
+     ln -s ProofGeneral \"quote
+
+  Then try scripting with example files for each prover,
+  i.e.  \"quote/coq/example.v, etc.
+
+
 1.2.99 FILE RECOGNITION PROBLEM  [Isabelle]
 ===========================================
 

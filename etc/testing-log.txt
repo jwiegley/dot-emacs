@@ -1,3 +1,14 @@
+Wed Mar 22 13:45:34 GMT 2000 da 
+
+ Tested file name quoting problem with Coq, Isabelle, LEGO.
+  
+   \ quoting triggers bug in Isabelle (complaint about pathname)
+   " quoting not allowed in LEGO, \ quoting not needed.
+   Coq works well with either.
+	
+
+--------
+	
 Wed Nov 17 13:43:11 GMT 1999
 
  Tested compiled version.  Seems to work well for XEmacs!
