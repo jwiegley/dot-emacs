@@ -40,7 +40,6 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
  7. Future improvements to take advantage of newer Emacsen
  8. Bugs in other software beyond our control
  9. Stable version release checklist
-10. Things to do for Proof General Project
  
     See <prover>/todo for things to do for each prover.
 
@@ -681,29 +680,3 @@ pdftexinfo.tex, but that version doesn't seem to generate web links?
 ***  8. Validate web pages if they're changed much.
 ***  9. Update and distribute etc/announce.  
 *** 10. Message to PG mailing list.
-
-
-
-
-
-
-** 10. Things to do for Proof General Project
-
-
-*** A Journal paper on design and development of Proof General.
-*** A Grant proposal for Proof General Kit.
-*** A Informatics research reports from latest docs.
-*** A Small project grants for summer students
-*** A Small project grant from LFCS for summer student
-
-*** B "Spam-protect" (ho, ho) email addresses on web pages
-*** B Fixup HTML on mailing list pages (image address)
-
-*** B Find new people to help advance and develop Proof General.
-     Getting more instances is a good way.  Also encouraging feedback.
-     Hear stories of bugs always by word-of-mouth, they don't get
-     reported often enough by email.
-*** A PG student projects
-*** B PG auxiliary contributions 
-*** C PG CDROM: CDROM with PG and other theorem provers.  Useful?
-
