@@ -1,12 +1,10 @@
 (require 'proof)			; load generic parts
-(require 'sym-lock)
-
 
 ;; Adjust toolbar entries.  (Must be done
 ;; before proof-toolbar is loaded).
 
-(setq af2-toolbar-entries
-      (remassoc 'context af2-toolbar-entries))
+(if proof-running-on-XEmacs (setq af2-toolbar-entries
+      (remassoc 'context af2-toolbar-entries)))
 
 
 ;; ======== User settings for Af2 ========
@@ -113,10 +111,10 @@
    proof-comment-start             "(*"
    proof-comment-end               "*)"
    proof-state-command             "goals."
-   proof-goal-command-regexp       "^[ \n\t\r]*goal\\|prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem"
-   proof-save-command-regexp       "^[ \n\t\r]*save"
-   proof-goal-with-hole-regexp     "^[ \n\t\r]*\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)[ \n\t\r]*\\([^ \n\t\r]*\\)"
-   proof-save-with-hole-regexp     "^[ \n\t\r]*save[ \n\t\r]*\\(\\([^ \n\t\r]*\\)\\)"
+   proof-goal-command-regexp       "goal\\|prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem"
+   proof-save-command-regexp       "save"
+   proof-goal-with-hole-regexp     "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)[ \n\t\r]+\\([^ \n\t\r]+\\)"
+   proof-save-with-hole-regexp     "save[ \n\t\r]+\\(\\([^ \n\t\r]+\\)\\)[ \n\t\r]*\.[ \n\t\r]"
    proof-shell-error-regexp        "^\\([^ \n\t\r]* \\)?\\(e\\|E\\)rror"
    proof-non-undoables-regexp      "undo"
    proof-goal-command              "goal %s."
@@ -125,7 +123,7 @@
    proof-showproof-command         "goals."
    proof-undo-n-times-cmd          "undo %s."
    proof-find-and-forget-fn        'af2-find-and-forget
-   proof-find-string-in-names-command      "search \"%s\"."
+   proof-find-theorems-command      "search \"%s\"."
    proof-auto-multiple-files       nil
    font-lock-keywords              af2-font-lock-keywords 
    )
@@ -165,8 +163,6 @@
       'proof-assert-next-command-interactive)
     (define-key af2-mode-map [(control c) (meta d)] 
       'af2-delete-symbol-around-point)  
-;    (defalias 'proof-toolbar-retract 'proof-retract-current-goal)
-    (defalias 'proof-toolbar-find 'proof-find-string-in-names)
     ;; Configure syntax table for block comments
     (modify-syntax-entry ?\* ". 23")
     (modify-syntax-entry ?\( "()1")

@@ -107,6 +107,8 @@
 ;;                       Sym-lock tables
 ;;--------------------------------------------------------------------------;;
 
+(if proof-running-on-XEmacs (require 'sym-lock))
+
 ;; to change this table, xfd -fn '-adobe-symbol-*--12-*' may be
 ;; used to determine the symbol character codes.
 (defvar af2-sym-lock-keywords
