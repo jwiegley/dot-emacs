@@ -206,8 +206,9 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news for 3.3::
+* Latest news for 3.4::
 * Future::
+* Old News for 3.3::
 * Old News for 3.2::
 * Old News for 3.1::
 * Old News for 3.0::
@@ -215,9 +216,20 @@ other documentation, system downloads, etc.
 * Credits::                     
 @end menu
 
-@node Latest news for 3.3
-@unnumberedsec Latest news for 3.3
+@node Latest news for 3.4
+@unnumberedsec Latest news for 3.4
 @cindex news
+
+Proof General 3.4 continues from version 3.3 with improvements (in
+particular, much better retraction support in Coq) and compatibility
+fixes for new versions of Emacs (in particular, GNU Emacs 21).
+
+See the @file{CHANGES} file in the distribution for more complete
+details of changes since 3.3.
+
+
+@node Old news for 3.3
+@unnumberedsec Old news for 3.3
 
 Proof General 3.3 includes a few feature additions, but mainly the focus
 has been on compatibility improvements for new versions of provers (in
