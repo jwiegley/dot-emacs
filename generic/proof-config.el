@@ -385,7 +385,7 @@ The special string proof-no-command means there is nothing to do."
   :group 'proof-script)
 
 (defcustom proof-goal-hyp-fn nil
-  "A function which returns cons cell if point is at a goal/hypothesis.
+  "Function which returns cons cell if point is at a goal/hypothesis.
 First element of cell is a symbol, 'goal' or 'hyp'.  The second
 element is a string: the goal or hypothesis itself.  This is used
 when parsing the proofstate output"
@@ -754,8 +754,15 @@ assistant, for example, to switch to a new theory."
 (defvar proof-shell-field-char nil "annotated field end")
 
 
+;; FIXME da: where is this variable used?  
+;;	      dropped in favour of goal-char?
+;; Answer: this is used in *specific* modes, see e.g.
+;; lego-goal-hyp.  This stuff needs making more generic.
+
 (defvar proof-shell-goal-regexp nil
-  "A regular expression matching the identifier of a goal.")
+  "A regular expression matching the identifier of a goal.
+Used by proof mode to parse proofstate output, and also
+to set outline heading regexp.")
 
 (defvar proof-shell-noise-regexp nil
   "Unwanted information output from the proof process within
