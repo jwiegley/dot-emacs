@@ -4,12 +4,14 @@ Coq Proof General does not yet handle script management across file
 boundaries, as do the LEGO and Isabelle versions.  Script management
 for multiple files means that whenever a file is viewed in the editor,
 it is locked if it has been loaded into the current Coq session.  It
-may also mean that one can some file-level primitives of Coq, rather
-than loading each file manually in the interface.  This means that
-complete proof scripts will not usually need to be parsed by
-Proof General, solving one of the present problems with using
+may mean that Proof General can make use of the file-level primitives
+of Coq, so that the user doesn't have to escape the interface, 
+or carefully load each file and its dependencies.  This also means that
+complete proof scripts will not so often need to be interpreted by
+Proof General, solving one of the present bottlenecks with using
 Coq Proof General.
 </p>
+<p>
 <b>Skills:</b>
  Some understanding of Coq implementation, co-operation with
  the Coq developers to get any Coq modifications (if any) incorporated.
