@@ -1,0 +1,8 @@
+Quick test for automatic multiple files:
+
+Process a.v, b.v, c.v in turn.
+
+Undo in b.v
+
+Should automatically unlock c.v.
+
