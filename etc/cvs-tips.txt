@@ -1,6 +1,50 @@
+Using CVS to access Proof General repository
+============================================
+
+Here are some notes on how to access the PG repository remotely
+using CVS, using ssh with an account at dcs.ed.ac.uk
+
+
+1. First configure ssh so that you can do `ssh ssh.dcs.ed.ac.uk'
+without a password (or passphrase).  For this you need to run
+ssh-keygen and give an empty passphrase.  Then you need to copy
+your ~/.ssh/identity.pub at home into ~/.ssh/authorized_keys at
+dcs.ed.
+
+2. The CVS repository for PG is in ~proofgen/src at dcs.ed.ac.uk To
+use this, you need to set CVSROOT and CVS_RSH.  I use the script below
+(the last line isn't essential but makes the settings inside a running
+emacs too)
+
+3. Where you want to develop PG, do:
+
+	cvs checkout ProofGeneral
+
+  Inside the ProofGeneral directory, to retrieve the latest updates,
+  do:
+
+	cvs update
+
+  To commit some changes to file <filename>, do:
+
+        cvs commit -m"<message here>" <filename>
+
+
+See "man cvs" for (much) more.
+
+#! /bin/bash
+MACHINE=ssh
+export CVSROOT=:ext:da@$MACHINE.dcs.ed.ac.uk:/home/proofgen/src
+export CVS_RSH=ssh
+export EDITOR=gnuclient
+gnudoit '(setenv "CVSROOT" ":ext:da@$MACHINE.dcs.ed.ac.uk:/home/proofgen/src")' '(setenv "CVS_RSH" "ssh")' '(message "set environment for CVS to /home/proofgen/src !")'
+
+
+
 -----------------------------------------------------------------
 
 Making a branch to patch a previous release:
+============================================
 
  cvs checkout -r Release-3-1-3 ProofGeneral
  cd ProofGeneral
@@ -35,6 +79,7 @@ $Id$ tags in source. (Is there a way to avoid this?)
 -----------------------------------------------------------------
 
 Overriding the CVS/Root setting temporarily:
+============================================
 
  Use 
      cvs -d $CVSROOT 
