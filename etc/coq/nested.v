@@ -1,5 +1,11 @@
 (* Nested Proofs, and backtrack mechanism in general.
    Bugs:
+
+    - Undo of "Require Omega" in proof uses Undo instead of Back.
+      [ coq-count-undos needs fixing to use Back as well as Undo ? ]
+
+======= Below here fixed?
+
     - once point 12 is reached, sould have one
       block from 3 to 12. With the goalsave test :
       OK but the reset command is wrong.
@@ -19,10 +25,13 @@ Require List. (* 2 This needs "Back 1" to be retracted *)
 
 Lemma t1: (n: nat ) {n=O} + {(EX y | n = (S y))}.  
 (* 3 This needs "Restart" to be retracted if inside the proof, and
-"Reset t1. Back 3."  if outside (after point 12). 3 because of the
+"Reset t1. Back 4."  if outside (after point 12). 3 because of the
 Require and the two lemmas inside the proof. If only "Reset t1", like
 with the current version of PG, then t2 and t3 are still in the
 environment. Try this with the current version and with my patch *)
+
+(* da: Back command seems much better behaved than "Reset", which
+   always clears proof state, I think.  Should PG always use Back? *)
 
 Intros. (* 4 This needs "Undo" to be retracted *)
 Case n. (* 5 "Undo" *)
