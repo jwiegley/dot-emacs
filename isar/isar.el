@@ -22,8 +22,6 @@
 ;;
 (setq load-path (cons (concat proof-home-directory "isa/") load-path))
 (require 'isabelle-system)
-(require 'x-symbol-isabelle) ;; FIXME: ought to be auto-loaded later,
-			     ;; and only if required.
 
 ;;
 ;; Load syntax
@@ -556,44 +554,41 @@ proof-shell-retract-files-regexp."
   "Configure Proof General proof shell for Isabelle/Isar."
   (isar-init-output-syntax-table)
   (setq font-lock-keywords  
-	;; FIXME da: this is a bit broken; we should handle 
-	;; the x-symbol stuff by generic code, and also
-	;; we should load x-symbol-isabelle later on.
 	(append 
 	 isar-output-font-lock-keywords-1
-	 x-symbol-isabelle-font-lock-keywords))
+	 (if (boundp 'x-symbol-isabelle-font-lock-keywords)
+	     x-symbol-isabelle-font-lock-keywords)))
   (isar-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
 (defun isar-response-mode-config ()
   (isar-init-output-syntax-table)
   (setq font-lock-keywords  
-	;; FIXME da: this is a bit broken; we should handle 
-	;; the x-symbol stuff by generic code, and also
-	;; we should load x-symbol-isabelle later on.
 	(append 
 	 isar-output-font-lock-keywords-1
-	 x-symbol-isabelle-font-lock-keywords))
-  ;; x-symbol-isabelle-font-lock-keywords))
+	 (if (boundp 'x-symbol-isabelle-font-lock-keywords)
+	     x-symbol-isabelle-font-lock-keywords)))
   (proof-response-config-done))
 
 (defun isar-goals-mode-config ()
   ;; FIXME: next two broken, of course, as is PBP everywhere except LEGO.
-  (setq pg-goals-change-goal "Show %s.")
+  (setq pg-goals-change-goal "show %s.")
   (setq pg-goals-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords  ;FIXME handle x-symbol stuff by generic code!?
-	;; (append 
-	isar-goals-font-lock-keywords)
-  ;; x-symbol-isabelle-font-lock-keywords))
+  (setq font-lock-keywords  
+	(append 
+	 isar-output-font-lock-keywords-1
+	 (if (boundp 'x-symbol-isabelle-font-lock-keywords)
+	     x-symbol-isabelle-font-lock-keywords)))
   (proof-goals-config-done))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; x-symbol support
 ;;
-;; The following settings configure the generic PG package; the main
-;; part is in isa/x-symbol-isabelle.el
+;; The following settings configure the generic PG package.
+;; The token language "Isabelle Symbols" is in file isa/x-symbol-isabelle.el
 ;;
 
 (setq

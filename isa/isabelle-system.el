@@ -383,9 +383,6 @@ until Proof General is restarted."
 
 (defpgdefault x-symbol-language 'isabelle)
 
-(setq proof-xsym-font-lock-keywords
-      ;; fontification for tokens themselves  (FIXME: broken)
-      '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face))))
 
 (eval-after-load "x-symbol-isabelle"
  ;; Add x-symbol tokens to isa-completion-table and rebuild
@@ -395,13 +392,11 @@ until Proof General is restarted."
      (append (proof-ass completion-table)
 	     (mapcar (lambda (xsym) (nth 2 xsym))
 		     x-symbol-isabelle-table)))
+   (setq proof-xsym-font-lock-keywords
+	 x-symbol-isabelle-font-lock-keywords)
    (if (featurep 'completion)
        (proof-add-completions))))
 
-;; FIXME: next setting is made properly in x-symbol-isabelle.el,
-;; but added here to avoid loading that file too early.
-
-(defvar x-symbol-isabelle-font-lock-keywords nil)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
