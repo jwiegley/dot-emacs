@@ -1,25 +1,106 @@
 <?php  
   require('functions.php3');
-  small_header("Screenshot"); 
+  small_header("Proof General Screenshots"); 
 ?>
 <p>
-Below is a picture of Isabelle Proof General 3.0 running inside XEmacs.
+Here are some screenshots of Proof General running with
+different theorem provers.  To see the full-size version
+of a picture, click on its thumbnail.
+</p>
+<p>
+<i>(NB: Your browser needs PNG support to view these pictures)</i>
+</p>
+
+<!-- todo: php3 this -->
+<table width="80%">
+<tr>
+<td width="200">
+<a href="images/pg-lego-screenshot.png" alt="LEGO">
+<img src="images/pg-lego-thumb.png" alt="LEGO Proof General" width=128 height=109 border=0>
+</a>
+</td>
+<td>
+<p>
+Building a simple proof in LEGO with proof-by-pointing.
 <br>
-We are replaying a proof in Isar, Isabelle's new proof language
+The top half of the window displays the proof script. 
+The bottom displays the output from LEGO at each
+stage of the proof.  Here, it shows
+the current subgoals to be solved.
+The part of the proof already processed by LEGO
+has a blue background.
+<br>
+Clicking on terms in the subgoals list generates
+commands which are added to the proof script.
+</p>
+</tr>
+<tr>
+<td width="200">
+<a href="images/pg-coq-screenshot.png">
+<img src="images/pg-coq-thumb.png" alt="Coq Proof General" width=153 height=115 border=0>
+</a>
+</td>
+<td>
+<p>
+Coq Proof General running in multiple frame mode,
+full screen shot (1024x768).
+<br>
+There are separate windows on the screen
+for the script, goals, and response buffers.
+In this picture, you can see Proof General's
+indication that Coq is processing the
+induction step, because the background of
+the proof step is pink.  It will become
+blue when Coq finishes that step.
+</p>
+</tr>
+<tr>
+<td width="200">
+<a href="images/pg-isa-screenshot.png">
+<img src="images/pg-isa-thumb.png" alt="Isabelle Proof General" width=150 height=142 border=0>
+</a>
+</td>
+<td>
+<p>
+Replaying a domain theory proof in Isabelle's HOLCF logic.
+<br>
+In Isabelle, theory files as well as ML files are coloured.
+Proof General has some functions for processing and
+undoing theory files, but most operations it provides
+are for writing proof scripts in ML files.
+<br>
+Isabelle supports input and output in tokens which
+display as symbols using the 
+<a href="http://www.fmi.uni-passau.de/~wedler/x-symbol">X-Symbol</a>
+package in conjunction with Proof General.  
+Here you can see some symbols in Isabelle's output.
+</p>
+</tr>
+<tr>
+<td width="200">
+<a href="images/pg-isar-screenshot.png">
+<img src="images/pg-isar-thumb.png" alt="Isabelle/Isar Proof General" width=150 height=142 border=0>
+</a>
+</td>
+<td>
+<p>
+Replaying a proof in Isar, Isabelle's new proof language
 developed by Markus Wenzel.
 </p>
+</tr>
+<tr>
+<td width="200">
+<a href="images/pg-lego-console.png">
+<img src="images/pg-lego-console-thumb.png" alt="LEGO Proof General (console)" width=174 height=65 border=0>
+</a>
+</td>
+<td>
 <p>
-The top half of the window displays the proof script. 
+LEGO Proof General running in plain console mode.
 </p>
-<p>
-The blue highlighted region is the part of the script which has been
-sent to the proof process so far.  It cannot be edited.
-</p>
-<p>
-The bottom half of the window displays the output from Isabelle
-at each stage of the proof.
-</p>
-<img src="images/pg-isar-screenshot.png" ALT="Isabelle Proof General screenshot [png support needed]">
+</tr>
+</table>
+
 <?php  
    click_to_go_back();
    footer();
