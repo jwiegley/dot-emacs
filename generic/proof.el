@@ -77,10 +77,22 @@ an error.")
 
 (defvar proof-included-files-list nil 
   "List of files currently included in proof process.
-Whenever a new file is being processed, it gets added.
+This list contains files in canonical truename format.
+
+Whenever a new file is being processed, it gets added to this list
+via the proof-shell-process-file configuration settings.
 When the prover retracts across file boundaries, this list 
-is resynchronised. It contains files in canonical truename format.
-Only files which have been *fully* processed should be included here.")
+is resynchronised via the proof-shell-retract-files-regexp and
+proof-shell-compute-new-files-list configuration settings. 
+
+Only files which have been *fully* processed should be included here.
+Proof General itself will automatically add the filenames of script
+buffers which are completely read, when scripting is deactivated or
+switched to another buffer.
+
+Currently there is no generic provision for removing files which
+are only partly read-in due to an error.")
+
 
 (defvar proof-script-buffer nil
   "The currently active scripting buffer or nil if none.")
