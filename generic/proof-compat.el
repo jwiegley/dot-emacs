@@ -45,13 +45,6 @@ with `path-separator'."
 ;;; FSF compatibility
 ;;;
 
-;; 1.8.01: add a dummy package-provide command so proof-autoloads
-;; is compatible with FSF Emacs.
-(or (fboundp 'package-provide)
-    (defun package-provide (name &rest attributes)
-      "Dummy version of XEmacs function for FSF compatibility."))
-
-
 ;; completion not autoloaded in FSF 20.6.1; we must call 
 ;; dynamic-completion-mode after loading it.
 (or (fboundp 'complete)

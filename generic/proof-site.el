@@ -314,6 +314,14 @@ Note: to change proof assistant, you must start a new Emacs session.")
 
 ;; Now define a few autoloads and basic variables.
 
+;; 1.8.01: add a dummy package-provide command so proof-autoloads
+;; is compatible with FSF Emacs.  Needed for next provide
+;; (otherwise would be in proof-compat.el).
+(or (fboundp 'package-provide)
+    (defun package-provide (name &rest attributes)
+      "Dummy version of XEmacs function for FSF compatibility."))
+
+
 (require 'proof-autoloads)		; autoloaded functions
 
 (defcustom proof-assistant-cusgrp nil
