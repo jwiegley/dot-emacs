@@ -1791,8 +1791,9 @@ If WAIT is an integer, wait for that many seconds afterwards."
 ;;
 
 
-;;###autoload
 (eval-and-compile			; to define vars
+;;; NB: autoload tag below doesn't work for d-d-m, autoload is in proof.el
+;;;###autoload
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof General shell mode class for proof assistant processes"
   (setq proof-buffer-type 'shell)
