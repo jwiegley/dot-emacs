@@ -404,6 +404,23 @@ until Proof General is restarted."
 (defvar x-symbol-isabelle-font-lock-keywords nil)
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Subterm markup -- faking it
+;;
+
+(defun isabelle-convert-idmarkup-to-subterm ()
+  "Convert identifier markup to subterm markup.
+This is a hook setting for `pg-before-subterm-markup-hook' to
+enable identifiers to be highlighted.  (To disable that behaviour,
+the `pg-remove-specials' can be used instead)."
+  (goto-char (point-min))
+  (while (re-search-forward 
+	  "\351\\|\352\\|\353\\|\354\\|\355\\|\356\\|\357" nil t)
+    (replace-match "\372\200\373" nil t))
+  (goto-char (point-min))
+  (while (re-search-forward "\350" nil t)
+    (replace-match "\374" nil t)))
 
 
 (provide 'isabelle-system)
