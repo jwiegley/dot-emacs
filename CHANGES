@@ -2,12 +2,19 @@
 
 * Summary of Changes for Proof General 3.2 from 3.1
 
+----- NB: this is a pre-release of PG 3.2.  Bugs likely, please report ------ 
+
+
 
 ** Generic Changes
 
-*** Added proof assistant specific menu facility.  
+*** Proof assistant specific menus.  
 
-  Specific menus added for Coq, Isabelle.
+  Specific menus added for Coq, LEGO, Isabelle.
+
+*** Favourites: user-defined commands added proof assistant specific menu
+
+  WORK ONGOING: PRESENTLY INCOMPLETE, DO NOT REPORT!
 
 *** Proof assistant specific keymap added
 
