@@ -329,7 +329,7 @@ proof-shell-retract-files-regexp."
 (defun isar-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
   (let
-      ((case-fold-search nil)
+      ((case-fold-search nil)       ;FIXME ??
        (ct 0) str i)
     (while span
       (setq str (span-property span 'cmd))
