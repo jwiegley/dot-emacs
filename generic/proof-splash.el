@@ -87,14 +87,18 @@ Gif filename depends on colour depth of display."
 		     (concat proof-images-directory name ".jpg")))
 	img)
   (cond
-   ((and window-system (featurep 'jpeg) (not nojpeg)
+   ((and window-system 
+	 proof-running-on-XEmacs
+	 (featurep 'jpeg) (not nojpeg)
 	 ;; Actually, jpeg can fail even if it is compiled in.
 	 ;; FIXME: this test doesn't work, though: still gives
 	 ;; t when visiting the file displays failure message.
 	 ;; What's the correct test?
 	 (valid-instantiator-p jpg 'image))
     jpg)
-   ((and window-system (featurep 'gif))
+   ((and window-system 
+	 proof-running-on-XEmacs
+	 (featurep 'gif))
     (vector 'gif :file
 	    (concat proof-images-directory 
 		    (concat name
@@ -189,7 +193,8 @@ Otherwise, timeout inside this function after 10 seconds or so."
       (while splash-contents
 	(setq s (car splash-contents))
 	(cond
-	 ((and (vectorp s)
+	 ((and proof-running-on-XEmacs
+	       (vectorp s)
 	       (valid-instantiator-p s 'image))
 	  (let ((gly (make-glyph s)))
 	    (indent-to (proof-splash-centre-spaces gly))
