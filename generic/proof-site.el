@@ -17,7 +17,7 @@
 (defconst proof-general-supported-assistants
   '((isa	"Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
-    (coq	"Coq"		"\\.v"))
+    (coq	"Coq"		"\\.v$"))
   "Table of supported proof assistants.
 Each entry is a list of the form
 
