@@ -164,5 +164,9 @@ Output with indentation INDENT-STRING (or none if nil)."
       (funcall outputfn "/>"))))
 
 
+(defun pg-xml-cdata (str)
+  (concat "<!\\[CDATA\\[" str "\\]"))
+
+
 (provide 'pg-xml)
 ;; End of `pg-xml.el'
