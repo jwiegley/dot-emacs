@@ -3,6 +3,14 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.29  1998/06/10 11:42:06  hhg
+;; Added coq-init-syntax-table as function to initialize syntax entries
+;; particular to coq.
+;; Changed proof-ctxt-string to "Print All".
+;; Call coq-init-syntax-table from coq-shell-mode-config.  This was
+;; necessary to get prompts with "'"s in them (coming from goals with
+;; same) recognized.
+;;
 ;; Revision 1.28  1998/06/03 18:02:54  hhg
 ;; Added '?'s before single characters in define-keys for emacs19, at
 ;; Pascal Brisset's suggestion.
@@ -273,8 +281,6 @@
 	(setq ans (concat coq-forget-id-command
 			  (span-property span 'name) proof-terminal-string)))
 
-       ;; I'm not sure match-string 2 is correct with proof-id
-       ;; Furthermore, decl's can have proof-ids rather than proof-id
        ((string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
                               "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)
 	(setq ans (concat coq-forget-id-command
@@ -401,6 +407,26 @@
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun coq-init-syntax-table ()
+  "Set appropriate values for syntax table in current buffer."
+
+  (modify-syntax-entry ?\$ ".")
+  (modify-syntax-entry ?\/ ".")
+  (modify-syntax-entry ?\\ ".")
+  (modify-syntax-entry ?+  ".")
+  (modify-syntax-entry ?-  ".")
+  (modify-syntax-entry ?=  ".")
+  (modify-syntax-entry ?%  ".")
+  (modify-syntax-entry ?<  ".")
+  (modify-syntax-entry ?>  ".")
+  (modify-syntax-entry ?\& ".")
+  (modify-syntax-entry ?_  "_")
+  (modify-syntax-entry ?\' "_")
+  (modify-syntax-entry ?\| ".")
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4"))
+
 (defun coq-mode-config ()
 
   (setq proof-terminal-char ?\.)
@@ -411,7 +437,7 @@
 	proof-www-home-page coq-www-home-page)
 
   (setq proof-prf-string "Show"
-	proof-ctxt-string "Show Context"
+	proof-ctxt-string "Print All"
 	proof-help-string "Help")
 
   (setq proof-goal-command-p 'coq-goal-command-p
@@ -429,22 +455,7 @@
 	proof-kill-goal-command coq-kill-goal-command
 	proof-commands-regexp (ids-to-regexp coq-keywords))
 
-  (modify-syntax-entry ?\$ ".")
-  (modify-syntax-entry ?\/ ".")
-  (modify-syntax-entry ?\\ ".")
-  (modify-syntax-entry ?+  ".")
-  (modify-syntax-entry ?-  ".")
-  (modify-syntax-entry ?=  ".")
-  (modify-syntax-entry ?%  ".")
-  (modify-syntax-entry ?<  ".")
-  (modify-syntax-entry ?>  ".")
-  (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?_  "_")
-  (modify-syntax-entry ?\' "_")
-  (modify-syntax-entry ?\| ".")
-  (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4")
+  (coq-init-syntax-table)
 
 ;; font-lock
 
@@ -510,8 +521,9 @@
   ;; The following hook is removed once it's called.
   (add-hook 'proof-shell-insert-hook 'coq-shell-init-hook nil t)
 
-  (proof-shell-config-done)
-)
+  (coq-init-syntax-table)
+
+  (proof-shell-config-done))
 
 (defun coq-pbp-mode-config ()
   (setq pbp-change-goal "Show %s.")
