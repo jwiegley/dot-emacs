@@ -13,7 +13,7 @@
 # The default path works if you unpack Proof General in your
 # home directory.
 # NB: no trailing backslash here!
-PGHOME=$HOME/ProofGeneral
+PGHOME=/home/da/ProofGeneral
 
 # Try to find an Emacs executable 
 if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
