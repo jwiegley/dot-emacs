@@ -21,4 +21,4 @@ if [ -z "$EMACS" ]; then
     fi
 fi
 
-$EMACS -q -l $PGHOME/generic/proof-site.el -f proof-splash-display-screen "$@"
+$EMACS -l $PGHOME/generic/proof-site.el -f proof-splash-display-screen "$@"
