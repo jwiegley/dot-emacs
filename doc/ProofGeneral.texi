@@ -113,7 +113,6 @@ Version control stamp: @code{@value{rcsid}}
 
 @page
 
-
 @ifinfo
 @node Top
 @top Proof General
@@ -1058,16 +1057,18 @@ If inside a comment, just process until the start of the comment.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-undo-last-successful-command-interactive
-@deffn Command proof-undo-last-successful-command-interactive 
+@deffn Command proof-undo-last-successful-command-interactive delete
 Undo last successful command at end of locked region.
-The text is also deleted from the proof script.
+If optional @var{delete} argument is set (called with a prefix argument), 
+the text is also deleted from the proof script.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point-interactive
-@deffn Command proof-retract-until-point-interactive 
+@deffn Command proof-retract-until-point-interactive delete-region
 Tell the proof process to retract until point.
 If invoked outside a locked region, undo the last successfully processed
-command.
+command.  If called with a prefix argument (@var{delete-region} non-nil), also
+delete the retracted region from the proof-script.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-process-buffer
@@ -3775,6 +3776,7 @@ the system.
 @menu
 * Retraction and Discharge::    
 * Retraction and proving::      
+* Non writable directories::    
 @end menu
 
 @node Retraction and Discharge
@@ -3816,6 +3818,15 @@ proper @samp{Save} command.
 @strong{Workaround:} Always issue a @samp{Save} command after completing
 a proof. If you forget one, you should retract to a point before the
 offending proof development.
+
+@node Non writable directories
+@subsection Non-writable directories
+
+If LEGO 1.3.1 attempts to write a (object) file in a non-writable
+directory, it forgets the protocol mechanism on how to interact with 
+Proof General and gets stuck. 
+
+@strong{Workaround:} Directly enter @kbd{Configure AnnotateOn;} in the Proof Shell to recover.
 
 @node Bugs specific to Coq Proof General
 @section Bugs specific to Coq Proof General

@@ -69,7 +69,7 @@ LEGO Proof General Bugs
 
 * If LEGO attempts to write a (object) file in a non-writable
   directory, it forgets the protocol mechanism on how to interact with 
-  Proof General and gets stuck. Workaround: directly enter "Configure
+  Proof General and gets stuck. Workaround: Directly enter "Configure
   AnnotateOn" in the Proof Shell to recover.
 
 * After a `Discharge', retraction ought to only be possible back to the
