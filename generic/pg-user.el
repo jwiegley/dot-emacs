@@ -672,7 +672,7 @@ last use time, to discourage saving these into the users database."
 	  (pg-insert-output-as-comment-fn proof-shell-last-output)
 	;; Otherwise the default behaviour is to use comment-region
 	(let  ((beg (point)) end)
-	  ;; pg-goals-strip-subterm-markup: should be done
+	  ;; pg-assoc-strip-subterm-markup: should be done
 	  ;; for us in proof-fontify-region
 	  (insert proof-shell-last-output)
 	  ;; 3.4: add fontification. Questionable since comments will
@@ -932,7 +932,9 @@ If NUM is negative, move upwards.  Return new span."
 	      (pg-numth-span-higher-or-lower (pg-control-span-of span) 1 'noerr))))
    (if (and proof-experimental-features 
 	    proof-shell-theorem-dependency-list-regexp)
-       (proof-dependency-in-span-context-menu span))))
+       (proof-dependency-in-span-context-menu span))
+   (if proof-script-span-context-menu-extensions
+       (funcall proof-script-span-context-menu-extensions span idiom name))))
 
 
   
