@@ -17,7 +17,7 @@
 @c http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
-@set haveeps
+@clear haveeps
 @iftex
 @afourpaper
 @end iftex
@@ -105,7 +105,7 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@image{ProofGeneralPortrait}
+@c image{ProofGeneralPortrait}
 @end ifset
 @end iftex
 @author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
@@ -163,7 +163,8 @@ Isabelle.
 * Customizing Proof General::   
 * LEGO Proof General::          
 * Coq Proof General::           
-* Isabelle Proof General::      
+* Isabelle Proof General::    
+* Using File Variables::
 * Adapting Proof General to Other Provers::  
 * Internals of Proof General::  
 * Obtaining and Installing::  
@@ -2060,6 +2061,7 @@ load-library RET proof RET}.
 For more help with customize, see @inforef{Easy Customization, ,xemacs}.
 
 
+
 @node Display customization
 @section Display customization
 @cindex display customization
@@ -2530,7 +2532,6 @@ Customize, by shadowing the settings as prover specific ones).
 
 
 
-
 @c
 @c  CHAPTER: LEGO Proof General
 @c 
@@ -2989,7 +2990,56 @@ You can use the following format characters:
 @c   @code{%p}  -- replaced by names of parents, separated by @code{+}'s
 @c @end defopt
 
+@node Using File Variables
+@chapter Using File Variables
+@cindex Using File Variables
 
+
+A very convenient way to customize file-specific variables is to use the
+File Variables (@inforef{File Variables, ,xemacs}). This feature of
+Emacs allows to specify the values to use for certain Emacs variables
+when a file is loaded. Those values are written as a list at the end of
+the file.
+
+For example, in projects involving multiple directories, it is often
+useful to set the variables @code{proof-prog-name} and
+@code{compile-command} for each file. Here is an example for Coq users:
+for the file @file{.../dir/bar/foo.v}, if you want Coq to be started
+with the path @code{.../dir/theories/} added in the libraries path
+(@code{"-I"} option), you can put at the end of @file{foo.v}:
+@lisp
+
+(* 
+ Local Variables: 
+ coq-prog-name: "coqtop -emacs -full -I ../theories"
+ End:
+*)
+@end lisp
+
+That way the good command is called when the scripting starts in
+@file{foo.v}. Notice that the command argument @code{"-I ../theories"}
+is specific to the file @file{foo.v}, and thus if you set it via the
+configuration tool, you will need to do it each time you load this
+file. On the contrary with this method, Emacs will do this operation
+automatically.
+
+Extending the previous example, if the makefile for @file{foo.v} is
+located in directory @file{.../dir/}, you can add the good compile
+command:
+
+@lisp
+(* 
+ Local Variables: 
+ coq-prog-name: "coqtop -emacs -full -I ../theories"
+ compile-command: "make -C .. -k bar/foo.vo" 
+ End:
+*)
+@end lisp
+
+And then the good call to makefile will be done if you use the @kbd{M-x
+compile} command. Notice that the lines are commented in order to be
+ignored by the proof assistant. It is possible to use this mechanism for
+any other buffer local variable. Read (@inforef{File Variables, ,xemacs}.
 
 
 @node Adapting Proof General to Other Provers
