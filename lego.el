@@ -5,6 +5,11 @@
 
 
 ;; $Log$
+;; Revision 1.35  1998/01/16 15:40:23  djs
+;; Commented the code of proof.el and lego.el a bit. Made a minor change
+;; to the way errors are handled, so that any delayed output is inserted
+;; in the buffer before the error message is printed.
+;;
 ;; Revision 1.34  1998/01/15 12:23:59  hhg
 ;; Updated method of defining proof-shell-cd to be consistent with other
 ;; proof-assistant-dependent variables.
@@ -288,6 +293,11 @@
            (setq path-name ".")))       
     (string-to-list path-name lego-path-separator)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   This is how to work out what the undo commands are, given the  ;;
+;;   first span which needs to be undone                            ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; needs to handle Normal as well
 ;; it should ignore Normal TReg Normal VReg and (Normal ...)
 (defun lego-count-undos (sext)
@@ -375,6 +385,10 @@
 			      delete-region))))
       
     (proof-start-queue (min start end) (proof-locked-end) actions)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Other stuff which is required to customise script management   ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun lego-goal-hyp ()
   (cond 
@@ -531,9 +545,6 @@
   "Current line width of the LEGO process's pretty printing module.
   Its value will be updated whenever the corresponding screen gets
   selected.")
-
-;; NEED TO MAKE THE CODE BELOW CONSISTENT WITH THE VARIABLE ABOVE
-;; BEING BUFFER LOCAL TO THE SHELL BUFFER - djs 5/2/97
 
 ;; The line width needs to be adjusted if the LEGO process is
 ;; running and is out of sync with the screen width

@@ -2,6 +2,9 @@
 ; XEmacs and FSF Emacs. Everything that is done differently between one
 ; or other version should be appropriately wrapped in here.
 
+; This is currently configured for XEmacs, because at the moment Emacs19
+; doesn't have enough functionality to implement nested extents.
+
 
 (defvar proof-locked-hwm nil
   "Upper limit of the locked region")

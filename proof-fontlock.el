@@ -4,6 +4,11 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.4  1998/01/16 15:40:28  djs
+;; Commented the code of proof.el and lego.el a bit. Made a minor change
+;; to the way errors are handled, so that any delayed output is inserted
+;; in the buffer before the error message is printed.
+;;
 ;; Revision 1.3  1997/11/17 17:11:19  djs
 ;; Added some magic commands: proof-frob-locked-end, proof-try-command,
 ;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
@@ -77,12 +82,11 @@
       face)
   (copy-face 'bold 'font-lock-error-face)))
 
-
-;;
-;; A big hack to unfontify commas in declarations and definitions. All
-;; that can be said for it is that the previous way of doing this was
-;; even more bogus.
-;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; A big hack to unfontify commas in declarations and definitions.  ;;
+;; All that can be said for it is that the previous way of doing    ;;
+;; this was even more bogus.                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Refontify the whole line, 'cos that's what font-lock-after-change
 ;; does.

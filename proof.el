@@ -9,6 +9,11 @@
 
 
 ;; $Log$
+;; Revision 1.33  1998/01/16 15:40:31  djs
+;; Commented the code of proof.el and lego.el a bit. Made a minor change
+;; to the way errors are handled, so that any delayed output is inserted
+;; in the buffer before the error message is printed.
+;;
 ;; Revision 1.32  1998/01/15 12:23:57  hhg
 ;; Updated method of defining proof-shell-cd to be consistent with other
 ;; proof-assistant-dependent variables.
@@ -311,6 +316,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;               Bridging the emacs19/xemacs gulf                   ;;
+;;               (We don't support emacs19 at the moment)           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar running-xemacs  nil)
@@ -471,7 +477,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          Proof by pointing                                       ;;
+;;          All very lego-specific at present                       ;;
+;;          To make sense of this code, you should read the         ;;
+;;          relevant LFCS tech report by tms, yb, and djs           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (defvar pbp-goal-command nil
   "Command informing the prover that `pbp-button-action' has been
@@ -530,7 +540,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          Turning annotated output into pbp goal set              ;;
-;;          All very lego-specific at present                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar proof-shell-first-special-char nil "where the specials start")
@@ -617,6 +626,23 @@
 	(pbp-make-top-span ip (car topl))))))
 
 
+
+;; Need this for processing error strings and so forth
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   The filter. First some functions that handle those few         ;;
+;;   occasions when the glorious illusion that is script-management ;;
+;;   is temporarily suspended                                       ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;   Output from the proof process is handled lazily, so that only  
+;;   the output from the last of multiple commands is actually      
+;;   processed (assuming they're all successful)                    
+
+(defvar proof-shell-delayed-output nil
+  "The last interesting output the proof process output, and what to do
+   with it.")
+
 (defun proof-shell-strip-annotations (string)
   (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
     (while (< ip l)
@@ -630,9 +656,33 @@
       (incf ip))
     (substring out 0 op)))
 
+(defun proof-shell-handle-delayed-output ()
+  (let ((ins (car proof-shell-delayed-output))
+	(str (cdr proof-shell-delayed-output)))
+    (display-buffer proof-pbp-buffer)
+    (save-excursion
+      (cond 
+       ((eq ins 'insert)
+	(setq str (proof-shell-strip-annotations str))
+	(set-buffer proof-pbp-buffer)
+	(erase-buffer)
+	(insert str))
+       ((eq ins 'analyse)
+	(proof-shell-analyse-structure str))
+       (t (set-buffer proof-pbp-buffer)
+	  (insert "\n\nbug???")))))
+  (run-hooks 'proof-shell-handle-delayed-output-hook)
+  (setq proof-shell-delayed-output (cons 'insert "done")))
+
 (defun proof-shell-handle-error (cmd string)
-  (save-excursion 
+  (save-excursion
     (display-buffer (set-buffer proof-pbp-buffer))
+    (if (not (eq proof-shell-delayed-output (cons 'ins "done")))
+	(progn
+	  (set-buffer proof-pbp-buffer)
+	  (erase-buffer)
+	  (insert (proof-shell-strip-annotations 
+		   (cdr proof-shell-delayed-output)))))
     (goto-char (point-max))
     (if (re-search-backward pbp-error-regexp nil t) 
 	(delete-region (- (point) 2) (point-max)))
@@ -659,27 +709,6 @@
 	     (delete-spans (proof-locked-end) (point-max) 'type)
 	     (proof-release-lock))))
 
-(defvar proof-shell-delayed-output nil
-  "The last interesting output the proof process output, and what to do
-   with it.")
-
-(defun proof-shell-handle-delayed-output ()
-  (let ((ins (car proof-shell-delayed-output))
-	(str (cdr proof-shell-delayed-output)))
-    (display-buffer proof-pbp-buffer)
-    (save-excursion
-      (cond 
-       ((eq ins 'insert)
-	(setq str (proof-shell-strip-annotations str))
-	(set-buffer proof-pbp-buffer)
-	(erase-buffer)
-	(insert str))
-       ((eq ins 'analyse)
-	(proof-shell-analyse-structure str))
-       (t (set-buffer proof-pbp-buffer)
-	  (insert "\n\nbug???")))))
-  (run-hooks 'proof-shell-handle-delayed-output-hook)
-  (setq proof-shell-delayed-output (cons 'insert "done")))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, this function returns the start of it if corresponds
@@ -694,6 +723,11 @@
       ((pos (map-extents 'proof-goals-pos proof-pbp-buffer
 			 nil nil nil nil 'proof-top-element)))
     (and pos (set-window-point (get-buffer-window proof-pbp-buffer t) pos))))
+
+;;   The basic output processing function - it can return one of 4  ;;  
+;;   things: 'error, 'interrupt, 'loopback, or nil 'loopback means  ;;
+;;   this was output from pbp, and should be inserted into the      ;;
+;;   script buffer and sent back to the proof assistant             ;;
 
 (defun proof-shell-process-output (cmd string)
   (cond 
@@ -837,9 +871,19 @@ at the end of locked region (after inserting a newline and indenting)."
 		  (cons (list ext cmd 'proof-done-advancing)
 			(cdr proof-action-list)))))))
 
+;; Eager annotations are annotations which the proof system produces
+;; while it's doing something (e.g. loading libraries) to say how much
+;; progress it's made. Obviously we need to display these as soon
+;; as they arrive. 
+
+;; ******** NB **********
+;;  While we're using pty communication, this code is OK, since all
+;; eager annotations are one line long, and we get input a line at a
+;; time. If we go over to piped communication, it will break.
+
 (defun proof-shell-popup-eager-annotation ()
   (let (mrk str file module)
-    (save-excursion ;; BROKEN - THERE MAY BE MULTIPLE EAGER ANNOTATIONS
+    (save-excursion 
       (goto-char (point-max))
       (search-backward proof-shell-eager-annotation-start)
       (setq mrk (+ 1 (point)))
@@ -859,7 +903,11 @@ at the end of locked region (after inserting a newline and indenting)."
 	      (setq file (match-string 1 file)))
 	  (setq proof-included-files-list (cons (cons module file)
 						proof-included-files-list))))))
-      
+
+;; The filter for the shell-process. We sleep until we get a wakeup-char
+;; in the input, then run proof-shell-process-output, and set
+;; proof-marker to keep track of how far we've got. 
+
 (defun proof-shell-filter (str) 
   (if (string-match proof-shell-eager-annotation-end str)
       (proof-shell-popup-eager-annotation))
@@ -903,6 +951,9 @@ at the end of locked region (after inserting a newline and indenting)."
       (setq ext (prev-span ext 'type)))
     ext)))
     
+;; This allows us to steal the process if we want to change the buffer
+;; in which script management is running.
+
 (defun proof-steal-process ()
   (proof-start-shell)
   (if proof-shell-busy (error "Proof Process Busy!"))
@@ -943,7 +994,7 @@ at the end of locked region (after inserting a newline and indenting)."
 	(t nil))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;          Script management                                     ;;
+;;          User Commands                                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
 ; Script management uses two major segments: Locked, which marks text
@@ -968,6 +1019,9 @@ at the end of locked region (after inserting a newline and indenting)."
 ; do configuration by concatenating the config command on the front in
 ; proof-send
 
+;;         proof-invisible-command                                  ;;
+;;         Run something without responding to the user             ;;
+
 (defun proof-done-invisible (ext) ())
 
 (defun proof-invisible-command (cmd)
@@ -976,18 +1030,12 @@ at the end of locked region (after inserting a newline and indenting)."
       (setq cmd (concat cmd proof-terminal-string)))
   (proof-start-queue nil nil (list (list nil cmd 'proof-done-invisible))))
 
-(defun proof-insert-pbp-command (cmd)
-  (proof-check-process-available)
-  (let (ext)
-    (proof-goto-end-of-locked)
-    (insert cmd)
-    (setq ext (make-span (proof-locked-end) (point)))
-    (set-span-property ext 'type 'pbp)
-    (set-span-property ext 'cmd cmd)
-    (proof-start-queue (proof-locked-end) (point) 
-		       (list (list ext cmd 'proof-done-advancing)))))
+;;         proof-assert-until-point, and various gunk for its       ;;
+;;         setup and callback                                       ;;
 
 ;; This code's for nested goals in Coq, and shouldn't affect things in LEGO
+;; it lifts "local" lemmas from inside goals out to top level.
+
 (defun proof-lift-global (glob-ext)
   (let (start (next (span-at 1 'type)) str (goal-p nil))
     (while (and next (and (not (eq next glob-ext)) (not goal-p)))
@@ -1009,6 +1057,8 @@ at the end of locked region (after inserting a newline and indenting)."
 	  (set-span-endpoints glob-ext start (point))
 	  (set-span-start next (point))
 	  (proof-lock-unlocked)))))
+
+;; This is the actual callback for assert-until-point
 
 (defun proof-done-advancing (ext)
   (let ((end (span-end ext)) nam gext next cmd)
@@ -1045,7 +1095,7 @@ at the end of locked region (after inserting a newline and indenting)."
       (set-span-property ext 'highlight 'mouse-face)
       (if (funcall proof-global-p cmd)
 	  (proof-lift-global ext))))))
-  
+
 ; Create a list of (type,int,string) pairs from the end of the locked
 ; region to pos, denoting the command and the position of its
 ; terminator. type is one of comment, or cmd. 'unclosed-comment may be
@@ -1092,6 +1142,9 @@ at the end of locked region (after inserting a newline and indenting)."
 	       (if (>= (point) pos) (setq done t) (setq i 0)))))))
      alist)))
 
+; Convert a sequence of semicolon positions (returned by the above
+; function) to a set of vanilla extents.
+
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
   (let ((ct (proof-locked-end)) ext alist semi)
     (while (not (null semis))
@@ -1110,6 +1163,12 @@ at the end of locked region (after inserting a newline and indenting)."
 	(setq semis (cdr semis)))
     (nreverse alist)))
 
+; Assert until point - We actually use this to implement the 
+; assert-until-point, active terminator keypress, and find-next-terminator. 
+; In different cases we want different things, but usually the information
+; (i.e. are we inside a comment) isn't available until we've actually run
+; proof-segment-up-to (point), hence all the different options when we've
+; done so.
 
 (defun proof-assert-until-point
   (&optional unclosed-comment-fun ignore-proof-process-p)
@@ -1138,66 +1197,28 @@ at the end of locked region (after inserting a newline and indenting)."
 	     (if crowbar (setq vanillas (cons crowbar vanillas)))
 	     (proof-start-queue (proof-locked-end) (point) vanillas))))))
 
-(defun proof-done-trying (ext)
-  (proof-detach-queue))
-			
-(defun proof-try-command
-  (&optional unclosed-comment-fun) 
+;;         insert-pbp-command - an advancing command, for use when  ;;
+;;         PbpHyp or Pbp has executed in LEGO, and returned a       ;;
+;;         command for us to run                                    ;;
 
-  "Process the command at point,
-   but don't add it to the locked region. This will only happen if
-   the command passes proof-state-preserving-p.
+(defun proof-insert-pbp-command (cmd)
+  (proof-check-process-available)
+  (let (ext)
+    (proof-goto-end-of-locked)
+    (insert cmd)
+    (setq ext (make-span (proof-locked-end) (point)))
+    (set-span-property ext 'type 'pbp)
+    (set-span-property ext 'cmd cmd)
+    (proof-start-queue (proof-locked-end) (point) 
+		       (list (list ext cmd 'proof-done-advancing)))))
 
-   Default action if inside a comment is just to go until the start of
-   the comment. If you want something different, put it inside
-   unclosed-comment-fun."
-  (interactive)
-  (let ((pt  (point)) semis crowbar test)
-    (setq crowbar (proof-steal-process))
-    (save-excursion
-      (if (not (re-search-backward "\\S-" (proof-locked-end) t))
-	  (progn (goto-char pt)
-		 (error "Nothing to do!")))
-      (setq semis (proof-segment-up-to (point))))
-    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
-	(funcall unclosed-comment-fun)
-      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-      (if (and (not crowbar) (null semis)) (error "Nothing to do!"))
-      (setq test (car semis))
-      (if (not (funcall proof-state-preserving-p (nth 1 test)))
-	  (error "Command is not state preserving"))
-      (goto-char (nth 2 test))
-      (let ((vanillas (proof-semis-to-vanillas (list test)
-					       'proof-done-trying)))
-	(if crowbar (setq vanillas (cons crowbar vanillas)))
-	(proof-start-queue (proof-locked-end) (point) vanillas)))))
 
-(defun proof-interrupt-process ()
-  (interactive)
-  (if (not (proof-shell-live-buffer))
-      (error "Proof Process Not Started!"))
-  (if (not (eq proof-script-buffer (current-buffer)))
-      (error "Don't own process!"))
-  (if (not proof-shell-busy)
-      (error "Proof Process Not Active!"))
-  (save-excursion
-    (set-buffer proof-shell-buffer)
-    (comint-interrupt-subjob)))
-  
-    
-(defun proof-find-next-terminator ()
-  "Set point after next `proof-terminal-char'."
-  (interactive)
-  (let ((cmd (span-at (point) 'type)))
-    (if cmd (goto-char (span-end cmd))
-      (and (re-search-forward "\\S-" nil t)
-	   (proof-assert-until-point nil 'ignore-proof-process)))))
+;;         proof-retract-until-point and associated gunk            ;;
+;;         most of the hard work (i.e computing the commands to do  ;;
+;;         the retraction) is implemented in the customisation      ;;
+;;         module (lego.el or coq.el) which is why this looks so    ;;
+;;         straightforward                                          ;;
 
-(defun proof-process-buffer ()
-  "Process the current buffer and set point at the end of the buffer."
-  (interactive)
-  (end-of-buffer)
-  (proof-assert-until-point))
 
 (defun proof-done-retracting (ext)
   "Updates display after proof process has reset its state. See also
@@ -1235,6 +1256,53 @@ deletes the region corresponding to the proof sequence."
 		  (setq sext (span-at (point) 'type))))
       (funcall proof-retract-target-fn sext delete-region)))
 
+;;         proof-try-command                                        ;;
+;;         this isn't really in the spirit of script management,    ;;
+;;         but sometimes the user wants to just try an expression   ;;
+;;         without having to undo it in order to try something      ;;
+;;         different. Of course you can easily lose sync by doing   ;;
+;;         something here which changes the proof state             ;;
+
+(defun proof-done-trying (ext)
+  (proof-detach-queue))
+			
+(defun proof-try-command
+  (&optional unclosed-comment-fun) 
+
+  "Process the command at point,
+   but don't add it to the locked region. This will only happen if
+   the command satisfies proof-state-preserving-p.
+
+   Default action if inside a comment is just to go until the start of
+   the comment. If you want something different, put it inside
+   unclosed-comment-fun."
+  (interactive)
+  (let ((pt  (point)) semis crowbar test)
+    (setq crowbar (proof-steal-process))
+    (save-excursion
+      (if (not (re-search-backward "\\S-" (proof-locked-end) t))
+	  (progn (goto-char pt)
+		 (error "Nothing to do!")))
+      (setq semis (proof-segment-up-to (point))))
+    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
+	(funcall unclosed-comment-fun)
+      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
+      (if (and (not crowbar) (null semis)) (error "Nothing to do!"))
+      (setq test (car semis))
+      (if (not (funcall proof-state-preserving-p (nth 1 test)))
+	  (error "Command is not state preserving"))
+      (goto-char (nth 2 test))
+      (let ((vanillas (proof-semis-to-vanillas (list test)
+					       'proof-done-trying)))
+	(if crowbar (setq vanillas (cons crowbar vanillas)))
+	(proof-start-queue (proof-locked-end) (point) vanillas)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;         misc other user functions                                ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defun proof-undo-last-successful-command ()
   "Undo last successful command, both in the buffer recording the
    proof script and in the proof process. In particular, it deletes
@@ -1242,6 +1310,35 @@ deletes the region corresponding to the proof sequence."
   (interactive)
   (goto-char (span-start (span-at-before (proof-locked-end) 'type)))
   (proof-retract-until-point t))
+
+(defun proof-interrupt-process ()
+  (interactive)
+  (if (not (proof-shell-live-buffer))
+      (error "Proof Process Not Started!"))
+  (if (not (eq proof-script-buffer (current-buffer)))
+      (error "Don't own process!"))
+  (if (not proof-shell-busy)
+      (error "Proof Process Not Active!"))
+  (save-excursion
+    (set-buffer proof-shell-buffer)
+    (comint-interrupt-subjob)))
+  
+    
+(defun proof-find-next-terminator ()
+  "Set point after next `proof-terminal-char'."
+  (interactive)
+  (let ((cmd (span-at (point) 'type)))
+    (if cmd (goto-char (span-end cmd))
+      (and (re-search-forward "\\S-" nil t)
+	   (proof-assert-until-point nil 'ignore-proof-process)))))
+
+(defun proof-process-buffer ()
+  "Process the current buffer and set point at the end of the buffer."
+  (interactive)
+  (end-of-buffer)
+  (proof-assert-until-point))
+
+;; For when things go horribly wrong
 
 (defun proof-restart-script ()
   (interactive)
@@ -1257,6 +1354,11 @@ deletes the region corresponding to the proof sequence."
 	(kill-buffer proof-shell-buffer))
     (if (buffer-live-p proof-pbp-buffer)
 	(kill-buffer proof-pbp-buffer))))
+
+;; A command for making things go horribly wrong - it moves the
+;; end-of-locked-region marker backwards, so user had better move it
+;; correctly to sync with the proof state, or things will go all
+;; pear-shaped.
 
 (defun proof-frob-locked-end ()
   (interactive)
@@ -1275,7 +1377,6 @@ deletes the region corresponding to the proof sequence."
   (let (cmd)
     (proof-check-process-available)
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
-;     proof-minibuffer-history (cons cmd proof-minibuffer-history))
     (proof-invisible-command cmd)))
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1424,6 +1525,11 @@ current command."
 
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
+
+;; Note that proof-marker actually gets set in proof-shell-filter.
+;; This is manifestly a hack, but finding somewhere more convenient
+;; to do the setup is tricky.
+
   (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
