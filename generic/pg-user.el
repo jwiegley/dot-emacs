@@ -680,7 +680,8 @@ last use time, to discourage saving these into the users database."
 	  (pg-insert-output-as-comment-fn proof-shell-last-output)
 	;; Otherwise the default behaviour is to use comment-region
 	(let  ((beg (point)))
-	  (insert proof-shell-last-output)
+	  (insert (proof-shell-strip-special-annotations
+		   proof-shell-last-output))
 	  (comment-region beg (point))))))
     
   
