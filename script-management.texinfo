@@ -18,7 +18,7 @@
 Copyright @copyright{} 1997, 1998 LEGO Team, LFCS Edinburgh
 @end titlepage
 
-@node    Top, Introduction, (dir), (dir)
+@node    Top, Credits, (dir), (dir)
 @comment node-name, next,          previous, up
 
 A @emph{proof script} is a sequence of commands to a proof assistant.
@@ -42,6 +42,7 @@ modes exist for LEGO and Coq.
 @end menu
 
 @node Credits, Introduction, Top, Top
+@comment node-name, next,          previous, up
 @section Credits
 
 Inspired by Yves Bertot's Centaur-based proof environment CtCoq, Healf
@@ -50,7 +51,8 @@ proof mode for Emacs. The original proof-by-pointing algorithm has been
 implemented by Yves Bertot. This manual was originally written by Dilip
 Sequeira. 
 
-@node Introduction, Credits, Commands, Top
+@node Introduction, Commands, Credits, Top
+@comment node-name, next,          previous, up
 @section Introduction
 
 Each script resides in an Emacs buffer, called a @emph{script buffer},
