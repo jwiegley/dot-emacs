@@ -29,6 +29,11 @@
 (setq load-path (cons (concat proof-home-directory "isa/") load-path))
 (require 'isabelle-system)
 
+(defcustom isar-web-page
+  "http://isabelle.in.tum.de/Isar/"
+  "URL of web page for Isabelle/Isar."
+  :type 'string
+  :group 'isabelle-isar)
 
 ;; Adjust toolbar entries (must be done before proof-toolbar is loaded).
 
@@ -94,7 +99,7 @@
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
   (setq
-   proof-assistant-home-page    isabelle-web-page
+   proof-assistant-home-page    isar-web-page
    proof-mode-for-script        'isar-mode
    ;; proof script syntax
    proof-terminal-char          ?\;     ; forcibly ends a command
