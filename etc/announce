@@ -28,11 +28,11 @@ To: coq-club@pauillac.inria.fr,
         
 Subject: Proof General --- Version 3.0 release
 
-           Announcing  Proof General  Version 3.0
+            Announcing  Proof General  Version 3.0
 
    A Generic Emacs interface for Interactive Proof Assistants
 
-           http://zermelo.dcs.ed.ac.uk/home/proofgen
+            http://zermelo.dcs.ed.ac.uk/~proofgen
 
            contact: David Aspinall <da@dcs.ed.ac.uk>
 
@@ -54,10 +54,11 @@ Proof General includes these features, amongst others:
 
 Summary of changes since 2.1:
 
-. Six new toolbar buttons, enabled depending on context
-. Improved and reorganized menus and keybindings, options settings
+. Eight new toolbar buttons, now enabled depending on context
+. Improved and reorganized menus and key-bindings, options settings
 . Easier to adapt to new systems, comes with example (30 setqs)
 . New function to search for theorems 
+. X-Symbol support for Coq, LEGO, and Isabelle
 . Lots more fine-grained improvements, for full details
   http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/CHANGES
 
