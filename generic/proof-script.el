@@ -9,6 +9,8 @@
 ;; $Id$
 ;;
 
+(require 'proof-config)
+
 ;;
 ;;  Internal variables used by script mode
 ;;
@@ -315,6 +317,89 @@ buffer is closed off atomically."
 				     (car proof-script-buffer-list))))
 	      (not buffer)
 	      (proof-mark-buffer-atomic buffer))))))
+
+;; NEW utility functions, use them!
+
+(defun proof-locked-region-full-p ()
+  "Non-nil if the locked region covers all the buffer's non-whitespace.
+Should be called from a proof script buffer."
+  (save-excursion
+    (goto-char (point-max))
+    (skip-chars-backward " \t\n")
+    (>= (proof-unprocessed-begin) (point))))
+
+(defun proof-locked-region-empty-p ()
+  "Non-nil if the locked region is empty.
+Should be called from a proof script buffer."
+  (eq (proof-unprocessed-begin) (point-min)))
+
+
+(defun proof-check-process-available (&optional relaxed)
+  "Adjust internal variables for scripting of current buffer.
+
+Signals an error if current buffer is not a proof script or if the
+proof process is not idle. If RELAXED is set, nothing more is done. No
+changes are necessary if the current buffer is already in Scripting
+minor mode. Otherwise, the current buffer will become the current
+scripting buffer provided the current scripting buffer has either no
+locked region or everything in it has been processed."
+  (proof-start-shell)
+  (cond
+   ((not (or relaxed (eq proof-buffer-type 'script)))
+    (error "Must be running in a script buffer"))
+   (proof-shell-busy (error "Proof Process Busy!"))
+   (relaxed ())			;exit cond
+
+   ;; No buffer is in Scripting minor mode.
+   ;; We assume the setup is done somewhere else
+   ;; so this should never happen
+   ((null proof-script-buffer-list) (assert nil))
+
+   ;; The current buffer is in Scripting minor mode
+   ;; so there's nothing to do
+   ((equal (current-buffer) (car proof-script-buffer-list)))
+
+   (t
+    (let ((script-buffer (car proof-script-buffer-list))
+	  (current-buffer (current-buffer)))
+      (save-excursion
+	(set-buffer script-buffer)
+	;; We only allow switching of the Scripting buffer if the
+	;; locked region is either empty or full for all buffers.
+	;; Here we check the current Scripting buffer's status.
+	(if (proof-locked-region-full-p)
+	    ;; We're switching from a buffer which has been
+	    ;; completely processed.  Make sure that it's
+	    ;; registered on the included files list, in
+	    ;; case it has been processed piecemeal.
+	    (if buffer-file-name
+		(proof-register-possibly-new-processed-file 
+		 buffer-file-name)))
+
+	(if (or 
+	     (proof-locked-region-empty-p)
+	     (proof-locked-region-full-p))
+	    ;; we are changing the scripting buffer
+	    (progn
+	      (setq proof-active-buffer-fake-minor-mode nil)
+	      (set-buffer current-buffer)
+	      
+	      ;; does the current buffer contain locked regions already?
+	      (if (member current-buffer proof-script-buffer-list)
+		  (setq proof-script-buffer-list
+			(remove current-buffer proof-script-buffer-list))
+		(proof-init-segmentation))
+	      (setq proof-script-buffer-list
+		    (cons current-buffer proof-script-buffer-list))
+	      (setq proof-active-buffer-fake-minor-mode t)
+	      (run-hooks 'proof-activate-scripting-hook))
+	  ;; Locked region covers only part of the buffer
+	  ;; FIXME da: ponder alternative of trying to complete rest
+	  ;; of current scripting buffer?
+	  (error "Cannot deal with two unfinished script buffers!")))))))
+
+
+
 
 
 
@@ -646,15 +731,16 @@ Assumes that point is at the end of a command."
 (defun proof-assert-until-point
   (&optional unclosed-comment-fun ignore-proof-process-p)
   "Process the region from the end of the locked-region until point.
-   Default action if inside a comment is just to go until the start of
-   the comment. If you want something different, put it inside
-   unclosed-comment-fun. If ignore-proof-process-p is set, no commands
-   will be added to the queue."
+Default action if inside a comment is just process as far as the start of
+the comment. If you want something different, put it inside
+unclosed-comment-fun. If ignore-proof-process-p is set, no commands
+will be added to the queue."
   (interactive)
   (let ((pt (point))
 	(crowbar (or ignore-proof-process-p (proof-check-process-available)))
 	semis)
     (save-excursion
+      ;; Give error if no non-whitespace between point and end of locked region.
       (if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
 	  (progn (goto-char pt)
 		 (error "I don't know what I should be doing in this buffer!")))
@@ -689,10 +775,9 @@ Assumes that point is at the end of a command."
   (&optional unclosed-comment-fun ignore-proof-process-p
 	     dont-move-forward for-new-command)
   "Process until the end of the next unprocessed command after point.
-If inside a comment, just to go the start of
-the comment.  If you want something different, put it inside
-UNCLOSED-COMMENT-FUN. If IGNORE-PROOF-PROCESS-P is set, no commands
-will be added to the queue.
+If inside a comment, just process until the start of the comment.  
+If you want something different, put it inside UNCLOSED-COMMENT-FUN. 
+If IGNORE-PROOF-PROCESS-P is set, no commands will be added to the queue.
 Afterwards, move forward to near the next command afterwards, unless
 DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
 a space or newline will be inserted automatically."
@@ -700,6 +785,8 @@ a space or newline will be inserted automatically."
   (let ((pt (point))
 	(crowbar (or ignore-proof-process-p (proof-check-process-available)))
 	semis)
+    (if (proof-locked-region-full-p)
+	(error "Locked region is full, no more commands to do!"))
     (save-excursion
       ;; CHANGE from old proof-assert-until-point: don't bother check
       ;; for non-whitespace between locked region and point.
@@ -711,12 +798,10 @@ a space or newline will be inserted automatically."
     ;;	  (progn (goto-char pt)
     ;;       (error "I don't know what I should be doing in this buffer!")))
     ;; (setq semis (proof-segment-up-to (point))))
-    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
+    (if (and unclosed-comment-fun (eq 'unclosed-comment (car-safe semis)))
 	(funcall unclosed-comment-fun)
-      (if (eq 'unclosed-comment (car semis))
-	  ;; CHANGE: if inside a comment, do as the documentation
-	  ;; suggests.
-	  (setq semis nil))
+      (if (eq 'unclosed-comment (car-safe semis))
+	  (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (not crowbar) (null semis))
 	  (error "I don't know what I should be doing in this buffer!"))
       (goto-char (nth 2 (car semis)))

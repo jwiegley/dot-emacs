@@ -10,6 +10,8 @@
 ;; Toolbar is just for scripting buffer at  the moment.
 ;;
 
+(require 'proof-config)
+
 (defcustom proof-toolbar-wanted t
   "*Whether to use toolbar in proof mode."
   :type 'boolean

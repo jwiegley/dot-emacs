@@ -9,6 +9,8 @@
 ;; $Id$
 ;;
 
+(require 'proof-config)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Starting and stopping the proof-system shell                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -535,75 +537,6 @@ assistant."
       (if (= (aref string i) ?\n) (aset string i ?\ ))
       (incf i)))
   (save-excursion (proof-shell-insert string)))
-
-(defun proof-check-process-available (&optional relaxed)
-  "Adjust internal variables for scripting of current buffer.
-
-Signals an error if current buffer is not a proof script or if the
-proof process is not idle. If RELAXED is set, nothing more is done. No
-changes are necessary if the current buffer is already in Scripting
-minor mode. Otherwise, the current buffer will become the current
-scripting buffer provided the current scripting buffer has either no
-locked region or everything in it has been processed."
-  (proof-start-shell)
-  (cond
-   ((not (or relaxed (eq proof-buffer-type 'script)))
-    (error "Must be running in a script buffer"))
-   (proof-shell-busy (error "Proof Process Busy!"))
-   (relaxed ())			;exit cond
-
-   ;; No buffer is in Scripting minor mode.
-   ;; We assume the setup is done somewhere else
-   ;; so this should never happen
-   ((null proof-script-buffer-list) (assert nil))
-
-   ;; The current buffer is in Scripting minor mode
-   ;; so there's nothing to do
-   ((equal (current-buffer) (car proof-script-buffer-list)))
-
-   (t
-    (let ((script-buffer (car proof-script-buffer-list))
-	  (current-buffer (current-buffer)))
-      (save-excursion
-	(set-buffer script-buffer)
-	;; We only allow switching of the Scripting buffer if the
-	;; locked region is either empty or full for all buffers.
-	;; Here we check the current Scripting buffer's status.
-	(let
-	    ((locked-is-empty (eq (proof-unprocessed-begin) (point-min)))
-	     (locked-is-full  (progn
-				(goto-char (point-max))
-				(skip-chars-backward " \t\n")
-				(>= (proof-unprocessed-begin) (point)))))
-	  (if locked-is-full
-	      ;; We're switching from a buffer which has been
-	      ;; completely processed.  Make sure that it's
-	      ;; registered on the included files list, in
-	      ;; case it has been processed piecemeal.
-	      (if buffer-file-name
-		  (proof-register-possibly-new-processed-file 
-		   buffer-file-name)))
-
-	  (if (or locked-is-full locked-is-empty)
-	      ;; we are changing the scripting buffer
-	      (progn
-		(setq proof-active-buffer-fake-minor-mode nil)
-		(set-buffer current-buffer)
-
-		;; does the current buffer contain locked regions already?
-		(if (member current-buffer proof-script-buffer-list)
-		    (setq proof-script-buffer-list
-			  (remove current-buffer proof-script-buffer-list))
-		  (proof-init-segmentation))
-		(setq proof-script-buffer-list
-		      (cons current-buffer proof-script-buffer-list))
-		(setq proof-active-buffer-fake-minor-mode t)
-		(run-hooks 'proof-activate-scripting-hook))
-	    ;; Locked region covers only part of the buffer
-	    ;; FIXME da: ponder alternative of trying to complete rest
-	    ;; of current scripting buffer?
-	    (error "Cannot deal with two unfinished script buffers!"))))))))
-
 
 (defun proof-grab-lock (&optional relaxed)
   (proof-start-shell)

@@ -9,22 +9,65 @@
 ;; $Id$
 ;;
 ;; 
-;; This file declares all prover-specific configuration variables.
-;; These are used variously by the proof script mode and the proof
-;; shell mode.
+;; This file declares all user options and prover-specific
+;; configuration variables for Proof General.  The variables
+;; are used variously by the proof script mode and the 
+;; proof shell mode, menus, and toolbar.
 ;; 
 ;; To customize Proof General for a new proof assistant, you
 ;; should read this file carefully! 
 ;;
-;;  0. Major modes
-;;  1. Menus, user-level commands.
-;;  2. Script mode configuration 
-;;  3. Shell mode configuration
-;;     3a. commands
-;;     3b. regexps
-;;     3c. hooks
+;;  1. User options 
+;;  2. Major modes
+;;  3. Menus, user-level commands.
+;;  4. Script mode configuration 
+;;  5. Shell mode configuration
+;;     5a. commands
+;;     5b. regexps
+;;     5c. hooks
+;;
+;; The user options don't need to be set on a per-prover basis.
+;; The remaining variables in sections 2-5 do.
 ;;
 
+
+;; A global constant that's convenient to keep here.
+(defconst proof-mode-name "Proof-General"
+  "Root name for proof script mode.  
+Used internally and in menu titles.")
+
+
+
+;;
+;; 1. User options for proof mode
+;;
+;; The following variables are user options for Proof General.
+;; They appear in the 'proof' customize group and should
+;; *not* normally be touched by prover specific code.
+;;
+
+(defcustom proof-prog-name-ask-p nil
+  "*If non-nil, query user which program to run for the inferior process."
+  :type 'boolean
+  :group 'proof)
+
+(defcustom proof-one-command-per-line nil
+  "*If non-nil, format for newlines after each proof command in a script."
+  :type 'boolean
+  :group 'proof)
+
+(defcustom proof-general-home-page
+  "http://www.dcs.ed.ac.uk/home/proofgen"
+  "*Web address for Proof General"
+  :type 'string
+  :group 'proof-internal)
+
+
+
+;;
+;; CONFIGURATION VARIABLES
+;;
+;;
 
 (defgroup prover-config nil
   "Configuration of Proof General for the prover in use."
@@ -59,9 +102,10 @@ from the name given in proof-internal-assistant-table."
 
 
 
+
 
 ;;
-;; 0. The major modes used by Proof General.
+;; 2. The major modes used by Proof General.
 ;;
 
 (defcustom proof-mode-for-shell nil
@@ -85,8 +129,9 @@ Suggestion: this can be set in proof-pre-shell-start-hook."
 
 
 
+
 ;;
-;; 1. Configuration for menus, user-level commands, etc.
+;; 3. Configuration for menus, user-level commands, etc.
 ;;
 
 (defcustom proof-www-home-page ""
@@ -136,7 +181,7 @@ This variable should be set before requiring proof.el"
 
 
 ;;
-;; 2. Configuration for proof script mode
+;; 4. Configuration for proof script mode
 ;;
 
 ;;
@@ -289,7 +334,7 @@ assistant, for example, to switch to a new theory."
 
 
 ;;
-;;  3. Configuration for proof shell	                            
+;;  5. Configuration for proof shell	                            
 ;;
 ;; The variables in this section concern the proof shell mode.
 ;; The first group of variables are hooks invoked at various points.
@@ -308,7 +353,7 @@ assistant, for example, to switch to a new theory."
 
 
 ;; 
-;; 3a. commands
+;; 5a. commands
 ;;
 
 (defcustom proof-prog-name nil
@@ -329,7 +374,7 @@ Suggestion: this can be set in proof-pre-shell-start-hook."
 
 
 ;;
-;; 3b. Regexp variables for matching output from proof process.
+;; 5b. Regexp variables for matching output from proof process.
 ;;
 
 (defcustom proof-shell-prompt-pattern nil 
@@ -406,7 +451,7 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
   :group 'proof-shell)
 
 ;;
-;; 3c. hooks 
+;; 5c. hooks 
 ;;
 
 (defcustom proof-shell-insert-hook nil 
