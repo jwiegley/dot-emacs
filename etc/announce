@@ -3,11 +3,11 @@ To: coq-club@pauillac.inria.fr,
     isabelle-users@cl.cam.ac.uk,
     lego-club@dcs.ed.ac.uk,
     uitp@dcs.gla.ac.uk,
+    bra-types@cs.chalmers.se,
     info-hol@leopard.cs.byu.edu,
-    lics-request@research.bell-labs.com,
     protagonist@cs.kun.nl,			???
     pvs@csl.sri.com, 
-    qed@mcs.anl.gov,				???
+    qed@mcs.anl.gov,				
     softverf@leopard.cs.byu.edu,	        ???
     theorem-provers@ai.mit.edu,
     types@cs.indiana.edu,
@@ -74,9 +74,9 @@ This release of Proof General should be stable enough for you to use
 happily.  Please try it and let us know what you think of it!
 
 We have put a lot of work into the user documentation for Proof
-General and making it robust and easy to install.  Ideally you should
-use it with XEmacs, but it also works with limited features in FSF
-Emacs.  We have tested on XEmacs 20.4 and Emacs 20.2, 20.3.  (It
+General and making it robust and easy to install. Ideally you should
+use it with XEmacs, but it also works with limited features in FSF GNU
+Emacs. We have tested on XEmacs 20.4 and Emacs 20.2, 20.3. (It
 probably works with earlier versions of either Emacs but we cannot
 guarantee this).
 
@@ -110,15 +110,19 @@ SML, or other languages.
 To user-interface/theorem-proving researchers:
 ---------------------------------------------- 
 Proof General provides a unified interface to different theorem
-provers.  The advantage is that a novice who understands the Proof
+provers. The advantage is that a novice who understands the Proof
 General interface can inspect and replay proofs in any of the theorem
 provers supported, without knowing the specific commands needed to
-drive them.  An obvious avenue towards further and easier unification
+drive them. An obvious avenue towards further and easier unification
 would be to invent a unified proof script (input) language and
-proof-state (output) language for theorem provers.  The Proof General
-experience could provide useful insight into such a project, and we'd
-be interested to hear from workers interested in collaborating in this
+proof-state (output) language for theorem provers. The Proof General
+experience could provide useful insight into such a project. We'd be
+interested to hear from workers interested in collaborating in this
 area.
+
+Moreover, by implementing your user-interface ideas in the Proof
+General framework, your contributions automatically reach a large
+community of both novice and expert proof assistant users.
 
 
  -- David Aspinall & Thomas Kleymann
