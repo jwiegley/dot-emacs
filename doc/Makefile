@@ -19,10 +19,11 @@ DOCNAME = ProofGeneral
 
 MAKEINFO = makeinfo
 TEXI2DVI = texi2dvi
+DVI2PS = dvips
 TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html 
 
-.SUFFIXES:  .texi .info .dvi .html .pdf
+.SUFFIXES:  .texi .info .dvi .html .pdf .ps
 
 .texi.info:
 	$(MAKEINFO) $< 
@@ -30,8 +31,12 @@ TEXI2HTML = texi2html
 .texi.dvi:
 	$(TEXI2DVI) $< 
 
+
 .texi.pdf:
 	$(TEXI2PDF) $< 
+
+.dvi.ps:
+	$(DVI2PS) $< 
 
 .texi.html:	
 	$(TEXI2HTML) $< 
