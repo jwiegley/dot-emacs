@@ -1891,7 +1891,7 @@ to do syntax highlighting with font-lock."
   :group 'proof-shell)
 
 (defcustom proof-shell-set-elisp-variable-regexp nil
-  "Regexp matching output telling Proof General to set some variable.
+  "Matches output telling Proof General to set some variable.
 This allows the proof assistant to configure Proof General directly
 and dynamically.  
 
@@ -1941,7 +1941,7 @@ sent when a proof is completed."
   :group 'proof-shell)
 
 (defcustom proof-shell-theorem-dependency-list-regexp nil
-  "Regexp matching output telling Proof General about dependencies.
+  "Matches output telling Proof General about dependencies.
 This is to allow navigation and display of dependency information.
 The output from the prover should be a message with the form
 
@@ -1957,9 +1957,8 @@ This is an experimental feature, currently work-in-progress."
   :group 'proof-shell)
 
 (defcustom proof-shell-theorem-dependency-list-split nil
-  "Regexp used to split the list of strings which match
-`proof-shell-theorem-dependency-list-regexp'.  Used as
-an argument to `split-string'; nil defaults to whitespace.
+  "Splits strings which match `proof-shell-theorem-dependency-list-regexp'.  
+Used as an argument to `split-string'; nil defaults to whitespace.
 \(This setting is necessary for provers which allow whitespace in
 the names of theorems/definitions/constants), see setting for
 Isabelle in isa/isa.el and isar/isar.el."
@@ -1974,7 +1973,7 @@ A string with %s replaced by the dependency name."
   :group 'proof-shell)
 
 (defcustom proof-shell-trace-output-regexp nil
-  "Regexp matching tracing output which should be displayed in trace buffer.
+  "Matches tracing output which should be displayed in trace buffer.
 Each line which matches this regexp but would otherwise be treated
 as an ordinary response, is sent to the trace buffer instead of the
 response buffer.   
@@ -1988,6 +1987,14 @@ Suggestion: this can be set a function called by `proof-pre-shell-start-hook'."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
+
+(defcustom proof-shell-thms-output-regexp nil
+  "Matches theorem display which should be displayed in theorem buffer.
+Each line which matches this regexp but would otherwise be treated
+as an ordinary response, is sent to the theorem buffer as well as the
+response buffer."
+  :type '(choice nil regexp)
+  :group 'proof-shell)
 
 ;;
 ;; 5c. hooks and other miscellaneous customizations
