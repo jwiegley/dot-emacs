@@ -19,7 +19,7 @@
 
 (proof-easy-config 
  'demoisa "Isabelle Demo" 
- proof-prog-name		   "isabelle"
+ proof-prog-name		 "isabelle"
  proof-terminal-char             ?\;
  proof-comment-start             "(*"
  proof-comment-end               "*)"
@@ -28,11 +28,11 @@
  proof-goal-with-hole-regexp     "^Goal \\(\\(\"%s\"\\)\\)"
  proof-save-with-hole-regexp     "^qed \\(\\(\"%s\"\\)\\)"
  proof-non-undoables-regexp      "undo\\|back"
- proof-undo-n-times-cmd          "pg_repeat undo %s;"
- proof-showproof-command       "pr()"
  proof-goal-command              "Goal \"%s\";"
  proof-save-command              "qed \"%s\";"
  proof-kill-goal-command         "Goal \"PROP no_goal_set\";"
+ proof-showproof-command         "pr()"
+ proof-undo-n-times-cmd          "pg_repeat undo %s;"
  proof-auto-multiple-files       t
  proof-shell-cd-cmd              "cd \"%s\""
  proof-shell-prompt-pattern      "[ML-=#>]+>? "
