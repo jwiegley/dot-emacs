@@ -1,5 +1,5 @@
-Proof General --- Organize your proofs!
-=======================================
+Proof General --- Organize your proofs!    [www.proofgeneral.org]
+=================================================================
 
 Proof General is a generic Emacs interface for proof assistants.
 
@@ -22,8 +22,8 @@ See INSTALL   for installation details.
     FAQ, doc/ for documentation of Proof General.
 
 See http://www.proofgeneral.org/mailinglist for the Proof General
-mailing lists.  If you have problems, please contact 
-support@proofgeneral.org in the first instance.
+mailing lists.  If you have problems, please contact
+support@proofgeneral.org after checking the BUGS and CHANGES files.
 
 For notes on the supported assistants, see the README files
 in the subdirectories:
@@ -50,7 +50,7 @@ For the latest news and downloads, visit Proof General on the web
 at: http://www.proofgeneral.org
 
 David Aspinall <da@proofgeneral.org>
-August 2002.
+March 2003.
 
 -----
 
