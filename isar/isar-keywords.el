@@ -26,7 +26,11 @@
     "simpset"))
 
 (defconst isar-keywords-control
-  '("cannot_undo"
+  '("ProofGeneral\\.inform_file_processed"
+    "ProofGeneral\\.inform_file_retracted"
+    "ProofGeneral\\.kill_proof"
+    "ProofGeneral\\.restart"
+    "cannot_undo"
     "cd"
     "clear_undos"
     "exit"
@@ -47,6 +51,7 @@
     "enable_pr"
     "header"
     "help"
+    "kill_thy"
     "pr"
     "pretty_setmargin"
     "print_attributes"
@@ -64,6 +69,7 @@
     "thm"
     "thms_containing"
     "touch_all_thys"
+    "touch_child_thys"
     "touch_thy"
     "typ"
     "update_thy"
