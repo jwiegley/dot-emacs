@@ -17,15 +17,8 @@
 
 
 (require 'proof)
-;;FIXME: proof-script should be autoloaded
-(require 'proof-script)
-
-;;FIXME: proof-shell should be autoloaded
-(require 'proof-shell)
 (require 'plastic-syntax)
 
-;; FIXME: outline should be autoloaded
-(require 'outline)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; User Configuration ;;;
@@ -388,7 +381,9 @@ Given is the first SPAN which needs to be undone."
 	proof-goal-with-hole-regexp plastic-goal-with-hole-regexp
 	proof-kill-goal-command plastic-kill-goal-command
 	proof-indent-any-regexp
-	(proof-regexp-alt (proof-ids-to-regexp plastic-commands) "\\s(" "\\s)"))
+	(proof-regexp-alt 
+	 (proof-ids-to-regexp plastic-commands) 
+	 "\\s(" "\\s)"))
 
   (plastic-init-syntax-table)
 
