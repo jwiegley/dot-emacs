@@ -17,14 +17,29 @@
    (proof-splash-display-image "isabelle_transparent" t)))
 
 (require 'proof)
-(require 'isar-syntax)
-
-;; Completion table for Isabelle/Isar identifiers
-(defpgdefault completion-table isar-keywords-major)
 
 ;; Add generic code for Isabelle and Isabelle/Isar
 (setq load-path (cons (concat proof-home-directory "isa/") load-path))
 (require 'isabelle-system)
+
+;; Load syntax
+(defcustom isar-keywords-name nil
+  "Specifies a specific keywords name to use with Isar.
+See -k option for Isabelle interface script."
+  :type 'string
+  :group 'isabelle-isar)
+
+(or (featurep 'isar-keywords)
+    ;; Pickup isar-keywords file from somewhere appropriate,
+    ;; giving user chance to set name of file, or based on
+    ;; name of logic.
+    (isabelle-load-isar-keywords 
+     (or isar-keywords-name
+	 isabelle-chosen-logic)))
+(require 'isar-syntax)
+
+;; Completion table for Isabelle/Isar identifiers
+(defpgdefault completion-table isar-keywords-major)
 
 (defcustom isar-web-page
   "http://isabelle.in.tum.de/Isar/"
@@ -107,6 +122,7 @@
                                       isar-any-command-regexp
                                       (regexp-quote ";"))
    proof-script-integral-proofs t
+   proof-script-use-old-parser  t
    proof-comment-start          isar-comment-start
    proof-comment-end            isar-comment-end
    proof-comment-start-regexp   isar-comment-start-regexp
@@ -376,6 +392,7 @@ proof-shell-retract-files-regexp."
        ;; (da: adding new span types may break this code,
        ;;  ought to test for type 'cmd before looking at 
        ;;  str below)
+       ;; FIXME: should adjust proof-nesting-depth here.
        ((or (eq (span-property span 'type) 'comment)
 	    (eq (span-property span 'type) 'proof); da: needed?
             (proof-string-match isar-undo-skip-regexp str)
