@@ -286,6 +286,6 @@ Move point if the end of the locked position is invisible."
   "Insert a save theorem command into the script buffer, issue it."
   (interactive)
   (if (proof-toolbar-qed-enable-p)
-      (proof-issue-save)))
+      (call-interactively 'proof-issue-save)))
 ;; 
 (provide 'proof-toolbar)
