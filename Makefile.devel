@@ -88,7 +88,7 @@ DEVELOPERS=\
 # of the current pre-release version (currently not used explicitly 
 # anywhere for web pages/whatever).
 PRERELEASE_PREFIX=3\.5pre
-PRERELEASE_TAG=3.5pre$(shell date "+%y%m%d")
+PRERELEASE_TAG=3.5.1pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
 # Path to web pages in repository, used for automatically 
