@@ -1,0 +1,21 @@
+-*- outline -*-
+
+*  Current Authors/Maintainers
+** David Aspinall    <da@dcs.ed.ac.uk>	               
+   doc, etc, generic, html, images, isa
+** Patrick Loiseleur <Patrick.Loiseleur@lri.fr>    
+   coq
+** Markus Wenzel <wenzelm@informatik.tu-muenchen.de>
+   isar
+** Paul Callaghan <P.C.Callaghan@durham.ac.uk>
+   plastic
+
+*  Previous Authors:
+** Thomas Kleymann   
+   lego, doc, generic
+** Healfdene Goguen  
+   coq, generic, doc
+** Dilip Sequeira    
+   lego
+
+
