@@ -264,18 +264,14 @@ Required so that 'proof-tacticals-name-face is a proper facename in
 both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-tactics-name-face
-  '((t
-     (:foreground (face-foreground default)))
-    (t
-     (:background (face-background default)))
-    (t				
+  '((t				
      (bold t)))
   "*Face for names of tactics in proof scripts.
 By default, they are printed with default face but the user
 may want to color them differently."
   :group 'proof-faces)
 
-(defconst proof-tactics-name-face 'default
+(defconst proof-tactics-name-face 'proof-tactics-name-face
   "Expression that evaluates to a face.
 Required so that 'proof-tactics-name-face is a proper facename in
 both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
