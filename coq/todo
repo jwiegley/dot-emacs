@@ -4,6 +4,13 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** A Submit some minor patches to coqdev to improve things:
+      -- no printing of summary proof script, user can see it
+      -- information output when requiring/undoing requires
+      -- more robust markup of errors/responses, eager annotations
+      -- eventually... PGIP
+
+** B Adjust pretty printer line width automatically as others do
 
 ** D Coq pbp focussing, would be helpful if this part works at least
 
