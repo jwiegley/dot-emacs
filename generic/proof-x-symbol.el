@@ -304,10 +304,27 @@ Assumes that the current buffer is the proof shell buffer."
 
 ;;;###autoload
 (defun proof-x-symbol-configure ()
-  "Configure the current buffer (goals or response) for X-Symbol."
+  "Configure the current output buffer (goals/response/trace) for X-Symbol."
   (if (proof-ass x-symbol-enable)
       (progn
 	(proof-x-symbol-set-language)
+	;; BEGIN: Code below from x-symbol.el/x-symbol-mode-internal
+	(unless (or (not (boundp 'enable-multibyte-characters))
+		    (not (fboundp 'set-buffer-multibyte))
+		    enable-multibyte-characters)
+	  ;; Emacs: we need to convert the buffer from unibyte to multibyte
+	  ;; since we'll use multibyte support for the symbol charset.
+	  ;; TODO: try to do it less often
+	  (let ((modified (buffer-modified-p))
+		(inhibit-read-only t)
+		(inhibit-modification-hooks t))
+	    (unwind-protect
+		(progn
+		  (decode-coding-region (point-min) (point-max) 'undecided)
+		  (set-buffer-multibyte t))
+	      (set-buffer-modified-p modified))))
+	;; END code from x-symbol.el/x-symbol-mode-internal
+
 	;; If we're turning on x-symbol, attempt to convert to 
 	;; characters.  (Only works if the buffer already
 	;; contains tokens!)
