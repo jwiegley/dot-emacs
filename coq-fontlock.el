@@ -4,6 +4,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.14  1998/06/11 12:20:14  hhg
+;; Added "Scheme" as definition keyword.
+;;
 ;; Revision 1.13  1998/06/10 11:38:04  hhg
 ;; Added "Mutual Inductive" as definition keyword.
 ;; Changed "\\s " into "\\s-" as whitespace pattern.
@@ -79,6 +82,7 @@
 "Fixpoint"
 "Inductive"
 "Mutual\\s-+Inductive"
+"Scheme"
 ))
 
 (defvar coq-keywords-goal
