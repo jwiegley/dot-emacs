@@ -183,7 +183,7 @@ and script mode."
    ;; restoring settings saved by Proof General, etc.
 
    proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
-   proof-shell-init-cmd		        (proof-assistant-settings-cmd)
+   proof-shell-init-cmd		        '(proof-assistant-settings-cmd)
 
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"

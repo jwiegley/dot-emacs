@@ -217,7 +217,7 @@ See -k option for Isabelle interface script."
    pg-topterm-char			?\370
 
    proof-assistant-setting-format       'isar-markup-ml
-   proof-shell-init-cmd                 (proof-assistant-settings-cmd)
+   proof-shell-init-cmd                 '(proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
    proof-shell-eager-annotation-start-length 1
