@@ -61,10 +61,10 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.5
-@set xemacsversion 21.4.12
+@set version 3.5.1
+@set xemacsversion 21.4.15
 @set fsfversion 21.3.1
-@set last-update April 2004
+@set last-update May 2004
 @set rcsid $Id$
 
 @ifinfo
@@ -117,7 +117,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 2000-2002 by members
+Copyright @copyright{} 2000-2004 by members
 of the Proof General team, LFCS Edinburgh.
 
 
@@ -171,19 +171,20 @@ Proof General.
 
 @menu
 * Introduction::
-* Beginning with a new prover::
-* Menus and toolbar and user-level commands::  
-* Proof script settings::       
-* Proof shell settings::        
-* Goals buffer settings::  
-* Splash screen settings::      
-* Global constants::            
-* Handling multiple files::     
+* Beginning with a New Prover::
+* Menus and Toolbar and User-level Commands::  
+* Proof Script Settings::       
+* Proof Shell Settings::        
+* Goals Buffer Settings::  
+* Splash Screen Settings::      
+* Global Constants::            
+* Handling Multiple Files::     
+* Configuring Editing Syntax::
 * Configuring Font Lock::
 * Configuring X-Symbol::
-* Writing more lisp code::
+* Writing More Lisp Code::
 * Internals of Proof General::  
-* Plans and ideas::             
+* Plans and Ideas::             
 * Demonstration Instantiations::
 * Function Index::              
 * Variable Index::              
@@ -278,8 +279,8 @@ written by other Proof General developers.
 
 
 
-@node Beginning with a new prover
-@chapter Beginning with a new prover
+@node Beginning with a New Prover
+@chapter Beginning with a New Prover
 
 Proof General has about 100 configuration variables which are set on a
 per-prover basis to configure the various features.  It may sound like a
@@ -297,13 +298,13 @@ Tips, ,lispref}.
 
 The configuration variables are declared in the file
 @file{generic/proof-config.el}.  The details in the central part of this
-manual are based on the contents of that file, beginning in @ref{Menus and toolbar
-and user-level commands}, and continuing until @ref{Global constants}.
+manual are based on the contents of that file, beginning in @ref{Menus and Toolbar
+and User-level Commands}, and continuing until @ref{Global Constants}.
 Other chapters cover the details of configuring for multiple files and
 for supporting the other Emacs packages mentioned in the user manual
 (@i{Support for other Packages}).  If you write additional Elisp code
 interfacing to Proof General, you can find out about some useful functions
-by reading @ref{Writing more lisp code}.  The last chapter of this
+by reading @ref{Writing More Lisp Code}.  The last chapter of this
 manual describes some of the internals of Proof General, in case you are
 interested, maybe because you need to extend the generic core to do
 something new.
@@ -481,7 +482,7 @@ each generic one, like this:
    (proof-shell-config-done))
 @end lisp
 Where @code{myass-shell-config} is a function which sets the
-configuration variables for the shell (@pxref{Proof shell settings}).
+configuration variables for the shell (@pxref{Proof Shell Settings}).
 
 It's important that each of your modes invokes one of the functions
  @code{proof-config-done},
@@ -535,7 +536,7 @@ Usually customised for specific prover.
 Suggestion: this can be set a function called by @samp{@code{proof-pre-shell-start-hook}}.
 @end defvar
 
-@node Menus and toolbar and user-level commands
+@node Menus and Toolbar and User-level Commands
 @chapter Menus, toolbar, and user-level commands
 
 The variables described in this chapter configure the menus, toolbar,
@@ -677,8 +678,8 @@ Here's an example of how to remove a button, from @file{af2.el}:
 
 
 @c defgroup proof-script
-@node Proof script settings
-@chapter Proof script settings
+@node Proof Script Settings
+@chapter Proof Script Settings
 
 The variables described in this chapter should be set in the script mode
 before @code{proof-config-done} is called.  These variables configure
@@ -1286,7 +1287,7 @@ for scripting commands), unless activated-interactively is set.
 @node Automatic multiple files
 @section Automatic multiple files
 
-@xref{Handling multiple files}, for more details about this
+@xref{Handling Multiple Files}, for more details about this
 setting.
 
 @c TEXI DOCSTRING MAGIC: proof-auto-multiple-files
@@ -1330,7 +1331,7 @@ List of identifiers to use for completion for this proof assistant.@*
 Completion is activated with C-return.
 
 If this table is empty or needs adjusting, please make changes using
-@samp{@code{customize-variable}} and send suggestions to da+pg-support@@inf.ed.ac.uk
+@samp{@code{customize-variable}} and send suggestions to da+pg-support@@@@inf.ed.ac.uk
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-add-completions
@@ -1345,8 +1346,8 @@ last use time, to discourage saving these into the users database.
 
 
 
-@node Proof shell settings
-@chapter Proof shell settings
+@node Proof Shell Settings
+@chapter Proof Shell Settings
 
 The variables in this chapter concern the proof shell mode, and are the
 largest group.  They are split into several subgroups.  The first
@@ -1486,7 +1487,7 @@ Default is 2, but you can raise this in case switching silent mode
 on or off is particularly expensive (or make it ridiculously large
 to disable silent mode altogether).
 @end defvar
-@xref{Handling multiple files},
+@xref{Handling Multiple Files},
 for more details about the final two settings in this group,
 
 
@@ -1873,7 +1874,7 @@ Two important control messages are recognized by
 @code{proof-shell-process-file} and
 @code{proof-shell-retract-files-regexp}, used for synchronizing Proof
 General with a file loading mechanism built into the proof assistant.
-@xref{Handling multiple files}, for more details about how to use the
+@xref{Handling Multiple Files}, for more details about how to use the
 final four settings described here.
 
 @vindex proof-included-files-list
@@ -2043,8 +2044,8 @@ output format.
 
 
 
-@node Goals buffer settings
-@chapter Goals buffer settings
+@node Goals Buffer Settings
+@chapter Goals Buffer Settings
 
 The goals buffer settings allow configuration of Proof General for proof
 by pointing or similar features.
@@ -2120,8 +2121,8 @@ See @samp{@code{pg-subterm-start-char}}.
 @end defvar
 
 
-@node Splash screen settings
-@chapter Splash screen settings
+@node Splash Screen Settings
+@chapter Splash Screen Settings
 
 The splash screen can be configured, in a rather limited way.
 
@@ -2146,8 +2147,8 @@ If it is nil, a new line is inserted.
 
 
 
-@node Global constants
-@chapter Global constants
+@node Global Constants
+@chapter Global Constants
 
 The settings here are internal constants used by Proof General.
 You don't need to configure these for your proof assistant
@@ -2172,8 +2173,8 @@ where @samp{k} is a @code{key-binding} (vector) and @samp{f} the designated func
 
 
 
-@node Handling multiple files
-@chapter Handling multiple files
+@node Handling Multiple Files
+@chapter Handling Multiple Files
 @cindex Multiple files
 
 Large proof developments are typically spread across multiple files.
@@ -2321,8 +2322,65 @@ If your prover does not allow re-opening of closed
 files, set @code{proof-cannot-reopen-processed-files} to @code{t}.
   Finally, set the flag @code{proof-auto-multiple-files} 
 for a automatic approximation to multiple file handling.
-@xref{Proof script settings}.
+@xref{Proof Script Settings}.
 
+
+@node Configuring Editing Syntax
+@chapter Configuring Editing Syntax
+@cindex syntax table
+
+Emacs has some standard settings which configure the syntax of major
+modes.  The main setting is the @i{syntax table}, which determines the
+syntax of programming elements such as strings, comments, and
+parentheses.  To configure the syntax table, you can either write calls
+to @code{modify-syntax-entry} in your mode functions, or set the
+following variables to contain the tables for each mode.  (The main mode
+to be concerned about is of course the proof script, where user editing
+takes place).
+
+@c TEXI DOCSTRING MAGIC: proof-script-syntax-table-entries
+@defvar proof-script-syntax-table-entries 
+List of syntax table entries for proof script mode.@*
+A flat list of the form
+@lisp
+  (@var{char} @var{syncode} @var{char} @var{syncode} ...)
+@end lisp
+See doc of @samp{@code{modify-syntax-entry}} for details of characters
+and syntax codes.
+
+At present this is used only by the @samp{@code{proof-easy-config}} macro.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-syntax-table-entries 
+@defvar proof-shell-syntax-table-entries 
+List of syntax table entries for proof script mode.@*
+A flat list of the form
+@lisp
+  (@var{char} @var{syncode} @var{char} @var{syncode} ...)
+@end lisp
+See doc of @samp{@code{modify-syntax-entry}} for details of characters
+and syntax codes.
+
+At present this is used only by the @samp{@code{proof-easy-config}} macro.
+@end defvar
+Some additional useful settings are:
+
+@c magic by hand: comment-quote-nested
+@defvar comment-quote-nested 
+Non-nil if nested comments should be quoted.  
+This should be locally set by each major mode if needed.  The
+default setting is non-nil: modes which allow nested comments may set
+this to nil.
+@end defvar
+
+@defvar outline-regexp
+Regular expression to match the beginning of a heading.
+Any line whose beginning matches this regexp is considered to start a heading.
+@end defvar
+
+@defvar outline-heading-end-regexp
+Regular expression to match the beginning of a heading.
+Any line whose beginning matches this regexp is considered to start a heading.
+@end defvar
 
 @node Configuring Font Lock
 @chapter Configuring Font Lock
@@ -2340,6 +2398,47 @@ type) in script buffers.
 To understand its format, check the documentation of
 @code{font-lock-keywords} inside Emacs.
 
+Instead of setting @code{font-lock-keywords} in each mode function, you
+can use the following four variables to make the settings in place.
+This is particularly useful if use the easy configuration mechanism for
+Proof General, @pxref{Demonstration instance and easy configuration}.
+
+@c TEXI DOCSTRING MAGIC: proof-script-font-lock-keywords
+@defvar proof-script-font-lock-keywords 
+Value of @code{font-lock-keywords} used to fontify proof scripts.@*
+This is currently used only by @code{proof-easy-config} mechanism,
+to set @code{font-lock-keywords} before calling @code{proof-config-done}.
+See also proof-@{shell,resp,goals@}-@code{font-lock-keywords}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-font-lock-keywords
+@defvar proof-shell-font-lock-keywords 
+Value of @code{font-lock-keywords} used to fontify the proof shell.@*
+This is currently used only by @code{proof-easy-config} mechanism, to set
+@samp{@code{font-lock-keywords}} before calling @samp{@code{proof-config-done}}.
+See also proof-@{script,resp,goals@}-@code{font-lock-keywords}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-goals-font-lock-keywords
+@defvar proof-goals-font-lock-keywords 
+Value of @code{font-lock-keywords} used to fontify the goals output.@*
+NB: the goals output is not kept in @code{font-lock-mode} because the
+fontification may rely on annotations which are erased before
+displaying.  This means internal functions of PG must be used
+to display to the goals buffer to ensure fontification is done!
+This is currently used only by @code{proof-easy-config} mechanism,
+to set @code{font-lock-keywords} before calling @code{proof-config-done}.
+See also proof-@{script,shell,resp@}-@code{font-lock-keywords}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-resp-font-lock-keywords
+@defvar proof-resp-font-lock-keywords 
+Value of @code{font-lock-keywords} used to fontify the response output.@*
+NB: the goals output is not kept in @code{font-lock-mode} because the
+fontification may rely on annotations which are erased before
+displaying.  This means internal functions of PG must be used
+to display to the goals buffer to ensure fontification is done!
+This is currently used only by @code{proof-easy-config} mechanism,
+to set @code{font-lock-keywords} before calling @code{proof-config-done}.
+See also proof-@{script,shell,resp@}-@code{font-lock-keywords}.
+@end defvar
 Proof General provides a special function, @code{proof-zap-commas}, for
 tweaking the font lock behaviour of provers which have declarations of
 the form @code{x,y,z:Ty}.  This function removes highlighting on the
@@ -2367,6 +2466,9 @@ the current restriction, and must return the final value of (@code{point-max}).
 This hook is called before fonfitying a region in an output buffer.@*
 [This hook is presently only used by Isabelle].
 @end defvar
+
+
+
 @node Configuring X-Symbol
 @chapter Configuring X-Symbol
 @cindex X-Symbol
@@ -2427,8 +2529,8 @@ tokens (for example, editing documentation or source code files).
 
 
 
-@node Writing more lisp code
-@chapter Writing more lisp code
+@node Writing More Lisp Code
+@chapter Writing More Lisp Code
 
 You may want to add some extra features to your instance of Proof
 General which are not supported in the generic core.  To do this, you
@@ -3007,7 +3109,7 @@ to allow other files loaded by proof assistants to be marked read-only.
 
 Atomic locking is instigated by the next function, which uses the
 variables @code{proof-included-files-list} documented earlier
-(@pxref{Handling multiple files} and @pxref{Global variables}).
+(@pxref{Handling Multiple Files} and @pxref{Global variables}).
 
 @c TEXI DOCSTRING MAGIC: proof-register-possibly-new-processed-file
 @defun proof-register-possibly-new-processed-file file &optional informprover noquestions
@@ -3659,11 +3761,11 @@ Reference Manual.  I recommend using the source-level debugger
 
 @c
 @c
-@c APPENDIX: Plans and ideas
+@c APPENDIX: Plans and Ideas
 @c
 @c
-@node Plans and ideas
-@appendix Plans and ideas
+@node Plans and Ideas
+@appendix Plans and Ideas
 
 This appendix contains some tentative plans and ideas for improving
 Proof General.

@@ -69,10 +69,10 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.5
-@set xemacsversion 21.4.12
+@set version 3.5.1
+@set xemacsversion 21.4.15
 @set fsfversion 21.3.1
-@set last-update April 2004
+@set last-update May 2004
 @set rcsid $Id$
 
 @ifinfo
@@ -190,7 +190,7 @@ Experimental support is provided for several other provers.
 * Shell Proof General::
 @c * PhoX Proof General::
 * Obtaining and Installing::  
-* Known bugs and workarounds::  
+* Known Bugs::  
 * References::                  
 * History of Proof General::
 * Function Index::              
@@ -2339,7 +2339,7 @@ List of identifiers to use for completion for this proof assistant.@*
 Completion is activated with C-return.
 
 If this table is empty or needs adjusting, please make changes using
-@samp{@code{customize-variable}} and send suggestions to da+pg-support@@inf.ed.ac.uk
+@samp{@code{customize-variable}} and send suggestions to da+pg-support@@@@inf.ed.ac.uk
 @end defvar
 
 The completion facility uses a library @file{completion.el} which
@@ -4238,11 +4238,11 @@ the @file{coq} directory in the Proof General home directory.
 
 @c=================================================================
 @c
-@c APPENDIX: Known bugs and workarounds
+@c APPENDIX: Known Bugs
 @c
 @c
-@node Known bugs and workarounds
-@appendix Known bugs and workarounds
+@node Known Bugs
+@appendix Known Bugs
 
 This appendix has been removed.
 
