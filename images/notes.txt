@@ -10,12 +10,32 @@ to have text added.
 Background grey is V74.
 Red for buttons is 135,13,13.
 
+Red background for web is 80,0,48
+
 CD player buttons based on font wptypographicsymbols, point size 28,
 placed at 5,2.
 
 Text is lucidafax at point size 8.
 
 blank.xcf -- blank with correct background colour.
+
+
+---
+
+Proof general Text logo:
+
+script fu -> logos -> comic book
+
+  StencilBT font
+  Browns    gradient
+  40pt	    Text size
+  4pt	    outline  (NB: size of both black and shaded portion)
+
+Then I filled background with web page colour, and shaded portion
+with green colour.
+  
+
+
 
 
 	     	     
