@@ -195,7 +195,7 @@
 (defconst isar-ext-rest "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z0-9'_]\\)")
 
 (defconst isar-long-id-stuff (concat "\\(?:" isar-ext-rest "\\|\.\\)+"))
-(defconst isar-id (concat "\\(?:" isar-ext-first isar-ext-rest "*\\)"))
+(defconst isar-id (concat "\\(" isar-ext-first isar-ext-rest "*\\)"))
 (defconst isar-idx (concat isar-id "\\(?:\\.[0-9]+\\)?"))
 
 (defconst isar-string "\"\\(?:\\(?:[^\"]\\|\\\\\"\\)*\\)\"")
@@ -407,18 +407,20 @@
 
 (defconst isar-any-entity-regexp
   (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"
+          "\\(?:\\s-*(\\s-*in.+)\\)?"
           "\\(?:" isar-name-regexp "[[:=]\\)?"))
 
 (defconst isar-named-entity-regexp
-  (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-          isar-name-regexp "[[:=]"))
+  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
+          "\\(\\s-*(\\s-*in.+)\\)?"
+          isar-name-regexp "[[:=]" ))
 
 (defconst isar-unnamed-entity-regexp
-  (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"))
+  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"))
 
 (defconst isar-next-entity-regexps
   (list isar-any-entity-regexp
-        (list isar-named-entity-regexp '(1 2))
+        (list isar-named-entity-regexp '(1 3))
         (list isar-unnamed-entity-regexp 1)))
 
 
