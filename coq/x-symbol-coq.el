@@ -52,7 +52,8 @@ See `x-symbol-header-groups-alist'."
    :decode-spec nil
    ;; decode-spec seems to go with highlighting encoding??
    :decode-regexp "\\([a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
-   :token-list #'x-symbol-coq-default-token-list))
+   :token-list #'x-symbol-coq-default-token-list
+	:input-spec nil))
 
 ;(defvar x-symbol-coq-input-token-grammar
 ;  '("\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
@@ -93,7 +94,6 @@ See `x-symbol-header-groups-alist'."
 ;;;===========================================================================
 ;;  super- and subscripts
 ;;;===========================================================================
-;not implemeted yet
 
 (defcustom x-symbol-coq-subscript-matcher 'x-symbol-coq-subscript-matcher
   "Function matching super-/subscripts for language `isa'.
@@ -164,7 +164,7 @@ or subscript tag."
       (setq x-symbol-coq-subscript-type
             (funcall x-symbol-coq-subscript-matcher limit))))
 
-;(defvar x-symbol-coq-font-lock-keywords nil)
+
 
 (defvar x-symbol-coq-font-lock-allowed-faces t)
 ;;;===========================================================================
