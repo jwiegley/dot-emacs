@@ -12,10 +12,10 @@
 ;; GNU Emacs or Texinfo.
 ;; 
 ;;
-;; This package generates Texinfo source fragments from Emacs 
-;; docstrings.   This avoids documenting functions and variables
-;; in more than one place, and automatically adds Texinfo markup
-;; to docstrings.
+;; This package generates Texinfo source fragments from Emacs
+;; docstrings.  This avoids documenting functions and variables in
+;; more than one place, and automatically adds Texinfo markup to
+;; docstrings.
 ;;
 ;; It relies heavily on you following the Elisp documentation
 ;; conventions to produce sensible output, check the Elisp manual
@@ -51,7 +51,7 @@
 ;; 3. Words *emphasized* are made @strong{emphasized}
 ;; 4. Words sym-bol which are symbols become @code{sym-bol}.
 ;; 5. Upper cased words ARG corresponding to arguments become @var{arg}.
-;;    In fact, you can any word longer than three letters, so that
+;;    In fact, you can use any word longer than three letters, so that
 ;;    metavariables can be used easily.
 ;;    FIXME: to escape this, use `ARG'
 ;; 6. Words 'sym which are lisp-quoted are marked with @code{'sym}.
@@ -77,6 +77,10 @@
 ;;    one binding exists.
 ;;
 ;; ------
+;;
+;; Thanks to: Christoph Conrad for an Emacs compatibility fix.
+;;
+;; 
 
 (defun texi-docstring-magic-find-face (face)
   ;; Compatibility between FSF Emacs and XEmacs
@@ -190,7 +194,7 @@ including any whitespace included to delimit matches.")
      (get-buffer-create " texi-docstring-magic-untabify"))
     (insert string)
     (untabify (point-min) (point-max))
-    (prog1 (buffer-substring)
+    (prog1 (buffer-string)
       (kill-buffer (current-buffer)))))
 
 (defun texi-docstring-magic-munge-docstring (docstring args)
