@@ -13,9 +13,9 @@
       substr($filename,0,1)=="~") {
      print "Sorry, can't show you that file!\n"; 
   } elseif (substr($filename,-3)==".el") {
-     elisp_markup($filename,"fileshow.html");
+     elisp_markup($filename,"fileshow.php");
   } else {
-     outline_markup($filename,"fileshow.html",$expanded);
+     outline_markup($filename,"fileshow.php",$expanded);
   }
   print "</pre>\n";
   print "<hr>";
