@@ -29,20 +29,22 @@
 ;;  6. Goals buffer configuration
 ;;  7. Splash screen settings
 ;;  8. X-Symbol support
-;;  9. Global constants 
+;;  9. Prover specific settings
+;; 10. Global constants 
 ;;
 ;; The user options don't need to be set on a per-prover basis,
 ;; and the global constants probably should not be touched.
-;; The remaining variables in sections 2-5 should be set for
+;; The remaining variables in sections 2-9 should be set for
 ;; each proof assistant.  You don't need to set every variable
 ;; for basic functionality; consult the manual for details of
 ;; which ones are important.
 ;;
 ;; Customization groups and structure (sections in brackets)
 ;;
-;;  proof-general	 : Overall group
-;;    proof-user-options : User options for Proof General    (1)
-;;    <Prover name>      : User options for proof assistant
+;;  proof-general	      : Overall group
+;;    proof-user-options      : User options for Proof General    (1)
+;;    <ProverName>            : User options for proof assistant (9)
+;;    <ProverName->-internals : Internal settings for proof assistant (9)
 ;;
 ;;  proof-general-internals  :  Internal settings of Proof General 
 ;;    prover-config	     :  Configuration for proof assistant (2,3)
@@ -68,7 +70,7 @@
 ;; ==================================================
 
 
-;; Function for setting boolean values
+;; Function for setting values dynamically
 (defun proof-set-value (sym value)
   "Set a customize variable using set-default and a function.
 We first call `set-default' to set SYM to VALUE.
@@ -308,9 +310,13 @@ you should set `proof-tidy-response' to nil."
 (defcustom proof-follow-mode 'locked
   "*Choice of how point moves with script processing commands.
 One of the symbols: 'locked, 'follow, 'ignore.
+
 If 'locked, point sticks to the end of the locked region.
 If 'follow, point moves just when needed to display the locked region end.
-If 'ignore, point is never moved after movement commands."
+If 'ignore, point is never moved after movement commands or on errors.
+
+If you choose 'ignore, you can find the end of the locked using
+`M-x proof-goto-end-of-locked'."
   :type '(choice
 	  (const :tag "Follow locked region" locked)
 	  (const :tag "Keep locked region displayed" follow)
@@ -560,6 +566,24 @@ Warning messages can come from proof assistant or from Proof General itself."
 ;; proof-general-internal group.
 
 
+;; FIXME: maybe these should be defvars?
+
+(defcustom proof-assistant-cusgrp nil
+  "Symbol for the customization group of the user options for the proof assistant.
+Do not change this variable! It is set automatically by the mode 
+stub defined in proof-site, from the name given in 
+proof-assistant-table."
+  :type 'sexp
+  :group 'prover-config)
+
+(defcustom proof-assistant-internals-cusgrp nil
+  "Symbol for the customization group of the PG internal settings proof assistant.
+Do not change this variable! It is set automatically by the mode 
+stub defined in proof-site, from the name given in
+proof-assistant-table."
+  :type 'sexp
+  :group 'prover-config)
+
 (defcustom proof-assistant ""
   "Name of the proof assistant Proof General is using.
 Do not change this variable! It is set automatically by the mode 
@@ -568,8 +592,17 @@ proof-assistant-table."
   :type 'string
   :group 'prover-config)
 
-;; 18.12.98: Added this variable, useful for future simplified
-;;           mechanisms of instantiation.
+(defcustom proof-assistant-symbol nil
+  "Symbol for the proof assistant Proof General is using.
+Used for automatic configuration based on standard variable names.
+Settings will be found by looking for names beginning with this
+symbol as a prefix.
+Do not change this variable! It is set automatically by the mode 
+stub defined in proof-site, from the symbols given in 
+proof-assistant-table."
+  :type 'sexp
+  :group 'prover-config)
+
 (defcustom proof-assistant-symbol nil
   "Symbol name of the proof assistant Proof General is using.
 Used for automatic configuration based on standard variable names.
@@ -580,6 +613,7 @@ stub defined in proof-site, from the symbols given in
 proof-assistant-table."
   :type 'sexp
   :group 'prover-config)
+
 
 
 
@@ -1844,7 +1878,32 @@ X-Symbol support is deactivated."
 
 
 ;;
-;; 9. Global constants
+;; 9. Prover specific settings mirrored in Proof General
+;;
+
+;; FIXME: this is a way to renovate all the settings, and have
+;; them all prover-specific automatically.  Then people's save
+;; settings would work, and we could remove "mirror" settings.
+;; Is it worth it?
+
+;; NB: this section is work in progress
+
+(defmacro proof-defass-custom (sym &rest args)
+  `(defcustom ,(intern (concat (symbol-name
+				proof-assistant-symbol)
+			       (symbol-name sym)))
+     ,@args
+     :group ,(quote proof-assistant-cusgrp)))
+
+; (proof-defass-custom test "Hello"
+;  "Command"
+;  :type 'string)
+		     
+
+
+
+;;
+;; 10. Global constants
 ;; 
 (defcustom proof-general-name "Proof-General"
   "Proof General name used internally and in menu titles."
@@ -1873,6 +1932,9 @@ Elements of the list are tuples `(k . f)'
 where `k' is a key-binding (vector) and `f' the designated function."
   :type 'sexp
   :group 'proof-general-internals)
+
+
+
 
 
 
