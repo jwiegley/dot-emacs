@@ -25,7 +25,7 @@
 @c The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1997, 1998 LEGO Team, LFCS Edinburgh
+Copyright @copyright{} 1997, 1998 Proof General team, LFCS Edinburgh
 @end titlepage
 
 
@@ -38,13 +38,13 @@ It is supplied ready-customised for these proof assistants:
 
 @itemize @bullet
 @item 
-@b{LEGO Proof General} for LEGO Version 1.3.1 (full support)@*
+@b{LEGO Proof General} for LEGO Version 1.3.1@*
 by Thomas Kleymann and Dilip Sequeira
 @item 
-@b{Coq Proof General} for Coq Version 6.2 (full support)@*
+@b{Coq Proof General} for Coq Version 6.2@*
 by Healfdene Goguen
 @item 
-@b{Isabelle Proof General} for Isabelle (preliminary support)@*
+@b{Isabelle Proof General} for Isabelle@*
 by David Aspinall
 @end itemize
 
