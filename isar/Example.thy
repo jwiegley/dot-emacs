@@ -22,7 +22,7 @@ proof;
 qed;
 
 text {*
- This one is a good test for ProofGeneral to cope with block-structured
+ This one is a good test for Proof General to cope with block-structured
  proof texts.  Have fun with automatic indentation!
  *};
 
