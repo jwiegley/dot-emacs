@@ -722,7 +722,7 @@ last use time, to discourage saving these into the users database."
       (own-clipboard (car kill-ring))))
 
 ;; 3.3: these functions are experimental, in that they haven't
-;; been rigorously tested.  They don't work well in FSF Emacs.
+;; been rigorously tested.  FIXME: they don't work well in GNU Emacs.
 
 (defun pg-numth-span-higher-or-lower (span num &optional noerr)
   "Find NUM'th span after/before SPAN.  NUM is positive for after."
@@ -830,6 +830,30 @@ If NUM is negative, move upwards.  Return new span."
   "Move the region under point upwards in the buffer, past NUM spans."
   (interactive "p")
   (pg-move-region-down (- num)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Dragging regions around 
+;;
+;; FIXME: unfinished
+
+;(defvar pg-drag-region-point nil
+;  "Temporary store of point being dragged.")
+
+;(defun pg-mouse-drag-move-region-function (event click-count dragp)
+;  (save-excursion
+;    (let* ((span (span-at (mouse-set-point event) 'type)))
+;      (if span 
+;	  (if pg-drag-region-point
+;	      ;; Move the region at point to region here.
+	      
+
+	  
+;(defun pg-mouse-drag-up-move-region-function (event click-count)
+;  (setq pg-drag-region-point nil))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; FIXME: not working right yet, sigh...
 (defun proof-forward-command (&optional num)
