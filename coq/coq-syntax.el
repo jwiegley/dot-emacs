@@ -53,7 +53,7 @@ above coq-8.0beta. To do that, put (setq coq-version-is-V8 t) in your
 coq-version-is-V6, coq-version-is-V7 and coq-version-is-V74. If none
 of these 4 variables is set to t, then ProofGeneral guesses the
 version of coq by doing 'coqtop -v'. If this variable is put to t
-(before PG is loaded) then V74 is automatically put to t." )
+\(before PG is loaded) then V74 is automatically put to t." )
 
 
 
@@ -155,26 +155,25 @@ version of coq by doing 'coqtop -v'. If this variable is put to t
 	 "Ltac"))
 
 ;; Modules are like section in v > 7.4.
-(if (or coq-version-is-V74 coq-version-is-V8)
-	 (defvar coq-keywords-goal
+(defvar coq-keywords-goal
+  (if (or coq-version-is-V74 coq-version-is-V8)
 		'("Add\\s-+Morphism"
 		  "Chapter"
-		  "Declare\\s-+Module";;only if not followed by:=(see coq-proof-mode-p in coq.el)
+	"Declare\\s-+Module" ;;only if not followed by:=(see coq-proof-mode-p in coq.el)
 		  "Module"
 		  "Module\\s-+Type"
 		  "Section"
 		  "Correctness"
-		  "Definition";; only if not followed by := (see coq-proof-mode-p in coq.el)
+	"Definition" ;; only if not followed by := (see coq-proof-mode-p in coq.el)
 		  "Fact"
 		  "Goal"
 		  "Lemma"
 		  "Local"
 		  "Remark"
-		  "Theorem"))
-  (defvar coq-keywords-goal
+	"Theorem")
 	 '("Chapter"
 		"Correctness"
-		"Definition";; only if not followed by := (see coq-proof-mode-p in coq.el)
+      "Definition" ;; only if not followed by := (see coq-proof-mode-p in coq.el)
 		"Fact"
 		"Goal"
 		"Lemma"
@@ -294,7 +293,7 @@ Print and Check commands, put the following line in your .emacs:
 ;; 
 ;; Print Hint ==> state preserving
 (defvar coq-keywords-state-preserving-commands
-  (append '("(*" ;;Pierre comments must not be undone
+  (append '("(\\*" ;;Pierre comments must not be undone
 	    "Add\\s-+LoadPath"
 	    "Add\\s-+ML\\s-+Path"
 	    "Add\\s-+Rec\\s-+ML\\s-+Path"
