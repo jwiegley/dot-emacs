@@ -86,6 +86,7 @@ less than 1/2 the window height.  In progress; occasional flaws
 (e.g. when output window buffer total window height).  Available
 under PG -> Options -> Display -> Shrink To Fit.
 
+*** Add proof-indent-pad-eol setting to prettify locked regions in XEmacs.
 
 *** Parsing internals changed: minor user visible differences
 
