@@ -30,6 +30,30 @@
 (require 'isabelle-system)
 
 
+;;;
+;;; help menu
+;;;
+
+(defpgdefault help-menu-entries
+  (append
+   isabelle-docs-menu
+   (list
+    (cons "Show me ..."
+	  (list
+	   ["antiquotations" (proof-shell-invisible-command "print_antiquotations") t]
+	   ["attributes" (proof-shell-invisible-command "print_attributes") t]
+	   ["classical rules" (proof-shell-invisible-command "print_claset") t]
+	   ["commands" (proof-shell-invisible-command "print_commands") t]
+	   ["global theorems" (proof-shell-invisible-command "print_theorems") t]
+	   ["inner syntax" (proof-shell-invisible-command "print_syntax") t]
+	   ["local contexts" (proof-shell-invisible-command "print_cases") t]
+	   ["local theorems" (proof-shell-invisible-command "print_facts") t]
+	   ["methods" (proof-shell-invisible-command "print_methods") t]
+	   ["simplifier rules" (proof-shell-invisible-command "print_simpset") t]
+	   ["term bindings" (proof-shell-invisible-command "print_binds") t]
+	   ["transitivity rules" (proof-shell-invisible-command "print_trans_rules") t])))))
+
+
 ;; To make byte compiler be quiet.
 ;; NASTY: these result in loads when evaluated 
 ;; ordinarily (from non-byte compiled code).
@@ -190,7 +214,7 @@
    proof-goal-command		"lemma \"%s\";"
    proof-save-command		"qed"
    proof-context-command	"print_context"
-   proof-info-command		"help"
+   proof-info-command		"welcome"
    proof-kill-goal-command	"ProofGeneral.kill_proof;"
    proof-find-theorems-command  "thms_containing %s;"
    proof-shell-start-silent-cmd "disable_pr;"
