@@ -36,6 +36,8 @@ C  The semantics of `proof-script-buffer-list' is ambigous. The first
 A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2+2 days; da + tms)
 
+A* Bug in proof-mode configuration of func-menu.  (30mins)
+
 A* FIX INDENTATION CODE, EDITING .ML (& other?) FILES IS CHRONICALLY SLOW.
   This is going to hit us hard as soon as the mode gets used in
   earnest.

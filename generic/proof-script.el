@@ -1456,6 +1456,10 @@ finish setup which depends on specific proof assistant configuration."
     (concat (regexp-quote proof-comment-start) "+\\s_?"))
 
   ;; func-menu --- Jump to a goal within a buffer
+  ;; FIXME 1: is there any way to get this to work for named saves
+  ;; instead of named goals?
+  ;; FIXME 2: each time proof mode is entered these extensions are
+  ;; made!  Probably needs moving out of this function.
   (and (boundp 'fume-function-name-regexp-alist)
        (defvar fume-function-name-regexp-proof
 	 (cons proof-goal-with-hole-regexp 2))
