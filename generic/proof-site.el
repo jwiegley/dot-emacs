@@ -114,9 +114,8 @@ You can use customize to set this variable."
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
     (phox	"PhoX"		"\\.phx$")
-    ;; The following provers are not fully supported, 
-    ;; and have only preliminary support written 
-    ;; (please volunteer to improve them!)
+    ;; The following provers are not fully supported, and have only
+    ;; preliminary support written (please volunteer to improve them!)
     (hol98	"HOL"		"\\.sml$")
     (acl2	"ACL2"		"\\.acl2$")
     (twelf	"Twelf"		"\\.elf$")
