@@ -14,12 +14,6 @@
 ;; -----------------------------------------------------------------
 
 
-;; Add Isabelle image onto splash screen
-(setq proof-splash-extensions
-      '(list
-	nil
-	(proof-get-image "isabelle_transparent" t)))
-
 ;; In case Isa mode was invoked directly or by -*- isa -*- at
 ;; the start of the file, ensure that Isa mode is used from now
 ;; on for .thy and .ML files.  

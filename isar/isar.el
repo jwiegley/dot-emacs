@@ -8,12 +8,6 @@
 ;; $Id$
 ;;
 
-;; Add Isabelle image onto splash screen
-(setq proof-splash-extensions
- '(list
-   nil
-   (proof-get-image "isabelle_transparent" t)))
-
 (require 'proof)
 
 ;;
