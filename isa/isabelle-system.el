@@ -285,6 +285,11 @@ until Proof General is restarted."
   :type 'boolean
   :setting "long_names:=%b;")
 
+(defpacustom eta-contract  t
+  "Whether to print terms eta-contracted in Isabelle."
+  :type 'boolean
+  :setting "Syntax.eta_contract:=%b;")
+
 (defpacustom trace-simplifier  nil
   "Whether to trace the Simplifier in Isabelle."
   :type 'boolean
@@ -299,6 +304,16 @@ until Proof General is restarted."
   "Whether to enable timing in Isabelle."
   :type 'boolean
   :setting "Library.timing:=%b;")
+
+(defpacustom goals-limit  10
+  "Setting for maximum number of goals printed in Isabelle."
+  :type 'integer
+  :setting "goals_limit:=%i;")
+
+(defpacustom prems-limit  10
+  "Setting for maximum number of premises printed in Isabelle/Isar."
+  :type 'integer
+  :setting "ProofContext.prems_limit:=%i;")
 
 (defpacustom print-depth  10
   "Setting for the ML print depth in Isabelle."
