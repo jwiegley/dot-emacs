@@ -241,7 +241,7 @@ pgscripts:
 
 # Set PGHOME path in scripts back to default location.
 cleanpgscripts:
-	make pgscripts ELISP=..
+	make pgscripts DEST_ELISP='$$$$HOME/ProofGeneral'
 
 
 ##
