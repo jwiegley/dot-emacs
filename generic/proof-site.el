@@ -115,7 +115,7 @@ You can use customize to set this variable."
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
     (isar       "Isabelle/Isar" "\\.thy$")
     (lego	"LEGO"		"\\.l$")
-    (coq	"Coq"		"\\.v$")
+    (coq	"Coq"		"\\.v$\\|\\.v8$\\|\\.v7$")
     (phox	"PhoX"		"\\.phx$")
     ;; The following provers are not fully supported, and have only
     ;; preliminary support written (please volunteer to improve them!)
