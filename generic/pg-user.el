@@ -114,7 +114,7 @@ the proof script."
   (proof-maybe-save-point
    (let
       ((span (proof-last-goal-or-goalsave)))
-     (if (and span (not (eq (span-property span 'type) 'goalsave))
+     (if (and span (not (eq (span-property span 'type) 'proof))
 	      (< (span-end span) (proof-unprocessed-begin)))
 	 (progn
 	   (goto-char (span-start span))

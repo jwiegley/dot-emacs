@@ -367,7 +367,7 @@ proof-shell-retract-files-regexp."
        ((or (eq (span-property span 'type) 'comment)
             (proof-string-match isar-undo-skip-regexp str)))
        ;; finished goal: undo
-       ((eq (span-property span 'type) 'goalsave)
+       ((eq (span-property span 'type) 'proof)
         (setq ans isar-undo))
        ;; open goal: skip and exit
        ((proof-string-match isar-goal-command-regexp str)
