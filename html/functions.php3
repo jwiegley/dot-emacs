@@ -36,6 +36,7 @@ function mlink($addr) {
   print "<a href=\"mailto:" . $addr . "\">" . $addr . "</a>";
 }
 
+// FIXME: doesn't seem to work.  Why not?
 function project_email() {
   mlink($project_email);
 }
