@@ -46,9 +46,6 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
      (Dave has email)
    * Improve trivial and uniformative docstrings.
    * Fixup markup mistakes by editing docstrings.
-   * Fix docstring magic so PROOFGENERAL_HOME is not var'd.
-   * New line after first sentence of docstrings.
-   * Several env variables / LEGO name stuff:: make `STUFF' be literal.
    * Update menus in texi
   [6 hours]
 
@@ -142,16 +139,19 @@ C da: goal-hyp: this should be more generic.  At the moment, there are
   default behaviour for proof-goal-hyp-fn a hook function.
   That will work for Isabelle too.   (15 mins)
 
-
 C Process handling output.
   Handling mixtures of urgent and non-urgent messages:
   at the moment any non-urgent output *before* an urgent
   message will not be displayed in the response buffer.
   Accept this as a feature for now.
 
-C  proof-goal-command-regexp: add this setting to coq.el.
-   Rationalize use of proof-goal-command-p
-   (probably can be scrapped now).  
+C  proof-goal-command-regexp: the syntax of Coq spoils the
+   uniform use of a regexp to match a goal (since it allows
+   goals to begin Definition ...).  Nonetheless, it would be
+   for this not to mean that everyone else needs to set
+   proof-goal-command-p.  Perhaps some crucial regexps can
+   be used via proof-string-match-p which would allow a 
+   function to be invoked instead? (Cf font lock).
 
 C Improve indentation code and see why it's so slow (at
   least for Isabelle).   Enable it for particular provers if
