@@ -56,7 +56,7 @@ all:	$(ELC)
 ##
 ##	
 clean:
-	rm -f $(ELC)
+	rm -f $(ELC) *~ 
 	(cd doc; $(MAKE) clean)
 
 
