@@ -64,8 +64,21 @@
 ;;  ML code around.  One solution is to define a
 ;;  restricted language consisting of the interactive
 ;;  commands.  We'd still need regexps below, though.
-;;  Alternatively: customize this for Marcus Wenzel's 
-;;  proof language.
+;;  Alternative 1: customize this for Markus Wenzel's 
+;;  proof language.  Markus has done this now!
+;;  Alternative 2: add hooks from Isabelle to say
+;;  "I've just seen a goal command" or "I've just seen a
+;;  tactic".  This would allow more accurate 
+;; counting of undos.
+
+;; FIXME da:  here are some examples of input failures I've
+;; found in real proofs:
+;;
+;;   val lemma = result() RS spec RS mp;
+;;
+;; Not recognized as a qed command, and therefore assumed 
+;; to be an undoable tactic command.
+;;
 
 
 (defgroup isa-syntax nil
@@ -92,10 +105,10 @@
   :type '(repeat string))
 
 (defcustom isa-keywords-save
-  '("qed" "qed_spec_mp" "no_qed")
+  '("qed" "qed_spec_mp" "no_qed" "result()" "result ()")
   ;; Related commands, but having different types, so PG
   ;; won't bother support them:
-  ;; "result" "uresult" "bind_thm" "store_thm"
+  ;; "uresult" "bind_thm" "store_thm"
     "Isabelle commands to extract the proved theorem"
   :group 'isa-syntax
   :type '(repeat string))
