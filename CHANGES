@@ -1,20 +1,33 @@
 Summary of Changes for Proof General 3.1 from 3.0
 =================================================
 
-[ No changes yet, this release is the same as the stable 3.0 version ]
 
 Generic Changes
 ---------------
 
+Minor bug fix for duplicated short output.
+ (set proof-shell-eager-annotation-start-length appropriately)
+
+
 Coq Changes
 -----------
+
 
 LEGO Changes
 ------------
 
 
-Isabelle and Isar Changes
--------------------------
+Isabelle Changes
+----------------
+
+
+Isar Changes
+------------
+
+Minor syntax tweaks.
+
+
+
 
 Only in the developers' release
 -------------------------------
