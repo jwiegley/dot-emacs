@@ -410,6 +410,7 @@ a proof command."
      (error "Proof General not configured for this: set %s" 
 	    ,(symbol-name var))))
 
+;;;###autoload
 (defmacro proof-define-assistant-command (fn doc cmdvar &optional body)
   "Define command FN to send string BODY to proof assistant, based on CMDVAR.
 BODY defaults to CMDVAR, a variable."
@@ -422,6 +423,7 @@ BODY defaults to CMDVAR, a variable."
      (proof-if-setting-configured ,cmdvar
        (proof-shell-invisible-command ,(or body cmdvar)))))
 
+;;;###autoload
 (defmacro proof-define-assistant-command-witharg (fn doc cmdvar prompt &rest body)
   "Define command FN to prompt for string CMDVAR to proof assistant.
 CMDVAR is a function or string.  Automatically has history."
