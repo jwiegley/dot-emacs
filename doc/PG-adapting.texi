@@ -3183,12 +3183,11 @@ or possibly discarded until the queue is empty is copied into
 
 
 @c TEXI DOCSTRING MAGIC: proof-shell-last-output
-
 @defvar proof-shell-last-output 
 A record of the last string seen from the proof system.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-last-output-kind
 
+@c TEXI DOCSTRING MAGIC: proof-shell-last-output-kind
 @defvar proof-shell-last-output-kind 
 A symbol denoting the type of the last output string from the proof system.@*
 Specifically:
@@ -3199,8 +3198,8 @@ Specifically:
  @code{'loopback}       A command sent from the PA to be inserted into the script
  @code{'response}       A response message
  @code{'goals}          A goals (proof state) display
- @code{'systemspecific} } Something specific to a particular system,
-                 }  see @samp{@code{proof-shell-process-output-system-specific}}
+ @code{'systemspecific} Something specific to a particular system,
+                  -- see @samp{@code{proof-shell-process-output-system-specific}}
 @end lisp
 The output corresponding to this will be in @code{proof-shell-last-output}.
 
@@ -3210,18 +3209,18 @@ the proof process output, when ends of proofs are spotted.
 This variable can be used for instance specific functions which want
 to examine @code{proof-shell-last-output}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output
 
+@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output
 @defvar proof-shell-delayed-output 
 A copy of @code{proof-shell-last-output} held back for processing at end of queue.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-delayed-output-kind
-
-
 @defvar proof-shell-delayed-output-kind 
 A copy of proof-shell-last-output-lind held back for processing at end of queue.
 @end defvar
 @vindex proof-action-list
+
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output
 @defun proof-shell-process-output cmd string
 Process shell output (resulting from @var{cmd}) by matching on @var{string}.@*
