@@ -14,6 +14,8 @@ rely too much on the etags mechanism.
 
  Workaround: you may need to retract to the beginning of the proof.
 
+** Coq Proof General does not know about Coq's Section mechanism.
+
 ** Surely others that aren't mentioned here...
   
   Please report them to proofgen@dcs.ed.ac.uk.
