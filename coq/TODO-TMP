@@ -1,0 +1,21 @@
+--- multiple file hacking finish
+--- X-sym wierdness: (1) (warning/warning) Must provide :input-spec
+--- nick ideas from coq-ide: proof wizard
+     (also their goto point is rather nicer: suspect it uses internal 
+	state).
+
+--- continue plan of adding more commands to menus, etc
+
+--- can we fontify ----- as a rule?
+
+--- buggy indentation:
+
+(substring (setq a (shell-command-to-string
+			    (concat
+			     "coqdep *.v | grep " 
+			     (file-name-nondirectory 
+			      (file-name-sans-extension fname)) ".v"
+			      " | awk '{print $1}' | sed 's/.vo:/.v/'")))
+a  -- TAB here loops forever
+
+
