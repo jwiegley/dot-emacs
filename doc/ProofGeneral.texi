@@ -17,7 +17,7 @@
 @c http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
-@clear haveeps
+@set haveeps
 @c
 @iftex
 @afourpaper
@@ -70,10 +70,10 @@ END-INFO-DIR-ENTRY
 @c
 @c MACROS
 @c
-@c define one here for a command with a keybinding?
+@c define one here for a command with a key-binding?
 @c
-@c I like the idea, but it's maybe against the texinfo
-@c style to fix together a command and its keybinding.
+@c I like the idea, but it's maybe against the TeXinfo
+@c style to fix together a command and its key-binding.
 @c
 @c merge functions and variables into concept index.
 @c @syncodeindex fn cp
@@ -100,7 +100,7 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@c image{ProofGeneralPortrait}
+@image{ProofGeneralPortrait}
 @end ifset
 @end iftex
 @author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
@@ -230,7 +230,7 @@ Finally, Proof General has become much easier to adapt to new provers
 --- it fails gracefully (or not at all!) when particular configuration
 variables are unset, and provides more default settings which work
 out-of-the-box.  An example configuration for Isabelle is provided,
-which uses just 25 simple settings.
+which uses just 25 or so simple settings.
 
 This manual has been updated and extended for Proof General 3.0.
 Amongst other improvements, it has a better description of how to add
@@ -315,7 +315,7 @@ shipped out the package to friends.
 In June 1998, David Aspinall reentered the picture by providing an
 instantiation for Isabelle. Actually, our previous version wasn't quite
 as generic as we had hoped. Whereas LEGO and Coq are similar systems in
-many ways, Isabelle was really a different beast. Fierce reengineering
+many ways, Isabelle was really a different beast. Fierce re-engineering
 and various usability improvements were provided by Aspinall and
 Kleymann to make it easier to instantiate to new proof systems. The
 major technical improvement was a truly generic extension of script
@@ -384,7 +384,7 @@ has been managed by David Aspinall since then.
 
 This manual was written by David Aspinall and Thomas Kleymann.  Some
 words found their way here from the user documentation of LEGO mode,
-prepared by Dilip Sequeria.  Healfdene Goguen supplied some text for Coq
+prepared by Dilip Sequeira.  Healfdene Goguen supplied some text for Coq
 Proof General.  The extensive revision of this manual for Proof General
 3.0 has been made by David Aspinall.
 
@@ -593,7 +593,7 @@ assistant to provide it.
 @node Supported proof assistants
 @section Supported proof assistants
 
-Proof General comes ready-customised for these proof assistants:
+Proof General comes ready-customized for these proof assistants:
 
 @c FLAG VERSIONS HERE
 @itemize @bullet
@@ -1603,7 +1603,7 @@ In fact, there is a general problem of editing files which may be
 processed by the proof assistant automatically.  Synchronization can be
 broken whenever you have unsaved changes in a proof script buffer and
 the proof assistant processes the corresponding file.  (Of course, this
-problem is familiar from programming development using separate editors
+problem is familiar from program development using separate editors
 and compilers).  The good news is that Proof General can detect the
 problem and flashes up a warning in the response buffer.  You can then
 visit the modified buffer, save it and retract to the beginning. Then
@@ -1748,12 +1748,19 @@ The packages currently supported are
 @code{outline-mode},
 and @code{etags}.
 
+Apart from these designated packages, many other packages in Emacs will
+be useful when using Proof General, even though they need no specific
+configuration for Proof General.  It is worth taking time to explore the
+Emacs manual to find out about them.  One that we highlight in
+particular is @code{abbrev-mode}.
+
 @menu
 * Syntax highlighting::         
 * X-Symbol support::
 * Support for function menus::  
 * Support for outline mode::    
 * Support for tags::            
+* Using abbreviations::
 @end menu
 
 @node Syntax highlighting
@@ -1768,7 +1775,7 @@ and @code{etags}.
 Proof script buffers are decorated (or @i{fontified}) with colours, bold
 and italic fonts, etc, according to the syntax of the proof language and
 the settings for @code{font-lock-keywords} made by the proof assistant
-specific portion of Proof General.  Moroever, Proof General usually
+specific portion of Proof General.  Moreover, Proof General usually
 decorates the output from the proof assistant, also using
 @code{font-lock}.
 
@@ -1897,6 +1904,57 @@ already have customized, Proof General doesn't do this automatically.
 
 For more information on how to use tags, @inforef{Tags, ,(xemacs)}.
 
+@node Using abbreviations
+@section Using abbreviations
+
+A very useful package of Emacs supports automatic expansions of
+abbreviations as you type, @inforef{Abbrevs, ,(xemacs)}.
+
+Proof General has no special support for abbreviations, we just mention
+it here to encourage its use.  For example, the proof assistant Coq has
+many command strings that are long, such as ``Reflexivity,''
+``Inductive,'' ``Definition'' and ``Discriminate.''  Here is the
+Coq Proof General author's suggested abbreviations for Coq:
+@lisp
+"assn" 0 "Assumption"
+"ax" 0 "Axiom"
+"coern" 0 "Coercion"
+"cofixpt" 0 "CoFixpt"
+"coindv" 0 "CoInductive"
+"constr" 0 "Constructor"
+"contradn" 0 "Contradiction"
+"defn" 0 "Definition"
+"discr" 0 "Discriminate"
+"extrn" 0 "Extraction"
+"fixpt" 0 "Fixpoint"
+"genz" 0 "Generalize"
+"hypo" 0 "Hypothesis"
+"immed" 0 "Immediate"
+"indn" 0 "Induction"
+"indv" 0 "Inductive"
+"injn" 0 "Injection"
+"intn" 0 "Intuition"
+"invn" 0 "Inversion"
+"pmtr" 0 "Parameter"
+"refly" 0 "Reflexivity"
+"rmk" 0 "Remark"
+"specz" 0 "Specialize"
+"symy" 0 "Symmetry"
+"thm" 0 "Theorem"
+"transpt" 0 "Transparent"
+"transy" 0 "Transitivity"
+"trivial" 0 "Trivial"
+"varl" 0 "Variable"
+@end lisp
+
+The above list was taken from the file that Emacs saves between
+sessions.  The easiest way to configure abbreviations is as you write,
+by using the key presses @kbd{C-x a g} (@code{add-global-abbrev}) or
+@kbd{C-x a i g} (@code{inverse-add-global-abbrev}).  To enable expansion
+of abbreviations, the @code{Abbrev} minor mode, type @kbd{M-x
+abbrev-mode RET}.  See the Emacs manual for more details.
+
+
 
 
 @node Customizing Proof General
@@ -1906,10 +1964,10 @@ For more information on how to use tags, @inforef{Tags, ,(xemacs)}.
 
 There are two kinds of customization for Proof General: it can be
 customized for a user's preferences using a particular proof assistant,
-or it can be customized by an Emacs expert to add a new proof assistant.
-Here we cover the user-level customization for Proof General,
-see @ref{Adapting Proof General to Other Provers}, for how to configure
-for a new proof assistant.
+or it can be customized by a developer to add support for a new proof
+assistant.  Here we cover the user-level customization for Proof
+General, see @ref{Adapting Proof General to Other Provers}, for how to
+configure for a new proof assistant.
 
 We only consider settings for Proof General itself.  The support for a
 particular proof assistant can provide extra customization settings.
@@ -2125,7 +2183,7 @@ automatically issue @samp{@code{proof-assert-next-command}} for convenience,
 to send the command straight to the proof process.  If the command
 you want to send already has a terminator character, you don't
 need to delete the terminator character first.  Just press the
-terminator somwhere nearby.  Electric!
+terminator somewhere nearby.  Electric!
 
 The default value is @code{nil}.
 @end defopt
@@ -2142,7 +2200,7 @@ The default value is @code{t}.
 @defopt proof-x-symbol-enable 
 Whether to use x-symbol in Proof General buffers.@*
 If you activate this variable, whether or not you get x-symbol support
-depends on whether your proof assistant supports it and whehter
+depends on whether your proof assistant supports it and whether
 X-Symbol is installed in your Emacs.
 
 The default value is @code{nil}.
@@ -2342,11 +2400,18 @@ The default value is @code{""}.
 @section Changing faces
 
 The fonts and colours that Proof General uses are configurable.  If you
-alter these through the customize menus, only the particular kind of
-display in use (colour window system, monochrome window system, console,
-@dots{}) will be affected.  This means you can keep separate default
-settings for each different display environment where you use Proof
-General.
+alter faces through the customize menus (or the command @kbd{M-x
+customize-face}), only the particular kind of display in use (colour
+window system, monochrome window system, console, @dots{}) will be
+affected.  This means you can keep separate default settings for each
+different display environment where you use Proof General.
+
+As well as the faces listed below, Proof General may use the regular
+@code{font-lock-} faces (eg @code{font-lock-keyword-face},
+@code{font-lock-variable-name-face}, etc) for fontifying the proof
+script or proof assistant output.  These can be altered to your taste
+just as easily, but note that they will affect all font-lock modes which
+use them!
 
 
 @c TEXI DOCSTRING MAGIC: proof-queue-face
@@ -2357,19 +2422,6 @@ Face for commands in proof script waiting to be processed.
 @c TEXI DOCSTRING MAGIC: proof-locked-face
 @deffn Face proof-locked-face 
 Face for locked region of proof script (processed commands).
-@end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-declaration-name-face
-@deffn Face proof-declaration-name-face 
-Face for declaration names in proof scripts.@*
-Exactly what uses this face depends on the proof assistant.
-@end deffn
-
-
-@c TEXI DOCSTRING MAGIC: proof-tacticals-name-face
-@deffn Face proof-tacticals-name-face 
-Face for names of tacticals in proof scripts.@*
-Exactly what uses this face depends on the proof assistant.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-error-face
@@ -2388,21 +2440,33 @@ Warning messages can come from proof assistant or from Proof General itself.
 Face for debugging messages from Proof General.
 @end deffn
 
+@c TEXI DOCSTRING MAGIC: proof-declaration-name-face
+@deffn Face proof-declaration-name-face 
+Face for declaration names in proof scripts.@*
+Exactly what uses this face depends on the proof assistant.
+@end deffn
 
-@c Maybe this detail of explanation belongs in the internals,
-@c with just a hint here.
-The slightly bizarre name of the next face comes from the idea that
-while large amounts of output are being sent from the prover, some
-messages should be displayed to the user while the bulk of the output is
-hidden.  The messages which are displayed may have a special annotation
-to help Proof General recognize them, and this is an "eager" annotation
-in the sense that it should be processed as soon as it is observed
-by Proof General.
+
+@c TEXI DOCSTRING MAGIC: proof-tacticals-name-face
+@deffn Face proof-tacticals-name-face 
+Face for names of tacticals in proof scripts.@*
+Exactly what uses this face depends on the proof assistant.
+@end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-eager-annotation-face
 @deffn Face proof-eager-annotation-face 
 Face for important messages from proof assistant.
 @end deffn
+
+@c Maybe this detail of explanation belongs in the internals,
+@c with just a hint here.
+The slightly bizarre name of the last face comes from the idea that
+while large amounts of output are being sent from the prover, some
+messages should be displayed to the user while the bulk of the output is
+hidden.  The messages which are displayed may have a special annotation
+to help Proof General recognize them, and this is an "eager" annotation
+in the sense that it should be processed as soon as it is observed by
+Proof General.
 
 
 
@@ -2454,7 +2518,7 @@ of the customization setting @code{lego-www-home-page}.  At present
 there is no easy way to save changes to other configuration variables
 across sessions, other than by editing the source code.  (In future
 versions of Proof General, we plan to make all settings editable in
-Customize, by shadowing all the settings as prover specific ones).
+Customize, by shadowing the settings as prover specific ones).
 @c Please contact us if this proves to be a problem for any variable.
 
 
@@ -2583,7 +2647,6 @@ but does not have integrated file management or proof-by-pointing yet.
 * Coq-specific commands::
 * Editing multiple proofs::
 * User-loaded tactics::
-* Suggested Coq abbreviations::
 @end menu
 
 
@@ -2649,53 +2712,6 @@ move the point back past one extended tactic, he or she can type C-c C-v
 recognize.
 
 
-@node Suggested Coq abbreviations
-@section Suggested Coq abbreviations
-@c FIXME: could make this generic
-
-Coq has many command strings that are long, such as ``Reflexivity,''
-``Inductive,'' ``Definition'' and ``Discriminate.''  Although it is
-not a feature particular to Coq, it can be very useful to add
-abbreviations and enable Abbrev mode in Coq Proof General.
-
-Here is a suggested list of abbreviations for Coq:
-@lisp
-"assn" 0 "Assumption"
-"ax" 0 "Axiom"
-"coern" 0 "Coercion"
-"cofixpt" 0 "CoFixpt"
-"coindv" 0 "CoInductive"
-"constr" 0 "Constructor"
-"contradn" 0 "Contradiction"
-"defn" 0 "Definition"
-"discr" 0 "Discriminate"
-"extrn" 0 "Extraction"
-"fixpt" 0 "Fixpoint"
-"genz" 0 "Generalize"
-"hypo" 0 "Hypothesis"
-"immed" 0 "Immediate"
-"indn" 0 "Induction"
-"indv" 0 "Inductive"
-"injn" 0 "Injection"
-"intn" 0 "Intuition"
-"invn" 0 "Inversion"
-"pmtr" 0 "Parameter"
-"refly" 0 "Reflexivity"
-"rmk" 0 "Remark"
-"specz" 0 "Specialize"
-"symy" 0 "Symmetry"
-"thm" 0 "Theorem"
-"transpt" 0 "Transparent"
-"transy" 0 "Transitivity"
-"trivial" 0 "Trivial"
-"varl" 0 "Variable"
-@end lisp
-You need to read the Emacs manual to find out how to configure these
-abbreviations.  It is possible to copy the text above into a file that
-Emacs reads.
-@c How?
-
-
 
 
 
@@ -2721,7 +2737,7 @@ Emacs reads.
 
 Isabelle Proof General supports all of the generic features of
 Proof General, including integration with Isabelle's theory
-loader, for proper automatic multiple file handling.
+loader for proper automatic multiple file handling.
 
 Isabelle Proof General includes a mode for editing theory files taken
 from David Aspinall's Isamode interface, see
@@ -3090,7 +3106,7 @@ normal configuration variables which may be examined by
 
 There are four major modes used by Proof General, one for each type of
 buffer it handles.  The buffer types are: script, shell, response and
-goals.  Each of these has a generic mode, respecitvely:
+goals.  Each of these has a generic mode, respectively:
 @code{proof-mode}, @code{proof-shell-mode}, @code{proof-response-mode},
 and @code{proof-pbp-mode}.
 
@@ -4005,13 +4021,13 @@ Proof General name used internally and in menu titles.
 @defopt proof-general-home-page 
 Web address for Proof General
 
-The default value is @code{"http://zermelo.dcs.ed.ac.uk/home/proofgen"}.
+The default value is @code{"http://www.dcs.ed.ac.uk/home/proofgen"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-universal-keys
 @defvar proof-universal-keys 
-List of keybindings made for the script, goals and response buffer. @*
+List of key-bindings made for the script, goals and response buffer. @*
 Elements of the list are tuples @samp{(k . f)} 
-where @samp{k} is a keybinding (vector) and @samp{f} the designated function.
+where @samp{k} is a @code{key-binding} (vector) and @samp{f} the designated function.
 @end defvar
 
 
@@ -4065,7 +4081,7 @@ read.
 
 The way that @code{proof-included-files-list} is maintained is the key
 to multiple file management.  (But you should not set this variable
-directly, it is managed via the configuration setttings).
+directly, it is managed via the configuration settings).
 
 @vindex proof-shell-process-file
 @vindex proof-shell-retract-files-regexp
