@@ -10,6 +10,9 @@
 
 (require 'proof-config)			; for proof-follow-mode
 
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; first a couple of helper functions 
@@ -461,16 +464,22 @@ Start up the proof assistant if necessary."
 ;; command.
 ;;
 
-(proof-define-assistant-command proof-prf  
+(proof-define-assistant-command proof-prf
   "Show the current proof state."
-  proof-showproof-command)
+  proof-showproof-command
+  (progn 
+    (pg-goals-buffers-hint)
+    proof-showproof-command))
+
 (proof-define-assistant-command proof-ctxt 
   "Show the current context."
   proof-context-command)
+
 (proof-define-assistant-command proof-help 
   "Show a help or information message from the proof assistant.
 Typically, a list of syntax of commands available."
   proof-info-command)
+
 (proof-define-assistant-command proof-cd
   "Change directory to the default directory for the current buffer."
   proof-shell-cd-cmd
@@ -979,7 +988,39 @@ If NUM is negative, move upwards.  Return new span."
 ;	     )))))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Message buffer hints
+;;
 
+(defun pg-goals-buffers-hint ()
+  (pg-hint "Use \\[proof-display-some-buffers] to rotate output buffers; \\[pg-response-clear-displays] to clear response & trace."))
+
+(defun pg-response-buffers-hint ()
+  (pg-hint
+   "Use \\[proof-prf] to refresh and display goals buffer; \\[proof-display-some-buffers] to rotate"))
+  
+(defun pg-processing-complete-hint ()
+  "Display hint for showing end of locked region or processing complete."
+  (if (buffer-live-p proof-script-buffer)
+      (let ((win (get-buffer-window proof-script-buffer)))
+	(unless ;; end of locked already displayed
+	    (and win (pos-visible-in-window-p (proof-unprocessed-begin)))
+	  (save-excursion 
+	    (set-buffer proof-script-buffer)
+	    (cond
+	     ((proof-locked-region-empty-p)) ;; nothing if empty
+	     ((proof-locked-region-full-p)
+	      (pg-hint 
+	       (concat "Processing complete in " (buffer-name proof-script-buffer))))
+	     (t ;; partly complete: hint about displaying the locked end
+	      (pg-hint
+	       "Use \\[proof-goto-end-of-locked] to display end of locked region"))))))))
+
+(defun pg-hint (hintmsg)
+  "Display a hint HINTMSG in the minibuffer, if `pg-show-hints' is non-nil.
+The function `substitute-command-keys' is called on the argument."
+  (if pg-show-hints (message (substitute-command-keys hintmsg))))
 
 (provide 'pg-user)
 ;; pg-user.el ends here.
