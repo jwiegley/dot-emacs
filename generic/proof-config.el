@@ -1885,7 +1885,7 @@ X-Symbol support is deactivated."
 
 
 ;;
-;; 9. Prover specific settings mirrored in Proof General
+;; 9. Prover specific settings 
 ;;
 
 ;; FIXME: this is a way to renovate all the settings, and have
@@ -1913,6 +1913,11 @@ X-Symbol support is deactivated."
 
 (proof-defasscustom favourites nil
   "Favourites on proof assistant specific menu.")
+
+; (proof-defasscustom help-menu nil
+;  "Favourites on proof assistant specific menu.")
+
+
 		     
 
 
