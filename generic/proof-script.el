@@ -1408,15 +1408,11 @@ the proof script."
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  Warning! This may confuse Proof General."
   (interactive)
-  (if (not (proof-shell-live-buffer))
+  (unless (proof-shell-live-buffer)
       (error "Proof Process Not Started!"))
-  ; 1.10.99 da: removed this test, it seems silly.
-  ; (if (not (eq (current-buffer) proof-script-buffer))
-  ;    (error "Don't own process!"))
-  (if (not proof-shell-busy)
-      (error "Proof Process Not Active!"))
-  (save-excursion
-    (set-buffer proof-shell-buffer)
+  (unless proof-shell-busy
+    (error "Proof Process Not Active!"))
+  (with-current-buffer proof-shell-buffer
     (comint-interrupt-subjob)))
   
     
