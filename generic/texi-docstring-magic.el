@@ -251,21 +251,6 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
       (if useropt
 	  (setq docstring (substring docstring 1)))
       (texi-docstring-magic-texi "fn" "Face" name docstring nil)))
-   ((fboundp symbol)
-    ;; Functions.
-    ;; We don't handle macros,  aliases, or compiled fns properly.
-    (let*
-	((function  symbol)
-	 (name	    (symbol-name function))
-	 (docstring (or (documentation function)
-			"Not documented."))
-	 (def	    (symbol-function function))
-	 (argsyms   (cond ((eq (car-safe def) 'lambda)
-			   (nth 1 def))))
-	 (args	    (mapcar 'symbol-name argsyms)))
-      (if (commandp function)
-	  (texi-docstring-magic-texi "fn" "Command" name docstring args)
-	(texi-docstring-magic-texi "un" nil name docstring args))))
    ((boundp symbol)
     ;; Variables.
     (let*
@@ -283,6 +268,22 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 	  (setq docstring (substring docstring 1)))
       (texi-docstring-magic-texi
        (if useropt "opt" "var") nil name docstring nil default)))
+   ((fboundp symbol)
+    ;; Functions.  Functions with same name as variables are documented
+    ;; as variables.
+    ;; We don't handle macros,  aliases, or compiled fns properly.
+    (let*
+	((function  symbol)
+	 (name	    (symbol-name function))
+	 (docstring (or (documentation function)
+			"Not documented."))
+	 (def	    (symbol-function function))
+	 (argsyms   (cond ((eq (car-safe def) 'lambda)
+			   (nth 1 def))))
+	 (args	    (mapcar 'symbol-name argsyms)))
+      (if (commandp function)
+	  (texi-docstring-magic-texi "fn" "Command" name docstring args)
+	(texi-docstring-magic-texi "un" nil name docstring args))))
    (t
     (error "Don't know anything about symbol %s" (symbol-name symbol)))))
 
