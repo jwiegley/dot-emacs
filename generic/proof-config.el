@@ -315,12 +315,17 @@ you should set `proof-tidy-response' to nil."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-experimental-features t ;; FIXME: nil for release version
+(defcustom proof-experimental-features 
+  ;; Turn on experimental features for pre-releases.
+  (if (string-match "pre" proof-general-version) t)
   "*Whether to enable certain features regarded as experimental.
-As features are added to proof general but are not entirely robust,
-we only enable them if this flag is set.  We encourage users to
-set this flag and test the features, but being aware that the
-features may be buggy (problem reports welcomed)."
+Proof General includes a few features designated as \"experimental\".
+Enabling these will usually have no detrimental effects on using PG,
+but the features themselves may be buggy.
+
+We encourage users to set this flag and test the features, but being
+aware that the features may be buggy (problem reports and 
+suggestions for improvements are welcomed)."
   :type 'boolean
   :group 'proof-user-options)
 
