@@ -35,6 +35,7 @@
 
 (defcustom isa-isatool-command
   (or (getenv "ISATOOL") 
+      (proof-locate-executable "isatool")
       (let ((possibilities
 	     '("isatool"
 	       "/usr/bin/isatool"
@@ -50,15 +51,20 @@
 	(car-safe possibilities))
       "path_to_isatool_is_unknown")
   "Command to invoke Isabelle tool 'isatool'.
-Use a full path name here if  isatool is not on PATH when Emacs is started."
+XEmacs should be able to find `isatool' if it is on the PATH when
+started.  Then several standard locations are attempted.
+Otherwise you should set this, using a full path name here for reliable 
+working."
   :type 'file
   :group 'isabelle)
 
 (defun isa-set-isatool-command ()
   "Make sure isa-isatool-command points to a valid executable.
 If it does not, prompt the user for the proper setting.
-If it appears we're running on win32, allow this to remain unset.
-Returns non-nil if isa-isatool-command is valid."
+If it appears we're running on win32 or FSF Emacs, we allow this to
+remain unverified.
+Returns non-nil if isa-isatool-command is surely an executable
+with full path."
   (interactive)
   (while (unless proof-running-on-win32
 	   (not (file-executable-p isa-isatool-command)))
@@ -99,13 +105,14 @@ If there is no setting for the variable, DEFAULT will be returned"
 ;;; ======= Interaction with System using Isabelle tools =======
 ;;;
 
-(defcustom isabelle-prog-name 
-  (if (fboundp 'win32-long-file-name)	
+(defcustom isabelle-program-name 
+  (if (fboundp 'proof-running-on-win32)	
       "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\"
-    "isabelle")
+    (proof-locate-executable "isabelle" t))
   "*Default name of program to run Isabelle.
 
-The default value except when running under Windows is \"isabelle\".
+The default value except when running under Windows is \"isabelle\",
+which will get expanded using PATH if possible. 
 
 The default value when running under Windows is:
 
@@ -119,35 +126,32 @@ ISABELLE will always override this setting."
   :type 'file
   :group 'isabelle)
 
+(defvar isabelle-prog-name isabelle-program-name
+  "Set from `isabelle-program-name', has name of logic appended sometimes.")
+
 (defun isabelle-command-line ()
   "Make proper command line for running Isabelle"
-  (let
-      ((isabelle (getenv "ISABELLE"))
-       (logic (getenv "PROOFGENERAL_LOGIC")))
-    (if (or (not isabelle) (equal isabelle "") (not logic) (equal logic ""))
-	(or isabelle-prog-name "isabelle")  ; just to make really sure ...
+  (let*
       ;; The ISABELLE and PROOFGENERAL_LOGIC values (as set when run
       ;; under the interface wrapper script) indicate that we should
       ;; determine the proper command line from the current Isabelle
       ;; settings environment.
-      (concat isabelle " " logic))))
+      ((isabelle (or
+		  (getenv "ISABELLE")	; overrides default, may be updated
+		  isabelle-program-name ; calculated earlier
+		  "isabelle"))		; to be really sure
+       (logic    (or isabelle-chosen-logic
+		     (getenv "PROOFGENERAL_LOGIC")))
+       (logicarg (if logic (concat " " logic) "")))
+    (concat isabelle logicarg)))
 
-(defun isa-tool-run-command (logic-name)
-  "Make a command for running Isabelle using Isabelle tools.
-This function is called with the name of the logic as an argument,
-and builds a program name and arguments to run Isabelle."
-  (let*
-      ((default (if proof-running-on-win32
-		    (concat isabelle-prog-name logic-name)
-		  isabelle-prog-name))
-       (commd	(isa-getenv "ISABELLE" default)))
-    (cond
-     (proof-running-on-win32		; Assume no special font there
-      commd)
-     (isa-use-special-font
-      (concat commd "-misabelle_font" "-msymbols" logic-name))
-     (t
-      commd))))
+(defun isabelle-choose-logic (logic)
+  "Adjust isabelle-prog-name and proof-prog-name for running LOGIC."
+  ;; a little bit obnoxious maybe (but what naive user would expect)
+  ;; (customize-save-variable 'isabelle-chosen-logic logic)
+  (customize-set-variable 'isabelle-chosen-logic logic)
+  (setq isabelle-prog-name (isabelle-command-line))
+  (setq proof-prog-name isabelle-prog-name))
 
 (defun isa-tool-list-logics ()
   "Generate a list of available object logics."
@@ -181,19 +185,6 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 			(substring docdes (match-end 0)))))
 	   (split-string docs "\n"))))))
 
-(defun isa-tool-setup-font ()
-  "Setup special font for isabelle, using Isabelle tools."
-  (isa-set-isatool-command)
-  (call-process isa-isatool-command nil nil nil "installfonts"))
-
-(defun isa-default-logic-dir ()
-  "Return a directory containing logic images."
-   (car (split-string (isa-getenv "ISABELLE_PATH") ":")))
-
-(defun isa-default-logic ()
-  "Return the default logic."
-  (or (isa-getenv "ISABELLE_LOGIC") "Pure"))
-
 (defun isa-quit (save)
   "Quit / save the Isabelle session.
 Called with one argument: t to save database, nil otherwise."
@@ -218,20 +209,15 @@ Called with one argument: t to save database, nil otherwise."
 
 ;;; ==========  Utility functions ==========
 
-;; FIXME: a way of updating this list, please?
-;; FIXME 2: why is this quoted in the customize buffer??
-;; (maybe the right thing, but seems odd)
 (defcustom isabelle-logics-available (isa-tool-list-logics)
   "*List of logics available to use with Isabelle.
 If the `isatool' program is available, this is automatically
 generated with the lisp form `(isa-tool-list-logics)'."
   :type (list 'string)
   :group 'isabelle)
-  
-;; FIXME: type here needs to be dynamic based on isabelle-logics-available
-;; Is that possible?
-;; Otherwise it should be updated on re-loading.
-(defcustom isabelle-logic "HOL"
+
+;; FIXME: document this one
+(defcustom isabelle-chosen-logic nil
   "*Choice of logic to use with Isabelle.
 If non-nil, will be added into isabelle-prog-name as default value.
 
@@ -249,7 +235,27 @@ until Proof General is restarted."
 	       (vector (car (cdr docdes))
 		       (list 'isa-view-doc (car docdes)) t))))
     (list (cons "Isabelle documentation" (mapcar vc (isa-tool-list-docs)))))
-  "Isabelle documentation menu.  Constructed dynamically.")
+  "Isabelle documentation menu.  Constructed when PG is loaded.")
+
+
+;; It's a hassle to bother trying to reconstruct this
+;; dynamically like it was in Isamode, so we don't bother.
+
+(defconst isabelle-logics-menu 
+  (cons "Logics" 
+	(cons
+	 ["Default" 
+	  (isabelle-choose-logic nil)
+	  :active (not (proof-shell-live-buffer))
+	  :style radio
+	  :selected (not isabelle-chosen-logic)]
+	 (mapcar (lambda (l) 
+		   (vector l (list 'isabelle-choose-logic l)
+			   :active '(not (proof-shell-live-buffer))
+			   :style 'radio
+			   :selected (list 'equal 'isabelle-chosen-logic l)))
+		 (isa-tool-list-logics))))
+  "Isabelle logics menu.  Constructed when PG is loaded.")
 
 
 
@@ -305,9 +311,11 @@ until Proof General is restarted."
 ;;
 
 (defpgdefault menu-entries
-  (if isa-running-isar
-      nil
-    (list ["Switch to theory" thy-find-other-file t])))
+  (append
+   (if isa-running-isar
+       nil
+     (list ["Switch to theory" thy-find-other-file t]))
+   (list isabelle-logics-menu)))
 
 (defpgdefault help-menu-entries isabelle-docs-menu)
 
