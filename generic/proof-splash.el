@@ -214,6 +214,7 @@ If TIMEOUT is non-nil, time out outside this function, definitely
 by end of configuring proof mode.
 Otherwise, timeout inside this function after 10 seconds or so."
  (interactive "P")
+ (proof-splash-set-frame-titles)
   (let*
       ;; Keep win config explicitly instead of pushing/popping because
       ;; if the user switches windows by hand in some way, we want
@@ -308,6 +309,16 @@ Otherwise, timeout inside this function after 10 seconds or so."
       (setq unread-command-events
 	    (cons (next-command-event) unread-command-events)))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
+
+(defun proof-splash-set-frame-titles ()
+  (let 
+      ((instance-name (concat
+		       (if (and proof-assistant
+				(not (string-equal proof-assistant "")))
+			   (concat proof-assistant " "))
+		       "Proof General")))
+    (setq frame-title-format 
+	  (concat instance-name ":   %b"))))
 
 (provide 'proof-splash)
 ;; End of proof-splash.
