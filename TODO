@@ -1,6 +1,7 @@
 This is our brief list of planned things to do to Proof General.
 
-See also the appenix "Plans and Ideas" in the manual.
+See also the appenix "Plans and Ideas" in the manual, and
+for low-level detail, the file "todo" in the developer release.
 
 Please send any suggestions, comments, or offers of help to
 proofgen@dcs.ed.ac.uk.  Thanks!
@@ -9,6 +10,9 @@ proofgen@dcs.ed.ac.uk.  Thanks!
 
 Plans for later 3.x versions
 ----------------------------
+
+* Addition of favourites mechanism for proof commands issued using
+  point-and-click in goals buffer.  Useful when pbp isn't supported.
 
 * Queue manipulation improvment: allow to extend or reduce
   during processing, with fewer "Proof Process Busy"
@@ -22,15 +26,14 @@ Plans for later 3.x versions
 
 * Make an XEmacs package
 
-* Fix known problems with 3.0 (see developers `todo')
-
 
 Plans for even later versions
 -----------------------------
 
 * Implement "Atomic Command Sequence" idea, or something like
   it.  To allow more flexible understanding of undo behaviour
-  of proof assistants.
+  of proof assistants.  Alternative is to base markup of 
+  undoable regions on proof assistant output or messages.
 
 * Add completion of theorem names, choice of proof commands, etc.
 
