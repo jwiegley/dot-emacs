@@ -183,12 +183,16 @@ elements = S0 S1 S2 .... [tl-seq.el]"
 	    (t (lambda (spans span) (cons span spans))))))
     (foldl f nil (spans-at-point pt))))
 
-(defun spans-at-region-prop (start end prop)
+(defun spans-at-region-prop (start end prop &optional val)
   (let ((f (cond
-	    (prop (lambda (spans span)
-		    (if (span-property span prop) (cons span spans)
-		      spans)))
-	    (t (lambda (spans span) (cons span spans))))))
+	    (prop 
+	     (lambda (spans span)
+	       (if (if val (eq (span-property span prop) val)
+		     (span-property span prop))
+		   (cons span spans)
+		 spans)))
+	    (t 
+	     (lambda (spans span) (cons span spans))))))
     (foldl f nil (spans-at-region start end))))
 
 (defun span-at (pt prop)
@@ -225,9 +229,13 @@ Re-attaches SPAN if it was removed from the buffer."
   "Set the end point of SPAN to VALUE."
   (set-span-endpoints span (span-start span) value))
 
+(defsubst mapcar-spans (fn start end prop &optional val)
+  "Apply function FN to all spans between START and END with property PROP set"
+  (mapcar fn (spans-at-region-prop start end prop val)))
+
 (defsubst delete-spans (start end prop)
   "Delete all spans between START and END with property PROP set."
-  (mapcar 'delete-span (spans-at-region-prop start end prop)))
+  (mapcar-spans 'delete-span start end prop))
 
 (defun map-spans-aux (f l)
   (cond (l (cons (funcall f l) (map-spans-aux f (span-property l 'before))))
@@ -297,5 +305,7 @@ A span is before PT if it covers the character before PT."
 FIXME: new hack added nov 99 because of disappearing overlays.
 Behaviour is still worse than before."
   (set-span-property span 'priority 100))
+
+(defalias 'span-object 'overlay-object)
 
 (provide 'span-overlay)

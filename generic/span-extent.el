@@ -62,9 +62,13 @@
   "Delete SPAN."
   (delete-extent span))
 
+(defsubst mapcar-spans (fn start end prop &optional val)
+  "Apply function FN to all spans between START and END with property PROP set"
+  (mapcar-extents fn nil (current-buffer) start end  nil prop val))
+
 (defsubst delete-spans (start end prop)
   "Delete all spans between START and END with property PROP set."
-  (mapcar-extents 'delete-extent nil (current-buffer) start end  nil prop))
+  (mapcar-spans 'delete-extent start end prop))
 
 (defsubst span-at (pt prop)
   "Return the smallest SPAN at point PT with property PROP."
@@ -100,5 +104,8 @@ A span is before PT if it covers the character before PT."
 (defun span-raise (span)
   "Function added for FSF Emacs compatibility.  Do nothing here."
   nil)
+
+(defalias 'span-object 'extent-object)
+  
 
 (provide 'span-extent)
