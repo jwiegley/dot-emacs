@@ -11,7 +11,7 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
  1. Priorities
  2. Things to do in the generic interface
  3. Things to do for the documentation
- 4. FSF Emacs issues
+ 4. GNU Emacs issues
  5. Things to do for Proof-by-Pointing
  6. Things to do for Web Pages, Distribution
  7. Future improvements to take advantage of newer Emacsen
@@ -31,6 +31,11 @@ X (Low)		e.g. probably not worth spending time on
 
 
 ** 2. Things to in the generic interface
+
+*** C Extensions with semantic tokens
+      Look at the Semantic Navigator package.  Implements persistent
+      database of tokens.
+
 
 *** B Documentation:
       Check new doc for hiding; add doc for dependencies, tracing.
@@ -213,7 +218,7 @@ X (Low)		e.g. probably not worth spending time on
 
 *** D Fix the sentinel infinite loop bug which occurs in some cases
   when proof shell startup fails.  Same message is printed over
-  and over.  Infinite in FSF Emacs.  Why?  See note at 
+  and over.  Infinite in GNU Emacs.  Why?  See note at 
   end of proof-shell.  [2hrs]
   
 
@@ -580,7 +585,7 @@ X (Low)		e.g. probably not worth spending time on
   automatically in proof-site, and we could easily get away from the 
   kludge of proof-config-done and friends.
   (Compare this to the way font-lock works automatically for XEmacs
-  when the right variable name is set, but for FSF Emacs you have
+  when the right variable name is set, but for GNU Emacs you have
   to write something special).
   The objection to doing this is based on the idea that we should use
   an object-like inheritance mechanism to define the new modes.
@@ -715,7 +720,15 @@ X (Low)		e.g. probably not worth spending time on
 
 
 
-** 4. FSF Emacs issues
+** 4. GNU Emacs issues
+
+*** B Improve support for Emacs 21.
+  X-symbol test
+  
+
+*** B Consider replacing buffer-substring -> buffer-substring-no-properties
+  Text properties are passed around in spans, probably needlessly.
+  (not the same in XEmacs?)
 
 *** C Changed implementation of overlays inside Emacs itself.  We seem to
   need 'priority property of overlays for queue and locked to make 
@@ -816,12 +829,12 @@ X (Low)		e.g. probably not worth spending time on
 
 **** Use one-shot-hook for splash display
 
-*** X FSF and XEmacs improvements
+*** X GNU and XEmacs improvements
 
 **** Indirect Buffers 
   Maybe a cunning way to implement the response buffer and goals
   buffer, since they're basically variants on displaying fragments of
-  the shell buffer output. Appears in XEmacs 21.2, FSF 20.5
+  the shell buffer output. Appears in XEmacs 21.2, GNU 20.5
 
 
 
@@ -901,9 +914,9 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 ***  0. Make all files have same CVS branch with cvs commit -f 
 ***  1. Tests: multiple file test suites for LEGO, Isabelle; other egs
-***  2. Check case with FSF Emacs
+***  2. Check case with GNU Emacs
 ***  3. Check case with compiled code, for XEmacs only.
-    (Wait for error reports for FSF Emacs)
+    (Wait for error reports for GNU Emacs)
     Even if the code is faulty afterwards, compiling is 
     worthwhile just because it shows up bugs in unbound variables, etc.
 ***  4. Dates and versions updated.
