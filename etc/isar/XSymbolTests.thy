@@ -31,7 +31,6 @@ constdefs
 
 theorem "P\<^sub>1 \<and> P\<^sup>2";  (* check fonts in goals window *)
 by (simp add: P1_def P2_def)  (* .. and response window *)
-(* BUG: \<and> not appearing in response *)
 
 consts
  "P\<^sup>\<alpha>" :: bool   (* superscript of a token char *)
@@ -39,7 +38,7 @@ consts
 
 
 (* Markus reports that \<cdot> is saved in the file as
-an 8-bit character.  I can't repeat that with XEmacs 21.4,
+ an 8-bit character.  I can't repeat that with XEmacs 21.4,
 unless I set the relevant X-Symbol menu option. *)
 
 (* 
@@ -48,7 +47,8 @@ unless I set the relevant X-Symbol menu option. *)
  for \<circ>.  But subsequent buffers to be visited work
  fine.  Problem is stable for turning x-symbol on/off.
  Revisting the first buffer cures the problem.
- I can't easily repeat the problem...
+ Update: May be inherent problem with non-Mule version of
+ X-Symbol (CW suggests)
 *)
 
 consts
