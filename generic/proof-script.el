@@ -1311,14 +1311,18 @@ Assumes that point is at the end of a command."
       ;; start of a blank line.  (This has the pleasing
       ;; effect that blank regions of the buffer are
       ;; automatically extended when inserting new commands).
-      (cond
-       ((eq (forward-line) 1)
-	(newline))
-       ((eolp)
-        (newline)
-	(forward-line -1)))
+; unfortunately if we're not at the end of a line to start,
+; it skips past stuff to the end of the line!  don't want
+; that.
+;      (cond
+;       ((eq (forward-line) 1)
+;	(newline))
+;       ((eolp)
+;        (newline)
+;	(forward-line -1)))
+      (newline)
     ;; Multiple commands per line: skip spaces at point,
-    ;; and insert the same number of spaces that were
+    ;; and insert the 1/0 number of spaces that were
     ;; skipped in front of point (at least one).
     ;; This has the pleasing effect that the spacing
     ;; policy of the current line is copied: e.g.
@@ -1329,8 +1333,10 @@ Assumes that point is at the end of a command."
     ;; this.
     (let ((newspace (max (skip-chars-forward " \t") 1))
 	  (p (point)))
+      (if proof-script-command-separator
+	  (insert proof-script-command-separator)
 	(insert-char ?\ newspace)
-	(goto-char p))))
+	(goto-char p)))))
 
 (defun proof-script-next-command-advance ()
   "Move point to the beginning of the next command if it's nearby.
