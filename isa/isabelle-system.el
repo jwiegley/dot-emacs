@@ -413,7 +413,7 @@ until Proof General is restarted."
   "Convert identifier markup to subterm markup.
 This is a hook setting for `pg-before-subterm-markup-hook' to
 enable identifiers to be highlighted.  (To disable that behaviour,
-the `pg-remove-specials' can be used instead)."
+the function `pg-remove-specials' can be used instead)."
   (goto-char (point-min))
   (while (re-search-forward 
 	  "\351\\|\352\\|\353\\|\354\\|\355\\|\356\\|\357" nil t)
