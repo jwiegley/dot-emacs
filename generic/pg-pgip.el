@@ -10,153 +10,162 @@
 ;;
 ;; Proof General Kit uses PGIP, an XML-message protocol
 ;; for interactive proof.  This file contains functions 
-;; to process PGIP commands sent from the proof assistant.
+;; to process PGIP commands sent from the proof assistant
+;; and to construct PGIP commands to send out.
 ;;
+;; TESTING NOTES: turn on `proof-show-debug-messages' for
+;; useful tracing messages: (setq proof-show-debug-messages t).
 
-;; Halt on errors during development: later may accumulate and ignore.
-(defalias 'pg-pgip-error 'error)
+(require 'pg-xml)
+(require 'pg-pgip-old)			;; Handle some PGIP 1.X format messages
+
+(defalias 'pg-pgip-debug   'proof-debug)
+(defalias 'pg-pgip-error   'error)
+(defalias 'pg-pgip-warning 'pg-internal-warning)
 
 ;;;###autoload
-(defun pg-pgip-process-packet (pgip)
-  "Process the command packet PGIP, which is parsed XML according to pg-xml-parse-*"
+(defun pg-pgip-process-packet (pgips)
+  "Process the command packet PGIP, which is parsed XML according to pg-xml-parse-*.
+The list PGIPS may contain one or more PGIP packets, whose contents are processed."
   ;; PGIP processing is split into two steps:
   ;; (1) process each command, altering internal data structures
   ;; (2) post-process for each command type, affecting external interface (menus, etc).
   (mapcar 'pg-pgip-post-process 
-	  (pg-pgip-process-cmds pgip)))
+	  (reduce 'union (mapcar 'pg-pgip-process-pgip pgips))))
 
-(defun pg-pgip-process-cmds (pgips)
-  "Process the command(s) in PGIP, returning list of command symbols processed."
-  (let (cmdtys)
-    (while pgips
-      (let* ((pgip  (car pgips))
-	     (elt   (or (car-safe (car pgip))         ; normalise to symbol
-			(car pgip)))
-	     ;; FIXME: this is wrong for self-closing elts, test with
-	     ;; ProofGeneral.process_pgip("<pgip><askpgml/></pgip>"); 
-	     (attr  (cdr-safe (car pgip)))
-	     (attrs (and attr (if (listp (cdr attr)) ; normalise to list
-				  attr (list attr))))
-	     (body  (cdr pgip)))
-	(add-to-list 'cmdtys elt)
-	(cond 
-	 ;; <pgip> 
-	 ((eq elt 'pgip))			;; ignore pgip attributes for now
-	 ;; <usespgml>
-	 ((eq elt 'usespgml)
-	  (proof-debug "Received usespgml message, version %s"
-		       (pg-pgip-get-version "usespgml" attrs)))
+;; TODO: use id's and sequence numbers to reconstruct streams of messages.
+(defvar pg-pgip-last-seen-id nil)
+(defvar pg-pgip-last-seen-seq nil)
 
-	 ;; FIXME: this next will be replaced by current version of
-	 ;; <haspref> in PG 4.0.  The <oldhaspref> is for
-	 ;; compatibility with Isabelle2004.
-	 ;; (Isabelle2003 will break with PG 4.0)
-	 ((eq elt 'haspref)
-	  (pg-pgip-haspref attrs (car-safe body)))
-	 
-	 ;; <oldhaspref>
-	 ((eq elt 'oldhaspref)
-	  (pg-pgip-haspref attrs (car-safe body)))
-	 
-	 ;; <prefval>
-	 ((eq elt 'prefval)
-	  (pg-pgip-prefval attrs (car-safe body)))
+(defun pg-pgip-process-pgip (pgip)
+  "Process the commands in the PGIP XML-node PGIP."
+  (let* ((name	   (xml-node-name pgip))
+	 (origin   (pg-xml-get-attr 'origin pgip 'optional))
+	 (id	   (pg-xml-get-attr 'id pgip 'optional))
+	 (class	   (pg-xml-get-attr 'class pgip))
+	 (refseq   (pg-xml-get-attr 'refseq pgip 'optional))
+	 (refid    (pg-xml-get-attr 'refid pgip 'optional))
+	 (seq	   (pg-xml-get-attr 'seq pgip)))
+    (setq pg-pgip-last-seen-id id)
+    (setq pg-pgip-last-seen-seq seq)
+    (if (eq name 'pgip)
+	;; NB: schema currently allows only one message here
+	(mapcar 'pg-pgip-process-msg (xml-node-children pgip))
+      (pg-internal-warning "pg-pgip-process-pgip: expected PGIP element, got %s" name))))
 
-	 ;; <idtable>
-	 ((eq elt 'idtable)
-	  )
-	 ;; <addid>
-	 ((eq elt 'addid)
-	  )
-	 ;; <delid>
-	 ((eq elt 'delid)
-	  )
-	 ;; <menuadd>
-	 ((eq elt 'menuadd)
-	  )
-	 ((eq elt 'menudel)
-	  )
-	 ;; <parsescript>
-	 ((eq elt 'parsescript)
-	  (pg-pgip-parsescript (car-safe body)))
-	 )
-	;; Move on to next element
-	(setq pgips (cdr pgips))))
-    ;; Return list  of command types processed.
-    cmdtys))
+(defun pg-pgip-process-msg (pgipmsg)
+  "Process the PGIP message in the XML node PGIPMSG.  
+Return a symbol representing the PGIP command processed, or nil."
+  (let* ((name        (xml-node-name pgipmsg))
+	 (fname	      (intern (concat "pg-pgip-process-" (symbol-name name)))))
+    (if (fboundp fname)
+	(progn
+	  (pg-pgip-debug "Processing PGIP message seq %s, type %s" (pg-xml-get-attr 'seq pgip) name)
+	  (funcall fname pgipmsg)
+	  name)
+      (pg-internal-warning "!!! unrecognized/unimplemented PGIP message element `%s'" name)
+      nil)))
 
-(defun pg-pgip-post-process (pgip)
-  "Perform post-processing for a PGIP command type PGIP-ELT."
-  (cond
-   ((eq pgip 'pgip))
-   ((eq pgip 'usespgml))
-   ((or
-     (eq pgip 'haspref)
-     (eq pgip 'oldhaspref) ;; FIXME: see note above about oldhaspref
-     (eq pgip 'prefval))
-    ;; Update preferences view/menu
-    (proof-assistant-menu-update))
-   ((or
-     (eq pgip 'idtable)
-     (eq pgip 'addid)
-     (eq pgip 'delid))
-    ;; Update completion tables/view
-    )
-   ((or
-     (eq pgip 'menuadd)
-     (eq pgip 'menudel))
-    ;; Update menus
-    )))
+(defvar pg-pgip-post-process-functions
+  '((hasprefs . proof-assistant-menu-update)
+    (menuadd  . proof-assistant-menu-update)
+    (menudel  . proof-assistant-menu-update)
+    (idtable  . pg-pgip-update-idtables)    ;; TODO: not yet implemented
+    (addid    . pg-pgip-update-idtables)
+    (delid    . pg-pgip-update-idtables))
+  "Table of functions to call after processing PGIP commands")
+
+(defun pg-pgip-post-process (cmdname)
+  "Perform post-processing for a PGIP command type CMDNAME (a symbol)."
+  (let ((ppfn  (cdr-safe (assoc cmdname pg-pgip-post-process-functions))))
+    (if (fboundp ppfn)
+	(progn
+	  (pg-pgip-debug "Post-processing for PGIP message type `%s' with function `%s'" cmdname ppfn)
+	  (funcall ppfn))
+      (pg-pgip-debug "[No post-processing defined for PGIP message type `%s']" cmdname))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; <haspref default="d" kind="k" type="t"
-;;	    description="d" class="c">name</haspref>
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
-;; Proof assistant advises PG that it has a preference value named name,
-;; category k, class c, with default value d, type t.
+;; Message processing: fromprovermsg/kitconfig
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun pg-pgip-process-usespgip (node)
+  (let ((version (pg-pgip-get-version node)))
+    (pg-pgip-debug "Received <usespgip> message with version `%s'" version)))
+
+(defun pg-pgip-process-usespgml (node)
+  (let ((version (pg-pgip-get-version node)))
+    (pg-pgip-debug "Received <usespgml> message with version `%s'" version)))
+
+(defun pg-pgip-process-pgmlconfig (node)
+  ;; symconfig specify an ascii alternative string for a named symbol;
+  ;; we process it by storing a property 'pgml-alt on the elisp symbol.
+  (let ((pgmlconfigures (xml-get-children node)))
+    (dolist (config pgmlconfigures)
+      (cond 
+       ((and (not (stringp config))
+	     (eq (xml-node-name config "symconfig")))
+	(let 
+	    ((symname   (pg-pgip-get-symname node))
+	     (asciialt  (pg-xml-get-attr 'alt node t)))
+	  (put (intern symname)
+	       'pgml-alt asciialt)))
+       (t
+	(pg-pgip-warning "Unexpected child of <pgmlconfig> node: %s" config))))))
+
+(defun pg-pgip-process-proverinfo (node)
+  (let* ((name	      (pg-pgip-get-name node))
+	 (descr	      (pg-pgip-get-descr node t "<no description supplied>"))
+	 (version     (pg-pgip-get-version node t "<no version supplied>"))
+	 (url         (pg-pgip-get-url node t))
+	 (welcomeelt  (pg-xml-child 'welcomemsg node)))
+	 (welcomemsg  (if welcomeelt (pg-pgip-get-text welcomeelt)))
+	 (icon	      (xml-get-children node 'icon))
+	 (helpdocs    (xml-get-children node 'helpdocs)))
+  ;; TODO: enter the data into a table of provers (see proof-site.el).
+  ;; Seems little point doing this while we have the single-prover limitation.
+    )
+
+;;
+;; Preferences
 ;;
 
-;; FIXME: PGIP requires prover to support <resetprefs/>, but this
-;; could be done from interface, since default values are 
-;; advertised for preferences.
+(defun pg-pgip-process-hasprefs (node)
+  (let* ((prefcat	(pg-pgip-get-prefcat node))
+	 (hasprefnodes  (xml-get-children node 'haspref)))
+    (dolist (node hasprefnodes)
+      (let* ((name	(pg-pgip-get-name node))
+	     (descr	(pg-pgip-get-descr node 'optional))
+	     (pgiptype	(pg-pgip-get-pgiptype (pg-xml-child-elt node)))
+	     (default	(pg-pgip-get-default node 'optional))
+	     (defaultlsp (if default
+			     (pg-pgip-interpret-value default pgiptype)
+			   (pg-pgip-default-for pgiptype)))
+	     (icon	(pg-pgip-get-icon node 'optional))) ;; TODO; ignored
+      (pg-pgip-haspref name pgiptype prefcat descr defaultlsp)))))
 
-(defun pg-pgip-haspref (attrs name)
-  "Issue a defpacustom from a <haspref> element with attributes ATTRS, name NAME."
-  (unless (stringp name)
-    (pg-pgip-error "pg-pgip-haspref: missing NAME in <haspref>NAME</haspref>."))
-  (let*
-      ((type	 (pg-pgip-get-type attrs))
-       (defattr  (pg-pgip-get-attr "haspref" 'default attrs t))
-       (default  (if defattr 
-		     (pg-pgip-interpret-value defattr type)
-		   (pg-pgip-default-for type)))
-       (kind	 (intern
-		  (or 
-		   (pg-pgip-get-attr "haspref" 'kind attrs t)
-		   ;; Default to kind user
-		   "user")))
-       (descr    (or (pg-pgip-get-attr "haspref" 'descr attrs t) ""))
-       (subst    (pg-pgip-subst-for type))
-       (setting  
-	(pg-prover-interpret-pgip-command
-	 (concat "<pgip><setpref name=\"" name "\">" subst "</setpref></pgip>")))
-       (symname  (intern name))) ;; FIXME: consider Emacs ID normalising
-    (ignore-errors 
-      ;; FIXME: allow rest of PGIP to be processed, would be better to
-      ;; accumulate errors somehow.
-      (proof-debug "haspref calling defpacustom: name:%s default:%s type:%s setting:%s" symname default type setting)
-      (eval
-       ;; FIXME: would like unique custom group for settings introduced by haspref.
-       ;; (preferences or something).
-       `(defpacustom ,symname ,default 
-	  (concat descr (if descr "\n")
-	   "Setting configured by <haspref> PGIP message")
-	  :type (quote ,type)
-	  :setting ,setting)))))
-    
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun pg-pgip-haspref (name type prefcat descr default)
+  "Call `defpacustom' with values from a <haspref> element."
+  (let* ((subst    (pg-pgip-subst-for type))
+	 ;; FIXME: this substitution mechanism is not really good enough, we
+	 ;; want to escape XML characters, etc.  Should be possible: turn this
+	 ;; into a function.
+	 (pgipcmd  (concat "<setpref name=\"" name "\" prefcategory=\"" prefcat "\">" 
+			   subst "</setpref>"))
+	 (symname  (intern name)))
+    (pg-pgip-debug 
+     "haspref calling defpacustom: name:%s default:%s type:%s pgipcmd:%s" symname default type pgipcmd)
+    (eval
+     `(defpacustom ,symname ,default 
+	(concat descr (if descr "\n")
+		"Setting configured by <haspref> PGIP message")
+	:type (quote ,type)
+	:pggroup ,prefcat
+	:pgipcmd ,pgipcmd))))
+
+(defun pg-pgip-process-prefval (node)
 ;;
 ;; <prefval name="n">value</prefval>
 ;; 
@@ -171,28 +180,272 @@
 ;(defun pg-pgip-prefval (attrs value)
 ;  "Process a <prefval> element, by setting interface's copy of preference."
 ;  (let*
-;      ((name	(pg-pgip-get-attr "haspref" 'name attrs t))
+;      ((name	(pg-xml-get-attr 'haspref 'name attrs t))
 ;       (type    (
-    
+  )
 
+
+
+
+;;
+;; guiconfig
+;;
+
+
+(defun pg-pgip-process-guiconfig (node)
+  )
+
+;;
+;; Identifiers: managing obarrays of symbols used for completion
+;;
+
+(defun pg-pgip-process-ids (node)
+  "Manipulate identifier tables, according to setids/addids/delids in NODE."
+  (let ((idtables  (pg-xml-child-elts node))
+	(opn	   (xml-node-name node)))
+    (dolist (idtable idtables)
+      (let* ((context  (pg-xml-get-attr 'context idtable 'optional))
+	     (objtype  (intern (pg-pgip-get-objtype idtable)))
+	     (idents   (mapcar 'pg-xml-get-text-content
+			       (xml-get-children idtable 'identifier)))
+	     (obarray  (or (and (not (eq opn 'setids)) 
+				(get objtype 'pgsymbols))
+			   ;; new empty obarray for setids or if unset
+			   (set objtype 'pg-symbols (make-vector 31 0)))))
+	(cond
+	 ((or (eq opn 'setids) (eq opn 'addids))
+	  (mapcar (lambda (i) (intern i obarray)) idents))
+	 ((eq opn 'delids)
+	  (mapcar (lambda (i) (unintern i obarray)) idents))
+	 (t
+	  (pg-pgip-error "pg-pgip-process-ids: called on wrong node %s" 
+			 (xml-node-name node))))))))
+
+(defalias 'pg-pgip-process-setids 'pg-pgip-process-ids)
+(defalias 'pg-pgip-process-addids 'pg-pgip-process-ids)
+(defalias 'pg-pgip-process-delids 'pg-pgip-process-ids)
+
+
+(defun pg-pgip-process-idvalue (node) 
+  (let ((name     (pg-pgip-get-name node))
+	(objtype  (pg-pgip-get-objtype node))
+	(text     (pg-pgip-get-displaytext node)))
+    ;; TODO: display and cache the value in a dedicated buffer
+    ;; FIXME: should idvalue have a context?
+    (proof-message text)))
+
+;;
+;; Menu configuration [TODO]
+;;
+
+(defun pg-pgip-process-menuadd (node)
+  )
+
+(defun pg-pgip-process-menudel (node)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
+;; Message processing: fromprovermsg/proveroutput
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun pg-pgip-process-ready (node)
+  )
+
+(defun pg-pgip-process-cleardisplay (node)
+  (let ((area	(pg-pgip-get-area node)))
+    (cond 
+     ((equal area "message")
+      (proof-shell-maybe-erase-response nil t t))
+     ((equal area "display")
+      (proof-clean-buffer proof-goals-buffer))
+     ((equal area "all")
+      (proof-shell-maybe-erase-response nil t t)
+      (proof-clean-buffer proof-goals-buffer)
+      ;; TODO: could also erase trace here. 
+      ;; [PGIP: Should trace have a separate cat?]
+      ))))
+
+(defun pg-pgip-process-proofstate (node)
+  ;(let ((pgml	(pg-xml-child )
+  )
+
+(defun pg-pgip-process-normalresponse (node)
+  (let ((text     (pg-pgip-get-displaytext node)))
+    (proof-message text)))
+
+(defun pg-pgip-process-errorresponse (node)
+  (let ((text     (pg-pgip-get-displaytext node)))
+    (proof-warning text)))
+
+(defun pg-pgip-process-scriptinsert (node)
+  (let ((text     (pg-pgip-get-displaytext node)))
+    (proof-insert-pbp-command text)))
+
+
+(defun pg-pgip-process-metainforesponse (node)
+  )
+
+(defun pg-pgip-process-parseresult (node)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
+;; Message processing: fromprovermsg/fileinfomsg
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun pg-pgip-process-informfileloaded (node)
+  (let ((thyname    (pg-pgip-get-thyname node)) 
+	(url	    (pg-pgip-get-url node))
+	(filename   (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
+    (proof-register-possibly-new-processed-file filename)))
+    
+(defun pg-pgip-process-informfileretracted (node)
+  (let ((thyname    (pg-pgip-get-thyname node))
+	(url	    (pg-pgip-get-url node))
+	(filename   (pg-pgip-get-url-filename url))) ;; FIXME: unimplemented!
+    (proof-unregister-possibly-processed-file filename))) ;; FIXME: unimplemented!
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
+;; Message processing: todisplaymsg/brokermsg
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun pg-pgip-process-brokerstatus (node)
+  )
+
+(defun pg-pgip-process-proveravailmsg (node)
+  )
+
+(defun pg-pgip-process-newprovermsg (node)
+  )
+
+(defun pg-pgip-process-proverstatusmsg (node)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
+;; Message processing: todisplaymsg/dispmsg/dispfilemsg
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar pg-pgip-srcids nil
+  "Association list of srcrds to (buffer file) lists")
+
+;; FIXME: right action?
+(defun pg-pgip-process-newfile (node)
+  "Process <newfile> message from broker by displaying file.
+Also sets local proverid and srcid variables for buffer."
+  (let* ((srcid	    (pg-pgip-get-srcid node))
+	 (proverid  (pg-pgip-get-proverid node))
+	 (url	    (pg-pgip-get-url node))
+	 (file	    (pg-pgip-file-of-url url)))
+    (find-file file)
+    (let ((buffer (get-file-buffer file)))
+      (with-current-buffer buffer
+	(make-local-variable 'proverid)
+	(setq proverid proverid))
+      (set pg-pgip-srcids (acons srcid (list buffer file) pg-pgip-srcids)))))
       
-  
+
+;; FIXME: right action?
+(defun pg-pgip-process-filestatus (node)
+  "Process <filestatus> flag by adjusting buffer's modified flag."
+  (let* ((srcid	    (pg-pgip-get-srcid node))
+	 (filestat  (pg-xml-get-attr 'filestat node))
+	 (buffer    (car-safe (cdr-safe (assoc srcid pg-pgip-srcids)))))
+    (proof-with-current-buffer-if-exists buffer
+      (cond
+       ((equal filestat "changed")
+	(set-buffer-modified-p t))
+       ((equal filestat "saved")
+	(set-buffer-modified-p nil))))))
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Dealing with <pgiptype>
 ;; 
+;; Message processing: todisplaymsg/dispmsg/dispobjmsg
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun pg-pgip-process-newobj (node)
+  )
+
+(defun pg-pgip-process-delobj (node)
+  )
+
+(defun pg-pgip-process-objectstatus (node)
+  )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 
+;; Message processing: parsescript [incomplete]
+;;
+;; NB: pgip.rnc v 2.18 only has parsescript sent to prover,
+;; so if we get here we have a invalid document.
+;;
+;; Provide parsing functionality for other interfaces (sacrilege!) 
+;;
+  
+(defun pg-pgip-process-parsescript (node)
+  ;; Text ought to be cdata or something. We'll stick it into a buffer
+  ;; and run the proof-script code on it.
+  (save-excursion
+    (let* ((text (pg-pgip-get-text-content node))
+	   (buf  (get-buffer-create " *pgip-parsescript*")))
+      (delete-region (point-min) (point-max)) ; wipe previous contents
+      (insert text)
+      (let ((semis (proof-segment-up-to (point))))
+	;; semis is now a list of (type, string, int) tuples (in reverse order).
+	;; we'll turn it into XML and send it back to the prover
+	;; FIXME: todo: make parseresult element according to types,
+	;; properscriptcmd = properproofcmd | properfilecmd | bindid
+	))))
+	
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; PGIP types and values <-> Elisp types and values
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defun pg-pgip-get-pgiptype (node)
+  "Return internal (custom format) representation for <pgiptype> element in NODE."
+  (let ((tyname (and node (xml-node-name node))))
+    (cond
+     ((eq tyname 'pgipbool)	'boolean)
+     ((eq tyname 'pgipint) 	'integer) ;; TODO: implement range limits
+     ((eq tyname 'pgipstring)	'string)
+     ((eq tyname 'pgipconst)    
+      (let ((name	(pg-pgip-get-name node 'optional))
+	    (val	(pg-pgip-get-value node)))
+	(if name
+	    (list 'const :tag name val)
+	  (list 'const val))))
+     ((eq tyname 'pgipchoice)
+      (let ((choicesnodes  (pg-xml-child-elts node))
+	    (choices       (mapcar 'pg-pgip-get-pgiptype choicesnodes)))
+	(list 'choice choices)))
+     (t
+      (pg-pgip-warning "pg-pgip-get-pgiptype: unrecognized/missing typename \"%s\"" tyname)))))
 
 (defun pg-pgip-default-for (type)
   "Synthesize a default value for type TYPE."
   (cond
-   ((eq type 'boolean) nil)
-   ((eq type 'integer) 0)
-   ((eq type 'string)  "")
+   ((eq type 'boolean)  nil)
+   ((eq type 'integer)  0)
+   ((eq type 'string)   "")
+   ((eq (car-safe type) 'const)
+    (car (last type)))
    ((eq (car-safe type) 'choice)
-	(car-safe (cdr-safe type)))
+    (pg-pgip-default-for (car-safe (cdr-safe type))))
    (t
     (pg-pgip-error "pg-pgip-default-for: unrecognized type passed in"))))
 
@@ -203,160 +456,204 @@
    ((eq type 'integer) "%i")
    (t "%s")))
 
-(defun pg-pgip-get-type (attrs)
-  "Extract and check type value from ATTRS.  Return type in internal (custom) format."
-  (let 
-      ((rawtype (pg-pgip-get-attr "haspref" 'type attrs)))
-    (pg-pgip-pgiptype rawtype)))
- 
-
-(defun pg-pgip-pgiptype (rawtype)
-  "Return internal (custom format) representation for <pgiptype> element."
-    (cond
-     ((string-match "choice\(\\(.*\\)\)" rawtype)
-      (let* ((choiceslist (match-string 1 rawtype))
-	     ;; FIXME: nested choices not supported yet
-	     (choices	  (split-string choiceslist "[ \f\t\n\r\v]*,[ \f\t\n\r\v]*")))
-	(list 'choice (mapcar 'pg-pgip-pgiptype choices))))
-     ((equal rawtype "boolean")
-      'boolean)
-     ((equal rawtype "int")
-      'integer)
-     ((equal rawtype "nat")		;; nat treated as int 
-      'integer)
-     ((equal rawtype "string")
-      'string)
-     (t
-      (error "pg-pgip-pgiptype: unrecognized type %s" rawtype))))
-
 
 ;; Converting PGIP representations to elisp representations.  This is
-;; the inverse of proof-assistant-format translations in proof-menu.el,
-;; although we fix PGIP value syntax.
-
-(defun pg-pgip-interpret-bool (value)
-  (cond 
-   ((string-equal value "true") t)
-   ((string-equal value "false") nil)
-   ;; Non-boolean value: return false, give debug message.
-   (t (progn
-	(proof-debug "pg-pgip-interpret-bool: received non-bool value %s" value)
-	nil))))
-
-(defun pg-pgip-interpret-int (value)
-  ;; FIXME: string-to-int returns zero for non int string,
-  ;; should have better validation here.
-  (string-to-int value))
-
-(defun pg-pgip-interpret-string (value)
-  value)
-
-(defun pg-pgip-interpret-choice (choices value)
-  ;; Untagged union types: test for each type in turn.
-  ;; FIXME: nested unions not supported here.
-  (cond
-   ((and 
-     (memq 'boolean choices)
-     (or (string-equal value "true") (string-equal value "false")))
-    (pg-pgip-interpret-value value 'boolean))
-   ((and 
-     (memq 'integer choices)
-     (string-match "[0-9]+$" value))
-    (pg-pgip-interpret-value value 'integer))
-   ((memq 'string choices)
-    ;; FIXME: No special syntax for string inside PGIP yet, should be?
-    (pg-pgip-interpret-value value 'string))
-   (t
-    (pg-pgip-error 
-     "pg-pgip-interpret-choice: mismatching value %s for choices %s" 
-     value choices))))
+;; the inverse of proof-assistant-format translations in
+;; proof-menu.el, although we fix PGIP value syntax.
 
 (defun pg-pgip-interpret-value (value type)
+  "Interpret the PGIP value VALUE at (lisp-representation for) TYPE."
   (cond
    ((eq type 'boolean)
-    (pg-pgip-interpret-bool value))
-   ((eq type 'integer)
-    (pg-pgip-interpret-int value))
-   ((eq type 'string)
-    (pg-pgip-interpret-string value))
-   ((and (consp type) (eq (car type) 'choice))
+    (cond 
+     ((or (string-equal value "true") (string-equal value "1"))  t)
+     ((or (string-equal value "false") (string-equal value "0")) nil)
+     (t (progn
+	  (pg-pgip-warning "pg-pgip-interpret-value: received non-bool value %s" value)
+	  nil))))
+   ((eq type 'integer)		 (string-to-int value))
+   ((eq type 'string)		 value)
+   ((eq (car-safe type) 'const)  value)
+   ((eq (car-safe type) 'choice)
     (pg-pgip-interpret-choice (cdr type) value))
    (t
     (pg-pgip-error "pg-pgip-interpret-value: unkown type %s" type))))
-
-;;(defun pg-pgip-interpret-choice (value)
-;; FIXME: Choice should be tagged.  Syntax is <pgiptype>(value)
-  
     
+(defun pg-pgip-interpret-choice (choices value)
+  ;; Untagged union types: test for value in each type in turn.
+  (let (res)
+    (while (and choices (not res))
+      (let ((type (car choices)))
+	((eq (car-safe type) 'const)
+	 (string-equal value (cadr type)))
+	 (setq res (pg-pgip-interpret-const value 'const)))
+	((and (eq type 'integer)
+	      (string-match "[+-]?[0-9]+$" value))
+	 (setq res (pg-pgip-interpret-value value 'integer)))
+	((and (eq type 'boolean)
+	      (or (string-equal value "true") 
+		  (string-equal value "false")
+		  (string-equal value "0")
+		  (string-equal value "1")))
+	 (setq res (pg-pgip-interpret-value value 'boolean)))
+	((eq type 'string)
+	 (setq res (pg-pgip-interpret-value value 'string))))
+      (setq choices (cdr choices)))
+    (or res
+	(pg-pgip-error 
+	 "pg-pgip-interpret-choice: mismatching value %s for choices %s" 
+	 value choices)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Auxiliary functions for parsing
+;; Auxiliary functions for parsing common bits of PGIP
 ;;
-
-(defun pg-pgip-get-attr (elt attrnm attrs &optional optional)
-  (let ((vrs (cdr-safe (assoc attrnm attrs))))
-    (if optional
-	vrs
-      (or vrs
-	  (error "Didn't find %s attribute in %s element" attrnm elt)))))
-
-(defun pg-pgip-get-version (elt attrs &optional optional)
-  (pg-pgip-get-attr elt "version" attrs optional))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Function to dispatch PGIP commands to prover.
-;;
-(defun pg-prover-interpret-pgip-command (pgip)
-  (cond
-   ((stringp proof-shell-issue-pgip-cmd)
-    (format proof-shell-issue-pgip-cmd pgip))
-   ((functionp proof-shell-issue-pgip-cmd)
-    (funcall proof-shell-issue-pgip-cmd pgip))
-   (t
-    ;; FIXME: Empty setting: might be better to send a comment
-    "")))
 
+(defun pg-pgip-get-icon (node &optional optional defaultval)
+  "Return the <icon> child of NODE, or nil if none."
+  (pg-xml-get-child 'icon node))
 
+(defsubst pg-pgip-get-name (node &optional optional defaultval)
+  (pg-xml-get-attr 'name node optional defaultval))
+
+(defsubst pg-pgip-get-version (node &optional optional defaultval)
+  (pg-xml-get-attr 'version node optional defaultval))
+
+(defsubst pg-pgip-get-descr (node &optional optional defaultval)
+  (pg-xml-get-attr 'descr node optional defaultval))
+
+(defsubst pg-pgip-get-thmname (node &optional optional defaultval)
+  (pg-xml-get-attr 'thmname node optional defaultval))
+
+(defsubst pg-pgip-get-thyname (node &optional optional defaultval)
+  (pg-xml-get-attr 'thmname node optional defaultval))
+
+(defsubst pg-pgip-get-url (node &optional optional defaultval)
+  (pg-xml-get-attr 'url node optional defaultval))
+
+(defsubst pg-pgip-get-srcid (node &optional optional defaultval)
+  (pg-xml-get-attr 'srcid node optional defaultval))
+
+(defsubst pg-pgip-get-proverid (node &optional optional defaultval)
+  (pg-xml-get-attr 'proverid node optional defaultval))
+
+(defsubst pg-pgip-get-symname (node &optional optional defaultval)
+  (pg-xml-get-attr 'name node optional defaultval))
+
+(defsubst pg-pgip-get-prefcat (node &optional optional defaultval)
+  (pg-xml-get-attr 'prefcategory node optional defaultval))
+
+(defsubst pg-pgip-get-default (node &optional optional defaultval)
+  (pg-xml-get-attr 'default node optional defaultval))
+
+(defsubst pg-pgip-get-objtype (node &optional optional defaultval)
+  (pg-xml-get-attr 'objtype node optional defaultval))
+
+(defsubst pg-pgip-get-value (node)
+  (pg-xml-get-text node))
+
+(defalias 'pg-pgip-get-displaytext 'pg-pgip-get-pgmltext)
+
+(defun pg-pgip-get-pgmltext (node)
+  ;; TODO: fetch text or markup XML with text properties
+  (pg-xml-get-text node))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Sending PGIP commands to prover
 ;;
 
-(defun pg-issue-pgip (pgip &optional block)
-  (proof-shell-invisible-command 
-   (funcall proof-shell-issue-pgip-cmd 
-	    ;; FIXME: ought to generate sequence numbers and
-	    ;; engine ids here.
-	    (format "<pgip class=\"pa\">%s</pgip>" pgip)) block))
+(defun pg-pgip-string-of-command (pgip &optional refseq refid otherclass)
+  "Convert XML node PGIP or string into a command string to send to the prover.
+This wraps the node in a <pgip> packet with appropriate attributes.
+See `pg-pgip-assemble-packet' "
+  (let ((wrappedpgip
+	 (pg-xml-string-of
+	  (list (pg-pgip-assemble-packet (list pgip) refseq refid otherclass)))))
+    (cond
+     ((stringp proof-shell-issue-pgip-cmd)
+      (format proof-shell-issue-pgip-cmd wrappedpgip))
+     ((functionp proof-shell-issue-pgip-cmd)
+      (funcall proof-shell-issue-pgip-cmd wrappedpgip))
+     (t
+      ;; FIXME: Empty setting: might be better to send a comment
+      (pg-pgip-warning "pg-prover-interpret-pgip-command: `proof-shell-issue-pgip' is unset!")
+      ""))))
 
-;;;###autoload
-(defun pg-pgip-askprefs ()
-  (pg-issue-pgip "<askprefs/>" 'block))
+(defconst pg-pgip-id
+  ;; Identifier based on hostname, user, time, and (FIXME: possible?) ppid
+  (concat (getenv "HOSTNAME") "/" (getenv "USER") "/"
+	  (let ((tm (current-time))) (format "%d.%d" (car tm) (cadr tm))))
+  "PGIP Identifier for this Emacs Proof General component.")
+
+(defvar pg-pgip-refseq nil 
+  "The sequence number of the received message this reply refers to")
+(defvar pg-pgip-refid nil  
+  "The identity of the component this message is being sent to")
+
+(defvar pg-pgip-seq 0 "Sequence number of messages sent out.")
+
+(defun pg-pgip-assemble-packet (body &optional refseq refid otherclass)
+  "Construct a PGIP node with body list BODY.
+REFSEQ and REFID are used for the corresponding attributes, if present.
+By default, the class of the message is \"pa\" (destined for prover).
+OTHERCLASS overrides this."
+  (let* ((origin	(pg-xml-attr origin
+				     (concat "EmacsPG/" 
+					     proof-general-short-version  
+					     "/" proof-assistant)))
+	 (id		(pg-xml-attr id pg-pgip-id))
+	 (class		(pg-xml-attr class (or otherclass "pa")))
+	 (seq		(pg-xml-attr seq (int-to-string (incf pg-pgip-seq))))
+	 (refseq        (if refseq (list (pg-xml-attr refseq refseq))))
+	 (refid         (if refid (list (pg-xml-attr refid refid))))
+	 (pgip_attrs	(append (list origin id class seq)
+				refseq refid)))
+    (pg-xml-node pgip pgip_attrs body)))
+
+(defun pg-pgip-issue (pgip &optional block refseq refid otherclass)
+  "Issue a PGIP command via `proof-shell-issue-pgip-cmd' and `proof-shell-invisible-command'.
+This expects a single XML node/string in PGIP, which will have a PGIP
+header attached.  If BLOCK is non-nil, we wait for the response from
+the prover.  For remaining optional args, see doc of
+`pgip-assemble-packet'."
+  (proof-shell-invisible-command 
+   (pg-pgip-string-of-command pgip refseq refid otherclass) block))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Provide parsing functionality for other interfaces (sacrilege!) 
+;; Functions to send particular commands
 ;;
-  
-(defun pg-pgip-parsescript (text)
-  ;; Text ought to be cdata or something. We'll stick it into a buffer
-  ;; and run the proof-script code on it.
-  (save-excursion
-    (let ((buf (get-buffer-create " *pgip-parsescript*")))
-      (delete-region (point-min) (point-max)) ; wipe previous contents
-      (insert text)
-      (let ((semis (proof-segment-up-to (point))))
-	;; semis is now a list of (type, string, int) tuples (in reverse order).
-	;; we'll turn it into XML and send it back to the prover
-	;; FIXME: todo: make parseresult element according to types,
-	;; properscriptcmd = properproofcmd | properfilecmd | bindid
-	))))
-	
+
+;;;###autoload
+(defun pg-pgip-askprefs ()
+  "Send an <askprefs> message to the prover."
+  (pg-pgip-issue "<askprefs/>" 'block))
+
+(defun pg-pgip-askids (&optional objtype thyname)
+  "Send an <askids> message to the prover."
+  (pg-pgip-issue 
+   (pg-xml-node askids 
+		(append
+		 (if thyname
+		     (list (pg-xml-attr 'thyname objtype)))
+		 (if objtype
+		     (list (pg-xml-attr 'objtype objtype)))) 
+		nil)
+   'block))
+
+
+(defun pg-pgip-reset ()
+  "Reset state of the PGIP module"
+  (setq pg-pgip-refseq nil
+	pg-pgip-refid  nil
+	pg-pgip-last-seen-id nil
+	pg-pgip-last-seen-seq nil
+	pg-pgip-seq 0
+	proof-assistant-settings nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
