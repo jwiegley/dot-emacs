@@ -611,7 +611,7 @@ Resulting output from Isabelle will be parsed by Proof General."
   (proof-response-config-done))
 
 (defun isa-pbp-mode-config ()
-  ;; FIXME: next too broken, of course, as is all PBP everywhere.
+  ;; FIXME: next two broken, of course, as is all PBP everywhere.
   (setq pbp-change-goal "Show %s.")	
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isa-init-output-syntax-table)
