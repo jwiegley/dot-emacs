@@ -325,9 +325,8 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
     (lozenge "\\<lozenge>")
     (smllozenge "\\<struct>")
     (dotlessi "\\<index>")
+    (euro "\\<euro>")
     ))
-
-(defvar x-symbol-isabelle-user-table nil)
 
 (defun x-symbol-isabelle-prepare-table (table)
   (let*
@@ -341,9 +340,16 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
 (defvar x-symbol-isabelle-table
   (x-symbol-isabelle-prepare-table
    (append
-    x-symbol-isabelle-user-table
+    (if (boundp 'x-symbol-isabelle-user-table) x-symbol-isabelle-user-table nil)
     x-symbol-isabelle-symbol-table
     x-symbol-isabelle-xsymbol-table)))
+
+(defvar x-symbol-user-table
+  (append
+   (if (boundp 'x-symbol-user-table) x-symbol-user-table nil)
+   '((bardash 180 (arrow) (direction east . perpendicular) nil (t "|-"))
+     (bardashdbl 182 (arrow) (direction east) nil (t "|=")))))
+
 
 ;;;===========================================================================
 ;;;  Internal
