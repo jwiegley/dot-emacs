@@ -60,7 +60,12 @@
   (isar-init-syntax-table)
   ;; ignore strings so font-locking works
   ;; inside them
-  (modify-syntax-entry ?\" " "))
+  (modify-syntax-entry ?\" " ")
+  (modify-syntax-entry ?\* ".")
+  (modify-syntax-entry ?\( "()")
+  (modify-syntax-entry ?\) ")(")
+  (modify-syntax-entry ?\{ "(}")
+  (modify-syntax-entry ?\} "){"))
 
 
 ;; ----- syntax for font-lock and other features
@@ -182,12 +187,6 @@
   (concat "\\(" (isar-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
   "Regexp matching goal commands in Isabelle/Isar which name a theorem")
 
-(defconst isar-verbatim-regexp "^\^VERBATIM: \\(\\(.\\|\n\\)*\\)$"
-  "Regexp matching internal marker for verbatim command output")
-
-(defun isar-verbatim (str)
-  "Mark internal command for verbatim output"
-  (concat "\^VERBATIM: " str))
 
 
 ;; ----- Isabelle inner syntax hilite
