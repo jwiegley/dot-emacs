@@ -123,10 +123,10 @@ distclean:	clean
 #
 # Documentation
 #
-doc:
+doc:	FORCE
 	(cd doc; $(MAKE) doc)
 
-alldocs:
+alldocs: FORCE
 	(cd doc; $(MAKE) all)
 
 
