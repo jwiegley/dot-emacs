@@ -176,7 +176,7 @@ experienced Emacs users."
 (defcustom proof-multiple-frames-enable nil
   "*Whether response and goals buffers have separate frames.
 If non-nil, Emacs will make separate frames (screen windows) for
-the goals and response buffers, by altering the variable
+the goals and response buffers, by altering the Emacs variable
 `special-display-regexps'."  
   :type 'boolean 
   :set 'proof-set-bool
