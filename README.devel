@@ -18,7 +18,7 @@ maintain the simple "todo" lists.  They can include lists of things to
 do as well as notes about outstanding bugs, etc.  Each item is
 classified with a priority.  What usually happens is that either
 something is fixed quickly, or its priority gradually decreases,
-saving much time not implementing important things!  
+saving much time not implementing unimportant things!  
 
 Items which are based on bug/problem reports by users are given a
 higher priority by default (unless to fix them would be unreasonably
