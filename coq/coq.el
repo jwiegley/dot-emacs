@@ -594,10 +594,7 @@ This is specific to coq-mode."
 
   (setq proof-terminal-char ?\.)
   (setq proof-script-command-end-regexp   
-        ;;(if coq-version-is-V7 "[.]\\([ \t\n\r]\\)\\|[.]\\'" "[.]")
-        ;; da: could you check this, Pierre?  If you like it
-        ;; please remove these comments.
-        "[.]\\([\\. \t\n\r\\']\\|\\'\\)")
+        (if coq-version-is-V7 "[.]\\([\\. \t\n\r\\']\\|\\'\\)" "."))
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
