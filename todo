@@ -32,6 +32,8 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to do in the generic interface
 
+*** B document and simplify proof-script-span-context-menu-extensions
+
 *** C Add output highlighting to minibuffer in proof-shell-message.
     (Quite tricky to get text properties onto text in minibuffer...)
 
