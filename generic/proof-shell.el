@@ -29,7 +29,10 @@
 ;; Autoloads for proof-script (added to nuke warnings,
 ;; maybe should be 'official' exported functions in proof.el)
 ;; This helps see interface between proof-script / proof-shell.
-(eval-when-compile
+;; FIXME 2: We can probably assume that proof-script is always
+;; loaded before proof-shell, so just put a require on 
+;; proof-script here.
+(eval-and-compile
   (mapcar (lambda (f) 
 	    (autoload f "proof-script"))
 	  '(proof-goto-end-of-locked
@@ -426,7 +429,7 @@ exited by hand (or exits by itself)."
 	    proof-shell-busy nil
 	    proof-shell-proof-completed nil
 	    proof-shell-error-or-interrupt-seen nil
-	    proof-shell-action-list nil)
+	    proof-action-list nil)
       ;; Kill buffers associated with shell buffer
       (if (buffer-live-p proof-goals-buffer)
 	  (progn 
@@ -519,6 +522,7 @@ object files, used by Lego and Coq)."
   (let ((a 0) (l (length string)) ls)
     (while (< a l) 
       (setq ls (cons (int-to-string 
+		      ;; FIXME: FSF doesn't have char-to-int.
 		      (char-to-int (aref string a)))
 		     (cons " " ls)))
       (incf a))
@@ -800,8 +804,7 @@ This function expects 'proof-shell-delayed-output' to be a cons cell
 of the form ('insert . TXT) or ('analyse . TXT).
 See the documentation for `proof-shell-delayed-output' for further details."
   (let ((ins (car proof-shell-delayed-output))
-	(str (cdr proof-shell-delayed-output))
-	pos)
+	(str (cdr proof-shell-delayed-output)))
     (cond 
      ;; 
      ;; 1. Text to be inserted in response buffer.
@@ -956,7 +959,9 @@ Then we call `proof-shell-handle-error-or-interrupt-hook'."
 		(span-start span)))
 
 (defun proof-pbp-focus-on-first-goal ()
-  "If the `proof-goals-buffer' contains goals, bring the first one into view."
+  "If the `proof-goals-buffer' contains goals, bring the first one into view.
+This is a hook function for proof-shell-handle-delayed-output-hook."
+  ;; FIXME: does nothing in FSF
   (and (fboundp 'map-extents)
        (let
 	   ((pos (map-extents 'proof-goals-pos proof-goals-buffer
@@ -1606,7 +1611,7 @@ however, are always processed; hence their name)."
 		(progn
 		  (proof-debug 
 		   "proof-shell-filter found empty action list yet proof shell busy.")
-		  (proof-clear-lock))))))))
+		  (proof-release-lock))))))))
 
 
 (defun proof-shell-filter-process-output (string)
@@ -1732,7 +1737,7 @@ If WAIT is an integer, wait for that many seconds afterwards."
 	proof-shell-proof-completed nil
 	;; FIXME: these next two probably not necessary
 	proof-shell-error-or-interrupt-seen nil
-	proof-shell-action-list nil)
+	proof-action-list nil)
 
   (make-local-variable 'proof-shell-insert-hook)
 
@@ -1874,6 +1879,8 @@ May enable proof-by-pointing or similar features.
   (setq proof-buffer-type 'pbp)
 ; button 2 is a nuisance on 2 button mice
 ;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
+  (define-key pbp-mode-map [mouse-3] 'pbp-button-action)
+  (define-key pbp-mode-map [C-mouse-3] 'proof-undo-and-delete-last-successful-command)
   (define-key pbp-mode-map [(button3)] 'pbp-button-action)
   (define-key pbp-mode-map [(control button3)] 'proof-undo-and-delete-last-successful-command)
   (define-key pbp-mode-map [q] 'bury-buffer)
