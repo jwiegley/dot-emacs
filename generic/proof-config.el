@@ -30,11 +30,21 @@
 ;; The remaining variables in sections 2-5 do.
 ;;
 
+;;
+;; 0. Global constants
+;; 
 
-;; A global constant that's convenient to keep here.
-(defconst proof-mode-name "Proof-General"
+(defcustom proof-mode-name "Proof-General"
   "Root name for proof script mode.  
-Used internally and in menu titles.")
+Used internally and in menu titles."
+  :type 'string
+  :group 'proof-internal)
+
+(defcustom proof-general-home-page
+  "http://www.dcs.ed.ac.uk/home/proofgen"
+  "*Web address for Proof General"
+  :type 'string
+  :group 'proof-internal)
 
 
 
@@ -56,11 +66,26 @@ Used internally and in menu titles.")
   :type 'boolean
   :group 'proof)
 
-(defcustom proof-general-home-page
-  "http://www.dcs.ed.ac.uk/home/proofgen"
-  "*Web address for Proof General"
-  :type 'string
-  :group 'proof-internal)
+(defface proof-queue-face
+  '((((type x) (class color) (background light))
+     (:background "mistyrose"))
+    (((type x) (class color) (background dark))
+     (:background "mediumvioletred"))
+    (t				
+     (:foreground "white" :background "black")))
+  "Face for commands in proof script waiting to be processed."
+  :group 'proof)
+
+(defface proof-locked-face
+  '((((type x) (class color) (background light))   
+     (:background "lavender"))
+    (((type x) (class color) (background dark))   
+     (:background "navy"))
+    (t				
+     (:underline t)))
+  "Face for locked region of proof script (processed commands)."
+  :group 'proof)
+
 
 
 

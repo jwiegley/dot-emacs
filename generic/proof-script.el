@@ -148,26 +148,6 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 (make-variable-buffer-local 'proof-locked-span)
 (make-variable-buffer-local 'proof-queue-span)
 
-(defface proof-queue-face
-  '((((type x) (class color) (background light))
-     (:background "mistyrose"))
-    (((type x) (class color) (background dark))
-     (:background "mediumvioletred"))
-    (t				
-     (:foreground "white" :background "black")))
-  "Face for commands in proof script waiting to be processed."
-  :group 'proof)
-
-(defface proof-locked-face
-  '((((type x) (class color) (background light))   
-     (:background "lavender"))
-    (((type x) (class color) (background dark))   
-     (:background "navy"))
-    (t				
-     (:underline t)))
-  "Face for locked region of proof script (processed commands)."
-  :group 'proof)
-
 (defun proof-init-segmentation ()
   (setq proof-queue-loose-end nil)
   (if (not proof-queue-span)
