@@ -1,5 +1,59 @@
 2003-09-25  David Aspinall  <da@proofgeneral.org>
 
+	* /disk/cvs/proofgen/ProofGeneral/html/devel.html:
+	Replace web mirror of repo with anon cvs description
+
+	* /disk/cvs/proofgen/ProofGeneral/ChangeLog: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/html/news.html: Mention anon cvs
+
+	* /disk/cvs/proofgen/ProofGeneral/html/Kit/docs/commentary.pdf, /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgip.rnc:
+	Updated from Kit repo
+
+	* /disk/cvs/proofgen/ProofGeneral/html/Kit/.htaccess: New files.
+
+	* /disk/cvs/proofgen/ProofGeneral/ChangeLog: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/html/develdownload.php:
+	Update XEmacs version.
+
+	* /disk/cvs/proofgen/ProofGeneral/ChangeLog: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/html/head.html:
+	Swap charset to iso-8859-1
+
+	* /disk/cvs/proofgen/ProofGeneral/html/main.html: Fix Lambda-CLAM link
+
+	* /disk/cvs/proofgen/ProofGeneral/ChangeLog: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/Makefile.devel: Fixup
+
+	* /disk/cvs/proofgen/ProofGeneral/Makefile.devel:
+	Problem with export, temp fix
+
+	* /disk/cvs/proofgen/ProofGeneral/etc/ProofGeneral.spec, /disk/cvs/proofgen/ProofGeneral/generic/proof-site.el, /disk/cvs/proofgen/ProofGeneral/html/develdownload.php, /disk/cvs/proofgen/ProofGeneral/html/devel.html:
+	Set version tag for new release.
+
+2003-09-24  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/CHANGES, /disk/cvs/proofgen/ProofGeneral/todo:
+	Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-pgip.el:
+	Include class attribute in PGIP commands
+
+	* /disk/cvs/proofgen/ProofGeneral/html/kit.php:
+	Describe work currrently underway; distribute some docs
+
+	* /disk/cvs/proofgen/ProofGeneral/html/news.html: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/Example-Xsym.thy, /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgip.rnc, /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgml.rnc, /disk/cvs/proofgen/ProofGeneral/html/Kit/docs/uitp03.pdf, /disk/cvs/proofgen/ProofGeneral/html/Kit/docs/commentary.pdf:
+	New files.
+
+	* /disk/cvs/proofgen/ProofGeneral/html/Kit/Makefile: Updated.
+
+2003-09-25  David Aspinall  <da@proofgeneral.org>
+
 	* /disk/cvs/proofgen/ProofGeneral/html/news.html: Mention anon cvs
 
 	* /disk/cvs/proofgen/ProofGeneral/html/Kit/docs/commentary.pdf, /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgip.rnc:
