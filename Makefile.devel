@@ -189,7 +189,7 @@ ChangeLog:	FORCE
 # Clean up intermediate files and Emacs backup files
 #
 clean:	
-	find . \( -name '*~' -o -name '#*#' -o -name '\.#.*' \) -print | xargs rm 
+	find . \( -name '*~' -o -name '#*#' -o -name '\.#.*' \) -print | xargs rm -f
 	(cd doc; $(MAKE) clean)
 	(cd images; $(MAKE) clean)
 
