@@ -20,6 +20,8 @@ See INSTALL for installation details.
 
 See COPYING for license details.
 
+See REGISTER for registration information (please register).
+
 See doc/ for documentation of Proof General.
 
 For notes on the supported assistants, see the README files
@@ -29,17 +31,15 @@ in the subdirectories:
     phox/   PhoX
      coq/   Coq
  demoisa/   Demonstration instance for Isabelle
+   hol98/   HOL 98
      isa/   Isabelle
     isar/   Isabelle/Isar
     lego/   LEGO
-   hol98/   HOL 98
-
- generic/   Generic basis for Proof General
-
- plastic/   Plastic	[ in development release only ]
-   twelf/   Twelf	[ in development release only ]
+ plastic/   Plastic
+   twelf/   Twelf
    pgkit/   PG Kit      [ in development release only ]
 
+ generic/   Generic basis for Proof General
 
 Check BUGS files for problems and issues, in this directory, and for
 specific issues, in each prover subdirectory.  Please report bugs
