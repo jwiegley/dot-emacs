@@ -1959,9 +1959,17 @@ sent when a proof is completed."
   :group 'proof-shell)
 
 (defcustom proof-shell-theorem-dependency-list-regexp nil
-  "Regexp matching output telling Proof General what the dependencies are.  
-This is so that the dependent theorems can be highlighted somehow.  
-Set to nil to disable.
+  "Regexp matching output telling Proof General about dependencies.
+This is to allow navigation and display of dependency information.
+The output from the prover should be a message with the form
+
+   DEPENDENCIES OF  X Y Z   ARE  A B C
+
+with X Y Z, A B C separated by whitespace or somehow else (see
+`proof-shell-theorem-dependency-list-split'.  This variable should
+be set to a regexp to match the overall message (which should
+be an urgent message), with two sub-matches for X Y Z and A B C.
+
 This is an experimental feature, currently work-in-progress."
   :type '(choice nil regexp)
   :group 'proof-shell)
