@@ -80,29 +80,13 @@ See the functions `proof-start-queue' and `proof-exec-loop'.")
 ;; code is single-threaded, a loop parsing process output cannot get
 ;; pre-empted by the user trying to send more input to the process,
 ;; or by the process filter trying to deal with more output.
+;; (Moreover, we can tell when the process is busy because the 
+;; queue is non-empty).
 ;;
 ;;
 
 ;;
-;; History of these horrible functions.
-;;
-;;  proof-check-process-available
-;;    Checks whether the proof process is available.
-;; Specifically:
-;;     (1) Is a proof process running?
-;;     (2) Is the proof process idle?
-;;     (3) Does the current buffer own the proof process?
-;;     (4) Is the current buffer a proof script?
-;; It signals an error if at least one of the conditions is not
-;; fulfilled. If optional arg RELAXED is set, only (1) and (2) are 
-;; tested.
-;;
-;; Later, proof-check-process-available was altered to also
-;; start a proof shell if necessary, although this is also
-;; done (later?) in proof-grab-lock.  It was also altered to
-;; perform configuration for switching scripting buffers.
-;;
-;; Now, we have two functions again:
+;; We have two functions:
 ;;
 ;;  proof-shell-ready-prover   
 ;;    starts proof shell, gives error if it's busy.
@@ -116,28 +100,8 @@ See the functions `proof-start-queue' and `proof-exec-loop'.")
 ;;  proof-shell-available
 ;;    returns non-nil if a proof shell is active and not locked.
 ;;
-;; Maybe proof-shell-ready-prover doesn't need to start the shell,
-;; we can find that out later.
+;; Maybe proof-shell-ready-prover doesn't need to start the shell?
 ;;
-;; Chasing down 'relaxed' flags:
-;;
-;;   was passed into proof-grab by proof-start-queue
-;;    only call to proof-start-queue with this arg is in
-;;    proof-shell-invisible-command.
-;;   only call of proof-shell-invisible-command with relaxed arg
-;;   is in proof-minibuffer-cmd.
-;;  --- presumably so that command could be executed from any
-;;  buffer, not just a scripting one?
-;;
-;;  I think it's wrong for proof-shell-invisible-command to enforce
-;;  scripting buffer!
-;; 
-;;  This is reflected now by just calling (proof-shell-ready-prover)
-;;  in proof-shell-invisible-command, not proof-check-process-available.
-;;
-;; Hopefully we can get rid of these messy 'relaxed' flags now.
-;;
-;;  -da.
 
 (defun proof-shell-ready-prover (&optional queuemode)
   "Make sure the proof assistant is ready for a command.
@@ -235,14 +199,13 @@ Does nothing if proof assistant is already running."
     ;;		  (+ 1 (aref proc (- (length proc) 2))))
     ;;	  (setq proc (concat proc "<2>"))))
 
-    ;; da: Finally removed this because it leads to objectionable 
-    ;; proliferation of buffers when startup fails.
-
-     ;; (while (get-buffer (concat "*" proc "*"))
-     ;; (if (string= (substring proc -1) ">")
-     ;; (aset proc (- (length proc) 2) 
-     ;; (+ 1 (aref proc (- (length proc) 2))))
-     ;; (setq proc (concat proc "<2>"))))
+      ;; da: Finally removed this because it leads to objectionable 
+      ;; proliferation of buffers when startup fails.
+      ;; (while (get-buffer (concat "*" proc "*"))
+      ;; (if (string= (substring proc -1) ">")
+      ;; (aset proc (- (length proc) 2) 
+      ;; (+ 1 (aref proc (- (length proc) 2))))
+      ;; (setq proc (concat proc "<2>"))))
       
       (message (format "Starting process: %s" proof-prog-name))
 
@@ -262,7 +225,8 @@ Does nothing if proof assistant is already running."
 	    ;; Experimental fix for backslash/long line problem.  
 	    ;; Make start-process (called by make-comint)
 	    ;; use a pipe, not a pty.  Seems to work.
-	    (process-connection-type nil))
+	    ; (process-connection-type nil))
+	    )
 
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we 
@@ -1527,12 +1491,17 @@ however, are always processed; hence their name)."
 
     (if ;; Some proof systems can be hacked to have annotated prompts;
 	;; for these we set proof-shell-wakeup-char to the annotation 
-	;; special.  
+	;; special, and look for it in the output before doing anything.
 	(if proof-shell-wakeup-char
 	    ;; FIXME: this match doesn't work in emacs-mule, darn.
 	    ;; (string-match (char-to-string proof-shell-wakeup-char) str))
-	    (find proof-shell-wakeup-char str)
-	  ;; Others may rely on a standard top-level (e.g. SML) whose
+	    ;; FIXME: this match doesn't work in FSF emacs 20.5, darn.
+	    ;; (find proof-shell-wakeup-char str)
+	    ;; FIXME: 3.1pre: temporarily, use both tests!
+	    (or
+	     (string-match (char-to-string proof-shell-wakeup-char) str)
+	     (find proof-shell-wakeup-char str))
+	  ;; Others systems rely on a standard top-level (e.g. SML) whose
 	  ;; prompts may be difficult or impossible to hack.
 	  ;; For those we must search in the buffer for the prompt.
 	  t)
