@@ -58,10 +58,11 @@ Proof General includes these features, amongst others:
 Summary of changes since 3.3:
 
 . GPL license
+. Improvements to menus, colour schemes
+. Visibility control over portions of proof script
 . In Isabelle: tracing buffers, dependency highlighting
 . In Coq: much improved synchronization (inc sections, nested proofs)
-. Improvements to generic code, instantiation mechanisms.
-. Bug fixes 
+. Bug fixes, efficiency improvements, better generic code.
 . Compatibility improvements: XEmacs 21.4, Emacs 21.2
 
 For details of changes since 3.3, see
