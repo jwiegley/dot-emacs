@@ -200,7 +200,9 @@ If in three window or multiple frame mode, display both buffers."
 	 ;; ( if proof-shell-trace-output-regexp ... )
 	   '(["Trace"
 	      (proof-switch-to-buffer proof-trace-buffer)
-	      :active (buffer-live-p proof-trace-buffer)])))
+	      :active (buffer-live-p proof-trace-buffer)])
+	   '(["Clear responses"
+	      (pg-response-clear-displays) t])))
   "Proof General buffer menu.")
 
 
