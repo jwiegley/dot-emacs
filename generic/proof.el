@@ -198,7 +198,12 @@ No effect if proof-display-splash-time is zero."
 (require 'proof-syntax)
 (require 'proof-indent)
 
-(autoload 'w3-fetch "w3" nil t)		; FIXME: shouldn't we use browse-url?
+
+;; browse-url function doesn't seem to be autoloaded in
+;; XEmacs 20.4, is in FSF Emacs 20.2.
+(or (fboundp 'browse-url)
+    (autoload 'browse-url "browse-url"
+      "Ask a WWW browser to load URL." t))
 
 (defmacro deflocal (var value &optional docstring)
   "Define a buffer local variable VAR with default value VALUE."
@@ -231,6 +236,12 @@ No effect if proof-display-splash-time is zero."
   "*If non-nil, format for newlines after each proof command in a script."
   :type 'boolean
   :group 'proof)
+
+(defcustom proof-general-home-page
+  "http://www.dcs.ed.ac.uk/home/proofgen"
+  "*Web address for Proof General"
+  :type 'string
+  :group 'proof-internal)
  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2593,11 +2604,13 @@ Start up the proof assistant if necessary."
   (proof-restart-script))
 
 (defvar proof-help-menu
-  '("Help"
-	     ["Proof assistant web page"
-	      (w3-fetch proof-www-home-page) t]
-	     ["Help on Emacs proof-mode" proof-info-mode t]
-	     )
+  `("Help"
+    [,(concat proof-assistant " web page")
+     (browse-url proof-www-home-page) t]
+    ["Proof General home page"
+     (browse-url proof-general-home-page) t]
+    ["Proof General Info" proof-info-mode t]
+    )
   "The Help Menu in Script Management.")
 
 (defvar proof-shared-menu

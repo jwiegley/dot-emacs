@@ -102,9 +102,9 @@ You can use customize to set this variable."
 	  proof-internal-assistant-table)
   (concat
    "*Choice of proof assitants to use with Proof General.
-A list of symbols chosen from: " 
+A list of symbols chosen from:" 
    (apply 'concat (mapcar (lambda (astnt) 
-			    (concat "'" (symbol-name (car astnt)) " "))
+			    (concat " '" (symbol-name (car astnt))))
 			  proof-internal-assistant-table)) 
 ".\nEach proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General

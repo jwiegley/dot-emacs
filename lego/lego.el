@@ -35,8 +35,8 @@
   :group 'lego)
 
 (defcustom lego-help-menu-list
-  '(["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
-    ["The LEGO library (WWW)" (w3-fetch lego-library-www-page)  t])
+  '(["The LEGO Reference Card" (browse-url lego-www-refcard) t]
+    ["The LEGO library (WWW)" (browse-url lego-library-www-page)  t])
   "List of menu items, as defined in `easy-menu-define' for LEGO
   specific help."
   :type '(repeat sexp)
@@ -82,17 +82,8 @@
   :type 'string
   :group 'lego)
 
-;; FIXME da: this doesn't belong here, it's only used by lego.
-;; (and it shouldn't be called w3-* !!)
-(defun w3-remove-file-name (address)
-  "Remove the file name in a World Wide Web address"
-  (string-match "://[^/]+/" address)
-  (concat (substring address 0 (match-end 0))
-          (file-name-directory (substring address (match-end 0)))))
-
 (defcustom lego-www-latest-release
-  (concat (w3-remove-file-name lego-www-home-page)
-  "html/release-1.3/")
+  "http://www.dcs.ed.ac.uk/home/lego/html/release-1.3/"
   "The WWW address for the latest LEGO release."
   :type 'string
   :group 'lego)
