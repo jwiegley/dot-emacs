@@ -1873,15 +1873,14 @@ X-Symbol support is deactivated."
 ;; them all prover-specific automatically.  Then people's save
 ;; settings would work, and we could remove all the "mirror" settings.
 ;;
-;; NB: this section is work in progress
+;; NB: this section is work in progress for 3.2,  probably
+;; to be moved to proof-utils
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Macros
 ;;
-
-
 (defun proof-ass-symv (sym)
   "Return the symbol for SYM for the current prover.  SYM is evaluated."
   (intern (concat (symbol-name proof-assistant-symbol) "-" 
@@ -1905,6 +1904,9 @@ Helper for macro `proof-defasscustom'."
 	:group ,(quote proof-assistant-internals-cusgrp)))
     ;; For functions, we could simply use defalias.  Unfortunately there
     ;; is nothing similar for values, so we define a new set/get function.
+    ;; FIXME: consider removing this code.  Maybe we only need to read
+    ;; proof-assistant specific settings, not set them.  That is the
+    ;; job of proof-assistant specific code, not generic code!
     (eval
      `(defun ,generic-var (&optional newval) 
 	,(concat "Set or get value of " (symbol-name sym) " for current proof assistant.
@@ -1946,7 +1948,15 @@ for prover specific settings."
 
 (defmacro proof-defass-default (sym value)
     `(proof-defass-default-fn (quote ,sym) ,value))
-   
+
+;;
+;; Make a function named for the current proof assistant.
+;;
+(defmacro proof-defassfun (name arglist &rest args)
+  "Define function <PA>-SYM as for defun."
+  `(defun ,(proof-ass-symv name) ,arglist
+     ,@args))
+
 
 
 ;; End macros
