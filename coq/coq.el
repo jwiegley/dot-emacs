@@ -117,8 +117,8 @@
 
 
 
-(defconst coq-undoable-tactics-regexp 
-  (proof-ids-to-regexp coq-undoable-tactics))
+(defconst coq-state-changing-tactics-regexp 
+  (proof-ids-to-regexp coq-state-changing-tactics))
 (defconst coq-state-preserving-tactics-regexp 
   (proof-ids-to-regexp coq-state-preserving-tactics))
 (defconst coq-tactics-regexp

@@ -237,7 +237,7 @@ Print and Check commands, put the following line in your .emacs:
   "All commands keyword")
 
 
-(defcustom coq-user-undoable-tactics nil
+(defcustom coq-user-state-changing-tactics nil
  
 "Configuration variable (default to nil). List of strings containing
 the user defined Coq tactics that need to be backtracked (like almost
@@ -246,12 +246,12 @@ all tactics, but \"Idtac\" (\"Proof\" is a command actually)).
 For example if MyIntro and MyElim are user defined variants of the
 Intro and Elim tactics, put the following line in your .emacs:
 
-(setq coq-user-undoable-tactics
+(setq coq-user-state-changing-tactics
 		'(\"MyIntro\" \"MyElim\"))
 "
 )
 
-(defvar coq-undoable-tactics
+(defvar coq-state-changing-tactics
  (append  '(
 "Absurd"
 "Apply"
@@ -344,7 +344,7 @@ Intro and Elim tactics, put the following line in your .emacs:
 "Trivial"
 "Unfold"
 )
-coq-user-undoable-tactics
+coq-user-state-changing-tactics
 )
 
 )
@@ -372,11 +372,11 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 )
 
 (defvar coq-tactics 
-  (append coq-undoable-tactics coq-state-preserving-tactics))
+  (append coq-state-changing-tactics coq-state-preserving-tactics))
 
 
 (defvar coq-retractable-instruct
-  (append coq-undoable-tactics coq-keywords-state-changing-commands)
+  (append coq-state-changing-tactics coq-keywords-state-changing-commands)
   )
 
 (defvar coq-non-retractable-instruct
