@@ -1690,6 +1690,7 @@ you with several escape mechanisms if you want to do this.
 * Asserting across files::      
 * Automatic multiple file handling::
 * Escaping script management::
+* Experimental features::
 @end menu
 
 @node Visibility of completed proofs
@@ -1713,8 +1714,7 @@ You can also select the ``disappearing proofs'' mode from the menu,
 @end lisp 
 This automatically hides each the body of each proof portion
 as it is completed by the proof assistant.
-
-Finally, two menu commands in the main Proof-General menu,
+Two further menu commands in the main Proof-General menu,
 @emph{Show all} and @emph{Hide all} apply to all the completed
 portions in the buffer.
 
@@ -1919,7 +1919,6 @@ version of Emacs). You can switch to it using the menu:
 buffer!  Proof General may lose track of the state of the proof
 assistant.  Output from the assistant is only fully monitored when Proof
 General is in control of the shell.
-
 When in control, Proof General watches the output from the proof
 assistant to guess when a file is loaded or when a proof step is taken
 or undone.  What happens when you type in the shell buffer directly
@@ -1955,6 +1954,42 @@ a proof command.
 @end deffn
 
 
+@node Experimental features
+@section Experimental features
+
+During the development of Proof General, we experiment with new features
+in the interface.  The particular features available the version of
+Proof General you have are described in the file @file{README.exper}
+which is included in the distribution.
+
+The experimental features are automatically enabled in development
+releases of Proof General, but disabled in the stable releases.  To
+adjust the setting, customize the variable below.  After changing the
+setting you should restart Proof General to see (or remove) the new
+features.
+
+@c TEXI DOCSTRING MAGIC: proof-experimental-features
+@defopt proof-experimental-features 
+Whether to enable certain features regarded as experimental.@*
+Proof General includes a few features designated as "experimental".
+Enabling these will usually have no detrimental effects on using PG,
+but the features themselves may be buggy.
+
+We encourage users to set this flag and test the features, but being
+aware that the features may be buggy (problem reports and 
+suggestions for improvements are welcomed).
+
+By default, experimental features are turned on in development
+releases and turned off in stable releases.
+
+The default value is @code{t}.
+@end defopt
+
+
+
+@c 
+@c  CHAPTER:  Support for other Packages
+@c
 @node Support for other Packages
 @chapter Support for other Packages
 
@@ -2461,10 +2496,10 @@ The effect of changing one of these options will be seen immediately (or
 in the next proof step).  The window-control options
 on this menu are described shortly.  @xref{Display customization}.
 
-To save the current settings, use the usual Emacs save options command,
-for XEmacs on the menu:
+To save the current settings for these options (only), use the Save
+Options command in the submenu:
 @lisp
-   Options -> Save Options
+   Proof General -> Options -> Save Options
 @end lisp
 or @code{M-x customize-save-customized}.
 
@@ -2492,7 +2527,8 @@ buffer with its current value, and facility to edit it.  Once you have
 edited it, you can use the special buttons @var{set}, @var{save} and
 @var{done}.  You must use one of @var{set} or @var{save} to get any
 effect.  The @var{save} button stores the setting in your @file{.emacs}
-file.  In XEmacs, the menu item @code{Options -> Save Options} saves all
+file.  The command @kbd{M-x customize-save-customized} or XEmacs menubar 
+item @code{Options -> Save Options} saves all
 settings you have edited.
 
 A technical note.  In the customize menus, the variable names mentioned
@@ -2510,7 +2546,7 @@ other (non-script) buffers.  In XEmacs, the menu path is:
 @end lisp
 in XEmacs.  In GNU Emacs, use the menu:
 @lisp
-   Help -> Customize -> Top-level Customization Group
+   Help -> Customize Emacs -> Top-level Customization Group
 @end lisp
 and select the @code{External} and then @code{Proof-General} groups.
 
@@ -2860,7 +2896,9 @@ Would cause Proof General to issue the command @samp{ssh bigjobs isabelle}
 to start Isabelle remotely on our large compute server called @samp{bigjobs}.
 
 The protocol used should be configured so that no user interaction
-(passwords, or whatever) is required to get going.
+(passwords, or whatever) is required to get going.  For proper
+behaviour with interrupts, the program should also communicate
+signals to the remote host.
 
 The default value is @code{""}.
 @end defopt
