@@ -3,6 +3,11 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.5  1997/10/17 14:51:48  hhg
+;; Fixed coq-shell-prompt-pattern to reflect proof-id
+;; Changed ";" to "." in coq-save-with-hole-regexp
+;; New modifications to syntax table to reflect actual use of symbols in Coq
+;;
 ;; Revision 1.4  1997/10/16 13:14:32  djs
 ;; Merged Coq changes with main branch.
 ;;
@@ -111,7 +116,7 @@
 (defvar coq-shell-working-dir ""
   "The working directory of the coq shell")
 
-(defvar coq-shell-prompt-pattern "^\\w+ < "
+(defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
@@ -138,9 +143,8 @@
 
 (defvar coq-save-command-regexp
   (concat "^" (ids-to-regexp coq-keywords-save)))
-; The semicolon is incorrect here!
 (defvar coq-save-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-save) "\\)\\s-+\\([^;]+\\)"))
+  (concat "\\(" (ids-to-regexp coq-keywords-save) "\\)\\s-+\\([^.]+\\)"))
 (defvar coq-goal-command-regexp
   (concat "^" (ids-to-regexp coq-keywords-goal)))
 (defvar coq-goal-with-hole-regexp
@@ -266,9 +270,9 @@
 	(setq ans (concat coq-forget-id-command
 			  (span-property sext 'name) proof-terminal-string)))
 
-
+; I'm not sure match-string 2 is correct with proof-id -- hhg
        ((string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
-			      "\\)\\s-*\\(\\w+\\)\\s-*:") str)
+			      "\\)\\s-*\\(" proof-id "\\)\\s-*:") str)
 	(setq ans (concat coq-forget-id-command
 			  (match-string 2 str) proof-terminal-string))))
 
@@ -390,7 +394,17 @@
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
 	proof-kill-goal-command coq-kill-goal-command)
 
-  (modify-syntax-entry ?_ "_")
+  (modify-syntax-entry ?\$ ".")
+  (modify-syntax-entry ?\/ ".")
+  (modify-syntax-entry ?\\ ".")
+  (modify-syntax-entry ?+  ".")
+  (modify-syntax-entry ?-  ".")
+  (modify-syntax-entry ?=  ".")
+  (modify-syntax-entry ?%  ".")
+  (modify-syntax-entry ?<  ".")
+  (modify-syntax-entry ?>  ".")
+  (modify-syntax-entry ?\& ".")
+  (modify-syntax-entry ?_  "_")
   (modify-syntax-entry ?\' "_")
   (modify-syntax-entry ?\| ".")
   (modify-syntax-entry ?\* ". 23")
