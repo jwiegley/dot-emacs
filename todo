@@ -14,6 +14,12 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+
+A* Stuff for release (da):
+
+    1. Display of goals on Isabelle start up: hack it somehow.
+
+
 A* multiple files bug fix:
    It can happen (in Isabelle) that the prover retracts a file
    which asks for another to be retracted which is *not* on
@@ -263,6 +269,8 @@ D Allow bib-cite style clicking on Load/Import commands to go to file.
 
 D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
+
+X w3 manages to do toolbar enablers that work.  How?
 
 X Images for splash screen: could add xpm files for logos 
   so that XEmacs displays transparent parts properly.
