@@ -4,27 +4,19 @@ Written by David Aspinall.
 
 $Id$
 
-Status:	       not officially supported yet
+Status:	       alpha; unsupported
 Maintainer:    volunteer required
-ACL2 version:  Tested briefly with
-ACL2 homepage: 
+ACL2 version:  Tested briefly with acl2.5
+ACL2 homepage: http://www.cs.utexas.edu/users/moore/acl2
 
 ========================================
 
-
-This is a "technology demonstration" of Proof General for ACL2.
-
-It has basic script management support, with a little bit of
-decoration of scripts and output.
-
-There is support for X Symbol, but not using a proper token language.
+This is the absolute bare beginnings of a PG instance for ACL2.
+At the moment, only basic script management is configured.
 
 I have written this in the hope that somebody from the ACL2 community
 will adopt it, maintain and improve it, and thus turn it into a proper
 instantiation of Proof General.
 
 
-------------
-
-Notes:
 

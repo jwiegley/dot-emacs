@@ -22,138 +22,47 @@
 (proof-easy-config  'acl2 "ACL2" 
  proof-assistant-home-page       "http://www.cs.utexas.edu/users/moore/acl2"
  proof-prog-name		 "acl2"
+
  proof-script-sexp-commands	 t
  proof-comment-start             ";"
- ;; FIXME:
- proof-goal-command-regexp     "^g[ `]"
- proof-save-command-regexp     "pg_top_thm_and_drop"
- proof-goal-with-hole-regexp   "val \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*prove"
- proof-save-with-hole-regexp   "val \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*top_thm()"
- proof-non-undoables-regexp      "b()" ; and others..
- proof-goal-command              "g `%s`;"
- proof-save-command              "val %s = pg_top_thm_and_drop();"
- proof-kill-goal-command         "drop();"
- proof-showproof-command         "p()"
- proof-undo-n-times-cmd          "(pg_repeat backup %s; p());"
- proof-auto-multiple-files       t
- proof-shell-cd-cmd              "FileSys.chDir \"%s\""
- proof-shell-filename-escapes    '(("\\\\" . "\\\\") ("\""   . "\\\""))
- proof-shell-prompt-pattern      "^[->] "
- proof-shell-interrupt-regexp    "Interrupted"
- proof-shell-start-goals-regexp  
- (proof-regexp-alt "Proof manager status" 
-		   "OK.." 
-		   "val it =\n")
- proof-shell-end-goals-regexp    
- (proof-regexp-alt "^[ \t]*: GoalstackPure.goalstack"
-		   "^[ \t]*: GoalstackPure.proofs")
- proof-shell-quit-cmd            "quit();"
+ proof-comment-start             ";"
 
- proof-shell-annotated-prompt-regexp 
- "^\\[.*\\]"
- ;; This one is nice but less reliable, I think.
- ;; "\\(> val it = () : unit\n\\)?- "
- proof-shell-error-regexp "^! "
- proof-shell-init-cmd		  
- "Help.displayLines:=3000;
-  fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));
-  fun pg_top_thm_and_drop () = let val t = top_thm(); in (drop(); t) end;"
- ;; FIXME: add optional help topic parameter to help command. 
- ;; Have patch ready for PG 3.3
- proof-info-command "help \"hol\""
- proof-shell-proof-completed-regexp "Initial goal proved"
- ;; FIXME: next one needs setting so that "urgent" messages are displayed
- ;; eagerly from HOL.
- ;; proof-shell-eager-annotation-start
- proof-find-theorems-command	"DB.match [] (%s);"
+ proof-shell-annotated-prompt-regexp "ACL2[ !]*>+"
 
- ;; We must force this to use ptys since mosml doesn't flush its output
- ;; (on Linux, presumably on Solaris too).
- proof-shell-process-connection-type t
+ proof-shell-error-regexp	 "^Error: "  
+ proof-shell-interrupt-regexp    "Correctable error: Console interrupt."
+ proof-shell-prompt-pattern      "ACL2[ !]*>+"
 
- ;; 
- ;; Syntax table entries for proof scripts
+ proof-shell-quit-cmd            ":q"	 ;; FIXME: followed by C-d.
+ proof-shell-restart-cmd	 "#."    ;; FIXME: maybe not?
+ proof-info-command		 ":help"
+
+ ;;
+ ;; Syntax table entries for proof scripts  (FIXME: incomplete)
  ;;
  proof-script-syntax-table-entries
- '(?\` "\""
-   ?\$ "."   
-   ?\/ "."   
-   ?\\ "."   
-   ?+  "."   
-   ?-  "."   
-   ?=  "."   
-   ?%  "."   
-   ?<  "."   
-   ?>  "."   
-   ?\& "."   
-   ?.  "w"   
+ '(?\[ "(]  "
+   ?\] "([  "
+   ?\( "()  " 
+   ?\) ")(  "
+   ?.  "w" 
    ?_  "w"   
-   ?\' "w"   
+   ?\' "'    "
+   ?`  "'    "
+   ?,  "'    "
    ?\| "."   
-   ?\* ". 23"
-   ?\( "()1" 
-   ?\) ")(4")
+   ?\; "<    "
+   ?\n ">    "
+   )
 
- ;;
- ;; A few of the vast variety of keywords, tactics, tacticals,
- ;; for decorating proof scripts.
- ;;
- ;; In the future, PG will use a mechanism for passing identifier
- ;; lists like this from the proof assistant, we don't really
- ;; want to duplicate the information here!
- ;;
- acl2-keywords  '("g" "expand" "e" "val" "store_thm" "top_thm" "by"
-		   "pg_top_thm_and_drop"
-		   "Define" "xDefine" "Hol_defn"
-		   "Induct" "Cases" "Cases_on" "Induct_on"
-		   "std_ss" "arith_ss" "list_ss"
-		   "define_type")
- acl2-rules	 '("ASSUME" "REFL" "BETA_CONV" "SUBST" 
-		   "ABS" "INST_TYPE" "DISCH" "MP"
-		   "T_DEF" "FORALL_DEF" "AND_DEF" "OR_DEF" "F_DEF"
-		   "NOT_DEF" "EXISTS_UNIQUE_DEF" "BOOL_CASES_AX"
-		   "IMP_ANTISYM_AX" "ETA_AX" "SELECT_AX" "ONE_ONE_DEF" 
-		   "ONTO_DEF" "INFINITY_AX" "LET_DEF" "COND_DEF" "ARB_DEF")
- acl2-tactics   '("ACCEPT_TAC" "ASSUME_TAC" "GEN_TAC"
-		   "CONJ_TAC" "DISCH_TAC" "STRIP_TAC"
-		   "SUBST_TAC" "ASM_CASES_TAC" "DISJ_CASES_TAC"
-		   "REWRITE_TAC" "IMP_RES_TAC" "ALL_TAC" "NO_TAC"
-		   "EQ_TAC" "EXISTS_TAC" "INDUCT_TAC"
-		   "POP_ASM" "SUBST1_TAC" "ASSUM_LIST"
-		   "PROVE" "PROVE_TAC" "DECIDE" "DECIDE_TAC" "RW_TAC"
-		   "STP_TAC" "ZAP_TAC"
-		   "EXISTS_TAC")
- acl2-tacticals '("ORELSE" "FIRST" "CHANGED_TAC" "THEN"
-		   "THENL" "EVERY" "REPEAT"
-		   "MAP_EVERY")
- proof-script-font-lock-keywords	
- (list
-  (cons (proof-ids-to-regexp acl2-keywords) 'font-lock-keyword-face)
-  (cons (proof-ids-to-regexp acl2-tactics) 'font-lock-keyword-face)
-  ; (cons (proof-ids-to-regexp acl2-rules) 'font-lock-keyword-face)
-  (cons (proof-ids-to-regexp acl2-tacticals) 'proof-tacticals-name-face))
-
- ;;
- ;; Some decoration of the goals output
- ;;
- proof-goals-font-lock-keywords
- (list
-  (cons (proof-ids-to-regexp '("Proof manager status" 
-			       "proof" "Incomplete"
-			       "Initial goal proved"
-			       "Initial goal"
-			       "There are currently no proofs"
-			       "OK"))
-	'font-lock-keyword-face)
-  (cons (regexp-quote "------------------------------------")
-	'font-lock-comment-face)
-  (cons ": GoalstackPure.goalstack" 'proof-boring-face)
-  (cons ": GoalstackPure.proofs"    'proof-boring-face)
-  (cons ": Thm.thm"		    'proof-boring-face)
-  (cons "val it ="		    'proof-boring-face))
- 
  ;; End of easy config.
  )
+
+;; Interrupts and errors enter another loop; break out of it
+(add-hook
+ 'proof-shell-handle-error-or-interrupt-hook
+ (lambda () (proof-shell-insert ":q" nil)))
+
 
 
 (warn "ACL2 Proof General is incomplete!  Please help improve it!

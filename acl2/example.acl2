@@ -1,8 +1,7 @@
-(*
-    Example proof script for ACL2 Proof General.
-
-    $Id$
-*)    
+;;  Example proof script for ACL2 Proof General.
+;;
+;;   $Id$
+;;    
 
 (defthm assoc->assoc-equal
   (equal (assoc x a)
