@@ -8,17 +8,16 @@
     you may get the theory mode of ordinary Isabelle Proof General
 *)
 
+theory Example = Main:
 
-theory Example = Main:;
-
-theorem and_comms: "A & B --> B & A";
-proof;
-  assume "A & B";
-  thus "B & A";
-  proof;
-    assume A B;
-    show ?thesis; ..;
-  qed;
-qed;
-
-end;
+theorem and_comms: "A & B --> B & A"
+proof
+  assume "A & B"
+    thus "B & A"
+    proof
+      assume A B
+	show ?thesis 
+	..
+    qed
+qed
+end
