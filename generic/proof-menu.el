@@ -45,6 +45,8 @@ If in three window or multiple frame mode, display two buffers."
 					  )))
 					;proof-shell-buffer
 	 (selectedbuf (nth (mod proof-display-some-buffers-count 
+				(length assocbufs)) assocbufs))
+	 (nextbuf     (nth (mod (1+ proof-display-some-buffers-count)
 				(length assocbufs)) assocbufs)))
     (cond
      ((or proof-three-window-mode proof-multiple-frames-enable)
@@ -59,7 +61,7 @@ If in three window or multiple frame mode, display two buffers."
     (if (eq selectedbuf proof-response-buffer)
 	(set-window-point (get-buffer-window proof-response-buffer)
 			  (point-max)))
-    (pg-hint (pg-response-buffers-hint))))
+    (pg-hint (pg-response-buffers-hint (buffer-name nextbuf)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
