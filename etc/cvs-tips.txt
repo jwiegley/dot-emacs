@@ -2,47 +2,38 @@ Using CVS to access Proof General repository
 ============================================
 
 Here are some notes on how to access the PG repository remotely
-using CVS, using ssh with an account at dcs.ed.ac.uk
+using CVS, using pserver access to cvs.inf.ed.ac.uk
 
+0.  If you want write access to the Proof General repository, fill
+    in the web form here to apply for an account:
 
-1. First configure ssh so that you can do `ssh ssh.dcs.ed.ac.uk'
-without a password (or passphrase).  For this you need to run
-ssh-keygen and give an empty passphrase.  Then you need to copy
-your ~/.ssh/identity.pub at home into ~/.ssh/authorized_keys at
-dcs.ed.
+      http://www.informatics.ed.ac.uk/systems/cvs/new/
+		
+    The request will be processed manually and confirmed with the
+    Proof General maintainer (David Aspinall), so you should discuss
+    with him before applying.
 
-(NB: a more secure alternative would be to use ssh-agent to provide
-your passphrase as needed.  The point is that you don't want to
-keep typing passwords on every CVS command).
+1.  Login to the CVS server:
 
-2. The CVS repository for PG is in ~proofgen/src at dcs.ed.ac.uk 
+      cvs -d :pserver:<user>@cvs.inf.ed.ac.uk:/disk/cvs/proofgen login
 
-To use this, you need to set CVSROOT and CVS_RSH.  I use the script
-below (the last line isn't essential but makes the settings inside a
-running emacs too)
+    Replace <user> with your username, or with "anon" for anonymous
+    access.
 
-3. Where you want to develop PG, do:
+2.  Checkout the repository:
 
-	cvs checkout ProofGeneral
+      cvs -d :pserver:<user>@cvs.inf.ed.ac.uk:/disk/cvs/proofgen checkout ProofGeneral
 
-  Inside the ProofGeneral directory, to retrieve the latest updates,
-  do:
+    Inside the ProofGeneral directory, to retrieve the latest updates, do:
 
-	cvs update
+       cvs update
 
-  To commit some changes to file <filename>, do:
+    To commit some changes to file <filename>, do:
 
         cvs commit -m"<message here>" <filename>
 
 
-See "man cvs" for (much) more.
-
-#! /bin/bash
-MACHINE=ssh
-export CVSROOT=:ext:da@$MACHINE.dcs.ed.ac.uk:/home/proofgen/src
-export CVS_RSH=ssh
-export EDITOR=gnuclient
-gnudoit '(setenv "CVSROOT" ":ext:da@$MACHINE.dcs.ed.ac.uk:/home/proofgen/src")' '(setenv "CVS_RSH" "ssh")' '(message "set environment for CVS to /home/proofgen/src !")'
+    See "man cvs" for (much) more.
 
 
 
@@ -98,7 +89,6 @@ Useful command:
 
 to force this behaviour.
 
-This is needed to solve "localssh.dcs" versus "ssh.dcs" problem.
 
 
 -----------------------------------------------------------------
