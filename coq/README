@@ -1,0 +1,16 @@
+Coq Proof General
+
+Originally written by Healfdene Goguen.
+Later contributions by Patrick Loiseleur and Pierre Courtieu.
+
+$Id$
+
+Presently Coq Proof General supports automatic multiple file support
+only (deduced file dependencies, not communicated ones).  It does not
+have support for proof by pointing.
+
+There is support for x-symbols, but not using a proper token
+language.  Try writing "philosophy" !
+
+There is a tags program, coqtags.
+

@@ -1,0 +1,43 @@
+HOL Proof General, for HOL 98.
+
+Written by David Aspinall.
+
+$Id$
+
+This is a "technology demonstration" of Proof General for HOL 98.
+
+It may well work with other versions of HOL, but is untested (please
+let me know if you try).
+
+It has basic script management support, with a little bit of
+decoration of scripts and output.
+
+There is support for x-symbols, but not using a proper token language.
+Try writing "philosophy" !
+
+I have written this in the hope that somebody from the HOL community
+will adopt it and turn it into a proper instantiation of 
+Proof General.
+
+------------------
+
+Note:
+
+There are some problems at the moment.  HOL proof scripts often use
+batch-oriented single step tactic proofs, but Proof General does not
+offer an easy way to edit these kind of proofs.  The "Boomburg" Emacs
+interface by Koichi Takahashi and Masima Hagiya addressed this, and to
+some extent so does the Emacs interface supplied with HOL.  Perhaps
+one of these could be embedded inside Proof General.  Implemented in
+a generic way, managing batch vs interactive proofs would also be
+useful for Isabelle.
+
+Another problem is that HOL scripts sometimes use SML structures,
+which can cause confusion because Proof General does not really parse
+SML, it just looks for semicolons.  Again, this could be improved by
+taking a better parser (e.g. from sml mode).
+
+These improvements would be worthwhile contributions to Proof General
+and also provide the HOL community with a nice front end.  
+Please have a go!
+

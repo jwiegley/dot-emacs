@@ -1,0 +1,14 @@
+Isabelle Proof General 
+
+Written by David Aspinall, later with assistance from
+Markus Wenzel and David von Oheimb.
+
+$Id$
+
+Isabelle Proof General has full support for multiple file scripting,
+with dependencies between theories communicated between Isabelle and
+Proof General.  It has a mode for editing theory files taken from
+Isamode.
+
+There is no support for proof by pointing yet.
+

@@ -1,0 +1,15 @@
+LEGO Proof General
+
+Written by Thomas Kleymann and  Dilip Sequeira.
+Later maintainance by David Aspinall and Paul Callaghan.
+
+$Id$
+
+LEGO Proof General has full support for multiple file scripting, and
+experimental support for proof by pointing.
+
+There is support for x-symbols, but not using a proper token
+language.  Try writing "philosophy" !
+
+There is a tags program, legotags.
+
