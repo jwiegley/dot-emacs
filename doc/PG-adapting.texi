@@ -117,7 +117,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 2000,2001 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 2000-2002 Proof General team, LFCS Edinburgh.
 
 
 @c

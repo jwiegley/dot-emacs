@@ -115,12 +115,12 @@ END-INFO-DIR-ENTRY
 @c image{ProofGeneralPortrait}
 @end ifset
 @end iftex
-@author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
-
+@author David Aspinall with 
+   P. Courtieu, H. Goguen, T. Kleymann, D. Sequeira, M. Wenzel.
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998-2001 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998-2002 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -222,9 +222,16 @@ other documentation, system downloads, etc.
 @unnumberedsec Latest news for 3.4
 @cindex news
 
-Proof General 3.4 continues from version 3.3 with improvements (in
-particular, much better retraction support in Coq) and compatibility
-fixes for new versions of Emacs (in particular, GNU Emacs 21).
+Proof General 3.4 adds improvements and also compatibility fixes for
+new versions of Emacs, in particular, for GNU Emacs 21, which adds
+most of the pretty features that have only been available to XEmacs
+users until now (toolbar and X-Symbol support).
+
+One major improvement has been to provide better support for
+synchronization with Coq proof scripts; now Coq Proof General should
+be able to retract and replay most Coq proof scripts reliably.  Credit
+is due to Pierre Courtieu, who also updated the documentation in this
+manual.
 
 As of version 3.4, Proof General is distributed under the GNU General
 Public License (GPL).
@@ -3397,8 +3404,6 @@ erroneously.
 
 
 
-
-
 @c Sorry, there is currently very little specific documentation
 @c written for Coq Proof General. If any Coq user would like to
 @c contribute, please send a message to @code{proofgen@@dcs.ed.ac.uk}.
@@ -3827,6 +3832,8 @@ terminators in existing texts.
 @deffn Command isar-strip-terminators 
 Remove explicit Isabelle/Isar command terminators @samp{;} from the buffer.
 @end deffn
+
+
 
 @c
 @c  CHAPTER: HOL Proof General
