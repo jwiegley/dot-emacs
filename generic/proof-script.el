@@ -2360,7 +2360,7 @@ assistant."
   ;; Fontlock support.
   ;;
   ;; Assume font-lock case folding follows proof-case-fold-search
-  (proof-font-lock-configure-defaults proof-case-fold-search)
+  (proof-font-lock-configure-defaults 'autofontify proof-case-fold-search)
   
   ;; Hack for unfontifying commas (yuck)
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
