@@ -10,8 +10,7 @@
 ##    make clean	  - remove intermediate files
 ##    make distclean	  - remove all generated files
 ##
-##    make ChangeLog	  - make ChangeLog from CVS sources (uses emacs)
-##			     NB: ChangeLog.gz is kept in repo.
+##    make ChangeLog	  - make ChangeLog from CVS sources 
 ##    make tags		  - update TAGS file for Elisp sources
 ##    make autoloads	  - update autoloads
 ##
@@ -148,7 +147,7 @@ NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel Makefile.xemacs doc
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo ProofGeneral*/ChangeLog.gz ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral/*/todo
+IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral/*/todo
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -217,14 +216,13 @@ tags:	$(EL)
 
 ############################################################
 #
-# Re-Build ChangeLog.  CVSROOT must be set correctly.
-# Correct dependency would be to check repository for changes!
+# Add recent messages to ChangeLog.  CVSROOT must be set correctly.
 #
 ChangeLog:	FORCE
-	rm -f ChangeLog
-	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) -l 1000 > ChangeLog
-
-
+	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) | sed 's|/home/proofgen/src/ProofGeneral/||g' >> ChangeLog.prefix
+	mv ChangeLog ChangeLog.old
+	cat ChangeLog.prefix ChangeLog.old > ChangeLog
+	rm ChangeLog.prefix ChangeLog.old
 
 ############################################################
 #
@@ -395,7 +393,7 @@ develdist:
 	@echo "*************************************************"
 	mkdir -p $(DISTBUILDIR)
 	if [ -z "$(NOCVS)" ]; then \
-           (make devel.ChangeLog.gz; cvs commit -m"Updated." ChangeLog.gz; cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME)) \
+           (make devel.ChangeLog; cvs commit -m"Updated." ChangeLog; cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME)) \
 	else \
 	   mkdir -p $(DISTBUILDIR)/$(DEVELRELEASENAME); \
 	   cp -pr . $(DISTBUILDIR)/$(DEVELRELEASENAME); \
