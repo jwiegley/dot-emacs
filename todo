@@ -392,7 +392,3 @@ D The proof-locked-span isn't set to read-only, because overlays don't
 =========
 
 B validate/fix web pages.
-
-B add COPYING note
-
-B write release message
