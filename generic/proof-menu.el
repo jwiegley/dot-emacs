@@ -297,6 +297,7 @@ KEY is added onto proof-assistant map."
       (eval
        `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
   `(defun ,fn ()
+     ;; FIXME: docstring broken! and above.
      (concat "Command to send " ,string " to the proof assistant.")
      (interactive)
      (proof-shell-invisible-command ,string)))
