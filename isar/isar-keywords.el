@@ -8,6 +8,9 @@
 (defconst isar-keywords-major
   '("\\."
     "\\.\\."
+    "types_code"
+    "consts_code"
+    "generate_code"
     "ML"
     "ML_command"
     "ML_setup"
