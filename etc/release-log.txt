@@ -1,4 +1,4 @@
-xx.09.00  3.2   Release 3-2  based on branch 5.0
+02.10.00  3.2   Release 3-2  based on branch 5.0
 	  First version of 3.2 release.
 
 --------------------
