@@ -9,7 +9,7 @@ Packager:	David Aspinall <da@dcs.ed.ac.uk>
 Source:		http://www.proofgeneral.org/ProofGeneral-3.4.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 PreReq:		/sbin/install-info
-Prefixes:	/usr/share/emacs /usr/bin /usr/info
+Prefixes:	/usr/share/emacs /usr/bin /usr/share/info
 BuildArchitectures: noarch
 
 %description
@@ -45,20 +45,25 @@ mkdir -p ${RPM_BUILD_ROOT}/usr/bin
 mv bin/proofgeneral lego/legotags coq/coqtags isar/isartags ${RPM_BUILD_ROOT}/usr/bin
 
 # Put info file in proper place, compress it.
-mkdir -p ${RPM_BUILD_ROOT}/usr/info
-mv doc/ProofGeneral.info doc/ProofGeneral.info-* ${RPM_BUILD_ROOT}/usr/info
-mv doc/PG-adapting.info  doc/PG-adapting.info-*  ${RPM_BUILD_ROOT}/usr/info
-gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info  ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info-*
-gzip ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info-*
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/info
+mv doc/ProofGeneral.info doc/ProofGeneral.info-* ${RPM_BUILD_ROOT}/usr/share/info
+mv doc/PG-adapting.info  doc/PG-adapting.info-*  ${RPM_BUILD_ROOT}/usr/share/info
+gzip ${RPM_BUILD_ROOT}/usr/share/info/ProofGeneral.info  ${RPM_BUILD_ROOT}/usr/share/info/ProofGeneral.info-*
+gzip ${RPM_BUILD_ROOT}/usr/share/info/PG-adapting.info ${RPM_BUILD_ROOT}/usr/share/info/PG-adapting.info-*
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
-# Put icons and menu entry into suitable place (at least for Mandrake)
+# Put icons and menu entry into suitable place (at least for RedHat, Mandrake)
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/mini
 cp images/pgmini.xpm ${RPM_BUILD_ROOT}/usr/share/icons/mini
 cp images/pgicon.png ${RPM_BUILD_ROOT}/usr/share/icons
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/pixmaps
+cp images/pgicon.png ${RPM_BUILD_ROOT}/usr/share/pixmaps
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/menu
-mv etc/ProofGeneral.menu ${RPM_BUILD_ROOT}/usr/lib/menu/ProofGeneral
+mkdir -p ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications/
+mv etc/ProofGeneral.menu ${RPM_BUILD_ROOT}/usr/lib/menu/ProofGeneral	     # Mandrake
+cp etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/usr/share/applnk/Applications/ # RH KDE
+mv etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications/   # RH Gnome
 
 for f in */README; do mv $f $f.`dirname $f`; done
 
@@ -70,26 +75,30 @@ if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
 fi
 
 %post
-/sbin/install-info /usr/info/ProofGeneral.info.* /usr/info/dir
-/sbin/install-info /usr/info/PG-adapting.info.* /usr/info/dir
+/sbin/install-info /usr/share/info/ProofGeneral.info.* /usr/share/info/dir
+/sbin/install-info /usr/share/info/PG-adapting.info.* /usr/share/info/dir
 
 %preun
-/sbin/install-info --delete /usr/info/ProofGeneral.info.* /usr/info/dir
-/sbin/install-info --delete /usr/info/PG-adapting.info.* /usr/info/dir
+/sbin/install-info --delete /usr/share/info/ProofGeneral.info.* /usr/share/info/dir
+/sbin/install-info --delete /usr/share/info/PG-adapting.info.* /usr/share/info/dir
 
 %files
 %attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README.* REGISTER doc/* */README.*
-%attr(-,root,root) /usr/info/ProofGeneral.info.*
-%attr(-,root,root) /usr/info/ProofGeneral.info-*.*
-%attr(-,root,root) /usr/info/PG-adapting.info.*
-%attr(-,root,root) /usr/info/PG-adapting.info-*.*
+%attr(-,root,root) /usr/share/info/ProofGeneral.info.*
+%attr(-,root,root) /usr/share/info/ProofGeneral.info-*.*
+%attr(-,root,root) /usr/share/info/PG-adapting.info.*
+%attr(-,root,root) /usr/share/info/PG-adapting.info-*.*
 %attr(-,root,root) /usr/bin/proofgeneral
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
 %attr(-,root,root) /usr/bin/isartags
 %attr(-,root,root) /usr/share/icons/pgicon.png
+%attr(-,root,root) /usr/share/pixmaps/pgicon.png
 %attr(-,root,root) /usr/share/icons/mini/pgmini.xpm
 %attr(-,root,root) /usr/lib/menu/ProofGeneral
+%attr(-,root,root) /usr/share/applnk/Applications/ProofGeneral.desktop
+%attr(-,root,root) /usr/share/gnome/apps/Applications/ProofGeneral.desktop
+%attr(-,root,root) /etc/X11/applnk/Applications/ProofGeneral.desktop
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
