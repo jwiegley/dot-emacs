@@ -20,7 +20,6 @@ X (Low)    probably not worth wasting time on
 ====================================================================
 
 A Testing before ProofGeneral 2.1 release:
-   - Process killing bug
    - FSF 20.3 problem with loss of blue highlighting on spans?
 
 A Clarify licence situation for Proof General after question from 
@@ -43,6 +42,9 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
    * Update menus in texi
   [6 hours]
 
+A Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
+  info file into a good place.
+
 X Web pages:
    - Check appearance in V3 browsers.
    - Make front page logo be an image map.  
@@ -62,7 +64,7 @@ X Web pages:
 
 C Check compilation okay, check on use of eval-and-compile.
 
-A BUGS to investigate:
+C Obscure BUGS to investigate:
   - Thomas has a bizarre .emacs file which causes Seg Faults with
     Proof General and FSF Emacs.  Doesn't happen with "emacs -q".
     Investigate which package/setting he adds is to blame.
@@ -70,11 +72,15 @@ A BUGS to investigate:
     work, but there may be problems.
   - bug mentioned by Martin H. with Lego: "don't know what I should
     be doing..." error when it shouldn't happen.
+  - startup delay when running XEmacs remotely and local display
+    is 8 bit.  Suspect an XEmacs issue to do with face allocations.
 
-A Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
-  info file into a good place.
+D Key binding and interface issues
+  - Consider change for prefix argument for C-c C-u and C-c u,
+  it's quite easy to accidently delete by pressing C-c C-u
+  repeatedly.
 
-B CVS repository issues.
+D CVS repository issues.
   Where are obsolete 'fileattr' files generated from/maintained?
   Should junk these (which appear to say that tms is watching everything).
 
