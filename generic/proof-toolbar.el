@@ -137,7 +137,7 @@ For GNU Emacs, this holds a keymap.")
 ;;;###autoload
 (defun proof-toolbar-setup ()
   "Initialize Proof General toolbar and enable it for current buffer.
-If proof-mode-use-toolbar is nil, change the current buffer toolbar
+If `proof-toolbar-enable' is nil, change the current buffer toolbar
 to the default toolbar."
   (interactive)
   (if
