@@ -1418,8 +1418,9 @@ May be called by proof-shell-invisible-command."
 
 
 (defun proof-shell-done-invisible (span)
-  "Callback for proof-shell-invisible-command.  Do nothing."
-  ())
+  "Callback for proof-shell-invisible-command.  
+Calls proof-state-change-hook."
+  (run-hooks 'proof-state-change-hook))
 
 ;; FIXME da: I find the name of this command misleading.
 ;; Nothing much is invisible really.  Old docstring was
