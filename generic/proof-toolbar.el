@@ -192,7 +192,8 @@ without giving error messages."
 
 (defun proof-toolbar-undo ()
   "Undo last successful in locked region, without deleting it."
-  (proof-undo-last-successful-command t))
+  (save-excursion
+    (proof-undo-last-successful-command t)))
 
 (defun proof-toolbar-next-enable-p ()
   ;; Could check if there *is* a next command here, to avoid
@@ -200,8 +201,15 @@ without giving error messages."
   t)
 
 (defun proof-toolbar-next ()
-  "Assert next command in proof to proof process."
-  (proof-assert-next-command))
+  "Assert next command in proof to proof process.
+Move point if the end of the locked position is invisible."
+  (save-excursion
+    (if (proof-shell-live-buffer)
+      (goto-char (proof-locked-end))
+      (goto-char (point-min)))
+    (proof-assert-next-command))
+  ;; FIXME: not sure about whether this is nice or not.
+  (proof-goto-end-of-locked-if-pos-not-visible-in-window))
 
 (defun proof-toolbar-retract-enable-p ()
   (proof-toolbar-process-available-p))
@@ -209,15 +217,19 @@ without giving error messages."
 (defun proof-toolbar-retract ()
   "Retract buffer."
   ;; proof-retract-file might be better here!
-  (goto-char (point-min))
-  (proof-retract-until-point))
+  (save-excursion
+    (goto-char (point-min))
+    (proof-retract-until-point)))
 
 (defun proof-toolbar-use-enable-p ()
   ;; Could check to see that whole buffer hasn't been
   ;; processed already.
   t)
 
-(defalias 'proof-toolbar-use 'proof-process-buffer)
+(defun proof-toolbar-use 
+  "Process the whole buffer"
+  (save-excursion
+    (proof-process-buffer)))
 
 (defun proof-toolbar-restart-enable-p ()
   ;; Could disable this unless there's something running.
