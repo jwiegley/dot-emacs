@@ -11,6 +11,7 @@
 
 (require 'isa-syntax)
 (require 'outline)
+(setq proof-tags-support nil)  ; we don't want it, no isatags prog.
 (require 'proof)
 
 
@@ -18,28 +19,24 @@
 ;;; ======== User settings for Isabelle ========
 ;;;
 
-(defgroup isabelle-settings nil
-  "Customization of Isabelle specifics for Proof General."
-  :group 'proof-general)
-  
-(defcustom isa-prog-name "/usr/lib/Isabelle98/bin/isabelle"
+(defcustom isabelle-prog-name "/usr/lib/Isabelle98/bin/isabelle"
   "*Name of program to run Isabelle."
   :type 'file
-  :group 'isabelle-settings)
+  :group 'isabelle)
 
-(defcustom isa-indent 2
+(defcustom isabelle-indent 2
   "*Indentation degree in proof scripts.
 Somewhat irrelevant for Isabelle because normal proof scripts have
 no regular or easily discernable structure."
   :type 'number
-  :group 'isabelle-settings)
+  :group 'isabelle)
 
-(defcustom isa-www-home-page
+(defcustom isabelle-web-page
   ;; "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html"
   "http://www.dcs.ed.ac.uk/home/isabelle"
   "URL of web page for Isabelle."
   :type 'string
-  :group 'isabelle-settings)
+  :group 'isabelle)
   
   
   
@@ -52,11 +49,10 @@ no regular or easily discernable structure."
 ;;; cannot override them.  It might be nice to override some
 ;;; variables, which ones?
 
-(defun isa-mode-config-set-variables
+(defun isa-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle."
   (setq
-   proof-assistant		"Isabelle"
-   proof-www-home-page		isa-www-home-page
+   proof-www-home-page		isabelle-web-page
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
    proof-comment-start		"(*"	; comment in a proof
@@ -79,12 +75,11 @@ no regular or easily discernable structure."
    proof-find-and-forget-fn	'isa-find-and-forget
    proof-goal-hyp-fn		'isa-goal-hyp
    proof-state-preserving-p	'isa-state-preserving-p
-   proof-global-p		'isa-global-p    ; FIXME: proof.el should allow nil
    proof-parse-indent		'isa-parse-indent
    proof-stack-to-indent	'isa-stack-to-indent))
 
 
-(defun isa-shell-mode-config-set-variables
+(defun isa-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle."
   (setq
    proof-shell-prompt-pattern
@@ -115,7 +110,8 @@ no regular or easily discernable structure."
    ;; may need to set directory somewhere for this:
    ;; /home/da/devel/lego/elisp/   or  $PROOFGENERIC_HOME ?
    proof-shell-init-cmd			(concat
-					 "use \"" proof-home
+					 "use \""
+					 proof-internal-home-directory
 					  "isa/ProofGeneral.ML\";")
    proof-shell-eager-annotation-start   "^\\[opening "
   ;;   proof-shell-eager-annotation-end "$"
@@ -172,32 +168,32 @@ to set outline heading regexp.")
 ;; Automatically selecting theory mode or Proof General script mode.
 
 (defun isa-mode ()
-  "Mode for Isabelle buffers: either isa-proofscript-mode or isa-thy-mode.
-Files with extension .thy will be in isa-thy-mode, otherwise we choose
+  "Mode for Isabelle buffers: either isa-proofscript-mode or thy-mode.
+Files with extension .thy will be in thy-mode, otherwise we choose
 isa-proofscript-mode."
   (interactive)
   (cond
    ((string-match ".thy" (buffer-file-name))
-    (isa-thy-mode))
+    (thy-mode))
    (t 
     (isa-proofscript-mode))))
 
 ;; Next portion taken from isa-load.el
 ;; isa-load.el,v 3.8 1998/09/01 
 
-(defcustom isa-use-sml-mode
+(defcustom isabelle-use-sml-mode
    (if (fboundp 'sml-mode) 'sml-mode)
   "*If non-nil, attempt to use sml-mode in ML section of theory files."
   :type 'boolean
-  :group 'isabelle-settings)
+  :group 'isabelle)
 
-(defgroup isa-thy-mode nil
+(defgroup thy nil
   "Customization of Isamode's theory editing mode"
   ;; :link '(info-link "(Isamode)Theory Files")
-  :load 'isa-thy-mode
-  :group 'isabelle-settings)
+  :load 'thy-mode
+  :group 'isabelle)
 
-(autoload 'isa-thy-mode "isa-thy-mode" 
+(autoload 'thy-mode "thy-mode" 
 	  "Major mode for Isabelle theory files" t nil)
 
 
@@ -303,13 +299,6 @@ isa-proofscript-mode."
   "Non-nil if command preserves the proofstate."
   (string-match isa-not-undoable-commands-regexp cmd))
 
-;; FIXME: I don't really know what this means, but lego sets
-;; it to always return nil.  Probably should be able to
-;; leave it unset.
-(defun isa-global-p (cmd)
-  nil)
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -328,7 +317,7 @@ isa-proofscript-mode."
     (nth 1 (car stack)))
    (t (save-excursion
 	(goto-char (nth 1 (car stack)))
-	(+ isa-indent (current-column))))))
+	(+ isabelle-indent (current-column))))))
 
 (defun isa-parse-indent (c stack)
   "Indentation function for Isabelle.  Does nothing."
@@ -340,7 +329,7 @@ isa-proofscript-mode."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun isa-pre-shell-start ()
-  (setq proof-prog-name		isa-prog-name)
+  (setq proof-prog-name		isabelle-prog-name)
   (setq proof-mode-for-shell    'isa-shell-mode)
   (setq proof-mode-for-pbp	'isa-pbp-mode))
 
@@ -382,17 +371,14 @@ isa-proofscript-mode."
   ;  (and (boundp 'tag-table-alist)
   ;       (setq tag-table-alist
   ;	     (append '(("\\.ML$"  . isa-ML-file-tags-table)
-  ;		       ("\\.thy$" . isa-thy-file-tags-table))
+  ;		       ("\\.thy$" . thy-file-tags-table))
   ;		     tag-table-alist)))
   (setq blink-matching-paren-dont-ignore-comments t)
   ;; hooks and callbacks
   (add-hook 'proof-pre-shell-start-hook 'isa-pre-shell-start nil t))
 
-
 (defun isa-shell-mode-config ()
-  ;; The following hook is removed once it's called.
-  ;; FIXME: maybe add this back later.
-  ;;(add-hook 'proof-shell-insert-hook 'isa-shell-init-hook nil t)
+  "Configure Proof General proof shell for Isabelle."
   (isa-init-syntax-table)
   (isa-shell-mode-config-set-variables)
   (proof-shell-config-done))
