@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-# ProofGeneral interface wrapper for Isabelle/Isar.
+# Proof General interface wrapper for Isabelle/Isar.
 
 
 ## diagnostics
@@ -20,7 +20,7 @@ function usage()
   echo "    -u BOOL      use .emacs file (default false)"
   echo "    -w BOOL      use window system (default true)"
   echo
-  echo "Starts ProofGeneral for Isabelle/Isar with proof documents FILES"
+  echo "Starts Proof General for Isabelle/Isar with proof documents FILES"
   echo "(default Scratch.thy)."
   echo
   exit 1
