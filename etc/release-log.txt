@@ -1,8 +1,5 @@
 29.08.02  3.4 Release 3-4 based on branch 7.0
-	  
-          3.4 Release 3-4-0 
-           Fix RPM info files; Isabelle binary search; RedHat desktop; CHANGES; 
-	   Remove isabelle images from splash-screen.
+          (repeated: RPM fixes; Isabelle binary search; CHANGES; splash screen)
 
 --------------------
 
