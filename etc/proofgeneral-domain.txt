@@ -15,15 +15,14 @@ www.proofgeneral.org	 is zermelo.dcs.ed.ac.uk
 Email aliases:
 --------------
 
-support       proofgen@dcs.ed.ac.uk
-feedback      proofgen@dcs.ed.ac.uk
-bugs	      proofgen@dcs.ed.ac.uk
-users	      proofgeneral@dcs.ed.ac.uk
-devel	      proofgeneral-devel@dcs.ed.ac.uk
-majordomo     majordomo@dcs.ed.ac.uk
-da	      da@dcs.ed.ac.uk
+support		proofgen@informatics.ed.ac.uk
+feedback	proofgen@informatics.ed.ac.uk
+bugs		proofgen@informatics.ed.ac.uk
+eeproof		proofgen@informatics.ed.ac.uk
+da		David.Aspinall@ed.ac.uk
 
-
-
-
+users	      proofgeneral@informatics.ed.ac.uk
+		http://lists.inf.ed.ac.uk/mailman/listinfo/proofgeneral
+devel	      proofgeneral-devel@informatics.ed.ac.uk
+		http://lists.inf.ed.ac.uk/mailman/listinfo/proofgeneral-devel
 
