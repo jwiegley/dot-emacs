@@ -216,7 +216,10 @@ See -k option for Isabelle interface script."
    proof-shell-end-goals-regexp         "\367"
    pg-topterm-char			?\370
 
-   ;; FIXME: need to set this for backward compatibility
+   ;; FIXME: next one is needed for backward compatibility.  
+   ;; Would be nice to remove this somehow else, it's only used for 
+   ;; Isar.  One way would be to hack the (now obsolete) defpacustom calls.
+   ;; 
    ;; proof-assistant-setting-format       'isar-markup-ml
    proof-shell-init-cmd                 '(proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
