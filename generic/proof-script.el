@@ -1264,9 +1264,10 @@ the ACS is marked in the current buffer. If CMD does not match any,
 		 ;; Ignore comments, any nested goalsaves
 		 ((eq (span-property gspan 'type) 'comment))
 		 ((eq (span-property gspan 'type) 'goalsave))
-		 ;; Increment depth for a nested save
-		 ((and proof-save-command-regexp
-		       ;; NB: not doing really save command here
+		 ;; Increment depth for a nested save, in case
+		 ;; prover supports history of nested proofs
+		 ((and proof-nested-goals-p
+		       proof-save-command-regexp
 		       (proof-string-match proof-save-command-regexp cmd))
 		  (incf lev))
 		 ;; Decrement depth when a goal is hit
