@@ -193,8 +193,7 @@ dist:	cvsclean
 release: tag dist
 	mkdir -p $(RELEASEDIR)
 	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
-	cd $(RELEASEDIR)
-	ln -sf $(RELEASENAME) $(NAME)
+	(cd $(RELEASEDIR); ln -sf $(RELEASENAME) $(NAME))
 
 
 
