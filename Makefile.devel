@@ -6,7 +6,7 @@
 ##
 ## Maintainer:  Proof General maintainer <da+pg-support@inf.ed.ac.uk>
 ##
-## Developer use only, not part of distribution.
+## Developer use only, not part of user distribution.
 ##
 ##    make clean	  - remove intermediate files
 ##    make distclean	  - remove all generated files
@@ -201,12 +201,12 @@ RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
 DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
-ELISP_DIRS=acl2 coq demoisa generic hol98 isa isar lclam lego mmm phox plastic twelf
+ELISP_DIRS=acl2 coq demoisa generic hol98 isa isar lclam lego lib mmm phox plastic twelf
 SUBDIRS=$(ELISP_DIRS) etc doc images
 
 PWD=$(shell pwd)
 
-BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar") load-path))' -f batch-byte-compile
+BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lib" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar") load-path))' -f batch-byte-compile
 
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
@@ -231,8 +231,9 @@ alldist:	distcompile distdocs
 #
 # Make tags file
 #
+ETAGS=etags
 tags:	$(EL)
-	etags $(EL) todo doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
+	$(ETAGS) $(EL) todo doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
 
 
 
