@@ -18,6 +18,7 @@ ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98 phox twelf acl2
 # FIXME: automate the emacs choice to be xemacs if it can be
 # found, otherwise emacs.
 BATCHEMACS=xemacs -batch -q -no-site-file
+#BATCHEMACS=emacs -batch -q -no-site-file
 
 PWD=$(shell pwd)
 BASH_SCRIPTS = isa/interface isar/interface
