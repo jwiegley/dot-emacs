@@ -113,6 +113,8 @@ do
   [ -f "$FILE" ] && ARGS="$ARGS -l $FILE"
 done
 
+[ -n "$XSYMBOL_INSTALLFONTS" ] && "$ISATOOL" installfonts -x
+
 export PROOFGENERAL_ASSISTANTS=isar
 export PROOFGENERAL_LOGIC="$LOGIC"
 export PROOFGENERAL_XSYMBOL="$XSYMBOL"
