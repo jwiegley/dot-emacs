@@ -35,10 +35,6 @@ and output as usual?   (The effect would be to allow Isabelle's
 completed proof message to appear in the goals buffer since it's
 marked up as a proof state output)
 
-A*** Possible bug [Isabelle/all]:
- at the top of a script buffer, sometimes special commands like
- ProofGeneral.kill_goal(); are inserted without reason
-
 A*** catch bug on Solaris when process shell killed?
 
 
@@ -52,6 +48,13 @@ A Polish ProofGeneral.texi and publish LaTeX version as an LFCS
    * Improve trivial and uniformative docstrings.
    * Fixup markup mistakes by editing docstrings.
    * Fix docstring magic so PROOFGENERAL_HOME is not var'd.
+
+B proof-shell-exit has a time delay of 10 secs built-in, 
+  before which the process is killed off.  
+  This should be configurable to allow for proof assistants 
+  which really want to do some work before exiting, for
+  example writing persistent databases out or the like.
+  Also this fact should be documented.
 
 B Is it possible to let C-c C-c (SIGINT) issue additional process input?
   Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
