@@ -735,6 +735,10 @@ at the end of locked region (after inserting a newline and indenting)."
 ;; eager annotations are one line long, and we get input a line at a
 ;; time. If we go over to piped communication, it will break.
 
+(defun proof-shell-message (str)
+  "Output STR in minibuffer."
+  (message (concat "[" proof-assistant "] " str)))
+
 ;; FIXME: highlight eager annotation-end : fix proof-shell-handle-output
 ;; to highlight whole string.
 (defun proof-shell-popup-eager-annotation ()
@@ -747,8 +751,7 @@ arrive."
 	      proof-shell-eager-annotation-start
 	      proof-shell-eager-annotation-end
 	      'proof-eager-annotation-face))
-	file module)
-    (proof-message str)))
+    (proof-shell-message str))))
 
 (defun proof-response-buffer-display (str face)
   "Display STR with FACE in response buffer."
@@ -794,7 +797,7 @@ arrive."
 		     (set-difference current-included
 				     proof-included-files-list))))))
 	(t
-	 (proof-message message)
+	 (proof-shell-message message)
 	 (proof-response-buffer-display message
 					'proof-eager-annotation-face))))
 
