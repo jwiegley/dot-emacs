@@ -33,8 +33,8 @@
     "ProofGeneral\\.kill_proof"
     "ProofGeneral\\.restart"
     "ProofGeneral\\.try_context_thy_only"
+    "ProofGeneral\\.undo"
     "cannot_undo"
-    "cd"
     "clear_undos"
     "exit"
     "init_toplevel"
@@ -48,6 +48,7 @@
 (defconst isar-keywords-diag
   '("ML"
     "ML_command"
+    "cd"
     "commit"
     "disable_pr"
     "enable_pr"
