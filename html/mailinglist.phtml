@@ -55,9 +55,11 @@ with the words "<tt>subscribe proofgeneral</tt>"
 <input type=submit value="Send request"> 
 </form>
 </p>
+
 <?php  
-   click_to_go_back();  
-   footer(); 
+  click_to_go_back();  
+  footer(); 
+
   else:
 ##
 ##  Process subscription
@@ -69,7 +71,7 @@ with the words "<tt>subscribe proofgeneral</tt>"
    
    $message = ($subscribe == "yes" ? "subscribe " : "unsubscribe ") 
 		. "proofgeneral"; 
-   mail("da", /* "majordomo@dcs.ed.ac.uk", */
+   mail("majordomo@dcs.ed.ac.uk",
 	"[Web form from ~proofgen]",
 	$message,
         "Reply-To: " . $email . "\nFrom: " . $email);
