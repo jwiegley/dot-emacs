@@ -852,7 +852,11 @@ If NUM is negative, move upwards.  Return new span."
 (defvar pg-span-context-menu-keymap
     (let ((map (make-sparse-keymap
 		"Keymap for context-sensitive menus on spans")))
-      (define-key map [button3] 'pg-span-context-menu)
+      (cond
+       (proof-running-on-XEmacs
+	(define-key map [button3] 'pg-span-context-menu))
+       (proof-running-on-Emacs21
+	(define-key map [down-mouse-3] 'pg-span-context-menu)))
       map))
 
 ;; FIXME: TODO here:
@@ -861,10 +865,20 @@ If NUM is negative, move upwards.  Return new span."
 ;; (pgidioms).
 ;;
 
+(defun pg-span-for-event (event)
+  "Return span corresponding to position of a mouse click EVENT."
+  (cond
+   (proof-running-on-XEmacs
+    (select-window (event-window event))
+    (span-at (event-point event) 'type))
+   (proof-running-on-Emacs21
+    (with-current-buffer 
+	(window-buffer (posn-window (event-start event)))
+      (span-at  (posn-point (event-start event)) 'type)))))
+
 (defun pg-span-context-menu (event)
   (interactive "e")
-  (select-window (event-window event))
-  (let ((span   (span-at (event-point event) 'type))
+  (let ((span (pg-span-for-event event))
 	cspan)
     ;; Find controlling span 
     (while (setq cspan (span-property span 'controlspan))
