@@ -153,5 +153,8 @@ Internal changes for developers to note
   To help with this there is a new configuration variable 
   proof-shell-eager-annotation-start-length.
 
+* proof-site now does nothing if it has already been loaded.
+  Previously it would load again, possibly altering settings.
+
 * Many code cleanups and improvements.
 

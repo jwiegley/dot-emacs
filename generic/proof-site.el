@@ -10,6 +10,8 @@
 ;; NB: Normally you will not need to edit this file.  
 ;;
 
+(unless (featurep 'proof-site)		; don't load twice
+
 (if (or  (not (boundp 'emacs-major-version))
 	 (< emacs-major-version 20))
     (error "Proof General is not compatible with Emacs %s" emacs-version))
@@ -267,6 +269,7 @@ Note: to change proof assistant, you must start a new Emacs session.")
  "Version string identifying Proof General release.")
 
 (provide 'proof-site)
+)    ; end unless
 
 
 		 
