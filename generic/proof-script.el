@@ -173,7 +173,8 @@ Otherwise make span give a warning message on edits."
 (defun proof-init-segmentation ()
   "Initialise the queue and locked spans in a proof script buffer.
 Allocate spans if need be.  The spans are detached from the
-buffer, so the regions are made empty by this function."
+buffer, so the regions are made empty by this function.
+Also clear list of script portions."
   ;; Initialise queue span, remove it from buffer.
   (unless proof-queue-span
       (setq proof-queue-span (make-span 1 1))
@@ -194,7 +195,8 @@ buffer, so the regions are made empty by this function."
   (proof-span-read-only proof-locked-span)
   (set-span-property proof-locked-span 'face 'proof-locked-face)
   (detach-span proof-locked-span)
-  (setq proof-last-theorem-dependencies nil))
+  (setq proof-last-theorem-dependencies nil)
+  (pg-clear-script-portions))
 
 ;; These two functions are used in coq.el to edit the locked region
 ;; (by lifting local (nested) lemmas out of a proof, to make them global).   
@@ -410,32 +412,51 @@ Does nothing if there is no active scripting buffer, or if
   "Table of lists of symbols naming script portions which have been processed so far.")
 
 (defun pg-clear-script-portions ()
-  (setq pg-script-portions nil))
+  "Clear record of script portion names and types from internal list.
+Also clear all visibility specifications."
+  (setq pg-script-portions nil)
+  (setq buffer-invisibility-spec nil))
 
 (defun pg-add-script-element (elt)
   (add-to-list pg-script-portions elt))
 
-(defun pg-remove-script-element (eltname)
-  (setq pg-script-portions (remassoc eltname pg-script-portions)))
+(defun pg-remove-script-element (ns id)
+  (let* ((elts	  (cdr-safe (assq ns pg-script-portions)))
+	 (newelts  (remq id elts)))
+    (setq pg-script-portions
+	  (if newelts
+	      (cons (cons ns newelts) (remassq ns pg-script-portions))
+	    (remassq ns pg-script-portions)))))
 
 (defsubst pg-visname (namespace name)
   (intern (concat namespace ":" name)))
 
 (defun pg-add-element (idiom name span)
+  "Add element of type IDIOM named NAME, referred to by SPAN, into cache.
+Names must be unique for a given "
   (let* ((ns       (intern idiom))
 	 (id       (intern name))
 	 (visname  (pg-visname idiom name))
+	 (delfn	   `(lambda () (pg-remove-element ,idiom ,name)))
 	 (elts	   (cdr-safe (assq ns pg-script-portions))))
     (if elts
-	(nconc elts (list id))
+	(if (memq id elts)
+	    (proof-debug "Element named " name " (type " idiom ") already in buffer.")
+	  (nconc elts (list id)))
       (setq pg-script-portions (cons (cons ns (list id)) pg-script-portions)))
+    (set-span-property span 'span-delete-action delfn)
     (set-span-property span 'invisible visname)))
 
 (defun pg-remove-element (idiom name)
-  (let ((eltname (intern (concat idiom ":" name))))
-    (pg-remove-script-element eltname)))
+  (let ((ns       (intern idiom))
+	(id       (intern name)))
+    (pg-remove-script-element ns id)
+    ;; We could leave the visibility note, but that may
+    ;; be counterintuitive, so lets remove it.
+    (pg-make-element-visible idiom name)))
 
 (defun pg-make-element-invisible (idiom name)
+  "Make element NAME of type IDIOM invisible, with ellipsis."
   (add-to-list 'buffer-invisibility-spec 
 	       (cons (pg-visname idiom name) t)))
 
@@ -444,7 +465,8 @@ Does nothing if there is no active scripting buffer, or if
 	(remassq (pg-visname idiom name) buffer-invisibility-spec)))
 
 (defun pg-toggle-element-visibility (idiom name)
-  (if (member (cons (pg-visname idiom name) t) buffer-invisibility-spec)
+  (if (and (listp buffer-invisibility-spec) 
+	   (assq (pg-visname idiom name) buffer-invisibility-spec))
       (pg-make-element-visible idiom name)
     (pg-make-element-invisible idiom name)))
 
@@ -1045,9 +1067,9 @@ With ARG, turn on scripting iff ARG is positive."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;; da: NEW function added 28.10.98.
-;; This is used by toolbar follow mode (which used to use the function
-;; above).  [But wouldn't work for proof-shell-handle-error-or-interrupt-hook?].
+;; da: 28.10.98: this is used by toolbar follow mode (which used to
+;; use the function above).  [But wouldn't work for
+;; proof-shell-handle-error-or-interrupt-hook?].
 
 (defun proof-goto-end-of-queue-or-locked-if-not-visible ()
   "Jump to the end of the queue region or locked region if it isn't visible.
@@ -2610,6 +2632,8 @@ finish setup which depends on specific proof assistant configuration."
       (setq buffer-offer-save t))
 
   ;; To begin with, make everything visible in the buffer
+  ;; (FIXME: this is done via proof-init-segmentation, now,
+  ;; when is that called?)
   (setq buffer-invisibility-spec nil)
 
   ;; Finally, make sure the user has been welcomed!
