@@ -145,8 +145,11 @@
   (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
 
-;; FIXME da: this one function breaks the nice configuration of Proof General:
-;; should have proof-goal-regexp instead.
+;; da: this one function breaks the nice configuration of Proof General:
+;; would be nice to have proof-goal-regexp instead.
+;; Unfortunately Coq allows Goals beginning with "Definition" and the 
+;; like, so it is difficult to have just a proof-goal-regexp setting.  
+
 (defun coq-goal-command-p (str)
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
