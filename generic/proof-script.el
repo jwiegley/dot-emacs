@@ -2498,6 +2498,9 @@ assistant."
   
   ;; Maybe turn on x-symbol mode and MMM mode
   (proof-x-symbol-mode)
+  ;; FIXME: slight bugginess here with MMM mode/font-lock: visiting
+  ;; a fresh file leaves the progress bar up.  Perhaps turning
+  ;; on MMM here is wrong, is should happen automatically?
   (proof-mmm-enable))
 
 

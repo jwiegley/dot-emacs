@@ -241,7 +241,7 @@ If in three window or multiple frame mode, display two buffers."
 (proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
 (proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
-
+(proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle)
 
 
 (defvar proof-quick-opts-menu
@@ -265,6 +265,10 @@ If in three window or multiple frame mode, display two buffers."
       :active (proof-x-symbol-support-maybe-available)
       :style toggle
       :selected (proof-ass x-symbol-enable)]
+     ["Multiple modes" proof-mmm-toggle
+      :active (proof-mmm-support-available)
+      :style toggle
+      :selected (proof-ass mmm-enable)]
      ["Toolbar" proof-toolbar-toggle
       ;; should really be split into :active & GNU Emacs's :visible
       :active (and (or (featurep 'toolbar) (featurep 'tool-bar))

@@ -113,6 +113,19 @@ evaluate can be provided instead." nil 'macro)
 
 ;;;***
 
+;;;### (autoloads (proof-mmm-enable proof-mmm-support-available) "proof-mmm" "generic/proof-mmm.el")
+
+(autoload 'proof-mmm-support-available "proof-mmm" "\
+A test to see whether mmm support is available." nil nil)
+
+(autoload 'proof-mmm-enable "proof-mmm" "\
+Turn on or off MMM mode in Proof General script buffers.
+This invokes `mmm-mode' with appropriate setting for current
+buffer, and adjusts 
+on MMM regions for the prover's class." nil nil)
+
+;;;***
+
 ;;;### (autoloads nil "proof-script" "generic/proof-script.el")
 
 ;;;***

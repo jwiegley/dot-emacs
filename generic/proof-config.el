@@ -114,6 +114,15 @@ whether X-Symbol is installed in your Emacs."
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defpgcustom mmm-enable nil
+  "*Whether to use MMM Mode in Proof General for this assistant.
+MMM Mode allows multiple modes to be used in the same buffer.
+If you activate this variable, whether or not you really get MMM
+support depends on whether your proof assistant supports it."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
 (defcustom proof-output-fontify-enable t
   "*Whether to fontify output from the proof assistant.
 If non-nil, output from the proof assistant will be highlighted
@@ -2058,9 +2067,13 @@ We do not force pipes everywhere because this risks loss of data."
 
 (defcustom proof-shell-strip-crs-from-input t
   "If non-nil, replace carriage returns in every input with spaces.
-This is enabled by default: it is appropriate for some systems
-because several CR's can result in several prompts, which may mess
-up the display (or even worse, the synchronization)."
+This is enabled by default: it is appropriate for many systems
+based on human input, because several CR's can result in several 
+prompts, which may mess up the display (or even worse, the 
+synchronization).  
+
+If the prover can be set to output only one prompt for every chunk of
+input, then newlines can be retained in the input."
   :type 'boolean
   :group 'proof-shell)
   
