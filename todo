@@ -13,11 +13,72 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+B CVS management: make image files be treated as binaries. 
+  (da, 30 mins)
+
+A Check & fix support for a recent version of FSFmacs.  (da, 2hr).
+
+A Add support for putting a locked region in processed files.
+  (tms? how long?)
+
+A Clean up proof-assert-until-point behaviour.  At the moment we
+  get an odd error if it is run in the locked region.  If point
+  is on the start of a command it says "nothing to do", but if
+  it is one character into the command, it asserts the whole command!
+  I propose the new function proof-assert-next-command as a 
+  possible alternative/additional behaviour, bound to  C-c C-RET.
+  Another question is whether the point is moved afterwards or not.
+  I suspect it is useful to leave point where it is, so we can
+  easily edit one step in a proof, try the next few steps, then
+  undo them, try a variation, etc.  As an experiment, 
+  proof-assert-next-command does not advance point. 
+  (da, tms/others to assess)
+
+A Write function proof-retract-file. (30min tms)
+  Currently, the command ForgetMark (for LEGO) is hardwired in
+  proof-steal-process.
+
+A Implement more generic mechanism for large undos (2h tms)
+
+    COQ: C-c u inside a Section should reset the whole section, then
+         redo defns 
+
+    LEGO: consider Discharge; perhaps unrol to the beginning of the
+          module?
+
+A Multiple files are sometimes handled incorrectly, because the
+  function `proof-steal-process' cannot figure out that some files have
+  already been processed. This is most likely caused by the ad-hoc
+  equality test on file names. Instead, one could employ
+  the built-in `file-truename' to trigger *canonical* file names.
+  (1h tms)
+
+A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
+  where ever possible (30 min tms)
+
 B Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2 days; da + tms)
 
-B Provide a sensible default frame/buffer layout (4h) 
+B Provide a sensible default frame/buffer layout (4h)
 
+B A less drastic version of proof-restart-script would be useful:
+  one that doesn't involve killing off the proof assistant process
+  and restarting that -- it can take ages! 
+  
+  We want two different modes of restarting:
+
+     1. Restart all: clear all context and kill proof process.
+     2. Restart some: clear context, do some retraction/kill goals
+        in proof process.
+
+  Add kill buffer hook to script buffer which does restart some
+  in case it's the active buffer.
+  (da, 20mins)
+  
+B Improve script stealing stuff.  It should display the other buffer
+  which was scripting.  Proof there should be killed off and
+  locked region shrunk/deleted accordingly.
+	
 C Improve proof-goal-command and proof-save-command:
   `proof-goal-command' should be more flexible and support a
   placeholder for the name and the actual goal. In LEGO, we have
@@ -51,11 +112,8 @@ B New buffer model:
 
 B proof-toolbar:  Fixup movement of point (choice of
   up and down functions).  Add toolbar to response mode too.  
-  (30mins, da)
 
-B toolbar icons: Fixup for low-colour modes again. (30mins, da).
-
-B Split code; particularyly proof.el
+B Split code; particularly proof.el
 
 C toolbar icons: Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
@@ -87,9 +145,8 @@ B Add skeleton instantiation files for a dummy prover "myassistant" to
   make it easier to add support for new assistants -- looking at
   any of the existing modes is confusing because of the
   prover-specific stuff.  Ideally it should work for one of
-  the default provers as an impoverished example mode.  (2h)
-
-A Add support for putting a locked region in processed files.
+  the default provers as an impoverished example mode.
+  (2h, da will do for Isabelle)
 
 X Make process handling smarter: because Emacs is single-threaded,
   no process output can be dealt with when we are running some
@@ -100,23 +157,6 @@ X Make process handling smarter: because Emacs is single-threaded,
   could remove them from the queue.  If there are no commands waiting,
   we have to wait until something becomes blue to undo it by sending
   a command to the process.
-
-A Clean up proof-assert-until-point behaviour.  At the moment we
-  get an odd error if it is run in the locked region.  If point
-  is on the start of a command it says "nothing to do", but if
-  it is one character into the command, it asserts the whole command!
-  I propose the new function proof-assert-next-command as a 
-  possible alternative/additional behaviour, bound to  C-c C-RET.
-  Another question is whether the point is moved afterwards or not.
-  I suspect it is useful to leave point where it is, so we can
-  easily edit one step in a proof, try the next few steps, then
-  undo them, try a variation, etc.  As an experiment, 
-  proof-assert-next-command does not advance point. 
-  (da, tms/others to assess)
-  
-B A less drastic version of proof-restart-script would be useful:
-  one that doesn't involve killing off the proof assistant process
-  and restarting that -- it can take ages!  (da, 20mins)
 
 D Code in proof.el assumes all characters with top bit set are special
   instructions to Emacs.  This is rather arrogant, and precludes proof
@@ -133,10 +173,6 @@ D Add support to proof.el for *not* setting variables for
 D Outsource script management features from proof.el to
   proof-script.el 		(1h)
 
-A Write function proof-retract-file. (30min tms)
-  Currently, the command ForgetMark (for LEGO) is hardwired in
-  proof-steal-process.
-
 D Improve documentation in proof.el to help porting/understanding 
   Also add notes into proof.texinfo.
   (ongoing, da).
@@ -148,6 +184,8 @@ C Fixup sources to follow Elisp conventions better.
      poor formatting of current comments.   (1hr)
   2. Replace defvar's by defconst's where appropriate.
      Introduce new defconsts.
+  3. Check on use of "*" in docstrings.  Should be used for
+     variables which are user-level options, only.
 
 B Update source documentation and manual, in particular document bugs
   and workarounds
@@ -155,21 +193,6 @@ B Update source documentation and manual, in particular document bugs
 
 D Technical documentation to record expertise and allow users of other
   proof systems to adopt generic package (40h h)
-
-A Implement more generic mechanism for large undos (2h tms)
-
-    COQ: C-c u inside a Section should reset the whole section, then
-         redo defns 
-
-    LEGO: consider Discharge; perhaps unrol to the beginning of the
-          module?
-
-A Multiple files are sometimes handled incorrectly, because the
-  function `proof-steal-process' cannot figure out that some files have
-  already been processed. This is most likely caused by the ad-hoc
-  equality test on file names. Instead, one could employ
-  the built-in `file-truename' to trigger *canonical* file names.
-  (1h tms)
 
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
@@ -185,9 +208,6 @@ B file handling could be more robust; perhaps one should always cd to
   achieved with a hook which is not set by default. [Remember to add
   user documentation] (30min tms)
 
-A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
-  where ever possible (30 min tms)
-
 B Reengineer *-count-undos and *-find-and-forget at generic level
   (3h)
 
@@ -200,10 +220,6 @@ X We need to go over to piped communication rather than ptys to fix
   eager annotation code. Document this problem so that it can be
   tested for future versions. [Currently the problem is documented in
   Email messages sent to lego]
-
-C Introduce keybinding to save the proof e.g., in LEGO, this should
-  insert "Save id" or "$Save id" depending on the name of the theorem. 
-  Do the same thing for Goal, to add as a toolbar function.
 
 C Unify toolbar and menu functions.
 
