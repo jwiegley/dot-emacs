@@ -10,8 +10,10 @@
 # $Id$
 #
 
-# The relative path works for uninstalled package
-PGHOME=..
+# The default path works if you unpack Proof General in your
+# home directory.
+# NB: no trailing backslash here!
+PGHOME=$HOME/ProofGeneral
 
 # Try to find an Emacs executable 
 if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
@@ -85,5 +87,6 @@ if [ ! -x "$EMACS" ]; then
     exit 1
 fi
     
+echo $EMACS -eval "(or (featurep (quote proof-site)) (load \"$PGHOME/generic/proof-site.el\"))" -f proof-splash-display-screen "$@"
 	
 exec $EMACS -eval "(or (featurep (quote proof-site)) (load \"$PGHOME/generic/proof-site.el\"))" -f proof-splash-display-screen "$@"
