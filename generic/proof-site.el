@@ -72,18 +72,20 @@ You can use customize to set this variable."
   :group 'proof-general-internals)
 
 ;; Add the info directory to the end of Emacs Info path if need be.
-(if (and (boundp 'Info-directory-list) (consp Info-directory-list))
-   ;; Info is already initialized.  Update its variables.
-   ;; This probably never happens.  -stef
-   (if (not (member proof-info-directory Info-directory-list))
-      (progn
-        (setq Info-directory-list
-              (cons proof-info-directory Info-directory-list))
-        (setq Info-dir-contents nil)))
-  ;; Info is not yet initialized.  Change its default.
-  (if (not (member proof-info-directory Info-default-directory-list))
-      (setq Info-default-directory-list
-	    (cons proof-info-directory Info-default-directory-list))))
+(if ;; NB: proof-info-directory is bogus in RPM distrib.
+    (file-exists-p proof-info-directory)
+    (if (and (boundp 'Info-directory-list) (consp Info-directory-list))
+	;; Info is already initialized.  Update its variables.
+	;; This probably never happens.  -stef
+	(if (not (member proof-info-directory Info-directory-list))
+	    (progn
+	      (setq Info-directory-list
+		    (cons proof-info-directory Info-directory-list))
+	      (setq Info-dir-contents nil)))
+      ;; Info is not yet initialized.  Change its default.
+      (if (not (member proof-info-directory Info-default-directory-list))
+	  (setq Info-default-directory-list
+		(cons proof-info-directory Info-default-directory-list)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
