@@ -1428,10 +1428,10 @@ function) to a set of vanilla extents."
 ;; By missing out the re-search-backward above, we can assert the next
 ;; command from within the locked region, to experiment with changing
 ;; steps in a proof.
-(defun proof-assert-next-command (&optional move-forward)
+(defun proof-assert-next-command (&optional dont-move-forward)
   "Experimental variant of proof-assert-until-point.
-Works in locked region and at start of commands.  Leaves point
-where it is unless optional arg MOVE-FORWARD is true."
+Works in locked region and at start of commands.  Moves point
+forward unless optional arg DONT-MOVE-FORWARD is true."
   (interactive "p")
   (let ((pt (point))
 	(crowbar (proof-steal-process))
@@ -1452,9 +1452,8 @@ where it is unless optional arg MOVE-FORWARD is true."
       (if crowbar (setq vanillas (cons crowbar vanillas)))
       (proof-start-queue (proof-locked-end) (point) vanillas))
     ;; FIXME: why is move-forward non-nil when called from keymap???
-;    (or move-forward
-;	(goto-char pt))))
-    (goto-char pt)))
+    (and dont-move-forward
+	(goto-char pt))))
 
 ;;         insert-pbp-command - an advancing command, for use when  ;;
 ;;         PbpHyp or Pbp has executed in LEGO, and returned a       ;;
