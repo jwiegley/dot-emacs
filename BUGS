@@ -34,6 +34,8 @@ simplifier, when tracing rewriting.
  the buffer first and use C-x C-f instead of C-x C-v, or kill
  and then re-find after C-x C-w.
 
+ [ FIXED, testing with 3.2 pre-releases. ]
+
 ** Toolbar enablers for XEmacs 21, some artefacts.
 
  There is a timing issue, so that occasionally the buttons are
