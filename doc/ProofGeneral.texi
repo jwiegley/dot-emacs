@@ -254,6 +254,7 @@ Bugs specific to LEGO Proof General
 
 * Retraction and Discharge::    
 * Retraction and proving::      
+* Non writable directories::    
 
 Plans and ideas
 
