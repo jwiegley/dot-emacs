@@ -361,7 +361,7 @@ isa-proofscript-mode."
   (cond
    (;; Theory files only if they have the right extension
     (and (buffer-file-name)
-	 (string-match "\\.thy$" (buffer-file-name)))
+	 (proof-string-match "\\.thy$" (buffer-file-name)))
 
     ;; Enter theory mode, but first configure settings for proof
     ;; script if they haven't been done already.  This is a hack,
@@ -594,7 +594,7 @@ you will be asked to retract the file or process the remainder of it."
 
 (defun isa-preprocessing ()  ;dynamic scoping of `string'
   "Handle ^VERBATIM marker -- acts on variable STRING by dynamic scoping"
-  (if (string-match isabelle-verbatim-regexp string)
+  (if (proof-string-match isabelle-verbatim-regexp string)
       (setq string (match-string 1 string))))
 
 
