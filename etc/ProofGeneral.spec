@@ -27,6 +27,9 @@ To use Proof General, add the line
 to your .emacs file.
 
 %changelog
+* Mon Mar 13 2000 David Aspinall <da@dcs.ed.ac.uk>
+  For 3.1, added hol98 instance and prover-specific README, BUGS files.
+
 * Wed Aug 25 1999 David Aspinall <da@dcs.ed.ac.uk>
   For 2.1 and 2.2pre series: made relocatable, added isar/ to package.
 
@@ -54,7 +57,7 @@ gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info ${RPM_BUILD_ROOT}/usr/info/Pro
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
-cp -pr coq lego isa isar images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
+cp -pr coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 
 %clean
@@ -69,21 +72,23 @@ fi
 /sbin/install-info --delete /usr/info/ProofGeneral.info.gz /usr/info/dir
 
 %files
-%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/*
+%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/* {coq,lego,isa,isar,hol98}/README */BUGS
 %attr(-,root,root) /usr/info/ProofGeneral.info.gz
 %attr(-,root,root) /usr/info/ProofGeneral.info-*.gz
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/coq
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/coq/*
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/coq/{*.el,*.v}
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/lego
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/lego/*
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/lego/{*.el,*.l}
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isa
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/{*.el,*.thy,*.ML}
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isar
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/*
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/{*.el,*.thy}
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/hol98
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/hol98/{*.el,*.sml}
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/images/*
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/generic/*
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/generic/{*.el}
