@@ -60,6 +60,9 @@ A Final stuff for 3.0 release [da]:
 D X-Symbol improvements: see if we can get support for 
   proof-xsym-extra-modes outside PG (just by loading proof-site).
   Will be handy for Isabelle's .itex Isabelle-LaTeX files.
+  Then we can parameterise more of the xsym support, and
+  remove spurious settings of calculated stuff from
+  x-symbol-isa.el  (see FIXME comments in v3.1 there).
 
 D Strange problem when running in tty mode: c-c c-RET seems to be
   impossible to type.  Consider binding C-c RET instead when
