@@ -460,10 +460,10 @@ If STR is empty, just ensure that fontification is up to date."
 	;; Catch errors here: this is to deal with ugly problem when
 	;; fontification of large output gives error Nesting too deep
 	;; for parser
-	(condition-case nil
-	  (proof-fontify-region fontifystart (point)))
-	(setq proof-trace-last-fontify-pos nil))
-      (set-buffer-modified-p nil))))
+	(unwind-protect
+	  (proof-fontify-region fontifystart (point))
+	  (setq proof-trace-last-fontify-pos nil))
+	(set-buffer-modified-p nil)))))
 
 
 
