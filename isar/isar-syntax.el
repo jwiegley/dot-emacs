@@ -207,7 +207,7 @@
 
 (defconst isar-name-regexp
   (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
-  "Regexp matching Isabelle/Isar names, with contents grouped.")
+  "Regexp matching Isabelle/Isar names; surrounding space and contents grouped.")
 
 (defconst isar-tac-regexp
   "\\<[A-Za-z][A-Za-z0-9'_]*_tac\\>"
@@ -404,16 +404,16 @@
   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-switch)))
 
 
-;; ----- function-menu
+;; ----- function-menu and imenu
 
 (defconst isar-any-entity-regexp
   (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-          "\\(?:\\s-*(\\s-*in.+)\\)?"
+          "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
           "\\(?:" isar-name-regexp "[[:=]\\)"))
 
 (defconst isar-named-entity-regexp
   (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-          "\\(?:\\s-*(\\s-*in.+)\\)?"
+          "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
           isar-name-regexp "[[:=]" ))
 
 (defconst isar-unnamed-entity-regexp
@@ -422,10 +422,18 @@
 (defconst isar-next-entity-regexps
   (list isar-any-entity-regexp
         (list isar-named-entity-regexp '(1 2))))
-;; da: remove unnamed entities, they clutter the menu 
+;; da: I've removed unnamed entities, they clutter the menu 
 ;; NB: to add back, need ? at end of isar-any-entity-regexp
 ;;	(list isar-unnamed-entity-regexp 1)))
 
+(defconst isar-generic-expression
+  (mapcar (lambda (kw) 
+	    (list (capitalize kw)
+		  (concat "\\<" kw "\\>"
+			  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
+			  isar-name-regexp "[[:=]")
+		  2))
+	  isar-keywords-fume))
 
 ;; ----- indentation
 
