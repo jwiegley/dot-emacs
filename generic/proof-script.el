@@ -217,8 +217,10 @@ scripting buffer may have an active queue span.")
   ;; since the queue is constructed ahead of time, that wouldn't
   ;; work.  (Better might be to refactor so that the region is
   ;; parsed as we go)
-  (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
-       (proof-span-read-only proof-locked-span)))
+  (proof-map-buffers 
+   (proof-buffers-in-mode proof-mode-for-script)
+   (if (span-live-p proof-locked-span)
+       (proof-span-read-only proof-locked-span))))
 
    
 (defsubst proof-set-queue-endpoints (start end)
