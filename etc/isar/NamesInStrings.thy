@@ -9,7 +9,8 @@ lemma "foo-wiggle-bar": "B --> B" by auto
 theorem "x b": "B --> B" by auto
 
 (* NB: various other regexps and settings based on them are sensitive
-   to grouping in isar-name-regexp. *)
+   to grouping in isar-name-regexp: should check function menu, imenu,
+   as well as undo behaviour. *)
 
 end
 
