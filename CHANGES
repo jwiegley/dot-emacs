@@ -4,6 +4,11 @@
 
 ** Generic Changes
 
+*** Changes to Proof General RPM packaging mechanism
+  
+     Can now build RPM packages with "rpm -ta" from tarball source.
+     RPM includes menu file and icons (tested under Linux Mandrake).
+
 *** Addition of visibility control for completed proofs
 
      You can make proofs invisible using a context sensitive menu
@@ -36,18 +41,6 @@
      you should use the correct commands ("Require foo.") to load all
      the modules you depend on, so that scripting can continue in the
      next file.
-
-     2)
-     
-
-
-** LEGO Changes
-
-** Isabelle Changes
-
-** Isar Changes
-
-** HOL Changes
 
 ** Changes for developers to note
 
