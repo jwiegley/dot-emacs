@@ -19,12 +19,15 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.23  1997/11/10 18:36:21  djs
+;; Started modifications for emacs19 port.
+;;
 ;; Revision 1.22  1997/11/10 15:51:09  djs
 ;; Put in a workaround for a strange bug in comint which was finding a bunch
 ;; of ^G's from comint-get-old-input for some inexplicable reason.
 ;;
 ;; Revision 1.21  1997/11/06 16:56:59  hhg
-;; Parameterize by proof-goal-hyp-fn in pbp-make-top-extent, to handle
+;; Parameterize by proof-goal-hyp-fn in pbp-make-top-span, to handle
 ;; Coq goals which start with text rather than simply ?n
 ;;
 ;; Updated 'let (ap 0)' in proof-shell-analyse structure, to be slightly
@@ -41,7 +44,7 @@
 ;; 	* fix for goal regexp
 ;;
 ;; Revision 1.18  1997/10/24 14:51:13  hhg
-;; Updated comment about extent types
+;; Updated comment about span types
 ;;
 ;; Revision 1.17  1997/10/22 16:43:54  hhg
 ;; Updated proof-segment-up-to to take ""'s into account
@@ -201,8 +204,6 @@
 (defvar proof-shell-end-goals-regexp ""
   "String indicating the end of the proof state.")
 
-(defvar proof-shell-sanitise nil "sanitise output?")
-
 (defvar pbp-error-regexp nil
   "A regular expression indicating that the PROOF process has
   identified an error.") 
@@ -226,7 +227,7 @@
 (defvar proof-queue-loose-end nil
   "Limit of the queue region that is not equal to proof-locked-hwm.")
 
-(defvar proof-mark-ext nil 
+(defvar proof-marker nil 
   "You are not authorised for this information.")
 
 (defvar proof-shell-buffer nil
@@ -393,7 +394,7 @@
        (set-extent-endpoints proof-queue-ext eol eoq (current-buffer)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;          A couple of small utilities                             ;;
+;; A couple of small utilities ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun string-to-list (s separator) 
@@ -515,21 +516,15 @@
   "Command informing the prover that `pbp-button-action' has been
   requested on an assumption.")
 
-(defvar pbp-keymap (make-keymap 'Pbp-keymap) 
-  "Keymap for proof mode")
-
 (defun pbp-button-action (event)
    (interactive "e")
    (mouse-set-point event)
    (pbp-construct-command))
 
-(define-key pbp-keymap 'button2 'pbp-button-action)
-
-; Using the extents in a mouse behavior is quite simple: from the
-; mouse position, find the relevant extent, then get its annotation
+; Using the spans in a mouse behavior is quite simple: from the
+; mouse position, find the relevant span, then get its annotation
 ; and produce a piece of text that will be inserted in the right
-; buffer.  Attaching this behavior to the mouse is simply done by
-; attaching a keymap to all the extents.
+; buffer.  
 
 (defun proof-expand-path (string)
   (let ((a 0) (l (length string)) ls)
@@ -542,28 +537,22 @@
 (defun pbp-construct-command ()
   (let* ((ext (span-at (point) 'proof))
 	 (top-ext (span-at (point) 'proof-top-element))
-	 (top-info (span-property top-ext 'proof-top-element)) 
-	 path cmd)
-    (if (extentp top-ext)
-	(cond 
-	 ((extentp ext)
-	  (setq path (concat (cdr top-info)
-			     (proof-expand-path (span-property ext 'proof))))
-	  (setq cmd
-		(if (eq 'hyp (car top-info))
-		    (format pbp-hyp-command path)
-		  (format pbp-goal-command path)))
-	  (pop-to-buffer proof-script-buffer)
-	  (proof-invisible-command cmd))
-	 (t
-	  (if (eq 'hyp (car top-info))
-	      (progn
-		(setq cmd (format pbp-hyp-command (cdr top-info)))
-		(pop-to-buffer proof-script-buffer)
-		(proof-invisible-command cmd))
-	      (setq cmd (format pbp-change-goal (cdr top-info)))
-	      (pop-to-buffer proof-script-buffer)
-	      (proof-insert-pbp-command cmd)))))))
+	 top-info)
+    (if (null top-ext) ()
+      (setq top-info (span-property top-ext 'proof-top-element))
+      (pop-to-buffer proof-script-buffer)
+      (cond
+       (ext
+	(proof-invisible-command 
+	 (format (if (eq 'hyp (car top-info)) pbp-hyp-command 
+		                              pbp-goal-command)
+		 (concat (cdr top-info) (proof-expand-path 
+					 (span-property ext 'proof))))))
+       ((eq (car top-info) 'hyp)
+	(proof-invisible-command (format pbp-hyp-command (cdr top-info))))
+       (t
+	 (proof-insert-pbp-command (format pbp-change-goal (cdr top-info))))))
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          Turning annotated output into pbp goal set              ;;
@@ -588,8 +577,8 @@
   "Unwanted information output from the proof process within
   `proof-start-goals-regexp' and `proof-end-goals-regexp'.")
 
-(defun pbp-make-top-extent (start end)
-  (let (extent name)
+(defun pbp-make-top-span (start end)
+  (let (span name)
     (goto-char start)
     (setq name (funcall proof-goal-hyp-fn))
     (beginning-of-line)
@@ -597,10 +586,9 @@
     (goto-char end)
     (beginning-of-line)
     (backward-char)
-    (setq extent (make-extent start (point)))
-    (set-span-property extent 'mouse-face 'highlight)
-    (set-span-property extent 'keymap pbp-keymap)
-    (set-span-property extent 'proof-top-element name)))
+    (setq span (make-span start (point)))
+    (set-span-property span 'mouse-face 'highlight)
+    (set-span-property span 'proof-top-element name)))
 
 (defun proof-shell-analyse-structure (string)
   (save-excursion
@@ -608,37 +596,40 @@
 	   (ann (make-string (length string) ?x))
            (stack ()) (topl ()) 
 	   (out (make-string l ?x )) c ext)
-      (while (< ip l)
-	(setq c (aref string ip))
-	(if (< c proof-shell-first-special-char)
-	    (progn (aset out op c)
-		   (incf op))
-	  (cond 
-	   ((= c proof-shell-goal-char)
-	    (setq topl (append topl (list (+ 1 op)))))
-	   ((= c proof-shell-start-char)	    
-	    (setq ap (- (aref string (incf ip)) 128))
-	    (incf ip)
-	    (while (not (= (aref string ip) proof-shell-end-char))
-	      (aset ann ap (- (aref string ip) 128))
-	      (incf ap)
-	      (incf ip))
-	    (setq stack (cons op (cons (substring ann 0 ap) stack))))
-	   ((= c proof-shell-field-char)
-	    (setq ext (make-extent (car stack) op out))
-	    (set-span-property ext 'mouse-face 'highlight)
-	    (set-span-property ext 'keymap pbp-keymap)
-	    (set-span-property ext 'proof (cadr stack))
-	    (set-span-property ext 'duplicable t)
-	    (setq stack (cddr stack)))))
+      (while (< ip l)	
+	(if (< (setq c (aref string ip)) 128) (progn (aset out op c)
+						     (incf op)))
 	(incf ip))
       (display-buffer (set-buffer proof-pbp-buffer))
       (erase-buffer)
       (insert (substring out 0 op))
+
+      (setq ip 0
+	    op 1)
+      (while (< ip l)
+	(setq c (aref string ip))
+	(cond
+	 ((= c proof-shell-goal-char)
+	  (setq topl (cons op topl)))
+	 ((= c proof-shell-start-char)
+	  (setq ap (- (aref string (incf ip)) 128))
+	  (incf ip)
+	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
+	    (aset ann ap (- c 128))
+	    (incf ap)
+	    (incf ip))
+	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
+	 ((= c proof-shell-field-char)
+	  (setq ext (make-span (car stack) op))
+	  (set-span-property ext 'mouse-face 'highlight)
+	  (set-span-property ext 'proof (cadr stack))
+	  (setq stack (cddr stack)))
+	 (t (incf op)))
+	(incf ip))
+      (setq topl (reverse (cons (point-max) topl)))
       (while (setq ip (car topl) 
 		   topl (cdr topl))
-	(pbp-make-top-extent ip (car topl)))
-      (pbp-make-top-extent ip (point-max)))))
+	(pbp-make-top-span ip (car topl))))))
 
 (defun proof-shell-strip-annotations (string)
   (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
@@ -730,8 +721,8 @@
 (defun proof-shell-insert (string)
   (goto-char (point-max))
   (insert (funcall proof-shell-config) string)
-  (if (not (span-property proof-mark-ext 'detached))
-      (set-span-endpoints proof-mark-ext (point) (point)))
+  (if (marker-position proof-marker) 
+      (set-marker proof-marker (point)))
   (comint-send-input))
 
 (defun proof-send (string)
@@ -850,23 +841,18 @@ at the end of locked region (after inserting a newline)."
   (if (string-match proof-shell-eager-annotation-end str)
       (proof-shell-popup-eager-annotation))
   (if (string-match (char-to-string proof-shell-wakeup-char) str)
-      (if (span-property proof-mark-ext 'detached)
+      (if (null (marker-position proof-marker))
 	  (progn
 	    (goto-char (point-min))
 	    (re-search-forward proof-shell-annotated-prompt-regexp)
-	    (set-span-endpoints proof-mark-ext (point) (point))
-	    (backward-delete-char 1))
-	(let (string mrk res cmd)	
-	    (goto-char (setq mrk (span-start proof-mark-ext)))
+	    (backward-delete-char 1)
+	    (set-marker proof-marker (point)))
+	(let (string res cmd)	
 	    (re-search-forward proof-shell-annotated-prompt-regexp nil t)
-	    (set-span-endpoints proof-mark-ext (point) (point))
 	    (backward-char (- (match-end 0) (match-beginning 0)))
-	    (setq string (buffer-substring mrk (point)))
-	    (if proof-shell-sanitise 
-		(progn
-		  (delete-region mrk (point))
-		  (insert (proof-shell-strip-annotations string))))
-	    (goto-char (span-start proof-mark-ext))
+	    (setq string (buffer-substring (marker-position proof-marker)
+					   (point)))
+	    (goto-char (point-max))
 	    (backward-delete-char 1)
 	    (setq cmd (cadar proof-action-list))
 	    (save-excursion
@@ -941,18 +927,18 @@ at the end of locked region (after inserting a newline)."
 ; which has been sent to the proof assistant and cannot be altered
 ; without being retracted, and Queue, which contains stuff being
 ; queued for processing.  proof-action-list contains a list of
-; (extent,command,action) triples. The loop looks like: Execute the
-; command, and if it's successful, do action on extent.  If the
+; (span,command,action) triples. The loop looks like: Execute the
+; command, and if it's successful, do action on span.  If the
 ; command's not successful, we bounce the rest of the queue and do
 ; some error processing.
 ;
-; when an extent has been processed, we classify it as follows:
+; when a span has been processed, we classify it as follows:
 ; 'goalsave - denoting a 'goalsave pair in the locked region
 ;    a 'goalsave region has a 'name property which is the name of the goal
 ; 'comment - denoting a comment
-; 'pbp - denoting an extent created by pbp
-; 'vanilla - denoting any other extent.
-;   'pbp & 'vanilla extents have a property 'cmd, which says what
+; 'pbp - denoting a span created by pbp
+; 'vanilla - denoting any other span.
+;   'pbp & 'vanilla spans have a property 'cmd, which says what
 ;   command they contain. 
 
 ; We don't allow commands while the queue has anything in it.  So we
@@ -1290,16 +1276,13 @@ current command."
 	(add-spec-to-specifier current-display-table disp (current-buffer)))
 		  
   (setq comint-append-old-input nil)
-  (setq proof-mark-ext (make-extent nil nil (current-buffer)))
-  (set-span-property proof-mark-ext 'detachable nil)
-  (set-span-property proof-mark-ext 'start-closed t)
-  (set-span-property proof-mark-ext 'end-open t))
+  (setq proof-marker (make-marker)))
 
 (defun proof-shell-config-done ()
   (accept-process-output (get-buffer-process (current-buffer)))
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
-  (while (span-property proof-mark-ext 'detached)
+  (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 5)
 	()
       (error "Failed to initialise proof process"))))
@@ -1308,7 +1291,8 @@ current command."
   (setq proof-buffer-type 'pbp)
   "Proof" "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
-  (suppress-keymap pbp-mode-map)
+  (suppress-keymap pbp-mode-map 'all)
+  (define-key pbp-mode-map 'button2 'pbp-button-action)
   (erase-buffer))
 
 (provide 'proof)
