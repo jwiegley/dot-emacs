@@ -281,6 +281,26 @@ The modified ALIST is returned."
     (autoload 'font-lock-append-text-property "font-lock"))
 
 
+;; font-lock-preprocessor-face
+;; This face is missing from Emacs 21.2's font-lock,
+;; but used in Isabelle highlighting, at least.
+(eval-after-load "font-lock"
+(unless (boundp 'font-lock-preprocessor-face)
+  ;; Taken from font-lock.el in XEmacs 21.4.8 (V 1.52)
+  (defvar font-lock-preprocessor-face 'font-lock-preprocessor-face
+  "This variable should not be set.
+It is present only for horrid FSF compatibility reasons.
+The corresponding face should be set using `edit-faces' or the
+`set-face-*' functions.")
+
+  (defface font-lock-preprocessor-face
+  '((((class color) (background dark)) (:foreground "steelblue1"))
+    (((class color) (background light)) (:foreground "blue3"))
+    (t (:underline t)))
+  "Font Lock Mode face used to highlight preprocessor conditionals."
+  :group 'font-lock-faces)))
+
+
 ;; Handle buggy buffer-syntactic-context workaround in XEmacs 21.1,
 ;; and GNU non-implementation.
 
@@ -304,10 +324,6 @@ The modified ALIST is returned."
 ;;;
 
 
-;; Error in GNU emacs that this is undefined.  I haven't time to
-;; investigate why.
-(unless proof-running-on-XEmacs
-  (defvar font-lock-preprocessor-face nil))
 
 
 
