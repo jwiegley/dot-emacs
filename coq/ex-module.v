@@ -10,7 +10,8 @@ Module R:O1.
   Definition B:=bool.
 End R.
 
-Module R2: O1 with Definition  A:=nat.
+Module R2: O1 with 
+  Definition  A:=nat.
   Definition A:=nat.
   Definition B:=bool.
 End R2.
@@ -69,28 +70,28 @@ Module Type N'.
     Definition T:=nat.
     Definition x:=O.
   End N''.
-
+  
   Declare Module N':M.SIG. (* no interactive def started *)
-  Declare Module N''':= N'. (* no interactive def started *)
-  Declare Module N''''. (* interactive def started *)
-    Parameter foo:nat.
-  End N''''.            (* interactive def ended *)
-End N'.
+    Declare Module N''':= N'. (* no interactive def started *)
+      Declare Module N''''. (* interactive def started *)
+	Parameter foo:nat.
+      End N''''.            (* interactive def ended *)
+    End N'.
 
+    
+    
+    Lemma titi : O=O.
+      Trivial.
+      Module Type K:=N'.
+      Module N''':=M.
+    Save.
 
-
-Lemma titi : O=O.
-  Trivial.
-  Module Type K:=N'.
-  Module N''':=M.
-Save.
-
-(* Here is a bug of Coq: *)
-
-Lemma bar:O=O.
-  Module Type L. (* This should not be allowed by Coq, since the End L. below fails *)
-    Axiom foo: O=O.
-  End L. (* fails --> if we go back to Module Type: unsync *)
-  Module I.
-End I.
-
+  (* Here is a bug of Coq: *)
+    
+    Lemma bar:O=O.
+      Module Type L. (* This should not be allowed by Coq, since the End L. below fails *)
+	Axiom foo: O=O.
+      End L. (* fails --> if we go back to Module Type: unsync *)
+      Module I.
+    End I.
+    
