@@ -7,6 +7,4 @@
 
 *)    
 
-example = HOL
-
-
+example = Main
