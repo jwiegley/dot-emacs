@@ -3270,12 +3270,20 @@ last urgent message seen.
 
 When output is grabbed from the prover process, it is stored into
 @code{proof-shell-last-output}, and its type is stored in
-@code{proof-shell-last-output-kind}.  Output which is deferred 
-or possibly discarded until the queue is empty is copied into
+@code{proof-shell-last-output-kind}.  Output which is deferred or
+possibly discarded until the queue is empty is copied into
 @code{proof-shell-delayed-output}, with type
-@code{proof-shell-delayed-output-kind}.
+@code{proof-shell-delayed-output-kind}.  A record of the last prompt
+seen from the prover process is also kept, in
+@code{proof-shell-last-prompt}.
 
 
+@c TEXI DOCSTRING MAGIC: proof-shell-last-prompt
+
+@defvar proof-shell-last-prompt 
+A record of the last prompt seen from the proof system.@*
+This is the string matched by @code{proof-shell-annotated-prompt-regexp}.
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-last-output
 @defvar proof-shell-last-output 
 A record of the last string seen from the proof system.
