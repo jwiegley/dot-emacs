@@ -191,8 +191,8 @@
 ;		   (concat "\\<" s "\\>")))
 ;   l "\\|"))
 
-(defconst isar-ext-first "\\(?:\\\\<[A-Za-z]+>\\|[A-Za-z]\\)")
-(defconst isar-ext-rest "\\(?:\\\\<[A-Za-z]+>\\|[A-Za-z0-9'_]\\)")
+(defconst isar-ext-first "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z]\\)")
+(defconst isar-ext-rest "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z0-9'_]\\)")
 
 (defconst isar-long-id-stuff (concat "\\(?:" isar-ext-rest "\\|\.\\)+"))
 (defconst isar-id (concat "\\(?:" isar-ext-first isar-ext-rest "*\\)"))

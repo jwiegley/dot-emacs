@@ -85,7 +85,7 @@ See `x-symbol-header-groups-alist'."
 ;;;===========================================================================
 
 ;; DA: Apparently bold is no longer supported in X-Symbol 4.5
-;; \<^bold>, \<^sup>, and \<^sub>.
+;; \<^bold>, \<^sup>, \<^sub>, \<^isub>, and \<^isup>.
 
 (defvar x-symbol-isabelle-subscript-matcher
   'x-symbol-isabelle-subscript-matcher)
@@ -108,7 +108,7 @@ See `x-symbol-header-groups-alist'."
   "Regexp matching bold marker in Isabelle.")
 
 (defconst x-symbol-isabelle-font-lock-scripts-regexp
-  (x-symbol-isabelle-make-ctrl-regexp "su[bp]")
+  (x-symbol-isabelle-make-ctrl-regexp "i?su[bp]")
   "Regexp matching super- and subscript markers in Isabelle.")
 
 (defun x-symbol-isabelle-match-bold (limit)
