@@ -26,7 +26,7 @@
 
 (defcustom isa-indent 2
   "*Indentation degree in proof scripts.
-Utterly irrelevant for Isabelle because normal proof scripts have
+Somewhat irrelevant for Isabelle because normal proof scripts have
 no regular or easily discernable structure."
   :type 'number
   :group 'isabelle-settings)
@@ -34,7 +34,7 @@ no regular or easily discernable structure."
 (defcustom isa-www-home-page
   ;; "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html"
   "http://www.dcs.ed.ac.uk/home/isabelle"
-  "URL of home page for Isabelle."
+  "URL of web page for Isabelle."
   :type 'string
   :group 'isabelle-settings)
   
