@@ -53,6 +53,10 @@ A Final stuff for 3.0 release [da]:
 
 ---------------------------------------------
 
+D Strange problem when running in tty mode: c-c c-RET seems to be
+  impossible to type.  Consider binding C-c RET instead when
+  running on a console.
+
 C Tidy up library-loading and dependencies.  (Probably do
   this at the same time as organizing for the XEmacs
   packaging mechanism)
