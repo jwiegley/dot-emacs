@@ -108,7 +108,7 @@
     (squnion           () "\\\\<squnion>" "\\<squnion>")
     (bigsqintersection () "\\\\<Sqinter>" "\\<Sqinter>")
     (bigsqunion        () "\\\\<Squnion>" "\\<Squnion>")
-    (perpendicular1    () "\\\\<bottom>" "\\<bottom>")
+    (perpendicular     () "\\\\<bottom>" "\\<bottom>")
     (dotequal    () "\\\\<doteq>" "\\<doteq>")
     (equivalence () "\\\\<equiv>" "\\<equiv>")
     (notequal    () "\\\\<noteq>" "\\<noteq>")
@@ -181,6 +181,9 @@
     (yen () "\\\\<yen>" "\\<yen>")
     (cent () "\\\\<cent>" "\\<cent>")
     (currency () "\\\\<currency>" "\\<currency>")
+    (braceleft2 () "\\\\<lbrace>" "\\<lbrace>")
+    (braceright2 () "\\\\<rbrace>" "\\<rbrace>")
+    (top () "\\\\<top>" "\\<top>")
   ))
 (defvar x-symbol-isa-user-table nil)
 (defvar x-symbol-isa-table
