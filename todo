@@ -776,8 +776,8 @@ B Keybindings for processing theory in thy mode gone??
 *** C Reduce text size and front page image, for 1024x768 screens.
 
 *** D Restructure so that page titles are different to help
-  browsing.  (Move links_arr from header.phtml somewhere new,
-  and set $pg_title appropriately before head.phtml is included).
+  browsing.  (Move links_arr from header.html somewhere new,
+  and set $pg_title appropriately before head.html is included).
 
 *** C Add etc/announce somewhere.
 

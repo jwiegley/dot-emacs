@@ -26,6 +26,10 @@
 ##    make distinstall	  - install distribution build by 'make dist'
 ##			    into DISTINSTALLDIR.
 ##
+##    make links	  - add some links which help testing web pages
+##			    from the html directory, and ensure that the
+## 
+##
 ##    make releaseclean   - clean up after 'make dist' 'make rpmrelease'.
 ##
 ##
@@ -36,7 +40,7 @@
 ##
 ##   No facility to edit html to make a full release in this makefile.  
 ##   Too much effort for infrequenty used function.  
-##   Must edit download.phtml and doc.phtml by hand, then run 
+##   Must edit download.html and doc.html by hand, then run 
 ##
 ##    make releaseall VERSION=2.0
 ##
@@ -77,8 +81,8 @@ PRERELEASE_PREFIX=3\.2pre
 PRERELEASE_TAG=3.2pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
-DOWNLOADHTML=develdownload.phtml
-DOWNLOADINFOHTML=devel.phtml
+DOWNLOADHTML=develdownload.html
+DOWNLOADINFOHTML=devel.html
 
 # This is used for full releases to control the tag name
 # and distribution name.  No editing of html is done
