@@ -273,22 +273,24 @@
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
+;; special face for key symbols, make them bold
+(defface isabelle-sml-symbol-face
+  '((((class color) (background dark)) (:bold t))
+    (((class color) (background light)) (:bold t))
+    (((class grayscale) (background light)) (:bold t))
+    (((class grayscale) (background dark)) (:bold t))
+    (t (:bold t)))
+  "*SML symbol/character highlightling face"
+  :group 'proof-faces)
+
+;; GNU Emacs compatibility for above faces.
 (defconst isabelle-class-name-face 'isabelle-class-name-face)
 (defconst isabelle-tfree-name-face 'isabelle-tfree-name-face)
 (defconst isabelle-tvar-name-face 'isabelle-tvar-name-face)
 (defconst isabelle-free-name-face 'isabelle-free-name-face)
 (defconst isabelle-bound-name-face 'isabelle-bound-name-face)
 (defconst isabelle-var-name-face 'isabelle-var-name-face)
-
-;; special face for key symbols, make them bold
-(defface isa-font-lock-sml-symbol-face
-  '((((class color) (background dark)) (:bold t))
-    (((class color) (background light)) (:bold t))
-    (((class grayscale) (background light)) (:bold t))
-    (((class grayscale) (background dark)) (:bold t))
-    (t (:bold t)))
-  "SML symbol/character highlightling face"
-  :group 'proof-faces)
+(defconst isabelle-sml-symbol-face 'isabelle-sml-symbol-face)
 
 ;; regexp for finding function/variable/struct/sig/functor names
 (defconst isa-sml-function-var-names-regexp 
@@ -303,7 +305,7 @@
 (defvar isa-font-lock-keywords-1
   (list
    (cons (proof-ids-to-regexp isa-keywords) 'font-lock-keyword-face)
-   (cons (regexp-opt isa-keyword-symbols) 'isa-font-lock-sml-symbol-face)
+   (cons (regexp-opt isa-keyword-symbols) 'isabelle-sml-symbol-face)
    (list isa-sml-function-var-names-regexp 2 'font-lock-function-name-face 'append' t)
    (list isa-sml-type-names-regexp 2 'font-lock-function-name-face 'append' t)
    (cons (proof-ids-to-regexp isa-tacticals) 'proof-tacticals-name-face)
