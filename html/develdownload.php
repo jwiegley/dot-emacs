@@ -47,9 +47,12 @@ or
 
 <p>
 This version has been tested with XEmacs version 21.4 and
-(minimally) with GNU Emacs 21.1.
-We recommend the use of XEmacs; use under GNU Emacs  
-is not well supported.
+with GNU Emacs 21.1.1.  XEmacs support is better tested.  
+Older releases of Emacs <i>may</i> work, but we recommend the use of 
+these or newer versions because backwards compatibility across 
+different Emacs versions is too difficult to support.  If you cannot
+upgrade your Emacs, consider using an 
+<a href="oldrel.php">older release</a> of Proof General.
 </p>
 <p>
 Check the 
