@@ -3167,7 +3167,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (plastic "Plastic" "\\.lf$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (plastic "Plastic" "\\.lf$") (hol98 "HOL" "\\.sml$"))}.
 @end defopt
 
 
@@ -3936,6 +3936,21 @@ used to help parse the goals buffer to annotate it for proof by pointing.
 @node Hooks and function variables
 @subsection Hooks and function variables
 
+The first of these is not really a hook, but a special configuration
+option.
+
+@c TEXI DOCSTRING MAGIC: proof-shell-process-connection-type
+@defvar proof-shell-process-connection-type 
+The value of @code{process-connection-type} for the proof shell.@*
+Set non-nil for ptys, nil for pipes.
+The default (and preferred) option is to use pty communication.
+However there is a long-standing backslash/long line problem with
+Solaris which gives a mess of ^G characters when some input is sent
+which has a  in the 256th position.   
+So we select pipes by default if it seems like we're on Solaris.
+We do not force pipes everywhere because this risks loss of data.
+@end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-pre-shell-start-hook
 @defvar proof-pre-shell-start-hook 
 Hooks run before proof shell is started.@*
@@ -4566,7 +4581,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'plastic}.
+A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'plastic} @code{'hol98}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
@@ -4581,7 +4596,7 @@ edit the file @samp{proof-site.el} itself.
 
 Note: to change proof assistant, you must start a new Emacs session.
 
-The default value is @code{(demoisa isar isa lego coq plastic)}.
+The default value is @code{(demoisa isar isa lego coq plastic hol98)}.
 @end defopt
 
 The file @file{proof-site.el} also defines a version variable.
