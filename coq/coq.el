@@ -49,14 +49,13 @@
 
 ;; ----- coq specific menu
 
-(defcustom coq-menu-entries
+(proof-defass-default menu-entries
   '(["Intros" coq-Intros]
     ["Apply"  coq-Apply]
     ["Search isos" coq-SearchIsos]
     ["Begin Section" coq-begin-Section]
     ["End Section" coq-end-Section]
-    ["Compile" coq-Compile])
-  "Entries for Coq menu.")
+    ["Compile" coq-Compile]))
 
 
 ;; ----- coq-shell configuration options
@@ -318,13 +317,13 @@ This is specific to coq-mode."
 	 (l (string-match ".v" n)))
     (compile (concat "make " (substring n 0 l) ".vo"))))
 
-(proof-defshortcut coq-Intros        "Intros "  ?i)
-(proof-defshortcut coq-Apply         "Apply "   ?a)
-(proof-defshortcut coq-begin-Section "Section " ?s)
+(proof-defshortcut coq-Intros        "Intros "  [?i])
+(proof-defshortcut coq-Apply         "Apply "   [?a])
+(proof-defshortcut coq-begin-Section "Section " [?s])
 
-(define-key proof-assistant-keymap ?e 'coq-end-Section)
-(define-key proof-assistant-keymap ?m 'coq-Compile)
-(define-key proof-assistant-keymap ?o 'coq-SearchIsos)
+(define-key coq-keymap [?e] 'coq-end-Section)
+(define-key coq-keymap [?m] 'coq-Compile)
+(define-key coq-keymap [?o] 'coq-SearchIsos)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -418,8 +417,6 @@ This is specific to coq-mode."
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
 
   (setq proof-assistant-home-page coq-www-home-page)
-
-  (setq proof-assistant-menu-entries coq-menu-entries)
 
   (setq proof-mode-for-script 'coq-mode)
 
