@@ -113,6 +113,7 @@
     "defer_recdef"
     "defs"
     "global"
+    "hide"
     "inductive"
     "inductive_cases"
     "judgment"
