@@ -114,8 +114,8 @@ No change to current buffer or point."
 (defun proof-shell-live-buffer ()
   "Return buffer of active proof assistant, or nil if none running."
   (and proof-shell-buffer
-       (comint-check-proc proof-shell-buffer)
-       (buffer-live-p proof-shell-buffer)))
+       (buffer-live-p proof-shell-buffer)
+       (comint-check-proc proof-shell-buffer)))
 
 ;;;###autoload
 (defun proof-shell-available-p ()
