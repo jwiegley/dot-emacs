@@ -3,5 +3,7 @@ Summary of Changes since Proof General 2.0
 
 * Documentation improvements
 
-* Generic settings to add support for x-symbol package.
-  (incomplete).
+* Support for x-symbol package to beautify 
+  input and output with special fonts.
+  Patches for Isabelle provided by David von Oheimb.
+  (incomplete)
