@@ -1996,9 +1996,11 @@ up the display (or even worse, the synchronization)."
   :type 'boolean
   :group 'proof-shell)
   
-(defcustom proof-shell-strip-crs-from-output t ;; proof-running-on-win32
+(defcustom proof-shell-strip-crs-from-output (eq system-type 'cygwin32)
+  ;; Cygwin32 probs with Isabelle noted by Norbert Voelker
   "If non-nil, remove carriage returns (^M) at the end of lines from output.
-This is enabled for Win32 systems by default."
+This is enabled for cygwin32 systems by default.  You should turn it off
+if you don't need it (slight speed penalty)."
   :type 'boolean
   :group 'proof-shell)
 
