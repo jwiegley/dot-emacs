@@ -187,6 +187,13 @@ in future if we have just activated it for this buffer."
 	(set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
 	(set (proof-ass-sym x-symbol-enable) t)))
+
+;; C RAFFALLI: we need to set x-symbol-language even for the script buffer
+;; and I think this is a good place ... may be a variable should control
+;; an option to have x-symbol only in the output buffer but not in the script
+;; buffer ?
+  (proof-x-symbol-set-language)
+
   (x-symbol-mode)
   (proof-x-symbol-mode-associated-buffers))
 
