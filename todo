@@ -7,6 +7,8 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 * THINGS TO DO BEFORE 3.5 RELEASE
 
+*** Spam-protect email addresses on web pages
+
 *** Can we do anything about clash between bundled x-symbol and
      system-wide version??
 
