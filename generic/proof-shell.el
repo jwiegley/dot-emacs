@@ -139,7 +139,7 @@ Set in proof-shell-mode.")
   "Return buffer of active proof assistant, or nil if none running."
   (and proof-shell-buffer
        (comint-check-proc proof-shell-buffer)
-       proof-shell-buffer))
+       (buffer-live-p proof-shell-buffer)))
 
 (defun proof-shell-available-p ()
   "Returns non-nil if there is a proof shell active and available.
@@ -346,6 +346,27 @@ Does nothing if proof assistant is already running."
 ;; Need this for processing error strings and so forth
 
 
+
+
+;;
+;; Flag and function to keep response buffer tidy.
+;;
+(defvar proof-shell-erase-response-flag nil
+  "Indicates that the response buffer should be cleared before next message.")
+
+(defun proof-shell-maybe-erase-response (&optional erase-next-time
+						   clean-windows)
+  "Erase the response buffer according to proof-shell-erase-response-flag.
+ERASE-NEXT-TIME is the new value for the flag.
+If CLEAN-WINDOWS is set, use proof-clear-buffer to do the erasing."
+  (if proof-shell-erase-response-flag
+      (if clean-windows
+	  (proof-clean-buffer proof-response-buffer)
+	(erase-buffer proof-response-buffer)))
+  (setq proof-shell-erase-response-flag erase-next-time))
+		  
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   The filter. First some functions that handle those few         ;;
 ;;   occasions when the glorious illusion that is script-management ;;
@@ -368,6 +389,7 @@ This is a list of tuples of the form (type . string). type is either
          `proof-response-buffer' ")
 
 (defun proof-shell-analyse-structure (string)
+  "Analyse the term structure of STRING and display it in proof-goals-buffer."
   (save-excursion
     (let* ((ip 0) (op 0) ap (l (length string)) 
 	   (ann (make-string (length string) ?x))
@@ -381,8 +403,22 @@ This is a list of tuples of the form (type . string). type is either
 
       ;; Response buffer may be out of date. It may contain (error)
       ;; messages relating to earlier proof states
-      (set-buffer proof-response-buffer)
-      (erase-buffer)
+      
+      ;; FIXME da: this isn't always the case.  In Isabelle
+      ;; we get <WARNING MESSAGE> <CURRENT GOALS> output,
+      ;; or <WARNING MESSAGE> <ORDINARY MESSAGE>.  Both times
+      ;; <WARNING MESSAGE> would be relevant.
+      ;; We should only clear the output that was displayed from
+      ;; the *previous* prompt.
+
+      ;; da: I get a lot of empty response buffers displayed
+      ;; which might be nicer removed. Temporary test for
+      ;; this clean-buffer to see if it behaves well.
+
+      ;; NEW!!
+      ;; Erase the response buffer if need be, maybe also removing the
+      ;; window.  Indicate that it should be erased before the next output.
+      (proof-shell-maybe-erase-response t t)
 
       (set-buffer proof-pbp-buffer)
       (erase-buffer)
@@ -429,6 +465,9 @@ This is a list of tuples of the form (type . string). type is either
 	(pbp-make-top-span ip (car topl))))))
 
 (defun proof-shell-strip-annotations (string)
+  "Strip special annotations from a string, returning cleaned up string.
+Special annotations are characters with codes higher than
+'proof-shell-first-special-char'."
   (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
     (while (< ip l)
       (if (>= (aref string ip) proof-shell-first-special-char)
@@ -442,10 +481,10 @@ This is a list of tuples of the form (type . string). type is either
     (substring out 0 op)))
 
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
-  "Displays output from `proof-shell-buffer' in
-  `proof-response-buffer'.
-The region in `proof-shell-buffer begins with the match for START-REGEXP and is delimited by
-END-REGEXP. The match for END-REGEXP is not part of the specified region.
+  "Displays output from `proof-shell-buffer' in `proof-response-buffer'.
+The region in `proof-shell-buffer begins with the match for START-REGEXP
+and is delimited by END-REGEXP. The match for END-REGEXP is not
+part of the specified region.
 Returns the string (with faces) in the specified region."
   (let (start end string)
     (save-excursion
@@ -456,21 +495,34 @@ Returns the string (with faces) in the specified region."
 				   (length (match-string 0))))
       (setq string
 	    (proof-shell-strip-annotations (buffer-substring start end))))
+    ;; Erase if need be, and erase next time round too.
+    (proof-shell-maybe-erase-response t nil)
     (proof-response-buffer-display string append-face)))
 
 (defun proof-shell-handle-delayed-output ()
-  "Display delayed output. 
-See the documentation fo `proof-shell-delayed-output' for furter details."
+  "Display delayed output.
+This function expects 'proof-shell-delayed-output' to be a cons cell
+of the form '(insert . txt) or '(analyse . txt).
+See the documentation for `proof-shell-delayed-output' for further details."
   (let ((ins (car proof-shell-delayed-output))
 	(str (cdr proof-shell-delayed-output)))
     (cond 
      ((eq ins 'insert)
-      (setq str (proof-shell-strip-annotations str))
-      (save-excursion ;current-buffer
-	(set-buffer proof-response-buffer)
-	(erase-buffer)
-	(insert str)
-	(proof-display-and-keep-buffer proof-response-buffer)))
+       ; (unless (string-equal str "done") ;; FIXME da: nasty, breaks something?
+	(setq str (proof-shell-strip-annotations str))
+	(with-current-buffer proof-response-buffer
+	  ;; FIXME da: have removed this, possibly it junks 
+	  ;; relevant messages.  Instead set a flag to indicate
+	  ;; that response buffer should be cleared before the
+	  ;; next command.
+	  ;; (erase-buffer)
+
+	  ;; NEW!
+	  ;; Erase the response buffer if need be, and indicate that
+	  ;; it is to be erased again before the next message.
+	  (proof-shell-maybe-erase-response t nil)
+	  (insert str)
+	  (proof-display-and-keep-buffer proof-response-buffer)))
      ((eq ins 'analyse)
       (proof-shell-analyse-structure str))
      (t (assert nil))))
@@ -499,6 +551,9 @@ See the documentation fo `proof-shell-delayed-output' for furter details."
 ;;
 ;; 
 
+;; FIXME da: the magical use of "Done." and "done" as values in
+;; proof-shell-handled-delayed-output is horrendous.  Should
+;; be changed to something more understandable!!
 (defun proof-shell-handle-error (cmd string)
   "React on an error message triggered by the prover.
 We first flush unprocessed goals to the goals buffer.
@@ -578,7 +633,10 @@ we call `proof-shell-handle-error-hook'. "
   "Process shell output by matching on STRING.
 This function deals with errors, start of proofs, abortions of
 proofs and completions of proofs. All other output from the proof
-engine is simply reported to the user in the response buffer.
+engine is simply reported to the user in the response buffer
+by setting proof-shell-delayed-output to a cons cell of
+(insert . txt) where TXT is the text to be inserted.
+
 To extend this function, set
 `proof-shell-process-output-system-specific'.
 
@@ -773,6 +831,7 @@ at the end of locked region (after inserting a newline and indenting)."
 
 ;; FIXME: highlight eager annotation-end : fix proof-shell-handle-output
 ;; to highlight whole string.
+;; FIXME da: this function seems to be dead
 (defun proof-shell-popup-eager-annotation ()
   "Process urgent messages.
 Eager annotations are annotations which the proof system produces
@@ -791,47 +850,62 @@ arrive."
     (let* ((buffer (proof-file-to-buffer (car filenames)))
 	  (rest (proof-files-to-buffers (cdr filenames))))
       (if buffer (cons buffer rest) rest))))
-	  
-		  
-(defun proof-shell-process-urgent-message (message)
-  "Analyse urgent MESSAGE for display, included file, or retracted file."
-  
-  ;; Is the prover processing a file?
-  (cond ((and proof-shell-process-file 
-	      (string-match (car proof-shell-process-file) message))
-	 (let
-	     ((file (funcall (cdr proof-shell-process-file) message)))
-	   (if (and proof-script-buffer-list (string= file ""))
-	       (setq file (buffer-file-name (car proof-script-buffer-list))))
-	   (if file
-	       (proof-register-possibly-new-processed-file file))))
 
-  ;; Is the prover retracting across files?
-	((and proof-shell-retract-files-regexp
-	      (string-match proof-shell-retract-files-regexp message))
-	 (let ((current-included proof-included-files-list))
-	   (setq proof-included-files-list
-		 (funcall proof-shell-compute-new-files-list message))
-	   (let
-	       ((scrbuf (car-safe proof-script-buffer-list)))
-	       (proof-restart-buffers
-		(proof-files-to-buffers
-		 (set-difference current-included
-				 proof-included-files-list)))
-	       (cond
-		((not scrbuf))
-		((eq scrbuf (car-safe proof-script-buffer-list)))
-		(t	
-		 (setq proof-script-buffer-list 
-		       (cons scrbuf proof-script-buffer-list))
-		 (save-excursion
-		   (set-buffer scrbuf)
-		   (proof-init-segmentation)))))
-	   ))
-	(t
-	 (proof-shell-message message)
-	 (proof-response-buffer-display message
-					'proof-eager-annotation-face))))
+(defun proof-shell-process-urgent-message (message)
+  "Analyse urgent MESSAGE for various cases.
+Included file, retracted file, cleared response buffer, or
+if none of these apply, display."
+  
+  (cond
+   ;; Is the prover processing a file?
+   ((and proof-shell-process-file 
+	 (string-match (car proof-shell-process-file) message))
+    (let
+	((file (funcall (cdr proof-shell-process-file) message)))
+      (if (and proof-script-buffer-list (string= file ""))
+	  (setq file (buffer-file-name (car proof-script-buffer-list))))
+      (if file
+	  (proof-register-possibly-new-processed-file file))))
+
+   ;; Is the prover retracting across files?
+   ((and proof-shell-retract-files-regexp
+	 (string-match proof-shell-retract-files-regexp message))
+    (let ((current-included proof-included-files-list))
+      (setq proof-included-files-list
+	    (funcall proof-shell-compute-new-files-list message))
+      (let
+	  ((scrbuf (car-safe proof-script-buffer-list)))
+	(proof-restart-buffers
+	 (proof-files-to-buffers
+	  (set-difference current-included
+			  proof-included-files-list)))
+	(cond
+	 ((not scrbuf))
+	 ((eq scrbuf (car-safe proof-script-buffer-list)))
+	 (t	
+	  (setq proof-script-buffer-list 
+		(cons scrbuf proof-script-buffer-list))
+	  (save-excursion
+	    (set-buffer scrbuf)
+	    (proof-init-segmentation)))))
+      ))
+
+   ;; Is the prover asking Proof General to clear the response buffer?
+   ((and proof-shell-clear-response-regexp
+	 (string-match proof-shell-clear-response-regexp message)
+	 proof-response-buffer)
+    ;; Erase response buffer and possibly its windows.
+    (proof-shell-maybe-erase-response nil t))
+
+   (t
+    ;; We're about to display a message.  Clear the response buffer
+    ;; if necessary, but don't clear it the next time.
+    ;; Don't bother remove the window for the response buffer
+    ;; because we're about to put a message in it.
+    (proof-shell-maybe-erase-response nil nil)
+    (proof-shell-message message)
+    (proof-response-buffer-display message
+				   'proof-eager-annotation-face))))
 
 (defvar proof-shell-urgent-message-marker nil
   "Marker in proof shell buffer used for parsing urgent messages.")
@@ -865,6 +939,12 @@ strings between eager-annotation-start and eager-annotation-end."
 ;; circumstance that a prompt consists of more than one character and
 ;; is split between output chunks.  Really the matching should be
 ;; based on the buffer contents rather than the string just received.
+;; FIXME da: moreover, are urgent messages full processed??
+;; some seem to get dumped in response buffer.
+
+;; FIXME da: what happens is that urgent messages may be entered into
+;; response buffer TWICE: they are processed below, then dumped in
+;; response buffer at the end of some output (unhighlighted).
 (defun proof-shell-filter (str) 
   "Filter for the proof assistant shell-process.
 We sleep until we get a wakeup-char in the input, then run
@@ -884,28 +964,39 @@ how far we've got."
 	 ;; For those we use the annotated prompt regexp.
 	 (string-match proof-shell-annotated-prompt-regexp str))
 	(if (null (marker-position proof-marker))
-	    ;; Set marker to first prompt in output buffer, and sleep again.
-	    ;; FIXME da: what happens if we don't get a prompt in the
-	    ;; first output chunk?  This needs fixing in case re-search fails.
+	    ;; Set marker to first prompt in output buffer if one can
+	    ;; be found now, and sleep again.
 	    (progn
 	      (goto-char (point-min))
-	      (re-search-forward proof-shell-annotated-prompt-regexp)
-	      (set-marker proof-marker (point)))
+	      (if (re-search-forward proof-shell-annotated-prompt-regexp nil t)
+		  (set-marker proof-marker (point))))
 	  ;; We've matched against a second prompt in str now.
 	  ;; First, the blasphemous situation that the proof-action-list
 	  ;; is empty so that the process has output something for
 	  ;; some other reason (perhaps it's just being chatty).  
 	  ;; We graciously accept the situation nowadays, rather
 	  ;; than shrieking out bug reports.
-	  (if proof-action-list
-	      ;; the output buffer for the second prompt after the one previously
-	      ;; marked.
-	      (let (string res cmd)	
-		(goto-char (marker-position proof-marker))
+	  (if proof-action-list 
+	      ;; the output buffer for the second prompt after the
+	      ;; one previously marked.
+	      (let ((startpos (goto-char (marker-position proof-marker)))
+		    (urgnt    (marker-position
+			       proof-shell-urgent-message-marker))
+		    string res cmd)
+		
+		;; da FIX in testing: Try to ignore any urgent
+		;; messages that have already been dealt with.
+		(if (and urgnt
+			 (< (point) urgnt))
+		    (setq startpos (goto-char urgnt)))
+
+		;; Find next prompt
 		(re-search-forward proof-shell-annotated-prompt-regexp nil t)
+		
+		;; FIXME da: what effect does this next command have???
 		(backward-char (- (match-end 0) (match-beginning 0)))
-		(setq string (buffer-substring (marker-position proof-marker)
-					       (point)))
+		
+		(setq string (buffer-substring startpos (point)))
 		(goto-char (point-max))	; da: assumed to be after a prompt?
 		(setq cmd (nth 1 (car proof-action-list)))
 		(save-excursion		;current-buffer
@@ -924,6 +1015,9 @@ how far we've got."
 		   ((eq (car-safe res) 'loopback)
 		    (proof-shell-insert-loopback-cmd (cdr res))
 		    (proof-shell-exec-loop))
+		   ;; Otherwise, it's an 'insert or 'analyse indicator,
+		   ;; but we don't act on it unless all the commands
+		   ;; in the queue region have been processed.
 		   (t (if (proof-shell-exec-loop)
 			  (proof-shell-handle-delayed-output)))))))))))
 
