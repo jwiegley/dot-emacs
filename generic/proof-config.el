@@ -584,6 +584,8 @@ proof-assistant-table."
   :type 'sexp
   :group 'prover-config)
 
+
+
 (defcustom proof-assistant ""
   "Name of the proof assistant Proof General is using.
 Do not change this variable! It is set automatically by the mode 
@@ -1895,7 +1897,7 @@ X-Symbol support is deactivated."
      ,@args
      :group ,(quote proof-assistant-cusgrp)))
 
-; (proof-defass-custom test "Hello"
+;(proof-defass-custom test "Hello"
 ;  "Command"
 ;  :type 'string)
 		     
@@ -1904,7 +1906,7 @@ X-Symbol support is deactivated."
 
 ;;
 ;; 10. Global constants
-;; 
+
 (defcustom proof-general-name "Proof-General"
   "Proof General name used internally and in menu titles."
   :type 'string
