@@ -891,17 +891,6 @@ how far we've got."
 		 (t (if (proof-shell-exec-loop)
 			(proof-shell-handle-delayed-output))))))))))
 
-(defun proof-last-goal-or-goalsave ()
-  (save-excursion
-    (let ((span (span-at-before (proof-locked-end) 'type)))
-    (while (and span 
-		(not (eq (span-property span 'type) 'goalsave))
-		(or (eq (span-property span 'type) 'comment)
-		    (not (funcall proof-goal-command-p
-				       (span-property span 'cmd)))))
-      (setq span (prev-span span 'type)))
-    span)))
-    
 (defun proof-shell-done-invisible (span) ())
 
 ;; da: What is the rationale here for making the *command* sent

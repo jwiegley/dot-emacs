@@ -14,11 +14,22 @@
 (require 'proof-indent)
 
 ;; Spans are our abstraction of extents/overlays.
-(cond ((fboundp 'make-extent) (require 'span-extent))
-      ((fboundp 'make-overlay) (require 'span-overlay)))
-
 (eval-when-compile
-  (require 'func-menu))
+  (cond ((fboundp 'make-extent) (require 'span-extent))
+	((fboundp 'make-overlay) (require 'span-overlay))))
+
+;; Nuke some byte-compiler warnings
+(eval-when-compile
+  (require 'func-menu)
+  (require 'comint))
+
+;; More autoloads for proof-shell (added to nuke warnings,
+;; maybe should be 'official' exported functions in proof.el)
+(autoload 'proof-shell-ready-prover "proof-shell")
+(autoload 'proof-start-queue "proof-shell")
+(autoload 'proof-shell-live-buffer "proof-shell")
+(autoload 'proof-shell-invisible-command "proof-shell")
+
 
 ;;
 ;;  Internal variables used by script mode
@@ -26,8 +37,7 @@
 
 ;; FIXME da: remove proof-terminal-string.  At the moment some
 ;; commands need to have the terminal string, some don't.
-;; We should assume commands are terminated properly at the
-;; specific level.
+;; We should assume commands are terminated at the specific level.
 
 (defvar proof-terminal-string nil 
   "End-of-line string for proof process.")
@@ -858,6 +868,18 @@ deletes the region corresponding to the proof sequence."
     (set-span-property span 'delete-me delete-region)
     (list (list span proof-command 'proof-done-retracting))))
 
+
+(defun proof-last-goal-or-goalsave ()
+  (save-excursion
+    (let ((span (span-at-before (proof-locked-end) 'type)))
+    (while (and span 
+		(not (eq (span-property span 'type) 'goalsave))
+		(or (eq (span-property span 'type) 'comment)
+		    (not (funcall proof-goal-command-p
+				       (span-property span 'cmd)))))
+      (setq span (prev-span span 'type)))
+    span)))
+
 (defun proof-retract-target (target delete-region)
   (let ((end (proof-locked-end))
 	(start (span-start target))
@@ -1347,6 +1369,8 @@ sent to the assistant."
 
 
 
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Proof General scripting mode definition			    ;;
@@ -1360,6 +1384,7 @@ sent to the assistant."
 ;; configuring for new assistants.
 
 ;;;###autoload
+(eval-when-compile			; to initialise variables
 (define-derived-mode proof-mode fundamental-mode 
   proof-mode-name
   "Proof General major mode class for proof scripts.
@@ -1374,7 +1399,7 @@ sent to the assistant."
   (add-hook 'kill-buffer-hook
 	    (lambda ()
 	      (setq proof-script-buffer-list
-		    (remove (current-buffer) proof-script-buffer-list)))))
+		    (remove (current-buffer) proof-script-buffer-list))))))
 
 ;; FIXME: da: could we put these into another keymap already?
 ;; FIXME: da: it's offensive to experienced users to rebind global stuff
