@@ -6,16 +6,16 @@
 ;; NB: Part of Proof General distribution.
 ;;
 
-(defvar x-symbol-isa-required-fonts nil)
+(defvar x-symbol-isabelle-required-fonts nil)
 
 ;; FIXME da: these next two are also set in proof-x-symbol.el, but
 ;; it's handy to use this file away from PG.  In future could
 ;; fix things so just (require 'proof-x-symbol) would be enough
 ;; here.
-(defvar x-symbol-isa-name "Isabelle Symbol")
-(defvar x-symbol-isa-modeline-name "isa")
+(defvar x-symbol-isabelle-name "Isabelle Symbol")
+(defvar x-symbol-isabelle-modeline-name "isa")
 
-(defvar x-symbol-isa-header-groups-alist nil)
+(defvar x-symbol-isabelle-header-groups-alist nil)
 ;'(("Operator" bigop operator)
 ;    ("Relation" relation)
 ;    ("Arrow, Punctuation" arrow triangle shape
@@ -25,33 +25,33 @@
 ;    ("Acute, Grave" acute grave))
 ;  "*If non-nil, used in isasym specific grid/menu.
 
-(defvar x-symbol-isa-class-alist
+(defvar x-symbol-isabelle-class-alist
   '((VALID "Isabelle Symbol" (x-symbol-info-face))
     (INVALID "no Isabelle Symbol" (red x-symbol-info-face))))
-(defvar x-symbol-isa-class-face-alist nil)
-(defvar x-symbol-isa-electric-ignore "[:'][A-Za-z]\\|<=")
+(defvar x-symbol-isabelle-class-face-alist nil)
+(defvar x-symbol-isabelle-electric-ignore "[:'][A-Za-z]\\|<=")
 
-(defvar x-symbol-isa-font-lock-keywords nil)
-(defvar x-symbol-isa-master-directory  'ignore)
-(defvar x-symbol-isa-image-searchpath '("./"))
-(defvar x-symbol-isa-image-cached-dirs '("images/" "pictures/"))
-(defvar x-symbol-isa-image-file-truename-alist nil)
-(defvar x-symbol-isa-image-keywords nil)
+(defvar x-symbol-isabelle-font-lock-keywords nil)
+(defvar x-symbol-isabelle-master-directory  'ignore)
+(defvar x-symbol-isabelle-image-searchpath '("./"))
+(defvar x-symbol-isabelle-image-cached-dirs '("images/" "pictures/"))
+(defvar x-symbol-isabelle-image-file-truename-alist nil)
+(defvar x-symbol-isabelle-image-keywords nil)
 
-(defvar x-symbol-isa-case-insensitive nil)
-;(defvar x-symbol-isa-token-shape '(?\\ "\\\\\\<[A-Za-z][A-Za-z0-9_']*>\\a'" . "[A-Za-z]"))
-(defvar x-symbol-isa-token-shape nil)
+(defvar x-symbol-isabelle-case-insensitive nil)
+;(defvar x-symbol-isabelle-token-shape '(?\\ "\\\\\\<[A-Za-z][A-Za-z0-9_']*>\\a'" . "[A-Za-z]"))
+(defvar x-symbol-isabelle-token-shape nil)
 
-(defvar x-symbol-isa-exec-specs '(nil ("\\`\\\\<[A-Za-z][A-Za-z0-9_']*>\\'" . 
+(defvar x-symbol-isabelle-exec-specs '(nil ("\\`\\\\<[A-Za-z][A-Za-z0-9_']*>\\'" . 
 				          "\\\\<[A-Za-z][A-Za-z0-9_']*>")))
 
-(defvar x-symbol-isa-input-token-ignore nil)
-(defun x-symbol-isa-default-token-list (tokens) tokens)
+(defvar x-symbol-isabelle-input-token-ignore nil)
+(defun x-symbol-isabelle-default-token-list (tokens) tokens)
 
 
-(defvar x-symbol-isa-token-list 'x-symbol-isa-default-token-list)
+(defvar x-symbol-isabelle-token-list 'x-symbol-isabelle-default-token-list)
 
-(defvar x-symbol-isa-symbol-table '(;;symbols (isabelle14 font)
+(defvar x-symbol-isabelle-symbol-table '(;;symbols (isabelle14 font)
     (visiblespace () "\\\\<spacespace>" "\\<spacespace>")
     (Gamma  () "\\\\<Gamma>" "\\<Gamma>")
     (Delta  () "\\\\<Delta>" "\\<Delta>")
@@ -149,7 +149,7 @@
     (radical () "\\\\<surd>" "\\<surd>")
     (copyright () "\\\\<copyright>" "\\<copyright>")
   ))
-(defvar x-symbol-isa-xsymbol-table '(;;xsymbols
+(defvar x-symbol-isabelle-xsymbol-table '(;;xsymbols
     (plusminus () "\\\\<plusminus>" "\\<plusminus>")
     (division () "\\\\<div>" "\\<div>")
     (longarrowright () "\\\\<longrightarrow>" "\\<longrightarrow>")
@@ -185,30 +185,30 @@
     (braceright2 () "\\\\<rbrace>" "\\<rbrace>")
     (top () "\\\\<top>" "\\<top>")
   ))
-(defvar x-symbol-isa-user-table nil)
-(defvar x-symbol-isa-table
-  (append x-symbol-isa-user-table 
-	  (append x-symbol-isa-symbol-table x-symbol-isa-xsymbol-table)))
+(defvar x-symbol-isabelle-user-table nil)
+(defvar x-symbol-isabelle-table
+  (append x-symbol-isabelle-user-table 
+	  (append x-symbol-isabelle-symbol-table x-symbol-isabelle-xsymbol-table)))
 
 ;;;===========================================================================
 ;;;  Internal
 ;;;===========================================================================
 
-(defvar x-symbol-isa-menu-alist nil
+(defvar x-symbol-isabelle-menu-alist nil
   "Internal.  Alist used for Isasym specific menu.")
-(defvar x-symbol-isa-grid-alist nil
+(defvar x-symbol-isabelle-grid-alist nil
   "Internal.  Alist used for Isasym specific grid.")
 
-(defvar x-symbol-isa-decode-atree nil
+(defvar x-symbol-isabelle-decode-atree nil
   "Internal.  Atree used by `x-symbol-token-input'.")
-(defvar x-symbol-isa-decode-alist nil
+(defvar x-symbol-isabelle-decode-alist nil
   "Internal.  Alist used for decoding of Isasym macros.")
-(defvar x-symbol-isa-encode-alist nil
+(defvar x-symbol-isabelle-encode-alist nil
   "Internal.  Alist used for encoding to Isasym macros.")
 
-(defvar x-symbol-isa-nomule-decode-exec nil
+(defvar x-symbol-isabelle-nomule-decode-exec nil
   "Internal.  File name of Isasym decode executable.")
-(defvar x-symbol-isa-nomule-encode-exec nil
+(defvar x-symbol-isabelle-nomule-encode-exec nil
   "Internal.  File name of Isasym encode executable.")
 
 
@@ -236,4 +236,4 @@
 
 ;(global-set-key [(meta i)] 'x-symbol-INSERT-longarrowright)
 
-(provide 'x-symbol-isa)
+(provide 'x-symbol-isabelle)
