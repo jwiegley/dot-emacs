@@ -76,8 +76,8 @@ nil if a region cannot be found."
     (string-match regexp string start)))
 
 (defun proof-string-match-safe (regexp string &optional start)
-  "Like proof-string-match, but return nil if REGEXP is nil."
-  (if regexp (proof-string-match regexp string start)))
+  "Like proof-string-match, but return nil if REGEXP or STRING is nil."
+  (if (and regexp string) (proof-string-match regexp string start)))
 
 (defun proof-stringfn-match (regexp-or-fn string)
   "Like proof-string-match if first arg is regexp, otherwise call it."
