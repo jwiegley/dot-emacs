@@ -94,6 +94,6 @@
 
 
 (warn "ACL2 Proof General is incomplete!  Please help improve it!
-da+pg-Read the manual, make improvements and send them to feedback@inf.ed.ac.uk")
+Read the manual, make improvements and send them to da+pg-feedback@inf.ed.ac.uk")
 
 (provide 'acl2)
