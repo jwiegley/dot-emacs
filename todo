@@ -30,79 +30,69 @@ D		e.g. desirable to fix at some point
 X (Low)		e.g. probably not worth spending time on
 
 
-** 2. Things to in the generic interface
+** 2. Things to do in the generic interface
 
-*** B Bugs with extents: 
+*** D Bugs with extents: 
       Sometimes probs if try to assert a whole file while one is
       being processed:     (proof-set-queue-start end) call in
       proof-done-advancing finds that queue span is detached.
+      Code is now robust for this.  But why detach anyway?
 
 *** C Extensions with semantic tokens
       Look at the Semantic Navigator package.  Implements persistent
       database of tokens.
 
-
 *** B Documentation:
       Check new doc for hiding; add doc for dependencies, tracing.
-      Moving spans; navigating through locked region.
-
+      Moving spans; navigating through locked region.  
+      Favourite menu.
 
 *** C Fix byte compilation
       Problem with proof-ass macro mechanism -- gets expanded during compilation.
 
-*** C The PG isabelle-completion-table seems to be subject to case-fold, which
-      it shouldn't be: \<sqinter> does not work, but \<Sqinter> is OK.
-
 *** B generalize from Isabelle's "atomic scripting" theory file mode
       to allow other instances which do not allow incremental
       processing of files in major or auxiliary file types.
-      E.g. twelf ACL2.
+      E.g. twelf, ACL2, LambdaCLAM.
       Also, add the atomic scripting handling for Isabelle/Isar.
 
 *** B Move over to new better designed parsing function mechanism.
 
 *** D ChangeLog generation still not right.  
-      Suggested fix: use the prefix that rcs2log generates, without prepending.
-      Take a tail of the current ChangeLog and use that as the starting point,
-      perhaps?
-
-*** D RPM package todos: 
-        - get specific doc files into RPM package (subdirs of doc/)
-	- Think about adding wmconfig stuff (icons in images/ now)
+      Probs: duplicated entries when runs several times in same day.
+      Suggested fix: use rcs2log to generate the entire log, just take
+      a sensible number of lines from it.
+      (Ideal would be to get until a given date)
 
 *** C Fix the doc makefiles to adapt the image flag in PG-adapting.tex
       properly, for dvi/ps targets
-
-*** D some renaming for uniformity: 
-
-     proof-comment-start -> proof-script-comment-start, ditto end
 
 *** B Generalize electric terminator mode for other parsing mechanisms.
 
 *** B Add parameter for help function so HOL help works nicely
 
-*** B Make tags support in lego.el and coq.el a bit more generic.
+*** D Make tags support in lego.el and coq.el a bit more generic.
   Use customization option proof-tags-support.
 
-*** B Display functions: does auto-delete-windows work with
+*** D Display functions: does auto-delete-windows work with
   window-dedicated as it should? (I thought it would switch 
   between 2/3 bufs as appropriate?).
 
-*** B Clean up assert-until-point stuff: should have just one
+*** C Clean up assert-until-point stuff: should have just one
   function, as a subroutine of assert-next-command; and no bizarre
   never-used arguments!
 
 *** B proof-shell-restart should clear response buffer (only noticed with
   proof-tidy-response=nil)
 
-*** B Continue programme of making adaptation easier.  
+*** D Continue programme of making adaptation easier.  
 
-*** C Fix up sources to conform to library header conventions 
+*** D Fix up sources to conform to library header conventions 
   see (lispref)Library Headers.
 
-*** C Proof shell exit function -- could try sending an interrupt first
+*** D Proof shell exit function -- could try sending an interrupt first
   if the process is busy, just to be polite (and avoid the 10 second
-  wait before it gets killed).
+  wait before it gets killed).  
 
 *** C make pretty printer line width altering generic.
   Make a generic hook (or hook-constructing macro) to adjust
@@ -110,18 +100,13 @@ X (Low)		e.g. probably not worth spending time on
   place to do this that in the proof-shell-insert-hook (should
   be triggered by resize events).
 
-*** C X-Symbol: is there a function to input in the minibuffer using
+*** D X-Symbol: is there a function to input in the minibuffer using
   a token language?
 
-*** C Investigate possible toolbar refresh problems.
+*** D Investigate possible toolbar refresh problems.
   Sometimes extra clicks *are* needed.  Why?
 
 *** C Consider supporting imenu instead, or as well as, func-menu.
-
-*** C New modules: 
-     proof-shell-{start,end,goal,blah} -> proof-goals-{blah} 
-     pbp-{blah} -> proof-goals-{blah}, new proof-goals.el  
-     Low-level commands in proof-script.el -> proof-core.el
 
 *** C Improved configurability of command settings, etc.
   We should let command settings, etc, be a special type
@@ -151,11 +136,11 @@ X (Low)		e.g. probably not worth spending time on
   mechanism in shell buffer: use M-n M-p to scroll up and down
   through previous and forthcoming (matching) commands.
 
-*** C TESTING. 
+*** B TESTING. 
     - Add automatic testing mechanism to test user-level functions PG
     - Test schedule for things to try with a new instantiation
 
-*** C Is there a way to make colours defined for x work in mswindows too?
+*** D Is there a way to make colours defined for x work in mswindows too?
 
   defface specs with (type x) seem to work fine with (type mswindows) too.
   Hassle to duplicate, is there an easy way to cover both?
@@ -168,12 +153,18 @@ X (Low)		e.g. probably not worth spending time on
   Use custom to set everything to its default value from proof-config,
   before invoking the body.
 
-*** C Add a new configuration setting for matching proof commands
+*** B Add a new configuration setting for matching proof commands
   which have no undo effect --- should be treated like comments
   for undo.  Perhaps would be useful for Isabelle, HOL, at least,
   although it's tricky to see how it would be completely *safe*.
+  [ See discussion with Pierre re Coq undo command categories ]
 
-*** C Display buffer clearing: response buffer is cleared
+*** C Implement proof-generic-find-and-forget
+  <...>-count-undos, to simplify prover-specific code.  
+  Complete reengineering of *-count-undos and 
+  *-find-and-forget at generic level
+
+*** D Display buffer clearing: response buffer is cleared
   too often/eagerly, perhaps?  The output find-theorems or
   similar doesn't last beyond a single proof step.
   The problem is that we want to erase irrelevant
@@ -230,15 +221,6 @@ X (Low)		e.g. probably not worth spending time on
 *** D Quit timeout enhancement: instead of killing immediately after
   timeout, could give a message "not responding, kill immediately?"
 
-*** D Implement proof-generic-find-and-forget
-  <...>-count-undos, to simplify prover-specific code.  
-  Complete reengineering of *-count-undos and 
-  *-find-and-forget at generic level
-
-*** D Package management for X-Emacs.  
-    - arrange into X-Emacs package layout
-    - install under ~/.xemacs
-
 *** D Consider proof-generic-goal-hyp function, for proof by
   pointing support.  Based on `proof-shell-goal-regexp' which
   I accidently introduced at one point.
@@ -246,18 +228,6 @@ X (Low)		e.g. probably not worth spending time on
 *** D Make code robust against accidental deletion of response/goals
   buffer.  Add functions proof-get-or-create-{response,goals}-buffer.
   [30 mins]
-
-*** D Making undoing better.
-  Rather than calculating an undo command each time an undo command
-  is needed, another idea would be to keep the undo command in the
-  span.  Then when we amalgamate spans we can construct new undo
-  commands.  When we come to issue an undo, we either need to do
-  each undo step in turn in reverse, just the final one, or perhaps
-  some proof-assistant dependent filtering/modification of the
-  set.   At the moment, though, PG is rather keen on issuing just
-  one command to forget to some specific place in the script.
-  [Maybe a design principle is that spans should coincide with
-   undoable regions]
 
 *** D proof-script-next-entity-regexps: 
   "However, it does not parse strings, comments, or parentheses."
@@ -407,7 +377,12 @@ X (Low)		e.g. probably not worth spending time on
 *** D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
 
-*** D Display management is much better than it was, but perhaps
+*** D More flexible help configuration is needed.  HOL has some nice
+  on-line help but no way in PG to help by library.  Perhaps
+  a help browser is needed?  At least, optional arg to help command.
+  [patch ready and waiting to go in]
+
+*** X Display management is much better than it was, but perhaps
   not quite as good as it could be.  It might be nice to
   display both the goals and response buffer occasionally
   (even with window-dedicated disabled).
@@ -415,265 +390,24 @@ X (Low)		e.g. probably not worth spending time on
   and the goals buffer is updated: might like to still
   see what was in the response buffer.
 
-*** D Oddities:  
+*** X Oddities:  
     Response buffer doesn't get cleared after completion
     of a proof followed by retraction of whole file.
     On other cases of retraction, it does.
     Perhaps retraction should set the flag to ensure
     it's cleared.
 
-*** D Is it possible to let C-c C-c (SIGINT) issue additional process input?
-  Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
-  rather, to fail gracefully.
-
-*** D More flexible help configuration is needed.  HOL has some nice
-  on-line help but no way in PG to help by library.  Perhaps
-  a help browser is needed?  At least, optional arg to help command.
-  [patch ready and waiting to go in]
-
-*** X X-Symbol improvements: see if we can get support for 
-  proof-xsym-extra-modes outside PG (just by loading proof-site).
-  Will be handy for Isabelle's .itex Isabelle-LaTeX files.
-  Then we can parameterise more of the xsym support, and
-  remove spurious settings of calculated stuff from
-  x-symbol-isa.el  (see FIXME comments in v3.1 there).
-
-*** X X-Symbol improvement: turning it on/off seems to move point.
-
-*** X Why does dired get loaded when PG loads?  (Can we speed 
-  loading by avoiding a particular function?)
-
-*** X Process handling output.
-  Handling mixtures of urgent and non-urgent messages:
-  at the moment any non-urgent output *before* an urgent
-  message will not be displayed in the response buffer.
-  Accept this as a feature for now.
-
-*** X Internal improvements for marking up proof assistant output.
-  We need a better mechanism for allowing "invisible" mark up
-  of assistant output based on annotations.  Present code
-  allows proof-shell-leave-annotations-in-output=t to work
-  together with font-lock to do mark up.  
-  Instead we need something more like what enriched-mode does
-  (although I've just tried it and I foound that copying with 
-  the mouse ignores the text properties, but copying with the 
-  keyboard copies them!).  It uses a general library
-  format.el for reading and writing files in multiple formats.
-  This is not quite what we want for our purpose, but it might be a
-  closer approximation than using font-lock-fontify and 
-  deleting the special characters.   It would allow sgml-like
-  markupo in the future, too.
-  Or maybe w3's code for HTML mark up could be borrowed.
-
-*** X Idea: introduce a dynamic follow mode which follows
-  proof-locked-end rather than proof-queue-or-locked-end.
-  Would be annoying for interactive use though, point would
-  jump from under fingers (although no typing anyway, hardly
-  matters).  Alternative is dynamic recenter mode to 
-  keep end of locked region in buffer.
-
-*** X Improve goto button image [suggestion from Markus]
-  Is it possible to avoid the arrows to touch in the middle,
-  emphasizing the 'point' a bit more.  The arrows look a bit outwards
-  bent, too.
-
-*** X Check compilation okay, check on use of eval-and-compile.
-
-*** X Difference in menubar appearance depending on whether X-Symbol
-  is loaded before Proof General or not.
-
-*** X Update logo to include new "???" prover badge  
-  from graphics file elsewhere (da)
-
-*** X bug: outline mode when proof-strict-read-only is nil ought to
-  work, but there may be problems.
-
-*** X CVS repository issues.
-  Where are obsolete 'fileattr' files generated from/maintained?
-  Should junk these (which appear to say that tms is watching everything).
-
-*** X Fixup display problems.
-   The window dedicated stuff is a real pain and I've
-   spent ages inserting workarounds.  Why do we want it??
-   The latest problem is that with
-    (setq special-display-regexps
-	 (cons "\\*Inferior .*-\\(goals\\|response\\)\\*"
-		     special-display-regexps))
-   I get the script buffer made into a dedicated buffer,
-   presumably because the wrong window is selected in
-   proof-display-and-keep-buffer?
-  [da: can't repeat this now, presume it has gone away?]
-
-*** X Add other image sources to images/ directory.
-      Add target to html/images to remove images generated from 
-      the image directory.  
-
-*** X splash screen: report XEmacs problem of not displaying transparent
-  gif properly.
-
-*** X Allow bib-cite style clicking on Load/Import commands to go
-  to file.
-
-*** X Images for splash screen: could add xpm files for logos 
-  so that XEmacs displays transparent parts properly.
-  (Probably not worth effort of distributing more files).
-
-*** X  Customization mechanism: is there a way to make saved settings
-   not be overwritten by setq's in the code?  Need to think how
-   to do this, something like customize-set-variable-if-unchanged
-   Otherwise no so useful for people to use customize for
-   prover config settings (we'd need to shadow them all again for
-   each assistant for this to work smoothly).
-   Sure sign saving will fail is when you see "this option has
-   been changed outside customization buffer"
-   At the moment even setting config variables in a hook is tricky,
-   because proof-config-done is called before the hook variables for the
-   new mode are.  Our new version of define-derived-mode needs
-   to address this.
-
-*** X Proofs in Isabelle scripts can be non-interactive.  Non-interactive
-  proofs have only one command, effectively.  It might be useful
-  to find a way to integrate these into Proof General nicely.
-
-*** X Code in proof.el assumes all characters with top bit set are special
-  instructions to Emacs.  This is rather arrogant, and precludes proof
-  systems which utilize 8-bit character sets!  Needs repair.  (3h)
-
-*** X Span convenience functions for special 'type property.
-  Could put these in proof.el or somewhere.
-
-*** X Cleanup handling of proof-terminal-string.  At the moment some
-  commands need to have the terminal string, some don't.
-  da: I suggest removing proof-terminal-string altogether and
-  adding back the semi-colons or fullstops at the specific level.
-  It's not a big deal and would support other provers which
-  may use a mixture of terminators, or no terminators at all.
-  Wait until it's a problem for somebody.
-  [Trouble with this is that terminators are used for active
-   terminator mode, among several other things]
-
-*** X Functions for next,previous input a la shell mode, but in proof
-  script buffer (5h, da).
-
-***   (defsubst set-span-type-property (span val)
-    "Set type property of SPAN to VAL"
-    (set-span-property span 'type val))
-
-***   (defsubst span-type-property (span)
-    "Get type property of SPAN"
-    (span-property span 'type))
-
-***   etc.   (1hr)
-
-*** X Read-only mode of extents sometimes gets in the way: for example,
-  if file changes on disk, can't reload it via usual functions.
-  Can this be improved?  Always have to retract first, and that
-  leaves stuff around.
-
-*** X toolbar icons: Automatically generate reduced and
-  pressed/greyed-out versions from gimp xcf files. 
-  (1 day's gimp hacking)
-
-*** X Proof General customization: how should it work?
-  Presently we have a bunch of variables in proof.el which are
-  set from a bunch of similarly named variables in <engine>-syntax.el.
-  Seems a bit daft: why not just have the customization in
-  one place, and settings hardwired in <engine>-syntax.el.
-  That way we can see which settings are part of instantiation of
-  proof.el, and which are part of cusomization for <engine>.
-
-*** X Moreover, I think it would be nice to change the architecture
-  to make customization for new provers much easier.
-  The standard use of 'define-derived-mode' could be invoked
-  automatically in proof-site, and we could easily get away from the 
-  kludge of proof-config-done and friends.
-  (Compare this to the way font-lock works automatically for XEmacs
-  when the right variable name is set, but for GNU Emacs you have
-  to write something special).
-  The objection to doing this is based on the idea that we should use
-  an object-like inheritance mechanism to define the new modes.
-  But if this is forgone, it might even be possible to add
-  support for new assistants entirely via the customize mechanism,
-  without any knowledge of elisp apart from regular expressions!
-  [see proof-easy-config.el]
-
-*** X Support a history of proof commands, with a "redo" command to
-  redo undo-to-point or sequences of toolbar undo's.
-
-*** X Provers with sophisticated/configurable syntax should tell Emacs
-  about their syntax somehow, rather than trying to duplicate
-  specifications inside Emacs.
-  Maybe some particular ATerm format would help with this?
-
-*** X Comment support is not very generic: we don't support end-of-line
-  terminated comments.  Is there any case where this might be
-  worthwhile?  (2h to add it).
-
-*** X Make process handling smarter: because Emacs is single-threaded,
-  no process output can be dealt with when we are running some
-  command.  This means that it would be safe to extend the 
-  red region, by putting more commands on the queue.  Also it would
-  be safe to implement a clever undo command which worked on the
-  red region: if there are commands waiting to be processed, we
-  could remove them from the queue.  If there are no commands waiting,
-  we have to wait until something becomes blue to undo it by sending
-  a command to the process.
-
-*** X Ideas for efficiency improvements.  Rather than repeatedly
-  re-parsing the buffer, we could parse the whole buffer *once*
-  and make adjustments after edits, like font-lock.  We could
-  make an extent for every command, and set it to "blue", "red"
-  or "clear" as appropriate.  (This would allow proofs to be
-  sent out-of-order to the proof process too, although perhaps
-  that's not so nice).
-  The function proof-segment-up-to could be made to cache its
-  result.
-
-*** X proof-mark-buffer-atomic marks the buffer as only containing
-  comments if the first ACS is a goal-save span. This is however not a 
-  problem for LEGO and Isabelle. (30 min)
-
-*** X Add support for XEmacs 21 packaging.  Make suitable updates available
-  on web page, and make RPM put things in the right place so no .emacs
-  file may need editing(?).  [2 days]
-
-*** X The narrowing issue
-  Code uses (point-min) and (point-max) everywhere.
-  Most primitive functions give error if given arguments outside
-  a restriction.  However, most places these are used in PG we really
-  mean the start or end of the buffer (e.g. when parsing).
-  The only way to fix this seems to be with messy 
-  (save-restriction (widen) ... sequences.
-
-*** X Solaris bugs: font locking and button enabling.
-
-  [Markus]: I can only produce this problem on Solaris, where we have
-  both a mule and non-mule version of xemacs-21.1.8.  On my Linux box
-  at home there is no problem present (using xemacs-21.1.7-mule).
-
-  Note that on the Solaris boxes the problem is already exhibited by
-  visiting a new/empty thy file: buttons are off and are not enabled
-  by typing new stuff.
-
-  Moved down the list now, instead we disable button enablers on
-  Solaris.
-
-*** X Multiple session architecture (difficult)
-
-  With some major re-engineering, PG could be made to work with multiple
-  provers at once, and multiple instances of the same prover.
-
-  Ideas: - introduce "session" notion
-	 - have list of current sessions in progress,
-	   values of active scripting buffer and other per-session vars
-	   for each one
-         - proof shell filter and other functions must automatically
-           switch context to correct session
-         - force everybody to use proof-easy-config macro, and set
-	   <prover>-var automatically from <proof>-var there,
-	   to get defaults for new sessions.
-
-
+*** X Making undoing better.
+  Rather than calculating an undo command each time an undo command
+  is needed, another idea would be to keep the undo command in the
+  span.  Then when we amalgamate spans we can construct new undo
+  commands.  When we come to issue an undo, we either need to do
+  each undo step in turn in reverse, just the final one, or perhaps
+  some proof-assistant dependent filtering/modification of the
+  set.   At the moment, though, PG is rather keen on issuing just
+  one command to forget to some specific place in the script.
+  [Maybe a design principle is that spans should coincide with
+   undoable regions]
 
 
 
@@ -684,7 +418,7 @@ X (Low)		e.g. probably not worth spending time on
 *** A Doc new bits: font lock keywords, filename %e, %r.
   Added proof-{script,shell,goals,resp}-font-lock-keywords.
   Presently used only in proof-easy-config, will put into other
-  mechanism for 3.2
+  mechanism
 
 *** A Doc new bits: win32 support
 
@@ -726,8 +460,7 @@ X (Low)		e.g. probably not worth spending time on
 ** 4. GNU Emacs issues
 
 *** B Improve support for Emacs 21.
-  X-symbol test
-  
+  X-symbol fixup in other provers.
 
 *** B Consider replacing buffer-substring -> buffer-substring-no-properties
   Text properties are passed around in spans, probably needlessly.
@@ -748,7 +481,7 @@ X (Low)		e.g. probably not worth spending time on
 
 
 
-** 5. Things to do for Proof-by-Pointing
+** 5. Things to do for subterm markup / proof-by-pointing
 
 *** B Unify proof-insert-pbp-command and proof-shell-insert-loopback-cmd.
   Add some debugging messages in proof-done-advancing to indicate
@@ -762,9 +495,7 @@ X (Low)		e.g. probably not worth spending time on
   support any actual proof-by-pointing), Make a file 
   proof-goals.el.  [4 hrs]
 
-*** C Usability enhancement: have a ballon-help style popup (in the
-  minibuffer) to indicate what command pbp will choose, without
-  actually running it. 
+*** C Extend balloon-help (e.g. show pbp command)
 
 *** C Fixing up errors caused by pbp-generated commands; currently, script
   management unwisely assumes that pbp commands cannot fail.
@@ -788,38 +519,26 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 6. Things to do for Web Pages, Distribution
 
-*** B Add some one-stop-shop pages.  Ask permission to redistribute
-  packages for PAs.  Maybe do Windows and Linux versions.
+*** C simplify editing of web pages by instead including files
+   with version numbers in them, at least for development version.
+   Can also use the link "-latest".
 
-*** B Remove fileshow urls in html
+*** C Remove fileshow urls in html
 
-*** C Web pages: fix features page to look better / remove HTML errors.
+*** D Add an animation, showing proof replay.
+
+*** C Wanted for links: something to UITP.  Are there any pages?
 
 *** C Validate pages.  
    Current failures for HTML 4.0 to do with CGI-style arguments with "&",
    this is a problem with PHP3 really.
 
-*** C Add an animation, showing proof replay.
-
-*** C Wanted for links: something to UITP.  Are there any pages?
-
-*** C Broken (old) links:
-    (Applications of a Type Theory based Proof Assistant)
-    http://www.dcs.ed.ac.uk/lfcs/research/logic_and_proof/attbpa.html
-
-*** C Reduce text size and front page image, for 1024x768 screens.
-
-*** D Restructure so that page titles are different to help
+*** X Restructure so that page titles are different to help
   browsing.  (Move links_arr from header.html somewhere new,
   and set $pg_title appropriately before head.html is included).
 
-*** C Add etc/announce somewhere.
-
-*** X Convert to SSI only plus a meta-generation phase?
-
-*** X Add status bar messages to navigation bar
-
-*** X Get rid of footer() function.
+*** X Add some one-stop-shop pages.  Ask permission to redistribute
+  packages for PAs.  Maybe do Windows and Linux versions.
 
 
 
@@ -827,13 +546,10 @@ X (Low)		e.g. probably not worth spending time on
 ** 7. Future improvements to take advantage of newer Emacsen
 
 *** X XEmacs 21.2 compatibility/improvements
-
 **** Accelerators for PG menus?  (how to customize?)
-
 **** Use one-shot-hook for splash display
 
 *** X GNU and XEmacs improvements
-
 **** Indirect Buffers 
   Maybe a cunning way to implement the response buffer and goals
   buffer, since they're basically variants on displaying fragments of
@@ -845,6 +561,9 @@ X (Low)		e.g. probably not worth spending time on
 
 
 ** 8. Bugs in other software beyond our control
+
+*** A Nasty bug in Emacs 21.{1,2} triggered by
+    proof-shell-dont-show-annotations.  Report this.
 
 *** X Code for find-alternate-file has annoying habit of nullifying
     buffer-file-name before kill functions are called, on a buffer
@@ -939,34 +658,31 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 ** 10. Things to do for Proof General Project
 
 
+*** A Journal paper on design and development of Proof General.
+
+*** A Grant proposal for Proof General Kit.
+
 *** A Make informatics research reports from latest docs.
 
-*** A Try to get small project grant from LFCS to help with
-  development of Proof General.  Latest news: success is 
-  doubtful. Needs a self-contained project that 
-  *would be useful to LFCS*.  
-  One idea: an LFCS CDROM featuring Proof General and 
-  bundled with other theorem provers?    How much does a 
-  short-run (200 CDs?) cost?
+*** A Small project grant from LFCS for summer student (2003)
 
-*** A Write grant proposal on white paper for Proof General Kit.
+*** C PG CDROM: CDROM with PG and other theorem provers
+    Complete read-to-go distributions.  Could make up from
+    TYPES summer school systems to make sure of a consistent
+    set of progs?
 
-*** A Find new people to help advance and develop Proof General.
-  Getting more instances would be a good way.  Also encouraging
-  feedback.  Hear stories of bugs by word-of-mouth, they don't
-  get reported often enough.
-  Consider passing on project elsewhere if no LFCS interest.
-
-*** A Polish ProofGeneral.texi and publish as a tech report
-  For PG 3.2, probably.  
-
-*** A Write paper on design and development of Proof General.
-
-*** A Write white paper on future of PG project.
+*** B Find new people to help advance and develop Proof General.
+  Getting more instances is a good way.  Also encouraging feedback.
+  Hear stories of bugs by word-of-mouth, they don't get reported often
+  enough.
 
 *** A Add more PG projects, publicise them.
 
-*** A Push PG research directions:
+*** B PG auxiliary contributions 
+	- span library
+
+*** A PG research directions:
+	- protocols for interactive proof
 	- configuration management / dependency organization
 	- ideas about proof engineering cf software engineering
 	- research on ways of conducting a formalization, cf
@@ -979,102 +695,45 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 LIST OF THINGS FOR PG 3.4
 =========================
 
+** X-SYMBOL PROBLEMS 
+    -- GNU emacs probs with Coq and friends.
+    -- Isabelle probs (electric token, latin1, sub/sup).
 
-Check all instantiations.
+** Check all instantiations.
 
-  
+** Nested idiom spans:
+    - check nested 'idiom spans are removed in all cases.
+       (Maybe they should have type annotation after all?)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+** GNU Emacs probs:
+ Another miscellaneous hang: on "Exit Isabelle" after doing
+ retraction because of part-way through processing a file.
 
-Nested idiom spans:
+** Announce mailing list move, new test version.
 
- ;; FIXME: should also remove nested 'idiom spans.
+** Does proof-follow-mode have any effect???
 
-Maybe they should have type annotation after all?
+** Add glyphs for hidden proofs. 
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-GNU Emacs probs:
-================
-
--- Another miscellaneous hang: on "Exit Isabelle" after doing
-retraction because of part-way through processing a file.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-X-Sym 4.4   backwards compat for 3.3, though  
-
-(boundp 'x-symbol-make-grammar)
-
-Signaling: (wrong-type-argument stringp ("\\<spacespace>"))
-  search-forward(("\\<spacespace>") nil limit)
-  x-symbol-decode-all(nil)
-  x-symbol-mode-internal(t)
-  x-symbol-mode(1)
-
------------------------------------------------------------------
-
-Announce mailing list move, new test version.
-
------------------------------------------------------------------
-
-Does proof-follow-mode have any effect???
-
------------------------------------------------------------------
-
-!!!! MOVE MAILING LIST !!!! 
-
------------------------------------------------------------------
-
-
------------------------------------------------------------------
-
-X-Symbol: update for latest X-Symbol????
-
------------------------------------------------------------------
-
-
-** Add glyphs for hidden proofs.  (Wow factor)
-
-** Fix-up show/hide for nested proofs.  (Wierdness with
-   cursor jumping as well)
+** Fix-up show/hide for nested proofs.  (Wierdness with cursor jumping as well)
 
 ** Show/hide in FSF Emacs.
 
+** Context menu for FSF Emacs.
 
------------------------------------------------------------------
+** Cleanup undo behaviour to cope with new Coq mechanism.
+   Is the simplified mechanism better for other provers too, or does the
+   split still apply?  Probably best to leave Isar as-is and have
+   proof-nesting-depth left as experimental.  (Branch?)
 
-LICENSE: chase-up ERI to get something for PG 3.4.
+** Cleanup Coq undo: discussion with Pierre clarified. 
+   Docs, variable names need improvement.
 
------------------------------------------------------------------
-
-Cleanup undo behaviour to cope with new Coq mechanism.
-
-Is the simplified mechanism better for other provers too, or does the
-split still apply?  Probably best to leave Isar as-is and have
-proof-nesting-depth left as experimental.
-
------------------------------------------------------------------
-
-proof-shell-proof-completed
+** proof-shell-proof-completed
   Doesn't behave right for Isabelle/Isar??
 
-proof-nesting-depth:
+** proof-nesting-depth:
   This needs to be fixed up in count undos, find-and-forget.
 
-Would be good to make count undos and find-and-forget generic.
-  [ Perhaps too tricky/temperamental to get this right ]
-
-
------------------------------------------------------------------
-
-
-Subterm highlighting when X-Symbol is turned on in Isabelle.
-
-
------------------------------------------------------------------
+** Would be good to make count undos and find-and-forget generic.
+    [ Perhaps too tricky/temperamental to get this right ]
