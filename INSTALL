@@ -54,6 +54,23 @@ If you have the RPM file, this is the line you should add to your
   (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
 
 
+
+Running on Windows 95/98/NT
+---------------------------
+
+We recommend XEmacs compiled for Windows, see http://www.xemacs.org
+
+Unpack the Proof General tar or zip file, and rename the folder to
+"ProofGeneral" to remove the version number.  Put a line like this:
+
+   (load-file "c:\\ProofGeneral\\generic\\proof-site.el")
+
+into .emacs.  You should put .emacs in value of HOME if you set that,
+or else in directory you installled XEmacs in, e.g.  
+c:\Program Files\XEmacs\.emacs
+
+
+
 Byte Compilation.
 -----------------
 
@@ -113,13 +130,12 @@ Emacs 20.x and XEmacs.
 
 
 
+
+
 ----------------------------------------------------------------------
 
 Notes for Coq
 =============
-
-If you want to use this mode for Coq, you need to make sure you have
-an appropriate version, which is from later than 1 March 1998.
 
 Check the values of coq-tags and coq-prog-name in coq.el to see that
 they correspond to the paths for coqtop and the library on your system.
