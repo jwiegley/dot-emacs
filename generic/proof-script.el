@@ -11,41 +11,17 @@
 ;; FIXME da: use of point-min and point-max everywhere is wrong
 ;; if narrowing is in force.
 
-(require 'proof)
+(require 'proof)			; loader
+(require 'proof-syntax)			; utils for manipulating syntax
+(require 'span)				; abstraction of overlays/extents
+(require 'proof-menu)			; menus for script mode
 
-(require 'proof-syntax)
-
-;; If it's disabled by proof-script-indent, it won't need to be
-;; loaded.
-(autoload 'proof-indent-line "proof-indent" 
-	   "Indent current line of proof script")
-
-
-;; Spans are our abstraction of extents/overlays.
-(eval-and-compile
-  (cond ((fboundp 'make-extent) (require 'span-extent))
-	((fboundp 'make-overlay) (require 'span-overlay))))
 
 ;; Nuke some byte-compiler warnings 
 ;; NB: eval-when (compile) is different to eval-when-compile!!
 (eval-when (compile)
   (proof-try-require 'func-menu)
   (require 'comint))
-
-;; FIXME:
-;; More autoloads for proof-shell (added to nuke warnings,
-;; maybe some should be 'official' exported functions in proof.el)
-;; This helps see interface between proof-script / proof-shell.
-(eval-and-compile
-  (mapcar (lambda (f) 
-	    (autoload f "proof-shell"))
-	  '(proof-shell-ready-prover
-	    proof-extend-queue
-	    proof-shell-wait
-	    proof-start-queue
-	    proof-shell-live-buffer
-	    proof-shell-invisible-command)))
-;; proof-response-buffer-display now in proof.el, removed from above.
 
 
 
@@ -2100,6 +2076,7 @@ a proof command."
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 
 ;;; Non-scripting proof assistant commands.
 ;;;
@@ -2221,6 +2198,8 @@ This is intended as a value for proof-activate-scripting-hook"
 ;; Commands which require an argument, and maybe affect the script.
 ;;
 
+;; FIXME: maybe move these to proof-menu
+
 (proof-define-assistant-command-witharg proof-find-theorems
  "Search for items containing given constants."
  proof-find-theorems-command
@@ -2242,133 +2221,12 @@ This is intended as a value for proof-activate-scripting-hook"
    (proof-issue-new-command arg)))
 
 
-
-;;;
-;;; Definition of Menus
-;;;
-
-(defvar proof-help-menu
-  `("Help"
-    [,(concat proof-assistant " information")
-     (proof-help) t]
-    [,(concat proof-assistant " web page")
-     (browse-url proof-assistant-home-page) t]
-    ["Proof General home page"
-     (browse-url proof-general-home-page) t]
-    ["Proof General Info"
-     (info "ProofGeneral") t]
-    )
-  "Proof General help menu.")
-
-(defvar proof-buffer-menu
-  '("Buffers"
-    ["Active scripting"
-     (proof-switch-to-buffer proof-script-buffer)
-     :active (buffer-live-p proof-script-buffer)]
-    ["Goals"
-     (proof-switch-to-buffer proof-goals-buffer t)
-     :active (buffer-live-p proof-goals-buffer)]
-    ["Response"
-     (proof-switch-to-buffer proof-response-buffer t)
-     :active (buffer-live-p proof-response-buffer)]
-    ["Shell"
-     (proof-switch-to-buffer proof-shell-buffer)
-     :active (buffer-live-p proof-shell-buffer)])
-  "Proof General buffer menu.")
-
-;; Make the togglers used in options menu below
-;(fset 'proof-dont-switch-windows-toggle
-;      (proof-customize-toggle proof-dont-switch-windows))
-;(fset 'proof-delete-empty-windows-toggle
-;      (proof-customize-toggle proof-delete-empty-windows))
-(proof-deftoggle proof-dont-switch-windows)
-(proof-deftoggle proof-delete-empty-windows)
-(fset 'proof-multiple-frames-toggle
-      (proof-customize-toggle proof-multiple-frames-enable))
-(fset 'proof-output-fontify-toggle
-      (proof-customize-toggle proof-output-fontify-enable))
-(fset 'proof-x-symbol-toggle
-      (proof-customize-toggle proof-x-symbol-enable))
-
-(defvar proof-quick-opts-menu
-  `("Options"
-    ["Don't switch windows" proof-dont-switch-windows-toggle
-     :active t
-     :style toggle
-     :selected proof-dont-switch-windows]
-    ["Delete empty windows" proof-delete-empty-windows-toggle
-     :active t
-     :style toggle
-     :selected proof-delete-empty-windows]
-    ["Multiple frames" proof-multiple-frames-toggle
-     :active t
-     :style toggle
-     :selected proof-multiple-frames-enable]
-    ["Output highlighting" proof-output-fontify-toggle
-     :active t
-     :style toggle
-     :selected proof-output-fontify-enable]
-    ["Toolbar" proof-toolbar-toggle
-     :active (and (featurep 'toolbar) 
-		  (boundp 'proof-buffer-type)
-		  (eq proof-buffer-type 'script))
-     :style toggle
-     :selected proof-toolbar-enable]
-    ["X-Symbol" proof-x-symbol-toggle
-     :active (proof-x-symbol-support-maybe-available)
-     :style toggle
-     :selected proof-x-symbol-enable])
-  "Proof General quick options.")
-
-(defvar proof-shared-menu
-  (append
-    (list
-     (vector
-      (concat "Start " proof-assistant)
-      'proof-shell-start
-      ':active '(not (proof-shell-live-buffer)))
-     (vector
-      (concat "Exit " proof-assistant)
-      'proof-shell-exit
-      ':active '(proof-shell-live-buffer)))
-    (list proof-buffer-menu)
-    (list proof-quick-opts-menu)
-    (list proof-help-menu))
-  "Proof General menu for various modes.")
-
-(defvar proof-bug-report-menu
-  (list
-   "----"
-   ["Submit bug report"
-    proof-submit-bug-report
-    :active t])
-  "Proof General menu for submitting bug report (one item plus separator).")
-
-(defvar proof-menu  
-  (append '("----"
-	    ["Scripting active" proof-toggle-active-scripting
-	     :active t
-	     :style toggle
-	     :selected (eq proof-script-buffer (current-buffer))]
-	    ["Electric terminator" proof-electric-terminator-toggle
-	     :active t
-	     :style toggle
-             :selected proof-electric-terminator-enable]
-	    ["Function menu" function-menu
-	     :active (fboundp 'function-menu)]
-	    "----")
-          proof-shared-menu)
-  "The Proof General generic menu.")
-
-(defvar proof-assistant-menu
-  nil
-  "The Proof General proof-assistant specific menu.")
-
 
 
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Electric terminator mode
 ;;
@@ -2392,10 +2250,7 @@ Make sure the modeline is updated to display new value for electric terminator."
       (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
 			 (setq proof-electric-terminator 
 			       proof-electric-terminator-enable)))
-  ;; FIMXE: UGLY COMPATIBILITY HACK 
-  (if (fboundp 'redraw-modeline)
-      (redraw-modeline)
-    (force-mode-line-update)))
+  (redraw-modeline))
 
 (fset 'proof-electric-terminator-toggle 
       (proof-customize-toggle proof-electric-terminator-enable))
@@ -2459,14 +2314,14 @@ sent to the assistant."
 
 
 
-
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Proof General scripting mode definition, part 1.
 ;;
 
-;;;###autoload
 (eval-and-compile			; to define vars
+;;;###autoload
 (define-derived-mode proof-mode fundamental-mode 
   proof-general-name
   "Proof General major mode class for proof scripts.
@@ -2482,6 +2337,9 @@ sent to the assistant."
 
   (make-local-hook 'proof-activate-script-hook) ; necessary?
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)))
+
+;; NB: proof-mode-map declared by define-derived-mode above
+(proof-menu-define-keys proof-mode-map)
 
 (defun proof-script-kill-buffer-fn ()
   "Value of kill-buffer-hook for proof script buffers.
@@ -2504,52 +2362,13 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
   
 
 
-;;
-;; Scripting mode key bindings
-;;
-;; These have been cleaned up for Proof General 3.0.
-;;
-
-(let ((map proof-mode-map)) ; proof-mode-map comes from define-derived-mode above
-(define-key map [(control c) a] proof-assistant-keymap)
-(define-key map [(control c) (control a)] 'proof-goto-command-start)
-(define-key map [(control c) (control b)] 'proof-process-buffer)
-; C-c C-c is proof-interrupt-process in universal-keys
-(define-key map [(control c) (control e)] 'proof-goto-command-end)
-(define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
-(define-key map [(control c) (control p)] 'proof-prf)
-(define-key map [(control c) (control r)] 'proof-retract-buffer)
-(define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
-(define-key map [(control c) (control t)] 'proof-ctxt)
-(define-key map [(control c) (control u)] 'proof-undo-last-successful-command)
-(define-key map [(control c) (control backspace)] 'proof-undo-and-delete-last-successful-command)
-; C-c C-v is proof-minibuffer-cmd in universal-keys
-(define-key map [(control c) (control z)] 'proof-frob-locked-end)
-(define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
-(define-key map [(control c) (control return)] 'proof-goto-point)
-(cond ((string-match "XEmacs" emacs-version)
-(define-key map [(control button3)]	  'proof-mouse-goto-point)
-(define-key map [(control button1)]	  'proof-mouse-track-insert)) ; no FSF
-      (t 
-(define-key map [mouse-3]		  'proof-mouse-goto-point))) ; FSF
-;; NB: next binding overwrites comint-find-source-code.  
-(define-key map [(control c) (control f)] 'proof-find-theorems)
-(define-key map [(control c) (control h)] 'proof-help)
-;; FIXME: not implemented yet 
-;; (define-key map [(meta p)]		  'proof-previous-matching-command)
-;; (define-key map [(meta n)]		  'proof-next-matching-command)
-;; Deprecated bindings
-;(define-key map [(control c) return] 'proof-assert-next-command)
-;(define-key map [(control c) ?u] 'proof-retract-until-point-interactive)
-;; Add keys bound in all PG buffers.
-(proof-define-keys map proof-universal-keys))
-
-
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Proof General scripting mode definition - part 2
 ;; 
+
+;; The functions proof-config-done[-related] are called after the
+;; derived mode has made its settings.
 
 ;; The callback *-config-done mechanism is an irritating hack - there
 ;; should be some elegant mechanism for computing constants after the
@@ -2621,6 +2440,8 @@ assistant."
   (proof-x-symbol-mode))
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Generic defaults for hooks, based on regexps.
 ;; 
@@ -2692,6 +2513,8 @@ a generic implementation of this."
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+
 (defvar proof-script-important-settings
   '(proof-terminal-char
     proof-comment-start
@@ -2754,40 +2577,12 @@ finish setup which depends on specific proof assistant configuration."
   ;; NB: autloads proof-toolbar, which defines proof-toolbar-scripting-menu.
   (proof-toolbar-setup)
 
-  ;; Menus
-  (easy-menu-define proof-mode-menu  
-		    proof-mode-map
-		    "Proof General menu"
-		    (cons proof-general-name
-			  (append
-			   proof-toolbar-scripting-menu
-			   proof-menu
-			   ;; begin UGLY COMPATIBILTY HACK
-			   ;; older/non-existent customize doesn't have 
-			   ;; this function.  
-			   (list "----")
-			   (if (fboundp 'customize-menu-create)
-			       (list (customize-menu-create 'proof-general)
-				     (customize-menu-create
-				      'proof-general-internals
-				      "Internals"))
-			     nil)
-			   ;; end UGLY COMPATIBILTY HACK
-			   proof-bug-report-menu
-			   )))
-
-  ;; Put the ProofGeneral menu on the menubar
+  ;; Menus: the main Proof-General menu...
+  (proof-menu-define-main)
   (easy-menu-add proof-mode-menu proof-mode-map)
-
-  ;; Deal with the proof assistant specific menu 
-  (if proof-assistant-menu-entries
-      (progn
-	(easy-menu-define proof-assistant-menu 
-			  proof-mode-map
-			  proof-assistant
-			  (cons proof-assistant
-				proof-assistant-menu-entries))
-	(easy-menu-add proof-assistant-menu proof-mode-map)))
+  ;; and the proof-assistant-menu
+  (proof-menu-define-specific)
+  (easy-menu-add proof-assistant-menu proof-mode-map)
 
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
@@ -2858,11 +2653,4 @@ finish setup which depends on specific proof assistant configuration."
 
 (provide 'proof-script)
 ;; proof-script.el ends here.
-
-;; 
-;;; Lo%al Va%iables:
-;;; eval: (put 'proof-if-setting-configured 'lisp-indent-function 1)
-;;; eval: (put 'proof-define-assistant-command 'lisp-indent-function 'defun)
-;;; eval: (put 'proof-define-assistant-command-wtharg 'lisp-indent-function 'defun)
-;;; End:
 
