@@ -795,7 +795,15 @@ The default value is \"\\n\" to match up to the end of the line."
 Can be used to configure the proof assistant to the interface in
 various ways (for example, setting the line width of output).
 Any text inserted by these hooks will be sent to the proof process
-before every command issued by Proof General."
+before every command issued by Proof General.
+
+NB: You should be very careful about setting this hook. 
+Proof General relies on a careful synchronization with
+the process between inputs and outputs.  It expects to see
+a prompt for each input it sends from the queue.  If your
+extra input here causes more prompts than expected, things
+will break!  Probably any insertions made should not have 
+carriage returns."
   :type '(repeat function)
   :group 'proof-shell)
 
