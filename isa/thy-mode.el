@@ -14,39 +14,39 @@
 
 ;;; ========== Theory File Mode User Options ==========
 
-(defcustom isa-thy-heading-indent 0
+(defcustom thy-heading-indent 0
   "Indentation for section headings."
   :type  'integer
-  :group 'isa-thy-mode)
+  :group 'thy)
 
-(defcustom isa-thy-indent-level 2
+(defcustom thy-indent-level 2
   "Indentation level for Isabelle theory files."
   :type  'integer
-  :group 'isa-thy-mode)
+  :group 'thy)
 
-(defcustom isa-thy-indent-strings t
+(defcustom thy-indent-strings t
   "If non-nil, indent inside strings.
 You may wish to disable indenting inside strings if your logic uses
 any of the usual bracket characters in unusual ways."
   :type 'boolean
-  :group 'isa-thy-mode)
+  :group 'thy)
 
-(defcustom isa-thy-use-sml-mode isa-use-sml-mode
+(defcustom thy-use-sml-mode isabelle-use-sml-mode
   "*If non-nil, invoke sml-mode inside \"ML\" section of theory files."
   :type 'boolean
-  :group 'isa-thy-mode)
+  :group 'thy)
 
 
 ;;; ======  Theory and ML file templates =========================    
 
-(defcustom isa-thy-sections
+(defcustom thy-sections
   ;; NB: preceding white space in templates deleted by indentation alg.
   ;;     top must come first.
-  '(("top" .     isa-thy-insert-header)
-    ("classes" . isa-thy-insert-class)
-    ("default" . isa-thy-insert-default-sort)
-    ("types"   . isa-thy-insert-type) 
-    ("arities" . isa-thy-insert-arity)
+  '(("top" .     thy-insert-header)
+    ("classes" . thy-insert-class)
+    ("default" . thy-insert-default-sort)
+    ("types"   . thy-insert-type) 
+    ("arities" . thy-insert-arity)
     ;; =================================
     ;; These only make sense for HOL.
     ;; Ideally we should parameterise these parts on the theory.
@@ -55,13 +55,13 @@ any of the usual bracket characters in unusual ways."
     ("intrs") ("monos")
     ("primrec") ("recdef")
     ;; ==============================
-    ("consts"  . isa-thy-insert-const)
+    ("consts"  . thy-insert-const)
     ("translations" . "\"\"\t==\t\"\"")
     ("axclass")
     ("syntax")
     ("instance")
-    ("rules"   . isa-thy-insert-rule)
-    ("defs"    . isa-thy-insert-rule)
+    ("rules"   . thy-insert-rule)
+    ("defs"    . thy-insert-rule)
     ("constdefs")
     ("oracle")
     ("local")
@@ -70,16 +70,16 @@ any of the usual bracket characters in unusual ways."
     ("ML"))
   "Names of theory file sections and their templates.
 Template is either a string to insert or a function. Useful functions are:
-  isa-thy-insert-header, isa-thy-insert-class, isa-thy-insert-default-sort,
-  isa-thy-insert-const, isa-thy-insert-rule"
+  thy-insert-header, thy-insert-class, thy-insert-default-sort,
+  thy-insert-const, thy-insert-rule"
   :type '(repeat
 	  (cons string
 	       (choice function
 		       string
 		       (const :tag "no template" nil))))
-  :group 'isa-thy-mode)
+  :group 'thy)
 
-(defcustom isa-thy-id-header
+(defcustom thy-id-header
   "(* 
     File:	 %f
     Theory Name: %t
@@ -88,10 +88,10 @@ Template is either a string to insert or a function. Useful functions are:
   "*Identification header for .thy and .ML files.
 Format characters: %f replaced by filename, %t by theory name,
 and %l by the logic image name this file should be read in."
-  :group 'isa-thy-mode
+  :group 'thy
   :type 'string)
 
-(defcustom isa-thy-template
+(defcustom thy-template
 "%t  =  %p +\n
 classes\n
 default\n
@@ -107,96 +107,96 @@ Contains a default selection of sections in a traditional order.
 You can use the following format characters:
   %t  -- replaced by theory name
   %p  -- replaced by names of parents, separated by +'s"
- :group 'isa-thy-mode
+ :group 'thy
  :type 'string)
 
 
 
 ;;; ========== Code ==========
 
-(defvar isa-thy-mode-map nil)
+(defvar thy-mode-map nil)
 
-(defvar isa-thy-mode-syntax-table nil)		; Shared below.
+(defvar thy-mode-syntax-table nil)		; Shared below.
 
-(if isa-thy-mode-syntax-table	
+(if thy-mode-syntax-table	
     nil		
   ;; This is like sml-mode, except:
   ;;   .   is a word constituent (not punctuation).  (bad for comments?)
   ;;   "   is a paired delimiter
-  (setq isa-thy-mode-syntax-table (make-syntax-table))
-  (modify-syntax-entry ?\( "()1 " isa-thy-mode-syntax-table)
-  (modify-syntax-entry ?\) ")(4 " isa-thy-mode-syntax-table)
-  (modify-syntax-entry ?\\ "\\   " isa-thy-mode-syntax-table)
-  (modify-syntax-entry ?*  ". 23" isa-thy-mode-syntax-table)
-  (modify-syntax-entry ?_  "w   " isa-thy-mode-syntax-table)
-  (modify-syntax-entry ?\' "w   " isa-thy-mode-syntax-table)
+  (setq thy-mode-syntax-table (make-syntax-table))
+  (modify-syntax-entry ?\( "()1 " thy-mode-syntax-table)
+  (modify-syntax-entry ?\) ")(4 " thy-mode-syntax-table)
+  (modify-syntax-entry ?\\ "\\   " thy-mode-syntax-table)
+  (modify-syntax-entry ?*  ". 23" thy-mode-syntax-table)
+  (modify-syntax-entry ?_  "w   " thy-mode-syntax-table)
+  (modify-syntax-entry ?\' "w   " thy-mode-syntax-table)
 ;  it's annoying to match with quotes from previous strings,
 ;  so this has been removed. 
-;  (modify-syntax-entry ?\" "$   " isa-thy-mode-syntax-table)
-  (modify-syntax-entry ?.  "w   " isa-thy-mode-syntax-table))
+;  (modify-syntax-entry ?\" "$   " thy-mode-syntax-table)
+  (modify-syntax-entry ?.  "w   " thy-mode-syntax-table))
 
-(or isa-thy-mode-map
+(or thy-mode-map
     (let ((map (make-sparse-keymap)))
-      (define-key map [(control up)] 'isa-thy-goto-prev-section)
-      (define-key map [(control down)] 'isa-thy-goto-next-section)
-      (define-key map "\C-c\C-n" 'isa-thy-goto-next-section)
-      (define-key map "\C-c\C-p" 'isa-thy-goto-prev-section)
-      (define-key map "\C-c\C-c" 'isa-thy-minor-sml-mode)
-      (define-key map "\C-c\C-t" 'isa-thy-insert-template)
-      (define-key map "\C-c\C-u" 'isa-thy-use-file)
-      (define-key map "\C-c\C-l" 'isa-thy-raise-windows)
-      (define-key map "\C-c\C-o" 'isa-thy-find-other-file)
+      (define-key map [(control up)] 'thy-goto-prev-section)
+      (define-key map [(control down)] 'thy-goto-next-section)
+      (define-key map "\C-c\C-n" 'thy-goto-next-section)
+      (define-key map "\C-c\C-p" 'thy-goto-prev-section)
+      (define-key map "\C-c\C-c" 'thy-minor-sml-mode)
+      (define-key map "\C-c\C-t" 'thy-insert-template)
+      (define-key map "\C-c\C-u" 'thy-use-file)
+      (define-key map "\C-c\C-l" 'thy-raise-windows)
+      (define-key map "\C-c\C-o" 'thy-find-other-file)
       (define-key map "\C-M" 'newline-and-indent)
-      (define-key map "\C-k" 'isa-thy-kill-line)
-      (setq isa-thy-mode-map map)))
+      (define-key map "\C-k" 'thy-kill-line)
+      (setq thy-mode-map map)))
 
-(defun isa-thy-mode (&optional nomessage)
+(defun thy-mode (&optional nomessage)
   "Major mode for editing Isabelle theory files.
-\\<isa-thy-mode-map>
-\\[isa-thy-goto-next-section]\t Skips to the next section.
-\\[isa-thy-goto-prev-section]\t Skips to the previous section.
+\\<thy-mode-map>
+\\[thy-goto-next-section]\t Skips to the next section.
+\\[thy-goto-prev-section]\t Skips to the previous section.
 
 \\[indent-for-tab-command]\t Indents the current line.
 
-\\[isa-thy-insert-template]\t Inserts a template for the file or current section.
+\\[thy-insert-template]\t Inserts a template for the file or current section.
 
-If isa-thy-use-sml-mode is non-nil, \\<isa-thy-mode-map>\\[isa-thy-minor-sml-mode] \
+If thy-use-sml-mode is non-nil, \\<thy-mode-map>\\[thy-minor-sml-mode] \
 invokes sml-mode as a minor mode 
 in the ML section.  This is done automatically by \
 \\[indent-for-tab-command].
 
 The style of indentation for theory files is controlled by these variables:
-  isa-thy-heading-indent 
-  isa-thy-indent-level
-  isa-thy-indent-strings
+  thy-heading-indent 
+  thy-indent-level
+  thy-indent-strings
 - see individual variable documentation for details."
   (interactive)
   (kill-all-local-variables)
-  (setq major-mode 'isa-thy-mode)
+  (setq major-mode 'thy-mode)
   (setq mode-name "Theory")
-  (use-local-map isa-thy-mode-map)
+  (use-local-map thy-mode-map)
 ;;  (isa-menus)				                ; Add "isabelle" menu.
-  (set-syntax-table isa-thy-mode-syntax-table)
+  (set-syntax-table thy-mode-syntax-table)
   (make-local-variable 'indent-line-function)
-  (setq indent-line-function 'isa-thy-indent-line)
+  (setq indent-line-function 'thy-indent-line)
   (make-local-variable 'comment-start)			; Following lines as in sml-mode
   (setq comment-start "(* ")				; .
   (make-local-variable 'comment-end)			; .
   (setq comment-end " *)")				; .
   (setq comment-start-skip "(\\*+[ \t]?")		; .
   (setq font-lock-keywords
-	isa-thy-mode-font-lock-keywords)
-  (run-hooks 'isa-thy-mode-hook)
+	thy-mode-font-lock-keywords)
+  (run-hooks 'thy-mode-hook)
   (force-mode-line-update)
   (if (null nomessage)
       (message
        (substitute-command-keys 
-	"Isabelle theory-file mode.   Use \\[isa-thy-insert-template] to insert templates; \\[describe-mode] for help.")))
+	"Isabelle theory-file mode.   Use \\[thy-insert-template] to insert templates; \\[describe-mode] for help.")))
   )
 
-(defun isa-thy-mode-quiet ()
+(defun thy-mode-quiet ()
   (interactive)
-  (isa-thy-mode t))
+  (thy-mode t))
 
 
 ;;; "use" and "use_thy" with theory files ========================
@@ -210,7 +210,7 @@ The style of indentation for theory files is controlled by these variables:
 ;;; file - yuk!!
 ;;; The next version of Isabelle will be more consistent.
 
-(defun isa-thy-use-file (&optional force-use_thy)
+(defun thy-use-file (&optional force-use_thy)
   "Send the file of the current buffer to an Isabelle buffer with use_thy or use."
   (interactive "P")
   (let ((fname (buffer-file-name)))
@@ -229,31 +229,31 @@ The style of indentation for theory files is controlled by these variables:
 			   "use"))
 	 (use-thy-string (concat use " \"" tname "\";"))
 	 (logic (isa-guess-root)))
-      (isa-thy-send-string logic use-thy-string))))
+      (thy-send-string logic use-thy-string))))
 
-(defun isa-thy-use-region (beg end)
+(defun thy-use-region (beg end)
   "Send the region to an Isabelle buffer, with use"
   (interactive "r")
-  (write-region beg end isa-thy-use-tempname nil 'nomessage)
-  (let* ((use-thy-string (concat "use \"" isa-thy-use-tempname "\";"))
+  (write-region beg end thy-use-tempname nil 'nomessage)
+  (let* ((use-thy-string (concat "use \"" thy-use-tempname "\";"))
 	 (logic (isa-guess-root)))
-    (isa-thy-send-string logic use-thy-string)))
+    (thy-send-string logic use-thy-string)))
 
-(defun isa-thy-copy-region (beg end &optional isa-buffer)
+(defun thy-copy-region (beg end &optional isa-buffer)
   "Copy the region to an Isabelle buffer."
   (interactive "r")
   (let ((text (buffer-substring beg end))
 	(logic (isa-guess-root)))
     (save-excursion
-      (isa-thy-send-string logic text))))
+      (thy-send-string logic text))))
 
-(defun isa-thy-use-line (&optional isabuffer)
+(defun thy-use-line (&optional isabuffer)
   "Send the current interactive ML line to an Isabelle buffer.
 Advance to the next line."
   (interactive)
-  (isa-apply-to-interactive-line 'isa-thy-copy-region))
+  (isa-apply-to-interactive-line 'thy-copy-region))
 
-(defun isa-thy-send-string (logic text &optional hide)
+(defun thy-send-string (logic text &optional hide)
   "Send TEXT to a buffer running LOGIC.
 If LOGIC is nil, pick the first Isabelle buffer."
   (require 'isa-mode)
@@ -272,11 +272,11 @@ If LOGIC is nil, pick the first Isabelle buffer."
       (isa-insert-ret text))     ; send use command
     (select-frame cur-frm)))
 
-(defun isa-thy-proofgeneral-send-string (logic text &optional hide)
+(defun thy-proofgeneral-send-string (logic text &optional hide)
   ;; FIXME -- new function!
   )
 
-(defun isa-thy-raise-windows ()
+(defun thy-raise-windows ()
   "Raise windows/frames associated with Isabelle session."
   (interactive)
   (isa-select-buffer isa-session-buffer t)
@@ -285,7 +285,7 @@ If LOGIC is nil, pick the first Isabelle buffer."
 	    isa-associated-buffers)))
 
 
-(defun isa-thy-guess-logic-in-use ()
+(defun thy-guess-logic-in-use ()
   (if (featurep 'isa-mode)
       (let* ((buf (car-safe (isa-find-buffers-in-mode 'isa-mode)))
 	     (log (and buf
@@ -296,11 +296,11 @@ If LOGIC is nil, pick the first Isabelle buffer."
     nil))
 
 
-(defvar isa-thy-use-tempname ".region.ML"
-  "*Name of temporary file to hold region dring isa-thy-use-region.")
+(defvar thy-use-tempname ".region.ML"
+  "*Name of temporary file to hold region dring thy-use-region.")
 
 
-(defconst isa-thy-logic-image-regexp
+(defconst thy-logic-image-regexp
   "[lL][oO][gG][iI][cC] [iI][mM][aA][gG][eE]:[ \t]*\"?\\([^ \t\n\"]+\\)\"?[ \t]*$"
   "Regexp for locating name of logic image file in a .thy or .ML file.")
 
@@ -323,7 +323,7 @@ Choice based on first name found by:
   (save-excursion
     (goto-char (point-min))
     (cond
-     ((re-search-forward isa-thy-logic-image-regexp 500 t)
+     ((re-search-forward thy-logic-image-regexp 500 t)
       (buffer-substring (match-beginning 1) (match-end 1)))
      ((and (string-match "\\.thy$" (or (buffer-file-name) ""))
 	   (re-search-forward 
@@ -355,12 +355,12 @@ Choice based on first name found by:
   "Hook to customize sml-mode for use with Isabelle."
   (isa-menus)				; Add Isabelle main menu
   ;; NB: these keydefs will affect other sml-mode buffers too!
-  (define-key sml-mode-map "\C-c\C-o" 'isa-thy-find-other-file)
-  (define-key sml-mode-map "\C-c\C-u" 'isa-thy-use-file)
-  (define-key sml-mode-map "\C-c\C-r" 'isa-thy-use-region)
-  (define-key sml-mode-map "\C-c\C-l" 'isa-thy-use-line)
+  (define-key sml-mode-map "\C-c\C-o" 'thy-find-other-file)
+  (define-key sml-mode-map "\C-c\C-u" 'thy-use-file)
+  (define-key sml-mode-map "\C-c\C-r" 'thy-use-region)
+  (define-key sml-mode-map "\C-c\C-l" 'thy-use-line)
   ;; listener minor mode removed: \C-c\C-c freed up
-  (define-key sml-mode-map "\C-c\C-t" 'isa-thy-insert-id-header))
+  (define-key sml-mode-map "\C-c\C-t" 'thy-insert-id-header))
 
 (add-hook 'sml-mode-hook 'isa-sml-hook)
 
@@ -372,7 +372,7 @@ Choice based on first name found by:
 (defvar isa-ml-file-extension ".ML"
   "*File name extension to use for ML files.")
 
-(defun isa-thy-find-other-file ()
+(defun thy-find-other-file ()
   "Find associated .ML or .thy file."
   (interactive)
   (and 
@@ -393,52 +393,52 @@ Choice based on first name found by:
 
 ;;; "minor" sml-mode inside theory files ==========
 
-(defvar isa-thy-minor-sml-mode-map nil)
+(defvar thy-minor-sml-mode-map nil)
 
-(defun isa-thy-install-sml-mode ()
+(defun thy-install-sml-mode ()
   (progn
     (require 'sml-mode)
-    (setq isa-thy-minor-sml-mode-map (copy-keymap sml-mode-map))
+    (setq thy-minor-sml-mode-map (copy-keymap sml-mode-map))
     ;; Bind TAB to what it should be in sml-mode.
-    (define-key isa-thy-minor-sml-mode-map "\t" 'indent-for-tab-command)
-    (define-key isa-thy-minor-sml-mode-map "\C-c\C-c" 'isa-thy-mode-quiet)
-    (define-key isa-thy-minor-sml-mode-map "\C-c\C-t" 'isa-thy-insert-template)))
+    (define-key thy-minor-sml-mode-map "\t" 'indent-for-tab-command)
+    (define-key thy-minor-sml-mode-map "\C-c\C-c" 'thy-mode-quiet)
+    (define-key thy-minor-sml-mode-map "\C-c\C-t" 'thy-insert-template)))
 
-(defun isa-thy-minor-sml-mode ()
+(defun thy-minor-sml-mode ()
   "Invoke sml-mode as if a minor mode inside a theory file.
-This has no effect if isa-thy-use-sml-mode is nil."
+This has no effect if thy-use-sml-mode is nil."
   (interactive)
-  (if isa-thy-use-sml-mode
+  (if thy-use-sml-mode
       (progn
 	(if (not (boundp 'sml-mode)) 
-	    (isa-thy-install-sml-mode))
+	    (thy-install-sml-mode))
 	(kill-all-local-variables)
 	(sml-mode)					; Switch to sml-mode
-	(setq major-mode 'isa-thy-mode)
+	(setq major-mode 'thy-mode)
 	(setq mode-name "Theory Sml")			; looks like it's a minor-mode.
-	(use-local-map isa-thy-minor-sml-mode-map)	; special map has \C-c\C-c binding.
+	(use-local-map thy-minor-sml-mode-map)	; special map has \C-c\C-c binding.
 	(make-local-variable 'indent-line-function)
-	(setq indent-line-function 'isa-thy-do-sml-indent)
+	(setq indent-line-function 'thy-do-sml-indent)
 	(force-mode-line-update)
 	(message "Use C-c C-c to exit SML mode."))))
 
-(defun isa-thy-do-sml-indent ()
+(defun thy-do-sml-indent ()
   "Run sml-indent-line in an Isabelle theory file, provided inside ML section.
-If not, will turn off simulated minor mode and run isa-thy-indent-line."
+If not, will turn off simulated minor mode and run thy-indent-line."
   (interactive)
-  (if (string= (isa-thy-current-section) "ML")		; NB: Assumes that TAB key was 
+  (if (string= (thy-current-section) "ML")		; NB: Assumes that TAB key was 
       (sml-indent-line)					; bound to sml-indent-line.
-    (isa-thy-mode t)					; (at least, it is now!).
-    (isa-thy-indent-line)))
+    (thy-mode t)					; (at least, it is now!).
+    (thy-indent-line)))
 
 
-(defun isa-thy-insert-name (name)
+(defun thy-insert-name (name)
   "Insert NAME -- as a string if there are non-alphabetic characters in NAME."
   (if (string-match "[a-zA-Z]+" name)
       (insert name)
     (insert "\"" name "\"")))
 
-(defun isa-thy-insert-class (name supers)
+(defun thy-insert-class (name supers)
   (interactive 
    (list
     (isa-read-id "Class name: ")
@@ -448,15 +448,15 @@ If not, will turn off simulated minor mode and run isa-thy-indent-line."
   (indent-according-to-mode)
   (forward-line 1))
 
-(defun isa-thy-insert-default-sort (sort)
+(defun thy-insert-default-sort (sort)
   (interactive
    (list
     (isa-read-id "Default sort: ")))
   (insert sort)
   (indent-according-to-mode)
-  (isa-thy-goto-next-section))
+  (thy-goto-next-section))
 
-(defun isa-thy-insert-type (name no-of-args)
+(defun thy-insert-type (name no-of-args)
   (interactive
    (list
     (isa-read-id  "Type name: ")
@@ -474,12 +474,12 @@ If not, will turn off simulated minor mode and run isa-thy-indent-line."
 	(insert "'" (+ ?a i))
 	(setq i (1+ i))))
     (insert ") ")))
-  (isa-thy-insert-name name)
+  (thy-insert-name name)
   (indent-according-to-mode)
   ;; forward line, although use may wish to add infix.
   (forward-line 1))
 
-(defun isa-thy-insert-arity (name param-sorts result-class)
+(defun thy-insert-arity (name param-sorts result-class)
   (interactive
    (list
     (isa-read-id "Type name: ")
@@ -492,19 +492,19 @@ If not, will turn off simulated minor mode and run isa-thy-indent-line."
   (indent-according-to-mode)
   (forward-line 1))
 
-(defun isa-thy-insert-const (name type)
+(defun thy-insert-const (name type)
   ;; only does a single constant, no lists.
   (interactive
    (let* ((thename  (isa-read-id "Constant name: "))
 	  (thetype  (isa-read-string (format "Type of `%s' : " thename))))
      (list thename thetype)))
-  (isa-thy-insert-name name)
+  (thy-insert-name name)
   (insert " ::\t \"" type "\"\t\t")
   (indent-according-to-mode)
   ;; no forward line in case user adds mixfix
   )
   
-(defun isa-thy-insert-rule (name)
+(defun thy-insert-rule (name)
   (interactive 
    (list
     (isa-read-id "Axiom name: ")))
@@ -513,12 +513,12 @@ If not, will turn off simulated minor mode and run isa-thy-indent-line."
   (backward-char)
   (indent-according-to-mode))
 
-(defun isa-thy-insert-template ()
+(defun thy-insert-template ()
   "Insert a syntax template according to the current section"
   (interactive)
-  (isa-thy-check-mode)
-  (let* ((sect (isa-thy-current-section))
-	 (tmpl (cdr-safe (assoc sect isa-thy-sections))))
+  (thy-check-mode)
+  (let* ((sect (thy-current-section))
+	 (tmpl (cdr-safe (assoc sect thy-sections))))
     ;; Ensure point is at start of an empty line.
     (beginning-of-line)
     (skip-chars-forward "\t ")
@@ -573,14 +573,14 @@ If not, will turn off simulated minor mode and run isa-thy-indent-line."
   "Read a number from the minibuffer."
   (read-number prompt t))
 
-(defun isa-thy-read-thy-name ()
+(defun thy-read-thy-name ()
   (let* ((default  (car 
 		    (isa-file-name-cons-extension
 		     (file-name-nondirectory 
 		      (abbreviate-file-name (buffer-file-name)))))))
     default))
 
-;(defun isa-thy-read-thy-name ()
+;(defun thy-read-thy-name ()
 ;  (let* ((default  (car 
 ;		    (isa-file-name-cons-extension
 ;		     (file-name-nondirectory 
@@ -589,20 +589,20 @@ If not, will turn off simulated minor mode and run isa-thy-indent-line."
 ;		    (format "Name of theory [default %s]: " default))))
 ;    (if (string= name "") default name)))
 
-(defun isa-thy-read-logic-image ()
-  (let*	((defimage (or (isa-thy-guess-logic-in-use)
+(defun thy-read-logic-image ()
+  (let*	((defimage (or (thy-guess-logic-in-use)
 		       "Pure"))
 	 (logic    (read-string
 		    (format "Name of logic image to use [default %s]: "
 			    defimage))))
     (if (string= logic "") defimage logic)))
 
-(defun isa-thy-insert-header (name logic parents)
+(defun thy-insert-header (name logic parents)
   "Insert a theory file header, for LOGIC, theory NAME with PARENTS"
   (interactive 
    (list
-    (isa-thy-read-thy-name)
-    (isa-thy-read-logic-image)
+    (thy-read-thy-name)
+    (thy-read-logic-image)
     (isa-read-idlist "Parent theory %s: ")))
   (let* ((parentplus (isa-splice-separator 
 		      " + " 
@@ -610,48 +610,48 @@ If not, will turn off simulated minor mode and run isa-thy-indent-line."
 	 (formalist (list
 		       (cons "%t" name)
 		       (cons "%p" parentplus))))
-    (isa-thy-insert-id-header name logic)
-    (insert (isa-format formalist isa-thy-template)))
+    (thy-insert-id-header name logic)
+    (insert (isa-format formalist thy-template)))
   (goto-char (point-min))
-  (isa-thy-goto-next-section))
+  (thy-goto-next-section))
 
-(defun isa-thy-insert-id-header (name logic)
+(defun thy-insert-id-header (name logic)
   "Insert an identification header, for theory NAME logic image LOGIC."
   (interactive
    (list
-    (isa-thy-read-thy-name)
-    (isa-thy-read-logic-image)))
+    (thy-read-thy-name)
+    (thy-read-logic-image)))
   (let* ((formalist (list
 		     (cons "%f" (buffer-file-name))
 		     (cons "%t" name)
 		     (cons "%l" logic))))
-    (insert (isa-format formalist isa-thy-id-header))))
+    (insert (isa-format formalist thy-id-header))))
 
-(defun isa-thy-check-mode ()
-  (if (not (eq major-mode 'isa-thy-mode))
+(defun thy-check-mode ()
+  (if (not (eq major-mode 'thy-mode))
       (error "Not in Theory mode.")))
   
 
-(defconst isa-thy-headings-regexp
+(defconst thy-headings-regexp
   (concat
    "^\\s-*\\("
    (substring (apply 'concat (mapcar 
 			      '(lambda (pair)
 				 (concat "\\|" (car pair)))
-			      (cdr isa-thy-sections))) 2)
+			      (cdr thy-sections))) 2)
    "\\)[ \t]*")
   "Regular expression matching headings in theory files.")
 
-(defvar isa-thy-mode-font-lock-keywords
+(defvar thy-mode-font-lock-keywords
   (list				
-   (list isa-thy-headings-regexp 1
+   (list thy-headings-regexp 1
 	 'font-lock-keyword-face))
-  "Font lock keywords for isa-thy-mode.
-Default set automatically from isa-thy-headings-regexp.")
+  "Font lock keywords for thy-mode.
+Default set automatically from thy-headings-regexp.")
 
 ;;; movement between sections ===================================    
 
-(defun isa-thy-goto-next-section (&optional count noerror)
+(defun thy-goto-next-section (&optional count noerror)
   "Goto the next (or COUNT'th next) section of a theory file.
 Negative value for count means previous sections.
 If NOERROR is non-nil, failed search will not be signalled."
@@ -661,17 +661,17 @@ If NOERROR is non-nil, failed search will not be signalled."
       (cond ((and count (< count 0))
 	     (let ((oldp (point)))
 	       (beginning-of-line)
-	       (isa-thy-goto-top-of-section)
+	       (thy-goto-top-of-section)
 	       ;; not quite right here - should go to top
 	       ;; of file, like top of section does.
 	       (if (equal (point) oldp)
 		   (progn
-		     (re-search-backward isa-thy-headings-regexp 
+		     (re-search-backward thy-headings-regexp 
 					 nil nil (1+ (- count)))
 		     (forward-line 1))))
 	     t)
 	    (t
-	     (re-search-forward isa-thy-headings-regexp nil nil count)
+	     (re-search-forward thy-headings-regexp nil nil count)
 	     (forward-line 1)
 	     t))
     ;; could just move to top or bottom if this happens, instead
@@ -679,25 +679,25 @@ If NOERROR is non-nil, failed search will not be signalled."
     (search-failed (if noerror nil
 		     (error "No more headings")))))
 
-(defun isa-thy-goto-prev-section (&optional count noerror)
+(defun thy-goto-prev-section (&optional count noerror)
   "Goto the previous section (or COUNT'th previous) of a theory file.
 Negative value for count means following sections.
 If NOERROR is non-nil, failed search will not be signalled."
   (interactive)
-  (isa-thy-goto-next-section (if count (- count) -1) noerror))
+  (thy-goto-next-section (if count (- count) -1) noerror))
 
-(defun isa-thy-goto-top-of-section ()
+(defun thy-goto-top-of-section ()
   "Goto the top of the current section"
   (interactive)
-  (if (re-search-backward isa-thy-headings-regexp nil t)
+  (if (re-search-backward thy-headings-regexp nil t)
       (forward-line 1)
     (goto-char (point-min))))
 
-(defun isa-thy-current-section ()
+(defun thy-current-section ()
   "Return the current section of the theory file, as a string.
 \"top\" indicates no section."
   (save-excursion
-    (let* ((gotsect (re-search-backward isa-thy-headings-regexp nil t))
+    (let* ((gotsect (re-search-backward thy-headings-regexp nil t))
 	   (start   (if gotsect
 			(progn
 			  (skip-chars-forward " \t")
@@ -711,11 +711,11 @@ If NOERROR is non-nil, failed search will not be signalled."
 
 ;;; kill line ==================================================
 
-(defun isa-thy-kill-line (&optional arg)
+(defun thy-kill-line (&optional arg)
   "As kill-line, except in a string will kill continuation backslashes also.
 Coalesces multiple lined strings by leaving single spaces."
   (interactive "P")
-  (let ((str           (isa-thy-string-start))
+  (let ((str           (thy-string-start))
 	(kill-start    (point))
 	following-slash)
     (if (not str)
@@ -726,7 +726,7 @@ Coalesces multiple lined strings by leaving single spaces."
 	(if (eobp)
 	    (signal 'end-of-buffer nil)))
       (setq kill-start (point))
-      (if (isa-thy-string-start str)		; if still inside a string
+      (if (thy-string-start str)		; if still inside a string
 	  (cond 
 	   ((looking-at "[ \t]*$")	; at end of line bar whitespace
 	    (skip-chars-backward 
@@ -766,24 +766,24 @@ Coalesces multiple lined strings by leaving single spaces."
 
 ;;; INDENTATION ==================================================
   
-;;; Could do with isa-thy-correct-string function,
+;;; Could do with thy-correct-string function,
 ;;; which does roughly the same as indent-region.
 ;;; Then we could have an electric " that did this!
 
 ;;; Could perhaps have used fill-prefix to deal with backslash
 ;;; indenting, rather than lengthy code below?
 
-(defun isa-thy-indent-line ()
+(defun thy-indent-line ()
   "Indent the current line in an Isabelle theory file.
 If in the ML section, this switches into a simulated minor sml-mode."
-  (let ((sect (isa-thy-current-section)))
+  (let ((sect (thy-current-section)))
     (cond 
-     ((and isa-thy-use-sml-mode (string= sect "ML"))
+     ((and thy-use-sml-mode (string= sect "ML"))
       (progn				               ; In "ML" section,
-	(isa-thy-minor-sml-mode)	               ; switch to sml mode.
+	(thy-minor-sml-mode)	               ; switch to sml mode.
 	(sml-indent-line)))
 
-     (t   (let ((indent   (isa-thy-calculate-indentation sect)))
+     (t   (let ((indent   (thy-calculate-indentation sect)))
 	    (save-excursion
 	      (beginning-of-line)
 	      (let ((beg (point)))
@@ -800,30 +800,30 @@ If in the ML section, this switches into a simulated minor sml-mode."
 ;; cause frustration and repetitive re-editing of automatic indentation.
 ;; I hope I've achieved something in the first category...
 
-(defun isa-thy-calculate-indentation (sect)
+(defun thy-calculate-indentation (sect)
   "Calculate the indentation for the current line.
 SECT should be the string name of the current section."
   (save-excursion
     (beginning-of-line)
-    (or (isa-thy-long-comment-string-indentation)
+    (or (thy-long-comment-string-indentation)
 	(if (looking-at "\\s-*$")
 	    ;; Empty lines use indentation for section.
-	    (isa-thy-indentation-for sect)
-	  (if (looking-at isa-thy-headings-regexp)
-	      isa-thy-heading-indent
+	    (thy-indentation-for sect)
+	  (if (looking-at thy-headings-regexp)
+	      thy-heading-indent
 	    (progn
 	      (skip-chars-forward "\t ")
 	      (cond
 	       ;; A comment?
 	       ((looking-at "(\\*")         
-		(isa-thy-indentation-for sect))
+		(thy-indentation-for sect))
 	       ;; Anything else, use indentation for section
-	       (t (isa-thy-indentation-for sect)))))))))
+	       (t (thy-indentation-for sect)))))))))
 
-(defun isa-thy-long-comment-string-indentation ()
+(defun thy-long-comment-string-indentation ()
   "Calculate the indentation if inside multi-line comment or string.
 Also indent string contents."
-  (let* ((comstr (isa-thy-comment-or-string-start))
+  (let* ((comstr (thy-comment-or-string-start))
 	 (bolpos (save-excursion
 		   (beginning-of-line)
 		   (point)))
@@ -850,12 +850,12 @@ Also indent string contents."
 	 (t
 	  (let ((quote-col (save-excursion (goto-char comstr) 
 					   (current-column))))
-	     (if isa-thy-indent-strings
-		(isa-thy-string-indentation comstr)
+	     (if thy-indent-strings
+		(thy-string-indentation comstr)
 	      ;; just to right of matching " 
 	      (+ quote-col 1)))))))))
 
-(defun isa-thy-string-indentation (start)
+(defun thy-string-indentation (start)
   ;; Guess indentation for text inside a string
   (let* ((startcol  (save-excursion (goto-char start) (current-column)))
 	 (pps-state (parse-partial-sexp (1+ start) (point)))
@@ -874,15 +874,15 @@ Also indent string contents."
 		t
 		(error "Mismatched parentheses")))))
 
-(defun isa-thy-indentation-for (sect)
+(defun thy-indentation-for (sect)
   "Return the indentation for section SECT"
   (if (string-equal sect "top")
-      isa-thy-heading-indent
-    isa-thy-indent-level))
+      thy-heading-indent
+    thy-indent-level))
 
-(defun isa-thy-string-start (&optional min)
+(defun thy-string-start (&optional min)
   "Return position of start of string if inside one, nil otherwise."
-  (let ((comstr (isa-thy-comment-or-string-start)))
+  (let ((comstr (thy-comment-or-string-start)))
     (if (and comstr
 	     (save-excursion
 	       (goto-char comstr)
@@ -894,7 +894,7 @@ Also indent string contents."
 ;;; state first - fewer branches in non-interesting cases, perhaps.
 ;;; NB: it won't understand escape sequences in strings, such as \"
 
-(defun isa-thy-comment-or-string-start (&optional min)
+(defun thy-comment-or-string-start (&optional min)
   "Find if point is in a comment or string, starting parse from MIN.
 Returns the position of the comment or string start or nil.
 If MIN is nil, starts from top of current section.
@@ -903,7 +903,7 @@ Doesn't understand nested comments."
   (or min
       (setq min
 	    (save-excursion
-	      (isa-thy-goto-top-of-section) (point))))
+	      (thy-goto-top-of-section) (point))))
   (if (<= (point) min)
       nil
     (let ((pos   (point))
@@ -939,6 +939,6 @@ Doesn't understand nested comments."
 
 
 
-(provide 'isa-thy-mode)
+(provide 'thy-mode)
 
-;;; end of isa-thy-mode.el
+;;; end of thy-mode.el
