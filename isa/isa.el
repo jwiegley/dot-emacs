@@ -348,7 +348,8 @@ isa-proofscript-mode."
 
     (thy-mode)
 
-    ;; related mode configuration including locking buffer.
+    ;; related mode configuration including locking buffer,
+    ;; fontification, etc.
     (proof-config-done-related)		
 
     ;; Hack for splash screen
@@ -594,6 +595,7 @@ you will be asked to retract the file or process the remainder of it.
 
 (setq proof-xsym-extra-modes '(thy-mode)
       proof-xsym-font-lock-keywords
+      ;; fontification for tokens themselves  (FIXME: broken)
       '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
       proof-xsym-activate-command
       "print_mode := (!print_mode union [\"xsymbols\",\"symbols\"])"
