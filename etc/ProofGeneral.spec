@@ -46,10 +46,10 @@ mv bin/proofgeneral lego/legotags coq/coqtags isar/isartags ${RPM_BUILD_ROOT}/us
 
 # Put info file in proper place, compress it.
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/info
-mv doc/ProofGeneral.info doc/ProofGeneral.info-* ${RPM_BUILD_ROOT}/usr/share/info
-mv doc/PG-adapting.info  doc/PG-adapting.info-*  ${RPM_BUILD_ROOT}/usr/share/info
-gzip ${RPM_BUILD_ROOT}/usr/share/info/ProofGeneral.info  ${RPM_BUILD_ROOT}/usr/share/info/ProofGeneral.info-*
-gzip ${RPM_BUILD_ROOT}/usr/share/info/PG-adapting.info ${RPM_BUILD_ROOT}/usr/share/info/PG-adapting.info-*
+mv doc/ProofGeneral.info* ${RPM_BUILD_ROOT}/usr/share/info
+mv doc/PG-adapting.info*  ${RPM_BUILD_ROOT}/usr/share/info
+gzip ${RPM_BUILD_ROOT}/usr/share/info/ProofGeneral.info*
+gzip ${RPM_BUILD_ROOT}/usr/share/info/PG-adapting.info*
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
