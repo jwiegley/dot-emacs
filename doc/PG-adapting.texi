@@ -59,9 +59,9 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.2prerelease
+@set version 3.2
 @set xemacsversion 21.1
-@set fsfversion 20.5
+@set fsfversion 20.7
 @set last-update September 2000
 @set rcsid $Id$
 
@@ -91,9 +91,11 @@ END-INFO-DIR-ENTRY
 @finalout
 @titlepage
 @title Adapting Proof General
-@subtitle How to adapt Proof General to new proof assistants
-@subtitle Proof General @value{version}
+@subtitle Proof General --- Organize your proofs!
+@sp 1
+@subtitle Adapting Proof General @value{version} to New Provers
 @subtitle @value{last-update}
+@subtitle @b{www.proofgeneral.org}
 
 @c nested ifs fail here completely, WHY?
 @iftex
@@ -113,7 +115,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 2000 Poof General team, LFCS Edinburgh.
+Copyright @copyright{} 2000 Proof General team, LFCS Edinburgh.
 
 
 @c
@@ -135,6 +137,8 @@ preserved on all copies.
 This manual documents Proof General, Version @value{version}, for use
 with XEmacs @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}
 or later versions.
+
+Visit Proof General on the web at @code{http://www.proofgeneral.org}
 
 Version control: @code{@value{rcsid}}
 @end titlepage
@@ -197,27 +201,64 @@ which should accompany this one.
 
 We positively encourage the support of new systems.  Proof General has
 grown more flexible and useful as it has been adapted to more proof
-assistants.  Typically, adding support for a new prover improves support
-for others, both because the code becomes more robust, and because new
-ideas are brought into the generic setting.  You should understand that
-the Proof General framework has been built as a "product line
-architecture": generality has been introduced step-by-step in a
-demand-driven way, rather than at the outset as a grand design.
-(Despite this strategy, the interface has a surprisingly clean
-structure).  The approach means that we fully expect hiccups when
-adding support for new assistants, so the generic core may need
-extension or modification.  To support this we have an open development
-method: if you require changes in the generic support, please contact us
-(or make adjustments yourself and send them to us).
+assistants.  
+
+Typically, adding support for a new prover improves support for others,
+both because the code becomes more robust, and because new ideas are
+brought into the generic setting.  Notice that the Proof General
+framework has been built as a "product line architecture": generality
+has been introduced step-by-step in a demand-driven way, rather than at
+the outset as a grand design.  Despite this strategy, the interface has
+a surprisingly clean structure.  The approach means that we fully expect
+hiccups when adding support for new assistants, so the generic core may
+need extension or modification.  To support this we have an open
+development method: if you require changes in the generic support,
+please contact us (or make adjustments yourself and send them to us).
 
 Proof General has a home page at
-@uref{http://www.lfcs.informatics.ed.ac.uk/proofgen}.  Visit this page
+@uref{http://www.proofgeneral.org}.  Visit this page
 for the latest version of the manuals, other documentation, system
 downloads, etc.
 
 
+@menu
+* Future::
+@end menu
 
+@node Future
+@unnumberedsec Future
+@cindex Proof General Kit
+@cindex Future
 
+The aim of the Proof General project is to provide a powerful and
+configurable interfaces which help user-interaction with interactive
+proof assistants.  
+
+The strategy Proof General uses is to targets power users rather than
+novices; other interfaces have often neglected this class of users.  But
+we do include general user interface niceties, such as toolbar and
+menus, which make use easier for all.
+
+Proof General has been Emacs based so far, but plans are afoot to
+liberate it from the points and parentheses of Emacs Lisp.  The
+successor project Proof General Kit proposes that proof assistants use a
+@i{standard} XML-based protocol for interactive proof, dubbed @b{PGIP}.
+
+PGIP is a middleware for interactive proof tools and interface
+components.  Rather than configuring Proof General for your proof
+assistant, you will need to configure your proof assistant to understand
+PGIP.  There is a similarity however; the design of PGIP was based
+heavily on the Emacs Proof General framework.  This means that effort on
+customizing Emacs Proof General to a new proof assistant is worthwhile
+even in the light of PGIP: it will help you to understand Proof
+General's model of interaction, and moreover, we hope to use the Emacs
+customizations to provide experimental filters which allow supported
+provers to communicate using PGIP.
+
+At the time of writing, these ideas are in early stages. For latest
+details, or to become involved, see
+@uref{http://www.proofgeneral.org/kit.html, the Proof General Kit
+webpage}.
 
 
 @node Beginning with a new prover
@@ -317,7 +358,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (hol98 "HOL" "\\.sml$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$") (af2 "Af2" "\\.af2$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (af2 "Af2" "\\.af2$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$"))}.
 @end defopt
 
 
@@ -639,9 +680,13 @@ script management.
 @node Recognizing commands and comments
 @section Recognizing commands and comments
 
-The first three settings configure the parsing strategy for commands
-in the proof script.  Usually only one of these three needs to be set.
-@xref{Proof script mode}, for more details of the parsing functions.
+The first four settings configure the generic parsing strategy for
+commands in the proof script.  Usually only one of these three needs to
+be set.  If the generic parsing functions are not flexible for your
+needs, you can supply a value for @code{proof-script-parse-function}.
+
+ @xref{Proof script mode}, for more details of the parsing
+functions.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
@@ -649,19 +694,30 @@ Character which terminates every command sent to proof assistant.  nil if none.@
 You should set this variable in script mode configuration.
 @end defvar
 
+@c TEXI DOCSTRING MAGIC: proof-script-sexp-commands
+@defvar proof-script-sexp-commands 
+Non-nil if proof script has a LISP-like syntax, and commands are @code{top-level} sexps.@*
+You should set this variable in script mode configuration.
+To configure command recognition properly, you must set at least one
+of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}}, 
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
+@end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-script-command-start-regexp
 @defvar proof-script-command-start-regexp 
 Regular expression which matches start of commands in proof script.@*
+You should set this variable in script mode configuration.
 To configure command recognition properly, you must set at least one
-of these: @samp{@code{proof-script-command-end-regexp}}, 
+of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}}, 
 @samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-script-command-end-regexp
 @defvar proof-script-command-end-regexp 
 Regular expression which matches end of commands in proof script.@*
+You should set this variable in script mode configuration.
 To configure command recognition properly, you must set at least one
-of these: @samp{@code{proof-script-command-end-regexp}}, 
+of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}}, 
 @samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
 @end defvar
 
@@ -675,7 +731,7 @@ about that.
 @defvar proof-comment-start 
 String which starts a comment in the proof assistant command language.@*
 The script buffer's @code{comment-start} is set to this string plus a space.
-Moreover, comments are ignored during script management, and not
+Moreover, comments are usually ignored during script management, and not
 sent to the proof process.
 
 You should set this variable for reliable working of Proof General,
@@ -1805,7 +1861,7 @@ Proof General name used internally and in menu titles.
 @defopt proof-general-home-page 
 Web address for Proof General
 
-The default value is @code{"http://www.lfcs.informatics.ed.ac.uk/proofgen"}.
+The default value is @code{"http://www.proofgeneral.org"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-universal-keys
 @defvar proof-universal-keys 
@@ -2332,7 +2388,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'hol98} @code{'plastic} @code{'twelf} @code{'af2}.
+A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'af2} @code{'hol98} @code{'acl2} @code{'plastic} @code{'twelf}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
@@ -2600,11 +2656,14 @@ variables @code{proof-included-files-list} documented earlier
 (@pxref{Handling multiple files} and @pxref{Global variables}).
 
 @c TEXI DOCSTRING MAGIC: proof-register-possibly-new-processed-file
-@defun proof-register-possibly-new-processed-file file &optional informprover
-Register a possibly new @var{file} as having been processed by the prover.@*
+@defun proof-register-possibly-new-processed-file file &optional informprover noquestions
+Register a possibly new @var{file} as having been processed by the prover.
+
 If @var{informprover} is non-nil, the proof assistant will be told about this,
 to co-ordinate with its internal file-management.  (Otherwise we assume
 that it is a message from the proof assistant which triggers this call).
+In this case, the user will be queried to save some buffers, unless
+@var{noquestions} is non-nil.
 
 No action is taken if the file is already registered.
 
