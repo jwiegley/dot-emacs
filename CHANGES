@@ -3,12 +3,17 @@
 --- This is a development release of Proof General,   ---
 --- some features may be incomplete or buggy.  Please ---
 --- report any problems to da@dcs.ed.ac.uk, thanks.   ---
+--- ID: $Id$	      			              ---
 
 * Summary of Changes for Proof General 3.4pre from 3.3
 
 ** Generic Changes
 
 *** LICENSE CHANGE to GPL!
+
+It is now permitted to use Proof General in any context, without
+applying for a special license from University of Edinburgh.  
+Free redistribution is also allowed under the GPL conditions.
 
 *** Remove handling for provers you don't want
 
@@ -21,42 +26,21 @@ Queue and locked colours made a little less lurid.
 (Look in proof-config for proof-locked-face, proof-queue-face
 and old settings if you want to change back).
 
-*** Support added for GNU Emacs 21.
+*** Support added for GNU Emacs 21.X; no support for GNU Emacs 20.X
 
-Toolbar and splash screen supported.  
+Toolbar, splash screen, and X-Symbol are all supported in GNU Emacs.  
 
-X-Symbol support in progress
-Fontification (as ever) is tricky.
-Current status for X-symbol:
-
- - XEmacs 21.1, 21.4:  works with X-Symbol 3.3g
- - GNU Emacs 21:       partly works with X-Symbol 4.0f (goals broken, script OK)
- - GNU Emacs 20:       broken/unfixable
-     
-NB: Future PG development will no longer support Emacs 20.
+Sorry, this version of PG does not support Emacs 20; backwards
+compatibility is too difficult to maintain.
 
 
 *** Support for "tracing" buffers improved and enabled by default.
 
 (Tracing is only deployed in Isabelle so far)
-
 Compared with experimental tracing in PG 3.3, there is now only one
 tracing buffer, treated somewhat like a response buffer.
+For minor issues, see BUGS.
 
-Issues: 
-
-1. Large volumes of output can cause Emacs to hog CPU spending
-all its time processing the output (esp with fontifying and X-symbol
-decoding).   It becomes difficult to use normal editing commands,
-even C-c C-c to interrupt the prover.  Workaround: hitting C-g,
-the Emacs quit key, will interrupt the prover in this state.
-See manual for further description of this.
-
-2. Interrupt response may be lost in large volumes of output, when
-using pty communication.  Symptom is interrupt on C-g, but PG thinks
-the prover is still busy.  Workaround: hit return in the shell buffer,
-or set proof-shell-process-connection-type to nil to use piped
-communication.
 
 
 ** Isabelle Changes
@@ -65,49 +49,35 @@ Isabelle/Isar syntax changes, other tweaks for Isabelle2002.
 Switch to using Isabelle/Isar by default for .thy files.
 Support next error function.
 
-Isabelle classic mode: add highlighting improvements for ML code
-contributed by Lucas Dixon (lucasd@dai.ed.ac.uk)
+Isabelle classic mode: highlighting tweaks for ML code contributed by
+Lucas Dixon (lucasd@dai.ed.ac.uk)
+
 
 ** Coq Changes
 
-*** Bug fixed: Much better synchronization of PG/Coq. Commands like
-    Hint, Require, etc, were not backtracked correctly, there are
-    now. Nested proofs and commands nested in proofs are now also well
-    backtracked.
+*** Much improved synchronization of PG/Coq. 
 
-	 User defined keywords are not completely well backtracked. To
-	 solve this we provide customization, see new feature below.
+Commands like Hint, Require, etc, were not backtracked correctly, but
+are now. Nested proofs and commands nested in proofs are now also well
+backtracked.
 
-*** New Feature: four Configurable variables allows to register
-    personal new tactics and commands. Commands and Tactics are split
-    into backable (resp. undoable), i.e. which need "Back"
-    (resp. "Undo") to be backtracked and not backable (resp. not
-    undoable).
+User defined keywords are not completely well backtracked. To solve
+this we provide customization, using four configurable variables for
+registering personal tactics and commands. Commands and tactics are
+split into backable (resp. undoable), i.e. which need "Back"
+(resp. "Undo") to be backtracked and not backable (resp. not
+undoable). This allows PG to 1) colorize correctly 2) (more important)
+to correctly backtrack user-defined commands and tactics.
 
-    This allows PG to
-      1) colorize correctly 
-      2) (more important) to correctly backtrack user-defined commands
-		   and tactics.
+See `coq-user-non-backable-commands', `coq-user-backable-commands',
+`coq-user-undoable-tactics', `coq-user-non-undoable-tactics'
 
+These variables are regexp lists. See their documentations in emacs of
+this variable (C-h v coq-user...)  for details on how to set them in
+your .emacs file.   Example:
 
-   We give an example of existing commands that fit each category.
-
-   coq-user-non-backable-commands: example: "Print"
-
-   coq-user-backable-commands:     example: "Require"
-
-   coq-user-undoable-tactics:      example: "Intro"
-
-   coq-user-non-undoable-tactics:  example: "Proof"
-
-   This variables are regexp lists. See their documentations in emacs
-   of this variable (C-h v coq-user...)  for details on how to set
-   them in your .emacs file.
-
-   Example:
    (setq coq-user-backable-commands 
 	  '("MyHint" "MyRequire" "Show\\-+Mydata"))
-
 
 
 
@@ -116,192 +86,13 @@ contributed by Lucas Dixon (lucasd@dai.ed.ac.uk)
 *** ACL2 improved (now issues undo commands)
 Still experimental and in need of official support.
 
+
 ** Changes for proof assistant developers to note
   
 *** Improvements in instantiation mechanism
 
-Allow smoother support for provers which only use scripting, and
-do not make use of goals window (e.g. Twelf, ACL2).
-
-No longer warn if inessential settings like proof-goal-command and
-similar are unset; automatically remove toolbar and menu items
-correspondingly.   To allow this to work, the following settings
-need to made early in loading:
-
-
-
-
-
-
-
-
------------------------------------------------------------------
-
-
-OLDER CHANGES
-=============
-
-
-* Summary of Changes for Proof General 3.3 from 3.2
-
-** Generic Changes
-
-*** Visibility control for completed proofs
-
-    You can make proofs invisible using a context sensitive menu
-    (right button on a completed proof), or as soon as they are
-    completed with the "Options -> Disappearing Proofs" option.
-    Two menu items "Show proofs" and "Hide proofs" apply to
-    all the completed proofs in the buffer.
-
-    NB: proofs of theorems with the same name are not 
-    distinguished, their visibility is controlled together.
-
-*** Command to insert last output as comment in proof script.
-
-    Sometimes it is useful to paste some of the output from
-    goals or response buffer into the proof script.  A new
-    function `pg-insert-last-output-as-comment' (C-c C-;)
-    inserts the last output and converts it into a comment
-    using `comment-region'.
-
-*** Changes to colours, mouse highlighting, echo help messages
-
-    Now `proof-locked-face' becomes a lighter cyan. This is
-    less obtrusive when editing proofs, but is not so visible
-    for demonstrating PG: if you prefer the old stronger colour, 
-    customize the face to "lightsteelblue2" using
-    M-x customize-face RET proof-locked-face.  
-
-    New face `proof-mouse-highlight-face' (default: darker blue
-    than locked region) is now used for mouse highlighting regions of
-    script. Less ugly than the previous default (green) highlight face.
-
-    Also, for XEmacs, there are now (trivial) help messages in echo
-    area describing the highlighted region under the mouse.
-
-*** Experimental features and new user option
-
-    There's a new user option `proof-experimental-features' which
-    is nil by default.  If you set it to t, you will (maybe after
-    restarting Proof General) enable certain experimental features.
-
-    In this release, the experimental features are: 
-
-       Context menu options to move spans up/down
-       Context menu dependency commands (Isabelle only, see below)
-
-    To customize this from the menu:
- 
-       Proof General -> Customize -> User Options -> Experimental features
-
-*** Proof General startup script welcomes user
- 
-    The "binary" (startup script) bin/proofgeneral now loads
-    PG and invokes a function to display a splash message,
-    which invites the user to load a file.   A bit more
-    friendly than simply being confronted by a standard 
-    XEmacs screen.
-
-*** Changes to Proof General RPM packaging mechanism
-  
-    Can now build RPM packages with "rpm -ta" from tarball source.
-    RPM includes menu file and icons so that Proof General may
-    appear on your window system menus (tested under Linux Mandrake).
-    We no longer distribute an SRPM.
-
-*** Compatibility fixes.
-
-    Fixes for FSF Emacs and XEmacs 21.4
-
-    Better support for win32 versions of XEmacs (see README.windows).
-
-    Fixes for recent version 3.3g of X-Symbol (and note on
-    web page about using ~/.xemacs/xemacs-packages/ for install locn).
-
-*** Bug fixes.
-
-    XEmacs 21.1 has faulty implementation of buffer-syntactic-context,
-    workaround added.  (Symptom was parsing breaking, giving unexpected
-    "I can't see any complete commands to process!" error message, esp
-    with strings broken across lines containing parentheses).
-
-    Fixed Emacs-confusion minibuffer contents switching bug.  (Bug 
-    was triggered by using toolbar while minibuffer active).
-
-** Coq Changes
-
-    Compatibility for V7 added.
-
-    Experimental enhancements to handling of compiled files and 
-    file dependency.  (Only tested with Coq 6.3.1: we need help
-    from Coq implementors to add primitive support in V7, please
-    appeal to them to help Proof General!).
-
-      1) At the end of scripting foo.v (i.e. when activing scripting is
-      switched off), "Reset Initial. Compile Module <foo>" is
-      automatically issued. This clears the context and writes a .vo file,
-      to keep your .vo files up to date. It means that when using PG Coq, 
-      you should use the correct commands ("Require foo.") to load all
-      the modules you depend on, so that scripting can continue in the
-      next file.
-
-      2) PG tracks file dependencies by noticing "Reinterning" messages
-      from Coq.  When a file "b.v" is processed which has a "Require a", 
-      command, PG will try to find "a.v" and will automatically lock
-      it.  (This part of the process is fragile, for two reasons: it
-      is hard to find the directory for a.v, since Coq doesn't report
-      it, and the reinterning message is only issued the first time the
-      file is reinterned).
-
-      3) When a file is retracted, PG attempts to automatically unlock
-      all the dependent files, by issuing a coqdep command to determine
-      the dependencies.  (This is a rather nasty hack, it's hoped for
-      the future that Coq will support this functionality directly).
-
-    This functionality is enabled with the Coq settings option 
-    "Auto Compile Vos".
-
-    Whole goals output is displayed.  (Improvement suggested by
-    Robert Schneck).
-
-** Isabelle Changes
-
-   Support for theorem dependency tracking: context-sensitive menu  
-   (right button on a completed proof) provides a facility for browsing 
-   the ancestors and child theorems of a theorem, and highlighting them.  
-
-   The idea of this feature is that it can help you untangle and
-   rearrange big proof scripts, by seeing which parts are
-   interdependent.
- 
-   This facility is not yet closely integrated with Isabelle and
-   relies on an auxiliary ML file which is only compatible with
-   Isabelle99-2.  It is only supplied for Isabelle/classic.
-
-   To activate the feature, use the Isabelle setting option "Theorem
-   Dependencies."  Notice that you need to switch this on *after*
-   starting an Isabelles session, and must switch on/off on every
-   restart.  (This behaviour will improve once better integrated 
-   with Isabelle).
-
-   NB this is classed as an experimental feature, so you must set
-   proof-experimental-features to enable it.
-   
-   Not yet documented.    Comments and suggestions welcome.
-
-
-** Changes for developers to note
-
-*** proof-shell-process-output now sets proof-shell-last-output and
-    proof-shell-last-output-kind which gives clearer interface internally
-    and with rest of code.   See docs.
-
-*** Support for "tracing" buffers added.   
-    This was added for Isabelle's simplifier tracing, when a large
-    amount of output is produced during a proof for debugging.
-    The user would rather see the output as it arrives than wait
-    for a long time. 
-    Experimental stage and not yet enabled for any prover.  
-    See proof-shell-spill-output-regexp.
-  
+Allow smoother support for provers which only use scripting, and do
+not make use of goals window (e.g. Twelf, ACL2).  We no longer warn if
+inessential settings like proof-goal-command and similar are unset,
+but instead automatically remove toolbar and menu items
+correspondingly.
