@@ -9,6 +9,11 @@
 
 
 ;; $Log$
+;; Revision 1.56  1998/06/10 14:00:21  hhg
+;; In proof-init-segmentation, only create proof-queue-span and
+;; proof-locked-span if they don't already exist.
+;; Call generic span function for making spans read-only.
+;;
 ;; Revision 1.55  1998/06/10 12:39:14  hhg
 ;; Added proof-unprocessed-begin as general function to find beginning of
 ;; unprocessed region.  This should be used instead of proof-locked-end
@@ -525,14 +530,16 @@
 
 (defun proof-init-segmentation ()
   (setq proof-queue-loose-end nil)
-  (setq proof-queue-span (make-span 1 1))
+  (if (not proof-queue-span)
+      (setq proof-queue-span (make-span 1 1)))
   (set-span-property proof-queue-span 'start-closed t)
   (set-span-property proof-queue-span 'end-open t)
-  (set-span-property proof-queue-span 'read-only t)
+  (span-read-only proof-queue-span)
 
   (make-face 'proof-queue-face)
   ;; Whether display has color or not
-  (cond ((and (fboundp 'device-class) (eq (device-class (frame-device)) 'color))
+  (cond ((and (fboundp 'device-class)
+	      (eq (device-class (frame-device)) 'color))
 	 (set-face-background 'proof-queue-face "mistyrose"))
 	((and (fboundp 'x-display-color-p) (x-display-color-p))
 	 (set-face-background 'proof-queue-face "mistyrose"))
@@ -544,10 +551,11 @@
   (detach-span proof-queue-span)
   
   (setq proof-locked-hwm nil)
-  (setq proof-locked-span (make-span 1 1))
+  (if (not proof-locked-span)
+      (setq proof-locked-span (make-span 1 1)))
   (set-span-property proof-locked-span 'start-closed t)
   (set-span-property proof-locked-span 'end-open t)
-  (set-span-property proof-locked-span 'read-only t)
+  (span-read-only proof-locked-span)
 
   (make-face 'proof-locked-face)
   ;; Whether display has color or not
@@ -561,17 +569,11 @@
 
   (detach-span proof-locked-span))
 
-;; for read-only, currently only implemented in span-extent package 
 (defsubst proof-lock-unlocked ()
-  (cond ((featurep 'span-extent)
-	 (set-span-property proof-locked-span 'read-only t))
-	(t ())))
+  (span-read-only proof-locked-span))
 
-;; for read-only, not done for emacs19:
 (defsubst proof-unlock-locked ()
-  (cond ((featurep 'span-extent)
-	 (set-span-property proof-locked-span 'read-only nil))
-	(t ())))
+  (span-read-write proof-locked-span))
 
 (defsubst proof-set-queue-endpoints (start end)
   (set-span-endpoints proof-queue-span start end))
