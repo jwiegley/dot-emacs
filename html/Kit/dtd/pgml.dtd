@@ -1,75 +1,120 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml encoding="UTF-8"?>
 
-<!-- DTD for PGML, the Proof General Markup Language		   -->
-<!-- Author:  David Aspinall, LFCS, University of Edinburgh	   -->
-<!-- Version: pgml.dtd,v 1.6 2001/09/10 16:04:17 da Exp     -->
+<!--
 
-<!-- Status:  Complete but experimental version.		   -->
-<!-- For commentary, see the Proof General Kit white paper,        -->
-<!-- available from http://www.proofgeneral.org/kit		   -->
+RELAX NG Schema for PGML, the Proof General Markup Language
 
+Authors:  David Aspinall, LFCS, University of Edinburgh       
+          Christoph Lueth, University of Bremen	
+Version: pgml.dtd,v 1.12 2003/09/23 23:17:18 da Exp    
 
-<!ELEMENT pgml (statedisplay | termdisplay | information | warning | error)*>
-<!ATTLIST pgml 
-	    version CDATA #IMPLIED>
+Status:  Complete but experimental version.
 
-<!ELEMENT statedisplay (statepart)*>
-<!ATTLIST statedisplay 
-	   systemid CDATA #IMPLIED
-	   name	    CDATA #IMPLIED
-           kind	    CDATA #IMPLIED>
+For additional commentary, see the Proof General Kit white paper, 
+available from http://www.proofgeneral.org/kit 
 
-<!ENTITY % termitem       "action | term | type | atom | sym">
-<!ENTITY % nonactionitem  "term | type | atom | sym">
+Advertised version: 1.0
 
-<!ELEMENT information (#PCDATA | %termitem;)*>
+-->
+
+<!ENTITY % pgml_version_attr "
+  version NMTOKEN #REQUIRED">
+
+<!ELEMENT pgml (statedisplay|termdisplay|information|warning|error)*>
+<!ATTLIST pgml
+  version NMTOKEN #IMPLIED>
+
+<!ENTITY % nonactionitem "term|type|atom|sym">
+
+<!ENTITY % termitem "action|%nonactionitem;">
+
+<!ENTITY % pgml_name_attr "
+  name CDATA #REQUIRED">
+
+<!ENTITY % kind_attr "
+  kind CDATA #REQUIRED">
+
+<!ENTITY % systemid_attr "
+  systemid CDATA #REQUIRED">
+
+<!ELEMENT statedisplay (#PCDATA|%termitem;|statepart)*>
+<!ATTLIST statedisplay
+  name CDATA #IMPLIED
+  kind CDATA #IMPLIED
+  systemid CDATA #IMPLIED>
+
+<!ENTITY % pgmltext "(#PCDATA|%termitem;)*">
+
+<!ELEMENT information %pgmltext;>
 <!ATTLIST information
-	   name	    CDATA #IMPLIED
-           kind	    CDATA #IMPLIED>
+  name CDATA #IMPLIED
+  kind CDATA #IMPLIED>
 
-<!ELEMENT warning (#PCDATA | %termitem;)*>
+<!ELEMENT warning %pgmltext;>
 <!ATTLIST warning
-	   name	    CDATA #IMPLIED
-           kind	    CDATA #IMPLIED>
+  name CDATA #IMPLIED
+  kind CDATA #IMPLIED>
 
-<!ELEMENT error (#PCDATA | %termitem;)*>
+<!ELEMENT error %pgmltext;>
 <!ATTLIST error
-	   name	    CDATA #IMPLIED
-           kind	    CDATA #IMPLIED>
+  name CDATA #IMPLIED
+  kind CDATA #IMPLIED>
 
-<!ELEMENT statepart (#PCDATA | %termitem;)*>
-<!ATTLIST statepart 
-	   name     CDATA #IMPLIED
-	   kind	    CDATA #IMPLIED>
+<!ELEMENT statepart %pgmltext;>
+<!ATTLIST statepart
+  name CDATA #IMPLIED
+  kind CDATA #IMPLIED>
 
-<!ELEMENT termdisplay (#PCDATA | %termitem;)*>
+<!ELEMENT termdisplay %pgmltext;>
 <!ATTLIST termdisplay
-	   name     CDATA #IMPLIED
-	   kind	    CDATA #IMPLIED>
+  name CDATA #IMPLIED
+  kind CDATA #IMPLIED>
 
-<!ELEMENT term (#PCDATA | %termitem;)*>
-<!ATTLIST term 
-           pos  CDATA #IMPLIED 
-           kind CDATA #IMPLIED>
+<!ENTITY % pos_attr "
+  pos CDATA #REQUIRED">
+
+<!ELEMENT term %pgmltext;>
+<!ATTLIST term
+  pos CDATA #IMPLIED
+  kind CDATA #IMPLIED>
 
 <!-- maybe combine this with term and add extra attr to term? -->
-<!ELEMENT type (#PCDATA | %termitem;)*>
-<!ATTLIST type 
-	   kind CDATA #IMPLIED>
 
-<!ELEMENT action (#PCDATA | %nonactionitem;)*>
-<!ATTLIST action 
-	   kind CDATA #IMPLIED>
+<!ELEMENT type %pgmltext;>
+<!ATTLIST type
+  kind CDATA #IMPLIED>
+
+<!ELEMENT action (#PCDATA|%nonactionitem;)*>
+<!ATTLIST action
+  kind CDATA #IMPLIED>
+
+<!ENTITY % fullname_attr "
+  fullname CDATA #REQUIRED">
 
 <!ELEMENT atom (#PCDATA)>
-<!ATTLIST atom 
-	   kind CDATA #IMPLIED 
-	   fullname CDATA #IMPLIED>
+<!ATTLIST atom
+  kind CDATA #IMPLIED
+  fullname CDATA #IMPLIED>
 
-<!ELEMENT sym  (#PCDATA)>
-<!ATTLIST sym  
-	   name CDATA #IMPLIED
-	   alt  CDATA #IMPLIED>
+<!ENTITY % symname_attr "
+  name CDATA #REQUIRED">
 
-<!ELEMENT br EMPTY>
+<!ELEMENT sym EMPTY>
+<!ATTLIST sym
+  %symname_attr;>
 
+<!-- configuring PGML -->
+
+<!ENTITY % pgmlconfigure "symconfig">
+
+<!-- inform symbol support (I/O) for given sym -->
+
+<!ENTITY % asciialt "
+  alt CDATA #REQUIRED">
+
+<!-- understanding of ASCII alt for given sym -->
+
+<!ELEMENT symconfig EMPTY>
+<!ATTLIST symconfig
+  %symname_attr;
+  alt CDATA #IMPLIED>
