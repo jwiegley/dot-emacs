@@ -1,3 +1,49 @@
+2003-03-17  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/proof-x-symbol.el, generic/proof-script.el:
+	More tweaks so that (proof-ass x-symbol-enable) is pervasive.
+
+2003-03-16  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-x-symbol.el:
+	Streamline startup.
+
+	* generic/proof-site.el: Updated.
+
+	* generic/proof-splash.el:
+	Improve removal of display of splash screen.  Buffer still not killed (XEmacs prob)
+
+2003-03-14  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* x-symbol/lisp/x-symbol.el, x-symbol/lisp/x-symbol-hooks.el, x-symbol/lisp/x-symbol-vars.el, x-symbol/lisp/auto-autoloads.el, x-symbol/lisp/ChangeLog:
+	Updated version sent sent by CW
+
+	* generic/proof-x-symbol.el:
+	Use X-Symbol supplied functions for encoding input and decoding output regions
+
+	* generic/proof-script.el:
+	Be more polite with handling of invisibility spec
+
+	* generic/pg-response.el:
+	Comment about desirability for lazy-shot in trace output
+
+	* generic/proof-utils.el:
+	Only decode x-symbols if enabled globally for prover.
+
+	* generic/proof-menu.el:
+	Add requires to reduce compilation warnings.
+
+	* generic/proof-splash.el:
+	Kludge for key-press during loading problem with splash screen.
+
 2003-03-14  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
