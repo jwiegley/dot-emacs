@@ -492,12 +492,46 @@ Fixes for some of these may be provided in a future release.
 @unnumberedsec Internals
 
 @menu
+* Granularity of Atomic Command Sequences::  
 * Handling Multiple Files::     
 * Adding A New Proof Assistant::  
 * Literature::                  
 @end menu
 
-@node Handling Multiple Files, Adding A New Proof Assistant, Internals, Internals
+@node Granularity of Atomic Command Sequences, Handling Multiple Files, Internals, Internals
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsec Granularity of Atomic Commands
+@cindex Granularity of Atomic Sequences
+@cindex Retraction
+@cindex Goal
+@cindex ACS (Atomic Command Sequence)
+
+The *Locked* region of a script buffer contains the initial segment of
+the proof script which has been processed successfully. It consists of
+atomic sequences of commands (ACS). Retraction is supported to the
+beginning of every ACS. By default, every command is an ACS. But the
+granularity of atomicity can be adjusted for different proof assistants.
+This is essential when arbitrary retraction is not supported. Usually,
+after a theorem has been proved, one may only retract to the start of
+the goal. One needs to mark the proof of the theorem as an ACS.
+
+@vtable @code
+@item proof-atomic-sequents-list
+is a list of instructions for setting up ACSs. Each instruction is a
+list of the form @code{(@var{end} @var{start} &optional
+@var{forget-command}}. @var{end} is a regular expression to recognise
+the last command in an ACS. @var{start} is a function. Its input is the
+last command of an ACS. Its output is a regular expression to recognise
+the first command of the ACS. It is evaluated once and the output is
+successively matched against previously processed commands until a match
+occurs (or the beginning of the current buffer is reached). The region
+determined by (@var{start},@var{end}) is locked as an ACS. Optionally,
+the ACS is annotated with the actual command to retract the ACS. This is 
+computed by applying @var{forget-command} to the first and last command
+of the ACS.
+@end vtable
+
+@node Handling Multiple Files, Adding A New Proof Assistant, Granularity of Atomic Command Sequences, Internals
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec Handling Multiple Files
 
