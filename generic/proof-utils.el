@@ -697,8 +697,6 @@ If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
 			(string-search proof-comment-start str lpos) spos)
 	       epos (if (and epos (< epos lpos)) 
 			(string-search proof-comment-end str lpos) epos))
-	      (message (format "pos: %d, spos: %d, epos: %d, astr: %s ///" 
-			       pos (if spos spos -1) (if epos epos -1) astr))
 	      (if (and spos (or (not epos) (< spos epos)))
 		  (progn
 		    (if (= lvl 0) (setq astr 
@@ -710,7 +708,6 @@ If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
 		      (setq lpos (+ epos 1) lvl (- lvl 1))
 		      (if (= lvl 0) (setq pos (+ epos 2)))))))
 	    (setq astr (concat astr (substring str pos)))
-	    (message astr)
 	    astr)))
 
 ;; End of proof-utils.el
