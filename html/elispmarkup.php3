@@ -55,7 +55,7 @@ function outline_markup($filename,$thispage,$expanded)  {
      // HTML escapes
      $line = htmlentities($line);
      // Anchors for URLs
-     $line = ereg_replace("((http://|mailto:)[-a-zA-Z0-9\.~/_@]+)","<a href=\"\\1\">\\1</a>",$line);
+     $line = ereg_replace("((http://|mailto:)[^ \n\t]+)","<a href=\"\\1\">\\1</a>",$line);
      // Assume a heading
      $multipar=false;
      if (ereg("-\*- (mode:)?outline -\*-",$line)) {
