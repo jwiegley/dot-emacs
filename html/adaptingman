@@ -1,0 +1,3 @@
+<?php require('functions.php3');
+      hack_html("ProofGeneral/doc/PG-adapting_toc.html","Proof General adapting manual");
+?>

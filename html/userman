@@ -1,0 +1,3 @@
+<?php require('functions.php3');
+      hack_html("ProofGeneral/doc/ProofGeneral_toc.html","Proof General user manual","userman");
+?>
