@@ -8,25 +8,23 @@
 
 * Summary of Changes for Proof General 3.5pre from 3.4
 
+** Generic changes
+
+*** X-Symbol (and MMM-mode) minor mode behaviour simplified
+ 
+    These minor modes like to be responsible for turning themselves
+    on and off.  PG does not anymore try to synchronise the on/off
+    settings in all PG buffers (which could lead to half an hour
+    of fontification!).  Instead the menu reflects the current
+    minor mode status; toggling it will also update the default
+    "global for PG" behaviour for new script buffers.
+
 *** Bundling and configuration for Multiple Modes (MMM-Mode)
 
     MMM mode allows submodes to be used in the same file.
     See http://mmm-mode.sourceforge.net/.
     At present it is configured for Isar, to allow LaTeX and
     sml-mode to be used inside Isar scripts.
-
-
-** GNU Emacs compatibility, simplified font-lock, handling nested comments
-
-*** Numerous improvements, thanks due to Stefan Monnier.
-
-*** Some GNU Emacs backwards compatibility removed: use 21.1 or later
-
-*** PROBLEMS REMAINING: Menu problems currently on 21.2, may affect loading.
-    Temp fix: turn on mode manually first in *scratch* buffer, then
-    visit file.
-
-** Generic changes
 
 *** Follow mode: add "followdown" setting
 
@@ -62,12 +60,20 @@ do not print multiple identical prompts for continued lines.
 [this is in testing: please notify me of problems in other provers]
 
 
+** GNU Emacs compatibility, simplified font-lock, handling nested comments
+
+*** Numerous improvements, thanks due to Stefan Monnier.
+
+*** Some GNU Emacs backwards compatibility removed: use 21.1 or later
+
+*** PROBLEMS REMAINING: Menu problems currently on 21.2, may affect loading.
+    Temp fix: turn on mode manually first in *scratch* buffer, then
+    visit file.
+
 ** Changes for Isabelle
 
 Beginnings of support PGIP protocol (work in progress with Isabelle
 CVS version).  Presently allows Isabelle to configure Proof General.
-
-CURRENTLY SUPPORT FOR CURRENTLY RELEASED ISABELLE VERSIONS IS BROKEN!
 
 Backward compatibility may not be maintained: it's simply too much
 effort.  This means that if you upgrade your Emacs version, which

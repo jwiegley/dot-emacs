@@ -3,20 +3,13 @@
 * Bugs to be fixed before PG 3.5 is released; recently noted items
 
 The items below are known and will be fixed (or shifted to the list
-below) before 3.5 is released. Please don't send email about them
-(unless you can fix them).
+below) before 3.5 is released. Please don't send email about these
+(unless you can fix them).  Please do send email about others.
 
 ** Various menu problems with Emacs 21.2.
 
 PG menus may be added to wrong bar during autoload.  See CHANGES for
 temporary workaround.
-
-
-** Occasional appearance of <^sync> messages in Isabelle/Isar output
-
-Due to a patch for Coq that has changed some internals.  Patch is due
-to be reverted, Coq itself has been changed to avoid need for the
-hack.  May cause other glitches with Isabelle.
 
 
 ** UTF-8 problems with Red Hat 8.0 / glibc 2.2  and (at least) Coq.  
