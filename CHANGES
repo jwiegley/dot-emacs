@@ -157,7 +157,7 @@ Internal changes for developers to note
   Previously it would load again, possibly altering settings.
 
 * Multiple file handling improvements:
-   Added proof-inform-file-processed-cmd setting to 
+   Added proof-shell-inform-file-processed-cmd setting to 
    tell the prover about files which are processed completely 
    inside Proof General.
 
