@@ -88,15 +88,13 @@ A Error messages need to be revised e.g., if an import fails, LEGO
 * Here are things to be done to Coq mode
 ========================================
 
-A Restart if going back to beginning of proof. (30min hhg)
-
 ? There's a bug so the goal buffer isn't displaying everything that
   happens.
 
 C Sections and files are handled incorrectly.
 
 A Update documentation to include C-c C-s. (10min hhg)
- 
+
 A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
   correct command if I undo up to the lower lemma, but the buffer
   undoes to the upper lemma.  I.e., if I start Lemma x, then prove
