@@ -708,15 +708,15 @@ the next command end."
 			       (proof-unprocessed-begin) -10) ?x))
 	  (i 0) (depth 0) (quote-parity t) done alist c
 	  (comment-end-regexp (regexp-quote proof-comment-end))
-	  (comment-start-regexp (regexp-quote proof-comment-start))
+	  (comment-start-regexp (regexp-quote proof-comment-start)))
 	  ;; For forthcoming improvements: skip over boring
 	  ;; characters, calculate strings with buffer-substring
 	  ;; rather than character at a time.
-	  (interesting-chars
-	   (concat (substring proof-comment-start 1 1)
-		   (substring proof-comment-end 1 1)
-		   (char-to-string proof-terminal-char)
-		   "\"")))
+	  ; (interesting-chars
+	  ; (concat (substring proof-comment-start 1 1)
+	  ;	   (substring proof-comment-end 1 1)
+	  ;	   (char-to-string proof-terminal-char)
+	  ;	   "\"")))
      (proof-goto-end-of-locked)
      (while (not done)
        (cond
