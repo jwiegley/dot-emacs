@@ -14,6 +14,16 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A* multiple files bug fix:
+   It can happen (in Isabelle) that the prover retracts a file
+   which asks for another to be retracted which is *not* on
+   proof-included-files-list.  The same case could perhaps 
+   happen in lego if we relax the restriction on switching
+   scripting buffer?  We need to remove the locked regions
+   from *any* buffer which is matched by the retract_files_regexp,
+   not just those in proof-shell-compute-new-files-list.
+   (tms, please?  30mins?)
+
 A* FIX INDENTATION CODE, EDITING .ML (& other?) FILES IS CHRONICALLY SLOW.
   This is going to hit us hard as soon as the mode gets used in
   earnest.
