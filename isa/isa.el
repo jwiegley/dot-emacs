@@ -110,6 +110,8 @@ and script mode."
    proof-info-command		"ProofGeneral.help()"
    proof-kill-goal-command	"ProofGeneral.kill_goal();"
    proof-find-theorems-command  "ProofGeneral.thms_containing [\"%s\"]"
+   proof-shell-start-silent-cmd "proofgeneral_disable_pr();"
+   proof-shell-stop-silent-cmd  "proofgeneral_enable_pr();"   
    ;; command hooks
    proof-goal-command-p		'isa-goal-command-p
    proof-count-undos-fn		'isa-count-undos
@@ -167,7 +169,8 @@ and script mode."
 	   proof-shell-end-goals-regexp)
 
    ;; initial command configures Isabelle by hacking print functions.
-   proof-shell-init-cmd                 "ProofGeneral.init false;"
+   ;; FIXME: temporary hack for almost enabling/disabling printing.
+   proof-shell-init-cmd                 "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := !goals_limit; goals_limit := 0); ProofGeneral.init false;"
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
    
