@@ -31,6 +31,14 @@ A. This may be because of UTF-8 issues e.g in Red Hat 8.0/9/glibc 2.2
    be read the shell.  This will affect all applications, though.
    [ suggestions for a better workaround inside Emacs would be welcome ]
 
+
+-----------------------------------------------------------------
+
+Q. XEmacs appears to hang on certain malformed inputs to the prover.
+
+A. This symptom may be caused by using non-Mule versions of XEmacs.
+   Please make sure you use a Mule-enabled version.
+
 -----------------------------------------------------------------
 
 Q. XEmacs 21.4 displays a progress bar during fontification which
@@ -38,11 +46,11 @@ Q. XEmacs 21.4 displays a progress bar during fontification which
    Is this a Proof General bug?  What can I do?
 
 A. This is an XEmacs bug.  What you can do is prevent the use
-   of the widget, for example by adding 
+   of the ugly widget, for example by adding 
 
      (setq progress-feedback-use-echo-area t)
 
-   inside your configuration file `.xemacs/init.el'
+   inside your configuration file `.xemacs/init.el'.
 
 -----------------------------------------------------------------
 
