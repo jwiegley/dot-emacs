@@ -42,10 +42,15 @@ Because of theory loader's odd behaviour, must watch what happens
 to ML files of autoloaded children.
 
 
-1) visit example.ML, example.thy       EFFECT: ML
+1) visit example.ML, example.thy       EFFECT: ML thy
 2) assert .ML			       EFFECT: ML* thy*
 3) retract thy			       EFFECT: ML thy     (29.10.98 BREAKS!)
 							    get ML*
+
+1) visit example.ML, example.thy       ML thy
+2) assert thy			       ML thy*  (29.10.98: works, but 
+						 example.ML is on included
+						 files list: Isabelle problem)
 
 
 
