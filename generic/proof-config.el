@@ -314,7 +314,7 @@ you should set `proof-tidy-response' to nil."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-experimental-features nil
+(defcustom proof-experimental-features t ;; FIXME: nil for release version
   "*Whether to enable certain features regarded as experimental.
 As features are added to proof general but are not entirely robust,
 we only enable them if this flag is set.  We encourage users to
@@ -1583,6 +1583,10 @@ file dependencies then you should configure it to communicate with
 Proof General about the dependencies rather than using this setting."
   :type 'boolean
   :group 'proof-shell)
+
+;; (defcustom  proof-shell-adjust-line-width-cmd nil
+
+
 
 
 
