@@ -394,14 +394,6 @@ The modified ALIST is returned."
 
 ;; Create a menu from a customize group, for older/non-existent customize
 
-(if (or
-     (and (equal emacs-major-version 21) ; or for buggy Emacs 21.2.1
-	  (member emacs-minor-version '(2 0)))
-     (not (fboundp 'customize-menu-create)))
-    (defun customize-menu-create (&rest args)
-      "Dummy function for PG; please upgrade your Emacs."
-      nil))
-
 (or (fboundp 'process-live-p)
 (defun process-live-p (obj)
   "Return t if OBJECT is a process that is alive"
@@ -409,6 +401,21 @@ The modified ALIST is returned."
        (memq (process-status obj) '(open run stop)))))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Compatibility with Custom library function to create a menu
+;;
+;; For some unfathomable reason, customize-menu-create goes
+;; wrong with PG groups on Emacs 21.  (It works with 'customize
+;; though).  We just disable it there. It's not worth this hassle.
+;;
+(cond
+ (proof-running-on-XEmacs
+  (defun pg-customize-menu-create (grp &optional name)
+    (list (customize-menu-create grp name))))
+ (t
+  (defun pg-customize-menu-create (grp &optional name)
+    nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
