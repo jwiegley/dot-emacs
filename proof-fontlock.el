@@ -4,6 +4,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.8  1998/06/10 11:45:12  hhg
+;; Changed "\\s " to "\\s-" in proof-id as whitespace pattern.
+;;
 ;; Revision 1.7  1998/05/29 09:49:53  tms
 ;; o outsourced indentation to proof-indent
 ;; o support indentation of commands
@@ -60,7 +63,7 @@
 (defun proof-ids (proof-id)
   "Function to generate a regular expression for separated lists of
   identifiers."
-  (concat proof-id "\\(\\s *,\\s *" proof-id "\\)*"))
+  (concat proof-id "\\(\\s-*,\\s-*" proof-id "\\)*"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; font lock faces: declarations, errors, tacticals                 ;;
