@@ -60,8 +60,9 @@ X Solaris bugs: font locking and button enabling.
   Presently used only in proof-easy-config, will put into other
   mechanism for 3.2
 
-**** A Doc new bits: Isabelle settings mechanism, win32 support
+**** A Doc new bits: win32 support
 
+**** A Doc new bits:  settings mechanism via defpacustom 
 
 **** C Settings mechanism could be generalised
 
