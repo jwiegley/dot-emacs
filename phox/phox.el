@@ -111,7 +111,6 @@
    proof-script-command-end-regexp "[.]\\([ \t\n\r]\\)"
    proof-script-comment-start             "(*"
    proof-script-comment-end               "*)"
-   proof-state-command             "goals."
    proof-goal-command-regexp       
     "\\`\\(Local[ \t\n\r]+\\)?\\(goal[ \t\n\r]\\|pro\\(p\\(osition\\)?\\|ve_claim\\)\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
    proof-save-command-regexp       "\\`save"
