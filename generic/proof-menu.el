@@ -450,11 +450,11 @@ without adjusting window layout."
 	 (list "-----")
 	 proof-show-hide-menu
 	 (list "-----")
-	 ;; NB: customize-menu-create is buggy in GNU Emacs
-	 ;; (was bad in 21.1.0, good in 21.1.1, bad in 21.2.1, argh!)
-	 ;; See proof-compat.
-	 (pg-customize-menu-create 'proof-general)
-	 (pg-customize-menu-create 'proof-general-internals "Internals")))
+	 ;; NB: customize-menu-create is buggy in some versions of GNU Emacs
+	 ;; (bad in 21.1.0, good in 21.1.1, bad in 21.2.1, ...).  Comment
+	 ;; these next lines out if you must use one of these versions.
+	 (list (customize-menu-create 'proof-general))
+	 (list (customize-menu-create 'proof-general-internals "Internals"))))
   "Advanced sub-menu of script functions and customize.")
 
 
@@ -825,21 +825,18 @@ evaluate can be provided instead."
   "Return string for settings kept in Proof General customizations.
 If SETTING is non-nil, return a string for just that setting. 
 Otherwise return a string for configuring all settings.
-NB: if no settings are configured, we try to do <askprefs> first."  
-  ;; NB: it may seem like this next line is unnecessary because we do
-  ;; proof-maybe-askprefs also in proof-shell-config-done.  But
-  ;; the 
-  (proof-maybe-askprefs) 
-  (let
-      ((evalifneeded (lambda (expr)
-			(if (and (cadr expr) ;; setting has PA string?
-				 (or (not setting) 
-				     (eq setting (car expr))))
-			    (proof-assistant-format 
-			     (cadr expr) 
-			     (eval (proof-ass-symv (car expr))))))))
-    (apply 'concat (mapcar evalifneeded 
-			   proof-assistant-settings))))
+NB: if no settings are configured, this has no effect."
+  (if proof-assistant-settings
+      (let
+	  ((evalifneeded (lambda (expr)
+			   (if (and (cadr expr) ;; setting has PA string?
+				    (or (not setting) 
+					(eq setting (car expr))))
+			       (proof-assistant-format 
+				(cadr expr) 
+				(eval (proof-ass-symv (car expr))))))))
+	(apply 'concat (mapcar evalifneeded 
+			       proof-assistant-settings)))))
 
 (defun proof-assistant-format (string curvalue)
   "Replace a format characters %b %i %s in STRING by formatted CURVALUE.
