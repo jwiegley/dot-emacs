@@ -1,11 +1,12 @@
 ;; isar-syntax.el Syntax expressions for Isabelle/Isar
-;; Copyright (C) 1994-1998 LFCS Edinburgh.
+;; Copyright (C) 1994-2004 LFCS Edinburgh.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; Author:      David Aspinall <David.Aspinall@ed.ac.uk>
+;; Authors:     David Aspinall <David.Aspinall@ed.ac.uk>
+;;		Markus Wenzel
 ;; Maintainer:  Gerwin Klein <kleing@in.tum.de>
 ;;
-;; isar-syntax.el,v 7.3 2003/04/15 16:06:09 da Exp
+;; $Id$
 ;;
 
 (require 'proof-syntax)
@@ -408,11 +409,11 @@
 (defconst isar-any-entity-regexp
   (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"
           "\\(?:\\s-*(\\s-*in.+)\\)?"
-          "\\(?:" isar-name-regexp "[[:=]\\)?"))
+          "\\(?:" isar-name-regexp "[[:=]\\)"))
 
 (defconst isar-named-entity-regexp
   (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-          "\\(\\s-*(\\s-*in.+)\\)?"
+          "\\(?:\\s-*(\\s-*in.+)\\)?"
           isar-name-regexp "[[:=]" ))
 
 (defconst isar-unnamed-entity-regexp
@@ -420,8 +421,10 @@
 
 (defconst isar-next-entity-regexps
   (list isar-any-entity-regexp
-        (list isar-named-entity-regexp '(1 3))
-        (list isar-unnamed-entity-regexp 1)))
+        (list isar-named-entity-regexp '(1 2))))
+;; da: remove unnamed entities, they clutter the menu 
+;; NB: to add back, need ? at end of isar-any-entity-regexp
+;;	(list isar-unnamed-entity-regexp 1)))
 
 
 ;; ----- indentation
