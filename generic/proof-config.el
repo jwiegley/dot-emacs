@@ -8,7 +8,6 @@
 ;;
 ;; $Id$
 ;;
-;; 
 ;; This file declares all user options and prover-specific
 ;; configuration variables for Proof General.  The variables
 ;; are used variously by the proof script mode and the 
@@ -45,12 +44,18 @@
 ;;      proof-shell	     :     settings for proof shell mode (5)
 ;;    <Prover name>-config   :  Specific internal settings for a prover
 ;;
-;; [Developers note: The customize library is a bit picky over the
-;;  :type property and some correct types don't work properly.
-;;  If the type is ill-formed, editing the whole group will be broken.
-;;  Check after updates, by killing all customize buffers and
-;;  invoking customize-group]
+;; -----
 ;;
+;; Developers notes:
+;;   1. When adding a new configuration variable, please
+;;       (a) put it in the right customize group, and
+;;       (b) add a magical comment in NewDoc.texi to document it!
+;;   2. The customize library is a bit picky over the
+;;    	:type property and some correct types don't work properly.
+;;    	If the type is ill-formed, editing the whole group will be broken.
+;;    	Check after updates, by killing all customize buffers and
+;;    	invoking customize-group
+;; -----
 
 
 ;;
@@ -74,10 +79,10 @@
 
 (defcustom proof-toolbar-follow-mode 'locked
   "*Choice of how point moves with toolbar commands.
-One of the symbols: locked, follow, ignore.
-If locked, point sticks to the end of the locked region with toolbar commands.
-If follow, point moves just when needed to display the locked region end.
-If ignore, point is never moved after toolbar movement commands."
+One of the symbols: 'locked, 'follow, 'ignore.
+If 'locked, point sticks to the end of the locked region with toolbar commands.
+If 'follow, point moves just when needed to display the locked region end.
+If 'ignore, point is never moved after toolbar movement commands."
   :type '(choice
 	  (const :tag "Follow locked region" locked)
 	  (const :tag "Keep locked region displayed" follow)
@@ -107,7 +112,7 @@ you a reprimand!)"
 (defcustom proof-script-indent nil
   ;; Particular proof assistants can enable this if they feel
   ;; confident about it.  (I don't). -da
-  "If non-nil, enable indentation code for proof scripts.
+  "*If non-nil, enable indentation code for proof scripts.
 Currently the indentation code can be rather slow for large scripts,
 and is critical on the setting of regular expressions for particular
 provers.  Enable it if it works for you."  
@@ -121,13 +126,13 @@ This option is not fully-functional at the moment."
   :group 'proof-general)
 
 (defcustom proof-rsh-command ""
-  "Shell command prefix to run a command on a remote host.  
+  "*Shell command prefix to run a command on a remote host.  
 For example,
 
    ssh bigjobs
 
-Would cause Proof General to issue the command 'ssh bigjobs isabelle'
-to start Isabelle remotely on our large compute server called 'bigjobs'.
+Would cause Proof General to issue the command `ssh bigjobs isabelle'
+to start Isabelle remotely on our large compute server called `bigjobs'.
 
 The protocol used should be configured so that no user interaction
 (passwords, or whatever) is required to get going."
@@ -135,7 +140,7 @@ The protocol used should be configured so that no user interaction
   :group 'proof-general)
 
 (defcustom proof-auto-delete-windows t
-  "If non-nil, automatically remove windows when they are cleaned.
+  "*If non-nil, automatically remove windows when they are cleaned.
 For example, at the end of a proof the goals buffer window will
 be cleared; if this flag is set it will automatically be removed.
 If you want to fix the sizes of your windows you may want to set this
@@ -228,7 +233,7 @@ Exactly what uses this face depends on the proof assistant."
 (defconst proof-tacticals-name-face 'proof-tacticals-name-face
   "Expression that evaluates to a face.
 Required so that 'proof-declaration-name-face is a proper facename in
-both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
+both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-error-face 
   '((((type x) (class color) (background light))   
@@ -250,7 +255,7 @@ both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
     (t				
      (:italic t)))
   "*Face for warning messages.
-Could come either from proof assistant or Proof General itself."
+Warning messages can come from proof assistant or from Proof General itself."
   :group 'proof-faces)
 
 (defface proof-eager-annotation-face
@@ -353,12 +358,12 @@ Suggestion: this can be set in the script mode configuration."
   :group 'prover-config)
 
 (defcustom proof-ctxt-string ""
-  "*Command to display the context in proof assistant."
+  "Command to display the context in proof assistant."
   :type 'string
   :group 'prover-config)
 
 (defcustom proof-help-string ""
-  "*Command to ask for help in proof assistant."
+  "Command to ask for help in proof assistant."
   :type 'string
   :group 'prover-config)
 
@@ -474,12 +479,13 @@ Otherwise, the start and end of the entity will be the region matched
 by ANYENTITY-REGEXP.
 
 This mechanism allows fairly complex parsing of the buffer, in
-particular, it allows for goal..save regions which are named only at
-the end.  However, it does not parse strings, comments. or parentheses.
+particular, it allows for goal..save regions which are named
+only at the end.  However, it does not parse strings,
+comments, or parentheses.
 
-A default value which should work for goal..saves is calculated from
-proof-goal-with-hole-regexp, proof-goal-command-regexp, and
-proof-save-with-hole-regexp."
+This variable may not need to be set: a default value which should
+work for goal..saves is calculated from proof-goal-with-hole-regexp,
+proof-goal-command-regexp, and proof-save-with-hole-regexp."
   :type 'sexp
     ;; Bit tricky.
     ;; (list (regexp :tag "Any entity matcher")
@@ -601,15 +607,15 @@ assistant, for example, to switch to a new theory."
   :group 'proof-script)
 
 (defcustom proof-parse-indent nil
-  "Proof-assistant specific function for parsing characters for
-  indentation which is invoked in `proof-parse-to-point.'. Must be a
-  function taking two arguments, a character (the current character)
-  and a stack reflecting indentation, and must return a stack. The
-  stack is a list of the form (c . p) where `c' is a character
-  representing the type of indentation and `p' records the column for
-  indentation. The generic `proof-parse-to-point.' function supports
-  parentheses and commands. It represents these with the characters
-  `?\(', `?\[' and `proof-terminal-char'. "
+  "Proof-assistant specific function for parsing.
+Invoked in `proof-parse-to-point'. Must be a
+function taking two arguments, a character (the current character)
+and a stack reflecting indentation, and must return a stack. The
+stack is a list of the form (c . p) where `c' is a character
+representing the type of indentation and `p' records the column for
+indentation. The generic `proof-parse-to-point' function supports
+parentheses and commands. It represents these with the characters
+`?\(', `?\[' and `proof-terminal-char'. "
   :type 'sexp
   :group 'proof-script)
 
@@ -751,9 +757,7 @@ is shown to the user.  Set to nil to disable."
   "Eager annotation field start.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
-Set to nil to disable this feature.
-
-The default value is \"\\n\" to match up to the end of the line."
+Set to nil to disable this feature."
   :type '(choice regexp (const :tag "Disabled" nil))
   :group 'proof-shell)
 
@@ -761,6 +765,7 @@ The default value is \"\\n\" to match up to the end of the line."
   "Eager annotation field end.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
+
 The default value is \"\\n\" to match up to the end of the line."
   :type '(choice regexp (const :tag "Unset" nil))
   :group 'proof-shell)
@@ -879,13 +884,13 @@ output format."
 
 (defcustom pbp-goal-command nil
   "Command informing the prover that `pbp-button-action' has been
-  requested on a goal."
+requested on a goal."
   :type 'regexp
   :group 'proof-goals)
 
 (defcustom pbp-hyp-command nil
   "Command informing the prover that `pbp-button-action' has been
-  requested on an assumption."
+requested on an assumption."
   :type 'regexp
   :group 'proof-goals)
 
@@ -923,7 +928,7 @@ See documentation of proof-shell-start-char."
 (defcustom proof-shell-goal-char nil
   "goal mark"
   :type 'character
-  :group proof-goals)
+  :group 'proof-goals)
 
 (defcustom proof-shell-field-char nil
   "annotated field end"
@@ -947,9 +952,9 @@ See documentation of proof-shell-start-char."
 (defcustom proof-shell-goal-char nil
   "goal mark"
   :type '(choice character (const nil))
-  :group proof-goals)
+  :group 'proof-goals)
 
-(defvar proof-shell-field-char nil
+(defcustom proof-shell-field-char nil
   "annotated field end"
   :type '(choice character (const nil))
   :group 'proof-goals)
@@ -988,7 +993,7 @@ inserted."
   :group 'proof-general-internals)
 
 (defcustom proof-splash-extensions nil
-  "*Prover specific extensions of splash screen.
+  "Prover specific extensions of splash screen.
 These are evaluated and appended to proof-splash-contents, which see."
   :type 'sexp
   :group 'proof-config)
