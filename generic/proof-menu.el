@@ -17,12 +17,15 @@
 
 (defun proof-display-some-buffers ()
   "Display the reponse or goals buffer, toggling between them.
+Also move point to the end of the response buffer.
 If in three window or multiple frame mode, display both buffers."
   (interactive)
   (cond
    ((or proof-dont-switch-windows proof-multiple-frames-enable)
     ;; Display both
     (proof-switch-to-buffer proof-response-buffer 'noselect)
+    (set-window-point (get-window-buffer proof-response-buffer)
+		      (point-max))
     (proof-switch-to-buffer proof-goals-buffer 'noselect))
    ((and (buffer-live-p proof-response-buffer)
 	 (get-buffer-window proof-response-buffer 'visible))
@@ -30,7 +33,9 @@ If in three window or multiple frame mode, display both buffers."
     (proof-switch-to-buffer proof-goals-buffer 'noselect))
    (t
     ;; Response buffer invisible, let's display it
-    (proof-switch-to-buffer proof-response-buffer 'noselect))))
+    (proof-switch-to-buffer proof-response-buffer 'noselect)
+    (set-window-point (get-window-buffer proof-response-buffer)
+		      (point-max)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
