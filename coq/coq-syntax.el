@@ -704,6 +704,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 	 "match"
 	 "forall"
 	 "fun"
+	 "return"
 	 ))
 
 (defvar coq-reserved-V7
