@@ -11,6 +11,10 @@ ssh-keygen and give an empty passphrase.  Then you need to copy
 your ~/.ssh/identity.pub at home into ~/.ssh/authorized_keys at
 dcs.ed.
 
+(NB: a more secure alternative would be to use ssh-agent to provide
+your passphrase as needed.  The point is that you don't want to
+keep typing passwords on every CVS command).
+
 2. The CVS repository for PG is in ~proofgen/src at dcs.ed.ac.uk To
 use this, you need to set CVSROOT and CVS_RSH.  I use the script below
 (the last line isn't essential but makes the settings inside a running
