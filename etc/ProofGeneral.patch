@@ -1,22 +1,91 @@
-diff -cr ProofGeneral.old/coq/coqtags ProofGeneral/coq/coqtags
-*** ProofGeneral.old/coq/coqtags	Wed Oct  7 18:36:57 1998
---- ProofGeneral/coq/coqtags	Wed Oct  7 19:04:35 1998
+Index: coq/coqtags
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/coq/coqtags,v
+retrieving revision 4.2
+diff -c -r4.2 coqtags
+*** coq/coqtags	2000/05/25 19:42:55	4.2
+--- coq/coqtags	2000/05/25 19:56:11
 ***************
-*** 1,4 ****
+*** 1,8 ****
 ! #!/usr/local/bin/perl
-  
+  #
+  # $Id: coqtags,v 4.2 2000/05/25 19:42:55 da Exp $
+  #
+- 
   undef $/;
   
---- 1,4 ----
+  if($#ARGV<$[) {die "No Files\n";}
+--- 1,7 ----
 ! #!/usr/bin/perl
-  
+  #
+  # $Id: coqtags,v 4.2 2000/05/25 19:42:55 da Exp $
+  #
   undef $/;
   
-diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.el
-*** ProofGeneral.old/generic/proof-site.el	Wed Oct  7 18:38:21 1998
---- ProofGeneral/generic/proof-site.el	Wed Oct  7 19:05:08 1998
+  if($#ARGV<$[) {die "No Files\n";}
+Index: etc/ProofGeneral.patch
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/etc/ProofGeneral.patch,v
+retrieving revision 4.0
+diff -c -r4.0 ProofGeneral.patch
+*** etc/ProofGeneral.patch	2000/03/13 07:36:19	4.0
+--- etc/ProofGeneral.patch	2000/05/25 19:56:11
 ***************
-*** 92,98 ****
+*** 1,44 ****
+- diff -cr ProofGeneral.old/coq/coqtags ProofGeneral/coq/coqtags
+- *** ProofGeneral.old/coq/coqtags	Wed Oct  7 18:36:57 1998
+- --- ProofGeneral/coq/coqtags	Wed Oct  7 19:04:35 1998
+- ***************
+- *** 1,4 ****
+- ! #!/usr/local/bin/perl
+-   
+-   undef $/;
+-   
+- --- 1,4 ----
+- ! #!/usr/bin/perl
+-   
+-   undef $/;
+-   
+- diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.el
+- *** ProofGeneral.old/generic/proof-site.el	Wed Oct  7 18:38:21 1998
+- --- ProofGeneral/generic/proof-site.el	Wed Oct  7 19:05:08 1998
+- ***************
+- *** 92,98 ****
+-     :group 'proof-general-internals)
+-   
+-   (defcustom proof-info-directory
+- !   (concat proof-home-directory "doc/")
+-     "Where Proof General Info files are installed. Ends with slash."
+-     :type 'directory
+-     :group 'proof-general-internals)
+- --- 92,98 ----
+-     :group 'proof-general-internals)
+-   
+-   (defcustom proof-info-directory
+- !   "/usr/info/"
+-     "Where Proof General Info files are installed. Ends with slash."
+-     :type 'directory
+-     :group 'proof-general-internals)
+- diff -cr ProofGeneral.old/lego/legotags ProofGeneral/lego/legotags
+- *** ProofGeneral.old/lego/legotags	Wed Oct  7 18:37:18 1998
+- --- ProofGeneral/lego/legotags	Wed Oct  7 19:04:35 1998
+- ***************
+- *** 1,2 ****
+- ! #!/usr/local/bin/perl
+-   #
+- --- 1,2 ----
+- ! #!/usr/bin/perl
+-   #
+--- 0 ----
+Index: generic/proof-site.el
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/generic/proof-site.el,v
+retrieving revision 4.26
+diff -c -r4.26 proof-site.el
+*** generic/proof-site.el	2000/05/25 14:52:30	4.26
+--- generic/proof-site.el	2000/05/25 19:56:12
+***************
+*** 99,105 ****
     :group 'proof-general-internals)
   
   (defcustom proof-info-directory
@@ -24,7 +93,7 @@ diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.
     "Where Proof General Info files are installed. Ends with slash."
     :type 'directory
     :group 'proof-general-internals)
---- 92,98 ----
+--- 99,105 ----
     :group 'proof-general-internals)
   
   (defcustom proof-info-directory
@@ -32,13 +101,21 @@ diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.
     "Where Proof General Info files are installed. Ends with slash."
     :type 'directory
     :group 'proof-general-internals)
-diff -cr ProofGeneral.old/lego/legotags ProofGeneral/lego/legotags
-*** ProofGeneral.old/lego/legotags	Wed Oct  7 18:37:18 1998
---- ProofGeneral/lego/legotags	Wed Oct  7 19:04:35 1998
+Index: lego/legotags
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/lego/legotags,v
+retrieving revision 4.2
+diff -c -r4.2 legotags
+*** lego/legotags	2000/05/25 19:42:55	4.2
+--- lego/legotags	2000/05/25 19:56:12
 ***************
-*** 1,2 ****
+*** 1,4 ****
 ! #!/usr/local/bin/perl
   #
---- 1,2 ----
+  # $Id: legotags,v 4.2 2000/05/25 19:42:55 da Exp $
+  #
+--- 1,4 ----
 ! #!/usr/bin/perl
+  #
+  # $Id: legotags,v 4.2 2000/05/25 19:42:55 da Exp $
   #
