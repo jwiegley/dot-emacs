@@ -169,6 +169,7 @@
   '(
     "qed"
     "proof" 
+    "next"
     "end"
     "by"
     ".."
@@ -181,14 +182,15 @@
 (defcustom isar-keywords-commands
   '(
     "up"
+    "thus"
     "then_refine"
     "then"
     "show"
     "refine"
     "prev"
     "note"
-    "next"
     "let"
+    "hence"
     "have"
     "from"
     "fix"
