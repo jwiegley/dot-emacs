@@ -447,8 +447,11 @@ If non-nil, point is left where it was."
 If interactive or SWITCH is non-nil, switch to script buffer first."
   (interactive)
   (proof-with-script-buffer
-   (if (and (not (get-buffer-window proof-script-buffer))
+   (if ;; there is an active scripting buffer and it's not displayed
+       (and proof-script-buffer
+	    (not (get-buffer-window proof-script-buffer))
 	    (or switch (interactive-p)))
+       ;; display it
        (switch-to-buffer proof-script-buffer)
      (goto-char (proof-unprocessed-begin)))))
 
