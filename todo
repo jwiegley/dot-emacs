@@ -54,7 +54,8 @@ re-enabled), proof-toggle-scripting, new configuration options.
 
 B After interrupt, queue region is left intact.  Seems odd. 
   Let's remove it.  Also interrupt needs other cleanups:
-  position of proof-marker may be wrong.
+  position of proof-marker may be wrong.  Even the message
+  appears in the goals buffer rather than the response buffer!
 
 B bug: interrupting Isabelle process sometimes doesn't return, why?
   (see first half of interrupt error only:
