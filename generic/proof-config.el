@@ -69,10 +69,12 @@
 
 
 ;; Function for setting boolean values
-(defun proof-set-bool (sym value)
-  "Set a boolean customize variable using set-default and a function.
-If there is a function <blah> with the same name as the variable <blah>,
-it is called to take some action for the new setting."
+(defun proof-set-value (sym value)
+  "Set a customize variable using set-default and a function.
+We first call `set-default' to set SYM to VALUE.
+Then if there is a function SYM (i.e. with the same name as the
+variable SYM), it is called to take some dynamic action for the new
+setting."
   (set-default sym value)
   (if (fboundp sym) (funcall sym)))
 
@@ -98,28 +100,31 @@ it is called to take some action for the new setting."
   :group 'proof-user-options)
 
 (defcustom proof-electric-terminator-enable nil 
-  "*If non-nil, use electric terminator mode on start-up.
+  "*If non-nil, use electric terminator mode.
 If electric terminator mode is enabled, pressing a terminator will 
 automatically issue `proof-assert-next-command' for convenience,
-to send the command straight to the proof process.  Electric!"
+to send the command straight to the proof process.  If the command
+you want to send already has a terminator character, you don't
+need to delete the terminator character first.  Just press the
+terminator somwhere nearby.  Electric!"
   :type 'boolean
-  :set 'proof-set-bool
+  :set 'proof-set-value
   :group 'proof-user-options)
 
 (defcustom proof-toolbar-enable t
   "*If non-nil, display Proof General toolbar for script buffers.
 NB: the toolbar is only available with XEmacs."
   :type 'boolean
-  :set 'proof-set-bool
+  :set 'proof-set-value
   :group 'proof-user-options)
 
 (defcustom proof-x-symbol-enable nil
   "*Whether to use x-symbol in Proof General buffers.
 If you activate this variable, whether or not you get x-symbol support
-depends on if your proof assistant supports it and it is enabled
-inside your Emacs."
+depends on whether your proof assistant supports it and whehter
+X-Symbol is installed in your Emacs."
   :type 'boolean
-  :set 'proof-set-bool
+  :set 'proof-set-value
   :group 'proof-user-options)
 
 (defcustom proof-output-fontify-enable t
@@ -164,8 +169,9 @@ the goals buffer and response buffer are both displayed, rather than
 the two-buffer mode where they are switched between.  It also prevents
 Emacs automatically resizing windows between proof steps.  
 
-If you use several frames (X windows), you can force a frame to stick
-to showing the goals or response buffer.
+If you use several frames (the same Emacs in several windows on the
+screen), you can force a frame to stick to showing the goals or
+response buffer.
 
 For single frame use this option may be inconvenient for
 experienced Emacs users."  
@@ -182,7 +188,7 @@ If non-nil, Emacs will make separate frames (screen windows) for
 the goals and response buffers, by altering the Emacs variable
 `special-display-regexps'."  
   :type 'boolean 
-  :set 'proof-set-bool
+  :set 'proof-set-value
   :group 'proof-user-options)
 
 (defcustom proof-delete-empty-windows 
@@ -236,7 +242,7 @@ them corresponds to a file which may be loaded by the proof assistant.
 
 You can turn this option off if the save queries are annoying, but
 be warned that with some proof assistants this may risk processing 
-files which are out of date with respect to the lodead buffers!"
+files which are out of date with respect to the loaded buffers!"
   :type 'boolean
   :group 'proof-user-options)
 
@@ -710,7 +716,7 @@ NB: This setting is not used for matching output from the prover."
   'proof-script)
 
 (defcustom proof-save-command-regexp nil 
-  "Matches a save command"
+  "Matches a save command."
   :type 'regexp
   :group 'proof-script)
 
@@ -1187,7 +1193,7 @@ If your proof assistant has no management of file dependencies, or one
 which depends on a simple linear context, you may be able to use this
 setting to good effect.  If the proof assistant has more complex
 file dependencies then you should configure it to communicate with
-Proof General about the dependcies rather than using this setting."
+Proof General about the dependencies rather than using this setting."
   :type 'boolean
   :group 'proof-shell)
 
@@ -1351,11 +1357,11 @@ used to help parse the goals buffer to annotate it for proof by pointing."
   "A pair (REGEXP . FUNCTION) to match a processed file name.
 
 If REGEXP matches output, then the function FUNCTION is invoked on the
-output string chunk. It must return a script file name (with complete
-path) the system has successfully processed. In practice, FUNCTION is
-likely to inspect the match data.  If it returns the empty string,
-the file name of the scripting buffer is used instead.  If it
-returns nil, no action is taken.
+output string chunk. It must return the name of a script file (with
+complete path) that the system has successfully processed. In
+practice, FUNCTION is likely to inspect the match data.  If it returns
+the empty string, the file name of the scripting buffer is used
+instead.  If it returns nil, no action is taken.
 
 Care has to be taken in case the prover only reports on compiled
 versions of files it is processing. In this case, FUNCTION needs to
