@@ -59,9 +59,15 @@
 ;; a .ML file is visited, and sets the mode to `demoisa-mode'
 ;; (defined below).  
 ;; 
-;; (I've called this instance "Isabelle Demo Proof General" just to
+;; I've called this instance "Isabelle Demo Proof General" just to
 ;; avoid confusion with the real "Isabelle Proof General" in case the
-;; demo gets loaded by accident).
+;; demo gets loaded by accident.
+;;
+;; To make the line above take precedence over the real Isabelle mode
+;; later in the table, set PROOFGENERAL_ASSISTANTS=demoisa in the
+;; shell before starting Emacs  (or customize proof-assistants).
+;;
+
 
 (require 'proof)			; load generic parts
 
