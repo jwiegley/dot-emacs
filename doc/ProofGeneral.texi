@@ -3520,8 +3520,8 @@ Mode for proof response buffer.@*
 Usually customised for specific prover.
 Suggestion: this can be set a function called by @samp{pre-shell-start-hook}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-mode-for-pbp
-@defvar proof-mode-for-pbp 
+@c TEXI DOCSTRING MAGIC: proof-mode-for-goals
+@defvar proof-mode-for-goals 
 Mode for proof state display buffers.@*
 Usually customised for specific prover.
 Suggestion: this can be set a function called by @samp{pre-shell-start-hook}.
@@ -3545,7 +3545,9 @@ Command to display the context in proof assistant.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-info-command
 @defvar proof-info-command 
-Command to ask for help or information in the proof assistant.
+Command to ask for help or information in the proof assistant.@*
+String or fn.  If a string, the command to use. 
+If a function, it should return the command string to insert.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-showproof-command
 @defvar proof-showproof-command 
@@ -3567,9 +3569,8 @@ If a function, it should return the command string to insert.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-find-theorems-command
 @defvar proof-find-theorems-command 
-Command to search for a theorem containing a given constant. String or fn.@*
-If a string, the format character @samp{%s} will be replaced by the
-constant name.
+Command to search for a theorem containing a given term. String or fn.@*
+If a string, the format character @samp{%s} will be replaced by the term.
 If a function, it should return the command string to insert.
 @end defvar
 
@@ -4223,7 +4224,7 @@ shell variables:
    @code{proof-prog-name}
    @code{proof-mode-for-shell}
    @code{proof-mode-for-response}
-   @code{proof-mode-for-pbp}
+   @code{proof-mode-for-goals}
 @end lisp
 This is the bare minimum needed to get a shell buffer and
 its friends configured in the function @code{proof-shell-start}.
