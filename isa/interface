@@ -30,6 +30,7 @@ usage()
   echo "    -P BOOL      actually start Proof General (default true), otherwise"
   echo "                 run plain tty session"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
+  echo "    -g GEOMETRY  specify Emacs geometry"
   echo "    -k NAME      use specific isar-keywords for named logic"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -m MODE      add print mode for output"
@@ -59,6 +60,7 @@ fail()
 
 ISABELLE_OPTIONS=""
 START_PG="true"
+GEOMETRY=""
 KEYWORDS=""
 LOGIC="$ISABELLE_LOGIC"
 PROGNAME="xemacs"
@@ -70,7 +72,7 @@ XSYMBOLSETUP=true
 getoptions()
 {
   OPTIND=1
-  while getopts "I:P:X:k:l:m:p:u:w:x:" OPT
+  while getopts "I:P:X:g:k:l:m:p:u:w:x:" OPT
   do
     case "$OPT" in
       I)
@@ -81,6 +83,9 @@ getoptions()
         ;;
       X)
         XSYMBOLSETUP="$OPTARG"
+        ;;
+      g)
+        GEOMETRY="$OPTARG"
         ;;
       k)
         KEYWORDS="$OPTARG"
@@ -172,6 +177,8 @@ if [ "$START_PG" = false ]; then
 else
 
   ARGS=""
+
+  [ -n "$GEOMETRY" ] && ARGS="$ARGS -geometry '$GEOMETRY'"
 
   [ "$INITFILE" = false ] && ARGS="$ARGS -q"
   
