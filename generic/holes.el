@@ -52,7 +52,8 @@ zero active hole globally.  It is highlighted with a different color.
 TO DEFINE A HOLE, two methods:
 
  o Select a region with keyboard (ctrl-space) or mouse, then hit
-ctrl-meta-h
+ctrl-meta-h. If the selected region is empty (i.e. if you just
+ctrl+meta+h), then a hole containing '#' is created.
 
  o Select text with mouse while pressing ctrl + meta.  If the selected
 region is empty (i.e. if you just click while pressing ctrl+meta),
@@ -84,7 +85,9 @@ a generalization of the mouse-track-insert feature (ctrl + select
 text, if you don't know this trick, try it :-)). This method allows to
 fill different holes faster than with the usual copy-paste method.
 
-After replacement the next hole is automatically made active.
+After replacement the next hole is automatically made active so you
+can fill it immediately by hitting again ctrl-meta-y or ctrl + meta +
+shift + mouse select.
 
 TO MOVE TO THE ACTIVE HOLE, hit meta-return, it will move to the
 active hole, destroy it (allowing you to type its replacement) and
