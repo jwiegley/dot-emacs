@@ -1153,7 +1153,9 @@ process.
 
 It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be "cached" in some way,
-so that loading them the next time round does not require re-processing.
+so that loading them the next time round only performs a re-linking
+operation, not full re-processing.  (One way of caching is via
+object files, used by Lego and Coq).
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-qed
@@ -1269,7 +1271,9 @@ process.
 
 It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be "cached" in some way,
-so that loading them the next time round does not require re-processing.
+so that loading them the next time round only performs a re-linking
+operation, not full re-processing.  (One way of caching is via
+object files, used by Lego and Coq).
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
@@ -1806,12 +1810,21 @@ The default value is @code{locked}.
 @c TEXI DOCSTRING MAGIC: proof-window-dedicated
 @defopt proof-window-dedicated 
 Whether response and goals buffers have dedicated windows.@*
-If t, windows displaying responses from the prover will not
-be switchable to display other windows.  This may help manage
-your display, but can sometimes be inconvenient, especially
-for experienced Emacs users.
-Moreover, this option may cause problems with multi-frame
-use because of a bug.
+If non-nil, Emacs windows displaying messages from the prover will not
+be switchable to display other windows.
+
+This option can help manage your display.
+
+Setting this option triggers a three-buffer mode of interaction where
+the goals buffer and response buffer are both displayed, rather than
+the two-buffer mode where they are switched between.  It also prevents
+Emacs automatically resizing windows between proof steps.  
+
+If you use several frames (X windows), you can force a frame to stick
+to showing the goals or response buffer.
+
+For single frame use this option may be inconvenient for
+experienced Emacs users.
 
 The default value is @code{nil}.
 @end defopt
@@ -2833,6 +2846,25 @@ NB: By default, @code{proof-cd} is called from @code{proof-activate-scripting-ho
 so that the prover switches to the directory of a proof
 script everytime scripting begins.
 @end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-inform-file-processed-cmd
+@defvar proof-shell-inform-file-processed-cmd 
+Command to the proof assistant to tell it that a file has been processed.@*
+The format character %s is replaced by a complete filename for a
+script file which has been fully processed interactively with
+Proof General.  
+
+This is used to interface with the proof assistant's internal
+management of multiple files, so the proof assistant is kept aware of
+which files have been processed.  Specifically, when scripting
+is deactivated in a completed buffer, it is added to Proof General's
+list of processed files, and the prover is told about it by
+issuing this command.
+
+If this is set to nil, no command is issued.
+
+See also @code{proof-shell-process-file}, @code{proof-shell-compute-new-files-list}.
+@end defvar
+
 
 @node Settings for matching output from proof process
 @subsection Settings for matching output from proof process
@@ -3411,8 +3443,10 @@ variables @code{proof-included-files-list} documented earlier
 (@pxref{Handling multiple files} and @pxref{Global variables}).
 
 @c TEXI DOCSTRING MAGIC: proof-register-possibly-new-processed-file
-@defun proof-register-possibly-new-processed-file file
-Register a possibly new @var{file} as having been processed by the prover.
+@defun proof-register-possibly-new-processed-file file &optional informprover
+Register a possibly new @var{file} as having been processed by the prover.@*
+If @var{informprover} is non-nil, the proof assistant will be told about this,
+to co-ordinate with its internal file-management.
 @end defun
 
 Another important function activates scripting for the current script
@@ -3682,7 +3716,9 @@ process.
 
 It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be "cached" in some way,
-so that loading them the next time round does not require re-processing.
+so that loading them the next time round only performs a re-linking
+operation, not full re-processing.  (One way of caching is via
+object files, used by Lego and Coq).
 @end deffn
 
 @c
