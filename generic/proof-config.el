@@ -921,12 +921,24 @@ NB: This setting is not used for matching output from the prover."
 
 (defcustom proof-save-with-hole-regexp nil 
   "Regexp which matches a command to save a named theorem.
-Match number 2 should be the name of the theorem saved.
+The name of the theorem is build from the variable
+proof-save-with-hole-result using the same convention as 
+query-replace-regexp. 
 Used for setting names of goal..save regions and for default
 function-menu configuration in proof-script-find-next-entity.
 
 It's safe to leave this setting as nil."
   :type 'regexp
+  :group 'proof-script)
+
+(defcustom proof-save-with-hole-result 2 
+  "String or Int: how to build the theorem name after matching
+with proof-save-with-hole-regexp. If it is an int N use match-string 
+to recover the value of the Nth parenthesis matched. If it is a string
+use replace-match. It the later case, proof-save-with-hole-regexp should
+match the entire command"
+
+  :type '(choice string int)
   :group 'proof-script)
 
 ;; FIXME: unify uses so that proof-anchor-regexp works sensibly
@@ -941,12 +953,24 @@ for `proof-script-next-entity-regexps' used for function menus."
 
 (defcustom proof-goal-with-hole-regexp nil 
   "Regexp which matches a command used to issue and name a goal.
-Match number 2 should be the name of the goal issued.
+The name of the theorem is build from the variable
+proof-goal-with-hole-result using the same convention as 
+query-replace-regexp. 
 Used for setting names of goal..save regions and for default
 function-menu configuration in proof-script-find-next-entity.
 
 It's safe to leave this setting as nil."
   :type 'regexp
+  :group 'proof-script)
+
+(defcustom proof-goal-with-hole-result 2
+  "String or Int: how to build the theorem name after matching
+with proof-goal-with-hole-regexp. If it is an int N use match-string 
+to recover the value of the Nth parenthesis matched. If it is a string
+use replace-match. It the later case, proof-goal-with-hole-regexp should
+match the entire command"
+
+  :type '(choice string int)
   :group 'proof-script)
 
 (defcustom proof-non-undoables-regexp nil

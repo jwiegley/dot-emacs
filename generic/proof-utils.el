@@ -672,50 +672,5 @@ If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
 (setq autoload-package-name "proof")
 (setq generated-autoload-file "proof-autoloads.el")
 	
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; The following function removes comments from a string. Nested 
-;; comments should work. Warning the length of the resulting 
-;; string is reduced, it may be better to replace comments by
-;; white spaces
-  
-(defun proof-remove-comment (str)
-  "proof-remove-comment str: return the string str with all comments removed. Nested comments should work."
-  (if (and str proof-comment-start-regexp proof-comment-end-regexp) 
-      (let 
-	  ((astr "") ; the result string
-	   (regexp1 (concat "\\(\"\\)\\|\\(" 
-			    proof-comment-start-regexp "\\)\\|\\("
-			   proof-comment-end-regexp "\\)"))
-	   (regexp2 (concat "\\(\"\\)"))
-	   (pos 0)  ; position of the previous match
-	   (mpos 0) ; position of the current match
-	   (lpos 0) ; start of the substring not in a comment and not
-	            ; yet in astr
-	   (lvl 0)  ; number of level of comments
-	   (in-string nil) ; are we in a string
-	   )
-	(while mpos
-	  (setq mpos 
-		(proof-string-match  (if in-string regexp2 regexp1) str pos))
-	  (cond 
-	   ((match-string 1 str)
-	    (setq pos (+ mpos 1) in-string (not in-string)))
-	   ((match-string 2 str)
-	    (progn
-	      (if (= lvl 0) 
-		  (setq astr (concat astr 
-				     (substring str lpos mpos))))
-	      (setq pos (+ mpos 1) lvl (+ lvl 1))))
-	   ((match-string 3 str)		    
-	    (progn
-	      (setq pos (+ mpos 1) lvl (- lvl 1))
-	      (if (< lvl 0) (error "End comment not closing a start comment"))
-	      (if (= lvl 0) 
-		  (setq lpos 
-			(+ mpos (length (match-string 2 str)))))))))
-	(setq astr (concat astr (substring str pos)))
-	astr)))
-
 ;; End of proof-utils.el
 (provide 'proof-utils)

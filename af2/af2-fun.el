@@ -26,14 +26,23 @@ send a compile command to af2 for the theorem which name is under the cursor."
 
 (setq
  af2-forget-id-command "del %s.\n"
- af2-sy-definition-regexp "[ \t\n\r]\\(Cst\\|def\\)[ \t\n\r]+\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)" 
- af2-definition-regexp "[ \t\n\r]\\(Cst\\|def\\|claim\\|Sort\\)[ \t\n\r]+\\([^ =\\[]+\\)"
+ af2-comments-regexp "[ \n\t\r]*\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*"
+ af2-ident-regexp "\\(\\([^ \n\t\r=\\[.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)"
+ af2-spaces-regexp "[ \n\t\r]*"
+ af2-sy-definition-regexp (concat 
+   "\\(Cst\\|def\\)"
+   af2-comments-regexp
+   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)") 
+ af2-definition-regexp (concat
+   "\\(Cst\\|def\\|claim\\|Sort\\)"
+   af2-comments-regexp
+   af2-ident-regexp)
 )
 
 (defun af2-find-and-forget (span)
   (let (str ans tmp (lsp -1))
     (while span 
-      (setq str (proof-remove-comment (span-property span 'cmd)))
+      (setq str (span-property span 'cmd))
 
       (cond
 
@@ -46,11 +55,11 @@ send a compile command to af2 for the theorem which name is under the cursor."
        ((proof-string-match af2-sy-definition-regexp str)
 	(setq ans 
 	      (concat (format af2-forget-id-command 
-				  (concat "$" (match-string 4 str))) ans)))
+				  (concat "$" (match-string 7 str))) ans)))
 
        ((proof-string-match af2-definition-regexp str)
 	(setq ans (concat (format af2-forget-id-command 
-				      (match-string 2 str)) ans))))
+				      (match-string 5 str)) ans))))
 
 
       (setq lsp (span-start span))

@@ -1004,11 +1004,15 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (let (nam gspan next)
 
 	;; Try to set the name of the theorem from the save
-	(and proof-save-with-hole-regexp
-	     (setq cmd (proof-remove-comment cmd))
-	     (proof-string-match proof-save-with-hole-regexp cmd)
-	     (setq nam (match-string 2 cmd)))
+	(message cmd)
 
+	(and proof-save-with-hole-regexp
+	     (proof-string-match proof-save-with-hole-regexp cmd)
+	     (setq nam 
+		   (if (stringp proof-save-with-hole-result)
+		       (replace-match proof-save-with-hole-result nil nil cmd)
+		     (match-string proof-save-with-hole-result cmd))))
+	(message nam)
 	;; Search backwards for first goal command, 
 	;; deleting spans along the way.
 	(setq gspan span)
@@ -1026,12 +1030,15 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 	;; If the name isn't set, try to set it from the goal. 
 	  (unless nam
-	    (and proof-goal-with-hole-regexp
-		 (let ((cmdstr 
-			(proof-remove-comment (span-property gspan 'cmd))))
+	    (let ((cmdstr (span-property gspan 'cmd)))
+	      (message cmdstr)
+	      (and proof-goal-with-hole-regexp
 		   (proof-string-match proof-goal-with-hole-regexp cmdstr)
-		   (setq nam (match-string 2 cmdstr)))))
-
+		   (setq nam 
+			 (if (stringp proof-goal-with-hole-result)
+			     (replace-match proof-goal-with-hole-result nil nil cmdstr)
+			   (match-string proof-goal-with-hole-result cmdstr))))))
+	  
 	;; As a final desparate attempt, set the name to
 	;; proof-unnamed-theorem-name (Coq actually uses a default
 	;; name for unnamed theorems, believe it or not, and issues
@@ -1157,10 +1164,14 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 	  ;; Try to set a name from the goal
 	  ;; (useless for provers like Isabelle)
-	  (let ((cmdstr (proof-remove-comment (span-property gspan 'cmd))))
+	  (let ((cmdstr (span-property gspan 'cmd)))
+	    (message cmdstr)
 	    (and proof-goal-with-hole-regexp
 		 (proof-string-match proof-goal-with-hole-regexp cmdstr)
-	       (setq nam (match-string 2 cmdstr))))
+		 (setq nam 
+		       (if (stringp proof-goal-with-hole-result)
+			   (replace-match proof-goal-with-hole-result nil nil cmdstr)
+			 (match-string proof-goal-with-hole-result cmdstr)))))
 
 	  ;; As a final desparate attempt, set the name to "Unnamed_thm".
 	  (unless nam

@@ -113,8 +113,16 @@
    proof-state-command             "goals."
    proof-goal-command-regexp       "goal\\|prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem"
    proof-save-command-regexp       "save"
-   proof-goal-with-hole-regexp     "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)[ \n\t\r]+\\([^ \n\t\r]+\\)"
-   proof-save-with-hole-regexp     "save[ \n\t\r]+\\(\\([^ \n\t\r]+\\)\\)"
+   proof-goal-with-hole-regexp     (concat 
+      "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)"
+      af2-comments-regexp
+      af2-ident-regexp)
+   proof-goal-with-hole-result     5
+   proof-save-with-hole-regexp     (concat 
+      "save"
+      af2-comments-regexp
+      af2-ident-regexp)
+   proof-save-with-hole-result     4
    proof-shell-error-regexp        "^\\([^ \n\t\r]* \\)?\\(e\\|E\\)rror"
    proof-non-undoables-regexp      "undo"
    proof-goal-command              "goal %s."

@@ -4,6 +4,6 @@
     $Id$
 *)
 
-prop test /\X (X -> X).
+prop (* test *) (* just un test *) test /\X (X -> X).
 trivial.
 save.
