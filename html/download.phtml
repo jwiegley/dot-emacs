@@ -27,7 +27,7 @@ Proof General
 
 <p>
 Developers and beta-testers may like to download
-a <a href="devel.phtml">development release</a>
+a <a href="develdownload.phtml">development release</a>
 of Proof General.
 </p>
 <p>
@@ -81,6 +81,8 @@ Proof General:
 For displaying logical and mathematical symbols, the excellent
 <a href="http://www.fmi.uni-passau.de/~wedler/x-symbol/">X-Symbol</a>
 package. 
+<br>It's very easy to install.  See <a href="#xsyminstall">here</a> 
+for installation notes.
 <br>X-Symbol presently only works with XEmacs.  
 </li>
 <li>
@@ -150,10 +152,12 @@ for a summary of changes since version 2.1.
 Check the latest <?php fileshow("ProofGeneral/BUGS","BUGS"); ?> file
 before reporting problems.  If you find a problem not mentioned
 there, please 
-<?php hlink("feedback.phtml","send us a note.","Feedback form")?>.
+<?php hlink("feedback.phtml","send us a note","Feedback form")?>.
 </p>
 
 
+<br>
+<br>
 <h3> Easy installation! </h3> 
 <p>
 To use Proof General, simply unpack the sources with 
@@ -189,3 +193,21 @@ any problems, suggestions, or patches.
 
 
 
+<br>
+<br>
+<h3><a name="xsyminstall">Easy installation of X-Symbol!</a></h3> 
+
+<p>
+Contrary to what you may expect from the documentation of
+X-Symbol, it's very easy to install and configures itself
+automatically.
+</p>
+<p>
+Simply download the binary package file, and do something
+like this to install in your home directory:
+</p>
+<blockquote><tt>
+ mkdir -p ~/.xemacs<br>
+ cd ~/.xemacs<br>
+ tar xzf ../x-symbol-pkg.tar.gz<br>
+</tt></blockquote>
