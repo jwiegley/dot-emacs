@@ -209,7 +209,7 @@
    proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle/Isar by modifying print functions etc.
    proof-shell-init-cmd                 "ProofGeneral.init true;"
-   proof-shell-restart-cmd		"restart;"
+   proof-shell-restart-cmd		"init_toplevel; touch_all_thys;"
    proof-shell-quit-cmd			"quit();"
    
    proof-shell-eager-annotation-start   "\360\\|\362"
@@ -235,10 +235,9 @@
    ;; === NEW NEW: multiple file stuff.  move elsewhere later.
    proof-shell-process-file 
    (cons
-    ;; Theory loader output and verbose update() output.
-    "Proof General, this file is loaded: \"\\(.*\\)\""
-    (lambda (str)
-      (match-string 1 str)))
+    ;; Theory loader action trace
+    "Proof General, this theory is loaded: \"\\(.*\\)\""
+    (lambda (str) (isar-file-name-thy (match-string 1 str))))
    ;; \\|Not reading \"\\(.*\\)\"
    ;;    (lambda (str)
    ;;   (or (match-string 1 str) 
@@ -246,9 +245,9 @@
    ;; This is the output returned by a special command to
    ;; query Isabelle for outdated files.
  ;;   proof-shell-clear-included-files-regexp
- ;;   "Proof General, please clear your record of loaded files."
+ ;;   "Proof General, please clear your record of loaded theories."
    proof-shell-retract-files-regexp
-   "Proof General, you can unlock the file \"\\(.*\\)\""
+   "Proof General, you can unlock the theory \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
    )
   (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting)
@@ -259,44 +258,25 @@
 ;;; Theory loader operations
 ;;;
 
-;; FIXME use_thy_parents
-(defcustom isar-use-thy-only-command "" ; FIXME "use_thy_only \"%s\";"
-  "Sent to Isabelle/Isar to process theory for this ML file, and all ancestors."
-  :type 'string
-  :group 'isabelle-isar-config)
+(defun isar-file-name-thy (str)
+  (concat str ".thy"))
 
 (defun isar-activate-scripting ()
   "Make sure the Isabelle/Isar toplevel is in a sane state.")
 ;FIXME  (proof-shell-invisible-command proof-shell-restart-cmd))
 
+(defun isar-remove-file (name files)
+  (if (not files) nil
+    (let ((file (car files)) (rest (cdr files)))
+      (if (string= (file-name-nondirectory file) name)
+	  (isar-remove-file name rest)
+	(cons file (isar-remove-file name rest))))))
+
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
 This is called when Proof General spots output matching
 proof-shell-retract-files-regexp."
-  ;; This assertion is supposed to test that we only remove
-  ;; what was in the list anyway.  But 
-  ;;(assert (member (file-truename (match-string 1 str))
-  ;;		  proof-included-files-list))
-  (remove (file-truename (match-string 1 str)) 
-	  proof-included-files-list))
-
-;;
-;; Hack for update
-;;
-
-(defcustom isar-update-command "" ;; FIXME "ProofGeneral.update();"
-  "Sent to Isabelle/Isar to re-load theory files as needed and synchronise."
-  :type 'string
-  :group 'isabelle-config)
-  
-(defun isar-update ()
-  "Issue an update command to the Isabelle/Isar process.
-This re-reads any theory files as necessary and resynchronizes
-proof-included-files-list."
-  (interactive)
-  (save-some-buffers)
-  (proof-shell-insert isar-update-command))
-
+  (isar-remove-file (isar-file-name-thy (match-string 1 str)) proof-included-files-list))
 
 
 ;;
@@ -430,31 +410,6 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;;   Code that's Isabelle/Isar specific                             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; Variations on undo
-
-(defconst isar-undo "undo;")
-(defconst isar-kill "kill;")
-
-(defun isar-undos (i)
-  (if (> i 0)
-      (concat "undos_proof " (int-to-string i) ";")
-    proof-no-command))
-
-(defun isar-cannot-undo (cmd)
-  (concat "cannot_undo \"" cmd "\";"))
-
-
-(defconst isar-undo-fail-regexp
-  (proof-anchor-regexp
-   (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))))
-
-(defconst isar-undo-skip-regexp
-  (proof-anchor-regexp (concat ";\\|" (proof-ids-to-regexp isar-keywords-diag))))
-
-(defconst isar-undo-kill-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-begin)))
-
-
 ;; undo proof commands
 (defun isar-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
@@ -494,6 +449,8 @@ Resulting output from Isabelle will be parsed by Proof General."
 	(setq ans (isar-cannot-undo str)))
        ((proof-string-match isar-undo-skip-regexp str)
 	(setq ans proof-no-command))
+       ((proof-string-match isar-undo-remove-regexp str)
+	(setq ans (isar-remove (match-string 2 str))))
        ((proof-string-match isar-undo-kill-regexp str)
 	(setq ans isar-kill))
        (t
@@ -557,27 +514,6 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun isar-init-syntax-table ()
-  "Set appropriate values for syntax table in current buffer."
-  (modify-syntax-entry ?\$ ".")
-  (modify-syntax-entry ?\/ ".")
-  (modify-syntax-entry ?\\ ".")
-  (modify-syntax-entry ?+  ".")
-  (modify-syntax-entry ?-  ".")
-  (modify-syntax-entry ?=  ".")
-  (modify-syntax-entry ?%  ".")
-  (modify-syntax-entry ?<  ".")
-  (modify-syntax-entry ?>  ".")
-  (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?.  "w")
-  (modify-syntax-entry ?_  "w")
-  (modify-syntax-entry ?\' "w")
-  (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4")
-  (modify-syntax-entry ?\{ "(}1")
-  (modify-syntax-entry ?\} "){4"))
 
 (defun isar-preprocessing ()
   "insert sync markers - acts on variable string by dynamic scoping"
