@@ -1,3 +1,114 @@
+2002-07-17  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* html/news.html, html/develdownload.php, todo:
+	Updates
+
+	* CHANGES: Mention term highlighting
+
+	* isa/isa.el:
+	Support subterm help facility (not quite working)
+
+	* isar/isar.el:
+	Support subterm help facility
+
+	* isa/todo, phox/README, coq/README, coq/todo, isar/todo:
+	Update versions/TODO
+
+	* generic/pg-goals.el:
+	Added subterm help popup facility
+
+	* generic/span-extent.el:
+	Add span-string.
+
+	* generic/proof-shell.el:
+	Add proof-shell-invisible-cmd-get-result
+
+	* generic/proof-config.el:
+	Add pg-subterm-help-cmd
+
+	* generic/proof-script.el: Cleanups
+
+	* generic/span-overlay.el:
+	Fix span-string, span-object
+
+2002-07-16  David Aspinall  <da@proofgeneral.org>
+
+	* lego/lego.el, lego/lego-syntax.el, phox/phox.el, plastic/plastic.el, isa/isa.el, isar/isar.el, generic/proof-syntax.el, generic/proof-utils.el, generic/proof-compat.el, generic/proof-config.el, generic/proof-shell.el, etc/lego/pbp.l, generic/pg-goals.el, generic/pg-response.el, generic/pg-user.el, doc/ProofGeneral.texi, demoisa/demoisa.el, doc/PG-adapting.texi, coq/coq.el:
+	Refactor several variable names; clean up, doc subterm markup and output display.
+
+	* isa/isabelle-system.el: Fix typo.
+
+	* isa/isabelle-system.el:
+	Add conversion of idmarkup to subterm
+
+	* ChangeLog: Updated.
+
+	* etc/isar/Parsing.thy:
+	Add { and } example
+
+	* Makefile.devel: Fix crucial typo
+
+	* ChangeLog: Updated.
+
+	* Makefile.devel:
+	Make tags for both manuals.
+
+	* Makefile.devel:
+	Tweak link creation/deletion
+
+	* CHANGES: Minor
+
+	* todo: Updated
+
+	* etc/Mailman/note.txt: Updated.
+
+	* html/register: Buggy tag
+
+	* html/proofgen.css:
+	Fix monospace typeface name
+
+	* isar/isar.el: Add more nags
+
+	* html/main.html: Edit for brevity
+
+	* html/head.html:
+	Use linked style sheet, add charset metatag.
+
+	* generic/span-overlay.el:
+	Dodgy patch to fix selection ordering of overlays. PBP works in Emacs now.
+
+	* isa/x-symbol-isabelle.el:
+	Patch so works without x-symbol
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel: Link in LATESTNAME
+
+	* generic/proof.el: Fix comment
+
+	* generic/pg-goals.el, generic/pg-response.el, generic/proof-shell.el:
+	Refactoring
+
+	* generic/proof-x-symbol.el: Comments
+
+	* isar/isar.el:
+	Revert some premature changes in x-sym support
+
+	* isa/x-symbol-isabelle.el:
+	Merge patches from Christoph, and add Isabelle/Isar capabilities
+
+	* generic/proof-compat.el:
+	Add char-to-int and friends, borrowed from x-symbol-emacs.
+
+	* generic/proof-shell.el:
+	Cleaning up PBP code
+
+	* etc/lego/pbp.l: Example of using pbp
+
 2002-07-16  David Aspinall  <da@proofgeneral.org>
 
 	* etc/isar/Parsing.thy:
