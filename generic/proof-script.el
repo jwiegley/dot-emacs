@@ -2527,12 +2527,20 @@ assistant."
   (make-local-variable 'comment-start)
   (setq comment-start (concat proof-script-comment-start " "))
   (make-local-variable 'comment-end)
-  (setq comment-end (concat " " proof-script-comment-end))
+  (setq comment-end
+	;; For end of line terminated comments, stays empty.
+	(if (string-equal "" proof-script-comment-end)
+	    ""
+	  ;; Otherwise, an extra space before comment delimiter
+	  (concat " " proof-script-comment-end)))
   
   (unless proof-script-comment-start-regexp
     (setq proof-script-comment-start-regexp (regexp-quote proof-script-comment-start)))
   (unless proof-script-comment-end-regexp
-    (setq proof-script-comment-end-regexp (regexp-quote proof-script-comment-end)))
+    (setq proof-script-comment-end-regexp 
+	  (if (string-equal "" proof-script-comment-end)
+	      (regexp-quote "\n") ;; end-of-line terminated comments
+	    (regexp-quote proof-script-comment-end))))
 
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip

@@ -888,11 +888,11 @@ initial ``goal'' and the final ``save'' command."
   :group 'prover-config)
 
 (defcustom proof-script-fly-past-comments nil
-  "*If non-nil, fly past comments when scripting, coalescing them into single spans.
+  "*If non-nil, fly past successive comments when scripting, coalescing into single spans.
 The default setting for this before PG 3.5 was t, now it is nil.  If you
 prefered the old behaviour, customize this variable to t."
   :type 'boolean
-  :group 'prover-config)
+  :group 'proof-user-options)
 
 (defcustom proof-script-parse-function nil
   "A function which parses a portion of the proof script.
@@ -931,12 +931,15 @@ but you can set this variable to something else more precise if necessary."
   :type 'string
   :group 'proof-script)
 
-(defcustom proof-script-comment-end "\n"
+(defcustom proof-script-comment-end ""
   "String which ends a comment in the proof assistant command language.
-The script buffer's comment-end is set to a space plus this string.
+Should be an empty string if comments are terminated by end-of-line
+The script buffer's comment-end is set to a space plus this string,
+if it is non-empty.
+
 See also `proof-script-comment-start'.
 
-You should set this variable for reliable working of Proof General,"
+You should set this variable for reliable working of Proof General."
   :type 'string
   :group 'proof-script)
 
