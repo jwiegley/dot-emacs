@@ -386,8 +386,7 @@ Resulting output from Isabelle will be parsed by Proof General."
   "Retract the theory file FILE. If interactive, use buffer-file-name.
 To prevent inconsistencies, scripting is deactivated before doing this. 
 So if scripting is active in an ML file which is not completely processed, 
-you will be asked to retract the file or process the remainder of it.  
-(If you process the rest of it it may subsequently be unlocked anyway). "
+you will be asked to retract the file or process the remainder of it."
   (interactive (list buffer-file-name))
   (proof-deactivate-scripting)
   (proof-shell-invisible-command
