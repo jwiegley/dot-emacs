@@ -209,20 +209,16 @@ Does nothing if proof assistant is already running."
 	  (setq proof-prog-name (read-shell-command "Run process: "
 						    proof-prog-name))))
     (let ((proc
+	   ;; "Inferior" is Emacs terminology for sub-shell processes.
 	   (concat "Inferior "
+		   ;; Try to pick useful part of command name
+		   ;;  -- basename component of command less arguments
 		   (substring proof-prog-name
-			      (string-match "[^/]*$" proof-prog-name)))))
-         ; da: this change by patrl introduces a bug with 
-         ; Isabelle (& others?), where proof-prog-name is simply "isabelle".  
-         ; The first match returns nil instead of 0.
-         ;((proc
-	 ;  (concat "Inferior "
-	 ;	   (substring proof-prog-name
-	 ;		       (string-match "[^ /]* " proof-prog-name)
-	 ;		       (string-match  " " proof-prog-name)))))
+			      (or (string-match "[^/]*[ ]" proof-prog-name) 0)
+			      (string-match " " proof-prog-name)))))
     ;; FIXME da: We don't really need this.  We never have more than
     ;; one proof shell running at a time.  We might as well
-    ;; kill off the old buffer anyway.  But leave it in in case of
+    ;; kill off the old buffer anyway.  But leave it in for now for
     ;; future expansion, or for user to inspect the old buffer.
       (while (get-buffer (concat "*" proc "*"))
 	(if (string= (substring proc -1) ">")
