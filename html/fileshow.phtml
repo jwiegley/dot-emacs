@@ -5,7 +5,11 @@
   if ($title=="") { $title = $filename; };
   small_header($title);
   print "<pre>\n";
-  markup_plain_text($filename);
+  if (substr($filename,0,1)=="." or substr($filename,0,1)=="/") {
+     print "Sorry, can't show you that file!\n"; 
+  } else {
+     markup_plain_text($filename);
+  }
   print "</pre>\n";
   print "<hr>";
   click_to_go_back();
