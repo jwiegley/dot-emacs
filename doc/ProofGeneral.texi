@@ -24,6 +24,8 @@
 
 @c
 @c Some URLs.
+@c FIXME: unfortunately, broken in buggy pdftexinfo.
+@c so removed for now.
 @set URLxsymbol  http://www.fmi.uni-passau.de/~wedler/x-symbol/
 @set URLisamode  http://zermelo.dcs.ed.ac.uk/~isamode
 @set URLpghome   http://zermelo.dcs.ed.ac.uk/home/proofgen
@@ -224,7 +226,7 @@ moved into the Coq kernel lately.  Somebody from the Coq community needs
 to help with this.
 
 An important new feature in Proof General 3.0 is support for
-@uref{@value{URLxsymbol},X-Symbol}, 
+@uref{http://www.fmi.uni-passau.de/~wedler/x-symbol/,X-Symbol}, 
 which means that real logical symbols, Greek letters,
 etc can be displayed during proof development, instead of their ASCII
 approximations. This makes Proof General a more serious competitor to
@@ -259,7 +261,7 @@ A new instantiation of Proof General is being worked on for
 Durham.
 
 Proof General has a home page at
-@uref{@value{URLpghome}}.  Visit this page for
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen}.  Visit this page for
 more news!
 
 
@@ -275,7 +277,7 @@ interact with the LEGO system.
 David Aspinall convinced Thomas Kleymann that programming in
 Emacs Lisp wasn't so difficult after all. In fact, Aspinall had already
 implemented an Emacs interface for Isabelle with bells and whistles,
-called @uref{@value{URLisamode},Isamode}. Soon
+called @uref{http://zermelo.dcs.ed.ac.uk/~isamode,Isamode}. Soon
 after, the package @code{lego-mode} was born. Users were able to develop
 proof scripts in one buffer. Support was provided to automatically send
 parts of the script to the proof process. The last official version with
@@ -1819,7 +1821,7 @@ You will be able to enable X-Symbol support if you have installed the
 X-Symbol package and support has been provided in Proof General for a
 token language for your proof assistant.
 The X-Symbol package is available from
-@uref{@value{URLxsymbol}}.
+@uref{http://www.fmi.uni-passau.de/~wedler/x-symbol/}.
 
 @xref{Configuring X-Symbol}, for notes about how to configure
 a proof assistant to use X-Symbol in Proof General.
@@ -2745,7 +2747,7 @@ loader for proper automatic multiple file handling.
 
 Isabelle Proof General includes a mode for editing theory files taken
 from David Aspinall's Isamode interface, see
-@uref{@value{URLisamode}}.  Detailed documentation
+@uref{http://zermelo.dcs.ed.ac.uk/~isamode}.  Detailed documentation
 for the theory file mode is included with @code{Isamode}, there are some
 notes on the special functions available and customization settings
 below.
@@ -5237,7 +5239,7 @@ Reference Manual.  I recommend using the source-level debugger
 @appendix Obtaining and Installing
 
 Proof General has its own
-@uref{@value{URLpghome},home page} hosted at
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen,home page} hosted at
 Edinburgh.  Visit this page for the latest news!
 
 STOP PRESS: the Proof General web pages are temporarily being hosted at
@@ -5258,17 +5260,17 @@ STOP PRESS: the Proof General web pages are temporarily being hosted at
 
 You can obtain Proof General from the URL
 @example
-@uref{@value{URLpghome}}.
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen}.
 @end example
 
 The distribution is available in three forms
 @itemize @bullet
 @item A source tarball, @*
-@uref{@value{URLpglatest}}
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
 @item A Linux RPM package (for any architecture), @*
-@uref{@value{URLpglatestrpm}}
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm}
 @item A developer's tarball, @*
-@uref{@value{URLpglatestdev}}
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
 @end itemize
 
 Both the source tarball and the RPM package include the generic elisp
