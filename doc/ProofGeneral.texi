@@ -3168,6 +3168,10 @@ started, Coq Proof General lets the user work on the proof of the new
 lemma, and when the lemma is finished it falls back to the previous
 one.  This is supported to any nesting depth that Coq allows.
 
+Warning! Using coq commands for navigating inside the different proofs
+(@code{Resume} and especially @code{Suspend}) are not supported,
+backtracking will break syncronization.
+
 @b{Special note:} The old feature that moved nested proofs outside the
 current proof is disabled.
 
@@ -3186,16 +3190,24 @@ always accurate: do "@code{Undo 1.}" when in proof mode, and "@code{Back
 Coq Proof General does not currently support dynamic tactic extension in
 Coq, but provide a way to add tactic and command names in the
 @file{.emacs} file. Four Configurable variables allows to register
-personal new tactics and commands. Commands and Tactics are split into
-backable (resp. undoable), i.e. which need "@code{Back}"
-(resp. "@code{Undo}") to be backtracked, and not backable (resp. not
-undoable).
+personal new tactics and commands into four categories:
+@itemize @bullet
+
+@item @emph{state changing commands}, 
+which need "@code{Back}" to be backtracked;
+@item @emph{state changing tactics},
+which need "@code{Undo}") to be backtracked; 
+@item @emph{state preserving commands},
+which do not need to be backtracked; 
+@item @emph{state preserving tactics},
+which do not need to be backtracked; 
+@end itemize
 
 We give an example of existing commands that fit each category.
 
 @itemize @bullet
 
-@item @code{coq-user-non-backable-commands}: example: "@code{Print}"
+@item @code{coq-user-state-preserving-commands}: example: "@code{Print}"
 
 @item @code{coq-user-backable-commands}: example: "@code{Require}"
 
@@ -3204,16 +3216,20 @@ We give an example of existing commands that fit each category.
 @item @code{coq-user-non-undoable-tactics}: example: "@code{Idtac}"
 @end itemize
 
-This variables are regexp lists. See their documentations in emacs
+This variables are string lists. See their documentations in emacs
 (@code{C-h v coq-user...})  for details on how to set them in your .emacs
-file.
+file. The strings can contain some escaped regexp feature.
 
 Example:
 @lisp
 (setq coq-user-backable-commands 
-      '("MyHint" "MyRequire" "Show\\-+Mydata"))
+      '("MyHint" "MyRequire" "Show\\s-+Mydata"))
 @end lisp
 
+The @code{\\s-+} means "one or more whitespaces". See the elisp
+documentation of 'regexp-quote` for the syntax and semantics.
+WARNING: you need to restart emacs to make the changes to these
+variables effective.
 
 To re-synchronize by hand, the user can use @code{C-c C-v}.  For
 example, if the user does @code{C-c C-u} to move the point back past an
