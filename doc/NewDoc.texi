@@ -70,7 +70,6 @@ or later versions.
 @page
 
 
-
 @ifinfo
 @node Top
 @top Proof General
@@ -419,6 +418,14 @@ assistant, for example warning or informative messages.
 @node Script processing commands
 @section Script processing commands
 
+@c FIXME: requires formatting
+Why is C-c C-b useful?  Could just use the file to read it one go
+(will we have a command to do this other than via the process?).
+BUT it's nice because it stops exactly where a proof fails, so you can
+continue development from there.
+
+
+
 @node Toolbar commands
 @section Toolbar commands
 
@@ -437,11 +444,10 @@ Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working Directly wi
 @chapter Advanced Script Management
 @cindex Multiple Files
 
-What we really mean by @emph{advanced} is that Proof General supports large
-proof developments. These are typically spread across various files
-which depend on each other in some way. The good news is that Proof
-General knows enough about the dependencies to allow script management
-across multiple files. 
+What we really mean by @emph{advanced} is that Proof General supports
+large proof developments. These are typically spread across various
+files which depend on each other in some way. Proof General knows enough
+about the dependencies to allow script management across multiple files.
 
 
 @menu
@@ -472,7 +478,7 @@ definition is too cumbersome or even wrong.
 
 At this stage, you would like to visit the appropriate file, say
 @file{sos.l} and retract to where changes are required. For further
-details on how to accomplish this, we refer to @pxref{Retracting Across Files}. Then, using scipt
+details on how to accomplish this, we refer to @ref{Retracting Across Files}. Then, using script
 management, you want to develop some more basic theory in @file{sos.l}.
 Once this task has been completed (possibly involving retraction across
 even earlier files) and the new development has been
@@ -497,9 +503,9 @@ or retract the current script buffer.
 Proof General is aware of all files that the proof assistant has
 processed or is currently processing. In fact, it relies on the proof
 assistant explicitly telling the Proof General whenever it processes a
-new file which corresponds to a file containing a proof
-script@footnote{For example, LEGO generates additional compiled
-(optimised) proof script files for efficiency.}. For further technical
+new file which corresponds@footnote{For example, LEGO generates additional compiled
+(optimised) proof script files for efficiency.} to a file containing a proof
+script. For further technical
 details, @pxref{Handling Multiple Files}. 
 
 If the current proof script buffer depends on background material from
@@ -511,14 +517,15 @@ retraction is only possible to the @emph{beginning} of the buffer.
 
 To be more precise, buffers are locked as soon the Proof Assistant
 notifies the Proof General of processing a file different from the
-current proof script. Thus, when you can visit the file while the Proof
+current proof script. Thus, if you visit the file while the Proof
 Assitant is still processing the file, it is already completely locked.
 If the Proof Assistant is not happy with the contents and
 complains with an error message, the buffer will still be marked as
 having been completely processed. Sorry. You need to visit the
 troublesome file, retract (which will always retract to the beginning of 
 the file) and debug the problem e.g., by asserting all of the buffer
-under the supervision of the Proof General.
+under the supervision of the Proof General, @pxref{Script processing
+commands}. 
 
 In case you wondered, inconsistencies may arise when you have unsaved
 changes in a proof script buffer and the Proof Assistant suddenly
@@ -532,23 +539,24 @@ save it and retract to the beginning. Then you are back on track.
 @cindex Retraction
 
 Make sure that the current script buffer has either been completely
-asserted or retracted. Then you can retract in a different file.
-Simply visit a file that has been processed earlier and retract in it.
-Apart from removing parts of the locked region in this buffer, all files 
-which depend on it will be retracted (and thus unlocked) automatically.
-Proof General reminds you that now is a good time to save any unmodified 
-buffers.
+asserted or retracted. Then you can retract proof scripts in a different
+file. Simply visit a file that has been processed earlier and retract in
+it, using the retraction commands from @ref{Script processing commands}. Apart from removing parts of the locked region in this
+buffer, all files which depend on it will be retracted (and thus
+unlocked) automatically. Proof General reminds you that now is a good
+time to save any unmodified buffers.
 
 @node Asserting Across Files
 @section Asserting Across Files
 @cindex Assertion
 
 Make sure that the current script buffer has either been completely
-asserted or retracted. Then you can assert in a different file. Simply
-visit a file that contains no locked region and assert some command.
-Proof General reminds you that now is a good time to save any unmodified
-buffers. This is particularly useful as assertion may cause the Proof
-Assistant to automatically process other files.
+asserted or retracted. Then you can assert proof scripts in a different
+file. Simply visit a file that contains no locked region and assert some
+command with the usual assertion commands, @pxref{Script processing
+commands}. Proof General reminds you that now is a good time to save any
+unmodified buffers. This is particularly useful as assertion may cause
+the Proof Assistant to automatically process other files.
 
 
 @node Working Directly with the Proof Shell
@@ -582,7 +590,8 @@ depends on how complete the communication is between Proof General and
 the prover (which depends on the particular instantion of Proof
 General).
 
-To resynchronise, you have two options. Perhaps it would suffice to 
+To resynchronise, you have two options. If you are lucky, it might
+suffice to
 
 @table @kbd
 @item C-c C-z
@@ -597,11 +606,13 @@ Otherwise, you will need to restart script management altogether, @pxref{Toolbar
 
 @node Support for function menus
 @section Support for function menus
+@vindex proof-goal-with-hole-regexp
 
 fume-func is a handy package which makes a menu from the function
 declarations in a buffer.  Proof General configures fume-func so that
 you can quickly jump to particular proofs in a script buffer.  This is
-done with the configuration variable @var{proof-goal-with-hole-regexp}.
+done with the configuration variable @code{proof-goal-with-hole-regexp}, 
+@pxref{Proof Script Mode} for further details.
 
 If you want to use fume-func, you may need to enable it for yourself.
 It is distributed with XEmacs (and FSF GNU Emacs) but by not enabled by
@@ -785,6 +796,16 @@ At present there is no easy way to get around this.
 
 @node LEGO customizations
 @section LEGO customizations
+
+**********
+
+Support for font-lock under FSF Emacs 20.2
+
+To automatically switch on fontification, set
+
+ (add-hook 'lego-mode-hooks 'turn-on-font-lock)
+                          ^
+
 
 
 @node Coq Proof General
@@ -1213,6 +1234,7 @@ simultaneously.
 @unnumbered Concept Index
 @printindex cp
 
+@contents
 @bye
 
 

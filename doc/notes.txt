@@ -79,14 +79,6 @@ Suggestion for outline of improved documentation.
  C. Future ideas and plans					[da]
  
  
-********
-
-Why is C-c C-b useful?  Could just use the file to read it one go
-(will we have a command to do this other than via the process?).
-BUT it's nice because it stops exactly where a proof fails, so you can
-continue development from there.
-
-
 *********
 
 Suggestions for improving web pages after Rod reading them:
@@ -134,16 +126,6 @@ Proper multiple file support only works for .ML files which are read
 via the theory loader, with use_thy.  If you want to load .ML files
 which aren't associated with theories, it's best to use a dummy
 theory, see [Reference to Isabelle manual]
-
-
-**********
-
-Support for font-lock under FSF Emacs 20.2
-
-To automatically switch on fontification, set
-
- (add-hook 'lego-mode-hooks 'turn-on-font-lock)
-                          ^
 
 
 *****************************************************************
