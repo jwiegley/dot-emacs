@@ -10,8 +10,8 @@
 # $Id$
 #
 
-# PGHOME=~/ProofGeneral
 PGHOME=/usr/share/emacs/ProofGeneral
+#PGHOME=~/ProofGeneral
 
 if which xemacs > /dev/null; then 
     EMACS=xemacs
@@ -19,4 +19,4 @@ else
     EMACS=emacs
 fi
 
-$EMACS -l $PGHOME/generic/proof-site.el -f proof-splash-message "$@"
+$EMACS -l $PGHOME/generic/proof-site.el -f proof-splash-display-screen "$@"
