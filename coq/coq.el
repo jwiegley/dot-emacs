@@ -14,8 +14,8 @@
 (setq tag-always-exact t) ; Tags is unusable with Coq library otherwise:
 
 (defgroup coq-settings nil
-  "Customization of Coq specific settings for proof mode."
-  :group 'proof)
+  "Customization of Coq specific settings for Proof General."
+  :group 'proof-general)
 
 (defvar coq-assistant "Coq"
   "Name of proof assistant")
