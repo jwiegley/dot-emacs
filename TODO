@@ -9,24 +9,10 @@ SHORT TERM
 
 MEDIUM TERM
 -----------
-* Revise and improve the documentation
-
 * Provide a sensible default frame/buffer layout
 
 * Add an example instantiation of Proof General
-  with no prover-specific extensions
-  (probably for Isabelle)
-
-* Implement a new buffer model:
-
-    1. Script buffers
-    2. Response buffer
-    3. (optionally part of response buffer) goals buffer
-    4. (hidden) process buffer
-    5. Minibuffer for additionally sending information to the process
-
-* Add support for putting a locked region in processed files,
-  and querying the process about which files have been processed.
+  with no prover-specific extensions (probably for Isabelle)
 
 * Improve process handling 1: disable interrupts and/or catch
   errors at crucial points in code so that C-g can safely be
