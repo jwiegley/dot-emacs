@@ -3,7 +3,7 @@ Screenshot notes.
 
 All in 80x40 sized XEmacs.  
 
-* Isabelle: Daghstul HOLCF example.  Show theory file on screen too.
+* Isabelle: Dagstuhl HOLCF example.  Show theory file on screen too.
 
 * Isar: Example Group.thy is modified version with extra X-Symbol line:
 
