@@ -22,9 +22,13 @@
 (setq auto-mode-alist 
       (cons '("\\.thy$" . isar-mode) auto-mode-alist))
 
-
 (require 'proof)
 (require 'isar-syntax)
+
+;; Add generic code for Isabelle and Isabelle/Isar
+(setq load-path (cons (concat proof-home-directory "isa/") load-path))
+(require 'isabelle-system)
+
 
 ;; To make byte compiler be quiet.
 ;; NASTY: these result in loads when evaluated 
@@ -63,12 +67,6 @@
 (defcustom isabelle-isar-indent 2
   "*Indentation degree in documents"
   :type 'number
-  :group 'isabelle-isar)
-
-(defcustom isabelle-web-page
-  "http://isabelle.in.tum.de"
-  "URL of web page for Isabelle."
-  :type 'string
   :group 'isabelle-isar)
 
 
@@ -195,6 +193,7 @@
   (setq
    proof-assistant-home-page	isabelle-web-page
    proof-mode-for-script	'isar-proofscript-mode
+   proof-assistant-menu-entries isabelle-menu-entries
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
    proof-comment-start		"(*"	; comment in a proof
@@ -275,7 +274,9 @@
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle/Isar by modifying print functions etc.
-   proof-shell-init-cmd                 (isar-verbatim "ProofGeneral.init true;")
+   proof-shell-init-cmd                 (concat
+					 (isar-verbatim "ProofGeneral.init true;")
+					 (isabelle-set-default-cmd))
    proof-shell-restart-cmd		"ProofGeneral.restart;"
    proof-shell-quit-cmd			(isar-verbatim "quit();")
    
