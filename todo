@@ -716,7 +716,6 @@ LIST OF THINGS FOR PG 3.4
 -- Coq pbp focussing --- does this part work at least?  Test case.
 -- Pierre's changes
 -- Christophe's changes
--- Win32 prob noted by N.V.
 
 ** X-SYMBOL PROBLEMS 
     -- GNU emacs probs with Coq and friends.
