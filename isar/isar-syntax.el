@@ -335,6 +335,9 @@
 (defconst isar-undo-skip-regexp
   (proof-anchor-regexp (proof-regexp-alt (isar-ids-to-regexp isar-keywords-diag) ";")))
 
+(defconst isar-undo-ignore-regexp
+  (proof-anchor-regexp "--"))
+
 (defconst isar-undo-remove-regexp
   (concat
    (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-begin))
