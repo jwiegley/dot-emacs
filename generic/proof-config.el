@@ -1654,7 +1654,21 @@ setting to good effect.  If the proof assistant has more complex
 file dependencies then you should configure it to communicate with
 Proof General about the dependencies rather than using this setting."
   :type 'boolean
-  :group 'proof-shell)
+  :group 'proof-shell) ;; not really proof-shell
+
+(defcustom proof-cannot-reopen-processed-files nil
+  "Non-nil if the prover allows re-opening of already processed files.
+
+If the user has used Proof General to process a file incrementally,
+then PG will retain the spans recording undo history in the buffer
+corresponding to that file (provided it remains visited in Emacs).
+
+If the prover allows, it will be possible to undo to a position within
+this file.  If the prover does *not* allow this, this variable should
+be set non-nil, so that when a completed file is activated for 
+scripting (to do undo operations), the whole history is discarded."
+  :type 'boolean
+  :group 'proof-shell)  ;; not really proof shell
 
 ;; (defcustom  proof-shell-adjust-line-width-cmd nil
 

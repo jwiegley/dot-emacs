@@ -274,6 +274,7 @@ See -k option for Isabelle interface script."
        'isabelle-convert-idmarkup-to-subterm 'pg-remove-specials)
    pg-subterm-help-cmd			"term %s" 
 
+   proof-cannot-reopen-processed-files  t
    proof-shell-process-file
    (cons
     ;; Theory loader output
@@ -443,7 +444,10 @@ proof-shell-retract-files-regexp."
        ;; open goal: skip and exit
        ((proof-string-match isar-goal-command-regexp str)
         (setq span nil))
-       ;; not undoable: fail and exit
+       ;; not undoable: fail and exit 
+       ;; [da: this is an odd case: it issues cannot_undo command to Isar,
+       ;;  which immediately generates an error, I think it's a bit confusing
+       ;; for the user]
        ((proof-string-match isar-undo-fail-regexp str)
         (setq answers nil)
         (setq ans (isar-cannot-undo str))

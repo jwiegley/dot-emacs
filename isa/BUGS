@@ -4,6 +4,9 @@
 
 See also ../BUGS for generic bugs.
 
+See also ../isar/BUGS.  Isar is now main the instance for 
+Isabelle PG, the original Isabelle instance less supported.
+
 
 ** Issues with tracing mode 
 

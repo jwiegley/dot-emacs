@@ -229,6 +229,11 @@ and script mode."
    pg-subterm-help-cmd			"printyp (type_of (read \"%s\"))"
 
    ;; === MULTIPLE FILE HANDLING ===
+
+   ;; da: this next setting added for PG 3.5.  I think the theory
+   ;; loader changed at some point: originally this setting left as
+   ;; nil would have been okay.
+   proof-cannot-reopen-processed-files  t 
    proof-shell-process-file 
    (cons
     ;; Theory loader output and verbose update() output.

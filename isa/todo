@@ -4,6 +4,10 @@
 
 See also ../todo for generic things to do, priority codes.
 
+See also ../isar/todo.  Isar is now main instance for PG, this
+instance less supported.
+
+
 ** D Isabelle: I think show_sorts -> show_types, how can we reflect this ?
 
 ** D Fix mode naming for Isabelle 
