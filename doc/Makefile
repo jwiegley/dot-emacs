@@ -37,6 +37,7 @@ TOC = :_1
 DVI2PS = dvips
 TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html -expandinfo -number -split_chapter
+# FIXME: choose emacs automatically if xemacs not available
 EMACS = xemacs -batch
 
 TMPFILE=pgt
