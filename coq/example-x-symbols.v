@@ -1,6 +1,6 @@
 (*
     Example uses of X-Symbol symbols in Coq.
-    See end for syntax summary.
+    See README.
 
     Pierre Courtieu
 
@@ -19,11 +19,34 @@ Lemma titi : forall x:nat,x=x. (* symbolique for-all and nat *)
 (* this should appear like foo'a'1_B_3 where a and B are greek *)
 Variable foo'alpha'1_beta_3 : Set.  
 
-(* greek delta with a sub 1 and the same with super 1 *)
-Variable delta__1 delta^^1 : Set. 
+Fixpoint pow (n m:nat) {struct n} : nat :=
+  match n with
+  | O => 0
+  | S p => m * pow p m
+  end.
 
+Notation "a ,{ b }" := (a - b)
+  (at level 1, no associativity).
+
+Notation "a ^^ b" := (pow a b)
+  (at level 1, no associativity).
+
+Notation "a ^{ b }" := (pow a b)
+  (at level 1, no associativity).
+
+
+Variable delta:nat.
+
+(* greek delta with a sub 1 and the same with super 1 *)
+Definition delta__1 := 0. 
+Definition delta__2 := delta^^1.
+Definition delta__3 := delta__2^{delta}.
+
+Parameter a b x:nat.
 (* x with a+b subscripted and then superscripted *)
-Variable x_{a+b} x^{a+b} : Set. 
+Definition x_a_b':= x^{a+b}. 
+Definition x_a_b := x,{a+b}.
+Definition x_a_b'' := x,{a+b}^{a*b}.
 
 (* no greek letter should appear on this next line! *)
 Variable philosophi   : Set.
@@ -38,30 +61,7 @@ Variable _alpha : Set.
 (* a_ where a is greek *)
 Variable alpha_ : Set.
 
+Lemma gamma__neqn : forall n__i:nat, n__i=n__i.
+
 
 alpha lhd rhd lambda forall exists exists exist 
-
-(* 
-Grammar for X-Symbols:
-
-  Symbols include sequences naming Greek letters ("Lambda", "lambda", etc),
-  connectives /\, \/, etc.  See the X-Symbol char table for details,
-  C-= C-=  (control with equals twice).
-
-  a symbol is encoded only if 
-   - preceded by _ or some space or some symbol
-  **and**
-   - followed by _ or some space or some symbol
-
-  Grammar for sub/superscript: 
-
-   - a double _ introduces a subscript that ends at the first space
-   - a double ^ introduces a superscript that ends at the first space
-
-   - a _ followed by { introduces a subscript
-     expression that ends at the first }
-   - a ^ followed by { introduces a superscript
-     expression that ends at the first }
- *)
-
-

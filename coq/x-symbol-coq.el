@@ -101,7 +101,7 @@ See language access `x-symbol-LANG-subscript-matcher'."
   :group 'x-symbol-coq
   :type 'function)
 
-(defcustom x-symbol-coq-font-lock-regexp "_{\\|__\\|\\^{\\|\\^\\^"
+(defcustom x-symbol-coq-font-lock-regexp ",{\\|__\\|\\^{\\|\\^\\^"
   "Regexp matching the start tag of Coq super- and subscripts."
   :group 'x-symbol-coq
   :type 'regexp)
@@ -130,7 +130,8 @@ or subscript tag."
       (while (re-search-forward x-symbol-coq-font-lock-regexp limit t)
         (setq open-beg (match-beginning 0)
               open-end (match-end 0)
-              script-type (if (eq (char-after (- open-end 2)) ?_)
+              script-type (if (or (eq (char-after (- open-end 2)) ?_)
+											 (eq (char-after (- open-end 2)) ?,))
                               'x-symbol-sub-face
 									 'x-symbol-sup-face))
         (if (or (eq (char-after (- open-end 1)) ?{)) ; if is spanning sup-/subscript
