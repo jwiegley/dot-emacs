@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
-@setfilename script-management.info
-@settitle Script Management
+@setfilename proof.info
+@settitle Generic Proof Assistant Mode
 @paragraphindent 0
 @c %**end of header
 
@@ -10,7 +10,7 @@
 @titlepage
 @sp 10
 @comment The title is printed in a large font.
-@center @titlefont{Script Management Mode}
+@center @titlefont{Generic Proof Assistant Mode}
 
 @c The following two commands start the copyright page.
 @page
@@ -435,6 +435,16 @@ Fixes for some of these may be provided in a future release.
 @node Internals,  , Known Problems, Top
 @unnumberedsec Internals
 
-I may one day document the script management internals here. Until then,
-UtSL.
+How to add support for a new proof assitant.  Suppose your new assistant is
+called myass.
+
+@itemize @minus
+@item Make a directory myass to put the specific customization and associated files in,
+  called myass
+@item Edit proof-site.el to add a new case to the 'proof-assistant' variable.
+@end
+
+
+
+
 @bye
