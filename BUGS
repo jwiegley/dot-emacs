@@ -6,19 +6,17 @@ $Id$
 * Toolbar: retract button can give "BUG" error message "called from
 wrong buffer" when the process is inactive.
 
-* Toolbar: not updated properly.  See redisplay-frame attempt
-in proof-shell-filter.  Why does this behave strangely?
-
 * Ordinary undo in script buffer can edit the "uneditable region"
-in XEmacs.  This doesn't happen in FSFmacs!  Test case:
+in XEmacs.  This doesn't happen in FSFmacs.  Test case:
   Insert some nonsense text after the locked region.
   Kill the line. Process to the next command.
-  Press C-x u, nonsense text appears in locked region!
+  Press C-x u, nonsense text appears in locked region.
+Workaround: take care with undo in XEmacs.
 
 * Using C-g can leave script management in a mess.  The code
 needs to have some regions protected from Emacs interrupts.
-At the moment, don't type C-g while script management is
-processing.  If you do, use proof-restart-scripting.
+Workaround: Don't type C-g while script management is processing.  If
+you do, use proof-restart-scripting.
 
 * You can't use more than one proof assistant at a time in the same
 Emacs session.  Nasty things happen if proof-assistants enables

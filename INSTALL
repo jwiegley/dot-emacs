@@ -4,13 +4,17 @@ Instructions for installing Proof General
 This file describes what to do to be able to run Proof General.
 Please let us know if you have any problems in trying to install it.
 
-Unpack this distribution in some <directory>.  Put this line in your
-.emacs file:
+Unpack this distribution somewhere.  It will create a top-level
+directory containing Proof General, called Proof-General-<something>.
+Put this line in your emacs file:
 
-    (load-file "<directory>/generic/proof-site.el")
+    (load-file "<proofgeneral-home>/generic/proof-site.el")
 
-This will set the Emacs load path and add auto-loads for the
-assistants below:
+Where <proofgeneral-home> is replaced by the full path to the
+top-level directory made when you unpacked the distribution.
+
+The command above will set the Emacs load path and add auto-loads for
+the assistants below:
 
   .v	    Coq files
   .l	    LEGO files
@@ -19,8 +23,9 @@ assistants below:
 When you load a file with one of these extensions, the corresponding
 Proof General mode will be entered.
 
-In case of difficulty, please check the notes below and the file BUGS.
-If this doesn't help, then contact us via the address below.
+In case of difficulty, please check the documentation in doc/, the
+notes below, and the file BUGS.  If this doesn't help, then contact us
+via the address below.
    
    Proof General maintainer <proofgen@dcs.ed.ac.uk>
    School of Computer Science,
