@@ -1534,7 +1534,9 @@ however, are always processed; hence their name)."
 	;; for these we set proof-shell-wakeup-char to the annotation 
 	;; special.  
 	(and proof-shell-wakeup-char
-	     (string-match (char-to-string proof-shell-wakeup-char) str))
+	     ; FIXME: this match doesn't work in emacs-mule, darn.
+	     ; (string-match (char-to-string proof-shell-wakeup-char) str))
+	     (find proof-shell-wakeup-char str))
 	;; Others may rely on a standard top-level (e.g. SML) whose
 	;; prompt are difficult or impossible to hack.
 	;; For those we must search in the buffer for the prompt.
@@ -1704,14 +1706,15 @@ Calls proof-state-change-hook."
   "Send CMD to the proof process.
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
-before and after sending the command."
+before and after sending the command.
+If WAIT is an integer, wait for that many seconds afterwards."
   (if wait (proof-shell-wait))
   (proof-shell-ready-prover)		; start proof assistant; set vars.
   (if (not (string-match proof-re-end-of-cmd cmd))
       (setq cmd (concat cmd proof-terminal-string)))
   (proof-start-queue nil nil
 		     (list (list nil cmd 'proof-shell-done-invisible)))
-  (if wait (proof-shell-wait)))
+  (if wait (proof-shell-wait (if (numberp wait) wait))))
 
 
 
