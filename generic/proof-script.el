@@ -2252,8 +2252,7 @@ Make sure the modeline is updated to display new value for electric terminator."
 			       proof-electric-terminator-enable)))
   (redraw-modeline))
 
-(fset 'proof-electric-terminator-toggle 
-      (proof-customize-toggle proof-electric-terminator-enable))
+(proof-deftoggle proof-electric-terminator-enable proof-electric-terminator-toggle)
 
 (defun proof-electric-term-incomment-fn ()
   "Used as argument to proof-assert-until-point."
@@ -2321,27 +2320,65 @@ sent to the assistant."
 ;;
 
 (eval-and-compile			; to define vars
-;;; NB: autoload tag below doesn't work
+;;; NB: autoload tag below doesn't work for d-d-m, autoload is in proof.el
 ;;;###autoload
 (define-derived-mode proof-mode fundamental-mode 
   proof-general-name
   "Proof General major mode class for proof scripts.
 \\{proof-mode-map}"
+
   (setq proof-buffer-type 'script)
 
-  ;; We set hook functions here rather than in proof-config-done
-  ;; so that they can be adjusted by prover specific code
-  ;; if need be.
+  ;; During write-file it can happen that we re-set the mode for
+  ;; the currently active scripting buffer.  The user might also
+  ;; do this for some reason.  We could maybe let
+  ;; this pass through, but it seems safest to treat it as
+  ;; a kill buffer operation (retract and clear spans).
+  ;; (NB: other situations seem to cause double successive calls to
+  ;; proof-mode).
+  (if (eq (current-buffer) proof-script-buffer)
+      (proof-script-kill-buffer-fn))
 
-  (make-local-hook 'kill-buffer-hook)
-  (add-hook 'kill-buffer-hook 'proof-script-kill-buffer-fn t t)
+  ;; We set hook functions here rather than in proof-config-done so
+  ;; that they can be adjusted by prover specific code if need be.
+  (proof-script-set-hooks)
+  (make-local-hook 'after-set-visited-file-name-hooks)
+  (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name)
 
-  (make-local-hook 'proof-activate-script-hook) ; necessary?
+  (make-local-hook 'proof-activate-scripting-hook)
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)))
 
 ;; NB: proof-mode-map declared by define-derived-mode above
 (proof-menu-define-keys proof-mode-map)
 
+(defun proof-script-set-visited-file-name ()
+  "Called when visited file name is changed.
+
+This is a hook function for `after-set-visited-file-name-hooks'.
+
+For some provers, the file from which script commands are being
+processed may be important, and if it is changed with C-x C-w, for
+example, we might have to retract the contents or inform the proof
+assistant of the new name.  This should be done by adding 
+additional functions to `after-set-visited-file-name-hooks'.
+
+At the least, we need to set the buffer local hooks again
+with `proof-script-set-hooks' which is what this function does.
+It also gives a warning in case this is the active scripting buffer."
+  (if (eq (current-buffer) proof-script-buffer)
+      (proof-warning "Active scripting buffer changed name; synchronization risked if prover tracks filenames!"))
+  (proof-script-set-hooks))
+
+(defun proof-script-set-hooks ()
+  "Set the hooks for a proof script buffer.
+The hooks set here are cleared by write-file, so we use this function
+to restore them using `after-set-visited-file-name-hooks'."
+  (make-local-hook 'kill-buffer-hook)
+  (add-hook 'kill-buffer-hook 'proof-script-kill-buffer-fn t t)
+  ;; Reverting buffer is same as killing it as far as PG is concerned
+  (make-local-hook 'before-revert-hook)
+  (add-hook 'before-revert-hook 'proof-script-kill-buffer-fn t t))
+  
 (defun proof-script-kill-buffer-fn ()
   "Value of kill-buffer-hook for proof script buffers.
 Clean up before a script buffer is killed.
@@ -2360,6 +2397,18 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 	(bury-buffer proof-goals-buffer))
     (if (buffer-live-p proof-response-buffer)
 	(bury-buffer proof-response-buffer))))
+
+
+;; Notes about how to deal with killing/reverting/renaming buffers:
+;; (As of XEmacs 21.1.9, see files.el)
+;;
+;; Killing: easy, set kill-buffer-hook
+;; Reverting: ditto, set before-revert-hook to do same as kill.
+;; Renaming (write-file): much tricker.  Code for write-file does
+;;  several odd things.  It kills off local hook functions, calls
+;;  `after-set-visited-file-name-hooks' right at the end to give the
+;;  chance to restore them, but then tends to automatically (re-)set
+;;  the mode anyway.
   
 
 
@@ -2541,6 +2590,16 @@ finish setup which depends on specific proof assistant configuration."
   ;; buffer is really a scripting buffer.  Isabelle Proof General
   ;; has theory file buffers which share some aspects, they
   ;; just use proof-config-done-related.
+
+  ;; Preamble: make this mode class "pg-sticky" so that renaming file
+  ;; to something different doesn't change the mode, no matter what
+  ;; the filename.  This is a hack so that write-file will work:
+  ;; otherwise Emacs insists (as of XEmacs 21.1.9 at least) on
+  ;; re-setting the mode, which leads to problems with synchronization
+  ;; and losing extents.  (Attempt to catch this in proof-mode by
+  ;; looking for active scripting buffer fails; perhaps because of
+  ;; kill buffer function)
+  (put major-mode 'mode-class 'pg-sticky)
 
   ;; First, define some values if they aren't defined already.
   (unless proof-mode-for-script
