@@ -169,17 +169,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-derived-mode lego-shell-mode proof-shell-mode
-   "lego-shell" "Inferior shell mode for lego shell"
+   "lego-shell"
+   ;; With nil argument for docstring, Emacs makes up a nice one.
+   nil
    (lego-shell-mode-config))
 
 (define-derived-mode lego-mode proof-mode
-   "lego" "Lego Mode"
+   "lego" nil
    (lego-mode-config)
    (easy-menu-change (list proof-mode-name) (car proof-help-menu)
 		     (append (cdr proof-help-menu) lego-help-menu-list)))
 
 (define-derived-mode lego-pbp-mode pbp-mode
-  "pbp" "Proof-by-pointing support for LEGO"
+  "pbp" nil
   (lego-pbp-mode-config))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

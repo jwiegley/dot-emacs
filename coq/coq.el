@@ -86,15 +86,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-derived-mode coq-shell-mode proof-shell-mode
-   "coq-shell" "Inferior shell mode for coq shell"
+   "coq-shell" 
+   ;; With nil argument for docstring, Emacs makes up a nice one.
+   nil
    (coq-shell-mode-config))
 
 (define-derived-mode coq-mode proof-mode
-   "coq" "Coq Mode"
+   "coq" nil
    (coq-mode-config))
 
 (define-derived-mode coq-pbp-mode pbp-mode
-  "pbp" "Proof-by-pointing support for Coq"
+  "pbp" nil
   (coq-pbp-mode-config))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
