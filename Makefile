@@ -34,6 +34,8 @@ BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (list "$(PWD)/generic" "
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
 
+BROKENELC=proof-toolbar.elc proof-menu.elc proof-indent.elc proof-x-symbol.elc
+
 .SUFFIXES:	.el .elc
 
 default: compile scripts
@@ -50,6 +52,7 @@ compile:
 	@echo " Byte compiling..."
 	@echo "*************************************************"
 	(rm -f $(ELC); $(BYTECOMP) $(EL))
+	rm -f $(BROKENELC)
 	@echo "*************************************************"
 	@echo " Finished."
 	@echo "*************************************************"
@@ -58,6 +61,7 @@ all:	$(ELC)
 
 .el.elc:
 	$(BYTECOMP) $*.el
+	rm -f $(BROKENELC)
 
 ##
 ## scripts: try to patch bash and perl scripts with correct paths
