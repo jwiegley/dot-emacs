@@ -4,6 +4,18 @@
 
 theory XSymbolTests = Main:
 
+(* Thu Sep 25 16:26:47 BST 2030.  
+   Problem reported by Norbert Schirmer <norbert.schirmer@web.de>
+   Currently, superscript output highlighting seems broken anyway? *)
+
+consts silly:: "'a => 'a => 'a" ("_\<^sup>_" [1000,1000] 1000)
+
+consts k:: 'a
+
+term "a\<^sup>b" (* b should be a blue variable *)
+term "a\<^sup>k" (* k should be a black constant *)
+
+
 
 (* 28.8.02: bug in pg-remove-specials broke this; now fixed *)
 
@@ -42,7 +54,7 @@ consts
    x-symbol-invisitiblity-spec type error, at least
    during editing. *)
 consts
- intof :: nat \<Rightarrow> int  ("_\<^sub>\<int>" 50)
+ intof :: "nat \<Rightarrow> int"  ("_\<^sub>\<int>" 50)
  mynat :: nat ("\<gamma>")
 
 constdefs
