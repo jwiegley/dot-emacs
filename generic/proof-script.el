@@ -1393,7 +1393,7 @@ scripting."
       ;; Give error if no non-whitespace between point and end of
       ;; locked region.  
       (if (proof-only-whitespace-to-locked-region-p)
-	  (error "There's nothing to do to!"))
+	  (error "At the end of the locked region already, there's nothing to do to!"))
       ;; NB: (point) has now been moved backwards to first non-whitespace char.
       (setq semis (proof-segment-up-to (point))))
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
