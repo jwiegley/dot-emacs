@@ -106,6 +106,8 @@ Print and Check commands, put the following line in your .emacs:
 "Cd"
 "Check"
 "DelPath"
+"Define"
+"Qed"
 "End"
 "End\\s-+Silent"
 "Eval"
@@ -135,6 +137,7 @@ Print and Check commands, put the following line in your .emacs:
 "Show\\s-+Proof"
 "Show\\s-+Script"
 "Show"
+"Save"
 "Unfocus" ; ???
 )
 			 coq-user-non-backable-commands

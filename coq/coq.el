@@ -230,6 +230,22 @@
        (not (proof-string-match "Lemma.*:=" str))))
 ;; ))
 
+
+; Pierre: This is a try, for use in find-and-forget. It seems to work but 
+; is it correct with respect to the asynchronous communication between Coq 
+; and emacs? 
+; FIXME: Pierre The prompt should be (is?) available by something cleaner
+; than this ugly buffer switching. David? :-)
+(defun coq-proof-mode-p ()
+  "Look at the last line of the *coq* buffer to see if the prompt 
+is the toplevel \"Coq <\". Returns nil if yes. Allows to know if we
+are currentlly in proof mode. This assumes that no \"Resume\" Command
+have been used."
+  (save-window-excursion 
+	 (switch-to-buffer "*coq*")
+	 (not (string-match "^Coq < " (buffer-substring (- (point-max) 8) (point-max))))))
+
+
 ;; TODO : add the stuff to handle the "Correctness" command 
 
 ;; Pierre: May 29 2002 added a "Back n. " command in order to
