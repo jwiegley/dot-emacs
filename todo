@@ -480,10 +480,10 @@ X proof-site (da): I think it would be nice to change the architecture
 X Support a history of proof commands, with a "redo" command to
   redo undo-to-point or sequences of toolbar undo's.
 
-X Support for x-symbols package.
-  Provers with sophisticated/configurable syntax should tell Emacs
+X Provers with sophisticated/configurable syntax should tell Emacs
   about their syntax somehow, rather than trying to duplicate
   specifications inside Emacs.
+  Maybe some particular ATerm format would help with this?
 
 X Comment support is not very generic: we don't support end-of-line
   terminated comments.  Is there any case where this might be
