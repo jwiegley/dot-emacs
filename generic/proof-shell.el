@@ -792,7 +792,8 @@ This function expects 'proof-shell-delayed-output' to be a cons cell
 of the form ('insert . TXT) or ('analyse . TXT).
 See the documentation for `proof-shell-delayed-output' for further details."
   (let ((ins (car proof-shell-delayed-output))
-	(str (cdr proof-shell-delayed-output)))
+	(str (cdr proof-shell-delayed-output))
+	pos)
     (cond 
      ;; 
      ;; 1. Text to be inserted in response buffer.
@@ -1230,13 +1231,6 @@ arrive."
 	      proof-shell-eager-annotation-end
 	      'proof-eager-annotation-face))
     (proof-shell-message str))))
-
-(defun proof-files-to-buffers (filenames)
-  "Converts a list of FILENAMES into a list of BUFFERS."
-  (if (null filenames) nil
-    (let* ((buffer (proof-file-to-buffer (car filenames)))
-	  (rest (proof-files-to-buffers (cdr filenames))))
-      (if buffer (cons buffer rest) rest))))
 
 (defun proof-shell-process-urgent-message (message)
   "Analyse urgent MESSAGE for various cases.
