@@ -725,8 +725,8 @@ are not dealt with eagerly during script processing, namely
 ;; Processing error output
 ;;
 
-(defvar proof-shell-ignore-errors nil
-  "If non-nil, be quiet about errors from the prover.
+(defvar proof-shell-no-error-display nil
+  "If non-nil, do not display errors from the prover. 
 An internal setting used in `proof-shell-invisible-cmd-get-result'.")
 
 ;; FIXME: combine next two functions?
@@ -738,11 +738,11 @@ The error message is displayed in the response buffer.
 Then we call `proof-shell-error-or-interrupt-action', which see."
   ;; [FIXME: Why not flush goals also for interrupts?]
   ;; Flush goals or response buffer (from some last successful proof step)
-  (unless proof-shell-ignore-errors	;; quiet 
+  (unless proof-shell-no-error-display
     ;; FIXME FIXME FIXME: some terrible memory leak here in XEmacs, when
     ;; next line is executed.
     (save-excursion
-       (proof-shell-handle-delayed-output))
+      (proof-shell-handle-delayed-output))
     (proof-shell-handle-output
      (if proof-shell-truncate-before-error proof-shell-error-regexp)
      'proof-error-face)
@@ -752,14 +752,14 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
 (defun proof-shell-handle-interrupt ()
    "React on an interrupt message from the prover.
 Runs `proof-shell-error-or-interrupt-action'."
-  (unless proof-shell-ignore-errors	;; quiet 
-   (proof-shell-maybe-erase-response t t t) ; force cleaned now & next
-   (proof-shell-handle-output
-    (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
-    'proof-error-face)
+   (unless proof-shell-no-error-display
+     (proof-shell-maybe-erase-response t t t) ; force cleaned now & next
+     (proof-shell-handle-output
+      (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
+      'proof-error-face)
 ;  (proof-display-and-keep-buffer proof-response-buffer)
-   (proof-warning 
-    "Interrupt: script management may be in an inconsistent state
+     (proof-warning 
+      "Interrupt: script management may be in an inconsistent state
            (but it's probably okay)"))
    (proof-shell-error-or-interrupt-action 'interrupt))
 
@@ -771,11 +771,20 @@ We sound a beep, clear queue spans and `proof-action-list', and set the flag
 `proof-shell-error-or-interrupt-seen' to the ERR-OR-INT argument.
 Then we call `proof-shell-handle-error-or-interrupt-hook'."
   (save-excursion			;; for safety.
-    (unless proof-shell-ignore-errors	;; quiet 
+    (unless (or proof-shell-no-error-display
+		proof-shell-quiet-errors)
       (beep))
     (proof-script-clear-queue-spans)
     (setq proof-action-list nil)
     (proof-release-lock err-or-int)
+    ;; 
+    (unless proof-shell-no-error-display ;; internal call
+      ;; Give a hint about C-c C-`.
+      ;; FIXME: this is rather approximate,
+      ;; we ought to check whether there is an error location in 
+      ;; the latest message, not just somewhere in the response buffer.
+      (if (pg-response-has-error-location) 
+	  (pg-next-error-hint)))
     ;; Make sure that prover is outputting data now.
     ;; FIXME: put something here!
     ;; New: this is called for interrupts too.
@@ -1929,11 +1938,11 @@ string instead.
 Errors are not supressed and will result in a display as 
 usual, unless NOERROR is non-nil."
   (setq proof-shell-no-response-display t)
-  (setq proof-shell-ignore-errors noerror)
+  (setq proof-shell-no-error-display t)
   (unwind-protect
       (proof-shell-invisible-command cmd 'waitforit)
-    (setq proof-shell-no-response-display nil)
-    (setq proof-shell-ignore-errors nil))
+    (setq proof-shell-no-error-display nil)
+    (setq proof-shell-no-response-display nil))
   proof-shell-last-output)
 
 (defun proof-shell-invisible-command-invisible-result (cmd &optional noerror)

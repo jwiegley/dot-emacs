@@ -1048,6 +1048,10 @@ If NUM is negative, move upwards.  Return new span."
 	     (t ;; partly complete: hint about displaying the locked end
 	      (pg-jump-to-end-hint))))))))
 
+(defun pg-next-error-hint ()
+  "Display hint for locating error."
+  (pg-hint "Use \\[proof-next-error] to go to next error location."))
+
 (defun pg-hint (hintmsg)
   "Display a hint HINTMSG in the minibuffer, if `pg-show-hints' is non-nil.
 The function `substitute-command-keys' is called on the argument."

@@ -420,9 +420,17 @@ and start at the first error."
 	    (setq pg-response-next-error nil)
 	    (error "proof-next-error: couldn't find a next error.")))))
 
-   
-
-
+;;;###autoload
+(defun pg-response-has-error-location ()
+  "Return non-nil if the response buffer has an error location.
+See `pg-next-error-regexp'."
+  (if (and pg-next-error-regexp
+	   (buffer-live-p proof-response-buffer))
+      (save-excursion
+	(set-buffer proof-response-buffer)
+	(goto-char (point-min))
+	(re-search-forward pg-next-error-regexp nil t))))
+	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

@@ -1705,7 +1705,12 @@ on information from the prover."
 The function is passed the span and the command as arguments."
   :type 'function
   :group 'proof-shell)
-  
+
+(defcustom proof-shell-quiet-errors nil
+  "If non-nil, be quiet about errors from the prover.
+Normally error messages cause a beep.  Set this to nil to prevent that."
+  :type 'boolean
+  :group 'proof-shell)
 
 ;; (defcustom  proof-shell-adjust-line-width-cmd nil
 
