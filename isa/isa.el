@@ -1,5 +1,5 @@
 ;; isa-mode.el	 Emacs support for Isabelle proof assistant
-;; Copyright (C) 1994-2000 LFCS Edinburgh, David Aspinall.
+;; Copyright (C) 1993-2000 LFCS Edinburgh, David Aspinall.
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
@@ -10,7 +10,7 @@
 ;;
 ;; This file and the rest of Isabelle Proof General contain code taken
 ;; from David Aspinall's Isamode system, a personal project undertaken
-;; 1994-1999 as a contribution to the Isabelle community.
+;; 1993-1999 as a contribution to the Isabelle community.
 ;;
 ;; -----------------------------------------------------------------
 
