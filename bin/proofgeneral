@@ -13,7 +13,7 @@
 PGHOME=/usr/share/emacs/ProofGeneral
 #PGHOME=~/ProofGeneral
 
-if [ -z "EMACS" ]; then
+if [ -z "$EMACS" ]; then
     if which xemacs > /dev/null; then 
 	EMACS=xemacs
     else 
