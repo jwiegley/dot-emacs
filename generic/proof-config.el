@@ -1932,6 +1932,8 @@ The matching string will be parsed as XML and then processed by
   :type '(choice nil regexp)
   :group 'proof-shell)
 
+;; FIXME: next one needs changing to be a function, or have function
+;; built from it.
 (defcustom proof-shell-issue-pgip-cmd nil
   "Command sent to prover to process PGIP command in %s placeholder."
   :type '(choice nil string)
