@@ -176,6 +176,7 @@ Proof General.
 * Demonstration Instantiations::
 * Function Index::              
 * Variable Index::              
+* Keystroke Index::             
 * Concept Index::               
 @end menu
 @end ifinfo
@@ -562,6 +563,11 @@ brings.
 But in case it is hard to map some of the generic buttons
 onto functions in particular provers, and to allow extra
 buttons, there is a mechanism for adjustment.
+
+I used The Gimp to create the buttons for Proof General.  The
+development distribution includes a button blank and some notes in
+@file{etc/notes.txt} about making new buttons.
+
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-entries-default
 @defvar proof-toolbar-entries-default 
