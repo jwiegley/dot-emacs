@@ -335,12 +335,6 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;; Next portion taken from isa-load.el
 ;; isa-load.el,v 3.8 1998/09/01 
 
-(defcustom isabelle-use-sml-mode
-   (if (fboundp 'sml-mode) 'sml-mode)
-  "*If non-nil, attempt to use sml-mode in ML section of theory files."
-  :type 'boolean
-  :group 'isabelle)
-
 (defgroup thy nil
   "Customization of Isamode's theory editing mode"
   ;; :link '(info-link "(Isamode)Theory Files")

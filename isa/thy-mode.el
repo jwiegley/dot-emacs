@@ -73,9 +73,12 @@ any of the usual bracket characters in unusual ways."
     ("end")
     ("ML"))
   "Names of theory file sections and their templates.
-Template is either a string to insert or a function. Useful functions are:
+Each item in the list is a pair of a section name and a template.
+A template is either a string to insert or a function. Useful functions are:
   thy-insert-header, thy-insert-class, thy-insert-default-sort,
-  thy-insert-const, thy-insert-rule"
+  thy-insert-const, thy-insert-rule.
+The nil template does nothing.
+You can add extra sections to theory files by extending this variable."
   :type '(repeat
 	  (cons string
 	       (choice function
@@ -109,8 +112,8 @@ ML\n"
 "*Template for theory files.
 Contains a default selection of sections in a traditional order.
 You can use the following format characters:
-  %t  -- replaced by theory name
-  %p  -- replaced by names of parents, separated by +'s"
+  %t --- replaced by theory name
+  %p --- replaced by names of parents, separated by +'s"
  :group 'thy
  :type 'string)
 
