@@ -1,0 +1,25 @@
+Isabelle/Isar Proof General
+
+Written by Markus Wenzel
+
+$Id$
+
+Status:		   supported
+Maintainer:	   Markus Wenzel
+Isabelle version:  99
+Isar homepage:	   http://isabelle.in.tum.de/Isar/
+
+========================================
+
+Isabelle/Isar Proof General has full support for multiple file
+scripting, with dependencies between theories communicated between
+Isabelle and Proof General.  
+
+There is proper support for X Symbol, using the Isabelle print mode
+for X Symbol tokens.  Many Isabelle theories have X Symbol syntax
+already defined and it's easy to add to your own theories.
+
+There is no support for proof by pointing yet, and no tags program.
+
+The script `interface' and file 'interface-setup.el' are used to start
+Isabelle Proof General via the 'Isabelle' shell command.  

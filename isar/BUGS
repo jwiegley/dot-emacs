@@ -1,0 +1,9 @@
+-*- mode:outline -*-
+
+* Isabelle/Isar Proof General Bugs
+
+See also ../BUGS for generic bugs.
+
+Nothing specific here, check isa/BUGS for some issues that may apply
+to Isar as well.
+

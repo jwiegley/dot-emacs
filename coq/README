@@ -5,12 +5,18 @@ Later contributions by Patrick Loiseleur and Pierre Courtieu.
 
 $Id$
 
+Status:		supported
+Maintainer:	Pierre Courieu
+Coq version:	6.3
+Coq homepage:	http://pauillac.inria.fr/coq/assis-eng.html
+
+========================================
+
 Presently Coq Proof General supports automatic multiple file support
 only (deduced file dependencies, not communicated ones).  It does not
 have support for proof by pointing.
 
-There is support for x-symbols, but not using a proper token
-language.  Try writing "philosophy" !
+There is support for X Symbol, but not using a proper token language.
 
 There is a tags program, coqtags.
 

@@ -10,6 +10,7 @@
    by David Aspinall.  This is a fairly basic Proof General instance
    only, hopefully to entice HOL users so that one of them may improve it.
    I don't plan to maintain or improve this instantiation myself.
+   (Nevertheless, please report problems as usual to proofgen@dcs.ed.ac.uk)
    See README in the hol98 directory for more details.
 
 *** Plastic (http://www.dur.ac.uk/CARG/plastic.html)
@@ -21,13 +22,15 @@
 
 ** Generic Changes
 
+*** Separate README and BUGS files for each supported prover
+
+  Check these files for detail of support and issues with each prover.
+
 *** Names of shell, goals, script buffers now based on proof assistant name
 
   Basing the name on the command isn't very abstract and leads to strange 
   names for some provers, "coqtop" and "hol.unquote".  Now we just use
   the lower case of the proof assistant name.
-
-*** README file added for each supported prover, explaining support.
 
 *** Fixes for supporting Japanese versions of Emacs which have older CL macs.
  
@@ -89,12 +92,12 @@
 
 ** Isar Changes
 
-*** Minor syntax tweaks.
+*** Syntax tweaks.
 
 
 ** Changes for developers to note
 
-*** todo file added for each prover, split from global todo file
+*** todo files added for each prover (todo split from global todo).
 
 
 

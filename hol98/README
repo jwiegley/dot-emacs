@@ -4,6 +4,14 @@ Written by David Aspinall.
 
 $Id$
 
+Status:	      not officially supported yet
+Maintainer:   volunteer required
+HOL version:  HOL 98, tested with Taupo 2
+HOL homepage: http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html
+
+========================================
+
+
 This is a "technology demonstration" of Proof General for HOL 98.
 
 It may work with other versions of HOL, but is untested (please let me
@@ -12,16 +20,17 @@ know if you try).
 It has basic script management support, with a little bit of
 decoration of scripts and output.
 
-There is support for x-symbols, but not using a proper token
-language.  Try writing "philosophy" !
+There is support for X Symbol, but not using a proper token language.
+Try writing "philosophy" !
 
 I have written this in the hope that somebody from the HOL community
 will adopt it, maintain and improve it, and thus turn it into a proper
 instantiation of Proof General.
 
-------------------
 
-Note:
+------------
+
+Notes:
 
 There are some problems at the moment.  HOL proof scripts often use
 batch-oriented single step tactic proofs, but Proof General does not
@@ -34,8 +43,8 @@ interactive proofs would also be useful for Isabelle.
 
 Another problem is that HOL scripts sometimes use SML structures,
 which can cause confusion because Proof General does not really parse
-SML, it just looks for semicolons.  Again, this could be improved by
-taking a better parser (e.g. from sml mode).
+SML, it just looks for semicolons.  This could be improved by taking a
+better parser (e.g. from sml mode).
 
 These improvements would be worthwhile contributions to Proof General
 and also provide the HOL community with a nice front end.  

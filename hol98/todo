@@ -1,12 +1,18 @@
 -*- mode:outline -*-
 
-* See also ../todo for generic things to do, priority codes.
-
 * Things to do for HOL
-======================
 
-A Problem with displaying long help message: causes loop in PG
+See also ../todo for generic things to do, priority codes.
+
+** A Problem with displaying long help message: causes loop in PG
   filtering, why?  Process also takes a long time to kill off.
 
-B Improve display to strip ugly val it's.
+** B Improve display to strip ugly val it and spurious >'s.
+
+** B Add special markup to improve robustness
+
+** B Add support for multiple files
+
+** B Add support for proof by pointing.
+
 

@@ -1,0 +1,10 @@
+-*- mode:outline -*-
+
+* Things to do for Plastic
+
+See also ../todo for generic things to do, priority codes.
+
+** Add as part of main distribution when Plastic ready
+  
+   Edit Makefile.devel
+

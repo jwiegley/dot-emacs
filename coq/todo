@@ -1,36 +1,38 @@
 -*- mode:outline -*-
 
-* See also ../todo for generic things to do, priority codes.
-
 * Things to do for Coq
-======================
 
-B C-c C-c breaks the coherence with prover state
+See also ../todo for generic things to do, priority codes.
+
+** B Fix silly startup sychronization problem that displays
+  cwd on startup.
+
+** B C-c C-c breaks the coherence with prover state
   (da: can somebody tell me if this is still true? 
    what problem specifically?)
 
-B Proof-by-Pointing [1 month]
+** B Proof-by-Pointing [2 weeks]
   da: Yves Bertot told me that his CtCoq proof-by-pointing code
   is in the Coq kernel now, so would be useful for PG.
   We need a Coq hacker to do this (Pierre?)
 
-C Improve X-Symbol support.  Integrate with Coq syntax mechanism somehow?
+** C Improve X-Symbol support.  Integrate with Coq syntax mechanism somehow?
 
-C Retraction in a Section should retract to the beginning of the whole 
+** C Retraction in a Section should retract to the beginning of the whole 
   section. See the section "Granularity of
   Atomic Commands" for a proposal on how to generalise the current
   implementation so that it can also deal with sections.
   [See also the LEGO problem with Discharge] (6h)
 
-D Add Patrick Loiseleur's commands to search for vernac or ml files.
+** D Add Patrick Loiseleur's commands to search for vernac or ml files.
   (they are in a separate file that is part of Coq distrib.
    should I really integrate that in PG ? Patrick) 
   (maybe not if they're orthogonal to PG, but might help users - da)
 
-D Add coq-add-tactic with a tactic name, which adds that tactic to the 
+** D Add coq-add-tactic with a tactic name, which adds that tactic to the 
   undoable tactics and to the font-lock. (2h)
 
-D Improve coqtags. It cannot handle lists e.g., with 	
+** D Improve coqtags. It cannot handle lists e.g., with 	
 	Parameter x,y:nat
   it only tags x but not y. [The same problem exists for legotags]
 

@@ -5,11 +5,17 @@ Later maintainance by David Aspinall and Paul Callaghan.
 
 $Id$
 
+Status:		supported
+Maintainer:	Paul Callaghan / David Aspinall
+LEGO version:	1.3.1
+LEGO homepage:	http://www.lfcs.informatics.ed.ac.uk/lego
+
+========================================
+
 LEGO Proof General has full support for multiple file scripting, and
 experimental support for proof by pointing.
 
-There is support for x-symbols, but not using a proper token
-language.  Try writing "philosophy" !
+There is support for X Symbol, but not using a proper token language.
 
 There is a tags program, legotags.
 

@@ -1,0 +1,33 @@
+-*- mode:outline -*-
+
+* Isabelle Proof General Bugs
+
+See also ../BUGS for generic bugs.
+
+
+** "Stack overflow in regexp".  
+
+This problem is caused by a poor regexp and large proofstates.  It
+needs some small alterations to other proof assistant regexps, so will
+be fixed in 3.2.  In the meantime, a workaround is to reduce the
+number of subgoals displayed.
+
+** set proof_timing is problematic
+
+It will make the goals display disappear during proof.  This is
+because Proof General only displays goals output that appears *after*
+Isabelle messages, but Isabelle prints the timing message after the
+goals are displayed.
+
+** General difficulty with proof scripts containing ML structures, etc.  
+
+Proof General does not understand full ML syntax(!), so it will be
+confused by structures which contain semi-colons after declarations,
+for example.  Also, it cannot undo function declarations.  See the
+section on ML files in the manual for more details.
+
+** Blocking when processing multiple files, beginning from a .ML file.
+
+Proof General will block the Emacs process when it is waiting for a
+theory file (and it's ancestors) to be read as scripting is turned on.
+To avoid this, assert the theory file rather than the ML file.

@@ -4,16 +4,21 @@ Written by David Aspinall.
 
 $Id$
 
+Status:	supported as a demonstration only
+
+========================================
+
+
 		"Isabelle Proof General in 30 setqs"
 
-This is a whittled down version of Isabelle Proof General, supplied
-as an (almost) minimal demonstration of how to instantiate Proof
-General to a particular proof assistant.  You can use this as a
-template to get support for a new assistant going.
+This is a whittled down version of Isabelle Proof General, supplied as
+an (almost) minimal demonstration of how to instantiate Proof General
+to a particular proof assistant.  You can use this as a template to
+get support for a new assistant going. (I did for HOL Proof General).
 
 This mode uses the unadulterated terminal interface of Isabelle, to
-demonstrate that hacking the proof assistant is not necessary to
-get basic features working.
+demonstrate that hacking the proof assistant is not necessary to get
+basic features working.
 
 And it really works!  You you get a toolbar, menus, short-cut keys,
 script management for multiple files, a function menu, ability to
@@ -42,6 +47,9 @@ How easy is it to add all that?
  messages. But automatic multiple files may be all you need anyway.
  6. Non trivial (but worth a go).
 
-
 See demoisa.el and demoisa-easy.el for more details.
+
+
+
+
 

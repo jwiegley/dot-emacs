@@ -1,27 +1,26 @@
 -*- mode:outline -*-
 
-* See also ../todo for generic things to do, priority codes.
+* Things to do for LEGO
 
-* Things to do for Lego
-=======================
+See also ../todo for generic things to do, priority codes.
 
-C Improve X-Symbol support.
+** C Improve X-Symbol support.
 
-D Fix Pbp implementation in LEGO itself (10h)
+** D Fix Pbp implementation in LEGO itself (10h)
 
-D In LEGO, apart from Goal...Save pairs, we have
+** D In LEGO, apart from Goal...Save pairs, we have
   declaration...discharge pairs. See the section "Granularity of
   Atomic Commands" for a proposal on how to generalise the current
   implementation so that it can also deal with "Discharge".
   [See also the Coq problem with Sections] (6h)
 
-D Inoking an "Expand" command produces a new proof state. But this is
+** D Inoking an "Expand" command produces a new proof state. But this is
   incorrectly displayed in the response buffer and not the goals
   buffer because special annotations are missing. Presumably, one
   ought to replace "Toplevel.Pr()" by "Toplevel.PR()" in the
   definition of "Expand" (see file newtop.sml [Version 1.4]). (30min)
 
-D Even with the more flexible region model, with 
+** D Even with the more flexible region model, with 
   proof-nested-goals-behaviour=closequick, Proof General doesn't
   do quite the right thing.  Forget for a definition when inside
   a proofstate kills off the whole proofstate.  Effectively,
@@ -34,11 +33,11 @@ D Even with the more flexible region model, with
   some retraction action.  More generally this could be used for error
   handling.
 
-D Improve legotags. It cannot handle lists e.g., with 	
+** D Improve legotags. It cannot handle lists e.g., with 	
     [x,y:nat];
   it only tags x but not y. [The same problem exists for coqtags]
 
-X Mechanism to save object file. Specifically, after having processed
+** X Mechanism to save object file. Specifically, after having processed
   a script (interactively), it would be nice if one could now save the
   buffer in object format. At the moment, it only gets converted
   (automatically) when it is read in indirectly at a later stage.

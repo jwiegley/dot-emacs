@@ -16,7 +16,8 @@ See COPYING for license details.
 
 See doc/ for documentation of Proof General.
 
-For notes on the supported assistants, see the subdirectories,
+For notes on the supported assistants, see the README files
+in subdirectories:
 
      isa/   Isabelle
     isar/   Isabelle/Isar
@@ -25,6 +26,8 @@ For notes on the supported assistants, see the subdirectories,
    hol98/   HOL 98
  plastic/   Plastic
 
+Check BUGS for problems and issues, in this directory, and
+for specific issues, in each prover subdirectory.
 
 For the latest news and downloads, check the Proof General web page
 at: http://www.lfcs.informatics.ed.ac.uk/proofgen
