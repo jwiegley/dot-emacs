@@ -22,12 +22,10 @@ Generic Changes
 
 * Shorter buffer names for convenience.
  
-* Removed transparent gif from splash screen because XEmacs can't
-  display it nicely.
+* Removed transparent gif (text logo) from splash screen 
+  because XEmacs can't display it nicely.
  
 * Documentation updates.
-
-* Code cleanups and improvements.
 
 
 Coq Changes
@@ -44,11 +42,16 @@ Isabelle and Isar Changes
 * Recognize goals of the old form val prems = goal ...
 
 
-
-Only in the developer's release:
---------------------------------
+Only in the developers' release
+-------------------------------
 
 * Provisional instantiation of Proof General for
   Plastic (http://www.dur.ac.uk/CARG/plastic.html)
   by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
+
+
+Internal changes for developers to note
+---------------------------------------
+
+* Code cleanups and improvements.
 
