@@ -78,9 +78,21 @@ ProofGeneral.txt:
 # In fact, the flag seems not to work (why?), 
 # so comment out the image line too. 
 # NB! mustn't have another line with '@c image' in it.
-ProofGeneral.eps:
-	if [ -f ProofGeneral.eps.gz ]; then gunzip -c ProofGeneral.eps.gz > ProofGeneral.eps; fi
-	if [ -f ProofGeneral.eps ]; then \
+ProofGeneralPortrait.eps:
+	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; fi
+	if [ -f ProofGeneralPortrait.eps ]; then \
+	  sed 's/@clear haveeps/@set haveeps/g' ProofGeneral.texi > $(TMPFILE); \
+	  sed 's/@c image{ProofGeneral}/@image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
+	else   \
+	  sed 's/@set haveeps/@clear haveeps/g' ProofGeneral.texi > $(TMPFILE); \
+	  sed 's/@image{ProofGeneral}/@c image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
+	fi
+	rm -f $(TMPFILE)
+
+ProofGeneralPortrait.pdf:
+	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; fi
+	epstopdf ProofGeneralPortrait.eps
+	if [ -f ProofGeneralPortrait.pdf ]; then \
 	  sed 's/@clear haveeps/@set haveeps/g' ProofGeneral.texi > $(TMPFILE); \
 	  sed 's/@c image{ProofGeneral}/@image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
 	else   \
@@ -107,10 +119,10 @@ all:    dvi ps html info pdf
 ##
 dist:   info html psz
 
-dvi:    ProofGeneral.eps $(DOCNAME).dvi
+dvi:    ProofGeneralPortrait.eps $(DOCNAME).dvi
 ps:	dvi $(DOCNAME).ps
 psz:	ps $(DOCNAME).ps.gz
-pdf:    $(DOCNAME).pdf
+pdf:    ProofGeneralPortrait.pdf $(DOCNAME).pdf
 html:   $(DOCNAME).html
 info:   ProofGeneral.txt $(DOCNAME).info
 
@@ -122,7 +134,7 @@ info:   ProofGeneral.txt $(DOCNAME).info
 ## clean: Remove subsidiary documentation files
 ##
 clean:
-	rm -f ProofGeneral.txt ProofGeneral.eps
+	rm -f ProofGeneral.txt ProofGeneralPortrait.eps ProofGeneralPortrait.pdf
 	rm -f $(DOCNAME).{cp,fn,vr,tp,ky,pg} 
 	rm -f $(DOCNAME).{fns,vrs,cps,aux,log,toc,kys,cp0}
 	rm -f *~
