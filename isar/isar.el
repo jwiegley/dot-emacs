@@ -188,7 +188,6 @@
    proof-shell-error-regexp             "\364\\*\\*\\*"
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
-   ;; da: added next two 2.5.02
    proof-shell-next-error-regexp	  "\\((line \\([0-9]+\\) of \"[^\"]+\")\\)"
    proof-shell-next-error-filename-regexp "\\((line [0-9]+ of \"\\([^\"]+\\)\")\\)"
 
