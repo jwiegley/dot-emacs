@@ -189,7 +189,7 @@ Return nil if `x-symbol-mode' or `x-symbol-subscripts' is nil.  Uses
     (longarrowdblboth "\\<Longleftrightarrow>")
     (brokenbar "\\<bar>")
     (hyphen "\\<hyphen>")
-    (macron "\\<macron>")
+    (macron "\\<inverse>")
     (exclamdown "\\<exclamdown>")
     (questiondown "\\<questiondown>")
     (guillemotleft "\\<guillemotleft>")
