@@ -783,13 +783,13 @@ You should set this variable for reliable working of Proof General,
 as well as @samp{@code{proof-script-comment-end}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-script-comment-start-regexp
-
 @defvar proof-script-comment-start-regexp 
 Regexp which matches a comment start in the proof command language.
 
 The default value for this is set as (@code{regexp-quote} @code{proof-script-comment-start})
 but you can set this variable to something else more precise if necessary.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-script-comment-end
 @defvar proof-script-comment-end 
 String which ends a comment in the proof assistant command language.@*
@@ -870,8 +870,6 @@ It's safe to leave this setting as nil.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-goal-with-hole-result
-
-
 @defvar proof-goal-with-hole-result 
 String or Int: how to build the theorem name after matching@*
 with @code{proof-goal-with-hole-regexp}. If it is an int N use @code{match-string} 
@@ -879,6 +877,7 @@ to recover the value of the Nth parenthesis matched. If it is a string
 use @code{replace-match}. It the later case, @code{proof-goal-with-hole-regexp} should
 match the entire command
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-save-command-regexp
 @defvar proof-save-command-regexp 
 Matches a save command.
@@ -1159,8 +1158,6 @@ with something different.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-forget-id-command
-
-
 @defvar proof-forget-id-command 
 Command to forget back to a given named span.@*
 A string; @samp{%s} will be replaced by the name of the span.
@@ -1169,6 +1166,7 @@ This is only used in the implementation of @samp{@code{proof-generic-find-and-fo
 you only need to set if you use that function (by not customizing
 @samp{@code{proof-find-and-forget-fn}}.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: pg-topterm-goalhyp-fn
 @defvar pg-topterm-goalhyp-fn 
 Function which returns cons cell if point is at a goal/hypothesis.@*
@@ -1394,7 +1392,6 @@ group.  This allows different proof assistants to coexist
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-auto-terminate-commands
-
 @defvar proof-shell-auto-terminate-commands 
 Non-nil if Proof General should try to add terminator to every command.@*
 If non-nil, whenever a command is sent to the prover using
@@ -1402,6 +1399,7 @@ If non-nil, whenever a command is sent to the prover using
 ends with @code{proof-terminal-char}, and add it if not.
 If @code{proof-terminal-char} is nil, this has no effect.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-pre-sync-init-cmd
 @defvar proof-shell-pre-sync-init-cmd 
 The command for configuring the proof process to gain synchronization.@*
@@ -1771,8 +1769,8 @@ See also @samp{@code{proof-shell-eager-annotation-start-length}},
 
 Set to nil to disable this feature.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-eager-annotation-start-length
 
+@c TEXI DOCSTRING MAGIC: proof-shell-eager-annotation-start-length
 @defvar proof-shell-eager-annotation-start-length 
 Maximum length of an eager annotation start. @*
 Must be set to the maximum length of the text that may match
@@ -1782,6 +1780,7 @@ If this value is too low, eager annotations may be lost!
 This value is used internally by Proof General to optimize the process
 filter to avoid unnecessary searching.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-eager-annotation-end
 @defvar proof-shell-eager-annotation-end 
 Eager annotation field end.  A regular expression or nil.@*
@@ -2521,24 +2520,29 @@ a menu entry, for example.  The default value is the string
 @node Useful variables
 @section Useful variables
 
-In @file{proof-compat}, two architecture flags are defined.  These can
-be used to write conditional pieces of code for different Emacs and
-operating systems.  
+In @file{proof-site}, several architecture flags are defined.  These
+can be used to write conditional pieces of code for different Emacs
+and operating systems.  They are referred to mainly in
+@file{proof-compat} (which helps to keep the architecture and version
+dependent code in one place).
 
+
+@c TEXI DOCSTRING MAGIC: proof-running-on-Emacs21
+@defvar proof-running-on-Emacs21
+Non-nil if Proof General is running on GNU Emacs 21 or later.
+@end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-running-on-XEmacs
-
 @defvar proof-running-on-XEmacs 
 Non-nil if Proof General is running on XEmacs.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-running-on-win32
-
-
-
-
 @defvar proof-running-on-win32 
 Non-nil if Proof General is running on a win32 system.
 @end defvar
+
+
 @node Useful functions and macros
 @section Useful functions and macros
 
@@ -2582,12 +2586,16 @@ buffer.
 @defun proof-shell-invisible-command cmd &optional wait
 Send @var{cmd} to the proof process.@*
 The @var{cmd} is @samp{invisible} in the sense that it is not recorded in buffer.
-@var{cmd} may be a string or a string-yielding function.
+@var{cmd} may be a string or a string-yielding expression.
+
 Automatically add @code{proof-terminal-char} if necessary, examining
 proof-shell-no-auto-terminate-commands.
+
 By default, let the command be processed asynchronously.
 But if optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
+
+In case @var{cmd} is (or yields) nil, do nothing.
 @end defun
 
 There are several handy macros to help you define functions
@@ -2614,12 +2622,6 @@ Define command FN to prompt for string @var{cmdvar} to proof assistant.@*
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-format-filename
-
-
-
-
-
-
 @defun proof-format-filename string filename
 Format @var{string} by replacing quoted chars by escaped version of @var{filename}.
 
@@ -2642,6 +2644,7 @@ are processed.
 If @var{string} is in fact a function, instead invoke it on @var{filename} and
 return the resulting (string) value.
 @end defun
+
 @node Internals of Proof General
 @chapter Internals of Proof General
 
@@ -3344,7 +3347,6 @@ This function calls @samp{@code{proof-append-alist}}.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-append-alist
-
 @defun proof-append-alist alist &optional queuemode
 Chop off the vacuous prefix of the command queue @var{alist} and queue it.@*
 For each @samp{@code{proof-no-command}} item at the head of the list, invoke its 
@@ -3358,6 +3360,7 @@ If the proof shell is busy when this function is called,
 then @var{queuemode} must match the mode of the queue currently
 being processed.
 @end defun
+
 @vindex proof-action-list
 @c TEXI DOCSTRING MAGIC: proof-shell-exec-loop
 @defun proof-shell-exec-loop 
@@ -3401,21 +3404,14 @@ not need to use these directly.
 
 
 @c TEXI DOCSTRING MAGIC: proof-grab-lock
-
 @defun proof-grab-lock &optional queuemode
 Grab the proof shell lock, starting the proof assistant if need be.@*
 Runs @samp{@code{proof-state-change-hook}} to notify state change.
 Clears the @samp{@code{proof-shell-error-or-interrupt-seen}} flag.
 If @var{queuemode} is supplied, set the lock to that value.
 @end defun
+
 @c TEXI DOCSTRING MAGIC: proof-release-lock
-
-
-
-
-
-
-
 @defun proof-release-lock &optional err-or-int
 Release the proof shell lock, with error or interrupt flag @var{err-or-int}.@*
 Clear @samp{@code{proof-shell-busy}}, and set @samp{@code{proof-shell-error-or-interrupt-seen}}
@@ -3454,13 +3450,12 @@ seen from the prover process is also kept, in
 
 
 @c TEXI DOCSTRING MAGIC: proof-shell-strip-crs-from-output
-
-
 @defvar proof-shell-strip-crs-from-output 
 If non-nil, remove carriage returns (^M) at the end of lines from output.@*
 This is enabled for cygwin32 systems by default.  You should turn it off
 if you don't need it (slight speed penalty).
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-last-prompt
 @defvar proof-shell-last-prompt 
 A record of the last prompt seen from the proof system.@*
