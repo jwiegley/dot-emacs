@@ -96,7 +96,7 @@
     lego-font-lock-terms
     (list
      (cons (ids-to-regexp lego-keywords) 'font-lock-keyword-face)
-     (cons (ids-to-regexp lego-tacticals) 'font-lock-tacticals-name-face)
+     (cons (ids-to-regexp lego-tacticals) 'proof-tacticals-name-face)
      (list lego-goal-with-hole-regexp 2 'font-lock-function-name-face)
      (list lego-save-with-hole-regexp 2 'font-lock-function-name-face))))
      

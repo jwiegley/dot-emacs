@@ -14,32 +14,32 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A* Fix bugs in proof-shell-output-filter to deal with prompts
-   and urgent messages which are split across comint globbing
-   boundaries.  (Should match strings in buffer instead) 
+
+A* Fix bugs in proof-shell-filter. Don't assume that full match is
+   contained in filter chunk.(Should match strings in buffer instead)
+   (3h da)
 
 A* Fixup for non-script buffer locking:
 
     proof-locked-end called from wrong buffer when error message
     is output.
 
-    proof-restart-script is now broken
+    proof-restart-script is now broken (2h da)
 
 A* Fixup for clean byte compile now that proof.el has been split.
+   (30min da)
 
 A* Fixup multiple files -- needs debugging.
 
    1. mark atomic makes some assumption about non-comment commands in
       script buffers
       (partly fixed)
-   2. Improve test for locked region being whole of buffer
-      (probably fixed)
-   3. Add save-some-buffers or similar to try to make sure that a
+   2. Add save-some-buffers or similar to try to make sure that a
       modified buffer is saved before it can be read to the prover.  
       If a buffer is put onto the proof-included-files-list when it is
       modified, we should warn the user about possible inconsistency.  
 
-   (3hrs)
+   (1hr tms)
 
 B Improve web pages after suggestions in doc/notes.txt
   (da, 1.5hrs)
@@ -87,12 +87,12 @@ C proof-find-next-terminator doesn't work properly:
      proof-assert-until-point (30min)
 
 B Add proof-rsh-command and note in documentation about how to
-  use widely-advertised "remote shell" feature.  (1hr)
+  use widely-advertised "remote shell" feature.  (1hr tms)
 
 B Add proof-quit-command: some provers may like a quit command to be
   sent to the shell, not just EOF !  (see proof-stop-shell).
   Also reconcile proof-restart-script and proof-stop-shell, see
-  comments in code.
+  comments in code. (1h da)
 
 D Multiple files: handle failures in
   reading ancestors.
@@ -115,7 +115,7 @@ C Clean up proof-assert-until-point behaviour.  Discussion results:
     when new commands are added to the buffer needs careful
     thought! (1h)
 
-B Implement more generic mechanism for large undos (2h tms)
+B Implement more generic mechanism for large undos (4h tms)
 
     COQ: C-c u inside a Section should reset the whole section, then
          redo defns 
@@ -126,7 +126,7 @@ B Implement more generic mechanism for large undos (2h tms)
 A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
 
-A New buffer model (4h):
+A New buffer model (4h tms):
 
     1. Script buffers
     2. Response buffer
@@ -139,7 +139,7 @@ A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
 
 C Provide a sensible default frame/buffer layout (4h)
 
-B A less drastic version of proof-restart-script would be useful:
+C A less drastic version of proof-restart-script would be useful:
   one that doesn't involve killing off the proof assistant process
   and restarting that -- it can take ages! 
   
@@ -176,10 +176,7 @@ C Investigate and improve indentation/font-locking code.
   *very* slow.  Moreover the indentation is screwy.  Also
   seems screwy in LEGO/Coq PG.  (da, 2hr)
 
-B Split code; particularly proof.el Warning: we need to synchronise
-   code before!(1h)
-
-C toolbar icons: Automatically generate reduced and
+X toolbar icons: Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
   xcf files under CVS rather than xpm files.  (2h, da)
 
@@ -262,10 +259,6 @@ C Make completion more generic. For Isabelle and Lego, we can build a
   completion table by querying the process, which is better than
   messing with tags.
 
-X Oddity in RPM build: reports
-	 /var/tmp/rpm-tmp.65808: line 29: 30875 Broken pipe             /bin/gzip -dc /tmp/ProofGeneral-rpm/SOURCES/ProofGeneral-2.0pre981012.tar.gz
-  Why?  It still seems okay otherwise.
-
 X Support a history of proof commands, with a "redo" command to
   redo undo-to-point or sequences of toolbar undo's.
 
@@ -316,6 +309,7 @@ X We need to go over to piped communication rather than ptys to fix
 ===================
 
 B Change proof by pointing (pbp) stuff into proofstate buffer stuff.
+  (1h tms)
 
 C Fixing up errors caused by pbp-generated commands; currently, script
   management unwisely assumes that pbp commands cannot fail (2h)
@@ -323,7 +317,7 @@ C Fixing up errors caused by pbp-generated commands; currently, script
 B Rename pbp-mode to response-mode or goals-mode (which doesn't
   support any actual proof-by-pointing) (30min) 
 
-B Outsource actual pbp/goals functionality (30min)
+B Outsource actual pbp/goals functionality (30min tmd)
   (separate pbp annotations from other annotations).
   Make a file proof-goals.el.
 
@@ -335,9 +329,6 @@ X pbp code doesn't quite accord with the tech report; in particular it
 
 * Here are things to be done to Lego mode
 =========================================
-
-A ordinary forget command in LEGO needs to notify Proof General when
-  it has retracted across file boundaries. (1h tms)
 
 C fix Pbp implementation (10h)
 
@@ -432,12 +423,12 @@ X Add Isabelle logo to splash screen.  (30 mins)
 B According to the documentation of font-lock for Emacs 20.2, it
   should suffice to set (add-hook 'lego-mode-hook 'turn-on-font-lock)
   but this doesn't seem to work. Perhaps define-derived-mode doesn't
-  set up lego-mode correctly? (1h)
+  set up lego-mode correctly? (1h tms)
 
 
 * Release
 =========
 
-B add links *from* Coq, Lego & Isabelle Web pages
+B add links *from* Coq, Lego & Isabelle Web pages (da, tms 10 min)
 
-B add instructions for byte compilation
+B add instructions for byte compilation (da 20 min)
