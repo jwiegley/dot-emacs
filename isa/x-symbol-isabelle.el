@@ -35,7 +35,7 @@
 ;;  Super- and subscripts
 
 (defconst x-symbol-isabelle-font-lock-regexp
-  "\\(\\\\?\\\\<^su[bp]>\\)\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"
+  "\\(\\\\?\\\\<\\^su[bp]>\\)\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"
   "Regexp matching super- and subscript markers in Isabelle.")
 
 (defun x-symbol-isabelle-match-subscript (limit)
