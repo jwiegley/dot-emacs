@@ -11,18 +11,19 @@ Much more than Isabelle, HOL relies on its meta language, ML.  HOL
 proof scripts often use batch-oriented single step tactic proofs
 constructed in ML, but Proof General does not offer an easy way to
 edit these kind of proofs (as opposed to multi-step interactive
-proofs).  The "Boomburg" Emacs interface by Koichi Takahashi and
-Masima Hagiya addressed this problem, as well as providing support for
-proof-by-pointing to HOL.  Their interface (which is no longer
-maintained) could perhaps be embedded or reimplemented inside Proof
-General.  Implemented in a generic way, batch script editing would
-also be useful for Isabelle.
+proofs).  The <a
+href="http://hagi.is.s.u-tokyo.ac.jp/boomborg/">Boomburg-HOL</a> Emacs
+interface by Koichi Takahashi and Masima Hagiya addressed this
+problem, as well as providing support for proof-by-pointing to HOL.
+Their interface could perhaps be reinterpreted or reimplemented inside
+Proof General.  Implemented in a generic way, batch script editing
+would also be useful for Isabelle.
 </p>
 <p>
 Another problem is that HOL scripts sometimes use SML structures,
 which can cause confusion because Proof General does not really parse
-SML, it just looks for semicolons.  Again, this could be improved by
-taking a better parser (e.g. from sml mode).
+SML, it just looks for semicolons.  This could be improved by taking a
+better parser (e.g. from sml mode).
 </p>
 <p>
 <b>Skills:</b>
