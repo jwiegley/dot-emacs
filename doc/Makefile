@@ -57,7 +57,7 @@ EMACS = xemacs -batch
 	$(DVI2PS) $< 
 
 .texi.html:	
-	$(TEXI2HTML) $< 
+	$(TEXI2HTML) -split_chapter $< 
 
 ## 
 ## doc : build info and dvi files from $(DOCNAME).texi
