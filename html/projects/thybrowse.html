@@ -5,12 +5,11 @@ theorems and definitions during a proof.  It has notion of displaying
 a "current context" for a proof, and configuration with a proof
 engine command for searching for theorems.  It would be useful to
 extend these facilities with a <i>theory browser</i> for investigating
-the theories currently defined in a running proof assistant.  This
-involves designing a small protocol to communicate with the proof
-assistant and a generic way of displaying theories which have
-different aspects from system to system.  A way which would
-fit in well with Emacs would be to use a <tt>dired</tt>-like
-buffer.
+the theories currently defined in (or available from) a running proof
+assistant.  This involves designing a small protocol to communicate
+with the proof assistant and a generic way of displaying theories
+which have different aspects from system to system.  A way which would
+fit in well with Emacs would be to use a <tt>dired</tt>-like buffer.
 </p>
 <p>
 An alternative version of this project would be to write a standalone
@@ -19,6 +18,9 @@ General standardized protocol for interaction (see white paper <a
 href="/home/da/drafts/#white">here</a>).  This could be implemented in
 Java, or in a functional language, Perl, C or C++, so long as a nice
 toolkit is chosen (Qt or GTK).
+</p>
+<p>
+(For a related idea, see the browser integrated with OCaml).
 </p>
 <p>
 <b>Skills:</b>
