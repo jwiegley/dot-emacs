@@ -1538,11 +1538,11 @@ The protocol used should be configured so that no user interaction
 The default value is @code{""}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-toolbar-wanted
-@defopt proof-toolbar-wanted 
-Whether to use toolbar in proof mode.
+@c TEXI DOCSTRING MAGIC: proof-toolbar-inhibit
+@defopt proof-toolbar-inhibit 
+Non-nil prevents toolbar being used for script buffers.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 

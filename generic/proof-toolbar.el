@@ -110,7 +110,7 @@ to the default toolbar."
   (interactive)
   (if (featurep 'toolbar)		; won't work in FSF Emacs
       (if (and	
-	   proof-toolbar-wanted
+	   (not proof-toolbar-inhibit)
 	   ;; NB for FSFmacs use window-system, not console-type
 	   (eq (console-type) 'x))
 	  (let

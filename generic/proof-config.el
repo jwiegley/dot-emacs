@@ -72,8 +72,8 @@
   :group 'proof-general)
 
 (and (featurep 'toolbar)
-(defcustom proof-toolbar-wanted t
-  "*Whether to use toolbar in proof mode."
+(defcustom proof-toolbar-inhibit nil
+  "*Non-nil prevents toolbar being used for script buffers."
   :type 'boolean
   :group 'proof-general))
 
