@@ -298,7 +298,7 @@ If in three window or multiple frame mode, display both buffers."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Favourites mechanism for specific menu
+;;; Favourites mechanism for prover-specific menu
 ;;;
 
 (defvar proof-menu-favourites nil
@@ -316,7 +316,10 @@ If in three window or multiple frame mode, display both buffers."
 		 (append ents
 			 '(["Add favourite" 
 			    (call-interactively 
-			     'proof-add-favourite) t])))))))
+			     'proof-add-favourite) t]
+			   ["Delete favourite" 
+			    (call-interactively 
+			     'proof-del-favourite) t])))))))
   
 ;;; Define stuff from favourites
 
@@ -374,37 +377,70 @@ suitable for adding to the proof assistant menu."
 (defvar proof-make-favourite-cmd-history nil
   "History for proof-make-favourite.")
 
+(defvar proof-make-favourite-menu-history nil
+  "History for proof-make-favourite.")
+
+(defun proof-del-favourite (menuname)
+  "Delete \"favourite\" command recorded at MENUNAME."
+  (interactive
+   (list
+    (completing-read "Menu item to delete: " 
+		     (mapcar 'cddr (proof-ass favourites))
+		     nil t)))
+  (let*
+      ((favs       (proof-ass favourites))
+       (rmfavs	   (remove-if 
+		    (lambda (f) (string-equal menuname (caddr f)))
+		    favs)))
+    (unless (equal favs rmfavs)
+      (easy-menu-remove-item proof-assistant-menu 
+			     '("Favourites") menuname)
+      (customize-save-variable  (proof-ass-sym favourites) rmfavs))))
+  
+(defun proof-read-favourite ()
+  (let* 
+      ((favs   (symbol-value (proof-ass-sym favourites)))
+       (guess  (buffer-substring (save-excursion
+				   (beginning-of-line-text)
+				   (point)) (point)))
+       (cmd (read-string
+	     (concat "Command to send to " proof-assistant ": ") 
+	     guess
+	     proof-make-favourite-cmd-history))
+       (ins (y-or-n-p "Should command be recorded in script? "))
+       (men (read-string
+	     "Name of command on menu: " 
+	     cmd
+	     proof-make-favourite-menu-history))
+       (key (if (y-or-n-p "Set a keybinding for this command? : ")
+		;; FIXME: better validation here would be to check
+		;; this is a new binding, or remove old binding below.
+		(events-to-keys
+		 (read-key-sequence 
+		  "Type the key to use (binding will be C-c C-a <key>): " 
+		  nil t)))))
+    ;; result
+    (list cmd ins men key)))
+	  
+
 (defun proof-add-favourite (command inscript menuname &optional key)
   "Define and add a \"favourite\" proof-assisant function to the menu bar.
 The favourite function will issue COMMAND to the proof assistant.  
 COMMAND is inserted into script (not sent immediately) if INSCRIPT non-nil.
 MENUNAME is the name of the function for the menu.
 KEY is the optional key binding."
-  (interactive 
-   (let* 
-       ((cmd (read-string 
-	      (concat "Command to send to " proof-assistant ": ") 
-	      (buffer-substring
-	       (save-excursion
-		 (beginning-of-line-text)
-		 (point))
-	       (point))
-	      proof-make-favourite-cmd-history))
-	(ins (y-or-n-p "Should command be recorded in script? "))
-	(men (read-string "Name of command on menu: " cmd))
-	(key (if (y-or-n-p "Set a keybinding for this command? : ")
-		 (events-to-keys
-	          (read-key-sequence 
-		   "Type the key to use (binding will be C-c C-a <key>): " nil t)))))
-     (list cmd ins men key)))
-  (let ((menu-entry (proof-def-favourite command inscript menuname key t)))
-    ;; If definition succeeds, add to customize variable and save immediately.
-    ;; FIXME: should maybe overwrite previous duplicates, use 
-    ;; update rather than append.
-    (customize-save-variable  (proof-ass-sym favourites)
-			      (append (proof-ass favourites)
-				      (list 
-				       (list command inscript menuname key))))
+  (interactive (proof-read-favourite))
+  (let*
+      ((menu-entry (proof-def-favourite command inscript menuname key t))
+       (favs       (proof-ass favourites))
+       (rmfavs	   (remove-if 
+		    (lambda (f) (string-equal menuname (caddr f)))
+		    favs))
+       (newfavs    (append 
+		    favs 
+		    (list (list command inscript menuname key)))))
+    ;; If def succeeds, add to customize var and save immediately.
+    (customize-save-variable  (proof-ass-sym favourites) newfavs)
     (easy-menu-add-item proof-assistant-menu 
 			'("Favourites") menu-entry "Add favourite")))
 
