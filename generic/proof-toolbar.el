@@ -115,7 +115,7 @@ and chooses the best one for the display properites.")
 			(eval `(defun ,buttonfnwe ()
 				 (interactive)
 				 (if (,enabler) 
-				     (,buttonfn)
+				     (call-interactively (quote ,buttonfn))
 				   (message ,(concat "Button \"" menuname "\" disabled")))))
 			buttonfnwe)))
     (if tooltip
