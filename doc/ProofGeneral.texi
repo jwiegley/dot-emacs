@@ -503,8 +503,18 @@ General.
 For more details, see @ref{Toolbar commands}, @ref{Proof assistant
 commands}, and @ref{Customizing Proof General}.
 
-@c not yet
-@c @item @i{Proof by pointing}
+@item @i{Proof by pointing}
+Proof General has support for proof-by-pointing and similar features.
+Proof by pointing allows you to click on a subterm of a goal to
+be proved, and automatically apply an appropriate proof rule or
+tactic.   Proof by pointing is specific to the proof assistant
+(and logic) in use; therefore it is configured mainly on the
+proof assistant side.  
+@c Proof General expects to parse
+@c term-structure annotations on the output syntax of the prover.
+@c It uses these to construct a message to the prover indicating
+@c where the user has clicked, and the proof assistant can
+@c response with a suggested tactic.
 @end itemize
 
 
@@ -1000,8 +1010,8 @@ Move point to start of current (or final) command of the script.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-goto-command-end
-@deffn Command proof-find-next-terminator 
-Set point after next @samp{@code{proof-terminal-char}}.
+@deffn Command proof-goto-command-end 
+Set point to next @samp{@code{proof-terminal-char}}.
 @end deffn
 
 @vindex proof-terminal-char
@@ -2096,7 +2106,8 @@ One basic example of a setting you may like to tweak is:
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-home-page
 @defvar proof-assistant-home-page 
-Web address for information on proof assistant
+Web address for information on proof assistant.@*
+Used for Proof General's help menu.
 @end defvar
 
 Most of the others are more complicated.  For more details of the settings,
@@ -2714,7 +2725,8 @@ commands and menus available in Proof General.
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-home-page
 @defvar proof-assistant-home-page 
-Web address for information on proof assistant
+Web address for information on proof assistant.@*
+Used for Proof General's help menu.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-context-command
 @defvar proof-context-command 
@@ -2771,12 +2783,17 @@ String which starts a comment in the proof assistant command language.@*
 The script buffer's @code{comment-start} is set to this string plus a space.
 Moreover, comments are ignored during script management, and not
 sent to the proof process.
+
+You should set this variable for reliable working of Proof General,
+as well as @samp{@code{proof-comment-end}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-comment-end
 @defvar proof-comment-end 
 String which ends a comment in the proof assistant command language.@*
 The script buffer's @code{comment-end} is set to this string plus a space.
 See also @samp{@code{proof-comment-start}}.
+
+You should set this variable for reliable working of Proof General,
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-case-fold-search
 @defvar proof-case-fold-search 
@@ -2798,7 +2815,7 @@ Used for setting names of goal..save regions and for default
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-command-regexp
 @defvar proof-goal-command-regexp 
-Matches a goal command.
+Matches a goal command in the proof script.   Must be set.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-with-hole-regexp
 @defvar proof-goal-with-hole-regexp 
@@ -2806,6 +2823,20 @@ Regexp which matches a command used to issue and name a goal.@*
 Match number 2 should be the name of the goal issued.
 Used for setting names of goal..save regions and for default
 @code{function-menu} configuration in @code{proof-script-find-next-entity}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-non-undoables-regexp
+@defvar proof-non-undoables-regexp 
+Regular expression matching commands which are @strong{not} undoable.@*
+Used in default functions @samp{@code{proof-generic-state-preserving-p}} 
+and @samp{@code{proof-generic-count-undos}}.  If you don't use those,
+May be left as nil.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-ignore-for-undo-count
+@defvar proof-ignore-for-undo-count 
+Matcher for script commands to be ignored in undo count.@*
+May be left as nil, in which case it will be set to
+@samp{@code{proof-non-undoables-regexp}}.
+Used in default function @samp{@code{proof-generic-count-undos}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-script-next-entity-regexps
 @defvar proof-script-next-entity-regexps 
@@ -2868,7 +2899,7 @@ default.
 @c TEXI DOCSTRING MAGIC: proof-goal-command-p
 
 @defvar proof-goal-command-p 
-Is this really a goal command?
+A function to test: is this really a goal command?
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-completed-proof-behaviour
 @defvar proof-completed-proof-behaviour 
@@ -2906,10 +2937,25 @@ or if you don't want to write a function to do move them around.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-count-undos-fn
 @defvar proof-count-undos-fn 
-Function to compute number of undos in a target segment.@*
+Function to calculate a command to issue undos to reach a target span.@*
+The function takes a span as an argument, and should return a string
+which is the command to undo to the target span.  The target is
+guaranteed to be within the current (open) proof.
 This is an important function for script management.
-Study one of the existing instantiations for examples of how to write it.
+The default setting @samp{@code{proof-generic-count-undos}} is based on the
+settings @samp{@code{proof-non-undoables-regexp}} and
+@samp{@code{proof-non-undoables-regexp}}.
 @end defvar
+@c TEXI DOCSTRING MAGIC: proof-generic-count-undos
+@defun proof-generic-count-undos span
+Count number of undos in a span, return command needed to undo that far.@*
+Command is set using @samp{@code{proof-undo-n-times-cmd}}.
+
+A default value for @samp{@code{proof-count-undos-fn}}.
+
+For this function to work properly, you must configure
+@samp{@code{proof-undo-n-times-cmd}} and @samp{@code{proof-ignore-for-undo-count}}.
+@end defun
 @c TEXI DOCSTRING MAGIC: proof-find-and-forget-fn
 @defvar proof-find-and-forget-fn 
 Function that returns a command to forget back to before its argument span.@*
@@ -2921,15 +2967,37 @@ of definitions, declarations, or whatever.
 
 The special string @code{proof-no-command} means there is nothing to do.
 
+Important: the generic implementation @samp{@code{proof-generic-find-and-forget}}
+does nothing, it always returns @samp{@code{proof-no-command}}.
+
 This is an important function for script management.
 Study one of the existing instantiations for examples of how to write it.
 @end defvar
+@c TEXI DOCSTRING MAGIC: proof-generic-find-and-forget
+
+@defun proof-generic-find-and-forget span
+Calculate a forget/undo command to forget back to @var{span}.@*
+This is a long-range forget: we know that there is no
+open goal at the moment, so forgetting involves unbinding
+declarations, etc, rather than undoing proof steps.
+
+@var{currently} @var{unimplemented}: just returns @code{proof-no-command}.
+Check the @code{lego-find-and-forget} or @code{coq-find-and-forget}
+functions for examples of how to write this function.
+
+In the next release of Proof General, there will be
+a generic implementation of this.
+@end defun
 @c TEXI DOCSTRING MAGIC: proof-goal-hyp-fn
 @defvar proof-goal-hyp-fn 
 Function which returns cons cell if point is at a goal/hypothesis.@*
-First element of cell is a symbol, @code{'goal'} or @code{'hyp'}.  The second
-element is a string: the goal or hypothesis itself.  This is used
-when parsing the proofstate output.
+This is used to parse the proofstate output to mark it up for
+proof-by-pointing.  It should return a cons or nil.  First element of
+the cons is a symbol, @code{'goal'} or @code{'hyp'}.  The second element is a
+string: the goal or hypothesis itself.
+
+If you leave this variable unset, no proof-by-pointing markup
+will be attempted.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-kill-goal-command
 @defvar proof-kill-goal-command 
@@ -3071,6 +3139,14 @@ The @code{proof-terminal-char} is added on to the end.
 A command to quit the proof process.  If nil, send EOF instead.@*
 The @code{proof-terminal-char} is added on to the end.
 @end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-quit-timeout
+@defvar proof-shell-quit-timeout 
+The number of seconds to wait after sending @code{proof-shell-quit-cmd}.@*
+After this timeout, the proof shell will be killed of more rudely.
+If your proof assistant takes a long time to clean up (for
+example writing persistent databases out or the like), you may
+need to bump this value up.
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-cd-cmd
 @defvar proof-shell-cd-cmd 
 Command to the proof assistant to change the working directory.@*
@@ -3145,10 +3221,13 @@ Set to nil if proof assistant does not support annotated prompts.
 First special character.@*
 Codes above this character can have special meaning to Proof General,
 and are stripped from the prover's output strings.
+Leave unset if no special characters are being used.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-prompt-pattern
 @defvar proof-shell-prompt-pattern 
-Proof shell's value for comint-prompt-pattern, which see.
+Proof shell's value for comint-prompt-pattern, which see.@*
+This pattern is just for interaction in comint (shell buffer).
+You don't really need to set it.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-annotated-prompt-regexp
 @defvar proof-shell-annotated-prompt-regexp 
@@ -3217,13 +3296,20 @@ and possibly analysed further for proof-by-pointing markup.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-end-goals-regexp
 @defvar proof-shell-end-goals-regexp 
-Regexp matching the end of the proof state output.
+Regexp matching the end of the proof state output, or nil.@*
+If nil, just use the rest of the output following @code{proof-shell-start-goals-regexp}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-eager-annotation-start
 @defvar proof-shell-eager-annotation-start 
 Eager annotation field start.  A regular expression or nil.@*
-An eager annotation indicates to Emacs that some following output
-should be displayed immediately and not accumulated for parsing.
+An eager annotation indicates to Proof General that some following output
+should be displayed immediately and not accumulated for parsing later.
+It's nice to recognize warnings or file-reading messages with this
+regexp.  
+
+See also @samp{@code{proof-shell-eager-annotation-start-length}},
+@samp{@code{proof-shell-eager-annotation-end}}.
+
 Set to nil to disable this feature.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-eager-annotation-end
@@ -3442,45 +3528,15 @@ See documentation of @code{proof-shell-start-char}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-goal-char
 @defvar proof-shell-goal-char 
-goal mark
+Mark for goal.
+
+This setting is also used to see if proof-by-pointing features
+are configured.  If it is unset, some of the code 
+for parsing the is disabled.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-field-char
 @defvar proof-shell-field-char 
-annotated field end
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-start-char
-@defvar proof-shell-start-char 
-Starting special for a subterm markup.@*
-Subsequent characters with values @strong{below} @code{proof-shell-first-special-char}
-are assumed to be subterm position indicators.  Subterm markups should
-be finished with @code{proof-shell-end-char}.
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-end-char
-@defvar proof-shell-end-char 
-Finishing special for a subterm markup.@*
-See documentation of @code{proof-shell-start-char}.
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-goal-char
-@defvar proof-shell-goal-char 
-goal mark
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-field-char
-@defvar proof-shell-field-char 
-annotated field end
-@end defvar
-
-
-The final setting just configures where the ``proof completed''
-message appears. 
-@c TEXI DOCSTRING MAGIC: proof-goals-display-qed-message
-@defvar proof-goals-display-qed-message 
-If non-nil, display the proof-completed message in the goals buffer.@*
-For some proof assistants (e.g. Isabelle) it seems aesthetic to
-display the QED message in the goals buffer, even though it doesn't
-contain any goals and shouldn't be marked up for proof-by-pointing.
-
-If this setting is non-nil, QED messages appear in the goals
-buffer.  Otherwise they appear in the response buffer.
+Annotated field end
 @end defvar
 
 

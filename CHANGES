@@ -4,6 +4,20 @@ Summary of Changes for Proof General 3.0 from 2.1
 Generic Changes
 ---------------
 
+* The excellent X-Symbol package is now well supported by
+  Proof General.  This allows proof assistants to display logical
+  symbols, Greek letters, etc, with ease.  The original patches
+  for Isabelle are courtesy of David von Oheimb.  There are
+  early experimental configurations provided for LEGO and Coq
+  which use ordinary character sequences rather than escaped
+  tokens (so "/\" appears as a wedge, and "Gamma" appears 
+  as the letter Gamma).  You may need to install X-Symbol first;
+  visit http://www.fmi.uni-passau.de/~wedler/x-symbol
+
+* Demonstration instance of Proof General for Isabelle shows
+  how you can get the interface going with a minimum of fuss.
+  It has just 30 simple settings.
+
 * Proof General is now more cany about the queue of commands.
   You can now add more proof commands on the end of the queue,
   without the "Proof Process Busy" message.
@@ -81,6 +95,14 @@ Generic Changes
   Switching on scripting in a buffer may cause the proof
   assistant to load files it depends on, so it is also handy
   to see what happens before scripting begins in the buffer.
+
+* Proof by pointing has been re-enabled in the code.  
+  LEGO's implementation of the proof-by-pointing rule choices
+  is dodgy, but works sometimes, and it is nice to demonstrate
+  Proof General's support for pbp until another prover implements
+  it.  (It should be straightforward to implement for Coq, since the
+  CtCoq pbp code is now embedded in the core system; we need
+  a Coq expert to do this).
 
 * Cleaned up example files so all demonstrate same theorem "conj_comms".
   Would be nice to add more theorems to compare scripts/proofs in

@@ -11,16 +11,24 @@ See also: http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS
 Generic problems
 ================
 
-* Highlighting of locked (blue) and queue (red) regions in FSF Emacs
-may be unreliable (disappear) in some cases.  Cause unknown.  If you
-observe this, please submit a bug report with details of your system
-and any other information you think may be relevant.  Workaround:
-switch to using XEmacs.
+* Highlighting script buffers in recent versions of FSF Emacs is a
+mess.  The underlying text property implementation has changed
+and it seems difficult to get the desired behaviour of highlighting
+now.   Workaround: switch to using XEmacs.
 
 * Toolbar enablers for XEmacs 21: since these have been switched on,
 it is apparent that the recognition of completed proofs may be
-unreliable (it wasn't used before).  Please report cases where the
-buttons are enabled/disabled at the wrong time.
+unreliable (it wasn't used before).  Also there is a timing issue,
+so that occasionally the buttons are disabled/enabled when they
+shouldn't be.  An extra click on the toolbar solves this.
+
+* Synchronization during start-up: if you press C-c C-n quickly
+in succession whilst the prover is cranked up, synchronization
+may be spoilt, and you see the message "script management confused"
+later on.  This is a minor bug, most likely to be noticed when it
+takes a while to start the proof assistant (e.g. Isabelle!).
+Workarounds: many!  Type slowly.  Use C-c C-RET.  Start the prover
+first via the menu, or C-c C-s.
 
 * Ordinary undo in the script buffer can edit the "uneditable region"
 in XEmacs.  This doesn't happen in FSFmacs.  Test case:
@@ -56,10 +64,6 @@ problem with outline because it works by modifying the buffer.
 Workaround: none, nevermind.  (If it's hugely needed we could support
 modified outline commands).
 
-* `proof-find-next-terminator' (bound to C-c C-e) doesn't work
-properly.  Neither does 'proof-goto-command-start' (C-c C-a).
-Workaround: use other means to navigate in a proof scipt buffer. 
-
 * Multiple file handling for Lego and Isabelle is slightly vulnerable.
 Files are not locked when they are being read by the prover, so a long
 file could be edited and saved as the prover is processing it,
@@ -79,7 +83,6 @@ proof-rsh-command.
 interrupt, the whole process may be killed instead of interrupted.
 This isn't a bug in Proof General, but the behaviour of ssh.  Try
 using rsh instead, it is said to forward signals to the remote command.
-
 
 
 
