@@ -833,19 +833,21 @@ Then we call `proof-shell-handle-error-hook'. "
 		   (get-buffer-window proof-goals-buffer t) pos)))))
 
            
-(defsubst proof-shell-string-match-safe (regexp string &optional start buffer)
+(defsubst proof-shell-string-match-safe (regexp string)
   "Like string-match except returns nil if REGEXP is nil."
-  (and regexp (string-match regexp string start buffer)))
+  (and regexp (string-match regexp string)))
 
 (defun proof-shell-process-output (cmd string)
   "Process shell output (resulting from CMD) by matching on STRING.
 CMD is the first part of the proof-action-list that lead to this
 output.
+
 This function deals with errors, start of proofs, abortions of
-proofs and completions of proofs. All other output from the proof
+proofs and completions of proofs.  All other output from the proof
 engine is simply reported to the user in the response buffer
 by setting proof-shell-delayed-output to a cons 
-cell of (INSERT . TEXT) where TEXT is the text to be inserted.
+cell of ('insert . TEXT) where TEXT is the text string to 
+be inserted.
 
 To extend this function, set
 proof-shell-process-output-system-specific.
