@@ -1,6 +1,17 @@
 ;;; DO NOT MODIFY THIS FILE
 (if (featurep 'proof-autoloads) (error "Already loaded"))
 
+;;;### (autoloads (pg-browse) "pg-browse" "generic/pg-browse.el")
+
+(autoload 'pg-browse "pg-browse" "\
+Invoke the Proof General OO-Browser.
+This allows browsing through source files for theories in the current proof assistant.
+With an optional non-nil prefix argument ENV-FILE, prompt for Environment file to
+use.  Alternatively, a string value of ENV-FILE is used as the Environment
+file name.  See also the file \"br-help\"." t nil)
+
+;;;***
+
 ;;;### (autoloads (proof-easy-config) "proof-easy-config" "generic/proof-easy-config.el")
 
 (autoload 'proof-easy-config "proof-easy-config" "\
@@ -81,21 +92,29 @@ because Proof General does not allow for the action list to be extended
 in some cases.   May be called by proof-shell-invisible-command." nil nil)
 
 (autoload 'proof-shell-invisible-command "proof-shell" "\
-Send CMD to the proof process.  
+Send CMD to the proof process.  Automatically add proof-terminal-char if nec.
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
 If WAIT is an integer, wait for that many seconds afterwards." nil nil)
 
 (autoload 'proof-next-error "proof-shell" "\
-Parse error messages in the response buffer for filenames and line numbers." t nil)
+Jump to location of next error reported in the response buffer.
+
+A prefix arg specifies how many error messages to move;
+negative means move back to previous error messages.
+Just C-u as a prefix means reparse the error message buffer
+and start at the first error." t nil)
 
 ;;;***
 
-;;;### (autoloads (proof-splash-display-screen) "proof-splash" "generic/proof-splash.el")
+;;;### (autoloads (proof-splash-message proof-splash-display-screen) "proof-splash" "generic/proof-splash.el")
 
 (autoload 'proof-splash-display-screen "proof-splash" "\
 Save window config and display Proof General splash screen." t nil)
+
+(autoload 'proof-splash-message "proof-splash" "\
+Make sure the user gets welcomed one way or another." nil nil)
 
 ;;;***
 
