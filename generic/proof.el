@@ -163,6 +163,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 		    ;; tms: I don't understand why the point in
 		    ;; proof-response-buffer is not at the end anyway.
 		    ;; Is there a superfluous save-excursion somewhere?
+		    (set-buffer buffer)
 		    (goto-char (point-max))
 		    (or (pos-visible-in-window-p) (recenter -1))))))))
 
