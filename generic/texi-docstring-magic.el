@@ -3,7 +3,7 @@
 ;; Keywords: texi, docstrings
 ;; Author: David Aspinall <da@dcs.ed.ac.uk>
 ;; Copyright (C) 1998 David Aspinall
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Maintainer:  David Aspinall <da@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;
@@ -13,7 +13,7 @@
 ;; in more than one place, and automatically adds TexInfo markup
 ;; to docstrings.
 ;;
-;; It relies heavily on your following the Elisp documentation
+;; It relies heavily on you following the Elisp documentation
 ;; conventions to produce sensible output, check the Elisp manual
 ;; for details.  In brief:
 ;;
@@ -35,6 +35,9 @@
 ;;  This will insert @defopt, @deffn and the like underneath the
 ;;  magic comment strings.
 ;;
+;;  Symbols are recognized if they are defined for faces, functions,
+;;  or variables (in that order).
+;;
 ;; Automatic markup rules:
 ;;
 ;; 1. Indented lines are gathered into @lisp environment.
@@ -49,15 +52,24 @@
 ;;
 ;; -----
 ;;
-;; Useful binding
+;; Useful key binding when writing TeXInfo:
+;;
 ;;  (define-key TeXinfo-mode-map "C-cC-d" 'texi-docstring-magic-insert-magic)
 ;;
+;; -----
+;;
 ;; Useful enhancements to do:
+;;
+;;  * Insert a line break after the first sentence of docstring.
 ;;  * Use customize properties (e.g. group, simple types)
 ;;  * Look for a "texi-docstring" property for symbols
 ;;    so TeXInfo can be defined directly in case automatic markup
 ;;    goes badly wrong.
+;;  * Add tags to special comments so that user can specify face,
+;;    function, or variable binding for a symbol in case more than
+;;    one binding exists.
 ;;
+;; ------
 
 (defun texi-docstring-magic-splice-sep (strings sep)
   "Return concatenation of STRINGS spliced together with separator SEP."
