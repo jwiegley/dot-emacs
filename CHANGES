@@ -10,6 +10,14 @@
 
 ** Generic changes
 
+*** Desktop integration on freedesktop.org compliant desktops
+
+Provided automatically (and only) with the RPM package.
+
+!!!WORK IN PROGRESS!!!  -- Please send me i18n strings, and report
+  any problems on particular desktops 
+  (I'm only testing on Fedora Core 1/GNOME).
+
 *** Keyboard hints and other messages displayed in minibuffer
 
 Hints for keyboard usage and reporting on file processing are now
