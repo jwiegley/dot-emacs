@@ -4,6 +4,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.3  1997/10/17 14:45:53  hhg
+;; Added "Induction" as tactic
+;;
 ;; Revision 1.2  1997/10/13 17:10:29  tms
 ;; *** empty log message ***
 ;;
@@ -94,6 +97,7 @@
 "Exact"
 "Generalize"
 "Hnf"
+"Induction"
 "Injection"
 "Intro"
 "Intros"
