@@ -198,9 +198,14 @@ to the default toolbar."
 	     proof-toolbar-iconlist)
 	    ;; Now evaluate the toolbar descriptor
 	    (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
-	    ;; Finally ensure current buffer will display this toolbar
-	    (set-specifier default-toolbar proof-toolbar (current-buffer)))
-	(remove-specifier default-toolbar (current-buffer)))))
+	    ;; Ensure current buffer will display this toolbar
+	    (set-specifier default-toolbar proof-toolbar (current-buffer))
+	    ;; Set the callback for updating the enablers
+	    (add-hook 'proof-state-change-hook 'proof-toolbar-refresh))
+	
+	;; Disabling toolbar: remove specifier and state change hook.
+	(remove-specifier default-toolbar (current-buffer))
+	(remove-hook 'proof-state-change-hook 'proof-toolbar-refresh))))
 
 (defun proof-toolbar-toggle (&optional force-on)
   "Toggle display of Proof General toolbar."
@@ -210,9 +215,13 @@ to the default toolbar."
   (proof-toolbar-setup))
 
 (defun proof-toolbar-refresh ()
-  "Force refresh of toolbar display to re-evaluate enablers."
+  "Force refresh of toolbar display to re-evaluate enablers.
+This function needs to be called anytime that enablers may have 
+changed state."
   (if (featurep 'toolbar)		; won't work in FSF Emacs
       (progn
+	;; I'm not sure if this is "the" official way to do this,
+	;; but it's what VM does and it works.
 	(remove-specifier default-toolbar (current-buffer))
 	(set-specifier default-toolbar proof-toolbar (current-buffer)))))
   
@@ -270,11 +279,9 @@ to the default toolbar."
 (defun proof-toolbar-undo ()
   "Undo last successful in locked region, without deleting it."
   (interactive)
-  (if (proof-toolbar-undo-enable-p)
-      (progn
-	(proof-toolbar-move
-	 (proof-undo-last-successful-command t))
-	(proof-toolbar-follow))))
+  (proof-toolbar-move
+   (proof-undo-last-successful-command t))
+  (proof-toolbar-follow))
 
 ;;
 ;; Next button
@@ -292,12 +299,10 @@ to the default toolbar."
   "Assert next command in proof to proof process.
 Move point if the end of the locked position is invisible."
   (interactive)
-  (if (proof-toolbar-next-enable-p)
-      (progn
-	(proof-toolbar-move
-	 (goto-char (proof-unprocessed-begin))
-	 (proof-assert-next-command-interactive))
-	(proof-toolbar-follow))))
+  (proof-toolbar-move
+   (goto-char (proof-unprocessed-begin))
+   (proof-assert-next-command-interactive))
+  (proof-toolbar-follow))
 
 
 ;;
@@ -311,13 +316,10 @@ Move point if the end of the locked position is invisible."
   "Retract entire buffer."
   ;; proof-retract-file might be better here!
   (interactive)
-  (if (proof-toolbar-retract-enable-p)
-      (progn
-	(proof-toolbar-move
-	  (goto-char (point-min))
-	  (proof-retract-until-point-interactive))	; gives error if process busy
-	(proof-toolbar-follow))
-    (error "Nothing to retract in this buffer!")))
+  (proof-toolbar-move
+   (goto-char (point-min))
+   (proof-retract-until-point-interactive))	; gives error if process busy
+  (proof-toolbar-follow))
 
 ;;
 ;; Use button
@@ -329,12 +331,9 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-use ()
   "Process the whole buffer."
   (interactive)
-  (if (proof-toolbar-use-enable-p)
-      (progn
-	(proof-toolbar-move
-	 (proof-process-buffer))	; gives error if process busy
-	(proof-toolbar-follow))
-    (error "There's nothing to do in this buffer!")))
+  (proof-toolbar-move
+   (proof-process-buffer))	; gives error if process busy
+  (proof-toolbar-follow))
 
 ;;
 ;; Restart button
@@ -343,14 +342,11 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-restart-enable-p ()
   ;; Could disable this unless there's something running.
   ;; But it's handy to clearup extents, etc, I suppose.
-  (eq proof-buffer-type 'script)	; should always be t
+  (eq proof-buffer-type 'script)	; should always be t 
+					; (toolbar only in scripts)
   )
 
-(defun proof-toolbar-restart  ()
-  "Restart scripting via proof-shell-restart."
-  (interactive)
-  (if (proof-toolbar-restart-enable-p)
-      (proof-shell-restart)))
+(defalias 'proof-toolbar-restart 'proof-shell-restart)
 
 ;;
 ;; Goal button
@@ -372,12 +368,7 @@ Move point if the end of the locked position is invisible."
   (and proof-shell-proof-completed
        (proof-shell-available-p)))
 
-(defun proof-toolbar-qed () 
-  "Insert a save theorem command into the script buffer, issue it."
-  (interactive)
-  (if (proof-toolbar-qed-enable-p)
-      (call-interactively 'proof-issue-save)
-    (error "I can't see a completed proof!")))
+(defalias 'proof-toolbar-qed 'proof-issue-save)
 
 ;;
 ;; Show button
@@ -400,8 +391,8 @@ Move point if the end of the locked position is invisible."
 ;;
 ;; Info button
 ;;
-;; Might as well enable it all the time; convenient
-;; way of starting proof assistant.
+;; Might as well enable it all the time; convenient trick to
+;; start the proof assistant.
 
 (defun proof-toolbar-info-enable-p ()
   t)
