@@ -466,54 +466,80 @@ Also clear all visibility specifications."
   (add-to-list pg-script-portions elt))
 
 (defun pg-remove-script-element (ns id)
-  (let* ((elts	  (cdr-safe (assq ns pg-script-portions)))
+  (let* ((elts	   (cdr-safe (assq ns pg-script-portions)))
 	 (newelts  (remq id elts)))
     (setq pg-script-portions
 	  (if newelts
 	      (cons (cons ns newelts) (remassq ns pg-script-portions))
 	    (remassq ns pg-script-portions)))))
 
-(defsubst pg-visname (namespace name)
-  (intern (concat namespace ":" name)))
+(defsubst pg-visname (namespace id)
+  "Return a unique symbol made from strings NAMESPACE and unique ID."
+  (intern (concat namespace ":" id)))
 
-(defun pg-add-element (idiom name span)
-  "Add element of type IDIOM named NAME, referred to by SPAN, into cache.
-Names must be unique for a given "
-  (let* ((ns       (intern idiom))
-	 (id       (intern name))
-	 (visname  (pg-visname idiom name))
-	 (delfn	   `(lambda () (pg-remove-element ,idiom ,name)))
-	 (elts	   (cdr-safe (assq ns pg-script-portions))))
+(defun pg-add-element (idiom id span &optional name)
+  "Add element of type IDIOM with identifier ID, referred to by SPAN.
+This records the element in `pg-script-portions' and sets span
+properties accordingly.  
+IDIOM, ID, and optional NAME are all strings.
+Identifiers must be unique for a given idiom; the optional NAME
+will be recorded as a textual name used instead of ID for users;
+NAME does not need to be unique."
+  (let* ((idiomsym       (intern idiom))
+	 (idsym    (intern id))
+	 (name	   (or name id))
+	 (visname  (pg-visname idiom id))
+	 (delfn	   `(lambda () (pg-remove-element (quote ,idiomsym) (quote ,idsym))))
+	 (elts	   (cdr-safe (assq idiomsym pg-script-portions))))
     (if elts
 	(if (memq id elts)
 	    (proof-debug "Element named " name " (type " idiom ") already in buffer.")
-	  (nconc elts (list id)))
-      (setq pg-script-portions (cons (cons ns (list id)) pg-script-portions)))
+	  (nconc elts (list idsym)))
+      (setq pg-script-portions (cons (cons idiomsym (list idsym)) 
+				     pg-script-portions)))
+    ;; Idiom and ID are stored in the span as symbols; name as a string.
+    (set-span-property span 'idiom idiomsym)
+    (set-span-property span 'id idsym)
+    (set-span-property span 'name name)
     (set-span-property span 'span-delete-action delfn)
-    (set-span-property span 'invisible visname)))
+    (set-span-property span 'invisible visname)
+    ;; Nice behaviour in with isearch: open invisible regions temporarily.
+    (set-span-property span 'isearch-open-invisible 
+		       'pg-open-invisible-span)
+    (set-span-property span 'isearch-open-invisible-temporary
+		       'pg-open-invisible-span)))
 
-(defun pg-remove-element (idiom name)
-  (let ((ns       (intern idiom))
-	(id       (intern name)))
-    (pg-remove-script-element ns id)
-    ;; We could leave the visibility note, but that may
-    ;; be counterintuitive, so lets remove it.
-    (pg-make-element-visible idiom name)))
+(defun pg-open-invisible-span (span &optional invisible)
+  "Function for `isearch-open-invisible' property."
+  (let ((idiom  (span-property span 'idiom))
+	(id	(span-property span 'id)))
+    (and idiom id 
+	 (if invisible
+	     (pg-make-element-invisible
+	      (symbol-name idiom) (symbol-name id))
+	   (pg-make-element-visible
+	      (symbol-name idiom) (symbol-name id))))))
 
-(defun pg-make-element-invisible (idiom name)
-  "Make element NAME of type IDIOM invisible, with ellipsis."
+(defun pg-remove-element (ns idsym)
+  (pg-remove-script-element ns idsym)
+  ;; We could leave the visibility note, but that may
+  ;; be counterintuitive, so lets remove it.
+  (pg-make-element-visible (symbol-name ns) (symbol-name idsym)))
+
+(defun pg-make-element-invisible (idiom id)
+  "Make element ID of type IDIOM invisible, with ellipsis."
   (add-to-list 'buffer-invisibility-spec 
-	       (cons (pg-visname idiom name) t)))
+	       (cons (pg-visname idiom id) t)))
 
-(defun pg-make-element-visible (idiom name)
+(defun pg-make-element-visible (idiom id)
   (setq buffer-invisibility-spec
-	(remassq (pg-visname idiom name) buffer-invisibility-spec)))
+	(remassq (pg-visname idiom id) buffer-invisibility-spec)))
 
-(defun pg-toggle-element-visibility (idiom name)
+(defun pg-toggle-element-visibility (idiom id)
   (if (and (listp buffer-invisibility-spec) 
-	   (assq (pg-visname idiom name) buffer-invisibility-spec))
-      (pg-make-element-visible idiom name)
-    (pg-make-element-invisible idiom name)))
+	   (assq (pg-visname idiom id) buffer-invisibility-spec))
+      (pg-make-element-visible idiom id)
+    (pg-make-element-invisible idiom id)))
 
 (defun pg-show-all-portions (idiom &optional hide)
   "Show or hide all portions of kind IDIOM"
@@ -553,10 +579,8 @@ Names must be unique for a given "
 
 (defun pg-add-proof-element (name span controlspan)
   "Add a nested span proof element."
+  ;; FIXME: make unique ID here.
   (pg-add-element "proof" name span)
-  (set-span-property span 'name name)
-  ;;(set-span-property span 'type 'proof)
-  (set-span-property span 'idiom 'proof)
   ;; Make a navigable link between the two spans.
   (set-span-property span 'controlspan controlspan)
   (set-span-property controlspan 'children
@@ -2523,8 +2547,8 @@ with something different."
 (defconst proof-script-important-settings
   '(proof-script-comment-start			;
     proof-script-comment-end
-    ; proof-goal-command-regexp	  not needed if proof-goal-command-p is set
     proof-save-command-regexp
+;    proof-goal-command-regexp	        ; not needed if proof-goal-command-p is set
 ;    proof-goal-with-hole-regexp		; non-essential?
 ;    proof-save-with-hole-regexp		; non-essential?
 ;    proof-showproof-command		; non-essential
@@ -2700,13 +2724,19 @@ finish setup which depends on specific proof assistant configuration."
   (or (buffer-file-name)
       (setq buffer-offer-save t))
 
+  ;; Localise the invisibility glyph (XEmacs only:
+  (let ((img (proof-get-image "hiddenproof" t nil)))
+    (cond
+     ((and img proof-running-on-XEmacs)
+      (set-glyph-image invisible-text-glyph img (current-buffer)))))
+
   ;; To begin with, make everything visible in the buffer
   ;; (FIXME: this is done via proof-init-segmentation, now,
   ;; when is that called?)
   (setq buffer-invisibility-spec nil)
 
   ;; Finally, make sure the user has been welcomed!
-  ;; FIXME: this doesn't work well, it gets zapped by loading messages.
+  ;; [NB: this doesn't work well, gets zapped by loading messages]
   (proof-splash-message))
 
 
