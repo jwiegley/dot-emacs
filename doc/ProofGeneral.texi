@@ -2730,10 +2730,12 @@ Note that in ``classic'' Isabelle, @file{.thy} files contain definitions
 and declarations for a theory, while @file{.ML} contain proof scripts.
 So most of Proof General's functions only make sense in @file{.ML}
 files, and there is no toolbar and only a short menu for @file{.thy}
-files.
+files.  Also note that Proof General does not understand full ML
+syntax(!), so you should only use the scripting commands on @file{.ML}
+files which contain proof commands (no ML functions, structures, etc).
 
 There is no specific documentation here for the Isabelle/Isar instance
-of Proof General.  It is quite With Isar, @file{.thy} files contain proofs as well
+of Proof General.  With Isar, @file{.thy} files contain proofs as well
 as theory definitions, and so they support the toolbar and usual
 scripting functions of Proof General.  To load the Isabelle/Isar
 instance of Proof General, you can set
