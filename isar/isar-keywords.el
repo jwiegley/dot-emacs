@@ -126,8 +126,7 @@
     "sorry"))
 
 (defconst isar-keywords-qed-block
-  '("qed"
-    "qed_with"))
+  '("qed"))
 
 (defconst isar-keywords-proof-goal
   '("have"
@@ -156,6 +155,7 @@
 
 (defconst isar-keywords-proof-asm
   '("assume"
+    "def"
     "fix"
     "presume"))
 
