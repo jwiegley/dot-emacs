@@ -2,16 +2,13 @@
 <table width="650">
 <tr>
 <td width="100">
-<!-- FIXME: this used to link to root, not reliable now: neither does / or ..
-  do the right thing. -->
-<a href="">
-<img src="images/ProofGeneral.jpg" alt="Proof General" align=top
-     width=90 height=119 border=0 >
+<a href=".">
+<img src="images/ProofGeneral.jpg" alt="Proof General" width=90 height=119 border=0>
 </a>
 </td>
 <td>
-  <center>
-  <img src="images/pg-text.gif" alt="Proof General" width=170 height=17>
+<center>
+  <img src="images/pg-text.gif" alt="Proof General" width=170 height=17 border=0>
   <h1>Organize your proofs!</h1>
 <?php
       /* Header link generator.  David Aspinall, June 1999.
@@ -19,11 +16,11 @@
        * Look for $WANTED in array.  If not found, use default of "Home"
        * and fix $WANTED.  Hrefs are given by page parameter to current doc.
        */
-    $separator='<td><img src="images/bullethole.gif" width=15 height=15 align="top" alt=".">';
+    $separator='<td width=10em><img align=left src="images/bullethole.gif" width=15 height=15 alt=".">&nbsp;';
     $urlbits = parse_url($REQUEST_URI);
     $file = ereg_replace("^(.*/)+","",$urlbits["path"]);
     $WANTED = ereg_replace(".html","",$file);
-    print "<table width=\"80%\" class=\"menubar\"><tr>\n"; 
+    print "<table  width=\"80%\" class=\"menubar\"><tr align=\"left\">\n"; 
     $links_arr  =  array(
           "Home"          =>  "main", 
 	  "Features"	  =>  "features",
@@ -48,17 +45,17 @@
     for  (reset($links_arr);  $name  =  key($links_arr);  next($links_arr))  {
         print  $separator;
         if  ($WANTED  ==  $links_arr[$name])  {
-	  print "<font color=\"white\">" . $name . "</font></b>";
+	  print "<font color=\"white\">" . $name . "</font>";
 	  }
 	else {
           print "<a href=\"$links_arr[$name]\">$name</a>";
 	}
         print " </td>\n";
-        if ($name=="Documentation") print "</tr>\n<tr>";
+        if ($name=="Documentation") print "</tr >\n<tr>";
     }
     print "</tr></table>\n"; 
 ?>
-</center>
 </td></tr>
 </table>
+</center>
 <!-- End of header -->
