@@ -9,6 +9,10 @@
 
 
 ;; $Log$
+;; Revision 1.31  1998/01/12 11:07:53  tms
+;; o added support for remote proof processes
+;; o bound C-c C-z to 'proof-frob-locked-end
+;;
 ;; Revision 1.30  1998/01/05 15:01:31  tms
 ;; improved fume support
 ;;
@@ -153,8 +157,8 @@
 ;;               Configuration                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar proof-shell-echo-input t
-  "If nil, input to the proof shell will not be echoed")
+(defvar proof-shell-cd "Cd \"%s\";"
+  "*Command of the inferior process to change the directory.") 
 
 (defvar proof-prog-name-ask-p nil
   "*If t, you will be asked which program to run when the inferior
@@ -261,6 +265,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Internal variables used by scripting and pbp                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar proof-shell-echo-input t
+  "If nil, input to the proof shell will not be echoed")
 
 (defvar proof-terminal-string nil 
   "You are not authorised for this information.")
@@ -398,9 +405,12 @@
 
       (message (format "Starting %s process..." proc))
 
+      ;; Starting the inferior process (asynchronous)
       (let ((prog-name-list (string-to-list proof-prog-name " ")))
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
+      ;; To send any initialisation commands to the inferior process,
+      ;; consult proof-shell-config-done...
 
       (setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
       (setq proof-pbp-buffer (get-buffer-create (concat "*" proc "-goals*")))
@@ -714,6 +724,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun proof-shell-insert (string)
+  (set-buffer proof-shell-buffer)
   (goto-char (point-max))
   (insert (funcall proof-shell-config) string)
   (if (marker-position proof-marker) 
@@ -725,9 +736,7 @@
     (while (< i l)
       (if (= (aref string i) ?\n) (aset string i ?\ ))
       (incf i)))
-  (save-excursion
-    (set-buffer proof-shell-buffer)
-    (proof-shell-insert string)))
+  (save-excursion (proof-shell-insert string)))
 
 ;; grab the process and return t, otherwise return nil. Note that this
 ;; is not really intended for anything complicated - just to stop the
@@ -1368,6 +1377,7 @@ current command."
   (define-key proof-mode-map [(control c) (control v)] 'proof-execute-minibuffer-cmd)
   (define-key proof-mode-map [(control c) ?\'] 'proof-goto-end-of-locked)
   (define-key proof-mode-map [(control c) (control b)] 'proof-process-buffer)
+  (define-key proof-mode-map [(control c) (control z)] 'proof-frob-locked-end)
 
   ;; For fontlock
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
@@ -1392,6 +1402,12 @@ current command."
 
 (defun proof-shell-config-done ()
   (accept-process-output (get-buffer-process (current-buffer)))
+
+  ;; If the proof process in invoked on a different machine e.g.,
+  ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
+  ;; to adjust the directory:
+  (proof-shell-insert (format proof-shell-cd default-directory))
+
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
   (while (null (marker-position proof-marker))
