@@ -4,46 +4,65 @@ Module M.
     Parameter T:Set.
     Parameter x:T.
   End SIG.
+  Lemma toto : O=O.
+  Definition t:=nat.
+	 Trivial.
+  Save.
   Module N:SIG.
     Definition T:=nat.
     Definition x:=O.
   End N.
+  Module O:=N.
 End M.
+
+Definition t:O=O.
+Trivial.
+Save.
+
 
 Section toto.
 Print M.
 End toto.
 
+  Module N:=M.
 
-Lemma toto : O=O.
-Module N:=M.
-Definition t:=M.N.T.
-Trivial.
-Save.
+Module R:N.SIG.
+ Definition T:Set:=nat.
+ Definition x:T:= O.
+ Definition foo:nat:=(S O).
+End R.
 
 
-Module Type SPRYT.
-  Module N.
-    Definition T:=M.N.T.
-    Parameter x:T.
-  End N.
-End SPRYT.
+Module Type N'.
+Module Type M'.
+Declare Module K:N.SIG.
+End M'.
+Declare Module N''.
+  Definition T:=nat.
+  Definition x:=O.
+End N''.
 
-Module K:SPRYT:=N.  
-Module K':SPRYT:=M.  
+Declare Module N':M.SIG. (* no interactive def started *)
+Declare Module N''':= N'. (* no interactive def started *)
+Declare Module N''''. (* interactive def started *)
+Parameter foo:nat.
+End N''''.            (* interactive def ended *)
+End N'.
+
+
 
 Lemma titi : O=O.
-Module Type S:=SPRYT.
-Module N':=M.
 Trivial.
+Module Type K:=N'.
+Module N''':=M.
 Save.
 
+(* Here is a bug of Coq: *)
 
-Module Type SIG.
-  Definition T:Set:=M.N.T.
-  Parameter x:T.
+Lemma bar:O=O.
+Module Type L. (* This should not be allowed by Coq, since the End L. below fails *)
+Axiom foo: O=O.
+End L. (* fails --> if we go back to Module Type: unsync *)
+Module I.
+End I.
 
-  Module N:SPRYT.
-End SIG.
-
-Module J:M.SIG:=M.N.

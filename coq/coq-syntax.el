@@ -30,9 +30,12 @@
     "Recursive\\s-+Tactic\\s-+Definition"
     "Recursive\\s-+Meta\\s-+Definition"))
 
+
+
 (defvar coq-keywords-defn
   '("CoFixpoint"
     "CoInductive"
+	 "Definition" ;; careful: if not followed by :=, then it is a goal cmd
     "Fixpoint"
     "Inductive"
     "Inductive\\s-+Set"
@@ -44,20 +47,33 @@
     "Syntactic\\-+Definition"
     "Structure"))
 
-(defvar coq-keywords-goal
-  '("Chapter"
-    "Module"
-    "Module\\s-+Type"
-    "Section"
-    "Correctness"
-    "Definition"
-    "Fact"
-    "Goal"
-    "Lemma"
-    "Local"
-    "Remark"
-    "Theorem"))
-
+;; Modules are like section in v74.
+(if coq-version-is-V74
+	 (defvar coq-keywords-goal
+		'("Chapter"
+		  "Declare\\s-+Module";;only if not followed by:=(see coq-proof-mode-p in coq.el)
+		  "Module"
+		  "Module\\s-+Type"
+		  "Section"
+		  "Correctness"
+		  "Definition";; only if not followed by := (see coq-proof-mode-p in coq.el)
+		  "Fact"
+		  "Goal"
+		  "Lemma"
+		  "Local"
+		  "Remark"
+		  "Theorem"))
+  (defvar coq-keywords-goal
+	 '("Chapter"
+		"Correctness"
+		"Definition";; only if not followed by := (see coq-proof-mode-p in coq.el)
+		"Fact"
+		"Goal"
+		"Lemma"
+		"Local"
+		"Remark"
+		"Section"
+		"Theorem")))
 (defvar coq-keywords-save
   '("Defined"
     "Save"
@@ -94,7 +110,8 @@ Print and Check commands, put the following line in your .emacs:
   :group 'coq)
 
 ;; 
-
+;; Hint Rewrite/Resolve... ==> state-changing
+;; Print Hint ==> state preserving
 (defvar coq-keywords-state-preserving-commands
   (append '("(*" ;;Pierre comments must not be undone
 	    "Add\\s-+LoadPath"
@@ -169,7 +186,7 @@ Print and Check commands, put the following line in your .emacs:
     "Extraction\\s-+Language"
     "Extraction\\s-+NoInline"
     "Grammar"
-    "Hint"
+    "Hint" ;; not "Print Hint ." (proof-string-match coq-state-changing-commands-regexp "Hint toto")
     "Hints"
     "Identity\\s-+Coercion"
     "Implicit\\s-+Arguments\\s-+Off"

@@ -9,7 +9,7 @@
     $Id$
 *)
 
-Module sect.
+Section sect.
 
 Goal (A,B:Prop)(A /\ B) -> (B /\ A).
  Intros A B H.
@@ -26,15 +26,20 @@ Recursive Tactic Definition  bar := Idtac.
 Save and_comms.
 End sect.
 
-Module mod.
-Definition type1:=Set.
-End mod.
-
-Module Type newmod.
+Section newmod.
 Definition type1:=Set.
 
-Goal (n:nat)n=n.
-Auto.
+Axiom A:False.
+Goal (n:nat)(S n)=n.
+Apply False_ind.
+Exact A.
 Save toto.
 End newmod.
 
+Extract Constant 
+
+Lemma Lem : (S O)=O.
+AutoRewrite [db].
+
+Hint Rewrite [toto] in db.
+AutoRewrite [db].

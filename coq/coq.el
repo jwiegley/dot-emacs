@@ -6,7 +6,74 @@
 ;; $Id$ 
 
 (require 'proof)
+;; coq-syntaxe is required below
+;; ----- coq-shell configuration options
+
+(defcustom coq-prog-name "coqtop -emacs"
+  "*Name of program to run as Coq."
+  :type 'string
+  :group 'coq)
+
+;; Command to initialize the Coq Proof Assistant
+
+(defcustom coq-default-undo-limit 100
+  "Maximum number of Undo's possible when doing a proof."
+  :type 'number
+  :group 'coq)
+
+(defconst coq-shell-init-cmd 
+  (format "Set Undo %s. " coq-default-undo-limit))
+
+
+;; Pierre: we will have both versions V6 and V7 during a while the test with "coqtop
+;; -v" can be skipped if the variable coq-version-is-V7 is already set (useful for
+;; people dealing with several version of coq) We also have coq-version-is-V74, to
+;; deal with the new module system
+(cond
+ ((boundp 'coq-version-is-V74) (setq coq-version-is-V7 t))
+ ((boundp 'coq-version-is-V7) (setq coq-version-is-V74 nil))
+ (t 
+  (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
+         (x (string-match "version \\([.0-9]*\\)" str))
+         (num (match-string 1 str)))
+    (cond
+     ((string-match num "\\<6.")
+      (message "coq is V6") (setq coq-version-is-V7 nil) (setq coq-version-is-V74 nil))
+     ((or (string-match num "\\<7.0") (string-match num "\\<7.1") 
+          (string-match num "\\<7.2") (string-match num "\\<7.3")) 
+      (message "coq is V7 =< 7.3") 
+      (setq coq-version-is-V7 t) (setq coq-version-is-V74 nil))
+      ;default: 7.3.1 and above ---> 7.4 
+     (t (message "coq is => V7.3.1")
+        (setq coq-version-is-V7 t) (setq coq-version-is-V74 t))))))
+
 (require 'coq-syntax)
+
+;; Command to reset the Coq Proof Assistant
+;; Pierre: added Impl... because of a bug of Coq until V6.3
+;; (included). The bug is already fixed in the next version (V7). So
+;; we will backtrack this someday.
+(defconst coq-shell-restart-cmd 
+  "Reset Initial.\n Implicit Arguments Off. ")
+
+
+(defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
+  "*The prompt pattern for the inferior shell running coq.")
+
+;; FIXME da: this was disabled (set to nil) -- why?
+(defvar coq-shell-cd "Cd \"%s\". "
+  "*Command of the inferior process to change the directory.") 
+
+(defvar coq-shell-abort-goal-regexp "Current goal aborted"
+  "*Regexp indicating that the current goal has been abandoned.")
+
+(defvar coq-shell-proof-completed-regexp "Subtree proved!"
+  "*Regular expression indicating that the proof has been completed.")
+
+(defvar coq-goal-regexp
+  "\\(============================\\)\\|\\(subgoal [0-9]+ is:\\)\n")
+
+
 
 ;; Configuration
 
@@ -26,11 +93,6 @@
 
 (defconst coq-interrupt-regexp "User Interrupt."
   "Regexp corresponding to an interrupt")
-
-(defcustom coq-default-undo-limit 100
-  "Maximum number of Undo's possible when doing a proof."
-  :type 'number
-  :group 'coq)
 
 ;; ----- web documentation
 
@@ -54,63 +116,6 @@
     ["Compile" coq-Compile t]))
 
 
-;; ----- coq-shell configuration options
-
-(defcustom coq-prog-name "coqtop -emacs"
-  "*Name of program to run as Coq."
-  :type 'string
-  :group 'coq)
-
-;; Command to initialize the Coq Proof Assistant
-(defconst coq-shell-init-cmd 
-  (format "Set Undo %s. " coq-default-undo-limit))
-
-
-;;Pierre: we will have both versions V6 and V7 during a while
-;;        the test with "coqtop -v" can be skipped if the variable 
-;;        coq-version-is-V7 is already set (usefull for people 
-;;        dealing with several version of coq)
-;; We also have coq-version-is-V74, to deal with the new module system
-(cond
- ((boundp 'coq-version-is-V74) (setq coq-version-is-V7 t))
- ((boundp 'coq-version-is-V7) (setq coq-version-is-V74 nil))
- (t 
-  (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
-         (x (string-match "version \\([.0-9]*\\)" str))
-         (num (match-string 1 str)))
-    (cond
-     ((string-match num "\\<6.")
-      (message "coq is V6") (setq coq-version-is-V7 nil) (setq coq-version-is-V74 nil))
-     ((or (string-match num "\\<7.0") (string-match num "\\<7.1") 
-          (string-match num "\\<7.2") (string-match num "\\<7.3")) 
-      (message "coq is V7 =< 7.3") 
-      (setq coq-version-is-V7 t) (setq coq-version-is-V74 nil))
-      ;default: 7.3.1 and above ---> 7.4 
-     (t (message "coq is => V7.3.1")
-        (setq coq-version-is-V7 t) (setq coq-version-is-V74 t))))))
-
-;; Command to reset the Coq Proof Assistant
-;; Pierre: added Impl... because of a bug of Coq until V6.3
-;; (included). The bug is already fixed in the next version (V7). So
-;; we will backtrack this someday.
-(defconst coq-shell-restart-cmd 
-  "Reset Initial.\n Implicit Arguments Off. ")
-
-(defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
-  "*The prompt pattern for the inferior shell running coq.")
-
-;; FIXME da: this was disabled (set to nil) -- why?
-(defvar coq-shell-cd "Cd \"%s\". "
-  "*Command of the inferior process to change the directory.") 
-
-(defvar coq-shell-abort-goal-regexp "Current goal aborted"
-  "*Regexp indicating that the current goal has been abandoned.")
-
-(defvar coq-shell-proof-completed-regexp "Subtree proved!"
-  "*Regular expression indicating that the proof has been completed.")
-
-(defvar coq-goal-regexp
-  "\\(============================\\)\\|\\(subgoal [0-9]+ is:\\)\n")
 
 
 ;; ----- outline
@@ -148,7 +153,7 @@
 
 (defvar coq-keywords-section
   (cond 
-   (coq-version-is-V74 '("Section" "Module\\-+Type" "Module"))
+   (coq-version-is-V74 '("Section" "Module\\-+Type" "Declare\\s-+Module" "Module"))
    (t '("Section"))))
 
 (defvar coq-section-regexp 
@@ -206,11 +211,33 @@
 ;; Future improvement may simply to be allow a function value for
 ;; proof-goal-regexp.
 
+;; excerpt of Jacek Chrzaszcz, implementer of the module system: sorry
+;; for the french:
+;*) suivant les suggestions de Chritine, pas de mode preuve dans un type de
+;    module (donc pas de Definition truc:machin.  Lemma, Theorem ... )
+;
+; *) la commande Module M [ ( : | <: ) MTYP ] [ := MEXPR ] est valable
+;    uniquement hors d'un MT
+;    - si :=MEXPR est absent, elle demarre un nouveau module interactif
+;    - si :=MEXPR est present, elle definit un module
+;    (la fonction vernac_define_module dans toplevel/vernacentries) 
+;
+; *) la nouvelle commande Declare Module M [ ( : | <: ) MTYP ] [ := MEXPR ]
+;    est valable uniquement dans un MT
+;    - si :=MEXPR absent, :MTYP absent, elle demarre un nouveau module
+;      interactif
+;    - si (:=MEXPR absent, :MTYP present) 
+;      ou (:=MEXPR present, :MTYP absent)
+;      elle declare un module.
+;    (la fonction vernac_declare_module dans toplevel/vernacentries)
+
+
 (defun coq-goal-command-p (str)
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
        (not (proof-string-match "Definition.*:=" str))
        (not (proof-string-match "Module.*:=" str))
+       (not (proof-string-match "Declare Module.*:" str)) ;neither : or :=
        (not (proof-string-match "Recursive Definition" str))
        ;; da: 3.4 test: do not exclude Lemma: we want goal-command-p to
        ;; succeed for nested goals too now.
@@ -238,130 +265,103 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
 ;; nested proofs.
 
 
+(defun coq-is-comment-p (span) (eq (span-property span 'type) 'comment))
+(defun coq-is-goalsave-p (span) (eq (span-property span 'type) 'goalsave))
+(defun coq-is-module-equal-p (str) ;;cannot appear vith coq < 7.4
+  (proof-string-match "\\`\\(Declare\\s-\\)?\\s-*\\<Module\\>.*:=" str))
+(defun coq-is-def-p (str) 
+  (proof-string-match (concat "\\`Definition\\s-+\\(" proof-id "\\)\\s-*") str))
+(defun coq-is-decl-defn-p (str)
+  (proof-string-match 
+   (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
+           proof-id "\\)\\s-*[\\[,:.]") str))
 
+(defun coq-state-preserving-command-p (str)
+  (proof-string-match (concat "\\`\\(" coq-state-preserving-commands-regexp "\\)") str))
+
+(defun coq-state-preserving-tactic-p (str)
+  (proof-string-match (concat "\\`\\(" coq-state-preserving-tactics-regexp "\\)") str))
+
+(defun coq-state-changing-command-p (str)
+  (proof-string-match (concat "\\`\\(" coq-state-changing-commands-regexp "\\)") str))
+
+; if no second id --> name of the module/section is (match-string 2 str)
+; otherwise it is (match-string 5 str) 
+; to know if there is a second id: (match-string 2 str)="Type" ?
+(defun coq-section-or-module-start-p (str)
+  (proof-string-match 
+   (concat "\\`" coq-section-regexp 
+           "\\s-+\\(" proof-id "\\)\\(\\s-*\\(" proof-id "\\)\\)?") str)) 
 
 (defun coq-find-and-forget (span)
   (let (str ans (naborts 0) (nbacks 0) (nundos 0))
     (while (and span (not ans))
       (setq str (span-property span 'cmd))
       (cond
-       ((eq (span-property span 'type) 'comment))
-       ;; One more particular case (7.4, coq raise an error if < 7.4): 
-       ;; Module <Type> T ... :=... . inside proof (shoul perhaps been disallowed in coq)
-       ;; Should behave like Definition ... :=... . (ie no proof started, and no section-like started)
-       ;; Should go in last cond, but I have a problem trying to avoid next cond to match.
-       ((and (coq-proof-mode-p) (proof-string-match "\\(\\<Module\\>\\).*:=" str))
-        (incf nbacks))
-       ;; this case is correctly treated by the next 
-       ;; one because 'Module :=' is not a 'goalsave span
-       ;((and (not (coq-proof-mode-p)) 
-       ;      (proof-string-match 
-       ;       (concat "\\(\\<Module\\>\\)\\s-+\\(" proof-id "\\).*:=") str))
-       ; (setq ans (format coq-forget-id-command (match-string 2 str))))
+       ((coq-is-comment-p span)) ; do nothing
+
+       ;; Module <Type> T ... :=... . inside proof ->  like Definition...:=...  
+       ;; (should actually be disallowed in coq)
+       ; Should go in last cond, but I have a problem trying to avoid next cond to match.
+       ((and (coq-proof-mode-p) (coq-is-module-equal-p str)) (incf nbacks))
+
        ;; FIXME: combine with coq-keywords-decl-defn-regexp case below?
        ;; [ Maybe not: Section is being treated as a _goal_ command
-       ;;   now, so this test has to appear before the goalsave ]       
-       ((proof-string-match 
-         (concat coq-section-regexp 
-                 "\\s-+\\(" proof-id "\\)\\(\\s-*\\(" proof-id "\\)\\)?") str)
-        (unless (eq (span-property span 'type) 'goalsave)
-          ;; If we're resetting to beginning of a section from
-          ;; inside, need to fix the nesting depth.
-          ;; FIXME: this is not good enough: the scanning loop
-          ;; exits immediately but Reset has implicit Aborts
-          ;; which are not being counted here.  Really
-          ;; we need to set the "master reset" command which
-          ;; subsumes the others, but still count the depth.
-          (decf proof-nesting-depth))
-        (if (equal (match-string 2 str) "Type") ;Module Type id: take the third word
-            (progn 
-              (setq ans (format coq-forget-id-command (match-string 5 str))))
-          (setq ans (format coq-forget-id-command (match-string 2 str)))))
-       ((eq (span-property span 'type) 'goalsave)
-        ;; Note da 6.10.99: in Lego and Isabelle, it's trivial to forget an
-        ;; unnamed theorem.  Coq really does use the identifier
-        ;; "Unnamed_thm", though!  So we don't need this test:
-        ;;(unless (eq (span-property span 'name) proof-unnamed-theorem-name)
+       ;;   now, so this test has to appear before the goalsave ]
+       ((coq-section-or-module-start-p str)
+        ;; If we're resetting to beginning of a section from inside, need to fix the
+        ;; nesting depth.  FIXME: this is not good enough: the scanning loop exits
+        ;; immediately but Reset has implicit Aborts which are not being counted
+        ;; here.  Really we need to set the "master reset" command which subsumes the
+        ;; others, but still count the depth.
+        (unless (coq-is-goalsave-p span) (decf proof-nesting-depth))
 
-        ;; da: try using just Back since "Reset" causes loss of proof
-        ;; state.
-        ;; (format coq-forget-id-command (span-property span 'name)))
-        (if (span-property span 'nestedundos) 
-            (setq nbacks (+ 1 nbacks (span-property span 'nestedundos)))))
+        (if (equal (match-string 2 str) "Type") ;Module Type id: take the third word
+            (setq ans (format coq-forget-id-command (match-string 5 str)))
+          (setq ans (format coq-forget-id-command (match-string 2 str)))))
+
+       ((coq-is-goalsave-p span)
+        ;; da: try using just Back since "Reset" causes loss of proof state.
+        (if (span-property span 'nestedundos)
+            ;; Pierre: more robust when some unknown commands are not well backtracked
+            (if (and (= (span-property span 'nestedundos) 0) (not (coq-proof-mode-p))) 
+                (setq ans (format coq-forget-id-command (span-property span 'name)))
+              (setq nbacks (+ 1 nbacks (span-property span 'nestedundos))))))
        
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
-       ((coq-goal-command-p str)
-        ;;TODO if Definition:foo. inside a "Module Type": it is
-        ;;not a proof start!!
-        ;(if (and (proof-string-match "Definition\\-+:[^=]?" str)
-        ;         (inside-module-type))
-        ;  (incf nfalseaborts))
-        (incf naborts))
-       
-       ;; If we are already outside a proof, issue a Reset.
-       ;; [ improvement would be to see if the undoing
-       ;;   will take us outside a proof, and use the first
-       ;;   Reset found if so: but this is tricky to co-ordinate
-       ;;   with the number of Backs, perhaps? ]
-       ((and 
-         (not (coq-proof-mode-p));; (eq proof-nesting-depth 0)
-         (proof-string-match 
-          (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
-                  proof-id 
-                  ;; Section .. End Section should be atomic!
-                  "\\)\\s-*[\\[,:.]") str))
-        (setq ans (format coq-forget-id-command (match-string 2 str))))
+       ((coq-goal-command-p str) (incf naborts))
 
-       ;; FIXME: combine with coq-keywords-decl-defn-regexp case above?
-       ;; If it's not a goal but it contains "Definition" then it's a
-       ;; declaration  [ da: is this not covered by above case??? ]
-       ((and (not (coq-proof-mode-p));; (eq proof-nesting-depth 0)
-             (proof-string-match
-              (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
+       ;; If we are already outside a proof, issue a Reset.  [ improvement would be
+       ;; to see if the undoing will take us outside a proof, and use the first Reset
+       ;; found if so: but this is tricky to co-ordinate with the number of Backs,
+       ;; perhaps? ]
+       ((and (not (coq-proof-mode-p));; (eq proof-nesting-depth 0) 
+             (coq-is-decl-defn-p str))
         (setq ans (format coq-forget-id-command (match-string 2 str))))
 		 
        ;; Outside a proof: cannot be a tactic, if unknown: do back 
        ;; (we may decide otherwise, it is false anyhow, use elisp 
        ;; vars instead for the perfect thing).
-       ((and (not (coq-proof-mode-p))
-             (not (proof-string-match 
-                   (concat "\\`\\(" 
-                           coq-state-preserving-commands-regexp
-                           "\\)")
-                   str)))
+       ((and (not (coq-proof-mode-p)) (not (coq-state-preserving-command-p str)))
         (incf nbacks))
 
-       ;; inside a proof: if known command then back or nothing (depending 
-       ;;                 on the command), 
-       ;; if known "need not undo tactic" then nothing
-       ;; otherwise : undo (unknown tactics are considered needing undo, 
-       ;;                    which is ok at 99%, use elisp vars for the 
-       ;;                    1% remaining).
+       ;; inside a proof: if known command then back if necessary, nothing otherwise,
+       ;; if known "need not undo tactic" then nothing; otherwise : undo (unknown
+       ;; tactics are considered needing undo, use elisp vars for the 1% remaining).
        ;; no undo if abort
        ((coq-proof-mode-p)
-        (cond
-         ((proof-string-match 
-           (concat "\\`\\(" coq-state-changing-commands-regexp "\\)")
-           str)
-          (incf nbacks))
+        (cond 
+         ((coq-state-changing-command-p str) (incf nbacks))
          ((and (eq 0 naborts)
-               (not (proof-string-match 
-                     (concat "\\`\\(" coq-state-preserving-commands-regexp "\\)")
-                     str))
-               (not (proof-string-match 
-                     (concat "\\`\\(" coq-state-preserving-tactics-regexp "\\)")
-                     str)))
-          (incf nundos))
-         ))
-       )
+               (not (coq-state-preserving-command-p str))
+               (not (coq-state-preserving-tactic-p str)))
+          (incf nundos)))))
       (setq span (next-span span 'type)))
-    
-    ;; Now adjust proof-nesting depth according to the
-    ;; number of proofs we've passed out of.
-    ;; FIXME: really this adjustment should be on the
-    ;; successful completion of the Abort commands, as
-    ;; a callback.
+
+    ;; Now adjust proof-nesting depth according to the number of proofs we've passed
+    ;; out of.  FIXME: really this adjustment should be on the successful completion
+    ;; of the Abort commands, as a callback.
     (setq proof-nesting-depth (- proof-nesting-depth naborts))
 
     (setq ans
@@ -639,9 +639,11 @@ This is specific to coq-mode."
    proof-indent-close-regexp
    (proof-regexp-alt (proof-ids-to-regexp '("end")) "\\s)"))
 
-  ;; span menu 
-  (setq
-   proof-script-span-context-menu-extensions 'coq-create-span-menu)
+;
+;  ;; span menu 
+;  (setq
+;   proof-script-span-context-menu-extensions 'coq-create-span-menu)
+;
 
   ;; (setq proof-auto-multiple-files t)	; until Coq has real support
   ;; da: Experimental support for multiple files based on discussions
@@ -870,6 +872,7 @@ mouse activation."
 ;; maybe you can suggest some better commands to use on
 ;; `thm'.  (Check maybe not much use since appears before
 ;; in the buffer anyway)
+
 (defun coq-create-span-menu (span idiom name)
   (if (string-equal idiom "proof")
       (let ((thm (span-property span 'name)))
@@ -884,6 +887,7 @@ mouse activation."
 
 ;;;   Local Variables: ***
 ;;;   tab-width:2 ***
+;;;   fill-column: 85 ***
 ;;;   indent-tabs-mode:nil ***
 ;;;   End: ***
 
