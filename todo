@@ -14,8 +14,6 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A* There is something seriously broken with fume-func. (1h)
-
 A* Fixup multiple files -- needs debugging.
 
    1. mark atomic makes some assumption about non-comment commands in

@@ -958,14 +958,17 @@ buffer is closed off atomically."
 (and (fboundp 'fume-match-find-next-function-name)
 (defun fume-match-find-next-function-name (buffer)
   "General next function name in BUFFER finder using match.
-  The regexp is assumed to be a two item list the car of which is the regexp
-  to use, and the cdr of which is the match position of the function name"
-  (save-excursion
+The regexp is assumed to be a two item list the car of which is the regexp
+to use, and the cdr of which is the match position of the function
+name. Moves point after the match."
+  ;; DO NOT USE save-excursion; we need to move point!
+  ;; save-excursion is called at a higher level in the func-menu
+  ;; package 
     (set-buffer buffer)
     (let ((r (car fume-function-name-regexp))
 	  (p (cdr fume-function-name-regexp)))
       (and (re-search-forward r nil t)
-	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))))
+	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p)))))
 
 
 ;;; end messy COMPATIBILITY HACKING
