@@ -107,27 +107,32 @@
   (let ((num (if (fboundp 'face-height)
 		 (face-height 'default)
 	       (let ((str (face-font 'default)))
-		 (string-match "-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-\\([^-]*\\)-.*" str)
-		 (string-to-number (substring str (match-beginning 1)
-					      (match-end 1))))))
+		 (if
+		     (string-match "-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-\\([^-]*\\)-.*" str)
+		     (string-to-number (substring str (match-beginning 1)
+						  (match-end 1)))))))
 	(maxsize 100) (size) (oldsize)
 	(lf (list-fonts "-adobe-symbol-medium-r-normal--*")))
     (while (and lf maxsize)
-      (string-match "-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-\\([^-]*\\)-.*"
+      (if 
+	  (string-match "-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-\\([^-]*\\)-.*"
 		    (car lf))
-      (setq size (string-to-number (substring (car lf) (match-beginning 1)
-					      (match-end 1))))
-      (if (and (> size num) (< size maxsize))
-	  (setq maxsize nil)
-	(setq oldsize size))
+	  (progn 
+	    (setq size (string-to-number (substring (car lf) (match-beginning 1)
+						    (match-end 1))))
+	    (if (and (> size num) (< size maxsize))
+		(setq maxsize nil)
+	      (setq oldsize size))))
       (setq lf (cdr lf)))
     (number-to-string (if (and oldsize (< oldsize 100)) oldsize num))))
 
 (defvar sym-lock-font-name
-  (concat "-adobe-symbol-medium-r-normal--"
-	  (if sym-lock-font-size sym-lock-font-size
-	    (sym-lock-compute-font-size))
-	  "-*-*-*-p-*-adobe-fontspecific")
+  (if window-system
+      (concat "-adobe-symbol-medium-r-normal--"
+	      (if sym-lock-font-size sym-lock-font-size
+		(sym-lock-compute-font-size))
+	      "-*-*-*-p-*-adobe-fontspecific")
+    "")
   "Name of the font used by Sym-Lock.")
 (make-variable-buffer-local 'sym-lock-font-name)
 (put 'sym-lock-font-name 'permanent-local t)
