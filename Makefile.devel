@@ -133,11 +133,7 @@ CVSNAME = ProofGeneral
 
 # Remote commands to use CVS in server mode and install files.
 # With these settings the build can be done remotely.
-# CVSROOT = :ext:$(USER)@$(MACHINE).dcs.ed.ac.uk:/home/proofgen/src
-# CVSROOT = /home/proofgen/src
-# CVS_RSH=ssh
-MACHINE=scar
-CVSROOT = :ext:da@$(MACHINE).dcs.ed.ac.uk:/home/proofgen/src
+# CVSROOT = :pserver:da@cvs.inf.ed.ac.uk:/disk/cvs/proofgen
 
 # Emacs for batch compiling
 BATCHEMACS=xemacs -batch -q -no-site-file
@@ -366,6 +362,7 @@ untag:
 ##       with CVS_RELEASENAME.
 ##	 Moves html files to parent directory, removes
 ##       non-distributed files.
+##	 (NB: lines in subshells here inherit CVSROOT settings from above)
 ##	    
 dist:	
 	@echo "*************************************************"
@@ -376,18 +373,13 @@ dist:
 	@echo "*************************************************"
 	@echo " Running cvs export .."
 	@echo "*************************************************"
-## FIXME: wierdness here this line below appears inside the if statement:
-## results in an error "no such tag" from cvs.  Yet run on its
-## own below, it's fine.  Something with quoting??  Also,
-## the behaviour is different with the cvs.inf pserver than before, argh!!
-	cvs export -kv -r ${CVS_RELEASENAME} -d ${RELEASENAME} ${CVSNAME}
-#	if [ -z "$(NOCVS)" ]; then \
-#           (cd $(DISTBUILDIR); \
-#	     cvs export -kv -r ${CVS_RELEASENAME} -d ${RELEASENAME} ${CVSNAME})
-#	else \
-#	   mkdir -p $(DISTBUILDIR)/$(RELEASENAME); \
-#	   cp -pr . $(DISTBUILDIR)/$(RELEASENAME); \
-#	fi
+	if [ -z "$(NOCVS)" ]; then \
+           (cd $(DISTBUILDIR); \
+	    cvs export -kv -r "${CVS_RELEASENAME}" -d ${RELEASENAME} ${CVSNAME}) \
+	else \
+	   mkdir -p $(DISTBUILDIR)/$(RELEASENAME); \
+	   cp -pr . $(DISTBUILDIR)/$(RELEASENAME); \
+	fi
 	@echo "*************************************************"
 	@echo " Running 'make alldist' for new release .."
 	@echo "*************************************************"
