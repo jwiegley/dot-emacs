@@ -1,3 +1,8 @@
+xx.09.00  3.2   Release 3-2  based on branch 5.0
+	  First version of 3.2 release.
+
+--------------------
+
 25.05.00  3.1.6 Release 3-1-6, from Release-3-1-branch
           Button enablers are not used by default on XEmacs/Solaris.
 	  When button enablers disabled, don't use itimer or after-change hook.
