@@ -9,6 +9,17 @@
 
 
 ;; $Log$
+;; Revision 1.51  1998/06/03 16:03:02  hhg
+;; Added proof-goto-end-of-locked-interactive as old
+;; proof-goto-end-of-locked, and proof-goto-end-of-locked now doesn't
+;; switch buffer.
+;;
+;; Added code in proof-steal-process to handle case of stealing script
+;; management from a killed buffer.
+;;
+;; Set proof-active-buffer-fake-minor-mode to nil in
+;; proof-restart-script.
+;;
 ;; Revision 1.50  1998/06/02 15:35:19  hhg
 ;; Generalized proof-retract-target, now parameterized by
 ;; proof-count-undos and proof-find-and-forget.
@@ -628,10 +639,14 @@
     (and (re-search-forward r nil t)
 	 (cons (buffer-substring (setq p (match-beginning p)) (point)) p)))))
 
-(defun proof-goto-end-of-locked ()
+(defun proof-goto-end-of-locked-interactive ()
   "Jump to the end of the locked region."
   (interactive)
   (switch-to-buffer proof-script-buffer)
+  (goto-char (proof-locked-end)))
+
+(defun proof-goto-end-of-locked ()
+  "Jump to the end of the locked region."
   (goto-char (proof-locked-end)))
 
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
@@ -643,7 +658,7 @@
 	       (proof-locked-end))))
     (or (pos-visible-in-window-p pos (get-buffer-window
 				      proof-script-buffer t))
-        (proof-goto-end-of-locked))))
+        (proof-goto-end-of-locked-interactive))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Starting and stopping the proof-system shell                    ;;
@@ -1246,22 +1261,24 @@ arrive."
     nil)
    (t 
     (let ((flist proof-included-files-list) 
-	  (file (expand-file-name (buffer-file-name))) span cmd)
+	  (file (expand-file-name (buffer-file-name))) span (cmd ""))
       (if (string-match "\\(.*\\)\\.." file) (setq file (match-string 1 file)))
       (while (and flist (not (string= file (cdr (car flist)))))
 	(setq flist (cdr flist)))
       (if (null flist) 
 	  (if (not (y-or-n-p "Steal script management? " )) (error "Aborted"))
 	(if (not (y-or-n-p "Reprocess this file? " )) (error "Aborted")))
-      (save-excursion
-	(set-buffer proof-script-buffer)
-	(setq span (proof-last-goal-or-goalsave))
-	(setq cmd
-	      (if (and span (not (eq (span-property span 'type) 'goalsave)))
-		  proof-kill-goal-command ""))
-	(proof-detach-segments)
-	(delete-spans (point-min) (point-max) 'type)
-	(setq proof-active-buffer-fake-minor-mode nil))      
+      (if (not (buffer-name proof-script-buffer))
+	  (message "Warning: Proof script buffer deleted: proof state may be inconsistent")
+	(save-excursion
+	  (set-buffer proof-script-buffer)
+	  (setq proof-active-buffer-fake-minor-mode nil)
+	  (setq span (proof-last-goal-or-goalsave))
+	  ;; This won't work for Coq if we have recursive goals in progress
+	  (if (and span (not (eq (span-property span 'type) 'goalsave)))
+	      (setq cmd proof-kill-goal-command))
+	  (proof-detach-segments)
+	  (delete-spans (point-min) (point-max) 'type)))
 
       (setq proof-script-buffer (current-buffer))
       (proof-init-segmentation)
@@ -1664,6 +1681,7 @@ deletes the region corresponding to the proof sequence."
     (if (buffer-live-p proof-script-buffer)
 	(progn
 	  (set-buffer proof-script-buffer)
+	  (setq proof-active-buffer-fake-minor-mode nil)
 	  (delete-spans (point-min) (point-max) 'type)
 	  (proof-detach-segments)))
     (setq proof-shell-busy nil
@@ -1930,7 +1948,8 @@ current command."
   (define-key proof-mode-map [(control c) (control u)]
     'proof-undo-last-successful-command)
 
-  (define-key proof-mode-map [(control c) ?\'] 'proof-goto-end-of-locked)
+  (define-key proof-mode-map [(control c) ?\']
+    'proof-goto-end-of-locked-interactive)
   (define-key proof-mode-map [(control button1)] 'proof-send-span)
   (define-key proof-mode-map [(control c) (control b)] 'proof-process-buffer)
   (define-key proof-mode-map [(control c) (control z)] 'proof-frob-locked-end)
