@@ -3,6 +3,14 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.16  1998/05/05 14:21:48  hhg
+;; Made updates to fix problem with Definition, which couldn't be
+;; used with proof scripts.
+;; Removed some useless declarations.
+;; Removed Abort from menu.
+;; Now Reset's if user undoes to beginning of proof.
+;; Added command to increase undo limit for Coq, and set default to 100.
+;;
 ;; Revision 1.15  1998/03/25 17:30:35  tms
 ;; added support for etags at generic proof level
 ;;
@@ -75,24 +83,16 @@
 (require 'proof)
 (require 'info)
 
-; Configuration                                  
-
-(defvar proof-shell-cd "Cd \"%s\""
-  "*Command of the inferior process to change the directory.") 
+; Configuration
 
 (defconst coq-mode-version-string
   "Coq-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
 
-(defvar coq-tags "/obj/local/coq/V6.1.beta/theories/TAGS"
+(defvar coq-tags "/obj/local/coq/V6.2/theories/TAGS"
   "the default TAGS table for the Coq library")
 
-(defconst coq-process-config ""
+(defconst coq-process-config nil
   "Command to configure pretty printing of the Coq process for emacs.")
-
-;; This doesn't exist at the moment
-(defconst coq-pretty-set-width ""
-  "Command to adjust the linewidth for pretty printing of the Coq
-  process.") 
 
 (defconst coq-interrupt-regexp "Interrupted"
   "Regexp corresponding to an interrupt")
@@ -101,6 +101,8 @@
   "*If non-nil, ask user for permission to save the current buffer before
   processing a module.")
 
+(defvar coq-default-undo-limit 100
+  "Maximum number of Undo's possible when doing a proof.")
 
 ;; ----- web documentation
 
@@ -108,7 +110,7 @@
 
 ;; ----- coq-shell configuration options
 
-(defvar coq-prog-name "coqtop"
+(defvar coq-prog-name "/obj/local/coq/V6.2/bin/sun4/coqtop -image /obj/local/coq/V6.2/bin/sun4/coq.out -emacs"
   "*Name of program to run as Coq.")
 
 (defvar coq-shell-working-dir ""
@@ -173,8 +175,6 @@
 	      :active (proof-shell-live-buffer)]
             ["Display proof state" coq-prf
 	      :active (proof-shell-live-buffer)]
-	    ["Abort the current proof" coq-abort
-	     :active (proof-shell-live-buffer)]
 	    ["Exit Coq" coq-exit :active (proof-shell-live-buffer)]
 	    "----"
 	    ["Find definition/declaration" find-tag-other-window t]
@@ -215,27 +215,39 @@
 ;;   Code that's coq specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun coq-set-undo-limit (undos)
+  (proof-invisible-command (format "Set Undo %s." undos)))
+
 (defun coq-count-undos (sext)
   (let ((ct 0) str i)
-    (while sext
-      (setq str (span-property sext 'cmd))
-      (cond ((eq (span-property sext 'type) 'vanilla)
-	     (if (string-match coq-undoable-commands-regexp str)
-		 (setq ct (+ 1 ct))))
-	    ((eq (span-property sext 'type) 'pbp)
-	     (cond ((string-match coq-undoable-commands-regexp str)
-		    (setq i 0)
-		    (while (< i (length str))
-		      (if (= (aref str i) proof-terminal-char)
-			  (setq ct (+ 1 ct)))
-		      (setq i (+ 1 i))))
-		   (t nil))))
-      (setq sext (next-span sext 'type)))
-    (concat "Undo " (int-to-string ct) proof-terminal-string)))
+    (if (and sext (prev-span sext 'type)
+	     (not (eq (span-property (prev-span sext 'type) 'type) 'comment))
+	     (coq-goal-command-p (span-property (prev-span sext 'type) 'cmd)))
+	(concat "Restart" proof-terminal-string)
+      (while sext
+	(setq str (span-property sext 'cmd))
+	(cond ((eq (span-property sext 'type) 'vanilla)
+	       (if (string-match coq-undoable-commands-regexp str)
+		   (setq ct (+ 1 ct))))
+	      ((eq (span-property sext 'type) 'pbp)
+	       (cond ((string-match coq-undoable-commands-regexp str)
+		      (setq i 0)
+		      (while (< i (length str))
+			(if (= (aref str i) proof-terminal-char)
+			    (setq ct (+ 1 ct)))
+			(setq i (+ 1 i))))
+		     (t nil))))
+	(setq sext (next-span sext 'type)))
+      (concat "Undo " (int-to-string ct) proof-terminal-string))))
 
 (defconst coq-keywords-decl-defn-regexp
   (ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
+
+;; Decide whether this is a goal or not
+(defun coq-goal-command-p (str)
+  (and (string-match coq-goal-command-regexp str)
+       (not (string-match "Definition.*:=" str))))
 
 (defun coq-find-and-forget (sext)
   (let (str ans)
@@ -244,17 +256,25 @@
       (cond
 
        ((eq (span-property sext 'type) 'comment))       
-       
+
        ((eq (span-property sext 'type) 'goalsave)
 	(setq ans (concat coq-forget-id-command
 			  (span-property sext 'name) proof-terminal-string)))
 
-; I'm not sure match-string 2 is correct with proof-id -- hhg
+       ;; I'm not sure match-string 2 is correct with proof-id
+       ;; Furthermore, decl's can have proof-ids rather than proof-id
        ((string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
 			      "\\)\\s-*\\(" proof-id "\\)\\s-*:") str)
 	(setq ans (concat coq-forget-id-command
-			  (match-string 2 str) proof-terminal-string))))
+			  (match-string 2 str) proof-terminal-string)))
 
+       ;; If it's not a goal but it contains "Definition" then it's a
+       ;; declaration
+       ((and (not (coq-goal-command-p str))
+	     (string-match
+	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*:") str))
+	(setq ans (concat coq-forget-id-command
+			  (match-string 2 str) proof-terminal-string))))
 
       (setq sext (next-span sext 'type)))
 
@@ -280,7 +300,10 @@
   (not (string-match coq-undoable-commands-regexp cmd)))
 
 (defun coq-global-p (cmd)
-  (string-match coq-keywords-decl-defn-regexp cmd))
+  (or (string-match coq-keywords-decl-defn-regexp cmd)
+      (and (string-match
+	    (concat "Definition\\s-+\\(" coq-id "\\)\\s-*:") cmd)
+	   (string-match ":=" cmd))))
 
 (defun coq-retract-target (target delete-region)
   (let ((end (proof-locked-end))
@@ -314,6 +337,55 @@
       
     (proof-start-queue (min start end) (proof-locked-end) actions)))
 
+(defun coq-shell-analyse-structure (string)
+  (save-excursion
+    (let* ((ip 0) (op 0) ap (l (length string)) 
+	   (ann (make-string (length string) ?x))
+           (stack ()) (topl ()) 
+	   (out (make-string l ?x )) c ext)
+      (while (< ip l)	
+	(if (< (setq c (aref string ip)) 128) (progn (aset out op c)
+						     (incf op)))
+	(incf ip))
+      (display-buffer (set-buffer proof-pbp-buffer))
+      (erase-buffer)
+      (insert (substring out 0 op))
+
+      (setq ip 0
+	    op 1)
+      (while (< ip l)
+	(setq c (aref string ip))
+	(cond
+	 ((= c proof-shell-goal-char)
+	  (setq topl (cons op topl))
+	  (setq ap 0))
+	 ((= c proof-shell-start-char)
+	  (setq ap (- ap (- (aref string (incf ip)) 128)))
+	  (incf ip)
+	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
+	    (aset ann ap (- c 128))
+	    (incf ap)
+	    (incf ip))
+	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
+	 ((= c proof-shell-field-char)
+	  (setq ext (make-span (car stack) op))
+	  (set-span-property ext 'mouse-face 'highlight)
+	  (set-span-property ext 'proof (car (cdr stack)))
+					; Pop annotation off stack
+	  (setq ap 0)
+	  (while (< ap (length (cadr stack)))
+	    (aset ann ap (aref (cadr stack) ap))
+	    (incf ap))
+					; Finish popping annotations
+	  (setq stack (cdr (cdr stack))))
+	 (t (incf op)))
+	(incf ip))
+      (setq topl (reverse (cons (point-max) topl)))
+      (setq coq-current-goal 1)
+      (while (setq ip (car topl) 
+		   topl (cdr topl))
+	(pbp-make-top-span ip (car topl))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to coq                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -332,11 +404,6 @@
   "List proof state."
   (interactive)
   (proof-invisible-command "Show."))
-
-(defun coq-abort ()
-  "Kill current proof."
-  (interactive)
-  (proof-invisible-command "Abort."))
 
 (defun coq-exit ()
   "Exit Coq."
@@ -358,7 +425,6 @@
   (interactive) 
   (insert "Apply "))
 
-<<<<<<< coq.el
 (defun coq-Search ()
   "Search for type in goals."
   (interactive)
@@ -490,29 +556,6 @@
 ;;   Coq shell startup and exit hooks                               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar coq-shell-current-line-width nil
-  "Current line width of the Coq process's pretty printing module.
-  Its value will be updated whenever the corresponding screen gets
-  selected.")
-
-;; NEED TO MAKE THE CODE BELOW CONSISTENT WITH THE VARIABLE ABOVE
-;; BEING BUFFER LOCAL TO THE SHELL BUFFER - djs 5/2/97
-
-;; The line width needs to be adjusted if the Coq process is
-;; running and is out of sync with the screen width
-
-(defun coq-shell-adjust-line-width ()
-  "Uses Coq's pretty printing facilities to adjust the line width of
-  the output."
-  (if (proof-shell-live-buffer)
-      (let ((current-width
-	     (window-width (get-buffer-window proof-shell-buffer))))
-	 (if (equal current-width coq-shell-current-line-width)
-	     ""
-	   (setq coq-shell-current-line-width current-width)
-	   (format coq-pretty-set-width (- current-width 1))))
-    ""))
-
 (defun coq-pre-shell-start ()
   (setq proof-prog-name coq-prog-name)
   (setq proof-mode-for-shell 'coq-shell-mode)
@@ -523,21 +566,20 @@
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 (defun coq-mode-config ()
 
   (setq proof-terminal-char ?\.)
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-retract-target-fn 'coq-retract-target
+  (setq proof-goal-command-p 'coq-goal-command-p
+	proof-retract-target-fn 'coq-retract-target
         proof-goal-hyp-fn 'coq-goal-hyp
 	proof-state-preserving-p 'coq-state-preserving-p
 	proof-global-p 'coq-global-p)
 
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
-	proof-goal-command-regexp coq-goal-command-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
 	proof-kill-goal-command coq-kill-goal-command)
 
@@ -606,6 +648,7 @@
 (defun coq-shell-mode-config ()
   (setq proof-shell-prompt-pattern coq-shell-prompt-pattern
         proof-shell-cd coq-shell-cd
+        proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
         proof-shell-error-regexp coq-error-regexp
 	proof-shell-interrupt-regexp coq-interrupt-regexp
@@ -628,10 +671,12 @@
         proof-shell-result-end "\372 End Pbp result \373"
         proof-shell-start-goals-regexp "[0-9]+ subgoals?"
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
-        proof-shell-init-cmd coq-process-config
-        proof-shell-config 'coq-shell-adjust-line-width
-        coq-shell-current-line-width nil)
+        proof-shell-init-cmd nil
+	proof-shell-analyse-structure 'coq-shell-analyse-structure
+        proof-shell-config nil)
   (proof-shell-config-done)
+
+  (coq-set-undo-limit coq-default-undo-limit)
 )
 
 (defun coq-pbp-mode-config ()
