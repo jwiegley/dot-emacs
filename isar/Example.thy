@@ -1,12 +1,7 @@
-(*  -*- isar -*-
-
+(*
       Example proof document for Isabelle/Isar Proof General.
    
       $Id$
-
-      The first line forces Isabelle/Isar Proof General, otherwise
-      you may get the theory mode of ordinary Isabelle Proof General
-      See the manual for other ways to select Isabelle/Isar PG.
 *)
 
 theory Example = Main:
@@ -19,8 +14,9 @@ proof
   then show "B & A"
   proof
     assume B and A
-    then show ?thesis ..
-  qed
+    then
+   show ?thesis ..
+ qed
 qed
 
 
