@@ -18,6 +18,7 @@ example                test protocol for example proof scripts
 
 notes.txt	       Misc notes
 
+bug-notes.txt	       Test cases for Emacs or PG bugs
 cvs-tips.txt	       Notes on  cvs with PG project
 debugging-tips.txt     Notes on  debugging
 profiling.txt			 profiling

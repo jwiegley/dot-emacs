@@ -1,0 +1,32 @@
+-*- outline -*-
+
+$Id$
+
+Test cases for PG and/or Emacs bugs.
+
+----------------
+
+* XEmacs bug: buffer-syntactic-context-depth returns weird values
+
+Seems to depend on previous history.  Test in Coq buffer:
+  
+   X
+  (* comment one *)
+   Y
+  (* comment two *)
+   Z
+
+Evaluate (buffer-syntactic-context-depth) at X, Y, then Z.
+Values 0, 1, 2.  Evaluate at point Y.  Now get 0.
+Perhaps caches previous value, and bases parse on moving point
+forwards from previous value?  Anyway, doesn't do well with
+block comments.  Also bad with line comments, use same test
+case with buffer in lisp mode, except with lisp comments.
+
+Shame, would be nice to use this to help parse lisp-like
+syntax for PAs, fitting in with present scheme.
+
+
+
+
+
