@@ -37,9 +37,18 @@ consts
  "\<^bold>X"  :: bool   (* bold character *)
 
 
-(* Markus reports that \<cdot> is saved in the file as
- an 8-bit character.  I can't repeat that with XEmacs 21.4,
-unless I set the relevant X-Symbol menu option. *)
+(* test: using a symbol as a subscript *)
+(* 9.3.03: this causes nasty prob with pre-command hook,
+   x-symbol-invisitiblity-spec type error, at least
+   during editing. *)
+consts
+ intof :: nat \<Rightarrow> int  ("_\<^sub>\<int>" 50)
+ mynat :: nat ("\<gamma>")
+
+constdefs
+ myint :: int
+ "myint == \<gamma>\<^sub>\<int>"
+ 
 
 (* 
  Another X-Symbol oddity: sometimes the _first_ buffer to
