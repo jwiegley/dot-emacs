@@ -488,8 +488,9 @@ could cause inconsistency problems.
 NB!  Retraction can cause recursive calls of this function.
 This is a subroutine for proof-unregister-buffer-file-name."
   (if proof-auto-multiple-files
-      (let ((depfiles (cdr-safe
-		       (member cfile (reverse proof-included-files-list))))
+      (let ((depfiles (reverse
+		       (cdr-safe
+			(member cfile (reverse proof-included-files-list)))))
 	    rfile rbuf)
 	(while (setq rfile (car-safe depfiles))
 	  ;; If there's a buffer visiting a dependent file, retract it.
@@ -1365,6 +1366,9 @@ the comment."
 ;; FIXME: get rid of duplication between proof-assert-next-command and
 ;; proof-assert-until-point.  Get rid of ignore process nonsense.
 
+;; FIXME: get rid of unclosed-comment-fun nonsense, it's never used
+;; anywhere.  We can keep it in a global variable or something.
+
 (defun proof-assert-until-point
   (&optional unclosed-comment-fun ignore-proof-process-p)
   "Process the region from the end of the locked-region until point.
@@ -1709,9 +1713,12 @@ If inside a comment, just process until the start of the comment."
   (proof-undo-last-successful-command-1))
 
 (defun proof-undo-and-delete-last-successful-command ()
-  "Undo and delete last successful command at end of locked region."
+  "Undo and delete last successful command at end of locked region.
+Handy for proof by pointing."
   (interactive)
-  (proof-undo-last-successful-command-1 'delete))
+  (proof-with-current-buffer-if-exists 
+   proof-script-buffer
+   (proof-undo-last-successful-command-1 'delete)))
 
 ;; No direct key-binding for this one: C-c C-u is too dangerous,
 ;; when used quickly it's too easy to accidently delete!
@@ -2323,14 +2330,17 @@ If killing the active scripting buffer, run proof-deactivate-scripting.
 Otherwise just do proof-restart-buffers to delete some spans from memory."
   ;; Deactivate scripting in the current buffer if need be, forcing
   ;; retraction.
-  (if (eq (current-buffer) proof-script-buffer)
-      (proof-deactivate-scripting 'retract))
-  (proof-restart-buffers (list (current-buffer)))
-  ;; Hide away goals and response: this is a hack because otherwise
-  ;; we can lead the user to frustration with the dedicated windows
-  ;; nonsense.
-  (if proof-goals-buffer (bury-buffer proof-goals-buffer))
-  (if proof-response-buffer (bury-buffer proof-response-buffer)))
+  (unwind-protect
+      (if (eq (current-buffer) proof-script-buffer)
+	  (proof-deactivate-scripting 'retract))
+    (proof-restart-buffers (list (current-buffer)))
+    ;; Hide away goals and response: this is a hack because otherwise
+    ;; we can lead the user to frustration with the dedicated windows
+    ;; nonsense.
+    (if (buffer-live-p proof-goals-buffer) 
+	(bury-buffer proof-goals-buffer))
+    (if (buffer-live-p proof-response-buffer)
+	(bury-buffer proof-response-buffer))))
   
 
 
@@ -2447,6 +2457,92 @@ assistant."
   ;;  into the mode by hand]
   (proof-x-symbol-mode))
 
+
+;;
+;; Generic defaults for hooks, based on regexps.
+;; 
+;; NEW November 1999.  
+;; Added to PG 3.0 but only used for demoisa so far.
+;;
+
+;;
+;; FIXME: the next step is to use proof-stringfn-match scheme more
+;; widely, to allow settings which are string or fn, so we don't need
+;; both regexp and function hooks, and so that the other hooks can be
+;; functions too.
+;;
+
+(defun proof-generic-goal-command-p (str)
+  "Is STR a goal?  Decide by matching with proof-goal-command-regexp."
+  (proof-string-match proof-goal-command-regexp str))
+
+(defun proof-generic-state-preserving-p (cmd)
+  "Is CMD state preserving?  Match on proof-non-undoables-regexp."
+  (not (proof-string-match-safe proof-non-undoables-regexp cmd)))
+
+(defun proof-generic-count-undos (span)
+  "Count number of undos in a span, return command needed to undo that far.
+Command is set using `proof-undo-n-times-cmd'.
+
+A default value for `proof-count-undos-fn'.
+
+For this function to work properly, you must configure
+`proof-undo-n-times-cmd' and `proof-ignore-for-undo-count'."
+  (let
+      ((case-fold-search proof-case-fold-search)
+       (ct 0) str i)
+    (while span
+      (setq str (span-property span 'cmd))
+      (cond ((eq (span-property span 'type) 'vanilla)
+	     (unless (proof-stringfn-match proof-ignore-for-undo-count str)
+	       (incf ct)))
+	    ((eq (span-property span 'type) 'pbp)
+	     (setq i 0)
+	     (while (< i (length str)) 
+	       (if (= (aref str i) proof-terminal-char) (incf ct))
+	       (incf i))))
+      (setq span (next-span span 'type)))
+    (if (= ct 0)
+	proof-no-command
+      (cond ((stringp proof-undo-n-times-cmd)
+	     (format proof-undo-n-times-cmd ct))
+	    ((functionp proof-undo-n-times-cmd)
+	     (funcall proof-undo-n-times-cmd ct))))))
+
+(defun proof-generic-find-and-forget (span)
+  "Calculate a forget/undo command to forget back to SPAN.
+This is a long-range forget: we know that there is no
+open goal at the moment, so forgetting involves unbinding
+declarations, etc, rather than undoing proof steps.
+
+CURRENTLY UNIMPLEMENTED: just returns proof-no-command.
+Check the lego-find-and-forget or coq-find-and-forget
+functions for examples of how to write this function.
+
+In the next release of Proof General, there will be
+a generic implementation of this."
+  ;; FIXME: come true on the promise above!
+  proof-no-command)
+
+;;
+;; End of new generic functions
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar proof-script-important-settings
+  '(proof-terminal-char
+    proof-comment-start
+    proof-comment-end
+    proof-goal-command-regexp
+    proof-save-command-regexp
+    proof-goal-with-hole-regexp		; non-essential?
+    proof-save-with-hole-regexp		; non-essential?
+    proof-showproof-command		; non-essential?
+    proof-goal-command			; non-essential
+    proof-save-command			; do
+    proof-kill-goal-command		; do
+    ))
+
 (defun proof-config-done () 
   "Finish setup of Proof General scripting mode.
 Call this function in the derived mode for the proof assistant to
@@ -2456,7 +2552,21 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Following group of settings only relevant if the current
   ;; buffer is really a scripting buffer.  Isabelle Proof General
-  ;; has theory file buffers which share some aspects.
+  ;; has theory file buffers which share some aspects, they
+  ;; just use proof-config-done-related.
+
+  ;; First, define some values if they aren't defined already.
+  (unless proof-mode-for-script
+      (setq proof-mode-for-script major-mode))
+
+  (if (and proof-non-undoables-regexp 
+	   (not proof-ignore-for-undo-count))
+      (setq proof-ignore-for-undo-count 
+	    proof-non-undoables-regexp))
+
+  ;; Give warnings if some crucial settings haven't been made
+  (dolist (sym proof-script-important-settings)
+    (proof-warn-if-unset "proof-config-done" sym))
 
   ;; Additional key definitions which depend on configuration for
   ;; specific proof assistant.
