@@ -591,7 +591,9 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
 If REGEXP matches output, then the function FUNCTION is invoked on the
 output string chunk. It must return a script file name (with complete
 path) the system is currently processing. In practice, FUNCTION is
-likely to inspect the match data.
+likely to inspect the match data.  If it returns the empty string,
+the file name of the scripting buffer is used instead.  If it
+returns nil, no action is taken.
 
 Care has to be taken in case the prover only reports on compiled
 versions of files it is processing. In this case, FUNCTION needs to
@@ -898,19 +900,19 @@ buffer is closed off atomically."
   "Returns the true name of the file FILENAME or nil."
   (and filename (file-exists-p filename) (file-truename filename)))
 
-(defun proof-register-new-processed-file (file)
-  "Register a new FILE as having been processed by the prover."
+(defun proof-register-possibly-new-processed-file (file)
+  "Register a possibly new FILE as having been processed by the prover."
   (let* ((cfile (file-truename file))
 	 (buffer (proof-file-to-buffer cfile)))
-    (assert (not (member cfile proof-included-files-list))
-	    'showargs "proof-register-new-processed-file")
-    (setq proof-included-files-list
-	  (cons cfile proof-included-files-list))
-    (or (equal cfile
-	       (file-truename (buffer-file-name
-			       (car proof-script-buffer-list))))
-	(not buffer)
-	(proof-mark-buffer-atomic buffer))))
+    (if (not (member cfile proof-included-files-list))
+	(progn
+	  (setq proof-included-files-list
+		(cons cfile proof-included-files-list))
+	  (or (equal cfile
+		     (file-truename (buffer-file-name
+				     (car proof-script-buffer-list))))
+	      (not buffer)
+	      (proof-mark-buffer-atomic buffer))))))
 
 
 ;;; begin messy COMPATIBILITY HACKING for FSFmacs.
@@ -1573,14 +1575,9 @@ locked region or everything in it has been processed."
 	      ;; completely processed.  Make sure that it's
 	      ;; registered on the included files list, in
 	      ;; case it has been processed piecemeal.
-	      (if (and buffer-file-name
-		       (not
-			(member (file-truename buffer-file-name) 
-				proof-included-files-list)))
-		  ;; FIXME: Could alter
-		  ;; proof-register-new-processed-file to work
-		  ;; also for possibly non-new cases.
-		  (proof-register-new-processed-file buffer-file-name)))
+	      (if buffer-file-name
+		  (proof-register-possibly-new-processed-file 
+		   buffer-file-name)))
 
 	  (if (or locked-is-full locked-is-empty)
 	      ;; we are changing the scripting buffer
@@ -1598,6 +1595,8 @@ locked region or everything in it has been processed."
 		(setq proof-active-buffer-fake-minor-mode t)
 		(run-hooks 'proof-activate-scripting-hook))
 	    ;; Locked region covers only part of the buffer
+	    ;; FIXME da: ponder alternative of trying to complete rest
+	    ;; of current scripting buffer?
 	    (error "Cannot deal with two unfinished script buffers!"))))))))
 
 
@@ -1756,15 +1755,15 @@ arrive."
 (defun proof-shell-process-urgent-message (message)
   "Display and analyse urgent MESSAGE for asserting or retracting files."
   
-
   ;; Is the prover processing a file?
   (cond ((and proof-shell-process-file 
 	      (string-match (car proof-shell-process-file) message))
-	 (progn
-	   (setq file (funcall (cdr proof-shell-process-file) message))
+	 (let
+	     ((file (funcall (cdr proof-shell-process-file) message)))
 	   (if (string= file "") 
 	       (setq file (buffer-file-name (car proof-script-buffer-list))))
-	   (proof-register-new-processed-file file)))
+	   (if file
+	       (proof-register-possibly-new-processed-file file))))
 
   ;; Is the prover retracting across files?
 	((and proof-shell-retract-files-regexp
