@@ -377,7 +377,8 @@ proof-shell-kill-function to do the hard work."
   (interactive)
   (if (buffer-live-p proof-shell-buffer)
       (if (yes-or-no-p (format "Exit %s process? " proof-assistant))
-	  (kill-buffer proof-shell-buffer)
+	  (progn (kill-buffer proof-shell-buffer)
+		 (setq proof-shell-buffer nil))
 	(error "No proof shell buffer to kill!"))))
 
 (defun proof-shell-bail-out (process event)
