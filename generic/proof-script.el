@@ -1257,12 +1257,12 @@ Start up the proof assistant if necessary."
 
 
 ;;; To be called from menu
-(defun proof-info-mode ()
+(defun proof-menu-invoke-info ()
   "Call info on Proof General."
   (interactive)
   (info "ProofGeneral"))
 
-(defun proof-exit ()
+(defun proof-menu-exit ()
   "Exit Proof-assistant."
   (interactive)
   (proof-restart-script))
@@ -1273,7 +1273,7 @@ Start up the proof assistant if necessary."
      (browse-url proof-assistant-home-page) t]
     ["Proof General home page"
      (browse-url proof-proof-general-home-page) t]
-    ["Proof General Info" proof-info-mode t]
+    ["Proof General Info" proof-menu-invoke-info t]
     )
   "The Help Menu in Script Management.")
 
@@ -1285,7 +1285,7 @@ Start up the proof assistant if necessary."
       :active (proof-shell-live-buffer)]
      ["Display proof state" proof-prf
       :active (proof-shell-live-buffer)]
-     ["Exit proof assistant" proof-exit
+     ["Exit proof assistant" proof-menu-exit
       :active (proof-shell-live-buffer)])
     (if proof-tags-support
 	(list
@@ -1301,7 +1301,7 @@ Start up the proof assistant if necessary."
 	     :style toggle
              :selected proof-active-terminator-minor-mode]
             "----")
-	  ;; UGLY COMPATIBILITY 
+	  ;; UGLY COMPATIBILITY  FIXME: remove this soon
           (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
 		    "--:doubleLine" "----"))
           proof-shared-menu
@@ -1476,9 +1476,10 @@ finish setup which depends on specific proof assistant configuration."
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'proof-indent-line)
 
+
   ;; Toolbar
-  (if (featurep 'toolbar)
-      (proof-toolbar-setup))
+  ;; (NB: autloads proof-toolbar, which extends proof-menu variable)
+  (proof-toolbar-setup)
 
   ;; Menu
   (easy-menu-define proof-mode-menu  
