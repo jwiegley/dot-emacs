@@ -212,9 +212,9 @@
     (plastic-init-syntax-table)
     (proof-response-config-done)))
   
-(define-derived-mode plastic-pbp-mode pbp-mode
+(define-derived-mode plastic-goals-mode proof-goals-mode
   "PlasticGoals" "Plastic Goal State"
-  (plastic-pbp-mode-config))
+  (plastic-goals-mode-config))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -367,9 +367,9 @@ Given is the first SPAN which needs to be undone."
 (defun plastic-pre-shell-start ()
   (setq proof-prog-name (concat plastic-prog-name "")
         ;; set cmd-line flag 
-        proof-mode-for-shell 'plastic-shell-mode
+        proof-mode-for-shell    'plastic-shell-mode
         proof-mode-for-response 'plastic-response-mode
-        proof-mode-for-pbp 'plastic-pbp-mode)
+        proof-mode-for-goals    'plastic-goals-mode)
 
   (setenv "PROOF_GENERAL" "")		;; signal to plastic, use annotations
   )
@@ -571,7 +571,7 @@ We assume that module identifiers coincide with file names."
   (proof-shell-config-done)
   )
 
-(defun plastic-pbp-mode-config ()
+(defun plastic-goals-mode-config ()
   (setq pbp-change-goal "Next %s;"
         pbp-error-regexp plastic-error-regexp)
   (setq font-lock-keywords plastic-font-lock-terms)
