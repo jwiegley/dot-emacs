@@ -52,7 +52,7 @@
 # PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
 # line in tag target below, which edits $(DOWNLOADHTML)
 PRERELEASE_PREFIX=3\.0pre
-PRERELEASE_TAG=3.0pre$(shell date "+%y%m%d")
+PRERELEASE_TAG=3.1pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
 DOWNLOADHTML=devel.phtml
@@ -269,7 +269,7 @@ tag:
 # that version.  Otherwise we could use the %{version} macro in the spec file.
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.tar.gz/$(RELEASENAMETARGZ)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
 	if [ -z "$(NOCVS)" ]; then cvs commit -m"Set version tag for new release." generic/$(VERSIONFILE) html/$(DOWNLOADHTML) etc/ProofGeneral.spec; fi
-	if [ -z "$(NOCVS)" ]; then cvs tag "$(CVS_RELEASENAME)"; fi
+	if [ -z "$(NOCVS)" ]; then cvs -b tag "$(CVS_RELEASENAME)"; fi
 
 ############################################################
 ##
