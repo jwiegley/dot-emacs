@@ -427,8 +427,10 @@ Communication takes place via two or three buffers.  The @dfn{script
 buffer} holds input, the commands to construct a proof.  The @dfn{goals
 buffer} displays the current list of subgoals to be solved.  The
 @dfn{response buffer} displays other output from the proof assistant.
-This means that the user only sees the output from the most recent proof
+This means that the user normally only sees the output from the most recent proof
 step, rather than a screen full of output from the proof assistant.
+However, the user can still access the proof assistant shell to examine
+it and run commands.
 @c Optionally, the goals buffer and script buffer can be identified.
 
 For more details, see @ref{Basic Script Management}, @ref{Script
