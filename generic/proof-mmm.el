@@ -13,9 +13,10 @@
 ;;
 ;; =================================================================
 ;;
-;; NB: mmm-mode is bundled with Proof General.  If you have installed
-;; mmm-mode already, PG will use that version instead of the bundled
-;; version.
+;; NB: mmm-mode is bundled with Proof General, and PG will select
+;; it's own version before any other version on the Emacs load path.
+;; If you want to override this, simply load your version before
+;; starting Emacs, with (require 'mmm-auto).
 ;;
 ;; Configuration for the prover is expected to reside in <foo>-mmm.el
 ;; It should define an MMM submode class called <foo>.
@@ -25,14 +26,14 @@
   "A test to see whether mmm support is available."
   (and
    (or (featurep 'mmm-auto)
-       (or (proof-try-require 'mmm-auto) ; local install?
-	   (progn
-	     ;; try bundled version
-	     (setq load-path
-		   (cons 
-		    (concat proof-home-directory "mmm/") 
-		    load-path))
-	     (proof-try-require 'mmm-auto))))
+       (progn
+	 ;; put bundled version on load path
+	 (setq load-path
+	       (cons 
+		(concat proof-home-directory "mmm/") 
+		load-path))
+	 ;; *should* always succeed unless bundled version broken
+	 (proof-try-require 'mmm-auto)))
    ;; Load prover-specific config in <foo>-mmm.el
    (proof-try-require (proof-ass-sym mmm))))
 
