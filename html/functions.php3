@@ -20,6 +20,8 @@ $project_title = "Proof General";
 $project_subtitle = "Organize your Proofs!";
 $project_full_title = $project_title . " --- " . $project_subtitle;
 
+if ($title == "") { $title = $project_title; }  // default page title.
+
 // DTD 
 
 $dtd_strict = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n";
