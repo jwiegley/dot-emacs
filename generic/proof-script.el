@@ -1317,6 +1317,15 @@ Set the callback to CALLBACK-FN or 'proof-done-advancing by default."
   "Move point to a nice position for a new command.
 Assumes that point is at the end of a command."
   (interactive)
+; FIXME: pending improvement for 3.2, needs a fix here.
+;  (if (eq (proof-locked-end) (point))
+;      ;; A hack to fix problem that the locked span
+;      ;; is [ ) so sometimes inserting at the end
+;      ;; tries to extend it, giving "read only" error.
+;      (if (> (point-max) (proof-locked-end))
+;	  (progn
+;	    (goto-char (1+ (proof-locked-end)))
+;	    (backward-char))))
   (if proof-one-command-per-line
       ;; One command per line: move to next new line,
       ;; creating one if at end of buffer or at the
@@ -1735,12 +1744,25 @@ If inside a comment, just process until the start of the comment."
 
 (defun proof-undo-and-delete-last-successful-command ()
   "Undo and delete last successful command at end of locked region.
-Handy for proof by pointing, in case the last proof-by-pointing
-command took the proof in a direction you don't like."
+Useful if you typed completely the wrong command.
+Also handy for proof by pointing, in case the last proof-by-pointing
+command took the proof in a direction you don't like.
+
+Notice that the deleted command is put into the Emacs kill ring, so
+you can use the usual `yank' and similar commands to retrieve the
+deleted text."
   (interactive)
   (proof-with-current-buffer-if-exists 
    proof-script-buffer
-   (proof-undo-last-successful-command-1 'delete)))
+   (proof-undo-last-successful-command-1 'delete))
+  ;; FIXME want to do this here for 3.2, for nicer behaviour
+  ;; when deleting.
+  ;; Unfortunately nasty problem with read only flag when
+  ;; inserting at (proof-locked-end) sometimes behaves as if
+  ;; point is inside locked region  (prob because span is 
+  ;;  [ ) and not [ ] -- why??).
+  ;; (proof-script-new-command-advance)
+  )
 
 ;; No direct key-binding for this one: C-c C-u is too dangerous,
 ;; when used quickly it's too easy to accidently delete!
@@ -2465,6 +2487,7 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
 (define-key map [(control c) (control t)] 'proof-ctxt)
 (define-key map [(control c) (control u)] 'proof-undo-last-successful-command)
+(define-key map [(control c) (control backspace)] 'proof-undo-and-delete-last-successful-command)
 ; C-c C-v is proof-minibuffer-cmd in universal-keys
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
