@@ -72,8 +72,9 @@
 
 @ifinfo
 @format
-START-INFO-DIR-ENTRY * Proof General: (ProofGeneral). Organize your
-proofs with Emacs!  END-INFO-DIR-ENTRY
+START-INFO-DIR-ENTRY 
+* Proof General: (ProofGeneral). Organize your proofs with Emacs!  
+END-INFO-DIR-ENTRY
 @end format
 @end ifinfo
 
