@@ -1137,12 +1137,21 @@ This version is used when `proof-script-command-start-regexp' is set."
     (let* ((commentre   (concat "[ \t\n]*" proof-comment-start-regexp))
 	   (add-segment-for-cmd		; local function: advances "prev"
 	    (lambda ()
-	      ;; Find end of previous command
 	      (setq tmp (point))
+	      ;; Find end of previous command...
 	      (goto-char comstart)
-	      (skip-chars-backward " \t\n")
+	      ;; Special hack: allow terminal char to be included
+	      ;; in a command, if it's set.
+	      (if (and proof-terminal-char
+		       (looking-at 
+			(regexp-quote (char-to-string proof-terminal-char))))
+		  (goto-char (1+ (point)))
+		(skip-chars-backward " \t\n"))
 	      (let* ((prev-no-blanks
-		      (save-excursion (goto-char prev) (skip-chars-forward " \t\n") (point)))
+		      (save-excursion 
+			(goto-char prev) 
+			(skip-chars-forward " \t\n") 
+			(point)))
 		     (bufstr (buffer-substring prev-no-blanks (point)))
 		     (type   (if (eq (string-match commentre bufstr) 0)
 				 'comment 'cmd))
