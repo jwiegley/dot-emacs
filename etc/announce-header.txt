@@ -1,0 +1,28 @@
+To: coq-club@pauillac.inria.fr,
+    isabelle-users@cl.cam.ac.uk,
+    lego-club@dcs.ed.ac.uk,
+    uitp@dcs.gla.ac.uk,
+    bra-types@cs.chalmers.se,
+    info-hol@leopard.cs.byu.edu,
+    pvs@csl.sri.com, 
+    qed@mcs.anl.gov,				
+    theorem-provers@ai.mit.edu,
+    types@cis.upenn.edu,
+    formal-methods@cs.uidaho.edu,
+    reliable_computing@interval.usl.edu,
+    prog-lang@diku.dk
+
+    Also newsgroups:
+     comp.lang.ml
+     comp.lang.functional
+     gnu.emacs.sources
+     comp.emacs.xemacs
+     comp.os.linux.announce
+     freshmeat.net
+
+tag for comp.lang.ml, comp.lang.functional: 
+     
+[Posted here because ML and functional languages generally are
+ traditional for implementing interactive theorem provers.
+ Implementors of such systems may be interested in Proof General.
+ Apologies for multiple copies]
