@@ -19,6 +19,10 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A Testing before ProofGeneral 2.1 release:
+   - Process killing bug
+   - FSF 20.3 problem with loss of blue highlighting on spans?
+
 A Clarify licence situation for Proof General after question from 
   a potential user. Will the LFCS allow it to be used in a commercial 
   environment without a special licence agreement? A new licence is
