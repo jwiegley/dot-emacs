@@ -62,6 +62,17 @@ X Solaris bugs: font locking and button enabling.
 
 **** A Doc new bits: Isabelle settings mechanism, win32 support
 
+
+**** C Settings mechanism could be generalised
+
+   local settings:
+    E.g. Coq has some settings which are local: "Focus" which
+    it doesn't make sense to save between sessions or issue
+    at the start of the session.
+   
+   Ideal would be to specify context when local settings are
+   relevant, as a predicate.
+
 **** B New keymap(s) for proof assistants.  Added on C-c C-a
 
    Doc this change.
