@@ -49,7 +49,24 @@ re-enabled), proof-toggle-scripting, new configuration options.
     - more 3.0 issues: extending the queue region, being more lax
     about proof-shell-busy.
     - Fix sentinel infinite loop bug
+    - noticeable delay when loading ML files for Isabelle (fontification?)
 
+A Nested error problem:  conceptually, activate scripting should fail
+  if the hook function which causes loading of more files (for isabelle)
+  fails.  Maybe fix by adding a new piece of state: 
+  "proof-shell-error-flagged".
+
+D Usability for Isabelle QED message.
+  Why does the 'no subgoals' proofstate+message appear in the response
+  buffer? I'd say it should appear at least in the goals buffer, as this
+  is the place where I expect the proofstate, and if it disappears, I
+  always get the impression that something has gone wrong. I don't mind
+  if  it appears in the response buffer additionally.
+  I think the conceptual argument is that it isn't any more
+  a list of goals, so any special stuff (proof by pointing) is not
+  applicable.  The other assistants just say something trivial like
+  "QED!" which is more justifiably a response.
+ 
 D Investigate possible toolbar refresh problems.
   Are extra clicks ever needed?  Wait for some comments.
 
