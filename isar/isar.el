@@ -508,13 +508,13 @@ proof-shell-retract-files-regexp."
 ;borrowed from plastic.el
 (defvar isar-shell-current-line-width nil
   "Current line width of the Isabelle process's pretty printing module.
-  Its value will be updated whenever the corresponding screen gets
-  selected.")
+Its value will be updated whenever the corresponding screen gets
+selected.")
 
 ;borrowed from plastic.el
 (defun isar-shell-adjust-line-width ()
   "Use Isabelle's pretty printing facilities to adjust output line width.
-   Checks the width in the `proof-goals-buffer'"
+Checks the width in the `proof-goals-buffer'"
   (let ((ans ""))
     (and (buffer-live-p proof-goals-buffer)
          (proof-shell-live-buffer)
@@ -537,7 +537,8 @@ proof-shell-retract-files-regexp."
   (setq proof-mode-for-shell    'isar-shell-mode)
   (setq proof-mode-for-goals    'isar-goals-mode)
   (setq proof-mode-for-response 'isar-response-mode)
-  (setq proof-shell-trace-output-regexp "\375"))
+  (setq proof-shell-trace-output-regexp "\375")
+  (setq proof-shell-interactive-input-regexp "\375\\*\\*"))
 
 
 ;;
