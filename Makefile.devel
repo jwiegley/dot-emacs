@@ -36,7 +36,7 @@
 ##
 ##   No facility to edit html to make a full release in this makefile.  
 ##   Too much effort for infrequenty used function.  
-##   Must edit download.phtml by hand, then run 
+##   Must edit download.phtml and doc.phtml by hand, then run 
 ##
 ##    make releaseall VERSION=2.0
 ##
