@@ -10,11 +10,8 @@
 ;; NB: Normally you will not need to edit this file.  
 ;;
 
-(unless (featurep 'proof-site)		; don't load twice
-
-(require 'cl)				; we're going to need it sooner
-					; or later, and FSF doesn't
-					; autoload it properly.
+(if (featurep 'proof-site)	
+    nil					; don't load twice
 
 (if (or  (not (boundp 'emacs-major-version))
 	 (< emacs-major-version 20))
@@ -232,7 +229,7 @@ Note: to change proof assistant, you must start a new Emacs session.")
 	      ;; loaded for more than one prover.
 	      (cond
 	       ((boundp 'proof-assistant)
-		(unless (string-equal proof-assistant ,assistant-name)
+		(or (string-equal proof-assistant ,assistant-name)
 		  ;; If Proof General was partially loaded last time
 		  ;; and mode function wasn't redefined,  be silent.
 		  (message 
@@ -281,8 +278,11 @@ Note: to change proof assistant, you must start a new Emacs session.")
 (defconst proof-general-version "Proof General Version 3.2pre000505. Released by da."
  "Version string identifying Proof General release.")
 
-(provide 'proof-site)
-)    ; end unless
+(require 'proof-autoloads)		; PG autoloads.
+
+(provide 'proof-site))
+
+;; proof-site.el ends here
 
 
 		 
