@@ -909,7 +909,8 @@ If NUM is negative, move upwards.  Return new span."
        (list (vector
 	      "Move down"   (list 'pg-move-span-contents span 1)
 	      (pg-numth-span-higher-or-lower (pg-control-span-of span) 1 'noerr))))
-   (if (and proof-experimental-features (featurep 'proof-depends))
+   (if (and proof-experimental-features 
+	    proof-shell-theorem-dependency-list-regexp)
        (proof-dependency-in-span-context-menu span))))
 
 
