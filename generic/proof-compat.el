@@ -27,6 +27,13 @@
     (autoload 'browse-url "browse-url"
       "Ask a WWW browser to load URL." t))
 
+;; executable-find isn't autoloaded in XEmacs 21.4.6
+(or (fboundp 'executable-find)
+    (autoload 'executable-find "executable" "\
+Search for COMMAND in exec-path and return the absolute file name.
+Return nil if COMMAND is not found anywhere in `exec-path'." nil nil))
+
+
 ;; Compatibility with XEmacs 20.3/4
 (or (boundp 'path-separator)
     (setq path-separator (if proof-running-on-win32 ";" ":")))
