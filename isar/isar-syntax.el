@@ -89,6 +89,10 @@
 	  isar-keywords-proof-chain
 	  isar-keywords-proof-decl))
 
+(defconst isar-keywords-proof-context
+  (append isar-keywords-proof-asm
+	  isar-keywords-proof-asm-goal))
+
 (defconst isar-keywords-outline
   (append isar-keywords-theory-begin
 	  isar-keywords-theory-heading
@@ -104,7 +108,8 @@
 
 (defconst isar-keywords-indent-open
   (append isar-keywords-theory-goal
-	  isar-keywords-proof-goal))
+	  isar-keywords-proof-goal
+	  isar-keywords-proof-asm-goal))
 
 (defconst isar-keywords-indent-close
   (append isar-keywords-save))
@@ -230,7 +235,7 @@
    (cons (proof-ids-to-regexp isar-keywords-theory) 'font-lock-keyword-face)
    (cons (proof-ids-to-regexp isar-keywords-proof-enclose) 'font-lock-function-name-face)
    (cons (proof-ids-to-regexp isar-keywords-proof) 'font-lock-keyword-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof-asm) 'proof-declaration-name-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof-context) 'proof-declaration-name-face)
    (cons (proof-ids-to-regexp isar-keywords-proof-script) 'font-lock-reference-face)))
 
 (defvar isar-output-font-lock-keywords-1

@@ -14,6 +14,7 @@
     "congs"
     "distinct"
     "files"
+    "in"
     "induction"
     "infixl"
     "infixr"
@@ -172,6 +173,9 @@
     "def"
     "fix"
     "presume"))
+
+(defconst isar-keywords-proof-asm-goal
+  '("obtain"))
 
 (defconst isar-keywords-proof-script
   '("apply"
