@@ -774,6 +774,27 @@ is), which is annoying.
   cpt
   )
 
+(defun count-chars-in-last-expand ()
+  (length (abbrev-expansion last-abbrev-text))
+  )
+
+(defun count-newlines-in-last-expand ()
+  (count-char-in-string "\n" (abbrev-expansion last-abbrev-text))
+  )
+
+(defun indent-last-expand ()
+  "Indents last abbrev expansion. Must be called when the point is at
+end of last abbrev expansion. "
+  (setq n (count-newlines-in-last-expand))
+  (save-excursion 
+	 (previous-line n)
+	 (while (>= n 0)
+		(proof-indent-line)
+		(next-line 1)
+		(setq n (- n 1))
+		)
+	 )
+  )
 
 (defun count-holes-in-last-expand ()
   (count-char-in-string empty-hole-string (abbrev-expansion last-abbrev-text))
@@ -825,22 +846,24 @@ created"
 
   "make num occurrences of str be holes looking backward. sets the
 active hole to the last created hole and unsets it if no hole is
-created"
+created. return t if num is > 0, nil otherwise."
 
   (interactive)
   (disable-active-hole)
-  (setq n num)
-  (let* ((lgth (length str)))
-    (save-excursion
-      (while (> n 0)
-		  (progn 
-			 (search-backward str) 
-			 (make-hole (point) (+ (point) lgth))
-			 (set-active-hole-next)
-			 (setq n (- n 1)))
+  (if (<= num 0) nil
+	 (let* ((n num) (lgth (length str)))
+		(save-excursion
+		  (while (> n 0)
+			 (progn 
+				(search-backward str) 
+				(make-hole (point) (+ (point) lgth))
+				(set-active-hole-next)
+				(setq n (- n 1)))
+			 )
 		  )
-      )
-    )
+		t
+		)
+	 )
   )
 
 
@@ -854,11 +877,14 @@ created"
 (defun replace-string-by-holes-backward-move-point (num str)
 
   (interactive)
-  (replace-string-by-holes-backward num str)
-  (set-point-next-hole-destroy)
+  (and (replace-string-by-holes-backward num str)
+		 (set-point-next-hole-destroy))
   )
 
+
+
 (defun holes-abbrev-complete ()
+  "complete abbrev by putting holes and indenting."
   (indent-last-expand)
   (replace-string-by-holes-backward-move-point 
 	(count-holes-in-last-expand) empty-hole-string)
@@ -870,7 +896,7 @@ created"
 
 (defun insert-and-expand (s)
   (let* ((exp (abbrev-expansion s))
-		  (c (count-char-in-string empty-hole-string exp)))
+			(c (count-char-in-string empty-hole-string exp)))
 	 (insert exp)
 	 (replace-string-by-holes-backward-move-point c empty-hole-string)
 	 )
