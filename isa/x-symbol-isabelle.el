@@ -84,28 +84,73 @@ See `x-symbol-header-groups-alist'."
 ;;  super- and subscripts
 ;;;===========================================================================
 
-;; \<^sup>, \<^sub>, \<^isub>, and \<^isup>.
+;; one char: \<^sup>, \<^sub>, \<^isub>, and \<^isup>
+;; spanning: \<^bsup>...\<^esup> and \<^bsub>..\<^esub>
 
-(defvar x-symbol-isabelle-subscript-matcher
-  'x-symbol-isabelle-subscript-matcher)
+(defcustom x-symbol-isabelle-subscript-matcher 'x-symbol-isabelle-subscript-matcher
+  "Function matching super-/subscripts for language `isa'.
+See language access `x-symbol-LANG-subscript-matcher'."
+  :group 'x-symbol-isabelle
+  :type 'function)
+
+(defcustom x-symbol-isabelle-font-lock-regexp "\\\\<\\^[ib]?su[bp]>"
+  "Regexp matching the start tag of Isabelle super- and subscripts."
+  :group 'x-symbol-isabelle
+  :type 'regexp)
+
+(defcustom x-symbol-isabelle-font-lock-limit-regexp "\n\\|\\\\<\\^esu[bp]>"
+  "Regexp matching the end of line and the end tag of Isabelle
+spanning super- and subscripts."
+  :group 'x-symbol-isabelle
+  :type 'regexp)
+
+(defcustom x-symbol-isabelle-font-lock-contents-regexp "."
+  "*Regexp matching the spanning super- and subscript contents.
+This regexp should match the text between the opening and closing super-
+or subscript tag."
+  :group 'x-symbol-isabelle  
+  :type 'regexp)
+
+(defcustom x-symbol-isabelle-single-char-regexp "\\\\\\\\?<[A-Za-z0-9_']+>\\|[^\\]"
+  "Return regexp matching \<ident> or c for some char c."
+  :group 'x-symbol-isabelle
+  :type 'regexp)
+
 
 (defun x-symbol-isabelle-subscript-matcher (limit)  
-  (when (re-search-forward x-symbol-isabelle-font-lock-scripts-regexp
-			   limit 'limit)
-    (if (eq (char-after (- (match-end 1) 2)) ?b)
-        'x-symbol-sub-face
-      'x-symbol-sup-face)))
-
-(defun x-symbol-isabelle-make-ctrl-regexp (s)
-  "Return regexp matching \<^S>\<ident> or \<^S>c for some char c."
-  (concat 
-   "\\(\\\\\\\\?<\\^" s ">\\)"
-   "\\(\\\\\\\\?<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
-
-(defconst x-symbol-isabelle-font-lock-scripts-regexp
-  (x-symbol-isabelle-make-ctrl-regexp "i?su[bp]")
-  "Regexp matching super- and subscript markers in Isabelle.")
-
+  (block nil
+    (let (open-beg open-end close-end close-beg script-type)
+      (while (re-search-forward x-symbol-isabelle-font-lock-regexp limit t)
+        (setq open-beg (match-beginning 0)
+              open-end (match-end 0)
+              script-type (if (eq (char-after (- open-end 2)) ?b)
+                              'x-symbol-sub-face
+                           'x-symbol-sup-face))
+        (if (eq (char-after (- open-end 5)) ?b) ; if is spanning sup-/subscript
+            (when (re-search-forward x-symbol-isabelle-font-lock-limit-regexp
+                                     limit 'limit)
+              (setq close-beg (match-beginning 0)
+                    close-end (match-end 0))
+              (when
+                  (save-excursion
+                    (goto-char open-end)
+                    (re-search-forward x-symbol-isabelle-font-lock-contents-regexp
+                                       close-beg t))
+                (store-match-data (list open-beg close-end
+                                        open-beg open-end
+                                        open-end close-beg
+                                        close-beg close-end))
+                (return script-type))
+              (goto-char close-beg)) 
+          (when (re-search-forward x-symbol-isabelle-single-char-regexp
+                                   limit 'limit)
+            (setq close-end (match-end 0))
+            (store-match-data (list open-beg close-end
+                                    open-beg open-end
+                                    open-end close-end))
+            (return script-type))
+      )))))
+   
 (defun isabelle-match-subscript (limit)
   (if (proof-ass x-symbol-enable)
       (setq x-symbol-isabelle-subscript-type
@@ -120,7 +165,6 @@ See `x-symbol-header-groups-alist'."
      (1 x-symbol-invisible-face t)
      (2 (progn x-symbol-isabelle-subscript-type) prepend)
      (3 x-symbol-invisible-face t t)))
-; lsf: 3 not necessary at the moment but may be useful later
   "Isabelle font-lock keywords for super- and subscripts.")
 
 (defvar x-symbol-isabelle-font-lock-allowed-faces t)
