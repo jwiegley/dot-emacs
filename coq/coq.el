@@ -109,7 +109,7 @@
 (defconst coq-kill-goal-command "Abort.")
 (defconst coq-forget-id-command "Reset %s.")
 
-(defconst coq-undoable-commands-regexp (proof-ids-to-regexp coq-tactics))
+(defconst coq-undoable-commands-regexp (proof-ids-to-regexp (append coq-tactics coq-keywords-undoable-commands)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;

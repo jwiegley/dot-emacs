@@ -20,6 +20,8 @@
 "Section"				
 "Variable[s]?"
 "Global\\s-+Variable"
+;;added tactic def here because it needs Reset to be undone correctly
+"Tactic\\s-+Definition"
 ))
 
 (defvar coq-keywords-defn
@@ -58,8 +60,14 @@
 (defvar coq-keywords-kill-goal '(
 "Abort"
 ))
+;; commands that have to be counted when undoing
+(defvar coq-keywords-undoable-commands
+  '(
+"Focus"
+))
 
-(defvar coq-keywords-commands
+
+(defvar coq-keywords-not-undoable-commands
   '(
 "Add\\s-+ML\\s-+Path"
 "AddPath"
@@ -74,7 +82,8 @@
 "End\\s-+Silent"
 "Eval"
 "Extraction"
-"Focus"
+;; moving this to coq-keywords-undoable-commands
+;;"Focus"
 "Grammar"
 "Hints\\s-+Resolve"
 "Hints\\s-+Immediate"
@@ -116,9 +125,17 @@
 "Show\\s-+Script"
 "Show"
 "Syntax"
-"Tactic\\s-+Definition"
+;;Pierre: moving this to coq-keywords-decl
+;;"Tactic\\s-+Definition"
 "Transparent"
 ))
+
+
+(defvar coq-keywords-commands
+  (append coq-keywords-not-undoable-commands  coq-keywords-undoable-commands)
+  "All commands keyword")
+
+
 
 (defvar coq-tactics
   '(
