@@ -263,6 +263,23 @@ Exactly what uses this face depends on the proof assistant."
 Required so that 'proof-declaration-name-face is a proper facename in
 both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
+(defface proof-tactics-name-face
+  '((t
+     (:foreground (face-foreground default)))
+    (t
+     (:background (face-background default)))
+    (t				
+     (bold t)))
+  "*Face for names of tactics in proof scripts.
+By default, they are printed with default face but the user
+may want to color them differently."
+  :group 'proof-faces)
+
+(defconst proof-tactics-name-face 'default
+  "Expression that evaluates to a face.
+Required so that 'proof-declaration-name-face is a proper facename in
+both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
+
 (defface proof-error-face 
   '((((type x) (class color) (background light))   
      (:background "salmon1"  
