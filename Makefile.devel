@@ -189,7 +189,7 @@ ChangeLog:	FORCE
 # Clean up intermediate files and Emacs backup files
 #
 clean:	
-	for f in . $(SUBDIRS); do rm -f $$f/*~ $$f/\#*\# $$f/.\#* ; done
+	find . \( -name '*~' -o -name '#*#' -o -name '\.#.*' \) -print | xargs rm 
 	(cd doc; $(MAKE) clean)
 	(cd images; $(MAKE) clean)
 
