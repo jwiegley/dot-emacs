@@ -60,7 +60,7 @@ A nice poster for your wall or door. <br>
 New Recruits Wanted  <br>
 This is a request for help with the Proof General
 project. <br>
-Please <a href="feedback.html">sign up here</a>!
+Please <a href="feedback">sign up here</a>!
 </p>
 </tr>
 <tr>
