@@ -35,7 +35,7 @@ Check the settings in the Makefile for your Emacs version.
 
 !!THIS IS WORK IN PROGRESS, IT MAY WELL BREAK X-SYMBOL FOR YOU!!
 
-[ Currenly should be working in Isabelle, perhaps not other provers ]
+[ Currently should be working in Isabelle, perhaps not other provers ]
 
 To disable use of the bundled version, either delete/move away the
 x-symbol subdirectory, or load your own local version first [put
@@ -47,8 +47,12 @@ versions.  Either upgrade your installed version, or be careful to
 load PG first (so that the bundled version of X-Symbol is used).
 
 Notice that the package version of X-Symbol may load itself first by
-default during XEmacs startup, so it may be tricky to override.  If in
-doubt, run with "xemacs -no-site-file -q" first.
+default during XEmacs startup (especially if you have it installed
+site-wide), so it may be tricky to override.  You can prevent this
+with "xemacs -no-autoloads", but that may result in other needed
+packages not being loaded!  There seems to be no good way around this
+provided in XEmacs.  In case of problems, consult your sysadmin to try
+to prevent global loading of x-symbol.
 
 *** Bundling of MMM Mode (for multiple modes in one buffer)
 
