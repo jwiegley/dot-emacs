@@ -714,6 +714,41 @@ If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
+(defcustom proof-assistant-true-value "true"
+  "String for true values in proof assistant, used for setting flags.
+Default is the string \"true\"."
+  :type 'string
+  :group 'prover-config)
+
+(defcustom proof-assistant-false-value "false"
+  "String for false values in proof assistant, used for setting flags.
+Default is the string \"false\"."
+  :type 'string
+  :group 'prover-config)
+
+(defcustom proof-assistant-format-int-fn 'int-to-string
+  "Function for converting integer values to ints in proof assistant.
+Used for configuring settings in proof assistant.
+Default is `int-to-string'."
+  :type 'function
+  :group 'prover-config)
+
+(defcustom proof-assistant-format-string-fn  (lambda (value) value)
+  "Function for converting string values to strings in proof assistant.
+Used for configuring settings in proof assistant.
+Default is the identity function."
+  :type 'string
+  :group 'prover-config)
+
+(defcustom proof-assistant-setting-format nil
+  "Function for formatting setting strings for proof assistant.
+Setting strings are calculated by replacing a format character
+%b, %i, or %s in the :setting string in for each variable defined with
+`defpacustom', using the current value of that variable.  This
+function  is applied as a final step to do any extra markup, or
+conversion, etc.  (No changes are done if nil)."
+  :type '(choice string nil)
+  :group 'prover-config)
 
 
 
@@ -1893,7 +1928,9 @@ X-Symbol support is deactivated."
 ;; or whatever will be defined on evaluation.
 
 (defpgcustom favourites nil
-  "*Favourite commands for this proof assistant.")
+  "*Favourite commands for this proof assistant.
+A list of lists of the form (COMMAND INSCRIPT MENUNAME KEY), 
+arguments for `proof-add-favourite', which see.")
 
 (defpgcustom menu-entries nil
   "Extra entries for proof assistant specific menu. 
