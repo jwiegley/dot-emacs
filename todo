@@ -32,6 +32,30 @@ A Check that byte compilation (and compiled code!)
   works for both varieties of Emacs. 
   Fill out Makefile.dist (2hr da)
 
+B Make completion more generic. For Isabelle and Lego, we can build a
+  completion table by querying the process, which is better than
+  messing with tags.  
+A* fix any bits I've broken  (da, 1hr)
+
+A* Fixup for non-script buffer locking:
+
+    proof-locked-end called from wrong buffer when error message
+    is output.
+
+    proof-restart-script is now broken (2h da)
+
+B Add proof-quit-command: some provers may like a quit command to be
+  sent to the shell, not just EOF !  (see proof-stop-shell).
+  Also reconcile proof-restart-script and proof-stop-shell, see
+  comments in code. (1h da)
+
+B da: goal-hyp: this should be more generic.  At the moment, there are
+  generic variables which are only used in the specific code:
+  proof-shell-goal-regexp and proof-shell-assumption-regexp.
+  This is confusing.  I suggest making lego-goal-hyp the
+  default behaviour for proof-goal-hyp-fn a hook function.
+  That will work for Isabelle too.   (15 mins)
+
 C  proof-goal-command-regexp: add this setting to coq.el.
    Rationalize use of proof-goal-command-p
    (probably can be scrapped now).  
@@ -63,25 +87,8 @@ C Regions in script buffer have nice "name" property and configurers
 C ROBUSTness: deal gracefully with possibility that goals buffer is
   killed during session.   (2h)
 
-B da: goal-hyp: this should be more generic.  At the moment, there are
-  generic variables which are only used in the specific code:
-  proof-shell-goal-regexp and proof-shell-assumption-regexp.
-  This is confusing.  I suggest making lego-goal-hyp the
-  default behaviour for proof-goal-hyp-fn a hook function.
-  That will work for Isabelle too.   (15 mins)
-
 D Add support to filter out unwanted noise from the prover by setting
   up a regular expression  proof-shell-noise-regexp (1h)
-
-B Make completion more generic. For Isabelle and Lego, we can build a
-  completion table by querying the process, which is better than
-  messing with tags.  
-A* fix any bits I've broken  (da, 1hr)
-
-B Add proof-quit-command: some provers may like a quit command to be
-  sent to the shell, not just EOF !  (see proof-stop-shell).
-  Also reconcile proof-restart-script and proof-stop-shell, see
-  comments in code. (1h da)
 
 C support for templates e.g., in LEGO it would be nice if, by default, 
   fresh buffers corrsponding to file foo.l would automatically insert
@@ -99,13 +106,6 @@ C  Write proof-define-derived-mode which automatically adds a
    (1.5hrs)
 
 C  Toolbar icon for `proof-execute-minibuffer-cmd'  (1.5hrs)
-
-A* Fixup for non-script buffer locking:
-
-    proof-locked-end called from wrong buffer when error message
-    is output.
-
-    proof-restart-script is now broken (2h da)
 
 C Improve web pages after suggestions in doc/notes.txt
   (da, 1.5hrs)
