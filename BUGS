@@ -1,10 +1,15 @@
-Known Bugs and Workarounds.
-===========================
+Known Bugs and Workarounds for Proof General.
+=============================================
 
 $Id$
 
-* Toolbar: retract button can give "BUG" error message "called from
-wrong buffer" when the process is inactive.
+Contact:  proofgen@dcs.ed.ac.uk
+See also: http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS
+
+-----------------
+
+Generic problems
+================
 
 * Ordinary undo in script buffer can edit the "uneditable region"
 in XEmacs.  This doesn't happen in FSFmacs.  Test case:
@@ -41,7 +46,8 @@ get a patch from Sun, or use Linux.
 * XEmacs sessions perhaps grow excessively in terms of memory
 allocation. Maybe some of the spans aren't removed properly.
 Setting a limit on the size of the process buffer doesn't seem to
-help.  (1998/10/06: Is this bug still present?  Test examples?)
+help.  (1998/10/06: Is this bug still present?  Please tell us if
+you think so.)
 
 *`proof-find-next-terminator' (bound to C-c C-e) doesn't work
 properly. Workaround: use other means to navigate in a proof scipt
