@@ -9,6 +9,12 @@
 
 
 ;; $Log$
+;; Revision 1.37  1998/05/06 15:57:38  hhg
+;; Removed proof-dependencies-emacs19 for the moment, since not having it
+;; introduces error messages.
+;; Put cd before init in proof-shell-config-done (this won't work for
+;; Coq).
+;;
 ;; Revision 1.36  1998/05/05 14:27:33  hhg
 ;; Updated to include changes for emacs19.
 ;; Also includes some changes for "Definition" problem in Coq, where
@@ -176,8 +182,7 @@
 (require 'compile)
 (require 'comint)
 (require 'etags)
-(cond (running-xemacs (require 'proof-dependencies-xemacs))
-      (running-emacs19 (require 'proof-dependencies-emacs19)))
+(require 'proof-dependencies-xemacs)
 (require 'proof-fontlock)
 
 (autoload 'w3-fetch "w3" nil t)
@@ -1489,6 +1494,12 @@ current command."
 (defun proof-shell-config-done ()
   (accept-process-output (get-buffer-process (current-buffer)))
 
+  ;; If the proof process in invoked on a different machine e.g.,
+  ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
+  ;; to adjust the directory:
+  (and proof-shell-cd
+       (proof-shell-insert (format proof-shell-cd default-directory))
+
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
 
@@ -1499,13 +1510,7 @@ current command."
   (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
-      (error "Failed to initialise proof process")))
-
-  ;; If the proof process in invoked on a different machine e.g.,
-  ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
-  ;; to adjust the directory:
-  (and proof-shell-cd
-       (proof-invisible-command (format proof-shell-cd default-directory))))
+      (error "Failed to initialise proof process")))))
 
 (define-derived-mode pbp-mode fundamental-mode 
   "Proof" "Proof by Pointing"
