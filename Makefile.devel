@@ -47,7 +47,7 @@ EMACS=xemacs
 
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=todo html etc Makefile doc/Makefile 
+NONDISTFILES=todo html etc Makefile doc/Makefile images/*.xcf images/notes.txt
 
 # Files not to include in the distribution tarball
 IGNOREDFILES=doc/ProofGeneral.dvi 
