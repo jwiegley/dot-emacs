@@ -42,26 +42,37 @@ X (Low)		probably not worth spending time on
 A Final stuff for 3.0 release [da]:
 
   - See if better fix for FSF overlay mess
-
-  - document mouse functions, proof-cd, process quit timeout
-
+  - document mouse functions, proof-cd, process quit timeout, 
+    X-Symbol, new menu functions for display.
   - Fixing up PBP: check documentation is roughly okay.
-
   - put demo paper on web pages, add more to it.
-
-  - simplify download pages by splitting
- 
-  - func menu problem with compiled code: is it 
-  eval-after-load thing?  eval-and-compile around it?
-
-  - add message about importance of registering
-  
-  - make mailing list membership by default
-
   - is there a welcome message for mailing list?
 
 
+
+
 ---------------------------------------------
+
+C Tidy up library-loading and dependencies.  (Probably do
+  this at the same time as organizing for the XEmacs
+  packaging mechanism)
+
+C Make compile should give error if any elisp compile fails.
+
+C Make the remaining options in the quick-opts-menu be more
+  dynamic: same function as in proof-x-symbol.el to redisplay
+  after changing output hightlighting, make/delete frames,
+  etc.
+
+B Display buffer clearing: response buffer is cleared
+  too often/eagerly, perhaps?  The output find-theorems or
+  similar doesn't last beyond a single proof step.
+  The problem is that we want to erase irrelevant
+  output from the response buffer for the previous
+  proof step.  Consider making output from invisible
+  command persistent.  
+  See attempted patch in 
+  etc/patches/fix-attempt-for-eager-cleaning.txt
 
 B Fix problems with C-x C-v and C-x C-w 
 
@@ -93,6 +104,8 @@ B Continue program of making adaptation easier.
 B Documentation in pdf format: need to fix inclusion of image 
   problem.
 
+C See if there is a way of postponing func-menu loading.
+
 C Quit timeout enhancement: instead of killing immediately after
   timeout, could give a message "not responding, kill immediately?"
 
@@ -107,6 +120,9 @@ B make pretty printer line width altering generic.
   be triggered by resize events).
 
 B Implement proof-generic-find-and-forget
+
+C X-Symbol: is there a function to input in the minibuffer using
+  a token language?
 
 C Investigate possible toolbar refresh problems.
   Sometimes extra clicks *are* needed.  Why?
