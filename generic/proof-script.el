@@ -461,11 +461,8 @@ Does nothing if there is no active scripting buffer, or if
   (interactive)
   (if (and proof-script-buffer
 	   (not (eq proof-follow-mode 'ignore)))
-      (let ((pos (with-current-buffer proof-script-buffer
-		   (proof-locked-end)))
-	    (win (get-buffer-window proof-script-buffer t)))
-	(unless (and win (pos-visible-in-window-p pos))
-	  (proof-goto-end-of-locked t)))))
+      (unless (proof-end-of-locked-visible-p)
+	(proof-goto-end-of-locked t))))
 
 (defun proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window ()
   "As `proof-goto-end-of-locked-if-pos-not-visible-in-window' except not for interrupts.
@@ -478,14 +475,16 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
     (proof-with-current-buffer-if-exists
      proof-script-buffer
      ;; Give a hint of how to jump to the end of locked, unless visible.
-     (let ((pos (with-current-buffer proof-script-buffer
-		  (proof-locked-end)))
-	   (win (get-buffer-window proof-script-buffer t)))
-       (unless (and win (pos-visible-in-window-p pos))
-	 (pg-jump-to-end-hint)))))))
+     (unless (proof-end-of-locked-visible-p)
+       (pg-jump-to-end-hint))))))
+
+(defun proof-end-of-locked-visible-p ()
+  "Return non-nil if end of locked region is visible."
+  (let* ((pos (proof-with-current-buffer-if-exists proof-script-buffer
+		(proof-locked-end)))
+	 (win (and pos (get-buffer-window proof-script-buffer t))))
+    (and win (pos-visible-in-window-p pos))))
     
-
-
 ;; Simplified version of above for toolbar follow mode -- which wouldn't
 ;; work with abouve because of proof-shell-handle-error-or-interrupt-hook[?]
 (defun proof-goto-end-of-queue-or-locked-if-not-visible ()
@@ -2417,7 +2416,7 @@ command."
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
 
 ;; NB: proof-mode-map declared by define-derived-mode above
-(proof-menu-define-keys proof-mode-map)
+(proof-menu-define-keys proof-mode-map)   ;; NB: top-level form
 
 (defun proof-script-set-visited-file-name ()
   "Called when visited file name is changed.
