@@ -1571,18 +1571,19 @@ locked region or everything in it has been processed."
 		   ;; completely processed.  Make sure that it's
 		   ;; registered on the included files list, in
 		   ;; case it has been processed piecemeal.
-		   (and buffer-file-name
-			;; FIXME: Could alter
-			;; proof-register-new-processed-file to work
-			;; also for possibly non-new cases.
-			(not
-			 (member (file-truename buffer-file-name) 
-				 proof-included-files-list))
-			(progn
-			  (proof-register-new-processed-file 
-			   buffer-file-name)
-			  ;; Continue 
-			  t)))))
+		   (progn
+		     (if (and buffer-file-name
+			      ;; FIXME: Could alter
+			      ;; proof-register-new-processed-file to work
+			      ;; also for possibly non-new cases.
+			      (not
+			       (member (file-truename buffer-file-name) 
+				       proof-included-files-list)))
+			 (progn
+			   (proof-register-new-processed-file 
+			    buffer-file-name)))
+		     ;; Continue 
+		     t))))
 	    ;; we are changing the scripting buffer
 	   (progn
 	     (setq proof-active-buffer-fake-minor-mode nil)
