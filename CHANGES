@@ -26,9 +26,11 @@ compatibility is far too difficult to maintain.
 
 *** Colours altered
 
-Queue and locked colours made a little less lurid.
+Colours made a little less lurid.  Reverse video tweaks.
 (Look in proof-config for proof-locked-face, proof-queue-face
-and old settings if you want to change back).
+and old settings if you want to change back: 
+use M-x customize-face, M-x list-faces-display, 
+M-x list-colours-display to play with your own defaults).
 
 *** Improvements to visibility controls
 
