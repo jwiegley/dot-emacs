@@ -113,10 +113,18 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 	  ;; turn on/off cleanly in proof-x-symbol-mode-all-buffers.
 	  ;; (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
 	  ;; Okay, let's be less rash and put it on a hook list.
-	  (dolist (mode proof-xsym-extra-modes)
-	    (add-hook 
-	     (intern (concat (symbol-name mode) "-hook"))
-	     'proof-x-symbol-mode))
+	  ;; 12.1.00: Nope, there's a problem here!  
+	  ;; Results in thy-mode invoking 
+	  ;; proof-x-symbol-mode twice, first via hook, then
+	  ;; from proof-config-done-related, which blasts 
+	  ;; font-lock-keywords (whilst font-lock is turned on!)
+          ;; .  Temporarily disable this,
+	  ;; and consider what to do for other extra modes
+	  ;; (isa-latex).
+;	  (dolist (mode proof-xsym-extra-modes)
+;	    (add-hook 
+;	     (intern (concat (symbol-name mode) "-hook"))
+;	     'proof-x-symbol-mode))
 	  ;; Font lock support is optional
 	  (if flks
 	      (put symmode 'font-lock-defaults (list flks)))

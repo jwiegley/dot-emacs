@@ -293,7 +293,10 @@ with extra patterns (in non-mule mode).")
   ;; 20.4's version of font-lock in any case.
   (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
   (setq font-lock-defaults `(proof-font-lock-keywords nil ,case-fold))
-  ;; FIXME: font-lock turned on somewhere, where?
+  ;; 12.1.99: testing: For XEmacs, we must also set the property.
+  ;; This is needed for buffers which are put into font-lock-mode
+  ;; (rather than fontified by hand).
+  (put major-mode 'font-lock-defaults font-lock-defaults)
   (setq font-lock-keywords nil))
 
 (defun proof-fontify-region (start end)
