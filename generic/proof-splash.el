@@ -6,14 +6,72 @@
 ;;
 ;; $Id$
 ;;
-;; NB: try not to use functions which autoload large packages
-;; here, to minimise the delay before splash screen is shown. 
 ;;
 
-(require 'proof-config)			; for 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Customization of splash screen (was in proof-config)
+
+(defcustom proof-splash-enable t
+  "*If non-nil, display a splash screen when Proof General is loaded."
+  :type 'boolean
+  :group 'proof-user-options)
+
+(defcustom proof-splash-time 4
+  "Minimum number of seconds to display splash screen for.
+The splash screen may be displayed for a couple of seconds longer than
+this, depending on how long it takes the machine to initialise 
+Proof General."
+  :type 'number
+  :group 'proof-general-internals)
+
+(defcustom proof-splash-contents
+  '(list
+    nil
+;;; Remove the text for now: XEmacs makes a mess of displaying the
+;;; transparent parts of the gif (at least, on all machines I have seen)
+;;;    (proof-splash-display-image "pg-text" t)
+    nil
+    (proof-splash-display-image "ProofGeneral")
+    nil
+    "Welcome to"
+    (concat proof-assistant " Proof General!")
+    nil
+    (substring proof-general-version
+	       (string-match "Version [^ ]+ " 
+			     proof-general-version)
+	       (match-end 0))
+    nil
+    "(C) LFCS, University of Edinburgh, 2001."
+    nil
+    nil
+"    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
+     or use the menu command Proof-General -> Submit bug report."
+    nil
+    (unless proof-running-on-XEmacs
+      "For a better Proof General experience, please use XEmacs")
+    (unless proof-running-on-XEmacs
+      "(visit  http://www.xemacs.org)"))
+  "Evaluated to configure splash screen displayed when entering Proof General.
+A list of the screen contents.  If an element is a string or an image
+specifier, it is displayed centred on the window on its own line.  
+If it is nil, a new line is inserted."
+  :type 'sexp
+  :group 'proof-general-internals)
+
+(defcustom proof-splash-extensions 
+  '(list
+    "To start using Proof General, visit a proof script file"
+    "for your prover, using C-x C-f or the File menu.")
+  "Prover specific extensions of splash screen.
+These are evaluated and appended to `proof-splash-contents'."
+  :type 'sexp
+  :group 'prover-config)
 
 (defconst proof-splash-welcome "*Proof General Welcome*"
   "Name of the Proof General splash buffer.")
+
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun proof-splash-display-image (name &optional nojpeg)
   "Construct an image instantiator for an image, or string failing that.
@@ -144,9 +202,14 @@ Borrowed from startup-center-spaces."
 ;;;###autoload
 (defun proof-splash-message ()
   "Make sure the user gets welcomed one way or another."
-  (unless proof-splash-seen
-    (message "Welcome to %s Proof General!" proof-assistant)
-    (setq proof-splash-seen t)
+  (interactive)
+  (unless (or proof-splash-seen (noninteractive))
+    (if proof-splash-enable
+	(proof-splash-display-screen t)
+      ;; Otherwise, a message
+      (message "Welcome to %s Proof General!" proof-assistant)
+    (setq proof-splash-seen t))
+    ;; redisplay
     (sit-for 0)))
 
 (defun proof-splash-timeout-waiter ()
