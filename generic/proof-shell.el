@@ -278,7 +278,8 @@ Does nothing if proof assistant is already running."
   (interactive "e")
   (let* ((span (span-at (mouse-set-point event) 'type))
 	 (str (span-property span 'cmd)))
-    (cond ((and (member (current-buffer) proof-script-buffer-list) (not (null span)))
+    (cond ((and (member (current-buffer) proof-script-buffer-list)
+		(not (null span)))
 	   (proof-goto-end-of-locked)
 	   (cond ((eq (span-property span 'type) 'vanilla)
 		  (insert str)))))))
@@ -298,20 +299,17 @@ Does nothing if proof assistant is already running."
 		 (concat (cdr top-info) (proof-expand-path 
 					 (span-property span 'proof))))))
        ((eq (car top-info) 'hyp)
-	(proof-shell-invisible-command (format pbp-hyp-command (cdr top-info))))
+	(proof-shell-invisible-command
+	 (format pbp-hyp-command (cdr top-info))))
        (t
-	 (proof-insert-pbp-command (format pbp-change-goal (cdr top-info))))))
+	 (proof-insert-pbp-command
+	  (format pbp-change-goal (cdr top-info))))))
     ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          Turning annotated output into pbp goal set              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; FIXME da: where is this variable used?  
-;;	      dropped in favour of goal-char?
-;; Answer: this is used in *specific* modes, see e.g.
-;; lego-goal-hyp.  This stuff needs making more generic.
 
 (defun pbp-make-top-span (start end)
   (let (span name)
@@ -792,25 +790,26 @@ arrive."
   "Scan the shell buffer for urgent messages.
 Scanning starts from proof-shell-urgent-message-pos and processes
 strings between eager-annotation-start and eager-annotation-end."
-  ;; FIXME: check if it's safe to move point here.
-  (goto-char
-   (or (marker-position proof-shell-urgent-message-marker) (point-min)))
-  (let (end start)
-    (while (re-search-forward proof-shell-eager-annotation-start nil t)
-      (setq start (match-beginning 0))
-      (if (setq end
-		(re-search-forward proof-shell-eager-annotation-end nil t))
-	  (proof-shell-process-urgent-message
-	   (proof-shell-strip-annotations (buffer-substring start end))))
-      ;; Set the marker to the end of the last message found, if any.
-      ;; Must take care to keep the marger behind the process marker
-      ;; otherwise no output is seen!  (insert-before-markers in comint)
-      (if end
-	  (set-marker
-	   proof-shell-urgent-message-marker
-	   (min end
-		(1- (process-mark (get-buffer-process (current-buffer)))))))
-      )))
+  (let ((pt (point)))
+    (goto-char
+     (or (marker-position proof-shell-urgent-message-marker) (point-min)))
+    (let (end start)
+      (while (re-search-forward proof-shell-eager-annotation-start nil t)
+	(setq start (match-beginning 0))
+	(if (setq end
+		  (re-search-forward proof-shell-eager-annotation-end nil t))
+	    (proof-shell-process-urgent-message
+	     (proof-shell-strip-annotations (buffer-substring start end))))
+	;; Set the marker to the end of the last message found, if any.
+	;; Must take care to keep the marger behind the process marker
+	;; otherwise no output is seen!  (insert-before-markers in comint)
+	(if end
+	    (set-marker
+	     proof-shell-urgent-message-marker
+	     (min end
+		  (1- (process-mark (get-buffer-process (current-buffer)))))))
+	))
+    (goto-char pt)))
 	    
 ;; FIXME da: I suspect this could miss output in the unfortunate
 ;; circumstance that a prompt consists of more than one character and
