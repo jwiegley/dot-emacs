@@ -247,10 +247,7 @@ until Proof General is restarted."
   "Isabelle documentation menu.  Constructed when PG is loaded.")
 
 
-;; It's a hassle to bother trying to reconstruct this
-;; dynamically like it was in Isamode, so we don't bother.
-
-(defconst isabelle-logics-menu 
+(defun isabelle-logics-menu-calculate ()
   (cons "Logics" 
 	(cons
 	 ["Default" 
@@ -263,8 +260,17 @@ until Proof General is restarted."
 			   :active '(not (proof-shell-live-buffer))
 			   :style 'radio
 			   :selected (list 'equal 'isabelle-chosen-logic l)))
-		 (isa-tool-list-logics))))
-  "Isabelle logics menu.  Constructed when PG is loaded.")
+		 (isa-tool-list-logics)))))
+
+(defun isabelle-logics-menu-refresh ()
+  "Refresh isabelle-logics-menu."
+  (interactive)
+  (setq isabelle-logics-menu (isabelle-logics-menu-calculate))
+  ;; FIXME: need to do some easy-menu magic here
+  )
+
+(defconst isabelle-logics-menu (isabelle-logics-menu-calculate)
+  "Isabelle logics menu.  Calculated when Proof General is loaded.")
 
 
 ;; Added in PG 3.4: load isar-keywords file.
@@ -274,7 +280,7 @@ until Proof General is restarted."
 ;; added a facility to reconfigure.
 ;; TODO: also add something to spill out a keywords file?
 (defun isabelle-load-isar-keywords (&optional kw)
-  (interactive "Load isar keywords: %s")
+  (interactive "sLoad isar keywords: ")
   (let ((userhome  (isa-getenv "ISABELLE_HOME_USER"))
 	(isahome   (isa-getenv "ISABELLE_HOME"))
 	(isarkwel  "%s/etc/isar-keywords-%s.el")
