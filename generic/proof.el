@@ -145,8 +145,54 @@ read.")
 
 
 ;;;
-;;; Utilities/macros used in several files  (proof-utils)
+;;; Utilities/macros used in several files  (-> proof-utils)
 ;;;
+
+;; -----------------------------------------------------------------
+;; Handy macros
+
+(defmacro proof-with-current-buffer-if-exists (buf &rest body)
+  "As with-current-buffer if BUF exists, otherwise nothing."
+  `(if (buffer-live-p ,buf)
+       (with-current-buffer ,buf
+	 ,@body)))
+
+;; -----------------------------------------------------------------
+;; Buffers and filenames
+
+(defun proof-file-truename (filename)
+  "Returns the true name of the file FILENAME or nil if file non-existent."
+  (and filename (file-exists-p filename) (file-truename filename)))
+
+(defun proof-file-to-buffer (filename)
+  "Find a buffer visiting file FILENAME, or nil if there isn't one."
+  (let* ((buffers (buffer-list))
+	 (pos
+	  (position (file-truename filename)
+		    (mapcar 'proof-file-truename
+			    (mapcar 'buffer-file-name
+				    buffers))
+		    :test 'equal)))
+    (and pos (nth pos buffers))))
+
+(defun proof-files-to-buffers (filenames)
+  "Converts a list of FILENAMES into a list of BUFFERS."
+  (if (null filenames) nil
+    (let* ((buffer (proof-file-to-buffer (car filenames)))
+	  (rest (proof-files-to-buffers (cdr filenames))))
+      (if buffer (cons buffer rest) rest))))
+
+(defun proof-buffers-in-mode (mode &optional buflist)
+  "Return a list of the buffers in the buffer list in major-mode MODE.
+Restrict to BUFLIST if it's set."
+  (let ((bufs-left (or buflist (buffer-list))) 
+	bufs-got)
+    (dolist (buf bufs-left bufs-got)
+      (if (with-current-buffer buf (eq mode major-mode))
+	  (setq bufs-got (cons buf bufs-got))))))
+
+;; -----------------------------------------------------------------
+;; Key functions
 
 (defun proof-define-keys (map kbl)
   "Adds keybindings KBL in MAP.
@@ -158,11 +204,8 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
          (define-key map k f)))
    kbl))
 
-(defmacro proof-with-current-buffer-if-exists (buf &rest body)
-  "As with-current-buffer if BUF exists, otherwise nothing."
-  `(if (buffer-live-p ,buf)
-       (with-current-buffer ,buf
-	 ,@body)))
+;; -----------------------------------------------------------------
+;; Display functions
 
 ;; FIXME: this function should be combined with
 ;; proof-shell-maybe-erase-response-buffer.  Should allow
@@ -182,6 +225,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       (setq end (point-max))
       (save-excursion
 	(font-lock-set-defaults)		;required for FSF Emacs 20.2
+;; FIXME da: does this break anything in LEGO or others?
 ;DvO	(font-lock-fontify-region start end)
 	(if face (font-lock-append-text-property start end 'face face)))
       (buffer-substring start end))))
@@ -239,18 +283,6 @@ frame is the one showing the script buffer.)"
     (if proof-auto-delete-windows
 	(delete-windows-on buffer t))))
 
-;; utility function
-;; FIXME da: maybe not used.  Put into spare parts file.
-(defun proof-buffers-in-mode (mode &optional buflist)
-  "Return a list of the buffers in the buffer list in major-mode MODE.
-Restrict to BUFLIST if it's set."
-  (let ((bufs-left (or buflist (buffer-list))) 
-	bufs-got)
-    (dolist (buf bufs-left bufs-got)
-      (if (with-current-buffer buf (eq mode major-mode))
-	  (setq bufs-got (cons buf bufs-got))))))
-
-
 (defun proof-message (&rest args)
   "Issue the message ARGS in the response buffer and display it."
     (proof-response-buffer-display (apply 'concat args))
@@ -268,7 +300,11 @@ If proof-show-debug-messages is nil, do nothing."
   (if proof-show-debug-messages
       `(proof-warning ,@args)))
 
+
+
+;; -----------------------------------------------------------------
 ;; Function for submitting bug reports.
+
 (defun proof-submit-bug-report ()
   "Submit an bug report or other report for Proof General."
   (interactive)
@@ -282,6 +318,8 @@ If proof-show-debug-messages is nil, do nothing."
      (list 'proof-general-version 'proof-assistant)
      nil nil
      "[When reporting a bug, please include a small test case for us to repeat it.]")))
+
+
 
 
 (provide 'proof)
