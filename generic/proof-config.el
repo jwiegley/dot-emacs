@@ -236,17 +236,6 @@ of unreliabilities with enablers there."
   :type 'boolean
   :group 'proof-user-options)
 
-; (defcustom proof-auto-retract 
-;   nil
-;   "*If non-nil, retract automatically when locked region is edited.
-; With this option active, the locked region will automatically be
-; unlocked when the user attempts to edit it.   To make use of this
-; option, proof-strict-read-only should be turned off.
-
-; Note: this feature has not been implemented yet, it is only an idea."
-;   :type 'boolean
-;   :group 'proof-user-options)
-
 (defcustom proof-query-file-save-when-activating-scripting 
   t
 "*If non-nil, query user to save files when activating scripting.
@@ -351,6 +340,14 @@ If you choose 'ignore, you can find the end of the locked using
 	  (const :tag "Never move" ignore))
   :group 'proof-user-options)
 
+;; TODO: the auto action might be improved a bit: for example,
+;; when scripting is turned off because another buffer is
+;; being retracted, we almost certainly want to retract
+;; the currently edited buffer as well (use case is somebody
+;; realising a change has to made in an ancestor file).
+;; In that case as well (supposing file being unlocked is
+;; an ancestore), it also seems unlikely that we need
+;; to query for saves.
 (defcustom proof-auto-action-when-deactivating-scripting nil
   "*If 'retract or 'process, do that when deactivating scripting.
 
