@@ -140,7 +140,8 @@ FILES_NONCVS = ChangeLog TAGS
 DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
-ELISP_DIRS=generic lego coq isa isar
+ELISP_DIRS=generic lego coq isa isar plastic
+SUBDIRS=$(ELISP_DIRS) etc doc html images
 
 PWD=$(shell pwd)
 
@@ -184,9 +185,11 @@ ChangeLog:	FORCE
 
 ############################################################
 #
-# Clean up intermediate files
+# Clean up intermediate files and Emacs backup files
 #
 clean:	
+	rm -f *~
+	for f in $(SUBDIRS); do rm -f $$f/*~; done
 	(cd doc; $(MAKE) clean)
 	(cd images; $(MAKE) clean)
 
