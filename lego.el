@@ -5,6 +5,11 @@
 
 
 ;; $Log$
+;; Revision 1.34  1998/01/15 12:23:59  hhg
+;; Updated method of defining proof-shell-cd to be consistent with other
+;; proof-assistant-dependent variables.
+;; Added ctrl-button1 to copy selected region to end of locked region
+;;
 ;; Revision 1.33  1998/01/05 14:59:03  tms
 ;; fixed a bug in the indenting functions
 ;;
@@ -145,7 +150,7 @@
 
 ;; ----- lego-shell configuration options
 
-(defvar lego-prog-name "/home/tms/src/lego/bin/lego"
+(defvar lego-prog-name "/home/ctm/lego/bin/legoML"
   "*Name of program to run as lego.")
 
 (defvar lego-shell-working-dir ""
@@ -153,6 +158,9 @@
 
 (defvar lego-shell-prompt-pattern "^\\(Lego>[ \201]*\\)+"
   "*The prompt pattern for the inferior shell running lego.")
+
+(defvar lego-shell-cd "Cd \"%s\";"
+  "*Command of the inferior process to change the directory.") 
 
 (defvar lego-shell-abort-goal-regexp "KillRef: ok, not in proof state"
   "*Regular expression indicating that the proof of the current goal
@@ -635,6 +643,7 @@
 
 (defun lego-shell-mode-config ()
   (setq proof-shell-prompt-pattern lego-shell-prompt-pattern
+        proof-shell-cd lego-shell-cd
         proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
         proof-shell-error-regexp lego-error-regexp

@@ -9,6 +9,11 @@
 
 
 ;; $Log$
+;; Revision 1.32  1998/01/15 12:23:57  hhg
+;; Updated method of defining proof-shell-cd to be consistent with other
+;; proof-assistant-dependent variables.
+;; Added ctrl-button1 to copy selected region to end of locked region
+;;
 ;; Revision 1.31  1998/01/12 11:07:53  tms
 ;; o added support for remote proof processes
 ;; o bound C-c C-z to 'proof-frob-locked-end
@@ -157,7 +162,7 @@
 ;;               Configuration                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar proof-shell-cd "Cd \"%s\";"
+(defvar proof-shell-cd nil
   "*Command of the inferior process to change the directory.") 
 
 (defvar proof-prog-name-ask-p nil
@@ -493,6 +498,15 @@
 		     (cons " " ls)))
       (incf a))
     (apply 'concat (nreverse ls))))
+
+(defun proof-send-span (event)
+  (interactive "e")
+  (let* ((ext (span-at (mouse-set-point event) 'type))
+	 (str (span-property ext 'cmd)))
+    (cond ((and (eq proof-script-buffer (current-buffer)) (not (null ext)))
+	   (proof-goto-end-of-locked)
+	   (cond ((eq (span-property ext 'type) 'vanilla)
+		  (insert str)))))))
 
 (defun pbp-construct-command ()
   (let* ((ext (span-at (point) 'proof))
@@ -889,8 +903,6 @@ at the end of locked region (after inserting a newline and indenting)."
       (setq ext (prev-span ext 'type)))
     ext)))
     
-
-
 (defun proof-steal-process ()
   (proof-start-shell)
   (if proof-shell-busy (error "Proof Process Busy!"))
@@ -1376,6 +1388,7 @@ current command."
   (define-key proof-mode-map [(control c) (control u)] 'proof-undo-last-successful-command)
   (define-key proof-mode-map [(control c) (control v)] 'proof-execute-minibuffer-cmd)
   (define-key proof-mode-map [(control c) ?\'] 'proof-goto-end-of-locked)
+  (define-key proof-mode-map [(control button1)] 'proof-send-span)
   (define-key proof-mode-map [(control c) (control b)] 'proof-process-buffer)
   (define-key proof-mode-map [(control c) (control z)] 'proof-frob-locked-end)
 
@@ -1406,7 +1419,8 @@ current command."
   ;; If the proof process in invoked on a different machine e.g.,
   ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
   ;; to adjust the directory:
-  (proof-shell-insert (format proof-shell-cd default-directory))
+  (and proof-shell-cd
+       (proof-shell-insert (format proof-shell-cd default-directory)))
 
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
