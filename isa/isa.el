@@ -44,7 +44,7 @@
 
 (defcustom isabelle-prog-name 
   (if (fboundp 'win32-long-filename)	; rough test for XEmacs on win32
-      "C:\sml\bin\.run\run.x86-win32.exe @SMLload=C:\Isabelle\HOL"
+      "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\HOL"
     "isabelle")
   "*Name of program to run Isabelle.
 The default value when running under Windows expects SML/NJ in C:\\sml
