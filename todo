@@ -26,7 +26,7 @@ D  Customization mechanism: is there a way to make saved settings
    Sure sign saving will fail is when you see "this option has
    been changed outside customization buffer"
 
-A Customization mechanism and config variables: at the moment even
+C Customization mechanism and config variables: at the moment even
   setting config variables in a hook is tricky, because
   proof-config-done is called before the hook variables for the
   new mode are.  Our new version of define-derived-mode needs
@@ -489,5 +489,10 @@ C `proof-zap-commas-region' does not work for Emacs 20.2 on
 * Release
 =========
 
+A add a new page/section, maybe a make mechanism (but maybe
+  instructions instead) for a stable release.  
+
 B add links *from* Coq, Lego & Isabelle Web pages (da, tms 10 min)
+
+
 
