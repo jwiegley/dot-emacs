@@ -62,8 +62,7 @@ RELEASE_TAG=2.0-pre$(shell date "+%y%m%d")
 CVS_RELEASE_TAG=2-0-pre$(shell date "+%y%m%d")
 
 CVSNAME = elisp
-CVSROOT = /home/lego/src
-EXPORTDIR = /home/lego/pub/ProofGeneral
+CVSROOT = /home/proofgen/src
 
 NAME = ProofGeneral
 RELEASENAME = ProofGeneral-2.0
@@ -78,7 +77,7 @@ IGNOREDFILES=doc/ProofGeneral.pdf doc/ProofGeneral.dvi
 DISTBUILDIR = /tmp/ProofGeneralRelease
 
 # Where to install a new distribution
-RELEASEDIR = /home/lego/EXPORT/ProofGeneral
+RELEASEDIR = /home/proofgen/www
 
 # Files not kept under cvs to clean away.
 FILES_NONCVS = ChangeLog 
