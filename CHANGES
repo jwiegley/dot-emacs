@@ -9,3 +9,6 @@ Summary of Changes since Proof General 2.0
   (incomplete)
 
 * Bug fix for Isabelle theory file mode.
+
+* Bug fix for long-lines with funny characters causing
+  ^G's in Solaris.
