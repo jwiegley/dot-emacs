@@ -266,8 +266,8 @@ until Proof General is restarted."
   :type 'boolean
   :setting "trace_simp:=%b;")
 
-(defpacustom quick-and-dirty  nil
-  "Whether to take a few short cuts in interactive mode."
+(defpacustom quick-and-dirty  t
+  "Whether to take a few short cuts occasionally."
   :type 'boolean
   :setting "quick_and_dirty:=%b;")
 
