@@ -11,7 +11,7 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
  1. Priorities
  2. Things to do in the generic interface
  3. Things to do for the documentation
- 4. GNU Emacs issues
+ 4. Emacs issues
  5. Things to do for Proof-by-Pointing
  6. Things to do for Web Pages, Distribution
  7. Future improvements to take advantage of newer Emacsen
@@ -473,16 +473,18 @@ X (Low)		e.g. probably not worth spending time on
 
 
 
-** 4. GNU Emacs issues
+** 4. Emacs issues
 
-*** B Improve support for Emacs 21.
-  X-symbol fixup in other provers.
+*** GNU Emacs issues
 
-*** B Consider replacing buffer-substring -> buffer-substring-no-properties
+**** A Improve support for Emacs 21.
+  X-symbol 4.X fixup for provers other than Isabelle.
+
+**** B Consider replacing buffer-substring -> buffer-substring-no-properties
   Text properties are passed around in spans, probably needlessly.
   (not the same in XEmacs?)
 
-*** C Changed implementation of overlays inside Emacs itself.  We seem to
+**** C Changed implementation of overlays inside Emacs itself.  We seem to
   need 'priority property of overlays for queue and locked to make 
   sure the colours show through.  Even then highlighting is strange,
   and background face spoils the others.  Transparent?
@@ -490,10 +492,18 @@ X (Low)		e.g. probably not worth spending time on
   Higher priority: we get blanking as mouse highlighting.  Yuk.
   ACTION: check Emacs Lispref for hints.  Maybe ask on newsgroup.
 
-*** X `proof-zap-commas-region' does not work for Emacs 20.4 on
+**** X `proof-zap-commas-region' does not work for Emacs 20.4 on
   lego/example.l . On *initially* fontifying the buffer,
   commas are not zapped. However, when entering text (on
   a particular line), commata are zapped correctly. (4h)
+
+*** XEmacs issues
+
+**** C Ask for easy-menu to support :visible keyword
+   Very useful option of GNU Emacs easy menu to remove items
+   from menu altogether, dynamically.   (Or at least, fairly
+   dynamically.  Fully dynamically would be guitrocity).
+
 
 
 

@@ -15,11 +15,16 @@
 
 ** Generic changes
 
+
+
 *** Parsing internals changed: minor user visible differences
 
 Please report any problems/annoyances which may be unexpected.
 NB: Not yet enabled for Isabelle/Isar.
 
 
-** Colour improvements
+*** Tweaks to menus,  colours
+
+Electric terminator menu option more visible. 
+Reduce contrast for mouse highlighting of regions.
 

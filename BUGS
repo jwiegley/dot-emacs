@@ -86,7 +86,8 @@ to edit a file as it is being read by the proof assistant!
 
 Output colouration may spill into adjacent symbols when X-Symbol
 support is switched on.  X-Symbol 4.X isn't yet finished, and will
-only officially support Emacs from 21.4 onwards.
+only officially support Emacs from 21.4 onwards.  It may work with
+Isabelle for Emacs 21.X but please don't try it with other provers.
 
 ** Emacs menus: options not updated dynamically, positions erratic, etc.
 
