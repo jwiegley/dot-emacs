@@ -1,6 +1,6 @@
 ;; proof-config.el  Proof General configuration for proof assistant
 ;;
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Copyright (C) 1998,9 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;          Thomas Kleymann and Dilip Sequeira
 ;;
@@ -17,6 +17,9 @@
 ;; should read this file carefully! 
 ;;
 ;;  1. User options 
+;;      1b.  Faces
+;;
+;;     CONFIGURATION VARIABLES
 ;;  2. Major modes
 ;;  3. Menus, user-level commands.
 ;;  4. Script mode configuration 
@@ -26,7 +29,8 @@
 ;;     5c. hooks
 ;;  6. Goals buffer configuration
 ;;  7. Splash screen settings
-;;  8. Global constants 
+;;  8. x-symbol support
+;;  9. Global constants 
 ;;
 ;; The user options don't need to be set on a per-prover basis,
 ;; and the global constants probably should not be touched.
@@ -35,10 +39,11 @@
 ;; for basic functionality; consult the manual for details of
 ;; which ones are important.
 ;;
-;; Customization groups and structure
+;; Customization groups and structure (sections in brackets)
 ;;
-;;  proof-general	: User options for Proof General    (1)
-;;    <Prover name>     : User options for proof assistant
+;;  proof-general	 : Overall group
+;;    proof-user-options : User options for Proof General    (1)
+;;    <Prover name>      : User options for proof assistant
 ;;
 ;;  proof-general-internals  :  Internal settings of Proof General (6)
 ;;    prover-config	     :  Configuration for proof assistant (2,3)
@@ -49,11 +54,12 @@
 ;; ==================================================
 ;;
 ;; Developers notes:
-;;   1. When adding a new configuration variable, please
+;;   i. When adding a new configuration variable, please
 ;;       (a) put it in the right customize group, and
 ;;       (b) add a magical comment in NewDoc.texi to document it!
-;;   2. Presently the customize library seems a bit picky over the
-;;    	:type property and some correct types don't work properly.
+;;  ii. Presently the customize library seems a bit picky over the
+;;    	:type property and some correct but complex types don't work 
+;;	properly.
 ;;    	If the type is ill-formed, editing the whole group will be broken.
 ;;    	Check after updates, by killing all customize buffers and
 ;;    	invoking customize-group
@@ -69,23 +75,28 @@
 ;; *not* normally be touched by prover specific code.
 ;;
 
+(defgroup proof-user-options nil
+  "User options for Proof General."
+  :group 'proof-general
+  :prefix "proof-")
+
 (defcustom proof-prog-name-ask nil
   "*If non-nil, query user which program to run for the inferior process."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-prog-name-guess nil
   "*If non-nil, use `proof-guess-command-line' to guess proof-prog-name.
 This option is compatible with proof-prog-name-ask.
 No effect if proof-guess-command-line is nil."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-toolbar-inhibit nil
   "*Non-nil prevents toolbar being used for script buffers.
 NB: the toolbar is only available with XEmacs."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-toolbar-use-enablers t
   "*If non-nil, toolbars buttons may be enabled/disabled automatically.
@@ -100,7 +111,7 @@ otherwise be disabled.
 * If you change this variable it will only be noticed when you 
 next start Proof General."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-toolbar-follow-mode 'locked
   "*Choice of how point moves with toolbar commands.
@@ -112,7 +123,7 @@ If 'ignore, point is never moved after toolbar movement commands."
 	  (const :tag "Follow locked region" locked)
 	  (const :tag "Keep locked region displayed" follow)
 	  (const :tag "Never move" ignore))
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-window-dedicated nil
   "*Whether response and goals buffers have dedicated windows.
@@ -136,7 +147,7 @@ experienced Emacs users."
   ;; use because of a bug.  
   ;; but I can't find it as of 3.0pre201099.  
   :type 'boolean 
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-strict-read-only 
   ;; For FSF Emacs, strict read only is buggy when used in
@@ -156,7 +167,7 @@ The default value for proof-strict-read-only depends on which
 version of Emacs you are using.  In FSF Emacs, strict read only is buggy
 when it used in conjunction with font-lock, so it is disabled by default."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-auto-retract
   nil
@@ -167,7 +178,7 @@ option, proof-strict-read-only should be turned off.
 
 Note: this feature has not been implemented yet, it is only an idea."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-query-file-save-when-activating-scripting
   t
@@ -183,7 +194,7 @@ You can turn this option off if the save queries are annoying, but
 be warned that with some proof assistants this may risk processing 
 files which are out of date with respect to the lodead buffers!"
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-auto-action-when-deactivating-scripting
   nil
@@ -207,7 +218,7 @@ is no locked region."
 	  (const :tag "No automatic action; query user" nil)
 	  (const :tag "Automatically retract" retract)
 	  (const :tag "Automatically process" process))
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-script-indent nil
   ;; Particular proof assistants can enable this if they feel
@@ -217,14 +228,14 @@ Currently the indentation code can be rather slow for large scripts,
 and is critical on the setting of regular expressions for particular
 provers.  Enable it if it works for you."  
   :type 'boolean 
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 ;; FIXME: rationalize and combine next two
 (defcustom proof-one-command-per-line nil
   "*If non-nil, format for newlines after each proof command in a script.
 This option is not fully-functional at the moment."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-script-command-separator " "
   "*String separating commands in proof scripts.
@@ -232,7 +243,7 @@ For example, if a proof assistant prefers one command per line, then
 this string should be set to a newline.  Otherwise it should be
 set to a space."
   :type 'string
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-rsh-command ""
   "*Shell command prefix to run a command on a remote host.  
@@ -246,7 +257,7 @@ to start Isabelle remotely on our large compute server called `bigjobs'.
 The protocol used should be configured so that no user interaction
 (passwords, or whatever) is required to get going."
   :type 'string
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-auto-delete-windows nil
   "*If non-nil, automatically remove windows when they are cleaned.
@@ -257,13 +268,13 @@ variable to 'nil' to avoid windows being deleted automatically.
 If you use multiple frames, only the windows in the currently
 selected frame will be automatically deleted."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-splash-inhibit
   nil
   "*Non-nil prevents splash screen display when Proof General is loaded."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
 
 (defcustom proof-tidy-response
   t
@@ -277,12 +288,22 @@ goals buffer).
 
 Otherwise the response buffer will accumulate output from the prover."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof-user-options)
+
+(defcustom proof-show-debug-messages t
+  "*Whether to display debugging messages in the response buffer.
+If non-nil, debugging messages are displayed in the response giving
+information about what Proof General is doing.
+To avoid erasing the messages shortly after they're printed, 
+you should disable `proof-tidy-response'."
+  :type 'boolean
+  :group 'proof-user-options)
 
 
 
 ;;
-;; Faces.
+;; 1b. Faces.
+;;
 ;; We ought to test that these work sensibly:
 ;;   a) with default colours
 ;;   b) with -rv
@@ -300,10 +321,9 @@ Otherwise the response buffer will accumulate output from the prover."
 
 (defgroup proof-faces nil
   "Faces used by Proof General."
-  :group 'proof
+  :group 'proof-general
   :prefix "proof-")
   
-
 (defface proof-queue-face
   '((((type x) (class color) (background light))
      (:background "mistyrose"))
@@ -409,8 +429,9 @@ Warning messages can come from proof assistant or from Proof General itself."
 
 
 ;;
-;; CONFIGURATION VARIABLES
+;; START OF CONFIGURATION VARIABLES
 ;;
+;; Prelude
 ;;
 
 (defgroup prover-config nil
@@ -458,7 +479,7 @@ proof-assistant-table."
 
 
 ;;
-;; 2. The major modes used by Proof General.
+;; 2. Major modes used by Proof General.
 ;;
 
 ;; FIXME: these functions could be set automatically to standard values,
@@ -558,12 +579,6 @@ If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
-(defcustom proof-show-debug-messages t
-  "Whether to display debugging messages in the response buffer.
-If non-nil, debugging messages are displayed in the response giving
-information about what Proof General is doing."
-  :type 'boolean
-  :group 'prover-config)
 
 
 
@@ -900,6 +915,10 @@ group.  This allows different proof assistants to coexist
   :type 'string
   :group 'proof-shell)
 
+;;
+;; FIXME: perhaps we should have pre-sync-init and 
+;; post-sync-init commands? 
+;;
 (defcustom proof-shell-init-cmd ""
    "The command for initially configuring the proof process.
 This command is sent to the process as soon as it starts up,
@@ -1403,13 +1422,58 @@ These are evaluated and appended to `proof-splash-contents'."
   :group 'proof-config)
   
 
+
+;;
+;; 8. x-symbol support
+;;
+
+(defcustom proof-x-symbol-support nil
+  "*Whether to use x-symbol in Proof General buffers.
+If you activate this variable, whether or not you get x-symbol support
+depends on if your proof assistant supports it and it is enabled
+inside your Emacs."
+  :type 'boolean
+  :group 'proof-user-options)
+
+(defgroup proof-x-symbol nil
+  "Configuration of x-symbol for Proof General."
+  :group 'proof
+  :prefix "proof-xsym-")
+
+(defcustom proof-xsym-activate-command nil
+  "Command to activate symbol printing for x-symbols.
+If non-nil, this command is sent to the proof assistant when 
+x-symbol support is activated."
+  :type 'string
+  :group 'proof-x-symbol)
+
+(defcustom proof-xsym-deactivate-command nil
+  "Command to activate symbol printing for x-symbols.
+If non-nil, this command is sent to the proof assistant when 
+x-symbol support is activated."
+  :type 'string
+  :group 'proof-x-symbol)
+
+
+;; FIXME: add here the variables which have per-prover names at the
+;; moment.  Later we can autogenerate aliases for the prover-specific
+;; instances.  Will also need to rename, if possible.
+;; 
+;;  e.g.   x-symbol-isa-modes   becomes   isa-x-symbol-modes
+;;			       alias for  proof-x-symbol-modes
+;;
+
+  
+
+
+
 
 
 
 
 
 ;;
-;; 8. Global constants
+;; 9. Global constants
 ;; 
 (defcustom proof-general-name "Proof-General"
   "Proof General name used internally and in menu titles."
