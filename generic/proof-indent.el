@@ -34,7 +34,7 @@
 	(cmt-start-regexp (regexp-quote proof-comment-start)))
     (save-excursion
       (if (null from)
-	  (proof-goto-end-of-locked)
+	  (goto-char (point-min))
 	(goto-char from)
 	(setq instring (car state)
 	      cmt-level (nth 1 state)
