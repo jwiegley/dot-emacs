@@ -8,285 +8,6 @@
 
 
 
-;; $Log$
-;; Revision 1.57  1998/06/11 12:20:35  hhg
-;; Moved proof-mode-hooks from proof-shell-config-done to
-;; proof-config-done.
-;;
-;; Revision 1.56  1998/06/10 14:00:21  hhg
-;; In proof-init-segmentation, only create proof-queue-span and
-;; proof-locked-span if they don't already exist.
-;; Call generic span function for making spans read-only.
-;;
-;; Revision 1.55  1998/06/10 12:39:14  hhg
-;; Added proof-unprocessed-begin as general function to find beginning of
-;; unprocessed region.  This should be used instead of proof-locked-end
-;; if we're not guaranteed to be in scripting buffer.
-;; proof-locked-end now calls proof-unprocessed-begin if we're in the
-;; proof-script-buffer.
-;; We set the goal name to "Unnamed_thm" if we can't find any other name
-;; for the theorem.
-;; proof-process-active-terminator now calls proof-unprocessed-begin.
-;; proof-shell-config-done now calls 'proof-mode-hook.
-;;
-;; Revision 1.54  1998/06/09 13:14:25  tms
-;; o fixed bug in setting proof-queue-face on a colour terminal for GNU
-;;   Emacs (19.34)
-;; o adjusting the directory (at least for LEGO) must not contain "~". We
-;;   now expand `default-directory' before cding to it. [Under XEmacs
-;;   (unlike Emacs 19.34), `default-directory' is already in expanded form.]
-;;
-;; Revision 1.53  1998/06/03 18:03:10  hhg
-;; Added '?'s before single characters in define-keys for emacs19, at
-;; Pascal Brisset's suggestion.
-;;
-;; Revision 1.52  1998/06/03 17:34:04  hhg
-;; Added (require 'cl) for emacs19.
-;;
-;; Revision 1.51  1998/06/03 16:03:02  hhg
-;; Added proof-goto-end-of-locked-interactive as old
-;; proof-goto-end-of-locked, and proof-goto-end-of-locked now doesn't
-;; switch buffer.
-;;
-;; Added code in proof-steal-process to handle case of stealing script
-;; management from a killed buffer.
-;;
-;; Set proof-active-buffer-fake-minor-mode to nil in
-;; proof-restart-script.
-;;
-;; Revision 1.50  1998/06/02 15:35:19  hhg
-;; Generalized proof-retract-target, now parameterized by
-;; proof-count-undos and proof-find-and-forget.
-;; Generalized proof-shell-analyse-structure, introduced variable
-;; proof-analyse-using-stack.
-;; Generalized proof menu plus ancillary functions.
-;; Generalized proof-mode-version-string.
-;; Removed emacs-version-at-least.
-;; Removed comment about buffer-display-table.
-;; Moved various comments into documentation string.
-;; Fixed another mode-line command for emacs19.
-;;
-;; Revision 1.49  1998/05/29 13:29:03  tms
-;; fixed a bug in `proof-goto-end-of-locked-if-pos-not-visible-in-window'
-;;
-;; Revision 1.48  1998/05/29 09:50:01  tms
-;; o outsourced indentation to proof-indent
-;; o support indentation of commands
-;; o replaced test of Emacs version with availability test of specific
-;;   features
-;; o C-c C-c, C-c C-v and M-tab is now available in all buffers
-;;
-;; Revision 1.47  1998/05/26 10:46:13  hhg
-;; Removed commented code in proof-dont-show-annotations
-;; proof-done-trying deletes the spans that were created
-;;
-;; Revision 1.46  1998/05/23 12:50:44  tms
-;; improved support for Info
-;;   o employed `Info-default-directory-list' rather than
-;;     `Info-directory-list' so that code also works for Emacs 19.34
-;;   o setting of `Info-default-directory-list' now at proof level
-;;
-;; Revision 1.45  1998/05/22 09:46:58  tms
-;; fixed a bug in proof-frob-locked-end
-;;
-;; Revision 1.44  1998/05/21 17:34:31  hhg
-;; Made proof-locked-span and proof-queue-span buffer-local.
-;; Changed some if's without then-clauses to and's.
-;; Removed (proof-detach-segments) from (proof-steal-process)
-;; 	This is the bug that made changing buffers fail in emacs19:
-;; 	the segments had already been detached.
-;; Check if we're in proof buffer for proof-frob-locked-end.
-;; Force mode-line update for emacs19 in proof-active-terminator-minor-mode.
-;;
-;; Revision 1.43  1998/05/19 15:30:03  hhg
-;; Changed proof-indent-line code so that it doesn't modify buffer if
-;; nothing is changed.
-;; Changed proof-indent-region code so that the endpoints of the region
-;; being indented change as indentation is done: it was infinite looping
-;; because the end could never be reached.
-;;
-;; Revision 1.42  1998/05/15 16:23:53  hhg
-;; Dependencies on versions of emacs have been moved to span-extent.el
-;; and span-overlay.el.  Definitions of proof-queue-span and
-;; proof-locked-span now in proof.el.
-;;
-;; Changed variable names [s]ext to span.
-;;
-;; Revision 1.41  1998/05/12 14:53:14  hhg
-;; Added hook `proof-shell-insert-hook', to replace `proof-shell-config'.
-;;
-;; Revision 1.40  1998/05/08 17:10:11  hhg
-;; Made separated indentation more elegant:
-;; Made proof-assistant specific code into separate procedure,
-;; 	proof-parse-indent.
-;; Separated consideration of {}'s so it only happens for LEGO.
-;;
-;; Revision 1.39  1998/05/08 15:41:32  hhg
-;; Merged indentation code for LEGO and Coq into proof.el.
-;;
-;; Fixed problem with active terminator mode: [proof-terminal-char] isn't
-;; the same as (vector proof-terminal-char).
-;;
-;; Revision 1.38  1998/05/06 16:39:42  hhg
-;; Fixed bug with inserting commands and proof-shell-config.
-;;
-;; Revision 1.37  1998/05/06 15:57:38  hhg
-;; Removed proof-dependencies-emacs19 for the moment, since not having it
-;; introduces error messages.
-;; Put cd before init in proof-shell-config-done (this won't work for
-;; Coq).
-;;
-;; Revision 1.36  1998/05/05 14:27:33  hhg
-;; Updated to include changes for emacs19.
-;; Also includes some changes for "Definition" problem in Coq, where
-;; Definition couldn't be used for proof scripts.
-;; Finally, modified proof-dependencies-xemacs code to fix problem that
-;; undoing to (point-min) meant you couldn't type at first character.
-;;
-;; Revision 1.35  1998/03/25 17:30:28  tms
-;; added support for etags at generic proof level
-;;
-;; Revision 1.34  1998/03/24 17:26:15  tms
-;; *** empty log message ***
-;;
-;; Revision 1.33  1998/01/16 15:40:31  djs
-;; Commented the code of proof.el and lego.el a bit. Made a minor change
-;; to the way errors are handled, so that any delayed output is inserted
-;; in the buffer before the error message is printed.
-;;
-;; Revision 1.32  1998/01/15 12:23:57  hhg
-;; Updated method of defining proof-shell-cd to be consistent with other
-;; proof-assistant-dependent variables.
-;; Added ctrl-button1 to copy selected region to end of locked region
-;;
-;; Revision 1.31  1998/01/12 11:07:53  tms
-;; o added support for remote proof processes
-;; o bound C-c C-z to 'proof-frob-locked-end
-;;
-;; Revision 1.30  1998/01/05 15:01:31  tms
-;; improved fume support
-;;
-;; Revision 1.29  1997/12/18 13:16:41  tms
-;; o introduced proof-shell-handle-error-hook and bount it by default to
-;;   proof-goto-end-of-locked-if-pos-not-visible-in-window (also new)
-;;
-;; o proof-find-next-terminator now also works inside a locked region
-;;
-;; o implemented proof-process-buffer which is by default bount to C-c C-b
-;;
-;; Revision 1.28  1997/11/26 14:19:45  tms
-;; o The response buffer focusses on the first goal
-;; o If proof-retract-until-point is is invoked outside a locked region,
-;;   the last successfully processed command is undone.
-;; o Added support for func-menu
-;;
-;; Revision 1.27  1997/11/24 19:15:16  djs
-;; Added proof-execute-minibuffer-cmd and scripting minor mode.
-;;
-;; Revision 1.26  1997/11/20 16:47:48  hhg
-;; Added proof-global-p to test whether a 'vanilla should be lifted above
-;; active lemmas.
-;; Separated proof-lift-global as separate command to lift global
-;; declarations above active lemmas.
-;; Fixed usual problem that 'cmd is nil for comments in this code.
-;; Made lifting globals start from beginning of file rather than go
-;; backwards.
-;; Fixed bug in pbp code proof-shell-analyse-structure, where stack
-;; wasn't cleared for new goal-hyp's.
-;;
-;; Revision 1.25  1997/11/17 17:11:21  djs
-;; Added some magic commands: proof-frob-locked-end, proof-try-command,
-;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
-;; Changed the key mapping for assert-until-point to C-c RET.
-;;
-;; Revision 1.24  1997/11/13 10:23:49  hhg
-;; Includes commented code for Coq version of extent protocol
-;;
-;; Revision 1.23  1997/11/10 18:36:21  djs
-;; Started modifications for emacs19 port.
-;;
-;; Revision 1.22  1997/11/10 15:51:09  djs
-;; Put in a workaround for a strange bug in comint which was finding a bunch
-;; of ^G's from comint-get-old-input for some inexplicable reason. THIS IS
-;; STILL BROKEN AND A BUG REPORT HAS BEEN SUBMITTED TO XEMACS.ORG
-;;
-;; Revision 1.21  1997/11/06 16:56:59  hhg
-;; Parameterize by proof-goal-hyp-fn in pbp-make-top-span, to handle
-;; Coq goals which start with text rather than simply ?n
-;;
-;; Updated 'let (ap 0)' in proof-shell-analyse structure, to be slightly
-;; more compatible with Coq pbp code
-;;
-;; Revision 1.20  1997/10/31 15:11:28  tms
-;; o implemented proof-find-next-terminator available via C-c C-e
-;; o fixed a bug in proof-done-retracting
-;;
-;; Revision 1.19  1997/10/30 15:58:33  hhg
-;; Updates for coq, including:
-;; 	* pbp-goal-command and pbp-hyp-command use proof-terminal-string
-;; 	* updates to keywords
-;; 	* fix for goal regexp
-;;
-;; Revision 1.18  1997/10/24 14:51:13  hhg
-;; Updated comment about span types
-;;
-;; Revision 1.17  1997/10/22 16:43:54  hhg
-;; Updated proof-segment-up-to to take ""'s into account
-;; Hence, << Cd "../x". >> works in Coq, and
-;;        << echo "hello; world"; >> should work in LEGO
-;; But maybe we don't want "Cd"'s at all...
-;;
-;; Revision 1.16  1997/10/17 15:15:57  djs
-;; proof-active-terminator inside comment case fixed. Also maybe the
-;; continuous pbp-buffer update bug.
-;;
-;; Revision 1.15  1997/10/17 14:38:33  tms
-;; fixed a bug in proof-process-active-terminator. Notice that it still
-;; doesn't work when you are inside a comment and press the
-;; proof-terminal-char
-;;
-;; Revision 1.14  1997/10/16 14:12:04  djs
-;; Figured out display tables.
-;;
-;; Revision 1.13  1997/10/16 08:48:56  tms
-;; merged script management (1.10.2.18) with main branch
-;;
-;; Revision 1.10.2.18  1997/10/14 19:30:55  djs
-;; Bug fixes for comments.
-;;
-;; Revision 1.10.2.17  1997/10/14 17:30:15  djs
-;; Fixed a bunch of bugs to do with comments, moved annotations out-of-band
-;; to exploit a feature which will exist in XEmacs 20. (One day there *will
-;; be* lemon-scented paper napkins). Added code to detect failing imports.
-;;
-;; Revision 1.10.2.16  1997/10/10 19:24:33  djs
-;; Attempt to create a fresh branch because of Attic-Attack.
-;;
-;; Revision 1.10.2.15  1997/10/10 19:20:01  djs
-;; Added multiple file support, changed the way comments work, fixed a
-;; few minor bugs, and merged in coq support by hhg.
-;;
-;; Revision 1.10.2.13  1997/10/07 13:27:51  hhg
-;; New structure sharing as much as possible between LEGO and Coq.
-;;
-;; Revision 1.10.2.12  1997/10/03 14:52:53  tms
-;; o Replaced (string= "str" (substring cmd 0 n))
-;;         by (string-match "^str" cmd)
-;;   The latter doesn't raise an exception if cmd is too short
-;;
-;; o lego-count-undos: now depends on lego-undoable-commands-regexp
-;;                     with special treatment of Equiv
-;;
-;; Revision 1.10.2.11  1997/09/19 11:23:23  tms
-;; o replaced ?\; by proof-terminal-char
-;; o fixed a bug in proof-process-active-terminator
-;;
-;; Revision 1.10.2.10  1997/09/12 12:33:41  tms
-;; improved lego-find-and-forget
-;;
-;; Revision 1.10.2.9  1997/09/11 15:39:19  tms
-;; fixed a bug in proof-retract-until-point
-;;
 
 (require 'cl)
 (require 'compile)
@@ -313,7 +34,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defconst proof-mode-version-string
-  "PROOF-MODE. ALPHA Version 2 (June 1998) LEGO Team <lego@dcs.ed.ac.uk>")
+  "PROOF-MODE. ALPHA Version 2 (August 1998) LEGO Team <lego@dcs.ed.ac.uk>")
 
 (defvar proof-assistant ""
   "Name of the proof assistant")
@@ -339,6 +60,21 @@
   "*If t, you will be asked which program to run when the inferior
  process starts up.")
 
+(defvar proof-shell-process-output-system-specific nil
+  "*Errors, start of proofs, abortions of proofs and completions of
+  proofs are recognised in the function `proof-shell-process-output'.
+  All other output from the proof engine is simply reported to the
+  user in the RESPONSE buffer.
+
+  To catch further special cases, set this variable to a tuple of
+  functions '(condf . actf). Both are given (cmd string) as arguments.
+  `cmd' is a string containing the currently processed command.
+  `string' is the response from the proof system. To change the
+  behaviour of `proof-shell-process-output', (condf cmd string) must
+  return a non-nil value. Then (actf cmd string) is invoked. See the
+  documentation of `proof-shell-process-output' for the required
+  output format.")
+ 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Other buffer-local variables used by proof mode                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1047,12 +783,18 @@
 	 (and pos (set-window-point
 		   (get-buffer-window proof-pbp-buffer t) pos)))))
 
-;;   The basic output processing function - it can return one of 4  ;;  
-;;   things: 'error, 'interrupt, 'loopback, or nil. 'loopback means ;;
-;;   this was output from pbp, and should be inserted into the      ;;
-;;   script buffer and sent back to the proof assistant             ;;
+           
 
 (defun proof-shell-process-output (cmd string)
+  "Deals with errors, start of proofs, abortions of proofs and
+  completions of proofs. All other output from the proof engine is
+  simply reported to the user in the RESPONSE buffer. To extend this
+  function, set `proof-shell-process-output-system-specific'.
+
+  The basic output processing function - it can return one of 4  
+  things: 'error, 'interrupt, 'loopback, or nil. 'loopback means this
+  was output from pbp, and should be inserted into the script buffer
+  and sent back to the proof assistant."
   (cond 
    ((string-match proof-shell-error-regexp string)
     (cons 'error (proof-shell-strip-annotations 
@@ -1085,8 +827,14 @@
       (setq end (- (match-beginning 0) 1))
       (cons 'loopback (substring string start end))))
    
-   ((string-match "^Module" cmd)
-    (setq proof-shell-delayed-output (cons 'insert "Imports done!")))
+   ;; hook to tailor proof-shell-process-output to a specific proof
+   ;; system  
+   ((and proof-shell-process-output-system-specific
+	 (funcall (car proof-shell-process-output-system-specific)
+		  cmd string))
+    (funcall (cdr proof-shell-process-output-system-specific)
+	     cmd string))
+
 
    (t (setq proof-shell-delayed-output (cons 'insert string)))))
          
