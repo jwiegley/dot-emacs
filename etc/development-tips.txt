@@ -1,0 +1,11 @@
+Some Emacs Resources
+====================
+
+Emacs Wiki:
+
+ http://www.emacswiki.org
+
+Mailing list archives:
+
+ http://mail.gnu.org/archive/html/emacs-devel/
+
