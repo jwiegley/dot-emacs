@@ -117,6 +117,7 @@ You can use customize to set this variable."
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$\\|\\.v8$\\|\\.v7$")
     (phox	"PhoX"		"\\.phx$")
+    (ccc        "CASL Consistency Checker"  "\\.ccc$")
     ;; The following provers are not fully supported, and have only
     ;; preliminary support written (please volunteer to improve them!)
     (hol98	"HOL"		"\\.sml$")
