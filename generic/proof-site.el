@@ -13,6 +13,26 @@
       (defvar sym val doc))
     (defmacro group (sym mems doc &rest args)))
 
+;; Master table of supported assistants.
+(defconst proof-general-supported-assistants
+  '((isa	"Isabelle"	"\\.ML$\\|\\.thy$")
+    (lego	"LEGO"		"\\.l$")
+    (coq	"Coq"		"\\.v"))
+  "Table of supported proof assistants.
+Each entry is a list of the form
+
+    (SYMBOL NAME AUTOLOAD-REGEXP)
+
+The NAME is a string, naming the proof assistant.
+The SYMBOL is used to form the name of the mode for the
+assistant, `SYMBOL-mode`, run when files with AUTOLOAD-REGEXP
+are loaded.  It is also used to form the name of the
+directory and elisp file for the mode, which will be
+ 
+    <proof-home>/SYMBOL/SYMBOL.el
+
+where `<proof-home>/' is the value of the variable proof-home.")
+
 (defgroup proof-general nil
   "Customization of generic parameters for Proof General."
   :group 'external
@@ -52,26 +72,6 @@ You can use customize to set this variable."
 	  (append 
 	   Info-default-directory-list 
 	   (list proof-info-dir))))
-
-(defconst proof-general-supported-assistants
-  '((isa	"Isabelle"	"\\.ML$\\|\\.thy$")
-    (lego	"LEGO"		"\\.l$")
-    (coq	"Coq"		"\\.v")
-    (myass	"myass"		"\\.myass"))
-  "Table of supported proof assistants.
-Each entry is a list of the form
-
-    (SYMBOL NAME AUTOLOAD-REGEXP)
-
-The NAME is a string, naming the proof assistant.
-The SYMBOL is used to form the name of the mode for the
-assistant, `SYMBOL-mode`, run when files with AUTOLOAD-REGEXP
-are loaded.  It is also used to form the name of the
-directory and elisp file for the mode, which will be
- 
-    <proof-home>/SYMBOL/SYMBOL.el
-
-where `<proof-home>/' is the value of the variable proof-home.")
 
 (defcustom proof-assistants
   (mapcar (lambda (astnt) (car astnt)) proof-general-supported-assistants)
