@@ -5,6 +5,10 @@
 
 
 ;; $Log$
+;; Revision 1.43  1998/05/08 17:09:13  hhg
+;; Made separated indentation more elegant.
+;; 	Separated consideration of {}'s so it only happens for LEGO.
+;;
 ;; Revision 1.42  1998/05/08 15:36:41  hhg
 ;; Merged indentation code for LEGO and Coq into proof.el.
 ;;
@@ -526,6 +530,12 @@
 	(goto-char (nth 1 (car stack)))
 	(1+ (current-column))))))
 
+(defun lego-parse-indent (c stack)
+  (cond
+   ((eq c ?\{) (cons (list c (point)) stack))
+   ((eq c ?\}) (cdr stack))
+   (t stack)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Lego shell startup and exit hooks                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -570,6 +580,7 @@
         proof-goal-hyp-fn 'lego-goal-hyp
 	proof-state-preserving-p 'lego-state-preserving-p
 	proof-global-p 'lego-global-p
+	proof-parse-indent 'lego-parse-indent
 	proof-stack-to-indent 'lego-stack-to-indent)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
