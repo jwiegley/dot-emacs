@@ -133,9 +133,10 @@ proof-script-next-entity-regexps, which see."
 
 (deflocal proof-locked-span nil
   "The locked span of the buffer.
-Each script buffer has its own locked span, which may be detached.
+Each script buffer has its own locked span, which may be detached
+from the buffer.
 Proof General allows buffers in other modes also to be locked;
-these also have span regions.")
+these also have a non-nil value for this variable.")
 
 ;; FIXME da: really we only need one queue span rather than one per
 ;; buffer, but I've made it local because the initialisation occurs in
@@ -144,7 +145,7 @@ these also have span regions.")
 ;; another buffer has a non-empty queue region being processed.
 
 (deflocal proof-queue-span nil
-  "The queue span of the buffer.")
+  "The queue span of the buffer.  May be detached if inactive or empty.")
 
 ;; FIXME da: really the queue region should always be locked strictly.
 
@@ -875,7 +876,6 @@ scripting."
   (interactive)
   (unless ignore-proof-process-p 
     (proof-shell-ready-prover)
-    ;; FIXME: check this
     (proof-activate-scripting))
   (let ((semis))
     (save-excursion
@@ -1436,16 +1436,16 @@ No action if BUF is nil."
   '("Buffers"
     ["Active scripting"
      (proof-switch-to-buffer proof-script-buffer)
-     :active proof-script-buffer]
+     :active (buffer-live-p proof-script-buffer)]
     ["Goals"
      (proof-switch-to-buffer proof-pbp-buffer t)
-     :active proof-pbp-buffer]
+     :active (buffer-live-p proof-pbp-buffer)]
     ["Response"
      (proof-switch-to-buffer proof-response-buffer t)
-     :active proof-response-buffer]
+     :active (buffer-live-p proof-response-buffer)]
     ["Shell"
      (proof-switch-to-buffer proof-shell-buffer)
-     :active (proof-shell-live-buffer)])
+     :active (buffer-live-p proof-shell-buffer)])
   "Proof General buffer menu.")
 
 (defvar proof-shared-menu
@@ -1457,6 +1457,9 @@ No action if BUF is nil."
      ["Display proof state"
       proof-prf
       :active (proof-shell-live-buffer)]
+     ["Start proof assistant"
+      proof-shell-start
+      :active (not (proof-shell-live-buffer))]
      ["Restart scripting"
       proof-shell-restart
       :active (proof-shell-live-buffer)]
