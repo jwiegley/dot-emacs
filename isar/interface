@@ -104,7 +104,7 @@ else
 fi
 
 
-ARGS="$ARGS -l $PROOFGENERAL_HOME/isar/interface-setup.el"
+ARGS="$ARGS -l $PROOFGENERAL_HOME/isa/interface-setup.el"
 ARGS="$ARGS -l $PROOFGENERAL_HOME/generic/proof-site.el"
 
 for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \

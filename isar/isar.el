@@ -59,7 +59,7 @@
 ;;; 'isabelle-isar-config  -  Configuration of Isabelle/Isar Proof General
 ;;;	   		      (constants, but may be nice to tweak)
 
-(defcustom isabelle-isar-prog-name "isabelle"
+(defcustom isabelle-prog-name "isabelle"
   "*Name of program to run Isabelle/Isar."
   :type 'file
   :group 'isabelle-isar)
@@ -539,7 +539,7 @@ proof-shell-retract-files-regexp."
     ans))
 
 (defun isar-pre-shell-start ()
-  (setq proof-prog-name		isabelle-isar-prog-name)
+  (setq proof-prog-name		isabelle-prog-name)
   (setq proof-mode-for-shell    'isar-shell-mode)
   (setq proof-mode-for-goals	'isar-goals-mode)
   (setq proof-mode-for-response 'isar-response-mode))
