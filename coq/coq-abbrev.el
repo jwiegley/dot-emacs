@@ -69,6 +69,7 @@
 		("he" "Hint Extern # # => # : #." holes-abbrev-complete 0)
 		("hi" "Hint Immediate # : #." holes-abbrev-complete 0)
 		("hr" "Hint Resolve # : #." holes-abbrev-complete 0)
+		("hrw" "Hint Rewrite [#] in # using #." holes-abbrev-complete 0)
 		("hs" "Hints # : #." holes-abbrev-complete 0)
 		("hu" "Hint Unfold # : #." holes-abbrev-complete 0)
 		("i" "intro #" holes-abbrev-complete 10)
