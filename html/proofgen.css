@@ -16,7 +16,7 @@ p{
  color: #FFFFFF;			       /* so we must set every tag */
 }
 pre{
- font-family: LucidaTypewriter, mono;
+ font-family: LucidaTypewriter, monospace;
  color: #FFFFFF;
 }
 h1{
