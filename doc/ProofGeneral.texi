@@ -3321,9 +3321,9 @@ definitions of tactics, proof procedures, etc.  So ML files are the
 normal domain of Proof General.  But there are some things to be wary
 of.
 
-Proof General does not understand full ML syntax(!), so ideally you
-should only use Proof General's scripting commands on @file{.ML} files
-which contain proof commands (no ML functions, structures, etc).
+Proof General does not understand full ML syntax, so ideally you should
+only use Proof General's scripting commands on @file{.ML} files which
+contain proof commands (no ML functions, structures, etc).
 
 If you do use files with Proof General which declare functions,
 structures, etc, you should be okay provided your code doesn't include
@@ -3371,10 +3371,10 @@ In the last case, when you undo, Proof General wrongly considers the
 @code{val} declaration to be a proof step, and it will issue an
 @code{undo} to Isabelle to undo it.  This leads to a loss of
 synchronization.  To fix things when this happens, simply retract to
-some point before the @code{Goal} command and fix your script.
+some point before the @code{Goal} command and rearrange your script.
 
 Having ML as a top-level, Isabelle even lets you redefine the entire
-proof command language, which will certainly confuse Proof General!
+proof command language, which will certainly confuse Proof General.
 Stick to using the standard functions, tactics, and tacticals and there
 should be no problems.  (In fact, there should be no problems provided
 you don't use your own "goal" or "qed" forms, which Proof General
