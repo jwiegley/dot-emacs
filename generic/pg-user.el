@@ -426,7 +426,7 @@ BODY defaults to CMDVAR, a variable."
 ;;;###autoload
 (defmacro proof-define-assistant-command-witharg (fn doc cmdvar prompt &rest body)
   "Define command FN to prompt for string CMDVAR to proof assistant.
-CMDVAR is a function or string.  Automatically has history."
+CMDVAR is a variable holding a function or string.  Automatically has history."
   `(progn
      (defvar ,(intern (concat (symbol-name fn) "-history")) nil
        ,(concat "History of arguments for " (symbol-name fn) "."))
