@@ -104,12 +104,6 @@
 ;;   Indentation                                                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst isar-indent-regexp (proof-ids-to-regexp isar-keywords-indent))
-(defconst isar-indent-open-regexp (proof-ids-to-regexp isar-keywords-indent-open))
-(defconst isar-indent-close-regexp (proof-ids-to-regexp isar-keywords-indent-close))
-(defconst isar-indent-enclose-regexp (proof-ids-to-regexp isar-keywords-indent-enclose))
-(defconst isar-indent-reset-regexp (proof-ids-to-regexp isar-keywords-indent-reset))
-
 (defun isar-stack-to-indent (stack)
   (cond
    ((null stack) 0)
@@ -205,7 +199,7 @@
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-goal-with-hole-regexp
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
-   proof-indent-commands-regexp	"$^" ;FIXME isar-indent-regexp
+   proof-indent-commands-regexp	"$^"
    ;; proof engine commands
    proof-showproof-command	"pr"
    proof-goal-command		"lemma \"%s\";"
@@ -491,17 +485,6 @@ proof-shell-retract-files-regexp."
 
 (defvar isar-current-goal 1
   "Last goal that emacs looked at.")
-
-;; Parse proofstate output.  Isabelle does not display
-;; named hypotheses in the proofstate output:  they
-;; appear as a list in each subgoal.  Ignore
-;; that aspect for now and just return the
-;; subgoal number.
-;; MMW FIXME: ??
-; da: should be safe to remove this now.
-; (defun isar-goal-hyp ()
-;  (if (looking-at proof-shell-goal-regexp)
-;      (cons 'goal (match-string 1))))
 
 (defun isar-state-preserving-p (cmd)
   "Non-nil if command preserves the proofstate."
