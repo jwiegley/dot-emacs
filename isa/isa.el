@@ -2,7 +2,7 @@
 ;; Copyright (C) 1993-2000 LFCS Edinburgh, David Aspinall.
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Contact:     isa@proofgeneral.org
 ;;
 ;; $Id$
 ;;
@@ -17,11 +17,11 @@
 
 ;; Add Isabelle image onto splash screen
 ;;
-(customize-set-variable
- 'proof-splash-extensions
- '(list
-   nil
-   (proof-splash-display-image "isabelle_transparent" t)))
+;; (don't use customize-set-variable since it will be saved with options!)
+(setq proof-splash-extensions
+      '(list
+	nil
+	(proof-splash-display-image "isabelle_transparent" t)))
 
 ;; In case Isa mode was invoked directly or by -*- isa -*- at
 ;; the start of the file, ensure that Isa mode is used from now
