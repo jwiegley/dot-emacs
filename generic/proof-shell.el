@@ -1447,18 +1447,15 @@ before and after sending the command."
   (if wait (proof-shell-wait)))
 
 
-  
-  
-
 
 
 
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Proof General shell mode definition				    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Proof General shell mode definition
+;;
 
 
 ;;###autoload
