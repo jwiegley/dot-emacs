@@ -297,9 +297,9 @@ dist:
 	(cd $(DISTBUILDIR)/$(RELEASENAME); $(DEVELMAKE) alldist)
 	(cd $(DISTBUILDIR)/$(RELEASENAME); $(DEVELMAKE) clean)
 	@echo "*************************************************"
-	@echo " Copying doc files .."
-	@echo "*************************************************"
-	(cp -pr $(DISTBUILDIR)/$(RELEASENAME)/doc $(DISTBUILDIR))
+#	@echo " Copying doc files .."
+#	@echo "*************************************************"
+#	(cp -pr $(DISTBUILDIR)/$(RELEASENAME)/doc $(DISTBUILDIR))
 	@echo "*************************************************"
 	@echo " Moving html files .."
 	@echo "*************************************************"
