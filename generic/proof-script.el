@@ -160,7 +160,8 @@ Otherwise make span give a warning message on edits."
 ;;  )
 
 (defun proof-init-segmentation ()
-  "Initialise the spans in a proof script buffer."
+  "Initialise the queue and locked spans in a proof script buffer.
+No harm if the spans have already been allocated."
   ;; Initialise queue span, remove it from buffer.
   (if (not proof-queue-span)
       (setq proof-queue-span (make-span 1 1)))
@@ -236,12 +237,8 @@ buffer to END."
 (defun proof-unprocessed-begin ()
   "Return end of locked region in current buffer or (point-min) otherwise."
   (or 
-   (and
-      ;; FIXME da: removed this superfluous and bug-causing test: we
-      ;; actually allow locked regions in non script buffers too.  
-      ;; (member (current-buffer) proof-script-buffer-list)
-    proof-locked-span 
-    (span-end proof-locked-span))
+   (and proof-locked-span 
+	(span-end proof-locked-span))
    (point-min)))
 
 ;; da: NEW function added 28.10.98.  This seems more
@@ -251,20 +248,17 @@ buffer to END."
 (defun proof-queue-or-locked-end ()
   "Return the end of the queue region, or locked region, or (point-min).
 This position should be the first writable position in the buffer."
-  (if (member (current-buffer) proof-script-buffer-list)
-      (cond (proof-queue-span
-	     (span-end proof-queue-span))
-	    (proof-locked-span
-	     (span-end proof-locked-span))
-	    (t
-	     (point-min)))))
+  (cond (proof-queue-span
+	 (span-end proof-queue-span))
+	(proof-locked-span
+	 (span-end proof-locked-span))
+	(t
+	 (point-min))))
 	
 (defun proof-locked-end ()
   "Return end of the locked region of the current buffer.
 Only call this from a scripting buffer."
-  (if (member (current-buffer) proof-script-buffer-list)
-      (proof-unprocessed-begin)
-    (error "bug: proof-locked-end called from wrong buffer")))
+  (proof-unprocessed-begin))
 
 (defsubst proof-end-of-queue ()
   "Return the end of the queue region, or nil if none."
@@ -280,8 +274,7 @@ This works for buffers which are not in proof scripting mode too,
 to allow other files loaded by proof assistants to be marked read-only." 
   (save-excursion
     (set-buffer buffer)
-    (let ((instrumented (member buffer proof-script-buffer-list))
-	  (span (make-span (proof-unprocessed-begin) (point-max)))
+    (let ((span (make-span (proof-unprocessed-begin) (point-max)))
 	  cmd)
       (if (eq proof-buffer-type 'script) 
 	  ;; For a script buffer
@@ -291,7 +284,8 @@ to allow other files loaded by proof assistants to be marked read-only."
 	    (let ((cmd-list (member-if
 			     (lambda (entry) (equal (car entry) 'cmd))
 			     (proof-segment-up-to (point)))))
-	      (or instrumented (proof-init-segmentation))
+	      ;; Reset queue and locked regions.
+	      (proof-init-segmentation)
 	      (if cmd-list 
 		  (progn
 		    (setq cmd (second (car cmd-list)))
@@ -306,12 +300,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 		;; command is a module declaration). It should have no
 		;; impact in Isabelle either (because there is no real
 		;; retraction).
-		(set-span-property span 'type 'comment)))
-	    ;; Make sure a new proof script buffer enters the list
-	    ;; of script buffers.
-	    (or instrumented
-		(setq proof-script-buffer-list
-		      (append proof-script-buffer-list (list buffer)))))
+		(set-span-property span 'type 'comment))))
 	;; For a non-script buffer
 	(proof-init-segmentation)
 	(set-span-property span 'type 'comment))
@@ -355,11 +344,10 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  ;; the current scripting buffer, then put an
 	  ;; atomic locked region in it.
 	  (if (and buffer
-		   (if proof-script-buffer-list
+		   (if proof-script-buffer
 		       (not (equal cfile
 				   (file-truename 
-				    (buffer-file-name
-				     (car proof-script-buffer-list)))))
+				    (buffer-file-name proof-script-buffer))))
 		     t))
 	      (proof-mark-buffer-atomic buffer))))))
 
@@ -403,26 +391,27 @@ the hooks `proof-activate-scripting-hook' are run."
     (error "Must be running in a script buffer"))
 
    ;; If the current buffer is the active one there's nothing to do.
-   ((equal (current-buffer) (car-safe proof-script-buffer-list)))
+   ((equal (current-buffer) proof-script-buffer))
 
    ;; Otherwise we need to activate a new Scripting buffer.
    (t
-    (if proof-script-buffer-list
+    (if proof-script-buffer
 	(save-excursion
 	  ;; We're switching from another scripting buffer
 	  ;; to a new one.  Examine the old buffer.
-	  (set-buffer (car proof-script-buffer-list))
+	  (set-buffer proof-script-buffer)
 	    
 	  ;; We only allow switching of the Scripting buffer if the
 	  ;; locked region is either empty or full for all buffers.
 	  ;; FIXME: ponder alternative of trying to complete rest
-	  ;; of current scripting buffer?
+	  ;; of current scripting buffer?  Allowing to switch when
+	  ;; a goal has been completed?
 	  ;; FIXME: this test isn't necessary if the current
 	  ;; buffer was already in proof-script-buffer-list.
 	  (or (proof-locked-region-empty-p)
 	      (proof-locked-region-full-p) ;; should be always t
 	      (error 
-	       "Cannot deal with two unfinished script buffers!"))
+	       "Cannot have more than one active scripting buffer!"))
 	    
 	  (if (proof-locked-region-full-p)
 	      ;; We're switching from a buffer which has been
@@ -435,16 +424,10 @@ the hooks `proof-activate-scripting-hook' are run."
 	  ;; Turn off Scripting in the old buffer.
 	  (setq proof-active-buffer-fake-minor-mode nil)))
 
-    ;; does the new scripting buffer already have a locked region?
-    (if (member (current-buffer) proof-script-buffer-list)
-	;; If so, it must be moved to the head of the list
-	(setq proof-script-buffer-list
-	      (remove (current-buffer) proof-script-buffer-list))
-      ;; If not, initialise the spans.
-      (proof-init-segmentation))
-
-    (setq proof-script-buffer-list
-	  (cons (current-buffer) proof-script-buffer-list))
+    ;; Set the active scripting buffer, and initialise the 
+    ;; queue and locked regions.
+    (setq proof-script-buffer (current-buffer))
+    (proof-init-segmentation)
 
     ;; Turn on the minor mode, run hooks.
     (setq proof-active-buffer-fake-minor-mode t)
@@ -509,9 +492,10 @@ the hooks `proof-activate-scripting-hook' are run."
 ;; FIXME da: these next two functions slightly different, why?
 ;; (unprocessed-begin vs proof-locked-end)
 (defun proof-goto-end-of-locked-interactive ()
-  "Jump to the end of the locked region."
+  "Switch to proof-script-buffer and jump to the end of the locked region.
+Must be an active scripting buffer."
   (interactive)
-  (switch-to-buffer (car proof-script-buffer-list))
+  (switch-to-buffer proof-script-buffer)
   (goto-char (proof-locked-end)))
 
 (defun proof-goto-end-of-locked ()
@@ -524,12 +508,12 @@ the hooks `proof-activate-scripting-hook' are run."
 
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of it.
-A possible hook function for proof-shell-handle-error-hook."
+A possible hook function for proof-shell-handle-error-hook.
+Must be an active script buffer."
   (interactive)
-  (let* ((proof-script-buffer (car proof-script-buffer-list))
-	 (pos (save-excursion
-	       (set-buffer proof-script-buffer)
-	       (proof-locked-end))))
+  (let* ((pos (save-excursion
+		(set-buffer proof-script-buffer)
+		(proof-locked-end))))
     (or (pos-visible-in-window-p pos (get-buffer-window
 				      proof-script-buffer t))
         (proof-goto-end-of-locked-interactive))))
@@ -1090,7 +1074,7 @@ the proof script."
   (interactive)
   (if (not (proof-shell-live-buffer))
       (error "Proof Process Not Started!"))
-  (if (not (member (current-buffer) proof-script-buffer-list))
+  (if (not (eq (current-buffer) proof-script-buffer))
       (error "Don't own process!"))
   (if (not proof-shell-busy)
       (error "Proof Process Not Active!"))
@@ -1127,22 +1111,36 @@ the proof script."
   (proof-assert-until-point))
 
 (defun proof-restart-buffer (buffer)
-  "Remove all extents in BUFFER and update `proof-script-buffer-list'.
-No effect if BUFFER is nil."
+  "Remove all extents in BUFFER and maybe reset `proof-script-buffer'.
+No effect if BUFFER is nil or killed.  
+If BUFFER is current scripting buffer, then proof-script-buffer 
+will be reset."
   (save-excursion
     (if (buffer-live-p buffer)
-	(progn
-	  (set-buffer buffer)
+	(with-current-buffer buffer
 	  (if proof-active-buffer-fake-minor-mode
 	      (setq proof-active-buffer-fake-minor-mode nil))
 	  (delete-spans (point-min) (point-max) 'type)
 	  (proof-detach-segments)))
-    (setq proof-script-buffer-list
-	  (remove buffer proof-script-buffer-list))))
+    (if (eq buffer proof-script-buffer)
+	(setq proof-script-buffer nil))))
 
 (defun proof-restart-buffers (bufferlist)
-  "Remove all extents in BUFFERLIST and update `proof-script-buffer-list'."
+  "Remove all spans in BUFFERLIST and update `proof-script-buffer'."
   (mapcar 'proof-restart-buffer bufferlist))
+
+(defun proof-scripting-buffers ()
+  "Return a list of all script buffers, i.e. those in proof-mode-for-script."
+  (proof-buffers-in-mode proof-mode-for-script))
+
+(defun proof-restart-all-buffers ()
+  "Remove all spans in from scripting buffers and included files."
+  ;; Do both script buffers and included files list because
+  ;; we allow non-script buffers to be locked also.
+  (proof-restart-buffers
+   (mapcar 'proof-file-to-buffer proof-included-files-list))
+  (proof-restart-bufers
+   (proof-buffers-in-mode proof-mode-for-script)))
   
 ;; For when things go horribly wrong
 ;; FIXME: this needs to politely stop the process by sending
@@ -1157,25 +1155,16 @@ No effect if BUFFER is nil."
 Kill off the proof assistant process and remove all markings in the
 script buffers."
   (interactive)
-  ;; First clear any buffers for files on included filelist
-  (proof-restart-buffers
-   (mapcar 'proof-file-to-buffer proof-included-files-list))
-  ;; Now clear any remaining script buffers
-  ;; FIXME da: probably there should be at most the active
-  ;; scripting buffer here.  When proof-script-buffer-list is
-  ;; rationalized, this command can become
-  ;; (proof-restart-buffer proof-active-script-buffer)
-  (proof-restart-buffers proof-script-buffer-list)
-  ;; { (equal proof-script-buffer-list nil) }
-   (setq proof-shell-busy nil
-	 proof-included-files-list nil
-	 proof-shell-proof-completed nil)
-   (if (buffer-live-p proof-shell-buffer) 
-       (kill-buffer proof-shell-buffer))
-   (if (buffer-live-p proof-pbp-buffer)
-       (kill-buffer proof-pbp-buffer))
-   (and (buffer-live-p proof-response-buffer)
-	(kill-buffer proof-response-buffer)))
+  (proof-restart-all-buffers)
+  (setq proof-included-files-nil
+	proof-shell-busy nil
+	proof-shell-proof-completed nil)
+  (if (buffer-live-p proof-shell-buffer) 
+      (kill-buffer proof-shell-buffer))
+  (if (buffer-live-p proof-pbp-buffer)
+      (kill-buffer proof-pbp-buffer))
+  (and (buffer-live-p proof-response-buffer)
+       (kill-buffer proof-response-buffer)))
 
 ;; For when things go not-quite-so-horribly wrong
 ;; FIXME: this may need work, and maybe isn't needed at
@@ -1183,9 +1172,9 @@ script buffers."
 (defun proof-restart-script-same-process ()
   (interactive)
   (save-excursion
-    (if (buffer-live-p (car-safe proof-script-buffer-list))
+    (if (buffer-live-p proof-script-buffer)
 	(progn
-	  (set-buffer (car proof-script-buffer-list))
+	  (set-buffer proof-script-buffer)
 	  (setq proof-active-buffer-fake-minor-mode nil)
 	  (delete-spans (point-min) (point-max) 'type)
 	  (proof-detach-segments)))))
@@ -1200,8 +1189,8 @@ script buffers."
   "Move the end of the locked region backwards. 
 Only for use by consenting adults."
   (cond
-   ((not (member (current-buffer) proof-script-buffer-list))
-    (error "Not in proof buffer"))
+   ((not (eq (current-buffer) proof-script-buffer))
+    (error "Not in active scripting buffer"))
    ((> (point) (proof-locked-end))
     (error "Can only move backwards"))
    (t (proof-set-locked-end (point))
@@ -1231,26 +1220,26 @@ Only for use by consenting adults."
 ;; da: below functions for input history simulation are quick hacks.
 ;; Could certainly be made more efficient.
 
-(defvar proof-command-history nil
-  "History used by proof-previous-matching-command and friends.")
+;(defvar proof-command-history nil
+;  "History used by proof-previous-matching-command and friends.")
 
-(defun proof-build-command-history ()
-  "Construct proof-command-history from script buffer.
-Based on position of point."
-  ;; let
-  )
+;(defun proof-build-command-history ()
+;  "Construct proof-command-history from script buffer.
+;Based on position of point."
+;  ;; let
+;  )
 
-(defun proof-previous-matching-command (arg)
-  "Search through previous commands for new command matching current input."
-  (interactive))
-  ;;(if (not (memq last-command '(proof-previous-matching-command
-  ;; proof-next-matching-command)))
-      ;; Start a new search
+;(defun proof-previous-matching-command (arg)
+;  "Search through previous commands for new command matching current input."
+;  (interactive))
+;  ;;(if (not (memq last-command '(proof-previous-matching-command
+;  ;; proof-next-matching-command)))
+;      ;; Start a new search
       
-(defun proof-next-matching-command (arg)
-  "Search through following commands for new command matching current input."
-  (interactive "p")
-  (proof-previous-matching-command (- arg)))
+;(defun proof-next-matching-command (arg)
+;  "Search through following commands for new command matching current input."
+;  (interactive "p")
+;  (proof-previous-matching-command (- arg)))
 
 ;;
 ;; end command history stuff
@@ -1355,7 +1344,6 @@ Start up the proof assistant if necessary."
 
 
 
-
 ;;; To be called from menu
 (defun proof-menu-invoke-info ()
   "Call info on Proof General."
@@ -1393,8 +1381,8 @@ No action if BUF is nil."
 (defvar proof-buffer-menu
   '("Buffers"
     ["Active scripting"
-     (proof-switch-to-buffer (car-safe proof-script-buffer-list))
-     :active (car-safe proof-script-buffer-list)]
+     (proof-switch-to-buffer proof-script-buffer)
+     :active proof-script-buffer]
     ["Goals"
      (proof-switch-to-buffer proof-pbp-buffer t)
      :active proof-pbp-buffer]
@@ -1520,8 +1508,8 @@ sent to the assistant."
   (make-local-variable 'kill-buffer-hook)
   (add-hook 'kill-buffer-hook
 	    (lambda ()
-	      (setq proof-script-buffer-list
-		    (remove (current-buffer) proof-script-buffer-list))))))
+	      (if (eq (current-buffer) proof-script-buffer)
+		  (setq proof-script-buffer nil))))))
 
 ;; Fixed definitions in proof-mode-map, which don't depend on
 ;; prover configuration.
@@ -1541,8 +1529,9 @@ sent to the assistant."
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) ?c]	  'proof-ctxt)
 (define-key map [(control c) ?h]	  'proof-help)
-(define-key map [(meta p)]		  'proof-previous-matching-command)
-(define-key map [(meta n)]		  'proof-next-matching-command)
+;; FIXME: not implemented yet 
+;; (define-key map [(meta p)]		  'proof-previous-matching-command)
+;; (define-key map [(meta n)]		  'proof-next-matching-command)
 (proof-define-keys map proof-universal-keys))
 
 

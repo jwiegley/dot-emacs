@@ -6,8 +6,7 @@
 ;; $Id$
 ;;
 ;; FIXME: byte compile complains about not knowing
-;; proof-script-buffer-list, proof-goto-end-of-locked,
-;; proof-locked-end
+;; proof-goto-end-of-locked, proof-locked-end
 
 (require 'proof)
 
@@ -33,9 +32,7 @@
 	(end (point)) instring c)
     (save-excursion
       (if (null from)
-	  (if (member (current-buffer) proof-script-buffer-list)
-	      (proof-goto-end-of-locked)
-	    (goto-char 1))
+	  (proof-goto-end-of-locked)
 	(goto-char from)
 	(setq instring (car state)
 	      comment-level (nth 1 state)
@@ -75,8 +72,7 @@
 (defun proof-indent-line ()
   "Indent current line of proof script"
   (interactive)
-  (if (and (member (current-buffer) proof-script-buffer-list)
-	   (< (point) (proof-locked-end)))
+  (if (< (point) (proof-locked-end))
       (if (< (current-column) (current-indentation))
 	  (skip-chars-forward "\t "))
     (save-excursion
@@ -94,8 +90,7 @@
 
 (defun proof-indent-region (start end)
   (interactive "r")
-  (if (and (member (current-buffer) proof-script-buffer-list)
-	   (< (point) (proof-locked-end)))
+  (if (< (point) (proof-locked-end))
       (error "can't indent locked region!"))
   (save-excursion
     (goto-char start)

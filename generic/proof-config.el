@@ -70,7 +70,7 @@
   :type 'boolean
   :group 'proof-general))
 
-(defcustom proof-toolbar-follow-mode 'follow
+(defcustom proof-toolbar-follow-mode 'locked
   "*Choice of how point moves with toolbar commands.
 One of the symbols: locked, follow, ignore.
 If locked, point sticks to the end of the locked region with toolbar commands.

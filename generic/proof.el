@@ -79,11 +79,8 @@ Whenever a new file is being processed, it gets added.
 When the prover retracts across file boundaries, this list 
 is resynchronised. It contains files in canonical truename format")
 
-(defvar proof-script-buffer-list nil
-  "Scripting buffers with locked regions.
-The first element is current and in scripting minor mode.
-The cdr of the list of corresponding file names is a subset of
-`proof-included-files-list'.")
+(defvar proof-script-buffer nil
+  "The currently active scripting buffer or nil if none.")
 
 (defvar proof-shell-buffer nil
   "Process buffer where the proof assistant is run.")
@@ -187,6 +184,18 @@ frame is the one showing the script buffer.)"
   (erase-buffer buffer)
   (if proof-auto-delete-windows
       (delete-windows-on buffer t)))
+
+;; utility function
+(defun proof-buffers-in-mode (mode &optional buflist)
+  "Return a list of the buffers in the buffer list in major-mode MODE.
+Restrict to BUFLIST if it's set."
+  (let ((bufs-left (or buflist (buffer-list))) 
+	bufs-got)
+    (dolist (buf bufs-left bufs-got)
+      (if (with-current-buffer buf (eq mode major-mode))
+	  (setq bufs-got (cons buf bufs-got))))))
+
+
 
 (provide 'proof)
 ;; proof.el ends here

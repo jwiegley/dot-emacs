@@ -310,7 +310,7 @@ Move point if the end of the locked position is invisible."
 ;;
 
 (defun proof-toolbar-retract-enable-p ()
-  (and (member (current-buffer) proof-script-buffer-list)
+  (and (eq (current-buffer) proof-script-buffer)
        (not (proof-locked-region-empty-p))))
 
 (defun proof-toolbar-retract ()

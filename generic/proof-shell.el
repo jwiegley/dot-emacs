@@ -164,7 +164,7 @@ No error messages.  Useful as menu or toolbar enabler."
 	;    (error "Bug in proof-release-lock: Proof process not busy"))
 	; da: Removed this now since some commands run from other
 	; buffers may claim process lock.
-	; (if (not (member (current-buffer) proof-script-buffer-list))
+	; (if (not (eq (current-buffer) proof-script-buffer))
 	; (error "Bug in proof-release-lock: Don't own process"))
   (setq proof-shell-busy nil))
 
@@ -253,7 +253,7 @@ Does nothing if proof assistant is already running."
 	      (set-buffer buffer)
 	      (setq proc (process-name (get-buffer-process)))
 	      (comint-send-eof)
-		(mapcar 'proof-detach-segments proof-script-buffer-list)
+	      (proof-restart-all-buffers)
 	      (kill-buffer))
 	    (run-hooks 'proof-shell-exit-hook)
 
@@ -296,7 +296,7 @@ Does nothing if proof assistant is already running."
   (interactive "e")
   (let* ((span (span-at (mouse-set-point event) 'type))
 	 (str (span-property span 'cmd)))
-    (cond ((and (member (current-buffer) proof-script-buffer-list)
+    (cond ((and (eq (current-buffer) proof-script-buffer)
 		(not (null span)))
 	   (proof-goto-end-of-locked)
 	   (cond ((eq (span-property span 'type) 'vanilla)
@@ -308,7 +308,7 @@ Does nothing if proof assistant is already running."
 	 top-info)
     (if (null top-span) ()
       (setq top-info (span-property top-span 'proof-top-element))
-      (pop-to-buffer (car proof-script-buffer-list))
+      (pop-to-buffer proof-script-buffer)
       (cond
        (span
 	(proof-shell-invisible-command 
@@ -321,8 +321,7 @@ Does nothing if proof assistant is already running."
 	 (format pbp-hyp-command (cdr top-info))))
        (t
 	 (proof-insert-pbp-command
-	  (format pbp-change-goal (cdr top-info))))))
-    ))
+	  (format pbp-change-goal (cdr top-info))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -587,10 +586,10 @@ we call `proof-shell-handle-error-hook'. "
 		  (beep)
 
 		  ;; unwind script buffer
-		  (if proof-script-buffer-list
-		      (set-buffer (car proof-script-buffer-list)))
-		  (proof-detach-queue)
-		  (delete-spans (proof-locked-end) (point-max) 'type)
+		  (if proof-script-buffer
+		      (with-current-buffer proof-script-buffer
+			(proof-detach-queue)
+			(delete-spans (proof-locked-end) (point-max) 'type)))
 		  (proof-release-lock)
 		  (run-hooks 'proof-shell-handle-error-hook)))
 
@@ -603,8 +602,8 @@ we call `proof-shell-handle-error-hook'. "
     (insert-string 
      "Interrupt: Script Management may be in an inconsistent state\n")
     (beep)
-  (if proof-script-buffer-list
-      (set-buffer (car proof-script-buffer-list))))
+    (if proof-script-buffer
+	(set-buffer proof-script-buffer)))
   (if proof-shell-busy
       (progn (proof-detach-queue)
 	     (delete-spans (proof-locked-end) (point-max) 'type)
@@ -769,8 +768,10 @@ Return non-nil if the action list becomes empty; unlock the process
 and removes the queue region.  Otherwise send the next command to the
 proof process."
   (save-excursion
-    (if proof-script-buffer-list
-	(set-buffer (car proof-script-buffer-list)))
+    (if proof-script-buffer 
+	(set-buffer proof-script-buffer)
+    ;; Otherwise what??
+      )
     ;; (if (null proof-action-list) 
     ;;	(error "proof-shell-exec-loop: called with empty proof-action-list."))
     ;; Be more relaxed about calls with empty action list
@@ -801,11 +802,15 @@ proof process."
       ;; Just indicate finished if called with empty proof-action-list.
       t)))
 
+;; FIXME da: some places in the code need to be made robust in
+;; case of buffer kills, etc, before callbacks.  Is this function
+;; one?
 (defun proof-shell-insert-loopback-cmd  (cmd)
   "Insert command sequence triggered by the proof process
-at the end of locked region (after inserting a newline and indenting)."
+at the end of locked region (after inserting a newline and indenting).
+Assume proof-script-buffer is active."
   (save-excursion
-    (set-buffer (car proof-script-buffer-list))
+    (set-buffer proof-script-buffer) 
     (let (span)
       (proof-goto-end-of-locked)
       (newline-and-indent)
@@ -873,8 +878,8 @@ if none of these apply, display."
 	((file (funcall (cdr proof-shell-process-file) message)))
       ;; Special hack: empty string indicates current scripting buffer
       ;; (not used anywhere presently?)
-      (if (and proof-script-buffer-list (string= file ""))
-	  (setq file (buffer-file-name (car proof-script-buffer-list))))
+      (if (and proof-script-buffer (string= file ""))
+	  (setq file (buffer-file-name proof-script-buffer)))
       (if file
 	  (proof-register-possibly-new-processed-file file))))
 
@@ -886,7 +891,7 @@ if none of these apply, display."
 	    (funcall proof-shell-compute-new-files-list message))
       (let
 	  ;; Previously active scripting buffer
-	  ((scrbuf (car-safe proof-script-buffer-list)))
+	  ((scrbuf proof-script-buffer))
 	;; NB: we assume that no new buffers are *added* by
 	;; the proof-shell-compute-new-files-list 
 	(proof-restart-buffers
@@ -897,8 +902,8 @@ if none of these apply, display."
 	 ;; Do nothing if there was no active scripting buffer
 	 ((not scrbuf))
 	 ;; Do nothing if active scripting buffer hasn't changed
-	 ((eq scrbuf (car-safe proof-script-buffer-list))
-	  )
+	 ;; (NB: it might have been nuked)
+	 ((eq scrbuf proof-script-buffer))
 	 ;; FIXME da: I've forgotten the next condition was needed?
 	 ;; 
 	 ;; In fact, it breaks the case that the current scripting
@@ -920,7 +925,7 @@ if none of these apply, display."
 	  ;; to some other buffer, without running change functions.
 	  ;;
 	  ;; FIXME da: test setting this to nil, scary!
-	  (setq proof-script-buffer-list nil)
+	  (setq proof-script-buffer nil)
 	  ;;(setq proof-script-buffer-list 
 	  ;;	(cons scrbuf proof-script-buffer-list))
 	  ;; (save-excursion
