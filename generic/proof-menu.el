@@ -458,13 +458,13 @@ If in three window or multiple frame mode, display two buffers."
 This is intended for defining proof assistant specific functions.
 STRING is inserted using `proof-insert', which see.
 KEY is added onto proof-assistant map."
-  (if key
-      (eval ;; eval-after-load "proof" ?
-       `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
-  `(defun ,fn ()
-     ,(concat "Shortcut command to insert " string " into the current buffer.")
-     (interactive)
-     (proof-insert ,string)))
+  `(progn
+     (if ,key
+	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
+     (defun ,fn ()
+       ,(concat "Shortcut command to insert " string " into the current buffer.")
+       (interactive)
+       (proof-insert ,string))))
 
 ;;;###autoload
 (defmacro proof-definvisible (fn string &optional key)
@@ -472,13 +472,13 @@ KEY is added onto proof-assistant map."
 This is intended for defining proof assistant specific functions.
 STRING is sent using proof-shell-invisible-command, which see.
 KEY is added onto proof-assistant map."
-  (if key
-      (eval ;; eval-after-load "proof" ?
-       `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
-  `(defun ,fn ()
-     ,(concat "Command to send " string " to the proof assistant.")
-     (interactive)
-     (proof-shell-invisible-command ,string)))
+  `(progn
+     (if ,key
+	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
+     (defun ,fn ()
+       ,(concat "Command to send " string " to the proof assistant.")
+       (interactive)
+       (proof-shell-invisible-command ,string))))
 
 (defun proof-def-favourite (command inscript menuname &optional key new)
   "Define and a \"favourite\" proof assisant function.
