@@ -2,6 +2,8 @@
 
 /* PHP3 Functions for Proof General Web Pages
  *
+ * Included in every page.  Prints DTD.
+ *
  * David Aspinall, June 1999.
  *
  * $Id$
@@ -12,7 +14,11 @@
 
 $pg_email = "proofgen@dcs.ed.ac.uk";
 $pg_list = "proofgeneral@dcs.ed.ac.uk";
-$dtd = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n";
+$dtd = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n";
+
+print $dtd;
+
+
 
 $pg_title = "Proof General --- Organize your Proofs!";
 
@@ -39,7 +45,7 @@ function dt($string) {
 /* FIXME: for now, just inline them. */
 
 function footnote ($text) {
-   print "<small><i><p>[" . $text . "]</p></small></i>";
+   print "<p><small><i>[" . $text . "]</i></small></p>";
 }
 
 /* A hyper-link with optional mouse over text.
@@ -123,8 +129,8 @@ function footer($filemodified=".") {
   include('footer.phtml'); 
   date_modified($filemodified);
   print "</address>\n";
+//  print "</font>\n";  /* Naughty stuff for older browsers, shouldn't do if V4 */
   print "</body>\n";
-  print "</font>\n";  /* Naughty stuff for older browsers, shouldn't do if V4 */
   print "</html>\n";
 }
 
