@@ -203,15 +203,6 @@ X pbp code doesn't quite accord with the tech report; in particular it
 
 A fix Pbp implementation (10h; tms)
 
-A Error messages need to be revised e.g., if an import fails, LEGO
-  outputs
-
-    Error in file: search: undefined or out of context: should
-   (* closing file ./blah.l; time= 0.010000  gc= 0.0  sys= 0.0 *)
-   Error: Unwinding to top-level
-
-  but script management only prints the last line. (5h tms)
-
 A release new version of the LEGO proof engine (4h tms)
 
 B Equiv, Next,... aren't handled properly, because LEGO does not
@@ -224,7 +215,8 @@ B LEGO should not issue warning messages triggered by the interactive
     Lego> Module nstderror Import stderror;
     Including module nstderror
     Warning: module name "nstderror" does not equal filename ""!
-    Warning: Interactive use of Module command.
+
+  (15min)
 
 X Mechanism to save object file
 
@@ -313,3 +305,5 @@ A fix INSTALL file, add COPYING note
 A fix branches after renames
 
 A write Makefile targets to build documentation formats, .elc
+
+A write release message

@@ -4,7 +4,7 @@
 @c
 @c %**start of header
 @setfilename proof.info
-@settitle Generic Proof Assistant Mode
+@settitle Proof General Version 2.0
 @paragraphindent 0
 @c %**end of header
 
@@ -13,7 +13,14 @@
 @titlepage
 @sp 10
 @comment The title is printed in a large font.
-@center @titlefont{Generic Proof Assistant Mode}
+@center @titlefont{Proof General Version 2.0}
+@sp 2
+@center Organise your proofs with Emacs!
+@sp 2
+@center D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
+@sp 1
+@center LFCS Edinburgh
+
 
 @c The following two commands start the copyright page.
 @page
@@ -21,17 +28,36 @@
 Copyright @copyright{} 1997, 1998 LEGO Team, LFCS Edinburgh
 @end titlepage
 
-@node    Top, Credits, (dir), (dir)
+@node    Top, Introduction, (dir), (dir)
 @comment node-name, next,          previous, up
 
-A @emph{proof script} is a sequence of commands to a proof assistant.
-Proof mode is a mode designed to be customised for a particular proof
-assistant, to manage communication with a proof process and thereby
-support building and secure editing of proof scripts.  Currently custom
-modes exist for LEGO and Coq.
+@b{Proof General} is a generic Emacs interface for proof assistants. It
+works ideally under XEmacs 20.4, but can also be used with Emacs 19.34.
+It is supplied ready-customised for these proof assistants:
+
+@itemize @bullet
+@item 
+@b{LEGO Proof General} for LEGO Version 1.3.1 (full support)@*
+by Thomas Kleymann and Dilip Sequeira
+@item 
+@b{Coq Proof General} for Coq Version 6.2 (full support)@*
+by Healfdene Goguen
+@item 
+@b{Isabelle Proof General} for Isabelle (preliminary support)@*
+by David Aspinall
+@end itemize
+
+Proof General itself was written by the above with help from Yves Bertot
+and using ideas from Projet CROAP. 
+
+Proof General is suitable for use by pacifists and Emacs lovers alike.
+
+The code for this Emacs mode is designed to be generic, so you can adapt
+the mode to other proof assistants if you know a little bit of Emacs
+Lisp. Please feel free to download Proof General to customize it for
+another system, and tell us how you get on.
 
 @menu
-* Credits::               The people Involved
 * Introduction::          Introduction to Script Management
 * Commands::              Proof mode Commands
 * Multiple Files::        Proof developments spanning several files
@@ -44,22 +70,13 @@ modes exist for LEGO and Coq.
 * Known Problems::        Caveat Emptor
 @end menu
 
-@node Credits, Introduction, Top, Top
-@comment node-name, next,          previous, up
-@unnumberedsec Credits
-
-Inspired by Yves Bertot's Centaur-based proof environment CtCoq, Healf
-Goguen, Thomas Kleymann and Dilip Sequeira have implented a generic
-proof mode for Emacs. The original proof-by-pointing algorithm has been
-implemented by Yves Bertot. This manual was originally written by Dilip
-Sequeira. 
-
-@node Introduction, Commands, Credits, Top
+@node Introduction, Commands, Top, Top
 @comment node-name, next,          previous, up
 @unnumberedsec Introduction
 
-Each script resides in an Emacs buffer, called a @emph{script buffer},
-which is divided into three regions:
+A @strong{Script Buffer} is the primary buffer for developing proof
+scripts. Its major mode is @emph{proof mode}. A script buffer is divided
+into three regions:
 
 @itemize @bullet
 @item The @emph{Locked} region appears in blue (underlined on monochrome
@@ -81,8 +98,21 @@ waiting to be sent to the proof process.
 
 Proof mode has two operations which transfer commands between these
 regions: assertion and retraction. These cause commands to be sent to
-the proof process, and Emacs will summarise the results in the
-@emph{Response Buffer}.
+the proof process. The @emph{Process Buffer} records the complete
+communication between the prover and the Script Buffers. Error messages
+and other important messages are highlighted in the Process Buffer. The
+current proof obligations (if any) are always visible in the @emph{Goals
+Buffer}.
+
+Proof General is generous. It is not a perfect interface and users may
+occasionaly want to freely interact with the prover without being
+watched over by the Proof General. Users may interact @emph{directly}
+with the prover by entering text in the Process Buffer instead of
+invoking commands in a Script Buffer. Proof mode supports a variety of
+means to interact with the prover. Try these first!
+
+
+
 
 @strong{Assertion} causes commands from the editing region to be
 transferred to the queue region and sent one by one to the proof
@@ -138,16 +168,16 @@ you to the active one.
 move the point to the next terminator
 
 @item C-c C-p
-display the proof state in the response buffer
+display the proof state in the goals buffer
 
 @item C-c c
-display the context in the response buffer
+display the context in the process buffer
 
 @item C-c h
-print proof-system specific help text in the response buffer
+print proof-system specific help text in the process buffer
 
 @item C-c C-c
-interrupt the process process. This may leave script management or the
+interrupt the process. This may leave script management or the
 proof process (or both) in an inconsistent state.
 
 @item C-c C-z
@@ -227,7 +257,7 @@ that it will work as discussed in this document.}
 
 Proof by pointing is a facility whereby proof commands can be generated
 by using the mouse to select terms. When proving a goal, a summary of
-the current proof state will appear in the response buffer. By moving
+the current proof state will appear in the goals buffer. By moving
 the mouse over the buffer, the structure of the goal and hypothesis
 terms will be shown by highlighting. 
 
@@ -261,7 +291,7 @@ Asserting this goal will result in the proof state
 ?0 : ((p a \/ q b) /\ @{x:Prop@}(p x)->q x)->Ex ([x:Prop]q x)
 @end example
 
-appearing in the response buffer. Suppose our strategy is to use a 
+appearing in the goals buffer. Suppose our strategy is to use a 
 case analysis on the disjunction, starting with the @samp{p(a)} subterm.
 Clicking on this term will cause script management to insert the following
 command sequence in the script buffer, and execute it.
@@ -272,7 +302,7 @@ Refine or_elim H0 Then Intros H2; Try Refine H2;
 @end example
 
 
-The response buffer will then read 
+The goals buffer will then read 
 
 @example
   H : (p a \/ q b) /\ @{x:Prop@}(p x)->q x
@@ -329,13 +359,13 @@ Then we enter
 
 The command should be lit in pink (or inverse video if you don't have a
 colour display).  As LEGO imports each module, a line will appear in the
-response buffer showing the creation of context marks. Eventually the
+minibuffer showing the creation of context marks. Eventually the
 command should turn blue, indicating that LEGO has successfully
 processed it. Then type (on a separate line if you like)
 
 @samp{Goal bland_commutes: @{A,B:Prop@} (and A B) -> (and B A);}
 
-The goal should be echoed in the response buffer.
+The goal should be echoed in the goals buffer.
 
 @samp{Intros;}
 
@@ -343,7 +373,7 @@ Whoops! @kbd{C-c C-u} to pretend that didn't happen.
 
 @samp{intros; andI;}
 
-A proof summary will appear in the response buffer. We could solve the
+A proof summary will appear in the goals buffer. We could solve the
 goal by pointing now, but we'll stay with the keyboard.
 
 @samp{Refine H; intros; Immed; Refine H; intros; Immed;}
@@ -435,17 +465,50 @@ because the relevant mark is in the namespace.
 
 Fixes for some of these may be provided in a future release.
 
-@node Internals,  , Known Problems, Top
+@node Internals,  Adding New Proof Assistant, Known Problems, Top
 @unnumberedsec Internals
 
-How to add support for a new proof assitant.  Suppose your new assistant is
-called myass.
+@menu
+* Adding New Proof Assistant:: 
+* Literature::                  
+@end menu
+
+@node Adding New Proof Assistant, Literature, Internals, Internals
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsec Adding Support for a New Proof Assistant
+
+Suppose your new assistant is
+called myassistant.
 
 @itemize @minus
-@item Make a directory myass to put the specific customization and associated files in,
-  called myass
+@item Make a directory myassistant to put the specific customization and associated files in,
+  called myassistant
 @item Edit proof-site.el to add a new case to the 'proof-assistant' variable.
 @end itemize
+
+@node Literature, ,Adding New Proof Assistant, Internals
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsec Literature
+
+The current version supports Script Management as documented in: 
+
+@itemize @bullet
+@item
+Yves Bertot and Laurent Th@'ery. A generic approach to building
+user interfaces for theorem provers. To appear in Journal of
+Symbolic Computation.
+@end itemize
+
+It has the beginnings of support for Proof by Pointing, as documented in: 
+
+@itemize @bullet
+@item
+Yves Bertot, Thomas Kleymann-Schreiber and Dilip Sequeira. Implementing
+Proof by Pointing without a
+Structure Editor. LFCS Technical Report ECS-LFCS-97-368. Also published as Rapport de recherche de
+l'INRIA Sophia Antipolis RR-3286 
+@end itemize
+
 
 
 
