@@ -4,6 +4,11 @@ Summary of Changes for Proof General 2.2 from 2.1
 Generic Changes
 ---------------
 
+* New function control-button1 (proof-mouse-track-insert) copies 
+  individual commands (highlighted regions) from an open proof.  
+  When a proof is closed, it behaves as mouse-track-insert
+  (default Emacs behaviour of control-button1).  
+
 * New function C-c C-f (proof-find) to invoke some prover-specific
   mechanism to search for theories.  Also a new toolbar button for it.
 
