@@ -808,13 +808,13 @@ you see a window @c like this:
 containing text like this:
 @lisp
 theory Walkthrough =
-  {ProtoPure, CPure, HOL, Set, Typedef, Fun, Product_Type, Lfp, Gfp,
+  @{ProtoPure, CPure, HOL, Set, Typedef, Fun, Product_Type, Lfp, Gfp,
     Sum_Type, Relation, Record, Inductive, Transitive_Closure,
     Wellfounded_Recursion, Ring_and_Field, Nat, NatArith, Divides, Power,
     Finite_Set, Equiv, IntDef, Datatype_Universe, Datatype, Numeral, Bin,
     IntArith, Wellfounded_Relations, Recdef, IntDiv, NatBin, NatSimprocs,
     SetInterval, Presburger, Relation_Power, Parity, PreList, List, Map,
-    Hilbert_Choice, Infinite_Set, Extraction, Refute, Main, #}
+    Hilbert_Choice, Infinite_Set, Extraction, Refute, Main, #@}
 @end lisp
 (Which gives you some idea of the theories that go to build up @code{Main}!).
 
