@@ -93,6 +93,10 @@
   (append isar-keywords-proof-asm
 	  isar-keywords-proof-asm-goal))
 
+(defconst isar-keywords-local-goal
+  (append isar-keywords-proof-goal
+	  isar-keywords-proof-asm-goal))
+
 (defconst isar-keywords-outline
   (append isar-keywords-theory-begin
 	  isar-keywords-theory-heading
@@ -142,7 +146,7 @@
   (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-goal)))
 
 (defconst isar-local-goal-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-proof-goal)))
+  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-local-goal)))
 
 (defconst isar-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
