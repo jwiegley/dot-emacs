@@ -116,7 +116,8 @@ function small_header_body($title) {
 /*  print "<p>";  FIXME: hack to get CSS to work with bad HTML from texi2html */
 }
 
-/* FIXME: improve this function */
+/* FIXME: remove this function: maybe just set a global variable,
+   or use SCRIPT_NAME, and then include footer.phtml. */
 
 function footer($filemodified=".") {
   include('footer.phtml'); 
