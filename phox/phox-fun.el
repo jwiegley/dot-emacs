@@ -50,6 +50,90 @@
 )
 
 
+;; completions :
+
+(defvar phox-top-keywords
+'(
+"goal"
+"restart"
+"quit"
+"theorem"
+"claim"
+"cst"
+"Cst"
+"def"
+"def_thlist"
+"del"
+"Sort"
+"close_def"
+"edel"
+"new_elim"
+"new_intro"
+"new_rewrite"
+"Data"
+"Inductive"
+"add_path"
+"Import"
+"include"
+"Use"
+"tex_syntax"
+"depend"
+"eshow"
+"flag"
+"path"
+"print"
+"print_sort"
+"priority"
+"search"
+"compile"
+"tdef"
+"eval"
+"output"
+"compile"
+"compute"
+"Local"
+)
+"Names of phox top commands."
+)
+
+(defvar phox-proof-keywords
+'(
+"axiom"
+"elim"
+"intro"
+"intros"
+"apply"
+"by_absurd"
+"from"
+"left"
+"lefts"
+"prove"
+"use"
+"auto"
+"trivial"
+"rewrite"
+"rewrite_hyp"
+"unfold"
+"unfold_hyp"
+"constraints"
+"instance"
+"lock"
+"unlock"
+"goals"
+"after"
+"next"
+"select"
+"local"
+"rename"
+"rmh"
+"slh"
+"abort"
+"save"
+"undo"
+"Try"
+)
+"Name of phox proof commands."
+)
 
 
 
@@ -117,6 +201,122 @@ If inside a comment, just process until the start of the comment."
     (proof-assert-next-command))
    (proof-maybe-follow-locked-end)))
 
+;;--------------------------------------------------------------------------;;
+;; Obtaining some informations on the system.
+;;
+;;--------------------------------------------------------------------------;;
+;; All the commands in section "Obtaining some informations on the
+;; system."  (see cmd_top.tex) are associated to a
+;; function, and appear in the submenu  "State" [pr].
+
+(defun phox-depend-theorem(theorem)
+  "Interactive function : 
+ask for a string and  and send a depend command to PhoX for it.
+
+Gives the list of all axioms which have been used to prove the theorem."
+
+(interactive "stheorem: ")
+(proof-shell-invisible-command (concat "depend " theorem)))
+
+(defun phox-eshow-extlist(extlist)
+  "Interactive function : 
+ask for a string and send an eshow command to PhoX for it. 
+
+Shows the given extension-list.  Possible extension lists are : rewrite
+(the list of rewriting rules introduced by the new_rewrite command),
+elim, intro, (the introduction and elimination rules introduced by the
+new_elim and new_intro {-t} commands), closed (closed definitions
+introduced by the close_def command) and tex (introduced by the
+tex_syntax command)."
+
+(interactive "sextension list: ")
+(proof-shell-invisible-command (concat "eshow " extlist)))
+
+(defun phox-flag-name(name)
+"Interactive function : 
+ask for a string and send a flag command  to PhoX for it.
+
+  Print the value of an internal flag of the
+  system. The different flags are listed in the doc, see flag."
+
+(interactive "sname: ")
+(proof-shell-invisible-command (concat "flag " name)))
+
+
+(defun phox-path()
+"Interactive function : 
+ send a path command to PhoX.
+
+  Prints the list of all paths. This path list is used to find
+  files when using the include command."
+
+
+(interactive)
+(proof-shell-invisible-command  "path"))
+
+(defun phox-print-expression(expr)
+"Interactive function : 
+ask for a string and send a print command  to PhoX for it.
+
+  In case argument expr
+  is a closed expression of the language in use, prints it and gives its
+  sort, gives an (occasionally) informative error message otherwise. In
+  case expr is a defined expression (constant, theorem ...) 
+  gives  the definition."
+
+(interactive "sexpr: ")
+(proof-shell-invisible-command (concat "print " expr)))
+
+(defun phox-print-sort-expression(expr)
+"Interactive function : 
+ask for a string and send a print_sort command  to PhoX for it.
+
+  Similar to print, but gives more information on sorts of bounded
+  variable in expressions."
+
+(interactive "sexpr: ")
+(proof-shell-invisible-command (concat "print_sort " expr)))
+
+
+(defun phox-priority-symbols-list(symblist)
+"Interactive function : 
+ask for a string and send a priority command  to PhoX for it.
+
+  Print the priority of the given symbols. If no symbol are
+  given, print the priority of all infix and prefix symbols.
+."
+
+(interactive "slist of symbols (possibly empty): ")
+(proof-shell-invisible-command (concat "priority" symblist)))
+
+
+(defun phox-search-string(string type)
+  "Interactive function: 
+ask for a string and possibly a type and send a search command to PhoX for it.
+
+ Prints the list of all loaded symbols which have type and whose name
+ contains the string. If no type is given, it prints all symbols whose
+ name contains string."
+
+(interactive 
+"sstring : 
+stype (nothing for any type, 'a as type parameter) :")
+(proof-shell-invisible-command (concat "search \"" string "\" " type)))
+
+(defvar phox-state-menu
+  '("State"
+["dependencies of a theorem" phox-depend-theorem t]
+["show en extension list" phox-eshow-extlist t]
+["value of a flag" phox-flag-name t]
+["list of all paths" phox-path t]
+["print expression" phox-print-expression  t]
+["print expression with sorts" phox-print-sort-expression  t]
+["priority of symbols (all if arg. empty)" phox-priority-symbols-list t]
+["search for loaded symbols matching string" phox-search-string t]
+)
+"Phox menu for informations on state of the system."
+)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;--------------------------------------------------------------------------;;
 ;;
@@ -150,3 +350,4 @@ send a delete command to PhoX for the symbol whose name is under the cursor."
 (provide 'phox-fun)
 
 
+    

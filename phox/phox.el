@@ -33,7 +33,7 @@
   :group 'phox)
 
 (defcustom phox-sym-lock t
-  "*Whether to use phox-sym-lock or not."
+  "*Whether to use sym-lock or not."
   :type 'boolean
   :group 'phox)
 
@@ -83,13 +83,15 @@
 
 (defpgdefault menu-entries
   (cons
-   phox-tags-menu
+   phox-state-menu
    (cons
-    phox-extraction-menu
+    phox-tags-menu
+    (cons
+     phox-extraction-menu
 ;; not useful ?
 ;    '(["Delete symbol around cursor" phox-delete-symbol-around-point t]
 ;    ["Delete symbol" phox-delete-symbol t])
-      nil))
+      nil)))
   )
 
 ;;
@@ -217,6 +219,10 @@
   (setq proof-mode-for-shell    'phox-shell-mode)
   (setq proof-mode-for-response 'phox-response-mode)
   (setq proof-mode-for-goals	'phox-goals-mode))
+
+(set-variable 'phox-completion-table 
+(append phox-top-keywords phox-proof-keywords)
+)
 
 (provide 'phox)
 
