@@ -586,7 +586,7 @@ the form of the menu entry for the setting.")
 ;;; autoload for compiled version: used in macro proof-defpacustom
 ;;;###autoload
 (defun proof-defpacustom-fn (name val args)
-  "As for macro `defpacustom' but evaluation arguments."
+  "As for macro `defpacustom' but evaluating arguments."
   (let (newargs setting evalform type)
     (while args
       (cond 
@@ -614,15 +614,19 @@ the form of the menu entry for the setting.")
     ;; NB: this *may* happen dynamically, but shouldn't: if the
     ;; interface queries the prover for the settings it supports,
     ;; then the internal list should be cleared first.
+    ;; FIXME: for now, we support redefinitions, by calling 
+    ;; pg-custom-undeclare-variable.
     (if (assoc name proof-assistant-settings)
-	(proof-debug "defpacustom: Proof assistanting setting %s re-defined!"
-		     name))
+	(progn
+	  (proof-debug "defpacustom: Proof assistanting setting %s re-defined!"
+		       name)
+	  (undefpgcustom name)))
     ;; Could consider moving the bulk of the remainder of this
     ;; function to a function proof-assistant-setup-settings which
-    ;; defines the custom vals *and* menu entries.   This would
-    ;; allow proof assistant customization to manipulate
-    ;; proof-assistant-settings directly rather than forcing
-    ;; use of defpacustom.  (Probably stay as we are: more abstract)
+    ;; defines the custom vals *and* menu entries.  This would allow
+    ;; proof assistant customization to manipulate
+    ;; proof-assistant-settings directly rather than forcing use of
+    ;; defpacustom.  (Probably stay as we are: more abstract)
     (eval
      `(defpgcustom ,name ,val
 	,@newargs
@@ -721,7 +725,9 @@ NB: variable curvalue is dynamically scoped (used in proof-assistant-format).")
 (defun proof-assistant-format-string (value)
   (funcall proof-assistant-format-string-fn value))
 
-   
+
+
+
 
 
 (provide 'proof-menu)
