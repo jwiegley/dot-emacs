@@ -14,22 +14,23 @@
 ;; Toolbar is just for the scripting buffer, currently.
 ;;
 ;;
-;; TODO:
+;; TODO (minor things):
 ;;
-;; FIXME: edit-toolbar cannot edit proof toolbar (even in a proof mode)
+;; 1. edit-toolbar cannot edit proof toolbar (even in a proof mode)
 ;; Need a variable containing  a specifier or similar.
 ;; (defvar proof-toolbar-specifier nil
 ;;   "Specifier for proof toolbar.")
 ;; This doesn't seem worth fixing until XEmacs toolbar implementation
 ;; settles a bit.  Enablers don't work too well at the moment.
 
-;; FIXME: it's a little bit tricky to add prover-specific items.
-;; We can improve on that by generating everything on-thy-fly
+;; 2. It's a little bit tricky to add prover-specific items:
+;; presently it must be done before this file is loaded.
+;; We could improve on that by generating everything on-thy-fly
 ;; in proof-toolbar-setup.
 
-;; FIXME: consider automatically disabling buttons which are
+;; 3. We could consider automatically disabling buttons which are
 ;; not configured for the prover, e.g. if proof-info-command is
-;; not set, then the Info button should not be show. 
+;; not set, then the Info button should not be shown. 
 
 
 ;;; IMPORT declaration 
@@ -39,46 +40,11 @@
 
 
 ;;
-;; The default generic toolbar and toolbar variable
+;; See `proof-toolbar-entries-default' and
+;;     `<PA>-toolbar-entries' in proof-config
+;; for the default generic toolbar and 
+;; the per-prover toolbar contents variable.
 ;;
-
-(defconst proof-toolbar-entries-default
-  `((state	"Display proof state" "Display the current proof state" t)
-    (context	"Display context"     "Display the current context" t)
-    (goal	"Start a new proof"   "Start a new proof" t)
-    (retract	"Retract buffer"      "Retract (undo) whole buffer" t)
-    (undo	"Undo step"           "Undo the previous proof command" t)
-    (delete	"Delete step"         nil t)
-    (next	"Next step"           "Process the next proof command" t)
-    (use	"Use buffer"  	      "Process whole buffer" t)
-    (goto	"Goto point"	      "Process or undo to the cursor position" t)
-    (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
-    (qed	"Finish proof"     "Close/save proved theorem" t)
-    (lockedend  "Locked end"	   nil t)
-    (find	"Find theorems"	   "Find theorems" t)
-    (command    "Issue command"	   "Issue a non-scripting command" t)
-    (interrupt  "Interrupt prover" "Interrupt the proof assistant (warning: may break synchronization)" t)
-    (info	nil		   "Show online proof assistant information" t)
-    (help	nil		   "Proof General manual" t))
-"Example value for proof-toolbar-entries.  Also used to define Scripting menu.
-This gives a bare toolbar that works for any prover.  To add
-prover specific buttons, see documentation for proof-toolbar-entries
-and the file proof-toolbar.el.")
-
-
-(defpgcustom toolbar-entries proof-toolbar-entries-default
-  "List of entries for Proof General toolbar and Scripting menu.
-Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
-For each TOKEN, we expect an icon with base filename TOKEN,
-		          a function proof-toolbar-<TOKEN>,
-         and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.
-If MENUNAME is nil, item will not appear on the scripting menu.
-If TOOLTIP is nil, item will not appear on the toolbar.
-
-The default value is `proof-toolbar-entries-default' which contains
-the standard Proof General buttons.")
-
-
 
 ;;
 ;; Function, icon, button names
