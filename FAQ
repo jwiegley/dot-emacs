@@ -282,6 +282,24 @@ A. Nobody has designed large versions of the X-Symbol fonts but it is
 
 -----------------------------------------------------------------
 
+
+Q. I see spurious ^M characters at the end of lines in the 
+   windows showing output from the prover.  How can I remove
+   them?
+
+A. Customize the value of `proof-shell-strip-crs-from-output'.
+
+-----------------------------------------------------------------
+
+Q. Why do I get a warning "[Proof General]: an old version of xml.el was loaded!"?
+
+A. Your Emacs session has loaded a version of xml.el from somewhere other
+   than the PG/lib directory.  It may be buggy -- some earlier versions give
+   bad results parsing empty elements.  To avoid this warning, try to start
+   Proof General before other Emacs packages which use xml.el, such as GNUS.
+
+-----------------------------------------------------------------
+
 Q. Can I join any mailing lists for Proof General?
 
 A. Of course, email "proofgeneral-request@informatics.ed.ac.uk" 
@@ -292,16 +310,6 @@ A. Of course, email "proofgeneral-request@informatics.ed.ac.uk"
    Visit http://proofgeneral.inf.ed.ac.uk/mailinglist for more details.
 
 
------------------------------------------------------------------
-
-
-Q. I see spurious ^M characters at the end of lines in the 
-   windows showing output from the prover.  How can I remove
-   them?
-
-A. Customize the value of `proof-shell-strip-crs-from-output'.
-
------------------------------------------------------------------
 
 $Id$
 
