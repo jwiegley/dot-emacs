@@ -32,7 +32,9 @@ May enable proof-by-pointing or similar features.
   (easy-menu-add proof-goals-mode-menu proof-goals-mode-map)
   (easy-menu-add proof-assistant-menu proof-goals-mode-map)
   (proof-toolbar-setup)
-  (erase-buffer)))
+  (erase-buffer)
+  (buffer-disable-undo)
+  (set-buffer-modified-p nil)))
 
 ;;
 ;; Keys for goals buffer
