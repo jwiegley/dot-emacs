@@ -150,6 +150,10 @@
   (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
   "Regexp matching Isabelle/Isar names, with contents grouped.")
 
+(defconst isar-tac-regexp
+  "\\<[A-Za-z][A-Za-z0-9'_]*_tac\\>"
+  "Regexp matching old-style tactic names")
+
 (defconst isar-save-command-regexp
   (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-save)))
 
@@ -256,7 +260,8 @@
    (cons (proof-ids-to-regexp isar-keywords-proof-enclose)  'font-lock-preprocessor-face)
    (cons (proof-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
    (cons (proof-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof-improper) 'font-lock-reference-face)))
+   (cons (proof-ids-to-regexp isar-keywords-proof-improper) 'font-lock-reference-face)
+   (cons isar-tac-regexp 'font-lock-reference-face)))
 
 (defvar isar-output-font-lock-keywords-1
   (list
