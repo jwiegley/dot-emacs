@@ -38,9 +38,11 @@
 	  '(proof-shell-ready-prover
 	    proof-start-queue
 	    proof-shell-live-buffer
-	    proof-shell-invisible-command
-	    proof-shell-proof-completed)))
+	    proof-shell-invisible-command)))
 ;; proof-response-buffer-display now in proof.el, removed from above.
+
+;; FIXME: *variable* proof-shell-proof-completed is declared in proof-shell
+;; and used here.  Should be moved to proof.el or removed from here.
 
 ;;
 ;;  Internal variables used by script mode
