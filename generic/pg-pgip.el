@@ -50,7 +50,8 @@
 	 
 	 ;; <prefval>
 	 ((eq elt 'prefval)
-	  )
+	  (pg-pgip-prefval attrs (car-safe body)))
+
 	 ;; <idtable>
 	 ((eq elt 'idtable)
 	  )
@@ -93,10 +94,15 @@
     )))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; <haspref default="d" kind="k" description="d" class="c">name</haspref>
+;; <haspref default="d" kind="k" type="t"
+;;	    description="d" class="c">name</haspref>
 ;; 
+;; Proof assistant advises PG that it has a preference value named name,
+;; category k, class c, with default value d, type t.
+;;
+;; PGIP FIXME: do we need a <clearprefs/> operation?
 
 (defun pg-pgip-haspref (attrs name)
   "Issue a defpacustom from a <haspref> element with attributes ATTRS, name NAME."
@@ -104,10 +110,10 @@
     (pg-pgip-error "pg-pgip-haspref: missing NAME in <haspref>NAME</haspref>."))
   (let*
       ((type	 (pg-pgip-get-type attrs))
-       (default  (or (pg-pgip-get-attr "haspref" 'default attrs t)
-		     ;; If no default is supplied, make one 
-		        ;; [NB: boolean default is nil anyway]
-		     (pg-pgip-default-for type)))
+       (defattr  (pg-pgip-get-attr "haspref" 'default attrs t))
+       (default  (if defattr 
+		     (pg-pgip-interpret-value defattr type)
+		   (pg-pgip-default-for type)))
        (kind	 (intern
 		  (or 
 		   (pg-pgip-get-attr "haspref" 'kind attrs t)
@@ -130,6 +136,28 @@
 	  :type (quote ,type)
 	  :setting ,setting)))))
     
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; <prefval name="n">value</prefval>
+;; 
+;; Proof assistant advises that preference n has been updated.
+;;
+;; Protocol is that <setpref> sent on a PGIP channel is assumed to
+;; succeed, so is not required to be acknowledged with a <prefval>
+;; message from prover.  But no harm will result if it is --- and that
+;; might be appropriate if some canonicalisation occurs.
+
+; in progress
+;(defun pg-pgip-prefval (attrs value)
+;  "Process a <prefval> element, by setting interface's copy of preference."
+;  (let*
+;      ((name	(pg-pgip-get-attr "haspref" 'name attrs t))
+;       (type    (
+    
+
+      
+  
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -156,14 +184,20 @@
    (t "%s")))
 
 (defun pg-pgip-get-type (attrs)
-  "Extract and check type value from ATTRS.  Normalize to custom format."
+  "Extract and check type value from ATTRS.  Return type in internal (custom) format."
   (let 
       ((rawtype (pg-pgip-get-attr "haspref" 'type attrs)))
+    (pg-pgip-pgiptype rawtype)))
+ 
+
+(defun pg-pgip-pgiptype (rawtype)
+  "Return internal (custom format) representation for <pgiptype> element."
     (cond
-     ((string-match "choice(\\(.*\\))" rawtype)
+     ((string-match "choice\(\\(.*\\)\)" rawtype)
       (let* ((choiceslist (match-string 1 rawtype))
+	     ;; FIXME: nested choices not supported yet
 	     (choices	  (split-string choiceslist "[ \f\t\n\r\v]*,[ \f\t\n\r\v]*")))
-	(list 'choice choices)))
+	(list 'choice (mapcar 'pg-pgip-pgiptype choices))))
      ((equal rawtype "boolean")
       'boolean)
      ((equal rawtype "int")
@@ -173,7 +207,65 @@
      ((equal rawtype "string")
       'string)
      (t
-      (error "pg-pgip-get-type: unrecognized type %s" rawtype)))))
+      (error "pg-pgip-pgiptype: unrecognized type %s" rawtype))))
+
+
+;; Converting PGIP representations to elisp representations.  This is
+;; the inverse of proof-assistant-format translations in proof-menu.el,
+;; although we fix PGIP value syntax.
+
+(defun pg-pgip-interpret-bool (value)
+  (cond 
+   ((string-equal value "true") t)
+   ((string-equal value "false") nil)
+   ;; Non-boolean value: return false, give debug message.
+   (t (progn
+	(proof-debug "pg-pgip-interpret-bool: received non-bool value %s" value)
+	nil))))
+
+(defun pg-pgip-interpret-int (value)
+  ;; FIXME: string-to-int returns zero for non int string,
+  ;; should have better validation here.
+  (string-to-int value))
+
+(defun pg-pgip-interpret-string (value)
+  value)
+
+(defun pg-pgip-interpret-choice (choices value)
+  ;; Untagged union types: test for each type in turn.
+  ;; FIXME: nested unions not supported here.
+  (cond
+   ((and 
+     (memq 'boolean choices)
+     (or (string-equal value "true") (string-equal value "false")))
+    (pg-pgip-interpret-value value 'boolean))
+   ((and 
+     (memq 'integer (cdr type))
+     (string-match "[0-9]+$" value))
+    (pg-pgip-interpret-value value 'integer))
+   ((memq 'string (cdr type))
+    ;; FIXME: No special syntax for string inside PGIP yet, should be?
+    (pg-pgip-interpret-value value 'string))
+   (t
+    (pg-pgip-error "pg-pgip-interpret-choice: mismatching value %s for choices %s" 
+		   value choices))))
+
+(defun pg-pgip-interpret-value (value type)
+  (cond
+   ((eq type 'boolean)
+    (pg-pgip-interpret-bool value))
+   ((eq type 'integer)
+    (pg-pgip-interpret-int value))
+   ((eq type 'string)
+    (pg-pgip-interpret-string value))
+   ((and (consp type) (eq (car type) 'choice))
+    (pg-pgip-interpret-choice (cdr type) value))
+   (t
+    (pg-pgip-error "pg-pgip-interpret-value: unkown type %s" type))))
+
+;;(defun pg-pgip-interpret-choice (value)
+;; FIXME: Choice should be tagged.  Syntax is <pgiptype>(value)
+  
     
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -197,10 +289,15 @@
 ;; Function to interface PGIP commands sent to prover.
 ;;
 (defun pg-prover-interpret-pgip-command (pgip)
-  (if proof-shell-issue-pgip-cmd
-      (format proof-shell-issue-pgip-cmd pgip)
-    "")) ;; Empty setting: might be better to send a comment
-         ;; for debugging purposes.
+  (cond
+   ((stringp proof-shell-issue-pgip-cmd)
+    (format proof-shell-issue-pgip-cmd pgip))
+   ((functionp proof-shell-issue-pgip-cmd)
+    (funcall proof-shell-issue-pgip-cmd pgip))
+   (t
+    ;; FIXME: Empty setting: might be better to send a comment
+    "")))
+
 
 
 
