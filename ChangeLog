@@ -1,3 +1,73 @@
+2001-05-29  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isa/Example.ML: Remove extra proof."
+
+	* generic/proof-splash.el:
+	Display screen only if called interactively
+
+	* doc/ProofGeneral.texi:
+	AF2 -> PhoX name change
+
+	* etc/ProofGeneral.spec:
+	Add REGISTER to doc files.
+
+	* COPYING: Date 2001
+
+	* html/features.html:
+	Fix layout and typo.
+
+	* html/mailinglist.html:
+	Include PHP file
+
+	* REGISTER:
+	Note about mailing list and registration.
+
+	* html/mailinglist, html/mailinglist.php:
+	Renamed file
+
+	* html/mailinglist.html, html/mailinglist.php:
+	PHP version.  Also dont mention junk filters.
+
+2001-05-18  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-keywords.el:
+	preliminary addition of "corollary";
+
+2001-05-16  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* doc/ProofGeneral.texi: Minor
+
+	* bin/proofgeneral:
+	Run the display splash command
+
+	* generic/proof-config.el:
+	Moved splash settings and basic custom groups elsewhere
+
+	* CHANGES: splash changes.
+
+	* generic/proof-site.el:
+	Move loading of compatibility flag, autoloads, basic customization groups here.
+
+	* generic/proof.el:
+	Move autoloads loads to proof-site, invoke (proof-splash-message)
+
+	* generic/proof-compat.el:
+	Move emacs version compatibility flags to proof-site.el
+
+	* generic/proof-splash.el:
+	Move configuration from proof-config here.  Make proof-splash-message display logo or print message.
+
+	* etc/README:
+	Doc of spec and menu, patch now removed
+
 2001-05-16  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
