@@ -19,10 +19,51 @@ assistants below:
 When you load a file with one of these extensions, the corresponding
 Proof General mode will be entered.
 
+In case of difficulty, please check the notes below and the file BUGS.
+If this doesn't help, then contact us via the address below.
+   
+   Proof General maintainer <proofgen@dcs.ed.ac.uk>
+   School of Computer Science,
+   Division Of Informatics,
+   University of Edinburgh.
+   Edinburgh.
+   
+   http://www.dcs.ed.ac.uk/home/proofgen
+
+
+
+----------------------------------------------------------------------
+
+Notes for Proof General
+=======================
+
+
+Byte Compilation.
+-----------------
+Compilation of the Emacs lisp files improves efficiency but can
+sometimes cause compatibility problems.  You can compile Proof General
+by typing 'make' in the directory where you installed it.
+
+
+Site-wide Installation
+----------------------
+
+If you are installing Proof General site-wide, you can put the
+components in the standard directories of the filesystem if you
+prefer, providing the variables in proof-site.el are adjusted
+accordingly.  Make sure that the generic and assistant-specific elisp
+files are kept in subdirectories of proof-home so that the autoload
+directory calculations are correct.
+
+
+Removing support for unwanted provers
+-------------------------------------
+
 You cannot run more than one instance of Proof General at a time: so
-if you're using Coq, don't edit .ML files!  If there are some assistants
-supported that you never want to use, you can remove them from
-the variable `proof-assistants` in proof-site.el to solve this problem.
+if you're using Coq, don't edit .ML files!  If there are some
+assistants supported that you never want to use, you can remove them
+from the variable `proof-assistants` in proof-site.el to solve this
+problem.
 
 The easiest way to do this (and most other customization of Proof
 General) is via the Customize mechanism, see the menu:
@@ -43,22 +84,6 @@ and the notes below for more details.
 Notice that the customization mechanism is only available in
 Emacs 20.x and XEmacs.
 
-If you are installing Proof General site-wide, you can put the
-components in separate directories, providing the variables in
-proof-site.el are adjusted accordingly.  Make sure that the generic
-and assistant-specific elisp files are kept in subdirectories of
-proof-home so that the autoload directory calculations are correct.
-
-
-   In case of difficulty, please contact us via the address below.
-   
-   Proof General maintainer <proofgen@dcs.ed.ac.uk>
-   School of Computer Science,
-   Division Of Informatics,
-   University of Edinburgh.
-   Edinburgh.
-   
-   http://www.dcs.ed.ac.uk/home/proofgen
 
 
 ----------------------------------------------------------------------
@@ -101,11 +126,16 @@ Check the value of isabelle-prog-name.
 The distribution includes a version of Isamode's theory file mode.
 Use C-h m to check on the features available.
 
-Notice that because Isabelle automatically loads .ML with the same
-names as theory files, a sensible way of working with script
-management may be to develop your proofs in another file first.
-At the moment the interface has no way of knowning that a particular
-ML file has been automatically loaded.
+Proof General attempts to lock theory files as well as ML files
+when they are loaded.  It also attempts to load the theory file
+for a .ML file automatically before you start scripting.  This
+is tricky because Isabelle's theory loader assumes that ML
+files are always read together with theory files.  At the moment
+Proof General uses an altered version of use_thy which doesn't
+load the top-level ML file.  This can cause confusion in the
+theory loader later, especially with update().  To be safe,
+try to use just the Proof General interface, and report any
+problems to isabelle@dcs.ed.ac.uk.
 
 
 
