@@ -1413,8 +1413,8 @@ to the function which parses the script segment by segment."
     ;; Find end of comment (NB: doesn't undertand nested comments)
     (while (and notout (re-search-forward 
 			proof-comment-end-regexp nil 'movetolimit))
-      (setq notout (buffer-syntactic-context)))
-    (not (buffer-syntactic-context))))
+      (setq notout (proof-buffer-syntactic-context)))
+    (not (proof-buffer-syntactic-context))))
   
 (defun proof-script-generic-parse-cmdend ()
   "Used for proof-script-parse-function if proof-script-command-end-regexp is set."
@@ -1426,11 +1426,11 @@ to the function which parses the script segment by segment."
       ;; Find end of command
       (while (and (setq foundend 
 			(re-search-forward proof-script-command-end-regexp nil t))
-		  (buffer-syntactic-context))
+		  (proof-buffer-syntactic-context))
 	;; inside a string or comment before the command end
 	)
       (if (and foundend 
-	       (not (buffer-syntactic-context)))
+	       (not (proof-buffer-syntactic-context)))
 	  ;; Found command end outside string/comment
 	  'cmd
 	;; Didn't find command end
@@ -1473,10 +1473,10 @@ to the function which parses the script segment by segment."
 			  (re-search-forward proof-script-command-start-regexp
 					     nil 'movetolimit)
 			  (match-beginning 0)))
-			(buffer-syntactic-context))
+			(proof-buffer-syntactic-context))
 	      ;; inside a string or comment before the next command start
 	      )
-	    (if (not (buffer-syntactic-context))  ; not inside a comment/string
+	    (if (not (proof-buffer-syntactic-context))  ; not inside a comment/string
 		(if foundstart		             ; found a  second command start
 		    (progn
 		      (goto-char foundstart)          ; beginning of command start
@@ -1586,7 +1586,7 @@ This version is used when `proof-script-command-start-regexp' is set."
 	   (or (save-excursion
 		 (goto-char comstart)
 		 (or ; continue if inside (or at start of) comment/string
-		  (buffer-syntactic-context)
+		  (proof-buffer-syntactic-context)
 		  (proof-looking-at proof-comment-start-regexp)
 		  (proof-looking-at proof-string-start-regexp)))
 	       (progn			    ; or, if found command...
@@ -1604,7 +1604,7 @@ This version is used when `proof-script-command-start-regexp' is set."
 	       (<= prev pos)		; last command within range
 	       (goto-char (point-max))
 	       (setq comstart (point))	; pretend there's another cmd here
-	       (not (buffer-syntactic-context))) ; buffer ends well
+	       (not (proof-buffer-syntactic-context))) ; buffer ends well
 	  (funcall add-segment-for-cmd))
       ; (if (and cmdfnd next-command-end)
       ; (funcall add-segment-for-cmd))
@@ -1669,7 +1669,7 @@ This version is used when `proof-script-command-end-regexp' is set."
 	  (and 
 	   (proof-re-search-forward proof-script-command-end-regexp
 			      nil t) ; search for next command
-	   (or (buffer-syntactic-context)   ; continue if inside comment/string
+	   (or (proof-buffer-syntactic-context)   ; continue if inside comment/string
 	       (progn			    ; or, if found command...
 		 (setq cmdfnd t)
 		 (<= (point) pos))))

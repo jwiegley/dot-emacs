@@ -91,7 +91,7 @@
   (save-excursion
     (goto-char (point-min))
     (while (search-forward ";" (point-max) t)
-      (if (not (buffer-syntactic-context))
+      (if (not (proof-buffer-syntactic-context))
           (delete-backward-char 1)))))
 
 
