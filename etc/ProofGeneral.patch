@@ -2,12 +2,10 @@ diff -cr ProofGeneral-2.0/coq/coqtags ProofGeneral-2.0.new/coq/coqtags
 *** ProofGeneral-2.0/coq/coqtags	Thu Sep 24 16:36:20 1998
 --- ProofGeneral-2.0.new/coq/coqtags	Thu Sep 24 17:04:00 1998
 ***************
-*** 1,2 ****
+*** 1,1 ****
 ! #!/usr/local/bin/perl
-  #
---- 1,2 ----
+--- 1,1 ----
 ! #!/usr/bin/perl
-  #
 diff -cr ProofGeneral-2.0/lego/legotags ProofGeneral-2.0.new/lego/legotags
 *** ProofGeneral-2.0/lego/legotags	Thu Sep 24 16:36:30 1998
 --- ProofGeneral-2.0.new/lego/legotags	Thu Sep 24 17:04:10 1998
