@@ -1,5 +1,39 @@
 2003-02-05  David Aspinall  <da@proofgeneral.org>
 
+	* CHANGES: Grumpy note
+
+	* ChangeLog, BUGS:
+	Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* CHANGES: Updated.
+
+	* generic/proof-config.el:
+	Doc generalisation of proof-script-command-end-regexp.
+
+	* generic/proof-script.el:
+	Tweak proof-script-generic-parse-cmdend to allow .. fix for Coq parsing
+
+	* etc/coq/parsingdot.v: New files.
+
+	* coq/coq.el:
+	New setting for parse cmdend regexp.
+
+	* generic/proof-menu.el:
+	Compatibility function for customize-menu-create
+
+	* generic/proof-compat.el:
+	Give up on customize-menu-create on GNU Emacs
+
+2003-02-05  Pierre Courtieu  <courtieu@lri.fr>
+
+	* doc/ProofGeneral.texi:
+	Added a paragraph in the documentation for the variable coq-version-is-V74.
+
+2003-02-05  David Aspinall  <da@proofgeneral.org>
+
 	* BUGS, ChangeLog:
 	Updated.
 
