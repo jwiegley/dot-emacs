@@ -480,11 +480,17 @@ Otherwise return a string for configuring all settings."
   "Replace a format characters %b %i %s in STRING by formatted CURVALUE.
 Formatting suitable for current proof assistant, controlled by
 `proof-assistant-format-table' which see.
-Finally, apply `proof-assistant-setting-format' if non-nil."
-  (let ((setting (proof-format proof-assistant-format-table string)))
-    (if proof-assistant-setting-format
-	(funcall proof-assistant-setting-format setting)
-      setting)))
+Finally, apply `proof-assistant-setting-format' if non-nil.
+As a special case for boolean settings: the setting STRING 
+can be a cons cell of two strings, the first one for true (non-nil
+value) and the second for false."
+  (if (consp string)
+      (if curvalue (car string) (cdr string))
+    ;; Otherwise must use % format characters
+    (let ((setting (proof-format proof-assistant-format-table string)))
+      (if proof-assistant-setting-format
+	  (funcall proof-assistant-setting-format setting)
+	setting))))
 
 (defvar proof-assistant-format-table 
   (list
