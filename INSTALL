@@ -53,8 +53,8 @@ proof-home so that the autoload directory calculations are correct.
 
 ----------------------------------------------------------------------
 
-Customization for Coq
-=====================
+Notes for Coq
+=============
 
 If you want to use this mode for Coq, you need to make sure you have
 an appropriate version, which is from later than 1 March 1998.
@@ -73,8 +73,8 @@ running LEGO, do the same using legotags in the appropriate directory.
 
 ----------------------------------------------------------------------
 
-Customization for LEGO
-======================
+Notes for LEGO
+==============
 
 Install legotags in a standard place or add <proof-home>/lego 
 to your PATH.
@@ -83,6 +83,20 @@ NB: You may need to change the path to perl at the top of the file.
 
 ----------------------------------------------------------------------
 
-Customization for Isabelle
-==========================
+Notes for Isabelle
+==================
+
+Check the value of isabelle-prog-name.
+
+The distribution includes a version of Isamode's theory file mode.
+Use C-h m to check on the features available.
+
+Notice that because Isabelle automatically loads .ML with the same
+names as theory files, a sensible way of working with script
+management may be to develop your proofs in another file first.
+At the moment the interface has no way of knowning that a particular
+ML file has been automatically loaded.
+
+
+
 
