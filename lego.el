@@ -3,9 +3,18 @@
 ;; Author: Thomas Schreiber and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
+
 ;; $Log$
-;; Revision 1.24  1997/10/13 17:06:05  tms
-;; lego-count-undos is now aware that comments are treated separately
+;; Revision 1.25  1997/10/16 08:46:16  tms
+;; o merged script management (1.20.2.11) on the main branch
+;; o fixed a bug in lego-find-and-forget due to new treatment of comments
+;;
+;; Revision 1.20.2.11  1997/10/14 17:30:12  djs
+;; Fixed a bunch of bugs to do with comments, moved annotations out-of-band
+;; to exploit a feature which will exist in XEmacs 20.
+;;
+;; Revision 1.20.2.10  1997/10/10 19:24:29  djs
+;; Attempt to create a fresh branch because of Attic-Attack.
 ;;
 ;; Revision 1.20.2.9  1997/10/10 19:20:00  djs
 ;; Added multiple file support, changed the way comments work, fixed a
@@ -260,40 +269,72 @@
 
 (defun lego-find-and-forget (sext) 
   (let (str ans)
-    (while (and sext (eq (span-property sext 'type) 'comment))
+    (while (and sext (not ans))
+      (setq str (span-property sext 'cmd))
+      
+      (cond
+       
+       ((eq (span-property sext 'type) 'comment))
+
+       ((eq (span-property sext 'type) 'goalsave)
+	(setq ans (concat "Forget " 
+			  (span-property sext 'name) proof-terminal-string)))
+
+       ((string-match (concat "\\`" (lego-decl-defn-regexp "[:|=]")) str)
+	(let ((ids (match-string 1 str))) ; returns "a,b"
+	  (string-match proof-id ids)	; matches "a"
+	  (setq ans (concat "Forget " (match-string 1 ids)
+			    proof-terminal-string))))
+	   
+       ((string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
+	(setq ans (concat "Forget " 
+			  (match-string 2 str) proof-terminal-string)))
+
+       ((string-match 
+	 "\\`\\(Inductive\\|Record\\)\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
+	(setq ans 
+	      (concat "Forget " (match-string 2 str) proof-terminal-string)))
+       
+       ((string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
+	(setq ans (concat "ForgetMark " (match-string 1 str) 
+			  proof-terminal-string))))
+      
       (setq sext (next-span sext 'type)))
-    (if (null sext) 
-	"COMMENT"
-      (while sext
-	(if (eq (span-property sext 'type) 'goalsave)
-	    (setq ans (concat "Forget " 
-			      (span-property sext 'name) proof-terminal-string)
-		  sext nil)
-	  (setq str (span-property sext 'cmd))
-	  (cond
-	   ((string-match (concat "\\`" (lego-decl-defn-regexp "[:|=]")) str)
-	    (let ((ids (match-string 1 str))) ; returns "a,b"
-	      (string-match proof-id ids)	; matches "a"
-	      (setq ans (concat "Forget " (match-string 1 ids)
-				proof-terminal-string)
-		    sext nil)))
-	   
-	   ((string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
-	    (setq ans (concat "Forget " (match-string 2 str) proof-terminal-string)
-		  sext nil))
-	   
-	   ((string-match "\\`\\(Inductive\\|Record\\)\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
-	    (setq ans (concat "Forget " (match-string 2 str) proof-terminal-string)
-		  sext nil))
-	   
-	   ((string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
-	    (setq ans (concat "ForgetMark " (match-string 1 str) proof-terminal-string)
-		  sext nil))
-	   (t 
-	    (setq sext (next-span sext 'type))))))
-      (or ans
-	  (concat "echo \"Nothing more to Forget.\"" proof-terminal-string)))))
+  (or ans
+      "COMMENT")))
   
+
+(defun lego-retract-target (target delete-region)
+  (let ((end (proof-end-of-locked))
+	(start (span-start target))
+	(ext (proof-last-goal-or-goalsave))
+	actions)
+    
+    (if (and ext (not (eq (span-property ext 'type) 'goalsave)))
+	(if (< (span-end ext) (span-end target))
+	    (progn
+	      (setq ext target)
+	      (while (and ext (eq (span-property ext 'type) 'comment))
+		(setq ext (next-span ext 'type)))
+	      (setq actions (proof-setup-retract-action
+			     start end 
+			     (if (null ext) "COMMENT" (lego-count-undos ext))
+			     delete-region)
+		    end start))
+	  
+	  (setq actions (proof-setup-retract-action (span-start ext) end
+						    proof-kill-goal-command
+						    delete-region)
+		end (span-start ext))))
+    
+    (if (> end start) 
+	(setq actions
+	      (nconc actions (proof-setup-retract-action 
+			      start end
+			      (lego-find-and-forget target)
+			      delete-region))))
+      
+    (proof-start-queue (min start end) (proof-end-of-locked) actions)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
@@ -371,8 +412,7 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-undo-target-fn 'lego-count-undos)
-  (setq proof-forget-target-fn 'lego-find-and-forget)
+  (setq proof-retract-target-fn 'lego-retract-target)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
