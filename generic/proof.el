@@ -2671,9 +2671,16 @@ finish setup which depends on specific proof assistant configuration."
 		    (cons proof-mode-name
 			  (append
 			   (cdr proof-menu)
-			   (list (customize-menu-create 'proof)
-				 (customize-menu-create 'proof-internal
-				  "Internals")))))
+			   ;; begin UGLY COMPATIBILTY HACK
+			   ;; older/non-existent customize doesn't have 
+			   ;; this function.  
+			   (if (fboundp 'customize-menu-create)
+			       (list (customize-menu-create 'proof)
+				     (customize-menu-create 'proof-internal
+							    "Internals"))
+			     nil)
+			   ;; end UGLY COMPATIBILTY HACK
+			   )))
   (easy-menu-add proof-mode-menu proof-mode-map)
 
   ;; For fontlock
