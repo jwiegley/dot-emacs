@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.36  1998/02/10 14:12:56  tms
+;; added Dnf to lego-undoable-commands-regexp
+;;
 ;; Revision 1.35  1998/01/16 15:40:23  djs
 ;; Commented the code of proof.el and lego.el a bit. Made a minor change
 ;; to the way errors are handled, so that any delayed output is inserted
@@ -183,7 +186,7 @@
 (defvar lego-forget-id-command "Forget ")
 
 (defvar lego-undoable-commands-regexp
-  (ids-to-regexp '("Refine" "Intros" "intros" "Next" "Qrepl" "Claim"
+  (ids-to-regexp '("\\`Dnf\\'" "Refine" "Intros" "intros" "Next" "Qrepl" "Claim"
 		   "For" "Repeat" "Succeed" "Fail" "Try" "Assumption" "UTac"
 		   "Qnify" "AndE" "AndI" "exE" "exI" "orIL" "orIR" "orE"
 		   "ImpI" "impE" "notI" "notE" "allI" "allE" "Expand"
