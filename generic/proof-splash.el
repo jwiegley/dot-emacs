@@ -16,8 +16,7 @@
   :type 'boolean
   :group 'proof-user-options)
 
-; timeout too long on win32. Why ?
-(defcustom proof-splash-time (if proof-running-on-win32 1 4)
+(defcustom proof-splash-time 2
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise 
@@ -145,7 +144,10 @@ Borrowed from startup-center-spaces."
 
 ;;;###autoload
 (defun proof-splash-display-screen (&optional timeout)
-  "Save window config and display Proof General splash screen."
+  "Save window config and display Proof General splash screen.
+If TIMEOUT is non-nil, time out outside this function, definitely
+by end of configuring proof mode. 
+Otherwise, timeout inside this function after 10 seconds or so."
  (interactive "P")
   (let
       ;; Keep win config explicitly instead of pushing/popping because
@@ -209,12 +211,10 @@ Borrowed from startup-center-spaces."
   (interactive)
   (unless (or proof-splash-seen (noninteractive))
     (if proof-splash-enable
-	(proof-splash-display-screen (interactive-p))
+	(proof-splash-display-screen (not (interactive-p)))
       ;; Otherwise, a message
-      (message "Welcome to %s Proof General!" proof-assistant)
-    (setq proof-splash-seen t))
-    ;; redisplay
-    (sit-for 0)))
+      (message "Welcome to %s Proof General!" proof-assistant))
+    (setq proof-splash-seen t)))
 
 (defun proof-splash-timeout-waiter ()
   "Wait for proof-splash-timeout or input, then remove self from hook."
