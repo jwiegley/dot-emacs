@@ -69,6 +69,51 @@ no regular or easily discernable structure."
   :type 'string
   :group 'isabelle)
 
+;; User options for isabelle (EXPERIMENTAL: to be generalised)
+
+(defcustom isabelle-show-types  nil
+  "Whether to show types in Isabelle."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'isabelle)
+
+(defcustom isabelle-show-sorts  nil
+  "Whether to show sorts in Isabelle."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'isabelle)
+
+(defun isa-format-bool (string val)
+  (proof-format (list (cons "%b" (if val "true" "false"))) string))
+
+(defun isabelle-show-types ()
+  ;; Better would be to queue the command, or interrupt a queue
+  ;; in progress.  Also must send current settings at start
+  ;; of session somehow.
+  (if (proof-shell-available-p)
+      (progn
+	(proof-shell-invisible-command 
+	 (isa-format-bool "show_types:=%b;" isabelle-show-types))
+	(proof-prf) ; refresh display, should only do if goals on.
+	)))
+
+(defun isabelle-show-sorts ()
+  (proof-shell-invisible-command 
+   (isa-format-bool "show_sorts:=%b;" isabelle-show-sorts)))
+
+(defcustom isabelle-menu-entries
+  '(["Show types" isabelle-show-types-toggle
+     :active t :style toggle
+     :selected isabelle-show-types]
+    ["Show sorts" isabelle-show-sorts-toggle
+     :active t :style toggle
+     :selected isabelle-show-sorts])
+  "Entries for Isabelle menu.")
+
+(proof-deftoggle isabelle-show-sorts)
+(proof-deftoggle isabelle-show-types)
+
+
 ;;;
 ;;; ======== Configuration of generic modes ========
 ;;;
@@ -98,6 +143,7 @@ and script mode."
   (setq
    proof-assistant-home-page	isabelle-web-page
    proof-mode-for-script	'isa-proofscript-mode
+   proof-assistant-menu-entries isabelle-menu-entries
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
    proof-comment-start		"(*"	; comment in a proof
