@@ -1,10 +1,10 @@
 <?php  
   require('functions.php3');
-  small_header("Proof General Mailing List"); 
+  small_header("Proof General Mailing Lists"); 
   ?>
 
 <p>
-The Proof General mailing list is a low-volume list
+The Proof General Users mailing list is a low-volume list
 used for announcements of new versions, and occasional
 discussions amongst users.
 </p>
@@ -13,8 +13,8 @@ discussions amongst users.
 <p>
 To <b>subscribe or unsubscribe</b>, visit
 the 
-<a href="http://lists.informatics.ed.ac.uk/mailman/listinfo/proofgeneral">Mailman</a>
-web page for the list.
+<a href="http://lists.informatics.ed.ac.uk/mailman/listinfo/proofgeneral">Mailman
+web page</a> for the list.
 <br>
 Alternatively, you can send a message to 
 <a href="mailto:proofgeneral-request@informatics.ed.ac.uk">
@@ -42,6 +42,17 @@ Please <a href="http://lists.informatics.ed.ac.uk/mailman/listinfo/proofgeneral"
 Archives of the list (since July 2002) are kept
 <a href="http://lists.informatics.ed.ac.uk/pipermail/proofgeneral">here</a>.
 </p>
+
+<h3>Proof General Developers list</h3>
+<p>
+There is a separate mailing list for those interested in the
+development of Proof General.  The canonical address
+for this list is <a href="mailto:devel@proofgeneral.org"><tt>devel@proofgeneral.org</tt></a>.
+Again, posting is restricted to list members.
+Please visit the <a href="http://lists.informatics.ed.ac.uk/mailman/listinfo/proofgeneral-devel">Mailman web page</a> for subscription details.
+</p>
+
+
 
 <?php
    click_to_go_back();
