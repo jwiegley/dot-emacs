@@ -27,5 +27,7 @@ Then perhaps merge in branch changes into main stream:
  cd projects/proofgen/ProofGeneral
  cvs update -jRelease-3-1-branch
 
+NB: this merging will always create conficts with 
+$Id$ tags in source. (Is there a way to avoid this?)
   
   
