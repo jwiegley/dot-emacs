@@ -76,7 +76,7 @@ fi
 /sbin/install-info --delete /usr/info/PG-adapting.info.* /usr/info/dir
 
 %files
-%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/* 
+%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel REGISTER doc/* 
 %attr(-,root,root) /usr/info/ProofGeneral.info.*
 %attr(-,root,root) /usr/info/ProofGeneral.info-*.*
 %attr(-,root,root) /usr/info/PG-adapting.info.*
