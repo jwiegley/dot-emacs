@@ -3137,6 +3137,10 @@ Lego home page URL.
 @c not tamper with
 
 
+@c
+@c  CHAPTER: Coq Proof General
+@c
+
 @node Coq Proof General
 @chapter Coq Proof General
 
@@ -3230,7 +3234,8 @@ always accurate: do "@code{Undo 1.}" when in proof mode, and "@code{Back
 1.}"  when in toplevel mode.
 
 Coq Proof General does not currently support dynamic tactic extension in
-Coq, but provide a way to add tactic and command names in the
+Coq: this is desirable but requires assistance from the Coq core.
+Instead we provide a way to add tactic and command names in the
 @file{.emacs} file. Four Configurable variables allows to register
 personal new tactics and commands into four categories:
 @itemize @bullet
@@ -3238,7 +3243,7 @@ personal new tactics and commands into four categories:
 @item @emph{state changing commands}, 
 which need "@code{Back}" to be backtracked;
 @item @emph{state changing tactics},
-which need "@code{Undo}") to be backtracked; 
+which need "@code{Undo}" to be backtracked; 
 @item @emph{state preserving commands},
 which do not need to be backtracked; 
 @item @emph{state preserving tactics},
@@ -3260,37 +3265,22 @@ We give an example of existing commands that fit each category.
 
 This variables regexp string lists. See their documentations in emacs
 (@code{C-h v coq-user...})  for details on how to set them in your
-.emacs file.
+@file{.emacs} file.
 
-Example:
+Here is a simple example:
 @lisp
 (setq coq-user-state-changing-commands 
       '("MyHint" "MyRequire" "Show\\s-+Mydata"))
 @end lisp
 
-The @code{\\s-+} means "one or more whitespaces". See the elisp
-documentation of 'regexp-quote` for the syntax and semantics.
-WARNING: you need to restart emacs to make the changes to these
-variables effective.
+The regexp character sequence @code{\\s-+} means "one or more
+whitespaces". See the Emacs documentation of @code{regexp-quote} for the
+syntax and semantics.  WARNING: you need to restart Emacs to make the
+changes to these variables effective.
 
-To re-synchronize by hand, the user can use @code{C-c C-v}.  For
-example, if the user does @code{C-c C-u} to move the point back past an
-unknown tactic T, he or she can type @code{C-c C-v} <tactic before
-T>. This then undoes the backtrack command that Proof General sent
-erroneously.
-
-
-
-
-
-@c Sorry, there is currently very little specific documentation
-@c written for Coq Proof General. If any Coq user would like to
-@c contribute, please send a message to @code{proofgen@@dcs.ed.ac.uk}.
-
-@c Type @kbd{C-h C-m} to get a list of all Coq specific commands and
-@c browse the customize menus to find out what customization options
-@c there are for Coq.
-
+In case of losing synchronization, the user can use @kbd{C-c C-z}
+(@code{proof-frob-locked-end}, @pxref{Escaping script management}) or
+@kbd{C-c C-v} to re-issue an erroneously back-tracked tactic.
 
 
 @c
