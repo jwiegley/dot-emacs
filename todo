@@ -27,7 +27,11 @@ D		e.g. desirable to fix at some point
 X (Low)		e.g. probably not worth spending time on
 
 
-*** Outstanding bugs to investigate
+*** Things to fix before 3.2
+
+A Ignore table entries for non-existent directories?
+
+A Remove fileshow urls in html
 
 C The PG isabelle-completion-table seems to be subject to case-fold, which
   it shouldn't be: \<sqinter> does not work, but \<Sqinter> is OK.
