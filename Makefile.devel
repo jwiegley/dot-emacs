@@ -30,7 +30,7 @@ NAME = ProofGeneral
 RELEASENAME = ProofGeneral-2.0
 
 # Where to release (i.e. copy) a new distribution to
-RELEASEDIR = /home/proofgen/www/dist
+RELEASEDIR = /home/proofgen/www/
 
 CVSNAME = ProofGeneral
 #CVSROOT = /home/proofgen/src
