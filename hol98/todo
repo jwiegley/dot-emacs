@@ -1,0 +1,12 @@
+-*- mode:outline -*-
+
+* See also ../todo for generic things to do, priority codes.
+
+* Things to do for HOL
+======================
+
+A Problem with displaying long help message: causes loop in PG
+  filtering, why?  Process also takes a long time to kill off.
+
+B Improve display to strip ugly val it's.
+
