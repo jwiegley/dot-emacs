@@ -1,5 +1,9 @@
 -*- outline -*-
 
+--- This is a development release of Proof General,   ---
+--- some features may be incomplete or buggy.  Please ---
+--- report any problems to da@dcs.ed.ac.uk, thanks.   ---
+
 * Summary of Changes for Proof General 3.4pre from 3.2
 
 ** Generic Changes
@@ -9,9 +13,15 @@
    Toolbar and splash screen supported  
     [seems good; please tell me of any problems] 
 
+   Fontification (as ever) is problematic due to changes
+   in font-lock, and its insiduous self-enabling actions.
+   Current status: broken in Emacs 20, working in 21.
+
 ** Isabelle Changes
 
    Isabelle/Isar syntax changes.
+
+
 
 
 
