@@ -1,12 +1,12 @@
 Summary:	Proof General, Emacs interface for Proof Assistants
 Name:		ProofGeneral
-Version:	3.6pre040825
+Version:	3.6pre040831
 Release:	1
 Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
 Url:		http://proofgeneral.inf.ed.ac.uk/
 Packager:	David Aspinall <David.Aspinall@ed.ac.uk>
-Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.6pre040825.tar.gz
+Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.6pre040831.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 PreReq:		/sbin/install-info
 Prefixes:	/usr/share/emacs /usr/bin /usr/share/info
