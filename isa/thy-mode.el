@@ -389,20 +389,23 @@ Choice based on first name found by:
   :type 'string
   :group 'isabelle)
 
-(defun thy-find-other-file ()
-  "Find associated .ML or .thy file."
-  (interactive)
+(defun thy-find-other-file (&optional samewindow)
+  "Find associated .ML or .thy file.
+If SAMEWINDOW is non-nil (prefix argument when called interactively),
+use find-file instead of find-file-other-window."
+  (interactive "p")
   (and 
    (buffer-file-name)
    (let* ((fname     (buffer-file-name))
 	  (thyfile   (string-match "\\.thy$" fname))
 	  (mlfile    (string-match
 		      (concat (regexp-quote isa-ml-file-extension) "$") fname))
-	  (basename  (file-name-sans-extension fname)))
+	  (basename  (file-name-sans-extension fname))
+	  (findfn    (if samewindow 'find-file else 'find-file-other-window)))
      (cond (thyfile
-	    (find-file-other-window (concat basename isa-ml-file-extension)))
+	    (funcall findfn (concat basename isa-ml-file-extension)))
 	   (mlfile
-	    (find-file-other-window (concat basename ".thy")))))))
+	    (funcall findfn (concat basename ".thy")))))))
   
 
 ;;; "minor" sml-mode inside theory files ==========
