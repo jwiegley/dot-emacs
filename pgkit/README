@@ -11,8 +11,10 @@ PGIP will allow a middleware layer for many interactive proof tools
 and interface components (including Emacs).  The design of PGIP was
 made possible by the present Emacs-based Proof General framework.  
 
-For more on Proof General Kit, see
-http://www.proofgeneral.org/kit.html
+The code included here is not yet in a working state.  Check the latest
+development release of Proof General, and visit:
+
+	http://proofgeneral.inf.ed.ac.uk/kit
 
 
 
