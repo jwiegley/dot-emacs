@@ -1412,7 +1412,7 @@ to do syntax highlighting with font-lock."
 
 (defcustom proof-shell-process-connection-type 
   ;; Use ptys unless it seems like we're on Solaris.  Only have
-  ;; a good chance to guess on XEmacs which provides shell-command-to-string
+  ;; a good chance to guess if shell-command-to-string available.
   (if (fboundp 'shell-command-to-string)
       (not (string-match "[sS]un" (shell-command-to-string "uname")))
     t)
