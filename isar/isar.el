@@ -280,19 +280,12 @@
    ;; === NEW NEW: multiple file stuff.  move elsewhere later.
    proof-shell-process-file 
    (cons
-    ;; Theory loader action trace
-    "Proof General, this theory is loaded: \"\\(.*\\)\""
-    (lambda (str) (isar-file-name-thy (match-string 1 str))))
-   ;; \\|Not reading \"\\(.*\\)\"
-   ;;    (lambda (str)
-   ;;   (or (match-string 1 str) 
-   ;;	  (match-string 2 str))))
-   ;; This is the output returned by a special command to
-   ;; query Isabelle for outdated files.
- ;;   proof-shell-clear-included-files-regexp
- ;;   "Proof General, please clear your record of loaded theories."
+    ;; Theory loader output
+    "Proof General, this file is loaded: \"\\(.*\\)\""
+    (lambda (str)
+      (match-string 1 str)))
    proof-shell-retract-files-regexp
-   "Proof General, you can unlock the theory \"\\(.*\\)\""
+   "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
    )
   (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting)
@@ -303,25 +296,16 @@
 ;;; Theory loader operations
 ;;;
 
-(defun isar-file-name-thy (str)
-  (concat str ".thy"))
-
-(defun isar-activate-scripting ()
-  "Make sure the Isabelle/Isar toplevel is in a sane state.")
-;FIXME  (proof-shell-invisible-command proof-shell-restart-cmd))
-
-(defun isar-remove-file (name files)
-  (if (not files) nil
-    (let ((file (car files)) (rest (cdr files)))
-      (if (string= (file-name-nondirectory file) name)
-	  (isar-remove-file name rest)
-	(cons file (isar-remove-file name rest))))))
-
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
 This is called when Proof General spots output matching
 proof-shell-retract-files-regexp."
-  (isar-remove-file (isar-file-name-thy (match-string 1 str)) proof-included-files-list))
+  (remove (file-truename (match-string 1 str)) 
+	  proof-included-files-list))
+
+(defun isar-activate-scripting ()
+  "Make sure the Isabelle/Isar toplevel is in a sane state.")
+;FIXME  (proof-shell-invisible-command proof-shell-restart-cmd))
 
 
 ;;
