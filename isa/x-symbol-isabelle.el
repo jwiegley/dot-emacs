@@ -17,6 +17,12 @@
 ;; Isabelle/Isar:  \<foo>
 ;;
 
+(eval-when-compile
+  ;; Next lines should allow this file to work standalone 
+  ;; without proof-x-symbol.el.  See comments further below too.
+  (require 'cl)
+  (ignore-errors (require 'x-symbol-vars)))
+
 (defvar x-symbol-isabelle-required-fonts nil)
 
 ;;;===========================================================================
@@ -24,7 +30,7 @@
 ;;;===========================================================================
 
 ;; FIXME da: these next two are also set in proof-x-symbol.el, but
-;; it's handy to be able to use this file away from PG.  
+;; it would be handy to be able to use this file away from PG.  
 ;; In future could fix things so just (require 'proof-x-symbol) 
 ;; would be enough here.
 (defvar x-symbol-isabelle-name "Isabelle Symbol")
@@ -59,27 +65,26 @@ See `x-symbol-header-groups-alist'."
   "Extra menu entries for language `isabelle'.")
 
 
-(if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
-(progn
 (defvar x-symbol-isabelle-token-grammar
-  (x-symbol-make-grammar
-   :encode-spec '(((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")) .
-		  ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")))
-   :decode-spec nil
-   :decode-regexp 
-   (concat
-    (if (eq proof-assistant-symbol 'isa)
-	"\\\\?") ; match an extra backquote in input strings,
-                 ;; but not used in output strings.  
-                 ;; FIXME: is this right??
-   "\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+")
-   :token-list #'x-symbol-isabelle-default-token-list))
+  (if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
+      (x-symbol-make-grammar
+       :encode-spec '(((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")) .
+                    ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")))
+       :decode-spec nil
+       :decode-regexp 
+       (concat
+	(if (eq proof-assistant-symbol 'isa)
+	    "\\\\?")			; match an extra backquote in input strings,
+					; but not used in output strings.  
+					; FIXME: is this right??
+	"\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+")
+       :token-list #'x-symbol-isabelle-default-token-list)))
 
 (defvar x-symbol-isabelle-input-token-grammar
   '("\\(?:\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
-    (id . "[A-Za-z_0-9]") 
-    (op . "[<>!+-*/|&]"))
-  "Grammar of input method Token for language `isabelle'.")))
+     ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
+     (id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
+  "Grammar of input method Token for language `isabelle'.")
 
 (defun x-symbol-isabelle-default-token-list (tokens)
   (mapcar 
@@ -114,11 +119,13 @@ See `x-symbol-header-groups-alist'."
 ;;  Bold, super- and subscripts
 ;;;===========================================================================
 
+;; \<^bold>, \<^sup>, and \<^sub>.
+
 (defun x-symbol-isabelle-make-ctrl-regexp (s)
-  "Make a regular expression which matches a sequence \<^foo> or ^"
+  "Return regexp matching \<^S>\<ident> or \<^S>c for some char c."
   (concat 
-   "\\(\\\\?\\\\<\\^" s 
-   ">\\)\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
+   "\\(\\\\?\\\\<\\^" s ">\\)"
+   "\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
 
 (defconst x-symbol-isabelle-font-lock-bold-regexp
   (x-symbol-isabelle-make-ctrl-regexp "bold")
@@ -206,8 +213,7 @@ See `x-symbol-language-access-alist' for details."
 ;; (defun x-symbol-isabelle-default-token-list (tokens) tokens)
 
 
-(defvar x-symbol-isabelle-token-list 
-  'x-symbol-isabelle-default-token-list)
+(defvar x-symbol-isabelle-token-list 'identity)
 
 (defvar x-symbol-isabelle-symbol-table      ; symbols (isabelle font)
   '((visiblespace "\\<spacespace>")
