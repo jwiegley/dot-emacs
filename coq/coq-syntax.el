@@ -785,7 +785,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 	  "\\)\\s-+\\(" coq-ids "\\)\\s-*[:]"))
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
-          "\\)\\s-+\\(" coq-id "\\)\\s-*."))
+          "\\)\\s-+\\(" coq-id "\\)\\s-*\\S-"))
 (defvar coq-font-lock-keywords-1
    (append
     coq-font-lock-terms
