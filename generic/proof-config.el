@@ -610,7 +610,7 @@ Suggestion: this can be set a function called by `proof-pre-shell-start-hook'."
   :group 'prover-config)
 
 (defcustom proof-mode-for-response 'proof-response-mode
-  "Mode for proof response buffer.
+  "Mode for proof response buffer (and trace buffer, if used).
 Usually customised for specific prover.
 Suggestion: this can be set a function called by `proof-pre-shell-start-hook'."
   :type 'function
