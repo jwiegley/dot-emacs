@@ -61,10 +61,10 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.3
+@set version 3.4
 @set xemacsversion 21.4
-@set fsfversion 20.7
-@set last-update September 2001
+@set fsfversion 21.2
+@set last-update July 2002
 @set rcsid $Id$
 
 @ifinfo
@@ -137,8 +137,12 @@ preserved on all copies.
 @sp 2
 
 This manual documents Proof General, Version @value{version}, for use
-with XEmacs @value{xemacsversion} and GNU Emacs @value{fsfversion}
-or later versions.
+with XEmacs @value{xemacsversion} and GNU Emacs @value{fsfversion} or
+later versions.  Proof General is distributed under the terms of the GNU
+General Public License (GPL); please check the accompanying file
+@file{COPYING} for more details.
+
+@sp 1
 
 Visit Proof General on the web at @code{http://www.proofgeneral.org}
 
