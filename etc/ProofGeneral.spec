@@ -42,7 +42,7 @@ mkdir -p ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 # Put binaries in proper place
 mkdir -p ${RPM_BUILD_ROOT}/usr/bin
-mv bin/proofgeneral lego/legotags coq/coqtags ${RPM_BUILD_ROOT}/usr/bin
+mv bin/proofgeneral lego/legotags coq/coqtags isar/isartags ${RPM_BUILD_ROOT}/usr/bin
 
 # Put info file in proper place, compress it.
 mkdir -p ${RPM_BUILD_ROOT}/usr/info
