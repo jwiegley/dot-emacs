@@ -29,7 +29,7 @@ Summary of interesting changes since 3.4:
 . Keyboard hints and other messages displayed in minibuffer
 . Auxiliary modes bundled: X-Symbol and MMM Mode
 . Improved menus, user options, script colouring and active highlighting
-. For Coq (8.0): extensive templates, automatic compilation support
+. For Coq (8.0): "holes" for editing expressions, extra menus, auto compilation
 . For Isabelle (2004): browsing/highlighting theorem dependencies
 . New instances of PG: Casl Consistency Checker, Shell Script
 . Additional sample proofs (some from http://www.cs.kun.nl/~freek/comparison/)
