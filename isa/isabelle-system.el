@@ -1,4 +1,4 @@
-;; isa-system.el Interface with Isabelle system
+;; isabelle-system.el Interface with Isabelle system
 ;;
 ;; Copyright (C) 2000 LFCS Edinburgh, David Aspinall. 
 ;;
@@ -260,5 +260,5 @@ Otherwise return a string for configuring all settings."
 
 
 
-(provide 'isa-system)
-;; End of isa-system.el
+(provide 'isabelle-system)
+;; End of isabelle-system.el

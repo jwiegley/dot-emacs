@@ -32,7 +32,7 @@
 
 (require 'proof)
 (require 'isa-syntax)
-(require 'isa-system)
+(require 'isabelle-system)
 
 ;;;
 ;;; ======== User settings for Isabelle ========
