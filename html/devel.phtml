@@ -4,29 +4,29 @@
   ?>
 
 <p>
-Here is the latest pre-release of Proof General.  It is also available
-as a complete archive for developers, to test forthcoming support for
-new proof assistants.
+Here is the latest pre-release of Proof General.  For developers,
+it is also available as a complete archive, including
+forthcoming support for more proof assistants.
+</p>
+<p>
+Pre-releases of Proof General may be buggy as we add new features and
+experiment with them.  Nonetheless, we welcome bug reports.  But
+please make sure you are using the current pre-release before
+reporting problems.
+</p>
 
 <!-- WARNING!  Line below automatically edited by makefile. -->
 <h2><a name="prerel">Pre-release: ProofGeneral-3.0pre991117</a></h2>
 <!-- End Warning. -->
 
 <p>
-This pre-release of Proof General may be buggy as new
-features are added and experimented with.  
-<br>
 Check the 
 <!-- WARNING!  Line below automatically edited by makefile. -->
 <?php fileshow("ProofGeneral-3.0pre991117/CHANGES","CHANGES"); ?> file
 <!-- End Warning. -->
 for a summary of changes since the last stable version, and
 the planned changes to come.
-<br>
-Please test with the current pre-release before reporting any problems
-in a pre-release.
 </p>
-
 <ul>
 <!-- WARNING!  Lines below automatically edited by makefile. -->
   <li> gzip'ed tar file: 
@@ -35,21 +35,28 @@ in a pre-release.
   <li> Linux RPM package 
       <?php download_link("ProofGeneral-3.0pre991117-1.noarch.rpm") ?>
      <br>
-     The source RPM is 
-      <?php download_link("ProofGeneral-3.0pre991117-1.src.rpm","here") ?>.
+     You probably don't need the 
+    <?php download_link("ProofGeneral-3.0pre991117-1.src.rpm","source RPM") ?>.
   </li>
 <!-- End Warning. -->
 </ul>
 
-<hr>
-
 
 <h2><a name="devel">Complete Archive of ProofGeneral-3.0pre991117</a></h2>
+
 <p>
-If you are interested in helping to develop the core of Proof General,
-we provide a complete archive of <i>all</i> the sources used to build the
-current Proof General pre-release.  The difference from the working
-version distribution above is that we include:
+This archive is a snapshot from our CVS repository. 
+</p>
+<ul>
+  <li> gzip'ed tar file: 
+<!-- WARNING!  Line below automatically edited by makefile. -->
+      <?php download_link("ProofGeneral-3.0pre991117-devel.tar.gz") ?>
+<!-- End Warning. -->
+  </li>
+</ul>
+<p>
+What's the difference from the working version above?
+The complete archive also includes:
 </p>
 <ul>
   <li> provisional instantiations of Proof General to new provers <br>
@@ -77,14 +84,6 @@ version distribution above is that we include:
 Note: there are no pre-built documentation files in the developer's
 release, because developers should have the right tools!
 </p>
-<ul>
-  <li> gzip'ed tar file: 
-<!-- WARNING!  Line below automatically edited by makefile. -->
-      <?php download_link("ProofGeneral-3.0pre991117-devel.tar.gz") ?>
-<!-- End Warning. -->
-  </li>
-</ul>
-
 <p>
 You probably <em>don't</em> need to download this if you're only
 interested in hacking the Emacs lisp part of the program for
