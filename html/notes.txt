@@ -1,6 +1,12 @@
 Developers' Notes about Web Pages
 ---------------------------------
 
+*************
+
+Tell Thomas (& other folk?) to update his home page links to Proof General.
+
+*************
+
 Suggestions for improving web pages after Rod reading them:
 
   - slideshow rather than single screen shot

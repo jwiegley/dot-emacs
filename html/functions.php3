@@ -32,14 +32,11 @@ function dt($string) {
   print "</div></dt>";
 }
 
-/* Automatic footnotes! */
-
-/* FIXME: for now, do nothing. */
+/* Automatic footnotes? */
+/* FIXME: for now, just inline them. */
 
 function footnote ($text) {
-   print "<div style=\"font-style:italic; font-size: smaller\"><p>[" 
-	. $text . "]</p></div>";
-  
+   print "<small><i><p>[" . $text . "]</p></small></i>";
 }
 
 /* A hyper-link with optional mouse over text.
@@ -107,11 +104,15 @@ function small_header($title) {
   print "<h1>" . $title . "</h1>\n</td>\n</table>\n";
 }
 
+/* FIXME: improve this function */
+
 function footer($filemodified=".") {
   include('footer.phtml'); 
   date_modified($filemodified);
   print "</address>\n";
-  print "</body>\n</html>\n";
+  print "</body>\n";
+  print "</font>\n";  /* Naughty stuff for older browsers, shouldn't do if V4 */
+  print "</html>\n";
 }
 
 function click_to_go_back() {
