@@ -117,6 +117,7 @@ ARGS=""
 
 if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
   ARGS="$ARGS -T Isabelle"
+  [ -n "$XSYMBOL_INSTALLFONTS" ] && "$ISATOOL" installfonts -x
 else
   ARGS="$ARGS -nw"
   XSYMBOL=false
@@ -130,8 +131,6 @@ for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
 do
   [ -f "$FILE" ] && ARGS="$ARGS -l $FILE"
 done
-
-[ -n "$XSYMBOL_INSTALLFONTS" ] && "$ISATOOL" installfonts -x
 
 export PROOFGENERAL_ASSISTANTS="$KIND"
 export PROOFGENERAL_LOGIC="$LOGIC"
