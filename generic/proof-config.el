@@ -799,6 +799,22 @@ the parsing functions went through several iterations and the final
   :type 'boolean
   :group 'prover-config)
 
+
+(defcustom proof-script-integral-proofs nil
+  "Whether the complete text after a goal confines the actual proof.
+
+In structured proof languages like Isabelle/Isar a theorem is
+established by a goal statement (with full information about the
+result, including name and statement), followed by a self-contained
+piece of text for the proof.  The latter should be treated as an
+integral entity for purposes of hiding proof bodies etc.
+
+This variable is better set to nil for tactical provers (like Coq)
+where important information about the result is spread over the
+initial ``goal'' and the final ``save'' command."
+  :type 'boolean
+  :group 'prover-config)
+
 ;; Unadvertised customization variable
 (defvar proof-script-fly-past-comments t
   "*If non-nil, fly past comments when scripting, coalescing them into single spans.")
