@@ -371,6 +371,18 @@ proof-shell-retract-files-regexp."
 (proof-definvisible isar-help-theorems "print_theorems" [h t])
 (proof-definvisible isar-help-trans-rules "print_trans_rules" [h T])
 
+;; NB: would be nice to query save first for these next two
+(proof-definvisible isar-display-draft
+ '(format "display_drafts \"%s\"" buffer-file-name)
+ [(control d)])
+
+(proof-definvisible isar-print-draft 
+  '(if (y-or-n-p 
+	(format "Print draft of file %s ?" buffer-file-name))
+       (format "display_drafts \"%s\"" buffer-file-name)
+     (error "Aborted."))
+  [(control p)])
+
 (defpgdefault menu-entries
   (append
    (list isabelle-logics-menu)
@@ -392,7 +404,14 @@ proof-shell-retract-files-regexp."
            ["attributes"         isar-help-attributes     t]
            ["commands"           isar-help-commands       t]
            ["inner syntax"       isar-help-syntax         t]
-           ["methods"            isar-help-methods        t])))))
+           ["methods"            isar-help-methods        t])))
+   (list 
+    ;; FIXME: these are not defined until post Isabelle2004,
+    ;; for now we grey them out in the menu except for CVS version.
+    ["Display draft" isar-display-draft 
+     (string-match "repository" isabelle-version-string)]
+    ["Print draft"   isar-print-draft 
+     (string-match "repository" isabelle-version-string)])))
 
 ;; undo proof commands
 (defun isar-count-undos (span)
