@@ -52,7 +52,7 @@
     (undo	"Undo step"           "Undo the previous proof command" t)
     (next	"Next step"           "Process the next proof command" t)
     (use	"Use buffer"  	      "Process whole buffer" t)
-    (restart	"Restart"	      "Restart scripting (clear all locked regions)" t)
+    (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
     (qed	"Finish proof"        "Close/save proved theorem" t)
     (find	"Find theorems"	      "Find theorems" t)
     (command    "Issue command"	      "Issue a non-scripting command" t)
