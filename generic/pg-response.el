@@ -144,8 +144,11 @@ Returns non-nil if response buffer was cleared."
   (unless pg-use-specials-for-fontify
     (setq str (pg-assoc-strip-subterm-markup str)))
   (proof-shell-maybe-erase-response t nil)
-  (pg-response-display-with-face str)
-  (proof-display-and-keep-buffer proof-response-buffer))
+  (unless (or (string-equal str "") (string-equal str "\n"))
+    ;; don't display an empty buffer [ NB: above test repeated below,
+    ;; but response-display reused elsewhere ]
+    (pg-response-display-with-face str)
+    (proof-display-and-keep-buffer proof-response-buffer)))
   
 ;; FIXME: this function should be combined with
 ;; proof-shell-maybe-erase-response-buffer. 
