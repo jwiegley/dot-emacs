@@ -489,8 +489,11 @@ the function `pg-remove-specials' can be used instead)."
   (replace-regexp-in-string "\"" "\\\"" xmlstring))
 
 (defun isabelle-process-pgip (xmlstring)
-  (format "ProofGeneral.process_pgip(\"%s\");"
-	  (isabelle-xml-sml-escapes xmlstring)))
+  (let ((mlcmd  (format "ProofGeneral.process_pgip(\"%s\");"
+			(isabelle-xml-sml-escapes xmlstring))))
+    (if (eq proof-assistant-symbol 'isar)
+      (isar-markup-ml mlcmd)
+      mlcmd)))
 
 (provide 'isabelle-system)
 ;; End of isabelle-system.el
