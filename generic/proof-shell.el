@@ -432,13 +432,12 @@ object files, used by Lego and Coq)."
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;          Proof by pointing                                       ;;
-;;          All very lego-specific at present                       ;;
-;;          To make sense of this code, you should read the         ;;
-;;          relevant LFCS tech report by tms, yb, and djs           ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;
+;; PROOF BY POINTING
+;;
+;; Fairly specific to the mechanism implemented in LEGO
+;; To make sense of this code, you should read the
+;; relevant LFCS tech report by tms, yb, and djs
 
 ;; New function added for 3.0 -da
 (defun pbp-yank-subterm (event)
@@ -1749,7 +1748,7 @@ in some cases.   May be called by proof-shell-invisible-command."
 Calls proof-state-change-hook."
   (run-hooks 'proof-state-change-hook))
 
-; new code to go in after 3.0
+; new code to experiment with after 3.2
 ;(defun proof-done-invisible (&optional span)
 ;  "Callback for proof-shell-invisible-command.  
 ;Calls proof-state-change-hook."
@@ -1960,13 +1959,21 @@ processing."
   (setq proof-buffer-type 'response)
   (define-key proof-response-mode-map [q] 'bury-buffer)
   (easy-menu-add proof-response-mode-menu proof-response-mode-map)
+  (easy-menu-add proof-assistant-menu proof-response-mode-map)
+  (proof-toolbar-setup)
   (setq proof-shell-next-error nil)	; all error msgs lost!
   (erase-buffer)))
 
 (easy-menu-define proof-response-mode-menu
 		  proof-response-mode-map
 		  "Menu for Proof General response buffer."
-		  (cons proof-general-name proof-shared-menu))
+		  (cons proof-general-name 
+			(append
+			 proof-toolbar-scripting-menu
+			 proof-shared-menu
+			 proof-config-menu
+			 proof-bug-report-menu)))
+
 
 (defun proof-response-config-done ()
   "Initialise the response buffer after the child has been configured."
@@ -1989,29 +1996,44 @@ May enable proof-by-pointing or similar features.
 \\{proof-goals-mode-map}"
   ;; defined-derived-mode proof-goals-mode initialises proof-goals-mode-map
   (setq proof-buffer-type 'goals)
-  (cond 
-   (proof-running-on-XEmacs
-    (define-key proof-goals-mode-map [(button2)] 'pbp-button-action)
-    (define-key proof-goals-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
-    ;; button 2 is a nuisance on 2 button mice, so we'll do 1 as well.
-    ;; Actually we better hadn't, people like to use it for cut and paste.
-    ;; (define-key proof-goals-mode-map [(button1)] 'pbp-button-action)
-    ;; (define-key proof-goals-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
-    (define-key proof-goals-mode-map [(button3)] 'pbp-yank-subterm))
-   (t
-    (define-key proof-goals-mode-map [mouse-2] 'pbp-button-action)
-    (define-key proof-goals-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
-    ;; (define-key proof-goals-mode-map [mouse-1] 'pbp-button-action)
-    ;; (define-key proof-goals-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
-   (define-key proof-goals-mode-map [mouse-3] 'pbp-yank-subterm)))
-  (define-key proof-goals-mode-map [q] 'bury-buffer)
   (easy-menu-add proof-goals-mode-menu proof-goals-mode-map)
-  (erase-buffer)))
+  (easy-menu-add proof-assistant-menu proof-goals-mode-map)
+  (proof-toolbar-setup)
+  (erase-buffer))
 
+;;
+;; Keys for goals buffer
+;;
+(define-key proof-goals-mode-map [q] 'bury-buffer))
+(cond 
+(proof-running-on-XEmacs
+(define-key proof-goals-mode-map [(button2)] 'pbp-button-action)
+(define-key proof-goals-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
+;; button 2 is a nuisance on 2 button mice, so we'll do 1 as well.
+;; Actually we better hadn't, people like to use it for cut and paste.
+;; (define-key proof-goals-mode-map [(button1)] 'pbp-button-action)
+;; (define-key proof-goals-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
+(define-key proof-goals-mode-map [(button3)] 'pbp-yank-subterm))
+(t
+(define-key proof-goals-mode-map [mouse-2] 'pbp-button-action)
+(define-key proof-goals-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
+;; (define-key proof-goals-mode-map [mouse-1] 'pbp-button-action)
+;; (define-key proof-goals-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
+(define-key proof-goals-mode-map [mouse-3] 'pbp-yank-subterm)))
+
+
+;;
+;; Menu for goals buffer  (identical to response mode menu currently)
+;;
 (easy-menu-define proof-goals-mode-menu
 		  proof-goals-mode-map
 		  "Menu for Proof General goals buffer."
-		  (cons proof-general-name proof-shared-menu))
+		  (cons proof-general-name 
+			(append
+			 proof-toolbar-scripting-menu
+			 proof-shared-menu
+			 proof-config-menu
+			 proof-bug-report-menu)))
 
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."
