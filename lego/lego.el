@@ -63,6 +63,9 @@
   "Acknowledge end of processing import declarations.")
 
 (defconst lego-process-config
+  ;; da: I think "Configure AnnotateOn;" is only included here for
+  ;; safety since there is a bug in LEGO which turns it off
+  ;; inadvertently sometimes.
   "Init XCC; Configure PrettyOn; Configure AnnotateOn;"
   "Command to initialise the LEGO process.
 
@@ -445,6 +448,7 @@ We assume that module identifiers coincide with file names."
         proof-shell-result-end "\372 End Pbp result \373"
         proof-shell-start-goals-regexp "\372 Start of Goals \373"
         proof-shell-end-goals-regexp "\372 End of Goals \373"
+	proof-shell-pre-sync-init-cmd "Configure AnnotateOn;"
         proof-shell-init-cmd lego-process-config
 	proof-shell-restart-cmd lego-process-config
 	proof-analyse-using-stack nil

@@ -29,7 +29,7 @@
 ;;  6. Goals buffer configuration
 ;;  7. Splash screen settings
 ;;  8. X-Symbol support
-;;  9. Prover specific settings
+;;  9. Prover specific settings [NEW in 3.2 -- using new mechanism]
 ;; 10. Global constants 
 ;;
 ;; The user options don't need to be set on a per-prover basis,
@@ -1169,19 +1169,28 @@ group.  This allows different proof assistants to coexist
   :type 'string
   :group 'proof-shell)
 
-;;
-;; FIXME: perhaps we should have pre-sync-init and 
-;; post-sync-init commands? 
-;;
+(defcustom proof-shell-pre-sync-init-cmd nil
+   "The command for configuring the proof process to gain synchronization.
+This command is sent before Proof General's synchronization
+mechanism is engaged, to allow customization inside the process
+to help gain syncrhonization (e.g. engaging special markup).
+
+It is better to configure the proof assistant for this purpose
+via command line options if possible, in which case this variable 
+does not need to be set.
+
+See also `proof-shell-init-cmd'."
+   :type '(choice string (const nil))
+   :group 'proof-shell)
+
 (defcustom proof-shell-init-cmd ""
    "The command for initially configuring the proof process.
-This command is sent to the process as soon as it starts up,
-perhaps in order to configure it for Proof General or to
-print a welcome message.
-Note that it is sent before Proof General's synchronization
-mechanism is engaged (in case the command engages it).  It
-is better to configure the proof assistant via command
-line options if possible."
+This command is sent to the process as soon as syncrhonization is gained
+(when an annotated prompt is first recognized).  It can be used to configure 
+the proof assistant in some way, or print a welcome message
+(since output before the first prompt is discarded).
+
+See also `proof-shell-pre-sync-init-cmd'."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
@@ -1818,7 +1827,6 @@ Proof General."
 	       (match-end 0))
     nil
     "(C) LFCS, University of Edinburgh, 2000."
-    "D. Aspinall, H. Goguen, T. Kleymann, D. Sequiera"
     nil
     nil
 "    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
@@ -1989,13 +1997,13 @@ for prover specific settings."
 
 (proof-defasscustom menu-entries nil
   "Extra entries for proof assistant specific menu. 
-A list of menu items [NAME CALLBACK ...].  See the documentation
+A list of menu items [NAME CALLBACK ENABLER ...].  See the documentation
 of `easy-menu-define' for more details."
   :type 'sexp)
 
 (proof-defasscustom help-menu-entries nil
   "Extra entries for help submenu for proof assistant specific help menu.
-A list of menu items [NAME CALLBACK ...].  See the documentation
+A list of menu items [NAME CALLBACK ENABLER ...].  See the documentation
 of `easy-menu-define' for more details."
   :type 'sexp)
 

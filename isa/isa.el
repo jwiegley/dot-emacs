@@ -182,11 +182,11 @@ and script mode."
 
    ;; FIXME: temporary hack for almost enabling/disabling printing.
    ;; Also for setting default values.
+   proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
    proof-shell-init-cmd                 (concat (isabelle-set-default-cmd)
- "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0); ProofGeneral.init false;")
+ "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0);")
    ; FIXME improved version for Isabelle99-1:
-   ;proof-shell-init-cmd                 (concat (isabelle-set-default-cmd)
-   ;						"ProofGeneral.init false;")
+   ;proof-shell-init-cmd                 (isabelle-set-default-cmd)
 
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"

@@ -1043,11 +1043,12 @@ proof-shell-exec-loop, to process the next item."
 
     (insert string)
 
-    ;; Advance the proof-marker.  This means that any output received
-    ;; up til now but not processed by the proof-shell-filter will be
-    ;; lost!  We must be careful to synchronize with the process
-    ;; before using proof-shell-insert.
-    (set-marker proof-marker (point))
+    ;; Advance the proof-marker, if synchronization has been gained.
+    ;; A null marker position indicates that synchronization is not
+    ;; yet gained.  (NB: Any output received before syncrhonization is
+    ;; gained is ignored!)
+    (unless (null (marker-position proof-marker))
+      (set-marker proof-marker (point)))
 
     ;; FIXME: possible improvement.  Make for post 3.0 releases
     ;; in case of problems.
@@ -1449,7 +1450,8 @@ This is a subroutine of proof-shell-filter."
   (let ((pt (point)) (end t) lastend start)
     (goto-char (marker-position proof-shell-urgent-message-scanner))
     (while (and end
-		(re-search-forward proof-shell-eager-annotation-start nil 'end))
+		(re-search-forward proof-shell-eager-annotation-start 
+				   nil 'end))
       (setq start (match-beginning 0))
       (if (setq end
 		(re-search-forward proof-shell-eager-annotation-end nil t))
@@ -1580,7 +1582,9 @@ however, are always processed; hence their name)."
 		  (progn
 		    (set-marker proof-marker (point))
 		    ;; The first time a prompt is seen we ignore any 
-		    ;; output that occured before it.  Process the
+		    ;; output that occured before it, assuming that
+		    ;; corresponds to uninteresting startup messages. 
+		    ;; We process the
 		    ;; action list to remove the first item if need
 		    ;; be (proof-shell-init-cmd sent if 
 		    ;; proof-shell-config-done).
@@ -1623,11 +1627,11 @@ however, are always processed; hence their name)."
 		     proof-shell-annotated-prompt-regexp nil t)
 		    (progn
 		      (backward-char (- (match-end 0) (match-beginning 0)))
-		      ;; FIXME: decoding x-symbols here is perhaps a bit 
+		      ;; NB: decoding x-symbols here is perhaps a bit 
 		      ;;  expensive; moreover it leads to problems 
 		      ;;  processing special characters as annotations
 		      ;;  later on.  So no fontify or decode.
-		      ;; (proof-fontify-region startpos (point))
+		      ;;   (proof-fontify-region startpos (point))
 		      (setq string (buffer-substring startpos (point)))
 		      (goto-char (point-max))	
 		      (proof-shell-filter-process-output string))))
@@ -1883,13 +1887,19 @@ processing."
       (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
       (set-process-sentinel proc 'proof-shell-bail-out)
 
-      ;; Flush pending output from startup 
-      ;; (it gets hidden from the user)
-      (accept-process-output proc 1)
+      ;; Pre-sync initialization command.  This is necessary
+      ;; for proof assistants which change their output modes
+      ;; only after some initializations.
+      (if proof-shell-pre-sync-init-cmd
+	  (proof-shell-insert proof-shell-pre-sync-init-cmd 'init-cmd))
 
-      ;; Send intitialization command and wait for it to be
-      ;; processed.   Also ensure that proof-action-list is
-      ;; initialised. 
+      ;; Flush pending output from startup (it gets hidden from the user)
+      ;; while waiting for the prompt to appear
+      (while (null (marker-position proof-marker))
+	(accept-process-output proc 1))
+
+      ;; Send main intitialization command and wait for it to be
+      ;; processed.   Also ensure that proof-action-list is initialised. 
       (setq proof-action-list nil)
       (if proof-shell-init-cmd
 	  (proof-shell-invisible-command proof-shell-init-cmd t))

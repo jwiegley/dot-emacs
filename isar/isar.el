@@ -275,11 +275,8 @@
 
    ;; initial command configures Isabelle/Isar by modifying print
    ;; functions, restoring settings saved by Proof General, etc.
-   proof-shell-init-cmd                 (concat
-					 (isar-verbatim 
-					  "ProofGeneral.init true;")
-					 "\n"
-					 (isabelle-set-default-cmd))
+   proof-shell-pre-sync-init-cmd	(isar-verbatim "ProofGeneral.init true;")
+   proof-shell-init-cmd                 (isabelle-set-default-cmd)
    proof-shell-restart-cmd		"ProofGeneral.restart;"
    proof-shell-quit-cmd			(isar-verbatim "quit();")
    
