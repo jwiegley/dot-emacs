@@ -1,3 +1,75 @@
+2001-01-05  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.html, html/devel.html:
+	Set version tag for new release.
+
+2001-01-03  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-keywords.el:
+	added "recdef_tc";
+
+2000-12-28  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar.el:
+	include x-symbol-isabelle-font-lock-keywords in shell/goals/response buffers;
+	more robust \<^sync>;
+
+	* isar/isar-syntax.el:
+	improved isar-string regexp;
+
+	* isa/x-symbol-isabelle.el:
+	x-symbol-isabelle-match-subscript: check (proof-ass x-symbol-enable);
+
+2000-12-23  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-syntax.el: tuned font lock;
+
+2000-12-22  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2000-12-22  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el:
+	*** empty log message ***
+
+2000-12-22  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-script.el:
+	Removed accidently committed debugging code
+
+2000-12-22  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/example.phx, phox/phox-font.el, generic/proof-script.el:
+	*** empty log message ***
+
+2000-12-21  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el:
+	*** empty log message ***
+
+2000-12-21  David Aspinall  <da@proofgeneral.org>
+
+	* phox/phox-fun.el: 'goalsave -> 'proof
+
+2000-12-21  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/phox-font.el, phox/phox-fun.el:
+	*** empty log message ***
+
+2000-12-21  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.html, html/devel.html:
+	Set version tag for new release.
+
+	* etc/ProofGeneral.spec: .phox -> .phx
+
+	* phox/example.af2, phox/example.phx:
+	Renamed file
+
 2000-12-21  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.html, html/devel.html:
