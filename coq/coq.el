@@ -239,7 +239,7 @@
 ;; nested proofs.
 
 (defun coq-find-and-forget (span)
-  (let (str ans (nbacks 0) (nundos 0) aborts)
+  (let (str ans (naborts 0) (nbacks 0) (nundos 0))
     (while (and span (not ans))
       (setq str (span-property span 'cmd))
       (cond
@@ -260,11 +260,13 @@
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
        ((coq-goal-command-p str)
-	(setq aborts (concat coq-kill-goal-command " " aborts))
-	(setq proof-nesting-depth (min 0 (1- proof-nesting-depth))))
-
-       ;; FIXME da: should we forget sections and Definitions using
-       ;; Back?
+	(incf naborts))
+       
+       ;; If we are already outside a proof, issue a Reset.
+       ;; [ improvement would be to see if the undoing
+       ;;   will take us outside a proof, and use the first
+       ;;   Reset found if so: but this is tricky to co-ordinate
+       ;;   with the number of Backs, perhaps? ]
        ((and 
 	 (eq proof-nesting-depth 0)
 	 (proof-string-match 
@@ -303,19 +305,32 @@
        ;; Finally all other proof commands, which are undone with
        ;; Undo.  But only count them if they are outermost, not
        ;; within an aborted goal.
-       ((not aborts)
+       ((eq 0 naborts)
 	(incf nundos)))
 
       (setq span (next-span span 'type)))
     
+    ;; Now adjust proof-nesting depth according to the
+    ;; number of proofs we've passed out of.
+    ;; FIXME: really this adjustment should be on the
+    ;; successful completion of the Abort commands, as
+    ;; a callback.
+    (setq proof-nesting-depth (- proof-nesting-depth naborts))
+
     (setq ans
 	  (concat
 	   (if (stringp ans) ans)
-	   aborts
+	   (if (> naborts 0)
+	       ;; ugly, but blame Coq
+	       (let ((aborts "Abort. "))
+		 (while (> (decf naborts) 0)
+		   (setq aborts (concat "Abort. " aborts)))
+		 aborts))
 	   (if (> nbacks 0)
 	       (concat "Back " (int-to-string nbacks) ". "))
 	   (if (> nundos 0) 
 	       (concat "Undo " (int-to-string nundos) ". "))))
+
     (if (null ans) 
 	proof-no-command ;; FIXME: this is an error really (assert nil)
       ans)))
