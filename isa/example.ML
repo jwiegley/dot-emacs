@@ -1,10 +1,7 @@
 (*
-    Example proof script for Isabelle
-
-    David Aspinall <da@dcs.ed.ac.uk>
+    Example proof script for Isabelle Proof General.
 
     $Id$
-
 *)    
 
 Goal "(A & B)-->(B & A)";

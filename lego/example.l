@@ -1,3 +1,9 @@
+(*
+    Example proof script for Lego Proof General.
+ 
+    $Id$
+*)
+
 Module example Import lib_logic;
 
 Goal and_commutes: {A,B:Prop}(and A B) -> (and B A);
