@@ -102,10 +102,8 @@ is
 	    (setq attrs (reverse attrs))
 	    ;; Now we ought to be at the end of the element opening
 	    (unless (looking-at pg-xml-end-open-elt-regexp)
-	      (error 
-	       (format 
-		"pg-xml-parse-buffer: Invalid XML in element opening %s" 
-		(symbol-name elt))))
+	      (error "pg-xml-parse-buffer: Invalid XML in element opening %s" 
+		     (symbol-name elt)))
 	    ;; Stack the element unless it's self closing
 	    (if (> (length (match-string 1)) 0)
 		;; Add element without nesting
@@ -124,13 +122,11 @@ is
 	  (setq elt (intern (match-string 1)))
 	  ;; It better be the top thing on the stack
 	  (unless (eq elt (car-safe openelts))
-	    (error 
-	     (format 
-	      "pg-xml-parse-buffer: Invalid XML at element closing </%s> (expected </%s>)"
-	      (symbol-name elt)
-	      (if openelts
-		  (symbol-name (car openelts))
-		"no closing element"))))
+	    (error "pg-xml-parse-buffer: Invalid XML at element closing </%s> (expected </%s>)"
+		   (symbol-name elt)
+		   (if openelts
+		       (symbol-name (car openelts))
+		     "no closing element")))
 	  ;; Add text before here to the parse
 	  (pg-xml-add-text (buffer-substring pos (match-beginning 0)))
 	  ;; Unstack the element and close subtree
@@ -145,23 +141,19 @@ is
 	 ;; CASE 3: comment
 	 ((looking-at pg-xml-comment-start-regexp)
 	  (unless (re-search-forward pg-xml-comment-end-regexp nil t)
-	    (error
-	     (format
-	      "pg-xml-parse-buffer: Unclosed comment beginning at line %s"
-	      (1+ (count-lines (point-min) (point)))))))))
+	    (error "pg-xml-parse-buffer: Unclosed comment beginning at line %s"
+		   (1+ (count-lines (point-min) (point))))))))
 	
       ;; We'd better have nothing on the stack of open elements now.
       (unless (null openelts)
-	(error 
-	 (format "pg-xml-parse-buffer: Unexpected end of document, expected </%s>"
-		 (symbol-name (car openelts)))))
+	(error "pg-xml-parse-buffer: Unexpected end of document, expected </%s>"
+	       (symbol-name (car openelts))))
       ;; And we'd better be at the end of the document.
       (unless (and (looking-at "[ \t\n]*")
 		   (eq (match-end 0) (point-max)))
-	(warn
-	 (format "pg-xml-parse-buffer: Junk at end of document: %s"
-		 (buffer-substring (point)
-				   (min (point-max) (+ 30 (point-max)))))))
+	(warn "pg-xml-parse-buffer: Junk at end of document: %s"
+	      (buffer-substring (point)
+				(min (point-max) (+ 30 (point-max))))))
       ;; Return the parse
       ;; FIXME: 
       (caar xmlparse))))

@@ -193,7 +193,7 @@ Does nothing if proof assistant is already running."
 	;; ugly (coqtop, hol.unquote).
 	((proc (downcase proof-assistant)))
 
-      (message (format "Starting process: %s" proof-prog-name))
+      (message "Starting process: %s" proof-prog-name)
 
       ;; Starting the inferior process (asynchronous)
       (let ((prog-name-list 
@@ -226,7 +226,7 @@ Does nothing if proof assistant is already running."
 	;; exiting immediately.
 	;; Might still be problems here if sentinels are set.
 	(setq proof-shell-buffer nil)
-	(error (format "Starting process: %s..failed" proof-prog-name)))
+	(error "Starting process: %s..failed" proof-prog-name))
 
       ;; Create the associated buffers and set buffer variables
       (let ((goals	(concat "*" proc "-goals*"))
@@ -271,8 +271,7 @@ Does nothing if proof assistant is already running."
 	      (funcall proof-mode-for-goals))
 	  (switch-to-buffer proof-shell-buffer)
 	  (error "%s process exited!" proc)))
-      (message 
-       (format "Starting %s process... done." proc)))))
+      (message "Starting %s process... done." proc))))
 
 
 ;;
