@@ -64,12 +64,14 @@
 	 (gifname  (string-append imgname ".gif"))
 	 (poorgifname  (string-append imgname ".8bit.gif")))
     ;; Flatten and save as jpg
-    (gimp-image-flatten image)
+    ;;(gimp-image-flatten image)
+    ;; Flattening forces a white background.  Let's use merge.
+    (gimp-image-merge-visible-layers image 0)
     (file-jpeg-save 1 image (car (gimp-image-active-drawable image))
 		    jpgname jpgname
 		    0.75 0 1)
     ;; gif with full palette
-    (gimp-convert-indexed image 1 256)
+    (gimp-convert-indexed image TRUE 255)
     (file-gif-save 1 image (car (gimp-image-active-drawable image))
 		    gifname gifname
 		    FALSE FALSE 0 0)
