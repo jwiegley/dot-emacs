@@ -184,10 +184,6 @@
       found-header)))
 
 
-;;; NB!  Disadvantage of *not* shadowing variables is that user
-;;; cannot override them.  It might be nice to override some
-;;; variables, which ones?
-
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
   (setq
@@ -275,11 +271,13 @@
 
    ;; initial command configures Isabelle/Isar by modifying print
    ;; functions, restoring settings saved by Proof General, etc.
-   proof-shell-pre-sync-init-cmd	(isar-verbatim "ProofGeneral.init true;")
-   proof-shell-init-cmd                 (isabelle-set-default-cmd)
+   proof-shell-pre-sync-init-cmd	(isar-verbatim 
+					 "ProofGeneral.init true;")
+   proof-shell-init-cmd                 (proof-assistant-settings-cmd)
    proof-shell-restart-cmd		"ProofGeneral.restart;"
    proof-shell-quit-cmd			(isar-verbatim "quit();")
-   
+   proof-assistant-setting-format	'isar-markup-ml
+
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-end     "\361\\|\363"
@@ -524,6 +522,10 @@ proof-shell-retract-files-regexp."
   (if (string-match isar-verbatim-regexp string)
       (setq string (match-string 1 string))
     (setq string (concat "\\<^sync>" (isar-shell-adjust-line-width) string "\\<^sync>;"))))
+
+(defun isar-markup-ml (string)
+  "Return marked up version of ML command STRING for Isar."
+  (format "ML_command {* %s *};" string))
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
