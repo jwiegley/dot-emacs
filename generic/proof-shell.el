@@ -216,12 +216,16 @@ Does nothing if proof assistant is already running."
 
       ;; Create the associated buffers and set buffer variables
       (let ((goals	(concat "*" proc "-goals*"))
-	    (resp	(concat "*" proc "-response*")))
-	(setq proof-goals-buffer (get-buffer-create goals))
+	    (resp	(concat "*" proc "-response*"))
+	    (trace	(concat "*" proc "-trace*")))
+
+	(setq proof-goals-buffer    (get-buffer-create goals))
 	(setq proof-response-buffer (get-buffer-create resp))
+	(setq proof-trace-buffer    (get-buffer-create trace))
+
 	;; Set the special-display-regexps now we have the buffer names
 	(setq proof-shell-special-display-regexp 
-	      (proof-regexp-alt goals resp))
+	      (proof-regexp-alt goals resp trace))
 	(proof-multiple-frames-enable))
 
       (save-excursion
@@ -252,8 +256,13 @@ Does nothing if proof assistant is already running."
 	;; them.
 	(if (proof-shell-live-buffer)
 	    (progn
+	      ;; Set mode for response buffer
 	      (set-buffer proof-response-buffer)
 	      (funcall proof-mode-for-response)
+	      ;; Set mode for trace buffer
+	      (set-buffer proof-trace-buffer)
+	      (funcall    proof-mode-for-response)
+	      ;; Set mode for goals buffer
 	      (set-buffer proof-goals-buffer)
 	      (and (fboundp 'toggle-enable-multibyte-characters)
 		   (toggle-enable-multibyte-characters -1))
@@ -263,6 +272,7 @@ Does nothing if proof assistant is already running."
 	  ;; display the error messages to the user.
 	  (switch-to-buffer proof-shell-buffer)
 	  (error "%s process exited!" proc)))
+
       (message "Starting %s process... done." proc))))
 
 
@@ -392,7 +402,7 @@ exited by hand (or exits by itself)."
 	proof-shell-last-output-kind nil
 	proof-shell-delayed-output nil
 	proof-shell-delayed-output-kind nil
-	proof-shell-spill-output-buffer nil))
+	proof-shell-spilling-output nil))
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
@@ -1459,11 +1469,24 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
 
      ;; CASE spill begin: prover is dumping a large message which
      ;; we'll redirect to a new buffer (unless already doing so)
+     ;; (NB: this latter case shouldn't occur, because we now only
+     ;;  process urgent messages if _not_ spilling trace output).
+;;     ((and proof-shell-spill-output-regexp
+;;	   (not proof-shell-spilling-output)
+;;	   (string-match proof-shell-spill-output-regexp message))
+;;      (proof-shell-spill-output-begin message))
+
+     ;; CASE tracing output: output in the tracing buffer instead
+     ;; of the response buffer
      ((and proof-shell-spill-output-regexp
-	   (not proof-shell-spill-output-buffer)
 	   (string-match proof-shell-spill-output-regexp message))
-      (proof-shell-spill-output-begin message))
-     
+      (proof-trace-buffer-display 
+       (if proof-shell-leave-annotations-in-output
+	   message
+	 (proof-shell-strip-special-annotations message)))
+      (proof-display-and-keep-buffer proof-trace-buffer))
+
+
      (t
       ;; We're about to display a message.  Clear the response buffer
       ;; if necessary, but don't clear it the next time.
@@ -1554,46 +1577,23 @@ This is a subroutine of proof-shell-filter."
 	(1- (process-mark (get-buffer-process (current-buffer)))))))
     (goto-char pt)))
 
-(defvar proof-shell-spill-output-buffer nil
-  "Non-nill indicates proof shell output is being spilled into this buffer.")
+(defvar proof-shell-spilling-output nil
+  "A flag indicate that output is being spilled into proof-shell-spill-output-buffer.")
 
 (defun proof-shell-spill-output-begin (msg)
-  "Begin spill output from prover into a fresh response-like buffer."
-  (let* ((spill (concat "*" (downcase proof-assistant) "-trace*")))
-    (or (buffer-live-p proof-shell-spill-output-buffer)
-        (setq proof-shell-spill-output-buffer
-	      (generate-new-buffer spill)))
-    (save-excursion
-      (set-buffer proof-shell-spill-output-buffer)
-      (funcall proof-mode-for-response)
-      ;; FIXME: set mode and fontification
-      (insert msg)
-      (proof-fontify-region (point-min) (point-max)))
-    (proof-display-and-keep-buffer proof-shell-spill-output-buffer)
-    ;; redisplay to show trace buffer
-    (sit-for 0)))
+  "Begin spill output from prover into a response-like buffer."
+  (setq proof-shell-spilling-output t)	; indicate spilling output
+  (proof-trace-buffer-display msg)
+  (proof-display-and-keep-buffer proof-trace-buffer))
 
 (defun proof-shell-spill-output (str)
   ;; We're spilling output eagerly into another buffer, so append
   ;; the output chunk we've just received.  (NB: may include or even
   ;; go past prompt, a bit messy but never mind for now)
-  (save-excursion
-    (set-buffer proof-shell-spill-output-buffer)
-    (goto-char (point-max))
-    (let ((start (point)))
-      (insert str)
-      (proof-fontify-region start (point-max)))
-    ;; if a window is displaying trace info, recenter and
-    ;; pause for redisplay
-    (let ((win  (get-buffer-window proof-shell-spill-output-buffer 
-				   'visible)))
-      (if (and win
-	       (not (pos-visible-in-window-p (point) win)))
-	  (recenter -1))
-      (if win
-	  ; (sit-for 0)))))
-	  (redisplay-frame)))))
-
+  ;; FIXME: would be nice to process user interrupts here somehow
+  ;; to break infinite tracing output.
+  (proof-trace-buffer-display str))
+  
 	    
 ;; NOTE da: proof-shell-filter does *not* update the proof-marker,
 ;; that's done in proof-shell-insert.  Previous docstring below was
@@ -1639,8 +1639,8 @@ ordinary output before the first prompt is ignored (urgent messages,
 however, are always processed; hence their name)."
   (save-excursion
     ;; Spill output eagerly into some other buffer
-    (if proof-shell-spill-output-buffer
-	(proof-shell-spill-output str))
+    ;; (if proof-shell-spill-output-buffer
+    ;; (proof-shell-spill-output str))
 
     ;; Process urgent messages.
     (and proof-shell-eager-annotation-start
@@ -1732,7 +1732,7 @@ however, are always processed; hence their name)."
 		      (setq string (buffer-substring startpos (point)))
 		      (goto-char (point-max))	
 		      ;; Ensure spill mode is off 
-		      (setq proof-shell-output-buffer nil)
+		      (setq proof-shell-spilling-output nil)
 		      ;; Process output string.
 		      (proof-shell-filter-process-output string))))
 	    ;; If proof-action-list is empty, make sure the process lock

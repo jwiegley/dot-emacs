@@ -418,6 +418,18 @@ Returns new END value."
       ;; (buffer-substring start (point-max))
       ))))
 
+;; An analogue of proof-response-buffer-display 
+(defun proof-trace-buffer-display (str)
+  "Display STR in the trace buffer."
+  (let (start end)
+    (with-current-buffer proof-trace-buffer
+      (goto-char (point-max))
+      (newline)				
+      (setq start (point))
+      (insert str)
+      (unless (bolp) (newline))
+      (proof-fontify-region start (point)))))
+
 (defun proof-display-and-keep-buffer (buffer &optional pos)
   "Display BUFFER and mark window according to `proof-dont-switch-windows'.
 If optional POS is present, will set point to POS.  
