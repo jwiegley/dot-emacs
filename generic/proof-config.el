@@ -87,6 +87,19 @@ NB: the toolbar is only available with XEmacs."
   :type 'boolean
   :group 'proof-general)
 
+(defcustom proof-toolbar-use-enablers t
+  "*If non-nil, toolbars buttons may be enabled/disabled automatically.
+Toolbar buttons can be automatically enabled/disabled according to
+the context.  Set this variable to nil if you don't like this feature
+or if you find it unreliable.
+
+Note: Toolbar enablers are only available with XEmacs 21 and later.
+
+Note 2: If you change this variable it will only be noticed when you 
+next start Proof General."
+  :type 'boolean
+  :group 'proof-general)
+
 (defcustom proof-toolbar-follow-mode 'locked
   "*Choice of how point moves with toolbar commands.
 One of the symbols: 'locked, 'follow, 'ignore.
@@ -491,17 +504,17 @@ command line options.  For an example, see coq/coq.el."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-context-command ""
+(defcustom proof-context-command nil
   "Command to display the context in proof assistant."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-info-command ""
+(defcustom proof-info-command nil
   "Command to ask for help or information in the proof assistant."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-showproof-command ""
+(defcustom proof-showproof-command nil
   "Command to display proof state in proof assistant."
   :type 'string
   :group 'prover-config)
