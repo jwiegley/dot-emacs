@@ -2145,7 +2145,7 @@ List of identifiers to use for completion for this proof assistant.@*
 Completion is activated with C-return.
 
 If this table is empty or needs adjusting, please make changes using
-@samp{@code{customize-variable}} and send suggestions to proofgen@@dcs.ed.ac.uk.
+@samp{@code{customize-variable}} and send suggestions to support@@proofgeneral.org
 @end defvar
 
 The completion facility uses a library @file{completion.el} which

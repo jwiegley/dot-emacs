@@ -640,7 +640,7 @@ development distribution includes a button blank and some notes in
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-entries-default
 @defvar proof-toolbar-entries-default 
-Example value for proof-toolbar-entries.  Also used to define Scripting menu.@*
+Example value for proof-toolbar-entries.  Also used to define scripting menu.@*
 This gives a bare toolbar that works for any prover, providing the
 appropriate configuration variables are set.
 To add/remove prover specific buttons, adjust the @samp{<PA>-toolbar-entries} 
@@ -1249,7 +1249,7 @@ List of identifiers to use for completion for this proof assistant.@*
 Completion is activated with C-return.
 
 If this table is empty or needs adjusting, please make changes using
-@samp{@code{customize-variable}} and send suggestions to proofgen@@dcs.ed.ac.uk.
+@samp{@code{customize-variable}} and send suggestions to support@@proofgeneral.org
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-add-completions
@@ -1922,13 +1922,11 @@ Command to change to the goal @samp{%s}
 @end defvar
 @c TEXI DOCSTRING MAGIC: pbp-goal-command
 @defvar pbp-goal-command 
-Command informing the prover that @samp{@code{pg-goals-button-action}} has been@*
-requested on a goal.
+Command sent when @samp{@code{pg-goals-button-action}} is requested on a goal.
 @end defvar
 @c TEXI DOCSTRING MAGIC: pbp-hyp-command
 @defvar pbp-hyp-command 
-Command informing the prover that @samp{@code{pg-goals-button-action}} has been@*
-requested on an assumption.
+Command sent when @samp{@code{pg-goals-button-action}} is requested on an assumption.
 @end defvar
 @c TEXI DOCSTRING MAGIC: pg-goals-error-regexp
 @defvar pg-goals-error-regexp 
@@ -3291,7 +3289,10 @@ urgent message will be a candidate for the goal or response buffer.  The
 internal variable @code{proof-shell-urgent-message-marker} tracks the
 last urgent message seen.
 
-When output is grabbed from the prover process, it is stored into
+When output is grabbed from the prover process, the first action
+is to strip spurious carriage return characters from the end of 
+lines, if @code{proof-shell-strip-crs-from-output} requires it.
+Then the output is stored into
 @code{proof-shell-last-output}, and its type is stored in
 @code{proof-shell-last-output-kind}.  Output which is deferred or
 possibly discarded until the queue is empty is copied into
@@ -3301,12 +3302,20 @@ seen from the prover process is also kept, in
 @code{proof-shell-last-prompt}.
 
 
-@c TEXI DOCSTRING MAGIC: proof-shell-last-prompt
+@c TEXI DOCSTRING MAGIC: proof-shell-strip-crs-from-output
 
+
+@defvar proof-shell-strip-crs-from-output 
+If non-nil, remove carriage returns (^M) at the end of lines from output.@*
+This is enabled for cygwin32 systems by default.  You should turn it off
+if you don't need it (slight speed penalty).
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-last-prompt
 @defvar proof-shell-last-prompt 
 A record of the last prompt seen from the proof system.@*
 This is the string matched by @code{proof-shell-annotated-prompt-regexp}.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-last-output
 @defvar proof-shell-last-output 
 A record of the last string seen from the proof system.
