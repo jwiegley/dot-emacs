@@ -129,7 +129,7 @@
   "Isabelle Demo response" nil
   (proof-response-config-done))
 
-(define-derived-mode demoisa-goals-mode pbp-mode
+(define-derived-mode demoisa-goals-mode proof-goals-mode
   "Isabelle Demo goals" nil
   (proof-goals-config-done))
 
@@ -152,6 +152,6 @@
   (setq proof-prog-name		isabelledemo-prog-name)
   (setq proof-mode-for-shell    'demoisa-shell-mode)
   (setq proof-mode-for-response 'demoisa-response-mode)
-  (setq proof-mode-for-pbp	'demoisa-goals-mode))
+  (setq proof-mode-for-goals	'demoisa-goals-mode))
 
 (provide 'demoisa)

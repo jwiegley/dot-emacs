@@ -342,9 +342,9 @@ proof-shell-retract-files-regexp."
   (isa-response-mode-config)))
 
 (eval-and-compile			; to define vars for byte comp.
-(define-derived-mode isa-pbp-mode pbp-mode
+(define-derived-mode isa-goals-mode proof-goals-mode
   "Isabelle goals" nil
-  (isa-pbp-mode-config)))
+  (isa-goals-mode-config)))
 
 (eval-and-compile			; to define vars for byte comp.
 (define-derived-mode isa-proofscript-mode proof-mode
@@ -567,7 +567,7 @@ you will be asked to retract the file or process the remainder of it."
 (defun isa-pre-shell-start ()
   (setq proof-prog-name		isabelle-prog-name)
   (setq proof-mode-for-shell    'isa-shell-mode)
-  (setq proof-mode-for-pbp	'isa-pbp-mode)
+  (setq proof-mode-for-goals	'isa-goals-mode)
   (setq proof-mode-for-response 'isa-response-mode))
 
 (defun isa-mode-config ()
@@ -606,8 +606,8 @@ you will be asked to retract the file or process the remainder of it."
   (isa-init-output-syntax-table)
   (proof-response-config-done))
 
-(defun isa-pbp-mode-config ()
-  ;; FIXME: next two broken, of course, as is all PBP everywhere.
+(defun isa-goals-mode-config ()
+  ;; FIXME: next two broken, of course, as is PBP everywhere except LEGO.
   (setq pbp-change-goal "Show %s.")	
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isa-init-output-syntax-table)

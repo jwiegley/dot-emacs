@@ -31,7 +31,7 @@
 
 
 ;;; variable: proof-analyse-using-stack
-;;;    proof-locked-region-empty-p, proof-shell-insert, pbp-mode,
+;;;    proof-locked-region-empty-p, proof-shell-insert, proof-goals-mode,
 ;;;    proof-complete-buffer-atomic, proof-shell-invisible-command,
 ;;;    prev-span, span-property, next-span, proof-unprocessed-begin,
 ;;;    proof-config-done, proof-shell-config-done
@@ -361,9 +361,9 @@ proof-shell-retract-files-regexp."
   (isar-response-mode-config)))
 
 (eval-and-compile			; to define vars for byte comp.
-(define-derived-mode isar-pbp-mode pbp-mode
+(define-derived-mode isar-goals-mode proof-goals-mode
   "Isabelle/Isar proofstate" nil
-  (isar-pbp-mode-config)))
+  (isar-goals-mode-config)))
 
 (eval-and-compile			; to define vars for byte comp.
 (define-derived-mode isar-proofscript-mode proof-mode
@@ -542,7 +542,7 @@ proof-shell-retract-files-regexp."
 (defun isar-pre-shell-start ()
   (setq proof-prog-name		isabelle-isar-prog-name)
   (setq proof-mode-for-shell    'isar-shell-mode)
-  (setq proof-mode-for-pbp	'isar-pbp-mode)
+  (setq proof-mode-for-pbp	'isar-goals-mode)
   (setq proof-mode-for-response 'isar-response-mode))
 
 
@@ -593,8 +593,8 @@ proof-shell-retract-files-regexp."
   (isar-outline-setup)
   (proof-response-config-done))
 
-(defun isar-pbp-mode-config ()
-  ;; FIXME: next two broken, of course, as is all PBP everywhere.
+(defun isar-goals-mode-config ()
+  ;; FIXME: next two broken, of course, as is PBP everywhere except LEGO.
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)

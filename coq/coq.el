@@ -15,7 +15,7 @@
 
 (eval-and-compile
   (mapcar (lambda (f) (autoload f "proof-shell"))
-	    '(pbp-mode proof-shell-config-done))) 
+	    '(proof-goals-mode proof-shell-config-done))) 
 
 ; Configuration
 
@@ -115,9 +115,9 @@
    (coq-mode-config)))
 
 (eval-and-compile
-  (define-derived-mode coq-pbp-mode pbp-mode
+  (define-derived-mode coq-goals-mode proof-goals-mode
     "CoqGoals" nil
-    (coq-pbp-mode-config)))
+    (coq-goals-mode-config)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's coq specific                                      ;;
@@ -397,8 +397,9 @@ This is specific to coq-mode."
 
 (defun coq-pre-shell-start ()
   (setq proof-prog-name coq-prog-name)
-  (setq proof-mode-for-shell 'coq-shell-mode)
-  (setq proof-mode-for-pbp 'coq-pbp-mode)
+  (setq proof-mode-for-shell    'coq-shell-mode)
+  (setq proof-mode-for-goals    'coq-goals-mode)
+  (setq proof-mode-for-response 'coq-response-mode)
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -526,7 +527,7 @@ This is specific to coq-mode."
 
   (proof-shell-config-done))
 
-(defun coq-pbp-mode-config ()
+(defun coq-goals-mode-config ()
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp coq-error-regexp)
   (coq-init-syntax-table)
