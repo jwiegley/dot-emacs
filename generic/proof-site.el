@@ -10,6 +10,7 @@
 ;; different proof assistants in the same session.  Presently, the
 ;; code will only allow one assistant to be chosen for the whole
 ;; session.
+;; 
 
 (or (featurep 'custom)
     ;; Quick hack to support defcustom for Emacs 19
@@ -18,22 +19,36 @@
     (defmacro group (sym mems doc &rest args)))
 
 (defgroup proof nil
-  "Customization of generic parameters for proof mode."
+  "Customization of generic parameters for Proof General."
   :group 'external
   :group 'processes)
 
 (defcustom proof-home
   (or (getenv "PROOF_HOME") "~/devel/lego/elisp/")
-  "*Directory where proof mode is installed. Ends with slash.
+  "*Directory where Proof General is installed. Ends with slash.
 Default value taken from PROOF_HOME, or use customize to set it."
   :type 'directory
   :group 'proof)
 
 (defcustom proof-image-directory
   (concat proof-home "images/")
-    "*Where proof mode image files are installed. Ends with slash."
+    "*Where Proof General image files are installed. Ends with slash."
   :type 'directory
   :group 'proof)
+
+(defcustom proof-info-dir 
+  (concat proof-home "doc/")
+  "*Where Proof General Info files are installed."
+  :type 'directory
+  :group 'proof)
+
+;; Add the info directory to the end of Emacs Info path 
+;; if need be. 
+(or (memq proof-info-dir Info-default-directory-list)
+    (setq Info-default-directory-list
+	  (append 
+	   Info-default-directory-list 
+	   (list proof-info-dir))))
 
 (defcustom proof-assistants
   '(isa lego coq)

@@ -70,9 +70,6 @@ output format.")
 ;;   Proof mode variables                                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst proof-info-dir "/usr/local/share/info"
-  "Directory to search for Info documents on Script Management.")
-
 (defconst proof-universal-keys
   (list (cons '[(control c) (control c)] 'proof-interrupt-process)
 	(cons '[(control c) (control v)]
@@ -1921,11 +1918,6 @@ current command."
   (and (boundp 'fume-find-function-name-method-alist)
        (push (cons major-mode 'fume-match-find-next-function-name)
 	     fume-find-function-name-method-alist))
-
-  ;; Info
-  (or (memq proof-info-dir Info-default-directory-list)
-      (setq Info-default-directory-list
-	    (cons proof-info-dir Info-default-directory-list)))
 
   ;; keymaps and menus
   (easy-menu-add proof-mode-menu proof-mode-map)
