@@ -64,7 +64,7 @@
 @set version 3.4
 @set xemacsversion 21.4
 @set fsfversion 21.2
-@set last-update July 2002
+@set last-update August 2002
 @set rcsid $Id$
 
 @ifinfo
@@ -117,7 +117,8 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 2000-2002 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 2000-2002 by members
+of the Proof General team, LFCS Edinburgh.
 
 
 @c
@@ -984,6 +985,9 @@ calculated.
 @c TEXI DOCSTRING MAGIC: proof-non-undoables-regexp
 @defvar proof-non-undoables-regexp 
 Regular expression matching commands which are @strong{not} undoable.@*
+These are commands which should not appear in proof scripts,
+for example, undo commands themselves (if the proof assistant
+cannot "redo" an "undo").
 Used in default functions @samp{@code{proof-generic-state-preserving-p}} 
 and @samp{@code{proof-generic-count-undos}}.  If you don't use those,
 may be left as nil.
@@ -1943,19 +1947,29 @@ In particular, after a @samp{@code{pbp-goal-command}} or a @samp{@code{pbp-hyp-c
 
 @c TEXI DOCSTRING MAGIC: pg-subterm-start-char
 @defvar pg-subterm-start-char 
-Starting special for a subterm markup.@*
-Subsequent characters with values @strong{below} @code{pg-subterm-first-special-char}
-are assumed to be subterm position indicators.  Subterm markups should
-be finished with @code{pg-subterm-sep-char}.
+Opening special character for subterm markup.@*
+Subsequent special characters with values @strong{below} 
+@code{pg-subterm-first-special-char} are assumed to be subterm position 
+indicators.  Annotations should be finished with @code{pg-subterm-sep-char}; 
+the end of the concrete syntax is indicated by @code{pg-subterm-end-char}.
+
+If @samp{@code{pg-subterm-start-char}} is nil, subterm markup is disabled.
+
+See doc of @samp{@code{pg-goals-analyse-structure}} for more details of
+subterm and proof-by-pointing markup mechanisms..
 @end defvar
 @c TEXI DOCSTRING MAGIC: pg-subterm-sep-char
 @defvar pg-subterm-sep-char 
 Finishing special for a subterm markup.@*
-See documentation of @code{pg-subterm-start-char}.
+See doc of @samp{@code{pg-subterm-start-char}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: pg-topterm-char
 @defvar pg-topterm-char 
-Mark for goal.
+Annotation character that indicates the beginning of a "top" element.@*
+A "top" element may be a sub-goal to be proved or a named hypothesis,
+for example.  It is currently assumed (following @var{lego}/Coq conventions)
+to span a whole line (the region marked in . 
+The function @samp{@code{pg-topterm-goalhyp-fn}} examines text following
 
 This setting is also used to see if proof-by-pointing features
 are configured.  If it is unset, some of the code 
@@ -1963,7 +1977,8 @@ for parsing the prover output is disabled.
 @end defvar
 @c TEXI DOCSTRING MAGIC: pg-subterm-end-char
 @defvar pg-subterm-end-char 
-Annotated field end
+Closing special character for subterm markup.@*
+See @samp{@code{pg-subterm-start-char}}.
 @end defvar
 
 
@@ -2199,8 +2214,10 @@ under GNU Emacs, to boot.
 
 @c TEXI DOCSTRING MAGIC: pg-before-fontify-output-hook
 @defvar pg-before-fontify-output-hook 
-This hook is called before fonfitying a region in an output buffer.@*
-This hook is mainly used by @code{phox-sym-lock}.
+This hook is called before fontifying a region in an output buffer.@*
+A function on this hook can alter the region of the buffer within
+the current restriction, and must return the final value of (@code{point-max}).
+[This hook is presently only used by @code{phox-sym-lock}].
 @end defvar
 
 
@@ -2742,7 +2759,7 @@ The goals buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-buffer-type
 @defvar proof-buffer-type 
-Symbol indicating the type of this buffer: @code{'script}, @code{'shell}, @code{'pbp}, or @code{'response}.
+Symbol for the type of this buffer: @code{'script}, @code{'shell}, @code{'goals}, or @code{'response}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-included-files-list
@@ -2806,7 +2823,9 @@ these also have a non-nil value for this variable.
 
 @c TEXI DOCSTRING MAGIC: proof-queue-span
 @defvar proof-queue-span 
-The queue span of the buffer.  May be detached if inactive or empty.
+The queue span of the buffer.  May be detached if inactive or empty.@*
+Each script buffer has its own queue span, although only the active
+scripting buffer may have an active queue span.
 @end defvar
 
 Various utility functions manipulate and examine the spans.  An
