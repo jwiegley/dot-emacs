@@ -74,8 +74,7 @@ triples, which is a queue of things to do.
 See the functions `proof-start-queue' and `proof-exec-loop'.")
 
 (defvar proof-shell-silent nil
-  "A flag, non-nil if PG thinks the prover is silent."
-  nil)
+  "A flag, non-nil if PG thinks the prover is silent.")
 
 
 ;;
@@ -384,7 +383,7 @@ exited by hand (or exits by itself)."
 	proof-shell-busy nil
 	proof-shell-proof-completed nil
 	proof-shell-error-or-interrupt-seen nil
-	proof-shell-silent-nil)
+	proof-shell-silent nil))
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
@@ -1070,9 +1069,54 @@ proof-shell-exec-loop, to process the next item."
 ;      (set-marker proof-marker inserted))))
 
 
+;; ============================================================
+;;
+;; Code for manipulating proof queue
+;;
 
-; Pass start and end as nil if the cmd isn't in the buffer.
 
+(defun proof-shell-command-queue-item (cmd callback)
+  "Return the proof queue entry needed to run CMD with callback CALLBACK."
+  (list nil cmd callback))
+
+
+(defun proof-shell-set-silent (span)
+  "Callback for `proof-shell-start-silent'.
+Very simple function but it's important to give it a name to help
+track what happens in the proof queue."
+  (setq proof-shell-silent t))
+
+(defun proof-shell-start-silent-item ()
+  "Return proof queue entry for starting silent mode."
+  (proof-shell-command-queue-item 
+   proof-shell-start-silent-cmd
+   'proof-shell-set-silent))
+
+(defun proof-shell-clear-silent (span)
+  "Callback for `proof-shell-stop-silent'.
+Very simple function but it's important to give it a name to help
+track what happens in the proof queue."
+  (setq proof-shell-silent nil))
+
+(defun proof-shell-stop-silent-item ()
+  "Return proof queue entry for stopping silent mode."
+  (proof-shell-command-queue-item 
+   proof-shell-stop-silent-cmd
+   'proof-shell-clear-silent))
+
+;; FIXME: could be macro for efficiency improvement in avoiding calculating num
+(defun proof-shell-should-be-silent (num)
+  "Return non-nil if we must switch to silent mode, adding NUM entries to queue."
+  (if proof-shell-start-silent-cmd
+      (or proof-shell-silent	; already
+	  ;; NB: there is some question here over counting the
+	  ;; proof-action-list, since it could itself contain
+	  ;; silent-on/off commands which should be ignored for
+	  ;; counting, really... also makes cutting lists for advanced
+	  ;; queue processing more tricky.
+	  (>= (+ num (length proof-action-list))
+	     proof-shell-silent-threshold))))
+	      
 
 (defun proof-append-alist (alist &optional queuemode)
   "Chop off the vacuous prefix of the command queue ALIST and queue it.
@@ -1103,6 +1147,14 @@ being processed."
 		   (unless (eq proof-shell-busy queuemode)
 		     (proof-debug "proof-append-alist: wrong queuemode detected for busy shell")
 		     (assert (eq proof-shell-busy queuemode))))
+	      ;; See if we should make prover quieten down
+	      (if (proof-shell-should-be-silent (length alist))
+		;; Make it ASAP, which is just after the current
+		;; command (head of queue).
+		  (setq proof-action-list
+			(cons (car proof-action-list)
+			      (cons (proof-shell-start-silent-item)
+				     (cdr proof-action-list)))))
 	      ;; append to the current queue
 	      (setq proof-action-list
 		    (nconc proof-action-list alist)))
@@ -1110,7 +1162,15 @@ being processed."
 	  (progn
 	    (proof-grab-lock queuemode) 
 	    (setq proof-shell-delayed-output (cons 'insert "Done."))
-	    (setq proof-action-list alist)
+	    (if (proof-shell-should-be-silent (length alist))
+		;; 
+		(progn
+		  (setq proof-action-list 
+			(list (proof-shell-start-silent-item)))
+		  (setq item (car proof-action-list))))
+	    (setq proof-action-list
+		  (nconc proof-action-list alist))
+	    ;; Really start things going here
 	    (proof-shell-insert (nth 1 item) (nth 2 item)))))))
     
 (defun proof-start-queue (start end alist)
@@ -1171,13 +1231,24 @@ The return value is non-nil if the action list is now empty."
 	    ;; Do (action span) on comments
 	    (funcall (nth 2 item) (car item))
 	    (setq proof-action-list (cdr proof-action-list)))
+	  ;; If action list is empty or has a single element,
+	  ;; we want to make sure prover is being noisy.
+	  (if (and proof-shell-silent
+		   (or (null proof-action-list)	; possible?
+		       (null (cdr proof-action-list))))
+	      (progn
+		;; Stick the quieten command onto the queue
+		(setq proof-action-list
+		      (cons (proof-shell-stop-silent-item)
+			    proof-action-list))
+		(setq item (car proof-action-list))))
 	  ;; If action list is empty now, release the process lock
 	  (if (null proof-action-list)
 	      (progn (proof-release-lock)
 		     (proof-detach-queue)
 		     ;; indicate finished
 		     t)
-	    ;; Otherwise send the next command to the process
+	    ;; Otherwise, send the next command to the process.
 	    (proof-shell-insert (nth 1 item) (nth 2 item))
 	    ;; indicate not finished
 	    nil)))))
@@ -1694,7 +1765,8 @@ If WAIT is an integer, wait for that many seconds afterwards."
   (if (not (string-match proof-re-end-of-cmd cmd))
       (setq cmd (concat cmd proof-terminal-string)))
   (proof-start-queue nil nil
-		     (list (list nil cmd 'proof-done-invisible)))
+		     (list (proof-shell-command-queue-item 
+			    cmd 'proof-done-invisible)))
   (if wait (proof-shell-wait (if (numberp wait) wait))))
 
 
