@@ -179,7 +179,8 @@ of the proof (starting from 1).")
      (proof-with-current-buffer-if-exists buf ,@body)))
 
 (defmacro proof-customize-toggle (var)
-  "Make a function for toggling a boolean customize setting VAR."
+  "Make a function for toggling a boolean customize setting VAR.
+The toggle function uses customize-set-variable to change the variable."
   `(lambda (arg)
      ,(concat "Toggle " (symbol-name var) ". With ARG, turn on iff ARG>0.
 This function simply uses customize-set-variable to set the variable.
