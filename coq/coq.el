@@ -15,9 +15,11 @@
   :type 'string
   :group 'coq)
 
-(defcustom coq-compile-command "coqc %s"
+(defcustom coq-compile-file-command "coqc %s"
   "*Command to compile a coq file.
-This is called when `coq-auto-compile-vos' is set."
+This is called when `coq-auto-compile-vos' is set, unless a Makefile
+exists in the directory, in which case the `compile' command is run.
+To disable coqc being called (and use only make), set this to nil."
   :type 'string
   :group 'coq)
 
@@ -707,14 +709,15 @@ Based on idea mentioned in Coq reference manual."
 
   ;; multiple file handling
   (setq proof-cannot-reopen-processed-files t
-        proof-shell-inform-file-retracted-cmd 'coq-retract-file)
+        ;; proof-shell-inform-file-retracted-cmd 'coq-retract-file
+        proof-shell-require-command-regexp coq-require-command-regexp
+        proof-done-advancing-require-function 'coq-process-require-command)
 
   ;; hooks and callbacks
   (add-hook 'proof-pre-shell-start-hook 'coq-pre-shell-start nil t)
   ;; FIXME: PG 3.5, next one shouldn't be needed but setting is
   ;; now lost in define-derived-mode for some reason.
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)
-  (add-hook 'proof-activate-scripting-hook 'coq-maybe-remove-vo nil t)
   (add-hook 'proof-deactivate-scripting-hook 'coq-maybe-compile-buffer nil t))
   
 
@@ -775,7 +778,7 @@ Based on idea mentioned in Coq reference manual."
 ;;
 ;; Multiple file handling
 ;;
-;; This is an imperfect attempt.  It really needs prover assistance!
+;; This is an imperfect attempt.  It really needs prover assistance.
 ;;
 ;; Experimental support for multiple files was first added 
 ;; for Coq 6.X based on discussions at TYPES 2000 between DA and PC.
@@ -783,16 +786,6 @@ Based on idea mentioned in Coq reference manual."
 
 ;; First note that coq-shell-cd is sent whenever we activate scripting, 
 ;; for V8 it extends the loadpath with the current directory.
-
-;; When scripting is turned on, we delete the corresponding .vo file
-;; in anticipation of the file being outdated.
-(defun coq-maybe-remove-vo ()
-  "If `coq-auto-compile-vos' is non-nil, delete current buffer's .vo.
-This is a value for the `proof-activate-scripting-hook'."
-  (if (and coq-auto-compile-vos
-           buffer-file-name
-           (file-exists-p (concat buffer-file-name "o")))
-      (delete-file (concat buffer-file-name "o"))))
 
 ;; When scripting is turned off, we compile the file to update the .vo.
 (defun coq-maybe-compile-buffer ()
@@ -805,20 +798,32 @@ This is a value for the `proof-deactivate-scripting-hook'."
       (progn
         ;; FIXME: in PG 4, this next step will be done inside
         ;; proof-register-possibly-new-processed-file.
+        ;; NB: we might save dependent buffers too!
         (ignore-errors 
           (proof-save-some-buffers (list buffer)))
-        (message "Compiling %s..." buffer-file-name)
-        (shell-command 
-         (format coq-compile-command buffer-file-name)))))
+        ;; Now re-compile.
+        ;; Coq users like Make, let's see if we have a Makefile
+        ;; here and choose compile.
+        (cond
+         ((and (proof-try-require 'compile) 
+               compile-command 
+               (file-exists-p "Makefile"))
+          ;; NB: compilation is run in the background
+          ;; in this case!
+          (let ((compilation-read-command nil))
+            (call-interactively 'compile)))
+         (coq-compile-file-command
+          (message "Compiling %s..." buffer-file-name)
+          (shell-command 
+           ;; Could be run in the background here if we
+           ;; added & to the end of the command.
+           (format coq-compile-file-command buffer-file-name)))))))
 
 
 ;; Dependency management 1: when a buffer is retracted, we also
 ;; need to retract any children buffers.
 ;; To do that, we run coqdep on each of the processed files, 
 ;; and see whether the buffer being retracted is an ancestor.
-
-(defun coq-v-of-vo (filename)
-  (concat (file-name-sans-extension filename) ".v"))
 
 (defun coq-ancestors-of (filename)
   "Return ancestor .v files of RFILENAME.
@@ -842,9 +847,7 @@ Currently this doesn't take the loadpath into account."
      ;; first dep is vacuous: file itself
      (cdr-safe deps))))
 
-
 ;; FIXME: memoise here
-;; FIXME: end up with duplicates
 (defun coq-all-ancestors-of (filename)
   "Return transitive closure of `coq-ancestors-of'."
   (let ((ancs   (coq-ancestors-of filename))
@@ -852,8 +855,20 @@ Currently this doesn't take the loadpath into account."
     (dolist (anc ancs)
       (setq all (union (cons anc
                              (coq-all-ancestors-of anc))
-                       all)))
+                       all
+                       :test 'string-equal)))
     all))
+
+;; FIXME: add other cases, move to coq-syntax
+(defconst coq-require-command-regexp 
+  (concat "Require\\s-+\\(" proof-id "\\)")  
+  "Regular expression matching Require commands in Coq.
+Group number 1 matches the name of the library which is required.")
+
+(defun coq-process-require-command (span cmd)
+  "Calculate the ancestors of a loaded file and lock them."
+  ;; FIXME todo
+  )
 
 (defun coq-included-children (filename)
   "Return a list of children of FILENAME on `proof-included-files-list'."
@@ -870,8 +885,8 @@ Currently this doesn't take the loadpath into account."
 ;; Dependency management 2: when a "Require " is executed,
 ;; PG should lock all files whose .vo's are loaded.
 ;; This would be easy if Coq would output some handy
-;; messages tracking dependencies in .vo's.  
-;; But it doesn't.
+;; messages tracking dependencies in .vo's as it loads
+;; those files.   But it doesn't.
 ;; FIXME: to do this we'll need to watch the
 ;; Require commands ourselves, and then *lock* their
 ;; ancestors. TBD.
@@ -917,15 +932,17 @@ Currently this doesn't take the loadpath into account."
 
 (defpacustom auto-compile-vos nil
   "Whether to automatically compile vos and track dependencies."
-  :type 'boolean
-  :eval (if coq-auto-compile-vos
-            (setq proof-shell-process-file
-                  coq-proof-shell-process-file
-                  proof-shell-inform-file-retracted-cmd
-                  coq-proof-shell-inform-file-retracted-cmd)
-          (setq proof-shell-inform-file-processed-cmd nil
-                proof-shell-process-file nil
-                proof-shell-inform-file-retracted-cmd nil)))
+  :type 'boolean)
+
+;; old adjustments:
+;;  :eval (if coq-auto-compile-vos
+;            (setq proof-shell-process-file
+;                  coq-proof-shell-process-file
+;                  proof-shell-inform-file-retracted-cmd
+;                  coq-proof-shell-inform-file-retracted-cmd)
+;          (setq proof-shell-inform-file-processed-cmd nil
+;                proof-shell-process-file nil
+;                proof-shell-inform-file-retracted-cmd nil)))
 
 ;; da: what a shame -translate is a command line flag and not a
 ;; command in Coq. Otherwise we could enable/disable interactively.  
