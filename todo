@@ -53,7 +53,8 @@ re-enabled), proof-toggle-scripting, new configuration options.
     proof-cd
 
 B After interrupt, queue region is left intact.  Seems odd. 
-  Let's remove it.
+  Let's remove it.  Also interrupt needs other cleanups:
+  position of proof-marker may be wrong.
 
 B bug: interrupting Isabelle process sometimes doesn't return, why?
   (see first half of interrupt error only:
