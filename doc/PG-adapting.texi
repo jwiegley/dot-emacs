@@ -2192,32 +2192,26 @@ Support for Font Lock in Proof General is described in the user manual
 new proof assistant, you need to set the variable
 @code{font-lock-keywords} in each of the mode functions you want
 highlighting for.  Proof General will automatically install these
-settings, and enable Font Lock minor mode (for syntax highlighting as
-you type) in script buffers.
+settings, and use font lock minor mode (for syntax highlighting as you
+type) in script buffers.
 
 @c nope: too big. TEXI DOCSTRING MAGIC: font-lock-keywords
 To understand its format, check the documentation of
 @code{font-lock-keywords} inside Emacs.
 
-Proof General has a special hack for simplifying font lock settings
-@code{proof-font-lock-zap-commas}, but it is recommended to restrict to
-using the @code{font-lock-keywords} setting if possible.
+Proof General provides a special function, @code{proof-zap-commas}, for
+tweaking the font lock behaviour of provers which have declarations of
+the form @code{x,y,z:Ty}.  This function removes highlighting on the
+commas, and can be added as the last element of
+@code{font-lock-keywords}.  Further manipulation of font lock behaviour
+can be achieved via two hook functions which are run before and after
+fontifying the output buffers.
 
-
-@c TEXI DOCSTRING MAGIC: proof-font-lock-zap-commas
-@defvar proof-font-lock-zap-commas 
-If non-nil, enable a font-lock hack which unfontifies commas.@*
-If you fontify variables inside lists like [a,b,c] by matching
-on the brackets @samp{[} and @samp{]}, you may take objection to the commas 
-being coloured as well.  In that case, enable this hack which
-will magically restore the commas to the default font for you.
-
-The hack is rather painful and forces immediate fontification of
-files on loading (no lazy, caching locking).  It is unreliable
-under GNU Emacs, to boot.
-
-@var{lego} and Coq enable it by tradition.
-@end defvar
+@c TEXI DOCSTRING MAGIC: proof-zap-commas
+@defun proof-zap-commas limit
+Remove the face of all @samp{,} from point to @var{limit}.@*
+Meant to be used from @samp{@code{font-lock-keywords}}.
+@end defun
 
 @c TEXI DOCSTRING MAGIC: pg-before-fontify-output-hook
 @defvar pg-before-fontify-output-hook 
@@ -2227,7 +2221,11 @@ the current restriction, and must return the final value of (@code{point-max}).
 [This hook is presently only used by @code{phox-sym-lock}].
 @end defvar
 
-
+@c TEXI DOCSTRING MAGIC: pg-after-fontify-output-hook
+@defvar pg-after-fontify-output-hook 
+This hook is called before fonfitying a region in an output buffer.@*
+[This hook is presently only used by Isabelle].
+@end defvar
 @node Configuring X-Symbol
 @chapter Configuring X-Symbol
 @cindex X-Symbol
