@@ -310,6 +310,7 @@ proof-shell-retract-files-regexp."
 (proof-definvisible isar-help-commands "print_commands" [h o])
 (proof-definvisible isar-help-facts "print_facts" [h f])
 (proof-definvisible isar-help-syntax "print_syntax" [h i])
+(proof-definvisible isar-help-induct-rules "print_induct_rules" [h I])
 (proof-definvisible isar-help-methods "print_methods" [h m])
 (proof-definvisible isar-help-simpset "print_simpset" [h S])
 (proof-definvisible isar-help-binds "print_binds" [h b])
@@ -329,6 +330,7 @@ proof-shell-retract-files-regexp."
            ["commands"           isar-help-commands       t]
            ["facts"              isar-help-facts          t]
            ["inner syntax"       isar-help-syntax         t]
+           ["induct/cases rules" isar-help-induct-rules   t]
            ["methods"            isar-help-methods        t]
            ["simplifier rules"   isar-help-simpset        t]
            ["term bindings"      isar-help-binds          t]
