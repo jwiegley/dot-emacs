@@ -1,5 +1,82 @@
 2002-07-14  David Aspinall  <da@proofgeneral.org>
 
+	* hol98/hol98.el: ws
+
+	* twelf/twelf.el: Remove use new parser
+
+	* todo: Stick 3.4 stuff on end
+
+	* isa/BUGS, isar/BUGS, BUGS:
+	Tracing bug
+
+	* html/oldrel.php: Add check changes
+
+	* doc/ProofGeneral.texi: Fix authorship
+
+	* Makefile.devel: Add prune to update
+
+	* Makefile.devel: Try to debug
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/develdownload.php: Reformat
+
+	* html/mailinglist: Typo
+
+	* html/download.html:
+	Remove 3.3 download, encourage test version use.
+
+	* html/news.html: Rewrite history
+
+	* html/oldrel.php: Move 3.3 to oldrel
+
+	* html/devel.html: Improve layout
+
+	* html/proofgen.css: Tweaks for forms.
+
+	* html/feedback.php: Improve layout.
+
+	* html/main.html:
+	Simplify system infos.
+
+	* html/images/phox-einstein.jpg:
+	New files.
+
+	* demoisa/demoisa-easy.el:
+	Layout, comments.
+
+	* html/features.html, html/main.html:
+	Move project desc to features listing
+
+	* html/register: Improve layout
+
+	* html/proofgen.css:
+	Style for lists tweaked.
+
+	* etc/Mailman/note.txt: New files.
+
+	* etc/Mailman/subscribe.html, etc/Mailman/handle_opts.html, etc/Mailman/listinfo.html, etc/Mailman/options.html:
+	Cleanup html, fix URLs to final versions.
+
+2002-07-13  David Aspinall  <da@proofgeneral.org>
+
+	* etc/Mailman/subscribe.html, etc/Mailman/handle_opts.html:
+	First customized versions
+
+	* etc/Mailman/options.html:
+	Fix up.  Still ugly.
+
+	* etc/Mailman/handle_opts.html, etc/Mailman/subscribe.html, etc/Mailman/options.html:
+	New files.
+
+	* etc/Mailman/listinfo.html:
+	Tidy up source, improve titles.
+
+2002-07-14  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
