@@ -16,5 +16,3 @@ Isabelle's pretty-printing subsystem);
 
 ** C tune behaviour of goals/response buffers (e.g. hide empty
 response buffers when using 2 buffer model);
-
-** D support proof-next-error?
