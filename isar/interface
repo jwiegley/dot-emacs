@@ -17,11 +17,13 @@ function usage()
   echo "  Options are:"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -p NAME      Emacs program name (default xemacs)"
-  echo "    -u BOOL      use .emacs file (default false)"
+  echo "    -u BOOL      use .emacs file (default true)"
   echo "    -w BOOL      use window system (default true)"
   echo
   echo "Starts Proof General for Isabelle/Isar with proof documents FILES"
   echo "(default Scratch.thy)."
+  echo
+  echo "  PROOFGENERAL_OPTIONS=$PROOFGENERAL_OPTIONS"
   echo
   exit 1
 }
@@ -42,7 +44,7 @@ PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo $PWD)
 
 LOGIC="$ISABELLE_LOGIC"
 PROGNAME="xemacs"
-INITFILE="false"
+INITFILE="true"
 WINDOWSYSTEM="true"
 
 function getoptions()
