@@ -43,7 +43,7 @@ no regular or easily discernable structure."
   :group 'isabelle)
 
 (defcustom isabelle-web-page
-  "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html"
+  "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
   ;; "http://www.dcs.ed.ac.uk/home/isabelle"
   "URL of web page for Isabelle."
   :type 'string

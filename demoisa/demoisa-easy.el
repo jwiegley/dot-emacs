@@ -41,7 +41,7 @@
  proof-shell-end-goals-regexp    "val it"
  proof-shell-quit-cmd            "quit();"
  proof-assistant-home-page    
- "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html"
+ "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
  proof-shell-annotated-prompt-regexp 
  "^\\(val it = () : unit\n\\)?ML>? "
  proof-shell-error-regexp             
