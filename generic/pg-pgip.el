@@ -199,6 +199,9 @@ Return a symbol representing the PGIP command processed, or nil."
 ;; Identifiers: managing obarrays of symbols used for completion
 ;;
 
+(defvar proof-assistant-idtables nil
+  "List of idtables (objtype symbols) for currently running proof assistant.")
+
 (defun pg-pgip-process-ids (node)
   "Manipulate identifier tables, according to setids/addids/delids in NODE."
   (let ((idtables  (pg-xml-child-elts node))
@@ -211,7 +214,11 @@ Return a symbol representing the PGIP command processed, or nil."
 	     (obarray  (or (and (not (eq opn 'setids)) 
 				(get objtype 'pgsymbols))
 			   ;; new empty obarray for setids or if unset
-			   (set objtype 'pg-symbols (make-vector 31 0)))))
+			   (put objtype 'pg-symbols (make-vector 31 0)))))
+	(setq proof-assistant-idtables 
+	      (if (and (null idents) (eq opn 'setids))
+		  (delete objtype proof-assistant-idtables)
+		(adjoin objtype proof-assistant-idtables)))
 	(cond
 	 ((or (eq opn 'setids) (eq opn 'addids))
 	  (mapcar (lambda (i) (intern i obarray)) idents))
@@ -220,6 +227,11 @@ Return a symbol representing the PGIP command processed, or nil."
 	 (t
 	  (pg-pgip-error "pg-pgip-process-ids: called on wrong node %s" 
 			 (xml-node-name node))))))))
+
+(defun pg-complete-idtable-symbol ()
+  (interactive)
+  ;; TODO: complete based on blah
+  )
 
 (defalias 'pg-pgip-process-setids 'pg-pgip-process-ids)
 (defalias 'pg-pgip-process-addids 'pg-pgip-process-ids)
@@ -653,7 +665,8 @@ the prover.  For remaining optional args, see doc of
 	pg-pgip-last-seen-id nil
 	pg-pgip-last-seen-seq nil
 	pg-pgip-seq 0
-	proof-assistant-settings nil))
+	proof-assistant-settings nil ;; optional
+	proof-assistant-idtables nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
