@@ -8,8 +8,9 @@ PG 3.5, including:
   -- automatic adjusting of line width
 
 There are other minor improvements to documentation, and some
-minor improvements for Isabelle.
-	
+improvements for Isabelle, in particular to support additional features
+in the current CVS version of Isabelle.
+
 [da, 4/6/04].
 
 
