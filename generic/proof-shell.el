@@ -2168,7 +2168,7 @@ Internal variable, setting this will have no effect!")
 	   (set-specifier default-toolbar-visible-p nil (current-buffer))
 	   ;; (set-specifier minibuffer (minibuffer-window) (current-buffer))
 	   (set-specifier has-modeline-p nil (current-buffer))
-	   (set-specifier menubar-visible-p nil (current-buffer))))
+	   (set-specifier menubar-visible-p nil (current-buffer)))))
     ;; Try to trigger re-display of goals/response buffers,
     ;; on next interaction.  
     ;; FIXME: would be nice to do the re-display here, rather
