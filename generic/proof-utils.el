@@ -393,7 +393,8 @@ Returns new END value."
 
 	  ;; ================================================
 	  (run-hooks 'proof-before-fontify-output-hook)
-	  (font-lock-default-fontify-region start end)
+	  ;; Emacs 21.1: add loudly flag below for font lock
+	  (font-lock-default-fontify-region start end nil)
 	  (proof-zap-commas-region start end))))
   (if proof-shell-leave-annotations-in-output
       ;; Remove special characters that were used for font lock,
