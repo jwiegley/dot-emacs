@@ -122,8 +122,17 @@ buffer modes)."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-strict-state-preserving 
-  t
+(defcustom proof-trace-output-fontify-enable t ;; testing
+  (not (and proof-running-on-XEmacs (>= emacs-major-version 21)))
+  "*Whether to fontify output from the proof assistant during tracing.
+If non-nil and proof-output-fontify-enable is also non-nil, 
+output from the proof assistant will be highlighted in the trace buffer.
+This is not recommended in XEmacs 21, since the font-lock parser 
+is easily overloaded by large tracing output."
+  :type 'boolean
+  :group 'proof-user-options)
+
+(defcustom proof-strict-state-preserving t
   "*Whether Proof General is strict about the state preserving test.
 Proof General lets the user send arbitrary commands to the proof
 engine with `proof-minibuffer-cmd'.  To attempt to preserve
