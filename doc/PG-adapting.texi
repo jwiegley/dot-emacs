@@ -376,7 +376,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (isar "Isabelle/Isar" "\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (phox "PhoX" "\\.phx$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (twelf "Twelf" "\\.elf$") (plastic "Plastic" "\\.lf$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (isar "Isabelle/Isar" "\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (phox "PhoX" "\\.phx$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (twelf "Twelf" "\\.elf$") (plastic "Plastic" "\\.lf$") (lclam "Lambda-CLAM" "\\.lcm$"))}.
 @end defopt
 
 
@@ -895,6 +895,9 @@ The possibilities are:
 @end lisp
 If your proof assistant allows nested goals, it will be wrong to close
 off the portion of proof so far, so this variable should be set to nil.
+
+NB: @code{'extend} behaviour is not currently compatible with appearance of
+save commands, so don't use that if your prover has save commands.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-really-save-command-p
@@ -1966,8 +1969,10 @@ See doc of @samp{@code{pg-subterm-start-char}}.
 Annotation character that indicates the beginning of a "top" element.@*
 A "top" element may be a sub-goal to be proved or a named hypothesis,
 for example.  It is currently assumed (following @var{lego}/Coq conventions)
-to span a whole line (the region marked in . 
-The function @samp{@code{pg-topterm-goalhyp-fn}} examines text following
+to span a whole line.
+
+The function @samp{@code{pg-topterm-goalhyp-fn}} examines text following this
+special character, to determine what kind of top element it is.
 
 This setting is also used to see if proof-by-pointing features
 are configured.  If it is unset, some of the code 
@@ -2584,7 +2589,9 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'demoisa} @code{'isa} @code{'isar} @code{'lego} @code{'coq} @code{'phox} @code{'hol98} @code{'acl2} @code{'twelf} @code{'plastic}.
+A list of symbols chosen from: @code{'demoisa} @code{'isa} @code{'isar} @code{'lego} @code{'coq} @code{'phox} @code{'hol98} @code{'acl2} @code{'twelf} @code{'plastic} @code{'lclam}.
+If nil, the default will be ALL proof assistants.
+
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
