@@ -40,6 +40,9 @@ example, the name of the proof assistant binary).  See the menu
 
 and the notes below for more details.
 
+Notice that the customization mechanism is only available in
+Emacs 20.x and XEmacs.
+
 If you are installing Proof General site-wide, you can put the
 components in separate directories, providing the variables in
 proof-site.el are adjusted accordingly.  Make sure that the generic
