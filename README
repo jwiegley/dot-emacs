@@ -1,0 +1,22 @@
+Proof General --- Organize your proof with Emacs!
+=================================================
+
+Proof General is a generic Emacs interface for proof assistants.
+
+Our aim is provide a powerful and configurable Emacs mode which helps
+user-interaction with interactive proof assistants.
+
+Please help us with this aim!  Configure Proof General for your proof
+assistant, by adding features at the generic level wherever possible.
+Send ideas, comments, patches, code to proofgen@dcs.ed.ac.uk.
+
+
+See INSTALL for installation details.
+
+See doc/ for documentation of Proof General.
+
+
+David Aspinall & Thomas Kleymann
+October 1998.
+		
+
