@@ -647,7 +647,7 @@ If a function, it should return the command string to insert."
 
 (defcustom proof-terminal-char nil
   "Character which terminates a command in a script buffer.
-You must set this variable."
+You must set this variable in script mode configuration."
   :type 'character
   :group 'proof-script)
 
@@ -1273,23 +1273,37 @@ to do syntax highlighting with font-lock."
   "Hooks run by proof-shell-insert before inserting a command.
 Can be used to configure the proof assistant to the interface in
 various ways -- for example, to observe or alter the commands sent to
-the prover, or to sneak in extra commands to configure the 
-prover (LEGO uses this to set the pretty printer's line width if 
-the window width has changed).
+the prover, or to sneak in extra commands to configure the prover.
 
 This hook is called inside a save-excursion with the proof-shell-buffer 
 current, just before inserting and sending the text in the 
-variable STRING.  The hook can massage STRING or insert additional 
+variable `string'.  The hook can massage `string' or insert additional 
 text directly into the proof-shell-buffer.  
-Before sending STRING, it will be stripped of carriage returns.
+Before sending `string', it will be stripped of carriage returns.
 
-NB: You should be very careful about setting this hook.  Proof General
-relies on a careful synchronization with the process between inputs
-and outputs.  It expects to see a prompt for each input it sends from
-the queue.  If you add extra input here and it causes more prompts
-than expected, things will break!  Massaging the variable STRING
-may be safer since it is stripped of carriage returns 
-before being sent."
+Additionally, the hook can examine the variable `action'.  It will be
+a symbol, set to the callback command which is executed in the proof
+shell filter once `string' has been processed.  The `action' variable
+suggests what class of command is about to be inserted:
+  
+ 'proof-shell-done-invisible      A non-scripting command
+ 'proof-done-advancing		  A \"forward\" scripting command
+ 'proof-done-retracting		  A \"backward\" scripting command
+
+Caveats: You should be very careful about setting this hook.  Proof
+General relies on a careful synchronization with the process between
+inputs and outputs.  It expects to see a prompt for each input it
+sends from the queue.  If you add extra input here and it causes more
+prompts than expected, things will break!  Extending the variable
+`string' may be safer than inserting text directly, since it is
+stripped of carriage returns before being sent.
+
+Example uses:
+LEGO uses this hook for setting the pretty printer width if
+the window width has changed;
+Plastic uses it to remove literate-style markup from `string'. 
+The x-symbol support uses this hook to convert special characters
+into tokens for the proof assistant."
   :type '(repeat function)
   :group 'proof-shell)
 

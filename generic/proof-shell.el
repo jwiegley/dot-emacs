@@ -63,7 +63,7 @@ Set in proof-shell-mode.")
 (defvar proof-action-list nil
   "A list of
 
-  (SPAN,COMMAND,ACTION)
+  (SPAN COMMAND ACTION)
 
 triples, which is a queue of things to do.
 See the functions `proof-start-queue' and `proof-exec-loop'.")
@@ -1066,9 +1066,9 @@ assistant."
    (t (setq proof-shell-delayed-output (cons 'insert string)))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Low-level commands for shell communication                     ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;   Low-level commands for shell communication
+;;
 
 (defvar proof-shell-insert-space-fudge 
   (cond
@@ -1079,25 +1079,23 @@ assistant."
 Allows for a difference between different versions of comint across
 different Emacs versions.")
 
-(defun proof-shell-insert (string)
+(defun proof-shell-insert (string action)
   "Insert STRING at the end of the proof shell, call comint-send-input.
-First call proof-shell-insert-hook. Then strip STRING of carriage
-returns before inserting it and updating proof-marker to point to 
-the end of the newly inserted text.
-NB: This means that any output received up til now but not 
-processed by the proof-shell-filter will be lost!   We must be
-careful to synchronize with the process.  This function is used 
-particularly in proof-start-queue and proof-shell-exec-loop."
+
+First call proof-shell-insert-hook.  The argument ACTION may be
+examined by the hook to determine how to process the STRING variable.
+
+Then strip STRING of carriage returns before inserting it and updating
+proof-marker to point to the end of the newly inserted text.
+
+Do not use this function directly, or output will be lost.  It is only
+used in proof-append-alist when we start processing a queue, and in
+proof-shell-exec-loop, to process the next item."
   (save-excursion
     (set-buffer proof-shell-buffer)
     (goto-char (point-max))
-
-    ;; Lego uses this hook for setting the pretty printer
-    ;; width, Coq uses it for sending an initialization string
-    ;; (although it could presumably use proof-shell-init-cmd?).
-    ;; Plastic uses it to remove literate-style markup from 'string'. 
-    ;; x-symbol mode uses this hook to convert special characters into
-    ;; tokens for the proof assistant.
+    
+    ;; See docstring for this hook
     (run-hooks 'proof-shell-insert-hook)
 
     ;; Now we replace CRs from string with spaces. This was done in
@@ -1120,7 +1118,13 @@ particularly in proof-start-queue and proof-shell-exec-loop."
 	(incf i)))
 
     (insert string)
+
+    ;; Advance the proof-marker.  This means that any output received
+    ;; up til now but not processed by the proof-shell-filter will be
+    ;; lost!  We must be careful to synchronize with the process
+    ;; before using proof-shell-insert.
     (set-marker proof-marker (point))
+
     ;; FIXME da: this space fudge is actually a visible hack:
     ;; the response string begins with a space and a newline.
     (insert proof-shell-insert-space-fudge)
@@ -1171,7 +1175,7 @@ Returns the possibly shortened list."
 	    (proof-grab-lock queuemode) 
 	    (setq proof-shell-delayed-output (cons 'insert "Done."))
 	    (setq proof-action-list alist)
-	    (proof-shell-insert (nth 1 item)))))))
+	    (proof-shell-insert (nth 1 item) (nth 2 item)))))))
     
 (defun proof-start-queue (start end alist)
   "Begin processing a queue of commands in ALIST.
@@ -1238,7 +1242,7 @@ The return value is non-nil if the action list is now empty."
 		     ;; indicate finished
 		     t)
 	    ;; Otherwise send the next command to the process
-	    (proof-shell-insert (nth 1 item))
+	    (proof-shell-insert (nth 1 item) (nth 2 item))
 	    ;; indicate not finished
 	    nil)))))
 
@@ -1671,7 +1675,7 @@ By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command."
   (if wait (proof-shell-wait))
-  (proof-shell-ready-prover)
+  (proof-shell-ready-prover)		; start proof assistant; set vars.
   (if (not (string-match proof-re-end-of-cmd cmd))
       (setq cmd (concat cmd proof-terminal-string)))
   (proof-start-queue nil nil
