@@ -1069,3 +1069,13 @@ proof-nesting-depth:
 
 Would be good to make count undos and find-and-forget generic.
   [ Perhaps too tricky/temperamental to get this right ]
+
+
+-----------------------------------------------------------------
+
+BUG:   in lego
+
+Warning: forgetting an unfinished proof
+KillRef: ok, not in proof state
+
+  possibly due to spurious proof span left behind(?)
