@@ -11,7 +11,7 @@
 #
 
 # The relative path works for uninstalled package
-PGHOME=/usr/share/xemacs/site-packages/lisp/ProofGeneral
+PGHOME=..
 
 # Try to find an Emacs executable 
 if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
