@@ -543,7 +543,7 @@ you will be asked to retract the file or process the remainder of it."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun isa-pre-shell-start ()
-  (setq proof-prog-name		isabelle-prog-name)
+  (setq proof-prog-name		(isabelle-command-line))
   (setq proof-mode-for-shell    'isa-shell-mode)
   (setq proof-mode-for-goals	'isa-goals-mode)
   (setq proof-mode-for-response 'isa-response-mode))
