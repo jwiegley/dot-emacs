@@ -32,8 +32,13 @@
   :type 'file
   :group 'phox)
 
-(defcustom phox-sym-lock t
-  "*Whether to use sym-lock or not."
+(defcustom phox-sym-lock nil
+  "*Whether to use sym-lock or not (should disappear soon)."
+  :type 'boolean
+  :group 'phox)
+
+(defcustom phox-x-symbol-enable t
+  "*Whether to use x-symbol or not."
   :type 'boolean
   :group 'phox)
 
@@ -261,6 +266,24 @@
 (defpgdefault completion-table
   (append phox-top-keywords phox-proof-keywords)
 )
+
+;;;
+;;; X-Symbol
+;;;
+
+(let ((xsymbol (getenv "PROOFGENERAL_XSYMBOL"))
+      (enable-var (if (equal (getenv "PROOFGENERAL_ASSISTANTS") "phox")
+                      'phox-x-symbol-enable)))
+
+  ;; avoid confusing warning message
+  (if (not (boundp 'x-symbol-image-converter))     
+      (customize-set-variable 'x-symbol-image-converter nil))
+  
+  ;; tell Proof General about -x option
+  (if (and xsymbol (not (equal xsymbol "")))
+      (customize-set-variable enable-var (equal xsymbol "true"))))
+
+(defpgdefault x-symbol-language 'phox)
 
 (eval-after-load "x-symbol-phox"
  ;; Add x-symbol tokens to phox-completion-table and rebuild

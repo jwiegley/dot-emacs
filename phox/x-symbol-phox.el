@@ -11,15 +11,8 @@
 ;; NB: Part of Proof General distribution.
 ;;
 
-;; CW: this sexpr can be deleted with X-Symbol 4.4.3
-(eval-when-compile
-  ;; Next lines should allow this file to work standalone 
-  ;; without proof-x-symbol.el.  See comments further below too.
-  (require 'cl)
-  (ignore-errors (require 'x-symbol-vars)))
-
 (defvar x-symbol-phox-required-fonts nil)
-  
+
 ;;;===========================================================================
 ;;;  General language accesses, see `x-symbol-language-access-alist'
 ;;;===========================================================================
@@ -51,7 +44,6 @@ See `x-symbol-header-groups-alist'."
 (defvar x-symbol-phox-extra-menu-items nil
   "Extra menu entries for language `phox'.")
 
-
 (defvar x-symbol-phox-token-grammar
   ;; CW: for X-Symbol-4.4.3:
   ;; '(x-symbol-make-grammar ...)
@@ -61,7 +53,8 @@ See `x-symbol-header-groups-alist'."
                     ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")))
        :decode-spec nil
        :decode-regexp "\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
-       :token-list #'x-symbol-phox-default-token-list)))
+       :token-list #'x-symbol-phox-default-token-list
+       :input-spec nil)))
 
 (defvar x-symbol-phox-input-token-grammar
   '("\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
@@ -97,6 +90,7 @@ See `x-symbol-header-groups-alist'."
 (defvar x-symbol-phox-image-cached-dirs '("images/" "pictures/"))
 (defvar x-symbol-phox-image-file-truename-alist nil)
 (defvar x-symbol-phox-image-keywords nil)
+
 
 ;;;===========================================================================
 ;;;  Charsym Info
@@ -148,7 +142,7 @@ See `x-symbol-language-access-alist' for details."
     (notequal "!=")
     (element "in")
     (notelement "notin")
-    (propersubset "<<")
+    (propersubset "subset")
     (intersection "inter")
     (union "union")
     (backslash3 "minus")
@@ -175,6 +169,32 @@ See `x-symbol-language-access-alist' for details."
     (append x-symbol-phox-user-table x-symbol-phox-xsymb0-table)))
 
 (provide 'x-symbol-phox)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; User-level settings for X-Symbol 
+;;
+;; this is MODE-ON CODING 8BITS UNIQUE SUBSCRIPTS IMAGE
+(defcustom x-symbol-phox-auto-style
+  '((proof-ass x-symbol-enable)	 ; MODE-ON: whether to turn on interactively
+    nil   ;; x-symbol-coding
+    'null ;; x-symbol-8bits	   [NEVER want it; null disables search]
+    nil   ;; x-symbol-unique
+    nil   ;; x-symbol-subscripts
+    nil)  ;; x-symbol-image
+  "Variable used to document a language access.
+See documentation of `x-symbol-auto-style'."
+  :group 'x-symbol-phox
+  :group 'x-symbol-mode
+  :type 'x-symbol-auto-style)
+
+;; CW: this sexpr can be deleted with X-Symbol 4.4.3
+(eval-when-compile
+  ;; Next lines should allow this file to work standalone 
+  ;; without proof-x-symbol.el.  See comments further below too.
+  (require 'cl)
+  (ignore-errors (require 'x-symbol-vars)))
+
 
 ;;;===========================================================================
 ;;;  Internal
