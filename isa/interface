@@ -183,7 +183,7 @@ else
   [ "$INITFILE" = false ] && ARGS="$ARGS -q"
   
   if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
-    ARGS="$ARGS -T Isabelle"
+    #ARGS="$ARGS -T Isabelle"
     [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOLSETUP" = true ] && installfonts
   else
     ARGS="$ARGS -nw"
