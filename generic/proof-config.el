@@ -77,11 +77,11 @@ This option is compatible with proof-prog-name-ask."
   :type 'boolean
   :group 'proof-general)
 
-(and (featurep 'toolbar)
 (defcustom proof-toolbar-inhibit nil
-  "*Non-nil prevents toolbar being used for script buffers."
+  "*Non-nil prevents toolbar being used for script buffers.
+NB: the toolbar is only available with XEmacs."
   :type 'boolean
-  :group 'proof-general))
+  :group 'proof-general)
 
 (defcustom proof-toolbar-follow-mode 'locked
   "*Choice of how point moves with toolbar commands.

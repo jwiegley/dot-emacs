@@ -52,8 +52,11 @@
 (autoload 'proof-shell-mode "proof-shell"
   "Proof General shell mode class for proof assistant processes")
 
-(autoload 'proof-toolbar-setup "proof-toolbar"
-  "Initialize Proof General toolbar and enable it for the current buffer" t)
+(if (featurep 'toolbar)
+    ;; toolbar code is only loaded for XEmacs
+    (autoload 'proof-toolbar-setup "proof-toolbar"
+      "Initialize Proof General toolbar and enable it for the current buffer" t)
+  (defun proof-toolbar-setup ()))
 
 ;;;
 ;;; More autoloads to help define interface between files
