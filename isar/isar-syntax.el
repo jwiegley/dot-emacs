@@ -164,6 +164,39 @@
 (defconst isar-string-end-regexp "\"\\|\\*}")
 
 
+;; antiquotations
+
+(defface isabelle-antiq-face
+  '((((type x) (class color) (background light))
+     (:background "honeydew3"))
+    (((type x) (class color) (background dark))
+     (:background "honeydew4"))
+    (t
+     (bold t)))
+  "*Face for Isabelle/Isar antiquotation"
+  :group 'proof-faces)
+
+(defconst isabelle-antiq-face 'isabelle-antiq-face)
+
+
+(defconst isar-antiq-regexp
+  (concat "\\(@{\\([^\"{}]+\\|" isar-string "\\)\\{0,7\\}}\\)")
+  "Regexp matching Isabelle/Isar antiquoations.")
+
+(defun isar-match-antiq (limit)
+  "Match Isabelle/Isar antiquotations."
+  (or
+   (and (proof-looking-at-syntactic-context)
+	(proof-looking-at isar-antiq-regexp))
+   (let (done ans)
+     (while (not done)
+       (if (proof-re-search-forward isar-antiq-regexp limit t)
+	   (and (proof-looking-at-syntactic-context)
+		(setq done t) (setq ans t))
+	 (setq done t)))
+     ans)))
+
+
 ;; ----- Isabelle inner syntax hilite
 
 (defface isabelle-class-name-face
@@ -233,7 +266,6 @@
 (defconst isabelle-bound-name-face 'isabelle-bound-name-face)
 (defconst isabelle-var-name-face 'isabelle-var-name-face)
 
-
 (defvar isar-font-lock-keywords-1
   (list
    (cons (isar-ids-to-regexp isar-keywords-minor)          'font-lock-type-face)
@@ -245,7 +277,8 @@
    (cons (isar-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
-   (cons isar-tac-regexp 'font-lock-reference-face)))
+   (cons isar-tac-regexp 'font-lock-reference-face)
+   '(isar-match-antiq (0 isabelle-antiq-face prepend))))
 
 (defvar isar-output-font-lock-keywords-1
   (list
@@ -256,8 +289,7 @@
    (cons (concat "\355" isar-id "\350") 'isabelle-bound-name-face)
    (cons (concat "\356\\?" isar-idx "\350") 'isabelle-var-name-face)
    (cons (concat "\357" isar-id "\350") 'proof-declaration-name-face)
-   (cons (concat "\357\\?" isar-idx "\350") 'proof-declaration-name-face)
-   )
+   (cons (concat "\357\\?" isar-idx "\350") 'proof-declaration-name-face))
   "*Font-lock table for Isabelle terms.")
 
 (defvar isar-goals-font-lock-keywords
