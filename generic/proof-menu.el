@@ -263,12 +263,13 @@ without adjusting window layout."
 (proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle proof-strict-read-only)
 
+(proof-deftoggle-fn 'proof-imenu-enable 'proof-imenu-toggle)
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle)
 
 ;; Here is the menu
 
-(defvar proof-quick-opts-menu
+(defconst proof-quick-opts-menu
   (cons 
    "Options"
    `(["Electric Terminator" proof-electric-terminator-toggle
@@ -297,7 +298,7 @@ without adjusting window layout."
       :active (proof-x-symbol-support-maybe-available)
       :style toggle
       :selected (and (boundp 'x-symbol-mode) x-symbol-mode)]
-     ["Multiple modes" (proof-mmm-toggle (if mmm-mode 0 1))
+     ["Multiple Modes" (proof-mmm-toggle (if mmm-mode 0 1))
       :active (proof-mmm-support-available)
       :style toggle
       :selected (and (boundp 'mmm-mode) mmm-mode)]
@@ -313,8 +314,12 @@ without adjusting window layout."
 			 (eq proof-buffer-type 'script))
       :style toggle
       :selected proof-toolbar-enable]
+     ["Index Menu" proof-imenu-toggle
+      :active (stringp (locate-library "imenu"))
+      :style toggle
+      :selected proof-imenu-enable]
      ("Display"
-      ["Layout windows" proof-layout-windows]
+      ["Layout Windows" proof-layout-windows]
       ["Use Three Panes" proof-three-window-toggle
        :active (not proof-multiple-frames-enable)
        :style toggle
@@ -383,6 +388,7 @@ without adjusting window layout."
    (proof-ass-sym x-symbol-enable)
    (proof-ass-sym mmm-enable)
    'proof-toolbar-enable
+   'proof-imenu-enable
    ;; Display sub-menu
    'proof-three-window-enable
    'proof-delete-empty-windows
@@ -436,9 +442,10 @@ without adjusting window layout."
 (defconst proof-advanced-menu
   (cons "Advanced..."
 	(append
-	 `(["Function Menu" function-menu
-	    ,menuvisiblep (fboundp 'function-menu)]
-	   ["Complete Identifier" proof-script-complete t]
+	 (if proof-running-on-XEmacs	;; speedbar not on standard menus
+	     '(["Speedbar" speedbar
+		:active (stringp (locate-library "speedbar"))]))
+	 '(["Complete Identifier" proof-script-complete t]
 	   ["Insert last output" pg-insert-last-output-as-comment proof-shell-last-output])
 	 (list "-----")
 	 proof-show-hide-menu
