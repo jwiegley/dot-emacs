@@ -116,7 +116,7 @@ function date_modified($filename) {
 /* A link to one of the main pages (must appear in navbar menu) */
 
 function link_root($page,$text) {
-    print  "<a href=\"index.phtml?page=" . $page . "\">";
+    print  "<a href=\"index.html?page=" . $page . "\">";
     print $text;
     print "</a>";
 }
@@ -124,22 +124,22 @@ function link_root($page,$text) {
 function small_header($title) {
   print $dtd;
   print "<html>";
-  include('head.phtml');
-  include('smallheader.phtml'); 
+  include('head.html');
+  include('smallheader.html'); 
   print "<h1>" . $title . "</h1>\n</td>\n</table>\n";
 }
 
 function small_header_body($title) {
-  include('smallheader.phtml'); 
+  include('smallheader.html'); 
   print "<h1>" . $title . "</h1>\n</td>\n</table>\n";
 /*  print "<p>";  FIXME: hack to get CSS to work with bad HTML from texi2html */
 }
 
 /* FIXME: remove this function: maybe just set a global variable,
-   or use SCRIPT_NAME, and then include footer.phtml. */
+   or use SCRIPT_NAME, and then include footer.html. */
 
 function footer($filemodified=".") {
-  include('footer.phtml'); 
+  include('footer.html'); 
   date_modified($filemodified);
   print "</address>\n";
 //  print "</font>\n";  /* Naughty stuff for older browsers, shouldn't do if V4 */
@@ -148,7 +148,7 @@ function footer($filemodified=".") {
 }
 
 function click_to_go_back() {
-  print "<p>\nClick <a href=\"index.phtml\">here</a> to go back to the ";
+  print "<p>\nClick <a href=\"index.html\">here</a> to go back to the ";
   print $project_title; // FIXME: doesn't work.
   print " front page.</p>\n";
 }
@@ -161,7 +161,7 @@ function fileshow($filename,$text="",$title="") {
  $message=$title;
  if ( $message == "") { $message=$filename; };
  $titlecode = ($title == "" ?  "" : "&title=" . urlencode($title));
- hlink("fileshow.phtml?file=" . urlencode($filename) . $titlecode,
+ hlink("fileshow.html?file=" . urlencode($filename) . $titlecode,
 	$text, $message);
 }
 
@@ -173,7 +173,7 @@ function htmlshow($filename,$text="",$title="") {
  $message=$title;
  if ( $message == "") { $message=$filename; };
  $urlbits = parse_url($filename);
- hlink("htmlshow.phtml"
+ hlink("htmlshow.html"
        . "?title=" . urlencode($title) 
        . "&file=" . urlencode($urlbits["path"])
        . ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]),
@@ -196,7 +196,7 @@ function markup_plain_text($filename) {
 }
 
 /* Hack an html file to be shown with our style sheet
-   and hack relative links to go via htmlshow.phtml. 
+   and hack relative links to go via htmlshow.html. 
    This isn't particularly robust, but seems to work for
    the output of texi2html.
 */
@@ -233,7 +233,7 @@ function hack_html($filename,$title="")  {
        if ($urlbits["host"]=="") { 
 	  /* Assume a relative link, let's hack it. */
 	  /* Use same title */
-	  $newurl = "htmlshow.phtml?title=" . urlencode($title);
+	  $newurl = "htmlshow.html?title=" . urlencode($title);
 	  if ($urlbits["path"]=="") {
 	     /* A fragment in same file */
 	     $newurl = $newurl . "&file=" 
@@ -272,7 +272,7 @@ function smallpage($filename,$text="",$title="",$message="") {
  if ( $message == "") { $message=$title; };
  if ( $message == "") { $message=$filename; };
  $urlbits = parse_url($filename);
- hlink("smallpage.phtml"
+ hlink("smallpage.html"
        . "?title=" . urlencode($title) 
        . "&file=" . urlencode($urlbits["path"])
        . ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]),
