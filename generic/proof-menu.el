@@ -45,8 +45,8 @@
 ;; FIXME: not implemented yet 
 ;; (define-key map [(meta p)]		  'proof-previous-matching-command)
 ;; (define-key map [(meta n)]		  'proof-next-matching-command)
-;; Deprecated bindings
-;(define-key map [(control c) return] 'proof-assert-next-command)
+;; Standard binding for completion
+(define-key map [(control c) return] 'complete)
 ;(define-key map [(control c) ?u] 'proof-retract-until-point-interactive)
 ;; Add the universal keys bound in all PG buffers.
 (proof-define-keys map proof-universal-keys))
@@ -145,7 +145,7 @@
 (proof-deftoggle proof-delete-empty-windows)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
 (proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
-(proof-deftoggle proof-x-symbol-enable proof-x-symbol-toggle)
+(proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 
 (defvar proof-quick-opts-menu
   `("Options"
@@ -171,7 +171,7 @@
     ["X-Symbol" proof-x-symbol-toggle
      :active (proof-x-symbol-support-maybe-available)
      :style toggle
-     :selected proof-x-symbol-enable]
+     :selected (proof-ass x-symbol-enable)]
     ("Follow mode" 
      ["Follow locked region" 
       (customize-set-variable 'proof-follow-mode 'locked)
