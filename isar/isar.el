@@ -120,7 +120,7 @@ See -k option for Isabelle interface script."
                                       isar-any-command-regexp
                                       (regexp-quote ";"))
    proof-script-integral-proofs t
-;   proof-script-use-old-parser  t
+   proof-script-use-old-parser  t
    proof-script-comment-start          isar-comment-start
    proof-script-comment-end            isar-comment-end
    proof-script-comment-start-regexp   isar-comment-start-regexp
