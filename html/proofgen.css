@@ -5,30 +5,26 @@
 
 body{
  font-family: Verdana, Arial, sans-serif;	/* font for the doc body */
- background: #2D1D03;					/* background brown */
+ background: #2D1D03;				/* background brown */
  background-image: 
 	url(images/canvaswallpaper.jpg);
- background-attachment: fixed;				/* background shouldn't scroll */
- color: #FFFFFF;					/* text colour is white */
+ background-attachment: fixed;		/* background shouldn't scroll */
+ color: #FFFFFF;		        /* text colour is white */
 }
-
 p{
  font-family: Verdana, Arial, sans-serif;	/* Netscape is picky, */
  color: #FFFFFF;			       /* so we must set every tag */
 }
-
 pre{
  font-family: LucidaTypewriter, mono;
  color: #FFFFFF;
 }
-
 h1{
  font-family: Verdana, Arial, sans-serif;
  color: #FFFFFF;
  font-size: large;
  font-series: bold;
 }
-
 h2{
  font-family: Verdana, Arial, sans-serif;
  font-size: medium;
@@ -37,7 +33,6 @@ h2{
  padding: 2px 4px 4px 4px;
  background: #7D4D33;
 }
-
 h3{
  font-family: Verdana, Arial, sans-serif;	
  font-size: medium;
@@ -46,13 +41,11 @@ h3{
  background: #6D3D43;
  color: #FFFFD0;
 }
-
 h4{
  font-family: Verdana, Arial, sans-serif;	
  font-size: medium;
  color: #FFD0D0;
 }
-
 h5{
  font-family: Verdana, Arial, sans-serif;	
  font-size: medium;
@@ -71,16 +64,15 @@ address{
 }
 
 input,select,textarea {
- background: #2D1D03;
+ background: #3D2D33;
  color: #FFFFFF;
 }
-
-/* Lists */
 
 dl,ul,dir,li{
  font-family: Verdana, Arial, sans-serif;	
  color: #FFFFFF;
 }
+
 dt{ font-style: italic; 
     padding: 2px 2px 2px 2px;
     margin-left: 20px;
@@ -88,17 +80,14 @@ dt{ font-style: italic;
     background: #6D3D43; 
 }
 
-/* Table Elements */
 table{
  font-family: Verdana, Arial, sans-serif;	
-/* background: #2D1D03; */
  color: #FFFFFF;
 }
 
 table.menubar{
  font-family: Verdana, Arial, sans-serif;	
  font-size: smaller;
-/* background: #2D1D03; */
  color: #FFFFFF;
 }
 
@@ -133,4 +122,3 @@ p.nb{
  font-size: smaller;
  font-style: italic;
 }
-
