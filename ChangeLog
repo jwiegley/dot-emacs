@@ -1,3 +1,85 @@
+2001-05-01  David Aspinall  <da@proofgeneral.org>
+
+	* doc/ProofGeneral.texi, doc/Makefile.doc, doc/PG-adapting.texi:
+	Try to disable image for now
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/devel.html: Change link to kit
+
+	* html/download.html:
+	Change link to register page
+
+	* html/feedback.html, html/index.shtml:
+	Include php file
+
+	* html/register, html/kit:
+	Register and kit shortcuts
+
+	* html/develdownload.html:
+	Include php file
+
+	* html/functions.php3:
+	Link to php files instead of html
+
+	* html/links, html/main, html/news, html/about, html/devel, html/doc, html/download, html/features:
+	Include php instead of html
+
+	* html/smallpage.php, html/htmlshow.php, html/index.php, html/develdownload.php, html/feedback.php, html/fileshow.php:
+	Rename some html files php
+
+	* html/index.html: Deleted files.
+
+2001-04-10  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	Modification of proof-script-command-end-regexp to allow commands
+	ended by ".eof"
+
+2001-03-20  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* html/main.html: Fixes to main page
+
+	* html/footer.html:
+	Change to my canonical www.dcs web address
+
+	* html/main.html:
+	Remove proofgeneral.org on main page
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.html:
+	Set version tag for new release.
+
+	* BUGS:
+	strange buffer selection bug reported by Markus
+
+	* doc/PG-adapting.texi: Updated magic
+
+2001-03-20  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	Added the config var proof-script-command-end-regexp fot coq V7.
+
+2001-03-20  David Aspinall  <da@proofgeneral.org>
+
+	* doc/Makefile.doc:
+	Use PS fonts in PS file
+
+	* generic/proof-shell.el:
+	Remove temporary comments
+
+	* generic/proof-config.el:
+	Fix docstring
+
+	* html/feedback.html, html/footer.html, html/functions.php3:
+	Changes to use proofgen@dcs for now instead of broken proofgeneral.org
+
+	* html/main.html: Fix to Coq web page
+
 2001-03-20  David Aspinall  <da@proofgeneral.org>
 
 	* ChangeLog: Updated.
