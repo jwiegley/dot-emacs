@@ -24,7 +24,7 @@ text {* Proper proof text -- \textit{advanced version}. *}
 
 theorem "A \<and> B \<longrightarrow> B \<and> A"
 proof
-  assume "A & B"
+  assume "A \<and> B"
   then obtain B and A ..
   then show "B \<and> A" ..
 qed
