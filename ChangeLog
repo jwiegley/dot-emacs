@@ -1,3 +1,80 @@
+2001-12-04  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* CHANGES: Update for 3.4pre
+
+	* html/devel.html:
+	Update mailing list address (point to web page)
+
+2001-12-04  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* doc/PG-adapting.texi:
+	update from make process;
+
+	* doc/ProofGeneral.texi, isar/isar.el:
+	isar specific commands for bold/sup/sub;
+
+	* isa/x-symbol-isabelle.el:
+	added symbols for alternative 0..9;
+
+2001-12-01  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/x-symbol-isabelle.el:
+	\<euro> symbol;
+	use previously defined x-symbol-isabelle-user-table (or nil);
+	x-symbol-user-table achieves electric |- and |= symbols;
+
+2001-11-24  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar.el:
+	proof-shell-spill-output-regexp temporarily disabled;
+
+2001-11-20  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar.el:
+	set proof-shell-spill-output-regexp;
+	isar-activate-scripting: proof-syn-cd (why is this here needed?);
+
+2001-11-13  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/interface, isar/interface:
+	option -k for logic specific isar-keywords file;
+
+2001-11-08  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/x-symbol-isabelle.el:
+	added \<index> symbol;
+
+2001-11-07  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/x-symbol-isabelle.el:
+	added \<lozenge> and \<struct>;
+
+	* isar/isar-syntax.el:
+	updated isar-goals-font-lock-keywords;
+
+2001-10-24  David Aspinall  <da@proofgeneral.org>
+
+	* html/main.html:
+	Fix missing arg to get.
+	Add Paul Roziere as req'd by Christopphe Raffalli
+
+2001-10-13  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-syntax.el:
+	isar-goals-font-lock-keywords: more general goal pattern;
+
+2001-10-08  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* CHANGES: Add back note.
+
 2001-10-08  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
