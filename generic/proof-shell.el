@@ -1637,6 +1637,9 @@ by the filter is to send the next command from the queue."
 ;; -- need to fontify remaining portion of buffer in case
 ;;   tracing output has ended when in slow mode (and refresh
 ;;   final display)  
+;; -- shouldn't be trigger for only a small amount of output 
+;;   (e.g. output from blast).  Or a count of number of succesive
+;;   bursts?
 
 (defvar pg-last-tracing-output-time nil
   "Time of last tracing output, as recorded by (current-time).")
@@ -1788,7 +1791,8 @@ Calls proof-state-change-hook."
 
 ;;;###autoload
 (defun proof-shell-invisible-command (cmd &optional wait)
-  "Send CMD to the proof process.  
+  "Send CMD to the proof process.
+The CMD is `invisible' in the sense that it is not recorded in buffer.
 CMD may be a string or a string-yielding function.
 Automatically add proof-terminal-char if necessary, examining
 proof-shell-no-auto-terminate-commands.

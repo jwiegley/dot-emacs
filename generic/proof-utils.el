@@ -574,6 +574,10 @@ No action if BUF is nil or killed."
 	 (if noselect
 	     ;; FIXME: would like 'norecord arg here to override
 	     ;; previous window entering top of MRU list here.
+	     ;; In fact, this could be hacked in XEmacs code.
+	     ;; GNU Emacs seems *not* to put previously displayed
+	     ;; window onto the top of the list with record-buffer:
+	     ;; that gives much nicer behaviour than XEmacs here.
 	     (display-buffer buf 'not-this-window)
 	   (let ((pop-up-windows t))
 	     (pg-pop-to-buffer buffer 'not-this-window 'norecord))))))  
