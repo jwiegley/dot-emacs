@@ -9,8 +9,16 @@
 ;;
 
 
-;; -----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Handy macros
+
+(defmacro deflocal (var value &optional docstring)
+  "Define a buffer local variable VAR with default value VALUE."
+ `(progn
+    (defvar ,var nil ,docstring)
+    (make-variable-buffer-local (quote ,var))
+    (setq-default ,var ,value)))
 
 (defmacro proof-with-current-buffer-if-exists (buf &rest body)
   "As with-current-buffer if BUF exists and is live, otherwise nothing."
@@ -23,6 +31,11 @@
   `(dolist (buf ,buflist)
      (proof-with-current-buffer-if-exists buf ,@body)))
 
+(defmacro proof-sym (string)
+  "Return symbol for current proof assistant using STRING."
+ `(intern (concat (symbol-name proof-assistant-symbol) "-" ,string)))
+
+
 (defun proof-try-require (symbol)
   "Try requiring SYMBOL.  No error if the file for SYMBOL isn't found."
   (condition-case ()
@@ -31,7 +44,10 @@
   (featurep symbol))
 
 
-;; -----------------------------------------------------------------
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Buffers and filenames
 
 (defun proof-file-truename (filename)
@@ -65,7 +81,8 @@ Restrict to BUFLIST if it's set."
       (if (with-current-buffer buf (eq mode major-mode))
 	  (setq bufs-got (cons buf bufs-got))))))
 
-;; -----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Key functions
 
 (defun proof-define-keys (map kbl)
@@ -78,7 +95,8 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
          (define-key map k f)))
    kbl))
 
-;; -----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Managing font-lock
 ;;
 
@@ -181,7 +199,9 @@ Returns new END value."
 
 
 
-;; -----------------------------------------------------------------
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Messaging and display functions
 ;;
 
@@ -337,8 +357,10 @@ Returns non-nil if response buffer was cleared."
 
 
 
-;; -----------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Function for submitting bug reports.
+;;
 
 (defun proof-submit-bug-report ()
   "Submit an bug report or other report for Proof General."
@@ -358,6 +380,39 @@ Returns non-nil if response buffer was cleared."
  http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/BUGS ]")))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Stuff for developing PG, not needed for ordinary users really.
+;; 
+
+(put 'proof-if-setting-configured 'lisp-indent-function 1)
+(put 'proof-define-assistant-command 'lisp-indent-function 'defun)
+(put 'proof-define-assistant-command-witharg 'lisp-indent-function 'defun)
+(put 'proof-defasscustom 'lisp-indent-function 'defun)
+
+(defconst proof-extra-fls
+  (list
+   (list "^(\\(proof-def\\"
+	 ;; Variable like things
+	 "\\(asscustom)\\|"
+	 ;; Function like things
+	 "\\([^ \t\n\(\)]+\\)"
+	 ;; Any whitespace and declared object.
+	 "[ \t'\(]*"
+	 "\\([^ \t\n\)]+\\)?")
+   '(1 font-lock-keyword-face)
+   '(8 (cond ((match-beginning 3) 'font-lock-variable-name-face)
+	     ;; ((match-beginning 6) 'font-lock-type-face)
+	     (t 'font-lock-function-name-face))
+       nil t)))
+
+(setq lisp-font-lock-keywords 
+      (append proof-extra-fls
+	      lisp-font-lock-keywords))
+       
+(setq autoload-package-name "proof")
+(setq generated-autoload-file "proof-autoloads.el")
+	
 
 
 ;; End of proof-utils.el
