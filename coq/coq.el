@@ -58,7 +58,7 @@
     ["Intros..." coq-Intros t]
     ["Show ith goal..." coq-Show t]
     ["Apply"  coq-Apply t]
-    ["Search isos..." coq-SearchIsos t]
+    ["Search isos/pattern..." coq-SearchIsos t]
     ["Begin Section..." coq-begin-Section t]
     ["End Section" coq-end-Section t]
     ["Compile" coq-Compile t]))
@@ -299,9 +299,12 @@ This is specific to coq-mode."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
-    (setq cmd (read-string "SearchIsos: " nil 'proof-minibuffer-history))
+    (setq cmd (read-string 
+	       (if coq-version-is-V7 "SearchPattern: " "SearchIsos: ") 
+	       nil 'proof-minibuffer-history))
     (proof-shell-invisible-command
-     (format "SearchIsos %s." cmd))))
+     (format (if coq-version-is-V7 "SearchPattern %s."
+	       "SearchIsos %s.") cmd))))
 
 
 (defun coq-Print ()
@@ -463,7 +466,8 @@ This is specific to coq-mode."
 (defun coq-mode-config ()
 
   (setq proof-terminal-char ?\.)
-  (setq proof-script-command-end-regexp "[.]\\([ \t\n\r]\\)")
+  (setq proof-script-command-end-regexp   
+	(if coq-version-is-V7 "[.]\\([ \t\n\r]\\)\\|[.]\\'" "[.]"))
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
