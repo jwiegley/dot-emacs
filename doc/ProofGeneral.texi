@@ -1405,7 +1405,7 @@ key-bindings and functions.
 
 @c TEXI DOCSTRING MAGIC: proof-display-some-buffers
 @deffn Command proof-display-some-buffers 
-Display the reponse, goals, trace, or shell buffer, rotating.@*
+Display the reponse, trace, goals, or shell buffer, rotating.@*
 A fixed number of repetitions of this command switches back to
 the same buffer.
 Also move point to the end of the response buffer if it's selected.
@@ -4020,7 +4020,7 @@ This appendix has been removed.
 
 Please consult the file
 @uref{http://www.proofgeneral.org/ProofGeneral/BUGS,@file{BUGS}} in the
-distribution for an up-to-date description bugs and other issues.
+distribution for an up-to-date description of bugs and other issues.
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
 let us know by sending a note to @code{support@@proofgeneral.org}.
