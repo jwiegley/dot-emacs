@@ -444,16 +444,19 @@ If non-nil, point is left where it was."
 
 (defun proof-goto-end-of-locked (&optional switch)
   "Jump to the end of the locked region, maybe switching to script buffer.
-If interactive or SWITCH is non-nil, switch to script buffer first."
+If called interactively or SWITCH is non-nil, switch to script buffer.
+If called interactively, a mark is set at the current location with `push-mark'"
   (interactive)
+  (if (and proof-script-buffer (interactive-p))
+      (push-mark))
   (proof-with-script-buffer
    (if ;; there is an active scripting buffer and it's not displayed
        (and proof-script-buffer
 	    (not (get-buffer-window proof-script-buffer))
 	    (or switch (interactive-p)))
        ;; display it
-       (switch-to-buffer proof-script-buffer)
-     (goto-char (proof-unprocessed-begin)))))
+       (switch-to-buffer proof-script-buffer))
+   (goto-char (proof-unprocessed-begin))))
 
 ;; Careful: movement can happen when the user is typing, not very nice!
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
