@@ -229,142 +229,56 @@ until Proof General is restarted."
 
 ;;; ========== Mirroring Proof General options in Isabelle process ========
 
-;; NB: EXPERIMENTAL: this pattern to be generalised to all provers via
-;; some extra macros
-
-;; Use of defasscustom and proof-ass-sym here gives separate customizable
+;; NB: use of defpacustom here gives  separate customizable
 ;; options for Isabelle and Isabelle/Isar.
 
-(defpgcustom show-types  nil
+(defpacustom show-types  nil
   "Whether to show types in Isabelle."
   :type 'boolean
-  :set 'proof-set-value)
+  :setting "show_types:=%b;")
 
-(defpgfun show-types ()
-  (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd 'show-types)))
-
-(defpgcustom show-sorts  nil
+(defpacustom show-sorts  nil
   "Whether to show sorts in Isabelle."
   :type 'boolean
-  :set 'proof-set-value)
+  :setting "show_types:=%b;")
 
-(defpgfun show-sorts ()
-  (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd 'show-sorts)))
-
-(defpgcustom show-consts  nil
+(defpacustom show-consts  nil
   "Whether to show types of consts in Isabelle goals."
   :type 'boolean
-  :set 'proof-set-value)
+  :setting "show_consts:=%b;")
 
-(defpgfun show-consts ()
-  (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd 'show-consts)))
-
-(defpgcustom long-names  nil
+(defpacustom long-names  nil
   "Whether to show fully qualified names in Isabelle."
   :type 'boolean
-  :set 'proof-set-value)
+  :setting "long_names:=%b;")
 
-(defpgfun long-names ()
-  (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd 'long-names)))
-
-(defpgcustom trace-simplifier  nil
+(defpacustom trace-simplifier  nil
   "Whether to trace the Simplifier in Isabelle."
   :type 'boolean
-  :set 'proof-set-value)
+  :setting "trace_simp:=%b;")
 
-(defpgfun trace-simplifier ()
-  (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd 'trace-simplifier)))
+(defpacustom print-depth  10
+  "Setting for the ML print depth in Isabelle."
+  :type 'integer
+  :setting "print_depth %i;")
 
-(defun isa-proof-invisible-command-ifposs (cmd)
-  ;; Better would be to queue the command, or even interrupt a queue
-  ;; in progress.  Also must send current settings at start
-  ;; of session somehow.  (This might happen automatically if
-  ;; a queue of deffered commands is set, since defcustom calls
-  ;; proof-set-value even to set the default/initial value?)
-  (if (proof-shell-available-p)
-      (progn
-	(proof-shell-invisible-command cmd t)
-	;; refresh display, FIXME: should only do if goals display is active,
-	;; messy otherwise. 
-	;; (we need a new flag for "active goals display").  
-	;; (proof-prf) 
-	;;  Could also repeat last command if non-state destroying.
-	)))
+;; FIXME: move this somewhere sensible.
+;; (actually only needs setting for isar)
+(setq proof-assistant-setting-format 'isar-markup-ml)
 
 (defun isar-markup-ml (string)
   "Return marked up version of STRING for Isar if we seem to be using Isar."
-  (if isa-running-isar (format "ML_command {* %s *}; pr;" string) string))
-
-(defun isa-format-bool (string val)
-  (isar-markup-ml
-   (proof-format (list (cons "%b" (if val "true" "false"))) string)))
-
-(defcustom isabelle-default-values-list 
-  '((show-types  
-     . (isa-format-bool "show_types:=%b;" (proof-ass show-types)))
-    (show-sorts 
-     . (isa-format-bool "show_sorts:=%b;" (proof-ass show-sorts)))
-    (show-consts
-     . (isa-format-bool "show_consts:=%b;" (proof-ass show-consts)))
-    (long-names
-     . (isa-format-bool "long_names:=%b;" (proof-ass long-names)))
-    (trace-simplifier
-     . (isa-format-bool "trace_simp:=%b;" (proof-ass trace-simplifier))))
-  "A list of default values kept in Proof General which are sent to Isabelle."
-  :type 'sexp
-  :group 'isabelle-config)
-
-
-(defun isabelle-set-default-cmd (&optional setting)
-  "Return a string for setting default values kept in Proof General customizations.
-If SETTING is non-nil, return a string for just that setting. 
-Otherwise return a string for configuring all settings."
-  (let
-      ((evalifneeded (lambda (expr)
-			(if (or (not setting) (eq setting (car expr)))
-			    (eval (cdr expr))))))
-    (apply 'concat (mapcar evalifneeded 
-			   isabelle-default-values-list))))
-
+  (if isa-running-isar (format "ML_command {* %s *};" string) string))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Generic Isabelle menu for Isabelle and Isabelle/Isar
 ;;
 
-(proof-deftoggle-fn (proof-ass-sym show-types))
-(proof-deftoggle-fn (proof-ass-sym show-sorts))
-(proof-deftoggle-fn (proof-ass-sym show-consts))
-(proof-deftoggle-fn (proof-ass-sym long-names))
-(proof-deftoggle-fn (proof-ass-sym trace-simplifier))
-
 (defpgdefault menu-entries
-  (append
-   (if isa-running-isar
-       nil
-     (list
-      ["Switch to theory" thy-find-other-file t]
-      "----"))
-   `(["Show types" ,(proof-ass-sym show-types-toggle)
-     :style toggle
-     :selected ,(proof-ass-sym show-types)]
-     ["Show sorts"  ,(proof-ass-sym show-sorts-toggle)
-      :style toggle
-      :selected ,(proof-ass-sym show-sorts)]
-     ["Show consts"  ,(proof-ass-sym show-consts-toggle)
-      :style toggle
-      :selected ,(proof-ass-sym show-consts)]
-     ["Long names"  ,(proof-ass-sym long-names-toggle)
-      :style toggle
-      :selected ,(proof-ass-sym long-names)]
-     ["Trace simplifier" ,(proof-ass-sym trace-simplifier-toggle)
-      :style toggle
-      :selected ,(proof-ass-sym trace-simplifier)])))
+  (if isa-running-isar
+      nil
+    (list ["Switch to theory" thy-find-other-file t])))
 
 (defpgdefault help-menu-entries isabelle-docs-menu)
 
