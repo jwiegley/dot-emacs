@@ -1,7 +1,7 @@
-;; proof-site.el --- Configuration for site and choice of prover.
+;; proof-site.el -- Configuration for site and choice of provers.
 ;;
 ;; Copyright (C) 1998 LFCS Edinburgh. 
-;; Authors: David Aspinall, Thomas Kleymann
+;; Authors: David Aspinall
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
@@ -9,92 +9,117 @@
 
 (or (featurep 'custom)
     ;; Quick hack to support defcustom for Emacs 19
+    ;; FIXME da: Remove this soon.
+    ;; Customize works fine with Emacs 20.2
     (defmacro defcustom (sym val doc &rest args)
       (defvar sym val doc))
     (defmacro group (sym mems doc &rest args)))
 
-;; Master table of supported assistants.
-(defconst proof-general-supported-assistants
-  '((isa	"Isabelle"	"\\.ML$\\|\\.thy$")
-    (lego	"LEGO"		"\\.l$")
-    (coq	"Coq"		"\\.v$"))
-  "Table of supported proof assistants.
-Each entry is a list of the form
 
-    (SYMBOL NAME AUTOLOAD-REGEXP)
-
-The NAME is a string, naming the proof assistant.
-The SYMBOL is used to form the name of the mode for the
-assistant, `SYMBOL-mode`, run when files with AUTOLOAD-REGEXP
-are loaded.  It is also used to form the name of the
-directory and elisp file for the mode, which will be
- 
-    <proof-home>/SYMBOL/SYMBOL.el
-
-where `<proof-home>/' is the value of the variable proof-home.")
-
-(defgroup proof-general nil
-  "Customization of generic parameters for Proof General."
+(defgroup proof nil
+  "Customization of Proof General."
   :group 'external
   :group 'processes)
 
-(defcustom proof-home
+
+;; Master table of supported assistants.
+
+(defgroup proof-internal nil
+  "Customization of Proof General internals."
+  :group 'proof)
+
+(defcustom proof-internal-assistant-table
+  '((isa	"Isabelle"	"\\.ML$\\|\\.thy$")
+    (lego	"LEGO"		"\\.l$")
+    (coq	"Coq"		"\\.v$"))
+  "Proof General's table of supported proof assistants.
+Extend this table to add a new proof assistant.
+Each entry is a list of the form
+
+    (SYMBOL NAME AUTOMODE-REGEXP)
+
+The NAME is a string, naming the proof assistant.
+The SYMBOL is used to form the name of the mode for the
+assistant, `SYMBOL-mode`, run when files with AUTOMODE-REGEXP
+are visited.  SYMBOL is also used to form the name of the
+directory and elisp file for the mode, which will be
+ 
+    <proof-directory-home>/SYMBOL/SYMBOL.el
+
+where `<proof-directory-home>/' is the value of the
+variable proof-directory-home."
+  :type '(repeat (list symbol string string))
+  :group 'proof-internal)
+
+
+;; Directories
+
+(defcustom proof-internal-home-directory
   ;; FIXME: make sure compiling does not evaluate next expression.
-  (or (getenv "PROOF_HOME") 
+  (or (getenv "PROOFGENERAL_HOME") 
       (let ((curdir 
 	     (or
 	      (and load-in-progress (file-name-directory load-file-name))
 	      (file-name-directory (buffer-file-name)))))
 	(file-name-directory (substring curdir 0 -1))))
   "*Directory where Proof General is installed. Ends with slash.
-Default value taken from environment variable PROOF_HOME if set, 
+Default value taken from environment variable PROOFGENERAL_HOME if set, 
 otherwise based on where the file proof-site was loaded from.
 You can use customize to set this variable."
   :type 'directory
-  :group 'proof-general)
+  :group 'proof-internal)
 
-(defcustom proof-image-directory
-  (concat proof-home "images/")
+(defcustom proof-internal-images-directory
+  (concat proof-internal-home-directory "images/")
     "*Where Proof General image files are installed. Ends with slash."
   :type 'directory
-  :group 'proof-general)
+  :group 'proof-internal)
 
-(defcustom proof-info-dir 
-  (concat proof-home "doc/")
+(defcustom proof-internal-info-directory
+  (concat proof-internal-home-directory "doc/")
   "*Where Proof General Info files are installed."
   :type 'directory
-  :group 'proof-general)
+  :group 'proof-internal)
 
 ;; Add the info directory to the end of Emacs Info path 
 ;; if need be. 
-(or (memq proof-info-dir Info-default-directory-list)
+(or (member proof-internal-info-directory Info-default-directory-list)
     (setq Info-default-directory-list
 	  (append 
 	   Info-default-directory-list 
-	   (list proof-info-dir))))
+	   (list proof-internal-info-directory))))
 
+;; Might be nicer to have a boolean for each supported assistant.
 (defcustom proof-assistants
-  (mapcar (lambda (astnt) (car astnt)) proof-general-supported-assistants)
+  (mapcar (lambda (astnt) (car astnt))
+	  proof-internal-assistant-table)
   (concat
    "*Choice of proof assitants to use with Proof General.
-A list of symbols chosen from " 
+A list of symbols chosen from: " 
    (apply 'concat (mapcar (lambda (astnt) 
 			    (concat "'" (symbol-name (car astnt)) " "))
-			  proof-general-supported-assistants)) 
-"\nNB: To change proof assistant, you must start a new Emacs session.")
+			  proof-internal-assistant-table)) 
+".\nEach proof assistant defines its own instance of Proof General,
+providing session control, script management, etc.  Proof General
+will be started automatically for the assistants chosen here.
+To avoid accidently invoking a proof assistant you don't have,
+only select the proof assistants you (or your site) may need.
+NOTE: to change proof assistant, you must start a new Emacs session.")
   :type (cons 'set 
 	      (mapcar (lambda (astnt)
 			(list 'const ':tag (car (cdr astnt)) (car astnt)))
-		      proof-general-supported-assistants))
-  :group 'proof-general)
+		      proof-internal-assistant-table))
+  :group 'proof)
 
 ;; Extend load path for the generic files.
-(setq load-path
-      (cons (concat proof-home "generic/") load-path))
-
+(let ((proof-lisp-path
+       (concat proof-internal-home-directory "generic/")))
+  (or (member proof-lisp-path load-path)
+      (setq load-path
+	    (cons proof-lisp-path load-path))))
 
 ;; Now add auto-loads and load-path elements to support the 
-;; proof assistants selected
+;; proof assistants selected, and define a stub 
 (let ((assistants proof-assistants) proof-assistant)
   (while assistants
     (let*  
@@ -102,9 +127,10 @@ A list of symbols chosen from "
 	 (nameregexp 
 	  (or 
 	   (cdr-safe 
-	    (assoc proof-assistant proof-general-supported-assistants))
+	    (assoc proof-assistant
+		   proof-internal-assistant-table))
 	   (error "proof-site: symbol " (symbol-name proof-assistant) 
-		  "is not in proof-general-supported-assistants")))
+		  "is not in proof-internal-assistant-table")))
 	 (assistant-name (car nameregexp))
 	 (regexp	 (car (cdr nameregexp)))
 	 (sname		 (symbol-name proof-assistant))
@@ -112,31 +138,46 @@ A list of symbols chosen from "
 	 (elisp-file   sname)
 	 ;; NB: Dir name for each prover is the same as its symbol name!
 	 (elisp-dir    sname)
-	 ;; NB: Mode name for each prover is <symname>-mode!
-	 (proofgen-mode  (intern (concat sname "-mode"))))
+	 ;; NB: Mode name for each prover is <symbol name>-mode!
+	 (proofgen-mode  (intern (concat sname "-mode")))
+	 ;; NB: Customization group for each prover is its l.c.'d name!
+	 (cusgrp	 (intern (downcase assistant-name)))
+
+	 ;; Stub to do some automatic initialization and load
+	 ;; the specific code.
+	 (mode-stub
+	   `(lambda ()
+	      ,(concat
+		 "Major mode for editing scripts for proof assistant "
+		 assistant-name
+		 ".\nThis is a stub which loads the real function.")
+	      (interactive)
+	      ;; Make a customization group for this assistant
+	      (defgroup ,cusgrp nil
+		,(concat "Customization of " assistant-name
+			 " specific settings for Proof General.")
+		:group 'proof)
+	      ;; Set the proof-assistant configuration variable
+	      (setq proof-assistant ,assistant-name)
+	      ;; Extend the load path, load the real mode and invoke it.
+	      (setq load-path 
+		    (cons (concat proof-internal-home-directory ,elisp-dir "/")
+			  load-path))
+	      (load-library ,elisp-file)
+	      (,proofgen-mode))))
 
       (setq auto-mode-alist 
 	    (cons (cons regexp proofgen-mode) auto-mode-alist))
-      (autoload proofgen-mode elisp-file
-	(concat
-	 "Major mode for editing scripts for proof assistant " 
-	 assistant-name ".")
-	t)
-      (setq load-path 
-	    (cons (concat proof-home elisp-dir "/") load-path))
+
+      (fset proofgen-mode mode-stub)
+      
       (setq assistants (cdr assistants))
-      ;; Developer's note: would be nice to add the customization group
-      ;; <sname>-settings for a particular assistant here, 
-      ;; but currently that could cause problems with more than one 
-      ;; instance of Proof General being loaded.  For the time being
-      ;; you have to visit a file before the specific prover's
-      ;; customizations appear.
       )))
 
 ;; WARNING: do not edit below here 
 ;; (the next constant is set automatically)
-(defconst proof-general-version
- "Proof General, Version 2.0-pre980910 released by da,tms. Email lego@dcs.ed.ac.uk."
+(defconst proof-version
+ "Proof General, Version 2.0-pre980910 released by da,tms. Email proofgen@dcs.ed.ac.uk."
  "Version string for Proof General.")
 
 (provide 'proof-site)
