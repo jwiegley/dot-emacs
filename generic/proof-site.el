@@ -1,7 +1,7 @@
 ;; proof-site.el -- Configuration for site and choice of provers.
 ;;
 ;; Copyright (C) 1998 LFCS Edinburgh. 
-;; Author: David Aspinall
+;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
@@ -41,7 +41,7 @@
   '((isa	"Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$"))
-  "Proof General's table of supported proof assistants.
+  "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
 
@@ -49,14 +49,14 @@ Each entry is a list of the form
 
 The NAME is a string, naming the proof assistant.
 The SYMBOL is used to form the name of the mode for the
-assistant, `SYMBOL-mode`, run when files with AUTOMODE-REGEXP
+assistant, `SYMBOL-mode', run when files with AUTOMODE-REGEXP
 are visited.  SYMBOL is also used to form the name of the
 directory and elisp file for the mode, which will be
  
-    <proof-directory-home>/SYMBOL/SYMBOL.el
+    <proof-home-directory>/SYMBOL/SYMBOL.el
 
-where `<proof-directory-home>/' is the value of the
-variable proof-directory-home."
+where `<proof-home-directory>/' is the value of the
+variable proof-home-directory."
   :type '(repeat (list symbol string string))
   :group 'proof-general-internals)
 
@@ -71,7 +71,7 @@ variable proof-directory-home."
 	      (and load-in-progress (file-name-directory load-file-name))
 	      (file-name-directory (buffer-file-name)))))
 	(file-name-directory (substring curdir 0 -1))))
-  "*Directory where Proof General is installed. Ends with slash.
+  "Directory where Proof General is installed. Ends with slash.
 Default value taken from environment variable PROOFGENERAL_HOME if set, 
 otherwise based on where the file proof-site was loaded from.
 You can use customize to set this variable."
@@ -80,13 +80,13 @@ You can use customize to set this variable."
 
 (defcustom proof-images-directory
   (concat proof-home-directory "images/")
-    "*Where Proof General image files are installed. Ends with slash."
+    "Where Proof General image files are installed. Ends with slash."
   :type 'directory
   :group 'proof-general-internals)
 
 (defcustom proof-info-directory
   (concat proof-home-directory "doc/")
-  "*Where Proof General Info files are installed."
+  "Where Proof General Info files are installed."
   :type 'directory
   :group 'proof-general-internals)
 
@@ -229,7 +229,7 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 ;; WARNING: do not edit below here 
 ;; (the next constant is set automatically)
 (defconst proof-version "Proof General, Version 2.0pre981120 released by da,tms. Email proofgen@dcs.ed.ac.uk."
- "Version string for Proof General.")
+ "Version string identifying Proof General release.")
 
 (provide 'proof-site)
 
