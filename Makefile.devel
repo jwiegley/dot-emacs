@@ -146,7 +146,7 @@ tag:
 	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/defconst proof-general-version\n \".*\"/defconst proof-general-version\n \"Proof General, Version $(RELEASE_TAG) released by da,tms. Email proofgen@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
 	(cd html; mv download.html download.html.old; sed -e 's|Current Release version: .*</b>|Current Release version: $(RELEASE_TAG)</b>|g' download.html.old > download.html; rm download.html.old)
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(RELEASE_TAG)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
-	cvs commit -m"Set version tag for release." generic/proof-site.el html/download.html
+	cvs commit -m"Set version tag for release." generic/proof-site.el html/download.html etc/Proofgeneral.spec
 	cvs tag "Release-$(CVS_RELEASE_TAG)"
 
 
