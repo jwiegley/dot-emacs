@@ -314,8 +314,10 @@
     "^type constraints:"
     "^default sorts:"
     "^used type variable names:"
-    "^[Vv]ariables:$"
-    "^[Cc]onstants:$"
+    "^[Ff]lex-flex pairs:"
+    "^[Cc]onstants:"
+    "^[Vv]ariables:"
+    "^[Tt]ype variables:"
     "^\\s-*[0-9][0-9]?\\. ")
    isar-output-font-lock-keywords-1)
   "*Font-lock table for Isabelle/Isar output.")
