@@ -137,10 +137,14 @@ no regular or easily discernable structure."
    proof-shell-process-file 
    (cons
     ;; Theory loader output and verbose update() output.
-    "Reading \"\\(.*\\.ML\\)\"\\|Not reading \"\\(.*\\.ML\\)\""
+    "Reading \"\\(.*\\)\"\\|Not reading \"\\(.*\\)\""
     (lambda (str)
-      (or (match-string 1 str)
-	  (match-string 2 str))))
+      (let ((filename (or (match-string 1 str)
+			  (match-string 2 str))))
+	(if (string-match "\\.ML$" filename)
+	    filename)
+	;; Ignore .thy files for now
+	)))
    ;; This is the output returned by a special command to
    ;; query Isabelle for outdated files.
    proof-shell-retract-files-regexp
@@ -163,7 +167,7 @@ about to send commands from it to Isabelle.  This function sends
 a command to read any theory file corresponding to the current ML file.
 This is a hook function for proof-activate-scripting-hook."
   (if (and
-       (eq (proof-unprocessed-begin) (point-min))
+       (proof-locked-region-empty-p)
        ;; If we switch to this buffer and it *does* have a locked
        ;; region, we could check that no updates are needed and
        ;; unlock the whole buffer in case they were.  But that's
