@@ -113,7 +113,6 @@
 (defvar coq-shell-outline-regexp coq-goal-regexp)
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
 
-;; 3.4: no longer use generic kill-goal-command setting
 (defconst coq-kill-goal-command "Abort.")
 (defconst coq-forget-id-command "Reset %s.")
 (defconst coq-back-n-command "Back %s. ") ; Pierre: added 
@@ -168,50 +167,49 @@
 ;;
 ;; FIXME Papageno 05/1999: must take sections in account.
 ;;
-
+;; da: have now combined count-undos and find-and-forget, they're the
+;; same now we deal with nested proofs and send general sequence
+;; "Abort.. Abort Back n. Undo n."
 ;;
-;; FIXME da: combine count-undos and find-and-forget, they're
-;; the same now we deal with nested proofs.
-;;
-(defun coq-count-undos (span)
-  "Count number of undos in a span, return the command needed to undo that far."
-  (let ((undos 0) (backs 0) str i)
-    (if (and span (prev-span span 'type)
-	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
-	     (coq-goal-command-p
-	      (span-property (prev-span span 'type) 'cmd)))
-	;; FIXME: da: is Restart really necessary/useful?  Small
-	;; efficiency gain perhaps, but this test only works in case
-	;; the previous command is exaundosly a goal.  If there are
-	;; intervening comments, Undos are issued using code below,
-	;; which still works okay I think.
-	"Restart."
-      (while span
-	(setq str (span-property span 'cmd))
-	(cond 
-	 ((eq (span-property span 'type) 'vanilla)
-	  (cond
-	   ((proof-string-match coq-backable-commands-regexp str)
-	    (incf backs))
-	   ((proof-string-match coq-undoable-tactics-regexp str)
-	    (incf undos))))
-	 ((span-property span 'nestedundos)
-	  (setq nbacks (+ 1 nbacks (span-property span 'nestedundos))))
-	 ((eq (span-property span 'type) 'pbp)
-	  ;; this is dead code for Coq right now, no PBP feature in PG.
-	  (cond ((proof-string-match coq-undoable-tactics-regexp str)
-		 (setq i 0)
-		 (while (< i (length str))
-		   (if (= (aref str i) proof-terminal-char)
-		       (setq undos (+ 1 undos)))
-		   (setq i (+ 1 i))))
-		(t nil))))
-	(setq span (next-span span 'type)))
-      (concat
-       (if (> undos 0) 
-	   (concat "Undo " (int-to-string undos) ". ") "")
-       (if (> backs 0)
-	   (concat "Back " (int-to-string backs) "."))))))
+;; (defun coq-count-undos (span)
+;;   "Count number of undos in a span, return the command needed to undo that far."
+;;   (let ((undos 0) (backs 0) str i)
+;;     (if (and span (prev-span span 'type)
+;; 	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
+;; 	     (coq-goal-command-p
+;; 	      (span-property (prev-span span 'type) 'cmd)))
+;; 	;; FIXME: da: is Restart really necessary/useful?  Small
+;; 	;; efficiency gain perhaps, but this test only works in case
+;; 	;; the previous command is exaundosly a goal.  If there are
+;; 	;; intervening comments, Undos are issued using code below,
+;; 	;; which still works okay I think.
+;; 	"Restart."
+;;       (while span
+;; 	(setq str (span-property span 'cmd))
+;; 	(cond 
+;; 	 ((eq (span-property span 'type) 'vanilla)
+;; 	  (cond
+;; 	   ((proof-string-match coq-backable-commands-regexp str)
+;; 	    (incf backs))
+;; 	   ((proof-string-match coq-undoable-tactics-regexp str)
+;; 	    (incf undos))))
+;; 	 ((span-property span 'nestedundos)
+;; 	  (setq nbacks (+ 1 nbacks (span-property span 'nestedundos))))
+;; 	 ((eq (span-property span 'type) 'pbp)
+;; 	  ;; this is dead code for Coq right now, no PBP feature in PG.
+;; 	  (cond ((proof-string-match coq-undoable-tactics-regexp str)
+;; 		 (setq i 0)
+;; 		 (while (< i (length str))
+;; 		   (if (= (aref str i) proof-terminal-char)
+;; 		       (setq undos (+ 1 undos)))
+;; 		   (setq i (+ 1 i))))
+;; 		(t nil))))
+;; 	(setq span (next-span span 'type)))
+;;       (concat
+;;        (if (> undos 0) 
+;; 	   (concat "Undo " (int-to-string undos) ". ") "")
+;;        (if (> backs 0)
+;; 	   (concat "Back " (int-to-string backs) "."))))))
 
 (defconst coq-keywords-decl-defn-regexp
   (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
@@ -243,10 +241,8 @@
 ;; nested proofs.
 
 (defun coq-find-and-forget (span)
-  ;; NB!! Ugly use of dynamic binding here: use "end" value
-  ;; from caller as stopping value for loop velow.
   (let (str ans (nbacks 0) (nundos 0) aborts)
-    (while (and span (< (span-start span) end) (not ans))
+    (while (and span (not ans))
       (setq str (span-property span 'cmd))
       (cond
        ((eq (span-property span 'type) 'comment))
@@ -573,12 +569,11 @@ This is specific to coq-mode."
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 
-;; 3.4: this is no longer used
-  (setq proof-kill-goal-command coq-kill-goal-command)
+;; 3.4: this is no longer used: setting to nil
+;; enforces use of find-and-forget always.
+  (setq proof-kill-goal-command nil)
 
   (setq proof-goal-command-p 'coq-goal-command-p
-	;;proof-count-undos-fn 'coq-count-undos
-	proof-count-undos-fn     'coq-find-and-forget
 	proof-find-and-forget-fn 'coq-find-and-forget
         proof-goal-hyp-fn 'coq-goal-hyp
 	proof-state-preserving-p 'coq-state-preserving-p
