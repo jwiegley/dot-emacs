@@ -55,6 +55,12 @@ Work which is currently in progress includes:
      a PGIP-enabled version of Isabelle/Isar
      (patch available soon).
  </li>
+ <li>Work on <b>Eclipse Proof General</b>, an 
+	<a href="http://www.eclipse.org">Eclipse</a> front end for Proof General
+     (new project sponsored by IBM 
+	<a href="http://www-306.ibm.com/software/info/university/products/eclipse/eig.html">
+	award</a>).
+ </li>
 </ul>
 </p>
 <p>
