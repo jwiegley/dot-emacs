@@ -111,6 +111,8 @@ B Check matching code carefully, in view of bug reported (now fixed)
   word matching is based on whitespace constituents or non-word
   constituents.  [6 hrs]
 
+C Implement proof-auto-retract idea.  (4hrs)
+
 C Make and test generic versions of <..>-goal-command-p, 
   <...>-count-undos, to simplify prover-specific code.  
 

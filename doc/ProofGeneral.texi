@@ -1649,6 +1649,7 @@ you a reprimand!)
 The default value is @code{strict}.
 @end defopt
 
+@c TEXI DOCSTRING MAGIC: proof-strict-read-only
 
 @c TEXI DOCSTRING MAGIC: proof-script-indent
 @defopt proof-script-indent 

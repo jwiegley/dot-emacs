@@ -110,7 +110,23 @@ use because of a bug."
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
-you a reprimand!)"
+you a reprimand!)
+
+The default value for proof-strict-read-only depends on which
+version of Emacs you are using.  In FSF Emacs, strict read only is buggy
+when it used in conjunction with font-lock, so it is disabled by default."
+  :type 'boolean
+  :group 'proof-general)
+
+(defcustom proof-auto-retract
+  nil
+  ;; Not implemented yet, only an idea.
+  "*If non-nil, retract automatically when locked region is edited.
+With this option active, the locked region will automatically be
+unlocked when the user attempts to edit it.   To make use of this
+option, proof-strict-read-only should be turned off.
+
+Note: this feature has not been implemented yet."
   :type 'boolean
   :group 'proof-general)
 
