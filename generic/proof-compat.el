@@ -348,6 +348,7 @@ The returned value is one of the following symbols:
 ;; Emulate a useful builtin from XEmacs.
 
 (or (fboundp 'remassq)
+;; NB: Emacs has assoc package with assq-delete-all function
 (defun remassq (key alist)
   "Delete any elements of ALIST whose car is `eq' to KEY.
 The modified ALIST is returned."
@@ -355,6 +356,18 @@ The modified ALIST is returned."
   (let (newalist)
     (while alist
       (unless (eq key (caar alist))
+	(setq newalist (cons (car alist) newalist)))
+      (setq alist (cdr alist)))
+    (nreverse newalist))))
+
+(or (fboundp 'remassoc)
+(defun remassoc (key alist)
+  "Delete any elements of ALIST whose car is `eq' to KEY.
+The modified ALIST is returned."
+;; The builtin version deletes by side-effect, but don't bother here.
+  (let (newalist)
+    (while alist
+      (unless (equal key (caar alist))
 	(setq newalist (cons (car alist) newalist)))
       (setq alist (cdr alist)))
     (nreverse newalist))))
