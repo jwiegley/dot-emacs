@@ -3196,6 +3196,7 @@ but does not have integrated file management or proof-by-pointing yet.
 
 @menu
 * Coq-specific commands::
+* Coq-specific variables::
 * Editing multiple proofs::
 * User-loaded tactics::
 @end menu
@@ -3222,6 +3223,25 @@ Inserts ``End <section-name>.'' (this should work well with nested sections).
 @item C-c C-a C-o
 Prompts for a SearchIsos argument.
 @end table
+
+@node Coq-specific variables
+@section Coq-specific variables
+@kindex coq-version-is-V7
+
+The variable
+@lisp
+  coq-version-is-V7
+@end lisp
+is used to force version of Coq, if it is t, then Coq is considered in
+version 7, if it is nil, then Coq is considered in an old version
+(V6). You should not have to set this variable, since ProofGeneral sets
+it by doing the shell command:
+@lisp
+  (concat coq-prog-name "-v")
+@end lisp
+
+If you have problems with different versions of Coq, you can set this
+variable in your config file (before ProofGeneral is loaded).
 
 @node Editing multiple proofs
 @section Editing multiple proofs
