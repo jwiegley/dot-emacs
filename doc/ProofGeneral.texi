@@ -3689,6 +3689,10 @@ Proof General has its own
 @uref{http://www.dcs.ed.ac.uk/home/proofgen,home page} hosted at
 Edinburgh.  Visit this page for the latest news!
 
+STOP PRESS: the Proof General web pages are temporarily 
+being hosted at @uref{zermelo.dcs.ed.ac.uk}.  Where you see 
+@code{www.dcs} below, replace with @code{zermelo.dcs}.
+
 @menu
 * Obtaining Proof General::     
 * Installing Proof General from tarball::  
