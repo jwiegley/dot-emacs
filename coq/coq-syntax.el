@@ -186,7 +186,7 @@ Print and Check commands, put the following line in your .emacs:
     "Extraction\\s-+Language"
     "Extraction\\s-+NoInline"
     "Grammar"
-    "Hint" ;; not "Print Hint ." (proof-string-match coq-state-changing-commands-regexp "Hint toto")
+    "\\`Hint" ;; Pierre fev-2003: Hack: must not match "Print Hint."
     "Hints"
     "Identity\\s-+Coercion"
     "Implicit\\s-+Arguments\\s-+Off"
