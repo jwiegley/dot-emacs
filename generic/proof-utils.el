@@ -501,14 +501,14 @@ frame is the one showing the script buffer.)"
 
 (defun proof-message (&rest args)
   "Issue the message ARGS in the response buffer and display it."
-    (pg-response-display-with-face (apply 'concat args))
-    (proof-display-and-keep-buffer proof-response-buffer))
+  (pg-response-display-with-face (apply 'concat args))
+  (proof-display-and-keep-buffer proof-response-buffer))
 
 (defun proof-warning (&rest args)
   "Issue the warning ARGS in the response buffer and display it.
 The warning is coloured with proof-warning-face."
-    (pg-response-display-with-face (apply 'concat args) 'proof-warning-face)
-    (proof-display-and-keep-buffer proof-response-buffer))
+  (pg-response-display-with-face (apply 'concat args) 'proof-warning-face)
+  (proof-display-and-keep-buffer proof-response-buffer))
 
 ;; could be a macro for efficiency in compiled code
 (defun proof-debug (&rest args)
