@@ -776,7 +776,17 @@ You must set this variable in script mode configuration."
 
 (defcustom proof-script-command-end-regexp nil
   "Regular expression which matches end of commands in proof script.
-If nil, then `proof-terminal-char' must be set, and is used for the default."
+To configure command recognition properly, you must set at least one
+of these: `proof-script-command-end-regexp', 
+`proof-script-command-start-regexp', `proof-terminal-char'."
+  :type 'string
+  :group 'prover-config)
+
+(defcustom proof-script-command-start-regexp nil
+  "Regular expression which matches start of commands in proof script.
+To configure command recognition properly, you must set at least one
+of these: `proof-script-command-end-regexp', 
+`proof-script-command-start-regexp', `proof-terminal-char'."
   :type 'string
   :group 'prover-config)
 
@@ -1222,14 +1232,12 @@ See also `proof-shell-pre-sync-init-cmd'."
    :group 'proof-shell)
 
 (defcustom proof-shell-restart-cmd ""
-   "A command for re-initialising the proof process.
-The proof-terminal-char is added on to the end."
+   "A command for re-initialising the proof process."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
 (defcustom proof-shell-quit-cmd nil
-  "A command to quit the proof process.  If nil, send EOF instead.
-The proof-terminal-char is added on to the end."
+  "A command to quit the proof process.  If nil, send EOF instead."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
@@ -1245,9 +1253,9 @@ need to bump up this value."
 
 (defcustom proof-shell-cd-cmd nil
   "Command to the proof assistant to change the working directory.
-The format character `%s' is replaced with the directory, and the
-proof-terminal-char is added on to the end.  The escape sequences
-in `proof-shell-filename-escapes' are applied to the filename.
+The format character `%s' is replaced with the directory, and
+the escape sequences in `proof-shell-filename-escapes' are 
+applied to the filename.
 
 This setting is used to define the function proof-cd which 
 changes to the value of (default-directory) for script buffers.
