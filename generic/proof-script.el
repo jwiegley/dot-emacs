@@ -308,11 +308,12 @@ Works on any buffer."
   (eq (proof-unprocessed-begin) (point-min)))
 
 (defun proof-only-whitespace-to-locked-region-p ()
-  "Non-nil if only whitespace separates point from end of locked region.
-Point should be after the locked region.
-NB: If nil, point is left at first non-whitespace character found.
-If non-nil, point is left where it was."
-  (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
+  "Non-nil if only whitespace separates char after point from end of locked region.
+Point should be after the locked region."
+  (save-excursion
+   (unless (eobp)
+     (forward-char))
+   (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))))
 
 (defun proof-in-locked-region-p ()
   "Non-nil if point is in locked region.  Assumes proof script buffer current."
@@ -324,17 +325,13 @@ If non-nil, point is left where it was."
 ;;
 ;; Misc movement functions
 ;;
-;; da: cleaned
 
-(defun proof-goto-end-of-locked ()
-  "Jump to the end of the locked region."
-  (goto-char (proof-unprocessed-begin)))
-
-(defun proof-goto-end-of-locked-interactive ()
-  "Switch to proof-script-buffer and jump to the end of the locked region.
-Must be an active scripting buffer."
+(defun proof-goto-end-of-locked (&optional switch)
+  "Jump to the end of the locked region, maybe switching to script buffer.
+If interactive or SWITCH is non-nil, switch to script buffer first."
   (interactive)
-  (switch-to-buffer proof-script-buffer)
+  (if (or switch (and (interactive-p) proof-script-buffer))
+      (switch-to-buffer proof-script-buffer))
   (goto-char (proof-unprocessed-begin)))
 
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
@@ -347,7 +344,7 @@ Does nothing if there is no active scripting buffer."
 		   (proof-locked-end)))
 	    (win (get-buffer-window proof-script-buffer t)))
 	(unless (and win (pos-visible-in-window-p pos))
-	  (proof-goto-end-of-locked-interactive)))))
+	  (proof-goto-end-of-locked t)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -997,7 +994,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (set-span-property span 'mouse-face 'highlight))
      
      ;; CASE 2: Save command seen, now we'll amalgamate spans.
-     ((and (proof-string-match proof-save-command-regexp cmd)
+     ((and proof-save-command-regexp
+	   (proof-string-match proof-save-command-regexp cmd)
 	    (funcall proof-really-save-command-p span cmd))
 
       (unless (eq proof-shell-proof-completed 1)
@@ -1105,7 +1103,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	       (not (funcall proof-goal-command-p 
 			     (setq cmd (span-property gspan 'cmd))))
 	       (not
-		(and (proof-string-match proof-save-command-regexp cmd)
+		(and proof-save-command-regexp
+		     (proof-string-match proof-save-command-regexp cmd)
 		     (funcall proof-really-save-command-p span cmd)
 		     (setq hitsave t))))))
 	  (setq dels (cons gspan dels))
@@ -1336,6 +1335,7 @@ Assumes that point is at the end of a command."
       (forward-line)))
 
 
+;; NB: the "interactive" variant is so that we get a simple docstring.
 (defun proof-assert-until-point-interactive ()
   "Process the region from the end of the locked-region until point.
 Default action if inside a comment is just process as far as the start of
@@ -1373,10 +1373,8 @@ scripting."
     (proof-activate-scripting nil 'advancing))
   (let ((semis))
     (save-excursion
-      ;; Give error if no non-whitespace between point and end of locked region.
-      ;; FIXME da: a nasty mess
-      ;; FIXME: this test meaningful for assert *exactly* to point, not
-      ;; when we assert to next command beyond point.
+      ;; Give error if no non-whitespace between point and end of
+      ;; locked region.  
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "There's nothing to do to!"))
       ;; NB: (point) has now been moved backwards to first non-whitespace char.
@@ -1461,13 +1459,17 @@ a space or newline will be inserted automatically."
 
 ;; New 11.09.99.  A better binding for C-c RET.
 (defun proof-goto-point ()
-  "Assert or retract to current position.
+  "Assert or retract to the command at current position.
 Calls proof-assert-until-point or proof-retract-until-point as
 appropriate."
   (interactive)
-  (if (< (proof-queue-or-locked-end) (point))
+  (if (<= (proof-queue-or-locked-end) (point))
+      ;; This asserts only until the next command before point
+      ;; and does nothing if whitespace between point and locked
+      ;; region.
       (proof-assert-until-point)
     (proof-retract-until-point)))
+
       
 ;;         insert-pbp-command - an advancing command, for use when  ;;
 ;;         PbpHyp or Pbp has executed in LEGO, and returned a       ;;
@@ -1607,6 +1609,7 @@ up to the end of the locked region."
 
 ;; FIXME da: Maybe retraction to the start of
 ;; a file should remove it from the list of included files?
+;; NB: the "interactive" variant is so that we get a simple docstring.
 (defun proof-retract-until-point-interactive (&optional delete-region)
   "Tell the proof process to retract until point.
 If invoked outside a locked region, undo the last successfully processed
@@ -1676,7 +1679,15 @@ the proof script."
 ;; some of the following functions.
 
 (defun proof-interrupt-process ()
-  "Interrupt the proof assistant.  Warning! This may confuse Proof General."
+  "Interrupt the proof assistant.  Warning! This may confuse Proof General.
+This sends an interrupt signal to the proof assistant, if Proof General
+thinks it is busy.  
+
+This command is risky because when an interrupt is trapped in the
+proof assistant, we don't know whether the last command succeeeded or
+not.  The assumption is that it didn't, which should be true most of
+the time, and all of the time if the proof assistant has a careful
+handling of interrupt signals."
   (interactive)
   (unless (proof-shell-live-buffer)
       (error "Proof Process Not Started!"))
@@ -1822,16 +1833,34 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 ;; correctly to sync with the proof state, or things will go all
 ;; pear-shaped.
 
+;; In fact, it's so risky, we'll disable it by default
+;; unless it's already been overridden.
+(if (if (string-match "XEmacs" emacs-version)
+	(get 'proof-frob-locked-end 'disabled t)
+      ;; FSF code more approximate
+      (not (member 'disabled (symbol-plist 'proof-frob-locked-end))))
+    (put 'proof-frob-locked-end 'disabled t))
+
 (defun proof-frob-locked-end ()
+  "Move the end of the locked region backwards to regain synchronization.
+Only for use by consenting adults.
+
+This command can be used to repair synchronization in case something
+goes wrong and you want to tell Proof General that the proof assistant
+has processed less of your script than Proof General thinks.
+
+You should only use it to move the locked region to the end of
+a proof command."
   (interactive)
-  "Move the end of the locked region backwards. 
-Only for use by consenting adults."
   (cond
+   (proof-shell-busy
+    (error "You can't use this command while %s is busy!" proof-assistant))
    ((not (eq (current-buffer) proof-script-buffer))
-    (error "Not in active scripting buffer"))
+    (error "Must be in the active scripting buffer."))
    ((> (point) (proof-locked-end))
-    (error "Can only move backwards"))
-   (t (proof-set-locked-end (point))
+    (error "You can only move point backwards."))
+   ;; FIXME da: should move to a command boundary, really!
+   (t (proof-set-locked-end (point))	
       (delete-spans (proof-locked-end) (point-max) 'type))))
 
 (defvar proof-minibuffer-history nil
@@ -1841,10 +1870,14 @@ Only for use by consenting adults."
   "Prompt for a command in the minibuffer and send it to proof assistant.
 The command isn't added to the locked region.
 
-If proof-state-preserving-p is configured, it is used as a check
+If `proof-state-preserving-p' is configured, it is used as a check
 that the command will be safe to execute, in other words, that
 it won't ruin synchronization.  If applied to the command it 
-returns false, then an error message is given."
+returns false, then an error message is given.  
+
+This command risks spoiling synchronization if the test
+`proof-state-preserving-p' is not configured, or if it is
+only an approximate test."
   (interactive)
   (let (cmd)
     ;; FIXME note: removed ready-prover call since it's done by
@@ -1983,7 +2016,7 @@ Start up the proof assistant if necessary."
   ;; (switch-to-buffer proof-script-buffer)
   (if (proof-shell-live-buffer)
       (if (proof-in-locked-region-p)
-	  (proof-goto-end-of-locked-interactive)))
+	  (proof-goto-end-of-locked t)))
   (proof-script-new-command-advance)
   ;; FIXME: fixup behaviour of undo here.  Really want
   ;; to temporarily disable undo for insertion.
@@ -2013,7 +2046,8 @@ Typically, a list of syntax of commands available."
   (format proof-shell-cd-cmd
 	  ;; Use expand-file-name to avoid problems with dumb
 	  ;; proof assistants and "~"
-	  (expand-file-name (default-directory))))
+	  ;; FSF fix: use default-directory rather than fn
+	  (expand-file-name default-directory)))
 
 (defun proof-cd-sync ()
   "If proof-shell-cd-cmd is set, do proof-cd and wait for prover ready.
@@ -2171,22 +2205,29 @@ No action if BUF is nil."
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;          Electric terminator minor mode                          ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Electric terminator mode
+;;
 
-;; Make sure proof-electric-terminator-enable is registered as
-;; a minor mode.
+;; Register proof-electric-terminator as a minor mode.
 
-(or (assq 'proof-electric-terminator-enable minor-mode-alist)
+(deflocal proof-electric-terminator nil
+  "Fake minor mode for electric terminator.")
+
+(or (assq 'proof-electric-terminator minor-mode-alist)
     (setq minor-mode-alist
 	  (append minor-mode-alist
-		  (list '(proof-electric-terminator-enable
+		  (list '(proof-electric-terminator
 			  (concat " " proof-terminal-string))))))
 
 ;; This is a value used by custom-set property = proof-set-bool.
 (defun proof-electric-terminator-enable ()
-  "Make sure the modeline is updated to display new value for electric terminator."
+  "Copy proof-electric-terminator-enable to all script mode copies of it.
+Make sure the modeline is updated to display new value for electric terminator."
+  (if proof-mode-for-script
+      (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
+			 (setq proof-electric-terminator 
+			       proof-electric-terminator-enable)))
   ;; FIMXE: UGLY COMPATIBILITY HACK 
   (if (fboundp 'redraw-modeline)
       (redraw-modeline)
@@ -2198,9 +2239,10 @@ No action if BUF is nil."
 (defun proof-process-electric-terminator ()
   "Insert the proof command terminator, and assert up to it."
   (let ((mrk (point)) ins incomment)
+    ;; FIXME da: is the next test needed?
     (if (looking-at "\\s-\\|\\'\\|\\w") 
 	(if (proof-only-whitespace-to-locked-region-p)
-	    (error "I don't know what I should be doing in this buffer!")))
+	    (error "There's nothing to do!")))
     (if (not (= (char-after (point)) proof-terminal-char))
 	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
     (proof-assert-until-point
@@ -2272,59 +2314,56 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
   (if proof-goals-buffer (bury-buffer proof-goals-buffer))
   (if proof-response-buffer (bury-buffer proof-response-buffer)))
   
+
+;;
+;; Scripting mode key bindings
+;;
+;; These have been cleaned up for Proof General 3.0.
+;;
 
-;; Fixed definitions in proof-mode-map, which don't depend on
-;; prover configuration.
+;; FIXME: move 'proof-toolbar' commands somewhere else, so
+;; they don't really require the toolbar.
+
+
 ;;; INDENT HACK: font-lock only recognizes define-key at start of line
 (let ((map proof-mode-map))
-(define-key map [(control c) (control e)] 'proof-goto-command-end)
 (define-key map [(control c) (control a)] 'proof-goto-command-start)
-
-;; Sep'99. FIXME: key maps need reorganizing, so do the assert-until style
-;; functions.   I've re-bound C-c C-n and C-c C-u to the toolbar functions
-;; to make the behaviour the same.  People find the "enhanced" behaviour
-;; of the other functions confusing.  Moreover the optional argument
-;; to delete is a bad thing for C-c C-u, since repeating it fast will 
-;; tend to delete!
-(define-key map [(control c) (control n)] 'proof-toolbar-next)
-(define-key map [(control c) (control u)] 'proof-toolbar-undo)
 (define-key map [(control c) (control b)] 'proof-toolbar-use)
-
-;; newer bindings
+; C-c C-c is proof-interrupt-process in universal-keys
+(define-key map [(control c) (control e)] 'proof-goto-command-end)
+(define-key map [(control c) (control n)] 'proof-toolbar-next)
+(define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) (control r)] 'proof-toolbar-retract)
 (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
-
-;;;; (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
-
-(define-key map [(control c) (return)]	  'proof-goto-point)
-
-;; FIXME: The following two functions should be unified.
-(define-key map [(control c) ?u]	  'proof-retract-until-point-interactive)
-;;;; (define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
-(define-key map [(control c) ?\']	  'proof-goto-end-of-locked-interactive)
-;; FIXME da: this command copies a proof command from within the locked region
-;; to the end of it at the moment (contrary to the old name "send", nothing to
-;; do with shell).  Perhaps we could define a
-;; collection of useful copying functions which do this kind of thing.
-(define-key map [(control button1)]	  'proof-mouse-track-insert)
-;;; (define-key map [(control c) (control b)] 'proof-process-buffer)
-
+(define-key map [(control c) (control t)] 'proof-ctxt)
+(define-key map [(control c) (control u)] 'proof-toolbar-undo)
+; C-c C-v is proof-execute-minibuffer-cmd in universal-keys
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
-(define-key map [(control c) (control p)] 'proof-prf)
-(define-key map [(control c) ?c]	  'proof-ctxt)
-;; NB: next binding overwrites comint-find-source-code.  Anyone miss it?
+(define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
+(define-key map [(control c) (control return)] 'proof-goto-point)
+(define-key map [(control button1)]	  'proof-mouse-track-insert)
+;; NB: next binding overwrites comint-find-source-code.  
 (define-key map [(control c) (control f)] 'proof-find-theorems)
-(define-key map [(control c) ?f]	  'proof-help)
+(define-key map [(control c) (control h)] 'proof-help)
 ;; FIXME: not implemented yet 
 ;; (define-key map [(meta p)]		  'proof-previous-matching-command)
 ;; (define-key map [(meta n)]		  'proof-next-matching-command)
+;; FIXME: deprecated bindings, will be removed soon!
+(define-key map [(control c) return] 'proof-goto-point)
+(define-key map [(control c) ?u] 'proof-retract-until-point-interactive)
+;; Add keys bound in all PG buffers.
 (proof-define-keys map proof-universal-keys))
 
 
+
+;;
+;;  Proof Script mode configuration - part 2
+;; 
 
-;; the following callback is an irritating hack - there should be some
-;; elegant mechanism for computing constants after the child has
-;; configured.
+;; The callback *-config-done mechanism is an irritating hack - there
+;; should be some elegant mechanism for computing constants after the
+;; child has configured.  Should petition the author of "derived-mode"
+;; about this!
 
 (defun proof-config-done-related ()
   "Finish setup of Proof General scripting and related modes.
@@ -2368,21 +2407,24 @@ assistant."
   ;;
   ;; Assume font-lock case folding follows proof-case-fold-search
   (proof-font-lock-configure-defaults proof-case-fold-search)
-
-  ;; FIXME (da): zap commas support is too specific, should be enabled
-  ;; by each proof assistant as it likes.
+  
+  ;; Hack for unfontifying commas (yuck)
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
-  (add-hook 'font-lock-after-fontify-buffer-hook 
-	    'proof-zap-commas-buffer nil t)
   (remove-hook 'font-lock-mode-hook 'proof-unfontify-separator t)
-  (add-hook 'font-lock-mode-hook 'proof-unfontify-separator nil t)
-
-  ;; if we don't have the following, zap-commas fails to work.
-  (if (boundp 'font-lock-always-fontify-immediately)
+  (if proof-font-lock-zap-commas
       (progn
-	(make-local-variable 'font-lock-always-fontify-immediately)
-	;; FIXME testing: this was "t".
-	(setq font-lock-always-fontify-immediately nil)))
+	(add-hook 'font-lock-after-fontify-buffer-hook 
+		  'proof-zap-commas-buffer nil t)
+	(add-hook 'font-lock-mode-hook 'proof-unfontify-separator 
+		  nil t)
+	;; if we don't have the following in XEmacs, zap-commas fails.
+	(if (boundp 'font-lock-always-fontify-immediately)
+	    (progn
+	      (make-local-variable 'font-lock-always-fontify-immediately)
+	      ;; FIXME da: this is pretty nasty.  Disables use of 
+	      ;; lazy/caching font lock for large files, and they
+	      ;; can take a long time to fontify.
+	      (setq font-lock-always-fontify-immediately t)))))
 
   ;; Maybe turn on x-symbol mode  
   ;;  [no need for script mode files to be on xsymbol-auto-mode-alist;
@@ -2397,21 +2439,24 @@ finish setup which depends on specific proof assistant configuration."
 
   (proof-config-done-related)
 
+  ;; Following group of settings only relevant if the current
+  ;; buffer is really a scripting buffer.  Isabelle Proof General
+  ;; has theory file buffers which share some aspects.
+
   ;; Additional key definitions which depend on configuration for
   ;; specific proof assistant.
   ;; FIXME da: robustify here.  
   ;;   This is rather fragile: we assume terminal char is something
   ;;   sensible (and exists) for this to be set.
 
-  ;; Following group of settings only relevant if the current
-  ;; buffer is really a scripting buffer.  Isabelle Proof General
-  ;; has theory file buffers which share some aspects 
-
   (define-key proof-mode-map
     (vconcat [(control c)] (vector proof-terminal-char))
     'proof-electric-terminator-toggle)
   (define-key proof-mode-map (vector proof-terminal-char)
     'proof-electric-terminator)
+  ;; It's ugly, but every script buffer has a local copy changed in
+  ;; sync by the fn proof-electric-terminator-enable 
+  (setq proof-electric-terminator proof-electric-terminator-enable)
 
   (make-local-variable 'indent-line-function)
   (if proof-script-indent
@@ -2502,64 +2547,11 @@ finish setup which depends on specific proof assistant configuration."
   ;; Offer to save script mode buffers which have no files,
   ;; in case Emacs is exited accidently.
   (or (buffer-file-name)
-      (setq buffer-offer-save t)))
+      (setq buffer-offer-save t))
 
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; FIXME FIXME FIXME da:
-;;
-;; want to remove this function
-;; but at the moment it's used by
-;; plastic instantiation.  Try
-;; to persuade P.C. that we can
-;; live without it?
-
-
-;;         proof-try-command                                        ;;
-;;         this isn't really in the spirit of script management,    ;;
-;;         but sometimes the user wants to just try an expression   ;;
-;;         without having to undo it in order to try something      ;;
-;;         different. Of course you can easily lose sync by doing   ;;
-;;         something here which changes the proof state             ;;
-
-(defun proof-done-trying (span)
-  "Callback for proof-try-command."
-  (delete-span span)
-  (proof-detach-queue))
-			
-(defun proof-try-command (&optional unclosed-comment-fun) 
-  "Process the command at point, but don't add it to the locked region. 
-
-Supplied to let the user to test the types and values of
-expressions. Checks via the function proof-state-preserving-p that the
-command won't change the proof state, but this isn't guaranteed to be
-foolproof and may cause Proof General to lose sync with the prover.
-
-Default action if inside a comment is just to go until the start of
-the comment. If you want something different, put it inside
-UNCLOSED-COMMENT-FUN."
-  (interactive)
-  (proof-activate-scripting)
-  (let ((pt (point)) semis test)
-    (save-excursion
-      (if (proof-only-whitespace-to-locked-region-p)
-	  (progn (goto-char pt)
-		 (error "I don't know what I should be doing in this buffer!")))
-      (setq semis (proof-segment-up-to (point))))
-    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
-	(funcall unclosed-comment-fun)
-      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-      (if (null semis) 
-	  (error "I don't know what I should be doing in this buffer!"))
-      (setq test (car semis))
-      (goto-char (nth 2 test))
-      (let ((vanillas (proof-semis-to-vanillas (list test)
-					       'proof-done-trying)))
-	(proof-start-queue (proof-unprocessed-begin) (point) vanillas)))))
-
+  ;; Finally, make sure the user has been welcomed!
+  ;; FIXME: this doesn't work well, it gets zapped by loading messages.
+  (proof-splash-message))
 
 
 (provide 'proof-script)
