@@ -218,12 +218,15 @@ If in three window or multiple frame mode, display both buffers."
      :style toggle
      :selected proof-disappearing-proofs]
     ["Three window mode" proof-dont-switch-windows-toggle
+     :active (not proof-multiple-frames-enable)
      :style toggle
      :selected proof-dont-switch-windows]
     ["Delete empty windows" proof-delete-empty-windows-toggle
+     :active (not proof-multiple-frames-enable)
      :style toggle
      :selected proof-delete-empty-windows]
     ["Multiple frames" proof-multiple-frames-toggle
+     :active (display-graphic-p)
      :style toggle
      :selected proof-multiple-frames-enable]
     ["Output highlighting" proof-output-fontify-toggle
