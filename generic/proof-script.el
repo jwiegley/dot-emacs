@@ -1206,17 +1206,18 @@ the ACS is marked in the current buffer. If CMD does not match any,
      ;; CASE 2: Save command seen, now we may amalgamate spans.
      ((and proof-save-command-regexp
 	   (proof-string-match proof-save-command-regexp cmd)
+	   ;; FIXME: would like to get rid of proof-really-save-command-p
+	   ;; and use nested goals mechanism instead.
+	   (funcall proof-really-save-command-p span cmd)
+	   (decf proof-nesting-depth) ;; [always non-nil/true]
 	   (if proof-nested-goals-p
 	       ;; For now, we only support this nesting behaviour: 
-	       ;; don't amalgamate unless the nesting depth is 1,
+	       ;; don't amalgamate unless the nesting depth is 0,
 	       ;; i.e. we're in a top-level proof.
 	       ;; This assumes prover keeps history for nested proofs.
-	       ;; (True for Coq, Isabelle/Isar).
-	       (eq proof-nesting-depth 1)
-	     t)
-            ;; FIXME: would like to get rid of proof-really-save-command-p
-	    ;; and use nested goals mechanism instead.
-	    (funcall proof-really-save-command-p span cmd))
+	       ;; (True for Isabelle/Isar).
+	       (eq proof-nesting-depth 0)
+	     t))
 
       (unless (eq proof-shell-proof-completed 1)
 	;; We expect saves to succeed only for recently completed proofs.
@@ -1260,8 +1261,9 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	      (progn
 		(setq cmd (span-property gspan 'cmd))
 		(cond
-		 ;; Ignore comments
+		 ;; Ignore comments, any nested goalsaves
 		 ((eq (span-property gspan 'type) 'comment))
+		 ((eq (span-property gspan 'type) 'goalsave))
 		 ;; Increment depth for a nested save
 		 ((and proof-save-command-regexp
 		       ;; NB: not doing really save command here
@@ -2047,6 +2049,7 @@ After an undo, we clear the proof completed flag.  The rationale
 is that undoing never leaves prover in a \"proof just completed\" 
 state, which is true for some proof assistants (but probably not
 others)."
+  ;; FIXME: need to fixup proof-nesting-depth
   (setq proof-shell-proof-completed nil)
   (if (span-live-p span)
       (let ((start (span-start span))
