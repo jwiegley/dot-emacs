@@ -446,6 +446,13 @@ The script buffer's comment-end is set to this string plus a space."
   :type 'string
   :group 'proof-script)
 
+(defcustom proof-case-fold-search nil
+  "Value for case-fold-search when recognizing portions of proof scripts.
+If your prover has a case-insensitive syntax, this should be set
+to 't'."
+  :type 'boolean
+  :group 'proof-script)
+
 (defcustom proof-save-command-regexp nil 
   "Matches a save command"
   :type 'regexp

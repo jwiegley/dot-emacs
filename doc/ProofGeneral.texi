@@ -2274,6 +2274,12 @@ The script buffer's @code{comment-start} is set to this string plus a space.
 String which ends a comment in the proof assistant command language.@*
 The script buffer's @code{comment-end} is set to this string plus a space.
 @end defvar
+@c TEXI DOCSTRING MAGIC: proof-case-fold-search
+@defvar proof-case-fold-search 
+Value for @code{case-fold-search} when recognizing portions of proof scripts.@*
+If your prover has a case-insensitive syntax, this should be set
+to @code{'t'}.
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-save-command-regexp
 @defvar proof-save-command-regexp 
 Matches a save command
