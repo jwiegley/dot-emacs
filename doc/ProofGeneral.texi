@@ -182,37 +182,59 @@ Isabelle.
 @unnumberedsec Latest news
 @cindex news
 
-Proof General 3.0 offers many enhancements over 2.x releases.
+Proof General 3.0 has many improvements over 2.x releases.
 
 First, there are usability improvements.  The toolbar has twice as many
 buttons, and now includes all of the useful functions used during proof
-which were previously hidden on the menu, or even only available as key
-presses.  The menu has been redesigned and coordinated with the toolbar.
-User options have been re-organized.
+which were previously hidden on the menu, or even only available as
+key-presses.  Key-bindings have been re-organized, users of previous
+versions may notice.  The menu has been redesigned and coordinated with
+the toolbar, and now gives easy access to more of the features of Proof
+General.  Previously these were only likely to be discovered by those
+who read this manual!
 
-Second, there are improvements, extensions, and bug fixes in the core
-code. Proofs which are unfinished and not explicitly closed by a
+Second, there are improvements, extensions, and bug fixes in the generic
+basis. Proofs which are unfinished and not explicitly closed by a
  ``save'' type command are supported by the core, if they are allowed by
  the prover.  The design of switching the active scripting buffer has
 been streamlined.  The proof shell filter has been optimized to give
-hungry proof assistants a better share of CPU cycles.  Proof General is
-easier to adapt to new provers --- it fails more gracefully (or not at
-all!) when particular configuration variables are unset.  
-An example configuration for Isabelle is provided, which uses
-just 25 simple settings.
+hungry proof assistants a better share of CPU cycles.  Proof-by-pointing
+has been resurrected; even though LEGO's implementation is incomplete,
+it seems worth maintaining the code in Proof General so that the
+implementors of other proof assistants are encouraged to provide
+support.  For one example, we can certainly hope for support in Coq,
+since the CtCoq proof-by-pointing code has been moved into the Coq
+kernel lately.  Somebody from the Coq community needs to help with this.
 
-This manual has been updated accordingly.  It also has a better
-description of how to add support for a new prover.
+An important new feature is the generic support for @strong{X-Symbol},
+which means that real logical symbols, Greek letters, etc can be
+displayed during proof development, instead of their ASCII
+approximations. This makes Proof General a more serious competitor to
+native graphical user interfaces.
+
+Finally, Proof General has become much easier to adapt to new provers
+--- it fails gracefully (or not at all!) when particular configuration
+variables are unset, and provides more default settings which work
+out-of-the-box.  An example configuration for Isabelle is provided,
+which uses just 25 simple settings.
+
+This manual has been updated and extended for Proof General 3.0.
+Amongst other improvements, it has a better description of how to add
+support for a new prover.
 
 See the @code{CHANGES} file in the distribution for more information.
+
 Developers should check the @code{ChangeLog} in the developer's release
 for detailed comments on internal changes.
 
-Most of the work has been done by David Aspinall, with help from Markus
-Wenzel for Isabelle support and Patrick Loiseleur for Coq support.
-Markus has also provided support for his Isar language, a new proof
-language for Isabelle.  David von Oheimb helped to develop and debug the
-generic version of his X-Symbol patch originally for Isabelle.
+Most of the work for Proof General 3.0 has been done by David Aspinall.
+Markus Wenzel helped with Isabelle support, and provided invaluable
+feedback and testing.  Pierre Courtieu took responsibility from Patrick
+Loiseleur for Coq support, although the improvements in both the Coq and
+LEGO code for this release were made by David Aspinall.  Markus Wenzel
+also provided support for his Isar language, a new proof language for
+Isabelle.  David von Oheimb helped to develop and debug the generic
+version of his X-Symbol patch originally provided for Isabelle.
 
 A new instantiation of Proof General is being worked on for
 @emph{Plastic}, a proof assistant being developed at the University of
@@ -1547,7 +1569,7 @@ menu version 2.63, which suggests the following code for your
 
 
 If you have another version of Emacs, you should check the
-@file{func-menu.el} (or @file{fume-func.el}) file supplied with it.
+@file{func-menu.el} file supplied with it.
 
 FSF Emacs 20.4 does not have the function menu library built in, but you
 may be able to download it from the elisp archives.  A similar mode
