@@ -80,7 +80,7 @@ distclean:   clean
 ##	  (developer use only!)
 ##
 magic:
-	$(EMACS) -l docstring-magic.el NewDoc.texi -f daves-docstring-magic -f save-buffer
+	$(EMACS) -l docstring-magic.el NewDoc.texi -f texi-docstring-magic -f save-buffer
 
 
 
