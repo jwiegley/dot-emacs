@@ -9,6 +9,15 @@
 
 
 ;; $Log$
+;; Revision 1.44  1998/05/21 17:34:31  hhg
+;; Made proof-locked-span and proof-queue-span buffer-local.
+;; Changed some if's without then-clauses to and's.
+;; Removed (proof-detach-segments) from (proof-steal-process)
+;; 	This is the bug that made changing buffers fail in emacs19:
+;; 	the segments had already been detached.
+;; Check if we're in proof buffer for proof-frob-locked-end.
+;; Force mode-line update for emacs19 in proof-active-terminator-minor-mode.
+;;
 ;; Revision 1.43  1998/05/19 15:30:03  hhg
 ;; Changed proof-indent-line code so that it doesn't modify buffer if
 ;; nothing is changed.
@@ -438,6 +447,9 @@
 (defvar proof-queue-span nil
   "Upper limit of the locked region")
 
+(make-variable-buffer-local 'proof-locked-span)
+(make-variable-buffer-local 'proof-queue-span)
+
 (defun proof-init-segmentation ()
   (setq proof-queue-loose-end nil)
   (setq proof-queue-span (make-span 1 1))
@@ -475,13 +487,13 @@
 
   (detach-span proof-locked-span))
 
-;; for read-only, not done:
+;; for read-only, not done for emacs19:
 (defsubst proof-lock-unlocked ()
   (cond (running-xemacs
 	 (set-span-property proof-locked-span 'read-only t))
 	(t ())))
 
-;; for read-only, not done:
+;; for read-only, not done for emacs19:
 (defsubst proof-unlock-locked ()
   (cond (running-xemacs
 	 (set-span-property proof-locked-span 'read-only nil))
@@ -494,12 +506,10 @@
   (set-span-endpoints proof-locked-span start end))
 
 (defsubst proof-detach-queue ()
-  (if proof-queue-span
-      (detach-span proof-queue-span)))
+  (and proof-queue-span (detach-span proof-queue-span)))
 
 (defsubst proof-detach-locked ()
-  (if proof-locked-span
-      (detach-span proof-locked-span)))
+  (and proof-locked-span (detach-span proof-locked-span)))
 
 (defsubst proof-set-queue-start (start)
   (set-span-endpoints proof-queue-span start (span-end proof-queue-span)))
@@ -605,8 +615,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun proof-shell-live-buffer () 
-  (if (and proof-shell-buffer
-	   (comint-check-proc proof-shell-buffer))
+  (and proof-shell-buffer
+       (comint-check-proc proof-shell-buffer)
        proof-shell-buffer))
 
 (defun proof-start-shell ()
@@ -984,7 +994,7 @@
 	(if (not (eq proof-script-buffer (current-buffer)))
 	    (error "Bug: Don't own process"))
 	(setq proof-shell-busy nil))))
-  
+
 ; Pass start and end as nil if the cmd isn't in the buffer.
 
 (defun proof-start-queue (start end alist)
@@ -1146,24 +1156,25 @@ at the end of locked region (after inserting a newline and indenting)."
       (save-excursion
 	(set-buffer proof-script-buffer)
 	(setq span (proof-last-goal-or-goalsave))
-	(setq cmd (if (and span (not (eq (span-property span 'type) 'goalsave)))
-		      proof-kill-goal-command ""))
+	(setq cmd
+	      (if (and span (not (eq (span-property span 'type) 'goalsave)))
+		  proof-kill-goal-command ""))
 	(proof-detach-segments)
 	(delete-spans (point-min) (point-max) 'type)
 	(setq proof-active-buffer-fake-minor-mode nil))      
+
       (setq proof-script-buffer (current-buffer))
-      (proof-detach-segments)
       (proof-init-segmentation)
       (setq proof-active-buffer-fake-minor-mode t)
 
       (cond 
        (flist
-	 (list nil (concat cmd "ForgetMark " (car (car flist)) ";")
-	       `(lambda (span) (setq proof-included-files-list 
+	(list nil (concat cmd "ForgetMark " (car (car flist)) ";")
+	      `(lambda (span) (setq proof-included-files-list 
 				    (quote ,(cdr flist))))))
-	((not (string= cmd ""))
-	 (list nil cmd 'proof-done-invisible))
-	(t nil))))))
+       ((not (string= cmd ""))
+	(list nil cmd 'proof-done-invisible))
+       (t nil))))))
 
 ;;         proof-invisible-command                                  ;;
 ;;         Run something without responding to the user             ;;
@@ -1640,10 +1651,13 @@ deletes the region corresponding to the proof sequence."
   (interactive)
   "Move the end of the locked region backwards. 
    Only for use by consenting adults."
-  (if (> (point) (proof-locked-end))
-      (error "Can only move backwards")
-    (proof-set-locked-end (point))
-    (delete-spans (proof-locked-end) (point-max) 'type)))
+  (cond
+   ((not (eq proof-script-buffer (current-buffer)))
+    (error "Not in proof buffer"))
+   ((> (point) (proof-locked-end))
+    (error "Can only move backwards")
+   (t (proof-set-locked-end (point))
+      (delete-spans (proof-locked-end) (point-max) 'type)))))
 
 (defvar proof-minibuffer-history nil
   "The last command read from the minibuffer")
@@ -1660,7 +1674,7 @@ deletes the region corresponding to the proof sequence."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deflocal proof-active-terminator-minor-mode nil 
-"active terminator minor mode flag")
+  "active terminator minor mode flag")
 
 (defun proof-active-terminator-minor-mode (&optional arg)
   "Toggle PROOF's Active Terminator minor mode.
@@ -1679,10 +1693,12 @@ current command."
                     (list '(proof-active-terminator-minor-mode
 			    (concat " " proof-terminal-string))))))
 
- (setq proof-active-terminator-minor-mode
+  (setq proof-active-terminator-minor-mode
         (if (null arg) (not proof-active-terminator-minor-mode)
           (> (prefix-numeric-value arg) 0)))
-   (and (fboundp 'redraw-modeline) (redraw-modeline)))
+  (if (fboundp 'redraw-modeline)
+      (redraw-modeline)
+    (force-mode-line-update)))
 
 (defun proof-active-terminator ()
   (interactive)
