@@ -15,6 +15,10 @@
 ;;; ======== User settings for Isabelle ========
 ;;;
 
+(defgroup isabelle-settings nil
+  "Customization of Isabelle specifics for Proof General."
+  :group 'proof-general)
+  
 (defcustom isa-prog-name "/usr/lib/Isabelle98/bin/isabelle"
   "*Name of program to run Isabelle."
   :type 'file
