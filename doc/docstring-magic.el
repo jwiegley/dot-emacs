@@ -20,4 +20,8 @@
 (load "coq.el")
 (load "lego.el")
 
+;; Set some symbols to make markup happen
+(setq sml-mode 'markup-hack)
+(setq func-menu 'markup-hack)
+
 (load "texi-docstring-magic.el")
