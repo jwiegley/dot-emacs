@@ -174,7 +174,7 @@ understand ~, for example."
 	 (cons "%e" (proof-format proof-shell-filename-escapes 
 				  (expand-file-name filename)))
 	 (cons "%r" (proof-format proof-shell-filename-escapes 
-				  (expand-file-name filename))))
+				  filename)))
    string))
  
 
