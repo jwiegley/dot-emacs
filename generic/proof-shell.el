@@ -225,15 +225,20 @@ Does nothing if proof assistant is already running."
 		   (substring proof-prog-name
 			      (or (string-match "[^/]*[ ]" proof-prog-name) 0)
 			      (string-match " " proof-prog-name)))))
-    ;; FIXME da: We don't really need this.  We never have more than
+
+    ;; da: We don't really need this.  We never have more than
     ;; one proof shell running at a time.  We might as well
     ;; kill off the old buffer anyway.  But leave it in for now for
     ;; future expansion, or for user to inspect the old buffer.
-      (while (get-buffer (concat "*" proc "*"))
-	(if (string= (substring proc -1) ">")
-	    (aset proc (- (length proc) 2) 
-		  (+ 1 (aref proc (- (length proc) 2))))
-	  (setq proc (concat proc "<2>"))))
+
+    ;; da: Removed this because it leads to objectionable 
+    ;; proliferation of buffers when startup fails.
+
+     ;; (while (get-buffer (concat "*" proc "*"))
+     ;; (if (string= (substring proc -1) ">")
+     ;; (aset proc (- (length proc) 2) 
+     ;; (+ 1 (aref proc (- (length proc) 2))))
+     ;; (setq proc (concat proc "<2>"))))
       
       (message (format "Starting process: %s" proof-prog-name))
 
