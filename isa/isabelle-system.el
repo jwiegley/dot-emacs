@@ -182,7 +182,7 @@ Called with one argument: t to save database, nil otherwise."
       (isa-insert-ret "quit();"))
   (comint-send-eof))
 
-(defconst isabelle-verbatim-regexp "^\^VERBATIM: \\(\\(.\\|\n\\)*\\)$"
+(defconst isabelle-verbatim-regexp "\\`\^VERBATIM: \\(\\(.\\|\n\\)*\\)\\'"
   "Regexp matching internal marker for verbatim command output")
 
 (defun isabelle-verbatim (str)
@@ -192,7 +192,7 @@ Called with one argument: t to save database, nil otherwise."
 ;;; Set proof-shell-pre-interrupt-hook for PolyML.
 (if (and
      (not proof-shell-pre-interrupt-hook)
-     (string-match "^polyml" (isa-getenv "ML_SYSTEM")))
+     (string-match "\\'polyml" (isa-getenv "ML_SYSTEM")))
     (add-hook
      'proof-shell-pre-interrupt-hook
      (lambda () (proof-shell-insert (isabelle-verbatim "f") nil))))
