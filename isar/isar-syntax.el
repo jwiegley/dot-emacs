@@ -224,7 +224,9 @@ This list is in the right format for proof-easy-config.")
 
 (defconst isar-name-regexp
   (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
-  "Regexp matching Isabelle/Isar names; surrounding space and contents grouped.")
+  "Regexp matching Isabelle/Isar names; surrounding space and contents grouped.
+Group number 1 matches the identifier possibly with quotes; group number 2
+matches contents of quotes for quoted identifiers.")
 
 (defconst isar-tac-regexp
   "\\<[A-Za-z][A-Za-z0-9'_]*_tac\\>"
@@ -450,7 +452,7 @@ This list is in the right format for proof-easy-config.")
 		  (concat "\\<" kw "\\>"
 			  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
 			  isar-name-regexp "[[:=]")
-		  2))
+		  1))
 	  isar-keywords-fume))
 
 ;; ----- indentation
