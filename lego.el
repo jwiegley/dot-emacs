@@ -5,6 +5,15 @@
 
 
 ;; $Log$
+;; Revision 1.49  1998/06/02 15:34:58  hhg
+;; Generalized proof-retract-target, now parameterized by
+;; proof-count-undos and proof-find-and-forget.
+;; Generalized proof-shell-analyse-structure, introduced variable
+;; proof-analyse-using-stack.
+;; Generalized proof menu plus ancillary functions.
+;; Generalized proof-mode-version-string.
+;; Moved various comments into documentation string.
+;;
 ;; Revision 1.48  1998/05/29 09:49:47  tms
 ;; o outsourced indentation to proof-indent
 ;; o support indentation of commands
@@ -125,15 +134,14 @@
 ;; Made dependency on proof explicit
 ;;
 
-(require 'easymenu)
 (require 'lego-fontlock)
 (require 'outline)
 (require 'proof)
 
-; Configuration                                  
+; Configuration
 
-(defconst lego-mode-version-string
-  "LEGO-MODE. ALPHA Version 2 (May 1998) LEGO Team <lego@dcs.ed.ac.uk>")
+(defvar lego-assistant "LEGO"
+  "Name of proof assistant")
 
 (defvar lego-tags "/home/tms/lib/lib_Type/TAGS"
   "the default TAGS table for the LEGO library")
@@ -179,7 +187,6 @@
 ;; "ftp://ftp.dcs.ed.ac.uk/pub/lego/refcard.dvi.gz", but  
 ;;    a) w3 fails to decode the image before invoking xdvi
 ;;    b) ftp.dcs.ed.ac.uk is set up in a too non-standard way 
-
 
 
 (defvar lego-library-www-page
@@ -268,58 +275,6 @@
   "pbp" "Proof-by-pointing support for LEGO"
   (lego-pbp-mode-config))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Popup and Pulldown Menu ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defvar lego-shared-menu
-  (append '(
-            ["Display context" lego-ctxt
-	      :active (proof-shell-live-buffer)]
-            ["Display proof state" lego-prf
-	      :active (proof-shell-live-buffer)]
-	    ["Exit LEGO" proof-shell-exit
-	     :active (proof-shell-live-buffer)]
-	    "----"
-	    ["Find definition/declaration" find-tag-other-window t]
-	    ("Help"
-	     ["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
-	     ["The LEGO library (WWW)"
-	      (w3-fetch lego-library-www-page)  t]
-	     ["The LEGO Proof-assistant (WWW)"
-	      (w3-fetch lego-www-home-page)  t]
-	     ["Help on Emacs LEGO-mode" lego-info-mode  t]
-	     ["Customisation" (w3-fetch lego-www-customisation-page)
-	      t]
-            ))))
-
-(defvar lego-menu  
-  (append '("LEGO Commands"
-            ["Toggle active ;" proof-active-terminator-minor-mode
-	     :active t
-	     :style toggle
-             :selected proof-active-terminator-minor-mode]
-            "----")
-          (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
-		    "--:doubleLine" "----"))
-          lego-shared-menu
-          )
-  "*The menu for LEGO.")
-
-(defvar lego-shell-menu lego-shared-menu
-  "The menu for the LEGO shell")
-
-(easy-menu-define lego-shell-menu
-		  lego-shell-mode-map
-		  "Menu used in the lego shell."
-		  (cons "LEGO" (cdr lego-shell-menu)))
-
-(easy-menu-define lego-mode-menu  
-		  lego-mode-map
-		  "Menu used lego mode."
-		  (cons "LEGO" (cdr lego-menu)))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's lego specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -362,8 +317,8 @@
       (setq span (next-span span 'type)))
     (concat "Undo " (int-to-string ct) proof-terminal-string)))
 
-;; Decide whether this is a goal or not
 (defun lego-goal-command-p (str)
+  "Decide whether argument is a goal or not"
   (string-match lego-goal-command-regexp str))
 
 (defun lego-find-and-forget (span) 
@@ -402,81 +357,6 @@
   (or ans
       "COMMENT")))
   
-
-(defun lego-retract-target (target delete-region)
-  (let ((end (proof-locked-end))
-	(start (span-start target))
-	(span (proof-last-goal-or-goalsave))
-	actions)
-    
-    (if (and span (not (eq (span-property span 'type) 'goalsave)))
-	(if (< (span-end span) (span-end target))
-	    (progn
-	      (setq span target)
-	      (while (and span (eq (span-property span 'type) 'comment))
-		(setq span (next-span span 'type)))
-	      (setq actions (proof-setup-retract-action
-			     start end 
-			     (if (null span) "COMMENT" (lego-count-undos span))
-			     delete-region)
-		    end start))
-	  
-	  (setq actions (proof-setup-retract-action (span-start span) end
-						    proof-kill-goal-command
-						    delete-region)
-		end (span-start span))))
-    
-    (if (> end start) 
-	(setq actions
-	      (nconc actions (proof-setup-retract-action 
-			      start end
-			      (lego-find-and-forget target)
-			      delete-region))))
-      
-    (proof-start-queue (min start end) (proof-locked-end) actions)))
-
-(defun lego-shell-analyse-structure (string)
-  (save-excursion
-    (let* ((ip 0) (op 0) ap (l (length string)) 
-	   (ann (make-string (length string) ?x))
-           (stack ()) (topl ()) 
-	   (out (make-string l ?x )) c span)
-      (while (< ip l)	
-	(if (< (setq c (aref string ip)) 128) (progn (aset out op c)
-						     (incf op)))
-	(incf ip))
-      (display-buffer (set-buffer proof-pbp-buffer))
-      (erase-buffer)
-      (insert (substring out 0 op))
-
-      (setq ip 0
-	    op 1)
-      (while (< ip l)
-	(setq c (aref string ip))
-	(cond
-	 ((= c proof-shell-goal-char)
-	  (setq topl (cons op topl))
-	  (setq ap 0))
-	 ((= c proof-shell-start-char)
-	  (setq ap (- (aref string (incf ip)) 128))
-	  (incf ip)
-	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
-	    (aset ann ap (- c 128))
-	    (incf ap)
-	    (incf ip))
-	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
-	 ((= c proof-shell-field-char)
-	  (setq span (make-span (car stack) op))
-	  (set-span-property span 'mouse-face 'highlight)
-	  (set-span-property span 'proof (car (cdr stack)))
-	  (setq stack (cdr (cdr stack))))
-	 (t (incf op)))
-	(incf ip))
-      (setq topl (reverse (cons (point-max) topl)))
-      (while (setq ip (car topl) 
-		   topl (cdr topl))
-	(pbp-make-top-span ip (car topl))))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Other stuff which is required to customise script management   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -499,26 +379,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun lego-info-mode ()
-  "Info mode on LEGO."
-  (interactive)
-  (info "script-management"))
-
-(defun lego-help ()
-  "Print help message giving syntax."
-  (interactive)
-  (proof-invisible-command "Help;"))
-
-(defun lego-prf ()
-  "List proof state."
-  (interactive)
-  (proof-invisible-command "Prf;"))
-
-(defun lego-ctxt ()
-  "List context."
-  (interactive) 
-  (proof-invisible-command "Ctxt;"))
 
 (defun lego-intros ()
   "intros."
@@ -595,8 +455,16 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
+  (setq proof-assistant lego-assistant
+	proof-www-home-page lego-www-home-page)
+
+  (setq proof-prf-string "Prf"
+	proof-ctxt-string "Ctxt"
+	proof-help-string "Help")
+
   (setq proof-goal-command-p 'lego-goal-command-p
-	proof-retract-target-fn 'lego-retract-target
+	proof-count-undos-fn 'lego-count-undos
+	proof-find-and-forget-fn 'lego-find-and-forget
         proof-goal-hyp-fn 'lego-goal-hyp
 	proof-state-preserving-p 'lego-state-preserving-p
 	proof-global-p 'lego-global-p
@@ -618,9 +486,6 @@
 
   (proof-config-done)
 
-  (define-key (current-local-map) [(control c) (control p)] 'lego-prf)
-  (define-key (current-local-map) [(control c) c] 'lego-ctxt)
-  (define-key (current-local-map) [(control c) h] 'lego-help)
   (define-key (current-local-map) [(control c) i] 'lego-intros)
   (define-key (current-local-map) [(control c) I] 'lego-Intros)
   (define-key (current-local-map) [(control c) r] 'lego-Refine)
@@ -649,10 +514,6 @@
 ;; where to find files
 
   (setq compilation-search-path (cons nil (lego-get-path)))
-
-;; keymaps and menus
-
-  (easy-menu-add lego-mode-menu lego-mode-map)
 
   (setq blink-matching-paren-dont-ignore-comments t)
 
@@ -695,7 +556,7 @@
         proof-shell-start-goals-regexp "\372 Start of Goals \373"
         proof-shell-end-goals-regexp "\372 End of Goals \373"
         proof-shell-init-cmd lego-process-config
-	proof-shell-analyse-structure 'lego-shell-analyse-structure
+	proof-analyse-using-stack nil
         lego-shell-current-line-width nil)
   (proof-shell-config-done)
 )

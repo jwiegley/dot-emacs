@@ -3,6 +3,15 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.26  1998/06/02 15:34:43  hhg
+;; Generalized proof-retract-target, now parameterized by
+;; proof-count-undos and proof-find-and-forget.
+;; Generalized proof-shell-analyse-structure, introduced variable
+;; proof-analyse-using-stack.
+;; Generalized proof menu plus ancillary functions.
+;; Generalized proof-mode-version-string.
+;; Moved various comments into documentation string.
+;;
 ;; Revision 1.25  1998/05/23 12:50:40  tms
 ;; improved support for Info
 ;;   o employed `Info-default-directory-list' rather than
@@ -114,9 +123,6 @@
 ;; New structure to share as much as possible between LEGO and Coq.
 ;;
 
-;; *** Add indentation in scripts!
-
-(require 'easymenu)
 (require 'coq-fontlock)
 (require 'outline)
 (require 'proof)
@@ -124,8 +130,8 @@
 
 ; Configuration
 
-(defconst coq-mode-version-string
-  "Coq-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
+(defvar coq-assistant "Coq"
+  "Name of proof assistant")
 
 (defvar coq-tags "/usr/local/lib/coq/theories/TAGS"
   "the default TAGS table for the Coq library")
@@ -204,52 +210,6 @@
   "pbp" "Proof-by-pointing support for Coq"
   (coq-pbp-mode-config))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Popup and Pulldown Menu ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defvar coq-shared-menu
-  (append '(
-            ["Display context" coq-ctxt
-	      :active (proof-shell-live-buffer)]
-            ["Display proof state" coq-prf
-	      :active (proof-shell-live-buffer)]
-	    ["Exit Coq" coq-exit :active (proof-shell-live-buffer)]
-	    "----"
-	    ["Find definition/declaration" find-tag-other-window t]
-	    ("Help"
-	     ["The Coq Proof-assistant (WWW)"
-	      (w3-fetch coq-www-home-page)  t]
-	     ["Help on Emacs Coq-mode" coq-info-mode t]
-	     ))))
-
-(defvar coq-menu  
-  (append '("Coq Commands"
-            ["Toggle active terminator" proof-active-terminator-minor-mode
-	     :active t
-	     :style toggle
-             :selected proof-active-terminator-minor-mode]
-            "----")
-          (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
-		    "--:doubleLine" "----"))
-          coq-shared-menu
-          )
-  "*The menu for Coq.")
-
-(defvar coq-shell-menu coq-shared-menu
-  "The menu for the Coq shell")
-
-(easy-menu-define coq-shell-menu
-		  coq-shell-mode-map
-		  "Menu used in the coq shell."
-		  (cons "Coq" (cdr coq-shell-menu)))
-
-(easy-menu-define coq-mode-menu  
-		  coq-mode-map
-		  "Menu used coq mode."
-		  (cons "Coq" (cdr coq-menu)))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's coq specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -289,8 +249,8 @@
   (ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
 
-;; Decide whether this is a goal or not
 (defun coq-goal-command-p (str)
+  "Decide whether argument is a goal or not"
   (and (string-match coq-goal-command-regexp str)
        (not (string-match "Definition.*:=" str))))
 
@@ -350,115 +310,9 @@
 	    (concat "Definition\\s-+\\(" coq-id "\\)\\s-*:") cmd)
 	   (string-match ":=" cmd))))
 
-(defun coq-retract-target (target delete-region)
-  (let ((end (proof-locked-end))
-	(start (span-start target))
-	(span (proof-last-goal-or-goalsave))
-	actions)
-    
-    (if (and span (not (eq (span-property span 'type) 'goalsave)))
-	(if (< (span-end span) (span-end target))
-	    (progn
-	      (setq span target)
-	      (while (and span (eq (span-property span 'type) 'comment))
-		(setq span (next-span span 'type)))
-	      (setq actions (proof-setup-retract-action
-			     start end 
-			     (if (null span) "COMMENT" (coq-count-undos span))
-			     delete-region)
-		    end start))
-	  
-	  (setq actions (proof-setup-retract-action (span-start span) end
-						    proof-kill-goal-command
-						    delete-region)
-		end (span-start span))))
-    
-    (if (> end start) 
-	(setq actions
-	      (nconc actions (proof-setup-retract-action 
-			      start end
-			      (coq-find-and-forget target)
-			      delete-region))))
-      
-    (proof-start-queue (min start end) (proof-locked-end) actions)))
-
-(defun coq-shell-analyse-structure (string)
-  (save-excursion
-    (let* ((ip 0) (op 0) ap (l (length string)) 
-	   (ann (make-string (length string) ?x))
-           (stack ()) (topl ()) 
-	   (out (make-string l ?x )) c span)
-      (while (< ip l)	
-	(if (< (setq c (aref string ip)) 128) (progn (aset out op c)
-						     (incf op)))
-	(incf ip))
-      (display-buffer (set-buffer proof-pbp-buffer))
-      (erase-buffer)
-      (insert (substring out 0 op))
-
-      (setq ip 0
-	    op 1)
-      (while (< ip l)
-	(setq c (aref string ip))
-	(cond
-	 ((= c proof-shell-goal-char)
-	  (setq topl (cons op topl))
-	  (setq ap 0))
-	 ((= c proof-shell-start-char)
-	  (setq ap (- ap (- (aref string (incf ip)) 128)))
-	  (incf ip)
-	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
-	    (aset ann ap (- c 128))
-	    (incf ap)
-	    (incf ip))
-	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
-	 ((= c proof-shell-field-char)
-	  (setq span (make-span (car stack) op))
-	  (set-span-property span 'mouse-face 'highlight)
-	  (set-span-property span 'proof (car (cdr stack)))
-					; Pop annotation off stack
-	  (setq ap 0)
-	  (while (< ap (length (cadr stack)))
-	    (aset ann ap (aref (cadr stack) ap))
-	    (incf ap))
-					; Finish popping annotations
-	  (setq stack (cdr (cdr stack))))
-	 (t (incf op)))
-	(incf ip))
-      (setq topl (reverse (cons (point-max) topl)))
-      (setq coq-current-goal 1)
-      (while (setq ip (car topl) 
-		   topl (cdr topl))
-	(pbp-make-top-span ip (car topl))))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to coq                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun coq-info-mode ()
-  "Info mode on Coq."
-  (interactive)
-  (info "script-management"))
-
-(defun coq-help ()
-  "Print help message giving syntax."
-  (interactive)
-  (proof-invisible-command "Help."))
-
-(defun coq-prf ()
-  "List proof state."
-  (interactive)
-  (proof-invisible-command "Show."))
-
-(defun coq-exit ()
-  "Exit Coq."
-  (interactive)
-  (proof-restart-script))
-
-(defun coq-ctxt ()
-  "List context."
-  (interactive) 
-  (proof-invisible-command "Show."))
 
 (defun coq-Intros () 
   "List proof state." 
@@ -546,8 +400,16 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
+  (setq proof-assistant coq-assistant
+	proof-www-home-page coq-www-home-page)
+
+  (setq proof-prf-string "Show"
+	proof-ctxt-string "Show Context"
+	proof-help-string "Help")
+
   (setq proof-goal-command-p 'coq-goal-command-p
-	proof-retract-target-fn 'coq-retract-target
+	proof-count-undos-fn 'coq-count-undos
+	proof-find-and-forget-fn 'coq-find-and-forget
         proof-goal-hyp-fn 'coq-goal-hyp
 	proof-state-preserving-p 'coq-state-preserving-p
 	proof-global-p 'coq-global-p
@@ -582,9 +444,6 @@
 
   (proof-config-done)
 
-  (define-key (current-local-map) [(control c) (control p)] 'coq-prf)
-  (define-key (current-local-map) [(control c) c] 'coq-ctxt)
-  (define-key (current-local-map) [(control c) h] 'coq-help)
   (define-key (current-local-map) [(control c) I] 'coq-Intros)
   (define-key (current-local-map) [(control c) a] 'coq-Apply)
   (define-key (current-local-map) [(control c) (control s)] 'coq-Search)
@@ -604,17 +463,12 @@
 		       ("coq"  . coq-tags))
 		     tag-table-alist)))
 
-;; keymaps and menus
-  (easy-menu-add coq-mode-menu coq-mode-map)
-
   (setq blink-matching-paren-dont-ignore-comments t)
 
 ;; hooks and callbacks
 
   (add-hook 'proof-shell-exit-hook 'coq-zap-line-width nil t)
   (add-hook 'proof-pre-shell-start-hook 'coq-pre-shell-start nil t))
-
-;; insert standard header and footer in fresh buffers	       
 
 (defun coq-shell-mode-config ()
   (setq proof-shell-prompt-pattern coq-shell-prompt-pattern
@@ -643,7 +497,7 @@
         proof-shell-start-goals-regexp "[0-9]+ subgoals?"
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
         proof-shell-init-cmd nil
-	proof-shell-analyse-structure 'coq-shell-analyse-structure)
+	proof-analyse-using-stack t)
 
   ;; The following hook is removed once it's called.
   (add-hook 'proof-shell-insert-hook 'coq-shell-init-hook nil t)
