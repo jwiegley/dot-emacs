@@ -273,10 +273,10 @@
    ;; functions, restoring settings saved by Proof General, etc.
    proof-shell-pre-sync-init-cmd	(isar-verbatim 
 					 "ProofGeneral.init true;")
+   proof-assistant-setting-format	'isar-markup-ml
    proof-shell-init-cmd                 (proof-assistant-settings-cmd)
    proof-shell-restart-cmd		"ProofGeneral.restart;"
    proof-shell-quit-cmd			(isar-verbatim "quit();")
-   proof-assistant-setting-format	'isar-markup-ml
 
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
@@ -569,7 +569,7 @@ proof-shell-retract-files-regexp."
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords isar-output-font-lock-keywords-1)
+  (setq font-lock-keywords isar-goals-font-lock-keywords)
   (isar-outline-setup)
   (proof-goals-config-done))
 
