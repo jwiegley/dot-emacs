@@ -2103,7 +2103,7 @@ See documentation of proof-shell-start-char."
 
 This setting is also used to see if proof-by-pointing features
 are configured.  If it is unset, some of the code 
-for parsing the is disabled."
+for parsing the prover output is disabled."
   :type 'character
   :group 'proof-goals)
 
