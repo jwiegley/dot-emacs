@@ -305,6 +305,15 @@ you should set `proof-tidy-response' to nil."
   :type 'boolean
   :group 'proof-user-options)
 
+(defcustom proof-experimental-features nil
+  "*Whether to enable certain features regarded as experimental.
+As features are added to proof general but are not entirely robust,
+we only enable them if this flag is set.  We encourage users to
+set this flag and test the features, but being aware that the
+features may be buggy (problem reports welcomed)."
+  :type 'boolean
+  :group 'proof-user-options)
+
 ;;; NON BOOLEAN OPTIONS 
 
 (defcustom proof-follow-mode 'locked
