@@ -224,7 +224,7 @@ Does nothing if proof assistant is already running."
 		  (+ 1 (aref proc (- (length proc) 2))))
 	  (setq proc (concat proc "<2>"))))
       
-      (message (format "Starting process : %s" proof-prog-name))
+      (message (format "Starting process: %s" proof-prog-name))
 
       ;; Starting the inferior process (asynchronous)
       (let ((prog-name-list 
