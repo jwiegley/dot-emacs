@@ -102,7 +102,7 @@
 
 ;; this should come from isa-ml-compiler stuff.
 (defcustom isa-error-regexp 
-  "^.*Error:\\|^\\*\\*\\*\\|^\\#\\#\\#"
+  "^.*Error:\\|^\\*\\*\\*"
   "A regexp indicating that Isabelle has identified an error."
   :type 'string
   :group 'isa-syntax)
