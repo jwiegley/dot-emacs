@@ -161,7 +161,7 @@ You can use the following format characters:
       (define-key map [(control down)] 'thy-goto-next-section)
       (define-key map "\C-c\C-n" 'thy-goto-next-section)
       (define-key map "\C-c\C-p" 'thy-goto-prev-section)
-      (define-key map "\C-c\C-c" 'thy-minor-sml-mode)
+      (define-key map "\C-c\C-m" 'thy-minor-sml-mode)
       (define-key map "\C-c\C-t" 'thy-insert-template)
       ;; Disabled for Proof General
       ;;(define-key map "\C-c\C-u" 'thy-use-file)
@@ -186,8 +186,13 @@ You can use the following format characters:
 			     ]
 			    ["Retract theory" isa-retract-thy-file
 			     :active (proof-locked-region-full-p)
-			     ])
-			   (cdr proof-shared-menu) 
+			     ]
+			    ["Insert template" thy-insert-template t]
+			    ;; A couple from the toolbar that make sense here
+			    ;; (also in proof-universal-keys)
+			    ["Issue command" proof-minibuffer-cmd t]
+			    ["Interrupt prover" proof-interrupt-process t])
+			   proof-shared-menu 
 			   ;; begin UGLY COMPATIBILTY HACK
 			   ;; older/non-existent customize doesn't have 
 			   ;; this function.  
@@ -472,7 +477,7 @@ the other file replaces the one in the current window."
     (setq thy-minor-sml-mode-map (copy-keymap sml-mode-map))
     ;; Bind TAB to what it should be in sml-mode.
     (define-key thy-minor-sml-mode-map "\t" 'indent-for-tab-command)
-    (define-key thy-minor-sml-mode-map "\C-c\C-c" 'thy-mode-quiet)
+    (define-key thy-minor-sml-mode-map "\C-c\C-m" 'thy-mode-quiet)
     (define-key thy-minor-sml-mode-map "\C-c\C-t" 'thy-insert-template)))
 
 (defun thy-minor-sml-mode ()
