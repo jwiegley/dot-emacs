@@ -1724,7 +1724,7 @@ by the filter is to send the next command from the queue."
 (defvar pg-tracing-slow-mode nil
   "Non-nil for slow refresh mode for tracing output.")
 
-(defconst pg-slow-mode-duration 1
+(defconst pg-slow-mode-duration 2
   "Maximum duration of slow mode in seconds.")
 
 (defconst pg-fast-tracing-mode-threshold 50000
@@ -1767,7 +1767,7 @@ Only works when system timer has microsecond count available."
 	  ;; quickly consecutive and large tracing outputs: go into slow mode
 	  (progn
 	    (setq pg-tracing-slow-mode t)
-	    (message "Fast tracing output: playing slow catch-up")
+	    (message "Fast tracing output: fontifying output intermittently")
 	    (setq pg-tracing-cleanup-timer
 		  (run-with-idle-timer 2 nil 'pg-finish-tracing-display))
 	    t)
