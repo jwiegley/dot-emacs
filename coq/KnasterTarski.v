@@ -15,15 +15,20 @@ Variable M : A.
 Hypothesis Up : forall x : A, R x (f x) -> R x M.
 Hypothesis Least : forall x : A, (forall y : A, R y (f y) -> R y x) -> R M x.
 
+Hint Resolve Up Assym Incr Least Incr Up Trans : db.
+
 Theorem Tarski_lemma : Eq M (f M).
-cut (R M (f M)).
-intro.
-apply Assym; trivial.
-apply Up.
-apply Incr; trivial.
-apply Least.
-intros.
-apply Trans with (f y); trivial.
-apply Incr.
-apply Up; trivial.
+(* We can prove the theorem in one line: *)
+(*   eauto 15 with db.  *)
+(* But we rather use basic tactics in this sample file: *)
+  cut (R M (f M)).
+  intro.
+  apply Assym; trivial.
+  apply Up.
+  apply Incr; trivial.
+  apply Least.
+  intros.
+  apply Trans with (f y); trivial.
+  apply Incr.
+  apply Up; trivial.
 Qed.
