@@ -78,12 +78,13 @@ Internal variable, setting this will have no effect!")
 	(proof-map-buffers
 	 (list proof-response-buffer proof-goals-buffer proof-trace-buffer)
 	 (set-specifier default-toolbar-visible-p nil (current-buffer))
-	 ;; (set-specifier minibuffer (minibuffer-window) (current-buffer))
-	 (set-specifier has-modeline-p nil (current-buffer))
-	 (set-specifier menubar-visible-p nil (current-buffer))
+	 ; (set-specifier minibuffer (minibuffer-window) (current-buffer))
+	 ;(set-specifier has-modeline-p nil (current-buffer))
+	 (remove-specifier has-modeline-p (current-buffer))
+	 (remove-specifier menubar-visible-p (current-buffer))
 	 ;; gutter controls buffer tab visibility in XE 21.4
 	 (and (boundp 'default-gutter-visible-p)
-	      (set-specifier default-gutter-visible-p nil (current-buffer)))))
+	      (remove-specifier default-gutter-visible-p (current-buffer)))))
     ;; Try to trigger re-display of goals/response buffers,
     ;; on next interaction.  
     ;; FIXME: would be nice to do the re-display here, rather
