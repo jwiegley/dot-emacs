@@ -106,7 +106,7 @@ TAR=tar
 DEVELMAKE=make -f Makefile.devel
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneral.eps* doc/ProofGeneral.pdf images/*.xcf images/notes.txt images/gimp images/Makefile html/notes.txt plastic/
+NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneral.eps* doc/ProofGeneral.pdf images/*.xcf images/notes.txt images/gimp images/Makefile html/notes.txt Makefile.xemacs plastic/
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
