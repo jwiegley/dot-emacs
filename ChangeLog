@@ -1,5 +1,48 @@
 2002-07-01  David Aspinall  <da@proofgeneral.org>
 
+	* html/news.html: Syntax error
+
+	* doc/ProofGeneral.texi, doc/PG-adapting.texi:
+	Updates for 3.4
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/news.html: Fix date on news item
+
+	* generic/proof-utils.el:
+	Use executable-find
+
+	* generic/proof-script.el:
+	proof-restart: also remove idiom internal spans.
+
+	* generic/proof-x-symbol.el:
+	Fix problem with GNU Emacs support: switch to multibyte in output buffers
+
+	* isa/x-symbol-isabelle.el:
+	Doc difference between isa and isar, fix prob with isa support.
+
+	* isa/isabelle-system.el:
+	Added isabelle-load-isar-keywords mimic of script startup.
+
+	* isar/isar-syntax.el:
+	Adjust syntax tables.
+
+	* isar/isar.el:
+	Adjust load order, and try to load a good isar-keywords file.  Add several FIXMEs.
+
+	* isar/test.el:
+	Add code to test new parser.
+
+2002-06-30  David Aspinall  <da@proofgeneral.org>
+
+	* isar/isar-keywords.el:
+	Revert to previous version.  Explain existence of other versions
+
+2002-07-01  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
