@@ -14,6 +14,9 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+B proof-issue-goal should refuse to work when a proof is in progress.
+  Similarly proof-issue-save should refuse to work when a proof
+  hasn't been completed!
 
 B Bug in proof-retract-until-point when called twice in succession:
   calls backward-char at beginning of buffer.  (Should say no

@@ -7,6 +7,7 @@
 ;; $Id$
 ;;
 
+;; begin UGLY COMPATIBILITY HACK
 (or (featurep 'custom)
     ;; Quick hack to support defcustom for Emacs 19
     ;; FIXME da: Remove this soon.
@@ -14,6 +15,7 @@
     (defmacro defcustom (sym val doc &rest args)
       (defvar sym val doc))
     (defmacro group (sym mems doc &rest args)))
+;; end UGLY COMPATIBILITY HACK
 
 
 (defgroup proof nil
@@ -125,20 +127,20 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 
 ;; Now add auto-loads and load-path elements to support the 
 ;; proof assistants selected, and define a stub 
-(let ((assistants proof-assistants) proof-assistant)
+(let ((assistants proof-assistants) assistant)
   (while assistants
     (let*  
-	((proof-assistant (car assistants))
+	((assistant (car assistants))
 	 (nameregexp 
 	  (or 
 	   (cdr-safe 
-	    (assoc proof-assistant
+	    (assoc assistant
 		   proof-internal-assistant-table))
-	   (error "proof-site: symbol " (symbol-name proof-assistant) 
+	   (error "proof-site: symbol " (symbol-name assistant) 
 		  "is not in proof-internal-assistant-table")))
 	 (assistant-name (car nameregexp))
 	 (regexp	 (car (cdr nameregexp)))
-	 (sname		 (symbol-name proof-assistant))
+	 (sname		 (symbol-name assistant))
 	 ;; NB: File name for each prover is the same as its symbol name!
 	 (elisp-file   sname)
 	 ;; NB: Dir name for each prover is the same as its symbol name!
