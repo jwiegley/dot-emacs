@@ -18,10 +18,15 @@
 ## 
 ###########################################################################
 
+# Sources
 BUTTONS=goal.xcf next.xcf qed.xcf restart.xcf retract.xcf undo.xcf use.xcf
 WEBPIX=ProofGeneral.xcf text_general.xcf text_proof.xcf
-WEBPIX_ONLY=text_general.jpg text_proof.jpg
-WEBPIX_TARGETS=$(WEBPIX_ONLY) ProofGeneral.jpg
+
+# Targets for html directory
+WEBPIX_ONLY=
+WEBPIX_TARGETS=$(WEBPIX_ONLY) ProofGeneral.jpg text_general.gif text_proof.gif
+# Junk not wanted
+UNWANTED=text_general.jpg text_proof.jpg
 
 CWD=$(shell pwd)
 GIMP_DIRECTORY=$(CWD)/gimp
@@ -33,15 +38,14 @@ default: all
 
 all: buttons webpix
 
-dist:   all install clean
-	rm -f $(WEBPIX_ONLY)
+dist:   all install distclean
 
 buttons: $(BUTTONS)
 	$(GIMP) '(script-fu-proofgeneral-make-all-buttons 1)' '(gimp-quit 0)'
 	touch buttons
 
 webpix: $(WEBPIX)
-	$(GIMP) '(script-fu-proofgeneral-save-all-jpegs 1)' '(gimp-quit 0)'
+	$(GIMP) '(script-fu-proofgeneral-save-all-pix 1)' '(gimp-quit 0)'
 	touch webpix
 
 cvsclean: clean
@@ -57,6 +61,7 @@ distclean: clean
 
 clean:
 	rm -f buttons webpix gimp/pluginrc
+	rm -f $(WEBPIX_ONLY) $(UNWANTED)
 
 install: webpix
 	cp -pf $(WEBPIX_TARGETS) ../html

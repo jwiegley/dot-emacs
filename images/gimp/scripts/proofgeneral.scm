@@ -57,20 +57,27 @@
 		    "1998/10/04"
 		    "")
 
-(define (script-fu-proofgeneral-save-jpg imgname)
+(define (script-fu-proofgeneral-save-pic imgname)
   (let* ((filename (string-append imgname ".xcf"))
 	 (image    (car (gimp-file-load 1 filename filename)))
 	 (jpgname  (string-append imgname ".jpg"))
-	 (gifname  (string-append imgname ".gif")))
+	 (gifname  (string-append imgname ".gif"))
+	 (poorgifname  (string-append imgname ".8bit.gif")))
     ;; Flatten and save as jpg
     (gimp-image-flatten image)
     (file-jpeg-save 1 image (car (gimp-image-active-drawable image))
 		    jpgname jpgname
 		    0.75 0 1)
-    ;; Poor jpegs for display in XEmacs, limit to 10 colours.
-    (gimp-convert-indexed image 1 10)
+    ;; gif with full palette
+    (gimp-convert-indexed image 1 256)
     (file-gif-save 1 image (car (gimp-image-active-drawable image))
 		    gifname gifname
+		    FALSE FALSE 0 0)
+    ;; gif with impoverished palette for display in XEmacs
+    (gimp-convert-rgb image)
+    (gimp-convert-indexed image 1 15)
+    (file-gif-save 1 image (car (gimp-image-active-drawable image))
+		    poorgifname poorgifname
 		    FALSE FALSE 0 0)
     ;; Finish
     (gimp-image-delete image)
@@ -85,8 +92,8 @@
 		    SF-VALUE "Basename" "\"test\"")
 
 
-(define (script-fu-proofgeneral-save-all-jpegs)
-  (mapcar script-fu-proofgeneral-save-jpg
+(define (script-fu-proofgeneral-save-all-pix)
+  (mapcar script-fu-proofgeneral-save-pic
 	  '("ProofGeneral" "text_proof" "text_general")))
 
 (script-fu-register "script-fu-proofgeneral-save-all-jpegs" 
