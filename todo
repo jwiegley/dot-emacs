@@ -41,23 +41,22 @@ X (Low)		probably not worth spending time on
 
 A Final stuff for 3.0 release [da]:
 
-  - something about possible extending queue bug  
-    (does it happen apart from first time round?)
   - name change for "automatic multiple files" stuff
   - See if better fix for FSF overlay mess
-  - document mouse functions, proof-cd, process quit timeout, 
-    X-Symbol, prog-name-guess, new menu functions for display.
   - Fixing up PBP: check documentation is roughly okay.
   - put demo paper on web pages, add more to it.
-  - finish documentation improvements
   - is there a welcome message for mailing list?
-  - fix for extending queue bug
-  - mention demoisa instantiation in documentation.
   
 
 
-
 ---------------------------------------------
+
+B Manual improvements before techreport publishing (see notes at end also):
+  - Mention configuring function menus, outline.
+  - Consider splitting up chapter 9?
+  - document mouse functions, proof-cd, process quit timeout, 
+    X-Symbol, prog-name-guess, new menu functions for display.
+  - improvements after feedback from users.
 
 D Improve goto button image [suggestion from Markus]
   Is it possible to avoid the arrows to touch in the middle,
