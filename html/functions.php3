@@ -161,8 +161,8 @@ function fileshow($filename,$text="",$title="") {
  if ( $text == "") { $text=$filename; };
  $message=$title;
  if ( $message == "") { $message=$filename; };
- hlink("fileshow.phtml?file=" . urlencode($filename)
-       . "&title=" . urlencode($title),
+ $titlecode = ($title == "" ?  "" : "&title=" . urlencode($title));
+ hlink("fileshow.phtml?file=" . urlencode($filename) . $titlecode,
 	$text, $message);
 }
 
