@@ -5,6 +5,10 @@
 
 
 ;; $Log$
+;; Revision 1.39  1998/05/05 14:22:48  hhg
+;; Added lego-goal-command-p to fix Coq's problem with "Definition".
+;; Removed lego-killref from menu.
+;;
 ;; Revision 1.38  1998/04/27 16:25:33  tms
 ;; removed explicit reference to a binary in ctm's home directory
 ;;
@@ -239,20 +243,18 @@
 	      :active (proof-shell-live-buffer)]
             ["Display proof state" lego-prf
 	      :active (proof-shell-live-buffer)]
-           ["Kill the current refinement proof"
-            lego-killref  :active (proof-shell-live-buffer)]
-           ["Exit LEGO" proof-shell-exit
+	    ["Exit LEGO" proof-shell-exit
 	     :active (proof-shell-live-buffer)]
-           "----"
-           ["Find definition/declaration" find-tag-other-window t]
-           ("Help"
-            ["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
-            ["The LEGO library (WWW)"
-             (w3-fetch lego-library-www-page)  t]
-            ["The LEGO Proof-assistant (WWW)"
-             (w3-fetch lego-www-home-page)  t]
-            ["Help on Emacs LEGO-mode" describe-mode  t]
-            ["Customisation" (w3-fetch lego-www-customisation-page)
+	    "----"
+	    ["Find definition/declaration" find-tag-other-window t]
+	    ("Help"
+	     ["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
+	     ["The LEGO library (WWW)"
+	      (w3-fetch lego-library-www-page)  t]
+	     ["The LEGO Proof-assistant (WWW)"
+	      (w3-fetch lego-www-home-page)  t]
+	     ["Help on Emacs LEGO-mode" describe-mode  t]
+	     ["Customisation" (w3-fetch lego-www-customisation-page)
 	      t]
             ))))
 
@@ -299,7 +301,7 @@
     (cond ((not path-name)
            (message "Warning: LEGOPATH has not been set!")
            (setq path-name ".")))       
-    (string-to-list path-name lego-path-separator)))
+    (proof-string-to-list path-name lego-path-separator)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   This is how to work out what the undo commands are, given the  ;;
@@ -325,6 +327,10 @@
       (setq sext (next-span sext 'type)))
     (concat "Undo " (int-to-string ct) proof-terminal-string)))
 
+;; Decide whether this is a goal or not
+(defun lego-goal-command-p (str)
+  (string-match lego-goal-command-regexp str))
+
 (defun lego-find-and-forget (sext) 
   (let (str ans)
     (while (and sext (not ans))
@@ -344,7 +350,7 @@
 	  (setq ans (concat "Forget " (match-string 1 ids)
 			    proof-terminal-string))))
 	   
-       ((string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
+       ((string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
 	(setq ans (concat "Forget " 
 			  (match-string 2 str) proof-terminal-string)))
 
@@ -393,6 +399,48 @@
 			      delete-region))))
       
     (proof-start-queue (min start end) (proof-locked-end) actions)))
+
+(defun lego-shell-analyse-structure (string)
+  (save-excursion
+    (let* ((ip 0) (op 0) ap (l (length string)) 
+	   (ann (make-string (length string) ?x))
+           (stack ()) (topl ()) 
+	   (out (make-string l ?x )) c ext)
+      (while (< ip l)	
+	(if (< (setq c (aref string ip)) 128) (progn (aset out op c)
+						     (incf op)))
+	(incf ip))
+      (display-buffer (set-buffer proof-pbp-buffer))
+      (erase-buffer)
+      (insert (substring out 0 op))
+
+      (setq ip 0
+	    op 1)
+      (while (< ip l)
+	(setq c (aref string ip))
+	(cond
+	 ((= c proof-shell-goal-char)
+	  (setq topl (cons op topl))
+	  (setq ap 0))
+	 ((= c proof-shell-start-char)
+	  (setq ap (- (aref string (incf ip)) 128))
+	  (incf ip)
+	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
+	    (aset ann ap (- c 128))
+	    (incf ap)
+	    (incf ip))
+	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
+	 ((= c proof-shell-field-char)
+	  (setq ext (make-span (car stack) op))
+	  (set-span-property ext 'mouse-face 'highlight)
+	  (set-span-property ext 'proof (car (cdr stack)))
+	  (setq stack (cdr (cdr stack))))
+	 (t (incf op)))
+	(incf ip))
+      (setq topl (reverse (cons (point-max) topl)))
+      (while (setq ip (car topl) 
+		   topl (cdr topl))
+	(pbp-make-top-span ip (car topl))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Other stuff which is required to customise script management   ;;
@@ -584,14 +632,14 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-retract-target-fn 'lego-retract-target
+  (setq proof-goal-command-p 'lego-goal-command-p
+	proof-retract-target-fn 'lego-retract-target
         proof-goal-hyp-fn 'lego-goal-hyp
 	proof-state-preserving-p 'lego-state-preserving-p
 	proof-global-p 'lego-global-p)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
-	proof-goal-command-regexp lego-goal-command-regexp
 	proof-goal-with-hole-regexp lego-goal-with-hole-regexp
 	proof-kill-goal-command lego-kill-goal-command)
 
@@ -645,9 +693,9 @@
   (setq blink-matching-paren-dont-ignore-comments t)
 ;; font-lock
 
-;; if we don't have the following, zap-commas fails to work.
+;; if we don't have the following in xemacs, zap-commas fails to work.
 
-  (setq font-lock-always-fontify-immediately t)
+  (cond (running-xemacs (setq font-lock-always-fontify-immediately t)))
 
 ;; hooks and callbacks
 
@@ -680,6 +728,7 @@
         proof-shell-start-goals-regexp "\372 Start of Goals \373"
         proof-shell-end-goals-regexp "\372 End of Goals \373"
         proof-shell-init-cmd lego-process-config
+	proof-shell-analyse-structure 'lego-shell-analyse-structure
         proof-shell-config 'lego-shell-adjust-line-width
         lego-shell-current-line-width nil)
   (proof-shell-config-done)
