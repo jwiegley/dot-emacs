@@ -553,7 +553,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	      (setq nam (match-string 2 (span-property gspan 'cmd)))
 	    ;; This only works for Coq, but LEGO raises an error if
 	    ;; there's no name.
-	    ;; FIXME: a nonsense for Isabelle.
+	    ;; FIXME da: maybe this should be prover specific: is
+	    ;; "Unnamed_thm" actually a Coq identifier?
 	    (setq nam "Unnamed_thm")))
 
       (set-span-end gspan end)
