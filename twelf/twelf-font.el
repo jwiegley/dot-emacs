@@ -8,6 +8,8 @@
 ;;
 ;;
 
+(require 'font-lock)
+
 ;; FIXME da: integrate with PG's face mechanism?
 ;; (but maybe keep twelf faces to help users)
 ;; Also should add immediate fontification.
@@ -312,6 +314,128 @@ For these purposes, an existential variable is a bound, upper-case identifier."
 ;(define-key twelf-mode-map "\C-cl" 'twelf-font-fontify-buffer)
 
 
+;;;
+;;;
+;;; This comes from twelf-old.el but is needed for fontification,
+;;; 
+;;; Perhaps some of these parsing functions will need reusing
+;;; for sending input to server properly?
+;;;
+
+;;; FIXME: some of names need fixing for safe conventions.
+
+(defun twelf-current-decl ()
+  "Returns list (START END COMPLETE) for current Twelf declaration.
+This should be the declaration or query under or just before
+point within the nearest enclosing blank lines.
+If declaration ends in `.' then COMPLETE is t, otherwise nil."
+  (let (par-start par-end complete)
+    (save-excursion
+      ;; Skip backwards if between declarations
+      (if (or (eobp) (looking-at (concat "[" *whitespace* "]")))
+          (skip-chars-backward (concat *whitespace* ".")))
+      (setq par-end (point))
+      ;; Move forward from beginning of decl until last
+      ;; declaration before par-end is found.
+      (if (not (bobp)) (backward-paragraph 1))
+      (setq par-start (point))
+      (while (and (twelf-end-of-par par-end)
+                  (< (point) par-end))
+        (setq par-start (point)))
+      ;; Now par-start is at end of preceding declaration or query.
+      (goto-char par-start)
+      (skip-twelf-comments-and-whitespace)
+      (setq par-start (point))
+      ;; Skip to period or consective blank lines
+      (setq complete (twelf-end-of-par))
+      (setq par-end (point)))
+    (list par-start par-end complete)))
+
+(defun twelf-next-decl (filename error-buffer)
+  "Set point after the identifier of the next declaration.
+Return the declared identifier or `nil' if none was found.
+FILENAME and ERROR-BUFFER are used if something appears wrong."
+  (let ((id nil)
+        end-of-id
+	beg-of-id)
+    (skip-twelf-comments-and-whitespace)
+    (while (and (not id) (not (eobp)))
+      (setq beg-of-id (point))
+      (if (zerop (skip-chars-forward *twelf-id-chars*))
+          ;; Not looking at id: skip ahead
+          (skip-ahead filename (current-line-absolute) "No identifier"
+                      error-buffer)
+        (setq end-of-id (point))
+        (skip-twelf-comments-and-whitespace)
+        (if (not (looking-at ":"))
+            ;; Not looking at valid decl: skip ahead
+            (skip-ahead filename (current-line-absolute end-of-id) "No colon"
+                        error-buffer)
+          (goto-char end-of-id)
+          (setq id (buffer-substring beg-of-id end-of-id))))
+      (skip-twelf-comments-and-whitespace))
+    id))
+
+(defconst *whitespace* " \t\n\f"
+  "Whitespace characters to be skipped by various operations.")
+
+(defconst *twelf-comment-start* (concat "%[%{" *whitespace* "]")
+  "Regular expression to match the start of a Twelf comment.")
+
+(defconst *twelf-id-chars* "a-z!&$^+/<=>?@~|#*`;,\\-\\\\A-Z_0-9'"
+  "Characters that constitute Twelf identifiers.")
+
+(defun skip-twelf-comments-and-whitespace ()
+  "Skip Twelf comments (single-line or balanced delimited) and white space."
+  (skip-chars-forward *whitespace*)
+  (while (looking-at *twelf-comment-start*)
+    (cond ((looking-at "%{")		; delimited comment
+           (condition-case nil (forward-sexp 1)
+	     (error (goto-char (point-max))))
+           (or (eobp) (forward-char 1)))
+	  (t				; single-line comment
+	   (end-of-line 1)))
+    (skip-chars-forward *whitespace*)))
+
+(defun twelf-end-of-par (&optional limit)
+  "Skip to presumed end of current Twelf declaration.
+Moves to next period or blank line (whichever comes first)
+and returns t if period is found, nil otherwise.
+Skips over comments (single-line or balanced delimited).
+Optional argument LIMIT specifies limit of search for period."
+  (if (not limit)
+      (save-excursion
+        (forward-paragraph 1)
+        (setq limit (point))))
+  (while (and (not (looking-at "\\."))
+	      (< (point) limit))
+    (skip-chars-forward "^.%" limit)
+    (cond ((looking-at *twelf-comment-start*)
+	   (skip-twelf-comments-and-whitespace))
+	  ((looking-at "%")
+	   (forward-char 1))))
+  (cond ((looking-at "\\.")
+         (forward-char 1)
+         t)
+        (t ;; stopped at limit
+         nil)))
+
+(defun skip-ahead (filename line message error-buffer)
+  "Skip ahead when syntactic error was found.
+A parsable error message constited from FILENAME, LINE, and MESSAGE is
+deposited in ERROR-BUFFER."
+  (if error-buffer
+      (save-excursion
+	(set-buffer error-buffer)
+	(goto-char (point-max))
+	(insert filename ":" (int-to-string line) " Warning: " message "\n")
+	(setq *twelf-error-pos* (point))))
+  (twelf-end-of-par))
+
+(defun current-line-absolute (&optional char-pos)
+  "Return line number of CHAR-POS (default: point) in current buffer.
+Ignores any possible buffer restrictions."
+  (1+ (count-lines 1 (or char-pos (point)))))
 
 
 (provide 'twelf-font)

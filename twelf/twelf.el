@@ -7,65 +7,100 @@
 ;; $Id$
 ;;
 ;;
+;; TODO before 3.2:
+;;   Info doc menu entry
+;;   X-Symbol upgrade/test?  Mule XE better?
+;; 
 
-;; FIXME: PG needs a bit of tuning to get this to work 
-;; properly, because of mixed syntax for comments.
-
-;; We should introduce a proof-parse-to-next-command 
-;; configurable setting, perhaps, which should skip
-;; comments automatically.  
 
 (require 'proof-easy-config)            ; easy configure mechanism
 
 (require 'twelf-font)			; font lock configuration
-;; (require 'twelf-old)			; port of parts of old code
+;; (require 'twelf-old)	
 ;; FIXME: put parts of old code into twelf-syntax or similar
 
-(proof-easy-config 
- 'twelf "Twelf" 
+;;
+;; User configuration settings for Twelf PG
+;;
+(defcustom twelf-root-dir
+  "/usr/local/twelf/"
+  "*Root of twelf installation.  Default /usr/local/twelf suits RPM package."
+  :type 'file
+  :group 'twelf)
+
+(defcustom twelf-info-dir
+  (concat twelf-root-dir "doc/info/")
+  "*Directory of Twelf Infor files."
+  :type 'file
+  :group 'twelf)
+
+;;
+;; Instantiation of Proof General
+;;
+(proof-easy-config 'twelf "Twelf" 
  proof-prog-name		 "twelf-server"
  proof-assistant-home-page       "http://www.cs.cmu.edu/~twelf/"
+
+ proof-script-use-new-parsing	t	;; FIXME: remove for PG 3.3
  proof-terminal-char             ?\.
+ proof-comment-start             "%"	;; for inserting comments
+ proof-comment-end               ""
+ proof-comment-start-regexp	 "%[%{ \t\n\f]" ;; recognizing
+ proof-comment-end-regexp	 "%}\\|\n"      ;; comments
+
  proof-shell-auto-terminate-commands nil ; server commands don't end with .
-
- ;; FIXME: must also cope with single line comments beginning with %
- proof-comment-start             "%{\\|^%"
- proof-comment-end               "}%\\|^%.*\n"
- proof-comment-start-regexp	 "%[%{\t\n\f]"
- proof-comment-end		 ""
-
- ;; FIXME: these don't apply?
- proof-goal-command-regexp       "^%theorem"
- proof-save-command-regexp       "" ;; FIXME: empty?
- proof-goal-with-hole-regexp     "^%theorem\w-+\\(.*\\)\w-+:"
- proof-save-with-hole-regexp     "" ;; FIXME
- ;; proof-non-undoables-regexp      "undo\\|back"
- proof-goal-command              "%theorem %s."
- proof-save-command              "%prove "
- ;; proof-kill-goal-command         "Goal \"PROP no_goal_set\";"
-
-;; proof-showproof-command         "pr()"
-;; proof-undo-n-times-cmd          "pg_repeat undo %s;"
+ proof-shell-strip-crs-from-input nil	 ; server needs CRs with readDecl
 
  proof-auto-multiple-files       t
  proof-shell-cd-cmd              "OS.chDir %s"
  proof-shell-prompt-pattern      "%% OK %%\n"
  proof-shell-interrupt-regexp    "interrupt"
-;; proof-shell-start-goals-regexp  "Level [0-9]"
-;; proof-shell-end-goals-regexp    "val it"
 
  proof-shell-annotated-prompt-regexp "%% [OA][KB]O?R?T? %%\n"
  proof-shell-error-regexp        "Server error:"
  proof-shell-quit-cmd            "quit"
  proof-shell-restart-cmd	 "reset"
 
- ;; unset
- ;; proof-shell-init-cmd  
- ;; "fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));"
- ;; proof-shell-proof-completed-regexp "^No subgoals!"
- ;; proof-shell-eager-annotation-start   
- ;;"^\\[opening \\|^###\\|^Reading")
- )
+ ;; "Eager annotations" mark messages Proof General should display
+ ;; or recognize while the prover is pontificating
+ proof-shell-eager-annotation-start   
+ "^\\[Opening \\|\\[Closing "
+ proof-shell-eager-annotation-end "\n")
+
+
+;; unset: all of the interactive proof commands
+;; These don't really apply, I don't think, because Twelf
+;; only has fully automatic prover at the moment. 
+;; Also, there is no concept of "undo" to remove declarations
+;; (can simply repeat them, tho.)
+;; proof-goal-command-regexp       "^%theorem"
+;; proof-save-command-regexp       "" ;; FIXME: empty?
+;; proof-goal-with-hole-regexp     "^%theorem\w-+\\(.*\\)\w-+:"
+;; proof-save-with-hole-regexp     "" ;; FIXME
+;; proof-non-undoables-regexp     
+;; proof-goal-command              "%theorem %s."
+;; proof-save-command              "%prove "
+;; remaining strings are left over from Isabelle example
+;; proof-kill-goal-command         "Goal \"PROP no_goal_set\";"
+;; proof-showproof-command         "pr()"
+;; proof-undo-n-times-cmd          "pg_repeat undo %s;"
+;; proof-shell-start-goals-regexp  "Level [0-9]"
+;; proof-shell-end-goals-regexp    "val it"
+;; proof-shell-init-cmd  
+;; proof-shell-proof-completed-regexp "^No subgoals!"
+
+
+;;
+;; Twelf server doesn't take declarations directly: 
+;; we need to pre-process script input slightly
+;;
+
+(defun twelf-add-read-declaration ()
+  "A hook value for `proof-shell-insert-hook'."
+  (if (eq action 'proof-done-advancing)
+      (setq string (concat "readDecl\n" string))))
+
+(add-hook 'proof-shell-insert-hook 'twelf-add-read-declaration)
 
 
 ;;
@@ -92,7 +127,10 @@
 ;; Delimited comments are %{ }%, see 1234 below.
 (twelf-set-syntax ?\ "    ")            ; whitespace
 (twelf-set-syntax ?\t "    ")           ; whitespace
-(twelf-set-syntax ?% "< 14")            ; comment begin
+; da: this old entry is wrong: it says % always starts a comment
+;(twelf-set-syntax ?% "< 14")            ; comment begin
+; This next one is much better, 
+(twelf-set-syntax ?% ". 14")            ; comment begin
 (twelf-set-syntax ?\n ">   ")           ; comment end
 (twelf-set-syntax ?: ".   ")            ; punctuation
 (twelf-set-syntax ?. ".   ")            ; punctuation
@@ -100,8 +138,8 @@
 (twelf-set-syntax ?\) ")(  ")           ; close delimiter
 (twelf-set-syntax ?\[ "(]  ")           ; open delimiter
 (twelf-set-syntax ?\] ")[  ")           ; close delimiter
-(twelf-set-syntax ?\{ "(}2 ")           ; open delimiter
-(twelf-set-syntax ?\} "){ 3")           ; close delimiter
+;(twelf-set-syntax ?\{ "(}2 ")           ; open delimiter
+;(twelf-set-syntax ?\} "){ 3")           ; close delimiter
 ;; Actually, strings are illegal but we include:
 (twelf-set-syntax ?\" "\"   ")          ; string quote
 ;; \ is not an escape, but a word constituent (see above)
@@ -110,65 +148,21 @@
 
 
 ;;
-;; Syntax highlighting (from twelf-old.el, needs work)
+;; Syntax highlighting (from twelf-old.el, NEEDS WORK)
 ;;
+;; Highlighting is maybe a nuisance for twelf because of its funny syntax.
+;; But font lock could perhaps be got to work with recent versions.
+;; That would be better than the present mechanism, which doesn't lock,
+;; doesn't work well with X Symbol (which really needs locking), and
+;; even breaks the background colouring for some reason (presumably
+;; the Twelf faces)
 
-;; Automatically highlight Twelf sources using font-lock
-;; (FIXME: this is not so good, should work with font-lock properly!)
 (require 'twelf-font)
-(add-hook 'twelf-mode-hook 'twelf-font-fontify-buffer)
+(add-hook 'twelf-mode-hook 'twelf-mode-extra-config)
 
-(defun twelf-current-decl ()
-  "Returns list (START END COMPLETE) for current Twelf declaration.
-This should be the declaration or query under or just before
-point within the nearest enclosing blank lines.
-If declaration ends in `.' then COMPLETE is t, otherwise nil."
-  (let (par-start par-end complete)
-    (save-excursion
-      ;; Skip backwards if between declarations
-      (if (or (eobp) (looking-at (concat "[" *whitespace* "]")))
-          (skip-chars-backward (concat *whitespace* ".")))
-      (setq par-end (point))
-      ;; Move forward from beginning of decl until last
-      ;; declaration before par-end is found.
-      (if (not (bobp)) (backward-paragraph 1))
-      (setq par-start (point))
-      (while (and (twelf-end-of-par par-end)
-                  (< (point) par-end))
-        (setq par-start (point)))
-      ;; Now par-start is at end of preceding declaration or query.
-      (goto-char par-start)
-      (skip-twelf-comments-and-whitespace)
-      (setq par-start (point))
-      ;; Skip to period or consective blank lines
-      (setq complete (twelf-end-of-par))
-      (setq par-end (point)))
-    (list par-start par-end complete)))
-
-(defun twelf-next-decl (filename error-buffer)
-  "Set point after the identifier of the next declaration.
-Return the declared identifier or `nil' if none was found.
-FILENAME and ERROR-BUFFER are used if something appears wrong."
-  (let ((id nil)
-        end-of-id
-	beg-of-id)
-    (skip-twelf-comments-and-whitespace)
-    (while (and (not id) (not (eobp)))
-      (setq beg-of-id (point))
-      (if (zerop (skip-chars-forward *twelf-id-chars*))
-          ;; Not looking at id: skip ahead
-          (skip-ahead filename (current-line-absolute) "No identifier"
-                      error-buffer)
-        (setq end-of-id (point))
-        (skip-twelf-comments-and-whitespace)
-        (if (not (looking-at ":"))
-            ;; Not looking at valid decl: skip ahead
-            (skip-ahead filename (current-line-absolute end-of-id) "No colon"
-                        error-buffer)
-          (goto-char end-of-id)
-          (setq id (buffer-substring beg-of-id end-of-id))))
-      (skip-twelf-comments-and-whitespace))
-    id))
+(defun twelf-mode-extra-config ()
+  (make-local-hook 'font-lock-after-fontify-buffer-hook)
+  (add-hook 'font-lock-after-fontify-buffer-hook 'twelf-font-fontify-buffer nil 'local))
 
 (defconst twelf-syntax-menu
   '("Syntax Highlighting"
@@ -179,9 +173,34 @@ FILENAME and ERROR-BUFFER are used if something appears wrong."
       )
   "Menu for syntax highlighting in Twelf mode.")
 
+
+;;
+;; Setting Twelf options via Proof General
+;;
+
+(defpacustom chatter 1
+  "Value for chatter."
+  :type 'integer
+  :setting "set chatter %i")
+
+(defpacustom double-check nil
+  "Double-check declarations after type reconstruction."
+  :type 'boolean
+  :setting "set doubleCheck %b")
+(defpacustom print-implicit nil
+  "Show implicit arguments."
+  :type 'boolean
+  :setting "set Print.implict %b")
+
+;; etc
+
+
+;;
+;; Twelf menu
+;;
+
 (defpgdefault menu-entries
   (cdr twelf-syntax-menu))
-
   
 
 (provide 'twelf)

@@ -6,13 +6,15 @@
 ;;
 
 (defvar x-symbol-twelf-symbol-table 
-  '((longarrowright () "->"  "\\<longrightarrow>")
+  '((arrowright () "->"  "\\<rightarrow>")
+    (longarrowright () "0->"  "\\<longrightarrow>")
     (longarrowdblright () "==>" "\\<Longrightarrow>")
     (logicaland     () "/\\" "\\<and>")
     (logicalor      () "\\/" "\\<or>")
     (equivalence    () "<->" "\\<equiv>")
     (existential1   () "EX"  "\\<exists>")
     (universal1     () "ALL"  "\\<forall>")
+    (bardash	    () "|-" "\\<turnstile>")
     ;; some naughty ones, but probably what you'd like
     ;; (a mess in words like "searching" "philosophy" etc!!)
     (Gamma  () "Gamma" "\\<Gamma>")

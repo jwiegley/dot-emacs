@@ -4,6 +4,11 @@
 %%% $Id$
 %%%
 
+%%% Rather than a proof this file is just a signature,
+%%% bunch of declarations.  Would be nice to have something
+%%% closer to other systems for pedagogical purposes...
+%%% (i.e. proving commutativity of conjunction in ND fragment
+%%%  of this logic)
 
 %%% Intuitionistic propositional calculus
 %%% Positive fragment with implies, and, true.
