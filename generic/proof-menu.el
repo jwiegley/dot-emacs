@@ -8,6 +8,7 @@
 ;; $Id$
 ;;
 
+(require 'proof-toolbar)		; needed for proof-toolbar-scripting-menu
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -15,13 +16,21 @@
 ;;;
 
 (defun proof-display-some-buffers ()
-  "Display the reponse buffer, and maybe also the goals buffer.
-If in three window or multiple frame mode, the goals buffer
-is also displayed."
+  "Display the reponse or goals buffer, toggling between them.
+If in three window or multiple frame mode, display both buffers."
   (interactive)
-  (proof-switch-to-buffer proof-response-buffer 'noselect)
-  (if (or proof-dont-switch-windows proof-multiple-frames-enable)
-      (proof-switch-to-buffer proof-goals-buffer 'noselect)))
+  (cond
+   ((or proof-dont-switch-windows proof-multiple-frames-enable)
+    ;; Display both
+    (proof-switch-to-buffer proof-response-buffer 'noselect)
+    (proof-switch-to-buffer proof-goals-buffer 'noselect))
+   ((and (buffer-live-p proof-response-buffer)
+	 (get-buffer-window proof-response-buffer 'visible))
+    ;; Response buffer visible, let's display goals
+    (proof-switch-to-buffer proof-goals-buffer 'noselect))
+   (t
+    ;; Response buffer invisible, let's display it
+    (proof-switch-to-buffer proof-response-buffer 'noselect))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -31,11 +40,11 @@ is also displayed."
 
 ;;;###autoload
 (defun proof-menu-define-keys (map)
+;; M-a and M-e are usually {forward,backward}-sentence.
+;; Some modes also override these with similar commands
+(define-key map [(meta a)] 'proof-forward-command)
+(define-key map [(meta e)] 'proof-backward-command)
 (define-key map [(control c) (control a)] (proof-ass keymap))
-;; NB: C-c C-a and C-c C-e are now lost.
-;; Consider adding new submap for movement in proof script.
-;; (define-key map [(control c) (control e)] 'proof-goto-command-end)
-;; (define-key map [(control c) (control a)] 'proof-goto-command-start)
 (define-key map [(control c) (control b)] 'proof-process-buffer)
 ;; C-c C-c is proof-interrupt-process in universal-keys
 (define-key map [(control c) (control f)] 'proof-find-theorems)
@@ -90,11 +99,7 @@ is also displayed."
 	 (append
 	  proof-toolbar-scripting-menu
 	  proof-menu
-	  (list "----")
-	  (append
-	   (list (customize-menu-create 'proof-general))
-	   (list (customize-menu-create 'proof-general-internals 
-					"Internals")))
+	  proof-config-menu
 	  proof-bug-report-menu))))
 
 
@@ -218,12 +223,21 @@ is also displayed."
      :selected (eq proof-follow-mode 'ignore)]))
   "Proof General quick options.")
 
-(defvar proof-shared-menu
+(defconst proof-shared-menu
   (append
+   (list "----")
    (list proof-buffer-menu)
    (list proof-quick-opts-menu)
    (list proof-help-menu))
   "Proof General menu for various modes.")
+
+(defconst proof-config-menu
+  (list 
+   "----"
+   (customize-menu-create 'proof-general)
+   (customize-menu-create 'proof-general-internals 
+			  "Internals"))
+  "Proof General configuration menu.")
 
 (defvar proof-bug-report-menu
   (list "----"
@@ -243,10 +257,9 @@ is also displayed."
 	     :active (fboundp 'function-menu)]
 	    ["Complete identifier" complete t]
 	    ["Next error" proof-next-error
-	     :active proof-shell-next-error-regexp]
-	    "----")
-          proof-shared-menu)
-  "The Proof General generic menu.")
+	     :active proof-shell-next-error-regexp])
+	    proof-shared-menu)
+  "The Proof General generic menu.  Functions for scripting buffers.")
 
 
 
