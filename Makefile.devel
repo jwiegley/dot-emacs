@@ -239,7 +239,7 @@ tag:
 	@echo "*************************************************"
 	@echo " Tagging sources... (fails if CVS source dirty)"
 	@echo "*************************************************"
-	if [ -z "$(NOCVS)" && -n "`cvs -n -q update`" ]; then exit 1; fi
+	if [ -z "$(NOCVS)" ] && [ -n "`cvs -n -q update`" ]; then exit 1; fi
 # Tag proof-site.el and ProofGeneral.spec
 	(cd generic; mv $(VERSIONFILE) $(VERSIONFILE).old; sed -e 's/defconst $(VERSIONVARIABLE) \".*\"/defconst $(VERSIONVARIABLE) \"Proof General, Version $(VERSION) released by da. Email proofgen@dcs.ed.ac.uk.\"/g' $(VERSIONFILE).old > $(VERSIONFILE); rm $(VERSIONFILE).old)
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(VERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
