@@ -6,7 +6,7 @@
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
-;; proof-shell.el,v 2.70 1999/08/23 20:02:26 da Exp
+;; $Id$
 ;;
 
 ;; FIXME: needed because of menu definitions, which should
@@ -397,11 +397,13 @@ exited by hand (or exits by itself)."
 	      ;; So put an ugly timeout and busy wait here instead
 	      ;; of simply (accept-process-output nil 10).
 	      (setq timeout-id
-		    (add-timeout 10 (lambda (&rest args)
-				      (if (comint-check-proc (current-buffer))
-					  (kill-process (get-buffer-process 
-							 (current-buffer))))
-				      (throw 'exited t)) nil))
+		    (add-timeout 
+		     proof-shell-quit-timeout
+		     (lambda (&rest args)
+		       (if (comint-check-proc (current-buffer))
+			   (kill-process (get-buffer-process 
+					  (current-buffer))))
+		       (throw 'exited t)) nil))
 	      (while (comint-check-proc (current-buffer))
 		(sit-for 1)))
 	    ;; Disable timeout in case it hasn't signalled yet
@@ -577,7 +579,6 @@ If there is no command under the mouse, behaves like mouse-track-insert."
 (defun pbp-make-top-span (start end)
   (let (span name)
     (goto-char start)
-    ;; FIXME da: why name?  This is a character function
     (setq name (funcall proof-goal-hyp-fn))
     (beginning-of-line)
     (setq start (point))
@@ -693,10 +694,7 @@ extents."
 
       (set-buffer proof-goals-buffer)
 
-      ;; Might be nicer to keep point at "current" subgoal a la
-      ;; Isamode, but never mind.
       (erase-buffer)
-      (newline)				; waste a line
 
       ;; Insert the (possibly cleaned up) string.
       (if proof-shell-leave-annotations-in-output
@@ -708,6 +706,9 @@ extents."
 
       (set-buffer-modified-p nil)	; nicety
 
+      ;; Keep point at the start of the buffer.  Might be nicer to
+      ;; keep point at "current" subgoal a la Isamode, but never mind
+      ;; just now.
       (proof-display-and-keep-buffer proof-goals-buffer (point-min))
 
       ;; FIXME: This code is broken for Emacs 20.3 (mule?) which has
@@ -719,9 +720,12 @@ extents."
       ;; interaction, when tokens (several chars long) are replaced by
       ;; single characters.
       (unless
-	  ;; Don't do it for Emacs 20.3 or any version which
-	  ;; has this suspicious function.
-	  (fboundp 'toggle-enable-multibyte-characters)
+	  (or
+	   ;; No point if we haven't set the pbp char vars
+	   (not proof-shell-goal-char)
+	   ;; Don't do it for Emacs 20.3 or any version which
+	   ;; has this suspicious function.
+	   (fboundp 'toggle-enable-multibyte-characters))
 	(setq ip 0
 	      op 1)
 	(while (< ip l)
@@ -760,44 +764,31 @@ extents."
 	  (incf ip))
 	(setq topl (reverse (cons (point-max) topl)))
 	;; If we want Coq pbp: (setq coq-current-goal 1)
-	(while (setq ip (car topl) 
-		     topl (cdr topl))
-	  (pbp-make-top-span ip (car topl)))))))
+	(if proof-goal-hyp-fn
+	    (while (setq ip (car topl) 
+			 topl (cdr topl))
+	      (pbp-make-top-span ip (car topl))))))))
 
 (defun proof-shell-strip-special-annotations (string)
   "Strip special annotations from a string, returning cleaned up string.
 *Special* annotations are characters with codes higher than
-'proof-shell-first-special-char'."
-  (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
-    (while (< ip l)
-      (if (>= (aref string ip) proof-shell-first-special-char)
-	  (if (char-equal (aref string ip) proof-shell-start-char)
-	      (progn (incf ip)
-		     (while (< (aref string ip) proof-shell-first-special-char)
-		       (incf ip))))
-	(aset out op (aref string ip))
-	(incf op))
-      (incf ip))
-    (substring out 0 op)))
-
-;; FIXME: dead code
-(defun proof-shell-strip-eager-annotation-specials (string)
-  "Strip special eager annotations from STRING, returning cleaned up string.
-The input STRING should be annotated with expressions matching
-proof-shell-eager-annotation-start and eager-annotation-end.
-We only strip specials from the annotations."
-  (let* ((mstart (progn
-		   (string-match proof-shell-eager-annotation-start string)
-		   (match-end 0)))
-	 (mend	 (string-match proof-shell-eager-annotation-end string))
-	 (msg	 (substring string mstart mend))
-	 (strtan (substring string 0 mstart))
-	 (endan	 (substring string mend)))
-    (concat
-     (proof-shell-strip-special-annotations strtan)
-     msg
-     (proof-shell-strip-special-annotations endan))))
-     
+'proof-shell-first-special-char'.
+If proof-shell-first-special-char is unset, return STRING unchanged."
+  (if proof-shell-first-special-char
+      (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
+	(while (< ip l)
+	  (if (>= (aref string ip) proof-shell-first-special-char)
+	      (if (char-equal (aref string ip) proof-shell-start-char)
+		  (progn (incf ip)
+			 (while 
+			     (< (aref string ip) 
+				proof-shell-first-special-char)
+			   (incf ip))))
+	    (aset out op (aref string ip))
+	    (incf op))
+	  (incf ip))
+	(substring out 0 op))
+    string))
 
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
   "Displays output from `proof-shell-buffer' in `proof-response-buffer'.
@@ -1051,6 +1042,9 @@ the proof assistant."
     (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
     ())
 
+   ;; FIXME: remove proof-goals-display-qed-message setting after 3.0,
+   ;; by matching on completed-regexp as an extra step, after
+   ;; errors/interrupt, but as well as ordinary output.
    ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
     (proof-clean-buffer proof-goals-buffer)
     (setq proof-shell-proof-completed 0) ; counts commands since proof complete.
@@ -1060,17 +1054,22 @@ the proof assistant."
 		(match-string 1 string))))
 
    ((proof-shell-string-match-safe proof-shell-start-goals-regexp string)
-;    (setq proof-shell-proof-completed nil)
-    (let (start end)
-      (while (progn (setq start (match-end 0))
-		    (string-match proof-shell-start-goals-regexp 
-				  string start)))
-      (setq end (string-match proof-shell-end-goals-regexp string start))
+    (let ((start (match-end 0))
+	  end)
+      ;; Find the last goal string in the output
+      (while (string-match proof-shell-start-goals-regexp string start)
+	(setq start (match-end 0)))
+      ;; Ugly hack: provers with special characters don't include
+      ;; the match in their goals output.  Others do.
+      (unless proof-shell-first-special-char
+	(setq start (match-beginning 0)))
+      (setq end (if proof-shell-end-goals-regexp
+		    (string-match proof-shell-end-goals-regexp string start)
+		  (length string)))
       (setq proof-shell-delayed-output 
 	    (cons 'analyse (substring string start end)))))
        
    ((proof-shell-string-match-safe proof-shell-result-start string)
-;    (setq proof-shell-proof-completed nil)
     (let (start end)
       (setq start (+ 1 (match-end 0)))
       (string-match proof-shell-result-end string)
@@ -1277,20 +1276,33 @@ The return value is non-nil if the action list is now empty."
   "Insert command sequence triggered by the proof process
 at the end of locked region (after inserting a newline and indenting).
 Assume proof-script-buffer is active."
-  (save-excursion
-    (set-buffer proof-script-buffer) 
-    (let (span)
-      (proof-goto-end-of-locked)
-      (newline-and-indent)
-      (insert cmd)
-      (setq span (make-span (proof-locked-end) (point)))
-      (set-span-property span 'type 'pbp)
-      (set-span-property span 'cmd cmd)
-      (proof-set-queue-endpoints (proof-locked-end) (point))
-      (setq proof-action-list 
-	    (cons (car proof-action-list) 
-		  (cons (list span cmd 'proof-done-advancing)
-			(cdr proof-action-list)))))))
+  (unless (string-match "^\\s-*$" cmd)
+    (save-excursion
+      (set-buffer proof-script-buffer) 
+      (let (span)
+	(proof-goto-end-of-locked)
+	;; Fix 16.11.99.  This attempts to indent current line which can
+	;; be read-only.  
+      ;; (newline-and-indent)
+	(let ((proof-one-command-per-line t)) ; because pbp several commands
+	  (proof-script-new-command-advance))
+	(insert cmd)
+	;; Fix 16.11.99.  Comment in todo suggested old code below
+	;; assumed the pbp command would succeed, but it seems fine?
+	;; But this action belongs in the proof script code.
+	;; NB: difference between ordinary commands and pbp is that
+	;; pbp can return *several* commands, that are treated as 
+	;; a unit, i.e. sent to the proof assistant together.
+	;; FIXME da: this seems very similar to proof-insert-pbp-command
+	;; in proof-script.el.  Should be unified, I suspect.
+	(setq span (make-span (proof-locked-end) (point)))
+	(set-span-property span 'type 'pbp)
+	(set-span-property span 'cmd cmd)
+	(proof-set-queue-endpoints (proof-locked-end) (point))
+	(setq proof-action-list 
+	      (cons (car proof-action-list) 
+		    (cons (list span cmd 'proof-done-advancing)
+			  (cdr proof-action-list))))))))
 
 ;; da: first note of this sentence is false!
 ;; ******** NB **********
@@ -1537,13 +1549,14 @@ however, are always processed; hence their name)."
     (if ;; Some proof systems can be hacked to have annotated prompts;
 	;; for these we set proof-shell-wakeup-char to the annotation 
 	;; special.  
-	(and proof-shell-wakeup-char
-	     ; FIXME: this match doesn't work in emacs-mule, darn.
-	     ; (string-match (char-to-string proof-shell-wakeup-char) str))
-	     (find proof-shell-wakeup-char str))
-	;; Others may rely on a standard top-level (e.g. SML) whose
-	;; prompt are difficult or impossible to hack.
-	;; For those we must search in the buffer for the prompt.
+	(if proof-shell-wakeup-char
+	    ;; FIXME: this match doesn't work in emacs-mule, darn.
+	    ;; (string-match (char-to-string proof-shell-wakeup-char) str))
+	    (find proof-shell-wakeup-char str)
+	  ;; Others may rely on a standard top-level (e.g. SML) whose
+	  ;; prompts may be difficult or impossible to hack.
+	  ;; For those we must search in the buffer for the prompt.
+	  t)
 	(if (null (marker-position proof-marker))
 	    ;; Initialisation of proof-marker:
 	    ;; Set marker to after the first prompt in the
@@ -1748,7 +1761,8 @@ If WAIT is an integer, wait for that many seconds afterwards."
   ;; comint customisation. comint-prompt-regexp is used by
   ;; comint-get-old-input, comint-skip-prompt, comint-bol, backward
   ;; matching input, etc.  
-  (setq comint-prompt-regexp proof-shell-prompt-pattern)
+  (if proof-shell-prompt-pattern
+      (setq comint-prompt-regexp proof-shell-prompt-pattern))
 
   ;; An article by Helen Lowe in UITP'96 suggests that the user should
   ;; not see all output produced by the proof process. 
@@ -1803,21 +1817,6 @@ If WAIT is an integer, wait for that many seconds afterwards."
 		  "Menu used in Proof General shell mode."
 		  (cons proof-general-name proof-shell-menu))
 
-
-(defun proof-goals-config-done ()
-  "Initialise the goals buffer after the child has been configured."
-  (save-excursion
-    (set-buffer proof-goals-buffer)
-    (proof-font-lock-configure-defaults)
-    (proof-x-symbol-configure)))
-
-(defun proof-response-config-done ()
-  "Initialise the response buffer after the child has been configured."
-  (save-excursion
-    (set-buffer proof-response-buffer)
-    (proof-font-lock-configure-defaults)
-    (proof-x-symbol-configure)))
-
 (defun proof-shell-config-done ()
   "Initialise the specific prover after the child has been configured.
 Every derived shell mode should call this function at the end of
@@ -1848,32 +1847,78 @@ processing."
       ;; Configure for x-symbol
       (proof-x-symbol-shell-config))))
 
+
+;;
+;; Response buffer mode
+;; 
+
 (eval-and-compile
 (define-derived-mode proof-universal-keys-only-mode fundamental-mode
     proof-general-name "Universal keymaps only"
+    ;; Doesn't seem to supress TAB, RET
     (suppress-keymap proof-universal-keys-only-mode-map 'all)
-    (proof-define-keys proof-universal-keys-only-mode-map proof-universal-keys)))
-
-(eval-and-compile			; to define vars
-(define-derived-mode pbp-mode proof-universal-keys-only-mode
-  proof-general-name "Proof by Pointing"
-  ;; defined-derived-mode pbp-mode initialises pbp-mode-map
-  (setq proof-buffer-type 'pbp)
-  ;; FIXME da: this was disabled, re-enabled for testing only!!
-  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
-  ;; FIXME da: add a menu here?
-  (erase-buffer)))
+    (proof-define-keys proof-universal-keys-only-mode-map 
+		       proof-universal-keys)))
 
 (eval-and-compile
 (define-derived-mode proof-response-mode proof-universal-keys-only-mode
   "PGResp" "Responses from Proof Assistant"
   (setq proof-buffer-type 'response)
-  (easy-menu-add proof-response-mode-menu proof-response-mode-map)))
+  (define-key proof-response-mode-map [q] 'bury-buffer)
+  (easy-menu-add proof-response-mode-menu proof-response-mode-map)
+  (erase-buffer)))
 
 (easy-menu-define proof-response-mode-menu
 		  proof-response-mode-map
 		  "Menu for Proof General response buffer."
 		  (cons proof-general-name proof-shared-menu))
+
+(defun proof-response-config-done ()
+  "Initialise the response buffer after the child has been configured."
+  (save-excursion
+    (set-buffer proof-response-buffer)
+    (proof-font-lock-configure-defaults)
+    (proof-x-symbol-configure)))
+
+
+;;
+;; Goals buffer mode
+;;
+
+
+(eval-and-compile			; to define pbp-mode-map
+(define-derived-mode pbp-mode proof-universal-keys-only-mode
+  proof-general-name 
+  "Mode for goals display.  
+May enable proof-by-pointing or similar features.
+<<pbp-mode-map>>"
+  ;; defined-derived-mode pbp-mode initialises pbp-mode-map
+  (setq proof-buffer-type 'pbp)
+; button 2 is a nuisance on 2 button mice
+;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
+  (define-key pbp-mode-map [(button3)] 'pbp-button-action)
+  (define-key pbp-mode-map [(control button3)] 'proof-undo-and-delete-last-successful-command)
+  (define-key pbp-mode-map [q] 'bury-buffer)
+  (easy-menu-add proof-goals-mode-menu pbp-mode-map)
+  (erase-buffer)))
+
+(easy-menu-define proof-goals-mode-menu
+		  pbp-mode-map
+		  "Menu for Proof General goals buffer."
+		  (cons proof-general-name proof-shared-menu))
+
+(defun proof-goals-config-done ()
+  "Initialise the goals buffer after the child has been configured."
+  (save-excursion
+    (set-buffer proof-goals-buffer)
+    (proof-font-lock-configure-defaults)
+    (proof-x-symbol-configure)))
+
+
+
+
+
+
 
 
 (provide 'proof-shell)
