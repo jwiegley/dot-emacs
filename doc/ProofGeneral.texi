@@ -291,13 +291,13 @@ the pieces.  Proof General keeps track of which proof steps have been
 processed by the prover, and prevents you editing them accidently.  You
 can undo steps as usual.
 
-Our aim is provide a powerful and configurable Emacs mode which helps
-user-interaction with interactive proof assistants.  Please help us with
-this aim!  Configure Proof General for your proof assistant, by adding
-features at the generic level wherever possible.  See 
-@ref{Adapting Proof General to New Provers}
-for more details, and send ideas, comments, patches,
-and code to @code{proofgen@@dcs.ed.ac.uk}.
+The main aim of Proof General is to provide a powerful and configurable
+Emacs mode to help user-interaction with numerous interactive proof
+assistants.  Please help us with this aim!  Configure Proof General for
+your own proof assistant, by adding features at the generic level of
+Proof General wherever possible.  See @ref{Adapting Proof General to New
+Provers} for more details, and send ideas, comments, patches, and code
+to @code{proofgen@@dcs.ed.ac.uk}.
 
 @menu
 * Quick start guide::           
@@ -313,13 +313,32 @@ and code to @code{proofgen@@dcs.ed.ac.uk}.
 @section Quick start guide
 
 Proof General may have been installed for you already. If so, when you
-visit a proof script file for your proof assistant, you'll find commands
-to process the proof script are available from the toolbar, menus, and
-keyboard.  Type @kbd{C-h m} to get a list of keys for the current mode.
+visit a proof script file for your proof assistant, the corresponding
+Proof General mode will be invoked automatically: 
+@multitable @columnfractions .3 .3 .4
+@item       @b{Prover} @tab @b{Extensions} @tab @b{Modes}
+@item       LEGO   @tab @file{.l}  @tab @code{lego-mode}
+@item       Coq    @tab @file{.v}  @tab @code{coq-mode}
+@item       Isabelle @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
+@end multitable
+You can also invoke the mode command directly, e.g., type 
+@kbd{M-x lego-mode}, to turn a buffer into a lego script buffer.
 
-The proof assistant is automatically started inside Emacs when you ask
-for some of the proof script to be processed.  To follow an example use
-of Proof General on a LEGO proof, see @ref{Walkthrough example in LEGO}.
+You'll find commands to process the proof script are available from the
+toolbar, menus, and keyboard.  Type @kbd{C-h m} to get a list of the
+keyboard shortcuts for the current mode.  The commands available should
+be easy to understand, but the rest of this manual describes them in
+some detail.
+
+The proof assistant itself is started automatically inside Emacs as an
+"inferior" process when you ask for some of the proof script to be
+processed.  You can also start the proof assistant directly from the
+menu command "Start proof assistant".  
+
+To follow an example use of Proof General on a LEGO proof, see
+@ref{Walkthrough example in LEGO}.  If you know the syntax for proof
+scripts in another theorem prover, you can easily adapt the details 
+given there.
 
 If Proof General has not already been installed, you should insert the
 line:
@@ -553,8 +572,8 @@ Save bland_commutes;
 Moving the mouse pointer over the locked region now reveals that the
 entire proof has been aggregated into a single segment. Suppose we
 decide to call the goal something more sensible. Moving the cursor up
-into the locked region, somewhere between `Goal' and `Save', we enter
-@kbd{C-c u}.  The segment is transferred back into the editing
+into the locked region, somewhere between @samp{Goal} and @samp{Save},
+we enter @kbd{C-c u}.  The segment is transferred back into the editing
 region. Now we correct the goal name, move the cursor to the end of the
 buffer, and type @kbd{C-c RET}.  Proof mode queues the commands for
 processing and executes them.
@@ -2470,22 +2489,25 @@ A regular expression matching the name of assumptions.
 @defvar proof-shell-insert-hook 
 Hooks run by @code{proof-shell-insert} before inserting a command.
 Can be used to configure the proof assistant to the interface in
-various ways (for example, setting the line width of output).
-Any text inserted by these hooks will be sent to the proof process
-before every command issued by Proof General.
+various ways -- for example, to observe or alter the commands sent to
+the prover, or to sneak in extra commands to configure the 
+prover (e.g. setting the pretty printer's line width if a window 
+width size has changed).
 
-NB: You should be very careful about setting this hook. 
-Proof General relies on a careful synchronization with
-the process between inputs and outputs.  It expects to see
-a prompt for each input it sends from the queue.  If your
-extra input here causes more prompts than expected, things
-will break!  Probably any insertions made should not have 
+This hook is called by @code{proof-shell-insert}.  The call takes place
+inside a @code{save-excursion} with the @code{proof-shell-buffer} current, just
+before inserting the text in the variable @var{string}.  The hook can
+massage @var{string} or insert additional text directly into the
+@code{proof-shell-buffer}.  Before sending @var{string}, it will be stripped of
 carriage returns.
-@end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-shell-preprocess-command
-@defvar proof-shell-preprocess-command 
-Any preprocessing required for a command, e.g. stripping comments.
+NB: You should be very careful about setting this hook.  Proof General
+relies on a careful synchronization with the process between inputs
+and outputs.  It expects to see a prompt for each input it sends from
+the queue.  If you add extra input here and it causes more prompts
+than expected, things will break!  Massaging the @var{string} variable
+may be safer since it is stripped of carriage returns 
+before being sent.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-pre-shell-start-hook
@@ -3139,10 +3161,10 @@ Proof General with the proof assitant.
 @c
 @c INPUT
 @c
+@subsubsection Input
 
-Input to the proof shell via the queue region is dealt with by
-the functions @code{proof-start-queue} and
-@code{proof-shell-exec-loop}.    
+Input to the proof shell via the queue region is managed by the
+functions @code{proof-start-queue} and @code{proof-shell-exec-loop}.
 
 @c TEXI DOCSTRING MAGIC: proof-start-queue
 @defun proof-start-queue start end alist
@@ -3171,11 +3193,37 @@ The return value is non-nil if the action list is now empty.
 A useful utility function for sending a single command to the process is
 @code{proof-shell-invisible-command}.  This should be used to implement
 user-level functions rather than attempting to manipulate the proof
-action list directly.
+action list directly.  
+
+@c TEXI DOCSTRING MAGIC: proof-shell-invisible-command
+@defun proof-shell-invisible-command cmd &optional wait
+Send @var{cmd} to the proof process.
+If optional @var{wait} command is non-nil, wait for processing to finish
+before and after sending the command.
+@end defun
+
+Input is actually inserted into the shell buffer and sent to the process
+by the low-level function @code{proof-shell-insert}.  
+
+@c TEXI DOCSTRING MAGIC: proof-shell-insert
+@defun proof-shell-insert string
+Insert @var{string} at the end of the proof shell, call @code{comint-send-input}.
+First call @code{proof-shell-insert-hook}. Then strip @var{string} of carriage
+returns before inserting it and updating @code{proof-marker} to point to 
+the end of the newly inserted text.
+NB: This means that any output received up til now but not 
+processed by the @code{proof-shell-filter} will be lost!   We must be
+careful to synchronize with the process.  This function is used 
+particularly in @code{proof-start-queue} and @code{proof-shell-exec-loop}.
+@end defun
+
+
+
 
 @c
 @c OUTPUT
 @c
+@subsubsection Output
 
 Two main functions deal with output, @code{proof-shell-process-output}
 and @code{proof-shell-process-urgent-message}.  In effect we consider
@@ -3378,6 +3426,7 @@ Edinburgh.  Visit this page for the latest news!
 * Obtaining Proof General::     
 * Installing Proof General from tarball::  
 * Installing Proof General from RPM package::  
+* Setting the names of binaries::
 * Notes for syssies::           
 @end menu
 
@@ -3430,40 +3479,6 @@ Now put this line in your @file{.emacs} file:
     (load-file "@var{mydir}/ProofGeneral/generic/proof-site.el")
 @end lisp
 
-This command will load @file{proof-site} which sets the Emacs load path
-for Proof General and add auto-loads and modes for the assistants below:
-
-@multitable @columnfractions .3 .3 .4
-@item       @b{Prover} @tab @b{Extensions} @tab @b{Modes}
-@item       Coq    @tab @file{.v}  @tab @code{coq-mode}
-@item       LEGO   @tab @file{.l}  @tab @code{lego-mode}
-@item       Isabelle @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
-@end multitable
-When you load a file with one of these extensions, the corresponding
-Proof General mode will be entered.  You can also invoke the mode
-command directly.
-
-The default names for proof assistant binaries may work on your system.
-If not, you will need to set the appropriate variables.  The easiest way
-to do this (and most other customization of Proof General) is via the
-Customize mechanism, see the menu item:
-@example
-  Proof-General -> Customize -> @var{Name of Assistant} -> Prog Name
-@end example
-The Proof-General menu is available from script buffers after 
-Proof General is loaded.  To load it manually, type 
-@lisp
-  M-x load-library RET proof RET
-@end lisp
-
-Notice that the customization mechanism is only available in Emacs 20.x
-and XEmacs.  If you cannot use customize, simply add a line like this:
-@lisp
-  (setq isabelle-prog-name "/usr/bin/isabelle FOL")
-@end lisp
-to your @file{.emacs} file.
-
-
 @node Installing Proof General from RPM package
 @section Installing Proof General from RPM package
 
@@ -3479,6 +3494,34 @@ Now add the line:
 to your @file{.emacs} or the site-wide initialisation file
 @file{site-start.el}.
 
+@node Setting the names of binaries
+@section Setting the names of binaries
+
+The @code{load-file} command you have added will load @file{proof-site}
+which sets the Emacs load path for Proof General and add auto-loads and
+modes for the supported assistants.
+
+The default names for proof assistant binaries may work on your system.
+If not, you will need to set the appropriate variables.  The easiest way
+to do this (and most other customization of Proof General) is via the
+Customize mechanism, see the menu item:
+@example
+  Proof-General -> Customize -> @var{Name of Assistant} -> Prog Name
+@end example
+The Proof-General menu is available from script buffers after Proof
+General is loaded.  To load it manually, type
+@lisp
+  M-x load-library RET proof RET
+@end lisp
+
+Notice that the customization mechanism is only available in Emacs 20.x
+and XEmacs.  If you cannot use customize, simply add a line like this:
+@lisp
+  (setq isabelle-prog-name "/usr/bin/isabelle FOL")
+@end lisp
+to your @file{.emacs} file.
+
+
 
 @node Notes for syssies
 @section Notes for syssies
@@ -3490,8 +3533,12 @@ you're doing.
 @unnumberedsubsec Byte compilation
 
 Compilation of the Emacs lisp files improves efficiency but can
-sometimes cause compatibility problems (especially if you use more than
-one version of Emacs at the same time).
+sometimes cause compatibility problems, especially if you use more than
+one version of Emacs at the same time.  Furthermore, we develop Proof
+General with source files so may miss problems with the byte compiled
+versions.  If you discover problems using the byte-compiled @code{.elc}
+files which aren't present using the source @code{.el} files, please
+report them to us.
 
 You can compile Proof General by typing @code{make} in the directory
 where you installed it.
@@ -3503,8 +3550,8 @@ If you are installing Proof General site-wide, you can put the
 components in the standard directories of the filesystem if you prefer,
 providing the variables in @file{proof-site.el} are adjusted
 accordingly, see @ref{Proof General site configuration}.  Make sure that
-the @file{generic} and assistant-specific elisp files are kept in
-subdirectories (@file{coq}, @file{isa}, @file{lego}) of
+the @file{generic/} and assistant-specific elisp files are kept in
+subdirectories (@file{coq/}, @file{isa.}, @file{lego.}) of
 @code{proof-home-directory} so that the autoload directory calculations
 are correct.
 
@@ -3519,8 +3566,13 @@ You cannot run more than one instance of Proof General at a time: so if
 you're using Coq, visiting an @file{.ML} file will not load Isabelle
 Proof General, and the buffer remains in fundamental mode.  If there are
 some assistants supported that you never want to use, you can adjust the
-variable @code{proof-assistants} in @file{proof-site.el} to solve this
-problem, see @ref{Proof General site configuration}.
+variable @code{proof-assistants} in @file{proof-site.el} to remove the
+extra autoloads.  This is advisable in case the extensions clash with
+other Emacs modes, for example @code{sml-mode} for @file{.ML} files, or
+Verilog mode for @file{.v} files.  
+
+See @ref{Proof General site configuration} to find out how to disable
+support for provers you don't use.
 
 @c Via the Customize mechanism, see the menu:
 @c @example
@@ -3541,11 +3593,11 @@ problem, see @ref{Proof General site configuration}.
 @node Known bugs and workarounds
 @appendix Known bugs and workarounds
 
-We only mention a few important problems here.  The list is not a
-description of all bugs and may be out of date.  @*
+We mention some of the known problems with Proof General here.  The list
+is not a description of all bugs and may be out of date.  @* 
 Please consult the file
 @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS,@file{BUGS}}
-in the distribution for more detailed and up-to-date information.  @*
+in the distribution for more detailed and up-to-date information.  @* 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
 let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
@@ -3587,15 +3639,17 @@ properly protected from Emacs interrupts.
 processing.  If you do, use @code{proof-restart-scripting} to restart
 the system.
 
-@subsection One prover at a time
-You can't use more than one proof assistant at a time in the same Emacs
-session.  Attempting to load Proof General for a second prover will
-fail, leaving a buffer in fundamental mode instead of the Proof General
-mode for proof scripts.
+@c da: Removed 11.12.98: since PG handles this gracefully now,
+@c I no longer consider it a bug really.
+@c @subsection One prover at a time
+@c You can't use more than one proof assistant at a time in the same Emacs
+@c session.  Attempting to load Proof General for a second prover will
+@c fail, leaving a buffer in fundamental mode instead of the Proof General
+@c mode for proof scripts.
 
-@strong{Workaround:} stick to one prover per Emacs session, make sure
-that the @code{proof-assistants} variable only enables Proof General
-for the provers you need.
+@c @strong{Workaround:} stick to one prover per Emacs session, make sure
+@c that the @code{proof-assistants} variable only enables Proof General
+@c for the provers you need.
 
 
 @node Bugs specific to LEGO Proof General
