@@ -271,7 +271,7 @@ If there are two spans overlapping then this won't work."
   (let ((l (member-if (lambda (span) (span-property span prop))
 		       (overlays-at
 			(next-overlay-change (overlay-start span))))))
-    (if l (car l) nil)))
+    (car-safe l)))
 
 
 (defsubst span-live-p (span)
