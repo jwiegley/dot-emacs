@@ -19,6 +19,40 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
+;;; Emacs and XEmacs modifications and adjustments
+;;;
+
+;; Remove a custom setting.  Needed to support dynamic reconfiguration.
+;; (We'd prefer that repeated defcustom calls acted like repeated
+;;  "defvar treated as defconst" in XEmacs)
+(defun pg-custom-undeclare-variable (symbol)
+  "Remove a custom setting SYMBOL.
+Done by `makunbound' and removing all properties mentioned by custom library."
+  (mapcar (lambda (prop) (remprop symbol prop))
+	  '(default 
+	     standard-value 
+	     force-value 
+	     variable-comment
+	     saved-variable-comment
+	     variable-documentation
+	     group-documentation
+	     custom-set
+	     custom-get
+	     custom-options
+	     custom-requests
+	     custom-group
+	     custom-prefix
+	     custom-tag
+	     custom-links
+	     custom-version
+	     saved-value
+	     theme-value
+	     theme-face))
+  (makunbound symbol))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 ;;; XEmacs compatibility
 ;;;
 
