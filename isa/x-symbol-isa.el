@@ -1,11 +1,7 @@
-;; x-symbol-isa.el   token language "Isabelle Symbols" for package x-symbol
-;;
-;; Author:      David von Oheimb
-;; Copyright    1998 Technische Universitaet Muenchen
-;; Maintainer:  ??
-;;
-;; $Id$
-;;
+;;  ID:         $Id$
+;;  Author:     David von Oheimb
+;;  Copyright   1998 Technische Universitaet Muenchen
+;;; token language "Isabelle Symbols" for package x-symbol
 
 (provide 'x-symbol-isa)
 (defvar x-symbol-isa-required-fonts nil)
@@ -49,7 +45,7 @@
 (defvar x-symbol-isa-token-list 'x-symbol-isa-default-token-list)
 
 (defvar x-symbol-isa-symbol-table '(;;symbols (isabelle14 font)
-    (visiblespace () "\\\\<space2>")
+    (visiblespace () "\\\\<spacespace>")
     (Gamma () "\\\\<Gamma>")
     (Delta () "\\\\<Delta>")
     (Theta () "\\\\<Theta>")
@@ -92,8 +88,8 @@
     (floorright () "\\\\<rfloor>")
     (bardash () "\\\\<turnstile>")
     (bardashdbl () "\\\\<Turnstile>")
-    (braceleft2 () "\\\\<lbrakk>") ;##missing symbol
-    (braceright2 () "\\\\<rbrakk>") ;##missing symbol
+    (semanticsleft () "\\\\<lbrakk>")
+    (semanticsright () "\\\\<rbrakk>")
     (periodcentered () "\\\\<cdot>")
     (element () "\\\\<in>")
     (reflexsubset () "\\\\<subseteq>")
@@ -103,7 +99,7 @@
     (bigunion () "\\\\<Union>")
     (sqintersection () "\\\\<sqinter>")
     (squnion () "\\\\<squnion>")
-;   (??????? () "\\\\<Sqinter>") ;##missing symbol
+    (bigsqintersection () "\\\\<Sqinter>")
     (bigsqunion () "\\\\<Squnion>")
     (perpendicular1 () "\\\\<bottom>")
     (dotequal () "\\\\<doteq>")
@@ -118,12 +114,12 @@
     (similar () "\\\\<sim>")
     (simequal () "\\\\<simeq>")
     (lessequal () "\\\\<le>")
-    (therefore1 () "\\\\<Colon>") ;##missing symbol
+    (coloncolon () "\\\\<Colon>")
     (arrowleft () "\\\\<leftarrow>")
     (endash () "\\\\<midarrow>")
     (arrowright () "\\\\<rightarrow>")
     (arrowdblleft () "\\\\<Leftarrow>")
-    (rightleftharpoons () "\\\\<Midarrow>") ;##missing symbol (unnecessary)
+;   (rightleftharpoons () "\\\\<Midarrow>") ;missing symbol (but not necessary)
     (arrowdblright () "\\\\<Rightarrow>")
     (frown () "\\\\<bow>")
     (mapsto () "\\\\<mapsto>")
@@ -138,8 +134,8 @@
     (circleslash () "\\\\<oslash>")
     (propersubset () "\\\\<subset>")
     (infinity () "\\\\<infinity>")
-    (box () "\\\\<box>") ;##too big
-    (smllozenge () "\\\\<diamond>") ;##too small
+    (box () "\\\\<box>")
+    (lozenge1 () "\\\\<diamond>")
     (circ () "\\\\<circ>")
     (bullet () "\\\\<bullet>")
     (bardbl () "\\\\<parallel>")
@@ -147,12 +143,37 @@
     (copyright () "\\\\<copyright>")
   ))
 (defvar x-symbol-isa-xsymbol-table '(;;xsymbols
+    (plusminus () "\\\\<plusminus>")
+    (division () "\\\\<div>")
     (longarrowright () "\\\\<longrightarrow>")
     (longarrowleft  () "\\\\<longleftarrow>")
     (longarrowboth  () "\\\\<longleftrightarrow>")
     (longarrowdblright () "\\\\<Longrightarrow>")
     (longarrowdblleft  () "\\\\<Longleftarrow>")
     (longarrowdblboth  () "\\\\<Longleftrightarrow>")
+    (brokenbar () "\\\\<brokenbar>")
+    (hyphen () "\\\\<hyphen>")
+    (macron () "\\\\<macron>")
+    (exclamdown () "\\\\<exclamdown>")
+    (questiondown () "\\\\<questiondown>")
+    (guillemotleft () "\\\\<guillemotleft>")
+    (guillemotright () "\\\\<guillemotright>")
+    (degree () "\\\\<degree>")
+    (onesuperior () "\\\\<onesuperior>")
+    (onequarter () "\\\\<onequarter>")
+    (twosuperior () "\\\\<twosuperior>")
+    (onehalf () "\\\\<onehalf>")
+    (threesuperior () "\\\\<threesuperior>")
+    (threequarters () "\\\\<threequarters>")
+    (paragraph () "\\\\<paragraph>")
+    (registered () "\\\\<registered>")
+    (ordfeminine () "\\\\<ordfeminine>")
+    (ordmasculine () "\\\\<ordmasculine>")
+    (section () "\\\\<section>")
+    (pounds () "\\\\<pounds>")
+    (yen () "\\\\<yen>")
+    (cent () "\\\\<cent>")
+    (currency () "\\\\<currency>")
   ))
 (defvar x-symbol-isa-user-table nil)
 (defvar x-symbol-isa-table
@@ -182,5 +203,22 @@
 
 
 
+;;;===========================================================================
+;;;  useful key bindings
+;;;===========================================================================
 
+(global-set-key [(meta l)] 'x-symbol-INSERT-lambda)
 
+(global-set-key [(meta n)] 'x-symbol-INSERT-notsign)
+(global-set-key [(meta a)] 'x-symbol-INSERT-logicaland)
+(global-set-key [(meta o)] 'x-symbol-INSERT-logicalor)
+(global-set-key [(meta f)] 'x-symbol-INSERT-universal1)
+(global-set-key [(meta t)] 'x-symbol-INSERT-existential1)
+
+(global-set-key [(meta A)] 'x-symbol-INSERT-biglogicaland)
+(global-set-key [(meta e)] 'x-symbol-INSERT-equivalence)
+(global-set-key [(meta u)] 'x-symbol-INSERT-notequal)
+(global-set-key [(meta m)] 'x-symbol-INSERT-arrowdblright)
+(global-set-key [(meta x)] 'x-symbol-INSERT-multiply)
+
+(global-set-key [(meta i)] 'x-symbol-INSERT-longarrowright)
