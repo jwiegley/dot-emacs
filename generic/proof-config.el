@@ -1838,6 +1838,13 @@ settings."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
+(defcustom proof-shell-match-pgip-cmd nil
+  "Regexp used to match PGIP command from proof assistant.
+The matching string will be parsed as XML and then processed by 
+`pg-pgip-process-cmd'."
+  :type '(choice nil regexp)
+  :group 'proof-shell)
+
 (defcustom proof-shell-theorem-dependency-list-regexp nil
   "Regexp matching output telling Proof General what the dependencies are.  
 This is so that the dependent theorems can be highlighted somehow.  

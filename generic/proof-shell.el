@@ -1415,6 +1415,15 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
 	     "setting `" variable "'\n to: \n"
 	     expr "\n"))))))
 
+   ;; CASE PGIP message from proof assistant.
+   ((and proof-shell-match-pgip-cmd
+	 (string-match proof-shell-match-pgip-cmd message))
+    (require 'pg-xml)
+    (require 'pg-pgip)
+    (let
+	((parsed-pgip  (pg-xml-parse-string message)))
+     (pg-pgip-process-cmd parsed-pgip)))
+
    ;; CASE theorem dependency: prover lists thms used in last proof
    ((and proof-shell-theorem-dependency-list-regexp 
 	 (string-match proof-shell-theorem-dependency-list-regexp message))
