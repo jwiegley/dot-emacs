@@ -73,7 +73,9 @@
 "Focus"
 "Grammar"
 "Hint"
-"Hints"
+"Hints\\s-+Resolve"
+"Hints\\s-+Immediate"
+"Hints\\s-+Unfold"
 "Infix"
 "Initialize"
 "Implicit\\s-+Arguments\\s-+On"
@@ -241,7 +243,7 @@
   (concat paren "\\s-*\\(" coq-ids "\\)\\s-*:"))
 
 (defun coq-next-abstr-regexp ()
-  (concat ";\\s-*\\(" coq-ids "\\)\\s-*:"))
+  (concat ";[ \t]*\\(" coq-ids "\\)\\s-*:"))
 
 (defvar coq-font-lock-terms
   (list
