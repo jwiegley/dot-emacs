@@ -1,7 +1,9 @@
-FAQs for using Proof General
+FAQs for using Proof General 
 ============================
 
 For latest version, see http://www.proofgeneral.org/FAQ
+
+Credits to the anonymous authors of questions/answers below.
 
 -----------------------------------------------------------------
 
@@ -95,7 +97,37 @@ A. These are part of the 8 bit character codes used by X Symbol to
    Note that X-Symbol is more robust when used with XEmacs/Mule.
 
    Read the X-Symbol documentation for (much) more information.
-   It's available at http://x-symbol.sourceforge.net/
+   http://x-symbol.sourceforge.net/man/
+
+-----------------------------------------------------------------
+
+Q. I would like to use the X-Symbol fonts in PG not just at the
+   standard size but also for larger sizes since I use PG during
+   talks, where I set the font size to 24.
+
+A. Nobody has designed large versions of the X-Symbol fonts but it is
+   possible to scale-up the existing ones, by adding
+
+  (setq x-symbol-xsymb1-fonts
+   '(("-xsymb-xsymb1-medium-r-normal-*-*-240-*-*-*-*-xsymb-xsymb1")
+     ("-xsymb-xsymb1_sub-medium-r-normal-*-*-180-*-*-*-*-xsymb-xsymb1")
+     ("-xsymb-xsymb1_sup-medium-r-normal-*-*-180-*-*-*-*-xsymb-xsymb1")))
+
+  (setq x-symbol-xsymb0-fonts
+    '(("-adobe-symbol-medium-r-normal-*-*-240-*-*-*-*-adobe-fontspecific"
+       "-xsymb-xsymb0-medium-r-normal--*-240-75-75-p-85-adobe-fontspecific")
+      ("-xsymb-xsymb0_sub-medium-r-normal--18-180-75-75-p-74-adobe-fontspecific"
+       "-adobe-symbol_sub-medium-r-normal-*-*-180-*-*-*-*-adobe-fontspecific")
+      ("-xsymb-xsymb0_sup-medium-r-normal--18-180-75-75-p-74-adobe-fontspecific"
+       "-adobe-symbol_sup-medium-r-normal-*-*-180-*-*-*-*-adobe-fontspecific")))
+
+   to your .emacs, which causes the special fonts to come up in size
+   24; the normal font you can change manually. Of course you can also
+   select smaller sizes. Most of the symbols look reasonable, except
+   that they appear almost bold.
+  
+   For more information about this, see the X-Symbol FAQ, at
+   http://x-symbol.sourceforge.net/man/x-symbol_8.html#SEC100
 
 -----------------------------------------------------------------
 
