@@ -99,8 +99,13 @@ terminator somewhere nearby.  Electric!"
   :group 'proof-user-options)
 
 (defcustom proof-toolbar-enable t
-  "*If non-nil, display Proof General toolbar for script buffers.
-NB: the toolbar is only available with XEmacs and GNU Emacs>=21."
+  "*If non-nil, display Proof General toolbar for script buffers."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+
+(defcustom proof-imenu-enable nil
+  "*If non-nil, display Imenu menu of items for script buffers."
   :type 'boolean
   :set 'proof-set-value
   :group 'proof-user-options)
@@ -1015,11 +1020,11 @@ for `proof-script-next-entity-regexps' used for function menus."
 
 (defcustom proof-goal-with-hole-regexp nil 
   "Regexp which matches a command used to issue and name a goal.
-The name of the theorem is build from the variable
+The name of the theorem is built from the variable
 proof-goal-with-hole-result using the same convention as 
-query-replace-regexp. 
+for `query-replace-regexp'. 
 Used for setting names of goal..save regions and for default
-function-menu configuration in proof-script-find-next-entity.
+configuration of other modes (function menu, imenu).
 
 It's safe to leave this setting as nil."
   :type 'regexp
