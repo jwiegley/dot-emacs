@@ -1477,8 +1477,11 @@ quote characters."
 
 (defcustom proof-shell-process-connection-type 
   ;; Use ptys unless it seems like we're on Solaris.  Only have
-  ;; a good chance to guess if shell-command-to-string available.
-  (if (fboundp 'shell-command-to-string)
+  ;; a good chance to guess if shell-command-to-string and uname
+  ;; available.
+  (if (and
+       (not (fboundp 'win32-long-file-name))
+       (fboundp 'shell-command-to-string))
       (not (string-match "[sS]un" (shell-command-to-string "uname")))
     t)
   "The value of process-connection-type for the proof shell.
