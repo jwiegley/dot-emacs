@@ -19,10 +19,21 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A Testing before ProofGeneral 2.1 release:
-   - FSF 20.3 problem with loss of blue highlighting on spans?
+A Obscure BUGS to investigate:
+  - FSF Emacs (showstopper): highlighting of locked region and queue
+    region seems faulty nowadays.  Going back to 2.0 does not fix
+    problem, on 20.2 or 20.3
+  - Thomas has a bizarre .emacs file which causes Seg Faults with
+    Proof General and FSF Emacs.  Doesn't happen with "emacs -q".
+    Investigate which package/setting he adds is to blame.
+  - outline mode when proof-strict-read-only is nil ought to
+    work, but there may be problems.
+  - bug mentioned by Martin H. with Lego: "don't know what I should
+    be doing..." error when it shouldn't happen.
+  - startup delay when running XEmacs remotely and local display
+    is 8 bit.  Suspect an XEmacs issue to do with face allocations.
 
-A Clarify licence situation for Proof General after question from 
+B Clarify licence situation for Proof General after question from 
   a potential user. Will the LFCS allow it to be used in a commercial 
   environment without a special licence agreement? A new licence is
   currently [22 Jan 1999] being drafted by UNIVED.
@@ -31,7 +42,7 @@ A Clarify licence situation for Proof General after question from
   Latest [23 Aug 1999] is that license is not ready!
   Will ship with 2.2
 
-C Polish ProofGeneral.texi and publish LaTeX version as an LFCS
+B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
 
    * Fix page rearrangement to insert a blank page
@@ -48,16 +59,8 @@ C Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General
 
 C Check compilation okay, check on use of eval-and-compile.
 
-C Obscure BUGS to investigate:
-  - Thomas has a bizarre .emacs file which causes Seg Faults with
-    Proof General and FSF Emacs.  Doesn't happen with "emacs -q".
-    Investigate which package/setting he adds is to blame.
-  - outline mode when proof-strict-read-only is nil ought to
-    work, but there may be problems.
-  - bug mentioned by Martin H. with Lego: "don't know what I should
-    be doing..." error when it shouldn't happen.
-  - startup delay when running XEmacs remotely and local display
-    is 8 bit.  Suspect an XEmacs issue to do with face allocations.
+C Support for proof-guess-command-line, new generic setting added
+  by Patrick.
 
 D Key binding and interface issues
   - Consider change for prefix argument for C-c C-u and C-c u,
