@@ -1,3 +1,7 @@
+28.04.00  3.1.4 Release 3-1-4, from Release-3-1-branch
+          Applied patch sent by Mike Squire, fix accident in previous fix.
+          (Isabelle theory retraction file paths)
+
 04.04.00  3.1.3 Release 3-1-3
 	  Fixed two problems with Isabelle theory loader interface 
           (first introduced accidently in 3.1, second a bug/issue in Isabelle)
