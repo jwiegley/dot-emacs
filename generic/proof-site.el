@@ -170,6 +170,8 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 	 (proofgen-mode  (intern (concat sname "-mode")))
 	 ;; NB: Customization group for each prover is its l.c.'d name!
 	 (cusgrp	 (intern (downcase assistant-name)))
+	 (cus-internals  (intern (concat (downcase assistant-name)
+					 "-config")))
 
 	 ;; Stub to do some automatic initialization and load
 	 ;; the specific code.
@@ -182,9 +184,16 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 	      (interactive)
 	      ;; Make a customization group for this assistant
 	      (defgroup ,cusgrp nil
-		,(concat "Customization of " assistant-name
-			 " specific settings for Proof General.")
+		,(concat "Customization of user options for " assistant-name
+			 " Proof General.")
 		:group 'proof-general)
+	      ;; And another one for internals
+	      (defgroup ,cus-internals nil
+		,(concat "Customization of internal settings for "
+			 assistant-name " configuration.")
+		:group 'proof-general-internals
+		:prefix ,(concat sname "-"))
+
 	      ;; Set the proof-assistant configuration variable
 	      (setq proof-assistant ,assistant-name)
 	      ;; Extend the load path, load the real mode and invoke it.
