@@ -389,9 +389,11 @@ X pbp code doesn't quite accord with the tech report; in particular it
 
 C fix Pbp implementation (10h)
 
-B Equiv, Next,... aren't handled properly, because LEGO does not
-  refresh the proof state. Perhaps it would be easiest to get LEGO to
-  output more information in proof script mode (2h)
+C Inoking an "Expand" command produces a new proof state. But this is
+  incorrectly displayed in the response buffer and not the goals
+  buffer because special annotations are missing. Presumably, one
+  ought to replace "Toplevel.Pr()" by "Toplevel.PR()" in the
+  definition of "Expand" (see file newtop.sml [Version 1.4]). (30min)
 
 B release new version of the LEGO proof engine (4h tms)
 

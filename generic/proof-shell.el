@@ -365,11 +365,14 @@ This is a list of tuples of the form (type . string). type is either
 	    (progn (aset out op c)
 		   (incf op)))
 	(incf ip))
+
+      ;; Response buffer may be out of date. It may contain (error)
+      ;; messages relating to earlier proof states
+      (set-buffer proof-response-buffer)
+      (erase-buffer)
+
       (set-buffer proof-pbp-buffer)
       (erase-buffer)
-      ;; Perhaps we ought to erase the proof-response-buffer at this
-      ;; point as well. It may contain an error message referring to
-      ;; an *earlier* state in the proof.
       (insert (substring out 0 op))
       (proof-display-and-keep-buffer proof-pbp-buffer)
 
