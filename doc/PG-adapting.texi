@@ -62,7 +62,7 @@
 @set version 3.3pre
 @set xemacsversion 21.1
 @set fsfversion 20.7
-@set last-update October 2000
+@set last-update August 2001
 @set rcsid $Id$
 
 @ifinfo
@@ -115,7 +115,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 2000 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 2000,2001 Proof General team, LFCS Edinburgh.
 
 
 @c
