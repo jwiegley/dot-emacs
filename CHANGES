@@ -126,17 +126,6 @@ Internal changes for developers to note
   The aim is to make it easier to adapt to new proof
   assistants.
 
-* proof-shell-leave-annotations-in-output variable has been added.
-  This allows quick and dirty mark up of output from the proof
-  assistant using special characters with codes above 128 and
-  font-lock.  Such characters are hidden from display in the
-  output buffers.  
-  However, it is NOT recommended to use this mechanism, because
-  it breaks the usability of cut and paste (which copies the
-  special characters).  Furthermore the entire mechanism of
-  using special character codes is fragile and needs replacing
-  in future versions of Proof General!
-
 * Proofs which are "unfinished", i.e. have no qed or result,
   are now closed off automatically when a new goal is begun.
   The new code only applies if proof-nested-goals-allowed is
@@ -168,6 +157,17 @@ Internal changes for developers to note
    The is called when scripting is turned on inside a completely
    processed buffer (as the conceptual state of the buffer changes
    to partly-processed).
+
+* proof-shell-leave-annotations-in-output variable has been added.
+  This allows quick and dirty mark up of output from the proof
+  assistant using special characters with codes above 128 and
+  font-lock.  Such characters are hidden from display in the
+  output buffers.  
+  However, it is NOT recommended to use this mechanism, because
+  it breaks the usability of cut and paste (which copies the
+  special characters).  Furthermore the entire mechanism of
+  using special character codes is fragile and needs replacing
+  in future versions of Proof General!
 
 * Many code cleanups and improvements.
 
