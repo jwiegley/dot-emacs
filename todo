@@ -9,6 +9,8 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A Rename proof.el, etc to something more sensible: script-management.el?
+
 A Write function proof-retract-file. (30min)
   Currently, the command ForgetMark (for LEGO) is hardwired in
   proof-steal-process.
