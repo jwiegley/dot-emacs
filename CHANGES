@@ -1,124 +1,126 @@
 -*- outline -*-
 
+[ Changes file for 3.3 below.  NO CHANGES yet in this devel release ]
+
 * Summary of Changes for Proof General 3.3 from 3.2
 
 ** Generic Changes
 
 *** Visibility control for completed proofs
 
-     You can make proofs invisible using a context sensitive menu
-     (right button on a completed proof), or as soon as they are
-     completed with the "Options -> Disappearing Proofs" option.
-     Two menu items "Show proofs" and "Hide proofs" apply to
-     all the completed proofs in the buffer.
+    You can make proofs invisible using a context sensitive menu
+    (right button on a completed proof), or as soon as they are
+    completed with the "Options -> Disappearing Proofs" option.
+    Two menu items "Show proofs" and "Hide proofs" apply to
+    all the completed proofs in the buffer.
 
-     NB: proofs of theorems with the same name are not 
-     distinguished, their visibility is controlled together.
+    NB: proofs of theorems with the same name are not 
+    distinguished, their visibility is controlled together.
 
 *** Command to insert last output as comment in proof script.
 
-     Sometimes it is useful to paste some of the output from
-     goals or response buffer into the proof script.  A new
-     function `pg-insert-last-output-as-comment' (C-c C-;)
-     inserts the last output and converts it into a comment
-     using `comment-region'.
+    Sometimes it is useful to paste some of the output from
+    goals or response buffer into the proof script.  A new
+    function `pg-insert-last-output-as-comment' (C-c C-;)
+    inserts the last output and converts it into a comment
+    using `comment-region'.
 
 *** Changes to colours, mouse highlighting, echo help messages
 
-     Now `proof-locked-face' becomes a lighter cyan. This is
-     less obtrusive when editing proofs, but is not so visible
-     for demonstrating PG: if you prefer the old stronger colour, 
-     customize the face to "lightsteelblue2" using
-     M-x customize-face RET proof-locked-face.  
+    Now `proof-locked-face' becomes a lighter cyan. This is
+    less obtrusive when editing proofs, but is not so visible
+    for demonstrating PG: if you prefer the old stronger colour, 
+    customize the face to "lightsteelblue2" using
+    M-x customize-face RET proof-locked-face.  
 
-     New face `proof-mouse-highlight-face' (default: darker blue
-     than locked region) is now used for mouse highlighting regions of
-     script. Less ugly than the previous default (green) highlight face.
+    New face `proof-mouse-highlight-face' (default: darker blue
+    than locked region) is now used for mouse highlighting regions of
+    script. Less ugly than the previous default (green) highlight face.
 
-     Also, for XEmacs, there are now (trivial) help messages in echo
-     area describing the highlighted region under the mouse.
+    Also, for XEmacs, there are now (trivial) help messages in echo
+    area describing the highlighted region under the mouse.
 
 *** Experimental features and new user option
 
-     There's a new user option `proof-experimental-features' which
-     is nil by default.  If you set it to t, you will (maybe after
-     restarting Proof General) enable certain experimental features.
+    There's a new user option `proof-experimental-features' which
+    is nil by default.  If you set it to t, you will (maybe after
+    restarting Proof General) enable certain experimental features.
+
+    In this release, the experimental features are: 
+
+       Context menu options to move spans up/down
+       Context menu dependency commands (Isabelle only, see below)
+
+    To customize this from the menu:
  
-     In this release, the experimental features are: 
-
-        Context menu options to move spans up/down
-        Context menu dependency commands (Isabelle only, see below)
-
-     To customize this from the menu:
-  
-        Proof General -> Customize -> User Options -> Experimental features
+       Proof General -> Customize -> User Options -> Experimental features
 
 *** Proof General startup script welcomes user
  
-     The "binary" (startup script) bin/proofgeneral now loads
-     PG and invokes a function to display a splash message,
-     which invites the user to load a file.   A bit more
-     friendly than simply being confronted by a standard 
-     XEmacs screen.
+    The "binary" (startup script) bin/proofgeneral now loads
+    PG and invokes a function to display a splash message,
+    which invites the user to load a file.   A bit more
+    friendly than simply being confronted by a standard 
+    XEmacs screen.
 
 *** Changes to Proof General RPM packaging mechanism
   
-     Can now build RPM packages with "rpm -ta" from tarball source.
-     RPM includes menu file and icons so that Proof General may
-     appear on your window system menus (tested under Linux Mandrake).
-     We no longer distribute an SRPM.
+    Can now build RPM packages with "rpm -ta" from tarball source.
+    RPM includes menu file and icons so that Proof General may
+    appear on your window system menus (tested under Linux Mandrake).
+    We no longer distribute an SRPM.
 
 *** Compatibility fixes.
 
-     Fixes for FSF Emacs and XEmacs 21.4
+    Fixes for FSF Emacs and XEmacs 21.4
 
-     Better support for win32 versions of XEmacs (see README.windows).
+    Better support for win32 versions of XEmacs (see README.windows).
 
-     Fixes for recent version 3.3g of X-Symbol (and note on
-      web page about using ~/.xemacs/xemacs-packages/ for install locn).
+    Fixes for recent version 3.3g of X-Symbol (and note on
+    web page about using ~/.xemacs/xemacs-packages/ for install locn).
 
 *** Bug fixes.
 
-     XEmacs 21.1 has faulty implementation of buffer-syntactic-context,
-     workaround added.  (Symptom was parsing breaking, giving unexpected
-     "I can't see any complete commands to process!" error message, esp
-     with strings broken across lines containing parentheses).
+    XEmacs 21.1 has faulty implementation of buffer-syntactic-context,
+    workaround added.  (Symptom was parsing breaking, giving unexpected
+    "I can't see any complete commands to process!" error message, esp
+    with strings broken across lines containing parentheses).
 
-     Fixed Emacs-confusion minibuffer contents switching bug.  (Bug 
-     was triggered by using toolbar while minibuffer active).
+    Fixed Emacs-confusion minibuffer contents switching bug.  (Bug 
+    was triggered by using toolbar while minibuffer active).
 
 ** Coq Changes
 
-     Compatibility for V7 added.
+    Compatibility for V7 added.
 
-     Experimental enhancements to handling of compiled files and 
-     file dependency.  (Only tested with Coq 6.3.1: we need help
-     from Coq implementors to add primitive support in V7, please
-     appeal to them to help Proof General!).
+    Experimental enhancements to handling of compiled files and 
+    file dependency.  (Only tested with Coq 6.3.1: we need help
+    from Coq implementors to add primitive support in V7, please
+    appeal to them to help Proof General!).
 
-       1) At the end of scripting foo.v (i.e. when activing scripting is
-       switched off), "Reset Initial. Compile Module <foo>" is
-       automatically issued. This clears the context and writes a .vo file,
-       to keep your .vo files up to date. It means that when using PG Coq, 
-       you should use the correct commands ("Require foo.") to load all
-       the modules you depend on, so that scripting can continue in the
-       next file.
+      1) At the end of scripting foo.v (i.e. when activing scripting is
+      switched off), "Reset Initial. Compile Module <foo>" is
+      automatically issued. This clears the context and writes a .vo file,
+      to keep your .vo files up to date. It means that when using PG Coq, 
+      you should use the correct commands ("Require foo.") to load all
+      the modules you depend on, so that scripting can continue in the
+      next file.
 
-       2) PG tracks file dependencies by noticing "Reinterning" messages
-       from Coq.  When a file "b.v" is processed which has a "Require a", 
-       command, PG will try to find "a.v" and will automatically lock
-       it.  (This part of the process is fragile, for two reasons: it
-       is hard to find the directory for a.v, since Coq doesn't report
-       it, and the reinterning message is only issued the first time the
-       file is reinterned).
+      2) PG tracks file dependencies by noticing "Reinterning" messages
+      from Coq.  When a file "b.v" is processed which has a "Require a", 
+      command, PG will try to find "a.v" and will automatically lock
+      it.  (This part of the process is fragile, for two reasons: it
+      is hard to find the directory for a.v, since Coq doesn't report
+      it, and the reinterning message is only issued the first time the
+      file is reinterned).
 
-       3) When a file is retracted, PG attempts to automatically unlock
-       all the dependent files, by issuing a coqdep command to determine
-       the dependencies.  (This is a rather nasty hack, it's hoped for
-       the future that Coq will support this functionality directly).
+      3) When a file is retracted, PG attempts to automatically unlock
+      all the dependent files, by issuing a coqdep command to determine
+      the dependencies.  (This is a rather nasty hack, it's hoped for
+      the future that Coq will support this functionality directly).
 
-     This functionality is enabled with the Coq settings option 
-     "Auto Compile Vos".
+    This functionality is enabled with the Coq settings option 
+    "Auto Compile Vos".
 
 
 ** Isabelle Changes
