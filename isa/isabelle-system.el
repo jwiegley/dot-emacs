@@ -185,11 +185,11 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 	(unless (string-equal docs "")
 	  (mapcar
 	   (function (lambda (docdes)
-		       (list
-			(substring docdes 
-				   (proof-string-match "\\(\\S-+\\)[ \t]+" docdes)
-				   (match-end 1))
-			(substring docdes (match-end 0)))))
+		       (if (proof-string-match "\\(\\S-+\\)[ \t]+" docdes)
+			   (list 
+			    (substring docdes (match-beginning 0) (match-end 1))
+			    (substring docdes (match-end 0)))
+			 '("???" "???"))))
 	   (split-string docs "\n"))))))
 
 (defun isa-quit (save)
