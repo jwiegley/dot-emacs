@@ -192,7 +192,7 @@ and script mode."
    ;; FIXME: temporary hack for almost enabling/disabling printing.
    ;; Also for setting default values.
    proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
-   proof-shell-init-cmd		 (proof-assistant-settings-cmd)
+   proof-shell-init-cmd		        (proof-assistant-settings-cmd)
 
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
@@ -716,6 +716,45 @@ you will be asked to retract the file or process the remainder of it."
     ;; that's it for now!
     ))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Theorem dependencies  (experimental)
+;;
+
+(defpacustom theorem-dependencies nil
+  "Whether to track theorem dependencies within Proof General."
+  :type 'boolean
+  ;; when this is built-in  (or with a ":=%b" setting).
+  ;; :setting ("depends_enable()" . "depends_disable()")
+  :eval (isa-theorem-dependencies-switch))
+
+(defvar isa-dependsml-file-loaded nil)
+
+(add-hook 'proof-shell-kill-function-hooks
+	  (lambda () (setq isa-dependsml-file-loaded nil)))
+
+(defun isa-load-dependsml-file ()
+  ;; NB: maybe doesn't work if enabled before Isabelle starts.
+  (if (proof-shell-available-p)
+      (progn
+	(proof-shell-invisible-command
+	 (proof-format-filename
+	  "use \"%r\";"
+	  (concat (file-name-directory 
+		   (locate-library "isa"))
+		  "depends.ML")))
+	(setq isa-dependsml-file-loaded t))))
+
+(defun isa-theorem-dependencies-switch ()
+  "Switch on/off theorem dependency tracking.  (Experimental feature)."
+  (if (and isa-theorem-dependencies (not isa-dependsml-file-loaded))
+      (isa-load-dependsml-file))
+  (proof-shell-invisible-command (if isa-theorem-dependencies
+				     "depends_enable()"
+				   "depends_disable()")))
+  
+  
 
 
 
