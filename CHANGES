@@ -85,6 +85,10 @@ Isabelle and Isar Changes
   are now closed off automatically when a new goal is begun,
   mirroring the behaviour of Isabelle.
 
+* Confusing display of only last error is fixed: multiple
+  error messages are now coalesced properly.
+
+
 
 Only in the developers' release
 -------------------------------

@@ -725,17 +725,21 @@ This is a list of tuples of the form (TYPE . STRING). type is either
 
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
   "Displays output from `proof-shell-buffer' in `proof-response-buffer'.
-The region in `proof-shell-buffer begins with the match for START-REGEXP
-and is delimited by END-REGEXP. The match for END-REGEXP is not
-part of the specified region.
+The region in `proof-shell-buffer begins with the first match 
+beyond the prompt for START-REGEXP and is delimited by the
+last match in the buffer for END-REGEXP.  The match for END-REGEXP 
+is not part of the specified region.  This mechanism means if there
+are multiple matches for START-REGEXP and END-REGEXP, we match the
+largest region containing them all.
 Returns the string (with faces) in the specified region."
   (let (start end string)
     (save-excursion
       (set-buffer proof-shell-buffer)
       (goto-char (point-max))
-      (setq start (search-backward-regexp start-regexp))
-      (setq end (- (search-forward-regexp end-regexp)
-				   (length (match-string 0))))
+      (setq end (search-backward-regexp end-regexp))
+      (goto-char (marker-position proof-marker))
+      (setq start (- (search-forward-regexp start-regexp)
+		     (length (match-string 0))))
       (setq string
 	    (if proof-shell-leave-annotations-in-output
 		(buffer-substring start end)
@@ -847,7 +851,7 @@ Then we call `proof-shell-handle-error-hook'. "
     ;; Alternatively one could higlight all output between the
     ;; previous and the current prompt.
     ;; +/- of our approach
-    ;; + Previous not so relevent output is not highlighted
+    ;; + Previous not so relevant output is not highlighted
     ;; - Proof systems have to conform to error messages whose start can be
     ;;   detected by a regular expression.
   (proof-shell-handle-output
@@ -1116,7 +1120,7 @@ The return value is non-nil if the action list is now empty."
 		     (proof-detach-queue)
 		     ;; indicate finished
 		     t)
-	    ;; Send the next command to the process
+	    ;; Otherwise send the next command to the process
 	    (proof-shell-insert (nth 1 item))
 	    ;; indicate not finished
 	    nil)))))

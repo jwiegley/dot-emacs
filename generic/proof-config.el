@@ -922,6 +922,9 @@ this regexp.  Moreover, an error message should not be matched as an
 eager annotation (see proof-shell-eager-annotation-start) otherwise it
 will be lost.
 
+Error messages are considered to begin from proof-shell-error-regexp
+and continue until the next prompt.
+
 The engine matches interrupts before errors, see proof-shell-interupt-regexp.
 
 It is safe to leave this variable unset (as nil)."
