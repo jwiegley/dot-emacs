@@ -45,8 +45,31 @@
  proof-count-undos-fn		'ccc-count-undos
 
  ;;
- ;; Some basic fontlocking, as taken from the hol98 instance.
+ ;; Some basic fontlocking and syntax table entries, as taken from the 
+ ;; hol98 instance (it's all SML anyway :-)
  ;;
+ proof-script-syntax-table-entries
+ '(?\` "\""
+   ?\$ "."   
+   ?\/ "."   
+   ?\\ "."   
+   ?+  "."   
+   ?-  "."   
+   ?=  "."   
+   ?%  "."   
+   ?<  "."   
+   ?>  "."   
+   ?\& "."   
+   ?.  "w"   
+   ?_  "w"   
+   ?\' "w"   
+   ?\| "."
+   ?\[ "(]"
+   ?\] ")["   
+   ?\* ". 23"
+   ?\( "()1" 
+   ?\) ")(4")
+
  ccc-keywords  '("use" "ap" "holcasl" "ccc" "load_lib" "qeccc")
  ccc-tactics   '("compose" "compose'" "prove" "prove_free_type")
  ccc-tacticals '("Repeat" "Orelse" "Then" "ThenList" "OrelseList")
