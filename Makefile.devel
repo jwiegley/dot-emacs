@@ -11,7 +11,10 @@
 ##    make distclean	  - remove all generated files
 ##
 ##    make ChangeLog	  - make ChangeLog from CVS sources (uses emacs)
-##			     ChangeLog.gz is kept in repo.
+##			     NB: ChangeLog.gz is kept in repo.
+##    make tags		  - update TAGS file for Elisp sources
+##    make autoloads	  - update autoloads
+##
 ##    make tag		  - tag the CVS sources with CVS_RELEASENAME
 ##    make untag	  - remove tag CVS_RELEASENAME from the sources 
 ##    make dist           - make a distribution from sources with above tag
@@ -107,8 +110,8 @@ CVSNAME = ProofGeneral
 MACHINE=scar
 CVSROOT = :ext:da@$(MACHINE).dcs.ed.ac.uk:/home/proofgen/src
 
-# Emacs
-EMACS=xemacs
+# Emacs for batch compiling
+BATCHEMACS=xemacs -batch -q -no-site-file
 
 # GNU version of tar, please
 TAR=tar
@@ -163,7 +166,7 @@ SUBDIRS=$(ELISP_DIRS) etc doc html images
 
 PWD=$(shell pwd)
 
-BYTECOMP = $(EMACS) -batch -q -no-site-file -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar") load-path))' -f batch-byte-compile
+BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar") load-path))' -f batch-byte-compile
 
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
@@ -200,7 +203,7 @@ tags:	$(EL)
 #
 ChangeLog:	FORCE
 	rm -f ChangeLog
-	$(EMACS) -batch -q -eval "(setq a (default-directory))" -eval "(require 'vc)" -f vc-update-change-log -eval '(write-file (concat a "ChangeLog"))'
+	$(BATCHEMACS) -eval "(setq a (default-directory))" -eval "(require 'vc)" -f vc-update-change-log -eval '(write-file (concat a "ChangeLog"))'
 
 
 
@@ -233,6 +236,16 @@ cvsclean:	clean
 	rm -rf $(FILES_NONCVS)
 	(cd doc; $(MAKE) distclean)
 	(cd images; $(MAKE) cvsclean)
+
+
+############################################################
+#
+# autoloads in generic/
+#
+autoloads: $(EL)
+	$(BATCHEMACS) -eval '(setq autoload-package-name "proof" generated-autoload-file "$(PWD)/generic/proof-autoloads.el")' -f batch-update-autoloads  generic/
+
+
 
 ############################################################
 #
