@@ -451,7 +451,7 @@ If interactive or SWITCH is non-nil, switch to script buffer first."
 ;; Careful: movement can happen when the user is typing, not very nice!
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of it.
-A possible hook function for proof-shell-handle-error-or-interrupt-hook.
+A possible hook function for `proof-shell-handle-error-or-interrupt-hook'.
 Does nothing if there is no active scripting buffer, or if
 `proof-follow-mode' is set to 'ignore."
   (interactive)
@@ -462,6 +462,20 @@ Does nothing if there is no active scripting buffer, or if
 	    (win (get-buffer-window proof-script-buffer t)))
 	(unless (and win (pos-visible-in-window-p pos))
 	  (proof-goto-end-of-locked t)))))
+
+(defun proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window ()
+  "As `proof-goto-end-of-locked-if-pos-not-visible-in-window' except not for interrupts.
+Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
+  (interactive)
+  (cond
+   ((eq proof-shell-error-or-interrupt-seen 'error)
+    (proof-goto-end-of-locked-if-pos-not-visible-in-window))
+   ((eq proof-shell-error-or-interrupt-seen 'interrupt)
+    (proof-with-current-buffer-if-exists 
+     proof-script-buffer
+     (pg-jump-to-end-hint)))))
+    
+
 
 ;; Simplified version of above for toolbar follow mode -- which wouldn't
 ;; work with abouve because of proof-shell-handle-error-or-interrupt-hook[?]
@@ -656,7 +670,9 @@ NAME does not need to be unique."
     (cond 
      (idiom
       (concat (upcase-initials (symbol-name idiom))
-	      (if name (concat ": " name))))
+	      (if (and name 
+		       (not (equal name proof-unnamed-theorem-name)))
+		  (concat "[" name "]"))))
      ((or (eq type 'proof) (eq type 'goalsave))
       (concat "Proof" 
 	      (let ((name (span-property span 'name)))
@@ -669,9 +685,18 @@ NAME does not need to be unique."
 
 (defun pg-set-span-helphighlights (span &optional nohighlight)
   "Set the help echo message, default highlight, and keymap for SPAN."
-  (let ((helpmsg (pg-span-name span)))
+  (let ((helpmsg (concat (pg-span-name span) " region")))
     (set-span-property span 'balloon-help helpmsg)
-    (set-span-property span 'help-echo helpmsg)
+    (if pg-show-hints ;; only message in minibuf if hints on
+	(set-span-property 
+	 span 'help-echo 
+	 (concat helpmsg
+		 (substitute-command-keys
+		  (concat
+		   " (use "
+		   (if (span-property span 'idiom)
+		       "\\[pg-toggle-visibility] to show/hide; ")
+		       "\\[popup-mode-menu] for menu)")))))
     (set-span-property span 'keymap pg-span-context-menu-keymap)
     (unless nohighlight
       (set-span-property span 'mouse-face 'proof-mouse-highlight-face))))

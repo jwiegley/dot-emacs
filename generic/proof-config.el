@@ -2148,10 +2148,17 @@ its friends configured in the function proof-shell-start."
   :group 'proof-shell)
 
 (defcustom proof-shell-handle-error-or-interrupt-hook
-  '(proof-goto-end-of-locked-if-pos-not-visible-in-window)
+  '(proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window)
   "Run after an error or interrupt has been reported in the response buffer.
 Hook functions may inspect `proof-shell-error-or-interrupt-seen' to 
-determine whether the cause was an error or interrupt."
+determine whether the cause was an error or interrupt.  Possible
+values for this hook include:
+
+ proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window
+ proof-goto-end-of-locked-if-pos-not-visible-in-window
+
+which move the cursor in the scripting buffer on an error or
+error/interrupt."
   :type '(repeat function)
   :group 'proof-shell)
 

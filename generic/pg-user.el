@@ -1001,6 +1001,9 @@ If NUM is negative, move upwards.  Return new span."
    (format
     "Use \\[proof-prf] to display goals; \\[proof-display-some-buffers] to rotate output %s"
     (if nextbuf (concat "(next: " nextbuf ")") ""))))
+
+(defun pg-jump-to-end-hint ()
+  (pg-hint "Use \\[proof-goto-end-of-locked] to jump to end of processed region"))
   
 (defun pg-processing-complete-hint ()
   "Display hint for showing end of locked region or processing complete."
@@ -1016,8 +1019,7 @@ If NUM is negative, move upwards.  Return new span."
 	      (pg-hint 
 	       (concat "Processing complete in " (buffer-name proof-script-buffer))))
 	     (t ;; partly complete: hint about displaying the locked end
-	      (pg-hint
-	       "Use \\[proof-goto-end-of-locked] to display end of locked region"))))))))
+	      (pg-jump-to-end-hint))))))))
 
 (defun pg-hint (hintmsg)
   "Display a hint HINTMSG in the minibuffer, if `pg-show-hints' is non-nil.
