@@ -1,15 +1,15 @@
 <!-- This is the header -->
-<table width="550">
+<table width="600">
 <tr>
-<td width="190">
+<td width="100">
 <a href="">
 <img src="images/ProofGeneral.jpg" alt="Proof General" align=top
-     width=180 height=238 border=0 >
+     width=90 height=119 border=0 >
 </a>
 </td>
 <td>
   <center>
-  <img src="images/pg-text.gif" alt="Proof General" width=175 height=76>
+  <img src="images/pg-text.gif" alt="Proof General" width=170 height=17>
   <h1>Organize your proofs!</h1>
 <?php
       /* Header link generator.  David Aspinall, June 1999.
@@ -26,12 +26,12 @@
           "Home"          =>  "main", 
 	  "Features"	  =>  "features",
 	  "Download"      =>  "download",
+          "Documentation" =>  "doc",
+
           "News"          =>  "news", 
           "Screenshots"   =>  "screenshot",
-          "Documentation" =>  "doc",
 	  "Development"	  =>  "devel",
-	  "About"	  =>  "about",
-	  "Links"	  =>  "links"
+	  "About"	  =>  "about"
     );
     $DEFAULT = $links_arr["Home"];
     $wanted_okay = 0;
@@ -52,7 +52,7 @@
           print "<a href=\"$links_arr[$name]\">$name</a>";
 	}
         print " </td>\n";
-        if ($name=="Download" || $name=="Documentation") print "</tr>\n<tr>";
+        if ($name=="Documentation") print "</tr>\n<tr>";
     }
     print "</tr></table>\n"; 
 ?>
