@@ -1,9 +1,26 @@
 Developers' Notes about Web Pages
 ---------------------------------
 
+Notes about php:
+
+Some functions I've written
+
+ <?php link_root("pagename","text")?>
+ <?php hlink("html file","text","status message")?>
+
+NB: no space after text in each case so you must write
+ 
+   <?php ... ?> blah 
+
+to get a space.  Don't put "blah" onto a new line, space will
+be lost!
+
+
 *************
 
 Tell Thomas (& other folk?) to update his home page links to Proof General.
+[Probably okay: Thomas links to image in home directory, but we'll
+ keep that as a copy of images/ProofGeneral.jpg]
 
 *************
 
