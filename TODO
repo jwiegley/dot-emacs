@@ -22,6 +22,10 @@ Plans for upcoming 3.x versions
 
 * Support more proof assistants
 
+* New key bindings for prover specific commands.  
+  This will unfortunately result in changing some bindings, but make
+  room for more and avoid the user-reserved sequences C-c <letter>.
+
 * A more flexible way of choosing which instance of PG we want,
   allowing matches on the buffer before choosing the mode function.
 

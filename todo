@@ -33,12 +33,32 @@ X (Low)		e.g. probably not worth spending time on
  - Recognition of ; only at eol (DvO reported bug here, shouldn't happen)
  - Web page: add notify when updated option
  - Manual: credits for other bug reporters
- - Remove pbp.el, unused file.
-
+ - Would be nice to fix spurious output of Coq and HOL from first line
+   when synchronization is gained.
 
 *** Scheduled improvements for 3.2
 
-**** B Fixup silly mess introduced by Isabelle's over the top 
+**** A Add a new keymap(s) for proof assistants.
+  Presently they naugthily bind C-c <letter> which are reserved for
+  users.  As a prelude to introducing more prover-specific commands,
+  we should change these.  New map choices:
+
+    C-c C-a (but blasts command start)
+    C-c C-p (blasts proof-prf)
+    C-c C-x already seems to be a prefix?
+
+**** A Add efficiency improvement by turning on/off prover output.
+  Patch already tested.
+
+**** C Add improvements to script movement in electric terminator mode.
+  Some commented regions in code.  E.g. automatic newline/space after
+  C-c C-BS.
+
+**** B Make proof-{script,shell,goals,resp}-font-lock-keywords the
+  default way of setting font-lock-keywords, removing from
+  proof-easy-config and changing each supported prover instance.
+
+**** A Fixup silly mess introduced by Isabelle's over the top 
   proof-shell-proof-completed-regexp.  We shouldn't match on
   the whole output, that was the point of start-goals and end-goals.
   Instead we should treat the proof-completed as a case within
@@ -68,16 +88,24 @@ X (Low)		e.g. probably not worth spending time on
   on-line help but no way in PG to help by library.  Perhaps
   a help browser is needed?  At least, optional arg to help command.
 
+**** D Remove pbp.el, unused file.
+
 
 
 ** 2. Things to in the generic interface
 
 
+*** C Add support for XEmacs 21 packaging.  Make suitable updates available
+  on web page, and make RPM put things in the right place so no .emacs
+  file may need editing(?).  [4 hours]
+
 *** B Improve proof-easy-config mechanism.   
       
-   Let it be redoable by initializing some of the variables to 
-   default values to begin with(?).  e.g. proof-script-next-entity-regexps.
-   Convention is that everything must be set in proof-easy-config body.
+  Let it be redoable by initializing some of the variables to 
+  default values to begin with(?).  e.g. proof-script-next-entity-regexps.
+  Convention is that everything must be set in proof-easy-config body.
+  Use custom to set everything to its default value from proof-config,
+  before invoking the body.
 
 *** C Add a new configuration setting for matching proof commands
   which have no undo effect --- should be treated like comments
@@ -302,11 +330,6 @@ C New modules:
 *** D Check support for proof-guess-command-line, new generic setting
   added by Patrick.  Don't know if anyone can use it, actually.
 
-*** D Key binding and interface issues
-  - Consider change for prefix argument for C-c C-u and C-c u,
-  it's quite easy to accidently delete by pressing C-c C-u
-  repeatedly.
-
 *** D Usability enhancement:
     - Fix asymmetry between "doing" and "undoing": doing will skip comments,
       undoing will not.  e.g. test case: (* tester *) intros; 
@@ -346,12 +369,6 @@ C New modules:
 
 *** X Check compilation okay, check on use of eval-and-compile.
 
-*** X Improve efficiency for processing for large proofs.
-  Currently worse case is about 75%/25% CPU to Prover/XEmacs when
-  processing long output stretches on zermelo.  
-    (Example: time_use_thy in src/HOL/Real/ROOT.ML)
-  Processing large scripts is likely to be worse, and needs work.
-  
 *** D BUGLETS:
   - If Proof General is loaded with M-x load-library, it gets set up
     for *no* proof assistant!!
@@ -401,10 +418,6 @@ C New modules:
 *** X CVS repository issues.
   Where are obsolete 'fileattr' files generated from/maintained?
   Should junk these (which appear to say that tms is watching everything).
-
-*** C Add support for XEmacs 21 packaging.  Make suitable updates available
-  on web page, and make RPM put things in the right place so no .emacs
-  file may need editing(?).  [4 hours]
 
 *** X Fixup display problems.
    The window dedicated stuff is a real pain and I've
@@ -717,6 +730,16 @@ C New modules:
   basically variants on displaying fragments of the shell buffer
   output. Unfortunately seems to be implemented only in FSFmacs at the
   moment.
+
+*** X Improve efficiency for processing for large proofs.
+  Currently worse case is about 75%/25% CPU to Prover/XEmacs when
+  processing long output stretches on zermelo.  
+    (Example: time_use_thy in src/HOL/Real/ROOT.ML)
+  Processing large scripts is likely to be worse, and needs work.
+  But we can sidestep the issue by using prover-silent modes,
+  now in 3.2.
+  
+
 
 
 

@@ -42,6 +42,11 @@ See also ../todo for generic things to do, priority codes.
   implementation so that it can also deal with sections.
   [See also the LEGO problem with Discharge] (6h)
 
+** C Correct the C-c C-c bug (typing C-c C-c during the execution of a
+   tactic breaks the consitency with Coq)
+
+** C Fix the coq-lift-global code
+
 ** D Add Patrick Loiseleur's commands to search for vernac or ml files.
   (they are in a separate file that is part of Coq distrib.
    should I really integrate that in PG ? Patrick) 

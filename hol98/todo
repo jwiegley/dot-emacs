@@ -4,8 +4,13 @@
 
 See also ../todo for generic things to do, priority codes.
 
-** A Problem with displaying long help message: causes loop in PG
-  filtering, why?  Process also takes a long time to kill off.
+** A Problem with process filtering.
+
+  Process (sometimes?) doesn't recover after interrupt, and no output
+  is seen.  Why?  
+
+  Also problem with some input texts: try interactive version of
+  clScript.sml, inductive defn of CL terms breaks things.  
 
 ** B Improve display to strip ugly val it and spurious >'s.
 

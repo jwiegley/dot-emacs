@@ -13,7 +13,7 @@
    (Nevertheless, please report problems as usual to proofgen@dcs.ed.ac.uk)
    See README in the hol98 directory for more details.
 
-*** Plastic (http://www.dur.ac.uk/CARG/plastic.html)
+*** Plastic (http://www.dur.ac.uk/CARG/plastic.html)  (ongoing work)
   
    by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
    The Plastic system itself is not yet publicly available,
@@ -21,6 +21,13 @@
 
 
 ** Generic Changes
+
+*** Added key binding C-c C-BS and menu entry for delete last command
+
+  This restores the old function of the sequence "C-u C-c C-u" onto
+  a safer key.  In version 3.0 it was only available via
+  control-button2 in the goals buffer.  The function invoked is 
+  `proof-undo-and-delete-last-successful-command'.
 
 *** Separate README and BUGS files for each supported prover
 
@@ -34,13 +41,16 @@
 
 *** Fixes for supporting Japanese versions of Emacs which have older CL macs.
  
-  Probs with CL macs with Japanicised documentation, defined in "egg.el".
+  Problems occurred with CL macs with Japanicised documentation,
+  defined in "egg.el". 
+
   Japanese Emacs users, please report any other problems you find, they 
-  may be fixable for similar reasons.
+  may be fixable for similar reasons.  Better still, report these compatibility
+  problems also to the Japanese Emacs developers, I don't know who to contact.
 
 *** Minor bug fix for duplicated short output.
   
-  Only seen with "val x=1" or similar messages.
+  Only seen with "val x=1" or similar very short messages.
   We now set proof-shell-eager-annotation-start-length appropriately.
 
 *** Bug fix with .thy files and X-Symbol mode
@@ -73,12 +83,18 @@
   This is added particularly for Isabelle running with Poly/ML,
   which requires interaction after an interrupt.
 
-*** Minor cosmetic improvements
+*** Minor cosmetic improvement
 
   Name of proof assistant "Start Isabelle" etc. in menu.
 
 ** Coq Changes
 
+*** Incomplete handling of Section
+
+  Coq PG will now issue Reset commands for sections.  This still
+  doesn't mirror the undo behaviour of sections properly, which
+  should be treated as atomic, but it means that you can retract
+  a file with sections in, at least.
 
 ** LEGO Changes
 
