@@ -143,11 +143,13 @@
     "}}"))
 
 (defconst isar-keywords-proof-chain
-  '("from"
+  '("finally"
+    "from"
     "then"))
 
 (defconst isar-keywords-proof-decl
-  '("assume"
+  '("also"
+    "assume"
     "fix"
     "let"
     "note"))
