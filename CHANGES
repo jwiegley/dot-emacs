@@ -8,7 +8,7 @@
 
 ** Generic Changes
 
-*** Proof assistant specific menus.  
+*** Menu reorganization, including new proof assistant specific menus.  
 
   Specific menus added for Coq, LEGO, Isabelle.
 
@@ -21,6 +21,8 @@
   Keybindings for proof assistant now begin with "C-c a".
 
 *** Improved behaviour of electric terminator
+
+*** Quick menu option to select proof-follow-mode
 
 *** Point never moves if proof-follow-mode is 'ignore.
 
@@ -72,7 +74,21 @@
       ;;;###autoload comments with `make devel.autoloads'
 
       Several new files, to "modularize" the code a bit more.
+
+*** New mechanism for defining customizations per prover
+
+      See Section 9 of proof-config.el.  New macros mean that we can
+      write for example `proof-defasscustom web-page' to automatically get 
+      `isa-webpage', `hol-webpage', etc, declared on loading.
       
+      Proof assistant specific code can then just set/use these
+      variables, without needing to set `proof-assistant-webpage' from
+      `isa-webpage' etc.
+
+      This slightly breaks the original pseudo object-oriented idea
+      behind the instantiation mechanism (overriding methods, setting
+      attributes) but works much more smoothly with customization.
+
 
 *** No need for match string 1 in proof-shell-proof-completed
 
