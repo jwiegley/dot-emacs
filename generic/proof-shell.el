@@ -651,7 +651,7 @@ are not dealt with eagerly during script processing, namely
   (cond
    ;; Response buffer output
    ((eq proof-shell-delayed-output-kind 'abort)
-     ;; "Aborted."  why??
+     ;; Did display our own message "Aborted."  why??
     (pg-response-display proof-shell-delayed-output))
    ((eq proof-shell-delayed-output-kind 'response)
     (unless proof-shell-no-response-display
@@ -683,8 +683,10 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
   ;; [FIXME: Why not flush goals also for interrupts?]
   ;; Flush goals or response buffer (from some last successful proof step)
   (unless proof-shell-ignore-errors	;; quiet 
+    ;; FIXME FIXME FIXME: some terrible memory leak here in XEmacs, when
+    ;; next line is executed.
     (save-excursion
-      (proof-shell-handle-delayed-output))
+       (proof-shell-handle-delayed-output))
     (proof-shell-handle-output
      (if proof-shell-truncate-before-error proof-shell-error-regexp)
      'proof-error-face)
@@ -1327,6 +1329,8 @@ MESSAGE should be a string annotated with
       (proof-display-and-keep-buffer proof-trace-buffer)
       ;; Force redisplay in case in a fast loop which keeps Emacs
       ;; fully-occupied processing prover output
+      ;; FIXME: in case this is expensive, we should be adaptive
+      ;; and redisplay only every so often.
       (and (fboundp 'redisplay-frame)
 	   ;; XEmacs fn 
 	   (redisplay-frame))
