@@ -34,8 +34,6 @@ C The PG isabelle-completion-table seems to be subject to case-fold, which
 
 B Keybindings for processing theory in thy mode gone??
 
-B Exiting isar broken?
-
 C Undoing comments with FSF Emacs weirdness.
  Noticed with Emacs 20.6.1.  Seems to affect all provers.
  Workaround:  use C-c C-RET or C-c C-r instead.
@@ -117,6 +115,9 @@ X Solaris bugs: font locking and button enabling.
 **** A Add efficiency improvement by turning on/off prover output.
   Patch already added to pre-release.
   Does it need adjusting to turn on output in case of error/interrupt?
+
+  mmw: Performance problems in isa and isar have been fixed by
+  removing eager annotations almost everywhere.
 
 **** C Add improvements to script movement in electric terminator mode.
   Some commented regions in code.  E.g. automatic newline/space after
