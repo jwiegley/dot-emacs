@@ -1,3 +1,133 @@
+2004-02-07  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
+    * Makefile.devel: Add options to tag so devel.untag not needed
+
+    * generic/proof-config.el, generic/proof-utils.el:
+    Remove more proofgeneral.org mail aliases
+
+    * Makefile.devel:
+    Adjust RELEASEDIR and GOLIVE for pub to /group/project on DICE.
+
+    * etc/ProofGeneral.spec, generic/proof-site.el, html/devel.html, html/develdownload.php:
+    Set version tag for new release.
+
+    * Makefile.devel: Fix for pserver return code on update
+
+    * Makefile.devel: Add Emacs mode tag
+
+    * FAQ: Updated
+
+    * etc/Mailman/note.txt: Updated.
+
+2004-02-06  Pierre Courtieu  <courtieu@lri.fr>
+
+    * coq/coq-syntax.el, coq/coq.el: adapting to coq-8.0.
+
+2004-01-30  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+    * phox/phox-font.el, phox/phox-fun.el, phox/x-symbol-phox.el:
+    updating for new PG version
+
+2004-01-24  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
+    * html/gallery.php: Fix blender link (it gets .org, lucky thing)
+
+    * html/news.html: pre-release coming soon
+
+2004-01-19  gklein  <gklein@dcs.ed.ac.uk>
+
+    * generic/proof-indent.el: revoke broken indent fix
+
+2004-01-15  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
+    * html/.htaccess: Add redirect for ~proofgen on zermelo.dcs
+
+2004-01-09  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
+    * html/kit.php: Mention Eclipse award
+
+2003-12-29  gklein  <gklein@dcs.ed.ac.uk>
+
+    * isa/x-symbol-isabelle.el:
+    spanning sub/super scripts \<^bsub> .. \<^esub> and \<^bsup> .. \<^esup>
+
+2003-12-23  gklein  <gklein@dcs.ed.ac.uk>
+
+    * isa/Example-Xsym.ML, isar/isar.el:
+    removed bold, no longer supported by x-symbol
+
+    * isa/x-symbol-isabelle.el:
+    more cleanup of sub/superscript, removed duplicate subscript-matcher
+    removed bold (not supported by x-symbol any more)
+
+2003-12-11  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
+    * html/news.html: Updated.
+
+    * BUGS, INSTALL, generic/proof-config.el, generic/proof-indent.el, generic/proof-splash.el, generic/proof-utils.el:
+    Fix domain name
+
+    * html/news.html: Updated.
+
+    * Makefile.devel, README, REGISTER, doc/PG-adapting.texi, doc/ProofGeneral.texi, doc/README.doc:
+    Fix domain name
+
+    * html/eeproof.php, html/functions.php3, html/kit.php, html/mailinglist, html/news.html, html/oldnews.html, html/register, html/register.html, html/devel.html:
+    Remove proofgeneral.org domain.
+
+2003-11-12  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
+    * html/Kit/.htaccess: *** empty log message ***
+
+2003-11-07  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
+    * html/Makefile: FIXME
+
+    * html/doc.html: Add file size
+
+    * html/papers/uitp03.pdf: New files.
+
+    * html/cvsweb.cgi, html/cvsweb.conf: Deleted file
+
+    * html/eproofe, html/robots.txt, html/Makefile: New files.
+
+2003-10-16  gklein  <gklein@dcs.ed.ac.uk>
+
+    * isa/x-symbol-isabelle.el, isar/isar-syntax.el:
+    allow sub/super scripts in identifiers (\<^isub> and \<^isup>)
+
+2003-10-05  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
+    * generic/proof-script.el: Run checkdoc
+
+    * ChangeLog: Updated.
+
+    * html/develdownload.php: Remove CVS junk
+
+    * ChangeLog: Updated.
+
+    * etc/ProofGeneral.spec, generic/proof-site.el, html/devel.html, html/develdownload.php:
+    Set version tag for new release.
+
+    * html/news.html: Fix HTML
+
+    * images/favicon.icon: New files.
+
+    * coq/example.v: Rever to simplest example
+
+    * todo, Makefile.devel, FAQ, CHANGES: Updated.
+
+    * generic/proof-shell.el, generic/proof-script.el, generic/proof-config.el:
+    Add interactive input setting, and extra flags for action.
+
+    * isar/isar.el: Remove proof-shell-interactive-input-regexp again!
+
+    * html/components.html: Fix more links.
+
+    * isar/isar.el: Set proof-shell-interactive-input-regexp
+
+    * pgkit/pgip.el: Updated.
+
 2003-10-05  David Aspinall  <da@proofgeneral.org>
 
     * /disk/cvs/proofgen/ProofGeneral/html/develdownload.php: Remove CVS junk

@@ -17,7 +17,7 @@ IGNOREDWEBFILES=*~,*.NOEXPORT,CVS/,/test/,/test/*,/tmp,/tmp/*,/Makefile,.cvsigno
 # --include=ProofGeneral-* to avoid deleting archives
 # --delete-excluded
 EXCLUDEFILE=.tmp-rsync-excludes
-RSYNC=rsync -e ssh -auv --safe-links --force  --exclude-from=${EXCLUDEFILE} --include='ProofGeneral-*' --exclude="/${EXCLUDEFILE}" --cvs-exclude
+RSYNC=rsync -e ssh -auv --safe-links --force  --exclude-from=${EXCLUDEFILE} --include='releases-emacs' --exclude="/${EXCLUDEFILE}" --cvs-exclude
 
 DESTWEB=ssh.inf.ed.ac.uk:/group/project/proofgeneral/web
 DESTCGI=ssh.inf.ed.ac.uk:/group/project/proofgeneral/cgi
