@@ -15,10 +15,11 @@ dcs.ed.
 your passphrase as needed.  The point is that you don't want to
 keep typing passwords on every CVS command).
 
-2. The CVS repository for PG is in ~proofgen/src at dcs.ed.ac.uk To
-use this, you need to set CVSROOT and CVS_RSH.  I use the script below
-(the last line isn't essential but makes the settings inside a running
-emacs too)
+2. The CVS repository for PG is in ~proofgen/src at dcs.ed.ac.uk 
+
+To use this, you need to set CVSROOT and CVS_RSH.  I use the script
+below (the last line isn't essential but makes the settings inside a
+running emacs too)
 
 3. Where you want to develop PG, do:
 

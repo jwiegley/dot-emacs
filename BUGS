@@ -12,29 +12,6 @@ PG menus may be added to wrong bar during autoload.  See CHANGES for
 temporary workaround.
 
 
-** UTF-8 problems with Red Hat 8.0 / glibc 2.2  and (at least) Coq.  
-
-RedHat 8 has glibc 2.2 and UTF8 encoded output may be turned on in
-default locale.  Unfortunately Proof General relies on 8-bit
-characters which are UTF8 prefixes in the output of proof assistants
-(inc Coq, Isabelle).  These prefix characters are not flushed to
-stdout individually.  As a workaround we must find a way to disable
-interpretation of UTF8 in the C libraries that Coq and friends use.
-
-Doing this inside PG/Emacs seems tricky; locale settings are
-set/inherited in strange ways.  One solution is to run the Emacs
-process itself in a different locale, for example, starting XEmacs by
-typing:
-
-  $  LANG=en_GB xemacs &
-
-Another solution is to set LANG inside a file ~/.i18n, which will
-be read the shell.  This will affect all applications, though.
-[ suggestions for a better workaround inside Emacs would be welcome ]
-
-
-
-
 =================================================================
 
 
