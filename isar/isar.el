@@ -245,8 +245,17 @@
    proof-shell-cd-cmd			"ML {* Library.cd \"%s\" *}"
 
    ;; Escapes for filenames inside ML strings.
+   ;; We also make a hack for a bug in Isabelle, by switching from 
+   ;; backslashes to forward slashes if it looks like we're running
+   ;; on Windows.
    proof-shell-filename-escapes		
-   '(("\\\\" . "\\\\") ("\""   . "\\\""))
+   (if (fboundp 'win32-long-filename)	; rough test for XEmacs on win32 
+       ;; Patterns to unixfy names.
+       ;; Jacques Fleuriot's patch in ML does this too: ("^[a-zA-Z]:" . "") 
+       ;; But I'll risk leaving drive names in, not sure how to replace them.
+       '(("\\\\" . "/") ("\"" . "\\\""))
+     ;; Normal case: quotation for backslash, quote mark.
+     '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
    proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\360Interrupt"
