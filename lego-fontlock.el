@@ -1,9 +1,14 @@
 ;; lego-fontlock.el Font lock expressions for LEGO
 ;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
-;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequiera
+;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.3  1997/11/26 14:11:29  tms
+;; simplified code:
+;;   lego-goal-with-hole-regexp and lego-save-with-hole-regexp is now
+;;   used for lego-font-lock-keywords-1 as well
+;;
 ;; Revision 1.2  1997/10/13 17:13:14  tms
 ;; *** empty log message ***
 ;;
@@ -76,21 +81,25 @@
 		   lego-id ")\\)?") 'font-lock-type-face))
   "*Font-lock table for LEGO terms.")
 
+;; Instead of "[^:]+", it may be better to use "lego-id". Furthermore,
+;; it might be safer to append "\\s-*:".
+(defconst lego-goal-with-hole-regexp
+  (concat "\\(" (ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^:]+\\)")
+  "Regular expression which matches an entry in `lego-keywords-goal'
+  and the name of the goal.") 
+
+(defconst lego-save-with-hole-regexp
+  (concat "\\(" (ids-to-regexp lego-keywords-save) "\\)\\s-+\\([^;]+\\)")
+  "Regular expression which matches an entry in
+  `lego-keywords-save' and the name of the goal.")
+
 (defvar lego-font-lock-keywords-1
    (append
     lego-font-lock-terms
     (list
      (cons (ids-to-regexp lego-keywords) 'font-lock-keyword-face)
      (cons (ids-to-regexp lego-tacticals) 'font-lock-tacticals-name-face)
-
-     (list (concat "\\("
-		   (ids-to-regexp lego-keywords-goal)
-		   "\\)\\s *\\(" lego-id "\\)\\s *:")
-             2 'font-lock-function-name-face)
-
-     (list (concat "\\("
-		   (ids-to-regexp lego-keywords-save)
-		   "\\)\\s *\\(" lego-id "\\)")
-             2 'font-lock-function-name-face))))
+     (list lego-goal-with-hole-regexp 2 'font-lock-function-name-face)
+     (list lego-save-with-hole-regexp 2 'font-lock-function-name-face))))
      
 (provide 'lego-fontlock)
