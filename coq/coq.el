@@ -378,9 +378,12 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
            (if (> nundos 0) 
                (concat "Undo " (int-to-string nundos) ". "))))
 
-    (if (null ans) 
-        proof-no-command;; FIXME: this is an error really (assert nil)
-      ans)))
+    (if (null ans) proof-no-command;; FIXME: this is an error really (assert nil); 
+      (if (string-equal ans "") proof-no-command ; not here because if
+						 ; we backtrack a state preserving command, we must do
+						 ; *nothing*, not even a CR (in v74, no prompt is returned
+						 ; with "\n")
+      ans))))
   
 
 (defvar coq-current-goal 1
@@ -570,6 +573,7 @@ This is specific to coq-mode."
 	   (substring command 0 (string-match " [^ ]*$" command))
 	   " -emacs"))
       coq-prog-name)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Coq shell startup and exit hooks                               ;;
