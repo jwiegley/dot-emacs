@@ -130,7 +130,7 @@ RELEASEDIR = /tmp/proofgeneral-www/
 
 # How to make the release "live".  (Could be "true" to do nothing).
 # was: GOLIVE=true
-GOLIVE=scp -pr $(RELEASEDIR) ssh.inf.ed.ac.uk:/group/projects/proofgen/web/releases/
+GOLIVE=scp -pr $(RELEASEDIR) ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/
 
 
 CVSNAME = ProofGeneral
