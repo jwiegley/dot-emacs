@@ -2789,14 +2789,31 @@ Proof General does not understand full ML syntax(!), so ideally you
 should only use Proof General's scripting commands on @file{.ML} files
 which contain proof commands (no ML functions, structures, etc).
 
-If you do use files with Proof General which declare functions, tactics,
-etc, you should be okay provided your code doesn't include non-top level
-semi-colons (which will confuse Proof General's parser), and provided
-value declarations (and other non proof-steps) occur outside proofs.
-This is becuase within proofs, Proof General considers every ML command
-to be a proof step which is undoable.
+If you do use files with Proof General which declare functions,
+structures, etc, you should be okay provided your code doesn't include
+non-top level semi-colons (which will confuse Proof General's simplistic
+parser), and provided all value declarations (and other non proof-steps)
+occur outside proofs.  This is because within proofs, Proof General
+considers every ML command to be a proof step which is undoable.
 
-For example, do this
+For example, do this:
+@lisp
+   structure S = struct
+     val x = 3
+     val y = 4
+   end;
+@end lisp
+instead of this:
+@lisp
+   structure S = struct
+     val x = 3;
+     val y = 4;
+   end
+@end lisp
+In the second case, just the first binding in the structure body will be
+sent to Isabelle and Proof General will wait indefinitely.
+
+And do this:
 @lisp
     val intros1 = REPEAT (resolve_tac [impI,allI] 1);
     Goal "Q(x) --> (ALL x. P(x) --> P(x))";
@@ -2814,11 +2831,11 @@ instead of this:
     ba 1;
     qed "mythm";
 @end lisp
-In the second case, Proof General wrongly considers the @code{val}
-declaration to be a proof step, and if you undo, it will issue an
+In the last case, when you undo, Proof General wrongly considers the
+@code{val} declaration to be a proof step, and it will issue an
 @code{undo} to Isabelle to undo it.  This leads to a loss of
-synchronization.  To fix things when this happens, simply retract
-to some point before the @code{Goal} command and fix your script.
+synchronization.  To fix things when this happens, simply retract to
+some point before the @code{Goal} command and fix your script.
 
 Having ML as a top-level, Isabelle even lets you redefine the entire
 proof command language, which will certainly confuse Proof General!
