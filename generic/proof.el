@@ -513,9 +513,9 @@ No effect if there is no response buffer currently."
      "Proof General" 
      (list 'proof-general-version 'proof-assistant)
      nil nil
-     "[When reporting a bug, please include a small test case for us to repeat it.
+     "[ When reporting a bug, please include a small test case for us to repeat it.
  Please also check that it is not already covered in the BUGS file that came with
- the distribution, or http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/BUGS]")))
+ the distribution, or http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/BUGS ]")))
 
 
 
