@@ -1,0 +1,172 @@
+(* 
+   isa-print-functions.ML
+
+   Customized version of Isabelle printing for script management
+   mode.
+
+   $Id$
+
+*)
+
+
+
+val proof_state_special_prefix="\248";
+val proof_state_special_suffix="\249";
+val goal_start_special="\253";
+
+
+
+(* val orig_prs_fn = !prs_fn; *)
+(* val orig_warning_fn = !warning_fn; *)
+(* val orig_error_fn = !error_fn; *)
+
+(* copied from Pure/library.ML: *)
+local
+  fun out s =
+    (TextIO.output (TextIO.stdOut, s); TextIO.flushOut TextIO.stdOut);
+
+  fun prefix_lines prfx txt =
+    txt |> split_lines |> map (fn s => prfx ^ s ^ "\n") |> implode;
+in
+
+(*hooks for output channels: normal, warning, error*)
+
+(* da: NO CHANGES NEEDED YET *)
+val () =
+	(prs_fn := (fn s => out s);
+	 warning_fn := (fn s => out (prefix_lines "### " s));
+	error_fn := (fn s => out (prefix_lines "*** " s)))
+
+end;
+
+
+
+local
+
+  (* utils *)
+
+  fun ins_entry (x, y) [] = [(x, [y])]
+    | ins_entry (x, y) ((pair as (x', ys')) :: pairs) =
+        if x = x' then (x', y ins ys') :: pairs
+        else pair :: ins_entry (x, y) pairs;
+
+  fun add_consts (Const (c, T), env) = ins_entry (T, (c, T)) env
+    | add_consts (t $ u, env) = add_consts (u, add_consts (t, env))
+    | add_consts (Abs (_, _, t), env) = add_consts (t, env)
+    | add_consts (_, env) = env;
+
+  fun add_vars (Free (x, T), env) = ins_entry (T, (x, ~1)) env
+    | add_vars (Var (xi, T), env) = ins_entry (T, xi) env
+    | add_vars (Abs (_, _, t), env) = add_vars (t, env)
+    | add_vars (t $ u, env) = add_vars (u, add_vars (t, env))
+    | add_vars (_, env) = env;
+
+  fun add_varsT (Type (_, Ts), env) = foldr add_varsT (Ts, env)
+    | add_varsT (TFree (x, S), env) = ins_entry (S, (x, ~1)) env
+    | add_varsT (TVar (xi, S), env) = ins_entry (S, xi) env;
+
+  fun sort_idxs vs = map (apsnd (sort (prod_ord string_ord int_ord))) vs;
+  fun sort_cnsts cs = map (apsnd (sort_wrt fst)) cs;
+
+
+  (* prepare atoms *)
+
+  fun consts_of t = sort_cnsts (add_consts (t, []));
+  fun vars_of t = sort_idxs (add_vars (t, []));
+  fun varsT_of t = rev (sort_idxs (it_term_types add_varsT (t, [])));
+
+in
+
+  fun script_print_goals maxgoals state =
+    let
+      val {sign, ...} = rep_thm state;
+
+      val prt_term = Sign.pretty_term sign;
+      val prt_typ = Sign.pretty_typ sign;
+      val prt_sort = Sign.pretty_sort sign;
+
+      fun prt_atoms prt prtT (X, xs) = Pretty.block
+        [Pretty.block (Pretty.commas (map prt xs)), Pretty.str " ::",
+          Pretty.brk 1, prtT X];
+
+      fun prt_var (x, ~1) = prt_term (Syntax.free x)
+        | prt_var xi = prt_term (Syntax.var xi);
+
+      fun prt_varT (x, ~1) = prt_typ (TFree (x, []))
+        | prt_varT xi = prt_typ (TVar (xi, []));
+
+      val prt_consts = prt_atoms (prt_term o Const) prt_typ;
+      val prt_vars = prt_atoms prt_var prt_typ;
+      val prt_varsT = prt_atoms prt_varT prt_sort;
+
+
+      fun print_list _ _ [] = ()
+        | print_list name prt lst = (writeln "";
+            Pretty.writeln (Pretty.big_list name (map prt lst)));
+
+      fun print_subgoals (_, []) = ()
+        | print_subgoals (n, A :: As) = (Pretty.writeln (Pretty.blk (0,
+            [Pretty.str (goal_start_special ^
+			  " " ^ string_of_int n ^ ". "), prt_term A]));
+              print_subgoals (n + 1, As));
+
+      val print_ffpairs =
+        print_list "Flex-flex pairs:" (prt_term o Logic.mk_flexpair);
+
+      val print_consts = print_list "Constants:" prt_consts o consts_of;
+      val print_vars = print_list "Variables:" prt_vars o vars_of;
+      val print_varsT = print_list "Type variables:" prt_varsT o varsT_of;
+
+
+      val {prop, ...} = rep_thm state;
+      val (tpairs, As, B) = Logic.strip_horn prop;
+      val ngoals = length As;
+
+      fun print_gs (types, sorts) =
+       (Pretty.writeln (prt_term B);
+        if ngoals = 0 then writeln "No subgoals!"
+        else if ngoals > maxgoals then
+          (print_subgoals (1, take (maxgoals, As));
+            writeln ("A total of " ^ string_of_int ngoals ^ " subgoals..."))
+        else print_subgoals (1, As);
+
+        print_ffpairs tpairs;
+
+        if types andalso ! show_consts then print_consts prop else ();
+        if types then print_vars prop else ();
+        if sorts then print_varsT prop else ());
+    in
+      setmp show_no_free_types true
+        (setmp show_types (! show_types orelse ! show_sorts)
+          (setmp show_sorts false print_gs))
+     (! show_types orelse ! show_sorts, ! show_sorts)
+  end;
+
+end;
+
+
+
+
+(* Pure/goals.ML declares print_current_goals_fn. *)
+
+val orig_print_current_goals_fn = !print_current_goals_fn;
+
+fun script_mode_print_current_goals_fn n max th =
+  (writeln ("Level " ^ string_of_int n); script_print_goals max th);
+
+local
+  fun out s =
+    (TextIO.output (TextIO.stdOut, s); TextIO.flushOut TextIO.stdOut);
+  fun cgf i j t =
+     (out proof_state_special_prefix;
+      script_mode_print_current_goals_fn i j t;
+      out proof_state_special_suffix)
+in
+ val () = (print_current_goals_fn := cgf)
+end
+
+
+
+
+
+				
