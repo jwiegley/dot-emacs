@@ -141,9 +141,6 @@
 (defconst isar-id "\\([A-Za-z][A-Za-z0-9'_]*\\)")
 (defconst isar-idx (concat isar-id "\\(\\.[0-9]+\\)?"))
 
-(defconst isar-ids (proof-ids isar-id "[ \t]*")
-  "Matches a sequence of identifiers separated by whitespace.")
-
 (defconst isar-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
 
 (defconst isar-name-regexp
@@ -307,6 +304,15 @@
 
 (defconst isar-undo-kill-regexp
   (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-switch)))
+
+
+;; ----- indentation
+
+(defconst isar-indent-regexp (proof-ids-to-regexp isar-keywords-indent))
+(defconst isar-indent-open-regexp (proof-ids-to-regexp isar-keywords-indent-open))
+(defconst isar-indent-close-regexp (proof-ids-to-regexp isar-keywords-indent-close))
+(defconst isar-indent-enclose-regexp (proof-ids-to-regexp isar-keywords-indent-enclose))
+(defconst isar-indent-reset-regexp (proof-ids-to-regexp isar-keywords-indent-reset))
 
 
 (provide 'isar-syntax)
