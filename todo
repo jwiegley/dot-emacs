@@ -27,13 +27,6 @@ D		e.g. desirable to fix at some point
 X (Low)		e.g. probably not worth spending time on
 
 
-*** Extremely urgent bits
-
-A Fix docstring-magic somehow so that multiple instances of PG can
-  be loaded at the same time.  Looks like will have to redefine
-  the proof-assistant specific settings one by one, before calling
-  the specific code.
-
 *** Outstanding bugs to investigate
 
 A find C-c C-l binding and remove it.  Overriden with goto-end-of-locked.
@@ -47,7 +40,7 @@ C Undoing comments with FSF Emacs weirdness.
  but no problem when running with edebug edebug-defun on this function.
  Maybe filter specific glitch to do with spans?
 
-C Problem with startup for Coq and HOL.  See BUGS.
+C Problem with startup for Coq and HOL.  Also for Isar!  See BUGS.
 
 C Solaris bugs: font locking and button enabling.
 
