@@ -4,5 +4,7 @@
 
 See also ../todo for generic things to do, priority codes.
 
-** C Combine with isa/ to get single Isabelle PG instance, maybe?
+** C Combine with isa/ to get single Isabelle PG instance, somehow?
+
+Then users could use both proof languages.
 
