@@ -376,7 +376,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (isar "Isabelle/Isar" "\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (phox "PhoX" "\\.phx$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (twelf "Twelf" "\\.elf$") (plastic "Plastic" "\\.lf$") (lclam "Lambda-CLAM" "\\.lcm$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (isar "Isabelle/Isar" "\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$\\|\\.v8$\\|\\.v7$") (phox "PhoX" "\\.phx$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (twelf "Twelf" "\\.elf$") (plastic "Plastic" "\\.lf$") (lclam "Lambda-CLAM" "\\.lcm$"))}.
 @end defopt
 
 
@@ -1555,8 +1555,9 @@ Leave unset if no special characters are being used.
 @c TEXI DOCSTRING MAGIC: proof-shell-prompt-pattern
 @defvar proof-shell-prompt-pattern 
 Proof shell's value for comint-prompt-pattern, which see.@*
-This pattern is just for interaction in comint (shell buffer).
-You don't really need to set it.
+NB!! This pattern is just for interaction in comint (shell buffer).
+You don't really need to set it.  The important one to set is
+@samp{@code{proof-shell-annotated-prompt-regexp}}, which see.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-annotated-prompt-regexp
 @defvar proof-shell-annotated-prompt-regexp 
@@ -2466,7 +2467,6 @@ proof-shell-no-auto-terminate-commands.
 By default, let the command be processed asynchronously.
 But if optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
-If @var{wait} is an integer, wait for that many seconds afterwards.
 @end defun
 
 There are several handy macros to help you define functions
