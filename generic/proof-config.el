@@ -2146,14 +2146,12 @@ For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'."
   :group 'proof-goals)
 
 (defcustom pbp-goal-command nil
-  "Command informing the prover that `pg-goals-button-action' has been
-requested on a goal."
+  "Command sent when `pg-goals-button-action' is requested on a goal."
   :type '(choice nil string)
   :group 'proof-goals)
 
 (defcustom pbp-hyp-command nil
-  "Command informing the prover that `pg-goals-button-action' has been
-requested on an assumption."
+  "Command sent when `pg-goals-button-action' is requested on an assumption."
   :type '(choice nil string)
   :group 'proof-goals)
 

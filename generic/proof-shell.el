@@ -826,8 +826,7 @@ proof-shell-exec-loop, to process the next item."
     (unless (null (marker-position proof-marker))
       (set-marker proof-marker (point)))
 
-    ;; FIXME: possible improvement.  Make for post 3.0 releases
-    ;; in case of problems.
+    ;; FIXME: consider as possible improvement.
     ;; (set-marker proof-shell-urgent-message-marker (point))
     ;; (set-marker proof-shell-urgent-message-scanner (point))
 
@@ -1040,9 +1039,6 @@ The return value is non-nil if the action list is now empty."
 	    ;; indicate not finished
 	    nil)))))
 
-;; FIXME da: some places in the code need to be made robust in
-;; case of buffer kills, etc, before callbacks.  Is this function
-;; one?
 (defun proof-shell-insert-loopback-cmd  (cmd)
   "Insert command sequence triggered by the proof process
 at the end of locked region (after inserting a newline and indenting).
@@ -1054,7 +1050,7 @@ Assume proof-script-buffer is active."
 	(proof-goto-end-of-locked)
 	;; Fix 16.11.99.  This attempts to indent current line which can
 	;; be read-only.  
-      ;; (newline-and-indent)
+	;; (newline-and-indent)
 	(let ((proof-one-command-per-line t)) ; because pbp several commands
 	  (proof-script-new-command-advance))
 	(insert cmd)

@@ -389,10 +389,9 @@ user types by hand."
    (mouse-set-point event)
    (pg-goals-construct-command))
 
-;; Using the spans in a mouse behavior is quite simple: from the
-;; mouse position, find the relevant span, then get its annotation
-;; and produce a piece of text that will be inserted in the right
-;; buffer.  
+;; Using the spans in a mouse behavior is quite simple: from the mouse
+;; position, find the relevant span, then get its annotation and
+;; produce a piece of text that will be inserted in the right buffer.
 
 (defun proof-expand-path (string)
   (let ((a 0) (l (length string)) ls)
@@ -404,7 +403,8 @@ user types by hand."
     (apply 'concat (nreverse ls))))
 
 (defun pg-goals-construct-command ()
-  (let* ((span (span-at (point) 'goalsave))
+  ;; Examine the goals 
+  (let* ((span (span-at (point) 'goalsave)) ;; goalsave means subgoal no/name
 	 (top-span (span-at (point) 'proof-top-element))
 	 top-info)
     (if (null top-span) ()
@@ -418,6 +418,7 @@ user types by hand."
 		 (concat (cdr top-info) (proof-expand-path 
 					 (span-property span 'goalsave))))))
        ((eq (car top-info) 'hyp)
+	;; Switch focus to another subgoal; a non-scripting command
 	(proof-shell-invisible-command
 	 (format pbp-hyp-command (cdr top-info))))
        (t
