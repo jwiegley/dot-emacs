@@ -29,8 +29,9 @@
   :type 'string
   :group 'coq)
 
-(defconst coq-process-config nil
-  "Command to configure pretty printing of the Coq process for emacs.")
+(defconst coq-process-config "Reset Initial."
+  "Command to reset to initial state and 
+   configure pretty printing of the Coq process for emacs.")
 
 (defconst coq-interrupt-regexp "Interrupted"
   "Regexp corresponding to an interrupt")
@@ -42,7 +43,7 @@
 
 ;; ----- web documentation
 
-(defcustom coq-www-home-page "http://pauillac.inria.fr/coq/"
+(defcustom coq-www-home-page "http://coq.inria.fr/"
   "Coq home page URL."
   :type 'string
   :group 'coq)
@@ -405,7 +406,6 @@
   (setq proof-shell-prompt-pattern coq-shell-prompt-pattern
         proof-shell-cd coq-shell-cd
         proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
-	proof-shell-restart-cmd "Reset Initial."
         proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
         proof-shell-error-regexp coq-error-regexp
 	proof-shell-interrupt-regexp coq-interrupt-regexp
@@ -426,7 +426,8 @@
         proof-shell-result-end "\372 End Pbp result \373"
         proof-shell-start-goals-regexp "[0-9]+ subgoals?"
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
-        proof-shell-init-cmd nil
+        proof-shell-init-cmd coq-process-config
+	proof-shell-restart-cmd coq-process-config
 	proof-analyse-using-stack t
 	proof-lift-global 'coq-lift-global
 	)
