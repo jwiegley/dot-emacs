@@ -89,7 +89,7 @@ perlscripts:
 	 rm -f .tmp)
 
 clean:
-	rm -f $(ELC) *~ 
+	rm -f $(ELC) *~ */*~ .\#* */.\#*
 	(cd doc; $(MAKE) clean)
 
 
