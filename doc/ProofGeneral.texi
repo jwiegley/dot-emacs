@@ -1895,6 +1895,14 @@ Intros
 Apply
 @end table
 
+Sorry, there is currently very little specific documentation written for
+Coq Proof General. If any Coq user would like to contribute, please send
+a message to @code{proofgen@@dcs.ed.ac.uk}.
+
+Type @kbd{C-h C-m} to get a list of all Coq specific commands and
+browse the customize menus to find out what customization
+options there are for Coq.
+
 @c
 @c  CHAPTER: Isabelle Proof General
 @c
@@ -3408,9 +3416,10 @@ is being maintained by David Aspinall @i{<isabelle@@dcs.ed.ac.uk>}.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
 Goguen and Aspinall (in order of appearance). It follows some of the
-ideas used in Project CROAP. The Proof General project was initiated in
-1994 and coordinated until October 1998 by Thomas Kleymann. Since
-October 1998, David Aspinall is in charge of Proof General.
+ideas used in Project @uref{http://www.inria.fr/croap/,CROAP}. The Proof
+General project was initiated in 1994 and coordinated until October 1998
+by Thomas Kleymann. Since October 1998, David Aspinall is in charge of
+Proof General.
 
 An early version of this manual was prepared by Dilip Sequeira.  The
 present version was written by David Aspinall and Thomas Kleymann.
