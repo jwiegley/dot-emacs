@@ -999,7 +999,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
       ;; a proof is completing)
       ;; NB: this patch doesn't work!  Are spans being destroyed
       ;; sometime *during* this code??
-      (proof-debug "Proof General idiosyncrasy: proof-done-advancing called with a dead span!")
+      (proof-debug 
+       "Proof General idiosyncrasy: proof-done-advancing called with a dead span!")
   ;; 
   (let ((end (span-end span)) cmd)
     ;; State of spans after advancing: 
