@@ -10,75 +10,72 @@
 
 *** Colours altered
 
-   Queue and locked colours made a little less lurid.
-   (Look in proof-config for proof-locked-face, proof-queue-face
-    and old settings if you want to change back).
+Queue and locked colours made a little less lurid.
+(Look in proof-config for proof-locked-face, proof-queue-face
+and old settings if you want to change back).
 
 *** Support added for GNU Emacs 21.
 
-   Toolbar and splash screen supported.  
+Toolbar and splash screen supported.  
 
-   X-Symbol support in progress
+X-Symbol support in progress
 
-   Fontification (as ever) is tricky.
-   Current status for X-symbol:
+Fontification (as ever) is tricky.
+Current status for X-symbol:
 
-     XEmacs 21.1, 21.4:  works with X-Symbol 3.3g
-
-     GNU Emacs 21:       partly works with X-Symbol 4.0f
-		            (goals broken, script OK)
-
-     GNU Emacs 20:       broken/unfixable
-	
-   NB: Future PG development will no longer support Emacs 20.
+ - XEmacs 21.1, 21.4:  works with X-Symbol 3.3g
+ - GNU Emacs 21:       partly works with X-Symbol 4.0f (goals broken, script OK)
+ - GNU Emacs 20:       broken/unfixable
+     
+NB: Future PG development will no longer support Emacs 20.
 
 
 *** Support for "tracing" buffers improved and enabled by default.
 
-   (Tracing is only deployed in Isabelle so far)
+(Tracing is only deployed in Isabelle so far)
 
-   Compared with experimental tracing in PG 3.3, there is now only one
-   tracing buffer, treated somewhat like a response buffer.
+Compared with experimental tracing in PG 3.3, there is now only one
+tracing buffer, treated somewhat like a response buffer.
 
-   Issues: 
+Issues: 
 
-   1. Large volumes of output can cause Emacs to hog CPU spending
-   all its time processing the output (esp with fontifying and X-symbol
-   decoding).   It becomes difficult to use normal editing commands,
-   even C-c C-c to interrupt the prover.  Workaround: hitting C-g,
-   the Emacs quit key, will interrupt the prover in this state.
-   See manual for further description of this.
+1. Large volumes of output can cause Emacs to hog CPU spending
+all its time processing the output (esp with fontifying and X-symbol
+decoding).   It becomes difficult to use normal editing commands,
+even C-c C-c to interrupt the prover.  Workaround: hitting C-g,
+the Emacs quit key, will interrupt the prover in this state.
+See manual for further description of this.
 
-   2. Interrupt response may be lost in large volumes of output, when
-   using pty communication.  Symptom is interrupt on C-g, but PG thinks
-   the prover is still busy.  Workaround: hit return in the shell buffer,
-   or set proof-shell-process-connection-type to nil to use piped
-   communication.
+2. Interrupt response may be lost in large volumes of output, when
+using pty communication.  Symptom is interrupt on C-g, but PG thinks
+the prover is still busy.  Workaround: hit return in the shell buffer,
+or set proof-shell-process-connection-type to nil to use piped
+communication.
 
 
 ** Isabelle Changes
 
-   Isabelle/Isar syntax changes, other tweaks for Isabelle2002.
- 
-   isa mode: highlighting improvements by Lucas Dixon (lucasd@dai.ed.ac.uk)
+Isabelle/Isar syntax changes, other tweaks for Isabelle2002.
+
+isa mode: highlighting improvements by Lucas Dixon (lucasd@dai.ed.ac.uk)
 
 
 ** Changes for other provers
 
-    - ACL2 improved (now issues undo commands); still experimental and
-      in need of official support.
+*** ACL2 improved (now issues undo commands)
+Still experimental and in need of official support.
 
 ** Changes for proof assistant developers to note
   
 *** Improvements in instantiation mechanism
 
-   Allow smoother support for provers which only use scripting, and
-   do not make use of goals window (e.g. Twelf, ACL2).
+Allow smoother support for provers which only use scripting, and
+do not make use of goals window (e.g. Twelf, ACL2).
 
-   No longer warn if inessential settings like proof-goal-command and
-   similar are unset; automatically remove toolbar and menu items
-   correspondingly.   To allow this to work, the following settings
-   need to made early in loading:
+No longer warn if inessential settings like proof-goal-command and
+similar are unset; automatically remove toolbar and menu items
+correspondingly.   To allow this to work, the following settings
+need to made early in loading:
 
 
 
