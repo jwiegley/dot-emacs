@@ -12,28 +12,26 @@ Suggestion for outline of improved documentation.
  confusing to the users, at least!
  
  1. Introduction
-	1.1  Description
+	     Description
+	1.1 
 	1.2  Feature list, xref'd to later chaps.
 	1.2  Supported Proof Assistants, xref'd too.
-	1.3  Support for new instances, xref'd to later chaps.
+	      Support for new instances, xref'd to later chaps.
 	
  2. Basics of script management
+        
 	2.1  What a proof script is
 	2.2  Locked region and queue region
-	2.3  Basic key commands
-	2.4  Menu commands
-	2.5  Toolbar commands 
-	2.4  Walkthrough example [maybe in appendix]
+	2.3  Script processing commands
+	2.4  Toolbar commands
+        2.5  Other commands
+	2.4  Walkthrough example [maybe in appendix?]
 
  3. Script management with multiple files
         3.1  Proof General's view of processed files
-	3.2  Switching between files
+	3.2  Switching between proof scripts
 	3.2  Retracting across files
-	3.3  Re-synchronizing with the proof assistant
-
- 4. Further commands
-	 4.1 try-command
-	 4.2 Electric terminator
+	[ 3.3  Re-synchronizing with the proof assistant - if added ]
 
  5. Customizing Proof General
 	5.1  Setting user options, what they are:
@@ -55,11 +53,11 @@ Suggestion for outline of improved documentation.
 	8.2  Isabelle customizations
 	8.3  Notes about multiple files
 
- 9. Adapting Proof General to other provers
+ 9. Adapting Proof General to New Provers
 	9.1  Files and directories.  Skeleton code.
 	9.2  Settings for proof scripts
-	9.3  Special annotations
-	9.4  Settings for proof shell
+	9.3  Settings for proof shell
+	     -- Special annotations
 	
  10. Internals of Proof General.
 	10.1  Proof script mode:
@@ -130,3 +128,8 @@ Multiple file support only works for .ML files which are read via
 the theory loader, with use_thy.  If you want to load .ML files which
 aren't associated with theories, it's best to use a dummy theory,
 see [Reference to Isabelle manual]
+
+
+**********
+
+
