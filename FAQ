@@ -47,7 +47,12 @@ A. This is an XEmacs bug.  What you can do is prevent the use
 
 -----------------------------------------------------------------
 
-Q. I have a problem installing/using Proof General, what can I do?
+Q. I have a problem installing/using Proof General.
+   For example, I see the message
+
+   (file-error "Cannot open load file" "executable")
+
+   when I start the program.
 
 A. Please check the documentation carefully, particularly the
    requirements for a full-featured and recent Emacs version, as

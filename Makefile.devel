@@ -232,7 +232,7 @@ tags:	$(EL)
 # with a way of cleaning the last day from the ChangeLog.
 #
 ChangeLog:	FORCE
-	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
+	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) -i 4 | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
 	if [ -f ChangeLog ]; then mv ChangeLog ChangeLog.old; else echo > ChangeLog.old; fi
 	cat ChangeLog.prefix ChangeLog.old > ChangeLog
 	rm ChangeLog.prefix ChangeLog.old

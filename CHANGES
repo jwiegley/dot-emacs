@@ -137,8 +137,11 @@ Reduce contrast for mouse highlighting of regions.
 *** Added `proof-shell-identifier-under-mouse-cmd'
 
 Allows PG to conveniently send a command to the prover which passes
-the identifier under the mouse as an argument.  Bound globally to
-Control-Meta-Mouse-button1.
+the identifier under the mouse, or the active region, as an argument.
+Bound globally to Control-Meta-Mouse-button1.
+
+Presently only configured in Isabelle/Isar, to parse terms (inside
+strings) and theorems (outside).
 
 
 ** GNU Emacs compatibility, simplified font-lock, handling nested comments
