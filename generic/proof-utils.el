@@ -607,7 +607,7 @@ If proof-show-debug-messages is nil, do nothing."
 	    (display-warning 'proof-general formatted 'info)
 	  ;; otherwise use response buffer with dedicated font, & display it
 	  (progn
-	    (pg-response-display-with-face 'proof-debug-message-face)
+	    (pg-response-display-with-face formatted 'proof-debug-message-face)
 	    (proof-display-and-keep-buffer proof-response-buffer))))))
 
 
