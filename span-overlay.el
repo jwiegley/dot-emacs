@@ -5,6 +5,13 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.3  1998/05/21 08:28:52  hhg
+;; Initialize 'before pointer in add-span-aux when last-span is nil.
+;; Removed span-at-type.
+;; Fixed bug in span-at-before, where (span-start span) may be nil.
+;; Added spans-at-(point|region)[-prop], which fixes bug of C-c u at end
+;; of buffer.
+;;
 ;; Revision 1.2  1998/05/19 15:31:37  hhg
 ;; Added header and log message.
 ;; Fixed set-span-endpoints so it preserves invariant.
@@ -42,7 +49,8 @@
 		 l)
 	     (overlay-put span 'before l)
 	     span))
-	(t span)))
+	(t (overlay-put span 'before nil)
+	   span)))
 
 (defun add-span (span)
   (setq last-span (add-span-aux span last-span))
@@ -57,8 +65,6 @@
 (defsubst set-span-property (span name value)
   (overlay-put span name value))
 
-;; relies on only being called from detach-span or delete-span, and so
-;; resets value of last-span
 (defun remove-span-aux (span l)
   (cond ((not l) (error "Bug: removing span from empty list"))
 	((eq span (span-property l 'before))
@@ -95,33 +101,45 @@
 (defsubst set-span-end (span value)
   (set-span-endpoints span (span-start span) value))
 
-(defun spans-at (start end)
+;; extent-at gives "smallest" extent at pos
+;; we're assuming right now that spans don't overlap
+(defun spans-at-point (pt)
+  (let ((overlays nil) (os nil))
+    (setq os (overlays-at pt))
+    (while os
+      (if (not (memq (car os) overlays))
+	  (setq overlays (cons (car os) overlays)))
+      (setq os (cdr os)))
+    overlays))
+
+(defun spans-at-region (start end)
   (let ((overlays nil) (pos start) (os nil))
     (while (< pos end)
-      (setq os (overlays-at pos))
-      (while os
-	(if (not (memq (car os) overlays))
-	    (setq overlays (cons (car os) overlays)))
-	(setq os (cdr os)))
+      (setq overlays (append (spans-at-point pos) overlays))
       (setq pos (next-overlay-change pos)))
     overlays))
 
-(defun spans-at-prop (start end prop)
+(defun spans-at-point-prop (pt prop)
   (let ((f (cond
 	    (prop (lambda (spans span)
 		    (if (span-property span prop) (cons span spans)
 		      spans)))
 	    (t (lambda (spans span) (cons span spans))))))
-    (foldl f nil (spans-at start end))))
+    (foldl f nil (spans-at-point pt))))
 
-(defun type-prop (spans span)
-  (if (span-property span 'type) (cons span spans) spans))
+(defun spans-at-region-prop (start end prop)
+  (let ((f (cond
+	    (prop (lambda (spans span)
+		    (if (span-property span prop) (cons span spans)
+		      spans)))
+	    (t (lambda (spans span) (cons span spans))))))
+    (foldl f nil (spans-at-region start end))))
 
-(defun spans-at-type (start end)
-  (foldl 'type-prop nil (spans-at start end)))
+(defun span-at (pt prop)
+  (car (spans-at-point-prop pt prop)))
 
 (defsubst delete-spans (start end prop)
-  (mapcar 'delete-span (spans-at-prop start end prop)))
+  (mapcar 'delete-span (spans-at-region-prop start end prop)))
 
 (defun map-spans-aux (f l)
   (cond (l (cons (funcall f l) (map-spans-aux f (span-property l 'before))))
@@ -129,11 +147,6 @@
 
 (defsubst map-spans (f)
   (map-spans-aux f last-span))
-
-;; extent-at gives "smallest" extent at pos
-;; we're assuming right now that spans don't overlap
-(defun span-at (pt prop)
-  (car (spans-at-prop pt (+ pt 1) prop)))
 
 (defun find-span-aux (prop-p l)
   (cond ((not l) ())
@@ -146,9 +159,12 @@
 (defun span-at-before (pt prop)
   (let ((prop-pt-p
 	 (cond (prop (lambda (span)
-		       (and (> pt (span-start span))
-			    (span-property span prop))))
-	       (t (lambda (span) (> pt (span-end span)))))))
+		       (let ((start (span-start span)))
+			 (and start (> pt start)
+			    (span-property span prop)))))
+	       (t (lambda (span)
+		    (let ((start (span-start span)))
+		      (and start (> pt start))))))))
     (find-span prop-pt-p)))
   
 (defun prev-span (span prop)
