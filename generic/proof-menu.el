@@ -424,7 +424,8 @@ If in three window or multiple frame mode, display two buffers."
 	(append
 	 `(["Function Menu" function-menu
 	    ,menuvisiblep (fboundp 'function-menu)]
-	   ["Complete Identifier" proof-script-complete t])
+	   ["Complete Identifier" proof-script-complete t]
+	   ["Insert last output" pg-insert-last-output-as-comment proof-shell-last-output])
 	 (list "-----")
 	 proof-show-hide-menu
 	 (list "-----")
