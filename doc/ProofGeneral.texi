@@ -3971,7 +3971,7 @@ providing the variables in @file{proof-site.el} are adjusted
 accordingly (see @i{Proof General site configuration} in
 @i{Adapting Proof General} for more details).  Make sure that
 the @file{generic/} and assistant-specific elisp files are kept in
-subdirectories (@file{coq/}, @file{isa.}, @file{lego.}) of
+subdirectories (@file{coq/}, @file{isa/}, @file{lego/}) of
 @code{proof-home-directory} so that the autoload directory calculations
 are correct.
 
@@ -3992,7 +3992,12 @@ other Emacs modes, for example @code{sml-mode} for @file{.ML} files, or
 Verilog mode for @file{.v} files.  
 
 See @i{Proof General site configuration} in @i{Adapting Proof General},
-to find out how to disable support for provers you don't use.
+for more details of how to adjust the @code{proof-assistants} setting.
+
+A simple alternative is to delete the relevant directories from the PG
+distribution.  For example, to remove support for Coq, delete
+the @file{coq} directory in the Proof General home directory.
+
 
 @c Via the Customize mechanism, see the menu:
 @c @example
