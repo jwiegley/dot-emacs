@@ -1061,7 +1061,9 @@ Optionally delete the region corresponding to the proof sequence."
     span)))
 
 (defun proof-retract-target (target delete-region)
-  "Retract the span TARGET and delete it if DELETE-REGION is non-nil."
+  "Retract the span TARGET and delete it if DELETE-REGION is non-nil.
+Notice that this necessitates retracting any spans following TARGET,
+up to the end of the locked region."
   (let ((end (proof-locked-end))
 	(start (span-start target))
 	(span (proof-last-goal-or-goalsave))
