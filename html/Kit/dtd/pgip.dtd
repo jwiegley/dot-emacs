@@ -1,48 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- DTD for PGIP, the Proof General Interface Protocol		   -->
-<!-- Author:  David Aspinall, LFCS, University of Edinburgh        -->
-<!-- Version: pgip.dtd,v 1.6 2001/09/10 19:00:42 da Exp     -->
+<!-- 
 
-<!-- Status:  Incomplete.					   -->
-<!-- For commentary, see the Proof General Kit white paper,        -->
-<!-- available from http://www.proofgeneral.org/kit		   -->
+ DTD for PGIP, the Proof General Interface Protocol		   
 
+ File:	   pgip.dtd
+ Authors:  David Aspinall, LFCS, University of Edinburgh       
+           Christoph Lüth, University of Bremen	           
+ Version: pgip.dtd,v 1.11 2003/07/01 14:55:13 da Exp    
 
-<!ELEMENT pgip (%provermsg; | %kitmsg;)*>
-<!ATTLIST pgip
-	    version CDATA 
-	    class   CDATA #IMPLIED
-	    origin  CDATA 
-	    id	    CDATA>
+ Status:  Experimental.					   
+ For additional commentary, see the Proof General Kit white paper,
+ available from http://www.proofgeneral.org/kit
 
-
-<!-- STATUS/ERROR MESSAGES -->
-<!-- ===================== -->
-
-<!ELEMENT information (#PCDATA)>
-<!ATTLIST information
-	   kind		CDATA #IMPLIED
-	   location	CDATA #IMPLIED>
-
-<!-- kind=message,urgentmessage,display -->
-
-<!ELEMENT error (#PCDATA)>
-<!ATTLIST error
-	   kind		CDATA #IMPLIED
-	   location	CDATA #IMPLIED>
-
-<!-- kind=warning,fatal,interrupt -->
-
-<!ENTITY % proverstatus "information | error">
+-->
 
 
 
-<!-- CONFIGURATION MESSAGES -->
-<!-- ====================== -->
+
+<!-- 
+  CONFIGURATION MESSAGES
+  ======================
+
+ The proverconfig messages are sent by the Interface to query the Prover
+ and trigger configuration of the interface.
+
+ The kitconfig messages are sent by the Prover, in response to
+ proverconfig messages.  These messages describe the Prover's
+ preferences and object structure.
+
+-->
+
 
 <!ENTITY % kitconfig  "usespgml | haspref | prefval | idtable | 
-			addid | delid | menuadd | menudel | guiconfig">
+		        addid | delid | menuadd | menudel | guiconfig">
 
 <!-- This is how it should be: 
   <!ENTITY % pgml SYSTEM "pgml.dtd">  
@@ -65,10 +56,11 @@
 <!ATTLIST usespgml 
 	   version CDATA #IMPLIED>
 
-<!ELEMENT haspref pgiptype>
+<!ELEMENT haspref (pgiptype)>
 <!ATTLIST haspref 
-	   default  CDATA #IMPLIED
-	   class    CDATA #IMPLIED>
+	   default CDATA #IMPLIED
+	   descr   CDATA #IMPLIED  
+	   class   CDATA #IMPLIED>
 
 <!ELEMENT prefval (#PCDATA)>
 <!ATTLIST prefval
@@ -99,13 +91,16 @@
 
 <!-- gui configuration -->	   
 
+<!-- da: here we may want to require that certain standard operations
+  are available: e.g. to construct a proof operation for opening a
+  new theory.  We might even assume that the proof control and 
+  file commands described later are given using guiconfig. 
+  (perhaps guiconfig could be "uiconfig"?)
+-->
+
 <!-- the PCDATA is the icon, base64-encoded --> 
 <!ELEMENT objtype (#PCDATA)>
 <!ATTLIST objtype 
-           name CDATA #REQUIRED>
-
-<!ELEMENT opn (opsrc, optrg, opcmd)>
-<!ATTLIST opn
            name CDATA #REQUIRED>
 
 <!-- source types as space-separated list; target type is a single type -->
@@ -114,9 +109,13 @@
 <!-- the prover command, with a printf "%1"-style substitution of arguments -->
 <!ELEMENT opcmd (#PCDATA)>
 
+<!ELEMENT opn (opsrc, optrg, opcmd)>
+<!ATTLIST opn
+           name CDATA #REQUIRED>
+
 <!-- proof operations (no target sort) -->
 <!ELEMENT proofopn (opsrc, opcmd)>
-<!ATTLIST opn
+<!ATTLIST proofopn
            name CDATA #REQUIRED>
 
 <!-- interactive operations-- require some input -->
@@ -140,8 +139,11 @@
 
 
 	   
-<!ENTITY % proverconfig  "askpgml | askprefs | resetprefs | 
+<!ENTITY % proverconfig  "askpgip |
+			  askpgml | askprefs | resetprefs | 
 			  setpref | getpref">
+
+<!ELEMENT askpgip EMPTY>
 
 <!ELEMENT askpgml EMPTY>
 
@@ -149,62 +151,206 @@
 <!ATTLIST askprefs
 	   class   CDATA #IMPLIED>
 
+<!-- FIXME: should we remove resetprefs command, and let interface handle
+     resetting of preferences to their default values, previously recorded
+     from <haspref> messages?  --> 
 <!ELEMENT resetprefs EMPTY>
 <!ATTLIST resetprefs
 	   class   CDATA #IMPLIED>
 
 <!ELEMENT setpref EMPTY>
 <!ATTLIST setpref
-	   class   CDATA #IMPLIED>
+	   name   CDATA #IMPLIED>
 
 <!ELEMENT getpref EMPTY>
 <!ATTLIST getpref
-	   class   CDATA #IMPLIED>
+	   name    CDATA #IMPLIED>
 
 
 
-<!-- COMMANDS -->
-<!-- ======== -->
+<!-- 
+ STATUS/ERROR MESSAGES 
+ =====================
 
-<!ELEMENT provercmd (#PCDATA)>
+ These messages are sent from the Prover at any time to trigger
+ some error reporting in the Interface.
 
-<!ELEMENT goalcmd (#PCDATA)>
+-->
 
-<!ELEMENT undocmd EMPTY>
+<!ELEMENT information (#PCDATA)>
+<!ATTLIST information
+	   kind		CDATA #IMPLIED
+	   location	CDATA #IMPLIED>
 
-<!ELEMENT abortcmd EMPTY>
+<!-- above: kind=message,urgentmessage,display -->
 
-<!ELEMENT closecmd (#PCDATA)
-	   goalid CDATA #REQUIRED> 
+<!ELEMENT error (#PCDATA)>
+<!ATTLIST error
+	   kind		CDATA #IMPLIED
+	   location	CDATA #IMPLIED>
 
-<!ELEMENT postponecmd (#PCDATA)
-           goalid CDATA #REQUIRED
-	   thmname CDATA #REQUIRED> 
+<!-- above: kind=warning,fatal,interrupt -->
 
-<!ELEMENT savecmd EMPTY>
-<!ATTLIST savecmd 
-           thmname CDATA #REQUIRED>
+<!ENTITY % proverstatus "information | error">
 
-<!ELEMENT forgetcmd EMPTY>
-<!ATTLIST forgetcmd 
-           thmname CDATA #REQUIRED>
 
-<!ELEMENT restorecmd EMPTY>
-<!ATTLIST restorecmd 
-           goalid CDATA #REQUIRED>
 
-<!ELEMENT loadfilecmd (#PCDATA)>
+<!-- 
+ PROOF CONTROL COMMANDS 
+ ====================== 
 
-<!ELEMENT retractfilecmd (#PCDATA)>
+ The PGIP model is to develop proofs within a single open theory.  
 
-<!ENTITY % command "provercmd | goalcmd | undocmd | savecmd | forgetcmd |
-		     closecmd | quitcmd | postponecmd | restorecmd |
-		     loadfilecmd | retractfilecmd">
+ Messages to the prover:
 
-<!-- savecmd      Finishes a proof and saves a new theorem 
-     closecmd     Temporarily closes a proof and saves state with given id 
-     postponecmd  As closecmd, but saves a new theorem and 
-		   generates a proof obligation 
+ <goal>  	: open a goal: text is theorem to be proved, in ambient context.
+ <proofstep>  	: a specific proof command (perhaps configured via opcmd)
+ <undostep>  	: undo the last proof step issued in currently open goal
+ <abortgoal> 	: give up on currently open proof, close proof state & discard history
+ <closegoal> 	: complete & close currently open proof (succeeds iff goal proven)
+ <postponegoal> : close currently open proof, record as proof obligation
+ <forget>	: forget a theorem (or named target), outdating dependent theorems
+ <restoregoal>  : re-open previously postponed proof, outdating dependent theorems
+
+ Notes:
+  1. As a later option, the prover provide a way to retain undo history
+  across different proofs.   For now we assume it does not, so we must
+  replay a partial proof for a goal which is postponed.
+
+  2. We assume theorem names are unique amongst theorems and
+  open/goals within the currently open theory.  Individual proof steps
+  may also have anchor names which can be passed to forget.  
+
+  3. The interface manages outdating of the theorem dependencies
+  within the open theory.  By constrast, theory dependencies are
+  managed by the prover and communicated to the interface.
+
+ FUTURE TODO: expand this model to allow nested proofs.
+-->
+
+<!ELEMENT goal         (#PCDATA)>
+<!ELEMENT proofstep    (#PCDATA)>
+<!ELEMENT undostep     EMPTY>
+<!ELEMENT closegoal    EMPTY>
+<!ELEMENT abortgoal    EMPTY>
+<!ELEMENT postponegoal EMPTY>
+<!ELEMENT forget       EMPTY>
+<!ELEMENT restoregoal  EMPTY>
+
+
+<!ATTLIST proofstep    aname   CDATA #IMPLIED>
+<!ATTLIST goal         thmname CDATA #REQUIRED>
+<!ATTLIST restoregoal  thmname CDATA #REQUIRED>
+<!ATTLIST forget       thmname CDATA #IMPLIED
+		       aname   CDATA #IMPLIED> 
+
+<!ENTITY % provercmd "goal | proofstep  | undostep | 
+		      closegoal | abortgoal | postponegoal |
+		      forget | restoregoal">
+
+
+<!-- 
+  THEORY/FILE HANDLING COMMANDS 
+  ============================= 
+
+  PGIP assumes that the prover manages a notion of theory, and that
+  there is a connection between theories and files.  Specifically, a
+  file may define some number of theories.  The interface will use
+  files to record the theories it constructs (but will only construct
+  one theory per file).
+
+  Command messages sent to the prover:
+
+  <loadtheory>     : load a file possibly containing a theory definition
+  <opentheory>     : begin construction of a new theory, with optional ancestors
+  <closetheory>    : complete construction of the currently open theory,
+			saving it in the promised file.
+  <retracttheory>  : retract a theory.  Applicable to open & closed theories.
+
+  <openfile>   : lock a filename for constructing a proof text
+                 in the interface.  The prover may check that the 
+		 opened file does not already correspond to a processed
+		 theory.
+
+  <closefile>  : unlock a filename, possibly suggesting to the prover it has been 
+		 processed completely (but incrementally via interface).
+		 A paranoid prover might want to check the file
+		 nonetheless.
+
+  PGIP supposes that the interface has only partial knowledge about
+  theories, and so the interface relies on the prover to send hints.
+  Specifically, these messages may be sent *from* the prover:
+
+  <informtheoryloaded>    : inform the interface that a theory has been read.
+  <informtheoryretracted> : inform the interface of a removed theory.
+
+  When the interface asks for a theory to be loaded, there may be
+  a number of <informtheoryloaded> responses from the prover,
+  and similarly for retraction.
+-->
+
+
+
+<!ELEMENT loadtheory     EMPTY>
+<!ELEMENT thyparent	 (#PCDATA)>
+<!ELEMENT opentheory     (thyparent*)>
+<!ELEMENT closetheory    EMPTY>
+<!ELEMENT retracttheory  EMPTY>
+
+<!-- A theory may be loaded by its name or file location -->
+<!ATTLIST loadtheory  
+		url     CDATA #IMPLIED
+		thyname CDATA #IMPLIED>
+
+<!ATTLIST opentheory	thyname CDATA #REQUIRED>
+<!ATTLIST closetheory	thyname CDATA #REQUIRED>
+<!ATTLIST retracttheory	thyname CDATA #REQUIRED>
+
+<!ELEMENT openfile	 EMPTY>
+<!ELEMENT closefile      EMPTY>
+
+<!ATTLIST openfile	url     CDATA #REQUIRED>
+<!ATTLIST closefile	url     CDATA #REQUIRED>
+
+<!ELEMENT informtheoryloaded    EMPTY>
+<!ELEMENT informtheoryretracted EMPTY>
+
+<!ATTLIST informtheoryloaded	
+		thyname CDATA #REQUIRED
+		url     CDATA #IMPLIED>
+
+<!ATTLIST informtheoryretracted	
+		thyname CDATA #REQUIRED
+		url     CDATA #IMPLIED>
+
+
+<!ENTITY % filecmd  "loadtheory | opentheory | closetheory | retracttheory |
+		     openfile | closefile">
+
+<!ENTITY % fileinfomsg "informtheoryloaded | informtheoryretracted">
+
+
+
+<!-- 
+  More notes on theory/file model:
+
+  1. PGIP assumes three modes: 
+    (1) top level, inspection/navigation of theories only
+    (2) open theory: may issue proof steps to construct objects, make defs, etc.
+    (3) open theory & open proof: may issue proof steps with aim 
+         of completing proof of some theorem.  Prover records undo
+         history for each step, but discards this history on proof 
+         completion.
+
+  2. The model only allows a single open theory.  Although PGIP
+  assumes this, it may be possible for the interface to provide  
+  extra structure and maintain an illusion of more than one open
+  theory.  But we do not expect the prover to implement this
+  directly. (Later on we might allow the prover to do so and provide
+  extra efficiency help, e.g. to avoid too much proof replaying.).
+
+  TODO: extend the above with standard theory operations, perhaps. 
+  (or these may be configurable)
  -->
 
 
@@ -213,13 +359,17 @@
 <!-- Roots of PGIP messages -->
 
 <!-- Messages sent to PG Kit components -->
-
-<!ENTITY % kitmsg     "%kitconfig | %proverstatus">
+<!ENTITY % kitmsg       "%kitconfig; | %proverstatus;">
 
 <!-- Messages sent to proof assistant (class "pa") -->
+<!ENTITY % provermsg	"%proverconfig; | %provercmd; | %filecmd;">
 
-<!ENTITY % provermsg	"proverconfig">
-
+<!ELEMENT pgip (%provermsg; | %kitmsg;)*>
+<!ATTLIST pgip
+	    version CDATA #IMPLIED
+	    class   CDATA #REQUIRED
+	    origin  CDATA #IMPLIED
+	    id	    CDATA #IMPLIED>
 
 
 
