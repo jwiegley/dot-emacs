@@ -1372,7 +1372,6 @@ sent to the assistant."
 ;; configuring for new assistants.
 
 ;;;###autoload
-(eval-when-compile			; to initialise variables
 (define-derived-mode proof-mode fundamental-mode 
   proof-mode-name
   "Proof General major mode class for proof scripts.
@@ -1387,7 +1386,7 @@ sent to the assistant."
   (add-hook 'kill-buffer-hook
 	    (lambda ()
 	      (setq proof-script-buffer-list
-		    (remove (current-buffer) proof-script-buffer-list))))))
+		    (remove (current-buffer) proof-script-buffer-list)))))
 
 ;; Fixed definitions in proof-mode-map, which don't depend on
 ;; prover configuration.

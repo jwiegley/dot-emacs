@@ -944,7 +944,6 @@ how far we've got."
 ;; OLD COMMENT: "This has to come after proof-mode is defined"
 
 ;;###autoload
-(eval-when-compile			; so that vars are defined
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof General shell mode class for proof assistant processes"
   (setq proof-buffer-type 'shell)
@@ -976,7 +975,7 @@ how far we've got."
   (setq proof-re-term-or-comment 
 	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
 		"\\|" (regexp-quote proof-comment-end)))
-  ))
+  )
 
 
 (easy-menu-define proof-shell-menu
@@ -1007,19 +1006,17 @@ how far we've got."
   (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
-      (error "Failed to initialise proof process")))
-  )
+      (error "Failed to initialise proof process"))))
 
-(eval-when-compile			; so that vars are defined
 (define-derived-mode pbp-mode fundamental-mode 
   proof-mode-name "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
-;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
-  (erase-buffer)))
+  (suppress-keymap pbp-mode-map 'all)
+  ;; (define-key pbp-mode-map [(button2)] 'pbp-button-action)
+  (proof-define-keys pbp-mode-map proof-universal-keys)
+  (erase-buffer))
 
-(suppress-keymap pbp-mode-map 'all)
-(proof-define-keys pbp-mode-map proof-universal-keys)
 
 
 
