@@ -2333,7 +2333,6 @@ The key @kbd{C-c C-u} (@code{isa-retract-thy-file}) will retract
 (unlock) the theory file being edited.  This unlocks the file and all
 its children (theory and ML files); no changes occur in Isabelle itself.
 
-
 @c TEXI DOCSTRING MAGIC: isa-process-thy-file
 @deffn Command isa-process-thy-file file
 Process the theory file @var{file}.  If interactive, use @code{buffer-file-name}.
@@ -2341,7 +2340,11 @@ Process the theory file @var{file}.  If interactive, use @code{buffer-file-name}
 
 @c TEXI DOCSTRING MAGIC: isa-retract-thy-file
 @deffn Command isa-retract-thy-file file
-Retract the theory file @var{file}. If interactive, use @code{buffer-file-name}.
+Retract the theory file @var{file}. If interactive, use @code{buffer-file-name}.@*
+To prevent inconsistencies, scripting is deactivated before doing this. 
+So if scripting is active in an ML file which is not completely processed, 
+you will be asked to retract the file or process the remainder of it.  
+(If you process the rest of it it may subsequently be unlocked anyway). 
 @end deffn
 
 
@@ -3395,9 +3398,9 @@ buffer, so the regions are made empty by this function.
 
 For locking files loaded by a proof assistant, we use the next function.
 
-@c TEXI DOCSTRING MAGIC: proof-mark-buffer-atomic
-@defun proof-mark-buffer-atomic buffer
-Mark @var{buffer} as having been processed in a single step.
+@c TEXI DOCSTRING MAGIC: proof-complete-buffer-atomic
+@defun proof-complete-buffer-atomic buffer
+Make sure @var{buffer} is marked as completely processed, completing with a single step.
 
 If buffer already contains a locked region, only the remainder of the
 buffer is closed off atomically.
