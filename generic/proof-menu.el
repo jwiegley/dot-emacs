@@ -333,6 +333,20 @@ If in three window or multiple frame mode, display two buffers."
        (customize-set-variable 'proof-follow-mode 'ignore)
        :style radio
        :selected (eq proof-follow-mode 'ignore)])
+     ;; Add this because it's a handy one to set (usually to retract)
+     ("Deactivate Action"
+      ["Retract" 
+       (customize-set-variable 'proof-auto-action-when-deactivating-scripting 'retract)
+       :style radio
+       :selected (eq proof-auto-action-when-deactivating-scripting 'retract)]
+      ["Process" 
+       (customize-set-variable 'proof-auto-action-when-deactivating-scripting 'process)
+       :style radio
+       :selected (eq proof-auto-action-when-deactivating-scripting 'process)]
+      ["Query"
+       (customize-set-variable 'proof-auto-action-when-deactivating-scripting nil)
+       :style radio
+       :selected (null proof-auto-action-when-deactivating-scripting)])
      "----"
      ["Reset Options" (proof-quick-opts-reset) 
       (proof-quick-opts-changed-from-defaults-p)]
@@ -358,7 +372,9 @@ If in three window or multiple frame mode, display two buffers."
    'proof-shrink-windows-tofit
    'proof-multiple-frames-enable
    ;; Follow mode sub-menu
-   'proof-follow-mode))
+   'proof-follow-mode
+   ;; Deactivate scripting action
+   proof-auto-action-when-deactivating-scripting))
 
 (defun proof-quick-opts-changed-from-defaults-p ()
   ;; NB: would be nice to add.  Custom support?
