@@ -149,11 +149,8 @@
     "use_thy_only"
     "welcome"
     "with"
-    ;; FIXME da: commented out these since {* *} appear after start of
-    ;;  command, e.g. header {* blah *} etc, which breaks
-    ;; proof-script-command-start-regexp
-    ;; "{"
-    ;; "}"
+    "{"
+    "}"
     ))
 
 (defconst isar-keywords-minor
