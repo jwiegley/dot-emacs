@@ -32,6 +32,9 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to do in the generic interface
 
+*** A fix display anomaly for Isar output with shrink windows:
+    display splits window unexpectedly.
+
 *** B document and simplify proof-script-span-context-menu-extensions
 
 *** C Add output highlighting to minibuffer in proof-shell-message.
