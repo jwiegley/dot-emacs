@@ -102,7 +102,7 @@ perlscripts:
 clean:
 	rm -f $(ELC) *~ */*~ .\#* */.\#*
 	(cd doc; $(MAKE) clean)
-	(cd x-symbol/lisp; $(MAKE) clean)
+	(cd x-symbol/lisp; $(MAKE) distclean)
 
 
 ##
