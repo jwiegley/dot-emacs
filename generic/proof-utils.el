@@ -698,8 +698,9 @@ Args as for the macro `proof-defintset', except will be evaluated."
 	      ,(concat "Set `" (symbol-name var) "' to ARG.
 This function simply uses customize-set-variable to set the variable.
 It was constructed with `proof-defintset-fn'.")
-	      (interactive ,(concat "nValue for " (symbol-name var) 
-				    " (integer): "))
+	      (interactive ,(format "nValue for %s (int, currently %s):" 
+				     (symbol-name var)  
+				     (symbol-value var)))
 	      (customize-set-variable (quote ,var) arg))))
 
 (defmacro proof-defintset (var &optional othername)
@@ -718,8 +719,8 @@ Args as for the macro `proof-defstringset', except will be evaluated."
 	      ,(concat "Set `" (symbol-name var) "' to ARG.
 This function simply uses customize-set-variable to set the variable.
 It was constructed with `proof-defstringset-fn'.")
-	      (interactive ,(concat "sValue for " (symbol-name var) 
-				    " (a string): "))
+	      (interactive ,(format "sValue for %s (a string): "
+				    (symbol-name var)))
 	      (customize-set-variable (quote ,var) arg))))
 
 (defmacro proof-defstringset (var &optional othername)
@@ -750,7 +751,16 @@ The name of the defined function is returned."
 	(put symbol 'customized-value nil))))
   (custom-save-all))
 
-
+;; FIXME: this doesn't do quite same thing as reset button,
+;; which *removes* a setting from `custom-set-variables' list
+;; in custom.el.  Instead, this adds something to a 
+;; custom-reset-variables list.
+(defun pg-custom-reset-vars (&rest variables)
+  "Reset custom vars VARIABLES to their default values."
+  ;; FIXME: probably this XEmacs specific
+  (apply 'custom-reset-variables
+	 (mapcar (lambda (var) (list var 'default))
+		 variables)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
