@@ -140,8 +140,8 @@ B Introduce keybinding to save the proof e.g., in LEGO, this should
 
 B Unify toolbar and menu functions.
 
-D use proof buffer instead of response buffer and leave non-proof
-  state output in the process buffer (1h)
+A use proof buffer instead of response buffer and leave non-proof
+  state output in the process buffer (2h tms)
 
 D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
@@ -179,12 +179,6 @@ X pbp code doesn't quite accord with the tech report; in particular it
 
 A fix Pbp implementation (10h; tms)
 
-X Mechanism to save object file
-
-B Equiv, Next,... aren't handled properly, because LEGO does not
-  refresh the proof state. Perhaps it would be easiest to get LEGO to
-  output more information in proof script mode (2h tms)
-
 A Error messages need to be revised e.g., if an import fails, LEGO
   outputs
 
@@ -195,6 +189,20 @@ A Error messages need to be revised e.g., if an import fails, LEGO
   but script management only prints the last line. (5h tms)
 
 A release new version of the LEGO proof engine (4h tms)
+
+B Equiv, Next,... aren't handled properly, because LEGO does not
+  refresh the proof state. Perhaps it would be easiest to get LEGO to
+  output more information in proof script mode (2h tms)
+
+B LEGO should not issue warning messages triggered by the interactive
+  use of the Module command when invoked by the interface e.g.,
+
+    Lego> Module nstderror Import stderror;
+    Including module nstderror
+    Warning: module name "nstderror" does not equal filename ""!
+    Warning: Interactive use of Module command.
+
+X Mechanism to save object file
 
 * Here are things to be done to Coq mode
 ========================================
