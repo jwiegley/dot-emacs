@@ -1133,20 +1133,20 @@ from a proof script.  Here are the keybindings and functions.
 @c TEXI DOCSTRING MAGIC: proof-prf
 @deffn Command proof-prf 
 Show the current proof state.@*
-Issues a command to the assistant from @code{proof-prf-string}.
+Issues a command to the assistant from @code{proof-showproof-command}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-ctxt
 @deffn Command proof-ctxt 
 Show the current context.@*
-Issues a command to the assistant from @code{proof-ctxt-string}.
+Issues a command to the assistant from @code{proof-context-command}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-help
 @deffn Command proof-help 
 Show a help or information message from the proof assistant.@*
 Typically, a list of syntax of commands available.
-Issues a command to the assistant from @code{proof-help-string}.
+Issues a command to the assistant from @code{proof-info-command}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-interrupt-process
@@ -2451,16 +2451,16 @@ Suggestion: this can be set in the script mode configuration.
 @defvar proof-assistant-home-page 
 Web address for information on proof assistant
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-ctxt-string
-@defvar proof-ctxt-string 
+@c TEXI DOCSTRING MAGIC: proof-context-command
+@defvar proof-context-command 
 Command to display the context in proof assistant.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-help-string
-@defvar proof-help-string 
-Command to ask for help in proof assistant.
+@c TEXI DOCSTRING MAGIC: proof-info-command
+@defvar proof-info-command 
+Command to ask for help or information in the proof assistant.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-prf-string
-@defvar proof-prf-string 
+@c TEXI DOCSTRING MAGIC: proof-showproof-command
+@defvar proof-showproof-command 
 Command to display proof state in proof assistant.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-command

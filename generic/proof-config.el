@@ -447,7 +447,7 @@ command line options.  For an example, see coq/coq.el."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-proof-command ""
+(defcustom proof-showproof-command ""
   "Command to display proof state in proof assistant."
   :type 'string
   :group 'prover-config)

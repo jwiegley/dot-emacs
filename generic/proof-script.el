@@ -1510,7 +1510,7 @@ Start up the proof assistant if necessary."
 
 (proof-define-assistant-command proof-prf  
   "Show the current proof state."
-  proof-proof-command)
+  proof-showproof-command)
 (proof-define-assistant-command proof-ctxt 
   "Show the current context."
   proof-context-command)
