@@ -48,21 +48,14 @@ or
 <h2><a name="prerel">Pre-release: ProofGeneral-3.4pre020701</a></h2>
 
 <p> 
-This version has been tested with XEmacs version 21.4.8 and with GNU
-Emacs 21.2.1.  XEmacs support is better tested.  Older releases of Emacs
-<i>may</i> work, but we recommend the use of these or newer versions
-because backwards compatibility across different Emacs versions is too
-difficult to support.  If you cannot upgrade your Emacs, consider
-using an <a href="oldrel.php">older release</a> of Proof General.
-</p> 
-<p> 
 Check the 
 <!-- WARNING!  Line below automatically edited by makefile. --> 
 <?php fileshow("ProofGeneral-3.4pre020701/CHANGES","CHANGES"); ?> file 
 <!-- End Warning. --> 
 for a summary of changes since the last stable
 version, and notes about work-in-progress.  </p> 
-<table width="80%" cellspacing=8> <tr> <td width=150>gzip'ed tar file</td>
+<table width="80%" cellspacing=8> 
+<tr><td width=150>gzip'ed tar file</td>
 <!-- WARNING!  Lines below automatically edited by makefile. -->
 <td><?php download_link("ProofGeneral-3.4pre020701.tar.gz") ?></td>
 </tr>
@@ -79,11 +72,25 @@ version, and notes about work-in-progress.  </p>
 <td><a href="ProofGeneral">http access to files in development release</a>
 </tr>
 </table>
-<!-- End Warning. -->
 <p>
 NB: we no longer distribute the source RPM, since you can build
 both source and  "binary" RPMs direct from the tarball using
 "rpm -ta".
+</p>
+<!-- End Warning. -->
+<p> 
+<b>Emacs versions:</b>
+This version has been tested with XEmacs version 21.4.8 and with GNU
+Emacs 21.2.1.  XEmacs support is better tested.  Older releases of Emacs
+<i>may</i> work, but we recommend the use of these or newer versions
+because backwards compatibility across different Emacs versions is too
+difficult to support.  If you cannot upgrade your Emacs, consider
+using an <a href="oldrel.php">older release</a> of Proof General.
+</p> 
+<p>
+<b>Prover versions:</b>
+This version has been tested with Coq 7.3, Isabelle2002, Lego 1.3.1,
+and PhoX XXX.
 </p>
 <p>
 For install instructions, see 
@@ -97,7 +104,7 @@ the <a href="download#install">stable version download</a>.
 
 
 <!-- WARNING!  Line below automatically edited by makefile. -->
-<h2><a name="devel">Complete Archive of ProofGeneral-3.4pre020701 for Developers</a></h2>
+<h2><a name="devel">Complete archive of ProofGeneral-3.4pre020701 for developers</a></h2>
 <!-- End Warning. -->
 
 <p>
