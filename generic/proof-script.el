@@ -1693,10 +1693,10 @@ If inside a comment, just process until the start of the comment."
 (defun proof-process-buffer ()
   "Process the current buffer, and maybe move point to the end."
   (interactive)
-  (proof-script-maybe-save-point
+  (proof-maybe-save-point
    (goto-char (point-max))
    (proof-assert-until-point-interactive))
-  (proof-script-maybe-follow-locked-end))
+  (proof-maybe-follow-locked-end))
 
 
 ;;
@@ -1733,10 +1733,10 @@ the proof script."
 (defun proof-retract-buffer ()
   "Retract the current buffer, and maybe move point to the start."
   (interactive)
-  (proof-script-maybe-save-point
+  (proof-maybe-save-point
    (goto-char (point-min))
    (proof-retract-until-point-interactive))
-  (proof-script-maybe-follow-locked-end))
+  (proof-maybe-follow-locked-end))
 
 ;;
 ;; Interrupt
@@ -2187,25 +2187,16 @@ This is intended as a value for proof-activate-scripting-hook"
      ["Exit proof assistant"
       proof-shell-exit
       :active (proof-shell-live-buffer)])
-    (list proof-help-menu)
     (list proof-buffer-menu)
-    ;; Would be nicer to put this at the bottom, but it's
-    ;; a bit tricky then to get it in all menus.
-    ;; UGLY COMPATIBILITY  FIXME: remove this soon
-    (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
-	      "--:doubleLine" "----"))
-    )
+    (list proof-help-menu))
   "Proof General menu for various modes.")
 
 (defvar proof-bug-report-menu
-  (append
-   ;; UGLY COMPATIBILITY  FIXME: remove this soon
-   (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
-	     "--:doubleLine" "----"))
-   (list
-    ["Submit bug report"
-     proof-submit-bug-report
-     :active t]))
+  (list
+   "----"
+   ["Submit bug report"
+    proof-submit-bug-report
+    :active t])
   "Proof General menu for submitting bug report (one item plus separator).")
 
 (defvar proof-menu  
@@ -2218,6 +2209,10 @@ This is intended as a value for proof-activate-scripting-hook"
 	     :active t
 	     :style toggle
              :selected proof-electric-terminator-enable]
+	    ["Output highlighting" proof-output-fontify-toggle
+	     :active t
+	     :style toggle
+	     :selected proof-output-fontify-enable]
 	    ["Toolbar" proof-toolbar-toggle
 	     :active (featurep 'toolbar)
 	     :style toggle
@@ -2227,11 +2222,7 @@ This is intended as a value for proof-activate-scripting-hook"
 	     :style toggle
 	     :selected proof-x-symbol-enable]
 	    "----")
-	  ;; UGLY COMPATIBILITY  FIXME: remove this soon
-          (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
-		    "--:doubleLine" "----"))
-          proof-shared-menu
-          )
+          proof-shared-menu)
   "The menu for the proof assistant.")
 
 
@@ -2501,6 +2492,7 @@ finish setup which depends on specific proof assistant configuration."
 			   ;; begin UGLY COMPATIBILTY HACK
 			   ;; older/non-existent customize doesn't have 
 			   ;; this function.  
+			   (list "----")
 			   (if (fboundp 'customize-menu-create)
 			       (list (customize-menu-create 'proof-general)
 				     (customize-menu-create
