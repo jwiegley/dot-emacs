@@ -26,9 +26,10 @@
   (cond ((fboundp 'make-extent) (require 'span-extent))
 	((fboundp 'make-overlay) (require 'span-overlay))))
 
-;; Nuke some byte-compiler warnings
-(eval-when-compile
-  (if (locate-library "func-menu") (require 'func-menu))
+;; Nuke some byte-compiler warnings 
+;; NB: eval-when (compile) is different to eval-when-compile!!
+(eval-when (compile)
+  (proof-try-require 'func-menu)
   (require 'comint))
 
 ;; FIXME:
@@ -61,11 +62,9 @@
 ;;
 ;; Configuration of function-menu (aka "fume")	
 ;;
-;; This code is only enabled if the user loads func-menu into Emacs.
+;; FIXME: we would like this code only enabled if the user loads
+;; func-menu into Emacs.
 ;;
-;; da:cleaned
-
-(eval-after-load "func-menu"	'(progn	; BEGIN if func-menu
 
 (deflocal proof-script-last-entity nil
   "Record of last entity found.   A hack for entities that are named
@@ -107,8 +106,6 @@ proof-script-next-entity-regexps, which see."
 		  (setq res (cons name start)))
 	      (setq discriminators (cdr discriminators))))
 	  res))))
-
-))					; END if func-menu
 
 
 
@@ -1276,7 +1273,8 @@ the next command end."
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
   "Convert a sequence of terminator positions to a set of vanilla extents.
 Proof terminator positions SEMIS has the form returned by
-the function proof-segment-up-to."
+the function proof-segment-up-to.
+Set the callback to CALLBACK-FN or 'proof-done-advancing by default."
   (let ((ct (proof-unprocessed-begin)) span alist semi)
     (while (not (null semis))
       (setq semi (car semis)
@@ -2231,28 +2229,59 @@ This is intended as a value for proof-activate-scripting-hook"
      :active (buffer-live-p proof-shell-buffer)])
   "Proof General buffer menu.")
 
+;; Make the togglers used in options menu below
+(fset 'proof-dont-switch-windows-toggle
+      (proof-customize-toggle proof-dont-switch-windows))
+(fset 'proof-auto-delete-windows-toggle
+      (proof-customize-toggle proof-auto-delete-windows))
+(fset 'proof-multiple-frames-toggle
+      (proof-customize-toggle proof-multiple-frames-enable))
+(fset 'proof-output-fontify-toggle
+      (proof-customize-toggle proof-output-fontify-enable))
+(fset 'proof-x-symbol-toggle
+      (proof-customize-toggle proof-x-symbol-enable))
+
+(defvar proof-quick-opts-menu
+  `("Options"
+    ["Don't switch windows" proof-dont-switch-windows-toggle
+     :active t
+     :style toggle
+     :selected proof-dont-switch-windows]
+    ["Delete empty windows" proof-auto-delete-windows-toggle
+     :active t
+     :style toggle
+     :selected proof-auto-delete-windows]
+    ["Multiple frames" proof-multiple-frames-toggle
+     :active t
+     :style toggle
+     :selected proof-multiple-frames-enable]
+    ["Output highlighting" proof-output-fontify-toggle
+     :active t
+     :style toggle
+     :selected proof-output-fontify-enable]
+    ["Toolbar" proof-toolbar-toggle
+     :active (and (featurep 'toolbar) 
+		  (boundp 'proof-buffer-type)
+		  (eq proof-buffer-type 'script))
+     :style toggle
+     :selected proof-toolbar-enable]
+    ["X-Symbol" proof-x-symbol-toggle
+     :active (proof-x-symbol-support-maybe-available)
+     :style toggle
+     :selected proof-x-symbol-enable])
+  "Proof General quick options.")
+
 (defvar proof-shared-menu
   (append
     (list
-;     ["Display proof state"
-;      proof-prf
-;      :active (proof-shell-live-buffer)]
-;     ["Display context"
-;      proof-ctxt
-;      :active (proof-shell-live-buffer)]
-;     ["Find theorems"
-;      proof-find-theorems
-;      :active (proof-shell-live-buffer)]
      ["Start proof assistant"
       proof-shell-start
       :active (not (proof-shell-live-buffer))]
-;     ["Restart scripting"
-;      proof-shell-restart
-;      :active (proof-shell-live-buffer)]
      ["Exit proof assistant"
       proof-shell-exit
       :active (proof-shell-live-buffer)])
     (list proof-buffer-menu)
+    (list proof-quick-opts-menu)
     (list proof-help-menu))
   "Proof General menu for various modes.")
 
@@ -2274,18 +2303,6 @@ This is intended as a value for proof-activate-scripting-hook"
 	     :active t
 	     :style toggle
              :selected proof-electric-terminator-enable]
-	    ["Output highlighting" proof-output-fontify-toggle
-	     :active t
-	     :style toggle
-	     :selected proof-output-fontify-enable]
-	    ["Toolbar" proof-toolbar-toggle
-	     :active (featurep 'toolbar)
-	     :style toggle
-	     :selected proof-toolbar-enable]
-	    ["X-Symbol" proof-x-symbol-toggle
-	     :active (proof-x-symbol-support-maybe-available)
-	     :style toggle
-	     :selected proof-x-symbol-enable]
 	    ["Function menu" function-menu
 	     :active (fboundp 'function-menu)]
 	    "----")
@@ -2686,7 +2703,10 @@ finish setup which depends on specific proof assistant configuration."
   ;; defining the derived mode: normally we wouldn't repeat this
   ;; each time the mode function is run, so we wouldn't need "pushnew").
 
-  (cond ((featurep 'func-menu)
+  (cond ((proof-try-require 'func-menu)
+	 ;; FIXME: we'd like to let the library load later, but 
+	 ;; it's a bit tricky: this stuff doesn't seem to work
+	 ;; in an eval-after-load body (local vars?).
 	 (unless proof-script-next-entity-regexps ; unless already set
 	   ;; Try to calculate a useful default value.
 	   ;; FIXME: this is rather complicated!  The use of the regexp
@@ -2724,15 +2744,15 @@ finish setup which depends on specific proof assistant configuration."
 		 (proof-save-with-hole-regexp
 		  (list proof-save-with-hole-regexp save-discrim))))))
 
-	   (if proof-script-next-entity-regexps
-	       ;; Enable func-menu for this mode if regexps set
-	       (progn
-		 (pushnew
-		  (cons major-mode 'proof-script-next-entity-regexps)
-		  fume-function-name-regexp-alist)
-		 (pushnew
-		  (cons major-mode proof-script-find-next-entity-fn)
-		  fume-find-function-name-method-alist)))))
+	 (if proof-script-next-entity-regexps
+	     ;; Enable func-menu for this mode if regexps set now
+	     (progn
+	       (pushnew
+		(cons major-mode 'proof-script-next-entity-regexps)
+		fume-function-name-regexp-alist)
+	       (pushnew
+		(cons major-mode proof-script-find-next-entity-fn)
+		fume-find-function-name-method-alist)))))
 
   ;; Offer to save script mode buffers which have no files,
   ;; in case Emacs is exited accidently.
