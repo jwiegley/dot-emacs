@@ -25,7 +25,7 @@
 		 (pg-pgip-get-version "usespgml" attrs)))
        ;; <haspref>
        ((eq elt 'haspref)
-	(pg-pgip-haspref attrs (cadr pgip))
+	(pg-pgip-haspref attrs) ;; (cadr pgip))
 	(setq pgip (cdr pgip)))
        ;; <prefval>
        ((eq elt 'prefval)
@@ -72,7 +72,7 @@
 (defun pg-pgip-default-for (type)
   "Synthesize a default value for type TYPE."
   (cond
-   ((eq type 'boolean) false)
+   ((eq type 'boolean) nil)
    ((eq type 'integer) 0)
    ((eq type 'string)  "")
    ((eq (car-safe type) 'choice)
@@ -117,7 +117,7 @@
 	  (error "Didn't find %s attribute in %s element" attrnm elt)))))
 
 (defun pg-pgip-get-version (elt attrs &optional optional)
-  (pg-pgip-get-attr elt "version"))
+  (pg-pgip-get-attr elt "version" attrs optional))
 
 
       
