@@ -27,7 +27,7 @@
 ;;     5b. regexps
 ;;     5c. hooks and others
 ;;  6. Goals buffer configuration
-;;  7. Splash screen settings
+;;  [ 7. Splash screen settings  -- moved to proof-splash.el now ]
 ;;  8. X-Symbol support
 ;;  9. Prover specific settings [NEW in 3.2 -- using new mechanism]
 ;; 10. Global constants 
@@ -84,11 +84,6 @@
   "User options for Proof General."
   :group 'proof-general
   :prefix "proof-")
-
-(defcustom proof-splash-enable t
-  "*If non-nil, display a splash screen when Proof General is loaded."
-  :type 'boolean
-  :group 'proof-user-options)
 
 (defcustom proof-electric-terminator-enable nil 
   "*If non-nil, use electric terminator mode.
@@ -550,44 +545,6 @@ Warning messages can come from proof assistant or from Proof General itself."
 ;; proof-general-internal group.
 
 
-;; FIXME: maybe these should be defvars?
-
-(defcustom proof-assistant-cusgrp nil
-  "Symbol for the customization group of the user options for the proof assistant.
-Do not change this variable! It is set automatically by the mode 
-stub defined in proof-site, from the name given in 
-proof-assistant-table."
-  :type 'sexp
-  :group 'prover-config)
-
-(defcustom proof-assistant-internals-cusgrp nil
-  "Symbol for the customization group of the PG internal settings proof assistant.
-Do not change this variable! It is set automatically by the mode 
-stub defined in proof-site, from the name given in
-proof-assistant-table."
-  :type 'sexp
-  :group 'prover-config)
-
-
-
-(defcustom proof-assistant ""
-  "Name of the proof assistant Proof General is using.
-Do not change this variable! It is set automatically by the mode 
-stub defined in proof-site, from the name given in 
-proof-assistant-table."
-  :type 'string
-  :group 'prover-config)
-
-(defcustom proof-assistant-symbol nil
-  "Symbol for the proof assistant Proof General is using.
-Used for automatic configuration based on standard variable names.
-Settings will be found by looking for names beginning with this
-symbol as a prefix.
-Do not change this variable! It is set automatically by the mode 
-stub defined in proof-site, from the symbols given in 
-proof-assistant-table."
-  :type 'sexp
-  :group 'prover-config)
 
 
 
@@ -2138,60 +2095,6 @@ See also proof-{script,shell,resp}-font-lock-keywords."
   :type 'sexp
   :group 'proof-goals)
 
-
-
-;;
-;; 7. Splash screen settings
-;;
-
-(defcustom proof-splash-time 2
-  "Minimum number of seconds to display splash screen for.
-The splash screen may be displayed for a couple of seconds longer than
-this, depending on how long it takes the machine to initialise 
-Proof General."
-  :type 'number
-  :group 'proof-general-internals)
-
-(defcustom proof-splash-contents
-  '(list
-    nil
-;;; Remove the text for now: XEmacs makes a mess of displaying the
-;;; transparent parts of the gif (at least, on all machines I have seen)
-;;;    (proof-splash-display-image "pg-text" t)
-    nil
-    (proof-splash-display-image "ProofGeneral")
-    nil
-    "Welcome to"
-    (concat proof-assistant " Proof General!")
-    nil
-    (substring proof-general-version
-	       (string-match "Version [^ ]+ " 
-			     proof-general-version)
-	       (match-end 0))
-    nil
-    "(C) LFCS, University of Edinburgh, 2000."
-    nil
-    nil
-"    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
-     or use the menu command Proof-General -> Submit bug report."
-    nil
-    (unless proof-running-on-XEmacs
-      "For a better Proof General experience, please use XEmacs")
-    (unless proof-running-on-XEmacs
-      "(visit  http://www.xemacs.org)"))
-  "Evaluated to configure splash screen displayed when entering Proof General.
-A list of the screen contents.  If an element is a string or an image
-specifier, it is displayed centred on the window on its own line.  
-If it is nil, a new line is inserted."
-  :type 'sexp
-  :group 'proof-general-internals)
-
-(defcustom proof-splash-extensions nil
-  "Prover specific extensions of splash screen.
-These are evaluated and appended to `proof-splash-contents'."
-  :type 'sexp
-  :group 'prover-config)
-  
 
 
 ;;
