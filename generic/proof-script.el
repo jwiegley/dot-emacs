@@ -1178,18 +1178,18 @@ UNCLOSED-COMMENT-FUN."
 If DELETE argument is set (called with a prefix argument), 
 the text is also deleted from the proof script."
   (interactive "P")
-  (proof-undo-last-successful-command delete))
+  (proof-undo-last-successful-command (not delete)))
 
-(defun proof-undo-last-successful-command (&optional delete)
+(defun proof-undo-last-successful-command (&optional no-delete)
   "Undo last successful command at end of locked region.
-If optional DELETE argument is set, the text is also deleted 
-from the proof script."
+Unless optional NO-DELETE is set, the text is also deleted from
+the proof script."
   (unless (proof-locked-region-empty-p)
     (let ((lastspan (span-at-before (proof-locked-end) 'type)))
       (if lastspan
 	  (progn
 	    (goto-char (span-start lastspan))
-	    (proof-retract-until-point delete))
+	    (proof-retract-until-point (not no-delete)))
 	(error "Nothing to undo!")))))
 
 
