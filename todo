@@ -83,9 +83,6 @@ A Multiple files are sometimes handled incorrectly, because the
 A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
 
-B Simplify icons in proof toolbar (make double triangles into single
-  ones).  (1hr, da)
-
 B Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2 days; da + tms)
 
@@ -365,21 +362,9 @@ C Improve coqtags. I cannot handle lists e.g., with
 * Here are things to be done to Isabelle Mode
 =============================================
 
-B Get basic features working:
-    proof state extraction  -- okay.
-    undo		    -- needs work (undoes to much).
-    error detection	    -- seems okay.
-    
-    what else?
-
-    Check these things:
-
-    abort-goal-regexp
-
-  Still get non-sequitur errors, why?
-
-  BUG: undo after last step undoes till top of proof in
-  process buffer, not in script!  
+B Intermittent problems parsing output.  Seems to depend on
+  what has been run before.  E.g. first time starting process
+  might not display goal.  Try to find repeatable case.
 
 B CRUCIAL: Do something to manage .thy and .ML files coherently.
   At the moment loading one into Isabelle will force the
