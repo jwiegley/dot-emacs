@@ -59,6 +59,7 @@
     "pretty_setmargin"
     "print_attributes"
     "print_binds"
+    "print_cases"
     "print_context"
     "print_facts"
     "print_methods"
@@ -186,6 +187,7 @@
 
 (defconst isar-keywords-proof-asm
   '("assume"
+    "case"
     "def"
     "fix"
     "presume"))
