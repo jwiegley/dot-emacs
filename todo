@@ -41,6 +41,10 @@ A BUGS to investigate:
 A Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.
 
+B Markus Wenzel was confused by the download page.  We need to point
+  out more explicitly who each distrib is aimed at.  Maybe separate
+  the pages as Thomas once suggested.
+
 B QUESTION: why do we have proof-shell-proof-completed-regexp's
   perhaps objectionable behaviour of forcing the response buffer?
   Would it be safe just to set the proof-shell-proof-completed flag
