@@ -799,6 +799,13 @@ users.
 @c FIXME needs to mention that without dedicated windows, buffers may be 
 @c hidden. Refer to the XEmacs manual on customising buffer display.
 
+@defopt proof-strict-read-only
+Whether Proof General is strict about the read-only region in buffers.
+If non-nil, an error is given when an attempt is made to edit the
+read-only region.  If nil, Proof General is more relaxed (but may give
+you a reprimand!)
+@end defopt
+
 @node Running on another machine
 @section Running on another machine
 
@@ -1338,6 +1345,7 @@ let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 * Bugs at the generic level::   
 * Bugs specific to LEGO Proof General::  
 * Bugs specific to Coq Proof General::  
+* Bugs specific to Isabelle Proof General::  
 @end menu
 
 @node Bugs at the generic level
@@ -1405,7 +1413,26 @@ offending proof development.
 
 The collection of tactics which Proof General is aware of is hard-wired.
 Thus, user-defined tactics cannot be retracted.
+
 @strong{Workaround:} You may need to retract to the start of the proof.
+
+
+@node Bugs specific to Isabelle Proof General
+@section Bugs specific to Isabelle Proof General
+
+Since Isabelle uses ML as a top-level language for writing
+proof-scripts, Proof General may have difficulty understanding scripts
+which stray too far away from the standard functions, tactics, and
+tacticals.  You will usually notice when a function, or whatever,
+doesn't get highlighted as you might expect.  This probably has no
+detrimental impact on the interface unless you use your own variants
+of the @code{goal} or @code{qed} forms.
+
+@strong{Workaround:} Restrict yourself to standard proof script
+functions, or customize some of the variables from @file{isa.el} and
+@file{isa-syntax.el} appropriately.
+
+
 
 @node Plans and ideas
 @appendix Plans and ideas

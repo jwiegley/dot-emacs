@@ -80,3 +80,14 @@ mechanism.
 *user defined tactics cannot be retracted. Workaround: you may need to 
 retract to the beginning of the proof.
 
+Isabelle Proof General Bugs
+===========================
+
+* General difficulty with complex proof scripts.  Since Isabelle uses
+ML as a top-level language for writing proof-scripts, Proof General
+may have difficulty understanding scripts which stray too far away
+from the standard functions, tactics, and tacticals.  You will
+usually notice when a function, or whatever, doesn't get highlighted
+as you might expect.  This probably has no detrimental impact on the
+interface unless you use your own "goal" or "qed" forms.
+
