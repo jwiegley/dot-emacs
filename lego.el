@@ -615,7 +615,7 @@
 
 ;; font-lock
 
-  ;; if we don't have the following, zap-commas fails to work.
+;; if we don't have the following, zap-commas fails to work.
 
   (setq font-lock-always-fontify-immediately t)
 
