@@ -14,6 +14,9 @@ Generic Changes
   Buttons are automatically enabled or disabled as appropriate.   
   This requires XEmacs 20.4 or better for reliable working.  
 
+* Menus and keybindings have been reorganized.  
+  Now keybindings invoke same functions as toolbar.
+
 * Terminal string now automatically added to command for C-c C-v 
 
 * Cleaned up example files so all demonstrate same theorem "conj_comms".

@@ -973,6 +973,8 @@ prover is processing it.}
 @code{proof-retract-until-point-interactive}
 @item C-c b
 @code{proof-process-buffer}
+@item C-c r
+@code{proof-retract-buffer}
 @item C-c @var{terminator-character}
 @code{proof-active-terminator-minor-mode}
 @end table

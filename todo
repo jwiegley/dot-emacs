@@ -42,8 +42,19 @@ A Pending work, in progress [da]:
           (fixup eye shadows, mag glass, finger, stop icon)
     - command and button for searching for a theorem
        (possibly matching a given constant, or the proof state).
-    - toolbar refresh problems
-    - investigation of excessive processing for large proofs
+    - reorganization and improvement of menus, keybindings
+	. use toolbar functions, but remove from proof-toolbar and reorganize.
+	. update documentation
+    - test support for x-symbol
+    - investigate toolbar refresh problems
+    - investigate of excessive processing for large proofs
+    - investigate bug fix for vacuous locked regions
+
+A Usability enhancement:
+   Enable toolbar in other buffers.  Should switch to active
+   scripting buffer first if it is non current.
+   (In fact, a sensible subset of scripting commands would
+    work from other buffers).
 
 A Usability enhancement:
    Movement of point after assert/retract commands
