@@ -447,7 +447,10 @@ If FORCE, override proof-shell-erase-response-flag."
   (if (or proof-shell-erase-response-flag force)
       (if clean-windows
 	  (proof-clean-buffer proof-response-buffer)
-	(erase-buffer proof-response-buffer)))
+	;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
+	;; (erase-buffer proof-response-buffer)
+	(with-current-buffer proof-response-buffer
+	  (erase-buffer))))
   (setq proof-shell-erase-response-flag erase-next-time))
 		  
 

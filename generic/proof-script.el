@@ -1624,8 +1624,12 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
   "Finish setup of Proof General scripting mode.
 Call this function in the derived mode for the proof assistant to
 finish setup which depends on specific proof assistant configuration."
-    ;; Has buffer already been processed?
-  (and (member buffer-file-truename proof-included-files-list)
+  ;; Has buffer already been processed?
+  ;; NB: call to file-truename is needed for FSF Emacs which
+  ;; chooses to make buffer-file-truename abbreviate-file-name
+  ;; form of file-truename.
+  (and (member (file-truename buffer-file-truename)
+	       proof-included-files-list)
        (proof-mark-buffer-atomic (current-buffer)))
 
   ;; calculate some strings and regexps for searching

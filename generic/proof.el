@@ -189,9 +189,11 @@ Also ensures that point is visible."
   "Erase buffer and hide from display if proof-auto-delete-windows set.
 Auto deletion only affects selected frame.  (We assume that the selected
 frame is the one showing the script buffer.)"
-  (erase-buffer buffer)
-  (if proof-auto-delete-windows
-      (delete-windows-on buffer t)))
+  (with-current-buffer buffer
+    ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
+    (erase-buffer)
+    (if proof-auto-delete-windows
+	(delete-windows-on buffer t))))
 
 ;; utility function
 ;; FIXME da: maybe not used.  Put into spare parts file.
