@@ -117,7 +117,7 @@
   "*Font-lock table for Isabelle terms.")
 
 (defconst isa-save-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-save))))
+  (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-save)))
 
 ;; CHECKED
 (defconst isa-save-with-hole-regexp
