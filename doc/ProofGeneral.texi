@@ -1028,7 +1028,8 @@ Toggle Proof General's active terminator minor mode.@*
 With @var{arg}, turn on the Active Terminator minor mode if and only if @var{arg}
 is positive.
 
-If active terminator mode is enabled, pressing a terminator will automatically activate @samp{@code{proof-assert-next-command}} for convenience.
+If active terminator mode is enabled, pressing a terminator will 
+automatically activate @samp{@code{proof-assert-next-command}} for convenience.
 @end deffn
 
 
@@ -1072,7 +1073,10 @@ Process the whole buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-restart
 @deffn Command proof-toolbar-restart 
-Restart scripting via @code{proof-shell-restart}.
+Clear script buffers and send @code{proof-shell-restart-cmd}.@*
+All locked regions are cleared and the active scripting buffer
+deactivated.  The restart command should re-synchronize
+Proof General with the proof assistant.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-qed
@@ -2675,22 +2679,35 @@ Regexp matching output from an aborted proof.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-error-regexp
 @defvar proof-shell-error-regexp 
-Regexp matching an error report from the proof assistant.@*
-We assume that an error message corresponds to a failure
-in the last proof command executed.  So don't match
-mere warning messages with this regexp.
-Moreover, an error message should not be matched as
-an eager annotation (see @code{proof-shell-eager-annotation-start})
-otherwise it will be lost.
+Regexp matching an error report from the proof assistant.
+
+We assume that an error message corresponds to a failure in the last
+proof command executed.  So don't match mere warning messages with
+this regexp.  Moreover, an error message should not be matched as an
+eager annotation (see @code{proof-shell-eager-annotation-start}) otherwise it
+will be lost.
+
+The engine matches interrupts before errors, see proof-shell-interupt-regexp.
+
+It is safe to leave this variable unset (as nil).
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-interrupt-regexp
 @defvar proof-shell-interrupt-regexp 
 Regexp matching output indicating the assistant was interrupted.@*
-Similar notes apply as for @samp{@code{proof-shell-error-regexp}}.
+We assume that an error message corresponds to a failure in the last
+proof command executed.  So don't match mere warning messages with
+this regexp.  Moreover, an error message should not be matched as an
+eager annotation (see @code{proof-shell-eager-annotation-start}) otherwise it
+will be lost.
+
+The engine matches interrupts before errors, see @code{proof-shell-error-regexp}.
+
+It is safe to leave this variable unset (as nil).
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-proof-completed-regexp
 @defvar proof-shell-proof-completed-regexp 
-Regexp matching output indicating a finished proof.
+Regexp matching output indicating a finished proof.@*
+Match number 1 should be the response text.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-clear-response-regexp
 @defvar proof-shell-clear-response-regexp 
@@ -3520,11 +3537,13 @@ the last urgent message seen.
 Process shell output (resulting from @var{cmd}) by matching on @var{string}.@*
 @var{cmd} is the first part of the @code{proof-action-list} that lead to this
 output.
+
 This function deals with errors, start of proofs, abortions of
-proofs and completions of proofs. All other output from the proof
+proofs and completions of proofs.  All other output from the proof
 engine is simply reported to the user in the response buffer
 by setting @code{proof-shell-delayed-output} to a cons 
-cell of (@var{insert} . @var{text}) where @var{text} is the text to be inserted.
+cell of ('insert . @var{text}) where @var{text} is the text string to 
+be inserted.
 
 To extend this function, set
 @code{proof-shell-process-output-system-specific}.
