@@ -1,44 +1,7 @@
-;; lego-syntax.el Font lock expressions for LEGO
+;; lego-fontlock.el Font lock expressions for LEGO
 ;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-
-;; $Log$
-;; Revision 2.0  1998/08/11 14:59:58  da
-;; New branch
-;;
-;; Revision 1.2  1998/08/11 11:43:14  da
-;; Renamed <file>-fontlock to <file>-syntax
-;;
-;; Revision 1.6  1998/07/27 15:39:53  tms
-;; Supports official LEGO release 1.3
-;;
-;; Revision 1.5  1998/05/29 09:49:40  tms
-;; o outsourced indentation to proof-indent
-;; o support indentation of commands
-;; o replaced test of Emacs version with availability test of specific
-;;   features
-;; o C-c C-c, C-c C-v and M-tab is now available in all buffers
-;;
-;; Revision 1.4  1998/05/22 09:37:12  tms
-;; included "Invert" in `lego-keywords'
-;;
-;; Revision 1.3  1997/11/26 14:11:29  tms
-;; simplified code:
-;;   lego-goal-with-hole-regexp and lego-save-with-hole-regexp is now
-;;   used for lego-font-lock-keywords-1 as well
-;;
-;; Revision 1.2  1997/10/13 17:13:14  tms
-;; *** empty log message ***
-;;
-;; Revision 1.1.2.2  1997/10/08 08:22:31  hhg
-;; Updated undo, fixed bugs, more modularization
-;;
-;; Revision 1.1.2.1  1997/10/07 13:34:23  hhg
-;; New structure to share as much as possible between LEGO and Coq.
-;;
-;;
-
 
 (require 'proof-syntax)
 
@@ -78,14 +41,20 @@
   "*For font-lock, we treat \",\" separated identifiers as one identifier
   and refontify commata using \\{lego-fixup-change}.")
 
+(defconst lego-arg-list-regexp "\\s *\\(\\[[^]]+\\]\\s *\\)*"
+  "Regular expression maching a list of arguments.")
+
 (defun lego-decl-defn-regexp (char)
-    (concat "\\[\\s *\\(" lego-ids
- "\\)\\s *\\(\\[[^]]+\\]\\s *\\)*" char))
+    (concat "\\[\\s *\\(" lego-ids "\\)" lego-arg-list-regexp char))
 ; Examples
 ;              ^        ^^^^        ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^
 ;              [        sort                                 =
 ;              [        sort        [n:nat]                  =
 ;              [        sort        [abbrev=...][n:nat]      =
+
+(defconst lego-definiendum-alternative-regexp
+  (concat "\\(" lego-id "\\)" lego-arg-list-regexp "\\s * ==")
+  "Regular expression where the first match identifies the definiendum.")
 
 (defvar lego-font-lock-terms
   (list
@@ -95,6 +64,7 @@
 	   'font-lock-declaration-name-face)
 
      ; let binders
+     (list lego-definiendum-alternative-regexp 1 'font-lock-function-name-face)
      (list (lego-decl-defn-regexp "=") 1 'font-lock-function-name-face)
 
      ; Pi and Sigma binders
