@@ -35,6 +35,7 @@
     (autoload 'browse-url "browse-url"
       "Ask a WWW browser to load URL." t))
 
+;; These are internal functions of font-lock
 (autoload 'font-lock-fontify-region "font-lock")
 (autoload 'font-lock-append-text-property "font-lock")
 
@@ -171,6 +172,11 @@ of the proof (starting from 1).")
        (with-current-buffer ,buf
 	 ,@body)))
 
+(defmacro proof-map-buffers (buflist &rest body)
+  "Do BODY on each buffer in BUFLIST, if it exists."
+  `(dolist (buf ,buflist)
+     (proof-with-current-buffer-if-exists buf ,@body)))
+
 (defmacro proof-customize-toggle (var)
   "Make a function for toggling a boolean customize setting VAR."
   `(lambda (arg)
@@ -267,13 +273,23 @@ with extra patterns (in non-mule mode).")
   ;; edits font-lock-keywords and loses the setting.  So we make a
   ;; copy of it in a new local variable, proof-font-lock-defaults.
   ;;
-  ;(make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
+  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
   (setq proof-font-lock-defaults font-lock-keywords)
   (setq font-lock-keywords-case-fold-search case-fold)
   ;; Setting font-lock-defaults explicitly is required by FSF Emacs
   ;; 20.4's version of font-lock in any case.
-  (setq font-lock-defaults `(proof-font-lock-defaults nil ,case-fold)))
+  (setq font-lock-defaults `(proof-font-lock-defaults nil ,case-fold))
+  ;; FIXME: font-lock turned on somewhere, where?
+  (setq font-lock-keywords nil))
 
+(defun proof-font-lock-fontify-region (start end)
+  "font-lock-fontify-region doesn't work for FSF Emacs 20.4, sigh."
+  (if (string-match "XEmacs" emacs-version)
+      (font-lock-fontify-region start end)
+    ;; This version is very noisy.  Hopefully it's okay because we
+    ;; do a narrow-to-region below, so whole buffer appears to
+    ;; be the region we want.
+    (font-lock-fontify-buffer)))
 
 (defun proof-fontify-region (start end)
   "Fontify and decode X-Symbols in region START...END.
@@ -292,8 +308,7 @@ Returns new END value."
   (narrow-to-region start end)
   (if proof-output-fontify-enable
       (let ((font-lock-keywords proof-font-lock-defaults))
-	; fontify-region doesn't work for FSF Emacs 20.4, sigh.
-	(font-lock-fontify-region start end)
+	(proof-font-lock-fontify-region start end)
 	; has annoying messages
 	; (font-lock-fontify-buffer)	; hope okay cos narrow region.
 	;; FIXME: this should be optional, really.
