@@ -2672,7 +2672,7 @@ next start Proof General.
 * The default value for XEmacs built for solaris is nil, because
 of unreliabilities with enablers there.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 @c This one removed: proof-auto-retract
@@ -2696,12 +2696,9 @@ The default value is @code{t}.
 
 @c TEXI DOCSTRING MAGIC: PA-script-indent
 @defopt PA-script-indent 
-If non-nil, enable indentation code for proof scripts.@*
-Currently the indentation code can be rather slow for large scripts,
-and is critical on the setting of regular expressions for particular
-provers.  Enable it if it works for you, turn it off if it's too slow.
+If non-nil, enable indentation code for proof scripts.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-one-command-per-line
@@ -4081,22 +4078,6 @@ When functions in this hook are called, the variable
 If a hook function sends commands to the proof process,
 it should wait for them to complete (so the queue is cleared
 for scripting commands), unless activated-interactively is set.
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-stack-to-indent
-@defvar proof-stack-to-indent 
-Prover-specific code for indentation.
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-parse-indent
-@defvar proof-parse-indent 
-Proof-assistant specific function for parsing.@*
-Invoked in @samp{proof-parse-to-point}. Must be a
-function taking two arguments, a character (the current character)
-and a stack reflecting indentation, and must return a stack. The
-stack is a list of the form (c . p) where @samp{c} is a character
-representing the type of indentation and @samp{p} records the column for
-indentation. The generic @samp{proof-parse-to-point} function supports
-parentheses and commands. It represents these with the characters
-@samp{?(}, @samp{?[} and @samp{@code{proof-terminal-char}}. 
 @end defvar
 
 @xref{Handling multiple files}, for more details about the final
