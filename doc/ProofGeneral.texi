@@ -231,6 +231,49 @@ David von Oheimb,
 and Markus Wenzel.  Thanks to all of you!
 
 
+
+@node Latest news
+@unnumberedsec Latest news
+@cindex news
+
+Proof General 3.0 offers many enhancements over 2.x releases.
+
+First, there are usability improvements.  The toolbar has twice as many
+buttons, and now includes all of the useful functions used during proof
+which were previously hidden on the menu, or even only available as key
+presses.  The menu has been redesigned and coordinated with the toolbar.
+User options have been re-organized.
+
+Second, there are improvements, extensions, and bug fixes in the core
+code. Proofs which are unfinished and not explicitly closed by a
+ ``save'' type command are supported by the core, if they are allowed by
+ the prover.  The design of switching the active scripting buffer has
+been streamlined.  The proof shell filter has been optimized to give
+hungry proof assistants a better share of CPU cycles.  Proof General is
+easier to adapt to new provers --- it fails more gracefully (or not at
+all!) when particular configuration variables are unset.
+
+This manual has been updated accordingly.  It also has a better
+description of how to add support for a new prover.
+
+See the @code{CHANGES} file in the distribution for more information.
+Developers should check the @code{ChangeLog} in the developer's release
+for detailed comments on internal changes.
+
+Most of the work has been done by David Aspinall, with help from Markus
+Wenzel for Isabelle support and Patrick Loiseleur for Coq support.
+Markus has also provided support for his Isar language, a new proof
+language for Isabelle.  David von Oheimb helped to develop and debug the
+generic version of his X-Symbol patch originally for Isabelle.
+
+A new instantiation of Proof General is being worked on for
+@emph{Plastic}, a proof assistant being developed at the University of
+Durham.
+
+Proof General has a @uref{http://zermelo.dcs.ed.ac.uk/home/proofgen,home
+page} hosted at Edinburgh.  Visit this page for more news!
+
+
 @node History
 @unnumberedsec History
 @cindex @code{lego-mode}
@@ -306,43 +349,6 @@ program.
 
 Why not adapt Proof General to your favourite proof assitant?
 
-@node Latest news
-@unnumberedsec Latest news
-@cindex news
-
-Proof General 3.0 offers many enhancements over 2.x releases.
-
-There are usability improvements.  The toolbar has twice as many
-buttons, and now includes all of the useful functions used during proof
-which were previously hidden on the menu, or even only available as key
-presses.  The menu has been redesigned and co-ordinated with toolbar.
-
-Second, there are improvements, extensions, and bug fixes in the core
-code. Proofs which are unfinished and not explicitly closed by a
- ``save'' type command are supported by the core, if they are allowed by
- the prover.  The design of switching the active scripting buffer has
-been streamlined.  The proof shell filter has been optimized to give
-hungry proof assistants a better share of CPU cycles.  Proof General is
-easier to adapt to new provers --- it fails more gracefully (or not at
-all!) when particular configuration variables are unset.
-
-
-See the @code{CHANGES} file in the distribution for more information.
-Developers should check the @code{ChangeLog} in the developer's release
-for detailed comments on internal changes.
-
-Most of the work has been done by David Aspinall, with help from Markus
-Wenzel for Isabelle support and Patrick Loiseleur for Coq support.
-Markus has also provided support for his Isar language, a new proof
-language for Isabelle.
-
-A new instantiation of Proof General is being worked on for
-@emph{Plastic}, a proof assistant being developed at the University of
-Durham.
-
-Proof General has its own
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen,home page} hosted at
-Edinburgh.  Visit this page for more news!
 
 
 
@@ -2070,6 +2076,12 @@ Face for warning messages.@*
 Warning messages can come from proof assistant or from Proof General itself.
 @end deffn
 
+@c TEXI DOCSTRING MAGIC: proof-debug-message-face
+@deffn Face proof-debug-message-face 
+Face for debugging messages from Proof General.
+@end deffn
+
+
 @c Maybe this detail of explanation belongs in the internals,
 @c with just a hint here.
 The slightly bizarre name of the next face comes from the idea that
@@ -2082,7 +2094,7 @@ by Proof General.
 
 @c TEXI DOCSTRING MAGIC: proof-eager-annotation-face
 @deffn Face proof-eager-annotation-face 
-Face for messages from proof assistant.
+Face for important messages from proof assistant.
 @end deffn
 
 
@@ -2647,7 +2659,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (plastic "Plastic" "\\.lf$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (plastic "Plastic" "\\.lf$"))}.
 @end defopt
 
 @node Major modes used by Proof General
@@ -3229,8 +3241,16 @@ into tokens for the proof assistant.
 @c TEXI DOCSTRING MAGIC: proof-pre-shell-start-hook
 @defvar proof-pre-shell-start-hook 
 Hooks run before proof shell is started.@*
-Suggestion: set this to a function which configures the proof shell
-variables.
+Suggestion: set this to a function which configures just these proof
+shell variables: 
+@lisp
+   @code{proof-prog-name}
+   @code{proof-mode-for-shell}
+   @code{proof-mode-for-response}
+   @code{proof-mode-for-pbp}
+@end lisp
+This is the bare minimum needed to get a shell buffer and
+its friends configured in the function @code{proof-shell-start}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-error-hook
 @defvar proof-shell-handle-error-hook 
@@ -3617,7 +3637,9 @@ several variables that Proof General uses to configure X-Symbol with.
 
 @c TEXI DOCSTRING MAGIC: proof-xsym-activate-command
 @defvar proof-xsym-activate-command 
-Not documented.
+Command to activate token input/output for X-Symbol.@*
+If non-nil, this command is sent to the proof assistant when 
+X-Symbol support is activated.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-xsym-deactivate-command
@@ -3739,7 +3761,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'plastic}.
+A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'plastic}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
@@ -3754,7 +3776,7 @@ edit the file @samp{proof-site.el} itself.
 
 Note: to change proof assistant, you must start a new Emacs session.
 
-The default value is @code{(isar isa lego coq plastic)}.
+The default value is @code{(demoisa isar isa lego coq plastic)}.
 @end defopt
 
 The file @file{proof-site.el} also defines a version variable.
