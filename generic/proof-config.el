@@ -551,26 +551,22 @@ proof-assistant-table."
 ;;
 ;; 2. Major modes used by Proof General.
 ;;
-
-;; FIXME: these functions could be set automatically to standard values,
-;; i.e. <assistant>-mode, <assistant>-shell-mode, <assistant>-pbp-mode.
-;; FIXME: mode-for-script is unused at the moment, added just for
-;; uniformity.  The other two are used when a shell buffer is started.
-;; FIXME da: old suggestion for the later three was to use 
-;; pre-shell-start-hook.  I don't really understand why that hook
-;; is necessary, it just makes things more complicated.
+;; The first three settings are used when starting a shell,
+;; so the must be set before a shell is started, so we
+;; know what modes are needed for each of the buffers.
+;; Hence the use of pre-shell-start-hook.
 
 (defcustom proof-mode-for-shell 'proof-shell-mode
   "Mode for proof shell buffers.
 Usually customised for specific prover.
-Suggestion: this can be set in the shell mode configuration."
+Suggestion: this can be set a function called by `pre-shell-start-hook'."
   :type 'function
   :group 'prover-config)
 
 (defcustom proof-mode-for-response 'proof-response-mode
   "Mode for proof response buffer.
 Usually customised for specific prover.
-Suggestion: this can be set in the shell mode configuration."
+Suggestion: this can be set a function called by `pre-shell-start-hook'."
   :type 'function
   :group 'prover-config)
 
@@ -578,7 +574,7 @@ Suggestion: this can be set in the shell mode configuration."
 (defcustom proof-mode-for-pbp 'pbp-mode
   "Mode for proof state display buffers.
 Usually customised for specific prover.
-Suggestion: this can be set in the shell mode configuration."
+Suggestion: this can be set a function called by `pre-shell-start-hook'."
   :type 'function
   :group 'prover-config)
 
@@ -842,8 +838,8 @@ default."
 (defcustom proof-completed-proof-behaviour nil
   "Indicates how Proof General treats commands beyond the end of a proof.
 Normally goal...save regions are \"closed\", i.e. made atomic for undo.
-But once a proof has been completed, there may be a delay before the
-\"save\" command appears --- or it may not appear at all.  Unless
+But once a proof has been completed, there may be a delay before 
+the \"save\" command appears --- or it may not appear at all.  Unless
 nested proofs are supported, this can spoil the undo-behaviour in
 script management since once a new goal arrives the old undo history
 may be lost in the prover.  So we allow Proof General to close 
@@ -859,8 +855,8 @@ If your proof assistant allows nested goals, it will be wrong to close
 off the portion of proof so far, so this variable should be set to nil.
 There is no built-in understanding of the undo behaviour of nested
 proofs; instead there is some support for un-nesting nested proofs in
-the proof-lift-global mechanism.  Of course, this is risky because of
-nested contexts!"
+the proof-lift-global mechanism.  (Of course, this is risky in case of
+nested contexts!)"
   :type '(choice
 	  (const :tag "Close on save only" nil)
 	  (const :tag "Close next command" closeany)
@@ -922,7 +918,7 @@ Only relevant for proof-find-and-forget-fn.")
 This setting is used to for retraction (undoing) in proof scripts.
 
 It should undo the effect of all settings between its target span
-up to (proof-unlocked-begin).  This may involve forgetting a number
+up to (proof-locked-end).  This may involve forgetting a number
 of definitions, declarations, or whatever.
 
 The special string proof-no-command means there is nothing to do.
@@ -931,7 +927,9 @@ Important: the generic implementation `proof-generic-find-and-forget'
 does nothing, it always returns `proof-no-command'.
 
 This is an important function for script management.
-Study one of the existing instantiations for examples of how to write it."
+Study one of the existing instantiations for examples of how to write it,
+or leave it set to the default function `proof-generic-find-and-forget'
+(which see)."
   :type 'function
   :group 'proof-script)
 
@@ -969,14 +967,21 @@ need to set this variable."
 
 (defcustom proof-global-p nil
   "Whether a command is a global declaration.  Predicate on strings or nil.
-This is used to handle nested goals allowed by some provers."
+This is used to handle nested goals allowed by some provers, by
+recognizing global declarations as candidates for rearranging the
+proof script.
+
+May be left as nil to disable this function."
   :type 'function
   :group 'proof-script)
 
-(defcustom proof-state-preserving-p nil
+(defcustom proof-state-preserving-p 'proof-generic-state-preserving-p
   "A predicate, non-nil if its argument (a command) preserves the proof state.
 If set, used by proof-minibuffer-cmd to filter out scripting
-commands which should be entered directly into the script itself."
+commands which should be entered directly into the script itself.
+
+The default setting for this function, `proof-generic-state-preserving-p'
+tests by negating the match on `proof-non-undoables-regexp'."
   :type 'function
   :group 'proof-script)
 
@@ -1025,13 +1030,15 @@ parentheses and commands. It represents these with the characters
 (defcustom proof-font-lock-zap-commas nil
   "If non-nil, enable a font-lock hack which unfontifies commas.
 If you fontify variables inside lists like [a,b,c] by matching
-on the brackets `[' and '[', you may take objection to the commas 
+on the brackets `[' and `]', you may take objection to the commas 
 being coloured as well.  In that case, enable this hack which
 will magically restore the commas to the default font for you.
 
 The hack is rather painful and forces immediate fontification of
 files on loading (no lazy, caching locking).  It is unreliable
-under FSF Emacs, to boot."
+under FSF Emacs, to boot.
+
+LEGO and Coq enable it by tradition."
   :type 'boolean
   :group 'proof-script)
 
@@ -1104,10 +1111,10 @@ The proof-terminal-char is added on to the end."
 ;; FIXME could add option to quiz user before rude kill.
 (defcustom proof-shell-quit-timeout 10
   "The number of seconds to wait after sending proof-shell-quit-cmd.
-After this timeout, the proof shell will be killed of more rudely.
+After this timeout, the proof shell will be killed off more rudely.
 If your proof assistant takes a long time to clean up (for
 example writing persistent databases out or the like), you may
-need to bump this value up."
+need to bump up this value."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
@@ -1238,7 +1245,7 @@ will be lost.
 Error messages are considered to begin from proof-shell-error-regexp
 and continue until the next prompt.
 
-The engine matches interrupts before errors, see proof-shell-interupt-regexp.
+The engine matches interrupts before errors, see proof-shell-interrupt-regexp.
 
 It is safe to leave this variable unset (as nil)."
   :type '(choice nil regexp)
@@ -1331,7 +1338,12 @@ The default value is \"\\n\" to match up to the end of the line."
   :group 'proof-shell)
 
 (defcustom proof-shell-assumption-regexp nil
-  "A regular expression matching the name of assumptions."
+  "A regular expression matching the name of assumptions.
+
+At the moment, this setting is not used in the generic Proof General.
+
+In the future it will be used for a generic implementation for `proof-goal-hyp-fn',
+used to help parse the goals buffer to annotate it for proof by pointing."
   :type '(choice regexp (const :tag "Unset" nil))
   :group 'proof-shell)
 
@@ -1496,6 +1508,15 @@ toolbar.")
   "Settings for configuring the goals buffer."
   :group 'prover-config
   :prefix "pbp-")
+
+(defcustom proof-analyse-using-stack nil
+  "Choice of syntax tree encoding for terms.
+
+If nil, prover is expected to make no optimisations.
+If non-nil, the pretty printer of the prover only reports local changes. 
+For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'."
+  :type 'boolean
+  :group 'proof-goals)
 
 (defcustom pbp-change-goal nil
   "Command to change to the goal `%s'"
