@@ -167,47 +167,8 @@
 ;;
 ;; da: have now combined count-undos and find-and-forget, they're the
 ;; same now we deal with nested proofs and send general sequence
-;; "Abort.. Abort Back n. Undo n."
+;; "Abort. ... Abort. Back n. Undo n."
 ;;
-;; (defun coq-count-undos (span)
-;;   "Count number of undos in a span, return the command needed to undo that far."
-;;   (let ((undos 0) (backs 0) str i)
-;;     (if (and span (prev-span span 'type)
-;; 	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
-;; 	     (coq-goal-command-p
-;; 	      (span-property (prev-span span 'type) 'cmd)))
-;; 	;; FIXME: da: is Restart really necessary/useful?  Small
-;; 	;; efficiency gain perhaps, but this test only works in case
-;; 	;; the previous command is exaundosly a goal.  If there are
-;; 	;; intervening comments, Undos are issued using code below,
-;; 	;; which still works okay I think.
-;; 	"Restart."
-;;       (while span
-;; 	(setq str (span-property span 'cmd))
-;; 	(cond 
-;; 	 ((eq (span-property span 'type) 'vanilla)
-;; 	  (cond
-;; 	   ((proof-string-match coq-backable-commands-regexp str)
-;; 	    (incf backs))
-;; 	   ((proof-string-match coq-undoable-tactics-regexp str)
-;; 	    (incf undos))))
-;; 	 ((span-property span 'nestedundos)
-;; 	  (setq nbacks (+ 1 nbacks (span-property span 'nestedundos))))
-;; 	 ((eq (span-property span 'type) 'pbp)
-;; 	  ;; this is dead code for Coq right now, no PBP feature in PG.
-;; 	  (cond ((proof-string-match coq-undoable-tactics-regexp str)
-;; 		 (setq i 0)
-;; 		 (while (< i (length str))
-;; 		   (if (= (aref str i) proof-terminal-char)
-;; 		       (setq undos (+ 1 undos)))
-;; 		   (setq i (+ 1 i))))
-;; 		(t nil))))
-;; 	(setq span (next-span span 'type)))
-;;       (concat
-;;        (if (> undos 0) 
-;; 	   (concat "Undo " (int-to-string undos) ". ") "")
-;;        (if (> backs 0)
-;; 	   (concat "Back " (int-to-string backs) "."))))))
 
 (defconst coq-keywords-decl-defn-regexp
   (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
@@ -233,17 +194,14 @@
 
 ; Pierre: This is a try, for use in find-and-forget. It seems to work but 
 ; is it correct with respect to the asynchronous communication between Coq 
-; and emacs? 
-; FIXME: Pierre The prompt should be (is?) available by something cleaner
-; than this ugly buffer switching. David? :-)
+; and emacs?  
+; DA: should be okay, communication is not as asynchronous as you think
 (defun coq-proof-mode-p ()
   "Look at the last line of the *coq* buffer to see if the prompt 
 is the toplevel \"Coq <\". Returns nil if yes. Allows to know if we
 are currentlly in proof mode. This assumes that no \"Resume\" Command
 have been used."
-  (save-window-excursion 
-	 (switch-to-buffer "*coq*")
-	 (not (string-match "^Coq < " (buffer-substring (- (point-max) 8) (point-max))))))
+  (not (string-match "^Coq < " proof-shell-last-prompt)))
 
 
 ;; TODO : add the stuff to handle the "Correctness" command 
@@ -261,6 +219,7 @@ have been used."
       (cond
        ((eq (span-property span 'type) 'comment))
        
+       ;; FIXME: combine with coq-keywords-decl-defn-regexp case below?
        ((proof-string-match 
 	 (concat "Section\\s-+\\(" proof-id "\\)\\s-*") str)
 	(setq ans (format coq-forget-id-command (match-string 2 str))))
@@ -289,21 +248,22 @@ have been used."
        ;;   will take us outside a proof, and use the first
        ;;   Reset found if so: but this is tricky to co-ordinate
        ;;   with the number of Backs, perhaps? ]
-;       ((and 
-;	 (eq proof-nesting-depth 0)
-;	 (proof-string-match 
-;	  (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
-;		  proof-id 
-;		  ;; Section .. End Section should be atomic!
-;		  "\\)\\s-*[\\[,:.]") str))
-;	(setq ans (format coq-forget-id-command (match-string 2 str))))
+       ((and 
+	 (eq proof-nesting-depth 0)
+	 (proof-string-match 
+	  (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
+		  proof-id 
+		  ;; Section .. End Section should be atomic!
+		  "\\)\\s-*[\\[,:.]") str))
+	(setq ans (format coq-forget-id-command (match-string 2 str))))
 
-;       ;; If it's not a goal but it contains "Definition" then it's a
-;       ;; declaration  [ da: is this not covered by above case??? ]
-;       ((and (eq proof-nesting-depth 0)
-;	     (proof-string-match
-;	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
-;	(setq ans (format coq-forget-id-command (match-string 2 str))))
+       ;; FIXME: combine with coq-keywords-decl-defn-regexp case above?
+       ;; If it's not a goal but it contains "Definition" then it's a
+       ;; declaration  [ da: is this not covered by above case??? ]
+       ((and (eq proof-nesting-depth 0)
+	     (proof-string-match
+	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
+	(setq ans (format coq-forget-id-command (match-string 2 str))))
 
        ;; Pierre: added may 29 2002 
        ;; REM: It is impossible to guess if a user defined command is
