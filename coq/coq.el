@@ -65,8 +65,7 @@
 
 ;; Command to initialize the Coq Proof Assistant
 (defconst coq-shell-init-cmd 
-  (concat (format "Set Undo %s.\n" coq-default-undo-limit)
-	  (format "Cd \"%s\"." default-directory)))
+  (format "Set Undo %s" coq-default-undo-limit))
 
 ;; Command to reset the Coq Proof Assistant
 (defconst coq-shell-restart-cmd 
@@ -75,7 +74,8 @@
 (defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
 
-(defvar coq-shell-cd nil ; "Cd \"%s\"."
+;; FIXME da: this was disabled (set to nil) -- why?
+(defvar coq-shell-cd "Cd \"%s\""
   "*Command of the inferior process to change the directory.") 
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"

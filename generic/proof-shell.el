@@ -1507,7 +1507,8 @@ Calls proof-state-change-hook."
 
 (defun proof-shell-invisible-command (cmd &optional wait)
   "Send CMD to the proof process.
-If optional WAIT command is non-nil, wait for processing to finish
+By default, let the command be processed asynchronously.
+But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command."
   (if wait (proof-shell-wait))
   (proof-shell-ready-prover)
@@ -1626,38 +1627,16 @@ before and after sending the command."
       (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
       (set-process-sentinel proc 'proof-shell-bail-out)
 
-      ;; Flush pending output from startup
-      (accept-process-output proc 1)
-
-      ;; If the proof process in invoked on a different machine e.g.,
-      ;; for proof-prog-name="ssh fastmachine proofprocess", one needs
-      ;; to adjust the directory. Perhaps one might even want to issue
-      ;; this command whenever a new scripting buffer is active?
-
-      ;; This is the last unsynchronized input to the process.
-      ;; It would be better to synchronize it but then we lose
-      ;; any startup messages from proof-shell-init-cmd.
-
-      (if (and proof-shell-cd t) ;  proof-rsh-command)
- 	  (proof-shell-insert
-	   (format proof-shell-cd
-		   ;; under Emacs 19.34 default-directory contains "~"
-		   ;; which causes problems with LEGO's internal Cd
-		   ;; command
-		   (expand-file-name default-directory))))
-
-      ;; Try to flush the output from the cd command.
+      ;; Flush pending output from startup 
+      ;; (it gets hidden from the user)
       (accept-process-output proc 1)
 
       ;; Send intitialization command and wait for it to be
-      ;; processed.   This also ensures proof-action-list is
+      ;; processed.   Also ensure that proof-action-list is
       ;; initialised. 
       (if proof-shell-init-cmd
-	  (proof-shell-invisible-command proof-shell-init-cmd t)))))
-
-      ;; Set proof marker to current end of buffer
-      ;; (temp hack for old code)
-      ;;(set-marker proof-marker (point-max))))))
+	  (proof-shell-invisible-command proof-shell-init-cmd t)
+	(setq proof-action-list nil)))))
 
 (eval-and-compile
 (define-derived-mode proof-universal-keys-only-mode fundamental-mode

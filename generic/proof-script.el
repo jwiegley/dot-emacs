@@ -1618,15 +1618,18 @@ returns false, then an error message is given."
      (error "Proof General not configured for this: set %s" 
 	    ,(symbol-name var))))
 
-(defmacro proof-define-assistant-command (fn doc cmdvar)
-  "Define command FN to send string CMDVAR to proof assistant."
+(defmacro proof-define-assistant-command (fn doc cmdvar &optional body)
+  "Define command FN to send string BODY to proof assistant, based on CMDVAR.
+BODY defaults to CMDVAR, a variable."
   `(defun ,fn ()
-     ,(concat doc "\nIssues a command to the assistant from " 
-	      (symbol-name cmdvar) ".")
+     ,(concat doc 
+	      (concat "\nIssues a command to the assistant based on " 
+		      (symbol-name cmdvar) ".") 
+		"")
      (interactive)
      (proof-if-setting-configured ,cmdvar
        (proof-shell-invisible-command
-	(concat ,cmdvar proof-terminal-string)))))
+	(concat ,(or body cmdvar) proof-terminal-string)))))
 
 (defmacro proof-define-assistant-command-witharg (fn doc cmdvar prompt &rest body)
   "Define command FN to prompt for string CMDVAR to proof assistant.
@@ -1681,6 +1684,21 @@ Start up the proof assistant if necessary."
   "Show a help or information message from the proof assistant.
 Typically, a list of syntax of commands available."
   proof-info-command)
+(proof-define-assistant-command proof-cd
+  "Change directory to the default directory for the current buffer."
+  proof-shell-cd
+  (format proof-shell-cd
+	  ;; Use expand-file-name to avoid problems with dumb
+	  ;; proof assistants and "~"
+	  (expand-file-name (default-directory))))
+
+(defun proof-cd-sync ()
+  "If proof-shell-cd is set, do proof-cd and wait for prover ready.
+This is intended as a value for proof-activate-scripting-hook"
+  (if proof-shell-cd 
+      (progn
+	(proof-cd)
+	(proof-shell-wait))))
 
 ;;
 ;; Commands which require an argument, and maybe affect the script.
@@ -1903,8 +1921,15 @@ sent to the assistant."
 \\{proof-mode-map}"
   (setq proof-buffer-type 'script)
 
+  ;; We set hook functions here rather than in proof-config-done
+  ;; so that they can be adjusted by prover specific code
+  ;; if need be.
+
   (make-local-hook 'kill-buffer-hook)
-  (add-hook 'kill-buffer-hook 'proof-script-kill-buffer-fn t t)))
+  (add-hook 'kill-buffer-hook 'proof-script-kill-buffer-fn t t)
+
+  (make-local-hook 'proof-activate-script-hook) ; necessary?
+  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)))
 
 (defun proof-script-kill-buffer-fn ()
   "Value of kill-buffer-hook for proof script buffers.
