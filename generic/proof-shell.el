@@ -512,6 +512,20 @@ object files, used by Lego and Coq)."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+;; New function added for 3.0 -da
+(defun pbp-yank-subterm (event)
+  (interactive "e")
+  (let (span)
+    (save-window-excursion
+      (save-excursion
+	(mouse-set-point event)
+	(setq span (span-at (point) 'proof))
+	(if span (copy-region-as-kill
+		  (span-start span) 
+		  (span-end span)))))
+    (if (and span (not (eq proof-buffer-type 'pbp)))
+	(yank))))
+
 (defun pbp-button-action (event)
    (interactive "e")
    (mouse-set-point event)
@@ -1196,7 +1210,7 @@ The return value is non-nil if the action list is now empty."
   "Insert command sequence triggered by the proof process
 at the end of locked region (after inserting a newline and indenting).
 Assume proof-script-buffer is active."
-  (unless (string-match "^\\s-*$" cmd)
+  (unless (string-match "^\\s-*$" cmd)	; FIXME: assumes cmd is single line
     (save-excursion
       (set-buffer proof-script-buffer) 
       (let (span)
@@ -1850,21 +1864,23 @@ processing."
   proof-general-name 
   "Mode for goals display.  
 May enable proof-by-pointing or similar features.
-<<pbp-mode-map>>"
+\\{pbp-mode-map}"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
   (cond 
    ((string-match "XEmacs" emacs-version)
     (define-key pbp-mode-map [(button2)] 'pbp-button-action)
     (define-key pbp-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
-;; button 2 is a nuisance on 2 button mice, so we'll do 3 as well.
-    (define-key pbp-mode-map [(button3)] 'pbp-button-action)
-    (define-key pbp-mode-map [(control button3)] 'proof-undo-and-delete-last-successful-command))
+    ;; button 2 is a nuisance on 2 button mice, so we'll do 1 as well.
+    (define-key pbp-mode-map [(button1)] 'pbp-button-action)
+    (define-key pbp-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
+    (define-key pbp-mode-map [(button3)] 'pbp-yank-subterm))
    (t
     (define-key pbp-mode-map [mouse-2] 'pbp-button-action)
     (define-key pbp-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
-    (define-key pbp-mode-map [mouse-3] 'pbp-button-action)
-    (define-key pbp-mode-map [C-mouse-3] 'proof-undo-and-delete-last-successful-command)))
+    (define-key pbp-mode-map [mouse-1] 'pbp-button-action)
+    (define-key pbp-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
+   (define-key pbp-mode-map [mouse-3] 'pbp-yank-subterm)))
   (define-key pbp-mode-map [q] 'bury-buffer)
   (easy-menu-add proof-goals-mode-menu pbp-mode-map)
   (erase-buffer)))
