@@ -310,7 +310,7 @@ If in three window or multiple frame mode, display both buffers."
      :active (fboundp 'function-menu)]
     ["Complete Identifier" complete t]
     ["Next Error" proof-next-error
-     :active proof-shell-next-error-regexp])
+     :active pg-next-error-regexp])
   "The Proof General generic menu for scripting buffers.")
 
 
@@ -444,8 +444,7 @@ suitable for adding to the proof assistant menu."
   
 (defun proof-read-favourite ()
   (let* 
-      ((favs   (symbol-value (proof-ass-sym favourites)))
-       (guess  (buffer-substring (save-excursion
+      ((guess  (buffer-substring (save-excursion
 				   (beginning-of-line-text)
 				   (point)) (point)))
        (cmd (read-string
@@ -482,7 +481,7 @@ KEY is the optional key binding."
 		    (lambda (f) (string-equal menuname (caddr f)))
 		    favs))
        (newfavs    (append 
-		    favs 
+		    rmfavs 
 		    (list (list command inscript menuname key)))))
     ;; If def succeeds, add to customize var
     (customize-set-variable  (proof-ass-sym favourites) newfavs)
@@ -543,7 +542,7 @@ the form of the menu entry for the setting.")
 ;;;###autoload
 (defun proof-defpacustom-fn (name val args)
   "As for macro `defpacustom' but evaluation arguments."
-  (let (newargs setting evalform)
+  (let (newargs setting evalform type)
     (while args
       (cond 
        ((eq (car args) :setting)
