@@ -32,6 +32,7 @@ Summary of interesting changes since 3.4:
 . For Coq: a new "holes" system, for editing structured expressions
 . For Isabelle: browsing/highlighting theorem dependencies
 . New instances of PG: Casl Consistency Checker, Shell Script
+. Additional sample proofs (some from http://www.cs.kun.nl/~freek/comparison/)
 . Many other minor improvements and editing features
 . Many changes for compatibility with latest Emacsen (esp. GNU) and provers
 

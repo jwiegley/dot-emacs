@@ -54,6 +54,13 @@ in the subdirectories:
 
  generic/   Generic basis for Proof General
 
+A small number of example proofs are included in each prover 
+subdirectory.   The "root2" example proofs of the irrationality
+of the square root of 2 were proofs written as a response
+to a challenge of Freek Wiedijk in his comparison of different
+theorem provers, see http://www.cs.kun.nl/~freek/comparison/.
+Those proof scripts are copyright by their named authors.
+
 Check BUGS files for problems and issues, in this directory, and for
 specific issues, in each prover subdirectory.  Please report bugs
 not mentioned in any of these files to da+pg-bugs@inf.ed.ac.uk
@@ -62,4 +69,4 @@ For the latest news and downloads, visit Proof General on the web
 at: http://proofgeneral.inf.ed.ac.uk
 
 David Aspinall <da+pg-feedback@inf.ed.ac.uk>
-March 2004.
+April 2004.
