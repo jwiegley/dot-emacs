@@ -27,8 +27,8 @@
   (and (fboundp 'console-type)		; FSF Emacs doesn't have this
        (eq (console-type) 'x)		; (neither does it have x-symbol)
        (condition-case ()
-	   (require 'x-symbol-autoloads) 
-	 (t (featurep 'x-symbol-autoloads)))))
+	   (require 'x-symbol-hooks)
+	 (t (featurep 'x-symbol-hooks)))))
 
 
 (defun proof-x-symbol-initialize (&optional error)
@@ -48,7 +48,7 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
        ;;
        ;; First, some checks on x-symbol.
        ;;
-       ((and (not (featurep 'x-symbol-autoloads))
+       ((and (not (featurep 'x-symbol))
 	     (not (proof-try-require 'x-symbol)))
 	(funcall error-or-warn
  "Proof General: x-symbol package must be installed for x-symbol-support!
