@@ -5,6 +5,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.1  1998/09/03 13:51:34  da
+;; Renamed for new subdirectory structure
+;;
 ;; Revision 2.0  1998/08/11 15:00:13  da
 ;; New branch
 ;;
