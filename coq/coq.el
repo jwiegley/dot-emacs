@@ -5,19 +5,10 @@
 
 ;; $Id$ 
 
-(require 'proof-script)
+(require 'proof)
 (require 'coq-syntax)
 
-;; Spans are our abstraction of extents/overlays.
-(eval-and-compile
-  (cond ((fboundp 'make-extent) (require 'span-extent))
-	((fboundp 'make-overlay) (require 'span-overlay))))
-
-(eval-and-compile
-  (mapcar (lambda (f) (autoload f "proof-shell"))
-	    '(proof-goals-mode proof-shell-config-done))) 
-
-; Configuration
+;; Configuration
 
 (setq tags-always-exact t) ; Tags is unusable with Coq library otherwise:
 
