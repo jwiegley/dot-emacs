@@ -153,7 +153,7 @@
 (defconst isar-global-save-command-regexp
   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-qed-global)))
 
-(defconst isar-save-with-hole-regexp "$^") ; n.a.
+(defconst isar-save-with-hole-regexp proof-no-regexp)
 
 (defconst isar-goal-command-regexp
   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-goal)))
