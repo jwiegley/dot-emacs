@@ -151,6 +151,9 @@
 (defconst isar-keywords-qed-block
   '("qed"))
 
+(defconst isar-keywords-qed-global
+  '("oops"))
+
 (defconst isar-keywords-proof-goal
   '("have"
     "hence"
