@@ -1683,7 +1683,8 @@ jumps to the end of the locked region)
 Match number 2 should be the line number, if present.
 Match number 3 should be the column number, if present.
 
-The filename may be matched by `proof-shell-next-error-filename-regexp'."
+The filename may be matched by `proof-shell-next-error-filename-regexp',
+which is assumed to precede proof-shell-next-error-regexp."
   :type 'string
   :group 'proof-shell)
 
@@ -2344,9 +2345,12 @@ If this table is empty or needs adjusting, please make changes using
 ;; FIXME: da: could we put these into another keymap shared across the
 ;; various PG modes?
 (defcustom proof-universal-keys
-  '(([(control c) (control c)] . proof-interrupt-process)
-    ([(control c) (control v)] . proof-minibuffer-cmd)
-    ([(control c) \`] . proof-next-error))
+  (cons
+   (if proof-running-on-XEmacs 
+       '([(control c) \`] . proof-next-error)
+     '([(control c) "`"] . proof-next-error))
+   '(([(control c) (control c)] . proof-interrupt-process)
+     ([(control c) (control v)] . proof-minibuffer-cmd)))
 "List of key-bindings made for the script, goals and response buffer. 
 Elements of the list are tuples `(k . f)' 
 where `k' is a key-binding (vector) and `f' the designated function."
