@@ -1,21 +1,3 @@
-Index: coq/coqtags
-===================================================================
-RCS file: /home/proofgen/src/ProofGeneral/coq/coqtags,v
-retrieving revision 4.3
-diff -c -r4.3 coqtags
-*** coq/coqtags	2000/05/25 20:13:43	4.3
---- coq/coqtags	2000/05/25 20:14:27
-***************
-*** 1,4 ****
-! #!/usr/local/bin/perl
-  #
-  # $Id: coqtags,v 4.3 2000/05/25 20:13:43 da Exp $
-  #
---- 1,4 ----
-! #!/usr/bin/perl
-  #
-  # $Id: coqtags,v 4.3 2000/05/25 20:13:43 da Exp $
-  #
 Index: generic/proof-site.el
 ===================================================================
 RCS file: /home/proofgen/src/ProofGeneral/generic/proof-site.el,v
@@ -40,21 +22,3 @@ diff -c -r4.26 proof-site.el
     "Where Proof General Info files are installed. Ends with slash."
     :type 'directory
     :group 'proof-general-internals)
-Index: lego/legotags
-===================================================================
-RCS file: /home/proofgen/src/ProofGeneral/lego/legotags,v
-retrieving revision 4.2
-diff -c -r4.2 legotags
-*** lego/legotags	2000/05/25 19:42:55	4.2
---- lego/legotags	2000/05/25 20:14:27
-***************
-*** 1,4 ****
-! #!/usr/local/bin/perl
-  #
-  # $Id: legotags,v 4.2 2000/05/25 19:42:55 da Exp $
-  #
---- 1,4 ----
-! #!/usr/bin/perl
-  #
-  # $Id: legotags,v 4.2 2000/05/25 19:42:55 da Exp $
-  #
