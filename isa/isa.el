@@ -233,7 +233,7 @@ no regular or easily discernable structure."
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
    )
-  (add-hook 'proof-activate-scripting-hook 'isa-shell-update-thy)
+  (add-hook 'proof-activate-scripting-hook 'isa-shell-update-thy 'append)
   )
 
 
