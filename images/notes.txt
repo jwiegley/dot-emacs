@@ -72,7 +72,7 @@ white background since eps (gimp?) can't handle alpha channel.
   Rotation: 0
 
 Actually, Y-offset seems to have no effect on page position: what
-happens is that tex compensates for the offset when it inserts the
+happens is that TeX compensates for the offset when it inserts the
 image!  Changing the offset and retexing puts the image back where TeX
 wants it.  Probably same true for X offset.
 
@@ -91,7 +91,7 @@ Just using gzip directly gives 1.6M file anyway.
 tiff is 1.5M.  png is 1.2M.  bz2 is 1.3M.
 
 Okay, so we'll distribute the original .eps file, gzipped.  
-(It gets zipped inside the tar file anyway, of course, but
+(It gets compressed inside the tar file anyway, of course, but
 leaving it zipped is less polluting).
 
 Badges
