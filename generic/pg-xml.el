@@ -166,6 +166,16 @@ is
       ;; FIXME: 
       (caar xmlparse))))
 
+(defun pg-xml-parse-string (arg)
+  "Parse string in ARG, same as pg-xml-parse-buffer."
+  (let
+      ((tempbuffer (get-buffer-create " *xml-parse*")))
+    (save-excursion 
+      (set-buffer tempbuffer)
+      (delete-region (point-min) (point-max))
+      (insert-string arg)
+      (pg-xml-parse-buffer))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -238,3 +248,5 @@ is
 ;;  (pg-xml-closeelt)
 ;;  (pg-xml-closeelt)
 ;;  (pg-xml-doc))
+
+;; End of `pg-xml.el'
