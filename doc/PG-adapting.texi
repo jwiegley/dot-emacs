@@ -327,9 +327,13 @@ define the modes using the macro @code{define-derived-mode}.  Or you can
 use the new easy configuration mechanism of Proof General 3.0 described
 in the next section, which calls @code{define-derived-mode} for you.
 You still need to know which configuration variables should be set, and
-how to set them.  The documentation below (and inside Emacs) should help
-with that, but the best way to begin might be to use an existing Proof
-General instance as an example.
+how to set them.  
+
+The documentation below (and inside Emacs) should help with that, but
+the best way to begin might be to use an existing Proof General instance
+as an example.  Even better is to use the new easy configuration
+mechanism, which avoids the need to call @code{define-derived-mode}
+directly.
 
 
 @node Demonstration instance and easy configuration
@@ -376,7 +380,12 @@ part of the entry in @code{proof-assistant-table} for your prover.
 and @code{@var{myprover}-goals-mode} will be defined.  The configuration
 variables in the body will be set immediately.
 
-Even Emacs Lisp experts may prefer the simplified mechanism.  If you
+
+This mechanism is in fact recommended for new instantiations of
+Proof General since it follows a regular pattern, and we can more
+easily adapt it in the future to new versions of Proof General.
+
+Even Emacs Lisp experts should prefer the simplified mechanism.  If you
 want to set some buffer-local variables in your Proof General modes, or
 invoke supporting lisp code, this can easily be done by adding functions
 to the appropriate mode hooks after the @code{proof-easy-config} call.
