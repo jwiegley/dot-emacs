@@ -808,9 +808,8 @@ Thomas Kleymann provided the impetus to develop a generic Emacs
 interface, following ideas used in Projet CROAP, and with the help of
 Yves Bertot.  David Aspinall provided the Proof General name and images.
 
-An early version of this manual was written by Thomas Kleymann and Dilip
-Sequeira.  The present version was prepared by David Aspinall and Thomas
-Kleymann.
+An early version of this manual was prepared by Dilip Sequeira.  The
+present version was written by David Aspinall and Thomas Kleymann.
 
 
 @node References
