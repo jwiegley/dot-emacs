@@ -23,7 +23,7 @@ little bit of Emacs Lisp.
 
 To use Proof General, add the line
 
-   (load-file "/usr/lib/emacs/ProofGeneral/generic/proof-site.el")
+   (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
 
 to your .emacs file.
 
@@ -39,7 +39,7 @@ rm -f */*.orig
 %build
 
 %install
-mkdir -p ${RPM_BUILD_ROOT}/usr/lib/emacs/ProofGeneral
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 # Put binaries in proper place
 mkdir -p ${RPM_BUILD_ROOT}/usr/bin
@@ -52,7 +52,7 @@ gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info
 # Remove duff bits
 rm -f doc/dir doc/localdir doc/ProofGeneral.texi
 
-cp -pr coq lego isa images generic ${RPM_BUILD_ROOT}/usr/lib/emacs/ProofGeneral
+cp -pr coq lego isa images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 
 %clean
@@ -71,14 +71,14 @@ fi
 %attr(-,root,root) /usr/info/ProofGeneral.info.gz
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
-%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral
-%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/coq
-%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/coq/*
-%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/lego
-%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/lego/*
-%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/isa
-%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/isa/*
-%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/images
-%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/images/*
-%attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/generic
-%attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/generic/*
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/coq
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/coq/*
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/lego
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/lego/*
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isa
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/images/*
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/generic/*
