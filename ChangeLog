@@ -1,3 +1,136 @@
+2002-08-07  David Aspinall  <da@proofgeneral.org>
+
+	* doc/ProofGeneral.texi:
+	Rename proof-dont-switch-windows -> proof-three-window-mode
+
+	* generic/proof-menu.el:
+	Fix proof-quick-opts-save.  Rename proof-dont-switch-windows -> proof-three-window-mode.
+
+	* generic/proof-utils.el, generic/proof-config.el:
+	Rename proof-dont-switch-windows -> proof-three-window-mode
+
+	* FAQ:
+	Added proof-shell-strip-crs-from-output
+
+	* generic/proof-config.el:
+	Default for proof-shell-strip-crs-from-output altered for Norbert Voelker to cygwin32.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* generic/proof-menu.el:
+	Trace buffer opt always enabled.  Failed fix attempt for proof-quick-opts-save.
+
+	* generic/proof-compat.el, generic/proof-shell.el, generic/proof-config.el:
+	Add proof-shell-strip-crs-from-output
+
+	* generic/pg-goals.el, generic/pg-response.el, generic/proof-menu.el, generic/proof-shell.el:
+	Reorganized menus; add options save function; fix capitalization of names
+
+	* generic/proof-depends.el:
+	Add require, fix menu capitalization.
+
+	* generic/proof-config.el:
+	Menu capitalization; support email addr.
+
+	* lclam/example.lcm, lclam/lclam.el:
+	New files.
+
+	* todo: Updated.
+
+	* generic/pg-goals.el, generic/proof-config.el, generic/proof-shell.el:
+	Comments
+
+	* generic/proof-compat.el: Autoload fix
+
+	* plastic/plastic.el, plastic/plastic-syntax.el:
+	Update from PC, sent 5.8.02
+
+2002-07-27  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el, coq/coq-syntax.el:
+	Finished the changing of names of config. variables (coq-user...).
+
+2002-07-26  Pierre Courtieu  <courtieu@lri.fr>
+
+	* doc/ProofGeneral.texi, CHANGES:
+	Changed a bit more the doc and the CHANGES file, to be
+	consitent. Concerns the coq-user... variables.
+
+	* coq/coq.el, coq/coq-syntax.el:
+	Changed once again the backtrack mechanism, it corresponds to what we
+	agreed for some time ago. I am ok for a 3.4 now.
+
+	* doc/ProofGeneral.texi:
+	The doc for coq-user-... variables is a bit better, their name has
+	changed to be more explicit.
+
+2002-07-25  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox-font.el, phox/x-symbol-phox.el, phox/phox.el:
+	change to support version 4.4 of x-symbol
+
+2002-07-19  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* BUGS: Known issues
+
+	* isa/isabelle-system.el:
+	Support missing/faked isatool
+
+	* isa/x-symbol-isabelle.el:
+	Merge changes and comments sent by Christoph Wedler
+
+	* ChangeLog: Updated.
+
+	* generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-site.el: Replace
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* phox/phox.el, plastic/plastic.el, twelf/twelf.el, isar/isar.el, lego/lego.el, hol98/hol98.el, isa/isa.el, generic/proof-script.el, generic/proof-shell.el, generic/proof-syntax.el, demoisa/demoisa.el, doc/PG-adapting.texi, acl2/acl2.el, coq/coq.el, demoisa/demoisa-easy.el, Makefile.devel, ChangeLog:
+	Variable name change proof-comment-{start,end}-regexp -> proof-script-comment-{start,end}-regexp.
+
+	* FAQ: Spacing
+
+	* isa/isabelle-system.el:
+	Bug in load-isar-keywords
+
+	* etc/isar/Persistent.thy: Updated.
+
+	* CHANGES: Mention fav improvs
+
+	* todo: Updated
+
+	* generic/proof-config.el:
+	Reduce proof-shell-quite-timeout
+
+	* Makefile.devel: Ignore todo.defunct
+
+	* todo.defunct: New files.
+
+	* Makefile.devel: Add todo to tags
+
+	* generic/proof-compat.el, generic/proof-splash.el:
+	Move imagep compat code to splash
+
+	* generic/proof-menu.el:
+	Make favourites mechanism more robust; add delete command.
+
+	* generic/proof-compat.el:
+	Trivially simulate events-to-keys
+
+2002-07-18  David Aspinall  <da@proofgeneral.org>
+
+	* coq/BUGS: X-sym bug
+
+	* coq/x-symbol-coq.el:
+	Add yet more settings X-Sym complains about.
+
 2002-07-19  David Aspinall  <da@proofgeneral.org>
 
 	* BUGS: Known issues
