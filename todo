@@ -5,6 +5,13 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 =================================================================
 
+3.5.1 Another TODO
+
+* Integrate large demo font
+
+
+=================================================================
+
 3.5.1 Coq-8 fixup release TODO
 
 * Fix display of sub/super scripts in Coq output
