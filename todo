@@ -7,18 +7,9 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 * THINGS TO DO BEFORE 3.5 RELEASE
 
-*** x-symbol warning:
-     Emacs language environment and system locale specify different encoding, I'll assume `iso-8859-1'
-    I have /etc/sysconfig/i18n containing  LANG="en_GB.iso885915"
-    (setq-default buffer-file-coding-system 'iso-8859-15) prevents warning,
-    but should we assume a default format for proof assistants?
-    (NB: normal default seems to be iso-2022-8)
-
 *** Spam-protect email addresses on web pages
 
 *** Fixup HTML on mailing list pages
-
-*** Update CHANGES to mention ccc and pg-shell
 
 *** Display management improvement (ongoing; it's a nightmare)
     Glitches to resolve:
@@ -34,28 +25,7 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
      -- Stuck-withs: XEmacs frames always have minibuffer.
 		     GNU Emacs frames always have modelines.
 
-*** Update documentation.  Include new screenshots also for web pages.
-
-*** GNU Emacs bug:
-     -- Behaviour of `proof-shell-exit' is different on command
-     line and from menu.  From menu it *hangs* for some reason,
-     but not when called directly.
-     [ SHOULD BE FIXED NOW ]
-
-*** Strange bug Gerwin reported with restarting Isabelle/logic name.
-    Busy wait triggered, proof-shell-busy stays set.
-    REASON: see comment about calling invisible-command in a nested
-    way.  askprefs is called that way.   Leads to blocking.
-     [ SHOULD BE FIXED NOW ]
-
-*** Use of regexps in isar-syntax.el  --- problems with retraction.
-
-*** Automatically processing files before deactivating scripting: warning
-    messages from Isabelle when asking it to remove files that it says
-    are already removed (noticed with auto action set to process).
-
-    Something has broken with multiple-file scripting here: perhaps an
-    Isabelle problem.
+*** Update documentation.  
 
 *** Emacs Bug Roundup
     --- xemacs support for nested comments??
@@ -63,9 +33,8 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 *** Clean up X-symbol support
      -- token configuration for latest version of X-Symbol (Gerwin Klein, done?)
-     -- remove on/off setting for all buffers (too slow), use
-        same mechanism as proof-mmm. [Done; in testing]
-     -- Check x-symbol support in provers other than Isabelle
+     -- Check x-symbol support in provers other than Isabelle 
+	[Coq: OK; others?]
 
 *** Finish/cleanup MMM support for Isar.  Document.
        Add MMM for other provers where relevant
@@ -81,6 +50,10 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 *** Check multiple file support in Isabelle -- maybe has become buggy
      -- Test cases seem to work, still
+     -- TODO: test with auto action:
+    Automatically processing files before deactivating scripting: warning
+    messages from Isabelle when asking it to remove files that it says
+    are already removed (noticed with auto action set to process).
 
 *** Coq issues that may be problematic:
      -- Auto-compile-vos (prob impossible to fix)

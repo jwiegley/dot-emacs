@@ -31,6 +31,11 @@ A. This may be because of UTF-8 issues e.g in Red Hat 8.0/9/glibc 2.2
    be read the shell.  This will affect all applications, though.
    [ suggestions for a better workaround inside Emacs would be welcome ]
 
+   NB: a related issue is warnings from x-symbol: "Emacs language 
+   environment and system locale specify different encoding, I'll 
+   assume `iso-8859-1'".  This warning appears to be mainly harmless.
+   Notice that the variable `buffer-file-coding-system' may determine
+   the format that files are saved in.  
 
 -----------------------------------------------------------------
 
