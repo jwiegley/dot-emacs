@@ -49,8 +49,9 @@
 ;; Some variables from proof-shell are also used, in particular,
 ;; the menus.  These should probably be moved out to proof-menu.
 
+;; ============================================================
 ;;
-;; Internal variables used by shell mode
+;; Internal variables used by proof shell
 ;;
 
 (defvar proof-re-end-of-cmd nil 
