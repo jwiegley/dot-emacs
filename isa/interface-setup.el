@@ -14,7 +14,7 @@
 ;;; X-Symbol
 ;;;
 
-(if (string-match "XEmacs" emacs-version)       ;current X-Symbol works with XEmacs only
+(if (string-match "XEmacs" emacs-version)       ;current X-Symbol works with XEmacs only!
     (let ((xsymbol-home (getenv "XSYMBOL_HOME"))
           (xsymbol (getenv "PROOFGENERAL_XSYMBOL"))
           (enable-var
@@ -32,6 +32,8 @@
                 (push (expand-file-name "etc/" xsymbol-home) data-directory-list))
             (if (boundp 'Info-directory-list)
                 (push (expand-file-name "info/" xsymbol-home) Info-directory-list))
+            (if (not (boundp 'x-symbol-image-converter))     ;avoid confusing warning message
+                (customize-set-variable 'x-symbol-image-converter nil))
             (x-symbol-initialize)))
       ;; tell Proof General about -x option
       (if (and xsymbol (not (equal xsymbol "")))
