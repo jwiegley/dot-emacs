@@ -6,11 +6,11 @@
 ;;
 ;; $Id$
 ;;
-;; NB: try not to use cl or other autoloaded macro sets here,
-;; to minimise delay before splash screen is shown. 
+;; NB: try not to use functions which autoload large packages
+;; here, to minimise the delay before splash screen is shown. 
 ;;
 
-(require 'proof-site)
+(require 'proof-config)			; for 
 
 (defconst proof-splash-welcome "*Proof General Welcome*"
   "Name of the Proof General splash buffer.")
@@ -81,45 +81,39 @@ Borrowed from startup-center-spaces."
 (defvar proof-splash-seen nil
   "Flag indicating the user has been subjected to a welcome message.")
 
+;;;###autoload
 (defun proof-splash-display-screen ()
-  "Save window config and display Proof General splash screen.
-Only do it if proof-splash-enable is non-nil."
-  (if (and
-       proof-splash-enable
-       ;; FIXME: UGLY COMPATIBILITY HACK
-       ;; Next check avoids XEmacs giving "Arithmetic Error"
-       ;; during byte compilation.
-       (if (fboundp 'noninteractive) (not (noninteractive)) t))
-    (let
-	;; Keep win config explicitly instead of pushing/popping because
-	;; if the user switches windows by hand in some way, we want
-	;; to ignore the saved value.  Unfortunately there seems to
-	;; be no way currently to remove the top item of the stack.
-	((winconf   (current-window-configuration))
-	 (splashbuf (get-buffer-create proof-splash-welcome))
-	 (after-change-functions nil) ; no font-lock, thank you
-	 (splash-contents (append
-			   (eval proof-splash-contents)
-			   (eval proof-splash-extensions)))
-	 s)
-      (with-current-buffer splashbuf
-	(erase-buffer)
-	;; [ Don't use do-list to avoid loading cl ]
-	(while splash-contents
-	  (setq s (car splash-contents))
-	  (cond
-	   ((and (vectorp s)		; vectorp for FSF
-		 (valid-instantiator-p s 'image))
-	    (let ((gly (make-glyph s)))
-	      (indent-to (proof-splash-centre-spaces gly))
-	      (set-extent-begin-glyph (make-extent (point) (point)) gly)))
-	   ((stringp s)
-	    (indent-to (proof-splash-centre-spaces s))
-	    (insert s)))
-	  (newline)
-	  (setq splash-contents (cdr splash-contents)))
-	(goto-char (point-min))
-	(set-buffer-modified-p nil)
+  "Save window config and display Proof General splash screen."
+  (let
+      ;; Keep win config explicitly instead of pushing/popping because
+      ;; if the user switches windows by hand in some way, we want
+      ;; to ignore the saved value.  Unfortunately there seems to
+      ;; be no way currently to remove the top item of the stack.
+      ((winconf   (current-window-configuration))
+       (splashbuf (get-buffer-create proof-splash-welcome))
+       (after-change-functions nil) ; no font-lock, thank you
+       (splash-contents (append
+			 (eval proof-splash-contents)
+			 (eval proof-splash-extensions)))
+       s)
+    (with-current-buffer splashbuf
+      (erase-buffer)
+      ;; [ Don't use do-list to avoid loading cl ]
+      (while splash-contents
+	(setq s (car splash-contents))
+	(cond
+	 ((and (vectorp s)		; vectorp for FSF
+	       (valid-instantiator-p s 'image))
+	  (let ((gly (make-glyph s)))
+	    (indent-to (proof-splash-centre-spaces gly))
+	    (set-extent-begin-glyph (make-extent (point) (point)) gly)))
+	 ((stringp s)
+	  (indent-to (proof-splash-centre-spaces s))
+	  (insert s)))
+	(newline)
+	(setq splash-contents (cdr splash-contents)))
+      (goto-char (point-min))
+      (set-buffer-modified-p nil)
 	(delete-other-windows (display-buffer splashbuf))
 	(if (fboundp 'redisplay-frame)
 	    (redisplay-frame nil t)	; XEmacs special
@@ -130,7 +124,17 @@ Only do it if proof-splash-enable is non-nil."
 			    'proof-splash-remove-screen
 			    winconf)
 	       winconf)))
-      (setq proof-splash-seen t))))
+    ;; PROBLEM: when to call proof-splash-display-screen?
+    ;; We'd like to call it during loading/initialising.  But it's
+    ;; hard to make the screen persist after loading because of the
+    ;; action of display-buffer invoked after the mode function
+    ;; during find-file.
+    ;; To approximate the best behaviour, we assume that this file is
+    ;; loaded by a call to proof-mode.  We display the screen now and add
+    ;; a wait procedure temporarily to proof-mode-hook which prevents
+    ;; redisplay until proof-splash-time has elapsed. 
+    (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
+    (setq proof-splash-seen t)))
 
 (defun proof-splash-message ()
   "Make sure the user gets welcomed one way or another."
@@ -139,24 +143,11 @@ Only do it if proof-splash-enable is non-nil."
     (setq proof-splash-seen t)
     (sit-for 0)))
 
-;; PROBLEM: when to call proof-splash-display-screen?
-;; We'd like to call it during loading/initialising.  But it's
-;; hard to make the screen persist after loading because of the
-;; action of display-buffer invoked after the mode function
-;; during find-file.
-;; To approximate the best behaviour, we assume that this file is
-;; loaded by a call to proof-mode.  We display the screen now and add
-;; a wait procedure temporarily to proof-mode-hook which prevents
-;; redisplay until proof-splash-time has elapsed. 
-
-;; Display the screen ASAP...
-(proof-splash-display-screen)
-
 (defun proof-splash-timeout-waiter ()
   "Wait for proof-splash-timeout or input, then remove self from hook."
   (while (and (get-buffer proof-splash-welcome)
 	      (not (input-pending-p)))
-    (if (string-match "XEmacs" emacs-version)
+    (if proof-running-on-XEmacs
 	(sit-for 0 t)			; XEmacs: wait without redisplay
       ; (sit-for 1 0 t)))		; FSF: NODISP arg seems broken
       (sit-for 0)))
@@ -167,9 +158,6 @@ Only do it if proof-splash-enable is non-nil."
   (if (input-pending-p)
       (setq unread-command-event (next-command-event)))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
-
-(if proof-splash-enable
-  (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
 (provide 'proof-splash)
 ;; End of proof-splash.
