@@ -5,6 +5,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.4  1998/05/21 17:27:41  hhg
+;; Removed uninitialized os variable in spans-at-region.
+;;
 ;; Revision 1.3  1998/05/21 08:28:52  hhg
 ;; Initialize 'before pointer in add-span-aux when last-span is nil.
 ;; Removed span-at-type.
@@ -113,7 +116,7 @@
     overlays))
 
 (defun spans-at-region (start end)
-  (let ((overlays nil) (pos start) (os nil))
+  (let ((overlays nil) (pos start))
     (while (< pos end)
       (setq overlays (append (spans-at-point pos) overlays))
       (setq pos (next-overlay-change pos)))
