@@ -141,6 +141,7 @@ Borrowed from startup-center-spaces."
       (proof-splash-timeout-waiter))
     (setq proof-splash-seen t)))
 
+;;;###autoload
 (defun proof-splash-message ()
   "Make sure the user gets welcomed one way or another."
   (unless proof-splash-seen
