@@ -5,6 +5,10 @@
 
 
 ;; $Log$
+;; Revision 1.30  1997/11/20 13:04:59  hhg
+;; Added lego-global-p as always false, but for consistency with Coq mode.
+;; Changed [meta (control i)] to [meta tab] in key definition.
+;;
 ;; Revision 1.29  1997/11/18 19:24:55  djs
 ;; Added indentation for lego-mode.
 ;;
@@ -129,7 +133,7 @@
 
 ;; ----- lego-shell configuration options
 
-(defvar lego-prog-name "legoML"
+(defvar lego-prog-name "/home/ctm/lego/bin/legoML"
   "*Name of program to run as lego.")
 
 (defvar lego-shell-working-dir ""
@@ -366,6 +370,9 @@
 (defun lego-state-preserving-p (cmd)
   (not (string-match lego-undoable-commands-regexp cmd)))
 
+(defun lego-global-p (cmd)
+  nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -540,7 +547,8 @@
 
   (setq proof-retract-target-fn 'lego-retract-target
         proof-goal-hyp-fn 'lego-goal-hyp
-	proof-state-preserving-p 'lego-state-preserving-p)
+	proof-state-preserving-p 'lego-state-preserving-p
+	proof-global-p 'lego-global-p)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
@@ -557,7 +565,8 @@
 
   (proof-config-done)
 
-  (define-key (current-local-map) [(meta (control i))]
+  ; (meta (control i)) causes emacs to fail, maybe it raises an exception
+  (define-key (current-local-map) [(meta tab)]
     (if (fboundp 'complete-tag)
 	'complete-tag		; Emacs 19.31 (superior etags)
       'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
