@@ -159,7 +159,7 @@ NONDISTFILES=.cvsignore */.cvsignore html Makefile.devel Makefile.xemacs doc/not
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo etc/TESTS
+IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo etc/TESTS
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -183,7 +183,7 @@ DEVELRELEASENAMETAR = $(DEVELRELEASENAME).tar
 DEVELRELEASENAMETARGZ = $(DEVELRELEASENAMETAR).gz
 
 # Files not kept under cvs to clean away.
-FILES_NONCVS = TAGS
+# FILES_NONCVS = TAGS
 
 # Where to install a distribution 
 # DISTINSTALLDIR=/usr/local/share/elisp/proofgeneral
@@ -266,7 +266,7 @@ distclean:	clean
 #
 cvsclean:	clean
 	@echo "***** CLEANING UP ALL NON-CVS FILES ****"
-	rm -rf $(FILES_NONCVS)
+#	rm -rf $(FILES_NONCVS)
 	(cd doc; $(MAKE) distclean)
 	(cd images; $(MAKE) cvsclean)
 
