@@ -606,8 +606,7 @@ Suggestion: this can be set a function called by `pre-shell-start-hook'."
   :type 'function
   :group 'prover-config)
 
-;; FIXME: ought to be renamed to proof-mode-for-goals
-(defcustom proof-mode-for-pbp 'pbp-mode
+(defcustom proof-mode-for-goals 'proof-goals-mode
   "Mode for proof state display buffers.
 Usually customised for specific prover.
 Suggestion: this can be set a function called by `pre-shell-start-hook'."
@@ -1178,6 +1177,31 @@ script every time scripting begins."
   :type 'string
   :group 'proof-shell)
 
+(defcustom proof-shell-start-silent-cmd nil
+  "Command to turn prover goals output off when sending many script commands.
+If non-nil, Proof General will automatically issue this command
+to help speed up processing of long proof scripts.  
+See also proof-shell-stop-silent-cmd.
+NB: terminator not added to command."
+  :type '(choice string (const nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-stop-silent-cmd nil
+  "Command to turn prover output off.  
+If non-nil, Proof General will automatically issue this command
+to help speed up processing of long proof scripts.  
+See also proof-shell-start-silent-cmd.
+NB: Terminator not added to command."
+  :type '(choice string (const nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-silent-threshold 2
+  "Number of waiting commands in the proof queue needed to trigger silent mode.
+Default is 2, but you can raise this in case switching silent mode
+on or off is particularly expensive."
+  :type 'integer
+  :group 'proof-shell)
+
 (defcustom  proof-shell-inform-file-processed-cmd nil
  "Command to the proof assistant to tell it that a file has been processed.
 The format character `%s' is replaced by a complete filename for a
@@ -1237,33 +1261,6 @@ Proof General about the dependencies rather than using this setting."
   :type 'boolean
   :group 'proof-shell)
 
-(defcustom proof-shell-start-silent-cmd nil
-  "Command to turn prover goals output off when sending many script commands.
-If non-nil, Proof General will automatically issue this command
-to help speed up processing of long proof scripts.  
-See also proof-shell-stop-silent-cmd.
-NB: terminator not added to command.
-NOT IMPLEMENTED YET.  Forthcoming in Proof General 3.2."
-  :type '(choice string (const nil))
-  :group 'proof-shell)
-
-(defcustom proof-shell-stop-silent-cmd nil
-  "Command to turn prover output off.  
-If non-nil, Proof General will automatically issue this command
-to help speed up processing of long proof scripts.  
-See also proof-shell-start-silent-cmd.
-NB: Terminator not added to command.
-NOT IMPLEMENTED YET.  Forthcoming in Proof General 3.2."
-  :type '(choice string (const nil))
-  :group 'proof-shell)
-
-(defcustom proof-shell-silent-threshold 2
-  "Number of waiting commands in the proof queue needed to trigger silent mode.
-Default is 2, but you can raise this in case switching silent mode
-on or off is particularly expensive.
-NOT IMPLEMENTED YET.  Forthcoming in Proof General 3.2."
-  :type 'integer
-  :group 'proof-shell)
 
 
 
@@ -1494,7 +1491,9 @@ quote characters must be escaped.  The setting
     (\"\\\"\" . \"\\\\\\\"\"))
 achieves this.   This does not apply to LEGO, which does not
 need backslash escapes and does not allow filenames with
-quote characters."
+quote characters.
+
+This setting is used inside the function `proof-format-filename'."
   :type '(list (cons string string))
   :group 'proof-shell)
 
@@ -1564,7 +1563,7 @@ shell variables:
    proof-prog-name
    proof-mode-for-shell
    proof-mode-for-response
-   proof-mode-for-pbp
+   proof-mode-for-goals
 
 This is the bare minimum needed to get a shell buffer and
 its friends configured in the function proof-shell-start."
