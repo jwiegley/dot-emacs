@@ -137,11 +137,11 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 (defun proof-x-symbol-enable ()
   "Turn on or off support for x-symbol, initializing if necessary.
 Calls proof-x-symbol-toggle-clean-buffers afterwards."
-  (if (and proof-x-symbol-enable (not proof-x-symbol-initialized))
+  (if (and (proof-ass x-symbol-enable) (not proof-x-symbol-initialized))
       (progn
-	(setq proof-x-symbol-enable nil) ; assume failure!
+	(set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
-	(setq proof-x-symbol-enable t)))
+	(set (proof-ass-sym x-symbol-enable) t)))
   (proof-x-symbol-mode-all-buffers)
   (proof-x-symbol-toggle-clean-buffers))
 
@@ -152,7 +152,7 @@ Calls proof-x-symbol-toggle-clean-buffers afterwards."
   "Clear the response buffer and send proof-showproof-command.
 This function is intended to clean the display after a change
 in the status of X-Symbol display.
-This is a subroutine of x-symbol-enable."
+This is a subroutine of proof-x-symbol-enable."
   (proof-shell-maybe-erase-response nil t t)
   (if (and proof-showproof-command (proof-shell-available-p))
     (proof-shell-invisible-command proof-showproof-command)))
@@ -161,7 +161,7 @@ This is a subroutine of x-symbol-enable."
 (defun proof-x-symbol-decode-region (start end) 
   "Call (x-symbol-decode-region A Z), if x-symbol support is enabled.
 This converts tokens in the region into X-Symbol characters."
-  (if (and proof-x-symbol-enable)
+  (if (and (proof-ass x-symbol-enable))
       (x-symbol-decode-region start end)))
 
 (defun proof-x-symbol-encode-shell-input ()
@@ -227,7 +227,7 @@ takes place (it isn't used for output-only buffers)."
 	  ;; Buffers which have XS minor mode toggled always keep 
 	  ;; x-symbol-language set.
 	  (setq x-symbol-language proof-assistant-symbol)
-	  (x-symbol-mode (if proof-x-symbol-enable 1 0))
+	  (x-symbol-mode (if (proof-ass x-symbol-enable) 1 0))
 	  ;; Font lock mode must be engaged for x-symbol to do its job
           ;; properly, at least when there is no mule around.
 	  (if (and x-symbol-mode (not (featurep 'mule)))
@@ -254,7 +254,7 @@ Assumes that the current buffer is the proof shell buffer."
   (if proof-x-symbol-initialized
       (progn
 	(cond
-	 (proof-x-symbol-enable
+	 ((proof-ass x-symbol-enable)
 	  (setq x-symbol-language proof-assistant-symbol)
 	  (if (and proof-xsym-activate-command 
 		   (proof-shell-live-buffer))
@@ -263,7 +263,7 @@ Assumes that the current buffer is the proof shell buffer."
 	  ;; We do encoding as the first step of input manipulation
 	  (add-hook 'proof-shell-insert-hook
 		    'proof-x-symbol-encode-shell-input))
-	 ((not proof-x-symbol-enable)
+	 ((not (proof-ass x-symbol-enable))
 	  (if (and proof-xsym-deactivate-command 
 		   (proof-shell-live-buffer))
 	      (proof-shell-invisible-command 
@@ -279,7 +279,7 @@ Assumes that the current buffer is the proof shell buffer."
 ;;;###autoload
 (defun proof-x-symbol-configure ()
   "Configure the current buffer (goals or response) for X-Symbol."
-  (if proof-x-symbol-enable
+  (if (proof-ass x-symbol-enable)
       (progn
 	(setq x-symbol-language proof-assistant-symbol)
 	;; If we're turning on x-symbol, attempt to convert to 
@@ -299,14 +299,13 @@ Assumes that the current buffer is the proof shell buffer."
 ;;
 ;; Try to initialize x-symbol-support on load-up if user has asked for it
 ;;
-(if proof-x-symbol-enable (proof-x-symbol-initialize))
-;;
-;; If initialization failed, the next line will turn off
-;; proof-x-symbol-enable for the session.
-;;
-(customize-set-variable 'proof-x-symbol-enable proof-x-symbol-initialized)
-
-
+(if (proof-ass x-symbol-enable) 
+    (progn
+      (proof-x-symbol-initialize)
+      (unless proof-x-symbol-initialized
+	;; If initialization failed, turn off
+	;; x-symbol-enable for the session.
+	(customize-set-variable (proof-ass-sym x-symbol-enable) nil))))
 
 (provide 'proof-x-symbol)
 ;; End of proof-x-symbol.el
