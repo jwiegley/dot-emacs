@@ -56,6 +56,22 @@ A. This may be because of UTF-8 issues e.g in Red Hat 8.0/9/glibc 2.2
 
 -----------------------------------------------------------------
 
+Q. Help, I'm stuck!! Emacs keeps telling me "Cannot switch buffers in a
+   dedicated window"  
+
+A. This can happen if you enabled "Use Three Panes" and then change
+   the panes (window) layout manually, typically by deleting another 
+   window or frame so you only have a "dedicated" window on the 
+   display.  Don't kill Emacs!  There are many ways of getting out,
+   e.g.
+   -- In single window mode, C-c C-l (proof-layout-windows) refreshes
+      the display
+
+   -- In multiple window mode, if you have accidently deleted the main
+      window, get a new one with M-x new-frame RET
+
+-----------------------------------------------------------------
+
 Q. XEmacs appears to hang on certain malformed inputs to the prover.
 
 A. This symptom may be caused by using non-Mule versions of XEmacs.
