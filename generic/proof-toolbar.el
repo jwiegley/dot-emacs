@@ -209,7 +209,7 @@ without giving error messages."
 ;; Something less drastic would be nice!
 (defun proof-toolbar-restart  ()
   (if (yes-or-no-p "Restart proof scripting?")
-      (proof-restart-script)))
+      (proof-restart-script-same-process)))
 
 ;; A goal button will need a variable for string to insert,
 ;; actually.

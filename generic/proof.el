@@ -245,7 +245,9 @@ when parsing the proofstate output")
   "You are not authorised for this information.")
 
 (defvar proof-shell-busy nil 
-  "You are not authorised for this information.")
+  "A lock indicating that the proof shell is processing.
+When this is non-nil, proof-check-process-available will give
+an error.")
 
 (deflocal proof-buffer-type nil 
   "Symbol indicating the type of this buffer: script, shell, or pbp.")
@@ -919,6 +921,10 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
 ;;   Low-level commands for shell communication                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; FIXME da: Should this kind of ordinary input go onto the queue of
+;; things to do?  Then errors during processing would prevent it being
+;; sent.  Also the proof shell lock would be set automatically, which
+;; might be nice?
 (defun proof-shell-insert (string)
   (set-buffer proof-shell-buffer)
   (goto-char (point-max))
@@ -935,6 +941,8 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
 	(set-marker proof-marker inserted))
     (comint-send-input)))
 
+;; da: This function strips carriage returns from string, then
+;; sends it.  (Why strip CRs?)
 (defun proof-send (string)
   (let ((l (length string)) (i 0))
     (while (< i l)
@@ -942,17 +950,19 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
       (incf i)))
   (save-excursion (proof-shell-insert string)))
 
-;; Note that this is not really intended for anything complicated -
-;; just to stop the user accidentally sending a command while the
-;; queue is running.
 (defun proof-check-process-available (&optional relaxed)
-  "Checks
+  "Checks whether the proof process is available.
+Specifically:
      (1) Is a proof process running?
      (2) Is the proof process idle?
      (3) Does the current buffer own the proof process?
      (4) Is the current buffer a proof script?
-    and signals an error if at least one of the conditions is not
-    fulfilled. If relaxed is set, only (1) and (2) are tested."
+It signals an error if at least one of the conditions is not
+fulfilled. If optional arg RELAXED is set, only (1) and (2) are 
+tested.
+Note that this is not really intended for anything complicated -
+just to stop the user accidentally sending a command while the
+queue is running."
   (if (proof-shell-live-buffer)
       (cond
        (proof-shell-busy (error "Proof Process Busy!"))
@@ -1633,7 +1643,6 @@ the proof script."
   (proof-assert-until-point))
 
 ;; For when things go horribly wrong
-
 (defun proof-restart-script ()
   (interactive)
   (save-excursion
@@ -1649,6 +1658,18 @@ the proof script."
 	(kill-buffer proof-shell-buffer))
     (if (buffer-live-p proof-pbp-buffer)
 	(kill-buffer proof-pbp-buffer))))
+
+;; For when things go not-quite-so-horribly wrong
+;; FIXME: this may need work
+(defun proof-restart-script-same-process ()
+  (interactive)
+  (save-excursion
+    (if (buffer-live-p proof-script-buffer)
+	(progn
+	  (set-buffer proof-script-buffer)
+	  (setq proof-active-buffer-fake-minor-mode nil)
+	  (delete-spans (point-min) (point-max) 'type)
+	  (proof-detach-segments)))))
 
 ;; A command for making things go horribly wrong - it moves the
 ;; end-of-locked-region marker backwards, so user had better move it
