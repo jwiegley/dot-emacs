@@ -317,7 +317,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (hol98 "HOL" "\\.sml$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (hol98 "HOL" "\\.sml$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$") (af2 "Af2" "\\.af2$"))}.
 @end defopt
 
 
@@ -1205,9 +1205,13 @@ with "eager" annotations.
 @defvar proof-shell-eager-annotation-start 
 Eager annotation field start.  A regular expression or nil.@*
 An eager annotation indicates to Proof General that some following output
-should be displayed immediately and not accumulated for parsing later.
-It's nice to recognize warnings or file-reading messages with this
-regexp.  
+should be displayed (or processed) immediately and not accumulated for 
+parsing later. 
+
+It is nice to recognize (starts of) warnings or file-reading messages
+with this regexp.  You must also recognize any special messages
+from the prover to PG with this regexp (e.g. @samp{@code{proof-shell-clear-goals-regexp}}, 
+@samp{@code{proof-shell-retract-files-regexp}}, etc.)
 
 See also @samp{@code{proof-shell-eager-annotation-start-length}},
 @samp{@code{proof-shell-eager-annotation-end}}.
@@ -1229,7 +1233,14 @@ filter to avoid unnecessary searching.
 @defvar proof-shell-eager-annotation-end 
 Eager annotation field end.  A regular expression or nil.@*
 An eager annotation indicates to Emacs that some following output
-should be displayed immediately and not accumulated for parsing.
+should be displayed or processed immediately.
+
+See also @samp{@code{proof-shell-eager-annotation-start}}.
+
+It is nice to recognize (ends of) warnings or file-reading messages
+with this regexp.  You must also recognize (ends of) any special messages
+from the prover to PG with this regexp (e.g. @samp{@code{proof-shell-clear-goals-regexp}}, 
+@samp{@code{proof-shell-retract-files-regexp}}, etc.)
 
 The default value is "\n" to match up to the end of the line.
 @end defvar
@@ -2002,7 +2013,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'hol98} @code{'plastic} @code{'twelf}.
+A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'hol98} @code{'plastic} @code{'twelf} @code{'af2}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
