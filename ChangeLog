@@ -1,3 +1,28 @@
+2000-10-19  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Second part of moving to 3.3pre series.
+
+2000-10-18  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Begin move to 3.3 series.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/register.html: Fix parse error.
+
 2000-10-18  David Aspinall  <da@proofgeneral.org>
 
 	* ChangeLog: Updated.
