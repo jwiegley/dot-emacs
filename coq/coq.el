@@ -16,9 +16,6 @@
 (eval-and-compile
   (mapcar (lambda (f) (autoload f "proof-shell"))
 	    '(pbp-mode proof-shell-config-done))) 
-;; FIXME: outline and info should be autoloaded.
-(require 'outline)
-(require 'info)
 
 ; Configuration
 
@@ -271,27 +268,24 @@
 	   (proof-string-match ":=" cmd))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Commands specific to coq                                      ;;
+;;   Commands specific to coq                                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-Intros () 
   "Shortcut for Intros.
-
-  This is specific to coq-mode." 
+This is specific to coq-mode." 
   (interactive) 
   (insert "Intros "))
 
 (defun coq-Apply () 
   "Shortcut for Apply
-
-  This is specific to coq-mode."  
+This is specific to coq-mode."  
   (interactive) 
   (insert "Apply "))
 
 (defun coq-SearchIsos ()
   "Search a term whose type is isomorphic to given type
-
-  This is specific to coq-mode."
+This is specific to coq-mode."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
@@ -506,7 +500,7 @@
    proof-shell-assumption-regexp coq-id
    proof-shell-first-special-char ?\360
    proof-shell-wakeup-char ?\371 ; done: prompt
-					; The next three represent path annotation information
+   ;; The next three represent path annotation information
    proof-shell-start-char ?\372 ; not done
    proof-shell-end-char ?\373 ; not done
    proof-shell-field-char ?\374 ; not done
