@@ -28,8 +28,6 @@ Isabelle perspective; it enables Isabelle to provide a consistent
 process and file-system environment, including the all-important
 isar-keywords.el file.
 
-Check the value of isabelle-prog-name.
-
 ========================================
 
 $Id$
