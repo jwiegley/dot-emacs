@@ -851,15 +851,15 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
 (defun proof-shell-handle-interrupt ()
    "React on an interrupt message from the prover.
  Runs proof-shell-error-or-interrupt-action."
-  (proof-shell-maybe-erase-response t t t) ; force cleaned now & next
-  (proof-shell-handle-output
-   proof-shell-interrupt-regexp proof-shell-annotated-prompt-regexp
-   'proof-error-face)
+   (proof-shell-maybe-erase-response t t t) ; force cleaned now & next
+   (proof-shell-handle-output
+    proof-shell-interrupt-regexp proof-shell-annotated-prompt-regexp
+    'proof-error-face)
 ;  (proof-display-and-keep-buffer proof-response-buffer)
-  (proof-warning 
-   "Interrupt: script management may be in an inconsistent state
+   (proof-warning 
+    "Interrupt: script management may be in an inconsistent state
            (but it's probably okay)")
-  (proof-shell-error-or-interrupt-action 'interrupt))
+   (proof-shell-error-or-interrupt-action 'interrupt))
 
 (defun proof-shell-error-or-interrupt-action (&optional err-or-int)
   "General action when an error or interrupt message appears from prover.
@@ -1482,8 +1482,29 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
        (if proof-shell-leave-annotations-in-output
 	   message
 	 (proof-shell-strip-special-annotations message)))
-      (proof-display-and-keep-buffer proof-trace-buffer))
-
+      (proof-display-and-keep-buffer proof-trace-buffer)
+      ;; Force redisplay in case in a fast loop which keeps Emacs
+      ;; fully-occupied processing prover output
+      (and (fboundp 'redisplay-frame)
+	   ;; XEmacs fn 
+	   (redisplay-frame)))
+	   
+      ;; Similarly, try to determine if there are command events
+      ;; waiting which are being ignored;
+; none of this really works
+;      (setq inhibit-quit nil)
+;      (if (and 
+;	   proof-action-list		 ;; we're processing an action
+;	   unread-command-events	 ;; user input is waiting
+;	   (setq foo unread-command-events)
+;	   (message "seen command waiting")
+;	   (key-press-event-p 
+;	    (car unread-command-events)) ;; it's a key press
+;	   (event-matches-key-specifier-p 
+;	    (car unread-command-events) 'quit-char)) 
+;	  ;; If user tried C-g here, send an interrupt to the
+;	  ;; process
+;	  (proof-interrupt-process)))
 
      (t
       ;; We're about to display a message.  Clear the response buffer
