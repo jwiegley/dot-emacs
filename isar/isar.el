@@ -2,7 +2,7 @@
 ;; Copyright (C) 1994-1998 LFCS Edinburgh.
 ;;
 ;; Author:              David Aspinall <da@dcs.ed.ac.uk>
-;; Author / maintainer: Markus Wenzel <wenzelm@in.tum.de>
+;; Author / Maintainer: Markus Wenzel <wenzelm@in.tum.de>
 ;;
 ;; $Id$
 ;;
@@ -91,7 +91,7 @@
    proof-assistant-home-page    isabelle-web-page
    proof-mode-for-script        'isar-mode
    ;; proof script syntax
-   proof-terminal-char          ?\;     ; forcibly ends a proof command
+   proof-terminal-char          ?\;     ; forcibly ends a command
    proof-script-command-start-regexp (proof-regexp-alt
                                       isar-any-command-regexp
                                       (regexp-quote ";"))
@@ -101,6 +101,7 @@
    proof-comment-end-regexp     isar-comment-end-regexp
    proof-string-start-regexp    isar-string-start-regexp
    proof-string-end-regexp      isar-string-end-regexp
+
    ;; Next few used for func-menu and recognizing goal..save regions in
    ;; script buffer.
    proof-save-command-regexp    isar-save-command-regexp
@@ -181,10 +182,6 @@
    proof-shell-end-goals-regexp         "\367"
    proof-shell-goal-char                ?\370
 
-   ;; initial command configures Isabelle/Isar by modifying print
-   ;; functions, restoring settings saved by Proof General, etc.
-   proof-shell-pre-sync-init-cmd        (isabelle-verbatim
-                                         "ProofGeneral.init true;")
    proof-assistant-setting-format       'isar-markup-ml
    proof-shell-init-cmd                 (proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
@@ -251,7 +248,6 @@ proof-shell-retract-files-regexp."
 
 (defun isar-activate-scripting ()
   "Make sure the Isabelle/Isar toplevel is in a sane state.")
-;FIXME  (proof-shell-invisible-command proof-shell-restart-cmd))
 
 
 ;;
@@ -517,12 +513,12 @@ proof-shell-retract-files-regexp."
   (setq font-lock-keywords isar-goals-font-lock-keywords)
   (proof-goals-config-done))
 
-;; =================================================================
+
 ;;
-;; x-symbol support for Isabelle PG, provided by David von Oheimb.
+;; x-symbol support
 ;;
-;; The following settings configure the generic PG package.
-;; The token language "Isabelle Symbols" is in file x-symbol-isabelle.el
+;; The following settings configure the generic PG package; the main
+;; part is in isa/x-symbol-isabelle.el
 ;;
 
 (setq
