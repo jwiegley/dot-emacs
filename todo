@@ -28,6 +28,11 @@ D proof-site (da): I think it would be nice to change the architecture
   support for new assistants entirely via the customize mechanism,
   without any knowledge of elisp apart from regular expressions!
 
+C Remove .gif, .jpg, .xpm, .xbm files from the CVS repository.  Add 
+  .cvsignore's for them instead.  Disadvantage: developers will need
+  to have the Gimp installed to build them via 'make images'
+  (or copy them from the latest download).   (da, 1hr)
+
 B proof-issue-goal should refuse to work when a proof is in progress.
   Similarly proof-issue-save should refuse to work when a proof
   hasn't been completed!
