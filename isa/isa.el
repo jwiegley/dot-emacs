@@ -387,6 +387,12 @@ Resulting output from Isabelle will be parsed by Proof General."
   :type 'string
   :group 'isabelle-config)
 
+(defcustom isa-retract-ML-files-children-command "ProofGeneral.retract_ML_files_children \"%s\";"
+  "Sent to Isabelle to forget the descendants of an ML file.
+Resulting output from Isabelle will be parsed by Proof General."
+  :type 'string
+  :group 'isabelle-config)
+
 (defun isa-retract-thy-file (file)
   "Retract the theory file FILE. If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
@@ -501,15 +507,17 @@ Resulting output from Isabelle will be parsed by Proof General."
 (defun isa-find-and-forget (span)
   "Return a command to be used to forget SPAN."
   (save-excursion
+    ;; FIXME: bug here: too much gets retracted.
     ;; See if we are going to part way through a completely processed
     ;; buffer, in which case it should be removed from 
     ;; proof-included-files-list along with any other buffers
-    ;; depending on it.  NB: perhaps this is called too often for
-    ;; a bunch of spans in a region?
+    ;; depending on it.  However, even though we send the retraction
+    ;; command to Isabelle we don't want to *completely* unlock
+    ;; the current buffer.  How can this be avoided?
     (goto-char (point-max))
     (skip-chars-backward " \t\n") 
     (if (>= (proof-unprocessed-begin) (point))
-	(format isa-retract-ML-file-command 
+	(format isa-retract-ML-files-children-command
 		(file-name-sans-extension 
 		 (file-name-nondirectory
 		  (buffer-file-name))))

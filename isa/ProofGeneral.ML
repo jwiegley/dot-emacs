@@ -19,7 +19,7 @@ sig
 
    (* Processing used files *)
    
-   val retract_ML_file : string -> unit
+   val retract_ML_files_children : string -> unit
    val retract_thy_file : string -> unit
    val list_loaded_files : unit -> unit
    val restart : unit -> unit
@@ -27,6 +27,7 @@ sig
    val update : unit -> unit
    
    (* not used *)
+   val retract_ML_file : string -> unit
    val use_thy_and_update : string -> unit
 
    (*  visible only for testing *)
@@ -157,19 +158,20 @@ structure ProofGeneral : PROOFGENERAL =
     (* subroutine: retract a file and give message, if it hasn't
        been already reported to Proof General. *)
        
-    fun retract_file_and_give_message filename =
+    fun retract_file_and_give_message filename msg_flag =
       if filename="" orelse (filename mem !retracted_files) then ()
-      else (retract_msg filename;
+      else (if msg_flag then (retract_msg filename) else ();
 	    retracted_files := filename :: !retracted_files;
 	    ())
 
-    fun retract_file1 not_thy filename =
+    fun retract_file1 not_thy only_report_children filename =
      let val (path, tname) = split_filename filename
          fun show_msgs thy =
            let val (thy_file, ml_file) = get_thy_filenames (path_of thy) thy
             in (if not_thy then ()
-		   else retract_file_and_give_message thy_file; 
-		retract_file_and_give_message ml_file) end
+		   else retract_file_and_give_message thy_file true; 
+		retract_file_and_give_message ml_file 
+					(not only_report_children)) end
          (* Considered loaded if either theory or ML times set *)
 	 fun already_loaded thy =
            let val t = get_thyinfo thy
@@ -185,18 +187,24 @@ structure ProofGeneral : PROOFGENERAL =
       in      
        if already_loaded tname then
 	 (show_msgs tname; 
-	  map (retract_file1 false) (children_loaded tname); ())
+	  map (retract_file1 false false) (children_loaded tname); ())
        else ()
    end;
 
    (* retract a script file and all it's theory/script children,
-       but not it's parent theory. *)
+      but not it's parent theory. *)
 
-   val retract_ML_file = retract_file1 true;
+   val retract_ML_file = retract_file1 true false;
+
+   (* Same as above, but only give reports to Proof General for
+      the children.  *)
+
+   val retract_ML_files_children = retract_file1 true true;
+
 
    (* retract a theory file and all it's theory/script children *)
 
-   val retract_thy_file = retract_file1 false;
+   val retract_thy_file = retract_file1 false false;
 
 
    (* USING files.
