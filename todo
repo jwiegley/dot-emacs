@@ -578,6 +578,9 @@ D Add useful specific commands for Isabelle.  Many could
   (however, probably a month's work to bring together Isamode 
    and proof.el, making some of Isamode generic)
 
+D Switching to other file with C-c C-o could be more savy
+  with file names and extensions (use some standard function?)
+
 X Add ability to choose logic.  Maybe not necessary: can use default
   set in Isabelle settings nowadays, in the premise that most people
   stick to a particular logic?   But then no support for loading
