@@ -441,7 +441,7 @@ Default to whole buffer.  Leave point at END."
     (warn "Proof General %s: %s is unset."  tag (symbol-name sym))))
 
 (defun proof-display-and-keep-buffer (buffer &optional pos)
-  "Display BUFFER and mark window according to `proof-dont-switch-windows'.
+  "Display BUFFER and mark window according to `proof-three-window-mode'.
 If optional POS is present, will set point to POS.  
 Otherwise move point to the end of the buffer.
 Ensure that point is visible in window."
@@ -458,7 +458,7 @@ Ensure that point is visible in window."
       ;; we're displaying, and use get-buffer-window-list to do
       ;; something sensible.
       (if (and 
-	   (not proof-dont-switch-windows)
+	   (not proof-three-window-mode)
 	   (not (eq (next-window) (selected-window)))
 	   (eq (window-buffer (next-window nil 'ignoreminibuf))
 	       proof-script-buffer))
@@ -474,7 +474,7 @@ Ensure that point is visible in window."
 	    (set-window-buffer (selected-window) buffer))
 	(display-buffer buffer))
       (setq window (get-buffer-window buffer 'visible))
-      (set-window-dedicated-p window proof-dont-switch-windows)
+      (set-window-dedicated-p window proof-three-window-mode)
       (and window
 	   (save-selected-window
 	     (select-window window)

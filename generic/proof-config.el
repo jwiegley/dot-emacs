@@ -168,7 +168,7 @@ when it used in conjunction with font-lock, so it is disabled by default."
   :group 'proof-user-options)
 
 
-(defcustom proof-dont-switch-windows nil
+(defcustom proof-three-window-mode nil
   "*Whether response and goals buffers have dedicated windows.
 If non-nil, Emacs windows displaying messages from the prover will not
 be switchable to display other windows.
