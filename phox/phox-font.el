@@ -18,7 +18,7 @@
        "Sort\\|"
        "new_\\(intro\\|elim\\|rewrite\\)\\|"
        "a\\(dd_path\\|uthor\\)\\|"
-       "c\\(laim\\|ose_def\\|or\\(ollary\\)?\\)\\|"
+       "c\\(l\\(aim\\|ose_def\\)\\|or\\(ollary\\)?\\)\\|"
        "d\\(e\\(f\\(_thlist\\)?\\|l\\(_proof\\)\\)\\|ocuments\\|epend\\)\\|"
        "e\\(lim_after_intro\\|xport\\|del\\|show\\)\\|"
        "f\\(act\\|lag\\)\\|"
