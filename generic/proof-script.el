@@ -180,6 +180,21 @@ buffer to END."
 	(span-end proof-locked-span))
    (point-min)))
 
+;; da: NEW function added 28.10.98.  This seems more
+;; appropriate point to move point to (or make sure is displayed)
+;; when a queue of commands is being processed.  The locked
+;; end may be further away.
+(defun proof-queue-or-locked-end ()
+  "Return the end of the queue region, or locked region, or (point-min).
+This position should be the first writable position in the buffer."
+  (if (member (current-buffer) proof-script-buffer-list)
+      (cond (proof-queue-span
+	     (span-end proof-queue-span))
+	    (proof-locked-span
+	     (span-end proof-locked-span))
+	    (t
+	     (point-min)))))
+	
 (defun proof-locked-end ()
   "Return end of the locked region of the current buffer.
 Only call this from a scripting buffer."
@@ -458,7 +473,8 @@ the hooks `proof-activate-scripting-hook' are run."
   (< (point) (proof-locked-end)))
 
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
-  "If the end of the locked region is not visible, jump to the end of it."
+  "If the end of the locked region is not visible, jump to the end of it.
+A possible hook function for proof-shell-handle-error-hook."
   (interactive)
   (let* ((proof-script-buffer (car proof-script-buffer-list))
 	 (pos (save-excursion
@@ -467,6 +483,18 @@ the hooks `proof-activate-scripting-hook' are run."
     (or (pos-visible-in-window-p pos (get-buffer-window
 				      proof-script-buffer t))
         (proof-goto-end-of-locked-interactive))))
+
+;; da: NEW function added 28.10.98.
+;; This is used by toolbar follow mode (which used to use the function
+;; above).  [But wouldn't work for proof-shell-handle-error-hook?].
+
+(defun proof-goto-end-of-queue-or-locked-if-not-visible ()
+  "Jump to the end of the queue region or locked region if it isn't visible.
+Assumes script buffer is current"
+  (unless (pos-visible-in-window-p
+	   (proof-queue-or-locked-end)
+	   (get-buffer-window (current-buffer) t))
+    (goto-char (proof-queue-or-locked-end))))
 
 
 

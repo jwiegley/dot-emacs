@@ -11,16 +11,6 @@
 ;;
 
 (require 'proof-script)
-(require 'proof-shell)
-
-;; FIXME: would be nice to have proof-shell autoloaded when shell is
-;; actually started.  Need to fixup references to variables here to be
-;; autoloaded functions from proof-shell, and remove from enablers.
-
-(defcustom proof-toolbar-wanted t
-  "*Whether to use toolbar in proof mode."
-  :type 'boolean
-  :group 'proof)
 
 (defconst proof-toolbar-default-button-list
   '(proof-toolbar-goal-button
@@ -216,58 +206,105 @@ Initialised in proof-toolbar-setup.")
 ;; GENERIC PROOF TOOLBAR FUNCTIONS
 ;;
 
+(defmacro proof-toolbar-move (&rest body)
+  "Save point according to proof-toolbar-follow-mode, execute BODY."
+  `(if (eq proof-toolbar-follow-mode 'locked)
+       (progn
+	 ,@body)				; nb no error catching
+     (save-excursion
+	,@body)))
+
+(defun proof-toolbar-follow ()
+  "Maybe point to the make sure the locked region is displayed."
+  (if (eq proof-toolbar-follow-mode 'follow)
+    (proof-goto-end-of-queue-or-locked-if-not-visible)))
+
+
+
+;;
+;; Undo button
+;;
+
 (defun proof-toolbar-undo-enable-p () 
   (and (proof-shell-available-p)
        (> (proof-unprocessed-begin) (point-min))))
+
+;; No error if enabler fails: if it is because proof shell is busy,
+;; it gets messy when clicked quickly in succession.
 
 (defun proof-toolbar-undo ()
   "Undo last successful in locked region, without deleting it."
   (interactive)
   (if (proof-toolbar-undo-enable-p)
-      (save-excursion
-	(proof-undo-last-successful-command t))
-    (error "I don't know what I should undo in this buffer!")))
+      (progn
+	(proof-toolbar-move
+	 (proof-undo-last-successful-command t))
+	(proof-toolbar-follow))))
+
+;;
+;; Next button
+;;
 
 (defun proof-toolbar-next-enable-p ()
-  ;; Could check if there *is* a next command here, to avoid
-  ;; stupid "nothing to do" errors.
-  t)
+  (and
+   (not (proof-locked-region-full-p))
+   (not (and (proof-shell-live-buffer) proof-shell-busy))))
+
+;; No error if enabler fails: if it is because proof shell is busy,
+;; it gets messy when clicked quickly in succession.
 
 (defun proof-toolbar-next ()
   "Assert next command in proof to proof process.
 Move point if the end of the locked position is invisible."
   (interactive)
-  (save-excursion
-    (if (proof-shell-live-buffer)
-      (goto-char (proof-unprocessed-begin))
-      (goto-char (point-min)))
-    (proof-assert-next-command))
-  ;; FIXME: not sure about whether this is nice or not.
-  (proof-goto-end-of-locked-if-pos-not-visible-in-window))
+  (if (proof-toolbar-next-enable-p)
+      (progn
+	(proof-toolbar-move
+	 (goto-char (proof-unprocessed-begin))
+	 (proof-assert-next-command))
+	(proof-toolbar-follow))))
+
+
+;;
+;; Retract button
+;;
 
 (defun proof-toolbar-retract-enable-p ()
-  (and (proof-shell-available-p)
-       (member (current-buffer) proof-script-buffer-list)))
+  (and (member (current-buffer) proof-script-buffer-list)
+       (not (proof-locked-region-empty-p))))
 
 (defun proof-toolbar-retract ()
-  "Retract buffer."
+  "Retract entire buffer."
   ;; proof-retract-file might be better here!
   (interactive)
   (if (proof-toolbar-retract-enable-p)
-      (save-excursion
-	(goto-char (point-min))
-	(proof-retract-until-point))))
+      (progn
+	(proof-toolbar-move
+	  (goto-char (point-min))
+	  (proof-retract-until-point))	; gives error if process busy
+	(proof-toolbar-follow))
+    (error "Nothing to retract in this buffer!")))
+
+;;
+;; Use button
+;;
 
 (defun proof-toolbar-use-enable-p ()
-  ;; Could check to see that whole buffer hasn't been
-  ;; processed already.
-  t)
+  (not (proof-locked-region-full-p)))
 
 (defun proof-toolbar-use ()
   "Process the whole buffer"
   (interactive)
-  (save-excursion
-    (proof-process-buffer)))
+  (if (proof-toolbar-use-enable-p)
+      (progn
+	(proof-toolbar-move
+	 (proof-process-buffer))	; gives error if process busy
+	(proof-toolbar-follow))
+    (error "There's nothing to do in this buffer!")))
+
+;;
+;; Restart button
+;;
 
 (defun proof-toolbar-restart-enable-p ()
   ;; Could disable this unless there's something running.
@@ -280,13 +317,21 @@ Move point if the end of the locked position is invisible."
       (if (yes-or-no-p (concat "Restart " proof-assistant " scripting?"))
 	   (proof-restart-script))))
 
+;;
+;; Goal button
+;;
+
 (defun proof-toolbar-goal-enable-p ()
   ;; Goals are always allowed: will crank up process if need be.
+  ;; Actually this should only be available when "no subgoals"
   t)
 
 (defalias 'proof-toolbar-goal 'proof-issue-goal)
 
-;; Actually this should only be available when "no subgoals"
+
+;;
+;; QED button
+;;
 
 (defun proof-toolbar-qed-enable-p ()
   (and proof-shell-proof-completed
@@ -299,4 +344,4 @@ Move point if the end of the locked position is invisible."
       (call-interactively 'proof-issue-save)
     (error "I can't see a completed proof!")))
 ;; 
-(provide 'proof-toolbar)
+  (provide 'proof-toolbar)
