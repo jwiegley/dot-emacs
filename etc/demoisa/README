@@ -1,0 +1,11 @@
+This is a test for automatic multiple file handling.
+
+Assert each of A.ML, B.ML, C.ML, D.ML in turn.
+
+Then retract B.ML.
+
+D.ML and C.ML should be automatically retracted.
+
+Set proof-tidy-response=nil to track what happens.
+
+ - da.
