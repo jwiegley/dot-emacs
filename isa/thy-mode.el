@@ -16,7 +16,7 @@
 (require 'isa)
 
 ;; In case thy mode was invoked directly or by -*- thy -*- at
-;; the start of the file, ensure that Isar mode is used from now
+;; the start of the file, ensure that isa mode is used from now
 ;; on for .thy files.
 ;; FIXME: be less messy with auto-mode-alist here (remove dups)
 (setq auto-mode-alist
