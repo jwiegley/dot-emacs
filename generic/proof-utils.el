@@ -256,7 +256,7 @@ user accidently killing an associated buffer."
       (progn
 	(let ((bufname (buffer-name)))
 	  (bury-buffer)
-	  (message 
+	  (error
 	   "Warning: buffer %s not killed; still associated with prover process."
 	   bufname)))))
 
