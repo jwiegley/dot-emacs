@@ -19,6 +19,10 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.22  1997/11/10 15:51:09  djs
+;; Put in a workaround for a strange bug in comint which was finding a bunch
+;; of ^G's from comint-get-old-input for some inexplicable reason.
+;;
 ;; Revision 1.21  1997/11/06 16:56:59  hhg
 ;; Parameterize by proof-goal-hyp-fn in pbp-make-top-extent, to handle
 ;; Coq goals which start with text rather than simply ?n
@@ -462,6 +466,7 @@
 
       (save-excursion
 	(set-buffer proof-shell-buffer)
+	(setq comint-get-old-input (function (lambda () "")))
 	(funcall proof-mode-for-shell)
 	(set-buffer proof-pbp-buffer)
 	(funcall proof-mode-for-pbp))
