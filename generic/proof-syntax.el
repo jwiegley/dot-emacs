@@ -43,6 +43,17 @@ nil if a region cannot be found."
 	(if (re-search-forward endre nil t)
 	    start))))
 
+;; Function for string matching that takes into account value
+;; of proof-case-fold-search.  Last arg to string-match is
+;; not applicable.
+
+(defun proof-string-match (regexp string &optional start)
+  "Like string-match, but set case-fold-search to proof-case-fold-search."
+  (let
+      ((case-fold-search proof-case-fold-search))
+    (string-match regexp string start)))
+
+
 ;; Generic font-lock
 
 ;; proof-commands-regexp is used for indentation
