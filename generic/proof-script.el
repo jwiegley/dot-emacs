@@ -29,7 +29,7 @@
 ;; This helps see interface between proof-script / proof-shell.
 (eval-when-compile
   (mapcar (lambda (f) 
-	    (autoload f "proof-script"))
+	    (autoload f "proof-shell"))
 	  '(proof-shell-ready-prover
 	    proof-start-queue
 	    proof-shell-live-buffer
@@ -205,19 +205,6 @@ Only call this from a scripting buffer."
 (defsubst proof-end-of-queue ()
   "Return the end of the queue region, or nil if none."
   (and proof-queue-span (span-end proof-queue-span)))
-
-(defun proof-dont-show-annotations ()
-  "Set display values of annotations (characters 128-255) to be invisible."
-  (let ((disp (make-display-table))
-	(i 128))
-	(while (< i 256)
-	  (aset disp i [])
-	  (incf i))
-	(cond ((fboundp 'add-spec-to-specifier)
-	       (add-spec-to-specifier current-display-table disp
-				      (current-buffer)))
-	      ((boundp 'buffer-display-table)
-	       (setq buffer-display-table disp)))))
 
 (defun proof-mark-buffer-atomic (buffer)
   "Mark BUFFER as having been processed in a single step.

@@ -125,9 +125,6 @@ B Implement more generic mechanism for large undos (4h tms)
     LEGO: consider Discharge; perhaps unrol to the beginning of the
           module?
 
-A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
-  where ever possible (30 min tms)
-
 A New buffer model (4h tms):
 
     1. Script buffers

@@ -36,8 +36,7 @@
 	    proof-set-queue-endpoints
 	    proof-file-to-buffer 
 	    proof-register-possibly-new-processed-file
-	    proof-restart-buffers
-	    proof-dont-show-annotations)))
+	    proof-restart-buffers)))
 
 ;;
 ;; Internal variables used by shell mode
@@ -890,6 +889,23 @@ how far we've got."
   (proof-start-queue nil nil (list (list nil cmd
   'proof-shell-done-invisible))))
 
+(defun proof-shell-dont-show-annotations ()
+  "Set display values of annotations in process buffer to be invisible.
+
+Annotations are characters 128-255."
+  (save-excursion
+    (set-buffer proof-shell-buffer)
+    (let ((disp (make-display-table))
+	  (i 128))
+      (while (< i 256)
+	(aset disp i [])
+	(incf i))
+      (cond ((fboundp 'add-spec-to-specifier)
+	     (add-spec-to-specifier current-display-table disp
+				    proof-shell-buffer))
+	    ((boundp 'buffer-display-table)
+	     (setq buffer-display-table disp))))))
+
 
 
 
@@ -921,7 +937,7 @@ how far we've got."
 
   (add-hook 'comint-output-filter-functions 'proof-shell-filter nil 'local)
   (setq comint-get-old-input (function (lambda () "")))
-  (proof-dont-show-annotations)
+  (proof-shell-dont-show-annotations)
 
   ;; Proof marker is initialised in filter to first prompt found
   (setq proof-marker (make-marker))
@@ -941,29 +957,32 @@ how far we've got."
 		  (cons proof-mode-name (cdr proof-shell-menu)))
 
 (defun proof-shell-config-done ()
-  (accept-process-output (get-buffer-process (current-buffer)))
+  "Initialise the specific proover after the child has been configured."
+  (save-excursion
+    (set-buffer proof-shell-buffer)
+    (accept-process-output (get-buffer-process proof-shell-buffer))
 
+    ;; If the proof process in invoked on a different machine e.g.,
+    ;; for proof-prog-name="ssh fastmachine proofprocess", one needs
+    ;; to adjust the directory. Perhaps one might even want to issue
+    ;; this command whenever a new scripting buffer is active?
+    (and proof-shell-cd
+	 (proof-shell-insert (format proof-shell-cd
+				     ;; under Emacs 19.34 default-directory contains "~" which causes
+				     ;; problems with LEGO's internal Cd command
+				     (expand-file-name default-directory))))
 
-  ;; If the proof process in invoked on a different machine e.g.,
-  ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
-  ;; to adjust the directory:
-  (and proof-shell-cd
-       (proof-shell-insert (format proof-shell-cd
-       ;; under Emacs 19.34 default-directory contains "~" which causes
-       ;; problems with LEGO's internal Cd command
-				   (expand-file-name default-directory))))
+    (if proof-shell-init-cmd
+	(proof-shell-insert proof-shell-init-cmd))
 
-  (if proof-shell-init-cmd
-       (proof-shell-insert proof-shell-init-cmd))
+    ;; Note that proof-marker actually gets set in proof-shell-filter.
+    ;; This is manifestly a hack, but finding somewhere more convenient
+    ;; to do the setup is tricky.
 
-  ;; Note that proof-marker actually gets set in proof-shell-filter.
-  ;; This is manifestly a hack, but finding somewhere more convenient
-  ;; to do the setup is tricky.
-
-  (while (null (marker-position proof-marker))
-    (if (accept-process-output (get-buffer-process (current-buffer)) 15)
-	()
-      (error "Failed to initialise proof process"))))
+    (while (null (marker-position proof-marker))
+      (if (accept-process-output (get-buffer-process proof-shell-buffer) 15)
+	  ()
+	(error "Failed to initialise proof process")))))
 
 (eval-and-compile			; to define vars
 (define-derived-mode pbp-mode fundamental-mode 
