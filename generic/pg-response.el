@@ -177,7 +177,10 @@ Returns non-nil if response buffer was cleared."
 
 
 (defun pg-response-clear-displays ()
-  "Clear PG response and tracing buffers."
+  "Clear Proof General response and tracing buffers.
+You can use this command to clear the output from these buffers when
+it becomes overly long.  Particularly useful when `proof-tidy-response'
+is set to nil, so responses are not cleared automatically."
   (interactive)
   (proof-map-buffers (list proof-response-buffer proof-trace-buffer)
     (erase-buffer)
