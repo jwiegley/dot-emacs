@@ -10,6 +10,7 @@
 ;;
 
 (require 'proof-menu)
+(require 'span)
 
 ;; Nuke some byte compiler warnings.
 
@@ -17,10 +18,6 @@
   (require 'comint)
   (require 'font-lock))
 
-;; Spans are our abstraction of extents/overlays.
-(eval-and-compile
-  (cond ((fboundp 'make-extent) (require 'span-extent))
-	((fboundp 'make-overlay) (require 'span-overlay))))
 
 ;; FIXME:
 ;; Autoloads for proof-script (added to nuke warnings,
