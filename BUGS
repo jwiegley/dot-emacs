@@ -11,13 +11,10 @@ Proof General 3.0 BUGS addendum
 * FSF Emacs: problem with version 20.5: PG freezes when starting a
 proof assistant.  Fixed in the current pre-release.
 
+* Problems with Japan versions of FSF Emacs (at least) which have
+older versions of CL macros (defined in file "egg").  Hopefully fixed
+in current pre-release, please details of any problems!
 
-
-
-
-
-ProofGeneral 3.0 Original BUGS list
-===================================
 
 
 
@@ -34,9 +31,9 @@ this line to .emacs should help:
 information, it may be difficult or impossible to interrupt it,
 because Emacs doesn't get a chance to process the C-c C-c keypress
 or "Stop" button push (or anything else).  In this situation, you
-will need to send an interrupt to the Isabelle process from another
-shell.  This problem can happen with looping rewrite rules in the
-Isabelle simplifier, when tracing rewriting.
+will need to send an interrupt to the (e.g.) Isabelle process from
+another shell.  This problem can happen with looping rewrite rules in
+the Isabelle simplifier, when tracing rewriting.
 
 * Highlighting script buffers in recent versions of FSF Emacs is a
 mess.  The underlying text property implementation has changed
