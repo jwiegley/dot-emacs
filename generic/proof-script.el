@@ -2000,10 +2000,6 @@ up to the end of the locked region."
 	;; steps.  
 	;; FIXME: really, there shouldn't be more work to do: so
 	;;  why call proof-find-and-forget-fn later?
-	(progn 
-	  (message (int-to-string (span-end span)))
-	  (message (int-to-string (span-end target)))
-
 	(if (< (span-end span) (span-end target))
 	    (progn
 	      ;; Skip comment spans at and immediately following target
@@ -2025,7 +2021,7 @@ up to the end of the locked region."
 		(proof-setup-retract-action (span-start span) end
 					    proof-kill-goal-command
 						    delete-region)
-		end (span-start span)))))
+		end (span-start span))))
     ;; Check the start of the target span lies before the end
     ;; of the locked region (should always be true since we don't
     ;; make spans outside the locked region at the moment)...
