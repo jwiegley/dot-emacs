@@ -3180,6 +3180,7 @@ and @code{proof-shell-compute-new-files-list}. @xref{Hooks and function
 variables}.
 
 
+
 @node Internals of Proof General
 @chapter Internals of Proof General
 
@@ -4251,17 +4252,14 @@ functions, or customize some of the variables from @file{isa.el} and
 
 @subsection Interaction with theory database
 
-Isabelle Proof General has a fragment written in ML which defines a
-modified interface to the theory database.  In particular, some internal
-state records which files have been retracted by the interface, although
-no changes are made inside Isabelle itself.  This means that
-re-asserting a retracted file does not need to re-load it if it has not
-changed.  (It is a shame that the standard theory loader provides no
-such "retraction" mechanism for unlinking loaded theories).
-
-This means that Proof General can get confused if you use the theory
-loader primitives directly in the proof shell, and the state inside
-Emacs may not agree with Isabelle.  You have been warned!
+Isabelle Proof General uses some support from Isabelle to remove and
+reload theories from the theory database.  To maintain consistency,
+Isabelle is rather conservative.  So re-asserting a retracted file will
+always re-load it, even if it has not changed.  (This is because the
+file may have implicit dependencies on things in the global ML
+environment not made apparent by the theory structure).  
+This may lead to seemingly unnecessary repetition of time-consuming
+proofs, so be careful not to retract more than you need!
 
 @node Plans and ideas
 @appendix Plans and ideas
