@@ -64,7 +64,6 @@ Summary of changes since 3.1:
 . Efficiency improvements
 . Several bug fixes 
 . Internal improvements: more flexible parsing and easier configuration
-. For details, see http://www.proofgeneral.org/ProofGeneral-3.2/CHANGES
 
 The user manual contains full details, and is available on-line at: 
 http://www.proofgeneral.org/index.html?page=doc
