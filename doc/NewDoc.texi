@@ -83,33 +83,40 @@ supplied ready customized for the proof assistants Coq, Lego, and
 Isabelle.
 
 @menu
-* Introducing Proof General::  
+* Introducing Proof General::   
 * Basic Script Management::     
 * Advanced Script Management::  
+* Support for other Packages::  
 * Customizing Proof General::   
 * LEGO Proof General::          
 * Coq Proof General::           
 * Isabelle Proof General::      
 * Adapting Proof General to New Provers::  
 * Internals of Proof General::  
-* Credits and References::         
+* Credits and References::      
 * Obtaining and Installing Proof General::  
 * Known bugs and workarounds::  
 * Plans and ideas::             
 * Variable Index::              
 * Function Index::              
-* Concept Index:: 
+* Concept Index::               
+@end menu
 
 @detailmenu --- The Detailed Node Listing ---
 
 Introducing Proof General
 
-* Quick start guide::               
+ --- The Detailed Node Listing ---
+
+Introducing Proof General
+
+* Quick start guide::           
 * Features of Proof General::   
 * Supported proof assistants::  
 
 Basic Script Management
 
+* Proof scripts::               
 * The buffer model::            
 * Regions in a proof script::   
 * Script editing commands::     
@@ -118,16 +125,25 @@ Basic Script Management
 * Other commands::              
 * Walkthrough example in LEGO::  
 
+Proof scripts
+
+* Goals and saves::             
+
 Advanced Script Management
 
-* Finding the proof shell::
-* View of processed files ::    
 * Switching between proof scripts::  
+* View of processed files ::    
 * Retracting across files::     
+* Asserting across files::      
+* Working directly with the proof shell::  
+
+Support for other Packages
+
+* Support for function menus::  
 
 Customizing Proof General
 
-* Easy customization::
+* Easy customization::          
 * Setting user options::        
 * Running on another machine::  
 * Tweaking configuration settings::  
@@ -159,11 +175,23 @@ Proof shell settings
 
 Internals of Proof General
 
-* Proof script mode::           
-* Proof shell mode::            
+* Proof Script Mode::           
+* Proof Shell Mode::            
+* Handling Multiple Files::     
 
+Credits and References
+
+* Credits::                     
+* References::                  
+
+Obtaining and Installing Proof General
+
+* Obtaining Proof General::     
+* Installing Proof General from tarball::  
+* Installing Proof General from RPM package::  
+* Notes for syssies::           
 @end detailmenu
-@end menu
+
 @end ifinfo
 
 
@@ -192,7 +220,7 @@ editing them accidently.  You can undo steps as usual.
 
 
 @menu
-* Quick start guide::               
+* Quick start guide::           
 * Features of Proof General::   
 * Supported proof assistants::  
 @end menu
@@ -384,7 +412,7 @@ as atomic when undoing proof steps (see Undo).
 
 Proof General runs your proof assistant in a shell buffer in Emacs.
 This @dfn{proof shell buffer} is usually hidden from view, 
-@pxref{Working Directly with the Proof Shell} for further details.
+@pxref{Working directly with the proof shell} for further details.
 When Proof General sees an error in the shell buffer, it will
 highlight the error and display the buffer automatically.
 
@@ -434,7 +462,8 @@ continue development from there.
 
 Please explain C-c C-v here.
 
-Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working Directly with the Proof Shell}
+Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working
+directly with the proof shell}
 @node Walkthrough example in LEGO
 @section Walkthrough example in LEGO
 
@@ -451,17 +480,16 @@ about the dependencies to allow script management across multiple files.
 
 
 @menu
-* Switching between Proof Scripts::  
+* Switching between proof scripts::  
 * View of processed files ::    
-* Retracting Across Files::     
-* Asserting Across Files::      
-* Working Directly with the Proof Shell::  
-* Support for function menus::  
+* Retracting across files::     
+* Asserting across files::      
+* Working directly with the proof shell::  
 @end menu
 
-@node Switching between Proof Scripts
-@section Switching between Proof Scripts
-@cindex Switching between Proof Scripts
+@node Switching between proof scripts
+@section Switching between proof scripts
+@cindex Switching between proof scripts
 
 Basic modularity in large proof developments can be achieved by
 splitting proof scripts across various files. Let's assume that you are
@@ -478,12 +506,12 @@ definition is too cumbersome or even wrong.
 
 At this stage, you would like to visit the appropriate file, say
 @file{sos.l} and retract to where changes are required. For further
-details on how to accomplish this, we refer to @ref{Retracting Across Files}. Then, using script
-management, you want to develop some more basic theory in @file{sos.l}.
-Once this task has been completed (possibly involving retraction across
-even earlier files) and the new development has been
-asserted, you want to swich back to @file{HSound.l} and replay to the
-point you got stuck previously. 
+details on how to accomplish this, we refer to @ref{Retracting across
+files}. Then, using script management, you want to develop some more
+basic theory in @file{sos.l}. Once this task has been completed
+(possibly involving retraction across even earlier files) and the new
+development has been asserted, you want to swich back to @file{HSound.l}
+and replay to the point you got stuck previously.
 
 Some hours (or days) later you have completed the soundness proof and
 are ready to tackle new challenges. Perhaps, you want to prove a
@@ -534,8 +562,8 @@ is that Proof General detects this problem and flashes up a warning in
 the response buffer. You might then want to visit the modified buffer,
 save it and retract to the beginning. Then you are back on track.
 
-@node Retracting Across Files
-@section Retracting Across Files
+@node Retracting across files
+@section Retracting across files
 @cindex Retraction
 
 Make sure that the current script buffer has either been completely
@@ -546,8 +574,8 @@ buffer, all files which depend on it will be retracted (and thus
 unlocked) automatically. Proof General reminds you that now is a good
 time to save any unmodified buffers.
 
-@node Asserting Across Files
-@section Asserting Across Files
+@node Asserting across files
+@section Asserting across files
 @cindex Assertion
 
 Make sure that the current script buffer has either been completely
@@ -559,8 +587,8 @@ unmodified buffers. This is particularly useful as assertion may cause
 the Proof Assistant to automatically process other files.
 
 
-@node Working Directly with the Proof Shell
-@section Working Directly with the Proof Shell
+@node Working directly with the proof shell
+@section Working directly with the proof shell
 @cindex Shell
 
 Occasionally you may want to review the dialogue of the entire session
@@ -604,6 +632,13 @@ Otherwise, you will need to restart script management altogether, @pxref{Toolbar
 
 
 
+@node Support for other Packages
+@chapter Support for other Packages
+
+@menu
+* Support for function menus::  
+@end menu
+
 @node Support for function menus
 @section Support for function menus
 @vindex proof-goal-with-hole-regexp
@@ -615,7 +650,7 @@ done with the configuration variable @code{proof-goal-with-hole-regexp},
 @pxref{Proof Script Mode} for further details.
 
 If you want to use fume-func, you may need to enable it for yourself.
-It is distributed with XEmacs (and FSF GNU Emacs) but by not enabled by
+It is distributed with XEmacs but by not enabled by
 default.  To enable it you should find the file func-menu.el and follow
 the instructions there.  At the time of writing, the current version of
 XEmacs is 20.4, supplied with function menu version 2.45, which suggests
@@ -652,7 +687,7 @@ See the chapters covering each assistant for details.
 
 
 @menu
-* Easy customization::
+* Easy customization::          
 * Setting user options::        
 * Running on another machine::  
 * Tweaking configuration settings::  
@@ -785,6 +820,17 @@ At present there is no easy way to get around this.
 
 @node LEGO Proof General
 @chapter LEGO Proof General
+
+LEGO mode is a mode derived from proof script mode for editing LEGO
+scripts. An important convention is that proof script buffers @emph{must}
+start with a module declaration. If the proof script buffer's file name
+is @file{fermat.l}, then it must commence with a declaration
+
+@lisp
+
+@end lisp
+
+
 
 @menu
 * LEGO specific commands::      
