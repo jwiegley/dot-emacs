@@ -185,9 +185,9 @@ Isabelle, and HOL.
 
 Welcome to Proof General!
 
-This preface has some news about the current release, as well as some
-history about previous releases, and acknowledgements to those who have
-helped along the way.
+This preface has some news about the current release series, as well as
+some history about previous releases, and acknowledgements to those who
+have helped along the way.
 
 Proof General has a home page at
 @uref{http://www.lfcs.informatics.ed.ac.uk/proofgen}.  
@@ -207,10 +207,24 @@ other documentation, system downloads, etc.
 @unnumberedsec Latest news for 3.2
 @cindex news
 
-Proof General 3.2 has some new features and additional bug fixes over
-Proof General 3.1.  The new features include support for turning proof
+Proof General 3.2 has some new features and some bug fixes.
+
+One noticeable new feature is the addition of a prover-specific menu for
+each of the supported provers.  Please contribute useful functions (or
+suggestions) for things you would like to appear on these menus!
+
+Because of the new menus and to make room for more commands, we have
+made a new key map for prover specific functions.  These now all begin
+with @code{C-c a}.  This has changed a few keybindings slightly.
+
+A new feature that is less obvious is support for turning the proof
 assistant output on and off internally, to improve efficiency when
-processing large scripts.
+processing large scripts.  This should let more of your CPU cycles be
+spent on proving theorems.
+
+
+
+
 
 
 @node News for 3.1
@@ -234,7 +248,7 @@ developer.  (Otherwise, work on HOL Proof General will not continue).
 Apart from that there are a few other small improvements.  Check the
 CHANGES file in the distribution for full details.
 
-The HOL98 support and most of the work on Proof General 3.1 was
+The HOL98 support and much of the work on Proof General 3.1 was
 undertaken by David Aspinall while he was visiting ETL, Osaka, Japan,
 supported by the British Council and ETL.
 
@@ -2836,11 +2850,11 @@ common commands:
 @kindex C-c I 
 @kindex C-c R 
 @table @kbd
-@item C-c i   
+@item C-c a i   
 intros
-@item C-c I   
+@item C-c a I   
 Intros
-@item C-c R   
+@item C-c a R   
 Refine
 @end table
 
@@ -2912,15 +2926,14 @@ but does not have integrated file management or proof-by-pointing yet.
 
 Coq Proof General supplies the following key-bindings:
 @table @kbd
-@item C-c I   
-Inserts ``Intros '' into proof buffer.
-@item C-c a
-Inserts ``Apply '' into proof buffer.
-@item C-c s
-Inserts ``Section '' into proof buffer
-@item C-c e
-Closes the current section by inserting ``End <section-name>.''. (this
-should work well with nested sections).
+@item C-c a i   
+Inserts ``Intros '' 
+@item C-c a a
+Inserts ``Apply '' 
+@item C-c a s
+Inserts ``Section ''
+@item C-c a e
+Inserts ``End <section-name>.'' (this should work well with nested sections).
 @end table
 
 @node Editing multiple proofs
