@@ -79,10 +79,6 @@ However, fume-func's version is incorrec"
       (and (re-search-forward r nil t)
 	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))
 
-(defun proof-message (str)
-  "Output STR in minibuffer."
-  (message (concat "[" proof-assistant "] " str)))
-
 ;; append-element in tl-list
 (defun proof-append-element (ls elt)
   "Append ELT to last of LS if ELT is not nil. [proof.el]
@@ -192,11 +188,13 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
   "Set the queue span to end at END."
   (set-span-end proof-queue-span end))
 
+;; FIXME da: optional arg here was ignored, have fixed.
+;; Do we really need it though?
 (defun proof-detach-segments (&optional buffer)
   "Remove locked and queue region from BUFFER.
 Defaults to current buffer when BUFFER is nil."
   (let ((buffer (or buffer (current-buffer))))
-    (save-excursion
+    (with-current-buffer buffer
       (proof-detach-queue)
       (proof-detach-locked))))
 
@@ -366,7 +364,7 @@ the hooks `proof-activate-scripting-hook' are run."
 	  ;; We only allow switching of the Scripting buffer if the
 	  ;; locked region is either empty or full for all buffers.
 	  (or (proof-locked-region-empty-p)
-	      (proof-locked-region-full)
+	      (proof-locked-region-full-p)
 	      (error 
 	       ;; FIXME da: ponder alternative of trying to complete rest
 	       ;; of current scripting buffer?
@@ -1062,9 +1060,9 @@ script buffers."
 (defun proof-restart-script-same-process ()
   (interactive)
   (save-excursion
-    (if (buffer-live-p proof-script-buffer)
+    (if (buffer-live-p (car-safe proof-script-buffer-list))
 	(progn
-	  (set-buffer proof-script-buffer)
+	  (set-buffer (car proof-script-buffer-list))
 	  (setq proof-active-buffer-fake-minor-mode nil)
 	  (delete-spans (point-min) (point-max) 'type)
 	  (proof-detach-segments)))))
@@ -1186,7 +1184,7 @@ Based on position of point."
 	   (list (format proof-goal-command
 			 (read-string "Goal: " ""
 				      proof-issue-goal-history)))
-	 (proof-goal-command))
+	 (funcall proof-goal-command))
      (error
       "Proof General not configured for goals: set proof-goal-command.")))
   (let ((proof-one-command-per-line t))   ; Goals always start at a new line
@@ -1203,7 +1201,7 @@ Based on position of point."
 	   (list (format proof-save-command
 			 (read-string "Save as: " ""
 				      proof-issue-save-history)))
-	 (proof-save-command))
+	 (funcall proof-save-command))
      (error
       "Proof General not configured for save theorem: set proof-save-command.")))
   (let ((proof-one-command-per-line t))   ; Goals always start at a new line
@@ -1361,8 +1359,7 @@ sent to the assistant."
 (define-derived-mode proof-mode fundamental-mode 
   proof-mode-name
   "Proof General major mode for proof scripts.
-\\{proof-mode-map}
-"
+\\{proof-mode-map}"
   (setq proof-buffer-type 'script)
 
   ;; Has buffer already been processed?
@@ -1376,7 +1373,7 @@ sent to the assistant."
 		    (remove (current-buffer) proof-script-buffer-list)))))
 
 ;; FIXME: da: could we put these into another keymap already?
-;; FIXME: da: it's offensive to experience users to rebind global stuff
+;; FIXME: da: it's offensive to experienced users to rebind global stuff
 ;;        like meta-tab, this should be removed.
 (defconst proof-universal-keys
   (append
