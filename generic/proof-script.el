@@ -681,7 +681,7 @@ NAME does not need to be unique."
      ((eq type 'vanilla)   "Command")
      ((eq type 'pbp)       "PBP command")
      ((eq type 'proverproc)
-		           "Prover-processed region"))))
+		           "Prover-processed"))))
 
 (defun pg-set-span-helphighlights (span &optional nohighlight)
   "Set the help echo message, default highlight, and keymap for SPAN."
@@ -690,13 +690,13 @@ NAME does not need to be unique."
     (if pg-show-hints ;; only message in minibuf if hints on
 	(set-span-property 
 	 span 'help-echo 
-	 (concat helpmsg
-		 (substitute-command-keys
-		  (concat
-		   " (use "
-		   (if (span-property span 'idiom)
-		       "\\[pg-toggle-visibility] to show/hide; ")
-		       "\\[popup-mode-menu] for menu)")))))
+	 (substitute-command-keys
+	  (concat
+	   helpmsg
+	   " ("
+	   (if (span-property span 'idiom)
+	       "with point in region, use \\[pg-toggle-visibility]  to show/hide; ")
+	   "use \\[popup-mode-menu] for menu)"))))
     (set-span-property span 'keymap pg-span-context-menu-keymap)
     (unless nohighlight
       (set-span-property span 'mouse-face 'proof-mouse-highlight-face))))
@@ -732,41 +732,16 @@ to allow other files loaded by proof assistants to be marked read-only."
 	(let ((span (make-span (proof-unprocessed-begin) 
 			       (proof-script-end)))
 	      cmd)
-	  (if (eq proof-buffer-type 'script) 
-	      ;; For a script buffer
-	      (progn
-		(goto-char (point-min))
-		(proof-goto-command-end)
-		(let ((cmd-list (member-if
-				 (lambda (entry) (equal (car entry) 'cmd))
-				 (proof-segment-up-to (point)))))
-		  ;; Reset queue and locked regions.
-		  (proof-init-segmentation)
-		  (if cmd-list 
-		      (progn
-			;; FIXME 3.3 da: this can be simplified now,
-			;; we don't need to set cmd for proverproc
-			(setq cmd (second (car cmd-list)))
-			(set-span-property span 'type 'proverproc)
-			(set-span-property span 'cmd cmd))
-		    ;; If there was no command in the buffer, atomic span
-		    ;; becomes a comment. This isn't quite right because
-		    ;; the first ACS in a buffer could also be a goal-save
-		    ;; span. We don't worry about this in the current
-		    ;; implementation. This case should not happen in a
-		    ;; LEGO module (because we assume that the first
-		    ;; command is a module declaration). It should have no
-		    ;; impact in Isabelle either (because there is no real
-		    ;; retraction).
-		    (set-span-property span 'type 'comment))))
-	    ;; For a non-script buffer
-	    (proof-init-segmentation)
-	    (set-span-property span 'type 'comment))
+	  ;; Reset queue and locked regions.
+	  (proof-init-segmentation)
 	  ;; End of locked region is always end of buffer
-	  (proof-set-locked-end (proof-script-end)))))))
-
-
-
+	  (proof-set-locked-end (proof-script-end))
+	  ;; Configure the overlay span
+	  (set-span-property span 'type 'proverproc)
+	  ;; A dummy command for retraction which examines it
+	  ;; FIXME: shouldn't be necessary really
+	  (set-span-property span 'cmd "")
+	  (pg-set-span-helphighlights span 'nohighlight))))))
 
 
 ;; FIXME da: cleanup of odd asymmetry here: we have a nice setting for
@@ -1404,7 +1379,7 @@ With ARG, turn on scripting iff ARG is positive."
 	    (setq cmd (span-property gspan 'cmd))
 	    (cond
 	     ;; Ignore comments [may have null cmd setting]
-	     ((eq (span-property gspan 'type) 'comment))	
+	     ((eq (span-property span 'type) 'comment))
 	     ;; Nested goal saves: add in any nestedcmds
 	     ((eq (span-property gspan 'type) 'goalsave)
 	      (setq nestedundos
@@ -1505,6 +1480,7 @@ With ARG, turn on scripting iff ARG is positive."
 	 gspan
 	 (or 
 	  (eq (span-property gspan 'type) 'comment)
+	  (eq (span-property gspan 'type) 'proverproc) ;; NB: not necess currently
 	  (and
 	   (setq ncmd (span-property gspan 'cmd))
 	   (not (funcall proof-goal-command-p (setq cmd ncmd)))
@@ -2253,6 +2229,7 @@ Span deletion property set to flag DELETE-REGION."
 		  (not (eq (span-property span 'type) 'goalsave))
 		  (or (eq (span-property span 'type) 'proof)
 		      (eq (span-property span 'type) 'comment)
+		      (eq (span-property span 'type) 'proverproc)
 		      (not (funcall proof-goal-command-p
 				    (span-property span 'cmd)))))
 	(setq span (prev-span span 'type)))
@@ -2298,9 +2275,10 @@ up to the end of the locked region."
 	;;  why call proof-find-and-forget-fn later?
 	(if (< (span-end span) (span-end target))
 	    (progn
-	      ;; Skip comment spans at and immediately following target
+	      ;; Skip comment/non-undoable spans at and immediately following target
 	      (setq span target)
-	      (while (and span (eq (span-property span 'type) 'comment))
+	      (while (and span 
+			  (memq (span-property span 'type) '(comment proverproc)))
 		(setq span (next-span span 'type)))
 	      ;; Calculate undos for the current open segment
 	      ;; of proof commands
@@ -2633,8 +2611,9 @@ with something different."
       (setq str (span-property span 'cmd))
       (setq typ (span-property span 'type))
       (cond
-       ;; comment, diagnostic, nested proof command: skip
+       ;; comment, diagnostic, prover processed, nested proof command: skip
        ((or (eq typ 'comment)
+	    (eq typ 'proverproc)
 	    (eq typ 'proof)
 	    (and proof-ignore-for-undo-count cmd
 		 (proof-string-match proof-ignore-for-undo-count cmd))))
