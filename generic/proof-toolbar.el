@@ -41,6 +41,8 @@
 ;; (autoload 'proof-shell-restart "proof-shell")
 
 
+(require 'proof-config)			; for <PA>-toolbar-entries
+
 ;;
 ;; See `proof-toolbar-entries-default' and
 ;;     `<PA>-toolbar-entries' in proof-config
