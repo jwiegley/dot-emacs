@@ -19,16 +19,9 @@
 ;; commands need to have the terminal string, some don't.
 ;; We should assume commands are terminated properly at the
 ;; specific level.
+
 (defvar proof-terminal-string nil 
   "End-of-line string for proof process.")
-
-(defvar proof-re-end-of-cmd nil 
-  "Regexp matching end of command.  Based on proof-terminal-string.
-Set in proof-config-done.")
-
-(defvar proof-re-term-or-comment nil 
-  "Regexp matching terminator, comment start, or comment end.
-Set in proof-config-done.")
 
 (defvar proof-marker nil 
   "Marker in proof shell buffer pointing to previous command input.")
@@ -47,11 +40,6 @@ The cdr of the list of corresponding file names is a subset of
 
 (defvar proof-response-buffer nil
   "The response buffer.")
-
-(defvar proof-shell-busy nil 
-  "A lock indicating that the proof shell is processing.
-When this is non-nil, proof-check-process-available will give
-an error.")
 
 (deflocal proof-buffer-type nil 
   "Symbol indicating the type of this buffer: 'script, 'shell, or 'pbp.")
@@ -317,10 +305,15 @@ to allow other files loaded by proof assistants to be marked read-only."
 	(progn
 	  (setq proof-included-files-list
 		(cons cfile proof-included-files-list))
-	  (or (equal cfile
-		     (file-truename (buffer-file-name
-				     (car proof-script-buffer-list))))
-	      (not buffer)
+	  ;; If the file is loaded into a buffer, which isn't
+	  ;; the current scripting buffer, then put an
+	  ;; atomic locked region in it.
+	  (if (and buffer
+		   proof-script-buffer-list
+		   (not (equal cfile
+			       (file-truename 
+				(buffer-file-name
+				 (car proof-script-buffer-list))))))
 	      (proof-mark-buffer-atomic buffer))))))
 
 ;; three NEW predicates, let's use them!
@@ -344,74 +337,67 @@ NB: If nil, point is left at first non-whitespace character found.
 If non-nil, point is left where it was."
   (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
 
+(defun proof-activate-scripting ()
+  "Activate scripting minor mode for current scripting buffer. 
 
-(defun proof-check-process-available (&optional relaxed)
-  "Adjust internal variables for scripting of current buffer.
-
-Makes sure there is a proof shell running and that it isn't
-busy.  If it is busy, an error is signaled.
-
-If RELAXED is non-nil, nothing more is done. 
-
-Otherwise, the current buffer is prepared for scripting.  No changes
-are necessary if it is already in Scripting minor mode. Otherwise, the
-it will become the current scripting buffer provided the current
+The current buffer is prepared for scripting.  No changes are
+necessary if it is already in Scripting minor mode. Otherwise, it
+will become the current scripting buffer provided the current
 scripting buffer has either no locked region or everything in it has
-been processed."
-  (proof-start-shell)
-  (cond
-   ((not (or relaxed (eq proof-buffer-type 'script)))
+been processed.
+
+When a new script buffer has scripting minor mode turned on,
+the hooks `proof-activate-scripting-hook' are run."
+  (cond 
+   ((not (eq proof-buffer-type 'script)) 
     (error "Must be running in a script buffer"))
-   (proof-shell-busy (error "Proof Process Busy!"))
-   (relaxed ())			;exit cond
 
-   ;; No buffer is in Scripting minor mode.
-   ;; We assume the setup is done somewhere else
-   ;; so this should never happen
-   ((null proof-script-buffer-list) (assert nil))
+   ;; If the current buffer is the active one there's nothing to do.
+   ((equal (current-buffer) (car-safe proof-script-buffer-list)))
 
-   ;; The current buffer is in Scripting minor mode
-   ;; so there's nothing to do
-   ((equal (current-buffer) (car proof-script-buffer-list)))
-
+   ;; Otherwise we need to activate a new Scripting buffer.
    (t
-    (let ((script-buffer (car proof-script-buffer-list))
-	  (current-buffer (current-buffer)))
-      (save-excursion
-	(set-buffer script-buffer)
-	;; We only allow switching of the Scripting buffer if the
-	;; locked region is either empty or full for all buffers.
-	;; Here we check the current Scripting buffer's status.
-	(if (proof-locked-region-full-p)
-	    ;; We're switching from a buffer which has been
-	    ;; completely processed.  Make sure that it's
-	    ;; registered on the included files list, in
-	    ;; case it has been processed piecemeal.
-	    (if buffer-file-name
-		(proof-register-possibly-new-processed-file 
-		 buffer-file-name)))
+    (if proof-script-buffer-list
+	(save-excursion
+	  ;; We're switching from another scripting buffer
+	  ;; to a new one.  Examine the old buffer.
+	  (set-buffer (car proof-script-buffer-list))
+	    
+	  ;; We only allow switching of the Scripting buffer if the
+	  ;; locked region is either empty or full for all buffers.
+	  (or (proof-locked-region-empty-p)
+	      (proof-locked-region-full)
+	      (error 
+	       ;; FIXME da: ponder alternative of trying to complete rest
+	       ;; of current scripting buffer?
+	       "Cannot deal with two unfinished script buffers!"))
+	    
+	  (if (proof-locked-region-full-p)
+	      ;; We're switching from a buffer which has been
+	      ;; completely processed.  Make sure that it's
+	      ;; registered on the included files list. 
+	      (if buffer-file-name
+		  (proof-register-possibly-new-processed-file 
+		   buffer-file-name)))
 
-	(if (or 
-	     (proof-locked-region-empty-p)
-	     (proof-locked-region-full-p))
-	    ;; we are changing the scripting buffer
-	    (progn
-	      (setq proof-active-buffer-fake-minor-mode nil)
-	      (set-buffer current-buffer)
-	      
-	      ;; does the current buffer contain locked regions already?
-	      (if (member current-buffer proof-script-buffer-list)
-		  (setq proof-script-buffer-list
-			(remove current-buffer proof-script-buffer-list))
-		(proof-init-segmentation))
-	      (setq proof-script-buffer-list
-		    (cons current-buffer proof-script-buffer-list))
-	      (setq proof-active-buffer-fake-minor-mode t)
-	      (run-hooks 'proof-activate-scripting-hook))
-	  ;; Locked region covers only part of the buffer
-	  ;; FIXME da: ponder alternative of trying to complete rest
-	  ;; of current scripting buffer?
-	  (error "Cannot deal with two unfinished script buffers!")))))))
+	  ;; Turn off Scripting in the old buffer.
+	  (setq proof-active-buffer-fake-minor-mode nil)))
+
+    ;; is this a fresh script mode buffer, with no locked region?
+    (if (not (member (current-buffer) proof-script-buffer-list))
+	(progn
+	  (proof-init-segmentation)
+	  (setq proof-script-buffer-list
+		(cons (current-buffer) proof-script-buffer-list))))
+
+    ;; Turn on the minor mode, run hooks.
+    (setq proof-active-buffer-fake-minor-mode t)
+    (run-hooks 'proof-activate-scripting-hook)
+
+    ;; Make status of active scripting buffer show up
+    (if (fboundp 'redraw-modeline)
+	(redraw-modeline)
+      (force-mode-line-update)))))
 
 
 
@@ -751,9 +737,10 @@ the comment. If you want something different, put it inside
 unclosed-comment-fun. If ignore-proof-process-p is set, no commands
 will be added to the queue."
   (interactive)
-  (let ((pt (point))
-	(crowbar (or ignore-proof-process-p (proof-check-process-available)))
-	semis)
+  (or ignore-proof-process-p 
+      (proof-shell-ready-prover))
+  (proof-activate-scripting)
+  (let ((semis))
     (save-excursion
       ;; Give error if no non-whitespace between point and end of locked region.
       (if (proof-only-whitespace-to-locked-region-p)
@@ -763,12 +750,11 @@ will be added to the queue."
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-      (if (and (not ignore-proof-process-p) (not crowbar) (null semis))
+      (if (and (not ignore-proof-process-p) (null semis))
 	  (error "I don't know what I should be doing in this buffer!"))
       (goto-char (nth 2 (car semis)))
       (and (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-;	     (if crowbar (setq vanillas (cons crowbar vanillas)))
 	     (proof-start-queue (proof-unprocessed-begin) (point) vanillas))))))
 
 
@@ -797,11 +783,13 @@ Afterwards, move forward to near the next command afterwards, unless
 DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
 a space or newline will be inserted automatically."
   (interactive)
-  (let ((pt (point))
-	(crowbar (or ignore-proof-process-p (proof-check-process-available)))
-	semis)
-    (if (proof-locked-region-full-p)
-	(error "Locked region is full, no more commands to do!"))
+  (or ignore-proof-process-p 
+      (proof-shell-ready-prover))
+  (proof-activate-scripting)
+  (or ignore-proof-process-p
+      (if (proof-locked-region-full-p)
+	  (error "Locked region is full, no more commands to do!")))
+  (let ((semis))
     (save-excursion
       ;; CHANGE from old proof-assert-until-point: don't bother check
       ;; for non-whitespace between locked region and point.
@@ -817,7 +805,7 @@ a space or newline will be inserted automatically."
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car-safe semis))
 	  (setq semis (cdr semis)))
-      (if (and (not ignore-proof-process-p) (not crowbar) (null semis))
+      (if (and (not ignore-proof-process-p) (null semis))
 	  (error "I don't know what I should be doing in this buffer!"))
       (goto-char (nth 2 (car semis)))
       (if (not ignore-proof-process-p)
@@ -837,7 +825,8 @@ a space or newline will be inserted automatically."
 ;;         command for us to run                                    ;;
 
 (defun proof-insert-pbp-command (cmd)
-  (proof-check-process-available)
+  (proof-shell-ready-prover)			; FIXME
+  (proof-activate-scripting)
   (let (span)
     (proof-goto-end-of-locked)
     (insert cmd)
@@ -918,7 +907,8 @@ deletes the region corresponding to the proof sequence."
    this function is invoked outside a locked region, the last
    successfully processed command is undone."
   (interactive)
-  (proof-check-process-available)
+  (proof-shell-ready-prover)
+  (proof-activate-scripting)
   (let ((span (span-at (point) 'type)))
     (if (null (proof-locked-end)) (error "No locked region"))
     (and (null span)
@@ -934,22 +924,21 @@ deletes the region corresponding to the proof sequence."
 ;;         something here which changes the proof state             ;;
 
 (defun proof-done-trying (span)
+  "Callback for proof-try-command."
   (delete-span span)
   (proof-detach-queue))
 			
-(defun proof-try-command
-  (&optional unclosed-comment-fun) 
+(defun proof-try-command (&optional unclosed-comment-fun) 
+  "Process the command at point, but don't add it to the locked region. 
+This will only happen if the command satisfies proof-state-preserving-p.
 
-  "Process the command at point,
-   but don't add it to the locked region. This will only happen if
-   the command satisfies proof-state-preserving-p.
-
-   Default action if inside a comment is just to go until the start of
-   the comment. If you want something different, put it inside
-   unclosed-comment-fun."
+Default action if inside a comment is just to go until the start of
+the comment. If you want something different, put it inside
+unclosed-comment-fun."
   (interactive)
-  (let ((pt (point)) semis crowbar test)
-    (setq crowbar (proof-check-process-available))
+  (proof-shell-ready-prover)
+  (proof-activate-scripting)
+  (let ((pt (point)) semis test)
     (save-excursion
       (if (proof-only-whitespace-to-locked-region-p)
 	  (progn (goto-char pt)
@@ -958,14 +947,14 @@ deletes the region corresponding to the proof sequence."
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-      (if (and (not crowbar) (null semis)) (error "I don't know what I should be doing in this buffer!"))
+      (if (null semis) 
+	  (error "I don't know what I should be doing in this buffer!"))
       (setq test (car semis))
       (if (not (funcall proof-state-preserving-p (nth 1 test)))
-	  (error "Command is not state preserving"))
+	  (error "Command is not state preserving, I won't try it."))
       (goto-char (nth 2 test))
       (let ((vanillas (proof-semis-to-vanillas (list test)
 					       'proof-done-trying)))
-;	(if crowbar (setq vanillas (cons crowbar vanillas)))
 	(proof-start-queue (proof-unprocessed-begin) (point) vanillas)))))
 
 
@@ -1103,10 +1092,17 @@ Only for use by consenting adults."
 (defun proof-execute-minibuffer-cmd ()
   (interactive)
   (let (cmd)
-    (proof-check-process-available 'relaxed)
+    (proof-shell-ready-prover) ;; was (proof-check-process-available 'relaxed) 
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
     (proof-invisible-command cmd 'relaxed)))
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; command history  (unfinished)
+;;
 ;; da: below functions for input history simulation are quick hacks.
 ;; Could certainly be made more efficient.
 
@@ -1126,13 +1122,16 @@ Based on position of point."
   ;; proof-next-matching-command)))
       ;; Start a new search
       
-  
-
 (defun proof-next-matching-command (arg)
   "Search through following commands for new command matching current input."
   (interactive "p")
   (proof-previous-matching-command (- arg)))
+
+;;
+;; end command history stuff
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	  
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1443,11 +1442,6 @@ finish setup which depends on specific proof assistant configuration."
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip 
     (concat (regexp-quote proof-comment-start) "+\\s_?"))
-
-  (setq proof-re-end-of-cmd (concat "\\s_*" proof-terminal-string "\\s_*\\\'"))
-  (setq proof-re-term-or-comment 
-	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
-		"\\|" (regexp-quote proof-comment-end)))
 
   ;; func-menu --- Jump to a goal within a buffer
   (and (boundp 'fume-function-name-regexp-alist)

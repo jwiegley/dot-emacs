@@ -11,9 +11,89 @@
 
 (require 'proof-config)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  Starting and stopping the proof-system shell                    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Internal variables used by shell mode
+;;
+
+(defvar proof-re-end-of-cmd nil 
+  "Regexp matching end of command.  Based on proof-terminal-string.
+Set in proof-shell-mode.")
+
+(defvar proof-re-term-or-comment nil 
+  "Regexp matching terminator, comment start, or comment end.
+Set in proof-shell-mode.")
+
+
+
+
+;;
+;; Implementing the (unfortunately irrelevant) process lock
+;;
+;;
+
+(defvar proof-shell-busy nil 
+  "A lock indicating that the proof shell is processing.
+When this is non-nil, proof-shell-ready-prover will give
+an error.")
+
+;;
+;; History of these horrible functions.
+;;
+;;  proof-check-process-available
+;;    Checks whether the proof process is available.
+;; Specifically:
+;;     (1) Is a proof process running?
+;;     (2) Is the proof process idle?
+;;     (3) Does the current buffer own the proof process?
+;;     (4) Is the current buffer a proof script?
+;; It signals an error if at least one of the conditions is not
+;; fulfilled. If optional arg RELAXED is set, only (1) and (2) are 
+;; tested.
+;;
+;; Later, proof-check-process-available was altered to also
+;; start a proof shell if necessary, although this is also
+;; done (later?) in proof-grab-lock.  It was also altered to
+;; perform configuration for switching scripting buffers.
+;;
+;; Now, we have two functions again:
+;;
+;;  proof-shell-ready-prover   
+;;    starts proof shell, gives error if it's busy.
+;;
+;;  proof-activate-scripting  (in proof-script.el)
+;;    turns on scripting minor mode for current (scripting) buffer.
+;;
+;; Also, a new enabler predicate:
+;;  
+;;  proof-shell-available
+;;    returns non-nil if a proof shell is active and not locked.
+;;
+;; Maybe proof-shell-ready-prover doesn't need to start the shell,
+;; we can find that out later.
+;;
+;; Chasing down 'relaxed' flags:
+;;
+;;   was passed into proof-grab by proof-start-queue
+;;    only call to proof-start-queue with this arg is in
+;;    proof-invisible-command.
+;;   only call of proof-invisible-command with relaxed arg
+;;   is in proof-execute-minibuffer-cmd.
+;;  --- presumably so that command could be executed from any
+;;  buffer, not just a scripting one?
+;;
+;;  I think it's wrong for proof-invisible-command to enforce
+;;  scripting buffer!
+;; 
+;;  This is reflected now by just calling (proof-shell-ready-prover)
+;;  in proof-invisible-command, not proof-check-process-available.
+;;
+;; Hopefully we can get rid of these messy 'relaxed' flags now.
+;;
+;;  -da.
+
+(defun proof-shell-ready-prover ()
+  "Make sure the proof assistant is ready for a command"
+  (proof-start-shell)
+  (if proof-shell-busy (error "Proof Process Busy!")))
 
 (defun proof-shell-live-buffer ()
   "Return buffer of active proof assistant, or nil if none running."
@@ -21,11 +101,39 @@
        (comint-check-proc proof-shell-buffer)
        proof-shell-buffer))
 
+(defun proof-shell-available-p ()
+  "Returns non-nil if there is a proof shell active and available.
+No error messages.  Useful as menu or toolbar enabler."
+  (and (proof-shell-live-buffer)
+       (not proof-shell-busy)))
+
+(defun proof-grab-lock (&optional relaxed)
+  "Grab the proof shell lock."
+  ;; FIXME: this used to observe 'relaxed' flag, now it ignores it!
+  (proof-shell-ready-prover)			;
+  (setq proof-shell-busy t))
+
+(defun proof-release-lock ()
+  "Release the proof shell lock."
+  (if (proof-shell-live-buffer)
+      (progn
+	(if (not proof-shell-busy)
+	    (error "Bug in proof-release-lock: Proof process not busy"))
+	;; da: Removed this now since some commands run from other
+	;; buffers may claim process lock.
+	;; (if (not (member (current-buffer) proof-script-buffer-list))
+	;; (error "Bug in proof-release-lock: Don't own process"))
+	(setq proof-shell-busy nil))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  Starting and stopping the proof-system shell                    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun proof-start-shell ()
   "Initialise a shell-like buffer for a proof assistant.
 
 Also generates goal and response buffers.
-Initialises current buffer for scripting.
 Does nothing if proof assistant is already running."
   (if (proof-shell-live-buffer)
       ()
@@ -65,15 +173,7 @@ Does nothing if proof assistant is already running."
 	(set-buffer proof-pbp-buffer)
 	(funcall proof-mode-for-pbp))
 
-      (setq proof-script-buffer-list (list (current-buffer)))
-      (proof-init-segmentation)
-      (setq proof-active-buffer-fake-minor-mode t)
-      (run-hooks 'proof-activate-scripting-hook)
-
-      (if (fboundp 'redraw-modeline)
-	  (redraw-modeline)
-	(force-mode-line-update))
-
+      ;; FIXME: Maybe this belongs outside this function?
       (or (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
 	  (setq minor-mode-alist
 		(append minor-mode-alist
@@ -405,7 +505,8 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
 		  (beep)
 
 		  ;; unwind script buffer
-		  (set-buffer (car proof-script-buffer-list))
+		  (if proof-script-buffer-list
+		      (set-buffer (car proof-script-buffer-list)))
 		  (proof-detach-queue)
 		  (delete-spans (proof-locked-end) (point-max) 'type)
 		  (proof-release-lock)
@@ -419,7 +520,8 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
     (insert-string 
      "Interrupt: Script Management may be in an inconsistent state\n")
     (beep)
-  (set-buffer (car proof-script-buffer-list)))
+  (if proof-script-buffer-list
+      (set-buffer (car proof-script-buffer-list))))
   (if proof-shell-busy
       (progn (proof-detach-queue)
 	     (delete-spans (proof-locked-end) (point-max) 'type)
@@ -538,20 +640,7 @@ assistant."
       (incf i)))
   (save-excursion (proof-shell-insert string)))
 
-(defun proof-grab-lock (&optional relaxed)
-  (proof-start-shell)
-  (proof-check-process-available relaxed)
-  (setq proof-shell-busy t))
 
-(defun proof-release-lock ()
-  (if (proof-shell-live-buffer)
-      (progn
-	(if (not proof-shell-busy)
-	    ; (error "Bug in proof-release-lock: Proof process not busy")
-	    (message "Nag, nag, nag: proof-release-lock: Proof process not busy"))
-	(if (not (member (current-buffer) proof-script-buffer-list))
-	    (error "Bug in proof-release-lock: Don't own process"))
-	(setq proof-shell-busy nil))))
 
 ; Pass start and end as nil if the cmd isn't in the buffer.
 
@@ -591,7 +680,8 @@ Return non-nil if the action list becomes empty; unlock the process
 and removes the queue region.  Otherwise send the next command to the
 proof process."
   (save-excursion
-    (set-buffer (car proof-script-buffer-list))
+    (if proof-script-buffer-list
+	(set-buffer (car proof-script-buffer-list)))
     ;; (if (null proof-action-list) 
     ;;	(error "proof-shell-exec-loop: called with empty proof-action-list."))
     ;; Be more relaxed about calls with empty action list
@@ -687,7 +777,7 @@ arrive."
 	      (string-match (car proof-shell-process-file) message))
 	 (let
 	     ((file (funcall (cdr proof-shell-process-file) message)))
-	   (if (string= file "") 
+	   (if (and proof-script-buffer-list (string= file ""))
 	       (setq file (buffer-file-name (car proof-script-buffer-list))))
 	   (if file
 	       (proof-register-possibly-new-processed-file file))))
@@ -699,7 +789,7 @@ arrive."
 	   (setq proof-included-files-list
 		 (funcall proof-shell-compute-new-files-list message))
 	   (proof-restart-buffers
-	    (remove (car proof-script-buffer-list)
+	    (remove (car-safe proof-script-buffer-list)
 		    (proof-files-to-buffers
 		     (set-difference current-included
 				     proof-included-files-list))))))
@@ -790,9 +880,13 @@ how far we've got."
     
 (defun proof-done-invisible (span) ())
 
+
+;; da: What is the rationale here for making the *command* sent
+;; invisible, rather than the stuff returned????
+;; doc string makes no sense of this.
 (defun proof-invisible-command (cmd &optional relaxed)
   "Send cmd to the proof process without responding to the user."
-  (proof-check-process-available relaxed)
+  (proof-shell-ready-prover)
   (if (not (string-match proof-re-end-of-cmd cmd))
       (setq cmd (concat cmd proof-terminal-string)))
   (proof-start-queue nil nil (list (list nil cmd
@@ -827,7 +921,13 @@ how far we've got."
   (add-hook 'comint-output-filter-functions 'proof-shell-filter nil 'local)
   (setq comint-get-old-input (function (lambda () "")))
   (proof-dont-show-annotations)
-  (setq proof-marker (make-marker)))
+  (setq proof-marker (make-marker))
+
+  (setq proof-re-end-of-cmd (concat "\\s_*" proof-terminal-string "\\s_*\\\'"))
+  (setq proof-re-term-or-comment 
+	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
+		"\\|" (regexp-quote proof-comment-end)))
+  )
 
 (easy-menu-define proof-shell-menu
 		  proof-shell-mode-map
