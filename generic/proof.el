@@ -191,10 +191,11 @@ It was constructed with the macro proof-customize-toggle.")
 	(> (prefix-numeric-value arg) 0)))))
 
 (defun proof-try-require (symbol)
-  "Try requiring SYMBOL.  No error if it fails for some reason."
+  "Try requiring SYMBOL.  No error if the file for SYMBOL isn't found."
   (condition-case ()
-      (require symbol) ;; NB: lose all errors!
-    (t (featurep symbol))))
+      (require symbol)
+    (file-error nil))
+  (featurep symbol))
 
 
 ;; -----------------------------------------------------------------
