@@ -213,8 +213,13 @@ scripting buffer may have an active queue span.")
   ;; the default/global setting.   This would be consistent with
   ;; behaviour of "expensive" x-symbol/mmm options.
   (interactive)
+  ;; NB: might be nice to have queue region non read-only too, but
+  ;; since the queue is constructed ahead of time, that wouldn't
+  ;; work.  (Better might be to refactor so that the region is
+  ;; parsed as we go)
   (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
-		     (proof-span-read-only proof-locked-span)))
+       (proof-span-read-only proof-locked-span)))
+
    
 (defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END."
@@ -2718,8 +2723,6 @@ finish setup which depends on specific proof assistant configuration."
      ((and img proof-running-on-XEmacs)
       (set-glyph-image invisible-text-glyph img (current-buffer)))))
 
-  ;; FIXME: next expr shouldn't be needed, if loads happen in
-  ;; correct order.
   (if (proof-ass x-symbol-enable)
       (proof-x-symbol-enable))
 
@@ -2847,10 +2850,6 @@ Choice of function depends on configuration setting."
 	   (pushnew
 	    (cons major-mode proof-script-find-next-entity-fn)
 	    fume-find-function-name-method-alist))))))
-
-
-
-
 
 
 
