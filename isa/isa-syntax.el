@@ -100,13 +100,6 @@
 
 ;; ----- regular expressions
 
-;; this should come from isa-ml-compiler stuff.
-(defcustom isa-error-regexp 
-  "^.*Error:\\|^\\*\\*\\*"
-  "A regexp indicating that Isabelle has identified an error."
-  :type 'string
-  :group 'isa-syntax)
-
 (defconst isa-id proof-id)
 
 (defconst isa-ids (proof-ids isa-id))

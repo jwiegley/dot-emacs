@@ -82,25 +82,32 @@ no regular or easily discernable structure."
 (defun isa-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle."
   (setq
-   proof-shell-prompt-pattern
-   "^\\(val it = () : unit\n\\)?2?[-=#>]>? *"
-   ;"^[-=#>]>? *"
-   ;; This pattern matches a variety of prompts from ML.
-   ;; It doesn't match the tracing output prompt.
+   ;; This first pattern is crucial.
+   ;; It should match the 'top-level' prompt from ML,
+   ;; optionally proceeded by vacuous assignment output.
+   ;;
+   ;; It doesn't match the tracing output prompt or secondary
+   ;; prompts (continued lines), although these would usually
+   ;; be nice for comint-prompt-regexp to work.
+   ;; 
    ;; Probably it isn't general enough for all MLs, please send me
    ;; problem reports / patches.
-   ;; Alternative version to match vacuous assignments:
-     
-   ;; this doesn't work as intended, probably because the
-   ;; process mungling searches backwards and forwards for
-   ;; regexps.
+   ;;
+   proof-shell-annotated-prompt-pattern
+			          "^\\(val it = () : unit\n\\)?> "
+
+   ;; This pattern is just for comint, it matches a range of
+   ;; prompts from a range of MLs.
+   proof-shell-prompt-pattern     "^2?[-=#>]>? *"
+
    proof-shell-cd			"cd \"%s\";"
-   ;; this one not set: proof-shell-abort-goal-regexp 
    proof-shell-proof-completed-regexp   "No subgoals!"
-   proof-shell-error-regexp		isa-error-regexp
-   proof-shell-interrupt-regexp         "Interrupt"     ; FIXME: only good for NJ/SML
+   ;; FIXME: the next two are probably only good for NJ/SML
+   proof-shell-error-regexp		"^.*Error:\\|^\\*\\*\\*"
+   proof-shell-interrupt-regexp         "Interrupt"
+   ;; this one not set: proof-shell-abort-goal-regexp 
    proof-shell-noise-regexp	        ""
-   proof-shell-assumption-regexp	isa-id		   ; matches name of assumptions
+   proof-shell-assumption-regexp	isa-id  ; matches name of assumptions
    proof-shell-goal-regexp		isa-goal-regexp    ; matches subgoal heading
    ;; We can't hack the SML prompt, so set wakeup-char to nil.
    proof-shell-wakeup-char		nil
@@ -113,7 +120,7 @@ no regular or easily discernable structure."
 					 "use \""
 					 proof-internal-home-directory
 					  "isa/ProofGeneral.ML\";")
-   proof-shell-eager-annotation-start   "^\\[opening "
+   proof-shell-eager-annotation-start   "^\\[opening \\|^###"
   ;;   proof-shell-eager-annotation-end "$"
    proof-shell-eager-annotation-end     "$"
    ;; === ANNOTATIONS  === ones below here are broken

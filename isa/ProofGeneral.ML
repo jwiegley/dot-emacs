@@ -30,11 +30,14 @@ in
 
 (*hooks for output channels: normal, warning, error*)
 
-(* da: NO CHANGES NEEDED YET *)
+(* Proof General: no change to these yet from defaults, but be
+   careful that proof-shell-prompt-pattern doesn't match any
+   of these!  (maybe the default needs adjustment)
+*)
 val () =
 	(prs_fn := (fn s => out s);
 	 warning_fn := (fn s => out (prefix_lines "### " s));
-	error_fn := (fn s => out (prefix_lines "*** " s)))
+	 error_fn := (fn s => out (prefix_lines "*** " s)))
 
 end;
 
