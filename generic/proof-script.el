@@ -477,23 +477,27 @@ If the locked region doesn't cover the entire file, retract it."
   (if (eq (current-buffer) proof-script-buffer)
       (let ((bname  (buffer-name proof-script-buffer)))
 	(message "Turning off scripting in %s..." bname)
-	(unwind-protect
-	    ;; If the buffer is not fully processed, 
-	    ;; ensure it's removed from the list of included files
-	    ;; and retract it.  
-	    (unless (proof-locked-region-full-p)
-	      (goto-char (point-min))
-	      (proof-unregister-buffer-file-name)
-	      (proof-retract-until-point))
-	  ;; In any case, make some cleanup attempts
-	  (proof-restart-buffers (list proof-script-buffer))
-	  ;; And turn off the fake minor mode
-	  (setq proof-active-buffer-fake-minor-mode nil)
-	  ;; Make status of active scripting buffer show up
-	  (if (fboundp 'redraw-modeline)
-	      (redraw-modeline)
-	    (force-mode-line-update))
-	  (message "Turning off scripting in %s... done." bname)))))
+	;; If the buffer is not fully processed, 
+	;; ensure it's removed from the list of included files
+	;; and retract it if the locked region is non-empty.  
+	(unless (proof-locked-region-full-p)
+	  (goto-char (point-min))
+	  (proof-unregister-buffer-file-name)
+	  (unless (proof-locked-region-empty-p)
+	    (condition-case nil
+		(proof-retract-until-point)
+	      (error nil))))
+	;; In any case, make some cleanup attempts
+	(proof-restart-buffers (list proof-script-buffer))
+	;; And turn off the fake minor mode
+	(setq proof-active-buffer-fake-minor-mode nil)
+	;; Make status of active scripting buffer show up
+	;; FIXME da:
+	;; not really necessary when called by kill buffer, at least.
+	(if (fboundp 'redraw-modeline)
+	    (redraw-modeline)
+	  (force-mode-line-update))
+	(message "Turning off scripting in %s... done." bname))))
 
 	
 
