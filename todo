@@ -29,8 +29,6 @@ X (Low)		e.g. probably not worth spending time on
 
 *** Outstanding bugs to investigate
 
-A find C-c C-l binding and remove it.  Overriden with goto-end-of-locked.
-
 C Undoing comments with FSF Emacs weirdness.
  Noticed with Emacs 20.6.1.  Seems to affect all provers.
  Workaround:  use C-c C-RET or C-c C-r instead.
@@ -39,10 +37,9 @@ C Undoing comments with FSF Emacs weirdness.
  Seems to get stuck looping in {coq,lego,whetever}-find-and-forget
  but no problem when running with edebug edebug-defun on this function.
  Maybe filter specific glitch to do with spans?
+ Bit of a showstopper for FSF emacs.
 
-C Problem with startup for Coq and HOL.  Also for Isar!  See BUGS.
-
-C Solaris bugs: font locking and button enabling.
+X Solaris bugs: font locking and button enabling.
 
   [Markus]: I can only produce this problem on Solaris, where we have
   both a mule and non-mule version of xemacs-21.1.8.  On my Linux box
@@ -72,8 +69,7 @@ C Solaris bugs: font locking and button enabling.
    means they've changed a setting!
    (currently: next-entity-regexps, proof-splash-settings for Isabelle).
 
-**** C Isabelle: I think show_sorts -> show_types ?
-   
+**** C Isabelle: I think show_sorts -> show_types, how can we reflect this ?
 
 **** A Add efficiency improvement by turning on/off prover output.
   Patch already added to pre-release.
@@ -133,12 +129,6 @@ C Solaris bugs: font locking and button enabling.
 
   defface specs with (type x) seem to work fine with (type mswindows) too.
   Hassle to duplicate, is there an easy way to cover both?
-
-*** C Fix spurious output of Coq and HOL from first line
-
-  When synchronization is first gained, previous line of output
-  is shown. How to fix this?
-
 
 *** C Add support for XEmacs 21 packaging.  Make suitable updates available
   on web page, and make RPM put things in the right place so no .emacs
