@@ -12,7 +12,7 @@
 ;;
 ;; This mechanism is in fact recommended for new instantiations of
 ;; Proof General since it follows a regular pattern, and we can more
-;; easily adapt the it in the future to new versions of Proof General.
+;; easily adapt it in the future to new versions of Proof General.
 ;; It is easy to augment with additional elisp functions and
 ;; other settings.
 ;;
