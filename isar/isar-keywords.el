@@ -113,6 +113,7 @@
     "global"
     "inductive"
     "inductive_cases"
+    "judgment"
     "lemmas"
     "local"
     "nonterminals"
