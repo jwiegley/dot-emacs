@@ -29,6 +29,8 @@ Borrowed from Thomas's lego tests:  (v 1.2)
 13) retract B                 EFFECTS A* B  C  D? [B.thy* D*,D.thy* again]
 14) assert B                  EFFECTS A* B* C  D? 
 15) assert C                  EFFECTS A* B* C* D? [everything locked]
+        BROKEN 11.12.98: B.ML *may* not be locked?
+ 
 16) retract to middle of B    EFFECTS A* B+ C  D?
 	BROKEN!  Now retracts whole thing.
 14) M-x proof-shell-restart   EFFECTS A  B  C  D  
@@ -71,6 +73,30 @@ to ML files of autoloaded children.
 3) edit C.thy to C=A, remove dependency on B
 4) assert C.thy		        A*, B, C*      (B automatically unlocked)
 
+
+
+
+
+-----------------------------------------------------------------
+
+Question:
+
+We assert script A.
+We assert script B.
+Can we retract to middle of A?  Yes, we should be able to!
+
+
+
+-----------------------------------------------------------------
+
+Tester:
+
+Visit A.ML.  Assert partly.
+
+Visit C.thy.  Assert it.
+
+This should lock remainder of A.ML, since it has now been read
+completely.
 
 
 
