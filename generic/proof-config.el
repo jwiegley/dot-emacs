@@ -25,7 +25,7 @@
 ;;  5. Shell mode configuration
 ;;     5a. commands
 ;;     5b. regexps
-;;     5c. hooks
+;;     5c. hooks and others
 ;;  6. Goals buffer configuration
 ;;  7. Splash screen settings
 ;;  8. X-Symbol support
@@ -1454,8 +1454,21 @@ to do syntax highlighting with font-lock."
 
 
 ;;
-;; 5c. hooks and hook-related variables
+;; 5c. hooks and other miscellaneous customizations
 ;;
+
+(defcustom proof-shell-string-escapes '(("\\\\" . "\\\\"))
+  "A list of escapes that are applied for %e substitutions.
+This allows handling some special syntax for commands.
+A list of cons cells, car of which is string to be replaced
+by the cdr.
+For example, when directories are sent to Isabelle or HOL,
+they appear inside ML strings, so the backslash character must
+be escaped.  The setting
+  '((\"\\\\\" . \"\\\\\\\\\"))
+achieves this."
+  :type '(list (cons string string))
+  :group 'proof-shell)
 
 (defcustom proof-shell-process-connection-type 
   ;; Use ptys unless it seems like we're on Solaris.  Only have
