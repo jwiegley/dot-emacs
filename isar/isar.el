@@ -69,10 +69,13 @@
   :type 'number
   :group 'isabelle-isar)
 
+(defpgdefault script-indent t)		; indentation enabled
+
 
 ;;;
 ;;; ======== Configuration of generic modes ========
 ;;;
+
 
 
 ;; ===== outline mode
@@ -183,6 +186,8 @@
 	(and cont (forward-char forward-amount)))
       found-header)))
 
+;; FIXME: uncomment here for testing new parsing function.  
+;; (defalias 'proof-segment-up-to 'proof-segment-up-to-new)
 
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
@@ -190,7 +195,8 @@
    proof-assistant-home-page	isabelle-web-page
    proof-mode-for-script	'isar-proofscript-mode
    ;; proof script syntax
-   proof-terminal-char		?\;	; ends a proof
+   proof-terminal-char		?\;	; forcibly ends a proof command
+   proof-script-command-start-regexp isar-any-command-regexp
    proof-comment-start		"(*"	; comment in a proof
    proof-comment-end		"*)"
    proof-string-start-regexp    "\"\\|{\\*"
@@ -220,11 +226,9 @@
    ;; da: for pbp.  
    ;; proof-goal-hyp-fn		'isar-goal-hyp
    proof-state-preserving-p	'isar-state-preserving-p
-   proof-script-indent          t
    proof-parse-indent		'isar-parse-indent
    proof-stack-to-indent	'isar-stack-to-indent
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list))
-
 
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
@@ -521,7 +525,13 @@ proof-shell-retract-files-regexp."
   "Insert sync markers - acts on variable STRING by dynamic scoping"
   (if (string-match isar-verbatim-regexp string)
       (setq string (match-string 1 string))
-    (setq string (concat "\\<^sync>" (isar-shell-adjust-line-width) string "\\<^sync>;"))))
+    (unless (string-match ";[ \t]$" string) ; da: added this 
+      (setq string (concat string ";")))    ; da: added this
+    (setq string (concat 
+		  "\\<^sync>" 
+		  (isar-shell-adjust-line-width) 
+		  string 
+		  "\\<^sync>;"))))
 
 (defun isar-markup-ml (string)
   "Return marked up version of ML command STRING for Isar."
