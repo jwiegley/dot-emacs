@@ -1,3 +1,46 @@
+2003-03-07  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* todo: Updated.
+
+	* etc/isar/XSymbolTests.thy:
+	Remove notes about old bugs
+
+	* generic/proof-site.el:
+	Use Info-default-directory-list for GNU Emacs still
+
+2003-03-06  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-splash.el:
+	Fix Non-X frame error on Emacs 21
+
+	* x-symbol/lisp/x-symbol.el:
+	Patch from CW to fix sub/supers prob.
+
+2003-03-05  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-x-symbol.el:
+	List of stuff to do here
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* isa/x-symbol-isabelle.el:
+	Tweaks to auto-style; remove x-symbol-set-cache-variable because breaks compile
+
+	* isa/isabelle-system.el:
+	Add function to parse consts part of syntax output
+
+	* Makefile:
+	clean does distclean for x-symbol
+
+	* generic/proof-utils.el:
+	Make sure selected window never changes
+
 2003-03-05  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
