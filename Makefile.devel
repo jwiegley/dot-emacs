@@ -49,12 +49,12 @@
 ###########################################################################
 
 
-# Release tag.  For pre-releases.  Watch out with
-# substitution in tag target below, which edits $(DOWNLOADHTML)
+# PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
+# line in tag target below, which edits $(DOWNLOADHTML)
+PRERELEASE_PREFIX=3\.0pre
 PRERELEASE_TAG=3.0pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
-# html/download.phtml
 DOWNLOADHTML=download.phtml
 
 
@@ -251,7 +251,7 @@ tag:
 # Edit $(DOWNLOADHTML) only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
 	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
-	  (cd html; mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-2\.2pre......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old) \
+	  (cd html; mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old) \
 	fi
 # This hack to SOURCE: name is only needed because we have an obsolete version
 # of rpm installed on standard machines at dcs.ed, and we have to build with
