@@ -1293,25 +1293,6 @@ value of proof-locked span."
   "Remove all spans from scripting buffers via proof-restart-buffers."
   (proof-restart-buffers (proof-script-buffers-with-spans)))
 
-;; THIS HAS BEEN REPLACED WITH proof-shell-exit, proof-shell-restart.
-
-;(defun proof-restart-script ()
-;  "Restart Proof General.
-;Re-initialise the proof assistant by sending the restart command,
-;and clear all locked regions."
-;  (interactive)
-;  (proof-script-remove-all-spans-and-deactivate)
-;  (setq proof-included-files nil
-;	proof-shell-busy nil
-;	proof-shell-proof-completed nil)
-;  (if (buffer-live-p proof-shell-buffer) 
-;      (kill-buffer proof-shell-buffer))
-;  (if (buffer-live-p proof-goals-buffer)
-;      (kill-buffer proof-goals-buffer))
-;  (and (buffer-live-p proof-response-buffer)
-;       (kill-buffer proof-response-buffer)))
-
-
 
 ;; A command for making things go horribly wrong - it moves the
 ;; end-of-locked-region marker backwards, so user had better move it
