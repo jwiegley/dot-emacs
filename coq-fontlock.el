@@ -4,6 +4,10 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.10  1998/05/15 16:13:23  hhg
+;; Added CoFixpoint and tactics.
+;; Changed indentation.
+;;
 ;; Revision 1.9  1998/05/05 14:19:39  hhg
 ;; Added CoInductive.
 ;; Made updates to reflect problem with "Definition", which couldn't be
@@ -58,6 +62,7 @@
 
 (defvar coq-keywords-defn
   '(
+"CoFixpoint"
 "CoInductive"
 "Fixpoint"
 "Inductive"
@@ -143,6 +148,7 @@
 "Inversion_clear"
 "Inversion"
 "LApply"
+"Left"
 "Linear"
 "Load"
 "Pattern"
@@ -154,6 +160,7 @@
 "Reflexivity"
 "Replace"
 "Rewrite"
+"Right"
 "Section"
 "Simplify_eq"
 "Simpl"
@@ -198,14 +205,14 @@
 (defvar coq-font-lock-terms
   (list
 
-   ; lambda binders
-     (list (coq-abstr-regexp "\\[" ":") 1 'font-lock-declaration-name-face)
+   ;; lambda binders
+   (list (coq-abstr-regexp "\\[" ":") 1 'font-lock-declaration-name-face)
 
-     ; Pi binders
-     (list (coq-abstr-regexp "(" ":") 1 'font-lock-declaration-name-face)
+   ;; Pi binders
+   (list (coq-abstr-regexp "(" ":") 1 'font-lock-declaration-name-face)
    
-     ;; Kinds
-     (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s *\\(("
+   ;; Kinds
+   (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s *\\(("
 		   coq-id ")\\)?") 'font-lock-type-face))
   "*Font-lock table for Coq terms.")
 
