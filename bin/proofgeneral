@@ -101,7 +101,7 @@ if [ -d $PGHOMEDEFAULT ]; then
 elif [ -d /usr/share/${EMACSVERSION}/site-lisp/proofgeneral ]; then
     PGHOME=/usr/share/${EMACSVERSION}/site-lisp/proofgeneral
 else
-    echo "Cannot find a Proof General list files: please set PGHOMEDEFAULT"
+    echo "Cannot find the Proof General lisp files: please set PGHOMEDEFAULT"
     exit 1
 fi
 
