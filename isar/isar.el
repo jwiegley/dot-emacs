@@ -215,7 +215,7 @@
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-goal-with-hole-regexp
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
-   proof-indent-commands-regexp	"$^"
+   proof-indent-commands-regexp	proof-no-regexp
    ;; proof engine commands
    proof-showproof-command	"pr"
    proof-goal-command		"lemma \"%s\";"
@@ -297,11 +297,6 @@
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
-
-   ;; Tested values of proof-shell-eager-annotation-start: 
-   ;; "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"
-   ;; "^---\\|^\\[opening "
-   ;; could be last bracket on end of line, or with ### and ***.
 
    ;; Dirty hack to allow font-locking for output based on hidden
    ;; annotations, see isar-output-font-lock-keywords-1
@@ -462,24 +457,20 @@ proof-shell-retract-files-regexp."
   (or
    (string-match isar-global-save-command-regexp str)
    (let ((ans nil) (lev 0) cmd)
-     (while (and span (not ans))
-       (setq span (prev-span span 'type))
-       ;; FIXME da: bug was here -- there may be no previous span!!
-       (if span				; da: added, don't know if right
-	   (progn			; da: added, don't know if right
-	     (setq cmd (span-property span 'cmd))
-	     (cond
-	      ;; comment: skip
-	      ((eq (span-property span 'type) 'comment))
-	      ;; local qed: enter block
-	      ((proof-string-match isar-save-command-regexp cmd)
-	       (setq lev (+ lev 1)))
-	      ;; local goal: leave block, or done
-	      ((proof-string-match isar-local-goal-command-regexp cmd)
-	       (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
-	      ;; global goal: done
-	      ((proof-string-match isar-goal-command-regexp cmd)
-	       (setq ans 'yes))))))
+     (while (and (not ans) span (setq span (prev-span span 'type)))
+       (setq cmd (span-property span 'cmd))
+       (cond
+	;; comment: skip
+	((eq (span-property span 'type) 'comment))
+	;; local qed: enter block
+	((proof-string-match isar-save-command-regexp cmd)
+	 (setq lev (+ lev 1)))
+	;; local goal: leave block, or done
+	((proof-string-match isar-local-goal-command-regexp cmd)
+	 (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
+	;; global goal: done
+	((proof-string-match isar-goal-command-regexp cmd)
+	 (setq ans 'yes))))
      (eq ans 'yes))))
 
 (defvar isar-current-goal 1
@@ -536,8 +527,8 @@ proof-shell-retract-files-regexp."
   "Insert sync markers - acts on variable STRING by dynamic scoping"
   (if (string-match isabelle-verbatim-regexp string)
       (setq string (match-string 1 string))
-    (unless (string-match ";[ \t]$" string) ; da: added this 
-      (setq string (concat string ";")))    ; da: added this
+    (unless (string-match ";[ \t]*\'" string)
+      (setq string (concat string ";")))
     (setq string (concat 
 		  "\\<^sync>" 
 		  (isar-shell-adjust-line-width) 
