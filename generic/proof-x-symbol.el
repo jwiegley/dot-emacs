@@ -169,6 +169,8 @@ A value for proof-shell-insert-hook."
                  (erase-buffer)
                  (insert string)
                  (setq x-symbol-language language)
+		 (setq x-symbol-8bits nil)
+		 (setq x-symbol-coding nil)
                  (x-symbol-encode-all nil coding))
                (prog1 (buffer-substring)
 		 ;; FIXME da: maybe more efficient just to delete
