@@ -59,8 +59,6 @@
        (and window-system		; Not on a tty
 	    (progn
 	      ;; put bundled version on load path
-	      ;; FIXME 21.2.03: bundled versionis 4.45 beta,
-	      ;; doesn't yet work with PG.
 	      (setq load-path
 		    (cons 
 		     (concat proof-home-directory "x-symbol/lisp/") 
@@ -208,7 +206,7 @@ in future if we have just activated it for this buffer."
   ;; This means that
   ;; x-symbol-mode must be turned on via this function for the first
   ;; time.
-  (setq x-symbol-language (proof-ass x-symbol-language))
+  ;;(setq x-symbol-language (proof-ass x-symbol-language))
   (x-symbol-mode)
   (proof-x-symbol-mode-associated-buffers))
 
