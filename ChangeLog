@@ -1,5 +1,54 @@
 2002-08-12  David Aspinall  <da@proofgeneral.org>
 
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* doc/ProofGeneral.texi:
+	Tweak Pierres docs
+
+	* README.exper: Note about exper bugs
+
+	* generic/span.el, generic/span-extent.el, generic/span-overlay.el:
+	Abstract more functions from concrete cases.
+
+	* generic/proof-utils.el:
+	Patch for XEmacs 20.4 compat [incomplete?].
+
+	* generic/proof-config.el: Docstring
+
+	* generic/texi-docstring-magic.el: Note
+
+	* generic/pg-user.el:
+	Fix for moving span duplicable prob.  Still not really working
+
+	* doc/PG-adapting.texi: Update magic
+
+	* doc/ProofGeneral.texi:
+	Document experimental features; update other descriptions.
+
+	* generic/proof-config.el: Docstring
+
+	* html/eeproof.php: New files.
+
+	* html/eeproof, html/eproofe:
+	Renamed file
+
+	* isar/Example.thy:
+	Remove comment at the end testing feature.  See etc/isar/Parsing.thy instead.
+
+	* README.exper:
+	Describe variable highlighting
+
+	* isar/isar.el, isa/isa.el:
+	Enable variable highlighting in case experimental features enabled.
+
+	* isa/README, isar/README:
+	Updated
+
+2002-08-12  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
 	Set version tag for new release.
 
