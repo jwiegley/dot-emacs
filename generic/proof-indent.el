@@ -64,7 +64,8 @@
 	     ((looking-at proof-commands-regexp)
 	      (setq stack (cons (list proof-terminal-char (point)) stack)))
 	     ((and (eq c proof-terminal-char)
-		   (eq (car (car stack)) proof-terminal-char)) (cdr stack))
+		   (eq (car (car stack)) proof-terminal-char))
+	      (setq stack (cdr stack)))
 	     (proof-parse-indent
 	      (setq stack (funcall proof-parse-indent c stack))))))
 	(forward-char))
