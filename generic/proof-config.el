@@ -25,7 +25,9 @@
 ;;     5a. commands
 ;;     5b. regexps
 ;;     5c. hooks
-;;  6. Global constants 
+;;  6. Goals buffer configuration
+;;  7. Splash screen settings
+;;  8. Global constants 
 ;;
 ;; The user options don't need to be set on a per-prover basis,
 ;; and the global constants probably should not be touched.
@@ -142,6 +144,14 @@ If you use multiple frames, only the windows in the currently
 selected frame will be affected."
   :type 'boolean
   :group 'proof-general)
+
+(defcustom proof-splash-inhibit
+  nil
+  "*Non-nil prevents splash screen display when Proof General is loaded."
+  :type 'boolean
+  :group 'proof-general)
+
+
 
 ;;
 ;; Faces.
@@ -571,6 +581,37 @@ This is used to handle nested goals allowed by some provers."
   :type 'function
   :group 'proof-script)
 
+(defcustom proof-activate-scripting-hook nil
+  "Hook run when a buffer is switched into scripting mode.
+The current buffer will be the newly active scripting buffer.
+
+This hook may be useful for synchronizing with the proof
+assistant, for example, to switch to a new theory."
+  :type '(repeat function)
+  :group 'proof-script)
+
+;;
+;; Proof script indentation
+;; FIXME: document this stuff
+;;
+
+(defcustom proof-stack-to-indent nil
+  "Prover-specific code for indentation."
+  :type 'sexp
+  :group 'proof-script)
+
+(defcustom proof-parse-indent nil
+  "Proof-assistant specific function for parsing characters for
+  indentation which is invoked in `proof-parse-to-point.'. Must be a
+  function taking two arguments, a character (the current character)
+  and a stack reflecting indentation, and must return a stack. The
+  stack is a list of the form (c . p) where `c' is a character
+  representing the type of indentation and `p' records the column for
+  indentation. The generic `proof-parse-to-point.' function supports
+  parentheses and commands. It represents these with the characters
+  `?\(', `?\[' and `proof-terminal-char'. "
+  :type 'sexp
+  :group 'proof-script)
 
 
 
@@ -649,6 +690,13 @@ Set to nil if proof assistant does not support annotated prompts."
   :type '(choice character (const nil))
   :group 'proof-shell)
 
+(defcustom proof-shell-first-special-char nil
+  "First special character.
+Codes above this character can have special meaning to Proof General,
+and are stripped from the prover's output strings."
+  :type '(choice character (const nil))
+  :group 'proof-shell)
+
 (defcustom proof-shell-annotated-prompt-regexp ""
   "Regexp matching a (possibly annotated) prompt pattern.
 Output is grabbed between pairs of lines matching this regexp.
@@ -689,30 +737,6 @@ is shown to the user.  Set to nil to disable."
   :type 'regexp
   :group 'proof-shell)
 
-(defcustom pbp-goal-command nil
-  "Command informing the prover that `pbp-button-action' has been
-  requested on a goal."
-  :type 'regexp
-  :group 'proof-shell)
-
-(defcustom pbp-hyp-command nil
-  "Command informing the prover that `pbp-button-action' has been
-  requested on an assumption."
-  :type 'regexp
-  :group 'proof-shell)
-
-(defcustom proof-shell-result-start ""
-  "Regexp matching start of an output from the prover after pbp commands.
-In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
-  :type 'regexp
-  :group 'proof-shell)
-
-(defcustom proof-shell-result-end ""
-  "Regexp matching end of output from the prover after pbp commands.
-In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
-  :type 'regexp
-  :group 'proof-shell)
-
 (defcustom proof-shell-start-goals-regexp ""
   "Regexp matching the start of the proof state output."
   :type 'regexp
@@ -723,18 +747,13 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
   :type 'regexp
   :group 'proof-shell)
 
-(defcustom pbp-error-regexp nil
-  "Regexp indicating that the proof process has identified an error."
-  :type 'regexp
-  :group 'proof-shell)
-
 (defcustom proof-shell-eager-annotation-start nil
   "Eager annotation field start.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
 Set to nil to disable this feature.
 
-The default value is \"\n\" to match up to the end of the line."
+The default value is \"\\n\" to match up to the end of the line."
   :type '(choice regexp (const :tag "Disabled" nil))
   :group 'proof-shell)
 
@@ -823,46 +842,6 @@ data triggered by `proof-shell-retract-files-regexp'."
   :type '(choice function (const nil))
   :group 'proof-shell)
 
-
-
-
-
-
-;;
-;; 6. Global constants
-;; 
-(defcustom proof-general-name "Proof-General"
-  "Proof General name used internally and in menu titles."
-  :type 'string
-  :group 'proof-general-internals)
-
-(defcustom proof-proof-general-home-page
-  "http://www.dcs.ed.ac.uk/home/proofgen"
-  "*Web address for Proof General"
-  :type 'string
-  :group 'proof-general-internals)
-
-
-;; FIXME: da: could we put these into another keymap shared across the
-;; various PG modes?
-(defcustom proof-universal-keys
-  '(([(control c) (control c)] . proof-interrupt-process)
-    ([(control c) (control v)] . proof-execute-minibuffer-cmd))
-"List of keybindings which for the script and response buffer. 
-Elements of the list are tuples (k . f) 
-where `k' is a keybinding (vector) and `f' the designated function."
-  :type 'sexp
-  :group 'proof-general-internals)
-
-;;; 
-;;; FIXME: unsorted below here
-;;;
-
-(defcustom pbp-change-goal nil
-  "Command to change to the goal %s"
-  :type 'string
-  :group 'prover-config)
-
 (defcustom proof-shell-process-output-system-specific nil
   "Set this variable to handle system specific output.
 Errors, start of proofs, abortions of proofs and completions of
@@ -881,52 +860,51 @@ output format."
   :type '(cons (function function))
   :group 'proof-shell)
 
-(defcustom proof-activate-scripting-hook nil
-  "Hook run when a buffer is switched into scripting mode.
-The current buffer will be the newly active scripting buffer.
-
-This hook may be useful for synchronizing with the proof
-assistant, for example, to switch to a new theory."
-  :type '(repeat function)
-  :group 'proof-script)
 
 
-
-
+
 ;;
-;; Proof script indentation
+;; 6. Goals buffer
 ;;
 
-;; FIXME: document this junk
-(defcustom proof-stack-to-indent nil
-  "Prover-specific code for indentation."
-  :type 'sexp
-  :group 'proof-script)
+(defgroup proof-goals nil
+  "Settings for configuring the goals buffer."
+  :group 'prover-config
+  :prefix "pbp-")
 
-(defcustom proof-parse-indent nil
-  "Proof-assistant specific function for parsing characters for
-  indentation which is invoked in `proof-parse-to-point.'. Must be a
-  function taking two arguments, a character (the current character)
-  and a stack reflecting indentation, and must return a stack. The
-  stack is a list of the form (c . p) where `c' is a character
-  representing the type of indentation and `p' records the column for
-  indentation. The generic `proof-parse-to-point.' function supports
-  parentheses and commands. It represents these with the characters
-  `?\(', `?\[' and `proof-terminal-char'. "
-  :type 'sexp
-  :group 'proof-script)
+(defcustom pbp-change-goal nil
+  "Command to change to the goal %s"
+  :type 'string
+  :group 'proof-goals)
 
+(defcustom pbp-goal-command nil
+  "Command informing the prover that `pbp-button-action' has been
+  requested on a goal."
+  :type 'regexp
+  :group 'proof-goals)
 
-;;
-;; More shell junk to sort out [maybe for pbp]
-;;
+(defcustom pbp-hyp-command nil
+  "Command informing the prover that `pbp-button-action' has been
+  requested on an assumption."
+  :type 'regexp
+  :group 'proof-goals)
 
-(defcustom proof-shell-first-special-char nil
-  "First special character.
-Codes above this character can have special meaning to Proof General,
-and are stripped from the prover's output strings."
-  :type '(choice character (const nil))
-  :group 'proof-shell)
+(defcustom pbp-error-regexp nil
+  "Regexp indicating that the proof process has identified an error."
+  :type 'regexp
+  :group 'proof-goals)
+
+(defcustom proof-shell-result-start ""
+  "Regexp matching start of an output from the prover after pbp commands.
+In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
+  :type 'regexp
+  :group 'proof-goals)
+
+(defcustom proof-shell-result-end ""
+  "Regexp matching end of output from the prover after pbp commands.
+In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
+  :type 'regexp
+  :group 'proof-goals)
 
 (defcustom proof-shell-start-char nil
   "Starting special for a subterm markup.
@@ -934,31 +912,118 @@ Subsequent characters with values *below* proof-shell-first-special-char
 are assumed to be subterm position indicators.  Subterm markups should
 be finished with proof-shell-end-char."
   :type '(choice character (const nil))
-  :group 'proof-shell)
+  :group 'proof-goals)
 
 (defcustom proof-shell-end-char nil
   "Finishing special for a subterm markup.
 See documentation of proof-shell-start-char."
   :type '(choice character (const nil))
-  :group 'proof-shell)
+  :group 'proof-goals)
 
-(defvar proof-shell-goal-char nil "goal mark")
+(defcustom proof-shell-goal-char nil
+  "goal mark"
+  :type 'character
+  :group proof-goals)
 
-(defvar proof-shell-field-char nil "annotated field end")
+(defcustom proof-shell-field-char nil
+  "annotated field end"
+  :type 'character
+  :group 'proof-goals)
+
+(defcustom proof-shell-start-char nil
+  "Starting special for a subterm markup.
+Subsequent characters with values *below* proof-shell-first-special-char
+are assumed to be subterm position indicators.  Subterm markups should
+be finished with proof-shell-end-char."
+  :type '(choice character (const nil))
+  :group 'proof-goals)
+
+(defcustom proof-shell-end-char nil
+  "Finishing special for a subterm markup.
+See documentation of proof-shell-start-char."
+  :type '(choice character (const nil))
+  :group 'proof-goals)
+
+(defcustom proof-shell-goal-char nil
+  "goal mark"
+  :type '(choice character (const nil))
+  :group proof-goals)
+
+(defvar proof-shell-field-char nil
+  "annotated field end"
+  :type '(choice character (const nil))
+  :group 'proof-goals)
 
 
-;; FIXME da: where is this variable used?  
-;;	      dropped in favour of goal-char?
-;; Answer: this is used in *specific* modes, see e.g.
-;; lego-goal-hyp.  This stuff needs making more generic.
 
-(defvar proof-shell-goal-regexp nil
-  "A regular expression matching the identifier of a goal.
-Used by proof mode to parse proofstate output, and also
-to set outline heading regexp.")
+
+;;
+;; 7. Splash screen settings
+;;
 
-(defvar proof-analyse-using-stack nil
-  "Are annotations sent by proof assistant local or global")
+(defcustom proof-splash-time 1.5
+  "Minimum number of seconds to display splash screen for.
+The splash screen may be displayed for a couple of seconds longer than
+this, depending on how long it takes the machine to initialise proof mode."
+  :type 'number
+  :group 'proof-general-internals)
+
+(defcustom proof-splash-contents
+  '(list
+    nil
+    nil
+    (proof-splash-display-image "text_proof" t)
+    (proof-splash-display-image "text_general" t)
+    nil
+    (proof-splash-display-image "ProofGeneral")
+    nil
+    "Welcome to"
+    (concat proof-assistant " Proof General!")
+    nil)
+  "Evaluated to configure splash screen displayed when entering Proof General.
+If an element is a string or an image specifier, it is displayed
+centred on the window on its own line.  If it is nil, a new line is
+inserted."
+  :type 'sexp
+  :group 'proof-general-internals)
+
+(defcustom proof-splash-extensions nil
+  "*Prover specific extensions of splash screen.
+These are evaluated and appended to proof-splash-contents, which see."
+  :type 'sexp
+  :group 'proof-config)
+  
+
+
+
+
+
+
+;;
+;; 8. Global constants
+;; 
+(defcustom proof-general-name "Proof-General"
+  "Proof General name used internally and in menu titles."
+  :type 'string
+  :group 'proof-general-internals)
+
+(defcustom proof-proof-general-home-page
+  "http://www.dcs.ed.ac.uk/home/proofgen"
+  "*Web address for Proof General"
+  :type 'string
+  :group 'proof-general-internals)
+
+;; FIXME: da: could we put these into another keymap shared across the
+;; various PG modes?
+(defcustom proof-universal-keys
+  '(([(control c) (control c)] . proof-interrupt-process)
+    ([(control c) (control v)] . proof-execute-minibuffer-cmd))
+"List of keybindings which for the script and response buffer. 
+Elements of the list are tuples (k . f) 
+where `k' is a keybinding (vector) and `f' the designated function."
+  :type 'sexp
+  :group 'proof-general-internals)
+
 
 
 ;; End of proof-config.el
