@@ -20,7 +20,7 @@
 ;; on for .thy files.
 ;; FIXME: be less messy with auto-mode-alist here (remove dups)
 (setq auto-mode-alist
-      (cons '("\\.thy$" . thy-mode) auto-mode-alist))
+      (cons '("\\.thy$" . isa-mode) auto-mode-alist))
 
 ;;; ========== Theory File Mode User Options ==========
 
