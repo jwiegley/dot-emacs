@@ -344,12 +344,16 @@ If interactive or SWITCH is non-nil, switch to script buffer first."
       (switch-to-buffer proof-script-buffer))
   (goto-char (proof-unprocessed-begin)))
 
+; NB: think about this because the movement can happen when the user
+; is typing, not very nice!
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of it.
 A possible hook function for proof-shell-handle-error-or-interrupt-hook.
-Does nothing if there is no active scripting buffer."
+Does nothing if there is no active scripting buffer, or if
+`proof-follow-mode' is set to 'ignore."
   (interactive)
-  (if proof-script-buffer
+  (if (and proof-script-buffer
+	   (not (eq proof-follow-mode 'ignore)))
       (let ((pos (with-current-buffer proof-script-buffer
 		   (proof-locked-end)))
 	    (win (get-buffer-window proof-script-buffer t)))
@@ -1391,8 +1395,8 @@ the comment."
 ;; in the electric terminator function, but we should probably
 ;; use something else for that!
 
-(defun proof-assert-until-point
-  (&optional unclosed-comment-fun ignore-proof-process-p)
+(defun proof-assert-until-point (&optional unclosed-comment-fun 
+					   ignore-proof-process-p)
   "Process the region from the end of the locked-region until point.
 Default action if inside a comment is just process as far as the start of
 the comment. 
@@ -1415,11 +1419,17 @@ scripting."
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (null semis))
-	  (error "I can't find any complete commands to process!"))
-      (goto-char (nth 2 (car semis)))
-      (and (not ignore-proof-process-p)
-	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-	     (proof-extend-queue (point) vanillas))))))
+	  ;; This is another case that there's nothing to do: maybe
+	  ;; because inside a string or something.
+	  (if (eq unclosed-comment-fun 'proof-electric-term-incomment-fn)
+	    ;; With electric terminator, we shouldn't give an error, but
+	    ;; should still insert and pretend it was as if a comment.
+	      (proof-electric-term-incomment-fn)
+	    (error "I can't find any complete commands to process!"))
+	(goto-char (nth 2 (car semis)))
+	(and (not ignore-proof-process-p)
+	     (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
+	       (proof-extend-queue (point) vanillas)))))))
 
 
 ;; da: This is my alternative version of the above.
@@ -1476,15 +1486,15 @@ a space or newline will be inserted automatically."
       (if (nth 2 (car semis))
 	  (goto-char (nth 2 (car semis))))
       (if (not ignore-proof-process-p)
-	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-	     (proof-extend-queue (point) vanillas)))
+	  (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
+	    (proof-extend-queue (point) vanillas)))
       ;; This is done after the queuing to be polite: it means the
       ;; spacing policy enforced here is not put into the locked
       ;; region so the user can re-edit.
       (if (not dont-move-forward)
-	   (if for-new-command
-	       (proof-script-new-command-advance)
-	     (proof-script-next-command-advance))))))
+	  (if for-new-command
+	      (proof-script-new-command-advance)
+	    (proof-script-next-command-advance))))))
 
 ;; New 11.09.99.  A better binding for C-c RET.
 (defun proof-goto-point ()
@@ -2390,6 +2400,26 @@ Make sure the modeline is updated to display new value for electric terminator."
 (fset 'proof-electric-terminator-toggle 
       (proof-customize-toggle proof-electric-terminator-enable))
 
+(defun proof-electric-term-incomment-fn ()
+  "Used as argument to proof-assert-until-point."
+  ;; CAREFUL: (1) dynamic scoping here 
+  ;;          (2) needs this name to be recognized in 
+  ;;		  proof-assert-until-point
+  (setq incomment t)
+  (if ins (backward-delete-char 1))
+  (goto-char mrk)
+  (insert proof-terminal-string))
+
+;; FIXME da: this function is a mess and needs rewriting.  
+;;  (proof-assert-until-point process needs cleaning up)
+;;
+;; What it should do: 
+;;   * parse FIRST.  If we're inside a comment or string,
+;;     then insert the terminator where we are.  Otherwise
+;;     can skip backwards and insert the terminator at the
+;;     command end (perhaps optionally), and look for 
+;;     existing terminator.
+
 (defun proof-process-electric-terminator ()
   "Insert the proof command terminator, and assert up to it.
 This is a little bit clever with placement of semicolons, and will
@@ -2413,12 +2443,7 @@ comment, and insert or skip to the next semi)."
 	    (forward-char) ;; immediately after command end.
 	    (insert proof-terminal-string) 
 	    (setq ins t)))
-      (proof-assert-until-point
-       (function (lambda ()
-		   (setq incomment t)
-		   (if ins (backward-delete-char 1))
-		   (goto-char mrk)
-		   (insert proof-terminal-string))))
+      (proof-assert-until-point 'proof-electric-term-incomment-fn)
       (or incomment
 	  (proof-script-next-command-advance)))))
 
