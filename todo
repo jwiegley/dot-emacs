@@ -60,8 +60,6 @@ C We need to go over to piped communication rather than ptys to fix
 C Outline-mode does not work due to read-only restrictions of
   protected region
 
-A <tab> can change buffers now!  At least in Coq mode.
-
 * Here are things to be done to Lego mode
 =========================================
 
@@ -98,8 +96,6 @@ B Allow bib-cite style clicking on Load commands to go to file.
 B Add Patrick Loiseleur's commands to search for vernac or ml files.
 
 C Sections and files are handled incorrectly.
-
-A Update documentation to include C-c C-s. (10min hhg)
 
 A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
   correct command if I undo up to the lower lemma, but the buffer
