@@ -16,6 +16,10 @@ mess.  The underlying text property implementation has changed
 and it seems difficult to get the desired behaviour of highlighting
 now.   Workaround: switch to using XEmacs.
 
+* If you use C-x C-v or C-x C-w on a script file which is in active
+scripting mode, Proof General will lose track of the file.
+Workaround: always turn off active scripting first with C-c C-s.
+
 * Toolbar enablers for XEmacs 21: since these have been switched on,
 it is apparent that the recognition of completed proofs may be
 unreliable (it wasn't used before).  Also there is a timing issue,
@@ -89,6 +93,8 @@ using rsh instead, it is said to forward signals to the remote command.
 LEGO Proof General Bugs
 =======================
 
+* PBP doesn't work on FSF, see note above.
+
 * [FSF specific] `proof-zap-commas-region' does not work for Emacs
   20.2 on lego/example.l . On *initially* fontifying the buffer,
   commas are not zapped [unfontified]. However, when entering text,
@@ -99,11 +105,11 @@ LEGO Proof General Bugs
   Proof General and gets stuck. Workaround: Directly enter "Configure
   AnnotateOn" in the Proof Shell to recover.
 
-* After a `Discharge', retraction ought to only be possible back to the
-first declaration/definition which is discharged. However, LEGO Proof
-General does not know that Discharge has such a non-local effect.
-Workaround: retract back to the first declaration/definition which is
-discharged.
+* After a `Discharge', retraction ought to only be possible back to
+the first declaration/definition which is discharged. However, LEGO
+Proof General does not know that Discharge has such a non-local
+effect.  Workaround: retract back to the first
+declaration/definition which is discharged.
 
 * A thorny issue is local definitions in a proof state. LEGO cannot
 undo them explicitly. Workaround: retract back to a command before a

@@ -54,6 +54,14 @@ A Final stuff for 3.0 release [da]:
 
 ---------------------------------------------
 
+B Fix problems with C-x C-v and C-x C-w 
+
+B Make tags support in lego.el and coq.el a bit more generic.
+  Use customization option proof-tags-support.
+
+B Fix up sources to conform to library header conventions 
+  see (lispref)Library Headers.
+
 B Proof shell exit function -- could try sending an interrupt first
   if the process is busy, just to be polite (and avoid the 10 second
   wait before it gets killed).
@@ -72,6 +80,9 @@ B proof-shell-restart should clear response buffer (only noticed with
 B Continue program of making adaptation easier.  
    - Test proof-easy-config mechanism.
    - Add proof-shell-important-settings and test that they're set.
+
+B Documentation in pdf format: need to fix inclusion of image 
+  problem.
 
 C Quit timeout enhancement: instead of killing immediately after
   timeout, could give a message "not responding, kill immediately?"
@@ -117,6 +128,8 @@ B Oops --- here's an alternate and better fix to Isabelle goals
   marked up as a proof state output.  This gets rid of the
   proof-goals-display-qed-message kludge.  See comments in code.
 
+C Consider supporting imenu instead, or as well as, func-menu.
+
 C Fix the sentinel infinite loop bug which occurs in some cases
   when proof shell startup fails.  Same message is printed over
   and over.  Infinite in FSF Emacs.  Why?  See note at 
@@ -147,7 +160,8 @@ C Improved configurability of command settings, etc.
   Then use a generic function "proof-invoke-function" or similar.
 
 D Consider proof-generic-goal-hyp function, for proof by
-  pointing support.
+  pointing support.  Based on `proof-shell-goal-regexp' which
+  I accidently introduced at one point.
 
 D Make code robust against accidental deletion of response/goals
   buffer.  Add functions proof-get-or-create-{response,goals}-buffer.
@@ -846,6 +860,14 @@ is 8 bit.  Suspect an XEmacs issue to do with face allocations.  Also
 huge delay in buffers for Isabelle mode which try to highlight binders
 (removed because they appear inside strings anyway)
 
+X spurious byte comp warning in XEmacs 21.1.4:
+  While compiling proof-x-symbol-encode-shell-input:
+     ** buffer-substring called with 3 args, but requires 0-3
+  for this code:
+               (prog1 (buffer-substring)
+                 (kill-buffer (current-buffer))
+
+
 
 
 
@@ -863,6 +885,8 @@ huge delay in buffers for Isabelle mode which try to highlight binders
 2. Check case with FSF Emacs
 3. Check case with compiled code, for XEmacs only.
    (Wait for error reports for FSF Emacs)
+   Even if the code is faulty afterwards, compiling is 
+   worthwhile just because it shows up bugs in unbound variables, etc.
 4. Dates and versions updated in:
      README, doc/ProofGeneral.texi, html/download.html
 5. ProofGeneral.texi docstring magic is up-to-date:
@@ -889,6 +913,7 @@ A Try to get small project grant from LFCS to help with
     - Re-engineering Proof General to use XML-style 
       markup instead of 8bit chars, and proposing a
       standard goals/pbp output scheme
+    - Fix up FSF Emacs support (character problem)
 
 A Consider writing a grant proposal related to
   Proof General to generate funding for Proof General.

@@ -100,8 +100,8 @@ Generic Changes
   LEGO's implementation of the proof-by-pointing rule choices
   is dodgy, but works sometimes, and it is nice to demonstrate
   Proof General's support for pbp until another prover implements
-  it.  (It should be straightforward to implement for Coq, since the
-  CtCoq pbp code is now embedded in the core system; we need
+  it.  (It should be relatively straightforward to implement for Coq,
+  since the CtCoq pbp code is now embedded in the core system; we need
   a Coq expert to do this).
 
 * Cleaned up example files so all demonstrate same theorem "conj_comms".
