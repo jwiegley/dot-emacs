@@ -59,15 +59,15 @@
 # Arguments for rcs2log for ChangeLog target
 
 DEVELOPERS=\
- -u "da		David Aspinall	da@dcs.ed.ac.uk" \
- -u "markus	Markus Wenzel	wenzelm@informatik.tu-muenchen.de" \
- -u "pier	Pierre Courtieu	courtieu@lri.fr" \
- -u "crr	Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
- -u "pxc	Paul Callaghan	P.C.Callaghan@durham.ac.uk" \
- -u "patrl	Patrick Loiseleur	Patrick.Loiseleur@lri.fr" \
- -u "tms	Thomas Kleymann	tms@dcs.ed.ac.uk" \
- -u "djs	Dilip Sequiera	djs@dcs.ed.ac.uk" \
- -u "hhg	Healfdene Goguen	hhg@dcs.ed.ac.uk"
+-u "da	David Aspinall	da@dcs.ed.ac.uk" \
+-u "markus	Markus Wenzel	wenzelm@informatik.tu-muenchen.de" \
+-u "pier	Pierre Courtieu	courtieu@lri.fr" \
+-u "crr	Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
+-u "pxc	Paul Callaghan	P.C.Callaghan@durham.ac.uk" \
+-u "patrl	Patrick Loiseleur	Patrick.Loiseleur@lri.fr" \
+-u "tms	Thomas Kleymann	tms@dcs.ed.ac.uk" \
+-u "djs	Dilip Sequiera	djs@dcs.ed.ac.uk" \
+-u "hhg	Healfdene Goguen	hhg@dcs.ed.ac.uk"
 
 
 
