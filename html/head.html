@@ -1,21 +1,17 @@
 <head>
-    <link rel="SHORTCUT ICON" href="favicon.ico">
-    <title><?php print $title ?></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="author" content="David Aspinall <da@dcs.ed.ac.uk>">
     <meta name="keywords" content="Isabelle, LEGO, Coq, Emacs, XEmacs, 
       Interface, Theorem Prover, GUI, David Aspinall">
     <meta name="description" content="Proof General is an Emacs based 
       generic interface for theorem provers">
-<?php
-/* Did have linked style sheet, with:
- *   <link rel="stylesheet" href="proofgen.css" type="text/css">
- * Instead, its embedded it to save another server access.
- */
- print "<style type=\"text/css\">\n<!--";
- include("proofgen.css");
- print "-->\n</style>\n";
-?>
+    <link rel="stylesheet" href="proofgen.css" type="text/css">
+    <link rel="SHORTCUT ICON" href="favicon.ico">
+    <title><?php print $title ?></title>
 </head>
+ <!-- Duplicate some style entries in body elt to support Version 3 browsers. 
+      FIXME: Shouldn't really serve this mess up to V4s and later. -->
+<!-- <font face="Verdana, Arial, LucidaSans, sans-serif;">-->
 <body
  bgcolor="#2D1D03"
  background="images/canvaswallpaper.jpg"
@@ -24,8 +20,3 @@
  vlink="#FFD820"
  alink="#FFF030"
  >
- <!-- Duplicate some style entries in body elt to support Version 3 browsers. 
-      FIXME: Shouldn't serve this mess up to V4s and later. -->
-<!-- <font face="Verdana, Arial, LucidaSans, sans-serif;">-->
-
- 
