@@ -2541,8 +2541,8 @@ output from the @code{proof-find-theorems} command at the same time as
 the subgoal list.  Set the user option @code{proof-dont-switch-windows} to
 make Proof General keep both the goals and response buffer displayed.
 
-@c TEXI DOCSTRING MAGIC: proof-dont-switch-windows
-@defopt proof-dont-switch-windows 
+@c TEXI DOCSTRING MAGIC: proof-three-window-mode
+@defopt proof-three-window-mode 
 Whether response and goals buffers have dedicated windows.@*
 If non-nil, Emacs windows displaying messages from the prover will not
 be switchable to display other windows.
@@ -2582,7 +2582,7 @@ selected frame will be automatically deleted.
 The default value is @code{nil}.
 @end defopt
 This option only has an effect when you have set
-@code{proof-dont-switch-windows}.
+@code{proof-three-window-mode}.
 
 If you are working on a machine with a window system, you can use Emacs
 to manage several @i{frames} on the display, to keep the goals buffer
@@ -2599,7 +2599,7 @@ the goals and response buffers, by altering the Emacs variable
 The default value is @code{nil}.
 @end defopt
 Multiple frames work best when @code{proof-delete-empty-windows} is off
-and @code{proof-dont-switch-windows} is on.
+and @code{proof-three-window-mode} is on.
 
 
 @node User options
