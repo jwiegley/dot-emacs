@@ -21,6 +21,7 @@
            'isa-x-symbol-enable 'isar-x-symbol-enable)))
   ;; setup the x-symbol package, if not already present
   (if (and xsymbol-home
+	   (not (equal xsymbol-home ""))
            (not (fboundp 'x-symbol-initialize))
            (not (get 'x-symbol 'x-symbol-initialized)))
       (progn
