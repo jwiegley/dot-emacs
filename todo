@@ -29,11 +29,6 @@ X (Low)		e.g. probably not worth spending time on
 
 *** Outstanding bugs to investigate
 
-A Re-visiting files (in Isar, at least) doesn't lock them properly.
-  M-x isar-mode does.  Why?
-  Also, when files are removed by typing in shell buffer, they
-  don't get uncoloured???
-
 C Undoing comments with FSF Emacs weirdness.
  Noticed with Emacs 20.6.1.  Seems to affect all provers.
  Workaround:  use C-c C-RET or C-c C-r instead.
