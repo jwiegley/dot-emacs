@@ -21,7 +21,7 @@ Please <a href="register">register</a> if you haven't done so already.
 
 
 <!-- WARNING!  Line below automatically edited by makefile. -->
-<h2><a name="doc">Manual for ProofGeneral-3.4pre020214</a></h2>
+<h2><a name="doc">Manual for ProofGeneral-3.4pre020321</a></h2>
 <!-- End Warning. -->
 <p>
 The manual included with the pre-release may be
@@ -43,7 +43,7 @@ or
 
 
 <!-- WARNING!  Line below automatically edited by makefile. -->
-<h2><a name="prerel">Pre-release: ProofGeneral-3.4pre020214</a></h2>
+<h2><a name="prerel">Pre-release: ProofGeneral-3.4pre020321</a></h2>
 
 <p>
 This version has been tested with XEmacs version 21.4 and
@@ -54,7 +54,7 @@ is not well supported.
 <p>
 Check the 
 <!-- WARNING!  Line below automatically edited by makefile. -->
-<?php fileshow("ProofGeneral-3.4pre020214/CHANGES","CHANGES"); ?> file
+<?php fileshow("ProofGeneral-3.4pre020321/CHANGES","CHANGES"); ?> file
 <!-- End Warning. -->
 for a summary of changes since the last stable version, and
 notes about work-in-progress.
@@ -63,15 +63,15 @@ notes about work-in-progress.
 <tr>
 <td width=150>gzip'ed tar file</td>
 <!-- WARNING!  Lines below automatically edited by makefile. -->
-<td><?php download_link("ProofGeneral-3.4pre020214.tar.gz") ?></td>
+<td><?php download_link("ProofGeneral-3.4pre020321.tar.gz") ?></td>
 </tr>
 <tr>
 <td>zip file</td>
-<td><?php download_link("ProofGeneral-3.4pre020214.zip") ?></td>
+<td><?php download_link("ProofGeneral-3.4pre020321.zip") ?></td>
 </tr>
 <tr>
 <td>RPM package </td>
-<td><?php download_link("ProofGeneral-3.4pre020214-1.noarch.rpm") ?></td>
+<td><?php download_link("ProofGeneral-3.4pre020321-1.noarch.rpm") ?></td>
 </tr>
 <tr>
 <td>individual files</td>
@@ -96,7 +96,7 @@ the <a href="download#install">stable version download</a>.
 
 
 <!-- WARNING!  Line below automatically edited by makefile. -->
-<h2><a name="devel">Complete Archive of ProofGeneral-3.4pre020214 for Developers</a></h2>
+<h2><a name="devel">Complete Archive of ProofGeneral-3.4pre020321 for Developers</a></h2>
 <!-- End Warning. -->
 
 <p>
@@ -105,7 +105,7 @@ This archive is a snapshot from our CVS repository.
 <ul>
   <li> gzip'ed tar file: 
 <!-- WARNING!  Line below automatically edited by makefile. -->
-      <?php download_link("ProofGeneral-3.4pre020214-devel.tar.gz") ?>
+      <?php download_link("ProofGeneral-3.4pre020321-devel.tar.gz") ?>
 <!-- End Warning. -->
   </li>
 </ul>
@@ -118,7 +118,7 @@ The complete archive also includes:
     (see <a href="devel#lowleveltodo">the developers page</a>)
    and the detailed
    <!-- WARNING!  Line below automatically edited by makefile. -->
-   <?php fileshow("ProofGeneral-3.4pre020214/ChangeLog","ChangeLog"); ?>,
+   <?php fileshow("ProofGeneral-3.4pre020321/ChangeLog","ChangeLog"); ?>,
    <!-- End Warning. -->
  </li>
   <li> developer's Makefile used to generate documentation files 
