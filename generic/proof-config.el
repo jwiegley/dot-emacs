@@ -122,7 +122,7 @@ NB: the toolbar is only available with XEmacs."
   :set 'proof-set-value
   :group 'proof-user-options)
 
-(proof-defasscustom x-symbol-enable nil
+(defcustom proof-x-symbol-enable nil
   "*Whether to use x-symbol in Proof General buffers.
 If you activate this variable, whether or not you get x-symbol support
 depends on whether your proof assistant supports it and whether
@@ -2025,6 +2025,29 @@ If this table is empty or needs adjusting, please make changes using
   "Program to run to generate TAGS table for proof assistant."
   :type 'file
   :group 'prover-config)
+
+;; FIXME: temp hacks to get doc working before proper commit
+(proof-defasscustom x-symbol-enable nil
+  "*Whether to use x-symbol in Proof General buffers.
+If you activate this variable, whether or not you get x-symbol support
+depends on whether your proof assistant supports it and whether
+X-Symbol is installed in your Emacs."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'proof-user-options)
+(proof-defasscustom script-indent 
+  nil
+  ;; Particular proof assistants can enable this if they feel
+  ;; confident about it.  (I don't). -da
+  "*If non-nil, enable indentation code for proof scripts.
+Currently the indentation code can be rather slow for large scripts,
+and is critical on the setting of regular expressions for particular
+provers.  Enable it if it works for you."  
+  :type 'boolean 
+  :group 'proof-user-options)
+(defalias 'defpgcustom 'proof-defasscustom)
+(defalias 'defpgdefault 'proof-defass-default)
+
 
 
 
