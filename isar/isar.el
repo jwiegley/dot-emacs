@@ -16,13 +16,6 @@
    nil
    (proof-splash-display-image "isabelle_transparent" t)))
 
-;; In case Isar mode was invoked directly or by -*- isar -*- at
-;; the start of the file, ensure that Isar mode is used from now
-;; on for .thy files.
-;; FIXME: be less messy with auto-mode-alist here (remove dups)
-(setq auto-mode-alist
-      (cons '("\\.thy$" . isar-mode) auto-mode-alist))
-
 (require 'proof)
 (require 'isar-syntax)
 
@@ -32,7 +25,6 @@
 ;; Add generic code for Isabelle and Isabelle/Isar
 (setq load-path (cons (concat proof-home-directory "isa/") load-path))
 (require 'isabelle-system)
-(require 'x-symbol-isabelle)
 
 (defcustom isar-web-page
   "http://isabelle.in.tum.de/Isar/"
@@ -538,14 +530,21 @@ proof-shell-retract-files-regexp."
 (defun isar-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle/Isar."
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords  ;FIXME handle x-symbol stuff by generic code!?
-	(append isar-output-font-lock-keywords-1 x-symbol-isabelle-font-lock-keywords))
+  (setq font-lock-keywords  
+	;;FIXME handle x-symbol stuff by generic code!?
+	;; ALSO: should load x-symbol-isabelle later on!!
+	; (append 
+	isar-output-font-lock-keywords-1)
+        ;; x-symbol-isabelle-font-lock-keywords))
   (isar-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
 (defun isar-response-mode-config ()
-  (setq font-lock-keywords  ;FIXME handle x-symbol stuff by generic code!?
-	(append isar-output-font-lock-keywords-1 x-symbol-isabelle-font-lock-keywords))
+  (setq font-lock-keywords  
+	;;FIXME handle x-symbol stuff by generic code!?
+	;; (append 
+	isar-output-font-lock-keywords-1)
+  ;; x-symbol-isabelle-font-lock-keywords))
   (isar-init-output-syntax-table)
   (proof-response-config-done))
 
@@ -555,7 +554,9 @@ proof-shell-retract-files-regexp."
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
   (setq font-lock-keywords  ;FIXME handle x-symbol stuff by generic code!?
-	(append isar-goals-font-lock-keywords x-symbol-isabelle-font-lock-keywords))
+	;; (append 
+	isar-goals-font-lock-keywords)
+  ;; x-symbol-isabelle-font-lock-keywords))
   (proof-goals-config-done))
 
 
