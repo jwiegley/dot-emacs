@@ -260,7 +260,11 @@ have been used."
       (setq str (span-property span 'cmd))
       (cond
        ((eq (span-property span 'type) 'comment))
-
+       
+       ((proof-string-match 
+	 (concat "Section\\s-+\\(" proof-id "\\)\\s-*") str)
+	(setq ans (format coq-forget-id-command (match-string 2 str))))
+       
        ((eq (span-property span 'type) 'goalsave)
 	;; Note da 6.10.99: in Lego and Isabelle, it's trivial to forget an
 	;; unnamed theorem.  Coq really does use the identifier
@@ -269,10 +273,12 @@ have been used."
 
 	;; da: try using just Back since "Reset" causes loss of proof
 	;; state.
-	;; (format coq-forget-id-command (span-property span 'name)))
-	(if (span-property span 'nestedundos)
-	    (setq nbacks (+ 1 nbacks (span-property span 'nestedundos)))))
-
+;; (format coq-forget-id-command (span-property span 'name)))
+	(if (span-property span 'nestedundos) 
+	    (setq nbacks (+ 1 nbacks (span-property span 'nestedundos)))
+	  ) 
+	)
+       
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
        ((coq-goal-command-p str)

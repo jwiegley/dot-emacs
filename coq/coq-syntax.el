@@ -42,6 +42,7 @@
 
 (defvar coq-keywords-goal
   '(
+"Section"
 "Correctness"
 "Definition"
 "Fact"
@@ -57,6 +58,7 @@
 "Defined"
 "Save"
 "Qed"
+"End"
 ))
 
 (defvar coq-keywords-kill-goal '(
