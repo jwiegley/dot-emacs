@@ -2000,7 +2000,10 @@ WARNING: this command risks spoiling synchronization if the test
 only an approximate test, or if `proof-strict-state-preserving'
 is off (nil)."
   (interactive
-   (list (read-string "Command: " nil 'proof-minibuffer-history)))
+   (list (read-string "Command: " 
+		      (if (and current-prefix-arg (region-exists-p))
+			  (buffer-substring (region-beginning) (region-end)))
+		      'proof-minibuffer-history)))
   (if (and proof-strict-state-preserving
 	   proof-state-preserving-p
 	   (not (funcall proof-state-preserving-p cmd)))
