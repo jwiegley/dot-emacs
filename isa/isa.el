@@ -59,25 +59,24 @@ no regular or easily discernable structure."
   "Configure generic proof scripting mode variables for Isabelle."
   (setq
    proof-assistant		"Isabelle"
-   proof-www-home-page	isa-www-home-page
+   proof-www-home-page		isa-www-home-page
    ;; proof script syntax
-   proof-terminal-char	?\;	; ends a proof
-   proof-comment-start	"(*"	; comment in a proof
+   proof-terminal-char		?\;	; ends a proof
+   proof-comment-start		"(*"	; comment in a proof
    proof-comment-end		"*)"	; 
    ;; proof engine output syntax
-   proof-save-command-regexp   isa-save-command-regexp
-   proof-save-with-hole-regexp isa-save-with-hole-regexp
-   proof-goal-with-hole-regexp isa-goal-with-hole-regexp
-   proof-kill-goal-command	 ""   ; FIXME: proof.el should allow nil
-   proof-commands-regexp	 (ids-to-regexp isa-keywords)
+   proof-save-command-regexp    isa-save-command-regexp
+   proof-save-with-hole-regexp  isa-save-with-hole-regexp
+   proof-goal-with-hole-regexp  isa-goal-with-hole-regexp
+   proof-commands-regexp	(ids-to-regexp isa-keywords)
    ;; proof engine commands
    proof-prf-string		"pr()"
+   proof-kill-goal-command	"Goal \"PROP no_goal_supplied\""
    proof-ctxt-string		"the_context();"
-   proof-help-string ; could be version 
-   "print \" in-built help for Isabelle.\"" ; FIXME: proof.el should allow nil
+   proof-help-string		"print version;"
    ;; command hooks
-   proof-goal-command-p	'isa-goal-command-p
-   proof-count-undos-fn	'isa-count-undos
+   proof-goal-command-p		'isa-goal-command-p
+   proof-count-undos-fn		'isa-count-undos
    proof-find-and-forget-fn	'isa-find-and-forget
    proof-goal-hyp-fn		'isa-goal-hyp
    proof-state-preserving-p	'isa-state-preserving-p
@@ -108,12 +107,13 @@ no regular or easily discernable structure."
    proof-shell-init-cmd			(concat
 					 "use \"" proof-home
 					  "isa/isa-print-functions.ML\";")
-   ;; === ANNOTATIONS  === remaining ones broken
+   proof-shell-eager-annotation-start   "^\\[opening "
+;;   proof-shell-eager-annotation-end     "$"
+   proof-shell-eager-annotation-end     "$"
+   ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-goal-char	        ?\375
    proof-shell-first-special-char	?\360
-   proof-shell-eager-annotation-start "\376" 
-   proof-shell-eager-annotation-end   "\377"
-   proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern ; can't annotate!
+   proof-shell-annotated-prompt-regexp  proof-shell-prompt-pattern
    proof-shell-result-start	        "\372 Pbp result \373"
    proof-shell-result-end		"\372 End Pbp result \373"
    proof-analyse-using-stack		t
@@ -148,19 +148,49 @@ to set outline heading regexp.")
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;  FIXME: I don't think they should be here at all.
-
 (define-derived-mode isa-shell-mode proof-shell-mode
    "isa-shell" "Inferior shell mode for isabelle shell"
    (isa-shell-mode-config))
 
-(define-derived-mode isa-mode proof-mode
-   "isa" "Isabelle Mode"
-   (isa-mode-config))
-
 (define-derived-mode isa-pbp-mode pbp-mode
   "pbp" "Proof-by-pointing support for Isabelle"
   (isa-pbp-mode-config))
+
+(define-derived-mode isa-proofgeneral-mode proof-mode
+   "Isabelle" "Isabelle Proof General Mode"
+   (isa-mode-config))
+
+
+;; Automatically selecting theory mode or Proof General mode.
+
+(defun isa-mode ()
+  "Mode for Isabelle buffers: either isa-proofgeneral-mode or isa-thy-mode.
+Files with extension .thy will be in isa-thy-mode, otherwise we choose
+isa-proofgeneral-mode."
+  (interactive)
+  (cond
+   ((string-match ".thy" (buffer-file-name))
+    (isa-thy-mode))
+   (t 
+    (isa-proofgeneral-mode))))
+
+;; Next portion taken from isa-load.el
+;; isa-load.el,v 3.8 1998/09/01 
+
+(defcustom isa-use-sml-mode
+   (if (fboundp 'sml-mode) 'sml-mode)
+  "*If non-nil, attempt to use sml-mode in ML section of theory files."
+  :type 'boolean
+  :group 'isabelle-settings)
+
+(defgroup isa-thy-mode nil
+  "Customization of Isamode's theory editing mode"
+  ;; :link '(info-link "(Isamode)Theory Files")
+  :load 'isa-thy-mode
+  :group 'isabelle-settings)
+
+(autoload 'isa-thy-mode "isa-thy-mode" 
+	  "Major mode for Isabelle theory files" t nil)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
