@@ -15,11 +15,11 @@
 (setq proof-tags-support nil) ; we don't want it, no isatags prog. 
 
 ;; Add Isabelle image onto splash screen
-(custom-set-variables
- '(proof-splash-extensions
-   '(list
-     nil
-     (proof-splash-display-image "isabelle_transparent" t))))
+(customize-set-variable
+ 'proof-splash-extensions
+ '(list
+   nil
+   (proof-splash-display-image "isabelle_transparent" t)))
 
 (require 'proof)
 (require 'isa-syntax)
@@ -112,12 +112,26 @@ no regular or easily discernable structure."
    proof-terminal-char		?\;	; ends a proof
    proof-comment-start		"(*"	; comment in a proof
    proof-comment-end		"*)"	; 
-   ;; proof engine output syntax
+   ;; Next few used for func-menu and recognizing goal..save regions in
+   ;; script buffer.
    proof-save-command-regexp    isa-save-command-regexp
+   proof-goal-command-regexp    isa-goal-command-regexp
+   proof-goal-with-hole-regexp  isa-goal-with-hole-regexp 
    proof-save-with-hole-regexp  isa-save-with-hole-regexp
-   ;; Next one used for func-menu.
-   proof-goal-with-hole-regexp  isa-goal-with-hole-regexp
+   ;; Unfortunately the default value of proof-script-next-entity-regexps
+   ;; is no good, because goals with holes in Isabelle are batch
+   ;; commands, and not terminated by saves.  So we omit the forward
+   ;; search from the default value.
+   proof-script-next-entity-regexps
+   (list (proof-regexp-alt
+	  isa-goal-with-hole-regexp
+	  isa-save-with-hole-regexp)
+	 (list isa-goal-with-hole-regexp 2)
+	 (list isa-save-with-hole-regexp 2
+	       'backward isa-goal-command-regexp))
+   ;;
    proof-commands-regexp	(proof-ids-to-regexp isa-keywords)
+   
    ;; proof engine commands (first three for menus, last for undo)
    proof-prf-string		"pr();"
    proof-goal-command		"Goal \"%s\";"
