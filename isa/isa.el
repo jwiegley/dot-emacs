@@ -1,4 +1,4 @@
-;; isa-mode.el	 Emacs support for Isabelle proof assistant
+; isa-mode.el	 Emacs support for Isabelle proof assistant
 ;; Copyright (C) 1993-2000 LFCS Edinburgh, David Aspinall.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Author:    David Aspinall <da@dcs.ed.ac.uk>
@@ -189,9 +189,7 @@ and script mode."
    ;; restoring settings saved by Proof General, etc.
 
    proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
-   proof-shell-init-cmd		        (concat
-					 (isa-load-isabelle-patch)
-					 (proof-assistant-settings-cmd))
+   proof-shell-init-cmd		        (proof-assistant-settings-cmd)
 
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
@@ -206,7 +204,7 @@ and script mode."
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
    proof-shell-set-elisp-variable-regexp "Proof General, please set the variable \\([^ ]+\\) to: #\\([^#]+\\)#\\."
-   proof-shell-theorem-dependency-list-regexp    "Proof General, the theorem dependencies are: \"\\([^\"]*\\)\"" 
+   proof-shell-theorem-dependency-list-regexp    "Proof General, theorem dependencies are: \\(.*\\)"
    proof-shell-show-dependency-cmd	"thm \"%s\";" 
    
    ;; Dirty hack to allow font-locking for output based on hidden
@@ -621,9 +619,9 @@ you will be asked to retract the file or process the remainder of it."
 
 (setq proof-xsym-extra-modes '(thy-mode)
       proof-xsym-activate-command
-      "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode);"
+      "print_mode := ([\"xsymbols\", \"symbols\"] @ ! print_mode);"
       proof-xsym-deactivate-command
-      "print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]);")
+      "print_mode := (! print_mode \\\\ [\"xsymbols\", \"symbols\"]);")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -728,32 +726,5 @@ you will be asked to retract the file or process the remainder of it."
     
     ;; that's it for now!
     ))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Theorem dependencies  (experimental, uses Isabelle "patch")
-;;
-
-(defun isa-load-isabelle-patch ()
-  "Return string to load patch to Isabelle or a dummy version of it."
-  (if proof-experimental-features
-      (isa-load-dependsml-file-cmd)
-    "structure PGThmDeps = struct fun enable()=() fun disable() = () end;"))
-
-(defpacustom theorem-dependencies nil
-  "Whether to track theorem dependencies within Proof General."
-  :type 'boolean
-  ;; when this is built-in  (or with a ":=%b" setting).
-  ;; :setting ("depends_enable()" . "depends_disable()")
-  :setting ("PGThmDeps.enable();" . "PGThmDeps.disable();"))
-
-(defun isa-load-dependsml-file-cmd ()
-  (proof-format-filename
-   "use \"%r\";"
-   (concat (file-name-directory 
-	    (locate-library "isa"))
-	   "depends.ML")))
-
 
 (provide 'isa)

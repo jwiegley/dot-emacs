@@ -219,9 +219,7 @@ See -k option for Isabelle interface script."
    pg-topterm-char			?\370
 
    proof-assistant-setting-format       'isar-markup-ml
-   proof-shell-init-cmd                 (concat
-					 (isar-load-isabelle-patch)
-					 (proof-assistant-settings-cmd))
+   proof-shell-init-cmd                 (proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
    proof-shell-eager-annotation-start-length 1
@@ -232,7 +230,7 @@ See -k option for Isabelle interface script."
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
-   proof-shell-theorem-dependency-list-regexp "Proof General, the theorem dependencies are: \"\\([^\"]*\\)\"" 
+   proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies are: \\(.*\\)"
 
    ;; Allow font-locking for output based on hidden annotations, see
    ;; isar-output-font-lock-keywords-1
@@ -598,41 +596,8 @@ proof-shell-retract-files-regexp."
 
 (setq
  proof-xsym-activate-command
- (isar-markup-ml "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode)")
+ (isar-markup-ml "print_mode := ([\"xsymbols\", \"symbols\"] @ ! print_mode)")
  proof-xsym-deactivate-command
- (isar-markup-ml "print_mode := (Library.gen_rems (op =) (! print_mode, [\"xsymbols\",\"symbols\"]))"))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Theorem dependencies  (experimental, uses Isabelle "patch")
-;;
-
-(defun isar-load-isabelle-patch ()
-  "Return string to load patch to Isabelle or a dummy version of it."
-  (if proof-experimental-features
-       (isar-load-dependsml-file-cmd)
-    (isar-markup-ml
-     "structure PGThmDeps = struct fun enable()=() fun disable() = () end; fun PG_thm_deps x = ();")))
-
-;; NB: notice backquote here to evaluate isar-markup-ml
-`(defpacustom theorem-dependencies nil
-  "Whether to track theorem dependencies within Proof General."
-  :type 'boolean
-  ;; when this is built-in  (or with a ":=%b" setting).
-  ;; :setting ("depends_enable()" . "depends_disable()")
-  :setting ,(cons
-	     (isar-markup-ml "PGThmDeps.enable();") 
-	     (isar-markup-ml "PGThmDeps.disable();")))
-
-(defun isar-load-dependsml-file-cmd ()
-  (isar-markup-ml
-   (proof-format-filename
-    "use \"%r\";"
-    (concat (file-name-directory 
-	     (locate-library "isa"))
-	    "depends.ML"))))
-
-
+ (isar-markup-ml "print_mode := (Library.gen_rems (op =) (! print_mode, [\"xsymbols\", \"symbols\"]))"))
 
 (provide 'isar)

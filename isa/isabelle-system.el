@@ -346,13 +346,19 @@ until Proof General is restarted."
 (defpacustom full-proofs  nil
   "Whether to record full proof objects internally."
   :type 'boolean
-  :setting "Library.error_fn := (fn _ => ()); Library.try (fn () => Context.use_mltext \"ProofGeneral.full_proofs %b;\" false None) ();")
+  :setting "Library.error_fn := (fn _ => ()); Library.try (fn () => Context.use_mltext \"ProofGeneral.full_proofs %b;\" false Library.None) ();")
 ;FIXME should become "ProofGeneral.full_proofs %b;" next time
 
 (defpacustom global-timing  nil
   "Whether to enable timing in Isabelle."
   :type 'boolean
   :setting "Library.timing:=%b;")
+
+(defpacustom theorem-dependencies nil
+  "Whether to track theorem dependencies within Proof General."
+  :type 'boolean
+  :setting ("print_mode := ([\"thm_deps\"] @ ! print_mode);" .
+	    "print_mode := (Library.gen_rems (op =) (! print_mode, [\"thm_deps\"]))"))
 
 (defpacustom goals-limit  10
   "Setting for maximum number of goals printed in Isabelle."
