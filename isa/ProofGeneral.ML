@@ -117,40 +117,53 @@ fun use_thy_and_update thy = (use_thy_no_topml thy; update(); list_loaded_files(
 
 (* configure output channels to decorate output *)
 
-(*
- Frustratingly, Isabelle uses prs_fn also when displaying
- the goal state, so it's no use setting that hoping to catch
- all "normal" output separately.  We really need a fourth
- output channel.
- *)
-	       
 local
   fun out s =
     (TextIO.output (TextIO.stdOut, s); TextIO.flushOut TextIO.stdOut);
 
-  fun prefix_suffix_lines prfx txt sufx  =
-    txt |> split_lines |> map (fn s => prfx ^ s ^ sufx ^ "\n") |> implode;
+  fun prefix_lines prfx txt =
+    txt |> split_lines |> map (fn s => prfx ^ s ^ "\n") |> implode;
 in
+    (* \240 is octal 360, first special character used. *)
     val _ =
-      (* No difference to original functions at the moment. *)
-      (prs_fn := (fn s => out s) ;
-       warning_fn :=  (fn s => out (prefix_suffix_lines "### " s "")) ;
-       error_fn := (fn s => out (prefix_suffix_lines "*** " s "")))
+      (prs_fn := 
+	   (fn s => out ("\240" ^ s ^ "\241"));
+       warning_fn :=
+	   (fn s => out ("\242" ^ (prefix_lines "###" s) ^ "\243"));
+       error_fn :=
+	   (fn s => out ("\244" ^ (prefix_lines "###" s) ^ "\245")))
 end;
 
-      
+(* add specials to ml prompts *)
 
+ml_prompts "\250>" "\251-";  (* ?\372, ?\373 *)
 
 (* add markup to proof state output *)
 
-val proof_state_special_prefix="\248";  (* \370 octal *)
-val proof_state_special_suffix="\249";  (* \371 *)
-val goal_start_special="\253";	        (* \375 *)
+val proof_state_special_prefix="\246";  (* ?\366 *)
+val proof_state_special_suffix="\247";  (* ?\367 *)
+val goal_start_special="\248";	        (* ?\370 *)
 
 current_goals_markers:=(proof_state_special_prefix,
 			proof_state_special_suffix,
 		        goal_start_special);
 
+local
+  fun out s =
+    (TextIO.output (TextIO.stdOut, s); TextIO.flushOut TextIO.stdOut);
+in
+    fun print_current_goals_with_plain_output i j t =
+  let
+    val curr_prs = !prs_fn
+    val _ = prs_fn := (fn s => out s)
+    val _ = (print_current_goals_default i j t)
+		handle e => (prs_fn := curr_prs; raise e)
+  in       
+    prs_fn := curr_prs
+  end
+end;
+
+print_current_goals_fn := print_current_goals_with_plain_output;
 
 
 (* Turn on verbose update output, Proof General likes to parse it.

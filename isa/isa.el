@@ -71,11 +71,6 @@ no regular or easily discernable structure."
 ;;; End of a command needs parsing to find, so this is approximate.
 (defvar isa-outline-heading-end-regexp ";[ \t\n]*")
 
-(defconst isa-goal-regexp "^[ \t]*[0-9]+\\. "
-  "Regexp to match subgoal headings.
-Used by proof mode to parse proofstate output, and also
-to set outline heading regexp.")
-  
 ;; 
 (defvar isa-shell-outline-regexp isa-goal-regexp)
 (defvar isa-shell-outline-heading-end-regexp isa-goal-regexp)
@@ -134,8 +129,8 @@ to set outline heading regexp.")
    ;; Probably it isn't general enough for all MLs, please send me
    ;; problem reports / patches.
    ;;
-   proof-shell-annotated-prompt-regexp
-					"^\\(val it = () : unit\n\\)?> "
+   proof-shell-annotated-prompt-regexp  "\372>"
+   ;; non annotation, with val it's: "^\\(val it = () : unit\n\\)?> "
 
    ;; This pattern is just for comint, it matches a range of
    ;; prompts from a range of MLs.
@@ -146,26 +141,31 @@ to set outline heading regexp.")
    ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-error-regexp		"^.*Error:\\|^\\*\\*\\*"
    proof-shell-interrupt-regexp         "Interrupt"
-   ;; this one not set: proof-shell-abort-goal-regexp 
-   proof-shell-noise-regexp	        ""
-   proof-shell-assumption-regexp	isa-id  ; matches name of assumptions
-   proof-shell-goal-regexp		isa-goal-regexp    ; matches subgoal heading
-   ;; FIXME: hack the SML prompt using ml_prompt and set wakeup-char.
-   proof-shell-wakeup-char		nil
-   proof-shell-start-goals-regexp	"\370"
-   proof-shell-end-goals-regexp		"\371"
+   
+   ;; nothing appropriate for: proof-shell-abort-goal-regexp
+   ;; proof-shell-noise-regexp isn't used anywhere at the moment.
+   proof-shell-noise-regexp	        "val it = () : unit\n"
+   ;; matches names of assumptions
+   proof-shell-assumption-regexp	isa-id
+   ;; matches subgoal name
+   proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
+
+   proof-shell-wakeup-char		?\372
+   proof-shell-start-goals-regexp	"\366"
+   proof-shell-end-goals-regexp		"\367"
+   proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle by hacking print functions.
-   ;; may need to set directory somewhere for this:
-   ;; /home/da/devel/lego/elisp/   or  $PROOFGENERIC_HOME ?
-   proof-shell-init-cmd			(concat
-					 "use \""
-					 proof-home-directory
-					  "isa/ProofGeneral.ML\";")
-   proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"  ; "^---\\|^\\[opening "
+   proof-shell-init-cmd
+     (concat "use \"" proof-home-directory "isa/ProofGeneral.ML\";")
+   proof-shell-eager-annotation-start   "\360\\|\362\\|\364"
+   proof-shell-eager-annotation-end     "\361\\|\363\\|\365"
+
+   ;; Tested values of proof-shell-eager-annotation-start: 
+   ;; "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"
+   ;; "^---\\|^\\[opening "
    ;; could be last bracket on end of line, or with ### and ***.
-   proof-shell-eager-annotation-end     "\n"
+
    ;; === ANNOTATIONS  === ones below here are broken
-   proof-shell-goal-char	        ?\375
    proof-shell-first-special-char	?\360
    proof-shell-result-start	        "\372 Pbp result \373"
    proof-shell-result-end		"\372 End Pbp result \373"
