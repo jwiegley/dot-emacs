@@ -8,13 +8,6 @@
 
 *)
 
-
-(*
- use "/home/da/isa-patches/thy_read.ML";
- open ThyRead;
-*) 
-
-
 signature PROOFGENERAL =
 sig
    val kill_goal : unit -> unit
@@ -24,27 +17,21 @@ sig
    val clear_response_buffer : unit -> unit
 
    (* Processing used files *)
-   (* retract_thy_file f:
-        Send messages to Proof General to unlock children of theory file f
-      retract_ML_file f:
-        Send messages to Proof General to unlock children of script file f
-      list_loaded_files ():
-        Messages to Proof General listing all loaded files
-      update ():
-        Run update with messages to re-synchronize loaded files.
-   *)
+   
    val retract_ML_file : string -> unit
    val retract_thy_file : string -> unit
    val list_loaded_files : unit -> unit
-   val update : unit -> unit
    val restart : unit -> unit
+   val use_thy : string -> unit
+   val update : unit -> unit
    
+   (* not used *)
+   val use_thy_and_update : string -> unit
+
    (*  visible only for testing *)
    val loaded_parents_of : string -> string list
    val loaded_files : unit -> string list
    val apply_and_update_files : ('a -> 'b) -> 'a -> unit
-   val use_thy_and_update : string -> unit  (* not used *)
-   val use_thy : string -> unit
    val initial_loaded_thys : thy_info Symtab.table ref
    val special_theories : string list ref
    val retracted_files : string list ref
@@ -104,10 +91,18 @@ structure ProofGeneral : PROOFGENERAL =
    fun loaded_files_for thys =
      let fun loaded_for tname =
      if (tname mem (!special_theories)) then [] else
-	let val path = path_of tname
+	let val (path,thy_time,ml_time) =
+	      (case Symtab.lookup (!loaded_thys, tname) of
+	         (Some {path, thy_time, ml_time, ...}) =>
+		 (path, is_some thy_time, is_some ml_time)
+	       | None => ("",false,false))  (* shouldn't happen *)
 	    val (thy_file,ml_file) = get_thy_filenames path tname
 	    fun file_name x = if (x <> "") then [x] else []
-	in (file_name thy_file) @ (file_name ml_file) end
+	in
+	  (if thy_time then (file_name thy_file) else [])
+	   @
+	  (if ml_time then (file_name ml_file) else [])
+	 end
      in
         foldl (op @) ([], map loaded_for thys)
      end 
@@ -166,12 +161,12 @@ structure ProofGeneral : PROOFGENERAL =
             in (if not_thy then ()
 		   else retract_file_and_give_message thy_file; 
 		retract_file_and_give_message ml_file) end
-         (* Only considered loaded if both theory and ML times set *)
+         (* Considered loaded if either theory or ML times set *)
 	 fun already_loaded thy =
            let val t = get_thyinfo thy
            in if is_none t then false
               else let val {thy_time, ml_time, ...} = the t
-           in is_some thy_time andalso is_some ml_time end
+           in is_some thy_time orelse is_some ml_time end
          end
 
          fun children_loaded thy = 
@@ -211,7 +206,7 @@ structure ProofGeneral : PROOFGENERAL =
       let val t = get_thyinfo thy
        in if is_none t then false
           else let val {thy_time, ml_time, ...} = the t
-        in is_some thy_time andalso is_some ml_time end
+        in is_some thy_time orelse is_some ml_time end
       end
       fun gather_parents parents thys =
 	 let val next_parents = foldl (op union) ([],map parents_of_name thys)
@@ -233,34 +228,48 @@ structure ProofGeneral : PROOFGENERAL =
       seq (msg_unless_empty f) (loaded_parents_of filename)
       
    (* Function to do a "use" operation.
-       Only consider the parents of a theory, because its
-       children should be unlocked at this point,
-       and not get locked by the use operation.
+       Only report the newly loaded parents of a theory, because its
+       children should be unlocked at this point, and not get
+       locked by the use operation.
 
-       We consider the current parents to be the ones in the
-       database less those retracted up to now.
+       The current loaded files are taken to be those really loaded
+       less the ones considered retracted.  Newly loaded parents are
+       the new files loaded which are parents afterwards.
 
-       Using a theory can lock new files which
-       are parents of the theory being used.
-       It cannot unlock files.
+       This all assumes that a use operation only loads parents. 
+       Using a theory can lock new files which are parents of the
+       theory being used. It cannot unlock files.
     *)
            
      fun use_thy1 use_fn thy =
      let
-      val parents_before = (loaded_parents_of thy) \\ (!retracted_files)
+      val loaded_before = (loaded_files()) \\ (!retracted_files)
       val _ = (use_fn thy) handle ex =>
 			(list_loaded_files(); raise ex)
       val parents_after = loaded_parents_of thy
-      val parents_added = parents_after \\ parents_before
+      val parents_added = parents_after \\ loaded_before
       val _ = retracted_files := ((!retracted_files) \\ parents_added)
      in     
        (seq process_msg parents_added)
      end
 
-
+     fun remove_mlfile_fromdb thy =
+      let val tinfo =  case Symtab.lookup (!loaded_thys, thy) of
+	 Some ({path, children, parents = parents, thy_time, theory,...}) =>
+	  { path = path, children = children, parents = parents, theory=
+	    theory, thy_time = thy_time, ml_time = None }
+             | None => error 
+	 ("remove_mlfile_from_db: theory " ^ thy ^ " not found");
+    in  loaded_thys := Symtab.update ((thy, tinfo), !loaded_thys) end;
+     
     (* Use a theory file but not it's top-level ML file *)
-    val use_thy = use_thy1 use_thy_no_topml;
-
+    val use_thy =
+      let fun use_fn file =
+          let val _ = use_thy_no_topml file
+              val (_, tname) = split_filename file
+              val _ = remove_mlfile_fromdb tname   (*fix bug in thy_no_topml*)
+          in () end
+       in use_thy1 use_fn end;
     
 
    (* Function to do an "update" operation.
@@ -281,8 +290,7 @@ structure ProofGeneral : PROOFGENERAL =
        seq process_msg files_added)
     end
 
-  (* Update and re-list loaded files and deletions.
-      *)
+  (* Update and re-list loaded files and deletions. *)
   val update = apply_and_update_files update;
 
 
@@ -294,35 +302,6 @@ structure ProofGeneral : PROOFGENERAL =
    clear_response_buffer())
 
  end; (* struct ProofGeneral *)
-
-
-  fun remove_mlfile_fromdb thy =
-  let val tinfo =  case Symtab.lookup (!loaded_thys, thy) of
-	Some ({path, children, parents = parents, thy_time, theory,...}) =>
-	{ path = path, children = children, parents = parents, theory=theory,
-          thy_time = thy_time, ml_time = None }
-             | None => error 
-	 ("remove_mlfile_from_db: theory " ^ thy ^ " not found");
-    in  loaded_thys := Symtab.update ((thy, tinfo), !loaded_thys) end;
-
-
-(*
-fun use_thy_and_update thy =
-  (use_thy_no_topml thy;   (* don't read ML but will be in db [useful bug]*)
-   update () 		   (* fixup dependencies left broken by use_thy
-	(question: can it re-read the top ML, though??  hope not) *)
-    handle exn => 
-       (remove_mlfile_fromdb thy handle _ => raise exn; raise exn);  
-   remove_mlfile_fromdb thy);
-*)
-
-
-(* Temporary hack. *)
-(* 
- NB: this has bad behaviour because update will force loading of
-   the theory file if used again later.  Need a test case for 
-   this, and to fix it.
-*)
 
 
 (* configure output channels to decorate output *)
