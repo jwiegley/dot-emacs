@@ -6,7 +6,9 @@ Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
 Url:		http://www.dcs.ed.ac.uk/proofgen/
 Packager:	David Aspinall <da@dcs.ed.ac.uk>
-Source:		http://www.dcs.ed.ac.uk/proofgen/dist/ProofGeneral-%{version}.tar.gz
+# Source:		http://www.dcs.ed.ac.uk/proofgen/dist/ProofGeneral-%{version}.tar.gz
+# Older rpm doesn't have %{version}:
+Source:		http://www.dcs.ed.ac.uk/proofgen/dist/ProofGeneral-2.0.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 Patch:		ProofGeneral.patch
 PreReq:		/sbin/install-info
