@@ -76,11 +76,11 @@ A span is before PT if it covers the character before PT."
   (extent-at pt nil prop nil 'before))
   
 (defsubst span-start (span)
-  "Return the start position of SPAN."
+  "Return the start position of SPAN, or nil if SPAN is detatched."
   (extent-start-position span))
 
 (defsubst span-end (span)
-  "Return the end position of SPAN."
+  "Return the end position of SPAN, or nil if SPAN is detatched."
   (extent-end-position span))
 
 (defsubst prev-span (span prop)

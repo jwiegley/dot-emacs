@@ -72,7 +72,7 @@ elements = S0 S1 S2 .... [tl-seq.el]"
 (defun span-read-only (span)
   "Set SPAN to be read only."
   ;; Unfortunately, this function is called on spans which are
-  ;; detached from a buffer, which gives an error her, since
+  ;; detached from a buffer, which gives an error here, since
   ;; text-properties are associated with text in a particular
   ;; buffer position.
   ;(add-text-properties (span-start span) (span-end span) '(read-only t)))
