@@ -123,7 +123,7 @@ buffer modes)."
   :group 'proof-user-options)
 
 (defcustom proof-trace-output-fontify-enable t ;; testing
-  (not (and proof-running-on-XEmacs (>= emacs-major-version 21)))
+  ;; (not (and proof-running-on-XEmacs (>= emacs-major-version 21))) production
   "*Whether to fontify output from the proof assistant during tracing.
 If non-nil and proof-output-fontify-enable is also non-nil, 
 output from the proof assistant will be highlighted in the trace buffer.
