@@ -9,6 +9,12 @@
 
 
 ;; $Log$
+;; Revision 1.40  1998/05/08 17:10:11  hhg
+;; Made separated indentation more elegant:
+;; Made proof-assistant specific code into separate procedure,
+;; 	proof-parse-indent.
+;; Separated consideration of {}'s so it only happens for LEGO.
+;;
 ;; Revision 1.39  1998/05/08 15:41:32  hhg
 ;; Merged indentation code for LEGO and Coq into proof.el.
 ;;
@@ -271,6 +277,12 @@
   "*This hook is called after an error has been reported in the
   RESPONSE buffer.")  
 
+;; This could be explained better, but see proof-parse-to-point.
+(defvar proof-parse-indent nil
+  "Proof-assistant specific function for parsing characters for
+  indentation.  Must be a function taking two arguments, a character
+  (the current character) and a stack reflecting indentation, and must
+  return a stack.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Generic config for script management                            ;;
@@ -1318,6 +1330,7 @@ deletes the region corresponding to the proof sequence."
 	      (if (looking-at "(\\*") (progn 
 					(incf comment-level)
 					(forward-char))
+		;; Why is this >= 0?  Surely it's always true!
 		(if (>= 0 comment-level) 
 		    (setq stack (cons (list c (point)) stack)))))
 	     ((and (eq c ?\*) (looking-at "\\*)"))
@@ -1325,22 +1338,12 @@ deletes the region corresponding to the proof sequence."
 	      (forward-char))
 	     ((> comment-level 0))
 	     ((eq c ?\") (setq instring t))
-	     ((or (eq c ?\{) (eq c ?\[))
+	     ((eq c ?\[)
 	      (setq stack (cons (list c (point)) stack)))
-	     ((or (eq c ?\)) (eq c ?\}) (eq c ?\]))
+	     ((or (eq c ?\)) (eq c ?\]))
 	      (setq stack (cdr stack)))
-	     ((eq proof-terminal-char '\.))
-	     ;; Coq-specific code starts here:
-	     ((and (eq c ?c) (looking-at "case"))
-	      (setq stack (cons (list c (point)) stack)))
-	     ((and (eq c ?e) (looking-at "end") (eq (car (car stack)) ?c))
-	      (setq stack (cdr stack)))
-
-	     ((and (eq c ?I) (looking-at "Inductive"))
-	      (setq stack (cons (list c (point)) stack)))
-	     ((and (eq c ?.) (eq (car (car stack)) ?I))
-	      (setq stack (cdr stack))))))
-	     ;; Coq specific code ends.
+	     (t (if proof-parse-indent
+		    (setq stack (funcall proof-parse-indent c stack)))))))
 	(forward-char))
     (list instring comment-level stack))))
       
