@@ -3,7 +3,7 @@
 ;; Copyright (C) 1996 LFCS Edinburgh & INRIA Sophia Antipolis
 ;; Author: Yves Bertot < Yves.Bertot@sophia.inria.fr>
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <03 Dec 96 tms /home/tms/elisp/pbp.el>
+;; Time-stamp: <05 Dec 96 tms /home/tms/elisp/pbp.el>
 ;; Reference: Yves Bertot and Laurent Théry
 ;;            A Generic Approach to Building User Interfaces for
 ;;            Theorem Provers
@@ -91,6 +91,9 @@
 
 (deflocal pbp-keymap (make-keymap 'Pbp-keymap) 
   "Keymap for pbp mode")
+
+(deflocal pbp-mode-is nil
+  "The actual mode for Proof-by-Pointing.")
 
 (defun pbp-analyse-structure ()
   (map-extents
@@ -258,7 +261,7 @@
   (save-excursion
     (setq pbp-goals-buffer (get-buffer-create pbp-goals-buffer-name ))
     (set-buffer pbp-goals-buffer)
-    (pbp-mode)
+    (funcall pbp-mode-is)
     (erase-buffer pbp-goals-buffer)
     (add-hook 'comint-output-filter-functions 'pbp-filter t)
     (pbp-sanitise-region (point-min) (point-max))
