@@ -24,6 +24,10 @@ Generic Changes
 * Menus and keybindings have been reorganized.  
   Now keybindings invoke the same functions as the toolbar.
 
+* Command C-c C-t (proof-try-command) removed in favour of C-c C-v
+  (proof-execute-minibuffer-cmd), which now possibly uses the
+  filter proof-state-preserving-p to check that a command is safe.
+
 * Terminal string now automatically added to command for C-c C-v 
 
 * Cleaned up example files so all demonstrate same theorem "conj_comms".

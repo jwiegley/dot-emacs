@@ -715,7 +715,9 @@ This is used to handle nested goals allowed by some provers."
   :group 'proof-script)
 
 (defcustom proof-state-preserving-p nil
-  "A predicate, non-nil if its argument (a command) preserves the proof state."
+  "A predicate, non-nil if its argument (a command) preserves the proof state.
+If set, used by proof-execute-minibuffer-cmd to filter out scripting
+commands which should be entered directly into the script itself."
   :type 'function
   :group 'proof-script)
 

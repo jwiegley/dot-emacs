@@ -1168,51 +1168,6 @@ command."
 	   (setq span (span-at (point) 'type))))
     (proof-retract-target span delete-region)))
 
-;;         proof-try-command                                        ;;
-;;         this isn't really in the spirit of script management,    ;;
-;;         but sometimes the user wants to just try an expression   ;;
-;;         without having to undo it in order to try something      ;;
-;;         different. Of course you can easily lose sync by doing   ;;
-;;         something here which changes the proof state             ;;
-
-(defun proof-done-trying (span)
-  "Callback for proof-try-command."
-  (delete-span span)
-  (proof-detach-queue))
-			
-(defun proof-try-command (&optional unclosed-comment-fun) 
-  "Process the command at point, but don't add it to the locked region. 
-
-Supplied to let the user to test the types and values of
-expressions. Checks via the function proof-state-preserving-p that the
-command won't change the proof state, but this isn't guaranteed to be
-foolproof and may cause Proof General to lose sync with the prover.
-
-Default action if inside a comment is just to go until the start of
-the comment. If you want something different, put it inside
-UNCLOSED-COMMENT-FUN."
-  (interactive)
-  (proof-shell-ready-prover)
-  (proof-activate-scripting)
-  (let ((pt (point)) semis test)
-    (save-excursion
-      (if (proof-only-whitespace-to-locked-region-p)
-	  (progn (goto-char pt)
-		 (error "I don't know what I should be doing in this buffer!")))
-      (setq semis (proof-segment-up-to (point))))
-    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
-	(funcall unclosed-comment-fun)
-      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-      (if (null semis) 
-	  (error "I don't know what I should be doing in this buffer!"))
-      (setq test (car semis))
-      (if (not (funcall proof-state-preserving-p (nth 1 test)))
-	  (error "Command is not state preserving, I won't try it."))
-      (goto-char (nth 2 test))
-      (let ((vanillas (proof-semis-to-vanillas (list test)
-					       'proof-done-trying)))
-	(proof-start-queue (proof-unprocessed-begin) (point) vanillas)))))
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1382,8 +1337,10 @@ Only for use by consenting adults."
   "Prompt for a command in the minibuffer and send it to proof assistant.
 The command isn't added to the locked region.
 
-Warning! No checking whatsoever is done on the command, so this is
-even more dangerous than proof-try-command."
+If proof-state-preserving-p is configured, it is used as a check
+that the command will be safe to execute, in other words, that
+it won't ruin synchronization.  If applied to the command it 
+returns false, then an error message is given."
   (interactive)
   (let (cmd)
     ;; FIXME note: removed ready-prover call since it's done by
@@ -1391,11 +1348,14 @@ even more dangerous than proof-try-command."
     ;; (proof-shell-ready-prover)
     ;; was (proof-check-process-available 'relaxed) 
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
+    (if (and
+	 proof-state-preserving-p
+	 (not (funcall proof-state-preserving-p cmd)))
+	  (error "Command is not state preserving, I won't execute it!"))
     (proof-shell-invisible-command 
      (if proof-terminal-string
 	 (concat cmd proof-terminal-string)
        cmd))))
-
 
 
 
@@ -1800,7 +1760,6 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 ;;;; (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
 ;; FIXME : This ought to be set to 'proof-assert-until point
 (define-key map [(control c) (return)]	  'proof-assert-next-command-interactive)
-(define-key map [(control c) (control t)] 'proof-try-command)
 ;; FIXME: The following two functions should be unified.
 (define-key map [(control c) ?u]	  'proof-retract-until-point-interactive)
 ;;;; (define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
@@ -1979,6 +1938,62 @@ finish setup which depends on specific proof assistant configuration."
   ;; in case Emacs is exited accidently.
   (or (buffer-file-name)
       (setq buffer-offer-save t)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; FIXME FIXME FIXME da:
+;;
+;; want to remove this function
+;; but at the moment it's used by
+;; plastic instantiation.  Try
+;; to persuade P.C. that we can
+;; live without it?
+
+
+;;         proof-try-command                                        ;;
+;;         this isn't really in the spirit of script management,    ;;
+;;         but sometimes the user wants to just try an expression   ;;
+;;         without having to undo it in order to try something      ;;
+;;         different. Of course you can easily lose sync by doing   ;;
+;;         something here which changes the proof state             ;;
+
+(defun proof-done-trying (span)
+  "Callback for proof-try-command."
+  (delete-span span)
+  (proof-detach-queue))
+			
+(defun proof-try-command (&optional unclosed-comment-fun) 
+  "Process the command at point, but don't add it to the locked region. 
+
+Supplied to let the user to test the types and values of
+expressions. Checks via the function proof-state-preserving-p that the
+command won't change the proof state, but this isn't guaranteed to be
+foolproof and may cause Proof General to lose sync with the prover.
+
+Default action if inside a comment is just to go until the start of
+the comment. If you want something different, put it inside
+UNCLOSED-COMMENT-FUN."
+  (interactive)
+  (proof-shell-ready-prover)
+  (proof-activate-scripting)
+  (let ((pt (point)) semis test)
+    (save-excursion
+      (if (proof-only-whitespace-to-locked-region-p)
+	  (progn (goto-char pt)
+		 (error "I don't know what I should be doing in this buffer!")))
+      (setq semis (proof-segment-up-to (point))))
+    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
+	(funcall unclosed-comment-fun)
+      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
+      (if (null semis) 
+	  (error "I don't know what I should be doing in this buffer!"))
+      (setq test (car semis))
+      (goto-char (nth 2 test))
+      (let ((vanillas (proof-semis-to-vanillas (list test)
+					       'proof-done-trying)))
+	(proof-start-queue (proof-unprocessed-begin) (point) vanillas)))))
+
 
 
 (provide 'proof-script)

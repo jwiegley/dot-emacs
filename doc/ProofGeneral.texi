@@ -1128,8 +1128,6 @@ from a proof script.  Here are the keybindings and functions.
 @code{proof-help}
 @item C-c C-c
 @code{proof-interrupt-process}
-@item C-c t
-@code{proof-try-command}
 @item C-c C-v
 @code{proof-execute-minibuffer-cmd}
 @item C-c C-f
@@ -1165,21 +1163,6 @@ Interrupt the proof assistant.  Warning! This may confuse Proof General.
 Search for items containing a given constant.@*
 Issues a command based on @var{arg} to the assistant, using @code{proof-find-theorems-command}.
 The user is prompted for an argument.
-@end deffn
-
-
-@c TEXI DOCSTRING MAGIC: proof-try-command
-@deffn Command proof-try-command &optional unclosed-comment-fun
-Process the command at point, but don't add it to the locked region. 
-
-Supplied to let the user to test the types and values of
-expressions. Checks via the function @code{proof-state-preserving-p} that the
-command won't change the proof state, but this isn't guaranteed to be
-foolproof and may cause Proof General to lose sync with the prover.
-
-Default action if inside a comment is just to go until the start of
-the comment. If you want something different, put it inside
-@var{unclosed-comment-fun}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-execute-minibuffer-cmd
