@@ -1,3 +1,56 @@
+2003-05-24  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* generic/pg-user.el:
+	Rotate buffers display can display next buffer
+
+	* generic/proof-menu.el:
+	Include next buffer in hint for rotate buffers
+
+	* generic/pg-response.el:
+	Revert to displaying empty buffer for sake of pr in Isar
+
+	* etc/profiling.txt, CHANGES:
+	Updated.
+
+	* generic/proof-shell.el:
+	Add hint triggered when processing complete
+
+	* generic/proof-menu.el:
+	Switch order of buffers displayed by C-c C-l.  Add hint.
+
+	* generic/proof-utils.el:
+	Tweak to shrink-to-fit
+
+	* generic/pg-user.el:
+	Added hint mechanism
+
+	* generic/pg-response.el:
+	Do not display empty responses
+
+	* generic/proof-config.el:
+	Add pg-show-hints
+
+2003-05-23  David Aspinall  <da@proofgeneral.org>
+
+	* isa/isabelle-system.el:
+	Add a location under HOME to search path for isatool
+
+	* ChangeLog: Updated.
+
+	* generic/proof-utils.el:
+	Improved version of shrink-to-fit (still problematic)
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* isar/isar-syntax.el:
+	Fix from Gerwin to repair grouping
+
 2003-05-23  David Aspinall  <da@proofgeneral.org>
 
 	* generic/proof-utils.el:
