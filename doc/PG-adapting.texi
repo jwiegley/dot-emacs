@@ -265,8 +265,8 @@ webpage}.
 @node Credits
 @unnumberedsec Credits
 
-This manual was put together mostly written by David Aspinall.  Thomas
-Kleymann wrote some of the material in @ref{Handling multiple files}.
+This manual was put together and mostly written by David Aspinall.  Thomas
+Kleymann wrote some of the text in Chapter 8.
 Much of the content is generated automatically from Emacs docstrings,
 some of which have been written by other Proof General developers.
 
