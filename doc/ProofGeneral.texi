@@ -399,9 +399,9 @@ go to Pascal Brisset, Rod Burstall, Martin Hofmann, and James McKinna.
 During the development of Proof General 3.0, many people helped provide
 testing and other feedback, including the Proof General maintainers,
 Paul Callaghan, Pierre Courtieu, and Markus Wenzel, and other folk who
-helpfully tested and reported on pre-releases, Matt Fairtlough, David
-von Oheimb, Leonor xxx, and Tobias Nipkow.  Thanks to all of you!
-
+helpfully tested and reported on pre-releases, including Matt
+Fairtlough, Tobias Nipkow, Leonor Prensa-Nieto, and David von Oheimb.
+Thanks to all of you!
 
 
 
