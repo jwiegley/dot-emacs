@@ -2629,17 +2629,18 @@ finish setup which depends on specific proof assistant configuration."
   ;; Preamble: make this mode class "pg-sticky" so that renaming file
   ;; to something different doesn't change the mode, no matter what
   ;; the filename.  This is a hack so that write-file will work:
-  ;; otherwise Emacs insists (as of XEmacs 21.1.9 at least) on
-  ;; re-setting the mode, which leads to problems with synchronization
-  ;; and losing extents.  (Attempt to catch this in proof-mode by
-  ;; looking for active scripting buffer fails; perhaps because of
-  ;; kill buffer function)
-  ;; [NB: could do this at top level at load time]
-  
-  ;; FIXME: temporarily disable this for X-Symbol 4.45
-  ;; (put major-mode 'mode-class 'pg-sticky)
+  ;; otherwise Emacs insists (XEmacs 21.1.9 onwards) on re-setting the
+  ;; mode, which leads to problems with synchronization and losing
+  ;; extents.  (Attempt to catch this in proof-mode by looking for
+  ;; active scripting buffer fails; perhaps because of kill buffer
+  ;; function) [NB: could do this at top level at load time]
 
-  ;; First, define some values if they aren't defined already.
+  (put major-mode 'mode-class 'pg-sticky)
+
+  ;; Make X-symbol ignore that we've asked for fixed mode
+  (put major-mode 'x-symbol-mode-disable 'ignore)
+  
+  ;; Now, define some values if they aren't defined already.
   (unless proof-mode-for-script
       (setq proof-mode-for-script major-mode))
 
