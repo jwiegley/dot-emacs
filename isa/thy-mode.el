@@ -176,6 +176,7 @@ The style of indentation for theory files is controlled by these variables:
   (setq mode-name "Theory")
   (use-local-map thy-mode-map)
 ;;  (isa-menus)				                ; Add "isabelle" menu.
+
   (set-syntax-table thy-mode-syntax-table)
   (make-local-variable 'indent-line-function)
   (setq indent-line-function 'thy-indent-line)
@@ -186,6 +187,12 @@ The style of indentation for theory files is controlled by these variables:
   (setq comment-start-skip "(\\*+[ \t]?")		; .
   (setq font-lock-keywords
 	thy-mode-font-lock-keywords)
+
+  ;; Toolbar: needs alteration for non-scripting mode!
+  ;;  (if (featurep 'proof-toolbar)
+  ;; (proof-toolbar-setup))
+  ;;
+
   (run-hooks 'thy-mode-hook)
   (force-mode-line-update)
   (if (null nomessage)

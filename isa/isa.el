@@ -120,7 +120,7 @@ no regular or easily discernable structure."
 					 "use \""
 					 proof-internal-home-directory
 					  "isa/ProofGeneral.ML\";")
-   proof-shell-eager-annotation-start   "^\\[opening \\|^###"
+   proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading\\|^Proof General"
    proof-shell-eager-annotation-end     "$"
    ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-goal-char	        ?\375
@@ -130,7 +130,27 @@ no regular or easily discernable structure."
    proof-analyse-using-stack		t
    proof-shell-start-char		?\372
    proof-shell-end-char			?\373
-   proof-shell-field-char		?\374))
+   proof-shell-field-char		?\374
+   ;; NEW NEW for multiple files
+   ;; === NEW NEW: multiple file stuff.  move elsewhere later.
+   proof-shell-process-file 
+   (cons
+    ;; Theory loader output 
+    "Reading \"\\(.*\\.ML\\)\""
+    (lambda (str)
+      (match-string 1 str)))
+   ;; This is the output returned by a special command to
+   ;; query Isabelle for outdated files.
+   proof-shell-retract-files-regexp
+   "Proof General, you can unlock the file \"\\(.*\\)\""
+   proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
+   ))
+
+(defun isa-shell-compute-new-files-list (str)
+  (assert (member (file-truename (match-string 1 str))
+		  proof-included-files-list))
+  (remove (file-truename (match-string 1 str)) 
+	  proof-included-files-list))
 
 
 ;; ===== outline mode
@@ -253,11 +273,28 @@ isa-proofscript-mode."
 ;; backwards in isa-find-and-forget, rather than forwards as
 ;; the old code below does.
 
+(defconst isa-retract-file-command "retract_file \"%s\";"
+  "Command sent to Isabelle for forgetting")
+
 (defun isa-find-and-forget (span)
-  ;; Special return value to indicate nothing needs to be done.
-  proof-no-command)
-  
-  
+  ;; See if we are going to part way through a completely processed
+  ;; buffer.
+  (if (eq (current-buffer) (car-safe proof-script-buffer-list))
+      ;; Special return value to indicate nothing needs to be done.
+      proof-no-command 
+    (progn
+      (save-excursion
+	(goto-char (point-max))
+	(skip-chars-backward "\\S-")
+	(if (member (proof-unprocessed-begin) (list (point-min) (point)))
+	    ;; 
+	    (format isa-retract-file-command 
+		    (file-name-sans-extension 
+		     (file-name-nondirectory
+		      (buffer-file-name))))
+	  prog-no-command)))))
+
+
 ;; BEGIN Old code  (taken from Coq.el)
 ;(defconst isa-keywords-decl-defn-regexp
 ;  (ids-to-regexp (append isa-keywords-decl isa-keywords-defn))
