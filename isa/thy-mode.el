@@ -158,6 +158,37 @@ You can use the following format characters:
       (define-key map "\C-k" 'thy-kill-line)
       (setq thy-mode-map map)))
 
+;; NEW for Proof General
+(defun thy-add-proofgeneral-menu ()
+  "Add Proof General menu to current menu bar."
+  (require 'proof-script)		; Later: proof-menu, autoloaded
+  (easy-menu-define thy-mode-menu
+		    thy-mode-map
+		    "Menu for Isabelle Proof General, theory file mode."
+		    (cons proof-general-name
+			  (append
+			   (list
+			    ["Process theory" isa-process-thy-file
+			     :active (proof-locked-region-empty-p)
+			     ]
+			    ["Retract theory" isa-retract-thy-file
+			     :active (proof-locked-region-full-p)
+			     ])
+			   (cdr proof-shared-menu) 
+			   ;; begin UGLY COMPATIBILTY HACK
+			   ;; older/non-existent customize doesn't have 
+			   ;; this function.  
+			   (if (fboundp 'customize-menu-create)
+			       (list (customize-menu-create 'proof-general)
+				     (customize-menu-create
+				      'proof-general-internals
+				      "Internals"))
+			     nil)
+			   ;; end UGLY COMPATIBILTY HACK
+			   )))
+  (easy-menu-add thy-mode-menu thy-mode-map))
+
+
 (defun thy-mode (&optional nomessage)
   "Major mode for editing Isabelle theory files.
 \\<thy-mode-map>
@@ -187,6 +218,7 @@ Here is the full list of theory mode key bindings:
   (setq mode-name "Theory")
   (use-local-map thy-mode-map)
 ;;  (isa-menus)				                ; Add "isabelle" menu.
+  (thy-add-proofgeneral-menu)
 
   (set-syntax-table thy-mode-syntax-table)
   (make-local-variable 'indent-line-function)
@@ -203,6 +235,7 @@ Here is the full list of theory mode key bindings:
   ;;  (if (featurep 'proof-toolbar)
   ;; (proof-toolbar-setup))
   ;;
+			  
 
   (run-hooks 'thy-mode-hook)
   (force-mode-line-update)
@@ -215,6 +248,8 @@ Here is the full list of theory mode key bindings:
 (defun thy-mode-quiet ()
   (interactive)
   (thy-mode t))
+
+
 
 
 ;;; "use" and "use_thy" with theory files ========================
