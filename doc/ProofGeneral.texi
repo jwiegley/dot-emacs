@@ -224,9 +224,8 @@ Proof General 3.2 has several new features and some bug fixes.
 One noticeable new feature is the addition of a prover-specific menu for
 each of the supported provers.  This menu has a ``favourites'' feature
 that you can use to easily define new functions.  Please contribute
-other useful functions (or suggestions for functions) for things you
-would like to appear on these menus, to the maintainer for the instance
-of Proof General you use.
+other useful functions (or suggestions) for things you
+would like to appear on these menus.
 
 Because of the new menus and to make room for more commands, we have
 made a new key map for prover specific functions.  These now all begin
@@ -271,9 +270,10 @@ These are rather devious functions to use during script management, but
 Proof General now tries to do the right thing if you're deviant enough
 to try them out!
 
-The work on this release was undertaken by David Aspinall between
+Work on this release was undertaken by David Aspinall between
 May-September 2000, and includes contributions from Markus Wenzel,
-Pierre Courtieu, and Christophe Raffalli.  Markus added 
+Pierre Courtieu, and Christophe Raffalli.  Markus added some Isar
+documentation to this manual.
 
 
 @node Future
@@ -295,7 +295,7 @@ liberate it from the points and parentheses of Emacs Lisp.  The
 successor project Proof General Kit proposes that proof assistants use a
 @i{standard} XML-based protocol for interactive proof, dubbed @b{PGIP}.
 
-PGIP is a middleware for interactive proof tools and interface
+PGIP will enable middleware for interactive proof tools and interface
 components.  Rather than configuring Proof General for your proof
 assistant, you will need to configure your proof assistant to understand
 PGIP.  There is a similarity however; the design of PGIP was based
@@ -513,10 +513,10 @@ It is now maintained by Pierre Courtieu @i{<courtieu@@lri.fr>}.
 @c
 Isabelle Proof General was crafted and is being maintained by David
 Aspinall @i{<da@@dcs.ed.ac.uk>}.  It has benefited greatly from tweaks
-and suggestions by Markus Wenzel, who crafted and maintains
-Isabelle/Isar Proof General.  Markus also added Proof General support
-inside Isabelle.  David von Oheimb supplied the original patches for
-X-Symbol support.
+and suggestions by Markus Wenzel @i{<wenzelm@@informatik.tu-muenchen.de>}, 
+who crafted and maintains Isabelle/Isar Proof General.  Markus also
+added Proof General support inside Isabelle.  David von Oheimb supplied
+the original patches for X-Symbol support.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
 Goguen and Aspinall. It follows some of the ideas used in Project
