@@ -76,6 +76,11 @@ X (Low)		e.g. probably not worth spending time on
       command persistent.  See attempted patch in
       etc/patches/fix-attempt-for-eager-cleaning.txt
 
+
+*** C Menu layout
+    Would be good to try to make this uniform between version: 
+    PG menu frist, then prover-specific menu.  Similarly for Imenu.
+
 *** A PGIP SUPPORT (minimal for Isabelle patch):
       -- settings with categories
 
