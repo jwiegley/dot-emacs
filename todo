@@ -538,10 +538,6 @@ C New modules:
    function to be invoked instead? (Cf font lock).
    Or via a new generic mechanism for matching or invoking a fn.
 
-*** D Improve indentation code and see why it's so slow (at
-  least for Isabelle).   Enable it for particular provers if
-  it works okay  (but must test in on large files).
-
 *** D ROBUSTness: deal gracefully with possibility that goals buffer is
   killed during session.   (2h)
 
