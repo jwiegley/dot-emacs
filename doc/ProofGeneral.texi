@@ -493,11 +493,11 @@ Fixes for some of these may be provided in a future release.
 
 @menu
 * Handling Multiple Files::     
-* Adding New Proof Assistant::  
+* Adding A New Proof Assistant::  
 * Literature::                  
 @end menu
 
-@node Handling Multiple Files, Adding New Proof Assistant, Internals, Internals
+@node Handling Multiple Files, Adding A New Proof Assistant, Internals, Internals
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec Handling Multiple Files
 
@@ -564,7 +564,7 @@ to inspect the previous (global) variable
 @inforef{Match Data,,lispref} triggered by @code{proof-shell-retract-files-regexp}.
 @end ftable
 
-@node Adding New Proof Assistant, Literature, Handling Multiple Files, Internals
+@node Adding A New Proof Assistant, Literature, Handling Multiple Files, Internals
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec Adding Support for a New Proof Assistant
 
@@ -572,21 +572,32 @@ Suppose your new assistant is
 called myassistant.
 
 @itemize @minus
-@item Make a directory myassistant to put the specific customization and associated files in,  called myassistant
-@item Add a file myassistant.el to the new directory, and a customization group:
-(defcustom myassistant-settings nil
-  "Customization of MyAssistant specifics for Proof General."
-  :group 'proof-general)
-@item Define the derived modes for the new assistant:
+@item Make a directory called 'myassistant' under the Proof General home
+directory, to put the specific customization and associated files in.
+@item Add a file myassistant.el to the new directory.  
+@item Edit proof-site.el to add a new entry to the
+  'proof-internal-assistants-table' variable.  
+Each entry of this table is a list of the form
 
-@item Edit proof-site.el to add a new case to the 'proof-general-supported-assistants' variable
+    (SYMBOL NAME AUTOMODE-REGEXP)
+
+The NAME is a string, naming the proof assistant.
+The SYMBOL is used to form the name of the mode for the
+assistant, `SYMBOL-mode`, run when files with AUTOMODE-REGEXP
+are visited.  SYMBOL is also used to form the name of the
+directory and elisp file for the mode, which will be
+ 
+    <proof-directory-home>/SYMBOL/SYMBOL.el
+
+where `<proof-directory-home>/' is the value of the
+variable proof-directory-home.
 @end itemize
 
-@node Literature, , Adding New Proof Assistant, Internals
+@node Literature, , Adding A New Proof Assistant, Internals
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec Literature
 
-The current version supports Script Management as documented in: 
+The current version supports Script Management as documented in:
 
 @itemize @bullet
 @item
