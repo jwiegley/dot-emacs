@@ -261,8 +261,8 @@ For more details, see
 
 
 
-@node Old news for 3.2
-@unnumberedsec Old news for 3.2
+@node Old News for 3.2
+@unnumberedsec Old News for 3.2
 @cindex news
 
 Proof General 3.2 introduced several new features and some bug fixes.
