@@ -378,8 +378,8 @@ dist:
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
 	for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done
-# Don't link the latest version 
-#	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
+#	link the long name to short name for convenience of user
+	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
 	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X ignoredfiles
 	rm -f ignoredfiles
 	@echo "*************************************************"
@@ -424,9 +424,12 @@ release: distclean tag  dist develdist
 	@echo " Making release (installing tarball distributions)."
 	@echo "*************************************************"
 	mkdir -p $(RELEASEDIR)
+#	clean source dir (remove link to this release)
+	(cd $(DISTBUILDDIR); rm -f $(NAME))
+#	clean target dir (remove link for latest release)
 	(cd $(RELEASEDIR); rm -f $(LASTESTNAME); rm -rf $(RELEASENAME))
-# seem to need R instead of r here now,
-# otherwise cp tries to make hard link instead of symlink?!
+#	Seem to need R instead of r here now,
+#	Otherwise cp tries to make hard link instead of symlink?!
 	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); ln -s  $(RELEASENAME) $(LATESTNAME))
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
