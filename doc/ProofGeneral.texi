@@ -69,7 +69,7 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.5.1
+@set version 3.6
 @set xemacsversion 21.4.15
 @set fsfversion 21.3.1
 @set last-update June 2004
@@ -218,23 +218,24 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news for 3.5::
+* Latest news for 3.5 and 3.6::
 * Future::
 * Credits::                     
 @end menu
 
-@node Latest news for 3.5
-@unnumberedsec Latest news for 3.5
+@node Latest news for 3.5 and 3.6
+@unnumberedsec Latest news for 3.6
 @cindex news
 
-Proof General 3.5 is released to collect together a cummulative set of
-improvements to Proof General 3.4.  There are compatibility fixes for
-newer Emacs versions, and particularly for GNU Emacs: credit is due to
-Stefan Monnier for an intense period of debugging and patching.  The
-options menu has been simplified and extended, and the display
-management is improved and repaired for Emacs API changes.  There are
-some other usability improvements, prompted in part by feedback after
-Proof General's appearance at the TYPES 2002 Summer School.
+Proof General versions 3.6 (and 3.5 shortly before it) collect together
+a cummulative set of improvements to Proof General 3.4.  There are
+compatibility fixes for newer Emacs versions, and particularly for GNU
+Emacs: credit is due to Stefan Monnier for an intense period of
+debugging and patching.  The options menu has been simplified and
+extended, and the display management is improved and repaired for Emacs
+API changes.  There are some other usability improvements, prompted in
+part by feedback after Proof General's appearance at the TYPES 2002
+Summer School.
 
 Support has been added for the useful Emacs packages Speedbar
 @c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
@@ -247,7 +248,7 @@ bundled with Proof General to save the need for additional downloads.
 @c friendly and the display in multiple-window mode is trimmed to
 @c allow more text space for display.  
 
-Proof General 3.5 runs reliably as compiled Elisp code, and is available
+Proof General 3.6 runs reliably as compiled Elisp code, and is available
 in RPM package format which includes desktop integration on
 freedesktop.org compliant desktops (including, for example, many recent
 Linux distributions).
