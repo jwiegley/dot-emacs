@@ -30,8 +30,26 @@
 ;;; 'isabelle-config  -  Configuration of Isabelle Proof General
 ;;;			 (constants, but may be nice to tweak)
 
-(defcustom isabelle-prog-name "isabelle"
-  "*Name of program to run Isabelle."
+; FIXME: fancy logic choice stuff to go in for 3.2
+;(defcustom isabelle-logic "HOL"
+;  "*Choice of logic to use with Isabelle.
+;If non-nil, will be added into isabelle-prog-name as default value."
+;  :type (append
+;	 (list 'choice '(const :tag "Unset" nil))
+;	 (mapcar (lambda (str) (list 'const str))
+;		 (split-string-by-char
+;		  (substring (shell-command-to-string "isatool findlogics") 0 -1)
+;		  ?\ )))
+;  :group 'isabelle)
+
+(defcustom isabelle-prog-name 
+  (if (fboundp 'win32-long-filename)	; rough test for XEmacs on win32
+      "C:\sml\bin\.run\run.x86-win32.exe @SMLload=C:\Isabelle\HOL"
+    "isabelle")
+  "*Name of program to run Isabelle.
+The default value when running under Windows expects SML/NJ in C:\\sml
+and an Isabelle image for HOL in C:\Isabelle.  You can change this
+by customization."
   :type 'file
   :group 'isabelle)
 
