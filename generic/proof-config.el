@@ -783,33 +783,80 @@ conversion, etc.  (No changes are done if nil)."
   :group 'prover-config
   :prefix "proof-")
 
-
 (defcustom proof-terminal-char nil
   "Character which terminates every command sent to proof assistant.  nil if none.
-You should set this variable in script mode configuration."
+
+To configure command recognition properly, you must set at least one
+of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
+`proof-script-command-start-regexp', `proof-terminal-char',
+or `proof-script-parse-function'."
   :type 'character
-  :group 'proof-script)
+  :group 'prover-config)
+
+(defcustom proof-script-sexp-commands nil
+  "Non-nil if proof script has a LISP-like syntax, and commands are top-level sexps.
+You should set this variable in script mode configuration.
+
+To configure command recognition properly, you must set at least one
+of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
+`proof-script-command-start-regexp', `proof-terminal-char',
+or `proof-script-parse-function'."
+  :type 'boolean
+  :group 'prover-config)
 
 (defcustom proof-script-command-end-regexp nil
   "Regular expression which matches end of commands in proof script.
+You should set this variable in script mode configuration.
+
 To configure command recognition properly, you must set at least one
-of these: `proof-script-command-end-regexp', 
-`proof-script-command-start-regexp', `proof-terminal-char'."
+of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
+`proof-script-command-start-regexp', `proof-terminal-char',
+or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
 
 (defcustom proof-script-command-start-regexp nil
   "Regular expression which matches start of commands in proof script.
+You should set this variable in script mode configuration.
+
 To configure command recognition properly, you must set at least one
-of these: `proof-script-command-end-regexp', 
-`proof-script-command-start-regexp', `proof-terminal-char'."
+of these: `proof-script-sexp-commands', `proof-script-command-end-regexp', 
+`proof-script-command-start-regexp', `proof-terminal-char',
+or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
+
+
+(defcustom proof-script-use-new-parsing nil
+  "Whether to use the new parsing mechanism, based on `proof-script-parse-function'.
+This is a stop-gap option in Proof General 3.2 added because
+the parsing functions went through several iterations and the final
+(but best) iteration was little tested."
+  :type 'boolean
+  :group 'prover-config)
+
+(defcustom proof-script-parse-function nil
+  "A function which parses a portion of the proof script.
+It is called with the proof script as the current buffer, and
+point the position where the parse should begin.  It should
+move point to the exact end of the next \"segment\", and return 
+a symbol indicating what has been parsed:
+
+  'comment	for a comment 
+  'cmd		for a proof script command
+  nil		if there is no complete next segment in the buffer
+
+If this is left unset, it will be configured automatically to
+a generic function according to which of `proof-terminal-char' 
+and its friends are set."
+  :type 'string
+  :group 'prover-config)
+
 
 (defcustom proof-comment-start ""
   "String which starts a comment in the proof assistant command language.
 The script buffer's comment-start is set to this string plus a space.
-Moreover, comments are ignored during script management, and not
+Moreover, comments are usually ignored during script management, and not
 sent to the proof process.
 
 You should set this variable for reliable working of Proof General,

@@ -1193,6 +1193,134 @@ the ACS is marked in the current buffer. If CMD does not match any,
   ;; State of scripting may have changed now
   (run-hooks 'proof-state-change-hook)))
 
+;;
+;; Yet more NEW parsing functions for 3.3
+;;
+;; We need to be more general and a bit more clear, this
+;; is a much better attempt.
+
+(defun proof-segment-up-to-parser (pos &optional next-command-end)
+  "Parse the script buffer from end of locked to POS.
+Return a list of (type, string, int) tuples (in reverse order).
+
+Each tuple denotes the command and the position of its final character,
+type is one of 'comment, or 'cmd.
+
+If optional NEXT-COMMAND-END is non-nil, we include the command
+which continues past POS, if any.  (NOT IMPLEMENTED IN THIS VERSION).
+
+This version is used when `proof-script-parse-function' is set."
+  (save-excursion
+    (let* ((end	  (1+ pos))
+	   (start (goto-char (proof-queue-or-locked-end)))
+	   (cur   start)
+	   (seg   t)
+	   prevtype realstart segs)
+      (while (and (< cur end) seg)
+	;; Skip whitespace before this element
+	(skip-chars-forward " \t\n")
+	(setq realstart (point))
+	(let* ((type  (funcall proof-script-parse-function)))
+	  (setq seg nil)
+	  (cond
+	   ((eq type 'comment)
+	    (setq seg (list 'comment "" (point))))
+	   ((eq type 'cmd)
+	    (setq seg (list 
+		       'cmd 
+		       (buffer-substring realstart (point)) 
+		       (point))))
+	   ((null type))		; nothing left in buffer
+	   (t 
+	    (error 
+  "proof-segment-up-to-parser: bad TYPE value from proof-script-parse-function.")))
+	  ;;
+	  (if seg 
+	      (progn
+		;; Add the new segment, coalescing comments
+		(if (and (eq type 'comment)
+			 (eq prevtype 'comment))
+		    (setq segs (cons seg (cdr segs)))
+		  (setq segs (cons seg segs)))
+		;; Update state
+		(setq cur (point))
+		(setq prevtype type)))))
+      ;; Return segment list
+      segs)))
+
+(defun proof-script-generic-parse-find-comment-end ()
+  "Find the end of the comment point is at the start of. Nil if not found."
+  (let ((notout t))
+    ;; Find end of comment (NB: doesn't undertand nested comments)
+    (while (and notout (re-search-forward 
+			proof-comment-end-regexp nil 'movetolimit))
+      (setq notout (buffer-syntactic-context)))
+    (not (buffer-syntactic-context))))
+  
+(defun proof-script-generic-parse-cmdend ()
+  "Used for proof-script-parse-function if proof-script-command-end-regexp is set."
+  (if (looking-at proof-comment-start-regexp)
+      ;; Handle comments
+      (if (proof-script-generic-parse-find-comment-end) 'comment)
+    ;; Handle non-comments: assumed to be commands
+    (let (foundend)
+      ;; Find end of command
+      (while (and (setq foundend 
+			(re-search-forward proof-script-command-end-regexp nil t))
+		  (buffer-syntactic-context))
+	;; inside a string or comment before the command end
+	)
+      (if (and foundend 
+	       (not (buffer-syntactic-context)))
+	  ;; Found command end outside string/comment
+	  'cmd
+	;; Didn't find command end
+	nil))))
+
+(defun proof-script-generic-parse-cmdstart ()
+  "For proof-script-parse-function if proof-script-command-start-regexp is set."
+  (if (looking-at proof-comment-start-regexp)
+      ;; Find end of comment
+      (if (proof-script-generic-parse-find-comment-end) 'comment)
+    ;; Handle non-comments: assumed to be commands
+    (if (looking-at proof-command-start-regexp)
+	(progn
+	  ;; We've got at least the beginnings of a command, skip past it
+	  (re-search-forward proof-script-command-start-regexp nil t)
+	  (let (foundstart)
+	    ;; Find next command start
+	    (while (and (setq foundstart 
+			      (re-search-forward proof-script-command-start-regexp
+						 nil 'movetolimit))
+			(buffer-syntactic-context))
+	      ;; inside a string or comment before the next command start
+	      )
+	    (if (not (buffer-syntactic-context))  ; not inside a comment/string
+		(if foundstart		; found a  second command start
+		    (progn
+		      (goto-char (match-beginning 0)) ; beginning of command start
+		      (skip-chars-backward " \t\n")   ; end of previous command
+		      'cmd)
+		  (if (eq (point) (point-max)) ; At the end of the buffer
+		      (progn
+			(skip-chars-backward " \t\n") ; benefit of the doubt, let 
+			'cmd))))		      ; the PA moan if it's incomplete
+	    ;; Return nil in other cases, no complete command found
+	    )))))
+
+
+(defun proof-script-generic-parse-sexp ()
+  "Used for proof-script-parse-function if proof-script-sexp-commands is set."
+  (skip-chars-forward " \t\n")
+  (let* ((parse-sexp-ignore-comments t)	; gobble comments into commands
+	 (end (scan-sexps (point) 1)))
+    (if end
+	(progn 
+	  (goto-char end)
+	  (list 'cmd))
+      ;; Didn't find command end
+      (list nil))))
+    
 
 ;; NEW parsing functions for 3.2
 ;;
@@ -2627,7 +2755,10 @@ assistant."
        (proof-complete-buffer-atomic (current-buffer)))
 
   ;; calculate some strings and regexps for searching
-  (setq proof-terminal-string (char-to-string proof-terminal-char))
+  (setq proof-terminal-string 
+	(if proof-terminal-char
+	    (char-to-string proof-terminal-char)
+	  ""))
 
   (make-local-variable 'comment-start)
   (setq comment-start (concat proof-comment-start " "))
@@ -2749,8 +2880,7 @@ functions for examples of how to write this function."
 ;;
 
 (defconst proof-script-important-settings
-  '(proof-terminal-char			; soon not to be essential
-    proof-comment-start			;
+  '(proof-comment-start			;
     proof-comment-end
     ; proof-goal-command-regexp	  not needed if proof-goal-command-p is set
     proof-save-command-regexp
@@ -2799,15 +2929,16 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Additional key definitions which depend on configuration for
   ;; specific proof assistant.
-  ;; FIXME da: robustify here.  
-  ;;   This is rather fragile: we assume terminal char is something
-  ;;   sensible (and exists) for this to be set.
-
-  (define-key proof-mode-map
-    (vconcat [(control c)] (vector proof-terminal-char))
-    'proof-electric-terminator-toggle)
-  (define-key proof-mode-map (vector proof-terminal-char)
-    'proof-electric-terminator)
+  ;; FIXME da: generalize here.  Might have electric terminator for
+  ;; other parsing mechanisms too, using new proof-script-parse-function
+  ;; Could use a default terminal char
+  (if proof-terminal-char
+      (progn
+	(define-key proof-mode-map
+	  (vconcat [(control c)] (vector proof-terminal-char))
+	  'proof-electric-terminator-toggle)
+	(define-key proof-mode-map (vector proof-terminal-char)
+	  'proof-electric-terminator)))
   ;; It's ugly, but every script buffer has a local copy changed in
   ;; sync by the fn proof-electric-terminator-enable 
   (setq proof-electric-terminator proof-electric-terminator-enable)
@@ -2825,22 +2956,46 @@ finish setup which depends on specific proof assistant configuration."
   (easy-menu-add proof-mode-menu proof-mode-map)
   (easy-menu-add proof-assistant-menu proof-mode-map)
 
-  ;; Use new parsing mechanism which works for different
-  ;; kinds of script syntax.  Choice of function depends
-  ;; on configuration setting.  FSF Emacs uses old 
-  ;; function because it lacks the buffer-syntactic-context
-  ;; builtin used on XEmacs.
+  ;; Choose parsing mechanism according to different kinds of script syntax.  
+  ;; Choice of function depends on configuration setting.
   (unless (fboundp 'proof-segment-up-to)
-    (cond
-     (proof-script-command-start-regexp
-      (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
-     ((defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
-      (unless proof-script-command-end-regexp
-	(proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
-	(setq proof-script-command-end-regexp
-	      (if proof-terminal-char
-		  (regexp-quote (char-to-string proof-terminal-char))
-		"$")))))) ;  default if nothing set is EOL.
+    (if (or proof-script-use-new-parsing  
+	    proof-script-sexp-commands)
+	;; 3.3 mechanism here
+	(progn
+	  (defalias 'proof-segment-up-to 'proof-segment-up-to-parser)
+	  (cond   
+	   (proof-script-parse-function
+	    ;; already set, nothing to do
+	    )
+	   (proof-script-sexp-commands
+	    (setq proof-script-parse-function 'proof-script-generic-parse-sexp))
+	   (proof-script-command-start-regexp
+	    (setq proof-script-parse-function 'proof-script-generic-parse-cmdstart))
+	   ((or proof-script-command-end-regexp proof-terminal-char)
+	    (setq  proof-script-parse-function 'proof-script-generic-parse-cmdend)
+	    (unless proof-script-command-end-regexp
+	      (proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
+	      (setq proof-script-command-end-regexp
+		    (if proof-terminal-char
+			(regexp-quote (char-to-string proof-terminal-char))
+		      "$"))))
+	   (t
+	    (error "Configuration error: must set `proof-terminal-char' or one of its friends."))))
+      (cond
+       (proof-script-parse-function	;; still allowed to override in 3.2
+	(defalias 'proof-segment-up-to 'proof-segment-up-to-parser))
+       ;; 3.2 mechanism here
+       (proof-script-command-start-regexp
+	(defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
+       (t
+	(defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
+	(unless proof-script-command-end-regexp
+	  (proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
+	  (setq proof-script-command-end-regexp
+		(if proof-terminal-char
+		    (regexp-quote (char-to-string proof-terminal-char))
+		  "$"))))))) ;  default if nothing set is EOL.
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
