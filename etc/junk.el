@@ -138,3 +138,20 @@ We only strip specials from the annotations."
 ;  (if proof-response-buffer
 ;      (with-current-buffer proof-response-buffer
 ;	(proof-bury-buffer-after proof-goals-buffer))))
+
+
+
+;; This was added in proof-config.el.
+;; 
+;; Better strategy to be less zippy about adding hooks is this:
+;;
+;; 1. Only add a hook if it is needed in *generic* code
+;; 2. Only add a hook if it seems likely to be needed for different
+;;    provers, with different effects.
+;;
+;; This hook doesn't meet criteria!
+
+(defcustom proof-xsym-toggle-hook '(proof-x-symbol-toggle-clean-buffers)
+  "Hooks run when X-Symbol support is turned on or off."
+  :type 'string
+  :group 'proof-x-symbol)
