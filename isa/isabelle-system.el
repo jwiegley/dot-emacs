@@ -178,8 +178,10 @@ ISABELLE will always override this setting."
 			  (unless (string-equal logic "Default") logic))
   (setq isabelle-prog-name (isabelle-command-line))
   (setq proof-prog-name isabelle-prog-name)
-  ;; Settings are potentiall different between logics, and
-  ;; so are Isar keywords.  FIXME: latter not handled yet.
+  ;; Settings are potentially different between logics, and
+  ;; so are Isar keywords.  Set these to nil so they get
+  ;; automatically re-initialised.  
+  ;; FIXME: Isar keywords change not handled yet.
   (setq proof-assistant-settings nil)
   (setq proof-menu-settings nil))
 
