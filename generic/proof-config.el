@@ -173,6 +173,15 @@ experienced Emacs users."
   :type 'boolean 
   :group 'proof-user-options)
 
+(defcustom proof-multiple-frames-enable nil
+  "*Whether response and goals buffers have separate frames.
+If non-nil, Emacs will make separate frames (screen windows) for
+the goals and response buffers, by altering the variable
+`special-display-regexps'."  
+  :type 'boolean 
+  :set 'proof-set-bool
+  :group 'proof-user-options)
+
 (defcustom proof-auto-delete-windows 
   nil
   "*If non-nil, automatically remove windows when they are cleaned.
@@ -1660,12 +1669,6 @@ If non-nil, this command is sent to the proof assistant when
 X-Symbol support is deactivated."
   :type 'string
   :group 'proof-x-symbol)
-
-
-
-
-
-
 
 
 
