@@ -192,7 +192,8 @@ in future if we have just activated it for this buffer."
 ;; and I think this is a good place ... may be a variable should control
 ;; an option to have x-symbol only in the output buffer but not in the script
 ;; buffer ?
-  (proof-x-symbol-set-language)
+;;  (proof-x-symbol-set-language)
+;; DA: this is done already I believe, PhoX used a funny startup perhaps.
 
   (x-symbol-mode)
   (proof-x-symbol-mode-associated-buffers))
