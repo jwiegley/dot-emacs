@@ -6,7 +6,7 @@ Please let us know if you have problems trying to install it.
 
 Unpack this distribution somewhere.  It will create a top-level
 directory containing Proof General, called Proof-General-<something>.
-Put this line in your emacs file:
+Put this line in your .emacs file:
 
     (load-file "<proofgeneral-home>/generic/proof-site.el")
 
@@ -45,6 +45,15 @@ Notes for Proof General
 =======================
 
 
+RPM package.
+------------
+
+If you have the RPM file, this is the line you should add to your
+.emacs file:
+
+  (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
+
+
 Byte Compilation.
 -----------------
 
@@ -64,6 +73,10 @@ prefer, providing the variables in proof-site.el are adjusted
 accordingly.  Make sure that the generic and assistant-specific elisp
 files are kept in subdirectories of proof-home so that the autoload
 directory calculations are correct.
+
+To save every user needing the line in their .emacs file, you can put
+that into a site-wide file like default.el.  Read the Emacs manual for
+details.
 
 
 Removing support for unwanted provers
