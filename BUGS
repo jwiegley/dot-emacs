@@ -36,29 +36,23 @@ needs to have some regions protected from Emacs interrupts.
 Workaround: Don't type C-g while script management is processing.  If
 you do, use proof-restart-scripting.
 
-* You can't use more than one proof assistant at a time in the same
-Emacs session.  Attempting to load Proof General for a second prover
-will fail.  Workaround: stick to one prover per Emacs session, 
-make sure that the proof-assistants variables only enables 
-Proof General for the provers you need.
-
 * Outline-mode does not work in proof script files due to read-only
 restrictions of protected region.  Workaround: none, nevermind.
 (If it's hugely needed we could support modified outline commands).
 
-* There is an obscure bug with processes on Solaris which results in
-buffers full of ^G after certain combinations of input.  Workaround:
-get a patch from Sun, or use Linux.
+*`proof-find-next-terminator' (bound to C-c C-e) doesn't work
+properly. Workaround: use other means to navigate in a proof scipt
+buffer. 
 
-* XEmacs sessions perhaps grow excessively in terms of memory
+* There is an obscure bug with processes on Solaris which results in
+buffers full of ^G after certain combinations of input.  
+Workaround: get a patch from Sun, or use Linux.
+
+* XEmacs sessions maybe grow excessively in terms of memory
 allocation. Maybe some of the spans aren't removed properly.
 Setting a limit on the size of the process buffer doesn't seem to
 help.  (1998/10/06: Is this bug still present?  Please tell us if
 you think so.)
-
-*`proof-find-next-terminator' (bound to C-c C-e) doesn't work
-properly. Workaround: use other means to navigate in a proof scipt
-buffer. 
 
 
 FSF Emacs specific bugs
@@ -69,6 +63,7 @@ FSF Emacs specific bugs
   commas are not zapped. However, when entering text, commata are
   zapped correctly. Workaround: don't stare too much at commata
 
+
 LEGO Proof General Bugs
 =======================
 
@@ -78,7 +73,7 @@ General does not know that Discharge has such a non-local effect.
 Workaround: retract back to the first declaration/definition which is
 discharged.
 
-* A thorny issues are local definitions in a proof state. LEGO cannot
+* A thorny issue is local definitions in a proof state. LEGO cannot
 undo them explicitly. Workaround: retract back to a command before a
 definition.
 
