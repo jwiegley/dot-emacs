@@ -40,6 +40,19 @@ proof
     qed
 qed
 
+(* Another thing: nesting with { and } can be tricky. *)
+
+theorem and_comms_again: "A & B --> B & A"
+proof
+  assume "A & B" 
+    thus "B & A"
+    proof {
+      assume A B
+	show ?thesis
+	..
+    } qed
+qed
+
 (* Now the end of file is coming up.  Funny things happen
    because PG only knows how commands start, not how they end.
 *)
