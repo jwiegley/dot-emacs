@@ -4175,7 +4175,7 @@ Proof General name used internally and in menu titles.
 @defopt proof-general-home-page 
 Web address for Proof General
 
-The default value is @code{"http://www.dcs.ed.ac.uk/home/proofgen"}.
+The default value is @code{"http://www.lfcs.informatics.ed.ac.uk/proofgen"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-universal-keys
 @defvar proof-universal-keys 
