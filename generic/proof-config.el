@@ -607,16 +607,6 @@ proof-assistant-table."
   :type 'sexp
   :group 'prover-config)
 
-(defcustom proof-assistant-symbol nil
-  "Symbol name of the proof assistant Proof General is using.
-Used for automatic configuration based on standard variable names.
-Settings will be found by looking for names beginning with this
-symbol as a prefix.
-Do not change this variable! It is set automatically by the mode 
-stub defined in proof-site, from the symbols given in 
-proof-assistant-table."
-  :type 'sexp
-  :group 'prover-config)
 
 
 
