@@ -12,6 +12,7 @@
 ;;   http://www.informatik.uni-bremen.de/cofi/ccc
 
 (require 'proof-easy-config)            ; nice and easy does it
+(require 'proof-syntax)			; functions for making regexps
 
 (proof-easy-config  'ccc "CASL Consistency Checker" 
  proof-prog-name		 "ccc" ;; must be in your path.
@@ -42,11 +43,27 @@
  proof-shell-proof-completed-regexp "^Consistency proof successfully finished."
  proof-shell-eager-annotation-start "^\\[opening \\|^###\\|^Reading" ;;; ???
  proof-count-undos-fn		'ccc-count-undos
+
+ ;;
+ ;; Some basic fontlocking, as taken from the hol98 instance.
+ ;;
+ ccc-keywords  '("use" "ap" "holcasl" "ccc" "load_lib" "qeccc")
+ ccc-tactics   '("compose" "compose'" "prove" "prove_free_type")
+ ccc-tacticals '("Repeat" "Orelse" "Then" "ThenList" "OrelseList")
+ proof-script-font-lock-keywords	
+ (list
+  (cons (proof-ids-to-regexp ccc-keywords) 'font-lock-keyword-face)
+  (cons (proof-ids-to-regexp ccc-tactics) 'font-lock-keyword-face)
+  ; (cons (proof-ids-to-regexp hol98-rules) 'font-lock-keyword-face)
+  (cons (proof-ids-to-regexp ccc-tacticals) 'proof-tacticals-name-face))
+
+
 )
 
 
 ;; da: example of a possible count undos function -- replace upper case
 ;; strings by real stuff
+;; cxl: TBD: to undo "holcasl", we need to issue "holcasl_abort()"
 
 (defun ccc-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
@@ -56,7 +73,7 @@
        casl)
     (while span
       (setq str (span-property span 'cmd))
-      (if (proof-string-match "HOL-CASL GOAL COMMAND REGEXP" str)
+      (if (proof-string-match "^holcasl .*" str)
 	  (setq casl t))
       (cond ((eq (span-property span 'type) 'vanilla)
              (unless (proof-string-match proof-non-undoables-regexp str)
@@ -65,8 +82,9 @@
 		 (setq count-ccc (+ 1 count-ccc))))))
       (setq span (next-span span 'type)))
     (format
-     "HOL-CASL UNDOS (%s); CCC-UNDOS (%s);" 
-     count-cassl count-ccc)))
+     "funpow (%s) (Goals.undo) (); undo_steps (%s);" 
+     count-casl count-ccc)
+   ))
 
 
 (provide 'ccc)
