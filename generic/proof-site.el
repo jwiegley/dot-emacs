@@ -284,7 +284,8 @@ Note: to change proof assistant, you must start a new Emacs session.")
       )))
 
 ;; WARNING: do not edit below here 
-;; (the next constant is set automatically)
+;; (the next constant is set automatically, also its form is
+;;  relied upon in proof-config.el, for proof-splash-contents)
 (defconst proof-general-version "Proof General Version 3.2pre000511. Released by da."
  "Version string identifying Proof General release.")
 
