@@ -134,11 +134,11 @@ Default is comma separated, or SEPREGEXP if set."
 	  proof-id "\\)*"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; A big hack to unfontify commas in declarations and definitions.  ;;
-;; Useful for provers which have declarations of the form x,y,z:Ty  ;;
-;; All that can be said for it is that the previous way of doing    ;;
-;; this was even more bogus.                                        ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; A function to unfontify commas in declarations and definitions.  
+;; Useful for provers which have declarations of the form x,y,z:Ty 
+;; All that can be said for it is that the previous ways of doing  
+;; this were even more bogus....
 
 (defun proof-zap-commas (limit)
   "Remove the face of all `,' from point to LIMIT.
