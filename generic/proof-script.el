@@ -347,19 +347,9 @@ to allow other files loaded by proof assistants to be marked read-only."
 				      " have not been saved!")))
 	  (setq proof-included-files-list
 		(cons cfile proof-included-files-list))
-	  ;; If the file is loaded into a buffer, which isn't
-	  ;; the current scripting buffer, then put an
+	  ;; If the file is loaded into a buffer, put an
 	  ;; atomic locked region in it.
-
-	  ;; FIXME da: I don't think we should skip the scripting
-	  ;; buffer!  Perhaps this was just added as a hack for
-	  ;; Isabelle's broken theory mechanism?
-	  (if (and buffer
-		   (if proof-script-buffer
-		       (not (equal cfile
-				   (file-truename 
-				    (buffer-file-name proof-script-buffer))))
-		     t))
+	  (if buffer
 	      (proof-mark-buffer-atomic buffer))))))
 
 (defun proof-unregister-buffer-file-name ()
