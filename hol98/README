@@ -2,8 +2,6 @@ HOL Proof General, for HOL98.
 
 Written by David Aspinall.
 
-$Id$
-
 Status:	      not officially supported yet
 Maintainer:   volunteer required
 HOL version:  HOL98, tested with Taupo 2
@@ -49,4 +47,7 @@ better parser (e.g. from sml mode).
 These improvements would be worthwhile contributions to Proof General
 and also provide the HOL community with a nice front end.  
 Please have a go!
+
+
+$Id$
 

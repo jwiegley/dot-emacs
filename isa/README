@@ -3,8 +3,6 @@ Isabelle Proof General
 Written by David Aspinall, later with assistance from
 Markus Wenzel and David von Oheimb.
 
-$Id$
-
 Status:		   supported
 Maintainer:	   David Aspinall
 Isabelle version:  99-1, 99-2
@@ -25,4 +23,12 @@ There is no support for proof by pointing yet, and no tags program.
 
 The script `interface' and file 'interface-setup.el' are used to start
 Isabelle Proof General via the 'Isabelle' shell command.  These files
-were provided by Markus Wenzel.
+were provided by Markus Wenzel.  For `interface' you may need to
+adjust the path to bash on the first line.
+
+Check the value of isabelle-prog-name.
+
+========================================
+
+$Id$
+

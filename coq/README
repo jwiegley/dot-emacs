@@ -4,20 +4,36 @@ Originally written by  Healfdene Goguen.
 Later contributions by Patrick Loiseleur, Pierre Courtieu, 
 		       David Aspinall
 
-$Id$
-
 Status:		supported
 Maintainer:	Pierre Courtieu
-Coq version:	6.3
+Coq version:	6.3, 6.3.1, 7.0
 Coq homepage:	http://pauillac.inria.fr/coq/assis-eng.html
 
 ========================================
 
-Presently Coq Proof General supports automatic multiple file support
-only (deduced file dependencies, not communicated ones).  It does not
-have support for proof by pointing.
+Coq Proof General has experimental multiple file handling for 6.3
+versions.  It does not have support for proof by pointing.
 
 There is support for X Symbol, but not using a proper token language.
 
 There is a tags program, coqtags.
 
+========================================
+
+Installation notes:
+
+Check the values of coq-tags and coq-prog-name in coq.el to see that
+they correspond to the paths for coqtop and the library on your system.
+
+Install coqtags in a standard place or add <proof-home>/coq to your PATH.
+NB: You may need to change the path to perl at the top of the file.
+
+If you are running Coq, generate a TAGS file for the library by running
+	coqtags `find . -name \*.v -print`
+in the root directory of the library, $COQTOP/theories.  If you are
+running LEGO, do the same using legotags in the appropriate directory.
+
+
+========================================
+
+$Id$

@@ -2,8 +2,6 @@ ACL2 Proof General, for ACL2.
 
 Written by David Aspinall.
 
-$Id$
-
 Status:	       alpha; unsupported
 Maintainer:    volunteer required
 ACL2 version:  Tested briefly with acl2.5
@@ -19,4 +17,6 @@ will adopt it, maintain and improve it, and thus turn it into a proper
 instantiation of Proof General.
 
 
+
+$Id$
 

@@ -2,8 +2,6 @@ PhoX Proof General, for Phox.
 
 Written by Christophe Raffalli
 
-$Id$
-
 Status:	       supported
 Maintainer:    Christophe Raffalli <Christophe.Raffalli@univ-savoie.fr>
 PhoX version:  0.7
@@ -15,5 +13,5 @@ This mode has support for script management with PhoX, and some
 other features ported from PhoX's own Emacs mode.
 
 
-
+$Id$
 

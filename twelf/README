@@ -2,8 +2,6 @@ Twelf Proof General, for Twelf.
 
 Written by David Aspinall.
 
-$Id$
-
 Status:	        not officially supported yet
 Maintainer:     volunteer required
 Twelf version:  Twelf 1.2 (and later, I hope)
@@ -24,3 +22,6 @@ doesn't work properly with font lock.
 I have written this in the hope that somebody from the Twelf community
 will adopt it, maintain and improve it, and thus turn it into a proper
 instantiation of Proof General.
+
+$Id$
+

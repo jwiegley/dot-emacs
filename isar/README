@@ -2,8 +2,6 @@ Isabelle/Isar Proof General
 
 Written by Markus Wenzel
 
-$Id$
-
 Status:		   supported
 Maintainer:	   Markus Wenzel
 Isabelle version:  99-1, 99-2
@@ -25,4 +23,12 @@ There is no support for proof by pointing yet, and no tags program.
 The script `interface' and file 'interface-setup.el' are used
 internally to start Isabelle Proof General via the 'Isabelle' shell
 command.  This is the default way to invoke Proof General from the
-Isabelle perspective.
+Isabelle perspective.  For `interface' you may need to adjust the path
+to bash on the first line.
+
+Check the value of isabelle-prog-name.
+
+========================================
+
+$Id$
+
