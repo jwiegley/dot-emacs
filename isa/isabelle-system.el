@@ -375,6 +375,11 @@ until Proof General is restarted."
    (if (featurep 'completion)
        (proof-add-completions))))
 
+;; FIXME: next setting is made properly in x-symbol-isabelle.el,
+;; but added here to avoid loading that file too early.
+
+(defvar x-symbol-isabelle-font-lock-keywords nil)
+
 
 
 
