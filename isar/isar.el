@@ -169,7 +169,7 @@ See -k option for Isabelle interface script."
    proof-state-preserving-p     'isar-state-preserving-p
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
    ;; span menu 
-   proof-script-span-context-menu-extensions 'isar-create-span-menu))
+   proof-script-span-context-menu-extensions 'isabelle-create-span-menu))
 
 
 (defun isar-shell-mode-config-set-variables ()
@@ -602,19 +602,6 @@ proof-shell-retract-files-regexp."
  proof-xsym-deactivate-command
  (isar-markup-ml "print_mode := (Library.gen_rems (op =) (! print_mode, [\"xsymbols\",\"symbols\"]))"))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Span menu additions for Isar
-;;
-
-(defun isar-create-span-menu (span idiom name)
-  (if (string-equal idiom "proof")
-      (list (vector 
-	     "Visualise dependencies" 
-	     `(proof-shell-invisible-command 
-	       ,(format "thm_deps %s;" 
-			(span-property span 'name)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
