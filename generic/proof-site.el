@@ -77,15 +77,18 @@ You can use customize to set this variable."
     (if (and (boundp 'Info-directory-list) (consp Info-directory-list))
 	;; Info is already initialized.  Update its variables.
 	;; This probably never happens.  -stef
+	;; da: actually it does in XEmacs.
 	(if (not (member proof-info-directory Info-directory-list))
 	    (progn
 	      (setq Info-directory-list
 		    (cons proof-info-directory Info-directory-list))
 	      (setq Info-dir-contents nil)))
       ;; Info is not yet initialized.  Change its default.
-      (if (not (member proof-info-directory Info-directory-list))
-	  (setq Info-directory-list
-		(cons proof-info-directory Info-directory-list)))))
+      ;; da: NB: Emacs 21.2.1 still uses Info-default-directory-list
+      ;; although XEmacs complains about it being obsolete here.
+      (if (not (member proof-info-directory Info-default-directory-list))
+	  (setq Info-default-directory-list
+		(cons proof-info-directory Info-default-directory-list)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
