@@ -202,8 +202,9 @@ Note: to change proof assistant, you must start a new Emacs session.")
 		  :group 'proof-general-internals
 		  :prefix ,(concat sname "-"))
 		
-		;; Set the proof-assistant configuration variable
+		;; Set the proof-assistant configuration variables
 		(setq proof-assistant ,assistant-name)
+		(setq proof-assistant-symbol (quote ,assistant))
 		;; Extend the load path, load the real mode and invoke it.
 		(setq load-path 
 		      (cons (concat proof-home-directory ,elisp-dir "/")
