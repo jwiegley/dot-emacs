@@ -9,6 +9,7 @@ Proof General is designed to be useful for novices and expert users alike.
 <br>
 It will be useful to you if you use a proof assistant, and
 you'd like an interface with the following features:
+<a href="#simple">simplified interaction</a>,
 <a href="#script">script management</a>,
 <a href="#multiple">multiple file scripting</a>,
 <a href="#pbp">proof by pointing</a>,
@@ -25,6 +26,25 @@ If not, read on&#8230;
 </p>
 </hrule>
 <dl>
+  <a name="simple"><?php dt("Simplfied interaction.") ?></a> 
+  Proof General is designed for proof assistants which have a
+  command-line shell interpreter.  When using Proof General, the proof
+  assistant's shell is hidden from the user.  Communication takes
+  place via three buffers (Emacs text widgets).  The <i>script
+  buffer</i> holds input, the commands to construct a proof.  The
+  <i>goals buffer</i> displays the current list of subgoals to be
+  solved.  The <i>response buffer</i> displays other output from the
+  proof assistant.  By default, only two of these three buffers are
+  displayed at once.  This means that the user only sees the output
+  from the most recent interaction, rather than a screen full of
+  output from the proof assistant.
+  </p>
+  <p>
+  Despite more friendly communication model, Proof General does not
+  commandeer the proof assistant shell: the user still has complete
+  access to it if necessary.
+  </p>
+</dd>
   <a name="script"><?php dt("Script management.") ?></a>
   <dd>
   A <em>proof script</em> is a sequence of commands sent to
@@ -38,8 +58,8 @@ If not, read on&#8230;
   assistant.  Parts of a proof script that have been processed are
   displayed in blue and are "locked" -- they cannot be edited.  Parts
   of the script currently being processed by the proof assistant are
-  shown in red.  Commands are provided to process new parts of the
-  buffer, or undo already processed parts.
+  shown in red.  Proof General has commands for processing new parts
+  of the buffer, or undoing already processed parts.
   </p>
   <p>
   Take a look at this
