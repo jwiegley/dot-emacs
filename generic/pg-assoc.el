@@ -38,7 +38,8 @@ If pg-subterm-first-special-char is unset, return STRING unchanged."
       (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
 	(while (< ip l)
 	  (if (>= (aref string ip) pg-subterm-first-special-char)
-	      (if (char-equal (aref string ip) pg-subterm-start-char)
+	      (if (and pg-subterm-start-char
+		       (char-equal (aref string ip) pg-subterm-start-char))
 		  (progn (incf ip)
 			 ;; da: this relies on annotations being
 			 ;; characters between \200 and first special
