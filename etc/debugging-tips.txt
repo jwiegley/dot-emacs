@@ -1,10 +1,49 @@
-Tips for Debugging Proof General   -- David Aspinall, Oct 1999.
---------------------------------      
+Tips for Debugging Proof General   -- David Aspinall, 1999,2002
+===============================================================
 
-Make these settings:
+Emacs debug flags
+=================
+
+If Proof General gives an error, you can set the Emacs debug
+flag to find out where in the code it occurs, showing a
+stack trace:
+
+ (setq debug-on-error t)    ; debug on errors
+ (setq debugon-on-quit t)   ; debug on CTRL-G for looping code
+
+You can make settings like this using M-x set-variable, writing Lisp
+code as above in the *scratch* buffer, and typing C-x C-e to evaluate
+the expressions, or using M-x eval-expression (ESC-:).
+
+
+Quick hints for edebug (source-level debugger)
+==============================================
+
+Source-level debugging is more useful than backtraces, especially if
+you are writing your own additions for Proof General.
+
+Load the source file <foo>.el, and locate the function you 
+want to debug.  Type
+
+   M-x debug-defun RET
+
+to instrument it for debugging.
+
+When the code reaches the function it will enter the source-level
+debugger.  Keep pressing space to step through and see the result of
+evaluating sub-expressions, or hit "c" to continue.  
+
+Pressing ? gives more commands.
+
+
+
+Proof General debug messages
+============================
+
+Proof General includes internal debugging messages.
+Make these settings to see them:
 
   (setq proof-tidy-response nil)	; response buffer never clears
   (setq proof-show-debug-messages t)    ; debug messages appear in response buffer
 
-And use the standard elisp package "edebug" to single-step at source
-level, and set breakpoints in code.
+
