@@ -207,7 +207,9 @@ without giving error messages."
   (lambda () (eq proof-buffer-type 'script)))
 
 ;; Something less drastic would be nice!
-(defalias 'proof-toolbar-restart 'proof-restart-script)
+(defun proof-toolbar-restart  ()
+  (if (yes-or-no-p "Restart proof scripting?")
+      (proof-restart-script)))
 
 ;; A goal button will need a variable for string to insert,
 ;; actually.
