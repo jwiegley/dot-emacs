@@ -161,6 +161,14 @@ do
   [ -f "$FILE" ] && ARGS="$ARGS -l '$FILE'"
 done
 
+case "$LOGIC" in
+  /*)
+    ;;
+  */*)
+    LOGIC="$PWD/$LOGIC"
+    ;;
+esac
+
 PROOFGENERAL_HOME="$SUPER"
 PROOFGENERAL_ASSISTANTS="$KIND"
 PROOFGENERAL_LOGIC="$LOGIC"
