@@ -53,7 +53,8 @@
     (hol98	"HOL"		"\\.sml$")
     ;; The following provers have experimental support
     (plastic	"Plastic"	"\\.lf$")
-    (twelf	"Twelf"		"\\.elf$"))
+    (twelf	"Twelf"		"\\.elf$")
+    (af2	"Af2"		"\\.af2$"))
   "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
