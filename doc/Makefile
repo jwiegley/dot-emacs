@@ -65,11 +65,12 @@ EMACS = xemacs -batch
 doc:	dvi info
 
 ## 
-## all : build dvi, html, info
+## all : build dvi, ps, html, info
 ##
-all:    dvi html info
+all:    dvi ps html info
 
 dvi:    $(DOCNAME).dvi
+ps:	$(DOCNAME).ps
 pdf:    $(DOCNAME).pdf
 html:   $(DOCNAME).html
 info:   $(DOCNAME).info
