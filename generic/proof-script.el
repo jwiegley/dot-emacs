@@ -533,7 +533,7 @@ NAME does not need to be unique."
     (set-span-property span 'span-delete-action delfn)
     (set-span-property span 'invisible visname)
     ;; Bad behaviour if span gets copied: unique ID shouldn't be duplicated.
-    (set-span-property span 'duplicable nil)
+    (set-span-property span 'duplicable nil) ;; NB: not supported in Emacs
     ;; Nice behaviour in with isearch: open invisible regions temporarily.
     (set-span-property span 'isearch-open-invisible 
 		       'pg-open-invisible-span)
@@ -2799,7 +2799,7 @@ finish setup which depends on specific proof assistant configuration."
   (or (buffer-file-name)
       (setq buffer-offer-save t))
 
-  ;; Localise the invisibility glyph (XEmacs only:
+  ;; Localise the invisibility glyph (XEmacs only):
   (let ((img (proof-get-image "hiddenproof" t nil)))
     (cond
      ((and img proof-running-on-XEmacs)
