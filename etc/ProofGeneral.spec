@@ -4,9 +4,9 @@ Version:	3.5pre040208
 Release:	1
 Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
-Url:		http://www.proofgeneral.org/
+Url:		http://proofgeneral.inf.ed.ac.uk/
 Packager:	David Aspinall <da@dcs.ed.ac.uk>
-Source:		http://www.proofgeneral.org/ProofGeneral-3.5pre040208.tar.gz
+Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.5pre040208.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 PreReq:		/sbin/install-info
 Prefixes:	/usr/share/emacs /usr/bin /usr/share/info
