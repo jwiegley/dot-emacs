@@ -7,6 +7,10 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 * THINGS TO DO BEFORE 3.5 RELEASE
 
+*** Fixup HTML on mailing list pages
+
+*** Update CHANGES to mention ccc and pg-shell
+
 *** Display management improvement (ongoing; it's a nightmare)
     Glitches to resolve:
      -- with multiple frame mode, new frames get selected on creation
@@ -45,7 +49,7 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
     Isabelle problem.
 
 *** Emacs Bug Roundup
-    --- xemacs support for nested comments
+    --- xemacs support for nested comments??
     --- xemacs undo in read-only regions 
 
 *** Clean up X-symbol support
