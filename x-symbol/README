@@ -1,0 +1,38 @@
+### README --- semi WYSIWYG for LaTeX, HTML, etc, using additional fonts
+
+## Author: Christoph Wedler <wedler@users.sourceforge.net>
+## Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
+## Version: 4.4
+## Keywords: WYSIWYG, LaTeX, HTML, wp, math, internationalization
+## X-URL: http://x-symbol.sourceforge.net/
+
+
+You have downloaded the source distribution of the beta version of package
+X-Symbol.  It is intended to be used by developers.  Most users are better
+off with the binary distribution x-symbol-VERSION-pkg.tar.gz.
+
+## Emacs: ====================================================================
+
+The installation of X-Symbol on Emacs can be improved.
+
+If you do not want to use the binary distribution and follow the installation
+instructions on the web page, you might want to try "lisp/Makefile".  For the
+info file, check "man/Makefile".
+
+Any help in improving the installation of X-Symbol on Emacs is highly
+appreciated!  Err, that means, I very much prefer patches to suggestions in
+this area...
+
+The best mid- to long-term contribution would be to help the Emacs team with
+the implementation of a package system.  It has already considered as useful,
+the authors of XEmacs' package system have signed papers, there are just people
+missing doing the work...
+
+## XEmacs: ===================================================================
+
+Check & use the Makefile in this directory.
+
+If you want to produce & compile all lisp files, produce the info files and
+produce & compile & install the font files, invoke
+
+     make -k all
