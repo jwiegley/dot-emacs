@@ -11,9 +11,9 @@
 @settitle X-Symbol Manual
 @setchapternewpage odd
 
-@set edition 4.4.5
-@set version 4.4.5
-@set update January 2003
+@set edition 4.5
+@set version 4.5
+@set update March 2003
 @set http http://x-symbol.sourceforge.net
 @set maintainer wedler@@users.sourceforge.net
 
@@ -129,8 +129,9 @@ The first part of this master menu lists the major nodes in this Info
 document, including the indexes.  The rest of the menu lists all the
 lower level nodes in the document.
 
-This is Edition @value{edition} of the X-Symbol Manual for X-Symbol
-@value{version}, @value{update}.  For recent changes, see @ref{News}.
+This is Edition @value{edition} (@value{subedition}) of the X-Symbol
+Manual for X-Symbol @value{version}, @value{update}.  For recent
+changes, see @ref{News}.
 
 Bug fixes, bug reports, improvements, and suggestions are strongly
 appreciated.  Please read section @ref{Bug Reports} if you want to
@@ -190,7 +191,7 @@ Concepts of Package X-Symbol
 
 Conversion: Decoding and Encoding
 
-* Default Coding::              Encoding of your default charset.
+* Default Coding::              Normal File and Default Encoding.
 * File Coding::                 Specific encoding of a file.
 * Controlling 8bit Coding::     Do you want to store 8bit characters?
 * Unique Decoding::             Restrict decoding to avoid normalization?
@@ -309,6 +310,7 @@ Frequently Asked Questions
 * FAQ 8bit Chars::              I do not want 8bit characters in the file.
 * FAQ Hyphen::                  I cannot distinguish @code{hyphen} from @samp{-}.
 * FAQ Spell Check::             I have problems with spell-checking.
+* FAQ News and Mail::           I want to use X-Symbol in Gnus or VM.
 
 History and Projects
 
@@ -319,7 +321,7 @@ History and Projects
 
 News: Changes in Recent Versions of X-Symbol
 
-* Changes New::                 To be announced.
+* Changes 4.5::                 Released Mar 2003 as beta.
 * Changes 4.4::                 Released June 2002 as beta.
 * Changes 4.1::                 Released Mar 2002 as beta.
 * Changes 3.4::                 Released Mar 2002.
@@ -383,7 +385,7 @@ for included images and real super-/subscripts and are also supported.
 (This text is stolen from the @TeX{}info manual, Edition 4.0).
 
 The programs currently being distributed that relate to X-Symbol include
-Emacs lisp files and X11 font files.  These programs are @dfn{free};
+Emacs Lisp files and X11 font files.  These programs are @dfn{free};
 this means that everyone is free to use them and free to redistribute
 them on a free basis.  The X-Symbol related programs are not in the
 public domain; they are copyrighted and there are restrictions on their
@@ -1057,11 +1059,13 @@ conversion function.  If you set variable @code{comint-input-sender},
 set it before initializing package X-Symbol.
 
 @item crypt
+@itemx crypt++
 @pindex crypt
+@pindex crypt++
 @findex save-buffer
 @vindex x-symbol-auto-conversion-method
 I recommend to use package @code{jka-compr} instead.  @xref{Spurious
-Encodings}.  @xref{No Encoding}.  If you use @code{crypt} and the
+Encodings}.  @xref{No Encoding}.  If you use @code{crypt} or  @code{crypt++} and the
 character @code{alpha} looks like @samp{\233a} after @code{save-buffer},
 set this variable to @code{slowest}.  @xref{Open Questions}.
 
@@ -1093,7 +1097,9 @@ X-Symbol, at least in older Emacsen): load @code{jka-compr} after
 @pindex latin-unity
 Can be used with package X-Symbol, functionality is already provided by
 X-Symbol for Latin-@{1,2,3,5,9@} characters: remapping (@pxref{Char
-Aliases}) and recoding (@pxref{File Coding}).
+Aliases}) and recoding (@pxref{File Coding}).  Has some safe-encoding
+mechanism, but the test comes currently too early (@pxref{Wishlist
+Emacs}).
 
 @c also ucs-tables.el? should be no problem@dots{}
 
@@ -1258,7 +1264,7 @@ run @samp{mkfontdir 75dpi} in that directory.
 Your are on the safe side if you restart X11 after this.
 
 @item
-Set the Elisp variables which define the fonts.  @xref{Installing Fonts Lisp}.
+Set the Emacs Lisp variables which define the fonts.  @xref{Installing Fonts Lisp}.
 @end enumerate
 
 @c ====================================================================
@@ -1322,6 +1328,10 @@ Note: @emph{Windows NT 4.0 will crash (bluescreen) if you use fonts
 compiled by Exceed from the @file{pcf} files or if you missed step 1,
 i.e., limiting the superscript shift!}  With Exceed 7.0 & Windows 2000,
 there is no crash, but these fonts cannot be displayed.
+
+If you use XEmacs with Exceed as your X-server on Windows, X-Symbol
+cannot warn you about undefined fonts, because XEmacs in general cannot
+recognizes in that case, whether a font exists.
 
 @c ====================================================================
 
@@ -1571,7 +1581,7 @@ on Windows (@pxref{Requirements}).
 
 
 @menu
-* Default Coding::              Encoding of your default charset.
+* Default Coding::              Normal File and Default Encoding.
 * File Coding::                 Specific encoding of a file.
 * Controlling 8bit Coding::     Do you want to store 8bit characters?
 * Unique Decoding::             Restrict decoding to avoid normalization?
@@ -1583,7 +1593,7 @@ on Windows (@pxref{Requirements}).
 
 @node Default Coding, File Coding, Conversion, Conversion
 @comment  node-name,  next,  previous,  up
-@subsection Default Coding
+@subsection Normal File and Default Encoding
 @cindex Default Coding
 @cindex Default Encoding
 @cindex Default Font
@@ -2038,13 +2048,7 @@ on/off also includes decoding/encoding (@pxref{Conversion Commands}).
 X-Symbol mode provides the minor mode menu which includes: various
 commands, commands to insert characters (@pxref{Input Method Menu}), and
 entries to change some global and buffer-local variables mentioned in
-this manual.  The menu might also include individual entries for a token
-language (@pxref{TeX Macro Basics}):
-
-@vtable @code
-@item x-symbol-@var{lang}-extra-menu-items
-Extra menu items for each token language @var{lang}.
-@end vtable
+this manual.
 
 @item
 X-Symbol mode is required for most input methods (@pxref{Input Methods})
@@ -2059,8 +2063,15 @@ control it for individually by the following command:
 @item M-x x-symbol-mode
 @findex x-symbol-mode
 @vindex x-symbol-mode
-Toggle X-Symbol mode.  If provided with a numeric prefix argument, turn
-X-Symbol mode on if the argument is positive, else turn it off.
+Toggle X-Symbol mode.  If provided with a prefix argument, turn X-Symbol
+mode on if the numeric value of the argument is positive, else turn it
+off.  If no token language can be deduced, ask for a token language; if
+provided with a non-numeric prefix argument (@kbd{C-u M-x
+x-symbol-mode}), always ask.
+
+By default, X-Symbol mode is disabled in special major-modes visiting a
+file, e.g., @code{vm-mode} (@pxref{FAQ News and Mail}).  Use a prefix
+argument to be asked whether to turn in on anyway.
 @end table
 
 Turning X-Symbol mode on requires that you have a valid token language
@@ -2068,7 +2079,7 @@ for the current buffer.  Since turning X-Symbol mode on also decodes
 tokens, it is also useful to set the variables which control the
 conversion (@pxref{Conversion}).
 
-Since people usually do not want to write some Emacs lisp functions to
+Since people usually do not want to write some Emacs Lisp functions to
 do some customizations, X-Symbol provides the following variables which
 induce X-Symbol to set the necessary buffer-local variables when
 X-Symbol is turned on:
@@ -2119,6 +2130,14 @@ file names for the derivation above, e.g., extension @file{.orig}.
 
 @item x-symbol-modeline-state-list
 This variable controls the modeline appearance just mentioned.
+
+
+The menu might also include individual entries for a token
+language (@pxref{TeX Macro Basics}):
+
+@item x-symbol-@var{lang}-extra-menu-items
+Extra menu items for each token language @var{lang} (@pxref{TeX Macro
+Basics}).
 @end vtable
 
 @c ====================================================================
@@ -3659,6 +3678,7 @@ We use the standard Grid and Menu headers.
 @item x-symbol-tex-extra-menu-items
 There is an extra menu item to remove the braces around text-mode
 letters and other text-mode symbols.
+@c TODO: detailed list of additional commands
 
 @item x-symbol-tex-electric-ignore
 @itemx x-symbol-tex-electric-ignore-regexp
@@ -5102,7 +5122,7 @@ This should be necessary only for a few characters.
 
 @node Font Definition File, Language Extension File, Input Definitions, Extending X-Symbol
 @comment  node-name,  next,  previous,  up
-@subsection Elisp File Defining a New Font
+@subsection Emacs Lisp File Defining a New Font
 @cindex Font Definition File
 
 Now put all things together in a separate font definition file.  You
@@ -5149,7 +5169,7 @@ add the following line to files @file{x-symbol-xmas20.el} and
 
 @node Language Extension File, Language Definition File, Font Definition File, Extending X-Symbol
 @comment  node-name,  next,  previous,  up
-@subsection Elisp File Extending a Token Language
+@subsection Emacs Lisp File Extending a Token Language
 @cindex Language Definition File
 
 If you want to use the new font to extend an existing token language,
@@ -5207,7 +5227,7 @@ following elements.
 
 @node Language Definition File,  , Language Extension File, Extending X-Symbol
 @comment  node-name,  next,  previous,  up
-@subsection Elisp File Defining a New Token Language
+@subsection Emacs Lisp File Defining a New Token Language
 @cindex Language Definition File
 
 You might also want to define a new token language not based on another
@@ -5429,9 +5449,6 @@ Unless you can provide a syntax table for faces (you cannot), characters
 in different faces with the same encoding are in the same syntax class,
 which is irritating: e.g., @code{\leftrightarrow} and @code{\approx}
 would be delimiters.
-
-@item
-Needs pre/post-conversion in lisp when using executables for the conversion.
 @end itemize
 
 
@@ -5963,6 +5980,7 @@ It is assumed that you had successfully installed package X-Symbol, see
 * FAQ 8bit Chars::              I do not want 8bit characters in the file.
 * FAQ Hyphen::                  I cannot distinguish @code{hyphen} from @samp{-}.
 * FAQ Spell Check::             I have problems with spell-checking.
+* FAQ News and Mail::           I want to use X-Symbol in Gnus or VM.
 @end menu
 
 
@@ -5984,7 +6002,7 @@ XEmacs versions.  If you don't want to upgrade, but also don't want to
 see the warning, you might want to set variable
 @code{x-symbol-xmas-warn-about-core} to @code{nil}.
 
-A core in XEmacs always indicates a bug in XEmacs itself, not in a lisp
+A core in XEmacs always indicates a bug in XEmacs itself, not in a Lisp
 package like X-Symbol.  Thus, send a bug report to the XEmacs team if
 you get cores with the @emph{newest} version of XEmacs (please put me in
 the CC).
@@ -6270,7 +6288,7 @@ A better alternative would be to make @code{font-lock} display these
 character in a different color.
 
 
-@node FAQ Spell Check,  , FAQ Hyphen, FAQ
+@node FAQ Spell Check, FAQ News and Mail, FAQ Hyphen, FAQ
 @comment  node-name,  next,  previous,  up
 @subsection Problems with Spell-checking
 @cindex Spell Checking
@@ -6312,6 +6330,99 @@ Emacs}.  You are strongly encouraged to send a patch to the maintainer
 of @code{ispell}, you even get a paragraph here in
 @ref{Acknowledgments}!
 
+
+@node FAQ News and Mail,  , FAQ Spell Check, FAQ
+@comment  node-name,  next,  previous,  up
+@subsection How to Use X-Symbol with Gnus or VM
+@cindex News Reader
+@cindex Mail Reader
+@pindex Gnus
+@pindex VM
+@pindex Message
+
+You can also use X-Symbol to read and write your News and Mails.  This
+sections includes coding for your @file{~/.emacs} if you want to do so.
+It has been tested for @sc{Gnus}-5.8.8 and @sc{VM}-6.96; if you use
+@sc{RMAIL} or @sc{mh-e}, you have to try to find a solution yourself
+(please send it to me).  Support for @sc{Gnus} might become a standard
+part of X-Symbol.
+
+@lisp
+(custom-set-variables
+ '(x-symbol-auto-style-alist
+   '(((mail-mode message-mode gnus-article-mode vm-presentation-mode)
+      tex nil nil nil nil t nil))))
+@end lisp
+
+This is optional (you might want to use the Custom interface for the
+same effect) and tells Emacs/X-Symbol to use token language @code{tex}
+and to display super-/subscripts (if @code{font-lock} is enabled),
+X-Symbol is not automatically turned on.  @xref{Minor Mode}.
+
+@findex mail
+@findex message-mail
+@findex vm-mail
+@vindex mail-send-hook
+@vindex message-send-hook
+@vindex vm-mail-send-hook
+@lisp
+(defun x-symbol-x-mail-send-hook ()
+  (if x-symbol-mode (x-symbol-mode 0)))
+(add-hook 'mail-send-hook 'x-symbol-x-mail-send-hook)
+(add-hook 'message-send-hook 'x-symbol-x-mail-send-hook)
+(add-hook 'vm-mail-send-hook 'x-symbol-x-mail-send-hook)
+@end lisp
+
+This tells tells Emacs to automatically turn off X-Symbol (which
+includes encoding characters to token) before actually sending the
+message.
+
+@findex gnus
+@vindex gnus-article-prepare-hook
+@lisp
+(defun x-symbol-x-gnus-prepare ()
+  (when x-symbol-mode
+    (setq x-symbol-mode nil)
+    (x-symbol-mode-internal nil)))
+(add-hook 'gnus-article-prepare-hook 'x-symbol-x-gnus-prepare)
+@end lisp
+
+Since @sc{Gnus} reuses the @file{*Article*} buffer, where X-Symbol could
+have been turned on previously, we must make sure that X-Symbol is
+turned off with the new article.
+
+@findex vm
+@vindex vm-select-message-hook
+@lisp
+(defun x-symbol-x-vm-prepare ()
+  (and (boundp 'vm-presentation-buffer)
+       (buffer-live-p vm-presentation-buffer)
+       (save-excursion
+	 (set-buffer vm-presentation-buffer)
+	 (when x-symbol-mode
+	   (setq x-symbol-mode nil)
+	   (x-symbol-mode-internal nil)))))
+(add-hook 'vm-select-message-hook 'x-symbol-x-gnus-prepare)
+@end lisp
+
+The same thing for @sc{VM}, although the hook is not as nice as
+@sc{Gnus}' one; the function therefore might depend a bit too much on
+@sc{VM}'s interna.
+
+@findex vm-mode
+@findex vm-presentation-mode
+@lisp
+(put 'vm-mode 'x-symbol-mode-disable
+     "Use VM Presentation Mode to turn on X-Symbol")
+(custom-set-variables '(vm-fill-paragraphs-containing-long-lines 80))
+@end lisp
+
+You cannot use X-Symbol in VM Mode, only in VM Presentation Mode
+(X-Symbol would change your @file{INBOX}).  The first (optional) Emacs
+Lisp expression gives you a better error message when you try to turn on
+X-Symbol Mode in VM Mode.  The second line makes sure that @sc{VM}
+always uses VM Presentation Mode to display the articles.
+
 @c ===========================================================================
 
 @node Bug Reports,  , FAQ, Problems
@@ -6341,8 +6452,8 @@ maintainer, please use the following sequence:
 @enumerate
 @item
 Make sure that you use the @strong{newest version} of X-Symbol.  You are
-reading Edition @value{edition} of the manual for X-Symbol
-@value{version}.
+reading Edition @value{edition} (@value{subedition}) of the manual for
+X-Symbol @value{version}.
 
 @item
 Read the manual, especially @ref{Checking Installation}, @ref{Problems}
@@ -6351,7 +6462,7 @@ to an answer to your question.
 
 @item
 Use @kbd{M-x x-symbol-package-bug} (also to be found in X-Symbol's
-Command submenu) to write your report describing @strong{one} bug or
+Command submenu) to write your report describing @emph{one} bug or
 problem, i.e., use @strong{different mails} for @strong{unrelated
 problems}.  Please do not ``reuse'' a mail thread with the maintainer,
 i.e., if you start a section with ``Here is another problem'', you do
@@ -6368,9 +6479,9 @@ brief summary of your installation problem.
 
 (@emph{Rationale}: This command automatically extracts some essential
 information without any work by you.  Don't waste your time pondering whether
-you should really use this command to write your report.  The additional
-advantage is that I can see who doesn't have any problems wasting my
-time.)
+you should really use this command to write your report.)
+@c The additional advantage is that I can see who doesn't have any problems
+@c wasting my time.
 
 @item
 Start your report with:
@@ -6390,8 +6501,9 @@ If they are not helpful, send me words/terms which should be included in
 the indexes.
 
 (@emph{Rationale}: This way, I get an idea where to improve the manual,
-especially by adding cross references.  It also ensures that you really
-have tried to find the relevant information yourself.)
+especially by adding cross references.)
+@c It also ensures that you really have tried to find the relevant
+@c information yourself.
 
 @item
 If buffer @file{*Warnings*} does not exist in the buffer menu,
@@ -6401,7 +6513,7 @@ include the contents of buffer @file{*Warnings*} into your bug report.
 
 @c TODO: without warnings.el from Emacs-21.4
 Temporary Emacs (< v21.4) note: the warnings might be somewhere hidden
-in buffer @file{*Messages*}.
+in buffer @file{*Messages*}; please check that buffer.
 
 @item
 Put the parts of the code from @file{~/.emacs} and the system-wide files
@@ -6555,7 +6667,7 @@ This is the complete history of X-Symbol.  It just lists the major
 changes before Version 3.0.
 
 @menu
-* Changes New::                 To be announced.
+* Changes 4.5::                 Released Mar 2003 as beta.
 * Changes 4.4::                 Released June 2002 as beta.
 * Changes 4.1::                 Released Mar 2002 as beta.
 * Changes 3.4::                 Released Mar 2002.
@@ -6567,11 +6679,20 @@ changes before Version 3.0.
 @end menu
 
 
-@node Changes New, Changes 4.4, News, News
-@comment  node-name,  next,  previous,  up
-@subsection Changes in X-Symbol @value{version}
+@c * Changes New::                 To be announced.
 
-Version @value{version} has not yet been announced.
+@c @node Changes New, Changes 4.4, News, News
+@c @comment  node-name,  next,  previous,  up
+@c @subsection Changes in X-Symbol @value{version}
+
+@c Version @value{version} has not yet been announced.
+
+
+@node Changes 4.5, Changes 4.4, News, News
+@comment  node-name,  next,  previous,  up
+@subsection Changes in X-Symbol 4.5
+
+Version 4.5 has been released on March 2003 as beta.
 
 @itemize @bullet
 @item
@@ -6585,6 +6706,10 @@ and @code{texi}.
 @item
 Bug fix (workaround for bug in XEmacs): auto-save files would have
 length 0.
+
+@item
+Bug fix (Emacs): package now works with package
+@code{crypt}/@code{crypt++}.
 
 @item
 Token language @code{sgml}: always encode characters to entity
@@ -6629,7 +6754,7 @@ Various bug fixes and minor changes.
 @end itemize
 
 
-@node Changes 4.4, Changes 4.1, Changes New, News
+@node Changes 4.4, Changes 4.1, Changes 4.5, News
 @comment  node-name,  next,  previous,  up
 @subsection Changes in X-Symbol 4.2, 4.3, 4.4
 
@@ -6649,7 +6774,7 @@ New token language ``Bib@TeX{} Macro'' (@code{bib}, similar to old
 @code{tex}), used for Bib@TeX{} files.
 
 @item
-Nuked executables, the lisp conversion for all languages is now 2-5
+Nuked executables, the Lisp conversion for all languages is now 2-5
 times faster.
 
 @item
@@ -7064,7 +7189,7 @@ name appear in @ref{Acknowledgments}.
 @cindex IPA Fonts
 
 Making a contribution here would require just a basic knowledge of Emacs
-and X-Symbol.  In fact, I would do the non-trivial part of the Elisp
+and X-Symbol.  In fact, I would do the non-trivial part of the Emacs Lisp
 part (@pxref{Extending X-Symbol}) for general-interest token languages
 (e.g., Ams@TeX{}).
 
@@ -7131,8 +7256,10 @@ and @code{\dag}.  Therefore, we need different X11 characters for them.
 @item
 Some Ascii characters have a special meaning in @TeX{}.  The
 corresponding MetaFont character is therefore produced by a TeX macro,
-e.g., @samp{@{} by @code{\@{}.  We need a X11 character which looks
-similar to the character but not exactly like it.
+e.g., @samp{@{} by @code{\@{}.
+@c @}@}
+We need a X11 character which looks similar to the character but not
+exactly like it.
 @end itemize
 
 We could ask the question whether we should really distinguish the
@@ -7183,7 +7310,8 @@ would be easier.
 @pindex ispell
 The package @code{ispell} assumes the buffer contents to be the same as
 the file contents and does not provide any hook to fix this.  This
-should be fixed in @code{ispell}, @ref{Miscellaneous Packages}.
+should be fixed in @code{ispell} (it will be better in Emacs-21.4),
+@ref{Miscellaneous Packages}.
 
 @item
 @pindex vc
@@ -7197,6 +7325,18 @@ a face property, too (or make @code{font-lock} set properties other than
 faces).  XEmacs: no such property, yet.
 
 @item
+You are sometimes unnecessarily asked (because X-Symbol will encode the
+corresponding characters anyway) for a safe coding system.  In Emacs
+(will be fixed in Emacs-21.4) for non-default Latin characters.  In
+XEmacs, for all non-default characters if you use package
+@code{latin-unity} (@pxref{File IO Packages}).
+
+@item
+@findex isearch
+In Emacs, will be fixed in 21.4.  Using @code{isearch} and the input
+method Grid would not work.
+
+@item
 @vindex after-insert-file-functions
 In XEmacs, fixed in 21.X.  In @code{after-insert-file-functions}, there
 should be a possibility to get to know the start position of the region
@@ -7205,9 +7345,9 @@ argument @code{replace} being non-@code{nil}, it is not always point.
 
 @item
 @vindex write-region-annotate-functions
-Partly fixed in Emacs-21.3.  Make possibility to change buffers in
-@code{write-region-annotate-functions} official, see @ref{Alt Auto
-Conversion}, have a way to get the original buffer.
+In Emacs and XEmacs, will be fixed in Emacs-21.4.  Make possibility to
+change buffers in @code{write-region-annotate-functions} official, see
+@ref{Alt Auto Conversion}, have a way to get the original buffer.
 
 @item
 Since @code{font-lock} uses duplicable text properties in some cases, I
@@ -7400,14 +7540,15 @@ Bianchi, Janusz S. Bien, Uwe Brauer, Alastair Burt, John Collins,
 Laurent Descamps, Frederic Devernay, Carsten Dominik, Steve Dunham,
 Michael Ebner, Stephen Eglen, Paul Furnanz, Jeffrey Grandy, Clemens
 Gr@"opl, Kenichi Handa, Meik Hellmund, Ryurick M. Hristev, Adriaan
-Joubert, Marcin Kasperski, David Kastrup, Richard Ketchersid, Thomas
-Kleymann, Ekkehard Koehler, Fred Labrosse, Jan-Ake Larsson, Bernhard
-Lehner, Stefan Monnier, Harald Muehlboeck, Karsten Muehlmann, Jakub
-Narebski, Peter M@o{}ller Neergaard, Raymond Nijssen, David von Oheimb,
-Alex Ott, Sudeep Kumar Palat, Arshak Petrosyan, Jim Radford, Christophe
-Raffalli, Solofo Ramangalahy, Marciano Siniscalchi, Richard M. Stallman,
-Alex Russell, Eli Tziperman, Jan Vroonhof, Markus Wenzel, Sabine Wetzel,
-Pierre-Henri Wuillemin, Roland Zumkeller, Marco Zunino, Gerard Zwaan.
+Joubert, Marcin Kasperski, David Kastrup, Richard Ketchersid, Felix
+E. Klee, Gerwin Klein, Thomas Kleymann, Ekkehard Koehler, Fred Labrosse,
+Jan-Ake Larsson, Bernhard Lehner, Stefan Monnier, Harald Muehlboeck,
+Karsten Muehlmann, Jakub Narebski, Peter M@o{}ller Neergaard, Raymond
+Nijssen, David von Oheimb, Alex Ott, Sudeep Kumar Palat, Arshak
+Petrosyan, Jim Radford, Christophe Raffalli, Solofo Ramangalahy,
+Marciano Siniscalchi, Richard M. Stallman, Alex Russell, Eli Tziperman,
+Jan Vroonhof, Markus Wenzel, Sabine Wetzel, Pierre-Henri Wuillemin,
+Roland Zumkeller, Marco Zunino, Gerard Zwaan.
 
 @i{Thanks for general information to:} Per Abrahamsen, Steve L. Baur,
 Kenichi Handa, David Kastrup, Gerd Moellmann, Stefan Monnier, Primoz
