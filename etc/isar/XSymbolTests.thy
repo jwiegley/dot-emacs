@@ -20,6 +20,9 @@ term "a\<^sup>b" (* b should be a blue variable *)
 term "\<forall> x. a\<^sup>x" (* x should be a green bound variable *)
 term "a\<^sup>k" (* k should be a black constant *)
 
+consts sausage:: "'a => 'a => 'a" ("_\<^bsup>_\<^esup>" [1000,1000] 1000)
+
+term "k\<^bsup>long\<^esup>"  (* k black, long is blue *)
 
 
 (* 28.8.02: bug in pg-remove-specials broke this; now fixed *)
