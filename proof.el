@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.38  1998/05/06 16:39:42  hhg
+;; Fixed bug with inserting commands and proof-shell-config.
+;;
 ;; Revision 1.37  1998/05/06 15:57:38  hhg
 ;; Removed proof-dependencies-emacs19 for the moment, since not having it
 ;; introduces error messages.
@@ -734,8 +737,8 @@
 (defun proof-shell-insert (string)
   (set-buffer proof-shell-buffer)
   (goto-char (point-max))
-  (if proof-shell-config
-      (insert (funcall proof-shell-config) string))
+  
+  (insert (if proof-shell-config (funcall proof-shell-config) "") string)
 
   ;; xemacs and emacs19 have different semantics for what happens when
   ;; shell input is sent next to a marker
@@ -1498,7 +1501,7 @@ current command."
   ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
   ;; to adjust the directory:
   (and proof-shell-cd
-       (proof-shell-insert (format proof-shell-cd default-directory))
+       (proof-shell-insert (format proof-shell-cd default-directory)))
 
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
@@ -1510,7 +1513,7 @@ current command."
   (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
-      (error "Failed to initialise proof process")))))
+      (error "Failed to initialise proof process"))))
 
 (define-derived-mode pbp-mode fundamental-mode 
   "Proof" "Proof by Pointing"
