@@ -17,13 +17,6 @@
 ;; Isabelle/Isar:  \<foo>
 ;;
 
-;; CW: this sexpr can be deleted with X-Symbol 4.4.3
-(eval-when-compile
-  ;; Next lines should allow this file to work standalone 
-  ;; without proof-x-symbol.el.  See comments further below too.
-  (require 'cl)
-  (ignore-errors (require 'x-symbol-vars)))
-
 (defvar x-symbol-isabelle-required-fonts nil)
 
 ;;;===========================================================================
@@ -60,43 +53,14 @@ See `x-symbol-header-groups-alist'."
 
 
 (defvar x-symbol-isabelle-token-grammar
-  ;; CW: for X-Symbol-4.4.3:
-  ;; '(x-symbol-make-grammar ...)
-  (if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
-      (x-symbol-make-grammar
-       :encode-spec '(((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")) .
-                    ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")))
-       :decode-spec nil
-       :decode-regexp 
-       (concat
-	(if (eq proof-assistant-symbol 'isa)
-	    "\\\\?")			; match an extra backquote in input strings,
-					; but not used in output strings.  
-					; FIXME: is this right??
-	"\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+")
-       ;; CW: according to `x-symbol-isabelle-prepare-table', also `isar' uses
-       ;; \\<SYM>, although this is not the preferred representation
-       ;; "\\\\\\\\?<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+")
-       :token-list #'x-symbol-isabelle-default-token-list)))
+  '(x-symbol-make-grammar
+    :encode-spec (((t . "\\\\")))
+    :decode-regexp "\\\\+<[A-Za-z]+>"
+    :input-spec nil
+    :token-list x-symbol-isabelle-token-list))
 
-(defvar x-symbol-isabelle-input-token-grammar
-;;  '("\\(?:\\\\\\\\?<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
-  '("\\(?:\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
-     ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
-     (id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
-  "Grammar of input method Token for language `isabelle'.")
-
-(defun x-symbol-isabelle-default-token-list (tokens)
-  (mapcar 
-   (lambda (x)
-     (cons x 
-	   (cond
-	    ;; CW: where are the shapes `id' and `op' used?
-	    ((string-match "\\`[A-Za-z_][A-Za-z_0-9]+\\'" x)
-	     'id)
-	    ((string-match "\\`[<>!+-*/|&]+\\'" x) 
-	     'op))))
-   tokens))
+(defun x-symbol-isabelle-token-list (tokens)
+  (mapcar (lambda (x) (cons x t)) tokens))
 
 (defvar x-symbol-isabelle-user-table nil
   "User table defining Isabelle commands, used in `x-symbol-isabelle-table'.")
@@ -121,6 +85,16 @@ See `x-symbol-header-groups-alist'."
 ;;;===========================================================================
 
 ;; \<^bold>, \<^sup>, and \<^sub>.
+
+(defvar x-symbol-isabelle-subscript-matcher
+  'x-symbol-isabelle-subscript-matcher)
+
+(defun x-symbol-isabelle-subscript-matcher (limit)
+  (when (re-search-forward x-symbol-isabelle-font-lock-scripts-regexp
+			   limit 'limit)
+    (if (eq (char-after (- (match-end 1) 2)) ?b)
+	'x-symbol-sub-face
+      'x-symbol-sup-face)))
 
 (defun x-symbol-isabelle-make-ctrl-regexp (s)
   "Return regexp matching \<^S>\<ident> or \<^S>c for some char c."
@@ -477,57 +451,30 @@ See `x-symbol-language-access-alist' for details."
     x-symbol-isabelle-symbol-table
     x-symbol-isabelle-xsymbol-table)))
 
-;; override for x-symbol-user-table, adding[removing?] a couple of shortcuts
-;; CW: please delete this (it has no effect anyway in most situations).  If you
-;; think these chars should be made electric, please tell me.
-;(defvar x-symbol-user-table
-;  (append
-;   (if (boundp 'x-symbol-user-table) x-symbol-user-table nil)
-;   '((bardash 180 (arrow) (direction east . perpendicular) nil (t "|-"))
-;     (bardashdbl 182 (arrow) (direction east) nil (t "|=")))))
 
-
-;;;===========================================================================
-;;;  Internal
-;;;===========================================================================
-;; CW: all are not needed in X-Symbol >= v4.3
-
-(defvar x-symbol-isabelle-menu-alist nil
-  "Internal.  Alist used for Isasym specific menu.")
-(defvar x-symbol-isabelle-grid-alist nil
-  "Internal.  Alist used for Isasym specific grid.")
-
-(defvar x-symbol-isabelle-decode-atree nil
-  "Internal.  Atree used by `x-symbol-token-input'.")
-(defvar x-symbol-isabelle-decode-alist nil
-  "Internal.  Alist used for decoding of Isasym macros.")
-(defvar x-symbol-isabelle-encode-alist nil
-  "Internal.  Alist used for encoding to Isasym macros.")
-
-
-;; FIXME: next two not needed for newer X-Symbol versions.
-(defvar x-symbol-isabelle-nomule-decode-exec nil
-  "Internal.  File name of Isasym decode executable.")
-(defvar x-symbol-isabelle-nomule-encode-exec nil
-  "Internal.  File name of Isasym encode executable.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; DA: experiments here for X-Symbol 4.45
+;; User-level settings for X-Symbol 
 ;;
 (defcustom x-symbol-isabelle-auto-style
   ;; Following x-symbol SGML, first setting seems to be for
   ;; when x-symbol is enabled for Isabelle in a alien buffer,
   ;; i.e. *not* already in isar-mode or isa-mode
-  '((not (memq major-mode '(isar-mode isa-mode)))
-    (x-symbol-auto-coding-alist x-symbol-isabelle-auto-coding-alist)
-    x-symbol-coding (not x-symbol-mode)
-    x-symbol-mode x-symbol-mode)
+  '((proof-ass x-symbol-enable) nil nil nil nil nil)
+;; DA: I'm confused about this setting: above was recommended by
+;; CW initially, but then he supplied a file which has below instead
+;  '((not (memq major-mode '(isar-mode isa-mode)))
+;    (x-symbol-auto-coding-alist x-symbol-isabelle-auto-coding-alist)
+;    x-symbol-coding (not x-symbol-mode)
+    ;; DA: CW had here: x-symbol-mode x-symbol-mode
+;    t x-symbol-mode)
   "TODO"
   :group 'x-symbol-isabelle
   :group 'x-symbol-mode
   :type 'x-symbol-auto-style)
 
+;; FIXME da: is this needed?
 (defcustom x-symbol-isabelle-auto-coding-alist nil
   "*Alist used to determine the file coding of ISABELLE buffers.
 Used in the default value of `x-symbol-auto-mode-alist'.  See
@@ -535,6 +482,7 @@ variable `x-symbol-auto-coding-alist' for details."
   :group 'x-symbol-isabelle
   :group 'x-symbol-mode
   :type 'x-symbol-auto-coding)
+
 
      
 
