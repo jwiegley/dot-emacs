@@ -155,8 +155,10 @@ function footer($filemodified=".") {
 }
 
 function click_to_go_back() {
-  print "<p>\nClick <a href=\"\">here</a> to go back to the ";
-  print $project_title; // FIXME: doesn't work.
+  // FIXME: the empty href no longer refers to the root,
+  // so this use of "/" breaks relative linking.
+  print "<p>\nClick <a href=\"/\">here</a> to go back to the ";
+  print $project_title; // FIXME: doesn't work, prints nothing.
   print " front page.</p>\n";
 }
 
