@@ -5,6 +5,82 @@
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 
+;; analysis of the goal buffer
+
+
+(defvar pg-pbrpm-use-buffer-menu t
+  "if t, pbrpm will use a menu displayed in a dialog fram instead of a popup menu")
+(defvar pg-pbrpm-buffer-menu nil)
+(defvar pg-pbrpm-goal-description nil)
+
+(defun pg-pbrpm-create-reset-buffer-menu ()
+  "Create if necessary and erase all text in the buffer menu"
+  (if (or (not pg-pbrpm-buffer-menu) (not (buffer-live-p pg-pbrpm-buffer-menu)))
+      (progn
+	(setq pg-pbrpm-buffer-menu
+	      (generate-new-buffer (generate-new-buffer-name "*proof-menu*")))
+	(set-buffer pg-pbrpm-buffer-menu)
+	(phox-mode)))
+  (erase-buffer pg-pbrpm-buffer-menu)
+  (set-buffer pg-pbrpm-buffer-menu))
+
+(defun pg-pbrpm-analyse-goal-buffer ()
+  "This function analyses the goal buffer and produces a table to find goals and hypothesis.
+   If stores, in the variable pg-pbrpm-goal-description, a list with shape
+
+   (start-goal end-goal goal-name start-concl hyps ...) with 5 elements for each goal:
+
+     start-goal: the position of the first char of the goal
+     end-goal: the position of the last char of the goal
+     goal-name: the goal name (or number)
+     start-concl: the position of first char of the conclusion of the goal
+     hyps: the list of hypothesis with the shape:
+       
+  (start-hyp start-hyp-text end-hyp hyp-name ...) with 4 elemets per hypothesis:
+     start-hyp: the position of the first char of the hypothesis (including its name)
+     start-hyp-text: the position of the first char of the hypothesis formula (no name)
+     end-hyp: the position of the last char of the hypothesis
+     hyp-name: then name of the hypothesis.
+"
+  (save-excursion
+    (set-buffer proof-goals-buffer)
+    (goto-char 0)
+    (let 
+	((goals nil))
+      (progn 
+	(while (search-forward-regexp pg-pbrpm-start-goal-regexp nil t)
+	  (let
+	      ((hyps nil)
+	       (start-goal (match-end 0))
+	       (goal-num (match-string pg-pbrpm-start-goal-regexp-par-num))
+	       (end-goal (search-forward-regexp pg-pbrpm-end-goal-regexp nil t)))
+	    (goto-char start-goal)
+	    (while (search-forward-regexp pg-pbrpm-start-hyp-regexp end-goal t)
+	      (let
+		  ((start-hyp (match-beginning 0))
+		   (start-hyp-text (match-end 0))
+		   (hyp-name (match-string pg-pbrpm-start-hyp-regexp-par-num))
+		   (end-hyp (- (if
+				(search-forward-regexp pg-pbrpm-start-hyp-regexp end-goal t)
+				(match-beginning 0)
+			      (search-forward-regexp pg-pbrpm-start-concl-regexp end-goal t)
+			      (match-beginning 0)) 1)))
+		(goto-char start-hyp-text)
+		(setq hyps 
+		      (append
+		       (list start-hyp start-hyp-text end-hyp hyp-name) 
+		       hyps))))
+	    
+	    (setq goals 
+		  (append
+		   (list start-goal end-goal goal-num 
+			 (search-forward-regexp pg-pbrpm-start-concl-regexp nil t) hyps)
+		   goals))))
+	  (setq pg-pbrpm-goal-description goals)))))
+
+(add-hook 'proof-shell-handle-delayed-output-hook 'pg-pbrpm-analyse-goal-buffer)
+
+
 ;;--------------------------------------------------------------------------;;
 ;; the Rules Popup Menu functions
 ;;--------------------------------------------------------------------------;;
@@ -13,7 +89,6 @@
 "This function is bound to a CTRL-RightClick in the Proof General goals buffer."
    (interactive "e")
    (save-excursion
-   (proof-pbrpm-regexps)
    (pg-pbrpm-build-menu event (point-marker) (mark-marker))
    )
 )
@@ -22,32 +97,54 @@
 "Build a Proof By Rules pop-up menu according to the state of the proof, the event and a selected region (between the start and end markers).
 The prover command is processed via pg-pbrpm-run-command."
    ;first, run the prover specific (name, rule)'s list generator
-   (setq pbrpm-list 
-      (proof-pbrpm-generate-menu
-         (pg-pbrpm-process-click event) ; retrieve click informations
-         (pg-pbrpm-process-region start end) ; retrieve selected region informations
-      )
-   )
-   ; then make that list a menu description
-   (setq pbrpm-menu-desc '("PBRPM-menu"))
-   (while pbrpm-list
-      (setq pbrpm-list-car (pop pbrpm-list))
-      (setq pbrpm-menu-desc
-         (append pbrpm-menu-desc
-            (list (vector
-                  (pop pbrpm-list-car)
-                  (list 'pg-pbrpm-run-command (pop pbrpm-list-car))
-            ))
-         )
-      )
-   )
-   ; finally display the pop-up-menu
-   (popup-menu pbrpm-menu-desc)
-)
+   (setq click-info (pg-pbrpm-process-click event start end)) ; retrieve click informations
+   (if click-info
+       (progn
+	 (setq pbrpm-list 
+	       (mapcar 'cdr
+	       (sort 
+		(proof-pbrpm-generate-menu
+		 click-info
+		 (pg-pbrpm-process-region start end))
+		(lambda (l1 l2) (< (car l1) (car l2))))))
+					; retrieve selected region informations
+					; then make that list a menu description
+	 
+	 (if (not pg-pbrpm-use-buffer-menu)
+	     (progn
+	       (setq pbrpm-menu-desc '("PBRPM-menu"))
+	       (while pbrpm-list
+		 (setq pbrpm-list-car (pop pbrpm-list))
+		 (setq pbrpm-menu-desc
+		       (append pbrpm-menu-desc
+			       (list (vector
+				      (pop pbrpm-list-car)
+				      (list 'pg-pbrpm-run-command (pop pbrpm-list-car)))))))
+					; finally display the pop-up-menu
+	       (popup-menu pbrpm-menu-desc))
+	   (pg-pbrpm-create-reset-buffer-menu)
+	   (while pbrpm-list
+	     (setq pbrpm-list-car (pop pbrpm-list))
+	     (setq description (pop pbrpm-list-car))
+	     (setq command (pop pbrpm-list-car))
+	     (setq pos (point))
+	     (insert-string " ")
+	     (insert-string description)
+	     (insert-gui-button (make-gui-button "Go" 'pg-pbrpm-run-command command) pos)
+	     (insert "\n"))
+	   (insert-gui-button (make-gui-button 
+			       "Cancel" 
+			       (lambda (n) (erase-buffer pg-pbrpm-buffer-menu) (delete-frame)) nil))
+	   (x-symbol-decode)
+	   (make-dialog-frame '(width 80 height 30))))))
 
 (defun pg-pbrpm-run-command (command)
 "Insert COMMAND into the proof queue and then run it.
 -- adapted from proof-insert-pbp-command --"
+   (if pg-pbrpm-use-buffer-menu 
+       (progn
+	 (erase-buffer pg-pbrpm-buffer-menu)
+	 (delete-frame)))
    (set-buffer proof-script-buffer)
    (proof-activate-scripting)
    (let (span)
@@ -67,61 +164,76 @@ The prover command is processed via pg-pbrpm-run-command."
 ;; Click Informations extractors
 ;;--------------------------------------------------------------------------;;
 
-(defun pg-pbrpm-process-click (event)
+(defun pg-pbrpm-get-pos-info (pos)
+  "return (n . s) where
+    n is the goal name
+    s if either the hypothesis name, \"none\" (for the conclusion) of \"whole\" in strange cases"
+  (let ((l pg-pbrpm-goal-description)
+	(found nil))
+    (while (and l (not found)) 
+      (setq start-goal (car l))
+      (setq end-goal (cadr l))
+      (setq goal-name (caddr l))
+      (setq start-concl (cadddr l))
+      (setq hyps (car (cddddr l)))
+      (setq l (cdr (cddddr l)))
+      (if (and (<= start-goal pos) (<= pos end-goal))
+	  (progn
+	    (setq found t)
+	    (setq the-goal-name goal-name))))
+    (if found 
+	(progn  
+	  (if (<= start-concl pos)
+	      (setq the-click-info "none")
+	    (setq found nil)
+	    (while (and hyps (not found))
+	      (setq start-hyp (car hyps))
+	      (setq start-hyp-text (cadr hyps))
+	      (setq end-hyp (caddr hyps))
+	      (setq hyp-name (cadddr hyps))
+	      (setq hyps (cddddr hyps))
+	      (if (and (<= start-hyp pos) (<= pos end-hyp))
+		  (progn 
+		    (setq found t)
+		    (setq the-click-info hyp-name))))
+	    (if (not found)
+		(setq the-click-info "whole")))
+	  (cons the-goal-name the-click-info)))))
+
+(defun pg-pbrpm-get-region-info (start end)
+   "see pg-pbrpm-get-pos-info and source code :-)"
+   (setq r1 (pg-pbrpm-get-pos-info start))
+   (setq r2 (pg-pbrpm-get-pos-info start))
+   (if (and r1 r2 (string-equal (car r1) (car r2)))
+       (if (string-equal (cdr r1) (cdr r2))
+	   r1
+	 (cons (car r1) "whole"))
+     nil))
+	 
+(defun auto-select-arround-pos ()
+  "extract some text arround the current  cursor position"
+  (save-excursion
+    (let ((pos (point)))
+      (beginning-of-line)
+      (block 'loop
+	(while (< (point) pos)
+	  (if (not (search-forward-regexp pg-pbrpm-auto-select-regexp nil t)) (return-from 'loop ""))
+	  (if (and (<= (match-beginning 0) pos) (<= pos (match-end 0)))
+	      (return-from 'loop (match-string 0))))
+	(return-from 'loop "")))))
+    
+(defun pg-pbrpm-process-click (event start end)
 "Returns the list of informations about the click needed to call generate-menu. EVENT is an event."
-   (list
-      (pg-pbrpm-click-goal-number event)
-      (pg-pbrpm-click-hyp-or-ccl event)
-      (pg-pbrpm-click-expression event)
-      (pg-pbrpm-click-tree-depth event)
-   )
-)
-
-(defun pg-pbrpm-click-goal-number (event)
-"Number of the goal where the cliked happened"
-   (mouse-set-point event)
-   (search-backward-regexp goal-backward-regexp)
-   (setq str (match-string 0))
-   (string-match goal-number-regexp str)
-   (string-to-int (match-string 0 str))
-)
-
-(defun pg-pbrpm-click-hyp-or-ccl (event)
-"none -> a conclusion, Hyp-name -> an hypothesis, whole -> the whole goal"
-   (mouse-set-point event)
-   (let
-       ((save-point (point))
-	(gl-point (search-backward-regexp goal-backward-regexp 0 t 1)))
-     (goto-char save-point)
-     (if (search-backward-regexp ccl-backward-regexp gl-point t 1)
-	    (identity "none")
-	    (if (search-backward-regexp hyp-backward-regexp 0 t)
-		(match-string 1)
-	      (identity "whole")
-	     )
-      )
-   )
-)
-
-(defun pg-pbrpm-click-expression (event)
-"Valid parenthesis'd expression."
-   (mouse-set-point event)
-   (setq pbrpm-exp-start (event-point event))
-   (setq pbrpm-exp-end (event-point event))
-   ; TODO : add invisible parenthesis management and limits' conditions (regexps)
-;   (while (not (proof-pbrpm-left-paren-p (char-after pbrpm-exp-start)))
-;      (setq pbrpm-exp-start (- pbrpm-exp-start 1)))
-;   (while (not (proof-pbrpm-right-paren-p (char-after pbrpm-exp-end)))
-;      (setq pbrpm-exp-end (+ pbrpm-exp-end 1)))
-   (buffer-substring-no-properties pbrpm-exp-start (+ pbrpm-exp-end 1))
-   ; buffer-substring or buffer-substring-no-properties ?
-)
-
-(defun pg-pbrpm-click-tree-depth (event)
-"Click depth in the tree. If clicking on a parenthesis, the whole expression is considered."
-   (pg-pbrpm-click-or-region-tree-depth (event-point event))
-)
-
+  (save-excursion
+    (mouse-set-point event)
+    (let* ((pos (point))
+	  (r (pg-pbrpm-get-pos-info pos)))
+      (if r (list
+	     (string-to-int (car r)) ; should not be an int for other prover
+	     (cdr r)
+	     (if (and start end (string-equal (buffer-name proof-goals-buffer) (buffer-name (marker-buffer end))) (<= (marker-position start) pos) (<= pos  (marker-position end)))
+		 (pg-pbrpm-region-expression start end)
+	       (auto-select-arround-pos)))))))
 
 ;;--------------------------------------------------------------------------;;
 ;; Selected Region informations extractors
@@ -131,138 +243,41 @@ The prover command is processed via pg-pbrpm-run-command."
 "Returns the list of informations about the the selected region needed to call generate-menu. START and END are markers"
    (if (and start end) ; if a region is selected
       (if (string-equal (buffer-name proof-goals-buffer) (buffer-name (marker-buffer end)))
-         (list
-            (pg-pbrpm-region-goal-number start end)
-            (pg-pbrpm-region-hyp-or-ccl start end)
-            (pg-pbrpm-region-expression start end)
-            (pg-pbrpm-region-tree-depth start end)
-         )
-         (progn
-            (set-buffer (marker-buffer start))
-            (list 0 "none" (buffer-substring (marker-position start) (marker-position end)) nil)
-         )
-      )
-      nil ; TODO : define how to manage this error case
-   )
-)
-
-(defun pg-pbrpm-region-goal-number (start end)
-"Goal number of the region"
-   (goto-char (min (marker-position start) (marker-position end)))
-   (search-backward-regexp goal-backward-regexp)
-   (setq str (match-string 0))
-   (string-match goal-number-regexp str)
-   (string-to-int (match-string 0 str))
-)
-
-(defun pg-pbrpm-region-hyp-or-ccl (start end)
-"none -> a conclusion, Hyp-name -> an hypothesis, whole -> the whole goal"
-   (goto-char (min (marker-position start) (marker-position end)))
-   (let
-       ((save-point (point))
-	(gl-point (search-backward-regexp goal-backward-regexp 0 t 1)))
-     (goto-char save-point)
-     (if (search-backward-regexp ccl-backward-regexp gl-point t 1)
-	 (identity "none")
-       (if (search-backward-regexp hyp-backward-regexp 0 t)
-	   (match-string 1)
-         (identity "whole")
-      )
-   )
-))
+	  (progn
+	    (setq r (pg-pbrpm-get-region-info (marker-position start) (marker-position end)))
+	    (if r 
+		(list
+		 (string-to-int (car r)) ; should not be an int for other prover
+		 (cdr r)
+		 (pg-pbrpm-region-expression start end))
+	      (progn
+		(set-buffer (marker-buffer start))
+		(list 0 "none" (pg-pbrpm-region-expression start end)))))
+	(progn
+	  (set-buffer (marker-buffer start))
+	  (list 0 "none" (pg-pbrpm-region-expression start end))))
+     nil ; TODO : define how to manage this error case
+     ))
 
 (defun pg-pbrpm-region-expression (start end)
 "Valid parenthesis'd expression."
    ; an expression is valid if it has as many left paren' as right paren'
-   (setq
-      pbrpm-region-char (marker-position start)
-      pbrpm-left-pars 0
-      pbrpm-right-pars 0)
-   (while (<= pbrpm-region-char (marker-position end))
-      (if (proof-pbrpm-left-paren-p (char-after pbrpm-region-char))
-         (setq pbrpm-left-pars (+ pbrpm-left-pars 1)))
-      (if (proof-pbrpm-right-paren-p (char-after pbrpm-region-char))
-         (setq pbrpm-right-pars (+ pbrpm-right-pars 1)))
-      (setq pbrpm-region-char (+ pbrpm-region-char 1))
-   )
-   (if (= pbrpm-left-pars pbrpm-right-pars)
-      (buffer-substring (marker-position start) (marker-position end))
-      nil ; TODO : define how to manage this error case
-      ;we could call (pg-pbrpm-dialog "Selected region is not valid), then what about the state of the process ?
-   )
-)
-
-(defun pg-pbrpm-region-tree-depth (start end)
-"Region depth in the tree. If beginning the region on a parenthesis, the whole expression is considered."
-   (pg-pbrpm-click-or-region-tree-depth (marker-position start))
-)
-
-
-;;--------------------------------------------------------------------------;;
-;; Generic informations extractors
-;;--------------------------------------------------------------------------;;
-
-(defun pg-pbrpm-click-or-region-tree-depth (position)
-"Click or Region depth in the tree. If the (char-after position) is a parenthesis, the whole expression is considered."
-   ; TODO : check again this algorithm ...
-   (goto-char position)
-   ;first, wether a ccl, hyp or goal, find the forward seeking start point
-   (if (search-backward-regexp ccl-backward-regexp 1 t 1)
-      (setq pbrpm-ccl (match-end 0))
-      (setq pbrpm-ccl 1))
-   (if (search-backward-regexp hyp-backward-regexp 1 t 1)
-      (setq pbrpm-hyp (match-end 0))
-      (setq pbrpm-hyp 1))
-   (if (search-backward-regexp goal-backward-regexp 1 t 1)
-      (setq pbrpm-goal (match-end 0))
-      (setq pbrpm-goal 1))
-   (setq pbrpm-exp-char (max pbrpm-ccl pbrpm-hyp pbrpm-goal))
-
-   ;work the tree depth list out
-   (setq
-      pbrpm-exp-end position
-      pbrpm-depth 0
-      pbrpm-tree-list '())
-   (while (<= pbrpm-exp-char pbrpm-exp-end) ; TODO : check this test ...
-      ; openning parenthesis case
-      (if (proof-pbrpm-left-paren-p (char-after pbrpm-exp-char))
-         (progn
-            (if (= pbrpm-depth (length pbrpm-tree-list))
-               (push 1 pbrpm-tree-list)
-            (setq pbrpm-tree-list (list (+ (car pbrpm-tree-list) 1) (cdr pbrpm-tree-list)))
-            )
-         (setq pbrpm-depth (+ pbrpm-depth 1))
-         )
-      )
-      ; closing parenthesis case
-      (if (proof-pbrpm-right-paren-p (char-after pbrpm-exp-char))
-         (progn
-            (if (< (length pbrpm-tree-list) pbrpm-depth)
-               (setq pbrpm-tree-list (cdr pbrpm-tree-list))
-            )
-            (setq pbrpm-depth (- pbrpm-depth 1))
-         )
-      )
-      (setq pbrpm-exp-char (+ pbrpm-exp-char 1))
-   )
-   (reverse pbrpm-tree-list)
-)
-
-;;--------------------------------------------------------------------------;;
-;; Error messages management
-;;--------------------------------------------------------------------------;;
-
-; unused for now ...
-(defun pg-pbrpm-dialog (message)
-   (make-dialog-box 'question
-   :title "PBRPM-ERROR"
-   :modal t
-   :question message
-   :buttons (list (vector " OK " '(identity nil) t)))
-)
-
-; TODO : use also log messages in the minibuffer ...
-
+   (let
+      ((pbrpm-region-char (marker-position start))
+      (pbrpm-left-pars 0)
+      (pbrpm-right-pars 0))
+     (while (<= pbrpm-region-char (marker-position end))
+       (if (proof-pbrpm-left-paren-p (char-after pbrpm-region-char))
+	   (setq pbrpm-left-pars (+ pbrpm-left-pars 1)))
+       (if (proof-pbrpm-right-paren-p (char-after pbrpm-region-char))
+	   (setq pbrpm-right-pars (+ pbrpm-right-pars 1)))
+       (setq pbrpm-region-char (+ pbrpm-region-char 1)))
+     (if (= pbrpm-left-pars pbrpm-right-pars)
+	 (buffer-substring (marker-position start) (marker-position end) (marker-buffer start))
+       (progn
+	 nil ; TODO : define how to manage this error case
+					;we could call (pg-pbrpm-dialog "Selected region is not valid), then what about the state of the process ?
+	 ))))
 
 ;;--------------------------------------------------------------------------;;
 

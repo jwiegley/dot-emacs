@@ -71,10 +71,10 @@ See `x-symbol-header-groups-alist'."
    (lambda (x)
      (cons x 
 	   (cond
-	    ;; CW: where are the shapes `id' and `op' used?
+	    ;; the shapes `id' and `op' are used by x-symbol-phox-token-grammar
 	    ((string-match "\\`[A-Za-z_][A-Za-z_0-9]+\\'" x)
 	     'id)
-	    ((string-match "\\`[<>!+-*/|&]+\\'" x) 
+	    ((string-match "\\`[]><=\\/~&+-*%!{}:-]+\\'" x) 
 	     'op))))
    tokens))
 
