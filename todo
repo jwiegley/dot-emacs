@@ -115,6 +115,9 @@ B Check matching code carefully, in view of bug reported (now fixed)
   word matching is based on whitespace constituents or non-word
   constituents.  [6 hrs]
 
+C Reorganize menus in a better way.  Have generic scripting commands
+  for keyboard or menu/toolbar use. (2hrs)
+    
 C Implement proof-auto-retract idea.  (4hrs)
 
 C Make and test generic versions of <..>-goal-command-p, 
