@@ -233,7 +233,7 @@ until Proof General is restarted."
 
 (defun isabelle-show-types ()
   (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd (proof-ass-sym show-types))))
+   (isabelle-set-default-cmd 'show-types)))
 
 (proof-defasscustom show-sorts  nil
   "Whether to show sorts in Isabelle."
@@ -242,7 +242,7 @@ until Proof General is restarted."
 
 (defun isabelle-show-sorts ()
   (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd (proof-ass-sym show-sorts))))
+   (isabelle-set-default-cmd 'show-sorts)))
 
 (proof-defasscustom trace-simplifier  nil
   "Whether to trace simplifier in Isabelle."
@@ -251,7 +251,7 @@ until Proof General is restarted."
 
 (defun isabelle-trace-simplifier ()
   (isa-proof-invisible-command-ifposs 
-   (isabelle-set-default-cmd (proof-ass-sym trace-simplifier))))
+   (isabelle-set-default-cmd trace-simplifier)))
 
 (defun isa-proof-invisible-command-ifposs (cmd)
   ;; Better would be to queue the command, or even interrupt a queue
@@ -262,7 +262,9 @@ until Proof General is restarted."
   (if (proof-shell-available-p)
       (progn
 	(proof-shell-invisible-command cmd t)
-	(proof-prf) ; refresh display, should only do if goals active.
+	(proof-prf) 
+	;; refresh display, FIXME: should only do if goals display is active.
+	;; (we need a new flag for "active goals display")
 	)))
 
 (defun isar-markup-ml (string)
@@ -274,12 +276,17 @@ until Proof General is restarted."
   (isar-markup-ml
    (proof-format (list (cons "%b" (if val "true" "false"))) string)))
 
-(defcustom isa-default-values-list 
-  '((isabelle-show-types . (isa-format-bool "show_types:=%b;" isabelle-show-types))
-    (isabelle-show-sorts . (isa-format-bool "show_sorts:=%b;" isabelle-show-sorts)))
+(defcustom isabelle-default-values-list 
+  '((show-types  
+     . (isa-format-bool "show_types:=%b;" (proof-ass show-types)))
+    (show-sorts 
+     . (isa-format-bool "show_sorts:=%b;" (proof-ass show-sorts)))
+    (trace-simplifier
+     . (isa-format-bool "trace_simp:=%b;" (proof-ass trace-simplifier))))
   "A list of default values kept in Proof General which are sent to Isabelle."
   :type 'sexp
   :group 'isabelle-config)
+
 
 (defun isabelle-set-default-cmd (&optional setting)
   "Return a string for setting default values kept in Proof General customizations.
@@ -289,7 +296,8 @@ Otherwise return a string for configuring all settings."
       ((evalifneeded (lambda (expr)
 			(if (or (not setting) (eq setting (car expr)))
 			    (eval (cdr expr))))))
-    (apply 'concat (mapcar evalifneeded isa-default-values-list))))
+    (apply 'concat (mapcar evalifneeded 
+			   isabelle-default-values-list))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
