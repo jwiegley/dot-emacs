@@ -108,34 +108,52 @@
 
 (defun phox-sym-lock-compute-font-size ()
   "Computes the size of the \"better\" symbol font."
-  (let ((num (if (fboundp 'face-height)
-		 (face-height 'default)
-	       (let ((str (face-font 'default)))
-		 (if
-		     (string-match "-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-\\([^-]*\\)-.*" str)
-		     (string-to-number (substring str (match-beginning 1)
-						  (match-end 1)))))))
-	(maxsize 100) (size) (oldsize)
-	(lf (list-fonts "-adobe-symbol-medium-r-normal--*")))
+  (let ((font-reg (if proof-running-on-win32
+		      "[^:]*:[^:]*:\\([^:]*\\):[^:]*:[^:]*"
+		    "-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-\\([^-]*\\)-.*"))
+	(font-pat (if proof-running-on-win32
+		      "Symbol:Regular:*::Symbol"
+		      "-adobe-symbol-medium-r-normal--*")))
+    (let (
+;       face-height is not very good on win32. Why ?
+	  (num (if (and (not proof-running-on-win32) (fboundp 'face-height))
+		   (face-height 'default)
+		 (let ((str (face-font-name 'default)))
+		   (if
+		       (string-match font-reg str)
+		       (string-to-number (substring str (match-beginning 1)
+						    (match-end 1)))))))
+	  (maxsize 100) (size) (oldsize)
+	  (lf (list-fonts font-pat)))
     (while (and lf maxsize)
       (if 
-	  (string-match "-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-[^-]*-\\([^-]*\\)-.*"
+	  (string-match font-reg
 		    (car lf))
-	  (progn 
-	    (setq size (string-to-number (substring (car lf) (match-beginning 1)
+	  (let ((str-size (substring (car lf) (match-beginning 1)
 						    (match-end 1))))
-	    (if (and (> size num) (< size maxsize))
-		(setq maxsize nil)
-	      (setq oldsize size))))
+	    ; test for variable size fonts. Hope it is generic ?
+	    (if (or (equal str-size "*")(equal str-size ""))
+		(progn
+		  (setq oldsize num)
+		  (setq lf nil))
+	      (setq size (string-to-number str-size))
+	      (if (and (> size num) (< size maxsize))
+		  (setq lf nil)
+		(setq oldsize size)))))
       (setq lf (cdr lf)))
-    (number-to-string (if (and oldsize (< oldsize 100)) oldsize num))))
+    (number-to-string (if (and oldsize (< oldsize maxsize)) oldsize num)))))
 
 (defvar phox-sym-lock-font-name
   (if window-system
-      (concat "-adobe-symbol-medium-r-normal--"
-	      (if phox-sym-lock-font-size phox-sym-lock-font-size
-		(phox-sym-lock-compute-font-size))
-	      "-*-*-*-p-*-adobe-fontspecific")
+      (if proof-running-on-win32
+	  (concat "Symbol:Regular:"
+		  (if phox-sym-lock-font-size phox-sym-lock-font-size
+		    (phox-sym-lock-compute-font-size))
+		"::Symbol")
+	(concat "-adobe-symbol-medium-r-normal--"
+		(if phox-sym-lock-font-size phox-sym-lock-font-size
+		  (phox-sym-lock-compute-font-size))
+		"-*-*-*-p-*-adobe-fontspecific"))
     "")
   "Name of the font used by Phox-Sym-Lock.")
 (make-variable-buffer-local 'phox-sym-lock-font-name)
@@ -159,7 +177,7 @@
       (set-face-property 'phox-sym-lock-adobe-symbol-face 
 			 'font phox-sym-lock-font-name nil
 			 '(mule-fonts) 'prepend))
-  (set-face-font 'phox-sym-lock-adobe-symbol-face phox-sym-lock-font-name))
+  (set-face-font 'phox-sym-lock-adobe-symbol-face phox-sym-lock-font-name 'global))
 
 (defun phox-sym-lock-set-foreground ()
   "Set foreground color of Phox-Sym-Lock faces."
@@ -248,7 +266,7 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
 	  (setq phox-sym-lock-ext-start (extent-start-position font-lock-old-extent)
 		phox-sym-lock-ext-end (extent-end-position font-lock-old-extent))
 	(setq phox-sym-lock-ext-start nil))
-    (error (warn "Error caught in `phox-sym-lock-pre-idle-hook-first'"))))
+    (error (setq phox-sym-lock-ext-start nil))))
 
 (defun phox-sym-lock-pre-idle-hook-last ()
   (condition-case nil

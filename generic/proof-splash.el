@@ -16,7 +16,8 @@
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-splash-time 4
+; timeout too long on win32. Why ?
+(defcustom proof-splash-time (if proof-running-on-win32 1 4)
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise 
@@ -132,9 +133,12 @@ Borrowed from startup-center-spaces."
 	(progn
 	  (if (get-buffer-window splashbuf)
 	      ;; Restore the window config if splash is being displayed
-	      (set-window-configuration conf))
-	  ;; Destroy splash buffer 
-	  (kill-buffer splashbuf)))))
+	      (progn
+		;; Destroy buffer before restoring !
+		(kill-buffer splashbuf)
+		(set-window-configuration conf)
+		(redraw-device nil t))
+	    (kill-buffer splashbuf))))))
 
 (defvar proof-splash-seen nil
   "Flag indicating the user has been subjected to a welcome message.")
@@ -179,7 +183,7 @@ Borrowed from startup-center-spaces."
 	  (sit-for 0))
 	(setq proof-splash-timeout-conf
 	      (cons
-	       (add-timeout (if timeout proof-splash-time 20)
+	       (add-timeout (if timeout proof-splash-time 10)
 			    'proof-splash-remove-screen
 			    winconf)
 	       winconf)))

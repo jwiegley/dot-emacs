@@ -240,7 +240,6 @@ or for optional argument TABLE."
   "Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment."
   (interactive)
-  (message "test")
   (if (and (> (point) 1) (char-equal (char-before (point)) ?\.)) (insert "\n"))
   (proof-with-script-buffer
    (proof-maybe-save-point

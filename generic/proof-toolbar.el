@@ -63,6 +63,8 @@
 (defun proof-toolbar-enabler (token)
   (intern (concat "proof-toolbar-" (symbol-name token) "-enable-p")))
 
+(defun proof-toolbar-function-with-enabler (token)
+  (intern (concat "proof-toolbar-" (symbol-name token) "-with-enabler-p")))
 
 ;;
 ;; Now the toolbar icons and buttons
@@ -105,13 +107,17 @@ and chooses the best one for the display properites.")
        (enabler	      (proof-toolbar-enabler token))
        (enableritem   (if enablep (list enabler) t))
        (buttonfn      (proof-toolbar-function token))
+       (buttonfnwe    (proof-toolbar-function-with-enabler token))
        (icon	      (proof-toolbar-icon token))
        (actualfn      (if (or enablep (not existsenabler))
 			  buttonfn
 			;; Add the enabler onto the function if necessary.
-			`(lambda ()
-				   (if (,enabler) 
-				       (call-interactively (quote ,buttonfn)))))))
+			(eval `(defun ,buttonfnwe ()
+				 (interactive)
+				 (if (,enabler) 
+				     (,buttonfn)
+				   (message ,(concat "Button \"" menuname "\" disabled")))))
+			buttonfnwe)))
     (if tooltip
 	(list (vector icon actualfn enableritem tooltip)))))
 
@@ -206,21 +212,27 @@ to the default toolbar."
   "Set flag to indicate that the toolbar should be refreshed."
   (setq proof-toolbar-refresh-flag t))
 
+(defvar proof-toolbar-enablers
+   (mapcar (lambda (tle) (list (proof-toolbar-enabler (car tle)))) (proof-ass toolbar-entries))
+  "List of all toolbar's enablers")
+
+(defvar proof-toolbar-enablers-last-state
+  nil
+  "Last state of the toolbar's enablers")
+
 (defun proof-toolbar-really-refresh (buf)
   "Force refresh of toolbar display to re-evaluate enablers.
 This function needs to be called anytime that enablers may have 
 changed state."
-  ;; FIXME: could improve performance here and reduce flickeryness
-  ;; by caching result of last evaluation of enablers.  If nothing
-  ;; has changed, don't remove and re-add.
   (if ;; Be careful to only add to correct buffer, and if it's live
-      (buffer-live-p buf)
-      ;; I'm not sure if this is "the" official way to do this,
-      ;; but it's what VM does and it works.
-      (progn
-	(remove-specifier default-toolbar buf)
-	(set-specifier default-toolbar proof-toolbar buf)
-	(setq proof-toolbar-refresh-flag nil))
+       (buffer-live-p buf)
+      (let ((enabler-state (mapcar 'eval proof-toolbar-enablers)))
+	(if 
+	    (not (equal enabler-state proof-toolbar-enablers-last-state))
+	    (progn
+	      (setq proof-toolbar-enablers-last-state enabler-state)
+	      (set-specifier-dirty-flag default-toolbar)
+	      (setq proof-toolbar-refresh-flag nil))))
     ;; Kill off this itimer if it's owning buffer has died
     (delete-itimer current-itimer)))
 
