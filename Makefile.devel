@@ -113,7 +113,10 @@ NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel Makefile.xemacs doc
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
-IGNOREDFILES=Makefile.devel todo ChangeLog doc/ProofGeneral.dvi doc/ProofGeneral.ps.gz doc/ProofGeneral.pdf doc/ProofGeneral.ps
+# NB: these are *patterns* to exclude rather than files!
+# I would rather have files themselves to exclude, but 
+# seems to be no way.
+IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
