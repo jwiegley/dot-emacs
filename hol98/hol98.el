@@ -57,11 +57,7 @@
  ;; FIXME: add optional help topic parameter to help command. 
  ;; Have patch ready for PG 3.2, but PG 3.1 is strictly bug fix.
  proof-info-command "help \"hol\""
- ;; FIXME: Isabelle has introduced a mess here, and we need to fix it.
- ;; See comments in proof-shell.el and proof-config.el and todo
- proof-goals-display-qed-message t
- proof-shell-proof-completed-regexp  
- "\\(.*Initial goal proved\\(.\\|\n\\)*\\)"
+ proof-shell-proof-completed-regexp "Initial goal proved"
  ;; FIXME: next one needs setting so that "urgent" messages are displayed
  ;; eagerly from HOL.
  ;; proof-shell-eager-annotation-start

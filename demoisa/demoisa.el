@@ -96,7 +96,7 @@
    proof-shell-error-regexp		"\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
    proof-shell-start-goals-regexp	"Level [0-9]"
    proof-shell-end-goals-regexp		"val it"
-   proof-shell-proof-completed-regexp   "\\(\\(.\\|\n\\)*No subgoals!\n\\)"
+   proof-shell-proof-completed-regexp   "^No subgoals!"
    proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading"
    proof-shell-init-cmd  ; define a utility function, in a lib somewhere?
    "fun pg_repeat f 0 = () 

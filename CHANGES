@@ -21,12 +21,15 @@
 
 ** Coq Changes
 
-
 ** LEGO Changes
 
 ** Isabelle Changes
 
+*** Fix for stack overflow in regexp which occurred with large proof states
+
 ** Isar Changes
 
 ** Changes for developers to note
+
+*** No need for match string 1 in proof-shell-proof-completed
 

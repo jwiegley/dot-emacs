@@ -190,14 +190,7 @@ and script mode."
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
 
-   ;; FIXME da: this needs improvement.  I don't know why just
-   ;; "No subgoals!" isn't enough.  (Maybe anchored to end-goals
-   ;; for safety).  At the moment, this regexp reportedly causes
-   ;; overflows with large proof states. 
-   proof-shell-proof-completed-regexp
-   (concat proof-shell-start-goals-regexp
-	   "\\(\\(.\\|\n\\)*\nNo subgoals!\n\\)"
-	   proof-shell-end-goals-regexp)
+   proof-shell-proof-completed-regexp	"^No subgoals!"
 
    ;; initial command configures Isabelle by hacking print functions.
    ;; FIXME: temporary hack for almost enabling/disabling printing.
@@ -216,8 +209,6 @@ and script mode."
    ;; Dirty hack to allow font-locking for output based on hidden
    ;; annotations, see isa-output-font-lock-keywords-1
    proof-shell-leave-annotations-in-output t
-
-   proof-goals-display-qed-message	t
 
    ;; === ANNOTATIONS  === ones here are broken
    proof-shell-result-start	        "\372 Pbp result \373"

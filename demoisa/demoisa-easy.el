@@ -48,8 +48,7 @@
  "\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
  proof-shell-init-cmd  
  "fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));"
- proof-shell-proof-completed-regexp   
- "\\(\\(.\\|\n\\)*No subgoals!\n\\)"
+ proof-shell-proof-completed-regexp "^No subgoals!"
  proof-shell-eager-annotation-start   
  "^\\[opening \\|^###\\|^Reading")
 

@@ -1343,11 +1343,14 @@ It is safe to leave this variable unset (as nil)."
 
 (defcustom proof-shell-proof-completed-regexp nil
   "Regexp matching output indicating a finished proof.
-Match number 1 should be the response text.
 
-This is used to enable the QED function (save a proof) and
-to control what output appears in the response buffer at the
-end of a proof."
+When output which matches this regexp is seen, we clear the goals
+buffer in case this is not also marked up as a `goals' type of
+message.
+
+We also enable the QED function (save a proof) and will automatically
+close off the proof region if another goal appears before a save
+command."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
@@ -1709,23 +1712,6 @@ for parsing the is disabled."
 (defcustom proof-shell-field-char nil
   "Annotated field end"
   :type 'character
-  :group 'proof-goals)
-
-;; FIXME: remove this setting for 3.2, by matching on
-;; completed-regexp as an extra step, after errors/interrupt,
-;; but as well as ordinary output.
-(defcustom proof-goals-display-qed-message nil
-  "If non-nil, display the proof-completed message in the goals buffer.
-For some proof assistants (e.g. Isabelle) it seems aesthetic to
-display the QED message in the goals buffer, even though it doesn't
-contain any goals and shouldn't be marked up for proof-by-pointing.
-
-If this setting is non-nil, QED messages appear in the goals
-buffer.  Otherwise they appear in the response buffer.
-
-This is a hack specially for Isabelle.  DON'T USE IT.
-It will be removed in a future version of Proof General."
-  :type 'boolean
   :group 'proof-goals)
 
 (defcustom proof-goals-font-lock-keywords nil

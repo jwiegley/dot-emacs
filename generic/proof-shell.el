@@ -887,6 +887,7 @@ This is a hook function for proof-shell-handle-delayed-output-hook."
   "Like string-match except returns nil if REGEXP is nil."
   (and regexp (string-match regexp string)))
 
+      
 (defun proof-shell-process-output (cmd string)
   "Process shell output (resulting from CMD) by matching on STRING.
 CMD is the first part of the proof-action-list that lead to this
@@ -920,67 +921,68 @@ This function can return one of 4 things as the symbol: 'error,
 'interrupt, 'loopback, or nil. 'loopback means this was output from
 pbp, and should be inserted into the script buffer and sent back to
 the proof assistant."
-  (cond
-   ((proof-shell-string-match-safe proof-shell-interrupt-regexp string)
-    'interrupt)
+  (or
+   ;; First check for error, interrupt, abort, proof completed
+   (cond
+    ((proof-shell-string-match-safe proof-shell-interrupt-regexp string)
+     'interrupt)
+    
+    ((proof-shell-string-match-safe proof-shell-error-regexp string)
+     (cons 'error (proof-shell-strip-special-annotations
+		   (substring string
+			      (match-beginning 0)))))
+    
+    ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
+     (proof-clean-buffer proof-goals-buffer)
+     (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
+     ())
+    
+    ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
+     ;; In case no goals display
+     (proof-clean-buffer proof-goals-buffer)
+     ;; counter of commands since proof complete.
+     (setq proof-shell-proof-completed 0) 
+     ;; But!  We carry on matching below for goals output, so that
+     ;; provers may include proof completed message as part of 
+     ;; goals message (Isabelle, HOL) or not (LEGO, Coq).
+     nil))
 
-     ((proof-shell-string-match-safe proof-shell-error-regexp string)
-      (cons 'error (proof-shell-strip-special-annotations
-		    (substring string
-			       (match-beginning 0)))))
-	 
-   ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
-    (proof-clean-buffer proof-goals-buffer)
-    (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
-    ())
-
-   ;; FIXME: remove proof-goals-display-qed-message setting in version 3.2,
-   ;; by matching on completed-regexp as an extra step again when a goal
-   ;; is found, or alternatively in same part as errors/interrupt
-   ;; (but that risks displaying no subgoals message twice in Isabelle!).
-   ;; We can also remove the match-string 1 mess too, modify every
-   ;; instance accordingly.
-   ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
-    (proof-clean-buffer proof-goals-buffer)
-    (setq proof-shell-proof-completed 0) ; counts commands since proof complete.
-    (setq proof-shell-delayed-output
-	  (cons (if proof-goals-display-qed-message
-		    'analyse 'insert)
-		(match-string 1 string))))
-
-   ((proof-shell-string-match-safe proof-shell-start-goals-regexp string)
-    (let ((start (match-end 0))
-	  end)
-      ;; Find the last goal string in the output
-      (while (string-match proof-shell-start-goals-regexp string start)
-	(setq start (match-end 0)))
-      ;; Ugly hack: provers with special characters don't include
-      ;; the match in their goals output.  Others do.
-      (unless proof-shell-first-special-char
-	(setq start (match-beginning 0)))
-      (setq end (if proof-shell-end-goals-regexp
-		    (string-match proof-shell-end-goals-regexp string start)
-		  (length string)))
-      (setq proof-shell-delayed-output 
-	    (cons 'analyse (substring string start end)))))
-       
+   ;; Check for remaining things
+   (cond
+    ((proof-shell-string-match-safe proof-shell-start-goals-regexp string)
+     (let ((start (match-end 0))
+	   end)
+       ;; Find the last goal string in the output
+       (while (string-match proof-shell-start-goals-regexp string start)
+	 (setq start (match-end 0)))
+       ;; Ugly hack: provers with special characters don't include
+       ;; the match in their goals output.  Others do.
+       (unless proof-shell-first-special-char
+	 (setq start (match-beginning 0)))
+       (setq end (if proof-shell-end-goals-regexp
+		     (string-match proof-shell-end-goals-regexp string start)
+		   (length string)))
+       (setq proof-shell-delayed-output 
+	     (cons 'analyse (substring string start end)))))
+    
     ;; Test for a proof by pointing command hint
-     ((proof-shell-string-match-safe proof-shell-result-start string)
-      (let (start end)
-	(setq start (+ 1 (match-end 0)))
-	(string-match proof-shell-result-end string)
-	(setq end (- (match-beginning 0) 1))
-	(cons 'loopback (substring string start end))))
-   
-     ;; Hook to tailor proof-shell-process-output to a specific proof
-     ;; system, in the case that all the above matches fail.
-   ((and proof-shell-process-output-system-specific
-	 (funcall (car proof-shell-process-output-system-specific)
-		  cmd string))
-    (funcall (cdr proof-shell-process-output-system-specific)
-	     cmd string))
+    ((proof-shell-string-match-safe proof-shell-result-start string)
+     (let (start end)
+       (setq start (+ 1 (match-end 0)))
+       (string-match proof-shell-result-end string)
+       (setq end (- (match-beginning 0) 1))
+       (cons 'loopback (substring string start end))))
+    
+    ;; Hook to tailor proof-shell-process-output to a specific proof
+    ;; system, in the case that all the above matches fail.
+    ((and proof-shell-process-output-system-specific
+	  (funcall (car proof-shell-process-output-system-specific)
+		   cmd string))
+     (funcall (cdr proof-shell-process-output-system-specific)
+	      cmd string))
 
-   (t (setq proof-shell-delayed-output (cons 'insert string)))))
+    ;; Finally, any other output will appear as a response.
+    (t (setq proof-shell-delayed-output (cons 'insert string))))))
 
 
 ;;

@@ -5,13 +5,6 @@
 See also ../BUGS for generic bugs.
 
 
-** "Stack overflow in regexp".  
-
-This problem is caused by a poor regexp and large proofstates.  It
-needs some small alterations to other proof assistant regexps, so will
-be fixed in 3.2.  In the meantime, a workaround is to reduce the
-number of subgoals displayed.
-
 ** set proof_timing is problematic
 
 It will make the goals display disappear during proof.  This is

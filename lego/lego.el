@@ -117,7 +117,7 @@ Activates extended printing routines required for Proof General.")
   "*Regular expression indicating that the proof of the current goal
   has been abandoned.")
 
-(defvar lego-shell-proof-completed-regexp "\\(\\*\\*\\* QED \\*\\*\\*\\)"
+(defvar lego-shell-proof-completed-regexp "\\*\\*\\* QED \\*\\*\\*"
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar lego-save-command-regexp
