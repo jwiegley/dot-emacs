@@ -78,7 +78,7 @@
 ;; ===== outline mode
 
 (defcustom isar-outline-regexp
-  (proof-ids-to-regexp isar-keywords-outline)
+  (isar-ids-to-regexp isar-keywords-outline)
   "Outline regexp for Isabelle/Isar documents"
   :type 'regexp
   :group 'isabelle-isar-config)
@@ -150,7 +150,7 @@
 
 (defun isar-detect-header ()
   "Detect new-style theory header in current buffer"
-  (let ((header-regexp (proof-ids-to-regexp '("header" "theory")))
+  (let ((header-regexp (isar-ids-to-regexp '("header" "theory")))
 	(white-space-regexp "\\(\\s-\\|\n\\)+")
 	(cmt-end-regexp (regexp-quote proof-comment-end))
 	(cmt-start-regexp (regexp-quote proof-comment-start))

@@ -138,6 +138,15 @@
 
 ;; ----- regular expressions
 
+;; tuned version of proof-ids-to-regexp --- admit single non-word char
+;; as well (e.g. { })
+
+(defun isar-ids-to-regexp (l)
+  "Maps a non-empty list of tokens `l' to a regexp matching any element"
+  (mapconcat
+   (lambda (s) (if (string-match "^\\W$" s) s (concat "\\<" s "\\>")))
+   l "\\|"))
+
 (defconst isar-id "\\([A-Za-z][A-Za-z0-9'_]*\\)")
 (defconst isar-idx (concat isar-id "\\(\\.[0-9]+\\)?"))
 
@@ -152,21 +161,21 @@
   "Regexp matching old-style tactic names")
 
 (defconst isar-save-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-save)))
+  (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-save)))
 
 (defconst isar-global-save-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-qed-global)))
+  (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-qed-global)))
 
 (defconst isar-save-with-hole-regexp "$^") ; n.a.
 
 (defconst isar-goal-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-goal)))
+  (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-goal)))
 
 (defconst isar-local-goal-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-local-goal)))
+  (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-local-goal)))
 
 (defconst isar-goal-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
+  (concat "\\(" (isar-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
   "Regexp matching goal commands in Isabelle/Isar which name a theorem")
 
 (defconst isar-verbatim-regexp "^\^VERBATIM: \\(\\(.\\|\n\\)*\\)$"
@@ -249,15 +258,15 @@
 
 (defvar isar-font-lock-keywords-1
   (list
-   (cons (proof-ids-to-regexp isar-keywords-minor)          'font-lock-type-face)
-   (cons (proof-ids-to-regexp isar-keywords-control)        'proof-error-face)
-   (cons (proof-ids-to-regexp isar-keywords-diag)           'proof-tacticals-name-face)
-   (cons (proof-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-preprocessor-face)
-   (cons (proof-ids-to-regexp isar-keywords-theory)         'font-lock-keyword-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof-enclose)  'font-lock-preprocessor-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof-improper) 'font-lock-reference-face)
+   (cons (isar-ids-to-regexp isar-keywords-minor)          'font-lock-type-face)
+   (cons (isar-ids-to-regexp isar-keywords-control)        'proof-error-face)
+   (cons (isar-ids-to-regexp isar-keywords-diag)           'proof-tacticals-name-face)
+   (cons (isar-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-preprocessor-face)
+   (cons (isar-ids-to-regexp isar-keywords-theory)         'font-lock-keyword-face)
+   (cons (isar-ids-to-regexp isar-keywords-proof-enclose)  'font-lock-preprocessor-face)
+   (cons (isar-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
+   (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
+   (cons (isar-ids-to-regexp isar-keywords-proof-improper) 'font-lock-reference-face)
    (cons isar-tac-regexp 'font-lock-reference-face)))
 
 (defvar isar-output-font-lock-keywords-1
@@ -292,27 +301,27 @@
 
 (defconst isar-undo-fail-regexp
   (proof-anchor-regexp
-   (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))))
+   (isar-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))))
 
 (defconst isar-undo-skip-regexp
-  (proof-anchor-regexp (concat ";\\|" (proof-ids-to-regexp isar-keywords-diag))))
+  (proof-anchor-regexp (concat ";\\|" (isar-ids-to-regexp isar-keywords-diag))))
 
 (defconst isar-undo-remove-regexp
   (concat
-   (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-begin))
+   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-begin))
    isar-name-regexp))
 
 (defconst isar-undo-kill-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-switch)))
+  (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-switch)))
 
 
 ;; ----- indentation
 
-(defconst isar-indent-regexp (proof-ids-to-regexp isar-keywords-indent))
-(defconst isar-indent-open-regexp (proof-ids-to-regexp isar-keywords-indent-open))
-(defconst isar-indent-close-regexp (proof-ids-to-regexp isar-keywords-indent-close))
-(defconst isar-indent-enclose-regexp (proof-ids-to-regexp isar-keywords-indent-enclose))
-(defconst isar-indent-reset-regexp (proof-ids-to-regexp isar-keywords-indent-reset))
+(defconst isar-indent-regexp (isar-ids-to-regexp isar-keywords-indent))
+(defconst isar-indent-open-regexp (isar-ids-to-regexp isar-keywords-indent-open))
+(defconst isar-indent-close-regexp (isar-ids-to-regexp isar-keywords-indent-close))
+(defconst isar-indent-enclose-regexp (isar-ids-to-regexp isar-keywords-indent-enclose))
+(defconst isar-indent-reset-regexp (isar-ids-to-regexp isar-keywords-indent-reset))
 
 
 (provide 'isar-syntax)
