@@ -36,12 +36,12 @@ TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html
 EMACS = xemacs -batch
 
-.SUFFIXES:  .texi .info .dvi .html .pdf .ps
+.SUFFIXES:  .texi .info .dvi .html .pdf .ps .eps .tiff
 
 .texi.info:
 	$(MAKEINFO) $< 
 
-.texi.dvi:
+.texi.dvi: 
 	$(TEXI2DVI) $<
 	$(DVISELECT) -i $*.dvi -o $*.tmp1 $(TITLERANGE)
 	$(DVISELECT) -i $*.dvi -o $*.tmp2 $(MAINRANGE)
@@ -49,6 +49,8 @@ EMACS = xemacs -batch
 	$(DVICONCAT) -o $*.dvi $*.tmp1 $*.tmp3 $*.tmp2 
 	rm -f $*.tmp1 $*.tmp2 $*.tmp3
 
+.tiff.eps:
+	tiff2ps -e -w 3.48 -h 5 $*.tiff > $*.eps
 
 .texi.pdf:
 	$(TEXI2PDF) $< 
@@ -57,7 +59,15 @@ EMACS = xemacs -batch
 	$(DVI2PS) $< -o $*.ps
 
 .texi.html:	
-	$(TEXI2HTML) -split_chapter $< 
+	$(TEXI2HTML) -expandinfo -split_chapter $< 
+
+default: doc
+
+ProofGeneral.txt:
+	echo > ProofGeneral.txt
+
+ProofGeneral.eps:
+	gunzip -c ProofGeneral.eps.gz > ProofGeneral.eps
 
 ## 
 ## doc : build info and dvi files from $(DOCNAME).texi
@@ -69,11 +79,11 @@ doc:	dvi info
 ##
 all:    dvi ps html info
 
-dvi:    $(DOCNAME).dvi
+dvi:    ProofGeneral.eps $(DOCNAME).dvi
 ps:	$(DOCNAME).ps
 pdf:    $(DOCNAME).pdf
 html:   $(DOCNAME).html
-info:   $(DOCNAME).info
+info:   ProofGeneral.txt $(DOCNAME).info
 
 # NB: for info, could make localdir automatically from
 # START-INFO-DIR-ENTRY / END-INFO-DIR-ENTRY.
@@ -83,6 +93,7 @@ info:   $(DOCNAME).info
 ## clean: Remove subsidiary documentation files
 ##
 clean:
+	rm -f ProofGeneral.txt ProofGeneral.eps
 	rm -f $(DOCNAME).?? $(DOCNAME).fns $(DOCNAME).vrs $(DOCNAME).cps 
 	rm -f $(DOCNAME).aux $(DOCNAME).log $(DOCNAME).toc $(DOCNAME).cp0
 	rm -f $(DOCNAME).kys

@@ -46,7 +46,7 @@
 @set version 2.1
 @set xemacsversion 20.4
 @set fsfversion 20.2
-@set last-update March 1999
+@set last-update June 1999
 @set rcsid $Id$
 
 @ifinfo
@@ -80,10 +80,14 @@ END-INFO-DIR-ENTRY
 @subtitle Proof General @value{version}
 @subtitle @value{last-update}
 @iftex
-@vskip 1cm
-@c This .eps file takes 8.4M!  A pity texi can't seem
+@c @vskip 1cm
+@c The .eps file takes 8.4M!  A pity texi can't seem
 @c to deal with gzipped files? (goes down to 1.7M).
+@c Instead I'm putting a tiff image (890k) into the dist
+@c and hoping most people can find the tif2ps utility.
 @image{ProofGeneral}
+@c FIXME: for html, just do @image ProofGeneral, it
+@c gets confused by the braces.
 @end iftex
 @author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
 @page
@@ -216,8 +220,8 @@ It all started some time in 1994. There was no Emacs interface for LEGO.
 Back then, Emacs militants worked directly with the Emacs shell to
 interact with the LEGO system. 
 
-David Aspinall managed to convince Thomas Kleymann that programming in
-Emacs Lisp isn't so difficult after all. In fact, Aspinall had already
+David Aspinall convinced Thomas Kleymann that programming in
+Emacs Lisp wasn't so difficult after all. In fact, Aspinall had already
 implemented an Emacs interface for Isabelle with bells and whistles,
 called @uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}. Soon
 after, the package @code{lego-mode} was born. Users were able to develop
@@ -254,35 +258,48 @@ cutting-edge technology!}. Inspired by the project CROAP, the
 implementation made some effort to be generic. A working prototype was
 presented at UITP'97.
 
-In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Parts
+In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Part
 of the generic code in the @code{lego} package was outsourced (and made
-even more generic) in a new generic package called @code{proof}. Dilip
+more generic) in a new generic package called @code{proof}. Dilip
 Sequeira provided some LEGO-specific support for handling multiple files
-and wrote a manual. The system was reasonably robust and we shipped out
-the package to friends.
+and wrote a few manual pages. The system was reasonably robust and we
+shipped out the package to friends.
 
 In June 1998, David Aspinall reentered the picture by providing an
 instantiation for Isabelle. Actually, our previous version wasn't quite
 as generic as we had hoped. Whereas LEGO and Coq are similar systems in
 many ways, Isabelle was really a different beast. Fierce reengineering
-and various improvements were provided by David Aspinall and Thomas
-Kleymann to make it easier to instantiate to new proof systems. The
-major technical improvement was a truly generic extension of script
-management to work across multiple files.
+and various usability improvements were provided by David Aspinall and
+Thomas Kleymann to make it easier to instantiate to new proof
+systems. The major technical improvement was a truly generic extension
+of script management to work across multiple files.
 
 It was time to come up with a better name than just @code{proof}
-mode. David Aspinall suggested @emph{Proof General}. He also cooked up
-some images and a toolbar. Proof General 2.0 is the first official
-release, ready to conquer the world.  Why not adapt Proof General to
-your favourite proof system?
+mode. David Aspinall suggested @emph{Proof General} and set about
+reorganizing the file structure to disentangle the Proof General project
+from LEGO at last.  He cooked up some images and bolted on a toolbar, so
+a naive user can replay proofs without knowing a proof assistant
+language or even Emacs hot-keys.  He also designed some web pages, and
+wrote most of this new manual.  
+
+Proof General 2.0 was the first official release of the improved
+program.  Why not adapt Proof General to your favourite proof assitant?
 
 @node Latest news
 @unnumberedsec Latest news
 @cindex news
 
+Proof General 2.1 is mainly a bug fix release over 2.0.  There are some
+usability enhancements.  See the CHANGES files for more information.
+
+Two new instantiations of Proof General are being worked on.
+@emph{Isar}, for the new theory language of Isabelle, and
+@emph{Plastic}, for a proof assistant being developed at the University
+of Durham.
+
 Proof General has its own
 @uref{http://www.dcs.ed.ac.uk/home/proofgen,home page} hosted at
-Edinburgh.  Visit this page for the latest news!
+Edinburgh.  Visit this page for more news!
 
 
 
@@ -452,14 +469,14 @@ Proof General comes ready-customised for these proof assistants:
 @c written by Thomas Kleymann and Dilip Sequeira.
 @c
 All features of Proof General are supported.  
-@xref{LEGO Proof General} for more details.
+For more details @xref{LEGO Proof General}.
 
 @item 
 @b{Coq Proof General} for Coq Version 6.2@*
 @c written by Healfdene Goguen.
 @c
 All features of Proof General are supported except multiple files.
-@xref{Coq Proof General} for more details.
+For more details @xref{Coq Proof General}.
 
 @item 
 @b{Isabelle Proof General} for Isabelle 98-1@*
@@ -468,16 +485,16 @@ All features of Proof General are supported, except for an external tags
 program.  Isabelle Proof General handles theory files as well as ML
 (proof script files), and has an extensive theory file editing mode
 taken from @uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}.
-@xref{Isabelle Proof General} for more details.
+For more details @xref{Isabelle Proof General}.
 @end itemize
 Proof General is designed to be generic, so you can adapt it to other
 proof assistants if you know a little bit of Emacs Lisp.
 @itemize @bullet
 @item
 @b{Your Proof General} for your favourite proof assistant@*
-@xref{Adapting Proof General to Other Provers}
-for more details of how to make Proof General work
-with another proof assistant.
+For more details of how to make Proof General work
+with another proof assistant,
+@xref{Adapting Proof General to Other Provers}.
 @end itemize
 
 
@@ -497,8 +514,8 @@ of a common interface mechanism.
 
 To get more from Proof General and adapt it to your liking, it helps to
 know a little bit about how Emacs lisp packages can be customized via
-the Customization mechanism.  It's really easy to use.  @xref{Easy
-customization} and @inforef{Easy customization, ,(xemacs)} for details.
+the Customization mechanism.  It's really easy to use.  For details,
+@xref{Easy customization}, and @inforef{Easy customization, ,(xemacs)}.
 
 To get the absolute most from Proof General, to improve it or to adapt
 it for new provers, you'll need to know a little bit of Emacs lisp.
@@ -727,8 +744,9 @@ region to the editing region (again via the queue region) and the
 appropriate 'undo' commands to be sent to the proof process.
 
 Retraction corresponds to undoing commands, and makes the locked region
-shrink.  @xref{Script processing commands} details the commands
-available for doing assertion and retraction.
+shrink.  For details of the commands
+available for doing assertion and retraction,
+@xref{Script processing commands}.
 
 
 @node Goal-save sequences
@@ -787,7 +805,7 @@ error message, you must choose either to assert the remainder of the
 active buffer, or to retract what has been proved so far, before you can
 start scripting in another buffer.
 
-@xref{Switching between proof scripts} for more explanation of this.
+For more explanation of this, @xref{Switching between proof scripts}.
 
 @c A completed script buffer is one which is completely blue: the locked
 @c region covers the whole buffer, indicating that all the commands been
@@ -1949,7 +1967,7 @@ General.
 @kindex C-c I 
 @kindex C-c a
 @kindex C-c s
-@Kindex C-c e
+@kindex C-c e
 
 Coq Proof General supplies the following key-bindings:
 @table @kbd
@@ -3090,7 +3108,7 @@ Flag indicating that a completed proof has just been observed.
 
 The @file{proof.el} also loads @file{proof-config.el} which declares the
 proof assistant configuration variables for Proof General.
-@xref{Adapting Proof General to Other Provers} for details.
+For details, @xref{Adapting Proof General to Other Provers}.
 
 
 @node Proof script mode

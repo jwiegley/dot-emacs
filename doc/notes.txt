@@ -1,9 +1,10 @@
-Notes to include in documentation.
-----------------------------------
+Developers' Notes about Documentation
+-------------------------------------
 
-********
 
-Suggestion for outline of improved documentation.
+
+
+* Plan for outline of improved documentation.   (Completed)
 
  Terminology:  I suggest "proof mode" should become "proof script
  mode", aka "the proof script mode of Proof General".  We should
@@ -79,16 +80,6 @@ Suggestion for outline of improved documentation.
  C. Future ideas and plans					[da]
  
  
-*********
-
-Suggestions for improving web pages after Rod reading them:
-
-  - slideshow rather than single screen shot
-  - separate feature list
-  - explain what a proof script is and what script management buys you
-
-Get Dave a laptop to demo on.
-
 *********
 
 Support for Function Menus
