@@ -196,3 +196,10 @@ requirements for a proof assistant interface.
 
 
 
+Example of API design guidlines
+===============================
+
+1. Use a different prompt for continued lines during input
+communication.  Helps parsing output.
+
+
