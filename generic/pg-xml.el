@@ -8,6 +8,8 @@
 ;;
 ;; XML functions for Proof General
 ;;
+;; STATUS: Experimental, not in use.
+;;
 ;; Proof General Kit uses PGIP, an XML-message protocol
 ;; for interactive proof.  The simple functions here allow
 ;; parsing and writing of XML documents.  Little attempt
@@ -165,6 +167,7 @@ is
 	(message "Parsing %s...done" (buffer-name buffer)))
       (caar xmlparse))))
 
+;;;###autoload
 (defun pg-xml-parse-string (arg)
   "Parse string in ARG, same as pg-xml-parse-buffer."
   (let

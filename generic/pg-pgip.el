@@ -6,11 +6,14 @@
 ;;
 ;; $Id$
 ;;
+;; STATUS: Experimental, not in use.
+;;
 ;; Proof General Kit uses PGIP, an XML-message protocol
 ;; for interactive proof.  This file contains functions 
 ;; to process PGIP commands sent from the proof assistant.
 ;;
 
+;;;###autoload
 (defun pg-pgip-process-cmd (pgip) 
   "Process the command in PGIP, which should be parsed XML according to pg-xml-parse-*."
   (while (pgip)
@@ -120,11 +123,7 @@
   (pg-pgip-get-attr elt "version" attrs optional))
 
 
-      
 
 
-
-
+(provide 'pg-pgip)
 ;; End of `pg-pgip.el'
-
-
