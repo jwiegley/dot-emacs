@@ -25,6 +25,7 @@
 
 (defconst isar-keywords-control
   '("break"
+    "cannot_undo"
     "cd"
     "clear_undo"
     "exit"
@@ -123,8 +124,10 @@
 (defconst isar-keywords-qed
   '("\\."
     "\\.\\."
-    "by"
-    "qed"
+    "by"))
+
+(defconst isar-keywords-qed-block
+  '("qed"
     "qed_with"))
 
 (defconst isar-keywords-proof-goal
