@@ -579,6 +579,9 @@ No action if BUF is nil or killed."
 ;; This is based on `shrink-window-if-larger-than-buffer' from window.el
 ;; Except that we also allow the window height to *expand*
 ;; FIXME: this works in a fairly ugly way!
+;; Also desirable improvements would be to add some crafty history based
+;; on user resize-events.  E.g. user resizes window, that becomes the 
+;; new maximum size.
 (defun proof-resize-window-tofit (&optional window)
   "Shrink the WINDOW to be as small as possible to display its contents.
 Do not shrink to less than `window-min-height' lines.
@@ -622,9 +625,9 @@ or if the window is the only window of its frame."
 	      (goto-char (point-min))
 	      (while (and (window-live-p window)
 			  (if expand
-			      (not (pos-visible-in-window-p test-pos window))
-			    (pos-visible-in-window-p test-pos window))
-			  (< n max-height))
+			      (and (not (pos-visible-in-window-p test-pos window))
+				   (< (window-height window) max-height))
+			    (pos-visible-in-window-p test-pos window)))
 		(shrink-window (if expand -1 1) nil window)
 		(setq n (1+ n))))
 	    (if (and (not expand) 
