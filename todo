@@ -1,5 +1,7 @@
 -*- mode:outline -*-
 
+$Id$
+
 * Priorities
 ============
 A (High)   to be fixed before release (Version 2.0)
@@ -9,9 +11,39 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A Remove defunct "isabelle" directory.  All collbarators must
+  synchronize and remove their working directories to do this,
+  because we need to operate on the repository directly.
+  (da, 5min).
+
+A Documentation for proof-mode and its derived modes.  (5min)
+
+A Clean up proof-assert-until-point behaviour.  At the moment we
+  get an odd error if it is run in the locked region.  If point
+  is on the start of a command it says "nothing to do", but if
+  it is one character into the command, it asserts the whole command!
+  I propose the new function proof-assert-next-command as a 
+  possible alternative/additional behaviour, bound to  C-c C-RET.
+  Another question is whether the point is moved afterwards or not.
+  I suspect it is useful to leave point where it is, so we can
+  easily edit one step in a proof, try the next few steps, then
+  undo them, try a variation, etc.  As an experiment, 
+  proof-assert-next-command does not advance point. 
+  (da, tms/others to assess)
+  
+B A less drastic version of proof-restart-script would be useful:
+  one that doesn't involve killing off the proof assistant process
+  and restarting that -- it can take ages!  (da, 20mins)
+
+B Code in proof.el assumes all characters with top bit set are special
+  instructions to Emacs.  This is rather arrogant, and precludes proof
+  systems which utilize 8-bit character sets!  Needs repair.  (3h)
+
 A Add a small script "example.l" etc to each of the prover subdirectories,
   for testing/example purposes.  (Perhaps proving the same thing?
-  commutativity of conjunction?) (10min, tms)
+  commutativity of conjunction?) 
+  Only needed for Coq now.
+  (10min, tms)
 
 B Prune dead code.  (1h)
 
@@ -19,7 +51,7 @@ B Add support to proof.el for *not* setting variables for
   commands which aren't supported by a prover.  For example,
   in Isabelle there is no such thing as killing a goal.
   For the minimum set of variables to cover, see FIXME's in isa.el
-  (1.5hrs)						   
+  (da, 1.5hrs)						   
 				    
 B Outsource script management features from proof.el to
   proof-script.el 		(1h)
@@ -29,13 +61,14 @@ A Write function proof-retract-file. (30min tms)
   proof-steal-process.
 
 B Improve documentation in proof.el to help porting/understanding 
-  Also add notes into script-management.texinfo.
+  Also add notes into proof.texinfo.
   (ongoing, da).
 
 B Fixup sources to follow Elisp conventions better.
   The first line of documentation of functions and
-  variables should be a whole sentence.  See output of
-  hyper-apropos for why.   (1hr)
+  variables should be a whole sentence.  Subsequent lines should
+  *not* be indented.  See output of hyper-apropos and
+  poor formatting of current comments.   (1hr)
 
 A Update source documentation and manual, in particular document bugs
   and workarounds
@@ -117,8 +150,13 @@ B As well as duplicated variables, we also have duplicated modes,
   Shouldn't the generic interface directly *define* the derived
   version required?   (1h to fix)
 
-B Fixup implementation of "spans".   Add documentation!
-  (2h)
+B Fixup implementation of "spans":  Add documentation!
+  (30 mins)
+
+C Comment support is not very generic: we don't support end-of-line
+  terminated comments.  Is there any case where this might be
+  worthwhile?  (2h to add it).
+
 
 
 * Proof-by-Pointing
@@ -188,11 +226,14 @@ A Add coq-add-tactic with a tactic name, which adds that tactic to the
 
 A Get basic features working:
     proof state extraction  -- okay.
-    undo		    -- needs work.
+    undo		    -- needs work (undoes to much).
+    error detection	    -- seems okay.
+    
+    what else?
 
-	  	Check these things:
+    Check these things:
 
-     abort-goal-regexp
+    abort-goal-regexp
 
 B Write perl scripts to generate TAGS file for ML and thy files.
   (6h, I've completely forgotten perl)
@@ -208,6 +249,8 @@ B Add ability to choose logic.  Maybe not necessary: can use default
   user-saved databases.
   (ponder this)
 
+C New features ideas:
+   1. Manage multiple proofs (markers in possibly different buffers)
 	 
 
 * Emacs19
@@ -220,17 +263,14 @@ B The proof-locked-span isn't set to read-only, because overlays don't
 * Release
 =========
 
-A remove CVS history in all files
+A remove CVS history in all files  (replace with idents $Id$)
 
 A extend Copyright to 1998
 
 A fix INSTALL file, add COPYING note
 
+A fix branches after renames
+
 A write Makefile targets to build documentation formats
   and generate distributable tar.gz file, tag sources,
   compile .elc, web page (?), with release version.
-
-  Perhaps add subdirectories doc/ generic/ coq/ lego/ isabelle/
-  (3h, da moderately willing to do the dirty work)
-
-
