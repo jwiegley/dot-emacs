@@ -29,12 +29,19 @@ Generic Changes
   otherwise be disabled.
 
 * Menus and keybindings have been reorganized.  
-  Now keybindings invoke the same functions as the toolbar.
-  In particular, C-c C-n and C-c C-u are simplified so that
+  Bindings C-c <letter> are being phased out; they are supposed
+  to be reserved for the user according to Emacs convention.
+
+* Keybindings for assert/retract now invoke the same functions as the
+  toolbar. In particular, C-c C-n and C-c C-u are simplified so that
   they always process or retract exactly one command, rather
   than one command beyond point.  Moreover, C-c C-u does not 
   take an optional argument to delete the retracted text
   (it was too easy for the user to accidently type C-u C-c C-u !)
+
+* New command C-c C-RET proof-goto-point which generalises
+  previous proof-assert-until-point to also do retracting if
+  point is in the locked region. 
 
 * User options have been re-organized and renamed to be
   more suggestive.  Boolean options can be
@@ -46,8 +53,8 @@ Generic Changes
   terminator".   It has one setting for all buffers, and
   you can customize it if you want it permanently on.
 
-* Command C-c C-t (proof-try-command) removed in favour of C-c C-v
-  (proof-execute-minibuffer-cmd), which now uses the
+* Command C-c C-t (proof-try-command) removed in favour of 
+  C-c C-v (proof-execute-minibuffer-cmd), which now uses the
   filter proof-state-preserving-p to check that a command is safe.
 
 * Terminal string now automatically added to command for C-c C-v 

@@ -75,7 +75,7 @@ B BUGLETS:
   - Response buffer doesn't scroll to display o/p (it does for debug msgs,
     oddly).  This might have been a 1998 design decision.
     Maybe it should be a user option?
-
+  - are face defconsts still needed now we use defface?
   - XEmacs pg forces on font-lock!
 
 B SMALL DELTAS:
@@ -91,6 +91,9 @@ B SMALL DELTAS:
   implementation.  Maybe we have four commands: find command start,
   command end, and move to next command/previous command.
 
+C Make code robust against accidental deletion of response/goals
+  buffer.  Add functions proof-get-or-create-{response,goals}-buffer.
+  [30 mins]
 
 B Have seen "confused" bug: shows up when do lots of C-c C-n as
   process is starting up.
