@@ -41,7 +41,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar proof-assistant ""
-  "Name of the proof assistant")
+  "Name of the proof assistant Proof General is using.")
 
 (defvar proof-www-home-page ""
   "Web address for information on proof assistant")
@@ -50,27 +50,25 @@
   "Command to the inferior process to change the directory.")
 
 (defvar proof-shell-process-output-system-specific nil
-  "Errors, start of proofs, abortions of proofs and completions of
-  proofs are recognised in the function `proof-shell-process-output'.
-  All other output from the proof engine is simply reported to the
-  user in the RESPONSE buffer.
+  "Set this variable to handle system specific output.
+Errors, start of proofs, abortions of proofs and completions of
+proofs are recognised in the function `proof-shell-process-output'.
+All other output from the proof engine is simply reported to the
+user in the RESPONSE buffer.
 
-  To catch further special cases, set this variable to a tuple of
-  functions '(condf . actf). Both are given (cmd string) as arguments.
-  `cmd' is a string containing the currently processed command.
-  `string' is the response from the proof system. To change the
-  behaviour of `proof-shell-process-output', (condf cmd string) must
-  return a non-nil value. Then (actf cmd string) is invoked. See the
-  documentation of `proof-shell-process-output' for the required
-  output format.")
+To catch further special cases, set this variable to a tuple of
+functions '(condf . actf). Both are given (cmd string) as arguments.
+`cmd' is a string containing the currently processed command.
+`string' is the response from the proof system. To change the
+behaviour of `proof-shell-process-output', (condf cmd string) must
+return a non-nil value. Then (actf cmd string) is invoked. See the
+documentation of `proof-shell-process-output' for the required
+output format.")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Proof mode variables                                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defconst proof-mode-version-string
-  "PROOF-MODE. ALPHA Version 2 (August 1998) LEGO Team <lego@dcs.ed.ac.uk>")
 
 (defconst proof-info-dir "/usr/local/share/info"
   "Directory to search for Info documents on Script Management.")
@@ -80,15 +78,14 @@
 	(cons '[(control c) (control v)]
 	      'proof-execute-minibuffer-cmd)
 	(cons '[(meta tab)] 'tag-complete-symbol))
-  "List of keybindings which are valid in both in the script and the
-  response buffer. Elements of the list are tuples (k . f) 
-  where `k' is a keybinding (vector) and `f' the designated function.")
+"List of keybindings which for the script and response buffer. 
+Elements of the list are tuples (k . f) 
+where `k' is a keybinding (vector) and `f' the designated function.")
 
-(defvar proof-prog-name-ask-p nil
-  "*If t, you will be asked which program to run when the inferior
- process starts up.")
-
-
+(defcustom proof-prog-name-ask-p nil
+  "*If t, query user which program to run for the inferior process."
+  :type 'boolean
+  :group 'proof)
  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Other buffer-local variables used by proof mode                 ;;
@@ -113,12 +110,17 @@ The script buffer's comment-start is set to this string plus a space.")
   "String which starts a comment in the proof assistant command language.
 The script buffer's comment-end is set to this string plus a space.")
 
-(defvar proof-save-command-regexp nil "Matches a save command")
-(defvar proof-save-with-hole-regexp nil "Matches a named save command")
-(defvar proof-goal-with-hole-regexp nil "Matches a saved goal command")
+(defvar proof-save-command-regexp nil 
+  "Matches a save command")
+(defvar proof-save-with-hole-regexp nil 
+  "Matches a named save command")
+(defvar proof-goal-with-hole-regexp nil 
+  "Matches a saved goal command")
 
-(defvar proof-goal-command-p nil "Is this a goal")
-(defvar proof-count-undos-fn nil "Compute number of undos in a target segment")
+(defvar proof-goal-command-p nil 
+  "Is this a goal")
+(defvar proof-count-undos-fn nil 
+  "Compute number of undos in a target segment")
 
 ;; FIXME da: "COMMENT" should be defconst'd somewhere.
 (defvar proof-find-and-forget-fn nil
@@ -131,7 +133,9 @@ First element of cell is a symbol, 'goal' or 'hyp'.  The second
 element is a string: the goal or hypothesis itself.  This is used
 when parsing the proofstate output")
 
-(defvar proof-kill-goal-command nil "How to kill a goal.")
+(defvar proof-kill-goal-command nil 
+  "How to kill a goal.")
+
 (defvar proof-global-p nil
   "Is this a global declaration")
 
@@ -1062,6 +1066,8 @@ at the end of locked region (after inserting a newline and indenting)."
 ;; eager annotations are one line long, and we get input a line at a
 ;; time. If we go over to piped communication, it will break.
 
+;; FIXME: highlight eager annotation-end : fix proof-shell-handle-output
+;; to highlight whole string.
 (defun proof-shell-popup-eager-annotation ()
   "Eager annotations are annotations which the proof system produces
 while it's doing something (e.g. loading libraries) to say how much
@@ -1304,16 +1310,11 @@ how far we've got."
 ; we're inside ""'s.  Only one of (depth > 0) and (not quote-parity)
 ; should be true at once. -- hhg
 
-;; FIXME da: is the character-by-character scanning below really
-;; faster than searching for a regular expression matching any of the
-;; alternatives?  (That seems simpler and maybe more efficient than
-;; a lisp loop over the whole region)  Also I'm not convinced that Emacs
-;; should be better at skipping whitespace and comments than the proof
-;; process itself!
-
-;; FIXME da: I've added NEXT-COMMAND-END, but the change was trivial:
-;; the only difference is in the behaviour with comments.  I think
-;; we should scan to the end of comments just as with strings.
+;; FIXME da: Below it would probably be faster to use the primitive
+;; skip-chars-forward rather than scanning character-by-character 
+;; with a lisp loop over the whole region. Also I'm not convinced that
+;; Emacs should be better at skipping whitespace and comments than the
+;; proof process itself!
 
 (defun proof-segment-up-to (pos &optional next-command-end)
   "Create a list of (type,int,string) tuples from end of locked region to POS.
@@ -1709,6 +1710,7 @@ the proof script."
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
     (proof-invisible-command cmd 'relaxed)))
 	  
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Popup and Pulldown Menu ;;;
