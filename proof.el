@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.30  1998/01/05 15:01:31  tms
+;; improved fume support
+;;
 ;; Revision 1.29  1997/12/18 13:16:41  tms
 ;; o introduced proof-shell-handle-error-hook and bount it by default to
 ;;   proof-goto-end-of-locked-if-pos-not-visible-in-window (also new)
@@ -315,6 +318,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A couple of small utilities                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; The package fume-func provides a function with the same name and
+;; specification. However, fume-func's version is incorrect.
+(defun fume-match-find-next-function-name (buffer)
+  ;; General next function name in BUFFER finder using match.
+  ;; The regexp is assumed to be a two item list the car of which is the regexp
+  ;; to use, and the cdr of which is the match position of the function name
+  (set-buffer buffer)
+  (let ((r (car fume-function-name-regexp))
+        (p (cdr fume-function-name-regexp)))
+    (and (re-search-forward r nil t)
+	 (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))
+
 
 (defun string-to-list (s separator) 
   "converts strings `s' separated by the character `separator' to a
@@ -1326,8 +1342,14 @@ current command."
 
 ;; func-menu --- Jump to a goal within a buffer
   (and (boundp 'fume-function-name-regexp-alist)
-       (push `(,major-mode . proof-goal-with-hole-regexp)
+       (defvar fume-function-name-regexp-proof
+	      (cons proof-goal-with-hole-regexp 2))
+       (push (cons major-mode 'fume-function-name-regexp-proof)
 	     fume-function-name-regexp-alist))
+  (and (boundp 'fume-find-function-name-method-alist)
+       (push (cons major-mode 'fume-match-find-next-function-name)
+	     fume-find-function-name-method-alist))
+	       
 
 ;; keymap
 
