@@ -405,9 +405,18 @@ exited by hand (or exits by itself)."
 					  (current-buffer))))
 		       (throw 'exited t)) nil))
 	      (while (comint-check-proc (current-buffer))
+		;; Perhaps XEmacs hangs too, lets try both wait forms.
+		(accept-process-output nil 1)
 		(sit-for 1)))
-	    ;; Disable timeout in case it hasn't signalled yet
-	    (disable-timeout timeout-id)))
+	    ;; Disable timeout and sentinel in case one or
+	    ;; other hasn't signalled yet, but we're here anyway.
+	    (disable-timeout timeout-id)
+	    ;; FIXME: this was added to fix 'No catch for exited tag'
+	    ;; problem, but it's done later below anyway?
+	    (set-process-sentinel proc nil)))
+      (if (comint-check-proc (current-buffer))
+	  (proof-debug 
+	   "Error in proof-shell-kill-function: process still lives!"))
       ;; For FSF Emacs, proc may be nil if killed already.
       (if proc (set-process-sentinel proc nil))
       ;; Restart all scripting buffers
@@ -1389,9 +1398,13 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
     ;; Don't bother remove the window for the response buffer
     ;; because we're about to put a message in it.
     (proof-shell-maybe-erase-response nil nil)
-    (let ((stripped	(proof-shell-strip-special-annotations message)))
-      (if (< 100 (length stripped))	;; approx test for multi-line msg
-	  (proof-shell-message stripped))
+    (let ((stripped	(proof-shell-strip-special-annotations message))
+	  firstline)
+      ;; Display first chunk of output in minibuffer.
+      ;; Maybe this should be configurable, it can get noisy.
+      (proof-shell-message 
+       (substring stripped 0 (or (string-match "\n" stripped)
+				 (min (length stripped) 75))))
       (proof-response-buffer-display 
        (if proof-shell-leave-annotations-in-output
 	   message
