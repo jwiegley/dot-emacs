@@ -187,6 +187,25 @@ function fileshow($filename,$text="",$title="") {
 	$text, $message);
 }
 
+function fileshowmarkup($filename,$title="",$expanded="") {
+  if ($title=="") { $title = $filename; };
+  small_header($title);
+  print "<pre>\n";
+  /* I hope this is enough to prevent access outside cwd */
+  if (substr($filename,0,1)=="." or 
+      substr($filename,0,1)=="/" or
+      substr($filename,0,1)=="~") {
+     print "Sorry, can't show you that file!\n"; 
+  } elseif (substr($filename,-3)==".el") {
+     elisp_markup($filename,"fileshow.php");
+  } else {
+     outline_markup($filename,"fileshow.php",$expanded);
+  }
+  print "</pre>\n";
+  print "<hr>";
+  click_to_go_back();
+  footer();
+}
 
 /* Similar for html file (NB: could pick automatically) */
 
