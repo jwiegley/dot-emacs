@@ -27,6 +27,8 @@
 May enable proof-by-pointing or similar features.
 \\{proof-goals-mode-map}"
   (setq proof-buffer-type 'goals)
+  ;; font-lock-keywords isn't automatically buffer-local in Emacs 21.2
+  (make-local-variable 'font-lock-keywords)
   (make-local-hook 'kill-buffer-hook)
   (add-hook 'kill-buffer-hook 'pg-save-from-death nil t)
   (easy-menu-add proof-goals-mode-menu proof-goals-mode-map)

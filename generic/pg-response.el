@@ -21,6 +21,8 @@
 (define-derived-mode proof-response-mode proof-universal-keys-only-mode
   "PGResp" "Responses from Proof Assistant"
   (setq proof-buffer-type 'response)
+  ;; font-lock-keywords isn't automatically buffer-local in Emacs 21.2
+  (make-local-variable 'font-lock-keywords)
   (define-key proof-response-mode-map [q] 'bury-buffer)
   (define-key proof-response-mode-map [c] 'pg-response-clear-displays)
   (make-local-hook 'kill-buffer-hook)
