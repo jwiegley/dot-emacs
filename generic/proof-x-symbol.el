@@ -108,7 +108,10 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 	  (set symmodelinevar symmodelinenm)
 	  (x-symbol-register-language xs-lang xs-feature-sym all-xs-modes)
 	  ;; Put the extra modes on the auto-mode-alist
-	  (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
+	  ;; 3.0: don't bother: rashly assume that their mode
+	  ;; functions invoke proof-x-symbol.  That way we can
+	  ;; turn on/off cleanly in proof-x-symbol-mode-all-buffers.
+	  ;; (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
 	  ;; Font lock support is optional
 	  (if flks
 	      (put symmode 'font-lock-defaults (list flks)))
