@@ -43,7 +43,9 @@ A. Once X-Symbol is picked up by Emacs (e.g. is working for TeX),
 -----------------------------------------------------------------
 
 Q. I'm afraid I got stuck very early on.  I sent the following line:
+
       by (swap_res_tac [psubsetI] 1;
+
    Notice that I forgot the right bracket.  The line went pink, the
    buffer went read-only and nothing I tried would let me fix the
    error.  
