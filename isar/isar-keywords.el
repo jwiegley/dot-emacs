@@ -162,9 +162,9 @@
     "binder"
     "con_defs"
     "concl"
-    "congs"
     "distinct"
     "files"
+    "hints"
     "in"
     "induction"
     "infixl"
@@ -173,7 +173,6 @@
     "intros"
     "is"
     "monos"
-    "of"
     "output"
     "overloaded"
     "where"))
