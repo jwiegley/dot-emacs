@@ -1,5 +1,5 @@
-;; isar.el Major mode for Isabelle/Isar proof assistant
-;; Copyright (C) 1994-1998 LFCS Edinburgh.
+;; isar.el	 Major mode for Isabelle/Isar proof assistant
+;; Copyright (C) 1994-2003 LFCS Edinburgh.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; Maintainer:    Stefan Berghofer 
