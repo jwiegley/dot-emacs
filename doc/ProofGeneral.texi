@@ -5254,7 +5254,7 @@ STOP PRESS: the Proof General web pages are temporarily being hosted at
 
 You can obtain Proof General from the URL
 @example
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/download.html}.
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen}.
 @end example
 
 The distribution is available in three forms
