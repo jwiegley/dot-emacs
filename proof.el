@@ -9,6 +9,14 @@
 
 
 ;; $Log$
+;; Revision 1.29  1997/12/18 13:16:41  tms
+;; o introduced proof-shell-handle-error-hook and bount it by default to
+;;   proof-goto-end-of-locked-if-pos-not-visible-in-window (also new)
+;;
+;; o proof-find-next-terminator now also works inside a locked region
+;;
+;; o implemented proof-process-buffer which is by default bount to C-c C-b
+;;
 ;; Revision 1.28  1997/11/26 14:19:45  tms
 ;; o The response buffer focusses on the first goal
 ;; o If proof-retract-until-point is is invoked outside a locked region,
@@ -198,6 +206,11 @@
   "*This hook is called after output from the PROOF process has been
   displayed in the RESPONSE buffer.")
 
+(defvar proof-shell-handle-error-hook
+  '(proof-goto-end-of-locked-if-pos-not-visible-in-window)
+  "*This hook is called after an error has been reported in the
+  RESPONSE buffer.")  
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Generic config for script management                            ;;
@@ -326,7 +339,17 @@
 (defun proof-goto-end-of-locked ()
   "Jump to the end of the locked region."
   (interactive)
-  (goto-char (proof-locked-end)))
+  (goto-char (proof-locked-end) proof-script-buffer))
+
+(defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
+  "If the end of the locked region is not visible, jump to the end of
+  the locked region."
+  (interactive)
+  (let ((pos (proof-locked-end)))
+    (or (pos-visible-in-window-p pos (get-buffer-window
+				      proof-script-buffer t))
+	;; see code of proof-goto-end-of-locked
+	(goto-char pos proof-script-buffer))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -579,7 +602,8 @@
   (set-buffer proof-script-buffer)
   (proof-detach-queue)
   (delete-spans (proof-locked-end) (point-max) 'type)
-  (proof-release-lock))
+  (proof-release-lock)
+  (run-hooks 'proof-shell-handle-error-hook))
 
 (defun proof-shell-handle-interrupt ()
   (save-excursion 
@@ -758,12 +782,12 @@
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
   "Insert command sequence triggered by the proof process
-at the end of locked region (after inserting a newline)."
+at the end of locked region (after inserting a newline and indenting)."
   (save-excursion
     (set-buffer proof-script-buffer)
     (let (ext)
       (proof-goto-end-of-locked)
-      (newline)
+      (newline-and-indent)
       (insert cmd)
       (setq ext (make-span (proof-locked-end) (point)))
       (set-span-property ext 'type 'pbp)
@@ -1058,8 +1082,9 @@ at the end of locked region (after inserting a newline)."
    unclosed-comment-fun. If ignore-proof-process-p is set, no commands
    will be added to the queue."
   (interactive)
-  (let ((pt  (point)) semis crowbar)
-    (setq crowbar (proof-steal-process))
+  (let ((pt  (point))
+	(crowbar (or ignore-proof-process-p (proof-steal-process)))
+	semis)
     (save-excursion
       (if (not (re-search-backward "\\S-" (proof-locked-end) t))
 	  (progn (goto-char pt)
@@ -1126,8 +1151,16 @@ at the end of locked region (after inserting a newline)."
 (defun proof-find-next-terminator ()
   "Set point after next `proof-terminal-char'."
   (interactive)
-  (and (re-search-forward "\\S-" nil t)
-       (proof-assert-until-point nil 'ignore-proof-process)))
+  (let ((cmd (span-at (point) 'type)))
+    (if cmd (goto-char (span-end cmd))
+      (and (re-search-forward "\\S-" nil t)
+	   (proof-assert-until-point nil 'ignore-proof-process)))))
+
+(defun proof-process-buffer ()
+  "Process the current buffer and set point at the end of the buffer."
+  (interactive)
+  (end-of-buffer)
+  (proof-assert-until-point))
 
 (defun proof-done-retracting (ext)
   "Updates display after proof process has reset its state. See also
@@ -1312,6 +1345,7 @@ current command."
   (define-key proof-mode-map [(control c) (control u)] 'proof-undo-last-successful-command)
   (define-key proof-mode-map [(control c) (control v)] 'proof-execute-minibuffer-cmd)
   (define-key proof-mode-map [(control c) ?\'] 'proof-goto-end-of-locked)
+  (define-key proof-mode-map [(control c) (control b)] 'proof-process-buffer)
 
   ;; For fontlock
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
