@@ -44,9 +44,7 @@
 (defun span-write-warning (span)
   "Give a warning message when SPAN is changed."
   ;; FIXME: implement this in XEmacs, perhaps with after-change-functions
-  ;;
-  (set-span-property span 'read-only nil)
-  )
+  (set-span-property span 'read-only nil))
 
 (defsubst span-property (span name)
   "Return SPAN's value for property PROPERTY."

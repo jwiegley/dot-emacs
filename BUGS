@@ -115,21 +115,6 @@ adding this line to .emacs should help:
    (setq process-coding-system-alist '(("" . no-conversion))) 
 
 
-** Strict read only disabled by default in GNU Emacs.
-
-Unfortunately strict read only is incompatible with font lock in
-GNU Emacs, so it is disabled by default.  Instead, you get a warning message
-if the locked region is edited.
-
-
-** In GNU Emacs, spurious "Region read only" errors
-
-Same problem as above, different symptom.
-When proof-strict-read-only is set and font lock is on, these
-errors are given which break font lock.   
-Workaround: turn off proof-strict-read-only, font-lock, or for
-the best of all possible worlds, switch to XEmacs.
-
 
 ** XEmacs undo in the script buffer can edit the "uneditable region"
 

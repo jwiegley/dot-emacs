@@ -146,12 +146,7 @@ done if this `proof-strict-state-preserving' is turned off (nil)."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-strict-read-only 
-  ;; For GNU Emacs, strict read only is buggy when used in
-  ;; conjunction with font-lock.
-  ;; The second conjunctive ensures that the expression is either
-  ;; `nil' or `strict' (and not 15!!).  
-  (and proof-running-on-XEmacs 'strict)
+(defcustom proof-strict-read-only 'strict
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give

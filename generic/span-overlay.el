@@ -68,14 +68,12 @@ elements = S0 S1 S2 .... [tl-seq.el]"
 (defun span-read-only-hook (overlay after start end &optional len)
   (error "Region is read-only"))
 
-;;; FIXME: This is too harsh and breaks font-lock
-;;;        If only faces are modified we shouldn't call span-read-only-hook 
 (defun span-read-only (span)
   "Set SPAN to be read only."
   ;; Unfortunately, this function is called on spans which are
   ;; detached from a buffer, which gives an error here, since
   ;; text-properties are associated with text in a particular
-  ;; buffer position.
+  ;; buffer position.  So we use the read only hook instead.
   ;(add-text-properties (span-start span) (span-end span) '(read-only t)))
   (set-span-property span 'modification-hooks '(span-read-only-hook))
   (set-span-property span 'insert-in-front-hooks '(span-read-only-hook)))
