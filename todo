@@ -47,6 +47,9 @@ B toolbar icons: Automatically generate reduced and
 B Better support for adding a new prover: give error messages which
   hint at what variable to set (see proof-issue-goal for example).
 
+B Functions for next,previous input a la shell mode, but in proof
+  script buffer (3h, da).
+
 X Read-only mode of extents sometimes gets in the way: for example,
   if file changes on disk, can't reload it via usual functions.
   Can this be improved?  Always have to retract first, and that
