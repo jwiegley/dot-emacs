@@ -424,15 +424,20 @@ D Add ability to choose logic.  Maybe not necessary: can use default
   user-saved databases.
   (ponder this)
 
+X New features ideas:
+   1. Manage multiple proofs (markers in possibly different buffers)
+	 
 B Set wakeup-char by using Isabelle's ml-prompts function.
 
 X Add Isabelle logo to splash screen.  (30 mins)
 
+* FSF Emacs
+===========
 
-	 
-
-* Emacs19
-=========
+B According to the documentation of font-lock for Emacs 20.2, it
+  should suffice to set (add-hook 'lego-mode-hook 'turn-on-font-lock)
+  but this doesn't seem to work. Perhaps define-derived-mode doesn't
+  set up lego-mode correctly? (1h)
 
 
 * Release
