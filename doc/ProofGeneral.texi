@@ -904,7 +904,7 @@ proofs.
 @itemize @bullet
 @item The @dfn{proof shell buffer} is an Emacs shell buffer
  used to run your proof assistant.  Usually it is hidden from view
- (but see @ref{Working directly with the proof shell}).
+ (but see @ref{Escaping script management}).
  Communication with the proof shell takes place via two or three
  intermediate buffers.
 @item  A @dfn{script buffer}, as we have explained, is a buffer for editing a
@@ -1236,11 +1236,7 @@ returns false, then an error message is given.
 
 As if the last two commands weren't risky enough, there's also a command
 which explicitly adjusts the end of the locked region, to be used in
-extreme circumstances only.  @xref{Working directly with the proof
-shell}.
-
-@c Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working
-@c directly with the proof shell}
+extreme circumstances only.  @xref{Escaping script management}.
 
 There are a few commands for stopping, starting, and restarting the
 proof assistant process which have menu entries but no key bindings.
@@ -1311,7 +1307,7 @@ you with several escape mechanisms if you want to do this.
 * View of processed files ::    
 * Retracting across files::     
 * Asserting across files::      
-* Escaping script managment::
+* Escaping script management::
 @end menu
 
 @node Switching between proof scripts
@@ -1413,8 +1409,8 @@ unmodified buffers. This is particularly useful as assertion may cause
 the proof assistant to automatically process other files.
 
 
-@node Escaping script managment
-@section Escaping script managment
+@node Escaping script management
+@section Escaping script management
 @cindex Shell
 
 Occasionally you may want to review the dialogue of the entire session
