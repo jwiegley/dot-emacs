@@ -10,10 +10,16 @@ C (Low)    probably not worth wasting time on
 ====================================================================
 
 A Rename proof.el, etc to something more sensible: script-management.el?
+  Rename functions and variables inside all files to have consistent
+  prefixes.  This is emacs name space "management"!		(30min)
 
 A Write function proof-retract-file. (30min)
   Currently, the command ForgetMark (for LEGO) is hardwired in
   proof-steal-process.
+
+B Improve documentation in proof.el to help porting/understanding 
+  Also add notes into script-management.texinfo
+  (ongoing, da).
 
 A Update source documentation and manual, in particular document bugs
   and workarounds
