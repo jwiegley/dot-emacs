@@ -36,13 +36,9 @@ diff -cr ProofGeneral.old/lego/legotags ProofGeneral/lego/legotags
 *** ProofGeneral.old/lego/legotags	Wed Oct  7 18:37:18 1998
 --- ProofGeneral/lego/legotags	Wed Oct  7 19:04:35 1998
 ***************
-*** 1,4 ****
+*** 1,2 ****
 ! #!/usr/local/bin/perl
   #
-  # $Id: legotags,v 2.1 1998/09/09 14:02:46 da Exp $
-  #
---- 1,4 ----
+--- 1,2 ----
 ! #!/usr/bin/perl
-  #
-  # $Id: legotags,v 2.1 1998/09/09 14:02:46 da Exp $
   #
