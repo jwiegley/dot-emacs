@@ -40,11 +40,11 @@ March 2000.
 
 NEWSFLASH:
 
-Temporarily, all Proof General pages are hosted on the server
-zermelo.dcs.ed.ac.uk, so replace "www.dcs" or "www.lfcs.informatics"
-by "zermelo.dcs" in all URLs mentioned in the sources and
-documentation.  (There is an indirection via www.lfcs.informatics but
-it is not totally reliable, unfortunately)
+For the forseeable future, all Proof General pages are hosted on my
+personal server, zermelo.dcs.ed.ac.uk, so replace "www.dcs" or
+"www.lfcs.informatics" by "zermelo.dcs" in all URLs mentioned in the
+sources and documentation.  (There is an indirection in place via
+www.lfcs.informatics but it is not totally reliable, unfortunately)
 
 
 
