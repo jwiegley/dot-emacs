@@ -36,6 +36,11 @@ A Obscure BUGS to investigate:
 C Improve Makefile.devel, Makefile, ProofGeneral.spec by abstracting
   ELISP_DIRS somehow.
 
+D Update logo to include new "???" prover badge  (maybe it should be 
+  "...")
+
+D Add etc/announce to web pages somewhere.
+
 B Improve relocatability of RPM package, and produce package for XEmacs
   which installs directly under ~/.xemacs/packages.
 
