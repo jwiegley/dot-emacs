@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- DTD for PGML, the Proof General Markup Language		   -->
+<!-- Author:  David Aspinall, LFCS, University of Edinburgh	   -->
+<!-- Status:  Complete but experimental version.		   -->
+<!-- Version: $Id$     -->
+
+<!ELEMENT pgml (statedisplay | information | warning | error)*>
+<!ATTLIST pgml 
+	    version CDATA #IMPLIED>
+
+<!ELEMENT statedisplay (statepart)*>
+<!ATTLIST statedisplay 
+	   systemid CDATA #IMPLIED
+	   name	    CDATA #IMPLIED
+           kind	    CDATA #IMPLIED>
+
+<!ENTITY % termitem       "action | term | type | atom | sym">
+<!ENTITY % nonactionitem  "term | type | atom | sym">
+
+<!ELEMENT information (#PCDATA | %termitem;)*>
+<!ATTLIST information
+	   name	    CDATA #IMPLIED
+           kind	    CDATA #IMPLIED>
+
+<!ELEMENT warning (#PCDATA | %termitem;)*>
+<!ATTLIST warning
+	   name	    CDATA #IMPLIED
+           kind	    CDATA #IMPLIED>
+
+<!ELEMENT error (#PCDATA | %termitem;)*>
+<!ATTLIST error
+	   name	    CDATA #IMPLIED
+           kind	    CDATA #IMPLIED>
+
+<!ELEMENT statepart (#PCDATA | %termitem;)*>
+<!ATTLIST statepart 
+	   systemid CDATA #IMPLIED
+	   name     CDATA #IMPLIED
+	   kind	    CDATA #IMPLIED>
+
+<!ELEMENT term (#PCDATA | %termitem;)*>
+<!ATTLIST term 
+           pos  CDATA #IMPLIED 
+           kind CDATA #IMPLIED>
+
+<!-- maybe combine this with term and add extra attr to term? -->
+<!ELEMENT type (#PCDATA | %termitem;)*>
+<!ATTLIST type 
+	   kind CDATA #IMPLIED>
+
+<!ELEMENT action (#PCDATA | %nonactionitem;)*>
+<!ATTLIST action 
+	   kind CDATA #IMPLIED>
+
+<!ELEMENT atom (#PCDATA)>
+<!ATTLIST atom 
+	   kind CDATA #IMPLIED 
+	   fullname CDATA #IMPLIED>
+
+<!ELEMENT sym  (#PCDATA)>
+<!ATTLIST sym  
+	   name CDATA #IMPLIED
+	   alt  CDATA #IMPLIED>
+
+<!ELEMENT br EMPTY>
+
+

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- DTD for PGIP, the Proof General Interface Protocol		   -->
+<!-- Author:  David Aspinall, LFCS, University of Edinburgh        -->
+<!-- Version: $Id$     -->
+
+<!-- Status:  Incomplete.					   -->
+<!-- For commentary, see the Proof General Kit white paper, at     -->
+<!-- http://zermelo.dcs.ed.ac.uk/~proofgen/kit.html		   -->
+
+<!ELEMENT pgip (%provermsg; | %kitmsg;)*>
+<!ATTLIST pgip
+	    version CDATA 
+	    class   CDATA #IMPLIED
+	    origin  CDATA 
+	    id	    CDATA>
+
+<!-- Messages sent to PG Kit components -->
+
+<!ENTITY % kitmsg     "%kitconfig | %proverstatus">
+
+<!-- Messages sent to proof assistant (class "pa") -->
+
+<!ENTITY % provermsg	"proverconfig">
+
+
+<!-- STATUS/ERROR MESSAGES -->
+<!-- ===================== -->
+
+<!ENTITY % proverstatus "information | error">
+
+<!ELEMENT information (#PCDATA)>
+<!ATTLIST information
+	   kind		CDATA #IMPLIED
+	   location	CDATA>
+
+<!-- kind=message,urgentmessage,display -->
+
+<!ELEMENT error (#PCDATA)>
+<!ATTLIST error
+	   kind		CDATA #IMPLIED
+	   location	CDATA>
+
+<!-- kind=warning,fatal,interrupt -->
+
+
+
+<!-- CONFIGURATION MESSAGES -->
+<!-- ====================== -->
+
+<!ENTITY % kitconfig  "usespgml | haspref | prefval | idtable | 
+			addid | delid | menuadd | menudel">
+
+<!ELEMENT usespgml EMPTY>
+<!ATTLIST usespgml 
+	   version CDATA #IMPLIED>
+
+<!ELEMENT haspref (#PCDATA)>
+<!ATTLIST haspref 
+	   type     CDATA #IMPLIED
+	   default  CDATA
+	   class    CDATA>
+
+<!ELEMENT prefval (#PCDATA)>
+<!ATTLIST prefval
+	   name     CDATA #IMPLIED>
+
+<!ELEMENT idtable (#PCDATA)>
+<!ATTLIST idtable
+	   class    CDATA #IMPLIED>
+
+<!ELEMENT addid (#PCDATA)>
+<!ATTLIST addid
+	   class    CDATA #IMPLIED>
+
+<!ELEMENT delid (#PCDATA)>
+<!ATTLIST delid
+	   class    CDATA #IMPLIED>
+
+<!ELEMENT menuadd (#PCDATA)>
+<!ATTLIST menuadd
+	   path	    CDATA #IMPLIED
+	   name	    CDATA #IMPLIED>	   	
+
+<!ELEMENT menudel (#PCDATA)>
+<!ATTLIST menudel
+	   path	    CDATA #IMPLIED
+	   name	    CDATA #IMPLIED>	   	
+	   
+	   
+<!ENTITY % proverconfig  "askpgml | askprefs | resetprefs | 
+			  setpref | getpref">
+
+<!ELEMENT askpgml EMPTY>
+
+<!ELEMENT askprefs EMPTY>
+<!ATTLIST askprefs
+	   class   CDATA #IMPLIED>
+
+<!ELEMENT resetprefs EMPTY>
+<!ATTLIST resetprefs
+	   class   CDATA #IMPLIED>
+
+<!ELEMENT setpref EMPTY>
+<!ATTLIST setpref
+	   class   CDATA #IMPLIED>
+
+<!ELEMENT getpref EMPTY>
+<!ATTLIST getpref
+	   class   CDATA #IMPLIED>
+
+
+
+
+
+<!ELEMENT br EMPTY>
