@@ -38,18 +38,6 @@ X (Low)		probably not worth spending time on
 * Things to in the generic interface
 ====================================
 
-
-A Final stuff for 3.0 release [da]:
-
-  - name change for "automatic multiple files" stuff
-  - See if better fix for FSF overlay mess
-  - put demo paper on web pages, add more to it.
-  - is there a welcome message for mailing list?
-  
-
-
----------------------------------------------
-
 B Manual improvements before techreport publishing (see notes at end also):
   - Mention configuring function menus, outline.
   - Consider splitting up chapter 9?
@@ -59,7 +47,10 @@ B Manual improvements before techreport publishing (see notes at end also):
     interrupt, restart, finally exit proof assistant.
   - improvements after feedback from users.
 
-D Improve goto button image [suggestion from Markus]
+D Change the name of "automatic multiple files" to something
+  more comprehensible.
+
+X Improve goto button image [suggestion from Markus]
   Is it possible to avoid the arrows to touch in the middle,
   emphasizing the 'point' a bit more.  The arrows look a bit outwards
   bent, too.
@@ -961,9 +952,9 @@ X spurious byte comp warning in XEmacs 21.1.4:
 ========================================
 
 A Try to get small project grant from LFCS to help with
-  development of Proof General (doubtful).
-  Needs a self-contained project that would be useful to
-  LFCS.   Possibles:
+  development of Proof General.  Latest news: success is 
+  doubtful. Needs a self-contained project that would be useful 
+  to LFCS.   Possibles:
     - Proof-by-pointing for Coq 
 		      - for Isabelle (hard)
     - Re-engineering Proof General to use XML-style 
@@ -988,4 +979,6 @@ A Polish ProofGeneral.texi and publish LaTeX as an LFCS
   [6 hours]
 
 A Write paper on design and development of Proof General.
+
+A Put Proof General demo paper on the web.
 
