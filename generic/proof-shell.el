@@ -60,7 +60,12 @@ Set in proof-shell-mode.")
 (defvar proof-marker nil 
   "Marker in proof shell buffer pointing to previous command input.")
 
-(defvar proof-action-list nil "action list")
+(defvar proof-action-list nil
+  "A list of
+
+  (span,command,action)
+
+triples, which is a queue of things to do.")
 
 
 
@@ -132,7 +137,7 @@ Set in proof-shell-mode.")
 
 (defun proof-shell-ready-prover ()
   "Make sure the proof assistant is ready for a command"
-  (proof-start-shell)
+  (proof-shell-start)
   (if proof-shell-busy (error "Proof Process Busy!")))
 
 (defun proof-shell-live-buffer ()
@@ -174,11 +179,12 @@ No error messages.  Useful as menu or toolbar enabler."
 ;;  Starting and stopping the proof shell  
 ;;
 
-(defun proof-start-shell ()
+(defun proof-shell-start ()
   "Initialise a shell-like buffer for a proof assistant.
 
 Also generates goal and response buffers.
 Does nothing if proof assistant is already running."
+  (interactive)
   (if (proof-shell-live-buffer)
       ()
     (run-hooks 'proof-pre-shell-start-hook)
@@ -353,10 +359,12 @@ and clearing all script buffers."
       (incf a))
     (apply 'concat (nreverse ls))))
 
+;; FIXME da: this is an oddity.  Was bound by default to
+;; control - button1, I've turned it off.
 (defun proof-send-span (event)
   (interactive "e")
   (let* ((span (span-at (mouse-set-point event) 'type))
-	 (str (span-property span 'cmd)))
+	 (str  (if span (span-property span 'cmd))))
     (cond ((and (eq (current-buffer) proof-script-buffer)
 		(not (null span)))
 	   (proof-goto-end-of-locked)
@@ -1017,11 +1025,11 @@ if none of these apply, display."
 				   'proof-eager-annotation-face))))
 
 (defvar proof-shell-urgent-message-marker nil
-  "Marker in proof shell buffer used for parsing urgent messages.")
+  "Marker in proof shell buffer pointing to end of last urgent message.")
 
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
-Scanning starts from proof-shell-urgent-message-pos and processes
+Scanning starts from proof-shell-urgent-message-marker and processes
 strings between eager-annotation-start and eager-annotation-end."
   (let ((pt (point)))
     (goto-char
@@ -1051,9 +1059,10 @@ strings between eager-annotation-start and eager-annotation-end."
 ;; FIXME da: moreover, are urgent messages full processed??
 ;; some seem to get dumped in response buffer.
 
-(defun proof-shell-filter (str) 
+(defun proof-shell-filter (str)
   "Filter for the proof assistant shell-process.
-We sleep until we get a wakeup-char in the input, then run
+We process urgent messages first.  Then wait until we get a
+proof-shell-wakeup-char in the input, then run
 proof-shell-process-output, and set proof-marker to keep track of
 how far we've got."
   (save-excursion

@@ -45,6 +45,7 @@
 	 (t (cond
 	     ((eq c ?\()
 	      (cond
+	       ;; FIXME broken: comment strings are not generic.
 	       ((looking-at "(\\*")
 		(progn
 		  (incf comment-level)

@@ -1,6 +1,7 @@
 ;; proof-toolbar.el    Toolbar for Proof General
 ;;
-;; David Aspinall <da@dcs.ed.ac.uk>
+;; Copyright (C) 1998 David Aspinall.
+;; Author:     David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer: Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
@@ -353,6 +354,7 @@ Move point if the end of the locked position is invisible."
   )
 
 (defun proof-toolbar-restart  ()
+  "Restart scripting via proof-shell-restart."
   (interactive)
   (if (proof-toolbar-restart-enable-p)
       (proof-shell-restart)))
