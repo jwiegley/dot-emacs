@@ -515,6 +515,9 @@ correctly.
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsubsec Processing Files
 
+@vindex proof-shell-eager-annotation-start
+@vindex proof-shell-eager-annotation-end
+
 Proof General considers @var{output} delimited by the the two regualar
 expressions @code{proof-shell-eager-annotation-start} and
 @code{proof-shell-eager-annotation-end} as being important. It displays
@@ -523,10 +526,13 @@ Among possibly other important messages characterised by these regular
 expressions, the prover must tell the interface whenver it processes a
 file. 
 
-The variable @code{proof-shell-process-file} is a tuple of the
+@vtable @code
+@item proof-shell-process-file
+is a tuple of the
 form (@var{regexp}, @var{match}). If @var{regexp} matches @var{output},
-then the @var{match} match must match the file name (with complete path)
+then the @var{match} must match the file name (with complete path)
 the system is currently processing. @inforef{Match Data,,lispref}
+@end vtable
 
 @node Recording File History, Parent Script Buffers, Processing Files, Handling Multiple Files
 @comment  node-name,  next,  previous,  up
@@ -536,10 +542,10 @@ The variable
 
 @vtable @code
 @item proof-included-files-list
- records the file history.
-It contains an acyclic graph. The nodes are strings (canonical file names). An
-edge from node @samp{n1} to node @samp{n2} indicates that @samp{n1}
-depends on @samp{n2}. @samp{n1} is the child, @samp{n2} is a parent.
+records the file history. It contains an (acyclic) directed graph.
+Besides the @samp{'root}, nodes are strings (canonical file names). An
+edge from node @samp{n1} to node @samp{n2} indicates that @samp{n2}
+depends on @samp{n1}. @samp{n2} is the child, @samp{n1} is a parent.
 @end vtable
 
 The variable @code{proof-included-files-list} should not be modified
