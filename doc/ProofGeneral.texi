@@ -51,7 +51,7 @@
 @ifinfo
 @format
 START-INFO-DIR-ENTRY
-* ProofGeneral:: Organize your proofs with Emacs!
+* Proof General: (ProofGeneral). Organize your proofs with Emacs!
 END-INFO-DIR-ENTRY
 @end format
 @end ifinfo
@@ -147,120 +147,6 @@ Isabelle.
 * Keystroke Index::             
 * Concept Index::               
 @end menu
-
-@detailmenu  --- The Detailed Node Listing ---
-
-Introducing Proof General
-
-* Quick start guide::           
-* Features of Proof General::   
-* Supported proof assistants::  
-* Prerequisites for this manual::
-
-Basic Script Management
-
-* Proof scripts::               
-* Script buffers::              
-* Summary of Proof General buffers::               
-* Script editing commands::     
-* Script processing commands::  
-* Toolbar commands::            
-* Proof assistant commands::    
-* Walkthrough example in LEGO::  
-
-Script buffers
-
-* Locked queue and editing regions::  
-* Goal-save sequences::         
-* Active scripting buffer::     
-
-Advanced Script Management
-
-* Switching between proof scripts::  
-* View of processed files ::    
-* Retracting across files::     
-* Asserting across files::      
-* Working directly with the proof shell::  
-
-Support for other Packages
-
-* Support for function menus::  
-* Support for outline mode::    
-* Support for tags::            
-
-Customizing Proof General
-
-* Easy customization::          
-* Display customization::       
-* User options::                
-* Changing faces::              
-* Tweaking configuration settings::  
-
-LEGO Proof General
-
-* LEGO specific commands::      
-* LEGO tags::                   
-* LEGO customizations::         
-
-Coq Proof General
-
-* Coq specific commands::       
-* Coq customizations::          
-
-Isabelle Proof General
-
-* Theory files::                
-* Isabelle specific commands::  
-* Isabelle customizations::     
-
-Adapting Proof General to Other Provers
-
-* Overview of adding a new prover::            
-* Major modes used by Proof General::  
-* Menus and user-level commands::  
-* Proof script settings::       
-* Proof shell settings::        
-* Goals buffer configuration::  
-* Global constants::            
-* Handling multiple files::     
-
-Internals of Proof General
-
-* Spans::                       
-* Global variables::            
-* Proof script mode::           
-* Proof shell mode::            
-
-Credits and References
-
-* Credits::                     
-* References::                  
-
-Obtaining and Installing Proof General
-
-* Obtaining Proof General::     
-* Installing Proof General from tarball::  
-* Installing Proof General from RPM package::  
-* Notes for syssies::           
-
-Known bugs and workarounds
-
-* Bugs at the generic level::   
-* Bugs specific to LEGO Proof General::  
-* Bugs specific to Coq Proof General::  
-* Bugs specific to Isabelle Proof General::  
-
-Bugs specific to LEGO Proof General
-
-* Retraction and Discharge::    
-* Retraction and proving::      
-* Non writable directories::    
-
-Plans and ideas
-
-* Granularity of atomic command sequences::  
-* Browser mode for script files and theories::  
-@end detailmenu
 @end ifinfo
 
 @node Preface
