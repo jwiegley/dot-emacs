@@ -878,12 +878,13 @@ the start or the end of the entity.  The discriminators then test
 which kind of entity has been found, to get its name.  A
 DISCRIMINATOR-REGEXP has one of the forms
 
-  (REGEXP MATCHNO) 
-  (REGEXP MATCHNO 'backward BACKREGEXP) 
-  (REGEXP MATCHNO 'forward FORWARDREGEXP)
+  (REGEXP MATCHNOS)
+  (REGEXP MATCHNOS 'backward BACKREGEXP)
+  (REGEXP MATCHNOS 'forward FORWARDREGEXP)
 
 If REGEXP matches the string captured by ANYENTITY-REGEXP, then
-MATCHNO is the match number for the substring which names the entity.
+MATCHNOS are the match numbers for the substrings which name the entity
+(these may be either a single number or a list of numbers).
 
 If 'backward BACKREGEXP is present, then the start of the entity
 is found by searching backwards for BACKREGEXP.
@@ -948,6 +949,10 @@ default."
 ;;  determining the depth of proof nesting.
 ;; FIXME da: yuck!  What I'd really like to replace the mess with is
 ;;  feedback from the proof assistant, saying "that was a save", etc.
+;; FIXME mmw: all we need is some tracking of the 'depth' of commands;
+;;  Why not let PG track this as in spans, changing the value based
+;;  on some regexps for 'open' / 'close' commands? This would basically
+;;  move the code of isar-global-save-command-p to proof-done-advancing.
 ;;
 (defcustom proof-really-save-command-p (lambda (span cmd) t)
   "Is this really a save command?"
