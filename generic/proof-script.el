@@ -8,7 +8,7 @@
 ;;
 ;; $Id$
 ;;
-;; FIXME: use of point-min and point-max everywhere is wrong
+;; FIXME da: use of point-min and point-max everywhere is wrong
 ;; if narrowing is in force.
 
 (require 'proof)
@@ -800,11 +800,12 @@ the ACS is marked in the current buffer. If CMD does not match any,
   ;;FIXME tms: needs implementation
   nil)
 
+
 (defun proof-done-advancing (span)
   "The callback function for assert-until-point."
   ;; FIXME da: if the buffer dies, this function breaks horribly.
   ;; Needs robustifying.
-  (let ((end (span-end span)) nam gspan next cmd)
+  (let ((end (span-end span)) cmd)
     ;; State of spans after advancing: 
     (proof-set-locked-end end)
     (proof-set-queue-start end)
@@ -818,53 +819,110 @@ the ACS is marked in the current buffer. If CMD does not match any,
      ;; ((proof-check-atomic-sequents-lists span cmd end))
 
      ;; Save command seen, now we'll amalgamate spans.
-     ;; FIXME: for provers which don't allow nested goals,
-     ;; we could spot goal commands here and take the same
-     ;; action assuming (as in Isabelle) that new goal
-     ;; command automatically discards earlier state.
      ((and (proof-string-match proof-save-command-regexp cmd)
 	    (funcall proof-really-save-command-p span cmd))
-      ;; First, clear the proof completed flag
-      (setq proof-shell-proof-completed nil)
-      ;; Try to set the name of the theorem from the save
-      (and proof-save-with-hole-regexp
-	   (proof-string-match proof-save-with-hole-regexp cmd)
-	   (setq nam (match-string 2 cmd)))
-      ;; Search backwards for first goal command, 
-      ;; deleting spans along the way.
-      (setq gspan span)
-      (while (or (eq (span-property gspan 'type) 'comment)
-		 (not (funcall proof-goal-command-p 
-				    (setq cmd (span-property gspan 'cmd)))))
-	(setq next (prev-span gspan 'type))
-	(delete-span gspan)
-	(setq gspan next))
-      ;; If the name isn't set, try to set it from the goal. 
-      (unless nam
+
+      (let (nam gspan next)
+	;; First, clear the proof completed flag
+	(setq proof-shell-proof-completed nil)
+
+	;; Try to set the name of the theorem from the save
+	(and proof-save-with-hole-regexp
+	     (proof-string-match proof-save-with-hole-regexp cmd)
+	     (setq nam (match-string 2 cmd)))
+
+	;; Search backwards for first goal command, 
+	;; deleting spans along the way.
+	;; (FIXME da: what happens if no goal is found?)
+	(setq gspan span)
+	(while (or (eq (span-property gspan 'type) 'comment)
+		   (not (funcall proof-goal-command-p 
+				 (setq cmd (span-property gspan 'cmd)))))
+	  (setq next (prev-span gspan 'type))
+	  (delete-span gspan)
+	  (setq gspan next))
+
+	;; If the name isn't set, try to set it from the goal. 
+	(unless nam
 	  (and proof-goal-with-hole-regexp
 	       (proof-string-match proof-goal-with-hole-regexp
 				   (span-property gspan 'cmd))
 	       (setq nam (match-string 2 (span-property gspan 'cmd)))))
-      ;; As a final desparate attempt, set the name to "Unnamed_thm".
-      ;; FIXME da: maybe this should be prover specific: is
-      ;; "Unnamed_thm" actually a Coq identifier?
-      (unless nam
-	(setq nam "Unnamed_thm"))
+	;; As a final desparate attempt, set the name to "Unnamed_thm".
+	;; FIXME da: maybe this should be prover specific: is
+	;; "Unnamed_thm" actually a Coq identifier?
+	(unless nam
+	  (setq nam "Unnamed_thm"))
 
-      ;; Now make the new goal-save span
-      (set-span-end gspan end)
-      (set-span-property gspan 'mouse-face 'highlight)
-      (set-span-property gspan 'type 'goalsave)
-      (set-span-property gspan 'name nam)
+	;; Now make the new goal-save span
+	(set-span-end gspan end)
+	(set-span-property gspan 'mouse-face 'highlight)
+	(set-span-property gspan 'type 'goalsave)
+	(set-span-property gspan 'name nam)
+	
+	;; In Coq, we have the invariant that if we've done a save and
+	;; there's a top-level declaration then it must be the
+	;; associated goal.  (Notice that because it's a callback it
+	;; must have been approved by the theorem prover.)
+	(and proof-lift-global
+	     (funcall proof-lift-global gspan))))
 
-      ;; In Coq, we have the invariant that if we've done a save and
-      ;; there's a top-level declaration then it must be the
-      ;; associated goal.  (Notice that because it's a callback it
-      ;; must have been approved by the theorem prover.)
-      (and proof-lift-global
-	   (funcall proof-lift-global gspan)))
+     ;; Goal command just processed, no nested goals allowed.
+     ;; We make a fake goal-save from any previous 
+     ;; goal to the command before the present one.
+     ;; (This is a hack for Isabelle to allow smooth
+     ;; undoing in proofs which have no "qed" statements).
+     ;; FIXME: abstract common part of this case and case above,
+     ;; to improve code by making a useful subroutine.
+     ((and (not proof-nested-goals-allowed)
+	   (funcall proof-goal-command-p cmd))
+      (let (nam gspan hitsave dels)
+	;; A preliminary search backwards to 
+	;; see if we can find a previous goal before
+	;; a save or the start of the buffer.
+	(setq gspan (prev-span span 'type))
+	(while 
+	    (and 
+	     gspan
+	     (or 
+	      (eq (span-property gspan 'type) 'comment)
+	      (and
+	       (not (funcall proof-goal-command-p 
+			     (setq cmd (span-property gspan 'cmd))))
+	       (not
+		(and (proof-string-match proof-save-command-regexp cmd)
+		     (funcall proof-really-save-command-p span cmd)
+		     (setq hitsave t))))))
+	  (setq dels (cons gspan dels))
+	  (setq gspan (prev-span gspan 'type)))
+	(unless (or hitsave (null gspan))
+	  ;; If we haven't hit a save or the start of the buffer,
+	  ;; we make a fake goal-save region.
 
-     ;; Otherwise, some other kind of command.
+	  ;; Delete spans between the previous goal and new goal
+	  (mapcar 'delete-span dels)
+
+	  ;; Try to set a name from the goal
+	  ;; (useless for Isabelle)
+	  (and proof-goal-with-hole-regexp
+	       (proof-string-match proof-goal-with-hole-regexp
+				   (span-property gspan 'cmd))
+	       (setq nam (match-string 2 (span-property gspan 'cmd))))
+	  ;; As a final desparate attempt, set the name to "Unnamed_thm".
+	  (unless nam
+	    (setq nam "Unnamed_thm"))
+	  
+	  ;; Now make the new goal-save span
+	  (set-span-end gspan (span-start span))
+	  (set-span-property gspan 'mouse-face 'highlight)
+	  (set-span-property gspan 'type 'goalsave)
+	  (set-span-property gspan 'name nam)))
+	;; Finally, do the usual thing with highlighting.
+	;; Don't bother with Coq's lift global stuff, we assume
+	;; this code is only good for non-nested goals.
+	(set-span-property span 'mouse-face 'highlight))
+     ;; 
+     ;; Otherwise, some other kind of command (or a nested goal).
      (t
       (set-span-property span 'mouse-face 'highlight)
       (and proof-global-p 
