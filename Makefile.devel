@@ -168,8 +168,8 @@ alldist:	distdocs
 #
 # Make tags file
 #
-tags:	$(ELC)
-	etags $(EL) > TAGS
+tags:	$(EL)
+	etags $(EL) doc/ProofGeneral.texi > TAGS
 
 
 
