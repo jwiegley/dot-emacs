@@ -192,11 +192,17 @@ Does nothing if proof assistant is already running."
       (message (format "Starting %s process..." proc))
 
       ;; Starting the inferior process (asynchronous)
-      (let ((prog-name-list (proof-string-to-list 
-			     (concat 
-			      proof-rsh-command
-			      " "
-			      proof-prog-name) " ")))
+      (let ((prog-name-list 
+	     (proof-string-to-list 
+	      ;; Cut in proof-rsh-command if it's non-nil and
+	      ;; non whitespace.  FIXME: whitespace at start
+	      ;; of this string is nasty.
+	      (if (and proof-rsh-command
+		       (not (string-match "^[ \t]*$" proof-rsh-command)))
+		  (concat proof-rsh-command " " proof-prog-name)
+		proof-prog-name)
+	      ;; Split on spaces: FIXME: maybe should be whitespace.
+	      " ")))
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
       ;; To send any initialisation commands to the inferior process,
