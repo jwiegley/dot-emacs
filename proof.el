@@ -19,6 +19,9 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.18  1997/10/24 14:51:13  hhg
+;; Updated comment about extent types
+;;
 ;; Revision 1.17  1997/10/22 16:43:54  hhg
 ;; Updated proof-segment-up-to to take ""'s into account
 ;; Hence, << Cd "../x". >> works in Coq, and
@@ -613,11 +616,11 @@
 	(incf ip))
       (display-buffer (set-buffer proof-pbp-buffer))
       (erase-buffer)
-      (insert (substring out 0 op)))))
-;      (while (setq ip (car topl) 
-;		   topl (cdr topl))
-;	(pbp-make-top-extent ip (car topl)))
-;      (pbp-make-top-extent ip (point-max)))))
+      (insert (substring out 0 op))
+      (while (setq ip (car topl) 
+		   topl (cdr topl))
+	(pbp-make-top-extent ip (car topl)))
+      (pbp-make-top-extent ip (point-max)))))
 
 (defun proof-shell-strip-annotations (string)
   (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
@@ -928,6 +931,7 @@ at the end of locked region (after inserting a newline)."
 ; when an extent has been processed, we classify it as follows:
 ; 'goalsave - denoting a 'goalsave pair in the locked region
 ;    a 'goalsave region has a 'name property which is the name of the goal
+; 'comment - denoting a comment
 ; 'pbp - denoting an extent created by pbp
 ; 'vanilla - denoting any other extent.
 ;   'pbp & 'vanilla extents have a property 'cmd, which says what
