@@ -271,6 +271,7 @@ will be asked if you want to save abbrevs, answer yes.
 *** X-symbols are much improved (more symbols, cleaner grammar)
 
 Much more symbols are supported now (C-= C-= for the symbol table).
+See coq/README for more details, including the syntax of sub/superscripts.
 
 ** Additional instances of Proof General
 
