@@ -5,6 +5,11 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.9  1998/06/10 14:02:39  hhg
+;; Wrote generic span functions for making spans read-only or read-write.
+;; Fixed bug in add-span and remove-span concerning return value of
+;; span-traverse.
+;;
 ;; Revision 1.8  1998/06/10 12:41:47  hhg
 ;; Compare span-end first rather than span-start in span-lt, because
 ;; proof-lock-span is often changed and has starting point 1.
@@ -101,6 +106,17 @@ elements = S0 S1 S2 .... [tl-seq.el]"
 (defsubst span-property (span name)
   (overlay-get span name))
 
+(defun span-read-only-hook (overlay after start end &optional len)
+  (error "Region is read-only"))
+
+(defun span-read-only (span)
+  (set-span-property span 'modification-hooks '(span-read-only-hook))
+  (set-span-property span 'insert-in-front-hooks '(span-read-only-hook)))
+
+(defun span-read-write (span)
+  (set-span-property span 'modification-hooks nil)
+  (set-span-property span 'insert-in-front-hooks nil))
+
 (defun int-nil-lt (m n)
   (cond
    ((eq m n) nil)
@@ -141,9 +157,9 @@ elements = S0 S1 S2 .... [tl-seq.el]"
       (set-span-property span 'before before-list)
       (setq before-list span))
      (t
-      (set-span-property (car ans) span)
       (set-span-property span 'before
-			 (span-property (car ans) 'before))))))
+			 (span-property ans 'before))
+      (set-span-property ans 'before span)))))
 
 (defun make-span (start end)
   (add-span (make-overlay start end)))
@@ -155,9 +171,8 @@ elements = S0 S1 S2 .... [tl-seq.el]"
       (error "Bug: empty span list"))
      ((eq ans 'hd)
       (setq before-list (span-property before-list 'before)))
-     ((car ans)
-      (set-span-property (car ans) 'before
-			 (span-property span 'before)))
+     (ans
+      (set-span-property ans 'before (span-property span 'before)))
      (t (error "Bug: span does not occur in span list")))))
 
 ;; extent-at gives "smallest" extent at pos
