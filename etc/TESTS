@@ -5,6 +5,14 @@ See testing-log.txt for log of tests conducted.
 Please add to that file!
 
 
+1.2.99 FILE RECOGNITION PROBLEM  [Isabelle]
+===========================================
+
+  Bug in regexp caused ML files to be recognized as
+  theory files when "thy" appeared in path.
+  Test case in etc/isa/thy/test.ML.
+
+
 15.1.99  LONG-LINE AND BACKSLASH PROBLEM ON SOLARIS
 ===================================================
 
