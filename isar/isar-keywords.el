@@ -39,7 +39,6 @@
     "exit"
     "init_toplevel"
     "kill"
-    "kill_proof"
     "quit"
     "redo"
     "undo"
@@ -136,7 +135,8 @@
     "translations"
     "typed_print_translation"
     "typedecl"
-    "types"))
+    "types"
+    "variables"))
 
 (defconst isar-keywords-theory-goal
   '("instance"
