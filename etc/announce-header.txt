@@ -1,8 +1,8 @@
 To: coq-club@pauillac.inria.fr,
     isabelle-users@cl.cam.ac.uk,
     lego-club@dcs.ed.ac.uk,
-    uitp@dcs.gla.ac.uk,
-    bra-types@cs.chalmers.se,
+--     uitp@dcs.gla.ac.uk,   No replacement yet, we should have one!
+    types-wg@durham.ac.uk,
     info-hol@leopard.cs.byu.edu,
     pvs@csl.sri.com, 
     qed@mcs.anl.gov,				
