@@ -52,14 +52,14 @@ C Problem with startup for Coq and HOL.  See BUGS.
 
 **** A Doc new bits: Isabelle settings mechanism, win32 support
 
-**** A Add a new keymap(s) for proof assistants.
-  Presently they naughtily bind C-c <letter> which are reserved for
-  users.  As a prelude to introducing more prover-specific commands,
-  we should change these.  New map choices:
+**** B New keymap(s) for proof assistants.  Added on C-c C-a
 
-    C-c C-a (but blasts command start)
-    C-c C-p (blasts proof-prf)
-    C-c C-x already seems to be a prefix?
+   Doc this change.
+   Means old C-c C-a and C-c C-e are lost.
+   Consider adding new submap for movement in proof script.
+
+**** C Isabelle: I think show_sorts -> show_types ?
+   
 
 **** A Add efficiency improvement by turning on/off prover output.
   Patch already added to pre-release.
