@@ -195,15 +195,15 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news, for 3.1::                     
+* Latest news for 3.1::                     
 * News for 3.0::                     
 * History::                     
 * Credits::                     
 @end menu
 
 
-@node Latest news, for 3.1
-@unnumberedsec Latest news, for 3.1
+@node Latest news for 3.1
+@unnumberedsec Latest news for 3.1
 @cindex news
 
 Proof General 3.1 is released as a bug-fix improvement over version 3.0.
