@@ -66,6 +66,22 @@ C Compatibility enhancement:
     - Consider sending comments to proof process after all.  They might
       contain special (e.g. LaTeX) directives or something.
 
+C Internal improvements for marking up proof assistant output.
+    We need a better mechanism for allowing "invisible" mark up
+    of assistant output based on annotations.  Present code
+    allows proof-shell-leave-annotations-in-output=t to work
+    together with font-lock to do mark up.  
+    Instead we need something more like what enriched-mode does
+    (although I've just tried it and I foound that copying with 
+    the mouse ignores the text properties, but copying with the 
+    keyboard copies them!).  It uses a general library
+    format.el for reading and writing files in multiple formats.
+    This is not quite what we want for our purpose, but it might be a
+    closer approximation than using font lock and hiding the special
+    characters.  
+    Maybe using x-symbol would give another approximation, too, although
+    I'm put off that because it's not so standardly a part of XEmacs yet.
+
 A Usability enhancement:
    Enable toolbar in other buffers.  Should switch to active
    scripting buffer first if it is non current.
