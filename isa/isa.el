@@ -110,6 +110,7 @@ no regular or easily discernable structure."
    ;; proof engine output syntax
    proof-save-command-regexp    isa-save-command-regexp
    proof-save-with-hole-regexp  isa-save-with-hole-regexp
+   ;; Next one used for func-menu.
    proof-goal-with-hole-regexp  isa-goal-with-hole-regexp
    proof-commands-regexp	(proof-ids-to-regexp isa-keywords)
    ;; proof engine commands (first three for menus, last for undo)

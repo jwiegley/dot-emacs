@@ -66,7 +66,10 @@
   :type '(repeat string))
 
 (defcustom isa-keywords-save
-  '("qed" "result" "uresult" "bind_thm" "store_thm")
+  '("qed")
+  ;; Related commands, but having different types, so PG
+  ;; won't bother support them:
+  ;; "result" "uresult" "bind_thm" "store_thm"
     "Isabelle commands to extract the proved theorem"
   :group 'isa-syntax
   :type '(repeat string))
@@ -103,9 +106,11 @@
 
 (defconst isa-ids (proof-ids isa-id))
 
+;; FIXME: rubbish syntax here.
 (defun isa-abstr-regexp (paren char)
     (concat paren "\\s-*\\(" isa-ids "\\)\\s-*" char))
 
+;; FIXME: rubbish syntax here.
 (defvar isa-font-lock-terms
   (list
    ;; lambda binders
@@ -122,23 +127,35 @@
 
 (defconst isa-save-command-regexp
   (concat "^" (proof-ids-to-regexp isa-keywords-save)))
+
+;; CHECKED
 (defconst isa-save-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp isa-keywords-save)
-	  "\\)\\s-+\\(" isa-id "\\)\\s-*\."))
+	  "\\)\\s-+\"\\(" isa-id "\\)\"\\s-*;"))
 
-;; FIXME: where?
 (defcustom isa-goal-command-regexp
   (concat "^" (proof-ids-to-regexp isa-keywords-goal))
   "Regular expression used to match a goal."
   :type 'regexp
   :group 'isabelle-config)
 
+(defconst isa-string-regexp
+  (concat "\\s-*\"\\(" isa-id "\"\\)\\s-*")
+  "Regexp matching ML strings, with contents bracketed.")
+
 (defconst isa-goal-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp isa-keywords-goal)
-	  "\\)\\s-+\\(" isa-id "\\)\\s-*:"))
+  (concat "\\("
+	  ;; Don't bother with "val xxx = prove_goal blah".
+	  (proof-ids-to-regexp '("qed_goal"))
+	  "\\)" isa-string-regexp ".*;\\s-*$")
+  "Regexp matching goal commands in Isabelle which name a theorem")
+
+;; FIXME: rubbish for Isabelle
 (defconst isa-decl-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp isa-keywords-decl)
 	  "\\)\\s-+\\(" isa-ids "\\)\\s-*:"))
+
+;; FIXME: rubbish for Isabelle
 (defconst isa-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp isa-keywords-defn)
 	  "\\)\\s-+\\(" isa-id "\\)\\s-*[:[]"))
