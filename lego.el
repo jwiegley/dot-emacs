@@ -4,12 +4,11 @@
 ;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <20 Nov 96 tms /home/tms/elisp/lego.el>
+;; Time-stamp: <22 Nov 96 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
-(require 'proof)
-(require 'ext)
+(require 'pbp)
 
 ; Configuration                                  
 
@@ -96,7 +95,7 @@
 (defvar lego-shell-process-name "lego"
   "*The name of the lego-process")
 
-(defvar lego-shell-prog-name "~djs/lego/lego/bin/legoML"
+(defvar lego-shell-prog-name "legoML"
   "*Name of program to run as lego.")
 
 (defvar lego-shell-working-dir ""
@@ -105,9 +104,16 @@
 (defvar lego-shell-prompt-pattern "^\\(Lego> *\\)+"
   "*The prompt pattern for the inferion shell running lego.")
 
+(defvar lego-shell-abort-goal-regexp "KillRef: ok, not in proof state"
+  "*Regular expression indicating that the proof of the current goal
+  has been abandoned.")
+
+(defvar lego-shell-proof-completed-regexp "\\*\\*\\* QED \\*\\*\\*"
+  "*Regular expression indicating that the proof has been completed.")
+
 ;; ----- outline
 
-(defvar lego-goal-regexp "?[0-9]+  : ")
+(defvar lego-goal-regexp "\\?\\([0-9]+\\)")
 
 (defvar lego-outline-regexp 
   (ids-to-regexp 
@@ -128,13 +134,15 @@
   '("Save" "SaveFrozen" "SaveUnfrozen"))
 
 (defvar lego-keywords
-  (append lego-keywords-goal lego-keywords-save '("andI" "Claim"
+  (append lego-keywords-goal lego-keywords-save
+	  '("allE" "allI" "andE" "andI" "Claim"
   "Constructors" "Cut" "Discharge" "DischargeKeep"
-    "Double" "echo" "ElimOver" "Expand" "ExpAll" "ExportState" "Equiv"
-    "Fields" "Freeze" "From"  "Hnf" "Immed" "Import"
-    "Induction" "Inductive" "Inversion" "Init" "intros" "Intros"
-    "Module" "Next" "NoReductions" "Normal" "Parameters" "Qnify"
-    "Qrepl" "Record" "Refine" "Relation" "Theorems" "Unfreeze")))
+    "Double" "echo" "ElimOver" "exE" "exI" "Expand" "ExpAll"
+    "ExportState" "Equiv" "Fields" "Freeze" "From" "Hnf" "Immed"
+    "impE" "impI" "Import" "Induction" "Inductive" "Inversion" "Init"
+    "intros" "Intros" "Module" "Next" "NoReductions" "Normal" "notE"
+    "notI" "orE" "orIL" "orIR" "Parameters" "Qnify" "Qrepl" "Record"
+    "Refine" "Relation" "Theorems" "Unfreeze")))
 
 (defvar lego-shell-keywords 
   '("Cd" "Ctxt" "Decls" "Forget" "ForgetMark" "Help" "KillRef" "Load"
@@ -240,8 +248,11 @@
 ;;    *    *    *  *   *     ;;
 ;;    *     ****   *    *    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar lego-error-regexp "^\\(Error\\|Lego parser\\)"
+  "A regular expression indicating that the LEGO process has
+  identified an error.") 
 
-(defvar lego-id "\\w\\(\\w\\|\\s_\\)*"
+(defvar lego-id "\\(\\w\\(\\w\\|\\s_\\)*\\)"
   "A regular expression for parsing LEGO identifiers.")
 
 (defvar lego-ids (concat lego-id "\\(\\s *,\\s *" lego-id "\\)*")
@@ -315,7 +326,8 @@
 	  ;; Error Messages (only required in the process buffer)
 
 	  '("attempt to apply\\|with domain type\\|^to " .font-lock-error-face)
-	  '("^Error.*\n" .font-lock-error-face))))
+	  (cons (concat lego-error-regexp ".*\n")
+		      'font-lock-error-face))))
 
 ;;
 ;; A big hack to unfontify commas in declarations and definitions. All
@@ -458,8 +470,16 @@
   (setq proof-shell-prog-name lego-shell-prog-name)
   (setq proof-shell-process-name lego-shell-process-name)
   (setq proof-shell-buffer-name (concat "*" lego-shell-process-name "*"))
-  (setq proof-shell-prompt-pattern lego-shell-prompt-pattern))
+  (setq proof-shell-prompt-pattern lego-shell-prompt-pattern)
   (setq proof-shell-mode-is 'lego-shell-mode)
+  (setq proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp)
+  (setq proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp)
+  (setq proof-shell-change-goal "Next %s")
+  (setq proof-error-regexp lego-error-regexp)
+  (setq pbp-regexp-noise-goals-buffer "Discharge\\.\\. ")
+  (setq pbp-assumption-regexp lego-id)
+  (setq pbp-goal-regexp lego-goal-regexp)
+  (setq pbp-goals-buffer-name "*lego goals*"))
 ;; (Note that emacs can't cope with aliases to buffer local variables)
 
 (defun lego-shell-post-shell-start ()
@@ -467,8 +487,6 @@
   (setq compilation-search-path (cons nil (lego-get-path)))
   (add-hook 'proof-safe-send-hook 'lego-adjust-line-width)
   (add-hook 'proof-shell-exit-hook 'lego-shell-zap-line-width)
-  (add-hook 'comint-output-filter-functions 'lego-pbp-filter t)
-  (lego-goals-init)
   (font-lock-fontify-buffer))
 
 
@@ -612,15 +630,6 @@
 (defun lego-shell-mode-config ()
 
   (lego-common-config)
-
-  (define-key lego-shell-mode-map
-      (if running-xemacs [(meta button1)] [S-down-mouse-1]) 
-        'lego-x-mouse-refine-point)
-
-      ;; in XEmacs 19.11 [S-down-mouse-1] is bound to
-      ;; `mouse-track-adjust'
-      ;; in Emacs 19.28 [(meta button1)] is bound to
-      ;; `mouse-drag-secondary' 
 
   (easy-menu-add lego-shell-menu lego-shell-mode-map)
 

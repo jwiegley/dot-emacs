@@ -3,14 +3,14 @@
 ;; rearranging Thomas Schreiber's code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <17 Nov 96 tms /home/tms/elisp/proof.el>
+;; Time-stamp: <22 Nov 96 tms /home/tms/elisp/proof.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
 
 (require 'compile)
 (require 'comint)
-(require 'etags)			
+(require 'etags)
 
 (autoload 'w3-fetch "w3" nil t)
 (autoload 'easy-menu-define "easymenu")
@@ -30,9 +30,9 @@
 ;;  Variables used by proof mode, all auto-buffer-local             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro deflocal (var)
+(defmacro deflocal (var &optional value docstring)
  (list 'make-variable-buffer-local (list 'quote var))
- (list 'defvar var 'nil))
+ (list 'defvar var value docstring))
 
 ;; These should be set before proof-config-done is called
 
@@ -51,6 +51,20 @@
 (deflocal proof-shell-buffer-name)
 (deflocal proof-shell-prompt-pattern)
 (deflocal proof-shell-mode-is)
+
+(deflocal proof-shell-abort-goal-regexp nil
+  "*Regular expression indicating that the proof of the current goal
+  has been abandoned.")
+
+(deflocal proof-error-regexp nil
+  "A regular expression indicating that the PROOF process has
+  identified an error.") 
+
+(deflocal proof-shell-proof-completed-regexp nil
+  "*Regular expression indicating that the proof has been completed.")
+
+(deflocal proof-shell-change-goal nil
+  "*Command to change to the goal %s")
 
 ;; Supply these if you want
 
@@ -274,7 +288,6 @@
       (if (not end)
 	  (setq end (point-max))
 	(backward-char))
-      (run-hooks 'lego-shell-safe-send-hook)
       (proof-simulate-send-region start end t))))
 
 (defun proof-send-line ()
@@ -300,10 +313,9 @@
       (setq start (point)))
     (proof-simulate-send-region start end t)))
 
-(defun proof-command (command)
-  (run-hooks 'lego-shell-safe-send-hook)
+(defun proof-command (command &optional silent)
   (let ((str (proof-append-terminator command)))
-  (proof-simple-send str)))
+  (proof-simple-send str silent)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -314,6 +326,7 @@
 
 (defun proof-start-shell ()
   (run-hooks 'proof-pre-shell-start-hook)
+  (pbp-goals-init)
   (let ((proof-buf (and proof-shell-process-name (proof-shell-buffer))))
     (if (comint-check-proc proof-buf)
         ()
@@ -371,6 +384,7 @@
 	       (set-buffer buffer)
 	       (comint-send-eof))
 	     (kill-buffer buffer)
+	     
 	     (run-hooks 'proof-shell-exit-hook)
 
              ;;it is important that the hooks are
@@ -430,7 +444,6 @@ current command."
 	 (self-insert-command 1)
        (if (> start (point))
 	   (setq start (point)))
-       (run-hooks 'lego-shell-safe-send-hook)
        (proof-simulate-send-region start (point) t)
        (if (char-equal proof-terminal-char (following-char))
 	   (forward-char)
