@@ -1210,7 +1210,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	   ;; and use nested goals mechanism instead.
 	   (funcall proof-really-save-command-p span cmd)
 	   (decf proof-nesting-depth) ;; [always non-nil/true]
-	   (if proof-nested-goals-p
+	   (if proof-nested-goals-history-p
 	       ;; For now, we only support this nesting behaviour: 
 	       ;; don't amalgamate unless the nesting depth is 0,
 	       ;; i.e. we're in a top-level proof.
@@ -1273,7 +1273,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 			   (or (span-property gspan 'nestedundos) 0))))
 		 ;; Increment depth for a nested save, in case
 		 ;; prover supports history of nested proofs
-		 ((and proof-nested-goals-p
+		 ((and proof-nested-goals-history-p
 		       proof-save-command-regexp
 		       (proof-string-match proof-save-command-regexp cmd))
 		  (incf lev))
@@ -1440,14 +1440,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (if proof-shell-proof-completed
 	  (incf proof-shell-proof-completed))
       
-      (pg-set-span-helphighlights span)
-
-      ;; FIXME 3.4: probably want to remove this global stuff now,
-      ;; has been removed for Coq.
-      (and proof-global-p 
-	   (funcall proof-global-p cmd)
-	   proof-lift-global
-	   (funcall proof-lift-global span)))))
+      (pg-set-span-helphighlights span))))
 
   ;; State of scripting may have changed now
   (run-hooks 'proof-state-change-hook)))

@@ -1158,26 +1158,12 @@ The possibilities are:
     'extend  -  keep extending the closed region until a save or goal.
 
 If your proof assistant allows nested goals, it will be wrong to close
-off the portion of proof so far, so this variable should be set to nil.
-There is no built-in understanding of the undo behaviour of nested
-proofs; instead there is some support for un-nesting nested proofs in
-the proof-lift-global mechanism.  (Of course, this is risky in case of
-nested contexts!)"
+off the portion of proof so far, so this variable should be set to nil."
   :type '(choice
 	  (const :tag "Close on save only" nil)
 	  (const :tag "Close next command" closeany)
 	  (const :tag "Close next goal" closegoal)
 	  (const :tag "Extend" ignore))
-  :group 'proof-script)
-
-(defcustom proof-lift-global nil
-  "Function which lifts local lemmas from inside goals out to top level.
-This function takes the local goalsave span as an argument. Leave this
-set this at `nil' if the proof assistant does not support nested goals,
-or if you don't want to write a function to do move them around."
-  :type 'function
-  ;; FIXME customize broken on choices with function in them?
-  ;; :type '(choice (const :tag "No local lemmas" nil) (function))
   :group 'proof-script)
 
 (defcustom proof-count-undos-fn 'proof-generic-count-undos
@@ -1286,23 +1272,12 @@ need to set this variable."
   :type '(or string function)
   :group 'proof-script)
 
-
-(defcustom proof-nested-goals-p nil
+(defcustom proof-nested-goals-history-p nil
   "Whether the prover supports recovery of history for nested proofs.
 If it does, Proof General will retain history inside nested proofs;
 otherwise Proof General will amalgamate nested proofs into single
 steps."
   :type 'boolean
-  :group 'proof-script)
-
-(defcustom proof-global-p nil
-  "Whether a command is a global declaration.  Predicate on strings or nil.
-This is used to handle nested goals allowed by some provers, by
-recognizing global declarations as candidates for rearranging the
-proof script.
-
-May be left as nil to disable this function."
-  :type 'function
   :group 'proof-script)
 
 (defcustom proof-state-preserving-p 'proof-generic-state-preserving-p
