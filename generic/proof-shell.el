@@ -975,7 +975,14 @@ used in `proof-append-alist' when we start processing a queue, and in
     ;; the response string begins with a space and a newline.
     ;; It was needed to work around differences in Emacs versions.
     (insert proof-shell-insert-space-fudge)
-    (comint-send-input)))
+    
+    ;; Note: comint-send-input perversely calls the output filter
+    ;; functions on the input, sigh.  This can mess up PGIP processing
+    ;; since we try to re-interpret an XML message which has been
+    ;; string-escaped, etc, etc.  We prevent this by disabling the
+    ;; output filter functions when calling the input function.
+    (let ((comint-output-filter-functions nil))
+      (comint-send-input))))
 
 ;; OLD BUGGY CODE here 
 ;; Left in as a warning of a race condition.  
@@ -1455,16 +1462,19 @@ MESSAGE should be a string annotated with
 
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
-Scanning starts from `proof-shell-urgent-message-scanner' and handles
-strings between regexps eager-annotation-start and eager-annotation-end.
+Scanning starts from `proof-shell-urgent-message-scanner' or 
+`comint-last-input-end', which ever is later.  We deal with strings
+between regexps eager-annotation-start and eager-annotation-end.
 
 Note that we must search the buffer rather than the chunk of output
 being filtered process because we have no guarantees about where
 chunks are broken: it may be in the middle of an annotation.
 
 This is a subroutine of `proof-shell-filter'."
-  (let ((pt (point)) (end t) lastend start)
-    (goto-char (marker-position proof-shell-urgent-message-scanner))
+  (let ((pt (point)) (end t) lastend 
+	(start (max (marker-position proof-shell-urgent-message-scanner)
+		    (marker-position comint-last-input-end))))
+    (goto-char start)
     (while (and end
 		(re-search-forward proof-shell-eager-annotation-start 
 				   nil 'end))
