@@ -221,19 +221,6 @@
 (defconst isabelle-var-name-face 'isabelle-var-name-face)
 
 
-(defvar isar-output-font-lock-terms
-  (list
-   (cons (concat "\351" isar-id "\350") 'isabelle-class-name-face)
-   (cons (concat "\352'" isar-id "\350") 'isabelle-tfree-name-face)
-   (cons (concat "\353\\?'" isar-idx "\350") 'isabelle-tvar-name-face)
-   (cons (concat "\354" isar-id "\350") 'isabelle-free-name-face)
-   (cons (concat "\355" isar-id "\350") 'isabelle-bound-name-face)
-   (cons (concat "\356" isar-idx "\350") 'isabelle-var-name-face)
-   (cons (concat "\357" isar-idx "\350") 'proof-declaration-name-face)
-   )
-  "*Font-lock table for Isabelle terms.")
-
-
 (defvar isar-font-lock-keywords-1
   (list
    (cons (proof-ids-to-regexp isar-keywords-minor) 'font-lock-type-face)
@@ -245,6 +232,18 @@
    (cons (proof-ids-to-regexp isar-keywords-proof) 'font-lock-keyword-face)
    (cons (proof-ids-to-regexp isar-keywords-proof-asm) 'proof-declaration-name-face)
    (cons (proof-ids-to-regexp isar-keywords-proof-script) 'font-lock-reference-face)))
+
+(defvar isar-output-font-lock-keywords-1
+  (list
+   (cons (concat "\351" isar-id "\350") 'isabelle-class-name-face)
+   (cons (concat "\352'" isar-id "\350") 'isabelle-tfree-name-face)
+   (cons (concat "\353\\?'" isar-idx "\350") 'isabelle-tvar-name-face)
+   (cons (concat "\354" isar-id "\350") 'isabelle-free-name-face)
+   (cons (concat "\355" isar-id "\350") 'isabelle-bound-name-face)
+   (cons (concat "\356" isar-idx "\350") 'isabelle-var-name-face)
+   (cons (concat "\357" isar-idx "\350") 'proof-declaration-name-face)
+   )
+  "*Font-lock table for Isabelle terms.")
 
 
 ;; ----- variations on undo
