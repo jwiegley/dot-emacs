@@ -294,8 +294,8 @@ A. Customize the value of `proof-shell-strip-crs-from-output'.
 Q. Why do I get a warning "[Proof General]: an old version of xml.el was loaded!"?
 
 A. Your Emacs session has loaded a version of xml.el from somewhere other
-   than the PG/lib directory.  It may be buggy -- some earlier versions give
-   bad results parsing empty elements.  To avoid this warning, try to start
+   than the PG/lib directory.  It has a bug which *may* affect PG, if
+   empty tags are parsed.  To avoid this warning, try to start 
    Proof General before other Emacs packages which use xml.el, such as GNUS.
 
 -----------------------------------------------------------------
