@@ -1,4 +1,5 @@
 29.08.02  3.4 Release 3-4 based on branch 7.0
+	  (repeated: fix RPM info files; Isabelle binary search; RedHat desktop)
 
 --------------------
 
