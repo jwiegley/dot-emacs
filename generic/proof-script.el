@@ -1083,7 +1083,10 @@ a scripting buffer is killed it is always retracted."
 	      ;; not really necessary when called by kill buffer, at least.
 	      (if (fboundp 'redraw-modeline)
 		  (redraw-modeline)
-		(force-mode-line-update)))))))
+		(force-mode-line-update))
+	      
+	      ;; Finally, run hooks (added in 3.5 22.04.04)
+	      (run-hooks 'proof-deactivate-scripting-hook))))))
   
 (defun proof-activate-scripting (&optional nosaves queuemode)
   "Ready prover and activate scripting for the current script buffer.
@@ -2425,7 +2428,10 @@ command."
   (make-local-hook 'after-set-visited-file-name-hooks)
   (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name))
 
+  ;; FIXME 3.5: noticed 22.04.04 that 'proof-activate-scripting-hook is
+  ;; no longer inherited for some reason!  
   (make-local-hook 'proof-activate-scripting-hook)
+  (make-local-hook 'proof-deactivate-scripting-hook)
   (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
 
 ;; NB: proof-mode-map declared by define-derived-mode above
