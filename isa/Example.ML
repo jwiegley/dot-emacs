@@ -2,7 +2,7 @@
     Example proof script for Isabelle Proof General.
 
     $Id$
-*)    
+*)
 
 Goal "A & B --> B & A";
   by (rtac impI 1);
@@ -13,7 +13,5 @@ Goal "A & B --> B & A";
 qed "and_comms";
 
 Goal "(ALL x. P(x) --> Q) --> ((EX x. P(x)) --> Q)";
-by (blast_tac (claset()) 1);
-
-
-
+  by (blast_tac (claset()) 1);
+qed "";
