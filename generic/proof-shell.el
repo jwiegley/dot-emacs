@@ -1096,6 +1096,11 @@ proof-shell-exec-loop, to process the next item."
     ;; before using proof-shell-insert.
     (set-marker proof-marker (point))
 
+    ;; FIXME: possible improvement.  Make for post 3.0 releases
+    ;; in case of problems.
+    ;; (set-marker proof-shell-urgent-message-marker (point))
+    ;; (set-marker proof-shell-urgent-message-scanner (point))
+
     ;; FIXME da: this space fudge is actually a visible hack:
     ;; the response string begins with a space and a newline.
     (insert proof-shell-insert-space-fudge)
@@ -1443,12 +1448,21 @@ This is a subroutine of proof-shell-filter."
 	;; If the search for the starting annotation was unsuccessful,
 	;; set the scanner marker to the limit of the last search for
 	;; the starting annotation, less the maximal length of the
-	;; annotation.
+	;; annotation.  
 	(set-marker
 	 proof-shell-urgent-message-scanner
 	 (min
-	  (- (point) proof-shell-eager-annotation-start-length)
-	  (1- (process-mark (get-buffer-process (current-buffer))))))
+	  ;; NB: possible fix here not included: a test to be sure we
+	  ;; don't go back before the start of the command!  This
+	  ;; fixes a minor problem which is possible duplication
+	  ;; of urgent messages which are less than
+	  ;; proof-shell-eager-annotation-start-length characters.
+	  ;; But if proof-general is configured properly, there
+	  ;; should never be any such messages!
+	  ;; (max
+	  ;;  (marker-position proof-marker)
+	      (- (point) proof-shell-eager-annotation-start-length)
+	  (1- (process-mark (get-buffer-process (current-buffer)))))))
       ;; Otherwise, the search for the ending annotation was
       ;; unsuccessful, so we set the scanner marker to the start of
       ;; the annotation found.
