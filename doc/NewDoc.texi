@@ -41,7 +41,6 @@ END-INFO-DIR-ENTRY
 @subtitle @value{last-update}
 @image{ProofGeneral}
 @author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
-
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
@@ -446,9 +445,8 @@ unexpected.
 
 Although the proof shell is usually hidden from view, it is run in an
 buffer which provides the usual full editing and history facilities of
-Emacs shells, see
-@c FIXME
-@inforef{Comint}
+Emacs shells (see the package @file{comint.el} distributed with your
+version of Emacs).
 
 If you're running Isabelle, the proof shell buffer will be called
 something like @code{*Inferior Isabelle*}.  You can switch to it using
@@ -784,7 +782,11 @@ of @var{proof-assistants-table} for more details.
 @section Proof shell mode
 
 
-
+@c
+@c
+@c CHAPTER: Obtaining and Installing Proof General
+@c
+@c
 @node Credits and References
 @chapter Credits and References
 
@@ -836,12 +838,218 @@ l'INRIA Sophia Antipolis RR-3286
 @end itemize
 
 
+@c
+@c
+@c APPENDIX: Obtaining and Installing Proof General
+@c
+@c
 @node Obtaining and Installing Proof General
 @appendix Obtaining and Installing Proof General
 
+Proof General has its own
+@uref{http://www.dcs.ed.ac.uk/home/proofgen,home page} hosted at
+Edinburgh.  Visit this page for the latest news!
 
+@menu
+* Obtaining Proof General::     
+* Installing Proof General from .tar.gz::  
+* Installing Proof General from RPM package::  
+* Notes for syssies::           
+@end menu
+
+
+@node Obtaining Proof General
+@section Obtaining Proof General
+`
+You can obtain Proof General from the URL
+@uref{http://www.dcs.ed.ac.uk/home/proofgen/download.html}.
+
+The distribution is available in three forms
+@itemize @bullet
+@item A source tarball, 
+  @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz}
+@item A Linux RPM package (for any architecture)
+  @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm}
+@item A developer's tarball,
+  @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
+@end itemize
+
+Both the tarball and the RPM package include the generic elisp code,
+code for LEGO, Coq, and Isabelle, installation instructions (reproduced
+below) and this documentation.
+
+@c was Installing Proof General from @file{.tar.gz}
+@node Installing Proof General from .tar.gz
+@section Installing Proof General from @file{.tar.gz}
+
+Copy the distribution to some directory @var{mydir}.
+Unpack it there. For example:
+@example
+# cd @var{mydir}
+# gunzip ProofGeneral-latest.tar.gz
+# tar -xpf ProofGeneral-latest.tar
+@end example
+Proof General will be in some subdirectory of @var{mydir}.  The name of
+the subdirectory will depend on the version number of Proof General.
+For example, it might be ProofGeneral-2.0.  It's convenient to
+link it to a fixed name:
+@example
+# ln -sf ProofGeneral-2.0 ProofGeneral
+@end example
+Now put this line in your @file{.emacs} file:
+@lisp
+    (load-file "@var{mydir}/ProofGeneral/generic/proof-site.el")
+@end lisp
+
+This command will load @file{proof-site} which sets the Emacs load path
+for Proof General and add auto-loads and modes for the assistants below:
+
+@multitable @columnfractions .3 .3 .4
+@item       Prover @tab Extensions @tab Modes
+@item       Coq    @tab @file{.v}  @tab @code{coq-mode}
+@item       LEGO   @tab @file{.l}  @tab @code{lego-mode}
+@item       Isabelle @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
+@end multitable
+When you load a file with one of these extensions, the corresponding
+Proof General mode will be entered.  You can also invoke the mode
+command directly.
+
+The default names for proof assistant binaries may work on your system.
+If not, you will need to set the appropriate variables.  The easiest way
+to do this (and most other customization of Proof General) is via the
+Customize mechanism, see the menu item:
+@example
+  Proof-General -> Customize -> <Name of Assistant> -> Prog Name
+@end example
+The Proof-General menu is available from script buffers after 
+Proof General is loaded.  To load it manually, type 
+@lisp
+  M-x load-library RET proof RET
+@end lisp
+
+Notice that the customization mechanism is only available in Emacs 20.x
+and XEmacs.  If you cannot use customize, simply add a line like this:
+@lisp
+  (setq isabelle-prog-name "/usr/bin/isabelle FOL")
+@end lisp
+to your @file{.emacs} file.
+
+
+@node Installing Proof General from RPM package
+@section Installing Proof General from RPM package
+
+To install an RPM package you need to be root.  Then type
+@example
+# rpm -Uvh ProofGeneral-latest.noarch.rpm
+@end example
+
+Now add the line:
+@lisp
+   (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
+@end lisp
+to your @file{.emacs} or the site-wide initialisation file
+@file{site-start.el}.
+
+
+@node Notes for syssies
+@section Notes for syssies
+
+Here are some more notes for installing Proof General in more complex
+ways.  Only attempt things in this section if you really understand what
+you're doing.
+
+@menu
+* Byte compilation::
+* Site-wide installation::
+* Removing support for unwanted provers::
+@end menu
+
+@node Byte compilation
+@unnumbered Byte compilation
+
+Compilation of the Emacs lisp files improves efficiency but can
+sometimes cause compatibility problems (especially if you use more than
+one version of Emacs at the same time).
+
+You can compile Proof General by typing @code{make} in the directory
+where you installed it.
+
+
+@node Site-wide installation
+@unnumbered Site-wide installation
+
+If you are installing Proof General site-wide, you can put the
+components in the standard directories of the filesystem if you prefer,
+providing the variables in @file{proof-site.el} are adjusted
+accordingly.  Make sure that the @file{generic} and assistant-specific
+elisp files are kept in subdirectories (@file{coq}, @file{isa},
+@file{lego}) of @code{proof-home-directory} so that the autoload
+directory calculations are correct.
+
+To prevent every user needing to edit their own @file{.emacs} files, you
+can put the @code{load-file} command to load @file{proof-site.el} into
+@file{site-start.el} or similar.  Consult the Emacs documention for more
+details if you don't know where to find this file.
+
+@node Removing support for unwanted provers
+@unnumbered Removing support for unwanted provers
+
+You cannot run more than one instance of Proof General at a time: so if
+you're using Coq, don't edit @file{.ML} files!  If there are some
+assistants supported that you never want to use, you can remove them
+from the variable @code{proof-assistants} in @file{proof-site.el} to
+solve this problem.
+
+Via the Customize mechanism, see the menu:
+@example
+  Options -> Customize -> Emacs -> External -> Proof General
+@end example
+or, after loading Proof General, in a proof script buffer
+@example
+  Proof-General -> Customize
+@end example
+
+
+
+@c
+@c
+@c APPENDIX: Known bugs and workarounds
+@c
+@c
 @node Known bugs and workarounds
 @appendix Known bugs and workarounds
+
+We only mention a few important bugs here.  The list is almost certainly
+incomplete and maybe out of date.  Please consult the file
+@uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS,@file{BUGS}}
+in the distribution for more detailed and up-to-date information.  If
+you discover a problem which isn't mentioned here or in @file{BUGS},
+please let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
+
+@itemize @bullet
+@item @strong{Undo in XEmacs}
+Ordinary undo in script buffer can edit the "uneditable region" in
+XEmacs.  This doesn't happen in FSFmacs.  Test case: Insert some
+nonsense text after the locked region.  Kill the line. Process to the
+next command.  Press @kbd{C-x u}, nonsense text appears in locked
+region.  @*@strong{Workaround:} be careful with undo.
+
+@item @strong{Pressing keyboard quit @kbd{C-g}}
+Using @kbd{C-g} can leave script management in a mess.  The code is not
+properly protected from Emacs interrupts.  
+@*@strong{Workaround:} Don't type @kbd{C-g} while script management is
+processing.  If you do, use @code{proof-restart-scripting} to restart
+the system.
+
+@item @strong{One prover at a time}
+You can't use more than one proof assistant at a time in the same Emacs
+session.  Nasty things happen if @code{proof-assistants} enables more
+than one proof assistant and you load script files for different provers
+simultaneously.
+@*@strong{Workaround:} stick to one prover per Emacs session!
+@end itemize
+
+
 
 
 @node Plans and ideas
