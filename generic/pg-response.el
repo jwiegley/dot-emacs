@@ -277,7 +277,7 @@ and start at the first error."
 		  (if (and column (> column 1))
 		      (move-to-column (1- column)))))
 	    (setq pg-response-next-error nil)
-	    (error "proof-next-error: couldn't find next error.")))))
+	    (error "proof-next-error: couldn't find a next error.")))))
 
    
 
