@@ -1,17 +1,3 @@
-;; FIXME:
-;;
-;; getting rid of mess with delayed output handling, *but*
-;; we still want to keep a record of the last goals output
-;; found when we hit an error message.
-
-;; Maybe we really need proof-shell-delayed-output and
-;; proof-shell-delayed-output-kind?? 
-;; This might mean we could show some context before an
-;; error message, for example.
-
-
-
-
 ;; proof-shell.el  Proof General shell mode.
 ;;
 ;; Copyright (C) 1994-2000 LFCS Edinburgh. 
