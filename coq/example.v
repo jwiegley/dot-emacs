@@ -5,9 +5,9 @@
 *)
 
 Goal forall (A B:Prop),(A /\ B) -> (B /\ A).
-  intros A B H.
+  intros A B.
+  intros H.
   elim H.
-  intros.
   split.
   assumption.
   assumption.

@@ -30,7 +30,7 @@ Module M.
   End SIG.
   Lemma toto : O=O.
     Definition t:=nat.
-    Trivial.
+    trivial.
   Save.
   Module N:SIG.
     Definition T:=nat.
@@ -44,7 +44,7 @@ Print t.
 
 
 Definition t:O=O.
-  Trivial.
+  trivial.
 Save.
 
 
@@ -81,7 +81,7 @@ Module Type N'.
     
     
     Lemma titi : O=O.
-      Trivial.
+      trivial.
       Module Type K:=N'.
       Module N''':=M.
     Save.
