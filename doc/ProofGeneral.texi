@@ -448,6 +448,7 @@ tested pre-releases or sent bug reports, including
 Pascal Brisset,
 Martin Buechi,
 Matt Fairtlough, 
+Kim Hyung Ho,
 John Longley, 
 Tobias Nipkow, 
 Leonor Prensa-Nieto, 
@@ -4148,13 +4149,15 @@ A list of escapes that are applied to %s for filenames.@*
 A list of cons cells, car of which is string to be replaced
 by the cdr.
 For example, when directories are sent to Isabelle, HOL, and Coq,
-they appear inside ML strings and the backslash character must
-be escaped.  The setting
+they appear inside ML strings and the backslash character and
+quote characters must be escaped.  The setting
 @lisp
-  '(("\\" . "\\"))
+  '(("@var{\\\\}" . "@var{\\\\}")
+    ("\"" . "\\\""))
 @end lisp
-achieves this.  This does not apply to @var{lego}, which does not
-need  escapes.
+achieves this.   This does not apply to @var{lego}, which does not
+need backslash escapes and does not allow filenames with
+quote characters.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-connection-type
