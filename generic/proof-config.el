@@ -317,25 +317,28 @@ from the name given in proof-assistant-table."
 ;; i.e. <assistant>-mode, <assistant>-shell-mode, <assistant>-pbp-mode.
 ;; FIXME: mode-for-script is unused at the moment, added just for
 ;; uniformity.  The other two are used when a shell buffer is started.
+;; FIXME da: old suggestion for the later three was to use 
+;; pre-shell-start-hook.  I don't really understand why that hook
+;; is necessary, it just makes things more complicated.
 
 (defcustom proof-mode-for-shell 'proof-shell-mode
   "Mode for proof shell buffers.
 Usually customised for specific prover.
-Suggestion: this can be set in proof-pre-shell-start-hook."
+Suggestion: this can be set in the shell mode configuration."
   :type 'function
   :group 'prover-config)
 
 (defcustom proof-mode-for-response 'proof-response-mode
   "Mode for proof response buffer.
 Usually customised for specific prover.
-Suggestion: this can be set in proof-pre-shell-start-hook."
+Suggestion: this can be set in the shell mode configuration."
   :type 'function
   :group 'prover-config)
 
 (defcustom proof-mode-for-pbp 'pbp-mode
   "Mode for proof state display buffers.
 Usually customised for specific prover.
-Suggestion: this can be set in proof-pre-shell-start-hook."
+Suggestion: this can be set in the shell mode configuration."
   :type 'function
   :group 'prover-config)
 
@@ -710,7 +713,7 @@ and are stripped from the prover's output strings."
 Output is grabbed between pairs of lines matching this regexp.
 To help matching you may be able to annotate the proof assistant
 prompt with a special character not appearing in ordinary output.
-The special character should appear in this regexp, should
+The special character should appear in this regexp, and should
 be the value of proof-shell-wakeup-char."
   :type 'regexp
   :group 'proof-shell)
@@ -798,7 +801,7 @@ before every command issued by Proof General."
 
 (defcustom proof-pre-shell-start-hook nil
   "Hooks run before proof shell is started.
-Usually this is set to a function which configures the proof shell
+This may be set to a function which configures the proof shell
 variables."
   :type '(repeat function)
   :group 'proof-shell)
@@ -975,7 +978,8 @@ See documentation of proof-shell-start-char."
 (defcustom proof-splash-time 1.5
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
-this, depending on how long it takes the machine to initialise proof mode."
+this, depending on how long it takes the machine to initialise 
+Proof General."
   :type 'number
   :group 'proof-general-internals)
 
@@ -1029,8 +1033,8 @@ These are evaluated and appended to proof-splash-contents, which see."
 (defcustom proof-universal-keys
   '(([(control c) (control c)] . proof-interrupt-process)
     ([(control c) (control v)] . proof-execute-minibuffer-cmd))
-"List of keybindings which for the script and response buffer. 
-Elements of the list are tuples (k . f) 
+"List of keybindings made for both the script and response buffer. 
+Elements of the list are tuples `(k . f)' 
 where `k' is a keybinding (vector) and `f' the designated function."
   :type 'sexp
   :group 'proof-general-internals)
