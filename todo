@@ -22,6 +22,5 @@ This is a list of things which need doing to the lego mode.
 
 * file handling could be more robust
 
-* For Coq:
-   Fill in proof-shell-interrupt-regexp
-   Fill in proof-state-preserving-p
+* LEGO mode might incorporate changes to Coq mode menu, in particular
+  making help refer to the info file.
