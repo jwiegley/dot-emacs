@@ -660,23 +660,6 @@ If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
 	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; A function to search the position of the first occurrence of
-;; a string in another string. Isn't it defined allready ?
-;;
-
-(defun string-search (sstr str &optional ipos)
-  "string-search sstr str &optional pos: returns the position of the first occurrence of the string sstr in str. Return nil if the string is not found. Starts serch at position pos in str if the optional argument is given"
-  (if str 
-      (let 
-	  ((pos (if ipos ipos 0)) (len (length sstr)) (end (- (length str) (length sstr))))
-	(if (not pos) (setq pos 0))
-	(while (and (<= pos end) 
-		    (not (string= sstr (substring str pos (+ pos len))))) 
-	  (setq pos (+ pos 1)))
-	(if (> pos end) nil pos)))) 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; The following function removes comments from a string. Nested 
 ;; comments should work. Warning the length of the resulting 
 ;; string is reduced, it may be better to replace comments by
@@ -694,15 +677,15 @@ If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
 	    (while (or spos epos)
 	      (setq
 	       spos (if (and spos (< spos lpos)) 
-			(string-search proof-comment-start str lpos) spos)
+			(string-match proof-comment-start-regexp str lpos) spos)
 	       epos (if (and epos (< epos lpos)) 
-			(string-search proof-comment-end str lpos) epos))
+			(string-match proof-comment-end-regexp str lpos) epos))
 	      (if (and spos (or (not epos) (< spos epos)))
 		  (progn
 		    (if (= lvl 0) (setq astr 
 					(concat astr 
 						(substring str pos spos))))
-	  (setq lpos (+ spos 1) lvl (+ lvl 1)))
+		    (setq lpos (+ spos 1) lvl (+ lvl 1)))
 		(if (and epos (> lvl 0)) 
 		    (progn
 		      (setq lpos (+ epos 1) lvl (- lvl 1))
