@@ -9,6 +9,10 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A Add a small script "example.l" etc to each of the prover subdirectories,
+  for testing/example purposes.  (Perhaps proving the same thing?
+  commutativity of conjunction?)
+
 B Prune dead code.  (1h)
 
 B Add support to proof.el for *not* setting variables for
