@@ -409,7 +409,7 @@ signals to the remote host."
 ;;
 ;; 1b. Faces.
 ;;
-;; We ought to test that these work sensibly:
+;; We should test that settings work sensibly:
 ;;   a) with default colours
 ;;   b) with -rv
 ;;   c) on console 
@@ -446,7 +446,7 @@ signals to the remote host."
 
 (defface proof-queue-face 
   (proof-face-specs 
-   (:background "darksalmon") ;; was "mistyrose"
+   (:background "darksalmon") ;; was "mistyrose" in 3.3
    (:background "mediumvioletred")
    (:foreground "white" :background "black"))
   "*Face for commands in proof script waiting to be processed."
@@ -454,7 +454,7 @@ signals to the remote host."
 
 (defface proof-locked-face
   (proof-face-specs
-   (:background "lightsteelblue") ;; was "lavender", later "lightcyan".
+   (:background "lightsteelblue") ;; was "lavender", later "lightcyan" in 3.3
    (:background "navy")
    (:underline t))
   "*Face for locked region of proof script (processed commands)."
@@ -492,11 +492,12 @@ Required so that 'proof-tacticals-name-face is a proper facename in
 both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-tactics-name-face
-  '((t				
-     (bold t)))
+  (proof-face-specs
+   (:foreground "darkblue")
+   (:foreground "mediumpurple")
+   (:underline t))
   "*Face for names of tactics in proof scripts.
-By default, they are printed with default face but the user
-may want to color them differently."
+Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
 (defconst proof-tactics-name-face 'proof-tactics-name-face
@@ -548,7 +549,7 @@ Warning messages can come from proof assistant or from Proof General itself."
 (defface proof-mouse-highlight-face
   (proof-face-specs
    (:background "paleturquoise")
-   (:background "steelblue")
+   (:background "darkslateblue")
    (:italic t))
   "*General mouse highlighting face."
   :group 'proof-faces)
