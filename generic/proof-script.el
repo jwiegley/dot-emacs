@@ -700,7 +700,8 @@ to allow other files loaded by proof assistants to be marked read-only."
 ;; or even, could include parsing inside PG.
   (save-excursion
     (set-buffer buffer)
-    (if (< (proof-unprocessed-begin) (proof-script-end))
+    (save-excursion ;; prevent point moving if user viewing file
+      (if (< (proof-unprocessed-begin) (proof-script-end))
 	(let ((span (make-span (proof-unprocessed-begin) 
 			       (proof-script-end)))
 	      cmd)
@@ -735,7 +736,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 	    (proof-init-segmentation)
 	    (set-span-property span 'type 'comment))
 	  ;; End of locked region is always end of buffer
-	  (proof-set-locked-end (proof-script-end))))))
+	  (proof-set-locked-end (proof-script-end)))))))
 
 
 
