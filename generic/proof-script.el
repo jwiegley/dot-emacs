@@ -1980,17 +1980,20 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
   "Prompt for a command in the minibuffer and send it to proof assistant.
 The command isn't added to the locked region.
 
-If `proof-state-preserving-p' is configured, it is used as a check
-that the command will be safe to execute, in other words, that
-it won't ruin synchronization.  If when applied to the command it 
-returns false, then an error message is given.  
+If `proof-strict-state-preserving' is set, and `proof-state-preserving-p' 
+is configured, then the latter is used as a check that the command
+will be safe to execute, in other words, that it won't ruin
+synchronization.  If when applied to the command it returns false,
+then an error message is given.
 
-This command risks spoiling synchronization if the test
-`proof-state-preserving-p' is not configured, or if it is
-only an approximate test."
+WARNING: this command risks spoiling synchronization if the test
+`proof-state-preserving-p' is not configured, if it is
+only an approximate test, or if `proof-strict-state-preserving'
+is off (nil)."
   (interactive
    (list (read-string "Command: " nil 'proof-minibuffer-history)))
-  (if (and proof-state-preserving-p
+  (if (and proof-strict-state-preserving
+	   proof-state-preserving-p
 	   (not (funcall proof-state-preserving-p cmd)))
       (error "Command is not state preserving, I won't execute it!"))
   (proof-shell-invisible-command cmd))
