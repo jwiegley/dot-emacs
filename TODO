@@ -14,8 +14,6 @@ da+pg-feedback@inf.ed.ac.uk.  Thanks!
 Plans for upcoming versions
 ---------------------------
 
-* Support more proof assistants
-
 * Add a browser mode for browsing script files and/or live theory
   data-structures, in the prover.
 
@@ -32,8 +30,8 @@ Plans for upcoming versions
   crucial points in code so that C-g can safely be used during script 
   processing.  Handle deleted buffers smoothly.
 
-* Make an XEmacs package
+* Support more proof assistants
 
-* Repair byte-compilation
+* Make an XEmacs package
 
 
