@@ -260,51 +260,19 @@ A subroutine of proof-x-symbol-enable."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Possible DEAD CODE if X-Symbol functions suffice here now
+;; Functions to decode output and encode input
 ;; 
 
 ;;;###autoload
-(defun proof-x-symbol-decode-region (start end) 
-  "Call (x-symbol-decode-region START END), if x-symbol support is enabled.
-This converts tokens in the region into X-Symbol characters.
-Return new END value."
-  (if (proof-ass x-symbol-enable)
-      (save-excursion
-	(save-restriction
-	  (narrow-to-region start end)
-	  ;; FIXME: for GNU 21, this doesn't work always?? 
-	  ;; (OK for response, but not for goals, why?)
-	  (x-symbol-decode-region start end)
-	  ;; Decoding may change character positions.  
-	  ;; Return new end value
-	  (point-max)))
-    end))
+(defalias 'proof-x-symbol-decode-region 'x-symbol-decode-region)
 
-;; FIXME: see whether X-Symbol's supplied hook does the right
-;; thing here.
 (defun proof-x-symbol-encode-shell-input ()
   "Encode shell input in the variable STRING.
 A value for proof-shell-insert-hook."
   (and x-symbol-language
        (setq string
-             (save-excursion
-               (let ((language x-symbol-language)
-                     (coding x-symbol-coding)
-                     (selective selective-display)) ;FIXME: needed?
-                 (set-buffer (get-buffer-create "x-symbol comint"))
-                 (erase-buffer)
-                 (insert string)
-                 (setq x-symbol-language language)
-		 (setq x-symbol-8bits nil)
-		 (setq x-symbol-coding nil)
-                 (x-symbol-encode-all nil coding))
-               (prog1 
-		   (buffer-substring (point-min) (point-max))
-		 ;; FIXME da: maybe more efficient just to delete
-		 ;; region.  Make buffer name start with space
-		 ;; to be unselectable.
-                 (kill-buffer (current-buffer)))))))
-
+             (x-symbol-encode-string 
+	      string (current-buffer)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -345,9 +313,9 @@ Assumes that the current buffer is the proof shell buffer."
 		   (proof-shell-live-buffer))
 	      (proof-shell-invisible-command-invisible-result
 	       proof-xsym-activate-command))
-	  ;; We do encoding as the first step of input manipulation
-	  (add-hook 'proof-shell-insert-hook
-		    'proof-x-symbol-encode-shell-input))
+	 ;; We do encoding as the first step of input manipulation
+	 (add-hook 'proof-shell-insert-hook
+	  	    'proof-x-symbol-encode-shell-input))
 	 ((not (proof-ass x-symbol-enable))
 	  (if (and proof-xsym-deactivate-command 
 		   (proof-shell-live-buffer))
