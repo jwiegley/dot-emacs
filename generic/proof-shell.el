@@ -565,16 +565,36 @@ This is a subroutine of `proof-shell-handle-error'."
   ;; difference it makes, except that it's difficult to find the actual
   ;; output over there and that job has already been done in
   ;; proof-shell-filter.  -stef
-  (let ((string proof-shell-last-output))
-    (if start-regexp
-	(setq string (substring string (string-match start-regexp string))))
+  ;; da: Not quite, unfortunately: proof-shell-last-output had
+  ;; special characters stripped.  
+  ;; This breaks Isabelle, for example, because special
+  ;; characters have been stripped from proof-shell-last-output,
+  ;; but start-regexp may contain them.
+  ;; For now, test _not_ removing specials (see proof-shell-process-output)
+; old version: also received end-regexp as arg
+;  (let (start end string)
+;    (save-excursion
+;      (set-buffer proof-shell-buffer)
+;      (goto-char (point-max))
+;      (setq end (re-search-backward 
+;		 ;;end-regexp was always proof-shell-annotated-prompt-regexp
+;		 proof-shell-annotated-prompt-regexp))
+;      (goto-char (marker-position proof-marker))
+;      (setq start (if start-regexp
+;		      (- (re-search-forward start-regexp)
+;			 (length (match-string 0)))
+;		    (point)))
+;      (setq string (buffer-substring start end))
+  ;; stef's version:
+   (let ((string proof-shell-last-output))
+      (if start-regexp
+   (setq string (substring string (string-match start-regexp string))))
       ;; FIXME: if the shell buffer is x-symbol minor mode,
       ;; this string can contain X-Symbol characters, which
       ;; is not suitable for processing with proof-fontify-region.
-      (setq string
-	    (if pg-use-specials-for-fontify
-	      string
-	    (pg-assoc-strip-subterm-markup string)))
+      (unless pg-use-specials-for-fontify
+	(setq string
+	      (pg-assoc-strip-subterm-markup string)))
     ;; Erase if need be, and erase next time round too.
     (proof-shell-maybe-erase-response t nil)
     (pg-response-display-with-face string append-face)))
@@ -732,9 +752,11 @@ which see."
     
     ((proof-shell-string-match-safe proof-shell-error-regexp string)
      ;; FIXME: is the next setting correct or even needed?
-     (setq proof-shell-last-output
-	   (pg-assoc-strip-subterm-markup
-	    (substring string (match-beginning 0))))
+     ;; da: removed in pre3.5 test after Stefan's change to
+     ;; simplify proof-shell-handle-output.
+     ;;(setq proof-shell-last-output
+     ;; (pg-assoc-strip-subterm-markup
+     ;; (substring string (match-beginning 0))))
      (setq proof-shell-last-output-kind 'error))
     
     ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
