@@ -759,6 +759,11 @@ If NUM is negative, move upwards.  Return new span."
       ;; When we delete the span, we want to duplicate it
       ;; to recreate in the new position.
       (set-span-property span 'duplicable 't)
+      ;; FIXME: this is faulty: moving span up gives children
+      ;; list with single nil element.  Hence liveness test
+      (mapcar (lambda (s) (if (span-live-p s)
+			      (set-span-property s 'duplicable 't)))
+	      (span-property span 'children))
       (let* ((start     (span-start span))
 	     (end       (span-end span))
 	     (contents  (buffer-substring start end))
