@@ -55,69 +55,69 @@ no regular or easily discernable structure."
 ;;; ======== Configuration of generic modes ========
 ;;;
 
-(defvar isa-mode-config-table
-  '(;; general
-    (proof-assistant		"Isabelle")
-    (proof-www-home-page	isa-www-home-page)
-    ;; proof script syntax
-    (proof-terminal-char	?\;)	; ends a proof
-    (proof-comment-start	"(*")	; comment in a proof
-    (proof-comment-end		"*)")	; 
-    ;; proof engine output syntax
-    (proof-save-command-regexp   isa-save-command-regexp)
-    (proof-save-with-hole-regexp isa-save-with-hole-regexp)
-    (proof-goal-with-hole-regexp isa-goal-with-hole-regexp)
-    (proof-kill-goal-command	 "")   ; FIXME: proof.el should allow nil
-    (proof-commands-regexp	 (ids-to-regexp isa-keywords))
-    ;; proof engine commands
-    (proof-prf-string		"pr()")
-    (proof-ctxt-string		"the_context();")
-    (proof-help-string ; could be version 
-     "print \" in-built help for Isabelle.\"") ; FIXME: proof.el should allow nil
-    ;; command hooks
-    (proof-goal-command-p	'isa-goal-command-p)
-    (proof-count-undos-fn	'isa-count-undos)
-    (proof-find-and-forget-fn	'isa-find-and-forget)
-    (proof-goal-hyp-fn		'isa-goal-hyp)
-    (proof-state-preserving-p	'isa-state-preserving-p)
-    (proof-global-p		'isa-global-p)    ; FIXME: proof.el should allow nil
-    (proof-parse-indent		'isa-parse-indent)
-    (proof-stack-to-indent	'isa-stack-to-indent))
-  "Table of settings for configuration of proof mode to Isabelle.")
+(defun isa-mode-config-set-variables
+  "Configure generic proof scripting mode variables for Isabelle."
+  (setq
+   proof-assistant		"Isabelle"
+   proof-www-home-page	isa-www-home-page
+   ;; proof script syntax
+   proof-terminal-char	?\;	; ends a proof
+   proof-comment-start	"(*"	; comment in a proof
+   proof-comment-end		"*)"	; 
+   ;; proof engine output syntax
+   proof-save-command-regexp   isa-save-command-regexp
+   proof-save-with-hole-regexp isa-save-with-hole-regexp
+   proof-goal-with-hole-regexp isa-goal-with-hole-regexp
+   proof-kill-goal-command	 ""   ; FIXME: proof.el should allow nil
+   proof-commands-regexp	 (ids-to-regexp isa-keywords)
+   ;; proof engine commands
+   proof-prf-string		"pr()"
+   proof-ctxt-string		"the_context();"
+   proof-help-string ; could be version 
+   "print \" in-built help for Isabelle.\"" ; FIXME: proof.el should allow nil
+   ;; command hooks
+   proof-goal-command-p	'isa-goal-command-p
+   proof-count-undos-fn	'isa-count-undos
+   proof-find-and-forget-fn	'isa-find-and-forget
+   proof-goal-hyp-fn		'isa-goal-hyp
+   proof-state-preserving-p	'isa-state-preserving-p
+   proof-global-p		'isa-global-p    ; FIXME: proof.el should allow nil
+   proof-parse-indent		'isa-parse-indent
+   proof-stack-to-indent	'isa-stack-to-indent))
 
 
-(defconst isa-shell-mode-config-table
-  '(;;
-    (proof-shell-prompt-pattern		"^2?[---=#>]>? *\\|^\\*\\* .*") ; for ML
-    (proof-shell-cd			"cd \"%s\";")
-    ;; this one not set: proof-shell-abort-goal-regexp 
-    (proof-shell-proof-completed-regexp "No subgoals!")
-    (proof-shell-error-regexp		isa-error-regexp)
-    (proof-shell-interrupt-regexp        "Interrupt")     ; FIXME: only good for NJ/SML
-    (proof-shell-noise-regexp	        "")
-    (proof-shell-assumption-regexp	isa-id)		   ; matches name of assumptions
-    (proof-shell-goal-regexp		isa-goal-regexp)    ; matches subgoal heading
-    ;; We can't hack the SML prompt, so set wakeup-char to nil.
-    (proof-shell-wakeup-char		nil)
-    (proof-shell-start-goals-regexp	"\370")
-    (proof-shell-end-goals-regexp	"\371")
-    ;; initial command configures Isabelle by hacking print functions.
-    ;; may need to set directory somewhere for this:
-    ;; /home/da/devel/lego/elisp/   or  $PROOFGENERIC_HOME ?
-    (proof-shell-init-cmd		"use \"isa-print-functions.ML\";")
-    ;; === ANNOTATIONS  === remaining ones broken
-    (proof-shell-goal-char	        ?\375)
-    (proof-shell-first-special-char	?\360)
-    (proof-shell-eager-annotation-start  "\376") 
-    (proof-shell-eager-annotation-end    "\377")
-    (proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern) ; impossible to annotate!
-    (proof-shell-result-start	        "\372 Pbp result \373")
-    (proof-shell-result-end		"\372 End Pbp result \373")
-    (proof-analyse-using-stack		t)
-    (proof-shell-start-char		?\372)
-    (proof-shell-end-char		?\373)
-    (proof-shell-field-char		?\374))
-    "Table of settings for configuration of proof shell mode to Isabelle.")
+(defun isa-shell-mode-config-set-variables
+  "Configure generic proof shell mode variables for Isabelle."
+  (setq
+   proof-shell-prompt-pattern		"^2?[---=#>]>? *\\|^\\*\\* .*" ; for ML
+   proof-shell-cd			"cd \"%s\";"
+   ;; this one not set: proof-shell-abort-goal-regexp 
+   proof-shell-proof-completed-regexp   "No subgoals!"
+   proof-shell-error-regexp		isa-error-regexp
+   proof-shell-interrupt-regexp         "Interrupt"     ; FIXME: only good for NJ/SML
+   proof-shell-noise-regexp	        ""
+   proof-shell-assumption-regexp	isa-id		   ; matches name of assumptions
+   proof-shell-goal-regexp		isa-goal-regexp    ; matches subgoal heading
+   ;; We can't hack the SML prompt, so set wakeup-char to nil.
+   proof-shell-wakeup-char		nil
+   proof-shell-start-goals-regexp	"\370"
+   proof-shell-end-goals-regexp		"\371"
+   ;; initial command configures Isabelle by hacking print functions.
+   ;; may need to set directory somewhere for this:
+   ;; /home/da/devel/lego/elisp/   or  $PROOFGENERIC_HOME ?
+   proof-shell-init-cmd			"use \"isa-print-functions.ML\";"
+   ;; === ANNOTATIONS  === remaining ones broken
+   proof-shell-goal-char	        ?\375
+   proof-shell-first-special-char	?\360
+   proof-shell-eager-annotation-start "\376" 
+   proof-shell-eager-annotation-end   "\377"
+   proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern ; can't annotate!
+   proof-shell-result-start	        "\372 Pbp result \373"
+   proof-shell-result-end		"\372 End Pbp result \373"
+   proof-analyse-using-stack		t
+   proof-shell-start-char		?\372
+   proof-shell-end-char			?\373
+   proof-shell-field-char		?\374))
 
 
 ;; ===== outline mode
@@ -208,41 +208,44 @@ to set outline heading regexp.")
 ;; to the declaration of a particular something makes no real
 ;; sense.  Perhaps in the future there will be functions to remove
 ;; theorems from theories, but even then all we could do is
-;; forget particular theorems one by one.
-
-;; FIXME: next function and variable DEAD, irrelevant.
-(defconst isa-keywords-decl-defn-regexp
-  (ids-to-regexp (append isa-keywords-decl isa-keywords-defn))
-  "Declaration and definition regexp.")
+;; forget particular theorems one by one.  So we ought to search
+;; backwards in isa-find-and-forget, rather than forwards as
+;; the old code below does.
 
 (defun isa-find-and-forget (span)
-  (let (str ans)
-    (while (and span (not ans))
-      (setq str (span-property span 'cmd))
-      (cond
+  ;; Special return value to indicate nothing needs to be done.
+  "COMMENT")
+  
+  
+;; BEGIN Old code  (taken from Coq.el)
+;(defconst isa-keywords-decl-defn-regexp
+;  (ids-to-regexp (append isa-keywords-decl isa-keywords-defn))
+;  "Declaration and definition regexp.")
+;(defun isa-find-and-forget (span)
+;  (let (str ans)
+;    (while (and span (not ans))
+;      (setq str (span-property span 'cmd))
+;      (cond
+;       ((eq (span-property span 'type) 'comment))       
 
-       ((eq (span-property span 'type) 'comment))       
+;       ((eq (span-property span 'type) 'goalsave)
+;	(setq ans (concat isa-forget-id-command
+;			  (span-property span 'name) proof-terminal-string)))
 
-       ((eq (span-property span 'type) 'goalsave)
-	(setq ans (concat isa-forget-id-command
-			  (span-property span 'name) proof-terminal-string)))
-
-       ((string-match (concat "\\`\\(" isa-keywords-decl-defn-regexp
-                              "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)
-	(setq ans (concat isa-forget-id-command
-			  (match-string 2 str) proof-terminal-string)))
-
-       ;; If it's not a goal but it contains "Definition" then it's a
-       ;; declaration
-       ((and (not (isa-goal-command-p str))
-	     (string-match
-	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*:") str))
-	(setq ans (concat isa-forget-id-command
-			  (match-string 2 str) proof-terminal-string))))
-
-      (setq span (next-span span 'type)))
-
-      (or ans "COMMENT")))
+;       ((string-match (concat "\\`\\(" isa-keywords-decl-defn-regexp
+;                              "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)
+;	(setq ans (concat isa-forget-id-command
+;			  (match-string 2 str) proof-terminal-string)))
+;       ;; If it's not a goal but it contains "Definition" then it's a
+;       ;; declaration
+;       ((and (not (isa-goal-command-p str))
+;	     (string-match
+;	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*:") str))
+;	(setq ans (concat isa-forget-id-command
+;			  (match-string 2 str) proof-terminal-string))))
+;      (setq span (next-span span 'type)))
+;      (or ans "COMMENT")))
+; END old code 
 
 (defvar isa-current-goal 1
   "Last goal that emacs looked at.")
@@ -325,7 +328,7 @@ to set outline heading regexp.")
   (modify-syntax-entry ?\) ")(4"))
 
 (defun isa-mode-config ()
-  (mapcar (lambda (symval) (apply 'set symval)) isa-mode-config-table)
+  (isa-mode-config-set-variables)
   (isa-init-syntax-table)
   ;; font-lock
   (setq font-lock-keywords isa-font-lock-keywords-1)
@@ -355,7 +358,7 @@ to set outline heading regexp.")
   ;; FIXME: maybe add this back later.
   ;;(add-hook 'proof-shell-insert-hook 'isa-shell-init-hook nil t)
   (isa-init-syntax-table)
-  (apply 'setq isa-shell-mode-config-table)
+  (isa-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
 ;; FIXME: broken, of course, as is all PBP everywhere.

@@ -54,21 +54,25 @@
 
 ;; isa-keywords-goal is used to manage undo actions
 (defcustom isa-keywords-goal
-  '("goal" "goalw" "goalw_cterm" "Goal")
+  '("Goal" "Goalw" "goal" "goalw" "goalw_cterm")
   "Isabelle commands to begin an interactive proof"
   :group 'isa-syntax
   :type '(repeat string))
 
 (defcustom isa-keywords-save
-  '("qed" "result" "uresult" "bind_thm" "store_thm"
-    "Isabelle commands to extract the proved theorem")
+  '("qed" "result" "uresult" "bind_thm" "store_thm")
+    "Isabelle commands to extract the proved theorem"
   :group 'isa-syntax
   :type '(repeat string))
 
-;; FIXME: and a whole lot more... should be conservative
-;; and use any identifier
 (defcustom isa-keywords-commands
-  '("by" "goal")
+  '("by" "byev"
+    "ba" "br" "be" "bd" "brs" "bes" "bds"
+    "chop" "choplev" "back" "undo"
+    "fa" "fr" "fe" "fd" "frs" "fes" "fds"
+    "bw" "bws" "ren"
+    ;; batch proofs
+    "prove_goal" "qed_goal" "prove_goalw" "qed_goalw" "prove_goalw_cterm")
   "Isabelle command keywords"
   :group 'isa-syntax
   :type '(repeat string))
@@ -89,7 +93,7 @@
 
 ;; this should come from isa-ml-compiler stuff.
 (defcustom isa-error-regexp 
-  "^.*Error:"
+  "^.*Error:\\|^\\*\\*\\*"
   "A regexp indicating that Isabelle has identified an error."
   :type 'string
   :group 'isa-syntax)
@@ -104,7 +108,8 @@
 (defvar isa-font-lock-terms
   (list
    ;; lambda binders
-   (list (isa-abstr-regexp "\\[" ":") 1 'font-lock-declaration-name-face)
+   (list (concat "\%\\s-*\\(" isa-ids "\\)\\.") 1
+	 'font-lock-declaration-name-face)
 
    ;; Pi binders
    (list (isa-abstr-regexp "(" ":") 1 'font-lock-declaration-name-face)
