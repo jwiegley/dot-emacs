@@ -26,6 +26,29 @@ A***  MULTIPLE FILES BEHAVIOUR:
         in the included files list.  Should it be there or not,
 	if the file is only partly processed?
 
+   Log files for last changes in proof-script:
+
+   Disabled hack for proof-shell-process-file which allowed
+   empty string to stand for filename of current scripting buffer.
+   This added the current script buffer onto the included files
+   list immediately processing it began (if it began with something
+   creating a mark).  However, I removed the check for the current
+   scripting buffer so that that could correctly be marked atomic
+   for Isabelle at other times.  This resulted in current buffer
+   being marked atomic, and errors.
+   Are there still more errors?
+
+      [Possibly yes: is there some processing of lego-path somewhere?
+       If I visit /home/da/example.l then other stuff in another dir
+        the other stuff is not seen]
+    
+   
+   My current viewpoint is that the processed files list only contains
+   files *fully* processed by the prover, and that Proof General should
+   manage the scripting buffer part of this.  So if we process a 
+   succession of files with scripting, they are entered onto the list.
+
+
 A***  BUG: FSF Emacs process handling (check on proof-shell-insert fix), 
       killing buffer problems.
 
