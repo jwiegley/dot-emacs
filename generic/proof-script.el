@@ -166,7 +166,7 @@ Otherwise make span give a warning message on edits."
 (defun proof-init-segmentation ()
   "Initialise the queue and locked spans in a proof script buffer.
 Allocate spans if need be.  The spans are detached from the
-buffer, so the locked region is made empty by this function.
+buffer, so the locked region is made empty by this function."
   ;; Initialise queue span, remove it from buffer.
   (if (not proof-queue-span)
       (setq proof-queue-span (make-span 1 1)))
