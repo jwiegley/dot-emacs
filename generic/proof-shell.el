@@ -814,6 +814,7 @@ arrive."
   "Scan the shell buffer for urgent messages.
 Scanning starts from proof-shell-urgent-message-pos and processes
 strings between eager-annotation-start and eager-annotation-end."
+  ;; FIXME: check if it's safe to move point here.
   (goto-char
    (or (marker-position proof-shell-urgent-message-marker) (point-min)))
   (let (end start)
