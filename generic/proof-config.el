@@ -1359,6 +1359,7 @@ for scripting commands), unless activated-interactively is set."
   :type 'number
   :group 'proof-script)
 
+;; FIXME: perhaps remove this setting?  Users rather object to it.
 (defcustom proof-indent-pad-eol nil
   "*Whether to add spaces to end of lines.
 If enabled, spaces are added to the end of lines in an attempt to improve
