@@ -232,7 +232,7 @@ See -k option for Isabelle interface script."
    proof-assistant-setting-format       
    (unless isa-supports-pgip 'isar-markup-ml)
 
-   proof-shell-init-cmd			'(proof-assistant-settings-cmd)
+   proof-shell-init-cmd			nil
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
    proof-shell-eager-annotation-start-length 1
@@ -411,8 +411,6 @@ proof-shell-retract-files-regexp."
     ;; FIXME: these are not defined until post Isabelle2004,
     ;; for now we grey them out in the menu except for CVS version.
     ["Display draft" isar-display-draft 
-     (string-match "repository" isabelle-version-string)]
-    ["Print draft"   isar-print-draft 
      (string-match "repository" isabelle-version-string)])))
 
 ;; undo proof commands
