@@ -17,7 +17,7 @@
 
 (require 'proof-config)			; configuration variables
 
-;(require 'proof-splash)			; splash screen
+(require 'proof-splash)			; splash screen
 
 ;; FIXME da: I think these should all be autoloaded!!
 ;; (require 'cl)

@@ -10,6 +10,9 @@
 ;;
 ;; NB: try not to use cl or other autoloaded macro sets here,
 ;; to minimise delay before splash screen is shown. 
+;;
+
+(require 'proof-site)
 
 (defconst proof-splash-welcome "*Proof General Welcome*"
   "Name of the Proof General splash buffer.")
@@ -106,7 +109,11 @@ Borrowed from startup-center-spaces."
 (defun proof-splash-display-screen ()
   "Save window config and display Proof General splash screen.
 Only do it if proof-splash-display is nil."
-  (if (not proof-splash-inhibit)
+  (if (and
+       ;; Next check avoids XEmacs giving "Arithmetic Error"
+       ;; during byte compilation.
+       (if (fboundp 'noninteractive) (not (noninteractive)) t)
+       (not proof-splash-inhibit))
     (let
 	;; Keep win config explicitly instead of pushing/popping because
 	;; if the user switches windows by hand in some way, we want
@@ -157,9 +164,7 @@ Only do it if proof-splash-display is nil."
 ;; redisplay until proof-internal-display-splash-time has elapsed. 
 
 ;; Display the screen ASAP...
-;; FIXME: don't want this to display during compilation!
-(eval-when (load)
-  (proof-splash-display-screen))
+(proof-splash-display-screen)
 
 (defun proof-splash-timeout-waiter ()
   "Wait for proof-splash-timeout, then remove self from hook."
