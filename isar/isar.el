@@ -322,6 +322,7 @@ proof-shell-retract-files-regexp."
     (isar-proofscript-mode))))
 
 ;; FIXME: could test that the buffer isn't already locked.
+;; FIXME remove?
 (defun isar-process-thy-file (file)
   "Process the theory file FILE.  If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
@@ -329,80 +330,6 @@ proof-shell-retract-files-regexp."
   (proof-shell-invisible-command 
    (format isar-use-thy-only-command
 	   (file-name-sans-extension file))))
-
-(defcustom isar-retract-thy-file-command "" ;; MMW FIXME "ML {| ProofGeneral.retract_thy_file \"%s\"; |};"
-  "Sent to Isabelle/Isar to forget theory file and descendants.
-Resulting output from Isabelle/Isar will be parsed by Proof General."
-  :type 'string
-  :group 'isabelle-isar-config)
-
-(defcustom isar-retract-ML-file-command "" ;; MMW FIXME "ML {| ProofGeneral.retract_ML_file \"%s\"\"; |};"
-  "Sent to Isabelle/Isar to forget ML file and descendants.
-Resulting output from Isabelle/Isar will be parsed by Proof General."
-  :type 'string
-  :group 'isabelle-isar-config)
-
-(defcustom isar-retract-ML-files-children-command "" ;; MMW FIXME "ProofGeneral.retract_ML_files_children \"%s\";"
-  "Sent to Isabelle/Isar to forget the descendants of an ML file.
-Resulting output from Isabelle will be parsed by Proof General."
-  :type 'string
-  :group 'isabelle-config)
-
-(defun isar-retract-thy-file (file)
-  "Retract the theory file FILE. If interactive, use buffer-file-name."
-  (interactive (list buffer-file-name))
-  (proof-shell-invisible-command
-   (format isar-retract-thy-file-command
-	   (file-name-sans-extension file))))
-
-
-;; Next bits taken from isar-load.el
-;; isar-load.el,v 3.8 1998/09/01 
-
-(defgroup thy nil
-  "Customization of Isamode's theory editing mode"
-  ;; :link '(info-link "(Isamode)Theory Files")
-  :load 'thy-mode
-  :group 'isabelle-isar)
-
-(autoload 'thy-mode "thy-mode" 
-	  "Major mode for Isabelle/Isar theory files" t nil)
-
-(autoload 'thy-find-other-file "thy-mode" 
-	    "Find associated .ML or .thy file." t nil)
-
-(defun isar-splice-separator (sep strings)
-  (let (stringsep)
-    (while strings
-      (setq stringsep (concat stringsep (car strings)))
-      (setq strings (cdr strings))
-      (if strings (setq stringsep 
-			(concat stringsep sep))))
-    stringsep))
-
-(defun isar-file-name-cons-extension (name)
-  "Return cons cell of NAME without final extension and extension"
-  (if (string-match "\\.[^\\.]+$" name)
-      (cons (substring name 0 (match-beginning 0))
-	    (substring name (match-beginning 0)))
-    (cons name "")))
-
-(defun isar-format (alist string)
-  "Format a string by matching regexps in ALIST against STRING"
-  (while alist
-    (while (string-match (car (car alist)) string)
-      (setq string
-	    (concat (substring string 0 (match-beginning 0))
-		    (cdr (car alist))
-		    (substring string (match-end 0)))))
-    (setq alist (cdr alist)))
-  string)
-
-;; Key to switch to theory mode
-(define-key isar-proofscript-mode-map 
-  [(control c) (control o)] 'thy-find-other-file)
-
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
