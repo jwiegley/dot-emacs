@@ -2329,6 +2329,9 @@ command."
 
   (setq proof-buffer-type 'script)
 
+  ;; font-lock-keywords isn't automatically buffer-local in Emacs 21.2
+  (make-local-variable 'font-lock-keywords)
+
   ;; During write-file it can happen that we re-set the mode for
   ;; the currently active scripting buffer.  The user might also
   ;; do this for some reason.  We could maybe let
