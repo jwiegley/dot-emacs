@@ -223,6 +223,7 @@ downloads, etc.
 
 @menu
 * Future::
+* Credits::
 @end menu
 
 @node Future
@@ -259,6 +260,16 @@ At the time of writing, these ideas are in early stages. For latest
 details, or to become involved, see
 @uref{http://www.proofgeneral.org/kit.html, the Proof General Kit
 webpage}.
+
+
+@node Credits
+@unnumberedsec Credits
+
+This manual was put together mostly written by David Aspinall.  Thomas
+Kleymann wrote some of the material in @ref{Handling multiple files}.
+Much of the content is generated automatically from Emacs docstrings,
+some of which have been written by other Proof General developers.
+
 
 
 @node Beginning with a new prover
