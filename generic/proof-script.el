@@ -513,7 +513,7 @@ Names must be unique for a given "
   (set-span-property proofbodyspan 'idiom 'proof)
   ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
   (if proof-disappearing-proofs 
-      (pg-make-element-invisible "proof" uniqnm)))
+      (pg-make-element-invisible "proof" name)))
 
 
   
@@ -864,6 +864,7 @@ a scripting buffer is killed it is always retracted."
 	    (progn
 	      ;; We can immediately indicate that there is no active
 	      ;; scripting buffer
+	      (setq proof-previous-script-buffer proof-script-buffer)
 	      (setq proof-script-buffer nil)
 
 	      (if (proof-locked-region-full-p)
@@ -1173,7 +1174,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
       ;; FIXME: subroutine here:
       (let ((gspan     span)
 	    (savestart (span-start span))
-	    goalend nam next)
+	    goalend nam next ncmd)
 
 	;; Try to set the name of the theorem from the save
 	(message "%s" cmd)
@@ -1188,10 +1189,12 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 	;; Search backwards for first goal command, 
 	;; deleting spans along the way.
-	(while (and gspan
-		    (or (eq (span-property gspan 'type) 'comment)
-			(not (funcall proof-goal-command-p 
-				      (setq cmd (span-property gspan 'cmd))))))
+	(while 
+	    (and gspan
+		 (or (eq (span-property gspan 'type) 'comment)
+		     (and (setq ncmd (span-property gspan 'cmd))
+			  (not (funcall proof-goal-command-p 
+					(setq cmd ncmd))))))
 	  (setq next (prev-span gspan 'type))
 	  (delete-span gspan)
 	  (setq gspan next))
@@ -1322,7 +1325,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (let* ((swallow  (eq proof-completed-proof-behaviour 'extend))
 	     (gspan    (if swallow span (prev-span span 'type)))
 	     (newend   (if swallow (span-end span) (span-start span)))
-	    nam hitsave dels)
+	    nam hitsave dels ncmd)
 	;; Search backwards to see if we can find a previous goal
 	;; before a save or the start of the buffer.
 	(while 
@@ -1331,8 +1334,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	     (or 
 	      (eq (span-property gspan 'type) 'comment)
 	      (and
-	       (not (funcall proof-goal-command-p 
-			     (setq cmd (span-property gspan 'cmd))))
+	       (setq ncmd (span-property gspan 'cmd))
+	       (not (funcall proof-goal-command-p (setq cmd ncmd)))
 	       (not
 		(and proof-save-command-regexp
 		     (proof-string-match proof-save-command-regexp cmd)
