@@ -227,13 +227,13 @@ No effect if proof-display-splash is nil."
 ;; The reason is that saving these customizations across a session is
 ;; not liable to work, because the prover specific elisp usually
 ;; overrides with a series of setq's in <assistant>-mode-config type
-;; functions.  This is why proof-config appears under the
+;; functions.  This is why prover-config appears under the
 ;; proof-internal group.
 ;;
 ;;
 
 ;; The Customization menus would be nicer if the variables in
-;; proof-config group were uniformly renamed proof-config-*
+;; prover-config group were uniformly renamed prover-config-*
 ;; (and similarly for other variables/groups).  But it's
 ;; somewhat of a horror in the code?
 
@@ -404,7 +404,7 @@ This is used to handle nested goals allowed by some provers."
 
 (defgroup proof-shell nil
   "Settings for output from the proof assistant in the proof shell."
-  :group 'proof-config)
+  :group 'prover-config)
 
 ;;
 ;; Hooks for the proof shell
