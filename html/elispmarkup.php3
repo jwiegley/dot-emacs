@@ -117,15 +117,16 @@ function elisp_markup($filename,$thispage,$title="")  {
      // Anchors for URLs
      $line = ereg_replace("((http://|mailto:)[-a-zA-Z0-9\.~/_@]+)","<a href=\"\\1\">\\1</a>",$line);
      // Font-lock equivalents...
-     // 1. comments
-     $line = ereg_replace("(;+.*\n)",
-			  "<div style=\"color: #8080E0\">\\1</div>",
-			  $line);
+     // 1. comments.  Strings roughly done: ignore if quote appears after ;
+// seems buggy.
+//     $line = ereg_replace("^([^;]*)(\;+[^\"]+)$",
+//		          "\\1<div style=\"color: #8080E0\">\\2</div>",
+//			  $line);
      // 2. keywords
      // FIXME: this inserts CR's.
-     $line = ereg_replace("^\(def(macro|un|var|custom|const|group)",
-			  "(<div style=\"color: #C0B0B0\">def\\1</div>",
-			  $line);
+//     $line = ereg_replace("^\(def(macro|un|var|custom|const|group)",
+//			  "(<div style=\"color: #C0B0B0\">def\\1</div>",
+//			  $line);
      // FIXME: add hrefs for keywords, looking up in TAGS file.
      // FIXME: add line numbers
      // FIXME: parse strings
