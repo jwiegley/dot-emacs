@@ -141,6 +141,27 @@ else
 fi
 
 
+## smart X11 font installation
+
+function checkfonts ()
+{
+  XLSFONTS=$(xlsfonts -fn "-xsymb-xsymb0-*" 2>&1) || return 1
+
+  case "$XLSFONTS" in
+    xlsfonts:*)
+      return 1
+      ;;
+  esac
+
+  return 0
+}
+
+function installfonts ()
+{
+  checkfonts "$XSYMBOL_PATTERN" || eval $XSYMBOL_INSTALLFONTS
+}
+
+
 ## main
 
 if [ "$START_PG" = false ]; then
@@ -156,7 +177,7 @@ else
   
   if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
     ARGS="$ARGS -T Isabelle"
-    [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOLSETUP" = true ] && "$ISATOOL" installfonts -x
+    [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOLSETUP" = true ] && installfonts
   else
     ARGS="$ARGS -nw"
     XSYMBOL=false
