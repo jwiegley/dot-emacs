@@ -325,7 +325,10 @@ but the features themselves may be buggy.
 
 We encourage users to set this flag and test the features, but being
 aware that the features may be buggy (problem reports and 
-suggestions for improvements are welcomed)."
+suggestions for improvements are welcomed).
+
+By default, experimental features are turned on in development
+releases and turned off in stable releases."
   :type 'boolean
   :group 'proof-user-options)
 
