@@ -427,10 +427,11 @@
   ;; Commands sent to proof engine
   (setq proof-prf-string "Show"
 	proof-ctxt-string "Print All"
-	proof-help-string "Help"
 	proof-goal-command "Goal %s."
 	proof-save-command "Save %s."
 	proof-find-theorems-command "Search %s."
+;; FIXME da: Does Coq have a help or about command?
+;;	proof-help-string "Help"
 	proof-kill-goal-command coq-kill-goal-command)
 
   (setq proof-goal-command-p 'coq-goal-command-p
