@@ -1,9 +1,10 @@
 ;; proof.el Major mode for proof assistants
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
-;; Authors: Yves Bertot, Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
+;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
+;;          Thomas Kleymann and Dilip Sequeira
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
+;; Thanks to Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
 
@@ -17,6 +18,7 @@
 (require 'proof-syntax)
 (require 'proof-indent)
 (require 'easymenu)
+(require 'tl-list)
 
 (autoload 'w3-fetch "w3" nil t)
 
