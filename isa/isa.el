@@ -161,14 +161,11 @@ no regular or easily discernable structure."
 
    ;; for issuing command, not used to track cwd in any way.
    proof-shell-cd			"cd \"%s\";"
-   proof-shell-proof-completed-regexp   "$^"         ; "No subgoals!" deactivated
 
    ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-error-regexp		"^.*Error:\\|^\364\\*\\*\\*"
    proof-shell-interrupt-regexp         "Interrupt"
    
-   ;; nothing appropriate for: proof-shell-abort-goal-regexp
-
    ;; matches names of assumptions
    proof-shell-assumption-regexp	isa-id
    ;; matches subgoal name
@@ -180,6 +177,15 @@ no regular or easily discernable structure."
    proof-shell-start-goals-regexp	"\366\n"
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
+
+   proof-shell-proof-completed-regexp   (concat 
+					 proof-shell-start-goals-regexp
+					 ;; FIXME: next regexp is horrible,
+					 ;; but seems only reliable way
+					 ;; of matching a string with n/ls.
+					 "[^\0]*"
+					 "No subgoals!")
+
    ;; initial command configures Isabelle by hacking print functions.
    proof-shell-init-cmd                 "ProofGeneral.init false;"
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
