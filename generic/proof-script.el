@@ -59,7 +59,7 @@ A hack for entities that are named in two places, so that find-next-entity
 doesn't return the same values twice.")
 
 ;; FIXME mmw: maybe handle comments/strings by using
-;; proof-looking-at-syntactic-context (XEmacs-only!)
+;; proof-looking-at-syntactic-context 
 (defun proof-script-find-next-entity (buffer)
   "Find the next entity for function menu in a proof script.
 A value for fume-find-function-name-method-alist for proof scripts.
