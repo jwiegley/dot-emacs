@@ -149,10 +149,9 @@ and script mode."
    ;; matches names of assumptions
    proof-shell-assumption-regexp	isa-id
    ;; matches subgoal name
-   ;; FIXME: proof-shell-goal-regexp is *not* used at the generic level!
-   ;;        Perhaps it should be renamed to isa-goal-regexp and be
-   ;;        set somewhere else.  
-   proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
+   ;; FIXME: not used yet.  In future will be used for
+   ;; proof-by-pointing like features.
+   ;; proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
 
    proof-shell-start-goals-regexp	"\366"
    proof-shell-end-goals-regexp		"\367"
