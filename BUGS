@@ -15,6 +15,11 @@ versions, and those which only apply to particular versions.
 
 * Generic problems, for all Emacs versions
 
+** Visibility control doesn't distinguish theorems with same name.
+
+If you have more than one theorem with the same name in a buffer,
+their proof visibilities are controlled together.
+
 ** If the proof assistant goes into a loop displaying lots of information
 
 It may be difficult or impossible to interrupt it, because Emacs
@@ -23,7 +28,8 @@ push (or anything else).  In this situation, you will need to send an
 interrupt to the (e.g.) Isabelle process from another shell.  If that 
 doesn't stop things, you can try 'kill -FPE <emacs-pid>'.  
 This problem can happen with looping rewrite rules in the Isabelle
-simplifier, when tracing rewriting.
+simplifier, when tracing rewriting.  It seems to be worse on 
+certain architectures, and slower machines.
 
 ** Toolbar enablers for XEmacs 21, some artefacts.
 
@@ -64,13 +70,6 @@ simplifier, when tracing rewriting.
 ** In tty mode, the binding C-c C-RET has no effect.  
 
  Workaround: manually bind C-c RET to 'proof-goto-point instead.
-
-** Active minibuffer can cause strange buffer selection behaviour.
-
-Try this: start PG/isar, step into a proof, activate a mini buffer (by
-visit-file etc.), now update goals output by clicking the toolbar.  PG
-will attempt to put the output into the minibuffer portion of the
-frame!  To get back to a sane state, use C-]
 
 * Problems with particular Emacs versions
 
