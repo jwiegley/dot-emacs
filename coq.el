@@ -3,6 +3,11 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.10  1997/11/17 17:11:15  djs
+;; Added some magic commands: proof-frob-locked-end, proof-try-command,
+;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
+;; Changed the key mapping for assert-until-point to C-c RET.
+;;
 ;; Revision 1.9  1997/11/12 15:56:15  hhg
 ;; Changed pbp-change-goal so that it only "Show"s the goal pointed at.
 ;;
@@ -310,7 +315,7 @@
    (t nil)))
 
 (defun coq-retract-target (target delete-region)
-  (let ((end (proof-end-of-locked))
+  (let ((end (proof-locked-end))
 	(start (span-start target))
 	(ext (proof-last-goal-or-goalsave))
 	actions)
@@ -339,7 +344,7 @@
 			      (coq-find-and-forget target)
 			      delete-region))))
       
-    (proof-start-queue (min start end) (proof-end-of-locked) actions)))
+    (proof-start-queue (min start end) (proof-locked-end) actions)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to coq                                      ;;

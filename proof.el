@@ -8,17 +8,12 @@
 
 
 
-;; TO DO:
-
-;; o Need to think about fixing up errors caused by pbp-generated commands
-
-;; o undo support needs to consider Discharge; perhaps unrol to the
-;;   beginning of the module? 
-
-;; o pbp code is horribly inefficient and doesn't accord with the tech
-;;   report
-
 ;; $Log$
+;; Revision 1.25  1997/11/17 17:11:21  djs
+;; Added some magic commands: proof-frob-locked-end, proof-try-command,
+;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
+;; Changed the key mapping for assert-until-point to C-c RET.
+;;
 ;; Revision 1.24  1997/11/13 10:23:49  hhg
 ;; Includes commented code for Coq version of extent protocol
 ;;
@@ -27,7 +22,8 @@
 ;;
 ;; Revision 1.22  1997/11/10 15:51:09  djs
 ;; Put in a workaround for a strange bug in comint which was finding a bunch
-;; of ^G's from comint-get-old-input for some inexplicable reason.
+;; of ^G's from comint-get-old-input for some inexplicable reason. THIS IS
+;; STILL BROKEN AND A BUG REPORT HAS BEEN SUBMITTED TO XEMACS.ORG
 ;;
 ;; Revision 1.21  1997/11/06 16:56:59  hhg
 ;; Parameterize by proof-goal-hyp-fn in pbp-make-top-span, to handle
@@ -110,6 +106,7 @@
 (require 'compile)
 (require 'comint)
 (require 'etags)
+(require 'proof-dependencies)
 (require 'proof-fontlock)
 
 (autoload 'w3-fetch "w3" nil t)
@@ -152,6 +149,9 @@
 (defvar proof-goal-hyp-fn nil "Is point at goal or hypothesis")
 (defvar proof-kill-goal-command nil "How to kill a goal.")
 
+(defvar proof-state-preserving-p nil
+  "whether a command preserves the proof state")
+
 (defvar pbp-change-goal nil
   "*Command to change to the goal %s")
 
@@ -190,6 +190,10 @@
   "A regular expression indicating that the PROOF process has
   identified an error.") 
 
+(defvar proof-shell-interrupt-regexp nil
+  "A regular expression indicating that the PROOF process has
+  responded to an interrupt.") 
+
 (defvar proof-shell-proof-completed-regexp nil
   "*Regular expression indicating that the proof has been completed.")
 
@@ -224,12 +228,6 @@
 (defvar proof-re-term-or-comment nil 
   "You are not authorised for this information.")
 
-(defvar proof-locked-hwm nil
-  "Upper limit of the locked region")
-
-(defvar proof-queue-loose-end nil
-  "Limit of the queue region that is not equal to proof-locked-hwm.")
-
 (defvar proof-marker nil 
   "You are not authorised for this information.")
 
@@ -253,6 +251,7 @@
 (defvar proof-included-files-list nil 
   "Files currently included in proof process")
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;               Bridging the emacs19/xemacs gulf                   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -270,131 +269,6 @@
   (or (> emacs-major-version major)
       (and (= emacs-major-version major) (>= emacs-minor-version minor)))
 )
-
-(defvar extended-shell-command-on-region
-  (emacs-version-at-least 19 29)
-  "Does `shell-command-on-region' optionally offer to output in an other buffer?")
-
-;; in case Emacs is not aware of read-shell-command-map
-(defvar read-shell-command-map
-  (let ((map (make-sparse-keymap)))
-    (if (not (fboundp 'set-keymap-parents))
-        (setq map (append minibuffer-local-map map))
-      (set-keymap-parents map minibuffer-local-map)
-      (set-keymap-name map 'read-shell-command-map))
-    (define-key map "\t" 'comint-dynamic-complete)
-    (define-key map "\M-\t" 'comint-dynamic-complete)
-    (define-key map "\M-?" 'comint-dynamic-list-completions)
-    map)
-  "Minibuffer keymap used by shell-command and related commands.")
-
-
-;; in case Emacs is not aware of the function read-shell-command
-(or (fboundp 'read-shell-command)
-    ;; from minibuf.el distributed with XEmacs 19.11
-    (defun read-shell-command (prompt &optional initial-input history)
-      "Just like read-string, but uses read-shell-command-map:
-\\{read-shell-command-map}"
-      (let ((minibuffer-completion-table nil))
-        (read-from-minibuffer prompt initial-input read-shell-command-map
-                              nil (or history
-                              'shell-command-history)))))
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  Spans and segments                                              ;;
-;;  Because one day we might wish to port to emacs19                ;;
-;;  Note that we need to go back to using marks too                 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defsubst make-span (start end)
-  (make-extent start end))
-
-(defsubst set-span-endpoints (span start end)
-  (set-extent-endpoints span start end))
-
-(defsubst set-span-start (span value)
-  (set-extent-endpoints span value (extent-end-position span)))
-
-(defsubst set-span-end (span value)
-  (set-extent-endpoints span (extent-start-position span) value))
-
-(defsubst span-property (span name)
-  (extent-property span name))
-
-(defsubst set-span-property (span name value)
-  (set-extent-property span name value))
-
-(defsubst delete-span (span)
-  (delete-extent span))
-
-(defsubst delete-spans (start end prop)
-  (mapcar-extents 'delete-extent nil (current-buffer) start end  nil prop))
-
-(defsubst span-at (pt prop)
-  (extent-at pt nil prop))
-
-(defsubst span-at-before (pt prop)
-  (extent-at pt nil prop nil 'before))
-  
-(defsubst span-start (span)
-  (extent-start-position span))
-
-(defsubst span-end (span)
-  (extent-end-position span))
-
-(defsubst prev-span (span prop)
-  (extent-at (extent-start-position span) nil prop nil 'before))
-
-(defsubst next-span (span prop)
-  (extent-at (extent-end-position span) nil prop nil 'after))
-
-(defvar proof-locked-ext nil
-  "Upper limit of the locked region")
-
-(defvar proof-queue-ext nil
-  "Upper limit of the locked region")
-
-(defun proof-init-segmentation ()
-  (setq proof-queue-loose-end nil)
-  (setq proof-queue-ext (make-extent nil nil (current-buffer)))
-  (set-extent-property proof-queue-ext 'start-closed t)
-  (set-extent-property proof-queue-ext 'end-open t)
-  (set-extent-property proof-queue-ext 'read-only t)
-  (make-face 'proof-queue-face)
-  (if (eq (device-class (frame-device)) 'color)
-	     (set-face-background 'proof-queue-face "mistyrose")
-    (set-face-background 'proof-queue-face "Black")
-    (set-face-foreground 'proof-queue-face "White"))
-  (set-extent-property proof-queue-ext 'face 'proof-queue-face)
-  
-  (setq proof-locked-hwm nil)
-  (setq proof-locked-ext (make-extent nil nil (current-buffer)))
-  (set-extent-property proof-locked-ext 'start-closed t)
-  (set-extent-property proof-locked-ext 'end-open t)
-  (set-extent-property proof-locked-ext 'read-only t)
-  (if (eq (device-class (frame-device)) 'color)
-      (progn (make-face 'proof-locked-face)
-	     (set-face-background 'proof-locked-face "lavender")
-	     (set-extent-property proof-locked-ext 'face 'proof-locked-face))
-    (set-extent-property proof-locked-ext 'face 'underline)))
-
-(defun proof-segment-buffer (eol eoq)
-   (setq proof-locked-hwm eol
-         proof-queue-loose-end eoq)
-   (if (and (null eoq) (null eol))
-       (progn (detach-extent proof-locked-ext)
-	      (detach-extent proof-queue-ext))
-     (if (eq eol (point-min))
-	 (detach-extent proof-locked-ext)
-       (set-extent-endpoints proof-locked-ext (point-min) eol 
-			     (current-buffer)))
-     (if (eq eol eoq)
-	 (progn
-	   (detach-extent proof-queue-ext)
-	   (setq proof-queue-loose-end nil))
-       (set-extent-endpoints proof-queue-ext eol eoq (current-buffer)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A couple of small utilities ;;
@@ -420,15 +294,10 @@
   (concat (substring address 0 (match-end 0))
           (file-name-directory (substring address (match-end 0)))))
 
-(defun proof-end-of-locked ()
-  "Jump to the end of the locked region."
-  (interactive)
-  (or proof-locked-hwm (point-min)))
-
 (defun proof-goto-end-of-locked ()
   "Jump to the end of the locked region."
   (interactive)
-  (goto-char (proof-end-of-locked)))
+  (goto-char (proof-locked-end)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -470,7 +339,6 @@
 
       (save-excursion
 	(set-buffer proof-shell-buffer)
-	(setq comint-get-old-input (function (lambda () "")))
 	(funcall proof-mode-for-shell)
 	(set-buffer proof-pbp-buffer)
 	(funcall proof-mode-for-pbp))
@@ -495,7 +363,7 @@
 	      (comint-send-eof)
 	      (save-excursion
 		(set-buffer proof-script-buffer)
-		(proof-segment-buffer nil nil))
+		(proof-detach-segments))
 	      (kill-buffer))
 	    (run-hooks 'proof-shell-exit-hook)
 
@@ -627,14 +495,14 @@
 	 ((= c proof-shell-field-char)
 	  (setq ext (make-span (car stack) op))
 	  (set-span-property ext 'mouse-face 'highlight)
-	  (set-span-property ext 'proof (cadr stack))
+	  (set-span-property ext 'proof (car (cdr stack)))
 					; Pop annotation off stack, for Coq
 ;	  (setq ap 0)
-;	  (while (< ap (length (cadr stack)))
-;	    (aset ann ap (aref (cadr stack) ap))
+;	  (while (< ap (length (car (cdr stack))))
+;	    (aset ann ap (aref (car (cdr stack) ap)))
 ;	    (incf ap))
 					; Finish popping annotations
-	  (setq stack (cddr stack)))
+	  (setq stack (cdr (cdr stack))))
 	 (t (incf op)))
 	(incf ip))
       (setq topl (reverse (cons (point-max) topl)))
@@ -665,9 +533,23 @@
     (insert-string string)
     (beep))
   (set-buffer proof-script-buffer)
-  (proof-segment-buffer proof-locked-hwm proof-locked-hwm)
-  (delete-spans (proof-end-of-locked) (point-max) 'type)
+  (proof-detach-queue)
+  (delete-spans (proof-locked-end) (point-max) 'type)
   (proof-release-lock))
+
+(defun proof-shell-handle-interrupt ()
+  (save-excursion 
+    (display-buffer (set-buffer proof-pbp-buffer))
+    (goto-char (point-max))
+    (newline 2)
+    (insert-string 
+     "Interrupt: Script Management may be in an inconsistent state\n")
+    (beep))
+  (set-buffer proof-script-buffer)
+  (if proof-shell-busy
+      (progn (proof-detach-queue)
+	     (delete-spans (proof-locked-end) (point-max) 'type)
+	     (proof-release-lock))))
 
 (defvar proof-shell-delayed-output nil
   "The last interesting output the proof process output, and what to do
@@ -682,6 +564,7 @@
        ((eq ins 'insert)
 	(setq str (proof-shell-strip-annotations str))
 	(set-buffer proof-pbp-buffer)
+	(erase-buffer)
 	(insert str))
        ((eq ins 'analyse)
 	(proof-shell-analyse-structure str))
@@ -695,6 +578,9 @@
    ((string-match proof-shell-error-regexp string)
     (cons 'error (proof-shell-strip-annotations 
 		  (substring string (match-beginning 0)))))
+
+   ((string-match proof-shell-interrupt-regexp string)
+    'interrupt)
 
    ((string-match proof-shell-abort-goal-regexp string)
     (setq proof-shell-delayed-output (cons 'insert "\n\nAborted"))
@@ -774,20 +660,20 @@
 ; Pass start and end as nil if the cmd isn't in the buffer.
 
 (defun proof-start-queue (start end alist)
-  (if start 
-      (if (eq (proof-end-of-locked) start) 
-	  (proof-segment-buffer start end)
-	(proof-segment-buffer end start)))
-  (while (and alist (string= (cadar alist) "COMMENT"))
-    (funcall (caddar alist) (caar alist))
+  (if start
+      (proof-set-queue-endpoints start end))
+  (let (item)
+    (while (and alist (string= 
+		       (nth 1 (setq item (car alist))) 
+		       "COMMENT"))
+    (funcall (nth 2 item) (car item))
     (setq alist (cdr alist)))
   (if alist
       (progn
 	(proof-grab-lock) 
-	(erase-buffer proof-pbp-buffer)
 	(setq proof-shell-delayed-output (cons 'insert "Done."))
 	(setq proof-action-list alist)
-	(proof-send (cadar alist)))))
+	(proof-send (nth 1 item))))))
 
 ; returns t if it's run out of input
 
@@ -795,18 +681,21 @@
   (save-excursion
     (set-buffer proof-script-buffer)
     (if (null proof-action-list) (error "Non Sequitur"))
-    (funcall (caddar proof-action-list) (caar proof-action-list))
-    (setq proof-action-list (cdr proof-action-list))
-    (while (and proof-action-list
-		(string= (cadar proof-action-list) "COMMENT"))
-      (funcall (caddar proof-action-list) (caar proof-action-list))
-      (setq proof-action-list (cdr proof-action-list)))
-    (if (null proof-action-list)
-	(progn (proof-release-lock)
-	       (proof-segment-buffer proof-locked-hwm proof-locked-hwm)
-	       t)
-      (proof-send (cadar proof-action-list))
-      nil)))
+    (let ((item (car proof-action-list)))
+      (funcall (nth 2 item) (car item))
+      (setq proof-action-list (cdr proof-action-list))
+      (while (and proof-action-list
+		(string= 
+		 (nth 1 (setq item (car proof-action-list))) 
+		 "COMMENT"))
+	(funcall (nth 2 item) (car item))
+	(setq proof-action-list (cdr proof-action-list)))
+      (if (null proof-action-list)
+	  (progn (proof-release-lock)
+		 (proof-detach-queue)
+		 t)
+	(proof-send (nth 1 item))
+	nil))))
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
   "Insert command sequence triggered by the proof process
@@ -817,10 +706,10 @@ at the end of locked region (after inserting a newline)."
       (proof-goto-end-of-locked)
       (newline)
       (insert cmd)
-      (setq ext (make-span (proof-end-of-locked) (point)))
+      (setq ext (make-span (proof-locked-end) (point)))
       (set-span-property ext 'type 'pbp)
       (set-span-property ext 'cmd cmd)
-      (proof-segment-buffer (proof-end-of-locked) (point))
+      (proof-set-queue-endpoints (proof-locked-end) (point))
       (setq proof-action-list 
 	    (cons (car proof-action-list) 
 		  (cons (list ext cmd 'proof-done-advancing)
@@ -828,13 +717,14 @@ at the end of locked region (after inserting a newline)."
 
 (defun proof-shell-popup-eager-annotation ()
   (let (mrk str file module)
-    (save-excursion ;; BROKEN - MAY BE MULTI
+    (save-excursion ;; BROKEN - THERE MAY BE MULTIPLE EAGER ANNOTATIONS
       (goto-char (point-max))
       (search-backward proof-shell-eager-annotation-start)
       (setq mrk (+ 1 (point)))
       (search-forward proof-shell-eager-annotation-end)
       (setq str (buffer-substring mrk (- (point) 1)))
       (display-buffer (set-buffer proof-pbp-buffer))
+      (goto-char (point-max))
       (insert str "\n"))
     (if (string-match "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]" str)
 	(progn
@@ -859,27 +749,30 @@ at the end of locked region (after inserting a newline)."
 	    (backward-delete-char 1)
 	    (set-marker proof-marker (point)))
 	(let (string res cmd)	
-	    (re-search-forward proof-shell-annotated-prompt-regexp nil t)
-	    (backward-char (- (match-end 0) (match-beginning 0)))
-	    (setq string (buffer-substring (marker-position proof-marker)
-					   (point)))
-	    (goto-char (point-max))
-	    (backward-delete-char 1)
-	    (setq cmd (cadar proof-action-list))
-	    (save-excursion
-	      (setq res (proof-shell-process-output cmd string))
-	      (cond
-	       ((and (consp res) (eq (car res) 'error))
-		(proof-shell-handle-error cmd (cdr res)))
-	       ((and (consp res) (eq (car res) 'loopback))
-		(proof-shell-insert-loopback-cmd (cdr res))
-		(proof-shell-exec-loop))
-	       (t (if (proof-shell-exec-loop)
-		      (proof-shell-handle-delayed-output)))))))))
+	  (goto-char (marker-position proof-marker))
+	  (re-search-forward proof-shell-annotated-prompt-regexp nil t)
+	  (backward-char (- (match-end 0) (match-beginning 0)))
+	  (setq string (buffer-substring (marker-position proof-marker)
+					 (point)))
+	  (goto-char (point-max))
+	  (backward-delete-char 1)
+	  (setq cmd (nth 1 (car proof-action-list)))
+	  (save-excursion
+	    (setq res (proof-shell-process-output cmd string))
+	    (cond
+	     ((and (consp res) (eq (car res) 'error))
+	      (proof-shell-handle-error cmd (cdr res)))
+	     ((eq res 'interrupt)
+	      (proof-shell-handle-interrupt))
+	     ((and (consp res) (eq (car res) 'loopback))
+	      (proof-shell-insert-loopback-cmd (cdr res))
+	      (proof-shell-exec-loop))
+	     (t (if (proof-shell-exec-loop)
+		    (proof-shell-handle-delayed-output)))))))))
 
 (defun proof-last-goal-or-goalsave ()
   (save-excursion
-    (let ((ext (span-at-before (proof-end-of-locked) 'type)))
+    (let ((ext (span-at-before (proof-locked-end) 'type)))
     (while (and ext 
 		(not (eq (span-property ext 'type) 'goalsave))
 		(or (eq (span-property ext 'type) 'comment)
@@ -906,7 +799,7 @@ at the end of locked region (after inserting a newline)."
     (let ((flist proof-included-files-list) 
 	  (file (expand-file-name (buffer-file-name))) ext cmd)
       (if (string-match "\\(.*\\)\\.." file) (setq file (match-string 1 file)))
-      (while (and flist (not (string= file (cdar flist))))
+      (while (and flist (not (string= file (cdr (car flist)))))
 	(setq flist (cdr flist)))
       (if (null flist) 
 	  (if (not (y-or-n-p "Steal script management? " )) (error "Aborted"))
@@ -916,14 +809,14 @@ at the end of locked region (after inserting a newline)."
 	(setq ext (proof-last-goal-or-goalsave))
 	(setq cmd (if (and ext (not (eq (span-property ext 'type) 'goalsave)))
 		      proof-kill-goal-command ""))
-	(proof-segment-buffer nil nil)
+	(proof-detach-segments)
 	(delete-spans (point-min) (point-max) 'type))      
       (setq proof-script-buffer (current-buffer))
-      (proof-segment-buffer nil nil)
+      (proof-detach-segments)
 
       (cond 
        (flist
-	 (list nil (concat cmd "ForgetMark " (caar flist) ";")
+	 (list nil (concat cmd "ForgetMark " (car (car flist)) ";")
 	       `(lambda (ext) (setq proof-included-files-list 
 				    (quote ,(cdr flist))))))
 	((not (string= cmd ""))
@@ -969,15 +862,16 @@ at the end of locked region (after inserting a newline)."
   (let (ext)
     (proof-goto-end-of-locked)
     (insert cmd)
-    (setq ext (make-span (proof-end-of-locked) (point)))
+    (setq ext (make-span (proof-locked-end) (point)))
     (set-span-property ext 'type 'pbp)
     (set-span-property ext 'cmd cmd)
-    (proof-start-queue (proof-end-of-locked) (point) 
+    (proof-start-queue (proof-locked-end) (point) 
 		       (list (list ext cmd 'proof-done-advancing)))))
 
 (defun proof-done-advancing (ext)
-  (let ((end (span-end ext)) nam gext next cmd)
-    (proof-segment-buffer end proof-queue-loose-end)
+  (let ((end (span-end ext)) nam gext next cmd str start)
+    (proof-set-locked-end end)
+    (proof-set-queue-start end)
     (setq cmd (span-property ext 'cmd))
     (cond
      ((or (eq (span-property ext 'type) 'comment)
@@ -998,10 +892,30 @@ at the end of locked region (after inserting a newline)."
 			      (span-property gext 'cmd))
 		(setq nam (match-string 2 cmd))
 	      (error "Oops... can't find Goal name!!!")))
-	(set-span-end gext end)
-	(set-span-property gext 'highlight 'mouse-face)
-	(set-span-property gext 'type 'goalsave)
-	(set-span-property gext 'name nam)))))
+
+;; This code's for nested goals in Coq, and shouldn't affect things in LEGO
+
+      (setq next (prev-span gext 'type))
+      (while (and next 
+		  (not (string-match proof-goal-command-regexp 
+				     (span-property next 'cmd))))
+	(setq next (prev-span next 'type)))
+	
+      (if next (progn
+		 (proof-unlock-locked)
+		 (setq str (buffer-substring (span-start gext) end))
+		 (delete-region (span-start gext) end)
+		 (goto-char (span-start next))
+		 (setq start (point))
+		 (insert str "\n\n")
+		 (setq end (point))
+		 (proof-lock-unlocked))
+	(setq start (span-start gext)))
+
+      (set-span-endpoints gext start end)  
+      (set-span-property gext 'highlight 'mouse-face)
+      (set-span-property gext 'type 'goalsave)
+      (set-span-property gext 'name nam)))))
   
 ; Create a list of (type,int,string) pairs from the end of the locked
 ; region to pos, denoting the command and the position of its
@@ -1014,7 +928,7 @@ at the end of locked region (after inserting a newline)."
 
 (defun proof-segment-up-to (pos)
   (save-excursion
-    (let ((str (make-string (- (buffer-size) (proof-end-of-locked) -10) ?x))
+    (let ((str (make-string (- (buffer-size) (proof-locked-end) -10) ?x))
 	  (i 0) (depth 0) (quote-parity t) done alist c)
      (proof-goto-end-of-locked)
      (while (not done)
@@ -1049,23 +963,24 @@ at the end of locked region (after inserting a newline)."
 	       (if (>= (point) pos) (setq done t) (setq i 0)))))))
      alist)))
 
-(defun proof-semis-to-vanillas (semis)
-  (let ((ct (proof-end-of-locked)) ext alist)
+(defun proof-semis-to-vanillas (semis &optional callback-fn)
+  (let ((ct (proof-locked-end)) ext alist semi)
     (while (not (null semis))
-      (setq ext (make-span ct (caddar semis))
-	    ct (caddar semis))
-      (if (eq (caar semis) 'cmd)
+      (setq semi (car semis)
+            ext (make-span ct (nth 2 semi))
+	    ct (nth 2 semi))
+      (if (eq (car (car semis)) 'cmd)
 	  (progn
 	    (set-span-property ext 'type 'vanilla)
-	    (set-span-property ext 'cmd (cadar semis))
-	    (setq alist (cons (list ext (cadar semis) 'proof-done-advancing)
+	    (set-span-property ext 'cmd (nth 1 semi))
+	    (setq alist (cons (list ext (nth 1 semi) 
+				    (or callback-fn 'proof-done-advancing))
 			      alist)))
 	(set-span-property ext 'type 'comment)
 	(setq alist (cons (list ext "COMMENT" 'proof-done-advancing) alist)))
 	(setq semis (cdr semis)))
     (nreverse alist)))
 
-; 
 
 (defun proof-assert-until-point
   (&optional unclosed-comment-fun ignore-proof-process-p)
@@ -1078,7 +993,7 @@ at the end of locked region (after inserting a newline)."
   (let ((pt  (point)) semis crowbar)
     (setq crowbar (proof-steal-process))
     (save-excursion
-      (if (not (re-search-backward "\\S-" (proof-end-of-locked) t))
+      (if (not (re-search-backward "\\S-" (proof-locked-end) t))
 	  (progn (goto-char pt)
 		 (error "Nothing to do!")))
       (setq semis (proof-segment-up-to (point))))
@@ -1087,11 +1002,58 @@ at the end of locked region (after inserting a newline)."
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (not crowbar) (null semis))
 	  (error "Nothing to do!"))
-      (goto-char (caddar semis))
+      (goto-char (nth 2 (car semis)))
       (and (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
 	     (if crowbar (setq vanillas (cons crowbar vanillas)))
-	     (proof-start-queue (proof-end-of-locked) (point) vanillas))))))
+	     (proof-start-queue (proof-locked-end) (point) vanillas))))))
+
+(defun proof-done-trying (ext)
+  (proof-detach-queue))
+			
+(defun proof-try-command
+  (&optional unclosed-comment-fun) 
+
+  "Process the command at point,
+   but don't add it to the locked region. This will only happen if
+   the command passes proof-state-preserving-p.
+
+   Default action if inside a comment is just to go until the start of
+   the comment. If you want something different, put it inside
+   unclosed-comment-fun."
+  (interactive)
+  (let ((pt  (point)) semis crowbar test)
+    (setq crowbar (proof-steal-process))
+    (save-excursion
+      (if (not (re-search-backward "\\S-" (proof-locked-end) t))
+	  (progn (goto-char pt)
+		 (error "Nothing to do!")))
+      (setq semis (proof-segment-up-to (point))))
+    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
+	(funcall unclosed-comment-fun)
+      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
+      (if (and (not crowbar) (null semis)) (error "Nothing to do!"))
+      (setq test (car semis))
+      (if (not (funcall proof-state-preserving-p (nth 1 test)))
+	  (error "Command is not state preserving"))
+      (goto-char (nth 2 test))
+      (let ((vanillas (proof-semis-to-vanillas (list test)
+					       'proof-done-trying)))
+	(if crowbar (setq vanillas (cons crowbar vanillas)))
+	(proof-start-queue (proof-locked-end) (point) vanillas)))))
+
+(defun proof-interrupt-process ()
+  (interactive)
+  (if (not (proof-shell-live-buffer))
+      (error "Proof Process Not Started!"))
+  (if (not (eq proof-script-buffer (current-buffer)))
+      (error "Don't own process!"))
+  (if (not proof-shell-busy)
+      (error "Proof Process Not Active!"))
+  (save-excursion
+    (set-buffer proof-shell-buffer)
+    (comint-interrupt-subjob)))
+  
     
 (defun proof-find-next-terminator ()
   "Set point after next `proof-terminal-char'."
@@ -1106,10 +1068,11 @@ deletes the region corresponding to the proof sequence."
   (let ((start (span-start ext))
         (end (span-end ext))
 	(kill (span-property ext 'delete-me)))
-    (proof-segment-buffer start proof-queue-loose-end)
+    (proof-set-locked-end start)
+    (proof-set-queue-end start)
     (delete-spans start end 'type)
     (delete-span ext)
-    (and kill (delete-region start end))))
+    (if kill (delete-region start end))))
 
 (defun proof-setup-retract-action (start end proof-command delete-region)
   (let ((span (make-span start end)))
@@ -1126,7 +1089,7 @@ deletes the region corresponding to the proof sequence."
   (interactive)
   (proof-check-process-available)
   (let ((sext (span-at (point) 'type)))
-    (if (null (proof-end-of-locked)) (error "No locked region"))
+    (if (null (proof-locked-end)) (error "No locked region"))
     (if (null sext) (error "Outside locked region"))
     (funcall proof-retract-target-fn sext delete-region)))
 
@@ -1136,7 +1099,7 @@ deletes the region corresponding to the proof sequence."
    proof script and in the proof process. In particular, it deletes
    the corresponding part of the proof script."
   (interactive)
-  (goto-char (span-start (span-at-before (proof-end-of-locked) 'type)))
+  (goto-char (span-start (span-at-before (proof-locked-end) 'type)))
   (proof-retract-until-point t))
 
 (defun proof-restart-script ()
@@ -1146,13 +1109,23 @@ deletes the region corresponding to the proof sequence."
 	(progn
 	  (set-buffer proof-script-buffer)
 	  (delete-spans (point-min) (point-max) 'type)
-	  (proof-segment-buffer nil nil)))
+	  (proof-detach-segments)))
     (setq proof-shell-busy nil
 	  proof-script-buffer nil)
     (if (buffer-live-p proof-shell-buffer) 
 	(kill-buffer proof-shell-buffer))
     (if (buffer-live-p proof-pbp-buffer)
 	(kill-buffer proof-pbp-buffer))))
+
+(defun proof-frob-locked-end ()
+  (interactive)
+  "Move the end of the locked region backwards. 
+   Only for use by consenting adults."
+  (if (> (point) (proof-locked-end))
+      (error "Can only move backwards")
+    (proof-set-locked-end (point))
+    (delete-spans (proof-locked-end) (point-max) 'type)))
+
 
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1197,7 +1170,7 @@ current command."
   "Insert the terminator in an intelligent way and assert until the new terminator."
   (let ((mrk (point)) ins)
     (if (looking-at "\\s-\\|\\'\\|\\w") 
-	(if (not (re-search-backward "\\S-" (proof-end-of-locked) t))
+	(if (not (re-search-backward "\\S-" (proof-locked-end) t))
 	    (error "Nothing to do!")))
     (if (not (= (char-after (point)) proof-terminal-char))
 	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
@@ -1250,13 +1223,13 @@ current command."
 
   (define-key proof-mode-map [(control c) (control e)]
     'proof-find-next-terminator)
-
+  (define-key proof-mode-map [(control c) (control c)] 'proof-interrupt-process)
   (define-key proof-mode-map proof-terminal-char 'proof-active-terminator)
-  (define-key proof-mode-map [(control c) (control a)]    'proof-assert-until-point)
-  (define-key proof-mode-map [(control c) u]    'proof-retract-until-point)
+  (define-key proof-mode-map [(control c) (return)] 'proof-assert-until-point)
+  (define-key proof-mode-map [(control c) (control t)] 'proof-try-command)
+  (define-key proof-mode-map [(control c) u] 'proof-retract-until-point)
   (define-key proof-mode-map [(control c) (control u)] 'proof-undo-last-successful-command)
-  (define-key proof-mode-map [(control c) ?']
-  'proof-goto-end-of-locked)
+  (define-key proof-mode-map [(control c) ?'] 'proof-goto-end-of-locked)
 
   ;; For fontlock
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
@@ -1275,18 +1248,8 @@ current command."
   (setq proof-shell-delayed-output (cons 'insert "done"))
   (setq comint-prompt-regexp proof-shell-prompt-pattern)
   (add-hook 'comint-output-filter-functions 'proof-shell-filter nil t)
-;  (add-hook 'comint-output-filter-functions 'comint-truncate-buffer nil t)
-;  (setq comint-buffer-maximum-size 10000)
-;
-
-  (let ((disp (make-display-table))
-	(i 128))
-	(while (< i 256)
-	  (aset disp i "")
-	  (incf i))
-	(add-spec-to-specifier current-display-table disp (current-buffer)))
-		  
-  (setq comint-append-old-input nil)
+  (setq comint-get-old-input (function (lambda () "")))
+  (proof-dont-show-annotations)
   (setq proof-marker (make-marker)))
 
 (defun proof-shell-config-done ()

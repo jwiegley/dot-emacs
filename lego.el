@@ -5,6 +5,11 @@
 
 
 ;; $Log$
+;; Revision 1.28  1997/11/17 17:11:17  djs
+;; Added some magic commands: proof-frob-locked-end, proof-try-command,
+;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
+;; Changed the key mapping for assert-until-point to C-c RET.
+;;
 ;; Revision 1.27  1997/11/06 16:56:26  hhg
 ;; Assign new variable proof-goal-hyp-fn to lego-goal-hyp, which is
 ;; simply old code for picking up goal or hypothesis for pbp
@@ -56,6 +61,9 @@
 (defconst lego-pretty-set-width "Configure PrettyWidth %s; "
   "Command to adjust the linewidth for pretty printing of the LEGO
   process.") 
+
+(defconst lego-interrupt-regexp "Interrupt.."
+  "Regexp corresponding to an interrupt")
 
 (defvar lego-test-all-name "test_all"
   "The name of the LEGO module which inherits all other modules of the
@@ -311,16 +319,8 @@
       "COMMENT")))
   
 
-(defun lego-goal-hyp ()
-  (cond 
-   ((looking-at proof-shell-goal-regexp)
-    (cons 'goal (match-string 1)))
-   ((looking-at proof-shell-assumption-regexp)
-    (cons 'hyp (match-string 1)))
-   (t nil)))
-
 (defun lego-retract-target (target delete-region)
-  (let ((end (proof-end-of-locked))
+  (let ((end (proof-locked-end))
 	(start (span-start target))
 	(ext (proof-last-goal-or-goalsave))
 	actions)
@@ -349,7 +349,19 @@
 			      (lego-find-and-forget target)
 			      delete-region))))
       
-    (proof-start-queue (min start end) (proof-end-of-locked) actions)))
+    (proof-start-queue (min start end) (proof-locked-end) actions)))
+
+(defun lego-goal-hyp ()
+  (cond 
+   ((looking-at proof-shell-goal-regexp)
+    (cons 'goal (match-string 1)))
+   ((looking-at proof-shell-assumption-regexp)
+    (cons 'hyp (match-string 1)))
+   (t nil)))
+
+
+(defun lego-state-preserving-p (cmd)
+  (not (string-match lego-undoable-commands-regexp cmd)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
@@ -427,8 +439,9 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-retract-target-fn 'lego-retract-target)
-  (setq proof-goal-hyp-fn 'lego-goal-hyp)
+  (setq proof-retract-target-fn 'lego-retract-target
+        proof-goal-hyp-fn 'lego-goal-hyp
+	proof-state-preserving-p 'lego-state-preserving-p)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
@@ -504,6 +517,7 @@
         proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
         proof-shell-error-regexp lego-error-regexp
+	proof-shell-interrupt-regexp lego-interrupt-regexp
         proof-shell-noise-regexp "Discharge\\.\\. "
         proof-shell-assumption-regexp lego-id
         proof-shell-goal-regexp lego-goal-regexp

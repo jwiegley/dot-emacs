@@ -4,6 +4,11 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.3  1997/11/17 17:11:19  djs
+;; Added some magic commands: proof-frob-locked-end, proof-try-command,
+;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
+;; Changed the key mapping for assert-until-point to C-c RET.
+;;
 ;; Revision 1.2  1997/10/13 17:13:50  tms
 ;; *** empty log message ***
 ;;
@@ -35,25 +40,27 @@
 ;; font lock faces: declarations, errors, tacticals                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun proof-have-color ()
+ ())
+
 (defvar font-lock-declaration-name-face 
 (progn 
-  (cond ((eq (device-class) 'color)
-	 ;notice that device-class does not exist in Emacs 19.30
+  (cond 
+   ((proof-have-color)
+    (copy-face 'bold 'font-lock-declaration-name-face)
 
-	 (copy-face 'bold 'font-lock-declaration-name-face)
+    ;; Emacs 19.28 compiles this down to
+    ;; internal-set-face-1. This is not compatible with XEmacs
+    (set-face-foreground
+     'font-lock-declaration-name-face "chocolate"))
+    (t (copy-face 'bold-italic 'font-lock-declaration-name-face)))))
 
-	 ;; Emacs 19.28 compiles this down to
-	 ;; internal-set-face-1. This is not compatible with XEmacs
-	   (set-face-foreground
-	    'font-lock-declaration-name-face "chocolate"))
-	(t (copy-face 'bold-italic 'font-lock-declaration-name-face)))
 ;;  (if running-emacs19
 ;;      (setq font-lock-declaration-name-face
-;;	    (face-name 'font-lock-declaration-name-face)))
-  ))
+;;	    (face-name 'font-lock-declaration-name-face))
 
 (defvar font-lock-tacticals-name-face
-(if (eq (device-class) 'color)
+(if (proof-have-color)
     (let ((face (make-face 'font-lock-tacticals-name-face)))
       (dont-compile
 	(set-face-foreground face
@@ -62,7 +69,7 @@
   (copy-face 'bold 'font-lock-tacticals-name-face)))
 
 (defvar font-lock-error-face
-(if (eq (device-class) 'color)
+(if (proof-have-color)
     (let ((face (make-face 'font-lock-error-face)))
       (dont-compile
 	(set-face-foreground face

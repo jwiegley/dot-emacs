@@ -1,0 +1,27 @@
+This is a list of things which need doing to the lego mode.
+
+* Fixing up errors caused by pbp-generated commands.
+
+* undo support for LEGO needs to consider Discharge; perhaps unrol to
+  the beginning of the module?
+
+* pbp code doesn't quite accord with the tech report; in particular it
+  decodes annotations eagerly. Lazily would be faster, and it's what
+  the tech report claims
+
+* It would be nice to have a version ported to emacs19 (or
+  20). Unfortunately, it's currently impossible to port the pbp code,
+  since emacs19 doesn't properly handle highlighting of nested
+  overlays. The bulk of the stuff dependent on which version of emacs
+  is running has been moved to proof-dependencies.el, but there are
+  doubtless differences in font-locking and menu code which will
+  require some work.
+
+* Indentation - LEGO should indent only with brackets; Coq for Inductive
+  definitions and 'case' constructs also.
+
+* file handling could be more robust
+
+* For Coq:
+   Fill in proof-shell-interrupt-regexp
+   Fill in proof-state-preserving-p
