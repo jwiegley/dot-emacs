@@ -135,6 +135,46 @@
    (t stack)))
 
 
+;;;
+;;; theory header
+;;;
+
+(defun isar-detect-header ()
+  "Detect new-style theory header in current buffer"
+  (let ((header-regexp (proof-ids-to-regexp '("header" "theory")))
+	(white-space-regexp "\\(\\s-\\|\n\\)+")
+	(cmt-end-regexp (regexp-quote proof-comment-end))
+	(cmt-start-regexp (regexp-quote proof-comment-start))
+	(found-header nil) forward-amount
+	(end (point-max)) (cont t) (cmt-level 0))
+    (save-excursion
+      (goto-char (point-min))
+      (while (and cont (< (point) end))
+	(setq c (char-after (point)))
+	(setq forward-amount 1)
+	(cond 
+	 ;; comments
+	 ((looking-at cmt-start-regexp)
+	  (setq forward-amount (length (match-string 0)))
+	  (incf cmt-level))
+	 ((looking-at cmt-end-regexp)
+	  (setq forward-amount (length (match-string 0)))
+	  (decf cmt-level))
+	 ((> cmt-level 0))
+	 ;; white space
+	 ((looking-at white-space-regexp)
+	  (setq forward-amount (length (match-string 0))))
+	 ;; theory header
+	 ((looking-at header-regexp)
+	  (setq found-header t)
+	  (setq cont nil))
+	 ;; bad stuff
+	 (t
+	  (setq cont nil)))
+	(and cont (forward-char forward-amount)))
+      found-header)))
+
+
 ;;; NB!  Disadvantage of *not* shadowing variables is that user
 ;;; cannot override them.  It might be nice to override some
 ;;; variables, which ones?
@@ -161,7 +201,7 @@
    proof-showproof-command	"pr"
    proof-goal-command		"lemma \"%s\";"
    proof-save-command		"qed"
-   proof-context-command		"print_context"
+   proof-context-command	"print_context"
    proof-info-command		"help"
    proof-kill-goal-command	"kill_proof;"
    proof-find-theorems-command  "thms_containing %s;"
@@ -495,7 +535,7 @@ proof-shell-retract-files-regexp."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun isar-preprocessing ()  ;dynamic scoping of `string'
-  "insert sync markers - acts on variable string by dynamic scoping"
+  "Insert sync markers - acts on variable string by dynamic scoping"
   (if (string-match isar-verbatim-regexp string)
       (setq string (match-string 1 string))
     (setq string (concat "\\<^sync>" (isar-shell-adjust-line-width) string "\\<^sync>;"))))
