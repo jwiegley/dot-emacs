@@ -42,9 +42,9 @@ TEXI2HTML = texi2html
 doc:	dvi info
 
 ## 
-## doc : build dvi, pdf, html, info
+## all : build dvi, html, info
 ##
-all:    dvi pdf html info
+all:    dvi html info
 
 dvi:    $(DOCNAME).dvi
 pdf:    $(DOCNAME).pdf
