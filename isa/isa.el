@@ -208,6 +208,7 @@ no regular or easily discernable structure."
    ;; annotations, see isa-output-font-lock-keywords-1
    proof-shell-leave-annotations-in-output t
 
+   proof-goals-display-qed-message	t
 
    ;; === ANNOTATIONS  === ones here are broken
    proof-shell-result-start	        "\372 Pbp result \373"
