@@ -1677,7 +1677,9 @@ provers you need.
 
 After a @code{Discharge}, retraction ought to only be possible back to
 the first declaration/definition which is discharged. However, LEGO
-Proof General does not know that Discharge has such a non-local effect.
+Proof General does not know that @code{Discharge} has such a non-local
+effect. See @ref{Granularity of atomic command sequences} for a proposal
+on how to fix this bug.
 
 @strong{Workaround:} retract back to the first declaration/definition
 which is discharged.
@@ -1720,6 +1722,9 @@ Thus, user-defined tactics cannot be retracted.
 
 @strong{Workaround:} You may need to retract to the start of the proof.
 
+@unnumberedsubsec Sections
+
+The Coq Proof General does not know about Coq's section mechansim.
 
 @node Bugs specific to Isabelle Proof General
 @section Bugs specific to Isabelle Proof General
@@ -1748,12 +1753,12 @@ General.  Please send us contributions to this wish list, or better
 still, offers to implement something from it!
 
 @menu
-* Granularity of Atomic Command Sequences::  
+* Granularity of atomic command sequences::  
 * Browser mode for script files and theories::  
 @end menu
 
-@node Granularity of Atomic Command Sequences
-@section Granularity of Atomic Commands
+@node Granularity of atomic command sequences
+@section Granularity of atomic command sequences
 @c @cindex Granularity of Atomic Sequences
 @c @cindex Retraction
 @c @cindex Goal
