@@ -531,4 +531,21 @@ This is specific to coq-mode."
    (setq font-lock-keywords coq-font-lock-keywords-1)
    (proof-response-config-done))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Flags and other settings for Coq.
+;;
+
+(defpacustom time-search-isos  nil
+  "Whether to display timing of SearchIsos in Coq."
+  :type 'boolean
+  :setting ("Time." . "Untime."))
+
+(defpacustom print-only-first-subgoal  nil
+  "Whether to just print the first subgoal in Coq."
+  :type 'boolean
+  :setting ("Focus." . "Unfocus."))
+
+
 (provide 'coq)
