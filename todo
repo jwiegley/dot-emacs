@@ -14,6 +14,20 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+D proof-site (da): I think it would be nice to change the architecture
+  to make customization for new provers much easier.
+  The standard use of 'define-derived-mode' could be invoked
+  automatically in proof-site, and we could easily get away from the 
+  kludge of proof-config-done and friends.
+  (Compare this to the way font-lock works automatically for XEmacs
+  when the right variable name is set, but for FSF Emacs you have
+  to write something special).
+  The objection to doing this is based on the idea that we should use
+  an object-like inheritance mechanism to define the new modes.
+  But if this is forgone, it might even be possible to add
+  support for new assistants entirely via the customize mechanism,
+  without any knowledge of elisp apart from regular expressions!
+
 B proof-issue-goal should refuse to work when a proof is in progress.
   Similarly proof-issue-save should refuse to work when a proof
   hasn't been completed!
