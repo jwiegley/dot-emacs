@@ -1,3 +1,4 @@
+(* -*- isar -*- *)
 
 theory C = A + B:;
 
