@@ -1,3 +1,22 @@
+Mon Aug 23 19:00:26 BST 1999 da
+
+  Summary of tests today:
+
+  Proof General 2.0:  sanity check.
+    Okay with XEmacs 20.4, lego 1.3.1 and Isabelle 98p1.
+    Strange overlay disappearing problem with FSF Emacs 20.2,
+    so must be X Server or architecture anomaly that causes
+    different display order.
+
+  Today's Proof General.
+
+    1. With Isabelle 98p1, no go.
+    2. Same show-stopper as above with Emacs 20.2 and 20.3.  
+       Argh!  I'm really fed up of FSF Emacs, it goes wrong
+       even when "nothing" has changed.
+    3. With current Isabelle (or, at least, 99pre180899).
+    4. Using x-symbol.  No success, and a big mess (rebinds M-x !!?)
+
 Thu Jan 21 14:27:36 GMT 1999 da
 
   Quick test for pipe communication with emacs 20.3.
