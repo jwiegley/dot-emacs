@@ -1,4 +1,7 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
+#
+# $Id$
+#
 
 undef $/;
 
