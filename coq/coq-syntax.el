@@ -300,7 +300,13 @@
      (cons (proof-ids-to-regexp coq-tactics) 'proof-tactics-name-face)
      (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
      (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
-      
+     (cons "============================" 'font-lock-keyword-face)
+     (cons "Subtree proved!" 'font-lock-keyword-face)
+     (cons "subgoal [0-9]+ is:" 'font-lock-keyword-face)
+     (list "^\\([^ \n]+\\) \\(is defined\\)" 
+	   (list 2 'font-lock-keyword-face t)
+	   (list 1 'font-lock-function-name-face t))
+
      (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face)
      (list coq-decl-with-hole-regexp 2 'proof-declaration-name-face)
      (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
