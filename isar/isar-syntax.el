@@ -216,14 +216,14 @@ This list is in the right format for proof-easy-config.")
 (defconst isar-id (concat "\\(" isar-ext-first isar-ext-rest "*\\)"))
 (defconst isar-idx (concat isar-id "\\(?:\\.[0-9]+\\)?"))
 
-(defconst isar-string "\"\\(?:\\(?:[^\"]\\|\\\\\"\\)*\\)\"")
+(defconst isar-string "\"\\(\\(?:[^\"]\\|\\\\\"\\)*\\)\"")
 
 (defconst isar-any-command-regexp
   (isar-ids-to-regexp isar-keywords-major)
   "Regexp matching any Isabelle/Isar command keyword.")
 
 (defconst isar-name-regexp
-  (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
+  (concat "\\s-*\\(?:" isar-string "\\|" isar-id "\\)\\s-*")
   "Regexp matching Isabelle/Isar names; surrounding space and contents grouped.")
 
 (defconst isar-tac-regexp
