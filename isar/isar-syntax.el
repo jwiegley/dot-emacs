@@ -47,22 +47,58 @@
 	  isar-keywords-theory-decl
 	  isar-keywords-theory-goal))
 
+(defconst isar-keywords-save
+  (append isar-keywords-qed
+	  isar-keywords-qed-block))
+
 (defconst isar-keywords-proof-enclose
   (append isar-keywords-proof-block
-	  isar-keywords-qed))
+	  isar-keywords-qed
+	  isar-keywords-qed-block))
 
 (defconst isar-keywords-proof
   (append isar-keywords-proof-goal
 	  isar-keywords-proof-chain
 	  isar-keywords-proof-decl))
 
+(defconst isar-keywords-outline
+  (append isar-keywords-theory-begin
+	  isar-keywords-theory-heading
+	  isar-keywords-theory-goal))
+
+(defconst isar-keywords-indent
+  (append isar-keywords-theory-heading
+	  isar-keywords-theory-decl
+	  isar-keywords-proof-block
+	  isar-keywords-proof-decl
+	  isar-keywords-proof-script))
+
+(defconst isar-keywords-indent-open
+  (append isar-keywords-theory-goal
+	  isar-keywords-proof-goal))
+
+(defconst isar-keywords-indent-close
+  (append isar-keywords-save))
+
+(defconst isar-keywords-indent-enclose
+  (append isar-keywords-proof-block
+	  isar-keywords-qed-block))
+
 (defconst isar-keywords
-  (append isar-keywords-control isar-keywords-diag
-	  isar-keywords-theory-begin isar-keywords-theory-end
-	  isar-keywords-theory-heading isar-keywords-theory-decl
-	  isar-keywords-theory-goal isar-keywords-qed isar-keywords-proof-goal
-	  isar-keywords-proof-block isar-keywords-proof-chain
-	  isar-keywords-proof-decl isar-keywords-proof-script))
+  (append isar-keywords-control
+	  isar-keywords-diag
+	  isar-keywords-theory-begin
+	  isar-keywords-theory-end
+	  isar-keywords-theory-heading
+	  isar-keywords-theory-decl
+	  isar-keywords-theory-goal
+	  isar-keywords-qed
+	  isar-keywords-qed-block
+	  isar-keywords-proof-goal
+	  isar-keywords-proof-block
+	  isar-keywords-proof-chain
+	  isar-keywords-proof-decl
+	  isar-keywords-proof-script))
 
 
 ;; ----- regular expressions
@@ -91,7 +127,7 @@
   "*Font-lock table for Isabelle terms.")
 
 (defconst isar-save-command-regexp
-  (concat "^" (proof-ids-to-regexp isar-keywords-qed)))
+  (concat "^" (proof-ids-to-regexp isar-keywords-save)))
 
 (defconst isar-save-with-hole-regexp "$^") ; n.a.
 
