@@ -235,7 +235,7 @@
   "Search for type in goals."
   (interactive)
   (let (cmd)
-    (proof-check-process-available)
+    (proof-shell-ready-prover) ;; was (proof-check-process-available)
     (setq cmd (read-string "Search Type: " nil 'proof-minibuffer-history))
     (proof-invisible-command (concat "Search " cmd proof-terminal-string))))
 
