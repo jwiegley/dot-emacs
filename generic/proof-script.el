@@ -1485,7 +1485,7 @@ No action if BUF is nil."
     ["Proof General home page"
      (browse-url proof-proof-general-home-page) t]
     ["Proof General Info"
-     (info "ProofGeneral") t]
+     (info "Proof General") t]
     )
   "Proof General help menu.")
 
