@@ -906,6 +906,8 @@ C New modules:
 
 ** 7. Bugs in other software beyond our control
 
+*** X useful if call-process would keep last error state 
+      (primarily for exec-to-string, in case of errors)
 
 *** X Odd behaviour of font-lock in script buffers when long strings
 contain lines with stuff that looks lisp-ish.  e.g. "(asd . ads)"
