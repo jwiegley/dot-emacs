@@ -3,7 +3,7 @@
 ;; rearranging Thomas Schreiber's code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <25 Oct 96 tms ~/elisp/proof.el>
+;; Time-stamp: <30 Oct 96 tms /home/tms/elisp/proof.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -214,7 +214,9 @@
     (display-buffer tmp-buffer)))
 
 (defun proof-append-terminator (string)
-  (or (string-match proof-re-end-of-cmd string)
+  (or (and
+       (string-match proof-re-end-of-cmd string)
+       string)
       (setq string (concat string proof-terminal-string))))
         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -492,7 +494,7 @@ current command."
 (define-key proof-mode-map [(control c) (control e)]
   'proof-find-end-of-command)
 (define-key proof-mode-map [(control c) (control j)] 'proof-send-line)
-(define-key proof-mode-map [(control c) r] 'proof-send-region)
+(define-key proof-mode-map [(control c) (control r)] 'proof-send-region)
 (define-key proof-mode-map [(control c) (control c)] 'proof-interrupt-subjob)
 
 (define-derived-mode proof-shell-mode comint-mode 

@@ -1,9 +1,10 @@
-;; proof.el Major mode for proof assistants Copyright (C) 1994,
-;; 1995, 1996 LFCS Edinburgh. This version by Dilip Sequeira, by
-;; rearranging Thomas Schreiber's code.
+;; lego.el Major mode for LEGO proof assistants
+;; Copyright (C) 1994, 1995, 1996 LFCS Edinburgh. 
+;; This version by Dilip Sequeira, by rearranging Thomas Schreiber's
+;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <25 Oct 96 tms ~/elisp/lego.el>
+;; Time-stamp: <01 Nov 96 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -120,14 +121,19 @@
 ;; ----- keywords for font-lock. If you want to hack deeper, you'd better
 ;; ----- be fluent in regexps - it's in the YUK section.
 
-(defvar lego-keywords 
-  '("andI" "Claim" "Constructors" "Cut" "Discharge" "DischargeKeep"
+(defvar lego-keywords-goal '("Goal"))
+
+(defvar lego-keywords-save
+  '("Save" "SaveFrozen" "SaveUnfrozen"))
+
+(defvar lego-keywords
+  (append lego-keywords-goal lego-keywords-save '("andI" "Claim"
+  "Constructors" "Cut" "Discharge" "DischargeKeep"
     "Double" "echo" "ElimOver" "Expand" "ExpAll" "ExportState" "Equiv"
-    "Fields" "Freeze" "From" "$?Goal" "Hnf" "Immed" "Import" "Induction"
-    "Inductive" "Inversion" "Init" "intros" "Intros" "Module" "Next"
-    "NoReductions" "Normal" "Parameters" "Qnify" "Qrepl" "Record"
-    "Refine" "Relation" "$?Save" "$?SaveFrozen" "$?SaveUnfrozen"
-    "Theorems" "Unfreeze"))
+    "Fields" "Freeze" "From"  "Hnf" "Immed" "Import"
+    "Induction" "Inductive" "Inversion" "Init" "intros" "Intros"
+    "Module" "Next" "NoReductions" "Normal" "Parameters" "Qnify"
+    "Qrepl" "Record" "Refine" "Relation" "Theorems" "Unfreeze")))
 
 (defvar lego-shell-keywords 
   '("Cd" "Ctxt" "Decls" "Forget" "ForgetMark" "Help" "KillRef" "Load"
@@ -234,8 +240,17 @@
 ;;    *     ****   *    *    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defvar lego-w "\\(\\w\\|,\\)"
+  "*For font-lock, we treat \",\" separated identifiers as one identifier
+  and refontify commata using \\{lego-fixup-change}.")
+
 (defun lego-decl-defn-regexp (char)
-  (concat "\\[ *\\([^][" char " ]+\\) *\\(\\[[^]]*\\]\\)* *" char))
+    (concat "\\[\\s *\\(" lego-w "+\\)\\s *\\(\\[[^]]+\\]\\s *\\)*" char))
+; Examples
+;              ^        ^^^^        ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^
+;              [        sort                                 =
+;              [        sort        [n:nat]                  =
+;              [        sort        [abbrev=...][n:nat]      =
 
 (defvar lego-font-lock-keywords-1
    (list
@@ -243,33 +258,38 @@
      (cons (ids-to-regexp lego-keywords) 'font-lock-keyword-face)
      (cons (ids-to-regexp lego-tacticals) 'font-lock-tacticals-name-face)
 
-     (list (lego-decl-defn-regexp ":") 1 'font-lock-declaration-name-face)
-     (list (lego-decl-defn-regexp "|") 1 'font-lock-declaration-name-face)
+     (list (lego-decl-defn-regexp "\\(:\\||\\)") 1
+	   'font-lock-declaration-name-face)
      (list (lego-decl-defn-regexp "=") 1 'font-lock-function-name-face)
-     (list "[{<]\\([^:|]+\\)" 1 'font-lock-declaration-name-face)
 
-     (list "\\<$?Goal\\>[ \t]+\\(\\<[^ \t\n\):]+\\) *:"
-             1 'font-lock-function-name-face)
-     (list "\\<$?Save\\>[ \t]+\\([^ \t\n\):]+\\) *;" 1
-	   'font-lock-function-name-face)
+     (list (concat "[{<]\\s *\\(" lego-w "+\\)") 1
+;            ^  Pi binder
+;             ^ Sigma binder            
+		   'font-lock-declaration-name-face)
+
+     (list (concat "\\("
+		   (ids-to-regexp (append lego-keywords-goal
+					  lego-keywords-save))
+		   "\\)\\s *\\(" lego-w "+\\)")
+             2 'font-lock-function-name-face)
+
      ;; Kinds
-
-     '("\\<Prop\\>\\|\\<Type *\\(([^)]+)\\)?" . font-lock-type-face)))
+     '("\\<Prop\\>\\|\\<Type\\s *\\((\\w]+)\\)?" . font-lock-type-face)))
 
 (defvar lego-shell-font-lock-keywords-1
   (append lego-font-lock-keywords-1
 	  (list
 	   (cons (ids-to-regexp lego-shell-keywords) 
 		 'font-lock-keyword-face)
-	   '("\\<defn\\>  \\([^ \t\n\)]+\\) =" 1 font-lock-function-name-face)
-	  '("^\\(value of\\|type  of\\) \\([^ \t\n\)]+\\) =" 2 
+	   '("\\<defn\\>  \\(\\w]+\\) =" 1 font-lock-function-name-face)
+	  '("^\\(value of\\|type  of\\) \\(\\w+\\) =" 2 
 	    font-lock-function-name-face)
-	  '("^  \\([^ \t\n\)]+\\) = ... :" 1 font-lock-function-name-face)
+	  '("^  \\(\\w+\\) = ... :" 1 font-lock-function-name-face)
 
-	  '("^  \\([^ \t\n\)]+\\) : " 1 font-lock-declaration-name-face)
-	  '("\\<decl\\>  \\([^:]+\\) :" 1 font-lock-declaration-name-face)
-	  '("\\<decl\\>  \\(.+\\) |" 1 font-lock-declaration-name-face)
-	  '("^value = \\([^ \t\n\)]+\\)" 1 font-lock-declaration-name-face)
+	  '("^  \\(\\w+\\) : " 1 font-lock-declaration-name-face)
+	  '("\\<decl\\>  \\(\\w+\\) :" 1 font-lock-declaration-name-face)
+	  '("\\<decl\\>  \\(\\w+\\) |" 1 font-lock-declaration-name-face)
+	  '("^value = \\(\\w+\\)" 1 font-lock-declaration-name-face)
 
 	  ;; Error Messages (only required in the process buffer)
 
@@ -277,9 +297,9 @@
 	  '("^Error.*\n" .font-lock-error-face))))
 
 ;;
-;; A big hack to unfontify commas in declarations.  All that can be
-;; said for it is that the previous way of doing this was even more
-;; bogus.
+;; A big hack to unfontify commas in declarations and definitions. All
+;; that can be said for it is that the previous way of doing this was
+;; even more bogus.
 ;;
 
 ;; Refontify the whole line, 'cos that's what font-lock-after-change
@@ -292,8 +312,9 @@
 	 (end (progn (goto-char end) (end-of-line) (point))))
       (goto-char start)
       (while (search-forward "," end t)
-	(if (eq (get-char-property (- (point) 1) 'face)
-		'font-lock-declaration-name-face)
+	(if (memq (get-char-property (- (point) 1) 'face)
+		'(font-lock-declaration-name-face
+		  font-lock-function-name-face))
 	    (font-lock-remove-face (- (point) 1) (point)))))))
 
 (defun lego-zap-commas-buffer () 
@@ -424,7 +445,7 @@
   (lego-shell-start-pp)
   (setq compilation-search-path (cons nil (lego-get-path)))
   (add-hook 'proof-safe-send-hook 'lego-adjust-line-width)
-  (add-hook 'proof-shell-exit-hook 'lego-zap-line-width)
+  (add-hook 'proof-shell-exit-hook 'lego-shell-zap-line-width)
   (font-lock-fontify-buffer))
 
 
@@ -553,11 +574,11 @@
   (and (equal (buffer-size) 0)
        buffer-file-name
        (or (file-exists-p buffer-file-name)
-	   (prog2
-	       (insert-before-markers
-		(format "Module %s;" (lego-module-name buffer-file-name)))
-	       )))
-  )
+	   (insert-before-markers
+	     (format "Module %s;" (lego-module-name buffer-file-name))
+	     ))))
+	       
+
 
 
 
