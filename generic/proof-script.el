@@ -2315,6 +2315,46 @@ sent to the assistant."
 
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Completion based on <PA>-completion-table
+;;
+;; Requires completion.el package.   Completion is usually
+;; a hand-wavy thing, so we don't make any attempt to maintain
+;; a precise completion table or anything.
+;;
+;; New in 3.2.  
+;;
+(defun proof-add-completions ()
+  "Add completions from <PA>-completion-table to completion database.
+Uses `add-completion' with a negative number of uses to discourage
+saving these into the users database."
+  (interactive)
+  (require 'completion)
+  (mapcar (lambda (cmpl) (add-completion cmpl -1000))
+	  (proof-ass completion-table)))
+
+;; NB: completion table is expected to be set when proof-script 
+;; is loaded!  Can call proof-script-add-completions if the table
+;; is updated.
+(eval-after-load "completion" 
+  (proof-add-completions))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Tags table building
+;;
+;; New in 3.2.  
+;;
+;; FIXME: incomplete.  Add function to build tags table from
+;; 
+
+  
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
