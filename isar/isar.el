@@ -373,30 +373,7 @@ proof-shell-retract-files-regexp."
     "Isabelle/Isar script" nil
     (isar-mode-config)))
 
-(define-key isar-proofscript-mode-map
-  [(control c) (control l)] 'proof-prf)	; keybinding like Isamode
-
-
-(defun isar-mode ()
-  "Mode for Isabelle/Isar interactive documents."
-  (interactive)
-  (cond
-   (;; Hack for splash screen
-    (if (and (boundp 'proof-mode-hook)
-	     (memq 'proof-splash-timeout-waiter proof-mode-hook))
-	(proof-splash-timeout-waiter))
-    ;; Has this theory file already been loaded by Isabelle?
-    ;; Colour it blue if so.  
-    ;; NB: call to file-truename is needed for FSF Emacs which
-    ;; chooses to make buffer-file-truename abbreviate-file-name
-    ;; form of file-truename.
-    (and (member (file-truename buffer-file-truename)
-		 proof-included-files-list)
-	 (proof-complete-buffer-atomic (current-buffer)))
-    )
-   (t 
-    ;; Proof mode does that automatically.
-    (isar-proofscript-mode))))
+(defalias 'isar-mode 'isar-proofscript-mode)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
