@@ -3550,8 +3550,8 @@ discussed for the classic Isabelle version (@pxref{Classic Isabelle}) do
 @subsection General commands for Isabelle/Isar
 
 @strong{Find theorems}.  This toolbar/menu command invokes
-@code{thms_containing}.  Several constants may be given, separated by
-white space as usual in Isar.
+@code{thms_containing}.  Several term arguments may be given, separated
+by white space as usual in Isar.
 
 @node Specific commands for Isabelle/Isar
 @subsection Specific commands for Isabelle/Isar
