@@ -1,3 +1,76 @@
+2001-09-24  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* coq/coq.el:
+	Add Lemma to exclusion for coq-goal-command-p.
+
+	* doc/PG-adapting.texi: Update magic
+
+	* doc/docstring-magic.el: New line
+
+	* generic/proof-config.el:
+	Fix error in docs of stop-silent-command, and name of pre-shell-start-hook.
+
+	* doc/ProofGeneral.texi:
+	Another bug reporter
+
+	* generic/proof-shell.el:
+	Implement Robert Schnecks idea to help Coq display whole of goals output.
+
+	* CHANGES: Devel release is tweaked 3.3
+
+2001-09-13  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* doc/PG-adapting.texi:
+	Link uref nicely
+
+	* doc/ProofGeneral.texi:
+	Minor improvements
+
+	* doc/ProofGeneral.texi:
+	Updates from an old printout of the manual
+
+	* todo: updated
+
+	* doc/PG-adapting.texi:
+	Updates from an old printout of the manual
+
+	* ChangeLog: Updated.
+
+	* html/Kit/Makefile: New files.
+
+	* html/Kit/dtd/pgip.dtd, html/Kit/dtd/pgml.dtd:
+	Updated from Kit repo
+
+	* html/download.html: Fix link
+
+	* html/smallpage.php:
+	Fix two more gaping holes letting people examine whole filesystem (also fixed in server anyway)
+
+	* html/feedback, html/feedback.html, html/develdownload, html/develdownload.html, html/kit.php, html/kit, html/kit.html:
+	PHP in php, html and no extn link to php
+
+	* ChangeLog: Updated.
+
+	* html/htmlshow.php:
+	Fix two more gaping holes letting people examine whole filesystem
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/feedback: Feedback quick link
+
+	* CHANGES: No changes msg
+
+	* html/kit.html, html/mailinglist.html, html/develdownload.html, html/doc.html, html/feedback.html, html/kit, html/.htaccess:
+	Try to fix PHP/html nonsense, by disabling SSI and enabling php for .html files
+
 2001-09-13  David Aspinall  <da@proofgeneral.org>
 
 	* doc/PG-adapting.texi:
