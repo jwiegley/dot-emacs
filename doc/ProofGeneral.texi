@@ -887,7 +887,7 @@ entire proof has been aggregated into a single segment. This reflects
 the fact that LEGO has thrown away the history of the proof, so if we
 want to undo now, the whole proof must be retracted.
 
-@itemize
+@itemize  @bullet
 @item 
 Suppose we decide to call the goal something more sensible. Move the
 cursor up into the locked region, somewhere between @samp{Goal} and
@@ -901,7 +901,7 @@ The command @kbd{C-c C-RET} moves the end of the locked region to the
 cursor position, sending undoing commands or proof commands as
 necessary.
 
-@itemize
+@itemize @bullet
 @item 
 Now correct the goal name, for example:
 @lisp
