@@ -25,11 +25,12 @@ function usage()
   echo
   echo "  Options are:"
   echo "    -I BOOL      use Isabelle/Isar instead of classic Isabelle (default $ISAR)"
+  echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -p NAME      Emacs program name (default xemacs)"
   echo "    -u BOOL      use personal .emacs file (default true)"
   echo "    -w BOOL      use window system (default true)"
-  echo "    -x BOOL      enable x-symbol package"
+  echo "    -x BOOL      enable the X-Symbol package on startup (default false)"
   echo
   echo "Starts Proof General for Isabelle with theory and proof FILES"
   echo "(default Scratch.thy)."
@@ -55,15 +56,19 @@ PROGNAME="xemacs"
 INITFILE="true"
 WINDOWSYSTEM="true"
 XSYMBOL=""
+XSYMBOLSETUP=true
 
 function getoptions()
 {
   OPTIND=1
-  while getopts "I:l:p:u:w:x:" OPT
+  while getopts "I:X:l:p:u:w:x:" OPT
   do
     case "$OPT" in
       I)
         ISAR="$OPTARG"
+        ;;
+      X)
+        XSYMBOLSETUP="$OPTARG"
         ;;
       l)
         LOGIC="$OPTARG"
@@ -117,11 +122,13 @@ ARGS=""
 
 if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
   ARGS="$ARGS -T Isabelle"
-  [ -n "$XSYMBOL_INSTALLFONTS" ] && "$ISATOOL" installfonts -x
+  [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOLSETUP" = true ] && "$ISATOOL" installfonts -x
 else
   ARGS="$ARGS -nw"
   XSYMBOL=false
 fi
+
+[ ! "$XSYMBOLSETUP" = true ] && XSYMBOL_HOME=""
 
 
 ARGS="$ARGS -l $PROOFGENERAL_HOME/isa/interface-setup.el"
