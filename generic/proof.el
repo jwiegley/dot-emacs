@@ -161,10 +161,11 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 ;; I get the script buffer made into a dedicated buffer,
 ;; presumably because the wrong window is selected below?
 
-(defun proof-display-and-keep-buffer (buffer)
+(defun proof-display-and-keep-buffer (buffer &optional pos)
   "Display BUFFER and mark window according to `proof-window-dedicated'.
-
-Also ensures that point is visible."
+If optional POS is present, will set point to POS.  
+Otherwise move point to the end of the buffer.
+Ensure that point is visible in window."
   (let (window)
     (save-excursion
       (set-buffer buffer)
@@ -181,8 +182,16 @@ Also ensures that point is visible."
 	     ;; da replies: I think it's because of a *missing*
 	     ;; save-excursion above around the font-lock stuff.
 	     ;; Adding one has maybe fixed this problem.
-	     (goto-char (point-max))
+	     ;; 10.12.98 Experiment removing this so that point
+	     ;; doesn't always go to end of goals buffer
+	     ;; RESULT: point doesn't go to end of response
+	     ;; buffer.  Hypothesis above was wrong, so this
+	     ;; is re-added and optional POS argument added
+	     ;; for this function.
+	     (goto-char (or pos (point-max)))
+	     (if pos (beginning-of-line)) ;  Normalization
 
+	     ;; Ensure point visible
 	     (or (pos-visible-in-window-p (point) window)
 		 (recenter -1)))))))
 

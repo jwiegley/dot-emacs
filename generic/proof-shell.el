@@ -538,9 +538,12 @@ This is a list of tuples of the form (type . string). type is either
       (proof-shell-maybe-erase-response t t)
 
       (set-buffer proof-goals-buffer)
+      ;; NEW!!  10.12.98 Keep point at beginning of buffer instead
+      ;; of end.  Might be nicer to keep it at "current" subgoal
+      ;; a la Isamode, but never mind.
       (erase-buffer)
       (insert (substring out 0 op))
-      (proof-display-and-keep-buffer proof-goals-buffer)
+      (proof-display-and-keep-buffer proof-goals-buffer (point-min))
 
       (setq ip 0
 	    op 1)
