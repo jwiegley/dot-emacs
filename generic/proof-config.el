@@ -1437,6 +1437,20 @@ See also proof-{shell,resp,goals}-font-lock-keywords."
   :type 'sexp
   :group 'proof-script)
 
+(defcustom proof-script-syntax-table-entries nil
+  "List of syntax table entries for proof script mode.
+A flat list of the form
+ 
+  (CHAR SYNCODE CHAR SYNCODE ...)
+
+See doc of `modify-syntax-entry' for details of characters
+and syntax codes.
+
+At present this is used only by the `proof-easy-config' macro."
+  :type 'sexp
+  :group 'proof-script)
+
+
 
 ;;
 ;; Proof script context menu customization
@@ -2254,6 +2268,18 @@ See also proof-{script,resp,goals}-font-lock-keywords."
   :type 'sexp
   :group 'proof-shell)
 
+(defcustom proof-shell-syntax-table-entries nil
+  "List of syntax table entries for proof script mode.
+A flat list of the form
+ 
+  (CHAR SYNCODE CHAR SYNCODE ...)
+
+See doc of `modify-syntax-entry' for details of characters
+and syntax codes.
+
+At present this is used only by the `proof-easy-config' macro."
+  :type 'sexp
+  :group 'proof-shell)
 
 
 ;;
