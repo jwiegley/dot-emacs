@@ -63,10 +63,10 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.4
+@set version 3.5pre
 @set xemacsversion 21.4
 @set fsfversion 21.2
-@set last-update August 2002
+@set last-update September 2002
 @set rcsid $Id$
 
 @ifinfo
@@ -164,9 +164,9 @@ This file documents version @value{version} of @b{Proof General}, a
 generic Emacs interface for proof assistants.
 
 Proof General @value{version} has been tested with XEmacs
-@value{xemacsversion} and GNU Emacs @value{fsfversion}.  It is
-supplied ready customized for the proof assistants PhoX, Coq, Lego, 
-Isabelle, and HOL.  
+@value{xemacsversion} and GNU Emacs @value{fsfversion}.  It is supplied
+ready to use for the proof assistants LEGO, Coq, Isabelle, and PhoX.
+Basic (unofficial) support is provided for several other provers.
 
 @menu
 * Preface::                     
@@ -175,8 +175,8 @@ Isabelle, and HOL.
 * Subterm Activation and Proof by Pointing::
 * Advanced Script Management::  
 * Support for other Packages::  
-* Hints and Tips::
 * Customizing Proof General::   
+* Hints and Tips::
 * LEGO Proof General::          
 * Coq Proof General::           
 * Isabelle Proof General::    
@@ -211,10 +211,28 @@ other documentation, system downloads, etc.
 
 
 @menu
+@c * Latest news for 3.5::
 * Latest news for 3.4::
 * Future::
 * Credits::                     
 @end menu
+
+@c @node Latest news for 3.5
+@c @unnumberedsec Latest news for 3.4
+@c @cindex news
+
+@c Proof General 3.5 is released to collect together a round of swift
+@c improvements to Proof General 3.4.  There are compatibility
+@c improvements, particularly for GNU Emacs: credit is due to Stefan
+@c Monnier for an intense period of debugging and patching.  There are also
+@c some minor usability improvements, prompted in part by feedback after
+@c Proof General's appearance at the TYPES 2002 Summer School.
+
+@c Other stuff pending:
+@c X-Symbol 4.4 support??
+@c Support for *thms* buffer??
+
+
 
 @node Latest news for 3.4
 @unnumberedsec Latest news for 3.4
@@ -371,7 +389,7 @@ Thanks to all of you (and apologies to anyone missed).
 
 
 
-
+@c=================================================================
 @c
 @c CHAPTER: Introduction
 @c
@@ -682,7 +700,7 @@ contents for full details.
 
 
 
-
+@c=================================================================
 @c
 @c CHAPTER: Basic Script Management
 @c
@@ -757,8 +775,8 @@ proof assistant, but you can always check the menu if you're not sure.
 Electric terminator mode is popular, but not enabled by default because
 of the principle of least surprise.  You can customize Proof General to
 enable it everytime if you want, @xref{Customizing Proof General}.  In
-XEmacs, this is particularly easy: just use the menu item @code{Options
--> Save Options} to save some common options while using Proof General.
+XEmacs, this is particularly easy: just use the menu item @code{Proof General -> Options -> Save Options} to save some common options while 
+using Proof General.
 
 The @code{Module} command should now be lit in pink (or inverse video if
 you don't have a colour display).  As LEGO imports each module, a line
@@ -1571,6 +1589,7 @@ use a fresh Emacs.)
 
 
 
+@c=================================================================
 @c
 @c CHAPTER: Proof by Pointing
 @c 
@@ -1674,7 +1693,7 @@ explicit yank.
 
 
 
-
+@c=================================================================
 @c
 @c CHAPTER: Advanced Script Management
 @c
@@ -1998,11 +2017,12 @@ suggestions for improvements are welcomed).
 By default, experimental features are turned on in development
 releases and turned off in stable releases.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 
 
+@c=================================================================
 @c 
 @c  CHAPTER:  Support for other Packages
 @c
@@ -2270,196 +2290,15 @@ To use tags for completion at the same time as the completion mechanism
 mentioned already, you can use the command @kbd{M-x add-completions-from-tags-table}.
 
 @c TEXI DOCSTRING MAGIC: add-completions-from-tags-table
-
-
 @deffn Command add-completions-from-tags-table 
 Add completions from the current tags table.
 @end deffn
-@node Hints and Tips
-@chapter Hints and Tips
-
-Apart from the packages officially supported in Proof General, 
-many other features of Emacs are useful when using Proof General, even
-though they need no specific configuration for Proof General.  It is
-worth taking a bit of time to explore the Emacs manual to find out about
-them.
-
-Here we provide some hints and tips for a couple of Emacs features which
-users have found valuable with Proof General.  Further contributions to
-this chapter are welcomed!
-
-@menu
-* Adding your own keybindings::
-* Using file variables::
-* Using abbreviations::
-@end menu
-
-@node Adding your own keybindings
-@section Adding your own keybindings
-@cindex keybindings
-
-Proof General follows Emacs convention for file modes in using @key{C-c}
-prefix key-bindings for its own functions, which is why some of the
-default keyboard short-cuts are quite lengthy.
-
-Some users may prefer to add additional key-bindings for shorter
-sequences.  This can be done interactively with the command
-@code{M-x local-set-key}, or for longevity, by adding 
-code like this to your @file{.emacs} (or @file{.xemacs/init.el}) file:
-@lisp
-
-(eval-after-load "proof-script" '(progn
- (define-key proof-mode-map [(control n)] 
-                            'proof-assert-next-command-interactive)
- (define-key proof-mode-map [(control b)] 
-                            'proof-undo-last-successful-command)
- ))
-@end lisp
-
-This lisp fragment adds bindings for every buffer in proof script
-mode (the Emacs keymap is called @code{proof-mode-map}).  To just
-affect one prover, use a keymap name like @code{isar-mode-map} and
-evaluate after the library @code{isar} has been loaded.
-
-To find the names of the functions you may want to bind, look in this
-manual, or query current bindings interactively with @kbd{C-h k}.  This
-command (@code{describe-key}) works for menu operations as well; also
-use it to discover the current key-bindings which you're losing by
-declarations such as those above.  By default, @kbd{C-n} is
-@code{next-line} and @kbd{C-b} is @code{backward-char-command}; neither
-are really needed if you have working cursor keys.
-
-If you're using XEmacs and your keyboard has a @i{super} modifier (on my
-PC keyboard it has a Windows symbol and is next to the control key), you
-can freely bind keys on that modifier globally (since none are used
-by default).  Use lisp like this:
-@lisp
-(global-set-key [(super l)] 'x-symbol-INSERT-lambda)
-(global-set-key [(super n)] 'x-symbol-INSERT-notsign)
-(global-set-key [(super a)] 'x-symbol-INSERT-logicaland)
-(global-set-key [(super o)] 'x-symbol-INSERT-logicalor)
-(global-set-key [(super f)] 'x-symbol-INSERT-universal1)
-(global-set-key [(super t)] 'x-symbol-INSERT-existential1)
-(global-set-key [(super A)] 'x-symbol-INSERT-biglogicaland)
-(global-set-key [(super e)] 'x-symbol-INSERT-equivalence)
-(global-set-key [(super u)] 'x-symbol-INSERT-notequal)
-(global-set-key [(super m)] 'x-symbol-INSERT-arrowdblright)
-(global-set-key [(super i)] 'x-symbol-INSERT-longarrowright)
-@end lisp
-This defines a bunch of short-cuts for insert X-Symbol logical symbols
-which are often used in Isabelle.
 
 
-@node Using file variables
-@section Using file variables
-@cindex file variables
-
-A very convenient way to customize file-specific variables is to use the
-File Variables (@inforef{File Variables, ,xemacs}). This feature of
-Emacs allows to specify the values to use for certain Emacs variables
-when a file is loaded. Those values are written as a list at the end of
-the file.
-
-For example, in projects involving multiple directories, it is often
-useful to set the variables @code{proof-prog-name} and
-@code{compile-command} for each file. Here is an example for Coq users:
-for the file @file{.../dir/bar/foo.v}, if you want Coq to be started
-with the path @code{.../dir/theories/} added in the libraries path
-(@code{"-I"} option), you can put at the end of @file{foo.v}:
-@lisp
-
-(* 
- Local Variables: 
- coq-prog-name: "coqtop -emacs -full -I ../theories"
- End:
-*)
-@end lisp
-
-That way the good command is called when the scripting starts in
-@file{foo.v}. Notice that the command argument @code{"-I ../theories"}
-is specific to the file @file{foo.v}, and thus if you set it via the
-configuration tool, you will need to do it each time you load this
-file. On the contrary with this method, Emacs will do this operation
-automatically when loading this file.
-
-Extending the previous example, if the makefile for @file{foo.v} is
-located in directory @file{.../dir/}, you can add the right compile
-command:
-
-@lisp
-(* 
- Local Variables: 
- coq-prog-name: "coqtop -emacs -full -I ../theories"
- compile-command: "make -C .. -k bar/foo.vo" 
- End:
-*)
-@end lisp
-
-And then the right call to make will be done if you use the @kbd{M-x
-compile} command. Notice that the lines are commented in order to be
-ignored by the proof assistant. It is possible to use this mechanism for
-any other buffer local variable.  @inforef{File Variables,
-,xemacs}.
-
-
-
-@node Using abbreviations
-@section Using abbreviations
-
-A very useful package of Emacs supports automatic expansions of
-abbreviations as you type, @inforef{Abbrevs, ,(xemacs)}.
-
-Proof General has no special support for abbreviations, we just mention
-it here to encourage its use.  For example, the proof assistant Coq has
-many command strings that are long, such as ``Reflexivity,''
-``Inductive,'' ``Definition'' and ``Discriminate.''  Here is the
-Coq Proof General author's suggested abbreviations for Coq:
-@lisp
-"assn" 0 "Assumption"
-"ax" 0 "Axiom"
-"coern" 0 "Coercion"
-"cofixpt" 0 "CoFixpt"
-"coindv" 0 "CoInductive"
-"constr" 0 "Constructor"
-"contradn" 0 "Contradiction"
-"defn" 0 "Definition"
-"discr" 0 "Discriminate"
-"extrn" 0 "Extraction"
-"fixpt" 0 "Fixpoint"
-"genz" 0 "Generalize"
-"hypo" 0 "Hypothesis"
-"immed" 0 "Immediate"
-"indn" 0 "Induction"
-"indv" 0 "Inductive"
-"injn" 0 "Injection"
-"intn" 0 "Intuition"
-"invn" 0 "Inversion"
-"pmtr" 0 "Parameter"
-"refly" 0 "Reflexivity"
-"rmk" 0 "Remark"
-"specz" 0 "Specialize"
-"symy" 0 "Symmetry"
-"thm" 0 "Theorem"
-"transpt" 0 "Transparent"
-"transy" 0 "Transitivity"
-"trivial" 0 "Trivial"
-"varl" 0 "Variable"
-@end lisp
-
-The above list was taken from the file that Emacs saves between
-sessions.  The easiest way to configure abbreviations is as you write,
-by using the key presses @kbd{C-x a g} (@code{add-global-abbrev}) or
-@kbd{C-x a i g} (@code{inverse-add-global-abbrev}).  To enable automatic
-expansion of abbreviations (which can be annoying), the @code{Abbrev}
-minor mode, type @kbd{M-x abbrev-mode RET}. When you are not in Abbrev
-mode you can expand an abbreviation by pressing @kbd{C-x '}
-(@code{expand-abbrev}). See the Emacs manual for more details.
-
-
-
-
-
-
+@c=================================================================
+@c
+@c CHAPTER
+@c
 @node Customizing Proof General
 @chapter Customizing Proof General
 @cindex Customization
@@ -3050,7 +2889,198 @@ prover specific ones using the @code{@emph{PA}-} mechanism).
 
 
 
+@c=================================================================
+@c
+@c CHAPTER
+@c
+@node Hints and Tips
+@chapter Hints and Tips
 
+Apart from the packages officially supported in Proof General, 
+many other features of Emacs are useful when using Proof General, even
+though they need no specific configuration for Proof General.  It is
+worth taking a bit of time to explore the Emacs manual to find out about
+them.
+
+Here we provide some hints and tips for a couple of Emacs features which
+users have found valuable with Proof General.  Further contributions to
+this chapter are welcomed!
+
+@menu
+* Adding your own keybindings::
+* Using file variables::
+* Using abbreviations::
+@end menu
+
+@node Adding your own keybindings
+@section Adding your own keybindings
+@cindex keybindings
+
+Proof General follows Emacs convention for file modes in using @key{C-c}
+prefix key-bindings for its own functions, which is why some of the
+default keyboard short-cuts are quite lengthy.
+
+Some users may prefer to add additional key-bindings for shorter
+sequences.  This can be done interactively with the command
+@code{M-x local-set-key}, or for longevity, by adding 
+code like this to your @file{.emacs} (or @file{.xemacs/init.el}) file:
+@lisp
+
+(eval-after-load "proof-script" '(progn
+ (define-key proof-mode-map [(control n)] 
+                            'proof-assert-next-command-interactive)
+ (define-key proof-mode-map [(control b)] 
+                            'proof-undo-last-successful-command)
+ ))
+@end lisp
+
+This lisp fragment adds bindings for every buffer in proof script
+mode (the Emacs keymap is called @code{proof-mode-map}).  To just
+affect one prover, use a keymap name like @code{isar-mode-map} and
+evaluate after the library @code{isar} has been loaded.
+
+To find the names of the functions you may want to bind, look in this
+manual, or query current bindings interactively with @kbd{C-h k}.  This
+command (@code{describe-key}) works for menu operations as well; also
+use it to discover the current key-bindings which you're losing by
+declarations such as those above.  By default, @kbd{C-n} is
+@code{next-line} and @kbd{C-b} is @code{backward-char-command}; neither
+are really needed if you have working cursor keys.
+
+If you're using XEmacs and your keyboard has a @i{super} modifier (on my
+PC keyboard it has a Windows symbol and is next to the control key), you
+can freely bind keys on that modifier globally (since none are used
+by default).  Use lisp like this:
+@lisp
+(global-set-key [(super l)] 'x-symbol-INSERT-lambda)
+(global-set-key [(super n)] 'x-symbol-INSERT-notsign)
+(global-set-key [(super a)] 'x-symbol-INSERT-logicaland)
+(global-set-key [(super o)] 'x-symbol-INSERT-logicalor)
+(global-set-key [(super f)] 'x-symbol-INSERT-universal1)
+(global-set-key [(super t)] 'x-symbol-INSERT-existential1)
+(global-set-key [(super A)] 'x-symbol-INSERT-biglogicaland)
+(global-set-key [(super e)] 'x-symbol-INSERT-equivalence)
+(global-set-key [(super u)] 'x-symbol-INSERT-notequal)
+(global-set-key [(super m)] 'x-symbol-INSERT-arrowdblright)
+(global-set-key [(super i)] 'x-symbol-INSERT-longarrowright)
+@end lisp
+This defines a bunch of short-cuts for insert X-Symbol logical symbols
+which are often used in Isabelle.
+
+
+@node Using file variables
+@section Using file variables
+@cindex file variables
+
+A very convenient way to customize file-specific variables is to use the
+File Variables (@inforef{File Variables, ,xemacs}). This feature of
+Emacs allows to specify the values to use for certain Emacs variables
+when a file is loaded. Those values are written as a list at the end of
+the file.
+
+For example, in projects involving multiple directories, it is often
+useful to set the variables @code{proof-prog-name} and
+@code{compile-command} for each file. Here is an example for Coq users:
+for the file @file{.../dir/bar/foo.v}, if you want Coq to be started
+with the path @code{.../dir/theories/} added in the libraries path
+(@code{"-I"} option), you can put at the end of @file{foo.v}:
+@lisp
+
+(* 
+ Local Variables: 
+ coq-prog-name: "coqtop -emacs -full -I ../theories"
+ End:
+*)
+@end lisp
+
+That way the good command is called when the scripting starts in
+@file{foo.v}. Notice that the command argument @code{"-I ../theories"}
+is specific to the file @file{foo.v}, and thus if you set it via the
+configuration tool, you will need to do it each time you load this
+file. On the contrary with this method, Emacs will do this operation
+automatically when loading this file.
+
+Extending the previous example, if the makefile for @file{foo.v} is
+located in directory @file{.../dir/}, you can add the right compile
+command:
+
+@lisp
+(* 
+ Local Variables: 
+ coq-prog-name: "coqtop -emacs -full -I ../theories"
+ compile-command: "make -C .. -k bar/foo.vo" 
+ End:
+*)
+@end lisp
+
+And then the right call to make will be done if you use the @kbd{M-x
+compile} command. Notice that the lines are commented in order to be
+ignored by the proof assistant. It is possible to use this mechanism for
+any other buffer local variable.  @inforef{File Variables,
+,xemacs}.
+
+
+
+@node Using abbreviations
+@section Using abbreviations
+
+A very useful package of Emacs supports automatic expansions of
+abbreviations as you type, @inforef{Abbrevs, ,(xemacs)}.
+
+Proof General has no special support for abbreviations, we just mention
+it here to encourage its use.  For example, the proof assistant Coq has
+many command strings that are long, such as ``Reflexivity,''
+``Inductive,'' ``Definition'' and ``Discriminate.''  Here is the
+Coq Proof General author's suggested abbreviations for Coq:
+@lisp
+"assn" 0 "Assumption"
+"ax" 0 "Axiom"
+"coern" 0 "Coercion"
+"cofixpt" 0 "CoFixpt"
+"coindv" 0 "CoInductive"
+"constr" 0 "Constructor"
+"contradn" 0 "Contradiction"
+"defn" 0 "Definition"
+"discr" 0 "Discriminate"
+"extrn" 0 "Extraction"
+"fixpt" 0 "Fixpoint"
+"genz" 0 "Generalize"
+"hypo" 0 "Hypothesis"
+"immed" 0 "Immediate"
+"indn" 0 "Induction"
+"indv" 0 "Inductive"
+"injn" 0 "Injection"
+"intn" 0 "Intuition"
+"invn" 0 "Inversion"
+"pmtr" 0 "Parameter"
+"refly" 0 "Reflexivity"
+"rmk" 0 "Remark"
+"specz" 0 "Specialize"
+"symy" 0 "Symmetry"
+"thm" 0 "Theorem"
+"transpt" 0 "Transparent"
+"transy" 0 "Transitivity"
+"trivial" 0 "Trivial"
+"varl" 0 "Variable"
+@end lisp
+
+The above list was taken from the file that Emacs saves between
+sessions.  The easiest way to configure abbreviations is as you write,
+by using the key presses @kbd{C-x a g} (@code{add-global-abbrev}) or
+@kbd{C-x a i g} (@code{inverse-add-global-abbrev}).  To enable automatic
+expansion of abbreviations (which can be annoying), the @code{Abbrev}
+minor mode, type @kbd{M-x abbrev-mode RET}. When you are not in Abbrev
+mode you can expand an abbreviation by pressing @kbd{C-x '}
+(@code{expand-abbrev}). See the Emacs manual for more details.
+
+
+
+
+
+
+
+
+@c=================================================================
 @c
 @c  CHAPTER: LEGO Proof General
 @c 
@@ -3153,10 +3183,10 @@ Lego home page URL.
 @c not tamper with
 
 
+@c=================================================================
 @c
 @c  CHAPTER: Coq Proof General
 @c
-
 @node Coq Proof General
 @chapter Coq Proof General
 
@@ -3301,10 +3331,10 @@ move the locked region to the proper position,
 recording it in the script.
 
 
+@c=================================================================
 @c
 @c  CHAPTER: Isabelle Proof General
 @c
-
 @node Isabelle Proof General
 @chapter Isabelle Proof General
 @cindex Isabelle Proof General
@@ -3723,10 +3753,10 @@ Remove explicit Isabelle/Isar command terminators @samp{;} from the buffer.
 
 
 
+@c=================================================================
 @c
 @c  CHAPTER: HOL Proof General
 @c
-
 @node HOL Proof General
 @chapter HOL Proof General
 @cindex HOL Proof General
@@ -3764,7 +3794,7 @@ General and support and improve it.  Please volunteer!
 
 
 
-@c
+@c=================================================================
 @c
 @c APPENDIX: Obtaining and Installing
 @c
@@ -3952,7 +3982,7 @@ the @file{coq} directory in the Proof General home directory.
 
 
 
-@c
+@c=================================================================
 @c
 @c APPENDIX: Known bugs and workarounds
 @c
