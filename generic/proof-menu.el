@@ -16,11 +16,11 @@
 
 ;;;###autoload
 (defun proof-menu-define-keys (map)
-(define-key map [(control c) (control a)] (proof-assistant-keymap))
-;; FIXME: C-c C-a and C-c C-e are lost.
+(define-key map [(control c) (control a)] (proof-ass keymap))
+;; NB: C-c C-a and C-c C-e are now lost.
 ;; Consider adding new submap for movement in proof script.
 ;; (define-key map [(control c) (control e)] 'proof-goto-command-end)
-; (define-key map [(control c) (control a)] 'proof-goto-command-start)
+;; (define-key map [(control c) (control a)] 'proof-goto-command-start)
 (define-key map [(control c) (control b)] 'proof-process-buffer)
 ; C-c C-c is proof-interrupt-process in universal-keys
 (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
@@ -94,9 +94,10 @@
 	 (append
 	  (proof-ass menu-entries)
 	  '("----")
-	  (proof-ass favourites)
-	  '(["Add favourite" 
-	     (call-interactively 'proof-add-favourite) t])
+	  (or proof-menu-favourites
+	      (proof-menu-define-favourites-menu))
+	  (or proof-menu-settings
+	      (proof-menu-define-settings-menu))
 	  '("----")
 	  (list
 	   (cons "Help"
@@ -233,6 +234,24 @@
 ;;; Favourites mechanism for specific menu
 ;;;
 
+(defvar proof-menu-favourites nil
+  "The Proof General favourites menu for the current proof assistant.")
+
+(defun proof-menu-define-favourites-menu ()
+  "Return menu generated from `PA-favourites'."
+  (let ((favs (reverse (proof-ass favourites))) ents)
+    (while favs
+      (setq ents (cons (apply 'proof-def-favourite (car favs)) ents))
+      (setq favs (cdr favs)))
+    (setq proof-menu-favourites 
+	  (list 
+	   (cons "Favourites" 
+		 (append ents
+			 '(["Add favourite" 
+			    (call-interactively 
+			     'proof-add-favourite) t])))))))
+  
+;;; Define stuff from favourites
 
 (defmacro proof-defshortcut (fn string &optional key)
   "Define shortcut function FN to insert STRING, optional keydef KEY.
@@ -241,7 +260,7 @@ STRING is inserted using `proof-insert', which see.
 KEY is added onto proof-assistant map."
   (if key
       (eval
-       `(define-key (proof-ass keymap) ,key (quote ,fn))))
+       `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
   `(defun ,fn ()
      (concat "Shortcut command to insert " ,string " into the current buffer.")
      (interactive)
@@ -254,11 +273,31 @@ STRING is sent using proof-shell-invisible-command, which see.
 KEY is added onto proof-assistant map."
   (if key
       (eval
-       `(define-key (proof-ass keymap) ,key (quote ,fn))))
+       `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
   `(defun ,fn ()
      (concat "Command to send " ,string " to the proof assistant.")
      (interactive)
      (proof-shell-invisible-command ,string)))
+
+(defun proof-def-favourite (command inscript menuname &optional key new)
+  "Define and a \"favourite\" proof assisant function.
+See doc of `proof-add-favourite' for first four arguments.
+Extra NEW flag means that this should be a new favourite, so check
+that function defined is not already bound.
+This function defines a function and returns a menu entry 
+suitable for adding to the proof assistant menu."
+  (let* ((menunames	(split-string (downcase menuname)))
+	 (menuname-sym  (proof-sym (proof-splice-separator "-" menunames)))
+	 (menu-fn	menuname-sym) (i 1))
+    (while (and new (fboundp menu-fn))
+      (setq menu-fn (intern (concat (symbol-name menuname-sym)
+				    "-" (int-to-string i))))
+      (incf i))
+    (if inscript
+	(eval `(proof-defshortcut ,menu-fn ,command ,key))
+      (eval `(proof-definvisible ,menu-fn ,command ,key)))
+    ;; Return menu entry
+    (vector menuname menu-fn t)))
 
 
 ;;; Code for adding "favourites" to the proof-assistant specific menu
@@ -271,46 +310,199 @@ KEY is added onto proof-assistant map."
 The favourite function will issue COMMAND to the proof assistant.  
 COMMAND is inserted into script (not sent immediately) if INSCRIPT non-nil.
 MENUNAME is the name of the function for the menu.
-KEY is the optional key binding
-This function defines a function and returns a menu entry 
-suitable for adding to the proof assistant menu."
+KEY is the optional key binding."
   (interactive 
    (let* 
        ((cmd (read-string 
-	      (concat "Command to send to " proof-assistant ": ") nil 
+	      (concat "Command to send to " proof-assistant ": ") 
+	      (buffer-substring
+	       (save-excursion
+		 (beginning-of-line-text)
+		 (point))
+	       (point))
 	      proof-make-favourite-cmd-history))
 	(ins (y-or-n-p "Should command be recorded in script? "))
 	(men (read-string "Name of command on menu: " cmd))
 	(key (if (y-or-n-p "Set a keybinding for this command? : ")
-		 (read-key-sequence 
-		  "Type the key to use (binding will be C-c C-a <key>): " nil t))))
+		 (events-to-keys
+	          (read-key-sequence 
+		   "Type the key to use (binding will be C-c C-a <key>): " nil t)))))
      (list cmd ins men key)))
-  (let* ((menunames	(split-string (downcase menuname)))
-	 (menuname-sym  (proof-sym (proof-splice-separator "-" menunames)))
-	 (menu-fn	menuname-sym) (i 1))
-    (while (fboundp menu-fn)
-      (setq menu-fn (intern (concat (symbol-name menuname-sym)
-				    "-" (int-to-string i))))
-      (incf i))
-    (if inscript
-	(eval `(proof-defshortcut ,menu-fn ,command ,key))
-      (eval `(proof-definvisible ,menu-fn ,command ,key)))
-    (let ((menu-entry (vector menuname menu-fn t)))
-      (customize-save-variable (proof-ass-sym menu-entries)
-			       (append (proof-ass menu-entries)
-				       (list menu-entry)))
-      ;; Unfortunately, (easy-menu-add-item proof-assistant-menu nil ..)
-      ;; seems buggy, it adds to main menu. But with "Coq" argument 
-      ;; for path it adds a submenu!   The item argument seems to be
-      ;; something special, but no way to make an item for adding
-      ;; an ordinary item?!
-      (easy-menu-add-item proof-assistant-menu 
-			  '("Favourites")
-			  menu-entry 
-			  "Add favourite"))
-    (warn 
-     "PG: favourites mechanism is work-in-progress, not fully working yet!")))
+  (let ((menu-entry (proof-def-favourite command inscript menuname key t)))
+    ;; If definition succeeds, add to customize variable and save immediately.
+    ;; FIXME: should maybe overwrite previous duplicates, use 
+    ;; update rather than append.
+    (customize-save-variable  (proof-ass-sym favourites)
+			      (append (proof-ass favourites)
+				      (list 
+				       (list command inscript menuname key))))
+    (easy-menu-add-item proof-assistant-menu 
+			'("Favourites") menu-entry "Add favourite")))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Proof assistant settings mechanism.
+;;;
+
+(defvar proof-assistant-settings nil
+ "A list of default values kept in Proof General for current proof assistant.
+A list of lists (SYMBOL SETTING TYPE) where SETTING is a string value
+to send to the proof assistant using the value of SYMBOL and 
+and the function `proof-assistant-format'.  The TYPE item determines
+the form of the menu entry for the setting.")
+
+(defvar proof-menu-settings nil
+  "Settings submenu for Proof General.")
+
+(defun proof-menu-define-settings-menu ()
+  "Return menu generated from `proof-assistant-settings'."
+  (let ((setgs proof-assistant-settings) ents)
+    (while setgs
+      (setq ents (cons 
+		  (apply 'proof-menu-entry-for-setting (car setgs)) ents))
+      (setq setgs (cdr setgs)))
+    (if ents
+	(setq proof-menu-settings 
+	      (list (cons "Settings" ents))))))
+
+(defun proof-menu-entry-name (symbol)
+  "Return a nice menu entry name for SYMBOL."
+  (upcase-initials 
+   (replace-in-string (symbol-name symbol) "-" " ")))
+
+(defun proof-menu-entry-for-setting (symbol setting type)
+  (let ((entry-name  (proof-menu-entry-name symbol))
+	(pasym	     (proof-ass-symv symbol)))
+    (cond
+     ((eq type 'boolean)
+      (vector entry-name 
+	      (proof-deftoggle-fn pasym)
+	      :style 'toggle
+	      :selected pasym))
+     ((eq type 'integer)
+      (vector entry-name 
+	      (proof-defintset-fn pasym)
+	      t))
+     ((eq type 'string)
+      (vector entry-name 
+	      (proof-defstringset-fn pasym)
+	      t)))))
+
+(defun proof-defpacustom-fn (name val args)
+  "As for macro `defpacustom' but evaluation arguments."
+  (let (newargs setting)
+    (while args
+      (cond 
+       ((eq (car args) :setting)
+	(setq setting (cadr args))
+	(setq args (cdr args)))
+       ((eq (car args) :type)
+	(setq type (cadr args))
+	(setq newargs (cons (car args) newargs)))
+       (t
+	(setq newargs (cons (car args) newargs))))
+      (setq args (cdr args)))
+    (setq newargs (reverse newargs))
+    (unless setting
+      (error "defpacustom: missing :setting keyword"))
+    (unless (and type
+		  (or (eq (eval type) 'boolean) 
+		      (eq (eval type) 'integer) 
+		      (eq (eval type) 'string)))
+      (error "defpacustom: missing :type keyword or wrong :type value"))
+    (if (assoc name proof-assistant-settings)
+	(error "defpacustom: Proof assistanting setting %s already defined!"
+	       name))
+    ;; Could consider moving the bulk of the remainder of this
+    ;; function to a function proof-assistant-setup-settings which
+    ;; defines the custom vals *and* menu entries.   This would
+    ;; allow proof assistant customization to manipulate
+    ;; proof-assistant-settings directly rather than forcing
+    ;; use of defpacustom.  (Probably stay as we are: more abstract)
+    (eval
+     `(defpgcustom ,name ,val
+	,@newargs
+	:set 'proof-set-value
+	:group 'proof-assistant-setting))
+    (eval
+     `(defpgfun ,name ()
+	(proof-assistant-invisible-command-ifposs
+	 (proof-assistant-settings-cmd (quote ,name)))))
+    (setq proof-assistant-settings
+	  (cons (list name setting (eval type)) proof-assistant-settings))))
+
+;;;###autoload
+(defmacro defpacustom (name val &rest args)
+  "Define a setting NAME for the current proof assitant, default VAL.
+NAME should correspond to some internal setting, flag, etc, for the
+proof assistant.  
+The :type of NAME should be one of 'integer, 'boolean, 'string.
+The customization variable is automatically in group `proof-assistant-setting.
+The function `proof-assistant-format' is used to format VAL."
+  `(proof-defpacustom-fn (quote ,name) (quote ,val) (quote ,args)))
+
+(defun proof-assistant-invisible-command-ifposs (cmd)
+  "Send CMD as an \"invisible command\" if the proof process is available."
+  ;; FIXME: better would be to queue the command, or even interrupt a
+  ;; queue in progress.  Also must send current settings at start of
+  ;; session somehow.  (This might happen automatically if a queue of
+  ;; deffered commands is set, since defcustom calls proof-set-value
+  ;; even to set the default/initial value?)
+  (if (proof-shell-available-p)
+      (progn
+	(proof-shell-invisible-command cmd t)
+	;; refresh display, 
+	;; FIXME: should only do if goals display is active,
+	;; messy otherwise. 
+	;; (we need a new flag for "active goals display").  
+	(proof-prf) 
+	;;  Could also repeat last command if non-state destroying.
+	)))
+
+
+(defun proof-assistant-settings-cmd (&optional setting)
+  "Return string for making setting vals kept in Proof General customizations.
+If SETTING is non-nil, return a string for just that setting. 
+Otherwise return a string for configuring all settings."
+  (let
+      ((evalifneeded (lambda (expr)
+			(if (or (not setting) 
+				(eq setting (car expr)))
+			    (proof-assistant-format 
+			     (cadr expr) 
+			     (eval (proof-ass-symv (car expr))))))))
+    (apply 'concat (mapcar evalifneeded 
+			   proof-assistant-settings))))
+
+(defun proof-assistant-format (string curvalue)
+  "Replace a format characters %b %i %s in STRING by formatted CURVALUE.
+Formatting suitable for current proof assistant, controlled by
+`proof-assistant-format-table' which see.
+Finally, apply `proof-assistant-setting-format' if non-nil."
+  (let ((setting (proof-format proof-assistant-format-table string)))
+    (if proof-assistant-setting-format
+	(funcall proof-assistant-setting-format setting)
+      setting)))
+
+(defvar proof-assistant-format-table 
+  (list
+   (cons "%b" '(proof-assistant-format-bool curvalue))
+   (cons "%i" '(proof-assistant-format-int curvalue))
+   (cons "%s" '(proof-assistant-format-string curvalue)))
+  "Table to use with `proof-format' for formatting CURVALUE for assistant.
+NB: variable curvalue is dynamically scoped (used in proof-assistant-format).")
+
+(defun proof-assistant-format-bool (value)
+  (if value proof-assistant-true-value proof-assistant-false-value))
+
+(defun proof-assistant-format-int (value)
+  (funcall proof-assistant-format-int-fn value))
+
+(defun proof-assistant-format-string (value)
+  (funcall proof-assistant-format-string-fn value))
+
+   
 
 
 (provide 'proof-menu)
