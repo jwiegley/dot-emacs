@@ -3,7 +3,7 @@
 ;; Copyright (C) 1996 LFCS Edinburgh & INRIA Sophia Antipolis
 ;; Author: Yves Bertot < Yves.Bertot@sophia.inria.fr>
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <26 Nov 96 tms /home/tms/elisp/pbp.el>
+;; Time-stamp: <03 Dec 96 tms /home/tms/elisp/pbp.el>
 ;; Reference: Yves Bertot and Laurent Théry
 ;;            A Generic Approach to Building User Interfaces for
 ;;            Theorem Provers
@@ -227,6 +227,7 @@
 		   (length pbp-end-goals-string)))
       (set-buffer pbp-goals-buffer)
       (erase-buffer)
+      (pop-to-buffer pbp-goals-buffer)
       (insert-buffer-substring (proof-shell-buffer) start end)
       (pbp-analyse-structure))
 
@@ -256,6 +257,8 @@
 (defun pbp-goals-init ()
   (save-excursion
     (setq pbp-goals-buffer (get-buffer-create pbp-goals-buffer-name ))
+    (set-buffer pbp-goals-buffer)
+    (pbp-mode)
     (erase-buffer pbp-goals-buffer)
     (add-hook 'comint-output-filter-functions 'pbp-filter t)
     (pbp-sanitise-region (point-min) (point-max))
@@ -301,6 +304,9 @@
 		    (proof-command (format pbp-hyp-command (cdr top-info)) t)
 		  (pbp-send-and-remember 
 		   (format proof-shell-change-goal (cdr top-info)))))))))
+
+(define-derived-mode pbp-mode fundamental-mode "Pbp" "Proof by Pointing"
+  (suppress-keymap pbp-mode-map))
 
 ; a little package to manage a stack of locations
 
