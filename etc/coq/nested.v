@@ -56,7 +56,8 @@ EAuto. (* 6 "Undo" *)
 Definition foo:=O. (* 6.5 between 6 and 7 *)
 Require Omega. (* 7 This needs "Back 1" to be retracted. *)
   Lemma t2 : O=O.   (* 7a. -> 6: "Abort. Back 1. Undo 1." *)
-    Auto.           
+    Auto. 
+    Print f.        (* a non-undoable "tactic" *)
     Lemma t4 : O=O. 
        Auto.        (* 7b. -> 6: "Abort. [Undo.] Abort. Back 1. Undo 1." *)
 		    (* 7b. -> 2: "Abort. Abort. Abort. Back 1."
@@ -65,6 +66,7 @@ Require Omega. (* 7 This needs "Back 1" to be retracted. *)
 		       top-level proof and within top-level proof. *)
     Save.
   Save. (* 8 "Back 1" or "Reset t2". *)
+  Proof.  (* another non-undoable... *)
 Intros. (* 9 "Undo": example of retraction 9->6: Undo 2.  Back 3. *)
   Fixpoint g [n:nat] : nat := Cases n of O => O | (S m)=> (g m) end. (*7*)
   Lemma t3 : O=O. Auto. Save. (* 10 "Back 1" or "Reset t3" *)
