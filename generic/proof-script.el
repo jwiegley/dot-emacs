@@ -8,6 +8,8 @@
 ;;
 ;; $Id$
 ;;
+;; FIXME: use of point-min and point-max everywhere is wrong
+;; if narrowing is in force.
 
 (require 'proof)
 
@@ -226,10 +228,6 @@ See proof-unlock-locked for the reverse operation."
   "Set the queue span to begin at START."
   (set-span-start proof-queue-span start))
 
-(defsubst proof-set-queue-end (end)
-  "Set the queue span to end at END."
-  (set-span-end proof-queue-span end))
-
 ;; FIXME da: optional arg here was ignored, have fixed.
 ;; Do we really need it though?
 (defun proof-detach-segments (&optional buffer)
@@ -241,17 +239,27 @@ Defaults to current buffer when BUFFER is nil."
       (proof-detach-locked))))
 
 (defsubst proof-set-locked-end (end)
-  "Set the end of the locked region to be END, sort of? FIXME.
-If END is past the end of the buffer, remove the locked region.
-Otherwise set the locked region to be from the start of the
-buffer to END."
+  "Set the end of the locked region to be END.
+If END is at or before (point-min), remove the locked region.
+Otherwise set the locked region to be from (point-min) to END."
   (if (>= (point-min) end)
       (proof-detach-locked)
     (set-span-endpoints proof-locked-span (point-min) end)
-    ;; FIXME: this doesn't fix the disappearing regions
-    ;; span property is lost in latest FSF Emacs, maybe
+    ;; FIXME: the next line doesn't fix the disappearing regions
+    ;; (was span property is lost in latest FSF Emacs, maybe?)
     ;; (set-span-property proof-locked-span 'face 'proof-locked-face)
     ))
+
+;; Reimplemented this to mirror above because of remaining
+;; span problen
+(defsubst proof-set-queue-end (end)
+  "Set the queue span to end at END."
+  (if (or (>= (point-min) end)
+	  (<= end (span-start proof-queue-span)))
+      (proof-detach-queue)
+    (set-span-end proof-queue-span end)))
+
+
 
 
 ;; FIXME: get rid of this function.  Some places expect this
@@ -276,7 +284,8 @@ Only call this from a scripting buffer."
 ;;
 
 (defun proof-unprocessed-begin ()
-  "Return end of locked region in current buffer or (point-min) otherwise."
+  "Return end of locked region in current buffer or (point-min) otherwise.
+The position is actually one beyond the last locked character."
   (or 
    (and proof-locked-span 
 	(span-end proof-locked-span))
@@ -1221,12 +1230,18 @@ a space or newline will be inserted automatically."
 See also the documentation for `proof-retract-until-point'.
 Optionally delete the region corresponding to the proof sequence."
   ;; 10.9.99: da: added this line so that undo always clears the
-  ;; proof completed flag.  Maybe this belongs elsewhere.
+  ;; proof completed flag.  Rationale is that undoing never leaves
+  ;; prover in a "proof just completed" state.
   (setq proof-shell-proof-completed nil)
   (if (span-live-p span)
       (let ((start (span-start span))
 	    (end (span-end span))
 	    (kill (span-property span 'delete-me)))
+	;; FIXME: why is this test for an empty locked region here?
+	;; seems it could prevent the queue and locked regions
+ 	;; from being detached.  Not sure where they are supposed
+ 	;; to be detached from buffer, but following calls would
+ 	;; do the trick if necessary.
 	(unless (proof-locked-region-empty-p)
 	  (proof-set-locked-end start)
 	  (proof-set-queue-end start))
