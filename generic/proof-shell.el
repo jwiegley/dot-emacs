@@ -397,14 +397,6 @@ Does nothing if proof assistant is already running."
 
       (message "Starting %s process... done." proc))))
 
-(defun proof-associated-buffers ()
-  "Return a list of the associated buffers.  
-Some may be dead/nil."
-  (list proof-goals-buffer
-	proof-response-buffer
-	proof-trace-buffer
-	proof-thms-buffer))
-
 
 ;;
 ;;  Shutting down proof shell and associated buffers

@@ -26,6 +26,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; Return a list of associated buffers
+;;
+
+(defun proof-associated-buffers ()
+  "Return a list of the associated buffers.  
+Some may be dead/nil."
+  (list proof-goals-buffer
+	proof-response-buffer
+	proof-trace-buffer
+	proof-thms-buffer))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Manipulating prover output
 ;;
 
