@@ -4,6 +4,11 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.4  1997/10/24 14:51:07  hhg
+;; Changed order of "Inversion_clear" and "Inversion" so that former is
+;; fontified first.
+;; Added "Print" to list of commands.
+;;
 ;; Revision 1.3  1997/10/17 14:45:53  hhg
 ;; Added "Induction" as tactic
 ;;
@@ -69,11 +74,16 @@
 "Hint"
 "Infix"
 "Opaque"
+"Print"
 "Pwd"
 "Reset"
 "Search"
 "Transparent"
 ))
+
+; There seems to be a bug with fontlock: "_" is part of the symbol
+; table, but fontlock doesn't fontify "Inversion_clear" but only
+; "Inversion" -- hhg
 
 (defvar coq-tactics
   '(
@@ -102,6 +112,7 @@
 "Intro"
 "Intros"
 "Intuition"
+"Inversion_clear"
 "Inversion"
 "LApply"
 "Linear"
@@ -113,8 +124,8 @@
 "Reflexivity"
 "Replace"
 "Rewrite"
-"Simpl"
 "Simplify_eq"
+"Simpl"
 "Specialize"
 "Symmetry"
 "Tauto"
