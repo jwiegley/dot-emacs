@@ -62,9 +62,15 @@ and using ideas from Projet CROAP.
 Proof General is suitable for use by pacifists and Emacs lovers alike.
 
 The code is designed to be generic, so you can adapt Proof General to
-other proof assistants if you know a little bit of Emacs Lisp.  Please
-feel free to download Proof General to customize it for another system,
-and tell us how you get on.
+other proof assistants if you know a little bit of Emacs Lisp. Our aim
+is provide a powerful and configurable Emacs mode which helps
+user-interaction with interactive proof assistants.
+
+Please help us with this aim! Configure Proof General for your proof
+assistant, by adding features at the generic level wherever possible.
+Send ideas, comments, patches, code to @email{proofgen@@dcs.ed.ac.uk}.
+Please feel free to download Proof General to customize it for another
+system, and tell us how you get on.
 
 @menu
 * Introduction::                
@@ -495,23 +501,24 @@ Fixes for some of these may be provided in a future release.
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec Handling Multiple Files
 
-Proof General is laid back concerning multiple file developments. It
-relies on the prover to tell it whenever the prover processes files.
-A buffer corresponding to such a file is immediately marked as
-processed. The list of all processed files is also kept in a table so
-that files which get loaded in Emacs at a later stage can be handled
-correctly. 
+@cindex Multiple Files
 
-@menu
-* Processing Files::            
-* Recording File History::      
-* Parent Script Buffers::       
-* Processing a New File::       
-@end menu
+Large proof developments are typically spread across multiple files.
+Many provers support such developments by keeping track of dependencies
+and automatically processing scripts. Proof General supports this
+mechanism. 
 
-@node Processing Files, Recording File History, Handling Multiple Files, Handling Multiple Files
-@comment  node-name,  next,  previous,  up
-@unnumberedsubsubsec Processing Files
+However, the prover must let the Proof General know whenever
+it processes a file directly. Such files are being marked by Proof
+General as having been processed by an atomic action (regardless of
+whether an error occurs or not). The file can then only be edited after
+retracting to the beginning of the file.
+
+When retraction is requested in a buffer which is not the current
+script, Proof General duely retracts in this buffer. It then arranges a
+little conference with the prover to find out which other files have
+also been retracted. With this strategy, Proof General doesn't have a
+hard time to keep track of dependencies.
 
 @vindex proof-shell-eager-annotation-start
 @vindex proof-shell-eager-annotation-end
@@ -519,94 +526,43 @@ correctly.
 Proof General considers @var{output} delimited by the the two regualar
 expressions @code{proof-shell-eager-annotation-start} and
 @code{proof-shell-eager-annotation-end} as being important. It displays
-the @var{output} in the minibuffer and analyses their contents further.
+the @var{output} in the Response buffer and analyses their contents further.
 Among possibly other important messages characterised by these regular
 expressions, the prover must tell the interface whenver it processes a
-file. 
+file and retracts across file boundaries. 
+
 
 @vtable @code
+@item proof-included-files-list
+records the file history. Whenever a new file is being processed, it
+gets added to the
+front of the list. When the prover retracts across file boundaries, this
+list is resynchronised. It contains files in canonical truename format
+@inforef{Truenames,,lispref}. 
+
 @item proof-shell-process-file
 is a tuple of the
 form (@var{regexp}, @var{match}). If @var{regexp} matches @var{output},
 then the @var{match} must match the file name (with complete path)
-the system is currently processing. @inforef{Match Data,,lispref}
+the system is currently processing @inforef{Match Data,,lispref}. The
+new file name is added to the front of @code{proof-included-files-list}.
+
+@item proof-shell-retract-files-regexp
+is a regular expression. It indicates that the prover has retracted
+across file boundaries. At this stage, Proof General's view of the
+processed files is out of date and needs to be updated with the help of
+the function @code{proof-shell-compute-new-files-list}.
 @end vtable
-
-@node Recording File History, Parent Script Buffers, Processing Files, Handling Multiple Files
-@comment  node-name,  next,  previous,  up
-@unnumberedsubsubsec Recording File History
-
-The variable
-
-@vtable @code
-@item proof-included-files-list
-records the file history. It contains an (acyclic) directed graph.
-Besides the @samp{'root}, nodes are strings (canonical file names). An
-edge from node @samp{n1} to node @samp{n2} indicates that @samp{n2}
-depends on @samp{n1}. @samp{n2} is the child, @samp{n1} is a parent.
-@end vtable
-
-The variable @code{proof-included-files-list} should not be modified
-directly. Instead use one of the following methods:
 
 @ftable @code
-@item proof-include-files-list-init
-Initialises @code{proof-included-files-list} with an empty graph.
-
-@item proof-include-files-list-add 
-Adds @var{file} to the history of
-processed files. Its optional argument @var{parents} specifies all
-direct dependencies. It @var{parents} is nil, @var{file} is assumed to
-be top level. 
-
-@item proof-include-files-list-parents
-Returns a list of parents for the argument @var{child}.
-
-@item proof-include-files-list-remove
-Removes @var{file} and all its children from the record.
-
-@item proof-include-files-list-in-p
-Returns @samp{t} if @var{file} has already been processed and nil otherwise.
+@item proof-shell-compute-new-files-list
+Takes as argument the current output of the prover. It needs to return
+an up to date list of all processed files. Its output is stored in
+@code{proof-included-files-list}. In practice, this function is likely
+to inspect the previous (global) variable
+@code{proof-included-files-list} and the match data
+@inforef{Match Data,,lispref} triggered by @code{proof-shell-retract-files-regexp}.
 @end ftable
-
-@node Parent Script Buffers, Processing a New File, Recording File History, Handling Multiple Files
-@comment  node-name,  next,  previous,  up
-@unnumberedsubsubsec Parent Script Buffers
-@cindex Parent Script Buffer
-
-Parent Script Buffers are script buffers which have already been
-processed. If retraction is requested on such a @var{buffer}, retraction 
-is first propagated to @var{buffer}'s children.
-
-@node Processing a New File, ,Parent Script Buffers, Handling Multiple Files
-@comment  node-name,  next,  previous,  up
-@unnumberedsubsubsec Processing a New File
-
-When the prover reports that a new file is being processed, it needs to
-be added to the variable @code{proof-included-files-list} with the help
-of the function @code{proof-include-files-list-add}. Dependencies are
-computed with the help of:
-
-@vtable @code
-@item proof-files-query-dependencies-command
-Command to send to the prover to query the direct parents of @samp{%s}.
-The string @samp{%s} is a placeholder for the file in question. If it is 
-@samp{nil}, we assume that files are processed in linear order.
-@item proof-files-query-dependencies-response-regexp
-Regular expression to catch that the prover has complied with a request
-to display dependencies for a particular @var{file}.
-@code{proof-files-query-dependencies-response-regexp} may contain
-@samp{%s} as a placeholder for @var{file}.
-@end vtable
-
-The result is analysed with the help of the function
-
-@ftable @code
-@item proof-files-query-dependencies-extract-parents
-Returns the list of direct parents for the argument @var{file} by
-analysing the previous output of the prover which triggered @code{proof-files-query-dependencies-response-regexp}
-@end ftable
-
 
 @node Adding New Proof Assistant, Literature, Handling Multiple Files, Internals
 @comment  node-name,  next,  previous,  up
