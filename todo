@@ -5,6 +5,15 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 =================================================================
 
+3.5.1 Coq-8 fixup release TODO
+
+* Fix display of sub/super scripts in Coq output
+* Multiple file handling
+* Automatic adjustment of line width
+
+
+=================================================================
+
 * Developers' Infeasibly Long Low-Level List of Things to Do
 
 

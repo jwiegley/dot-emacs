@@ -1,8 +1,8 @@
             Announcing  Proof General  Version 3.5
     A Generic Emacs interface for Interactive Proof Assistants
-                 http://proofgeneral.inf.ed.ac.uk
+              http://proofgeneral.inf.ed.ac.uk
 
-        Contact: David Aspinall <da+pg-feedback@inf.ed.ac.uk>
+      Contact: David Aspinall <da+pg-feedback@inf.ed.ac.uk>
 
 Proof General is a generic (X)Emacs interface for proof assistants.
 It can be instantiated for the proof assistant of your choice, and is
@@ -29,8 +29,8 @@ Summary of interesting changes since 3.4:
 . Keyboard hints and other messages displayed in minibuffer
 . Auxiliary modes bundled: X-Symbol and MMM Mode
 . Improved menus, user options, script colouring and active highlighting
-. For Coq: a new "holes" system, for editing structured expressions
-. For Isabelle: browsing/highlighting theorem dependencies
+. For Coq (8.0): extensive templates, automatic compilation support
+. For Isabelle (2004): browsing/highlighting theorem dependencies
 . New instances of PG: Casl Consistency Checker, Shell Script
 . Additional sample proofs (some from http://www.cs.kun.nl/~freek/comparison/)
 . Many other minor improvements and editing features

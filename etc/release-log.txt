@@ -1,3 +1,7 @@
+XX.04.04  3.5.1 Release forthcoming for improved Coq 8.0 support
+
+--------------------
+
 18.04.04  3.5 Release 3-4 based on branch 8.0
 	  (repeated: 18.04.04 fixes to display handling
 		     21.04.04 modify CHANGES; Coq menu)

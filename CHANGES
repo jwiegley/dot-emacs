@@ -2,6 +2,8 @@
 
 * Summary of Changes for Proof General 3.5 from 3.4
 
+See also etc/release-log.txt for minor patches.
+
 ** Generic changes
 
 *** Support for Speedbar and Index menu ("Imenu")
@@ -237,9 +239,17 @@ than using Elisp.
 
 ** Changes for Coq
 
+*** Coq 8.0 compatibility.  Example files are Coq 8.0 format.
+
+**** Possibility to run Coq 8.0 in compatibility mode
+**** Further prover settings added
+**** Automatic compilation ("auto-compile-vos"), dependencies managed
+
+*** Command coq-intros inserts intros using "Show Intros" output
+
 *** Indentation improved
 
-*** Menu entries for commands, tactics and terms
+*** Menu entries for inserting commands, tactics and terms
 
 *** "Holes" system, for editing structured expressions
 
@@ -261,7 +271,6 @@ will be asked if you want to save abbrevs, answer yes.
 *** X-symbols are much improved (more symbols, cleaner grammar)
 
 Much more symbols are supported now (C-= C-= for the symbol table).
-See coq/README for the syntax of sub/superscripts.
 
 ** Additional instances of Proof General
 
