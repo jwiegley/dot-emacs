@@ -722,11 +722,14 @@ Assumes that point is at the end of a command."
 Default action if inside a comment is just process as far as the start of
 the comment. If you want something different, put it inside
 unclosed-comment-fun. If ignore-proof-process-p is set, no commands
-will be added to the queue."
+will be added to the queue and the buffer will not be activated for
+scripting."
   (interactive)
   (or ignore-proof-process-p 
-      (proof-shell-ready-prover))
-  (proof-activate-scripting)
+      (progn
+	(proof-shell-ready-prover)
+	;; FIXME: check this
+	(proof-activate-scripting)))
   (let ((semis))
     (save-excursion
       ;; Give error if no non-whitespace between point and end of locked region.
