@@ -491,11 +491,20 @@ Ensure that point is visible in window."
 		'ignoreminibuf) buffer)
 	    (set-window-buffer (selected-window) buffer))
 	(display-buffer buffer))
+      ;; Suggestion: it might be nice to cache the previous
+      ;; height of the window to attempt to regenerate the
+      ;; display as the user last had it.  (But how to clear
+      ;; the cache?)
       (setq window (get-buffer-window buffer 'visible))
       (set-window-dedicated-p window proof-three-window-mode)
       (and window
 	   (save-selected-window
 	     (select-window window)
+	     (if proof-shrink-windows-tofit
+		 ;; NB: actually we also want to expand to fit ---
+		 ;; otherwise the window will adopt to the smallest
+		 ;; sized output for good.
+		 (proof-resize-window-tofit))
 	     ;; For various reasons, point may get moved
 	     ;; around in response buffer.
 	     (goto-char (or pos (point-max)))
@@ -552,6 +561,64 @@ No action if BUF is nil or killed."
 	 (if noselect
 	     (display-buffer buf t)
 	   (switch-to-buffer-other-window buf)))))
+
+;; This is based on `shrink-window-if-larger-than-buffer' from window.el
+;; Except that we also allow the window height to *expand*
+;; FIXME: this works in a fairly ugly way!
+(defun proof-resize-window-tofit (&optional window)
+  "Shrink the WINDOW to be as small as possible to display its contents.
+Do not shrink to less than `window-min-height' lines.
+Do nothing if the buffer contains more lines than the present window height,
+or if some of the window's contents are scrolled out of view,
+or if the window is not the full width of the frame,
+or if the window is the only window of its frame."
+  (interactive)
+  (or window (setq window (selected-window)))
+  (save-excursion
+    (set-buffer (window-buffer window))
+    (let* ((n 0)
+	  (test-pos
+	   (- (point-max)
+	      ;; If buffer ends with a newline, ignore it when counting
+	      ;; height unless point is after it.
+	      (if (and (not (eobp))
+		       (eq ?\n (char-after (1- (point-max)))))
+		  1 0)))
+	  (mini  (frame-property (window-frame window) 'minibuffer))
+	  ;; Direction of resizing based on whether max position is visible.
+	  (expand (not (pos-visible-in-window-p test-pos window)))
+	  ;; Most window is allowed to grow (or shrink)
+	  (max-height  (/ (frame-height (window-frame window)) 2)))
+      (if (and (< 1 (let ((frame (selected-frame)))
+		      (select-frame (window-frame window))
+		      (unwind-protect
+			  (count-windows)
+			(select-frame frame))))
+	       ;; check to make sure that the window is the full width
+	       ;; of the frame
+	       (window-leftmost-p window)
+	       (window-rightmost-p window)
+	       ;; The whole buffer must be visible.
+	       (pos-visible-in-window-p (point-min) window)
+	       ;; The frame must not be minibuffer-only.
+	       (not (eq mini 'only)))
+	  (progn
+	    (save-window-excursion
+	      (goto-char (point-min))
+	      (while (and (window-live-p window)
+			  (if expand
+			      (not (pos-visible-in-window-p test-pos window))
+			    (pos-visible-in-window-p test-pos window))
+			  (< n max-height))
+		(shrink-window (if expand -1 1) nil window)
+		(setq n (1+ n))))
+	    (if (and (> n 0) (not expand))
+		(shrink-window (min (1- n)
+				    (- (window-height window)
+				       (1+ window-min-height)))
+			       nil
+			       window)
+	      (shrink-window (- n))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
