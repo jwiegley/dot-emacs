@@ -199,7 +199,7 @@ and script mode."
    proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
    proof-shell-init-cmd                 (concat 
 					 (proof-assistant-settings-cmd)
- "val pg_saved_gl = ref (!goals_limit); val pg_saved_ts = ref (!trace_simp); fun proofgeneral_enable_pr () = (goals_limit:= !pg_saved_gl; trace_simp:= !pg_saved_ts); fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0; trace_simp:=false);")
+ "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = (goals_limit:= !pg_saved_gl); fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0);")
    ; FIXME improved version for Isabelle99-1:
    ;proof-shell-init-cmd		 (proof-assistant-settings-cmd)
 
