@@ -290,12 +290,14 @@ Given is the first SPAN which needs to be undone."
 ;;   Commands specific to plastic                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(proof-defshortcut plastic-Intros 
-		   (concat plastic-lit-string "Intros ")  ?i)
-(proof-defshortcut plastic-Refine
-		   (concat plastic-lit-string "Refine ")  ?r)
-(proof-defshortcut plastic-ReturnAll
-		   (concat plastic-lit-string "ReturnAll ") ?u)
+;; da: FIXME added quoting/eval here because of macros.  Probably better
+;; to turn proof-defshortcut and co into functions.
+`(proof-defshortcut plastic-Intros 
+		   ,(concat plastic-lit-string "Intros ")  ?i)
+`(proof-defshortcut plastic-Refine
+		   ,(concat plastic-lit-string "Refine ")  ?r)
+`(proof-defshortcut plastic-ReturnAll
+		   ,(concat plastic-lit-string "ReturnAll ") ?u)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
