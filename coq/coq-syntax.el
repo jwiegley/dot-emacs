@@ -257,7 +257,7 @@
   "Punctuation Symbols used by Coq")
 
 ;; ----- regular expressions
-(defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\|Anomaly\\)"
+(defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\|Anomaly\\|Uncaught exception\\)"
   "A regular expression indicating that the Coq process has identified
   an error.")
 

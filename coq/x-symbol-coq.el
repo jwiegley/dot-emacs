@@ -6,9 +6,17 @@
 ;;
 
 (defvar x-symbol-coq-symbol-table 
-  '((perpendicular  () "False"  "\\<bottom>")
+  '((arrowup        () "\\+"   "\\<uparrow>")
+    (arrowdown      () "\\-"   "\\<downarrow>")
+    (angleleft      () "\\<\\" "\\<langle>")
+    (angleright     () "\\>\\" "\\<rangle>")
+    (circledot      () "\\dot\\"     "\\<odot>")
+    (reflexsubset   () "\\incl\\"     "\\<rset>")
+    (element        () "\\in\\"     "\\<in>")
+    (emptyset       () "emptyset" "\\<emptyset>")
+    (perpendicular  () "False"  "\\<bottom>")
     (top            () "True"   "\\<top>")
-    (notsign       () "~"       "\\<not>")
+    (notsign        () "~"       "\\<not>")
     (longarrowright () "->"  "\\<longrightarrow>")
     (logicaland     () "/\\" "\\<and>")
     (logicalor      () "\\/" "\\<or>")

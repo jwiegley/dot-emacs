@@ -91,7 +91,7 @@
 (defvar coq-outline-regexp
   (concat "(\\*\\|" (proof-ids-to-regexp 
 	   '(
-"Tactic" "Axiom" "Parameter" "Parameters" "Variable" "Variables" "Syntax" "Grammar" "Syntactic" "Load" "Require" "Hint" "Hints" "Correctness" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact" "Remark" "Record" "Inductive" "Mutual" "Definition" "Fixpoint" "Save" "Qed" "Defined"))))
+"Tactic" "Axiom" "Parameter" "Parameters" "Variable" "Variables" "Syntax" "Grammar" "Syntactic" "Load" "Require" "Hint" "Hints" "Hypothesis" "Correctness" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact" "Remark" "Record" "Inductive" "Mutual" "Definition" "Fixpoint" "Save" "Qed" "Defined" "End" "Coercion"))))
 
 (defvar coq-outline-heading-end-regexp "\\*\)\n\\|\\.\n")
 
@@ -103,7 +103,7 @@
 
 (defconst coq-undoable-commands-regexp (proof-ids-to-regexp (append coq-tactics coq-keywords-undoable-commands)))
 
-(defconst coq-not-undoable-commands-regexp (proof-ids-to-regexp coq-keywords-not-undoable-commands))
+(defconst coq-not-undoable-commands-regexp (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-not-undoable-commands)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
