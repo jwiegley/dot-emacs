@@ -373,7 +373,7 @@ This is intended for defining proof assistant specific functions.
 STRING is inserted using `proof-insert', which see.
 KEY is added onto proof-assistant map."
   (if key
-      (eval
+      (eval ;; eval-after-load "proof" ?
        `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
   `(defun ,fn ()
      ,(concat "Shortcut command to insert " string " into the current buffer.")
@@ -386,7 +386,7 @@ This is intended for defining proof assistant specific functions.
 STRING is sent using proof-shell-invisible-command, which see.
 KEY is added onto proof-assistant map."
   (if key
-      (eval
+      (eval ;; eval-after-load "proof" ?
        `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
   `(defun ,fn ()
      ,(concat "Command to send " string " to the proof assistant.")
