@@ -1205,6 +1205,7 @@ which continues past POS, if any.  (NOT IMPLEMENTED IN THIS VERSION).
 This version is used when `proof-script-command-start-regexp' is set."
   (save-excursion
     (let* ((commentre   (concat "[ \t\n]*" proof-comment-start-regexp))
+	   (commentend   (concat proof-comment-end-regexp "[ \t\n]*" ))
 	   (add-segment-for-cmd		; local function: advances "prev"
 	    (lambda ()
 	      (setq tmp (point))
@@ -1222,9 +1223,32 @@ This version is used when `proof-script-command-start-regexp' is set."
 			(goto-char prev) 
 			(skip-chars-forward " \t\n") 
 			(point)))
-		     (bufstr (buffer-substring prev-no-blanks (point)))
-		     (type   (if (eq (string-match commentre bufstr) 0)
-				 'comment 'cmd))
+		     (comend (point))
+		     (bufstr (buffer-substring prev-no-blanks comend))
+		     (type   (save-excursion
+				  ;; The behaviour here is a bit odd: this
+				  ;; is a half-hearted attempt to strip comments
+				  ;; as we send text to the proof assistant,
+				  ;; but it breaks when we have certain bad
+				  ;; input:  (* foo *) blah (* bar *) cmd 
+				  ;; We check for the case
+				  ;; of a comment spanning the *whole*
+				  ;; substring, otherwise send the
+				  ;; (defective) text as if it were a
+				  ;; proper command anyway.
+				  ;; This shouldn't cause problems: the 
+				  ;; proof assistant is certainly capable
+				  ;; of skipping comments itself, and
+				  ;; the situation should cause an error.
+				  ;; (If it were accepted it could upset the
+				  ;; undo behaviour)
+			       (goto-char prev-no-blanks)
+			       (if (and 
+				    (looking-at commentre)
+				    (re-search-forward proof-comment-end-regexp)
+				    (skip-chars-forward " \t\n")
+				    (>= (point) comend))
+				   'comment 'cmd)))
 		     (string (if (eq type 'comment) "" bufstr)))
 		(setq prev (point))
 		(goto-char tmp)
