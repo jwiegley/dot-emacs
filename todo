@@ -501,6 +501,10 @@ X Sections and files are handled incorrectly.
 
 A auto-adjust Pretty.setmargin when window is resized
 
+A Multiple files needs careful testing.  There are cases when
+  retracting asks for files to be removed which were never loaded.
+  This might be harmless, but might be better cleaned up.
+
 C derive an isa-response-mode from proof-response-mode;
   see lego.el (10min) 
 
