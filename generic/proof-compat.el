@@ -1,0 +1,119 @@
+;; proof-comapt.el   Operating system and Emacs version compatibility
+;;
+;; Copyright (C) 2000 LFCS Edinburgh. 
+;;
+;; Author:      David Aspinall <da@dcs.ed.ac.uk> and others
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;;
+;; $Id$
+;;
+;; This file collects together compatibility hacks for different
+;; operating systems and Emacs versions.  This is to help keep
+;; track of them.
+;;
+;; The development policy for Proof General is for the main codebase
+;; to be written for the latest stable version of XEmacs.  We follow
+;; XEmacs advice on removing obsolete function calls.
+;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Architecture flags
+;;;
+
+(eval-and-compile
+(defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
+  "Non-nil if Proof General is running on XEmacs.")
+;; rough test for XEmacs on win32, anyone't know about FSF there?
+(defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
+  "Non-nil if Proof General is running on a win32 system."))
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; XEmacs compatibility
+;;;
+
+;; browse-url function isn't autoloaded in XEmacs 20.4
+(or (fboundp 'browse-url)
+    (autoload 'browse-url "browse-url"
+      "Ask a WWW browser to load URL." t))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; FSF compatibility
+;;;
+
+;; These days cl is dumped with XEmacs (20.4,21.1) but not FSF Emacs
+;; 20.2.  Would rather it was autoloaded but the autoloads are broken
+;; in FSF so we load it now.
+(require 'cl)				
+
+;; Give a warning,
+
+(or (fboundp 'warn)
+(defun warn (str &rest args)
+      "Issue a warning STR.  Defined by PG for FSF compatibility."
+      (apply 'message str args)
+      (sit-for 2)))
+
+;; Modeline redrawing (actually force-mode-line-update is alias on XEmacs)
+
+(or (fboundp 'redraw-modeline)
+(defun redraw-modeline (&rest args)
+  "Dummy function for Proof General on FSF Emacs."
+  (force-mode-line-update)))
+
+;; Interactive flag
+(or (fboundp 'noninteractive)
+    (defun noninteractive ()
+      "Dummy function for Proof General on FSF Emacs."
+      nil)) ;; pretend always interactive.
+
+      
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Old Emacs version compatibility
+;;;
+
+;; Create a menu from a customize group, for older/non-existent customize
+
+(or (fboundp 'customize-menu-create)
+(defun customize-menu-create (&rest args)
+  "Dummy function for PG; please upgrade your Emacs."
+  nil))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; General Emacs version compatibility
+;;;
+
+
+;; These are internal functions of font-lock, autoload policy
+;; differs between Emacs versions
+
+(or (fboundp 'font-lock-set-defaults)
+    (autoload 'font-lock-set-defaults "font-lock"))
+(or (fboundp 'font-lock-fontify-region)
+    (autoload 'font-lock-fontify-region "font-lock"))
+(or (fboundp 'font-lock-append-text-property)
+    (autoload 'font-lock-append-text-property "font-lock"))
+
+
+;; FIXME: todo: keybinding compat here, esp for mouse.
+;; See Isamode and emu.el for ideas.
+
+	    
+
+
+
+;; End of proof-compat.el
+(provide 'proof-compat)
