@@ -283,7 +283,7 @@ compatibility with X-Symbol, which may hack proof-font-lock-keywords
 with extra patterns (in non-mule mode).")
 
 ; (deflocal proof-font-lock-defaults nil
-;  "Value of font-lock-defaults in this buffer.
+;  "Value of font-lock-defaults in this buffer."
 
 (defun proof-font-lock-configure-defaults (&optional case-fold)
   "Set defaults for font-lock based on current font-lock-keywords."
