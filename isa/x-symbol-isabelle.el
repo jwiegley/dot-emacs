@@ -43,7 +43,7 @@
   "Match and skip over super- and subscripts.
 Return nil if `x-symbol-mode' or `x-symbol-subscripts' is nil.  Uses
 `x-symbol-isabelle-font-lock-regexp'."
-  (and x-symbol-mode ;x-symbol-subscripts (FIXME need proper default for)
+  (and (proof-ass x-symbol-enable)
        (or (proof-looking-at x-symbol-isabelle-font-lock-regexp)
 	   (proof-re-search-forward x-symbol-isabelle-font-lock-regexp limit t))))
 
