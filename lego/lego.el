@@ -38,20 +38,14 @@
   :type 'string
   :group 'lego)
 
-(defcustom lego-help-menu-list
-  '(["The LEGO Reference Card" (browse-url lego-www-refcard) t]
-    ["The LEGO library (WWW)" (browse-url lego-library-www-page)  t])
-  "List of menu items for LEGO specific help.
+(proof-defass-default help-menu-entries
+  '(["LEGO Reference Card" (browse-url lego-www-refcard) t]
+    ["LEGO library (WWW)" (browse-url lego-library-www-page)  t]))
 
-See the documentation of `easy-menu-define' "
-  :type '(repeat sexp)
-  :group 'lego)
-
-(defcustom lego-menu-entries
+(proof-defass-default menu-entries
   '(["intros" lego-intros]
     ["Intros" lego-Intros]
-    ["Refine" lego-Refine])
-  "Entries for LEGO menu.")
+    ["Refine" lego-Refine]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -169,9 +163,7 @@ Activates extended printing routines required for Proof General.")
 
 (define-derived-mode lego-mode proof-mode
    "lego" nil
-   (lego-mode-config)
-   (easy-menu-change (list proof-general-name) (car proof-help-menu)
-		     (append (cdr proof-help-menu) lego-help-menu-list)))
+   (lego-mode-config))
 
 (eval-and-compile
   (define-derived-mode lego-response-mode proof-response-mode
@@ -277,9 +269,9 @@ Given is the first SPAN which needs to be undone."
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(proof-defshortcut lego-Intros "Intros "  ?I)
-(proof-defshortcut lego-intros "intros "  ?i)
-(proof-defshortcut lego-Refine "Refine "  ?r)
+(proof-defshortcut lego-Intros "Intros "  [?I])
+(proof-defshortcut lego-intros "intros "  [?i])
+(proof-defshortcut lego-Refine "Refine "  [?r])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Lego Indentation                                               ;;
