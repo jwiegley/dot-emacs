@@ -386,12 +386,12 @@ Given is the first SPAN which needs to be undone."
   (setq proof-assistant-home-page plastic-www-home-page)
   (setq proof-mode-for-script 'plastic-mode)
 
-  (setq proof-prf-string   (concat plastic-lit-string " &S PrfCtxt")
-	proof-goal-command (concat plastic-lit-string " Claim %s;")
-	proof-save-command (concat plastic-lit-string " Save %s;") ;; analogue? 
-	proof-ctxt-string  (concat plastic-lit-string " &S Ctxt 20")
+  (setq proof-showproof-command  (concat plastic-lit-string " &S PrfCtxt")
+	proof-goal-command   (concat plastic-lit-string " Claim %s;")
+	proof-save-command   (concat plastic-lit-string " Save %s;") ;; analogue? 
+	proof-context-command  (concat plastic-lit-string " &S Ctxt 20")
 	   ;; show 20 things; see ^c+C...
-	proof-help-string  (concat plastic-lit-string " &S Help"))
+	proof-info-command   (concat plastic-lit-string " &S Help"))
 
   (setq proof-goal-command-p 'plastic-goal-command-p
 	proof-count-undos-fn 'plastic-count-undos

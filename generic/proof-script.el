@@ -1510,14 +1510,14 @@ Start up the proof assistant if necessary."
 
 (proof-define-assistant-command proof-prf  
   "Show the current proof state."
-  proof-prf-string)
+  proof-proof-command)
 (proof-define-assistant-command proof-ctxt 
   "Show the current context."
-  proof-ctxt-string)
+  proof-context-command)
 (proof-define-assistant-command proof-help 
   "Show a help or information message from the proof assistant.
 Typically, a list of syntax of commands available."
-  proof-help-string)
+  proof-info-command)
 
 ;;
 ;; Commands which require an argument, and maybe affect the script.

@@ -349,11 +349,11 @@ Checks the width in the `proof-goals-buffer'"
 
   (setq proof-mode-for-script 'lego-mode)
 
-  (setq proof-prf-string "Prf"
+  (setq proof-proof-command "Prf"
 	proof-goal-command "Goal %s;"
 	proof-save-command "Save %s;"
-	proof-ctxt-string "Ctxt"
-	proof-help-string "Help")
+	proof-context-command "Ctxt"
+	proof-info-command "Help")
 
   (setq proof-goal-command-p 'lego-goal-command-p
 	proof-count-undos-fn 'lego-count-undos

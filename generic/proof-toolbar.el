@@ -27,7 +27,7 @@
 ;; in proof-toolbar-setup.
 
 ;; FIXME: consider automatically disabling buttons which are
-;; not configured for the prover, e.g. if proof-help-string is
+;; not configured for the prover, e.g. if proof-info-command is
 ;; not set, then the Info button should not be show. 
 
 ;; FIXME: In the future, add back the enabler functions.

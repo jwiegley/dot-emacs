@@ -8,23 +8,21 @@ Generic Changes
   New function control-button1 (proof-mouse-track-insert) copies 
   individual commands (highlighted regions) from an open proof.  
   When a proof is closed, it behaves as mouse-track-insert
-  (default XEmacs behaviour of control-button1).  
-  
+  (the default XEmacs behaviour of control-button1).  
 
 * New function C-c C-f (proof-find) to invoke some prover-specific
   mechanism to search for theories.  
 
-* [XEmacs only] Toolbar has five new buttons (State, Context, Info, 
-  Command, Help) which invoke commands previously available on keys/menus.
-  Also a new "Find" button for proof-find.
+* [XEmacs only] Toolbar has six new buttons (State, Context, Info, 
+  Command, Help, Stop) which invoke commands previously available on 
+  keys/menus.   Also a new "Find" button for proof-find.
 
 * [XEmacs only] Toolbar enablers have been added.   
   Buttons are automatically enabled or disabled as appropriate.   
   This requires XEmacs 20.4 or better for reliable working.  
-  
 
 * Menus and keybindings have been reorganized.  
-  Now keybindings invoke same functions as toolbar.
+  Now keybindings invoke the same functions as the toolbar.
 
 * Terminal string now automatically added to command for C-c C-v 
 
@@ -75,6 +73,11 @@ Internal changes for developers to note
   special characters).  Furthermore the entire mechanism of
   using special character codes is fragile and needs replacing
   in future versions of Proof General!
+
+* Renamed some configuration variables for uniformity:
+    proof-ctxt-string -> proof-context-command
+    proof-help-string -> proof-info-command
+    proof-prf-string  -> proof-showproof-command
 
 * Code cleanups and improvements.
 

@@ -425,13 +425,13 @@
   (setq proof-guess-command-line 'coq-guess-command-line)
 
   ;; Commands sent to proof engine
-  (setq proof-prf-string "Show"
-	proof-ctxt-string "Print All"
+  (setq proof-proof-command "Show"
+	proof-context-command "Print All"
 	proof-goal-command "Goal %s."
 	proof-save-command "Save %s."
 	proof-find-theorems-command "Search %s."
 ;; FIXME da: Does Coq have a help or about command?
-;;	proof-help-string "Help"
+;;	proof-info-command "Help"
 	proof-kill-goal-command coq-kill-goal-command)
 
   (setq proof-goal-command-p 'coq-goal-command-p

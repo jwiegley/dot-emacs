@@ -158,11 +158,11 @@
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
    proof-indent-commands-regexp	isar-indent-regexp
    ;; proof engine commands
-   proof-prf-string		"pr"
+   proof-proof-command		"pr"
    proof-goal-command		"lemma \"%s\";"
    proof-save-command		"qed"
-   proof-ctxt-string		"print_context"
-   proof-help-string		"help"
+   proof-context-command		"print_context"
+   proof-info-command		"help"
    proof-kill-goal-command	"kill_proof;"
    proof-find-theorems-command  "thms_containing %s;"
    ;; command hooks

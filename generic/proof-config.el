@@ -437,17 +437,17 @@ command line options.  For an example, see coq/coq.el."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-ctxt-string ""
+(defcustom proof-context-command ""
   "Command to display the context in proof assistant."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-help-string ""
-  "Command to ask for help in proof assistant."
+(defcustom proof-info-command ""
+  "Command to ask for help or information in the proof assistant."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-prf-string ""
+(defcustom proof-proof-command ""
   "Command to display proof state in proof assistant."
   :type 'string
   :group 'prover-config)

@@ -128,11 +128,11 @@ no regular or easily discernable structure."
    proof-indent-commands-regexp	(proof-ids-to-regexp isa-keywords)
    
    ;; proof engine commands
-   proof-prf-string		"pr()"
+   proof-proof-command		"pr()"
    proof-goal-command		"Goal \"%s\";"
    proof-save-command		"qed \"%s\";"
-   proof-ctxt-string		"ProofGeneral.show_context()"
-   proof-help-string		"ProofGeneral.help()"
+   proof-context-command		"ProofGeneral.show_context()"
+   proof-info-command		"ProofGeneral.help()"
    proof-kill-goal-command	"ProofGeneral.kill_goal();"
    proof-find-theorems-command  "ProofGeneral.thms_containing [\"%s\"]"
    ;; command hooks
