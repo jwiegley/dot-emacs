@@ -210,7 +210,8 @@ For Emacs, we assume that spans don't overlap."
 
 ;; The next two change ordering of list of spans:
 (defsubst set-span-endpoints (span start end)
-  "Set the endpoints of SPAN to START, END."
+  "Set the endpoints of SPAN to START, END.
+Re-attaches SPAN if it was removed from the buffer."
   (remove-span span)
   (move-overlay span start end)
   (add-span span))
