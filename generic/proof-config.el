@@ -148,7 +148,7 @@ done if this `proof-strict-state-preserving' is turned off (nil)."
   ;; conjunction with font-lock.
   ;; The second conjunctive ensures that the expression is either
   ;; `nil' or `strict' (and not 15!!).  
-  (and (string-match "XEmacs" emacs-version) 'strict)
+  (and proof-running-on-XEmacs 'strict)
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
@@ -1884,9 +1884,9 @@ Proof General."
 "    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
      or use the menu command Proof-General -> Submit bug report."
     nil
-    (unless (string-match "XEmacs" emacs-version)
+    (unless proof-running-on-XEmacs
       "For a better Proof General experience, please use XEmacs")
-    (unless (string-match "XEmacs" emacs-version)
+    (unless proof-running-on-XEmacs
       "(visit  http://www.xemacs.org)"))
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image

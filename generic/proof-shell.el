@@ -266,7 +266,7 @@ Does nothing if proof assistant is already running."
 ;; 
 
 (defcustom proof-shell-active-scripting-indicator
-  (if (string-match "XEmacs" emacs-version)
+  (if proof-running-on-XEmacs
       (cons (make-extent nil nil) " Scripting ")
     " Scripting")
   "Modeline indicator for active scripting buffer.
@@ -276,7 +276,7 @@ of the queue region."
   :group 'proof-general-internals)
 
 (cond
- ((string-match "XEmacs" emacs-version)
+ (proof-running-on-XEmacs
   (if (extentp (car proof-shell-active-scripting-indicator))
       (set-extent-properties
        (car proof-shell-active-scripting-indicator)
@@ -986,7 +986,7 @@ the proof assistant."
 (defvar proof-shell-insert-space-fudge 
   (cond
    ((string-match "21.*XEmacs" emacs-version) " ")
-   ((string-match "XEmacs" emacs-version) "")
+   (proof-running-on-XEmacs "")
    (t " "))
   "String to insert after setting proof marker to prevent it moving.
 Allows for a difference between different versions of comint across
@@ -1937,7 +1937,7 @@ May enable proof-by-pointing or similar features.
   ;; defined-derived-mode proof-goals-mode initialises proof-goals-mode-map
   (setq proof-buffer-type 'goals)
   (cond 
-   ((string-match "XEmacs" emacs-version)
+   (proof-running-on-XEmacs
     (define-key proof-goals-mode-map [(button2)] 'pbp-button-action)
     (define-key proof-goals-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
     ;; button 2 is a nuisance on 2 button mice, so we'll do 1 as well.
