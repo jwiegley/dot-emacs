@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.24  1998/05/22 11:31:33  hhg
+;; Correct path for coq-prog-name and coq-tags.
+;;
 ;; Revision 1.23  1998/05/15 16:16:55  hhg
 ;; Changed variable names [s]ext to span.
 ;; Fixed coq-find-and-forget pattern for declarations and definitions
@@ -118,7 +121,7 @@
 (defconst coq-mode-version-string
   "Coq-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
 
-(defvar coq-tags "/usr/local/lib/coq/V6.2/theories/TAGS"
+(defvar coq-tags "/usr/local/lib/coq/theories/TAGS"
   "the default TAGS table for the Coq library")
 
 (defconst coq-info-dir "/usr/local/share/info")
