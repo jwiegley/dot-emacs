@@ -20,7 +20,8 @@
 ;; FIXME: Loading several prover files at once is a bit of a problem
 ;; with new config mechanism.
 ;; Could abstract more code in proof-site.el to avoid duplication here.
-(let ((assistants proof-assistants))	; assume not customized
+(let ((assistants (mapcar (function car) proof-assistant-table)))
+					; assume not customized
   (while assistants
     (let*  
 	((assistant (car assistants))	; compiler bogus warning here
