@@ -31,11 +31,14 @@ If in three window or multiple frame mode, display both buffers."
 	 (get-buffer-window proof-response-buffer 'visible))
     ;; Response buffer visible, let's display goals
     (proof-switch-to-buffer proof-goals-buffer 'noselect))
-   (t
+   ((buffer-live-p proof-response-buffer)
     ;; Response buffer invisible, let's display it
     (proof-switch-to-buffer proof-response-buffer 'noselect)
     (set-window-point (get-buffer-window proof-response-buffer)
-		      (point-max)))))
+		      (point-max)))
+   (t
+    ;; No buffers existing, do nothing (might crank up process)
+    nil)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
