@@ -129,7 +129,8 @@ tag:
 	@echo "*************************************************"
 	if [ -n "`cvs -n -q update`" ]; then exit 1; fi
 	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/defconst proof-general-version\n \".*\"/defconst proof-general-version\n \"Proof General, Version $(RELEASE_TAG) released by da,tms. Email proofgen@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
-	cvs commit -m"Set version tag for release." generic/proof-site.el
+	(cd html; mv download.html download.html.old; sed -e 's|Current Release version: .*</b>|Current Release version: $(RELEASE_TAG)</b>|g' download.html.old > download.html; rm download.html.old)
+	cvs commit -m"Set version tag for release." generic/proof-site.el html/download.html
 	cvs tag "Release-$(CVS_RELEASE_TAG)"
 
 
