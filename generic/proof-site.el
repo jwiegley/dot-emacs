@@ -113,7 +113,7 @@ providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
 To avoid accidently invoking a proof assistant you don't have,
 only select the proof assistants you (or your site) may need.
-NOTE: to change proof assistant, you must start a new Emacs session.")
+Note: to change proof assistant, you must start a new Emacs session.")
   :type (cons 'set 
 	      (mapcar (lambda (astnt)
 			(list 'const ':tag (car (cdr astnt)) (car astnt)))
