@@ -9,6 +9,48 @@ EXPORTDIR = /home/lego/pub/emacs
 RELEASENAME = emacs-2.0
 TRELEASENAME = $(RELEASENAME).tar
 
+EMACS=xemacs
+
+# Byte compilation command
+BYTECOMP = $(EMACS) -batch -q -f batch-byte-compile
+
+FILES_NONCVS = ChangeLog
+
+FORCE:
+
+############################################################
+#
+# Re-Build ChangeLog.  CVSROOT must be set correctly.
+# Correct dependency would be to check repository for changes!
+#
+ChangeLog:	FORCE
+	rm -f ChangeLog
+	$(EMACS) -batch -q -f vc-update-change-log -f save-buffer
+
+
+
+############################################################
+#
+# Clean up for cvs (developer only)
+#
+# Idea is to remove all ?'s from 'cvs update' output.
+#
+cvsclean:	clean
+	rm -f $(FILES_NONCVS)
+
+
+############################################################
+#
+# Clean 
+#
+clean:	
+
+
+
+############################################################
+#
+# Build new release
+#
 release :
 		     cd /tmp; \
 		     rm -fr lego;\
