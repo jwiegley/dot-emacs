@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.26  1997/10/24 14:51:11  hhg
+;; New indentation for lego-count-undos (smile)
+;;
 ;; Revision 1.25  1997/10/16 08:46:16  tms
 ;; o merged script management (1.20.2.11) on the main branch
 ;; o fixed a bug in lego-find-and-forget due to new treatment of comments
@@ -256,16 +259,16 @@
       (setq str (span-property sext 'cmd))
       (cond ((eq (span-property sext 'type) 'vanilla)
 	     (if (or (string-match lego-undoable-commands-regexp str)
-		(and (string-match "Equiv" str)
-		     (not (string-match "Equiv\\s +[TV]Reg" str))))
-	    (setq ct (+ 1 ct))))
+		     (and (string-match "Equiv" str)
+			  (not (string-match "Equiv\\s +[TV]Reg" str))))
+		 (setq ct (+ 1 ct))))
 	    ((eq (span-property sext 'type) 'pbp)
 	     (setq i 0)
 	     (while (< i (length str)) 
 	       (if (= (aref str i) proof-terminal-char) (setq ct (+ 1 ct)))
 	       (setq i (+ 1 i)))))
       (setq sext (next-span sext 'type)))
-  (concat "Undo " (int-to-string ct) proof-terminal-string)))
+    (concat "Undo " (int-to-string ct) proof-terminal-string)))
 
 (defun lego-find-and-forget (sext) 
   (let (str ans)
