@@ -132,6 +132,11 @@ read.")
 (defvar proof-response-buffer nil
   "The response buffer.")
 
+(defvar proof-shell-error-or-interrupt-seen nil
+  "Flag indicating that an error or interrupt has just occurred.
+Set to 'error or 'interrupt if one was observed from the proof 
+assistant during the last group of commands.")
+
 (defvar proof-shell-proof-completed nil
   "Flag indicating that a completed proof has just been observed.
 If non-nil, the value counts the commands from the last command
@@ -408,7 +413,9 @@ The warning is coloured with proof-warning-face."
 If proof-show-debug-messages is nil, do nothing."
   (if proof-show-debug-messages
       (progn
-	(proof-response-buffer-display (apply 'concat args) 
+	(proof-response-buffer-display (apply 'concat 
+					      "PG debug: " 
+					      args)
 				       'proof-debug-message-face)
 	(proof-display-and-keep-buffer proof-response-buffer))))
 

@@ -44,9 +44,6 @@
 	    proof-shell-invisible-command)))
 ;; proof-response-buffer-display now in proof.el, removed from above.
 
-;; FIXME: *variable* proof-shell-proof-completed is declared in proof-shell
-;; and used here.  Should be moved to proof.el or removed from here.
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Internal variables used by script mode
@@ -342,7 +339,7 @@ Must be an active scripting buffer."
 
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of it.
-A possible hook function for proof-shell-handle-error-hook.
+A possible hook function for proof-shell-handle-error-or-interrupt-hook.
 Does nothing if there is no active scripting buffer."
   (interactive)
   (if proof-script-buffer
@@ -813,9 +810,28 @@ correct theory, or whatever."
       ;; to block.   NB: The hook function may send commands to the
       ;; process which will re-enter this function, but should exit 
       ;; immediately because scripting has been turned on now.
-      (let
-	  ((activated-interactively	(interactive-p)))
-	(run-hooks 'proof-activate-scripting-hook))))))
+      (if proof-activate-scripting-hook
+	  (let
+	      ((activated-interactively	(interactive-p)))
+	    ;; Clear flag in case no hooks run shell commands
+	    (setq proof-shell-error-or-interrupt-seen nil)
+	    (run-hooks 'proof-activate-scripting-hook)
+	    ;; In case the activate scripting functions
+	    ;; caused an error in the proof assistant, we'll
+	    ;; consider activating scripting to have failed,
+	    ;; and raise an error here.
+	    ;; (Since this behaviour is intimate with the hook functions,
+	    ;;  it could be removed and left to implementors of 
+	    ;;  specific instances of PG).
+	    ;; FIXME: we could consider simply running the hooks
+	    ;; as the last step before turning on scripting properly,
+	    ;; provided the hooks don't inspect proof-script-buffer.
+	    (if proof-shell-error-or-interrupt-seen
+		(progn
+		  (proof-deactivate-scripting) ;; turn it off again!
+		  ;; Give an error to prevent further actions.
+		  (error "Proof General: Scripting not activated because of error or interrupt.")))))))))
+
 
 (defun proof-toggle-active-scripting (&optional arg)
   "Toggle active scripting mode in the current buffer.
@@ -904,7 +920,7 @@ With ARG, turn on scripting iff ARG is positive."
 
 ;; da: NEW function added 28.10.98.
 ;; This is used by toolbar follow mode (which used to use the function
-;; above).  [But wouldn't work for proof-shell-handle-error-hook?].
+;; above).  [But wouldn't work for proof-shell-handle-error-or-interrupt-hook?].
 
 (defun proof-goto-end-of-queue-or-locked-if-not-visible ()
   "Jump to the end of the queue region or locked region if it isn't visible.
@@ -1742,6 +1758,15 @@ value of proof-locked span."
   "Remove all spans from scripting buffers via proof-restart-buffers."
   (proof-restart-buffers (proof-script-buffers-with-spans)))
 
+(defun proof-script-clear-queue-spans ()
+  "If there is an active scripting buffer, remove the queue span from it.
+This is a subroutine used in proof-shell-handle-{error,interrupt}."
+  (if proof-script-buffer
+      (with-current-buffer proof-script-buffer
+	(proof-detach-queue)
+	;; FIXME da: point-max seems a bit excessive here,
+	;; proof-queue-or-locked-end should be enough.
+	(delete-spans (proof-locked-end) (point-max) 'type))))
 
 ;; A command for making things go horribly wrong - it moves the
 ;; end-of-locked-region marker backwards, so user had better move it

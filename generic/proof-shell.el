@@ -37,6 +37,7 @@
 	    proof-detach-queue 
 	    proof-locked-end 
 	    proof-set-queue-endpoints
+	    proof-script-clear-queue-spans
 	    proof-file-to-buffer 
 	    proof-register-possibly-new-processed-file
 	    proof-restart-buffers)))
@@ -167,24 +168,18 @@ No error messages.  Useful as menu or toolbar enabler."
 (defun proof-grab-lock (&optional queuemode)
   "Grab the proof shell lock, starting the proof assistant if need be.
 Runs proof-state-change-hook to notify state change.
+Clears the proof-shell-error-or-interrupt-seen flag.
 If QUEUEMODE is supplied, set the lock to that value."
   (proof-shell-ready-prover)
+  (setq proof-shell-error-or-interrupt-seen nil)
   (setq proof-shell-busy (or queuemode t))
   (run-hooks 'proof-state-change-hook))
 
-(defun proof-release-lock ()
-  "Release the proof shell lock."
-  ; da: this test seems somewhat worthless
-  ; (if (proof-shell-live-buffer)
-  ; (progn
-	; da: Removed this so that persistent users are allowed to
-	; type in the process buffer without being hassled.
-	;(if (not proof-shell-busy)
-	;    (error "Bug in proof-release-lock: Proof process not busy"))
-	; da: Removed this now since some commands run from other
-	; buffers may claim process lock.
-	; (if (not (eq (current-buffer) proof-script-buffer))
-	; (error "Bug in proof-release-lock: Don't own process"))
+(defun proof-release-lock (&optional err-or-int)
+  "Release the proof shell lock, with error or interrupt flag ERR-OR-INT.
+Clear proof-shell-busy, and set proof-shell-error-or-interrupt-seen
+to err-or-int."
+  (setq proof-shell-error-or-interrupt-seen err-or-int)
   (setq proof-shell-busy nil))
 
 
@@ -306,6 +301,11 @@ Does nothing if proof assistant is already running."
 	;; present.
 	(and (fboundp 'toggle-enable-multibyte-characters)
 	     (toggle-enable-multibyte-characters -1))
+	
+	;; Initialise shell mode 
+	;; Q: should this be done every time the process is started?
+	;; A: yes, it does the process initialization, which is a bit
+	;; odd (would expect it to be done here, maybe).
 
 
 	(funcall proof-mode-for-shell)
@@ -410,10 +410,12 @@ exited by hand (or exits by itself)."
       (if proc (set-process-sentinel proc nil))
       ;; Restart all scripting buffers
       (proof-script-remove-all-spans-and-deactivate)
-      ;; Clear state
+      ;; Clear state (some of these not strictly necessary)
       (setq proof-included-files-list nil
 	    proof-shell-busy nil
-	    proof-shell-proof-completed nil)
+	    proof-shell-proof-completed nil
+	    proof-shell-error-or-interrupt-seen nil
+	    proof-shell-action-list nil)
       ;; Kill buffers associated with shell buffer
       (if (buffer-live-p proof-goals-buffer)
 	  (progn 
@@ -452,11 +454,11 @@ All locked regions are cleared and the active scripting buffer
 deactivated.  
 
 If the proof shell is busy, an interrupt is sent with
-proof-interrupt-process and we wait until the process is ready. 
+proof-interrupt-process and we wait until the process is ready.
 
 The restart command should re-synchronize Proof General with the proof
 assistant, without actually exiting and restarting the proof assistant
-process.  
+process.
 
 It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be \"cached\" in some way,
@@ -472,8 +474,9 @@ object files, used by Lego and Coq)."
   (proof-script-remove-all-spans-and-deactivate)
   (setq proof-included-files-list nil
 	proof-shell-busy nil
-	proof-shell-proof-completed nil
-	proof-action-list nil)
+	proof-action-list nil
+	proof-shell-error-or-interrupt-seen nil
+	proof-shell-proof-completed nil)
   (if (and (buffer-live-p proof-shell-buffer)
 	   proof-shell-restart-cmd)
 	   (proof-shell-invisible-command
@@ -906,18 +909,20 @@ See the documentation for `proof-shell-delayed-output' for further details."
 ;;
 ;; 
 
+
+
 ;; FIXME da: the magical use of "Done." and "done" as values in
 ;; proof-shell-handled-delayed-output is horrendous.  Should
 ;; be changed to something more understandable!!
 
 (defun proof-shell-handle-error (cmd string)
   "React on an error message triggered by the prover.
-Called with shell buffer current.
 We first flush unprocessed goals to the goals buffer.
-The error message is displayed in the `proof-response-buffer'.
-Then we call `proof-shell-handle-error-hook'. "
+The error message is displayed in the responsebuffer.
+Then we call `proof-shell-error-or-interrupt-action', which see."
 
-  ;; flush goals
+  ;; FIXME: this is messy, should be done in a subroutine.
+  ;; Why not also for interrupts anyway?
   (unless
       (equal proof-shell-delayed-output (cons 'insert "Done."))
     (save-excursion
@@ -934,11 +939,6 @@ Then we call `proof-shell-handle-error-hook'. "
 ;        (proof-fontify-region (point-min) (point-max))
 ;	(proof-display-and-keep-buffer proof-goals-buffer)))
 
-  ;; This prevents problems if the user types in the
-  ;; shell buffer: without it the same error is seen by
-  ;; the proof-shell filter over and over.
-  (setq proof-action-list nil)
-
   ;; Perhaps we should erase the buffer in proof-response-buffer, too?
 
     ;; We extract all text between text matching
@@ -953,32 +953,37 @@ Then we call `proof-shell-handle-error-hook'. "
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
    'proof-error-face)
 
-  
-  (save-excursion ;current-buffer
-    (proof-display-and-keep-buffer proof-response-buffer)
-		  (beep)
+  (proof-display-and-keep-buffer proof-response-buffer)
+  (proof-shell-error-or-interrupt-action 'error))
 
-		  ;; unwind script buffer
-		  (if proof-script-buffer
-		      (with-current-buffer proof-script-buffer
-			(proof-detach-queue)
-			(delete-spans (proof-locked-end) (point-max) 'type)))
-		  (proof-release-lock)
-		  (run-hooks 'proof-shell-handle-error-hook)))
-
-;; FIXME da: this function is a mess.
 (defun proof-shell-handle-interrupt ()
+   "React on an interrupt message from the prover.
+ Runs proof-shell-error-or-interrupt-action."
   (proof-shell-maybe-erase-response t t t)
+  (proof-shell-handle-output
+   proof-shell-interrupt-regexp proof-shell-annotated-prompt-regexp
+   'proof-error-face)
+;  (proof-display-and-keep-buffer proof-response-buffer)
   (proof-warning 
    "Interrupt: script management may be in an inconsistent state")
-  (beep)
-  (if (and proof-shell-busy proof-script-buffer)
-      (with-current-buffer proof-script-buffer
-	(proof-detach-queue)
-	;; FIXME: point-max seems a bit excessive here
-	(delete-spans (proof-locked-end) (point-max) 'type)))
-  (setq proof-action-list nil)
-  (proof-release-lock))
+  (proof-shell-error-or-interrupt-action 'interrupt))
+
+(defun proof-shell-error-or-interrupt-action (&optional err-or-int)
+  "General action when an error or interrupt message appears from prover.
+A subroutine for proof-shell-handle-interrupt and proof-shell-handle-error.
+
+We sound a beep, clear queue spans and proof-action-list, and set the flag 
+proof-shell-error-or-interrupt-seen to the ERR-OR-INT argument.
+Then we call `proof-shell-handle-error-or-interrupt-hook'."
+  (save-excursion			;; for safety.
+    (beep)
+    ;; NB: previously for interrupt, clear-queue-spans 
+    ;; was only called if shell busy.  Any harm calling it always?
+    (proof-script-clear-queue-spans) 
+    (setq proof-action-list nil)
+    (proof-release-lock err-or-int)
+    ;; New: this is called for interrupts too.
+    (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, return the start of it if corresponds to a goal, nil otherwise."
@@ -1211,14 +1216,7 @@ The queue mode is set to 'advancing"
   (proof-append-alist alist 'advancing))
 
 
-; returns t if it's run out of input
 
-
-;; 
-;; The loop looks like: Execute the
-; command, and if it's successful, do action on span.  If the
-; command's not successful, we bounce the rest of the queue and do
-; some error processing.
 
 (defun proof-shell-exec-loop () 
   "Process the proof-action-list.
@@ -1234,7 +1232,12 @@ the action list becomes empty, unlock the process and remove the queue
 region.
 
 The return value is non-nil if the action list is now empty."
-  (or (not proof-action-list)		; exit immediately if finished.
+  ;; The loop looks like: Execute the
+  ;; command, and if it's successful, do action on span.  If the
+  ;; command's not successful, we bounce the rest of the queue and do
+  ;; some error processing.
+
+  (unless (not proof-action-list)		; exit immediately if finished.
       (save-excursion
 	;; Switch to active scripting buffer if there is one.
 	(if proof-script-buffer
@@ -1597,8 +1600,16 @@ however, are always processed; hence their name)."
 		      ;; (proof-fontify-region startpos (point))
 		      (setq string (buffer-substring startpos (point)))
 		      (goto-char (point-max))	
-		      (proof-shell-filter-process-output string)))))))))
-
+		      (proof-shell-filter-process-output string))))
+	    ;; If proof-action-list is empty, make sure the process lock
+	    ;; is not held!  This should solve continual "proof shell busy"
+	    ;; error messages which sometimes occur during development,
+	    ;; at least.
+	    (if proof-shell-busy
+		(progn
+		  (proof-debug 
+		   "proof-shell-filter found empty action list yet proof shell busy.")
+		  (proof-clear-lock))))))))
 
 
 (defun proof-shell-filter-process-output (string)
@@ -1670,13 +1681,13 @@ XEmacs only."
 ;; proof-shell-invisible-command: used to implement user-level commands.
 ;;
 
-(defun proof-shell-wait ()
-  "Busy wait for proof-shell-busy to become nil.
+(defun proof-shell-wait (&optional timeout)
+  "Busy wait for proof-shell-busy to become nil, or for TIMEOUT seconds.
 Needed between sequences of commands to maintain synchronization,
-because Proof General does not allow for the action list to be extended.
-May be called by proof-shell-invisible-command."
+because Proof General does not allow for the action list to be extended
+in some cases.   May be called by proof-shell-invisible-command."
   (while proof-shell-busy
-    (accept-process-output nil)
+    (accept-process-output nil timeout)
     (sit-for 0)))
 
 
@@ -1719,9 +1730,15 @@ before and after sending the command."
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof General shell mode class for proof assistant processes"
   (setq proof-buffer-type 'shell)
-  (setq proof-shell-busy nil)
-  (setq proof-shell-delayed-output (cons 'insert "done"))
-  (setq proof-shell-proof-completed nil)
+  
+  ;; Clear state
+  (setq proof-shell-busy nil
+	proof-shell-delayed-output (cons 'insert "done")
+	proof-shell-proof-completed nil
+	;; FIXME: these next two probably not necessary
+	proof-shell-error-or-interrupt-seen nil
+	proof-shell-action-list nil)
+
   (make-local-variable 'proof-shell-insert-hook)
 
   ;; comint customisation. comint-prompt-regexp is used by

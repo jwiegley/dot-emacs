@@ -476,10 +476,10 @@ Given is the first SPAN which needs to be undone."
 
   (add-hook 'proof-pre-shell-start-hook    'plastic-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook       'plastic-shell-adjust-line-width)
-  (add-hook 'proof-shell-handle-error-hook 'plastic-had-error)
+  (add-hook 'proof-shell-handle-error-or-interrupt-hook 'plastic-had-error)
   (add-hook 'proof-shell-insert-hook       'plastic-preprocessing)
 
-;; (add-hook 'proof-shell-handle-error-hook 
+;; (add-hook 'proof-shell-handle-error-or-interrupt-hook 
 ;; (lambda()(goto-char (search-forward (char-to-string  proof-terminal-char)))))
 
 ;;  (add-hook 'proof-shell-handle-delayed-output-hook `plastic-show-shell-buffer t)
@@ -678,7 +678,8 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-had-error ()
     "sets var plastic-error-occurred, called from hook"
-    (setq plastic-error-occurred t))
+    (if (eq proof-shell-error-or-interrupt-seen 'error)
+	(setq plastic-error-occurred t)))
 (defun plastic-reset-error ()
     "UNsets var plastic-error-occurred, before minibuffer or try cmd"
     (setq plastic-error-occurred nil))

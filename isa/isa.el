@@ -257,7 +257,22 @@ and script mode."
    (format "ProofGeneral.%supdate_thy_only \"%s\";"
 	   (if try "try_" "") (file-name-sans-extension file))
    wait))
-  
+
+;; Experiments for background non-blocking loading of theory: this is
+;; quite difficult, actually: we need to set a callback from 
+;; proof-done-invisible to take the final step in switching on
+;; scripting.  We may be able to pass the hook argument into the
+;; action list using the "span" argument which means nothing for
+;; invisible command usually.
+
+;(defun isa-update-error (&rest args)
+;  "Callback for proof-invisible-command.
+;In case an update leads to an error/interrupt in Isabelle, 
+;we make sure scripting is deactivated and raise an elisp error."
+;  (if proof-shell-error-or-interrupt-seen
+;      (proof-deactivate-scripting))
+;  (proof-shell-done-invisible "Isabelle Proof General: error during use_thy, scripting not activated!"))
+
 (defun isa-shell-update-thy ()
   "Possibly issue update_thy_only command to Isabelle.
 If the current buffer has an empty locked region, the interface is
@@ -278,8 +293,9 @@ This is a hook function for proof-activate-scripting-hook."
 	(isa-update-thy-only buffer-file-name t 
 			     ;; whether to block or not
 			     (if (and (boundp 'activated-interactively)
-				      activated-interactively)
-				 nil t))
+					activated-interactively)
+				 t ; was nil, but will falsely leave Scripting on! 
+			       t))
 	;; Leave the messages from the update around.
 	(setq proof-shell-erase-response-flag nil))))
 

@@ -1353,9 +1353,11 @@ its friends configured in the function proof-shell-start."
   :type '(repeat function)
   :group 'proof-shell)
 
-(defcustom proof-shell-handle-error-hook
+(defcustom proof-shell-handle-error-or-interrupt-hook
   '(proof-goto-end-of-locked-if-pos-not-visible-in-window)
-  "Hooks run after an error has been reported in the response buffer."
+  "Run after an error or interrupt has been reported in the response buffer.
+Hook functions may inspect `proof-shell-error-or-interrupt-seen' to 
+determine whether the cause was an error or interrupt."
   :type '(repeat function)
   :group 'proof-shell)
 

@@ -1157,11 +1157,11 @@ All locked regions are cleared and the active scripting buffer
 deactivated.  
 
 If the proof shell is busy, an interrupt is sent with
-@code{proof-interrupt-process} and we wait until the process is ready. 
+@code{proof-interrupt-process} and we wait until the process is ready.
 
 The restart command should re-synchronize Proof General with the proof
 assistant, without actually exiting and restarting the proof assistant
-process.  
+process.
 
 It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be "cached" in some way,
@@ -1275,11 +1275,11 @@ All locked regions are cleared and the active scripting buffer
 deactivated.  
 
 If the proof shell is busy, an interrupt is sent with
-@code{proof-interrupt-process} and we wait until the process is ready. 
+@code{proof-interrupt-process} and we wait until the process is ready.
 
 The restart command should re-synchronize Proof General with the proof
 assistant, without actually exiting and restarting the proof assistant
-process.  
+process.
 
 It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be "cached" in some way,
@@ -3302,9 +3302,11 @@ shell variables:
 This is the bare minimum needed to get a shell buffer and
 its friends configured in the function @code{proof-shell-start}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-handle-error-hook
-@defvar proof-shell-handle-error-hook 
-Hooks run after an error has been reported in the response buffer.
+@c TEXI DOCSTRING MAGIC: proof-shell-handle-error-or-interrupt-hook
+@defvar proof-shell-handle-error-or-interrupt-hook 
+Run after an error or interrupt has been reported in the response buffer.@*
+Hook functions may inspect @samp{@code{proof-shell-error-or-interrupt-seen}} to 
+determine whether the cause was an error or interrupt.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output-system-specific
@@ -3926,6 +3928,14 @@ If non-nil, the value counts the commands from the last command
 of the proof (starting from 1).
 @end defvar
 
+@c TEXI DOCSTRING MAGIC: proof-shell-error-or-interrupt-seen
+
+
+@defvar proof-shell-error-or-interrupt-seen 
+Flag indicating that an error or interrupt has just occurred.@*
+Set to @code{'error} or @code{'interrupt} if one was observed from the proof 
+assistant during the last group of commands.
+@end defvar
 The @file{proof.el} also loads @file{proof-config.el} which declares the
 proof assistant configuration variables for Proof General.
 For details, @xref{Adapting Proof General to Other Provers}.
@@ -4287,11 +4297,11 @@ All locked regions are cleared and the active scripting buffer
 deactivated.  
 
 If the proof shell is busy, an interrupt is sent with
-@code{proof-interrupt-process} and we wait until the process is ready. 
+@code{proof-interrupt-process} and we wait until the process is ready.
 
 The restart command should re-synchronize Proof General with the proof
 assistant, without actually exiting and restarting the proof assistant
-process.  
+process.
 
 It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be "cached" in some way,
