@@ -592,6 +592,7 @@ NAME does not need to be unique."
     ;; (sit-for 0) not enough
     (redraw-frame (selected-frame))))
 
+;; Next two could be in pg-user.el.  No key-bindings for these.
 (defun pg-show-all-proofs ()
   "Display all completed proofs in the buffer."
   (interactive)
@@ -601,7 +602,6 @@ NAME does not need to be unique."
   "Hide all completed proofs in the buffer."
   (interactive)
   (pg-show-all-portions "proof" 'hide))
-
 
 (defun pg-add-proof-element (name span controlspan)
   "Add a nested span proof element."
