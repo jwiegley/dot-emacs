@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.33  1998/01/05 14:59:03  tms
+;; fixed a bug in the indenting functions
+;;
 ;; Revision 1.32  1997/11/26 14:15:21  tms
 ;; o simplified code:
 ;;     lego-goal-with-hole-regexp and lego-save-with-hole-regexp is now
@@ -474,7 +477,8 @@
   (interactive)
   (save-excursion
     (beginning-of-line)
-    (if (< (point) (proof-locked-end))
+    (if (and (eq proof-script-buffer (current-buffer))
+	     (< (point) (proof-locked-end)))
 	(error "can't indent locked region!"))
     (let* ((state (lego-parse-to-point))
 	   (beg (point))
@@ -492,7 +496,8 @@
   (save-excursion
     (goto-char start)
     (beginning-of-line)
-    (if (< (point) (proof-locked-end))
+    (if (and (eq proof-script-buffer (current-buffer))
+	     (< (point) (proof-locked-end)))
 	(error "can't indent locked region!"))
     (let* ((beg (point))
 	   (state (lego-parse-to-point))
