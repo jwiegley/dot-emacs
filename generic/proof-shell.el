@@ -1583,6 +1583,7 @@ before and after sending the command."
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
   ;; (define-key pbp-mode-map [(button2)] 'pbp-button-action)
+  ;; FIXME da: add a menu here?
   (erase-buffer)))
 
 (eval-and-compile
