@@ -9,7 +9,8 @@
 <a href="#prerel">Below</a> is the latest pre-release of Proof General,
 made available for those who wish to test the latest features or bug
 fixes.  For developers, this release is also available as a 
-<a href="#devel">complete CVS snapshot (further below)</a>.
+<a href="#devel">complete CVS snapshot</a> (further below), which
+includes files not needed for the running program.
 </p>
 <p>
 Pre-releases of Proof General may be buggy as we add new features and
