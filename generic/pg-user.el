@@ -1048,9 +1048,11 @@ The function `substitute-command-keys' is called on the argument."
 			    (save-excursion
 			      (mouse-set-point event)
 			      (current-word))))))
-	(proof-shell-invisible-command 
-	 (format proof-shell-identifier-under-mouse-cmd
-		 identifier)))))
+	(unless (or (null identifier)
+		    (string-equal identifier ""))
+	  (proof-shell-invisible-command 
+	   (format proof-shell-identifier-under-mouse-cmd
+		   identifier))))))
 				    
 
 
