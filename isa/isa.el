@@ -184,7 +184,7 @@ and script mode."
    ;;        set somewhere else.  
    proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
 
-   proof-shell-start-goals-regexp	"\366\n"
+   proof-shell-start-goals-regexp	"\366"
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
 
@@ -684,9 +684,9 @@ you will be asked to retract the file or process the remainder of it.
 ;;
 
 (setq proof-xsym-extra-modes
-      '(isasym-mode ; necessary?
-	thy-mode
-	shell-mode) ; necessary?
+      '(isasym-mode			; FIXME: necessary?
+	thy-mode			; FIXME: necessary?
+	shell-mode)			; FIXME: necessary?
       proof-xsym-font-lock-keywords
       '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
       proof-xsym-activate-command
