@@ -25,6 +25,11 @@ Install legotags in a standard place or add <proofgeneral-home>/lego
 to your PATH.
 NB: You may need to change the path to perl at the top of the file.
 
+Generate a TAGS file for the Lego library by running
+	legotags `find . -name \*.l -print`
+in the root directory of the library.
+
+
 
 ========================================
 
