@@ -16,18 +16,32 @@ See COPYING for license details.
 
 See doc/ for documentation of Proof General.
 
+For notes on the supported assistants, see the subdirectories,
+
+     isa/   Isabelle
+    isar/   Isabelle/Isar
+     coq/   Coq
+    lego/   LEGO
+   hol98/   HOL 98
+ plastic/   Plastic
+
+
 For the latest news and downloads, check the Proof General web page
-at: http://www.dcs.ed.ac.uk/home/proofgen
+at: http://www.lfcs.informatics.ed.ac.uk/proofgen
 
 
 David Aspinall.
-November 1999.
+March 2000.
+
+----
 
 NEWSFLASH:
 
 Temporarily, all Proof General pages are hosted on the server
-zermelo.dcs.ed.ac.uk, so replace "www" by "zermelo" in all
-URLs mentioned in the sources and documentation.
+zermelo.dcs.ed.ac.uk, so replace "www.dcs" or "www.lfcs.informatics"
+by "zermelo.dcs" in all URLs mentioned in the sources and
+documentation.  (There is an indirection via www.lfcs.informatics but
+it is not totally reliable, unfortunately)
 
 
 
