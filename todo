@@ -48,11 +48,6 @@ A* Fixup multiple files -- needs debugging.
 B Improve web pages after suggestions in doc/notes.txt
   (da, 1.5hrs)
 
-C Remove .gif, .jpg, .xpm, .xbm files from the CVS repository.  Add 
-  .cvsignore's for them instead.  Disadvantage: developers will need
-  to have the Gimp installed to build them via 'make images'
-  (or copy them from the latest download).   (da, 1hr)
-
 C proof-issue-goal should refuse to work when a proof is in progress.
   Similarly proof-issue-save should refuse to work when a proof
   hasn't been completed! Algorithm: Search the last goal and check
@@ -162,20 +157,11 @@ C Investigate and improve indentation/font-locking code.
   *very* slow.  Moreover the indentation is screwy.  Also
   seems screwy in LEGO/Coq PG.  (da, 2hr)
 
-X toolbar icons: Automatically generate reduced and
-  pressed/greyed-out versions from gimp xcf files.  Keep the
-  xcf files under CVS rather than xpm files.  (2h, da)
-
 C Better support for adding a new prover: give error messages which
   hint at what variable to set (see proof-issue-goal for example).
 
 C Functions for next,previous input a la shell mode, but in proof
   script buffer (3h, da).
-
-X Read-only mode of extents sometimes gets in the way: for example,
-  if file changes on disk, can't reload it via usual functions.
-  Can this be improved?  Always have to retract first, and that
-  always leaves stuff around.
 
 C User-level functions: 
   1. add new version of undo-until-point which behaves analogously to 
@@ -244,6 +230,20 @@ D Remove duplication of variables e.g., proof-prog-name and
 C Make completion more generic. For Isabelle and Lego, we can build a
   completion table by querying the process, which is better than
   messing with tags.
+
+X Read-only mode of extents sometimes gets in the way: for example,
+  if file changes on disk, can't reload it via usual functions.
+  Can this be improved?  Always have to retract first, and that
+  always leaves stuff around.
+
+X toolbar icons: Automatically generate reduced and
+  pressed/greyed-out versions from gimp xcf files.  Keep the
+  xcf files under CVS rather than xpm files.  (2h, da)
+
+X Remove .gif, .jpg, .xpm, .xbm files from the CVS repository.  Add 
+  .cvsignore's for them instead.  Disadvantage: developers will need
+  to have the Gimp installed to build them via 'make images'
+  (or copy them from the latest download).   (da, 1hr)
 
 X proof-site (da): I think it would be nice to change the architecture
   to make customization for new provers much easier.
