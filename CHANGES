@@ -12,7 +12,7 @@
 
 *** IN PROGRESS:  pre-compiled .elc files: recompile needed for GNU Emacs
 
-Proof General can now (almost) be reliably run as compiled code.
+Proof General can now be reliably run as compiled code.
 
 >>> Please help remove final difficulties by reporting problems <<<<
 
@@ -81,8 +81,11 @@ of (just) proof assistant settings.
 
 *** Display management: added shrink-windows-tofit option
 
-Attempt to shrink output windows to fit their contents in
-case it is less than 1/2 the window height.  In progress.  
+Attempt to shrink output windows to fit their contents in case it is
+less than 1/2 the window height.  In progress; occasional flaws
+(e.g. when output window buffer total window height).  Available
+under PG -> Options -> Display -> Shrink To Fit.
+
 
 *** Parsing internals changed: minor user visible differences
 
@@ -108,7 +111,8 @@ Reduce contrast for mouse highlighting of regions.
 ** Changes for Isabelle
 
 Beginnings of support PGIP protocol (work in progress with Isabelle
-CVS version).  Presently allows Isabelle to configure Proof General.
+2003).  Presently allows Isabelle to configure Proof General prover
+settings menu.
 
 Backward compatibility may not be maintained: it's simply too much
 effort.  This means that if you upgrade your Emacs version, which
