@@ -1326,11 +1326,14 @@ With ARG, turn on scripting iff ARG is positive."
   "A subroutine of `proof-done-advancing'."
   ;; Add an element for a new span, which should span
   ;; the text of the comment.
-  ;; FIXME: might be better to use regexps for matching
-  ;; start/end of comments, rather than comment-start-skip
+  ;; FIXME: might be better to use regexps/skip spaces for matching
+  ;; start/end of comments, rather than comment-start and
+  ;; comment-end skip (which assumes comments are nicely formatted).
+  ;; 
   (let ((bodyspan  (make-span
 		    (+ (length comment-start) (span-start span))
-		    (- (span-end span) (length comment-end))))
+		    (- (span-end span) 
+		       (max 1 (length comment-end)))))
 	(id        (proof-next-element-id 'comment)))
     (pg-add-element "comment" id bodyspan)
     (set-span-property span 'id (intern id))
