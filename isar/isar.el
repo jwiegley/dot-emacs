@@ -537,8 +537,7 @@ Checks the width in the `proof-goals-buffer'"
   (setq proof-mode-for-shell    'isar-shell-mode)
   (setq proof-mode-for-goals    'isar-goals-mode)
   (setq proof-mode-for-response 'isar-response-mode)
-  (setq proof-shell-trace-output-regexp "\375")
-  (setq proof-shell-interactive-input-regexp "\375\\*\\*"))
+  (setq proof-shell-trace-output-regexp "\375"))
 
 
 ;;
