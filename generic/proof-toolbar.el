@@ -528,6 +528,15 @@ changed state."
 (defalias 'proof-toolbar-find 'proof-find-theorems)
 
 ;;
+;; Visibility button (not on toolbar)
+;;
+
+(defun proof-toolbar-visibility-enable-p ()
+  (span-property-safe (span-at (point) 'type) 'idiom))
+
+(defalias 'proof-toolbar-visibility 'pg-toggle-visibility)
+
+;;
 ;; Interrupt button
 ;; 
 
