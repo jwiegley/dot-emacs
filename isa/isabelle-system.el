@@ -37,13 +37,12 @@
   (or (getenv "ISATOOL") 
       (proof-locate-executable "isatool")
       (let ((possibilities
-	     '("isatool"
-	       "/usr/bin/isatool"
-	       "/usr/local/bin/isatool"
-	       "/usr/lib/Isabelle/bin/isatool"
-	       "/usr/lib/Isabelle99/bin/isatool"
+	     '("/usr/bin/isatool"
 	       "/usr/share/Isabelle/bin/isatool"
-	       "/usr/share/Isabelle99/bin/isatool")))
+	       "/usr/local/bin/isatool"
+	       "/usr/local/Isabelle/bin/isatool"
+	       "/opt/bin/isatool"
+	       "/opt/Isabelle/bin/isatool")))
 	(while (and possibilities
 		    (not (file-executable-p
 			  (car possibilities))))
