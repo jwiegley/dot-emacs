@@ -4,7 +4,7 @@
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Markus Wenzel <wenzelm@in.tum.de>
 ;;
-;; $Id isar-syntax.el,v 2.14 1998/11/03 14:41:54 da Exp$
+;; $Id$
 ;;
 
 (require 'proof-syntax)
