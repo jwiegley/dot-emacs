@@ -214,7 +214,7 @@ FORCE:
 # Targets to pre-compile for distribution
 # Slightly dodgy to include elisp compile here, because
 # it can be incompatible across emacs versions.
-alldist:	distdocs
+alldist:	distcompile distdocs 
 
 
 ############################################################
@@ -292,6 +292,16 @@ doc:	FORCE
 distdocs: FORCE
 	@echo "***** MAKING DISTRIBUTION DOCS  ****"
 	(cd doc; ln -s ../html/ProofGeneralPortrait.eps.gz .; $(MAKE) dist)
+
+############################################################
+#
+# Compilation
+#
+distcompile: FORCE
+	@echo "***** MAKING ELC FILES  ****"
+	$(MAKE) compile
+
+
 
 ############################################################
 #
