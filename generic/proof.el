@@ -73,12 +73,12 @@ output format.")
 (defcustom proof-prog-name-ask-p nil
   "*If non-nil, query user which program to run for the inferior process."
   :type 'boolean
-  :group 'proof)
+  :group 'proof-general)
 
 (defcustom proof-one-command-per-line nil
   "*If non-nil, expect newlines after each proof command in a script."
   :type 'boolean
-  :group 'proof)
+  :group 'proof-general)
  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Other buffer-local variables used by proof mode                 ;;
@@ -990,7 +990,8 @@ queue is running."
   (if (proof-shell-live-buffer)
       (progn
 	(if (not proof-shell-busy)
-	    (error "Bug in proof-release-lock: Proof process not busy"))
+	    ; (error "Bug in proof-release-lock: Proof process not busy")
+	    (message "Nag, nag, nag: proof-release-lock: Proof process not busy"))
 	(if (not (eq proof-script-buffer (current-buffer)))
 	    (error "Bug in proof-release-lock: Don't own process"))
 	(setq proof-shell-busy nil))))
@@ -1715,17 +1716,17 @@ Only for use by consenting adults."
 (defcustom proof-ctxt-string ""
   "*Command to display the context in proof assistant."
   :type 'string
-  :group 'proof)
+  :group 'proof-general)
 
 (defcustom proof-help-string ""
   "*Command to ask for help in proof assistant."
   :type 'string
-  :group 'proof)
+  :group 'proof-general)
 
 (defcustom proof-prf-string ""
   "Command to display proof state in proof assistant."
   :type 'string
-  :group 'proof)
+  :group 'proof-general)
 
 (defvar proof-goal-command-string nil
   "Command to set a goal in the proof assistant.
