@@ -872,9 +872,6 @@ The name of the defined function is returned."
 ;;
 
 (defun proof-locate-executable (progname &optional returnnopath extrapath)
-  ;; XEmacs can search the paths for us.  Probably FSF Emacs is too
-  ;; daft to provide a useful function to do that, and I don't have
-  ;; the time to waste writing one or trying to find one.
   "Search for PROGNAME on PATH.  Return the full path to PROGNAME, or nil.
 If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path.
 EXTRAPATH is a list of extra path components"
@@ -882,10 +879,10 @@ EXTRAPATH is a list of extra path components"
    (cond
     ((fboundp 'executable-find)
      (let ((exec-path (append exec-path extrapath)))
-       (executable-find progname)))	;; PG 3.4: try a new Emacs function.
+       (executable-find progname)))
     ((fboundp 'locate-file)
      (locate-file progname
-		  (append (split-path (getenv "PATH") extrapath)) 
+		  (append (split-path (getenv "PATH")) extrapath)
 		  (if proof-running-on-win32 '(".exe"))
 		  1)))
    (if returnnopath progname)))
