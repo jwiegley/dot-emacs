@@ -3209,20 +3209,20 @@ We give an example of existing commands that fit each category.
 
 @item @code{coq-user-state-preserving-commands}: example: "@code{Print}"
 
-@item @code{coq-user-backable-commands}: example: "@code{Require}"
+@item @code{coq-user-state-changing-commands}: example: "@code{Require}"
 
-@item @code{coq-user-undoable-tactics}: example: "@code{Intro}"
+@item @code{coq-user-state-changing-tactics}: example: "@code{Intro}"
  
-@item @code{coq-user-non-undoable-tactics}: example: "@code{Idtac}"
+@item @code{coq-user-state-preserving-tactics}: example: "@code{Idtac}"
 @end itemize
 
-This variables are string lists. See their documentations in emacs
-(@code{C-h v coq-user...})  for details on how to set them in your .emacs
-file. The strings can contain some escaped regexp feature.
+This variables regexp string lists. See their documentations in emacs
+(@code{C-h v coq-user...})  for details on how to set them in your
+.emacs file.
 
 Example:
 @lisp
-(setq coq-user-backable-commands 
+(setq coq-user-state-changing-commands 
       '("MyHint" "MyRequire" "Show\\s-+Mydata"))
 @end lisp
 
