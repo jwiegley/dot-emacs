@@ -18,7 +18,8 @@
   rather than incrementally via script management, error messages
   may appear in the response buffer with file/line numbers.
   Proof General can now parse these messages to jump to the
-  location of the error.
+  location of the error.  
+  [Currently implemented for: Isabelle]
 
 *** New more efficient and generalised parsing functions
  
@@ -34,7 +35,9 @@
 
 *** Makefile has new target "scripts" to adjust paths in bash/perl scripts
 
-*** Bug fix: "next" button enabled more often.  Solaris turns off enablers.
+*** Bug fix: "next" button enabled more often.  
+
+*** Solaris turns off toolbar enablers due to problems.
 
 *** Bug fix: first line ignored problem fixed for Coq and others.
  
