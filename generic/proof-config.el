@@ -140,6 +140,20 @@ buffer modes)."
   :type 'boolean
   :group 'proof-user-options)
 
+(defcustom proof-strict-state-preserving 
+  t
+  "*Whether Proof General is strict about the state preserving test.
+Proof General lets the user send arbitrary commands to the proof
+engine with `proof-minibuffer-cmd'.  To attempt to preserve
+synchronization, there may be a test `proof-state-preserving-p'
+configured which prevents the user issuing certain commands
+directly (instead, they may only be entered as part of the script).
+
+Clever or arrogant users may want to avoid this test, which is
+done if this `proof-strict-state-preserving' is turned off (nil)."
+  :type 'boolean
+  :group 'proof-user-options)
+
 (defcustom proof-strict-read-only 
   ;; For FSF Emacs, strict read only is buggy when used in
   ;; conjunction with font-lock.
@@ -160,6 +174,7 @@ version of Emacs you are using.  In FSF Emacs, strict read only is buggy
 when it used in conjunction with font-lock, so it is disabled by default."
   :type 'boolean
   :group 'proof-user-options)
+
 
 (defcustom proof-dont-switch-windows nil
   "*Whether response and goals buffers have dedicated windows.
@@ -1794,6 +1809,10 @@ Proof General."
     "Welcome to"
     (concat proof-assistant " Proof General!")
     nil
+    (substring proof-general-version
+	       (string-match "Version [^ ]+ " 
+			     proof-general-version)
+	       (match-end 0))
     nil
     "(C) LFCS, University of Edinburgh, 2000."
     "D. Aspinall, H. Goguen, T. Kleymann, D. Sequiera"
