@@ -23,13 +23,13 @@
     (gimp-file-save 1 image (car (gimp-image-active-drawable image))
 		    xpmname xpmname)
     ;; Impoverised xpm
-    (gimp-convert-indexed image 1 8)
+    (gimp-convert-indexed image 1 0 8 1 1 "blah")
     (gimp-file-save 1 image (car (gimp-image-active-drawable image))
 		    poor-xpm poor-xpm)
     ;; Mono image
     (gimp-convert-rgb image)
     (gimp-image-flatten image)
-    (gimp-convert-indexed-palette image 1 3 0 "")
+    (gimp-convert-indexed image 1 1 3 2 1 "blah")
     (file-xbm-save 1 image (car (gimp-image-active-drawable image))
 		    xbmname xbmname
 		    "Proof General button"
@@ -44,7 +44,7 @@
 		    "da@dcs.ed.ac.uk" "da@dcs.ed.ac.uk"
 		    "1998/10/04"
 		    ""
-		    SF-VALUE "Button/file name" "\"test\"")
+		    SF-VALUE "Button/file name" "\"goal\"")
 
 (define (script-fu-proofgeneral-make-all-buttons)
   (mapcar script-fu-proofgeneral-make-button
