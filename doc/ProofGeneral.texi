@@ -65,7 +65,7 @@
 
 @set version 3.5pre
 @set xemacsversion 21.4
-@set fsfversion 21.2
+@set fsfversion 21.3
 @set last-update March 2004
 @set rcsid $Id$
 
@@ -211,54 +211,39 @@ other documentation, system downloads, etc.
 
 
 @menu
-@c * Latest news for 3.5::
-* Latest news for 3.4::
+* Latest news for 3.5::
 * Future::
 * Credits::                     
 @end menu
 
-@c @node Latest news for 3.5
-@c @unnumberedsec Latest news for 3.4
-@c @cindex news
+@node Latest news for 3.5
+@unnumberedsec Latest news for 3.5
+@cindex news
 
-@c Proof General 3.5 is released to collect together a round of swift
-@c improvements to Proof General 3.4.  There are compatibility
-@c improvements, particularly for GNU Emacs: credit is due to Stefan
-@c Monnier for an intense period of debugging and patching.  There are also
-@c some minor usability improvements, prompted in part by feedback after
-@c Proof General's appearance at the TYPES 2002 Summer School.
+Proof General 3.5 is released to collect together a cummulative set of
+improvements to Proof General 3.4.  There are compatibility fixes,
+particularly for GNU Emacs: credit is due to Stefan Monnier for an
+intense period of debugging and patching.  The options menu has been
+simplified and extended, and improved display management.  There are
+some other usability improvements, prompted in part by feedback after
+Proof General's appearance at the TYPES 2002 Summer School.
+
+Compatible versions of the Emacs packages X-Symbol (for mathematical
+symbols) and MMM Mode (for multiple modes in one buffer) are now bundled.
+
+Proof General 3.5 runs reliably as compiled Elisp code, and is available
+in RPM package format which includes desktop integration on
+freedesktop.org compliant desktops (including, for example, many recent
+Linux distributions).
+
+
 
 @c Other stuff pending:
 @c X-Symbol 4.4 support??
 @c Support for *thms* buffer??
 
-
-
-@node Latest news for 3.4
-@unnumberedsec Latest news for 3.4
-@cindex news
-
-Proof General 3.4 adds improvements and also compatibility fixes for
-new versions of Emacs, in particular, for GNU Emacs 21, which adds
-the remaining pretty features that have only been available to XEmacs
-users until now (the toolbar and X-Symbol support).
-
-One major improvement has been to provide better support for
-synchronization with Coq proof scripts; now Coq Proof General should
-be able to retract and replay most Coq proof scripts reliably.  Credit
-is due to Pierre Courtieu, who also updated the documentation in this
-manual.
-
-As of version 3.4, Proof General is distributed under the GNU General
-Public License (GPL).  Compared with the previous more restrictive
-license, this means the program can now be redistributed by third
-parties, and used in any context without applying for a special
-license.  Despite these legal changes, we would still appreciate if
-you send us back any useful improvements you make to Proof General,
-and register your use of Proof General on the web site.
-
 See the @file{CHANGES} file in the distribution for more complete
-details of changes since 3.3, and the appendix
+details of changes since version 3.4, and the appendix
 @ref{History of Proof General} for old news.
 
 
@@ -4153,6 +4138,7 @@ encouragement to make the improvements that went into Proof General 3.0.
 * Old News for 3.1::
 * Old News for 3.2::
 * Old News for 3.3::
+* Old News for 3.4::
 @end menu
 
 
@@ -4331,13 +4317,28 @@ proof scripts, by seeing which parts are interdependent.  The implementation
 is provisional and not documented yet in the body of this manual.  It only
 works for the "classic" version of Isabelle99-2.
 
-See the @file{CHANGES} file in the distribution for more complete
-details of changes since 3.2.
 
+@node Old News for 3.4
+@unnumberedsec Old News for 3.4
 
+Proof General 3.4 adds improvements and also compatibility fixes for
+new versions of Emacs, in particular, for GNU Emacs 21, which adds
+the remaining pretty features that have only been available to XEmacs
+users until now (the toolbar and X-Symbol support).
 
+One major improvement has been to provide better support for
+synchronization with Coq proof scripts; now Coq Proof General should
+be able to retract and replay most Coq proof scripts reliably.  Credit
+is due to Pierre Courtieu, who also updated the documentation in this
+manual.
 
-
+As of version 3.4, Proof General is distributed under the GNU General
+Public License (GPL).  Compared with the previous more restrictive
+license, this means the program can now be redistributed by third
+parties, and used in any context without applying for a special
+license.  Despite these legal changes, we would still appreciate if
+you send us back any useful improvements you make to Proof General,
+and register your use of Proof General on the web site.
 
 
 @node Function Index
