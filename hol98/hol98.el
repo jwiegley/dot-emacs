@@ -11,14 +11,8 @@
 ;; See the README file in this directory for information.
 
 
-;; keywords:
-;; val prove store_thm prove by
-;; tacticals: THEN THENL 
-;; by seems to be "e";
-
-
 (require 'proof-easy-config)            ; easy configure mechanism
-(require 'proof-syntax)
+(require 'proof-syntax)			; functions for making regexps
 
 (proof-easy-config  'hol98 "HOL" 
  proof-prog-name		 "hol.unquote"
@@ -26,9 +20,12 @@
  proof-comment-start             "(*"
  proof-comment-end               "*)"
  proof-goal-command-regexp       "^g[ `]"
- proof-save-command-regexp       "^qed"
- proof-goal-with-hole-regexp     "qed_goal \"\\(\\(.*\\)\\)\""
- proof-save-with-hole-regexp     "qed \"\\(\\(.*\\)\\)\""
+ proof-save-command-regexp       "^val .*top_thm()"
+ ;; FIXME: next two just to suppress warnings, not set yet.
+ proof-goal-with-hole-regexp "^\0\1$"
+ proof-save-with-hol-regexp "^\0\1$"
+ ;; proof-goal-with-hole-regexp     "qed_goal \"\\(\\(.*\\)\\)\""
+ ;; proof-save-with-hole-regexp     "qed \"\\(\\(.*\\)\\)\""
  proof-non-undoables-regexp      "b()"
  proof-goal-command              "g `%s`;"
  proof-save-command              "val %s = top_thm(); drop();"
@@ -36,17 +33,18 @@
  proof-showproof-command         "p()"
  proof-undo-n-times-cmd          "(pg_repeat backup %s; p());"
  proof-auto-multiple-files       t
-; proof-shell-cd-cmd              "cd \"%s\""
+ proof-shell-cd-cmd              "FileSys.chDir \"%s\""
  proof-shell-prompt-pattern      "^[->] "
  proof-shell-interrupt-regexp    "Interrupted"
-; proof-shell-start-goals-regexp  "Proof manager status\\|OK.."
  proof-shell-start-goals-regexp  
- (proof-regexp-alt "Proof manager status" "OK.." "val it =\n")
+ (proof-regexp-alt "Proof manager status" 
+		   "OK.." 
+		   "val it =\n")
  proof-shell-end-goals-regexp    
  (proof-regexp-alt "^[ \t]*: GoalstackPure.goalstack"
 		   "^[ \t]*: GoalstackPure.proofs")
  proof-shell-quit-cmd            "quit();"
- proof-assistant-home-page    
+ proof-assistant-home-page       
  "http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html"
  proof-shell-annotated-prompt-regexp 
  "^\\(> val it = () : unit\n\\)?- "
@@ -59,11 +57,91 @@
  proof-info-command "help \"hol\""
  proof-shell-proof-completed-regexp   
  "\\(\\(.\\|\n\\)*No subgoals!\n\\)"
-; proof-shell-eager-annotation-start
+ ;; FIXME: next one needs setting.
+ ;; proof-shell-eager-annotation-start
  proof-find-theorems-command	"DB.match [] (%s);"
+
  ;; We must set this to use ptys since mosml doesn't flush its output
- ;; (on Linux, presumably on Solaris to).
+ ;; (on Linux, presumably on Solaris too).
  proof-shell-process-connection-type t
+
+ ;; 
+ ;; Syntax table entries for proof scripts
+ ;;
+ proof-script-syntax-table-entries
+ '(?\` "\""
+   ?\$ "."   
+   ?\/ "."   
+   ?\\ "."   
+   ?+  "."   
+   ?-  "."   
+   ?=  "."   
+   ?%  "."   
+   ?<  "."   
+   ?>  "."   
+   ?\& "."   
+   ?.  "w"   
+   ?_  "w"   
+   ?\' "w"   
+   ?\| "."   
+   ?\* ". 23"
+   ?\( "()1" 
+   ?\) ")(4")
+
+ ;;
+ ;; A few of the vast variety of keywords, tactics, tacticals,
+ ;; for decorating proof scripts.
+ ;;
+ ;; In the future, PG will use a mechanism for passing identifier
+ ;; lists like this from the proof assistant, we don't really
+ ;; want to duplicate the information here!
+ ;;
+ hol98-keywords  '("g" "expand" "e" "val" "store_thm" "top_thm" "by"
+		   "Define" "xDefine" "Hol_defn"
+		   "Induct" "Cases" "Cases_on" "Induct_on"
+		   "std_ss" "arith_ss" "list_ss"
+		   "define_type")
+ hol98-rules	 '("ASSUME" "REFL" "BETA_CONV" "SUBST" 
+		   "ABS" "INST_TYPE" "DISCH" "MP"
+		   "T_DEF" "FORALL_DEF" "AND_DEF" "OR_DEF" "F_DEF"
+		   "NOT_DEF" "EXISTS_UNIQUE_DEF" "BOOL_CASES_AX"
+		   "IMP_ANTISYM_AX" "ETA_AX" "SELECT_AX" "ONE_ONE_DEF" 
+		   "ONTO_DEF" "INFINITY_AX" "LET_DEF" "COND_DEF" "ARB_DEF")
+ hol98-tactics   '("ACCEPT_TAC" "ASSUME_TAC" "GEN_TAC"
+		   "CONJ_TAC" "DISCH_TAC" "STRIP_TAC"
+		   "SUBST_TAC" "ASM_CASES_TAC" "DISJ_CASES_TAC"
+		   "REWRITE_TAC" "IMP_RES_TAC" "ALL_TAC" "NO_TAC"
+		   "EQ_TAC" "EXISTS_TAC" "INDUCT_TAC"
+		   "POP_ASM" "SUBST1_TAC" "ASSUM_LIST"
+		   "PROVE" "PROVE_TAC" "DECIDE" "DECIDE_TAC" "RW_TAC"
+		   "STP_TAC" "ZAP_TAC"
+		   "EXISTS_TAC")
+ hol98-tacticals '("ORELSE" "FIRST" "CHANGED_TAC" "THEN"
+		   "THENL" "EVERY" "REPEAT"
+		   "MAP_EVERY")
+ proof-script-font-lock-keywords	
+ (list
+  (cons (proof-ids-to-regexp hol98-keywords) 'font-lock-keyword-face)
+  (cons (proof-ids-to-regexp hol98-tactics) 'font-lock-keyword-face)
+  ; (cons (proof-ids-to-regexp hol98-rules) 'font-lock-keyword-face)
+  (cons (proof-ids-to-regexp hol98-tacticals) 'proof-tacticals-name-face))
+
+ ;;
+ ;; Some decoration of the goals output
+ ;;
+ proof-goals-font-lock-keywords
+ (list
+  (cons (proof-ids-to-regexp '("Proof manager status" 
+			       "proof" "Incomplete"
+			       "Initial goal"))
+	'font-lock-keyword-face))
+
+ 
+ ;; End of easy config.
  )
 
-(provide 'demoisa)
+
+(warn "Hol Proof General is incomplete!  Please help improve it!
+Read the manual, make improvements and send them to proofgen@dcs.ed.ac.uk")
+
+(provide 'hol98)
