@@ -158,7 +158,7 @@
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
    proof-indent-commands-regexp	isar-indent-regexp
    ;; proof engine commands
-   proof-proof-command		"pr"
+   proof-showproof-command	"pr"
    proof-goal-command		"lemma \"%s\";"
    proof-save-command		"qed"
    proof-context-command		"print_context"

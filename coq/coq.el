@@ -414,7 +414,7 @@
   (setq proof-guess-command-line 'coq-guess-command-line)
 
   ;; Commands sent to proof engine
-  (setq proof-proof-command "Show"
+  (setq proof-showproof-command "Show"
 	proof-context-command "Print All"
 	proof-goal-command "Goal %s."
 	proof-save-command "Save %s."
@@ -424,6 +424,7 @@
 	proof-kill-goal-command coq-kill-goal-command)
 
   (setq proof-goal-command-p 'coq-goal-command-p
+	proof-nested-goals-allowed t
 	proof-count-undos-fn 'coq-count-undos
 	proof-find-and-forget-fn 'coq-find-and-forget
         proof-goal-hyp-fn 'coq-goal-hyp
