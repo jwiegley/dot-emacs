@@ -424,10 +424,11 @@ release: distclean tag  dist develdist
 	@echo " Making release (installing tarball distributions)."
 	@echo "*************************************************"
 	mkdir -p $(RELEASEDIR)
-	(cd $(RELEASEDIR); rm -rf $(RELEASENAME))
+	(cd $(RELEASEDIR); rm -f $(LASTESTNAME); rm -rf $(RELEASENAME))
 # seem to need R instead of r here now,
 # otherwise cp tries to make hard link instead of symlink?!
 	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
+	(cd $(RELEASEDIR); ln -s  $(RELEASENAME) $(LATESTNAME))
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMEZIP) $(LATESTNAME).zip)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
