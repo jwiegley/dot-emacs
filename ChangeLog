@@ -1,5 +1,12 @@
 2002-03-22  David Aspinall  <da@proofgeneral.org>
 
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2002-03-22  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
