@@ -380,7 +380,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 	      ;; For a script buffer
 	      (progn
 		(goto-char (point-min))
-		(proof-find-next-terminator)
+		(proof-goto-command-end)
 		(let ((cmd-list (member-if
 				 (lambda (entry) (equal (car entry) 'cmd))
 				 (proof-segment-up-to (point)))))
@@ -1118,7 +1118,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
   (run-hooks 'proof-state-change-hook)))
 
 
-;; NEW parsing function for 3.2
+;; NEW parsing functions for 3.2
 ;;
 ;; FIXME da: this version is XEmacs specific, using
 ;; bultin buffer-syntactic-context.  Means we don't need to
@@ -1468,7 +1468,7 @@ the comment."
 
 
 ; Assert until point - We actually use this to implement the 
-; assert-until-point, electric terminator keypress, and find-next-terminator. 
+; assert-until-point, electric terminator keypress, and goto-command-end.
 ; In different cases we want different things, but usually the information
 ; (i.e. are we inside a comment) isn't available until we've actually run
 ; proof-segment-up-to (point), hence all the different options when we've
@@ -1477,7 +1477,6 @@ the comment."
 ;; FIXME da: this command doesn't behave as the doc string says when
 ;; inside comments.  Also is unhelpful at the start of commands, and
 ;; in the locked region.  I prefer the new version below.
-
 
 ;; FIXME: get rid of duplication between proof-assert-next-command and
 ;; proof-assert-until-point.  Get rid of ignore process nonsense.
@@ -1913,35 +1912,6 @@ handling of interrupt signals."
 ;;
 ;; Movement commands
 ;;
-    
-(defun proof-find-next-terminator ()
-  "Set point after next `proof-terminal-char'."
-  (interactive)
-  (let ((cmd (span-at (point) 'type)))
-    (if cmd (goto-char (span-end cmd))
-;      (and (re-search-forward "\\S-" nil t)
-;	   (proof-assert-until-point nil 'ignore-proof-process)))))
-      (proof-assert-next-command nil 'ignore-proof-process))))
-;(defun proof-find-next-terminator ()
-;  "Set point to next `proof-terminal-char'."
-;  (interactive)
-;  (let ((cmd (span-at (point) 'type)))
-;    (if cmd (goto-char (span-end cmd))
-;;      (and (re-search-forward "\\S-" nil t)
-;;	   (proof-assert-until-point nil 'ignore-proof-process)))))
-;      (proof-assert-next-command nil 
-;				 'ignore-proof-process
-;				 'dontmoveforward))
-;    (backward-char)))
-
-(defun proof-find-previous-terminator ()
-  "Set point after next `proof-terminal-char'."
-  (interactive)
-  (let ((cmd (span-at (point) 'type)))
-    (if cmd (goto-char (span-end cmd))
-;      (and (re-search-forward "\\S-" nil t)
-;	   (proof-assert-until-point nil 'ignore-proof-process)))))
-      (proof-assert-next-command nil 'ignore-proof-process))))
 
 ;; FIXME da: the next function is messy.  Also see notes in 'todo'
 (defun proof-goto-command-start ()
@@ -1968,7 +1938,7 @@ handling of interrupt signals."
     (skip-chars-forward " \t\n")))
 
 (defun proof-goto-command-end ()
-  "Set point to next `proof-terminal-char'."
+  "Set point to end of command at point."
   (interactive)
   (let ((cmd (span-at (point) 'type)))
     (if cmd (goto-char (span-end cmd))
