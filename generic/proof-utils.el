@@ -101,6 +101,15 @@ approximation we test whether proof-config is fully-loaded yet."
 ;; NB: this mechanism is work in progress in 3.2.  It will
 ;; be expanded, although we may leave most low-level 
 ;; settings to use the current mechanism.
+;;
+;; Notes:
+;;
+;; Two mechanisms for accessing generic vars:
+;;
+;; (proof-ass name)   or (proof-assistant-name)
+;;
+;; Later is more efficient, though defining function
+;; for each setting seems wasteful?
 
 (defun proof-ass-symv (sym)
   "Return the symbol for SYM for the current prover.  SYM is evaluated."
@@ -128,10 +137,6 @@ Helper for macro `defpgcustom'."
 	:group ,(quote proof-assistant-internals-cusgrp)))
     ;; For functions, we could simply use defalias.  Unfortunately there
     ;; is nothing similar for values, so we define a new set/get function.
-    ;; FIXME: consider removing this code.  Probably we usually
-    ;; only need to read proof-assistant specific settings, not set 
-    ;; them.  Setting is the ob of proof-assistant specific code, 
-    ;; not generic code!
     (eval
      `(defun ,generic-var (&optional newval) 
 	,(concat "Set or get value of " (symbol-name sym) " for current proof assistant.
@@ -531,14 +536,13 @@ Returns non-nil if response buffer was cleared."
 
 (defun proof-deftoggle-fn (var &optional othername)
   "Define a function <VAR>-toggle for toggling a boolean customize setting VAR.
-The toggle function uses customize-set-variable to change the variable.
-OTHERNAME gives an alternative name than the default <VAR>-toggle."
+Args as for the macro `proof-deftoggle', except will be evaluated."
   (eval
    `(defun ,(if othername othername 
 	      (intern (concat (symbol-name var) "-toggle"))) (arg)
 	      ,(concat "Toggle `" (symbol-name var) "'. With ARG, turn on iff ARG>0.
 This function simply uses customize-set-variable to set the variable.
-It was constructed with `proof-customize-toggle-fn'.")
+It was constructed with `proof-deftoggle-fn'.")
 	      (interactive "P")
 	      (customize-set-variable 
 	       (quote ,var)
@@ -547,9 +551,49 @@ It was constructed with `proof-customize-toggle-fn'.")
 
 (defmacro proof-deftoggle (var &optional othername)
   "Define a function VAR-toggle for toggling a boolean customize setting VAR.
-VAR, OTHERNAME are not evaluated.  
-The function is defined with `proof-deftoggle-fn', which see."
+The toggle function uses customize-set-variable to change the variable.
+OTHERNAME gives an alternative name than the default <VAR>-toggle.
+The name of the defined function is returned."
   `(proof-deftoggle-fn (quote ,var) (quote ,othername)))
+
+(defun proof-defintset-fn (var &optional othername)
+  "Define a function <VAR>-intset for setting an integer customize setting VAR.
+Args as for the macro `proof-defintset', except will be evaluated."
+  (eval
+   `(defun ,(if othername othername 
+	      (intern (concat (symbol-name var) "-intset"))) (arg)
+	      ,(concat "Set `" (symbol-name var) "' to ARG.
+This function simply uses customize-set-variable to set the variable.
+It was constructed with `proof-defintset-fn'.")
+	      (interactive ,(concat "nValue for " (symbol-name var) 
+				    " (integer): "))
+	      (customize-set-variable (quote ,var) arg))))
+
+(defmacro proof-defintset (var &optional othername)
+  "Define a function <VAR>-intset for setting an integer customize setting VAR.
+The setting function uses customize-set-variable to change the variable.
+OTHERNAME gives an alternative name than the default <VAR>-intset.
+The name of the defined function is returned."
+  `(proof-defintset-fn (quote ,var) (quote ,othername)))
+
+(defun proof-defstringset-fn (var &optional othername)
+  "Define a function <VAR>-toggle for setting an integer customize setting VAR.
+Args as for the macro `proof-defstringset', except will be evaluated."
+  (eval
+   `(defun ,(if othername othername 
+	      (intern (concat (symbol-name var) "-stringset"))) (arg)
+	      ,(concat "Set `" (symbol-name var) "' to ARG.
+This function simply uses customize-set-variable to set the variable.
+It was constructed with `proof-defstringset-fn'.")
+	      (interactive ,(concat "sValue for " (symbol-name var) 
+				    " (a string): "))
+	      (customize-set-variable (quote ,var) arg))))
+
+(defmacro proof-defstringset (var &optional othername)
+  "The setting function uses customize-set-variable to change the variable.
+OTHERNAME gives an alternative name than the default <VAR>-stringset.
+The name of the defined function is returned."
+  `(proof-defstringset-fn (quote ,var) (quote ,othername)))
 
 
 
