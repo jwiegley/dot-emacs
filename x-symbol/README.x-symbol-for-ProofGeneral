@@ -2,7 +2,7 @@ The code in this directory is taken from
 
 	http://x-symbol.sourceforge.net/
 
-This is version 4.5  (direct from author)
+This is version 4.5  (based on pacakge release direct from author)
 
 No changes have been made for Proof General, although the
 following rearrangements from the package directory layout
@@ -10,4 +10,7 @@ have been made:
 
   for f in etc lisp man; do mv $f/x-symbol/* $f; rmdir $f/x-symbol; done
 
-
+Moreover, lisp/Makefile and lisp/makefile.pkg were copied from
+X-Symbol source package, and lisp/makefile.pkg edited to remove
+x-symbol-emacs from list of compiled files (since it breaks 
+on XEmacs compile).
