@@ -4,6 +4,24 @@
 
 See also ../todo for generic things to do, priority codes.
 
+
+** B See if there is a way to turn off the superfluous output of scripts
+
+  from Coq when inside ProofGeneral, i.e. output like this:
+
+   Intros A B G.
+   Induction G.
+   Apply conj.
+   Assumption.
+   
+   Assumption.
+   
+   and_comms is defined
+
+  In PG, only the last line is relevant!!
+  If it isn't possible to turn it off, can we send a suggestion
+  to the Coq implementors for the next version?
+
 ** B Fix silly startup sychronization problem that displays
   cwd on startup.
 
