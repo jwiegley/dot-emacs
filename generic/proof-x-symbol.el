@@ -151,13 +151,16 @@ A value for proof-shell-insert-hook."
              (save-excursion
                (let ((language x-symbol-language)
                      (coding x-symbol-coding)
-                     (selective selective-display))
+                     (selective selective-display)) ;FIXME: needed?
                  (set-buffer (get-buffer-create "x-symbol comint"))
                  (erase-buffer)
                  (insert string)
                  (setq x-symbol-language language)
                  (x-symbol-encode-all nil coding))
                (prog1 (buffer-substring)
+		 ;; FIXME da: maybe more efficient just to delete
+		 ;; region.  Make buffer name start with space
+		 ;; to be unselectable.
                  (kill-buffer (current-buffer)))))))
 
 
