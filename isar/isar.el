@@ -147,14 +147,16 @@
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
    proof-comment-start		"(*"	; comment in a proof
-   proof-comment-end		"*)"	; 
+   proof-comment-end		"*)"
+   proof-string-start-regexp    "\"\\|{\\*"
+   proof-string-end-regexp      "\"\\|\\*}"
    ;; Next few used for func-menu and recognizing goal..save regions in
    ;; script buffer.
    proof-save-command-regexp    isar-save-command-regexp
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-goal-with-hole-regexp
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
-   proof-commands-regexp	isar-indent-regexp
+   proof-indent-commands-regexp	isar-indent-regexp
    ;; proof engine commands (first five for menus, last for undo)
    proof-prf-string		"pr"
    proof-goal-command		"lemma \"%s\""
@@ -431,25 +433,23 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;;; Variations on undo
 
 (defconst isar-undo "undo;")
+(defconst isar-kill "kill;")
 
 (defun isar-undos (i)
-  (concat "undos " (int-to-string i) proof-terminal-string))
+  (concat "undos_proof " (int-to-string i) ";"))
 
 (defun isar-cannot-undo (cmd)
   (concat "cannot_undo \"" cmd "\";"))
 
 
-(defcustom isar-cannot-undo-regexp
-  (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))
-  "Regular expression matching commands that *cannot* be undone."
-  :type 'regexp
-  :group 'isabelle-isar-config)
+(defconst isar-undo-fail-regexp
+  (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end)))
 
-(defcustom isar-state-preserving-regexp
-  (proof-ids-to-regexp isar-keywords-diag)
-  "Regular expression matching commands that preserve the toplevel state."
-  :type 'regexp
-  :group 'isabelle-isar-config)
+(defconst isar-undo-skip-regexp
+  (proof-ids-to-regexp isar-keywords-diag))
+
+(defconst isar-undo-kill-regexp
+  (proof-ids-to-regexp isar-keywords-theory-begin))
 
 
 ;; undo proof commands
@@ -461,13 +461,13 @@ Resulting output from Isabelle will be parsed by Proof General."
     (while span
       (setq str (span-property span 'cmd))
       (cond ((eq (span-property span 'type) 'vanilla)
-	     (or (proof-string-match isar-state-preserving-regexp str)
+	     (or (proof-string-match isar-undo-skip-regexp str)
 		 (setq ct (+ 1 ct))))
 	    ((eq (span-property span 'type) 'pbp)
 	     ;; this case probably redundant for Isabelle, unless
 	     ;; we think of some nice ways of matching non-undoable
 	     ;; commands.
-	     (cond ((not (proof-string-match isar-state-preserving-regexp str))
+	     (cond ((not (proof-string-match isar-undo-skip-regexp str))
 		    (setq i 0)
 		    (while (< i (length str))
 		      (if (= (aref str i) proof-terminal-char)
@@ -487,8 +487,10 @@ Resulting output from Isabelle will be parsed by Proof General."
        ((eq (span-property span 'type) 'comment))
        ((eq (span-property span 'type) 'goalsave)
 	(setq ans isar-undo))
-       ((proof-string-match isar-cannot-undo-regexp str)
+       ((proof-string-match isar-undo-fail-regexp str)
 	(setq ans (isar-cannot-undo str)))
+       ((proof-string-match isar-undo-kill-regexp str)
+	(setq ans isar-kill))
        (t
 	(setq ans isar-undo)))
       (setq span (next-span span 'type)))
@@ -535,7 +537,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 (defun isar-state-preserving-p (cmd)
   "Non-nil if command preserves the proofstate."
-  (proof-string-match isar-state-preserving-regexp cmd))
+  (proof-string-match isar-undo-skip-regexp cmd))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -567,7 +569,6 @@ Resulting output from Isabelle will be parsed by Proof General."
   (modify-syntax-entry ?_  "w")
   (modify-syntax-entry ?\' "w")
   (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\| ". 23")
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4")
   (modify-syntax-entry ?\{ "(}1")
