@@ -14,6 +14,7 @@ br conjI 1;
 be conjE 1;
 ba 1;
 be conjE 1;
+ba 45;
 ba 1;
 qed "and_comms";
 

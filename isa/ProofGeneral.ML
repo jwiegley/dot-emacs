@@ -133,6 +133,7 @@ structure ProofGeneral : PROOFGENERAL =
    fun restart () =
      let val _ = (loaded_thys := !initial_loaded_thys)
          val _ = (retracted_files := [])
+	 val _ = (kill_goal ())
       in
          (list_loaded_files();
           clear_response_buffer();
@@ -377,10 +378,12 @@ in
   fun print_current_goals_with_plain_output i j t =
     Library.setmp prs_fn out (print_current_goals_default i j) t;
 
-(* Annoyingly, Proof General waits for the first prompt before doing
-  anything.  Hack sending a prompt to get things going *)
+(* Proof General has problems sending commands outside of the
+   action list.  Also, it waits for the first prompt before doing
+   anything.  The next function hacks sending a prompt to get
+   things going and to help fix things later. *)
 
- val _ = out ">\250 \n";
+  fun hack_send_prompt _ = out ">\250 \n";
 end;
 
 print_current_goals_fn := print_current_goals_with_plain_output;
@@ -389,7 +392,6 @@ print_current_goals_fn := print_current_goals_with_plain_output;
 (* add specials to ml prompts *)
 
 ml_prompts ">\250" "-\251"; (* ?\372, ?\373 *)
-
 
 
 (*
@@ -403,11 +405,9 @@ ml_prompts ">\250" "-\251"; (* ?\372, ?\373 *)
       update_verbose:=true;
    Unfortunately broken.  We use list_loaded_files instead. *)
 
+
+(* Wake up, Proof General! *)
+hack_send_prompt();
+
 (* Get Proof General to cache the loaded files.  *)
-
 ProofGeneral.restart();
-
-
-
-
-

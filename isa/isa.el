@@ -150,7 +150,8 @@ no regular or easily discernable structure."
   (setq
    proof-shell-first-special-char	?\360
 
-   proof-shell-annotated-prompt-regexp   ">\372"
+   proof-shell-wakeup-char		 ?\372
+   proof-shell-annotated-prompt-regexp   "\\(val it = () : unit\n\\)?>\372"
    ;; "^\\(val it = () : unit\n\\)?> "
    ;; non-annotation, with val it's: "^\\(val it = () : unit\n\\)?> "
 
@@ -173,7 +174,6 @@ no regular or easily discernable structure."
    ;; matches subgoal name
    proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
 
-   proof-shell-wakeup-char		?\372
    proof-shell-start-goals-regexp	"\366"
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
@@ -183,10 +183,10 @@ no regular or easily discernable structure."
    proof-shell-restart-cmd		"ProofGeneral.restart();"
    proof-shell-quit-cmd			"exit 0;"
    
-   proof-shell-eager-annotation-start   "\360\\|\362\\|\364"
-   proof-shell-eager-annotation-end     "\361\\|\363\\|\365"
+   proof-shell-eager-annotation-start   "\360\\|\362"
+   proof-shell-eager-annotation-end     "\361\\|\363"
 
-   ;; Some messages delineated by eager annotations
+   ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
 
    ;; Tested values of proof-shell-eager-annotation-start: 
@@ -260,8 +260,7 @@ This is a hook function for proof-activate-scripting-hook."
       ;; Send a use_thy command if there is a corresponding .thy file.
       ;; Let Isabelle do the work of checking whether any work needs
       ;; doing.  Really this should be force_use_thy, too.
-      ;; Wait for response from proof assistant before continuing.
-      (proof-shell-insert
+      (proof-shell-invisible-command
        (format isa-usethy-notopml-command
 	       (file-name-sans-extension buffer-file-name))
        t)
