@@ -1,5 +1,46 @@
 2001-03-20  David Aspinall  <da@proofgeneral.org>
 
+	* html/main.html: Fixes to main page
+
+	* html/footer.html:
+	Change to my canonical www.dcs web address
+
+	* html/main.html:
+	Remove proofgeneral.org on main page
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.html:
+	Set version tag for new release.
+
+	* BUGS:
+	strange buffer selection bug reported by Markus
+
+	* doc/PG-adapting.texi: Updated magic
+
+2001-03-20  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	Added the config var proof-script-command-end-regexp fot coq V7.
+
+2001-03-20  David Aspinall  <da@proofgeneral.org>
+
+	* doc/Makefile.doc:
+	Use PS fonts in PS file
+
+	* generic/proof-shell.el:
+	Remove temporary comments
+
+	* generic/proof-config.el:
+	Fix docstring
+
+	* html/feedback.html, html/footer.html, html/functions.php3:
+	Changes to use proofgen@dcs for now instead of broken proofgeneral.org
+
+	* html/main.html: Fix to Coq web page
+
+2001-03-20  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.html:
 	Set version tag for new release.
 
