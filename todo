@@ -39,6 +39,14 @@ X (Low)     probably not worth spending time on
 ====================================
 
 A Pending work, in progress [da]:
+
+   - name changes: proof-window-dedicated -> proof-keep-windows
+           proof-shell-{start,end,goal,blah} -> proof-goals-{blah}
+           pbp-{blah} -> proof-goals-{blah}, new proof-goals.el  [maybe later]
+     
+
+
+
     - reorganization and improvement of menus, keybindings
 	. use toolbar functions, but remove from proof-toolbar and reorganize.
 	. update documentation
