@@ -316,6 +316,9 @@ Does nothing if proof assistant is already running."
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
 
+      ;; 3.5 change: buffer names become invisible (start with space).
+      ;; This omits them from XEmacs tabs, and display management 
+      ;; should be better now, so that they are not easily lost.
       (setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
       (unless (proof-shell-live-buffer)
@@ -326,12 +329,13 @@ Does nothing if proof assistant is already running."
 	(setq proof-shell-buffer nil)
 	(error "Starting process: %s..failed" proof-prog-name))
 
-      ;; FIXME: patch to go in here to clean this up
+      ;; [[ FIXME: was an old patch to go in here to clean this up]
+      ;;
       ;; Create the associated buffers and set buffer variables
-      (let ((goals	(concat "*" proc "-goals*"))
-	    (resp	(concat "*" proc "-response*"))
-	    (trace	(concat "*" proc "-trace*"))
-	    (thms	(concat "*" proc "-thms*")))
+      (let ((goals	(concat " *" proc "-goals*"))
+	    (resp	(concat " *" proc "-response*"))
+	    (trace	(concat " *" proc "-trace*"))
+	    (thms	(concat " *" proc "-thms*")))
 	(setq proof-goals-buffer    (get-buffer-create goals))
 	(setq proof-response-buffer (get-buffer-create resp))
 	(if proof-shell-trace-output-regexp
@@ -341,8 +345,13 @@ Does nothing if proof assistant is already running."
 	;; Set the special-display-regexps now we have the buffer names
 	(setq proof-shell-special-display-regexp 
 	      (proof-regexp-alt goals resp trace thms))
-	(proof-multiple-frames-enable))
-
+	;; Also, set XEmacs specifiers that have a per-buffer effect
+	(if proof-running-on-XEmacs
+	    (proof-map-buffers
+	     (list proof-goals-buffer proof-response-buffer 
+		   proof-trace-buffer proof-thms-buffer)
+	     (set-specifier has-modeline-p 'nil (current-buffer)))))
+      
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	
@@ -388,6 +397,14 @@ Does nothing if proof assistant is already running."
 
       (message "Starting %s process... done." proc))))
 
+(defun proof-associated-buffers ()
+  "Return a list of the associated buffers.  
+Some may be dead/nil."
+  (list proof-goals-buffer
+	proof-response-buffer
+	proof-trace-buffer
+	proof-thms-buffer))
+
 
 ;;
 ;;  Shutting down proof shell and associated buffers
@@ -409,8 +426,9 @@ exited by hand (or exits by itself)."
 	 (proc     (get-buffer-process (current-buffer)))
 	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
-    (let ((inhibit-quit t)		; disable C-g for now
-	  timeout-id)
+
+    (let (;;(inhibit-quit t)		; disable C-g for now
+	  timeout-id)			; [NO: don't do that]
       (sit-for 0)			; redisplay [does it work?]
       (if alive				; process still there
 	  (progn
@@ -425,7 +443,7 @@ exited by hand (or exits by itself)."
 	      (proof-deactivate-scripting-auto)
 	      ;; FIXME: if the shell is busy now, we should wait
 	      ;; for a while (in case deactivate causes processing)
-	      ;; and the send an interrupt.
+	      ;; and then send an interrupt.
 
 	      ;; Second, we try to shut down the proof process
 	      ;; politely.  Do this before deleting other buffers,
@@ -1776,14 +1794,24 @@ XEmacs only."
 ;;
 
 ;;;###autoload
-(defun proof-shell-wait (&optional timeout)
-  "Busy wait for `proof-shell-busy' to become nil, or for TIMEOUT seconds.
+(defun proof-shell-wait ()
+  "Busy wait for `proof-shell-busy' to become nil.
 Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
 in some cases.   May be called by `proof-shell-invisible-command'."
-  (while proof-shell-busy
-    (accept-process-output nil (or timeout 2)) ;; FIXME: make this longer
-    (sit-for 0)))			       ;; (use less CPU for busy wait)
+  (let ((proverproc (get-buffer-process proof-shell-buffer)))
+    (if proverproc ;; in case no prover process, just return (shouldn't happen)
+	(progn
+	  (sit-for 0) ;; ensure display up-to-date
+	  (while (and proof-shell-busy (not quit-flag))
+	    ;; We call both sit-for and accept-process-output, since
+	    ;; they have different behaviours in GNU Emacs/XEmacs.
+	    (accept-process-output proverproc 1)
+	    (sit-for 1))
+	  (if quit-flag
+	      ;; This *shouldn't* really happen, but lockups in this 
+	      ;; function have been seen in some odd scenarios.
+	      (error "Proof General: Quit in proof-shell-wait"))))))
 
 
 (defun proof-done-invisible (span)
@@ -1837,8 +1865,9 @@ Automatically add proof-terminal-char if necessary, examining
 proof-shell-no-auto-terminate-commands.
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
-before and after sending the command.
-If WAIT is an integer, wait for that many seconds afterwards."
+before and after sending the command."
+;; NB: 31.03.04: remove this case, since proof-shell-wait simplified:
+;; If WAIT is an integer, wait for that many seconds afterwards."
   (unless (stringp cmd)
     (setq cmd (eval cmd)))
   (unless (or (null proof-terminal-char)
@@ -1853,7 +1882,7 @@ If WAIT is an integer, wait for that many seconds afterwards."
   (proof-start-queue nil nil
 		     (list (proof-shell-command-queue-item 
 			    cmd 'proof-done-invisible)))
-  (if wait (proof-shell-wait (if (numberp wait) wait))))
+  (if wait (proof-shell-wait)))
 
 (defun proof-shell-invisible-cmd-get-result (cmd &optional noerror)
   "Execute CMD and return result as a string.
@@ -2001,9 +2030,18 @@ processing."
 
       (if (process-live-p proc)
 	  (progn
-	    ;; Send main intitialization command and wait for it to be
-	    ;; processed.   Also ensure that proof-action-list is initialised. 
+	    ;; Also ensure that proof-action-list is initialised. 
 	    (setq proof-action-list nil)
+	    ;; Send main intitialization command and wait for it to be
+	    ;; processed.   First, if the prover supports PGIP and
+	    ;; preferences are not configured, we may configure them.
+	    ;; (NB: this assumes that PGIP provers are ready-to-go, without
+	    ;;  needing init-cmd before PGIP processing).  We do
+	    ;; this so that preferences may be set in proof-shell-init-cmd.
+	    (if (and (not proof-assistant-settings)
+		     proof-shell-issue-pgip-cmd)
+		(pg-pgip-askprefs))
+	    ;; Now send the init cmd proper.
 	    (if proof-shell-init-cmd
 		(proof-shell-invisible-command proof-shell-init-cmd t))
       
