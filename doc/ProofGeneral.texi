@@ -1696,25 +1696,27 @@ you with several escape mechanisms if you want to do this.
 @section Visibility of completed proofs
 @cindex Visibility of proofs
 
-Large developments may consist of large files with many proofs.
-To help see what has been proved without the detail of the
-proof itself, Proof General can hide completed proofs.
+Large developments may consist of large files with many proofs.  To help
+see what has been proved without the detail of the proof itself, Proof
+General can hide portions of the proof script.  Two different kinds of
+thing can be hidden: comments and (what Proof General designates as) the
+body of proofs.
 
-You can toggle the visibility of a proof by using a context sensitive
-menu triggered by @b{clicking the right mouse button on a completed
-proof}, or the key @kbd{C-c v}, which runs @code{pg-toggle-visibility}.
-
+You can toggle the visibility of a proof script portion by using the
+context sensitive menu triggered by @b{clicking the right mouse button
+on a completed proof}, or the key @kbd{C-c v}, which runs
+@code{pg-toggle-visibility}.
 
 You can also select the ``disappearing proofs'' mode from the menu,
 @lisp
   Proof-General -> Options -> Disappearing Proofs
-@end lisp
-This automatically hides each proof as it is completed by the
-proof assistant.
+@end lisp 
+This automatically hides each the body of each proof portion
+as it is completed by the proof assistant.
 
 Finally, two menu commands in the main Proof-General menu,
-@emph{Show proofs} and @emph{Hide proofs} apply to all the completed
-proofs in the buffer.
+@emph{Show all} and @emph{Hide all} apply to all the completed
+portions in the buffer.
 
 Notice that by design, this feature only applies to completed proofs,
 @emph{after} they have been processed by the proof assistant.  When
