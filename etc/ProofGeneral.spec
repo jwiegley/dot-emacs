@@ -110,6 +110,8 @@ fi
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/phox
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/acl2
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/twelf
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/mmm
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/x-symbol
 %attr(-,root,root) /usr/share/emacs/ProofGeneral/images/*
 %attr(-,root,root) /usr/share/emacs/ProofGeneral/generic/*
 %attr(-,root,root) /usr/share/emacs/ProofGeneral/coq/*
@@ -120,3 +122,5 @@ fi
 %attr(-,root,root) /usr/share/emacs/ProofGeneral/phox/*
 %attr(-,root,root) /usr/share/emacs/ProofGeneral/acl2/*
 %attr(-,root,root) /usr/share/emacs/ProofGeneral/twelf/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/mmm/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/x-symbol/*
