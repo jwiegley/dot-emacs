@@ -93,12 +93,12 @@ no regular or easily discernable structure."
    ;; Probably it isn't general enough for all MLs, please send me
    ;; problem reports / patches.
    ;;
-   proof-shell-annotated-prompt-pattern
-			          "^\\(val it = () : unit\n\\)?> "
+   proof-shell-annotated-prompt-regexp
+					"^\\(val it = () : unit\n\\)?> "
 
    ;; This pattern is just for comint, it matches a range of
    ;; prompts from a range of MLs.
-   proof-shell-prompt-pattern     "^2?[-=#>]>? *"
+   proof-shell-prompt-pattern		"^2?[-=#>]>? *"
 
    proof-shell-cd			"cd \"%s\";"
    proof-shell-proof-completed-regexp   "No subgoals!"
@@ -121,12 +121,10 @@ no regular or easily discernable structure."
 					 proof-internal-home-directory
 					  "isa/ProofGeneral.ML\";")
    proof-shell-eager-annotation-start   "^\\[opening \\|^###"
-  ;;   proof-shell-eager-annotation-end "$"
    proof-shell-eager-annotation-end     "$"
    ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-goal-char	        ?\375
    proof-shell-first-special-char	?\360
-   proof-shell-annotated-prompt-regexp  proof-shell-prompt-pattern
    proof-shell-result-start	        "\372 Pbp result \373"
    proof-shell-result-end		"\372 End Pbp result \373"
    proof-analyse-using-stack		t
@@ -393,6 +391,6 @@ isa-proofscript-mode."
 ;; FIXME: broken, of course, as is all PBP everywhere.
 (defun isa-pbp-mode-config ()
   (setq pbp-change-goal "Show %s.")
-  (setq pbp-error-regexp isa-error-regexp))
+  (setq pbp-error-regexp proof-shell-error-regexp))
 
 (provide 'isa)
