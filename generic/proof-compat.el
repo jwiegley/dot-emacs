@@ -131,6 +131,16 @@ Otherwise treat \\ in NEWTEXT string as special:
     (concat rtn-str (substring str start)))))
 
 
+(or (fboundp 'buffer-syntactic-context)
+(defun buffer-syntactic-context (&optional buffer)
+  (save-excursion
+    (if buffer (set-buffer buffer))
+    (let ((pp (parse-partial-sexp 1 (point))))
+      (cond
+       ((nth 3 pp) 'string)
+       ((nth 7 pp) 'block-comment)
+       ((nth 4 pp) 'comment))))))
+
 
 
 ;; In case Emacs is not aware of the function read-shell-command,
