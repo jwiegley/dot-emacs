@@ -36,7 +36,12 @@ descriptor.   The default value proof-toolbar-default-button-list
 will work for any proof assistant.")
 
 (defvar proof-toolbar nil
-  "Proof mode toolbar.  Set in proof-toolbar-setup.")
+  "Proof mode toolbar button list.  Set in proof-toolbar-setup.")
+
+;; FIXME: edit-toolbar cannot edit proof toolbar (even in a proof mode)
+;; Need a variable containing  a specifier or similar.
+; (defvar proof-toolbar-specifier nil
+;   "Specifier for proof toolbar.")
 
 (defun proof-toolbar-setup ()
   "Initialize proof-toolbar and enable it for the current buffer.
