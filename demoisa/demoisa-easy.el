@@ -7,14 +7,13 @@
 ;; $Id$
 ;;
 ;; This is an alternative version of demoisa.el which uses the
-;; proof-easy-config macro to do the work of declaring derived modes,
-;; etc.  
+;; proof-easy-config macro to do most of the work.
 ;;
-;; This mechanism is in fact recommended for new instantiations of
+;; This mechanism is recommended for new instantiations of
 ;; Proof General since it follows a regular pattern, and we can more
-;; easily adapt it in the future to new versions of Proof General.
-;; It is easy to augment with additional elisp functions and
-;; other settings.
+;; easily adapt it in the future to new versions of Proof General
+;; using alternative architectures. It is still easy to augment 
+;; with additional elisp functions and other settings.
 ;;
 ;; See demoisa.el and the Adapting Proof General manual for more
 ;; documentation.
@@ -47,16 +46,11 @@
  proof-shell-start-goals-regexp  "Level [0-9]"
  proof-shell-end-goals-regexp    "val it"
  proof-shell-quit-cmd            "quit();"
- proof-assistant-home-page    
- "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
- proof-shell-annotated-prompt-regexp 
- "^\\(val it = () : unit\n\\)?ML>? "
- proof-shell-error-regexp             
- "\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
- proof-shell-init-cmd  
- "fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));"
+ proof-assistant-home-page       "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
+ proof-shell-annotated-prompt-regexp "^\\(val it = () : unit\n\\)?ML>? "
+ proof-shell-error-regexp        "\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
+ proof-shell-init-cmd            "fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));"
  proof-shell-proof-completed-regexp "^No subgoals!"
- proof-shell-eager-annotation-start   
- "^\\[opening \\|^###\\|^Reading")
+ proof-shell-eager-annotation-start "^\\[opening \\|^###\\|^Reading")
 
 (provide 'demoisa)
