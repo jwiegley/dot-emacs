@@ -576,6 +576,13 @@ beginning of the entity's region."
   :type 'function
   :group 'proof-script)
 
+;; FIXME mmw: increasing the horror even more ...
+
+(defcustom proof-really-save-command-p (lambda (span cmd) t)
+  "Is this really a save command?"
+  :type 'function
+  :group 'proof-script)
+
 (defcustom proof-lift-global nil
   "This function lifts local lemmas from inside goals out to top level.
 This function takes the local goalsave span as an argument. Set this
