@@ -394,7 +394,7 @@ matches contents of quotes for quoted identifiers.")
 (defconst isar-kill "kill;")
 
 (defun isar-remove (name)
-  (concat "init_toplevel; kill_thy \"" name "\";"))
+  (concat "init_toplevel; kill_thy " name ";"))
 
 (defun isar-undos (i)
   (if (> i 0) (concat "undos_proof " (int-to-string i) ";")

@@ -475,7 +475,7 @@ proof-shell-retract-files-regexp."
         (setq span nil))
        ;; theory: remove and exit
        ((proof-string-match isar-undo-remove-regexp str)
-        (setq ans (isar-remove (match-string 3 str)))
+        (setq ans (isar-remove (match-string 2 str)))
         (setq span nil))
        ;; context switch: kill
        ((proof-string-match isar-undo-kill-regexp str)
