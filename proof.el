@@ -19,6 +19,9 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.14  1997/10/16 14:12:04  djs
+;; Figured out display tables.
+;;
 ;; Revision 1.13  1997/10/16 08:48:56  tms
 ;; merged script management (1.10.2.18) with main branch
 ;;
@@ -1030,7 +1033,7 @@ at the end of locked region (after inserting a newline)."
 		 (error "Nothing to do!")))
       (setq semis (proof-segment-up-to (point)))
       (if (eq 'unclosed-comment (car semis))
-	  (progn (run-hook unclosed-comment-hook)
+	  (progn (run-hooks unclosed-comment-hook)
 		 (setq semis (cdr semis))))
       (if (and (not crowbar) (null semis)) (error "Nothing to do!")))
     (goto-char (caddar semis))
@@ -1134,12 +1137,12 @@ current command."
 
 (defun proof-process-active-terminator ()
   "Insert the terminator in an intelligent way and assert until the new terminator."
-  (let ((mrk (point)) ins semis)
+  (let ((mrk (point)) ins)
     (if (looking-at "\\s-\\|\\'\\|\\w") 
 	(if (not (re-search-backward "\\S-" (proof-end-of-locked) t))
 	    (error "Nothing to do!")))
-    (if (not (= (char-after (point)) proof-terminal-char))
-	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
+    (if (not (= (char-after (point)) proof-terminal-char)
+	(progn (forward-char) (insert proof-terminal-string) (setq ins t))))
     (proof-assert-until-point
      (function ()
 	       (if ins (backward-delete-char 1))
@@ -1212,17 +1215,12 @@ current command."
 ;  (setq comint-buffer-maximum-size 10000)
 ;
 
-;; Can't get this to work in XEmacs 19.15, probably because specifiers
-;; are not fully implemented. So instead:
-
-  (setq proof-shell-sanitise t)
-
-;  (let ((disp (make-display-table))
-;	(i 128))
-;	(while (< i 256)
-;	  (aset disp i "")
-;	  (incf i))
-;	(set-specifier current-display-table disp))
+  (let ((disp (make-display-table))
+	(i 128))
+	(while (< i 256)
+	  (aset disp i "")
+	  (incf i))
+	(add-spec-to-specifier current-display-table disp (current-buffer)))
 		  
   (setq comint-append-old-input nil)
   (setq proof-mark-ext (make-extent nil nil (current-buffer)))
