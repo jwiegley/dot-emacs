@@ -21,7 +21,7 @@ diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.
   
   (defcustom proof-info-directory
 !   (concat proof-home-directory "doc/")
-    "Where Proof General Info files are installed."
+    "Where Proof General Info files are installed. Ends with slash."
     :type 'directory
     :group 'proof-general-internals)
 --- 92,98 ----
@@ -29,7 +29,7 @@ diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.
   
   (defcustom proof-info-directory
 !   "/usr/info/"
-    "Where Proof General Info files are installed."
+    "Where Proof General Info files are installed. Ends with slash."
     :type 'directory
     :group 'proof-general-internals)
 diff -cr ProofGeneral.old/lego/legotags ProofGeneral/lego/legotags
