@@ -35,10 +35,11 @@ and old settings if you want to change back).
 Visibility controls now work for comments and commands in proof
 scripts.  An image is used in XEmacs to signal hidden text.
 
-*** Improvement to "Favourites" user-defined menus 
+*** Menu improvements (Favourites, options saving)
 
 Favourites are now more robust.  You can delete them and save them
-when you want.
+when you want.  The PG "quick" options can also be saved separately
+from other Emacs custom variables.
 
 *** Support for "tracing" buffers improved and enabled by default.
 
