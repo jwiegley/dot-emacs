@@ -14,6 +14,7 @@
 (load "proof-site.el")
 (load "proof-config.el")
 (load "proof.el")
+(load "proof-toolbar.el")
 (load "isa.el")
 (load "thy-mode.el")
 (load "coq.el")
