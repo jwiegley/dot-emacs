@@ -132,16 +132,18 @@
   (if (or (not (char-after)) (char-equal (char-after) ?\n)) t nil)
 )
 
-(defun find-reg (limit reg)
-  (if (< limit (point))
-      (let (x limit) (setq limit (point)) (goto-char x)))
-  (let ((pos nil))
-    (while 
-        (and (not pos)
-             (setq pos (proof-string-match reg (buffer-substring (point) limit))))
-      (forward-char pos)
-      (if (proof-looking-at-syntactic-context) (setq pos nil)))
-    pos)
+(defun find-reg (lim reg)
+  (let ((limit lim))
+	 (if (< limit (point)) ;swap limit and point
+		  (let ((x limit)) (setq limit (point)) (goto-char x)))
+	 (let ((pos nil))
+		(while 
+			 (and (not pos)
+					(setq pos (proof-string-match reg (buffer-substring (point) limit))))
+		  (forward-char pos)
+		  (if (proof-looking-at-syntactic-context) (setq pos nil)))
+		pos)
+	 )
   )
 
 (defun coq-back-to-indentation-prevline ()
@@ -290,7 +292,7 @@
 (defun coq-end-offset (&optional limit)
   "Find the first unclosed open indent item, and returns its column. Stop when reaching limit (defaults tp point-min)"
   (save-excursion
-    (let ((found nil) (cpt 0) (found nil) 
+    (let ((found nil) 
           (anyreg (proof-regexp-alt "\\`" proof-indent-any-regexp)))
       (while 
           (and (not found)
@@ -363,9 +365,7 @@
 (defun coq-indent-expr-offset (kind prevcol prevpoint record)
   "Returns the indentation column of the current line. This function indents a *expression* line (a line inside of a command). Use `coq-indent-command-offset' to indent a line belonging to a command. The fourth argument must be t if inside the {}s of a record, nil otherwise."
 
-  (let ((pt (point)) real-start unclosed)
-	 (save-excursion
-		(setq unclosed (coq-find-unclosed 1 prevpoint)))
+  (let ((pt (point)) real-start)
 	 (save-excursion 
 		(setq real-start (coq-find-real-start)))
   
@@ -473,7 +473,7 @@
 
 
 (defun coq-indent-offset ()
-  (let ((col (current-column)) kind prevpt prevcol)
+  (let (kind prevcol prevpoint)
 	 (save-excursion
 		(setq kind (coq-back-to-indentation-prevline) ;go to previous *command* (assert)
 				prevcol (current-column)

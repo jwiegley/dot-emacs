@@ -82,12 +82,11 @@ version of coq by doing 'coqtop -v'."  )
 		(setq coq-version-is-V74 nil) 
 		(setq coq-version-is-V7 nil))
 	  (t 
-		(let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
-				 ;; da: next line not used? Pierre: yes, string-match 1 ... 
-				 ;; at following line returns the last matched regexp (first parenth) 
-				 ;; so we need to make the string-match, and then match-string
-				 (x (string-match "version \\([.0-9]*\\)" str))
-				 (num (match-string 1 str)))
+		(let ((str (shell-command-to-string 
+						(concat coq-prog-name " -v"))))
+		  ;; this match sets match-string below
+		  (string-match "version \\([.0-9]*\\)" str)
+		  (let ((num (match-string 1 str)))
 		  ;; da: added this to avoid type error in case coq command fails
 		  (if (null num) (setq num ""))
 		  (cond
@@ -107,7 +106,7 @@ version of coq by doing 'coqtop -v'."  )
 			 (message v8) 
 			 (setq coq-version-is-V8 t)
 			 (setq coq-version-is-V7 t) 
-			 (setq coq-version-is-V74 t))))))))
+			 (setq coq-version-is-V74 t)))))))))
 
 ;; ----- keywords for font-lock.
 
