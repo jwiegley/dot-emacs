@@ -34,32 +34,34 @@
  (list 'make-variable-buffer-local (list 'quote var))
  (list 'defvar var 'nil))
 
-;; These have to be supplied to configure the mode properly
+;; These should be set before proof-config-done is called
 
 (deflocal proof-terminal-char)
 
-(deflocal proof-shell-prog-name)
-(deflocal proof-shell-process-name)
-(deflocal proof-shell-prompt-pattern)
-(deflocal proof-shell-mode-is)
+(make-local-hook 'proof-pre-shell-start-hook)
+(make-local-hook 'proof-post-shell-start-hook)
 
 (deflocal proof-comment-start)
 (deflocal proof-comment-end)
 
+;; these should be set in proof-shell-start-hook
+
+(deflocal proof-shell-prog-name)
+(deflocal proof-shell-process-name)
+(deflocal proof-shell-buffer-name)
+(deflocal proof-shell-prompt-pattern)
+(deflocal proof-shell-mode-is)
+
 ;; Supply these if you want
 
-(make-local-hook 'proof-shell-pre-display-hook)
-(make-local-hook 'proof-shell-post-display-hook)
 (make-local-hook 'proof-shell-safe-send-hook)
 (make-local-hook 'proof-shell-exit-hook)
 
 ;; These get computed in proof-mode-child-config-done
 
 (deflocal proof-terminal-string)
-(deflocal proof-shell-working-dir)
 (deflocal proof-re-end-of-cmd) 
 (deflocal proof-re-term-or-comment)
-(deflocal proof-shell-buffer-name)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;               Bridging the emacs19/xemacs gulf                   ;;
@@ -198,7 +200,13 @@
 	 (goto-char point)
 	 (proof-find-end-of-command (if COUNT (+ 1 COUNT) 2)))))
 
-(defun proof-shell-buffer () (get-buffer proof-shell-buffer-name))
+(defun proof-shell-process ()
+  (and (stringp proof-shell-process-name)
+       (get-process proof-shell-process-name)))
+
+(defun proof-shell-buffer () 
+  (and (stringp proof-shell-buffer-name)
+       (get-buffer proof-shell-buffer-name)))
 
 (defun proof-display-buffer (buffer)
   (let ((tmp-buffer (current-buffer)))
@@ -221,10 +229,15 @@
   (and (string-match proof-re-end-of-cmd string)
        (run-hooks 'proof-shell-safe-send-hook)))
 
+(defun proof-interrupt-subjob ()
+  (interactive)
+  (and (proof-shell-process)
+       (interrupt-process (proof-shell-process))))
+
 (defun proof-simple-send (string &optional silent)
    "send `string' to the PROOF PROCESS.
     If `silent' is enabled then `string' should not be echoed."
-  (or (get-process proof-shell-process-name) (proof-start-shell))
+  (or (proof-shell-process) (proof-start-shell))
   (let ((proof-buf (proof-shell-buffer)))
     (if proof-buf
 	(save-excursion
@@ -290,7 +303,6 @@
 (defun proof-command (command)
   (run-hooks 'lego-shell-safe-send-hook)
   (let ((str (proof-append-terminator command)))
-       (insert str)
   (proof-simple-send str)))
 
 
@@ -301,6 +313,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun proof-start-shell ()
+  (run-hooks 'proof-pre-shell-start-hook)
   (let ((proof-buf (and proof-shell-process-name (proof-shell-buffer))))
     (if (comint-check-proc proof-buf)
         ()
@@ -309,7 +322,6 @@
              (setq proof-shell-prog-name
                    (read-shell-command "Run process: "
                                        proof-shell-prog-name))))
-      (setq proof-shell-working-dir default-directory)
       (or proof-shell-process-name
           (setq proof-shell-process-name
                 (concat
@@ -321,6 +333,7 @@
       
       (proof-spawn-process proof-shell-prog-name 
 			 proof-shell-process-name proof-shell-buffer-name)
+      (run-hooks 'proof-post-shell-start-hook)
       (message 
        (format "Starting %s process... done." proof-shell-process-name)))))
   
@@ -341,11 +354,8 @@
   (setq comint-scroll-to-bottom-on-output t)
   (setq comint-input-sender 'proof-input-sender)
   (and running-emacs19 (setq comint-scroll-show-maximum-output t))
-
-  (run-hooks 'proof-shell-pre-display-hook)
   (proof-display-buffer buffer-name)
   (set-buffer buffer-name)
-  (run-hooks 'proof-shell-post-display-hook)
   )
 
 (defun proof-shell-exit ()
@@ -371,11 +381,6 @@
 
 	     (message 
 	      (format "%s process terminated." proof-shell-process-name)))))))
-
-(defun proof-interrupt-subjob ()
-  "Send an interrupt signal to the PROOF process."
-  (interactive) (proof-simple-send "\C-q\C-c" t))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          Active terminator minor mode                            ;;
@@ -487,7 +492,8 @@ current command."
 (define-key proof-mode-map [(control c) (control e)]
   'proof-find-end-of-command)
 (define-key proof-mode-map [(control c) (control j)] 'proof-send-line)
-(define-key proof-mode-map [(control c) (control r)] 'proof-send-region)
+(define-key proof-mode-map [(control c) r] 'proof-send-region)
+(define-key proof-mode-map [(control c) (control c)] 'proof-interrupt-subjob)
 
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof shell mode - not standalone"
@@ -497,9 +503,7 @@ current command."
 ;; elegant mechanism for computing constants after the child has
 ;; configured.
 
-(defun proof-mode-child-config-done () 
-
-  (setq proof-shell-buffer-name (concat "*" proof-shell-process-name "*"))
+(defun proof-config-done () 
 
 ;; calculate some strings and regexps for searching
 
@@ -517,6 +521,13 @@ current command."
   (setq proof-re-term-or-comment 
 	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
 		"\\|" (regexp-quote proof-comment-end)))
+
+  (define-key proof-mode-map
+    (vconcat [(control c)] (vector proof-terminal-char))
+    'proof-active-terminator-minor-mode)
+
+  (define-key proof-mode-map proof-terminal-char 'proof-active-terminator)
+
   )
 
 

@@ -260,7 +260,7 @@
   (append lego-font-lock-keywords-1
 	  (list
 	   (cons (ids-to-regexp lego-shell-keywords) 
-		 'font-lock-keywords-name-face)
+		 'font-lock-keyword-face)
 	   '("\\<defn\\>  \\([^ \t\n\)]+\\) =" 1 font-lock-function-name-face)
 	  '("^\\(value of\\|type  of\\) \\([^ \t\n\)]+\\) =" 2 
 	    font-lock-function-name-face)
@@ -323,23 +323,6 @@
            (setq path-name ".")))       
     (string-to-list path-name lego-path-separator)))
 
-(defun lego-add-common-bindings (map)
-  "*adds keybindings used in both lego-mode and lego-shell."
-  (define-key map "\M-\C-i"
-    (if (fboundp 'complete-tag)
-	'complete-tag		; Emacs 19.31 (superior etags)
-      'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
-  (define-key map "\C-c\C-s" 'legogrep)
-  (define-key map "\C-c\C-p" 'lego-prf)
-  (define-key map "\C-ci"    'lego-intros)
-  (define-key map "\C-cI"    'lego-Intros)
-  (define-key map "\C-cr"    'lego-Refine)
-  (define-key map "\C-c\C-k" 'lego-killref)
-  (define-key map "\C-c\C-u" 'lego-undo-1)
-  (define-key map "\C-c\C-t" 'lego-restart-goal)
-  (define-key map "\C-c\C-c" 'proof-interrupt-subjob)
-  map)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -395,7 +378,7 @@
   (proof-start-shell))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Line width auto-adjust                                         ;;
+;;   Lego shell startup and exit hooks                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar lego-shell-current-line-width nil
@@ -422,28 +405,36 @@
 
 (defun lego-shell-zap-line-width () 	     
   (setq lego-shell-current-line-width nil))
-      
-(defun lego-shell-init-lego ()
-  (setq compilation-search-path (cons nil (lego-get-path)))
+
+(defun lego-shell-start-pp ()
   (cond (lego-pretty-p
 	 (setq lego-shell-current-line-width nil)
 	 (accept-process-output (get-process proof-shell-process-name))
 	 (proof-simple-send lego-pretty-on t))))
 
+(defun lego-shell-pre-shell-start ()
+  (setq proof-shell-prog-name lego-shell-prog-name)
+  (setq proof-shell-process-name lego-shell-process-name)
+  (setq proof-shell-buffer-name (concat "*" lego-shell-process-name "*"))
+  (setq proof-shell-prompt-pattern lego-shell-prompt-pattern))
+  (setq proof-shell-mode-is 'lego-shell-mode)
+;; (Note that emacs can't cope with aliases to buffer local variables)
+
+(defun lego-shell-post-shell-start ()
+  (lego-shell-start-pp)
+  (setq compilation-search-path (cons nil (lego-get-path)))
+  (add-hook 'proof-safe-send-hook 'lego-adjust-line-width)
+  (add-hook 'proof-shell-exit-hook 'lego-zap-line-width)
+  (font-lock-fontify-buffer))
+
+
+(add-hook 'proof-pre-shell-start-hook 'lego-shell-pre-shell-start)
+(add-hook 'proof-post-shell-start-hook 'lego-shell-post-shell-start)
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Make support    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun possibly-save-current-buffer ()
-  "If the buffer has been modified, the user will be asked if it
-should be saved and appropriate action will be taken. This code was
-nicked from AUCTeX's tex-buffer.el"
-  (and (buffer-modified-p)
-       (or (not lego-save-query)
-           (y-or-n-p (concat "Save file "
-                             (buffer-file-name)
-                             "? ")))
-       (save-buffer)))  
+(defvar lego-tmp-dir nil)
 
 (defun lego-module-name (file)
   "Extract the name of the module from a file."
@@ -452,109 +443,55 @@ nicked from AUCTeX's tex-buffer.el"
 (defun lego-make-buffer ()
   "Save file then execute a Make command on it."
   (interactive)
-  (possibly-save-current-buffer)
+  (and (buffer-modified-p)
+       (or (not lego-save-query)
+           (y-or-n-p (concat "Save file "
+                             (buffer-file-name)
+                             "? ")))
+       (save-buffer))
   (let ((module-name (lego-module-name buffer-file-name)))
     (proof-simple-send (concat lego-make-command " " module-name ";") t)))
 
 (defun lego-make-buffer-until-point ()
-  "Comment out anything after point, then save file and run a Make"
+  "Save from start of buffer until point, then run a Make"
   (interactive)
-  (let ((current-buffer (current-buffer))
-        (temp-buffer (generate-new-buffer "*LEGO TMP*")))
-    (save-excursion
-      (set-buffer temp-buffer)
-      (insert-buffer current-buffer))
-    (let ((current-point (point)))
-      (insert proof-comment-start)
-      (goto-char (point-max))
-      (insert proof-comment-end)
-      (lego-make-buffer)
-      (erase-buffer)
-      (insert-buffer temp-buffer)
-      (goto-char current-point))
-    (kill-buffer temp-buffer)))
+  (let ((file (concat lego-tmp-dir  "/" 
+		      (lego-module-name buffer-file-name) ".l")))
+    (write-region (point-min) (point) file)
+    (proof-simple-send 
+     (concat lego-make-command " \"" file "\";") t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof mode and setting up various utilities        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun lego-shell-mode-config ()
+(defun lego-common-config ()
 
-  (lego-add-common-bindings lego-shell-mode-map)
-  (easy-menu-add lego-shell-menu lego-shell-mode-map)
-  (define-key lego-shell-mode-map
-      (if running-xemacs [(meta button1)] [S-down-mouse-1]) 
-        'lego-x-mouse-refine-point))
-
-      ;; in XEmacs 19.11 [S-down-mouse-1] is bound to
-      ;; `mouse-track-adjust'
-      ;; in Emacs 19.28 [(meta button1)] is bound to
-      ;; `mouse-drag-secondary' 
-
-
-(defun lego-mode-config ()
-
-;; ----- things before proof-mode-child-config-done are mandatory.
+;; The following things *must* be set before proof-config-done
 
   (setq proof-terminal-char ?\;)
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
-  (modify-syntax-entry ?_ "w" lego-mode-syntax-table)
-  (modify-syntax-entry ?\* ". 23" lego-mode-syntax-table)
-  (modify-syntax-entry ?\( "()1" lego-mode-syntax-table)
-  (modify-syntax-entry ?\) ")(4" lego-mode-syntax-table)
 
-;; These should really be defvaralias, since if the user changes them
-;; interactively proof mode won't see the alterations. Unfortunately
-;; emacs can't cope with aliases to buffer local variables
+  (modify-syntax-entry ?_ "w")
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4")
 
-  (setq proof-shell-prog-name lego-shell-prog-name)
-  (setq proof-shell-process-name lego-shell-process-name)
-  (setq proof-shell-prompt-pattern lego-shell-prompt-pattern)
-  (setq proof-shell-working-dir lego-shell-working-dir)
-  (setq proof-shell-mode-is 'lego-shell-mode)
+  (proof-config-done)
 
-  (proof-mode-child-config-done)
-
-;; ---------- Everything below here is strictly optional - it's mostly
-;; ---------- just support for minor modes
-
-
-;; where to find files
-
-  (setq compilation-search-path (cons nil (lego-get-path)))
-
-;; hooks to support automatic line-width adjustment
-
-  (add-hook 'proof-shell-safe-send-hook 'lego-adjust-line-width)
-  (add-hook 'proof-shell-exit-hook 'lego-shell-zap-line-width)
-  (add-hook 'proof-shell-pre-display-hook 'lego-shell-init-lego)
-
-;; keymaps and menus
-
-  (lego-add-common-bindings lego-mode-map)
-
-  ;; tms - I don't understand why "(control c) ?;" works, yet
-  ;; "(control c) proof-terminal-char" doesn't 
-  (define-key lego-mode-map [(control c) ?;]
-  'proof-active-terminator-minor-mode)
-  (define-key lego-mode-map proof-terminal-char       'proof-active-terminator)
-
-  (define-key lego-mode-map [(control c) (control b)] 'lego-make-buffer)
-  (define-key lego-mode-map [(control c) (control h)] 
-    'lego-make-buffer-until-point)
-
-  (easy-menu-add lego-mode-menu lego-mode-map)
-
-;; etags support for Emacs 19.31
-
-  (cond ((boundp 'tags-table-list)
-	 (make-local-variable 'tags-table-list)
-	 (setq tags-table-list (cons lego-tags tags-table-list))
-	 (setq tag-table-alist
-	       (append '(("\\.l$" . lego-tags)
-			 ("lego"  . lego-tags))
-		       tag-table-alist))))
+  (define-key (current-local-map) "\M-\C-i"
+    (if (fboundp 'complete-tag)
+	'complete-tag		; Emacs 19.31 (superior etags)
+      'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
+  (define-key (current-local-map) "\C-c\C-s" 'legogrep)
+  (define-key (current-local-map) "\C-c\C-p" 'lego-prf)
+  (define-key (current-local-map) "\C-ci"    'lego-intros)
+  (define-key (current-local-map) "\C-cI"    'lego-Intros)
+  (define-key (current-local-map) "\C-cr"    'lego-Refine)
+  (define-key (current-local-map) "\C-c\C-k" 'lego-killref)
+  (define-key (current-local-map) "\C-c\C-u" 'lego-undo-1)
+  (define-key (current-local-map) "\C-c\C-t" 'lego-restart-goal)
 
 ;; outline
   
@@ -564,31 +501,52 @@ nicked from AUCTeX's tex-buffer.el"
   (make-local-variable 'outline-heading-end-regexp)
   (setq outline-heading-end-regexp lego-outline-heading-end-regexp)
 
-;; hooks for font locks
+;; tags
+  (cond ((boundp 'tags-table-list)
+	 (make-local-variable 'tags-table-list)
+	 (setq tags-table-list (cons lego-tags tags-table-list))
+	 (setq tag-table-alist
+	       (append '(("\\.l$" . lego-tags)
+			 ("lego"  . lego-tags))
+		       tag-table-alist))))
 
-(cond (running-xemacs
-       (put 'lego-mode 'font-lock-keywords 'lego-font-lock-keywords-1)
-       (put 'lego-shell 'font-lock-keywords
-	    'lego-shell-font-lock-keywords-1))
+;; font lock hacks
 
-      (running-emacs19
-       (add-hook 'lego-mode-hook
-		 '(lambda () (setq font-lock-keywords
-				   lego-font-lock-keywords-1)))
-       
-       (add-hook 'lego-shell-post-display-hook
-		 '(lambda () (setq font-lock-keywords
-				   lego-shell-font-lock-keywords-1)))))
+  (font-lock-mode)
+  (remove-hook 'font-lock-after-fontify-buffer-hook  'lego-zap-commas-buffer t)
+  (add-hook 'font-lock-after-fontify-buffer-hook  'lego-zap-commas-buffer nil t)
 
-(remove-hook 'font-lock-after-fontify-buffer-hook  'lego-zap-commas-buffer t)
-(add-hook 'font-lock-after-fontify-buffer-hook  'lego-zap-commas-buffer nil t)
+  (remove-hook 'font-lock-mode-hook 'lego-fixup-change t)
+  (add-hook 'font-lock-mode-hook 'lego-fixup-change nil t)
 
-(remove-hook 'font-lock-mode-hook 'lego-fixup-change t)
-(add-hook 'font-lock-mode-hook 'lego-fixup-change nil t)
+  ;; if we don't have the following, zap-commas fails to work.
 
-;; if we don't have the following, zap-commas fails to work.
+  (setq font-lock-always-fontify-immediately t)
 
-(setq font-lock-always-fontify-immediately t)
+)
+
+
+(defun lego-mode-config ()
+
+  (lego-common-config)
+  
+;; where to find files
+
+  (setq compilation-search-path (cons nil (lego-get-path)))
+  (or lego-tmp-dir
+      (make-directory 
+       (setq lego-tmp-dir (make-temp-name "/tmp/lego"))))
+
+;; keymaps and menus
+  (define-key lego-mode-map [(control c) (control b)] 'lego-make-buffer)
+  (define-key lego-mode-map [(control c) (control h)] 
+    'lego-make-buffer-until-point)
+
+  (easy-menu-add lego-mode-menu lego-mode-map)
+
+;; font-lock
+  (setq font-lock-keywords lego-font-lock-keywords-1)
+  (font-lock-fontify-buffer)
 
 ;; insert standard header and footer in fresh buffers
 
@@ -600,5 +558,28 @@ nicked from AUCTeX's tex-buffer.el"
 		(format "Module %s;" (lego-module-name buffer-file-name)))
 	       )))
   )
+
+
+
+(defun lego-shell-mode-config ()
+
+  (lego-common-config)
+
+  (define-key lego-shell-mode-map
+      (if running-xemacs [(meta button1)] [S-down-mouse-1]) 
+        'lego-x-mouse-refine-point)
+
+      ;; in XEmacs 19.11 [S-down-mouse-1] is bound to
+      ;; `mouse-track-adjust'
+      ;; in Emacs 19.28 [(meta button1)] is bound to
+      ;; `mouse-drag-secondary' 
+
+  (easy-menu-add lego-shell-menu lego-shell-mode-map)
+
+  (and running-xemacs (define-key lego-shell-mode-map 
+	[button3] 'lego-shell-menu))
+
+  (setq font-lock-keywords lego-shell-font-lock-keywords-1)
+)
 
 (provide 'lego)
