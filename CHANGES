@@ -60,6 +60,10 @@ instead of customizing the `proof-assistants' variable.
 *** Various efficiency improvements 
 
 
+*** Desktop integration for RedHat 7.3, Mandrake 8.2 in RPM package.
+
+
+
 
 ** Isabelle Changes
 
