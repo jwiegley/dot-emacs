@@ -1,17 +1,9 @@
 -*- outline -*-
 
-* Summary of Changes for Proof General 3.1 from 3.0
+* Summary of Changes for Proof General 3.2 from 3.1
 
 
 ** New instantiations of Proof General!
-
-*** HOL 98 (http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html)
-
-   by David Aspinall.  This is a fairly basic Proof General instance
-   only, hopefully to entice HOL users so that one of them may improve it.
-   I don't plan to maintain or improve this instantiation myself.
-   (Nevertheless, please report problems as usual to proofgen@dcs.ed.ac.uk)
-   See README in the hol98 directory for more details.
 
 *** Plastic (http://www.dur.ac.uk/CARG/plastic.html)  (ongoing work)
   
@@ -20,154 +12,17 @@
    so this is only included in the developers tar file.
 
 
-
 ** Generic Changes
-
-*** Added key binding C-c C-BS and menu entry for delete last command
-
-  This restores the old function of the sequence "C-u C-c C-u" onto
-  a safer key.  In version 3.0 it was only available via
-  control-button2 in the goals buffer.  The function invoked is 
-  `proof-undo-and-delete-last-successful-command'.
-
-*** Separate README and BUGS files for each supported prover
-
-  Check these files for detail of support and issues with each prover.
-
-*** Fixes for different Emacsen compatibility
-
-**** Supporting Japanese versions of Emacs which have older CL macs.
-    Problems occurred with CL macs with Japanicised documentation,
-    defined in "egg.el". 
-    Japanese Emacs users, please report any other problems you find,
-    they may be fixable for similar reasons.  Better still, report these
-    compatibility problems also to the Japanese Emacs developers, I
-    don't know who to contact.
-
-**** Bug fix for (non-mule) FSF Emacs 20.5.  
-     Emacs would freeze when starting proof assistant due to character 
-     matching problem.
-
-**** Fixes for XEmacs on Windows.  
-     Toolbar now enabled when console-type=mswindows.
-
-
-*** Fix for infamous Solaris ^G problem: proof-shell-process-connection-type 
-
-  A user (or proof assistant configuration) can now specify whether
-  to use pty or piped communication.  This is to fix the problem that
-  Solaris users have (because of a Solaris bug), when lots of ^G's
-  appear.  
-  
-  The default setting for proof-shell-process-connection-type is made
-  by calling uname, if possible.  If this contains "sun"
-  then proof-shell-process-connection-type is set to nil for using
-  pipes.  Otherwise we use ptys which are to be prefered over pipes
-  because pipes can become full or lose data, and pipes don't work
-  which some proof assistants.
-
-  If necessary, you can override this by customization, as usual.
-  
-
-*** Minor cosmetic improvements
-
-**** Names of shell, goals, script buffers now based on proof assistant name
-   Basing the name on the command wasn't very abstract and lead to strange 
-   names for some provers, "coqtop" and "hol.unquote".  Now we just use
-   the lower case of the proof assistant name.
-
-**** Name of proof assistant "Start Isabelle" etc. appears in menu.
-
-*** Minor bug fixes
-
-**** Fix for using electric terminator inside locked region.
-  With strict read only turned off, would get Emacs error.  
-  Now simply inserts terminator char anywhere in locked region.
-  [Reported by David von Oheimb]
-
-**** Fix for turning on multiple frame mode
-  Would trigger error if there was no active scripting buffer.
-  [Reported by David von Oheimb]
-
-**** Fix for duplicated short output.
-  Only seen with "val x=1" or similar very short messages.
-  We now set proof-shell-eager-annotation-start-length appropriately.
-  [Reported by John Longley]
-
-**** Fixes for filenames with odd characters in them (mainly for Windows)
-  Fixes to allow filenames with \ and " in them.
-  Added for Coq, Isabelle, and HOL.  
-  [Reported by Kim Hyung Ho]
-
-**** Fixes for Windows
-  Solve some bizarre file reading problems (some still remain, buggy XEmacs?)
-  Add default colours for using in Windows.
-
 
 
 ** Coq Changes
 
-*** Incomplete handling of Section
-
-  Coq PG will now issue Reset commands for sections.  This still
-  doesn't mirror the undo behaviour of sections properly, which
-  should be treated as atomic, but it means that you can retract
-  a file with sections in, at least.
-
-
-
 
 ** LEGO Changes
 
-*** Fix for error messages, now properly displays "cannot assume" message.
-
-
-
-
-
 ** Isabelle Changes
-
-*** Fix for Poly/ML with interrupts: use proof-shell-pre-interrupt-hook
-
-*** Fix for directory changes under Windows
-
-    We use different low-level cd command that understands Windows syntax.
-    But since Isabelle functions don't understand Windows syntax, we map
-    backslashes -> forward slashes there.
-
-*** Bug fix with .thy files and X-Symbol mode
-  
-    Subsequently visited theory files would have X-Symbols broken.  
-
-
-
-
 
 ** Isar Changes
 
-*** Syntax tweaks.
-
-*** Fix for Poly/ML with interrupts: use proof-shell-pre-interrupt-hook
-
-*** Fix for directory changes under Windows
-
-
-
-
 ** Changes for developers to note
 
-*** todo files added for each prover (todo split from global todo).
-
-*** Added new configuration hook:  proof-shell-pre-interrupt-hook
-
-  This is added particularly for Isabelle running with Poly/ML,
-  which requires interaction after an interrupt.
-
-*** Added new customization: proof-shell-filename-escapes
-
- See documentation for details.  This was to fix filename substitution
- for occasions when Proof General needs to escape some special
- characters in the filename.  Each prover should set this for
- good behaviour with strange filenames (including those of Windows!)
-
-*** for others, see ChangeLog.
