@@ -86,22 +86,92 @@
 ;; ----- coq specific menu
 
 (defpgdefault menu-entries
-  '(["Print..." coq-Print t]
+  '(
+    ("Insert Command" 
+      "COMMAND               ABBREVIATION"
+     ["Definition            def<ctrl-backspace>" (insert-and-expand "def") t]
+     ["Fixpoint              fix<ctrl-backspace>" (insert-and-expand "fix") t]
+     ["Functional Scheme     fs<ctrl-backspace>" (insert-and-expand "fs") t]
+     ["Functional Scheme w   fs<ctrl-backspace>" (insert-and-expand "fs") t]
+     ["Inductive             indv<ctrl-backspace>" (insert-and-expand "indv") t]
+     ["Inductive1            indv1<ctrl-backspace>" (insert-and-expand "indv1") t]
+     ["Inductive2             indv2<ctrl-backspace>" (insert-and-expand "indv2") t]
+     ["Inductive3            indv3<ctrl-backspace>" (insert-and-expand "indv3") t]
+     ["Inductive4            indv4<ctrl-backspace>" (insert-and-expand "indv4") t]
+     ["Lemma                 l<ctrl-backspace>" (insert-and-expand "l") t]
+     ["Scheme                sc<ctrl-backspace>" (insert-and-expand "sc") t]
+     ["hint Immediate        hi<ctrl-backspace>" (insert-and-expand "hi") t]
+     ["hint Resolve          hr<ctrl-backspace>" (insert-and-expand "hr") t]
+     ["hint extern           he<ctrl-backspace>" (insert-and-expand "he") t]
+     ["hints                 hs<ctrl-backspace>" (insert-and-expand "hs") t]
+     )
+
+    ("Insert term" 
+     "FORM           ABBREVIATION"
+     ["forall        fo<ctrl-backspace>"  (insert-and-expand "fo") t]
+     ["forall1       fo1<ctrl-backspace>"  (insert-and-expand "fo1") t]
+     ["forall2       fo2<ctrl-backspace>" (insert-and-expand "fo2") t]
+     ["forall3       fo3<ctrl-backspace>" (insert-and-expand "fo3") t]
+     ["forall4       fo4<ctrl-backspace>" (insert-and-expand "fo4") t]
+     ["fun           f<ctrl-bacspace>"  (insert-and-expand "f") t]
+     ["fun1          f1<ctrl-bacspace>"  (insert-and-expand "f1") t]
+     ["fun2          f2<ctrl-backspace>" (insert-and-expand "f2") t]
+     ["fun3          f3<ctrl-backspace>" (insert-and-expand "f3") t]
+     ["fun4          f4<ctrl-backspace>" (insert-and-expand "f4") t]
+     ["if then else  if<ctrl-backspace>"  (insert-and-expand "li") t]
+     ["let in        li<ctrl-backspace>"  (insert-and-expand "li") t]
+     ["match         m<ctrl-backspace>"  (insert-and-expand "m") t]
+     ["match2        m2<ctrl-backspace>"  (insert-and-expand "m2") t]
+     ["match3        m3<ctrl-backspace>"  (insert-and-expand "m3") t]
+     ["match4        m4<ctrl-backspace>"  (insert-and-expand "m4") t]
+     ["match5        m5<ctrl-backspace>"  (insert-and-expand "m5") t]
+     )
+
+    ("Insert tactic" 
+     "TACTIC           ABBREVIATION"
+     ["absurd                 ab<ctrl-bacspace>"  (insert-and-expand "ab") t]
+     ["absurd                 abs<ctrl-bacspace>"  (insert-and-expand "abs") t]
+     ["assumption             as<ctrl-bacspace>"  (insert-and-expand "as") t]
+     ["auto                   a<ctrl-bacspace>"  (insert-and-expand "a") t]
+     ["auto with              aw<ctrl-bacspace>"  (insert-and-expand "aw") t]
+     ["auto with arith        awa<ctrl-bacspace>"  (insert-and-expand "awa") t]
+     ["cases                  c<ctrl-bacspace>"  (insert-and-expand "c") t]
+     ["decompose              dec<ctrl-bacspace>"  (insert-and-expand "dec") t]
+     ["discriminate           di<ctrl-bacspace>"  (insert-and-expand "di") t]
+     ["eauto                  ea<ctrl-bacspace>"  (insert-and-expand "ea") t]
+     ["eauto with             eaw<ctrl-bacspace>"  (insert-and-expand "dec") t]
+     ["elim                   e<ctrl-bacspace>"  (insert-and-expand "e") t]
+     ["elim using             elu<ctrl-bacspace>"  (insert-and-expand "elu") t]
+     ["exists                 ex<ctrl-bacspace>"  (insert-and-expand "ex") t]
+     ["functional induction   fi<ctrl-bacspace>"  (insert-and-expand "fi") t]
+     ["generalize             g<ctrl-bacspace>"  (insert-and-expand "g") t]
+     ["induction              ind<ctrl-bacspace>"  (insert-and-expand "ind") t]
+     ["intro                  i<ctrl-bacspace>"  (insert-and-expand "i") t]
+     ["intros                 is<ctrl-bacspace>"  (insert-and-expand "is") t]
+     ["inversion              inv<ctrl-bacspace>"  (insert-and-expand "inv") t]
+     ["omega                  om<ctrl-bacspace>"  (insert-and-expand "om") t]
+     ["rewrite                r<ctrl-bacspace>"  (insert-and-expand "r") t]
+     ["simpl                  s<ctrl-bacspace>"  (insert-and-expand "s") t]
+     ["simpl                  si<ctrl-bacspace>"  (insert-and-expand "si") t]
+     ["split                  sp<ctrl-bacspace>"  (insert-and-expand "sp") t]
+     ["symmetry               sym<ctrl-bacspace>"  (insert-and-expand "sym") t]
+     ["trivial                t<ctrl-bacspace>"  (insert-and-expand "t") t]
+     ["trivial                tr<ctrl-bacspace>"  (insert-and-expand "tr") t]
+     ["unfold                 u<ctrl-bacspace>"  (insert-and-expand "u") t]
+     )
+
+    ["Print..." coq-Print t]
     ["Check..." coq-Check t]
     ["Hints" coq-PrintHint t]
-    ["Intros..." coq-Intros t]
     ["Show ith goal..." coq-Show t]
-    ["Apply"  coq-Apply t]
     ["Search isos/pattern..." coq-SearchIsos t]
     ["expand abbrev at point" expand-abbrev t]
-    ["list abbrevs" list-abbrevs t]
     ["What are those #??" (holes-short-doc) t]
-    ["insert Fixpoint" (insert-and-expand "fix") t]
-    ["insert Definition" (insert-and-expand "def") t]
+    ["list abbrevs" list-abbrevs t]
     ["3 buffers view" coq-three-b t]
     ["Begin Section..." coq-begin-Section t]
     ["End Section" coq-end-Section t]
-    ["Compile" coq-Compile t]))
+    ["Compile" coq-Compile t] ))
 
 
 

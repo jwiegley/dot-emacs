@@ -841,10 +841,16 @@ created"
 	(count-holes-in-last-expand) empty-hole-string)
   )
 
+; insert the expansion of abbrev s, and replace #s by holes. It was
+; possible to implement it with a simple ((insert s) (expand-abbrev))
+; but undo would show the 2 steps, which is bad.
 
 (defun insert-and-expand (s)
-  (insert s)
-  (expand-abbrev)
+  (let* ((exp (abbrev-expansion s))
+		  (c (count-char-in-string empty-hole-string exp)))
+	 (insert exp)
+	 (replace-string-by-holes-backward-move-point c empty-hole-string)
+	 )
   )
 
 (provide 'holes)
