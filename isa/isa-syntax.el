@@ -134,7 +134,7 @@
 	  "\\)\\s-+\"\\(" isa-id "\\)\"\\s-*;"))
 
 (defcustom isa-goal-command-regexp
-  (concat "^" (proof-ids-to-regexp isa-keywords-goal))
+  (proof-ids-to-regexp isa-keywords-goal)
   "Regular expression used to match a goal."
   :type 'regexp
   :group 'isabelle-config)
