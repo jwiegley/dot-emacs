@@ -72,8 +72,8 @@ variable proof-home-directory."
 	      (file-name-directory (buffer-file-name)))))
 	(file-name-directory (substring curdir 0 -1))))
   "Directory where Proof General is installed. Ends with slash.
-Default value taken from environment variable PROOFGENERAL_HOME if set, 
-otherwise based on where the file proof-site was loaded from.
+Default value taken from environment variable `PROOFGENERAL_HOME' if set, 
+otherwise based on where the file `proof-site.el' was loaded from.
 You can use customize to set this variable."
   :type 'directory
   :group 'proof-general-internals)
