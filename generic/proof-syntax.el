@@ -100,7 +100,7 @@ nil if a region cannot be found."
 (defun proof-looking-at-syntactic-context ()
   "Determine if current point is at beginning or within comment/string context."
   (or
-   (buffer-syntactic-context)
+   (proof-buffer-syntactic-context)
    (proof-looking-at-safe proof-comment-start-regexp)
    (proof-looking-at-safe proof-string-start-regexp)))
 
