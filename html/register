@@ -1,0 +1,110 @@
+<?php  
+##
+##  Proof General registration form.
+##  
+##  David Aspinall, June 1999.
+##
+##  $Id$
+##
+  require('functions.php3');
+
+  $failure= ($argv[0]=="submit" && ($name=="" || $email=="" || $site==""));
+
+  if ($argv[0] !="submit" || $failure):
+###
+### Registration form
+###
+  small_header("Proof General Registration"); 
+
+  if ($failure):
+?>
+<p>
+  Your registration form was incomplete.  Please fill in all
+  the fields, thank-you!
+</p>
+<?php else: 
+  $mailinglist=true 
+?>
+<p>
+Please register your download using the short form below.  
+<br> 
+The information provided will only be used to help
+provide a case for support for Proof General in the future.
+</p>
+<p>
+If you have already registered you do not need to fill in the form
+again, so return to <a href="download#prereq">the download page</a>.
+</p>
+<?php endif; ?>
+<h2>Registration Form</h2>
+<form method=post action="<?php print $PHP_SELF . "?submit"; ?>">
+<table width="300" border="0" cellspacing="2" cellpadding="0">
+<tr>
+ <td width="30%">Your name:</td>
+ <td width="70%"><input type=text name="name" size="40" 
+		  value="<?php echo $name;?>"></td>
+</tr>
+<tr>
+ <td width="30%">Email address:</td>
+ <td width="70%"><input type=text name="email" size="40"
+		  value="<?php echo $email;?>"></td>
+</tr>
+<tr>
+ <td width="30%">Site name:</td>
+ <td width="70%"><input type=text name="site" size="40"
+		  value="<?php echo $site;?>"></td>
+</tr>
+<tr>
+ <td width="30%"><input type=checkbox name="mailinglist"
+		  <?php if ($mailinglist) print "checked"; ?>></td>
+ <td width="70%">Please add me to the mailing list.</td>
+</table>
+<input type=submit value="Send form"> 
+</form>
+<p>
+</p>
+<?php  
+   click_to_go_back(); 
+   footer(); 
+  else:
+##
+##  Process registration
+##
+   small_header("Registration Form Sent");
+
+
+   $message = "Registration form for using Proof General" 
+	    . "\nName:\t\t " . $name
+	    . "\nEmail:\t\t " . $email
+	    . "\nSite:\t\t " . $site
+	    . "\nSubmitted:\t" . date("h:ia D jS F Y");
+   mail("proofgen@dcs.ed.ac.uk",
+	"[Registration form from ~proofgen]",
+	 $message);
+   
+   print "<p>Dear " . $name . ",</p>\n"; 
+   print "<p>";
+   print "Thank you for filling in the form. Your registration has been sent.<br>";
+
+   /* Next bit duplicated in mailinglist.html.  
+      Could be a function in functions.php3 */
+
+   if ($mailinglist) {
+	$message = "subscribe proofgeneral"; 
+	mail("majordomo@dcs.ed.ac.uk",
+	     "[Web form from ~proofgen]",
+	     $message,
+	    "Reply-To: " . $email . "\nFrom: " . $email);
+        print "Your name has been added to the Proof General mailing list.<br>";
+   }
+   print "</p>\n<p>";
+
+   print "<p>\nClick ";
+   print "<a href=\"download#prereq\">here</a>";
+   print " to return to the download page.<br></p>\n";
+   click_to_go_back();
+  
+   footer();
+ endif;
+?>
+
