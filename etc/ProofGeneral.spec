@@ -15,7 +15,7 @@ BuildArchitectures: noarch
 
 %description
 Proof General is a generic Emacs interface for proof assistants,
-suitable for use by pacifists and Emacs lovers alike.
+suitable for use by pacifists and Emacs militants alike.
 It is supplied ready-customized for LEGO, Coq, and Isabelle.
 You can adapt Proof General to other proof assistants if you know a
 little bit of Emacs Lisp.
