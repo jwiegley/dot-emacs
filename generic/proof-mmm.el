@@ -45,7 +45,7 @@ on MMM regions for the prover's class."
       (progn
 	(if (proof-ass mmm-enable)
 	    (setq mmm-mode-ext-classes-alist
-		  (cons (list (proof-ass-sym mode) nil 
+		  (adjoin (list (proof-ass-sym mode) nil 
 			      proof-assistant-symbol)
 			mmm-mode-ext-classes-alist))
 	  (setq mmm-mode-ext-classes-alist

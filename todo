@@ -1,10 +1,22 @@
 -*- mode:outline -*-
-
-* Proof General Low-level List of Things to Do
-
 $Id$
 
 This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
+
+
+* Proof General Short List of Things to Do for next version
+
+*** Clean up X-symbol support
+     -- configuration for latest version of X-Symbol (Gerwin Klein)
+     -- remove on/off setting for all buffers (too slow), use
+        same mechanism as proof-mmm.
+
+*** Finish/cleanup MMM support for Isar.  Document (but who reads?)
+    Add MMM for other provers where relevant
+
+
+* Proof General Infeasibly Long Low-Level List of Things to Do
+
 
 ** 0. Contents
 

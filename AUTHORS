@@ -2,7 +2,7 @@ Current Authors/Maintainers:
 
    David Aspinall <da@dcs.ed.ac.uk>	
      doc, etc, generic, html, images, isa, demoisa
-   Markus Wenzel <wenzelm@informatik.tu-muenchen.de>
+   Stefan Berghofer  <sberghofer@informatik.tu-muenchen.de>
      isar
    Paul Callaghan <P.C.Callaghan@durham.ac.uk>
      plastic, lego
@@ -13,6 +13,7 @@ Current Authors/Maintainers:
  
 Previous Authors:
 
+   Markus Wenzel     (isar)
    Thomas Kleymann   (lego, doc, generic)
    Healfdene Goguen  (coq, generic, doc)
    Dilip Sequeira    (lego)
