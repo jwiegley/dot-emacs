@@ -1511,7 +1511,7 @@ buffer.  Otherwise they appear in the response buffer."
 ;; 7. Splash screen settings
 ;;
 
-(defcustom proof-splash-time 1.5
+(defcustom proof-splash-time 2
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise 
