@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.34  1998/03/24 17:26:15  tms
+;; *** empty log message ***
+;;
 ;; Revision 1.33  1998/01/16 15:40:31  djs
 ;; Commented the code of proof.el and lego.el a bit. Made a minor change
 ;; to the way errors are handled, so that any delayed output is inserted
@@ -340,9 +343,9 @@
 ;; The package fume-func provides a function with the same name and
 ;; specification. However, fume-func's version is incorrect.
 (defun fume-match-find-next-function-name (buffer)
-  ;; General next function name in BUFFER finder using match.
-  ;; The regexp is assumed to be a two item list the car of which is the regexp
-  ;; to use, and the cdr of which is the match position of the function name
+  "General next function name in BUFFER finder using match.
+  The regexp is assumed to be a two item list the car of which is the regexp
+  to use, and the cdr of which is the match position of the function name"
   (set-buffer buffer)
   (let ((r (car fume-function-name-regexp))
         (p (cdr fume-function-name-regexp)))
