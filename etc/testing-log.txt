@@ -1,3 +1,12 @@
+Thu Jan 21 14:27:36 GMT 1999 da
+
+  Quick test for pipe communication with emacs 20.3.
+  Used C-c C-n and C-c C-u on example.ML file in 
+  Isabelle successfully.
+
+  (Tested 990115 prerelease with piped communication
+   patch in XEmacs already, for LEGO and Isabelle).
+
 Wed Dec 16 15:45:53 GMT 1998  da
 
   Quick test of Coq mode.
