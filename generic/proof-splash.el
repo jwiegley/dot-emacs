@@ -56,17 +56,13 @@ If it is nil, a new line is inserted."
   :type 'sexp
   :group 'proof-general-internals)
 
-(defcustom proof-splash-extensions 
+(defconst proof-splash-extensions 
   (if (featurep 'proof-config) nil
     ;; Display additional hint if we guess we're being loaded
     ;; by shell script rather than find-file.
     '(list
       "To start using Proof General, visit a proof script file"
-      "for your prover, using C-x C-f or the \"File\" menu."))
-    "Prover specific extensions of splash screen.
-These are evaluated and appended to `proof-splash-contents'."
-    :type 'sexp
-    :group 'prover-config)
+      "for your prover, using C-x C-f or the \"File\" menu.")))
 
 (defconst proof-splash-welcome "*Proof General Welcome*"
   "Name of the Proof General splash buffer.")
