@@ -150,8 +150,7 @@
     "welcome"
     "with"
     "{"
-    "}"
-    ))
+    "}"))
 
 (defconst isar-keywords-minor
   '("and"
@@ -314,9 +313,13 @@
 
 (defconst isar-keywords-proof-block
   '("next"
-    "proof"
-    "{"
-    "}"))
+    "proof"))
+
+(defconst isar-keywords-proof-open
+  '("{"))
+
+(defconst isar-keywords-proof-close
+  '("}"))
 
 (defconst isar-keywords-proof-chain
   '("finally"
