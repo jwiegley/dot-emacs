@@ -4,6 +4,9 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** C Adjust imenu/fume to get sections/chapters usefully in tags
+     Need to grab a prefix of text from the markup section {* Foo *}
+
 ** C Electric terminator for non-terminator provers would be nice.
 
 ** B Isabelle support for ML and legacy files: would like to remove "isa" instance
