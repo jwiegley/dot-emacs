@@ -352,11 +352,13 @@ the hooks `proof-activate-scripting-hook' are run."
 	    
 	  ;; We only allow switching of the Scripting buffer if the
 	  ;; locked region is either empty or full for all buffers.
+	  ;; FIXME: ponder alternative of trying to complete rest
+	  ;; of current scripting buffer?
+	  ;; FIXME: this test isn't necessary if the current
+	  ;; buffer was already in proof-script-buffer-list.
 	  (or (proof-locked-region-empty-p)
-	      (proof-locked-region-full-p)
+	      (proof-locked-region-full-p) ;; should be always t
 	      (error 
-	       ;; FIXME da: ponder alternative of trying to complete rest
-	       ;; of current scripting buffer?
 	       "Cannot deal with two unfinished script buffers!"))
 	    
 	  (if (proof-locked-region-full-p)
@@ -371,11 +373,12 @@ the hooks `proof-activate-scripting-hook' are run."
 	  (setq proof-active-buffer-fake-minor-mode nil)))
 
     ;; is this a fresh script mode buffer, with no locked region?
-    (if (not (member (current-buffer) proof-script-buffer-list))
-	(progn
-	  (proof-init-segmentation)
-	  (setq proof-script-buffer-list
-		(cons (current-buffer) proof-script-buffer-list))))
+    (if (member (current-buffer) proof-script-buffer-list)
+	(setq proof-script-buffer-list
+	      (remove (current-buffer) proof-script-buffer-list))
+      (proof-init-segmentation))
+    (setq proof-script-buffer-list
+	  (cons (current-buffer) proof-script-buffer-list))
 
     ;; Turn on the minor mode, run hooks.
     (setq proof-active-buffer-fake-minor-mode t)
