@@ -59,8 +59,11 @@ END-INFO-DIR-ENTRY
 
 
 @c merge functions and variables into concept index.
-@syncodeindex fn cp
-@syncodeindex vr cp
+@c @syncodeindex fn cp
+@c @syncodeindex vr cp
+
+@c merge functions into variables index
+@c @syncodeindex fn vr
 
 @finalout
 @titlepage
@@ -131,6 +134,8 @@ Isabelle.
 * Obtaining and Installing Proof General::  
 * Known bugs and workarounds::  
 * Plans and ideas::             
+* Function Index::                       
+* Variable Index::                       
 * Keystroke Index::             
 * Index::                       
 @end menu
@@ -148,7 +153,7 @@ Basic Script Management
 
 * Proof scripts::               
 * Script buffers::              
-* Other buffers::               
+* Summary of Proof General buffers::               
 * Script editing commands::     
 * Script processing commands::  
 * Toolbar commands::            
@@ -343,7 +348,7 @@ step, rather than a screen full of output from the proof assistant.
 @c Optionally, the goals buffer and script buffer can be identified.
 
 For more details, see @xref{Basic Script Management},
-@xref{Script buffers} and @xref{Other buffers}.
+@xref{Script buffers} and @xref{Summary of Proof General buffers}.
 
 @item @i{Script management}@*
 Proof General colours proof script regions blue when they have already
@@ -415,18 +420,24 @@ proof assistants if you know a little bit of Emacs Lisp.
 @item
 @b{Your Proof General} for your favourite proof assistant@*
 See @pxref{Adapting Proof General to New Provers}
-for more details of how to do this.
+for more details of how to make Proof General work
+with another proof assistant.
 @end itemize
 
 
 @node Prerequisites for this manual
 @section Prerequisites for this manual
 
-This manual assumes that you have a basic understanding of your proof
+This manual assumes that you understand a little about using Emacs, for
+example, switching between buffers using @kbd{C-x b} and understanding
+that key sequences like @kbd{C-x b} mean "control-X followed by b".
+
+The manual also assumes you have a basic understanding of your proof
 assistant and the language and files it uses for proof scripts.  But
-even without this, Proof General is not quite useless: you can still use
-the interface to @emph{replay} proof scripts for any proof assistant
-without knowing how to start it up or issue commands, etc.
+even without this, Proof General is not useless: you can use the
+interface to @emph{replay} proof scripts for any proof assistant without
+knowing how to start it up or issue commands, etc.  This is the beauty
+of a common interface mechanism.
 
 To get more from Proof General and adapt it to your liking, it helps to
 know a little bit about how Emacs lisp packages can be customized via
@@ -451,7 +462,11 @@ everything!  Here are some useful commands:
 @code{describe-variable}
 @end table
 
-
+Most of this manual covers the user-level view and customization of
+Proof General.  Towards the end we consider adapting Proof General to
+new proof assistants, and document some of the internals of Proof
+General.  The manual concludes with some credits and references.
+See the table of contents for details.
 
 
 
@@ -465,16 +480,78 @@ everything!  Here are some useful commands:
 @node Basic Script Management
 @chapter Basic Script Management
 
+This chapter is an introduction to using the script management
+facilities of Proof General.  We begin with a quick walkthrough example,
+then describe the concepts and functions in more detail.
+
 @menu
+* Walkthrough example in LEGO::  
 * Proof scripts::               
 * Script buffers::              
-* Other buffers::               
+* Summary of Proof General buffers::               
 * Script editing commands::     
 * Script processing commands::  
 * Toolbar commands::            
 * Proof assistant commands::    
-* Walkthrough example in LEGO::  
 @end menu
+
+@node Walkthrough example in LEGO
+@section Walkthrough example in LEGO
+
+Here's a short example in LEGO to see how script management is used.
+The file you are asked to type below is included in the distribution as
+@file{lego/example.l}.  If you're not using LEGO, substitute some lines
+from a simple proof for your proof assistant, or consult the example
+file provided with Proof General.
+
+First, find a new file by doing @kbd{C-x C-f} and typing as the filename
+@file{walkthrough.l}.  This should load LEGO Proof General and the
+toolbar and Proof General menus will appear.  This walkthrough is
+keyboard based, although you could easily use the toolbar and menu
+functions instead.
+
+Now turn on active terminator minor mode by typing @kbd{C-c ;} and
+enter:
+@lisp
+Module Walkthrough Import lib_logic;
+@end lisp
+The command should be lit in pink (or inverse video if you don't have a
+colour display).  As LEGO imports each module, a line will appear in the
+minibuffer showing the creation of context marks. Eventually the command
+should turn blue, indicating that LEGO has successfully processed
+it. Then type (on a separate line if you like):
+@lisp
+Goal bland_commutes: @{A,B:Prop@} (and A B) -> (and B A);
+@end lisp
+The goal should be echoed in the goals buffer.
+@lisp
+Intros;
+@end lisp
+Whoops! @kbd{C-c C-u} to pretend that didn't happen.
+@lisp
+intros; andI;
+@end lisp
+A proof summary will appear in the goals buffer.
+@c We could solve the goal by pointing now, but we'll stay with the keyboard.
+@lisp
+Refine H; intros; Immed; Refine H; intros; Immed;
+@end lisp
+finishes the Goal. 
+@lisp
+Save bland_commutes;
+@end lisp
+
+Moving the mouse pointer over the locked region now reveals that the
+entire proof has been aggregated into a single segment. Suppose we
+decide to call the goal something more sensible. Moving the cursor up
+into the locked region, somewhere between `Goal' and `Save', we enter
+@kbd{C-c u}.  The segment is transferred back into the editing
+region. Now we correct the goal name, move the cursor to the end of the
+buffer, and type @kbd{C-c RET}.  Proof mode queues the commands for
+processing and executes them.
+
+
+
 
 @node Proof scripts
 @section Proof scripts
@@ -542,7 +619,7 @@ in the script buffer can include a number of
 
 
 @node Locked queue and editing regions
-@unnumberedsubsec Locked, queue, and editing regions
+@subsection Locked, queue, and editing regions
 @cindex Locked region
 @cindex Queue region
 @cindex Editing region
@@ -578,7 +655,7 @@ locked region shrink.  @xref{Script processing commands} explains how to
 do assertion and retraction.
 
 @node Goal-save sequences
-@unnumberedsubsec Goal-save sequences
+@subsection Goal-save sequences
 @cindex goal
 @cindex save
 @cindex goal-save sequences
@@ -604,7 +681,7 @@ is completed or once a new proof is begun.
 
 
 @node Active scripting buffer
-@unnumberedsubsec Active scripting buffer
+@subsection Active scripting buffer
 @cindex active scripting buffer
 
 You can edit as many script buffers as you want simultaneously, but only
@@ -629,15 +706,16 @@ start scripting in another buffer.
 @c successfully processed by the prover. 
 
 
-@node Other buffers
-@section Other buffers
+@node Summary of Proof General buffers
+@section Summary of Proof General buffers
 @cindex shell buffer
 @cindex goals buffer
 @cindex response buffer
+@cindex proof by pointing
 
-@c FIXME: fix this in the light of what gets implemented.
-
-Proof General manages several kinds of buffers in Emacs.
+Proof General manages several kinds of buffers in Emacs.  Here is a
+summary of the different kinds of buffers you will use when developing
+proofs.
 
 @itemize @bullet
 @item The @dfn{proof shell buffer} is an Emacs shell buffer
@@ -651,6 +729,9 @@ Proof General manages several kinds of buffers in Emacs.
 @item The @dfn{goals buffer} displays the list of subgoals to be
  solved for a proof in progress.  During a proof it is usually
  displayed together with the script buffer.
+@c FIXME: change when pbp is added back!
+ The goals buffer has facility for @dfn{proof-by-pointing}, although
+ this is disabled in Proof General @value{version}.
 @item The @dfn{response buffer} displays other output from the proof
  assistant, for example error messages or informative messages.
  The response buffer is displayed whenever Proof General puts
@@ -666,14 +747,13 @@ The menu @code{Proof General -> Buffers} provides a convenient way to
 display or switch to one of the four buffers: active scripting, goals,
 response, or shell.
 
-
-
-
 @c When
 @c Proof General sees an error in the shell buffer, it will highlight the
 @c error and display the buffer automatically.
 
 
+@c This facility was not added:
+@c
 @c Optionally, the goals buffer and script buffer can be identified
 @c @pxref{Identify goals and response}.  The disadvantage of this is that
 @c the goals display can be replaced by other messages, so you must ask for
@@ -682,24 +762,90 @@ response, or shell.
 
 
 
-
 @node Script editing commands
 @section Script editing commands
-@kindex C-c C-e
 
+Proof General provides a few functions for editing proof scripts.
+Specific proof assistant code may elaborate on these basics.
+
+@findex indent-for-tab-command
+@vindex proof-script-indent
+Indentation is controlled by the user option @code{proof-script-indent}
+@pxref{User options}.  When indentation is enabled, Proof General
+will indent lines of proof script with the usual Emacs functions,
+particularly @kbd{TAB}, @code{indent-for-tab-command}.
+
+@c FIXME: remove when indentation is fixed.
+Unfortunately, indentation in Proof General @value{version} is
+somewhat slow and buggy.  Therefore with large proof scripts,
+we recommend @code{proof-script-index} is turned off.
+
+Here are the commands for moving around in a proof script,
+with their default key bindings:
+@kindex C-c C-e
+@kindex C-c C-a
+@kindex C-c '
+@table @kbd
+@item C-c C-e
+@code{proof-find-next-terminator}
+@item C-c C-a
+@code{proof-goto-command-start}.
+@item C-c '
+@code{proof-goto-end-of-locked-interactive}
+@end table
+
+@c TEXI DOCSTRING MAGIC: proof-find-next-terminator
+@deffn Command proof-find-next-terminator 
+Set point after next @samp{@code{proof-terminal-char}}.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-goto-command-start
+@deffn Command proof-goto-command-start 
+Move point to start of current command.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-goto-end-of-locked-interactive
+@deffn Command proof-goto-end-of-locked-interactive 
+Switch to @code{proof-script-buffer} and jump to the end of the locked region.
+Must be an active scripting buffer.
+@end deffn
 
 
 @node Script processing commands
 @section Script processing commands
 @kindex C-c C-n
-@kindex C-c C-p
 @kindex C-c RET
 @kindex C-c u
 @kindex C-c C-u
 
+Here are the commands for asserting and retracting portions of the proof
+script, together with their default key bindings.
+
+@table @kbd
+@item C-c C-n
+@code{proof-assert-next-command}
+@item C-c C-u
+@code{proof-undo-last-successful-command}
+@item C-c RET
+@code{proof-assert-until-point}
+@item C-c u
+@code{proof-retract-until-point}
+@item C-c b
+@code{proof-process-buffer}
+@item C-c t
+@code{proof-try-command}
+@end table
+
+A useful point of @kbd{C-c C-b} is that with a faulty proof script, for
+example, a script you are adapting to prove a different theorem, Proof
+General will stop exactly where the proof script fails, showing you the
+error message and the last processed command.  So you can continue
+development from there.
+
+
 
 @c TEXI DOCSTRING MAGIC: proof-assert-next-command
-@deffn Command proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command 
+@deffn Command proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command
 Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment.  
 If you want something different, put it inside @var{unclosed-comment-fun}. 
@@ -710,54 +856,99 @@ a space or newline will be inserted automatically.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-undo-last-successful-command
-@deffn Command proof-undo-last-successful-command &optional no-delete 
+@deffn Command proof-undo-last-successful-command &optional no-delete
 Undo last successful command at end of locked region.
 Unless optional @var{no-delete} is set, the text is also deleted from
 the proof script.
 @end deffn
 
+@c TEXI DOCSTRING MAGIC: proof-assert-until-point
+@deffn Command proof-assert-until-point &optional unclosed-comment-fun ignore-proof-process-p
+Process the region from the end of the locked-region until point.
+Default action if inside a comment is just process as far as the start of
+the comment. If you want something different, put it inside
+@var{unclosed-comment-fun}. If @var{ignore-proof-process-p} is set, no commands
+will be added to the queue and the buffer will not be activated for
+scripting.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-retract-until-point
+@deffn Command proof-retract-until-point &optional delete-region
+Set up the proof process for retracting until point.
+In particular, set a flag for the filter process to call @samp{@code{proof-done-retracting}}
+after the proof process has actually successfully reset its state.
+If @var{@code{delete-region}} is non-nil, delete the region in the proof script
+corresponding to the proof command sequence.
+If invoked outside a locked region, undo the last successfully processed
+command.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-process-buffer
+@deffn Command proof-process-buffer 
+Process the current buffer and set point at the end of the buffer.
+@end deffn
+
 @c TEXI DOCSTRING MAGIC: proof-try-command
-@deffn Command proof-try-command &optional unclosed-comment-fun 
+@deffn Command proof-try-command &optional unclosed-comment-fun
 Process the command at point, but don't add it to the locked region. 
 This will only happen if the command satisfies @code{proof-state-preserving-p}.
 
 Default action if inside a comment is just to go until the start of
 the comment. If you want something different, put it inside
-unclosed-comment-fun.
+@var{unclosed-comment-fun}.
 @end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-retract-until-point
-@deffn Command proof-retract-until-point &optional delete-region 
-Sets up the proof process for retracting until point. In
-@lisp
-   particular, it sets a flag for the filter process to call
-   `proof-done-retracting' after the proof process has actually
-   successfully reset its state. It optionally deletes the region in
-   the proof script corresponding to the proof command sequence. If
-   this function is invoked outside a locked region, the last
-   successfully processed command is undone.
-@end lisp
-@end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-process-buffer
-@deffn Command proof-process-buffer  
-Process the current buffer and set point at the end of the buffer.
-@end deffn
-
-
-
-
-
-@c FIXME: requires formatting
-Why is C-c C-b useful?  Could just use the file to read it one go
-(will we have a command to do this other than via the process?).
-BUT it's nice because it stops exactly where a proof fails, so you can
-continue development from there.
 
 
 
 @node Toolbar commands
 @section Toolbar commands
+
+The toolbar provides a selection of functions for asserting
+and retracting portions of the script, and inserting
+"goal" and "save" type commands.
+
+These functions are available only from the toolbar, menu Proof General
+-> Scripting, or via @kbd{M-x}.  There are no keybindings for them by
+default.
+
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-goal
+@deffn Command proof-toolbar-goal 
+Insert a goal command into the script buffer, issue it to prover.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-retract
+@deffn Command proof-toolbar-retract 
+Retract entire buffer.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-undo
+@deffn Command proof-toolbar-undo 
+Undo last successful in locked region, without deleting it.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-next
+@deffn Command proof-toolbar-next 
+Assert next command in proof to proof process.
+Move point if the end of the locked position is invisible.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-use
+@deffn Command proof-toolbar-use 
+Process the whole buffer
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-restart
+@deffn Command proof-toolbar-restart 
+Not documented.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-qed
+@deffn Command proof-toolbar-qed 
+Insert a save theorem command into the script buffer, issue it.
+@end deffn
+
+
 
 @node Proof assistant commands
 @section Proof assistant commands
@@ -765,86 +956,50 @@ continue development from there.
 @kindex C-c c
 @kindex C-c h
 
+There are several commands for interacting with the proof assistant away
+from a proof script.  Here are the keybindings and functions.
+
+@table @kbd
+@item C-c C-p
+@code{proof-prf}
+@item C-c c
+@code{proof-ctxt}
+@item C-c h
+@code{proof-help}
+@item C-c C-c
+@code{proof-interrupt-process}
+@item C-c C-v
+@code{proof-execute-minibuffer-cmd}
+@end table
+
 @c TEXI DOCSTRING MAGIC: proof-prf
-@deffn Command proof-prf  
+@deffn Command proof-prf 
 List proof state.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-ctxt
-@deffn Command proof-ctxt  
+@deffn Command proof-ctxt 
 List context.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-help
-@deffn Command proof-help  
+@deffn Command proof-help 
 Print help message giving syntax.
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-execute-minibuffer-cmd
-@deffn Command proof-execute-minibuffer-cmd  
-Prompt for a command in the minibuffer and send it to proof assistant.
-@end deffn
-
 @c TEXI DOCSTRING MAGIC: proof-interrupt-process
-@deffn Command proof-interrupt-process  
+@deffn Command proof-interrupt-process 
 Interrupt the proof assistant.  WARNING! This may confuse Proof General.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-execute-minibuffer-cmd
-@deffn Command proof-execute-minibuffer-cmd  
+@deffn Command proof-execute-minibuffer-cmd 
 Prompt for a command in the minibuffer and send it to proof assistant.
 @end deffn
 
 @c Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working
 @c directly with the proof shell}
 
-
-
-@node Walkthrough example in LEGO
-@section Walkthrough example in LEGO
-
-Here's a LEGO example of how script management is used.
-
-First, make a fresh buffer called @file{walkthrough.l}.  Then turn on
-active terminator minor mode by typing @kbd{C-c ;}, and enter:
-
-@lisp
-Module Walkthrough Import lib_logic;
-@end lisp
-
-The command should be lit in pink (or inverse video if you don't have a
-colour display).  As LEGO imports each module, a line will appear in the
-minibuffer showing the creation of context marks. Eventually the command
-should turn blue, indicating that LEGO has successfully processed
-it. Then type (on a separate line if you like)
-
-@samp{Goal bland_commutes: @{A,B:Prop@} (and A B) -> (and B A);}
-
-The goal should be echoed in the goals buffer.
-
-@samp{Intros;}
-
-Whoops! @kbd{C-c C-u} to pretend that didn't happen.
-
-@samp{intros; andI;}
-
-A proof summary will appear in the goals buffer. We could solve the
-goal by pointing now, but we'll stay with the keyboard.
-
-@samp{Refine H; intros; Immed; Refine H; intros; Immed;}
-
-finishes the Goal. 
-
-@samp{Save bland_commutes;}
-
-Moving the mouse pointer over the locked region now reveals that the
-entire proof has been aggregated into a single segment. Suppose we
-decide to call the goal something more sensible. Moving the cursor up
-into the locked region, somewhere between `Goal' and `Save', we enter
-@kbd{C-c u}.  The segment is transferred back into the editing
-region. Now we correct the goal name, move the cursor to the end of the
-buffer, and type @kbd{C-c return}.  Proof mode queues the commands for
-processing and executes them.
 
 
 
@@ -1208,15 +1363,17 @@ for example.  A convenient way to do this is via
 
 
 @c TEXI DOCSTRING MAGIC: proof-auto-delete-windows
-@defvar proof-auto-delete-windows  
+@defopt proof-auto-delete-windows 
 If non-nil, automatically remove windows when they are cleaned.
 For example, at the end of a proof the goals buffer window will
 be cleared; if this flag is set it will automatically be removed.
 If you want to fix the sizes of your windows you may want to set this
-variable to 'nil' to avoid windows being deleted automatically.
+variable to @code{nil'} to avoid windows being deleted automatically.
 If you use multiple frames, only the windows in the currently
 selected frame will be affected.
-@end defvar
+
+The default value is @code{t}.
+@end defopt
 
 
 
@@ -1244,13 +1401,15 @@ edit-options} mechanism, or simply by adding @code{setq}'s to your
 
 
 @c TEXI DOCSTRING MAGIC: proof-prog-name-ask
-@defopt proof-prog-name-ask  
+@defopt proof-prog-name-ask 
 If non-nil, query user which program to run for the inferior process.
+
+The default value is @code{nil}.
 @end defopt
 
 
 @c TEXI DOCSTRING MAGIC: proof-rsh-command
-@defvar proof-rsh-command  
+@defopt proof-rsh-command 
 Shell command prefix to run a command on a remote host.  
 For example,
 
@@ -1258,74 +1417,83 @@ For example,
    ssh bigjobs
 
 @end lisp
-Would cause Proof General to issue the command 'ssh bigjobs isabelle'
-to start Isabelle remotely on our large compute server called 'bigjobs'.
+Would cause Proof General to issue the command @samp{ssh bigjobs isabelle}
+to start Isabelle remotely on our large compute server called @samp{bigjobs}.
 
 The protocol used should be configured so that no user interaction
 (passwords, or whatever) is required to get going.
-@end defvar
-The default value of @code{proof-rsh-command} is the empty string @code{""}.
+
+The default value is @code{""}.
+@end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-wanted
-@defopt proof-toolbar-wanted  
+@defopt proof-toolbar-wanted 
 Whether to use toolbar in proof mode.
+
+The default value is @code{t}.
 @end defopt
 
-@c not yet magic: proof-toolbar-follow-mode
-@defopt proof-toolbar-follow-mode
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-follow-mode
+@defopt proof-toolbar-follow-mode 
 Choice of how point moves with toolbar commands.
-One of the symbols: @code{locked}, @code{follow}, @code{ignore}. @*
-If @code{locked}, point sticks to the end of the locked region with
-toolbar commands. @*
-If @code{follow}, point moves just when needed to display the
-locked region end. @*
+One of the symbols: @code{locked}, @code{follow}, @code{ignore}.
+If @code{locked}, point sticks to the end of the locked region with toolbar commands.
+If @code{follow}, point moves just when needed to display the locked region end.
 If @code{ignore}, point is never moved after toolbar movement commands.
 
-The default is @code{locked}.
+The default value is @code{locked}.
 @end defopt
 
-
 @c TEXI DOCSTRING MAGIC: proof-window-dedicated
-@defopt proof-window-dedicated  
+@defopt proof-window-dedicated 
 Whether response and goals buffers have dedicated windows.
 If t, windows displaying responses from the prover will not
 be switchable to display other windows.  This helps manage
 your display, but can sometimes be inconvenient, especially
 for experienced Emacs users.
+
+The default value is @code{t}.
 @end defopt
 
 @c FIXME needs to mention that without dedicated windows, buffers may be 
 @c hidden. Refer to the XEmacs manual on customising buffer display.
 
 @c TEXI DOCSTRING MAGIC: proof-strict-read-only
-@defopt proof-strict-read-only  
+@defopt proof-strict-read-only 
 Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!)
+
+The default value is @code{15}.
 @end defopt
 
 
 @c TEXI DOCSTRING MAGIC: proof-script-indent
-@defvar proof-script-indent  
+@defopt proof-script-indent 
 If non-nil, enable indentation code for proof scripts.
 Currently the indentation code can be rather slow for large scripts,
 and is critical on the setting of regular expressions for particular
 provers.  Enable it if it works for you.
-@end defvar
-The default for @code{proof-script-indent} is @code{nil}.  
+
+The default value is @code{t}.
+@end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-one-command-per-line
-@defopt proof-one-command-per-line  
+@defopt proof-one-command-per-line 
 If non-nil, format for newlines after each proof command in a script.
 This option is not fully-functional at the moment.
+
+The default value is @code{nil}.
 @end defopt
-The default for @code{proof-one-command-per-line} is @code{nil}.
 
 
 @c TEXI DOCSTRING MAGIC: proof-splash-inhibit
-@defopt proof-splash-inhibit  
+@defopt proof-splash-inhibit 
 Non-nil prevents splash screen display when Proof General is loaded.
+
+The default value is @code{nil}.
 @end defopt
 
 
@@ -1338,35 +1506,35 @@ display in use (colour window system, monochrome window system, console,
 @dots{}) will be affected.
 
 @c TEXI DOCSTRING MAGIC: proof-queue-face
-@deffn Face proof-queue-face  
+@deffn Face proof-queue-face 
 Face for commands in proof script waiting to be processed.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-locked-face
-@deffn Face proof-locked-face  
+@deffn Face proof-locked-face 
 Face for locked region of proof script (processed commands).
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-declaration-name-face
-@deffn Face proof-declaration-name-face  
+@deffn Face proof-declaration-name-face 
 Face for declaration names in proof scripts.
 Exactly what uses this face depends on the proof assistant.
 @end deffn
 
 
 @c TEXI DOCSTRING MAGIC: proof-tacticals-name-face
-@deffn Face proof-tacticals-name-face  
+@deffn Face proof-tacticals-name-face 
 Face for names of tacticals in proof scripts.
 Exactly what uses this face depends on the proof assistant.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-error-face
-@deffn Face proof-error-face  
+@deffn Face proof-error-face 
 Face for error messages from proof assistant.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-warning-face
-@deffn Face proof-warning-face  
+@deffn Face proof-warning-face 
 Face for warning messages.
 Could come either from proof assistant or Proof General itself.
 @end deffn
@@ -1382,7 +1550,7 @@ in the sense that it should be processed as soon as it is observed
 by Proof General.
 
 @c TEXI DOCSTRING MAGIC: proof-eager-annotation-face
-@deffn Face proof-eager-annotation-face  
+@deffn Face proof-eager-annotation-face 
 Face for messages from proof assistant.
 @end deffn
 
@@ -1413,7 +1581,7 @@ The configuration settings appear in the customization group
 One basic example of a setting you may like to tweak is:
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-home-page
-@defvar proof-assistant-home-page  
+@defvar proof-assistant-home-page 
 Web address for information on proof assistant
 @end defvar
 
@@ -1520,14 +1688,15 @@ to the customisation mechanism. In addition to customizations at the
 generic level, for LEGO you can also customize:
 
 @c TEXI DOCSTRING MAGIC: lego-tags
-@defopt lego-tags  
+@defopt lego-tags 
 The directory of the TAGS table for the LEGO library
+
+The default value is @code{"/usr/lib/lego/lib_Type/"}.
 @end defopt
-The default for @code{lego-tags} is @code{"/usr/lib/lego/lib_Type/"}.
 
 @c TEXI DOCSTRING MAGIC: lego-help-menu-list
-@defvar lego-help-menu-list  
-List of menu items, as defined in `easy-menu-define' for LEGO
+@defvar lego-help-menu-list 
+List of menu items, as defined in @samp{@code{easy-menu-define}} for LEGO
 @lisp
   specific help.
 @end lisp
@@ -1628,6 +1797,17 @@ The key @kbd{C-c C-u} (@code{isa-retract-thy-file}) will retract
 its children (theory and ML files); no changes occur in Isabelle itself.
 
 
+@c TEXI DOCSTRING MAGIC: isa-process-thy-file
+@deffn Command isa-process-thy-file file
+Process the theory file @var{file}.  If interactive, use @code{buffer-file-name}.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: isa-retract-thy-file
+@deffn Command isa-retract-thy-file file
+Retract the theory file @var{file}. If interactive, use @code{buffer-file-name}.
+@end deffn
+
+
 @node Isabelle specific commands
 @section Isabelle specific commands
 
@@ -1645,7 +1825,7 @@ theory file.
 
 
 @c TEXI DOCSTRING MAGIC: thy-find-other-file
-@deffn Command thy-find-other-file &optional samewindow 
+@deffn Command thy-find-other-file &optional samewindow
 Find associated .ML or .thy file.
 Finds and switch to the associated ML file (when editing a theory file)
 or theory file (when editing an ML file).  
@@ -1661,7 +1841,7 @@ Here are some of the user options specific to Isabelle.  You can set
 these with the customization mechanism as usual.
 
 @c TEXI DOCSTRING MAGIC: isabelle-web-page
-@defvar isabelle-web-page  
+@defvar isabelle-web-page 
 URL of web page for Isabelle.
 @end defvar
 
@@ -1669,15 +1849,17 @@ URL of web page for Isabelle.
 @c @unnumberedsubsec Theory file editing customization
 
 @c TEXI DOCSTRING MAGIC: thy-use-sml-mode
-@defopt thy-use-sml-mode  
+@defopt thy-use-sml-mode 
 If non-nil, invoke sml-mode inside "ML" section of theory files.
 This option is left-over from Isamode.  Really, it would be more
 useful if the script editing mode of Proof General itself could be based 
 on sml-mode, but at the moment there is no way to do this.
+
+The default value is @code{nil}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: thy-indent-level
-@defvar thy-indent-level  
+@defvar thy-indent-level 
 Indentation level for Isabelle theory files.  An integer.
 @end defvar
 
@@ -1686,7 +1868,7 @@ Indentation level for Isabelle theory files.  An integer.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: thy-sections
-@defvar thy-sections  
+@defvar thy-sections 
 Names of theory file sections and their templates.
 Each item in the list is a pair of a section name and a template.
 A template is either a string to insert or a function. Useful functions are:
@@ -1699,13 +1881,35 @@ You can add extra sections to theory files by extending this variable.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: thy-template
-@defopt thy-template  
+@defopt thy-template 
 Template for theory files.
 Contains a default selection of sections in a traditional order.
 You can use the following format characters:
+%t --- replaced by theory name
+%p --- replaced by names of parents, separated by @samp{+} characters
+
+The default value is the string: 
 @lisp
-  %t --- replaced by theory name
-  %p --- replaced by names of parents, separated by +'s
+%t  =  %p +
+
+classes
+
+default
+
+types
+
+arities
+
+consts
+
+translations
+
+rules
+
+end
+
+ML
+
 @end lisp
 @end defopt
 
@@ -1789,7 +1993,7 @@ the settings via the customize menus, under Proof-General -> Internals.
 
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-table
-@defvar proof-assistant-table  
+@defopt proof-assistant-table 
 Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
@@ -1800,41 +2004,43 @@ Each entry is a list of the form
 @end lisp
 The NAME is a string, naming the proof assistant.
 The SYMBOL is used to form the name of the mode for the
-assistant, `SYMBOL-mode`, run when files with AUTOMODE-REGEXP
+assistant, @samp{SYMBOL-mode}, run when files with AUTOMODE-REGEXP
 are visited.  SYMBOL is also used to form the name of the
 directory and elisp file for the mode, which will be
  
 @lisp
-    <proof-directory-home>/SYMBOL/SYMBOL.el
+    <proof-home-directory>/SYMBOL/SYMBOL.el
 
 @end lisp
-where `<proof-directory-home>/' is the value of the
-variable proof-directory-home.
-@end defvar
+where @samp{<proof-home-directory>/} is the value of the
+variable @code{proof-home-directory}.
+
+The default value is @code{((isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$"))}.
+@end defopt
 
 @node Major modes used by Proof General
 @section Major modes used by Proof General
 
 @c TEXI DOCSTRING MAGIC: proof-mode-for-shell
-@defvar proof-mode-for-shell  
+@defvar proof-mode-for-shell 
 Mode for proof shell buffers.
 Usually customised for specific prover.
 Suggestion: this can be set in @code{proof-pre-shell-start-hook}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-mode-for-response
-@defvar proof-mode-for-response  
+@defvar proof-mode-for-response 
 Mode for proof response buffer.
 Usually customised for specific prover.
 Suggestion: this can be set in @code{proof-pre-shell-start-hook}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-mode-for-pbp
-@defvar proof-mode-for-pbp  
+@defvar proof-mode-for-pbp 
 Mode for proof state display buffers.
 Usually customised for specific prover.
 Suggestion: this can be set in @code{proof-pre-shell-start-hook}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-mode-for-script
-@defvar proof-mode-for-script  
+@defvar proof-mode-for-script 
 Mode for proof script buffers.
 This is used by Proof General to find out which buffers 
 contain proof scripts.
@@ -1845,30 +2051,34 @@ Suggestion: this can be set in the script mode configuration.
 @section Menus and user-level commands
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-home-page
-@defvar proof-assistant-home-page  
+@defvar proof-assistant-home-page 
 Web address for information on proof assistant
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-ctxt-string
-@defopt proof-ctxt-string  
+@defopt proof-ctxt-string 
 Command to display the context in proof assistant.
+
+The default value is @code{"Ctxt"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-help-string
-@defopt proof-help-string  
+@defopt proof-help-string 
 Command to ask for help in proof assistant.
+
+The default value is @code{"Help"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-prf-string
-@defvar proof-prf-string  
+@defvar proof-prf-string 
 Command to display proof state in proof assistant.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-command
-@defvar proof-goal-command  
+@defvar proof-goal-command 
 Command to set a goal in the proof assistant.  String or fn.
 If a string, the format character %s will be replaced by the
 goal string. If a function, should return a command string to
 insert when called interactively.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-save-command
-@defvar proof-save-command  
+@defvar proof-save-command 
 Command to save a proved theorem in the proof assistant.  String or fn.
 If a string, the format character %s will be replaced by the
 theorem name. If a function, should return a command string to
@@ -1884,43 +2094,43 @@ is called.  These configure the mode for the script buffer,
 including highlighting, etc.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
-@defvar proof-terminal-char  
+@defvar proof-terminal-char 
 Character which terminates a proof command in a script buffer.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-comment-start
-@defvar proof-comment-start  
+@defvar proof-comment-start 
 String which starts a comment in the proof assistant command language.
 The script buffer's @code{comment-start} is set to this string plus a space.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-comment-end
-@defvar proof-comment-end  
+@defvar proof-comment-end 
 String which starts a comment in the proof assistant command language.
 The script buffer's @code{comment-end} is set to this string plus a space.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-save-command-regexp
-@defvar proof-save-command-regexp  
+@defvar proof-save-command-regexp 
 Matches a save command
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-save-with-hole-regexp
-@defvar proof-save-with-hole-regexp  
+@defvar proof-save-with-hole-regexp 
 Regexp which matches a command to save a named theorem.
 Match number 2 should be the name of the theorem saved.
 Used for setting names of goal..save regions and for default
 func-menu configuration in proof-script-find-next-goalsave.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-command-regexp
-@defvar proof-goal-command-regexp  
+@defvar proof-goal-command-regexp 
 Matches a goal command.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-with-hole-regexp
-@defvar proof-goal-with-hole-regexp  
+@defvar proof-goal-with-hole-regexp 
 Regexp which matches a command used to issue and name a goal.
 Match number 2 should be the name of the goal issued.
 Used for setting names of goal..save regions and for default
 func-menu configuration in proof-script-find-next-goalsave.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-script-next-entity-regexps
-@defvar proof-script-next-entity-regexps  
+@defvar proof-script-next-entity-regexps 
 Regular expressions to control finding definitions in script.
 This is the list of the form
 
@@ -1937,17 +2147,17 @@ DISCRIMINATOR-REGEXP has one of the forms
 
 @lisp
   (REGEXP MATCHNO) 
-  (REGEXP MATCHNO 'backward BACKREGEXP) 
-  (REGEXP MATCHNO 'forward FORWARDREGEXP)
+  (REGEXP MATCHNO @code{backward} BACKREGEXP) 
+  (REGEXP MATCHNO @code{forward} FORWARDREGEXP)
 
 @end lisp
 If REGEXP matches the string captured by ANYENTITY-REGEXP, then
 MATCHNO is the match number for the substring which names the entity.
 
-If 'backward BACKREGEXP is present, then the start of the entity
+If @code{backward} BACKREGEXP is present, then the start of the entity
 is found by searching backwards for BACKREGEXP.
 
-Conversely, if 'forward FORWARDREGEXP is found, then the end of
+Conversely, if @code{forward} FORWARDREGEXP is found, then the end of
 the entity is found by searching forwards for FORWARDREGEXP.
 
 Otherwise, the start and end of the entity will be the region matched
@@ -1955,50 +2165,50 @@ by ANYENTITY-REGEXP.
 
 This mechanism allows fairly complex parsing of the buffer, in
 particular, it allows for goal..save regions which are named only at
-the end.  However, it does not parse strings, comments. or parentheses.
+the end.  However, it does not parse strings, comments, or parentheses.
 
-A default value which should work for goal..saves is calculated from
-@code{proof-goal-with-hole-regexp}, @code{proof-goal-command-regexp}, and
-@code{proof-save-with-hole-regexp}.
+This variable may not need to be set: a default value which should
+work for goal..saves is calculated from @code{proof-goal-with-hole-regexp},
+@code{proof-goal-command-regexp}, and @code{proof-save-with-hole-regexp}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: nilproof-goal-command-p nil 
 @c TEXI DOCSTRING MAGIC: proof-lift-global
-@defvar proof-lift-global  
+@defvar proof-lift-global 
 This function lifts local lemmas from inside goals out to top level.
 This function takes the local goalsave span as an argument. Set this
-to `nil' of the proof assistant does not support nested goals.
+to @samp{nil} of the proof assistant does not support nested goals.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-count-undos-fn
-@defvar proof-count-undos-fn  
+@defvar proof-count-undos-fn 
 Compute number of undos in a target segment
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-find-and-forget-fn
-@defvar proof-find-and-forget-fn  
+@defvar proof-find-and-forget-fn 
 Function returning a command string to forget back to before its argument span.
 The special string @code{proof-no-command} means there is nothing to do.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-hyp-fn
-@defvar proof-goal-hyp-fn  
+@defvar proof-goal-hyp-fn 
 Function which returns cons cell if point is at a goal/hypothesis.
-First element of cell is a symbol, 'goal' or 'hyp'.  The second
+First element of cell is a symbol, @code{goal'} or @code{hyp'}.  The second
 element is a string: the goal or hypothesis itself.  This is used
 when parsing the proofstate output
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-kill-goal-command
-@defvar proof-kill-goal-command  
+@defvar proof-kill-goal-command 
 Command to kill a goal.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-global-p
-@defvar proof-global-p  
+@defvar proof-global-p 
 Whether a command is a global declaration.  Predicate on strings or nil.
 This is used to handle nested goals allowed by some provers.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-state-preserving-p
-@defvar proof-state-preserving-p  
+@defvar proof-state-preserving-p 
 A predicate, non-nil if its argument preserves the proof state.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-activate-scripting-hook
-@defvar proof-activate-scripting-hook  
+@defvar proof-activate-scripting-hook 
 Hook run when a buffer is switched into scripting mode.
 The current buffer will be the newly active scripting buffer.
 
@@ -2006,22 +2216,20 @@ This hook may be useful for synchronizing with the proof
 assistant, for example, to switch to a new theory.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-stack-to-indent
-@defvar proof-stack-to-indent  
+@defvar proof-stack-to-indent 
 Prover-specific code for indentation.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-parse-indent
-@defvar proof-parse-indent  
-Proof-assistant specific function for parsing characters for
-@lisp
-  indentation which is invoked in `proof-parse-to-point.'. Must be a
-  function taking two arguments, a character (the current character)
-  and a stack reflecting indentation, and must return a stack. The
-  stack is a list of the form (c . p) where `c' is a character
-  representing the type of indentation and `p' records the column for
-  indentation. The generic `proof-parse-to-point.' function supports
-  parentheses and commands. It represents these with the characters
-  `?(', `?[' and `proof-terminal-char'. 
-@end lisp
+@defvar proof-parse-indent 
+Proof-assistant specific function for parsing.
+Invoked in @samp{@code{proof-parse-to-point}}. Must be a
+function taking two arguments, a character (the current character)
+and a stack reflecting indentation, and must return a stack. The
+stack is a list of the form (c . p) where @samp{c} is a character
+representing the type of indentation and @samp{p} records the column for
+indentation. The generic @samp{@code{proof-parse-to-point}} function supports
+parentheses and commands. It represents these with the characters
+@samp{?(}, @samp{?[} and @samp{@code{proof-terminal-char}}. 
 @end defvar
 
 
@@ -2049,7 +2257,7 @@ before @code{proof-shell-config-done} is called.
 @subsection Commands
 
 @c TEXI DOCSTRING MAGIC: proof-prog-name
-@defvar proof-prog-name  
+@defvar proof-prog-name 
 System command to run program name in proof shell.
 Suggestion: this can be set in @code{proof-pre-shell-start-hook} from
 a variable which is in the proof assistant's customization
@@ -2057,41 +2265,41 @@ group.  This allows different proof assistants to coexist
 (albeit in separate Emacs sessions).
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-init-cmd
-@defvar proof-shell-init-cmd  
+@defvar proof-shell-init-cmd 
 The command for initially configuring the proof process.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-restart-cmd
-@defvar proof-shell-restart-cmd  
+@defvar proof-shell-restart-cmd 
 A command for re-initialising the proof process.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-quit-cmd
-@defvar proof-shell-quit-cmd  
+@defvar proof-shell-quit-cmd 
 A command to quit the proof process.  If nil, send EOF instead.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-cd
-@defvar proof-shell-cd  
+@defvar proof-shell-cd 
 Command to the proof assistant to change the working directory.
 @end defvar
 
 @node Settings for matching output from proof process
-@unnumberedsubsec Settings for matching output from proof process
+@subsection Settings for matching output from proof process
 @c TEXI DOCSTRING MAGIC: proof-shell-wakeup-char
-@defvar proof-shell-wakeup-char  
+@defvar proof-shell-wakeup-char 
 A special character which terminates an annotated prompt.
 Set to nil if proof assistant does not support annotated prompts.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-first-special-char
-@defvar proof-shell-first-special-char  
+@defvar proof-shell-first-special-char 
 First special character.
 Codes above this character can have special meaning to Proof General,
 and are stripped from the prover's output strings.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-prompt-pattern
-@defvar proof-shell-prompt-pattern  
+@defvar proof-shell-prompt-pattern 
 Proof shell's value for comint-prompt-pattern, which see.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-annotated-prompt-regexp
-@defvar proof-shell-annotated-prompt-regexp  
+@defvar proof-shell-annotated-prompt-regexp 
 Regexp matching a (possibly annotated) prompt pattern.
 Output is grabbed between pairs of lines matching this regexp.
 To help matching you may be able to annotate the proof assistant
@@ -2100,65 +2308,63 @@ The special character should appear in this regexp, should
 be the value of @code{proof-shell-wakeup-char}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-abort-goal-regexp
-@defvar proof-shell-abort-goal-regexp  
+@defvar proof-shell-abort-goal-regexp 
 Regexp matching output from an aborted proof.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-error-regexp
-@defvar proof-shell-error-regexp  
+@defvar proof-shell-error-regexp 
 Regexp matching an error report from the proof assistant.
 We assume that an error message corresponds to a failure
 in the last proof command executed.  (So don't match
 mere warning messages with this regexp).
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-interrupt-regexp
-@defvar proof-shell-interrupt-regexp  
+@defvar proof-shell-interrupt-regexp 
 Regexp matching output indicating the assistant was interrupted.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-proof-completed-regexp
-@defvar proof-shell-proof-completed-regexp  
+@defvar proof-shell-proof-completed-regexp 
 Regexp matching output indicating a finished proof.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-clear-response-regexp
-@defvar proof-shell-clear-response-regexp  
+@defvar proof-shell-clear-response-regexp 
 Regexp matching output telling Proof General to clear the response buffer.
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-start-goals-regexp
-@defvar proof-shell-start-goals-regexp  
+@defvar proof-shell-start-goals-regexp 
 Regexp matching the start of the proof state output.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-end-goals-regexp
-@defvar proof-shell-end-goals-regexp  
+@defvar proof-shell-end-goals-regexp 
 Regexp matching the end of the proof state output.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-eager-annotation-start
-@defvar proof-shell-eager-annotation-start  
+@defvar proof-shell-eager-annotation-start 
 Eager annotation field start.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
 Set to nil to disable this feature.
-
-The default value is "\n" to match up to the end of the line.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-eager-annotation-end
-@defvar proof-shell-eager-annotation-end  
+@defvar proof-shell-eager-annotation-end 
 Eager annotation field end.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
 The default value is "\n" to match up to the end of the line.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-assumption-regexp
-@defvar proof-shell-assumption-regexp  
+@defvar proof-shell-assumption-regexp 
 A regular expression matching the name of assumptions.
 @end defvar
+
 
 @node Hooks and function variables
 @subsection Hooks and function variables
 
-
 @c TEXI DOCSTRING MAGIC: proof-shell-insert-hook
-@defvar proof-shell-insert-hook  
+@defvar proof-shell-insert-hook 
 Hooks run by @code{proof-shell-insert} before inserting a command.
 Can be used to configure the proof assistant to the interface in
 various ways (for example, setting the line width of output).
@@ -2166,17 +2372,17 @@ Any text inserted by these hooks will be sent to the proof process
 before every command issued by Proof General.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-pre-shell-start-hook
-@defvar proof-pre-shell-start-hook  
+@defvar proof-pre-shell-start-hook 
 Hooks run before proof shell is started.
 Usually this is set to a function which configures the proof shell
 variables.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-error-hook
-@defvar proof-shell-handle-error-hook  
+@defvar proof-shell-handle-error-hook 
 Hooks run after an error has been reported in the RESPONSE buffer.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-process-file
-@defvar proof-shell-process-file  
+@defvar proof-shell-process-file 
 A tuple of the form (regexp . function) to match a processed file name.
 
 If REGEXP matches output, then the function FUNCTION is invoked on the
@@ -2189,42 +2395,42 @@ returns nil, no action is taken.
 Care has to be taken in case the prover only reports on compiled
 versions of files it is processing. In this case, FUNCTION needs to
 reconstruct the corresponding script file name. The new (true) file
-name is added to the front of `proof-included-files-list'.
+name is added to the front of @samp{@code{proof-included-files-list}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-retract-files-regexp
-@defvar proof-shell-retract-files-regexp  
+@defvar proof-shell-retract-files-regexp 
 A REGEXP to match that the prover has retracted across file boundaries.
 
 At this stage, Proof General's view of the processed files is out of
 date and needs to be updated with the help of the function
-`proof-shell-compute-new-files-list'.
+@samp{@code{proof-shell-compute-new-files-list}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-compute-new-files-list
-@defvar proof-shell-compute-new-files-list  
-Function to update `proof-included-files list'.
+@defvar proof-shell-compute-new-files-list 
+Function to update @samp{proof-included-files list}.
 
 It needs to return an up to date list of all processed files. Its
-output is stored in `proof-included-files-list'. Its input is the
-string of which `proof-shell-retract-files-regexp' matched a
+output is stored in @samp{@code{proof-included-files-list}}. Its input is the
+string of which @samp{@code{proof-shell-retract-files-regexp}} matched a
 substring. In practice, this function is likely to inspect the
-previous (global) variable `proof-included-files-list' and the match
-data triggered by `proof-shell-retract-files-regexp'.
+previous (global) variable @samp{@code{proof-included-files-list}} and the match
+data triggered by @samp{@code{proof-shell-retract-files-regexp}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output-system-specific
-@defvar proof-shell-process-output-system-specific  
+@defvar proof-shell-process-output-system-specific 
 Set this variable to handle system specific output.
 Errors, start of proofs, abortions of proofs and completions of
-proofs are recognised in the function `proof-shell-process-output'.
+proofs are recognised in the function @samp{@code{proof-shell-process-output}}.
 All other output from the proof engine is simply reported to the
 user in the RESPONSE buffer.
 
 To catch further special cases, set this variable to a pair of
 functions '(condf . actf). Both are given (cmd string) as arguments.
-`cmd' is a string containing the currently processed command.
-`string' is the response from the proof system. To change the
-behaviour of `proof-shell-process-output', (condf cmd string) must
+@samp{cmd} is a string containing the currently processed command.
+@samp{string} is the response from the proof system. To change the
+behaviour of @samp{@code{proof-shell-process-output}}, (condf cmd string) must
 return a non-nil value. Then (actf cmd string) is invoked. See the
-documentation of `proof-shell-process-output' for the required
+documentation of @samp{@code{proof-shell-process-output}} for the required
 output format.
 @end defvar
 
@@ -2234,23 +2440,23 @@ output format.
 The splash screen can be configured, in a rather limited way.
 
 @c TEXI DOCSTRING MAGIC: proof-splash-time
-@defvar proof-splash-time  
+@defvar proof-splash-time 
 Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise proof mode.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-splash-contents
-@defvar proof-splash-contents  
+@defvar proof-splash-contents 
 Evaluated to configure splash screen displayed when entering Proof General.
 If an element is a string or an image specifier, it is displayed
 centred on the window on its own line.  If it is nil, a new line is
 inserted.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-splash-extensions
-@defopt proof-splash-extensions  
+@defvar proof-splash-extensions 
 Prover specific extensions of splash screen.
 These are evaluated and appended to @code{proof-splash-contents}, which see.
-@end defopt
+@end defvar
 
 
 
@@ -2263,36 +2469,32 @@ for proof by pointing or similar features.  At the moment these settings
 are disabled.
 
 @c TEXI DOCSTRING MAGIC: pbp-change-goal
-@defvar pbp-change-goal  
+@defvar pbp-change-goal 
 Command to change to the goal %s
 @end defvar
 @c TEXI DOCSTRING MAGIC: pbp-goal-command
-@defvar pbp-goal-command  
-Command informing the prover that `pbp-button-action' has been
-@lisp
-  requested on a goal.
-@end lisp
+@defvar pbp-goal-command 
+Command informing the prover that @samp{@code{pbp-button-action}} has been
+requested on a goal.
 @end defvar
 @c TEXI DOCSTRING MAGIC: pbp-hyp-command
-@defvar pbp-hyp-command  
-Command informing the prover that `pbp-button-action' has been
-@lisp
-  requested on an assumption.
-@end lisp
+@defvar pbp-hyp-command 
+Command informing the prover that @samp{@code{pbp-button-action}} has been
+requested on an assumption.
 @end defvar
 @c TEXI DOCSTRING MAGIC: pbp-error-regexp
-@defvar pbp-error-regexp  
+@defvar pbp-error-regexp 
 Regexp indicating that the proof process has identified an error.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-result-start
-@defvar proof-shell-result-start  
+@defvar proof-shell-result-start 
 Regexp matching start of an output from the prover after pbp commands.
-In particular, after a `pbp-goal-command' or a `pbp-hyp-command'.
+In particular, after a @samp{@code{pbp-goal-command}} or a @samp{@code{pbp-hyp-command}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-result-end
-@defvar proof-shell-result-end  
+@defvar proof-shell-result-end 
 Regexp matching end of output from the prover after pbp commands.
-In particular, after a `pbp-goal-command' or a `pbp-hyp-command'.
+In particular, after a @samp{@code{pbp-goal-command}} or a @samp{@code{pbp-hyp-command}}.
 @end defvar
 
 
@@ -2305,18 +2507,20 @@ You don't need to configure these for your proof assistant
 unless you want to modify or extend the defaults.
 
 @c TEXI DOCSTRING MAGIC: proof-general-name
-@defvar proof-general-name  
+@defvar proof-general-name 
 Proof General name used internally and in menu titles.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-proof-general-home-page
-@defopt proof-proof-general-home-page  
+@defopt proof-proof-general-home-page 
 Web address for Proof General
+
+The default value is @code{"http://www.dcs.ed.ac.uk/home/proofgen"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-universal-keys
-@defvar proof-universal-keys  
+@defvar proof-universal-keys 
 List of keybindings which for the script and response buffer. 
 Elements of the list are tuples (k . f) 
-where `k' is a keybinding (vector) and `f' the designated function.
+where @samp{k} is a keybinding (vector) and @samp{f} the designated function.
 @end defvar
 
 
@@ -2412,10 +2616,13 @@ important files, kept in the @file{generic/} subdirectory.
 
 @menu
 * Spans::                       
+* Proof General site configuration::  
 * Global variables::            
 * Proof script mode::           
 * Proof shell mode::            
 @end menu
+
+
 
 @node Spans
 @section Spans
@@ -2428,37 +2635,108 @@ bridge the gulf between FSF Emacs and XEmacs.  In FSF Emacs, spans are
 implemented using @dfn{overlays}.
 
 See the files @file{span-extent.el} and @file{span-overlay.el} for the
-implementation of the common interface for each case.
+implementation of the common interface in each case.
+
+@node Proof General site configuration
+@section Proof General site configuration
+@cindex installation directories
+@cindex site configuration
+
+The file @file{proof-site.el} contains the initial configuration for
+Proof General for the site (or user) and the choice of provers.
+
+The first part of the configuration is to set
+@code{proof-home-directory} to the directory that @file{proof-site.el}
+is located in, or to the variable of the environment variable
+@code{PROOFGENERAL_HOME} if that is set.
+
+@c TEXI DOCSTRING MAGIC: proof-home-directory
+@defvar proof-home-directory 
+Directory where Proof General is installed. Ends with slash.
+Default value taken from environment variable PROOFGENERAL_HOME if set, 
+otherwise based on where the file proof-site was loaded from.
+You can use customize to set this variable.
+@end defvar
+
+@c They're no longer options.
+@c The default value for @code{proof-home-directory} mentioned above is the
+@c one for the author's system, it won't be the same for you!
+
+Further directory variables allow the files of Proof General to be split
+up and installed across a system if need be, rather than under the
+@code{proof-home-directory} root.
+
+@c TEXI DOCSTRING MAGIC: proof-images-directory
+@defvar proof-images-directory 
+Where Proof General image files are installed. Ends with slash.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-info-directory
+@defvar proof-info-directory 
+Where Proof General Info files are installed.
+@end defvar
+
+
+
+@cindex mode stub
+After defining these settings, we define a @dfn{mode stub} for each
+proof assistant enabled.  The mode stub will autoload Proof General for
+the right proof assistant when a file is visited with the corresponding
+extension.  The proof assistants enabled are the ones listed
+in the @code{proof-assistants} setting.
+
+@c TEXI DOCSTRING MAGIC: proof-assistants
+@defopt proof-assistants 
+Choice of proof assitants to use with Proof General.
+A list of symbols chosen from: @code{isa} @code{lego} @code{coq}.
+Each proof assistant defines its own instance of Proof General,
+providing session control, script management, etc.  Proof General
+will be started automatically for the assistants chosen here.
+To avoid accidently invoking a proof assistant you don't have,
+only select the proof assistants you (or your site) may need.
+NOTE: to change proof assistant, you must start a new Emacs session.
+
+The default value is @code{(isa lego coq)}.
+@end defopt
+
+The file @file{proof-site.el} also defines a version variable.
+
+@c TEXI DOCSTRING MAGIC: proof-version
+@defvar proof-version 
+Version string identifying Proof General release.
+@end defvar
+
+
 
 
 @node Global variables
 @section Global variables
 
 Global variables are defined in @file{proof.el}.  The same file defines
-a few utility functions and triggers to load in the other files.
+a few utility functions and some triggers to load in the other files.
 
 @c TEXI DOCSTRING MAGIC: proof-script-buffer
-@defvar proof-script-buffer  
+@defvar proof-script-buffer 
 The currently active scripting buffer or nil if none.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-buffer
-@defvar proof-shell-buffer  
+@defvar proof-shell-buffer 
 Process buffer where the proof assistant is run.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-pbp-buffer
-@defvar proof-pbp-buffer  
+@defvar proof-pbp-buffer 
 The goals buffer (also known as the pbp buffer).
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-buffer-type
-@defvar proof-buffer-type  
-Symbol indicating the type of this buffer: 'script, 'shell, or 'pbp.
+@defvar proof-buffer-type 
+Symbol indicating the type of this buffer: @code{script}, @code{shell}, or @code{pbp}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-included-files-list
-@defvar proof-included-files-list  
+@defvar proof-included-files-list 
 List of files currently included in proof process.
 Whenever a new file is being processed, it gets added.
 When the prover retracts across file boundaries, this list 
@@ -2466,9 +2744,13 @@ is resynchronised. It contains files in canonical truename format
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-proof-completed
-@defvar proof-shell-proof-completed  
+@defvar proof-shell-proof-completed 
 Flag indicating that a completed proof has just been observed.
 @end defvar
+
+The @file{proof.el} also loads @file{proof-config.el} which declares the
+proof assistant configuration variables for Proof General,
+@xref{Adapting Proof General to New Provers} for details.
 
 
 @node Proof script mode
@@ -2483,7 +2765,7 @@ regions.  These variables are local to each script buffer (although we
 only really need one queue span in total rather than one per buffer).
 
 @c TEXI DOCSTRING MAGIC: proof-locked-span
-@defvar proof-locked-span  
+@defvar proof-locked-span 
 The locked span of the buffer.
 Each script buffer has its own locked span, which may be detached.
 Proof General allows buffers in other modes also to be locked;
@@ -2491,7 +2773,7 @@ these also have span regions.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-queue-span
-@defvar proof-queue-span  
+@defvar proof-queue-span 
 The queue span of the buffer.
 @end defvar
 
@@ -2499,7 +2781,7 @@ Various utility functions manipulate and examine the spans.  An
 important one is @code{proof-init-segmentation}.
 
 @c TEXI DOCSTRING MAGIC: proof-init-segmentation
-@defun proof-init-segmentation  
+@defun proof-init-segmentation 
 Initialise the queue and locked spans in a proof script buffer.
 No harm if the spans have already been allocated.
 @end defun
@@ -2507,7 +2789,7 @@ No harm if the spans have already been allocated.
 For locking files loaded by a proof assistant, we use the next function.
 
 @c TEXI DOCSTRING MAGIC: proof-mark-buffer-atomic
-@defun proof-mark-buffer-atomic buffer 
+@defun proof-mark-buffer-atomic buffer
 Mark @var{buffer} as having been processed in a single step.
 
 If buffer already contains a locked region, only the remainder of the
@@ -2522,7 +2804,7 @@ variables @code{proof-included-files-list} documented earlier
 (@xref{Handling multiple files} and @xref{Global variables}).
 
 @c TEXI DOCSTRING MAGIC: proof-register-possibly-new-processed-file
-@defun proof-register-possibly-new-processed-file file 
+@defun proof-register-possibly-new-processed-file file
 Register a possibly new @var{file} as having been processed by the prover.
 @end defun
 
@@ -2531,7 +2813,7 @@ buffer.  This may involve switching from one scripting buffer to
 another.
 
 @c TEXI DOCSTRING MAGIC: proof-activate-scripting
-@defun proof-activate-scripting  
+@defun proof-activate-scripting 
 Activate scripting minor mode for current scripting buffer.
 
 The current buffer is prepared for scripting.  No changes are
@@ -2544,7 +2826,7 @@ If we're changing scripting buffer and the old one is associated with
 a file, add it to @code{proof-included-files-list}.
 
 When a new script buffer has scripting minor mode turned on,
-the hooks `proof-activate-scripting-hook' are run.  This can
+the hooks @samp{@code{proof-activate-scripting-hook}} are run.  This can
 be a useful place to configure the proof assistant for
 scripting in a particular file, for example, loading the
 correct theory, or whatever.
@@ -2557,10 +2839,10 @@ The next function is the main one used for parsing the proof script
 buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-segment-up-to
-@defun proof-segment-up-to pos &optional next-command-end 
+@defun proof-segment-up-to pos &optional next-command-end
 Create a list of (type,int,string) tuples from end of locked region to @var{pos}.
 Each tuple denotes the command and the position of its terminator,
-type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
+type is one of @code{comment}, or @code{cmd}. @code{unclosed-comment} may be consed onto
 the start if the segment finishes with an unclosed comment.
 If optional @var{next-command-end} is non-nil, we contine past @var{pos} until
 the next command end.
@@ -2571,7 +2853,7 @@ a parsed region of the script into a series of commands to
 be sent to the proof assistant.
 
 @c TEXI DOCSTRING MAGIC: proof-semis-to-vanillas
-@defun proof-semis-to-vanillas semis &optional callback-fn 
+@defun proof-semis-to-vanillas semis &optional callback-fn
 Convert a sequence of terminator positions to a set of vanilla extents.
 Proof terminator positions @var{semis} has the form returned by
 the function @code{proof-segment-up-to}.
@@ -2586,11 +2868,11 @@ available until we've actually run @code{proof-segment-up-to (point)},
 hence all the different options when we've done so.
 
 @c TEXI DOCSTRING MAGIC: proof-assert-until-point
-@deffn Command proof-assert-until-point &optional unclosed-comment-fun ignore-proof-process-p 
+@deffn Command proof-assert-until-point &optional unclosed-comment-fun ignore-proof-process-p
 Process the region from the end of the locked-region until point.
 Default action if inside a comment is just process as far as the start of
 the comment. If you want something different, put it inside
-unclosed-comment-fun. If ignore-proof-process-p is set, no commands
+@var{unclosed-comment-fun}. If @var{ignore-proof-process-p} is set, no commands
 will be added to the queue and the buffer will not be activated for
 scripting.
 @end deffn
@@ -2598,7 +2880,7 @@ scripting.
 @code{proof-assert-next-command} is a variant of this function.
 
 @c TEXI DOCSTRING MAGIC: proof-assert-next-command
-@deffn Command proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command 
+@deffn Command proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command
 Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment.  
 If you want something different, put it inside @var{unclosed-comment-fun}. 
@@ -2612,16 +2894,14 @@ The main command for retracting parts of a script is
 @code{proof-retract-until-point}.
 
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point
-@deffn Command proof-retract-until-point &optional delete-region 
-Sets up the proof process for retracting until point. In
-@lisp
-   particular, it sets a flag for the filter process to call
-   `proof-done-retracting' after the proof process has actually
-   successfully reset its state. It optionally deletes the region in
-   the proof script corresponding to the proof command sequence. If
-   this function is invoked outside a locked region, the last
-   successfully processed command is undone.
-@end lisp
+@deffn Command proof-retract-until-point &optional delete-region
+Set up the proof process for retracting until point.
+In particular, set a flag for the filter process to call @samp{@code{proof-done-retracting}}
+after the proof process has actually successfully reset its state.
+If @var{@code{delete-region}} is non-nil, delete the region in the proof script
+corresponding to the proof command sequence.
+If invoked outside a locked region, undo the last successfully processed
+command.
 @end deffn
 
 To clean up when scripting is stopped or the proof assistant exits, we
@@ -2629,15 +2909,15 @@ use the functions @code{proof-restart-buffers}, and
 @code{proof-script-remove-all-spans-and-deactivate}.
 
 @c TEXI DOCSTRING MAGIC: proof-restart-buffers
-@defun proof-restart-buffers buffers 
-Remove all extents in @var{buffers} and maybe reset `proof-script-buffer'.
+@defun proof-restart-buffers buffers
+Remove all extents in @var{buffers} and maybe reset @samp{@code{proof-script-buffer}}.
 No effect on a buffer which is nil or killed.  If one of the buffers
 is the current scripting buffer, then @code{proof-script-buffer} 
 will deactivated.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-script-remove-all-spans-and-deactivate
-@defun proof-script-remove-all-spans-and-deactivate  
+@defun proof-script-remove-all-spans-and-deactivate 
 Remove all spans from scripting buffers via @code{proof-restart-buffers}.
 @end defun
 
@@ -2660,43 +2940,49 @@ There are several important internal variables which control
 interaction with the process.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-busy
-@defvar proof-shell-busy  
+@defvar proof-shell-busy 
 A lock indicating that the proof shell is processing.
 When this is non-nil, @code{proof-shell-ready-prover} will give
 an error.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-marker
-@defvar proof-marker  
+@defvar proof-marker 
 Marker in proof shell buffer pointing to previous command input.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-action-list
-@defvar proof-action-list  
-action list
+@defvar proof-action-list 
+A list of
+
+@lisp
+  (span,command,action)
+
+@end lisp
+triples, which is a queue of things to do.
 @end defvar
 
-The function @code{proof-start-shell} is used to initialise a shell
+The function @code{proof-shell-start} is used to initialise a shell
 buffer and the associated buffers.  
 
-@c TEXI DOCSTRING MAGIC: proof-start-shell
-@defun proof-start-shell  
+@c TEXI DOCSTRING MAGIC: proof-shell-start
+@deffn Command proof-shell-start 
 Initialise a shell-like buffer for a proof assistant.
 
 Also generates goal and response buffers.
 Does nothing if proof assistant is already running.
-@end defun
+@end deffn
 
 The function @code{proof-shell-kill-function} performs the converse
 function of shutting things down; it is used as a hook function for
-@code{kill-buffer-hooks}.  Then no harm occurs if the user kills the
+@code{kill-buffer-hook}.  Then no harm occurs if the user kills the
 shell directly, or if it is done more cautiously via
 @code{proof-shell-exit}.  The function @code{proof-shell-restart}
 allows a less drastic way of restarting scripting, other than
 killing and restarting the process.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-kill-function
-@defun proof-shell-kill-function  
+@defun proof-shell-kill-function 
 Function run when a proof-shell buffer is killed.
 Value for @code{kill-buffer-hook} in shell buffer.
 It shuts down the proof process nicely and clears up all locked regions
@@ -2704,14 +2990,14 @@ and state variables.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
-@deffn Command proof-shell-exit  
+@deffn Command proof-shell-exit 
 Query the user and exit the proof process.
 This simply kills the @code{proof-shell-buffer} relying on the hook function
 to do the hard work.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
-@deffn Command proof-shell-restart  
+@deffn Command proof-shell-restart 
 Restart the proof shell by sending the restart command
 and clearing all script buffers.
 @end deffn
@@ -2725,14 +3011,14 @@ the functions @code{proof-start-queue} and
 @code{proof-shell-exec-loop}.
 
 @c TEXI DOCSTRING MAGIC: proof-start-queue
-@defun proof-start-queue start end alist 
+@defun proof-start-queue start end alist
 Begin processing a queue of commands in @var{alist}.
 If @var{start} is non-nil, @var{start} and @var{end} are buffer positions in the
 active scripting buffer for the queue region.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exec-loop
-@defun proof-shell-exec-loop  
+@defun proof-shell-exec-loop 
 Process the @code{proof-action-list}.
 @code{proof-action-list} contains a list of (span,command,action) triples.
 This function is called with a non-empty @code{proof-action-list}, where the
@@ -2761,7 +3047,7 @@ The variable @code{proof-shell-urgent-message-marker} tracks
 the last urgent message seen.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output
-@defun proof-shell-process-output cmd string 
+@defun proof-shell-process-output cmd string
 Process shell output by matching on @var{string}.
 This function deals with errors, start of proofs, abortions of
 proofs and completions of proofs. All other output from the proof
@@ -2772,19 +3058,19 @@ by setting @code{proof-shell-delayed-output} to a cons cell of
 To extend this function, set
 @code{proof-shell-process-output-system-specific}.
 
-This function - it can return one of 4 things: 'error, 'interrupt,
-'loopback, or nil. 'loopback means this was output from pbp, and
+This function - it can return one of 4 things: @code{error}, @code{interrupt},
+@code{loopback}, or nil. @code{loopback} means this was output from pbp, and
 should be inserted into the script buffer and sent back to the proof
 assistant.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-urgent-message-marker
-@defvar proof-shell-urgent-message-marker  
+@defvar proof-shell-urgent-message-marker 
 Marker in proof shell buffer used for parsing urgent messages.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-urgent-message
-@defun proof-shell-process-urgent-message message 
+@defun proof-shell-process-urgent-message message
 Analyse urgent @var{message} for various cases.
 Included file, retracted file, cleared response buffer, or
 if none of these apply, display.
@@ -2794,7 +3080,7 @@ The main processing point which triggers other actions is
 @code{proof-shell-filter}.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-filter
-@defun proof-shell-filter str 
+@defun proof-shell-filter str
 Filter for the proof assistant shell-process.
 We sleep until we get a wakeup-char in the input, then run
 @code{proof-shell-process-output}, and set @code{proof-marker} to keep track of
@@ -3024,10 +3310,11 @@ where you installed it.
 If you are installing Proof General site-wide, you can put the
 components in the standard directories of the filesystem if you prefer,
 providing the variables in @file{proof-site.el} are adjusted
-accordingly.  Make sure that the @file{generic} and assistant-specific
-elisp files are kept in subdirectories (@file{coq}, @file{isa},
-@file{lego}) of @code{proof-home-directory} so that the autoload
-directory calculations are correct.
+accordingly, @xref{Proof General site configuration}.  Make sure that
+the @file{generic} and assistant-specific elisp files are kept in
+subdirectories (@file{coq}, @file{isa}, @file{lego}) of
+@code{proof-home-directory} so that the autoload directory calculations
+are correct.
 
 To prevent every user needing to edit their own @file{.emacs} files, you
 can put the @code{load-file} command to load @file{proof-site.el} into
@@ -3039,18 +3326,18 @@ details if you don't know where to find this file.
 You cannot run more than one instance of Proof General at a time: so if
 you're using Coq, visiting an @file{.ML} file will not load Isabelle
 Proof General, and the buffer remains in fundamental mode.  If there are
-some assistants supported that you never want to use, you can remove
-them from the variable @code{proof-assistants} in @file{proof-site.el}
-to solve this problem.
+some assistants supported that you never want to use, you can adjust the
+variable @code{proof-assistants} in @file{proof-site.el} to solve this
+problem, @xref{Proof General site configuration}.
 
-Via the Customize mechanism, see the menu:
-@example
-  Options -> Customize -> Emacs -> External -> Proof General
-@end example
-or, after loading Proof General, in a proof script buffer
-@example
-  Proof-General -> Customize
-@end example
+@c Via the Customize mechanism, see the menu:
+@c @example
+@c   Options -> Customize -> Emacs -> External -> Proof General
+@c @end example
+@c or, after loading Proof General, in a proof script buffer
+@c @example
+@c   Proof-General -> Customize
+@c @end example
 
 
 
@@ -3184,6 +3471,14 @@ The Coq Proof General does not know about Coq's section mechansim.
 @node Bugs specific to Isabelle Proof General
 @section Bugs specific to Isabelle Proof General
 
+@unnumberedsubsec Indentation
+
+Isabelle Proof General doesn't support Proof General's indentation
+code to indent proof scripts.  In any case, Proof General's
+indentation code is somewhat broken.
+
+@strong{Workaround:} indent your script by hand.
+
 @unnumberedsubsec Scripting lanugage limitations
 
 Since Isabelle uses ML as a top-level language for writing
@@ -3273,6 +3568,13 @@ particular constants, etc.
 
 
 
+@node Function Index
+@unnumbered Function and Command Index
+@printindex fn
+
+@node Variable Index
+@unnumbered Variable and User Option Index
+@printindex vr
 
 @node Keystroke Index
 @unnumbered Keystroke Index
