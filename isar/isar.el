@@ -1,8 +1,8 @@
 ;; isar.el Major mode for Isabelle/Isar proof assistant
 ;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;;
-;; Author:      David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer:  Markus Wenzel <wenzelm@in.tum.de>
+;; Author:              David Aspinall <da@dcs.ed.ac.uk>
+;; Author / maintainer: Markus Wenzel <wenzelm@in.tum.de>
 ;;
 ;; $Id$
 ;;
@@ -34,43 +34,51 @@
 ;;; help menu
 ;;;
 
+(defun isar-help-antiquotations () (interactive) (proof-shell-invisible-command "print_antiquotations"))
+(defun isar-help-attributes () (interactive) (proof-shell-invisible-command "print_attributes"))
+(defun isar-help-cases () (interactive) (proof-shell-invisible-command "print_cases"))
+(defun isar-help-claset () (interactive) (proof-shell-invisible-command "print_claset"))
+(defun isar-help-commands () (interactive) (proof-shell-invisible-command "print_commands"))
+(defun isar-help-facts () (interactive) (proof-shell-invisible-command "print_facts"))
+(defun isar-help-syntax () (interactive) (proof-shell-invisible-command "print_syntax"))
+(defun isar-help-methods () (interactive) (proof-shell-invisible-command "print_methods"))
+(defun isar-help-simpset () (interactive) (proof-shell-invisible-command "print_simpset"))
+(defun isar-help-binds () (interactive) (proof-shell-invisible-command "print_binds"))
+(defun isar-help-theorems () (interactive) (proof-shell-invisible-command "print_theorems"))
+(defun isar-help-trans-rules () (interactive) (proof-shell-invisible-command "print_trans_rules"))
+
+(defun isar-init-help-keys (map)
+  (define-key map [(control c) h A] 'isar-help-antiquotations)
+  (define-key map [(control c) h a] 'isar-help-attributes)
+  (define-key map [(control c) h c] 'isar-help-cases)
+  (define-key map [(control c) h C] 'isar-help-claset)
+  (define-key map [(control c) h o] 'isar-help-commands)
+  (define-key map [(control c) h f] 'isar-help-facts)
+  (define-key map [(control c) h i] 'isar-help-syntax)
+  (define-key map [(control c) h m] 'isar-help-methods)
+  (define-key map [(control c) h S] 'isar-help-simpset)
+  (define-key map [(control c) h b] 'isar-help-binds)
+  (define-key map [(control c) h t] 'isar-help-theorems)
+  (define-key map [(control c) h T] 'isar-help-trans-rules))
+
 (defpgdefault help-menu-entries
   (append
    isabelle-docs-menu
    (list
     (cons "Show me ..."
 	  (list
-	   ["antiquotations" (proof-shell-invisible-command "print_antiquotations") t]
-	   ["attributes" (proof-shell-invisible-command "print_attributes") t]
-	   ["cases" (proof-shell-invisible-command "print_cases") t]
-	   ["classical rules" (proof-shell-invisible-command "print_claset") t]
-	   ["commands" (proof-shell-invisible-command "print_commands") t]
-	   ["facts" (proof-shell-invisible-command "print_facts") t]
-	   ["inner syntax" (proof-shell-invisible-command "print_syntax") t]
-	   ["methods" (proof-shell-invisible-command "print_methods") t]
-	   ["simplifier rules" (proof-shell-invisible-command "print_simpset") t]
-	   ["term bindings" (proof-shell-invisible-command "print_binds") t]
-	   ["theorems" (proof-shell-invisible-command "print_theorems") t]
-	   ["transitivity rules" (proof-shell-invisible-command "print_trans_rules") t])))))
-
-
-;; To make byte compiler be quiet.
-;; NASTY: these result in loads when evaluated 
-;; ordinarily (from non-byte compiled code).
-;(eval-when-compile
-;  (require 'proof-script)
-;  (require 'proof-shell)
-;  (require 'outline)
-;  (cond ((fboundp 'make-extent) (require 'span-extent))
-;	((fboundp 'make-overlay) (require 'span-overlay))))
-
-
-
-;;; variable: proof-analyse-using-stack
-;;;    proof-locked-region-empty-p, proof-shell-insert, proof-goals-mode,
-;;;    proof-complete-buffer-atomic, proof-shell-invisible-command,
-;;;    prev-span, span-property, next-span, proof-unprocessed-begin,
-;;;    proof-config-done, proof-shell-config-done
+	   ["antiquotations"     (isar-help-antiquotations) t]
+	   ["attributes"         (isar-help-attributes)     t]
+	   ["cases"              (isar-help-cases)          t]
+	   ["classical rules"    (isar-help-claset)         t]
+	   ["commands"           (isar-help-commands)       t]
+	   ["facts"              (isar-help-facts)          t]
+	   ["inner syntax"       (isar-help-syntax)         t]
+	   ["methods"            (isar-help-methods)        t]
+	   ["simplifier rules"   (isar-help-simpset)        t]
+	   ["term bindings"      (isar-help-binds)          t]
+	   ["theorems"           (isar-help-theorems)       t]
+	   ["transitivity rules" (isar-help-trans-rules)    t])))))
 
 
 ;;;
@@ -512,6 +520,7 @@ proof-shell-retract-files-regexp."
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
+  (isar-init-help-keys isar-proofscript-mode-map)
   (isar-init-syntax-table)
   (setq font-lock-keywords isar-font-lock-keywords-1)
   (proof-config-done)
