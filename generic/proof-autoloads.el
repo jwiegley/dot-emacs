@@ -78,7 +78,7 @@ Indent current line of proof script, if indentation enabled." t nil)
 
 ;;;***
 
-;;;### (autoloads (defpacustom proof-defpacustom-fn proof-defshortcut proof-menu-define-specific proof-menu-define-main proof-menu-define-keys) "proof-menu" "generic/proof-menu.el")
+;;;### (autoloads (defpacustom proof-defpacustom-fn proof-definvisible proof-defshortcut proof-menu-define-specific proof-menu-define-main proof-menu-define-keys) "proof-menu" "generic/proof-menu.el")
 
 (autoload 'proof-menu-define-keys "proof-menu" nil nil nil)
 
@@ -90,6 +90,12 @@ Indent current line of proof script, if indentation enabled." t nil)
 Define shortcut function FN to insert STRING, optional keydef KEY.
 This is intended for defining proof assistant specific functions.
 STRING is inserted using `proof-insert', which see.
+KEY is added onto proof-assistant map." nil 'macro)
+
+(autoload 'proof-definvisible "proof-menu" "\
+Define function FN to send STRING to proof assistant, optional keydef KEY.
+This is intended for defining proof assistant specific functions.
+STRING is sent using proof-shell-invisible-command, which see.
 KEY is added onto proof-assistant map." nil 'macro)
 
 (autoload 'proof-defpacustom-fn "proof-menu" "\
@@ -148,6 +154,7 @@ in some cases.   May be called by `proof-shell-invisible-command'." nil nil)
 
 (autoload 'proof-shell-invisible-command "proof-shell" "\
 Send CMD to the proof process.  
+CMD may be a string or a string-yielding function.
 Automatically add proof-terminal-char if necessary, examining
 proof-shell-no-auto-terminate-commands.
 By default, let the command be processed asynchronously.

@@ -445,6 +445,7 @@ KEY is added onto proof-assistant map."
      (interactive)
      (proof-insert ,string)))
 
+;;;###autoload
 (defmacro proof-definvisible (fn string &optional key)
   "Define function FN to send STRING to proof assistant, optional keydef KEY.
 This is intended for defining proof assistant specific functions.
