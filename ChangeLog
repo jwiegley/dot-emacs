@@ -1,3 +1,133 @@
+2002-07-01  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/news.html: Fix date on news item
+
+	* generic/proof-utils.el:
+	Use executable-find
+
+	* generic/proof-script.el:
+	proof-restart: also remove idiom internal spans.
+
+	* generic/proof-x-symbol.el:
+	Fix problem with GNU Emacs support: switch to multibyte in output buffers
+
+	* isa/x-symbol-isabelle.el:
+	Doc difference between isa and isar, fix prob with isa support.
+
+	* isa/isabelle-system.el:
+	Added isabelle-load-isar-keywords mimic of script startup.
+
+	* isar/isar-syntax.el:
+	Adjust syntax tables.
+
+	* isar/isar.el:
+	Adjust load order, and try to load a good isar-keywords file.  Add several FIXMEs.
+
+	* isar/test.el:
+	Add code to test new parser.
+
+2002-06-30  David Aspinall  <da@proofgeneral.org>
+
+	* isar/isar-keywords.el:
+	Revert to previous version.  Explain existence of other versions
+
+	* README: Update version
+
+	* CHANGES: Update, cleanup
+
+	* BUGS:
+	Reorg.  Mention fontification bug.
+
+	* pgkit/README: New files.
+
+	* generic/proof-script.el:
+	Fix error catching in proof-deactivate-scripting-auto.
+
+	* generic/proof-splash.el:
+	Robustify form GNU Emacs
+
+	* isa/x-symbol-isabelle.el:
+	Fix x-symbol-isabelle-input-token-grammar to remove spurious backslashes
+
+	* isa/isa-syntax.el:
+	Fix GNU Emacs/X-Symbol compatibility for sml-sym-face added by Lucas Dixon.
+
+	* etc/isar/Persistent.thy: New files.
+
+	* generic/proof-script.el, generic/proof-shell.el:
+	When killing process or scripting buffer, register file if it is complete, rather than always retracting.
+
+	* generic/proof-shell.el:
+	proof-shell-kill-function: deactivate scripting before shutting down prover
+
+2002-06-24  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-x-symbol.el:
+	Require x-symbol-vars as recommended for new version (works with old too?)
+
+	* generic/proof-menu.el:
+	Disable fly past comments for old parser again.
+
+	* generic/proof-config.el:
+	Default to using old parser for now.
+
+	* generic/proof-config.el, generic/proof-script.el:
+	use-old-parser setting replaces use-new-parser setting [WARNING: big change]
+
+	* generic/proof-compat.el:
+	Also use our own buffer-syntactic-context in XEmacs 21.4.
+
+	* isa/Example.ML, isa/Example.thy:
+	Add Emacs mode comments at top
+
+	* isa/thy-mode.el:
+	Move auto-mode-alist hack here now Isar is default.
+
+	* isa/isa.el: Fix comment
+
+	* isa/x-symbol-isabelle.el:
+	[TESTING] support for latest version of X-Symbol (back compat broken).
+
+	* isa/isabelle-system.el:
+	Hack to avoid loading x-symbol-isabelle
+
+	* isar/isar-keywords.el:
+	Fix to prevent {* being considered a command, flag edits
+
+	* isar/isar.el:
+	Remove auto-mode-alist hack, and require on x-symbol-isabelle [TESTING].
+
+2002-06-21  David Aspinall  <da@proofgeneral.org>
+
+	* FAQ:
+	Wrong: mustn't delete isa dir, files shared with isar.
+
+	* twelf/twelf.el, lego/lego.el, lego/lego-syntax.el, lego/x-symbol-lego.el, isar/isar.el, isar/isar-syntax.el, isa/x-symbol-isabelle.el, isa/isa.el, isa/isa-syntax.el, isa/thy-mode.el, acl2/acl2.el, html/download.html:
+	GPL update
+
+	* doc/PG-adapting.texi, doc/ProofGeneral.texi:
+	GPL, 3.4 dates
+
+	* CHANGES, COPYING:
+	GPL
+
+	* FAQ: Isar is default over isa.
+
+	* generic/span.el, generic/span-extent.el, generic/span-overlay.el, generic/texi-docstring-magic.el, generic/proof.el, generic/proof-system.el, generic/proof-toolbar.el, generic/proof-utils.el, generic/proof-x-symbol.el, generic/proof-site.el, generic/proof-splash.el, generic/proof-syntax.el, generic/proof-shell.el, generic/proof-depends.el, generic/proof-easy-config.el, generic/proof-indent.el, generic/proof-menu.el, generic/proof-script.el, generic/pg-xhtml.el, generic/pg-xml.el, generic/proof-compat.el, generic/proof-config.el, generic/pg-metadata.el, generic/pg-pgip.el, generic/pg-user.el:
+	GPL
+
+	* BUGS: Mention looping GNU
+
+2002-06-20  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
 2002-06-20  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
