@@ -1,1 +1,52 @@
 Test files for multiple file handling with Isabelle.
+
+
+Test schedule
+=============
+
+[C depends on A and B, D is independent]
+
+Notation: A  means that buffer A.l is unlocked
+          A+ means that buffer A.l is partly locked
+          A* means that buffer A.l is locked
+	  ? means that behaviour might be different for proof systems
+  	    with non-linear contexts
+
+Borrowed from Thomas's lego tests:  (v 1.2)
+
+ 1) visit A.ML                EFFECTS A
+ 2) visit C.ML                EFFECTS A     C
+ 3) assert C                  EFFECTS A*    C*
+ 4) visit B.ML,B.thy,C.thy    EFFECTS A* B* C*    C.thy* B.thy*
+ 5) visit D.ML                EFFECTS A* B* C* D  D.thy
+ 6) retract to middle of B    EFFECTS A* B  C  D  B.thy* (*thy remains locked*)
+ 7) assert first command of B EFFECTS A* B+ C  D  
+ 8) assert C                  EFFECTS A* B+ C  D [error message, correctly]
+ 9) assert B                  EFFECTS A* B* C  D 
+10) assert D                  EFFECTS A* B* C  D*  D.thy*
+11) retract B                 EFFECTS A* B  C  D? [D* D.thy* for Isabelle]
+12) assert C                  EFFECTS A* B* C* D? 
+13) retract B                 EFFECTS A* B  C  D? [B.thy* D*,D.thy* again]
+14) assert B                  EFFECTS A* B* C  D? 
+15) assert C                  EFFECTS A* B* C* D? [everything locked]
+16) retract to middle of B    EFFECTS A* B+ C  D? 
+14) M-x proof-restart-script  EFFECTS A  B  C  D  
+
+
+MORE TESTS NEEDED FOR ISABELLE:
+===============================
+
+Should test assertion of theory files, and watch what happens to ML files.
+
+Because of theory loader's odd behaviour, must watch what happens
+to ML files of autoloaded children.
+
+
+1) visit example.ML, example.thy       EFFECT: ML
+2) assert .ML			       EFFECT: ML* thy*
+3) retract thy			       EFFECT: ML thy     (29.10.98 BREAKS!)
+							    get ML*
+
+
+
+
