@@ -61,6 +61,7 @@ rearrange:
 .tiff.eps:
 	tiff2ps -e -w 3.48 -h 5 $*.tiff > $*.eps
 
+## FIXME: need to do page rearrangement here, too!
 .texi.pdf:
 	$(TEXI2PDF) $< 
 
