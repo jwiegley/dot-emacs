@@ -47,9 +47,10 @@ Proof General."
 "    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
      or use the menu command Proof-General -> Submit bug report."
     nil
-    (unless proof-running-on-XEmacs
+    ;; Don't bother with XEmacs propaganda for GNU Emacs 21.
+    (unless (or proof-running-on-XEmacs proof-running-on-Emacs21)
       "For a better Proof General experience, please use XEmacs")
-    (unless proof-running-on-XEmacs
+    (unless (or proof-running-on-XEmacs proof-running-on-Emacs21)
       "(visit  http://www.xemacs.org)"))
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
@@ -83,7 +84,8 @@ Different formats are chosen from according to what can be displayed.
 Unless NOJPEG is set, try jpeg first. Then try gif.
 Gif filename depends on colour depth of display."
   (let ((jpg (vector 'jpeg :file
-		     (concat proof-images-directory name ".jpg"))))
+		     (concat proof-images-directory name ".jpg")))
+	img)
   (cond
    ((and window-system (featurep 'jpeg) (not nojpeg)
 	 ;; Actually, jpeg can fail even if it is compiled in.
@@ -102,6 +104,17 @@ Gif filename depends on colour depth of display."
 				 ".gif")
 				;; Low colour gif for poor displays
 				".8bit.gif")))))
+   ;; Support GNU Emacs 21
+   ((and
+     proof-running-on-Emacs21
+     (setq img
+	   (find-image
+	    (list
+	     (list :type 'jpeg
+		   :file (concat proof-images-directory name ".jpg"))
+	     (list :type 'gif
+		   :file (concat proof-images-directory name ".gif"))))))
+    img)
    (t
     (concat "[ image " name " ]")))))
 
@@ -118,8 +131,11 @@ Borrowed from startup-center-spaces."
 	 (fill-area-width  (* avg-pixwidth (- fill-column left-margin)))
 	 (glyph-pixwidth   (cond ((stringp glyph) 
 				  (* avg-pixwidth (length glyph)))
-				 ((glyphp glyph)
+				 ((and (fboundp 'glyphp)
+				       (glyphp glyph))
 				  (glyph-width glyph))
+				 ((proof-emacs-imagep glyph)
+				  (car (image-size glyph 'inpixels)))
 				 (t
 				  (error
 				   "proof-splash-centre-spaces: bad arg")))))
@@ -173,11 +189,14 @@ Otherwise, timeout inside this function after 10 seconds or so."
       (while splash-contents
 	(setq s (car splash-contents))
 	(cond
-	 ((and (vectorp s)		; vectorp for FSF
+	 ((and (vectorp s)
 	       (valid-instantiator-p s 'image))
 	  (let ((gly (make-glyph s)))
 	    (indent-to (proof-splash-centre-spaces gly))
 	    (set-extent-begin-glyph (make-extent (point) (point)) gly)))
+	 ((proof-emacs-imagep s)
+	  (indent-to (proof-splash-centre-spaces s))
+	  (insert-image s))
 	 ((stringp s)
 	  (indent-to (proof-splash-centre-spaces s))
 	  (insert s)))
