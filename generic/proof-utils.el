@@ -440,7 +440,12 @@ Returns new END value."
 	    (narrow-to-region start end)
 	    (run-hooks 'pg-before-fontify-output-hook)
 	    (setq end (point-max)))
-	  (font-lock-default-fontify-region start end nil))))
+	  ;; da: 10.8.04 protect this against "Nesting too deep for parser"
+	  ;; which may be raised by XEmacs' crummy `parse-partial-sexp'.
+	  (condition-case err
+	      (font-lock-default-fontify-region start end nil)
+	    (t (proof-debug "Caught condition %s in `font-lock-default-fontify-region'"
+			    (car err)))))))
   (save-restriction
     (narrow-to-region start end)
     (run-hooks 'pg-after-fontify-output-hook)
