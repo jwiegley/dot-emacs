@@ -13,7 +13,10 @@
 
 
 (defconst coq-indent-inner-regexp
-  (proof-regexp-alt "[[]()]" "|"
+  (proof-regexp-alt "[[]()]" "|" "ö’" ; forall with x-symbol (nomule) 
+                                         ; must not be enclosed by \\<and \\>
+                                        ;"~" forall x-symb mule but interacts with 'not'
+
 						  (proof-ids-to-regexp   '("as"
 ;															"ALL"
 ;															"True"
@@ -59,7 +62,7 @@
   (proof-regexp-alt 
 	coq-indent-close-regexp 
 	coq-indent-open-regexp 
-	coq-indent-inner-regexp 
+	coq-indent-inner-regexp
 	coq-any-command-regexp 
 	(proof-ids-to-regexp coq-tacticals)
 	(proof-ids-to-regexp coq-tactics)))
