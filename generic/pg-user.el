@@ -115,7 +115,7 @@ the proof script."
   (proof-maybe-save-point
    (let
       ((span (proof-last-goal-or-goalsave)))
-     (if (and span (not (eq (span-property span 'type) 'proof))
+     (if (and span (not (eq (span-property span 'type) 'goalsave))
 	      (< (span-end span) (proof-unprocessed-begin)))
 	 (progn
 	   (goto-char (span-start span))
@@ -690,10 +690,10 @@ last use time, to discourage saving these into the users database."
 ;; Span menus and keymaps  (maybe belongs in pg-menu)
 ;;
 
-(defvar span-context-menu-keymap
+(defvar pg-span-context-menu-keymap
     (let ((map (make-sparse-keymap
 		"Keymap for context-sensitive menus on spans")))
-      (define-key map [button3] 'span-context-menu)
+      (define-key map [button3] 'pg-span-context-menu)
       map))
 
 ;; FIXME: TODO here:
@@ -702,22 +702,22 @@ last use time, to discourage saving these into the users database."
 ;; (pgidioms).
 ;;
 
-(defun span-context-menu (event)
+(defun pg-span-context-menu (event)
   (interactive "e")
   (select-window (event-window event))
   (let* 
       ((event-span (span-at (event-point event) 'type))
-       (idiom      (symbol-name (span-property event-span 'type)))
+       (idiom      (symbol-name (span-property event-span 'idiom)))
        (portname   (span-property event-span 'name))
        (spano	   (span-object event-span))
        (event-file (and (bufferp spano) (buffer-file-name spano))))
-    (popup-menu (create-in-span-context-menu event-span 
+    (popup-menu (pg-create-in-span-context-menu event-span 
 					     idiom portname event-file))))
 
-(defun create-in-span-context-menu (span idiom name file)
-  `(,(concat (if idiom (upcase-initials idiom)) ":" name)
+(defun pg-create-in-span-context-menu (span idiom name file)
+  `(,(concat (if idiom (upcase-initials idiom)) ": " name)
     ,(vector
-      "Make invisible"	(list 'pg-make-element-invisible idiom name) idiom)))
+      "Show/hide"   (list 'pg-toggle-element-visibility idiom name) idiom)))
 
 
 
