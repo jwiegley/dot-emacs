@@ -29,8 +29,10 @@ Case n. (* 5 "Undo" *)
 EAuto. (* 6 "Undo" *)
 
 Require Omega. (* 7 This needs "Back 1" to be retracted. *)
-Lemma t2 : O=O. Auto. Save. (* 8 "Back 1" or "Reset t2". *)
+  Lemma t2 : O=O. Auto. 
+    Lemma t4 : O=O. Auto. Save.
+  Save. (* 8 "Back 1" or "Reset t2". *)
 Intros. (* 9 "Undo" *)
-Lemma t3 : O=O. Auto. Save. (* 10 "Back 1" or "Reset t3" *)
+  Lemma t3 : O=O. Auto. Save. (* 10 "Back 1" or "Reset t3" *)
 EAuto. (* 11 "Undo" *)
 Save. (* 12 *)
