@@ -94,7 +94,9 @@
     str))
 
 (defconst texi-docstring-magic-munge-table
-  '(;; 1. Indented lines are gathered into @lisp environment.
+  '(;; 0. FIXME: escape @ characters  
+    ;; ("@" t "@@")
+    ;; 1. Indented lines are gathered into @lisp environment.
     ("\\(^.*\\S-.*$\\)"
      t
      (let
