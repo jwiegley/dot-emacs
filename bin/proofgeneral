@@ -87,6 +87,4 @@ if [ ! -x "$EMACS" ]; then
     exit 1
 fi
     
-echo $EMACS -eval "(or (featurep (quote proof-site)) (load \"$PGHOME/generic/proof-site.el\"))" -f proof-splash-display-screen "$@"
-	
 exec $EMACS -eval "(or (featurep (quote proof-site)) (load \"$PGHOME/generic/proof-site.el\"))" -f proof-splash-display-screen "$@"
