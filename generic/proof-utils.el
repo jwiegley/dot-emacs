@@ -425,8 +425,9 @@ Returns new END value."
 	(pg-remove-specials start end)
 	(setq end (point))))
   (prog1
-      ;; Return new end value
-      (proof-x-symbol-decode-region start end)
+      ;; prog1 because we return new END value.
+      (if (proof-ass x-symbol-enable)
+	  (proof-x-symbol-decode-region start end))
     (proof-font-lock-clear-font-lock-vars)))
 
 
