@@ -794,16 +794,16 @@ everything!  Here are some useful commands:
 @node Organization of this manual
 @section Organization of this manual
 
-About half of this manual covers the user-level view and customization
-of Proof General.  The other half considers adapting Proof General to
-new proof assistants, and documents some of the internals of Proof
-General.  
+This manual covers the user-level view and customization of Proof
+General.  The accompanying @i{Adapting Proof General} manual considers
+adapting Proof General to new proof assistants, and documents some of
+the internals of Proof General.
 
-Three final appendices contain some details about obtaining and
-installing Proof General, some known bugs, and some future plans.  The
-contents of these final chapters is also covered in the files
-@file{INSTALL}, @file{BUGS}, and @file{TODO}, contained in the
-distribution.
+Three appendices of this manual contain some details about obtaining and
+installing Proof General and some known bugs.  The contents of these
+final chapters is also covered in the files @file{INSTALL} and
+@file{BUGS} contained in the distribution.  Refer to those files
+for the latest information.
 
 The manual concludes with some references and indexes.  See the table of
 contents for full details.
