@@ -1,3 +1,72 @@
+2003-02-03  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2003-02-03  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el, coq/coq-syntax.el, coq/example.v, coq/ex-module.v:
+	code cleaning + deals better with the new module system of Coq. Did
+	not test the fsfemacs. Will do before release.
+
+2003-02-03  sberghof  <sberghof@dcs.ed.ac.uk>
+
+	* isar/isar.el:
+	- Moved "show me" menu one level up in the menu hierarchy
+	- Reordered entries in "show me" menu and added entry for displaying matching
+	  introduction rules
+
+2003-02-02  David Aspinall  <da@proofgeneral.org>
+
+	* generic/texi-docstring-magic.el:
+	Fix from Christoph Conrad for Emacs compatibility (buffer-string)
+
+2003-01-30  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	Bug correction in the find-and-forget function for coq: in Coq v74, no
+	prompt is return if an empty command is send ("\n"), so if the command
+	is empty, we send proof-no-command (if not, backtracking state
+	preserving command stays indefinitely in "proof process busy" state).
+
+2003-01-29  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/example.v, coq/ex-module.v, coq/coq.el:
+	Added a file for testing modules of coq (new version 7.4). Plus some
+	modification to better backtrack modules.
+
+2003-01-29  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-compat.el: Updated.
+
+	* generic/proof-compat.el:
+	Add remassoc for FSF.
+
+2003-01-24  David Aspinall  <da@proofgeneral.org>
+
+	* coq/coq-syntax.el:
+	Fix hilight of Module Type?
+
+	* etc/isar/CommentParsingBug2.thy:
+	New files.
+
+2003-01-24  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	removed some garbage printing in coq/
+
+	* coq/coq.el, coq/example.v, coq/coq-syntax.el:
+	Modifications for support of Coq-7.3.1+ and above (new module system).
+
+2003-01-20  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* FAQ: Updated.
+
 2003-01-20  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
