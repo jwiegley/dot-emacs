@@ -14,18 +14,18 @@ Fixpoint toto (x:nat) {struct x} : nat := (* nat should appear as |N *)
   end.
 
 Lemma titi : forall x:nat,x=x. (* symbolique for-all and nat *)
- 
+Admitted. 
 
 (* this should appear like foo'a'1_B_3 where a and B are greek *)
 Variable foo'alpha'1_beta_3 : Set.  
 
 Fixpoint pow (n m:nat) {struct n} : nat :=
   match n with
-  | O => 0
-  | S p => m * pow p m
+	 | O => 0
+	 | S p => m * pow p m
   end.
 
-Notation "a ,{ b }" := (a - b)
+Notation " a ,{ b }  " := (a - b)
   (at level 1, no associativity).
 
 Notation "a ^^ b" := (pow a b)

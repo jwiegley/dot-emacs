@@ -72,26 +72,25 @@ Module Type N'.
   End N''.
   
   Declare Module N':M.SIG. (* no interactive def started *)
-    Declare Module N''':= N'. (* no interactive def started *)
-      Declare Module N''''. (* interactive def started *)
-	Parameter foo:nat.
-      End N''''.            (* interactive def ended *)
-    End N'.
+  Declare Module N''':= N'. (* no interactive def started *)
+  Declare Module N''''. (* interactive def started *)
+	 Parameter foo:nat.
+  End N''''.            (* interactive def ended *)
+End N'.
 
     
     
-    Lemma titi : O=O.
-      trivial.
-      Module Type K:=N'.
-      Module N''':=M.
-    Save.
+Lemma titi : O=O.
+  trivial.
+  Module Type K:=N'.
+  Module N''':=M.
+Save.
 
-  (* Here is a bug of Coq: *)
+	 (* Here is a bug of Coq: *)
     
-    Lemma bar:O=O.
-      Module Type L. (* This should not be allowed by Coq, since the End L. below fails *)
-	Axiom foo: O=O.
-      End L. (* fails --> if we go back to Module Type: unsync *)
-      Module I.
-    End I.
-    
+Lemma bar:O=O.
+  Module Type L. (* This should not be allowed by Coq, since the End L. below fails *)
+	 Axiom foo: O=O.
+  End L. (* fails --> if we go back to Module Type: unsync *)
+  Module I.
+End I.

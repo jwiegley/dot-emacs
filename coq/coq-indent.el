@@ -84,11 +84,11 @@
 
 
 (defun coq-find-command-start ()
-  (proof-re-search-backward "\\.\\B\\|\\`")
+  (proof-re-search-backward "\\.\\s-\\|\\`")
   (while (and (proof-looking-at-syntactic-context)
 				  (> (point) (point-min)))
-    (proof-re-search-backward "\\.\\B\\|\\`"))
-  (if (proof-looking-at "\\.\\B") (forward-char 1))
+    (proof-re-search-backward "\\.\\s-\\|\\`"))
+  (if (proof-looking-at "\\.\\s-") (forward-char 1))
   (point)
   )
 
@@ -105,12 +105,13 @@
   )
 
 (defun coq-find-end ()
-  (proof-re-search-forward "\\.\\B\\|\\'")
+  (proof-re-search-forward "\\.\\s-\\|\\.\\'\\|\\'")
+  (if (= (point) (+ (match-beginning 0) 2)) (backward-char 1))
   (while (and (proof-looking-at-syntactic-context)
 				  (<= (point) (point-max)))
     (proof-re-search-forward "\\*\\s)")
-    (proof-re-search-forward "\\.\\B\\|\\'"))
-;  (backward-char 1)
+    (proof-re-search-forward "\\.\\s-\\|\\.\\'\\|\\'")
+    (if (= (point) (+ (match-beginning 0) 2)) (backward-char 1)))
   (point)
   )
 
@@ -136,6 +137,7 @@
 )
 
 (defun find-reg (lim reg)
+  (message "findreg")
   (let ((limit lim))
 	 (if (< limit (point)) ;swap limit and point
 		  (let ((x limit)) (setq limit (point)) (goto-char x)))
@@ -163,12 +165,12 @@
 		  (setq topnotreached (= (forward-line -1) 0)))
 		(back-to-indentation)
 		(if (not topnotreached) 0 ; returns nil if top of buffer was reached
-		  (if (find-reg oldpt "\\.\\B");; if we are at end of a command (dot) find this command
+		  (if (find-reg oldpt "\\.\\s-\\|\\.\\'");; if we are at end of a command (dot) find this command
 				(progn (coq-find-real-start) 1)
 			 (if (save-excursion 
-					 (coq-find-real-start) 
-					 (proof-looking-at-safe "Record")
-					 (find-reg oldpt "{")) 
+					 (and (coq-find-real-start)
+							(proof-looking-at-safe "Record")
+							(find-reg oldpt "{"))) 
 				  4 
 				2))
 		  
@@ -479,10 +481,12 @@
 
 (defun coq-indent-offset ()
   (let (kind prevcol prevpoint)
+	 (message "ici")
 	 (save-excursion
 		(setq kind (coq-back-to-indentation-prevline) ;go to previous *command* (assert)
 				prevcol (current-column)
 				prevpoint (point)))
+	 (message "la")
 	 (cond 
 	  ((= kind 0) 0) ; top of the buffer reached
 	  ((= kind 1) ; we are at the command level
