@@ -14,7 +14,7 @@
 ###########################################################################
 
 
-ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98 phox twelf acl2
+ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98 phox twelf acl2 mmm
 # FIXME: automate the emacs choice to be xemacs if it can be
 # found, otherwise emacs.
 BATCHEMACS=xemacs -batch -q -no-site-file
@@ -55,8 +55,11 @@ compile:
 	@echo " Byte compiling..."
 	@echo "*************************************************"
 	rm -f $(ELC) 
-	$(BYTECOMP) $(EL)
+## ignore errors for now: some files still have probs [x-symbol induced]
+	-$(BYTECOMP) $(EL)
 	rm -f $(BROKENELC)
+	@echo " Byte compiling X-Symbol..."
+	(cd x-symbol/lisp; rm -f *.elc; $(MAKE))
 	@echo "*************************************************"
 	@echo " Finished."
 	@echo "*************************************************"
@@ -99,6 +102,7 @@ perlscripts:
 clean:
 	rm -f $(ELC) *~ */*~ .\#* */.\#*
 	(cd doc; $(MAKE) clean)
+	(cd x-symbol/lisp; $(MAKE) clean)
 
 
 ##
