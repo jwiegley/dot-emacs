@@ -949,9 +949,11 @@ Must be an active scripting buffer.
 @node Script processing commands
 @section Script processing commands
 @kindex C-c C-n
+@kindex C-c C-u
+@kindex C-c C-b
+@kindex C-c C-r
 @kindex C-c RET
 @kindex C-c u
-@kindex C-c C-u
 
 Here are the commands for asserting and retracting portions of the proof
 script, together with their default key bindings.  Note that assertion
@@ -1024,6 +1026,10 @@ delete the retracted region from the proof-script.
 Process the current buffer and set point at the end of the buffer.
 @end deffn
 
+@c TEXI DOCSTRING MAGIC: proof-retract-buffer
+@deffn Command proof-process-buffer 
+Process the current buffer and set point at the end of the buffer.
+@end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-active-terminator-minor-mode
 @deffn Command proof-active-terminator-minor-mode &optional arg

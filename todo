@@ -38,33 +38,23 @@ X (Low)     probably not worth spending time on
 ====================================
 
 A Pending work, in progress [da]:
-    - new toolbar button icons 
-          (fixup eye shadows, mag glass, finger, stop icon)
-    - command and button for searching for a theorem
-       (possibly matching a given constant, or the proof state).
     - reorganization and improvement of menus, keybindings
 	. use toolbar functions, but remove from proof-toolbar and reorganize.
 	. update documentation
     - test support for x-symbol
     - investigate toolbar refresh problems
-	. extra clicks are needed
-	. toolbar appears in wrong buffers
+	. extra clicks are needed (?)
     - investigate of excessive processing for large proofs
     - investigate bug fix for vacuous locked regions
-    - bug when prover gives error from proof-find (or similar functions)
     - document proof-mouse-track-insert (new name for proof-send-span, re-enabled).
 
-A Usability enhancement:
+C Usability enhancement:
     - Fix asymmetry between "doing" and "undoing": doing will skip comments,
       undoing will not.  e.g. test case: (* tester *) intros; 
 
-A Usability enhancement:
+C Usability enhancement:
     - Fix proof-script-command-separator and proof-one-command-per-line flag,
-    document them.
-
-C Compatibility enhancement:
-    - Consider sending comments to proof process after all.  They might
-      contain special (e.g. LaTeX) directives or something.
+      document them.
 
 C Internal improvements for marking up proof assistant output.
     We need a better mechanism for allowing "invisible" mark up
@@ -82,11 +72,15 @@ C Internal improvements for marking up proof assistant output.
     Maybe using x-symbol would give another approximation, too, although
     I'm put off that because it's not so standardly a part of XEmacs yet.
 
-A Usability enhancement:
-   Enable toolbar in other buffers.  Should switch to active
+C Usability enhancement:
+   Enable toolbar in other PG buffers.  Should switch to active
    scripting buffer first if it is non current.
    (In fact, a sensible subset of scripting commands would
     work from other buffers).
+
+X Compatibility enhancement:
+    - Consider sending comments to proof process after all.  They might
+      contain special (e.g. LaTeX) directives or something.
 
 A Usability enhancement:
    Movement of point after assert/retract commands
@@ -98,8 +92,8 @@ A Usability enhancement:
    Optional argument to delete region should be removed 
    from C-c C-u, pressing quickly in succession can delete
    from buffer
-
-A Usability enhancement:
+B
+ Usability enhancement:
    Rationalize next and undo.  Make same as toolbar 
    commands and have different commands for power users
    to assert/retract until point.
@@ -114,6 +108,11 @@ A Usability enhancement:
 
 B Web pages: improve screenshots section to include a slideshow, or
   at least, a series of pictures of PG in action.  (3 hours)
+
+C Nicety enhancement:
+    Add messages "retracting buffer ... done" "processing ... done".
+    This needs some call backs or setting of variables examined
+    by proof-done-{advancing,retracting}
 
 D bug: outline mode when proof-strict-read-only is nil ought to
   work, but there may be problems.

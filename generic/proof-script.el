@@ -1295,6 +1295,8 @@ the proof script."
   (goto-char (point-min))
   (proof-retract-until-point-interactive))
 
+
+
 ;; FIXME da: this could do with some tweaking.  Be careful to
 ;; avoid memory leaks.  If a buffer is killed and it's local
 ;; variables are, then so should all the spans which were allocated
