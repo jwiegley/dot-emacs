@@ -35,7 +35,7 @@
 ;; the following line can be included AFTER (require 'x-symbol-{mule/nomule}) has been deleted from x-symbol-hooks
 ;;(eval-when-compile (require 'x-symbol))	; x-symbol also requires this file
 
-(cond ((not (and (fboundp 'emacs-version>=) (emacs-version>= 20 3)))
+(cond ((not (and (fboundp 'emacs-version>=) (emacs-version>= 20 4)))
        ;; Yes, it probably works with XEmacs-20.2, too, but I do not want to
        ;; care about its bug in `string-match':
        (error "Package X-Symbol requires XEmacs-21.1.9+"))
