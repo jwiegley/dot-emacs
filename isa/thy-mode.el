@@ -146,8 +146,9 @@ You can use the following format characters:
       (define-key map "\C-c\C-p" 'thy-goto-prev-section)
       (define-key map "\C-c\C-c" 'thy-minor-sml-mode)
       (define-key map "\C-c\C-t" 'thy-insert-template)
-      (define-key map "\C-c\C-u" 'thy-use-file)
-      (define-key map "\C-c\C-l" 'thy-raise-windows)
+      ;; Disabled for Proof General
+      ;;(define-key map "\C-c\C-u" 'thy-use-file)
+      ;;(define-key map "\C-c\C-l" 'thy-raise-windows)
       (define-key map "\C-c\C-o" 'thy-find-other-file)
       (define-key map "\C-M" 'newline-and-indent)
       (define-key map "\C-k" 'thy-kill-line)
@@ -172,7 +173,10 @@ The style of indentation for theory files is controlled by these variables:
   thy-heading-indent 
   thy-indent-level
   thy-indent-strings
-- see individual variable documentation for details."
+- see individual variable documentation for details.
+
+Here is the full list of theory mode key bindings:
+\\{thy-mode-map}"
   (interactive)
   (kill-all-local-variables)
   (setq major-mode 'thy-mode)
