@@ -867,8 +867,8 @@ Must be called when the point is at end of last abbrev expansion."
 
 (defun holes-replace-string-by-holes (start end str)
   "Make holes of occurrence (between START and END) of STR.
-Sets the active hole to the last created hole and unsets it if no hole is
-  created."
+Sets the active hole to the last created hole and unsets it if no hole
+is created."
 
   (interactive)
   (holes-disable-active-hole)
@@ -886,8 +886,8 @@ Sets the active hole to the last created hole and unsets it if no hole is
 (defun holes-replace-string-by-holes-backward (num regexp)
 
   "Make NUM occurrences of REGEXP be holes looking backward.
-Sets the active hole to the last created hole and unsets it if no hole is
-  created.  Return t if num is > 0, nil otherwise."
+Sets the active hole to the last created hole and unsets it if no hole
+is created.  Return t if num is > 0, nil otherwise."
 
   (interactive)
   (holes-disable-active-hole)
@@ -934,6 +934,28 @@ Sets the active hole to the last created hole and unsets it if no hole is
   )
 
 
+(defvar skeleton-positions nil)
+
+(defun holeskel-add-pos ()
+  (add-to-list 'skeleton-positions (point))
+  )
+
+
+(defun holeskel-build-skel-list (l)
+  "Replaces @s in the arguments of define-skeleton to mimick Emacs behavior.
+As soon as XEmacs does have this feature, I remove this hack."
+  (if (car-safe l)
+      (let ((hd (car l)) (tl (cdr l)))
+	(if (eq hd '@) 
+	    (cons '(progn (holeskel-add-pos) nil) 
+		  (holeskel-build-skel-list tl))
+	  (cons hd (holeskel-build-skel-list tl))
+	  )
+	)
+    )
+  )
+
+
 ;;; Works only for Emacs
 (defun holes-skeleton-end-hook ()
   "Default hook after a skeleton insertin: put holes at each interesting position."
@@ -943,6 +965,11 @@ Sets the active hole to the last created hole and unsets it if no hole is
       (setq lpos (cdr lpos))
       )
   ))
+
+(defconst holes-jump-doc 
+  (concat "Hit \\[holes-set-point-next-hole-destroy] to jump "
+	  "to active hole.  C-h v holes-doc to see holes doc.")
+  "Shortcut reminder string for jumping to active hole.")
 
 (defun holes-abbrev-complete ()
   "Complete abbrev by putting holes and indenting.
@@ -954,11 +981,9 @@ become holes."
     (holes-replace-string-by-holes-backward-move-point
      (holes-count-holes-in-last-expand) holes-empty-hole-regexp)
     (if (> (holes-count-holes-in-last-expand) 1)
-	(progn (goto-char pos)
-	       (message 
-		(substitute-command-keys 
-		 "Hit \\[holes-set-point-next-hole-destroy] to jump to active hole.  C-h holes-doc to see holes doc.")))
-
+	(progn 
+	  (goto-char pos)
+	  (message (substitute-command-keys holes-jump-doc)))
       (if (= (holes-count-holes-in-last-expand) 0) () ; no hole, stay here.
 	(goto-char pos)
 	(holes-set-point-next-hole-destroy) ; if only one hole, go to it.
@@ -980,12 +1005,8 @@ become holes."
     (holes-replace-string-by-holes-backward-move-point c holes-empty-hole-regexp)
     (if (> c 1) (goto-char pos)
       (goto-char pos)
-      (holes-set-point-next-hole-destroy) ; if only one hole, go to it.
-      )
-    (if (> c 1) 
-	(message 
-	 (substitute-command-keys 
-	  "Hit \\[holes-set-point-next-hole-destroy] to jump to active hole.  C-h holes-doc to see holes doc."))
+      (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
+    (if (> c 1) (message (substitute-command-keys holes-jump-doc))
       )
     )
   )
