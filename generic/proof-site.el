@@ -13,6 +13,9 @@
 ;; One possible hack: changing prover in the proof-assistant setting
 ;; below could re-adjust load path and autoloads.
 
+;; 
+(defvar proof-general-version ""
+  "Version string for Proof General.")
 
 (or (featurep 'custom)
     ;; Quick hack to support defcustom for Emacs 19
