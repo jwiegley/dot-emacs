@@ -300,8 +300,10 @@ program.  Why not adapt Proof General to your favourite proof assitant?
 @unnumberedsec Latest news
 @cindex news
 
-Proof General 2.1 is mainly a bug fix release over 2.0.  There are some
-usability enhancements.  See the CHANGES file for more information.
+Proof General 2.2 is mainly a usability enhancement and bug fix release
+over previous 2.x releases.  See the CHANGES file for more information.
+Developers should check the ChangeLog in the developer's release for
+details of internal changes.
 
 Two new instantiations of Proof General are being worked on.
 @emph{Isar}, for the new theory language of Isabelle, and
@@ -335,14 +337,18 @@ Edinburgh.  Visit this page for more news!
 <IMG SRC="ProofGeneral.jpg" ALT="[ Proof General logo ]" >
 @end ifhtml
 
-A @dfn{proof assistant} is a computerized helper for developing
-mathematical proofs.
-
-@dfn{Proof General} is a generic Emacs interface for proof assistants,
-developed at the LFCS in the University of Edinburgh.  It works best
-under XEmacs, but can also be used with FSF GNU Emacs.
+@dfn{Proof General} is a generic Emacs interface for interactive proof
+assistants, developed at the LFCS in the University of Edinburgh.  It
+works best under XEmacs, but can also be used with FSF GNU Emacs.
 
 You do not have to be an Emacs militant to use Proof General!  @*
+
+A @dfn{proof assistant} is a computerized helper for developing
+mathematical proofs.  For short, we sometimes call it a @dfn{prover},
+although we always have in mind an interactive system rather than a
+fully automated theorem prover.  Proof General is good for working with
+systems where a sequence of commands, or @dfn{proof script}, is
+developed by the user.
 
 The interface is designed to be very easy to use.  You develop your
 proof script in-place rather than line-by-line and later reassembling
