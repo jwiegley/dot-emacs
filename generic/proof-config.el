@@ -620,6 +620,9 @@ Suggestion: this can be set a function called by `pre-shell-start-hook'."
   "Mode for proof script buffers.
 This is used by Proof General to find out which buffers 
 contain proof scripts.
+The regular name for this is <PA>-mode.  If you use any of the
+convenience macros Proof General provides for defining commands
+etc, then you should stick to this name.
 Suggestion: this can be set in the script mode configuration."
   :type 'function
   :group 'prover-config)
@@ -1650,11 +1653,47 @@ to do syntax highlighting with font-lock."
   :type 'boolean
   :group 'proof-shell)
 
-(defcustom proof-shell-theorem-dependency-list-regexp nil
-  "Regexp matching output telling Proof General what the dependencies are.  
-This is so that the dependent theorems can be highlighted.  Set to nil to disable."
+(defcustom proof-shell-set-elisp-variable-regexp nil
+  "Regexp matching output telling Proof General to set some variable.
+This allows the proof assistant to configure Proof General directly
+and dynamically.  
+
+If the regexp matches output from the proof assistant, there should be
+two match strings: (match-string 1) should be the name of the elisp
+variable to be set, and (match-string 2) should be the value of the
+variable (which will be evaluated as a lisp expression).
+
+A good markup for the second string is to delimit with #'s, since
+these are not valid syntax for elisp evaluation.
+
+Elisp errors will be trapped when evaluating; set 
+proof-show-debug-messages to be informed when this happens.
+
+Example uses are to adjust PG's internal copies of proof assistant's
+settings, or to make automatic dynamic syntax adjustments in Emacs to
+match changes in theory, etc.  
+
+If you pick a dummy variable name (e.g. `proof-dummy-setting') you
+can just evaluation arbitrary elisp expressions for their side
+effects, to adjust menu entries, or even launch auxiliary programs.
+But use with care -- there is no protection against catastrophic elisp!
+
+This setting could also be used to move some configuration settings
+from PG to the prover, but this is not really supported (most settings
+must be made before this mechanism will work).  In future, the PG
+standard protocol, PGIP, will use this mechanism for making all
+settings."
   :type '(choice nil regexp)
   :group 'proof-shell)
+
+(defcustom proof-shell-theorem-dependency-list-regexp nil
+  "Regexp matching output telling Proof General what the dependencies are.  
+This is so that the dependent theorems can be highlighted somehow.  
+Set to nil to disable.
+This is an experimental feature, currently work-in-progress."
+  :type '(choice nil regexp)
+  :group 'proof-shell)
+
 
 ;;
 ;; 5c. hooks and other miscellaneous customizations

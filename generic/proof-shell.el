@@ -1301,8 +1301,10 @@ Assume proof-script-buffer is active."
 
 (defun proof-shell-process-urgent-message (message)
   "Analyse urgent MESSAGE for various cases.
-Cases are: included file, retracted file, cleared response buffer, or
-if none of these apply, display it.
+Cases are: included file, retracted file, cleared response buffer, 
+variable setting or dependency list. 
+If none of these apply, display MESSAGE.
+
 MESSAGE should be a string annotated with 
 proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
     (cond
@@ -1336,7 +1338,7 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
       (if (and file (not (string= file "")))
 	  (proof-register-possibly-new-processed-file file))))
 
-   ;; Is the prover retracting across files?
+   ;; CASE retract: the prover is retracting across files
    ((and proof-shell-retract-files-regexp
 	 (string-match proof-shell-retract-files-regexp message))
     (let ((current-included proof-included-files-list))
@@ -1387,22 +1389,44 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
 	  )))
       ))
 
-   ;; Is the prover asking Proof General to clear the response buffer?
+   ;; CASE clear response: prover asks PG to clear response buffer
    ((and proof-shell-clear-response-regexp
 	 (string-match proof-shell-clear-response-regexp message)
 	 proof-response-buffer)
     ;; Erase response buffer and possibly its windows.
     (proof-shell-maybe-erase-response nil t t))
 
-   ;; Is the prover asking Proof General to clear the goals buffer?
+   ;; CASE clear goals: prover asks PG to clear goals buffer
    ((and proof-shell-clear-goals-regexp
 	 (string-match proof-shell-clear-goals-regexp message)
 	 proof-goals-buffer)
     ;; Erase goals buffer but and possibly its windows
     (proof-clean-buffer proof-goals-buffer))
    
-   ((if proof-shell-theorem-dependency-list-regexp 
-	(string-match proof-shell-theorem-dependency-list-regexp message))
+   ;; CASE variable setting: prover asks PG to set some variable 
+   ;; NB: no safety protection whatsoever here, we use blind faith
+   ;; that the prover will not send malicious elisp!!
+   ((and proof-shell-set-elisp-variable-regexp
+	 (string-match proof-shell-set-elisp-variable-regexp message))
+    (let 
+	((variable   (match-string 1 message))
+	 (expr	     (match-string 2 message)))
+      (condition-case err
+	  ;; Easiest way to do this seems to be to dump the lisp
+	  ;; string into another buffer -- no direct way to eval
+	  ;; from a string?
+	(with-temp-buffer
+	  (insert expr)
+	  (set (intern variable) (eval-last-sexp t)))
+	(t (proof-debug 
+	    (concat
+	     "lisp error when obeying proof-shell-set-elisp-variable: \n"
+	     "setting `" variable "'\n to: \n"
+	     expr "\n"))))))
+
+   ;; CASE theorem dependency: prover lists thms used in last proof
+   ((and proof-shell-theorem-dependency-list-regexp 
+	 (string-match proof-shell-theorem-dependency-list-regexp message))
       (setq proof-last-theorem-dependencies 
 	    (split-string (match-string 1 message))))
    
