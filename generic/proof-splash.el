@@ -18,7 +18,7 @@
 
 (defcustom proof-splash-time 2
   "Minimum number of seconds to display splash screen for.
-The splash screen may be displayed for a couple of seconds longer than
+The splash screen may be displayed for a wee while longer than
 this, depending on how long it takes the machine to initialise 
 Proof General."
   :type 'number
@@ -165,24 +165,43 @@ Borrowed from startup-center-spaces."
 ;; buffer is killed before the input has been processed.
 ;; Symptom is ProofGeneral mode instead of the native script mode.
 ;; 
-(defun proof-splash-remove-screen (conf)
-  "Remove splash screen and restore window config to CONF."
+
+(defun proof-splash-remove-screen (&optional nothing)
+  "Remove splash screen and restore window config."
   (let
       ((splashbuf (get-buffer proof-splash-welcome)))
-    (if splashbuf
+    (if (and 
+	 splashbuf
+	 proof-splash-timeout-conf)
 	(progn
-	  (if (and conf (get-buffer-window splashbuf))
+	  (if (get-buffer-window splashbuf)
 	      ;; Restore the window config if splash is being displayed
 	      (progn
-		(set-window-configuration conf)
+		(if (cdr proof-splash-timeout-conf)
+		    (set-window-configuration (cdr proof-splash-timeout-conf)))
 		(if proof-running-on-XEmacs
-		    (redraw-frame nil t))))))))
+		    (redraw-frame nil t))))
+	  ;; Indicate that we have removed splash screen;
+	  ;; disable the timeout
+	  (disable-timeout (car proof-splash-timeout-conf))
+	  (setq proof-splash-timeout-conf nil)
+	  (proof-splash-remove-buffer)))))
 
 (defun proof-splash-remove-buffer ()
   "Remove the splash buffer if it's still present."
+  ;; FIXME: Removing buffer here causes bug on loading if key is
+  ;; pressed in XEmacs: breaks loading of script buffer mode,
+  ;; presumably because some events are related to splash buffer which
+  ;; has died.   Sometimes even worse: XEmacs dumps core or
+  ;; gives error about unallocated event.  (21.4.8)
   (let
       ((splashbuf (get-buffer proof-splash-welcome)))
-    (if splashbuf (kill-buffer splashbuf))))
+    (if splashbuf 
+	;; Kill should be right, but it can cause core dump
+	;; (kill-buffer splashbuf)
+	(if (eq (selected-window) (window-buffer 
+				   (selected-window)))
+	    (switch-to-other-buffer)))))
 
 (defvar proof-splash-seen nil
   "Flag indicating the user has been subjected to a welcome message.")
@@ -243,8 +262,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
 	(setq proof-splash-timeout-conf
 	      (cons
 	       (add-timeout (if timeout proof-splash-time 10)
-			    'proof-splash-remove-screen
-			    savedwincnf)
+			    'proof-splash-remove-screen nil)
 	       savedwincnf))))
     ;; PROBLEM: when to call proof-splash-display-screen?
     ;; We'd like to call it during loading/initialising.  But it's
@@ -275,26 +293,19 @@ Otherwise, timeout inside this function after 10 seconds or so."
 
 (defun proof-splash-timeout-waiter ()
   "Wait for proof-splash-timeout or input, then remove self from hook."
-  (while (and (get-buffer proof-splash-welcome)
+  (while (and proof-splash-timeout-conf ;; timeout still active
 	      (not (input-pending-p)))
     (if proof-running-on-XEmacs
 	(sit-for 0 t)			; XEmacs: wait without redisplay
       ; (sit-for 1 0 t)))		; FSF: NODISP arg seems broken
       (sit-for 0)))
-  ;; Make sure timeout is stopped
-  (disable-timeout (car proof-splash-timeout-conf))
-  (if (get-buffer proof-splash-welcome)  ;; not removed yet
-      (proof-splash-remove-screen (cdr proof-splash-timeout-conf)))
+  (if proof-splash-timeout-conf         ;; not removed yet
+      (proof-splash-remove-screen))
   (if (and (input-pending-p)
 	   (fboundp 'next-command-event)) ; 3.3: this function
 					  ; disappeared from emacs, sigh
       (setq unread-command-events
 	    (cons (next-command-event) unread-command-events)))
-  ;; FIXME: Removing buffer here causes bug on loading if key is
-  ;; pressed in XEmacs: breaks loading of script buffer mode,
-  ;; presumably because some events are related to splash buffer which
-  ;; has died.  
-  ;; (proof-splash-remove-buffer)
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
 (provide 'proof-splash)
