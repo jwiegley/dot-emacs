@@ -177,36 +177,12 @@ Does nothing if proof assistant is already running."
 	(save-excursion
 	  (setq proof-prog-name (read-shell-command "Run process: "
 						    proof-prog-name))))
-    (let ((proc
-	   
-	   (concat 
-	    ;; "Inferior" is Emacs terminology for sub-shell processes.
-	    ;; "Inferior " used to be part of the name, now removed 
-	    ;; for brevity.
-		   ;; Try to pick useful part of command name
-		   ;;  -- basename component of command less arguments
-		   (substring proof-prog-name
-			      (or (string-match "[^/]*[ ]" proof-prog-name) 0)
-			      (string-match " " proof-prog-name)))))
+    (let 
+	;; PG 3.1: Buffer names are now based simply on proof assistant
+	;; name, not process name which was a bit lowlevel and sometimes
+	;; ugly (coqtop, hol.unquote).
+	((proc (downcase proof-assistant)))
 
-    ;; da: We don't really need this.  We never have more than
-    ;; one proof shell running at a time.  We might as well
-    ;; kill off the old buffer anyway.  Only possible use is
-    ;; for future expansion, or for user to inspect the old buffer.
-    ;;  (while (get-buffer (concat "*" proc "*"))
-    ;;	(if (string= (substring proc -1) ">")
-    ;;	    (aset proc (- (length proc) 2) 
-    ;;		  (+ 1 (aref proc (- (length proc) 2))))
-    ;;	  (setq proc (concat proc "<2>"))))
-
-      ;; da: Finally removed this because it leads to objectionable 
-      ;; proliferation of buffers when startup fails.
-      ;; (while (get-buffer (concat "*" proc "*"))
-      ;; (if (string= (substring proc -1) ">")
-      ;; (aset proc (- (length proc) 2) 
-      ;; (+ 1 (aref proc (- (length proc) 2))))
-      ;; (setq proc (concat proc "<2>"))))
-      
       (message (format "Starting process: %s" proof-prog-name))
 
       ;; Starting the inferior process (asynchronous)
@@ -222,7 +198,8 @@ Does nothing if proof assistant is already running."
 	      ;; Split on spaces: FIXME: maybe should be whitespace.
 	      " "))
 
-	    (process-connection-type proof-shell-process-connection-type))
+	    (process-connection-type 
+	     proof-shell-process-connection-type))
 
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we 
