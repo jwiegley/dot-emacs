@@ -4,10 +4,6 @@
 
 See also ../BUGS for generic bugs.
 
-** X-Symbol does not work on GNU Emacs.  
-
-Please don't even try it, it will mess up your Emacs.  
-
 ** With new syntax in Coq 7, comments at end of files cannot be processed.
 
 Leads to annoying retract/process questions when switching buffers.
@@ -19,11 +15,7 @@ It cannot handle lists e.g., with "Parameter x,y:nat" it only tags x
 but not y. [The same problem exists for legotags] Workaround: don't
 rely too much on the etags mechanism.
 
-** User defined tactics cannot be retracted. 
-
- Workaround: you may need to retract to the beginning of the proof.
-
-** Coq Proof General does not know about Coq's Section mechanism.
+** With Coq 7, multiple file handling and auto-compilation is buggy
 
 ** Surely others that aren't mentioned here...
   
