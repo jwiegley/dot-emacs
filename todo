@@ -9,6 +9,12 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A Make ready for distribution: fix INSTALL file, add COPYING note
+  and write Makefile to build documentation formats and generate distributable
+  tar.gz file, tag sources with release version.  Perhaps add subdirectories
+  doc/ elisp/ misc/ ?
+  (2h, da willing)
+
 B Outsource script management features from proof.el to
   proof-script.el 		(1h)
 
