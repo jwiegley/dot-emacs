@@ -2731,7 +2731,7 @@ finish setup which depends on specific proof assistant configuration."
       (setq buffer-offer-save t))
 
   ;; Localise the invisibility glyph (XEmacs only):
-  (let ((img (proof-get-image "hiddenproof" t nil)))
+  (let ((img (proof-get-image "hiddenproof" t "<proof>")))
     (cond
      ((and img proof-running-on-XEmacs)
       (set-glyph-image invisible-text-glyph img (current-buffer)))))
