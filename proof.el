@@ -9,6 +9,13 @@
 
 
 ;; $Log$
+;; Revision 1.36  1998/05/05 14:27:33  hhg
+;; Updated to include changes for emacs19.
+;; Also includes some changes for "Definition" problem in Coq, where
+;; Definition couldn't be used for proof scripts.
+;; Finally, modified proof-dependencies-xemacs code to fix problem that
+;; undoing to (point-min) meant you couldn't type at first character.
+;;
 ;; Revision 1.35  1998/03/25 17:30:28  tms
 ;; added support for etags at generic proof level
 ;;
@@ -154,10 +161,23 @@
 ;; fixed a bug in proof-retract-until-point
 ;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;               Bridging the emacs19/xemacs gulf                   ;;
+;;               (We don't support emacs19 yet)                     ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar running-xemacs  nil)
+(defvar running-emacs19 nil)
+
+(setq running-xemacs  (string-match "XEmacs\\|Lucid" emacs-version))
+(or running-xemacs
+    (setq running-emacs19 (string-match "^19\\." emacs-version)))
+
 (require 'compile)
 (require 'comint)
 (require 'etags)
-(require 'proof-dependencies)
+(cond (running-xemacs (require 'proof-dependencies-xemacs))
+      (running-emacs19 (require 'proof-dependencies-emacs19)))
 (require 'proof-fontlock)
 
 (autoload 'w3-fetch "w3" nil t)
@@ -193,9 +213,9 @@
 
 (defvar proof-save-command-regexp nil "Matches a save command")
 (defvar proof-save-with-hole-regexp nil "Matches a named save command")
-(defvar proof-goal-command-regexp nil "Matches a goal command")
 (defvar proof-goal-with-hole-regexp nil "Matches a saved goal command")
 
+(defvar proof-goal-command-p nil "Is this a goal")
 (defvar proof-retract-target-fn nil "Compute how to retract a target segment")
 (defvar proof-goal-hyp-fn nil "Is point at goal or hypothesis")
 (defvar proof-kill-goal-command nil "How to kill a goal.")
@@ -256,6 +276,9 @@
 (defvar proof-shell-interrupt-regexp nil
   "A regular expression indicating that the PROOF process has
   responded to an interrupt.") 
+
+(defvar proof-shell-analyse-structure nil
+  "Function to call to analyse pbp annotations.") 
 
 (defvar proof-shell-proof-completed-regexp nil
   "*Regular expression indicating that the proof has been completed.")
@@ -320,18 +343,6 @@
 (deflocal proof-active-buffer-fake-minor-mode nil
   "An indication in the modeline that this is the *active* buffer")
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;               Bridging the emacs19/xemacs gulf                   ;;
-;;               (We don't support emacs19 at the moment)           ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defvar running-xemacs  nil)
-(defvar running-emacs19 nil)
-
-(setq running-xemacs  (string-match "XEmacs\\|Lucid" emacs-version))
-(or running-xemacs
-    (setq running-emacs19 (string-match "^19\\." emacs-version)))
-
 ;; courtesy of Mark Ruys 
 (defun emacs-version-at-least (major minor)
   "Test if emacs version is at least major.minor"
@@ -343,20 +354,7 @@
 ;; A couple of small utilities                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; The package fume-func provides a function with the same name and
-;; specification. However, fume-func's version is incorrect.
-(defun fume-match-find-next-function-name (buffer)
-  "General next function name in BUFFER finder using match.
-  The regexp is assumed to be a two item list the car of which is the regexp
-  to use, and the cdr of which is the match position of the function name"
-  (set-buffer buffer)
-  (let ((r (car fume-function-name-regexp))
-        (p (cdr fume-function-name-regexp)))
-    (and (re-search-forward r nil t)
-	 (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))
-
-
-(defun string-to-list (s separator) 
+(defun proof-string-to-list (s separator) 
   "converts strings `s' separated by the character `separator' to a
   list of words" 
   (let ((end-of-word-occurence (string-match (concat separator "+") s)))
@@ -365,7 +363,7 @@
             nil
           (list s))
       (cons (substring s 0 end-of-word-occurence) 
-            (string-to-list 
+            (proof-string-to-list 
              (substring s
                         (string-match (concat "[^" separator "]")
                                       s end-of-word-occurence)) separator)))))
@@ -379,7 +377,8 @@
 (defun proof-goto-end-of-locked ()
   "Jump to the end of the locked region."
   (interactive)
-  (goto-char (proof-locked-end) proof-script-buffer))
+  (switch-to-buffer proof-script-buffer)
+  (goto-char (proof-locked-end)))
 
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of
@@ -389,7 +388,8 @@
     (or (pos-visible-in-window-p pos (get-buffer-window
 				      proof-script-buffer t))
 	;; see code of proof-goto-end-of-locked
-	(goto-char pos proof-script-buffer))))
+	(switch-to-buffer proof-script-buffer)
+	(goto-char pos))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -423,7 +423,7 @@
       (message (format "Starting %s process..." proc))
 
       ;; Starting the inferior process (asynchronous)
-      (let ((prog-name-list (string-to-list proof-prog-name " ")))
+      (let ((prog-name-list (proof-string-to-list proof-prog-name " ")))
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
       ;; To send any initialisation commands to the inferior process,
@@ -441,7 +441,8 @@
       (setq proof-script-buffer (current-buffer))
       (proof-init-segmentation)
       (setq proof-active-buffer-fake-minor-mode t)
-      (redraw-modeline)
+      ;; emacs19 doesn't have this command
+      (cond (running-xemacs (redraw-modeline)))
 
       (or (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
 	  (setq minor-mode-alist
@@ -579,59 +580,6 @@
     (set-span-property span 'mouse-face 'highlight)
     (set-span-property span 'proof-top-element name)))
 
-(defun proof-shell-analyse-structure (string)
-  (save-excursion
-    (let* ((ip 0) (op 0) ap (l (length string)) 
-	   (ann (make-string (length string) ?x))
-           (stack ()) (topl ()) 
-	   (out (make-string l ?x )) c ext)
-      (while (< ip l)	
-	(if (< (setq c (aref string ip)) 128) (progn (aset out op c)
-						     (incf op)))
-	(incf ip))
-      (display-buffer (set-buffer proof-pbp-buffer))
-      (erase-buffer)
-      (insert (substring out 0 op))
-
-      (setq ip 0
-	    op 1)
-      (while (< ip l)
-	(setq c (aref string ip))
-	(cond
-	 ((= c proof-shell-goal-char)
-	  (setq topl (cons op topl))
-					; Set ap to 0 for Coq
-	  (setq ap 0))
-	 ((= c proof-shell-start-char)
-					; Subtract from current length for Coq
-;	  (setq ap (- ap (- (aref string (incf ip)) 128)))
-	  (setq ap (- (aref string (incf ip)) 128))
-	  (incf ip)
-	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
-	    (aset ann ap (- c 128))
-	    (incf ap)
-	    (incf ip))
-	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
-	 ((= c proof-shell-field-char)
-	  (setq ext (make-span (car stack) op))
-	  (set-span-property ext 'mouse-face 'highlight)
-	  (set-span-property ext 'proof (car (cdr stack)))
-					; Pop annotation off stack, for Coq
-;	  (setq ap 0)
-;	  (while (< ap (length (cadr stack)))
-;	    (aset ann ap (aref (cadr stack) ap))
-;	    (incf ap))
-					; Finish popping annotations
-	  (setq stack (cdr (cdr stack))))
-	 (t (incf op)))
-	(incf ip))
-      (setq topl (reverse (cons (point-max) topl)))
-;      (setq coq-current-goal 1)
-      (while (setq ip (car topl) 
-		   topl (cdr topl))
-	(pbp-make-top-span ip (car topl))))))
-
-
 
 ;; Need this for processing error strings and so forth
 
@@ -674,7 +622,7 @@
 	(erase-buffer)
 	(insert str))
        ((eq ins 'analyse)
-	(proof-shell-analyse-structure str))
+	(funcall proof-shell-analyse-structure str))
        (t (set-buffer proof-pbp-buffer)
 	  (insert "\n\nbug???")))))
   (run-hooks 'proof-shell-handle-delayed-output-hook)
@@ -683,7 +631,7 @@
 (defun proof-shell-handle-error (cmd string)
   (save-excursion
     (display-buffer (set-buffer proof-pbp-buffer))
-    (if (not (eq proof-shell-delayed-output (cons 'ins "done")))
+    (if (not (eq proof-shell-delayed-output (cons 'insert "done")))
 	(progn
 	  (set-buffer proof-pbp-buffer)
 	  (erase-buffer)
@@ -725,13 +673,14 @@
 (defun proof-pbp-focus-on-first-goal ()
   "If the `proof-pbp-buffer' contains goals, the first one is brought
   into view."
-  (let
-      ((pos (map-extents 'proof-goals-pos proof-pbp-buffer
-			 nil nil nil nil 'proof-top-element)))
-    (and pos (set-window-point (get-buffer-window proof-pbp-buffer t) pos))))
+;  (let
+;      ((pos (map-spans 'proof-goals-pos proof-pbp-buffer
+;			 nil nil nil nil 'proof-top-element)))
+;    (and pos (set-window-point (get-buffer-window proof-pbp-buffer t) pos))))
+  ())
 
 ;;   The basic output processing function - it can return one of 4  ;;  
-;;   things: 'error, 'interrupt, 'loopback, or nil 'loopback means  ;;
+;;   things: 'error, 'interrupt, 'loopback, or nil. 'loopback means ;;
 ;;   this was output from pbp, and should be inserted into the      ;;
 ;;   script buffer and sent back to the proof assistant             ;;
 
@@ -780,10 +729,17 @@
 (defun proof-shell-insert (string)
   (set-buffer proof-shell-buffer)
   (goto-char (point-max))
-  (insert (funcall proof-shell-config) string)
-  (if (marker-position proof-marker) 
-      (set-marker proof-marker (point)))
-  (comint-send-input))
+  (if proof-shell-config
+      (insert (funcall proof-shell-config) string))
+
+  ;; xemacs and emacs19 have different semantics for what happens when
+  ;; shell input is sent next to a marker
+  ;; the following code accommodates both definitions
+  (if (marker-position proof-marker)
+      (let ((inserted (point)))
+	(comint-send-input)
+	(set-marker proof-marker inserted))
+    (comint-send-input)))
 
 (defun proof-send (string)
   (let ((l (length string)) (i 0))
@@ -952,7 +908,7 @@ at the end of locked region (after inserting a newline and indenting)."
     (while (and ext 
 		(not (eq (span-property ext 'type) 'goalsave))
 		(or (eq (span-property ext 'type) 'comment)
-		    (not (string-match proof-goal-command-regexp 
+		    (not (funcall proof-goal-command-p
 				       (span-property ext 'cmd)))))
       (setq ext (prev-span ext 'type)))
     ext)))
@@ -999,6 +955,17 @@ at the end of locked region (after inserting a newline and indenting)."
 	 (list nil cmd 'proof-done-invisible))
 	(t nil))))))
 
+;;         proof-invisible-command                                  ;;
+;;         Run something without responding to the user             ;;
+
+(defun proof-done-invisible (ext) ())
+
+(defun proof-invisible-command (cmd)
+  (proof-check-process-available)
+  (if (not (string-match proof-re-end-of-cmd cmd))
+      (setq cmd (concat cmd proof-terminal-string)))
+  (proof-start-queue nil nil (list (list nil cmd 'proof-done-invisible))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          User Commands                                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1025,29 +992,18 @@ at the end of locked region (after inserting a newline and indenting)."
 ; do configuration by concatenating the config command on the front in
 ; proof-send
 
-;;         proof-invisible-command                                  ;;
-;;         Run something without responding to the user             ;;
-
-(defun proof-done-invisible (ext) ())
-
-(defun proof-invisible-command (cmd)
-  (proof-check-process-available)
-  (if (not (string-match proof-re-end-of-cmd cmd))
-      (setq cmd (concat cmd proof-terminal-string)))
-  (proof-start-queue nil nil (list (list nil cmd 'proof-done-invisible))))
-
 ;;         proof-assert-until-point, and various gunk for its       ;;
 ;;         setup and callback                                       ;;
 
-;; This code's for nested goals in Coq, and shouldn't affect things in LEGO
-;; it lifts "local" lemmas from inside goals out to top level.
+;; This code is for nested goals in Coq, and shouldn't affect things
+;; in LEGO.  It lifts "local" lemmas from inside goals out to top
+;; level.
 
 (defun proof-lift-global (glob-ext)
   (let (start (next (span-at 1 'type)) str (goal-p nil))
     (while (and next (and (not (eq next glob-ext)) (not goal-p)))
       (if (and (eq (span-property next 'type) 'vanilla)
-	       (string-match proof-goal-command-regexp 
-			     (span-property next 'cmd)))
+	       (funcall proof-goal-command-p (span-property next 'cmd)))
 	  (setq goal-p t)
 	(setq next (next-span next 'type))))
 
@@ -1064,7 +1020,7 @@ at the end of locked region (after inserting a newline and indenting)."
 	  (set-span-start next (point))
 	  (proof-lock-unlocked)))))
 
-;; This is the actual callback for assert-until-point
+;; This is the actual callback for assert-until-point.
 
 (defun proof-done-advancing (ext)
   (let ((end (span-end ext)) nam gext next cmd)
@@ -1073,13 +1029,17 @@ at the end of locked region (after inserting a newline and indenting)."
     (setq cmd (span-property ext 'cmd))
     (cond
      ((eq (span-property ext 'type) 'comment)
-      (set-span-property ext 'highlight 'mouse-face))
+      (set-span-property ext 'mouse-face 'highlight))
      ((string-match proof-save-command-regexp cmd)
+      ;; In coq, we have the invariant that if we've done a save and
+      ;; there's a top-level declaration then it must be the
+      ;; associated goal.  (Notice that because it's a callback it
+      ;; must have been approved by the theorem prover.)
       (if (string-match proof-save-with-hole-regexp cmd)
 	  (setq nam (match-string 2 cmd)))
       (setq gext ext)
       (while (or (eq (span-property gext 'type) 'comment)
-		 (not (string-match proof-goal-command-regexp 
+		 (not (funcall proof-goal-command-p 
 				    (setq cmd (span-property gext 'cmd)))))
 	(setq next (prev-span gext 'type))
 	(delete-span gext)
@@ -1088,17 +1048,17 @@ at the end of locked region (after inserting a newline and indenting)."
       (if (null nam)
 	  (if (string-match proof-goal-with-hole-regexp
 			    (span-property gext 'cmd))
-	      (setq nam (match-string 2 cmd))
-	    (error "Oops... can't find Goal name!!!")))
+	      (setq nam (match-string 2 (span-property gext 'cmd)))
+	    (error "Can't find Goal name")))
 
       (set-span-end gext end)
-      (set-span-property gext 'highlight 'mouse-face)
+      (set-span-property gext 'mouse-face 'highlight)
       (set-span-property gext 'type 'goalsave)
       (set-span-property gext 'name nam)
 
       (proof-lift-global gext))
      (t
-      (set-span-property ext 'highlight 'mouse-face)
+      (set-span-property ext 'mouse-face 'highlight)
       (if (funcall proof-global-p cmd)
 	  (proof-lift-global ext))))))
 
@@ -1254,13 +1214,13 @@ deletes the region corresponding to the proof sequence."
    this function is invoked outside a locked region, the last
    successfully processed command is undone."
   (interactive)
-    (proof-check-process-available)
-    (let ((sext (span-at (point) 'type)))
-      (if (null (proof-locked-end)) (error "No locked region"))
-      (and (null sext)
-	   (progn (proof-goto-end-of-locked) (backward-char)
-		  (setq sext (span-at (point) 'type))))
-      (funcall proof-retract-target-fn sext delete-region)))
+  (proof-check-process-available)
+  (let ((sext (span-at (point) 'type)))
+    (if (null (proof-locked-end)) (error "No locked region"))
+    (and (null sext)
+	 (progn (proof-goto-end-of-locked) (backward-char)
+		(setq sext (span-at (point) 'type))))
+    (funcall proof-retract-target-fn sext delete-region)))
 
 ;;         proof-try-command                                        ;;
 ;;         this isn't really in the spirit of script management,    ;;
@@ -1440,6 +1400,7 @@ current command."
 
 (define-derived-mode proof-mode fundamental-mode 
   "Proof" "Proof mode - not standalone"
+  ;; define-derived-mode proof-mode initialises proof-mode-map
   (setq proof-buffer-type 'script))
 
 ;; the following callback is an irritating hack - there should be some
@@ -1469,15 +1430,15 @@ current command."
 		"\\|" (regexp-quote proof-comment-end)))
 
 ;; func-menu --- Jump to a goal within a buffer
-  (and (boundp 'fume-function-name-regexp-alist)
-       (defvar fume-function-name-regexp-proof
-	      (cons proof-goal-with-hole-regexp 2))
-       (push (cons major-mode 'fume-function-name-regexp-proof)
-	     fume-function-name-regexp-alist))
-  (and (boundp 'fume-find-function-name-method-alist)
-       (push (cons major-mode 'fume-match-find-next-function-name)
-	     fume-find-function-name-method-alist))
-	       
+  (cond (running-xemacs
+	 (and (boundp 'fume-function-name-regexp-alist)
+	      (defvar fume-function-name-regexp-proof
+		(cons proof-goal-with-hole-regexp 2))
+	      (push (cons major-mode 'fume-function-name-regexp-proof)
+		    fume-function-name-regexp-alist))
+	 (and (boundp 'fume-find-function-name-method-alist)
+	      (push (cons major-mode 'fume-match-find-next-function-name)
+		    fume-find-function-name-method-alist))))
 
 ;; keymap
 
@@ -1489,13 +1450,16 @@ current command."
 
   (define-key proof-mode-map [(control c) (control e)]
     'proof-find-next-terminator)
-  (define-key proof-mode-map [(control c) (control c)] 'proof-interrupt-process)
-  (define-key proof-mode-map proof-terminal-char 'proof-active-terminator)
+  (define-key proof-mode-map [(control c) (control c)]
+    'proof-interrupt-process)
+  (define-key proof-mode-map [proof-terminal-char] 'proof-active-terminator)
   (define-key proof-mode-map [(control c) (return)] 'proof-assert-until-point)
   (define-key proof-mode-map [(control c) (control t)] 'proof-try-command)
-  (define-key proof-mode-map [(control c) u] 'proof-retract-until-point)
-  (define-key proof-mode-map [(control c) (control u)] 'proof-undo-last-successful-command)
-  (define-key proof-mode-map [(control c) (control v)] 'proof-execute-minibuffer-cmd)
+  (define-key proof-mode-map [(control c) ?u] 'proof-retract-until-point)
+  (define-key proof-mode-map [(control c) (control u)]
+    'proof-undo-last-successful-command)
+  (define-key proof-mode-map [(control c) (control v)]
+    'proof-execute-minibuffer-cmd)
   (define-key proof-mode-map [(control c) ?\'] 'proof-goto-end-of-locked)
   (define-key proof-mode-map [(control button1)] 'proof-send-span)
   (define-key proof-mode-map [(control c) (control b)] 'proof-process-buffer)
@@ -1509,9 +1473,9 @@ current command."
 
 ;; if we don't have the following, zap-commas fails to work.
 
-  (setq font-lock-always-fontify-immediately t))
+  (cond (running-xemacs (setq font-lock-always-fontify-immediately t))))
 
-(define-derived-mode proof-shell-mode  comint-mode 
+(define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof shell mode - not standalone"
   (setq proof-buffer-type 'shell)
   (setq proof-shell-busy nil)
@@ -1525,12 +1489,6 @@ current command."
 (defun proof-shell-config-done ()
   (accept-process-output (get-buffer-process (current-buffer)))
 
-  ;; If the proof process in invoked on a different machine e.g.,
-  ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
-  ;; to adjust the directory:
-  (and proof-shell-cd
-       (proof-shell-insert (format proof-shell-cd default-directory)))
-
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
 
@@ -1541,14 +1499,20 @@ current command."
   (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
-      (error "Failed to initialise proof process"))))
+      (error "Failed to initialise proof process")))
+
+  ;; If the proof process in invoked on a different machine e.g.,
+  ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
+  ;; to adjust the directory:
+  (and proof-shell-cd
+       (proof-invisible-command (format proof-shell-cd default-directory))))
 
 (define-derived-mode pbp-mode fundamental-mode 
-  (setq proof-buffer-type 'pbp)
   "Proof" "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
+  (setq proof-buffer-type 'pbp)
   (suppress-keymap pbp-mode-map 'all)
-  (define-key pbp-mode-map 'button2 'pbp-button-action)
+;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
   (erase-buffer))
 
 (provide 'proof)
