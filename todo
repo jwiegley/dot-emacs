@@ -46,16 +46,23 @@ A Final stuff for 3.0 release [da]:
   - name change for "automatic multiple files" stuff
   - See if better fix for FSF overlay mess
   - document mouse functions, proof-cd, process quit timeout, 
-    X-Symbol, new menu functions for display.
+    X-Symbol, prog-name-guess, new menu functions for display.
   - Fixing up PBP: check documentation is roughly okay.
   - put demo paper on web pages, add more to it.
   - finish documentation improvements
   - is there a welcome message for mailing list?
-
+  - fix for extending queue bug
+  - mention demoisa instantiation in documentation.
+  
 
 
 
 ---------------------------------------------
+
+D Improve goto button image [suggestion from Markus]
+  Is it possible to avoid the arrows to touch in the middle,
+  emphasizing the 'point' a bit more.  The arrows look a bit outwards
+  bent, too.
 
 D X-Symbol improvements: see if we can get support for 
   proof-xsym-extra-modes outside PG (just by loading proof-site).
@@ -687,9 +694,6 @@ X `proof-zap-commas-region' does not work for Emacs 20.4 on
 * Things to do for Proof-by-Pointing
 ====================================
 
-A Implement cut and paste for subterms: advertised but not yet
-  in the code?
-
 B Unify proof-insert-pbp-command and proof-shell-insert-loopback-cmd.
   Add some debugging messages in proof-done-advancing to indicate
   Maybe pbp should be a new class of "'pbpadvancing" since we don't
@@ -975,8 +979,6 @@ A Polish ProofGeneral.texi and publish LaTeX as an LFCS
 
    * Fix page rearrangement to insert a blank page
    * Fix typos/other stuff found by Dave.
-   * Suggestions, typos, contributions by Healf.  
-     (Dave has email)
    * Improve trivial and uniformative docstrings.
    * Fixup markup mistakes by editing docstrings.
    * Update menus in texi
