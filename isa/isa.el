@@ -667,6 +667,6 @@ you will be asked to retract the file or process the remainder of it.
 (setq proof-xsym-activate-command
       "print_mode := !print_mode @ ["xsymbols","symbols"]"
       proof-xsym-deactivate-command
-      "print_mode := filter_out (fn x=>prefix(rev (explode "symbols"),rev (explode x))) (!print_mode")
+      "print_mode := filter_out (fn x=>prefix(rev (explode "symbols"),rev (explode x))) (!print_mode)")
 
 (provide 'isa)
