@@ -208,14 +208,22 @@ Does nothing if proof assistant is already running."
 	(save-excursion
 	  (setq proof-prog-name (read-shell-command "Run process: "
 						    proof-prog-name))))
-    ;; FIXME da: why do we need this?  We never have more than
-    ;; one proof shell running at a time.  We might as well
-    ;; kill off the old buffer anyway.
     (let ((proc
 	   (concat "Inferior "
 		   (substring proof-prog-name
-			       (string-match "[^ /]* " proof-prog-name)
-			       (string-match  " " proof-prog-name)))))
+			      (string-match "[^/]*$" proof-prog-name)))))
+         ; da: this change by patrl introduces a bug with 
+         ; Isabelle (& others?), where proof-prog-name is simply "isabelle".  
+         ; The first match returns nil instead of 0.
+         ;((proc
+	 ;  (concat "Inferior "
+	 ;	   (substring proof-prog-name
+	 ;		       (string-match "[^ /]* " proof-prog-name)
+	 ;		       (string-match  " " proof-prog-name)))))
+    ;; FIXME da: We don't really need this.  We never have more than
+    ;; one proof shell running at a time.  We might as well
+    ;; kill off the old buffer anyway.  But leave it in in case of
+    ;; future expansion, or for user to inspect the old buffer.
       (while (get-buffer (concat "*" proc "*"))
 	(if (string= (substring proc -1) ">")
 	    (aset proc (- (length proc) 2) 
@@ -349,8 +357,9 @@ exited by hand (or exits by itself)."
 	    ;; So put an ugly timeout and busy wait here instead
 	    ;; of simply (accept-process-output nil 10).
 	    (add-timeout 10 (lambda (&rest args)
-			      (unless (comint-check-proc (current-buffer))
-				(kill-process proc))
+			      (if (comint-check-proc (current-buffer))
+				(kill-process (get-buffer-process 
+					       (current-buffer))))
 			      (throw 'exited t)) nil)
 	    (while (comint-check-proc (current-buffer))
 	      (sit-for 1))))
