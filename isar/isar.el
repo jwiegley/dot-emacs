@@ -167,7 +167,9 @@ See -k option for Isabelle interface script."
    proof-count-undos-fn         'isar-count-undos
    proof-find-and-forget-fn     'isar-find-and-forget
    proof-state-preserving-p     'isar-state-preserving-p
-   proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list))
+   proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
+   ;; span menu 
+   proof-script-span-context-menu-extensions 'isar-create-span-menu))
 
 
 (defun isar-shell-mode-config-set-variables ()
@@ -202,8 +204,8 @@ See -k option for Isabelle interface script."
    proof-shell-error-regexp             "\364\\*\\*\\*"
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
-   proof-shell-next-error-regexp	  "\\((line \\([0-9]+\\) of \"[^\"]+\")\\)"
-   proof-shell-next-error-filename-regexp "\\((line [0-9]+ of \"\\([^\"]+\\)\")\\)"
+   pg-next-error-regexp	  "\\((line \\([0-9]+\\) of \"[^\"]+\")\\)"
+   pg-next-error-filename-regexp "\\((line [0-9]+ of \"\\([^\"]+\\)\")\\)"
 
    ;; matches names of assumptions
    proof-shell-assumption-regexp        isar-id
@@ -217,7 +219,9 @@ See -k option for Isabelle interface script."
    pg-topterm-char			?\370
 
    proof-assistant-setting-format       'isar-markup-ml
-   proof-shell-init-cmd                 (proof-assistant-settings-cmd)
+   proof-shell-init-cmd                 (concat
+					 (isar-load-isabelle-patch)
+					 (proof-assistant-settings-cmd))
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
    proof-shell-eager-annotation-start-length 1
@@ -228,6 +232,7 @@ See -k option for Isabelle interface script."
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
+   proof-shell-theorem-dependency-list-regexp "Proof General, the theorem dependencies are: \"\\([^\"]*\\)\"" 
 
    ;; Allow font-locking for output based on hidden annotations, see
    ;; isar-output-font-lock-keywords-1
@@ -596,6 +601,51 @@ proof-shell-retract-files-regexp."
  (isar-markup-ml "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode)")
  proof-xsym-deactivate-command
  (isar-markup-ml "print_mode := (Library.gen_rems (op =) (! print_mode, [\"xsymbols\",\"symbols\"]))"))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Span menu additions for Isar
+;;
+
+(defun isar-create-span-menu (span idiom name)
+  (if (string-equal idiom "proof")
+      (list (vector 
+	     "Visualise dependencies" 
+	     `(proof-shell-invisible-command 
+	       ,(format "thm_deps %s;" 
+			(span-property span 'name)))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Theorem dependencies  (experimental, uses Isabelle "patch")
+;;
+
+(defun isar-load-isabelle-patch ()
+  "Return string to load patch to Isabelle or a dummy version of it."
+  (if proof-experimental-features
+       (isar-load-dependsml-file-cmd)
+    (isar-markup-ml
+     "structure PGThmDeps = struct fun enable()=() fun disable() = () end; fun PG_thm_deps x = ();")))
+
+;; NB: notice backquote here to evaluate isar-markup-ml
+`(defpacustom theorem-dependencies nil
+  "Whether to track theorem dependencies within Proof General."
+  :type 'boolean
+  ;; when this is built-in  (or with a ":=%b" setting).
+  ;; :setting ("depends_enable()" . "depends_disable()")
+  :setting ,(cons
+	     (isar-markup-ml "PGThmDeps.enable();") 
+	     (isar-markup-ml "PGThmDeps.disable();")))
+
+(defun isar-load-dependsml-file-cmd ()
+  (isar-markup-ml
+   (proof-format-filename
+    "use \"%r\";"
+    (concat (file-name-directory 
+	     (locate-library "isa"))
+	    "depends.ML"))))
+
 
 
 (provide 'isar)
