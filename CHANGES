@@ -16,7 +16,7 @@
 
 *** Toolbar and menubar removed from small windows in multiple frame mode
 
-  More screen real estate for your windows.
+  More screen real estate for your windows.  (XEmacs only)
 
 *** Added proof-next-error function, bound to C-c `
 
