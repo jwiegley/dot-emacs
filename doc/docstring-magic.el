@@ -9,22 +9,41 @@
 ;; $Id$
 ;;
 (setq load-path
-      (append
-       '("../generic/" "../isa/" "../lego/" "../coq/" "../isar" "../plastic/") load-path))
+      (append '("../generic/") load-path))
 (load "proof-site.el")
-(load "proof-config.el")
 (load "proof.el")
 (load "proof-toolbar.el")
 
 ;; FIXME: Loading several prover files at once is a bit of a problem
 ;; with new config mechanism.
-(load "isar.el")
-(load "plastic.el")
-(load "isa.el")
+;; Could abstract more code in proof-site.el to avoid duplication here.
+(let ((assistants proof-assistants))	; assume not customized
+  (while assistants
+    (let*  
+	((assistant (car assistants))	; compiler bogus warning here
+	 (nameregexp			
+	  (or 
+	   (cdr-safe 
+	    (assoc assistant
+		   proof-assistant-table))
+	   (error "proof-site: symbol " (symbol-name assistant) 
+		  "is not in proof-assistant-table")))
+	 (assistant-name (car nameregexp))
+	 (sname		 (symbol-name assistant))
+	 (elisp-file   sname))
+      (proof-ready-for-assistant assistant-name assistant)
+      ;; Must load proof-config each time to define proof assistant
+      ;; specific variables
+      (setq features (delete 'proof-config features))
+      (load "proof-config.el")
+      (load-library elisp-file)
+      (setq assistants (cdr assistants)))))
+
+;; These next few are autoloaded usually
 (load "thy-mode.el")
-(load "coq.el")
-(load "lego.el")
-(load "hol98.el")
+(load "proof-menu.el")
+(load "proof-utils.el")
+
 ;; A couple of comint symbols are mentioned in the docs
 (require 'comint)
 
