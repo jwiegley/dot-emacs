@@ -20,9 +20,7 @@
 
 (defun proof-parse-to-point (&optional from state)
   (let ((cmt-level 0) (stack (list (list nil 0)))
-	(end (point)) instring c forward-amount
-	(cmt-end-regexp (regexp-quote proof-comment-end))
-	(cmt-start-regexp (regexp-quote proof-comment-start)))
+	(end (point)) instring c forward-amount)
     (save-excursion
       (if (null from)
 	  (goto-char (point-min))
@@ -44,10 +42,10 @@
 	  (setq instring t))
 
 	 ;; comments
-	 ((proof-looking-at cmt-start-regexp)
+	 ((proof-looking-at proof-comment-start-regexp)
 	  (setq forward-amount (length (match-string 0)))
 	  (incf cmt-level))
-	 ((proof-looking-at cmt-end-regexp)
+	 ((proof-looking-at proof-comment-end-regexp)
 	  (setq forward-amount (length (match-string 0)))
 	  (decf cmt-level))
 	 ((> cmt-level 0))
