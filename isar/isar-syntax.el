@@ -212,7 +212,7 @@ This list is in the right format for proof-easy-config.")
 (defconst isar-ext-first "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z]\\)")
 (defconst isar-ext-rest "\\(?:\\\\<\\^?[A-Za-z]+>\\|[A-Za-z0-9'_]\\)")
 
-(defconst isar-long-id-stuff (concat "\\(?:" isar-ext-rest "\\|\.\\)+"))
+(defconst isar-long-id-stuff (concat "\\(:?" isar-ext-rest "\\|\\.\\)+"))
 (defconst isar-id (concat "\\(" isar-ext-first isar-ext-rest "*\\)"))
 (defconst isar-idx (concat isar-id "\\(?:\\.[0-9]+\\)?"))
 
