@@ -3,7 +3,7 @@
 ;; Copyright (C) 1996 LFCS Edinburgh & INRIA Sophia Antipolis
 ;; Author: Yves Bertot < Yves.Bertot@sophia.inria.fr>
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <12 Dec 96 tms /home/tms/elisp/pbp.el>
+;; Time-stamp: <13 Dec 96 tms /home/tms/elisp/pbp.el>
 ;; Reference: Yves Bertot and Laurent Théry
 ;;            A Generic Approach to Building User Interfaces for
 ;;            Theorem Provers
@@ -179,8 +179,16 @@
     (newline 2)
     (let ((start (point)))
 	  (insert-string string)
+	  
+	  ;; tms - I don't really understand what this is doing, but omitting it
+	  ;; will not give any fontification via font-lock
+	  (font-lock-fontify-syntactically-region start (point-max))
+	  
+	   ;; display complete region in red
 	  (put-nonduplicable-text-property start (point-max)
-					   'face font-lock-error-face))))
+					   'face font-lock-error-face)
+	  ;; fontify according to the appropriate font-lock table
+	  (font-lock-fontify-keywords-region start (point-max)))))
 
 (defun pbp-send-and-remember (string)
   (save-excursion
