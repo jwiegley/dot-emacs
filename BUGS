@@ -80,6 +80,13 @@ simplifier, when tracing rewriting.
 
 * Problems with particular Emacs versions
 
+** FSF Emacs hangs when undoing first command in script.
+ 
+Noticed with Emacs 20.6.1.  Seems to affect all provers.
+Workaround:  use C-c C-RET or C-c C-r instead.
+Nasty workaround: (setq debug-on-quit t), hit "c" on each hang
+to continue.
+
 ** XEmacs 21.1.9 on Win32
 
 Some strange problems reading files with this version of Emacs. Gives
