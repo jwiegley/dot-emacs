@@ -22,12 +22,22 @@ A* multiple files bug fix:
    scripting buffer?  We need to remove the locked regions
    from *any* buffer which is matched by the retract_files_regexp,
    not just those in proof-shell-compute-new-files-list.
-   (tms, please?  30mins?)
    --> One case now fixed by allowing current scripting buffer to
     be retracted.  Are there other cases?  (da to investigate)
 
+C  The semantics of `proof-script-buffer-list' is ambigous. The first
+   element is the current script buffer, we are not quite sure what
+   role the other elements ought to have. We propose to abandon
+   `proof-script-buffer-list' and only keep a record of the current
+   proof script buffer in `proof-script-buffer'. We can easily check
+   dynamically if a buffer is instrumented for scripting, contains a
+   locked region, etc. (4h, including testing)
+
+
+
+
 A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
-  Technical Report (2 days; da + tms)
+  Technical Report (2+2 days; da + tms)
 
 A* FIX INDENTATION CODE, EDITING .ML (& other?) FILES IS CHRONICALLY SLOW.
   This is going to hit us hard as soon as the mode gets used in
@@ -145,7 +155,7 @@ B Implement more generic mechanism for large undos (4h tms)
     LEGO: consider Discharge; perhaps unrol to the beginning of the
           module?
 
-C Provide a sensible default frame/buffer layout (4h)
+D Provide a sensible default frame/buffer layout (4h)
 
 C A less drastic version of proof-restart-script would be useful:
   one that doesn't involve killing off the proof assistant process
@@ -203,6 +213,11 @@ C Add skeleton instantiation files for a dummy prover "myassistant" to
   the default provers as an impoverished example mode.
   (2h, da will do for Isabelle)
 
+D Implement mouse drag-and-drop support for selecting subterms in the
+  goals buffer and copying them in a script buffer. This could be
+  implemented by defining button2 in the response buffer and setting
+  button2up in script buffers. (1h)
+
 D Add support to proof.el for *not* setting variables for
   commands which aren't supported by a prover.  For example,
   in Isabelle there is no such thing as killing a goal.
@@ -216,7 +231,7 @@ C file handling could be more robust; perhaps one should always cd to
   the directory corresponding to the script buffer (currently only
   done for the buffer which starts up the proof system). This could be 
   achieved with a hook which is not set by default. [Remember to add
-  user documentation] (30min tms)
+  user documentation] (30min)
 
 C Reengineer *-count-undos and *-find-and-forget at generic level
   (3h)
@@ -225,7 +240,7 @@ D Allow bib-cite style clicking on Load/Import commands to go to file.
 
 D support font-lock in goal buffer
 
-C Unify toolbar and menu functions.
+C Unify toolbar and menu functions. (1h)
 
 D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
@@ -364,7 +379,7 @@ B release new version of the LEGO proof engine (4h tms)
 
 X Mechanism to save object file
 
-C Improve legotags. I cannot handle lists e.g., with 	
+D Improve legotags. I cannot handle lists e.g., with 	
 
     [x,y:nat];
 
