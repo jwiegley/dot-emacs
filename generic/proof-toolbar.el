@@ -172,6 +172,9 @@ will work for any proof assistant.")
 (defvar proof-toolbar nil
   "Proof mode toolbar button list.  Set in proof-toolbar-setup.")
 
+(deflocal proof-toolbar-itimer nil
+  "itimer for updating the toolbar in the current buffer")
+
 ;;; ###autoload
 (defun proof-toolbar-setup ()
   "Initialize Proof General toolbar and enable it for the current buffer.
@@ -205,12 +208,19 @@ to the default toolbar."
 	    ;; Set the callback for updating the enablers
 	    (add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
 	    ;; A rather pervasive hook
-	    (add-hook 'after-change-functions 'proof-toolbar-refresh))
-	
-	;; Disabling toolbar: remove specifier and state change hook.
+	    (add-hook 'after-change-functions 'proof-toolbar-refresh)
+	    ;; And the interval timer for refreshing the toolbar really
+	    (setq proof-toolbar-itimer
+		  (start-itimer "proof toolbar refresh"
+				'proof-toolbar-really-refresh
+				0.1		; seconds of delay
+				0.1		; repeated
+				t)))		; wait this time while idle
+	;; Disabling toolbar: remove specifier, hooks, timer.
 	(remove-specifier default-toolbar (current-buffer))
 	(remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
-	(remove-hook 'after-change-functions 'proof-toolbar-refresh))))
+	(remove-hook 'after-change-functions 'proof-toolbar-refresh)
+	(delete-itimer proof-toolbar-itimer))))
 
 (defun proof-toolbar-toggle (&optional force-on)
   "Toggle display of Proof General toolbar."
@@ -219,7 +229,16 @@ to the default toolbar."
        (or force-on (not proof-toolbar-inhibit)))
   (proof-toolbar-setup))
 
+
+(deflocal proof-toolbar-refresh-flag nil
+  "Flag indicating that the toolbar should be refreshed.")
+
+;; &rest args needed for after change function args
 (defun proof-toolbar-refresh (&rest args)
+  "Set flag to indicate that the toolbar should be refreshed."
+  (setq proof-toolbar-refresh-flag t))
+
+(defun proof-toolbar-really-refresh ()
   "Force refresh of toolbar display to re-evaluate enablers.
 This function needs to be called anytime that enablers may have 
 changed state."
@@ -231,7 +250,8 @@ changed state."
 	;; I'm not sure if this is "the" official way to do this,
 	;; but it's what VM does and it works.
 	(remove-specifier default-toolbar (current-buffer))
-	(set-specifier default-toolbar proof-toolbar (current-buffer)))))
+	(set-specifier default-toolbar proof-toolbar (current-buffer))
+	(setq proof-toolbar-refresh-flag nil))))
 
 ;;
 ;; =================================================================
