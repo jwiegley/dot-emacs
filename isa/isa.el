@@ -1,18 +1,12 @@
-;; isa-mode.el	 Emacs support for Isabelle proof assistant
-;; Copyright (C) 1993-2000 LFCS Edinburgh, David Aspinall.
+;; isa.el Major mode for Isabelle proof assistant
+;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+
 ;;
-;; $Id$
+;; isa.el,v 4.13.2.2 2000/05/09 09:52:40 da Exp
 ;;
-;; -----------------------------------------------------------------
-;;
-;; This file and the rest of Isabelle Proof General contain code taken
-;; from David Aspinall's Isamode system, a personal project undertaken
-;; 1993-1999 as a contribution to the Isabelle community.
-;;
-;; -----------------------------------------------------------------
 
 
 ;; Add Isabelle image onto splash screen
@@ -23,16 +17,8 @@
    nil
    (proof-splash-display-image "isabelle_transparent" t)))
 
-;; In case Isa mode was invoked directly or by -*- isa -*- at
-;; the start of the file, ensure that Isa mode is used from now
-;; on for .thy and .ML files.  
-;; FIXME: be less messy with auto-mode-alist here (remove dups)
-(setq auto-mode-alist 
-      (cons '("\\.ML$\\|\\.thy$" . isa-mode) auto-mode-alist))
-
 (require 'proof)
 (require 'isa-syntax)
-(require 'isabelle-system)
 
 ;;;
 ;;; ======== User settings for Isabelle ========
@@ -44,6 +30,42 @@
 ;;; 'isabelle-config  -  Configuration of Isabelle Proof General
 ;;;			 (constants, but may be nice to tweak)
 
+; FIXME: fancy logic choice stuff to go in for 3.2
+;(defcustom isabelle-logic "HOL"
+;  "*Choice of logic to use with Isabelle.
+;If non-nil, will be added into isabelle-prog-name as default value."
+;  :type (append
+;	 (list 'choice '(const :tag "Unset" nil))
+;	 (mapcar (lambda (str) (list 'const str))
+;		 (split-string-by-char
+;		  (substring (shell-command-to-string "isatool findlogics") 0 -1)
+;		  ?\ )))
+;  :group 'isabelle)
+
+(defcustom isabelle-prog-name 
+  (if (fboundp 'win32-long-file-name)	; rough test for XEmacs on win32
+      "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\HOL"
+    "isabelle")
+  "*Name of program to run Isabelle.
+The default value when running under Windows expects SML/NJ in C:\\sml
+and an Isabelle image for HOL in C:\Isabelle.  You can change this
+by customization."
+  :type 'file
+  :group 'isabelle)
+
+(defcustom isabelle-indent 2
+  "*Indentation degree in proof scripts.
+Somewhat irrelevant for Isabelle because normal proof scripts have
+no regular or easily discernable structure."
+  :type 'number
+  :group 'isabelle)
+
+(defcustom isabelle-web-page
+  "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
+  ;; "http://www.dcs.ed.ac.uk/home/isabelle"
+  "URL of web page for Isabelle."
+  :type 'string
+  :group 'isabelle)
 
 ;;;
 ;;; ======== Configuration of generic modes ========
@@ -95,34 +117,26 @@ and script mode."
 	 (list isa-goal-with-hole-regexp 2)
 	 (list isa-save-with-hole-regexp 2
 	       'backward isa-goal-command-regexp))
-
-   proof-indent-enclose-offset  (- proof-indent)
-   proof-indent-open-offset     0
-   proof-indent-close-offset    0
-   proof-indent-any-regexp      isa-indent-any-regexp
-   proof-indent-inner-regexp    isa-indent-inner-regexp
-   proof-indent-enclose-regexp  isa-indent-enclose-regexp
-   proof-indent-open-regexp     isa-indent-open-regexp
-   proof-indent-close-regexp    isa-indent-close-regexp
+   ;;
+   proof-indent-commands-regexp	(proof-ids-to-regexp isa-keywords)
    
    ;; proof engine commands
-   proof-showproof-command	"pr();"
+   proof-showproof-command	"pr()"
    proof-goal-command		"Goal \"%s\";"
    proof-save-command		"qed \"%s\";"
-   proof-context-command	"ProofGeneral.show_context();"
-   proof-info-command		"ProofGeneral.help();"
+   proof-context-command	"ProofGeneral.show_context()"
+   proof-info-command		"ProofGeneral.help()"
    proof-kill-goal-command	"ProofGeneral.kill_goal();"
    proof-find-theorems-command  "ProofGeneral.thms_containing (space_explode \",\" \"%s\");"
    proof-shell-start-silent-cmd "proofgeneral_disable_pr();"
    proof-shell-stop-silent-cmd  "proofgeneral_enable_pr();"   
-   ; FIXME improved version for Isabelle99-1:
-   ;   proof-shell-start-silent-cmd "Goals.disable_pr();"
-   ;   proof-shell-stop-silent-cmd  "Goals.enable_pr();"
    ;; command hooks
    proof-goal-command-p		'isa-goal-command-p
    proof-count-undos-fn		'isa-count-undos
    proof-find-and-forget-fn	'isa-find-and-forget
    proof-state-preserving-p	'isa-state-preserving-p
+   proof-parse-indent		'isa-parse-indent
+   proof-stack-to-indent	'isa-stack-to-indent
 
    ;; close goal..save regions eagerly
    proof-completed-proof-behaviour 'closeany
@@ -131,21 +145,7 @@ and script mode."
    proof-shell-inform-file-processed-cmd 
    "ProofGeneral.inform_file_processed \"%s\";"
    proof-shell-inform-file-retracted-cmd 
-   "ProofGeneral.inform_file_retracted \"%s\";"
-
-   ;; Parsing error messages.  Bit tricky to allow for
-   ;; multitude of possible error formats Isabelle spits out.
-   ;; Ideally we shouldn't bother parsing errors that appear
-   ;; in the temporary ML files generated while reading
-   ;; theories, but unfortunately the user sometimes needs to 
-   ;; examine them to understand a strange problem...
-   proof-shell-next-error-regexp
-   "\\(error on \\|Error: in '[^']+', \\)line \\([0-9]+\\)\\|The error(s) above occurred"
-   proof-shell-next-error-filename-regexp
-   "\\(Loading theory \"\\|Error: in '\\)\\([^\"']+\\)[\"']"
-   proof-shell-next-error-extract-filename
-   "%s.thy"))
-  
+   "ProofGeneral.inform_file_retracted \"%s\";"))
 
 
 (defun isa-shell-mode-config-set-variables ()
@@ -160,11 +160,12 @@ and script mode."
    proof-shell-prompt-pattern		"^2?[ML-=#>]>? \372?"
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd			"Library.cd \"%s\";"
+   proof-shell-cd-cmd			"Library.cd \"%s\""
 
    ;; Escapes for filenames inside ML strings.
-   ;; We also make a hack for Isabelle, by switching from backslashes
-   ;; to forward slashes if it looks like we're running on Windows.
+   ;; We also make a hack for a bug in Isabelle, by switching from 
+   ;; backslashes to forward slashes if it looks like we're running
+   ;; on Windows.
    proof-shell-filename-escapes		
    (if (fboundp 'win32-long-file-name)	; rough test for XEmacs on win32 
        ;; Patterns to unixfy names.  Avoids a deliberate bomb in Isabelle which
@@ -173,6 +174,8 @@ and script mode."
      ;; Normal case: quotation for backslash, quote mark.
      '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
+
+   ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-interrupt-regexp         "Interrupt"
    proof-shell-error-regexp		"^\364\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception-\\( \\|$\\)"
    
@@ -187,20 +190,19 @@ and script mode."
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
 
-   proof-shell-proof-completed-regexp	"^No subgoals!"
+   ;; FIXME da: this needs improvement.  I don't know why just
+   ;; "No subgoals!" isn't enough.  (Maybe anchored to end-goals
+   ;; for safety).  At the moment, this regexp reportedly causes
+   ;; overflows with large proof states. 
+   proof-shell-proof-completed-regexp
+   (concat proof-shell-start-goals-regexp
+	   "\\(\\(.\\|\n\\)*\nNo subgoals!\n\\)"
+	   proof-shell-end-goals-regexp)
 
-   ;; initial command configures Isabelle by hacking print functions,
-   ;; restoring settings saved by Proof General, etc.
-
+   ;; initial command configures Isabelle by hacking print functions.
    ;; FIXME: temporary hack for almost enabling/disabling printing.
-   ;; Also for setting default values.
-   proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
-   proof-shell-init-cmd                 (concat 
-					 (proof-assistant-settings-cmd)
- "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = (goals_limit:= !pg_saved_gl); fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0);")
-   ; FIXME improved version for Isabelle99-1:
-   ;proof-shell-init-cmd		 (proof-assistant-settings-cmd)
-
+;   proof-shell-init-cmd                 "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := !goals_limit; goals_limit := 0); ProofGeneral.init false;"
+   proof-shell-init-cmd                 "ProofGeneral.init false;"
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
    
@@ -211,10 +213,16 @@ and script mode."
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
+;;**This is the code I added:
+   proof-shell-theorem-dependency-list-regexp    "Proof General, the theorem dependencies are:" 
+
+
 
    ;; Dirty hack to allow font-locking for output based on hidden
    ;; annotations, see isa-output-font-lock-keywords-1
    proof-shell-leave-annotations-in-output t
+
+   proof-goals-display-qed-message	t
 
    ;; === ANNOTATIONS  === ones here are broken
    proof-shell-result-start	        "\372 Pbp result \373"
@@ -231,10 +239,14 @@ and script mode."
     "Proof General, this file is loaded: \"\\(.*\\)\""
     (lambda (str)
       (match-string 1 str)))
+   ;; \\|Not reading \"\\(.*\\)\"
+   ;;    (lambda (str)
+   ;;   (or (match-string 1 str) 
+   ;;	  (match-string 2 str))))
    ;; This is the output returned by a special command to
    ;; query Isabelle for outdated files.
-   ;;   proof-shell-clear-included-files-regexp
-   ;;   "Proof General, please clear your record of loaded files."
+ ;;   proof-shell-clear-included-files-regexp
+ ;;   "Proof General, please clear your record of loaded files."
    proof-shell-retract-files-regexp
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
@@ -274,7 +286,7 @@ and script mode."
 (defun isa-update-thy-only (file try wait)
   "Tell Isabelle to update current buffer's theory, and all ancestors."
   ;; First make sure we're in the right directory to take care of
-  ;; relative "files" paths inside theory file.
+  ;; relative "files" paths inside theory file.  (Isabelle bug??)
   (proof-cd-sync)
   (proof-shell-invisible-command
    (proof-format-filename
@@ -344,9 +356,9 @@ proof-shell-retract-files-regexp."
   (isa-response-mode-config)))
 
 (eval-and-compile			; to define vars for byte comp.
-(define-derived-mode isa-goals-mode proof-goals-mode
+(define-derived-mode isa-pbp-mode pbp-mode
   "Isabelle goals" nil
-  (isa-goals-mode-config)))
+  (isa-pbp-mode-config)))
 
 (eval-and-compile			; to define vars for byte comp.
 (define-derived-mode isa-proofscript-mode proof-mode
@@ -481,7 +493,7 @@ you will be asked to retract the file or process the remainder of it."
 ;;
 
 (defcustom isa-not-undoable-commands-regexp
-  (proof-ids-to-regexp '("undo"))
+  (proof-ids-to-regexp '("undo" "back"))
   "Regular expression matching commands which are *not* undoable."
   :type 'regexp
   :group 'isabelle-config)
@@ -537,15 +549,39 @@ you will be asked to retract the file or process the remainder of it."
   "Non-nil if command preserves the proofstate."
   (not (proof-string-match isa-not-undoable-commands-regexp cmd)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Indentation                                                    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;
+;; Sadly this is pretty pointless for Isabelle.
+;; Proof scripts in Isabelle don't really have an easily-observed
+;; block structure  -- a case split can be done by any obscure tactic,
+;; and then solved in a number of steps that bears no relation to the
+;; number of cases!  And the end is certainly not marked in anyway.
+;; 
+(defun isa-stack-to-indent (stack)
+    (cond
+   ((null stack) 0)
+   ((null (car (car stack)))
+    (nth 1 (car stack)))
+   (t (save-excursion
+	(goto-char (nth 1 (car stack)))
+	(+ isabelle-indent (current-column))))))
+
+(defun isa-parse-indent (c stack)
+  "Indentation function for Isabelle.  Does nothing."
+  stack)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Isa shell startup and exit hooks                               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun isa-pre-shell-start ()
-  (setq proof-prog-name		(isabelle-command-line))
+  (setq proof-prog-name		isabelle-prog-name)
   (setq proof-mode-for-shell    'isa-shell-mode)
-  (setq proof-mode-for-goals	'isa-goals-mode)
+  (setq proof-mode-for-pbp	'isa-pbp-mode)
   (setq proof-mode-for-response 'isa-response-mode))
 
 (defun isa-mode-config ()
@@ -584,8 +620,8 @@ you will be asked to retract the file or process the remainder of it."
   (isa-init-output-syntax-table)
   (proof-response-config-done))
 
-(defun isa-goals-mode-config ()
-  ;; FIXME: next two broken, of course, as is PBP everywhere except LEGO.
+(defun isa-pbp-mode-config ()
+  ;; FIXME: next two broken, of course, as is all PBP everywhere.
   (setq pbp-change-goal "Show %s.")	
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isa-init-output-syntax-table)
@@ -593,7 +629,7 @@ you will be asked to retract the file or process the remainder of it."
   (proof-goals-config-done))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; =================================================================
 ;;
 ;; x-symbol support for Isabelle PG, provided by David von Oheimb.
 ;;
@@ -602,116 +638,12 @@ you will be asked to retract the file or process the remainder of it."
 ;;
 
 (setq proof-xsym-extra-modes '(thy-mode)
+      proof-xsym-font-lock-keywords
+      ;; fontification for tokens themselves  (FIXME: broken)
+      '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
       proof-xsym-activate-command
-      "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode);"
+      "print_mode := (!print_mode union [\"xsymbols\",\"symbols\"])"
       proof-xsym-deactivate-command
-      "print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]);")
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Completion table for Isabelle identifiers
-;;
-;; Ideally this could be set automatically from the running process,
-;; and maybe a default value could be dumped by Isabelle when it is
-;; built.
-
-(defpgdefault completion-table
-  '("quit" 
-    "cd" "use" "use_thy" "time_use" "time_use_thy"
-    "Pretty.setdepth" "Pretty.setmargin" "print_depth"
-    "show_hyps" "show_types" "show_sorts"
-    "print_exn"
-    "goal" "goalw" "goalw_cterm" "premises"
-    "by" "byev" 
-    "result" "uresult"
-    "chop" "choplev" "back" "undo"
-    "pr" "prlev" "goals_limit"
-    "proof_timing"
-    "prove_goal" "prove_goalw" "prove_goalw_cterm"
-    "push_proof" "pop_proof" "rotate_proof"
-    "save_proof" "restore_proof"
-    "read" "prin" "printyp"
-    "topthm" "getgoal" "gethyps"
-    "filter_goal" "compat_goal"
-
-    ;; short cuts - should these be included?
-    "ba" "br" "be" "bd" "brs" "bes" "bds"
-    "fs" "fr" "fe" "fd" "frs" "fes" "fds"
-    "bw" "bws" "ren"
-
-    "resolve_tac" "eresolve_tac" "dresolve_tac" "forward_tac"
-    "assume_tac" "eq_assume_tac"
-    "match_tac" "ematch_tac" "dmatch_tac"
-    "res_inst_tac" "eres_inst_tac" "dres_inst_tac" "forw_inst_tac"
-    "rewrite_goals_tac" "rewrite_tac" "fold_goals_tac"
-    "fold_goals_tac" "fold_tac"
-    "cut_facts_tac" "subgoal_tac"
-
-    ;; short cuts - should these be included?
-    "rtac" "etac" "dtac" "atac" "ares_tac" "rewtac"
-
-    ;; In general, I think rules should appear in rule tables, not here.
-    "asm_rl" "cut_rl"  
-
-    "flexflex_tac" "rename_tac" "rename_last_tac"
-    "Logic.set_rename_prefix" "Logic.auto_rename"
-
-    "compose_tac"
-
-    "biresolve_tac" "bimatch_tac" "subgoals_of_brl" "lessb"
-    "head_string" "insert_thm" "delete_thm" "compat_resolve_tac"
-
-    "could_unify" "filter_thms" "filt_resolve_tac"
-
-    ;; probably shouldn't be included:
-    "tapply" "Tactic" "PRIMITIVE" "STATE" "SUBGOAL"
-
-    "pause_tac" "print_tac"
-
-    "THEN" "ORELSE" "APPEND" "INTLEAVE"
-    "EVERY" "FIRST" "TRY" "REPEAT_DETERM" "REPEAT" "REPEAT1"
-    "trace_REPEAT"
-    "all_tac" "no_tac"
-    "FILTER" "CHANGED" "DEPTH_FIRST" "DEPTH_SOLVE"
-    "DEPTH_SOLVE_1" "trace_DEPTH_FIRST"
-    "BREADTH_FIRST" "BEST_FIRST" "THEN_BEST_FIRST"
-    "trace_BEST_FIRST"
-    "COND" "IF_UNSOLVED" "DETERM" 
-    
-    "SELECT_GOAL" "METAHYPS"
-
-    "ALLGOALS" "TRYALL" "SOMEGOAL" "FIRSTGOAL"
-    "REPEAT_SOME" "REPEAT_FIRST" "trace_goalno_tac"
-
-    ;; include primed versions of tacticals?
-
-    "EVERY1" "FIRST1"
-
-    "prth" "prths" "prthq"
-    "RSN" "RLN" "RL"
-
-    ;; simplifier
-    
-    "addsimps" "addeqcongs" "delsimps"
-    "setsolver" "setloop" "setmksimps" "setsubgoaler"
-    "empty_ss" "merge_ss" "prems_of_ss" "rep_ss"
-    "simp_tac" "asm_full_simp_tac" "asm_simp_tac"
-
-    ;; classical prover
-
-    "empty_cs" 
-    "addDs" "addEs" "addIs" "addSDs" "addSEs" "addSIs" 
-    "print_cs" 
-    "rep_claset" "best_tac" "chain_tac" "contr_tac" "eq_mp_tac"
-    "fast_tac" "joinrules" "mp_tac" "safe_tac" "safe_step_tac" 
-    "slow_best_tac" "slow_tac" "step_tac" "swapify" 
-    "swap_res_tac" "inst_step_tac" 
-    
-    ;; that's it for now!
-    ))
-
-
-
+      "print_mode := filter_out (fn x=>(rev (explode \"symbols\") prefix rev (explode x))) (!print_mode)")
 
 (provide 'isa)
