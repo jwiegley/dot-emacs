@@ -116,3 +116,7 @@ A Add coq-add-tactic with a tactic name, which adds that tactic to the
 B The proof-locked-span isn't set to read-only, because overlays don't 
   have that capability.  This needs to be done with text-regions.
   (2hr hhg)
+
+B Replace running-(xemacs|emacs19) in proof.el by fboundp. (20min tms)
+
+A Replace recursion with while-loop in span-overlay. (2h hhg)
