@@ -31,8 +31,10 @@ When you load a file with one of these extensions, the corresponding
 Proof General mode will be entered.
 
 In case of difficulty, please check the documentation in doc/, the
-notes below, and the file BUGS.  If this doesn't help, then contact us
-via the address below.
+notes below, the README file for each prover, and the file BUGS.  
+
+If none of these files t help, then contact us via the address below.
+
 				- David Aspinall.
 
    
@@ -160,44 +162,4 @@ Emacs 20.x and XEmacs.
 
 
 
-----------------------------------------------------------------------
-
-Notes for Coq
-=============
-
-Check the values of coq-tags and coq-prog-name in coq.el to see that
-they correspond to the paths for coqtop and the library on your system.
-
-Install coqtags in a standard place or add <proof-home>/coq to your PATH.
-NB: You may need to change the path to perl at the top of the file.
-
-If you are running Coq, generate a TAGS file for the library by running
-	coqtags `find . -name \*.v -print`
-in the root directory of the library, $COQTOP/theories.  If you are
-running LEGO, do the same using legotags in the appropriate directory.
-
-
-----------------------------------------------------------------------
-
-Notes for LEGO
-==============
-
-Install legotags in a standard place or add <proofgeneral-home>/lego 
-to your PATH.
-NB: You may need to change the path to perl at the top of the file.
-
-
-----------------------------------------------------------------------
-
-Notes for Isabelle and Isabelle/Isar
-====================================
-
-Check the value of isabelle-prog-name.
-
-If you use the interface wrapper scripts isa/interface or
-isar/interface, you may need to change the path to bash
-on the first line.
-
-The distribution includes a version of Isamode's theory file mode.
-Use C-h m to check on the features available.
-
+$Id$

@@ -46,7 +46,7 @@ X (Low)		e.g. probably not worth spending time on
       processing of files in major or auxiliary file types.
       E.g. twelf ACL2
 
-*** B Move 3.3 over to new better designed parsing function mechanism.
+*** B Move over to new better designed parsing function mechanism.
 
 *** C ChangeLog generation still not right.  
       Suggested fix: use the prefix that rcs2log generates, without prepending.
