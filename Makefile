@@ -60,14 +60,13 @@ clean:
 
 
 ##
-## Targets defined in developer's makefile Makefile.devel, 
-## linked here for convenience.
+## This special target lets us use targets defined 
+## in developer's makefile Makefile.devel conveniently,
+## via make <target>.devel
 ##
 
-release:	
-	make -f Makefile.devel releaseall
-distinstall:
-	make -f Makefile.devel distinstall
+%.devel:
+	make -f Makefile.devel $*
 
 
 
