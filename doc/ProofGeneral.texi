@@ -563,7 +563,7 @@ of a common interface mechanism.
 To get more from Proof General and adapt it to your liking, it helps to
 know a little bit about how Emacs lisp packages can be customized via
 the Customization mechanism.  It's really easy to use.  For details,
-@xref{Easy customization}, and @inforef{Easy customization, ,(xemacs)}.
+@xref{How to customize}, and @inforef{Easy customization, ,(xemacs)}.
 
 To get the absolute most from Proof General, to improve it or to adapt
 it for new provers, you'll need to know a little bit of Emacs lisp.
@@ -1624,40 +1624,23 @@ See the chapters covering each assistant for details.
 
 
 @menu
-* Easy customization::          
+* How to customize::          
 * Display customization::       
 * User options::                
 * Changing faces::              
 * Tweaking configuration settings::  
 @end menu
 
-@node Easy customization
-@section Easy customization
+@node How to customize
+@section How to customize
 @cindex Using Customize
 @cindex Emacs customization library 
 
 Proof General uses the Emacs customization library to provide a friendly
 interface.
 
-You can access the customization settings for Proof General via the
-menu:
-@lisp
-   Options -> Customize -> Emacs -> External -> Proof General
-@end lisp
-in XEmacs.  
-
-In FSF GNU Emacs, use the menu:
-@c FIXME
-@lisp
-   Help -> Customize -> Specific group
-@end lisp
-and type @kbd{proof-general RET}.
-
-The complete set of customization settings will only be available after
-Proof General has been fully loaded.  Proof General is fully loaded when
-you visit a script file for the first time.@footnote{or if you type
-@kbd{M-x load-library RET proof RET}.}  When visiting a script file,
-there is a more direct route to the settings:
+Visit a proof script file for some prover.  Now you can access the
+customization settings for Proof General via the menu:
 @lisp
    Proof-General -> Customize
 @end lisp
@@ -1669,18 +1652,34 @@ buffer with its current value, and facility to edit it.  Once you have
 edited it, you can use the special buttons @var{set}, @var{save} and
 @var{done}.  You must use one of @var{set} or @var{save} to get any
 effect.  The @var{save} button stores the setting in your @file{.emacs}
-file.
+file.  In XEmacs, the menu item @code{Options -> Save Options} saves all
+settings you have edited.
 
-Notice that in the customize menus, the variable names mentioned later
-in this chapter may have been abbreviated (without the "@code{proof}-"
-or similar prefixes).  Also, some of the option settings may have more
-descriptive names (for example, @var{on} and @var{off}) than the
-low-level lisp values (non-@code{nil}, @code{nil}) which are mentioned
-in this chapter.  These features make customize much more friendly than
-raw lisp.
+A technical note.  In the customize menus, the variable names mentioned
+later in this chapter may be abbreviated --- the "@code{proof}-" or
+similar prefixes are omitted.  Also, some of the option settings may
+have more descriptive names (for example, @var{on} and @var{off}) than
+the low-level lisp values (non-@code{nil}, @code{nil}) which are
+mentioned in this chapter.  These features make customize rather more
+friendly than raw lisp.
 
-For more help, see @inforef{Easy Customization, ,xemacs}.
+You can also access the customize settings for Proof General from
+other (non-script) buffers.  In XEmacs, the menu path is:
+@lisp
+   Options -> Customize -> Emacs -> External -> Proof General
+@end lisp
+in XEmacs.  In FSF GNU Emacs, use the menu:
+@lisp
+   Help -> Customize -> Top-level Customization Group
+@end lisp
+and select the @code{External} and then @code{Proof-General} groups.
 
+The complete set of customization settings will only be available after
+Proof General has been fully loaded.  Proof General is fully loaded when
+you visit a script file for the first time, or if you type @kbd{M-x
+load-library RET proof RET}.
+
+For more help with customize, see @inforef{Easy Customization, ,xemacs}.
 
 
 @node Display customization
@@ -1696,30 +1695,16 @@ By default, Proof General displays two buffers during scripting, in a
 split window on the display.  One buffer is the script buffer.  The
 other buffer is either the goals buffer (e.g. @code{*isabelle-goals*})
 or the response buffer (@code{*isabelle-response*}).  Proof General
-switches between these last two automatically.
+switches between these last two automatically.  
 
-You may prefer to display all three of these buffers at once, if your
-screen is large enough.  This is useful, for example, to see output from
-the @code{proof-find-theorems} command at the same time as the subgoal
-list.  The user option @code{proof-window-dedicated} can be set
-to make Proof General keep both the goals and response buffer
-displayed.
+Proof General allows several ways to customize this default display
+model.
 
-
-
-@c TEXI DOCSTRING MAGIC: proof-auto-delete-windows
-@defopt proof-auto-delete-windows 
-If non-nil, automatically remove windows when they are cleaned.@*
-For example, at the end of a proof the goals buffer window will
-be cleared; if this flag is set it will automatically be removed.
-If you want to fix the sizes of your windows you may want to set this
-variable to @code{'nil'} to avoid windows being deleted automatically.
-If you use multiple frames, only the windows in the currently
-selected frame will be automatically deleted.
-
-The default value is @code{nil}.
-@end defopt
-
+If your screen is large enough, you may prefer to display all three of
+the interaction buffers at once.  This is useful, for example, to see
+output from the @code{proof-find-theorems} command at the same time as
+the subgoal list.  Set the user option @code{proof-window-dedicated} to
+make Proof General keep both the goals and response buffer displayed.
 
 @c TEXI DOCSTRING MAGIC: proof-window-dedicated
 @defopt proof-window-dedicated 
@@ -1743,12 +1728,29 @@ experienced Emacs users.
 The default value is @code{nil}.
 @end defopt
 
+Sometimes during script management, there is no response from the proof
+assistant to some command.  In this case you might like the empty
+response window to be hidden so you have more room to see the proof
+script.  The setting @code{proof-auto-delete-windows} helps you do this.
+
+@c TEXI DOCSTRING MAGIC: proof-auto-delete-windows
+@defopt proof-auto-delete-windows 
+If non-nil, automatically remove windows when they are cleaned.@*
+For example, at the end of a proof the goals buffer window will
+be cleared; if this flag is set it will automatically be removed.
+If you want to fix the sizes of your windows you may want to set this
+variable to @code{'nil'} to avoid windows being deleted automatically.
+If you use multiple frames, only the windows in the currently
+selected frame will be automatically deleted.
+
+The default value is @code{nil}.
+@end defopt
+
 If you are working on a workstation with a window system, you can use
 Emacs to manage several @i{frames} on the display, to keep the goals
 buffer displayed in a fixed place on your screen and in a certain font,
 for example.  A convenient way to do this is via
 @code{special-display-regexps}, for example:
-
 @lisp
 (setq special-display-regexps
         (cons "\\*isabelle-\\(goals\\|response\\)\\*"
@@ -1756,14 +1758,10 @@ for example.  A convenient way to do this is via
 @end lisp
 This setting makes the @code{*isabelle-goals*} and
 @code{*isabelle-response*} buffers automatically create their own
-frames.  The user option @code{proof-auto-delete-windows} may help if
-you make a setting like this.
+frames.  
 
-
-
-
-
-
+Multiple frames work best when @code{proof-auto-delete-windows} is
+@code{nil} and @code{proof-window-dedicated} is @code{t}.
 
 
 @node User options
@@ -1783,12 +1781,17 @@ you make a setting like this.
 @cindex Running proof assistant remotely
 @c @cindex formatting proof script
 
-Here are the user options for Proof General (except the two display
-options mentioned above).  These can be set via the customization
-system, via the old-fashioned @code{M-x edit-options} mechanism, or
-simply by adding @code{setq}'s to your @file{.emacs} file.  The first
-approach is strongly recommended.
+Here is the complete set of user options for Proof General, apart from
+the two display options mentioned above.  
 
+User options can be set via the customization system already mentioned,
+via the old-fashioned @code{M-x edit-options} mechanism, or simply by
+adding @code{setq}'s to your @file{.emacs} file.  The first approach is
+strongly recommended.
+
+Unless mentioned, all of these settings can be changed dynamically,
+without needing to restart Emacs to see the effect.  But you must use
+customize to be sure that Proof General reconfigures itself properly.
 
 @c TEXI DOCSTRING MAGIC: proof-splash-enable
 @defopt proof-splash-enable 
@@ -1798,16 +1801,22 @@ The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-electric-terminator-enable
-@defun proof-electric-terminator-enable 
-Make sure the modeline is updated to display new value for electric terminator.
-@end defun
+@defopt proof-electric-terminator-enable 
+If non-nil, use electric terminator mode on start-up.@*
+If electric terminator mode is enabled, pressing a terminator will 
+automatically issue @samp{@code{proof-assert-next-command}} for convenience,
+to send the command straight to the proof process.  Electric!
+
+The default value is @code{nil}.
+@end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-enable
-@deffn Command proof-toolbar-enable 
-Initialize Proof General toolbar and enable it for the current buffer.@*
-If proof-mode-use-toolbar is nil, change the current buffer toolbar
-to the default toolbar.
-@end deffn
+@defopt proof-toolbar-enable 
+If non-nil, display Proof General toolbar for script buffers.@*
+NB: the toolbar is only available with XEmacs.
+
+The default value is @code{t}.
+@end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-x-symbol-enable
 @defopt proof-x-symbol-enable 
@@ -2294,6 +2303,9 @@ work on the proof of the new lemma, and when the lemma is finished the
 full proof of that lemma is promoted.  This is supported to any nesting
 depth that Coq allows.
 
+@b{Special note:} this feature is disabled in version 3.0 because the
+implementation was unreliable.
+
 @node User-loaded tactics
 @section User-loaded tactics
 
@@ -2409,11 +2421,14 @@ when they are loaded.  Theory files are always completely locked or
 completely unlocked, because they are processed atomically.
 
 Proof General attempts to load the theory file for a @file{.ML} file
-automatically before you start scripting.  This is tricky because
-Isabelle's theory loader assumes that @file{.ML} files are always read
-together with theory files.  At the moment Proof General uses an altered
-version of @code{use_thy} which doesn't load the top-level ML file in
-this case.  
+automatically before you start scripting.  This relies on new support
+built especially for Proof General into Isabelle 99's theory loader.
+
+However, because scripting cannot begin until the theory is loaded, and
+it should not begin if an error occurs during loading the theory, Proof
+General blocks waiting for the theory loader to finish.  This means that
+if you have a theory file which takes a long time to load, you might
+want to use it directly:
 
 @c FIXME: should say something about this:
 @c This can cause confusion in the theory loader later,
@@ -2421,9 +2436,9 @@ this case.
 @c General interface, and report any repeatable problems to
 @c @code{isabelle@dcs.ed.ac.uk}.
 
-Compared to Isamode's theory editing mode, some of the functions and key
-bindings for interacting with Isabelle have been removed, and two new
-functions are available.  
+@c Compared to Isamode's theory editing mode, some of the functions and key
+@c bindings for interacting with Isabelle have been removed, and two new
+@c functions are available.  
 
 The key @kbd{C-c C-b} (@code{isa-process-thy-file}) will cause Isabelle
 to read the theory file being edited.  This causes the file and all its
@@ -2602,12 +2617,10 @@ regular expression to match names of proof script files for this
 assistant.  See the documentation of @code{proof-assistant-table} for
 more details.
 @item Define the new modes in @file{myassistant.el}, by looking at 
- the files for the currently supported assistants for example.
+ the files for the currently supported assistants for example
  Basically you need to define some modes using @code{define-derived-mode}
- and set the configuration variables.  It's important that your modes
- invoke the callbacks @code{proof-config-done} and
- @code{proof-shell-config-done} once they've set the configuration
- variables.
+ and set configuration variables.  
+ @xref{Major modes used by Proof General}.
 @end itemize
 
 You could begin by setting a minimum number of the variables, then
@@ -2640,6 +2653,48 @@ The default value is @code{((isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\
 @node Major modes used by Proof General
 @section Major modes used by Proof General
 
+There are four major modes used by Proof General for each type of buffer
+it handles.  The buffer types are: script, shell, response and goals.
+Each of these has a generic mode, respecitvely: @code{proof-mode},
+@code{proof-shell-mode}, @code{proof-response-mode}, and
+@code{proof-pbp-mode}.  
+
+The pattern for defining the major mode for an instance of Proof General
+is to use @code{define-derived-mode} to define each mode to inherit from
+the corresponding generic one, like this:
+@lisp
+(define-derived-mode myass-shell-mode proof-shell-mode
+   "MyAss shell" nil
+   (myass-shell-config)
+   (proof-shell-config-done)
+@end lisp
+Where @code{myass-shell-config} is a function which sets the
+configuration variables for the shell @pxref{Proof shell settings}.
+
+It's important that your mode invokes one of the functions
+ @code{proof-config-done},
+ @code{proof-shell-config-done}, 
+ @code{proof-response-config-done}, or
+ @code{proof-goals-config-done}
+once they've set their configuration variables.  These functions
+finialize the configuration of the mode.
+
+For each mode, there is a configuration variable which names it so that
+Proof General can set buffers to the proper mode, or find buffers in
+that mode.  These are shown below, and set like this:
+@lisp
+  (setq proof-mode-for-script 'myass-mode)
+@end lisp
+where @code{myass-mode} is your major mode for scripts, derived from
+@code{proof-mode}.
+
+@c TEXI DOCSTRING MAGIC: proof-mode-for-script
+@defvar proof-mode-for-script 
+Mode for proof script buffers.@*
+This is used by Proof General to find out which buffers 
+contain proof scripts.
+Suggestion: this can be set in the script mode configuration.
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-mode-for-shell
 @defvar proof-mode-for-shell 
 Mode for proof shell buffers.@*
@@ -2658,16 +2713,13 @@ Mode for proof state display buffers.@*
 Usually customised for specific prover.
 Suggestion: this can be set in the shell mode configuration.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-mode-for-script
-@defvar proof-mode-for-script 
-Mode for proof script buffers.@*
-This is used by Proof General to find out which buffers 
-contain proof scripts.
-Suggestion: this can be set in the script mode configuration.
-@end defvar
 
 @node Menus and user-level commands
 @section Menus and user-level commands
+
+The following variables should be set in the script mode before
+@code{proof-config-done} is called.  These make some settings for the
+commands and menus available in Proof General.
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-home-page
 @defvar proof-assistant-home-page 
@@ -2713,14 +2765,14 @@ If a function, it should return the command string to insert.
 @node Proof script settings
 @section Proof script settings
 
-The following variables should be set before proof-config-done
-is called.  These configure the mode for the script buffer,
-including highlighting, etc.
+The following variables should be set in the script mode before
+@code{proof-config-done} is called.  These configure the mode for the
+script buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
 Character which terminates a command in a script buffer.@*
-You must set this variable.
+You must set this variable in script mode configuration.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-comment-start
 @defvar proof-comment-start 
@@ -3141,23 +3193,37 @@ A regular expression matching the name of assumptions.
 Hooks run by @code{proof-shell-insert} before inserting a command.@*
 Can be used to configure the proof assistant to the interface in
 various ways -- for example, to observe or alter the commands sent to
-the prover, or to sneak in extra commands to configure the 
-prover (@var{lego} uses this to set the pretty printer's line width if 
-the window width has changed).
+the prover, or to sneak in extra commands to configure the prover.
 
 This hook is called inside a @code{save-excursion} with the @code{proof-shell-buffer} 
 current, just before inserting and sending the text in the 
-variable @var{string}.  The hook can massage @var{string} or insert additional 
+variable @samp{string}.  The hook can massage @samp{string} or insert additional 
 text directly into the @code{proof-shell-buffer}.  
-Before sending @var{string}, it will be stripped of carriage returns.
+Before sending @samp{string}, it will be stripped of carriage returns.
 
-NB: You should be very careful about setting this hook.  Proof General
-relies on a careful synchronization with the process between inputs
-and outputs.  It expects to see a prompt for each input it sends from
-the queue.  If you add extra input here and it causes more prompts
-than expected, things will break!  Massaging the variable @var{string}
-may be safer since it is stripped of carriage returns 
-before being sent.
+Additionally, the hook can examine the variable @samp{action}.  It will be
+a symbol, set to the callback command which is executed in the proof
+shell filter once @samp{string} has been processed.  The @samp{action} variable
+suggests what class of command is about to be inserted:
+@lisp
+ @code{'proof-shell-done-invisible}      A non-scripting command
+ @code{'proof-done-advancing}		  A "forward" scripting command
+ @code{'proof-done-retracting}		  A "backward" scripting command
+@end lisp
+Caveats: You should be very careful about setting this hook.  Proof
+General relies on a careful synchronization with the process between
+inputs and outputs.  It expects to see a prompt for each input it
+sends from the queue.  If you add extra input here and it causes more
+prompts than expected, things will break!  Extending the variable
+@samp{string} may be safer than inserting text directly, since it is
+stripped of carriage returns before being sent.
+
+Example uses:
+@var{lego} uses this hook for setting the pretty printer width if
+the window width has changed;
+Plastic uses it to remove literate-style markup from @samp{string}. 
+The x-symbol support uses this hook to convert special characters
+into tokens for the proof assistant.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-pre-shell-start-hook
@@ -4079,7 +4145,7 @@ Marker in proof shell buffer pointing to previous command input.
 @defvar proof-action-list 
 A list of@*
 @lisp
-  (@var{span},@var{command},@var{action})
+  (@var{span} @var{command} @var{action})
 @end lisp
 triples, which is a queue of things to do.
 See the functions @samp{@code{proof-start-queue}} and @samp{proof-exec-loop}.
@@ -4210,15 +4276,18 @@ Input is actually inserted into the shell buffer and sent to the process
 by the low-level function @code{proof-shell-insert}.  
 
 @c TEXI DOCSTRING MAGIC: proof-shell-insert
-@defun proof-shell-insert string
-Insert @var{string} at the end of the proof shell, call @code{comint-send-input}.@*
-First call @code{proof-shell-insert-hook}. Then strip @var{string} of carriage
-returns before inserting it and updating @code{proof-marker} to point to 
-the end of the newly inserted text.
-NB: This means that any output received up til now but not 
-processed by the @code{proof-shell-filter} will be lost!   We must be
-careful to synchronize with the process.  This function is used 
-particularly in @code{proof-start-queue} and @code{proof-shell-exec-loop}.
+@defun proof-shell-insert string action
+Insert @var{string} at the end of the proof shell, call @code{comint-send-input}.
+
+First call @code{proof-shell-insert-hook}.  The argument @var{action} may be
+examined by the hook to determine how to process the @var{string} variable.
+
+Then strip @var{string} of carriage returns before inserting it and updating
+@code{proof-marker} to point to the end of the newly inserted text.
+
+Do not use this function directly, or output will be lost.  It is only
+used in @code{proof-append-alist} when we start processing a queue, and in
+@code{proof-shell-exec-loop}, to process the next item.
 @end defun
 
 
