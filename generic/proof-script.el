@@ -1182,12 +1182,6 @@ the ACS is marked in the current buffer. If CMD does not match any,
 ;; Emacs should be better at skipping whitespace and comments than the
 ;; proof process itself!
 
-;; FIXME da: this annoyingly slow even in a buffer only several
-;; hundred lines long, even when compiled.
-;; One improvement would be to make a list of buffer *positions*
-;; rather than strings, or at least, not by allocating a
-;; string possibly as large as the buffer!!!
-
 ;; FIXME da: using the family of functions buffer-syntactic-context-*
 ;; may be helpful here.
 

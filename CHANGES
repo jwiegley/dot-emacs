@@ -16,6 +16,11 @@
 
 *** Improved behaviour of electric terminator
 
+*** Efficiency improvement in parsing
+ 
+  Also works around crash bug in xemacs-21.1.7/SuSE.
+  Fix by Markus Wenzel.
+
 *** Added possibility for switching prover's output on/off.
 
   Already implemented in Coq and Isabelle(/Isar).
