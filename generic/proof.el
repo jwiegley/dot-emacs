@@ -27,6 +27,8 @@
 
 (require 'proof-splash)			; splash screen
 
+(require 'proof-x-symbol)		; support for x-symbol
+
 ;;;
 ;;; Emacs libraries
 ;;;

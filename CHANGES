@@ -2,3 +2,6 @@ Summary of Changes since Proof General 2.0
 ------------------------------------------
 
 * Documentation improvements
+
+* Generic settings to add support for x-symbol package.
+  (incomplete).

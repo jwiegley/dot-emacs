@@ -526,7 +526,8 @@ This is a list of tuples of the form (type . string). type is either
     (let* ((ip 0) (op 0) ap (l (length string)) 
 	   (ann (make-string (length string) ?x))
            (stack ()) (topl ()) 
-	   (out (make-string l ?x)) c span)
+	   (out (make-string l ?x)) 
+	   c span)
 
       ;; Form output string by removing characters 
       ;; 128 or greater.
@@ -561,6 +562,7 @@ This is a list of tuples of the form (type . string). type is either
       ;; a la Isamode, but never mind.
       (erase-buffer)
       (insert (substring out 0 op))
+      (proof-x-symbol-decode-region (point-min) (point-max))
       (proof-display-and-keep-buffer proof-goals-buffer (point-min))
 
       ;; FIXME: 
@@ -672,7 +674,9 @@ See the documentation for `proof-shell-delayed-output' for further details."
 	  ;; Erase the response buffer if need be, and indicate that
 	  ;; it is to be erased again before the next message.
 	  (proof-shell-maybe-erase-response t nil)
-	  (insert str)
+	  (let ((pos (point)))
+	    (insert str)
+	    (proof-x-symbol-decode-region pos (point)))
 	  (proof-display-and-keep-buffer proof-response-buffer)))
      ((eq ins 'analyse)
       (proof-shell-analyse-structure str))
