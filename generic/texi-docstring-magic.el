@@ -54,6 +54,9 @@
 ;;
 ;; Useful enhancements to do:
 ;;  * Use customize properties (e.g. group, simple types)
+;;  * Look for a "texi-docstring" property for symbols
+;;    so TeXInfo can be defined directly in case automatic markup
+;;    goes badly wrong.
 ;;
 
 (defun texi-docstring-magic-splice-sep (strings sep)
