@@ -21,7 +21,7 @@ If in three window or multiple frame mode, display both buffers."
 ;; NB: with tracing buffer, might be handy to show that.
   (interactive)
   (cond
-   ((or proof-dont-switch-windows proof-multiple-frames-enable)
+   ((or proof-three-window-mode proof-multiple-frames-enable)
     ;; Display both
     (proof-switch-to-buffer proof-response-buffer 'noselect)
     (set-window-point (get-buffer-window proof-response-buffer)
@@ -196,7 +196,7 @@ If in three window or multiple frame mode, display both buffers."
 
 ;; Make the togglers used in options menu below
 
-(proof-deftoggle proof-dont-switch-windows)
+(proof-deftoggle proof-three-window-mode)
 (proof-deftoggle proof-script-fly-past-comments)
 (proof-deftoggle proof-delete-empty-windows)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
@@ -210,10 +210,10 @@ If in three window or multiple frame mode, display both buffers."
    '(["Disppearing Proofs" proof-disappearing-proofs-toggle 
       :style toggle
       :selected proof-disappearing-proofs]
-     ["Three Window Mode" proof-dont-switch-windows-toggle
+     ["Three Window Mode" proof-three-window-mode-toggle
       :active (not proof-multiple-frames-enable)
       :style toggle
-      :selected proof-dont-switch-windows]
+      :selected proof-three-window-mode]
      ["Delete Empty Windows" proof-delete-empty-windows-toggle
       :active (not proof-multiple-frames-enable)
       :style toggle
@@ -257,22 +257,17 @@ If in three window or multiple frame mode, display both buffers."
        (customize-set-variable 'proof-follow-mode 'ignore)
        :style radio
        :selected (eq proof-follow-mode 'ignore)])
-     ["Save Options" 
-      custom-save-all ; proof-quick-opts-save  [ see comments therein ]
-      t]))
+     "----"
+     ["Save Options" (proof-quick-opts-save) t]))
   "Proof General quick options.")
 
 (defun proof-quick-opts-save ()
   "Save current values of PG Options menu items using Custom."
-  ;; Adapted from menu-bar-options-save in menu-bar.el (GNU Emacs).
-  ;; BUT: that turns out to be a daft function, I think.
-  ;; FIXME: investigate that in latest GNU and report as a 
-  ;; possible bug.
   (interactive)
-  (dolist (elt (list
+  (dolist (symbol (list
 		'proof-disappearing-proofs 
 		'proof-multiple-frames-enable
-		'proof-dont-switch-windows
+		'proof-three-window-mode
 		'proof-delete-empty-windows
 		'proof-multiple-frames-enable
 		'proof-output-fontify-enable
@@ -280,20 +275,16 @@ If in three window or multiple frame mode, display both buffers."
 		'proof-script-fly-past-comments
 		(proof-ass-sym x-symbol-enable)
 		'proof-follow-mode))
-    (if (or
-	 ;; XEmacs way: see custom-save-variables in cus-edit.el
-	 (let ((spec (car-safe (get elt 'theme-value))))
-	   (or
-	    (and spec
-		 (eq (car spec) 'user)
-		 (eq (second spec) 'set))
-	    (and (null spec) (get elt 'saved-value))))
-	 ;; Emacs way: surely fails for vals set to nil.
-	 (default-value elt))
-	;; Oh dear: call to save-variable results in setting with set
-	;; function, then saving, writing the whole file out numerous
-	;; times and anyway saves all changes!
-	(customize-save-variable elt (default-value elt)))))
+    (let ((value (get symbol 'customized-value)))
+      ;; This code from customize-save-customized adjusts 
+      ;; properties so that custom-save-all will save 
+      ;; the value.
+      (when value
+	(put symbol 'saved-value value)
+	(if (fboundp 'custom-push-theme) ;; XEmacs customize
+	    (custom-push-theme 'theme-value symbol 'user 'set value))
+	(put symbol 'customized-value nil))))
+  (custom-save-all))
 
 (defconst proof-config-menu
   (list "----"
