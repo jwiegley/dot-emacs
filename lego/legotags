@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 #
+# Or perhaps: /usr/local/bin/perl
+# 
 # $Id$
 #
 undef $/;
