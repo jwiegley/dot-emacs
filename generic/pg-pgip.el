@@ -102,7 +102,10 @@
 ;; Proof assistant advises PG that it has a preference value named name,
 ;; category k, class c, with default value d, type t.
 ;;
-;; PGIP FIXME: do we need a <clearprefs/> operation?
+
+;; FIXME: PGIP requires prover to support <resetprefs/>, but this
+;; could be done from interface, since default values are 
+;; advertised for preferences.
 
 (defun pg-pgip-haspref (attrs name)
   "Issue a defpacustom from a <haspref> element with attributes ATTRS, name NAME."
@@ -130,6 +133,8 @@
       ;; accumulate errors somehow.
       (proof-debug "haspref calling defpacustom: name:%s default:%s type:%s setting:%s" symname default type setting)
       (eval
+       ;; FIXME: would like unique custom group for settings introduced by haspref.
+       ;; (preferences or something).
        `(defpacustom ,symname ,default 
 	  (concat descr (if descr "\n")
 	   "Setting configured by <haspref> PGIP message")
@@ -300,6 +305,20 @@
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Sending PGIP commands to prover
+;;
+
+(defun pg-issue-pgip (pgip &optional block)
+  (proof-shell-invisible-command 
+   (funcall proof-shell-issue-pgip-cmd 
+	    (format "<pgip>%s</pgip>" pgip)) block))
+
+;;;###autoload
+(defun pg-pgip-askprefs ()
+  (pg-issue-pgip "<askprefs/>" 'block))
+  
 
 (provide 'pg-pgip)
 ;; End of `pg-pgip.el'
