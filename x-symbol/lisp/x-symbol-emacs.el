@@ -48,8 +48,9 @@ is non-nil."
 ;; <http://savannah.gnu.org/projects/emacs/>.  E.g., I use Emacs-21.1.5
 ;; together with updates of the following files:
 
-;; lisp/font-lock.el,v 1.200, lisp/font-core.el,v 1.8(new),
-;; lisp/emacs-lisp/syntax.el,v 1.5(new):
+;; lisp/font-lock.el,v 1.200 (+ exchange all cc-mode font-lock keywords,
+;; recursive backquote not possible in Emacs-21.1), lisp/font-core.el,v
+;; 1.8(new), lisp/emacs-lisp/syntax.el,v 1.5(new):
 ;;   (defvar char-property-alias-alist nil)
 ;;   (unless (fboundp 'copy-tree) (defalias 'copy-tree 'copy-alist))
 ;;   (unless (fboundp 'remove-list-of-text-properties)
