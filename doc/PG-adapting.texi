@@ -685,40 +685,56 @@ commands in the proof script.  Usually only one of these three needs to
 be set.  If the generic parsing functions are not flexible for your
 needs, you can supply a value for @code{proof-script-parse-function}.
 
- @xref{Proof script mode}, for more details of the parsing
+Note that for the generic functions to work properly, it is
+@strong{essential} that you set the syntax table for your mode properly,
+so that comments and strings are recognized.  See the Emacs
+documentation to discover how to do this (particularly for the function
+@code{modify-syntax-entry}).
+
+@xref{Proof script mode}, for more details of the parsing
 functions.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
-Character which terminates every command sent to proof assistant.  nil if none.@*
-You should set this variable in script mode configuration.
+Character which terminates every command sent to proof assistant.  nil if none.
+
+To configure command recognition properly, you must set at least one
+of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}}, 
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}},
+or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-script-sexp-commands
 @defvar proof-script-sexp-commands 
 Non-nil if proof script has a LISP-like syntax, and commands are @code{top-level} sexps.@*
 You should set this variable in script mode configuration.
+
 To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}}, 
-@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}},
+or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-script-command-start-regexp
 @defvar proof-script-command-start-regexp 
 Regular expression which matches start of commands in proof script.@*
 You should set this variable in script mode configuration.
+
 To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}}, 
-@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}},
+or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-script-command-end-regexp
 @defvar proof-script-command-end-regexp 
 Regular expression which matches end of commands in proof script.@*
 You should set this variable in script mode configuration.
+
 To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-sexp-commands}}, @samp{@code{proof-script-command-end-regexp}}, 
-@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
+@samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}},
+or @samp{@code{proof-script-parse-function}}.
 @end defvar
 
 
@@ -1194,7 +1210,8 @@ available in Emacs, including the @code{proof-shell-mode} and
 all specific shell modes derived from it.
 
 @menu
-* Proof shell commands::        
+* Proof shell commands::
+* Script input to the shell::
 * Settings for matching various output from proof process::
 * Settings for matching urgent messages from proof process::
 * Hooks and other settings::  
@@ -1358,8 +1375,71 @@ See also: @code{proof-shell-inform-file-processed-cmd},
 @end defvar
 
 
+@node Script input to the shell
+@section Script input to the shell
+
+Generally, commands from the proof script are sent verbatim to the proof
+process running in the proof shell.  For historical reasons, carriage
+returns are stripped by default.  You can set
+@code{proof-shell-strip-crs-from-input} to adjust that.  For more
+sophisticated pre-processing of the sent string, you may like to set
+@code{proof-shell-insert-hook}.
+
+@c TEXI DOCSTRING MAGIC: proof-shell-strip-crs-from-input 
+@defvar proof-shell-strip-crs-from-input 
+If non-nil, replace carriage returns in every input with spaces.@*
+This is enabled by default: it is appropriate for some systems
+because several CR's can result in several prompts, which may mess
+up the display (or even worse, the synchronization).
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-shell-insert-hook
+@defvar proof-shell-insert-hook 
+Hooks run by @code{proof-shell-insert} before inserting a command.@*
+Can be used to configure the proof assistant to the interface in
+various ways -- for example, to observe or alter the commands sent to
+the prover, or to sneak in extra commands to configure the prover.
+
+This hook is called inside a @code{save-excursion} with the @code{proof-shell-buffer} 
+current, just before inserting and sending the text in the 
+variable @samp{string}.  The hook can massage @samp{string} or insert additional 
+text directly into the @code{proof-shell-buffer}.  
+Before sending @samp{string}, it will be stripped of carriage returns.
+
+Additionally, the hook can examine the variable @samp{action}.  It will be
+a symbol, set to the callback command which is executed in the proof
+shell filter once @samp{string} has been processed.  The @samp{action} variable
+suggests what class of command is about to be inserted:
+@lisp
+ @code{'proof-done-invisible}       A non-scripting command
+ @code{'proof-done-advancing}       A "forward" scripting command
+ @code{'proof-done-retracting}      A "backward" scripting command
+@end lisp
+Caveats: You should be very careful about setting this hook.  Proof
+General relies on a careful synchronization with the process between
+inputs and outputs.  It expects to see a prompt for each input it
+sends from the queue.  If you add extra input here and it causes more
+prompts than expected, things will break!  Extending the variable
+@samp{string} may be safer than inserting text directly, since it is
+stripped of carriage returns before being sent.
+
+Example uses:
+@var{lego} uses this hook for setting the pretty printer width if
+the window width has changed;
+Plastic uses it to remove literate-style markup from @samp{string}. 
+The x-symbol support uses this hook to convert special characters
+into tokens for the proof assistant.
+@end defvar
+
+
+
+
+
+
 @node Settings for matching various output from proof process
 @section Settings for matching various output from proof process
+
+
 @c TEXI DOCSTRING MAGIC: proof-shell-wakeup-char
 @defvar proof-shell-wakeup-char 
 A special character which terminates an annotated prompt.@*
@@ -1676,44 +1756,6 @@ shell variables:
 @end lisp
 This is the bare minimum needed to get a shell buffer and
 its friends configured in the function @code{proof-shell-start}.
-@end defvar
-
-@c TEXI DOCSTRING MAGIC: proof-shell-insert-hook
-@defvar proof-shell-insert-hook 
-Hooks run by @code{proof-shell-insert} before inserting a command.@*
-Can be used to configure the proof assistant to the interface in
-various ways -- for example, to observe or alter the commands sent to
-the prover, or to sneak in extra commands to configure the prover.
-
-This hook is called inside a @code{save-excursion} with the @code{proof-shell-buffer} 
-current, just before inserting and sending the text in the 
-variable @samp{string}.  The hook can massage @samp{string} or insert additional 
-text directly into the @code{proof-shell-buffer}.  
-Before sending @samp{string}, it will be stripped of carriage returns.
-
-Additionally, the hook can examine the variable @samp{action}.  It will be
-a symbol, set to the callback command which is executed in the proof
-shell filter once @samp{string} has been processed.  The @samp{action} variable
-suggests what class of command is about to be inserted:
-@lisp
- @code{'proof-done-invisible}       A non-scripting command
- @code{'proof-done-advancing}       A "forward" scripting command
- @code{'proof-done-retracting}      A "backward" scripting command
-@end lisp
-Caveats: You should be very careful about setting this hook.  Proof
-General relies on a careful synchronization with the process between
-inputs and outputs.  It expects to see a prompt for each input it
-sends from the queue.  If you add extra input here and it causes more
-prompts than expected, things will break!  Extending the variable
-@samp{string} may be safer than inserting text directly, since it is
-stripped of carriage returns before being sent.
-
-Example uses:
-@var{lego} uses this hook for setting the pretty printer width if
-the window width has changed;
-Plastic uses it to remove literate-style markup from @samp{string}. 
-The x-symbol support uses this hook to convert special characters
-into tokens for the proof assistant.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-error-or-interrupt-hook
