@@ -15,7 +15,8 @@ Coq Proof General has experimental multiple file handling for some
 versions.  It does not have support for proof by pointing.
 
 There is support for X Symbol, using simple character sequences rather
-than a special language of tokens.  See notes below for syntax.
+than a special language of tokens (which works well with V8's new
+syntax!).  See notes below.
 
 There is a tags program, coqtags.
 
