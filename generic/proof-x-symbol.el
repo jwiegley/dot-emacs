@@ -72,6 +72,7 @@ The package is available at http://x-symbol.sourceforge.net/"))
 		  xs-feature)))
        (t
 	;; We've got everything we need!   So initialize.
+	(require 'x-symbol-vars)  ;; [new requirement to require this]
 	(let*
 	    ((xs-xtra-modes  proof-xsym-extra-modes)
 	     (xs-std-modes   (list
@@ -130,6 +131,10 @@ The package is available at http://x-symbol.sourceforge.net/"))
 ;	     (intern (concat (symbol-name mode) "-hook"))
 ;	     'proof-x-symbol-mode))
 	  ;; Font lock support is optional
+
+	  ;; FIXME: Isabelle wants this for sup/sub scripts
+	  ;; presently loads too early and extends in modedef
+	  ;; setups.  Want to adjust here.
 	  (if flks
 	      (put symmode 'font-lock-defaults (list flks)))
 	  ;;
