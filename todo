@@ -673,6 +673,9 @@ X (Low)		e.g. probably not worth spending time on
 
 *** A Doc new bits:  settings mechanism via defpacustom 
 
+*** C Update front page image
+  - Should include ??? logo to represent other provers
+
 *** B Manual improvements before techreport publishing (see notes at end also):
   - Mention configuring function menus, outline.
   - Consider splitting up chapter 9?
