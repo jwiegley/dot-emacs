@@ -173,7 +173,7 @@ NONDISTFILES=.cvsignore */.cvsignore Makefile.devel Makefile.xemacs doc/notes.tx
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo etc/TESTS *.cvsignore */*.cvsignore
+IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog* ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo etc/TESTS *.cvsignore */*.cvsignore
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -247,8 +247,11 @@ tags:	$(EL)
 ChangeLog:	FORCE
 	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) -i 4 | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
 	if [ -f ChangeLog ]; then mv ChangeLog ChangeLog.old; else echo > ChangeLog.old; fi
-	cat ChangeLog.prefix ChangeLog.old > ChangeLog
+	cat ChangeLog.prefix ChangeLog.old | sed 's|/disk/cvs/proofgen/ProofGeneral/||g' > ChangeLog
 	rm ChangeLog.prefix ChangeLog.old
+
+logupdate:  ChangeLog.gz
+	cvs commit -m"Updated" ChangeLog.gz
 
 ############################################################
 #
@@ -504,7 +507,7 @@ fakereleaseall:
 ############################################################
 ##
 ## releaseall:
-##     Do everything!
+##     Do everything!  (EXCEPT: ChangeLog.gz update)
 ##	  
 releaseall: release rpmrelease  releaseclean golive
 
