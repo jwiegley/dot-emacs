@@ -60,6 +60,8 @@ cp images/pgicon.png ${RPM_BUILD_ROOT}/usr/share/icons
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/menu
 mv etc/ProofGeneral.menu ${RPM_BUILD_ROOT}/usr/lib/menu/ProofGeneral
 
+for f in */README; do mv $f $f.`basename $f`; done
+
 cp -pr phox acl2 twelf coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 %clean
@@ -76,7 +78,7 @@ fi
 /sbin/install-info --delete /usr/info/PG-adapting.info.* /usr/info/dir
 
 %files
-%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel REGISTER doc/* */README
+%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README.* REGISTER doc/* */README.*
 %attr(-,root,root) /usr/info/ProofGeneral.info.*
 %attr(-,root,root) /usr/info/ProofGeneral.info-*.*
 %attr(-,root,root) /usr/info/PG-adapting.info.*
