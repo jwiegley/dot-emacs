@@ -6,7 +6,7 @@
 
 Module example Import lib_logic;
 
-Goal {A,B:Prop}(and A B) -> (and B A);
+Goal {A,B:Prop}(A /\ B) -> (B /\ A);
 intros;
 Refine H;
 intros;
