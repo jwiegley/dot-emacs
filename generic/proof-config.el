@@ -2217,8 +2217,10 @@ See `pg-subterm-start-char'."
   "Annotation character that indicates the beginning of a \"top\" element.
 A \"top\" element may be a sub-goal to be proved or a named hypothesis,
 for example.  It is currently assumed (following LEGO/Coq conventions)
-to span a whole line (the region marked in . 
-The function `pg-topterm-goalhyp-fn' examines text following
+to span a whole line.
+
+The function `pg-topterm-goalhyp-fn' examines text following this
+special character, to determine what kind of top element it is.
 
 This setting is also used to see if proof-by-pointing features
 are configured.  If it is unset, some of the code 
