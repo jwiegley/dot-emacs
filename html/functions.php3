@@ -202,7 +202,13 @@ function htmlshow($filename,$text="",$title="") {
 	$text, $message);
 }
 
-
+function htmlshow_link($filename,$title="") {
+ $urlbits = parse_url($filename);
+ return "htmlshow.php"
+   . "?title=" . urlencode($title) 
+   . "&file=" . urlencode($urlbits["path"])
+   . ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]);
+}
 
 
 /* Markup plain text file, by escaping < and > */
@@ -223,8 +229,11 @@ function markup_plain_text($filename) {
    the output of texi2html.
 */
 
-function hack_html($filename,$title="")  {
+function hack_html($filename,$title="",$docrooturl="")  {
   if ($title=="") { $title=$filename; };
+  if ($docrooturl=="") {
+     $docrooturl = "htmlshow.php?title=" . urlencode($title);
+  }
   $file = file($filename);
   /* Paste style sheet in head */
   for($i = 0;$i < count($file);$i++) {
@@ -254,15 +263,15 @@ function hack_html($filename,$title="")  {
        $urlbits = parse_url($linebits[4]);
        if ($urlbits["host"]=="") { 
 	  /* Assume a relative link, let's hack it. */
-	  /* Use same title */
-	  $newurl = "htmlshow.php?title=" . urlencode($title);
 	  if ($urlbits["path"]=="") {
 	     /* A fragment in same file */
-	     $newurl = $newurl . "&file=" 
-	       . urlencode($filename) . "#" . $urlbits["fragment"];
+	     $newurl = $docrooturl . "#" . $urlbits["fragment"];
 	  } else {
-	     /* Another file */
-	     $newurl = $newurl . "&file=" 
+	     /* Another file, use same title */
+	     /* FIXME: would be nice to deal with split info files
+		here by adding aliases somehow */
+	     $newurl = "htmlshow.php?title=" . urlencode($title) 
+                . "&file=" 
 	    	. urlencode(dirname($filename) . "/" . $urlbits["path"])
 		. ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]);
 	  };
