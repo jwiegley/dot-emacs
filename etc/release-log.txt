@@ -1,8 +1,11 @@
+XX.08.02  3.4 Release 3-4-1
+
+
+--------------------
+
 9.9.01    3.3 Release 3-3 based on branch 6.0
 	  (repeated 10.9.01 to fix doc build)
 
---------------------
-	
 02.10.00  3.2 Release 3-2  based on branch 5.0
 
 --------------------

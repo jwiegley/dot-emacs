@@ -30,9 +30,9 @@ tag for comp.lang.ml, comp.lang.functional:
 
  
         
-Subject: Proof General --- Version 3.3 release
+Subject: Proof General --- Version 3.4 release
 
-            Announcing  Proof General  Version 3.3
+            Announcing  Proof General  Version 3.4
     A Generic Emacs interface for Interactive Proof Assistants
                  http://www.proofgeneral.org
 
@@ -48,31 +48,33 @@ Proof General includes these features, amongst others:
 . Script management: proof assistant state reflected in editor
 . Toolbar and menus: commands for building and replaying proofs
 . Syntax highlighting of proof scripts and prover output; hiding proofs
-. Display of real logical symbols, greek letters, etc
+. Display of real logical symbols, greek letters, etc with X-Symbol
+. Activation of prover output for subterm navigation, proof-by-pointing
 . Simplified communication: proof assistant verbosity hidden
 . Menu for jumping to theorems in a proof script
 . Provision to easily run proof assistant on a remote host
 . Works on any platform Emacs does, in window system or plain console 
 
-Summary of changes since 3.2:
+Summary of changes since 3.3:
 
-. Visibility control for completed proofs
-. Dependency browsing/highlighting (currently Isabelle only)
+. GPL license
+. In Isabelle: tracing buffers and active highlighting of variables
+. In Coq: much improved synchronization (inc sections, nested proofs)
+. Improvements to generic code, instantiation mechanisms.
 . Bug fixes 
-. Compatibility improvements: XEmacs 21.4, Coq 7, Windows
+. Compatibility improvements: XEmacs 21.4, Emacs 21.2
 
-For details of changes since 3.2, see
-http://www.proofgeneral.org/fileshow.php?file=ProofGeneral-3.3%2FCHANGES
+For details of changes since 3.3, see
+http://www.proofgeneral.org/fileshow.php?file=ProofGeneral-3.4%2FCHANGES
 
 For the latest user manual, see http://www.proofgeneral.org/doc
 
-Proof General needs a recent version of Emacs to run with, and it much
-prefers XEmacs to FSF GNU Emacs.  Proof General 3.3 has been tested
-with XEmacs 21.4 and Emacs 20.7.  (It may work back to XEmacs 20.4 and
-Emacs 20.2, though).
+Proof General needs a recent version of Emacs to run with.  Proof
+General 3.4 has been tested with XEmacs 21.1 and 21.4, and GNU Emacs
+21.2.  Older versions of XEmacs may work but are not guaranteed.
 
 Installing Proof General is easy.  Why not give it a try?
 
  - David Aspinall <da@dcs.ed.ac.uk>
-   September 2001.
+   August 2002.
 
