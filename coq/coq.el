@@ -220,6 +220,7 @@
      ["replace active hole by selection C-M-y"  (replace-update-active-hole) t]
      "replace active hole with mouse  C-M-Shift select"
      ["jump to active hole M-return"  (set-point-next-hole-destroy) t]
+     ["forget all holes in this buffer"  (clear-all-buffer-holes) t]
      ["What are those holes?" (holes-short-doc) t]
      )
     ["expand abbrev at point" expand-abbrev t]

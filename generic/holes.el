@@ -417,8 +417,8 @@ is), which is annoying.
 
 
 
-(defun mapcar-holes (FUNCTION &optional BUFFER-OR-STRING FROM TO)
-  (mapcar-spans FUNCTION nil BUFFER-OR-STRING FROM TO nil 'hole)
+(defun mapcar-holes (FUNCTION &optional FROM TO PROP)
+  (mapcar-spans FUNCTION FROM TO 'hole)
   )
 
 (defun clear-all-buffer-holes (&optional start end)
@@ -427,7 +427,7 @@ is), which is annoying.
 
   (interactive)
   (disable-active-hole)
-  (mapcar-holes 'clear-hole nil start end)
+  (mapcar-holes 'clear-hole (or start (point-min)) (or end (point-max)) 'hole)
   )
 
 
