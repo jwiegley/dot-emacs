@@ -1618,16 +1618,15 @@ No action if BUF is nil."
 With ARG, turn on the Active Terminator minor mode if and only if ARG
 is positive.
 
-If active terminator mode is enabled, pressing a terminator will automatically activate `proof-assert-next-command' for convenience."
-
+If active terminator mode is enabled, pressing a terminator will 
+automatically activate `proof-assert-next-command' for convenience."
  (interactive "P")
- 
-  (setq proof-active-terminator-minor-mode
-        (if (null arg) (not proof-active-terminator-minor-mode)
-          (> (prefix-numeric-value arg) 0)))
-  (if (fboundp 'redraw-modeline)
-      (redraw-modeline)
-    (force-mode-line-update)))
+ (setq proof-active-terminator-minor-mode
+       (if (null arg) (not proof-active-terminator-minor-mode)
+	 (> (prefix-numeric-value arg) 0)))
+ (if (fboundp 'redraw-modeline)
+     (redraw-modeline)
+   (force-mode-line-update)))
 
 (defun proof-process-active-terminator ()
   "Insert the proof command terminator, and assert up to it."
