@@ -1,34 +1,43 @@
 This is our brief list of planned things to do to Proof General.
 
-See also the appenix "Plans and Ideas" in the manual, and
-for low-level detail, the file "todo" in the developer release.
+$Id$
+
+See also the Proof General projects page on the web, under the
+development section of the home page.  Also, see the appendix "Plans
+and Ideas" in the manual, and for low-level detail, the file "todo" in
+the developer release.
 
 Please send any suggestions, comments, or offers of help to
 proofgen@dcs.ed.ac.uk.  Thanks!
 
 
 
-Plans for later 3.x versions
-----------------------------
+Plans for upcoming 3.x versions
+-------------------------------
 
-* Addition of favourites mechanism for proof commands issued using
+* Make an XEmacs package
+
+* Support more proof assistants
+
+* A more flexible way of choosing which instance of PG we want,
+  allowing matches on the buffer before choosing the mode function.
+
+* Add a favourites mechanism for proof commands issued using
   point-and-click in goals buffer.  Useful when pbp isn't supported.
 
-* Queue manipulation improvment: allow to extend or reduce
-  during processing, with fewer "Proof Process Busy"
-  messages.  
-
 * Isabelle PG: Non-blocking for .thy loading from .ML files.
+
+
+
+Plans for later versions
+------------------------
+
+* Queue manipulation improvment: allow to extend or reduce
+  during processing, with fewer "Proof Process Busy" messages.  
 
 * Improve process handling: disable interrupts and/or catch errors at
   crucial points in code so that C-g can safely be used during script 
   processing.  Handle deleted buffers smoothly.
-
-* Make an XEmacs package
-
-
-Plans for even later versions
------------------------------
 
 * Implement "Atomic Command Sequence" idea, or something like
   it.  To allow more flexible understanding of undo behaviour
@@ -42,6 +51,9 @@ Plans for even later versions
 
 * More flexible goals buffer mode to allow menus of
   common proof commands.
+
+* Implement ideas in the Proof General White Paper. 
+  (See the Development section of the web page for a link).
 
 
   
