@@ -28,7 +28,8 @@
 Copyright @copyright{} 1997, 1998 LEGO Team, LFCS Edinburgh
 @end titlepage
 
-@node    Top, Introduction, (dir), (dir)
+
+@node Top, Introduction, (dir), (dir)
 @comment node-name, next,          previous, up
 
 @b{Proof General} is a generic Emacs interface for proof assistants. It
@@ -58,17 +59,21 @@ Lisp. Please feel free to download Proof General to customize it for
 another system, and tell us how you get on.
 
 @menu
-* Introduction::          Introduction to Script Management
-* Commands::              Proof mode Commands
-* Multiple Files::        Proof developments spanning several files
-* Proof by Pointing::     Proof using the Mouse
-* An Active Terminator::  Active Terminator minor mode
-* Walkthrough::           An example of using proof mode
-* LEGO mode::             Extra Bindings for LEGO
-* Coq mode::              Extra Bindings for Coq
-* Internals::             The Seedy Underside of Proof mode
-* Known Problems::        Caveat Emptor
+* Introduction::                
+* Commands::                    
+* Multiple Files::              
+* An Active Terminator::        
+* Proof by Pointing::           
+* Walkthrough::                 
+* LEGO mode::                   
+* Coq mode::                    
+* Known Problems::              
+* Internals::  
+* Variable Index::
+* Function Index::
+* Concept Index::                 
 @end menu
+
 
 @node Introduction, Commands, Top, Top
 @comment node-name, next,          previous, up
@@ -113,13 +118,16 @@ means to interact with the prover. Try these first!
 
 
 
-
+@cindex Assertion
 @strong{Assertion} causes commands from the editing region to be
 transferred to the queue region and sent one by one to the proof
 process. If the command is accepted, it is transferred to the locked
 region, but if an error occurs it is signalled to the user, and the
 offending command is transferred back to the editing region together
-with any remaining commands in the queue.  @strong{Retraction} causes
+with any remaining commands in the queue.  
+
+@cindex Retraction
+@strong{Retraction} causes
 commands to be transferred from the locked region to the editing region
 (again via the queue region) and the appropriate 'undo' commands to be
 sent to the proof process.
@@ -465,15 +473,120 @@ because the relevant mark is in the namespace.
 
 Fixes for some of these may be provided in a future release.
 
-@node Internals,  Adding New Proof Assistant, Known Problems, Top
+@node Internals, Variable Index, Known Problems, Top
+@comment  node-name,  next,  previous,  up
 @unnumberedsec Internals
 
 @menu
-* Adding New Proof Assistant:: 
+* Handling Multiple Files::     
+* Adding New Proof Assistant::  
 * Literature::                  
 @end menu
 
-@node Adding New Proof Assistant, Literature, Internals, Internals
+@node Handling Multiple Files, Adding New Proof Assistant, Internals, Internals
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsec Handling Multiple Files
+
+Proof General is laid back concerning multiple file developments. It
+relies on the prover to tell it whenever the prover processes files.
+A buffer corresponding to such a file is immediately marked as
+processed. The list of all processed files is also kept in a table so
+that files which get loaded in Emacs at a later stage can be handled
+correctly. 
+
+@menu
+* Processing Files::            
+* Recording File History::      
+* Parent Script Buffers::       
+* Processing a New File::       
+@end menu
+
+@node Processing Files, Recording File History, Handling Multiple Files, Handling Multiple Files
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsubsec Processing Files
+
+Proof General considers @var{output} delimited by the the two regualar
+expressions @code{proof-shell-eager-annotation-start} and
+@code{proof-shell-eager-annotation-end} as being important. It displays
+the @var{output} in the minibuffer and analyses their contents further.
+Among possibly other important messages characterised by these regular
+expressions, the prover must tell the interface whenver it processes a
+file. 
+
+The variable @code{proof-shell-process-file} is a tuple of the
+form (@var{regexp}, @var{match}). If @var{regexp} matches @var{output},
+then the @var{match} match must match the file name (with complete path)
+the system is currently processing. @inforef{Match Data,,lispref}
+
+@node Recording File History, Parent Script Buffers, Processing Files, Handling Multiple Files
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsubsec Recording File History
+
+@vindex proof-included-files-list
+
+The variable @code{proof-included-files-list} records the file history.
+It contains an acyclic graph. The nodes are canonical file names. An
+edge from @samp{n1} to @samp{n2} indicates that @samp{n1} depends on @samp{n2}. The
+variable @code{proof-included-files-list} should not be modified
+directly. Instead use one of the following methods:
+
+@ftable @code
+@item proof-include-files-list-init
+Initialises @code{proof-included-files-list} with an empty graph.
+
+@item proof-include-files-list-add 
+Adds @var{file} to the history of
+processed files. Its optional argument @var{parents} specifies all
+direct dependencies. It @var{parents} is nil, @var{file} is assumed to
+be top level. 
+
+@item proof-include-files-list-remove
+Removes @var{file} and all its children from the record.
+
+@item proof-include-files-list-in-p
+Returns @samp{t} if @var{file} has already been processed and nil otherwise.
+@end ftable
+
+@node Parent Script Buffers, Processing a New File, Recording File History, Handling Multiple Files
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsubsec Parent Script Buffers
+@cindex Parent Script Buffer
+
+Parent Script Buffers are script buffers which have already been
+processed. If retraction is requested on such a @var{buffer}, retraction 
+is first propagated to @var{buffer}'s children.
+
+@node Processing a New File, ,Parent Script Buffers, Handling Multiple Files
+@comment  node-name,  next,  previous,  up
+@unnumberedsubsubsec Processing a New File
+
+When the prover reports that a new file is being processed, it needs to
+be added to the variable @code{proof-included-files-list} with the help
+of the function @code{proof-include-files-list-add}. Dependencies are
+computed with the help of:
+
+@vtable @code
+@item proof-files-query-dependencies-command
+Command to send to the prover to query the direct parents of @samp{%s}.
+The string @samp{%s} is a placeholder for the file in question. If it is 
+@samp{nil}, we assume that files are processed in linear order.
+@item proof-files-query-dependencies-response-regexp
+Regular expression to catch that the prover has complied with a request
+to display dependencies for a particular @var{file}.
+@code{proof-files-query-dependencies-response-regexp} may contain
+@samp{%s} as a placeholder for @var{file}.
+@end vtable
+
+The result is analysed with the help of the function
+
+@ftable @code
+@item proof-files-extract-parents
+Returns the list of direct parents for the argument @var{file} by
+analysing the previous output of the prover which triggered @code{proof-files-query-dependencies-response-regexp}
+@end ftable
+
+
+@node Adding New Proof Assistant, Literature, Handling Multiple Files, Internals
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec Adding Support for a New Proof Assistant
 
@@ -486,7 +599,7 @@ called myassistant.
 @item Edit proof-site.el to add a new case to the 'proof-assistant' variable.
 @end itemize
 
-@node Literature, ,Adding New Proof Assistant, Internals
+@node Literature, , Adding New Proof Assistant, Internals
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsec Literature
 
@@ -509,8 +622,19 @@ Structure Editor. LFCS Technical Report ECS-LFCS-97-368. Also published as Rappo
 l'INRIA Sophia Antipolis RR-3286 
 @end itemize
 
+@node Variable Index, Function Index, Internals, Top
+@comment    node-name,         next,       previous, up
+@unnumbered Variable Index
+@printindex vr
 
+@node Function Index, Concept Index,Variable Index, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Function Index
+@printindex fn
 
-
+@node Concept Index,,Function Index, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Concept Index
+@printindex cp
 
 @bye
