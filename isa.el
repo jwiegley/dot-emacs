@@ -1,14 +1,21 @@
 ;; isa.el Major mode for Isabelle proof assistant
 ;; Copyright (C) 1994-1998 LFCS Edinburgh. 
-;; Authors: Healfdene Goguen, Thomas Kleymann, David Aspinall
+;; Author: David Aspinall
 
 ;; $Log$
+;; Revision 2.1  1998/08/21 14:37:18  da
+;; First attempt, proof state works.
+;;
 ;; Revision 2.0  1998/08/11 14:59:57  da
 ;; New branch
 ;;
 ;; Revision 1.1  1998/08/11 14:43:34  da
 ;; Isabelle proof.el support.
 ;;
+
+;; STATUS:
+;;   - Basic proof state extraction works, using prompt regexp
+;;   - Undo needs attention
 
 
 (require 'isa-syntax)
@@ -51,7 +58,9 @@
   "The working directory of the isabelle shell")
 
 (defvar isa-shell-prompt-pattern 
-  "^2?[---=#>]>? *\\|^\\*\\* .*"
+  ;; borrowed from somewhere?
+  ;; "^2?[---=#>]>? *\\|^\\*\\* .*"
+  "^> "
   "*The prompt pattern for the inferior shell running isabelle.")
 
 (defvar isa-shell-cd "cd \"%s\";"
@@ -123,7 +132,7 @@
 	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
 	     (isa-goal-command-p
 	      (span-property (prev-span span 'type) 'cmd)))
-	(concat "Restart" proof-terminal-string)
+	(concat "choplev 0" proof-terminal-string)
       (while span
 	(setq str (span-property span 'cmd))
 	(cond ((eq (span-property span 'type) 'vanilla)
@@ -138,7 +147,7 @@
 			(setq i (+ 1 i))))
 		     (t nil))))
 	(setq span (next-span span 'type)))
-      (concat "Undo " (int-to-string ct) proof-terminal-string))))
+      (concat "choplev " (int-to-string ct) proof-terminal-string))))
 
 (defconst isa-keywords-decl-defn-regexp
   (ids-to-regexp (append isa-keywords-decl isa-keywords-defn))
@@ -316,12 +325,13 @@
   (setq proof-assistant isa-assistant
 	proof-www-home-page isa-www-home-page)
 
-  (setq proof-prf-string "Show"
-	proof-ctxt-string "Print All"
-	proof-help-string "Help")
+  (setq proof-prf-string "pr()"
+	proof-ctxt-string "print \"No context for Isabelle.\""
+	proof-help-string "print \"No in-built help for Isabelle.\"")
 
   (setq proof-goal-command-p 'isa-goal-command-p
 	proof-count-undos-fn 'isa-count-undos
+	;; this one won't be relevant.
 	proof-find-and-forget-fn 'isa-find-and-forget
         proof-goal-hyp-fn 'isa-goal-hyp
 	proof-state-preserving-p 'isa-state-preserving-p
@@ -369,6 +379,8 @@
   (add-hook 'proof-shell-exit-hook 'isa-zap-line-width nil t)
   (add-hook 'proof-pre-shell-start-hook 'isa-pre-shell-start nil t))
 
+
+
 (defun isa-shell-mode-config ()
   (setq proof-shell-prompt-pattern isa-shell-prompt-pattern
         proof-shell-cd isa-shell-cd
@@ -381,23 +393,31 @@
         proof-shell-assumption-regexp isa-id
         proof-shell-goal-regexp isa-goal-regexp
         proof-shell-first-special-char ?\360
-        proof-shell-wakeup-char ?> ; ?\371 ; done: prompt
         ; The next three represent path annotation information
-	proof-shell-start-char nil ; ?\372 ; not done
-        proof-shell-end-char nil ; ?\373 ; not done
-        proof-shell-field-char nil ; ?\374 ; not done
-        proof-shell-goal-char nil ; ?\375 ; done
-	proof-shell-eager-annotation-start "\376" ; done
-	proof-shell-eager-annotation-end "\377" ; done
+
+	proof-shell-eager-annotation-start "\376" 
+	proof-shell-eager-annotation-end "\377" 
         proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern
 	;(concat proof-shell-prompt-pattern
-	;	(char-to-string proof-shell-wakeup-char)) ; done
+	;	(char-to-string proof-shell-wakeup-char))
         proof-shell-result-start "\372 Pbp result \373"
         proof-shell-result-end "\372 End Pbp result \373"
-        proof-shell-start-goals-regexp "^Level" ; isa-goal-regexp ;  -9]+ subgoals?"
-        proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
-        proof-shell-init-cmd nil
-	proof-analyse-using-stack t)
+	proof-analyse-using-stack t
+	proof-shell-start-char ?\372 ; not done
+        proof-shell-end-char ?\373 ; not done
+        proof-shell-field-char ?\374  ; not done
+	;; da: settings below here WORK
+	;; ============================
+        proof-shell-goal-char ?\375
+	;; We can't hack the SML prompt, so set wakeup-char to nil.
+        proof-shell-wakeup-char nil
+        proof-shell-start-goals-regexp "\370"
+        proof-shell-end-goals-regexp "\371"
+	;; initial command configures Isabelle by hacking print functions.
+	;; may need directory for this: /home/da/devel/lego/elisp/
+        proof-shell-init-cmd 
+	   "use \"isa-print-functions.ML\";")
+
 
   ;; The following hook is removed once it's called.
   ;; FIXME: maybe add this back later.
