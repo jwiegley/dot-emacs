@@ -45,5 +45,3 @@ theorem "A & B --> B & A"
 done
 
 end
-
-(* comment at the end *)
