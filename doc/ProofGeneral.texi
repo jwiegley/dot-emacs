@@ -800,10 +800,10 @@ Proof General comes ready-customized for these proof assistants:
 @b{Coq Proof General} for Coq Version 6.3@*
 @xref{Coq Proof General}, for more details.
 @item 
-@b{Isabelle Proof General} for Isabelle99-1@*
+@b{Isabelle Proof General} for Isabelle2002@*
 @xref{Isabelle Proof General}, for more details.
 @item 
-@b{Isabelle/Isar Proof General} for Isabelle99-1@*
+@b{Isabelle/Isar Proof General} for Isabelle2002*
 @xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
 @b{HOL Proof General} for HOL98@*
@@ -3405,25 +3405,28 @@ In Isabelle/Isar, on the other hand, @file{.thy} files contain proofs as
 well as definitions for theories, so scripting takes place there and you
 see the usual toolbar and scripting functions of Proof General.
 
-The default Emacs mode setup of Proof General prefers the @code{isa}
-version over @code{isar}.  To load the Isabelle/Isar, you can set the
-environment variable @code{PROOFGENERAL_ASSISTANTS=isar} before starting
-Emacs in order to prevent loading of the classic Isabelle theory file.
-Another way of selecting Isar is to put a special modeline like this:
+The default Emacs mode setup of Proof General prefers the newer
+@code{isar} version over @code{isa}.  To load the ``classic'' Isabelle
+mode, you can either make sure to visit a @file{.ML} before a 
+@file{.thy} file, or set the environment variable
+@code{PROOFGENERAL_ASSISTANTS=isa} before starting Emacs in order to
+prevent loading of the Isabelle/Isar mode.  Another way of
+selecting Isa is to put a special modeline like this:
 @lisp
-  (* -*- isar -*- *)
+  (* -*- isa -*- *)
 @end lisp
-near the top of your Isabelle/Isar @file{.thy} files (or at least, the
-first file you visit).  This Emacs feature overrides the default choice
-of mode based on the file extension.
+near the top of your Isabelle @file{.thy} files (or at least, the
+first file you visit).  This Emacs feature overrides the default
+choice of mode based on the file extension.
 
 Isabelle provides yet another way to invoke Proof General, including
-additional means to select either version.  The standard installation of
-Isabelle makes the @code{isar} version of Proof General its default user
-interface: running plain @code{Isabelle} starts an Emacs session with
-Isabelle/Isar Proof General; giving an option @code{-I false} refers to
-the classic version instead.  The defaults may be changed by editing the
-Isabelle settings, see the Isabelle documentation for details.
+additional means to select either version.  The standard installation
+of Isabelle also makes the @code{isar} version of Proof General its
+default user interface: running plain @code{Isabelle} starts an Emacs
+session with Isabelle/Isar Proof General; giving an option @code{-I
+false} refers to the classic version instead.  The defaults may be
+changed by editing the Isabelle settings, see the Isabelle
+documentation for details.
 
 @menu
 * Classic Isabelle::
