@@ -41,6 +41,7 @@
 
 (defconst isar-keywords-diag
   '("ML"
+    "ML_command"
     "commit"
     "disable_pr"
     "enable_pr"
