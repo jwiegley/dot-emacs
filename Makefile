@@ -8,6 +8,9 @@
 ##
 ##  make compile
 ##
+## $Id$
+## 
+###########################################################################
 
 
 ELISP_DIRS = generic lego coq isa
@@ -51,5 +54,19 @@ compile:
 ##	
 clean:
 	rm -f $(ELC)	
+
+
+##
+## Targets defined in developer's makefile Makefile.devel, 
+## linked here for convenience.
+##
+
+release:	
+	make -f Makefile.devel releaseall
+distinstall:
+	make -f Makefile.devel distinstall
+
+
+
 
 
