@@ -164,6 +164,7 @@
    (mouse-set-point event)
    (pbp-construct-command))
 
+
 (defun pbp-construct-command ()
    (let ((ext (extent-at (point) () 'lego-pbp))
          (top-ext (extent-at (point) () 'lego-top-element)))
@@ -177,11 +178,15 @@
 		  (concat "Pbp " (cdr top-info) " " path ";")))))
 	    ((extentp top-ext)
 	     (let ((top-info (extent-property top-ext 'lego-top-element)))
-	       (proof-simple-send
-		(if (eq 'hyp (car top-info))
+	       (let ((value (if (eq 'hyp (car top-info))
 		    (concat "Refine " (cdr top-info) ";")
-		  (concat "Next +" (cdr top-info) ";"))))))))
-
+		  (concat "Next +" (cdr top-info) ";"))))
+	       (proof-simple-send
+		    value)
+		(if *script-buffer*
+		    (progn (set-buffer *script-buffer*)
+			   (end-of-buffer)
+			   (insert-string value)))))))))
 
 
 
