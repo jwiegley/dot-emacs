@@ -2,7 +2,7 @@
 ;;
 ;; Author: Frank Pfenning
 ;;	   Taken from Twelf's emacs mode and 
-;;	   adapted for Proof General by David Aspinall <da@dcs.ed.ac.uk>
+;;	   adapted for Proof General by David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; $Id$
 ;;

@@ -4,7 +4,7 @@
 ;;
 ;; Maintainer:    Stefan Berghofer 
 ;;
-;; Authors:       David Aspinall <da@dcs.ed.ac.uk>
+;; Authors:       David Aspinall <David.Aspinall@ed.ac.uk>
 ;;   	          Markus Wenzel <wenzelm@in.tum.de>
 ;;
 ;;

@@ -1,5 +1,16 @@
 Proof General --- Organize your proofs!  [proofgeneral.inf.ed.ac.uk]
 ====================================================================
+ 
+  IMPORTANT NOTE: Please note that proofgeneral.org is no longer owned
+  by the Proof General project; please update your links to use the
+  new web address http://proofgeneral.inf.ed.ac.uk.  
+
+  Report bugs, feedback, suggestions directly to me.  It helps if you
+  use an appropriate +-extension to my mail address, e.g.
+		
+	David Aspinall <da+pg-feedback@inf.ed.ac.uk>
+ 
+====================================================================
 
 Proof General is a generic Emacs interface for proof assistants.
 
@@ -49,8 +60,8 @@ not mentioned in any of these files to da+pg-bugs@inf.ed.ac.uk
 For the latest news and downloads, visit Proof General on the web 
 at: http://proofgeneral.inf.ed.ac.uk
 
-David Aspinall <da+pg@inf.ed.ac.uk>
-March 2003.
+David Aspinall <da+pg-feedback@inf.ed.ac.uk>
+February 2004.
 
 -----
 

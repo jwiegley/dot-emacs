@@ -2,7 +2,7 @@
 ;;
 ;; Copyright (C) 2000 LFCS Edinburgh. 
 ;;
-;; Author: David Aspinall <da@dcs.ed.ac.uk>
+;; Author: David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; $Id$
 ;;
@@ -152,6 +152,6 @@
 
 
 (warn "Hol Proof General is incomplete!  Please help improve it!
-Read the manual, make improvements and send them to proofgen@dcs.ed.ac.uk")
+Read the manual, make improvements and send them to da+pg-feedback@inf.ed.ac.uk")
 
 (provide 'hol98)

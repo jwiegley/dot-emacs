@@ -1,7 +1,7 @@
 ;; proof-easy-config.el    Easy configuration for Proof General
 ;;
 ;; Copyright (C) 1999-2002  David Aspinall / LFCS.
-;; Author:    David Aspinall <da@dcs.ed.ac.uk>
+;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$

@@ -1,7 +1,7 @@
 ;; thy-mode.el - Mode for Isabelle theory files.
 ;;
 ;; Copyright (C) 1998 LFCS Edinburgh. 
-;; Author:    David Aspinall <da@dcs.ed.ac.uk>
+;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; Taken from Isamode, version: 3.6 1998/09/02 11:40:45

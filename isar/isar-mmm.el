@@ -1,7 +1,7 @@
 ;; isar-mmm.el	  Configure MMM mode for Isar (for LaTeX, SML mode)
 ;;
 ;; Copyright     (C) 2003 David Aspinall
-;; Authors:       David Aspinall <da@dcs.ed.ac.uk>
+;; Authors:       David Aspinall <David.Aspinall@ed.ac.uk>
 ;; Licence:	 GPL
 ;;
 ;; $Id$

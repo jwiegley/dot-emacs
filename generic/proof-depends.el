@@ -1,7 +1,7 @@
 ;; proof-depends.el  Theorem-theorem and theorem-definition dependencies.
 ;;
 ;; Copyright (C) 2000-2002 University of Edinburgh. 
-;; Authors:      David Aspinall <da@dcs.ed.ac.uk>
+;; Authors:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;;	           Earlier version by Fiona McNeil.
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Status:      Experimental code

@@ -1,7 +1,7 @@
 ;; twelf-old.el  Port of old Twelf Emacs mode
 ;;
 ;; Author: Frank Pfenning
-;;	   Adapted for Proof General by David Aspinall <da@dcs.ed.ac.uk>
+;;	   Adapted for Proof General by David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; $Id$
 ;;

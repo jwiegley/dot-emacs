@@ -1,7 +1,7 @@
 ; isa-mode.el	 Emacs support for Isabelle proof assistant
 ;; Copyright (C) 1993-2000 LFCS Edinburgh, David Aspinall.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
-;; Author:    David Aspinall <da@dcs.ed.ac.uk>
+;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; $Id$
 ;;

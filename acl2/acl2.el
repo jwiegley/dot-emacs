@@ -2,7 +2,7 @@
 ;;
 ;; Copyright (C) 2000 LFCS Edinburgh. 
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
-;; Author:    David Aspinall <da@dcs.ed.ac.uk>
+;; Author:    David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; $Id$
 ;;
@@ -94,6 +94,6 @@
 
 
 (warn "ACL2 Proof General is incomplete!  Please help improve it!
-Read the manual, make improvements and send them to feedback@proofgeneral.org")
+da+pg-Read the manual, make improvements and send them to feedback@inf.ed.ac.uk")
 
 (provide 'acl2)

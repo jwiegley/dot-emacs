@@ -1,7 +1,7 @@
 ##
 ## Makefile for Proof General.
 ## 
-## Author:  David Aspinall <da@dcs.ed.ac.uk>
+## Author:  David Aspinall <David.Aspinall@ed.ac.uk>
 ##
 ##  make		- do "compile" and "scripts" targets
 ##  make compile	- make .elc's in a single session

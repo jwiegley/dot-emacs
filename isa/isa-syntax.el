@@ -2,7 +2,7 @@
 ;;
 ;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
-;; Author:      David Aspinall <da@dcs.ed.ac.uk>
+;; Author:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; $Id$
 ;;

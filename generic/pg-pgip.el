@@ -1,7 +1,7 @@
 ;; pg-pgip.el	 Functions for processing PGIP for Proof General
 ;;
 ;; Copyright (C) 2000-2002 LFCS Edinburgh. 
-;; Author:   David Aspinall <da@dcs.ed.ac.uk>
+;; Author:   David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:  GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$

@@ -1,7 +1,7 @@
 ;; proof-system.el   Proof General functions for interfacing with proof system.
 ;;
 ;; Copyright (C) 2000 LFCS Edinburgh. 
-;; Author:      David Aspinall <da@dcs.ed.ac.uk>
+;; Author:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$

@@ -2,7 +2,7 @@
 ;; Copyright (C) 1994-1998 LFCS Edinburgh.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; Author:      David Aspinall <da@dcs.ed.ac.uk>
+;; Author:      David Aspinall <David.Aspinall@ed.ac.uk>
 ;; Maintainer:  Gerwin Klein <kleing@in.tum.de>
 ;;
 ;; isar-syntax.el,v 7.3 2003/04/15 16:06:09 da Exp

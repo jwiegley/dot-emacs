@@ -2,7 +2,7 @@
 ;;
 ;; Copyright (C) 1999 LFCS Edinburgh. 
 ;;
-;; Author: David Aspinall <da@dcs.ed.ac.uk>
+;; Author: David Aspinall <David.Aspinall@ed.ac.uk>
 ;;
 ;; $Id$
 ;;

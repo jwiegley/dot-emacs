@@ -1,7 +1,7 @@
 ;; proof-utils.el   Proof General utility functions
 ;;
 ;; Copyright (C) 1998-2002 LFCS Edinburgh. 
-;; Author:      David Aspinall <da@dcs.ed.ac.uk> and others
+;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$

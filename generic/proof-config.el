@@ -1,10 +1,10 @@
 ;; proof-config.el  Proof General configuration for proof assistant
 ;;
-;; Copyright (C) 1998-2002 LFCS Edinburgh. 
-;; Author:      David Aspinall <da@dcs.ed.ac.uk> and others
+;; Copyright (C) 1998-2004 LFCS Edinburgh. 
+;; Author:      David Aspinall <David.Aspinall@ed.ac.uk> and others
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Maintainer:  Proof General maintainer <da+pg-feedback@inf.ed.ac.uk>
 ;;
 ;; $Id$
 ;;
@@ -421,7 +421,7 @@ signals to the remote host."
 ;;   e) all above with GNU Emacs and XEmacs.
 ;; But it's difficult to keep track of all that!  
 ;; Please report any bad/failing colour 
-;; combinations to proofgen@dcs.ed.ac.uk
+;; combinations to da+pg-feedback@inf.ed.ac.uk
 ;;
 ;; Some of these faces aren't used by default in Proof General,
 ;; but you can use them in font lock patterns for specific
