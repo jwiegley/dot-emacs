@@ -151,31 +151,32 @@ Returns non-nil if response buffer was cleared."
 (defun pg-response-display-with-face (str &optional face)
   "Display STR with FACE in response buffer."
   ;; 3.4: no longer return fontified STR, it wasn't used.
-  (if (string-equal str "\n")	
-      str				; quick exit, no display.
-  (let (start end)
-    (with-current-buffer proof-response-buffer
-      ;; da: I've moved newline before the string itself, to match
-      ;; the other cases when messages are inserted and to cope
-      ;; with warnings after delayed output (non newline terminated).
-      ; (ugit (format "End is %i" (point-max)))
-      (goto-char (point-max))
-      (newline)				
-      (setq start (point))
-      (insert str)
-      (unless (bolp) (newline))
-      (setq end (proof-fontify-region start (point)))
-      ;; This is one reason why we don't keep the buffer in font-lock
-      ;; minor mode: it destroys this hacky property as soon as it's
-      ;; made!  (Using the minor mode is much more convenient, tho')
-      (if (and face proof-output-fontify-enable)
-	  (font-lock-append-text-property start end 'face face))
-      ;; This returns the decorated string, but it doesn't appear 
-      ;; decorated in the minibuffer, unfortunately.
-      ;; 3.4: remove this for efficiency.
-      ;; (buffer-substring start (point-max))
-      (set-buffer-modified-p nil)
-      ))))
+  (cond
+   ((string-equal str ""))
+   ((string-equal str "\n"))		; quick exit, no display.
+   (t
+    (let (start end)
+      (with-current-buffer proof-response-buffer
+	;; da: I've moved newline before the string itself, to match
+	;; the other cases when messages are inserted and to cope
+	;; with warnings after delayed output (non newline terminated).
+	(goto-char (point-max))
+	(newline)				
+	(setq start (point))
+	(insert str)
+	(unless (bolp) (newline))
+	(setq end (proof-fontify-region start (point)))
+	;; This is one reason why we don't keep the buffer in font-lock
+	;; minor mode: it destroys this hacky property as soon as it's
+	;; made!  (Using the minor mode is much more convenient, tho')
+	(if (and face proof-output-fontify-enable)
+	    (font-lock-append-text-property start end 'face face))
+	;; This returns the decorated string, but it doesn't appear 
+	;; decorated in the minibuffer, unfortunately.
+	;; [ FIXME: users have asked for that to be fixed ]
+	;; 3.4: remove this for efficiency.
+	;; (buffer-substring start (point-max))
+	(set-buffer-modified-p nil))))))
 
 
 (defun pg-response-clear-displays ()

@@ -511,8 +511,8 @@ Ensure that point is visible in window."
 Auto deletion only affects selected frame.  (We assume that the selected
 frame is the one showing the script buffer.)"
   (with-current-buffer buffer
-    ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
     (erase-buffer)
+    (set-buffer-modified-p nil)
     (if (eq buffer proof-response-buffer)
 	(setq pg-response-next-error nil))	; all error msgs lost!
     (if proof-delete-empty-windows
