@@ -7,14 +7,53 @@
 ;;
 ;; $Id$
 ;;
+;;
+;; This package generates TexInfo source fragments from Emacs 
+;; docstrings.   This avoids documenting functions and variables
+;; in more than one place, and automatically adds TexInfo markup
+;; to docstrings.
+;;
+;; It relies heavily on your following the Elisp documentation
+;; conventions to produce sensible output, check the Elisp manual
+;; for details.  In brief:
+;;
+;;  * The first line of a docstring should be a complete sentence.
+;;  * Arguments to functions should be written in upper case: ARG1..ARGN
+;;  * User options (variables users may want to set) should have docstrings
+;;    beginning with an asterisk.
+;;  
+;; Usage:
+;;
+;;  Write comments of the form:
+;;
+;;    @c TEXI DOCSTRING MAGIC: my-package-function-or-variable-name
+;;
+;;  In your texi source, mypackage.texi.  From within an Emacs session
+;;  where my-package is loaded, visit mypackage.texi and run
+;;  M-x texi-docstring-magic to update all of the documentation strings.
+;;
+;;  This will insert @defopt, @deffn and the like underneath the
+;;  magic comment strings.
+;;
+;; Automatic markup rules:
+;;
+;; 1. Indented lines are gathered into @lisp environment.
+;; 2. Pieces of text `stuff' or surrounded in quotes marked up with @samp. 
+;; 3. Words *emphasized* are made @strong{emphasized}
+;; 4. Words sym-bol which are symbols become @code{sym-bol}.
+;; 5. Upper cased words ARG corresponding to arguments become @var{arg}.
+;;    In fact, you can any word longer than three letters, so that
+;;    metavariables can be used easily.
+;;    FIXME: to escape this, use `ARG'
+;; 6. Words 'sym which are lisp-quoted are marked with @code{'sym}.
+;;
 ;; -----
 ;;
 ;; Useful binding
 ;;  (define-key TeXinfo-mode-map "C-cC-d" 'texi-docstring-magic-insert-magic)
 ;;
 ;; Useful enhancements to do:
-;;  1. Mention default value for user options
-;;  2. Use customize properties (e.g. group, simple types)
+;;  * Use customize properties (e.g. group, simple types)
 ;;
 
 (defun texi-docstring-magic-splice-sep (strings sep)
@@ -60,7 +99,7 @@
     ("\\(\\*\\(\\w+\\)\\*\\)"
      t
      (concat "@strong{" (match-string 2 docstring) "}"))
-    ;; 4. Words sym which are symbols become @code{sym}.
+    ;; 4. Words sym-bol which are symbols become @code{sym-bol}.
     ;; Must have at least one hyphen to be recognized,
     ;; terminated in whitespace, end of line, or punctuation.
     ;; (Only consider symbols made from word constituents
@@ -84,14 +123,14 @@
      (concat "@var{" (downcase (match-string 1 docstring)) "}"
 	     (match-string 2 docstring)))
 
-    ;; 7. Words 'sym which are lisp quoted are
+    ;; 6. Words 'sym which are lisp quoted are
     ;; marked with @code.
     ("\\(\\(\\s-\\|^\\)'\\(\\(\\w\\|\\-\\)+\\)\\)\\(\\s\)\\|\\s-\\|\\s.\\|$\\)"
      t
      (concat (match-string 2 docstring)
 	     "@code{'" (match-string 3 docstring) "}"
 	     (match-string 5 docstring)))
-    ;; 8,9. Clean up for @lisp environments left with spurious newlines
+    ;; 7,8. Clean up for @lisp environments left with spurious newlines
     ;; after 1.
     ("\\(\\(^\\s-*$\\)\n@lisp\\)" t "@lisp")
     ("\\(\\(^\\s-*$\\)\n@end lisp\\)" t "@end lisp"))
