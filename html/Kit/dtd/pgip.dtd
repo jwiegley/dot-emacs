@@ -2,11 +2,12 @@
 
 <!-- DTD for PGIP, the Proof General Interface Protocol		   -->
 <!-- Author:  David Aspinall, LFCS, University of Edinburgh        -->
-<!-- Version: $Id$     -->
+<!-- Version: pgip.dtd,v 1.6 2001/09/10 19:00:42 da Exp     -->
 
 <!-- Status:  Incomplete.					   -->
-<!-- For commentary, see the Proof General Kit white paper, at     -->
-<!-- http://zermelo.dcs.ed.ac.uk/~proofgen/kit.html		   -->
+<!-- For commentary, see the Proof General Kit white paper,        -->
+<!-- available from http://www.proofgeneral.org/kit		   -->
+
 
 <!ELEMENT pgip (%provermsg; | %kitmsg;)*>
 <!ATTLIST pgip
@@ -15,33 +16,25 @@
 	    origin  CDATA 
 	    id	    CDATA>
 
-<!-- Messages sent to PG Kit components -->
-
-<!ENTITY % kitmsg     "%kitconfig | %proverstatus">
-
-<!-- Messages sent to proof assistant (class "pa") -->
-
-<!ENTITY % provermsg	"proverconfig">
-
 
 <!-- STATUS/ERROR MESSAGES -->
 <!-- ===================== -->
 
-<!ENTITY % proverstatus "information | error">
-
 <!ELEMENT information (#PCDATA)>
 <!ATTLIST information
 	   kind		CDATA #IMPLIED
-	   location	CDATA>
+	   location	CDATA #IMPLIED>
 
 <!-- kind=message,urgentmessage,display -->
 
 <!ELEMENT error (#PCDATA)>
 <!ATTLIST error
 	   kind		CDATA #IMPLIED
-	   location	CDATA>
+	   location	CDATA #IMPLIED>
 
 <!-- kind=warning,fatal,interrupt -->
+
+<!ENTITY % proverstatus "information | error">
 
 
 
@@ -49,17 +42,33 @@
 <!-- ====================== -->
 
 <!ENTITY % kitconfig  "usespgml | haspref | prefval | idtable | 
-			addid | delid | menuadd | menudel">
+			addid | delid | menuadd | menudel | guiconfig">
+
+<!-- This is how it should be: 
+  <!ENTITY % pgml SYSTEM "pgml.dtd">  
+  -->
+
+<!-- Types for config settings -->
+ 
+<!ELEMENT pgipbool EMPTY> 
+<!ELEMENT pgipint (#PCDATA)>
+<!ELEMENT pgipstring (#PCDATA)>
+<!ELEMENT pgipchoice (pgipchoiceitem+)>
+<!ELEMENT pgipchoiceitem (#PCDATA)>
+<!ATTLIST pgipchoiceitem
+		tag CDATA #IMPLIED>
+
+<!ENTITY % pgiptype "pgipbool | pgipint | pgipstring | pgipchoice"> 
+
 
 <!ELEMENT usespgml EMPTY>
 <!ATTLIST usespgml 
 	   version CDATA #IMPLIED>
 
-<!ELEMENT haspref (#PCDATA)>
+<!ELEMENT haspref pgiptype>
 <!ATTLIST haspref 
-	   type     CDATA #IMPLIED
-	   default  CDATA
-	   class    CDATA>
+	   default  CDATA #IMPLIED
+	   class    CDATA #IMPLIED>
 
 <!ELEMENT prefval (#PCDATA)>
 <!ATTLIST prefval
@@ -87,6 +96,49 @@
 	   path	    CDATA #IMPLIED
 	   name	    CDATA #IMPLIED>	   	
 	   
+
+<!-- gui configuration -->	   
+
+<!-- the PCDATA is the icon, base64-encoded --> 
+<!ELEMENT objtype (#PCDATA)>
+<!ATTLIST objtype 
+           name CDATA #REQUIRED>
+
+<!ELEMENT opn (opsrc, optrg, opcmd)>
+<!ATTLIST opn
+           name CDATA #REQUIRED>
+
+<!-- source types as space-separated list; target type is a single type -->
+<!ELEMENT opsrc (#PCDATA)>
+<!ELEMENT optrg (#PCDATA)>
+<!-- the prover command, with a printf "%1"-style substitution of arguments -->
+<!ELEMENT opcmd (#PCDATA)>
+
+<!-- proof operations (no target sort) -->
+<!ELEMENT proofopn (opsrc, opcmd)>
+<!ATTLIST opn
+           name CDATA #REQUIRED>
+
+<!-- interactive operations-- require some input -->
+<!ELEMENT iopn (inputform, opsrc, optrg, opcmd)>
+<!ATTLIST iopn
+           name CDATA #REQUIRED>
+
+<!-- an input form is a list of fields -->
+<!ELEMENT inputform (field)+>
+<!-- and a field has a type (int, string, bool, choice(c1...cn)) -->
+<!-- and a name; under that name, it will be substituted into the command -->
+<!-- Ex. field name=number  opcmd="rtac %1 %number" -->
+<!-- the PCDATA is the prompt for the input field -->
+<!ELEMENT field (pgiptype)>
+<!ATTLIST field
+           type CDATA #REQUIRED
+           name CDATA #REQUIRED>
+           
+
+<!ELEMENT guiconfig (objtype*, opn*, iopn*, proofopn*) >
+
+
 	   
 <!ENTITY % proverconfig  "askpgml | askprefs | resetprefs | 
 			  setpref | getpref">
@@ -109,6 +161,64 @@
 <!ATTLIST getpref
 	   class   CDATA #IMPLIED>
 
+
+
+<!-- COMMANDS -->
+<!-- ======== -->
+
+<!ELEMENT provercmd (#PCDATA)>
+
+<!ELEMENT goalcmd (#PCDATA)>
+
+<!ELEMENT undocmd EMPTY>
+
+<!ELEMENT abortcmd EMPTY>
+
+<!ELEMENT closecmd (#PCDATA)
+	   goalid CDATA #REQUIRED> 
+
+<!ELEMENT postponecmd (#PCDATA)
+           goalid CDATA #REQUIRED
+	   thmname CDATA #REQUIRED> 
+
+<!ELEMENT savecmd EMPTY>
+<!ATTLIST savecmd 
+           thmname CDATA #REQUIRED>
+
+<!ELEMENT forgetcmd EMPTY>
+<!ATTLIST forgetcmd 
+           thmname CDATA #REQUIRED>
+
+<!ELEMENT restorecmd EMPTY>
+<!ATTLIST restorecmd 
+           goalid CDATA #REQUIRED>
+
+<!ELEMENT loadfilecmd (#PCDATA)>
+
+<!ELEMENT retractfilecmd (#PCDATA)>
+
+<!ENTITY % command "provercmd | goalcmd | undocmd | savecmd | forgetcmd |
+		     closecmd | quitcmd | postponecmd | restorecmd |
+		     loadfilecmd | retractfilecmd">
+
+<!-- savecmd      Finishes a proof and saves a new theorem 
+     closecmd     Temporarily closes a proof and saves state with given id 
+     postponecmd  As closecmd, but saves a new theorem and 
+		   generates a proof obligation 
+ -->
+
+
+
+
+<!-- Roots of PGIP messages -->
+
+<!-- Messages sent to PG Kit components -->
+
+<!ENTITY % kitmsg     "%kitconfig | %proverstatus">
+
+<!-- Messages sent to proof assistant (class "pa") -->
+
+<!ENTITY % provermsg	"proverconfig">
 
 
 

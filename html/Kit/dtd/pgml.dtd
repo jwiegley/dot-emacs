@@ -2,10 +2,14 @@
 
 <!-- DTD for PGML, the Proof General Markup Language		   -->
 <!-- Author:  David Aspinall, LFCS, University of Edinburgh	   -->
-<!-- Status:  Complete but experimental version.		   -->
-<!-- Version: $Id$     -->
+<!-- Version: pgml.dtd,v 1.6 2001/09/10 16:04:17 da Exp     -->
 
-<!ELEMENT pgml (statedisplay | information | warning | error)*>
+<!-- Status:  Complete but experimental version.		   -->
+<!-- For commentary, see the Proof General Kit white paper,        -->
+<!-- available from http://www.proofgeneral.org/kit		   -->
+
+
+<!ELEMENT pgml (statedisplay | termdisplay | information | warning | error)*>
 <!ATTLIST pgml 
 	    version CDATA #IMPLIED>
 
@@ -35,7 +39,11 @@
 
 <!ELEMENT statepart (#PCDATA | %termitem;)*>
 <!ATTLIST statepart 
-	   systemid CDATA #IMPLIED
+	   name     CDATA #IMPLIED
+	   kind	    CDATA #IMPLIED>
+
+<!ELEMENT termdisplay (#PCDATA | %termitem;)*>
+<!ATTLIST termdisplay
 	   name     CDATA #IMPLIED
 	   kind	    CDATA #IMPLIED>
 
@@ -64,5 +72,4 @@
 	   alt  CDATA #IMPLIED>
 
 <!ELEMENT br EMPTY>
-
 
