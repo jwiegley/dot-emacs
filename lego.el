@@ -4,7 +4,7 @@
 ;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <22 Nov 96 tms /home/tms/elisp/lego.el>
+;; Time-stamp: <29 Nov 96 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -117,7 +117,7 @@
 
 (defvar lego-outline-regexp 
   (ids-to-regexp 
-   '("*" "Discharge" "Freeze" "Goal" "Module" "[" "Record" "Inductive" 
+   '("*" "Discharge" "Freeze" "Goal" "Module" "\\[" "Record" "Inductive" 
      "Unfreeze")))
 
 (defvar lego-outline-heading-end-regexp ";\\|\\*)")
@@ -131,11 +131,11 @@
 (defvar lego-keywords-goal '("Goal"))
 
 (defvar lego-keywords-save
-  '("Save" "SaveFrozen" "SaveUnfrozen"))
+  '("Save"))
 
 (defvar lego-keywords
   (append lego-keywords-goal lego-keywords-save
-	  '("allE" "allI" "andE" "andI" "Claim"
+	  '("allE" "allI" "andE" "andI" "Assumption" "Claim"
   "Constructors" "Cut" "Discharge" "DischargeKeep"
     "Double" "echo" "ElimOver" "exE" "exI" "Expand" "ExpAll"
     "ExportState" "Equiv" "Fields" "Freeze" "From" "Hnf" "Immed"
