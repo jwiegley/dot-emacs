@@ -59,10 +59,10 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.3pre
-@set xemacsversion 21.1
+@set version 3.3
+@set xemacsversion 21.4
 @set fsfversion 20.7
-@set last-update August 2001
+@set last-update September 2001
 @set rcsid $Id$
 
 @ifinfo
