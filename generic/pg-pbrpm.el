@@ -20,7 +20,10 @@
 	(setq pg-pbrpm-buffer-menu
 	      (generate-new-buffer (generate-new-buffer-name "*proof-menu*")))
 	(set-buffer pg-pbrpm-buffer-menu)
-	(phox-mode)))
+	(phox-mode)
+	(x-symbol-mode t) ; just to be sure
+	(font-lock-mode t) ; just to be sure (not activated on OSX ??
+	))
   (erase-buffer pg-pbrpm-buffer-menu)
   (set-buffer pg-pbrpm-buffer-menu))
 
@@ -92,6 +95,17 @@
    (pg-pbrpm-build-menu event (point-marker) (mark-marker))
    )
 )
+(defun pg-pbrpm-exists (f l0)
+  (if (null l0) nil
+    (or (funcall f (car l0)) (pg-pbrpm-exists f (cdr l0)))))
+
+(defun pg-pbrpm-eliminate-id (acc l)
+  (if (null l) (reverse acc)
+    (if 
+	(pg-pbrpm-exists (lambda (x) 
+			   (string= (car x) (car (car l)))) acc)
+	(pg-pbrpm-eliminate-id acc (cdr l))
+      (pg-pbrpm-eliminate-id (cons (car l) acc) (cdr l)))))
 
 (defun pg-pbrpm-build-menu (event start end)
 "Build a Proof By Rules pop-up menu according to the state of the proof, the event and a selected region (between the start and end markers).
@@ -99,44 +113,51 @@ The prover command is processed via pg-pbrpm-run-command."
    ;first, run the prover specific (name, rule)'s list generator
    (setq click-info (pg-pbrpm-process-click event start end)) ; retrieve click informations
    (if click-info
-       (progn
-	 (setq pbrpm-list 
-	       (mapcar 'cdr
-	       (sort 
-		(proof-pbrpm-generate-menu
-		 click-info
-		 (pg-pbrpm-process-region start end))
-		(lambda (l1 l2) (< (car l1) (car l2))))))
+       (let
+	 ((pbrpm-list 
+	   (pg-pbrpm-eliminate-id nil (mapcar 'cdr
+					      (sort 
+					       (proof-pbrpm-generate-menu
+						click-info
+						(pg-pbrpm-process-regions-list))
+					       (lambda (l1 l2) (< (car l1) (car l2)))))))
+	  (count 0))
 					; retrieve selected region informations
 					; then make that list a menu description
-	 
-	 (if (not pg-pbrpm-use-buffer-menu)
-	     (progn
-	       (setq pbrpm-menu-desc '("PBRPM-menu"))
-	       (while pbrpm-list
-		 (setq pbrpm-list-car (pop pbrpm-list))
-		 (setq pbrpm-menu-desc
-		       (append pbrpm-menu-desc
-			       (list (vector
-				      (pop pbrpm-list-car)
-				      (list 'pg-pbrpm-run-command (pop pbrpm-list-car)))))))
+	 (if pbrpm-list
+	     (if (not pg-pbrpm-use-buffer-menu)
+		 (progn
+		   (setq pbrpm-menu-desc '("PBRPM-menu"))
+		   (while pbrpm-list
+		     (let* ((pbrpm-list-car (pop pbrpm-list))
+			    (description (pop pbrpm-list-car))
+			    (command (concat "(*" description "*)\n" (pop pbrpm-list-car))))
+		       (setq pbrpm-menu-desc
+			     (append pbrpm-menu-desc
+				     (list (vector
+					    description
+					    (list 'pg-pbrpm-run-command command)))))))
 					; finally display the pop-up-menu
-	       (popup-menu pbrpm-menu-desc))
-	   (pg-pbrpm-create-reset-buffer-menu)
-	   (while pbrpm-list
-	     (setq pbrpm-list-car (pop pbrpm-list))
-	     (setq description (pop pbrpm-list-car))
-	     (setq command (pop pbrpm-list-car))
-	     (setq pos (point))
-	     (insert-string " ")
-	     (insert-string description)
-	     (insert-gui-button (make-gui-button "Go" 'pg-pbrpm-run-command command) pos)
-	     (insert "\n"))
-	   (insert-gui-button (make-gui-button 
-			       "Cancel" 
-			       (lambda (n) (erase-buffer pg-pbrpm-buffer-menu) (delete-frame)) nil))
-	   (x-symbol-decode)
-	   (make-dialog-frame '(width 80 height 30))))))
+		   (popup-menu pbrpm-menu-desc))
+	       (pg-pbrpm-create-reset-buffer-menu)
+	       (while pbrpm-list
+		 (let* ((pbrpm-list-car (pop pbrpm-list))
+		       (description (pop pbrpm-list-car))
+		       (command (concat "(*" description "*)\n" (pop pbrpm-list-car)))
+		       (pos (point)))
+		   (insert-string " ")
+		   (insert-string description)
+		   (setq count (+ 1 count))
+		   (insert-gui-button (make-gui-button 
+				       (concat (int-to-string count) ")")
+				       'pg-pbrpm-run-command command) pos)
+		   (insert "\n")))
+		 (insert-gui-button (make-gui-button 
+				   "Cancel" 
+				   (lambda (n) (erase-buffer pg-pbrpm-buffer-menu) (delete-frame)) nil))
+		 (x-symbol-decode)
+		 (make-dialog-frame '(width 80 height 30)))
+	       (beep)))))
 
 (defun pg-pbrpm-run-command (command)
 "Insert COMMAND into the proof queue and then run it.
@@ -222,68 +243,162 @@ The prover command is processed via pg-pbrpm-run-command."
 	      (return-from 'loop (match-string 0))))
 	(return-from 'loop "")))))
     
+(defun pg-pbrpm-translate-position (buffer pos)
+  "return pos if buffer is goals-buffer otherwise, return the point position in 
+   the goal buffer"
+  (if (eq proof-goals-buffer buffer) pos
+    (point proof-goals-buffer)))
+
 (defun pg-pbrpm-process-click (event start end)
 "Returns the list of informations about the click needed to call generate-menu. EVENT is an event."
   (save-excursion
-    (mouse-set-point event)
-    (let* ((pos (point))
-	  (r (pg-pbrpm-get-pos-info pos)))
-      (if r (list
-	     (string-to-int (car r)) ; should not be an int for other prover
-	     (cdr r)
-	     (if (and start end (string-equal (buffer-name proof-goals-buffer) (buffer-name (marker-buffer end))) (<= (marker-position start) pos) (<= pos  (marker-position end)))
-		 (pg-pbrpm-region-expression start end)
-	       (auto-select-arround-pos)))))))
+    (save-window-excursion
+      (mouse-set-point event)
+      (let* ((pos (event-point event))
+	     (buffer (event-buffer event))
+	     (r (pg-pbrpm-get-pos-info  (pg-pbrpm-translate-position buffer pos))))
+	(if r (list
+	       (string-to-int (car r)) ; should not be an int for other prover
+	       (if (eq proof-goals-buffer buffer) (cdr r) (auto-select-arround-pos))
+	       (if (and start end (eq proof-goals-buffer buffer) 
+			(<= (marker-position start) pos) (<= pos  (marker-position end)))
+		   (pg-pbrpm-region-expression buffer (marker-position start) 
+					       (marker-position end))
+		 (auto-select-arround-pos))))))))
 
 ;;--------------------------------------------------------------------------;;
 ;; Selected Region informations extractors
 ;;--------------------------------------------------------------------------;;
+(defvar pg-pbrpm-remember-region-selected-region nil)
+(defvar pg-pbrpm-regions-list nil)
 
-(defun pg-pbrpm-process-region (start end)
-"Returns the list of informations about the the selected region needed to call generate-menu. START and END are markers"
-   (if (and start end) ; if a region is selected
-      (if (string-equal (buffer-name proof-goals-buffer) (buffer-name (marker-buffer end)))
+(defun pg-pbrpm-erase-regions-list ()
+  (message "erase list")
+  (mapc (lambda (span) (delete-span span)) pg-pbrpm-regions-list)
+  (setq pg-pbrpm-regions-list nil)
+  nil)
+
+(add-hook 'mouse-track-drag-up-hook (lambda (event count) 
+				      (if (not (member 'control (event-modifiers event)))
+					  (pg-pbrpm-erase-regions-list))))
+
+(defun pg-pbrpm-filter-regions-list ()
+  (let ((l pg-pbrpm-regions-list))
+    (setq pg-pbrpm-regions-list nil)
+    (mapc (lambda (span) (if (span-live-p span)
+			     (setq pg-pbrpm-regions-list (cons span pg-pbrpm-regions-list))
+			   (delete-span span))) l)))
+
+(defface pg-pbrpm-multiple-selection-face
+  (proof-face-specs
+   (:background "orange")
+   (:background "darkorange")   
+   (:italic t))
+  "*Face for showing (multiple) selection."
+  :group 'proof-faces)
+
+(defun pg-pbrpm-do-remember-region (start end)
+  (pg-pbrpm-filter-regions-list)
+   (if (and start end (not (eq start end))) ; if a region is selected
+       (let ((span (make-span start end))
+	     (found nil))
+	 (setq pg-pbrpm-regions-list (mapcar (lambda (oldspan) 
+		   (let ((oldstart (span-start oldspan))
+			 (oldend (span-end oldspan)))
+		     (if (and (eq (current-buffer) (span-buffer oldspan))
+			      (or (and (<= start oldstart) (<= oldstart end))
+				  (and (<= start oldend) (<= oldend end))))
+			 (progn
+			   (setq found t)
+			   (delete-span oldspan)
+			   span) 
+			 oldspan))) pg-pbrpm-regions-list))
+	 (if (not found) (setq pg-pbrpm-regions-list (cons span pg-pbrpm-regions-list))) 
+	 (set-span-property span 'face 'pg-pbrpm-multiple-selection-face))))
+
+; the follwing are adapted from mouse-track-insert from mouse.el
+
+(defun pg-pbrpm-remember-region-drag-up-hook (event click-count)
+  (setq pg-pbrpm-remember-region-selected-region
+	(default-mouse-track-return-dragged-selection event)))
+
+(defun pg-pbrpm-remember-region-click-hook (event click-count)
+  (default-mouse-track-drag-hook event click-count nil)
+  (pg-pbrpm-remember-region-drag-up-hook event click-count)
+  t)
+
+(defun pg-pbrpm-remember-region (event &optional delete)
+  "Allow multiple selection as a list of spam stored in ???. The current (standard)
+   selection in the same buffer is also stored"
+  (interactive "*e")
+  (setq pg-pbrpm-remember-region-selected-region nil)
+  (let ((mouse-track-drag-up-hook 'pg-pbrpm-remember-region-drag-up-hook)
+ 	(mouse-track-click-hook 'pg-pbrpm-remember-region-click-hook)
+	(start (point)) (end (mark)))
+	       (if (and start end) (pg-pbrpm-do-remember-region start end))
+	       (mouse-track event)
+	       (if (consp pg-pbrpm-remember-region-selected-region)
+		   (let ((pair pg-pbrpm-remember-region-selected-region))
+		     (pg-pbrpm-do-remember-region (car pair) (cdr pair))))))
+
+(defun pg-pbrpm-process-region (span)
+"Returns the list of informations about the the selected region needed to call generate-menu. span is a span covering the selected region"
+   (let ((start (span-start span))
+	 (end (span-end span))
+	 (buffer (span-buffer span)))
+     (if (and start end) ; if a region is selected
+	 (if (eq proof-goals-buffer buffer)
 	  (progn
-	    (setq r (pg-pbrpm-get-region-info (marker-position start) (marker-position end)))
+	    (setq r (pg-pbrpm-get-region-info start end))
 	    (if r 
+		(progn (message "1%s %d %d" (pg-pbrpm-region-expression buffer start end) start end)
 		(list
 		 (string-to-int (car r)) ; should not be an int for other prover
 		 (cdr r)
-		 (pg-pbrpm-region-expression start end))
+		 (pg-pbrpm-region-expression buffer start end)))
 	      (progn
-		(set-buffer (marker-buffer start))
-		(list 0 "none" (pg-pbrpm-region-expression start end)))))
+		(message "2%s" (pg-pbrpm-region-expression buffer start end))
+		(list 0 "none" (pg-pbrpm-region-expression buffer start end)))))
 	(progn
-	  (set-buffer (marker-buffer start))
-	  (list 0 "none" (pg-pbrpm-region-expression start end))))
-     nil ; TODO : define how to manage this error case
-     ))
+	  (message "3%s" (pg-pbrpm-region-expression buffer start end))
+	  (list 0 "none" (pg-pbrpm-region-expression buffer start end)))))))
 
-(defun pg-pbrpm-region-expression (start end)
+(defun pg-pbrpm-process-regions-list ()
+  (pg-pbrpm-do-remember-region (point-marker) (mark-marker))
+  (mapcar (lambda (span) (pg-pbrpm-process-region span)) pg-pbrpm-regions-list))
+
+(defun pg-pbrpm-region-expression (buffer start end)
 "Valid parenthesis'd expression."
    ; an expression is valid if it has as many left paren' as right paren'
-   (let
-      ((pbrpm-region-char (marker-position start))
-      (pbrpm-left-pars 0)
-      (pbrpm-right-pars 0))
-     (while (<= pbrpm-region-char (marker-position end))
-       (if (proof-pbrpm-left-paren-p (char-after pbrpm-region-char))
-	   (setq pbrpm-left-pars (+ pbrpm-left-pars 1)))
-       (if (proof-pbrpm-right-paren-p (char-after pbrpm-region-char))
-	   (setq pbrpm-right-pars (+ pbrpm-right-pars 1)))
-       (setq pbrpm-region-char (+ pbrpm-region-char 1)))
-     (if (= pbrpm-left-pars pbrpm-right-pars)
-	 (buffer-substring (marker-position start) (marker-position end) (marker-buffer start))
-       (progn
-	 nil ; TODO : define how to manage this error case
-					;we could call (pg-pbrpm-dialog "Selected region is not valid), then what about the state of the process ?
-	 ))))
+    (buffer-substring start end buffer))
+;    (let
+;      ((pbrpm-left-pars 0)
+;      (pbrpm-right-pars 0)
+;      (pos start))
+;     (while (< pos end)
+;       (if (proof-pbrpm-left-paren-p (char-after pos))
+;	   (setq pbrpm-left-pars (+ pbrpm-left-pars 1)))
+;       (if (proof-pbrpm-right-paren-p (char-after pos))
+;	   (setq pbrpm-right-pars (+ pbrpm-right-pars 1)))
+;       (setq pos (+ pos 1)))
+;     (if (= pbrpm-left-pars pbrpm-right-pars)
+;	 (buffer-substring start end buffer)
+;       (progn
+;	 nil ; TODO : define how to manage this error case
+;					;we could call (pg-pbrpm-dialog "Selected region is not valid), then what about the state of the process ?
+;	 ))))
 
 ;;--------------------------------------------------------------------------;;
 
 (require 'pg-goals)
 (define-key proof-goals-mode-map [(button3)] 'pg-pbrpm-button-action)
 (define-key proof-goals-mode-map [(control button3)] 'pg-goals-yank-subterm)
+(define-key proof-goals-mode-map [(control button1)] 'pg-pbrpm-remember-region)
+(define-key pg-span-context-menu-keymap [(button3)] 'pg-pbrpm-button-action)
+(define-key pg-span-context-menu-keymap [(control button3)] 'pg-span-context-menu)
+(define-key proof-mode-map [(button3)] 'pg-pbrpm-button-action)
+(define-key proof-mode-map [(control button3)] 'pg-goals-yank-subterm)
+(define-key proof-mode-map [(control button1)] 'pg-pbrpm-remember-region)
 
 (provide 'pg-pbrpm)
 ;; pg-pbrpm ends here

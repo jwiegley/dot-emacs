@@ -17,7 +17,7 @@
  pg-pbrpm-start-hyp-regexp "^\\([A-Za-z0-9_.']+\\) := "
  pg-pbrpm-start-hyp-regexp-par-num 1
  pg-pbrpm-start-concl-regexp "^ *|- "
- pg-pbrpm-auto-select-regexp "\\(\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)\\(_+\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)\\)*\\)\\|\\(\\?[0-9]+\\)"
+ pg-pbrpm-auto-select-regexp "\\(\\(\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)\\)\\(_+\\(\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)\\)\\)*\\)\\|\\(\\?[0-9]+\\)"
 )
 
 
@@ -40,31 +40,14 @@
 ;; Testing Menu
 ;;--------------------------------------------------------------------------;;
 
-(defun phox-pbrpm-exists (f l0)
-  (if (null l0) nil
-    (or (funcall f (car l0)) (phox-pbrpm-exists f (cdr l0)))))
 
-(defun phox-pbrpm-eliminate-id (acc l)
-  (if (null l) (reverse acc)
-    (message "call")
-    (message (nth 0 (car l)))
-    (message (nth 1 (car l)))
-    (if 
-	(phox-pbrpm-exists (lambda (x) 
-			     (progn 
-			       (message "=")
-			       (message (nth 0 x))
-			       (message (nth 0 (car l)))
-			       (string= (nth 0 x) (nth 0 (car l))))) acc)
-	(phox-pbrpm-eliminate-id acc (cdr l))
-      (phox-pbrpm-eliminate-id (cons (car l) acc) (cdr l)))))
-
-(defun phox-pbrpm-menu-from-string (str)
+(defun phox-pbrpm-menu-from-string (order str)
   "build a menu from a string send by phox"
+  (setq str (proof-shell-invisible-cmd-get-result str))
   (if (string= str "") nil
-    (phox-pbrpm-eliminate-id nil (mapcar 
-				  (lambda (s) (progn (message s) (split-string s "\\\\-"))) 
-				  (split-string str "\\\\\\\\")))))
+    (mapcar 
+     (lambda (s) (progn (cons order (split-string s "\\\\-"))))
+     (split-string str "\\\\\\\\"))))
 
 (defun phox-pbrpm-generate-menu (click-infos region-infos)
 ; This FAKE function will be replace by a real 'generate-menu' once the code will be judged stable
@@ -84,23 +67,41 @@
 
    ; the first goal is the selected one by default, so we prefer not to display it.
 
-   ; if clicking in a conclusion => select.intro
+   ; if clicking in a conclusion with no selection
      (if (and (string= (nth 1 click-infos) "none") (not region-infos))
 	 (setq pbrpm-rules-list
 	       (append pbrpm-rules-list
 		       (list
 			(list 10 "Trivial ?" (concat goal-prefix "trivial."))
 			(list 4 "Par l'absurde" (concat goal-prefix "by_absurd;; elim False.")))
-			(mapcar (lambda (l) (cons 0 l)) (phox-pbrpm-menu-from-string 
-			 (proof-shell-invisible-cmd-get-result 
-			  (concat "menu_intro "
-				  (int-to-string (nth 0 click-infos))
-				  "."))))
+		       (phox-pbrpm-menu-from-string 0
+						    (concat "menu_intro "
+							    (int-to-string (nth 0 click-infos))
+							    "."))
+		       (phox-pbrpm-menu-from-string 0
+						    (concat "menu_evaluate "
+							    (int-to-string (nth 0 click-infos))
+							    "."))
 		       ); end append
 	       );end setq
        );end if
 
-					; if clicking in an hypothesis => select.elim
+   ; if clicking a conclusion with a selection
+   (if (and (string= (nth 1 click-infos) "none") region-infos)
+       (setq pbrpm-rules-list
+         (append pbrpm-rules-list
+		 (phox-pbrpm-menu-from-string 1
+		       (concat "menu_rewrite "
+			       (int-to-string (nth 0 click-infos)) " "
+			       (let ((tmp ""))
+				 (mapc (lambda (region-info)
+					 (setq tmp 
+					       (concat tmp " " (nth 1 region-info))))
+				       region-infos)
+				 tmp)
+			       ".")))))
+
+    ; if clicking in an hypothesis with no selection
      (if (and
 	  (not (or (string= (nth 1 click-infos) "none")
 		   (string= (nth 1 click-infos) "whole")))
@@ -108,77 +109,56 @@
 	 (progn 
 	   (setq pbrpm-rules-list
 		 (append pbrpm-rules-list
-			 (list (list 3 (concat
-				      "Déduit la conclusion de "
-				      (nth 1 click-infos)
-				      " (génère éventuellement de nouveaux buts) ?")
-				     (concat goal-prefix
-					     "elim "
-					     (nth 1 click-infos)
-					     ". "))
-			       (list 3 (concat
-				      "Rentre les négations (loi de De Morgan) de "
-				      (nth 1 click-infos) " ?")
-				     (concat goal-prefix "rewrite_hyp "
-					     (nth 1 click-infos)
-					     " demorganl."))
-			       (list 4 (concat
-				      "Conclustion égale à "
-				      (nth 1 click-infos) " ?")
-				     (concat goal-prefix
-					     "axiom "
-					     (nth 1 click-infos)
-					     ". ")))))))
-     
-					; if clicking in an hypothesis => select.left
-     (if (and
-	  (not (or (string= (nth 1 click-infos) "none")
-            (string= (nth 1 click-infos) "whole")))
-         (not region-infos))
-	 (progn
-	   (if (char= ?t (string-to-char (proof-shell-invisible-cmd-get-result 
-					  (concat "is_equation "
-						  (int-to-string (nth 0 click-infos))
-						  " \""
-						  (nth 1 click-infos)
-						  "\"."))))
-	       (setq pbrpm-rules-list
-		     (append pbrpm-rules-list
-			     (list (list 2 
-				    (concat "Récrit la conclusion avec "
-					    (nth 1 click-infos)
-					    " ?")
-				     (concat goal-prefix 
-					     "rewrite "
-					     (nth 1 click-infos)
-					     ". "))))))
-	   (setq pbrpm-rules-list
-		 (append pbrpm-rules-list			
-			 (mapcar (lambda (l) (cons 0 l)) (phox-pbrpm-menu-from-string 
-			  (proof-shell-invisible-cmd-get-result 
-			   (concat "menu_left "
-				  (int-to-string (nth 0 click-infos))
-				  (nth 1 click-infos)
-				  "."))))))))
+			 (list
+			  (list 9 (concat "Supprimer l'hypothèse " (nth 1 click-infos) " devenue inutile.") (concat "rmh " (nth 1 click-infos) ".")))
+			 (phox-pbrpm-menu-from-string 1
+						      (concat "menu_elim "
+							      (int-to-string (nth 0 click-infos)) " "
+							      (nth 1 click-infos)
+							      "."))
+			 (phox-pbrpm-menu-from-string 1
+						      (concat "menu_evaluate_hyp "
+							      (int-to-string (nth 0 click-infos)) " "
+							      (nth 1 click-infos)
+							      "."))
+			 (phox-pbrpm-menu-from-string 0
+						       (concat "menu_left "
+							       (int-to-string (nth 0 click-infos))
+							       " "
+							       (nth 1 click-infos)
+							       "."))))))
 
-   ; if region is an hypothesis (ie in the goals buffer) and clicking in that hyp's goal =>
-;   (if (and
-;	region-infos
-;	(string= (nth 1 click-infos) "none")
-;	(not (or (string= (nth 1 region-infos) "none")
-;		 (string= (nth 1 region-infos) "whole")))
-;	(equal (nth 0 click-infos) (nth 0 region-infos))
-;	(string-to-char (proof-shell-invisible-cmd-get-result 
-;			 (concat "is_equation "
-;				 (int-to-string (nth 0 region-infos))
-;				 " \""
-;				 (nth 1 region-infos)
-;				 "\"."))))
-;      (setq pbrpm-rules-list
-;         (append pbrpm-rules-list
-;            (list (list (concat "Récrit la conclusion avec " (nth 1 region-infos))
-;			(concat goal-prefix "rewrite " (nth 1 region-infos) ". "))))))
+   ; if clicking on an hypothesis with a selection
+   (if (and         
+	(not (or (string= (nth 1 click-infos) "none")
+		 (string= (nth 1 click-infos) "whole")))
+	region-infos)
+       (setq pbrpm-rules-list
+         (append pbrpm-rules-list
+		 (phox-pbrpm-menu-from-string 1
+		       (concat "menu_apply "
+			       (int-to-string (nth 0 click-infos)) " "
+			       (nth 1 click-infos)
+			       (let ((tmp ""))
+				 (mapc (lambda (region-info)
+					 (setq tmp 
+					       (concat tmp " \"" (nth 2 region-info) "\"")))
+				       region-infos)
+				 tmp)
+			       "."))
+		 (phox-pbrpm-menu-from-string 1
+		       (concat "menu_rewrite_hyp "
+			       (int-to-string (nth 0 click-infos)) " "
+			       (nth 1 click-infos)
+			       (let ((tmp ""))
+				 (mapc (lambda (region-info)
+					 (setq tmp 
+					       (concat tmp " " (nth 1 region-info))))
+				       region-infos)
+				 tmp)
+			       ".")))))
 
+   ; is clicking on a token
    (if (not (string= (nth 2 click-infos) ""))
        (let ((r (proof-shell-invisible-cmd-get-result (concat "is_definition "
 							      (int-to-string (nth 0 click-infos))
@@ -199,79 +179,23 @@
 					  (concat "unfold_hyp " (nth 1 click-infos) " "))
 					(nth 2 click-infos)
 					". ")))))
-	 (if (and (char= (string-to-char (nth 2 click-infos)) ??)
-		  region-infos)
-	     (setq pbrpm-rules-list
-		   (append pbrpm-rules-list
-			   (list (list 0 (concat 
-					"Instancie "
-					(nth 2 click-infos)
-					" avec "
-					(nth 2 region-infos))
-				       (concat 
-					goal-prefix
-					"instance "
-					(nth 2 click-infos) 
-					" "
-					(nth 2 region-infos)
-					". ")))))))))   
-   (if (and         
-	(not (or (string= (nth 1 click-infos) "none")
-		 (string= (nth 1 click-infos) "whole")))
-	(nth 2 region-infos))
-       (setq pbrpm-rules-list
-         (append pbrpm-rules-list
-            (list (list 4 (concat "Applique "
-				(nth 1 click-infos)
-				 " à l'expression "
-				 (nth 2 region-infos) " ?") 
-			(concat goal-prefix 
-				"apply "
-				(nth 1 click-infos)
-				" with "
-				(nth 2 region-infos)
-				". "))))))
-
-   ; if region is an hypothesis (ie in the goals buffer) and clicking in an (other) hyp', both in the same goal => 
-   (if (and region-infos
-         (not (or (string= (nth 1 click-infos) "none")
-            (string= (nth 1 click-infos) "whole")))
-         (not (or (string= (nth 1 region-infos) "none")
-            (string= (nth 1 region-infos) "whole")))
-         (equal (nth 0 click-infos) (nth 0 region-infos))
-         (not (string= (nth 1 click-infos) (nth 1 region-infos)))
-      )
-      (progn 
-	(if (char= ?t (string-to-char (proof-shell-invisible-cmd-get-result 
-			     (concat "is_equation "
-				     (int-to-string (nth 0 click-infos))
-				     " \""
-				     (nth 1 click-infos)
-				  "\"."))))
-	(setq pbrpm-rules-list
-	      (append pbrpm-rules-list
-		      (list 
-		       (list 4 (concat 
-			      "Récrit " (nth 1 region-infos) 
-			      " avec l'équation " (nth 1 click-infos) " ?")
-				 (concat goal-prefix
-					 "rewrite_hyp "
-					 (nth 1 region-infos)
-					 " "
-					 (nth 1 click-infos)
-					 ". "))))))
-	 (setq pbrpm-rules-list
-	       (append pbrpm-rules-list
-		       (list
-			(list 4 (concat 
-			       "Applique " (nth 1 click-infos) 
-			       " avec l'hypothèse " (nth 1 region-infos) " ?")
-			      (concat goal-prefix 
-				      "apply "
-				      (nth 1 click-infos)
-				      " with "
-				      (nth 1 region-infos)
-				      ". ")))))))
+	   (message (nth 2 click-infos))
+	   (if (and (char= (string-to-char (nth 2 click-infos)) ??)
+		    region-infos (not (cdr region-infos)))
+	       (setq pbrpm-rules-list
+		     (append pbrpm-rules-list
+			     (list (list 0 (concat 
+					    "Instancie "
+					    (nth 2 click-infos)
+					    " avec "
+					    (nth 2 (car region-infos)))
+					 (concat 
+					  goal-prefix
+					  "instance "
+					  (nth 2 click-infos) 
+					  " "
+					  (nth 2 (car region-infos))
+					  ". ")))))))))
 
    pbrpm-rules-list
 ))
