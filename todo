@@ -25,6 +25,7 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
    * Fix docstring magic so PROOFGENERAL_HOME is not var'd.
    * New line after first sentence of docstrings.
    * Several env variables / LEGO name stuff:: make `STUFF' be literal.
+   * Update menus in texi
 
 A BUGS to investigate:
   - Is there a catch bug on Solaris when a process shell killed?
