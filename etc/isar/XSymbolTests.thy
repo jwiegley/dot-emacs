@@ -11,15 +11,18 @@ like  \<alpha> doesn't immediately replace it. *)
 constdefs
  P1 :: bool   ("P\<^sub>1")    (* subscript *)
  "P\<^sub>1 == True"
+ P2 :: bool   ("P\<^sup>2")    (* superscript *)
+ "P\<^sup>2 == True"
 
 (* Buglet here: if we enable x-sym during scripting,
-   goals/response flks are not updated, so subscripts
-   do not appear in output windows.  
-   Restarting prover fixes.
+   goals/response flks are not updated, so xsyms
+   do not appear in output windows. Stoping/starting
+   prover fixes.
 *)
 
-theorem "P\<^sub>1";  (* check subscript appears in goals window *)
-by (simp add: P1_def)  (* .. and response window *)
+theorem "P\<^sub>1 \<and> P\<^sup>2";  (* check fonts in goals window *)
+by (simp add: P1_def P2_def)  (* .. and response window *)
+(* BUG: \<and> not appearing in response *)
 
 consts
  "P\<^sup>\<alpha>" :: bool   (* superscript of a token char *)
