@@ -119,12 +119,13 @@ proof-script-next-entity-regexps, which see."
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Basic code for the locked region and the queue region            ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; da FIXME: clean this section
-
-;; Notes on markup in the scripting buffer. (da)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Basic functions for handling the locked and queue regions
+;; 
+;; --------------------------------------------------------------
+;;
+;; Notes on regions in the scripting buffer. (da)
 ;;
 ;; The locked region is covered by a collection of non-overlaping
 ;; spans (our abstraction of extents/overlays).
@@ -145,9 +146,8 @@ proof-script-next-entity-regexps, which see."
 ;;  which is set to a string of its command.  This is the
 ;;  text in the buffer stripped of leading whitespace and any comments.
 ;;
-;; 
 
-
+;; ** Variables
 
 (deflocal proof-locked-span nil
   "The locked span of the buffer.
@@ -156,72 +156,32 @@ from the buffer.
 Proof General allows buffers in other modes also to be locked;
 these also have a non-nil value for this variable.")
 
-;; da: really we only need one queue span rather than one per buffer,
-;; but I've made it local because the initialisation occurs in
-;; proof-init-segmentation, which can happen when a file is visited.
+(deflocal proof-queue-span nil
+  "The queue span of the buffer.  May be detached if inactive or empty.
+Each script buffer has its own queue span, although only the active
+scripting buffer may have an active queue span.")
+;; da: reason for buffer local queue span is because initialisation
+;; in proof-init-segmentation can happen when a file is visited.
 ;; So nasty things might happen if a locked file is visited whilst
 ;; another buffer has a non-empty queue region being processed.
 
-(deflocal proof-queue-span nil
-  "The queue span of the buffer.  May be detached if inactive or empty.")
 
-;; FIXME da: really the queue region should always be locked strictly.
+;; ** Getters and setters
 
 (defun proof-span-read-only (span)
   "Make span be read-only, if proof-strict-read-only is non-nil.
 Otherwise make span give a warning message on edits."
+  ;; Note: perhaps the queue region should always be locked strictly.
   (if proof-strict-read-only
       (span-read-only span)
     (span-write-warning span)))
 
-;; not implemented yet; toggle via restarting scripting
+;; not implemented yet: presently must toggle via restarting scripting
 ;; (defun proof-toggle-strict-read-only ()
 ;;  "Toggle proof-strict-read-only, changing current spans."
 ;;  (interactive)
 ;;   map-spans blah
 ;;  )
-
-(defun proof-init-segmentation ()
-  "Initialise the queue and locked spans in a proof script buffer.
-Allocate spans if need be.  The spans are detached from the
-buffer, so the regions are made empty by this function.
-Also clear list of script portions."
-  ;; Initialise queue span, remove it from buffer.
-  (unless proof-queue-span
-      (setq proof-queue-span (make-span 1 1))
-      ;; FIXME: span-raise is an FSF hack to make locked span appear.
-      ;; overlays still don't work as well as they did/should.
-      (span-raise proof-queue-span))
-  (set-span-property proof-queue-span 'start-closed t)
-  (set-span-property proof-queue-span 'end-open t)
-  (proof-span-read-only proof-queue-span)
-  (set-span-property proof-queue-span 'face 'proof-queue-face)
-  (detach-span proof-queue-span)
-  ;; Initialise locked span, remove it from buffer
-  (unless proof-locked-span
-      (setq proof-locked-span (make-span 1 1))
-      (span-raise proof-locked-span))
-  (set-span-property proof-locked-span 'start-closed t)
-  (set-span-property proof-locked-span 'end-open t)
-  (proof-span-read-only proof-locked-span)
-  (set-span-property proof-locked-span 'face 'proof-locked-face)
-  (detach-span proof-locked-span)
-  (setq proof-last-theorem-dependencies nil)
-  (pg-clear-script-portions))
-
-;; These two functions are used in coq.el to edit the locked region
-;; (by lifting local (nested) lemmas out of a proof, to make them global).   
-(defsubst proof-unlock-locked ()
-  "Make the locked region writable.  
-Used in lisp programs for temporary editing of the locked region.
-See proof-lock-unlocked for the reverse operation."
-  (span-read-write proof-locked-span))
-
-(defsubst proof-lock-unlocked ()
-  "Make the locked region read only (according to proof-strict-read-only).
-Used in lisp programs for temporary editing of the locked region.
-See proof-unlock-locked for the reverse operation."
-  (proof-span-read-only proof-locked-span))
 
 (defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END."
@@ -243,20 +203,11 @@ See proof-unlock-locked for the reverse operation."
   "Set the queue span to begin at START."
   (set-span-start proof-queue-span start))
 
-;; FIXME da: optional arg here was ignored, have fixed.
-;; Do we really need it though?
-(defun proof-detach-segments (&optional buffer)
-  "Remove locked and queue region from BUFFER.
-Defaults to current buffer when BUFFER is nil."
-  (let ((buffer (or buffer (current-buffer))))
-    (with-current-buffer buffer
-      (proof-detach-queue)
-      (proof-detach-locked))))
-
 (defsubst proof-set-locked-end (end)
   "Set the end of the locked region to be END.
 If END is at or before (point-min), remove the locked region.
 Otherwise set the locked region to be from (point-min) to END."
+  ;; FIXME: is it really needed to detach the span here?
   (if (>= (point-min) end)
       (proof-detach-locked)
     (set-span-endpoints 
@@ -275,27 +226,92 @@ Otherwise set the locked region to be from (point-min) to END."
     (set-span-end proof-queue-span end)))
 
 
-;; FIXME: get rid of this function.  Some places expect this
-;; to return nil if locked region is empty.	Moreover,
-;; it confusingly returns the point past the end of the 
-;; locked region.
-(defun proof-locked-end ()
-  "Return end of the locked region of the current buffer.
-Only call this from a scripting buffer."
-  (proof-unprocessed-begin))
-  
+;; ** Initialise spans for a buffer
 
-(defsubst proof-end-of-queue ()
-  "Return the end of the queue region, or nil if none."
-  (and proof-queue-span (span-end proof-queue-span)))
+(defun proof-init-segmentation ()
+  "Initialise the queue and locked spans in a proof script buffer.
+Allocate spans if need be.  The spans are detached from the
+buffer, so the regions are made empty by this function.
+Also clear list of script portions."
+  ;; Initialise queue span, remove it from buffer.
+  (unless proof-queue-span
+      (setq proof-queue-span (make-span 1 1))
+      ;; FIXME: span-raise is an GNU hack to make locked span appear.
+      ;; overlays still don't work as well as they did/should pre 99.
+      (span-raise proof-queue-span))
+  (set-span-property proof-queue-span 'start-closed t)
+  (set-span-property proof-queue-span 'end-open t)
+  (proof-span-read-only proof-queue-span)
+  (set-span-property proof-queue-span 'face 'proof-queue-face)
+  (detach-span proof-queue-span)
+  ;; Initialise locked span, remove it from buffer
+  (unless proof-locked-span
+      (setq proof-locked-span (make-span 1 1))
+      (span-raise proof-locked-span))
+  (set-span-property proof-locked-span 'start-closed t)
+  (set-span-property proof-locked-span 'end-open t)
+  (proof-span-read-only proof-locked-span)
+  (set-span-property proof-locked-span 'face 'proof-locked-face)
+  (detach-span proof-locked-span)
+  (setq proof-last-theorem-dependencies nil)
+  (pg-clear-script-portions))
+
+
+;; ** Restarting and clearing spans 
+
+(defun proof-restart-buffers (buffers)
+  "Remove all extents in BUFFERS and maybe reset `proof-script-buffer'.
+No effect on a buffer which is nil or killed.  If one of the buffers
+is the current scripting buffer, then proof-script-buffer 
+will deactivated."
+  (mapcar
+   (lambda (buffer)
+     (save-excursion
+       (if (buffer-live-p buffer)
+	   (with-current-buffer buffer
+	     (if proof-active-buffer-fake-minor-mode
+		 (setq proof-active-buffer-fake-minor-mode nil))
+	     (delete-spans (point-min) (point-max) 'type)  ;; remove top-level spans
+	     (delete-spans (point-min) (point-max) 'idiom) ;; and embedded spans
+	     (setq pg-script-portions nil)		   ;; also the record of them
+	     (proof-detach-queue)	                   ;; remove queue and locked
+	     (proof-detach-locked)
+	     (proof-init-segmentation)))
+       (if (eq buffer proof-script-buffer)
+	   (setq proof-script-buffer nil))))
+   buffers))
+
+(defun proof-script-buffers-with-spans ()
+  "Return a list of all buffers with spans.
+This is calculated by finding all the buffers with a non-nil
+value of proof-locked span."
+  (let ((bufs-left (buffer-list)) 
+	bufs-got)
+    (dolist (buf bufs-left bufs-got)
+      (if (with-current-buffer buf proof-locked-span)
+	  (setq bufs-got (cons buf bufs-got))))))
+
+(defun proof-script-remove-all-spans-and-deactivate ()
+  "Remove all spans from scripting buffers via proof-restart-buffers."
+  (proof-restart-buffers (proof-script-buffers-with-spans)))
+
+(defun proof-script-clear-queue-spans ()
+  "If there is an active scripting buffer, remove the queue span from it.
+This is a subroutine used in proof-shell-handle-{error,interrupt}."
+  (if proof-script-buffer
+      (with-current-buffer proof-script-buffer
+	(proof-detach-queue)
+	;; FIXME da: point-max seems a bit excessive here,
+	;; proof-queue-or-locked-end should be enough.
+	(delete-spans (proof-locked-end) (point-max) 'type))))
 
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Buffer position functions
 ;;
-;; da:cleaned
 
 (defun proof-unprocessed-begin ()
   "Return end of locked region in current buffer or (point-min) otherwise.
@@ -325,6 +341,15 @@ when a queue of commands is being processed."
    (and proof-locked-span (span-end proof-locked-span))
    (point-min)))
 
+;; FIXME: get rid of/rework this function.  Some places expect this to
+;; return nil if locked region is empty. Moreover, it confusingly
+;; returns the point past the end of the locked region.
+(defun proof-locked-end ()
+  "Return end of the locked region of the current buffer.
+Only call this from a scripting buffer."
+  (proof-unprocessed-begin))
+  
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -334,7 +359,6 @@ when a queue of commands is being processed."
 ;; These work on any buffer, so that non-script buffers can be locked
 ;; (as processed files) too.
 ;;
-;; da:cleaned
 
 (defun proof-locked-region-full-p ()
   "Non-nil if the locked region covers all the buffer's non-whitespace.
@@ -366,6 +390,7 @@ If non-nil, point is left where it was."
   (< (point) (proof-unprocessed-begin)))
 
 
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -382,8 +407,7 @@ If interactive or SWITCH is non-nil, switch to script buffer first."
        (switch-to-buffer proof-script-buffer)
      (goto-char (proof-unprocessed-begin)))))
 
-; NB: think about this because the movement can happen when the user
-; is typing, not very nice!
+;; Careful: movement can happen when the user is typing, not very nice!
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of it.
 A possible hook function for proof-shell-handle-error-or-interrupt-hook.
@@ -398,8 +422,18 @@ Does nothing if there is no active scripting buffer, or if
 	(unless (and win (pos-visible-in-window-p pos))
 	  (proof-goto-end-of-locked t)))))
 
+;; Simplified version of above for toolbar follow mode -- which wouldn't
+;; work with abouve because of proof-shell-handle-error-or-interrupt-hook[?]
+(defun proof-goto-end-of-queue-or-locked-if-not-visible ()
+  "Jump to the end of the queue region or locked region if it isn't visible.
+Assumes script buffer is current"
+  (unless (pos-visible-in-window-p
+	   (proof-queue-or-locked-end)
+	   (get-buffer-window (current-buffer) t))
+    (goto-char (proof-queue-or-locked-end))))
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Names of proofs (and other elements) in a script
@@ -502,7 +536,7 @@ Names must be unique for a given "
   (interactive)
   (pg-show-all-portions "proof")
   (unless proof-running-on-XEmacs
-    ;; FSF Emacs requires redisplay here to see result
+    ;; GNU Emacs requires redisplay here to see result
     ;; (sit-for 0) not enough
     (redraw-frame (selected-frame))))
   
@@ -512,7 +546,7 @@ Names must be unique for a given "
   (interactive)
   (pg-show-all-portions "proof" 'hide)
   (unless proof-running-on-XEmacs
-    ;; FSF Emacs requires redisplay here to see result
+    ;; GNU Emacs requires redisplay here to see result
     ;; (sit-for 0) not enough
     (redraw-frame (selected-frame))))
 
@@ -561,13 +595,13 @@ Names must be unique for a given "
     (unless nohighlight
       (set-span-property span 'mouse-face 'proof-mouse-highlight-face))))
 
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Multiple file handling
 ;;
-;;
-;; da:cleaned
-
 (defun proof-complete-buffer-atomic (buffer)
   "Make sure BUFFER is marked as completely processed, completing with a single step.
 
@@ -576,15 +610,15 @@ buffer is closed off atomically.
 
 This works for buffers which are not in proof scripting mode too,
 to allow other files loaded by proof assistants to be marked read-only." 
-;; FIXME: this isn't quite right, because not all of the structure 
-;; in the locked region will be preserved when processing across several 
-;; files.
-;; In particular, the span for a currently open goal should be removed.
-;; Keeping the structure is an approximation to make up for the fact
-;; that that no structure is created by loading files via the 
-;; proof assistant.
-;; Future idea: proof assistant could ask Proof General to do the
-;; loading, to alleviate file handling there?!
+;; NB: this isn't quite right, because not all of the structure in the
+;; locked region will be preserved when processing across several
+;; files.  In particular, the span for a currently open goal should be
+;; removed.  Keeping the structure is an approximation to make up for
+;; the fact that that no structure is created by loading files via the
+;; proof assistant.  Future ideas: proof assistant could ask Proof
+;; General to do the loading, to alleviate file handling there;
+;; we could cache meta-data resulting from processing files; 
+;; or even, could include parsing inside PG.
   (save-excursion
     (set-buffer buffer)
     (if (< (proof-unprocessed-begin) (proof-script-end))
@@ -775,12 +809,17 @@ retracted using proof-auto-retract-dependencies."
 		  (proof-inform-prover-file-retracted cfile)))))))
 
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Activating and Deactivating Scripting
 ;;
-;; 
-;; da: cleaned
+;; The notion of "active scripting buffer" clarifies how 
+;; scripting across multiple files is handled.  Only one
+;; script buffer is allowed to be active, and actions are
+;; taken when scripting is turned off/on.
+;;
 
 (defun proof-protected-process-or-retract (action &optional buffer)
   "If ACTION='process, process, If ACTION='retract, retract.
@@ -1098,89 +1137,28 @@ With ARG, turn on scripting iff ARG is positive."
 	(call-interactively 'proof-activate-scripting))
     (call-interactively 'proof-deactivate-scripting)))
 
-;; This function isn't such a wise idea: the buffer will often be fully
-;; locked when writing a script, but we don't want to keep toggling
-;; switching mode!
-;;(defun proof-auto-deactivate-scripting ()
-;;  "Turn off scripting if the current scripting buffer is empty or full.
-;;This is a possible value for proof-state-change-hook.
-;;FIXME: this currently doesn't quite work properly as a value for 
-;;proof-state-change-hook, in fact: maybe because the
-;;hook is called somewhere where proof-script-buffer
-;;should not be nullified!"
-;;  (if proof-script-buffer
-;;      (with-current-buffer proof-script-buffer
-;;	(if (or (proof-locked-region-empty-p)
-;;		(proof-locked-region-full-p))
-;;	    (proof-deactivate-scripting)))))
-
 ;;
 ;;  End of activating and deactivating scripting section
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;; da: 28.10.98: this is used by toolbar follow mode (which used to
-;; use the function above).  [But wouldn't work for
-;; proof-shell-handle-error-or-interrupt-hook?].
 
-(defun proof-goto-end-of-queue-or-locked-if-not-visible ()
-  "Jump to the end of the queue region or locked region if it isn't visible.
-Assumes script buffer is current"
-  (unless (pos-visible-in-window-p
-	   (proof-queue-or-locked-end)
-	   (get-buffer-window (current-buffer) t))
-    (goto-char (proof-queue-or-locked-end))))
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;          User Commands                                           ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	
-; Script management uses two major segments: Locked, which marks text
-; which has been sent to the proof assistant and cannot be altered
-; without being retracted, and Queue, which contains stuff being
-; queued for processing.  proof-action-list contains a list of
-; (span,command,action) triples. The loop looks like: Execute the
-; command, and if it's successful, do action on span.  If the
-; command's not successful, we bounce the rest of the queue and do
-; some error processing.
-;
-; when a span has been processed, we classify it as follows:
-; 'goalsave - denoting a goal-save pair in the locked region
-;    A goalsave may have a nested 'proof region which is the body
-;    of the proof and may be hidden.
-;    'goalsave and 'proof regions have a 'name property which 
-;    is the name of the goal
-; 'comment - denoting a comment
-; 'pbp - denoting a span created by pbp
-; 'vanilla - denoting any other span.
-; 'proverproc -- prover processed region (e.g. when a file is read
-;			atomically by the prover)
-;   'pbp & 'vanilla spans have a property 'cmd, which says what
-;   command they contain. 
-
-
-
-
-; We don't allow commands while the queue has anything in it.  So we
-; do configuration by concatenating the config command on the front in
-; proof-shell-insert
-
-;;         proof-assert-until-point, and various gunk for its       ;;
-;;         setup and callback                                       ;;
-
-
-(defun proof-check-atomic-sequents-lists (span cmd end)
-  "Check if CMD is the final command in an ACS.
-
-If CMD is matched by the end regexp in `proof-atomic-sequents-list',
-the ACS is marked in the current buffer. If CMD does not match any,
-`nil' is returned, otherwise non-nil."
-  ;;FIXME tms: needs implementation
-  nil)
-
+;;
+;; Processing the script management queue -- PART 1: advancing
+;;
+;; The proof-action-list contains a list of (span,command,action)
+;; triples. The loop looks like: Execute the command, and if it's
+;; successful, do action on span.  If the command's not successful, we
+;; bounce the rest of the queue and do some error processing.
+;;
+;; When a span has been processed, it is classified as 
+;; 'comment, 'goalsave, 'vanilla, etc. 
+;;
 
 
 (defun proof-done-advancing (span)
@@ -1430,9 +1408,6 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  (pg-set-span-helphighlights span))))
 
 
-     ;; "ACS" for possible future implementation
-     ;; ((proof-check-atomic-sequents-lists span cmd end))
-
      ;; CASE 4:  Some other kind of command (or a nested goal).
      (t
       (if (funcall proof-goal-command-p cmd)
@@ -1448,12 +1423,18 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Yet more NEW parsing functions for 3.3
+;; Parsing functions for parsing commands in script
 ;;
-;; We need to be more general and a bit more clear, this
-;; is a much better attempt.
+;; Command parsing is suprisingly subtle with various possibilities of
+;; command syntax (terminated, not terminated, or lisp-style); whether
+;; or not PG silently ignores comments, etc.
+
+;; FIXME: currently there's several sets of functions.  We need to be
+;; more general and a bit more clear, but the latest versions are a
+;; much better attempt.
 
 (defun proof-segment-up-to-parser (pos &optional next-command-end)
   "Parse the script buffer from end of locked to POS.
@@ -1613,7 +1594,7 @@ to the function which parses the script segment by segment."
 	  (progn (goto-char end) 'cmd)))))
     
 
-;; NEW parsing functions for 3.2
+;; Parsing functions new in v3.2
 ;;
 ;; NB: compared with old code,
 ;; (1) this doesn't treat comments quite so well, but parsing
@@ -1822,18 +1803,27 @@ Set the callback to CALLBACK-FN or 'proof-done-advancing by default."
 	(setq semis (cdr semis)))
     (nreverse alist)))
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Two commands for moving forwards in proof scripts.
-;; Moving forward for a "new" command may insert spaces
-;; or new lines.  Moving forward for the "next" command
-;; does not.
+;; Assert-until-point and friends.
 ;;
+;; These functions parse some region of the script buffer into
+;; commands, and add the commands into the queue.
+;;
+
+
+;; First: two commands for moving forwards in proof scripts.  Moving
+;; forward for a "new" command may insert spaces or new lines.  Moving
+;; forward for the "next" command does not.
 
 (defun proof-script-new-command-advance ()
   "Move point to a nice position for a new command.
 Assumes that point is at the end of a command."
   (interactive)
-; FIXME: pending improvement for 3.2, needs a fix here.
+; FIXME: pending improvement.2, needs a fix here.
 ;  (if (eq (proof-locked-end) (point))
 ;      ;; A hack to fix problem that the locked span
 ;      ;; is [ ) so sometimes inserting at the end
@@ -1843,10 +1833,9 @@ Assumes that point is at the end of a command."
 ;	    (goto-char (1+ (proof-locked-end)))
 ;	    (backward-char))))
   (if proof-one-command-per-line
-      ;; One command per line: move to next new line,
-      ;; creating one if at end of buffer or at the
-      ;; start of a blank line.  (This has the pleasing
-      ;; effect that blank regions of the buffer are
+      ;; One command per line: move to next new line, creating one if
+      ;; at end of buffer or at the start of a blank line.  (This has
+      ;; the pleasing effect that blank regions of the buffer are
       ;; automatically extended when inserting new commands).
 ; unfortunately if we're not at the end of a line to start,
 ; it skips past stuff to the end of the line!  don't want
@@ -1858,16 +1847,13 @@ Assumes that point is at the end of a command."
 ;        (newline)
 ;	(forward-line -1)))
       (newline)
-    ;; Multiple commands per line: skip spaces at point,
-    ;; and insert the 1/0 number of spaces that were
-    ;; skipped in front of point (at least one).
-    ;; This has the pleasing effect that the spacing
-    ;; policy of the current line is copied: e.g.
-    ;;   <command>;  <command>;
-    ;; Tab columns don't work properly, however.
-    ;; Instead of proof-one-command-per-line we could
-    ;; introduce a "proof-command-separator" to improve
-    ;; this.
+    ;; Multiple commands per line: skip spaces at point, and insert
+    ;; the 1/0 number of spaces that were skipped in front of point
+    ;; (at least one).  This has the pleasing effect that the spacing
+    ;; policy of the current line is copied: e.g.  <command>;
+    ;; <command>; Tab columns don't work properly, however.  Instead
+    ;; of proof-one-command-per-line we could introduce a
+    ;; "proof-command-separator" to improve this.
     (let ((newspace (max (skip-chars-forward " \t") 1))
 	  (p (point)))
       (if proof-script-command-separator
@@ -1895,12 +1881,12 @@ the comment."
   (proof-assert-until-point))
 
 
-; Assert until point - We actually use this to implement the 
-; assert-until-point, electric terminator keypress, and goto-command-end.
-; In different cases we want different things, but usually the information
-; (i.e. are we inside a comment) isn't available until we've actually run
-; proof-segment-up-to (point), hence all the different options when we've
-; done so.
+;; Assert until point - We actually use this to implement the
+;; assert-until-point, electric terminator keypress, and
+;; goto-command-end. In different cases we want different things, but
+;; usually the information (e.g. are we inside a comment) isn't
+;; available until we've actually run proof-segment-up-to (point),
+;; hence all the different options when we've done so.
 
 ;; FIXME da: this command doesn't behave as the doc string says when
 ;; inside comments.  Also is unhelpful at the start of commands, and
@@ -2025,12 +2011,14 @@ appropriate."
       (proof-assert-until-point)
     (proof-retract-until-point)))
 
-      
-;;         insert-pbp-command - an advancing command, for use when  ;;
-;;         PbpHyp or Pbp has executed in LEGO, and returned a       ;;
-;;         command for us to run                                    ;;
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;      
+;; PBP call-backs
+;;
 (defun proof-insert-pbp-command (cmd)
+  "Insert CMD into the proof queue."
   (proof-activate-scripting)
   (let (span)
     (proof-goto-end-of-locked)
@@ -2042,11 +2030,16 @@ appropriate."
 		       (list (list span cmd 'proof-done-advancing)))))
 
 
-;;         proof-retract-until-point and associated gunk            ;;
-;;         most of the hard work (i.e computing the commands to do  ;;
-;;         the retraction) is implemented in the customisation      ;;
-;;         module (lego.el or coq.el) which is why this looks so    ;;
-;;         straightforward                                          ;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Processing the script management queue -- PART 2: retracting
+;;
+
+;; Most of the hard work (computing the commands to do the retraction)
+;; is implemented in the customisation module (lego.el or coq.el), so
+;; code here is fairly straightforward.
 
 
 ;; FIXME: we need to adjust proof-nesting-depth appropriately here.
@@ -2055,6 +2048,7 @@ appropriate."
 ;; to zero; an undo sequence may alter it some other way.
 ;; FIXME FIXME: at the moment, the adjustment is made in
 ;; the wrong place!!
+
 (defun proof-done-retracting (span)
   "Callback for proof-retract-until-point.
 We update display after proof process has reset its state.
@@ -2070,15 +2064,13 @@ others)."
       (let ((start (span-start span))
 	    (end (span-end span))
 	    (kill (span-property span 'delete-me)))
-	;; FIXME: why is this test for an empty locked region here?
-	;; seems it could prevent the queue and locked regions
- 	;; from being detached.  Not sure where they are supposed
- 	;; to be detached from buffer, but following calls would
- 	;; do the trick if necessary.
+	;; da: check for empty region seems odd here?
+	;; [prevents regions from being detached in set-locked-end]
 	(unless (proof-locked-region-empty-p)
 	  (proof-set-locked-end start)
 	  (proof-set-queue-end start))
 	(delete-spans start end 'type)
+	(delete-spans start end 'idiom)
 	(delete-span span)
 	(if kill (kill-region start end))))
   ;; State of scripting may have changed now
@@ -2239,55 +2231,6 @@ command."
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Restarting and clearing spans 
-;;
-
-(defun proof-restart-buffers (buffers)
-  "Remove all extents in BUFFERS and maybe reset `proof-script-buffer'.
-No effect on a buffer which is nil or killed.  If one of the buffers
-is the current scripting buffer, then proof-script-buffer 
-will deactivated."
-  (mapcar
-   (lambda (buffer)
-     (save-excursion
-       (if (buffer-live-p buffer)
-	   (with-current-buffer buffer
-	     (if proof-active-buffer-fake-minor-mode
-		 (setq proof-active-buffer-fake-minor-mode nil))
-	     (delete-spans (point-min) (point-max) 'type) ; remove top-level spans
-	     (delete-spans (point-min) (point-max) 'idiom) ; and embedded spans
-	     (setq pg-script-portions nil)		  ;; also the record of them
-	     (proof-detach-segments buffer)		  ;; detach queue and locked 
-	     (proof-init-segmentation)))
-       (if (eq buffer proof-script-buffer)
-	   (setq proof-script-buffer nil))))
-   buffers))
-
-(defun proof-script-buffers-with-spans ()
-  "Return a list of all buffers with spans.
-This is calculated by finding all the buffers with a non-nil
-value of proof-locked span."
-  (let ((bufs-left (buffer-list)) 
-	bufs-got)
-    (dolist (buf bufs-left bufs-got)
-      (if (with-current-buffer buf proof-locked-span)
-	  (setq bufs-got (cons buf bufs-got))))))
-
-(defun proof-script-remove-all-spans-and-deactivate ()
-  "Remove all spans from scripting buffers via proof-restart-buffers."
-  (proof-restart-buffers (proof-script-buffers-with-spans)))
-
-(defun proof-script-clear-queue-spans ()
-  "If there is an active scripting buffer, remove the queue span from it.
-This is a subroutine used in proof-shell-handle-{error,interrupt}."
-  (if proof-script-buffer
-      (with-current-buffer proof-script-buffer
-	(proof-detach-queue)
-	;; FIXME da: point-max seems a bit excessive here,
-	;; proof-queue-or-locked-end should be enough.
-	(delete-spans (proof-locked-end) (point-max) 'type))))
 
 
 
@@ -2424,7 +2367,7 @@ assistant."
   (setq proof-script-buffer-file-name buffer-file-name)
 
   ;; Has buffer already been processed?
-  ;; NB: call to file-truename is needed for FSF Emacs which
+  ;; NB: call to file-truename is needed for GNU Emacs which
   ;; chooses to make buffer-file-truename abbreviate-file-name
   ;; form of file-truename.
   (and buffer-file-truename
@@ -2485,16 +2428,10 @@ assistant."
 ;;
 ;; Generic defaults for hooks, based on regexps.
 ;; 
-;; NEW November 1999.  
-;; Added to PG 3.0 but only used for demoisa so far.
-;;
 
-;;
-;; FIXME: the next step is to use proof-stringfn-match scheme more
-;; widely, to allow settings which are string or fn, so we don't need
-;; both regexp and function hooks, and so that the other hooks can be
-;; functions too.
-;;
+;; The next step is to use proof-stringfn-match scheme more widely, to
+;; allow settings which are string or fn, so we don't need both regexp
+;; and function hooks, and so that the other hooks can be functions too.
 
 (defun proof-generic-goal-command-p (str)
   "Is STR a goal?  Decide by matching with proof-goal-command-regexp."
