@@ -78,7 +78,7 @@ Require, Definition, etc).
 For example if MyHint and MyRequire are user defined variants of the
 Hint and Require commands, put the following line in your .emacs:
 
-(setq coq-user-state-changing-commands 
+ (setq coq-user-state-changing-commands 
 		'(\"MyHint\" \"MyRequire\"))
 "
 )
@@ -92,7 +92,7 @@ Print, Check, Show etc).
 For example if MyPrint and MyCheck are user defined variants of the
 Print and Check commands, put the following line in your .emacs:
 
-(setq coq-user-state-preserving-commands 
+ (setq coq-user-state-preserving-commands 
 		'(\"MyPrint\" \"MyCheck\"))
 "
 )
@@ -246,7 +246,7 @@ all tactics, but \"Idtac\" (\"Proof\" is a command actually)).
 For example if MyIntro and MyElim are user defined variants of the
 Intro and Elim tactics, put the following line in your .emacs:
 
-(setq coq-user-state-changing-tactics
+ (setq coq-user-state-changing-tactics
 		'(\"MyIntro\" \"MyElim\"))
 "
 )
@@ -358,7 +358,7 @@ the user defined Coq tactics that do not need to be backtracked (like
 For example if MyIdtac and Do_nthing are user defined variants of the
 Idtac (Nop) tactic, put the following line in your .emacs:
 
-(setq coq-user-state-preserving-tactics
+ (setq coq-user-state-preserving-tactics
 		'(\"MyIdtac\" \"Do_nthing\"))
 "
 )
@@ -491,8 +491,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 	  "\\)\\s-+\\(" coq-ids "\\)\\s-*[:]"))
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
-	  "\\)\\s-+\\(" coq-id "\\)\\s-*[:]"))
-
+          "\\)\\s-+\\(" coq-id "\\)\\s-*[[:]"))
 (defvar coq-font-lock-keywords-1
    (append
     coq-font-lock-terms
