@@ -1353,7 +1353,7 @@ MESSAGE should be a string annotated with
 	   (string-match proof-shell-match-pgip-cmd message))
       (require 'pg-xml)
       (require 'pg-pgip)
-      (unless (string-match (match-string 0)
+      (unless (string-match (match-string 0 message)
 			    proof-shell-eager-annotation-start)
 	;; Assume that eager annotation regexps are _not_ part of PGIP
 	;; message, and strip them.  This allows hybrid PGIP/non PGIP
