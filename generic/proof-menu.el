@@ -16,7 +16,7 @@
 
 ;;;###autoload
 (defun proof-menu-define-keys (map)
-(define-key map [(control c) a] proof-assistant-keymap)
+(define-key map [(control c) a] (proof-assistant-keymap))
 (define-key map [(control c) (control a)] 'proof-goto-command-start)
 (define-key map [(control c) (control b)] 'proof-process-buffer)
 ; C-c C-c is proof-interrupt-process in universal-keys
@@ -90,12 +90,23 @@
    (concat "The menu for " proof-assistant)
    (cons proof-assistant
 	 (append
-	  proof-assistant-menu-entries
-	  (proof-ass favourites)
+	  (proof-assistant-menu-entries)
 	  '("----")
+	  (proof-assistant-favourites)
 	  '(["Add favourite" 
-	     (call-interactively 'proof-add-favourite) t])))))
-
+	     (call-interactively 'proof-add-favourite) t])
+	  '("----")
+	  (list
+	   (cons "Help"
+		 (append 
+		  `(;; FIXME: should only put these two on the
+		    ;; menu if the settings are non-nil.
+		    [,(concat proof-assistant " information")
+		     (proof-help) t]
+		    [,(concat proof-assistant " web page")
+		     (browse-url proof-assistant-home-page) t])
+		  (proof-ass help-menu-entries))))))))
+    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -103,35 +114,28 @@
 ;;;
 
 
-(defmacro proof-customize-toggle (var)
-  "Make a function for toggling a boolean customize setting VAR.
-The toggle function uses customize-set-variable to change the variable."
-  `(lambda (arg)
-     ,(concat "Toggle " (symbol-name var) ". With ARG, turn on iff ARG>0.
+(defun proof-deftoggle-fn (var &optional othername)
+  "Define a function <VAR>-toggle for toggling a boolean customize setting VAR.
+The toggle function uses customize-set-variable to change the variable.
+OTHERNAME gives an alternative name than the default <VAR>-toggle."
+  (eval
+   `(defun ,(if othername othername 
+	      (intern (concat (symbol-name var) "-toggle"))) (arg)
+	      ,(concat "Toggle `" (symbol-name var) "'. With ARG, turn on iff ARG>0.
 This function simply uses customize-set-variable to set the variable.
-It was constructed with the macro proof-customize-toggle.")
-     (interactive "P")
-     (customize-set-variable 
-      (quote ,var)
-      (if (null arg) (not ,var)
-	(> (prefix-numeric-value arg) 0)))))
+It was constructed with `proof-customize-toggle-fn'.")
+	      (interactive "P")
+	      (customize-set-variable 
+	       (quote ,var)
+	       (if (null arg) (not ,var)
+		 (> (prefix-numeric-value arg) 0))))))
 
-;; FIXME: combine this with above, and remove messing calls in
-;; proof-script.
-;; This is autoloaded for some specific PAs to define commands.
 ;;;###autoload
-(defmacro proof-deftoggle (var)
+(defmacro proof-deftoggle (var &optional othername)
   "Define a function VAR-toggle for toggling a boolean customize setting VAR.
-The toggle function uses customize-set-variable to change the variable."
-  `(defun ,(intern (concat (symbol-name var) "-toggle")) (arg)
-     ,(concat "Toggle " (symbol-name var) ". With ARG, turn on iff ARG>0.
-This function simply uses customize-set-variable to set the variable.
-It was constructed with the macro proof-deftoggle.")
-     (interactive "P")
-     (customize-set-variable 
-      (quote ,var)
-      (if (null arg) (not ,var)
-	(> (prefix-numeric-value arg) 0)))))
+VAR, OTHERNAME are not evaluated.  
+The function is defined with `proof-customize-toggle-fn', which see."
+  `(proof-deftoggle-fn (quote ,var) (quote ,othername)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -140,16 +144,11 @@ It was constructed with the macro proof-deftoggle.")
 ;;;
 
 (defvar proof-help-menu
-  `("Help"
-    [,(concat proof-assistant " information")
-     (proof-help) t]
-    [,(concat proof-assistant " web page")
-     (browse-url proof-assistant-home-page) t]
+  '("Help"
     ["Proof General home page"
      (browse-url proof-general-home-page) t]
     ["Proof General Info"
-     (info "ProofGeneral") t]
-    )
+     (info "ProofGeneral") t])
   "Proof General help menu.")
 
 (defvar proof-buffer-menu
@@ -172,12 +171,9 @@ It was constructed with the macro proof-deftoggle.")
 
 (proof-deftoggle proof-dont-switch-windows)
 (proof-deftoggle proof-delete-empty-windows)
-(fset 'proof-multiple-frames-toggle
-      (proof-customize-toggle proof-multiple-frames-enable))
-(fset 'proof-output-fontify-toggle
-      (proof-customize-toggle proof-output-fontify-enable))
-(fset 'proof-x-symbol-toggle
-      (proof-customize-toggle proof-x-symbol-enable))
+(proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
+(proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
+(proof-deftoggle proof-x-symbol-enable proof-x-symbol-toggle)
 
 (defvar proof-quick-opts-menu
   `("Options"
@@ -221,6 +217,9 @@ It was constructed with the macro proof-deftoggle.")
 
 (defvar proof-shared-menu
   (append
+   ;; FIXME: should we move the start and stop items to 
+   ;; the specific menu?  
+   ;; (They only seem specific because they mention the PA).
     (list
      (vector
       (concat "Start " proof-assistant)
@@ -236,11 +235,9 @@ It was constructed with the macro proof-deftoggle.")
   "Proof General menu for various modes.")
 
 (defvar proof-bug-report-menu
-  (list
-   "----"
-   ["Submit bug report"
-    proof-submit-bug-report
-    :active t])
+  (list "----"
+   ["About Proof General" proof-splash-display-screen]
+   ["Submit bug report"   proof-submit-bug-report])
   "Proof General menu for submitting bug report (one item plus separator).")
 
 (defvar proof-menu  
@@ -272,7 +269,7 @@ STRING is inserted using `proof-insert', which see.
 KEY is added onto proof-assistant map."
   (if key
       (eval
-       `(define-key proof-assistant-keymap ,key (quote ,fn))))
+       `(define-key (proof-ass keymap) ,key (quote ,fn))))
   `(defun ,fn ()
      (concat "Shortcut command to insert " ,string " into the current buffer.")
      (interactive)
@@ -285,7 +282,7 @@ STRING is sent using proof-shell-invisible-command, which see.
 KEY is added onto proof-assistant map."
   (if key
       (eval
-       `(define-key proof-assistant-keymap ,key (quote ,fn))))
+       `(define-key (proof-ass keymap) ,key (quote ,fn))))
   `(defun ,fn ()
      (concat "Command to send " ,string " to the proof assistant.")
      (interactive)
