@@ -113,14 +113,6 @@ function date_modified($filename) {
    }
 }
 
-/* A link to one of the main pages (must appear in navbar menu) */
-
-function link_root($page,$text) {
-    print  "<a href=\"index.html?page=" . $page . "\">";
-    print $text;
-    print "</a>";
-}
-
 function small_header($title) {
   print $dtd;
   print "<html>";
