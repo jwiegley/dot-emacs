@@ -65,16 +65,18 @@ This gives a bare toolbar that works for any prover.  To add
 prover specific buttons, see documentation for proof-toolbar-entries
 and the file proof-toolbar.el.")
 
-;; FIXME: defcustom next one, to set on a per-prover basis
-(defvar proof-toolbar-entries
-  proof-toolbar-entries-default
+
+(defpgcustom toolbar-entries proof-toolbar-entries-default
   "List of entries for Proof General toolbar and Scripting menu.
 Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
 For each TOKEN, we expect an icon with base filename TOKEN,
 		          a function proof-toolbar-<TOKEN>,
          and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.
 If MENUNAME is nil, item will not appear on the scripting menu.
-If TOOLTIP is nil, item will not appear on the toolbar.")
+If TOOLTIP is nil, item will not appear on the toolbar.
+
+The default value is `proof-toolbar-entries-default' which contains
+the standard Proof General buttons.")
 
 
 
@@ -97,7 +99,7 @@ If TOOLTIP is nil, item will not appear on the toolbar.")
 ;; 
 
 (defun proof-toolbar-make-icon (tle)
-  "Make icon variable and icon list entry from a proof-toolbar-entries entry."
+  "Make icon variable and icon list entry from a PA-toolbar-entries entry."
   (let* ((icon (car tle))
 	 (iconname (symbol-name icon))
 	 (iconvar  (proof-toolbar-icon icon)))
@@ -112,7 +114,8 @@ If TOOLTIP is nil, item will not appear on the toolbar.")
     (list iconvar iconname)))
   
 (defconst proof-toolbar-iconlist
-  (mapcar 'proof-toolbar-make-icon proof-toolbar-entries)
+  (mapcar 'proof-toolbar-make-icon 
+	  (proof-ass toolbar-entries))
   "List of icon variable names and their associated image files.
 A list of lists of the form (VAR IMAGE).  IMAGE is the root name
 for an image file in proof-images-directory.  The toolbar
@@ -120,7 +123,7 @@ code expects to find files IMAGE.xbm, IMAGE.xpm, IMAGE.8bit.xpm
 and chooses the best one for the display properites.")
 
 (defun proof-toolbar-make-toolbar-item (tle)
-  "Make a toolbar button descriptor from a proof-toolbar-entries entry."
+  "Make a toolbar button descriptor from a PA-toolbar-entries entry."
   (let*
       ((token	      (car tle))
        (menuname      (cadr tle))
@@ -144,7 +147,8 @@ and chooses the best one for the display properites.")
 
 (defvar proof-toolbar-button-list 
   (append
-   (apply 'append (mapcar 'proof-toolbar-make-toolbar-item proof-toolbar-entries))
+   (apply 'append (mapcar 'proof-toolbar-make-toolbar-item 
+			  (proof-ass toolbar-entries)))
    (list [:style 3d]))
   "A toolbar descriptor evaluated in proof-toolbar-setup.
 Specifically, a list of sexps which evaluate to entries in a toolbar
@@ -266,7 +270,7 @@ changed state."
 ;; etc.
 ;;
 ;; To add support for more buttons or alter the default
-;; images, proof-toolbar-entries should be adjusted.
+;; images, <PA>-toolbar-entries should be adjusted.
 ;;
 ;;
 
@@ -461,7 +465,7 @@ changed state."
 ;;
 
 (defun proof-toolbar-make-menu-item (tle)
-  "Make a menu item from a proof-toolbar-entries entry."
+  "Make a menu item from a PA-toolbar-entries entry."
   (let*
       ((token	  (car tle))
        (menuname  (cadr tle))
@@ -487,7 +491,7 @@ changed state."
   ;; other handy stuff.  
   (apply 'append
 	  (mapcar 'proof-toolbar-make-menu-item 
-		  proof-toolbar-entries))
+		  (proof-ass toolbar-entries)))
   "Menu made from the Proof General toolbar commands.")
 
  
