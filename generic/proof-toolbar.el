@@ -10,7 +10,7 @@
 ;; proof-toolbar-menu which holds the same commands and is put on the
 ;; menubar by proof-toolbar-setup (surprisingly).
 ;;
-;; Toolbar is just for the scripting buffer currently.
+;; Toolbar is just for the scripting buffer, currently.
 ;;
 ;;
 ;; TODO:
@@ -29,13 +29,6 @@
 ;; FIXME: consider automatically disabling buttons which are
 ;; not configured for the prover, e.g. if proof-info-command is
 ;; not set, then the Info button should not be show. 
-
-;; FIXME: In the future, add back the enabler functions.
-;; As of 20.4, they *almost* work, but it seems difficult
-;; to get the toolbar to update at the right times.
-;; For older versions of XEmacs (19.15, P.C.Callaghan@durham.ac.uk
-;; reports) the toolbar specifier format doesn't like
-;; arbitrary sexps as the enabler, either.
 
 
 ;;; IMPORT declaration 
@@ -268,30 +261,6 @@ changed state."
 ;;
 ;;
 
-;; TODO:
-;;
-;; Combine these with standard movement functions, rationalizing.
-;;
-
-
-;;
-;; Helper functions 
-;;
-
-(defmacro proof-toolbar-move (&rest body)
-  "Save point according to proof-toolbar-follow-mode, execute BODY."
-  `(if (eq proof-toolbar-follow-mode 'locked)
-       (progn
-	 ,@body)				; nb no error catching
-     (save-excursion
-	,@body)))
-
-(defun proof-toolbar-follow ()
-  "Maybe point to the make sure the locked region is displayed."
-  (if (eq proof-toolbar-follow-mode 'follow)
-    (proof-goto-end-of-queue-or-locked-if-not-visible)))
-
-
 ;;
 ;; Undo button
 ;;
@@ -300,15 +269,7 @@ changed state."
   (and (proof-shell-available-p)
        (> (proof-unprocessed-begin) (point-min))))
 
-;; No error if enabler fails: if it is because proof shell is busy,
-;; it gets messy when clicked quickly in succession.
-
-(defun proof-toolbar-undo ()
-  "Undo last successful in locked region, without deleting it."
-  (interactive)
-  (proof-toolbar-move
-   (proof-undo-last-successful-command t))
-  (proof-toolbar-follow))
+(defalias 'proof-toolbar-undo 'proof-undo-last-successful-command)
 
 ;;
 ;; Next button
@@ -319,14 +280,7 @@ changed state."
    (not (proof-locked-region-full-p))
    (not (and (proof-shell-live-buffer) proof-shell-busy))))
 
-(defun proof-toolbar-next ()
-  "Assert next command in proof to proof process.
-Move point if the end of the locked position is invisible."
-  (interactive)
-  (proof-toolbar-move
-   (goto-char (proof-queue-or-locked-end)) ; was unprocessed-begin
-   (proof-assert-next-command-interactive))
-  (proof-toolbar-follow))
+(defalias 'proof-toolbar-next 'proof-assert-next-command-interactive)
 
 
 ;;
@@ -336,14 +290,8 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-retract-enable-p ()
   (not (proof-locked-region-empty-p)))
 
-;; FIXME: to become proof-retract-buffer
-(defun proof-toolbar-retract ()
-  "Retract entire buffer."
-  ;; proof-retract-file might be better here!
-  (interactive)
-  (proof-toolbar-move
-   (proof-retract-buffer))	; gives error if process busy
-  (proof-toolbar-follow))
+(defalias 'proof-toolbar-retract 'proof-retract-buffer)
+
 
 ;;
 ;; Use button
@@ -352,12 +300,7 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-use-enable-p ()
   (not (proof-locked-region-full-p)))
 
-(defun proof-toolbar-use ()
-  "Process the whole buffer."
-  (interactive)
-  (proof-toolbar-move
-   (proof-process-buffer))	; gives error if process busy
-  (proof-toolbar-follow))
+(defalias 'proof-toolbar-use 'proof-process-buffer)
 
 ;;
 ;; Restart button
@@ -430,7 +373,7 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-command-enable-p ()
   (proof-shell-available-p))
 
-(defalias 'proof-toolbar-command 'proof-execute-minibuffer-cmd)
+(defalias 'proof-toolbar-command 'proof-minibuffer-cmd)
 
 ;;
 ;; Help button
