@@ -65,7 +65,7 @@ nil if a region cannot be found."
   (cond ((stringp regexp-or-fn)
 	 (proof-string-match regexp-or-fn string))
 	((functionp regexp-or-fn)
-	 (regexp-or-fn string))))
+	 (funcall regexp-or-fn string))))
 
 (defun proof-looking-at (regexp)
   "Like looking-at, but set case-fold-search to proof-case-fold-search."
