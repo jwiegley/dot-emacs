@@ -1,0 +1,34 @@
+<h2>Proof General for HOL</h2> 
+<p> 
+It is fairly easy to get basic support for Proof General for 
+<a href="http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html">HOL</a>, and
+this has recently been tried for HOL 98.  However, it would be a bigger
+and more interesting project to get proper and complete support for
+HOL working.  There are a couple of problems unique to HOL.
+</p>
+<p>
+Much more than Isabelle, HOL relies on its meta language, ML.  HOL
+proof scripts often use batch-oriented single step tactic proofs
+constructed in ML, but Proof General does not offer an easy way to
+edit these kind of proofs (as opposed to multi-step interactive
+proofs).  The "Boomburg" Emacs interface by Koichi Takahashi and
+Masima Hagiya addressed this problem, as well as providing support for
+proof-by-pointing to HOL.  Their interface (which is no longer
+maintained) could perhaps be embedded or reimplemented inside Proof
+General.  Implemented in a generic way, batch script editing would
+also be useful for Isabelle.
+</p>
+<p>
+Another problem is that HOL scripts sometimes use SML structures,
+which can cause confusion because Proof General does not really parse
+SML, it just looks for semicolons.  Again, this could be improved by
+taking a better parser (e.g. from sml mode).
+</p>
+<p>
+<b>Skills:</b>
+Some Standard ML, some Emacs Lisp.  Basic understanding of
+proof assistant behaviour.
+</p><p>
+<b>Proposer:</b>
+<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
+</p>
