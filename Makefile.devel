@@ -112,8 +112,12 @@ DISTBUILDIR = /tmp/ProofGeneralRelease
 
 # Temporary RPM topdir for building packages as non-root user.
 RPMTOPDIR=/tmp/ProofGeneral-rpm
-RPMRC=$(RPMTOPDIR)/rpmrc
-RPM=rpm --rcfile $(RPMRC)
+# rpm 3.0 has changed rc file beyond recognition.
+# now wants a macro file included and stuck in ~/.rpmmacros.
+# Alternative is to use --define from command line.
+# RPMRC=$(RPMTOPDIR)/rpmrc
+# RPM=rpm --rcfile $(RPMRC)
+RPM=rpm --define '_topdir $(RPMTOPDIR)'
 
 RELEASENAMETAR = $(RELEASENAME).tar
 RELEASENAMETARGZ = $(RELEASENAMETAR).gz
@@ -348,9 +352,8 @@ release: distclean tag dist develdist
 ##
 ##	  
 rpm:	
-	rm -rf $(RPMTOPDIR)
+#	rm -rf $(RPMTOPDIR)
 	mkdir -p $(RPMTOPDIR) $(RPMTOPDIR)/BUILD $(RPMTOPDIR)/SOURCES $(RPMTOPDIR)/SRPMS $(RPMTOPDIR)/RPMS $(RPMTOPDIR)/RPMS/noarch
-	echo "_topdir: $(RPMTOPDIR)" > $(RPMRC)
 	cp -p etc/ProofGeneral.patch $(RPMTOPDIR)/SOURCES
 	cp -p $(DISTBUILDIR)/$(RELEASENAMETARGZ) $(RPMTOPDIR)/SOURCES
 	$(RPM) -ba etc/ProofGeneral.spec
