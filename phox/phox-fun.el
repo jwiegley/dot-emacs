@@ -173,7 +173,7 @@ or for optional argument TABLE."
 
        ((eq (span-property span 'type) 'comment))       
 
-       ((eq (span-property span 'type) 'proof)
+       ((eq (span-property span 'type) 'goalsave)
 	(if (proof-string-match phox-prove-claim-regexp str)
 	    (setq ans (concat (format phox-forget-proof-command 
 				      (match-string 4 str)) ans))

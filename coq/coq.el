@@ -203,7 +203,7 @@
 
        ((eq (span-property span 'type) 'comment))       
 
-       ((eq (span-property span 'type) 'proof)
+       ((eq (span-property span 'type) 'goalsave)
 	;; Note da 6.10.99: in Lego and Isabelle, it's trivial to
 	;; forget an unnamed theorem.  Coq really does use the 
 	;; identifier "Unnamed_thm", though!  So we don't need
