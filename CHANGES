@@ -121,6 +121,9 @@ Only in the developers' release
 Internal changes for developers to note
 ---------------------------------------
 
+* x-symbol support has been made generic.  See documentation
+  and proof-config.el.
+
 * Many robustness improvements so that Proof General fails
   gracefully when certain configuration settings are unset.
   The aim is to make it easier to adapt to new proof
@@ -136,6 +139,7 @@ Internal changes for developers to note
     proof-ctxt-string -> proof-context-command
     proof-help-string -> proof-info-command
     proof-prf-string  -> proof-showproof-command
+    proof-proof-general-home-page -> proof-general-home-page
 
 * Speed optimizations for the proof-shell-filter, to attempt
   to give more CPU to a hungry and noisy proof process.
