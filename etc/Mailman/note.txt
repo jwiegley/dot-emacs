@@ -1,0 +1,14 @@
+These templates have to be installed in mailman by visiting
+these pages:
+
+http://lists.informatics.ed.ac.uk/mailman/edithtml/proofgeneral/<template>
+
+http://lists.informatics.ed.ac.uk/mailman/edithtml/proofgeneral-devel/<template>
+
+The same templates are used to give PG styling to each list.
+
+
+See Mailman docs at http://www.imsa.edu/~ckolar/mailman/
+
+(For mail admin settings, see here:
+  http://www.imsa.edu/~ckolar/mailman/mailman-administration-v2.html)
