@@ -1623,9 +1623,7 @@ This version is used when `proof-script-command-start-regexp' is set."
 				    (looking-at commentre)
 				    (re-search-forward proof-comment-end-regexp)
 				    (progn
-				      (skip-chars-forward " \t\n")
 				      (while (looking-at commentre)
-					(skip-chars-forward " \t\n")
 					(re-search-forward proof-comment-end-regexp))
 				      (>= (point) comend)))
 				   'comment 'cmd)))
