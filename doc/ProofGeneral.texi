@@ -149,7 +149,7 @@ Visit Proof General on the web at @code{http://www.proofgeneral.org}
 
 @sp 1
 
-Version control: @code{@value{rcsid}}
+@code{@value{rcsid}}
 @end titlepage
 
 @page
@@ -273,7 +273,7 @@ to try them out!
 
 The work on this release was undertaken by David Aspinall between
 May-September 2000, and includes contributions from Markus Wenzel,
-Pierre Courtieu, and Christophe Raffalli.
+Pierre Courtieu, and Christophe Raffalli.  Markus added 
 
 
 @node Future
@@ -559,6 +559,7 @@ Tobias Nipkow,
 Leonor Prensa Nieto, 
 David von Oheimb,
 Randy Pollack,
+Sebastian Skalberg,
 and
 Mike Squire.  Thanks to all of you!
 
@@ -3535,7 +3536,7 @@ texts as well as traditional scripts following the Isar syntax).
 
 The syntax of Isabelle/Isar input is technically simple, enabling Proof
 General to provide reliable control over incremental execution of the
-text.  Thus it is very hard to let Proof General loose synchronization
+text.  Thus it is very hard to let Proof General lose synchronization
 with the Isabelle/Isar process.  The caveats of @file{.ML} files
 discussed for the classic Isabelle version (@pxref{Classic Isabelle}) do
 @b{not} apply here.
@@ -3604,8 +3605,8 @@ do their job.  The following command allows to get rid of command
 terminators in existing texts.
 
 @c TEXI DOCSTRING MAGIC: isar-strip-terminators
-@deffn Command isar-strip-terminators
-Remove explicit Isabelle/Isar command terminators `;' from the buffer.
+@deffn Command isar-strip-terminators 
+Remove explicit Isabelle/Isar command terminators @samp{;} from the buffer.
 @end deffn
 
 @c
