@@ -8,7 +8,6 @@
 ;; $Id$
 ;;
 
-
 ;; Add Isabelle image onto splash screen
 (customize-set-variable
  'proof-splash-extensions
@@ -18,13 +17,18 @@
 
 (require 'proof)
 
+;;
 ;; Add generic code for Isabelle and Isabelle/Isar
+;;
 (setq load-path (cons (concat proof-home-directory "isa/") load-path))
 (require 'isabelle-system)
+(require 'x-symbol-isabelle) ;; FIXME: ought to be auto-loaded later
 
+;;
 ;; Load syntax
+;;
 (defcustom isar-keywords-name nil
-  "Specifies a specific keywords name to use with Isar.
+  "Specifies a theory-specific keywords setting to use with Isar.
 See -k option for Isabelle interface script."
   :type 'string
   :group 'isabelle-isar)
@@ -38,6 +42,7 @@ See -k option for Isabelle interface script."
 	 isabelle-chosen-logic)))
 (require 'isar-syntax)
 
+
 ;; Completion table for Isabelle/Isar identifiers
 (defpgdefault completion-table isar-keywords-major)
 
@@ -46,6 +51,7 @@ See -k option for Isabelle interface script."
   "URL of web page for Isabelle/Isar."
   :type 'string
   :group 'isabelle-isar)
+
 
 ;; Adjust toolbar entries (must be done before proof-toolbar is loaded).
 
@@ -506,9 +512,9 @@ proof-shell-retract-files-regexp."
   (setq proof-shell-trace-output-regexp "\375"))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Configuring proof and pbp mode and setting up various utilities  ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;   Configuring proof output buffer
+;;
 
 (defun isar-preprocessing ()  ;dynamic scoping of `string'
   "Insert sync markers - acts on variable STRING by dynamic scoping"
@@ -548,21 +554,25 @@ proof-shell-retract-files-regexp."
   "Configure Proof General proof shell for Isabelle/Isar."
   (isar-init-output-syntax-table)
   (setq font-lock-keywords  
-	;;FIXME handle x-symbol stuff by generic code!?
-	;; ALSO: should load x-symbol-isabelle later on!!
-	; (append 
-	isar-output-font-lock-keywords-1)
-        ;; x-symbol-isabelle-font-lock-keywords))
+	;; FIXME da: this is a bit broken; we should handle 
+	;; the x-symbol stuff by generic code, and also
+	;; we should load x-symbol-isabelle later on.
+	(append 
+	 isar-output-font-lock-keywords-1
+	 x-symbol-isabelle-font-lock-keywords))
   (isar-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
 (defun isar-response-mode-config ()
-  (setq font-lock-keywords  
-	;;FIXME handle x-symbol stuff by generic code!?
-	;; (append 
-	isar-output-font-lock-keywords-1)
-  ;; x-symbol-isabelle-font-lock-keywords))
   (isar-init-output-syntax-table)
+  (setq font-lock-keywords  
+	;; FIXME da: this is a bit broken; we should handle 
+	;; the x-symbol stuff by generic code, and also
+	;; we should load x-symbol-isabelle later on.
+	(append 
+	 isar-output-font-lock-keywords-1
+	 x-symbol-isabelle-font-lock-keywords))
+  ;; x-symbol-isabelle-font-lock-keywords))
   (proof-response-config-done))
 
 (defun isar-goals-mode-config ()
