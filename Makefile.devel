@@ -61,7 +61,7 @@ EMACS=xemacs
 RELEASE_TAG=2.0-pre$(shell date "+%y%m%d")
 CVS_RELEASE_TAG=2-0-pre$(shell date "+%y%m%d")
 
-CVSNAME = elisp
+CVSNAME = ProofGeneral
 CVSROOT = /home/proofgen/src
 
 NAME = ProofGeneral
