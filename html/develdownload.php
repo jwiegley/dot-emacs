@@ -73,6 +73,10 @@ notes about work-in-progress.
 <td>RPM package </td>
 <td><?php download_link("ProofGeneral-3.3pre010810-1.noarch.rpm") ?></td>
 </tr>
+<tr>
+<td>individual files</td>
+<td><a href="ProofGeneral">http access to files in development release</a>
+</tr>
 </table>
 <!-- End Warning. -->
 <p>
