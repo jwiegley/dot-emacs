@@ -101,7 +101,7 @@
 	  (if (not (eq (current-indentation) indent))
 	      (progn (delete-region beg (point))
 		     (indent-to indent)))))
-      (skip-chars-forward "\t ")))
+      (skip-chars-forward "\t "))))
 
 ;;;###autoload      
 (defun proof-indent-region (start end)
