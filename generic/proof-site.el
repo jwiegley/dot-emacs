@@ -397,5 +397,18 @@ proof-assistant-table."
 (defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
   "Non-nil if Proof General is running on a win32 system."))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Disable any other XEmacs x-symbol packages: we load ours manually
+;;;
+
+(if proof-running-on-XEmacs
+(defadvice packages-new-autoloads (after ignore-other-x-symbols activate)
+  (setq ad-return-value 
+	(delete-if (lambda (pkg)
+		     (string-match "x-symbol" pkg))
+		   ad-return-value))))
+
+
 (provide 'proof-site))
 ;; proof-site.el ends here
