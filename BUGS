@@ -22,7 +22,7 @@ it is apparent that the recognition of completed proofs is unreliable.
 Please report cases where the buttons are enabled/disabled at the 
 wrong time.  
 
-* Ordinary undo in script buffer can edit the "uneditable region"
+* Ordinary undo in the script buffer can edit the "uneditable region"
 in XEmacs.  This doesn't happen in FSFmacs.  Test case:
   Insert some nonsense text after the locked region.
   Kill the line. Process to the next command.
