@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 2.2  1998/09/03 11:26:55  da
+;; Dead code.
+;;
 ;; Revision 2.1  1998/09/03 11:07:07  da
 ;; Removed dead code
 ;;
@@ -485,7 +488,6 @@
 
 ;; hooks and callbacks
 
-  (add-hook 'proof-shell-exit-hook 'coq-zap-line-width nil t)
   (add-hook 'proof-pre-shell-start-hook 'coq-pre-shell-start nil t))
 
 (defun coq-shell-mode-config ()

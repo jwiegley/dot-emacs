@@ -9,13 +9,7 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-B Remove dead code from all files.
-   da suggests maybe this stuff is defunct:
-    <coq|isa|lego>-save-query	      
-		  -shell-working-dir
-    coq-zap-line-width
-      (proof-shell-exit-hook value, not defined anywhere?)
-  (1hr)
+B Prune dead code.  (1h)
 
 B Add support to proof.el for *not* setting variables for
   commands which aren't supported by a prover.  For example,
