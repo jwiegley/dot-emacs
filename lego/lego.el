@@ -273,9 +273,9 @@ Given is the first SPAN which needs to be undone."
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(proof-defshortcut lego-Intros "Intros "  [?I])
-(proof-defshortcut lego-intros "intros "  [?i])
-(proof-defshortcut lego-Refine "Refine "  [?r])
+(proof-defshortcut lego-Intros "Intros "  [(control I)])
+(proof-defshortcut lego-intros "intros "  [(control i)])
+(proof-defshortcut lego-Refine "Refine "  [(control r)])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Lego Indentation                                               ;;
