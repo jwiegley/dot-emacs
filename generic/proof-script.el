@@ -1790,7 +1790,8 @@ handling of interrupt signals."
   (with-current-buffer proof-shell-buffer
     ;; Just send an interrrupt.  
     ;; Action on receiving one is triggered in proof-shell
-    (comint-interrupt-subjob)))
+    (comint-interrupt-subjob)
+    (run-hooks 'proof-shell-pre-interrupt-hook)))
   
 
 ;;

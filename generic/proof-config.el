@@ -1477,6 +1477,16 @@ determine whether the cause was an error or interrupt."
   :type '(repeat function)
   :group 'proof-shell)
 
+(defcustom proof-shell-pre-interrupt-hook
+  nil
+  "Run immediately after `comint-interrupt-subjob' is called.
+This hook is added to allow customization for Poly/ML and other
+systems where the system queries the user before returning to
+the top level.  For Poly/ML it can be used to send the string \"f\",
+for example."
+  :type '(repeat function)
+  :group 'proof-shell)
+
 (defcustom proof-shell-process-output-system-specific nil
   "Set this variable to handle system specific output.
 Errors, start of proofs, abortions of proofs and completions of
