@@ -64,8 +64,8 @@ If you have the RPM file, this is the line you should add to your
 
 
 
-Running on Windows 95/98/NT
----------------------------
+Running on Windows
+------------------
 
 We recommend XEmacs compiled for Windows, see http://www.xemacs.org
 
@@ -77,6 +77,8 @@ Unpack the Proof General tar or zip file, and rename the folder to
 into .emacs.  You should put .emacs in value of HOME if you set that,
 or else in directory you installled XEmacs in, e.g.  
 c:\Program Files\XEmacs\.emacs
+
+See also README.windows
 
 
 Dependency on Other Emacs Packages
@@ -97,7 +99,7 @@ These are the packages that you need to use Proof General:
  OPTIONAL:
   * outline
   * func-menu
-  * X Symbol	  [ XEmacs only; separate download ]
+  * X Symbol
 
 
 
@@ -159,10 +161,7 @@ example, the name of the proof assistant binary).  See the menu
 
   Proof-General -> Customize -> <Name of Assistant>
 
-and the notes below for more details.
-
-Notice that the customization mechanism is only available in
-Emacs 20.x and XEmacs.
+and the manual for more details.
 
 
 
