@@ -2886,8 +2886,11 @@ of this.  See whether function menu does something sensible by
 default.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-goal-command-p 
+@c TEXI DOCSTRING MAGIC: proof-goal-command-p
 
+@defvar proof-goal-command-p 
+Is this really a goal command?
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-completed-proof-behaviour
 @defvar proof-completed-proof-behaviour 
 Indicates how Proof General treats commands beyond the end of a proof.@*
@@ -3919,8 +3922,8 @@ read.
 @c TEXI DOCSTRING MAGIC: proof-shell-proof-completed
 @defvar proof-shell-proof-completed 
 Flag indicating that a completed proof has just been observed.@*
-If non-nil, the value is actually the number of commands that have
-been processed since the proof was completed.
+If non-nil, the value counts the commands from the last command
+of the proof (starting from 1).
 @end defvar
 
 The @file{proof.el} also loads @file{proof-config.el} which declares the

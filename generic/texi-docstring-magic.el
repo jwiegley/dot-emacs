@@ -298,7 +298,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
     (goto-char (point-min))
     (let ((magic (concat "^"
 			 (regexp-quote texi-docstring-magic-comment)
-			 "\\s-*\\(\\(\\w\\|\\-\\)+\\)$"))
+			 "\\s-*\\(\\(\\w\\|\\-\\)+\\)\\s-*$"))
 	  p
 	  symbol)
       (while (re-search-forward magic nil t)
