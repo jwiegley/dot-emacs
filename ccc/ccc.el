@@ -102,7 +102,7 @@
   (let
       ((count-ccc 0) 
        (count-casl 0)
-       casl)
+       casl str)
     (while span
       (setq str (span-property span 'cmd))
       (cond ((eq (span-property span 'type) 'vanilla)
