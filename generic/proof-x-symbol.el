@@ -40,7 +40,17 @@
 ;; for particular proof assistants may be used elsewhere (e.g. in
 ;; document modes), without loading all of Proof General.
 ;;
+;; =================================================================
 
+;; Current TODO here:
+;;
+;; -- Investigate outstanding problems reported by GK: esp subscripts
+;; -- Fix code at end so that (proof-ass x-symbol-enable) setting works,
+;;    startup follows sequence recommended by CW
+;; -- Test use of X-Symbol's comint input filter function
+;; -- If necessary, modify that function (or provide a wrapper) which
+;;    works also from buffers which do not have x-symbol enabled
+;;
 
 
 (defvar proof-x-symbol-initialized nil
