@@ -11,32 +11,29 @@
 
 (require 'lego-syntax)
 (require 'outline)
+(setq proof-assistant "LEGO")
 (require 'proof)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; User Configuration ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defgroup lego-settings nil
-  "Customization of Lego specifics for Proof General."
-  :group 'proof-general)
-
 ;; I believe this is standard for Linux under RedHat -tms
 (defcustom lego-tags "/usr/lib/lego/lib_Type/"
   "*the default TAGS table for the LEGO library"
   :type 'file
-  :group 'lego-settings)
+  :group 'lego)
 
 (defcustom lego-indent 2
   "*Indentation"
   :type 'number
-  :group 'lego-settings)
+  :group 'lego)
 
 (defcustom lego-test-all-name "test_all"
   "*The name of the LEGO module which inherits all other modules of the
   library."
   :type 'string
-  :group 'lego-settings)
+  :group 'lego)
 
 (defcustom lego-help-menu-list
   '(["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
@@ -44,7 +41,7 @@
   "List of menu items, as defined in `easy-menu-define' for LEGO
   specific help."
   :type '(repeat sexp)
-  :group 'lego-settings)
+  :group 'lego)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Configuration of Generic Proof Package ;;;
@@ -57,9 +54,6 @@
       (setq proof-shell-delayed-output
 	    (cons 'insert "Imports done!"))))
   "Acknowledge end of processing import declarations.")
-
-(defvar lego-assistant "LEGO"
-  "Name of proof assistant")
 
 (defconst lego-process-config "Configure PrettyOn; Configure AnnotateOn;"
   "Command to enable pretty printing of the LEGO process.")
@@ -86,7 +80,7 @@
 (defcustom lego-www-home-page "http://www.dcs.ed.ac.uk/home/lego/"
   "Lego home page URL."
   :type 'string
-  :group 'lego-settings)
+  :group 'lego)
 
 ;; FIXME da: this doesn't belong here, it's only used by lego.
 ;; (and it shouldn't be called w3-* !!)
@@ -101,19 +95,19 @@
   "html/release-1.3/")
   "The WWW address for the latest LEGO release."
   :type 'string
-  :group 'lego-settings)
+  :group 'lego)
 	  
 (defcustom lego-www-refcard
   (concat lego-www-latest-release "refcard.ps.gz")
   "URL for the Lego reference card."
   :type 'string
-  :group 'lego-settings)
+  :group 'lego)
 
 (defcustom lego-library-www-page
   (concat lego-www-latest-release "library/library.html")
   "The HTML documentation of the LEGO library."
   :type 'string
-  :group 'lego-settings)
+  :group 'lego)
 
 
 ;; ----- legostat and legogrep, courtesy of Mark Ruys
@@ -298,9 +292,6 @@
 (defun lego-state-preserving-p (cmd)
   (not (string-match lego-undoable-commands-regexp cmd)))
 
-(defun lego-global-p (cmd)
-  nil)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -352,8 +343,7 @@
 ;; running and is out of sync with the screen width
 
 (defun lego-shell-adjust-line-width ()
-  "Uses LEGO's pretty printing facilities to adjust the line width of
-  the output."
+  "Use LEGO's pretty printing facilities to adjust output line width."
   (save-excursion 
     (set-buffer proof-shell-buffer)
     (and (proof-shell-live-buffer)
@@ -390,8 +380,7 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-assistant lego-assistant
-	proof-www-home-page lego-www-home-page)
+  (setq proof-www-home-page lego-www-home-page)
 
   (setq proof-prf-string "Prf"
 	proof-goal-command "Goal %s;"
@@ -404,7 +393,6 @@
 	proof-find-and-forget-fn 'lego-find-and-forget
         proof-goal-hyp-fn 'lego-goal-hyp
 	proof-state-preserving-p 'lego-state-preserving-p
-	proof-global-p 'lego-global-p
 	proof-parse-indent 'lego-parse-indent
 	proof-stack-to-indent 'lego-stack-to-indent)
 
