@@ -7,7 +7,7 @@ Please let us know if you have any problems in trying to install it.
 Unpack this distribution in some <directory>.  Put this line in your
 .emacs file:
 
-    (load-file "<directory>/elisp/generic/proof-site.el")
+    (load-file "<directory>/generic/proof-site.el")
 
 This will set the Emacs load path and add auto-loads for the
 assistants below:
