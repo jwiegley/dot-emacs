@@ -1145,8 +1145,10 @@ need to bump up this value."
   "Command to the proof assistant to change the working directory.
 The format character %s is replaced with the directory, and the
 proof-terminal-char is added on to the end.
+The format character %e is replaced by the directory, after applying
+escapes specified in `proof-shell-string-escapes', which see.
 
-This is used to define the function proof-cd which 
+This setting is used to define the function proof-cd which 
 changes to the value of (default-directory) for script buffers.
 For files, the value of (default-directory) is simply the
 directory the file resides in.
