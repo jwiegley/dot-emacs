@@ -188,6 +188,7 @@ no regular or easily discernable structure."
 
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
+   proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
 
    ;; Tested values of proof-shell-eager-annotation-start: 
    ;; "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"
@@ -260,10 +261,16 @@ This is a hook function for proof-activate-scripting-hook."
       ;; Send a use_thy command if there is a corresponding .thy file.
       ;; Let Isabelle do the work of checking whether any work needs
       ;; doing.  Really this should be force_use_thy, too.
-      (proof-shell-invisible-command
-       (format isa-usethy-notopml-command
-	       (file-name-sans-extension buffer-file-name))
-       t)
+      ;; Wait after sending, so that queue is cleared for further commands.
+      ;; (there would be no harm in letting the queue be extended
+      ;; if it were allowed for).
+      (progn
+	(proof-shell-invisible-command
+	 (format isa-usethy-notopml-command
+		 (file-name-sans-extension buffer-file-name))
+	 t)
+	;; Leave the messages from the use around.
+	(setq proof-shell-erase-response-flag nil))
     ))
 
 (defun isa-shell-compute-new-files-list (str)

@@ -15,6 +15,7 @@ sig
    val show_context : unit -> theory
    val repeat_undo : int -> unit
    val clear_response_buffer : unit -> unit
+   val clear_goals_buffer : unit -> unit
 
    (* Processing used files *)
    
@@ -39,17 +40,6 @@ end;
 
 structure ProofGeneral : PROOFGENERAL =
   struct
-    (* Some top-level commands for Proof General. *)
-
-    fun kill_goal () = (Goal "PROP no_goal_supplied"; ())
-    fun help () = print version;
-    fun show_context () = the_context();
-
-    (* Function used by undo operation *)
-    
-    fun repeat_undo 0 = ()
-      | repeat_undo n = (undo(); repeat_undo (n-1));
-
     (* State *)
 
     (* Theories which have no .thy or .ML files *)	
@@ -71,6 +61,23 @@ structure ProofGeneral : PROOFGENERAL =
 
     fun clear_response_buffer () =
        writeln("Proof General, please clear the response buffer.");
+
+    fun clear_goals_buffer () =
+       writeln("Proof General, please clear the goals buffer.");
+
+
+    (* Some top-level commands for Proof General. *)
+
+    fun kill_goal () = (Goal "PROP no_goal_supplied"; clear_goals_buffer())
+    fun help () = print version;
+    fun show_context () = the_context();
+
+    (* Function used by undo operation *)
+    
+    fun repeat_undo 0 = ()
+      | repeat_undo n = (undo(); repeat_undo (n-1));
+
+
        
 
     (*
@@ -128,10 +135,12 @@ structure ProofGeneral : PROOFGENERAL =
    fun restart () =
      let val _ = (loaded_thys := !initial_loaded_thys)
          val _ = (retracted_files := [])
-	 val _ = (kill_goal ())
       in
          (list_loaded_files();
           clear_response_buffer();
+	  (* The goals output from this command is ignored because
+             its followed by an urgent message. *)
+	  kill_goal();	
           writeln "Isabelle Proof General: Isabelle process ready!")
       end;
 
@@ -386,7 +395,7 @@ ml_prompts ">\250" "-\251"; (* ?\372, ?\373 *)
 
 
 (* Wake up, Proof General! *)
-hack_send_prompt();
+(* hack_send_prompt(); *)
 
 (* Get Proof General to cache the loaded files.  *)
 ProofGeneral.restart();
