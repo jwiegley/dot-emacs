@@ -1889,29 +1889,35 @@ Calls proof-state-change-hook."
 (defun proof-shell-invisible-command (cmd &optional wait)
   "Send CMD to the proof process.
 The CMD is `invisible' in the sense that it is not recorded in buffer.
-CMD may be a string or a string-yielding function.
+CMD may be a string or a string-yielding expression.
+
 Automatically add proof-terminal-char if necessary, examining
 proof-shell-no-auto-terminate-commands.
+
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
-before and after sending the command."
+before and after sending the command.
+
+In case CMD is (or yields) nil, do nothing."
 ;; NB: 31.03.04: remove this case, since proof-shell-wait simplified:
 ;; If WAIT is an integer, wait for that many seconds afterwards."
   (unless (stringp cmd)
     (setq cmd (eval cmd)))
-  (unless (or (null proof-terminal-char)
-	      (not proof-shell-auto-terminate-commands)
-	      (string-match (concat
-			     (regexp-quote
-			      (char-to-string proof-terminal-char))
-			     "[ \t]*$") cmd))
-    (setq cmd (concat cmd (char-to-string proof-terminal-char))))
-  (if wait (proof-shell-wait))
-  (proof-shell-ready-prover)		; start proof assistant; set vars.
-  (proof-start-queue nil nil
-		     (list (proof-shell-command-queue-item 
-			    cmd 'proof-done-invisible)))
-  (if wait (proof-shell-wait)))
+  (if cmd
+      (progn
+	(unless (or (null proof-terminal-char)
+		    (not proof-shell-auto-terminate-commands)
+		    (string-match (concat
+				   (regexp-quote
+				    (char-to-string proof-terminal-char))
+				   "[ \t]*$") cmd))
+	  (setq cmd (concat cmd (char-to-string proof-terminal-char))))
+	(if wait (proof-shell-wait))
+	(proof-shell-ready-prover)		; start proof assistant; set vars.
+	(proof-start-queue nil nil
+			   (list (proof-shell-command-queue-item 
+				  cmd 'proof-done-invisible)))
+	(if wait (proof-shell-wait)))))
 
 (defun proof-shell-invisible-cmd-get-result (cmd &optional noerror)
   "Execute CMD and return result as a string.
