@@ -319,7 +319,7 @@ and Markus Wenzel.  Thanks to all of you!
 @unnumberedsec History
 @cindex @code{lego-mode}
 @cindex history
-@cindex CtCoq
+
 It all started some time in 1994. There was no Emacs interface for LEGO.
 Back then, Emacs militants worked directly with the Emacs shell to
 interact with the LEGO system. 
@@ -334,6 +334,8 @@ parts of the script to the proof process. The last official version with
 the name @code{lego-mode} (1.9) was released in May 1995.
 
 @cindex proof by pointing 
+@cindex CtCoq
+@cindex Centaur
 The interface project really took off the ground in November 1996. Yves
 Bertot had been working on a sophisticated user interface for the Coq
 system (CtCoq) based on the generic environment Centaur. He visited the
@@ -341,10 +343,11 @@ Edinburgh LEGO group for a week to transfer proof-by-pointing
 technology. Even though proof-by-pointing is an inherently
 structure-conscious algorithm, within a week, Yves Bertot, Dilip Sequeira 
 and Thomas Kleymann managed to implement a first prototype of
-proof-by-pointing in the Emacs interface for LEGO.
+proof-by-pointing in the Emacs interface for LEGO [BKS97].
 
 @cindex structure editor
 @cindex script management
+
 Perhaps we could reuse even more of the CtCoq system. It being a
 structure editor did no longer seem to be such an obstacle. Moreover,
 to conveniently use proof-by-pointing in actual developments, one would
