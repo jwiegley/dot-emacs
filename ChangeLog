@@ -1,3 +1,59 @@
+2000-12-20  David Aspinall  <da@proofgeneral.org>
+
+	* doc/PG-adapting.texi: Fix magic
+
+	* generic/proof-shell.el:
+	Fix comment to not break texi magic
+
+	* generic/texi-docstring-magic.el:
+	More broken escapes.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.html, html/devel.html:
+	Set version tag for new release.
+
+	* CHANGES: Mentioned important changes
+
+	* lego/lego.el, isar/isar.el, generic/pg-user.el:
+	goalsave -> proof
+
+	* coq/coq.el:
+	Experimental support for multiple file handling.
+	'goalsave -> 'proof
+
+	* doc/PG-adapting.texi:
+	Document proof-shell-last-output and friends
+
+	* phox/phox-sym-lock.el, phox/sym-lock.el:
+	Renamed file
+
+	* generic/proof-site.el:
+	Testing line for PGIP.
+
+	* generic/proof-shell.el:
+	Improvements to span handling, including new variables: proof-shell-last-output-kind and friends
+
+	* generic/proof-script.el:
+	Improvements to span handling
+
+2000-12-19  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/sym-lock.el, phox/phox-font.el, phox/phox-fun.el:
+	*** empty log message ***
+
+2000-12-15  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* html/main.html: rename af2 -> Phox
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.html, html/devel.html:
+	Set version tag for new release.
+
+2000-12-15  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/x-symbol-isabelle.el:
+	tuned some (rarely used) symbols;
+
 2000-12-15  David Aspinall  <da@proofgeneral.org>
 
 	* html/main.html: rename af2 -> Phox
