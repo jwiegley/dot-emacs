@@ -142,8 +142,9 @@ If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!).
 
-If you change proof-strict-read-only during a session, you must use
-\"Restart\" (proof-shell-restart)
+If you change proof-strict-read-only during a session, you must 
+use the \"Restart\" button (or M-x proof-shell-restart) before
+you can see the effect in buffers.
 
 The default value for proof-strict-read-only depends on which
 version of Emacs you are using.  In FSF Emacs, strict read only is buggy
