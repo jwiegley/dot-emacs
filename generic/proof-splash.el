@@ -6,135 +6,176 @@
 ;;
 ;; $Id$
 ;;
+;; TODO: centre display better.  support FSFmacs.
+;;
+;; NB: try not to use cl or other autoloaded macro sets here,
+;; to minimise delay before splash screen is shown. 
 
-(require 'annotations)
-(defconst proof-welcome "*Proof General Welcome*"
+(defconst proof-splash-welcome "*Proof General Welcome*"
   "Name of the Proof General splash buffer.")
 
-(defconst proof-display-splash-image
-  ;; Use jpeg if we can, otherwise assume gif will work.
-  (if (featurep 'jpeg)
-      (cons 'jpeg
+(defun proof-splash-display-image (name &optional nojpeg)
+  "Construct an image instantiator for an image, or string failing that.
+Different formats are chosen from according to what can be displayed.
+Unless NOJPEG is set, try jpeg first. Then try gif.
+Gif filename depends on colour depth of display."
+  (cond
+   ((and window-system (featurep 'jpeg) (not nojpeg))
+    (vector 'jpeg :file
+	    (concat proof-internal-images-directory name ".jpg")))
+   ((and window-system (featurep 'gif))
+    (vector 'gif :file
 	    (concat proof-internal-images-directory 
-		    "ProofGeneral.jpg"))
-  (cons 'gif
-	(concat proof-internal-images-directory 
-		(concat "ProofGeneral"
-			(or (and
-			     (fboundp 'device-pixel-depth)
-			     (> (device-pixel-depth) 8)
-			     ".gif")
-			    ;; Low colour gif for poor displays
-			    ".8bit.gif")))))
-  "Format and File name of Proof General Image.")
+		    (concat name
+			    (or (and
+				 (fboundp 'device-pixel-depth)
+				 (> (device-pixel-depth) 8)
+				 ".gif")
+				;; Low colour gif for poor displays
+				".8bit.gif")))))
+   (t
+    (concat "[ image " name " ]"))))
 
-(defcustom proof-display-splash 
-  (valid-instantiator-p
-   (vector (car proof-display-splash-image)
-		 :file (cdr proof-display-splash-image)) 'image)
-  "*Display splash screen when Proof General is loaded."
+(defcustom proof-splash-inhibit
+  nil
+  "*Non-nil prevents splash screen display when Proof General is loaded."
   :type 'boolean
   :group 'proof)
 
-(defcustom proof-internal-display-splash-time 4
+(defcustom proof-splash-contents
+  (list
+   nil
+   nil
+   (proof-splash-display-image "text_proof" t)
+   (proof-splash-display-image "text_general" t)
+   nil
+   (proof-splash-display-image "ProofGeneral")
+   nil
+   "Welcome to"
+   nil
+   (concat proof-assistant " Proof General!")
+   nil)
+  "*List defining splash screen displayed when Proof General is started.
+If an element is a string or an image specifier, it is displayed
+centred on the window on its own line.  If it is nil, a new line is
+inserted."
+  :type 'sexp
+  :group 'proof-config)
+
+(defcustom proof-internal-display-splash-time 1.5
   "Minimum number of seconds to display splash screen for.
-If the machine gets to the end of proof-mode faster than this,
-we wait for the remaining time.  Must be a value less than 40."
-  :type 'integer
+The splash screen may be displayed for a couple of seconds longer than
+this, depending on how long it takes the machine to initialise proof mode."
+  :type 'number
   :group 'proof-internal)
 
+;; Would be nice to get rid of this variable, but it's tricky
+;; to construct a hook function, with a higher order function,
+;; which can easily remove itself.
+(defvar proof-splash-timeout-conf nil
+  "Holds timeout ID and previous window config for proof splash screen.")
+
+(defun proof-splash-centre-spaces (glyph)
+  "Return number of spaces to insert in order to center given glyph or string.
+Borrowed from startup-center-spaces."
+  (let* ((avg-pixwidth     (round (/ (frame-pixel-width) (frame-width))))
+	 (fill-area-width  (* avg-pixwidth (- fill-column left-margin)))
+	 (glyph-pixwidth   (cond ((stringp glyph) 
+				  (* avg-pixwidth (length glyph)))
+				 ((glyphp glyph)
+				  (glyph-width glyph))
+				 (t
+				  (error
+				   "proof-splash-centre-spaces: bad arg")))))
+    (+ left-margin
+       (round (/ (/ (- fill-area-width glyph-pixwidth) 2) avg-pixwidth)))))
+  
 ;; We take some care to preserve the users window configuration
 ;; underneath the splash screen.  This is just to be polite.
-(defun proof-remove-splash-screen (conf)
-  "Make function to remove splash screen and restore window config to conf."
-  `(lambda ()
-     (and ;; If splash buffer is still alive 
-      (get-buffer proof-welcome)
-      (if (get-buffer-window (get-buffer proof-welcome))
-	  ;; Restore the window config if splash is being displayed
-	  (set-window-configuration ,conf)
-	t)
-      ;; And destroy splash buffer.
-      (kill-buffer proof-welcome))))
+(defun proof-splash-remove-screen (conf)
+  "Remove splash screen and restore window config to CONF."
+  (let
+      ((splashbuf (get-buffer proof-splash-welcome)))
+    (if splashbuf
+	(progn
+	  (if (get-buffer-window splashbuf)
+	      ;; Restore the window config if splash is being displayed
+	      (set-window-configuration conf))
+	  ;; Destroy splash buffer 
+	  (kill-buffer splashbuf)))))
 
-(defun proof-display-splash-screen ()
+(defun proof-splash-display-screen ()
   "Save window config and display Proof General splash screen.
-No effect if proof-display-splash-time is zero."
-  (interactive)
-  (if proof-display-splash
-      (let*
-	  ((splashbuf   (get-buffer-create proof-welcome))
-	   (imglyph	(make-glyph
-			 (list (vector (car proof-display-splash-image) ':file
-				       (cdr proof-display-splash-image)))))
-	   ;; Keep win config explicitly instead of pushing/popping because
-	   ;; if the user switches windows by hand in some way, we want
-	   ;; to ignore the saved value.  Unfortunately there seems to
-	   ;; be no way currently to remove the top item of the stack.
-	   (removefn    (proof-remove-splash-screen
-			 (current-window-configuration))))
-	(save-excursion
-	  (set-buffer splashbuf)
-	  (erase-buffer)
-	  ;; FIXME: centre display better.  support FSFmacs.
-	  (insert "\n\n\n\t\t")
-	  (insert-char ?\  (/ (length proof-assistant) 2))
-	  (insert "    Welcome to\n\t\t  "
-		  proof-assistant " Proof General!\n\n\n\t\t ")
-	  (let ((ann (make-annotation imglyph))) ; reveal-annotation doesn't
-	    (reveal-annotation ann))	;      autoload, so use let form.  
-	  (insert "\n\n")
-	  (delete-other-windows (display-buffer splashbuf)))
-	;; Start the timer with a dummy value of 40 secs, to time the
-	;; loading of the rest of the mode.  This is a kludge to make
-	;; sure that the splash screen appears at least throughout the
-	;; load (which shouldn't last 40 secs!).  But if the load is
-	;; triggered by something other than a call to proof-mode,
-	;; the splash screen *will* appear for 40 secs (unless the
-	;; user kills it or switches buffer).
-	(redisplay-frame nil t)
-	(start-itimer proof-welcome removefn 40))))
+Only do it if proof-splash-display is nil."
+  (if (not proof-splash-inhibit)
+    (let
+	;; Keep win config explicitly instead of pushing/popping because
+	;; if the user switches windows by hand in some way, we want
+	;; to ignore the saved value.  Unfortunately there seems to
+	;; be no way currently to remove the top item of the stack.
+	((winconf   (current-window-configuration))
+	 (splashbuf (get-buffer-create proof-splash-welcome))
+	 (after-change-functions nil) ; no font-lock, thank you
+	 (splash-contents proof-splash-contents)
+	 s)
+      (with-current-buffer splashbuf
+	(erase-buffer)
+	;; [ Don't use do-list to avoid loading cl ]
+	(while splash-contents
+	  (setq s (car splash-contents))
+	  (cond
+	   ((and (vectorp s)		; vectorp for FSF
+		 (valid-instantiator-p s 'image))
+	    (let ((gly (make-glyph s)))
+	      (indent-to (proof-splash-centre-spaces gly))
+	      (set-extent-begin-glyph (make-extent (point) (point)) gly)))
+	   ((stringp s)
+	    (indent-to (proof-splash-centre-spaces s))
+	    (insert s)))
+	  (newline)
+	  (setq splash-contents (cdr splash-contents)))
+	(goto-char (point-min))
+	(set-buffer-modified-p nil)
+	(delete-other-windows (display-buffer splashbuf))
+	(if (fboundp 'redisplay-frame)
+	    (redisplay-frame nil t)	; XEmacs special
+	  (sit-for 0))
+	(setq proof-splash-timeout-conf
+	      (cons
+	       (add-timeout proof-internal-display-splash-time
+			    'proof-splash-remove-screen
+			    winconf)
+	       winconf))))))
 
-;; PROBLEM: when to call proof-display-splash-screen?  Effect we'd
-;; like is to call it during loading/initialising.  It's hard to make
-;; the screen persist after loading because of the action of
-;; display-buffer acting after the mode function during find-file.
+;; PROBLEM: when to call proof-splash-display-screen?
+;; We'd like to call it during loading/initialising.  But it's
+;; hard to make the screen persist after loading because of the
+;; action of display-buffer invoked after the mode function
+;; during find-file.
 ;; To approximate the best behaviour, we assume that this file is
 ;; loaded by a call to proof-mode.  We display the screen now and add
 ;; a wait procedure temporarily to proof-mode-hook which prevents
-;; redisplay until at least proof-internal-display-splash-time
-;; has elapsed. 
+;; redisplay until proof-internal-display-splash-time has elapsed. 
 
 ;; Display the screen ASAP...
-(proof-display-splash-screen)
+(proof-splash-display-screen)
 
-(defun proof-wait-for-splash-proof-mode-hook-fn ()
-  "Wait for a while displaying splash screen, then remove self from hook." 
-  (if proof-display-splash
-       (let ((timer (get-itimer proof-welcome)))
-	 (if timer
-	     (if (< (- 40 proof-internal-display-splash-time)
-		    (itimer-value timer))
-		 ;; Splash has still not been seen for all of
-		 ;; internal-display-splash-time, set the timer
-		 ;; for the remaining time...
-		 (progn
-		   (set-itimer-value timer
-		    (- proof-internal-display-splash-time
-		       (- 40 (itimer-value timer))))
-		   ;; and wait until it finishes or user-input
-		   (while (and (get-itimer proof-welcome)
-			       (sit-for 1 t)))
-		   ;; If timer still running, run function
-		   ;; and delete timer.
-		   (if (itimer-live-p timer)
-		       (progn
-			 (funcall (itimer-function timer))
-			 (delete-itimer timer))))))))
-  (remove-hook 'proof-mode-hook 'proof-wait-for-splash-hook))
+(defun proof-splash-timeout-waiter ()
+  "Wait for proof-splash-timeout, then remove self from hook."
+  (while (and (get-buffer proof-splash-welcome)
+	      (not (input-pending-p)))
+    (if (string-match "XEmacs" emacs-version)
+	(sit-for 0 t)			; XEmacs: wait without redisplay
+      (sit-for 0)))			; FSF: FIXME
+  (if (get-buffer proof-splash-welcome)
+      (proof-splash-remove-screen (cdr proof-splash-timeout-conf)))
+  ;; Make sure timeout is stopped
+  (disable-timeout (car proof-splash-timeout-conf))
+  (if (input-pending-p)
+      (setq unread-command-event (next-command-event)))
+  (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
-(add-hook 'proof-mode-hook 'proof-wait-for-splash-proof-mode-hook-fn)
-
+(add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
 
 (provide 'proof-splash)
 ;; End of proof-splash.
