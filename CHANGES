@@ -8,6 +8,13 @@
 
 * Summary of Changes for Proof General 3.5pre from 3.4
 
+** Generic changes
+
+*** Parsing internals changed: minor user visible differences
+
+Please report any problems/annoyances.   
+Not yet enabled for Isabelle/Isar.
+
 
 ** GNU Emacs compatibility improvements
 
