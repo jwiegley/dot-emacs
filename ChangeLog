@@ -1,3 +1,82 @@
+2002-06-20  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+2002-06-19  Pierre Courtieu  <courtieu@lri.fr>
+
+	* CHANGES, doc/ProofGeneral.texi:
+	Updated the doc and the CHANGES file about new backtracking for Coq.
+
+2002-06-19  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-menu.el:
+	Match FSF C-button3 binding with XEmacs one
+
+	* generic/proof-config.el:
+	Doc improvements
+
+2002-06-19  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq-syntax.el:
+	Finished updating the commands and tactic lists of coq-syntax.el.
+
+	* coq/coq-syntax.el:
+	updated the lists of commands and tactics in coq-syntax.el.
+
+2002-06-19  David Aspinall  <da@proofgeneral.org>
+
+	* coq/coq.el:
+	Use coq-proof-mode-p instead of nesting depth test.  Attempt to track nesting depth (fails).
+
+	* etc/coq/nested.v:
+	Add nested section example to increase the horror.
+
+	* etc/coq/nested.v:
+	Added End for sections, and silly test
+
+	* etc/debugging-tips.txt:
+	Updated with more notes
+
+	* coq/coq.el:
+	Clean up: remove count-undos, comments, tweak coq-proof-mode-p.
+
+	* ChangeLog: Updated.
+
+	* generic/proof-shell.el:
+	Add proof-shell-last-prompt.
+
+	* doc/PG-adapting.texi:
+	Add doc of proof-shell-last-prompt.
+
+	* doc/ProofGeneral.texi: Fix info
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2002-06-18  David Aspinall  <da@proofgeneral.org>
+
+	* html/develdownload.php:
+	Update Emacs versions
+
+	* doc/ProofGeneral.texi:
+	Add news for PG 3.4
+
+	* doc/PG-adapting.texi:
+	Update magic.  Document nested proof settings.
+
+	* coq/coq.el:
+	Removed lift-global stuff.  coq-find-and-forget: only undo undoable tactics.
+
+	* generic/proof-script.el:
+	Remove lift-global function.
+
+	* generic/proof-config.el, generic/proof-script.el:
+	Remove global testing and lift-global function; rename proof-nested-goals -> proof-nested-goals-history.
+
+	* etc/coq/nested.v:
+	Added some non-undoable tactics
+
 2002-06-19  David Aspinall  <da@proofgeneral.org>
 
 	* generic/proof-shell.el:
