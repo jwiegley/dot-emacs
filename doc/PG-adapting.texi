@@ -515,19 +515,19 @@ Suggestion: this can be set in the script mode configuration.
 @defvar proof-mode-for-shell 
 Mode for proof shell buffers.@*
 Usually customised for specific prover.
-Suggestion: this can be set a function called by @samp{pre-shell-start-hook}.
+Suggestion: this can be set a function called by @samp{@code{proof-pre-shell-start-hook}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-mode-for-response
 @defvar proof-mode-for-response 
 Mode for proof response buffer.@*
 Usually customised for specific prover.
-Suggestion: this can be set a function called by @samp{pre-shell-start-hook}.
+Suggestion: this can be set a function called by @samp{@code{proof-pre-shell-start-hook}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-mode-for-goals
 @defvar proof-mode-for-goals 
 Mode for proof state display buffers.@*
 Usually customised for specific prover.
-Suggestion: this can be set a function called by @samp{pre-shell-start-hook}.
+Suggestion: this can be set a function called by @samp{@code{proof-pre-shell-start-hook}}.
 @end defvar
 
 @node Menus and toolbar and user-level commands
@@ -1331,7 +1331,7 @@ NB: terminator not added to command.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-stop-silent-cmd
 @defvar proof-shell-stop-silent-cmd 
-Command to turn prover output off.  @*
+Command to turn prover output on.  @*
 If non-nil, Proof General will automatically issue this command
 to help speed up processing of long proof scripts.  
 See also @code{proof-shell-start-silent-cmd}.
