@@ -211,6 +211,11 @@ and script mode."
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
+   (setq proof-shell-theorem-dependency-list-regexp    "Proof General, the theorem dependencies are: \"\\([^\"]*\\)\"") 
+   
+   ;; FIONA! Add something here to set 
+   ;; proof-shell-theorem-dependency-list-regexp
+   ;; to something to match from Isabelle output
 
    ;; Dirty hack to allow font-locking for output based on hidden
    ;; annotations, see isa-output-font-lock-keywords-1

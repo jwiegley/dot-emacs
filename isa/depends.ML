@@ -60,12 +60,12 @@ fun thm_deps thms =
 
 fun new_thm_deps thms =
   let
-    val _ = print "Proof General, the theorem dependencies are:   ";
+    val header = "Proof General, the theorem dependencies are: \"";
     val gra = map snd (Symtab.dest (fst (foldl make_deps_graph ((Symtab.empty, []),
       map (#der o rep_thm) thms))));
-    fun printname s = (print s; print " ");
-    val _ = seq printname (foldl (op@) ([],(map #parents gra)));
-  in writeln "" end;
+    val deps = foldl (op@) ([],(map #parents gra))
+    val msg = header ^ (space_implode " " deps) ^ "\""
+  in writeln msg end;
 
 val old_qed = qed;
 
