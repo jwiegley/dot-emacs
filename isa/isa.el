@@ -481,7 +481,7 @@ you will be asked to retract the file or process the remainder of it."
 ;;
 
 (defcustom isa-not-undoable-commands-regexp
-  (proof-ids-to-regexp '("undo" "back"))
+  (proof-ids-to-regexp '("undo"))
   "Regular expression matching commands which are *not* undoable."
   :type 'regexp
   :group 'isabelle-config)
