@@ -8,16 +8,11 @@
 ;;
 ;; $Id$
 ;;
-;; FIXME da: use of point-min and point-max everywhere is wrong
-;; if narrowing is in force.
 
 (require 'proof)			; loader
 (require 'proof-syntax)			; utils for manipulating syntax
 (require 'span)				; abstraction of overlays/extents
 (require 'proof-menu)			; menus for script mode
-
-(require 'proof-depends)		; FIXME: make this load automatically
-
 
 
 ;; Nuke some byte-compiler warnings 
@@ -59,9 +54,9 @@ second element a list of all the thm names in that file")
 ;;
 
 (deflocal proof-script-last-entity nil
-  "Record of last entity found.   A hack for entities that are named
-in two places, so that find-next-entity doesn't return the same values
-twice.")
+  "Record of last entity found.   
+A hack for entities that are named in two places, so that find-next-entity 
+doesn't return the same values twice.")
 
 ;; FIXME mmw: maybe handle comments/strings by using
 ;; proof-looking-at-syntactic-context (XEmacs-only!)
@@ -341,9 +336,11 @@ If non-nil, point is left where it was."
   "Jump to the end of the locked region, maybe switching to script buffer.
 If interactive or SWITCH is non-nil, switch to script buffer first."
   (interactive)
-  (if (or switch (and (interactive-p) proof-script-buffer))
-      (switch-to-buffer proof-script-buffer))
-  (goto-char (proof-unprocessed-begin)))
+  (proof-with-script-buffer
+   (if (and (not (get-window-buffer proof-script-buffer))
+	    (or switch (and (interactive-p) proof-script-buffer))
+	    (switch-to-buffer proof-script-buffer)))
+   (goto-char (proof-unprocessed-begin))))
 
 ; NB: think about this because the movement can happen when the user
 ; is typing, not very nice!
@@ -432,11 +429,14 @@ to allow other files loaded by proof assistants to be marked read-only."
 ;; complicated for retracting, because we allow a hook function
 ;; to calculate the new included files list.
 
-(defun proof-register-possibly-new-processed-file (file &optional informprover)
+(defun proof-register-possibly-new-processed-file (file &optional informprover noquestions)
   "Register a possibly new FILE as having been processed by the prover.
+
 If INFORMPROVER is non-nil, the proof assistant will be told about this,
 to co-ordinate with its internal file-management.  (Otherwise we assume
 that it is a message from the proof assistant which triggers this call).
+In this case, the user will be queried to save some buffers, unless
+NOQUESTIONS is non-nil.
 
 No action is taken if the file is already registered.
 
@@ -462,10 +462,23 @@ proof assistant and Emacs has a modified buffer visiting the file."
 	  (proof-complete-buffer-atomic buffer))
       ;; Tell the proof assistant, if we should and if we can
       (if (and informprover proof-shell-inform-file-processed-cmd)
-	  (proof-shell-invisible-command 
-	   (proof-format-filename proof-shell-inform-file-processed-cmd 
-				  cfile) 
-	   'wait)))))
+	  (progn
+	    ;; Markus suggests we should ask if the user wants to save
+	    ;; the file now (presumably because the proof assistant
+	    ;; might examine the file timestamp, or attempt to visit
+	    ;; the file later??).
+	    ;; Presumably it would be enough to ask about this file,
+	    ;; not all files?
+	    (if (and
+		 proof-query-file-save-when-activating-scripting
+		 (not noquestions))
+		(unwind-protect
+		    (save-some-buffers)))
+	    ;; Tell the prover 
+	    (proof-shell-invisible-command 
+	     (proof-format-filename proof-shell-inform-file-processed-cmd 
+				    cfile) 
+	     'wait))))))
 
 (defun proof-inform-prover-file-retracted (rfile)
   (if proof-shell-inform-file-retracted-cmd
@@ -698,7 +711,8 @@ a scripting buffer is killed it is always retracted."
 		  (if buffer-file-name
 		      (proof-register-possibly-new-processed-file 
 		       buffer-file-name
-		       'tell-the-prover)))
+		       'tell-the-prover
+		       forcedaction)))
 	      
 	      (if (proof-locked-region-empty-p)
 		  ;; If locked region is empty, make sure this buffer is
@@ -1576,16 +1590,14 @@ a space or newline will be inserted automatically."
 	      (proof-script-new-command-advance)
 	    (proof-script-next-command-advance))))))
 
-;; New 11.09.99.  A better binding for C-c RET.
 (defun proof-goto-point ()
   "Assert or retract to the command at current position.
 Calls proof-assert-until-point or proof-retract-until-point as
 appropriate."
   (interactive)
   (if (<= (proof-queue-or-locked-end) (point))
-      ;; This asserts only until the next command before point
-      ;; and does nothing if whitespace between point and locked
-      ;; region.
+      ;; This asserts only until the next command before point and
+      ;; does nothing if whitespace between point and locked region.
       (proof-assert-until-point)
     (proof-retract-until-point)))
 
@@ -1772,7 +1784,7 @@ command."
 ;;
 ;; User-level functions.
 ;;
-;; FIXME: put these in a new file, proof-user, which defines
+;; TODO: put these in a new file, proof-user, which defines
 ;; user-level scripting mode.  Or put stuff above in a new
 ;; file, proof-core.el for low-level scripting functions.
 ;;
@@ -1784,7 +1796,7 @@ command."
   "Save point according to proof-follow-mode, execute BODY."
   `(if (eq proof-follow-mode 'locked)
        (progn
-	 ,@body)				; nb no error catching
+	 ,@body)
      (save-excursion
 	,@body)))
 
@@ -1802,18 +1814,20 @@ command."
   "Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment."
   (interactive)
-  (proof-maybe-save-point
-   (goto-char (proof-queue-or-locked-end))
-   (proof-assert-next-command))
-  (proof-maybe-follow-locked-end))
+  (proof-with-script-buffer
+   (proof-maybe-save-point
+    (goto-char (proof-queue-or-locked-end))
+    (proof-assert-next-command))
+   (proof-maybe-follow-locked-end)))
 
 (defun proof-process-buffer ()
-  "Process the current buffer, and maybe move point to the end."
+  "Process the current (or script) buffer, and maybe move point to the end."
   (interactive)
-  (proof-maybe-save-point
-   (goto-char (point-max))
-   (proof-assert-until-point-interactive))
-  (proof-maybe-follow-locked-end))
+  (proof-with-script-buffer
+   (proof-maybe-save-point
+    (goto-char (point-max))
+    (proof-assert-until-point-interactive))
+   (proof-maybe-follow-locked-end)))
 
 
 ;;
@@ -1835,10 +1849,8 @@ Notice that the deleted command is put into the Emacs kill ring, so
 you can use the usual `yank' and similar commands to retrieve the
 deleted text."
   (interactive)
-  (proof-with-current-buffer-if-exists 
-   proof-script-buffer
-   (proof-undo-last-successful-command-1 'delete))
-  ;; FIXME want to do this here for 3.2, for nicer behaviour
+  (proof-undo-last-successful-command-1 'delete)
+  ;; FIXME want to do this here for 3.3, for nicer behaviour
   ;; when deleting.
   ;; Unfortunately nasty problem with read only flag when
   ;; inserting at (proof-locked-end) sometimes behaves as if
@@ -1847,30 +1859,32 @@ deleted text."
   ;; (proof-script-new-command-advance)
   )
 
-;; No direct key-binding for this one: C-c C-u is too dangerous,
+;; No direct key-binding for this one: C-c C-u was too dangerous,
 ;; when used quickly it's too easy to accidently delete!
 (defun proof-undo-last-successful-command-1 (&optional delete)
   "Undo last successful command at end of locked region.
 If optional DELETE is non-nil, the text is also deleted from
 the proof script."
   (interactive "P")
-  (proof-maybe-save-point
-   (unless (proof-locked-region-empty-p)
-     (let ((lastspan (span-at-before (proof-locked-end) 'type)))
-       (if lastspan
-	   (progn
-	     (goto-char (span-start lastspan))
-	     (proof-retract-until-point delete))
-	 (error "Nothing to undo!")))))
-  (proof-maybe-follow-locked-end))
+  (proof-with-script-buffer
+   (proof-maybe-save-point
+    (unless (proof-locked-region-empty-p)
+      (let ((lastspan (span-at-before (proof-locked-end) 'type)))
+	(if lastspan
+	    (progn
+	      (goto-char (span-start lastspan))
+	      (proof-retract-until-point delete))
+	  (error "Nothing to undo!")))))
+   (proof-maybe-follow-locked-end)))
 
 (defun proof-retract-buffer ()
   "Retract the current buffer, and maybe move point to the start."
   (interactive)
-  (proof-maybe-save-point
-   (goto-char (point-min))
-   (proof-retract-until-point-interactive))
-  (proof-maybe-follow-locked-end))
+  (proof-with-script-buffer
+   (proof-maybe-save-point
+    (goto-char (point-min))
+    (proof-retract-until-point-interactive))
+   (proof-maybe-follow-locked-end)))
 
 (defun proof-retract-current-goal ()
   "Retract the current proof, and move point to its start."
@@ -1939,6 +1953,19 @@ handling of interrupt signals."
     ;; point.  Also, behaviour with comments is different depending
     ;; on whether locked or not.
     (skip-chars-forward " \t\n")))
+
+;;      FIXME!! UNIFNISHED
+;(defun proof-forward-command (&optional arg)
+;  "Move forward to end of next command.  With argument, repeat.
+;With negative argument, move backward repeatedly."
+;  (interactive "p")
+;  (or arg (setq arg 1))
+;  (if (< arg 0) 
+;      (proof-backward-command (- arg))
+
+;; FIXME: these aren't quite the functions I want yet
+(defalias 'proof-forward-command 'proof-goto-command-start)
+(defalias 'proof-backward-command 'proof-goto-command-end)
 
 (defun proof-goto-command-end ()
   "Set point to end of command at point."
@@ -2248,18 +2275,18 @@ CMDVAR is a function or string.  Automatically has history."
   "Insert CMD into the script buffer and issue it to the proof assistant.
 If point is in the locked region, move to the end of it first.
 Start up the proof assistant if necessary."
-  ;; FIXME: da: need (proof-switch-to-buffer proof-script-buffer) here?
-  (if (proof-shell-live-buffer)
-      (if (proof-in-locked-region-p)
-	  (proof-goto-end-of-locked t)))
-  (proof-script-new-command-advance)
-  ;; FIXME: fixup behaviour of undo here.  Really want to temporarily
-  ;; disable undo for insertion.  but (buffer-disable-undo) trashes
-  ;; whole undo list!
-  (insert cmd)
-  ;; FIXME: could do proof-indent-line here, but let's wait until
-  ;; indentation is fixed.
-  (proof-assert-until-point-interactive))
+  (proof-with-script-buffer
+   (if (proof-shell-live-buffer)
+       (if (proof-in-locked-region-p)
+	   (proof-goto-end-of-locked t)))
+   (proof-script-new-command-advance)
+   ;; FIXME: fixup behaviour of undo here.  Really want to temporarily
+   ;; disable undo for insertion.  but (buffer-disable-undo) trashes
+   ;; whole undo list!
+   (insert cmd)
+   ;; FIXME: could do proof-indent-line here, but let's wait until
+   ;; indentation is fixed.
+   (proof-assert-until-point-interactive)))
 
 ;;
 ;; Commands which do not require a prompt and send an invisible
@@ -2456,7 +2483,7 @@ last use time, to discourage saving these into the users database."
 ;;
 ;; Tags table building
 ;;
-;; New in 3.2.  
+;; New in 3.2... or perhaps later.  
 ;;
 ;; FIXME: incomplete.  Add function to build tags table from
 ;; 
@@ -2792,11 +2819,10 @@ finish setup which depends on specific proof assistant configuration."
   ;; NB: autloads proof-toolbar, which defines proof-toolbar-scripting-menu.
   (proof-toolbar-setup)
 
-  ;; Menus: the main Proof-General menu...
+  ;; Menus: the Proof-General and the specific menu
   (proof-menu-define-main)
-  (easy-menu-add proof-mode-menu proof-mode-map)
-  ;; and the proof-assistant-menu
   (proof-menu-define-specific)
+  (easy-menu-add proof-mode-menu proof-mode-map)
   (easy-menu-add proof-assistant-menu proof-mode-map)
 
   ;; Use new parsing mechanism which works for different
