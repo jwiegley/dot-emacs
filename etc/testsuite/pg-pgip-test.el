@@ -12,3 +12,5 @@
 (pg-test-eval (pg-pgip-interpret-value "27" (list 'choice 'boolean 'integer)) 27)
 
 
+(provide 'pg-pgip-test)
+;; End of `pg-pgip-test.el'

@@ -49,17 +49,17 @@
 	  (setq result (eval expr))
 	;; FIXME: add negative tests here, that exns _are_ raised.
 	(t (setq errorresult 
-		 (format "Test %s failed: error signalled: %s %s\n" 
+		 (format " %s failed: error signalled: %s %s\n" 
 			 name (car exn) (cdr exn)))))
       (or errorresult
 	  (unless (equal goodresult result)
 	    (setq errorresult
-		  (format "Test %s failed: exprected result %s, got %s\n"
+		  (format " %s failed: exprected result %s, got %s\n"
 			  name goodresult result))))
       (if errorresult
 	  (incf pg-test-suite-fail-count)
 	(incf pg-test-suite-success-count)
-	(setq errorresult (format "Test %s succeeded.\n" name)))
+	(setq errorresult (format " %s succeeded.\n" name)))
       ;; Return string
       errorresult))
      ;; No other types at the moment
@@ -79,8 +79,9 @@
     (insert "TEST SUITE: " name "\n") 
     (insert "=================================================================\n")
     (apply 'insert
-     (mapcar 'pg-execute-test (cdr-safe
-			       (assoc name pg-test-suite-table))))
+     (mapcar 'pg-execute-test 
+	     (reverse (cdr-safe
+		       (assoc name pg-test-suite-table)))))
     (insert (format
 	     "\nTotal successful tests: %s, failed tests: %s\n\n"
 	     pg-test-suite-success-count   pg-test-suite-fail-count)))
@@ -104,3 +105,5 @@
 
 
 
+(provide 'pg-test)
+;; End of `pg-test.el'
