@@ -1650,7 +1650,6 @@ to the function which parses the script segment by segment."
     (if (looking-at proof-script-command-start-regexp)
 	(progn
 	  ;; We've got at least the beginnings of a command, skip past it
-	  ;(re-search-forward proof-script-command-start-regexp nil t)
 	  (goto-char (match-end 0))
 	  (let (foundstart)
 	    ;; Find next command start
@@ -1659,12 +1658,17 @@ to the function which parses the script segment by segment."
 			 (and 
 			  (re-search-forward proof-script-command-start-regexp
 					     nil 'movetolimit)
-			  (match-beginning 0)))
-			(proof-buffer-syntactic-context))
-	      ;; inside a string or comment before the next command start
+			  (and (match-beginning 0) 
+			       ;; jiggery pokery here is to move outside a
+			       ;; comment in case a comment start is considered to
+			       ;; be a command start (for non fly-past behaviour)
+			       (goto-char (match-beginning 0)))))
+			(proof-buffer-syntactic-context)
+			(goto-char (1+ (point))))
+	      ;; loop while in a string/comment before the next command start
 	      )
 	    (if (not (proof-buffer-syntactic-context))  ; not inside a comment/string
-		(if foundstart		             ; found a  second command start
+		(if foundstart		                ; found a second command start
 		    (progn
 		      (goto-char foundstart)          ; beginning of command start
 		      (skip-chars-backward " \t\n")   ; end of previous command
@@ -1689,14 +1693,69 @@ to the function which parses the script segment by segment."
 	  (progn (goto-char end) 'cmd)))))
     
 
-;; Parsing functions for v3.2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; NB: compared with old code,
+;; Old parsing functions written for v3.2  (still used in Isar)
+;;
+;; NB: compared with previous (even older) code,
 ;; (1) this doesn't treat comments quite so well, but parsing
 ;; should be rather more efficient.
 ;; (2) comments are treated less like commands, and are only
 ;; coloured blue "in passing" when commands are sent.
 ;; However, undo still process comments step-by-step.
+
+(defun proof-cmdstart-add-segment-for-cmd (comstart prev)
+  (let ((tmp (point))
+	(commentre   (concat "[ \t\n]*" proof-script-comment-start-regexp))
+	(commentend   (concat proof-script-comment-end-regexp "[ \t\n]*" )))
+    ;; Find end of previous command...
+    (goto-char comstart)
+    ;; Special hack: terminal char is included in a command, if set.
+    (if (and proof-terminal-char
+	     (looking-at 
+	      (regexp-quote (char-to-string proof-terminal-char))))
+	(goto-char (1+ (point)))
+      (skip-chars-backward " \t\n"))
+    (let* ((prev-no-blanks
+	    (save-excursion 
+	      (goto-char prev) 
+	      (skip-chars-forward " \t\n") 
+	      (point)))
+	   (comend (point))
+	   (bufstr (buffer-substring prev-no-blanks comend))
+	   (type   
+	    (save-excursion
+	      ;; The behaviour here is a bit odd: this is a
+	      ;; half-hearted attempt to strip comments as we send
+	      ;; text to the proof assistant, but it breaks when we
+	      ;; have certain bad input: (* foo *) blah (* bar *) cmd
+	      ;; We check for the case of a comment spanning the
+	      ;; *whole* substring, otherwise send the (defective)
+	      ;; text as if it were a proper command anyway.  This
+	      ;; shouldn't cause problems: the proof assistant is
+	      ;; certainly capable of skipping comments itself, and
+	      ;; the situation should cause an error.  (If it were
+	      ;; accepted it could upset the undo behaviour)
+	      (goto-char prev-no-blanks)
+	      ;; Update: PG 3.4: try to deal with sequences of
+	      ;; comments as well, since previous behaviour breaks
+	      ;; Isar, in fact, since repeated comments get
+	      ;; categorized as commands, breaking sync.
+	      (if (and 
+		   (looking-at commentre)
+		   (re-search-forward proof-script-comment-end-regexp)
+		   (progn
+		     (while (looking-at commentre)
+		       (re-search-forward proof-script-comment-end-regexp))
+		     (>= (point) comend)))
+		  'comment 'cmd)))
+	   (string (if (eq type 'comment) "" bufstr)))
+      (setq prev (point))
+      (goto-char tmp)
+      ;; Return cons of new prev and the new segment
+      ;; NB: Command string excludes whitespace, span includes it.
+      (cons prev (list type string prev)))))
 
 (defun proof-segment-up-to-cmdstart (pos &optional next-command-end)
   "Parse the script buffer from end of locked to POS.
@@ -1710,64 +1769,7 @@ which continues past POS, if any.  (NOT IMPLEMENTED IN THIS VERSION).
 
 This version is used when `proof-script-command-start-regexp' is set."
   (save-excursion
-    (let* ((commentre   (concat "[ \t\n]*" proof-script-comment-start-regexp))
-	   (commentend   (concat proof-script-comment-end-regexp "[ \t\n]*" ))
-	   (add-segment-for-cmd		; local function: advances "prev"
-	    (lambda ()
-	      (setq tmp (point))
-	      ;; Find end of previous command...
-	      (goto-char comstart)
-	      ;; Special hack: allow terminal char to be included
-	      ;; in a command, if it's set.
-	      (if (and proof-terminal-char
-		       (looking-at 
-			(regexp-quote (char-to-string proof-terminal-char))))
-		  (goto-char (1+ (point)))
-		(skip-chars-backward " \t\n"))
-	      (let* ((prev-no-blanks
-		      (save-excursion 
-			(goto-char prev) 
-			(skip-chars-forward " \t\n") 
-			(point)))
-		     (comend (point))
-		     (bufstr (buffer-substring prev-no-blanks comend))
-		     (type   (save-excursion
-				  ;; The behaviour here is a bit odd: this
-				  ;; is a half-hearted attempt to strip comments
-				  ;; as we send text to the proof assistant,
-				  ;; but it breaks when we have certain bad
-				  ;; input:  (* foo *) blah (* bar *) cmd 
-				  ;; We check for the case
-				  ;; of a comment spanning the *whole*
-				  ;; substring, otherwise send the
-				  ;; (defective) text as if it were a
-				  ;; proper command anyway.
-				  ;; This shouldn't cause problems: the 
-				  ;; proof assistant is certainly capable
-				  ;; of skipping comments itself, and
-				  ;; the situation should cause an error.
-				  ;; (If it were accepted it could upset the
-				  ;; undo behaviour)
-			       (goto-char prev-no-blanks)
-			       ;; Update: PG 3.4: try to deal with sequences
-			       ;; of comments as well, since previous behaviour
-			       ;; breaks Isar, in fact, since repeated
-			       ;; comments get categorized as commands, 
-			       ;; breaking sync.
-			       (if (and 
-				    (looking-at commentre)
-				    (re-search-forward proof-script-comment-end-regexp)
-				    (progn
-				      (while (looking-at commentre)
-					(re-search-forward proof-script-comment-end-regexp))
-				      (>= (point) comend)))
-				   'comment 'cmd)))
-		     (string (if (eq type 'comment) "" bufstr)))
-		(setq prev (point))
-		(goto-char tmp)
-		;; NB: Command string excludes whitespace, span includes it.
-		(setq alist (cons (list type string prev) alist)))))
-	   alist prev cmdfnd startpos comstart tmp)
+    (let* (alist prev cmdfnd startpos comstart first)
       (goto-char (proof-queue-or-locked-end))
       (setq prev (point))
       (skip-chars-forward " \t\n")
@@ -1775,21 +1777,28 @@ This version is used when `proof-script-command-start-regexp' is set."
       (while 
 	  (and 
 	   (proof-re-search-forward proof-script-command-start-regexp
-			      nil t)   ; search for next command
+				    nil t)   ; search for next command
 	   (setq comstart (match-beginning 0)); save command start
 	   (or (save-excursion
 		 (goto-char comstart)
 		 ;; continue if inside (or at start of) comment/string
+		 ;; NB: this causes the "fly past comments behaviour",
+		 ;; it's a bit tricky to remove for Isar because some
+		 ;; Isar commands are manifestly exactly a command
+		 ;; followed by a comment (e.g. text {* foo *}).
 		 (proof-looking-at-syntactic-context))
 	       (progn			    ; or, if found command...
 		 (setq cmdfnd 
 		       (> comstart startpos)); ignore first match
 		 (<= prev pos))))
-	(if cmdfnd (progn
-		     (funcall add-segment-for-cmd)
-		     (setq cmdfnd nil))))
+	(if cmdfnd 
+	    (progn
+	      (let ((prevseg (proof-cmdstart-add-segment-for-cmd comstart prev)))
+		(setq prev (car prevseg))
+		(setq alist (cons (cdr prevseg) alist))
+		(setq cmdfnd nil)))))
       ;; End of parse; see if we found some text at the end of the
-      ;; buffer which could be a command.  (NB: With a regexp for 
+      ;; buffer which could be a command.  (NB: With a regexp for
       ;; start of commands only, we can't be sure it is a complete
       ;; command).
       (if (and comstart			; previous command was found
@@ -1797,7 +1806,9 @@ This version is used when `proof-script-command-start-regexp' is set."
 	       (goto-char (point-max))
 	       (setq comstart (point))	; pretend there's another cmd here
 	       (not (proof-buffer-syntactic-context))) ; buffer ends well
-	  (funcall add-segment-for-cmd))
+	  (setq alist
+		(cons (cdr (proof-cmdstart-add-segment-for-cmd comstart prev))
+		      alist)))
       ; (if (and cmdfnd next-command-end)
       ; (funcall add-segment-for-cmd))
       ;; Return resulting list
@@ -2311,7 +2322,6 @@ command."
   (if (proof-locked-region-empty-p)
       (error "No locked region")
     ;; Make sure we're ready: either not busy, or already advancing/retracting.
-    ;;(proof-activate-scripting nil '(advancing retracting))
     (proof-activate-scripting)
     (let ((span (span-at (point) 'type)))
       ;; If no span at point, retracts the last span in the buffer.
@@ -2612,7 +2622,7 @@ with something different."
   "Finish setup of Proof General scripting mode.
 Call this function in the derived mode for the proof assistant to
 finish setup which depends on specific proof assistant configuration."
-
+  
   ;; Common configuration for shared script/other related buffers.
   (proof-config-done-related)
 
