@@ -115,8 +115,7 @@ END-INFO-DIR-ENTRY
 @c image{ProofGeneralPortrait}
 @end ifset
 @end iftex
-@author David Aspinall with 
-   P. Courtieu, H. Goguen, T. Kleymann, D. Sequeira, M. Wenzel.
+@author David Aspinall with P. Courtieu, H. Goguen, T. Kleymann, D. Sequeira, M. Wenzel.
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
@@ -240,28 +239,6 @@ See the @file{CHANGES} file in the distribution for more complete
 details of changes since 3.3.
 
 
-@node Old News for 3.3
-@unnumberedsec Old News for 3.3
-
-Proof General 3.3 includes a few feature additions, but mainly the focus
-has been on compatibility improvements for new versions of provers (in
-particular, Coq 7), and new versions of emacs (in particular, XEmacs
-21.4).
-
-One new feature is control over visibility of completed proofs,
-@xref{Visibility of completed proofs}.  Another new feature is the
-tracking of theorem dependencies inside Isabelle.  A context-sensitive
-menu (right-button on proof scripts) provides facility for browsing the
-ancestors and child theorems of a theorem, and highlighting them.  The
-idea of this feature is that it can help you untangle and rearrange big
-proof scripts, by seeing which parts are interdependent.  The implementation
-is provisional and not documented yet in the body of this manual.  It only
-works for the "classic" version of Isabelle99-2.
-
-See the @file{CHANGES} file in the distribution for more complete
-details of changes since 3.2.
-
-
 @node Future
 @unnumberedsec Future
 @cindex Proof General Kit
@@ -287,8 +264,33 @@ assistant, you will need to configure your proof assistant to understand
 PGIP.  There is a similarity however; the design of PGIP was based
 heavily on the Emacs Proof General framework.
 
-For more details, see 
-@uref{http://www.proofgeneral.org/kit, the Proof General Kit webpage}.
+At the moment little work has been done: collaborations are eagerly
+sought.  For more details, see @uref{http://www.proofgeneral.org/kit,
+the Proof General Kit webpage}.
+
+
+
+@node Old News for 3.3
+@unnumberedsec Old News for 3.3
+
+Proof General 3.3 includes a few feature additions, but mainly the focus
+has been on compatibility improvements for new versions of provers (in
+particular, Coq 7), and new versions of emacs (in particular, XEmacs
+21.4).
+
+One new feature is control over visibility of completed proofs,
+@xref{Visibility of completed proofs}.  Another new feature is the
+tracking of theorem dependencies inside Isabelle.  A context-sensitive
+menu (right-button on proof scripts) provides facility for browsing the
+ancestors and child theorems of a theorem, and highlighting them.  The
+idea of this feature is that it can help you untangle and rearrange big
+proof scripts, by seeing which parts are interdependent.  The implementation
+is provisional and not documented yet in the body of this manual.  It only
+works for the "classic" version of Isabelle99-2.
+
+See the @file{CHANGES} file in the distribution for more complete
+details of changes since 3.2.
+
 
 
 
