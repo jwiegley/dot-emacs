@@ -2444,7 +2444,8 @@ If this table is empty or needs adjusting, please make changes using
        '([(control c) \`] . proof-next-error)
      '("`" . proof-next-error))
    '(([(control c) (control c)] . proof-interrupt-process)
-     ([(control c) (control v)] . proof-minibuffer-cmd)))
+     ([(control c) (control v)] . proof-minibuffer-cmd)
+     ([(control c) (control w)] . pg-response-clear-displays)))
 "List of key-bindings made for the script, goals and response buffer. 
 Elements of the list are tuples `(k . f)' 
 where `k' is a key-binding (vector) and `f' the designated function."
