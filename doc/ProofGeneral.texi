@@ -6,6 +6,12 @@
 @c NB: the first line of this file uses a non-standard TeXinfo
 @c hack to print in Serifa fonts.  It has no effect if you don't have
 @c my hacked version of TeXinfo - da.
+
+@c
+@c TODO:  MMM support, Theorem dependencies
+@c
+
+
 @c
 @c 
 @setfilename ProofGeneral.info
@@ -64,8 +70,8 @@
 @c
 
 @set version 3.5
-@set xemacsversion 21.4
-@set fsfversion 21.3
+@set xemacsversion 21.4.12
+@set fsfversion 21.3.1
 @set last-update April 2004
 @set rcsid $Id$
 
@@ -120,7 +126,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998-2002 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998-2004 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -166,7 +172,7 @@ generic Emacs interface for proof assistants.
 Proof General @value{version} has been tested with XEmacs
 @value{xemacsversion} and GNU Emacs @value{fsfversion}.  It is supplied
 ready to use for the proof assistants LEGO, Coq, Isabelle, and PhoX.
-Basic (unofficial) support is provided for several other provers.
+Experimental support is provided for several other provers.
 
 @menu
 * Preface::                     
@@ -229,16 +235,21 @@ management is improved and repaired for Emacs API changes.  There are
 some other usability improvements, prompted in part by feedback after
 Proof General's appearance at the TYPES 2002 Summer School.
 
+Support has been added for the useful Emacs packages Speedbar
+@c @uref{http://cedet.sourceforge.net/speedbar.shtml,Speedbar} 
+and Index Menu, both usually distributed with Emacs.
 Compatible versions of the Emacs packages X-Symbol (for mathematical
 symbols) and MMM Mode (for multiple modes in one buffer) are now
-bundled.
+bundled with Proof General to save the need for additional downloads.
+
+@c The display handling functions have been improved to be more user
+@c friendly and the display in multiple-window mode is trimmed to
+@c allow more text space for display.  
 
 Proof General 3.5 runs reliably as compiled Elisp code, and is available
 in RPM package format which includes desktop integration on
 freedesktop.org compliant desktops (including, for example, many recent
 Linux distributions).
-
-
 
 @c Other stuff pending:
 @c X-Symbol 4.4 support??
@@ -257,7 +268,6 @@ details of changes since version 3.4, and the appendix
 The aim of the Proof General project is to provide a powerful and
 configurable interfaces which help user-interaction with interactive
 proof assistants.  
-
 The strategy Proof General uses is to targets power users rather than
 novices; other interfaces have often neglected this class of users.  But
 we do include general user interface niceties, such as toolbar and
@@ -267,7 +277,6 @@ Proof General has been Emacs based so far, but plans are afoot to
 liberate it from the points and parentheses of Emacs Lisp.  The
 successor project Proof General Kit proposes that proof assistants use a
 @i{standard} XML-based protocol for interactive proof, dubbed @b{PGIP}.
-
 PGIP will enable middleware for interactive proof tools and interface
 components.  Rather than configuring Proof General for your proof
 assistant, you will need to configure your proof assistant to understand
@@ -280,9 +289,7 @@ development, and a middleware component for co-ordinating proof written
 in Haskell.  Further collaborations are sought for more developments,
 especially the PGIP enabling of other provers.  For more details, see
 @uref{http://proofgeneral.inf.ed.ac.uk/kit, the Proof General Kit webpage}.
-
-
-
+Help us to help you organize your proofs!
 
 
 
@@ -313,14 +320,14 @@ later contributions from Patrick Loiseleur.
 It is now maintained by Pierre Courtieu @i{<courtieu@@lri.fr>}.
 @c
 Isabelle Proof General was written and is being maintained by David
-Aspinall @i{<David.Aspinall@@ed.ac.uk>}.  It has benefited greatly from tweaks
-and suggestions by Markus Wenzel
-@i{<wenzelm@@informatik.tu-muenchen.de>}, who wrote and maintains
-Isabelle/Isar Proof General.  Markus also added Proof General support
-inside Isabelle.  David von Oheimb supplied the original patches for
-X-Symbol support, which improved Proof General significantly.
-Christoph Wedler, the author of X-Symbol, has provided much useful
-support in adapting his package for PG.
+Aspinall @i{<David.Aspinall@@ed.ac.uk>}.  It has benefited greatly from
+tweaks and suggestions by Markus Wenzel
+@i{<wenzelm@@informatik.tu-muenchen.de>}, who wrote Isabelle/Isar Proof
+General and added Proof General support inside Isabelle.  David von
+Oheimb supplied the original patches for X-Symbol support, which
+improved Proof General significantly.  Christoph Wedler, the author of
+X-Symbol, has provided much useful support in adapting his package for
+PG.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
 Goguen and Aspinall. It follows some of the ideas used in Project
@@ -459,6 +466,8 @@ Proof General mode will be invoked automatically:
 @item       Twelf         @tab @file{.elf}    @tab @code{twelf-mode}
 @item       Plastic       @tab @file{.lf}     @tab @code{plastic-mode}
 @item       Lambda-CLAM   @tab @file{.lcm}    @tab @code{lclam-mode}
+@item       CCC           @tab @file{.ccc}    @tab @code{ccc-mode}
+@item       PG-Shell      @tab @file{.pgsh}   @tab @code{pgshell-mode}
 @end multitable
 (The exact list of Proof Assistants supported may vary according to the
 version of Proof General and its local configuration).  You can also
@@ -476,8 +485,8 @@ The proof assistant itself is started automatically inside Emacs as an
 processed.  You can start the proof assistant manually with the
 menu command "Start proof assistant".
 
-To follow an example use of Proof General on a LEGO proof, 
-@pxref{Walkthrough example in LEGO}.  If you know the syntax for proof
+To follow an example use of Proof General on a Isabelle proof, 
+@pxref{Walkthrough example in Isabelle/Isar}.  If you know the syntax for proof
 scripts in another theorem prover, you can easily adapt the details 
 given there.
 
@@ -585,7 +594,8 @@ assistant to provide it.
 @node Supported proof assistants
 @section Supported proof assistants
 
-Proof General comes ready-customized for these proof assistants:
+Proof General comes ready-customized for several
+proof assistants, including these:
 
 @c FLAG VERSIONS HERE
 @itemize @bullet
@@ -593,18 +603,24 @@ Proof General comes ready-customized for these proof assistants:
 @b{LEGO Proof General} for LEGO Version 1.3.1@*
 @xref{LEGO Proof General}, for more details.
 @item 
-@b{Coq Proof General} for Coq Version 6.3@*
+@b{Coq Proof General} for Coq Version 6.3, 7.x, 8.x@*
 @xref{Coq Proof General}, for more details.
 @item 
-@b{Isabelle Proof General} for Isabelle2002@*
+@b{Isabelle Proof General} for Isabelle2004@*
 @xref{Isabelle Proof General}, for more details.
 @item 
-@b{Isabelle/Isar Proof General} for Isabelle2002@*
+@b{Isabelle/Isar Proof General} for Isabelle2004@*
 @xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
+@c @item
+@c @b{PhoX Proof General} for PhoX 0.8X@*
+@c @xref{PhoX Proof General}, for more details.
 @item
-@b{HOL Proof General} for HOL98@*
+@b{HOL Proof General} for HOL98 (HOL4)@*
 @xref{HOL Proof General}, for more details.
+@item
+@b{Shell Proof General} for shell scripts (not really a proof assistant!)@*
+@xref{Shell Proof General}, for more details.
 @end itemize
 Proof General is designed to be generic, so if you know how
 to write regular expressions, you can make:
@@ -705,7 +721,7 @@ facilities of Proof General.  We begin with a quick walkthrough example,
 then describe the concepts and functions in more detail.
 
 @menu
-* Walkthrough example in LEGO::  
+* Walkthrough example in Isabelle/Isar::  
 * Proof scripts::               
 * Script buffers::              
 * Summary of Proof General buffers::               
@@ -716,15 +732,16 @@ then describe the concepts and functions in more detail.
 * Interrupting during trace output::
 @end menu
 
-@node Walkthrough example in LEGO
-@section Walkthrough example in LEGO
+@node Walkthrough example in Isabelle/Isar
+@section Walkthrough example in Isabelle/Isar
 
-Here's a short example in LEGO to see how script management is used.
-The file you are asked to type below is included in the distribution
-as @file{lego/example.l}.  If you're not using LEGO, substitute some
-lines from a simple proof for your proof assistant, or consult the
-example file supplied with Proof General for your prover, called
-something like @file{foo/example.foo} for a proof assistant Foo.
+Here's a short example in Isabelle/Isar to see how script management
+is used.  The file you are asked to type below is included in the
+distribution as @file{isar/Example.thy}.  If you're not using
+Isabelle, substitute some lines from a simple proof for your proof
+assistant, or consult the example file supplied with Proof General for
+your prover, called something like @file{foo/example.foo} for a proof
+assistant Foo.
 
 This walkthrough is keyboard based, but you could easily use the toolbar
 and menu functions instead.  The best way to learn Emacs key bindings is
@@ -733,77 +750,115 @@ menus.
 
 @itemize @bullet
 @item
-First, find a new file by @kbd{C-x C-f} and typing as the filename
-@file{example.l}.  This should load LEGO Proof General and the toolbar
-and Proof General menus will appear.  You should have an empty buffer
-displayed.
+First, start Emacs with Proof General loaded.  According to how you
+have installed Proof General, this may be by typing
+@code{proofgeneral}, selecting it from a menu, or simply by starting
+Emacs itself.
+@item
+Next, find a new file by @kbd{C-x C-f} and typing as the filename
+@file{Walkthrough.thy}.  This should load Isabelle Proof General and the
+toolbar and Proof General menus will appear.  You should have an empty
+buffer displayed.
 @end itemize
 
 The notation @kbd{C-x C-f} means control key with `x' followed by
 control key with `f'.  This is a standard notation for Emacs key
-bindings, used throughout this manual.  This function also
-appears on the @code{File} menu of Emacs.  The remaining commands
-used will be on the @code{Proof-General} menu.
+bindings, used throughout this manual.  This function also appears on
+the @code{File} menu of Emacs.  The remaining commands used will be on
+the @code{Proof-General} menu.
 
-If you're not using LEGO, you must choose a different file extension,
-appropriately for your proof assistant.  If you don't know what to use,
-see the previous chapter for the list of supported assistants and file
-extensions.
+If you're not using Isabelle, you must choose a different file
+extension, appropriately for your proof assistant.  If you don't know
+what to use, see the previous chapter for the list of supported
+assistants and file extensions.
 
 @itemize @bullet
 @item
 Turn on @dfn{electric terminator} by typing @kbd{C-c ;} and
 enter:
 @lisp
-Module example Import lib_logic;
+theory Walkthrough = Main:;
 @end lisp
-This first command defines a file header and tells LEGO to use logic; 
-these steps are usually not necessary in other proof assistants.
+This first command begins the definition of a new theory inside
+Isabelle, which extends the theory @code{Main}.  (We're assuming that
+you have Isabelle/HOL available, which declares the @code{Main}
+theory.  You should be able to see the list of installed logics in
+Isabelle on the @code{Logics} menu).
 @end itemize
 
 Electric terminator sends commands to the proof assistant as you type
 them.  The exact key binding is based on the terminator used for your
 proof assistant, but you can always check the menu if you're not sure.
 
-Electric terminator mode is popular, but not enabled by default because
-of the principle of least surprise.  You can customize Proof General to
-enable it everytime if you want, @xref{Customizing Proof General}.  In
-XEmacs, this is particularly easy: just use the menu item @code{Proof General -> Options -> Save Options} to save some common options while 
-using Proof General.
+Electric terminator mode is popular, but not enabled by default
+because of the principle of least surprise.  You can customize Proof
+General to enable it everytime if you want, @xref{Customizing Proof
+General}.  For this option, customization is particularly easy: just
+use the menu item @code{Proof General -> Options} to select some
+common options, and @code{Proof General -> Options -> Save Options} to
+save your choices.  
 
-The @code{Module} command should now be lit in pink (or inverse video if
-you don't have a colour display).  As LEGO imports each module, a line
-will appear in the minibuffer showing the creation of context
-marks. Eventually the command should turn blue, indicating that LEGO has
-successfully processed it.
+At the moment you type the semicolon, the @code{theory} command will
+be sent to Isabelle behind the scenes.  First, there is a short delay
+while Isabelle is launched; you may see a welcome message.  Then, you
+may notice that the command briefly is given an orange/pink background
+(or shown in inverse video if you don't have a colour display), before
+you see a window @c like this:
+containing text like this:
+@lisp
+theory Walkthrough =
+  {ProtoPure, CPure, HOL, Set, Typedef, Fun, Product_Type, Lfp, Gfp,
+    Sum_Type, Relation, Record, Inductive, Transitive_Closure,
+    Wellfounded_Recursion, Ring_and_Field, Nat, NatArith, Divides, Power,
+    Finite_Set, Equiv, IntDef, Datatype_Universe, Datatype, Numeral, Bin,
+    IntArith, Wellfounded_Relations, Recdef, IntDiv, NatBin, NatSimprocs,
+    SetInterval, Presburger, Relation_Power, Parity, PreList, List, Map,
+    Hilbert_Choice, Infinite_Set, Extraction, Refute, Main, #}
+@end lisp
+(Which gives you some idea of the theories that go to build up @code{Main}!).
+
+@c FIXME: explain window layouts a bit
+
+In this case of this first command, it is hard to see the orange/pink
+stage because the command is processed very quickly on most machines.
+But in general, processing commands can take an arbitrary amount of time
+(or not terminate at all).  For this reason, Proof General maintains a
+queue of commands which are sent one-by-one from the proof script.  As
+Isabelle successfully processes commands in the queue, they will turn
+from the orange/pink colour into blue.  The blue regions indicate text
+that has been read by the prover and should not be edited; for this
+reason it is made read-only, by default.
 
 @itemize @bullet
 @item
 Next type (on a new line if you like):
 @lisp
-Goal bland_commutes: @{A,B:Prop@} (and A B) -> (and B A);
+theorem my_theorem: "A & B --> B & A";
 @end lisp
 @end itemize
 
-The goal should be displayed in the goals buffer.
+The goal should be displayed in the @i{goals buffer}.
+@c FIXME explain again
 
 @itemize @bullet
 @item 
 Now type:
 @lisp
-Intros;
+proof;
+  assume "A & C";
 @end lisp
 @end itemize
 This will update the goals buffer.
 
-But whoops! That was the wrong command.
+But whoops!  That was the wrong command, we typed @code{C} instead
+of @code{B}.
 
 @itemize @bullet
 @item
 Press @kbd{C-c C-BS} to pretend that didn't happen.
 @end itemize
 Note: @kbd{BS} means the backspace key.  This key press sends an undo
-command to LEGO, and deletes the @code{Intros;} command from the proof
+command to Isabelle, and deletes the @code{assume} command from the proof
 script.  If you just want to undo without deleting, you can type
 @kbd{C-c C-u} instead, or use the toolbar navigation button.
 
@@ -811,61 +866,97 @@ script.  If you just want to undo without deleting, you can type
 @item
 Instead, let's try:
 @lisp
-intros; andI;
+  assume "A & B";
 @end lisp
-We've used the conjunction-introduction rule.
+Which is better.  
 
-To finish off, use these commands:
+From this assumption we can get @code{B} and @code{A} by the
+trivial step @code{..}
 @lisp
-Refine H; intros; Immed; Refine H; intros; Immed;
+  then obtain B and A ..
 @end lisp
 @end itemize
-Now you should see LEGO display the QED message.
+
+Notice that this line doesn't have a terminator character --- but in
+fact, Isar does not need them to parse the file, and neither does Proof
+General (except for the electric effect).  You can process the text up
+to the current position of the point with the key @kbd{C-c C-RET}.  This
+is probably a more common way of working in Isabelle Proof General than
+using the electric terminator, to avoid cluttering the proof script with
+semicolons.
+
+After this proof step, the message from Isabelle indicates that the
+proof has succeeded, so we can conclude the proof with the @code{qed}
+command.
 
 @itemize @bullet
 @item
 Finally, type:
 @lisp
-Save bland_commutes;
+qed
 @end lisp
 @end itemize
 
 This last command closes the proof and saves the proved theorem.
 
 Moving the mouse pointer over the locked region now reveals that the
-entire proof has been aggregated into a single segment. This reflects
-the fact that LEGO has thrown away the history of the proof, so if we
-want to undo now, the whole proof must be retracted.
+entire proof has been aggregated into a single segment (if you did this
+before, you would see highlighting of each command separately).  This
+reflects the fact that Isabelle has thrown away the history of the
+proof, so if we want to undo now, the whole proof must be retracted.
 
 @itemize  @bullet
 @item 
-Suppose we decide to call the goal something more sensible. Move the
-cursor up into the locked region, somewhere between @samp{Goal} and
-@samp{Save}, enter @kbd{C-c C-RET}.  
+Suppose we decide to call the theorem something more sensible. Move the
+cursor up into the locked region, somewhere between @samp{theorem} and
+@samp{qed}, enter @kbd{C-c C-RET}.  
 @end itemize
 
 You see that the locked segment for the whole proof is now unlocked (and
 uncoloured): it is transferred back into the editing region.
 
 The command @kbd{C-c C-RET} moves the end of the locked region to the
-cursor position, sending undoing commands or proof commands as
-necessary.
+cursor position, or as near as possible above or below it, sending
+undoing commands or proof commands as necessary.  In this case, the
+locked region will always be moved back to the end of the @code{theory}
+line, since that is the closest possible position to the cursor that
+appears before it.
 
 @itemize @bullet
 @item 
-Now correct the goal name, for example:
+Now improve the goal name, for example:
 @lisp
-Goal and_commutes: @{A,B:Prop@} (and A B) -> (and B A);
+theorem and_commutes: "A & B --> B & A"
 @end lisp
-Move the cursor to the end of the buffer, and
-type @kbd{C-c C-RET} again.  
+You can swiftly replay the rest of the buffer now
+with @kbd{C-c C-b} (or the down arrow on the toolbar).
+@item 
+At the end of the buffer, you may insert the command
+@lisp
+end
+@end lisp
+to complete the theory.  
 @end itemize
+Note that once a theory is completed in Isabelle, you cannot undo into
+it, again because Isabelle discards the history of the theory's
+creation.  Just like completed proofs, there is no option other than
+undoing the whole theory.  To prevent you doing this inadvertently,
+however (maybe undoing many proofs which are time-consuming to replay),
+the @kbd{C-c C-u} or @kbd{C-c C-RET} commands will generate an error
+message, typically:
 
-Proof General queues the commands for processing and executes them one
-by one.  You should see the proof turn pink, then quickly command by
-command it is turned blue.  The progress of pink to blue can be
-much slower with long and complicated proofs!
+@lisp
+*** Cannot undo "end"
+*** At command "cannot_undo".
+@end lisp
+If you really want to retract the theory for editing once more, you can
+use the key @kbd{C-c C-r} (which corresponds to the up arrow on the
+toolbar).
 
+Finally, once you are happy with your theory, you should save the file
+with @kbd{C-x C-s} before moving on to edit another file or exiting
+Emacs.  If you forget to do this, Proof General or Emacs will surely
+prompt you sooner or later!
 
 
 @node Proof scripts
@@ -2081,7 +2172,7 @@ assistant specific portion of Proof General. @xref{User options}.
 
 By the way, the choice of colour, font, etc, for each kind of markup is
 fully customizable in Proof General.  Each @emph{face} (Emacs
-terminology) controlled by its own customization setting.
+terminology) is controlled by its own customization setting.
 You can display a list of all of them using the customize
 menu: 
 @lisp
@@ -2160,16 +2251,18 @@ its home page at @uref{http://x-symbol.sourceforge.net/}.
 @cindex func-menu
 @cindex fume-func
 
-The Emacs packages @code{func-menu} and @code{imenu} each provide a menu
-built from the names of entities (e.g., theorems, definitions, etc)
-declared in a buffer.  This allows easy navigation within the file.
-Proof General configures both packages automatically so that you can
-quickly jump to particular proofs in a script buffer.  The automatic
-configuration is done with the settings
+The Emacs packages @code{imenu} (Index Menu) and @code{func-menu}
+(Function Menu) each provide a menu built from the names of entities
+(e.g., theorems, definitions, etc) declared in a buffer.  This allows
+easy navigation within the file.  Proof General configures both packages
+automatically so that you can quickly jump to particular proofs in a
+script buffer.
+
+(Developers note: the automatic configuration is done with the settings
 @code{proof-goal-with-hole-regexp} and
 @code{proof-save-with-hole-regexp}.  Better configuration may be made
 manually with several other settings, see the @i{Adapting Proof General}
-manual for further details.
+manual for further details).
 
 To use Imenu, select the option
 @lisp
@@ -2219,7 +2312,14 @@ parts of the proof script in the @emph{locked} region, you need to disable
 
 Use @kbd{M-x outline-minor-mode} to turn on outline minor mode.
 Functions for navigating, hiding, and revealing the proof script are
-available in menus.
+available in menus. 
+
+@c 3.5: this remark taken from BUGS
+Please note that outline-mode may not work well in processed proof
+script files, because of read-only restrictions of the protected region.
+This is an inherent problem with outline because it works by modifying
+the buffer.  If you want to use outline with processed scripts, you
+can turn off the @code{Strict Read Only} option. 
 
 See @inforef{Outline Mode, ,(xemacs)} for more information about
 outline mode.
@@ -3083,10 +3183,8 @@ any other buffer local variable.  @inforef{File Variables,
 A very useful package of Emacs supports automatic expansions of
 abbreviations as you type, @inforef{Abbrevs, ,(xemacs)}.
 
-Proof General has no special support for abbreviations (except for coq,
-see Note below), we just mention it here to encourage its use.  For
-example, the proof assistant Coq has many command strings that are long,
-such as ``reflexivity,'' ``Inductive,'' ``Definition'' and
+For example, the proof assistant Coq has many command strings that are
+long, such as ``reflexivity,'' ``Inductive,'' ``Definition'' and
 ``Discriminate.''  Here is a part of the Coq Proof General
 abbreviations:
 @lisp
@@ -3094,7 +3192,6 @@ abbreviations:
 "ap" "apply "
 "as" "assumption"
 @end lisp
-
 The above list was taken from the file that Emacs saves between
 sessions.  The easiest way to configure abbreviations is as you write,
 by using the key presses @kbd{C-x a g} (@code{add-global-abbrev}) or
@@ -3104,10 +3201,11 @@ minor mode, type @kbd{M-x abbrev-mode RET}. When you are not in Abbrev
 mode you can expand an abbreviation by pressing @kbd{C-x '}
 (@code{expand-abbrev}). See the Emacs manual for more details.
 
-
-@b{Note:} Coq ProofGeneral has a special experimental feature called
-"Holes". It makes use of emacs abbreviation mechanism. @xref{Holes
-feature}, for details.
+Coq Proof General has a special experimental feature called "Holes"
+which makes use of the abbreviation mechanism and includes a large list
+of command abbreviations. @xref{Holes feature}, for details.  With other
+provers, you may use the standard Emacs commands above to set up your
+own abbreviation tables.
 
 
 
@@ -3396,17 +3494,17 @@ simple, holes are pieces of text that can be "filled" by different
 means. The new coq command insertion menu system makes use of the holes
 system. Almost all holes operations are available in the Coq/holes menu.
 
-@b{Note:} Holes make use of emacs abbreviation mechanism, it will work
-without problem if you don't have an abbrev table defined for coq in you
-config files (@code{C-h v abbrev-file-name} to see the name of the
-abbreviation file). If you already have such a table it won't be
-automatically overwritten (so that you keep your own abrreviations). But
+@b{Note:} Holes make use of the Emacs abbreviation mechanism, it will
+work without problem if you don't have an abbrev table defined for Coq
+in your config files (@code{C-h v abbrev-file-name} to see the name of
+the abbreviation file). If you already have such a table it won't be
+automatically overwritten (so that you keep your own abbreviations). But
 you must read the abbrev file given in PG/Coq sources to be able to use
 the command insertion menus. You can do the following to merge your
 abbreviations with ProofGeneral's abbreviations: @code{M-x
 read-abbrev-file}, then select the file named @code{coq-abbrev.el} in
-the ProofGeneral/coq directory. At emacs exit you will be asked if you
-want to save abbrevs, answer yes.
+the ProofGeneral/coq directory. At Emacs exit you will be asked if you
+want to save abbrevs; answer yes.
 
 
 @c=================================================================
@@ -3422,8 +3520,8 @@ General, including integration with Isabelle's theory loader for proper
 automatic multiple file handling.  Only support for tags and
 proof-by-pointing is missing.
 
-It is very important to note that there are actually two different
-versions of Isabelle Proof General: for ``classic'' Isabelle and for
+It is important to note that there are actually two different versions
+of Isabelle Proof General: for ``classic'' Isabelle and for
 Isabelle/Isar.  An old-style Isabelle theory typically consists of
 @file{.thy} and correspondent @file{.ML} files, while Isabelle/Isar
 theories usually have a new-style @file{.thy} only, which has a slightly
@@ -3452,13 +3550,15 @@ In Isabelle/Isar, on the other hand, @file{.thy} files contain proofs as
 well as definitions for theories, so scripting takes place there and you
 see the usual toolbar and scripting functions of Proof General.
 
-The default Emacs mode setup of Proof General prefers the newer
-@code{isar} version over @code{isa}.  To load the ``classic'' Isabelle
-mode, you can either make sure to visit a @file{.ML} before a 
-@file{.thy} file, or set the environment variable
-@code{PROOFGENERAL_ASSISTANTS=isa} before starting Emacs in order to
-prevent loading of the Isabelle/Isar mode.  Another way of
-selecting Isa is to put a special modeline like this:
+Most Isabelle users now use Isabelle/Isar because it is more convenient,
+even if working with tactic-based scripts.  For this reason, the default
+Emacs mode setup of Proof General prefers the @code{isar} instance over
+the @code{isa} instance.  To load the ``classic'' Isabelle mode, you can
+either make sure to visit a @file{.ML} before a @file{.thy} file, or set
+the environment variable @code{PROOFGENERAL_ASSISTANTS=isa} before
+starting Emacs in order to prevent loading of the Isabelle/Isar mode.
+Another way of forcing classic Isabelle is to put a special modeline
+like this:
 @lisp
   (* -*- isa -*- *)
 @end lisp
@@ -3466,18 +3566,18 @@ near the top of your Isabelle @file{.thy} files (or at least, the
 first file you visit).  This Emacs feature overrides the default
 choice of mode based on the file extension.
 
-Isabelle provides yet another way to invoke Proof General, including
-additional means to select either version.  The standard installation
-of Isabelle also makes the @code{isar} version of Proof General its
-default user interface: running plain @code{Isabelle} starts an Emacs
-session with Isabelle/Isar Proof General; giving an option @code{-I
-false} refers to the classic version instead.  The defaults may be
-changed by editing the Isabelle settings, see the Isabelle
-documentation for details.
+Isabelle provides yet another way to invoke Proof General via the
+@code{Isabelle} script.  The standard installation of Isabelle also
+makes the @code{isar} version of Proof General its default user
+interface: running plain @code{Isabelle} starts an Emacs session with
+Isabelle/Isar Proof General; giving an option @code{-I false} refers to
+the classic version instead.  The defaults may be changed by editing the
+Isabelle settings, see the Isabelle documentation for details.
 
 @menu
 * Classic Isabelle::
 * Isabelle/Isar::
+* Logics and Settings::
 @end menu
 
 @node Classic Isabelle
@@ -3731,10 +3831,10 @@ You can use the following format characters:
 @section Isabelle/Isar
 @cindex Isabelle/Isar
 
-Proof General for Isabelle/Isar manages new-style @file{.thy} files,
-which may contain both definitions and proofs.  Proofs may be human
-readable proof texts as well as traditional tactic scripts adjusted
-to follow the Isar syntax.
+Proof General for Isabelle/Isar manages Isar @file{.thy} files, which
+may contain both definitions and proofs.  Proofs may be human readable
+proof texts as well as traditional tactic scripts adjusted to follow the
+Isar syntax.
 
 The syntax of Isabelle/Isar input is technically simple, enabling Proof
 General to provide reliable control over incremental execution of the
@@ -3801,9 +3901,13 @@ Shows all available commands of Isabelle/Isar's outer syntax.
 Shows theorems stored in the current theory node.
 @end table
 
-@kindex C-c C-a b
+@c @kindex C-c C-a b
 @kindex C-c C-a u
 @kindex C-c C-a l
+@kindex C-c C-a i
+@kindex C-c C-a C-l
+@kindex C-c C-a C-u
+@kindex C-c C-a C-w
 
 The following shortcuts insert control sequences into the text,
 modifying the appearance of individual symbols (single letters,
@@ -3811,12 +3915,20 @@ mathematical entities etc.); the X-Symbol package will provide immediate
 visual feedback.
 
 @table @kbd
-@item C-c C-a b
-Inserts "\<^bold>"
+@c @item C-c C-a b
+@c Inserts "\<^bold>"
+@item C-c C-a C-u
+Inserts "\<^sup>"  (superscript character)
+@item C-c C-a C-l
+Inserts "\<^sub>" (subscript character)
 @item C-c C-a u
-Inserts "\<^sup>"
+Inserts "\<^bsup> \<^esup>"  (superscript string)
 @item C-c C-a l
-Inserts "\<^sub>"
+Inserts "\<^bsub> \<^esub>"  (subscript string)
+@item C-c C-a C-i
+Inserts "\<^isub>"  (identifier subscript letter)
+@item C-c C-a r
+Inserts "\<^raw:>"  (raw LaTeX text).
 @end table
 
 Command termination via `@code{;}' is an optional feature of Isar
@@ -3830,6 +3942,42 @@ Remove explicit Isabelle/Isar command terminators @samp{;} from the buffer.
 @end deffn
 
 
+@node Logics and Settings
+@section Logics and Settings
+@cindex Isabelle logic
+
+The prover specific menu (the same on both Isabelle variants of Proof
+General) offers a way to select the invoked object logic, and also
+access to numerous settings of Isabelle.
+
+If you look at the menu:
+@lisp
+        Isabelle -> Logics -> 
+@end lisp 
+you should see the list of logics available to Isabelle.  This menu is
+generated from the output of the command @code{isatool findlogics}, so
+you should check that Proof General can find the @code{isatool} program
+for it to operate correctly.  (Similarly, the documentation menu is
+partly generated from @code{isatool doc}).  
+
+The logics menu is refreshed dynamically so you can select any newly
+built heap images in the same Emacs session.  However, notice that the
+choices are greyed out while Isabelle is actually runnning --- you can
+only switch to a new logic if you first exit Isabelle (similarly to
+Proof General, Isabelle operates with only one logic at a time).
+
+The prover specific menu also contains a @code{Settings} submenu, which
+allows you to configure things such as the behaviour of Isabelle's term
+pretty printer (display of types, sorts, etc).  Note that you won't
+see this sub-menu until Isabelle has been started, because it is
+generated by Isabelle itself.  Proof General, on the other hand, is
+responsible for recording any settings that are configured when you
+select @code{Isabelle -> Settings -> Save Settings}.  They are stored
+along with the other Emacs customization settings.
+
+
+@c FIXME todo: theorem dependencies, MMM
+
 
 @c=================================================================
 @c
@@ -3840,9 +3988,9 @@ Remove explicit Isabelle/Isar command terminators @samp{;} from the buffer.
 @cindex HOL Proof General
 
 HOL Proof General is a "technology demonstration" of Proof General for
-HOL98.  This means that only a basic instantiation has been provided,
-and that it is not yet supported as a maintained instantiation of Proof
-General.
+HOL4 (aka HOL98).  This means that only a basic instantiation has been
+provided, and that it is not yet supported as a maintained instantiation
+of Proof General.
 
 HOL Proof General has basic script management support, with a little bit
 of decoration of scripts and output.  It does not rely on a modified
@@ -3870,6 +4018,41 @@ another variant of HOL).
 Perhaps somebody from the HOL community is willing to adopt HOL Proof
 General and support and improve it.  Please volunteer!  
 
+
+
+@c=================================================================
+@c
+@c  CHAPTER: Shell Proof General
+@c
+@node Shell Proof General
+@chapter Shell Proof General
+@cindex Shell Proof General
+
+This instance of Proof General is not really for proof assistants at
+all, but simply provided as a handy way to use a degenerate form of
+script management with other tools.  
+
+Suppose you have a software tool of some kind with a command line
+interface, and you want to demonstrate several example uses of it,
+perhaps at a conference.  But the command lines for your tool may be
+quite complicated, so you do not want to type them in live.  Instead,
+you just want to cut and paste from a pre-recorded list.  But watching
+somebody cut and paste commands into a window is almost as tedious as
+watching them type those commands!
+
+Shell Proof General comes to the rescue.  Simply record your commands in
+a file with the extension @code{.pgsh}, and load up Proof General.  Now
+use the toolbar to send each line of the file to your tool, and have the
+output displayed clearly in another window.  Much easier and more
+pleasant for your audience to watch!
+
+If you wish, you may adjust the value of @code{proof-prog-name} in
+@file{pgshell.el} to launch your program rather than the shell
+interpreter.  
+
+We welcome feedback and suggestions concerning this subsidiary provision
+in Proof General.  Please recommend it to your colleagues (e.g., the
+model checking crew).
 
 
 @c=================================================================
