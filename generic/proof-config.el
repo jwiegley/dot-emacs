@@ -1864,6 +1864,17 @@ This is an experimental feature, currently work-in-progress."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
+(defcustom proof-shell-spill-output-regexp nil
+  "Regexp matching output which is to be ``spilled'' into new buffer.
+This allows the prover to output tracing messages, and the like,
+into a new buffer.   The end of the spilled output is the next
+prompt.  This is intended for unusual debugging output from the
+prover, rather than ordinary output from final proofs.  
+Set to nil to disable.
+This is an experimental feature, currently work-in-progress."
+  :type '(choice nil regexp)
+  :group 'proof-shell)
+
 
 ;;
 ;; 5c. hooks and other miscellaneous customizations
