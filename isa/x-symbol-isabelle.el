@@ -32,29 +32,47 @@
 (defvar x-symbol-isabelle-electric-ignore "[:'][A-Za-z]\\|<=\\|\\[\\[\\|\\]\\]\\|~=")
 
 
-;;  Super- and subscripts
+;;  Bold, super- and subscripts
 
-(defconst x-symbol-isabelle-font-lock-regexp
-  "\\(\\\\?\\\\<\\^su[bp]>\\)\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"
+(defun x-symbol-isabelle-make-ctrl-regexp (s)
+  (concat "\\(\\\\?\\\\<\\^" s ">\\)\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
+
+(defconst x-symbol-isabelle-font-lock-bold-regexp
+  (x-symbol-isabelle-make-ctrl-regexp "bold")
+  "Regexp matching bold marker in Isabelle.")
+
+(defconst x-symbol-isabelle-font-lock-scripts-regexp
+  (x-symbol-isabelle-make-ctrl-regexp "su[bp]")
   "Regexp matching super- and subscript markers in Isabelle.")
 
-(defun x-symbol-isabelle-match-subscript (limit)
+(defun x-symbol-isabelle-match-bold (limit)
+  ;; checkdoc-params: (limit)
+  "Match and skip over bold face.
+Return nil if `x-symbol-mode' is nil.
+Uses `x-symbol-isabelle-font-lock-bold-regexp'."
+  (and (proof-ass x-symbol-enable)
+       (or (proof-looking-at x-symbol-isabelle-font-lock-bold-regexp)
+	   (proof-re-search-forward x-symbol-isabelle-font-lock-bold-regexp limit t))))
+
+(defun x-symbol-isabelle-match-scripts (limit)
   ;; checkdoc-params: (limit)
   "Match and skip over super- and subscripts.
-Return nil if `x-symbol-mode' or `x-symbol-subscripts' is nil.  Uses
-`x-symbol-isabelle-font-lock-regexp'."
+Return nil if `x-symbol-mode' is nil.
+Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
   (and (proof-ass x-symbol-enable)
-       (or (proof-looking-at x-symbol-isabelle-font-lock-regexp)
-	   (proof-re-search-forward x-symbol-isabelle-font-lock-regexp limit t))))
+       (or (proof-looking-at x-symbol-isabelle-font-lock-scripts-regexp)
+	   (proof-re-search-forward x-symbol-isabelle-font-lock-scripts-regexp limit t))))
 
 (defvar x-symbol-isabelle-font-lock-keywords
-  '((x-symbol-isabelle-match-subscript
+  '((x-symbol-isabelle-match-bold
+     (1 x-symbol-invisible-face t)
+     (2	'underline prepend))
+    (x-symbol-isabelle-match-scripts
      (1 x-symbol-invisible-face t)
      (2	(if (or (eq (char-after (+ 5 (match-beginning 1))) ?b)
 		(eq (char-after (+ 6 (match-beginning 1))) ?b))
-	    'x-symbol-sub-face 'x-symbol-sup-face)
-	prepend)))
-  "Isabelle font-lock keywords for super- and subscripts.")
+	    'x-symbol-sub-face 'x-symbol-sup-face) prepend)))
+  "Isabelle font-lock keywords for bold, super- and subscripts.")
 
 
 (defvar x-symbol-isabelle-master-directory  'ignore)
