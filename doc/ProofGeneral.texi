@@ -633,12 +633,12 @@ functions instead.
 
 
 
-Now turn on @dfn{active terminator minor mode} by typing @kbd{C-c ;} and
+Now turn on @dfn{electric terminator minor mode} by typing @kbd{C-c ;} and
 enter:
 @lisp
 Module example Import lib_logic;
 @end lisp
-Active terminator minor mode sends commands to the proof assistant as
+electric terminator minor mode sends commands to the proof assistant as
 you type them.  The command should now be lit in pink (or inverse video
 if you don't have a colour display).  As LEGO imports each module, a
 line will appear in the minibuffer showing the creation of context
@@ -1044,10 +1044,10 @@ prover is processing it.}
 @item C-c r
 @code{proof-retract-buffer}
 @item C-c @var{terminator-character}
-@code{proof-active-terminator-minor-mode}
+@code{proof-electric-terminator-minor-mode}
 @end table
 
-The last command, @code{proof-active-terminator-minor-mode}, is
+The last command, @code{proof-electric-terminator-minor-mode}, is
 triggered using the character which terminates proof commands for your
 proof assistant's script language.  For LEGO and Isabelle, use @kbd{C-c
 ;}, for Coq, use @kbd{C-c .}.  This not really a script processing
@@ -1096,14 +1096,11 @@ Process the current buffer and set point at the end of the buffer.
 Retract the current buffer and set point at the start of the buffer.
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-active-terminator-minor-mode
-@deffn Command proof-active-terminator-minor-mode &optional arg
-Toggle Proof General's active terminator minor mode.@*
-With @var{arg}, turn on the Active Terminator minor mode if and only if @var{arg}
-is positive.
-
-If active terminator mode is enabled, pressing a terminator will 
-automatically activate @samp{@code{proof-assert-next-command}} for convenience.
+@c TEXI DOCSTRING MAGIC: proof-electric-terminator-toggle
+@deffn Command proof-electric-terminator-toggle arg
+Toggle @code{proof-electric-terminator-enable}. With @var{arg}, turn on iff ARG>0.@*
+This function simply uses @code{customize-set-variable} to set the variable.
+It was constructed with the macro @code{proof-customize-toggle}.
 @end deffn
 
 
@@ -1779,16 +1776,15 @@ The protocol used should be configured so that no user interaction
 The default value is @code{""}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-toolbar-inhibit
-@defopt proof-toolbar-inhibit 
-Non-nil prevents toolbar being used for script buffers.@*
-NB: the toolbar is only available with XEmacs.
+@c TEXI DOCSTRING MAGIC: proof-toolbar-enable
+@deffn Command proof-toolbar-enable 
+Initialize Proof General toolbar and enable it for the current buffer.@*
+If proof-mode-use-toolbar is nil, change the current buffer toolbar
+to the default toolbar.
+@end deffn
 
-The default value is @code{nil}.
-@end defopt
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-use-enablers
-@defopt proof-toolbar-use-enablers 
+@c TEXI DOCSTRING MAGIC: proof-toolbar-use-button-enablers
+@defopt proof-toolbar-use-button-enablers 
 If non-nil, toolbars buttons may be enabled/disabled automatically.@*
 Toolbar buttons can be automatically enabled/disabled according to
 the context.  Set this variable to nil if you don't like this feature
@@ -1888,11 +1884,11 @@ The default value is @code{" "}.
 @end defopt
 
 
-@c TEXI DOCSTRING MAGIC: proof-splash-inhibit
-@defopt proof-splash-inhibit 
-Non-nil prevents splash screen display when Proof General is loaded.
+@c TEXI DOCSTRING MAGIC: proof-splash-enable
+@defopt proof-splash-enable 
+If non-nil, display a splash screen when Proof General is loaded.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-query-file-save-when-activating-scripting
@@ -3398,6 +3394,7 @@ important files, kept in the @file{generic/} subdirectory.
 
 @menu
 * Spans::                       
+* User option conventions::
 * Proof General site configuration::  
 * Global variables::            
 * Proof script mode::           
@@ -3498,6 +3495,36 @@ Version string identifying Proof General release.
 
 
 
+@node User option conventions
+@section User option conventions
+@cindex conventions
+@cindex user options
+
+There are several settings which can be switched on or off by the user.
+These are controlled by boolean variables with names like
+@code{proof-@var{foo}-enable}.  These are defined with @code{defcustom}
+and appear at the start of the customize group
+@code{proof-user-options}.  They should be edited by the user through
+the customization mechanism, and set in the code using
+@code{customize-set-variable}.
+
+If changing the setting amounts to more than just setting a variable (it
+may have some dynamic effect), we set the @code{custom-set} property for
+the variable to the function @code{proof-set-bool} which does an
+ordinary @code{set-default} to set the variable, and then calls the
+@i{function} with the same name as the variable,
+@code{proof-@var{foo}-enable}, to do whatever is necessary according to
+the new value for the variable.
+
+In @code{proof.el} there is a handy macro,
+@code{proof-customize-toggle}, which constructs an interactive function
+for toggling boolean customize settings.  We can use this to make an
+interactive function @code{proof-@var{foo}-toggle} to put on a menu or
+bind to a key, for example.
+
+This general scheme is followed as far as possible, to give uniform
+behaviour and appearance for these cases, as well as interfacing
+properly with the @code{customize} mechanism.
 
 @node Global variables
 @section Global variables
@@ -3711,7 +3738,7 @@ the function @code{proof-segment-up-to}.
 
 The function @code{proof-assert-until-point} is the main one used to
 process commands in the script buffer.  It's actually used to implement
-the assert-until-point, active terminator keypress, and
+the assert-until-point, electric terminator keypress, and
 find-next-terminator behaviours.  In different cases we want different
 things, but usually the information (i.e. are we inside a comment) isn't
 available until we've actually run @code{proof-segment-up-to (point)},
