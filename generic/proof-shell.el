@@ -1108,6 +1108,9 @@ The return value is non-nil if the action list is now empty."
 	  (if (null proof-action-list)
 	      (progn (proof-release-lock)
 		     (proof-detach-queue)
+		     ;; give a hint to the user in case we've finished
+		     ;; a batch of input
+		     (pg-processing-complete-hint)
 		     ;; indicate finished
 		     t)
 	    ;; Otherwise, send the next command to the process.
