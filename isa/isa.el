@@ -128,7 +128,7 @@ no regular or easily discernable structure."
    proof-indent-commands-regexp	(proof-ids-to-regexp isa-keywords)
    
    ;; proof engine commands
-   proof-proof-command		"pr()"
+   proof-showproof-command	"pr()"
    proof-goal-command		"Goal \"%s\";"
    proof-save-command		"qed \"%s\";"
    proof-context-command		"ProofGeneral.show_context()"
@@ -309,8 +309,8 @@ proof-shell-retract-files-regexp."
     "Isabelle script" nil
     (isa-mode-config)))
 
-(define-key isa-proofscript-mode-map
-  [(control c) (control l)] 'proof-prf)	; keybinding like Isamode
+; (define-key isa-proofscript-mode-map
+;  [(control c) (control l)] 'proof-prf)	; keybinding like Isamode
 
   
 

@@ -111,7 +111,7 @@
   :type '(repeat string))
 
 (defcustom isa-keywords-save
-  '("qed" "qed_spec_mp" "no_qed" "result()" "result ()")
+  '("qed" "qed_spec_mp" "no_qed" "result")
   ;; Related commands, but having different types, so PG
   ;; won't bother support them:
   ;; "uresult" "bind_thm" "store_thm"
@@ -155,8 +155,18 @@
 
 (defconst isa-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
 
-(defconst isa-save-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-save)))
+(defcustom isa-save-command-regexp
+  (proof-regexp-alt
+   (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-save))
+   ;; match val ... = result blah
+   (proof-anchor-regexp
+    (concat
+     (proof-ids-to-regexp '("val")) ".+=\\s-*"
+     "\\(" (proof-ids-to-regexp isa-keywords-save) "\\)")))
+  "Regular expression used to match a qed/result."
+  :type 'regexp
+  :group 'isabelle-config)
+
 
 ;; CHECKED
 (defconst isa-save-with-hole-regexp
