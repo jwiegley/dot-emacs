@@ -443,3 +443,5 @@ B According to the documentation of font-lock for Emacs 20.2, it
 * Release
 =========
 
+B add links *from* Coq, Lego & Isabelle Web pages
+
