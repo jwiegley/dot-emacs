@@ -87,12 +87,17 @@ DEVELRELEASENAMETARGZ = $(DEVELRELEASENAMETAR).gz
 
 
 # Files not kept under cvs to clean away.
-FILES_NONCVS = ChangeLog 
+FILES_NONCVS = ChangeLog TAGS
 
 # Where to install a distribution 
 # DISTINSTALLDIR=/usr/local/share/elisp/proofgeneral
 # value for dcs.ed.ac.uk:
 DISTINSTALLDIR=/export/local/share/elisp
+
+# Copied from distributed Makefile
+ELISP_DIRS=generic lego coq isa
+EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
+ELC=$(EL:.el=.elc)
 
 
 FORCE:
@@ -101,6 +106,14 @@ FORCE:
 # Slightly dodgy to include elisp compile here, because
 # it can be incompatible across emacs versions.
 alldist:	alldocs
+
+
+############################################################
+#
+# Make tags file
+#
+tags:	$(ELC)
+	etags $(EL) > TAGS
 
 
 
