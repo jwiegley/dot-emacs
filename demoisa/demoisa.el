@@ -10,6 +10,8 @@
 ;;
 ;; See README in this directory for an introduction.
 ;;
+;; NEW INSTANCES: please use demoisa-easy.el as a basis instead.
+;;
 ;; Basic configuration is controlled by one line in `proof-site.el'.
 ;; It has this line in proof-assistant-table:
 ;;
@@ -27,7 +29,6 @@
 ;; later in the table, set PROOFGENERAL_ASSISTANTS=demoisa in the
 ;; shell before starting Emacs  (or customize proof-assistants).
 ;;
-
 
 (require 'proof)			; load generic parts
 
