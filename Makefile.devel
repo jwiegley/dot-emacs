@@ -34,6 +34,7 @@ CVS_RELEASE_TAG=2-0pre$(shell date "+%y%m%d")
 NAME = ProofGeneral
 # Name of tar file and RPM file.
 RELEASENAME = ProofGeneral-$(RELEASE_TAG)
+DEVELRELEASENAME = ProofGeneral-$(RELEASE_TAG)-devel
 CVS_RELEASENAME = Release-$(CVS_RELEASE_TAG)
 
 # Where to release (i.e. copy) a new distribution to
@@ -72,6 +73,8 @@ RPM=rpm --rcfile $(RPMRC)
 RELEASENAMETAR = $(RELEASENAME).tar
 RELEASENAMETARGZ = $(RELEASENAMETAR).gz
 
+DEVELRELEASENAMETAR = $(DEVELRELEASENAME).tar
+DEVELRELEASENAMETARGZ = $(DEVELRELEASENAMETAR).gz
 
 
 # Files not kept under cvs to clean away.
@@ -133,6 +136,12 @@ doc:	FORCE
 alldocs: FORCE
 	(cd doc; $(MAKE) all)
 
+############################################################
+#
+# Images
+#
+images:	FORCE
+	(cd images; $(MAKE) images)
 
 ############################################################
 ##
@@ -169,8 +178,9 @@ untag:
 ############################################################
 ##
 ## dist: make a distribution in DISTBUILDIR from CVS sources
-##       Builds from sources tagged with CVS_RELEASE_TAG.
-##	 Moves html files to parent directory, and removes
+##       Builds for user-distribution, from sources tagged 
+##       with CVS_RELEASE_TAG.
+##	 Moves html files to parent directory, removes
 ##       non-distributed files.
 ##	 (Developer only)
 ##	    
@@ -183,7 +193,7 @@ dist:
 	@echo "*************************************************"
 	@echo " Running cvs export .."
 	@echo "*************************************************"
-	(cd $(DISTBUILDIR); cvs export -kv -r "Release-$(CVS_RELEASE_TAG)" -d $(RELEASENAME) $(CVSNAME))
+	(cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(RELEASENAME) $(CVSNAME))
 	@echo "*************************************************"
 	@echo " Running 'make alldist' for new release .."
 	@echo "*************************************************"
@@ -211,6 +221,20 @@ dist:
 	@echo " Finished making dist."
 	@echo "*************************************************"
 
+############################################################
+##
+## develdist: make a distribution for developers from 
+##	  raw CVS sources.
+##	    
+develdist:
+	@echo "*************************************************"
+	@echo " Making developer distribution..."
+	@echo "*************************************************"
+	mkdir -p $(DISTBUILDIR)
+	(cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(RELEASENAME)-devel $(CVSNAME))
+	tar -cvhf $(DISTBUILDIR)/$(DEVELRELEASENAMETAR) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
+	gzip -9 $(DISTBUILDIR)/$(DEVELRELEASENAMETAR)
+
 
 ############################################################
 ##
@@ -222,7 +246,7 @@ dist:
 ##     Moreover, a link ProofGeneral -> ProofGeneral-<version>
 ##     is made.
 ##	  
-release: distclean tag dist
+release: distclean tag dist develdist
 	mkdir -p $(RELEASEDIR)
 	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(NAME); ln -s $(RELEASENAME) $(NAME))
