@@ -11,6 +11,7 @@
 ;; in this file begin with isa-thy-
 
 (require 'proof-site)
+(require 'proof-syntax)
 (require 'isa)
 
 ;;; ========== Theory File Mode User Options ==========
@@ -48,8 +49,10 @@ on sml-mode, but at the moment there is no way to do this."
   ;;     top must come first.
   '(("top" .     thy-insert-header)
     ("classes" . thy-insert-class)
-    ("default" . thy-insert-default-sort)
+    ("default" . thy-insert-default-sort) ; is "default" obsolete?
+    ("defaultsort" . thy-insert-default-sort)
     ("types"   . thy-insert-type) 
+    ("typedecl")
     ("arities" . thy-insert-arity)
     ;; =================================
     ;; These only make sense for HOL.
@@ -58,6 +61,7 @@ on sml-mode, but at the moment there is no way to do this."
     ("inductive") ("coninductive")
     ("intrs") ("monos")
     ("primrec") ("recdef")
+    ("rep_datatype") ("distinct") ("induct")
     ;; ==============================
     ("consts"  . thy-insert-const)
     ("translations" . "\"\"\t==\t\"\"")
@@ -714,10 +718,23 @@ If not, will turn off simulated minor mode and run thy-indent-line."
 
 (defvar thy-mode-font-lock-keywords
   (list				
-   (list thy-headings-regexp 1
-	 'font-lock-keyword-face))
-  "Font lock keywords for thy-mode.
-Default set automatically from thy-headings-regexp.")
+   (list (proof-ids-to-regexp
+	  (append '("infixl" "infixr" "binder") 
+		  (mapcar 'car (cdr thy-sections))))
+	 0 'font-lock-keyword-face)
+   ;; FIXME: needs more work.  Get symbols in quotes, etc, etc.
+   (list "\\s-*\\(\\w+\\)\\s-*\\(::?\\)"
+	 2 'font-lock-preprocessor-face)
+   (list "\\s-*\\(\\w+\\)\\s-*::?"
+	 1 'font-lock-variable-name-face)
+   (list "\".*\"\\s-*\\(::?\\)"
+	 1 'font-lock-preprocessor-face)
+   (list "\"\\(.*\\)\"\\s-*\\(::?\\)"
+	 1 'font-lock-variable-name-face))
+;   (list "^\\s-*\\(\\w*\\)\\s-*\\(::\\)"
+;	 1 'font-lock-function-name-face
+;	 2 'font-lock-preprocessor-face))
+  "Font lock keywords for thy-mode.")
 
 ;;; movement between sections ===================================    
 
