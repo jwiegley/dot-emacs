@@ -123,9 +123,19 @@
      (:bold t)))
   "*Face for error messages from proof assistant.")
 
-(defface proof-eager-annotation-face
+(defface proof-warning-face
   '((((type x) (class color) (background light))   
      (:background "lemon chiffon"))
+    (((type x) (class color) (background dark))   
+     (:background "orange2"))
+    (t				
+     (:italic t)))
+  "*Face for warning messages.
+Could come either from proof assistant or Proof General itself.")
+
+(defface proof-eager-annotation-face
+  '((((type x) (class color) (background light))   
+     (:background "lightgoldenrod"))
     (((type x) (class color) (background dark))   
      (:background "darkgoldenrod"))
     (t				

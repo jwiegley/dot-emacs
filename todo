@@ -33,18 +33,6 @@ A* Fixup for non-script buffer locking:
 
     proof-restart-script is now broken (2h da)
 
-A* Fixup multiple files -- needs debugging.
-
-   1. mark atomic makes some assumption about non-comment commands in
-      script buffers
-      (partly fixed)
-   2. Add save-some-buffers or similar to try to make sure that a
-      modified buffer is saved before it can be read to the prover.  
-      If a buffer is put onto the proof-included-files-list when it is
-      modified, we should warn the user about possible inconsistency.  
-
-   (1hr tms)
-
 B Improve web pages after suggestions in doc/notes.txt
   (da, 1.5hrs)
 
@@ -304,6 +292,9 @@ X We need to go over to piped communication rather than ptys to fix
   tested for future versions. [Currently the problem is documented in
   Email messages sent to lego]
 
+X proof-mark-buffer-atomic marks the buffer as only containing
+  comments if the first ACS is a goal-save span. This is however not a 
+  problem for LEGO and Isabelle. (30 min)
 
 * Proof-by-Pointing
 ===================

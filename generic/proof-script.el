@@ -213,7 +213,8 @@ This works for buffers which are not in proof scripting mode too,
 to allow other files loaded by proof assistants to be marked read-only." 
   (save-excursion
     (set-buffer buffer)
-    (let ((span (make-span (proof-unprocessed-begin) (point-max)))
+    (let ((instrumented (member buffer proof-script-buffer-list))
+	  (span (make-span (proof-unprocessed-begin) (point-max)))
 	  cmd)
       (if (eq proof-buffer-type 'script) 
 	  ;; For a script buffer
@@ -223,19 +224,25 @@ to allow other files loaded by proof assistants to be marked read-only."
 	    (let ((cmd-list (member-if
 			     (lambda (entry) (equal (car entry) 'cmd))
 			     (proof-segment-up-to (point)))))
-	      ;; FIXME: should -init- be done if spans already exist?
-	      (proof-init-segmentation)
+	      (or instrumented (proof-init-segmentation))
 	      (if cmd-list 
 		  (progn
 		    (setq cmd (second (car cmd-list)))
 		    (set-span-property span 'type 'vanilla)
 		    (set-span-property span 'cmd cmd))
-		;; If there was no command in the buffer, atomic
-		;; span becomes a comment.
+		;; If there was no command in the buffer, atomic span
+		;; becomes a comment. This isn't quite right because
+		;; the first ACS in a buffer could also be a goal-save
+		;; span. We don't worry about this in the current
+		;; implementation. This case should not happen in a
+		;; LEGO module (because we assume that the first
+		;; command is a module declaration). It should have no
+		;; impact in Isabelle either (because there is no real
+		;; retraction).
 		(set-span-property span 'type 'comment)))
 	    ;; Make sure a new proof script buffer enters the list
 	    ;; of script buffers.
-	    (or (member buffer proof-script-buffer-list)
+	    (or instrumented
 		(setq proof-script-buffer-list
 		      (append proof-script-buffer-list (list buffer)))))
 	;; For a non-script buffer
@@ -259,12 +266,24 @@ to allow other files loaded by proof assistants to be marked read-only."
 		    :test 'equal)))
     (and pos (nth pos buffers))))
 
+(defun proof-warning (str)
+  "Issue the warning STR."
+    (proof-response-buffer-display str 'proof-warning-face)
+    (display-buffer proof-response-buffer)
+    (set-window-buffer-dedicated
+     (get-buffer-window proof-response-buffer)  proof-response-buffer))
+
+
 (defun proof-register-possibly-new-processed-file (file)
   "Register a possibly new FILE as having been processed by the prover."
   (let* ((cfile (file-truename file))
 	 (buffer (proof-file-to-buffer cfile)))
     (if (not (member cfile proof-included-files-list))
 	(progn
+	  (and buffer
+	       (buffer-modified-p buffer)
+	       (proof-warning (concat "Changes to "
+				      (buffer-name buffer) " have not been saved!")))
 	  (setq proof-included-files-list
 		(cons cfile proof-included-files-list))
 	  ;; If the file is loaded into a buffer, which isn't
@@ -365,7 +384,11 @@ the hooks `proof-activate-scripting-hook' are run."
     ;; Make status of active scripting buffer show up
     (if (fboundp 'redraw-modeline)
 	(redraw-modeline)
-      (force-mode-line-update)))))
+      (force-mode-line-update))
+
+    ;; This may be a good time to ask if the user wants to save some
+    ;; buffers
+    (save-some-buffers))))
 
 
 
