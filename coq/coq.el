@@ -15,17 +15,10 @@
 
 (setq tag-always-exact t) ; Tags is unusable with Coq library otherwise:
 
-(defgroup coq-settings nil
-  "Customization of Coq specific settings for Proof General."
-  :group 'proof-general)
-
-(defvar coq-assistant "Coq"
-  "Name of proof assistant")
-
 (defcustom coq-tags "/usr/local/lib/coq/theories/TAGS"
   "the default TAGS table for the Coq library"
   :type 'string
-  :group 'coq-settings)
+  :group 'coq)
 
 (defconst coq-process-config nil
   "Command to configure pretty printing of the Coq process for emacs.")
@@ -36,19 +29,21 @@
 (defcustom coq-default-undo-limit 100
   "Maximum number of Undo's possible when doing a proof."
   :type 'number
-  :group 'coq-settings)
+  :group 'coq)
 
 ;; ----- web documentation
 
 (defcustom coq-www-home-page "http://pauillac.inria.fr/coq/"
   "Coq home page URL."
   :type 'string
-  :group 'coq-settings)
+  :group 'coq)
 
 ;; ----- coq-shell configuration options
 
-(defvar coq-prog-name "coqtop -emacs"
-  "*Name of program to run as Coq.")
+(defcustom coq-prog-name "coqtop -emacs"
+  "*Name of program to run as Coq."
+  :type 'string
+  :group 'coq)
 
 (defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
@@ -105,6 +100,7 @@
 ;;   Code that's coq specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; FIXME da: can't this be done by proof-shell-init-cmd ?
 (defun coq-shell-init-hook ()
   (insert (format "Set Undo %s." coq-default-undo-limit))
   (insert (format "Cd \"%s\"." default-directory))
@@ -309,8 +305,7 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (setq proof-assistant coq-assistant
-	proof-www-home-page coq-www-home-page)
+  (setq proof-www-home-page coq-www-home-page)
 
   (setq proof-prf-string "Show"
 	proof-ctxt-string "Print All"
