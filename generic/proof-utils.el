@@ -467,27 +467,23 @@ Default to whole buffer.  Leave point at END."
   (unless (and (boundp sym) (symbol-value sym))
     (warn "Proof General %s: %s is unset."  tag (symbol-name sym))))
 
-(defun proof-display-and-keep-buffer (buffer &optional pos)
-  "Display BUFFER and mark window according to `proof-three-window-mode'.
-If optional POS is present, will set point to POS.  
-Otherwise move point to the end of the buffer.
-Ensure that point is visible in window."
-  (let (window)
-    (save-excursion
-      (save-selected-window
-	(set-buffer buffer)
-	(if (and 
+(defun proof-get-window-for-buffer (buffer)
+  "Find a window for BUFFER, display it there, return the window.
+NB: may change the selected window."
+  ;; IF there *isn't* a visible window showing buffer...
+  (unless (get-buffer-window buffer 'visible)
+    ;; THEN find somewhere nice to display it
+	  (if (and 
 	     ;; If we're in two-window mode and already displaying a
 	     ;; script/response/goals, try to just switch the buffer
 	     ;; instead of calling display-buffer which alters sizes.
 	     ;; Gives user some stability on display.
-	     (not proof-three-window-mode)
+	     (not proof-three-window-enable)
 	     (> (count-windows) 1)
 	     ;; was: (not (eq (next-window) (selected-window)))
 	     (memq (window-buffer (next-window nil 'ignoreminibuf))
-		   (list proof-script-buffer 
-			 proof-response-buffer
-			 proof-goals-buffer)))
+		   ;; NB: 3.5: added rest of assoc'd buffers here
+		   (cons proof-script-buffer (proof-associated-buffers))))
 	    (if (eq (selected-window) (minibuffer-window))
 		;; 17.8.01: avoid switching the minibuffer's contents 
 		;; -- terrrible confusion -- use next-window after
@@ -498,33 +494,46 @@ Ensure that point is visible in window."
 		  (car-safe (get-buffer-window-list proof-script-buffer))
 		  'ignoreminibuf) buffer)
 	      (if (eq (window-buffer (next-window nil 'ignoreminibuf))
-		      proof-script-buffer)
+		      proof-script-buffer) 
 		  ;; switch this window
-		  (set-window-buffer (selected-window) buffer)
+		  (set-window-buffer (selected-window) buffer) 
 		;; switch other window
 		(set-window-buffer (next-window nil 'ignoreminibuf) buffer)))
 	  ;; o/w: call display buffer to configure windows nicely.
-	  (display-buffer buffer))
-	;; Suggestion: cache previous height of other window to attempt
-	;; to regenerate the display as the user last had it.
-	(setq window (get-buffer-window buffer 'visible))
-	(if (window-live-p window) ;; fails sometimes, don't know why
-	  (progn
-	    (set-window-dedicated-p window proof-three-window-mode)
-	    (select-window window)
-	    (if proof-shrink-windows-tofit
-		(proof-resize-window-tofit))
-	    ;; For various reasons, point may get moved around in
-	    ;; response buffer.  Attempt to normalise its position.
-	    (goto-char (or pos (point-max)))
-	    (if pos 
-		(beginning-of-line)
-	      (skip-chars-backward "\n\t "))
-	    ;; Ensure point visible.  Again, window may have died
-	    ;; inside shrink to fit, for some reason
-	    (if (window-live-p window) 
-		(unless (pos-visible-in-window-p (point) window)
-		  (recenter -1)))))))))
+	    (display-buffer buffer)))
+  ;; Return the window, hopefully the one we first thought of.
+  (get-buffer-window buffer 'visible))
+
+(defun proof-display-and-keep-buffer (buffer &optional pos)
+  "Display BUFFER and make window according to display mode.
+If optional POS is present, will set point to POS.  
+Otherwise move point to the end of the buffer.
+Ensure that point is visible in window."
+  (save-excursion
+    (save-selected-window
+      (let ((window (proof-get-window-for-buffer buffer)))
+	(if (window-live-p window) ;; [fails sometimes?]
+	    (progn
+	      ;; Set the size and point position.
+	      (set-window-dedicated-p window proof-three-window-enable)
+	      (select-window window)
+	      (if proof-shrink-windows-tofit
+		  (proof-resize-window-tofit)
+		;; If we're not shrinking to fit, allow the size of
+		;; this window to change.  [NB: might be nicer to
+		;; fix the size based on user choice]
+		(setq window-size-fixed nil))
+	      ;; For various reasons, point may get moved around in
+	      ;; response buffer.  Attempt to normalise its position.
+	      (goto-char (or pos (point-max)))
+	      (if pos 
+		  (beginning-of-line)
+		(skip-chars-backward "\n\t "))
+	      ;; Ensure point visible.  Again, window may have died
+	      ;; inside shrink to fit, for some reason
+	      (if (window-live-p window) 
+		  (unless (pos-visible-in-window-p (point) window)
+		    (recenter -1)))))))))
 
 (defun proof-clean-buffer (buffer)
   "Erase buffer and hide from display if proof-delete-empty-windows set.
@@ -585,9 +594,17 @@ No action if BUF is nil or killed."
 
 ;; Originally based on `shrink-window-if-larger-than-buffer', which
 ;; has a pretty wierd implementation.
-;; FIXME: desirable improvements would be to add some crafty history based
+;; TODO: desirable improvements would be to add some crafty history based
 ;; on user resize-events.  E.g. user resizes window, that becomes the 
 ;; new maximum size.
+;; FIXME: GNU Emacs has useful "window-size-fixed" which we use
+;; HOWEVER, it's still not quite the right thing, it seems to me.
+;; We'd like to specifiy a *minimum size* for a given buffer, 
+;; not a maximum.  With a frame split with just goals/response
+;; we'd still get resize errors here using window-size-fixed.
+;; FIXME: shrink-to-fit doesn't really work in three-buffer mode,
+;; since shrinking one of the associated buffers tends to enlarge the
+;; other (rather than just enlarging the proof state)
 (defun proof-resize-window-tofit (&optional window)
   "Shrink the WINDOW to be as small as possible to display its contents.
 Do not shrink to less than `window-min-height' lines.
@@ -595,14 +612,15 @@ Do nothing if the buffer contains more lines than the present window height,
 or if some of the window's contents are scrolled out of view,
 or if the window is not the full width of the frame,
 or if the window is the only window of its frame."
+;; da: actually seems okay in this case
   (interactive)
   (or window (setq window (selected-window)))
   ;; some checks before resizing to avoid messing custom display
   ;; [probably somewhat superfluous/extra rare]
-  (unless 
+  (if 
       (or
        ;; The frame must not be minibuffer-only.
-       (eq (frame-property (window-frame window) 'minibuffer) 'only)
+       (eq (frame-parameter (window-frame window) 'minibuffer) 'only)
        ;; We've got more than one window, right?
        (= 1 (let ((frame (selected-frame)))
 	      (select-frame (window-frame window))
@@ -611,18 +629,28 @@ or if the window is the only window of its frame."
 		(select-frame frame)
 		(select-window window))))
        ;; the window is the full width, right?
+       ;; [if not, we may be in horiz-split scheme, problematic]
        (not (window-leftmost-p window))
        (not (window-rightmost-p window)))
+      ;; OK, we're not going to adjust the height here.  Moreover,
+      ;; we'll make sure the height can be changed elsewhere.
+      (setq window-size-fixed nil)
     (save-excursion
       (set-buffer (window-buffer window))
       (let* 
 	  ;; weird test cases:
 	  ;; cur=45, max=23, desired=121, extraline=0
 	  ;; current height
-	  ((cur-height (window-height window))
+	  ;;; ((cur-height (window-height window))
 	   ;; Most window is allowed to grow to
-	   (max-height  (/ (frame-height (window-frame window)) 
-			   (if proof-three-window-mode 3 2)))
+	  ((max-height  
+	    (/ (frame-height (window-frame window)) 
+	       (if proof-three-window-enable 
+		   ;; we're in three-window-mode with
+		   ;; all horizontal splits, so share the height.
+		   3
+		 ;; Otherwise assume a half-and-half split
+		 2)))
 	   ;; If buffer ends with a newline, ignore it when counting
 	   ;; height unless point is after it.
 	   (extraline 
@@ -633,39 +661,43 @@ or if the window is the only window of its frame."
 	   ;; Direction of resizing based on whether max position is 
 	   ;; currently visible.  [ FIXME: not completely sensible:
 	   ;; may be displaying end fraction of buffer! ]
-	   (shrink (pos-visible-in-window-p test-pos window))
+	   ;; (shrink (pos-visible-in-window-p test-pos window))
 	   ;; Likely desirable height is given by count-lines
 	   (desired-height 
 	    ;; FIXME: is count-lines too expensive for v.large
 	    ;; buffers?  Probably not an issue for us, but one
 	    ;; wonders at the shrink to fit strategy.
 	    ;; NB: way to calculate pixel fraction?
-	    (+ extraline 2 (count-lines (point-min) (point-max)))))
-	;; 
-	;; Let's shrink or expand
-	(cond
-	 ((and shrink
-	       (> cur-height window-min-height)
-	       ;; don't shrink if already too big; leave where it is
-	       (< cur-height max-height))
-	  (shrink-window 
-	   (- cur-height (max window-min-height desired-height))
-	   nil window))
-	 (;; expand
-	  (< cur-height max-height)
-	  (enlarge-window 
-	   (- (min max-height desired-height) cur-height) 
-	   nil window)))
+	    (+ extraline 1 (count-lines (point-min) (point-max)))))
+	;; Let's shrink or expand.  Uses new GNU Emacs function.
+	(let ((window-size-fixed nil))
+	  (set-window-text-height window desired-height))
+;; 	(cond
+;; 	 ((and shrink
+;; 	       (> cur-height window-min-height)
+;; 	       ;; don't shrink if already too big; leave where it is
+;; 	       (< cur-height max-height))
+;; 	  (with-selected-window 
+;; 	   window
+;; 	   (shrink-window (- cur-height (max window-min-height desired-height)))))
+;; 	 (;; expand
+;; 	  (< cur-height max-height)
+;; 	  (with-selected-window window
+;; 	   (enlarge-window 
+;; 	    (- (min max-height desired-height) cur-height)))))
 	;; If we're at least the desirable height, it must be that the
 	;; whole buffer can be seen --- so make sure display starts at
 	;; beginning.
-	;; FIXME: problem here, get errors that the window is
-	;; no longer live!!  (Does it change reference after
-	;; resizing???  Or are we calling this function
-	;; with a dead window?)
+	;; NB: shrinking windows can sometimes delete them
+	;; (although we don't want it to here!), but make this next 
+	;; check for robustness.
 	(if (window-live-p window)
-	    (if (>= (window-height window) desired-height)
-		(set-window-start window (point-min))))))))
+	    (progn
+	      (if (>= (window-height window) desired-height)
+		  (set-window-start window (point-min)))
+	      ;; window-size-fixed is a GNU Emacs buffer local variable 
+	      ;; which determines window size of buffer.
+	      (setq window-size-fixed (window-height window))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -826,6 +858,7 @@ EXTRAPATH is a list of extra path components"
 (put 'proof-define-assistant-command 'lisp-indent-function 'defun)
 (put 'proof-define-assistant-command-witharg 'lisp-indent-function 'defun)
 (put 'defpgcustom 'lisp-indent-function 'defun)
+(put 'proof-map-buffers 'lisp-indent-function 'defun)
 
 (defconst proof-extra-fls
   (list
@@ -844,7 +877,7 @@ EXTRAPATH is a list of extra path components"
        nil t)))
 
 ;; This doesn't work for FSF's font lock, developers should use
-;; XEmacs!
+;; XEmacs!  (unless edebug is broken, which it is in my 21.4.12)
 (if (boundp 'lisp-font-lock-keywords)	; compatibility hack
     (setq lisp-font-lock-keywords 
 	  (append proof-extra-fls

@@ -23,7 +23,9 @@
 A fixed number of repetitions of this command switches back to
 the same buffer.
 Also move point to the end of the response buffer if it's selected.
-If in three window or multiple frame mode, display two buffers."
+If in three window or multiple frame mode, display two buffers.
+The idea of this function is to change the window->buffer mapping 
+without adjusting window layout."
   (interactive)
   ;; The GUI-tessence here is to implement a humane toggle, which
   ;; allows habituation.  E.g. two taps of C-c C-l always
@@ -38,30 +40,36 @@ If in three window or multiple frame mode, display two buffers."
    (t
     (setq proof-display-some-buffers-count 0)))
   (let* ((assocbufs   (remove-if-not 'buffer-live-p 
-				    (list proof-response-buffer
-					  proof-thms-buffer
-					  proof-trace-buffer
-					  proof-goals-buffer
-					  )))
+				     (list proof-response-buffer
+					   proof-thms-buffer
+					   proof-trace-buffer
+					   proof-goals-buffer
+					   )))
 					;proof-shell-buffer
-	 (selectedbuf (nth (mod proof-display-some-buffers-count 
-				(length assocbufs)) assocbufs))
-	 (nextbuf     (nth (mod (1+ proof-display-some-buffers-count)
-				(length assocbufs)) assocbufs)))
-    (cond
-     ((or proof-three-window-mode proof-multiple-frames-enable)
-      ;; Display two buffers: next in rotation and goals/response
-      ;; FIXME: this doesn't work as well as it might.
-      (proof-switch-to-buffer selectedbuf 'noselect)
-      (proof-switch-to-buffer (if (eq selectedbuf proof-goals-buffer)
-				  proof-response-buffer
-				proof-goals-buffer) 'noselect))
-     (selectedbuf
-      (proof-switch-to-buffer selectedbuf 'noselect)))
-    (if (eq selectedbuf proof-response-buffer)
-	(set-window-point (get-buffer-window proof-response-buffer)
-			  (point-max)))
-    (pg-hint (pg-response-buffers-hint (buffer-name nextbuf)))))
+	 (numassoc    (length assocbufs)))
+    ;; If there's no live other buffers, we don't do anything.
+    (unless (zerop numassoc)
+      (let
+	 ((selectedbuf (nth (mod proof-display-some-buffers-count 
+				 numassoc) assocbufs))
+	  (nextbuf     (nth (mod (1+ proof-display-some-buffers-count)
+				 numassoc) assocbufs)))
+	(cond
+	 ((or proof-three-window-enable proof-multiple-frames-enable)
+	  ;; Display two buffers: next in rotation and goals/response
+	  ;; FIXME: this doesn't work as well as it might.
+	  (proof-switch-to-buffer selectedbuf 'noselect)
+	  (proof-switch-to-buffer (if (eq selectedbuf proof-goals-buffer)
+				      proof-response-buffer
+				    proof-goals-buffer) 'noselect))
+	 (selectedbuf
+	  (proof-switch-to-buffer selectedbuf 'noselect)))
+	(if (eq selectedbuf proof-response-buffer)
+	    (set-window-point (get-buffer-window proof-response-buffer t)
+			      (point-max)))
+	(unless (or proof-three-window-enable proof-multiple-frames-enable)
+	  ;; The hint only makes sense in two-window mode, really.
+	  (pg-hint (pg-response-buffers-hint (buffer-name nextbuf))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -84,7 +92,8 @@ If in three window or multiple frame mode, display two buffers."
 ;; C-c C-c is proof-interrupt-process in universal-keys
 (define-key map [(control c) (control f)] 'proof-find-theorems)
 (define-key map [(control c) (control h)] 'proof-help)
-(define-key map [(control c) (control l)] 'proof-display-some-buffers)
+(define-key map [(control c) (control o)] 'proof-display-some-buffers)
+(define-key map [(control c) (control l)] 'proof-layout-windows)
 (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) (control r)] 'proof-retract-buffer)
@@ -198,19 +207,21 @@ If in three window or multiple frame mode, display two buffers."
   "Proof General help menu.")
 
 (defvar proof-show-hide-menu
-  '(("Show all"
+  '(("Show All"
      ["Proofs"    (pg-show-all-portions "proof") t]
      ["Comments"  (pg-show-all-portions "comment") t])
-    ("Hide all"
+    ("Hide All"
      ["Proofs"    (pg-show-all-portions "proof" 'hide) t]
      ["Comments"  (pg-show-all-portions "comment" 'hide) t]))
   "Show/hide submenu.")
 
 (defvar proof-buffer-menu
   (cons "Buffers"
-	'(["Active Scripting"
-	    (proof-switch-to-buffer proof-script-buffer)
-	    :active (buffer-live-p proof-script-buffer)]
+	'(;;["Active Scripting"
+	  ;;  (proof-switch-to-buffer proof-script-buffer)
+	  ;;  :active (buffer-live-p proof-script-buffer)]
+	   ["Layout Windows"
+	    proof-layout-windows]
 	   ["Rotate Output Buffers"
 	    proof-display-some-buffers
 	    :active (buffer-live-p proof-goals-buffer)]
@@ -220,7 +231,7 @@ If in three window or multiple frame mode, display two buffers."
 	   ;;["Response"
 	   ;; (proof-switch-to-buffer proof-response-buffer t)
 	   ;; :active (buffer-live-p proof-response-buffer)]
-	   ["Shell"
+	   ["Show Shell"
 	    (proof-switch-to-buffer proof-shell-buffer)
 	    :active (buffer-live-p proof-shell-buffer)]
 	   ;; FIXME: this next test doesn't work since menus
@@ -244,11 +255,11 @@ If in three window or multiple frame mode, display two buffers."
 
 ;; First, make the togglers used in options menu below
 
-(proof-deftoggle proof-three-window-mode)
 (proof-deftoggle proof-script-fly-past-comments)
 (proof-deftoggle proof-delete-empty-windows)
 (proof-deftoggle proof-shrink-windows-tofit)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
+(proof-deftoggle proof-three-window-enable proof-three-window-toggle)
 ;; (proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
 (proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle proof-strict-read-only)
@@ -304,22 +315,25 @@ If in three window or multiple frame mode, display two buffers."
       :style toggle
       :selected proof-toolbar-enable]
      ("Display"
-      ["Three Window Mode" proof-three-window-mode-toggle
+      ["Use Three Panes" proof-three-window-toggle
        :active (not proof-multiple-frames-enable)
        :style toggle
-       :selected proof-three-window-mode]
-      ["Delete Empty Windows" proof-delete-empty-windows-toggle
+       :selected proof-three-window-enable]
+      ;; We use non-Emacs terminology "Windows" in this menu to help
+      ;; non-Emacs users.  Cf. Gnome usability studies: menus saying
+      ;; "Web Browser" more useful to novices than menus saying "Mozilla"!!
+      ["Multiple Windows" proof-multiple-frames-toggle
+       :active (display-graphic-p)
+       :style toggle
+       :selected proof-multiple-frames-enable]
+      ["Delete Empty Panes" proof-delete-empty-windows-toggle
        :active (not proof-multiple-frames-enable)
        :style toggle
        :selected proof-delete-empty-windows]
       ["Shrink to Fit" proof-shrink-windows-tofit-toggle
        :active (not proof-multiple-frames-enable)
        :style toggle
-       :selected proof-shrink-windows-tofit]
-      ["Multiple Frames" proof-multiple-frames-toggle
-       :active (display-graphic-p)
-       :style toggle
-       :selected proof-multiple-frames-enable])
+       :selected proof-shrink-windows-tofit])
      ("Follow Mode" 
       ["Follow Locked Region" 
        (customize-set-variable 'proof-follow-mode 'locked)
@@ -370,7 +384,7 @@ If in three window or multiple frame mode, display two buffers."
    (proof-ass-sym mmm-enable)
    'proof-toolbar-enable
    ;; Display sub-menu
-   'proof-three-window-mode
+   'proof-three-window-enable
    'proof-delete-empty-windows
    'proof-multiple-frames-enable
    'proof-shrink-windows-tofit
@@ -795,20 +809,12 @@ evaluate can be provided instead."
 
 
 (defun proof-assistant-settings-cmd (&optional setting)
-  "Return string for making setting vals kept in Proof General customizations.
+  "Return string for settings kept in Proof General customizations.
 If SETTING is non-nil, return a string for just that setting. 
 Otherwise return a string for configuring all settings.
 
-If `proof-assistants-settings' is nil and PGIP is supported, then
+If `proof-assistant-settings' is nil and PGIP is supported, then
 first we query settings information from prover."
-  ;; This is a slightly ugly way: this function may be called to
-  ;; calculate a string for setting preferences, and is a possible
-  ;; setting for proof-shell-init-cmd.  But it needs to be evaluated
-  ;; each time (in case preferences change), and may trigger a nested
-  ;; call to proof-shell-invisible-cmd to send askprefs message.
-  (if (and (not proof-assistant-settings)
-	   proof-shell-issue-pgip-cmd)
-      (pg-pgip-askprefs))
   (let
       ((evalifneeded (lambda (expr)
 			(if (and (cadr expr) ;; setting has PA string?

@@ -1,6 +1,6 @@
 ;; pg-response.el  Proof General response buffer mode.
 ;;
-;; Copyright (C) 1994-2002 LFCS Edinburgh. 
+;; Copyright (C) 1994-2004 LFCS Edinburgh. 
 ;; Authors:   David Aspinall, Healfdene Goguen, 
 ;;		Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -52,54 +52,152 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
-;; Multiple frames for goals and response buffers
-;;
-;;  -- because who's going to bother do this by hand?
+;; Window configuration
+;;   -- multiple frames for goals and response buffers,
+;;   -- three window mode
 ;;
 
 (defvar proof-shell-special-display-regexp nil
   "Regexp for special-display-regexps for multiple frame use.
 Internal variable, setting this will have no effect!")
 
+;; NB: this list uses XEmacs defaults in the non-multiframe case.
+;; We handle specifiers quit crudely, but (1) to set for the 
+;; frame specifically we'd need to get hold of the frame,
+;; (2) specifiers have been completely buggy.
+(defconst proof-multiframe-specifiers 
+;  (mapcar
+;   (lambda (spec) (list spec nil t)) ;; (specifier-specs spec)
+;     (list has-modeline-p menubar-visible-p 
+;	   default-gutter-visible-p default-toolbar))
+  (if proof-running-on-XEmacs
+      (list 
+       (list has-modeline-p nil nil) ;; nil even in ordinary case.
+       (list menubar-visible-p nil t)
+       (list default-gutter-visible-p nil t)
+       (list default-toolbar-visible-p nil t)))
+  "List of XEmacs specifiers and their values for non-multiframe and multiframe.")
+
+(defun proof-map-multiple-frame-specifiers (multiframep locale)
+  "Set XEmacs specifiers according to MULTIFRAMEP in LOCALE."
+  (dolist (spec proof-multiframe-specifiers)
+    (set-specifier (car spec) 
+		   (if multiframep (cadr spec) (caddr spec) )
+		   locale)))
+
+(defconst proof-multiframe-parameters
+  '((minibuffer . nil)
+    (unsplittable . t)
+    (menu-bar-lines . 0)
+    (tool-bar-lines . nil))
+  "List of GNU Emacs frame parameters for secondary frames.")
+
 (defun proof-multiple-frames-enable ()
+  ;; FIXME: add GNU Emacs version here.
+  ;; Try to trigger re-display of goals/response buffers,
+  ;; on next interaction.  
+  (if proof-running-on-XEmacs
+      (proof-map-buffers
+       (proof-associated-buffers)
+       (proof-map-multiple-frame-specifiers proof-multiple-frames-enable
+					    (current-buffer))))
+  (let ((spdres 
+	 (if proof-running-on-XEmacs
+	     proof-shell-special-display-regexp
+	   ;; GNU Emacs uses this to set frame params too, handily
+	   (cons 
+	    proof-shell-special-display-regexp
+	    proof-multiframe-parameters))))
+    (cond
+     (proof-multiple-frames-enable
+      (setq special-display-regexps
+	    (union special-display-regexps (list spdres))))
+     (t
+      (setq special-display-regexps
+	    (delete spdres special-display-regexps)))))
+  (proof-layout-windows))
+
+(defun proof-three-window-enable ()
+  (proof-layout-windows))
+
+
+(defun proof-select-three-b (b1 b2 b3)
+  "Select three buffers. Put them into three windows, selecting the last one."
+  (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
+  (delete-other-windows)
+  (split-window-horizontally)
+  (switch-to-buffer b1)
+  (other-window 1)
+  (split-window-vertically)
+  (switch-to-buffer b2)
+  (other-window 1)
+  (switch-to-buffer b3)
+  (other-window 1))
+
+(defun proof-display-three-b ()
+  "Layout three buffers in a single frame."
+  (interactive)
+  (proof-select-three-b
+   (or proof-script-buffer (first (buffer-list)))
+   ;; Pierre had response buffer first, I think goals
+   ;; is a bit nicer though?
+   (if (buffer-live-p proof-goals-buffer) 
+       proof-goals-buffer (first (buffer-list)))
+   (if (buffer-live-p proof-response-buffer) 
+       proof-response-buffer (first (buffer-list)))))
+
+(defvar pg-frame-configuration nil
+  "Variable storing last used frame configuration.")
+
+;; FIXME: would be nice to try storing this persistently.
+(defun pg-cache-frame-configuration ()
+  "Cache the current frame configuration, between prover restarts."
+  (setq pg-frame-configuration (current-frame-configuration)))
+
+(defun proof-layout-windows ()
+  "Refresh the display of windows according to current display mode.
+This uses a canonical layout."
+  (interactive)
   (cond
    (proof-multiple-frames-enable
-    (setq special-display-regexps
-	  (union special-display-regexps 
-		 (list proof-shell-special-display-regexp)))
-    ;; If we're on XEmacs with toolbar, turn off toolbar and
-    ;; menubar for the small frames to save space.
-    ;; FIXME: this could be implemented more smoothly
-    ;; with property lists, and specifiers should perhaps be set
-    ;; for the frame rather than the buffer.  Then could disable
-    ;; minibuffer, too.
-    ;; FIXME: add GNU Emacs version here.
-    (if (featurep 'toolbar) 
-	(proof-map-buffers
-	 (list proof-response-buffer proof-goals-buffer proof-trace-buffer)
-	 (set-specifier default-toolbar-visible-p nil (current-buffer))
-	 ; (set-specifier minibuffer (minibuffer-window) (current-buffer))
-	 ;(set-specifier has-modeline-p nil (current-buffer))
-	 (remove-specifier has-modeline-p (current-buffer))
-	 (remove-specifier menubar-visible-p (current-buffer))
-	 ;; gutter controls buffer tab visibility in XE 21.4
-	 (and (boundp 'default-gutter-visible-p)
-	      (remove-specifier default-gutter-visible-p (current-buffer)))))
-    ;; Try to trigger re-display of goals/response buffers,
-    ;; on next interaction.  
-    ;; FIXME: would be nice to do the re-display here, rather
-    ;; than waiting for next re-display
-    (delete-other-windows 
-     (if proof-script-buffer
-	 (get-buffer-window proof-script-buffer t))))
+    (delete-other-windows) ;; hope we're on the right frame/window
+    (if proof-script-buffer
+	(switch-to-buffer proof-script-buffer))
+    (proof-map-buffers (proof-associated-buffers)
+      (proof-display-and-keep-buffer (current-buffer)))
+    ;; Restore an existing frame configuration (seems buggy, typical)
+    (if pg-frame-configuration
+	(set-frame-configuration pg-frame-configuration 'nodelete)))
+   ;; Three window mode: use the Pierre-layout by default
+   (proof-three-window-enable
+    (proof-delete-other-frames)
+    (proof-display-three-b))
+   ;; Two-of-three window mode.  
+   ;; Show the response buffer as first in preference order.
    (t
-    ;; FIXME: would be nice to kill off frames automatically,
-    ;; but let's leave it to the user for now.
-    (setq special-display-regexps
-	  (delete proof-shell-special-display-regexp 
-		  special-display-regexps)))))
+    (proof-delete-other-frames)
+    (delete-other-windows)
+    (if (buffer-live-p proof-response-buffer)
+	(proof-display-and-keep-buffer proof-response-buffer)))))
 
-
+(defun proof-delete-other-frames ()
+  "Delete frames showing associated buffers."
+  (save-selected-window
+    ;; FIXME: this is a bit too brutal.  If there is no
+    ;; frame for the associated buffer, we may delete
+    ;; the main frame!!
+    (let ((mainframe
+	   (window-frame 
+	    (if proof-script-buffer
+		(proof-get-window-for-buffer proof-script-buffer)
+	      ;; We may lose with just selected window
+	      (selected-window)))))
+      (proof-map-buffers (proof-associated-buffers)
+	(let ((fm (window-frame
+		   (proof-get-window-for-buffer (current-buffer)))))
+	  (unless (equal mainframe fm)
+	    (delete-frame fm)))))))
+	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
 ;; Displaying in the response buffer
