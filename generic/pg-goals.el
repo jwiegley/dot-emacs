@@ -54,12 +54,18 @@ May enable proof-by-pointing or similar features.
 ;; Actually we better hadn't, people like to use it for cut and paste.
 ;; (define-key proof-goals-mode-map [(button1)] 'pg-goals-button-action)
 ;; (define-key proof-goals-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
+;; C Raffalli: The next key on button3 will be remapped to proof by contextual 
+;; menu by pg-pbrpm.el. In this cans, control button3 is mapped to 
+;; 'pg-goals-yank-subterm
 (define-key proof-goals-mode-map [(button3)] 'pg-goals-yank-subterm))
 (t
 (define-key proof-goals-mode-map [mouse-2] 'pg-goals-button-action)
 (define-key proof-goals-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
 ;; (define-key proof-goals-mode-map [mouse-1] 'pg-goals-button-action)
 ;; (define-key proof-goals-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
+;; C Raffalli: The next key on button3 will be remapped to proof by contextual 
+;; menu by pg-pbrpm.el. In this cans, control button3 is mapped to 
+;; 'pg-goals-yank-subterm
 (define-key proof-goals-mode-map [mouse-3] 'pg-goals-yank-subterm)))
 
 
