@@ -423,6 +423,15 @@ Given is the first SPAN which needs to be undone."
   (setq pbp-goal-command (concat "UNIMPLEMENTED"))
   (setq pbp-hyp-command (concat "UNIMPLEMENTED"))
 
+;; font-lock
+
+  (setq font-lock-keywords plastic-font-lock-keywords-1)
+
+;; if we don't have the following in xemacs, zap-commas fails to work.
+
+  (and (boundp 'font-lock-always-fontify-immediately)
+       (setq font-lock-always-fontify-immediately t))
+
   (proof-config-done)
 
   (define-key (current-local-map) [(control c) ?i] 'plastic-intros)
@@ -462,15 +471,6 @@ Given is the first SPAN which needs to be undone."
 		     tag-table-alist)))
 
   (setq blink-matching-paren-dont-ignore-comments t)
-
-;; font-lock
-
-  (setq font-lock-keywords plastic-font-lock-keywords-1)
-
-;; if we don't have the following in xemacs, zap-commas fails to work.
-
-  (and (boundp 'font-lock-always-fontify-immediately)
-       (setq font-lock-always-fontify-immediately t))
 
 ;; hooks and callbacks
 

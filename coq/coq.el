@@ -446,7 +446,13 @@
 
   (coq-init-syntax-table)
 
+;; font-lock
 
+  (setq font-lock-keywords coq-font-lock-keywords-1)
+
+  (and (boundp 'font-lock-always-fontify-immediately)
+       (setq font-lock-always-fontify-immediately t))
+  
   (proof-config-done)
 
 ;; Coq-specific key mappings
@@ -474,13 +480,6 @@
 
   (setq blink-matching-paren-dont-ignore-comments t)
 
-;; font-lock
-
-  (setq font-lock-keywords coq-font-lock-keywords-1)
-
-  (and (boundp 'font-lock-always-fontify-immediately)
-       (setq font-lock-always-fontify-immediately t))
-  
 ;; hooks and callbacks
   
   (add-hook 'proof-pre-shell-start-hook 'coq-pre-shell-start nil t))
