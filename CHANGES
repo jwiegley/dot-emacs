@@ -217,6 +217,14 @@ simple, holes are pieces of text that can be "filled" by different
 means. The new menu system makes use of the holes system. Almost all
 holes operations are available in the Coq/holes menu.
 
+Note: Holes and menus make use of emacs abbreviation mechanism, please
+make sure you don't have an abbrev table defined in you config files
+(C-h v abbrev-file-name to see the name of the abbreviation file). If
+there is already such a table, you can do the following to merge with
+ProofGeneral's abbrev: M-x read-abbrev-file, then find the file named
+"coq-abbrev.el" in the ProofGeneral/coq directory. At emacs exit you
+will be asked if you want to save abbrevs, answer yes.
+
 *** X-symbols are much improved (more symbols, cleaner grammar)
 
 Symbols are encoded only if between spaces or _'s. Sub/superscripts

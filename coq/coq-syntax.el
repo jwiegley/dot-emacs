@@ -824,7 +824,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   (modify-syntax-entry ?>  ".")
   (modify-syntax-entry ?\& ".")
   (modify-syntax-entry ?_  "w")
-  (modify-syntax-entry ?\' "_")
+  (modify-syntax-entry ?\' "w")
   (modify-syntax-entry ?\| ".")
 
 ; should baybe be "_" but it makes coq-find-and-forget (in coq.el) bug
