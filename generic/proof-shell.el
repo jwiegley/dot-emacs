@@ -1380,6 +1380,14 @@ correspond with initializing the process.  The
 ordinary output before the first prompt is ignored (urgent messages, 
 however, are always processed; hence their name)."
   (save-excursion
+    ;; Strip CRs.
+    (if proof-shell-strip-crs-from-output
+	(progn
+	  (setq str (replace-regexp-in-string "\r+$" "" str))
+	  ;; Do the same thing in the buffer via comint's function
+	  ;; (sometimes put on comint-output-filter-functions too).
+	  (comint-strip-ctrl-m)))
+
     ;; Process urgent messages.
     (and proof-shell-eager-annotation-start
 	 (proof-shell-process-urgent-messages))

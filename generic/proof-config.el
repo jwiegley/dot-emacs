@@ -1996,6 +1996,12 @@ up the display (or even worse, the synchronization)."
   :type 'boolean
   :group 'proof-shell)
   
+(defcustom proof-shell-strip-crs-from-output t ;; proof-running-on-win32
+  "If non-nil, remove carriage returns (^M) at the end of lines from output.
+This is enabled for Win32 systems by default."
+  :type 'boolean
+  :group 'proof-shell)
+
 (defcustom proof-shell-insert-hook nil 
   "Hooks run by proof-shell-insert before inserting a command.
 Can be used to configure the proof assistant to the interface in
