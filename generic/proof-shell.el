@@ -461,7 +461,9 @@ process.
 
 It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be \"cached\" in some way,
-so that loading them the next time round does not require re-processing."
+so that loading them the next time round only performs a re-linking
+operation, not full re-processing.  (One way of caching is via
+object files, used by Lego and Coq)."
   (interactive)
   (if proof-shell-busy
       (progn
