@@ -955,8 +955,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
   ;;FIXME tms: needs implementation
   nil)
 
-(defvar proof-previous-proof-completed nil
-  "Copy of proof-shell-proof-completed from previous scripting command.")
+
 
 (defun proof-done-advancing (span)
   "The callback function for assert-until-point."
@@ -977,21 +976,27 @@ the ACS is marked in the current buffer. If CMD does not match any,
     (proof-set-queue-start end)
     (setq cmd (span-property span 'cmd))
     (cond
-     ;; * Comments just get highlighted
+     ;; CASE 1: Comments just get highlighted
      ((eq (span-property span 'type) 'comment)
       (set-span-property span 'mouse-face 'highlight))
      
-     ;; "ACS" for future implementation
-     ;; ((proof-check-atomic-sequents-lists span cmd end))
-
-     ;; * Save command seen, now we'll amalgamate spans.
+     ;; CASE 2: Save command seen, now we'll amalgamate spans.
      ((and (proof-string-match proof-save-command-regexp cmd)
 	    (funcall proof-really-save-command-p span cmd))
 
+      (unless (eq proof-shell-proof-completed 1)
+	;; We expect saves to succeed only for recently completed proofs.
+	;; Give a hint to the proof assistant implementor in case something
+	;; odd is going on.
+	(proof-debug 
+	 (format
+	  "Proof General note: save command with proof-shell-proof-completed=%s"
+	  proof-shell-proof-completed)))
+
+      (setq proof-shell-proof-completed nil)
+
+      ;; FIXME: subroutine here:
       (let (nam gspan next)
-	;; First, clear the proof completed flag
-	(setq proof-shell-proof-completed nil)
-	(setq proof-previous-proof-completed nil)
 
 	;; Try to set the name of the theorem from the save
 	(and proof-save-with-hole-regexp
@@ -1020,9 +1025,11 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	       (proof-string-match proof-goal-with-hole-regexp
 				   (span-property gspan 'cmd))
 	       (setq nam (match-string 2 (span-property gspan 'cmd)))))
-	;; As a final desparate attempt, set the name to 
-	;; proof-unnamed-theorem-name  (Coq actually uses a default
-	;; name for unnamed theorems, believe it or not).
+
+	;; As a final desparate attempt, set the name to
+	;; proof-unnamed-theorem-name (Coq actually uses a default
+	;; name for unnamed theorems, believe it or not, and issues
+	;; a name-binding error for two unnamed theorems in a row!).
 	(unless nam
 	  (setq nam proof-unnamed-theorem-name))
 
@@ -1039,27 +1046,40 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	(and proof-lift-global
 	     (funcall proof-lift-global gspan)))))
 
-     ;; NEW CASE:
-     ;; Proof completed in *previous* command, no nested goals
-     ;; allowed.  We make a fake goal-save from any previous 
-     ;; goal to the command before the present one.
-
-
-
-     ;; * Goal command just processed, no nested goals allowed.
+     ;; CASE 3: Proof completed one step or more ago, non-save
+     ;; command seen, no nested goals allowed.
+     ;; 
      ;; We make a fake goal-save from any previous 
      ;; goal to the command before the present one.
-     ;; (This is a hack for Isabelle and LEGO to allow smooth
-     ;; undoing in proofs which have no "qed" statements).
+     ;;
+     ;; This is a hack to allow smooth undoing in proofs which have no
+     ;; "qed" statements.  If your proof assistant doesn't allow
+     ;; these "unclosed" proofs, then you can safely set
+     ;; proof-completed-proof-behaviour.
+     ;;
      ;; FIXME: abstract common part of this case and case above,
      ;; to improve code by making a useful subroutine.
-     ((and (not proof-nested-goals-allowed)
-	   (funcall proof-goal-command-p cmd))
-      (let (nam gspan hitsave dels)
-	;; A preliminary search backwards to 
-	;; see if we can find a previous goal before
-	;; a save or the start of the buffer.
-	(setq gspan (prev-span span 'type))
+     ((and
+       proof-shell-proof-completed
+       (or (and (eq proof-completed-proof-behaviour 'extend)
+		(>= proof-shell-proof-completed 0))
+	   (and (eq proof-completed-proof-behaviour 'closeany)
+		(> proof-shell-proof-completed 0))
+	   (and (eq proof-completed-proof-behaviour 'closegoal)
+		(funcall proof-goal-command-p cmd))))
+
+      (if (eq proof-completed-proof-behaviour 'extend)
+	  ;; In the extend case, the context of the proof grows
+	  ;; until we hit a save or new goal.
+	  (incf proof-shell-proof-completed)
+	(setq proof-shell-proof-completed nil))
+
+      (let* ((swallow  (eq proof-completed-proof-behaviour 'extend))
+	     (gspan    (if swallow span (prev-span span 'type)))
+	     (newend   (if swallow (span-end span) (span-start span)))
+	    nam hitsave dels)
+	;; Search backwards to see if we can find a previous goal
+	;; before a save or the start of the buffer.
 	(while 
 	    (and 
 	     gspan
@@ -1074,15 +1094,17 @@ the ACS is marked in the current buffer. If CMD does not match any,
 		     (setq hitsave t))))))
 	  (setq dels (cons gspan dels))
 	  (setq gspan (prev-span gspan 'type)))
-	(unless (or hitsave (null gspan))
+	(if (or hitsave (null gspan))
+	    (proof-debug
+     "Proof General strangeness: unclosed proof completed, but couldn't find its start!")
 	  ;; If we haven't hit a save or the start of the buffer,
 	  ;; we make a fake goal-save region.
 
-	  ;; Delete spans between the previous goal and new goal
+	  ;; Delete spans between the previous goal and new command
 	  (mapcar 'delete-span dels)
 
 	  ;; Try to set a name from the goal
-	  ;; (useless for Isabelle)
+	  ;; (useless for provers like Isabelle)
 	  (and proof-goal-with-hole-regexp
 	       (proof-string-match proof-goal-with-hole-regexp
 				   (span-property gspan 'cmd))
@@ -1091,18 +1113,25 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  (unless nam
 	    (setq nam proof-unnamed-theorem-name))
 	  
-	  ;; Now make the new goal-save span
-	  (set-span-end gspan (span-start span))
+	  ;; Now make the new or extended goal-save span
+	  ;; Don't bother with Coq's lift global stuff, we assume this
+	  ;; case is only good for non-nested goals.
+	  (set-span-end gspan newend)
 	  (set-span-property gspan 'mouse-face 'highlight)
 	  (set-span-property gspan 'type 'goalsave)
-	  (set-span-property gspan 'name nam)))
-	;; Finally, do the usual thing with highlighting.
-	;; Don't bother with Coq's lift global stuff, we assume
-	;; this code is only good for non-nested goals.
-	(set-span-property span 'mouse-face 'highlight))
-     ;; 
-     ;; Otherwise, some other kind of command (or a nested goal).
+	  (set-span-property gspan 'name nam))
+	;; Finally, do the usual thing with highlighting for the span.
+	(unless swallow
+	  (set-span-property span 'mouse-face 'highlight))))
+
+
+     ;; "ACS" for possible future implementation
+     ;; ((proof-check-atomic-sequents-lists span cmd end))
+
+     ;; CASE 4:  Some other kind of command (or a nested goal).
      (t
+      (if proof-shell-proof-completed
+	  (incf proof-shell-proof-completed))
       (set-span-property span 'mouse-face 'highlight)
       (and proof-global-p 
 	   (funcall proof-global-p cmd)
@@ -1444,12 +1473,14 @@ appropriate."
 
 
 (defun proof-done-retracting (span)
-  "Update display after proof process has reset its state.
+  "Callback for proof-retract-until-point.
+We update display after proof process has reset its state.
 See also the documentation for `proof-retract-until-point'.
-Optionally delete the region corresponding to the proof sequence."
-  ;; 10.9.99: da: added this line so that undo always clears the
-  ;; proof completed flag.  Rationale is that undoing never leaves
-  ;; prover in a "proof just completed" state.
+Optionally delete the region corresponding to the proof sequence.
+After an undo, we clear the proof completed flag.  The rationale
+is that undoing never leaves prover in a \"proof just completed\" 
+state, which is true for some proof assistants (but probably not
+others)."
   (setq proof-shell-proof-completed nil)
   (if (span-live-p span)
       (let ((start (span-start span))

@@ -1002,22 +1002,36 @@ Then we call `proof-shell-handle-error-hook'. "
 (defun proof-shell-process-output (cmd string)
   "Process shell output (resulting from CMD) by matching on STRING.
 CMD is the first part of the proof-action-list that lead to this
-output.
+output.  The result of this function is a pair (SYMBOL NEWSTRING).
 
-This function deals with errors, start of proofs, abortions of
-proofs and completions of proofs.  All other output from the proof
-engine is simply reported to the user in the response buffer
-by setting proof-shell-delayed-output to a cons 
-cell of ('insert . TEXT) where TEXT is the text string to 
-be inserted.
+Here is where we recognizes interrupts, abortions of proofs, errors,
+completions of proofs, and proof step hints (proof by pointing results).
+They are checked for in this order, using
+ 
+  proof-shell-interrupt-regexp
+  proof-shell-error-regexp
+  proof-shell-abort-goal-regexp
+  proof-shell-proof-completed-regexp
+  proof-shell-result-start
 
-To extend this function, set
-proof-shell-process-output-system-specific.
+All other output from the proof engine will be reported to the user in
+the response buffer by setting proof-shell-delayed-output to a cons
+cell of ('insert . TEXT) where TEXT is the text string to be inserted.
 
-This function - it can return one of 4 things: 'error, 'interrupt,
-'loopback, or nil. 'loopback means this was output from pbp, and
-should be inserted into the script buffer and sent back to the proof
-assistant."
+Order of testing is: interrupt, abort, error, completion.
+
+To extend this function, set proof-shell-process-output-system-specific.
+
+The \"aborted\" case is intended for killing off an open proof during
+retraction.  Typically it the error message caused by a
+proof-kill-goal-command.  It simply inserts the word \"Aborted\" into
+the response buffer.  So it is expected to be the result of a 
+retraction, rather than the indication that one should be made.
+
+This function can return one of 4 things as the symbol: 'error,
+'interrupt, 'loopback, or nil. 'loopback means this was output from
+pbp, and should be inserted into the script buffer and sent back to
+the proof assistant."
   (cond
    ((proof-shell-string-match-safe proof-shell-interrupt-regexp string)
     'interrupt)
@@ -1026,22 +1040,22 @@ assistant."
     (cons 'error (proof-shell-strip-special-annotations
 		  (substring string
 			     (match-beginning 0)))))
-
+	 
    ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
     (proof-clean-buffer proof-goals-buffer)
     (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
     ())
-	 
+
    ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
     (proof-clean-buffer proof-goals-buffer)
-    (setq proof-shell-proof-completed t)
+    (setq proof-shell-proof-completed 0) ; counts commands since proof complete.
     (setq proof-shell-delayed-output
 	  (cons (if proof-goals-display-qed-message
 		    'analyse 'insert)
 		(match-string 1 string))))
 
    ((proof-shell-string-match-safe proof-shell-start-goals-regexp string)
-    (setq proof-shell-proof-completed nil)
+;    (setq proof-shell-proof-completed nil)
     (let (start end)
       (while (progn (setq start (match-end 0))
 		    (string-match proof-shell-start-goals-regexp 
@@ -1051,7 +1065,7 @@ assistant."
 	    (cons 'analyse (substring string start end)))))
        
    ((proof-shell-string-match-safe proof-shell-result-start string)
-    (setq proof-shell-proof-completed nil)
+;    (setq proof-shell-proof-completed nil)
     (let (start end)
       (setq start (+ 1 (match-end 0)))
       (string-match proof-shell-result-end string)
@@ -1213,11 +1227,11 @@ The queue mode is set to 'advancing"
 
 If this function is called with a non-empty proof-action-list, the
 head of the list is the previously executed command which succeeded.
-We execute (ACTION SPAN) on the first item, then (ACTION SPAN) on
-any following items which have proof-no-command as their cmd
-components.  If a there is a next command, send it to the process.
-If the action list becomes empty, unlock the process and remove the
-queue region. 
+We execute (ACTION SPAN) on the first item, then (ACTION SPAN) on any
+following items which have proof-no-command as their cmd components.
+If a there is a next command after that, send it to the process.  If
+the action list becomes empty, unlock the process and remove the queue
+region.
 
 The return value is non-nil if the action list is now empty."
   (or (not proof-action-list)		; exit immediately if finished.
@@ -1595,7 +1609,10 @@ proof-shell-process-output returns: maybe handle an interrupt, an
 error, or deal with ordinary output which is a candidate for the goal
 or response buffer.  Ordinary output is only displayed when the proof
 action list becomes empty, to avoid a confusing rapidly changing
-output."
+output.
+
+After processing the current output, the last step undertaken
+by the filter is to send the next command from the queue."
   (let (cmd res)
     (setq cmd (nth 1 (car proof-action-list)))
     (save-excursion		;current-buffer

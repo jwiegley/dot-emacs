@@ -145,6 +145,10 @@ and script mode."
    proof-state-preserving-p	'isa-state-preserving-p
    proof-parse-indent		'isa-parse-indent
    proof-stack-to-indent	'isa-stack-to-indent
+
+   ;; close goal..save regions eagerly
+   proof-completed-proof-behaviour 'closeany
+
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
    proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\";"
    proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\";"))

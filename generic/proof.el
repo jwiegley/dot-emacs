@@ -133,7 +133,9 @@ read.")
   "The response buffer.")
 
 (defvar proof-shell-proof-completed nil
-  "Flag indicating that a completed proof has just been observed.")
+  "Flag indicating that a completed proof has just been observed.
+If non-nil, the value counts the commands from the last command
+of the proof (starting from 1).")
 
 ;; FIXME da: remove proof-terminal-string.  At the moment some
 ;; commands need to have the terminal string, some don't.

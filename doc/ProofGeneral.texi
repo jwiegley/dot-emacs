@@ -2867,7 +2867,54 @@ This variable may not need to be set: a default value which should
 work for goal..saves is calculated from @code{proof-goal-with-hole-regexp},
 @code{proof-goal-command-regexp}, and @code{proof-save-with-hole-regexp}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: nilproof-goal-command-p nil 
+
+@c TEXI DOCSTRING MAGIC: proof-script-find-next-entity-fn
+@defvar proof-script-find-next-entity-fn 
+Name of function to find next interesting entity in a script buffer.@*
+This is used to configure @code{func-menu}.  The default value is
+@code{proof-script-find-next-entity}, which searches for the next entity
+based on @code{fume-function-name-regexp} which by default is set from
+@code{proof-script-next-entity-regexps}.  
+
+The function should move point forward in a buffer, and return a cons
+cell of the name and the beginning of the entity's region.
+
+Note that @code{proof-script-next-entity-regexps} is set to a default value
+from @code{proof-goal-with-hole-regexp} and @code{proof-save-with-hole-regexp} in
+the function @code{proof-config-done}, so you may not need to worry about any
+of this.  See whether function menu does something sensible by
+default.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-goal-command-p 
+
+@c TEXI DOCSTRING MAGIC: proof-completed-proof-behaviour
+@defvar proof-completed-proof-behaviour 
+Indicates how Proof General treats commands beyond the end of a proof.@*
+Normally goal...save regions are "closed", i.e. made atomic for undo.
+But once a proof has been completed, there may be a delay before the
+@lisp
+"save" command appears --- or it may not appear at all.  Unless
+@end lisp
+nested proofs are supported, this can spoil the undo-behaviour in
+script management since once a new goal arrives the old undo history
+may be lost in the prover.  So we allow Proof General to close 
+off the goal..[save] region in more flexible ways.  
+The possibilities are:
+@lisp
+        nil  -  nothing special; close only when a save arrives
+  @code{'closeany}  -  close as soon as the next command arrives, save or not
+ @code{'closegoal}  -  close when the next "goal" command arrives
+    @code{'extend}  -  keep extending the closed region until a save or goal.
+@end lisp
+If your proof assistant allows nested goals, it will be wrong to close
+off the portion of proof so far, so this variable should be set to nil.
+There is no built-in understanding of the undo behaviour of nested
+proofs; instead there is some support for un-nesting nested proofs in
+the @code{proof-lift-global} mechanism.  Of course, this is risky because of
+nested contexts!
+@end defvar
+ 
 @c TEXI DOCSTRING MAGIC: proof-lift-global
 @defvar proof-lift-global 
 Function which lifts local lemmas from inside goals out to top level.@*
@@ -3871,7 +3918,9 @@ read.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-proof-completed
 @defvar proof-shell-proof-completed 
-Flag indicating that a completed proof has just been observed.
+Flag indicating that a completed proof has just been observed.@*
+If non-nil, the value is actually the number of commands that have
+been processed since the proof was completed.
 @end defvar
 
 The @file{proof.el} also loads @file{proof-config.el} which declares the
@@ -4272,11 +4321,11 @@ Process the @code{proof-action-list}.
 
 If this function is called with a non-empty @code{proof-action-list}, the
 head of the list is the previously executed command which succeeded.
-We execute (@var{action} @var{span}) on the first item, then (@var{action} @var{span}) on
-any following items which have @code{proof-no-command} as their cmd
-components.  If a there is a next command, send it to the process.
-If the action list becomes empty, unlock the process and remove the
-queue region. 
+We execute (@var{action} @var{span}) on the first item, then (@var{action} @var{span}) on any
+following items which have @code{proof-no-command} as their cmd components.
+If a there is a next command after that, send it to the process.  If
+the action list becomes empty, unlock the process and remove the queue
+region.
 
 The return value is non-nil if the action list is now empty.
 @end defun
@@ -4337,22 +4386,36 @@ the last urgent message seen.
 @defun proof-shell-process-output cmd string
 Process shell output (resulting from @var{cmd}) by matching on @var{string}.@*
 @var{cmd} is the first part of the @code{proof-action-list} that lead to this
-output.
+output.  The result of this function is a pair (@var{symbol} @var{newstring}).
 
-This function deals with errors, start of proofs, abortions of
-proofs and completions of proofs.  All other output from the proof
-engine is simply reported to the user in the response buffer
-by setting @code{proof-shell-delayed-output} to a cons 
-cell of ('insert . @var{text}) where @var{text} is the text string to 
-be inserted.
+Here is where we recognizes interrupts, abortions of proofs, errors,
+completions of proofs, and proof step hints (proof by pointing results).
+They are checked for in this order, using
+@lisp
+  @code{proof-shell-interrupt-regexp}
+  @code{proof-shell-error-regexp}
+  @code{proof-shell-abort-goal-regexp}
+  @code{proof-shell-proof-completed-regexp}
+  @code{proof-shell-result-start}
+@end lisp
+All other output from the proof engine will be reported to the user in
+the response buffer by setting @code{proof-shell-delayed-output} to a cons
+cell of ('insert . @var{text}) where @var{text} is the text string to be inserted.
 
-To extend this function, set
-@code{proof-shell-process-output-system-specific}.
+Order of testing is: interrupt, abort, error, completion.
 
-This function - it can return one of 4 things: @code{'error}, @code{'interrupt},
-@code{'loopback}, or nil. @code{'loopback} means this was output from pbp, and
-should be inserted into the script buffer and sent back to the proof
-assistant.
+To extend this function, set @code{proof-shell-process-output-system-specific}.
+
+The "aborted" case is intended for killing off an open proof during
+retraction.  Typically it the error message caused by a
+@code{proof-kill-goal-command}.  It simply inserts the word "Aborted" into
+the response buffer.  So it is expected to be the result of a 
+retraction, rather than the indication that one should be made.
+
+This function can return one of 4 things as the symbol: @code{'error},
+@code{'interrupt}, @code{'loopback}, or nil. @code{'loopback} means this was output from
+pbp, and should be inserted into the script buffer and sent back to
+the proof assistant.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-urgent-message-marker
@@ -4423,6 +4486,9 @@ error, or deal with ordinary output which is a candidate for the goal
 or response buffer.  Ordinary output is only displayed when the proof
 action list becomes empty, to avoid a confusing rapidly changing
 output.
+
+After processing the current output, the last step undertaken
+by the filter is to send the next command from the queue.
 @end defun
 
 

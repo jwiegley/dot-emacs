@@ -112,7 +112,8 @@ Activates extended printing routines required for Proof General.")
 (defvar lego-shell-cd "Cd \"%s\""
   "*Command of the inferior process to change the directory.") 
 
-(defvar lego-shell-abort-goal-regexp "KillRef: ok, not in proof state"
+(defvar lego-shell-abort-goal-regexp 
+  "KillRef: ok, not in proof state\\|Forget forced KillRef"
   "*Regular expression indicating that the proof of the current goal
   has been abandoned.")
 
@@ -358,6 +359,7 @@ Checks the width in the `proof-goals-buffer'"
 	proof-info-command "Help")
 
   (setq proof-goal-command-p 'lego-goal-command-p
+	proof-completed-proof-behaviour 'closeany ; new in 3.0
 	proof-count-undos-fn 'lego-count-undos
 	proof-find-and-forget-fn 'lego-find-and-forget
         proof-goal-hyp-fn 'lego-goal-hyp

@@ -803,13 +803,28 @@ default."
   :type 'function
   :group 'proof-script)
 
-(defcustom proof-nested-goals-allowed nil
-  "Whether the proof assistant allows nested goals.  
-If it does not, Proof General assumes that successive goals automatically 
-discard the previous proof state  
+(defcustom proof-completed-proof-behaviour nil
+  "Indicates how Proof General treats commands beyond the end of a proof.
+Normally goal...save regions are \"closed\", i.e. made atomic for undo.
+But once a proof has been completed, there may be a delay before the
+\"save\" command appears --- or it may not appear at all.  Unless
+nested proofs are supported, this can spoil the undo-behaviour in
+script management since once a new goal arrives the old undo history
+may be lost in the prover.  So we allow Proof General to close 
+off the goal..[save] region in more flexible ways.  
+The possibilities are:
 
-Some proof assistants may simply give an error when nested goals are
-attempted, so the setting of this variable doesn't matter."
+        nil  -  nothing special; close only when a save arrives
+  'closeany  -  close as soon as the next command arrives, save or not
+ 'closegoal  -  close when the next \"goal\" command arrives
+    'extend  -  keep extending the closed region until a save or goal.
+
+If your proof assistant allows nested goals, it will be wrong to close
+off the portion of proof so far, so this variable should be set to nil.
+There is no built-in understanding of the undo behaviour of nested
+proofs; instead there is some support for un-nesting nested proofs in
+the proof-lift-global mechanism.  Of course, this is risky because of
+nested contexts!"
   :type 'boolean
   :group 'proof-script)
 
