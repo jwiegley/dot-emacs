@@ -30,8 +30,10 @@
 ;;
 ;; The user options don't need to be set on a per-prover basis,
 ;; and the global constants probably should not be touched.
-;; The remaining variables in sections 2-5 must be set for
-;; each proof assistant.
+;; The remaining variables in sections 2-5 should be set for
+;; each proof assistant.  You don't need to set every variable
+;; for basic functionality; consult the manual for details of
+;; which ones are important.
 ;;
 ;; Customization groups and structure
 ;;
@@ -44,18 +46,19 @@
 ;;      proof-shell	     :     settings for proof shell mode (5)
 ;;    <Prover name>-config   :  Specific internal settings for a prover
 ;;
-;; -----
+;; ==================================================
 ;;
 ;; Developers notes:
 ;;   1. When adding a new configuration variable, please
 ;;       (a) put it in the right customize group, and
 ;;       (b) add a magical comment in NewDoc.texi to document it!
-;;   2. The customize library is a bit picky over the
+;;   2. Presently the customize library seems a bit picky over the
 ;;    	:type property and some correct types don't work properly.
 ;;    	If the type is ill-formed, editing the whole group will be broken.
 ;;    	Check after updates, by killing all customize buffers and
 ;;    	invoking customize-group
-;; -----
+;;
+;; ==================================================
 
 
 ;;
@@ -878,10 +881,52 @@ The default value is \"\\n\" to match up to the end of the line."
   :type '(choice regexp (const :tag "Unset" nil))
   :group 'proof-shell)
 
+(defcustom proof-shell-process-file nil
+  "A pair (REGEXP . FUNCTION) to match a processed file name.
+
+If REGEXP matches output, then the function FUNCTION is invoked on the
+output string chunk. It must return a script file name (with complete
+path) the system is currently processing. In practice, FUNCTION is
+likely to inspect the match data.  If it returns the empty string,
+the file name of the scripting buffer is used instead.  If it
+returns nil, no action is taken.
+
+Care has to be taken in case the prover only reports on compiled
+versions of files it is processing. In this case, FUNCTION needs to
+reconstruct the corresponding script file name. The new (true) file
+name is added to the front of `proof-included-files-list'."
+  :type '(choice (cons regexp function) (const nil))
+  :group 'proof-shell)
+
+
+;; FIXME da: why not amalgamate the next two into a single
+;;	     variable as above?
+
+(defcustom proof-shell-retract-files-regexp nil
+  "A REGEXP to match that the prover has retracted across file boundaries.
+
+At this stage, Proof General's view of the processed files is out of
+date and needs to be updated with the help of the function
+`proof-shell-compute-new-files-list'."
+  :type '(choice regexp (const nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-compute-new-files-list nil
+  "Function to update `proof-included-files list'.
+
+It needs to return an up to date list of all processed files. Its
+output is stored in `proof-included-files-list'. Its input is the
+string of which `proof-shell-retract-files-regexp' matched a
+substring. In practice, this function is likely to inspect the
+previous (global) variable `proof-included-files-list' and the match
+data triggered by `proof-shell-retract-files-regexp'."
+  :type '(choice function (const nil))
+  :group 'proof-shell)
+
 
 
 ;;
-;; 5c. hooks 
+;; 5c. hooks and hook-related variables
 ;;
 
 (defcustom proof-shell-insert-hook nil 
@@ -927,44 +972,6 @@ variables."
   :type '(repeat function)
   :group 'proof-shell)
 
-(defcustom proof-shell-process-file nil
-  "A pair (REGEXP . FUNCTION) to match a processed file name.
-
-If REGEXP matches output, then the function FUNCTION is invoked on the
-output string chunk. It must return a script file name (with complete
-path) the system is currently processing. In practice, FUNCTION is
-likely to inspect the match data.  If it returns the empty string,
-the file name of the scripting buffer is used instead.  If it
-returns nil, no action is taken.
-
-Care has to be taken in case the prover only reports on compiled
-versions of files it is processing. In this case, FUNCTION needs to
-reconstruct the corresponding script file name. The new (true) file
-name is added to the front of `proof-included-files-list'."
-  :type '(choice (cons regexp function) (const nil))
-  :group 'proof-shell)
-
-(defcustom proof-shell-retract-files-regexp nil
-  "A REGEXP to match that the prover has retracted across file boundaries.
-
-At this stage, Proof General's view of the processed files is out of
-date and needs to be updated with the help of the function
-`proof-shell-compute-new-files-list'."
-  :type '(choice regexp (const nil))
-  :group 'proof-shell)
-
-(defcustom proof-shell-compute-new-files-list nil
-  "Function to update `proof-included-files list'.
-
-It needs to return an up to date list of all processed files. Its
-output is stored in `proof-included-files-list'. Its input is the
-string of which `proof-shell-retract-files-regexp' matched a
-substring. In practice, this function is likely to inspect the
-previous (global) variable `proof-included-files-list' and the match
-data triggered by `proof-shell-retract-files-regexp'."
-  :type '(choice function (const nil))
-  :group 'proof-shell)
-
 (defcustom proof-shell-process-output-system-specific nil
   "Set this variable to handle system specific output.
 Errors, start of proofs, abortions of proofs and completions of
@@ -982,6 +989,15 @@ documentation of `proof-shell-process-output' for the required
 output format."
   :type '(cons (function function))
   :group 'proof-shell)
+
+(defcustom proof-state-change-hook nil
+  "This hook is called when state change may have occurred. 
+Specifically, this hook is called after a region has been
+asserted or retracted, or after a command has been sent
+to the prover with proof-shell-invisible-command.
+
+This hook is used within Proof General to refresh the 
+toolbar.")
 
 
 
