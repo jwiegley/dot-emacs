@@ -22,13 +22,8 @@ X (Low)    probably not worth wasting time on
 A Clarify licence situation for Proof General after question from 
   a potential user. Will the LFCS allow it to be used in a commercial 
   environment without a special licence agreement? A new licence is
-  currently [22 Jan 1999] being drafted by UNIVED
-
-A Fix bug with syntax matching manifested in Isabelle.  We need to
-  set case-fold-search to nil (or to `proof-case-fold-search') in some
-  places.  Also check syntax tables for all instances, and whether
-  word matching is based on whitespace constituents or non-word
-  constituents.
+  currently [22 Jan 1999] being drafted by UNIVED.
+  Will wait for this (at least) before releasing 2.1.
 
 B Add a "register" page for registering downloads.  Perhaps filling
   will be mandatory for users in a non-academic environment.
@@ -107,6 +102,15 @@ B Improve behaviour when switching active scripting buffer.
   allow switching between scripting buffers automatically,
   (perhaps with an option akin to the old "steal scripting?" idea). 
   Also we 
+
+B Check matching code carefully, in view of bug reported (now fixed)
+  for Isabelle.
+  Examine syntax tables for all instances, and whether
+  word matching is based on whitespace constituents or non-word
+  constituents.  [6 hrs]
+
+C Make and test generic versions of <..>-goal-command-p, 
+  <...>-count-undos, to simplify prover-specific code.  
 
 C Improve handling of process exiting early (see note at
   end of proof-shell-mode).  (30mins)
