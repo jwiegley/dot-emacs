@@ -205,6 +205,18 @@ C (Isabelle) Messages in minibuffer appear in FSF Emacs with ugly ^J's.
   Generic problem, really: maybe CRs should be stripped, and just first
   line of multiline urgent message displayed in minibuffer.
 
+D Perhaps goal..save sequences should be closed also by the appearance
+  of a new goal, even though this may be a "broken" proof.  At the
+  moment, undoing past the new goal causes errors:
+  
+     <goal>
+     ...
+     <new goal>
+     ..
+
+  Will ACS idea handle this?
+  
+
 D Better support for adding a new prover: give error messages which
   hint at what variable to set (see proof-issue-goal for example).
 
