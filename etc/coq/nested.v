@@ -1,10 +1,25 @@
 (* Nested Proofs, and backtrack mechanism in general.
-   Bugs:
+
+    BUGS:
+
+    - Still will be one buggy case, when kill-goal command is
+      assumed to be good enough to kill off current goal without
+      calculating the Back commands to do inside.  Needs tweaking
+      of PG undo mechanism to allow a single undo function, without
+      forcing the split.
+      Exercise: produce a test case showing this bug(!).
+
+======= Below here fixed [?]
+
+    - Retract 7a -> 6  needs to do 3 sorts of undo commands!  
+      Abort, Undo, Back.
+      Algorithm is to use current search-forwards from target span
+      mechanism, which has to cover the whole range of undo to count
+      all the Backs. However, only the initial Undo's which appear 
+      before an Abort need to be counted.  (See coq-find-and-forget).
 
     - Undo of "Require Omega" in proof uses Undo instead of Back.
       [ coq-count-undos needs fixing to use Back as well as Undo ? ]
-
-======= Below here fixed?
 
     - once point 12 is reached, sould have one
       block from 3 to 12. With the goalsave test :
@@ -38,10 +53,17 @@ Case n. (* 5 "Undo" *)
 EAuto. (* 6 "Undo" *)
 
 Require Omega. (* 7 This needs "Back 1" to be retracted. *)
-  Lemma t2 : O=O. Auto. 
-    Lemma t4 : O=O. Auto. Save.
+  Lemma t2 : O=O.   (* 7a. -> 6: "Abort. Back 1. Undo 1." *)
+    Auto.           
+    Lemma t4 : O=O. 
+       Auto.        (* 7b. -> 6: "Abort. [Undo.] Abort. Back 1. Undo 1." *)
+		    (* 7b. -> 2: "Abort. Abort. Abort. Back 1."
+		       This is a useful test case because PG splits
+		       undo calculation into phases: outwith
+		       top-level proof and within top-level proof. *)
+    Save.
   Save. (* 8 "Back 1" or "Reset t2". *)
-Intros. (* 9 "Undo" *)
+Intros. (* 9 "Undo": example of retraction 9->6: Undo 2.  Back 3. *)
   Lemma t3 : O=O. Auto. Save. (* 10 "Back 1" or "Reset t3" *)
 EAuto. (* 11 "Undo" *)
 Save. (* 12 *)
