@@ -556,7 +556,7 @@ Kim Hyung Ho,
 Pierre Lescanne,
 John Longley, 
 Tobias Nipkow, 
-Leonor Prensa-Nieto, 
+Leonor Prensa Nieto, 
 David von Oheimb,
 Randy Pollack,
 and
@@ -775,7 +775,7 @@ Proof General comes ready-customized for these proof assistants:
 @xref{Isabelle Proof General}, for more details.
 @item 
 @b{Isabelle/Isar Proof General} for Isabelle99-1@*
-@xref{Isabelle Proof General}, and documentation suplied with
+@xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
 @item 
 @b{HOL Proof General} for HOL98@*
@@ -3066,9 +3066,9 @@ discussed in the previous sections) the LEGO Proof General provides a
 few extensions. In proof scripts, there are some abbreviations for
 common commands:
 
-@kindex C-c i
-@kindex C-c I 
-@kindex C-c R 
+@kindex C-c C-a C-i
+@kindex C-c C-a C-I
+@kindex C-c C-a C-R
 @table @kbd
 @item C-c C-a C-i   
 intros
@@ -3132,10 +3132,11 @@ but does not have integrated file management or proof-by-pointing yet.
 
 @node Coq-specific commands
 @section Coq-specific commands
-@kindex C-c I 
-@kindex C-c a
-@kindex C-c s
-@kindex C-c e
+@kindex C-c C-a C-i
+@kindex C-c C-a C-a
+@kindex C-c C-a C-s
+@kindex C-c C-a C-e
+@kindex C-c C-a C-o
 
 Coq Proof General supplies the following key-bindings:
 @table @kbd
@@ -3217,14 +3218,29 @@ recognize.
 @chapter Isabelle Proof General
 @cindex Isabelle Proof General
 
-Isabelle Proof General supports all of the generic features of
-Proof General, including integration with Isabelle's theory
-loader for proper automatic multiple file handling.
+Isabelle Proof General supports all major generic features of Proof
+General, including integration with Isabelle's theory loader for proper
+automatic multiple file handling.  Only support for tags and
+proof-by-pointing is missing.
 
-Isabelle Proof General includes a mode for editing theory files taken
-from David Aspinall's Isamode interface, see
-@uref{http://www.proofgeneral.org/~isamode}.  Detailed documentation
-for the theory file mode is included with @code{Isamode}, there are some
+It is very important to note that there are actually two different
+versions of Isabelle Proof General: for ``classic'' Isabelle and for
+Isabelle/Isar.  An old-style Isabelle theory typically consists of
+@file{.thy} and correspondent @file{.ML} files, while Isabelle/Isar
+theories usually have a new-style @file{.thy} only, which has a slightly
+different syntax and may contain both definitions and proofs.
+
+While Isabelle is able to manage both classic and Isar theories at the
+same time (the theory loader determines the source format
+automatically), Proof General does @b{not} admit to work on both kinds
+of Isabelle source files at the same time!  Proof General treats
+@code{isa} and @code{isar} as different instances; there is no way to
+switch modes once Proof General has been started.
+
+The classic version of Isabelle Proof General includes a mode for
+editing theory files taken from David Aspinall's Isamode interface, see
+@uref{http://www.proofgeneral.org/~isamode}.  Detailed documentation for
+the theory file mode is included with @code{Isamode}, there are some
 notes on the special functions available and customization settings
 below.
 
@@ -3237,24 +3253,38 @@ In Isabelle/Isar, on the other hand, @file{.thy} files contain proofs as
 well as definitions for theories, so scripting takes place there and you
 see the usual toolbar and scripting functions of Proof General.
 
-There is no specific documentation here for the Isabelle/Isar instance
-of Proof General.  Check the Isar manuals shipped with Isabelle for
-useful information.
-
-Note that it is @b{not} possible to use both Isabelle and Isabelle/Isar
-modes of Proof General at the same time.
-To load the Isabelle/Isar instance of Proof General, you can set
- @code{PROOFGENERAL_ASSISTANTS=isar} in the shell before starting Emacs,
-to make sure ordinary Isabelle theory file mode isn't loaded instead.
+The default Emacs mode setup of Proof General prefers the @code{isa}
+version over @code{isar}.  To load the Isabelle/Isar, you can set the
+environment variable @code{PROOFGENERAL_ASSISTANTS=isar} before starting
+Emacs in order to prevent loading of the classic Isabelle theory file.
 Another way of selecting Isar is to put a special modeline like this:
 @lisp
   (* -*- isar -*- *)
 @end lisp
-near the top of your Isar @file{.thy} files (or at least, the first file
-you visit).  This Emacs feature overrides the default choice of mode
-based on the file extension.  Yet another way to select Isar is to use
-the "interface" script to start Emacs (see the Isabelle documentation
-for details on that method).
+near the top of your Isabelle/Isar @file{.thy} files (or at least, the
+first file you visit).  This Emacs feature overrides the default choice
+of mode based on the file extension.
+
+Isabelle provides yet another way to invoke Proof General, including
+additional means to select either version.  The standard installation of
+Isabelle makes the @code{isar} version of Proof General its default user
+interface: running plain @code{Isabelle} starts an Emacs session with
+Isabelle/Isar Proof General; giving an option @code{-I false} refers to
+the classic version instead.  The defaults may be changed by editing the
+Isabelle settings, see the Isabelle documentation for details.
+
+@menu
+* Classic Isabelle::
+* Isabelle/Isar::
+@end menu
+
+@node Classic Isabelle
+@section Classic Isabelle
+@cindex Classic Isabelle
+
+Proof General for classic Isabelle primarily manages @file{.ML} files
+containing proof scripts.  There is a separate mode for editing
+old-style @file{.thy} files, which supports batch mode only.
 
 @menu
 * ML files::
@@ -3264,9 +3294,8 @@ for details on that method).
 * Isabelle customizations::     
 @end menu
 
-
 @node ML files
-@section ML files
+@subsection ML files
 @cindex ML files (in Isabelle)
 @cindex Isabelle proof scripts
 
@@ -3337,7 +3366,7 @@ attempt to recognize arbitrary tactic applications).
 
 
 @node Theory files
-@section Theory files
+@subsection Theory files
 @cindex Theory files (in Isabelle)
 @cindex ML files (in Isabelle)
 
@@ -3391,7 +3420,7 @@ you will be asked to retract the file or process the remainder of it.
 
 
 @node General commands for Isabelle
-@section General commands for Isabelle
+@subsection General commands for Isabelle
 
 This section has some notes on the instantiation of the generic part of
 Proof General for Isabelle.  (The generic part of Proof General applies
@@ -3399,11 +3428,11 @@ to all proof assistants supported, and is described in detail in the
 rest of this manual).
 
 @strong{Find theorems}.  This toolbar/menu command invokes a special
-version of @code{theorems_containing}.  To give several constants,
-separate their names with commas.
+version of @code{thms_containing}.  To give several constants, separate
+their names with commas.
 
 @node Specific commands for Isabelle
-@section Specific commands for Isabelle
+@subsection Specific commands for Isabelle
 
 This section mentions some commands which are added specifically
 to the Isabelle Proof General instance.
@@ -3432,7 +3461,7 @@ the other file replaces the one in the current window.
 
 
 @node Isabelle customizations
-@section Isabelle customizations
+@subsection Isabelle customizations
 
 Here are some of the user options specific to Isabelle.  You can set
 these as usual with the customization mechanism.
@@ -3496,6 +3525,88 @@ You can use the following format characters:
 @c @end defopt
 
 
+@node Isabelle/Isar
+@section Isabelle/Isar
+@cindex Isabelle/Isar
+
+Proof General for Isabelle/Isar manages new-style @file{.thy} files,
+which may contain both definitions and proofs (human readable proof
+texts as well as traditional scripts following the Isar syntax).
+
+The syntax of Isabelle/Isar input is technically simple, enabling Proof
+General to provide reliable control over incremental execution of the
+text.  Thus it is very hard to let Proof General loose synchronization
+with the Isabelle/Isar process.  The caveats of @file{.ML} files
+discussed for the classic Isabelle version (@pxref{Classic Isabelle}) do
+@b{not} apply here.
+
+@menu
+* General commands for Isabelle/Isar::
+* Specific commands for Isabelle/Isar::  
+@end menu
+
+@node General commands for Isabelle/Isar
+@subsection General commands for Isabelle/Isar
+
+@strong{Find theorems}.  This toolbar/menu command invokes
+@code{thms_containing}.  Several constants may be given, separated by
+white space as usual in Isar.
+
+@node Specific commands for Isabelle/Isar
+@subsection Specific commands for Isabelle/Isar
+@kindex C-c C-a h A
+@kindex C-c C-a h C
+@kindex C-c C-a h S
+@kindex C-c C-a h T
+@kindex C-c C-a h a
+@kindex C-c C-a h b
+@kindex C-c C-a h c
+@kindex C-c C-a h f
+@kindex C-c C-a h i
+@kindex C-c C-a h m
+@kindex C-c C-a h o
+@kindex C-c C-a h t
+
+The Isabelle/Isar instance of Proof General supplies several specific
+help key bindings; these functions are offered within the prover help
+menu as well.
+
+@table @kbd
+@item C-c C-a h A
+Shows available antiquotation commands and options.
+@item C-c C-a h C
+Shows the current Classical Reasoner context.
+@item C-c C-a h S
+Shows the current Simplifier context.
+@item C-c C-a h T
+Shows the current set of transitivity rules (for calculational reasoning).
+@item C-c C-a h a
+Shows attributes available in current theory context.
+@item C-c C-a h b
+Shows all local term bindings.
+@item C-c C-a h c
+Shows all named local contexts (cases).
+@item C-c C-a h f
+Shows all local facts.
+@item C-c C-a h i
+Shows inner syntax of the current theory context (for types and terms).
+@item C-c C-a h m
+Shows proof methods available in current theory context.
+@item C-c C-a h o
+Shows all available commands of Isabelle/Isar's outer syntax.
+@item C-c C-a h t
+Shows theorems stored in the current theory node.
+@end table
+
+Command termination via `@code{;}' is an optional feature of Isar
+syntax.  Neither Isabelle/Isar nor Proof General require semicolons to
+do their job.  The following command allows to get rid of command
+terminators in existing texts.
+
+@c TEXI DOCSTRING MAGIC: isar-strip-terminators
+@deffn Command isar-strip-terminators
+Remove explicit Isabelle/Isar command terminators `;' from the buffer.
+@end deffn
 
 @c
 @c  CHAPTER: HOL Proof General
@@ -3508,7 +3619,7 @@ You can use the following format characters:
 HOL Proof General is a "technology demonstration" of Proof General for
 HOL98.  This means that only a basic instantiation has been provided,
 and that it is not yet supported as a maintained instantiation of Proof
-General.  
+General.
 
 HOL Proof General has basic script management support, with a little bit
 of decoration of scripts and output.  It does not rely on a modified
