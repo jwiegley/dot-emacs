@@ -821,9 +821,9 @@ See the documentation for `proof-shell-delayed-output' for further details."
 	;; Erase the response buffer if need be, and indicate that
 	;; it is to be erased again before the next message.
 	(proof-shell-maybe-erase-response t nil)
-	(let ((pos (point)))
-	  (insert str)
-	  (proof-x-symbol-decode-region pos (point)))
+	(setq pos (point))
+	(insert str)
+	  (proof-x-symbol-decode-region pos (point))
 	(proof-display-and-keep-buffer proof-response-buffer)))
      ;;
      ;; 2. Text to be inserted in goals buffer
@@ -874,8 +874,8 @@ Then we call `proof-shell-handle-error-hook'. "
       (save-excursion ;current-buffer
 	(set-buffer proof-goals-buffer)
 	(erase-buffer)
-	(insert (proof-shell-strip-special-annotations 
-		   (cdr proof-shell-delayed-output)))
+	(insert (cdr proof-shell-delayed-output))
+        (proof-x-symbol-decode-region (point-min) (point-max))
 	(proof-display-and-keep-buffer proof-goals-buffer)))
 
   ;; This prevents problems if the user types in the
@@ -1509,6 +1509,7 @@ however, are always processed; hence their name)."
 		    (progn
 		      (backward-char (- (match-end 0) (match-beginning 0)))
 		      (setq string (buffer-substring startpos (point)))
+		      (proof-x-symbol-decode-region startpos (point))
 		      (goto-char (point-max))	
 		      (proof-shell-filter-process-output string)))))))))
 

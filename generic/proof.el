@@ -160,10 +160,11 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       (newline)				
       (setq start (point))
       (insert str) 
-      (setq end (point))
+      (proof-x-symbol-decode-region start (point))
+      (setq end (point-max))
       (save-excursion
 	(font-lock-set-defaults)		;required for FSF Emacs 20.2
-	(font-lock-fontify-region start end)
+;DvO	(font-lock-fontify-region start end)
 	(if face (font-lock-append-text-property start end 'face face)))
       (buffer-substring start end))))
 
