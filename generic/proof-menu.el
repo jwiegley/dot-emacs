@@ -451,11 +451,14 @@ the form of the menu entry for the setting.")
 ;;;###autoload
 (defun proof-defpacustom-fn (name val args)
   "As for macro `defpacustom' but evaluation arguments."
-  (let (newargs setting)
+  (let (newargs setting evalform)
     (while args
       (cond 
        ((eq (car args) :setting)
 	(setq setting (cadr args))
+	(setq args (cdr args)))
+       ((eq (car args) :eval)
+	(setq evalform (cadr args))
 	(setq args (cdr args)))
        ((eq (car args) :type)
 	(setq type (cadr args))
@@ -464,8 +467,8 @@ the form of the menu entry for the setting.")
 	(setq newargs (cons (car args) newargs))))
       (setq args (cdr args)))
     (setq newargs (reverse newargs))
-    (unless setting
-      (error "defpacustom: missing :setting keyword"))
+    (unless (or setting evalform)
+      (error "defpacustom: missing :setting or :eval keyword"))
     (unless (and type
 		  (or (eq (eval type) 'boolean) 
 		      (eq (eval type) 'integer) 
@@ -485,21 +488,27 @@ the form of the menu entry for the setting.")
 	,@newargs
 	:set 'proof-set-value
 	:group 'proof-assistant-setting))
-    (eval
-     `(defpgfun ,name ()
-	(proof-assistant-invisible-command-ifposs
-	 (proof-assistant-settings-cmd (quote ,name)))))
+    (if evalform
+	(eval
+	 `(defpgfun ,name ()
+	    ,evalform))
+      (eval
+       `(defpgfun ,name ()
+	  (proof-assistant-invisible-command-ifposs
+	   (proof-assistant-settings-cmd (quote ,name))))))
     (setq proof-assistant-settings
 	  (cons (list name setting (eval type)) proof-assistant-settings))))
 
 ;;;###autoload
 (defmacro defpacustom (name val &rest args)
   "Define a setting NAME for the current proof assitant, default VAL.
-NAME should correspond to some internal setting, flag, etc, for the
-proof assistant.  
+NAME can correspond to some internal setting, flag, etc, for the
+proof assistant, in which case a :setting and :type value should be provided.
 The :type of NAME should be one of 'integer, 'boolean, 'string.
 The customization variable is automatically in group `proof-assistant-setting.
-The function `proof-assistant-format' is used to format VAL."
+The function `proof-assistant-format' is used to format VAL.
+If NAME corresponds instead to a PG internal setting, then a form :eval to
+evaluate can be provided instead."
   `(proof-defpacustom-fn (quote ,name) (quote ,val) (quote ,args)))
 
 (defun proof-assistant-invisible-command-ifposs (cmd)
