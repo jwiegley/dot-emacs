@@ -15,6 +15,12 @@
 
 *** Improved behaviour of electric terminator
 
+*** Point never moves if proof-follow-mode is 'ignore.
+
+  Previously it was always moved when an error occurred.
+  It's nicer to do this manually if you like this mode,
+  using M-x proof-goto-end-of-locked.
+
 *** Efficiency improvement in parsing
  
   Also works around crash bug in xemacs-21.1.7/SuSE.
@@ -37,9 +43,15 @@
 
 ** Isabelle Changes
 
+*** More code from Isamode has been merged into Proof General
+
+ Particularly: the user now can choose a logic image from inside PG.
+
 *** Fix for stack overflow in regexp which occurred with large proof states
 
 ** Isar Changes
+
+*** Fix for stack overflow in regexp which occurred with large proof states
 
 ** HOL Changes
 

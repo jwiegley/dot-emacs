@@ -29,6 +29,8 @@ X (Low)		e.g. probably not worth spending time on
 
 *** Outstanding bugs to investigate
 
+A find C-c C-l binding and remove it.  Overriden with goto-end-of-locked.
+
 C Undoing comments with FSF Emacs weirdness.
  Noticed with Emacs 20.6.1.  Seems to affect all provers.
  Workaround:  use C-c C-RET or C-c C-r instead.
@@ -44,6 +46,11 @@ C Problem with startup for Coq and HOL.  See BUGS.
 *** Scheduled improvements for 3.2
 
 **** A Doc new bits: font lock keywords, filename %e, %r.
+  Added proof-{script,shell,goals,resp}-font-lock-keywords.
+  Presently used only in proof-easy-config, will put into other
+  mechanism for 3.2
+
+**** A Doc new bits: Isabelle settings mechanism, win32 support
 
 **** A Add a new keymap(s) for proof assistants.
   Presently they naughtily bind C-c <letter> which are reserved for
