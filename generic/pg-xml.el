@@ -176,7 +176,7 @@ is
       (set-buffer tempbuffer)
       (delete-region (point-min) (point-max))
       (insert-string arg)
-      (pg-xml-parse-buffer))))
+      (pg-xml-parse-buffer (current-buffer) 'nomessage))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
