@@ -113,11 +113,8 @@ and script mode."
    proof-info-command		"ProofGeneral.help();"
    proof-kill-goal-command	"ProofGeneral.kill_goal();"
    proof-find-theorems-command  "ProofGeneral.thms_containing (space_explode \",\" \"%s\");"
-   proof-shell-start-silent-cmd "proofgeneral_disable_pr();"
-   proof-shell-stop-silent-cmd  "proofgeneral_enable_pr();"   
-   ; FIXME improved version for Isabelle99-1:
-   ;   proof-shell-start-silent-cmd "Goals.disable_pr();"
-   ;   proof-shell-stop-silent-cmd  "Goals.enable_pr();"
+   proof-shell-start-silent-cmd "Goals.disable_pr();"
+   proof-shell-stop-silent-cmd  "Goals.enable_pr();"
    ;; command hooks
    proof-goal-command-p		'isa-goal-command-p
    proof-count-undos-fn		'isa-count-undos
@@ -195,11 +192,7 @@ and script mode."
    ;; FIXME: temporary hack for almost enabling/disabling printing.
    ;; Also for setting default values.
    proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
-   proof-shell-init-cmd                 (concat 
-					 (proof-assistant-settings-cmd)
- "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = (goals_limit:= !pg_saved_gl); fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0);")
-   ; FIXME improved version for Isabelle99-1:
-   ;proof-shell-init-cmd		 (proof-assistant-settings-cmd)
+   proof-shell-init-cmd		 (proof-assistant-settings-cmd)
 
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
