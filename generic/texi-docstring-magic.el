@@ -294,12 +294,17 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 	 (docstring (or (documentation function)
 			"Not documented."))
 	 (def	    (symbol-function function))
+	 (macrop    (eq 'macro (car-safe def)))
 	 (argsyms   (cond ((eq (car-safe def) 'lambda)
 			   (nth 1 def))))
 	 (args	    (mapcar 'symbol-name argsyms)))
-      (if (commandp function)
-	  (texi-docstring-magic-texi "fn" "Command" name docstring args)
-	(texi-docstring-magic-texi "un" nil name docstring args))))
+      (cond
+       ((commandp function)
+	(texi-docstring-magic-texi "fn" "Command" name docstring args))
+       (macrop
+	(texi-docstring-magic-texi "fn" "Macro" name docstring args))
+       (t
+	(texi-docstring-magic-texi "un" nil name docstring args)))))
    (t
     (error "Don't know anything about symbol %s" (symbol-name symbol)))))
 
