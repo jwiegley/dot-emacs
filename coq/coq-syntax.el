@@ -21,9 +21,38 @@
 ;; -v" can be skipped if the variable coq-version-is-V7 is already set (useful for
 ;; people dealing with several version of coq) We also have coq-version-is-V74, to
 ;; deal with the new module system
+
+(defvar coq-version-is-V6 nil 
+"This variable can be set to t to force ProofGeneral to coq version
+coq-6.x. To do that, put (setq coq-version-is-V6 t) in your .emacs and
+restart emacs. This variable overrides coq-version-is-V7 and
+coq-version-is-V74. If none of these 3 variables is set to t, then
+ProofGeneral guesses the version of coq by doing 'coqtop -v'.")
+
+(defvar coq-version-is-V7 nil
+  "This variable can be set to t to force ProofGeneral to coq version
+between coq-7.0 and coq-7.3.1. To do that, put (setq coq-version-is-V7 t) 
+in your .emacs and restart emacs. This variable overrides
+coq-version-is-V74 and is overrriden by coq-version-is-V6.  If none of
+these 3 variables is set to t, then ProofGeneral guesses the version of
+coq by doing 'coqtop -v'.")
+
+(defvar coq-version-is-V74 nil
+  "This variable can be set to t to force ProofGeneral to coq version
+above coq-7.4. To do that, put (setq coq-version-is-V74 t) in your
+.emacs and restart emacs. This variable is overrriden by
+coq-version-is-V6 and coq-version-is-V7. If none of these 3 variables
+is set to t, then ProofGeneral guesses the version of coq by doing
+'coqtop -v'."  )
+
+
+
+;; only coq-version-is-V74 and coq-version-is-V7 are used later (V6
+;; corresponds to v7=nil and v74=nil)
 (cond
- ((boundp 'coq-version-is-V74) (setq coq-version-is-V7 t))
- ((boundp 'coq-version-is-V7) (setq coq-version-is-V74 nil))
+ (coq-version-is-V74 (setq coq-version-is-V7 t))
+ (coq-version-is-V7  (setq coq-version-is-V74 nil))
+ (coq-version-is-V6  (setq coq-version-is-V74 nil) (setq coq-version-is-V7 nil))
  (t 
   (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
          (x (string-match "version \\([.0-9]*\\)" str))
@@ -38,8 +67,6 @@
       ;default: 7.3.1 and above ---> 7.4 
      (t (message "coq is => V7.3.1")
         (setq coq-version-is-V7 t) (setq coq-version-is-V74 t))))))
-
-
 
 ;; ----- keywords for font-lock.
 

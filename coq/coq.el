@@ -26,6 +26,7 @@
 
 ;; da 15/02/03: moved setting of coq-version-is-vX to coq-syntax to
 ;; fix compilation
+
 (require 'coq-syntax)
 
 ;; Command to reset the Coq Proof Assistant
