@@ -287,4 +287,18 @@
    isa-output-font-lock-keywords-1)
   "*Font-lock table for Isabelle goals output.")
 
+
+;; ----- indentation
+
+(defconst isa-indent-any-regexp
+  (proof-regexp-alt (proof-ids-to-regexp isa-keywords) "\\s(" "\\s)"))
+(defconst isa-indent-inner-regexp
+  (proof-regexp-alt "\\s(" "\\s)"))
+(defconst isa-indent-enclose-regexp
+  (proof-ids-to-regexp isa-keywords-save))
+(defconst isa-indent-open-regexp
+  (proof-regexp-alt (proof-ids-to-regexp isa-keywords-goal) "\\s("))
+(defconst isa-indent-close-regexp
+  (proof-regexp-alt (proof-ids-to-regexp isa-keywords-save) "\\s)"))
+
 (provide 'isa-syntax)
