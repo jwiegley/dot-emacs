@@ -425,7 +425,7 @@ release: distclean tag  dist develdist
 	@echo "*************************************************"
 	mkdir -p $(RELEASEDIR)
 #	clean source dir (remove link to this release)
-	(cd $(DISTBUILDDIR); rm -f $(NAME))
+	(cd $(DISTBUILDIR); rm -f $(NAME))
 #	clean target dir (remove link for latest release)
 	(cd $(RELEASEDIR); rm -f $(LASTESTNAME); rm -rf $(RELEASENAME))
 #	Seem to need R instead of r here now,
