@@ -225,7 +225,8 @@ Does nothing if proof assistant is already running."
 	(setq proof-goals-buffer (get-buffer-create goals))
 	(setq proof-response-buffer (get-buffer-create resp))
 	;; Set the special-display-regexps now we have the buffer names
-	(setq proof-shell-special-display-regexp (proof-regexp-alt goals resp))
+	(setq proof-shell-special-display-regexp 
+	      (proof-regexp-alt goals resp))
 	(proof-multiple-frames-enable))
 
       (save-excursion
@@ -1893,7 +1894,8 @@ May enable proof-by-pointing or similar features.
 ;;
 
 (defvar proof-shell-special-display-regexp nil
-  "Regexp for special-display-regexps for multiple frame use.")
+  "Regexp for special-display-regexps for multiple frame use.
+Internal variable, setting this will have no effect!")
 
 (defun proof-multiple-frames-enable ()
   (cond
@@ -1901,11 +1903,13 @@ May enable proof-by-pointing or similar features.
     (setq special-display-regexps
 	  (union special-display-regexps 
 		 (list proof-shell-special-display-regexp)))
-    ;; Try to trigger re-display of goals/response buffers. 
+    ;; Try to trigger re-display of goals/response buffers,
+    ;; on next interaction.  Do this by 
     ;; FIXME: would be nice to do the re-display here, rather
     ;; than waiting for next re-display
     (delete-other-windows 
-     (get-buffer-window proof-script-buffer t)))
+     (if proof-script-buffer
+	 (get-buffer-window proof-script-buffer t))))
    (t
     ;; FIXME: would be nice to kill off frames automatically,
     ;; but let's leave it to the user for now.
