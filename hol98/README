@@ -15,13 +15,13 @@ HOL homepage: http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html
 This is a "technology demonstration" of Proof General for HOL 98.
 
 It may work with other versions of HOL, but is untested (please let me
-know if you try).
+know if you try).  Probably just a few settings need changing
+to configure for different output formats.
 
 It has basic script management support, with a little bit of
 decoration of scripts and output.
 
 There is support for X Symbol, but not using a proper token language.
-Try writing "philosophy" !
 
 I have written this in the hope that somebody from the HOL community
 will adopt it, maintain and improve it, and thus turn it into a proper
