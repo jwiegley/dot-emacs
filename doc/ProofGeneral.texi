@@ -2410,8 +2410,8 @@ As well as the faces listed below, Proof General may use the regular
 @code{font-lock-} faces (eg @code{font-lock-keyword-face},
 @code{font-lock-variable-name-face}, etc) for fontifying the proof
 script or proof assistant output.  These can be altered to your taste
-just as easily, but note that they will affect all font-lock modes which
-use them!
+just as easily, but note that changes will affect all other modes
+which use them!
 
 
 @c TEXI DOCSTRING MAGIC: proof-queue-face
