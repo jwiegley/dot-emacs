@@ -5,7 +5,10 @@
   if ($title=="") { $title = $filename; };
   small_header($title);
   print "<pre>\n";
-  if (substr($filename,0,1)=="." or substr($filename,0,1)=="/") {
+  /* I hope this is enough to prevent access outside cwd */
+  if (substr($filename,0,1)=="." or 
+      substr($filename,0,1)=="/" or
+      substr($filename,0,1)=="~") {
      print "Sorry, can't show you that file!\n"; 
   } else {
      markup_plain_text($filename);
