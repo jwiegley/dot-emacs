@@ -17,8 +17,9 @@ consts silly:: "'a => 'a => 'a" ("_\<^sup>_" [1000,1000] 1000)
 consts k:: 'a
 
 term "a\<^sup>b" (* b should be a blue variable *)
-term "\<forall> x. a\<^sup>x" (* x should be a green bound variable *)
+term "\<forall>x. a\<^sup>x" (* x should be a green bound variable *)
 term "a\<^sup>k" (* k should be a black constant *)
+term "\<alpha>\<^isub>2" (* alpha should be blue variable with subscripted blue 2 *)
 
 consts sausage:: "'a => 'a => 'a" ("_\<^bsup>_\<^esup>" [1000,1000] 1000)
 
