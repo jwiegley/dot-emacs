@@ -170,9 +170,11 @@ If LIST is empty, return a disabled menu item with NAME."
   (skip-chars-forward " \t\n"))
 
 (defun proof-show-dependency (thm)
-  "Show dependency THM using `proof-show-dependency-cmd'."
+  "Show dependency THM using `proof-show-dependency-cmd'.
+This is simply to display the dependency somehow."
   (if proof-shell-show-dependency-cmd ;; robustness
-      (proof-shell-invisible-command (format proof-shell-show-dependency-cmd thm))))
+      (proof-shell-invisible-command 
+       (format proof-shell-show-dependency-cmd thm))))
 
 (defconst pg-dep-span-priority 500)
 (defconst pg-ordinary-span-priority 100)
