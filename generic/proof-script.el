@@ -1334,14 +1334,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 	  ;; *** Theorem dependencies ***
 	  (if proof-last-theorem-dependencies
-	      (proof-depends-process-dependencies nam gspan))
-
-	  ;; In Coq, we have the invariant that if we've done a save and
-	  ;; there's a top-level declaration then it must be the
-	  ;; associated goal.  (Notice that because it's a callback it
-	  ;; must have been approved by the theorem prover.)
-	  (and proof-lift-global
-	       (funcall proof-lift-global gspan)))))
+	      (proof-depends-process-dependencies nam gspan)))))
 
      ;; CASE 3: Proof completed one step or more ago, non-save
      ;; command seen, no nested goals allowed.
