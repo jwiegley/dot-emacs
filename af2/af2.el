@@ -35,6 +35,199 @@
   :type 'string
   :group 'af2-config)
 
+(defcustom af2-doc-dir 
+  "/usr/local/doc/af2"
+  "The name of the root documentation directory for af2."
+  :type 'string
+  :group 'af2-config)
+
+(defcustom af2-lib-dir 
+  "/usr/local/lib/af2"
+  "The name of the root directory for af2 libraries."
+  :type 'string
+  :group 'af2-config)
+
+(defcustom af2-tags-program 
+  (concat af2-doc-dir "/tools/af2_etags.sh")
+  "Program to run to generate TAGS table for proof assistant."
+  :type 'string
+  :group 'af2-config)
+
+(defcustom af2-tags-doc 
+  t
+  "*If non nil, tags table for af2 text documentation is loaded."
+  :type 'boolean
+  :group 'af2-config)
+
+
+
+
+;;--------------------------------------------------------------------------;;
+;;--------------------------------------------------------------------------;;
+;;                         gestion des TAGS
+;;--------------------------------------------------------------------------;;
+
+; sous xemacs, visit-tags-table n'a pas d'argument optionnel. Sous gnu emacs :
+
+; Normally M-x visit-tags-table sets the global value of `tags-file-name'.
+; With a prefix arg, set the buffer-local value instead.
+
+; mieux vaut sous gnu emacs gérer la variable tags-table-list, qui
+; n'existe pas sous xemacs.
+; Sous xemacs il faut gérer la variable tag-table-alist qui n'existe pas
+; sous gnu emacs.
+
+;(defun af2-tags-load-table(table)
+;  "load tags table"
+;  (interactive "D directory, location of a file named TAGS to load : ")
+;  (visit-tags-table table 4)
+;  )
+
+;(defun af2-tags-doc-table()
+;  "tags in text documentation"
+;  (interactive)
+;  (visit-tags-table (concat af2-doc-dir "/text/") 4)
+;  )
+
+;(defun af2-tags-lib-table()
+;  "tags in libraries"
+;  (interactive)
+;  (visit-tags-table af2-lib-dir 4)
+;  )
+
+
+
+(defun af2-tags-add-table(table)
+  "add tags table"
+  (interactive "D directory, location of a file named TAGS to add : ")
+  (if af2-with-xemacs
+      (let ((association (cons buffer-file-name table)))
+	(if (member association tag-table-alist)
+	    (message (concat table " already loaded."))
+	  (setq tag-table-alist (cons association tag-table-alist))))
+; gnu emacs
+    (if (member table tags-table-list)
+	(message (concat table " already loaded."))
+;    (make-local-variable 'tags-table-list) ; ne focntionne pas
+      (setq tags-table-list (cons table tags-table-list))
+      )
+    )
+  )
+
+(defun af2-tags-reset-table()
+  "Set tags-table-list to nil."
+  (interactive)
+;  (make-local-variable 'tags-table-list)
+  (if af2-with-xemacs
+      (setq tag-table-alist (remassoc buffer-file-name tag-table-alist))
+    (setq tags-table-list nil))
+  )
+
+(defun af2-tags-add-doc-table()
+  "Add tags in text documentation."
+  (interactive)
+  (af2-tags-add-table (concat af2-doc-dir "/text/TAGS"))
+  )
+
+(defun af2-tags-add-lib-table()
+  "Add tags in libraries."
+  (interactive)
+  (af2-tags-add-table (concat af2-lib-dir "TAGS"))
+  )
+ 
+(defun af2-tags-add-local-table()
+  "Add the tags table created with function af2-create-local-table."
+  (interactive)
+  (af2-tags-add-table (concat buffer-file-name "TAGS"))
+  )
+
+(defun af2-tags-create-local-table()
+  "create table on local buffer"
+  (interactive)
+  (shell-command (concat af2-etags 
+			 " -o " 
+			 (file-name-nondirectory (buffer-file-name))
+			 "TAGS "
+			 (file-name-nondirectory (buffer-file-name))))
+  )
+
+;; default
+
+(if af2-tags-doc (add-hook 'af2-mode-hook 'af2-tags-add-doc-table))
+
+;;--------------------------------------------------------------------------;;
+;;--------------------------------------------------------------------------;;
+;; program extraction.
+;;
+;; note : program extraction is still experimental
+;;--------------------------------------------------------------------------;;
+
+(defun af2-compile-theorem(name)
+  "Interactive function : 
+ask for the name of a theorem and send a compile command to af2 for it."
+  (interactive "stheorem : ")
+  (proof-shell-invisible-command (concat "compile " name ".\n")))
+
+(defun af2-compile-theorem-around-point()
+"Interactive function : 
+send a compile command to af2 for the theorem which name is under the cursor."
+  (interactive)
+  (let (start end)
+    (save-excursion
+      (forward-word 1)
+      (setq start (point))
+      (forward-word -1)
+      (setq end (point)))
+    (af2-compile-theorem (buffer-substring start end))))
+
+;;--------------------------------------------------------------------------;;
+;;
+;;    Deleting symbols
+;;
+;;--------------------------------------------------------------------------;;
+
+
+(defun af2-delete-symbol(symbol)
+  "Interactive function : 
+ask for a symbol and send a delete command to af2 for it."
+  (interactive "ssymbol : ")
+  (proof-shell-invisible-command (concat "del " symbol ".\n")))
+
+(defun af2-delete-symbol-around-point()
+"Interactive function : 
+send a delete command to af2 for the symbol whose name is under the cursor."
+  (interactive)
+  (let (start end)
+    (save-excursion
+      (forward-word -1)
+      (setq start (point))
+      (forward-word 1)
+      (setq end (point)))
+    (if (char-equal (char-after (- end 1)) ?.)(setq end (- end 1)))
+    (af2-delete-symbol (buffer-substring start end))))
+
+;; ----- Af2 specific menu
+
+(defpgdefault menu-entries
+  '(    
+    ["Delete symbol around cursor" af2-delete-symbol-around-point t]
+    ["Delete symbol" af2-delete-symbol t]
+    ["Compile theorem under cursor" af2-compile-theorem-around-point t]
+    "----"
+    ("Tags"
+     ["create a tags table for local buffer" af2-tags-create-local-table t]
+     ["------------------" nil nil]
+;    ["load table" af2-tags-load-table t]
+     ["add table"               af2-tags-add-table       t]
+     ["add local table"         af2-tags-add-local-table t]
+     ["add table for libraries" af2-tags-add-lib-table   t]
+     ["add table for text doc"  af2-tags-add-doc-table   t]
+     ["reset tags table list"   af2-tags-reset-table     t]
+     ["------------------" nil nil]
+     ["Find theorem, definition ..." find-tag t]
+     ["complete theorem, definition ..." complete-tag t]
+     )
+    ))
 
 ;;
 ;; ======== Configuration of generic modes ========
@@ -152,14 +345,14 @@
   "Configure Proof General scripting for Af2."
   (setq
    proof-terminal-char		?\.	; ends every command
-   proof-script-command-end-regexp "[.]\\($\\| \\|\\t\\)"
+   proof-script-command-end-regexp "[.]\\($\\| \\)"
    proof-comment-start             "(*"
    proof-comment-end               "*)"
-   proof-goal-command-regexp       "^goal"
-   proof-save-command-regexp       "^save"
-   proof-goal-with-hole-regexp     "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)\\([^ ]*\\)"
+   proof-goal-command-regexp       "goal\\|prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem"
+   proof-save-command-regexp       "save"
+   proof-goal-with-hole-regexp     "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\) \\([^ ]*\\)"
    proof-save-with-hole-regexp     "save \\(\\([^ ]*\\)\\)"
-   proof-shell-error-regexp        "^[^ ]* \\(e\\|E\\)rror"
+   proof-shell-error-regexp        "^\\([^ ]* \\)?\\(e\\|E\\)rror"
    proof-non-undoables-regexp      "undo"
    proof-goal-command              "goal %s."
    proof-save-command              "save %s."
@@ -180,6 +373,7 @@
    proof-shell-start-goals-regexp  "^START GOALS"
    proof-shell-end-goals-regexp    "^END GOALS"
    proof-shell-quit-cmd            "quit."
+   proof-shell-restart-cmd         "quit."
    proof-shell-proof-completed-regexp   "^.*^proved"
 ))
 
@@ -237,5 +431,3 @@
   (setq proof-mode-for-pbp	'af2-goals-mode))
 
 (provide 'af2)
-
-
