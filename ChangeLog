@@ -1,3 +1,76 @@
+2001-07-09  David Aspinall  <da@proofgeneral.org>
+
+	* todo:
+	TODO for proof-ass fixing added.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-toolbar.el:
+	Clean for compile
+
+	* generic/proof-menu.el:
+	Clean for compile: new autload
+
+	* generic/proof-autoloads.el: Refresh
+
+	* generic/pg-xml.el, generic/pg-user.el:
+	Clean-up compile
+
+	* generic/proof-compat.el:
+	Add require for arch flags, cleaner compilation.
+
+	* generic/pg-pgip.el:
+	Fix some bugs shown by byte comp
+
+	* generic/proof-autoloads.el:
+	Updated autoloads
+
+	* generic/_pkg.el:
+	Package file (old attempt -- not working)
+
+2001-06-22  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el:
+	*** empty log message ***
+
+2001-05-29  David Aspinall  <da@proofgeneral.org>
+
+	* html/main.html: Fix Coq link.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isa/Example.ML: Remove extra proof."
+
+	* generic/proof-splash.el:
+	Display screen only if called interactively
+
+	* doc/ProofGeneral.texi:
+	AF2 -> PhoX name change
+
+	* etc/ProofGeneral.spec:
+	Add REGISTER to doc files.
+
+	* COPYING: Date 2001
+
+	* html/features.html:
+	Fix layout and typo.
+
+	* html/mailinglist.html:
+	Include PHP file
+
+	* REGISTER:
+	Note about mailing list and registration.
+
+	* html/mailinglist, html/mailinglist.php:
+	Renamed file
+
+	* html/mailinglist.html, html/mailinglist.php:
+	PHP version.  Also dont mention junk filters.
+
 2001-05-29  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
