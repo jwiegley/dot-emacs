@@ -9,7 +9,7 @@
 ;; -----
 ;;
 ;; Useful binding
-;;  (define-key texinfo-mode-map "C-cC-d" 'texi-docstring-magic-insert-magic)
+;;  (define-key TeXinfo-mode-map "C-cC-d" 'texi-docstring-magic-insert-magic)
 ;;
 ;; Useful enhancements to do:
 ;;  1. Mention default value for user options
