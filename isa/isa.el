@@ -10,6 +10,13 @@
 
 
 (setq proof-tags-support nil)  ; we don't want it, no isatags prog.
+
+;; Add Isabelle image onto splash screen
+(custom-set-variables
+ '(proof-splash-extensions
+   '(list
+     nil
+     (proof-splash-display-image "isabelle_transparent" t))))
 (require 'proof)
 (require 'isa-syntax)
 
@@ -71,9 +78,9 @@ no regular or easily discernable structure."
 ;;; End of a command needs parsing to find, so this is approximate.
 (defvar isa-outline-heading-end-regexp ";[ \t\n]*")
 
-;; 
-(defvar isa-shell-outline-regexp isa-goal-regexp)
-(defvar isa-shell-outline-heading-end-regexp isa-goal-regexp)
+;; FIXME: not sure about this one
+(defvar isa-shell-outline-regexp "\370[ \t]*\\([0-9]+\\)\\.")
+(defvar isa-shell-outline-heading-end-regexp "$")
 
 ;;; ---- end-outline
 

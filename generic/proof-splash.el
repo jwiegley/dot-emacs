@@ -45,6 +45,13 @@ Gif filename depends on colour depth of display."
   :type 'boolean
   :group 'proof)
 
+(defcustom proof-splash-extensions nil
+  "*Prover specific extensions of splash screen.
+These are evaluated and appended to proof-splash-contents, which see."
+  :type 'sexp
+  :group 'proof-config)
+  
+  
 (defcustom proof-splash-contents
   (list
    nil
@@ -57,12 +64,12 @@ Gif filename depends on colour depth of display."
    "Welcome to"
    (concat proof-assistant " Proof General!")
    nil)
-  "*List defining splash screen displayed when Proof General is started.
+  "List defining splash screen displayed when Proof General is started.
 If an element is a string or an image specifier, it is displayed
 centred on the window on its own line.  If it is nil, a new line is
 inserted."
   :type 'sexp
-  :group 'proof-config)
+  :group 'proof-general-internals)
 
 (defcustom proof-splash-time 1.5
   "Minimum number of seconds to display splash screen for.
@@ -122,7 +129,9 @@ Only do it if proof-splash-display is nil."
 	((winconf   (current-window-configuration))
 	 (splashbuf (get-buffer-create proof-splash-welcome))
 	 (after-change-functions nil) ; no font-lock, thank you
-	 (splash-contents proof-splash-contents)
+	 (splash-contents (append
+			   proof-splash-contents
+			   (eval proof-splash-extensions)))
 	 s)
       (with-current-buffer splashbuf
 	(erase-buffer)
