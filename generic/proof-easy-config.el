@@ -66,7 +66,7 @@
     (error "proof-easy-config: Proof General is already in use for a different prover!"))
    (t
     ;; Setting these here is nice for testing: no need to get
-    ;; proof-assistants-table right first.
+    ;; proof-assistant-table right first.
     (customize-set-variable 'proof-assistant name)
     (customize-set-variable 'proof-assistant-symbol sym))))
 
