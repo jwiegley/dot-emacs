@@ -1,5 +1,87 @@
 2002-08-16  David Aspinall  <da@proofgeneral.org>
 
+	* CHANGES: Updated.
+
+	* generic/proof-config.el:
+	Tweaks to faces.  Set visible default for tactics-name-face.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* todo: Updated.
+
+	* coq/coq.el: Print Proof
+
+	* CHANGES:
+	Mention span menu improvements.
+
+	* generic/pg-user.el:
+	Change order of menu
+
+	* isar/todo: Updated.
+
+	* isar/isar.el: Use shared span menu
+
+	* isa/isabelle-system.el, isa/isa.el:
+	Add span menu for thm_deps
+
+	* todo: Updated.
+
+	* isa/depends.ML:
+	Identifier name change
+
+	* BUGS, todo:
+	Updated.
+
+	* todo, TODO:
+	Update
+
+	* etc/proofgeneral-domain.txt:
+	More info
+
+	* etc/announce: Updated
+
+	* generic/proof-utils.el: Formatting
+
+	* generic/pg-assoc.el:
+	Robustness against pg-subterm-start-char not being set.
+
+	* generic/proof-depends.el: Docstring.
+
+	* isa/isa.el: Variable name change
+
+	* generic/proof-config.el:
+	Add context menu extensions, query dependencies cmd
+
+	* isar/isar.el:
+	Name changes; span menu extensions; load theorem dependencies patch.
+
+	* generic/pg-user.el:
+	pg-goals -> pg-assoc
+
+2002-08-15  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-menu.el: Small fixes
+
+	* generic/proof-config.el, generic/proof-utils.el:
+	Refactoring
+
+	* generic/pg-goals.el, generic/pg-response.el, generic/proof-shell.el:
+	Refactoring.
+
+	* generic/pg-pgip.el, generic/pg-xml.el:
+	Fix autoload
+
+	* generic/proof-x-symbol.el: Typo
+
+	* generic/proof-autoloads.el: Updated
+
+	* generic/pg-assoc.el: New files.
+
+2002-08-16  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
