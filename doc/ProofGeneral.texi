@@ -64,9 +64,9 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.2prerelease
+@set version 3.2
 @set xemacsversion 21.1
-@set fsfversion 20.5
+@set fsfversion 20.7
 @set last-update September 2000
 @set rcsid $Id$
 
@@ -96,9 +96,11 @@ END-INFO-DIR-ENTRY
 @finalout
 @titlepage
 @title Proof General
-@subtitle Organize your proofs with Emacs!
-@subtitle Proof General @value{version}
+@subtitle Organize your proofs!
+@sp 1
+@subtitle User Manual for Proof General @value{version}
 @subtitle @value{last-update}
+@subtitle @b{www.proofgeneral.org}
 
 @c nested ifs fail here completely, WHY?
 @iftex
@@ -115,11 +117,11 @@ END-INFO-DIR-ENTRY
 @end ifset
 @end iftex
 @author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
+
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998-2000 Poof General team, LFCS Edinburgh.
-
+Copyright @copyright{} 1998-2000 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -141,6 +143,12 @@ This manual documents Proof General, Version @value{version}, for use
 with XEmacs @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}
 or later versions.
 
+@sp 1
+
+Visit Proof General on the web at @code{http://www.proofgeneral.org}
+
+@sp 1
+
 Version control: @code{@value{rcsid}}
 @end titlepage
 
@@ -156,8 +164,8 @@ generic Emacs interface for proof assistants.
 
 Proof General @value{version} has been tested with XEmacs
 @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}.  It is
-supplied ready customized for the proof assistants Coq, Lego, 
-Isabelle, and HOL.
+supplied ready customized for the proof assistants AF2, Coq, Lego, 
+Isabelle, and HOL.  
 
 @menu
 * Preface::                     
@@ -172,6 +180,7 @@ Isabelle, and HOL.
 * Coq Proof General::           
 * Isabelle Proof General::    
 * HOL Proof General::
+@c * AF2 Proof General::
 * Obtaining and Installing::  
 * Known bugs and workarounds::  
 * References::                  
@@ -199,8 +208,9 @@ other documentation, system downloads, etc.
 
 @menu
 * Latest news for 3.2::                     
-* News for 3.1::                     
-* News for 3.0::                     
+* Future::
+* Old News for 3.1::                     
+* Old News for 3.0::                     
 * History before 3.0::                     
 * Credits::                     
 @end menu
@@ -214,8 +224,8 @@ Proof General 3.2 has several new features and some bug fixes.
 One noticeable new feature is the addition of a prover-specific menu for
 each of the supported provers.  This menu has a ``favourites'' feature
 that you can use to easily define new functions.  Please contribute
-useful functions (or suggestions for functions) for things you would
-like to appear on these menus, to the maintainer for the instance
+other useful functions (or suggestions for functions) for things you
+would like to appear on these menus, to the maintainer for the instance
 of Proof General you use.
 
 Because of the new menus and to make room for more commands, we have
@@ -231,6 +241,20 @@ output on and off internally, to improve efficiency when processing
 large scripts.  This means that more of your CPU cycles can be spent on
 proving theorems.
 
+Adapting for new proof assistants continues to be made more flexible,
+and easier in several places.  This has been motivated by adding
+experimental support for some new systems.  One new system which had
+good support added in a very short space of time is @b{AF2}
+(see @uref{http://www.lama.univ-savoie.fr/~RAFFALLI/af2.html, the AF2 home page}
+for more information).  AF2 joins the rank of officially supported
+Proof General instances, thanks to its developer Christophe Raffalli.
+
+Breaking the manual into two pieces was overdue: now all details on
+adapting Proof General, and notes on its internals, are in the
+@i{Adapting Proof General} manual.  You should find a copy of that
+second manual close to wherever you found this one; consult the
+Proof General home page if in doubt.
+
 The internal code of Proof General has been significantly overhauled for
 this version, which should make it more robust and readable.  The
 generic code has an improved file structure, and there is support for
@@ -241,12 +265,6 @@ are named in the form @code{@i{PA}-setting-name} in the documentation;
 you replace @i{PA} by the symbol for the proof assistant you are
 interested in.  @xref{Customizing Proof General}, for details.
 
-Adapting for new proof assistants continues to be made more flexible,
-and easier in several places.  This has been motivated by adding
-experimental support for some new systems.  Breaking the manual into two
-pieces was overdue: now all details on adapting Proof General, and notes
-on its internals, are in the @i{Adapting Proof General} manual.
-
 Finally, important bug fixes include the robustification against
 @code{write-file} (@kbd{C-x C-w}), @code{revert-buffer}, and friends.
 These are rather devious functions to use during script management, but
@@ -254,11 +272,41 @@ Proof General now tries to do the right thing if you're deviant enough
 to try them out!
 
 The work on this release was undertaken by David Aspinall between
-May-September 2000, and includes contributions from Markus Wenzel and
-Pierre Courtieu.
+May-September 2000, and includes contributions from Markus Wenzel,
+Pierre Courtieu, and Christophe Raffalli.
 
-@node News for 3.1
-@unnumberedsec News for 3.1
+
+@node Future
+@unnumberedsec Future
+@cindex Proof General Kit
+@cindex Future
+
+The aim of the Proof General project is to provide a powerful and
+configurable interfaces which help user-interaction with interactive
+proof assistants.  
+
+The strategy Proof General uses is to targets power users rather than
+novices; other interfaces have often neglected this class of users.  But
+we do include general user interface niceties, such as toolbar and
+menus, which make use easier for all.
+
+Proof General has been Emacs based so far, but plans are afoot to
+liberate it from the points and parentheses of Emacs Lisp.  The
+successor project Proof General Kit proposes that proof assistants use a
+@i{standard} XML-based protocol for interactive proof, dubbed @b{PGIP}.
+
+PGIP is a middleware for interactive proof tools and interface
+components.  Rather than configuring Proof General for your proof
+assistant, you will need to configure your proof assistant to understand
+PGIP.  There is a similarity however; the design of PGIP was based
+heavily on the Emacs Proof General framework.
+
+For more details, see 
+@uref{http://www.proofgeneral.org/kit.html, the Proof General Kit webpage}.
+
+
+@node Old News for 3.1
+@unnumberedsec Old News for 3.1
 @cindex news
 
 Proof General 3.1 (released March 2000) is a bug-fix improvement over
@@ -283,8 +331,8 @@ undertaken by David Aspinall while he was visiting ETL, Osaka, Japan,
 supported by the British Council and ETL.
 
 
-@node News for 3.0
-@unnumberedsec News for 3.0
+@node Old News for 3.0
+@unnumberedsec Old News for 3.0
 
 Proof General 3.0 (released November 1999) has many improvements over
 2.x releases.
@@ -1435,7 +1483,7 @@ appropriate.
 
 @c TEXI DOCSTRING MAGIC: proof-process-buffer
 @deffn Command proof-process-buffer 
-Process the current buffer, and maybe move point to the end.
+Process the current (or script) buffer, and maybe move point to the end.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-retract-buffer
@@ -1506,9 +1554,9 @@ from a proof script.  Here are the key-bindings and functions.
 
 @c TEXI DOCSTRING MAGIC: proof-display-some-buffers
 @deffn Command proof-display-some-buffers 
-Display the reponse buffer, and maybe also the goals buffer.@*
-If in three window or multiple frame mode, the goals buffer
-is also displayed.
+Display the reponse or goals buffer, toggling between them.@*
+Also move point to the end of the response buffer.
+If in three window or multiple frame mode, display both buffers.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-prf
@@ -3503,10 +3551,6 @@ Proof General has its own
 @uref{http://www.proofgeneral.org,home page} hosted at
 Edinburgh.  Visit this page for the latest news!
 
-STOP PRESS: the Proof General web pages are temporarily being hosted at
-@uref{zermelo.dcs.ed.ac.uk}.  The canonical address used to be
-@uref{www.dcs.ed.ac.uk}, and it may one day revert to this.
-
 @menu
 * Obtaining Proof General::     
 * Installing Proof General from tarball::  
@@ -3685,20 +3729,17 @@ to find out how to disable support for provers you don't use.
 @node Known bugs and workarounds
 @appendix Known bugs and workarounds
 
-We mention some of the known problems with Proof General here.  The list
-was written for Proof General 2.0.  It is not a description of all bugs
-and may be out of date.  @* Please consult the file
-@uref{http://www.proofgeneral.org/ProofGeneral/BUGS,@file{BUGS}}
-in the distribution for more detailed and up-to-date information.  @* 
+We mention a few of the known problems with the generic portion of Proof
+General here.  This is not a description of all bugs/problems known.
+Please consult the file
+@uref{http://www.proofgeneral.org/ProofGeneral/BUGS,@file{BUGS}} in the
+distribution for more detailed and up-to-date information.  @*
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
 let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
 @menu
 * Bugs at the generic level::   
-* Bugs specific to LEGO Proof General::  
-* Bugs specific to Coq Proof General::  
-* Bugs specific to Isabelle Proof General::  
 @end menu
 
 @node Bugs at the generic level
@@ -3743,134 +3784,6 @@ the system.
 @c @strong{Workaround:} stick to one prover per Emacs session, make sure
 @c that the @code{proof-assistants} variable only enables Proof General
 @c for the provers you need.
-
-
-@node Bugs specific to LEGO Proof General
-@section Bugs specific to LEGO Proof General
-
-@menu
-* Retraction and Discharge::    
-* Non writable directories::    
-@end menu
-
-@node Retraction and Discharge
-@subsection Retraction and Discharge
-
-After a @code{Discharge}, retraction ought to only be possible back to
-the first declaration/definition which is discharged. However, LEGO
-Proof General does not know that @code{Discharge} has such a non-local
-effect. 
-@c See @ref{Granularity of atomic command sequences}, for a proposal
-@c on how to fix this bug.
-
-@strong{Workaround:} retract back to the first declaration/definition
-which is discharged.
-
-@subsubsection Definitions in a proof state 
-A thorny issue are local definitions in a proof state. LEGO cannot undo
-them explicitly.
-
-@strong{Workaround:} retract back to a command before a definition.
-
-@subsubsection Normalisation in proofs
-Normalisation commands such as @samp{Dnf}, @samp{Hnf} @samp{Normal}
-cannot be undone in a proof state by Proof General.
-
-@strong{Workaround:} retract back to the start of the proof.
-
-@c @subsubsection Not saving proofs. 
-@c After LEGO has issued a @samp{*** QED ***} you may undo steps in the
-@c proof as long as you don't issue a @samp{Save} command or start a new
-@c proof. LEGO Proof General assumes that all proofs are terminated with a
-@c proper @samp{Save} command.
-
-@c @strong{Workaround:} Always issue a @samp{Save} command after completing
-@c a proof. If you forget one, you should retract to a point before the
-@c offending proof development.
-
-@node Non writable directories
-@subsection Non-writable directories
-
-If LEGO 1.3.1 attempts to write a (object) file in a non-writable
-directory, it forgets the protocol mechanism on how to interact with 
-Proof General and gets stuck. 
-
-@strong{Workaround:} Directly enter @kbd{Configure AnnotateOn;} in the 
-Proof Shell to recover.
-
-@node Bugs specific to Coq Proof General
-@section Bugs specific to Coq Proof General
-
-@subsection Hard-wired tactics
-
-The collection of tactics which Proof General is aware of is hard-wired.
-Thus, user-defined tactics cannot be retracted.
-
-@strong{Workaround:} You may need to retract to the start of the proof.
-
-@subsection Sections
-
-Coq Proof General does not know about Coq's Section mechanism.
-Problems similar to LEGO's discharge.
-Proof General needs some improvements to cope with these cases.
-
-
-@c 
-@c Isabelle Bugs
-@c
-@node Bugs specific to Isabelle Proof General
-@section Bugs specific to Isabelle Proof General
-
-Here are some bugs and problems specific to Isabelle Proof General.
-
-@subsection Clash with @code{sml-mode}
-
-Since Isabelle proof scripts are not differentiated from @file{.ML}
-files, Proof General may compete with @code{sml-mode} (if you use it)
-for controlling these buffers.  To ensure Proof General wins, load it
-last.
-
-@strong{Workaround:} use another extension for real ML files, e.g.
-@code{.sml}, and disable @code{.ML} from entering @code{sml-mode}.
-
-@subsection Indentation
-
-Isabelle Proof General doesn't support Proof General's indentation
-code to indent proof scripts.  In any case, Proof General's
-indentation code is somewhat broken.
-
-@strong{Workaround:} indent your script by hand.
-
-
-
-@subsection Scripting language limitations
-
-Since Isabelle uses ML as a top-level language for writing
-proof-scripts, Proof General may have difficulty understanding scripts
-which stray too far away from the standard functions, tactics, and
-tacticals, or include nested structure with semicolons within a
-top-level phrase.  You will usually notice when a function, or whatever,
-doesn't get highlighted as you might expect, or when only part of a
-top-level phrase gets parsed as a command and Proof General gets
-``stuck''.  Sometimes you will be able to fix things by changing the
-script.  Generally this probably has no detrimental impact on the
-interface unless you use your own variants of the @code{goal} or
-@code{qed} forms.
-
-@strong{Workaround:} Restrict yourself to standard proof script
-functions, or customize some of the variables from @file{isa.el} and
-@file{isa-syntax.el} appropriately.
-
-@subsection Interaction with theory database
-
-Isabelle Proof General uses some support from Isabelle to remove and
-reload theories from the theory database.  To maintain consistency,
-Isabelle is rather conservative.  So re-asserting a retracted file will
-often re-load it, even if it has not changed.  (This is because the
-file may have implicit dependencies on things in the global ML
-environment not made apparent by the theory structure).  
-This may lead to seemingly unnecessary repetition of time-consuming
-proofs, so be careful not to retract more than you need!
 
 
 @node References
