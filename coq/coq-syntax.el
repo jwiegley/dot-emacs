@@ -679,29 +679,45 @@ Idtac (Nop) tactic, put the following line in your .emacs:
     "Try")
   "Keywords for tacticals in a Coq script.")
 
-(defvar coq-reserved
+; From JF Monin:
+(defvar coq-reserved-common
   '("as"
-    "ALL"
 	 "True"
 	 "False"
-	 "Cases"
-    "match"
-    "EX"
     "else"
     "end"
-    "Fix"
-    "forall"
-	 "fun"
     "if"
     "in"
     "into"
     "let"
-    "of"
     "then"
     "using"
     "with"
 	 "after")
   "Reserved keywords of Coq.")
+
+(defvar coq-reserved-V8
+  '(
+	 "cofix"
+	 "fix"
+	 "struct"
+	 "match"
+	 "forall"
+	 "fun"
+	 ))
+
+(defvar coq-reserved-V7
+  '(
+	 "ALL" "Cases" "EX" "Fix" "of" "CoFix"
+	 ))
+
+(defvar coq-reserved 
+  (cond
+	(coq-version-is-V8 
+	 (append coq-reserved-common coq-reserved-V8))
+	(t 
+	 (append coq-reserved-common coq-reserved-V7))))
+
 
 (defvar coq-symbols
   '("|"
