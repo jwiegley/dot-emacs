@@ -144,14 +144,21 @@ may assign this function to `after-change-function'."
 ;; Added for version 3.1 to help quote funny characters in filenames.
 ;;
 
+;;;###autoload
 (defun proof-format (alist string)
-  "Format a string by matching regexps in ALIST against STRING"
+  "Format a string by matching regexps in ALIST against STRING.
+ALIST contains (REGEXP . REPLACEMENT) pairs where REPLACEMENT
+may be a string or sexp evaluated to get a string."
   (while alist
     (let ((idx 0))
       (while (string-match (car (car alist)) string idx)
 	(setq string
 	      (concat (substring string 0 (match-beginning 0))
-		      (cdr (car alist))
+		      (cond
+		       ((stringp (cdr (car alist)))
+			(cdr (car alist)))
+		       (t
+			(eval (cdr (car alist)))))
 		      (substring string (match-end 0))))
 	(setq idx (+ (match-beginning 0) (length (cdr (car alist)))))))
     (setq alist (cdr alist)))
