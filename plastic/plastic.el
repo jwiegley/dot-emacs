@@ -654,7 +654,7 @@ We assume that module identifiers coincide with file names."
     (interactive)
     (plastic-reset-error)
     (let ((proof-state-preserving-p nil)) ; allow any command
-      (proof-execute-minibuffer-cmd))
+      (proof-minibuffer-cmd))
     (plastic-call-if-no-error 'plastic-send-one-undo))
 
 (defun plastic-minibuf ()
@@ -670,7 +670,7 @@ We assume that module identifiers coincide with file names."
     (plastic-send-minibuf))
 
 (defun plastic-send-minibuf ()
-    "take cmd from minibuffer - see doc for proof-execute-minibuffer-cmd"
+    "take cmd from minibuffer - see doc for proof-minibuffer-cmd"
     (interactive)
     (let (cmd)
         (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
