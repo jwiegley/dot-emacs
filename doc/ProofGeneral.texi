@@ -3996,6 +3996,15 @@ Hook functions may inspect @samp{@code{proof-shell-error-or-interrupt-seen}} to
 determine whether the cause was an error or interrupt.
 @end defvar
 
+@c TEXI DOCSTRING MAGIC: proof-shell-pre-interrupt-hook
+@defvar proof-shell-pre-interrupt-hook 
+Run immediately after @samp{@code{comint-interrupt-subjob}} is called.@*
+This hook is added to allow customization for Poly/ML and other
+systems where the system queries the user before returning to
+the top level.  For Poly/ML it can be used to send the string "f",
+for example.
+@end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output-system-specific
 @defvar proof-shell-process-output-system-specific 
 Set this variable to handle system specific output.@*
