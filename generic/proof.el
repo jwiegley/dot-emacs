@@ -30,12 +30,6 @@
 (require 'cl)				
 
 
-;; FIXME da: I think these should all be autoloaded!!
-;; (require 'compile)
-;; (require 'comint)
-;; (require 'etags)			
-;; (require 'easymenu)
-
 ;; browse-url function doesn't seem to be autoloaded in
 ;; XEmacs 20.4, but it is in FSF Emacs 20.2.
 (or (fboundp 'browse-url)
@@ -145,7 +139,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       (setq start (goto-char (point-max)))
       (insert str) (setq end (point))
       (newline)
-      ;; FIXME tms: Make this work for FSF Emacs 20.2
+      (font-lock-set-defaults)		;required for FSF Emacs 20.2
       (font-lock-fontify-region start end)
       (font-lock-append-text-property start end 'face face)
       (buffer-substring start end))))

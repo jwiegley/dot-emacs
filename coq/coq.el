@@ -6,16 +6,24 @@
 
 ;; $Id$
 
-(require 'proof)
+(require 'proof-script)
 (require 'coq-syntax)
 
+;; Spans are our abstraction of extents/overlays.
+(eval-and-compile
+  (cond ((fboundp 'make-extent) (require 'span-extent))
+	((fboundp 'make-overlay) (require 'span-overlay))))
+
+(eval-and-compile
+  (mapcar (lambda (f) (autoload f "proof-shell"))
+	    '(pbp-mode proof-shell-config-done))) 
 ;; FIXME: outline and info should be autoloaded.
 (require 'outline)
 (require 'info)
 
 ; Configuration
 
-(setq tag-always-exact t) ; Tags is unusable with Coq library otherwise:
+(setq tags-always-exact t) ; Tags is unusable with Coq library otherwise:
 
 (defcustom coq-tags "/usr/local/lib/coq/theories/TAGS"
   "the default TAGS table for the Coq library"
@@ -414,7 +422,7 @@
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
         proof-shell-init-cmd nil
 	proof-analyse-using-stack t
-	proof-lift-global coq-lift-global)
+	proof-lift-global 'coq-lift-global)
 
   ;; The following hook is removed once it's called.
   (add-hook 'proof-shell-insert-hook 'coq-shell-init-hook nil t)

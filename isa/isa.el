@@ -75,7 +75,7 @@ no regular or easily discernable structure."
 
 ;;; FIXME: test and add more things here
 (defcustom isa-outline-regexp
-  (ids-to-regexp '("goal" "Goal" "prove_goal"))
+  (proof-ids-to-regexp '("goal" "Goal" "prove_goal"))
   "Outline regexp for Isabelle ML files"
   :type 'regexp
   :group 'isabelle-config)
@@ -111,7 +111,7 @@ no regular or easily discernable structure."
    proof-save-command-regexp    isa-save-command-regexp
    proof-save-with-hole-regexp  isa-save-with-hole-regexp
    proof-goal-with-hole-regexp  isa-goal-with-hole-regexp
-   proof-commands-regexp	(ids-to-regexp isa-keywords)
+   proof-commands-regexp	(proof-ids-to-regexp isa-keywords)
    ;; proof engine commands (first three for menus, last for undo)
    proof-prf-string		"pr();"
    proof-goal-command		"Goal \"%s\";"
@@ -353,7 +353,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;; FIXME: think about the next variable.  I've changed sense from
 ;;  LEGO and Coq's treatment.
 (defcustom isa-not-undoable-commands-regexp
-  (ids-to-regexp '("undo" "back"))
+  (proof-ids-to-regexp '("undo" "back"))
   "Regular expression matching commands which are *not* undoable."
   :type 'regexp
   :group 'isabelle-config)

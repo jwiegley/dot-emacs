@@ -970,7 +970,12 @@ Annotations are characters 128-255."
 
 (defun proof-font-lock-minor-mode ()
   "Start font-lock as a minor mode in the current buffer."
-  (and (fboundp 'font-lock-set-defaults) (font-lock-set-defaults)))
+
+  ;; setting font-lock-defaults explicitly is required by FSF Emacs
+  ;; 20.2's version of font-lock
+  (make-local-variable 'font-lock-defaults)
+  (setq font-lock-defaults '(font-lock-keywords))
+  (font-lock-set-defaults))
 
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."
