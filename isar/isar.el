@@ -574,6 +574,11 @@ Resulting output from Isabelle will be parsed by Proof General."
   (modify-syntax-entry ?\{ "(}1")
   (modify-syntax-entry ?\} "){4"))
 
+(defun isar-preprocessing ()
+  "insert sync markers - acts on variable string by dynamic scoping"
+  (if (not (string-match "^cd \\|^ProofGeneral\\.init " string))   ;; FIXME hack to detect initial ML stuff
+      (setq string (concat "\\<^sync>" string "\\<^sync>;"))))
+
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
   (isar-init-syntax-table)
@@ -592,7 +597,8 @@ Resulting output from Isabelle will be parsed by Proof General."
   ;	     (append '(("\\.ML$"  . isar-ML-file-tags-table)
   ;		       ("\\.thy$" . thy-file-tags-table))
   ;		     tag-table-alist)))
-  (setq blink-matching-paren-dont-ignore-comments t))
+  (setq blink-matching-paren-dont-ignore-comments t)
+  (add-hook 'proof-shell-insert-hook 'isar-preprocessing))
 
 
 ;; MMW FIXME: ??
