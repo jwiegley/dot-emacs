@@ -272,7 +272,8 @@ If LOGIC is nil, pick the first Isabelle buffer."
     (select-frame cur-frm)))
 
 (defun isa-thy-proofgeneral-send-string (logic text &optional hide)
-
+  ;; FIXME -- new function!
+  )
 
 (defun isa-thy-raise-windows ()
   "Raise windows/frames associated with Isabelle session."
