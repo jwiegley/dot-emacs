@@ -58,10 +58,10 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.1
+@set version 3.2
 @set xemacsversion 21.1
 @set fsfversion 20.5
-@set last-update March 2000
+@set last-update April 2000
 @set rcsid $Id$
 
 @ifinfo
@@ -195,15 +195,25 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news for 3.1::                     
+* Latest news for 3.2::                     
+* News for 3.1::                     
 * News for 3.0::                     
 * History::                     
 * Credits::                     
 @end menu
 
+@node Latest news for 3.2
+@unnumberedsec Latest news for 3.2
+@cindex news
 
-@node Latest news for 3.1
-@unnumberedsec Latest news for 3.1
+Proof General 3.2 has some new features and additional bug fixes over
+Proof General 3.1.  The new features include support for turning proof
+assistant output on and off internally, to improve efficiency when
+processing large scripts.
+
+
+@node News for 3.1
+@unnumberedsec News for 3.1
 @cindex news
 
 Proof General 3.1 is released as a bug-fix improvement over version 3.0.
@@ -3457,7 +3467,7 @@ There are four major modes used by Proof General, one for each type of
 buffer it handles.  The buffer types are: script, shell, response and
 goals.  Each of these has a generic mode, respectively:
 @code{proof-mode}, @code{proof-shell-mode}, @code{proof-response-mode},
-and @code{proof-pbp-mode}.
+and @code{proof-goals-mode}.
 
 The pattern for defining the major mode for an instance of Proof General
 is to use @code{define-derived-mode} to define a specific mode to inherit from
@@ -3916,6 +3926,9 @@ all specific shell modes derived from it.
 @node Proof shell commands
 @subsection Commands
 
+Settings in this section configure Proof General with commands
+to send to the prover to activate certain actions.
+
 @c TEXI DOCSTRING MAGIC: proof-prog-name
 @defvar proof-prog-name 
 System command to run the proof assistant in the proof shell.@*
@@ -3970,6 +3983,30 @@ so that the prover switches to the directory of a proof
 script every time scripting begins.
 @end defvar
 
+@c TEXI DOCSTRING MAGIC: proof-shell-start-silent-cmd
+@defvar proof-shell-start-silent-cmd 
+Command to turn prover goals output off when sending many script commands.@*
+If non-nil, Proof General will automatically issue this command
+to help speed up processing of long proof scripts.  
+See also @code{proof-shell-stop-silent-cmd}.
+NB: terminator not added to command.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-shell-stop-silent-cmd
+@defvar proof-shell-stop-silent-cmd 
+Command to turn prover output off.  @*
+If non-nil, Proof General will automatically issue this command
+to help speed up processing of long proof scripts.  
+See also @code{proof-shell-start-silent-cmd}.
+NB: Terminator not added to command.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-shell-silent-threshold
+@defvar proof-shell-silent-threshold 
+Number of waiting commands in the proof queue needed to trigger silent mode.@*
+Default is 2, but you can raise this in case switching silent mode
+on or off is particularly expensive.
+@end defvar
 @xref{Handling multiple files},
 for more details about the final two settings in this group,
 
@@ -4083,12 +4120,15 @@ It is safe to leave this variable unset (as nil).
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-proof-completed-regexp
 @defvar proof-shell-proof-completed-regexp 
-Regexp matching output indicating a finished proof.@*
-Match number 1 should be the response text.
+Regexp matching output indicating a finished proof.
 
-This is used to enable the QED function (save a proof) and
-to control what output appears in the response buffer at the
-end of a proof.
+When output which matches this regexp is seen, we clear the goals
+buffer in case this is not also marked up as a @samp{goals} type of
+message.
+
+We also enable the QED function (save a proof) and will automatically
+close off the proof region if another goal appears before a save
+command.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-clear-response-regexp
 @defvar proof-shell-clear-response-regexp 
@@ -4158,6 +4198,8 @@ quote characters must be escaped.  The setting
 achieves this.   This does not apply to @var{lego}, which does not
 need backslash escapes and does not allow filenames with
 quote characters.
+
+This setting is used inside the function @samp{@code{proof-format-filename}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-connection-type
