@@ -443,6 +443,8 @@
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
 	proof-indent-commands-regexp (proof-ids-to-regexp coq-keywords))
 
+  (setq proof-auto-multiple-files t)	; until Coq has real support
+
   (coq-init-syntax-table)
 
 ;; font-lock
