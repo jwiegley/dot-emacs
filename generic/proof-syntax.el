@@ -41,7 +41,10 @@
 ;; FIXME 2: use defface here
 
 (defun proof-have-color ()
- ())
+  "Do we have support for colour?"
+  (or (and (fboundp 'device-class)
+	   (eq (device-class (frame-device)) 'color))
+      (and (fboundp 'x-display-color-p) (x-display-color-p))))
 
 (defvar font-lock-declaration-name-face 
 (progn 
