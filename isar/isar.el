@@ -216,7 +216,8 @@ See -k option for Isabelle interface script."
    proof-shell-end-goals-regexp         "\367"
    pg-topterm-char			?\370
 
-   proof-assistant-setting-format       'isar-markup-ml
+   ;; FIXME: need to set this for backward compatibility
+   ;; proof-assistant-setting-format       'isar-markup-ml
    proof-shell-init-cmd                 '(proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
