@@ -930,8 +930,7 @@ an error is signalled here."
 	    (with-current-buffer buf
 	      (message "%s buffer %s..." name buf)
 	      (funcall fn)
-	      (while proof-shell-busy ; busy wait
-		(sit-for 1))
+	      (proof-shell-wait) ; busy wait
 	      (message "%s buffer %s...done." name buf)
 	      (sit-for 0))
 	  ;; Test to see if action was successful
@@ -2653,7 +2652,7 @@ with something different."
 (defconst proof-script-important-settings
   '(proof-script-comment-start			;
     proof-script-comment-end
-    proof-save-command-regexp
+    proof-save-command-regexp		; [actually, some provers may not have save command]
 ;    proof-goal-command-regexp	        ; not needed if proof-goal-command-p is set
 ;    proof-goal-with-hole-regexp		; non-essential?
 ;    proof-save-with-hole-regexp		; non-essential?
