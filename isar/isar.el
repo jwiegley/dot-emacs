@@ -296,12 +296,20 @@
 ;;; Theory loader operations
 ;;;
 
+(defun isar-remove-file (name files)
+  (if (not files) nil
+    (let ((file (car files)) (rest (cdr files)))
+      (if (string= (file-name-nondirectory file) name)
+        (isar-remove-file name rest)
+      (cons file (isar-remove-file name rest))))))
+
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
 This is called when Proof General spots output matching
 proof-shell-retract-files-regexp."
-  (remove (file-truename (match-string 1 str)) 
-	  proof-included-files-list))
+  (isar-remove-file
+   (file-name-nondirectory (file-truename (match-string 1 str)))
+   proof-included-files-list))
 
 (defun isar-activate-scripting ()
   "Make sure the Isabelle/Isar toplevel is in a sane state.")
