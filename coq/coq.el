@@ -424,9 +424,13 @@
 
   (setq proof-guess-command-line 'coq-guess-command-line)
 
+  ;; Commands sent to proof engine
   (setq proof-prf-string "Show"
 	proof-ctxt-string "Print All"
-	proof-help-string "Help")
+	proof-help-string "Help"
+	proof-goal-command "Goal %s."
+	proof-save-command "Save %s."
+	proof-kill-goal-command coq-kill-goal-command)
 
   (setq proof-goal-command-p 'coq-goal-command-p
 	proof-count-undos-fn 'coq-count-undos
@@ -440,7 +444,6 @@
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
-	proof-kill-goal-command coq-kill-goal-command
 	proof-indent-commands-regexp (proof-ids-to-regexp coq-keywords))
 
   (coq-init-syntax-table)
