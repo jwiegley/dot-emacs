@@ -317,6 +317,10 @@ FIXME: new hack added nov 99 because of disappearing overlays.
 Behaviour is still worse than before."
   (set-span-property span 'priority 100))
 
-(defalias 'span-object 'overlay-object)
+(defalias 'span-object 'overlay-buffer)
+
+(defun span-string (span)
+  (with-current-buffer (overlay-buffer span)
+    (buffer-substring (overlay-start span) (overlay-end span))))
 
 (provide 'span-overlay)
