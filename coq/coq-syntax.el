@@ -58,54 +58,56 @@ version of coq by doing 'coqtop -v'."  )
 ;; only coq-version-is-V74 and coq-version-is-V7 are used later (V6
 ;; corresponds to v7=nil and v74=nil)
 
-(unless (noninteractive) ;; DA: evaluating here gives error during compile
-(let* ((seedoc " (to force another version, do for example C-h v coq-version-is-V7)")
-		(v8 (concat "proofgeneral is in coq 8 mode" seedoc))
-		(v74 (concat "proofgeneral is in coq 7.4 mode" seedoc))
-		(v7 (concat "proofgeneral is in coq > 6 and =< 7.3 mode" seedoc))
-		(v6 (concat "proofgeneral is in coq V6 mode" seedoc)))
-  (cond
-   (coq-version-is-V8 
-    (message v8) 
-    (setq coq-version-is-V74 t))
-   (coq-version-is-V74 
-    (message v74) 
-    (setq coq-version-is-V8 nil)
-    (setq coq-version-is-V7 t))
-   (coq-version-is-V7  
-    (message v7)  
-    (setq coq-version-is-V74 nil)
-    (setq coq-version-is-V8 nil))
-   (coq-version-is-V6  
-    (message v6)  
-    (setq coq-version-is-V8 nil) 
-    (setq coq-version-is-V74 nil) 
-    (setq coq-version-is-V7 nil))
-   (t 
-    (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
-	   ;; da: next line not used?
-	   ;;(x (string-match "version \\([.0-9]*\\)" str))
-	   (num (match-string 1 str)))
-      ;; da: added this to avoid type error in case coq command fails
-      (if (null num) (setq num ""))
-      (cond
-       ((string-match num "\\<6.") 
-	(message v6)
-	(setq coq-version-is-V7 nil) 
-	(setq coq-version-is-V74 nil))
-       ((or (string-match num "\\<7.0") 
-	    (string-match num "\\<7.1") 
-	    (string-match num "\\<7.2") 
-	    (string-match num "\\<7.3")) 
-	(message v7) 
-	(setq coq-version-is-V7 t)
-	(setq coq-version-is-V74 nil))
-       ((string-match num "\\<8"))
-       (t 
-	(message v8) 
-	(setq coq-version-is-V8 t)
-	(setq coq-version-is-V7 t) 
-	(setq coq-version-is-V74 t))))))))
+(unless (noninteractive);; DA: evaluating here gives error during compile
+  (let* ((seedoc " (to force another version, do for example C-h v coq-version-is-V7)")
+			(v8 (concat "proofgeneral is in coq 8 mode" seedoc))
+			(v74 (concat "proofgeneral is in coq 7.4 mode" seedoc))
+			(v7 (concat "proofgeneral is in coq > 6 and =< 7.3 mode" seedoc))
+			(v6 (concat "proofgeneral is in coq V6 mode" seedoc)))
+	 (cond
+	  (coq-version-is-V8 
+		(message v8) 
+		(setq coq-version-is-V74 t))
+	  (coq-version-is-V74 
+		(message v74) 
+		(setq coq-version-is-V8 nil)
+		(setq coq-version-is-V7 t))
+	  (coq-version-is-V7  
+		(message v7)  
+		(setq coq-version-is-V74 nil)
+		(setq coq-version-is-V8 nil))
+	  (coq-version-is-V6  
+		(message v6)  
+		(setq coq-version-is-V8 nil) 
+		(setq coq-version-is-V74 nil) 
+		(setq coq-version-is-V7 nil))
+	  (t 
+		(let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
+				 ;; da: next line not used? Pierre: yes, string-match 1 ... 
+				 ;; at following line returns the last matched regexp (first parenth) 
+				 ;; so we need to make the string-match, and then match-string
+				 (x (string-match "version \\([.0-9]*\\)" str))
+				 (num (match-string 1 str)))
+		  ;; da: added this to avoid type error in case coq command fails
+		  (if (null num) (setq num ""))
+		  (cond
+			((string-match num "\\<6.") 
+			 (message v6)
+			 (setq coq-version-is-V7 nil) 
+			 (setq coq-version-is-V74 nil))
+			((or (string-match num "\\<7.0") 
+				  (string-match num "\\<7.1") 
+				  (string-match num "\\<7.2") 
+				  (string-match num "\\<7.3")) 
+			 (message v7) 
+			 (setq coq-version-is-V7 t)
+			 (setq coq-version-is-V74 nil))
+			((string-match num "\\<8"))
+			(t 
+			 (message v8) 
+			 (setq coq-version-is-V8 t)
+			 (setq coq-version-is-V7 t) 
+			 (setq coq-version-is-V74 t))))))))
 
 ;; ----- keywords for font-lock.
 
@@ -146,7 +148,8 @@ version of coq by doing 'coqtop -v'."  )
 ;; Modules are like section in v > 7.4.
 (if (or coq-version-is-V74 coq-version-is-V8)
 	 (defvar coq-keywords-goal
-		'("Chapter"
+		'("Add\\s-+Morphism"
+		  "Chapter"
 		  "Declare\\s-+Module";;only if not followed by:=(see coq-proof-mode-p in coq.el)
 		  "Module"
 		  "Module\\s-+Type"
@@ -170,6 +173,64 @@ version of coq by doing 'coqtop -v'."  )
 		"Remark"
 		"Section"
 		"Theorem")))
+
+;; FIXME da: this one function breaks the nice configuration of Proof General:
+;; would like to have proof-goal-regexp instead.
+;; Unfortunately Coq allows "Definition" and friends to perhaps have a goal, 
+;; so it appears more difficult than just a proof-goal-regexp setting.
+;; Future improvement may simply to be allow a function value for
+;; proof-goal-regexp.
+
+;; excerpt of Jacek Chrzaszcz, implementer of the module system: sorry
+;; for the french:
+;*) suivant les suggestions de Chritine, pas de mode preuve dans un type de
+;    module (donc pas de Definition truc:machin.  Lemma, Theorem ... )
+;
+; *) la commande Module M [ ( : | <: ) MTYP ] [ := MEXPR ] est valable
+;    uniquement hors d'un MT
+;    - si :=MEXPR est absent, elle demarre un nouveau module interactif
+;    - si :=MEXPR est present, elle definit un module
+;    (la fonction vernac_define_module dans toplevel/vernacentries) 
+;
+; *) la nouvelle commande Declare Module M [ ( : | <: ) MTYP ] [ := MEXPR ]
+;    est valable uniquement dans un MT
+;    - si :=MEXPR absent, :MTYP absent, elle demarre un nouveau module
+;      interactif
+;    - si (:=MEXPR absent, :MTYP present) 
+;      ou (:=MEXPR present, :MTYP absent)
+;      elle declare un module.
+;    (la fonction vernac_declare_module dans toplevel/vernacentries)
+
+(defun coq-count-match (regexp strg)
+  "Count the number of (maximum, non overlapping) matching substring 
+of STRG matching REGEXP. Empty match are counted once."
+  (let ((nbmatch 0) (str strg))
+    (while (and (proof-string-match regexp str) (not (string-equal str "")))
+      (incf nbmatch)
+      (if (= (match-end 0) 0) (setq str (substring str 1))
+        (setq str (substring str (match-end 0)))))
+    nbmatch))
+
+
+
+(defun coq-goal-command-p (str)
+  "Decide whether argument is a goal or not"
+  (let* ((match (coq-count-match "\\<match\\>" str))
+		  (with (coq-count-match "\\<with\\>" str))
+		  (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
+		  (affect (coq-count-match ":=" str)))
+		  
+	 (and (proof-string-match coq-goal-command-regexp str)
+			(not									 ; 
+			 (and 
+			  (proof-string-match "\\`\\(Local\\|Definition\\|Lemma\\|Module\\)\\>" str)
+			  (not (= letwith affect))))
+			(not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
+			)
+	 )
+  )
+
+
 (defvar coq-keywords-save
   '("Defined"
     "Save"
@@ -177,6 +238,14 @@ version of coq by doing 'coqtop -v'."  )
     "End"
 	 "Admitted"
 	 ))
+
+(defun coq-save-command-p (str)
+  "Decide whether argument is a Save command or not"
+  (or (proof-string-match coq-save-command-regexp str)
+		(and (proof-string-match "\\`Proof\\>" str)
+			  (not (proof-string-match "Proof\\s-*\\(\\.\\|\\<with\\>\\)" str)))
+		)
+  )
 
 (defvar coq-keywords-kill-goal 
   '("Abort"))
@@ -725,7 +794,10 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   (modify-syntax-entry ?_  "w")
   (modify-syntax-entry ?\' "_")
   (modify-syntax-entry ?\| ".")
-  (modify-syntax-entry ?\. "_")
+
+; should baybe be "_" but it makes coq-find-and-forget (in coq.el) bug
+  (modify-syntax-entry ?\. ".") 
+
   (condition-case nil
       ;; Try to use Emacs-21's nested comments.
       (modify-syntax-entry ?\* ". 23n")
@@ -733,6 +805,8 @@ Idtac (Nop) tactic, put the following line in your .emacs:
     (error (modify-syntax-entry ?\* ". 23")))
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4"))
+
+
 
 
 (provide 'coq-syntax)

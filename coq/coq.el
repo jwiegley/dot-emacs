@@ -29,6 +29,7 @@
 ;; fix compilation
 
 (require 'coq-syntax)
+(require 'coq-indent)
 
 ;; Command to reset the Coq Proof Assistant
 ;; Pierre: added Impl... because of a bug of Coq until V6.3
@@ -330,70 +331,6 @@
 (defconst coq-keywords-decl-defn-regexp
   (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
-
-;; FIXME da: this one function breaks the nice configuration of Proof General:
-;; would like to have proof-goal-regexp instead.
-;; Unfortunately Coq allows "Definition" and friends to perhaps have a goal, 
-;; so it appears more difficult than just a proof-goal-regexp setting.
-;; Future improvement may simply to be allow a function value for
-;; proof-goal-regexp.
-
-;; excerpt of Jacek Chrzaszcz, implementer of the module system: sorry
-;; for the french:
-;*) suivant les suggestions de Chritine, pas de mode preuve dans un type de
-;    module (donc pas de Definition truc:machin.  Lemma, Theorem ... )
-;
-; *) la commande Module M [ ( : | <: ) MTYP ] [ := MEXPR ] est valable
-;    uniquement hors d'un MT
-;    - si :=MEXPR est absent, elle demarre un nouveau module interactif
-;    - si :=MEXPR est present, elle definit un module
-;    (la fonction vernac_define_module dans toplevel/vernacentries) 
-;
-; *) la nouvelle commande Declare Module M [ ( : | <: ) MTYP ] [ := MEXPR ]
-;    est valable uniquement dans un MT
-;    - si :=MEXPR absent, :MTYP absent, elle demarre un nouveau module
-;      interactif
-;    - si (:=MEXPR absent, :MTYP present) 
-;      ou (:=MEXPR present, :MTYP absent)
-;      elle declare un module.
-;    (la fonction vernac_declare_module dans toplevel/vernacentries)
-
-
-
-(defun coq-count-match (regexp strg)
-  "Count the number of (maximum, non overlapping) matching substring 
-of STRG matching REGEXP. Empty match are counted once."
-  (let ((nbmatch 0) (str strg))
-    (while (and (proof-string-match regexp str) (not (string-equal str "")))
-      (incf nbmatch)
-      (if (= (match-end 0) 0) (setq str (substring str 1))
-        (setq str (substring str (match-end 0)))))
-    nbmatch))
-
-
-
-(defun coq-goal-command-p (str)
-  "Decide whether argument is a goal or not"
-  (and (proof-string-match coq-goal-command-regexp str)
-       (not (proof-string-match "Local.*:=" str))
-       ;do not match Module t:T with Definition... 
-       (not (proof-string-match "\\`Definition.*:=" str))
-       (not (proof-string-match "\\`Module[^:]*:=" str))
-       ; Module ... (with Definition ..:=)* :=  --> module definition
-       ; Module ... (with Definition ..:=)*     --> module start
-       ; We count the number of
-       (not 
-        (and (proof-string-match "\\`Module[^:]*:\\(.*\\):=[^:]*" str)
-             (not (= (coq-count-match "\\<with\\>" str) (coq-count-match ":=" str)))))
-;       (not (proof-string-match module-with str))
-       (not (proof-string-match "Declare Module.*:" str)) ;neither : or :=
-       (not (proof-string-match "Recursive Definition" str))
-       ;; da: 3.4 test: do not exclude Lemma: we want goal-command-p to
-       ;; succeed for nested goals too now.
-       ;; (should we also exclude Definition?)
-       (not (proof-string-match "Lemma.*:=" str))))
-;; ))
-
 
 ; Pierre: This is a try, for use in find-and-forget. It seems to work but 
 ; is it correct with respect to the asynchronous communication between Coq 
@@ -812,15 +749,17 @@ This is specific to coq-mode."
 	proof-nested-undo-regexp coq-state-changing-commands-regexp)
   
   (setq	
-   proof-indent-close-offset -1
-   proof-indent-any-regexp
-   (proof-regexp-alt (proof-ids-to-regexp
-		      (append (list "Cases" "end") coq-keywords)) "\\s(" "\\s)")
-   proof-indent-enclose-regexp "|"
-   proof-indent-open-regexp
-   (proof-regexp-alt (proof-ids-to-regexp '("Cases")) "\\s(")
-   proof-indent-close-regexp
-   (proof-regexp-alt (proof-ids-to-regexp '("end")) "\\s)"))
+;indentation is implemented in coq-indent.el
+;   proof-indent-enclose-offset  (- proof-indent)
+;   proof-indent-enclose-offset 0
+;   proof-indent-close-offset 0
+;   proof-indent-open-offset 0
+   proof-indent-any-regexp      coq-indent-any-regexp
+;   proof-indent-inner-regexp    coq-indent-inner-regexp
+;   proof-indent-enclose-regexp  coq-indent-enclose-regexp
+   proof-indent-open-regexp     coq-indent-open-regexp
+   proof-indent-close-regexp    coq-indent-close-regexp
+)
 
 
   ;; span menu 
@@ -1075,9 +1014,6 @@ mouse activation."
 
 
 ;load the default coq abbrev file if no coq abbrev file is already read
-;TODO: add the holes and put holes in abbreviations.
-; This needs to add some code in generic/span*.el first, then add holes.el 
-; in the generaic part, and then ok.
 
 (if (and (boundp 'coq-mode-abbrev-table)
          (not (equal coq-mode-abbrev-table (make-abbrev-table))))
@@ -1086,6 +1022,7 @@ mouse activation."
     (quietly-read-abbrev-file "coq-abbrev.el")
     (message "coq default abbreviations loaded"))
   )
+
 
 
 (provide 'coq)
