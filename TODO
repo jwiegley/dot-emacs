@@ -16,25 +16,14 @@ Plans for upcoming versions
 
 * Support more proof assistants
 
-* Add a browser mode for browsing script files 
-  and/or theory data-structures in the prover.
+* Add a browser mode for browsing script files and/or live theory
+  data-structures, in the prover.
 
-* More flexible goals buffer mode to allow menus of
-  common proof commands.
-
-* Unified context (right-button) menu in and out of spans.
-  Including paste option and other editing commands.
+* More flexible goals buffer mode to allow menus of common proof
+  commands, especially via PBP-style highlighting
 
 * Implement ideas in the Proof General White Paper. 
   (See the Development section of the web page for a link).
-
-* A more flexible way of choosing which instance of PG we want,
-  allowing matches on the buffer before choosing the mode function.
-
-* Isabelle PG: Non-blocking for .thy loading from .ML files.
-
-* Generic adjusting of pretty-printer line width (currently implemented
-  in several instances)
 
 * Queue manipulation improvement: allow to extend or reduce
   during processing, with fewer "Proof Process Busy" messages.  
@@ -42,11 +31,6 @@ Plans for upcoming versions
 * Improve process handling: disable interrupts and/or catch errors at
   crucial points in code so that C-g can safely be used during script 
   processing.  Handle deleted buffers smoothly.
-
-* Implement "Atomic Command Sequence" idea, or something like
-  it.  To allow more flexible understanding of undo behaviour
-  of proof assistants.  Alternative is to base markup of 
-  undoable regions on proof assistant output or messages.
 
 * Make an XEmacs package
 

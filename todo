@@ -32,6 +32,14 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to do in the generic interface
 
+*** X A more flexible way of choosing which instance of PG we want,
+    allowing matches on the buffer before choosing the mode function.
+
+*** D Isabelle PG: Non-blocking for .thy loading from .ML files.
+
+*** B Generic adjusting of pretty-printer line width (currently
+    implemented in several instances)
+
 *** D Make code robust against accidental buffer kills
       by regenerating auxiliary buffers automatically. 
 
