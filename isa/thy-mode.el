@@ -605,13 +605,14 @@ If not, will turn off simulated minor mode and run thy-indent-line."
 ;;;
 
 ; These could be improved, e.g. to enforce syntax for identifiers.
-; Also, xemacs lacks a proper read-no-blanks-input !
+; Unfortunately, Xemacs, and now Emacs too, lack a 
+; read-no-blanks-input function!
 
 (defun isa-read-idlist (prompt &optional init)
   "Read a list of identifiers from the minibuffer."
   (let ((items init) item)
     (while (not (string= ""
-			 (setq item (read-no-blanks-input 
+			 (setq item (read-string 
 				       (format prompt (or items ""))))))
       (setq items (nconc items (list item))))
     items))
@@ -621,7 +622,7 @@ If not, will turn off simulated minor mode and run thy-indent-line."
   ;; don't allow empty input
   (let ((result ""))
     (while (string= result "")
-      (setq result (read-no-blanks-input prompt init)))
+      (setq result (read-string prompt init)))
     result))
 
 (defun isa-read-string (prompt &optional init)
