@@ -819,7 +819,7 @@ at the end of locked region (after inserting a newline and indenting)."
 		  (cons (list span cmd 'proof-done-advancing)
 			(cdr proof-action-list)))))))
 
-;; da: this note seems to be false!
+;; da: first note of this sentence is false!
 ;; ******** NB **********
 ;;  While we're using pty communication, this code is OK, since all
 ;; eager annotations are one line long, and we get input a line at a
@@ -858,10 +858,21 @@ if none of these apply, display."
   
   (cond
    ;; Is the prover processing a file?
+   ;; FIXME da: this interface is quite restrictive: might be
+   ;; useful for one message to name several files, or include
+   ;; an instruction to purge the included files list, rather
+   ;; than erasing everything and re-adding it.
+   ;; Contrast retraction interface: there we compute whole
+   ;; new list.
+   ;; (Come to think of it, maybe we could unify the two
+   ;; cases: automatically find removed files and added files
+   ;; between two versions of proof-included-files-list)
    ((and proof-shell-process-file 
 	 (string-match (car proof-shell-process-file) message))
     (let
 	((file (funcall (cdr proof-shell-process-file) message)))
+      ;; Special hack: empty string indicates current scripting buffer
+      ;; (not used anywhere presently?)
       (if (and proof-script-buffer-list (string= file ""))
 	  (setq file (buffer-file-name (car proof-script-buffer-list))))
       (if file
@@ -874,20 +885,48 @@ if none of these apply, display."
       (setq proof-included-files-list
 	    (funcall proof-shell-compute-new-files-list message))
       (let
+	  ;; Previously active scripting buffer
 	  ((scrbuf (car-safe proof-script-buffer-list)))
+	;; NB: we assume that no new buffers are *added* by
+	;; the proof-shell-compute-new-files-list 
 	(proof-restart-buffers
 	 (proof-files-to-buffers
 	  (set-difference current-included
 			  proof-included-files-list)))
 	(cond
+	 ;; Do nothing if there was no active scripting buffer
 	 ((not scrbuf))
-	 ((eq scrbuf (car-safe proof-script-buffer-list)))
-	 (t	
-	  (setq proof-script-buffer-list 
-		(cons scrbuf proof-script-buffer-list))
-	  (save-excursion
-	    (set-buffer scrbuf)
-	    (proof-init-segmentation)))))
+	 ;; Do nothing if active scripting buffer hasn't changed
+	 ((eq scrbuf (car-safe proof-script-buffer-list))
+	  )
+	 ;; FIXME da: I've forgotten the next condition was needed?
+	 ;; 
+	 ;; In fact, it breaks the case that the current scripting
+	 ;; buffer should be deactivated if the prover retracts it.
+	 ;; When scripting begins again in the buffer, other
+	 ;; files may have to be re-read which may not happen unless
+	 ;; scripting is properly de-activated.
+	 ;;
+	 ;; Otherwise, active scripting buffer has been retracted.
+	 ;; Add it back!!  Why? Presumably because code likes to
+	 ;; have an active scripting buffer??
+	 (t
+	  ;; FIXME da: want to test disabling currently active scripting
+	  ;; buffer.  Unfortunately this doesn't work with current
+	  ;; use of proof-script-buffer-list: always have to have
+	  ;; *some* scripting buffer active.  ARGHH!
+	  ;; FIXME da: test not having this add-back.  Then
+	  ;; scripting buffer may change wrongly and randomly
+	  ;; to some other buffer, without running change functions.
+	  ;;
+	  ;; FIXME da: test setting this to nil, scary!
+	  (setq proof-script-buffer-list nil)
+	  ;;(setq proof-script-buffer-list 
+	  ;;	(cons scrbuf proof-script-buffer-list))
+	  ;; (save-excursion
+	  ;;  (set-buffer scrbuf)
+	  ;;  (proof-init-segmentation)))))
+	  )))
       ))
 
    ;; Is the prover asking Proof General to clear the response buffer?
@@ -942,9 +981,6 @@ strings between eager-annotation-start and eager-annotation-end."
 ;; FIXME da: moreover, are urgent messages full processed??
 ;; some seem to get dumped in response buffer.
 
-;; FIXME da: what happens is that urgent messages may be entered into
-;; response buffer TWICE: they are processed below, then dumped in
-;; response buffer at the end of some output (unhighlighted).
 (defun proof-shell-filter (str) 
   "Filter for the proof assistant shell-process.
 We sleep until we get a wakeup-char in the input, then run
@@ -984,20 +1020,32 @@ how far we've got."
 			       proof-shell-urgent-message-marker))
 		    string res cmd)
 		
-		;; da FIX in testing: Try to ignore any urgent
+		;; da FIXME in testing: Try to ignore any urgent
 		;; messages that have already been dealt with.
+		;;
+		;; FIXME da:  a more general way of doing this would be
+		;; to filter out the messages which have been
+		;; processed already.  Either delete them or
+		;; re-parse the output.  At the moment we lose with
+		;; the case
+		;;  <PROMPT>
+		;;  <NON-URGENT-MESSAGE>
+		;;  <URGENT-MESSAGE>
+		;;  <NON-URGENT-MESSAGE>
+		;;  <PROMPT>
+		;; when only <URGENT-MESSAGE> and second <NON-URGENT-MESSAGE>
+		;; are displayed.
 		(if (and urgnt
 			 (< (point) urgnt))
 		    (setq startpos (goto-char urgnt)))
 
 		;; Find next prompt
 		(re-search-forward proof-shell-annotated-prompt-regexp nil t)
-		
-		;; FIXME da: what effect does this next command have???
 		(backward-char (- (match-end 0) (match-beginning 0)))
-		
 		(setq string (buffer-substring startpos (point)))
-		(goto-char (point-max))	; da: assumed to be after a prompt?
+		
+		(goto-char (point-max))	; da: why?
+		
 		(setq cmd (nth 1 (car proof-action-list)))
 		(save-excursion		;current-buffer
 		  ;; 
