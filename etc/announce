@@ -56,6 +56,7 @@ Proof General includes these features, amongst others:
 Summary of changes since 3.1:
 
 . New provers: AF2 (full support) Twelf, ACL2 (experimental support) 
+. Integrated support for Isabelle upgraded for Isabelle99-1 
 . Each proof assistant now has its own menu with specific functions
 . Documentation is now split into user manual and "adapting" manual
 . Improvements in window management
