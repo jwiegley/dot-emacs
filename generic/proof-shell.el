@@ -834,7 +834,8 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
    'proof-error-face)
 ;  (proof-display-and-keep-buffer proof-response-buffer)
   (proof-warning 
-   "Interrupt: script management may be in an inconsistent state")
+   "Interrupt: script management may be in an inconsistent state
+           (but it's probably okay)")
   (proof-shell-error-or-interrupt-action 'interrupt))
 
 (defun proof-shell-error-or-interrupt-action (&optional err-or-int)
