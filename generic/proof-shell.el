@@ -9,10 +9,7 @@
 ;; $Id$
 ;;
 
-;; FIXME: needed because of menu definitions, which should
-;; be factored out into proof-menus.  Then require here is
-;; just on proof-shell.
-(require 'proof-script)			
+(require 'proof-menu)
 
 ;; Nuke some byte compiler warnings.
 
