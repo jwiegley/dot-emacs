@@ -242,7 +242,11 @@
    proof-shell-prompt-pattern		"^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd			"ML {* Library.cd \"%e\" *}"
+   proof-shell-cd-cmd			"ML {* Library.cd \"%s\" *}"
+
+   ;; Escapes for filenames inside ML strings.
+   proof-shell-filename-escapes		
+   '(("\\\\" . "\\\\") ("\""   . "\\\""))
 
    proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\360Interrupt"
@@ -299,8 +303,8 @@
    proof-shell-retract-files-regexp
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
-   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%e\";"
-   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%e\";")
+   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\";"
+   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\";")
   (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting))
 
 

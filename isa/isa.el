@@ -125,9 +125,9 @@ and script mode."
 
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
    proof-shell-inform-file-processed-cmd 
-   "ProofGeneral.inform_file_processed \"%e\";"
+   "ProofGeneral.inform_file_processed \"%s\";"
    proof-shell-inform-file-retracted-cmd 
-   "ProofGeneral.inform_file_retracted \"%e\";"))
+   "ProofGeneral.inform_file_retracted \"%s\";"))
 
 
 (defun isa-shell-mode-config-set-variables ()
@@ -142,7 +142,11 @@ and script mode."
    proof-shell-prompt-pattern		"^2?[ML-=#>]>? \372?"
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd			"Library.cd \"%e\""
+   proof-shell-cd-cmd			"Library.cd \"%s\""
+
+   ;; Escapes for filenames inside ML strings.
+   proof-shell-filename-escapes		
+   '(("\\\\" . "\\\\") ("\""   . "\\\""))
 
    ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-interrupt-regexp         "Interrupt"
@@ -251,7 +255,7 @@ and script mode."
   "Tell Isabelle to update current buffer's theory, and all ancestors."
   (proof-shell-invisible-command
    (proof-format-filename
-    (format "ProofGeneral.%supdate_thy_only \"%%e\";" (if try "try_" ""))
+    (format "ProofGeneral.%supdate_thy_only \"%%s\";" (if try "try_" ""))
     (file-name-sans-extension file))
    wait))
 
@@ -380,7 +384,7 @@ isa-proofscript-mode."
   (save-some-buffers)
   (isa-update-thy-only file nil nil))
 
-(defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%e\";"
+(defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%s\";"
   "Sent to Isabelle to forget theory file and descendants.
 Resulting output from Isabelle will be parsed by Proof General."
   :type 'string

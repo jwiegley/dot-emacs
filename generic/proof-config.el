@@ -1144,9 +1144,8 @@ need to bump up this value."
 (defcustom proof-shell-cd-cmd nil
   "Command to the proof assistant to change the working directory.
 The format character `%s' is replaced with the directory, and the
-proof-terminal-char is added on to the end.
-The format character `%e' is replaced by the directory, after applying
-escapes specified in `proof-shell-string-escapes', which see.
+proof-terminal-char is added on to the end.  The escape sequences
+in `proof-shell-filename-escapes' are applied to the filename.
 
 This setting is used to define the function proof-cd which 
 changes to the value of (default-directory) for script buffers.
@@ -1163,9 +1162,8 @@ script every time scripting begins."
  "Command to the proof assistant to tell it that a file has been processed.
 The format character `%s' is replaced by a complete filename for a
 script file which has been fully processed interactively with
-Proof General.  
-(Use the format character `%e' instead to applying the escapes 
-specified in `proof-shell-string-escapes').
+Proof General.  The escape sequences in `proof-shell-filename-escapes' 
+are applied to the filename.
 
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
@@ -1185,9 +1183,8 @@ proof-shell-process-file, proof-shell-compute-new-files-list."
  "Command to the proof assistant to tell it that a file has been retracted.
 The format character `%s' is replaced by a complete filename for a
 script file which Proof General wants the prover to consider
-as not completely processed.
-(Use the format character `%e' instead to applying the escapes 
-specified in `proof-shell-string-escapes').
+as not completely processed. The escape sequences
+in `proof-shell-filename-escapes' are applied to the filename.
 
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
@@ -1463,16 +1460,18 @@ to do syntax highlighting with font-lock."
 ;; 5c. hooks and other miscellaneous customizations
 ;;
 
-(defcustom proof-shell-string-escapes '(("\\\\" . "\\\\"))
-  "A list of escapes that are applied for %e substitutions.
-This allows handling some special syntax for commands.
+(defcustom proof-shell-filename-escapes nil
+  "A list of escapes that are applied to %s for filenames.
 A list of cons cells, car of which is string to be replaced
 by the cdr.
-For example, when directories are sent to Isabelle or HOL,
-they appear inside ML strings, so the backslash character must
-be escaped.  The setting
-  '((\"\\\\\" . \"\\\\\\\\\"))
-achieves this."
+For example, when directories are sent to Isabelle, HOL, and Coq,
+they appear inside ML strings and the backslash character and
+quote characters must be escaped.  The setting
+  '((\"\\\\\\\\\" . \"\\\\\\\\\")
+    (\"\\\"\" . \"\\\\\\\"\"))
+achieves this.   This does not apply to LEGO, which does not
+need backslash escapes and does not allow filenames with
+quote characters."
   :type '(list (cons string string))
   :group 'proof-shell)
 

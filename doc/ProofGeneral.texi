@@ -3955,10 +3955,9 @@ need to bump up this value.
 @c TEXI DOCSTRING MAGIC: proof-shell-cd-cmd
 @defvar proof-shell-cd-cmd 
 Command to the proof assistant to change the working directory.@*
-The format character %s is replaced with the directory, and the
-@code{proof-terminal-char} is added on to the end.
-The format character %e is replaced by the directory, after applying
-escapes specified in @samp{@code{proof-shell-string-escapes}}, which see.
+The format character @samp{%s} is replaced with the directory, and the
+@code{proof-terminal-char} is added on to the end.  The escape sequences
+in @samp{@code{proof-shell-filename-escapes}} are applied to the filename.
 
 This setting is used to define the function @code{proof-cd} which 
 changes to the value of (@code{default-directory}) for script buffers.
@@ -3977,9 +3976,10 @@ for more details about the final two settings in this group,
 @c TEXI DOCSTRING MAGIC: proof-shell-inform-file-processed-cmd
 @defvar proof-shell-inform-file-processed-cmd 
 Command to the proof assistant to tell it that a file has been processed.@*
-The format character %s is replaced by a complete filename for a
+The format character @samp{%s} is replaced by a complete filename for a
 script file which has been fully processed interactively with
-Proof General.  
+Proof General.  The escape sequences in @samp{@code{proof-shell-filename-escapes}} 
+are applied to the filename.
 
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
@@ -3996,9 +3996,10 @@ See also: @code{proof-shell-inform-file-retracted-cmd},
 @c TEXI DOCSTRING MAGIC: proof-shell-inform-file-retracted-cmd
 @defvar proof-shell-inform-file-retracted-cmd 
 Command to the proof assistant to tell it that a file has been retracted.@*
-The format character %s is replaced by a complete filename for a
+The format character @samp{%s} is replaced by a complete filename for a
 script file which Proof General wants the prover to consider
-as not completely processed.
+as not completely processed. The escape sequences
+in @samp{@code{proof-shell-filename-escapes}} are applied to the filename.
 
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
@@ -4141,19 +4142,19 @@ used to help parse the goals buffer to annotate it for proof by pointing.
 @node Hooks and other settings
 @subsection Hooks and other settings
 
-@c TEXI DOCSTRING MAGIC: proof-shell-string-escapes
-@defvar proof-shell-string-escapes 
-A list of escapes that are applied for %e substitutions.@*
-This allows handling some special syntax for commands.
+@c TEXI DOCSTRING MAGIC: proof-shell-filename-escapes
+@defvar proof-shell-filename-escapes 
+A list of escapes that are applied to %s for filenames.@*
 A list of cons cells, car of which is string to be replaced
 by the cdr.
-For example, when directories are sent to Isabelle or HOL,
-they appear inside ML strings, so the backslash character must
+For example, when directories are sent to Isabelle, HOL, and Coq,
+they appear inside ML strings and the backslash character must
 be escaped.  The setting
 @lisp
-  '(("\\" . "@var{\\\\}"))
+  '(("\\" . "\\"))
 @end lisp
-achieves this.
+achieves this.  This does not apply to @var{lego}, which does not
+need  escapes.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-connection-type

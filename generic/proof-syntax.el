@@ -161,8 +161,7 @@ may assign this function to `after-change-function'."
 We use expand-file-name to avoid problems with dumb
 proof assistants and ~"  
   (proof-format 
-   (list (cons "%s" (expand-file-name filename))
-	 (cons "%e" (proof-format proof-shell-string-escapes 
+   (list (cons "%s" (proof-format proof-shell-filename-escapes 
 				  (expand-file-name filename))))
    string))
  

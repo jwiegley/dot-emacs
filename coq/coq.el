@@ -495,36 +495,38 @@
 
 
 (defun coq-shell-mode-config ()
-  (setq proof-shell-prompt-pattern coq-shell-prompt-pattern
-        proof-shell-cd-cmd coq-shell-cd
-        proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
-        proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
-        proof-shell-error-regexp coq-error-regexp
-	proof-shell-interrupt-regexp coq-interrupt-regexp
-        proof-shell-assumption-regexp coq-id
-        proof-shell-first-special-char ?\360
-        proof-shell-wakeup-char ?\371 ; done: prompt
-        ; The next three represent path annotation information
-	proof-shell-start-char ?\372 ; not done
-        proof-shell-end-char ?\373 ; not done
-        proof-shell-field-char ?\374 ; not done
-        proof-shell-goal-char ?\375 ; done
-	proof-shell-eager-annotation-start "\376" ; done
-	proof-shell-eager-annotation-start-length 1
-	proof-shell-eager-annotation-end "\377" ; done
-        proof-shell-annotated-prompt-regexp
-	(concat proof-shell-prompt-pattern
-		(char-to-string proof-shell-wakeup-char)) ; done
-        proof-shell-result-start "\372 Pbp result \373"
-        proof-shell-result-end "\372 End Pbp result \373"
-        proof-shell-start-goals-regexp "[0-9]+ subgoals?"
-        proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
-        proof-shell-init-cmd coq-shell-init-cmd
-	proof-shell-restart-cmd coq-shell-restart-cmd
-	proof-analyse-using-stack t
-;;	proof-lift-global 'coq-lift-global
-	)
-
+  (setq 
+   proof-shell-prompt-pattern coq-shell-prompt-pattern
+   proof-shell-cd-cmd coq-shell-cd
+   proof-shell-filename-escapes '(("\\\\" . "\\\\") ("\""   . "\\\""))
+   proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
+   proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
+   proof-shell-error-regexp coq-error-regexp
+   proof-shell-interrupt-regexp coq-interrupt-regexp
+   proof-shell-assumption-regexp coq-id
+   proof-shell-first-special-char ?\360
+   proof-shell-wakeup-char ?\371 ; done: prompt
+					; The next three represent path annotation information
+   proof-shell-start-char ?\372 ; not done
+   proof-shell-end-char ?\373 ; not done
+   proof-shell-field-char ?\374 ; not done
+   proof-shell-goal-char ?\375 ; done
+   proof-shell-eager-annotation-start "\376" ; done
+   proof-shell-eager-annotation-start-length 1
+   proof-shell-eager-annotation-end "\377" ; done
+   proof-shell-annotated-prompt-regexp
+   (concat proof-shell-prompt-pattern
+	   (char-to-string proof-shell-wakeup-char)) ; done
+   proof-shell-result-start "\372 Pbp result \373"
+   proof-shell-result-end "\372 End Pbp result \373"
+   proof-shell-start-goals-regexp "[0-9]+ subgoals?"
+   proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
+   proof-shell-init-cmd coq-shell-init-cmd
+   proof-shell-restart-cmd coq-shell-restart-cmd
+   proof-analyse-using-stack t
+   ;;	proof-lift-global 'coq-lift-global
+   )
+  
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
 
