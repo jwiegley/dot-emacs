@@ -1966,6 +1966,16 @@ This is an experimental feature, currently work-in-progress."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
+(defcustom proof-shell-theorem-dependency-list-split nil
+  "Regexp used to split the list of strings which match
+`proof-shell-theorem-dependency-list-regexp'.  Used as
+an argument to `split-string'; nil defaults to whitespace.
+(This setting is necessary for provers which allow whitespace in
+the names of theorems/definitions/constants), see setting for
+Isabelle in isa/isa.el and isar/isar.el."
+  :type '(choice nil regexp)
+  :group 'proof-shell)
+
 (defcustom proof-shell-show-dependency-cmd nil
   "Command sent to the prover to display a dependency.
 This is typically a command used to print a theorem, constant, or whatever.

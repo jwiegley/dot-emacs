@@ -1232,7 +1232,8 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
      ((and proof-shell-theorem-dependency-list-regexp 
 	   (string-match proof-shell-theorem-dependency-list-regexp message))
       (setq proof-last-theorem-dependencies 
-	    (split-string (match-string 1 message))))
+	    (split-string (match-string 1 message) 
+			  proof-shell-theorem-dependency-list-split)))
 
      ;; CASE tracing output: output in the tracing buffer instead
      ;; of the response buffer
