@@ -20,7 +20,92 @@
 
 (require 'span)
 
-;Pierre: added, should do almost what it does in xemacs
+
+(defun holes-short-doc ()
+  "prints a short doc for holes"
+  (interactive)
+  (switch-to-buffer-other-window "*doc holes*")
+  (insert "
+
+        HOLES
+
+
+Holes are inspired from other interactive programs ( Pcoq ). It
+allows to defines \"holes\" in your buffer. A hole is a piece of
+text (highlighted) that may be replaced by another part of text
+later. This feature is useful to build complicated expressions by
+copy pasting several peaces of text from different parts of a
+buffer (even from different buffers).
+
+   USE
+
+Holes are highlighted, there is always one or zero active hole,
+highlighted with a different color.
+
+TO DEFINE A HOLE, two methods:
+
+ o Select a region with keyboard (ctrl-space) or mouse, then hit
+ctrl-meta-h
+
+ o Select text with mouse while pressing ctrl + meta.  If the selected
+region is empty (i.e. if you just click while pressing ctrl+meta),
+then a hole containing '#' is created.
+
+TO ACTIVATE A HOLE, click on it with the button 1 of your mouse. You
+can also hit meta-space, it will activate the first hole following the
+point. The previous active hole will be deactivated.
+
+TO FORGET A HOLE without deleting its text, click on it with the
+button 2 (middle) of your mouse.
+
+TO DESTROY A HOLE and delete its text, click on it with the button 3
+of your mouse.
+
+TO FILL A HOLE with a text selection, first make sure it is active,
+then two methods:
+
+ o Select text with keyboard (ctrl-space) or mouse and hit ctrl-meta-y
+
+ o Select text with mouse while pressing ctrl + meta + shift. This is
+a generalization of the mouse-track-insert feature (ctrl + select
+text, if you don't know this trick, try it :-)). This method allows to
+fill different holes faster than with the usual copy-paste method.
+
+After replacement the next hole is automatically made active.
+
+TO MOVE TO THE ACTIVE HOLE, hit meta-return, it will move to the
+active hole, destroy it (allowing you to type its replacement) and
+make the next hole active so you can hit meta-return again once you
+have filled the current one.
+
+It is useful in combination with abbreviations, for example in
+coq-mode \"f\" is an abbreviation for 
+Fixpoint # (# : #) {struct #} : # := #, where each # is a hole then
+hitting meta-return goes from one hole to the following and you can
+fill-in each hole very quickly.
+
+   BUGS
+
+ o replace holes with mouse in fsf emacs works but it seems that one
+more click is needed to really see the replacement
+
+ o Don't try to make overlapping holes, it doesn't work. (what would
+it mean anyway?)
+
+ o With FSF emacs, cutting or pasting a hole wil not produce new
+holes, and undoing on holes cannot make reappear holes. With Xemacs it
+will, but if you copy paste the active hole, you will get several
+holes highlighted as the active one (whereas only one of them really
+is), which is annoying.
+
+ o tell me
+
+")
+  (goto-char (point-min))
+  )
+
+
+;Pierre: should do almost what it does in xemacs
 (cond
  ((string-match "NU Emacs" (emacs-version))
   (transient-mark-mode 1)  ; for holes created by a simple click
@@ -672,6 +757,20 @@
 ;following function allow to replace occurrences of a string by a
 ;hole.
 
+;c must be a string of length 1
+(defun count-char-in-string (c str)
+  (setq s str cpt 0)
+  (while (not (string-equal s ""))
+	 (if (string-equal (substring s 0 1) c) (setq cpt (+ cpt 1)))
+	 (setq s (substring s 1))
+	 )
+  cpt
+  )
+
+
+(defun count-holes-in-last-expand ()
+  (count-char-in-string empty-hole-string (abbrev-expansion last-abbrev-text))
+  )
 
 (defun replace-string-by-holes (start end str)
 
@@ -704,12 +803,12 @@ created"
   (let* ((lgth (length str)))
     (save-excursion
       (while (> n 0)
-	(progn 
-	  (search-backward str) 
-	  (make-hole (point) (+ (point) lgth))
-	  (set-active-hole-next)
-	  (setq n (- n 1)))
-	)
+		  (progn 
+			 (search-backward str) 
+			 (make-hole (point) (+ (point) lgth))
+			 (set-active-hole-next)
+			 (setq n (- n 1)))
+		  )
       )
     )
   )
@@ -729,33 +828,16 @@ created"
   (set-point-next-hole-destroy)
   )
 
-
-;this functions can be used in abbrev definition
-(defun holes-abbrev-complete1 ()
-  (replace-string-by-holes-backward-move-point 1 empty-hole-string)
-  )
-
-(defun holes-abbrev-complete2 ()
-  (replace-string-by-holes-backward-move-point 2 empty-hole-string)
-  )
-
-(defun holes-abbrev-complete3 ()
-  (replace-string-by-holes-backward-move-point 3 empty-hole-string)
-  )
-
-(defun holes-abbrev-complete4 ()
-  (replace-string-by-holes-backward-move-point 4 empty-hole-string)
-  )
-
-(defun holes-abbrev-complete5 ()
-  (replace-string-by-holes-backward-move-point 5 empty-hole-string)
-  )
-
-(defun holes-abbrev-complete6 ()
-  (replace-string-by-holes-backward-move-point 6 empty-hole-string)
+(defun holes-abbrev-complete ()
+  (replace-string-by-holes-backward-move-point 
+	(count-holes-in-last-expand) empty-hole-string)
   )
 
 
+(defun insert-and-expand (s)
+  (insert s)
+  (expand-abbrev)
+  )
 
 (provide 'holes)
 
