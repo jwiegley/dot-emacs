@@ -532,7 +532,7 @@ is), which is annoying.
    "Replace the active hole by str, if no str is given, then put the selection instead."
   (if (not (active-hole-exist-p)) ()
     (replace-hole 
-     (or str (x-get-selection) (error "nothing to put in hole"))
+     (or str (get-selection) (error "nothing to put in hole"))
      active-hole)
     ))
 
@@ -552,7 +552,7 @@ is), which is annoying.
       (replace-active-hole 
        (or str 
 			  (and (hole-region-exists-p) (copy-active-region))
-			  (x-get-selection) (error "nothing to put in hole")))
+			  (get-selection) (error "nothing to put in hole")))
       (if nxthole (set-active-hole nxthole)
 		  (setq active-hole default-hole))
       )
@@ -617,7 +617,7 @@ is), which is annoying.
  )
 
 (defun mouse-replace-active-hole (event)
-  (interactive "e" event)
+  (interactive "*e")
   (track-mouse-selection event)
   (save-excursion
     ;;HACK: nothing if one click (but a second is perhaps coming)
@@ -626,7 +626,7 @@ is), which is annoying.
 		  ()
       (if (not (hole-region-exists-p)) 
 			 (error "nothing to put in hole")
-		  (replace-update-active-hole (x-get-selection))
+		  (replace-update-active-hole (get-selection))
 		  (message "hole replaced")
 		  )
       )
@@ -650,7 +650,7 @@ is), which is annoying.
 
 
 (defun mouse-destroy-hole (event)
-  (interactive "e" event)
+  (interactive "*e")
   (destroy-hole (span-at-event event))
   )
 
@@ -658,7 +658,7 @@ is), which is annoying.
 ;(span-at-event EVENT &optional PROPERTY BEFORE AT-FLAG)
 ;;comprend pas??
 (defun mouse-forget-hole (event)
-  (interactive "e" event)
+  (interactive "*e")
   (save-excursion
     (let ((ext (span-at-event event)))
       (if (eq ext active-hole)
@@ -672,7 +672,7 @@ is), which is annoying.
 
 
 (defun mouse-set-make-active-hole (event)
-  (interactive "e" event)
+  (interactive "*e")
  ;(set-mark (point))
   (track-mouse-selection event)
 
@@ -692,7 +692,7 @@ is), which is annoying.
   )
 
 (defun mouse-set-active-hole (event)
-  (interactive "e" event)
+  (interactive "*e")
   (let ((ext (span-at-event event)))
     (if (and ext (is-hole-p ext))
 	(set-active-hole ext)
@@ -766,7 +766,7 @@ is), which is annoying.
 
 ;c must be a string of length 1
 (defun count-char-in-string (c str)
-  (setq s str cpt 0)
+  (setq cpt 0)
   (while (not (string-equal s ""))
 	 (if (string-equal (substring s 0 1) c) (setq cpt (+ cpt 1)))
 	 (setq s (substring s 1))
@@ -785,13 +785,14 @@ is), which is annoying.
 (defun indent-last-expand ()
   "Indents last abbrev expansion. Must be called when the point is at
 end of last abbrev expansion. "
-  (setq n (count-newlines-in-last-expand))
-  (save-excursion 
-	 (previous-line n)
-	 (while (>= n 0)
-		(proof-indent-line)
-		(next-line 1)
-		(setq n (- n 1))
+  (let ((n (count-newlines-in-last-expand)))
+	 (save-excursion 
+		(previous-line n)
+		(while (>= n 0)
+		  (proof-indent-line)
+		  (next-line 1)
+		  (setq n (- n 1))
+		  )
 		)
 	 )
   )

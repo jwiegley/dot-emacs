@@ -109,7 +109,7 @@ A span is before PT if it covers the character before PT."
 
 (defsubst span-buffer (span)
   "Return the buffer owning span."
-  (extent-buffer span)
+  (extent-object span)
   )
 
 (defsubst span-detached-p (span)
