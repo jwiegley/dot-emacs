@@ -16,7 +16,12 @@ X (Low)    probably not worth wasting time on
 ====================================================================
 
 A Polish ProofGeneral.texi and publish LaTeX version as an LFCS
-  Technical Report.
+  Technical Report.  
+  Small things: 
+
+   * Improve trivial and uniformative docstrings.
+   * Fixup markup mistakes by editing docstrings.
+   * Fix docstring magic so PROOFGENERAL_HOME is not var'd.
 
 B Is it possible to let C-c C-c (SIGINT) issue additional process input?
   Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
@@ -235,8 +240,25 @@ D proof-find-next-terminator is too slow when it needs to parse
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
 
+D Implement a function to undo to the previous goal.
+
 D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
+
+D Display management is much better than it was, but perhaps
+  not quite as good as it could be.  It might be nice to
+  display both the goals and response buffer occasionally
+  (even with window-dedicated disabled).
+  e.g. when proof-shell-erase-response-flag is non-nil
+  and the goals buffer is updated: might like to still
+  see what was in the response buffer.
+
+  Oddities:  
+    Response buffer doesn't get cleared after completion
+    of a proof followed by retraction of whole file.
+    On other cases of retraction, it does.
+    Perhaps retraction should set the flag to ensure
+    it's cleared.
 
 X Allow bib-cite style clicking on Load/Import commands to go
   to file.
@@ -481,6 +503,13 @@ C `proof-zap-commas-region' does not work for Emacs 20.2 on
   zapped correctly. (2h)
 
 C proof-shell-dont-show-annotations doesn't seem to work.
+
+* Bugs in other packages beyond our control
+===========================================
+
+. Odd behaviour of font-lock in elisp buffers when long strings
+contain lines with stuff that looks lisp-ish.  e.g. "(asd . ads)"
+
 
 * Release 
 =========
