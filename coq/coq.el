@@ -622,7 +622,8 @@ Based on idea mentioned in Coq reference manual."
   (setq proof-terminal-char ?\.)
   (setq proof-script-command-end-regexp
         (if coq-version-is-V7 
-            "\\(?:\\w\\|\\s-\\|\\s)\\|\\(?:\\.\\.\\)+\\)\\.\\(\\s-\\|\\'\\)"
+;            "\\(?:\\w\\|\\s-\\|\\s)\\|\\\\*\\|\\(?:\\.\\.\\)+\\)\\.\\(\\s-\\|\\'\\)"
+            "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)"
           "[.]"))
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")

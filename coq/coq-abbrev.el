@@ -72,7 +72,7 @@
 		("i" "intro " holes-abbrev-complete 10)
 		("if" "if # then # else #" holes-abbrev-complete 1)
 		("in" "intro" holes-abbrev-complete 1)
-		("inf" "infix \"#\" := # (at level #) : @{scope}." holes-abbrev-complete 1)
+		("inf" "Infix \"#\" := # (at level #) : @{scope}." holes-abbrev-complete 1)
 		("ind" "induction #" holes-abbrev-complete 2)
 		("indv" "Inductive # : # := # : #." holes-abbrev-complete 0)
 		("indv2" "Inductive # : # :=\n| # : #\n| # : #." holes-abbrev-complete 0)
@@ -191,7 +191,7 @@
       )
      ("Notations"
       "COMMAND               ABBREVIATION"
-      ["infix                           inf<C-BS>" (insert-and-expand "inf") t]     
+      ["Infix                           inf<C-BS>" (insert-and-expand "inf") t]     
       ["Notation (no assoc)             nota<C-BS>" (insert-and-expand "nota") t]     
       ["Notation (assoc)                notas<C-BS>" (insert-and-expand "notas") t]     
       ["Notation (no assoc, scope)      notasc<C-BS>" (insert-and-expand "notasc") t]     

@@ -25,33 +25,35 @@
 (defvar coq-version-is-V6 nil 
 "This variable can be set to t to force ProofGeneral to coq version
 coq-6.x. To do that, put (setq coq-version-is-V6 t) in your .emacs and
-restart emacs. This variable overrides coq-version-is-V7 and
-coq-version-is-V74. If none of these 3 variables is set to t, then
-ProofGeneral guesses the version of coq by doing 'coqtop -v'.")
+restart emacs. This variable overrides coq-version-is-V7, V8 and
+V74. If none of these 3 variables is set to t, then ProofGeneral
+guesses the version of coq by doing 'coqtop -v'.")
 
-(defvar coq-version-is-V7 nil
-  "This variable can be set to t to force ProofGeneral to coq version
-between coq-7.0 and coq-7.3.1. To do that, put (setq coq-version-is-V7 t) 
-in your .emacs and restart emacs. This variable overrides
-coq-version-is-V74 and is overrriden by coq-version-is-V6.  If none of
-these 3 variables is set to t, then ProofGeneral guesses the version of
-coq by doing 'coqtop -v'.")
+(defvar coq-version-is-V7 nil 
+"This variable can be set to t to force ProofGeneral to coq version
+between coq-7.0 and coq-7.3.1. To do that, put (setq coq-version-is-V7
+t) in your .emacs and restart emacs. This variable overrides
+coq-version-is-V74 and V8 and is overrriden by coq-version-is-V6.  If
+none of these 3 variables is set to t, then ProofGeneral guesses the
+version of coq by doing 'coqtop -v'.")
 
-(defvar coq-version-is-V74 nil
-  "This variable can be set to t to force ProofGeneral to coq version
-coq-7.4. To do that, put (setq coq-version-is-V74 t) in your
-.emacs and restart emacs. This variable is overrriden by
-coq-version-is-V6 and coq-version-is-V7. If none of these 3 variables
-is set to t, then ProofGeneral guesses the version of coq by doing
-'coqtop -v'."  )
+(defvar coq-version-is-V74 nil 
+"This variable can be set to t to force ProofGeneral to coq version
+coq-7.4. To do that, put (setq coq-version-is-V74 t) in your .emacs
+and restart emacs. This variable is overrriden by coq-version-is-V6
+and coq-version-is-V7. If none of these 3 variables is set to t, then
+ProofGeneral guesses the version of coq by doing 'coqtop -v'. If this
+variable is put to t (before PG is loaded) then V7 is automatically
+put to t."  )
 
-(defvar coq-version-is-V8 nil
-  "This variable can be set to t to force ProofGeneral to coq version
+(defvar coq-version-is-V8 nil 
+"This variable can be set to t to force ProofGeneral to coq version
 above coq-8.0beta. To do that, put (setq coq-version-is-V8 t) in your
 .emacs and restart emacs. This variable is overrriden by
 coq-version-is-V6, coq-version-is-V7 and coq-version-is-V74. If none
 of these 4 variables is set to t, then ProofGeneral guesses the
-version of coq by doing 'coqtop -v'."  )
+version of coq by doing 'coqtop -v'. If this variable is put to t
+(before PG is loaded) then V74 is automatically put to t." )
 
 
 
