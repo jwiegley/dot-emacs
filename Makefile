@@ -14,7 +14,7 @@
 ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98
 # FIXME: automate the emacs choice to be xemacs if it can be
 # found, otherwise emacs.
-EMACS = xemacs
+BATCHEMACS=xemacs -batch -q -no-site-file
 
 PWD=$(shell pwd)
 
@@ -24,7 +24,7 @@ PWD=$(shell pwd)
 # output the compile-time load path and
 # ELISP_DIRS so these are set just in that one
 # place.
-BYTECOMP = $(EMACS) -batch -q -no-site-file -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar" "$(PWD)/plastic") load-path))' -f batch-byte-compile
+BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar" "$(PWD)/plastic") load-path))' -f batch-byte-compile
 
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
