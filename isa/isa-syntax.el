@@ -73,27 +73,26 @@
   :group 'isa-settings)
 
 (defcustom isa-keywords-decl
-  '("val" "fun" "datatype"
-    "signature" "structure")
+  '("val" "fun" "datatype" "signature" "structure")
   "Isabelle keywords for declarations.  Includes ML keywords to fontify ML files."
   :group 'isa-syntax
   :type '(repeat string))
 
 (defcustom isa-keywords-defn
-  '("bind_thm")
+  '("bind_thm" "bind_thms")
   "Isabelle keywords for definitions"
   :group 'isa-syntax
   :type '(repeat string))
 
 ;; isa-keywords-goal is used to manage undo actions
 (defcustom isa-keywords-goal
-  '("Goal" "Goalw" "goal" "goalw" "goalw_cterm")
+  '("Goal" "Goalw" "goal" "goalw" "goalw_cterm" "atomic_goal" "atomic_goalw")
   "Isabelle commands to begin an interactive proof"
   :group 'isa-syntax
   :type '(repeat string))
 
 (defcustom isa-keywords-save
-  '("qed" "qed_spec_mp")
+  '("qed" "qed_spec_mp" "no_qed")
   ;; Related commands, but having different types, so PG
   ;; won't bother support them:
   ;; "result" "uresult" "bind_thm" "store_thm"
@@ -113,19 +112,18 @@
   :group 'isa-syntax
   :type '(repeat string))
 
-;; See isa-command-table in Isamode/isa-menus.el to get this list.
-;; BUT: tactics are not commands, so appear inside some expression.
-(defconst isa-tactics
-  '("resolve_tac" "assume_tac"))
-
 ;; NB: this means that any adjustments above by customize will
 ;; only have effect in next session.
 (defconst isa-keywords
   (append isa-keywords-goal isa-keywords-save isa-keywords-decl
-	  isa-keywords-defn isa-keywords-commands isa-tactics)
+	  isa-keywords-defn isa-keywords-commands)
   "All keywords in a Isabelle script")
 
-(defconst isa-tacticals '("REPEAT" "THEN" "ORELSE" "TRY" "ALLGOALS"))
+;; The most common Isabelle/Pure tacticals
+(defconst isa-tacticals
+  '("ALLGOALS" "DETERM" "EVERY" "EVERY'" "FIRST" "FIRST'" "FIRSTGOAL"
+    "ORELSE" "ORELSE'" "REPEAT" "REPEAT" "REPEAT1" "REPEAT_FIRST"
+    "REPEAT_SOME" "SELECT_GOAL" "SOMEGOAL" "THEN" "THEN'" "TRY" "TRYALL"))
 
 
 ;; ----- regular expressions
@@ -162,7 +160,13 @@
 	  "\\)\\s-+\"\\(" isa-id "\\)\"\\s-*;"))
 
 (defcustom isa-goal-command-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-goal))
+  (proof-regexp-alt
+   (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-goal))
+   ;; match val ... = goal blah
+   (proof-anchor-regexp
+    (concat
+     (proof-ids-to-regexp '("val")) ".+=\\s-*"
+     "\\(" (proof-ids-to-regexp isa-keywords-goal) "\\)")))
   "Regular expression used to match a goal."
   :type 'regexp
   :group 'isabelle-config)
