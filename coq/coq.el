@@ -47,6 +47,18 @@
   :type 'string
   :group 'coq)
 
+;; ----- coq specific menu
+
+(defcustom coq-menu-entries
+  '(["Intros" coq-Intros]
+    ["Apply"  coq-Apply]
+    ["Search isos" coq-SearchIsos]
+    ["Begin Section" coq-begin-Section]
+    ["End Section" coq-end-Section]
+    ["Compile" coq-Compile])
+  "Entries for Coq menu.")
+
+
 ;; ----- coq-shell configuration options
 
 (defcustom coq-prog-name "coqtop -emacs"
@@ -414,6 +426,8 @@ This is specific to coq-mode."
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
 
   (setq proof-assistant-home-page coq-www-home-page)
+
+  (setq proof-assistant-menu-entries coq-menu-entries)
 
   (setq proof-mode-for-script 'coq-mode)
 
