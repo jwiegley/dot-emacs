@@ -45,8 +45,10 @@
  proof-assistant-home-page       
  "http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html"
  proof-shell-annotated-prompt-regexp 
- "^\\(> val it = () : unit\n\\)?- "
- proof-shell-error-regexp        "^! "
+ "^- "
+ ;; This one is nice but less reliable, I think.
+ ;; "\\(> val it = () : unit\n\\)?- "
+ proof-shell-error-regexp "^! "
  proof-shell-init-cmd		  
  "Help.displayLines:=3000;
   fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));"
@@ -63,7 +65,7 @@
  ;; proof-shell-eager-annotation-start
  proof-find-theorems-command	"DB.match [] (%s);"
 
- ;; We must set this to use ptys since mosml doesn't flush its output
+ ;; We must force this to use ptys since mosml doesn't flush its output
  ;; (on Linux, presumably on Solaris too).
  proof-shell-process-connection-type t
 
