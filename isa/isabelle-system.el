@@ -182,13 +182,20 @@ Called with one argument: t to save database, nil otherwise."
       (isa-insert-ret "quit();"))
   (comint-send-eof))
 
+(defconst isabelle-verbatim-regexp "^\^VERBATIM: \\(\\(.\\|\n\\)*\\)$"
+  "Regexp matching internal marker for verbatim command output")
+
+(defun isabelle-verbatim (str)
+  "Mark internal command for verbatim output"
+  (concat "\^VERBATIM: " str))
+
 ;;; Set proof-shell-pre-interrupt-hook for PolyML.
 (if (and
      (not proof-shell-pre-interrupt-hook)
      (string-match "^polyml" (isa-getenv "ML_SYSTEM")))
     (add-hook
      'proof-shell-pre-interrupt-hook
-     (lambda () (proof-shell-insert "f" nil))))
+     (lambda () (proof-shell-insert (isabelle-verbatim "f") nil))))
 
 ;;; ==========  Utility functions ==========
 
@@ -257,7 +264,7 @@ until Proof General is restarted."
   :type 'boolean
   :setting "trace_simp:=%b;")
 
-; FIXME: maybe for Isabelle99-1 ?
+; FIXME: for Isabelle99-1
 ; (defpacustom global-timing  nil
 ;  "Whether to enable timing in Isabelle."
 ;  :type 'boolean
@@ -279,8 +286,6 @@ until Proof General is restarted."
     (list ["Switch to theory" thy-find-other-file t])))
 
 (defpgdefault help-menu-entries isabelle-docs-menu)
-
-
 
 
 (provide 'isabelle-system)
