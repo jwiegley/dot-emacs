@@ -44,7 +44,7 @@ Proof General."
     "(C) LFCS, University of Edinburgh, 2003."
     nil
     nil
-"    Please send problems and suggestions to support@proofgeneral.org, 
+"    Please send problems and suggestions to da+pg-support@inf.ed.ac.uk, 
      or use the menu command Proof-General -> Submit bug report."
     nil
     (unless (or proof-running-on-XEmacs proof-running-on-Emacs21)

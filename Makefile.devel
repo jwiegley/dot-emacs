@@ -66,17 +66,17 @@
 # NB: must use TAB as separator in list below.
 
 DEVELOPERS=\
--u "da	David Aspinall	da@proofgeneral.org" \
+-u "da	David Aspinall	da+pg-da@inf.ed.ac.uk" \
 -u "gkein	Gerwin Klein	gklein@in.tum.de" \
 -u "sberghof	Stefan Berghofer	berghofe@in.tum.de" \
--u "markus	Markus Wenzel	support+wenzelm@proofgeneral.org" \
+-u "markus	Markus Wenzel	da+pg-wenzelm@inf.ed.ac.uk" \
 -u "pier	Pierre Courtieu	courtieu@lri.fr" \
 -u "crr	Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
 -u "pxc	Paul Callaghan	P.C.Callaghan@durham.ac.uk" \
--u "patrl	Patrick Loiseleur	support+patrl@proofgeneral.org" \
--u "tms	Thomas Kleymann	support+tms@proofgeneral.org" \
--u "djs	Dilip Sequiera	support+djs@proofgeneral.org" \
--u "hhg	Healfdene Goguen	support+hhg@proofgeneral.org"
+-u "patrl	Patrick Loiseleur	da+pg-patrl@inf.ed.ac.uk" \
+-u "tms	Thomas Kleymann	da+pg-tms@inf.ed.ac.uk" \
+-u "djs	Dilip Sequiera	da+pg-djs@inf.ed.ac.uk" \
+-u "hhg	Healfdene Goguen	da+pg-hhg@inf.ed.ac.uk"
 
 
 # PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed

@@ -17,8 +17,8 @@ temporary workaround.
 
 * Known Bugs and Workarounds for Proof General.
 
-Contact:  mailto:bugs@proofgeneral.org
-See also: http://www.proofgeneral.org/ProofGeneral/BUGS
+Contact:  mailto:da+pg-bugs@inf.ed.ac.uk
+See also: http://proofgeneral.inf.ed.ac.uk/ProofGeneral/BUGS
 
 Generic bugs are listed here, which may affect all of the supported
 provers.  See lego/BUGS coq/BUGS, etc, for specific bug lists for each

@@ -1,5 +1,5 @@
-Proof General --- Organize your proofs!    [www.proofgeneral.org]
-=================================================================
+Proof General --- Organize your proofs!  [proofgeneral.inf.ed.ac.uk]
+====================================================================
 
 Proof General is a generic Emacs interface for proof assistants.
 
@@ -14,16 +14,16 @@ toolbar and menus, which make use easier for all.
 
 Please help us with this aim!  Configure Proof General for your proof
 assistant, by adding features at the generic level wherever possible.
-Send ideas, comments, patches, code to feedback@proofgeneral.org
+Send ideas, comments, patches, code to da+pg-feedback@inf.ed.ac.uk
 
 See INSTALL   for installation details.
     COPYING   for license details.
     REGISTER  for registration information (please register).
     FAQ, doc/ for documentation of Proof General.
 
-See http://www.proofgeneral.org/mailinglist for the Proof General
+See http://proofgeneral.inf.ed.ac.uk/mailinglist for the Proof General
 mailing lists.  If you have problems, please contact
-support@proofgeneral.org after checking the BUGS and CHANGES files.
+da+pg-support@inf.ed.ac.uk after checking the BUGS and CHANGES files.
 
 For notes on the supported assistants, see the README files
 in the subdirectories:
@@ -44,12 +44,12 @@ in the subdirectories:
 
 Check BUGS files for problems and issues, in this directory, and for
 specific issues, in each prover subdirectory.  Please report bugs
-not mentioned in any of these files to bugs@proofgeneral.org
+not mentioned in any of these files to da+pg-bugs@inf.ed.ac.uk
 
 For the latest news and downloads, visit Proof General on the web 
-at: http://www.proofgeneral.org
+at: http://proofgeneral.inf.ed.ac.uk
 
-David Aspinall <da@proofgeneral.org>
+David Aspinall <da+pg@inf.ed.ac.uk>
 March 2003.
 
 -----

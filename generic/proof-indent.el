@@ -48,7 +48,8 @@
 (defun proof-indent-goto-prev ()   ; Note: may change point, even in case of failure!
   "Goto to previous syntax element for script indentation, ignoring string/comment contexts."
   (and
-   (proof-re-search-backward proof-indent-any-regexp nil t)
+   (proof-re-search-backward proof-indent-any-regexp 
+			     (proof-queue-or-locked-end) t)
    (or (not (proof-looking-at-syntactic-context))
        (proof-indent-goto-prev))))
 

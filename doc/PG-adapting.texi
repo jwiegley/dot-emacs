@@ -17,7 +17,7 @@
 @paragraphindent 0
 @c A flag for whether to include the front image in the
 @c DVI file.  You can download the front image from
-@c http://www.proofgeneral.org/ProofGeneralPortrait.eps.gz
+@c http://proofgeneral.inf.ed.ac.uk/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
 @clear haveeps
@@ -31,10 +31,10 @@
 @c so removed for now.
 @set URLxsymbol  http://x-symbol.sourceforge.net/
 @set URLisamode  http://zermelo.dcs.ed.ac.uk/~isamode
-@set URLpghome   http://www.proofgeneral.org
-@set URLpglatestrpm  http://www.proofgeneral.org/ProofGeneral-latest.noarch.rpm
-@set URLpglatesttar  http://www.proofgeneral.org/ProofGeneral-latest.tar.gz
-@set URLpglatestdev  http://www.proofgeneral.org/ProofGeneral-devel-latest.tar.gz
+@set URLpghome   http://proofgeneral.inf.ed.ac.uk
+@set URLpglatestrpm  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.noarch.rpm
+@set URLpglatesttar  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.tar.gz
+@set URLpglatestdev  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-devel-latest.tar.gz
 @c
 @c
 
@@ -97,7 +97,7 @@ END-INFO-DIR-ENTRY
 @sp 1
 @subtitle Adapting Proof General @value{version} to new provers
 @subtitle @value{last-update}
-@subtitle @b{www.proofgeneral.org}
+@subtitle @b{proofgeneral.inf.ed.ac.uk}
 
 @c nested ifs fail here completely, WHY?
 @iftex
@@ -145,7 +145,7 @@ General Public License (GPL); please check the accompanying file
 
 @sp 1
 
-Visit Proof General on the web at @code{http://www.proofgeneral.org}
+Visit Proof General on the web at @code{http://proofgeneral.inf.ed.ac.uk}
 
 Version control: @code{@value{rcsid}}
 @end titlepage
@@ -222,7 +222,7 @@ development method: if you require changes in the generic support,
 please contact us (or make adjustments yourself and send them to us).
 
 Proof General has a home page at
-@uref{http://www.proofgeneral.org}.  Visit this page
+@uref{http://proofgeneral.inf.ed.ac.uk}.  Visit this page
 for the latest version of the manuals, other documentation, system
 downloads, etc.
 
@@ -264,7 +264,7 @@ provers to communicate using PGIP.
 
 At the time of writing, these ideas are in early stages. For latest
 details, or to become involved, see
-@uref{http://www.proofgeneral.org/kit, the Proof General Kit
+@uref{http://proofgeneral.inf.ed.ac.uk/kit, the Proof General Kit
 webpage}.
 
 
@@ -1939,7 +1939,7 @@ output format.
 
 The goals buffer settings allow configuration of Proof General for proof
 by pointing or similar features.
-See the Proof General @uref{http://www.proofgeneral.org/doc, documentation web page}
+See the Proof General @uref{http://proofgeneral.inf.ed.ac.uk/doc, documentation web page}
 for a link to the technical report ECS-LFCS-97-368 which hints
 at how to use these settings.
 
@@ -2052,7 +2052,7 @@ Proof General name used internally and in menu titles.
 @defopt proof-general-home-page 
 Web address for Proof General
 
-The default value is @code{"http://www.proofgeneral.org"}.
+The default value is @code{"http://proofgeneral.inf.ed.ac.uk"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-universal-keys
 @defvar proof-universal-keys 

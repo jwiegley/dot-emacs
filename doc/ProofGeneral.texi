@@ -14,7 +14,7 @@
 @paragraphindent 0
 @c A flag for whether to include the front image in the
 @c DVI file.  You can download the front image from
-@c http://www.proofgeneral.org/ProofGeneralPortrait.eps.gz
+@c http://proofgeneral.inf.ed.ac.uk/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
 @clear haveeps
@@ -27,11 +27,11 @@
 @c FIXME: unfortunately, broken in buggy pdftexinfo.
 @c so removed for now.
 @set URLxsymbol  http://x-symbol.sourceforge.net
-@set URLisamode  http://www.proofgeneral.org/~isamode
-@set URLpghome   http://www.proofgeneral.org
-@set URLpglatestrpm  http://www.proofgeneral.org/ProofGeneral-latest.noarch.rpm
-@set URLpglatesttar  http://www.proofgeneral.org/ProofGeneral-latest.tar.gz
-@set URLpglatestdev  http://www.proofgeneral.org/ProofGeneral-devel-latest.tar.gz
+@set URLisamode  http://proofgeneral.inf.ed.ac.uk/~isamode
+@set URLpghome   http://proofgeneral.inf.ed.ac.uk
+@set URLpglatestrpm  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.noarch.rpm
+@set URLpglatesttar  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.tar.gz
+@set URLpglatestdev  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-devel-latest.tar.gz
 @c
 @c
 
@@ -99,7 +99,7 @@ END-INFO-DIR-ENTRY
 @sp 1
 @subtitle User Manual for Proof General @value{version}
 @subtitle @value{last-update}
-@subtitle @b{www.proofgeneral.org}
+@subtitle @b{proofgeneral.inf.ed.ac.uk}
 
 @c nested ifs fail here completely, WHY?
 @iftex
@@ -146,7 +146,7 @@ General Public License (GPL); please check the accompanying file
 
 @sp 1
 
-Visit Proof General on the web at @code{http://www.proofgeneral.org}
+Visit Proof General on the web at @code{http://proofgeneral.inf.ed.ac.uk}
 
 @sp 1
 
@@ -205,7 +205,7 @@ news about previous releases, and notes on the development
 of Proof General.
 
 Proof General has a home page at
-@uref{http://www.proofgeneral.org}.  
+@uref{http://proofgeneral.inf.ed.ac.uk}.  
 Visit this page for the latest version of this manual,
 other documentation, system downloads, etc.
 
@@ -288,7 +288,7 @@ PGIP.  There is a similarity however; the design of PGIP was based
 heavily on the Emacs Proof General framework.
 
 At the moment little work has been done: collaborations are eagerly
-sought.  For more details, see @uref{http://www.proofgeneral.org/kit,
+sought.  For more details, see @uref{http://proofgeneral.inf.ed.ac.uk/kit,
 the Proof General Kit webpage}.
 
 
@@ -3386,7 +3386,7 @@ switch modes once Proof General has been started.
 
 The classic version of Isabelle Proof General includes a mode for
 editing theory files taken from David Aspinall's Isamode interface, see
-@uref{http://www.proofgeneral.org/~isamode}.  Detailed documentation for
+@uref{http://proofgeneral.inf.ed.ac.uk/~isamode}.  Detailed documentation for
 the theory file mode is included with @code{Isamode}, there are some
 notes on the special functions available and customization settings
 below.
@@ -3829,7 +3829,7 @@ General and support and improve it.  Please volunteer!
 @appendix Obtaining and Installing
 
 Proof General has its own
-@uref{http://www.proofgeneral.org,home page} hosted at
+@uref{http://proofgeneral.inf.ed.ac.uk,home page} hosted at
 Edinburgh.  Visit this page for the latest news!
 
 @menu
@@ -3846,17 +3846,17 @@ Edinburgh.  Visit this page for the latest news!
 
 You can obtain Proof General from the URL
 @example
-@uref{http://www.proofgeneral.org}.
+@uref{http://proofgeneral.inf.ed.ac.uk}.
 @end example
 
 The distribution is available in three forms
 @itemize @bullet
 @item A source tarball, @*
-@uref{http://www.proofgeneral.org/ProofGeneral-devel-latest.tar.gz}
+@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-devel-latest.tar.gz}
 @item A Linux RPM package (for any architecture), @*
-@uref{http://www.proofgeneral.org/ProofGeneral-latest.noarch.rpm}
+@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.noarch.rpm}
 @item A developer's tarball, @*
-@uref{http://www.proofgeneral.org/ProofGeneral-devel-latest.tar.gz}
+@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral-devel-latest.tar.gz}
 @end itemize
 
 Both the source tarball and the RPM package include the generic elisp
@@ -4019,7 +4019,7 @@ the @file{coq} directory in the Proof General home directory.
 This appendix has been removed.
 
 Please consult the file
-@uref{http://www.proofgeneral.org/ProofGeneral/BUGS,@file{BUGS}} in the
+@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral/BUGS,@file{BUGS}} in the
 distribution for an up-to-date description of bugs and other issues.
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
@@ -4078,7 +4078,7 @@ interact with the LEGO system.
 David Aspinall convinced Thomas Kleymann that programming in
 Emacs Lisp wasn't so difficult after all. In fact, Aspinall had already
 implemented an Emacs interface for Isabelle with bells and whistles,
-called @uref{http://www.proofgeneral.org/~isamode,Isamode}. Soon
+called @uref{http://homepages.inf.ed.ac.uk/da/Isamode,Isamode}. Soon
 after, the package @code{lego-mode} was born. Users were able to develop
 proof scripts in one buffer. Support was provided to automatically send
 parts of the script to the proof process. The last official version with

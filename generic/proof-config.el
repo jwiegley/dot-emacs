@@ -2499,7 +2499,7 @@ If this table is empty or needs adjusting, please make changes using
   :group 'proof-general-internals)
 
 (defcustom proof-general-home-page
-  "http://www.proofgeneral.org"
+  "http://proofgeneral.inf.ed.ac.uk"
   "*Web address for Proof General"
   :type 'string
   :group 'proof-general-internals)
