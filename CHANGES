@@ -127,9 +127,14 @@
 
 *** Fix for directory changes under Windows
 
+    We use different low-level cd command that understands Windows syntax.
+    But since Isabelle functions don't understand Windows syntax, we map
+    backslashes -> forward slashes there.
+
 *** Bug fix with .thy files and X-Symbol mode
   
     Subsequently visited theory files would have X-Symbols broken.  
+
 
 
 

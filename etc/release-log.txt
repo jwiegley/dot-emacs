@@ -1,3 +1,7 @@
+24.03.00  3.1.1 Release 3-1-1
+	  Added more fixes for Isabelle and Windows.
+	  Markus's Isar syntax patches.
+
 
 23.03.00  3.1	Release 3-1
 	  First version of 3.1 release
