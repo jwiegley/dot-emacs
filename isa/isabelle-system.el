@@ -59,6 +59,9 @@ working."
   :type 'file
   :group 'isabelle)
 
+(defvar isatool-not-found nil
+  "Non-nil if user has been prompted for `isatool' already and it wasn't found.")
+
 (defun isa-set-isatool-command ()
   "Make sure isa-isatool-command points to a valid executable.
 If it does not, prompt the user for the proper setting.
@@ -67,16 +70,16 @@ remain unverified.
 Returns non-nil if isa-isatool-command is surely an executable
 with full path."
   (interactive)
-  (while (unless proof-running-on-win32
-	   (not (file-executable-p isa-isatool-command)))
-    (beep)
+  (unless (or isatool-not-found (file-executable-p isa-isatool-command))
     (setq isa-isatool-command
 	  (read-file-name
-	   "Please type in the full path to the `isatool' program: "
-	   nil nil t)))
-  (if (and proof-running-on-win32
-	   (not (file-executable-p isa-isatool-command)))
-      (warn "Proof General: isatool command not found; ignored because Win32 system detected."))
+	   "Please give the full path to `isatool' (RET if you don't have it): "
+	   nil nil nil))
+    (if (not (file-executable-p isa-isatool-command))
+	(progn
+	  (setq isatool-not-found t)
+	  (beep)
+	  (warn "Proof General: isatool command not found; some menus will be incomplete."))))
   (file-executable-p isa-isatool-command))
 
 (defun isa-shell-command-to-string (command)
@@ -210,8 +213,8 @@ Called with one argument: t to save database, nil otherwise."
 (if (and
      (not proof-shell-pre-interrupt-hook)
      ;; (Older versions of Isabelle reported PolyML for PolyML 3).
-     (proof-string-match "\\`polyml" (isa-getenv "ML_SYSTEM"))
-     (not (proof-string-match "\\`polyml-4" (isa-getenv "ML_SYSTEM"))))
+     (proof-string-match-safe "\\`polyml" (isa-getenv "ML_SYSTEM"))
+     (not (proof-string-match-safe "\\`polyml-4" (isa-getenv "ML_SYSTEM"))))
     (add-hook
      'proof-shell-pre-interrupt-hook
      (lambda () (proof-shell-insert (isabelle-verbatim "f") nil))))
