@@ -50,7 +50,7 @@ The "root2" example proofs of the irrationality of the square root of
 2 were proofs written as a response to a challenge of Freek Wiedijk in
 his comparison of different theorem provers, see
 http://www.cs.kun.nl/~freek/comparison/.  Those proof scripts are
-copyright by their named authors.
+copyright by their named authors or as mentioned in the files.
 
 
 *** Improved RPM packages
@@ -102,9 +102,9 @@ Notice that the package version of X-Symbol may load itself first by
 default during XEmacs startup (especially if you have it installed
 site-wide), so it may be tricky to override.  You can prevent this
 with "xemacs -no-autoloads", but that may result in other needed
-packages not being loaded!  There seems to be no good way around this
-provided in XEmacs.  In case of problems, consult your sysadmin to try
-to prevent global loading of x-symbol.
+packages not being loaded!  There is an attempt to prevent the
+built-in version loading in Proof General, but in case of problems,
+consult your sysadmin to try to prevent global loading of x-symbol.
 
 *** Bundling of MMM Mode (for multiple modes in one buffer)
 
