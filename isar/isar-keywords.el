@@ -128,6 +128,7 @@
     "theorems"
     "theory"
     "thm"
+    "thm_deps"
     "thms_containing"
     "thus"
     "token_translation"
@@ -172,6 +173,7 @@
     "is"
     "monos"
     "output"
+    "overloaded"
     "where"))
 
 (defconst isar-keywords-control
@@ -222,6 +224,7 @@
     "remove_thy"
     "term"
     "thm"
+    "thm_deps"
     "thms_containing"
     "touch_all_thys"
     "touch_child_thys"
