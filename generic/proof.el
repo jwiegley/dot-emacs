@@ -190,6 +190,13 @@ It was constructed with the macro proof-customize-toggle.")
       (if (null arg) (not ,var)
 	(> (prefix-numeric-value arg) 0)))))
 
+(defun proof-try-require (symbol)
+  "Try requiring SYMBOL.  No error if it fails for some reason."
+  (condition-case ()
+      (require symbol) ;; NB: lose all errors!
+    (t (featurep symbol))))
+
+
 ;; -----------------------------------------------------------------
 ;; Buffers and filenames
 
@@ -263,11 +270,6 @@ with extra patterns (in non-mule mode).")
 
 ; (deflocal proof-font-lock-defaults nil
 ;  "Value of font-lock-defaults in this buffer.
-; Used because
-
-;; Define a toggler for the enable flag.
-(fset 'proof-output-fontify-toggle
-   (proof-customize-toggle proof-output-fontify-enable))
 
 (defun proof-font-lock-configure-defaults (&optional case-fold)
   "Set defaults for font-lock based on current font-lock-keywords."
@@ -451,14 +453,48 @@ If proof-show-debug-messages is nil, do nothing."
 (defun proof-switch-to-buffer (buf &optional noselect)
   "Switch to or display buffer BUF in other window unless already displayed.
 If optional arg NOSELECT is true, don't switch, only display it.
-No action if BUF is nil."
+No action if BUF is nil or killed."
   ;; Maybe this needs to be more sophisticated, using 
   ;; proof-display-and-keep-buffer ?
-  (and buf
+  (and (buffer-live-p buf)
        (unless (eq buf (window-buffer (selected-window)))
 	 (if noselect
 	     (display-buffer buf t)
 	   (switch-to-buffer-other-window buf)))))
+
+;;
+;; Flag and function to keep response buffer tidy.
+;;
+;; FIXME: rename this now it's moved out of proof-shell.
+;;
+(defvar proof-shell-erase-response-flag nil
+  "Indicates that the response buffer should be cleared before next message.")
+
+(defun proof-shell-maybe-erase-response
+  (&optional erase-next-time clean-windows force)
+  "Erase the response buffer according to proof-shell-erase-response-flag.
+ERASE-NEXT-TIME is the new value for the flag.
+If CLEAN-WINDOWS is set, use proof-clean-buffer to do the erasing.
+If FORCE, override proof-shell-erase-response-flag.
+
+If the user option proof-tidy-response is nil, then
+the buffer is only cleared when FORCE is set.
+
+No effect if there is no response buffer currently."
+  (when (buffer-live-p proof-response-buffer)
+    (if (or (and
+	     proof-tidy-response
+	     (not (eq proof-shell-erase-response-flag 'invisible))
+	     proof-shell-erase-response-flag) 
+	    force)
+	(if clean-windows
+	    (proof-clean-buffer proof-response-buffer)
+	  ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
+	  ;; (erase-buffer proof-response-buffer)
+	  (with-current-buffer proof-response-buffer
+	    (erase-buffer))))
+    (setq proof-shell-erase-response-flag erase-next-time)))
+
 
 
 ;; -----------------------------------------------------------------
