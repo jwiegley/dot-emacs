@@ -1,4 +1,4 @@
-;;; proof-site.el  Site-specific Emacs support for LEGO
+;;; lego-site.el  Site-specific Emacs support for LEGO
 ;;; Copyright (C) 1998 LFCS Edinburgh
 ;;; Author: Thomas Kleymann <T.Kleymann@ed.ac.uk>
 ;;; Maintainer: lego@dcs.ed.ac.uk
