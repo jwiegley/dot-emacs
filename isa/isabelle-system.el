@@ -213,7 +213,7 @@ until Proof General is restarted."
   (let ((vc '(lambda (docdes)
 	       (vector (car (cdr docdes))
 		       (list 'isa-view-doc (car docdes)) t))))
-    (cons "Docs" (mapcar vc (isa-tool-list-docs))))
+    (list (cons "Isatool Docs" (mapcar vc (isa-tool-list-docs)))))
   "Isabelle documentation menu.  Constructed dynamically.")
 
 
@@ -231,7 +231,7 @@ until Proof General is restarted."
   :type 'boolean
   :set 'proof-set-value)
 
-(defun isabelle-show-types ()
+(proof-defassfun show-types ()
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd 'show-types)))
 
@@ -240,7 +240,7 @@ until Proof General is restarted."
   :type 'boolean
   :set 'proof-set-value)
 
-(defun isabelle-show-sorts ()
+(proof-defassfun show-sorts ()
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd 'show-sorts)))
 
@@ -249,7 +249,7 @@ until Proof General is restarted."
   :type 'boolean
   :set 'proof-set-value)
 
-(defun isabelle-trace-simplifier ()
+(proof-defassfun trace-simplifier ()
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd trace-simplifier)))
 
@@ -262,9 +262,11 @@ until Proof General is restarted."
   (if (proof-shell-available-p)
       (progn
 	(proof-shell-invisible-command cmd t)
-	(proof-prf) 
-	;; refresh display, FIXME: should only do if goals display is active.
-	;; (we need a new flag for "active goals display")
+	;; refresh display, FIXME: should only do if goals display is active,
+	;; messy otherwise. 
+	;; (we need a new flag for "active goals display").  
+	;; (proof-prf) 
+	;;  Could also repeat last command if non-state destroying.
 	)))
 
 (defun isar-markup-ml (string)
@@ -311,6 +313,11 @@ Otherwise return a string for configuring all settings."
 
 (proof-defass-default menu-entries
   (append
+   (if isa-running-isar
+       nil
+     (list
+      ["Switch to theory" thy-find-other-file t]
+      "----"))
    `(["Show types" ,(proof-ass-sym show-types-toggle)
      :style toggle
      :selected ,(proof-ass-sym show-types)]
@@ -319,12 +326,7 @@ Otherwise return a string for configuring all settings."
       :selected ,(proof-ass-sym show-sorts)]
      ["Trace simplifier" ,(proof-ass-sym trace-simplifier-toggle)
       :style toggle
-      :selected ,(proof-ass-sym trace-simplifier)])
-   (if isa-running-isar
-       nil
-     (list
-      '(list "----")
-      '(["Switch to theory" thy-find-other-file t])))))
+      :selected ,(proof-ass-sym trace-simplifier)])))
 
 (proof-defass-default help-menu-entries isabelle-docs-menu)
 
