@@ -84,6 +84,11 @@ Setting a limit on the size of the process buffer doesn't seem to
 help.  
 [1998/10/06: believed to be fixed]
 
+* When proof-rsh-command is set to "ssh host" and you issue Ctrl-c to
+interrupt, the whole process may be killed instead of interrupted.
+This isn't a bug in Proof General, but the behaviour of ssh.  Try
+using rsh instead, it is said to forward signals to the remote command.
+
 
 FSF Emacs specific bugs
 =======================
