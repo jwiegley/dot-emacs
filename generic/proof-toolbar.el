@@ -416,6 +416,17 @@ changed state."
 (defalias 'proof-toolbar-find 'proof-find-theorems)
 
 ;;
+;; Visible button (not on toolbar)
+;;
+ 
+(defun proof-toolbar-visible-enable-p () 
+  t)
+
+(defalias 'proof-toolbar-visible 'pg-show-all-proofs)
+
+
+
+;;
 ;; Interrupt button
 ;; 
 
