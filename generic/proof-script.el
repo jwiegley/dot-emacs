@@ -16,6 +16,7 @@
 (require 'proof-menu)			; menus for script mode
 
 
+
 ;; Nuke some byte-compiler warnings 
 ;; NB: eval-when (compile) is different to eval-when-compile!!
 (eval-when (compile)
@@ -385,6 +386,92 @@ Does nothing if there is no active scripting buffer, or if
 	  (proof-goto-end-of-locked t)))))
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Names of proofs (and other elements) in a script
+;; 
+;; New in PG 3.3
+;;
+;; Each kind of part ("idiom") in a proof script has its own name space.
+;; Visibility within a script is then handled with buffer-invisibility-spec
+;; controlling appearance of each idiom.
+;;
+;; TODO:
+;;   -- Use fine-scale and large scale control, after all?
+;;   -- Deleting spans must remove their entries in pg-script-portions !!
+
+
+;; FIXME: this should be a configuration variable
+(defvar pg-idioms '(proof)
+  "Vector of script element kinds PG is aware of for this prover.")
+
+(deflocal pg-script-portions nil
+  "Table of lists of symbols naming script portions which have been processed so far.")
+
+(defun pg-clear-script-portions ()
+  (setq pg-script-portions nil))
+
+(defun pg-add-script-element (elt)
+  (add-to-list pg-script-portions elt))
+
+(defun pg-remove-script-element (eltname)
+  (setq pg-script-portions (remassoc eltname pg-script-portions)))
+
+(defsubst pg-visname (namespace name)
+  (intern (concat namespace ":" name)))
+
+(defun pg-add-element (idiom name span)
+  (let* ((ns       (intern idiom))
+	 (id       (intern name))
+	 (visname  (pg-visname idiom name))
+	 (elts	   (cdr-safe (assq ns pg-script-portions))))
+    (if elts
+	(nconc elts (list id))
+      (setq pg-script-portions (cons (cons ns (list id)) pg-script-portions)))
+    (set-span-property span 'invisible visname)))
+
+(defun pg-remove-element (idiom name)
+  (let ((eltname (intern (concat idiom ":" name))))
+    (pg-remove-script-element eltname)))
+
+(defun pg-make-element-invisible (idiom name)
+  (add-to-list 'buffer-invisibility-spec 
+	       (cons (pg-visname idiom name) t)))
+
+(defun pg-make-element-visible (idiom name)
+  (setq buffer-invisibility-spec
+	(remassq (pg-visname idiom name) buffer-invisibility-spec)))
+
+(defun pg-show-all-portions (idiom &optional hide)
+  "Show or hide all portions of kind IDIOM"
+  (interactive
+   (list 
+    (completing-read 
+     (concat "Make " (if current-prefix-arg "in" "") "visible all regions of: ")
+     (apply 'vector pg-idioms) nil t)
+    current-prefix-arg))
+  (let ((elts      (cdr-safe (assq (intern idiom) pg-script-portions)))
+	(alterfn   (if hide
+		       (lambda (arg) (pg-make-element-invisible idiom 
+								(symbol-name arg)))
+		     (lambda (arg) (pg-make-element-visible idiom 
+							    (symbol-name arg))))))
+    (mapcar alterfn elts)))
+
+(defun pg-show-all-proofs ()
+  (interactive)
+  (pg-show-all-portions "proof"))
+
+(defun pg-add-proof-element (name span)
+  (pg-add-element "proof" name span)
+  (if proof-disappearing-proofs 
+      (pg-make-element-invisible "proof" name)))
+
+
+  
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Multiple file handling
@@ -427,8 +514,10 @@ to allow other files loaded by proof assistants to be marked read-only."
 		  (proof-init-segmentation)
 		  (if cmd-list 
 		      (progn
+			;; FIXME 3.3 da: this can be simplified now,
+			;; we don't need to set cmd for proverproc
 			(setq cmd (second (car cmd-list)))
-			(set-span-property span 'type 'vanilla)
+			(set-span-property span 'type 'proverproc)
 			(set-span-property span 'cmd cmd))
 		    ;; If there was no command in the buffer, atomic span
 		    ;; becomes a comment. This isn't quite right because
@@ -959,13 +1048,18 @@ Assumes script buffer is current"
 ; some error processing.
 ;
 ; when a span has been processed, we classify it as follows:
-; 'goalsave - denoting a 'goalsave pair in the locked region
-;    a 'goalsave region has a 'name property which is the name of the goal
+; 'proof - denoting a 'proof pair in the locked region
+;    a 'proof region has a 'name property which is the name of the goal
 ; 'comment - denoting a comment
 ; 'pbp - denoting a span created by pbp
 ; 'vanilla - denoting any other span.
+; 'proverproc -- prover processed region (e.g. when a file is read
+;			atomically by the prover)
 ;   'pbp & 'vanilla spans have a property 'cmd, which says what
 ;   command they contain. 
+
+
+
 
 ; We don't allow commands while the queue has anything in it.  So we
 ; do configuration by concatenating the config command on the front in
@@ -1030,7 +1124,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (let (nam gspan next)
 
 	;; Try to set the name of the theorem from the save
-	(message "%s" cmd)
+	(message cmd)
 
 	(and proof-save-with-hole-regexp
 	     (proof-string-match proof-save-with-hole-regexp cmd)
@@ -1038,7 +1132,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 		   (if (stringp proof-save-with-hole-result)
 		       (replace-match proof-save-with-hole-result nil nil cmd)
 		     (match-string proof-save-with-hole-result cmd))))
-	(message "%s" nam)
+	(message nam)
 	;; Search backwards for first goal command, 
 	;; deleting spans along the way.
 	(setq gspan span)
@@ -1057,7 +1151,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; If the name isn't set, try to set it from the goal. 
 	  (unless nam
 	    (let ((cmdstr (span-property gspan 'cmd)))
-	      (message "%s" cmdstr)
+	      (message cmdstr)
 	      (and proof-goal-with-hole-regexp
 		   (proof-string-match proof-goal-with-hole-regexp cmdstr)
 		   (setq nam 
@@ -1072,13 +1166,23 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	(unless nam
 	  (setq nam proof-unnamed-theorem-name))
 
+	;; FIXME: this needs to be abstracted out into a function
+	;; pg-add-new-proof-span
+
 	;; Now make the new goal-save span
 	(set-span-end gspan end)
 	(set-span-property gspan 'mouse-face 'highlight)
-	(set-span-property gspan 'type 'goalsave)
+	(set-span-property gspan 'type 'proof)
 	(set-span-property gspan 'name nam)
 
-	;; FIONA: these are the new properties of the span.
+
+	;; Set the context sensitive menu/keys
+	(set-extent-property gspan 'keymap span-context-menu-keymap)
+	
+	;; Add to buffer-local list of elements, maybe making invisible
+	(pg-add-proof-element nam gspan)
+
+	;; *** Theorem dependencies ***
 	;; Dependencies returns a list of strings, each string being
 	;; the name of a dependency of that span 
 	;; depcs-within-file returns the names of all the theorems that
@@ -1191,7 +1295,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  ;; Try to set a name from the goal
 	  ;; (useless for provers like Isabelle)
 	  (let ((cmdstr (span-property gspan 'cmd)))
-	    (message "%s" cmdstr)
+	    (message cmdstr)
 	    (and proof-goal-with-hole-regexp
 		 (proof-string-match proof-goal-with-hole-regexp cmdstr)
 		 (setq nam 
@@ -1208,7 +1312,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  ;; case is only good for non-nested goals.
 	  (set-span-end gspan newend)
 	  (set-span-property gspan 'mouse-face 'highlight)
-	  (set-span-property gspan 'type 'goalsave)
+	  (set-span-property gspan 'type 'proof)
 	  (set-span-property gspan 'name nam))
 	;; Finally, do the usual thing with highlighting for the span.
 	(unless swallow
@@ -1867,7 +1971,7 @@ others)."
   (save-excursion
     (let ((span (span-at-before (proof-locked-end) 'type)))
     (while (and span 
-		(not (eq (span-property span 'type) 'goalsave))
+		(not (eq (span-property span 'type) 'proof))
 		(or (eq (span-property span 'type) 'comment)
 		    (not (funcall proof-goal-command-p
 				  (span-property span 'cmd)))))
@@ -1885,9 +1989,11 @@ up to the end of the locked region."
 
     ;; Examine the last span in the locked region.  
     
-    ;; If the last goal or save span is not a goalsave (i.e. it's
-    ;; open) we examine to see how to remove it
-    (if (and span (not (eq (span-property span 'type) 'goalsave)))
+    ;; If the last goal or save span is not a proof or
+    ;; prover processed file, we examine to see how to remove it
+    (if (and span (not (or
+			(memq (span-property span 'type) 
+			      '(proof proverproc)))))
 	;; If the goal or goalsave span ends before the target span,
 	;; then we are retracting within the last unclosed proof,
 	;; and the retraction just amounts to a number of undo
@@ -1983,7 +2089,7 @@ command."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Restarting and clearing spans (FIXME: belongs in core code, above)
+;; Restarting and clearing spans 
 ;;
 
 (defun proof-restart-buffers (buffers)
@@ -1998,10 +2104,9 @@ will deactivated."
 	   (with-current-buffer buffer
 	     (if proof-active-buffer-fake-minor-mode
 		 (setq proof-active-buffer-fake-minor-mode nil))
-	     (delete-spans (point-min) (point-max) 'type)
-	     (proof-detach-segments buffer)
-	     ;; 29.9.99. Added next line to allow useful toggling
-	     ;; of strict-read-only during a session.
+	     (delete-spans (point-min) (point-max) 'type) ;; remove spans
+	     (setq pg-script-portions nil)		  ;; also the record of them
+	     (proof-detach-segments buffer)		  ;; detach queue and locked 
 	     (proof-init-segmentation)))
        (if (eq buffer proof-script-buffer)
 	   (setq proof-script-buffer nil))))
@@ -2470,6 +2575,9 @@ finish setup which depends on specific proof assistant configuration."
   ;; in case Emacs is exited accidently.
   (or (buffer-file-name)
       (setq buffer-offer-save t))
+
+  ;; To begin with, make everything visible in the buffer
+  (setq buffer-invisibility-spec nil)
 
   ;; Finally, make sure the user has been welcomed!
   ;; FIXME: this doesn't work well, it gets zapped by loading messages.
