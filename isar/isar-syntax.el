@@ -27,6 +27,7 @@
   (modify-syntax-entry ?.  "w")
   (modify-syntax-entry ?_  "w")
   (modify-syntax-entry ?\' "w")
+  (modify-syntax-entry ??  "w")
   (modify-syntax-entry ?\* ". 23")
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4")
