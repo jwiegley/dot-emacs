@@ -596,21 +596,21 @@ Warning messages can come from proof assistant or from Proof General itself."
 (defcustom proof-mode-for-shell 'proof-shell-mode
   "Mode for proof shell buffers.
 Usually customised for specific prover.
-Suggestion: this can be set a function called by `pre-shell-start-hook'."
+Suggestion: this can be set a function called by `proof-pre-shell-start-hook'."
   :type 'function
   :group 'prover-config)
 
 (defcustom proof-mode-for-response 'proof-response-mode
   "Mode for proof response buffer.
 Usually customised for specific prover.
-Suggestion: this can be set a function called by `pre-shell-start-hook'."
+Suggestion: this can be set a function called by `proof-pre-shell-start-hook'."
   :type 'function
   :group 'prover-config)
 
 (defcustom proof-mode-for-goals 'proof-goals-mode
   "Mode for proof state display buffers.
 Usually customised for specific prover.
-Suggestion: this can be set a function called by `pre-shell-start-hook'."
+Suggestion: this can be set a function called by `proof-pre-shell-start-hook'."
   :type 'function
   :group 'prover-config)
 
@@ -1481,7 +1481,7 @@ NB: terminator not added to command."
   :group 'proof-shell)
 
 (defcustom proof-shell-stop-silent-cmd nil
-  "Command to turn prover output off.  
+  "Command to turn prover output on.  
 If non-nil, Proof General will automatically issue this command
 to help speed up processing of long proof scripts.  
 See also proof-shell-start-silent-cmd.
