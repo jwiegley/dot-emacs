@@ -81,8 +81,8 @@ Emacs 21.2.1.  XEmacs support is better tested, please check
 <?php fileshow("ProofGeneral-3.5pre030204/CHANGES","CHANGES"); ?> 
 for detailed notes.  Older releases of Emacs
 <i>may</i> work, but we recommend the use of these or newer versions
-because backwards compatibility across different Emacs versions is too
-difficult to support.  If you cannot upgrade your Emacs, consider
+because backwards compatibility across different Emacs versions is far
+too difficult to support.  If you cannot upgrade your Emacs, consider
 using an <a href="oldrel.php">older release</a> of Proof General.
 </p> 
 <p>
