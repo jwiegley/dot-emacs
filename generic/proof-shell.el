@@ -15,13 +15,9 @@
 
 (eval-when-compile
   (require 'comint)
-  (require 'font-lock))
-
-;; Spans are our abstraction of extents/overlays.
-(eval-when-compile
+  (require 'font-lock)
   (cond ((fboundp 'make-extent) (require 'span-extent))
 	((fboundp 'make-overlay) (require 'span-overlay))))
-
 
 ;; FIXME:
 ;; Autoloads for proof-script (added to nuke warnings,
@@ -944,6 +940,7 @@ how far we've got."
 ;; OLD COMMENT: "This has to come after proof-mode is defined"
 
 ;;###autoload
+(eval-and-compile			; to define vars
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof General shell mode class for proof assistant processes"
   (setq proof-buffer-type 'shell)
@@ -975,7 +972,7 @@ how far we've got."
   (setq proof-re-term-or-comment 
 	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
 		"\\|" (regexp-quote proof-comment-end)))
-  )
+  ))
 
 
 (easy-menu-define proof-shell-menu
@@ -1008,6 +1005,7 @@ how far we've got."
 	()
       (error "Failed to initialise proof process"))))
 
+(eval-and-compile			; to define vars
 (define-derived-mode pbp-mode fundamental-mode 
   proof-mode-name "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
@@ -1015,7 +1013,7 @@ how far we've got."
   (suppress-keymap pbp-mode-map 'all)
   ;; (define-key pbp-mode-map [(button2)] 'pbp-button-action)
   (proof-define-keys pbp-mode-map proof-universal-keys)
-  (erase-buffer))
+  (erase-buffer)))
 
 
 

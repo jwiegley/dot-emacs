@@ -14,7 +14,7 @@
 (require 'proof-indent)
 
 ;; Spans are our abstraction of extents/overlays.
-(eval-when-compile
+(eval-and-compile
   (cond ((fboundp 'make-extent) (require 'span-extent))
 	((fboundp 'make-overlay) (require 'span-overlay))))
 
@@ -33,7 +33,8 @@
 	  '(proof-shell-ready-prover
 	    proof-start-queue
 	    proof-shell-live-buffer
-	    proof-shell-invisible-command)))
+	    proof-shell-invisible-command
+	    proof-response-buffer-display)))
 
 ;;
 ;;  Internal variables used by script mode
@@ -1372,6 +1373,7 @@ sent to the assistant."
 ;; configuring for new assistants.
 
 ;;;###autoload
+(eval-and-compile			; to define vars
 (define-derived-mode proof-mode fundamental-mode 
   proof-mode-name
   "Proof General major mode class for proof scripts.
@@ -1386,7 +1388,7 @@ sent to the assistant."
   (add-hook 'kill-buffer-hook
 	    (lambda ()
 	      (setq proof-script-buffer-list
-		    (remove (current-buffer) proof-script-buffer-list)))))
+		    (remove (current-buffer) proof-script-buffer-list))))))
 
 ;; Fixed definitions in proof-mode-map, which don't depend on
 ;; prover configuration.
