@@ -230,7 +230,7 @@
    proof-shell-prompt-pattern		"^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd			"cd \"%s\""
+   proof-shell-cd-cmd			"cd \"%s\""
 
    proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\360Interrupt"

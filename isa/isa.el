@@ -161,7 +161,7 @@ no regular or easily discernable structure."
    proof-shell-prompt-pattern		"^2?[-=#>]>? *"
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd			"cd \"%s\""
+   proof-shell-cd-cmd			"cd \"%s\""
 
    ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-error-regexp		"^.*Error:\\|^\364\\*\\*\\*\\|^uncaught exception "

@@ -909,7 +909,7 @@ The proof-terminal-char is added on to the end."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
-(defcustom proof-shell-cd nil
+(defcustom proof-shell-cd-cmd nil
   "Command to the proof assistant to change the working directory.
 The format character %s is replaced with the directory, and the
 proof-terminal-char is added on to the end.

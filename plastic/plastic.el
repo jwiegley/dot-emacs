@@ -511,7 +511,7 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-shell-mode-config ()
   (setq proof-shell-prompt-pattern plastic-shell-prompt-pattern
-        proof-shell-cd plastic-shell-cd
+        proof-shell-cd-cmd plastic-shell-cd
         proof-shell-abort-goal-regexp plastic-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp plastic-shell-proof-completed-regexp
         proof-shell-error-regexp plastic-error-regexp

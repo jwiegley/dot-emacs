@@ -1744,18 +1744,18 @@ Typically, a list of syntax of commands available."
   proof-info-command)
 (proof-define-assistant-command proof-cd
   "Change directory to the default directory for the current buffer."
-  proof-shell-cd
-  (format proof-shell-cd
+  proof-shell-cd-cmd
+  (format proof-shell-cd-cmd
 	  ;; Use expand-file-name to avoid problems with dumb
 	  ;; proof assistants and "~"
 	  (expand-file-name (default-directory))))
 
 (defun proof-cd-sync ()
-  "If proof-shell-cd is set, do proof-cd and wait for prover ready.
+  "If proof-shell-cd-cmd is set, do proof-cd and wait for prover ready.
 This is intended as a value for proof-activate-scripting-hook"
-  ;; The hook is set in proof-mode before proof-shell-cd may be set,
+  ;; The hook is set in proof-mode before proof-shell-cd-cmd may be set,
   ;; so we explicitly test it here.  
-  (if proof-shell-cd 
+  (if proof-shell-cd-cmd 
       (progn
 	(proof-cd)
 	(proof-shell-wait))))

@@ -2831,8 +2831,8 @@ The @code{proof-terminal-char} is added on to the end.
 A command to quit the proof process.  If nil, send EOF instead.@*
 The @code{proof-terminal-char} is added on to the end.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-cd
-@defvar proof-shell-cd 
+@c TEXI DOCSTRING MAGIC: proof-shell-cd-cmd
+@defvar proof-shell-cd-cmd 
 Command to the proof assistant to change the working directory.@*
 The format character %s is replaced with the directory, and the
 @code{proof-terminal-char} is added on to the end.

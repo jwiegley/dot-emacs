@@ -441,7 +441,7 @@ We assume that module identifiers coincide with file names."
 
 (defun lego-shell-mode-config ()
   (setq proof-shell-prompt-pattern lego-shell-prompt-pattern
-        proof-shell-cd lego-shell-cd
+        proof-shell-cd-cmd lego-shell-cd
         proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp
         proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
         proof-shell-error-regexp lego-error-regexp
