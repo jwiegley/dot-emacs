@@ -15,8 +15,12 @@
 ;; configured by editing inside custom buffers.
 ;;
 
+(require 'proof)
+
 (unless (fboundp 'defvaralias)
   (error "proof-easy-config only works for XEmacs, sorry!"))
+
+(autoload 'custom-group-members "cus-edit")
 
 
 (defun proof-easy-config-make-var-aliases (sym group)
@@ -44,54 +48,64 @@
   "A list of (PREFIXSYM SUFFIXNAME PARENT MODEBODY) for derived modes.")
 
 ;; FIXME: Non-uniformity in current code
-(defvaralias proof-mode-for-goals proof-mode-for-pbp)
+(defvaralias 'proof-mode-for-goals 'proof-mode-for-pbp)
 
 (defun proof-easy-config-define-derived-modes ()
   (dolist (modedef proof-easy-config-derived-modes-table)
-    (let* ((prefixsym (nth 1 modedef))
-	   (suffixnm  (nth 2 modedef))
-	   (parent    (nth 3 modedef))
-	   (body      (nthcdr 4 modedef))
-	   (modert    (concat proof-assistant-symbol "-" prefixsym))
-	   (modecfgfn (intern (concat modert "config")))
+    (let* ((prefixsym (nth 0 modedef))
+	   (suffixnm  (nth 1 modedef))
+	   (parent    (nth 2 modedef))
+	   (body      (nthcdr 3 modedef))
+	   (modert    (concat (symbol-name proof-assistant-symbol)
+			      "-" prefixsym))
+	   ; config function for mode -- don't need it with global settings.
+	   ; (modecfgfn (intern (concat modert "-config")))
 	   (hyphen    (if (string-equal prefixsym "") "" "-"))
 	   (mode      (intern (concat modert hyphen "mode")))
-	   (fullbody  (cons (list modecfgfn) body))
 	   (modename  (concat proof-assistant " " suffixnm))
 	   (varname   (intern (concat "proof-mode-for-" suffixnm))))
 
-      `(define-derived-mode ,mode ,parent ,modename nil ,@fullbody)
-
-      ;; A hook into the mode body, before proof-config-done is
-      ;; called.  Probably unnecessary: the generic mode hook
-      ;; functions would insert code in the same place.
-
-      `(defun ,modecfgfn () 
-	 ,(concat "Special configuration for " modert "mode.
-You can redefine this function, currently it does nothing."))
+      (eval
+       `(define-derived-mode ,mode ,parent ,modename nil ,@body))
 
       ;; Set proof-mode-for-script, etc.  NB: at top-level rather
       ;; than in function body.  Then we don't need to set
       ;; proof-pre-shell-start-hook.
-      `(setq ,varname ,mode))))
+      (set varname mode))))
 
 (defun proof-easy-config-define-customs ()
   "Define a -prog-name customization setting."
-  (let ((pn-def  (symbol-name proof-assistant-symbol))
-	(pn	 (intern (concat pn-def "-prog-name"))))
+  (let* ((pn-def  (symbol-name proof-assistant-symbol))
+	 (pn	 (intern (concat pn-def "-prog-name"))))
     `(defcustom ,pn ,pn-def
        ,(concat "*Name of program to run " proof-assistant)
        :type 'string
-       :group ,proof-assistant-symbol)
-    ;; An alias which shadows ordinary proof-prog-name
-    (defvaralias 'proof-prog-name pn)))
+       :group ,proof-assistant-symbol)))
 
-(defmacro proof-easy-config (body)
-  "Configure Proof General for proof-assistant using settings in BODY."
+(defun proof-easy-config-check-setup (sym name)
+  "A number of simple checks."
+  (cond
+   ((or 
+     (and (boundp 'proof-assistant) proof-assistant 
+	  (not (equal proof-assistant ""))
+	  (not (equal proof-assistant name)))
+     (and (boundp 'proof-assistant-symbol) proof-assistant-symbol
+	  (not (eq proof-assistant-symbol sym))))
+    (error "proof-easy-config: Proof General is already in use for a different prover!"))
+   (t
+    ;; Setting these here is nice for testing: no need to get
+    ;; proof-assistants-table right first.
+    (customize-set-variable 'proof-assistant name)
+    (customize-set-variable 'proof-assistant-symbol sym))))
+
+(defmacro proof-easy-config (sym name &rest body)
+  "Configure Proof General for proof-assistant using BODY as a setq body."
   `(progn
-     (proof-easy-config-make-var-aliases proof-assistant-symbol 'prover-config)
+     (proof-easy-config-check-setup ,sym ,name)
+     (proof-easy-config-make-var-aliases ,sym 'prover-config)
      (proof-easy-config-define-customs)
-     ,@body
+     (setq
+      ,@body)
      (proof-easy-config-define-derived-modes)))
   
 ;; 
