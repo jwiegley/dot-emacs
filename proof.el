@@ -19,6 +19,11 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.15  1997/10/17 14:38:33  tms
+;; fixed a bug in proof-process-active-terminator. Notice that it still
+;; doesn't work when you are inside a comment and press the
+;; proof-terminal-char
+;;
 ;; Revision 1.14  1997/10/16 14:12:04  djs
 ;; Figured out display tables.
 ;;
@@ -1141,9 +1146,10 @@ current command."
     (if (looking-at "\\s-\\|\\'\\|\\w") 
 	(if (not (re-search-backward "\\S-" (proof-end-of-locked) t))
 	    (error "Nothing to do!")))
-    (if (not (= (char-after (point)) proof-terminal-char)
-	(progn (forward-char) (insert proof-terminal-string) (setq ins t))))
+    (if (not (= (char-after (point)) proof-terminal-char))
+	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
     (proof-assert-until-point
+     ;; BEWARE: doesn't work when inside a comment!
      (function ()
 	       (if ins (backward-delete-char 1))
 	       (goto-char mrk) (insert proof-terminal-string)))))
