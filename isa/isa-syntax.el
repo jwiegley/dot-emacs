@@ -7,34 +7,9 @@
 ;; $Id$
 ;;
 ;;
-;; FIXME: the syntax needs checking carefully, and splitting
-;; into output vs input syntax.
-;;
-
 (require 'proof-syntax)
 
-;;; Proof mode customization: how should it work?
-;;;   Presently we have a bunch of variables in proof.el which are
-;;;   set from a bunch of similarly named variables in <engine>-syntax.el.
-;;;
-;;;   Seems a bit daft: why not just have the customization in
-;;;   one place, and settings hardwired in <engine>-syntax.el.
-;;;
-;;;   That way we can see which settings are part of instantiation of
-;;;   proof.el, and which are part of cusomization for <engine>.
-
-;; ------ customize groups
-
-;(defgroup isa-scripting nil
-;  "Customization of Isabelle script management"
-;  :group 'external
-;  :group 'languages)
-
-;(defgroup isa-syntax nil
-;  "Customization of Isabelle's syntax recognition"
-;  :group 'isa-scripting)
-
-;; ----- character syntax
+;; character syntax
 
 (defun isa-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."
@@ -63,20 +38,21 @@
   ;; inside them
   (modify-syntax-entry ?\" " "))
 
+;;
+;; Syntax for font-lock and other features
+;;
 
-;; ----- syntax for font-lock and other features
-
-;; FIXME: this command-keyword orientation isn't  good
-;;  enough for Isabelle, since we can have arbitrary
-;;  ML code around.  One solution is to define a
-;;  restricted language consisting of the interactive
-;;  commands.  We'd still need regexps below, though.
-;;  Alternative 1: customize this for Markus Wenzel's 
-;;  proof language.  Markus has done this now!
-;;  Alternative 2: add hooks from Isabelle to say
-;;  "I've just seen a goal command" or "I've just seen a
-;;  tactic".  This would allow more accurate 
-;; counting of undos.
+;; Note: this command-keyword recognition of the proof script isn't
+;; good enough for Isabelle, since we can have arbitrary ML code
+;; around.
+;; Alternatives: 
+;; 1) propose a restricted language consisting of the interactive
+;; commands.  Or try Markus Wenzel's Isar proof language!
+;; 2) add hooks from Isabelle to say "I've just seen a goal command"
+;; or "I've just seen a tactic".  This would allow more accurate
+;; counting of undos.  We could even approximate this without hooks,
+;; by examining the proof state output carefully.
+;;
 
 ;; FIXME da:  here are some examples of input failures I've
 ;; found in real proofs:
@@ -302,5 +278,12 @@
    )
   "*Font-lock table for Isabelle terms.")
 
+(defvar isa-goals-font-lock-keywords 
+  (append
+   (list 
+    "^Level [0-9].*"
+    "^No subgoals!$"
+    "\\s-*[0-9][0-9]?\\. ")
+   isa-output-font-lock-keywords-1))
 
 (provide 'isa-syntax)
