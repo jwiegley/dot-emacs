@@ -414,20 +414,9 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  ;; End of locked region is always end of buffer
 	  (proof-set-locked-end (proof-script-end))))))
 
-(defun proof-file-truename (filename)
-  "Returns the true name of the file FILENAME or nil if file non-existent."
-  (and filename (file-exists-p filename) (file-truename filename)))
 
-(defun proof-file-to-buffer (filename)
-  "Find a buffer visiting file FILENAME, or nil if there isn't one."
-  (let* ((buffers (buffer-list))
-	 (pos
-	  (position (file-truename filename)
-		    (mapcar 'proof-file-truename
-			    (mapcar 'buffer-file-name
-				    buffers))
-		    :test 'equal)))
-    (and pos (nth pos buffers))))
+
+
 
 ;; FIXME da: cleanup of odd asymmetry here: we have a nice setting for
 ;; proof-register-possibly-new-processed-file but something much more
@@ -2232,6 +2221,8 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Additional key definitions which depend on configuration for
   ;; specific proof assistant.
+  ;; This is rather fragile: we assume terminal char is something
+  ;; sensible (and exists) for this to be set.
   (define-key proof-mode-map
     (vconcat [(control c)] (vector proof-terminal-char))
     'proof-active-terminator-minor-mode)
@@ -2287,10 +2278,10 @@ finish setup which depends on specific proof assistant configuration."
   (add-hook 'font-lock-mode-hook 'proof-unfontify-separator nil t)
 
   ;; if we don't have the following, zap-commas fails to work.
-  ;; FIXME (da): setting this to t everywhere is too brutal.  Should
-  ;; probably make it local.
-  (and (boundp 'font-lock-always-fontify-immediately)
-       (setq font-lock-always-fontify-immediately t))
+  (if (boundp 'font-lock-always-fontify-immediately)
+      (progn
+	(make-local-variable 'font-lock-always-fontify-immediately)
+	(setq font-lock-always-fontify-immediately nil)))
 
   ;; Assume font-lock case folding follows proof-case-fold-search
   (setq font-lock-keywords-case-fold-search proof-case-fold-search)
@@ -2355,6 +2346,8 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Maybe turn on x-symbol mode
   (proof-x-symbol-mode))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
