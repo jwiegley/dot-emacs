@@ -101,32 +101,42 @@
      ["Inductive3            indv3<C-BS>" (insert-and-expand "indv3") t]
      ["Inductive4            indv4<C-BS>" (insert-and-expand "indv4") t]
      ""
-     ["Module                mo<C-BS>" (insert-and-expand "mo") t]
-     ["Module (<:)           mo2<C-BS>" (insert-and-expand "mo") t]
-     ["Module (interactive)  moi<C-BS>" (insert-and-expand "moi") t]
-     ["Module (interactive <:) moi2<C-BS>" (insert-and-expand "moi2") t]
-     ["Module Type           mt<C-BS>" (insert-and-expand "mt") t]
-     ["Module Type (interactive) mti<C-BS>" (insert-and-expand "mti") t]
-     ["Declare Module        dm<C-BS>" (insert-and-expand "dm") t]
-     ["Declare Module (<:)   dm2<C-BS>" (insert-and-expand "dm") t]
-     ["Declare Module (inter.) dmi<C-BS>" (insert-and-expand "dmi") t]
-     ["Declare Module (inter. <:) dmi2<C-BS>" (insert-and-expand "dmi2") t]
-     ""
-     ["Scheme                sc<C-BS>" (insert-and-expand "sc") t]
-     ["Functional Scheme     fs<C-BS>" (insert-and-expand "fs") t]
-     ["Functional Scheme with    fsw<C-BS>" (insert-and-expand "fsw") t]
-     ""
-     ["Hint Constructors     hc<C-BS>" (insert-and-expand "hc") t]
-     ["Hint Immediate        hi<C-BS>" (insert-and-expand "hi") t]
-     ["Hint Resolve          hr<C-BS>" (insert-and-expand "hr") t]
-     ["Hint Rewrite          hrw<C-BS>" (insert-and-expand "hrw") t]
-     ["Hint Extern           he<C-BS>" (insert-and-expand "he") t]
-     ""
-     ["infix                 inf<C-BS>" (insert-and-expand "inf") t]     
-     ["Notation (no assoc)   nota<C-BS>" (insert-and-expand "nota") t]     
-     ["Notation (assoc)         notas<C-BS>" (insert-and-expand "notas") t]     
-     ["Notation (no assoc, scope) notasc<C-BS>" (insert-and-expand "notasc") t]     
-     ["Notation (assoc, scope) notassc<C-BS>" (insert-and-expand "notassc") t]     
+     ("Modules"
+      "COMMAND               ABBREVIATION"
+      ["Module                mo<C-BS>" (insert-and-expand "mo") t]
+      ["Module (<:)           mo2<C-BS>" (insert-and-expand "mo") t]
+      ["Module (interactive)  moi<C-BS>" (insert-and-expand "moi") t]
+      ["Module (interactive <:) moi2<C-BS>" (insert-and-expand "moi2") t]
+      ["Module Type           mt<C-BS>" (insert-and-expand "mt") t]
+      ["Module Type (interactive) mti<C-BS>" (insert-and-expand "mti") t]
+      ""
+      ["Declare Module        dm<C-BS>" (insert-and-expand "dm") t]
+      ["Declare Module (<:)   dm2<C-BS>" (insert-and-expand "dm") t]
+      ["Declare Module (inter.) dmi<C-BS>" (insert-and-expand "dmi") t]
+      ["Declare Module (inter. <:) dmi2<C-BS>" (insert-and-expand "dmi2") t]
+      )
+     ("Hints"
+      "COMMAND               ABBREVIATION"
+      ["Hint Constructors     hc<C-BS>" (insert-and-expand "hc") t]
+      ["Hint Immediate        hi<C-BS>" (insert-and-expand "hi") t]
+      ["Hint Resolve          hr<C-BS>" (insert-and-expand "hr") t]
+      ["Hint Rewrite          hrw<C-BS>" (insert-and-expand "hrw") t]
+      ["Hint Extern           he<C-BS>" (insert-and-expand "he") t]
+     )
+     ("Schemes"
+      "COMMAND               ABBREVIATION"
+      ["Scheme                sc<C-BS>" (insert-and-expand "sc") t]
+      ["Functional Scheme     fs<C-BS>" (insert-and-expand "fs") t]
+      ["Functional Scheme with    fsw<C-BS>" (insert-and-expand "fsw") t]
+      )
+     ("Notations"
+      "COMMAND               ABBREVIATION"
+      ["infix                           inf<C-BS>" (insert-and-expand "inf") t]     
+      ["Notation (no assoc)             nota<C-BS>" (insert-and-expand "nota") t]     
+      ["Notation (assoc)                notas<C-BS>" (insert-and-expand "notas") t]     
+      ["Notation (no assoc, scope)      notasc<C-BS>" (insert-and-expand "notasc") t]     
+      ["Notation (assoc, scope)         notassc<C-BS>" (insert-and-expand "notassc") t]
+      )
      )
 
     ("Insert term" 
@@ -136,13 +146,16 @@
      ["forall2       fo2<C-BS>" (insert-and-expand "fo2") t]
      ["forall3       fo3<C-BS>" (insert-and-expand "fo3") t]
      ["forall4       fo4<C-BS>" (insert-and-expand "fo4") t]
+     ""
      ["fun           f<ctrl-bacspace>"  (insert-and-expand "f") t]
      ["fun1          f1<ctrl-bacspace>"  (insert-and-expand "f1") t]
      ["fun2          f2<C-BS>" (insert-and-expand "f2") t]
      ["fun3          f3<C-BS>" (insert-and-expand "f3") t]
      ["fun4          f4<C-BS>" (insert-and-expand "f4") t]
+     ""
      ["if then else  if<C-BS>"  (insert-and-expand "li") t]
      ["let in        li<C-BS>"  (insert-and-expand "li") t]
+     ""
      ["match         m<C-BS>"  (insert-and-expand "m") t]
      ["match2        m2<C-BS>"  (insert-and-expand "m2") t]
      ["match3        m3<C-BS>"  (insert-and-expand "m3") t]
@@ -195,9 +208,9 @@
      ["reflexivity            refl<C-BS>"  (insert-and-expand "refl") t]
      ["replace                rep<C-BS>"  (insert-and-expand "rep") t]
      ["rewrite                r<C-BS>"  (insert-and-expand "r") t]
-     ["rewrite in             ri<C-BS>"  (insert-and-expand "r") t]
-     ["rewrite <-             rl<C-BS>"  (insert-and-expand "r") t]
-     ["rewrite <- in          ril<C-BS>"  (insert-and-expand "r") t]
+     ["rewrite in             ri<C-BS>"  (insert-and-expand "ri") t]
+     ["rewrite <-             r<<C-BS>"  (insert-and-expand "rl") t]
+     ["rewrite <- in          ri<<C-BS>"  (insert-and-expand "ril") t]
      ["set                    set<C-BS>"  (insert-and-expand "set") t]
      ["set in hyp             seth<C-BS>"  (insert-and-expand "seth") t]
      ["set in goal            setg<C-BS>"  (insert-and-expand "setg") t]

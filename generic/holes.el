@@ -151,6 +151,9 @@ is), which is annoying.
 (defcustom empty-hole-string "#"
   "string to be inserted for empty hole (don't put an empty string).")
 
+(defcustom empty-hole-regexp "#\\|\\(@{\\)\\([^{}]*\\)\\(}\\)"
+  "Regexp denoting a hole in abbrevs. Must match either `empty-hole-string' or a regexp formed by three consecutive groups (i.e. \\\\(...\\\\) )  (other groups must be shy (i.e. \\\\(?:...\\\\))), denoting the exact limits of the hole (the middle group), the opening and closing delimiters of the hole (first and third groups) which will be deleted after abbrev expand. For example: \"#\\|\\(@{\\)\\([^{}]*\\)\\(}\\)\" matches any # or @{text} but in the second case the abbrev expand will be a hole containing text without brackets.")
+
 (defcustom hole-search-limit 1000
   "number of chars to look forward when looking for the next hole, unused for now");unused for the moment
 
@@ -779,6 +782,16 @@ is), which is annoying.
 	 )
   )
 
+(defun count-re-in-string (regexp str)
+  (let ((cpt 0) (s str))
+	 (while (and (not (string-equal s "")) (string-match regexp s) )
+		(setq cpt (+ cpt 1))
+		(setq s (substring s (match-end 0)))
+		)
+	 cpt
+	 )
+  )
+
 (defun count-chars-in-last-expand ()
   (length (abbrev-expansion last-abbrev-text))
   )
@@ -803,7 +816,7 @@ end of last abbrev expansion. "
   )
 
 (defun count-holes-in-last-expand ()
-  (count-char-in-string empty-hole-string (abbrev-expansion last-abbrev-text))
+  (count-re-in-string empty-hole-regexp (abbrev-expansion last-abbrev-text))
   )
 
 (defun replace-string-by-holes (start end str)
@@ -825,7 +838,7 @@ created"
     )
   )
 
-(defun replace-string-by-holes-backward (num str)
+(defun replace-string-by-holes-backward (num regexp)
 
   "make num occurrences of str be holes looking backward. sets the
 active hole to the last created hole and unsets it if no hole is
@@ -834,13 +847,19 @@ created. return t if num is > 0, nil otherwise."
   (interactive)
   (disable-active-hole)
   (if (<= num 0) nil
-	 (let* ((n num) (lgth (length str)))
+	 (let* ((n num) (lgth 0))
 		(save-excursion
 		  (while (> n 0)
 			 (progn 
-				(search-backward str) 
-				(make-hole (point) (+ (point) lgth))
-				(set-active-hole-next)
+				(re-search-backward regexp)
+				(if (string-equal (match-string 0) empty-hole-string) 
+					 (make-hole (match-beginning 0) (match-end 0))
+				  (make-hole (match-beginning 2) (match-end 2))
+				  (goto-char (match-beginning 3))
+				  (delete-char (length (match-string 3)))
+				  (goto-char (match-beginning 1))
+				  (delete-char (length (match-string 1))))
+				  (set-active-hole-next)
 				(setq n (- n 1)))
 			 )
 		  )
@@ -861,16 +880,28 @@ created. return t if num is > 0, nil otherwise."
 
   (interactive)
   (and (replace-string-by-holes-backward num str)
-		 (set-point-next-hole-destroy))
+		 t ;(set-point-next-hole-destroy)
+		 )
   )
 
 
 
 (defun holes-abbrev-complete ()
-  "complete abbrev by putting holes and indenting."
-  (indent-last-expand)
-  (replace-string-by-holes-backward-move-point 
-	(count-holes-in-last-expand) empty-hole-string)
+  "Complete abbrev by putting holes and indenting. Moves point at beginning of expanded text."
+  (let ((pos last-abbrev-location))
+	 (indent-last-expand)
+	 (replace-string-by-holes-backward-move-point 
+	  (count-holes-in-last-expand) empty-hole-regexp)
+	 (if (> (count-holes-in-last-expand) 1) 
+		  (progn (goto-char pos)
+					(message "Hit meta-return to jump to active hole. M-x holes-short-doc to see holes documentation."))
+
+		(if (= (count-holes-in-last-expand) 0) () ; no hole, stay here.
+		  (goto-char pos)
+		  (set-point-next-hole-destroy) ; if only one hole, go to it.
+		  )
+		)
+	 )
   )
 
 ; insert the expansion of abbrev s, and replace #s by holes. It was
@@ -878,10 +909,15 @@ created. return t if num is > 0, nil otherwise."
 ; but undo would show the 2 steps, which is bad.
 
 (defun insert-and-expand (s)
-  (let* ((exp (abbrev-expansion s))
-			(c (count-char-in-string empty-hole-string exp)))
+  (let* ((pos (point))
+			(exp (abbrev-expansion s))
+			(c (count-re-in-string empty-hole-regexp exp)))
 	 (insert exp)
-	 (replace-string-by-holes-backward-move-point c empty-hole-string)
+	 (replace-string-by-holes-backward-move-point c empty-hole-regexp)
+	 (if (> c 1) (goto-char pos)
+		(goto-char pos)
+		(set-point-next-hole-destroy) ; if only one hole, go to it.
+		)
 	 )
   )
 
