@@ -425,7 +425,7 @@ The protocol used should be configured so that no user interaction
 
 (defface proof-locked-face
   (proof-face-specs
-   (:background "lightsteelblue2")	; was "lavender"
+   (:background "lightcyan")	; was "lavender", then "lightsteelblue"
    (:background "navy")
    (:underline t))
   "*Face for locked region of proof script (processed commands)."
@@ -935,8 +935,8 @@ NB: This setting is not used for matching output from the prover."
 The name of the theorem is build from the variable
 proof-save-with-hole-result using the same convention as 
 query-replace-regexp. 
-Used for setting names of goal..save regions and for default
-function-menu configuration in proof-script-find-next-entity.
+Used for setting names of goal..save and proof regions and for 
+default function-menu configuration in proof-script-find-next-entity.
 
 It's safe to leave this setting as nil."
   :type 'regexp
