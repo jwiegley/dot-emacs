@@ -7,20 +7,18 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 * Proof General Short List of Things to Do for next version
 
 *** Clean up X-symbol support
-     -- configuration for latest version of X-Symbol (Gerwin Klein)
+     -- token configuration for latest version of X-Symbol (Gerwin Klein)
      -- remove on/off setting for all buffers (too slow), use
-        same mechanism as proof-mmm.
+        same mechanism as proof-mmm. [Done; in testing]
 
 *** Finish/cleanup MMM support for Isar.  Document (but who reads it?)
     Add MMM for other provers where relevant
 
-*** Behaviour of X-Symbol and MMM options
-      -- should have "global" behaviour, but apply to future?
-      -- just have local behaviour, add extra option for global?
-      [confusion is that particular buffer may be different from global]
-      -- does it make sense simply to synchronize global with local
-	 whenever local is changed?  
-	  [maybe: turn it off, stays off in new buffers]
+*** Isabelle support: can we somehow add "legacy" support for old 
+      theory files and even allow scripting in ML files?   Maybe
+      not, if this is even beyond what Isar interface would allow
+      (unless we send an ML file line-by-line with ML_command?)
+
  
 * Proof General Infeasibly Long Low-Level List of Things to Do
 

@@ -10,6 +10,12 @@
 
 ** Generic changes
 
+*** Bundling of X-Symbol Mode (4.45 beta)
+
+    !!THIS IS WORK IN PROGRESS, IT MAY WELL BREAK X-SYMBOL FOR YOU!!
+    To disable use of the bundled version, simply delete or move away
+    the x-symbol subdirectory.
+
 *** Bundling of MMM Mode (for multiple modes in one buffer)
 
     MMM mode allows submodes to be used in the same file.
