@@ -11,13 +11,16 @@ Coq homepage:	http://pauillac.inria.fr/coq/assis-eng.html
 
 ===========================================================================
 
-Coq Proof General has experimental multiple file handling for 6.3
+Coq Proof General has experimental multiple file handling for some
 versions.  It does not have support for proof by pointing.
 
-There is support for X Symbol, but using character sequences rather
-than a special token language.  See notes below for syntax.
+There is support for X Symbol, using simple character sequences rather
+than a special language of tokens.  See notes below for syntax.
 
 There is a tags program, coqtags.
+
+There is a menu option for running Coq V8 in compatibility mode
+(i.e. with the -translate flag).
 
 ===========================================================================
 
