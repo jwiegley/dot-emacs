@@ -2,26 +2,36 @@
 #
 # $Id$
 #
-# Proof General interface wrapper for Isabelle/Isar.
+# Proof General interface wrapper for Isabelle.
+
+## self references
+
+KIND=$(basename $(dirname "$0"))
+export PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo "$PWD")
+
+if [ "$KIND" = isar ]; then
+  ISAR=true
+else
+  ISAR=false
+fi
 
 
 ## diagnostics
 
-PRG=$(basename "$0")
-
 function usage()
 {
   echo
-  echo "Usage: $PRG [OPTIONS] [FILES ...]"
+  echo "Usage: Isabelle [OPTIONS] [FILES ...]"
   echo
   echo "  Options are:"
+  echo "    -I BOOL      use Isabelle/Isar instead of classic Isabelle (default $ISAR)"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -p NAME      Emacs program name (default xemacs)"
-  echo "    -u BOOL      use .emacs file (default true)"
+  echo "    -u BOOL      use personal .emacs file (default true)"
   echo "    -w BOOL      use window system (default true)"
   echo "    -x BOOL      enable x-symbol package"
   echo
-  echo "Starts Proof General for Isabelle/Isar with proof documents FILES"
+  echo "Starts Proof General for Isabelle with theory and proof FILES"
   echo "(default Scratch.thy)."
   echo
   echo "  PROOFGENERAL_OPTIONS=$PROOFGENERAL_OPTIONS"
@@ -38,9 +48,6 @@ function fail()
 
 ## process command line
 
-export PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo "$PWD")
-
-
 # options
 
 LOGIC="$ISABELLE_LOGIC"
@@ -52,9 +59,12 @@ XSYMBOL=""
 function getoptions()
 {
   OPTIND=1
-  while getopts "l:p:u:w:x:" OPT
+  while getopts "I:l:p:u:w:x:" OPT
   do
     case "$OPT" in
+      I)
+        ISAR="$OPTARG"
+        ;;
       l)
         LOGIC="$OPTARG"
         ;;
@@ -81,6 +91,12 @@ getoptions $PROOFGENERAL_OPTIONS
 
 getoptions "$@"
 shift $(($OPTIND - 1))
+
+if [ "$ISAR" = true ]; then
+  KIND=isar
+else
+  KIND=isa
+fi
 
 
 # args
@@ -115,7 +131,7 @@ done
 
 [ -n "$XSYMBOL_INSTALLFONTS" ] && "$ISATOOL" installfonts -x
 
-export PROOFGENERAL_ASSISTANTS=isar
+export PROOFGENERAL_ASSISTANTS="$KIND"
 export PROOFGENERAL_LOGIC="$LOGIC"
 export PROOFGENERAL_XSYMBOL="$XSYMBOL"
 
