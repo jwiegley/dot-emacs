@@ -2048,7 +2048,7 @@ up to the end of the locked region."
     ;; prover processed file, we examine to see how to remove it
     (if (and span (not (or
 			(memq (span-property span 'type) 
-			      '(proof proverproc)))))
+			      '(goalsave proverproc)))))
 	;; If the goal or goalsave span ends before the target span,
 	;; then we are retracting within the last unclosed proof,
 	;; and the retraction just amounts to a number of undo
