@@ -273,8 +273,6 @@ C Reengineer *-count-undos and *-find-and-forget at generic level
 
 D Allow bib-cite style clicking on Load/Import commands to go to file.
 
-D support font-lock in goal buffer
-
 C Unify toolbar and menu functions. (1h)
 
 D Remove duplication of variables e.g., proof-prog-name and
@@ -414,7 +412,7 @@ B release new version of the LEGO proof engine (4h tms)
 
 X Mechanism to save object file
 
-D Improve legotags. I cannot handle lists e.g., with 	
+D Improve legotags. It cannot handle lists e.g., with 	
 
     [x,y:nat];
 
@@ -435,12 +433,12 @@ D Add Patrick Loiseleur's commands to search for vernac or ml files.
 
 X Sections and files are handled incorrectly.
 
-D Proof-by-Pointing (10h hhg)
+D Proof-by-Pointing (10h)
 
 D Add coq-add-tactic with a tactic name, which adds that tactic to the 
   undoable tactics and to the font-lock. (2h)
 
-D Improve coqtags. I cannot handle lists e.g., with 	
+D Improve coqtags. It cannot handle lists e.g., with 	
 
 	Parameter x,y:nat
 

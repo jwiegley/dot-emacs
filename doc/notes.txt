@@ -75,7 +75,7 @@ Suggestion for outline of improved documentation.
  APPENDIX
 
  A. Obtaining and installing the software			[da]
- B. Known bugs							[tms]
+ B. Known bugs  						[done]
  C. Future ideas and plans					[da]
  
  

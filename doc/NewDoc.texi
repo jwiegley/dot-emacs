@@ -1311,6 +1311,7 @@ let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 @menu
 * Bugs at the generic level::   
 * Bugs specific to LEGO Proof General::  
+* Bugs specific to Coq Proof General::  
 @end menu
 
 @node Bugs at the generic level
@@ -1370,8 +1371,12 @@ that all proofs are terminated with a proper @samp{Save} command.
 a proof. If you forget one, you should retract to a point before the
 offending proof development.
 
+@node Bugs specific to Coq Proof General
+@section Bugs specific to Coq Proof General
 
-
+The collection of tactics which Proof General is aware of is hard-wired.
+Thus, user-defined tactics cannot be retracted.
+@strong{Workaround:} You may need to retract to the start of the proof.
 
 @node Plans and ideas
 @appendix Plans and ideas
