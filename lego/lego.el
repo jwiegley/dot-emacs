@@ -51,6 +51,7 @@
   '((lambda (cmd string) (string-match "^Module" cmd)) .
     (lambda (cmd string)
       (setq proof-shell-delayed-output
+	    ;;FIXME: This should be displayed in the minibuffer only
 	    (cons 'insert "Imports done!"))))
   "Acknowledge end of processing import declarations.")
 
@@ -291,6 +292,11 @@
 (defun lego-state-preserving-p (cmd)
   (not (string-match lego-undoable-commands-regexp cmd)))
 
+(defun lego-retract-command (file)
+  "LEGO command to retract file."
+  (concat "ForgetMark file "
+	  (file-name-sans-extension (file-name-nondirectory file))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -448,7 +454,25 @@
   (add-hook 'proof-pre-shell-start-hook 'lego-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook 'lego-shell-adjust-line-width))
 
-;; insert standard header and footer in fresh buffers	       
+(defun lego-equal-module-filename (module filename)
+  "Returns `t' if MODULE is equal to the FILENAME and `nil' otherwise.
+The directory and extension is stripped of FILENAME before the test."
+  (equal module
+	 (file-name-sans-extension (file-name-nondirectory filename))))
+
+(defun lego-shell-compute-new-files-list (str)
+  "Function to update `proof-included-files list'.
+
+It needs to return an up to date list of all processed files. Its
+output is stored in `proof-included-files-list'. Its input is the
+string of which `lego-shell-retract-files-regexp' matched a
+substring. 
+
+We assume that module identifiers coincide with file names."
+  (let ((module (match-string 1 str)))
+    (cdr (member-if
+	  (lambda (filename) (lego-equal-module-filename module filename))
+	  proof-included-files-list))))
 
 (defun lego-shell-mode-config ()
   (setq proof-shell-prompt-pattern lego-shell-prompt-pattern
@@ -478,16 +502,29 @@
 	proof-shell-process-output-system-specific lego-shell-process-output
         lego-shell-current-line-width nil
 
+	proof-shell-process-file
+	(cons "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]"  
+	  (lambda (str) (let ((match (match-string 2 str)))
+			  (if (equal match "") match
+			    (concat (file-name-sans-extension match) ".l")))))
+
+	proof-shell-retract-files-regexp
+	"forgot back through Mark \"\\(.*\\)\""
 	;;FIXME: we ought to set up separate font-lock instructions for
-	;;the shell, the goal buffer and the script
+	;;the response, the goal buffer and the script
 	font-lock-keywords lego-font-lock-keywords-1)
+
+  (fset 'proof-retract-command 'lego-retract-command)
+  (fset 'proof-shell-compute-new-files-list
+	'lego-shell-compute-new-files-list)
 
   (lego-init-syntax-table)
 
   (proof-shell-config-done))
 
 (defun lego-pbp-mode-config ()
-  (setq pbp-change-goal "Next %s;")
-  (setq pbp-error-regexp lego-error-regexp))
+  (setq pbp-change-goal "Next %s;"
+	pbp-error-regexp lego-error-regexp
+	))
 
 (provide 'lego)

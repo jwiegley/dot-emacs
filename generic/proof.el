@@ -6,8 +6,9 @@
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
-;; Thanks to Robert Boyer, Rod Burstall,
+;; Thanks to Rod Burstall, Martin Hofmann,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens
+;;   for helpful comments and code.
 ;;
 ;; $Id$
 ;;
@@ -308,7 +309,7 @@ output format."
   :group 'proof-script)
 
 (defcustom proof-comment-start ""
-  "String which end a comment in the proof assistant command language.
+  "String which starts a comment in the proof assistant command language.
 The script buffer's comment-start is set to this string plus a space."
   :type 'string
   :group 'proof-script)
@@ -540,6 +541,42 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
   :type 'regexp
   :group 'proof-shell)
 
+(defcustom proof-shell-process-file nil
+  "A tuple of the form (regexp . function) to match a processed file name.
+
+If REGEXP matches output, then the function FUNCTION is invoked. It
+must return a script file name (with complete path) the system is
+currently processing. In practice, FUNCTION is likely to inspect the
+match data.
+
+Care has to be taken in case the prover only reports on compiled
+versions of files it is processing. In this case, FUNCTION needs to
+reconstruct the corresponding script file name. The new (true) file
+name is added to the front of `proof-included-files-list'."
+  :type '(choice (cons regexp function) (const nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-retract-files-regexp nil
+  "A REGEXP to match that the prover has retracted across file boundaries.
+
+At this stage, Proof General's view of the processed files is out of
+date and needs to be updated with the help of the function
+`proof-shell-compute-new-files-list'."
+  :type '(choice regexp (const nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-compute-new-files-list nil
+  "Function to update `proof-included-files list'.
+
+It needs to return an up to date list of all processed files. Its
+output is stored in `proof-included-files-list'. Its input is the
+string of which `proof-shell-retract-files-regexp' matched a
+substring. In practice, this function is likely to inspect the
+previous (global) variable `proof-included-files-list' and the match
+data triggered by `proof-shell-retract-files-regexp'."
+  :type '(choice function (const nil))
+  :group 'proof-shell)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Internal variables used by scripting and pbp                    ;;
@@ -568,11 +605,17 @@ Set in proof-config-done.")
 (defvar proof-shell-buffer nil
   "Process buffer where the proof assistant is run.")
 
-(defvar proof-script-buffer nil
-  "Currently-active scripting buffer.")
+(defvar proof-script-buffer-list nil
+  "Scripting buffers with locked regions.
+The first element is current and in scripting minor mode.
+The list of corresponding file names is a subset of
+`proof-included-files-list'.")
 
 (defvar proof-pbp-buffer nil
-  "The response buffer (also known as the goals or pbp buffer).")
+  "The goals buffer (also known as the pbp buffer).")
+
+(defvar proof-response-buffer nil
+  "The response buffer.")
 
 (defvar proof-shell-busy nil 
   "A lock indicating that the proof shell is processing.
@@ -586,8 +629,9 @@ an error.")
 
 (defvar proof-included-files-list nil 
   "List of files currently included in proof process.
-Each element in the list is a tuple of the form (module . file) where
-module is identifies the buffer and file is the file name of the module.")
+Whenever a new file is being processed, it gets added to the front of
+the list. When the prover retracts across file boundaries, this list
+is resynchronised. It contains files in canonical truename format")
 
 (deflocal proof-active-buffer-fake-minor-mode nil
   "An indication in the modeline that this is the *active* script buffer")
@@ -742,10 +786,13 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
   "Set the queue span to end at END."
   (set-span-end proof-queue-span end))
 
-(defun proof-detach-segments ()
-  "Remove the queue and locked spans from the buffer."
-  (proof-detach-queue)
-  (proof-detach-locked))
+(defun proof-detach-segments (&optional buffer)
+  "Remove locked and queue region from BUFFER.
+Defaults to current buffer when BUFFER is nil."
+  (let ((buffer (or buffer (current-buffer))))
+    (save-excursion
+      (proof-detach-queue)
+      (proof-detach-locked))))
 
 (defsubst proof-set-locked-end (end)
   "Set the end of the locked region to be END, sort of? FIXME.
@@ -757,17 +804,16 @@ buffer to END."
     (set-span-endpoints proof-locked-span (point-min) end)))
 
 (defun proof-unprocessed-begin ()
-  "Return end of locked region in script buffer or (point-min) otherwise."
+  "Return end of locked region in current buffer or (point-min) otherwise."
   (or 
-   (and 
-    (eq proof-script-buffer (current-buffer))
-    proof-locked-span 
-    (span-end proof-locked-span))
+   (and (member (current-buffer) proof-script-buffer-list)
+	proof-locked-span (span-end proof-locked-span))
    (point-min)))
 
 (defun proof-locked-end ()
-  "Return end of the locked region.  Only call from active scripting buffer."
-  (if (eq proof-script-buffer (current-buffer))
+  "Return end of the locked region of the current buffer.
+Only call this from a scripting buffer."
+  (if (member (current-buffer) proof-script-buffer-list)
       (proof-unprocessed-begin)
     (error "bug: proof-locked-end called from wrong buffer")))
 
@@ -787,6 +833,57 @@ buffer to END."
 				      (current-buffer)))
 	      ((boundp 'buffer-display-table)
 	       (setq buffer-display-table disp)))))
+
+(defun proof-mark-buffer-atomic (buffer)
+  "Mark BUFFER as having processed in a single step."
+  (save-excursion
+    (set-buffer buffer)
+    (let ((span (make-span (proof-unprocessed-begin) (point-max)))
+	  cmd)
+      ;; compute first command of buffer
+      (goto-char (point-min))
+      (proof-find-next-terminator)
+      ;; skip comments
+      (setq cmd
+	    (second (car (member-if
+			 (lambda (entry) (equal (car entry) 'cmd))
+			 (proof-segment-up-to (point))))))
+      
+      (proof-init-segmentation)
+      (set-span-property span 'type 'vanilla)
+      (set-span-property span 'cmd cmd)
+      (proof-set-locked-end (point-max))
+      (setq proof-script-buffer-list
+	    (append proof-script-buffer-list (list buffer))))))
+
+(defun proof-filter-list (p list)
+  "Returns all elements in LIST for which P holds."
+  (let (head tail)
+    (if (null list) list
+      (setq head (car list)
+	    tail (proof-filter-list p (cdr list)))
+      (if (funcall p head) (cons head tail) tail))))
+
+(defun proof-file-truename (filename)
+  "Returns the true name of the file FILENAME or nil."
+  (and filename (file-exists-p filename) (file-truename filename)))
+
+(defun proof-register-new-processed-file (file)
+  "Register a new FILE as having been processed by the prover."
+  (let* ((cfile (file-truename file))
+	 (buffer (proof-file-to-buffer cfile)))
+    (setq proof-included-files-list
+	  (cons cfile
+		;; remove is for redundency. The following assertion
+		;; ought to be true:
+		;; { (equal proof-included-files-list
+		;;   (remove cfile proof-included-files-list) }
+		(remove cfile proof-included-files-list)))
+    (or (equal cfile
+	       (file-truename (buffer-file-name
+			       (car proof-script-buffer-list))))
+	(not buffer)
+	(proof-mark-buffer-atomic buffer))))
 
 
 ;;; begin messy COMPATIBILITY HACKING for FSFmacs.
@@ -834,11 +931,12 @@ buffer to END."
   "General next function name in BUFFER finder using match.
   The regexp is assumed to be a two item list the car of which is the regexp
   to use, and the cdr of which is the match position of the function name"
-  (set-buffer buffer)
-  (let ((r (car fume-function-name-regexp))
-        (p (cdr fume-function-name-regexp)))
-    (and (re-search-forward r nil t)
-	 (cons (buffer-substring (setq p (match-beginning p)) (point)) p)))))
+  (save-excursion
+    (set-buffer buffer)
+    (let ((r (car fume-function-name-regexp))
+	  (p (cdr fume-function-name-regexp)))
+      (and (re-search-forward r nil t)
+	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))))
 
 
 ;;; end messy COMPATIBILITY HACKING
@@ -853,7 +951,7 @@ buffer to END."
 (defun proof-goto-end-of-locked-interactive ()
   "Jump to the end of the locked region."
   (interactive)
-  (switch-to-buffer proof-script-buffer)
+  (switch-to-buffer (car proof-script-buffer-list))
   (goto-char (proof-locked-end)))
 
 (defun proof-goto-end-of-locked ()
@@ -867,7 +965,8 @@ buffer to END."
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of it."
   (interactive)
-  (let ((pos (save-excursion
+  (let* ((proof-script-buffer (car proof-script-buffer-list))
+	 (pos (save-excursion
 	       (set-buffer proof-script-buffer)
 	       (proof-locked-end))))
     (or (pos-visible-in-window-p pos (get-buffer-window
@@ -915,8 +1014,10 @@ buffer to END."
       ;; To send any initialisation commands to the inferior process,
       ;; consult proof-shell-config-done...
 
-      (setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
-      (setq proof-pbp-buffer (get-buffer-create (concat "*" proc "-goals*")))
+      (setq proof-shell-buffer (get-buffer (concat "*" proc "*"))
+	    proof-pbp-buffer (get-buffer-create (concat "*" proc "-goals*"))
+	    proof-response-buffer (get-buffer-create (concat "*" proc
+	    "-response*")))
 
       (save-excursion
 	(set-buffer proof-shell-buffer)
@@ -924,7 +1025,7 @@ buffer to END."
 	(set-buffer proof-pbp-buffer)
 	(funcall proof-mode-for-pbp))
 
-      (setq proof-script-buffer (current-buffer))
+      (setq proof-script-buffer-list (list (current-buffer)))
       (proof-init-segmentation)
       (setq proof-active-buffer-fake-minor-mode t)
 
@@ -956,9 +1057,7 @@ buffer to END."
 	      (set-buffer buffer)
 	      (setq proc (process-name (get-buffer-process)))
 	      (comint-send-eof)
-	      (save-excursion
-		(set-buffer proof-script-buffer)
-		(proof-detach-segments))
+		(mapcar 'proof-detach-segments proof-script-buffer-list)
 	      (kill-buffer))
 	    (run-hooks 'proof-shell-exit-hook)
 
@@ -1009,7 +1108,7 @@ buffer to END."
   (interactive "e")
   (let* ((span (span-at (mouse-set-point event) 'type))
 	 (str (span-property span 'cmd)))
-    (cond ((and (eq proof-script-buffer (current-buffer)) (not (null span)))
+    (cond ((and (member (current-buffer) proof-script-buffer-list) (not (null span)))
 	   (proof-goto-end-of-locked)
 	   (cond ((eq (span-property span 'type) 'vanilla)
 		  (insert str)))))))
@@ -1020,7 +1119,7 @@ buffer to END."
 	 top-info)
     (if (null top-span) ()
       (setq top-info (span-property top-span 'proof-top-element))
-      (pop-to-buffer proof-script-buffer)
+      (pop-to-buffer (car proof-script-buffer-list))
       (cond
        (span
 	(proof-invisible-command 
@@ -1261,15 +1360,15 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
   (proof-shell-handle-output
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
    'font-lock-error-face)
-  (save-excursion (display-buffer proof-shell-buffer))
-  (beep)
+  (save-excursion (display-buffer proof-shell-buffer)
+		  (beep)
 
-  ;; unwind script buffer
-  (set-buffer proof-script-buffer)
-  (proof-detach-queue)
-  (delete-spans (proof-locked-end) (point-max) 'type)
-  (proof-release-lock)
-  (run-hooks 'proof-shell-handle-error-hook))
+		  ;; unwind script buffer
+		  (set-buffer (car proof-script-buffer-list))
+		  (proof-detach-queue)
+		  (delete-spans (proof-locked-end) (point-max) 'type)
+		  (proof-release-lock)
+		  (run-hooks 'proof-shell-handle-error-hook)))
 
 (defun proof-shell-handle-interrupt ()
   (save-excursion 
@@ -1278,8 +1377,8 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
     (newline 2)
     (insert-string 
      "Interrupt: Script Management may be in an inconsistent state\n")
-    (beep))
-  (set-buffer proof-script-buffer)
+    (beep)
+  (set-buffer (car proof-script-buffer-list)))
   (if proof-shell-busy
       (progn (proof-detach-queue)
 	     (delete-spans (proof-locked-end) (point-max) 'type)
@@ -1373,20 +1472,21 @@ assistant."
 ;; sent.  Also the proof shell lock would be set automatically, which
 ;; might be nice?
 (defun proof-shell-insert (string)
-  (set-buffer proof-shell-buffer)
-  (goto-char (point-max))
+  (save-excursion
+    (set-buffer proof-shell-buffer)
+    (goto-char (point-max))
 
-  (run-hooks 'proof-shell-insert-hook)
-  (insert string)
+    (run-hooks 'proof-shell-insert-hook)
+    (insert string)
 
-  ;; xemacs and emacs19 have different semantics for what happens when
-  ;; shell input is sent next to a marker
-  ;; the following code accommodates both definitions
-  (if (marker-position proof-marker)
-      (let ((inserted (point)))
-	(comint-send-input)
-	(set-marker proof-marker inserted))
-    (comint-send-input)))
+    ;; xemacs and emacs19 have different semantics for what happens when
+    ;; shell input is sent next to a marker
+    ;; the following code accommodates both definitions
+    (if (marker-position proof-marker)
+	(let ((inserted (point)))
+	  (comint-send-input)
+	  (set-marker proof-marker inserted))
+      (comint-send-input))))
 
 ;; da: This function strips carriage returns from string, then
 ;; sends it.  (Why strip CRs?)
@@ -1400,24 +1500,46 @@ assistant."
 (defun proof-check-process-available (&optional relaxed)
   "Checks whether the proof process is available.
 Specifically:
-     (1) Is a proof process running?
+     (1) Is the current buffer a proof script?
      (2) Is the proof process idle?
-     (3) Does the current buffer own the proof process?
-     (4) Is the current buffer a proof script?
+     (3) Is a proof process running?
 It signals an error if at least one of the conditions is not
-fulfilled. If optional arg RELAXED is set, only (1) and (2) are 
+fulfilled. If optional arg RELAXED is set, only (2) and (3) are 
 tested.
-Note that this is not really intended for anything complicated -
-just to stop the user accidentally sending a command while the
-queue is running."
-  (if (proof-shell-live-buffer)
-      (cond
-       (proof-shell-busy (error "Proof Process Busy!"))
-       (relaxed ())			;exit cond
-       ((not (eq proof-script-buffer (current-buffer)))
-	(error "Don't own proof process"))))
-  (if (not (or relaxed (eq proof-buffer-type 'script)))
-      (error "Must be running in a script buffer")))
+
+The current buffer will become the current scripting buffer provided
+the current scripting buffer has either no locked region or everything 
+in it has been processed."
+  (proof-start-shell)
+  (cond
+   ((not (or relaxed (eq proof-buffer-type 'script)))
+    (error "Must be running in a script buffer"))
+   (proof-shell-busy (error "Proof Process Busy!"))
+   (relaxed ())			;exit cond
+   ((null proof-script-buffer-list) ())
+   ((equal (current-buffer) (car proof-script-buffer-list)) ())
+   (t
+    (let ((script-buffer (car proof-script-buffer-list))
+	  (current-buffer (current-buffer)))
+      (save-excursion
+	(set-buffer script-buffer)
+	(if (member (proof-unprocessed-begin) (list (point-min)
+						     (point-max)))
+
+	    ;; we are changing the scripting buffer
+	   (progn
+	     (setq proof-active-buffer-fake-minor-mode nil)
+	     (set-buffer current-buffer)
+	     (if (member current-buffer proof-script-buffer-list)
+		 (setq proof-script-buffer-list
+		       (remove current-buffer proof-script-buffer-list))
+	       (proof-init-segmentation))
+	     (setq proof-script-buffer-list
+		   (cons current-buffer proof-script-buffer-list))
+	     (setq proof-active-buffer-fake-minor-mode t))
+	  (error "Cannot deal with two unfinished script buffers!")
+	))))))
+
 
 (defun proof-grab-lock (&optional relaxed)
   (proof-start-shell)
@@ -1430,7 +1552,7 @@ queue is running."
 	(if (not proof-shell-busy)
 	    ; (error "Bug in proof-release-lock: Proof process not busy")
 	    (message "Nag, nag, nag: proof-release-lock: Proof process not busy"))
-	(if (not (eq proof-script-buffer (current-buffer)))
+	(if (not (member (current-buffer) proof-script-buffer-list))
 	    (error "Bug in proof-release-lock: Don't own process"))
 	(setq proof-shell-busy nil))))
 
@@ -1472,7 +1594,7 @@ Return non-nil if the action list becomes empty; unlock the process
 and removes the queue region.  Otherwise send the next command to the
 proof process."
   (save-excursion
-    (set-buffer proof-script-buffer)
+    (set-buffer (car proof-script-buffer-list))
     ;; (if (null proof-action-list) 
     ;;	(error "proof-shell-exec-loop: called with empty proof-action-list."))
     ;; Be more relaxed about calls with empty action list
@@ -1507,7 +1629,7 @@ proof process."
   "Insert command sequence triggered by the proof process
 at the end of locked region (after inserting a newline and indenting)."
   (save-excursion
-    (set-buffer proof-script-buffer)
+    (set-buffer (car proof-script-buffer-list))
     (let (span)
       (proof-goto-end-of-locked)
       (newline-and-indent)
@@ -1529,7 +1651,8 @@ at the end of locked region (after inserting a newline and indenting)."
 ;; FIXME: highlight eager annotation-end : fix proof-shell-handle-output
 ;; to highlight whole string.
 (defun proof-shell-popup-eager-annotation ()
-  "Eager annotations are annotations which the proof system produces
+  "Process urgent messages.
+Eager annotations are annotations which the proof system produces
 while it's doing something (e.g. loading libraries) to say how much
 progress it's made. Obviously we need to display these as soon as they
 arrive."
@@ -1538,20 +1661,80 @@ arrive."
 	      proof-shell-eager-annotation-end
 	      'font-lock-eager-annotation-face))
 	file module)
-    (proof-message str)
-    ;;FIXME: LEGO specific regular expression to detect that LEGO is
-    ;;processing a new module
-    (if (string-match "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]" str)
-	(progn
-	  (setq file (match-string 2 str)
-		module (match-string 1 str))
-	  (if (string= file "") 
-	      (setq file (buffer-file-name proof-script-buffer)))
-	  (setq file (expand-file-name file))
-	  (if (string-match "\\(.*\\)\\.." file)
-	      (setq file (match-string 1 file)))
-	  (setq proof-included-files-list (cons (cons module file)
-						proof-included-files-list))))))
+    (proof-message str)))
+
+(defun proof-response-buffer-display (str face)
+  "Display STR with FACE in response buffer."
+  (let ((start))
+    (save-excursion
+      (set-buffer proof-response-buffer)
+      (setq start (goto-char (point-max)))
+      (insert str)
+      (font-lock-fontify-region start (point-max))
+      (font-lock-append-text-property start (point-max) 'face face)
+      (insert "\n"))))
+
+(defun proof-file-to-buffer (filename)
+  "Converts a FILENAME  into a buffer name"
+  (let* ((buffers (buffer-list))
+	 (pos
+	  (position (file-truename filename)
+		    (mapcar 'proof-file-truename
+			    (mapcar 'buffer-file-name
+				    buffers))
+		    :test 'equal)))
+    (and pos (nth pos buffers))))
+
+(defun proof-files-to-buffers (filenames)
+  "Converts a list of FILENAMES into a list of BUFFERS."
+  (if (null filenames) nil
+    (let* ((buffer (proof-file-to-buffer (car filenames)))
+	  (rest (proof-files-to-buffers (cdr filenames))))
+      (if buffer (cons buffer rest) rest))))
+	  
+		  
+(defun proof-shell-process-urgent-message (message)
+  "Display and analyse urgent MESSAGE."
+  (proof-message message)
+  (proof-response-buffer-display message 'font-lock-eager-annotation-face)
+
+  ;; Is the prover processing a file?
+  (cond ((and proof-shell-process-file 
+	      (string-match (car proof-shell-process-file) message))
+	 (progn
+	   (setq file (funcall (cdr proof-shell-process-file) message))
+	   (if (string= file "") 
+	       (setq file (buffer-file-name (car proof-script-buffer-list))))
+	   (proof-register-new-processed-file file)))
+
+  ;; Is the prover retracting across files?
+	((and proof-shell-retract-files-regexp
+	      (string-match proof-shell-retract-files-regexp message))
+	 (let ((current-included proof-included-files-list))
+	   (setq proof-included-files-list
+		 (proof-shell-compute-new-files-list message))
+	   (proof-restart-buffers
+	    (remove (car proof-script-buffer-list)
+		    (proof-files-to-buffers
+		     (set-difference current-included
+				     proof-included-files-list))))))))
+
+(defun proof-shell-process-urgent-messages (str)
+  "Scan the process output for urgent messages.
+Display them immediately in the Response buffer.
+Keep `proof-included-files-list' up to date.
+The input STR is the most recent chunk of output sent to the process
+filter. We assume that urgent messages are fully contained in STR."
+  (let ((start (string-match proof-shell-eager-annotation-start str))
+	end)
+    (and start
+	 (setq end
+	       (string-match proof-shell-eager-annotation-end str
+	       start))
+	 (progn
+	   (proof-shell-process-urgent-message
+	    (proof-shell-strip-annotations (substring str start end)))
+	   (proof-shell-process-urgent-messages (substring str end))))))
 
 (defun proof-shell-filter (str) 
   "Filter for the proof assistant shell-process.
@@ -1559,8 +1742,8 @@ We sleep until we get a wakeup-char in the input, then run
 proof-shell-process-output, and set proof-marker to keep track of
 how far we've got."
   (and proof-shell-eager-annotation-start
-       (string-match proof-shell-eager-annotation-start str)
-       (proof-shell-popup-eager-annotation))
+       (proof-shell-process-urgent-messages str)) 
+       
   (if (or
        ;; Some proof systems can be hacked to have annotated prompts;
        ;; for these we set proof-shell-wakeup-char to the annotation special.  
@@ -1616,52 +1799,6 @@ how far we've got."
       (setq span (prev-span span 'type)))
     span)))
     
-;; This needs some work to make it generic, since most of the code
-;; doesn't apply to Coq at all.  (Never mind Isabelle!)
-(defun proof-steal-process ()
-  "This allows us to steal the process if we want to change the buffer
-in which script management is running."
-  (proof-start-shell)
-  (if proof-shell-busy (error "Proof Process Busy!"))
-  (if (not (eq proof-buffer-type 'script))
-      (error "Must be running in a script buffer"))
-  (cond
-   ((eq proof-script-buffer (current-buffer))
-    nil)
-   (t
-    (let ((flist proof-included-files-list) 
-	  (file (expand-file-name (buffer-file-name))) span (cmd ""))
-      (if (string-match "\\(.*\\)\\.." file) (setq file (match-string 1 file)))
-      (while (and flist (not (string= file (cdr (car flist)))))
-	(setq flist (cdr flist)))
-      (if (null flist) 
-	  (if (not (y-or-n-p "Steal script management? " )) (error "Aborted"))
-	(if (not (y-or-n-p "Reprocess this file? " )) (error "Aborted")))
-      (if (not (buffer-name proof-script-buffer))
-	  (message "Warning: Proof script buffer deleted: proof state may be inconsistent")
-	(save-excursion
-	  (set-buffer proof-script-buffer)
-	  (setq proof-active-buffer-fake-minor-mode nil)
-	  (setq span (proof-last-goal-or-goalsave))
-	  ;; This won't work for Coq if we have recursive goals in progress
-	  (if (and span (not (eq (span-property span 'type) 'goalsave)))
-	      (setq cmd proof-kill-goal-command))
-	  (proof-detach-segments)
-	  (delete-spans (point-min) (point-max) 'type)))
-
-      (setq proof-script-buffer (current-buffer))
-      (proof-init-segmentation)
-      (setq proof-active-buffer-fake-minor-mode t)
-
-      (cond 
-       (flist
-	(list nil (concat cmd "ForgetMark " (car (car flist)) ";")
-	      `(lambda (span) (setq proof-included-files-list 
-				    (quote ,(cdr flist))))))
-       ((not (string= cmd ""))
-	(list nil cmd 'proof-done-invisible))
-       (t nil))))))
-
 (defun proof-done-invisible (span) ())
 
 (defun proof-invisible-command (cmd &optional relaxed)
@@ -1783,7 +1920,7 @@ in which script management is running."
 
 (defun proof-segment-up-to (pos &optional next-command-end)
   "Create a list of (type,int,string) tuples from end of locked region to POS.
-Each tuple consists of denotes the command and the position of its terminator,
+Each tuple denotes the command and the position of its terminator,
 type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
 the start if the segment finishes with an unclosed comment.
 If optional NEXT-COMMAND-END is non-nil, we contine past POS until
@@ -1859,7 +1996,7 @@ the next command end."
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
   "Convert a sequence of semicolon positions (returned by the above
 function) to a set of vanilla extents."
-  (let ((ct (proof-locked-end)) span alist semi)
+  (let ((ct (proof-unprocessed-begin)) span alist semi)
     (while (not (null semis))
       (setq semi (car semis)
             span (make-span ct (nth 2 semi))
@@ -1946,7 +2083,7 @@ Assumes that point is at the end of a command."
    will be added to the queue."
   (interactive)
   (let ((pt (point))
-	(crowbar (or ignore-proof-process-p (proof-steal-process)))
+	(crowbar (or ignore-proof-process-p (proof-check-process-available)))
 	semis)
     (save-excursion
       (if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
@@ -1961,8 +2098,8 @@ Assumes that point is at the end of a command."
       (goto-char (nth 2 (car semis)))
       (and (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-	     (if crowbar (setq vanillas (cons crowbar vanillas)))
-	     (proof-start-queue (proof-locked-end) (point) vanillas))))))
+;	     (if crowbar (setq vanillas (cons crowbar vanillas)))
+	     (proof-start-queue (proof-unprocessed-begin) (point) vanillas))))))
 
 
 ;; da: This is my alternative version of the above.
@@ -1992,7 +2129,7 @@ DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
 a space or newline will be inserted automatically."
   (interactive)
   (let ((pt (point))
-	(crowbar (or ignore-proof-process-p (proof-steal-process)))
+	(crowbar (or ignore-proof-process-p (proof-check-process-available)))
 	semis)
     (save-excursion
       ;; CHANGE from old proof-assert-until-point: don't bother check
@@ -2016,8 +2153,8 @@ a space or newline will be inserted automatically."
       (goto-char (nth 2 (car semis)))
       (if (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-	     (if crowbar (setq vanillas (cons crowbar vanillas)))
-	     (proof-start-queue (proof-locked-end) (point) vanillas)))
+;	     (if crowbar (setq vanillas (cons crowbar vanillas)))
+	     (proof-start-queue (proof-unprocessed-begin) (point) vanillas)))
       ;; This is done after the queuing to be polite: it means the
       ;; spacing policy enforced here is not put into the locked
       ;; region so the user can re-edit.
@@ -2038,7 +2175,7 @@ a space or newline will be inserted automatically."
     (setq span (make-span (proof-locked-end) (point)))
     (set-span-property span 'type 'pbp)
     (set-span-property span 'cmd cmd)
-    (proof-start-queue (proof-locked-end) (point) 
+    (proof-start-queue (proof-unprocessed-begin) (point) 
 		       (list (list span cmd 'proof-done-advancing)))))
 
 
@@ -2143,7 +2280,7 @@ deletes the region corresponding to the proof sequence."
    unclosed-comment-fun."
   (interactive)
   (let ((pt (point)) semis crowbar test)
-    (setq crowbar (proof-steal-process))
+    (setq crowbar (proof-check-process-available))
     (save-excursion
       (if (not (re-search-backward "\\S-" (proof-locked-end) t))
 	  (progn (goto-char pt)
@@ -2159,8 +2296,8 @@ deletes the region corresponding to the proof sequence."
       (goto-char (nth 2 test))
       (let ((vanillas (proof-semis-to-vanillas (list test)
 					       'proof-done-trying)))
-	(if crowbar (setq vanillas (cons crowbar vanillas)))
-	(proof-start-queue (proof-locked-end) (point) vanillas)))))
+;	(if crowbar (setq vanillas (cons crowbar vanillas)))
+	(proof-start-queue (proof-unprocessed-begin) (point) vanillas)))))
 
 
 
@@ -2185,7 +2322,7 @@ the proof script."
   (interactive)
   (if (not (proof-shell-live-buffer))
       (error "Proof Process Not Started!"))
-  (if (not (eq proof-script-buffer (current-buffer)))
+  (if (not (member (current-buffer) proof-script-buffer-list))
       (error "Don't own process!"))
   (if (not proof-shell-busy)
       (error "Proof Process Not Active!"))
@@ -2220,6 +2357,22 @@ the proof script."
   (goto-char (point-max))
   (proof-assert-until-point))
 
+(defun proof-restart-buffer (buffer)
+  "Remove all extents in BUFFER and update `proof-script-buffer-list'."
+  (save-excursion
+    (if (buffer-live-p buffer)
+	(progn
+	  (set-buffer buffer)
+	  (setq proof-active-buffer-fake-minor-mode nil)
+	  (delete-spans (point-min) (point-max) 'type)
+	  (proof-detach-segments)))
+    (setq proof-script-buffer-list
+	  (remove buffer proof-script-buffer-list))))
+
+(defun proof-restart-buffers (bufferlist)
+  "Remove all extents in BUFFERLIST and update `proof-script-buffer-list'."
+  (mapcar 'proof-restart-buffer bufferlist))
+  
 ;; For when things go horribly wrong
 ;; FIXME: this needs to politely stop the process by sending
 ;; an EOF or customizable command.  (maybe timeout waiting for
@@ -2231,22 +2384,19 @@ the proof script."
 (defun proof-restart-script ()
   "Restart Proof General.
 Kill off the proof assistant process and remove all markings in the
-script buffer."
+script buffers."
   (interactive)
-  (save-excursion
-    (if (buffer-live-p proof-script-buffer)
-	(progn
-	  (set-buffer proof-script-buffer)
-	  (setq proof-active-buffer-fake-minor-mode nil)
-	  (delete-spans (point-min) (point-max) 'type)
-	  (proof-detach-segments)))
-    (setq proof-shell-busy nil
-	  proof-shell-proof-completed nil
-	  proof-script-buffer nil)
-    (if (buffer-live-p proof-shell-buffer) 
-	(kill-buffer proof-shell-buffer))
-    (if (buffer-live-p proof-pbp-buffer)
-	(kill-buffer proof-pbp-buffer))))
+  (proof-restart-buffers proof-script-buffer-list)
+  ;; { (equal proof-script-buffer-list nil) }
+   (setq proof-shell-busy nil
+	 proof-included-files-list nil
+	 proof-shell-proof-completed nil)
+   (if (buffer-live-p proof-shell-buffer) 
+       (kill-buffer proof-shell-buffer))
+   (if (buffer-live-p proof-pbp-buffer)
+       (kill-buffer proof-pbp-buffer))
+   (and (buffer-live-p proof-response-buffer)
+	(kill-buffer proof-response-buffer)))
 
 ;; For when things go not-quite-so-horribly wrong
 ;; FIXME: this may need work, and maybe isn't needed at
@@ -2271,7 +2421,7 @@ script buffer."
   "Move the end of the locked region backwards. 
 Only for use by consenting adults."
   (cond
-   ((not (eq proof-script-buffer (current-buffer)))
+   ((not (member (current-buffer) proof-script-buffer-list))
     (error "Not in proof buffer"))
    ((> (point) (proof-locked-end))
     (error "Can only move backwards"))
@@ -2568,7 +2718,17 @@ sent to the assistant."
   "Proof General major mode for proof scripts.
 \\{proof-mode-map}
 "
-  (setq proof-buffer-type 'script))
+  (setq proof-buffer-type 'script)
+
+  ;; Has buffer already been processed?
+  (and (member buffer-file-truename proof-included-files-list)
+       (proof-mark-buffer-atomic (current-buffer)))
+
+  (make-local-variable 'kill-buffer-hook)
+  (add-hook 'kill-buffer-hook
+	    (lambda ()
+	      (setq proof-script-buffer-list
+		    (remove (current-buffer) proof-script-buffer-list)))))
 
 ;; FIXME: da: could we put these into another keymap already?
 ;; FIXME: da: it's offensive to experience users to rebind global stuff

@@ -541,11 +541,18 @@ list is resynchronised. It contains files in canonical truename format
 @inforef{Truenames,,lispref}. 
 
 @item proof-shell-process-file
-is a tuple of the
-form (@var{regexp}, @var{match}). If @var{regexp} matches @var{output},
-then the @var{match} must match the file name (with complete path)
-the system is currently processing @inforef{Match Data,,lispref}. The
-new file name is added to the front of @code{proof-included-files-list}.
+is either nil or a tuple of the
+form (@var{regexp}, @var{function}). If @var{regexp} matches a substring 
+of @var{str},
+then the function @var{function} is invoked with input @var{str}. It must return a script file
+name (with complete path)
+the system is currently processing. In practice, @var{function} is
+likely to inspect the match data. @inforef{Match Data,,lispref}. 
+Care has to be taken in case the prover only reports on compiled
+versions of files it is processing. In this case, @var{function} needs
+to reconstruct the corresponding script file name.
+The 
+new (true) file name is added to the front of @code{proof-included-files-list}.
 
 @item proof-shell-retract-files-regexp
 is a regular expression. It indicates that the prover has retracted

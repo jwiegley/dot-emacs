@@ -336,20 +336,20 @@ X pbp code doesn't quite accord with the tech report; in particular it
 
 C fix Pbp implementation (10h)
 
-A release new version of the LEGO proof engine (4h tms)
+B `lego-get-path' assumes that LEGOPATH has been set in the
+  environment. This is not likely to be the case with the current lego 
+  shell script. Proof General needs to query the LEGO process as part
+  of `lego-process-config' e.g. by
+  sending (a yet to be implemented command) LEGOPATH. The output could 
+  be analysed with the help of a LEGO specific extension of
+  `proof-shell-process-urgent-message'. (1h tms)
+
+
+B release new version of the LEGO proof engine (4h tms)
 
 C Equiv, Next,... aren't handled properly, because LEGO does not
   refresh the proof state. Perhaps it would be easiest to get LEGO to
   output more information in proof script mode (2h)
-
-C LEGO should not issue warning messages triggered by the interactive
-  use of the Module command when invoked by the interface e.g.,
-
-    Lego> Module nstderror Import stderror;
-    Including module nstderror
-    Warning: module name "nstderror" does not equal filename ""!
-
-  (15min)
 
 X Mechanism to save object file
 
@@ -445,3 +445,4 @@ B According to the documentation of font-lock for Emacs 20.2, it
 
 B add links *from* Coq, Lego & Isabelle Web pages
 
+B add instructions for byte compilation

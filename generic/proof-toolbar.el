@@ -206,7 +206,7 @@ without giving error messages."
        (proof-shell-live-buffer)
        (not proof-shell-busy)
        ;; this last check is wrong for pbp buffer!
-       (eq proof-script-buffer (current-buffer))))
+       (eq (car proof-script-buffer-list) (current-buffer))))
 
 (defun proof-toolbar-undo-enable-p () 
   (and (proof-toolbar-process-available-p)
