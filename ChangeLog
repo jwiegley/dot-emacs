@@ -1,3 +1,176 @@
+2003-03-03  David Aspinall  <da@proofgeneral.org>
+
+	* Makefile:
+	Add mmm.  Ignore byte compile errors
+
+	* Makefile.devel, CHANGES:
+	Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-script.el:
+	Fix sticky mode properties for X-Symbol
+
+	* x-symbol/README.x-symbol-for-ProofGeneral:
+	Updated.
+
+	* x-symbol/lisp/makefile.pkg, x-symbol/lisp/Makefile:
+	New files.
+
+	* x-symbol/man/.ispell_xsymb:
+	Deleted file
+
+	* doc/ProofGeneral.texi:
+	Note about M-x x-symbol-mode
+
+	* Makefile.devel:
+	Add distcompile target
+
+	* isa/x-symbol-isabelle.el:
+	Improved version from Gerwin Klein/Christoph Wedler; simplified auto-mode-style setting.
+
+	* generic/proof-x-symbol.el:
+	Fix sticky mode properties for X-Symbol
+
+	* CHANGES, x-symbol/README.x-symbol-for-ProofGeneral:
+	Updated.
+
+	* x-symbol/README, x-symbol/man/x-symbol.texi-exp, x-symbol/man/x-symbol.texi.2, x-symbol/lisp/x-symbol-site.el, x-symbol/lisp/x-symbol-myuc.el:
+	Deleted file
+
+	* x-symbol/fonts/xsymb1_12.bdf, x-symbol/fonts/xsymb1_14.bdf, x-symbol/fonts/nilxs.bdf, x-symbol/fonts/xsymb0_12.bdf, x-symbol/fonts/xsymb0_14.bdf, x-symbol/fonts/heriR18.bdf, x-symbol/fonts/heriR24.bdf, x-symbol/fonts/makesub, x-symbol/fonts/heriR10.bdf, x-symbol/fonts/heriR12.bdf, x-symbol/fonts/heriR14.bdf, x-symbol/fonts/5etl24.bdf, x-symbol/fonts/heriR08.bdf, x-symbol/fonts/Makefile, x-symbol/fonts/3helvR24.bdf, x-symbol/fonts/5etl14.bdf, x-symbol/fonts/5etl16.bdf, x-symbol/fonts/3helvR12.bdf, x-symbol/fonts/3helvR14.bdf, x-symbol/fonts/3helvR18.bdf, x-symbol/fonts/2helvR24.bdf, x-symbol/fonts/3helvR08.bdf, x-symbol/fonts/3helvR10.bdf, x-symbol/fonts/2helvR12.bdf, x-symbol/fonts/2helvR14.bdf, x-symbol/fonts/2helvR18.bdf, x-symbol/fonts/2helvR08.bdf, x-symbol/fonts/2helvR10.bdf:
+	Delete
+
+	* x-symbol/etc/stopsign.xbm, x-symbol/etc/splat.xbm, x-symbol/etc/scroll2.xbm, x-symbol/etc/rgb.txt, x-symbol/etc/filing.xbm, x-symbol/etc/colormap66.xpm, x-symbol/etc/abacus.xbm:
+	Deleted file
+
+	* x-symbol/README.x-symbol-for-ProofGeneral:
+	Updated.
+
+2003-03-01  David Aspinall  <da@proofgeneral.org>
+
+	* x-symbol/README.x-symbol-for-ProofGeneral:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* doc/ProofGeneral.texi:
+	Update doc of X-Sym
+
+	* x-symbol/man/Makefile, x-symbol/man/x-symbol.init, x-symbol/man/x-symbol.texi, x-symbol/lisp/x-symbol.el, x-symbol/lisp/x-symbol-sgml.el, x-symbol/lisp/x-symbol-tex.el, x-symbol/lisp/x-symbol-texi.el, x-symbol/lisp/x-symbol-vars.el, x-symbol/lisp/x-symbol-xmacs.el, x-symbol/lisp/x-symbol-bib.el, x-symbol/lisp/x-symbol-emacs.el, x-symbol/lisp/x-symbol-hooks.el, x-symbol/README.x-symbol-for-ProofGeneral:
+	Update to 4.5 (pre?) version CW sent
+
+	* x-symbol/info/x-symbol.info:
+	New files.
+
+	* generic/proof-utils.el:
+	Some fixes/error protection in shrink window
+
+	* generic/proof-script.el:
+	Refactor function used for Isar parsing a little.
+
+2003-02-27  David Aspinall  <da@proofgeneral.org>
+
+	* x-symbol/pkginfo/MANIFEST.x-symbol:
+	New file.
+
+	* x-symbol/pkginfo/MANIFEST.x-symbol:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/etc/pcf/2helvR12sup.pcf, x-symbol/etc/pcf/2helvR14sup.pcf, x-symbol/etc/pcf/3helvR12sup.pcf, x-symbol/etc/pcf/3helvR14sup.pcf, x-symbol/etc/pcf/5etl14sup.pcf, x-symbol/etc/pcf/5etl16sup.pcf, x-symbol/etc/pcf/fonts.dir, x-symbol/etc/pcf/heriR12sup.pcf, x-symbol/etc/pcf/heriR14sup.pcf, x-symbol/etc/pcf/xsymb0_12sup.pcf, x-symbol/etc/pcf/xsymb0_14sup.pcf, x-symbol/etc/pcf/xsymb1_12sup.pcf, x-symbol/etc/pcf/xsymb1_14sup.pcf:
+	New file.
+
+	* x-symbol/etc/pcf/2helvR12sup.pcf, x-symbol/etc/pcf/2helvR14sup.pcf, x-symbol/etc/pcf/3helvR12sup.pcf, x-symbol/etc/pcf/3helvR14sup.pcf, x-symbol/etc/pcf/5etl14sup.pcf, x-symbol/etc/pcf/5etl16sup.pcf, x-symbol/etc/pcf/fonts.dir, x-symbol/etc/pcf/heriR12sup.pcf, x-symbol/etc/pcf/heriR14sup.pcf, x-symbol/etc/pcf/xsymb0_12sup.pcf, x-symbol/etc/pcf/xsymb0_14sup.pcf, x-symbol/etc/pcf/xsymb1_12sup.pcf, x-symbol/etc/pcf/xsymb1_14sup.pcf:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/etc/pcf/2helvR12sub.pcf, x-symbol/etc/pcf/2helvR14sub.pcf, x-symbol/etc/pcf/3helvR12sub.pcf, x-symbol/etc/pcf/3helvR14sub.pcf, x-symbol/etc/pcf/5etl14sub.pcf, x-symbol/etc/pcf/5etl16.pcf, x-symbol/etc/pcf/5etl16sub.pcf, x-symbol/etc/pcf/helvR12sub.pcf, x-symbol/etc/pcf/helvR12sup.pcf, x-symbol/etc/pcf/helvR14sub.pcf, x-symbol/etc/pcf/helvR14sup.pcf, x-symbol/etc/pcf/heriR12sub.pcf, x-symbol/etc/pcf/heriR14.pcf, x-symbol/etc/pcf/heriR14sub.pcf, x-symbol/etc/pcf/nilxs.pcf, x-symbol/etc/pcf/xsymb0_12sub.pcf, x-symbol/etc/pcf/xsymb0_14.pcf, x-symbol/etc/pcf/xsymb0_14sub.pcf, x-symbol/etc/pcf/xsymb1_12sub.pcf, x-symbol/etc/pcf/xsymb1_14.pcf, x-symbol/etc/pcf/xsymb1_14sub.pcf:
+	New file.
+
+	* x-symbol/etc/pcf/2helvR12sub.pcf, x-symbol/etc/pcf/2helvR14sub.pcf, x-symbol/etc/pcf/3helvR12sub.pcf, x-symbol/etc/pcf/3helvR14sub.pcf, x-symbol/etc/pcf/5etl14sub.pcf, x-symbol/etc/pcf/5etl16.pcf, x-symbol/etc/pcf/5etl16sub.pcf, x-symbol/etc/pcf/helvR12sub.pcf, x-symbol/etc/pcf/helvR12sup.pcf, x-symbol/etc/pcf/helvR14sub.pcf, x-symbol/etc/pcf/helvR14sup.pcf, x-symbol/etc/pcf/heriR12sub.pcf, x-symbol/etc/pcf/heriR14.pcf, x-symbol/etc/pcf/heriR14sub.pcf, x-symbol/etc/pcf/nilxs.pcf, x-symbol/etc/pcf/xsymb0_12sub.pcf, x-symbol/etc/pcf/xsymb0_14.pcf, x-symbol/etc/pcf/xsymb0_14sub.pcf, x-symbol/etc/pcf/xsymb1_12sub.pcf, x-symbol/etc/pcf/xsymb1_14.pcf, x-symbol/etc/pcf/xsymb1_14sub.pcf:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/etc/genfonts/2helvR14sup.bdf, x-symbol/etc/genfonts/3helvR14sup.bdf, x-symbol/etc/genfonts/5etl16sup.bdf, x-symbol/etc/genfonts/heriR14sup.bdf, x-symbol/etc/genfonts/xsymb0_12sup.bdf, x-symbol/etc/genfonts/xsymb0_14sup.bdf, x-symbol/etc/genfonts/xsymb1_12sup.bdf, x-symbol/etc/genfonts/xsymb1_14sup.bdf, x-symbol/etc/pcf/2helvR12.pcf, x-symbol/etc/pcf/2helvR14.pcf, x-symbol/etc/pcf/3helvR12.pcf, x-symbol/etc/pcf/3helvR14.pcf, x-symbol/etc/pcf/5etl14.pcf, x-symbol/etc/pcf/heriR12.pcf, x-symbol/etc/pcf/xsymb0_12.pcf, x-symbol/etc/pcf/xsymb1_12.pcf:
+	New file.
+
+	* x-symbol/etc/genfonts/2helvR14sup.bdf, x-symbol/etc/genfonts/3helvR14sup.bdf, x-symbol/etc/genfonts/5etl16sup.bdf, x-symbol/etc/genfonts/heriR14sup.bdf, x-symbol/etc/genfonts/xsymb0_12sup.bdf, x-symbol/etc/genfonts/xsymb0_14sup.bdf, x-symbol/etc/genfonts/xsymb1_12sup.bdf, x-symbol/etc/genfonts/xsymb1_14sup.bdf, x-symbol/etc/pcf/2helvR12.pcf, x-symbol/etc/pcf/2helvR14.pcf, x-symbol/etc/pcf/3helvR12.pcf, x-symbol/etc/pcf/3helvR14.pcf, x-symbol/etc/pcf/5etl14.pcf, x-symbol/etc/pcf/heriR12.pcf, x-symbol/etc/pcf/xsymb0_12.pcf, x-symbol/etc/pcf/xsymb1_12.pcf:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/etc/genfonts/2helvR12sup.bdf, x-symbol/etc/genfonts/3helvR12sup.bdf, x-symbol/etc/genfonts/5etl14sup.bdf, x-symbol/etc/genfonts/helvR12sup.bdf, x-symbol/etc/genfonts/helvR14sup.bdf, x-symbol/etc/genfonts/heriR12sup.bdf, x-symbol/etc/genfonts/heriR14sub.bdf, x-symbol/etc/genfonts/xsymb0_14sub.bdf, x-symbol/etc/genfonts/xsymb1_14sub.bdf:
+	New file.
+
+	* x-symbol/etc/genfonts/2helvR12sup.bdf, x-symbol/etc/genfonts/3helvR12sup.bdf, x-symbol/etc/genfonts/5etl14sup.bdf, x-symbol/etc/genfonts/helvR12sup.bdf, x-symbol/etc/genfonts/helvR14sup.bdf, x-symbol/etc/genfonts/heriR12sup.bdf, x-symbol/etc/genfonts/heriR14sub.bdf, x-symbol/etc/genfonts/xsymb0_14sub.bdf, x-symbol/etc/genfonts/xsymb1_14sub.bdf:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/etc/genfonts/2helvR12sub.bdf, x-symbol/etc/genfonts/2helvR14sub.bdf, x-symbol/etc/genfonts/3helvR12sub.bdf, x-symbol/etc/genfonts/3helvR14sub.bdf, x-symbol/etc/genfonts/5etl14sub.bdf, x-symbol/etc/genfonts/5etl16sub.bdf, x-symbol/etc/genfonts/heriR12sub.bdf, x-symbol/etc/genfonts/xsymb0_12sub.bdf, x-symbol/etc/genfonts/xsymb1_12sub.bdf:
+	New file.
+
+	* x-symbol/etc/genfonts/2helvR12sub.bdf, x-symbol/etc/genfonts/2helvR14sub.bdf, x-symbol/etc/genfonts/3helvR12sub.bdf, x-symbol/etc/genfonts/3helvR14sub.bdf, x-symbol/etc/genfonts/5etl14sub.bdf, x-symbol/etc/genfonts/5etl16sub.bdf, x-symbol/etc/genfonts/heriR12sub.bdf, x-symbol/etc/genfonts/xsymb0_12sub.bdf, x-symbol/etc/genfonts/xsymb1_12sub.bdf:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/etc/genfonts/helvR12sub.bdf, x-symbol/etc/genfonts/helvR14sub.bdf:
+	New file.
+
+	* x-symbol/etc/genfonts/helvR12sub.bdf, x-symbol/etc/genfonts/helvR14sub.bdf, x-symbol/info/x-symbol.info:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/lisp/custom-load.el:
+	New file.
+
+	* x-symbol/lisp/custom-load.el:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/lisp/auto-autoloads.el:
+	New file.
+
+	* x-symbol/lisp/auto-autoloads.el:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/lisp/_pkg.el: New file.
+
+	* x-symbol/lisp/_pkg.el, x-symbol/lisp/x-symbol-hooks.el:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+2003-02-26  David Aspinall  <da@proofgeneral.org>
+
+	* x-symbol/man/x-symbol.texi:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+	* x-symbol/lisp/ChangeLog: New file.
+
+	* x-symbol/lisp/ChangeLog, x-symbol/lisp/x-symbol-vars.el, x-symbol/lisp/x-symbol-tex.el, x-symbol/lisp/x-symbol.el, x-symbol/lisp/x-symbol-bib.el, x-symbol/lisp/x-symbol-texi.el, x-symbol/lisp/x-symbol-sgml.el:
+	Version 4.5 (beta?) sent by CW, as a package distrib.
+
+2003-02-24  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* generic/proof-utils.el:
+	Fix to shrink-windows-tofit
+
+	* etc/ProofGeneral.spec:
+	Install x-sym/mmm
+
+	* ChangeLog: Updated.
+
+	* generic/proof-x-symbol.el:
+	Documentation.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-x-symbol.el:
+	Set x-symbol-data-directory
+
+	* generic/proof-menu.el:
+	Fix proofdefinvisible, proofdefshortcut to work in compiled version
+
+	* etc/ProofGeneral.spec:
+	Add mmm and x-symbol
+
+	* coq/coq.el, coq/coq-syntax.el, lego/lego.el, plastic/plastic.el, generic/span-overlay.el, isa/x-symbol-isabelle.el, generic/proof-script.el, generic/proof-site.el, generic/proof-utils.el, generic/pg-metadata.el, generic/pg-pgip.el, generic/pg-response.el, generic/pg-user.el:
+	Fix some compile errors
+
 2003-02-24  David Aspinall  <da@proofgeneral.org>
 
 	* generic/proof-utils.el:
