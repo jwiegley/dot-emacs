@@ -1,14 +1,28 @@
-Put the compiled emacs files and the file script-management.info in a
-suitable directory for local emacs files, as suggested by your system
-administrator.  Otherwise, alter the coq-info-dir in coq.el to a
-hard-coded path where you put the file script-management.info.
+This file describes what to do to be able to run our script management
+mode for xemacs.  Please let us know if you have any problems in
+trying to install it.
 
 Check the values of coq-tags and coq-prog-name in coq.el to see that
 they correspond to the paths for coqtop and the library on your system.
 
-To install, put the .el files in an appropriate directory and compile
-them using `byte-compile-file' in xemacs:
+To install, begin by making sure that your load-path has the current
+directory in it by typing:
+	load-path C-j
+in the *scratch* buffer.  If it does not, type:
+	(setq load-path (cons "." load-path)) C-j
+again in the *scratch* buffer (or add it to your .emacs file).
+
+Then put the .el files in an appropriate directory and compile them
+using `byte-recompile-file' in xemacs:
 	M-0 M-x byte-recompile-directory
+
+Put the compiled emacs files and the file script-management.info in a
+suitable directory for local emacs files, as suggested by your system
+administrator.  Otherwise, if you prefer to keep your own private
+copy, alter the variable coq-info-dir in coq.el to that directory and
+add the line:
+	(setq load-path (cons <directory> load-path))
+to your .emacs file, where <directory> is your local directory.
 
 If you want to use this mode for Coq, you need to make sure you have
 an appropriate version, which is from later than 1 March 1998.
@@ -17,9 +31,10 @@ Install coqtags or legotags in a standard place.
 
 If you are running Coq, generate a TAGS file for the library by running
 	coqtags `find . -name \*.v -print`
-in the root directory of the library, $COQTOP/theories.
+in the root directory of the library, $COQTOP/theories.  If you are
+running LEGO, do the same using legotags in the appropriate directory.
 
-Finally, you may want to add the following lines to your .emacs file:
+Finally, you should add the following lines to your .emacs file.
 
 ;;; LEGO and Coq
 (setq auto-mode-alist
@@ -34,3 +49,8 @@ Finally, you may want to add the following lines to your .emacs file:
 
 ; Tags is unusable with Coq library otherwise:
 (setq tag-always-exact t)
+
+After this, simply load a LEGO or Coq file and the appropriate mode
+will be run automatically.
+
+Healfdene GOGUEN
