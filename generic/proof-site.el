@@ -38,7 +38,9 @@
   '((isa        "Isabelle"	"\\.ML$\\|\\.thy$")
    ;(isar       "Isabelle/Isar" "\\.thy$")
     (lego	"LEGO"		"\\.l$")
-    (coq	"Coq"		"\\.v$"))
+    (coq	"Coq"		"\\.v$")
+    (plastic	"Plastic"	"\\.lf$")
+    )
   "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
