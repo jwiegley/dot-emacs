@@ -2,7 +2,6 @@
 #
 # $Id$
 #
-
 undef $/;
 
 if($#ARGV<$[) {die "No Files\n";}
