@@ -14,7 +14,30 @@ Mon Dec 14 15:02:52 GMT 1998  da
     Killing proof script buffer gives error.
 
 
-  
-  
+Mon Dec 16 12:25:00 GMT 1998  tms
+
+  On scar, tested Emacs 20.2.1 with lego 1.3.1 via "ssh craro",
+  LEGOVERSION "std"
+
+  emacs-20.2 -eval '(progn (load
+  "/home/tms/emacs/ProofGeneral/generic/proof-site.el")(setq
+  proof-rsh-command "ssh craro"))' lego/example.l 
+
+  Pressing C-c C-n crashes Emacs: Fatal error (11).Segmentation fault
+
+  This must be a problem with my .emacs file. Including -q in the
+  options, everyting seems to work just fine. Still, this is somewhat
+  concerning. 
 
 
+Mon Dec 16 12:25:00 GMT 1998  tms
+
+  Clarification of entry "Mon Dec 14 15:02:52 GMT 1998  da"
+
+  The problem with LEGOVERSION "alpha" can also be reproduced with
+  lego 1.3.1 (and XEmacs 20.4 or FSF Emacs 20.2) and the file
+  lego/example2.l which accesses a module in a non-writable directory.
+  You need to set chmod u-w readonly yourself; CVS doesn't like
+  non-writable directories)
+  It is a LEGO specific problem. LEGO forgets about annotations
+  sometimes. This has been reported to lego@dcs.ed.ac.uk .
