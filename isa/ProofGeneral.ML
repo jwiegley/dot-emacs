@@ -9,6 +9,10 @@
 *)
 
 
+use "/home/da/isa-patches/thy_read.ML";
+open ThyRead;
+
+
 signature PROOFGENERAL =
 sig
    val kill_goal : unit -> unit

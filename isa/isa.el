@@ -157,6 +157,12 @@ no regular or easily discernable structure."
 (defconst isa-usethy-notopml-command "use_thy_no_topml \"%s\"; update();"
   "Command to send to Isabelle to process theory for this ML file.")
 
+;; Unfortunately, use_thy_no_topml followed by update(); doesn't work
+;; for *theory* files, because update() will report that the ML file
+
+(defconst isa-usethy-command "use_thy \"%s\"; update();"
+  "Command to send to Isabelle to process a theory file.")
+
 (defun isa-shell-hack-use-thy ()
   "Possibly issue  use_thy_no_topml command to Isabelle.
 If the current buffer has an empty locked region, the interface is
@@ -243,10 +249,36 @@ isa-proofscript-mode."
     ;; Has this theory file been loaded by Isabelle?
     ;; Colour it blue if so.  
     (and (member buffer-file-truename proof-included-files-list)
-	 (proof-mark-buffer-atomic (current-buffer))))
+	 (proof-mark-buffer-atomic (current-buffer)))
+    )
    (t 
     ;; Proof mode does this automatically.
     (isa-proofscript-mode))))
+
+(eval-after-load 
+ "thy-mode"
+ ;; Extend theory mode keymap
+ '(let ((map thy-mode-map))
+(define-key map "\C-c\C-b" 'isa-process-thy-file)
+(define-key map "\C-c\C-u" 'isa-retract-thy-file)))
+
+
+;; NB: could chose to use top ml command as well here.
+
+(defun isa-process-thy-file (file)
+  "Process the theory file FILE.  If interactive, use buffer-file-name."
+  (interactive (list buffer-file-name))
+  (proof-invisible-command 
+   (format isa-usethy-notopml-command
+	   (file-name-sans-extension file)) t))
+
+(defun isa-retract-thy-file (file)
+  "Retract the theory file FILE. If interactive, use buffer-file-name."
+  (interactive (list buffer-file-name))
+  (proof-invisible-command
+   (format isa-retract-file-command
+	   (file-name-sans-extension file)) t))
+
 
 ;; Next portion taken from isa-load.el
 ;; isa-load.el,v 3.8 1998/09/01 
@@ -459,9 +491,12 @@ isa-proofscript-mode."
   ;	     (append '(("\\.ML$"  . isa-ML-file-tags-table)
   ;		       ("\\.thy$" . thy-file-tags-table))
   ;		     tag-table-alist)))
-  (setq blink-matching-paren-dont-ignore-comments t)
-  ;; hooks and callbacks
-  (add-hook 'proof-pre-shell-start-hook 'isa-pre-shell-start nil t))
+  (setq blink-matching-paren-dont-ignore-comments t))
+
+
+;; This hook is added on load because proof shells can
+;; be started from .thy (not in scripting mode) or .ML files.
+(add-hook 'proof-pre-shell-start-hook 'isa-pre-shell-start nil t)
 
 (defun isa-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle."
