@@ -9,6 +9,10 @@
 
 
 ;; $Log$
+;; Revision 1.47  1998/05/26 10:46:13  hhg
+;; Removed commented code in proof-dont-show-annotations
+;; proof-done-trying deletes the spans that were created
+;;
 ;; Revision 1.46  1998/05/23 12:50:44  tms
 ;; improved support for Info
 ;;   o employed `Info-default-directory-list' rather than
@@ -552,8 +556,6 @@
   (let ((disp (make-display-table))
 	(i 128))
 	(while (< i 256)
-;;	  (cond (running-xemacs (aset disp i ""))
-;;		(running-emacs19 (aset disp i [])))
 	  (aset disp i [])
 	  (incf i))
 	(cond ((fboundp 'add-spec-to-specifier)
@@ -1462,6 +1464,7 @@ deletes the region corresponding to the proof sequence."
 ;;         something here which changes the proof state             ;;
 
 (defun proof-done-trying (span)
+  (delete-span span)
   (proof-detach-queue))
 			
 (defun proof-try-command
