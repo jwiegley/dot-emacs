@@ -1746,8 +1746,12 @@ The default value is @code{nil}.
 Whether Proof General is strict about the read-only region in buffers.@*
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
-you a reprimand!)
+you a reprimand!).
 
+If you change @code{proof-strict-read-only} during a session, you must use
+@lisp
+"Restart" (@code{proof-shell-restart})
+@end lisp
 The default value for @code{proof-strict-read-only} depends on which
 version of Emacs you are using.  In FSF Emacs, strict read only is buggy
 when it used in conjunction with font-lock, so it is disabled by default.
