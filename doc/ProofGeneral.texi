@@ -4,21 +4,9 @@
 @c
 @c %**start of header
 @setfilename ProofGeneral.info
-@settitle Proof General
-@setchapternewpage odd
+@settitle Proof General Version 2.0
 @paragraphindent 0
-@iftex
-@afourpaper
-@end iftex
 @c %**end of header
-
-@c FIXME: screenshots for this info file would be nice!
-
-
-@set version 2.0
-@set xemacsversion 20.4
-@set fsfversion 20.2
-@set last-update October 1998
 
 @ifinfo
 @format
@@ -28,690 +16,29 @@ END-INFO-DIR-ENTRY
 @end format
 @end ifinfo
 
+@setchapternewpage odd
 
-@c merge functions and variables into concept index.
-@syncodeindex fn cp
-@syncodeindex vr cp
-
-@finalout
 @titlepage
-@title Proof General
-@subtitle Organise your proofs with Emacs!
-@subtitle Proof General @value{version}
-@subtitle @value{last-update}
-@image{ProofGeneral}
-@author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
+@sp 10
+@comment The title is printed in a large font.
+@center @titlefont{Proof General Version 2.0}
+@sp 2
+@center Organise your proofs with Emacs!
+@sp 2
+@center D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
+@sp 1
+@center LFCS Edinburgh
 
+
+@c The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-This manual and the program Proof General are
-Copyright @copyright{} 1998 Proof General team, LFCS Edinburgh
-
-@c
-@c COPYING NOTICE
-@c
-@ignore
-Permission is granted to process this file through TeX and print the
-results, provided the printed document carries copying permission notice
-identical to this one except for the removal of this paragraph (this
-paragraph not being relevant to the printed manual).
-@end ignore
-
-@sp 2
-Permission is granted to make and distribute verbatim copies of this
-manual provided the copyright notice and this permission notice are
-preserved on all copies.  
-@sp 2
-
-This manual documents Proof General, Version @value{version}, for use
-with XEmacs @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}
-or later versions.
+Copyright @copyright{} 1997, 1998 Proof General team, LFCS Edinburgh
 @end titlepage
 
-@page
 
-
-
-@node Top
-@top Proof General
-
-This file documents version @value{version} of @b{Proof General}, a
-generic Emacs interface for proof assistants.
-
-Proof General @value{version} has been tested with XEmacs
-@value{xemacsversion} and FSF GNU Emacs @value{fsfversion}.  It is
-supplied ready customized for the proof assistants Coq, Lego, and
-Isabelle.
-
-@menu
-* Introducing Proof General::  
-* Basic Script Management::     
-* Advanced Script Management::  
-* Customizing Proof General::   
-* LEGO Proof General::          
-* Coq Proof General::           
-* Isabelle Proof General::      
-* Adapting Proof General to New Provers::  
-* Internals of Proof General::  
-* Credits and References::         
-* Obtaining and Installing Proof General::  
-* Known bugs and workarounds::  
-* Plans and ideas::             
-* Variable Index::              
-* Function Index::              
-* Concept Index:: 
-
-@detailmenu --- The Detailed Node Listing ---
-
-Introducing Proof General
-
-* Quick start guide::               
-* Features of Proof General::   
-* Supported proof assistants::  
-
-Basic Script Management
-
-* The buffer model::            
-* Regions in a proof script::   
-* Script editing commands::     
-* Script processing commands::  
-* Toolbar commands::            
-* Other commands::              
-* Walkthrough example in LEGO::  
-
-Advanced Script Management
-
-* Finding the proof shell::
-* View of processed files ::    
-* Switching between proof scripts::  
-* Retracting across files::     
-
-Customizing Proof General
-
-* Setting user options::        
-* Running on another machine::  
-* Tweaking configuration settings::  
-
-LEGO Proof General
-
-* LEGO specific commands::      
-* LEGO customizations::         
-
-Coq Proof General
-
-* Coq specific commands::       
-* Coq customizations::          
-
-Isabelle Proof General
-
-* Isabelle specific commands::  
-* Isabelle customizations::     
-
-Adapting Proof General to New Provers
-
-* Skeleton example::            
-* Proof script settings::       
-* Proof shell settings::        
-
-Proof shell settings
-
-* Special annotations::         
-
-Internals of Proof General
-
-* Proof script mode::           
-* Proof shell mode::            
-
-@end detailmenu
-@end menu
-
-
-
-@node Introducing Proof General
-@chapter Introducing Proof General
-@image{ProofGeneral}
-
-@dfn{Proof General} is a generic Emacs interface for proof assistants,
-developed at the LFCS in the University of Edinburgh.
-
-Proof General works best under XEmacs, but can also be used with FSF GNU
-Emacs.
-
-You do not have to be an Emacs militant to use Proof General!  @*
-
-The interface is designed to be very easy to use.  You develop your
-proof script in place rather than line-by-line in a shell using
-cut-and-paste to reassemble the pieces.  Proof General keeps track of
-which proof steps have been processed by the prover, and prevents you
-editing them accidently.  You can undo steps as usual.
-
-
-@menu
-* Quick start guide::               
-* Features of Proof General::   
-* Supported proof assistants::  
-@end menu
-
-@node Quick start guide
-@section Quick start guide
-
-Proof General may have been installed for you already. If so, when you
-visit a proof script file for your proof assistant, you'll find commands
-to process the proof script are available from the toolbar, menus, and
-keyboard.  Type @kbd{C-h m} to get a list of keys for the current mode.
-
-The proof assistant is automatically started inside Emacs when you ask
-for some of the proof script to be processed.  To follow an example use
-of Proof General on a LEGO proof, see @pxref{Walkthrough example in
-LEGO}.
-
-If Proof General has not already been installed, you should insert the
-line:
-@lisp
-        (load "@var{ProofGeneral}/generic/proof-site.el")
-@end lisp
-
-into your @file{~/.emacs} file, where @var{ProofGeneral} is the
-directory that Proof General was unpacked in.
-
-For more details on obtaining and installing Proof General,
-see @pxref{Obtaining and Installing Proof General}.
-
-
-@node Features of Proof General
-@section Features of Proof General
-
-Here is an outline of the main features of Proof General.
-
-@itemize @bullet
-@item @i{Simplified communication}@*
-The proof assistant's shell is normally hidden from the user.
-Communication takes place via two or three buffers.  The @dfn{script
-buffer} holds input, the commands to construct a proof.  The @dfn{goals
-buffer} displays the current list of subgoals to be solved.  The
-@dfn{response buffer} displays other output from the proof assistants.
-This means that the user only sees the output from the most recent proof
-step, rather than a screen full of output from the proof assistant.
-@c Optionally, the goals buffer and script buffer can be identified.
-
-For more details, see @pxref{The buffer model}.
-@item @i{Script management}@*
-Proof General colours proof script regions blue when they have already
-been processed by the prover, and colours regions red when the prover is
-currently processing them.  The appearance of Emacs buffers always
-matches the proof assistant's state.
-
-For more details, see @pxref{Basic Script Management}
-and @pxref{Advanced Script Management}.
-@item @i{Script editing mode}@*
-Proof General provides useful facilities for editing proof scripts,
-including syntax hilighting and a menu to jump to particular goals.
-Special editing functions send lines of proof script to the proof
-assistant, or undo previous proof steps.
-
-For more details, see @pxref{Script editing commands}
-and @pxref{Script processing commands}.
-@item @i{Toolbar and menus}@*
-A script buffer has a toolbar with navigation buttons for processing
-parts of the proof script.  A menu provides further functions for
-operations in the proof assistant, as well as customization of Proof
-General.
-
-For more details, see @pxref{Toolbar commands}, @pxref{Other commands},
-and @pxref{Customizing Proof General}.
-
-@c not yet
-@c @item @i{Proof by pointing}
-@end itemize
-
-
-@node Supported proof assistants
-@section Supported proof assistants
-
-Proof General comes ready-customised for these proof assistants:
-
-@itemize @bullet
-@item 
-@b{LEGO Proof General} for LEGO Version 1.3.1@*
-@c written by Thomas Kleymann and Dilip Sequeira.
-
-LEGO Proof General supports all of the generic features of Proof
-General.
-
-See @pxref{LEGO Proof General} for more details.
-@c
-@item 
-@b{Coq Proof General} for Coq Version 6.2@*
-@c written by Healfdene Goguen.
-
-Coq Proof General supports all of the generic features of Proof General
-except multiple files.
-
-See @pxref{Coq Proof General} for more details.
-@c
-@item 
-@b{Isabelle Proof General} for Isabelle 98-1@*
-@c written by David Aspinall.
-
-Isabelle Proof General supports all of the generic features of
-Proof General, excepting the external tags program.   It handles
-theory files as well as ML (proof script files), and has
-an extensive theory file editing mode taken from Isamode.
-
-See @pxref{Isabelle Proof General} for more details.
-@end itemize
-
-Proof General is designed to be generic, so you can adapt it to other
-proof assistants if you know a little bit of Emacs Lisp.
-See @pxref{Adapting Proof General to New Provers} for more details
-of how to do this.
-
-
-
-
-
-@node Basic Script Management
-@chapter Basic Script Management
-
-@menu
-* The buffer model::            
-* Regions in a proof script::   
-* Script editing commands::     
-* Script processing commands::  
-* Toolbar commands::            
-* Other commands::              
-* Walkthrough example in LEGO::  
-@end menu
-
-@node Proof scripts
-@section Proof scripts
-
-A @dfn{proof script} is a sequence of commands to a proof assistant used
-to construct a proof.  Proof General is designed to work with
-@i{interactive} proof assistants, where the mode of working is usually a
-dialogue between the user and the proof assistant.
-
-Primitive interfaces for proof assistants simply present a shell-like
-view of this dialogue: the user repeatedly types commands to the shell
-until the proof is completed.  The system responds at each step, maybe
-with a new list of subgoals to be solved, or maybe with a failure
-report.
-
-Often we want to keep a record of the proof commands used to prove a
-theorem, in the form of a proof script kept in a file.  Then we can
-@dfn{replay} the proof later on to reprove the theorem, without having
-to type in all the commands again.
-@c Re-playing a proof script is a non-interactive procedure,
-@c since it is supposed to succeed.
-
-Using only a primitive shell interface, it can be tedious to construct
-proof scripts with cut-and-paste.  Proof General helps organize
-interactive proofs by issuing commands directly from a proof script
-file, while it is written and edited.
-@c developing them in proof script files.
-
-@node Goals and saves
-@unnumberedsubsec Goals and saves
-
-A proof script contains a sequence of commands used to prove one or more
-theorems.  In general we assume that for each proved theorem,
-a  proof script contains a goal .. save  pair of commands which
-look something like this:
-@lisp
-   goal T is G
-   ...
-   save theorem T
-@lisp
-Proof General recognizes goal .. save pairs in proof scripts.
-The name T can appear in the definitions menu for the proof
-script @pxref{Script definitions menu}, and once
-a goal .. save pair is completed it is treated
-as atomic when undoing proof steps @pxref{Undo}.
-
-
-@node The buffer model
-@section The buffer model
-
-@c FIXME: fix this in the light of what gets implemented.
-
-Proof General runs your proof assistant in a shell buffer in Emacs.
-This @dfn{proof shell buffer} is usually hidden from view.
-(Occasionally you want to find it, see @pxref{Finding the proof shell}).
-When Proof General sees an error in the shell buffer, it will
-highlight the error and display the buffer automatically.
-
-Communication with the proof shell takes place via two or three
-intermediate buffers.
-
-The @dfn{script buffer} holds input destined for the proof shell, in the
-form of a @i{proof script}.  Normally this is a buffer visiting a file,
-which can be later loaded directly by the prover to replay the proof.
-
-The @dfn{goals buffer} displays the current list of subgoals to be
-solved for a proof in progress.  This is normally displayed at
-the same time as the script buffer.
-
-The @dfn{response buffer} displays other output from the proof
-assistant, for example warning or informative messages.
-
-Optionally, the goals buffer and script buffer can be identified
-@pxref{Identify goals and response}.  The disadvantage of this is that
-the goals display can be replaced by other messages, so you must ask for
-it to be refreshed.  The advantage is that it is simpler to deal with
-fewer Emacs buffers.
-
-
-@node Regions in a proof script
-@section Regions in a proof script
-
-@node Script editing commands
-@section Script editing commands
-
-@node Script processing commands
-@section Script processing commands
-
-@node Toolbar commands
-@section Toolbar commands
-
-@node Other commands
-@section Other commands
-
-@node Walkthrough example in LEGO
-@section Walkthrough example in LEGO
-
-
-
-@node Advanced Script Management
-@chapter Advanced Script Management
-
-@menu
-* Finding the proof shell::
-* View of processed files ::    
-* Switching between proof scripts::  
-* Retracting across files::     
-@end menu
-
-@node Finding the proof shell
-@section Finding the proof shell
-
-Occasionally you may want to review the dialogue of the entire session
-with the proof assistant, or check that it hasn't done something
-unexpected.
-
-Although the proof shell is usually hidden from view, it is run in an
-buffer which provides the usual full editing and history facilities of
-Emacs shells, see
-@c FIXME
-@inforef{Comint}
-
-If you're running Isabelle, the proof shell buffer will be called
-something like @code{*Inferior Isabelle*}.  You can switch to it using
-@kbx{C-x b} (@code{switch-to-buffer}).
-
-@b{Warning:} you can probably cause confusion by typing in the shell
-buffer!  Proof General may lose track of the state of the proof
-assistant.
-
-Proof General watches the output from the proof assistant to guess when
-a file is loaded or when a proof step is taken or undone, but it may not
-be guaranteed when the restricted interface is by-passed.  What happens
-depends on how complete the communication is between Proof General and
-the prover (which depends on the particular instantion of Proof
-General).
-
-
-
-@node View of processed files 
-@section  View of processed files
-
-@node Switching between proof scripts
-@section Switching between proof scripts
-
-@node Retracting across files
-@section Retracting across files
-
-
-@node Customizing Proof General
-@chapter Customizing Proof General
-
-@menu
-* Setting user options::        
-* Running on another machine::  
-* Tweaking configuration settings::  
-@end menu
-
-@node Setting user options
-@section Setting user options
-
-@node Running on another machine
-@section Running on another machine
-
-@node Tweaking configuration settings
-@section Tweaking configuration settings
-
-
-
-@node LEGO Proof General
-@chapter LEGO Proof General
-
-@menu
-* LEGO specific commands::      
-* LEGO customizations::         
-@end menu
-
-@node LEGO specific commands
-@section LEGO specific commands
-
-@node LEGO customizations
-@section LEGO customizations
-
-
-@node Coq Proof General
-@chapter Coq Proof General
-
-@menu
-* Coq specific commands::       
-* Coq customizations::          
-@end menu
-
-@node Coq specific commands
-@section Coq specific commands
-
-@node Coq customizations
-@section Coq customizations
-
-
-
-@node Isabelle Proof General
-@chapter Isabelle Proof General
-
-@menu
-* Isabelle specific commands::  
-* Isabelle customizations::     
-@end menu
-
-@node Isabelle specific commands
-@section Isabelle specific commands
-
-@node Isabelle customizations
-@section Isabelle customizations
-
-
-
-
-@node Adapting Proof General to New Provers
-@chapter Adapting Proof General to New Provers
-
-Proof General has about 60 configuration variables which are set on a
-per-prover basis to configure the various features.  However, many of
-these variables occcur in pairs (typically regular expressions matching
-the start and end of some text), and you can begin by setting just a few
-variables to get the basic features working.
-
-
-@menu
-* Skeleton example::            
-* Proof script settings::       
-* Proof shell settings::        
-@end menu
-
-
-@node Skeleton example
-@section Skeleton example
-
-Each proof assistant supported has its own subdirectory under
-@var{proof-home-directory}, used to store a root elisp file and any
-other files needed to adapt the proof assistant for Proof General.
-
-Here we show how a minimal configuration of Proof General works for
-Isabelle, without any special changes to Isabelle.
-
-@begin itemize
-@item Make a directory called 'myassistant' under the Proof General home
-directory, to put the specific customization and associated files in.
-@item Add a file myassistant.el to the new directory.
-@item Edit proof-site.el to add a new entry to the
-  @var{proof-assistants-table} variable.  The new entry should
-look like this:
-
-    (myassistant "My New Assistant" "\\.myasst$")
-
-The first item is used to form the name of the internal variables
-for the new mode as well as the directory and file where it loads
-from.  The second is a string, naming the proof assistant.
-The third item is a regular expression to match names of 
-proof script files for this assistant.  See the documentation
-of @var{proof-assistants-table} for more details.
-@item Define the new modes in myassistant.el, by looking at 
- the files for the currently supported assistants for example.
- Basically you need to define some modes using @code{define-derived-mode}
- and set the configuration variables.  You could begin by setting
- a minimum number of the variables, then adjust the 
- settings via the customize menus, under Proof-General -> Internals.
-@end itemize
-
-
-
-@node Proof script settings
-@section Proof script settings
-
-@node Proof shell settings
-@section Proof shell settings
-
-@menu
-* Special annotations::         
-@end menu
-
-@node Special annotations
-@unnumberedsubsec Special annotations
-
-
-
-@node Internals of Proof General
-@chapter Internals of Proof General
-
-@menu
-* Proof script mode::           
-* Proof shell mode::            
-@end menu
-
-@node Proof script mode
-@section Proof script mode
-
-@node Proof shell mode
-@section Proof shell mode
-
-
-
-@node Credits and References
-@chapter Credits and References
-
-@menu
-* Credits::                     
-* References::                  
-@end menu
-
-@node Credits
-@unnumberedsec Credits
-
-LEGO Proof General was written by Thomas Kleymann and Dilip Sequeira.
-
-Coq Proof General was written by Healfdene Goguen.
-
-Isabelle Proof General was written by David Aspinall.
-
-The generic base for Proof General was developed by all four of us.
-
-Thomas Kleymann provided the impetus to develop a generic Emacs
-interface, following ideas used in Projet CROAP, and with the help of
-Yves Bertot.  David Aspinall provided the Proof General name and images.
-
-An early version of this manual was written by Thomas Kleymann and Dilip
-Sequeira.  The present version was prepared by David Aspinall and Thomas
-Kleymann.
-
-
-@node References
-@unnumberedsec References
-
-Script management as used in Proof General is described in the paper:
-
-@itemize @bullet
-@item
-Yves Bertot and Laurent Th@'ery. A generic approach to building
-user interfaces for theorem provers. To appear in Journal of
-Symbolic Computation.
-@end itemize
-
-Proof General has the beginnings of support for proof by pointing,
-as described in the document:
-
-@itemize @bullet
-@item
-Yves Bertot, Thomas Kleymann-Schreiber and Dilip Sequeira. Implementing
-Proof by Pointing without a
-Structure Editor. LFCS Technical Report ECS-LFCS-97-368. Also published as Rapport de recherche de
-l'INRIA Sophia Antipolis RR-3286 
-@end itemize
-
-
-@node Obtaining and Installing Proof General
-@appendix Obtaining and Installing Proof General
-
-
-@node Known bugs and workarounds
-@appendix Known bugs and workarounds
-
-
-@node Plans and ideas
-@appendix Plans and ideas
-
-
-
-
-@node Variable Index
-@unnumbered Variable Index
-@printindex vr
-
-@node Function Index
-@unnumbered Function Index
-@printindex fn
-
-@node Concept Index
-@unnumbered Concept Index
-@printindex cp
-
-@bye
-
-
-@c OLD TEXI STUFF HERE
-
-
-
-
-
-
-
+@node Top, Introduction, (dir), (dir)
+@comment node-name, next,          previous, up
 
 @b{Proof General} is a generic Emacs interface for proof assistants. It
 works ideally under XEmacs, but can also be used with Emacs 19.
@@ -744,13 +71,6 @@ assistant, by adding features at the generic level wherever possible.
 Send ideas, comments, patches, code to @email{proofgen@@dcs.ed.ac.uk}.
 Please feel free to download Proof General to customize it for another
 system, and tell us how you get on.
-
-
-
-
-******************
-
-
 
 @menu
 * Introduction::                
@@ -840,7 +160,7 @@ assertion and retraction commands can only be issued when the queue is
 empty.
 
 @node Commands, Multiple Files, Introduction, Top
-@section Proof Mode Commands
+@unnumberedsec Proof Mode Commands
 
 @table @kbd
 
@@ -903,7 +223,7 @@ restart script management.
 
 
 @node Multiple Files, An Active Terminator, Commands, Top
-@section Multiple Files
+@unnumberedsec Multiple Files
 
 Proof mode has a rudimentary facility for operating with multiple files
 in a proof development. This is currently only supported for LEGO. If
@@ -940,7 +260,7 @@ LEGOPATH will be the LEGOPATH you started with. No concept of
 @end itemize
 
 @node An Active Terminator, Proof by Pointing, Multiple Files, Top
-@section An Active Terminator
+@unnumberedsec An Active Terminator
 
 Proof mode has a minor mode which causes the terminator to become
 active. When this mode is active, pressing the terminator key (@kbd{;}
@@ -952,7 +272,7 @@ This mode can be toggled with the command
 `proof-active-terminator-minor-mode' (@kbd{C-c ;} or @kbd{C-c .})
 
 @node Proof by Pointing, Walkthrough, An Active Terminator, Top
-@section Proof by Pointing
+@unnumberedsec Proof by Pointing
 
 @emph{This mode is currently very unreliable, and we do not guarantee
 that it will work as discussed in this document.}
@@ -1050,7 +370,7 @@ Clicking on @samp{q x} proves the goal.
 
 
 @node Walkthrough, LEGO mode, Proof by Pointing, Top
-@section A Walkthrough
+@unnumberedsec A Walkthrough
 
 Here's a LEGO example of how script management is used.
 
@@ -1094,7 +414,7 @@ buffer, and type @kbd{C-c return}.  Proof mode queues the commands for
 processing and executes them.
 
 @node LEGO mode, Coq mode, Walkthrough, Top
-@section LEGO mode
+@unnumberedsec LEGO mode
 
 LEGO mode is a mode derived from proof mode for editing LEGO scripts.
 There are some abbreviations for common commands, which
@@ -1111,7 +431,7 @@ Refine
 
 
 @node Coq mode, Known Problems, LEGO mode, Top
-@section Coq mode
+@unnumberedsec Coq mode
 
 Coq mode is a mode derived from proof mode for editing Coq scripts.
 As well as custom popup menus, it has the following commands:
@@ -1135,7 +455,7 @@ Apply
 @end table
 
 @node Known Problems, Internals, Coq mode, Top
-@section Known Problems
+@unnumberedsec Known Problems
 
 Since Emacs is pretty flexible, there are a whole bunch of things you
 can do to confuse script management. When it gets confused, it may
@@ -1169,7 +489,7 @@ Fixes for some of these may be provided in a future release.
 
 @node Internals, Variable Index, Known Problems, Top
 @comment  node-name,  next,  previous,  up
-@section Internals
+@unnumberedsec Internals
 
 @menu
 * Granularity of Atomic Command Sequences::  
@@ -1297,7 +617,7 @@ called myassistant.
 directory, to put the specific customization and associated files in.
 @item Add a file myassistant.el to the new directory.  
 @item Edit proof-site.el to add a new entry to the
-  @var{proof-assistants-table} variable.  The new entry should
+  @var{proof-internal-assistants-table} variable.  The new entry should
 look like this:
 
     (myassistant "My New Assistant" "\\.myasst$")
@@ -1307,7 +627,7 @@ for the new mode as well as the directory and file where it loads
 from.  The second is a string, naming the proof assistant.
 The third item is a regular expression to match names of 
 proof script files for this assistant.  See the documentation
-of @var{proof-assistants-table} for more details.
+of @var{proof-internal-assistants-table} for more details.
 @item Define the new modes in myassistant.el, by looking at 
  the files for the currently supported assistants for example.
  Basically you need to define some modes using @code{define-derived-mode}
@@ -1338,3 +658,20 @@ Proof by Pointing without a
 Structure Editor. LFCS Technical Report ECS-LFCS-97-368. Also published as Rapport de recherche de
 l'INRIA Sophia Antipolis RR-3286 
 @end itemize
+
+@node Variable Index, Function Index, Internals, Top
+@comment    node-name,         next,       previous, up
+@unnumbered Variable Index
+@printindex vr
+
+@node Function Index, Concept Index,Variable Index, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Function Index
+@printindex fn
+
+@node Concept Index,,Function Index, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Concept Index
+@printindex cp
+
+@bye
