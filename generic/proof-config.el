@@ -1641,8 +1641,9 @@ Proof General about the dependencies rather than using this setting."
 
 (defcustom proof-shell-prompt-pattern nil 
    "Proof shell's value for comint-prompt-pattern, which see.
-This pattern is just for interaction in comint (shell buffer).
-You don't really need to set it."
+NB!! This pattern is just for interaction in comint (shell buffer).
+You don't really need to set it.  The important one to set is
+`proof-shell-annotated-prompt-regexp', which see."
    :type 'regexp
    :group 'proof-shell)
 
