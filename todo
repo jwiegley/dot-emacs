@@ -14,6 +14,9 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A* shouldn't a
+    file that has been completed be added to proof-included-files-list?
+
 A* Fixup multiple files (mark atomic makes some assumption about
    non-comment commands in script buffers).  Improve test for
    locked region being whole of buffer.  This is partly done,
@@ -388,6 +391,8 @@ C Improve coqtags. I cannot handle lists e.g., with
 
 * Here are things to be done to Isabelle Mode
 =============================================
+
+A* Add annotations to prompt and output.
 
 B Intermittent problems parsing output.  Seems to depend on
   what has been run before.  E.g. first time starting process
