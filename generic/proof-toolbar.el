@@ -217,17 +217,20 @@ to the default toolbar."
     (mapcar
      (lambda (buttons)
        (let ((var	(car buttons))
-	     (iconfiles (mapcar (lambda (name)
-				  (concat proof-images-directory
-					  name
-					  icontype)) (cdr buttons))))
+	     (iconfiles 
+	      (mapcar (lambda (name)
+			(concat proof-images-directory
+				"pg-" ;; added 1.3.04 to avoid Emacs clashes
+				name
+				icontype)) (cdr buttons))))
 	 (set var 
 	      (if proof-running-on-XEmacs
 		  ;; On XEmacs, icon variable holds a list of glyphs
 		  (toolbar-make-button-list iconfiles)
 		;; On GNU emacs, it holds a filename for the icon,
-		;; without path or extension.
-		(eval (cadr buttons))))))
+		;; without path or extension.  Warning!  This
+		;; can lead to name clashes with other packages.
+		(concat "pg-" (eval (cadr buttons)))))))
      proof-toolbar-icon-list)
 
     (if proof-running-on-XEmacs
