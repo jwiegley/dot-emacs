@@ -16,7 +16,7 @@ diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.
 *** ProofGeneral.old/generic/proof-site.el	Wed Oct  7 18:38:21 1998
 --- ProofGeneral/generic/proof-site.el	Wed Oct  7 19:05:08 1998
 ***************
-*** 76,82 ****
+*** 92,98 ****
     :group 'proof-general-internals)
   
   (defcustom proof-info-directory
@@ -24,7 +24,7 @@ diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.
     "Where Proof General Info files are installed."
     :type 'directory
     :group 'proof-general-internals)
---- 76,82 ----
+--- 92,98 ----
     :group 'proof-general-internals)
   
   (defcustom proof-info-directory
