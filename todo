@@ -29,12 +29,9 @@ X (Low)		e.g. probably not worth spending time on
 
 *** Top Priority Fixes for 3.1
 
- - Solaris ^G problem and FSF Emacs mule/non-mule support
- - Recognition of ; only at eol (DvO reported bug here, shouldn't happen)
- - Web page: add notify when updated option
- - Manual: credits for other bug reporters
+ - Manual: credits for bug reporters
  - Would be nice to fix spurious output of Coq and HOL from first line
-   when synchronization is gained.
+   when synchronization is gained.  How?
 
 *** Scheduled improvements for 3.2
 
@@ -802,7 +799,7 @@ C New modules:
 
 *** A Update ETAPS demo
 
-*** A Add some one-stop-shop pages.  Ask permission to redistribute
+*** B Add some one-stop-shop pages.  Ask permission to redistribute
   packages for PAs.  Maybe do Windows and Linux versions.
 
 *** B Add an animation, showing proof replay.
@@ -810,6 +807,8 @@ C New modules:
 *** B Validate pages.  
    Current failures for HTML 4.0 to do with CGI-style arguments with "&",
    this is a problem with PHP3 really.
+
+*** C add notify when updated option
 
 *** C Wanted for links: something to UITP.  Are there any pages?
 

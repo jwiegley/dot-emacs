@@ -32,7 +32,9 @@ See also ../todo for generic things to do, priority codes.
 ** B Proof-by-Pointing [2 weeks]
   da: Yves Bertot told me that his CtCoq proof-by-pointing code
   is in the Coq kernel now, so would be useful for PG.
-  We need a Coq hacker to do this (Pierre?)
+  We need a Coq hacker to do this.
+  Perhaps for new version of Coq.
+  da: I have old version of code sent to my by Healf.
 
 ** C Improve X-Symbol support.  Integrate with Coq syntax mechanism somehow?
 

@@ -18,6 +18,8 @@ Plans for upcoming 3.x versions
 * Support turning on/off prover output automatically, e.g.
   Coq's "Begin Silent" and "End Silent" commands.
 
+* Fix Isabelle's "Stack overflow in regexp".   See isa/BUGS.
+
 * Make an XEmacs package
 
 * Support more proof assistants
