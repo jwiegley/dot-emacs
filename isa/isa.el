@@ -24,16 +24,6 @@
   :type 'file
   :group 'isabelle-settings)
 
-(defcustom isa-thy-file-tags-table "/usr/lib/Isabelle98/src/TAGS.thy"
-  "*Name of theory file tags table for Isabelle."
-  :type 'file
-  :group 'isabelle-settings)
-
-(defcustom isa-ML-file-tags-table  "/usr/lib/Isabelle98/src/TAGS.ML"
-  "*Name of ML file tags table for Isabelle."
-  :type 'file
-  :group 'isabelle-settings)
-
 (defcustom isa-indent 2
   "*Indentation degree in proof scripts.
 Utterly irrelevant for Isabelle because normal proof scripts have
