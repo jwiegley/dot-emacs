@@ -874,7 +874,7 @@ assistant."
     (proof-clean-buffer proof-goals-buffer)
     (setq proof-shell-proof-completed t)
     (setq proof-shell-delayed-output
-	  (cons 'insert (concat "\n" (match-string 0 string)))))
+	  (cons 'insert (concat "\n" (match-string 1 string)))))
 
    ((proof-shell-string-match-safe proof-shell-start-goals-regexp string)
     (setq proof-shell-proof-completed nil)

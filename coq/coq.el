@@ -81,7 +81,7 @@
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
   "*Regexp indicating that the current goal has been abandoned.")
 
-(defvar coq-shell-proof-completed-regexp "Subtree proved!"
+(defvar coq-shell-proof-completed-regexp "\\(Subtree proved!\\)"
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar coq-goal-regexp

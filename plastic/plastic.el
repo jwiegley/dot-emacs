@@ -144,7 +144,7 @@
   "*Regular expression indicating that the proof of the current goal
   has been abandoned.")
 
-(defvar plastic-shell-proof-completed-regexp "\\*\\*\\* QED \\*\\*\\*"
+(defvar plastic-shell-proof-completed-regexp "\\(\\*\\*\\* QED \\*\\*\\*\\)"
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar plastic-save-command-regexp

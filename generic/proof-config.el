@@ -841,7 +841,8 @@ The engine matches interrupts before errors."
   :group 'proof-shell) 
 
 (defcustom proof-shell-proof-completed-regexp nil
-  "Regexp matching output indicating a finished proof."
+  "Regexp matching output indicating a finished proof.
+Match number 1 should be the response text."
   :type 'regexp
   :group 'proof-shell)
 
