@@ -9,6 +9,18 @@
 
 
 ;; $Log$
+;; Revision 1.50  1998/06/02 15:35:19  hhg
+;; Generalized proof-retract-target, now parameterized by
+;; proof-count-undos and proof-find-and-forget.
+;; Generalized proof-shell-analyse-structure, introduced variable
+;; proof-analyse-using-stack.
+;; Generalized proof menu plus ancillary functions.
+;; Generalized proof-mode-version-string.
+;; Removed emacs-version-at-least.
+;; Removed comment about buffer-display-table.
+;; Moved various comments into documentation string.
+;; Fixed another mode-line command for emacs19.
+;;
 ;; Revision 1.49  1998/05/29 13:29:03  tms
 ;; fixed a bug in `proof-goto-end-of-locked-if-pos-not-visible-in-window'
 ;;
@@ -239,6 +251,7 @@
       (t nil))
 (require 'proof-fontlock)
 (require 'proof-indent)
+(require 'easymenu)
 
 (autoload 'w3-fetch "w3" nil t)
 
@@ -253,6 +266,18 @@
 ;;               Configuration                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defconst proof-mode-version-string
+  "PROOF-MODE. ALPHA Version 2 (June 1998) LEGO Team <lego@dcs.ed.ac.uk>")
+
+(defvar proof-assistant ""
+  "Name of the proof assistant")
+
+(defvar proof-www-home-page ""
+  "Web address for information on proof assistant")
+
+(defvar proof-shell-cd nil
+  "*Command of the inferior process to change the directory.") 
+
 (defconst proof-info-dir "/usr/local/share/info")
 
 (defvar proof-universal-keys
@@ -263,9 +288,6 @@
   "List of keybindings which are valid in both in the script and the
   response buffer. Elements of the list are tuples (k . f) 
   where `k' is a keybinding (vector) and `f' the designated function.")
-
-(defvar proof-shell-cd nil
-  "*Command of the inferior process to change the directory.") 
 
 (defvar proof-prog-name-ask-p nil
   "*If t, you will be asked which program to run when the inferior
@@ -287,7 +309,8 @@
 (defvar proof-goal-with-hole-regexp nil "Matches a saved goal command")
 
 (defvar proof-goal-command-p nil "Is this a goal")
-(defvar proof-retract-target-fn nil "Compute how to retract a target segment")
+(defvar proof-count-undos-fn nil "Compute number of undos in a target segment")
+(defvar proof-find-and-forget-fn nil "Compute command to forget up to point")
 (defvar proof-goal-hyp-fn nil "Is point at goal or hypothesis")
 (defvar proof-kill-goal-command nil "How to kill a goal.")
 (defvar proof-global-p nil "Is this a global declaration")
@@ -346,9 +369,6 @@
 (defvar proof-shell-interrupt-regexp nil
   "A regular expression indicating that the PROOF process has
   responded to an interrupt.") 
-
-(defvar proof-shell-analyse-structure nil
-  "Function to call to analyse pbp annotations.") 
 
 (defvar proof-shell-proof-completed-regexp nil
   "*Regular expression indicating that the proof has been completed.")
@@ -412,13 +432,6 @@
 
 (deflocal proof-active-buffer-fake-minor-mode nil
   "An indication in the modeline that this is the *active* buffer")
-
-;; courtesy of Mark Ruys 
-(defun emacs-version-at-least (major minor)
-  "Test if emacs version is at least major.minor"
-  (or (> emacs-major-version major)
-      (and (= emacs-major-version major) (>= emacs-minor-version minor)))
-)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A couple of small utilities                                      ;;
@@ -552,8 +565,10 @@
     (set-span-endpoints proof-locked-span (point-min) end)))
 
 (defsubst proof-locked-end ()
-  (or (and proof-locked-span (span-end proof-locked-span))
-      (point-min)))
+  (if (eq proof-script-buffer (current-buffer))
+      (or (and proof-locked-span (span-end proof-locked-span))
+	  (point-min))
+    (error "bug: proof-locked-end called from wrong buffer")))
 
 (defsubst proof-end-of-queue ()
   (and proof-queue-span (span-end proof-queue-span)))
@@ -571,8 +586,6 @@
 	(cond ((fboundp 'add-spec-to-specifier)
 	       (add-spec-to-specifier current-display-table disp
 				      (current-buffer)))
-	      ;; I believe the following sets display table of current
-	      ;; buffer in emacs19
 	      ((boundp 'buffer-display-table)
 	       (setq buffer-display-table disp)))))
 
@@ -625,7 +638,9 @@
   "If the end of the locked region is not visible, jump to the end of
   the locked region."
   (interactive)
-  (let ((pos (proof-locked-end)))
+  (let ((pos (save-excursion
+	       (set-buffer proof-script-buffer)
+	       (proof-locked-end))))
     (or (pos-visible-in-window-p pos (get-buffer-window
 				      proof-script-buffer t))
         (proof-goto-end-of-locked))))
@@ -679,8 +694,10 @@
       (setq proof-script-buffer (current-buffer))
       (proof-init-segmentation)
       (setq proof-active-buffer-fake-minor-mode t)
-      ;; emacs19 doesn't have this command
-      (and (fboundp 'redraw-modeline) (redraw-modeline))
+
+      (if (fboundp 'redraw-modeline)
+	  (redraw-modeline)
+	(force-mode-line-update))
 
       (or (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
 	  (setq minor-mode-alist
@@ -835,6 +852,63 @@
   "The last interesting output the proof process output, and what to do
    with it.")
 
+(defvar proof-analyse-using-stack nil
+  "Are annotations sent by proof assistant local or global")
+
+(defun proof-shell-analyse-structure (string)
+  (save-excursion
+    (let* ((ip 0) (op 0) ap (l (length string)) 
+	   (ann (make-string (length string) ?x))
+           (stack ()) (topl ()) 
+	   (out (make-string l ?x)) c span)
+      (while (< ip l)	
+	(if (< (setq c (aref string ip)) 128)
+	    (progn (aset out op c)
+		   (incf op)))
+	(incf ip))
+      (display-buffer (set-buffer proof-pbp-buffer))
+      (erase-buffer)
+      (insert (substring out 0 op))
+
+      (setq ip 0
+	    op 1)
+      (while (< ip l)
+	(setq c (aref string ip))
+	(cond
+	 ((= c proof-shell-goal-char)
+	  (setq topl (cons op topl))
+	  (setq ap 0))
+	 ((= c proof-shell-start-char)
+	  (if proof-analyse-using-stack
+	      (setq ap (- ap (- (aref string (incf ip)) 128)))
+	    (setq ap (- (aref string (incf ip)) 128)))
+	  (incf ip)
+	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
+	    (aset ann ap (- c 128))
+	    (incf ap)
+	    (incf ip))
+	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
+	 ((= c proof-shell-field-char)
+	  (setq span (make-span (car stack) op))
+	  (set-span-property span 'mouse-face 'highlight)
+	  (set-span-property span 'proof (car (cdr stack)))
+	  ;; Pop annotation off stack
+	  (and proof-analyse-using-stack
+	       (progn
+		 (setq ap 0)
+		 (while (< ap (length (cadr stack)))
+		   (aset ann ap (aref (cadr stack) ap))
+		   (incf ap))))
+	  ;; Finish popping annotations
+	  (setq stack (cdr (cdr stack))))
+	 (t (incf op)))
+	(incf ip))
+      (setq topl (reverse (cons (point-max) topl)))
+      ;; If we want Coq pbp: (setq coq-current-goal 1)
+      (while (setq ip (car topl) 
+		   topl (cdr topl))
+	(pbp-make-top-span ip (car topl))))))
+
 (defun proof-shell-strip-annotations (string)
   (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
     (while (< ip l)
@@ -860,7 +934,7 @@
 	(erase-buffer)
 	(insert str))
        ((eq ins 'analyse)
-	(funcall proof-shell-analyse-structure str))
+	(proof-shell-analyse-structure str))
        (t (set-buffer proof-pbp-buffer)
 	  (insert "\n\nbug???")))))
   (run-hooks 'proof-shell-handle-delayed-output-hook)
@@ -1080,17 +1154,16 @@ at the end of locked region (after inserting a newline and indenting)."
 		  (cons (list span cmd 'proof-done-advancing)
 			(cdr proof-action-list)))))))
 
-;; Eager annotations are annotations which the proof system produces
-;; while it's doing something (e.g. loading libraries) to say how much
-;; progress it's made. Obviously we need to display these as soon
-;; as they arrive. 
-
 ;; ******** NB **********
 ;;  While we're using pty communication, this code is OK, since all
 ;; eager annotations are one line long, and we get input a line at a
 ;; time. If we go over to piped communication, it will break.
 
 (defun proof-shell-popup-eager-annotation ()
+  "Eager annotations are annotations which the proof system produces
+while it's doing something (e.g. loading libraries) to say how much
+progress it's made. Obviously we need to display these as soon as they
+arrive."
   (let (mrk str file module)
     (save-excursion 
       (goto-char (point-max))
@@ -1113,11 +1186,10 @@ at the end of locked region (after inserting a newline and indenting)."
 	  (setq proof-included-files-list (cons (cons module file)
 						proof-included-files-list))))))
 
-;; The filter for the shell-process. We sleep until we get a wakeup-char
-;; in the input, then run proof-shell-process-output, and set
-;; proof-marker to keep track of how far we've got. 
-
 (defun proof-shell-filter (str) 
+  "The filter for the shell-process. We sleep until we get a
+  wakeup-char in the input, then run proof-shell-process-output, and
+  set proof-marker to keep track of how far we've got."
   (if (string-match proof-shell-eager-annotation-end str)
       (proof-shell-popup-eager-annotation))
   (if (string-match (char-to-string proof-shell-wakeup-char) str)
@@ -1162,7 +1234,8 @@ at the end of locked region (after inserting a newline and indenting)."
     
 ;; This allows us to steal the process if we want to change the buffer
 ;; in which script management is running.
-
+;; This needs some work to make it generic, since most of the code
+;; doesn't apply to Coq at all.
 (defun proof-steal-process ()
   (proof-start-shell)
   (if proof-shell-busy (error "Proof Process Busy!"))
@@ -1309,16 +1382,16 @@ at the end of locked region (after inserting a newline and indenting)."
       (if (funcall proof-global-p cmd)
 	  (proof-lift-global span))))))
 
-; Create a list of (type,int,string) pairs from the end of the locked
-; region to pos, denoting the command and the position of its
-; terminator. type is one of comment, or cmd. 'unclosed-comment may be
-; consed onto the start if the segment finishes with an unclosed
-; comment.
 ; depth marks number of nested comments. quote-parity is false if
 ; we're inside ""'s.  Only one of (depth > 0) and (not quote-parity)
 ; should be true at once. -- hhg
 
 (defun proof-segment-up-to (pos)
+  "Create a list of (type,int,string) pairs from the end of the locked
+region to pos, denoting the command and the position of its
+terminator. type is one of comment, or cmd. 'unclosed-comment may be
+consed onto the start if the segment finishes with an unclosed
+comment."
   (save-excursion
     (let ((str (make-string (- (buffer-size) (proof-locked-end) -10) ?x))
 	  (i 0) (depth 0) (quote-parity t) done alist c)
@@ -1355,10 +1428,9 @@ at the end of locked region (after inserting a newline and indenting)."
 	       (if (>= (point) pos) (setq done t) (setq i 0)))))))
      alist)))
 
-; Convert a sequence of semicolon positions (returned by the above
-; function) to a set of vanilla extents.
-
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
+  "Convert a sequence of semicolon positions (returned by the above
+function) to a set of vanilla extents."
   (let ((ct (proof-locked-end)) span alist semi)
     (while (not (null semis))
       (setq semi (car semis)
@@ -1451,6 +1523,38 @@ deletes the region corresponding to the proof sequence."
     (set-span-property span 'delete-me delete-region)
     (list (list span proof-command 'proof-done-retracting))))
 
+(defun proof-retract-target (target delete-region)
+  (let ((end (proof-locked-end))
+	(start (span-start target))
+	(span (proof-last-goal-or-goalsave))
+	actions)
+    
+    (if (and span (not (eq (span-property span 'type) 'goalsave)))
+	(if (< (span-end span) (span-end target))
+	    (progn
+	      (setq span target)
+	      (while (and span (eq (span-property span 'type) 'comment))
+		(setq span (next-span span 'type)))
+	      (setq actions (proof-setup-retract-action
+			     start end 
+			     (if (null span) "COMMENT"
+			       (funcall proof-count-undos-fn span))
+			     delete-region)
+		    end start))
+	  
+	  (setq actions (proof-setup-retract-action (span-start span) end
+						    proof-kill-goal-command
+						    delete-region)
+		end (span-start span))))
+    
+    (if (> end start) 
+	(setq actions
+	      (nconc actions (proof-setup-retract-action 
+			      start end
+			      (funcall proof-find-and-forget-fn target)
+			      delete-region))))
+      
+    (proof-start-queue (min start end) (proof-locked-end) actions)))
 
 (defun proof-retract-until-point (&optional delete-region)
   "Sets up the proof process for retracting until point. In
@@ -1467,7 +1571,7 @@ deletes the region corresponding to the proof sequence."
     (and (null span)
 	 (progn (proof-goto-end-of-locked) (backward-char)
 		(setq span (span-at (point) 'type))))
-    (funcall proof-retract-target-fn span delete-region)))
+    (proof-retract-target span delete-region)))
 
 ;;         proof-try-command                                        ;;
 ;;         this isn't really in the spirit of script management,    ;;
@@ -1596,6 +1700,91 @@ deletes the region corresponding to the proof sequence."
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
     (proof-invisible-command cmd 'relaxed)))
 	  
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Popup and Pulldown Menu ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Menu commands for the underlying proof assistant
+(defvar proof-ctxt-string ""
+  "Command to display context in proof assistant")
+
+(defvar proof-help-string ""
+  "Command to ask for help in proof assistant")
+
+(defvar proof-prf-string ""
+  "Command to display proof state in proof assistant")
+
+(defun proof-ctxt ()
+  "List context."
+  (interactive) 
+  (proof-invisible-command (concat proof-ctxt-string proof-terminal-string)))
+
+(defun proof-help ()
+  "Print help message giving syntax."
+  (interactive)
+  (proof-invisible-command (concat proof-help-string proof-terminal-string)))
+
+(defun proof-prf ()
+  "List proof state."
+  (interactive)
+  (proof-invisible-command (concat proof-prf-string proof-terminal-string)))
+
+;;; To be called from menu
+(defun proof-info-mode ()
+  "Info mode on proof mode."
+  (interactive)
+  (info "script-management"))
+
+(defun proof-exit ()
+  "Exit Proof-assistant."
+  (interactive)
+  (proof-restart-script))
+
+;;; The following was particular to LEGO:
+;;;	    ("Help"
+;;;	     ["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
+;;;	     ["The LEGO library (WWW)"
+;;;	      (w3-fetch lego-library-www-page)  t]
+;;;	     ["The LEGO Proof-assistant (WWW)"
+;;;	      (w3-fetch lego-www-home-page)  t]
+;;;	     ["Help on Emacs LEGO-mode" lego-info-mode  t]
+;;;	     ["Customisation" (w3-fetch lego-www-customisation-page)
+;;;	      t]
+;;;            ))))
+
+(defvar proof-shared-menu
+  (append '(
+            ["Display context" proof-ctxt
+	      :active (proof-shell-live-buffer)]
+            ["Display proof state" proof-prf
+	      :active (proof-shell-live-buffer)]
+	    ["Exit proof assistant" proof-exit
+	      :active (proof-shell-live-buffer)]
+	    "----"
+	    ["Find definition/declaration" find-tag-other-window t]
+	    ("Help"
+	     ["Proof assistant web page"
+	      (w3-fetch proof-www-home-page) t]
+	     ["Help on Emacs proof-mode" proof-info-mode t]
+	     ))))
+
+(defvar proof-menu  
+  (append '("Commands"
+            ["Toggle active terminator" proof-active-terminator-minor-mode
+	     :active t
+	     :style toggle
+             :selected proof-active-terminator-minor-mode]
+            "----")
+          (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
+		    "--:doubleLine" "----"))
+          proof-shared-menu
+          )
+  "*The menu for the proof assistant.")
+
+(defvar proof-shell-menu proof-shared-menu
+  "The menu for the Proof-assistant shell")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          Active terminator minor mode                            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1657,6 +1846,29 @@ current command."
   ;; define-derived-mode proof-mode initialises proof-mode-map
   (setq proof-buffer-type 'script))
 
+;; This has to come after proof-mode is defined
+
+(define-derived-mode proof-shell-mode comint-mode 
+  "proof-shell" "Proof shell mode - not standalone"
+  (setq proof-buffer-type 'shell)
+  (setq proof-shell-busy nil)
+  (setq proof-shell-delayed-output (cons 'insert "done"))
+  (setq comint-prompt-regexp proof-shell-prompt-pattern)
+  (add-hook 'comint-output-filter-functions 'proof-shell-filter nil t)
+  (setq comint-get-old-input (function (lambda () "")))
+  (proof-dont-show-annotations)
+  (setq proof-marker (make-marker)))
+
+(easy-menu-define proof-shell-menu
+		  proof-shell-mode-map
+		  "Menu used in the proof assistant shell."
+		  (cons "Proof" (cdr proof-shell-menu)))
+
+(easy-menu-define proof-mode-menu  
+		  proof-mode-map
+		  "Menu used in proof mode."
+		  (cons "Proof" (cdr proof-menu)))
+
 ;; the following callback is an irritating hack - there should be some
 ;; elegant mechanism for computing constants after the child has
 ;; configured.
@@ -1698,7 +1910,9 @@ current command."
       (setq Info-default-directory-list
 	    (cons proof-info-dir Info-default-directory-list)))
 
-;; keymap
+;; keymaps and menus
+  (easy-menu-add proof-mode-menu proof-mode-map)
+
   (proof-define-keys proof-mode-map proof-universal-keys)
 
   (define-key proof-mode-map
@@ -1724,6 +1938,10 @@ current command."
   (define-key proof-mode-map [tab]      'proof-indent-line)
   (setq indent-line-function 'proof-indent-line)
 
+  (define-key (current-local-map) [(control c) (control p)] 'proof-prf)
+  (define-key (current-local-map) [(control c) c] 'proof-ctxt)
+  (define-key (current-local-map) [(control c) h] 'proof-help)
+
 ;; For fontlock
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
   (add-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer nil t)
@@ -1734,17 +1952,6 @@ current command."
 
   (and (boundp 'font-lock-always-fontify-immediately)
        (setq font-lock-always-fontify-immediately t)))
-
-(define-derived-mode proof-shell-mode comint-mode 
-  "proof-shell" "Proof shell mode - not standalone"
-  (setq proof-buffer-type 'shell)
-  (setq proof-shell-busy nil)
-  (setq proof-shell-delayed-output (cons 'insert "done"))
-  (setq comint-prompt-regexp proof-shell-prompt-pattern)
-  (add-hook 'comint-output-filter-functions 'proof-shell-filter nil t)
-  (setq comint-get-old-input (function (lambda () "")))
-  (proof-dont-show-annotations)
-  (setq proof-marker (make-marker)))
 
 (defun proof-shell-config-done ()
   (accept-process-output (get-buffer-process (current-buffer)))
@@ -1775,5 +1982,6 @@ current command."
 ;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
   (proof-define-keys pbp-mode-map proof-universal-keys)
   (erase-buffer))
+
 
 (provide 'proof)
