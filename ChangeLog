@@ -1,5 +1,139 @@
 2000-09-29  David Aspinall  <da@proofgeneral.org>
 
+	* etc/ProofGeneral.spec:
+	Bug in files list
+
+	* ChangeLog: Updated.
+
+	* .cvsignore:
+	Remove ChangeLog from ignoreds
+
+	* Makefile.devel, ChangeLog:
+	Fix ChangeLog target so makes prefix properly.  Revert to keeping uncompressed file in repo.
+
+	* Makefile, Makefile.devel:
+	Add acl2 and twelf to elisp dirs
+
+	* etc/ProofGeneral.spec:
+	Fix adding acl2 and twelf to RPM
+
+	* Makefile.devel:
+	ChangeLog is just last 1000 lines, instead of 11000 starting in 1996...
+
+	* html/smallheader.html, html/header.html:
+	Link image to root dir.
+
+	* html/main.html: Tweak
+
+	* etc/ProofGeneral.patch:
+	Remove patch on perl filename now, after Pierres accidental checkin.
+
+	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* twelf/twelf.el, twelf/x-symbol-twelf.el, twelf/twelf-old.el, twelf/README, twelf/example.elf, twelf/twelf-font.el, plastic/plastic.el, plastic/test.lf, plastic/todo, papers/README, plastic/README, plastic/plastic-syntax.el, lego/legotags, lego/readonly/readonly.l, lego/todo, lego/x-symbol-lego.el, lego/example2.l, lego/lego-syntax.el, lego/lego.el, lego/BUGS, lego/README, lego/example.l, isar/isar.el, isar/todo, isar/interface, isar/isar-keywords.el, isar/isar-syntax.el, isar/BUGS, isar/Example.thy, isar/README, isa/thy-mode.el, isa/todo, isa/x-symbol-isabelle.el, isa/isa.el, isa/isabelle-system.el, isa/interface, isa/interface-setup.el, isa/isa-syntax.el, isa/Example.thy, isa/Example2.ML, isa/README, isa/depends.ML, isa/BUGS, isa/Example-Xsym.ML, isa/Example.ML, images/gimp/.cvsignore, images/gimp/scripts/proofgeneral.scm, images/use.xpm, images/undo.xcf, images/undo.xpm, images/use.8bit.xpm, images/use.xcf, images/state.8bit.xpm, images/state.xcf, images/state.xpm, images/undo.8bit.xpm, images/retract.8bit.xpm, images/retract.xcf, images/retract.xpm, images/restart.8bit.xpm, images/restart.xcf, images/restart.xpm, images/pgmini.xpm, images/qed.8bit.xpm, images/qed.xcf, images/qed.xpm, images/pgicon.png, images/pg-text.gif, images/pg-text.jpg, images/pg-text.xcf, images/next.xpm, images/notes.txt, images/pg-text.8bit.gif, images/next.8bit.xpm, images/next.xcf, images/isabelle_transparent.gif, images/isabelle_transparent.xcf, images/lego-badge.xcf, images/isabelle_transparent.8bit.gif, images/interrupt.8bit.xpm, images/interrupt.xcf, images/interrupt.xpm, images/isabelle-badge.xcf, images/help.xpm, images/info.8bit.xpm, images/info.xcf, images/info.xpm, images/goto.xcf, images/goto.xpm, images/help.8bit.xpm, images/help.xcf, images/goto.8bit.xpm, images/goal.xcf, images/goal.xpm, images/goal_large.xcf, images/fireworks.xcf, images/goal.8bit.xpm, images/find.8bit.xpm, images/find.xcf, images/find.xpm, images/context.xpm, images/coq-badge.xcf, images/command.xcf, images/command.xpm, images/context.8bit.xpm, images/context.xcf, images/abort.xcf, images/abort.xpm, images/blank.xcf, images/command.8bit.xpm, images/README, images/abort.8bit.xpm, images/ProofGeneral.jpg, images/ProofGeneral.xcf, images/Makefile, images/ProofGeneral.8bit.gif, images/ProofGeneral.gif, html/projects/thybrowse.html, html/projects/webreplay.html, html/projects/xmlpgip.html, images/.cvsignore, html/projects/pgml.html, html/projects/reelcase.html, html/projects/scrgen.html, html/projects/test.html, html/projects/isapbp.html, html/projects/mm.html, html/projects/outline.html, html/projects/pgip.html, html/projects/coqfile.html, html/projects/coqpbp.html, html/projects/corba.html, html/projects/hol.html, html/projects/acs.html, html/papers/pgtalk.pdf, html/papers/pgoutline.ps.gz, html/papers/pgoutline.pdf, html/images/whole-man-thumb.jpg, html/images/whole-man.jpg, html/images/whip-thumb.jpg, html/images/whip.jpg, html/images/portrait.jpg, html/images/silverrule.gif, html/images/vh40.gif, html/images/pg-lego-thumb.png, html/images/pg-text.gif, html/images/portrait-thumb.jpg, html/images/pg-isar-thumb.png, html/images/pg-lego-console-thumb.png, html/images/pg-lego-console.png, html/images/pg-lego-screenshot.png, html/images/pg-isa-thumb.png, html/images/pg-isar-screenshot.png, html/images/pg-coq-thumb.png, html/images/pg-isa-screenshot.png, html/images/isabelle.gif, html/images/lego-badge.gif, html/images/pg-coq-screenshot.png, html/images/coq-badge.gif, html/images/coqlogo4.gif, html/images/coqlogo4.xcf, html/images/isabelle-badge.gif, html/images/PG-small.jpg, html/images/ProofGeneral.jpg, html/images/bullethole.gif, html/images/canvaswallpaper.jpg, html/Kit/dtd/pgml.dtd, html/images/.cvsignore, html/images/IsaPGscreen.jpg, html/Kit/dtd/pgip.dtd, html/screenshot.html, html/smallheader.html, html/smallpage.html, html/projects.html, html/proofgen.css, html/register.html, html/screenshot, html/notes.txt, html/oldnews.html, html/oldrel.html, html/main.html, html/mission.html, html/news, html/news.html, html/links, html/links.html, html/mailinglist.html, html/main, html/hits.html, html/htmlshow.html, html/index.html, html/index.shtml, html/kit.html, html/functions.php3, html/gallery.html, html/head.html, html/header.html, html/features.html, html/feedback.html, html/fileshow.html, html/footer.html, html/download.html, html/elispmarkup.php3, html/features, html/develdownload.html, html/doc, html/doc.html, html/download, html/cvsweb.conf, html/devel, html/devel.html, html/about.html, html/counter.php3, html/cvsweb.cgi, html/about, html/ProofGeneralPortrait.eps.gz, hol98/todo, hol98/x-symbol-hol98.el, html/.cvsignore, hol98/example.sml, hol98/hol98.el, generic/span.el, generic/texi-docstring-magic.el, hol98/README, generic/span-extent.el, generic/span-overlay.el, generic/proof-x-symbol.el, generic/proof.el, generic/proof-toolbar.el, generic/proof-utils.el, generic/proof-splash.el, generic/proof-syntax.el, generic/proof-system.el, generic/proof-site.el, generic/proof-shell.el, generic/proof-menu.el, generic/proof-script.el, generic/proof-depends.el, generic/proof-easy-config.el, generic/proof-indent.el, generic/proof-autoloads.el, generic/proof-compat.el, generic/proof-config.el, etc/pgkit/xmltest2.xml, generic/README, generic/pg-xml.el, etc/patches/duplicated-short-messages-fix.txt, etc/patches/fix-attempt-for-eager-cleaning.txt, etc/pgkit/xmltest1.xml, etc/lego/multiple/C.l, etc/lego/multiple/D.l, etc/lego/multiple/README, etc/lego/multiple/A.l, etc/lego/multiple/B.l, etc/lego/unsaved-goals.l, etc/lego/error-eg.l, etc/lego/lego-site.el, etc/lego/long-line-backslash.l, etc/isar/multiple/C.thy, etc/isar/multiple/D.thy, etc/isar/multiple/README, etc/lego/GoalGoal.l, etc/isar/README, etc/isar/bad1.thy, etc/isar/bad2.thy, etc/isar/multiple/A.thy, etc/isar/multiple/B.thy, etc/demoisa/C.ML, etc/demoisa/D.ML, etc/demoisa/README, etc/isar/Parsing.thy, etc/demoisa/A.ML, etc/demoisa/B.ML, etc/isa/thy/test.ML, etc/isa/multiple/Err.ML, etc/isa/multiple/Err.thy, etc/isa/multiple/README, etc/isa/multiple/foobar/foo.ML, etc/isa/multiple/C.thy, etc/isa/multiple/D.ML, etc/isa/multiple/D.thy, etc/isa/multiple/A.thy, etc/isa/multiple/B.ML, etc/isa/multiple/B.thy, etc/isa/multiple/C.ML, etc/isa/depends/Usedepends.ML, etc/isa/depends/Usedepends.thy, etc/isa/multiple/A.ML, etc/isa/depends/Fib.thy, etc/isa/depends/Primes.ML, etc/isa/depends/Primes.thy, etc/isa/\backslashname/test.ML, etc/isa/\backslashname/test.thy, etc/isa/depends/Fib.ML, etc/isa/long-line-backslash.ML, etc/isa/message-test.ML, etc/isa/settings.ML, etc/isa/xsym.ML, etc/coq/multiple/a.v, etc/coq/multiple/b.v, etc/coq/multiple/c.v, etc/isa/goal-matching.ML, etc/coq/multiple/README, etc/coq/unnamed_thm.v, etc/proofgeneral-domain.txt, etc/release-log.txt, etc/screenshot-notes.txt, etc/test-schedule.txt, etc/testing-log.txt, etc/doc-notes.txt, etc/junk.el, etc/profiling.txt, etc/cvs-tips.txt, etc/debugging-tips.txt, etc/README, etc/TESTS, etc/announce, etc/bug-notes.txt, etc/ProofGeneral.patch, etc/ProofGeneral.spec, doc/dir, doc/docstring-magic.el, doc/localdir, doc/README.doc, doc/ProofGeneral.jpg, doc/ProofGeneral.texi, doc/PG-adapting.texi, doc/.cvsignore, doc/Makefile, doc/Makefile.doc, demoisa/README, demoisa/demoisa-easy.el, demoisa/demoisa.el, coq/example.v, coq/todo, coq/x-symbol-coq.el, coq/coq-syntax.el, coq/coq.el, coq/coqtags, bin/proofgeneral, coq/BUGS, coq/README, af2/af2-tags.el, af2/af2.el, af2/example.af2, af2/sym-lock.el, acl2/x-symbol-acl2.el, af2/af2-font.el, af2/af2-fun.el, af2/af2-outline.el, acl2/README, acl2/acl2.el, acl2/example.acl2, todo, README, README.devel, TODO, Makefile, Makefile.devel, Makefile.xemacs, FAQ, INSTALL, CHANGES, COPYING, AUTHORS, BUGS:
+	Updating branch
+
+	* etc/cvs-tips.txt:
+	Note about dealing with backslashname directory.
+
+	* todo: Updated
+
+	* etc/cvs-tips.txt:
+	Note about dealing with backslashname directory.
+
+	* INSTALL:
+	Update URLs and mail aliases.  Mention script, and extensions for new provers
+
+	* bin/proofgeneral:
+	Script for launching proofgeneral.
+
+	* todo: Updated
+
+	* etc/ProofGeneral.spec:
+	Add more provers, and proofgeneral script
+
+	* etc/proofgeneral-domain.txt:
+	Notes about proofgeneral.org
+
+	* images/pgmini.xpm, images/pgicon.png:
+	Add icon images.
+
+	* html/develdownload.html: Minor change
+
+	* INSTALL: Note about packages needed
+
+	* html/functions.php3:
+	Click to go back links to root.
+
+	* html/register.html, html/features.html, html/header.html, html/main.html, html/mission.html, html/oldnews.html, html/projects.html, html/about.html, html/develdownload.html, html/doc.html, html/download.html:
+	Remove messy link_root links.
+
+	* html/links, html/main, html/news, html/about, html/devel, html/doc, html/download, html/features:
+	Short file instead of a link, so works in CVS. Bit annoying to duplicate, but never mind.
+
+	* html/about, html/links, html/devel, html/doc, html/screenshot, html/download, html/features, html/news, html/main:
+	Links for shortcut URLs.
+
+	* html/notes.txt:
+	Mention needed server hacks
+
+	* html/functions.php3:
+	Remove link_root nonsense
+
+	* todo: Updated with fixes before 3.2.
+
+	* BUGS:
+	Inherent problem with Emacs in console mode: no face support
+
+	* Makefile.devel:
+	twelf and acl2 are in ordinary dist
+
+	* etc/announce: Mention ACL2 too
+
+	* twelf/README: Tweak
+
+	* demoisa/demoisa-easy.el: Comment fix
+
+	* generic/proof-script.el:
+	Parse comments also in proof-script-generic-parse-sexp
+
+	* generic/proof-menu.el:
+	Non existent get-window-buffer -> get-buffer-window  (how did that get through?)
+
+	* generic/proof-config.el:
+	Default for proof-comment-end that doesn't cause looping in searching for comment end.
+
+	* acl2/README, acl2/acl2.el, acl2/example.acl2:
+	Updated, trimmed down to barebones.
+
+2000-09-29  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/todo:
+	added some comments in coq/todo
+
+2000-09-29  David Aspinall  <da@proofgeneral.org>
+
+	* coq/coqtags, lego/legotags:
+	Make default path to perl be /usr/bin/perl
+
+2000-09-29  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/x-symbol-coq.el:
+	a little change in coq/x-symbol, nothing
+
+	* coq/coq.el:
+	A little work around for the bug of Coq concerning the restart that
+	uses Reset Initial which doesn't reset the Implicit Arguments flag to
+	Off (this is the bug), I added the good command to the coq reset
+	command, this has to be backtracked when V7 will be done (the bug is
+	already corrected in V7).
+
+	* lego/legotags, coq/x-symbol-coq.el, coq/coq.el, coq/coqtags, coq/coq-syntax.el:
+	Added Uncaught exception errors in coq-error-regexp.
+
+2000-09-29  David Aspinall  <da@proofgeneral.org>
+
 	* .cvsignore:
 	Remove ChangeLog from ignoreds
 
