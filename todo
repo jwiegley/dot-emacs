@@ -499,6 +499,7 @@ A add links *from* Coq, Lego & Isabelle Web pages (da, tms 10 min)
      README, doc/ProofGeneral.texi, html/download.html
 5. ProofGeneral.texi docstring magic is up-to-date:
      cd doc; make magic
+6. Update Emacs versions in texi, html/ 
    
 
 
