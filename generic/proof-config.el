@@ -1411,17 +1411,19 @@ to do syntax highlighting with font-lock."
 ;;
 
 (defcustom proof-shell-process-connection-type 
-  ;; Use ptys unless it seems like we're on Solaris.
-  (not (string-match "[sS]un" (or (getenv "ARCH") "")))
+  ;; Use ptys unless it seems like we're on Solaris.  Only have
+  ;; a good chance to guess on XEmacs which provides shell-command-to-string
+  (if (boundp 'shell-command-to-string)
+      (not (string-match "[sS]un" (shell-command-to-string "uname")))
+    t)
   "The value of process-connection-type for the proof shell.
 Set non-nil for ptys, nil for pipes.
 The default (and preferred) option is to use pty communication.
 However there is a long-standing backslash/long line problem with
 Solaris which gives a mess of ^G characters when some input is sent
-which has a \ in the 256th position.   We do not force pipes everywhere
-because this risks loss of data and some proof assistants do not 
-flush their output by default after each interaction, which breaks 
-pipe communication."
+which has a \ in the 256th position.   
+So we select pipes by default if it seems like we're on Solaris.
+We do not force pipes everywhere because this risks loss of data."
   :type 'boolean
   :group 'proof-shell)
   
