@@ -339,7 +339,10 @@ font-lock-mode."
   (setq font-lock-keywords nil)
   (put major-mode 'font-lock-defaults nil)
   ;; Ensure it's switched off, too.
-  (font-lock-mode -1))
+  ;; NB: this tends to undo the hard work we've done
+  ;; by unfontifying, so don't do that now
+  ;; (font-lock-mode -1))
+  )
 
 (defun proof-font-lock-set-font-lock-vars ()
   (setq font-lock-defaults 
@@ -357,7 +360,7 @@ If proof-shell-leave-annotations-in-output is set, remove characters
 with top bit set after fontifying so they don't spoil cut and paste.
 
 Returns new END value."
-  ;; We fontify first because decoding changes char positions.
+  ;; We fontify first because X-sym decoding changes char positions.
   ;; It's okay because x-symbol-decode works even without font lock.
   ;; Possible disadvantage is that font lock patterns can't refer
   ;; to X-Symbol characters.  Probably they shouldn't!
@@ -393,17 +396,18 @@ Returns new END value."
 	  (proof-zap-commas-region start end))))
   (if proof-shell-leave-annotations-in-output
       ;; Remove special characters that were used for font lock,
-      ;; so cut and paste works from here.
-      (let ((p (point)))
+      ;; so that cut and paste works from here.
+      (progn
 	(goto-char start)
-	(while (< (point) (point-max))
+	(while (< (point) end)
 	  (forward-char)
 	  (unless (< (char-before (point)) 128) ; char-to-int in XEmacs
-	    (delete-char -1)))
-	(goto-char p)))
-  (proof-x-symbol-decode-region start (point-max))
-  (proof-font-lock-clear-font-lock-vars)
-  (point-max))
+	    (delete-char -1)
+	    (setq end (1- end))))))
+  (prog1
+      ;; Returns new end value
+      (proof-x-symbol-decode-region start end)
+    (proof-font-lock-clear-font-lock-vars)))
 ;; old ending:
 ;; (prog1 (point-max)
 ;; (widen)))
