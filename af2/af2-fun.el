@@ -38,7 +38,7 @@ send a compile command to af2 for the theorem which name is under the cursor."
    af2-comments-regexp
    "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)") 
  af2-definition-regexp (concat
-   "\\(Cst\\|def\\|claim\\|Sort\\)"
+   "\\(Cst\\|def\\(_thlist\\)?\\|claim\\|Sort\\)"
    af2-comments-regexp
    af2-ident-regexp)
  af2-new-elim-regexp (concat
@@ -96,7 +96,7 @@ send a compile command to af2 for the theorem which name is under the cursor."
 
        ((proof-string-match af2-definition-regexp str)
 	(setq ans (concat (format af2-forget-id-command 
-				      (match-string 5 str)) ans))))
+				      (match-string 6 str)) ans))))
 
 
       (setq lsp (span-start span))
