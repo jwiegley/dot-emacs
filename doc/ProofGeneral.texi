@@ -1,3 +1,4 @@
+
 \input texinfo   @c -*-texinfo-*-
 @c
 @c $Id$
@@ -1929,6 +1930,8 @@ General.
 @kindex C-c C-s
 @kindex C-c I 
 @kindex C-c a
+@kindex C-c s
+@Kindex C-c e
 
 Coq Proof General supplies the following key-bindings:
 @table @kbd
@@ -1939,6 +1942,11 @@ Inserts ``Apply '' into proof buffer.
 @item C-c C-s
 Runs Coq's search utility on a user-provided string, using
 the @code{Search} command of Coq.
+@item C-c s
+Inserts ``Section '' into proof buffer
+@item C-c e
+Closes the current section by inserting ``End <section-name>.''. (this
+should work well with nested sections).
 @end table
 
 @node Editing multiple proofs
