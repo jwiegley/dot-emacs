@@ -101,19 +101,22 @@
      ["Inductive3            indv3<C-BS>" (insert-and-expand "indv3") t]
      ["Inductive4            indv4<C-BS>" (insert-and-expand "indv4") t]
      ""
+     ["Section..." coq-insert-section t]
+     ""
      ("Modules"
       "COMMAND               ABBREVIATION"
+      ["Module (interactive)... " coq-insert-module t]
       ["Module                mo<C-BS>" (insert-and-expand "mo") t]
       ["Module (<:)           mo2<C-BS>" (insert-and-expand "mo") t]
-      ["Module (interactive)  moi<C-BS>" (insert-and-expand "moi") t]
-      ["Module (interactive <:) moi2<C-BS>" (insert-and-expand "moi2") t]
+;      ["Module (interactive)  moi<C-BS>" (insert-and-expand "moi") t]
+;      ["Module (interactive <:) moi2<C-BS>" (insert-and-expand "moi2") t]
       ["Module Type           mt<C-BS>" (insert-and-expand "mt") t]
-      ["Module Type (interactive) mti<C-BS>" (insert-and-expand "mti") t]
-      ""
+;      ["Module Type (interactive) mti<C-BS>" (insert-and-expand "mti") t]
+;      ""
       ["Declare Module        dm<C-BS>" (insert-and-expand "dm") t]
       ["Declare Module (<:)   dm2<C-BS>" (insert-and-expand "dm") t]
-      ["Declare Module (inter.) dmi<C-BS>" (insert-and-expand "dmi") t]
-      ["Declare Module (inter. <:) dmi2<C-BS>" (insert-and-expand "dmi2") t]
+;      ["Declare Module (inter.) dmi<C-BS>" (insert-and-expand "dmi") t]
+;      ["Declare Module (inter. <:) dmi2<C-BS>" (insert-and-expand "dmi2") t]
       )
      ("Hints"
       "COMMAND               ABBREVIATION"
@@ -226,7 +229,7 @@
      ["unfold                 u<C-BS>"  (insert-and-expand "u") t]
      )
 
-    ["What are those #??" (holes-short-doc) t]
+    ["What are those highlighted chars??" (holes-short-doc) t]
     ("holes" 
      "make a hole active   click on it"
      "disable a hole   click on it (button 2)"
@@ -242,8 +245,6 @@
      )
     ["expand abbrev at point" expand-abbrev t]
     ["list abbrevs" list-abbrevs t]
-    ["Insert Section..." coq-insert-section t]
-    ["Insert Module..." coq-insert-module t]
     ["Print..." coq-Print t]
     ["Check..." coq-Check t]
     ["Hints" coq-PrintHint t]
@@ -257,20 +258,36 @@
 
 (defun coq-insert-section (s)
   (interactive  "sSection name: ")
-  (insert "Section " s ".\n#\nEnd " s ".")
-(replace-string-by-holes-backward-move-point 1 empty-hole-string)
+  (let ((p (point)))
+    (insert "Section " s ".\n#\nEnd " s ".")
+    (replace-string-by-holes-backward-move-point 1 empty-hole-string)
+    (goto-char p)
+    (set-point-next-hole-destroy))
 )
 
 (defconst module-kinds-table 
   '(("Module" 1) ("Module Type" 2) ("Declare Module" 3))
-  "Enumerates the different kinds of modules")
+  "Enumerates the different kinds of modules.")
+
+(defconst modtype-kinds-table
+  '(("" 1) (":" 2) ("<:" 3))
+  "Enumerates the different kinds of type information for modules.")
 
 (defun coq-insert-module ()
   (interactive)
-  (let* ((mods (completing-read "kind of module: " module-kinds-table))
-         (s (read-string  "sModule name: ")))
-    (insert mods " " s ": #.\n#\nEnd " s ".")
-    (replace-string-by-holes-backward-move-point 2 empty-hole-string)
+  (let* ((mods (completing-read "kind of module (tab to see list): " module-kinds-table))
+         (s (read-string  "Module name: "))
+         (typkind (completing-read "kind of type (optional, tab to see list): " modtype-kinds-table))
+         (p (point)))
+    (if (string-equal typkind "")
+        (progn
+          (insert mods " " s ".\n#\nEnd " s ".")
+          (replace-string-by-holes-backward-move-point 1 empty-hole-string)
+          (goto-char p))
+      (insert mods " " s " " typkind " #.\n#\nEnd " s ".")
+      (replace-string-by-holes-backward-move-point 2 empty-hole-string)
+      (goto-char p)
+      (set-point-next-hole-destroy))
     )
   )
 ;  (completing-read "Section name: " )
