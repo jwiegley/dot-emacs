@@ -226,7 +226,7 @@ Does nothing if proof assistant is already running."
       
       ;; Create the associated buffers and set buffer variables
       (setq proof-shell-buffer (get-buffer (concat "*" proc "*"))
-	    proof-pbp-buffer (get-buffer-create (concat "*" proc "-goals*"))
+	    proof-goals-buffer (get-buffer-create (concat "*" proc "-goals*"))
 	    proof-response-buffer (get-buffer-create (concat "*" proc
 	    "-response*")))
       (save-excursion
@@ -234,7 +234,7 @@ Does nothing if proof assistant is already running."
 	(funcall proof-mode-for-shell)
 	(set-buffer proof-response-buffer)
 	(funcall proof-mode-for-response)
-	(set-buffer proof-pbp-buffer)
+	(set-buffer proof-goals-buffer)
 	(funcall proof-mode-for-pbp))
 
       (message 
@@ -305,8 +305,8 @@ and state variables."
 	  proof-shell-busy nil
 	  proof-shell-proof-completed nil)
     ;; Kill buffers associated with shell buffer
-    (if (buffer-live-p proof-pbp-buffer)
-	(kill-buffer proof-pbp-buffer))
+    (if (buffer-live-p proof-goals-buffer)
+	(kill-buffer proof-goals-buffer))
     (if (buffer-live-p proof-response-buffer)
 	(kill-buffer proof-response-buffer))
     (message "%s terminated." procname)))
@@ -494,10 +494,10 @@ This is a list of tuples of the form (type . string). type is either
       ;; window.  Indicate that it should be erased before the next output.
       (proof-shell-maybe-erase-response t t)
 
-      (set-buffer proof-pbp-buffer)
+      (set-buffer proof-goals-buffer)
       (erase-buffer)
       (insert (substring out 0 op))
-      (proof-display-and-keep-buffer proof-pbp-buffer)
+      (proof-display-and-keep-buffer proof-goals-buffer)
 
       (setq ip 0
 	    op 1)
@@ -638,11 +638,11 @@ Then we call `proof-shell-handle-error-hook'. "
   ;; flush goals
   (or (equal proof-shell-delayed-output (cons 'insert "Done."))
       (save-excursion ;current-buffer
-	(set-buffer proof-pbp-buffer)
+	(set-buffer proof-goals-buffer)
 	(erase-buffer)
 	(insert (proof-shell-strip-annotations 
 		   (cdr proof-shell-delayed-output)))
-	(proof-display-and-keep-buffer proof-pbp-buffer)))
+	(proof-display-and-keep-buffer proof-goals-buffer)))
 
   ;; This prevents problems if the user types in the
   ;; shell buffer: without it the same error is seen by
@@ -679,8 +679,8 @@ Then we call `proof-shell-handle-error-hook'. "
 ;; FIXME da: this function is a mess.
 (defun proof-shell-handle-interrupt ()
   (save-excursion 
-    (set-buffer proof-pbp-buffer)
-    (display-buffer proof-pbp-buffer)
+    (set-buffer proof-goals-buffer)
+    (display-buffer proof-goals-buffer)
     (goto-char (point-max))
     (newline 2)
     (insert-string 
@@ -701,14 +701,14 @@ Then we call `proof-shell-handle-error-hook'. "
 		(span-start span)))
 
 (defun proof-pbp-focus-on-first-goal ()
-  "If the `proof-pbp-buffer' contains goals, the first one is brought
+  "If the `proof-goals-buffer' contains goals, the first one is brought
   into view."
   (and (fboundp 'map-extents)
        (let
-	   ((pos (map-extents 'proof-goals-pos proof-pbp-buffer
+	   ((pos (map-extents 'proof-goals-pos proof-goals-buffer
 			      nil nil nil nil 'proof-top-element)))
 	 (and pos (set-window-point
-		   (get-buffer-window proof-pbp-buffer t) pos)))))
+		   (get-buffer-window proof-goals-buffer t) pos)))))
 
            
 
@@ -740,12 +740,12 @@ assistant."
 
    ((and proof-shell-abort-goal-regexp
 	 (string-match proof-shell-abort-goal-regexp string))
-    (proof-clean-buffer proof-pbp-buffer)
+    (proof-clean-buffer proof-goals-buffer)
    (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
     ())
 	 
    ((string-match proof-shell-proof-completed-regexp string)
-    (proof-clean-buffer proof-pbp-buffer)
+    (proof-clean-buffer proof-goals-buffer)
     (setq proof-shell-proof-completed t)
     (setq proof-shell-delayed-output
 	  (cons 'insert (concat "\n" (match-string 0 string)))))
@@ -1334,7 +1334,7 @@ before and after sending the command."
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."
   (save-excursion
-    (set-buffer proof-pbp-buffer)
+    (set-buffer proof-goals-buffer)
     (proof-font-lock-minor-mode)))
 
 

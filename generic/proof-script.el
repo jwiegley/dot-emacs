@@ -1236,8 +1236,8 @@ value of proof-locked span."
 ;	proof-shell-proof-completed nil)
 ;  (if (buffer-live-p proof-shell-buffer) 
 ;      (kill-buffer proof-shell-buffer))
-;  (if (buffer-live-p proof-pbp-buffer)
-;      (kill-buffer proof-pbp-buffer))
+;  (if (buffer-live-p proof-goals-buffer)
+;      (kill-buffer proof-goals-buffer))
 ;  (and (buffer-live-p proof-response-buffer)
 ;       (kill-buffer proof-response-buffer)))
 
@@ -1438,8 +1438,8 @@ No action if BUF is nil."
      (proof-switch-to-buffer proof-script-buffer)
      :active (buffer-live-p proof-script-buffer)]
     ["Goals"
-     (proof-switch-to-buffer proof-pbp-buffer t)
-     :active (buffer-live-p proof-pbp-buffer)]
+     (proof-switch-to-buffer proof-goals-buffer t)
+     :active (buffer-live-p proof-goals-buffer)]
     ["Response"
      (proof-switch-to-buffer proof-response-buffer t)
      :active (buffer-live-p proof-response-buffer)]
@@ -1582,7 +1582,7 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
   ;; Hide away goals and response: this is a hack because otherwise
   ;; we can lead the user to frustration with the dedicated windows
   ;; nonsense.
-  (if proof-pbp-buffer (bury-buffer proof-pbp-buffer))
+  (if proof-goals-buffer (bury-buffer proof-goals-buffer))
   (if proof-response-buffer (bury-buffer proof-response-buffer)))
   
 

@@ -325,7 +325,7 @@ Given is the first SPAN which needs to be undone."
 	 (let ((current-width
 		;; FIXME da: I suspect this is the wrong window to
 		;; check the width of.  Probably we want the width
-		;; of proof-pbp-buffer?
+		;; of proof-goals-buffer?
 		(window-width (get-buffer-window proof-shell-buffer))))
 	   (if (equal current-width lego-shell-current-line-width) ()
 	     ; else

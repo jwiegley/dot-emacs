@@ -2700,8 +2700,8 @@ The currently active scripting buffer or nil if none.
 Process buffer where the proof assistant is run.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-pbp-buffer
-@defvar proof-pbp-buffer 
+@c TEXI DOCSTRING MAGIC: proof-goals-buffer
+@defvar proof-goals-buffer 
 The goals buffer (also known as the pbp buffer).
 @end defvar
 

@@ -85,7 +85,7 @@ is resynchronised. It contains files in canonical truename format")
 (defvar proof-shell-buffer nil
   "Process buffer where the proof assistant is run.")
 
-(defvar proof-pbp-buffer nil
+(defvar proof-goals-buffer nil
   "The goals buffer (also known as the pbp buffer).")
 
 (defvar proof-response-buffer nil
