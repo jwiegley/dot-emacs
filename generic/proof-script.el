@@ -350,6 +350,10 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  ;; If the file is loaded into a buffer, which isn't
 	  ;; the current scripting buffer, then put an
 	  ;; atomic locked region in it.
+
+	  ;; FIXME da: I don't think we should skip the scripting
+	  ;; buffer!  Perhaps this was just added as a hack for
+	  ;; Isabelle's broken theory mechanism?
 	  (if (and buffer
 		   (if proof-script-buffer
 		       (not (equal cfile
@@ -359,7 +363,8 @@ to allow other files loaded by proof assistants to be marked read-only."
 	      (proof-mark-buffer-atomic buffer))))))
 
 (defun proof-unregister-buffer-file-name ()
-  "Remove current buffer's filename from the list of included files."
+  "Remove current buffer's filename from the list of included files.
+No effect if the current buffer has no file name."
   (if buffer-file-name
       (let ((cfile (file-truename buffer-file-name)))
 	(setq proof-included-files-list
@@ -434,6 +439,12 @@ buffers."
 	      (error 
 	       "Cannot have more than one active scripting buffer!"))
 	    
+	  ;; Mess around a little bit with the included files
+	  ;; list to make sure it behaves as we expect
+	  ;; with respect to the active scripting buffer.
+	  ;; This is and attempt to harmonize mixed scripting/file
+	  ;; reading in the prover.
+
 	  (if (proof-locked-region-full-p)
 	      ;; We're switching from a buffer which has been
 	      ;; completely processed.  Make sure that it's
@@ -441,9 +452,13 @@ buffers."
 	      (if buffer-file-name
 		  (proof-register-possibly-new-processed-file 
 		   buffer-file-name)))
-	  ;; FIXME: if it's *not* completely processed, should
-	  ;; we make sure it isn't on the included files list?
-	  ;; (see proof-deactivate-scripting below)
+
+	  ;; 11.12.98 Added this.
+	  (if (proof-locked-region-empty-p)
+	      ;; We switching from a buffer which is empty.
+	      ;; Make sure that it's *off* the included files
+	      ;; list now.  
+	      (proof-unregister-buffer-file-name))
 
 	  ;; Turn off Scripting in the old buffer.
 	  (setq proof-active-buffer-fake-minor-mode nil)))
@@ -467,8 +482,14 @@ buffers."
       (force-mode-line-update))
 
     ;; This may be a good time to ask if the user wants to save some
-    ;; buffers
-    (save-some-buffers))))
+    ;; buffers.  On the other hand, it's jolly annoying to be
+    ;; queried on the active scripting buffer if we've started
+    ;; writing in it.  So pretend that one is unmodified.
+    (let ((modified (buffer-modified-p)))
+      (set-buffer-modified-p nil)
+      (unwind-protect
+	  (save-some-buffers)
+	(set-buffer-modified-p modified))))))
 
 ;; This could be a subroutine to the above for a more sophisticated
 ;; behaviour upon switching.
@@ -480,19 +501,22 @@ If the locked region doesn't cover the entire file, retract it."
   (if (eq (current-buffer) proof-script-buffer)
       (let ((bname  (buffer-name proof-script-buffer)))
 	(message "Turning off scripting in %s..." bname)
-	;; If the buffer is not fully processed, 
-	;; ensure it's removed from the list of included files
-	;; and retract it if the locked region is non-empty.  
-	(unless (proof-locked-region-full-p)
+	(if (proof-locked-region-full-p)
+	;; If the buffer *was* fully processed, 
+	;; lets add it into the list of processed files.  
+	    (if buffer-file-name
+		(proof-register-possibly-new-processed-file 
+		 buffer-file-name))
+	  ;; If the buffer is not fully processed, 
+	  ;; ensure it's removed from the list of included files
+	  ;; and retract it if the locked region is non-empty.  
 	  (goto-char (point-min))
 	  (proof-unregister-buffer-file-name)
 	  (unless (proof-locked-region-empty-p)
 	    (condition-case nil
 		(proof-retract-until-point)
 	      (error nil))))
-	;; In any case, make some cleanup attempts
-	(proof-restart-buffers (list proof-script-buffer))
-	;; And turn off the fake minor mode
+	;; In any case, turn off the fake minor mode
 	(setq proof-active-buffer-fake-minor-mode nil)
 	;; Make status of active scripting buffer show up
 	;; FIXME da:
@@ -500,9 +524,9 @@ If the locked region doesn't cover the entire file, retract it."
 	(if (fboundp 'redraw-modeline)
 	    (redraw-modeline)
 	  (force-mode-line-update))
+	;; And now there is no active scripting buffer
+	(setq proof-script-buffer nil)
 	(message "Turning off scripting in %s... done." bname))))
-
-	
 
 
 
@@ -1601,8 +1625,8 @@ Clean up before a script buffer is killed.
 If killing the active scripting buffer, run proof-deactivate-scripting.
 Otherwise just do proof-restart-buffers to delete some spans from memory."
   (if (eq (current-buffer) proof-script-buffer)
-      (proof-deactivate-scripting)
-    (proof-restart-buffers (list (current-buffer))))
+      (proof-deactivate-scripting))
+  (proof-restart-buffers (list (current-buffer)))
   ;; Hide away goals and response: this is a hack because otherwise
   ;; we can lead the user to frustration with the dedicated windows
   ;; nonsense.
