@@ -4,7 +4,7 @@ Version:	3.1pre000209
 Release:	1
 Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
-Url:		http://www.dcs.ed.ac.uk/proofgen/
+Url:		http://www.lfcs.informatics.ed.ac.uk/proofgen
 Packager:	David Aspinall <da@dcs.ed.ac.uk>
 Source:		http://www.dcs.ed.ac.uk/proofgen/ProofGeneral-3.1pre000209.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root

@@ -44,7 +44,7 @@ Subject: Proof General --- Version 3.0 release
 
    A Generic Emacs interface for Interactive Proof Assistants
 
-            http://zermelo.dcs.ed.ac.uk/~proofgen
+            http://www.lfcs.informatics.ed.ac.uk/proofgen
 
            contact: David Aspinall <da@dcs.ed.ac.uk>
 
@@ -73,10 +73,10 @@ Summary of changes since 2.1:
 . New function to search for theorems 
 . X-Symbol support for Coq, LEGO, and Isabelle
 . Lots more fine-grained improvements, for full details
-  http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral-3.0/CHANGES
+  http://www.lfcs.informatics.ed.ac.uk/proofgen/ProofGeneral-3.0/CHANGES
 
 The user manual contains full details, and is available on-line at: 
-http://zermelo.dcs.ed.ac.uk/~proofgen/index.phtml?page=doc
+http://www.lfcs.informatics.ed.ac.uk/proofgen/index.phtml?page=doc
 
 Proof General needs a recent version of Emacs to run with, and it much
 prefers XEmacs to FSF GNU Emacs.  Proof General 3.0 has been tested
