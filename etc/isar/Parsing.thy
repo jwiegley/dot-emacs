@@ -9,6 +9,10 @@ theory Parsing = Main:
    the names of commands, such as theory or theorem or proof itself,
    never mind thus assume end qed. *)
 
+(* At the moment, successive comments are amalgamated, and comments
+   following commands are wrapped into the command (so cannot be
+   hidden). *)
+
 text {* Isar theories can have arbitrary literal text,
           so the text must be ignored as well; thus. *}
 
@@ -22,10 +26,12 @@ text {* Isar theories can have arbitrary literal text,
 text {* nesting (* may be the other way around *) *}
 
 (* The main type of comment (* may be nested *)
-   just like in SML. GNU Emacs supports this now, nicely,
-   but XEmacs doesn't, so colouration goes wrong.  
+   just like in SML. GNU Emacs [21.1] supports this now, nicely,
+   but XEmacs [21.4.8] doesn't, so colouration goes wrong.  
    If there are any command names inside this comment
-   (e.g. theorem), it breaks the parser in XEmacs. *)
+   (e.g. theorem), it breaks the parser in XEmacs. 
+   [ To process this in XEmacs, delete "thxxrem" above, C-c C-n, C-x u ]
+*)
 
 (* Let's do my favourite proof. *)
 
@@ -61,5 +67,7 @@ end
 (* That's the final command and it includes any text which follows it.
    An oddity is that if there is a syntax error - unclosed comment
    or whatever, after the last end, PG will say that it can't find
-   a complete command! *)
+   a complete command! 
+
+   Another oddity with comments at the end: these are left as "commands". *)
 
