@@ -12,7 +12,10 @@
 
 ;; FIXME da: integrate with PG's face mechanism?
 ;; (but maybe keep twelf faces to help users)
-;; Also should add immediate fontification.
+;; Also should add font locking.
+
+;; FIXME da: the twelf faces don't work with PG's
+;; background colouring, why?
 
 
 ;; modify the syntax table so _ and ' are word constituents
