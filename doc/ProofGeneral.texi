@@ -660,10 +660,13 @@ Proof General mode will be invoked automatically:
 @item       Coq           @tab @file{.v}      @tab @code{coq-mode}
 @item       Isabelle      @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
 @item       Isabelle/Isar @tab @file{.thy}    @tab @code{isar-mode}
+@item       Phox          @tab @file{.phx}    @tab @code{phox-mode}
 @item       HOL98         @tab @file{.sml}    @tab @code{hol98-mode}
 @end multitable
-You can also invoke the mode command directly, e.g., type 
-@kbd{M-x lego-mode}, to turn a buffer into a lego script buffer.
+(The exact list of Proof Assistants supported may vary according to the
+version of Proof General and its local configuration).  You can also
+invoke the mode command directly, e.g., type @kbd{M-x lego-mode}, to
+turn a buffer into a lego script buffer.
 
 You'll find commands to process the proof script are available from the
 toolbar, menus, and keyboard.  Type @kbd{C-h m} to get a list of the

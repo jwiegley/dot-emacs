@@ -1,6 +1,8 @@
 
 \def\fontdefs{\psfamily{bsf}{r}{c}{b}{b}{ri}{ri}{ro}{bo}\def\mainmagstep{1200}}
 \input texinfo
+@c TODO: setting for configuring proof hidden regions.
+@c
 @c
 @c $Id$
 @c
@@ -194,7 +196,6 @@ Proof General a generic Emacs-based interface for proof assistants.
 This manual contains information for adapting Proof General to new proof
 assistants, and some sketches of the internal implementation.  It is not
 intended for most ordinary users of the system.  
-
 For full details about how to use Proof General, and information on its
 availability and installation, please see the main Proof General manual
 which should accompany this one.
@@ -245,7 +246,7 @@ liberate it from the points and parentheses of Emacs Lisp.  The
 successor project Proof General Kit proposes that proof assistants use a
 @i{standard} XML-based protocol for interactive proof, dubbed @b{PGIP}.
 
-PGIP is a middleware for interactive proof tools and interface
+PGIP enables middleware for interactive proof tools and interface
 components.  Rather than configuring Proof General for your proof
 assistant, you will need to configure your proof assistant to understand
 PGIP.  There is a similarity however; the design of PGIP was based
@@ -265,10 +266,10 @@ webpage}.
 @node Credits
 @unnumberedsec Credits
 
-This manual was put together and mostly written by David Aspinall.  Thomas
-Kleymann wrote some of the text in Chapter 8.
-Much of the content is generated automatically from Emacs docstrings,
-some of which have been written by other Proof General developers.
+David Aspinall put together and wrote most of this manual.  Thomas
+Kleymann wrote some of the text in Chapter 8.  Much of the content is
+generated automatically from Emacs docstrings, some of which have been
+written by other Proof General developers.
 
 
 
@@ -303,7 +304,8 @@ interested, maybe because you need to extend the generic core to do
 something new.
 
 In the rest of this chapter we describe the general mechanisms for
-instantiating Proof General.
+instantiating Proof General.  We assume some knowledge of the content
+of the main Proof General manual.
 
 @menu
 * Overview of adding a new prover::            
@@ -383,9 +385,7 @@ how to set them.
 
 The documentation below (and inside Emacs) should help with that, but
 the best way to begin might be to use an existing Proof General instance
-as an example.  Even better is to use the new easy configuration
-mechanism, which avoids the need to call @code{define-derived-mode}
-directly.
+as an example.  
 
 
 @node Demonstration instance and easy configuration
@@ -498,6 +498,9 @@ is started; one way to do this is inside a function which is called from
 the hook @code{pre-shell-start-hook}.  See the file @file{demoisa.el}
 for details of how to do this.
 
+For future instantiations, it is recommended to follow the standard
+scheme: @code{@var{PA}-mode}, @code{@var{PA}-shell-mode}, etc.
+
 @c TEXI DOCSTRING MAGIC: proof-mode-for-script
 @defvar proof-mode-for-script 
 Mode for proof script buffers.@*
@@ -530,7 +533,8 @@ Suggestion: this can be set a function called by @samp{pre-shell-start-hook}.
 @node Menus and toolbar and user-level commands
 @chapter Menus, toolbar, and user-level commands
 
-The variables described in this chapter should be set in the script mode
+The variables described in this chapter configure the menus, toolbar,
+and user-level commands.  They should be set in the script mode
 before @code{proof-config-done} is called.  (Toolbar configuration must
 be made before @file{proof-toolbar.el} is loaded, which usually is
 triggered automatically by an attempt to display the toolbar).
@@ -669,10 +673,9 @@ Here's an example of how to remove a button, from @file{af2.el}:
 @chapter Proof script settings
 
 The variables described in this chapter should be set in the script mode
-before @code{proof-config-done} is called.  These configure the mode for
-the script buffer.  The settings here configure the recognition of
-commands in the proof script, and also control some of the behaviour of
-script management.
+before @code{proof-config-done} is called.  These variables configure
+recognition of commands in the proof script, and also control some of
+the behaviour of script management.
 
 
 @menu
@@ -813,7 +816,7 @@ The @code{-p} subsidiary predicates were added to allow more
 discriminating behaviour for particular proof assistants.  (This is a
 typical example of where the core framework needs some additional
 generalization, to simplify matters, and allow for a smooth handling of
-nested proofs).
+nested proofs; the present state is only part of the way there).
 
 
 @c TEXI DOCSTRING MAGIC: proof-goal-command-regexp
@@ -1097,7 +1100,7 @@ or if you don't want to write a function to do move them around.
 
 A proof command is "safe" if it can be issued away from the proof
 script.  For this to work it should be state-preserving in the proof
-assistant.
+assistant (with respect to an on-going proof).
 
 @c TEXI DOCSTRING MAGIC: proof-state-preserving-p
 @defvar proof-state-preserving-p 
@@ -1165,9 +1168,9 @@ Proof General about the dependencies rather than using this setting.
 @section Completions
 
 Proof General allows provers to create a @i{completion table} to help
-writing identifiers in proof scripts.  This is documented in the main
-@i{Proof General} user manual but summarized here for 
-(a different kind of) completion.
+writing keywords and identifiers in proof scripts.  This is documented
+in the main @i{Proof General} user manual but summarized here for (a
+different kind of) completion.
 
 Completions are filled in according to what has been recently typed,
 from a database of symbols.  The database is automatically saved at the
@@ -1817,6 +1820,10 @@ output format.
 
 The goals buffer settings allow configuration of Proof General for proof
 by pointing or similar features.
+See the Proof General documentation page (@uref{http://www.proofgeneral.org/doc})
+for a link to the technical report ECS-LFCS-97-368 which hints
+at how to use these settings.
+
 @c At the moment these settings are disabled.
 
 @c TEXI DOCSTRING MAGIC: pbp-change-goal
