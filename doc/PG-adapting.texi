@@ -3013,26 +3013,25 @@ Ready prover and activate scripting for the current script buffer.
 
 The current buffer is prepared for scripting.  No changes are
 necessary if it is already in Scripting minor mode.  Otherwise, it
-will become the new active scripting buffer, provided scripting
-can be switched off in the previous active scripting buffer
-with @samp{@code{proof-deactivate-scripting}}.
+will become the new active scripting buffer, provided scripting can be
+switched off in the previous active scripting buffer with
+@samp{@code{proof-deactivate-scripting}}.
 
-Activating a new script buffer may be a good time to ask if the
-user wants to save some buffers; this is done if the user
-option @samp{@code{proof-query-file-save-when-activating-scripting}} is set
-and provided the optional argument @var{nosaves} is non-nil.
+Activating a new script buffer may be a good time to ask if the user
+wants to save some buffers; this is done if the user option
+@samp{@code{proof-query-file-save-when-activating-scripting}} is set and provided
+the optional argument @var{nosaves} is non-nil.
 
-The optional argument @var{queuemode} relaxes the test for a
-busy proof shell to allow one which has mode @var{queuemode}.
-In all other cases, a proof shell busy error is given.
+The optional argument @var{queuemode} relaxes the test for a busy proof
+shell to allow one which has mode @var{queuemode}.  In all other cases, a
+proof shell busy error is given.
 
-Finally, the hooks @samp{@code{proof-activate-scripting-hook}} are run.
-This can be a useful place to configure the proof assistant for
-scripting in a particular file, for example, loading the
-correct theory, or whatever.  If the hooks issue commands
-to the proof assistant (via @samp{@code{proof-shell-invisible-command}})
-which result in an error, the activation is considered to
-have failed and an error is given.
+Finally, the hooks @samp{@code{proof-activate-scripting-hook}} are run.  This can
+be a useful place to configure the proof assistant for scripting in a
+particular file, for example, loading the correct theory, or whatever.
+If the hooks issue commands to the proof assistant (via
+@samp{@code{proof-shell-invisible-command}}) which result in an error, the
+activation is considered to have failed and an error is given.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-deactivate-scripting
