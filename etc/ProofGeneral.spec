@@ -68,7 +68,7 @@ mv etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications    # R
 
 for f in */README; do mv $f $f.`dirname $f`; done
 
-cp -pr phox acl2 twelf coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
+cp -pr phox acl2 twelf coq lego isa isar hol98 images generic mmm x-symbol ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 %clean
 if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
