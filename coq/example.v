@@ -50,20 +50,20 @@ Proof.
 	Intro l ; Elim l ; Simpl ; Auto.
         Induction 1; Auto.
 Qed.
-Hint app_nil_end.
+Hints Resolve app_nil_end.
 
 Lemma app_ass : (l,m,n : list)(app (app l m) n)=(app l (app m n)).
 Proof. 
 	Intros l m n ; Elim l ; Simpl ; Auto.
 	Induction 1; Auto.
 Qed.
-Hint app_ass.
+Hints Resolve app_ass.
 
 Lemma ass_app : (l,m,n : list)(app l (app m n))=(app (app l m) n).
 Proof. 
 	Auto.
 Qed.
-Hint ass_app.
+Hints Resolve ass_app.
 
 (*
 Definition tail := [l:list]Case l of
@@ -142,7 +142,7 @@ Proof.
 Qed.
 End length_order.
 
-Hint lel_refl lel_cons_cons lel_cons lel_nil lel_nil nil_cons.
+Hints Resolve lel_refl lel_cons_cons lel_cons lel_nil lel_nil nil_cons.
 
 Fixpoint In  [a:A;l:list] : Prop :=
       (Case l of (* nil *) False 
@@ -152,13 +152,13 @@ Lemma in_eq : (a:A)(l:list)(In a (cons a l)).
 Proof. 
 	Simpl ; Auto.
 Qed.
-Hint in_eq.
+Hints Resolve in_eq.
 
 Lemma in_cons : (a,b:A)(l:list)(In b l)->(In b (cons a l)).
 Proof. 
 	Simpl ; Auto.
 Qed.
-Hint in_cons.
+Hints Resolve in_cons.
 
 Lemma in_app_or : (l,m:list)(a:A)(In a (app l m))->((In a l)\/(In a m)).
 Proof. 
@@ -211,17 +211,17 @@ Proof.
 	      H2 : (<A>H=a)\/(In a y) *)
 	Elim H2 ; Auto.
 Qed.
-Hint in_or_app.
+Hints Resolve in_or_app.
 
 Definition incl := [l,m:list](a:A)(In a l)->(In a m).
 
-Hint Unfold incl.
+Hints Unfold incl.
 
 Lemma incl_refl : (l:list)(incl l l).
 Proof. 
 	Auto.
 Qed.
-Hint incl_refl.
+Hints Resolve incl_refl.
 
 Lemma incl_tl : (a:A)(l,m:list)(incl l m)->(incl l (cons a m)).
 Proof. 
@@ -268,7 +268,7 @@ Proof.
 	(*  2 (In a0 l)->(In a0 m) *)
 	Auto.
 Qed.
-Hint incl_cons.
+Hints Resolve incl_cons.
 
 Lemma incl_app : (l,m,n:list)(incl l n)->(incl m n)->(incl (app l m) n).
 Proof. 
@@ -284,7 +284,7 @@ Proof.
 	      l : list *)
 	Elim (in_app_or l m a) ; Auto.
 Qed.
-Hint incl_app.
+Hints Resolve incl_app.
 
 
 (* Id: List.v,v 1.4 1996/10/07 07:50:36 ccornes Exp  *)
