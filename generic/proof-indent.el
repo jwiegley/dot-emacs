@@ -1,6 +1,6 @@
 ;; proof-indent.el Generic Indentation for Proof Assistants
-;; Authors: Markus Wenzel
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Authors:	   Markus Wenzel
+;; Maintainer:     Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;

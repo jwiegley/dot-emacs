@@ -1,6 +1,6 @@
 ;; proof-shell.el  Proof General shell mode.
 ;;
-;; Copyright (C) 1994-2000 LFCS Edinburgh. 
+;; Copyright (C) 1994-2001 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;          Thomas Kleymann and Dilip Sequeira
 ;;

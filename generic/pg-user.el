@@ -1,6 +1,6 @@
 ;; pg-user.el   User level commands for Proof General
 ;;
-;; Copyright (C) 2000 LFCS Edinburgh. 
+;; Copyright (C) 2000-2001 LFCS Edinburgh. 
 ;; Author:     David Aspinall and others
 ;; Maintainer: Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;

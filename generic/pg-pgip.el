@@ -1,6 +1,6 @@
 ;; pg-pgip.el	 Functions for processing PGIP for Proof General
 ;;
-;; Copyright (C) 2000 LFCS Edinburgh. 
+;; Copyright (C) 200-2001 LFCS Edinburgh. 
 ;;
 ;; Author: David Aspinall <da@dcs.ed.ac.uk>
 ;;

@@ -1,6 +1,6 @@
 ;; proof-config.el  Proof General configuration for proof assistant
 ;;
-;; Copyright (C) 1998-2000 LFCS Edinburgh. 
+;; Copyright (C) 1998-2001 LFCS Edinburgh. 
 ;; Authors: David Aspinall
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
