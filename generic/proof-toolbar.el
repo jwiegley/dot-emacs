@@ -72,7 +72,8 @@
 
 (defun proof-toolbar-make-icon (tle)
   "Make icon variable and icon list entry from a PA-toolbar-entries entry."
-  (let* ((icon (car tle))
+  (let* ((icon     (car tle))
+	 (tooltip  (nth 2 tle))
 	 (iconname (symbol-name icon))
 	 (iconvar  (proof-toolbar-icon icon)))
     ;; first declare variable
@@ -83,11 +84,13 @@
     ;; FIXME: above doesn't quite work right.  However, we only lose
     ;; the docstring which is no big deal.
     ;; now the list entry
-    (list iconvar iconname)))
+    (if tooltip
+	(list (list iconvar iconname)))))
   
 (defconst proof-toolbar-iconlist
-  (mapcar 'proof-toolbar-make-icon 
-	  (proof-ass toolbar-entries))
+  (apply 'append
+	 (mapcar 'proof-toolbar-make-icon 
+		 (proof-ass toolbar-entries)))
   "List of icon variable names and their associated image files.
 A list of lists of the form (VAR IMAGE).  IMAGE is the root name
 for an image file in proof-images-directory.  The toolbar
@@ -109,23 +112,30 @@ and chooses the best one for the display properites.")
        (buttonfn      (proof-toolbar-function token))
        (buttonfnwe    (proof-toolbar-function-with-enabler token))
        (icon	      (proof-toolbar-icon token))
-       (actualfn      (if (or enablep (not existsenabler))
-			  buttonfn
-			;; Add the enabler onto the function if necessary.
-			(eval `(defun ,buttonfnwe ()
-				 (interactive)
-				 (if (,enabler) 
-				     (call-interactively (quote ,buttonfn))
-				   (message ,(concat "Button \"" menuname "\" disabled")))))
-			buttonfnwe)))
-    (if tooltip
-	(list (vector icon actualfn enableritem tooltip)))))
+       (actualfn      
+	(if (or enablep (not existsenabler))
+	    buttonfn
+	  ;; Add the enabler onto the function if necessary.
+	  (eval `(defun ,buttonfnwe ()
+		   (interactive)
+		   (if (,enabler) 
+		       (call-interactively (quote ,buttonfn))
+		     (message ,(concat "Button \"" menuname "\" disabled")))))
+	  buttonfnwe)))
+    (if tooltip	;; no tooltip means menu-only item
+	(if proof-running-on-XEmacs
+	    (list (vector icon actualfn enableritem tooltip))
+	  (list (append (list icon actualfn token
+			      :help tooltip)
+			(if enabler (list :enable (list enabler)))))))))
+		
 
 (defvar proof-toolbar-button-list 
   (append
    (apply 'append (mapcar 'proof-toolbar-make-toolbar-item 
 			  (proof-ass toolbar-entries)))
-   (list [:style 3d]))
+   (if proof-running-on-XEmacs
+       (list [:style 3d])))
   "A toolbar descriptor evaluated in proof-toolbar-setup.
 Specifically, a list of sexps which evaluate to entries in a toolbar
 descriptor.   The default value proof-toolbar-default-button-list
@@ -136,7 +146,8 @@ will work for any proof assistant.")
 ;;
 
 (defvar proof-toolbar nil
-  "Proof mode toolbar button list.  Set in proof-toolbar-setup.")
+  "Proof mode toolbar button list.  Set in proof-toolbar-build.
+For GNU Emacs, this holds a keymap.")
 
 (deflocal proof-toolbar-itimer nil
   "itimer for updating the toolbar in the current buffer")
@@ -147,60 +158,134 @@ will work for any proof assistant.")
 If proof-mode-use-toolbar is nil, change the current buffer toolbar
 to the default toolbar."
   (interactive)
-  (if (and (featurep 'toolbar)		; won't work in FSF Emacs
-	   (featurep 'xpm))		; images in XPM format
-    (if (and	
-	 proof-toolbar-enable
-	 ;; NB for FSFmacs use window-system, not console-type
-	 (memq (console-type) '(x mswindows gtk)))
-	(let
-	    ((icontype   
-	      (if (< (device-pixel-depth) 16)
-		  ".8bit.xpm" ".xpm")))
-	  ;; First set the button variables to glyphs.  
-	  (mapcar
-	   (lambda (buttons)
-	     (let ((var	(car buttons))
-		   (iconfiles (mapcar (lambda (name)
-					(concat proof-images-directory
-						name
-						icontype)) (cdr buttons))))
-	       (set var (toolbar-make-button-list iconfiles))))
-	   proof-toolbar-iconlist)
-	  ;; Now evaluate the toolbar descriptor
-	  (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
-	  ;; Ensure current buffer will display this toolbar
-	  (set-specifier default-toolbar proof-toolbar (current-buffer))
-	  (if proof-toolbar-use-button-enablers
-	      (progn
-		;; Set the callback for updating the enablers
-		(add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
-		;; Also call it whenever text changes in this buffer,
-		;; provided it's a script buffer.
-		(if (eq proof-buffer-type 'script)
-		    (add-hook 'after-change-functions 
-			      'proof-toolbar-refresh nil t))
-		;; And the interval timer for really refreshing the toolbar
-		(setq proof-toolbar-itimer
-		      (start-itimer "proof toolbar refresh"
-				    'proof-toolbar-really-refresh
-				    0.5		 ; seconds of delay
-				    0.5		 ; repeated
-				    t		 ; count idle time
-				    t		 ; pass argument
-				    (current-buffer))))) ;  - current buffer
-	  ;; Attempt to refresh to display toolbar
-	  (sit-for 0))
-      ;; Disabling toolbar: remove specifier, hooks, timer.
-      (remove-specifier default-toolbar (current-buffer))
-      (remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
-      (remove-hook 'after-change-functions 'proof-toolbar-refresh)
-      (if proof-toolbar-itimer (delete-itimer proof-toolbar-itimer))
-      (setq proof-toolbar-itimer nil))))
+  (if
+   (and ;; Check support in Emacs
+    (or (and (featurep 'tool-bar)	; GNU Emacs tool-bar library
+	     (member 'xpm image-types))	; and XPM support
+	(and (featurep 'toolbar)	; or XEmacs toolbar library
+	     (featurep 'xpm)))		; and XPM support
+    ;; Check support in Window system
+    (memq (if proof-running-on-XEmacs (console-type) window-system)
+	  '(x mswindows gtk)))
+
+      ;; Toolbar support is possible.  
+      (progn
+	;; Check the toolbar has been built.
+	(or proof-toolbar (proof-toolbar-build))
+
+	;; Now see if user wants toolbar
+	;; or not (this can be changed dyamically).
+	(if proof-toolbar-enable
+
+	    ;; Enable the toolbar in this buffer
+	    (if proof-running-on-Emacs21
+		;; For GNU Emacs, we make a local tool-bar-map
+		(set (make-local-variable 'tool-bar-map) proof-toolbar)
+	      
+	      ;; For XEmacs, we set the toolbar specifier for this buffer.
+	      (set-specifier default-toolbar proof-toolbar (current-buffer))
+	      ;; We also setup refresh hackery
+	      (proof-toolbar-setup-refresh))
+
+	  ;; Disable the toolbar in this buffer
+	  (if proof-running-on-Emacs21
+	      ;; For GNU Emacs, we remove local value of tool-bar-map
+	      (kill-local-variable 'tool-bar-map)
+	    ;; For XEmacs, we remove specifier and disable refresh.
+	    (remove-specifier default-toolbar (current-buffer))
+	    (proof-toolbar-disable-refresh)))
+
+	;; Update the display
+	(sit-for 0))))
+
+(defun proof-toolbar-build ()
+  "Build proof-toolbar."
+  (let ((icontype   
+	 ;; Select 8bit xpm's if we've got a 
+	 ;; limited colour depth.
+	 (if (and (boundp 'device-pixel-depth)
+		  (< (device-pixel-depth) 16))
+	     ".8bit.xpm" ".xpm")))
+    
+    ;; First set the button variables to glyphs.  
+    ;; (NB: this is a bit long-winded).
+    (mapcar
+     (lambda (buttons)
+       (let ((var	(car buttons))
+	     (iconfiles (mapcar (lambda (name)
+				  (concat proof-images-directory
+					  name
+					  icontype)) (cdr buttons))))
+	 (set var 
+	      (if proof-running-on-XEmacs
+		  ;; On XEmacs, icon variable holds a list of glyphs
+		  (toolbar-make-button-list iconfiles)
+		;; On GNU emacs, it holds a filename for the icon,
+		;; without path or extension.
+		(eval (cadr buttons))))))
+     ;; On GNU Emacs, it holds an image descriptor or vector of
+     ;;(if (> 1 (length iconfiles))
+     ;; (apply 'vector (mapcar 'create-image iconfiles))
+     ;; (create-image (car iconfiles)))))))
+     proof-toolbar-iconlist))
+
+  (if proof-running-on-XEmacs
+      ;; For XEmacs, we evaluate the specifier.
+      (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
+
+    ;; On GNU emacs, we need to make a new "key"map, 
+    ;; and set a local copy of tool-bar-map to it.
+    (setq proof-toolbar (make-sparse-keymap))
+    (let ((tool-bar-map proof-toolbar)
+	  (load-path (list proof-images-directory))) ; for finding images
+      (dolist (but proof-toolbar-button-list)
+	(apply 
+	 'tool-bar-add-item 
+	 (eval (nth 0 but))		; image filename
+	 (nth 1 but)			; function symbol
+	 (nth 2 but)			; dummy key
+	 (nthcdr 3 but)))))		; remaining properties
+    ;; Finished
+    )
+
 
 ;; Action to take after altering proof-toolbar-enable
 (defalias 'proof-toolbar-enable 'proof-toolbar-setup)
 (proof-deftoggle proof-toolbar-enable proof-toolbar-toggle)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Toolbar refresh functions (hackery for XEmacs)
+;;
+
+(defun proof-toolbar-setup-refresh ()
+  "Enable the XEmacs hackery to update the toolbar."
+  (if  proof-toolbar-use-button-enablers
+      (progn
+	;; Set the callback for updating the enablers
+	(add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
+	;; Also call it whenever text changes in this buffer,
+	;; provided it's a script buffer.
+	(if (eq proof-buffer-type 'script)
+	    (add-hook 'after-change-functions 
+		      'proof-toolbar-refresh nil t))
+	;; And the interval timer for really refreshing the toolbar
+	(setq proof-toolbar-itimer
+	      (start-itimer "proof toolbar refresh"
+			    'proof-toolbar-really-refresh
+			    0.5		 ; seconds of delay
+			    0.5		 ; repeated
+			    t		 ; count idle time
+			    t		 ; pass argument
+			    (current-buffer))))))
+
+(defun proof-toolbar-disable-refresh ()
+  "Disable the XEmacs hackery to update the toolbar."
+  (remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
+  (remove-hook 'after-change-functions 'proof-toolbar-refresh)
+  (if proof-toolbar-itimer (delete-itimer proof-toolbar-itimer))
+  (setq proof-toolbar-itimer nil))
 
 (deflocal proof-toolbar-refresh-flag nil
   "Flag indicating that the toolbar should be refreshed.")
@@ -213,7 +298,9 @@ to the default toolbar."
   (setq proof-toolbar-refresh-flag t))
 
 (defvar proof-toolbar-enablers
-   (mapcar (lambda (tle) (list (proof-toolbar-enabler (car tle)))) (proof-ass toolbar-entries))
+   (mapcar (lambda (tle) 
+	     (list (proof-toolbar-enabler (car tle)))) 
+	   (proof-ass toolbar-entries))
   "List of all toolbar's enablers")
 
 (defvar proof-toolbar-enablers-last-state
