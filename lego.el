@@ -4,7 +4,7 @@
 ;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <12 Dec 96 tms /home/tms/elisp/lego.el>
+;; Time-stamp: <01 Mar 97 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -290,7 +290,7 @@
 
      ; Pi and Sigma binders
      (list (concat "[{<]\\s *\\(" lego-ids "\\)") 1
-	   'font-lock-declaration-name-face)
+	   'font-lock-declaration-name-face t)
    
      ;; Kinds
      (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("
