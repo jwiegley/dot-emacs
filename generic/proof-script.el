@@ -708,7 +708,10 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (and proof-global-p 
 	   (funcall proof-global-p cmd)
 	   proof-lift-global
-	   (funcall proof-lift-global span))))))
+	   (funcall proof-lift-global span)))))
+  ;; FIXME: circular dependency on proof-toolbar here!
+  (proof-toolbar-refresh)
+  )
 
 
 
@@ -1047,7 +1050,9 @@ Optionally delete the region corresponding to the proof sequence."
 	  (proof-set-queue-end start))
 	(delete-spans start end 'type)
 	(delete-span span)
-	(if kill (kill-region start end)))))
+	(if kill (kill-region start end))))
+  ;; FIXME: circular dependency on proof-toolbar here!
+  (proof-toolbar-refresh))
 
 (defun proof-setup-retract-action (start end proof-command delete-region)
   (let ((span (make-span start end)))
