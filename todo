@@ -59,6 +59,8 @@ D X-Symbol improvements: see if we can get support for
   remove spurious settings of calculated stuff from
   x-symbol-isa.el  (see FIXME comments in v3.1 there).
 
+D X-Symbol improvement: turning it on/off seems to move point.
+
 D Strange problem when running in tty mode: c-c c-RET seems to be
   impossible to type.  Consider binding C-c RET instead when
   running on a console.
