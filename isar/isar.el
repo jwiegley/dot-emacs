@@ -247,6 +247,7 @@ See -k option for Isabelle interface script."
    proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\361"
    proof-shell-theorem-dependency-list-split "\" \""
    proof-shell-show-dependency-cmd "thm %s;"
+   proof-shell-identifier-under-mouse-cmd "thm %s;"
 
    ;; Allow font-locking for output based on hidden annotations, see
    ;; isar-output-font-lock-keywords-1
