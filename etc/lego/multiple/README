@@ -1,0 +1,24 @@
+Handling of Multiple Files
+==========================
+
+
+Test Protocol
+-------------
+
+ 1) visit A.l
+ 2) visit C.l
+ 3) assert C       =>   all of C should be locked
+ 4) switch to A.l  =>   all of A should be locked
+ 5) visit B.l      =>   all of B should be locked
+ 6) visit D.l      =>   D should not be locked
+ 7) retract to middle of B  =>   B should be (completely) unlocked
+ 8) assert first command of B
+ 9) A should still be locked; C and D should be unlocked
+10) assert C       => should signal error
+11) assert B then D => A,B,D should be locked and C unlocked
+12) retract B => A should be locked; B,C should be unlocked 
+                    D should be unlocked in systems with linear
+                    dependencies (e.g. LEGO)
+13) assert C  => A,B,C should be locked; status of D unchanged
+14) M-x proof-restart-script => A,B,C,D should be unlocked
+
