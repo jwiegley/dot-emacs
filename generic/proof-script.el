@@ -368,6 +368,15 @@ buffer is closed off atomically.
 
 This works for buffers which are not in proof scripting mode too,
 to allow other files loaded by proof assistants to be marked read-only." 
+;; FIXME: this isn't quite right, because not all of the structure 
+;; in the locked region will be preserved when processing across several 
+;; files.
+;; In particular, the span for a currently open goal should be removed.
+;; Keeping the structure is an approximation to make up for the fact
+;; that that no structure is created by loading files via the 
+;; proof assistant.
+;; Future idea: proof assistant could ask Proof General to do the
+;; loading, to alleviate file handling there?!
   (save-excursion
     (set-buffer buffer)
     (if (< (proof-unprocessed-begin) (proof-script-end))
