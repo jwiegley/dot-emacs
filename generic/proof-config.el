@@ -1058,6 +1058,13 @@ LEGO and Coq enable it by tradition."
   :type 'boolean
   :group 'proof-script)
 
+(defcustom proof-script-font-lock-keywords nil
+  "Value of font-lock-keywords used to fontify proof scripts.
+This is currently used only by proof-easy-config mechanism,
+to set font-lock-keywords before calling proof-config-done.
+See also proof-{shell,resp,goals}-font-lock-keywords."
+  :type 'sexp
+  :group 'proof-script)
 
 
 
@@ -1212,18 +1219,29 @@ Proof General about the dependencies rather than using this setting."
 If non-nil, Proof General will automatically issue this command
 to help speed up processing of long proof scripts.  
 See also proof-shell-stop-silent-cmd.
-NOT IMPLEMENTED YET.  Forthcoming in next version."
+NB: terminator not added to command.
+NOT IMPLEMENTED YET.  Forthcoming in Proof General 3.2."
   :type '(choice string (const nil))
   :group 'proof-shell)
 
 (defcustom proof-shell-stop-silent-cmd nil
-  "Command to turn prover output on.
+  "Command to turn prover output off.  
 If non-nil, Proof General will automatically issue this command
 to help speed up processing of long proof scripts.  
 See also proof-shell-start-silent-cmd.
-NOT IMPLEMENTED YET.  Forthcoming in next version."
+NB: Terminator not added to command.
+NOT IMPLEMENTED YET.  Forthcoming in Proof General 3.2."
   :type '(choice string (const nil))
   :group 'proof-shell)
+
+(defcustom proof-shell-silent-threshold 2
+  "Number of waiting commands in the proof queue needed to trigger silent mode.
+Default is 2, but you can raise this in case switching silent mode
+on or off is particularly expensive.
+NOT IMPLEMENTED YET.  Forthcoming in Proof General 3.2."
+  :type 'integer
+  :group 'proof-shell)
+
 
 
 ;;
@@ -1548,7 +1566,7 @@ behaviour of `proof-shell-process-output', (condf cmd string) must
 return a non-nil value. Then (actf cmd string) is invoked. See the
 documentation of `proof-shell-process-output' for the required
 output format."
-  :type '(cons (function function))
+  :type '(repeat function)
   :group 'proof-shell)
 
 (defcustom proof-state-change-hook nil
@@ -1558,7 +1576,17 @@ asserted or retracted, or after a command has been sent
 to the prover with proof-shell-invisible-command.
 
 This hook is used within Proof General to refresh the 
-toolbar.")
+toolbar."
+  :type '(repeat function)
+  :group 'proof-shell)
+
+(defcustom proof-shell-font-lock-keywords nil
+  "Value of font-lock-keywords used to fontify the proof shell.
+This is currently used only by proof-easy-config mechanism,
+to set font-lock-keywords before calling proof-config-done.
+See also proof-{script,resp,goals}-font-lock-keywords."
+  :type 'sexp
+  :group 'proof-script)
 
 
 
@@ -1657,6 +1685,32 @@ buffer.  Otherwise they appear in the response buffer.
 This is a hack specially for Isabelle.  DON'T USE IT.
 It will be removed in a future version of Proof General."
   :type 'boolean
+  :group 'proof-goals)
+
+(defcustom proof-goals-font-lock-keywords nil
+  "Value of font-lock-keywords used to fontify the goals output.
+NB: the goals output is not kept in font-lock-mode because the
+fontification may rely on annotations which are erased before
+displaying.  This means internal functions of PG must be used
+to display to the goals buffer to ensure fontification is done!
+This is currently used only by proof-easy-config mechanism,
+to set font-lock-keywords before calling proof-config-done.
+See also proof-{script,shell,resp}-font-lock-keywords."
+  :type 'sexp
+  :group 'proof-goals)
+
+;; FIXME: perhaps we need new customize group here, "goals" is
+;; not quite right for response buffer!
+(defcustom proof-resp-font-lock-keywords nil
+  "Value of font-lock-keywords used to fontify the response output.
+NB: the goals output is not kept in font-lock-mode because the
+fontification may rely on annotations which are erased before
+displaying.  This means internal functions of PG must be used
+to display to the goals buffer to ensure fontification is done!
+This is currently used only by proof-easy-config mechanism,
+to set font-lock-keywords before calling proof-config-done.
+See also proof-{script,shell,resp}-font-lock-keywords."
+  :type 'sexp
   :group 'proof-goals)
 
 
