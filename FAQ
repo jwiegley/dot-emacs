@@ -49,7 +49,6 @@ A. There are several ways:
    2. Set the environment variable PROOFGENERAL_ASSISTANTS=isa
       before starting Emacs.
    3. Put the line (* -*- isa -*- *) at the top of your files.
-   4. Disable Isar support by removing PG's isar/ directory.
 
    Unfortunately Isabelle/Isar and Isabelle classic are two quite
    separate Proof General instances.  Ideally they should be
