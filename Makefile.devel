@@ -222,7 +222,7 @@ tags:	$(EL)
 #
 ChangeLog:	FORCE
 	rm -f ChangeLog
-	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) > ChangeLog
+	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) -l 1000 > ChangeLog
 
 
 
