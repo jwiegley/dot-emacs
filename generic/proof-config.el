@@ -212,8 +212,12 @@ selected frame will be automatically deleted."
   :group 'proof-user-options)
 
 (defcustom proof-toolbar-use-button-enablers 
-  (or (not (boundp 'system-configuration))
-      (not (string-match "sun-solaris" system-configuration)))
+  (not
+   (or 
+    ;; Disabled by default for win32 and solaris
+    proof-running-on-win32
+    (and (boundp 'system-configuration)
+	 (string-match "sun-solaris" system-configuration))))
   "*If non-nil, toolbars buttons may be enabled/disabled automatically.
 Toolbar buttons can be automatically enabled/disabled according to
 the context.  Set this variable to nil if you don't like this feature
