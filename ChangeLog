@@ -1,5 +1,34 @@
 2002-07-18  David Aspinall  <da@proofgeneral.org>
 
+	* Makefile.devel:
+	Try to fix latest link
+
+	* etc/ProofGeneral.spec:
+	fix README rename.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec:
+	Set version tag for new release.
+
+	* etc/ProofGeneral.spec:
+	Rename READMEs for different provers so dont clash with doc directive.
+
+	* CHANGES: Mention experimental nature
+
+	* doc/PG-adapting.texi: Update magic
+
+	* doc/ProofGeneral.texi:
+	Update magic, move version history to appendix.
+
+	* etc/release-log.txt, etc/announce:
+	Update towards 3.4
+
+	* CHANGES, BUGS:
+	Mention known probs in prerel
+
+2002-07-18  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
