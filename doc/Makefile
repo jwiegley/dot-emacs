@@ -67,20 +67,21 @@ info:   $(DOCNAME).info
 clean:
 	rm -f $(DOCNAME).?? $(DOCNAME).fns $(DOCNAME).vrs $(DOCNAME).cps 
 	rm -f $(DOCNAME).aux $(DOCNAME).log $(DOCNAME).toc $(DOCNAME).cp0
+	rm -f $(DOCNAME).kys
 	rm -f *~
 
 ##
 ## distclean: Remove documentation targets
 ##
 distclean:   clean
-	rm -f $(DOCNAME).info* $(DOCNAME).dvi $(DOCNAME).pdf $(DOCNAME)*.html
+	rm -f $(DOCNAME).info* $(DOCNAME).dvi $(DOCNAME)*.ps $(DOCNAME).pdf $(DOCNAME)*.html 
 
 ##
-## magic: update magic comments in NewDoc.texi from docstrings in code.
+## texi: update magic comments in texi from docstrings in code.
 ##	  (developer use only!)
 ##
-magic:
-	$(EMACS) -l docstring-magic.el NewDoc.texi -f texi-docstring-magic -f save-buffer
+$(DOCNAME).texi: ../*/*.el
+	$(EMACS) -l docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
 
 
 
