@@ -381,10 +381,13 @@ The modified ALIST is returned."
 
 ;; Create a menu from a customize group, for older/non-existent customize
 
-(or (fboundp 'customize-menu-create)
-(defun customize-menu-create (&rest args)
-  "Dummy function for PG; please upgrade your Emacs."
-  nil))
+(if (or
+     (and (equal emacs-major-version 21) ; or for buggy Emacs 21.2.1
+	  (member emacs-minor-version '(2 0)))
+     (not (fboundp 'customize-menu-create)))
+    (defun customize-menu-create (&rest args)
+      "Dummy function for PG; please upgrade your Emacs."
+      nil))
 
 (or (fboundp 'process-live-p)
 (defun process-live-p (obj)
