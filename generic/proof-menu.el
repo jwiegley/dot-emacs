@@ -50,8 +50,12 @@ If in three window or multiple frame mode, display both buffers."
 (defun proof-menu-define-keys (map)
 ;; M-a and M-e are usually {forward,backward}-sentence.
 ;; Some modes also override these with similar commands
-(define-key map [(meta a)] 'proof-forward-command)
-(define-key map [(meta e)] 'proof-backward-command)
+(define-key map [(meta a)] 'proof-backward-command)
+(define-key map [(meta e)] 'proof-forward-command)
+(define-key map [(meta up)] 'proof-backward-command)
+(define-key map [(meta down)] 'proof-forward-command)
+(define-key map [(control meta a)] 'proof-goto-command-start)
+(define-key map [(control meta e)] 'proof-goto-command-end)
 (define-key map [(control c) (control a)] (proof-ass keymap))
 (define-key map [(control c) (control b)] 'proof-process-buffer)
 ;; C-c C-c is proof-interrupt-process in universal-keys
@@ -69,6 +73,7 @@ If in three window or multiple frame mode, display both buffers."
 ; C-c C-v is proof-minibuffer-cmd in universal-keys
 (define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
 (define-key map [(control c) (control return)] 'proof-goto-point)
+(define-key map [(control c) v] 'pg-toggle-visibility);; FIXME: FSF??
 (cond ((string-match "XEmacs" emacs-version)
 (define-key map [(control button3)]	  'proof-mouse-goto-point)
 (define-key map [(control button1)]	  'proof-mouse-track-insert)) ; no FSF
@@ -81,6 +86,11 @@ If in three window or multiple frame mode, display both buffers."
 ;; Standard binding for completion
 (define-key map [(control return)] 'proof-script-complete)
 (define-key map [(control c) (control ?\;)] 'pg-insert-last-output-as-comment)
+;;
+;; Experimental: span moving functions
+(if proof-experimental-features (progn
+(define-key map [(control meta up)] 'pg-move-region-up)
+(define-key map [(control meta down)] 'pg-move-region-down)))
 ;; Add the universal keys bound in all PG buffers.
 ;; C-c ` is next-error in universal-keys
 (proof-define-keys map proof-universal-keys))
