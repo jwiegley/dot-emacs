@@ -5,6 +5,7 @@ $Id$
 
 For latest version, see http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/FAQ
 
+-----------------------------------------------------------------
 
 Q. How can I keep the Proof General option settings across sessions?
 
@@ -14,6 +15,19 @@ A. Simply use the ordinary XEmacs menu: Options -> Save Options
    or use the Custom->Save menu in a customize buffer.
 
 -----------------------------------------------------------------
+
+Q. When using X-Symbol, why do I sometimes see funny characters like
+   \233 in the buffer?
+
+A. These are part of the 8 bit character codes used by X Symbol to
+   get symbols from particular fonts.  Sometimes X-Symbol forgets to
+   fontify the buffer properly to make it use the right fonts.
+   To fix, type M-x font-lock-fontify-buffer
+   If that doesn't work, type M-x font-lock-mode twice to turn
+   font-lock off then on.  Or reload the file.
+
+-----------------------------------------------------------------
+
 
 Q. I'm using Proof General for prover X, then I load a file for prover Y.
    The buffer doesn't enter the mode for prover Y.  Why not?
