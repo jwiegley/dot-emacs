@@ -124,7 +124,8 @@
 (defconst isar-keywords-qed
   '("\\."
     "\\.\\."
-    "by"))
+    "by"
+    "sorry"))
 
 (defconst isar-keywords-qed-block
   '("qed"
