@@ -343,7 +343,7 @@ isa-proofscript-mode."
   (cond
    (;; Theory files only if they have the right extension
     (and (buffer-file-name)
-	 (string-match ".thy" (buffer-file-name)))
+	 (string-match "\\.thy$" (buffer-file-name)))
     (thy-mode)
     ;; Hack for splash screen
     (if (and (boundp 'proof-mode-hook)
@@ -470,7 +470,9 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;; This next function is the important one for undo operations.
 (defun isa-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
-  (let ((ct 0) str i)
+  (let 
+      ((case-fold-search nil)
+       (ct 0) str i)
     (if (and span (prev-span span 'type)
 	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
 	     (isa-goal-command-p
@@ -479,13 +481,13 @@ Resulting output from Isabelle will be parsed by Proof General."
       (while span
 	(setq str (span-property span 'cmd))
 	(cond ((eq (span-property span 'type) 'vanilla)
-	       (or (string-match isa-not-undoable-commands-regexp str)
+	       (or (proof-string-match isa-not-undoable-commands-regexp str)
 		   (setq ct (+ 1 ct))))
 	      ((eq (span-property span 'type) 'pbp)
 	       ;; this case probably redundant for Isabelle, unless
 	       ;; we think of some nice ways of matching non-undoable
 	       ;; commands.
-	       (cond ((not (string-match isa-not-undoable-commands-regexp str))
+	       (cond ((not (proof-string-match isa-not-undoable-commands-regexp str))
 		      (setq i 0)
 		      (while (< i (length str))
 			(if (= (aref str i) proof-terminal-char)
@@ -497,7 +499,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 (defun isa-goal-command-p (str)
   "Decide whether argument is a goal or not"
-  (string-match isa-goal-command-regexp str)) ; this regexp defined in isa-syntax.el
+  (proof-string-match isa-goal-command-regexp str)) ; this regexp defined in isa-syntax.el
 
 ;; Isabelle has no concept of a Linear context, so forgetting back
 ;; to the declaration of a particular something makes no real
@@ -542,14 +544,14 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;	(setq ans (concat isa-forget-id-command
 ;			  (span-property span 'name) proof-terminal-string)))
 
-;       ((string-match (concat "\\`\\(" isa-keywords-decl-defn-regexp
+;       ((proof-string-match (concat "\\`\\(" isa-keywords-decl-defn-regexp
 ;                              "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)
 ;	(setq ans (concat isa-forget-id-command
 ;			  (match-string 2 str) proof-terminal-string)))
 ;       ;; If it's not a goal but it contains "Definition" then it's a
 ;       ;; declaration
 ;       ((and (not (isa-goal-command-p str))
-;	     (string-match
+;	     (proof-string-match
 ;	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*:") str))
 ;	(setq ans (concat isa-forget-id-command
 ;			  (match-string 2 str) proof-terminal-string))))
@@ -571,7 +573,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 (defun isa-state-preserving-p (cmd)
   "Non-nil if command preserves the proofstate."
-  (string-match isa-not-undoable-commands-regexp cmd))
+  (proof-string-match isa-not-undoable-commands-regexp cmd))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
