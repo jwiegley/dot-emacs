@@ -111,7 +111,7 @@
   :type '(repeat string))
 
 (defcustom isa-keywords-save
-  '("qed" "qed_spec_mp" "no_qed" "result")
+  '("qed" "qed_spec_mp" "no_qed")
   ;; Related commands, but having different types, so PG
   ;; won't bother support them:
   ;; "uresult" "bind_thm" "store_thm"
@@ -122,7 +122,7 @@
 (defcustom isa-keywords-commands
   '("by" "byev"
     "ba" "br" "be" "bd" "brs" "bes" "bds"
-    "chop" "choplev" "back" "undo"
+    "chop" "choplev" "back" "undo" "ProofGeneral.repeat_undo"
     "fa" "fr" "fe" "fd" "frs" "fes" "fds"
     "bw" "bws" "ren"
     ;; batch proofs
@@ -137,6 +137,10 @@
   (append isa-keywords-goal isa-keywords-save isa-keywords-decl
 	  isa-keywords-defn isa-keywords-commands)
   "All keywords in a Isabelle script")
+
+(defconst isa-keywords-proof-commands
+  (append isa-keywords-goal isa-keywords-save isa-keywords-commands)
+  "Actual Isabelle proof script commands")
 
 ;; The most common Isabelle/Pure tacticals
 (defconst isa-tacticals
@@ -195,6 +199,18 @@
 	  (proof-ids-to-regexp '("qed_goal"))
 	  "\\)" isa-string-regexp)
   "Regexp matching goal commands in Isabelle which name a theorem")
+
+
+(defconst isa-proof-command-regexp
+  (proof-ids-to-regexp isa-keywords-proof-commands)
+  "Regexp to match proof commands, with no extra output (apart from proof state)")
+
+(defconst isa-verbatim-regexp "^\^VERBATIM: \\(.*\\)"
+  "Regexp matching internal marker for verbatim command output")
+
+(defun isa-verbatim (str)
+  "Mark internal command for verbatim output"
+  (concat "\^VERBATIM: " str))
 
 
 ;; ----- Isabelle inner syntax hilite
