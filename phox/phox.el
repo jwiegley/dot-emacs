@@ -96,12 +96,7 @@
     phox-tags-menu
     (cons
      phox-extraction-menu
-	  (cons
-      phox-pbrpm-menu
-;; not useful ?
-;    '(["Delete symbol around cursor" phox-delete-symbol-around-point t]
-;    ["Delete symbol" phox-delete-symbol t])
-      nil))))
+      nil)))
 )
 
 ;;
