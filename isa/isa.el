@@ -243,10 +243,12 @@ no regular or easily discernable structure."
 ;;; Theory loader operations
 ;;;
 
-(defun isa-update-thy-only (file wait)
+(defun isa-update-thy-only (file try wait)
   "Tell Isabelle to update current buffer's theory, and all ancestors."
   (proof-shell-invisible-command
-   (format "update_thy_only \"%s\";" (file-name-sans-extension file)) wait))
+   (format "ProofGeneral.%supdate_thy_only \"%s\";"
+	   (if try "try_" "") (file-name-sans-extension file))
+   wait))
   
 (defun isa-shell-update-thy ()
   "Possibly issue update_thy_only command to Isabelle.
@@ -254,27 +256,17 @@ If the current buffer has an empty locked region, the interface is
 about to send commands from it to Isabelle.  This function sends
 a command to read any theory file corresponding to the current ML file.
 This is a hook function for proof-activate-scripting-hook."
-  (if (and
-       (proof-locked-region-empty-p)
+  (if (proof-locked-region-empty-p)
        ;; If we switch to this buffer and it *does* have a locked
        ;; region, we could check that no updates are needed and
        ;; unlock the whole buffer in case they were.  But that's
        ;; a bit messy.  Instead we assume that things must be
        ;; up to date, after all, the user wasn't allowed to edit
        ;; anything that this file depends on, was she?
-       buffer-file-name
-       (file-exists-p 
-	(concat (file-name-sans-extension buffer-file-name) ".thy")))
-
-      ;; Send a update_thy_only command if there is a corresponding
-      ;; .thy file.  Let Isabelle do the work of checking whether any
-      ;; work needs doing.  Wait after sending, so that queue is
-      ;; cleared for further commands.
       (progn
-	(isa-update-thy-only buffer-file-name t)
+	(isa-update-thy-only buffer-file-name t t)
 	;; Leave the messages from the update around.
-	(setq proof-shell-erase-response-flag nil))
-    ))
+	(setq proof-shell-erase-response-flag nil))))
 
 (defun isa-remove-file (name files cmp-base)
   (if (not files) nil
@@ -369,7 +361,7 @@ isa-proofscript-mode."
   "Process the theory file FILE.  If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
   (save-some-buffers)
-  (isa-update-thy-only file nil))
+  (isa-update-thy-only file nil nil))
 
 (defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%s\";"
   "Sent to Isabelle to forget theory file and descendants.
