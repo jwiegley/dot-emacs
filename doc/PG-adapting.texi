@@ -30,11 +30,11 @@
 @c FIXME: unfortunately, broken in buggy pdftexinfo.
 @c so removed for now.
 @set URLxsymbol  http://x-symbol.sourceforge.net/
-@set URLisamode  http://zermelo.dcs.ed.ac.uk/~isamode
+@set URLisamode  http://homepages.inf.ed.ac.uk/da/isamode
 @set URLpghome   http://proofgeneral.inf.ed.ac.uk
-@set URLpglatestrpm  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.noarch.rpm
-@set URLpglatesttar  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-latest.tar.gz
-@set URLpglatestdev  http://proofgeneral.inf.ed.ac.uk/ProofGeneral-devel-latest.tar.gz
+@set URLpglatestrpm  http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-latest.noarch.rpm
+@set URLpglatesttar  http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-latest.tar.gz
+@set URLpglatestdev  http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-devel-latest.tar.gz
 @c
 @c
 
