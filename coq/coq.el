@@ -343,7 +343,7 @@
 	  (save-excursion (move-to-column (current-indentation))
 			  (cond 
 			   ((eq (char-after (point)) ?|) (+ col 3))
-			   ((looking-at "end") col)
+			   ((proof-looking-at "end") col)
 			   (t (+ col 5)))))	  
 	 ((or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C))
 	  (+ col (if (eq ?| (save-excursion 
@@ -354,16 +354,16 @@
 (defun coq-parse-indent (c stack)
   (cond
    ((eq c ?C)
-    (cond ((looking-at "Case")
+    (cond ((proof-looking-at "Case")
 	   (cons (list ?c (point)) stack))
-	  ((looking-at "CoInductive")
+	  ((proof-looking-at "CoInductive")
 	   (forward-char (length "CoInductive"))
 	   (cons (list c (- (point) (length "CoInductive"))) stack))
 	  (t stack)))
-   ((and (eq c ?e) (looking-at "end") (eq (car (car stack)) ?c))
+   ((and (eq c ?e) (proof-looking-at "end") (eq (car (car stack)) ?c))
     (cdr stack))
 
-   ((and (eq c ?I) (looking-at "Inductive"))
+   ((and (eq c ?I) (proof-looking-at "Inductive"))
     (forward-char (length "Inductive"))
     (cons (list c (- (point) (length "Inductive"))) stack))
 

@@ -122,15 +122,15 @@
 		   (current-indentation))))
 	(if (and (eq (car (car stack)) ?p)
 		 (save-excursion (move-to-column (current-indentation))
-				 (looking-at isar-indent-enclose-regexp)))
+				 (proof-looking-at isar-indent-enclose-regexp)))
 	    col
 	  (+ isabelle-isar-indent col))))))
 
 (defun isar-parse-indent (c stack)
   (cond
-   ((looking-at isar-indent-open-regexp)
+   ((proof-looking-at isar-indent-open-regexp)
     (cons (list ?p (point)) stack))
-   ((and (looking-at isar-indent-close-regexp) (eq (car (car stack)) ?p))
+   ((and (proof-looking-at isar-indent-close-regexp) (eq (car (car stack)) ?p))
     (cdr stack))
    (t stack)))
 
@@ -154,18 +154,18 @@
 	(setq forward-amount 1)
 	(cond 
 	 ;; comments
-	 ((looking-at cmt-start-regexp)
+	 ((proof-looking-at cmt-start-regexp)
 	  (setq forward-amount (length (match-string 0)))
 	  (incf cmt-level))
-	 ((looking-at cmt-end-regexp)
+	 ((proof-looking-at cmt-end-regexp)
 	  (setq forward-amount (length (match-string 0)))
 	  (decf cmt-level))
 	 ((> cmt-level 0))
 	 ;; white space
-	 ((looking-at white-space-regexp)
+	 ((proof-looking-at white-space-regexp)
 	  (setq forward-amount (length (match-string 0))))
 	 ;; theory header
-	 ((looking-at header-regexp)
+	 ((proof-looking-at header-regexp)
 	  (setq found-header t)
 	  (setq cont nil))
 	 ;; bad stuff

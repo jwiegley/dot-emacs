@@ -1143,7 +1143,7 @@ the next command end."
 	   (setq done t alist (cons 'unclosed-comment alist))))
 	 (setq done t))
 	;; Case 3. Found a comment end, not inside a string
-	((and (looking-at comment-end-regexp) quote-parity)
+	((and (proof-looking-at comment-end-regexp) quote-parity)
 	 (if (= depth 0) 
 	     (progn
 	       (message "Warning: extraneous comment end")
@@ -1155,7 +1155,7 @@ the next command end."
 	     (aset str i ?\ )
 	     (incf i))))
 	;; Case 4. Found a comment start, not inside a string
-	((and (looking-at comment-start-regexp) quote-parity)
+	((and (proof-looking-at comment-start-regexp) quote-parity)
 	 (setq depth (+ depth 1))
 	 (forward-char (length (match-string 0))))
 	;; Case 5. Inside a comment. 
@@ -1173,9 +1173,9 @@ the next command end."
 
 	 ;; Maintain quote-parity
 	 (cond
-	  ((and quote-parity (looking-at proof-string-start-regexp))
+	  ((and quote-parity (proof-looking-at proof-string-start-regexp))
 	   (setq quote-parity nil))
-	  ((and (not quote-parity) (looking-at proof-string-end-regexp))
+	  ((and (not quote-parity) (proof-looking-at proof-string-end-regexp))
 	   (setq quote-parity t)))
 
 	 (forward-char)

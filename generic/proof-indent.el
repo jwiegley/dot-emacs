@@ -44,31 +44,31 @@
 	(setq forward-amount 1)   ; may be subject to dynamic scoping!
 	(cond 
 	 ;; strings
-	 ((and instring (looking-at proof-string-end-regexp))
+	 ((and instring (proof-looking-at proof-string-end-regexp))
 	  (setq forward-amount (length (match-string 0)))
 	  (setq instring nil))
 	 (instring)
-	 ((looking-at proof-string-start-regexp)
+	 ((proof-looking-at proof-string-start-regexp)
 	  (setq forward-amount (length (match-string 0)))
 	  (setq instring t))
 
 	 ;; comments
-	 ((looking-at cmt-start-regexp)
+	 ((proof-looking-at cmt-start-regexp)
 	  (setq forward-amount (length (match-string 0)))
 	  (incf cmt-level))
-	 ((looking-at cmt-end-regexp)
+	 ((proof-looking-at cmt-end-regexp)
 	  (setq forward-amount (length (match-string 0)))
 	  (decf cmt-level))
 	 ((> cmt-level 0))
 
 	 ;; parentheses
-	 ((looking-at "\\s(")
+	 ((proof-looking-at "\\s(")
 	  (setq stack (cons (list c (point)) stack)))
-	 ((looking-at "\\s)")
+	 ((proof-looking-at "\\s)")
 	  (setq stack (cdr stack)))
 	 
 	 ;; basic indentation for commands
-	 ((looking-at proof-indent-commands-regexp)
+	 ((proof-looking-at proof-indent-commands-regexp)
 	  (setq stack (cons (list proof-terminal-char (point)) stack)))
 	 ((and (eq c proof-terminal-char)
 	       (eq (car (car stack)) proof-terminal-char))
