@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# Simple shell script for launching Proof General.
+#
+# Uses XEmacs in preference to Emacs
+#
+# You must edit PGHOME to the directory where (the lisp files of)
+# Proof General is installed.
+#
+# $Id$
+#
+
+# PGHOME=~/ProofGeneral
+PGHOME=/usr/share/emacs/ProofGeneral
+
+if which xemacs > /dev/null; then 
+    EMACS=xemacs
+else 
+    EMACS=emacs
+fi
+
+$EMACS -l $PGHOME/generic/proof-site.el
+
