@@ -118,12 +118,16 @@
 
 ;; ----- plastic-shell configuration options
 
-(defvar plastic-base 
-  "PLASTIC_BASE:TO_BE_CUSTOMISED"
-  "*base dir of plastic distribution")
+(defcustom plastic-base 
+  "/usr/local/plastic"
+  ;; da: was
+  ;; "PLASTIC_BASE:TO_BE_CUSTOMISED"
+  "*base dir of plastic distribution"
+  :type 'string
+  :group 'plastic)
 
 (defvar plastic-prog-name 
-  (concat plastic-base "/plastic")
+  (concat plastic-base "/bin/plastic")
   "*Name of program to run as plastic.")
 
 (defun plastic-set-default-env-vars ()
@@ -429,19 +433,6 @@ Given is the first SPAN which needs to be undone."
 
   (proof-config-done)
 
-;; pcc macros etc
-  ;; da: I've changed this to use the new proof assitant specific keymap.
-  ;; (You can put these define keys at top level now)
-  (define-key proof-assistant-keymap ?s 'plastic-small-bar)
-  (define-key proof-assistant-keymap ?l 'plastic-large-bar)
-  (define-key proof-assistant-keymap ?a 'plastic-all-ctxt)
-
-  (define-key (current-local-map) [(control c) (control v)] 'plastic-minibuf)
-
-  ;; FIXME da: these should probably be on the specific keymap too?
-  (define-key (current-local-map) [(control c) (control o)] 'plastic-synchro)
-  (define-key (current-local-map) [(control c) (control s)] 'plastic-show-shell)
-
 ;; outline
   
   (make-local-variable 'outline-regexp)
@@ -696,6 +687,18 @@ We assume that module identifiers coincide with file names."
     "shortcut to shell buffer"
     (interactive)
     (proof-switch-to-buffer proof-shell-buffer))
+
+;; pcc macros etc
+;; da: I've moved these key defs out of plastic-mode-config
+
+(define-key plastic-keymap ?s 'plastic-small-bar)
+(define-key plastic-keymap ?l 'plastic-large-bar)
+(define-key plastic-keymap ?a 'plastic-all-ctxt)
+(define-key plastic-keymap [(control c) (control v)] 'plastic-minibuf)
+(define-key plastic-keymap [(control c) (control o)] 'plastic-synchro)
+(define-key plastic-keymap [(control c) (control s)] 'plastic-show-shell)
+
+
 
 ;; original end.
 
