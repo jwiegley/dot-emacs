@@ -361,11 +361,10 @@
 (defsubst proof-end-of-queue ()
   (and proof-queue-span (span-end proof-queue-span)))
 
-;;; This sets the display values of the annotations used to
-;;; communicate with the proof assistant so that they don't show up on
-;;; the screen.
-
 (defun proof-dont-show-annotations ()
+  "This sets the display values of the annotations used to
+   communicate with the proof assistant so that they don't show up on
+   the screen."
   (let ((disp (make-display-table))
 	(i 128))
 	(while (< i 256)
@@ -1014,6 +1013,11 @@ arrive."
 	    (re-search-forward proof-shell-annotated-prompt-regexp)
 	    ;; FIXME: da: why is this next line here?  to delete the 
 	    ;;        possibly several character prompt? why?
+	    ;;        TMS: Its purpose is to remove the wakeup
+	    ;;        character associated with the prompt. This
+	    ;;        should not be necessary anymore, because the wakeup
+	    ;;        character isn't displayed anyway; see
+	    ;;        `proof-dont-show-annotations'. Watch this space!
 	    (backward-delete-char 1)
 	    (set-marker proof-marker (point)))
 	;; We've matched against a second prompt in str now.  Search
