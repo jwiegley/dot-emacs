@@ -218,7 +218,11 @@ of Proof General you use.
 
 Because of the new menus and to make room for more commands, we have
 made a new key map for prover specific functions.  These now all begin
-with @code{C-c a}.  This has changed a few keybindings slightly.
+with @kbd{C-c C-a}.  This has changed a few keybindings slightly.
+
+Another new feature is the addition of prover-specific completion
+tables, to encourage the use of Emacs's completion facility, using
+@kbd{C-RET}.  @ref{Support for completion}, for full details.
 
 A less obvious new feature is support for turning the proof assistant
 output on and off internally, to improve efficiency when processing
@@ -228,12 +232,18 @@ proving theorems.
 The internal code of Proof General has been significantly overhauled for
 this version, which should make it more robust and readable.  The
 generic code has an improved file structure, and there is support for
-automatic generation of autoload functions.
+automatic generation of autoload functions.  There is also a new
+mechanism for defining prover-specific customization and instantiation
+settings which fits better with the customize library.  These settings
+are named in the form @code{@i{PA}-setting-name} here; you replace
+@i{PA} by the symbol for the proof assistant you are interested in.
+@ref{Customizing Proof General} for details.
 
-
-
-
-
+Finally, important bug fixes include the robustification against
+@code{write-file} (@kbd{C-x C-w}), @code{revert-buffer}, and friends.
+These are rather devious functions to use during script management, but
+Proof General now tries to do the right thing if you're deviant enough
+to try them out!
 
 @node News for 3.1
 @unnumberedsec News for 3.1
@@ -1931,9 +1941,12 @@ a proof command.
 @chapter Support for other Packages
 
 Proof General makes some configuration for other Emacs packages which
-provide various useful facilities.  Sometimes this configuration is
-purely at the proof assistant specific level (and so not necessarily
-available), and sometimes it is made using Proof General settings.  
+provide various useful facilities that can make your editing
+more effective.
+
+Sometimes this configuration is purely at the proof assistant specific
+level (and so not necessarily available), and sometimes it is made using
+Proof General settings.
 
 When adding support for a new proof assistant, we suggest that these
 other packages are supported, as a convention.
@@ -1943,6 +1956,7 @@ The packages currently supported are
 @code{x-symbol},
 @code{func-menu},
 @code{outline-mode},
+@code{completion},
 and @code{etags}.
 
 
@@ -1951,6 +1965,7 @@ and @code{etags}.
 * X-Symbol support::
 * Support for function menus::  
 * Support for outline mode::    
+* Support for completion::            
 * Support for tags::            
 @end menu
 
@@ -1983,6 +1998,14 @@ don't want the output from your proof assistant to be fontified
 according to the setting of @code{font-lock-keywords} in the proof
 assistant specific portion of Proof General. @xref{User options}.
 
+By the way, the choice of colour, font, etc, for each kind of markup is
+fully customizable in Proof General.  Each @emph{face} (Emacs
+terminology) controlled by its own customization setting.
+You can display a list of all of them using the customize
+menu: 
+@lisp
+Proof General -> Customize -> Faces -> Proof Faces.
+@end lisp
 
 
 @node X-Symbol support
@@ -2016,7 +2039,7 @@ corresponding symbols.  However, for proof assistants which do not have
 such token support, we can use "fake" symbol support quite effectively,
 displaying ordinary character sequences such as @code{-->} with symbols.
 The only problem with this hack is that it can cause surprising results,
-for example, using symbols for the greek letters can be confusing
+for example, using symbols for the Greek letters can be confusing
 when words like @code{philosophy} appear!
 
 @xref{Configuring X-Symbol}, for notes about how to configure
@@ -2071,6 +2094,69 @@ available in menus.
 See @inforef{Outline Mode, ,(xemacs)} for more information about
 outline mode.
 
+@node Support for completion
+@section Support for completion
+@cindex completion
+
+You might find the @emph{completion} facility of Emacs useful when
+you're using Proof General.  The key @kbd{C-RET} is defined to invoke
+the @code{complete} command.  Pressing @kbd{C-RET} cycles through
+completions displaying hints in the minibuffer.
+
+Completions are filled in according to what has been recently typed,
+from a database of symbols.  The database is automatically saved at
+the end of a session.
+
+Proof General has the additional facility for setting a completion table
+for each supported proof assistant, which gets loaded into the
+completion database automatically.  Ideally the completion table would
+be set from the running process according to the identifiers available
+are within the particular context of a script file.  But until this is
+available, this table may be set to contain a number of standard
+identifiers available for your proof assistant.
+
+The setting @code{@emph{PA}-completion-table} holds the list of
+identifiers for a proof assistant.  The function
+@code{proof-add-completions} adds these into the completion
+database.
+
+@c TEXI DOCSTRING MAGIC: PA-completion-table
+@defvar PA-completion-table 
+List of identifiers to use for completion for this proof assistant.@*
+Completion is activated with C-return.
+
+If this table is empty or needs adjusting, please make changes using
+@samp{@code{customize-variable}} and send suggestions to proofgen@@dcs.ed.ac.uk.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-add-completions
+@deffn Command proof-add-completions 
+Add completions from <PA>-completion-table to completion database.@*
+Uses @samp{@code{add-completion}} with a negative number of uses to discourage
+saving these into the users database.
+@end deffn
+
+The completion facility uses a library @file{completion.el} which
+usually ships with XEmacs and FSF Emacs, and supplies the
+@code{complete} function.
+
+@c FIXME: edited from default.
+@c NOT DOCSTRING MAGIC: complete
+@deffn Command complete 
+Fill out a completion of the word before point.  @*
+Point is left at end.  Consecutive calls rotate through all possibilities.
+Prefix args:
+@table @kbd
+@item C-u
+leave point at the beginning of the completion, not the end.
+@item a number
+rotate through the possible completions by that amount
+@item 0
+same as -1 (insert previous completion)
+@end table
+See the comments at the top of @samp{completion.el} for more info.
+@end deffn
+
 
 @node Support for tags
 @section Support for tags
@@ -2086,15 +2172,16 @@ definition of a function by looking up which of the files it is in.
 
 Some instantiations of Proof General (currently LEGO and Coq) are
 supplied with external programs (@file{legotags} and @file{coqtags}) for
-making tags tables.  For example, invoking @samp{coqtags *.v} produces a file
-@file{TAGS} for all files @samp{*.v} in the current directory. Invoking @samp{coqtags `find . -name \*.v`} produces a file
-@file{TAGS} for all files ending in @samp{.v} in the current directory 
-structure. Once a tag
-table has been made for your proof developments, you can use the Emacs
-tags mechanisms to find tags, and complete symbols from tags table.
+making tags tables.  For example, invoking @samp{coqtags *.v} produces a
+file @file{TAGS} for all files @samp{*.v} in the current
+directory. Invoking @samp{coqtags `find . -name \*.v`} produces a file
+@file{TAGS} for all files ending in @samp{.v} in the current directory
+structure. Once a tag table has been made for your proof developments,
+you can use the Emacs tags mechanisms to find tags, and complete symbols
+from tags table.
 
 One useful key-binding you might want to make is to set the usual
-completion key @kbd{M-tab} to run @code{tag-complete-symbol} to use
+tags completion key @kbd{M-tab} to run @code{tag-complete-symbol} to use
 completion from names in the tag table.  To set this binding in Proof
 General script buffers, put this code in your @file{.emacs} file:
 @lisp
@@ -2102,19 +2189,31 @@ General script buffers, put this code in your @file{.emacs} file:
   (lambda () (local-set-key '(meta tab) 'tag-complete-symbol)))
 @end lisp
 Since this key-binding interferes with a default binding that users may
-already have customized, Proof General doesn't do this automatically.
+already have customized (or may be taken by the window manager), Proof
+General doesn't do this automatically.
 
-For more information on how to use tags, @inforef{Tags, ,(xemacs)}.
+Apart from completion, there are several other operations on tags.  One
+common one is replacing identifiers across all files using
+@code{tags-query-replace}.  For more information on how to use tags,
+@inforef{Tags, ,(xemacs)}.
+
+To use tags for completion at the same time as the completion mechanism
+mentioned already, you can use the command @kbd{M-x add-completions-from-tags-table}.
+
+@c TEXI DOCSTRING MAGIC: add-completions-from-tags-table
 
 
-
+@deffn Command add-completions-from-tags-table 
+Add completions from the current tags table.
+@end deffn
 @node Hints and Tips
 @chapter Hints and Tips
 
-Apart from the packages officially supported in Proof General, many
-other features of Emacs are useful when using Proof General, even though
-they need no specific configuration for Proof General.  It is worth
-taking time to explore the Emacs manual to find out about them.
+Apart from the packages officially supported in Proof General, many.
+many other features of Emacs are useful when using Proof General, even
+though they need no specific configuration for Proof General.  It is
+worth taking a bit of time to explore the Emacs manual to find out about
+them.
 
 Here we provide some hints and tips for a couple of Emacs features which
 users have found valuable with Proof General.  Further contributions to
@@ -2174,7 +2273,7 @@ command:
 And then the right call to make will be done if you use the @kbd{M-x
 compile} command. Notice that the lines are commented in order to be
 ignored by the proof assistant. It is possible to use this mechanism for
-any other buffer local variable. Read (@inforef{File Variables,
+any other buffer local variable.  @inforef{File Variables,
 ,xemacs}.
 
 
@@ -2239,20 +2338,33 @@ abbrev-mode RET}.  See the Emacs manual for more details.
 @cindex Customization
 
 
-There are two kinds of customization for Proof General: it can be
-customized for a user's preferences using a particular proof assistant,
-or it can be customized by a developer to add support for a new proof
-assistant.  Here we cover the user-level customization for Proof
-General, see @ref{Adapting Proof General to Other Provers}, for how to
-configure for a new proof assistant.
+There are two ways of customizing Proof General: it can be customized
+for a user's preferences using a particular proof assistant, or it can
+be customized by a developer to add support for a new proof assistant.
+The latter kind of customization call @emph{instantiation}, 
+@ref{Adapting Proof General to Other Provers}, for how to do this.
+Here we cover the user-level customization for Proof General.
 
-We only consider settings for Proof General itself.  The support for a
-particular proof assistant can provide extra customization settings.
-See the chapters covering each assistant for details.
+There are two kinds of user-level settings in Proof General: those that
+apply @emph{globally} to all proof assistants, and those that can be
+adjusted for each proof assistant individually.  The first sort have
+names beginning with @code{proof-}.  The second sort have names which
+begin with a symbol corresponding to the proof assistant: for example,
+@code{isa-}, @code{coq-}, etc.  The symbol is the root of the mode name.
+@xref{Quick start guide}, for a table of the supported modes.  To stand
+for an arbitrary proof assistant, we write @code{@emph{PA}-} for these
+names.
+
+In this chapter we only consider the generic settings: ones which apply
+to all proof assistants (globally or individually).  The support for a
+particular proof assistant may provide extra individual customization
+settings not available in other proof assistants.  See the chapters
+covering each assistant for details of those settings.
 
 
 @menu
 * Basic options::
+* How to customize::          
 * How to customize::          
 * Display customization::       
 * User options::                
@@ -2263,8 +2375,8 @@ See the chapters covering each assistant for details.
 @node Basic options
 @section Basic options
 
-Proof General has some basic on/off options which you can toggle
-directly from the menu:
+Proof General has some common options which you can toggle directly from
+the menu:
 @lisp
    Proof-General -> Options
 @end lisp
@@ -2272,15 +2384,16 @@ The effect of changing one of these options will be seen immediately (or
 in the next proof step).  The window-control options
 on this menu are described shortly.  @xref{Display customization}.
 
-To save these options, use the usual Emacs save options command,
+To save the current settings, use the usual Emacs save options command,
 for XEmacs on the menu:
 @lisp
    Options -> Save Options
 @end lisp
 or @code{M-x customize-save-customized}.
 
-The options on this sub-menu are also available in the complete
-user customization options group for Proof General.
+The options on this sub-menu are also available in the complete user
+customization options group for Proof General.  For this you need
+to know a little bit about how to customize in Emacs.
 
 @node How to customize
 @section How to customize
@@ -2474,12 +2587,12 @@ NB: the toolbar is only available with XEmacs.
 The default value is @code{t}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-x-symbol-enable
-@defopt proof-x-symbol-enable 
-Whether to use x-symbol in Proof General buffers.@*
-If you activate this variable, whether or not you get x-symbol support
-depends on whether your proof assistant supports it and whether
-X-Symbol is installed in your Emacs.
+@c TEXI DOCSTRING MAGIC: PA-x-symbol-enable
+@defopt PA-x-symbol-enable 
+Whether to use x-symbol in Proof General for this assistant.@*
+If you activate this variable, whether or not you really get x-symbol
+support depends on whether your proof assistant supports it and
+whether X-Symbol is installed in your Emacs.
 
 The default value is @code{nil}.
 @end defopt
@@ -2549,12 +2662,12 @@ files which are out of date with respect to the loaded buffers!
 The default value is @code{t}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-script-indent
-@defopt proof-script-indent 
+@c TEXI DOCSTRING MAGIC: PA-script-indent
+@defopt PA-script-indent 
 If non-nil, enable indentation code for proof scripts.@*
 Currently the indentation code can be rather slow for large scripts,
 and is critical on the setting of regular expressions for particular
-provers.  Enable it if it works for you.
+provers.  Enable it if it works for you, turn it off if it's too slow.
 
 The default value is @code{nil}.
 @end defopt
@@ -2799,8 +2912,9 @@ assistant specific configurations.  For example,
 of the customization setting @code{lego-www-home-page}.  At present
 there is no easy way to save changes to other configuration variables
 across sessions, other than by editing the source code.  (In future
-versions of Proof General, we plan to make all settings editable in
-Customize, by shadowing the settings as prover specific ones).
+versions of Proof General, we plan to make all configuration
+settings editable in Customize, by shadowing the settings as 
+prover specific ones using the @code{@emph{PA}-} mechanism).
 @c Please contact us if this proves to be a problem for any variable.
 
 
@@ -2961,8 +3075,9 @@ work on the proof of the new lemma, and when the lemma is finished the
 full proof of that lemma is promoted.  This is supported to any nesting
 depth that Coq allows.
 
-@b{Special note:} this feature is disabled in version 3.0 because the
-implementation was unreliable.
+@b{Special note:} this feature is disabled since version 3.0 because the
+implementation was unreliable.  (Patches to improve the code in
+@file{coq.el} are welcome).
 
 @node User-loaded tactics
 @section User-loaded tactics
@@ -3022,28 +3137,27 @@ below.
 Note that in ``classic'' Isabelle, @file{.thy} files contain definitions
 and declarations for a theory, while @file{.ML} contain proof scripts.
 So most of Proof General's functions only make sense in @file{.ML}
-files, and there is no toolbar and short menus for @file{.thy} files.
+files, and there is no toolbar and only a short menu for @file{.thy} files.
 
-In Isabelle/Isar, on the other hand, @file{.thy} files contain
-definitions for theories as well as proof, so scripting takes place
-there and you will see the usual toolbar and scripting functions of
-Proof General.  There is no specific documentation here for the
-Isabelle/Isar instance of Proof General.
+In Isabelle/Isar, on the other hand, @file{.thy} files contain proofs as
+well as definitions for theories, so scripting takes place there and you
+see the usual toolbar and scripting functions of Proof General.
+There is no specific documentation here for the Isabelle/Isar instance
+of Proof General.
 
 Note that it is @b{not} possible to use both Isabelle and Isabelle/Isar
 modes of Proof General at the same time.
 To load the Isabelle/Isar instance of Proof General, you can set
  @code{PROOFGENERAL_ASSISTANTS=isar} in the shell before starting Emacs,
 to make sure ordinary Isabelle theory file mode isn't loaded instead.
-Another way of selecting Isar is to put a special modeline comment in,
-like this:
+Another way of selecting Isar is to put a special modeline like this:
 @lisp
   (* -*- isar -*- *)
 @end lisp
-at the top of your Isar files (or at least, the first file you visit).
-This Emacs feature overrides the default choice of mode based on the
-file extension.  Yet another way to select Isar is to use the Isabelle
-scripts to start Emacs.
+near the top of your Isar @file{.thy} files (or at least, the first file
+you visit).  This Emacs feature overrides the default choice of mode
+based on the file extension.  Yet another way to select Isar is to use
+the Isabelle scripts to start Emacs.
 
 @menu
 * ML files::
@@ -3279,15 +3393,7 @@ You can use the following format characters:
 HOL Proof General is a "technology demonstration" of Proof General for
 HOL98.  This means that only a basic instantiation has been provided,
 and that it is not yet supported as a maintained instantiation of Proof
-General.  Hopefully somebody from the HOL community is willing to adopt
-HOL Proof General and support and improve it.  Please volunteer!  It
-needn't be a large or heavy committment.
-
-HOL Proof General may work with variants of HOL other than HOL98, but is
-untested.  Probably a few of the settings would need to be changed in a
-simple way, to cope with small differences in output between the
-systems.  (Please let us know if you modify the HOL98 version for
-another variant of HOL).
+General.  
 
 HOL Proof General has basic script management support, with a little bit
 of decoration of scripts and output.  It does not rely on a modified
@@ -3295,13 +3401,26 @@ version of HOL, so the pattern matching may be fragile in certain cases.
 Support for multiple files deduces dependencies automatically, so there
 is no interaction with the HOL make system yet.
 
+See the @file{example.sml} file for a demonstration proof script
+which works with Proof General.
+
 Note that HOL proof scripts often use batch-oriented single step tactic
 proofs, but Proof General does not (yet) offer an easy way to edit these
 kind of proofs.  They will replay simply as a single step proof and you
 will need to convert from the interactive to batch form as usual if you
-wish to obtain batch proofs.   Also note that Proof General does not
-contain an SML parser, so are problems if you write complex ML in
-proof scripts. @xref{ML files}, for the same issue with Isabelle.
+wish to obtain batch proofs.  Also note that Proof General does not
+contain an SML parser, so tghere can be problems if you write complex ML
+in proof scripts. @xref{ML files}, for the same issue with Isabelle.
+
+HOL Proof General may work with variants of HOL other than HOL98, but is
+untested.  Probably a few of the settings would need to be changed in a
+simple way, to cope with small differences in output between the
+systems.  (Please let us know if you modify the HOL98 version for
+another variant of HOL).
+
+Hopefully somebody from the HOL community is willing to adopt HOL Proof
+General and support and improve it.  Please volunteer!  It needn't be a
+large or heavy committment.  
 
 
 
@@ -3316,7 +3435,7 @@ lot but don't worry!  Many of the variables occur in pairs (typically
 regular expressions matching the start and end of some text), and you
 can begin by setting just a fraction of the variables to get the basic
 features of script management working.  The bare minimum for a working
-prototype is about 20 simple settings.
+prototype is about 25 simple settings.
 
 For more advanced features you may need (or want) to write some Emacs
 Lisp.  If you're adding new functionality please consider making it
@@ -3513,12 +3632,12 @@ each generic one, like this:
 Where @code{myass-shell-config} is a function which sets the
 configuration variables for the shell (@pxref{Proof shell settings}).
 
-It's important that your mode invokes one of the functions
+It's important that each of your modes invokes one of the functions
  @code{proof-config-done},
  @code{proof-shell-config-done}, 
  @code{proof-response-config-done}, or
  @code{proof-goals-config-done}
-once they've set their configuration variables.  These functions
+once it has set its configuration variables.  These functions
 finalize the configuration of the mode.
 
 For each mode, there is a configuration variable which names it so that
@@ -3566,15 +3685,21 @@ The following variables should be set in the script mode before
 @code{proof-config-done} is called.  These make some settings for the
 commands and menus available in Proof General.
 
-The first setting controls the proof-assistant specific menu,
-if any is defined.
+The first two settings adjust the proof-assistant specific menu.
 
-@c TEXI DOCSTRING MAGIC: proof-assistant-menu-entries
-@defun proof-assistant-menu-entries &optional newval
-Set or get value of menu-entries for current proof assistant.@*
-If @var{newval} is present, set the variable, otherwise return its current value.
-@end defun
+@c TEXI DOCSTRING MAGIC: PA-menu-entries
+@defvar PA-menu-entries 
+Extra entries for proof assistant specific menu. @*
+A list of menu items [@var{name} @var{callback} @var{enabler} ...].  See the documentation
+of @samp{@code{easy-menu-define}} for more details.
+@end defvar
 
+@c TEXI DOCSTRING MAGIC: PA-help-menu-entries
+@defvar PA-help-menu-entries 
+Extra entries for help submenu for proof assistant specific help menu.@*
+A list of menu items [@var{name} @var{callback} @var{enabler} ...].  See the documentation
+of @samp{@code{easy-menu-define}} for more details.
+@end defvar
 The remaining settings control the standard commands available
 from the generic menu and the toolbar.
 
@@ -3632,7 +3757,7 @@ script buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-terminal-char
 @defvar proof-terminal-char 
-Character which terminates a command in a script buffer.@*
+Character which terminates a command in a script buffer, or nil if none.@*
 You must set this variable in script mode configuration.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-comment-start
@@ -3984,16 +4109,29 @@ a variable which is in the proof assistant's customization
 group.  This allows different proof assistants to coexist
 (albeit in separate Emacs sessions).
 @end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-pre-sync-init-cmd
+
+@defvar proof-shell-pre-sync-init-cmd 
+The command for configuring the proof process to gain synchronization.@*
+This command is sent before Proof General's synchronization
+mechanism is engaged, to allow customization inside the process
+to help gain syncrhonization (e.g. engaging special markup).
+
+It is better to configure the proof assistant for this purpose
+via command line options if possible, in which case this variable 
+does not need to be set.
+
+See also @samp{@code{proof-shell-init-cmd}}.
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-init-cmd
 @defvar proof-shell-init-cmd 
 The command for initially configuring the proof process.@*
-This command is sent to the process as soon as it starts up,
-perhaps in order to configure it for Proof General or to
-print a welcome message.
-Note that it is sent before Proof General's synchronization
-mechanism is engaged (in case the command engages it).  It
-is better to configure the proof assistant via command
-line options if possible.
+This command is sent to the process as soon as syncrhonization is gained
+(when an annotated prompt is first recognized).  It can be used to configure 
+the proof assistant in some way, or print a welcome message
+(since output before the first prompt is discarded).
+
+See also @samp{@code{proof-shell-pre-sync-init-cmd}}.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-restart-cmd
 @defvar proof-shell-restart-cmd 
@@ -4774,7 +4912,7 @@ buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-invisible-command
 @defun proof-shell-invisible-command cmd &optional wait
-Send @var{cmd} to the proof process.  Add terminal string if necessary.@*
+Send @var{cmd} to the proof process.  @*
 By default, let the command be processed asynchronously.
 But if optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
@@ -4817,7 +4955,7 @@ important files, kept in the @file{generic/} subdirectory.
 
 @menu
 * Spans::                       
-* User option conventions::
+* Configuration variable mechanisms::
 * Proof General site configuration::  
 * Global variables::            
 * Proof script mode::           
@@ -4918,27 +5056,77 @@ Version string identifying Proof General release.
 
 
 
-@node User option conventions
-@section User option conventions
+@node Configuration variable mechanisms
+@section Configuration variable mechanisms
 @cindex conventions
 @cindex user options
+@cindex configuration
+@cindex settings
 
 The file @file{proof-config.el} defines the configuration variables for
-Proof General, including user options.  @xref{Adapting Proof General to
-Other Provers}, for details of its contents.  Here we mention some
-conventions for declaring user options.
+Proof General, including instantiation parameters and user options.
+@xref{Adapting Proof General to Other Provers}, for details of its
+contents.  Here we mention some conventions for declaring user options.
 
-User options are declared using @code{defcustom} as usual, but have
-`@code{*}' as the first character of their docstrings (standard Emacs
-convention).  Also, they live in the customize group
-@code{proof-user-options}.
+Global user options and instantiation parameters are declared using
+@code{defcustom} as usual.  User options should have `@code{*}' as the
+first character of their docstrings (standard Emacs convention) and live
+in the customize group @code{proof-user-options}.  See
+@file{proof-config.el} for the groups for instantiation parameters.
+
+User options which are generic (having separate instances for each
+prover) and instantiation parameters (by definition generic) can be
+declared using the special macro @code{defpgcustom}.  It is used in the
+same way as @code{defcustom}, except that the symbol declared will
+automatically be prefixed by the current proof assistant symbol.
+
+@c TEXI DOCSTRING MAGIC: defpgcustom
+@deffn Macro defpgcustom 
+Define a new customization variable <PA>-sym for the current proof assistant.@*
+The function proof-assistant-<SYM> is also defined, which can be used in the 
+generic portion of Proof General to set and retrieve the value for the current p.a.
+Arguments as for @samp{defcustom}, which see.
+@end deffn
+In specific instances of Proof General, the macro @code{defpgdefault}
+can be used to give a default value for a generic setting.
+
+@c TEXI DOCSTRING MAGIC: defpgdefault
+@deffn Macro defpgdefault 
+Set default for the proof assistant specific variable <PA>@var{-sym} to @var{value}.@*
+This should be used in prover-specific code to alter the default values
+for prover specific settings.
+@end deffn
+
+All new instantiation variables are best declared using the
+@code{defpgcustom} mechanism (old code may be converted gradually).
+Customizations which are liable to be different for different instances
+of Proof General are also best declared in this way.  An example is the
+use of X Symbol, controlled by @code{@emph{PA}-x-symbol-enable}, since
+it works poorly or not at all with some provers.
+
+To access the generic settings, the following four functions and
+macros are useful.
+
+@c TEXI DOCSTRING MAGIC: proof-ass
+@deffn Macro proof-ass 
+Return the value for SYM for the current prover.
+@end deffn
+@c TEXI DOCSTRING MAGIC: proof-ass-sym
+@deffn Macro proof-ass-sym 
+Return the symbol for SYM for the current prover.  SYM not evaluated.
+@end deffn
+@c TEXI DOCSTRING MAGIC: proof-ass-symv
+@defun proof-ass-symv sym
+Return the symbol for @var{sym} for the current prover.  @var{sym} is evaluated.
+@end defun
 
 If changing a user option setting amounts to more than just setting a
-variable (it may have some dynamic effect), we set the @code{custom-set}
-property for the variable to the function @code{proof-set-value} which
-does an ordinary @code{set-default} to set the variable, and then calls
-a function with the same name as the variable, to do whatever is
-necessary according to the new value for the variable.  
+variable (it may have some dynamic effect), we can set the
+@code{custom-set} property for the variable to the function
+@code{proof-set-value} which does an ordinary @code{set-default} to set
+the variable, and then calls a function with the same name as the
+variable, to do whatever is necessary according to the new value for the
+variable.  
 
 There are several settings which can be switched on or off by the user,
 which use this @code{proof-set-value} mechanism.  They are controlled by
@@ -4963,8 +5151,15 @@ Set a customize variable using @code{set-default} and a function.@*
 We first call @samp{@code{set-default}} to set @var{sym} to @var{value}.
 Then if there is a function @var{sym} (i.e. with the same name as the
 variable @var{sym}), it is called to take some dynamic action for the new
-setting.  This only happens when values @strong{change}: we test whether
-proof-config is fully-loaded yet.
+setting.  
+
+If there is no function @var{sym}, we try stripping 
+@code{proof-assistant-symbol} and adding "proof-" instead to get
+a function name.  This extends @code{proof-set-value} to work with
+generic individual settings.
+
+The dynamic action call only happens when values @strong{change}: as an
+approximation we test whether proof-config is fully-loaded yet.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-deftoggle
@@ -5179,12 +5374,14 @@ The next function is the main one used for parsing the proof script
 buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-segment-up-to
-@defun proof-segment-up-to pos &optional next-command-end
-Create a list of (type, int, string) tuples from end of queue/locked region to @var{pos}.@*
+@defun proof-segment-up-to 
+Create a list of (type, string, int) tuples from end of queue/locked region to POS.
+
 Each tuple denotes the command and the position of its terminator,
 type is one of @code{'comment}, or @code{'cmd}. @code{'unclosed-comment} may be consed onto
 the start if the segment finishes with an unclosed comment.
-If optional @var{next-command-end} is non-nil, we contine past @var{pos} until
+
+If optional @var{next-command-end} is non-nil, we contine past POS until
 the next command end.
 @end defun
 
