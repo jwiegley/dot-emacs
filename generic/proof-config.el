@@ -1,6 +1,6 @@
 ;; proof-config.el  Proof General configuration for proof assistant
 ;;
-;; Copyright (C) 1998-2001 LFCS Edinburgh. 
+;; Copyright (C) 1998-2002 LFCS Edinburgh. 
 ;; Authors: David Aspinall
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
@@ -146,7 +146,7 @@ done if this `proof-strict-state-preserving' is turned off (nil)."
   :group 'proof-user-options)
 
 (defcustom proof-strict-read-only 
-  ;; For FSF Emacs, strict read only is buggy when used in
+  ;; For GNU Emacs, strict read only is buggy when used in
   ;; conjunction with font-lock.
   ;; The second conjunctive ensures that the expression is either
   ;; `nil' or `strict' (and not 15!!).  
@@ -161,7 +161,7 @@ use the \"Restart\" button (or M-x proof-shell-restart) before
 you can see the effect in buffers.
 
 The default value for proof-strict-read-only depends on which
-version of Emacs you are using.  In FSF Emacs, strict read only is buggy
+version of Emacs you are using.  In GNU Emacs, strict read only is buggy
 when it used in conjunction with font-lock, so it is disabled by default."
   :type 'boolean
   :group 'proof-user-options)
@@ -403,7 +403,7 @@ The protocol used should be configured so that no user interaction
 ;;   b) with -rv
 ;;   c) on console 
 ;;   d) on win32
-;;   e) all above with FSF Emacs and XEmacs.
+;;   e) all above with GNU Emacs and XEmacs.
 ;; But it's difficult to keep track of all that!  
 ;; Please report any bad/failing colour 
 ;; combinations to proofgen@dcs.ed.ac.uk
@@ -435,7 +435,7 @@ The protocol used should be configured so that no user interaction
 
 (defface proof-queue-face 
   (proof-face-specs 
-   (:background "mistyrose")
+   (:background "darksalmon") ;; was "mistyrose"
    (:background "mediumvioletred")
    (:foreground "white" :background "black"))
   "*Face for commands in proof script waiting to be processed."
@@ -443,7 +443,7 @@ The protocol used should be configured so that no user interaction
 
 (defface proof-locked-face
   (proof-face-specs
-   (:background "lightcyan")	; was "lavender", then "lightsteelblue"
+   (:background "lightsteelblue") ;; was "lavender", later "lightcyan".
    (:background "navy")
    (:underline t))
   "*Face for locked region of proof script (processed commands)."
@@ -459,7 +459,7 @@ Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
 ;; FIXME da: are these defconsts still needed now we use defface?
-;; Answer: yes, for FSF Emacs they are.
+;; Answer: yes, for GNU Emacs they are.
 
 (defconst proof-declaration-name-face 'proof-declaration-name-face
   "Expression that evaluates to a face.
@@ -696,9 +696,12 @@ If a function, it should return the command string to insert."
   :group 'prover-config)
 
 (defconst proof-toolbar-entries-default
-  `((state	"Display proof state" "Display the current proof state" t)
-    (context	"Display context"     "Display the current context" t)
-    (goal	"Start a new proof"   "Start a new proof" t)
+  `((state	"Display proof state" "Display the current proof state" t 
+		proof-showproof-command)
+    (context	"Display context" "Display the current context" t 
+		proof-context-command)
+    (goal	"Start a new proof"   "Start a new proof" t
+		proof-goal-command)
     (retract	"Retract buffer"      "Retract (undo) whole buffer" t)
     (undo	"Undo step"           "Undo the previous proof command" t)
     (delete	"Delete step"         nil t)
@@ -706,14 +709,17 @@ If a function, it should return the command string to insert."
     (use	"Use buffer"  	      "Process whole buffer" t)
     (goto	"Goto point"	      "Process or undo to the cursor position" t)
     (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
-    (qed	"Finish proof"        "Close/save proved theorem" t)
+    (qed	"Finish proof"        "Close/save proved theorem" t
+		proof-save-command)
     (lockedend  "Locked end"	      nil t)
-    (find	"Find theorems"	      "Find theorems" t)
+    (find	"Find theorems"	      "Find theorems" t
+		proof-find-theorems-command)
     (show       "Show proofs"         nil t)
     (hide       "Hide proofs"	      nil t)
     (command    "Issue command"	      "Issue a non-scripting command" t)
     (interrupt  "Interrupt prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
-    (info	nil		      "Show online proof assistant information" t)
+    (info	nil		      "Show online proof assistant information" t
+		proof-info-command)
     (help	nil		      "Proof General manual" t))
 "Example value for proof-toolbar-entries.  Also used to define Scripting menu.
 This gives a bare toolbar that works for any prover, providing the
@@ -724,11 +730,14 @@ defining functions, images.")
 
 (defpgcustom toolbar-entries proof-toolbar-entries-default
   "List of entries for Proof General toolbar and Scripting menu.
-Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
+Format of each entry is (TOKEN MENUNAME TOOLTIP DYNAMIC-ENABLER-P ENABLE).
 
 For each TOKEN, we expect an icon with base filename TOKEN,
-a function proof-toolbar-<TOKEN>, and (optionally) an enabler 
+a function proof-toolbar-<TOKEN>, and (optionally) a dynamic enabler 
 proof-toolbar-<TOKEN>-enable-p.
+
+If ENABLEP is absent, item is enabled; if ENABLEP is present, item
+is only added to menubar and toolbar if ENABLEP is non-null.
 
 If MENUNAME is nil, item will not appear on the scripting menu.
 
@@ -1201,7 +1210,8 @@ settings `proof-non-undoables-regexp' and
 
 (defconst proof-no-command "COMMENT"
   "String used as a nullary action (send no command to the proof assistant).
-Only relevant for proof-find-and-forget-fn.")
+Only relevant for proof-find-and-forget-fn.
+(NB: this is a CONSTANT, don't change it).")
 
 (defcustom proof-find-and-forget-fn 'proof-generic-find-and-forget
   "Function that returns a command to forget back to before its argument span.
@@ -1213,14 +1223,21 @@ of definitions, declarations, or whatever.
 
 The special string proof-no-command means there is nothing to do.
 
-Important: the generic implementation `proof-generic-find-and-forget'
-does nothing, it always returns `proof-no-command'.
-
 This is an important function for script management.
 Study one of the existing instantiations for examples of how to write it,
 or leave it set to the default function `proof-generic-find-and-forget'
 (which see)."
   :type 'function
+  :group 'proof-script)
+
+(defcustom proof-forget-id-command nil
+  "Command to forget back to a given named span.
+A string; `%s' will be replaced by the name of the span.
+
+This is only used in the implementation of `proof-generic-find-and-forget',
+you only need to set if you use that function (by not customizing
+`proof-find-and-forget-fn'."
+  :type 'string
   :group 'proof-script)
 
 (defcustom proof-goal-hyp-fn nil
@@ -1250,10 +1267,12 @@ If this is set to a function, it should return the appropriate
 command when called with an integer (the number of undo steps).
 
 This setting is used for the default `proof-generic-count-undos'.
-If you set `proof-count-undos-fn' to something else, there is no
+If you set `proof-count-undos-fn' to some other function, there is no
 need to set this variable."
   :type '(or string function)
   :group 'proof-script)
+
+
 
 (defcustom proof-global-p nil
   "Whether a command is a global declaration.  Predicate on strings or nil.
@@ -1358,7 +1377,7 @@ will magically restore the commas to the default font for you.
 
 The hack is rather painful and forces immediate fontification of
 files on loading (no lazy, caching locking).  It is unreliable
-under FSF Emacs, to boot.
+under GNU Emacs, to boot.
 
 LEGO and Coq enable it by tradition."
   :type 'boolean
@@ -1597,11 +1616,17 @@ Leave unset if no special characters are being used."
 
 (defcustom proof-shell-annotated-prompt-regexp nil
   "Regexp matching a (possibly annotated) prompt pattern.
-Output is grabbed between pairs of lines matching this regexp.
-To help matching you may be able to annotate the proof assistant
-prompt with a special character not appearing in ordinary output.
-The special character should appear in this regexp, and should
-be the value of proof-shell-wakeup-char."
+
+THIS IS THE MOST IMPORTANT SETTING TO CONFIGURE!!   
+
+Output is grabbed between pairs of lines matching this regexp,
+and the appearance of this regexp is used by Proof General to
+recognize when the prover has finished processing a command.
+
+To help speed up matching you may be able to annotate the 
+proof assistant prompt with a special character not appearing 
+in ordinary output.  The special character should appear in 
+this regexp, and should be the value of proof-shell-wakeup-char."
   :type 'regexp
   :group 'proof-shell)
 
@@ -1620,12 +1645,28 @@ eager annotation (see proof-shell-eager-annotation-start) otherwise it
 will be lost.
 
 Error messages are considered to begin from proof-shell-error-regexp
-and continue until the next prompt.
+and continue until the next prompt.  The variable
+`proof-shell-truncate-before-error' controls whether text before the
+error message is displayed.
 
 The engine matches interrupts before errors, see proof-shell-interrupt-regexp.
 
 It is safe to leave this variable unset (as nil)."
   :type '(choice nil regexp)
+  :group 'proof-shell)
+
+(defcustom proof-shell-truncate-before-error t
+  "Non-nil means truncate output that appears before error messages.
+If nil, the whole output that the prover generated before the last
+error message will be shown.
+
+NB: the default setting for this is `t' to be compatible with
+behaviour in Proof General before version 3.4.  The more obvious
+setting for new instances is probably `nil'.
+
+Interrupt messages are treated in the same way.
+See `proof-shell-error-regexp' and `proof-shell-interrupt-regexp'."
+  :type 'boolean
   :group 'proof-shell)
 
 (defcustom proof-shell-next-error-regexp nil
