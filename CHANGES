@@ -11,8 +11,6 @@
 *** New indentation code, indentation enabled for all provers now
 
   Supplied by Markus Wenzel.
-  This is currently in testing, and has broken some other
-  features, particularly the function menu, in some cases.
 
 *** Toolbar and menubar removed from small windows in multiple frame mode
 
@@ -112,7 +110,13 @@
 
 ** Isar Changes
 
+*** No longer requires explicit terminators ";" in text.  (XEmacs only)
+
+  Also note that isar-strip-terminators cleans up existing theories.
+
 *** Fix for stack overflow in regexp which occurred with large proof states
+
+*** Improved Help menu provides basic context browsing facilities.
 
 ** HOL Changes
 
