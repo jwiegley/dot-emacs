@@ -1547,9 +1547,11 @@ locked region or everything in it has been processed."
 
    ;; No buffer is in Scripting minor mode.
    ;; We assume the setup is done somewhere else
+   ;; so this should never happen
    ((null proof-script-buffer-list) (assert nil))
 
    ;; The current buffer is in Scripting minor mode
+   ;; so there's nothing to do
    ((equal (current-buffer) (car proof-script-buffer-list)))
 
    (t
@@ -1560,46 +1562,43 @@ locked region or everything in it has been processed."
 	;; We only allow switching of the Scripting buffer if the
 	;; locked region is either empty or full for all buffers.
 	;; Here we check the current Scripting buffer's status.
-	(if (or 
-	     (eq (proof-unprocessed-begin) (point-min))
-	     (progn
-	       ;; Skip empty space at end of buffer
-	       (goto-char (point-max))
-	       (skip-chars-backward " \t\n")
-	       (if (>= (proof-unprocessed-begin) (point))
-		   ;; We're switching from a buffer which has been
-		   ;; completely processed.  Make sure that it's
-		   ;; registered on the included files list, in
-		   ;; case it has been processed piecemeal.
-		   (progn
-		     (if (and buffer-file-name
-			      ;; FIXME: Could alter
-			      ;; proof-register-new-processed-file to work
-			      ;; also for possibly non-new cases.
-			      (not
-			       (member (file-truename buffer-file-name) 
-				       proof-included-files-list)))
-			 (progn
-			   (proof-register-new-processed-file 
-			    buffer-file-name)))
-		     ;; Continue 
-		     t))))
-	    ;; we are changing the scripting buffer
-	   (progn
-	     (setq proof-active-buffer-fake-minor-mode nil)
-	     (set-buffer current-buffer)
+	(let
+	    ((locked-is-empty (eq (proof-unprocessed-begin) (point-min)))
+	     (locked-is-full  (progn
+				(goto-char (point-max))
+				(skip-chars-backward " \t\n")
+				(>= (proof-unprocessed-begin) (point)))))
+	  (if locked-is-full
+	      ;; We're switching from a buffer which has been
+	      ;; completely processed.  Make sure that it's
+	      ;; registered on the included files list, in
+	      ;; case it has been processed piecemeal.
+	      (if (and buffer-file-name
+		       (not
+			(member (file-truename buffer-file-name) 
+				proof-included-files-list)))
+		  ;; FIXME: Could alter
+		  ;; proof-register-new-processed-file to work
+		  ;; also for possibly non-new cases.
+		  (proof-register-new-processed-file buffer-file-name)))
 
-	     ;; does the current buffer contain locked regions already?
-	     (if (member current-buffer proof-script-buffer-list)
-		 (setq proof-script-buffer-list
-		       (remove current-buffer proof-script-buffer-list))
-	       (proof-init-segmentation))
-	     (setq proof-script-buffer-list
-		   (cons current-buffer proof-script-buffer-list))
-	     (setq proof-active-buffer-fake-minor-mode t)
-	     (run-hooks 'proof-activate-scripting-hook))
-	  (error "Cannot deal with two unfinished script buffers!")
-	))))))
+	  (if (or locked-is-full locked-is-empty)
+	      ;; we are changing the scripting buffer
+	      (progn
+		(setq proof-active-buffer-fake-minor-mode nil)
+		(set-buffer current-buffer)
+
+		;; does the current buffer contain locked regions already?
+		(if (member current-buffer proof-script-buffer-list)
+		    (setq proof-script-buffer-list
+			  (remove current-buffer proof-script-buffer-list))
+		  (proof-init-segmentation))
+		(setq proof-script-buffer-list
+		      (cons current-buffer proof-script-buffer-list))
+		(setq proof-active-buffer-fake-minor-mode t)
+		(run-hooks 'proof-activate-scripting-hook))
+	    ;; Locked region covers only part of the buffer
+	    (error "Cannot deal with two unfinished script buffers!"))))))))
 
 
 (defun proof-grab-lock (&optional relaxed)
