@@ -1,5 +1,34 @@
 2003-05-20  David Aspinall  <da@proofgeneral.org>
 
+	* ChangeLog: Cleanup from empty
+
+	* Makefile.devel:
+	Fix tabs in developer list
+
+	* Makefile.devel:
+	Replace obsolete developer email addresses by alias at proofgeneral.org.
+
+	* FAQ: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* isar/isar-syntax.el:
+	Version from Gerwin with performance fixes
+
+	* isar/isar-syntax.el:
+	Version without match save, and disabling isar-match-antiq.
+
+	* generic/proof-script.el:
+	Buglet in proof-mark-buffer-atomic
+
+	* generic/proof-config.el:
+	Default to not using pad-eol
+
+	* CHANGES: Updated.
+
+2003-05-20  David Aspinall  <da@proofgeneral.org>
+
 	* Makefile.devel:
 	Fix tabs in developer list
 
