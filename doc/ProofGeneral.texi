@@ -1059,7 +1059,7 @@ If inside a comment, just process until the start of the comment.
 @c TEXI DOCSTRING MAGIC: proof-undo-last-successful-command-interactive
 @deffn Command proof-undo-last-successful-command-interactive delete
 Undo last successful command at end of locked region.
-If optional @var{delete} argument is set (called with a prefix argument), 
+If @var{delete} argument is set (called with a prefix argument), 
 the text is also deleted from the proof script.
 @end deffn
 
@@ -2381,7 +2381,7 @@ Matches a save command
 Regexp which matches a command to save a named theorem.
 Match number 2 should be the name of the theorem saved.
 Used for setting names of goal..save regions and for default
-func-menu configuration in proof-script-find-next-goalsave.
+@code{func-menu} configuration in proof-script-find-next-goalsave.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-command-regexp
 @defvar proof-goal-command-regexp 
@@ -2392,7 +2392,7 @@ Matches a goal command.
 Regexp which matches a command used to issue and name a goal.
 Match number 2 should be the name of the goal issued.
 Used for setting names of goal..save regions and for default
-func-menu configuration in proof-script-find-next-goalsave.
+@code{func-menu} configuration in proof-script-find-next-goalsave.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-script-next-entity-regexps
 @defvar proof-script-next-entity-regexps 
