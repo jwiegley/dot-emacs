@@ -32,7 +32,20 @@ D		e.g. desirable to fix at some point
 X (Low)		e.g. probably not worth spending time on
 
 
-** 2. Things to do in the generic interface
+** 2. Long list of things to do in the generic interface
+
+
+*** B Fix-up show/hide for nested proofs.  
+        (Wierdness with cursor jumping as well)
+
+*** B Cleanup undo behaviour to cope with new Coq mechanism.
+
+    Is the simplified mechanism better for other provers too, or does the
+    split still apply?  Probably best to leave Isar as-is and have
+    proof-nesting-depth left as experimental.
+
+*** B proof-nesting-depth:
+    This needs to be fixed up in count undos, find-and-forget.
 
 *** C Add MMM for other provers where relevant/useful
 
@@ -46,6 +59,22 @@ X (Low)		e.g. probably not worth spending time on
 	switching mode.  Very messy to implement.
      -- Stuck-withs: XEmacs frames always have minibuffer.
 		     GNU Emacs frames always have modelines.
+     Other older comments:
+      - It might be nice to display both the goals and response buffer
+      occasionally (even with window-dedicated disabled).  e.g. when
+      proof-shell-erase-response-flag is non-nil and the goals buffer
+      is updated: might like to still see what was in the response
+      buffer.
+      - check: does auto-delete-windows work with
+      window-dedicated as it should? (I thought it would switch
+      between 2/3 bufs as appropriate?).
+      - Display buffer clearing: response buffer is cleared
+      too often/eagerly, perhaps?  The output find-theorems or similar
+      doesn't last beyond a single proof step.  The problem is that we
+      want to erase irrelevant output from the response buffer for the
+      previous proof step.  Consider making output from invisible
+      command persistent.  See attempted patch in
+      etc/patches/fix-attempt-for-eager-cleaning.txt
 
 *** A PGIP SUPPORT (minimal for Isabelle patch):
       -- settings with categories
@@ -62,15 +91,10 @@ X (Low)		e.g. probably not worth spending time on
     use config setting for syntax table entries everywhere rather than
     modify-syntax-entry.
 
-*** [ Don't query save before retraction ?? ]
-
 *** C Implement optional arg to next/undo which doesn't update
       display (so user can retain something else on screen)
 
-*** A fix display anomaly for Isar output with shrink windows:
-    display splits window unexpectedly.
-
-*** B Cleanup display during settings processing.
+*** X Cleanup display during settings processing.
 
 *** C Generic adjusting of pretty-printer line width 
   Make a generic hook (or hook-constructing macro) to adjust
@@ -78,14 +102,9 @@ X (Low)		e.g. probably not worth spending time on
   place to do this that in the proof-shell-insert-hook (should
   be triggered by resize events).
 
-*** B document and simplify proof-script-span-context-menu-extensions
+*** C document and simplify proof-script-span-context-menu-extensions
 
-*** B Documentation:
-      Check new doc for hiding; add doc for dependencies, tracing.
-      Moving spans; navigating through locked region.  
-      Favourite menu.
-
-*** B generalize from Isabelle's "atomic scripting" theory file mode
+*** C generalize from Isabelle's "atomic scripting" theory file mode
       to allow other instances which do not allow incremental
       processing of files in major or auxiliary file types.
       E.g. twelf, ACL2, LambdaCLAM.
@@ -100,14 +119,9 @@ X (Low)		e.g. probably not worth spending time on
 *** C Add output highlighting to minibuffer in proof-shell-message.
     (Quite tricky to get text properties onto text in minibuffer...)
 
-*** C Extensions with semantic tokens
+*** B Extensions with semantic tokens
       Look at the Semantic Navigator package.  Implements persistent
       database of tokens.
-
-*** C Fix byte compilation
-      Problem with proof-ass macro mechanism -- gets expanded during compilation.
-
-*** D Isabelle PG: Non-blocking for .thy loading from .ML files.
 
 *** D Bugs with extents: 
       Sometimes probs if try to assert a whole file while one is
@@ -134,7 +148,7 @@ X (Low)		e.g. probably not worth spending time on
   although it's tricky to see how it would be completely *safe*.
   [ See discussion with Pierre re Coq undo command categories ]
 
-*** C Fix the doc makefiles to adapt the image flag in PG-adapting.tex
+*** X Fix the doc makefiles to adapt the image flag in PG-adapting.tex
       properly, for dvi/ps targets
 
 *** C Clean up assert-until-point stuff: should have just one
@@ -153,6 +167,10 @@ X (Low)		e.g. probably not worth spending time on
   This way we cover commands which need prompting for extra
   args, as well as elisp functions which do whatever's necessary.
   Then use a generic function "proof-invoke-function" or similar.
+
+  Used e.g. for proof-goal-command-regexp and proof-save-command-regexp.
+  New names: proof-goal-command-match, proof-save-command-match.
+  Then we can remove duplicity and simplify code.
 
 *** C Usability enhancement:
    Movement of point after assert/retract commands
@@ -182,10 +200,6 @@ X (Low)		e.g. probably not worth spending time on
 *** D Make tags support in lego.el and coq.el a bit more generic.
   Use customization option proof-tags-support.
 
-*** D Display functions: does auto-delete-windows work with
-  window-dedicated as it should? (I thought it would switch 
-  between 2/3 bufs as appropriate?).
-
 *** D Continue programme of making adaptation easier.  
 
 *** D Fix up sources to conform to library header conventions 
@@ -198,11 +212,10 @@ X (Low)		e.g. probably not worth spending time on
 *** D X-Symbol: is there a function to input in the minibuffer using
   a token language?
 
-*** D Investigate possible toolbar refresh problems.
-  Sometimes extra clicks *are* needed.  Why?
+*** X Investigate possible toolbar refresh problems.
+  Sometimes extra clicks *are* needed.  Why?  (Gone in recent Emacsen?)
 
 *** D Is there a way to make colours defined for x work in mswindows too?
-
   defface specs with (type x) seem to work fine with (type mswindows) too.
   Hassle to duplicate, is there an easy way to cover both?
 
@@ -210,16 +223,6 @@ X (Low)		e.g. probably not worth spending time on
   <...>-count-undos, to simplify prover-specific code.  
   Complete reengineering of *-count-undos and 
   *-find-and-forget at generic level
-
-*** D Display buffer clearing: response buffer is cleared
-  too often/eagerly, perhaps?  The output find-theorems or
-  similar doesn't last beyond a single proof step.
-  The problem is that we want to erase irrelevant
-  output from the response buffer for the previous
-  proof step.  Consider making output from invisible
-  command persistent.  
-  See attempted patch in 
-  etc/patches/fix-attempt-for-eager-cleaning.txt
 
 *** C Add to proof-config those variables created in proof-easy-config for
   font lock and syntax entries.  Use these instead of primitive
@@ -262,9 +265,6 @@ X (Low)		e.g. probably not worth spending time on
   and over.  Infinite in GNU Emacs.  Why?  See note at 
   end of proof-shell.  [2hrs]
   
-
-*** D See if there is a way of postponing func-menu loading.
-
 *** D Quit timeout enhancement: instead of killing immediately after
   timeout, could give a message "not responding, kill immediately?"
 
@@ -282,7 +282,7 @@ X (Low)		e.g. probably not worth spending time on
   headings which buffer-syntactic-context suggests are inside
   comments or strings.
 
-*** D Change the name of "automatic multiple files" to something
+*** X Change the name of "automatic multiple files" to something
   more comprehensible.
 
 *** D Strange problem when running in tty mode: c-c c-RET seems to be
@@ -301,11 +301,6 @@ X (Low)		e.g. probably not worth spending time on
 *** D Usability enhancement:
     - Fix asymmetry between "doing" and "undoing": doing will skip comments,
       undoing will not.  e.g. test case: (* tester *) intros; 
-
-*** D Robustify and cleanup code by allowing functions in place of regexps
-  for proof-goal-command-regexp and proof-save-command-regexp.
-  New names: proof-goal-command-match, proof-save-command-match.
-  Then we can remove duplicity and simplify code.
 
 *** D BUGLETS:
   - Response buffer doesn't scroll to display o/p (it does for debug msgs,
@@ -331,13 +326,7 @@ X (Low)		e.g. probably not worth spending time on
 *** D outline configuration should be generic  (or else documented for
   each prover separately, since not guaranteed to work for all).
 
-*** D Check matching code carefully, in view of bug reported (now fixed)
-  for Isabelle.
-  Examine syntax tables for all instances, and whether
-  word matching is based on whitespace constituents or non-word
-  constituents.  [6 hrs]
-
-*** D Implement proof-auto-retract idea.  [4hrs]
+*** X Implement proof-auto-retract idea.  [4hrs]
 
 *** D da: Suggested improvement to interface for included files:
   Currently have two cases: processing a single file, and
@@ -373,8 +362,9 @@ X (Low)		e.g. probably not worth spending time on
 *** D ROBUSTness: deal gracefully with possibility that goals buffer is
   killed during session.   (2h)
 
-*** D Add support to filter out unwanted noise from the prover by setting
+*** X Add support to filter out unwanted noise from the prover by setting
   up a regular expression  proof-shell-noise-regexp [2hr]
+  (any useful examples of noise?)
 
 *** D support for templates e.g., in LEGO it would be nice if, by default, 
   fresh buffers corrsponding to file foo.l would automatically insert
@@ -428,14 +418,6 @@ X (Low)		e.g. probably not worth spending time on
   a help browser is needed?  At least, optional arg to help command.
   [patch ready and waiting to go in]
 
-*** X Display management is much better than it was, but perhaps
-  not quite as good as it could be.  It might be nice to
-  display both the goals and response buffer occasionally
-  (even with window-dedicated disabled).
-  e.g. when proof-shell-erase-response-flag is non-nil
-  and the goals buffer is updated: might like to still
-  see what was in the response buffer.
-
 *** X Oddities:  
     Response buffer doesn't get cleared after completion
     of a proof followed by retraction of whole file.
@@ -460,6 +442,13 @@ X (Low)		e.g. probably not worth spending time on
 
 
 ** 3. Things to do for the documentation
+
+*** B New screenshots for web page, also would be nice for manual.
+
+*** B Documentation:
+      Check new doc for hiding; add doc for dependencies, tracing.
+      Moving spans; navigating through locked region.  
+      Favourite menu.
 
 *** A Doc new bits: proof-next-error
 
@@ -510,7 +499,7 @@ X (Low)		e.g. probably not worth spending time on
 *** GNU Emacs issues
 
 **** A Improve support for Emacs 21.
-  X-symbol 4.X fixup for provers other than Isabelle.
+  To do:  PBP highlighting (?)
 
 **** B Consider replacing buffer-substring -> buffer-substring-no-properties
   Text properties are passed around in spans, probably needlessly.
@@ -518,7 +507,7 @@ X (Low)		e.g. probably not worth spending time on
 
 **** C Changed implementation of overlays inside Emacs itself.  We seem to
   need 'priority property of overlays for queue and locked to make 
-  sure the colours show through.  Even then highlighting is strange,
+  sure the colours show through.  Even then mouse highlighting is strange,
   and background face spoils the others.  Transparent?
   Same priority: we get mouse highlighting but no face property.
   Higher priority: we get blanking as mouse highlighting.  Yuk.
@@ -589,7 +578,7 @@ X (Low)		e.g. probably not worth spending time on
 
 *** D Add an animation, showing proof replay.
 
-*** C Wanted for links: something to UITP.  Are there any pages?
+*** C Wanted for links: something to UITP.  
 
 *** C Validate pages.  
    Current failures for HTML 4.0 to do with CGI-style arguments with "&",
@@ -644,51 +633,9 @@ is 8 bit.  Suspect an XEmacs issue to do with face allocations.  Also
 huge delay in buffers for Isabelle mode which try to highlight binders
 (removed because they appear inside strings anyway)
 
-*** X spurious byte comp warning in XEmacs 21.1.4:
-  While compiling proof-x-symbol-encode-shell-input:
-     ** buffer-substring called with 3 args, but requires 0-3
-  for this code:
-               (prog1 (buffer-substring)
-                 (kill-buffer (current-buffer))
-
-*** X Error with pdftexinfo (hacked version of teTeX pre-release, 1.0.6).
+*** X Error with pdftexinfo (still there?) 
 Gives problem with @value{blah} inside @pdfurl.  May be absent from
 pdftexinfo.tex, but that version doesn't seem to generate web links?
-
-*** (/usr/share/texmf.local/pdftex/texinfo/pdftexinfo.tex
-Loading texinfo [version 1999-09-25.10]: Basics, pdf,
-(/usr/share/texmf/pdftex/plain/misc/pdfcolor.tex) fonts, page headings,
-tables, conditionals, indexing, sectioning, toc, environments, defuns, macros,
-cross references, (/usr/share/texmf/tex/plain/dvips/epsf.tex) localization,
-and turning on texinfo input format.)) (ProofGeneral.aux) [1[/usr/share/texmf/d
-vips/config/pdftex.map][/usr/share/texmf.local/dvips/config/dalucida.map][/usr/
-share/texmf.local/dvips/adobe/agaramon/pad.map][/usr/share/texmf.local/dvips/co
-nfig/wp1.map][/usr/share/texmf.local/dvips/config/mscore.map][/usr/share/texmf.
-local/dvips/config/barbedor-ttf.map][/usr/share/texmf.local/dvips/config/goodtt
-.map]] [2] (Preface)
-! Undefined control sequence.
-@indexbreaks ->@catcode `@-=@active @let -
-                                          @realdash 
-@value ...ode `@-=12 @catcode `@_=12 @indexbreaks 
-                                                  @let _@normalunderscore @v...
-<argument> @value 
-                  {URLpghome}
-@pdfurl ...r{/Subtype /Link /A << /S /URI /URI (#1
-                                                  ) >>}@endgroup 
-@douref ...->@begingroup @unsepspaces @pdfurl {#1}
-                                                  @setbox 0 = @hbox {@ignore...
-l.264 @uref{@value{URLpghome}}
-                              .  Visit this page for
-? x
-<cmtt10.pfb><cmsy10.pfb><8r.enc><bsfr8a.pfb><bsfc8a.pfb>
-Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
-
-
-
-
-
-
-   
 
 
 
@@ -734,26 +681,3 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 *** B PG auxiliary contributions 
 *** C PG CDROM: CDROM with PG and other theorem provers.  Useful?
 
-
-=================================================================
-
-List of things postponed from PG 3.4: need to be merged above
-
-*** Coq pbp focussing --- does this part work at least?  Test case.
-
-*** Comment at the end for Isabelle theory files!!!!
-
-*** Check: does proof-follow-mode have any effect???  
-    Consider removal to simplify it?
-
-*** Fix-up show/hide for nested proofs.  (Wierdness with
-   cursor jumping as well)
-
-*** Cleanup undo behaviour to cope with new Coq mechanism.
-
- Is the simplified mechanism better for other provers too, or does the
- split still apply?  Probably best to leave Isar as-is and have
- proof-nesting-depth left as experimental.
-
-*** proof-nesting-depth:
-    This needs to be fixed up in count undos, find-and-forget.
