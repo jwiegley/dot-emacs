@@ -164,8 +164,8 @@ no regular or easily discernable structure."
    proof-shell-cd-cmd			"cd \"%s\""
 
    ;; FIXME: the next two are probably only good for NJ/SML
-   proof-shell-error-regexp		"^.*Error:\\|^\364\\*\\*\\*\\|^uncaught exception "
    proof-shell-interrupt-regexp         "Interrupt"
+   proof-shell-error-regexp		"^\364\\*\\*\\*\\|^.*Error:\\|^uncaught exception "
    
    ;; matches names of assumptions
    proof-shell-assumption-regexp	isa-id
