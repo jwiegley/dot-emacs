@@ -158,10 +158,10 @@ Q. I'm afraid I got stuck very early on.  I sent the following line:
    buffer went read-only and nothing I tried would let me fix the
    error.  
 
-A. The proof process is waiting for more input, but Proof General
-   doesn't realise this and waits for a response.  You
-   should type something in the proof shell, or interrupt the process
-   with C-c C-c or the Stop button.
+A. The proof process is waiting for more input because of the missing
+   parenthesis, but Proof General doesn't realise this and waits for a
+   response.  You should type something in the proof shell, or
+   interrupt the process with C-c C-c or the Stop button.
 
 -----------------------------------------------------------------
 
