@@ -3,7 +3,8 @@
 # $Id$
 #
 # Proof General interface wrapper for Isabelle.
-set -x
+
+
 ## self references
 
 THIS=$(cd "$(dirname "$0")"; pwd)
