@@ -196,8 +196,8 @@ install-doc: doc.info
 	cp -pf doc/proofgeneral.1 ${MANDIR}
 	mkdir -p ${INFODIR}
 	cp -pf doc/*.info ${INFODIR}
-	/sbin/install-info /usr/share/info/ProofGeneral.info.* ${INFODIR}/dir
-	/sbin/install-info /usr/share/info/PG-adapting.info.* ${INFODIR}/dir
+	/sbin/install-info ${INFODIR}/ProofGeneral.info* ${INFODIR}/dir
+	/sbin/install-info ${INFODIR}/PG-adapting.info* ${INFODIR}/dir
 
 doc.%: 
 	(cd doc; make $*)

@@ -85,12 +85,12 @@ if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
 fi
 
 %post
-/sbin/install-info /usr/share/info/ProofGeneral.info.* /usr/share/info/dir
-/sbin/install-info /usr/share/info/PG-adapting.info.* /usr/share/info/dir
+/sbin/install-info /usr/share/info/ProofGeneral.info* /usr/share/info/dir
+/sbin/install-info /usr/share/info/PG-adapting.info* /usr/share/info/dir
 
 %preun
-/sbin/install-info --delete /usr/share/info/ProofGeneral.info.* /usr/share/info/dir
-/sbin/install-info --delete /usr/share/info/PG-adapting.info.* /usr/share/info/dir
+/sbin/install-info --delete /usr/share/info/ProofGeneral.info* /usr/share/info/dir
+/sbin/install-info --delete /usr/share/info/PG-adapting.info* /usr/share/info/dir
 
 %files
 %defattr(-,root,root)
@@ -103,7 +103,7 @@ fi
 %{_datadir}/icons/hicolor/*/proofgeneral.png
 %{_datadir}/ProofGeneral/*
 %{_datadir}/man/man1/*
-%{_datadir}/info/*.info.gz
+%{_datadir}/info/*.info*
 %{_datadir}/mime-info/proofgeneral.*
 %{_datadir}/applications/proofgeneral.desktop
 %{_datadir}/application-registry/proofgeneral.applications
