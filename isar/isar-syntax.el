@@ -55,6 +55,13 @@
   (modify-syntax-entry ?\{ "(}1")
   (modify-syntax-entry ?\} "){4"))
 
+(defun isar-init-output-syntax-table ()
+  "Set appropriate values for syntax table for Isabelle output."
+  (isar-init-syntax-table)
+  ;; ignore strings so font-locking works
+  ;; inside them
+  (modify-syntax-entry ?\" " "))
+
 
 ;; ----- syntax for font-lock and other features
 
@@ -120,7 +127,7 @@
   (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
   "Regexp matching Isabelle/Isar names, with contents grouped.")
 
-(defvar isar-font-lock-terms
+(defvar isar-output-font-lock-terms
   (list
    (cons (concat "\351" isar-id "\350") 'proof-declaration-name-face)    ; class
    (cons (concat "\352'" isar-id "\350") 'proof-tacticals-name-face)     ; tfree
@@ -148,19 +155,16 @@
 
 
 (defvar isar-font-lock-keywords-1
-  (append
-;FIXME n.a.
-;   isar-font-lock-terms
-   (list
-    (cons (proof-ids-to-regexp isar-keywords-minor) 'font-lock-type-face)
-    (cons (proof-ids-to-regexp isar-keywords-control) 'proof-error-face)
-    (cons (proof-ids-to-regexp isar-keywords-diag) 'proof-tacticals-name-face)
-    (cons (proof-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-function-name-face)
-    (cons (proof-ids-to-regexp isar-keywords-theory) 'font-lock-keyword-face)
-    (cons (proof-ids-to-regexp isar-keywords-proof-enclose) 'font-lock-function-name-face)
-    (cons (proof-ids-to-regexp isar-keywords-proof) 'font-lock-keyword-face)
-    (cons (proof-ids-to-regexp isar-keywords-proof-asm) 'proof-declaration-name-face)
-    (cons (proof-ids-to-regexp isar-keywords-proof-script) 'font-lock-reference-face))))
+  (list
+   (cons (proof-ids-to-regexp isar-keywords-minor) 'font-lock-type-face)
+   (cons (proof-ids-to-regexp isar-keywords-control) 'proof-error-face)
+   (cons (proof-ids-to-regexp isar-keywords-diag) 'proof-tacticals-name-face)
+   (cons (proof-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-function-name-face)
+   (cons (proof-ids-to-regexp isar-keywords-theory) 'font-lock-keyword-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof-enclose) 'font-lock-function-name-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof) 'font-lock-keyword-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof-asm) 'proof-declaration-name-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof-script) 'font-lock-reference-face)))
 
 
 ;; ----- variations on undo
