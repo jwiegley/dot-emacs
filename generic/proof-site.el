@@ -39,15 +39,21 @@
 (defcustom proof-assistant-table
   '(;; For demonstration instance of Proof General,
     ;; export PROOFGENERAL_ASSISTANTS=demoisa. 
+    ;;
     ;; To use Isabelle/Isar instead of classic Isabelle,
     ;; export PROOFGENERAL_ASSISTANTS=isar
+    ;;
     (demoisa    "Isabelle Demo"	"\\.ML$")
     (isar       "Isabelle/Isar" "\\.thy$")
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
+    ;; The following provers are not fully supported
+    ;; (please volunteer!)
+    (hol98	"HOL"		"\\.sml$")
+    ;; The following provers have experimental support
     (plastic	"Plastic"	"\\.lf$")
-    (hol98	"HOL"		"\\.sml$"))
+    (twelf	"Twelf"		"\\.elf$"))
   "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
