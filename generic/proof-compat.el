@@ -126,16 +126,19 @@ and replace a sub-expression, e.g.
 ;;; GNU Emacs compatibility
 ;;;
 
-;;; Chars (borrowed from x-symbol-emacs.el compatability file)
+;; Chars (borrowed from x-symbol-emacs.el compatability file)
 
 (unless (fboundp 'characterp) (defalias 'characterp 'integerp))
 (unless (fboundp 'int-to-char) (defalias 'int-to-char 'identity))
 (unless (fboundp 'char-to-int) (defalias 'char-to-int 'identity))
 
-;;; Missing function, but anyway Emacs has no datatype for events...
+;; Missing function, but anyway Emacs has no datatype for events...
 
 (unless (fboundp 'events-to-keys)
   (defalias 'events-to-keys 'identity))
+
+(unless (fboundp 'region-exists-p)
+  (defun region-exists-p () mark-active))
 
 ;; completion not autoloaded in GNU 20.6.1; we must call 
 ;; dynamic-completion-mode after loading it.
@@ -168,10 +171,13 @@ and replace a sub-expression, e.g.
 (or (fboundp 'noninteractive)
     (defun noninteractive ()
       "Dummy function for Proof General on GNU Emacs."
-      nil)) ;; pretend always interactive.
+      noninteractive))
 
 ;; Replacing in string (useful function from subr.el in XEmacs 21.1.9)
 (or (fboundp 'replace-in-string)
+    (if (fboundp 'replace-regexp-in-string)
+      (defun replace-in-string (str regexp newtext &optional literal)
+        (replace-regexp-in-string regexp newtext str 'fixedcase literal))
 (defun replace-in-string (str regexp newtext &optional literal)
   "Replace all matches in STR for REGEXP with NEWTEXT string,
  and returns the new string.
@@ -218,7 +224,7 @@ Otherwise treat \\ in NEWTEXT string as special:
 			    (if (eq c ?\\) (progn (setq special t) nil)
 			      (char-to-string c))))
 			 newtext ""))))))
-    (concat rtn-str (substring str start)))))
+    (concat rtn-str (substring str start))))))
 
 ;; An implemenation of buffer-syntactic-context for GNU Emacs
 (defun proof-buffer-syntactic-context-emulate (&optional buffer)
@@ -231,7 +237,7 @@ The returned value is one of the following symbols:
 	comment		; meaning point is within a line comment"
   (save-excursion
     (if buffer (set-buffer buffer))
-    (let ((pp (parse-partial-sexp 1 (point))))
+    (let ((pp (parse-partial-sexp (point-min) (point))))
       (cond
        ((nth 3 pp) 'string)
        ;; ((nth 7 pp) 'block-comment)
@@ -261,14 +267,14 @@ The returned value is one of the following symbols:
 	    ;; GNU Emacs 20.2
 	    (set-keymap-parent map minibuffer-local-map)
 	  ;; Earlier GNU Emacs
-	  (setq map (append minibuffer-local-map map))
-	  ;; XEmacs versions without read-shell-command?
-	  (set-keymap-parents map minibuffer-local-map)))
+	  (setq map (append minibuffer-local-map map)))
+      ;; XEmacs versions without read-shell-command?
+      (set-keymap-parents map minibuffer-local-map))
     (define-key map "\t" 'comint-dynamic-complete)
     (define-key map "\M-\t" 'comint-dynamic-complete)
     (define-key map "\M-?" 'comint-dynamic-list-completions)
     map)
-  "Minibuffer keymap used by shell-command and related commands."))
+  "Minibuffer keymap used by `shell-command' and related commands."))
 
 
 (or (fboundp 'read-shell-command)
@@ -324,7 +330,8 @@ The modified ALIST is returned."
 (or (fboundp 'process-live-p)
 (defun process-live-p (obj)
   "Return t if OBJECT is a process that is alive"
-  (memq (process-status proc) '(open run stop))))
+  (and (processp obj)
+       (memq (process-status obj) '(open run stop)))))
 
 
 
@@ -337,6 +344,8 @@ The modified ALIST is returned."
 ;; These are internal functions of font-lock, autoload policy
 ;; differs between Emacs versions
 
+;; Beware: font-lock-set-defaults does completely different things
+;; in Emacs from what it does in XEmacs.
 (or (fboundp 'font-lock-set-defaults)
     (autoload 'font-lock-set-defaults "font-lock"))
 (or (fboundp 'font-lock-fontify-region)
@@ -353,7 +362,6 @@ The modified ALIST is returned."
   ;; Taken from font-lock.el in XEmacs 21.4.8 (V 1.52)
   (defvar font-lock-preprocessor-face 'font-lock-preprocessor-face
   "This variable should not be set.
-It is present only for horrid FSF compatibility reasons.
 The corresponding face should be set using `edit-faces' or the
 `set-face-*' functions.")
 
