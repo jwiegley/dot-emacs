@@ -302,7 +302,11 @@ and start at the first error."
       (setq start (point))
       (insert str)
       (unless (bolp) (newline))
-      (proof-fontify-region start (point))
+      ;; Catch errors here: this is to deal with ugly problem
+      ;; when fontification of large output gives 
+      ;; (error Nesting too deep for parser)
+      (condition-case nil
+	  (proof-fontify-region start (point)))
       (set-buffer-modified-p nil))))
 
 
