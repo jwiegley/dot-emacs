@@ -251,7 +251,7 @@ Re-attaches SPAN if it was removed from the buffer."
 
 (defun span-at-before (pt prop)
   "Return the smallest SPAN at before PT with property PROP.
-A span is before PT if it covers the character before PT."
+A span is before PT if it begins before the character before PT."
   (let ((prop-pt-p
 	 (cond (prop (lambda (span)
 		       (let ((start (span-start span)))
