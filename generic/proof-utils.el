@@ -305,7 +305,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 (deflocal proof-font-lock-keywords nil
   "Value of font-lock-keywords in this buffer.
 We set `font-lock-defaults' to '(proof-font-lock-keywords t) for
-compatibility with X-Symbol, which may hack proof-font-lock-keywords
+compatibility with X-Symbol, which may hack `proof-font-lock-keywords'
 with extra patterns (in non-mule mode).")
 
 (deflocal proof-font-lock-keywords-case-fold-search nil
