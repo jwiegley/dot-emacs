@@ -87,7 +87,8 @@ an error.")
 
 (defvar proof-included-files-list nil 
   "List of files currently included in proof process.
-This list contains files in canonical truename format.
+This list contains files in canonical truename format
+(see `file-truename').
 
 Whenever a new file is being processed, it gets added to this list
 via the proof-shell-process-file configuration settings.
@@ -100,8 +101,10 @@ Proof General itself will automatically add the filenames of script
 buffers which are completely read, when scripting is deactivated or
 switched to another buffer.
 
-Currently there is no generic provision for removing files which
-are only partly read-in due to an error.")
+NB: Currently there is no generic provision for removing files which
+are only partly read-in due to an error, so ideally the proof assistant
+should only output a processed message when a file has been successfully
+read.")
 
 
 (defvar proof-script-buffer nil
@@ -146,7 +149,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 ;; FIXME: this function should be combined with
 ;; proof-shell-maybe-erase-response-buffer.  Should allow
 ;; face of nil for unfontified output.
-(defun proof-response-buffer-display (str face)
+(defun proof-response-buffer-display (str &optional face)
   "Display STR with FACE in response buffer and return fontified STR."
   (let (start end)
     (with-current-buffer proof-response-buffer
@@ -161,7 +164,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       (save-excursion
 	(font-lock-set-defaults)		;required for FSF Emacs 20.2
 	(font-lock-fontify-region start end)
-	(font-lock-append-text-property start end 'face face))
+	(if face (font-lock-append-text-property start end 'face face)))
       (buffer-substring start end))))
 
 ;; FIXME da: this window dedicated stuff is a real pain and I've
@@ -228,6 +231,23 @@ Restrict to BUFLIST if it's set."
       (if (with-current-buffer buf (eq mode major-mode))
 	  (setq bufs-got (cons buf bufs-got))))))
 
+
+(defun proof-message (str)
+  "Issue the message STR in the response buffer and display it."
+    (proof-response-buffer-display str)
+    (proof-display-and-keep-buffer proof-response-buffer))
+
+(defun proof-warning (str)
+  "Issue the warning STR in the response buffer and display it.
+The warning is coloured with proof-warning-face."
+    (proof-response-buffer-display str 'proof-warning-face)
+    (proof-display-and-keep-buffer proof-response-buffer))
+
+(defmacro proof-debug (str)
+  "Issue the debugging message STR in the response buffer, display it.
+If proof-show-debug-messages is nil, do nothing."
+  (if proof-show-debug-messages
+      `(proof-warning ,str)))
 
 ;; Function for submitting bug reports.
 (defun proof-submit-bug-report ()
