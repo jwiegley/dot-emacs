@@ -377,7 +377,9 @@ Given is the first SPAN which needs to be undone."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun plastic-mode-config ()
-  (setq proof-active-terminator-minor-mode t)	;; force semicolons active.
+  ;; da: this is now a user-option, please set it in your .emacs
+  ;; via customize mechanism.
+  ;; (setq proof-electric-terminator-enable t)	;; force semicolons active.
 
   (setq proof-terminal-char ?\;)
   (setq proof-comment-start "(*")			;; these still active
