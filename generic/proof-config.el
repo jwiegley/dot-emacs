@@ -2348,7 +2348,7 @@ If this table is empty or needs adjusting, please make changes using
   (cons
    (if proof-running-on-XEmacs 
        '([(control c) \`] . proof-next-error)
-     '([(control c) "`"] . proof-next-error))
+     '("`" . proof-next-error))
    '(([(control c) (control c)] . proof-interrupt-process)
      ([(control c) (control v)] . proof-minibuffer-cmd)))
 "List of key-bindings made for the script, goals and response buffer. 
