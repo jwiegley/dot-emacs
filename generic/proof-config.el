@@ -1643,6 +1643,7 @@ tokens (for example, editing documentation or source code files)."
   :type '(repeat symbol)
   :group 'proof-x-symbol)
 
+;; I don't really know what this setting is good for?
 (defcustom proof-xsym-font-lock-keywords nil
   "Font lock keywords to use for the proof assistants X-Symbol token language."
   :type 'sexp
