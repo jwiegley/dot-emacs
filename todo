@@ -20,6 +20,10 @@ B Bug in proof-retract-until-point when called twice in succession:
   locked region, or "nothing to retract").  Problems is that
   there is a proof-locked-end, but it's at (point-min).
 
+B Bug in proof-shell-handle-output run on FSF Emacs, gives error
+  (wrong-type-argument markerp nil) when font-lock-fontify-region
+  is called to fontify the shell buffer.
+
 B proof-find-next-terminator doesn't work properly:
 
      first;second;third
