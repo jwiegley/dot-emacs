@@ -221,7 +221,9 @@ Does nothing if proof assistant is already running."
 
 	(setq proof-goals-buffer    (get-buffer-create goals))
 	(setq proof-response-buffer (get-buffer-create resp))
-	(setq proof-trace-buffer    (get-buffer-create trace))
+	;; Only make a trace buffer if the prover may use it.
+	(if proof-shell-trace-output-regexp
+	    (setq proof-trace-buffer (get-buffer-create trace)))
 
 	;; Set the special-display-regexps now we have the buffer names
 	(setq proof-shell-special-display-regexp 
@@ -258,8 +260,8 @@ Does nothing if proof assistant is already running."
 	      (set-buffer proof-response-buffer)
 	      (funcall proof-mode-for-response)
 	      ;; Set mode for trace buffer
-	      (set-buffer proof-trace-buffer)
-	      (funcall    proof-mode-for-response)
+	      (proof-with-current-buffer-if-exists proof-trace-buffer
+               (funcall proof-mode-for-response))
 	      ;; Set mode for goals buffer
 	      (set-buffer proof-goals-buffer)
 	      (and (fboundp 'toggle-enable-multibyte-characters)
@@ -399,8 +401,7 @@ exited by hand (or exits by itself)."
 	proof-shell-last-output nil
 	proof-shell-last-output-kind nil
 	proof-shell-delayed-output nil
-	proof-shell-delayed-output-kind nil
-	proof-shell-spilling-output nil))
+	proof-shell-delayed-output-kind nil))
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
@@ -1465,19 +1466,10 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
       (setq proof-last-theorem-dependencies 
 	    (split-string (match-string 1 message))))
 
-     ;; CASE spill begin: prover is dumping a large message which
-     ;; we'll redirect to a new buffer (unless already doing so)
-     ;; (NB: this latter case shouldn't occur, because we now only
-     ;;  process urgent messages if _not_ spilling trace output).
-;;     ((and proof-shell-spill-output-regexp
-;;	   (not proof-shell-spilling-output)
-;;	   (string-match proof-shell-spill-output-regexp message))
-;;      (proof-shell-spill-output-begin message))
-
      ;; CASE tracing output: output in the tracing buffer instead
      ;; of the response buffer
-     ((and proof-shell-spill-output-regexp
-	   (string-match proof-shell-spill-output-regexp message))
+     ((and proof-shell-trace-output-regexp
+	   (string-match proof-shell-trace-output-regexp message))
       (proof-trace-buffer-display 
        (if proof-shell-leave-annotations-in-output
 	   message
@@ -1583,24 +1575,6 @@ This is a subroutine of proof-shell-filter."
 	(1- (process-mark (get-buffer-process (current-buffer)))))))
     (goto-char pt)))
 
-(defvar proof-shell-spilling-output nil
-  "A flag indicate that output is being spilled into proof-shell-spill-output-buffer.")
-
-(defun proof-shell-spill-output-begin (msg)
-  "Begin spill output from prover into a response-like buffer."
-  (setq proof-shell-spilling-output t)	; indicate spilling output
-  (proof-trace-buffer-display msg)
-  (proof-display-and-keep-buffer proof-trace-buffer))
-
-(defun proof-shell-spill-output (str)
-  ;; We're spilling output eagerly into another buffer, so append
-  ;; the output chunk we've just received.  (NB: may include or even
-  ;; go past prompt, a bit messy but never mind for now)
-  ;; FIXME: would be nice to process user interrupts here somehow
-  ;; to break infinite tracing output.
-  (proof-trace-buffer-display str))
-  
-	    
 ;; NOTE da: proof-shell-filter does *not* update the proof-marker,
 ;; that's done in proof-shell-insert.  Previous docstring below was
 ;; wrong.  The one case where this function updates proof-marker is
@@ -1644,10 +1618,6 @@ correspond with initializing the process.  The
 ordinary output before the first prompt is ignored (urgent messages, 
 however, are always processed; hence their name)."
   (save-excursion
-    ;; Spill output eagerly into some other buffer
-    ;; (if proof-shell-spill-output-buffer
-    ;; (proof-shell-spill-output str))
-
     ;; Process urgent messages.
     (and proof-shell-eager-annotation-start
 	 (proof-shell-process-urgent-messages))
@@ -1737,8 +1707,6 @@ however, are always processed; hence their name)."
 		      ;;   (proof-fontify-region startpos (point))
 		      (setq string (buffer-substring startpos (point)))
 		      (goto-char (point-max))	
-		      ;; Ensure spill mode is off 
-		      (setq proof-shell-spilling-output nil)
 		      ;; Process output string.
 		      (proof-shell-filter-process-output string))))
 	    ;; If proof-action-list is empty, make sure the process lock
