@@ -47,9 +47,11 @@ inside your Emacs."
     (if enable
 	;; Turn it on
 	(progn
-	  (add-hook 'proof-shell-insert-hook 'proof-x-symbol-encode-shell-input))
+	  (add-hook 'proof-shell-insert-hook
+		    'proof-x-symbol-encode-shell-input))
       ;; Turn it off
-      (remove-hook  'proof-shell-insert-hook 'proof-x-symbol-encode-shell-input))
+      (remove-hook  'proof-shell-insert-hook
+		    'proof-x-symbol-encode-shell-input))
 
     (setq proof-x-symbol-support-on enable)))
 
@@ -67,8 +69,7 @@ No action if proof-x-symbol-support-on is nil."
       (save-restriction
 	(narrow-to-region start end)
 	(x-symbol-decode-all)
-	(unless (featurep 'mule) (x-symbol-nomule-fontify-cstrings))
-	))
+	(unless (featurep 'mule) (x-symbol-nomule-fontify-cstrings)))))
 
 
 (defun proof-x-symbol-encode-shell-input ()
