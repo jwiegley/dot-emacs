@@ -667,6 +667,8 @@ This is specific to coq-mode."
 		  (message "%s%s.v" dir modname)
 		  (format "%s%s.v" dir modname)))))
 
+  ;; FIXME da: coq-proof-shell-inform-file-retracted-cmd, etc, need
+  ;; defvars somewhere to avoid compiler warnings (or TBD: easy-config)
   (setq coq-proof-shell-inform-file-retracted-cmd
 	;; da: This is a HORRIBLE fragile hack!  Instead of issuing a
 	;; command to the prover we have to run a "coqdep" command to

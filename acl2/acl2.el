@@ -85,6 +85,9 @@
  ;; End of easy config.
  )
 
+(eval-when-compile 
+  (require 'proof-shell))		; nuke warning
+
 ;; Interrupts and errors enter another loop; break out of it
 (add-hook
  'proof-shell-handle-error-or-interrupt-hook
