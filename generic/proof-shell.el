@@ -1716,12 +1716,15 @@ Calls proof-state-change-hook."
 ;;;###autoload
 (defun proof-shell-invisible-command (cmd &optional wait)
   "Send CMD to the proof process.  
+CMD may be a string or a string-yielding function.
 Automatically add proof-terminal-char if necessary, examining
 proof-shell-no-auto-terminate-commands.
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
 If WAIT is an integer, wait for that many seconds afterwards."
+  (unless (stringp cmd)
+    (setq cmd (eval cmd)))
   (unless (or (null proof-terminal-char)
 	      (not proof-shell-auto-terminate-commands)
 	      (string-match (concat
