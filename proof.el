@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.27  1997/11/24 19:15:16  djs
+;; Added proof-execute-minibuffer-cmd and scripting minor mode.
+;;
 ;; Revision 1.26  1997/11/20 16:47:48  hhg
 ;; Added proof-global-p to test whether a 'vanilla should be lifted above
 ;; active lemmas.
@@ -263,6 +266,8 @@
 (defvar proof-included-files-list nil 
   "Files currently included in proof process")
 
+(deflocal proof-active-buffer-fake-minor-mode nil
+  "An indication in the modeline that this is the *active* buffer")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;               Bridging the emacs19/xemacs gulf                   ;;
@@ -354,6 +359,17 @@
 	(funcall proof-mode-for-shell)
 	(set-buffer proof-pbp-buffer)
 	(funcall proof-mode-for-pbp))
+
+      (setq proof-script-buffer (current-buffer))
+      (proof-init-segmentation)
+      (setq proof-active-buffer-fake-minor-mode t)
+      (redraw-modeline)
+
+      (or (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
+	  (setq minor-mode-alist
+		(append minor-mode-alist
+			(list '(proof-active-buffer-fake-minor-mode 
+				" Scripting")))))
 
       (message 
        (format "Starting %s process... done." proc)))))
@@ -652,9 +668,10 @@
 
 (defun proof-check-process-available ()
   (if (proof-shell-live-buffer)
-      (if proof-shell-busy (error "Proof Process Busy!")))
-  (if (not (eq proof-script-buffer (current-buffer)))
-      (error "Don't own proof process"))
+      (cond
+       (proof-shell-busy (error "Proof Process Busy!"))
+       ((not (eq proof-script-buffer (current-buffer)))
+	(error "Don't own proof process"))))
   (if (not (eq proof-buffer-type 'script))
       (error "Must be running in a script buffer")))
 
@@ -806,10 +823,6 @@ at the end of locked region (after inserting a newline)."
   (cond
    ((eq proof-script-buffer (current-buffer))
     nil)
-   ((or (null proof-script-buffer) (not (buffer-live-p proof-script-buffer)))
-    (setq proof-script-buffer (current-buffer))
-    (proof-init-segmentation)
-    nil)
    (t 
     (let ((flist proof-included-files-list) 
 	  (file (expand-file-name (buffer-file-name))) ext cmd)
@@ -825,9 +838,12 @@ at the end of locked region (after inserting a newline)."
 	(setq cmd (if (and ext (not (eq (span-property ext 'type) 'goalsave)))
 		      proof-kill-goal-command ""))
 	(proof-detach-segments)
-	(delete-spans (point-min) (point-max) 'type))      
+	(delete-spans (point-min) (point-max) 'type)
+	(setq proof-active-buffer-fake-minor-mode nil))      
       (setq proof-script-buffer (current-buffer))
       (proof-detach-segments)
+      (proof-init-segmentation)
+      (setq proof-active-buffer-fake-minor-mode t)
 
       (cond 
        (flist
@@ -1151,17 +1167,23 @@ deletes the region corresponding to the proof sequence."
     (proof-set-locked-end (point))
     (delete-spans (proof-locked-end) (point-max) 'type)))
 
+(defvar proof-minibuffer-history nil
+  "The last command read from the minibuffer")
 
+(defun proof-execute-minibuffer-cmd ()
+  (interactive)
+  (let (cmd)
+    (proof-check-process-available)
+    (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
+;     proof-minibuffer-history (cons cmd proof-minibuffer-history))
+    (proof-invisible-command cmd)))
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          Active terminator minor mode                            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar proof-active-terminator-minor-mode nil 
+(deflocal proof-active-terminator-minor-mode nil 
 "active terminator minor mode flag")
-
-(make-variable-buffer-local 'proof-active-terminator-minor-mode)
-(put 'proof-active-terminator-minor-mode 'permanent-local t)
 
 (defun proof-active-terminator-minor-mode (&optional arg)
   "Toggle PROOF's Active Terminator minor mode.
@@ -1254,7 +1276,8 @@ current command."
   (define-key proof-mode-map [(control c) (control t)] 'proof-try-command)
   (define-key proof-mode-map [(control c) u] 'proof-retract-until-point)
   (define-key proof-mode-map [(control c) (control u)] 'proof-undo-last-successful-command)
-  (define-key proof-mode-map [(control c) ?'] 'proof-goto-end-of-locked)
+  (define-key proof-mode-map [(control c) (control v)] 'proof-execute-minibuffer-cmd)
+  (define-key proof-mode-map [(control c) ?\'] 'proof-goto-end-of-locked)
 
   ;; For fontlock
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)

@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.31  1997/11/24 19:15:11  djs
+;; Added proof-execute-minibuffer-cmd and scripting minor mode.
+;;
 ;; Revision 1.30  1997/11/20 13:04:59  hhg
 ;; Added lego-global-p as always false, but for consistency with Coq mode.
 ;; Changed [meta (control i)] to [meta tab] in key definition.
@@ -415,7 +418,7 @@
 ;; code.  It's quite a lot less general, but works with nested
 ;; comments.
 
-;; proof-parse-to-point:
+;; parse-to-point:
 ;; If from is nil, parsing starts from locked-end. Otherwise state
 ;; must contain a valid triple.
 
@@ -565,7 +568,6 @@
 
   (proof-config-done)
 
-  ; (meta (control i)) causes emacs to fail, maybe it raises an exception
   (define-key (current-local-map) [(meta tab)]
     (if (fboundp 'complete-tag)
 	'complete-tag		; Emacs 19.31 (superior etags)

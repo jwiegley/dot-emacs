@@ -89,7 +89,8 @@
   (set-extent-property proof-locked-ext 'read-only nil))
 
 (defsubst proof-detach-queue ()
-  (detach-extent proof-queue-ext))
+  (if proof-queue-ext
+      (detach-extent proof-queue-ext)))
 
 (defsubst proof-set-queue-endpoints (start end)
   (set-extent-endpoints proof-queue-ext start end))
@@ -103,8 +104,10 @@
 			end)) 
 
 (defsubst proof-detach-segments ()
-  (detach-extent proof-queue-ext)
-  (detach-extent proof-locked-ext))
+  (if proof-queue-ext
+      (detach-extent proof-queue-ext))
+  (if proof-locked-ext
+      (detach-extent proof-locked-ext)))
 
 (defsubst proof-set-locked-end (end)
   (set-extent-endpoints proof-locked-ext (point-min) end))

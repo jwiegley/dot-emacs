@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.12  1997/11/24 19:15:08  djs
+;; Added proof-execute-minibuffer-cmd and scripting minor mode.
+;;
 ;; Revision 1.11  1997/11/20 13:03:08  hhg
 ;; Added coq-global-p for global declarations and definitions.  These now
 ;; get lifted in the same way as lemmas.
@@ -392,7 +395,124 @@ Require Emacs."
   (insert "Apply "))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Lego shell startup and exit hooks                              ;;
+;;   Indentation                                                    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; This is quite different from sml-mode, but borrows some bits of
+;; code.  It's quite a lot less general, but works with nested
+;; comments.
+
+;; parse-to-point:
+;; If from is nil, parsing starts from locked-end. Otherwise state
+;; must contain a valid triple.
+
+(defun coq-parse-to-point (&optional from state)
+  (let ((comment-level 0) (stack (list (list nil 0)))
+	(end (point)) instring c)
+    (save-excursion
+      (if (null from)
+	  (proof-goto-end-of-locked)
+	(goto-char from)
+	(setq instring (car state)
+	      comment-level (nth 1 state)
+	      stack (nth 2 state)))
+      (while (< (point) end)
+	(setq c (char-after (point)))
+	(cond 
+	 (instring 
+	  (if (eq c ?\") (setq instring nil)))
+	 (t (cond
+	     ((eq c ?\()
+	      (if (looking-at "(\\*") (progn 
+					(incf comment-level)
+					(forward-char))
+		(if (>= 0 comment-level) 
+		    (setq stack (cons (list c (point)) stack)))))
+	     ((and (eq c ?\*) (looking-at "\\*)"))
+	      (decf comment-level)
+	      (forward-char))
+	     ((> comment-level 0))
+
+	     ((and (eq c ?c) (looking-at "case"))
+	      (setq stack (cons (list c (point)) stack)))
+	     ((and (eq c ?e) (looking-at "end") (eq (car (car stack)) ?c))
+	      (setq stack (cdr stack)))
+
+	     ((eq c ?I) (looking-at "Inductive")
+	      (setq stack (cons (list c (point)) stack)))
+	     ((and (eq c ?.)  (eq (car (car stack)) ?I))
+	      (setq stack (cdr stack)))	     
+	     ((eq c ?\") (setq instring t))
+	     ((or (eq c ?\{) (eq c ?\[))
+	      (setq stack (cons (list c (point)) stack)))
+	     ((or (eq c ?\)) (eq c ?\}) (eq c ?\]))
+	      (setq stack (cdr stack))))))
+	(forward-char))
+    (list instring comment-level stack))))
+      
+(defun coq-stack-to-indent (stack)
+  (cond
+   ((null stack) 0)
+   ((null (car (car stack)))
+    (nth 1 (car stack)))
+   (t (let ((col (save-excursion
+		   (goto-char (nth 1 (car stack)))
+		   (current-column))))
+	(cond
+	 ((eq (car (car stack)) ?c)
+	  (save-excursion (move-to-column (current-indentation))
+			  (cond 
+			   ((eq (char-after (point)) ?|) (+ col 3))
+			   ((looking-at "end") col)
+			   (t (+ col 5)))))	  
+	 ((eq (car (car stack)) ?I)
+	  (+ col (if (eq ?| (save-excursion 
+			      (move-to-column (current-indentation))
+			      (char-after (point)))) 8 10)))
+	 (t (1+ col)))))))
+
+
+(defun coq-indent-line ()
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (if (< (point) (proof-locked-end))
+	(error "can't indent locked region!"))
+    (let* ((state (coq-parse-to-point))
+	   (beg (point))
+	   (indent (cond ((car state) 1)
+			 ((> (nth 1 state) 0) 1)
+			 (t (coq-stack-to-indent (nth 2 state))))))
+      (skip-chars-forward "\t ")
+      (delete-region beg (point))
+      (indent-to indent)))
+  (if (< (current-column) (current-indentation))
+      (skip-chars-forward "\t ")))
+
+(defun coq-indent-region (start end)
+  (interactive "r")
+  (save-excursion
+    (goto-char start)
+    (beginning-of-line)
+    (if (< (point) (proof-locked-end))
+	(error "can't indent locked region!"))
+    (let* ((beg (point))
+	   (state (coq-parse-to-point))
+	   indent)
+      (while (<= (point) end)
+	(setq indent (cond ((car state) 1)
+			   ((> (nth 1 state) 0) 1)
+			   (t (coq-stack-to-indent (nth 2 state)))))	
+	(skip-chars-forward "\t ")
+	(delete-region beg (point))
+	(indent-to indent)
+	(end-of-line)
+	(if (< (point) (point-max)) (forward-char))
+	(setq state (coq-parse-to-point beg state)
+	      beg (point))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Coq shell startup and exit hooks                               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar coq-shell-current-line-width nil
@@ -469,17 +589,16 @@ Require Emacs."
 
   (proof-config-done)
 
-  (define-key (current-local-map) [(meta tab)]
-    (if (fboundp 'complete-tag)
-	'complete-tag		; Emacs 19.31 (superior etags)
-      'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
+;  (define-key (current-local-map) [(meta tab)]
+;    (if (fboundp 'complete-tag)
+;	'complete-tag		; Emacs 19.31 (superior etags)
+;      'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
   (define-key (current-local-map) [(control c) (control p)] 'coq-prf)
   (define-key (current-local-map) [(control c) c] 'coq-ctxt)
   (define-key (current-local-map) [(control c) h] 'coq-help)
   (define-key (current-local-map) [(control c) I] 'coq-Intros)
-  (define-key (current-local-map) "\C-ca"    'coq-Apply)
-
-;;  (define-key (current-local-map) [tab]      'lego-indent-line)
+  (define-key (current-local-map) [(control c) a] 'coq-Apply)
+  (define-key (current-local-map) [tab]      'coq-indent-line)
 
 ;; outline
   
