@@ -2864,6 +2864,7 @@ If this is set to nil, no command is issued.
 
 See also @code{proof-shell-process-file}, @code{proof-shell-compute-new-files-list}.
 @end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-inform-file-retracted-cmd
 
 
 @node Settings for matching output from proof process
@@ -3163,8 +3164,20 @@ describe the more technical nitty gritty. This is what you need to know
 when you customise another proof assistant to work with Proof General.
 
 The key idea is that we leave it to the specific proof assistant to
-worry about managing multiple files. But whenever the proof assistant
-processes or retracts a file it must clearly say so.
+worry about managing multiple files as far as possible.  Whenever the
+proof assistant processes or retracts a file it must clearly say so, so
+that Proof General can register this.    
+
+Conversely, Proof General is willing to tell the proof assistant that it
+has processed or retracted a file.  This happens only in two special
+instances.  First, when scripting is turned off in a file that has been
+completely processed, Proof General will tell the proof assistant using
+@code{proof-shell-inform-file-processed-cmd}.  Second, when scripting is
+turned on in a file which is completely processed, Proof General will
+tell the proof assistant to reconsider, and that the file should not
+be considered completely processed yet.  This uses the setting
+@code{proof-shell-inform-file-retracted-cmd}.
+
 
 @vindex proof-shell-eager-annotation-start
 @vindex proof-shell-eager-annotation-end
@@ -3207,6 +3220,9 @@ read.
 You should not set this variable directly. The generic Proof General
 will modify @code{proof-included-files-list} itself. Instead, for a
 specific proof assistant you need to customise
+@code{proof-shell-inform-file-processed-cmd},
+@code{proof-shell-inform-file-retracted-cmd}.
+@xref{Proof shell commands}.  And also
 @code{proof-shell-process-file}, @code{proof-shell-retract-files-regexp}
 and @code{proof-shell-compute-new-files-list}. @xref{Hooks and function
 variables}.
