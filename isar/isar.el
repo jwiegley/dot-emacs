@@ -205,7 +205,7 @@
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-end     "\361\\|\363"
-   proof-shell-trace-output-regexp      "\375"
+   ;; see isar-pre-shell-start for proof-shell-trace-output-regexp
 
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
@@ -479,7 +479,8 @@ proof-shell-retract-files-regexp."
   (setq proof-prog-name         (isabelle-command-line))
   (setq proof-mode-for-shell    'isar-shell-mode)
   (setq proof-mode-for-goals    'isar-goals-mode)
-  (setq proof-mode-for-response 'isar-response-mode))
+  (setq proof-mode-for-response 'isar-response-mode)
+  (setq proof-shell-trace-output-regexp "\375"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

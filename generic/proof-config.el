@@ -1882,8 +1882,8 @@ This is an experimental feature, currently work-in-progress."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
-(defcustom proof-shell-spill-output-regexp nil
-  "Regexp matching tracing output which is ``spilled'' into trace buffer.
+(defcustom proof-shell-trace-output-regexp nil
+  "Regexp matching tracing output which should be displayed in trace buffer.
 Each line which matches this regexp but would otherwise be treated
 as an ordinary response, is sent to the trace buffer instead of the
 response buffer.   
@@ -1892,6 +1892,8 @@ This is intended for unusual debugging output from
 the prover, rather than ordinary output from final proofs.  
 
 Set to nil to disable.
+
+Suggestion: this can be set a function called by `proof-pre-shell-start-hook'."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
@@ -1992,6 +1994,7 @@ shell variables:
    proof-mode-for-shell
    proof-mode-for-response
    proof-mode-for-goals
+   proof-shell-trace-output-regexp
 
 This is the bare minimum needed to get a shell buffer and
 its friends configured in the function proof-shell-start."

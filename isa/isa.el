@@ -202,7 +202,7 @@ and script mode."
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-end     "\361\\|\363"
-   proof-shell-trace-output-regexp      "\375"
+   ;; see isa-pre-shell-start for proof-shell-trace-output-regexp
 
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
@@ -548,7 +548,8 @@ you will be asked to retract the file or process the remainder of it."
   (setq proof-prog-name		(isabelle-command-line))
   (setq proof-mode-for-shell    'isa-shell-mode)
   (setq proof-mode-for-goals	'isa-goals-mode)
-  (setq proof-mode-for-response 'isa-response-mode))
+  (setq proof-mode-for-response 'isa-response-mode)
+  (setq proof-shell-trace-output-regexp "\375"))
 
 (defun isa-mode-config ()
   (isa-mode-config-set-variables)
