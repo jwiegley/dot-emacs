@@ -4,8 +4,12 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
-;; Revision 1.23  1997/10/08 10:25:07  hhg
-;; *** empty log message ***
+;; Revision 1.24  1997/10/13 17:06:05  tms
+;; lego-count-undos is now aware that comments are treated separately
+;;
+;; Revision 1.20.2.9  1997/10/10 19:20:00  djs
+;; Added multiple file support, changed the way comments work, fixed a
+;; few minor bugs, and merged in coq support by hhg.
 ;;
 ;; Revision 1.20.2.7  1997/10/08 08:22:33  hhg
 ;; Updated undo, fixed bugs, more modularization
@@ -114,6 +118,26 @@
 (defvar lego-shell-proof-completed-regexp "\\*\\*\\* QED \\*\\*\\*"
   "*Regular expression indicating that the proof has been completed.")
 
+(defvar lego-save-command-regexp
+  (concat "^" (ids-to-regexp lego-keywords-save)))
+(defvar lego-save-with-hole-regexp
+  (concat "\\(" (ids-to-regexp lego-keywords-save) "\\)\\s-+\\([^;]+\\)"))
+(defvar lego-goal-command-regexp
+  (concat "^" (ids-to-regexp lego-keywords-goal)))
+(defvar lego-goal-with-hole-regexp
+  (concat "\\(" (ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^:]+\\)"))
+
+(defvar lego-kill-goal-command "KillRef;")
+(defvar lego-forget-id-command "Forget ")
+
+(defvar lego-undoable-commands-regexp
+  (ids-to-regexp '("Refine" "Intros" "intros" "Next" "Qrepl" "Claim"
+		   "For" "Repeat" "Succeed" "Fail" "Try" "Assumption" "UTac"
+		   "Qnify" "AndE" "AndI" "exE" "exI" "orIL" "orIR" "orE"
+		   "ImpI" "impE" "notI" "notE" "allI" "allE" "Expand"
+		   "Induction" "Immed"))
+  "Undoable list")
+
 ;; ----- outline
 
 (defvar lego-goal-regexp "\\?\\([0-9]+\\)")
@@ -217,6 +241,60 @@
            (setq path-name ".")))       
     (string-to-list path-name lego-path-separator)))
 
+(defun lego-count-undos (sext)
+  (let ((ct 0) str i)
+    (while sext
+      (setq str (span-property sext 'cmd))
+      (cond ((eq (span-property sext 'type) 'vanilla)
+	     (if (or (string-match lego-undoable-commands-regexp str)
+		(and (string-match "Equiv" str)
+		     (not (string-match "Equiv\\s +[TV]Reg" str))))
+	    (setq ct (+ 1 ct))))
+	    ((eq (span-property sext 'type) 'pbp)
+	     (setq i 0)
+	     (while (< i (length str)) 
+	       (if (= (aref str i) proof-terminal-char) (setq ct (+ 1 ct)))
+	       (setq i (+ 1 i)))))
+      (setq sext (next-span sext 'type)))
+  (concat "Undo " (int-to-string ct) proof-terminal-string)))
+
+(defun lego-find-and-forget (sext) 
+  (let (str ans)
+    (while (and sext (eq (span-property sext 'type) 'comment))
+      (setq sext (next-span sext 'type)))
+    (if (null sext) 
+	"COMMENT"
+      (while sext
+	(if (eq (span-property sext 'type) 'goalsave)
+	    (setq ans (concat "Forget " 
+			      (span-property sext 'name) proof-terminal-string)
+		  sext nil)
+	  (setq str (span-property sext 'cmd))
+	  (cond
+	   ((string-match (concat "\\`" (lego-decl-defn-regexp "[:|=]")) str)
+	    (let ((ids (match-string 1 str))) ; returns "a,b"
+	      (string-match proof-id ids)	; matches "a"
+	      (setq ans (concat "Forget " (match-string 1 ids)
+				proof-terminal-string)
+		    sext nil)))
+	   
+	   ((string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
+	    (setq ans (concat "Forget " (match-string 2 str) proof-terminal-string)
+		  sext nil))
+	   
+	   ((string-match "\\`\\(Inductive\\|Record\\)\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
+	    (setq ans (concat "Forget " (match-string 2 str) proof-terminal-string)
+		  sext nil))
+	   
+	   ((string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
+	    (setq ans (concat "ForgetMark " (match-string 1 str) proof-terminal-string)
+		  sext nil))
+	   (t 
+	    (setq sext (next-span sext 'type))))))
+      (or ans
+	  (concat "echo \"Nothing more to Forget.\"" proof-terminal-string)))))
+  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -271,7 +349,7 @@
   the output."
   (if (proof-shell-live-buffer)
       (let ((current-width
-	     (window-width (get-buffer-window proof-buffer-for-shell))))
+	     (window-width (get-buffer-window proof-shell-buffer))))
 	 (if (equal current-width lego-shell-current-line-width)
 	     ""
 	   (setq lego-shell-current-line-width current-width)
@@ -287,26 +365,6 @@
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar lego-save-command-regexp
-  (concat "^" (ids-to-regexp lego-keywords-save)))
-(defvar lego-save-with-hole-regexp
-  (concat "\\(" (ids-to-regexp lego-keywords-save) "\\)\\s-+\\([^;]+\\)"))
-(defvar lego-goal-command-regexp
-  (concat "^" (ids-to-regexp lego-keywords-goal)))
-(defvar lego-goal-with-hole-regexp
-  (concat "\\(" (ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^:]+\\)"))
-
-(defvar lego-kill-goal-command "KillRef;")
-(defvar lego-forget-id-command "Forget ")
-
-(defvar lego-undoable-commands-regexp
-  (ids-to-regexp '("Refine" "Intros" "intros" "Next" "Qrepl" "Claim"
-		   "For" "Repeat" "Succeed" "Fail" "Try" "Assumption" "UTac"
-		   "Qnify" "AndE" "AndI" "exE" "exI" "orIL" "orIR" "orE"
-		   "ImpI" "impE" "notI" "notE" "allI" "allE" "Expand"
-		   "Induction" "Immed"))
-  "Undoable list")
-
 (defun lego-mode-config ()
 
   (setq proof-terminal-char ?\;)
@@ -320,9 +378,7 @@
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
 	proof-goal-command-regexp lego-goal-command-regexp
 	proof-goal-with-hole-regexp lego-goal-with-hole-regexp
-	proof-undoable-commands-regexp lego-undoable-commands-regexp
-	proof-kill-goal-command lego-kill-goal-command
-	proof-forget-id-command lego-forget-id-command)
+	proof-kill-goal-command lego-kill-goal-command)
 
   (modify-syntax-entry ?_ "_")
   (modify-syntax-entry ?\' "_")
