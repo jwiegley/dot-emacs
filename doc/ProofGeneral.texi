@@ -18,22 +18,20 @@
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
 @set haveeps
-@c
 @iftex
 @afourpaper
 @end iftex
 
-@c 
-@c TODO, priority order
-@c   . polish mark-up
-@c   . add more index entries
-@c   . screenshots might be nice (one day)
-@c   . follow conventions:  
-@c       key-binding or key binding ?
-@c       references: 
-@c        @xref{node}  blah         start of sentence: See [ref]
-@c        blah (@pxref{node}) blah  bla (see [ref]), best at end of sentence
-@c        @ref{node}                without "see". Careful for info.
+@c
+@c Some URLs.
+@set URLxsymbol  http://www.fmi.uni-passau.de/~wedler/x-symbol/
+@set URLisamode  http://zermelo.dcs.ed.ac.uk/~isamode
+@set URLpghome   http://zermelo.dcs.ed.ac.uk/home/proofgen
+@set URLpglatestrpm  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm
+@set URLpglatesttar  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz
+@set URLpglatestdev  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz
+@c
+@c
 
 @c
 @c IMPORTANT NOTE ABOUT THIS TEXINFO FILE:
@@ -51,6 +49,11 @@
 @c but tends to delete the first section of the file in XEmacs!
 @c (it's better in FSF Emacs at the time of writing).
 @c
+@c
+@c reminder about references: 
+@c        @xref{node}  blah         start of sentence: See [ref]
+@c        blah (@pxref{node}) blah  bla (see [ref]), best at end of sentence
+@c        @ref{node}                without "see". Careful for info.
 
 
 @set version 3.0
@@ -221,7 +224,8 @@ moved into the Coq kernel lately.  Somebody from the Coq community needs
 to help with this.
 
 An important new feature in Proof General 3.0 is support for
-@strong{X-Symbol}, which means that real logical symbols, Greek letters,
+@uref{@value{URLxsymbol},X-Symbol}, 
+which means that real logical symbols, Greek letters,
 etc can be displayed during proof development, instead of their ASCII
 approximations. This makes Proof General a more serious competitor to
 native graphical user interfaces.
@@ -255,7 +259,7 @@ A new instantiation of Proof General is being worked on for
 Durham.
 
 Proof General has a home page at
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen}.  Visit this page for
+@uref{@value{URLpghome}}.  Visit this page for
 more news!
 
 
@@ -271,7 +275,7 @@ interact with the LEGO system.
 David Aspinall convinced Thomas Kleymann that programming in
 Emacs Lisp wasn't so difficult after all. In fact, Aspinall had already
 implemented an Emacs interface for Isabelle with bells and whistles,
-called @uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}. Soon
+called @uref{@value{URLisamode},Isamode}. Soon
 after, the package @code{lego-mode} was born. Users were able to develop
 proof scripts in one buffer. Support was provided to automatically send
 parts of the script to the proof process. The last official version with
@@ -1815,7 +1819,7 @@ You will be able to enable X-Symbol support if you have installed the
 X-Symbol package and support has been provided in Proof General for a
 token language for your proof assistant.
 The X-Symbol package is available from
-@uref{http://www.fmi.uni-passau.de/~wedler/x-symbol/}.
+@uref{@value{URLxsymbol}}.
 
 @xref{Configuring X-Symbol}, for notes about how to configure
 a proof assistant to use X-Symbol in Proof General.
@@ -2741,7 +2745,7 @@ loader for proper automatic multiple file handling.
 
 Isabelle Proof General includes a mode for editing theory files taken
 from David Aspinall's Isamode interface, see
-@uref{http://www.dcs.ed.ac.uk/home/da/Isamode}.  Detailed documentation
+@uref{@value{URLisamode}}.  Detailed documentation
 for the theory file mode is included with @code{Isamode}, there are some
 notes on the special functions available and customization settings
 below.
@@ -5233,7 +5237,7 @@ Reference Manual.  I recommend using the source-level debugger
 @appendix Obtaining and Installing
 
 Proof General has its own
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen,home page} hosted at
+@uref{@value{URLpghome},home page} hosted at
 Edinburgh.  Visit this page for the latest news!
 
 STOP PRESS: the Proof General web pages are temporarily being hosted at
@@ -5254,17 +5258,17 @@ STOP PRESS: the Proof General web pages are temporarily being hosted at
 
 You can obtain Proof General from the URL
 @example
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen}.
+@uref{@value{URLpghome}}.
 @end example
 
 The distribution is available in three forms
 @itemize @bullet
 @item A source tarball, @*
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz}
+@uref{@value{URLpglatest}}
 @item A Linux RPM package (for any architecture), @*
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm}
+@uref{@value{URLpglatestrpm}}
 @item A developer's tarball, @*
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
+@uref{@value{URLpglatestdev}}
 @end itemize
 
 Both the source tarball and the RPM package include the generic elisp
