@@ -23,13 +23,13 @@ Please do not publish the images or incorporate them into other
 work without his permission.  If you have comments or suggestions,
 or if you would like a copy of one of the images
 in another size or format, 
-please <a href="feedback.html">contact us</a>.
+please <a href="feedback">contact us</a>.
 </p>
 
 </p>
 <p>
 For pictures of what Proof General looks like in use,
-see the <a href="screenshot.html">screenshots</a> page.
+see the <a href="screenshot">screenshots</a> page.
 </p>
 </blockquote>
 
