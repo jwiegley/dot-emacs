@@ -1088,12 +1088,13 @@ Optionally delete the region corresponding to the proof sequence."
 
 ;; FIXME da: Maybe retraction to the start of
 ;; a file should remove it from the list of included files?
-(defun proof-retract-until-point-interactive ()
+(defun proof-retract-until-point-interactive (delete-region)
   "Tell the proof process to retract until point.
 If invoked outside a locked region, undo the last successfully processed
-command."
-  (interactive)
-  (proof-retract-until-point))
+command.  If called with a prefix argument (DELETE-REGION non-nil), also
+delete the retracted region from the proof-script."
+  (interactive "P")
+  (proof-retract-until-point delete-region))
 
 (defun proof-retract-until-point (&optional delete-region)
   "Set up the proof process for retracting until point.
@@ -1171,22 +1172,24 @@ UNCLOSED-COMMENT-FUN."
 ;;         misc other user functions                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun proof-undo-last-successful-command-interactive ()
+;; FIXME: it turns out that this function is identical to the one below.
+(defun proof-undo-last-successful-command-interactive (delete)
   "Undo last successful command at end of locked region.
-The text is also deleted from the proof script."
-  (interactive)
-  (proof-undo-last-successful-command))
+If optional DELETE argument is set (called with a prefix argument), 
+the text is also deleted from the proof script."
+  (interactive "P")
+  (proof-undo-last-successful-command delete))
 
-(defun proof-undo-last-successful-command (&optional no-delete)
+(defun proof-undo-last-successful-command (&optional delete)
   "Undo last successful command at end of locked region.
-Unless optional NO-DELETE is set, the text is also deleted from
-the proof script."
+If optional DELETE argument is set, the text is also deleted 
+from the proof script."
   (unless (proof-locked-region-empty-p)
     (let ((lastspan (span-at-before (proof-locked-end) 'type)))
       (if lastspan
 	  (progn
 	    (goto-char (span-start lastspan))
-	    (proof-retract-until-point (not no-delete)))
+	    (proof-retract-until-point delete))
 	(error "Nothing to undo!")))))
 
 
@@ -1664,8 +1667,8 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) (return)]	  'proof-assert-next-command-interactive)
 (define-key map [(control c) (control t)] 'proof-try-command)
 ;; FIXME: The following two functions should be unified.
-(define-key map [(control c) ?u]	  'proof-undo-last-successful-command-interactive)
-(define-key map [(control c) (control u)] 'proof-retract-until-point-interactive)
+(define-key map [(control c) ?u]	  'proof-retract-until-point-interactive)
+(define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
 (define-key map [(control c) ?\']	  'proof-goto-end-of-locked-interactive)
 ;; FIXME da: I don't understand what this function is supposed to do.
 ;; It will copy a proof command from within the locked region
