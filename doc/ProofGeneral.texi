@@ -265,8 +265,7 @@ need better support for script management.
 @cindex generic
 In 1997, Dilip Sequeira implemented script management in our Emacs
 interface for LEGO following the recipe in
-[BT98] @footnote{Notice the publication date. We really do provide
-cutting-edge technology!}. Inspired by the project CROAP, the
+[BT98]. Inspired by the project CROAP, the
 implementation made some effort to be generic. A working prototype was
 presented at UITP'97.
 
