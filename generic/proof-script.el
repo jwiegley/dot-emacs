@@ -1585,10 +1585,8 @@ This version is used when `proof-script-command-start-regexp' is set."
 	   (setq comstart (match-beginning 0)); save command start
 	   (or (save-excursion
 		 (goto-char comstart)
-		 (or ; continue if inside (or at start of) comment/string
-		  (proof-buffer-syntactic-context)
-		  (proof-looking-at proof-comment-start-regexp)
-		  (proof-looking-at proof-string-start-regexp)))
+		 ;; continue if inside (or at start of) comment/string
+		 (proof-looking-at-syntactic-context))
 	       (progn			    ; or, if found command...
 		 (setq cmdfnd 
 		       (> comstart startpos)); ignore first match
