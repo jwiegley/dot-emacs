@@ -697,32 +697,32 @@ If a function, it should return the command string to insert."
   :group 'prover-config)
 
 (defconst proof-toolbar-entries-default
-  `((state	"Display proof state" "Display the current proof state" t 
+  `((state	"Display Proof State" "Display the current proof state" t 
 		proof-showproof-command)
-    (context	"Display context" "Display the current context" t 
+    (context	"Display Context" "Display the current context" t 
 		proof-context-command)
-    (goal	"Start a new proof"   "Start a new proof" t
+    (goal	"Start a New Proof"   "Start a new proof" t
 		proof-goal-command)
-    (retract	"Retract buffer"      "Retract (undo) whole buffer" t)
-    (undo	"Undo step"           "Undo the previous proof command" t)
-    (delete	"Delete step"         nil t)
-    (next	"Next step"           "Process the next proof command" t)
-    (use	"Use buffer"  	      "Process whole buffer" t)
-    (goto	"Goto point"	      "Process or undo to the cursor position" t)
-    (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
-    (qed	"Finish proof"        "Close/save proved theorem" t
+    (retract	"Retract Buffer"      "Retract (undo) whole buffer" t)
+    (undo	"Undo Step"           "Undo the previous proof command" t)
+    (delete	"Delete Step"         nil t)
+    (next	"Next Step"           "Process the next proof command" t)
+    (use	"Use Buffer"  	      "Process whole buffer" t)
+    (goto	"Goto Point"	      "Process or undo to the cursor position" t)
+    (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
+    (qed	"Finish Proof"        "Close/save proved theorem" t
 		proof-save-command)
-    (lockedend  "Locked end"	      nil t)
-    (find	"Find theorems"	      "Find theorems" t
+    (lockedend  "Locked End"	      nil t)
+    (find	"Find Theorems"	      "Find theorems" t
 		proof-find-theorems-command)
-    (show       "Show proofs"         nil t)
-    (hide       "Hide proofs"	      nil t)
-    (command    "Issue command"	      "Issue a non-scripting command" t)
-    (interrupt  "Interrupt prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
+    (show       "Show Proofs"         nil t)
+    (hide       "Hide Proofs"	      nil t)
+    (command    "Issue Command"	      "Issue a non-scripting command" t)
+    (interrupt  "Interrupt Prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
     (info	nil		      "Show online proof assistant information" t
 		proof-info-command)
     (help	nil		      "Proof General manual" t))
-"Example value for proof-toolbar-entries.  Also used to define Scripting menu.
+"Example value for proof-toolbar-entries.  Also used to define scripting menu.
 This gives a bare toolbar that works for any prover, providing the
 appropriate configuration variables are set.
 To add/remove prover specific buttons, adjust the `<PA>-toolbar-entries' 
@@ -2350,7 +2350,7 @@ of `easy-menu-define' for more details."
 Completion is activated with \\[complete].
 
 If this table is empty or needs adjusting, please make changes using
-`customize-variable' and send suggestions to proofgen@@dcs.ed.ac.uk."
+`customize-variable' and send suggestions to support@@proofgeneral.org"
   :type '(list string)
   :group 'prover-config)
 
