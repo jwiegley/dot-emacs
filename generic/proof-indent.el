@@ -37,7 +37,7 @@
 	(end (point)) instring c)
     (save-excursion
       (if (null from)
-	  (if (eq proof-script-buffer (current-buffer))
+	  (if (member (current-buffer) proof-script-buffer-list)
 	      (proof-goto-end-of-locked)
 	    (goto-char 1))
 	(goto-char from)
@@ -78,7 +78,7 @@
       
 (defun proof-indent-line ()
   (interactive)
-  (if (and (eq proof-script-buffer (current-buffer))
+  (if (and (member (current-buffer) proof-script-buffer-list)
 	   (< (point) (proof-locked-end)))
       (if (< (current-column) (current-indentation))
 	  (skip-chars-forward "\t "))
@@ -97,7 +97,7 @@
 
 (defun proof-indent-region (start end)
   (interactive "r")
-  (if (and (eq proof-script-buffer (current-buffer))
+  (if (and (member (current-buffer) proof-script-buffer-list)
 	   (< (point) (proof-locked-end)))
       (error "can't indent locked region!"))
   (save-excursion
