@@ -8,7 +8,11 @@
 ;;
 ;; XML functions for Proof General
 ;;
-;; STATUS: Experimental, not in use.
+;; STATUS: Experimental, used in proof-shell to deal with PGIP
+;; messages from prover.  
+;; 
+;; TODO: Replace this file by a more robust/standard 
+;; Emacs XML library.
 ;;
 ;; Proof General Kit uses PGIP, an XML-message protocol
 ;; for interactive proof.  The simple functions here allow
