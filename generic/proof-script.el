@@ -1939,7 +1939,7 @@ No action if BUF is nil."
     [,(concat proof-assistant " web page")
      (browse-url proof-assistant-home-page) t]
     ["Proof General home page"
-     (browse-url proof-proof-general-home-page) t]
+     (browse-url proof-general-home-page) t]
     ["Proof General Info"
      (info "ProofGeneral") t]
     )

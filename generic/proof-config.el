@@ -1409,9 +1409,9 @@ Proof General."
      or use the menu command Proof-General -> Submit bug report."
     nil)
   "Evaluated to configure splash screen displayed when entering Proof General.
-If an element is a string or an image specifier, it is displayed
-centred on the window on its own line.  If it is nil, a new line is
-inserted."
+A list of the screen contents.  If an element is a string or an image
+specifier, it is displayed centred on the window on its own line.  
+If it is nil, a new line is inserted."
   :type 'sexp
   :group 'proof-general-internals)
 
@@ -1480,7 +1480,7 @@ x-symbol support is activated."
   :type 'string
   :group 'proof-general-internals)
 
-(defcustom proof-proof-general-home-page
+(defcustom proof-general-home-page
   "http://www.dcs.ed.ac.uk/home/proofgen"
   "*Web address for Proof General"
   :type 'string
