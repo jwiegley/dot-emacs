@@ -50,15 +50,12 @@
 (autoload 'proof-shell-mode "proof-shell"
   "Proof General shell mode class for proof assistant processes")
 
-;; FIXME: toolbar defines scripting menu as well as toolbar,
-;; so FSF *does* need to load it.  Could consider separating
-;; menu code from proof-toolbar.
+;; Toolbar defines scripting menu as well as toolbar, so FSF *does*
+;; need to load it.  We could consider separating menu code from
+;; proof-toolbar, but they are defined using a uniform mechanism.
 
-;;(if (featurep 'toolbar)
-    ;; toolbar code is only loaded for XEmacs
-    (autoload 'proof-toolbar-setup "proof-toolbar"
-      "Initialize Proof General toolbar and enable it for the current buffer" t)
-;;;  (defun proof-toolbar-setup ()))
+(autoload 'proof-toolbar-setup "proof-toolbar"
+ "Initialize Proof General toolbar and enable it for the current buffer" t)
 
 
 ;;;
@@ -156,12 +153,18 @@ of the proof (starting from 1).")
 
 
 ;;;
-;;; Utilities/macros used in several files  (-> proof-utils)
+;;; Compatibility: define some stuff for FSF Emacs
 ;;;
 
-;;
-;; 
+(or (fboundp 'warn)
+    (defun warn (str)
+      "Issue a warning STR.  Defined by PG for XEmacs compatibility."
+      (message str)
+      (sit-for 2)))
 
+;;;
+;;; Utilities/macros used in several files  (-> proof-utils)
+;;;
 
 
 ;; -----------------------------------------------------------------
