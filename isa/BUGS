@@ -24,3 +24,27 @@ section on ML files in the manual for more details.
 Proof General will block the Emacs process when it is waiting for a
 theory file (and it's ancestors) to be read as scripting is turned on.
 To avoid this, assert the theory file rather than the ML file.
+
+** Subsection Interaction with theory database
+
+Isabelle Proof General uses some support from Isabelle to remove and
+reload theories from the theory database.  To maintain consistency,
+Isabelle is rather conservative.  So re-asserting a retracted file will
+often re-load it, even if it has not changed.  (This is because the
+file may have implicit dependencies on things in the global ML
+environment not made apparent by the theory structure).  
+This may lead to seemingly unnecessary repetition of time-consuming
+proofs, so be careful not to retract more than you need!
+
+As of Isabelle 99-1 and Proof General 3.2, there should be much
+less unncessary re-loading of theories; be careful to use Isabelle's
+mechanisms of declaring dependencies in theory file headers.
+
+** Clash with SML mode
+
+Since Isabelle proof scripts are not differentiated from `.ML' files,
+Proof General may compete with `sml-mode' (if you use it) for
+controlling these buffers.  To ensure Proof General wins, load it last.
+
+Workaround: use another extension for real ML files, e.g.  `.sml',
+and disable `.ML' from entering `sml-mode'.
