@@ -10,8 +10,8 @@
 # $Id$
 #
 
-#PGHOME=/usr/share/emacs/ProofGeneral
-PGHOME=~/ProofGeneral
+PGHOME=/usr/share/emacs/ProofGeneral
+#PGHOME=~/ProofGeneral
 
 if which xemacs > /dev/null; then 
     EMACS=xemacs
