@@ -739,7 +739,7 @@ to write regular expressions, you can make:
 @b{Your Proof General} for your favourite proof assistant.@*
 For more details of how to make Proof General work
 with another proof assistant,
-see the accompanying manual @i{Adapting Proof General}
+see the accompanying manual @i{Adapting Proof General}.
 @end itemize
 Note that there is some variation between the features supported by
 different instances of Proof General.  The main variation is proof by
