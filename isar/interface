@@ -7,7 +7,7 @@
 
 ## diagnostics
 
-PRG=$(basename $0)
+PRG=$(basename "$0")
 
 function usage()
 {
@@ -38,7 +38,7 @@ function fail()
 
 ## process command line
 
-export PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo $PWD)
+export PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo "$PWD")
 
 
 # options
@@ -86,7 +86,7 @@ shift $(($OPTIND - 1))
 # args
 
 FILES="$@"
-shift $#
+shift "$#"
 
 [ -z "$FILES" ] && FILES="Scratch.thy"
 
