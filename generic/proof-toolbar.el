@@ -54,7 +54,9 @@
     (restart	"Restart"	"Restart scripting (clear all locked regions)" t)
     (qed	"QED"		"Close/save proved theorem" t)
     (command    "Command"	"Issue a non-scripting command")
-    (info	"Info"		"Show proof assistant information" t))
+    (info	"Info"		"Show proof assistant information" t)
+    (find	"Find"		"Find something from the proof assistant" t)
+    (help	"Help"		"Proof General manual" t))
 "Example value for proof-toolbar-entries.
 This gives a bare toolbar that works for any prover.  To add
 prover specific buttons, see documentation for proof-toolbar-entries
@@ -201,11 +203,14 @@ to the default toolbar."
 	    ;; Ensure current buffer will display this toolbar
 	    (set-specifier default-toolbar proof-toolbar (current-buffer))
 	    ;; Set the callback for updating the enablers
-	    (add-hook 'proof-state-change-hook 'proof-toolbar-refresh))
+	    (add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
+	    ;; A rather pervasive hook
+	    (add-hook 'after-change-functions 'proof-toolbar-refresh))
 	
 	;; Disabling toolbar: remove specifier and state change hook.
 	(remove-specifier default-toolbar (current-buffer))
-	(remove-hook 'proof-state-change-hook 'proof-toolbar-refresh))))
+	(remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
+	(remove-hook 'after-change-functions 'proof-toolbar-refresh))))
 
 (defun proof-toolbar-toggle (&optional force-on)
   "Toggle display of Proof General toolbar."
@@ -214,17 +219,19 @@ to the default toolbar."
        (or force-on (not proof-toolbar-inhibit)))
   (proof-toolbar-setup))
 
-(defun proof-toolbar-refresh ()
+(defun proof-toolbar-refresh (&rest args)
   "Force refresh of toolbar display to re-evaluate enablers.
 This function needs to be called anytime that enablers may have 
 changed state."
+  ;; FIXME: could improve performance here and reduce flickeryness
+  ;; by caching result of last evaluation of enablers.  If nothing
+  ;; has changed, don't remove and re-add.
   (if (featurep 'toolbar)		; won't work in FSF Emacs
       (progn
 	;; I'm not sure if this is "the" official way to do this,
 	;; but it's what VM does and it works.
 	(remove-specifier default-toolbar (current-buffer))
 	(set-specifier default-toolbar proof-toolbar (current-buffer)))))
-  
 
 ;;
 ;; =================================================================
@@ -407,6 +414,27 @@ Move point if the end of the locked position is invisible."
   (proof-shell-available-p))
 
 (defalias 'proof-toolbar-command 'proof-execute-minibuffer-cmd)
-  
+
+;;
+;; Help button
+;;
+ 
+(defun proof-toolbar-help-enable-p () 
+  t)
+
+(defun proof-toolbar-help ()
+  (info "ProofGeneral"))
+
+;;
+;; Find button
+;;
+ 
+(defun proof-toolbar-find-enable-p () 
+  (proof-shell-available-p))
+
+(defun proof-toolbar-find ()
+  nil)
+
+ 
 ;; 
 (provide 'proof-toolbar)
