@@ -11,6 +11,35 @@
 
 (require 'proof)
 
+;; Nuke some byte compiler warnings.
+
+(eval-when-compile
+  (require 'comint)
+  (require 'font-lock))
+
+;; Spans are our abstraction of extents/overlays.
+(eval-when-compile
+  (cond ((fboundp 'make-extent) (require 'span-extent))
+	((fboundp 'make-overlay) (require 'span-overlay))))
+
+
+;; FIXME:
+;; Autoloads for proof-script (added to nuke warnings,
+;; maybe should be 'official' exported functions in proof.el)
+;; This helps see interface between proof-script / proof-shell.
+(eval-when-compile
+  (mapcar (lambda (f) 
+	    (autoload f "proof-script"))
+	  '(proof-goto-end-of-locked
+	    proof-insert-pbp-command
+	    proof-detach-queue 
+	    proof-locked-end 
+	    proof-set-queue-endpoints
+	    proof-file-to-buffer 
+	    proof-register-possibly-new-processed-file
+	    proof-restart-buffers
+	    proof-dont-show-annotations)))
+
 ;; Internal variables used by shell mode
 ;;
 
@@ -25,7 +54,7 @@ Set in proof-shell-mode.")
 (defvar proof-marker nil 
   "Marker in proof shell buffer pointing to previous command input.")
 
-
+(defvar proof-action-list nil "action list")
 
 
 
@@ -915,6 +944,7 @@ how far we've got."
 ;; OLD COMMENT: "This has to come after proof-mode is defined"
 
 ;;###autoload
+(eval-when-compile			; so that vars are defined
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof General shell mode class for proof assistant processes"
   (setq proof-buffer-type 'shell)
@@ -946,7 +976,7 @@ how far we've got."
   (setq proof-re-term-or-comment 
 	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
 		"\\|" (regexp-quote proof-comment-end)))
-  )
+  ))
 
 
 (easy-menu-define proof-shell-menu
@@ -980,14 +1010,17 @@ how far we've got."
       (error "Failed to initialise proof process")))
   )
 
+(eval-when-compile			; so that vars are defined
 (define-derived-mode pbp-mode fundamental-mode 
   proof-mode-name "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
-  (suppress-keymap pbp-mode-map 'all)
 ;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
-  (proof-define-keys pbp-mode-map proof-universal-keys)
-  (erase-buffer))
+  (erase-buffer)))
+
+(suppress-keymap pbp-mode-map 'all)
+(proof-define-keys pbp-mode-map proof-universal-keys)
+
 
 
 

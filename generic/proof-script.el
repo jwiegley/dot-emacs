@@ -23,33 +23,21 @@
   (require 'func-menu)
   (require 'comint))
 
+;; FIXME:
 ;; More autoloads for proof-shell (added to nuke warnings,
-;; maybe should be 'official' exported functions in proof.el)
-(autoload 'proof-shell-ready-prover "proof-shell")
-(autoload 'proof-start-queue "proof-shell")
-(autoload 'proof-shell-live-buffer "proof-shell")
-(autoload 'proof-shell-invisible-command "proof-shell")
-
+;; maybe some should be 'official' exported functions in proof.el)
+;; This helps see interface between proof-script / proof-shell.
+(eval-when-compile
+  (mapcar (lambda (f) 
+	    (autoload f "proof-script"))
+	  '(proof-shell-ready-prover
+	    proof-start-queue
+	    proof-shell-live-buffer
+	    proof-shell-invisible-command)))
 
 ;;
 ;;  Internal variables used by script mode
 ;;
-
-;; FIXME da: remove proof-terminal-string.  At the moment some
-;; commands need to have the terminal string, some don't.
-;; We should assume commands are terminated at the specific level.
-
-(defvar proof-terminal-string nil 
-  "End-of-line string for proof process.")
-
-
-(defvar proof-action-list nil "action list")
-
-(defvar proof-included-files-list nil 
-  "List of files currently included in proof process.
-Whenever a new file is being processed, it gets added to the front of
-the list. When the prover retracts across file boundaries, this list
-is resynchronised. It contains files in canonical truename format")
 
 (deflocal proof-active-buffer-fake-minor-mode nil
   "An indication in the modeline that this is the *active* script buffer")
@@ -86,29 +74,6 @@ This function coincides with `append-element' in the package
   (if elt
       (append ls (list elt))
     ls))
-
-(defun proof-define-keys (map kbl)
-  "Adds keybindings KBL in MAP.
-The argument KBL is a list of tuples (k . f) where `k' is a keybinding
-(vector) and `f' the designated function."
-  (mapcar
-   (lambda (kbl)
-     (let ((k (car kbl)) (f (cdr kbl)))
-         (define-key map k f)))
-   kbl))
-
-(defun proof-string-to-list (s separator) 
-  "Return the list of words in S separated by SEPARATOR."
-  (let ((end-of-word-occurence (string-match (concat separator "+") s)))
-    (if (not end-of-word-occurence)
-        (if (string= s "") 
-            nil
-          (list s))
-      (cons (substring s 0 end-of-word-occurence) 
-            (proof-string-to-list 
-             (substring s
-                        (string-match (concat "[^" separator "]")
-                                      s end-of-word-occurence)) separator)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1400,20 +1365,6 @@ sent to the assistant."
 	    (lambda ()
 	      (setq proof-script-buffer-list
 		    (remove (current-buffer) proof-script-buffer-list))))))
-
-;; FIXME: da: could we put these into another keymap already?
-;; FIXME: da: it's offensive to experienced users to rebind global stuff
-;;        like meta-tab, this should be removed.
-(defconst proof-universal-keys
-  (append
-   '(([(control c) (control c)] . proof-interrupt-process)
-    ([(control c) (control v)] . proof-execute-minibuffer-cmd))
-   (if proof-tags-support
-       '(([(meta tab)]	       . tag-complete-symbol))
-     nil))
-"List of keybindings which for the script and response buffer. 
-Elements of the list are tuples (k . f) 
-where `k' is a keybinding (vector) and `f' the designated function.")
 
 ;; Fixed definitions in proof-mode-map, which don't depend on
 ;; prover configuration.

@@ -25,26 +25,13 @@
 ;;     5a. commands
 ;;     5b. regexps
 ;;     5c. hooks
+;;  6. Global constants 
 ;;
-;; The user options don't need to be set on a per-prover basis.
-;; The remaining variables in sections 2-5 do.
+;; The user options don't need to be set on a per-prover basis,
+;; and the global constants probably should not be touched.
+;; The remaining variables in sections 2-5 must be set for
+;; each proof assistant.
 ;;
-
-;;
-;; 0. Global constants
-;; 
-
-(defcustom proof-mode-name "Proof-General"
-  "Root name for proof script mode.  
-Used internally and in menu titles."
-  :type 'string
-  :group 'proof-internal)
-
-(defcustom proof-general-home-page
-  "http://www.dcs.ed.ac.uk/home/proofgen"
-  "*Web address for Proof General"
-  :type 'string
-  :group 'proof-internal)
 
 
 
@@ -638,6 +625,37 @@ data triggered by `proof-shell-retract-files-regexp'."
 
 
 
+
+;;
+;; 6. Global constants
+;; 
+(defcustom proof-mode-name "Proof-General"
+  "Root name for proof script mode.  
+Used internally and in menu titles."
+  :type 'string
+  :group 'proof-internal)
+
+(defcustom proof-general-home-page
+  "http://www.dcs.ed.ac.uk/home/proofgen"
+  "*Web address for Proof General"
+  :type 'string
+  :group 'proof-internal)
+
+;; FIXME: da: could we put these into another keymap already?
+;; FIXME: da: it's offensive to experienced users to rebind global stuff
+;;        like meta-tab, this should be removed.
+(defcustom proof-universal-keys
+  (append
+   '(([(control c) (control c)] . proof-interrupt-process)
+    ([(control c) (control v)] . proof-execute-minibuffer-cmd))
+   (if proof-tags-support
+       '(([(meta tab)]	       . tag-complete-symbol))
+     nil))
+"List of keybindings which for the script and response buffer. 
+Elements of the list are tuples (k . f) 
+where `k' is a keybinding (vector) and `f' the designated function."
+  :type 'sexp
+  :group 'proof-internal)
 
 
 

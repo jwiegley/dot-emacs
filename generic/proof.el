@@ -45,7 +45,7 @@
       "Initialize Proof General and enable it for the current buffer" t))
 
 ;;;
-;;; Utilities/macros used in several files
+;;; Utilities/macros used in several files  (proof-utils)
 ;;;
 
 (defmacro deflocal (var value &optional docstring)
@@ -54,6 +54,29 @@
    (list 'defvar var 'nil docstring)
    (list 'make-variable-buffer-local (list 'quote var))
    (list 'setq-default var value)))
+
+(defun proof-string-to-list (s separator) 
+  "Return the list of words in S separated by SEPARATOR."
+  (let ((end-of-word-occurence (string-match (concat separator "+") s)))
+    (if (not end-of-word-occurence)
+        (if (string= s "") 
+            nil
+          (list s))
+      (cons (substring s 0 end-of-word-occurence) 
+            (proof-string-to-list 
+             (substring s
+                        (string-match (concat "[^" separator "]")
+                                      s end-of-word-occurence)) separator)))))
+
+(defun proof-define-keys (map kbl)
+  "Adds keybindings KBL in MAP.
+The argument KBL is a list of tuples (k . f) where `k' is a keybinding
+(vector) and `f' the designated function."
+  (mapcar
+   (lambda (kbl)
+     (let ((k (car kbl)) (f (cdr kbl)))
+         (define-key map k f)))
+   kbl))
 
 ;;;
 ;;; Global variables
@@ -66,6 +89,12 @@
   "A lock indicating that the proof shell is processing.
 When this is non-nil, proof-shell-ready-prover will give
 an error.")
+
+(defvar proof-included-files-list nil 
+  "List of files currently included in proof process.
+Whenever a new file is being processed, it gets added to the front of
+the list. When the prover retracts across file boundaries, this list
+is resynchronised. It contains files in canonical truename format")
 
 (defvar proof-script-buffer-list nil
   "Scripting buffers with locked regions.
@@ -84,6 +113,17 @@ The cdr of the list of corresponding file names is a subset of
 
 (defvar proof-shell-proof-completed nil
   "Flag indicating that a completed proof has just been observed.")
+
+;; FIXME da: remove proof-terminal-string.  At the moment some
+;; commands need to have the terminal string, some don't.
+;; It's used variously in proof-script and proof-shell.
+;; We should assume commands are terminated at the specific level.
+
+(defvar proof-terminal-string nil 
+  "End-of-line string for proof process.")
+
+
+
 
 (provide 'proof)
 ;; proof.el ends here
