@@ -169,7 +169,8 @@ Usage: (defpgcustom SYM &rest ARGS)."
 
 (defmacro proof-ass (sym)
   "Return the value for SYM for the current prover."
-  (eval `(proof-ass-sym ,sym)))
+  ;; (eval `(proof-ass-sym ,sym))
+  `(symbol-value (proof-ass-symv ',sym))) ;; [Stefan Monnier]
 
 (defun proof-defpgdefault-fn (sym value)
   "Helper for `defpgdefault', which see.  SYM and VALUE are evaluated."
@@ -267,7 +268,7 @@ user accidently killing an associated buffer."
 (defun proof-define-keys (map kbl)
   "Adds keybindings KBL in MAP.
 The argument KBL is a list of tuples (k . f) where `k' is a keybinding
-(vector) and `f' the designated function."
+\(vector) and `f' the designated function."
   (mapcar
    (lambda (kbl)
      (let ((k (car kbl)) (f (cdr kbl)))
