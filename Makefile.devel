@@ -176,7 +176,7 @@ dist:	cvsclean
 	tar -cvhf $(DISTBUILDIR)/$(RELEASENAME).tar -C $(DISTBUILDIR) $(RELEASENAME)
 	gzip -9 $(DISTBUILDIR)/$(RELEASENAME).tar
 	@echo "*************************************************"
-	@echo " Finished."
+	@echo " Finished making dist."
 	@echo "*************************************************"
 
 
@@ -194,7 +194,9 @@ release: tag dist
 	mkdir -p $(RELEASEDIR)
 	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME) $(NAME))
-
+	@echo "*************************************************"
+	@echo " Finished installing dist."
+	@echo "*************************************************"
 
 
 
