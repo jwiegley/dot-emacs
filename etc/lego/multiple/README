@@ -29,5 +29,5 @@ Test Protocol
 14) assert B                  EFFECTS A* B* C  D?
 15) assert C                  EFFECTS A* B* C* D?
 16) retract to middle of B    EFFECTS A* B+ C  D?
-14) M-x proof-restart-script  EFFECTS A  B  C  D
+14) M-x proof-shell-restart   EFFECTS A  B  C  D
 

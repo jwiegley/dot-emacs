@@ -31,7 +31,7 @@ Borrowed from Thomas's lego tests:  (v 1.2)
 15) assert C                  EFFECTS A* B* C* D? [everything locked]
 16) retract to middle of B    EFFECTS A* B+ C  D?
 	BROKEN!  Now retracts whole thing.
-14) M-x proof-restart-script  EFFECTS A  B  C  D  
+14) M-x proof-shell-restart   EFFECTS A  B  C  D  
 
 
 MORE TESTS NEEDED FOR ISABELLE:
