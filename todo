@@ -6,55 +6,62 @@ Proof General Low-level List of Things to Do
 $Id$
 
 
+* Contents
+==========
+
+ * Priorities
+ * Things to do in the generic interface
+ * Things to do for Proof-by-Pointing
+ * Things to do for Lego
+ * Things to do for Coq
+ * Things to do for Isabelle
+ * FSF Emacs issues
+ * Stable version release checklist
+ * Things to do for Proof General Project
+
+
+
 * Priorities
 ============
 
 A  (URGENT) to be fixed immediately for next pre-release 
 B           to be fixed before next release (Version 2.1)
-C          would be nice to fix before release of 2.1; but not crucial
-D (Medium) desirable to fix at some point
-X (Low)    probably not worth wasting time on
+C           would be nice to fix before release of 2.1; but not crucial
+D (Medium)  desirable to fix at some point
+X (Low)     probably not worth spending time on
 
 
-* This is a list of things which need doing in the generic interface
-====================================================================
 
-A Obscure BUGS to investigate:
-  - FSF Emacs (showstopper): highlighting of locked region and queue
-    region seems faulty nowadays.  Going back to 2.0 does not fix
-    problem, on 20.2 or 20.3
-  - Thomas has a bizarre .emacs file which causes Seg Faults with
-    Proof General and FSF Emacs.  Doesn't happen with "emacs -q".
-    Investigate which package/setting he adds is to blame.
-  - outline mode when proof-strict-read-only is nil ought to
-    work, but there may be problems.
-  - bug mentioned by Martin H. with Lego: "don't know what I should
-    be doing..." error when it shouldn't happen.
-  - startup delay when running XEmacs remotely and local display
-    is 8 bit.  Suspect an XEmacs issue to do with face allocations.
+
+
+* Things to in the generic interface
+====================================
+
+A Usability enhancements:
+   1. Movement of point after assert/retract commands
+        - configure by default for one command/line.
+	- Add option for many commands per line.
+	- Maybe shell like behaviour with pressing return?
+   2. Optional argument to delete region removed from C-c C-u
+   3. Extra toolbar and menu commands
+	- Toolbar button to display current proof state
+
+D bug: outline mode when proof-strict-read-only is nil ought to
+  work, but there may be problems.
+
+D bug: mentioned by Martin H. with Lego: "don't know what I should
+  be doing..." error when it shouldn't happen.
 
 C Improve Makefile.devel, Makefile, ProofGeneral.spec by abstracting
   ELISP_DIRS somehow.
 
 D Update logo to include new "???" prover badge  (maybe it should be 
-  "...")
+  "...") from graphics file elsewhere (da)
 
 D Add etc/announce to web pages somewhere.
 
 B Improve relocatability of RPM package, and produce package for XEmacs
   which installs directly under ~/.xemacs/packages.
-
-B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
-  Technical Report.  
-
-   * Fix page rearrangement to insert a blank page
-   * Fix typos/other stuff found by Dave.
-   * Suggestions, typos, contributions by Healf.  
-     (Dave has email)
-   * Improve trivial and uniformative docstrings.
-   * Fixup markup mistakes by editing docstrings.
-   * Update menus in texi
-  [6 hours]
 
 C Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.
@@ -489,8 +496,9 @@ X Idea for future re-engineering:
    moment.
 
 
-* Proof-by-Pointing
-===================
+
+* Things to do for Proof-by-Pointing
+====================================
 
 B Change proof by pointing (pbp) stuff into proofstate buffer stuff.
   (1h tms)
@@ -511,8 +519,9 @@ X pbp code doesn't quite accord with the tech report; in particular it
   --- djs: probably not much faster, actually.
 
 
-* Here are things to be done to Lego mode
-=========================================
+
+* Things to do for Lego
+=======================
 
 C In LEGO, apart from Goal...Save pairs, we have
   declaration...discharge pairs. See the section "Granularity of
@@ -545,8 +554,9 @@ X Mechanism to save object file. Specifically, after having processed
   However, there is currently no LEGO command to do this.  [4h]
 
 
-* Here are things to be done to Coq mode
-========================================
+
+* Things to do for Coq
+======================
 
 A C-c C-c breaks the coherence with prover state
 
@@ -572,8 +582,9 @@ D Improve coqtags. It cannot handle lists e.g., with
   it only tags x but not y. [The same problem exists for legotags]
 
 
-* Here are things to be done to Isabelle Mode
-=============================================
+
+* Things to do for Isabelle
+===========================
 
 A Multiple files needs careful testing.  There are cases when
   retracting asks for files to be removed which were never loaded.
@@ -608,8 +619,14 @@ X Write perl scripts to generate TAGS file for ML and thy files.
 X Manage multiple proofs (markers in possibly different buffers)
 	 
 
-* FSF Emacs
-===========
+
+* FSF Emacs issues
+==================
+
+A bug: FSF Emacs problem (showstopper): highlighting of locked region
+  and queue region seems faulty nowadays for me (da). 
+  Only tested on Linux. 
+  Going back to 2.0 does not fix problem, on 20.2 or 20.3
 
 C `proof-zap-commas-region' does not work for Emacs 20.2 on
   lego/example.l . On *initially* fontifying the buffer,
@@ -618,6 +635,10 @@ C `proof-zap-commas-region' does not work for Emacs 20.2 on
 
 C proof-shell-dont-show-annotations doesn't seem to work.
 
+X possible bug: Thomas had a bizarre .emacs file which causes 
+  Seg Faults with Proof General and FSF Emacs.  Doesn't happen 
+  with "emacs -q". Investigate which package/setting he adds is to blame.
+
 
 * Bugs in other packages beyond our control
 ===========================================
@@ -625,12 +646,20 @@ C proof-shell-dont-show-annotations doesn't seem to work.
 . Odd behaviour of font-lock in elisp buffers when long strings
 contain lines with stuff that looks lisp-ish.  e.g. "(asd . ads)"
 
+. oddity: startup delay when running XEmacs remotely and local display
+is 8 bit.  Suspect an XEmacs issue to do with face allocations.
+Also huge delay in buffers for Isabelle mode which try to highlight
+binders (removed because they appear inside strings anyway)
 
-* Stable version release checklist
-==================================
+
+
+
+* New Stable Version Release checklist
+======================================
 
 0. Make all files have same CVS branch with cvs commit -f 
    (only seems to work locally, not via cvs server).
+   Innessential convention.  Could increment head number.
 1. Test multiple file test suite for LEGO, Isabelle.  Coq example.
 2. Check case with FSF Emacs
 3. Check case with compiled code, for XEmacs only.
@@ -639,10 +668,34 @@ contain lines with stuff that looks lisp-ish.  e.g. "(asd . ads)"
      README, doc/ProofGeneral.texi, html/download.html
 5. ProofGeneral.texi docstring magic is up-to-date:
      cd doc; make magic
-6. Update Emacs versions in texi, html/ 
+6. Update Emacs and prover versions in texi, html/ 
 7. Check web page references from other places.
 8. Validate web pages if they're changed much.
 
    
 
+
+* Things to do for Proof General Project
+========================================
+
+A Try to get small project grant from LFCS to help with
+  development of Proof General
+
+A Find new person to help maintain Coq Proof General
+
+A Polish ProofGeneral.texi and publish LaTeX as an LFCS
+  Technical Report.  
+
+   * Fix page rearrangement to insert a blank page
+   * Fix typos/other stuff found by Dave.
+   * Suggestions, typos, contributions by Healf.  
+     (Dave has email)
+   * Improve trivial and uniformative docstrings.
+   * Fixup markup mistakes by editing docstrings.
+   * Update menus in texi
+  [6 hours]
+
+A Write paper for system demonstration of Proof General
+  for some conference.  Write paper on design and
+  development of Proof General.
 
