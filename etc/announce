@@ -62,7 +62,7 @@ Summary of changes since 2.1:
   http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/CHANGES
 
 The user manual contains full details, and is available on-line at: 
-http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/doc/ProofGeneral_toc.html
+http://zermelo.dcs.ed.ac.uk/~proofgen/index.phtml?page=doc
 
 Proof General needs a recent version of Emacs to run with, and it much
 prefers XEmacs to FSF GNU Emacs.  Proof General 3.0 has been tested
