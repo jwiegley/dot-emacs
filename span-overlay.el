@@ -1,10 +1,13 @@
-;;; This file implements spans in terms of extents, for xemacs.
+;;; This file implements spans in terms of overlays, for emacs19.
 ;;; Copyright (C) 1998 LFCS Edinburgh
 ;;; Author: Healfdene Goguen
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.6  1998/06/02 15:36:51  hhg
+;; Corrected comment about this being for emacs19.
+;;
 ;; Revision 1.5  1998/05/29 09:50:10  tms
 ;; o outsourced indentation to proof-indent
 ;; o support indentation of commands
@@ -49,31 +52,34 @@
 (defsubst span-end (span)
   (overlay-end span))
 
-(defun add-span-aux (span l)
-  (cond (l (if (or (not (span-start l))
-		   (and (span-start span)
-			(< (span-start span) (span-start l))))
-	       (progn
-		 (overlay-put l 'before
-			      (add-span-aux span (overlay-get l 'before)))
-		 l)
-	     (overlay-put span 'before l)
-	     span))
-	(t (overlay-put span 'before nil)
-	   span)))
-
-(defun add-span (span)
-  (setq last-span (add-span-aux span last-span))
-  span)
-
-(defun make-span (start end)
-  (add-span (make-overlay start end)))
-
 (defsubst span-property (span name)
   (overlay-get span name))
 
 (defsubst set-span-property (span name value)
   (overlay-put span name value))
+
+(defun span-lt (s t)
+  (or (not (span-start t))
+      (and (span-start s)
+	   (< (span-start s) (span-start t)))))
+
+(defun add-span (span)
+  (if last-span
+      (let ((l last-span) (cont (span-lt span l)) tmp)
+	(while (and l cont)
+	  (if (not (span-property l 'before))
+	      (setq cont nil)
+	    (setq l (span-property l 'before))
+	    (setq cont (span-lt span l))))
+	(setq tmp (span-property l 'before))
+	(set-span-property l 'before span)
+	(set-span-property span 'before tmp))
+    (setq last-span span)
+    (set-span-property span 'before nil))
+  span)
+
+(defun make-span (start end)
+  (add-span (make-overlay start end)))
 
 (defun remove-span-aux (span l)
   (cond ((not l) (error "Bug: removing span from empty list"))
