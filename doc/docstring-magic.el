@@ -15,14 +15,16 @@
 (load "proof-config.el")
 (load "proof.el")
 (load "proof-toolbar.el")
-;; New ones first incase they duplicate variable names
-;; accidently. 
+
+;; FIXME: Loading several prover files at once is a bit of a problem
+;; with new config mechanism.
 (load "isar.el")
 (load "plastic.el")
 (load "isa.el")
 (load "thy-mode.el")
 (load "coq.el")
 (load "lego.el")
+(load "hol98.el")
 ;; A couple of comint symbols are mentioned in the docs
 (require 'comint)
 

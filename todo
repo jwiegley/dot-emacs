@@ -27,6 +27,13 @@ D		e.g. desirable to fix at some point
 X (Low)		e.g. probably not worth spending time on
 
 
+*** Extremely urgent bits
+
+A Fix docstring-magic somehow so that multiple instances of PG can
+  be loaded at the same time.  Looks like will have to redefine
+  the proof-assistant specific settings one by one, before calling
+  the specific code.
+
 *** Outstanding bugs to investigate
 
 A find C-c C-l binding and remove it.  Overriden with goto-end-of-locked.
