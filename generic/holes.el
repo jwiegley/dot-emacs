@@ -127,13 +127,17 @@ is), which is annoying.
   (defmacro hole-region-exists-p nil
 	 "Returns t if the mark is active, nil otherwise."
 	 `(not (eq mark-active nil))
-	 )))
+	 )
+  (defmacro hole-get-selection nil "see x-get-selection"
+	 '(x-get-selection))))
 
 (cond
  ((string-match "XEmacs" (emacs-version))
   (defmacro hole-region-exists-p nil "see region-exists-p"
 	 '(region-exists-p)
-	 )))
+	 )
+  (defmacro hole-get-selection nil "see get-selection"
+	 '(get-selection))))
 
 ;intialization;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq default-hole (make-detached-span))
@@ -532,7 +536,7 @@ is), which is annoying.
    "Replace the active hole by str, if no str is given, then put the selection instead."
   (if (not (active-hole-exist-p)) ()
     (replace-hole 
-     (or str (get-selection) (error "nothing to put in hole"))
+     (or str (hole-get-selection) (error "nothing to put in hole"))
      active-hole)
     ))
 
@@ -552,7 +556,7 @@ is), which is annoying.
       (replace-active-hole 
        (or str 
 			  (and (hole-region-exists-p) (copy-active-region))
-			  (get-selection) (error "nothing to put in hole")))
+			  (hole-get-selection) (error "nothing to put in hole")))
       (if nxthole (set-active-hole nxthole)
 		  (setq active-hole default-hole))
       )
@@ -626,7 +630,7 @@ is), which is annoying.
 		  ()
       (if (not (hole-region-exists-p)) 
 			 (error "nothing to put in hole")
-		  (replace-update-active-hole (get-selection))
+		  (replace-update-active-hole (hole-get-selection))
 		  (message "hole replaced")
 		  )
       )
