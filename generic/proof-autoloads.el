@@ -7,17 +7,6 @@
 
 ;;;***
 
-;;;### (autoloads (proof-thy-menu-define-deps proof-depends-process-dependencies) "old-proof-depends" "generic/old-proof-depends.el")
-
-(autoload 'proof-depends-process-dependencies "old-proof-depends" "\
-Process dependencies reported by prover, for NAME in span GSPAN.
-Called from `proof-done-advancing' when a save is processed and
-proof-last-theorem-dependencies is set." nil nil)
-
-(autoload 'proof-thy-menu-define-deps "old-proof-depends" nil nil nil)
-
-;;;***
-
 ;;;### (autoloads (proof-depends-process-dependencies) "proof-depends" "generic/proof-depends.el")
 
 (autoload 'proof-depends-process-dependencies "proof-depends" "\
@@ -34,12 +23,10 @@ Configure Proof General for proof-assistant using BODY as a setq body." nil 'mac
 
 ;;;***
 
-;;;### (autoloads (proof-indent-region proof-indent-line) "proof-indent" "generic/proof-indent.el")
+;;;### (autoloads (proof-indent-line) "proof-indent" "generic/proof-indent.el")
 
 (autoload 'proof-indent-line "proof-indent" "\
 Indent current line of proof script, if indentation enabled." t nil)
-
-(autoload 'proof-indent-region "proof-indent" nil t nil)
 
 ;;;***
 
@@ -168,8 +155,9 @@ Turn on or off support for x-symbol, initializing if necessary.
 Calls proof-x-symbol-toggle-clean-buffers afterwards." nil nil)
 
 (autoload 'proof-x-symbol-decode-region "proof-x-symbol" "\
-Call (x-symbol-decode-region A Z), if x-symbol support is enabled.
-This converts tokens in the region into X-Symbol characters." nil nil)
+Call (x-symbol-decode-region START END), if x-symbol support is enabled.
+This converts tokens in the region into X-Symbol characters.
+Return new END value." nil nil)
 
 (autoload 'proof-x-symbol-mode "proof-x-symbol" "\
 Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable.
@@ -177,7 +165,7 @@ The X-Symbol minor mode is only useful in buffers where symbol input
 takes place (it isn't used for output-only buffers)." t nil)
 
 (autoload 'proof-x-symbol-configure "proof-x-symbol" "\
-Configure the current buffer (goals or response) for X-Symbol." nil nil)
+Configure the current output buffer (goals/response/trace) for X-Symbol." nil nil)
 
 ;;;***
 
