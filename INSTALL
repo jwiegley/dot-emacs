@@ -105,12 +105,16 @@ Byte Compilation.
 -----------------
 
 Compilation of the Emacs lisp files improves efficiency but can
-sometimes cause compatibility problems.  It is not supported in this
-release.  If you want to experiment nonetheless, you can compile Proof
-General by typing 'make' in the directory where you installed it.
-This will result in lots of warnings and error messages most of which
-can be ignored. Check the Makefile sets EMACS to your Emacs
-executable.
+sometimes cause compatibility problems.  It is not properly supported
+in this release, because testing for these compatibility problems
+takes too much time.  If you want to experiment nonetheless, you can
+compile Proof General by typing 'make' in the directory where you
+installed it.  This will result in lots of warnings and error messages
+most of which can be ignored. Some files cannot be properly
+byte-compiled at the moment because they contain settings which depend
+on run-time; these will be deleted by the Makefile.  Use 'make clean'
+to remove all .elc files in case of problems.  Check the Makefile sets
+EMACS to your Emacs executable.
 
 
 Site-wide Installation

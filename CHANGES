@@ -38,6 +38,21 @@
      Also, for XEmacs, there are now (trivial) help messages in echo
      area describing the highlighted region under the mouse.
 
+*** Experimental features and new user option
+
+     There's a new user option `proof-experimental-features' which
+     is nil by default.  If you set it to t, you will (maybe after
+     restarting Proof General) enable certain experimental features.
+ 
+     In this release, the experimental features are: 
+
+        Context menu options to move spans up/down
+        Context menu dependency commands (Isabelle only, see below)
+
+     To customize this from the menu:
+  
+        Proof General -> Customize -> User Options -> Experimental features
+
 *** Proof General startup script welcomes user
  
      The "binary" (startup script) bin/proofgeneral now loads
@@ -126,6 +141,9 @@
    restart.  (This behaviour will improve once better integrated 
    with Isabelle).
 
+   NB this is classed as an experimental feature, so you must set
+   proof-experimental-features to enable it.
+   
    Not yet documented.    Comments and suggestions welcome.
 
 
