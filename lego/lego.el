@@ -8,6 +8,7 @@
 ;;
 
 (require 'proof)
+;;FIXME: proof-script should be autoloaded
 (require 'proof-script)
 
 ;;FIXME: proof-shell should be autoloaded
