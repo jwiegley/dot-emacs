@@ -176,7 +176,6 @@ Proof General.
 * Demonstration Instantiations::
 * Function Index::              
 * Variable Index::              
-* Keystroke Index::             
 * Concept Index::               
 @end menu
 @end ifinfo
