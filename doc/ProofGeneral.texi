@@ -80,6 +80,9 @@ END-INFO-DIR-ENTRY
 @subtitle Proof General @value{version}
 @subtitle @value{last-update}
 @iftex
+@vskip 1cm
+@c This .eps file takes 8.4M!  A pity texi can't seem
+@c to deal with gzipped files? (goes down to 1.7M).
 @image{ProofGeneral}
 @end iftex
 @author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
@@ -1589,10 +1592,9 @@ The default value is @code{nil}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-prog-name-guess
-@defopt proof-prog-name-guess
-If non-nil, ProofGeneral tries to run `make -n' to guess
-the command line arguments for the proof assistant
-(Currently implemented for Coq only)
+@defopt proof-prog-name-guess 
+If non-nil, use @samp{@code{proof-guess-command-line}} to guess @code{proof-prog-name}.@*
+This option is compatible with @code{proof-prog-name-ask}.
 
 The default value is @code{nil}.
 @end defopt
@@ -1656,10 +1658,26 @@ If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!)
 
+The default value for @code{proof-strict-read-only} depends on which
+version of Emacs you are using.  In FSF Emacs, strict read only is buggy
+when it used in conjunction with font-lock, so it is disabled by default.
+
 The default value is @code{strict}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-strict-read-only
+@defopt proof-strict-read-only 
+Whether Proof General is strict about the read-only region in buffers.@*
+If non-nil, an error is given when an attempt is made to edit the
+read-only region.  If nil, Proof General is more relaxed (but may give
+you a reprimand!)
+
+The default value for @code{proof-strict-read-only} depends on which
+version of Emacs you are using.  In FSF Emacs, strict read only is buggy
+when it used in conjunction with font-lock, so it is disabled by default.
+
+The default value is @code{strict}.
+@end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-script-indent
 @defopt proof-script-indent 
@@ -2303,7 +2321,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$"))}.
+The default value is @code{((isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (plastic "Plastic" "\\.lf$"))}.
 @end defopt
 
 @node Major modes used by Proof General
@@ -2976,7 +2994,7 @@ Where Proof General image files are installed. Ends with slash.
 
 @c TEXI DOCSTRING MAGIC: proof-info-directory
 @defvar proof-info-directory 
-Where Proof General Info files are installed.
+Where Proof General Info files are installed. Ends with slash.
 @end defvar
 
 
@@ -2991,7 +3009,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isa} @code{'lego} @code{'coq}.
+A list of symbols chosen from: @code{'isa} @code{'lego} @code{'coq} @code{'plastic}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
@@ -3006,7 +3024,7 @@ edit the file @samp{proof-site.el} itself.
 
 Note: to change proof assistant, you must start a new Emacs session.
 
-The default value is @code{(isa lego coq)}.
+The default value is @code{(isa lego coq plastic)}.
 @end defopt
 
 The file @file{proof-site.el} also defines a version variable.
