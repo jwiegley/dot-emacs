@@ -50,12 +50,12 @@
 ;; ----- coq specific menu
 
 (proof-defass-default menu-entries
-  '(["Intros" coq-Intros]
-    ["Apply"  coq-Apply]
-    ["Search isos" coq-SearchIsos]
-    ["Begin Section" coq-begin-Section]
-    ["End Section" coq-end-Section]
-    ["Compile" coq-Compile]))
+  '(["Intros" coq-Intros t]
+    ["Apply"  coq-Apply t]
+    ["Search isos" coq-SearchIsos t]
+    ["Begin Section" coq-begin-Section t]
+    ["End Section" coq-end-Section t]
+    ["Compile" coq-Compile t]))
 
 
 ;; ----- coq-shell configuration options
