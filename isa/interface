@@ -29,6 +29,7 @@ usage()
   echo "    -I BOOL      use Isabelle/Isar instead of classic Isabelle (default $ISAR)"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
+  echo "    -m MODE      add print mode for output"
   echo "    -p NAME      Emacs program name (default xemacs)"
   echo "    -u BOOL      use personal .emacs file (default true)"
   echo "    -w BOOL      use window system (default true)"
@@ -53,6 +54,7 @@ fail()
 
 # options
 
+ISABELLE_OPTIONS=""
 LOGIC="$ISABELLE_LOGIC"
 PROGNAME="xemacs"
 INITFILE="true"
@@ -63,7 +65,7 @@ XSYMBOLSETUP=true
 getoptions()
 {
   OPTIND=1
-  while getopts "I:X:l:p:u:w:x:" OPT
+  while getopts "I:X:l:m:p:u:w:x:" OPT
   do
     case "$OPT" in
       I)
@@ -74,6 +76,13 @@ getoptions()
         ;;
       l)
         LOGIC="$OPTARG"
+        ;;
+      m)
+        if [ -z "$ISABELLE_OPTIONS" ]; then
+          ISABELLE_OPTIONS="-m $OPTARG"
+        else
+          ISABELLE_OPTIONS="$ISABELLE_OPTIONS -m $OPTARG"
+        fi
         ;;
       p)
         PROGNAME="$OPTARG"
@@ -152,5 +161,6 @@ PROOFGENERAL_LOGIC="$LOGIC"
 PROOFGENERAL_XSYMBOL="$XSYMBOL"
 
 export PROOFGENERAL_HOME PROOFGENERAL_ASSISTANTS PROOFGENERAL_LOGIC PROOFGENERAL_XSYMBOL
+export ISABELLE_OPTIONS
 
 eval exec "$PROGNAME" "$ARGS" "$FILES"
