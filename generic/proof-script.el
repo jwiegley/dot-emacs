@@ -809,11 +809,23 @@ proof assistant and Emacs has a modified buffer visiting the file."
 	     'wait))))))
 
 (defun proof-inform-prover-file-retracted (rfile)
-  (if proof-shell-inform-file-retracted-cmd
-      (proof-shell-invisible-command
-       (proof-format-filename proof-shell-inform-file-retracted-cmd
-			      rfile)
-       'wait)))
+  (cond
+   ((stringp proof-shell-inform-file-retracted-cmd)
+    (proof-shell-invisible-command
+     (proof-format-filename proof-shell-inform-file-retracted-cmd
+			    rfile)
+     'wait))
+   ;; If it's a function it might not actually be informing the prover at all,
+   ;; but merely cleans up proof-included-files-list by its own magic.  We
+   ;; do the same thing as in proof-shell.el.  
+   ;; FIXME: clean and amalgamate this code.
+   ((functionp proof-shell-inform-file-retracted-cmd)
+    (let ((current-included proof-included-files-list))
+      (funcall proof-shell-inform-file-retracted-cmd rfile)
+      (proof-restart-buffers
+       (proof-files-to-buffers
+	(set-difference current-included
+			proof-included-files-list)))))))
 
 (defun proof-auto-retract-dependencies (cfile &optional informprover)
   "Perhaps automatically retract the (linear) dependencies of CFILE.
@@ -1317,10 +1329,25 @@ With ARG, turn on scripting iff ARG is positive."
 	     (and (eq proof-completed-proof-behaviour 'closegoal)
 		  (funcall proof-goal-command-p cmd))))
 	(proof-done-advancing-autosave span))
-      
-     ;; CASE 4:  Some other kind of command (or a nested goal).
-     (t
-      (proof-done-advancing-other span))))
+
+       ;; CASE 4: A "Require" type of command is seen (Coq).
+       ;; 
+       ((and 
+	 proof-shell-require-command-regexp
+	 (proof-string-match proof-shell-require-command-regexp cmd))
+	;; We take additional action dependent on prover
+	;; [FIXME: use same method as in proof-shell here to
+	;;  recompute proof-included-files and adjust it]
+	;; FIXME 2: we could annotate the Require ourselves
+	;; at this point to contain the buffers which are
+	;; being included!  Then undoing can retract them.
+	(funcall proof-done-advancing-require-function span cmd)
+	;; But do what we would have done anyway
+	(proof-done-advancing-other span))
+       
+       ;; CASE 5:  Some other kind of command (or a nested goal).
+       (t
+	(proof-done-advancing-other span))))
 
   ;; Finally: state of scripting may have changed now, run hooks.
   (run-hooks 'proof-state-change-hook)))

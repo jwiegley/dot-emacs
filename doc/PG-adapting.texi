@@ -1531,6 +1531,11 @@ also unlocked.
 
 If this is set to nil, no command is issued.
 
+It is also possible to set this value to a function which will
+be invoked on the name of the retracted file, and should remove 
+the ancestor files from @samp{@code{proof-included-files-list}} by some
+other calculation.
+
 See also: @code{proof-shell-inform-file-processed-cmd}, 
 @code{proof-shell-process-file}, @code{proof-shell-compute-new-files-list}.
 @end defvar
@@ -1927,7 +1932,27 @@ be set non-nil, so that when a completed file is activated for
 scripting (to do undo operations), the whole history is discarded.
 @end defvar
 
+@c TEXI DOCSTRING MAGIC: proof-shell-require-command-regexp
 
+
+@defvar proof-shell-require-command-regexp 
+A regular expression to match a Require-type of command, or nil.@*
+If set to a regexp, then @samp{@code{proof-done-advancing-require-function}}
+should also be set, and will be called immediately after the match.
+
+This can be used to adjust @samp{@code{proof-included-files-list}} based on the
+lines of script that have been processed/parsed, rather than relying
+on information from the prover.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-done-advancing-require-function
+
+
+
+
+@defvar proof-done-advancing-require-function 
+Invoked from @samp{@code{proof-done-advancing}}, see @samp{@code{proof-shell-require-command-regexp}}.@*
+The function is passed the span and the command as arguments.
+@end defvar
 @node Hooks and other settings
 @section Hooks and other settings
 

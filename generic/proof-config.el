@@ -1645,9 +1645,14 @@ also unlocked.
 
 If this is set to nil, no command is issued.
 
+It is also possible to set this value to a function which will
+be invoked on the name of the retracted file, and should remove 
+the ancestor files from `proof-included-files-list' by some
+other calculation.
+
 See also: proof-shell-inform-file-processed-cmd, 
 proof-shell-process-file, proof-shell-compute-new-files-list."
- :type '(choice string (const nil))
+ :type '(choice string (const nil)) ;; FIXME: or function
  :group 'proof-shell)
 
 (defcustom proof-auto-multiple-files nil
@@ -1678,6 +1683,24 @@ be set non-nil, so that when a completed file is activated for
 scripting (to do undo operations), the whole history is discarded."
   :type 'boolean
   :group 'proof-shell)  ;; not really proof shell
+
+(defcustom proof-shell-require-command-regexp nil
+  "A regular expression to match a Require-type of command, or nil.
+If set to a regexp, then `proof-done-advancing-require-function'
+should also be set, and will be called immediately after the match.
+
+This can be used to adjust `proof-included-files-list' based on the
+lines of script that have been processed/parsed, rather than relying
+on information from the prover."
+  :type 'regexp
+  :group 'proof-shell)
+
+(defcustom proof-done-advancing-require-function nil
+  "Invoked from `proof-done-advancing', see `proof-shell-require-command-regexp'.
+The function is passed the span and the command as arguments."
+  :type 'function
+  :group 'proof-shell)
+  
 
 ;; (defcustom  proof-shell-adjust-line-width-cmd nil
 
@@ -2585,6 +2608,11 @@ If this table is empty or needs adjusting, please make changes using
        '([(control c) \`] . proof-next-error)
      '("`" . proof-next-error))
    '(([(control c) (control c)] . proof-interrupt-process)
+     ([(control c) (control n)] . proof-assert-next-command-interactive)
+     ([(control c) (control u)] . proof-undo-last-successful-command)
+     ([(control c) (control p)] . proof-prf)
+     ([(control c) (control l)] . proof-layout-windows)
+     ([(control c) (control c)] . proof-interrupt-process)
      ([(control c) (control v)] . proof-minibuffer-cmd)
      ([(control c) (control w)] . pg-response-clear-displays)))
 "List of key-bindings made for the script, goals and response buffer. 

@@ -91,14 +91,14 @@ without adjusting window layout."
 ;; C-c C-c is proof-interrupt-process in universal-keys
 (define-key map [(control c) (control f)] 'proof-find-theorems)
 (define-key map [(control c) (control h)] 'proof-help)
+;; C-c C-l is proof-layout-windows in universal-keys
+;; C-c C-n is proof-assert-next-command-interactive in universal-keys
 (define-key map [(control c) (control o)] 'proof-display-some-buffers)
-(define-key map [(control c) (control l)] 'proof-layout-windows)
-(define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) (control r)] 'proof-retract-buffer)
 (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
 (define-key map [(control c) (control t)] 'proof-ctxt)
-(define-key map [(control c) (control u)] 'proof-undo-last-successful-command)
+;; C-c C-u is proof-undo-last-successful-command in universal-keys
 ;; C-c C-w is pg-response-clear-displays in universal-keys
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control backspace)] 'proof-undo-and-delete-last-successful-command)
