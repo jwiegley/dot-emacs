@@ -82,9 +82,20 @@ B SMALL DELTAS:
   - Difference in menubar appearance depending on whether X-Symbol
   is loaded before Proof General or not.
 
-
 B Have seen "confused" bug: shows up when do lots of C-c C-n as
   process is starting up.
+
+B Making undoing better.
+  Rather than calculating an undo command each time an undo command
+  is needed, another idea would be to keep the undo command in the
+  span.  Then when we amalgamate spans we can construct new undo
+  commands.  When we come to issue an undo, we either need to do
+  each undo step in turn in reverse, just the final one, or perhaps
+  some proof-assistant dependent filtering/modification of the
+  set.   At the moment, though, PG is rather keen on issuing just
+  one command to forget to some specific place in the script.
+  [Maybe a design principle is that spans should coincide with
+   undoable regions]
 
 D Why don't PG's minor modes appear on XEmacs minor mode menu?
   (C-right on status bar)
@@ -754,6 +765,20 @@ C Inoking an "Expand" command produces a new proof state. But this is
   buffer because special annotations are missing. Presumably, one
   ought to replace "Toplevel.Pr()" by "Toplevel.PR()" in the
   definition of "Expand" (see file newtop.sml [Version 1.4]). (30min)
+
+C Even with the more flexible region model, with 
+  proof-nested-goals-behaviour=closequick, Proof General doesn't
+  do quite the right thing.  Forget for a definition when inside
+  a proofstate kills off the whole proofstate.  Effectively,
+  the definition is *global* rather than local to the proofstate,
+  and could perhaps be lifted to before the goal
+  (with the lift-global nonsense not so daft after all?  Editing
+   behind the user's back is still objectionable though).
+
+  Another alternative fix would be to trigger some retraction action
+  on seeing the "Abort" regexp, rather than assuming it is the result of
+  some retraction action.  More generally this could be used for error
+  handling.
 
 C fix Pbp implementation (10h)
 

@@ -97,7 +97,7 @@ LEGO Changes
 ------------
 
 * Proofs which have no save command are now closed off automatically
-  when a new goal is begun, mirroring the behaviour of LEGO.
+  when another command arrives, so undo-redo is more flexible.
 
 
 Isabelle and Isar Changes
@@ -109,12 +109,11 @@ Isabelle and Isar Changes
   and saves of the old form val thm = result.
 
 * Proofs which are "unfinished", i.e. have no qed or result,
-  are now closed off automatically when a new goal is begun,
-  mirroring the behaviour of Isabelle.
+  are now closed off automatically, mirroring the behaviour 
+  of Isabelle.  This does not apply to Isar.
 
 * Confusing display of only last error is fixed: multiple
   error messages are now coalesced properly.
-
 
 
 Only in the developers' release
@@ -136,11 +135,12 @@ Internal changes for developers to note
   The aim is to make it easier to adapt to new proof
   assistants.
 
-* Proofs which are "unfinished", i.e. have no qed or result,
-  are now closed off automatically when a new goal is begun.
-  The new code only applies if proof-nested-goals-allowed is
-  nil (the default).  Setting this variable to t forces 
-  identical behaviour to before.  The default for Coq is t.
+* A new setting proof-completed-proof-behaviour allows for
+  more flexible ways of managing goal...save regions, including
+  automatically closing them when the first command after
+  the proof is completed arrives.  This means we can handle
+  proof assistants which do not have an explicit save command
+  now.   See the documentation of proof-completed-proof-behaviour.
 
 * Renamed some configuration variables for uniformity:
     proof-ctxt-string -> proof-context-command
