@@ -840,9 +840,9 @@ With ARG, turn on scripting iff ARG is positive."
 	(> (prefix-numeric-value arg) 0))
       (progn
 	(if proof-script-buffer 
-	    (call-interactively proof-deactivate-scripting))
-	(call-interactively proof-activate-scripting))
-    (call-interactively proof-deactivate-scripting)))
+	    (call-interactively 'proof-deactivate-scripting))
+	(call-interactively 'proof-activate-scripting))
+    (call-interactively 'proof-deactivate-scripting)))
 
 ;; This function isn't such a wise idea: the buffer will often be fully
 ;; locked when writing a script, but we don't want to keep toggling
@@ -2347,7 +2347,10 @@ finish setup which depends on specific proof assistant configuration."
   ;; Offer to save script mode buffers which have no files,
   ;; in case Emacs is exited accidently.
   (or (buffer-file-name)
-      (setq buffer-offer-save t)))
+      (setq buffer-offer-save t))
+
+  ;; Maybe turn on x-symbol mode
+  (proof-x-symbol-mode))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
