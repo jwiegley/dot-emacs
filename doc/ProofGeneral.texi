@@ -1868,6 +1868,14 @@ displayed in a fixed place on your screen and in a certain font, for
 example.  A convenient way to do this is via the user option
 @c TEXI DOCSTRING MAGIC: proof-multiple-frames-enable
 
+@defopt proof-multiple-frames-enable 
+Whether response and goals buffers have separate frames.@*
+If non-nil, Emacs will make separate frames (screen windows) for
+the goals and response buffers, by altering the Emacs variable
+@samp{@code{special-display-regexps}}.
+
+The default value is @code{nil}.
+@end defopt
 Multiple frames work best when @code{proof-auto-delete-windows} is off
 and @code{proof-dont-switch-windows} is on.
 
