@@ -82,6 +82,10 @@ to help guess the directory of files Coq says it's reinterning.")
 (defvar proof-response-buffer nil
   "The response buffer.")
 
+(defvar proof-trace-buffer nil
+  "A tracing buffer for storing ``spilled'' proof shell output.
+Spilling is active if proof-shell-spilling-output is non-nil.")
+
 (defvar proof-shell-error-or-interrupt-seen nil
   "Flag indicating that an error or interrupt has just occurred.
 Set to 'error or 'interrupt if one was observed from the proof 
