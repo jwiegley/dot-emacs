@@ -1397,11 +1397,6 @@ No action if BUF is nil."
       :active (proof-shell-live-buffer)]
      ["Exit proof assistant" proof-menu-exit
       :active (proof-shell-live-buffer)])
-    (if proof-tags-support
-	(list
-	 "----"
-	 ["Find definition/declaration" find-tag-other-window t])
-      nil)
     (list proof-help-menu)
     (list proof-buffer-menu))
   "Proof General menu for various modes.")

@@ -9,11 +9,6 @@
 ;;
 
 
-
-
-;; FIXME: this most be done before loading proof-config, shame.
-(setq proof-tags-support nil) ; we don't want it, no isatags prog. 
-
 ;; Add Isabelle image onto splash screen
 (customize-set-variable
  'proof-splash-extensions

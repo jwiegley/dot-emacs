@@ -193,7 +193,8 @@ deleted automatically.")
       :bold t))
     (t				
      (:italic t :bold t)))
-  "*Face for declaration names in proof scripts."
+  "*Face for declaration names in proof scripts.
+Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
 (defconst proof-declaration-name-face 'proof-declaration-name-face
@@ -208,7 +209,8 @@ both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
      (:foreground "orchid"))
     (t				
      (bold t)))
-  "*Face for names of tacticals in proof scripts."
+  "*Face for names of tacticals in proof scripts.
+Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
 (defconst proof-tacticals-name-face 'proof-tacticals-name-face
@@ -367,14 +369,6 @@ If a string, the format character %s will be replaced by the
 theorem name. If a function, should return a command string to
 insert when called interactively."
   :type '(choice string function)
-  :group 'prover-config)
-
-
-;; FIXME: allow this to be set in the mode fn instead.
-(defcustom proof-tags-support t
-  "If non-nil, include tags functions in menus.
-This variable should be set before requiring proof.el"
-  :type 'boolean
   :group 'prover-config)
 
 
@@ -828,16 +822,12 @@ data triggered by `proof-shell-retract-files-regexp'."
   :type 'string
   :group 'proof-general-internals)
 
-;; FIXME: da: could we put these into another keymap already?
-;; FIXME: da: it's offensive to experienced users to rebind global stuff
-;;        like meta-tab, this should be removed.
+
+;; FIXME: da: could we put these into another keymap shared across the
+;; various PG modes?
 (defcustom proof-universal-keys
-  (append
-   '(([(control c) (control c)] . proof-interrupt-process)
+  '(([(control c) (control c)] . proof-interrupt-process)
     ([(control c) (control v)] . proof-execute-minibuffer-cmd))
-   (if proof-tags-support
-       '(([(meta tab)]	       . tag-complete-symbol))
-     nil))
 "List of keybindings which for the script and response buffer. 
 Elements of the list are tuples (k . f) 
 where `k' is a keybinding (vector) and `f' the designated function."
