@@ -1880,9 +1880,13 @@ May enable proof-by-pointing or similar features.
 ; button 2 is a nuisance on 2 button mice
 ;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
   (define-key pbp-mode-map [mouse-3] 'pbp-button-action)
-  (define-key pbp-mode-map [C-mouse-3] 'proof-undo-and-delete-last-successful-command)
-  (define-key pbp-mode-map [(button3)] 'pbp-button-action)
-  (define-key pbp-mode-map [(control button3)] 'proof-undo-and-delete-last-successful-command)
+  (cond 
+   ((string-match "XEmacs" emacs-version)
+
+    (define-key pbp-mode-map [(button3)] 'pbp-button-action)
+    (define-key pbp-mode-map [(control button3)] 'proof-undo-and-delete-last-successful-command))
+   (t
+    (define-key pbp-mode-map [C-mouse-3] 'proof-undo-and-delete-last-successful-command)))
   (define-key pbp-mode-map [q] 'bury-buffer)
   (easy-menu-add proof-goals-mode-menu pbp-mode-map)
   (erase-buffer)))

@@ -2425,9 +2425,11 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
 (define-key map [(control c) (control return)] 'proof-goto-point)
-(define-key map [(control button1)]	  'proof-mouse-track-insert) ; no FSF
+(cond ((string-match "XEmacs" emacs-version)
 (define-key map [(control button3)]	  'proof-mouse-goto-point)
-(define-key map [mouse-3]		  'proof-mouse-goto-point) ; FSF
+(define-key map [(control button1)]	  'proof-mouse-track-insert)) ; no FSF
+      (t 
+(define-key map [mouse-3]		  'proof-mouse-goto-point))) ; FSF
 ;; NB: next binding overwrites comint-find-source-code.  
 (define-key map [(control c) (control f)] 'proof-find-theorems)
 (define-key map [(control c) (control h)] 'proof-help)
