@@ -1,6 +1,6 @@
 Summary:	Proof General  Theorem Prover
 Name:		ProofGeneral
-Version:	2.0
+Version:	2.0pre981008
 Release:	1
 Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
