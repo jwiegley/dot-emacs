@@ -18,7 +18,8 @@
 (defconst isar-script-syntax-table-entries 
   (append
        '(?\$ "." ?\/ "."
-	 ?\\ "w"
+	 ;; 10.8.04: changed from ?\\ "w"
+	 ?\\ "\\"
 	 ?+  "."
 	 ?-  "."
 	 ?=  "."
@@ -351,9 +352,11 @@ matches contents of quotes for quoted identifiers.")
   (list
    (cons (concat "\351" isar-long-id-stuff "\350") 'isabelle-class-name-face)
    (cons (concat "\352'" isar-id "\350") 'isabelle-tfree-name-face)
+   (cons (concat "\353'" isar-idx "\350") 'isabelle-tvar-name-face)
    (cons (concat "\353\\?'" isar-idx "\350") 'isabelle-tvar-name-face)
    (cons (concat "\354" isar-id "\350") 'isabelle-free-name-face)
    (cons (concat "\355" isar-id "\350") 'isabelle-bound-name-face)
+   (cons (concat "\356" isar-idx "\350") 'isabelle-var-name-face)
    (cons (concat "\356\\?" isar-idx "\350") 'isabelle-var-name-face)
    (cons (concat "\357" isar-id "\350") 'proof-declaration-name-face)
    (cons (concat "\357\\?" isar-idx "\350") 'proof-declaration-name-face))
