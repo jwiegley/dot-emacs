@@ -369,12 +369,8 @@ isa-proofscript-mode."
 (defun isa-mode-config ()
   (isa-mode-config-set-variables)
   (isa-init-syntax-table)
-  ;; font-lock
   (setq font-lock-keywords isa-font-lock-keywords-1)
   (proof-config-done)
-  (define-key (current-local-map) [(control c) ?I] 'isa-Intros)
-  (define-key (current-local-map) [(control c) ?a] 'isa-Apply)
-  (define-key (current-local-map) [(control c) (control s)] 'isa-Search)
   ;; outline
   ;; FIXME: do we need to call make-local-variable here?
   (make-local-variable 'outline-regexp)
