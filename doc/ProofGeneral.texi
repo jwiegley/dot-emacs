@@ -1547,24 +1547,8 @@ handling of interrupt signals.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-minibuffer-cmd
-@deffn Command proof-minibuffer-cmd cmd
-Prompt for a command in the minibuffer and send it to proof assistant.@*
-The command isn't added to the locked region.
-
-If a prefix arg is given and there is a selected region, that is
-pasted into the command.  This is handy for copying terms, etc from
-the script.
-
-If @samp{@code{proof-strict-state-preserving}} is set, and @samp{@code{proof-state-preserving-p}} 
-is configured, then the latter is used as a check that the command
-will be safe to execute, in other words, that it won't ruin
-synchronization.  If when applied to the command it returns false,
-then an error message is given.
-
-@var{warning}: this command risks spoiling synchronization if the test
-@samp{@code{proof-state-preserving-p}} is not configured, if it is
-only an approximate test, or if @samp{@code{proof-strict-state-preserving}}
-is off (nil).
+@deffn Command proof-minibuffer-cmd 
+do minibuffer cmd then undo it, if error-free.
 @end deffn
 
 As if the last two commands weren't risky enough, there's also a command
@@ -2661,7 +2645,8 @@ without adjusting window layout.
 
 @deffn Command proof-layout-windows 
 Refresh the display of windows according to current display mode.@*
-This uses a canonical layout.
+This uses a canonical layout.  
+It obeys the setting of @samp{@code{proof-eagerly-raise}} for multiple frame mode.
 @end deffn
 @node User options
 @section User options
