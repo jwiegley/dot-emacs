@@ -8,43 +8,48 @@
 
 ** Generic Changes
 
-***  Support added for Emacs 21 
+***  Support added for GNU Emacs 21.
 
-   Toolbar and splash screen supported  
-    [seems good; please tell me of any problems] 
+   Toolbar and splash screen supported.  
 
-   Fontification (as ever) is problematic due to changes
-   in font-lock, and its insiduous self-enabling actions.
-   Current status: broken in Emacs 20, working in 21.
+   X-Symbol support in progress
+
+   Fontification (as ever) is tricky.
+   Current status for X-symbol: 
+
+     broken in GNU Emacs 20(?), partly working in 21 (goals broken, script OK)
+     partly broken in XEmacs 21.4 (script buffer faulty, goals OK)
+     fully working in XEmacs 21.1
+
+   Future PG development will no longer support Emacs 20.
+
 
 *** Support for "tracing" buffers improved and enabled by default.
 
-   (Support is enabled in Isabelle only so far)
+   (Tracing is only deployed in Isabelle so far)
 
    Compared with experimental tracing in PG 3.3, there is now only one
    tracing buffer, treated somewhat like a response buffer.
 
-   When large volumes of output arrive in Emacs, as typically is the
-   case during tracing (especially tracing looping tactics!), Emacs
-   may hog the CPU and spend all its time in the process filter
-   (especially with X symbol and fontification active).  We call this
-   "choking".
+   Issues: 
 
-   If Emacs is choking, it may not process user events as swiftly as
-   normal and it can become difficult to interrupt the prover process
-   ordinarily (with the toolbar Stop button or C-c C-c).  As a
-   workaround, PG will watch for keyboard quits when it's displaying
-   trace output, and send the prover an interrupt if it sees a quit
-   has been sent.  So you should be able to interrupt with C-g during
-   choking.
+   1. Large volumes of output can cause Emacs to hog CPU spending
+   all its time processing the output (esp with fontifying and X-symbol
+   decoding).   It becomes difficult to use normal editing commands,
+   even C-c C-c to interrupt the prover.  Workaround: hitting C-g,
+   the Emacs quit key, will interrupt the prover in this state.
+   See manual for further description of this.
 
-   If the choking effect slows down your prover too much by giving
-   Emacs too much CPU, disabling output fontification by customizing
-   `proof-output-fontify-enable' may help.
+   2. Interrupt response may be lost in large volumes of output, when
+   using pty communication.  Symptom is interrupt on C-g, but PG thinks
+   the prover is still busy.  Workaround: hit return in the shell buffer,
+   or set proof-shell-process-connection-type to nil to use piped
+   communication.
+
 
 ** Isabelle Changes
 
-   Isabelle/Isar syntax changes.
+   Isabelle/Isar syntax changes, other tweaks.
 
 
 
