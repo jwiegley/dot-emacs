@@ -8,6 +8,11 @@
 
 * Summary of Changes for Proof General 3.5pre from 3.4
 
+** GNU Emacs compatibility, simplified font-lock, handling nested comments
+
+*** Numerous improvements, credit to Stefan Monnier.
+
+
 ** Generic changes
 
 *** Parsing internals changed: minor user visible differences
@@ -15,16 +20,6 @@
 Please report any problems/annoyances which may be unexpected.
 NB: Not yet enabled for Isabelle/Isar.
 
-*** Colour improvements
 
+** Colour improvements
 
-** GNU Emacs compatibility improvements
-
-*** Several improvements, credit to Stefan Monnier.
-
-
-** Coq
-
-*** Improvements to syntax handling from Stefan Monnier (nested comments)
-
- 
