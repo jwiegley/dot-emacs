@@ -6,6 +6,6 @@ Icon=proofgeneral.png
 Terminal=false
 Type=Application
 Encoding=UTF-8
-Categories=Application;Development;TextEditor
+Categories=Application;Development;TextEditor;Mathematics
 StartupWMClass=Emacs
 

@@ -104,11 +104,12 @@ fi
 # %{_mandir}/man1/*
 %{_datadir}/pixmaps/proofgeneral.png
 %{_datadir}/icons/hicolor/*/proofgeneral.png
-%{_datadir}/mime-info/proofgeneral.*
 %{_datadir}/ProofGeneral/*
 %{_datadir}/man/man1/*
 %{_datadir}/info/*.info.gz
+%{_datadir}/mime-info/proofgeneral.*
 %{_datadir}/applications/proofgeneral.desktop
+%{_datadir}/application-registry/proofgeneral.applications
 
 %files -n ProofGeneral-emacs-elc
 %defattr(-,root,root)

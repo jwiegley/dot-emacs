@@ -28,8 +28,8 @@ DEST_PREFIX=/usr
 
 PWD=$(shell pwd)
 
-ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98 phox twelf acl2 mmm
-EXTRA_DIRS = images
+ELISP_DIRS = acl2 coq demoisa generic hol98 isa isar lclam lego mmm phox plastic twelf
+EXTRA_DIRS = images x-symbol
 
 BATCHEMACS=${EMACS} -batch -q -no-site-file
 
@@ -119,22 +119,28 @@ distclean: clean
 ## Install files 
 ##
 DESKTOP_PREFIX=${PREFIX}
+
+# Set Elisp directories according to paths used in Red Hat RPMs
+# (which may or may not be official Emacs policy).  We generate
+# a pg-init.el file which loads the appropriate proof-site.el.
 ifeq ($(EMACS),xemacs) 
-ELISP=${PREFIX}/share/xemacs/site-packages/lisp/ProofGeneral
-DEST_ELISP=${DEST_PREFIX}/share/xemacs/site-packages/lisp/ProofGeneral
+ELISPP=share/xemacs/site-packages/lisp/ProofGeneral
 ELISP_START=${PREFIX}/share/xemacs/site-packages/lisp/site-start.d
 else
-ELISP=${PREFIX}/share/${EMACS}/site-lisp/ProofGeneral
-DEST_ELISP=${DEST_PREFIX}/share/${EMACS}/site-lisp/ProofGeneral
+ELISPP=share/${EMACS}/site-lisp/ProofGeneral
 ELISP_START=${PREFIX}/share/${EMACS}/site-lisp/site-start.d
 endif
 
+ELISP=${PREFIX}/${ELISPP}
+DEST_ELISP=${DEST_PREFIX}/${ELISPP}
 
 BINDIR=${PREFIX}/bin
 DESKTOP=${PREFIX}/share
 DOCDIR=${PREFIX}/share/doc/ProofGeneral
+MANDIR=${PREFIX}/share/man/man1
+INFODIR=${PREFIX}/share/info/
 
-install: install-desktop install-elisp install-extras install-bin install-init
+install: install-desktop install-elisp install-bin install-init
 
 install-desktop:
 	mkdir -p ${DESKTOP}/icons/hicolor/16x16
@@ -150,26 +156,28 @@ install-desktop:
 	mkdir -p ${DESKTOP}/mime-info
 	cp etc/desktop/mime-info/proofgeneral.mime ${DESKTOP}/mime-info
 	cp etc/desktop/mime-info/proofgeneral.keys ${DESKTOP}/mime-info
+	mkdir -p ${DESKTOP}/application-registry
+	cp etc/desktop/application-registry/proofgeneral.applications ${DESKTOP}/application-registry
 
 # NB: .el files are not strictly necessary, but we package/install them
 # for the time being to help with debugging, or for users to recompile.
 install-elisp: install-el install-elc
 
+# NB: "elisp" directory actually includes the extra subdirs in EXTRA_DIRS,
+# i.e. images, x-symbol.  FIXME: we could put these elsewhere, but
+# then we would need to adjust paths in proof-site.el.
+# FIXME 2: should deal with x-symbol properly and avoid duplication
+# with images
 install-el:
 	mkdir -p ${ELISP}
-	for f in ${ELISP_DIRS}; do mkdir -p ${ELISP}/$$f; done
+	for f in ${ELISP_DIRS} ${EXTRA_DIRS}; do mkdir -p ${ELISP}/$$f; done
 	for f in ${ELISP_DIRS}; do cp -pf $$f/*.el ${ELISP}/$$f; done
+	for f in ${EXTRA_DIRS}; do cp -prf $$f/* ${ELISP}/$$f; done
 
 install-elc: compile
 	mkdir -p ${ELISP}
 	for f in ${ELISP_DIRS} ${EXTRA_DIRS}; do mkdir -p ${ELISP}/$$f; done
 	for f in ${ELISP_DIRS}; do cp -pf $$f/*.elc ${ELISP}/$$f; done
-
-# NB: "elisp" directory actually includes extra subdirs in EXTRA_DIRS,
-# i.e. images.  FIXME: could put these elsewhere, but then need to 
-# adjust paths in proof-site.el
-install-extras:
-	mkdir -p ${ELISP}
 	for f in ${EXTRA_DIRS}; do cp -prf $$f/* ${ELISP}/$$f; done
 
 install-init:
@@ -182,8 +190,16 @@ install-bin: scripts
 	mkdir -p ${BINDIR}
 	cp -pf ${BIN_SCRIPTS} ${BINDIR}
 
-# FIXME: add install-doc to install info/man pages
+install-doc: doc.info
+	mkdir -p ${MANDIR}
+	cp -pf doc/proofgeneral.1 ${MANDIR}
+	mkdir -p ${INFODIR}
+	cp -pf doc/*.info ${INFODIR}
+	/sbin/install-info /usr/share/info/ProofGeneral.info.* ${INFODIR}/dir
+	/sbin/install-info /usr/share/info/PG-adapting.info.* ${INFODIR}/dir
 
+doc.%: 
+	(cd doc; make $*)
 
 ##
 ## scripts: try to patch bash and perl scripts with correct paths
@@ -242,7 +258,3 @@ devel.%:
 
 xemacs.%:
 	make -f Makefile.xemacs $*
-
-
-
-
