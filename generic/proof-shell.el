@@ -851,31 +851,42 @@ Fixes a bug/problem with FSF Emacs.")
 
 (defun proof-shell-insert (string)
   "Insert STRING at the end of the proof shell, call comint-send-input.
-Update the proof-marker to point to the end of the inserted text.
-This means that any output received up til now but not processed
-by the proof-shell-filter will be lost!
-This function is used by proof-send, particularly in
-proof-start-queue and proof-shell-exec-loop."
+First call proof-shell-insert-hook. Then strip STRING of carriage
+returns before inserting it and updating proof-marker to point to 
+the end of the newly inserted text.
+NB: This means that any output received up til now but not 
+processed by the proof-shell-filter will be lost!   We must be
+careful to synchronize with the process.  This function is used 
+particularly in proof-start-queue and proof-shell-exec-loop."
   (save-excursion
     (set-buffer proof-shell-buffer)
     (goto-char (point-max))
 
     ;; Lego uses this hook for setting the pretty printer
-    ;; width, Coq uses it for sending initialization string.
-    ;; da: I don't think either of these is quite right,
-    ;; but perhaps this is just a relatively harmless place
-    ;; to insert more commands?
-    ;; Of course, still must watch out for extra prompts
-    ;; (perhaps in funny places) which could break the
-    ;; synchronization.  Probably the inserted string
-    ;; should not have any CRs.
+    ;; width, Coq uses it for sending an initialization string
+    ;; (although it could presumably use proof-shell-init-cmd?).
+    ;; Paul Callaghan wants to use this hook to massage STRING
+    ;; to remove literate-style markup from input. 
     (run-hooks 'proof-shell-insert-hook)
 
-    ;; This hook added for Paul Callaghan's instantiation,
-    ;; to remove extra markup used for his "literate"
-    ;; style of input.
-    (and proof-shell-preprocess-command
-	 (setq string (funcall proof-shell-preprocess-command string)))
+    ;; Now we replace CRs from string with spaces. This was done in
+    ;; "proof-send" previously and this function 
+    ;; allowed for input with CRs to be sent.  But it was never
+    ;; used.  The only place this was called instead of proof-send
+    ;; was for proof-shell-init-cmd, but now that is sent via 
+    ;; proof-shell-invisible-command instead.
+
+    ;; HYPOTHESIS da: I don't know why proof-send strips CRs, no 
+    ;; hints were given in the original code. I assume it is needed 
+    ;; because several CR's can result in several prompts, and 
+    ;; we want to stick to the one prompt per output chunk scenario. 
+    ;; (However stripping carriage returns might just be
+    ;; plain WRONG for some theorem prover's syntax, possibly)
+
+    (let ((l (length string)) (i 0))
+      (while (< i l)
+	(if (= (aref string i) ?\n) (aset string i ?\ ))
+	(incf i)))
 
     (insert string)
     (set-marker proof-marker (point))
@@ -899,22 +910,6 @@ proof-start-queue and proof-shell-exec-loop."
 ;      (set-marker proof-marker inserted))))
 
 
-;; HYPOTHESIS da: I don't know why proof-send strips CRs, no hints
-;; were given in the original code.
-;; Perhaps it is needed because several CR's can result in
-;; several prompts, and we want to stick to the one prompt per output
-;; chunk scenario.  (However stripping carriage returns might just be
-;; plain WRONG in some cases)
-
-(defun proof-send (string)
-  "Send cleaned up version of STRING to the process using proof-shell-insert.
-The cleaned up string has carriage returns replaced by spaces."
-  (let ((l (length string)) (i 0))
-    (while (< i l)
-      (if (= (aref string i) ?\n) (aset string i ?\ ))
-      (incf i)))
-  (proof-shell-insert string))
-
 
 ; Pass start and end as nil if the cmd isn't in the buffer.
 
@@ -936,7 +931,7 @@ active scripting buffer for the queue region."
 	  (proof-grab-lock) 
 	  (setq proof-shell-delayed-output (cons 'insert "Done."))
 	  (setq proof-action-list alist)
-	  (proof-send (nth 1 item))))))
+	  (proof-shell-insert (nth 1 item))))))
 
 ; returns t if it's run out of input
 
@@ -986,7 +981,7 @@ The return value is non-nil if the action list is now empty."
 		     ;; indicate finished
 		     t)
 	    ;; Send the next command to the process
-	    (proof-send (nth 1 item))
+	    (proof-shell-insert (nth 1 item))
 	    ;; indicate not finished
 	    nil)))))
 
@@ -1491,7 +1486,7 @@ before and after sending the command."
       ;; any startup messages from proof-shell-init-cmd.
 
       (if (and proof-shell-cd t) ;  proof-rsh-command)
- 	  (proof-send
+ 	  (proof-shell-insert
 	   (format proof-shell-cd
 		   ;; under Emacs 19.34 default-directory contains "~"
 		   ;; which causes problems with LEGO's internal Cd
