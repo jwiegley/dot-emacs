@@ -67,7 +67,11 @@
 	 ((eq elt 'menuadd)
 	  )
 	 ((eq elt 'menudel)
-	  ))
+	  )
+	 ;; <parsescript>
+	 ((eq elt 'parsescript)
+	  (pg-pgip-parsescript (car-safe body)))
+	 )
 	;; Move on to next element
 	(setq pgips (cdr pgips))))
     ;; Return list  of command types processed.
@@ -294,7 +298,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Function to interface PGIP commands sent to prover.
+;; Function to dispatch PGIP commands to prover.
 ;;
 (defun pg-prover-interpret-pgip-command (pgip)
   (cond
@@ -323,7 +327,43 @@
 ;;;###autoload
 (defun pg-pgip-askprefs ()
   (pg-issue-pgip "<askprefs/>" 'block))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Provide parsing functionality for other interfaces (sacrilege!) 
+;;
   
+(defun pg-pgip-parsescript (text)
+  ;; Text ought to be cdata or something. We'll stick it into a buffer
+  ;; and run the proof-script code on it.
+  (save-excursion
+    (let ((buf (get-buffer-create " *pgip-parsescript*")))
+      (delete-region (point-min) (point-max)) ; wipe previous contents
+      (insert text)
+      (let ((semis (proof-segment-up-to (point))))
+	;; semis is now a list of (type, string, int) tuples (in reverse order).
+	;; we'll turn it into XML and send it back to the prover
+	;; FIXME: todo: make parseresult element according to types,
+	;; properscriptcmd = properproofcmd | properfilecmd | bindid
+	))))
+	
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Standalone PGIP processing -- Emacs in batch mode, yuk!
+;;
+
+;; TODO: output PGIP on stdout, read in on stdin.
+
+;; standard-input
+;; standard-output
+
+;; (defun pg-pgip-filter ()
+;;   (let (instuff outstuff)
+;;     (while (setq (read-char standard-input)) ;; reads lisp!!!
+;; )))
+
 
 (provide 'pg-pgip)
 ;; End of `pg-pgip.el'
