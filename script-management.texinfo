@@ -1,0 +1,432 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename script-management.info
+@settitle Script Management
+@paragraphindent 0
+@c %**end of header
+
+@setchapternewpage odd
+
+@titlepage
+@sp 10
+@comment The title is printed in a large font.
+@center @titlefont{Script Management Mode}
+
+@c The following two commands start the copyright page.
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1997 LEGO Team, LFCS Edinburgh
+@end titlepage
+
+@node    Top, Introduction, (dir), (dir)
+@comment node-name, next,          previous, up
+
+A @emph{proof script} is a sequence of commands to a proof assistant.
+Proof mode is a mode designed to be customised for a particular proof
+assistant, to manage communication with a proof process and thereby
+support building and secure editing of proof scripts.  Currently custom
+modes exist for LEGO and Coq.
+
+@menu
+* Introduction::          Introduction to Script Management
+* Commands::              Proof mode Commands
+* Multiple Files::        Proof developments spanning several files
+* Proof by Pointing::     Proof using the Mouse
+* An Active Terminator::  Active Terminator minor mode
+* Walkthrough::           An example of using proof mode
+* LEGO mode::             Extra Bindings for LEGO
+* Coq mode::              Extra Bindings for Coq
+* Internals::             The Seedy Underside of Proof mode
+* Known Problems::        Caveat Emptor
+@end menu
+
+@node Introduction, Commands, Top, Top
+@section Introduction
+
+Each script resides in an Emacs buffer, called a @emph{script buffer},
+which is divided into three regions:
+
+@itemize @bullet
+@item The @emph{Locked} region appears in blue (underlined on monochrome
+displays) and contains commands which have been sent to the proof process
+and verified. The commands in the locked region cannot be edited.
+
+@item The @emph{Queue} region appears in pink (inverse video) and contains
+commands waiting to be sent to the proof process. Like those in the
+locked region, these commands can't be edited.
+
+@item The @emph{Editing} region contains the commands the user is working
+on, and can be edited as normal Emacs text.
+@end itemize
+
+These three regions appear in the buffer in the order above; that is,
+the locked region is always at the start of the buffer, and the editing
+region always at the end. The queue region only exists if there is input
+waiting to be sent to the proof process.
+
+Proof mode has two operations which transfer commands between these
+regions: assertion and retraction. These cause commands to be sent to
+the proof process, and Emacs will summarise the results in the
+@emph{Response Buffer}.
+
+@strong{Assertion} causes commands from the editing region to be
+transferred to the queue region and sent one by one to the proof
+process. If the command is accepted, it is transferred to the locked
+region, but if an error occurs it is signalled to the user, and the
+offending command is transferred back to the editing region together
+with any remaining commands in the queue.  @strong{Retraction} causes commands to
+be transferred from the locked region to the editing region (again via
+the queue region) and the appropriate 'undo' commands to be sent to the
+proof process.
+
+As commands are transferred to the locked region, they are aggregated
+into segments which constitute the smallest units which can be
+undone. Typically a segment consists of a declaration or definition, or
+all the text from a `goal' command to the corresponding `save' command,
+or the individual commands in the proof of an unfinished goal.  As the
+mouse moves over the the region, the segment containing the pointer will
+be highlighted.
+
+Commands in the editing region can be freely edited while
+commands in the queue are transferred to the proof process. However,
+assertion and retraction commands can only be issued when the queue is
+empty.
+
+@node Commands, Multiple Files, Introduction, Top
+@section Proof Mode Commands
+
+@table @kbd
+
+@item C-c C-b
+assert the commands in the buffer.
+
+@item C-c return
+assert the commands in the editing region up to and
+including the one containing the point.
+
+@item C-c u
+retract the segments in the locked region back to and
+including the one containing the point. If point is outside the *Locked*
+region, the last segment is undone.
+
+@item C-c C-u
+retract the last segment in the locked region, and kill the text in it.
+@footnote{Be careful with this, as it may delete more than you anticipate.
+However, you can always recover the killed text using Emacs Undo.}
+
+@item C-c '
+move the point to the end of the locked region
+
+@item C-c C-e
+move the point to the next terminator
+
+@item C-c C-c
+interrupt the process process. This may leave script management or the
+proof process (or both) in an inconsistent state.
+
+@item C-c C-z
+move the end of the locked region backwards to the end of the segment
+containing the point. @footnote{Don't try this one at home, kids.}
+
+@item C-c C-t
+Send the command at the point to the subprocess, not
+recording it in the locked region. @footnote{This is supplied in order
+to enable the user to test the types and values of expressions. There's
+some checking that the command won't change the proof state, but it
+isn't foolproof.}
+
+@item C-c C-v
+Request a command from the minibuffer and send it to
+the subprocess. Currently no checking whatsoever is done on the command.
+@end table
+
+The command @code{proof-restart-script} can be used to completely
+restart script management.
+
+
+@node Multiple Files, An Active Terminator, Commands, Top
+@section Multiple Files
+
+Proof mode has a rudimentary facility for operating with multiple files
+in a LEGO proof development. If the user invokes script management in a
+different buffer from the one in which it is running, one of two prompts
+will appear:
+
+@itemize @bullet
+@item ``Steal script management?'' 
+if Emacs doesn't think the file is already part of the proof development
+@item ``Reprocess this file?'' 
+if Emacs thinks the file is already included in the proof process. If
+the user confirms, Emacs will cause the proof process to forget the
+contents of the file, so that it is processed afresh.
+@end itemize
+
+Currently this facility requires each script buffer to have a
+corresponding file.
+
+When working with script management in multiple buffers, it is easy
+to lose track of which buffer is the current script buffer. As a mnemonic
+aid, the word @samp{Scripting} appears in the minor mode list of the
+active scripting buffer.
+
+Caveats:
+@itemize @minus
+@item Note that if processing a buffer causes other files to be loaded 
+into the LEGO process, those files will be imported from disk rather
+than from any Emacs buffer in which it is being edited, i.e.@: if your
+file is going to be included indirectly, save it.
+
+@item However much you move around the file system in Emacs, the
+LEGOPATH will be the LEGOPATH you started with. No concept of 
+"current directory" is currently supported.
+@end itemize
+
+@node An Active Terminator, Proof by Pointing, Multiple Files, Top
+@section An Active Terminator
+
+Proof mode has a minor mode which causes the terminator to become
+active. When this mode is active, pressing the terminator key (@kbd{;}
+for LEGO, @kbd{.} for Coq) outside a comment or quote will cause the
+character to be entered into the buffer, and all the commands in the
+editing region up to the point to be asserted.
+
+This mode can be toggled with the command
+`proof-active-terminator-minor-mode' (@kbd{C-c ;} or @kbd{C-c .})
+
+@node Proof by Pointing, Walkthrough, An Active Terminator, Top
+@section Proof by Pointing
+
+@emph{This mode is currently very unreliable, and we do not guarantee
+that it will work as discussed in this document.}
+
+Proof by pointing is a facility whereby proof commands can be generated
+by using the mouse to select terms. When proving a goal, a summary of
+the current proof state will appear in the response buffer. By moving
+the mouse over the buffer, the structure of the goal and hypothesis
+terms will be shown by highlighting. 
+
+If a selection is made using the second (usually the middle) mouse
+button, Emacs will generate the appropriate commands, insert them in the
+script buffer, and send them to the proof process. These commands are
+aggregated in the locked region as a single segment, so that a
+mouse-generated command sequence can be retracted with a single
+retraction command.
+
+Further Information about proof by pointing may be found in the paper
+@cite{User Interfaces for Theorem Provers} by Yves Bertot and Laurent
+Thery, to appear in @cite{Information and Computation}, from which
+the following example is taken.
+
+@menu
+* Proof by Pointing Example::          An example using proof by pointing
+@end menu
+
+@node Proof by Pointing Example, ,Proof by Pointing,Proof by Pointing
+
+Suppose we wish to prove the lego term:
+
+@example
+(((p a) \/ (q b))  /\ @{x:Prop@}(p x) -> (q x)) -> (Ex ([x:Prop] q(x)));
+@end example
+
+Asserting this goal will result in the proof state
+
+@example
+?0 : ((p a \/ q b) /\ @{x:Prop@}(p x)->q x)->Ex ([x:Prop]q x)
+@end example
+
+appearing in the response buffer. Suppose our strategy is to use a 
+case analysis on the disjunction, starting with the @samp{p(a)} subterm.
+Clicking on this term will cause script management to insert the following
+command sequence in the script buffer, and execute it.
+
+@example
+Intros H; Refine H; Intros H0 H1; 
+Refine or_elim H0 Then Intros H2; Try Refine H2; 
+@end example
+
+
+The response buffer will then read 
+
+@example
+  H : (p a \/ q b) /\ @{x:Prop@}(p x)->q x
+  H0 : p a \/ q b
+  H1 : @{x:Prop@}(p x)->q x
+  H2 : p a
+  ?10 : Ex ([x:Prop]q x)
+@end example
+
+Clicking on the subterm @samp{(p x)} in the hypothesis H1 will instruct
+script management to prove an instance of @samp{(p x)} and deduce the
+corresponding @samp{(q x)}. The commands
+
+@example
+allE H1; intros +1 H3; Refine impl_elim H3; Try Assumption;
+@end example
+
+are inserted and executed, leaving the proof state as
+
+@example
+  H : (p a \/ q b) /\ @{x:Prop@}(p x)->q x
+  H0 : p a \/ q b
+  H1 : @{x:Prop@}(p x)->q x
+  H2 : p a
+  H3 : (p a)->q a
+  ?20 : (q a)->Ex ([x:Prop]q x)
+@end example
+
+Now clicking on the @samp{q x)} subterm in ?20 will prove the subgoal. We are
+left with the other half of the original case analysis:
+
+@example
+  H : (p a \/ q b) /\ @{x:Prop@}(p x)->q x
+  H0 : p a \/ q b
+  H1 : @{x:Prop@}(p x)->q x
+  H2 : q b
+  ?26 : Ex ([x:Prop]q x)
+@end example
+
+Clicking on @samp{q x} proves the goal.
+
+
+
+
+@node Walkthrough, LEGO mode, Proof by Pointing, Top
+@section A Walkthrough
+
+Here's a LEGO example of how script management is used.
+
+First, we turn on active terminator minor mode by typing @kbd{C-c ;}
+Then we enter 
+
+`Module Walthrough Import lib_logic;'
+
+The command should be lit in pink (or inverse video if you don't have a
+colour display).  As LEGO imports each module, a line will appear in the
+response buffer showing the creation of context marks. Eventually the
+command should turn blue, indicating that LEGO has successfully
+processed it. Then type (on a separate line if you like)
+
+@samp{Goal bland_commutes: @{A,b:Prop@} and A B -> and B A;}
+
+The goal should be echoed in the response buffer.
+
+@samp{Intros;}
+
+Whoops! @kbd{C-c C-u} to pretend that didn't happen.
+
+@samp{intros; andI;}
+
+A proof summary will appear in the response buffer. We could solve the
+goal by pointing now, but we'll stay with the keyboard.
+
+@samp{Refine H; intros; Immed; Refine H; intros; Immed;}
+
+finishes the Goal. 
+
+@samp{Save;}
+
+Moving the mouse pointer over the locked region now reveals that the
+entire proof has been aggregated into a single segment. Suppose we
+decide to call the goal something more sensible. Moving the cursor up
+into the locked region, somewhere between `Goal' and `Save', we enter
+@kbd{C-c u}.  The segment is transferred back into the editing
+region. Now we correct the goal name, move the cursor to the end of the
+buffer, and type @kbd{C-c return}.  Proof mode queues the commands for
+processing and executes them.
+
+@node LEGO mode, Coq mode, Walkthrough, Top
+@section LEGO mode
+
+LEGO mode is a mode derived from proof mode for editing LEGO scripts.
+As well as custom popup menus, it has the following commands:
+
+@table @kbd
+
+@item C-c C-p
+display the proof state in the response buffer
+
+@item C-c c
+display the context in the response buffer
+
+@item C-c c
+print LEGO help text in the response buffer
+
+@end table
+
+In addition, there are some abbreviations for common commands
+
+@table @kbd
+@item C-c i   
+intros
+@item C-c I   
+Intros
+@item C-c R   
+Refine
+@end table
+
+
+@node Coq mode, Known Problems, LEGO mode, Top
+@section Coq mode
+
+Coq mode is a mode derived from proof mode for editing Coq scripts.
+As well as custom popup menus, it has the following commands:
+
+@table @kbd
+
+@item C-c C-p
+display the proof state in the response buffer
+
+@item C-c c
+display the context in the response buffer
+
+@end table
+
+In addition, there are some abbreviations for common commands:
+
+@table @kbd
+@item C-c I   
+Intros
+@item C-c a
+Apply
+@end table
+
+@node Known Problems, Internals, Coq mode, Top
+@section Known Problems
+
+Since Emacs is pretty flexible, there are a whole bunch of things you
+can do to confuse script management. When it gets confused, it may
+become distressed, and may eventually sulk. In such instances
+@code{proof-restart-script-management} may be of use.
+
+A few things to avoid: 
+
+@itemize @minus
+@item If you're using script management with multiple files, don't start
+changing the file names.
+
+@item Script Management doesn't understand how to undo @code{Discharge}
+commands in LEGO, and any attempts it makes to do so may leave it in an
+inconsistent state. If you're undoing the effects of a @code{Discharge}
+command, retract back to the declaration of whatever gets discharged.
+
+@item Proof by Pointing doesn't work very well, and is inefficiently
+implemented. 
+
+@item The locked and queue regions are not quite read-only: in particular 
+Emacs Undo can insert text into them. 
+
+@item When a LEGO import command fails, the created "Mark" is not
+forgotten, and the proof process thinks the file has been included. So
+if you assert the command again, it will probably be accepted by LEGO,
+because the relevant mark is in the namespace.
+@end itemize
+
+Fixes for some of these may be provided in a future release.
+
+@node Internals,  , Known Problems, Top
+@section Internals
+
+I may one day document the script management internals here. Until then,
+UtSL.
+@bye
