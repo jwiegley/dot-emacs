@@ -377,6 +377,7 @@ Returns new END value."
 	  (font-lock-set-defaults))
 	(let ((font-lock-keywords proof-font-lock-keywords))
 	  (if (and proof-running-on-XEmacs
+		   (>= emacs-major-version 21)
 		   (>= emacs-minor-version 4)
 		   (not font-lock-cache-position))
 	      (progn
