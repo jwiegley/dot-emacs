@@ -1,11 +1,16 @@
 $Id$
 
-Notes about icons here (not for distribution).
-==============================================
+Notes about how I made the icons and logos here  (not for distribution).
+========================================================================
+					David Aspinall <da@dcs.ed.ac.uk>
 
-Icons to fit on the (default size) Emacs toolbars are 32x32.
-The ones with pictures were made at 256x256, then shrunk
-to have text added.
+ICONS
+=====
+
+Made with the Gimp.
+
+Icons to fit on the (default size) Emacs toolbars are 32x32.  The ones
+with pictures were made at 256x256, then shrunk to have text added.
 
 Background grey is V74.
 Red for buttons is 135,13,13.
@@ -20,9 +25,10 @@ Text is lucidafax at point size 8.
 blank.xcf -- blank with correct background colour.
 
 
----
+LOGOS
+=====
 
-Proof general Text logo:
+Original text logo:
 
 script fu -> logos -> comic book
 
@@ -33,15 +39,58 @@ script fu -> logos -> comic book
 
 Then I filled background with web page colour, and shaded portion
 with green colour.
+
+New text logo: same font, but made in blender file.
  
-----
 
-Proof general logo:
+Proof general logos
+===================
 
-Saved as eps for texi documentation.  
+Web page: scene with canvas backdrop.  Render in blender at full size,
+then use gimp to scale to web size (250pix wide).  This gives much
+nicer result than low-resolution render: textures are smoothed out
+more prettily.
 
-  Width 3.00 "
-  Height 7.87   (keep aspect ration checked, height not edited though)
+EPS (doc/ProofGeneral.eps): For texi documentation.  Used another,
+wider image with alpha channel to (attempt to) leave background white
+on printed page.  Post processing with gimp to add fuzzy border and
+white background since eps (gimp?) can't handle alpha channel.
+
+  Width 5.00 "
+  Height 7.87  (wrong, obviously: 3.48 is right by scaling)
+
+      But: this is *page* size!  The image size itself
+      was square, I think.   
+      Size of tiff image is 904x903.
+
   X-offset 2.8 "
   Y-offset 1.0 "
   Rotation: 0
+
+Actually, Y-offset seems to have no effect on page position: what
+happens is that tex compensates for the offset when it inserts the
+image!  Changing the offset and retexing puts the image back where TeX
+wants it.  Probably same true for X offset.
+
+Solving the size problem: original .eps is 8.4M.  (Original xcf file
+is missing/not saved).
+
+Test procedure: 
+
+ 1. render at 239dpi (original file seems to have 1200x1200 image in
+ it, this is closest I can get, makes 1199x1199 image).
+ 2. save as pnm (gives 4.1M file)
+ 3. Run pnmtoeps with -rle argument to get run length encoding. (4.1M)
+ 4. gzip -9  -> gives 1.6M file.
+
+Just using gzip directly gives 1.6M file anyway.
+tiff is 1.5M.  png is 1.2M.  bz2 is 1.3M.
+
+Okay, so we'll distribute the original .eps file, gzipped.  
+(It gets zipped inside the tar file anyway, of course, but
+leaving it zipped is less polluting).
+
+Badges
+======
+
+These were cut out from a close-up view of Proof General's chest.

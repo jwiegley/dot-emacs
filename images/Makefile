@@ -20,11 +20,14 @@
 
 # Sources
 BUTTONS=goal.xcf next.xcf qed.xcf restart.xcf retract.xcf undo.xcf use.xcf
-WEBPIX=isabelle_transparent.xcf ProofGeneral.xcf text_general.xcf text_proof.xcf
+WEBPIX=isabelle_transparent.xcf ProofGeneral.xcf pg-text.xcf
 
 # Targets for html directory
 WEBPIX_ONLY=
-WEBPIX_TARGETS=$(WEBPIX_ONLY) ProofGeneral.jpg text_general.gif text_proof.gif
+WEBPIX_TARGETS=$(WEBPIX_ONLY) ProofGeneral.jpg pg-text.gif
+# Targets for doc directory
+DOCPIX_TARGETS=ProofGeneral.jpg
+
 # Junk not wanted
 UNWANTED=text_general.jpg text_proof.jpg
 
@@ -66,7 +69,9 @@ clean:
 	rm -f $(WEBPIX_ONLY) $(UNWANTED)
 
 install: webpix
-	cp -pf $(WEBPIX_TARGETS) ../html
+	cp -pf $(WEBPIX_TARGETS) ../html/images
+	cp -pf $(DOCPIX_TARGETS) ../doc
+
 ##
 ## Batch mode is a bit broken on The Gimp at the moment (v 1.0)
 ## For script fu, at least, it seems tricky to pass arguments to

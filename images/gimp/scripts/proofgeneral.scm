@@ -66,7 +66,8 @@
     ;; Flatten and save as jpg
     ;;(gimp-image-flatten image)
     ;; Flattening forces a white background.  Let's use merge.
-    (gimp-image-merge-visible-layers image 0)
+    (if (> (car (gimp-image-get-layers image)) 1)
+	(gimp-image-merge-visible-layers image 0))
     (file-jpeg-save 1 image (car (gimp-image-active-drawable image))
 		    jpgname jpgname
 		    0.75 0 1)
@@ -96,7 +97,7 @@
 
 (define (script-fu-proofgeneral-save-all-pix)
   (mapcar script-fu-proofgeneral-save-pic
-	  '("ProofGeneral" "text_proof" "text_general")))
+	  '("ProofGeneral" "pg-text")))
 
 (script-fu-register "script-fu-proofgeneral-save-all-jpegs" 
 		    "<Toolbox>/Xtns/Script-Fu/Proof General/Save all Jpegs"
