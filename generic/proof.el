@@ -78,6 +78,17 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
          (define-key map k f)))
    kbl))
 
+(defun proof-response-buffer-display (str face)
+  "Display STR with FACE in response buffer."
+  (let ((start))
+    (save-excursion
+      (set-buffer proof-response-buffer)
+      (setq start (goto-char (point-max)))
+      (insert str)
+      (font-lock-fontify-region start (point-max))
+      (font-lock-append-text-property start (point-max) 'face face)
+      (insert "\n"))))
+
 ;;;
 ;;; Global variables
 ;;;

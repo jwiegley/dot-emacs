@@ -271,8 +271,8 @@ to allow other files loaded by proof assistants to be marked read-only."
   "Issue the warning STR."
     (proof-response-buffer-display str 'proof-warning-face)
     (display-buffer proof-response-buffer)
-    (set-window-buffer-dedicated
-     (get-buffer-window proof-response-buffer)  proof-response-buffer))
+    (set-window-dedicated-p
+     (get-buffer-window proof-response-buffer) 'dedicated))
 
 
 (defun proof-register-possibly-new-processed-file (file)

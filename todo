@@ -20,6 +20,10 @@ A byte-compilation: continue fixups for clean byte compile.
   works for both varieties of Emacs. 
   Fill out Makefile.dist (4hr da)
 
+C support for templates e.g., in LEGO it would be nice if, by default, 
+  fresh buffers corrsponding to file foo.l would automatically insert
+  "Module foo;" (1h)
+
 C  Remove "FIXME notes" which are just notes I've put in about old
    code in case something breaks   (da, 30mins).
 

@@ -15,7 +15,10 @@
 
 (eval-when-compile
   (require 'comint)
-  (require 'font-lock)
+  (require 'font-lock))
+
+;; Spans are our abstraction of extents/overlays.
+(eval-and-compile
   (cond ((fboundp 'make-extent) (require 'span-extent))
 	((fboundp 'make-overlay) (require 'span-overlay))))
 
@@ -744,17 +747,6 @@ arrive."
 	      proof-shell-eager-annotation-end
 	      'proof-eager-annotation-face))
     (proof-shell-message str))))
-
-(defun proof-response-buffer-display (str face)
-  "Display STR with FACE in response buffer."
-  (let ((start))
-    (save-excursion
-      (set-buffer proof-response-buffer)
-      (setq start (goto-char (point-max)))
-      (insert str)
-      (font-lock-fontify-region start (point-max))
-      (font-lock-append-text-property start (point-max) 'face face)
-      (insert "\n"))))
 
 (defun proof-files-to-buffers (filenames)
   "Converts a list of FILENAMES into a list of BUFFERS."
