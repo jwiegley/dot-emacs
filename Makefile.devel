@@ -1,93 +1,65 @@
 ##
-## Makefile for Proof General 
-##
+## Makefile for Proof General development.
+## 
 ## Author:  David Aspinall <da@dcs.ed.ac.uk>
+##
+## Developer use only, not part of distribution.
+##
+##    make clean	  - remove intermediate files
+##    make distclean	  - remove all generated files
+##
+##    make ChangeLog	  - make ChangeLog from CVS sources (uses emacs)
+##    make tag		  - tag the CVS sources with CVS_RELEASE_TAG
+##    make dist           - make a distribution from sources with above tag
+##    make release	  - make tag, dist, and install it in RELEASEDIR.
 ##
 ## $Id$
 ## 
 ###########################################################################
 
 
-#  TODO (da):
-#    - user-level targets for .elc compile.
+# TODO: (da) Add target for byte compilation.
 
-
-
-##
-## Use:
-##
-##    make compile        - cleanout all .elc's and recompile
-##    make <file.elc>     - byte compile file if .el file is newer
-##                          (do all if <file.elc> is omitted)
-##    make install        - install .el and .elc's into INSTALLDIR
-##                          .rules files into RULESINSTALLDIR
-##    make public         - install doc files and .el's into PUBLICDIR
-##
-##    make docs           - build info and .dvi files from isamode.texi
-##    make alldocs        - make all docs (pdf,html,dvi,info)
-##
-##
-###########################################################################
-##
-## Things to edit: INSTALLDIR, PUBLICDIR, EMACS, MAKEINFO, TEXI2DVI
-##
-## See-also: generic/proof-site.el   doc/Makefile
-## 
-###########################################################################
-
-
-
-
-# Byte compilation command
-BYTECOMP = $(EMACS) -batch -q -f batch-byte-compile
-
-EMACS=xemacs
-
-
-#############################################################
-##
-## Developer use only:
-##
-##    make ChangeLog	  - make ChangeLog from CVS sources (uses emacs)
-##    make tag		  - tag the CVS sources with CVS_RELEASE_TAG
-##    make dist           - make a distribution from sources with above tag
-## 
-#############################################################
-##
-## Developer variables
-##
-
-# Release tag.  NB: CVS tags can't have points in them.
+# Release tags.  NB: CVS tags can't have points in them.
 RELEASE_TAG=2.0-pre$(shell date "+%y%m%d")
 CVS_RELEASE_TAG=2-0-pre$(shell date "+%y%m%d")
-
-CVSNAME = ProofGeneral
-CVSROOT = /home/proofgen/src
-
 NAME = ProofGeneral
 RELEASENAME = ProofGeneral-2.0
-
-# Files not to include the distribution area / tarball 
-NONDISTFILES=todo html
-
-# Files not to include in the distribution tarball
-IGNOREDFILES=doc/ProofGeneral.pdf doc/ProofGeneral.dvi 
-
-# Where to build a distribution
-DISTBUILDIR = /tmp/ProofGeneralRelease
 
 # Where to install a new distribution
 RELEASEDIR = /home/proofgen/www
 
+# Remote commands to use CVS in server mode and install files.
+# With these settings the install can be done remotely.
+CVSNAME = ProofGeneral
+CVSROOT = :ext:$(USER)@ssh.dcs.ed.ac.uk:/home/proofgen/src
+REMOTE=ssh ssh.dcs.ed.ac.uk
+CVS_RSH=ssh
+
+
+# Byte compilation command
+BYTECOMP = $(EMACS) -batch -q -f batch-byte-compile
+EMACS=xemacs
+
+
+# Files not to include the distribution area or tarball 
+NONDISTFILES=todo html Makefile doc/Makefile
+
+# Files not to include in the distribution tarball
+IGNOREDFILES=doc/ProofGeneral.dvi 
+
+# Where to build a distribution
+DISTBUILDIR = /tmp/ProofGeneralRelease
+
 # Files not kept under cvs to clean away.
 FILES_NONCVS = ChangeLog 
-
 
 FORCE:
 
 # Targets to pre-compile for distribution
-# Slightly dodgy to include elisp compile here.
-alldist:	doc
+# Slightly dodgy to include elisp compile here, because
+# it can be incompatible across emacs versions.
+alldist:	alldocs
 
 
 
@@ -114,7 +86,7 @@ clean:
 #
 # Clean up all generated files.
 #
-distclean:	clean
+`distclean:	clean
 	rm -rf $(FILES_NONCVS)
 	(cd doc; $(MAKE) distclean)
 
@@ -153,7 +125,7 @@ tag:
 ##       non-distributed files.
 ##	 (Developer only)
 ##	    
-dist:	distclean
+dist:	
 	@echo "*************************************************"
 	@echo " Cleaning dist build directory..."
 	@echo "*************************************************"
@@ -162,7 +134,7 @@ dist:	distclean
 	@echo "*************************************************"
 	@echo " Running cvs export .."
 	@echo "*************************************************"
-	cvs export -kv -r "Release-$(CVS_RELEASE_TAG)" -d $(DISTBUILDIR)/$(RELEASENAME) $(CVSNAME)
+	(cd $(DISTBUILDIR); cvs export -kv -r "Release-$(CVS_RELEASE_TAG)" -d $(RELEASENAME) $(CVSNAME))
 	@echo "*************************************************"
 	@echo " Running 'make alldist' for new release .."
 	@echo "*************************************************"
@@ -183,7 +155,7 @@ dist:	distclean
 	@echo "*************************************************"
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
-	(cd $(DISTBUILDIR); for f in $(IGNOREDFILES); do echo $f >> ignoredfiles; done)
+	(cd $(DISTBUILDIR); for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done)
 	tar -cvhf $(DISTBUILDIR)/$(RELEASENAME).tar -C $(DISTBUILDIR) $(RELEASENAME) -X $(DISTBUILDIR)/ignoredfiles
 	gzip -9 $(DISTBUILDIR)/$(RELEASENAME).tar
 	@echo "*************************************************"
@@ -202,18 +174,7 @@ dist:	distclean
 ##     is made.
 ##	  
 release: tag dist
-	mkdir -p $(RELEASEDIR)
-	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
-	(cd $(RELEASEDIR); ln -sf $(RELEASENAME) $(NAME))
-	@echo "*************************************************"
-	@echo " Finished installing dist."
-	@echo "*************************************************"
-
-
-## Same except do the install remotely.
-##
-REMOTE=ssh ssh.dcs.ed.ac.uk
-remoterelease: tag dist
+	$(REMOTE) mkdir -p $(RELEASEDIR)
 	$(REMOTE) cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
 	$(REMOTE) (cd $(RELEASEDIR); ln -sf $(RELEASENAME) $(NAME))
 	@echo "*************************************************"

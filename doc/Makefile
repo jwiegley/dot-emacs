@@ -15,13 +15,9 @@
 
 DOCNAME = ProofGeneral
 
-# program to make info files from .texi
 MAKEINFO = makeinfo
-# program to make dvi files from .texi
 TEXI2DVI = texi2dvi
-# program to make pdf files from .texi
 TEXI2PDF = texi2pdf
-# program to make html files from .texi
 TEXI2HTML = texi2html 
 
 .SUFFIXES:  .texi .info .dvi .html .pdf
@@ -63,8 +59,8 @@ info:   $(DOCNAME).info
 ## clean: Remove subsidiary documentation files
 ##
 clean:
-	rm -f $(DOCNAME).?? $(DOCNAME).cps $(DOCNAME).cp0
-	rm -f $(DOCNAME).aux $(DOCNAME).log $(DOCNAME).toc
+	rm -f $(DOCNAME).?? $(DOCNAME).fns $(DOCNAME).vrs $(DOCNAME).cps 
+	rm -f $(DOCNAME).aux $(DOCNAME).log $(DOCNAME).toc $(DOCNAME).cp0
 	rm -f *~
 
 ##
@@ -73,11 +69,6 @@ clean:
 distclean:   clean
 	rm -f $(DOCNAME).info* $(DOCNAME).dvi $(DOCNAME).pdf $(DOCNAME)*.html
 
-
-##
-## cvsclean: remove all non-cvs
-##
-cvsclean: distclean
 
 
 
