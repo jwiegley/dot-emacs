@@ -589,7 +589,7 @@ proof script files for this assistant.  See the documentation
 of @var{proof-internal-assistants-table} for more details.
 @item Define the new modes in myassistant.el, by looking at 
  the files for the currently supported assistants for example.
- Basically you need to define some modes using @fn{define-derived-mode}
+ Basically you need to define some modes using @code{define-derived-mode}
  and set the configuration variables.  You could begin by setting
  a minimum number of the variables, then adjust the 
  settings via the customize menus, under Proof-General -> Internals.
