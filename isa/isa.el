@@ -125,6 +125,9 @@ and script mode."
    proof-shell-inform-file-retracted-cmd 
    "ProofGeneral.inform_file_retracted \"%s\";"
 
+   ;; span menu 
+   proof-script-span-context-menu-extensions 'isabelle-create-span-menu
+
    ;; Parsing error messages.  Bit tricky to allow for
    ;; multitude of possible error formats Isabelle spits out.
    ;; Ideally we shouldn't bother parsing errors that appear

@@ -433,6 +433,21 @@ the function `pg-remove-specials' can be used instead)."
     (replace-match "\374" nil t)))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Context-senstive in-span menu additions 
+;;
+
+(defun isabelle-create-span-menu (span idiom name)
+  (if (string-equal idiom "proof")
+      (let ((thm (span-property span 'name)))
+	(list (vector 
+	       "Visualise dependencies" 
+	       `(proof-shell-invisible-command 
+		 ,(format (if isa-running-isar 
+			      "thm_deps %s;" "thm_deps [%s];") thm))
+	       (not (string-equal thm proof-unnamed-theorem-name)))))))
+
 
 (provide 'isabelle-system)
 ;; End of isabelle-system.el
