@@ -43,7 +43,7 @@
 ;  :group 'isabelle)
 
 (defcustom isabelle-prog-name 
-  (if (fboundp 'win32-long-filename)	; rough test for XEmacs on win32
+  (if (fboundp 'win32-long-file-name)	; rough test for XEmacs on win32
       "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\HOL"
     "isabelle")
   "*Name of program to run Isabelle.
@@ -167,7 +167,7 @@ and script mode."
    ;; backslashes to forward slashes if it looks like we're running
    ;; on Windows.
    proof-shell-filename-escapes		
-   (if (fboundp 'win32-long-filename)	; rough test for XEmacs on win32 
+   (if (fboundp 'win32-long-file-name)	; rough test for XEmacs on win32 
        ;; Patterns to unixfy names.
        ;; Jacques Fleuriot's patch in ML does this too: ("^[a-zA-Z]:" . "") 
        ;; But I'll risk leaving drive names in, not sure how to replace them.
