@@ -4,7 +4,7 @@
 ;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <29 Nov 96 tms /home/tms/elisp/lego.el>
+;; Time-stamp: <03 Dec 96 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -121,10 +121,11 @@
 
 (defvar lego-goal-regexp "\\?\\([0-9]+\\)")
 
-(defvar lego-outline-regexp 
-  (ids-to-regexp 
-   '("*" "Discharge" "Freeze" "Goal" "Module" "\\[" "Record" "Inductive" 
-     "Unfreeze")))
+(defvar lego-outline-regexp
+  (concat "[[*]\\|"
+	  (ids-to-regexp 
+	   '("Discharge" "DischargeKeep" "Freeze" "$?Goal" "Module" "Record" "Inductive"
+     "Unfreeze"))))
 
 (defvar lego-outline-heading-end-regexp ";\\|\\*)")
 
@@ -134,10 +135,10 @@
 ;; ----- keywords for font-lock. If you want to hack deeper, you'd better
 ;; ----- be fluent in regexps - it's in the YUK section.
 
-(defvar lego-keywords-goal '("Goal"))
+(defvar lego-keywords-goal '("$?Goal"))
 
 (defvar lego-keywords-save
-  '("Save"))
+  '("$?Save"))
 
 (defvar lego-keywords
   (append lego-keywords-goal lego-keywords-save
