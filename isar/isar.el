@@ -1,5 +1,5 @@
 ;; isar.el Major mode for Isabelle/Isar proof assistant
-;; Copyright (C) 1994-1998 LFCS Edinburgh. 
+;; Copyright (C) 1994-1998 LFCS Edinburgh.
 ;;
 ;; Author:              David Aspinall <da@dcs.ed.ac.uk>
 ;; Author / maintainer: Markus Wenzel <wenzelm@in.tum.de>
@@ -19,7 +19,7 @@
 ;; the start of the file, ensure that Isar mode is used from now
 ;; on for .thy files.
 ;; FIXME: be less messy with auto-mode-alist here (remove dups)
-(setq auto-mode-alist 
+(setq auto-mode-alist
       (cons '("\\.thy$" . isar-mode) auto-mode-alist))
 
 (require 'proof)
@@ -66,42 +66,19 @@
    isabelle-docs-menu
    (list
     (cons "Show me ..."
-	  (list
-	   ["antiquotations"     (isar-help-antiquotations) t]
-	   ["attributes"         (isar-help-attributes)     t]
-	   ["cases"              (isar-help-cases)          t]
-	   ["classical rules"    (isar-help-claset)         t]
-	   ["commands"           (isar-help-commands)       t]
-	   ["facts"              (isar-help-facts)          t]
-	   ["inner syntax"       (isar-help-syntax)         t]
-	   ["methods"            (isar-help-methods)        t]
-	   ["simplifier rules"   (isar-help-simpset)        t]
-	   ["term bindings"      (isar-help-binds)          t]
-	   ["theorems"           (isar-help-theorems)       t]
-	   ["transitivity rules" (isar-help-trans-rules)    t])))))
-
-
-;;;
-;;; ======== Configuration of generic modes ========
-;;;
-
-;; ===== outline mode
-;; FIXME not working yet!
-
-(defconst isar-outline-regexp
-  (isar-ids-to-regexp isar-keywords-outline)
-  "Outline regexp for Isabelle/Isar documents")
-
-;;; End of a command needs parsing to find, so this is approximate.
-(defconst isar-outline-heading-end-regexp ";[ \t\n]*"
-  "Outline heading end regexp for Isabelle/Isar ML files.")
-
-;; FIXME: not sure about this one
-(defvar isar-shell-outline-regexp "\370[ \t]*\\([0-9]+\\)\\.")
-(defvar isar-shell-outline-heading-end-regexp "$")
-
-(defun isar-outline-setup () t)
-
+          (list
+           ["antiquotations"     (isar-help-antiquotations) t]
+           ["attributes"         (isar-help-attributes)     t]
+           ["cases"              (isar-help-cases)          t]
+           ["classical rules"    (isar-help-claset)         t]
+           ["commands"           (isar-help-commands)       t]
+           ["facts"              (isar-help-facts)          t]
+           ["inner syntax"       (isar-help-syntax)         t]
+           ["methods"            (isar-help-methods)        t]
+           ["simplifier rules"   (isar-help-simpset)        t]
+           ["term bindings"      (isar-help-binds)          t]
+           ["theorems"           (isar-help-theorems)       t]
+           ["transitivity rules" (isar-help-trans-rules)    t])))))
 
 
 ;;;
@@ -111,36 +88,36 @@
 (defun isar-detect-header ()
   "Detect new-style theory header in current buffer"
   (let ((header-regexp (isar-ids-to-regexp '("header" "theory")))
-	(white-space-regexp "\\(\\s-\\|\n\\)+")
-	(cmt-end-regexp (regexp-quote proof-comment-end))
-	(cmt-start-regexp (regexp-quote proof-comment-start))
-	(found-header nil) forward-amount
-	(end (point-max)) (cont t) (cmt-level 0) c)
+        (white-space-regexp "\\(\\s-\\|\n\\)+")
+        (cmt-end-regexp (regexp-quote proof-comment-end))
+        (cmt-start-regexp (regexp-quote proof-comment-start))
+        (found-header nil) forward-amount
+        (end (point-max)) (cont t) (cmt-level 0) c)
     (save-excursion
       (goto-char (point-min))
       (while (and cont (< (point) end))
-	(setq c (char-after (point)))
-	(setq forward-amount 1)
-	(cond 
-	 ;; comments
-	 ((proof-looking-at cmt-start-regexp)
-	  (setq forward-amount (length (match-string 0)))
-	  (incf cmt-level))
-	 ((proof-looking-at cmt-end-regexp)
-	  (setq forward-amount (length (match-string 0)))
-	  (decf cmt-level))
-	 ((> cmt-level 0))
-	 ;; white space
-	 ((proof-looking-at white-space-regexp)
-	  (setq forward-amount (length (match-string 0))))
-	 ;; theory header
-	 ((proof-looking-at header-regexp)
-	  (setq found-header t)
-	  (setq cont nil))
-	 ;; bad stuff
-	 (t
-	  (setq cont nil)))
-	(and cont (forward-char forward-amount)))
+        (setq c (char-after (point)))
+        (setq forward-amount 1)
+        (cond
+         ;; comments
+         ((proof-looking-at cmt-start-regexp)
+          (setq forward-amount (length (match-string 0)))
+          (incf cmt-level))
+         ((proof-looking-at cmt-end-regexp)
+          (setq forward-amount (length (match-string 0)))
+          (decf cmt-level))
+         ((> cmt-level 0))
+         ;; white space
+         ((proof-looking-at white-space-regexp)
+          (setq forward-amount (length (match-string 0))))
+         ;; theory header
+         ((proof-looking-at header-regexp)
+          (setq found-header t)
+          (setq cont nil))
+         ;; bad stuff
+         (t
+          (setq cont nil)))
+        (and cont (forward-char forward-amount)))
       found-header)))
 
 
@@ -151,23 +128,23 @@
     (goto-char (point-min))
     (while (search-forward ";" (point-max) t)
       (if (not (buffer-syntactic-context))
-	  (delete-backward-char 1)))))
+          (delete-backward-char 1)))))
 
 
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
   (setq
-   proof-assistant-home-page	isabelle-web-page
-   proof-mode-for-script	'isar-proofscript-mode
+   proof-assistant-home-page    isabelle-web-page
+   proof-mode-for-script        'isar-proofscript-mode
    ;; proof script syntax
-   proof-terminal-char		?\;	; forcibly ends a proof command
+   proof-terminal-char          ?\;     ; forcibly ends a proof command
    proof-script-command-start-regexp (proof-regexp-alt
-				      isar-any-command-regexp
-				      (regexp-quote ";"))
-   proof-comment-start		isar-comment-start
-   proof-comment-end		isar-comment-end
-   proof-comment-start-regexp	isar-comment-start-regexp
-   proof-comment-end-regexp	isar-comment-end-regexp
+                                      isar-any-command-regexp
+                                      (regexp-quote ";"))
+   proof-comment-start          isar-comment-start
+   proof-comment-end            isar-comment-end
+   proof-comment-start-regexp   isar-comment-start-regexp
+   proof-comment-end-regexp     isar-comment-end-regexp
    proof-string-start-regexp    isar-string-start-regexp
    proof-string-end-regexp      isar-string-end-regexp
    ;; Next few used for func-menu and recognizing goal..save regions in
@@ -188,47 +165,47 @@
    proof-indent-close-regexp    isar-indent-close-regexp
 
    ;; proof engine commands
-   proof-showproof-command	"pr"
-   proof-goal-command		"lemma \"%s\";"
-   proof-save-command		"qed"
-   proof-context-command	"print_context"
-   proof-info-command		"welcome"
-   proof-kill-goal-command	"ProofGeneral.kill_proof;"
+   proof-showproof-command      "pr"
+   proof-goal-command           "lemma \"%s\";"
+   proof-save-command           "qed"
+   proof-context-command        "print_context"
+   proof-info-command           "welcome"
+   proof-kill-goal-command      "ProofGeneral.kill_proof;"
    proof-find-theorems-command  "thms_containing %s;"
    proof-shell-start-silent-cmd "disable_pr;"
-   proof-shell-stop-silent-cmd  "enable_pr;"   
+   proof-shell-stop-silent-cmd  "enable_pr;"
    ;; command hooks
-   proof-goal-command-p		'isar-goal-command-p
-   proof-really-save-command-p	'isar-global-save-command-p
-   proof-count-undos-fn		'isar-count-undos
-   proof-find-and-forget-fn	'isar-find-and-forget
-   ;; da: for pbp.  
-   ;; proof-goal-hyp-fn		'isar-goal-hyp
-   proof-state-preserving-p	'isar-state-preserving-p
+   proof-goal-command-p         'isar-goal-command-p
+   proof-really-save-command-p  'isar-global-save-command-p
+   proof-count-undos-fn         'isar-count-undos
+   proof-find-and-forget-fn     'isar-find-and-forget
+   ;; da: for pbp.
+   ;; proof-goal-hyp-fn         'isar-goal-hyp
+   proof-state-preserving-p     'isar-state-preserving-p
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list))
 
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
-   proof-shell-first-special-char	?\350
+   proof-shell-first-special-char       ?\350
 
-   proof-shell-wakeup-char		?\372
+   proof-shell-wakeup-char              ?\372
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \372"
 
    ;; This pattern is just for comint.
-   proof-shell-prompt-pattern		"^\\w*[>#] "
+   proof-shell-prompt-pattern           "^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd			"ML_command {* Library.cd \"%s\" *}"
+   proof-shell-cd-cmd                   "ML_command {* Library.cd \"%s\" *}"
 
    ;; Escapes for filenames inside ML strings.
-   ;; We also make a hack for a bug in Isabelle, by switching from 
+   ;; We also make a hack for a bug in Isabelle, by switching from
    ;; backslashes to forward slashes if it looks like we're running
    ;; on Windows.
-   proof-shell-filename-escapes		
-   (if (fboundp 'win32-long-filename)	; rough test for XEmacs on win32 
+   proof-shell-filename-escapes
+   (if (fboundp 'win32-long-filename)   ; rough test for XEmacs on win32
        ;; Patterns to unixfy names.
-       ;; Jacques Fleuriot's patch in ML does this too: ("^[a-zA-Z]:" . "") 
+       ;; Jacques Fleuriot's patch in ML does this too: ("^[a-zA-Z]:" . "")
        ;; But I'll risk leaving drive names in, not sure how to replace them.
        '(("\\\\" . "/") ("\"" . "\\\""))
      ;; Normal case: quotation for backslash, quote mark.
@@ -236,28 +213,28 @@
 
    proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\360Interrupt"
-   proof-shell-error-regexp		"\364\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
+   proof-shell-error-regexp             "\364\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
    ;; matches names of assumptions
-   proof-shell-assumption-regexp	isar-id
+   proof-shell-assumption-regexp        isar-id
    ;; matches subgoal name
    ;; da: not used at the moment, maybe after 3.0 used for
    ;; proof-generic-goal-hyp-fn to get pbp-like features.
-   ;; proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
+   ;; proof-shell-goal-regexp           "\370[ \t]*\\([0-9]+\\)\\."
 
-   proof-shell-start-goals-regexp	"\366\n"
-   proof-shell-end-goals-regexp		"\367"
-   proof-shell-goal-char	        ?\370
+   proof-shell-start-goals-regexp       "\366\n"
+   proof-shell-end-goals-regexp         "\367"
+   proof-shell-goal-char                ?\370
 
    ;; initial command configures Isabelle/Isar by modifying print
    ;; functions, restoring settings saved by Proof General, etc.
-   proof-shell-pre-sync-init-cmd	(isabelle-verbatim 
-					 "ProofGeneral.init true;")
-   proof-assistant-setting-format	'isar-markup-ml
+   proof-shell-pre-sync-init-cmd        (isabelle-verbatim
+                                         "ProofGeneral.init true;")
+   proof-assistant-setting-format       'isar-markup-ml
    proof-shell-init-cmd                 (proof-assistant-settings-cmd)
-   proof-shell-restart-cmd		"ProofGeneral.restart;"
-   proof-shell-quit-cmd			(isabelle-verbatim "quit();")
+   proof-shell-restart-cmd              "ProofGeneral.restart;"
+   proof-shell-quit-cmd                 (isabelle-verbatim "quit();")
 
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
@@ -272,14 +249,14 @@
    proof-shell-leave-annotations-in-output t
 
    ;; === ANNOTATIONS  === ones below here are broken
-   proof-shell-result-start	        "\372 Pbp result \373"
-   proof-shell-result-end		"\372 End Pbp result \373"
-   proof-analyse-using-stack		t
-   proof-shell-start-char		?\372
-   proof-shell-end-char			?\373
-   proof-shell-field-char		?\374
+   proof-shell-result-start             "\372 Pbp result \373"
+   proof-shell-result-end               "\372 End Pbp result \373"
+   proof-analyse-using-stack            t
+   proof-shell-start-char               ?\372
+   proof-shell-end-char                 ?\373
+   proof-shell-field-char               ?\374
 
-   proof-shell-process-file 
+   proof-shell-process-file
    (cons
     ;; Theory loader output
     "Proof General, this file is loaded: \"\\(.*\\)\""
@@ -300,12 +277,12 @@
 (defun isar-remove-file (name files cmp-base)
   (if (not files) nil
     (let*
-	((file (car files))
-	 (rest (cdr files))
-	 (same (if cmp-base (string= name (file-name-nondirectory file))
-		 (string= name file))))
+        ((file (car files))
+         (rest (cdr files))
+         (same (if cmp-base (string= name (file-name-nondirectory file))
+                 (string= name file))))
       (if same (isar-remove-file name rest cmp-base)
-	(cons file (isar-remove-file name rest cmp-base))))))
+        (cons file (isar-remove-file name rest cmp-base))))))
 
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
@@ -315,7 +292,7 @@ proof-shell-retract-files-regexp."
       ((name (match-string 1 str))
        (base-name (file-name-nondirectory name)))
     (if (string= name base-name)
-	(isar-remove-file name proof-included-files-list t)
+        (isar-remove-file name proof-included-files-list t)
       (isar-remove-file (file-truename name) proof-included-files-list nil))))
 
 (defun isar-activate-scripting ()
@@ -324,7 +301,7 @@ proof-shell-retract-files-regexp."
 
 
 ;;
-;;   Define the derived modes 
+;;   Define the derived modes
 ;;
 (eval-and-compile
 (define-derived-mode isar-shell-mode proof-shell-mode
@@ -336,12 +313,12 @@ proof-shell-retract-files-regexp."
   "Isabelle/Isar response" nil
   (isar-response-mode-config)))
 
-(eval-and-compile			; to define vars for byte comp.
+(eval-and-compile                       ; to define vars for byte comp.
 (define-derived-mode isar-goals-mode proof-goals-mode
   "Isabelle/Isar proofstate" nil
   (isar-goals-mode-config)))
 
-(eval-and-compile			; to define vars for byte comp.
+(eval-and-compile                       ; to define vars for byte comp.
 (define-derived-mode isar-proofscript-mode proof-mode
     "Isabelle/Isar script" nil
     (isar-mode-config)))
@@ -362,19 +339,19 @@ proof-shell-retract-files-regexp."
     (while span
       (setq str (span-property span 'cmd))
       (cond ((eq (span-property span 'type) 'vanilla)
-	     (or (proof-string-match isar-undo-skip-regexp str)
-		 (setq ct (+ 1 ct))))
-	    ((eq (span-property span 'type) 'pbp)
-	     ;; this case probably redundant for Isabelle, unless
-	     ;; we think of some nice ways of matching non-undoable
-	     ;; commands.
-	     (cond ((not (proof-string-match isar-undo-skip-regexp str))
-		    (setq i 0)
-		    (while (< i (length str))
-		      (if (= (aref str i) proof-terminal-char)
-			  (setq ct (+ 1 ct)))
-		      (setq i (+ 1 i))))
-		   (t nil))))
+             (or (proof-string-match isar-undo-skip-regexp str)
+                 (setq ct (+ 1 ct))))
+            ((eq (span-property span 'type) 'pbp)
+             ;; this case probably redundant for Isabelle, unless
+             ;; we think of some nice ways of matching non-undoable
+             ;; commands.
+             (cond ((not (proof-string-match isar-undo-skip-regexp str))
+                    (setq i 0)
+                    (while (< i (length str))
+                      (if (= (aref str i) proof-terminal-char)
+                          (setq ct (+ 1 ct)))
+                      (setq i (+ 1 i))))
+                   (t nil))))
       (setq span (next-span span 'type)))
     (isar-undos ct)))
 
@@ -388,28 +365,28 @@ proof-shell-retract-files-regexp."
       (cond
        ;; comment or diagnostic command: skip
        ((or (eq (span-property span 'type) 'comment)
-	    (proof-string-match isar-undo-skip-regexp str)))
+            (proof-string-match isar-undo-skip-regexp str)))
        ;; finished goal: undo
        ((eq (span-property span 'type) 'goalsave)
-	(setq ans isar-undo))
+        (setq ans isar-undo))
        ;; open goal: skip and exit
        ((proof-string-match isar-goal-command-regexp str)
-	(setq span nil))
+        (setq span nil))
        ;; not undoable: fail and exit
        ((proof-string-match isar-undo-fail-regexp str)
-	(setq answers nil)
-	(setq ans (isar-cannot-undo str))
-	(setq span nil))
+        (setq answers nil)
+        (setq ans (isar-cannot-undo str))
+        (setq span nil))
        ;; theory: remove and exit
        ((proof-string-match isar-undo-remove-regexp str)
-	(setq ans (isar-remove (match-string 2 str)))
-	(setq span nil))
+        (setq ans (isar-remove (match-string 2 str)))
+        (setq span nil))
        ;; context switch: kill
        ((proof-string-match isar-undo-kill-regexp str)
-	(setq ans isar-kill))
+        (setq ans isar-kill))
        ;; else: undo
        (t
-	(setq ans isar-undo)))
+        (setq ans isar-undo)))
       (if ans (setq answers (cons ans answers)))
       (if span (setq span (next-span span 'type))))
     (if (null answers) proof-no-command (apply 'concat answers))))
@@ -428,17 +405,17 @@ proof-shell-retract-files-regexp."
      (while (and (not ans) span (setq span (prev-span span 'type)))
        (setq cmd (span-property span 'cmd))
        (cond
-	;; comment: skip
-	((eq (span-property span 'type) 'comment))
-	;; local qed: enter block
-	((proof-string-match isar-save-command-regexp cmd)
-	 (setq lev (+ lev 1)))
-	;; local goal: leave block, or done
-	((proof-string-match isar-local-goal-command-regexp cmd)
-	 (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
-	;; global goal: done
-	((proof-string-match isar-goal-command-regexp cmd)
-	 (setq ans 'yes))))
+        ;; comment: skip
+        ((eq (span-property span 'type) 'comment))
+        ;; local qed: enter block
+        ((proof-string-match isar-save-command-regexp cmd)
+         (setq lev (+ lev 1)))
+        ;; local goal: leave block, or done
+        ((proof-string-match isar-local-goal-command-regexp cmd)
+         (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
+        ;; global goal: done
+        ((proof-string-match isar-goal-command-regexp cmd)
+         (setq ans 'yes))))
      (eq ans 'yes))))
 
 (defvar isar-current-goal 1
@@ -465,25 +442,25 @@ proof-shell-retract-files-regexp."
    Checks the width in the `proof-goals-buffer'"
   (let ((ans ""))
     (and (buffer-live-p proof-goals-buffer)
-	 (proof-shell-live-buffer)
-	 (save-excursion
-	   (set-buffer proof-goals-buffer)
-	   (let ((current-width
-		  ;; Actually, one might sometimes
-		  ;; want to get the width of the proof-response-buffer
-		  ;; instead. Never mind.
-		  (max 20 (window-width (get-buffer-window proof-goals-buffer)))))
-	     
-	     (if (equal current-width isar-shell-current-line-width) ()
-	       (setq isar-shell-current-line-width current-width)
-	       (set-buffer proof-shell-buffer)
-	       (setq ans (format "pretty_setmargin %d;" (- current-width 4)))))))
+         (proof-shell-live-buffer)
+         (save-excursion
+           (set-buffer proof-goals-buffer)
+           (let ((current-width
+                  ;; Actually, one might sometimes
+                  ;; want to get the width of the proof-response-buffer
+                  ;; instead. Never mind.
+                  (max 20 (window-width (get-buffer-window proof-goals-buffer)))))
+
+             (if (equal current-width isar-shell-current-line-width) ()
+               (setq isar-shell-current-line-width current-width)
+               (set-buffer proof-shell-buffer)
+               (setq ans (format "pretty_setmargin %d;" (- current-width 4)))))))
     ans))
 
 (defun isar-pre-shell-start ()
-  (setq proof-prog-name		(isabelle-command-line))
+  (setq proof-prog-name         (isabelle-command-line))
   (setq proof-mode-for-shell    'isar-shell-mode)
-  (setq proof-mode-for-goals	'isar-goals-mode)
+  (setq proof-mode-for-goals    'isar-goals-mode)
   (setq proof-mode-for-response 'isar-response-mode))
 
 
@@ -497,22 +474,22 @@ proof-shell-retract-files-regexp."
       (setq string (match-string 1 string))
     (unless (string-match ";[ \t]*\'" string)
       (setq string (concat string ";")))
-    (setq string (concat 
-		  "\\<^sync>" 
-		  (isar-shell-adjust-line-width) 
-		  ;; da: this was an attempted hack to deal with ML files,
-		  ;; unfortunately Isar complains about not seeing a theory
-		  ;; command first: ML_setup illegal at first line
-		  ;; Another failure is that: (* comment *) foo; 
-		  ;; ignores foo.  This could be fixed by scanning for
-		  ;; comment end in proof-script.el's function 
-		  ;; proof-segment-upto-cmdstart (which becomes even more
-		  ;; Isar specific, then...)
-		  ;; (if (string-match "\\.ML$" (buffer-name proof-script-buffer))
-		  ;;    (format "ML_command {* %s *};" string)
-		  ;;    string)
-		  string
-		  "\\<^sync>;"))))
+    (setq string (concat
+                  "\\<^sync>"
+                  (isar-shell-adjust-line-width)
+                  ;; da: this was an attempted hack to deal with ML files,
+                  ;; unfortunately Isar complains about not seeing a theory
+                  ;; command first: ML_setup illegal at first line
+                  ;; Another failure is that: (* comment *) foo;
+                  ;; ignores foo.  This could be fixed by scanning for
+                  ;; comment end in proof-script.el's function
+                  ;; proof-segment-upto-cmdstart (which becomes even more
+                  ;; Isar specific, then...)
+                  ;; (if (string-match "\\.ML$" (buffer-name proof-script-buffer))
+                  ;;    (format "ML_command {* %s *};" string)
+                  ;;    string)
+                  string
+                  "\\<^sync>;"))))
 
 (defun isar-markup-ml (string)
   "Return marked up version of ML command STRING for Isar."
@@ -524,19 +501,9 @@ proof-shell-retract-files-regexp."
   (isar-init-syntax-table)
   (setq font-lock-keywords isar-font-lock-keywords-1)
   (proof-config-done)
-  ;; outline
-  ;; FIXME: do we need to call make-local-variable here?
-  (make-local-variable 'outline-regexp)
-  (setq outline-regexp isar-outline-regexp)
-  (make-local-variable 'outline-heading-end-regexp)
-  (setq outline-heading-end-regexp isar-outline-heading-end-regexp)
-  (isar-outline-setup)
-  ;; tags
-  ;  (and (boundp 'tag-table-alist)
-  ;       (setq tag-table-alist
-  ;	     (append '(("\\.ML$"  . isar-ML-file-tags-table)
-  ;		       ("\\.thy$" . thy-file-tags-table))
-  ;		     tag-table-alist)))
+  (set (make-local-variable 'outline-regexp) isar-outline-regexp)
+  (set (make-local-variable 'outline-heading-end-regexp) isar-outline-heading-end-regexp)
+  (set (make-local-variable 'outline-level) 'isar-outline-level)
   (setq blink-matching-paren-dont-ignore-comments t)
   (add-hook 'proof-pre-shell-start-hook 'isar-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook 'isar-preprocessing))
@@ -547,13 +514,11 @@ proof-shell-retract-files-regexp."
   (isar-init-output-syntax-table)
   (setq font-lock-keywords isar-output-font-lock-keywords-1)
   (isar-shell-mode-config-set-variables)
-  (proof-shell-config-done)
-  (isar-outline-setup))
+  (proof-shell-config-done))
 
 (defun isar-response-mode-config ()
   (setq font-lock-keywords isar-output-font-lock-keywords-1)
   (isar-init-output-syntax-table)
-  (isar-outline-setup)
   (proof-response-config-done))
 
 (defun isar-goals-mode-config ()
@@ -562,7 +527,6 @@ proof-shell-retract-files-regexp."
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
   (setq font-lock-keywords isar-goals-font-lock-keywords)
-  (isar-outline-setup)
   (proof-goals-config-done))
 
 ;; =================================================================
@@ -573,7 +537,7 @@ proof-shell-retract-files-regexp."
 ;; The token language "Isabelle Symbols" is in file x-symbol-isabelle.el
 ;;
 
-(setq 
+(setq
  proof-xsym-activate-command
  "ML_command {* print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode) *};"
  proof-xsym-deactivate-command
