@@ -152,11 +152,12 @@
     "assume"
     "fix"
     "let"
-    "note"))
+    "note"
+    "presume"))
 
 (defconst isar-keywords-proof-script
-  '("back"
-    "refine"
-    "then_refine"))
+  '("apply"
+    "back"
+    "then_apply"))
 
 (provide 'isar-keywords)
