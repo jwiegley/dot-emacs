@@ -404,7 +404,6 @@
         proof-shell-error-regexp coq-error-regexp
 	proof-shell-interrupt-regexp coq-interrupt-regexp
         proof-shell-assumption-regexp coq-id
-        proof-shell-goal-regexp coq-goal-regexp
         proof-shell-first-special-char ?\360
         proof-shell-wakeup-char ?\371 ; done: prompt
         ; The next three represent path annotation information

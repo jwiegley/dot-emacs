@@ -41,8 +41,9 @@
 (defcustom lego-help-menu-list
   '(["The LEGO Reference Card" (browse-url lego-www-refcard) t]
     ["The LEGO library (WWW)" (browse-url lego-library-www-page)  t])
-  "List of menu items, as defined in `easy-menu-define' for LEGO
-  specific help."
+  "List of menu itemsfor LEGO specific help.
+
+See the documentation of `easy-menu-define' "
   :type '(repeat sexp)
   :group 'lego)
 
@@ -73,16 +74,6 @@ Activates extended printing routines required for Proof General.")
 
 (defconst lego-interrupt-regexp "Interrupt.."
   "Regexp corresponding to an interrupt")
-
-(defvar lego-path-name "LEGOPATH"
-  "The name of the environmental variable to search for modules. This
-  is used by \\{legogrep} to find the files corresponding to a
-  search.")
-
-(defvar lego-path-separator ":"
-  "A character indicating how the items in the \\{lego-path-name} are
-  separated.") 
-
 
 ;; ----- web documentation
 
@@ -262,7 +253,7 @@ Given is the first SPAN which needs to be undone."
 
 (defun lego-goal-hyp ()
   (cond 
-   ((looking-at proof-shell-goal-regexp)
+   ((looking-at lego-goal-regexp)
     (cons 'goal (match-string 1)))
    ((looking-at proof-shell-assumption-regexp)
     (cons 'hyp (match-string 1)))
@@ -467,7 +458,6 @@ We assume that module identifiers coincide with file names."
         proof-shell-error-regexp lego-error-regexp
 	proof-shell-interrupt-regexp lego-interrupt-regexp
         proof-shell-assumption-regexp lego-id
-        proof-shell-goal-regexp lego-goal-regexp
         proof-shell-first-special-char ?\360
         proof-shell-wakeup-char ?\371
         proof-shell-start-char ?\372

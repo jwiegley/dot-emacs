@@ -66,9 +66,14 @@ Set in proof-shell-mode.")
   (SPAN,COMMAND,ACTION)
 
 triples, which is a queue of things to do.
-See the functions proof-start-queue and proof-exec-loop.")
+See the functions `proof-start-queue' and `proof-exec-loop'.")
 
+(defvar proof-analyse-using-stack nil
+  "Choice of syntax tree encoding for terms.
 
+If `nil', prover is expected to make no optimisations.
+If non-`nil', the pretty printer of the prover only reports local changes. 
+For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'.")
 
 
 ;;
@@ -362,7 +367,7 @@ left around so the user may discover what killed the process."
   "Clear script buffers and send proof-shell-restart-cmd.
 All locked regions are cleared and the active scripting buffer
 deactivated.  The restart command should re-synchronize
-Proof General with the proof assitant."
+Proof General with the proof assistant."
   (interactive)
   (proof-script-remove-all-spans-and-deactivate)
   (setq proof-included-files-list nil
@@ -1390,7 +1395,6 @@ before and after sending the command."
 ;; Proof General shell mode definition				    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; OLD COMMENT: "This has to come after proof-mode is defined"
 
 ;;###autoload
 (eval-and-compile			; to define vars
@@ -1440,7 +1444,7 @@ before and after sending the command."
 
 ;; watch difference with proof-shell-menu, proof-shell-mode-menu.
 (defvar proof-shell-menu proof-shared-menu
-  "The menu for the Proof-assistant shell")
+  "The menu for the Proof-assistant shell.")
 
 (easy-menu-define proof-shell-mode-menu
 		  proof-shell-mode-map

@@ -103,7 +103,7 @@ You can use customize to set this variable."
   (mapcar (lambda (astnt) (car astnt))
 	  proof-assistant-table)
   (concat
-   "*Choice of proof assitants to use with Proof General.
+   "*Choice of proof assistants to use with Proof General.
 A list of symbols chosen from:" 
    (apply 'concat (mapcar (lambda (astnt) 
 			    (concat " '" (symbol-name (car astnt))))
@@ -141,7 +141,7 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 
 ;; Now add auto-loads and load-path elements to support the 
 ;; proof assistants selected, and define a stub 
-(let ((assistants proof-assistants) assistant)
+(let ((assistants proof-assistants))
   (while assistants
     (let*  
 	((assistant (car assistants))	; compiler bogus warning here

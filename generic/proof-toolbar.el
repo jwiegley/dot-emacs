@@ -13,8 +13,11 @@
 ;; Toolbar is just for scripting buffer at  the moment.
 ;;
 
+
+;;; IMPORT declaration 
 (require 'proof-script)
 (autoload 'proof-shell-live-buffer "proof-shell")
+(autoload 'proof-shell-restart "proof-shell")
 
 (defconst proof-toolbar-default-button-list
   '(proof-toolbar-goal-button
@@ -302,7 +305,7 @@ Move point if the end of the locked position is invisible."
       (progn
 	(proof-toolbar-move
 	 (goto-char (proof-unprocessed-begin))
-	 (proof-assert-next-command))
+	 (proof-assert-next-command-interactive))
 	(proof-toolbar-follow))))
 
 
@@ -321,7 +324,7 @@ Move point if the end of the locked position is invisible."
       (progn
 	(proof-toolbar-move
 	  (goto-char (point-min))
-	  (proof-retract-until-point))	; gives error if process busy
+	  (proof-retract-until-point-interactive))	; gives error if process busy
 	(proof-toolbar-follow))
     (error "Nothing to retract in this buffer!")))
 

@@ -67,6 +67,8 @@ elements = S0 S1 S2 .... [tl-seq.el]"
 (defun span-read-only-hook (overlay after start end &optional len)
   (error "Region is read-only"))
 
+;;; FIXME: This is too harsh and breaks font-lock
+;;;        If only faces are modified we shouldn't call span-read-only-hook 
 (defun span-read-only (span)
   "Set SPAN to be read only."
   ;; Unfortunately, this function is called on spans which are

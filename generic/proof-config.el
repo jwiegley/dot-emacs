@@ -103,7 +103,10 @@ use because of a bug."
 (defcustom proof-strict-read-only 
   ;; For FSF Emacs, strict read only is buggy when used in
   ;; conjunction with font-lock.
-  (string-match "XEmacs" emacs-version)
+
+  ;; The second conjunctive ensures that the expression is either
+  ;; `nil' or `strict' (and not 15).  
+  (and (string-match "XEmacs" emacs-version) 'strict)
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
@@ -335,6 +338,7 @@ Suggestion: this can be set in the shell mode configuration."
   :type 'function
   :group 'prover-config)
 
+;; FIXME: ought to be renamed to proof-mode-for-goals
 (defcustom proof-mode-for-pbp 'pbp-mode
   "Mode for proof state display buffers.
 Usually customised for specific prover.
@@ -412,7 +416,7 @@ insert when called interactively."
 
 
 (defcustom proof-terminal-char nil
-  "Character which terminates a proof command in a script buffer."
+  "Character which terminates a command in a script buffer."
   :type 'character
   :group 'proof-script)
 
@@ -423,7 +427,7 @@ The script buffer's comment-start is set to this string plus a space."
   :group 'proof-script)
 
 (defcustom proof-comment-end ""
-  "String which starts a comment in the proof assistant command language.
+  "String which ends a comment in the proof assistant command language.
 The script buffer's comment-end is set to this string plus a space."
   :type 'string
   :group 'proof-script)
@@ -572,7 +576,7 @@ The special string proof-no-command means there is nothing to do."
   "Function which returns cons cell if point is at a goal/hypothesis.
 First element of cell is a symbol, 'goal' or 'hyp'.  The second
 element is a string: the goal or hypothesis itself.  This is used
-when parsing the proofstate output"
+when parsing the proofstate output."
   :type 'function
   :group 'proof-script)
 
@@ -588,7 +592,7 @@ This is used to handle nested goals allowed by some provers."
   :group 'proof-script)
 
 (defcustom proof-state-preserving-p nil
-  "A predicate, non-nil if its argument preserves the proof state."
+  "A predicate, non-nil if its argument (a command) preserves the proof state."
   :type 'function
   :group 'proof-script)
 
@@ -689,7 +693,7 @@ group.  This allows different proof assistants to coexist
 ;;
 
 (defcustom proof-shell-prompt-pattern nil 
-   "Proof shell's value for comint-prompt-pattern, which see."
+   "Proof shell's value for comint-prompt-pattern."
    :type 'regexp
    :group 'proof-shell)
 
@@ -736,7 +740,7 @@ otherwise it will be lost."
 
 (defcustom proof-shell-interrupt-regexp nil
   "Regexp matching output indicating the assistant was interrupted.
-Similar notes apply as for proof-shell-error-regexp, which see."
+Similar notes apply as for `proof-shell-error-regexp'."
   :type 'regexp
   :group 'proof-shell) 
 
@@ -1026,7 +1030,7 @@ inserted."
 
 (defcustom proof-splash-extensions nil
   "Prover specific extensions of splash screen.
-These are evaluated and appended to proof-splash-contents, which see."
+These are evaluated and appended to `proof-splash-contents'."
   :type 'sexp
   :group 'proof-config)
   
@@ -1055,7 +1059,7 @@ These are evaluated and appended to proof-splash-contents, which see."
 (defcustom proof-universal-keys
   '(([(control c) (control c)] . proof-interrupt-process)
     ([(control c) (control v)] . proof-execute-minibuffer-cmd))
-"List of keybindings made for both the script and response buffer. 
+"List of keybindings made for the script, goals and response buffer. 
 Elements of the list are tuples `(k . f)' 
 where `k' is a keybinding (vector) and `f' the designated function."
   :type 'sexp

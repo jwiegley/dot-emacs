@@ -27,7 +27,7 @@ DVISELECT = dviselect
 TITLERANGE = =1,=2
 
 # Assumes that main document starts on third actual page
-MAINRANGE = =3,=4,5:
+MAINRANGE = =3,=4,3:
 
 TOC = :_1
 

@@ -873,6 +873,13 @@ Assumes that point is at the end of a command."
       (forward-line)))
 
 
+(defun proof-assert-until-point-interactive ()
+  "Process the region from the end of the locked-region until point.
+Default action if inside a comment is just process as far as the start of
+the comment."
+  (interactive)
+  (proof-assert-until-point))
+
 
 ; Assert until point - We actually use this to implement the 
 ; assert-until-point, active terminator keypress, and find-next-terminator. 
@@ -889,11 +896,12 @@ Assumes that point is at the end of a command."
   (&optional unclosed-comment-fun ignore-proof-process-p)
   "Process the region from the end of the locked-region until point.
 Default action if inside a comment is just process as far as the start of
-the comment. If you want something different, put it inside
+the comment. 
+
+If you want something different, put it inside
 UNCLOSED-COMMENT-FUN. If IGNORE-PROOF-PROCESS-P is set, no commands
 will be added to the queue and the buffer will not be activated for
 scripting."
-  (interactive)
   (unless ignore-proof-process-p 
     (proof-shell-ready-prover)
     (proof-activate-scripting))
@@ -930,17 +938,23 @@ scripting."
 ;; FIXME: polish the undo behaviour and quit behaviour of this
 ;; command (should inhibit quit somewhere or other).
 
+(defun proof-assert-next-command-interactive ()
+  "Process until the end of the next unprocessed command after point.
+If inside a comment, just process until the start of the comment."
+  (interactive)
+  (proof-assert-next-command))
+  
 (defun proof-assert-next-command
   (&optional unclosed-comment-fun ignore-proof-process-p
 	     dont-move-forward for-new-command)
   "Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment.  
+
 If you want something different, put it inside UNCLOSED-COMMENT-FUN. 
 If IGNORE-PROOF-PROCESS-P is set, no commands will be added to the queue.
 Afterwards, move forward to near the next command afterwards, unless
 DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
 a space or newline will be inserted automatically."
-  (interactive)
   (unless ignore-proof-process-p
     (proof-shell-ready-prover)
     ;; FIXME: check this
@@ -1073,6 +1087,13 @@ deletes the region corresponding to the proof sequence."
 
 ;; FIXME da: Maybe retraction to the start of
 ;; a file should remove it from the list of included files?
+(defun proof-retract-until-point-interactive ()
+  "Tell the proof process to retract until point.
+If invoked outside a locked region, undo the last successfully processed
+command."
+  (interactive)
+  (proof-retract-until-point))
+
 (defun proof-retract-until-point (&optional delete-region)
   "Set up the proof process for retracting until point.
 In particular, set a flag for the filter process to call 
@@ -1082,7 +1103,6 @@ If DELETE-REGION is non-nil, delete the region in the proof script
 corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
 command."
-  (interactive)
   (proof-shell-ready-prover)
   (proof-activate-scripting)
   (let ((span (span-at (point) 'type)))
@@ -1150,12 +1170,16 @@ UNCLOSED-COMMENT-FUN."
 ;;         misc other user functions                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun proof-undo-last-successful-command-interactive ()
+  "Undo last successful command at end of locked region.
+The text is also deleted from the proof script."
+  (interactive "p")
+  (proof-undo-last-successful-command))
 
 (defun proof-undo-last-successful-command (&optional no-delete)
   "Undo last successful command at end of locked region.
 Unless optional NO-DELETE is set, the text is also deleted from
 the proof script."
-  (interactive "p")
   (unless (proof-locked-region-empty-p)
     (let ((lastspan (span-at-before (proof-locked-end) 'type)))
       (if lastspan
@@ -1208,7 +1232,7 @@ the proof script."
   "Process the current buffer and set point at the end of the buffer."
   (interactive)
   (goto-char (point-max))
-  (proof-assert-until-point))
+  (proof-assert-until-point-interactive))
 
 ;; FIXME da: this could do with some tweaking.  Be careful to
 ;; avoid memory leaks.  If a buffer is killed and it's local
@@ -1433,7 +1457,7 @@ Start up the proof assistant if necessary."
   (insert cmd)
   ;; FIXME: could do proof-indent-line here, but let's
   ;; wait until indentation is fixed.
-  (proof-assert-until-point))
+  (proof-assert-until-point-interactive))
 
 
 
@@ -1540,8 +1564,7 @@ No action if BUF is nil."
 With arg, turn on the Active Terminator minor mode if and only if arg
 is positive.
 
-If active terminator mode is enabled, a terminator will process the
-current command."
+If active terminator mode is enabled, pressing a terminator will automatically activate `proof-assert-next-command' for convenience."
 
  (interactive "P")
  
@@ -1635,11 +1658,11 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (let ((map proof-mode-map))
 (define-key map [(control c) (control e)] 'proof-find-next-terminator)
 (define-key map [(control c) (control a)] 'proof-goto-command-start)
-(define-key map [(control c) (control n)] 'proof-assert-next-command)
-(define-key map [(control c) (return)]	  'proof-assert-next-command)
+(define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
+(define-key map [(control c) (return)]	  'proof-assert-next-command-interactive)
 (define-key map [(control c) (control t)] 'proof-try-command)
-(define-key map [(control c) ?u]	  'proof-retract-until-point)
-(define-key map [(control c) (control u)] 'proof-undo-last-successful-command)
+(define-key map [(control c) ?u]	  'proof-retract-until-point-interactive)
+(define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
 (define-key map [(control c) ?\']	  'proof-goto-end-of-locked-interactive)
 ;; FIXME da: I don't understand what this function is supposed to do.
 ;; It will copy a proof command from within the locked region

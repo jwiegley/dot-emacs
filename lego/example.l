@@ -1,4 +1,4 @@
-Module Walkthrough Import lib_logic;
+Module example Import lib_logic;
 
 Goal and_commutes: {A,B:Prop}(and A B) -> (and B A);
 intros; andI;
