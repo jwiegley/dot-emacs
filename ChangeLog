@@ -1,3 +1,46 @@
+2002-01-15  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-shell.el:
+	Remove defunct code
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/feedback.html: Deleted files.
+
+	* CHANGES:
+	Describe tracing improvements.
+
+	* generic/proof-utils.el:
+	windows-of-buffer -> get-buffer-window-list GNU name
+
+	* generic/proof-shell.el:
+	Inspect quit-flag when displaying tracing output; send an interrupt to the prover if set.
+
+	* generic/proof-shell.el:
+	Redisplay during tracing output on XEmacs
+
+	* html/projects.html, html/download.html, html/gallery.php, html/links.html, html/main.html, html/oldnews.html:
+	Fix link to feedback page
+
+2002-01-14  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* etc/isar/trace_simp.thy: tuned;
+
+	* etc/isar/trace_simp.thy:
+	some test cases for trace_simp output;
+
+2002-01-11  David Aspinall  <da@proofgeneral.org>
+
+	* COPYING: Fix numbering
+
+	* CHANGES: Fix number
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
 2002-01-11  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
