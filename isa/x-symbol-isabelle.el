@@ -1,7 +1,9 @@
-;; x-symbol-isabelle.el   Token language "Isabelle Symbols" for package x-symbol
+;; x-symbol-isabelle.el   
+;;	Token language "Isabelle Symbols" for package x-symbol
 ;;
 ;;  ID:         $Id$
 ;;  Author:     David von Oheimb
+;;              Updates by Markus Wenzel, Christoph Wedler, David Aspinall.
 ;;  Copyright   1998 Technische Universitaet Muenchen
 ;;  License     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -11,14 +13,18 @@
 
 (defvar x-symbol-isabelle-required-fonts nil)
 
+;;;===========================================================================
+;;;  General language accesses, see `x-symbol-language-access-alist'
+;;;===========================================================================
+
 ;; FIXME da: these next two are also set in proof-x-symbol.el, but
-;; it's handy to use this file away from PG.  In future could
-;; fix things so just (require 'proof-x-symbol) would be enough
-;; here.
+;; it's handy to be able to use this file away from PG.  
+;; In future could fix things so just (require 'proof-x-symbol) 
+;; would be enough here.
 (defvar x-symbol-isabelle-name "Isabelle Symbol")
 (defvar x-symbol-isabelle-modeline-name "isa")
 
-(defvar x-symbol-isabelle-header-groups-alist nil)
+(defcustom x-symbol-isabelle-header-groups-alist nil
 ;'(("Operator" bigop operator)
 ;    ("Relation" relation)
 ;    ("Arrow, Punctuation" arrow triangle shape
@@ -26,19 +32,80 @@
 ;    ("Symbol" symbol currency mathletter setsymbol)
 ;    ("Greek Letter" greek greek1)
 ;    ("Acute, Grave" acute grave))
-;  "*If non-nil, used in isasym specific grid/menu."
+   "*If non-nil, used in isasym specific grid/menu.
+See `x-symbol-header-groups-alist'."
+  :group 'x-symbol-isabelle
+  :group 'x-symbol-input-init
+  :type 'x-symbol-headers)
 
-(defvar x-symbol-isabelle-class-alist
-  '((VALID "Isabelle Symbol" (x-symbol-info-face))
-    (INVALID "no Isabelle Symbol" (red x-symbol-info-face))))
-(defvar x-symbol-isabelle-class-face-alist nil)
-(defvar x-symbol-isabelle-electric-ignore "[:'][A-Za-z]\\|<=\\|\\[\\[\\|\\]\\]\\|~=")
+(defcustom x-symbol-isabelle-electric-ignore 
+  "[:'][A-Za-z]\\|<=\\|\\[\\[\\|\\]\\]\\|~="
+  "*Additional Isabelle version of `x-symbol-electric-ignore'."
+  :group 'x-symbol-isabelle
+  :group 'x-symbol-input-control
+  :type 'x-symbol-function-or-regexp)
 
 
+(defvar x-symbol-isabelle-required-fonts nil
+  "List of features providing fonts for language `isabelle'.")
+
+(defvar x-symbol-isabelle-extra-menu-items nil
+  "Extra menu entries for language `isabelle'.")
+
+
+(if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
+(progn
+(defvar x-symbol-isabelle-token-grammar
+  (x-symbol-make-grammar
+   :encode-spec '(((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")) .
+		  ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")))
+   :decode-spec nil
+   :decode-regexp "\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+"
+   :token-list #'x-symbol-isabelle-default-token-list))
+
+(defvar x-symbol-isabelle-input-token-grammar
+  '("\\(?:\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
+    (id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
+  "Grammar of input method Token for language `isabelle'.")))
+
+(defun x-symbol-isabelle-default-token-list (tokens)
+  (mapcar 
+   (lambda (x)
+     (cons x 
+	   (cond 
+	    ((string-match "\\`[A-Za-z_][A-Za-z_0-9]+\\'" x)
+	     'id)
+	    ((string-match "\\`[<>!+-*/|&]+\\'" x) 
+	     'op))))
+   tokens))
+
+(defvar x-symbol-isabelle-user-table nil
+  "User table defining Isabelle commands, used in `x-symbol-isabelle-table'.")
+
+(defvar x-symbol-isabelle-generated-data nil
+  "Internal.")
+
+
+;;;===========================================================================
+;;;  No image support
+;;;===========================================================================
+
+(defvar x-symbol-isabelle-master-directory  'ignore)
+(defvar x-symbol-isabelle-image-searchpath '("./"))
+(defvar x-symbol-isabelle-image-cached-dirs '("images/" "pictures/"))
+(defvar x-symbol-isabelle-image-file-truename-alist nil)
+(defvar x-symbol-isabelle-image-keywords nil)
+
+
+;;;===========================================================================
 ;;  Bold, super- and subscripts
+;;;===========================================================================
 
 (defun x-symbol-isabelle-make-ctrl-regexp (s)
-  (concat "\\(\\\\?\\\\<\\^" s ">\\)\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
+  "Make a regular expression which matches a sequence \<^foo> or ^"
+  (concat 
+   "\\(\\\\?\\\\<\\^" s 
+   ">\\)\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
 
 (defconst x-symbol-isabelle-font-lock-bold-regexp
   (x-symbol-isabelle-make-ctrl-regexp "bold")
@@ -55,7 +122,8 @@ Return nil if `x-symbol-mode' is nil.
 Uses `x-symbol-isabelle-font-lock-bold-regexp'."
   (and (proof-ass x-symbol-enable)
        (or (proof-looking-at x-symbol-isabelle-font-lock-bold-regexp)
-	   (proof-re-search-forward x-symbol-isabelle-font-lock-bold-regexp limit t))))
+	   (proof-re-search-forward 
+	    x-symbol-isabelle-font-lock-bold-regexp limit t))))
 
 (defun x-symbol-isabelle-match-scripts (limit)
   ;; checkdoc-params: (limit)
@@ -64,7 +132,8 @@ Return nil if `x-symbol-mode' is nil.
 Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
   (and (proof-ass x-symbol-enable)
        (or (proof-looking-at x-symbol-isabelle-font-lock-scripts-regexp)
-	   (proof-re-search-forward x-symbol-isabelle-font-lock-scripts-regexp limit t))))
+	   (proof-re-search-forward 
+	    x-symbol-isabelle-font-lock-scripts-regexp limit t))))
 
 (defvar x-symbol-isabelle-font-lock-keywords
   '((x-symbol-isabelle-match-bold
@@ -72,30 +141,60 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
      (2	'underline prepend))
     (x-symbol-isabelle-match-scripts
      (1 x-symbol-invisible-face t)
-     (2	(if (or (eq (char-after (+ 5 (match-beginning 1))) ?b)
-		(eq (char-after (+ 6 (match-beginning 1))) ?b))
+     (2	(if (or ;; check two positions in token [isabelle vs isar]
+	     (eq (char-after (+ 5 (match-beginning 1))) ?b)
+	     (eq (char-after (+ 6 (match-beginning 1))) ?b))
 	    'x-symbol-sub-face 'x-symbol-sup-face) prepend)))
   "Isabelle font-lock keywords for bold, super- and subscripts.")
 
+(defvar x-symbol-isabelle-font-lock-allowed-faces t)
 
-(defvar x-symbol-isabelle-master-directory  'ignore)
-(defvar x-symbol-isabelle-image-searchpath '("./"))
-(defvar x-symbol-isabelle-image-cached-dirs '("images/" "pictures/"))
-(defvar x-symbol-isabelle-image-file-truename-alist nil)
-(defvar x-symbol-isabelle-image-keywords nil)
+
+;;;===========================================================================
+;;;  Charsym Info
+;;;===========================================================================
+
+(defcustom x-symbol-isabelle-class-alist
+  '((VALID "Isabelle Symbol" (x-symbol-info-face))
+    (INVALID "no Isabelle Symbol" (red x-symbol-info-face)))
+  "Alist for Isabelle's token classes displayed by info in echo area.
+See `x-symbol-language-access-alist' for details."
+  :group 'x-symbol-texi
+  :group 'x-symbol-info-strings
+  :set 'x-symbol-set-cache-variable
+  :type 'x-symbol-class-info)
+
+
+(defcustom x-symbol-isabelle-class-face-alist nil
+  "Alist for Isabelle's color scheme in TeXinfo's grid and info.
+See `x-symbol-language-access-alist' for details."
+  :group 'x-symbol-isabelle
+  :group 'x-symbol-input-init
+  :group 'x-symbol-info-general
+  :set 'x-symbol-set-cache-variable
+  :type 'x-symbol-class-faces)
+
+
+
+;;;===========================================================================
+;;;  The tables
+;;;===========================================================================
 
 (defvar x-symbol-isabelle-case-insensitive nil)
-;(defvar x-symbol-isabelle-token-shape '(?\\ "\\\\\\<[A-Za-z][A-Za-z0-9_']*>\\a'" . "[A-Za-z]"))
-(defvar x-symbol-isabelle-token-shape nil)
 
-(defvar x-symbol-isabelle-exec-specs '(nil ("\\`\\\\<[A-Za-z][A-Za-z0-9_']*>\\'" .
-                                          "\\\\<[A-Za-z][A-Za-z0-9_']*>")))
+(defvar x-symbol-isabelle-token-shape nil)
+;(defvar x-symbol-isabelle-token-shape '(?\\ "\\\\\\<[A-Za-z][A-Za-z0-9_']*>\\a'" . "[A-Za-z]"))
+
+(defvar x-symbol-isabelle-exec-specs 
+  '(nil ("\\`\\\\<[A-Za-z][A-Za-z0-9_']*>\\'" .
+	 "\\\\<[A-Za-z][A-Za-z0-9_']*>")))
 
 (defvar x-symbol-isabelle-input-token-ignore nil)
-(defun x-symbol-isabelle-default-token-list (tokens) tokens)
+;; (defun x-symbol-isabelle-default-token-list (tokens) tokens)
 
 
-(defvar x-symbol-isabelle-token-list 'x-symbol-isabelle-default-token-list)
+(defvar x-symbol-isabelle-token-list 
+  'x-symbol-isabelle-default-token-list)
 
 (defvar x-symbol-isabelle-symbol-table      ; symbols (isabelle font)
   '((visiblespace "\\<spacespace>")
@@ -342,21 +441,25 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
     ))
 
 (defun x-symbol-isabelle-prepare-table (table)
+  "Account for differences in symbols between Isabelle/Isar and Isabelle."
   (let*
       ((is-isar (eq proof-assistant-symbol 'isar))
        (prfx1 (if is-isar "" "\\"))
        (prfx2 (if is-isar "\\" "")))
     (mapcar (lambda (entry)
-              (list (car entry) '() (concat prfx1 (cadr entry)) (concat prfx2 (cadr entry))))
+              (list (car entry) nil
+		    (concat prfx1 (cadr entry)) 
+		    (concat prfx2 (cadr entry))))
             table)))
 
 (defvar x-symbol-isabelle-table
   (x-symbol-isabelle-prepare-table
    (append
-    (if (boundp 'x-symbol-isabelle-user-table) x-symbol-isabelle-user-table nil)
+    x-symbol-isabelle-user-table
     x-symbol-isabelle-symbol-table
     x-symbol-isabelle-xsymbol-table)))
 
+;; override for x-symbol-user-table, adding[removing?] a couple of shortcuts 
 (defvar x-symbol-user-table
   (append
    (if (boundp 'x-symbol-user-table) x-symbol-user-table nil)
@@ -380,6 +483,7 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
 (defvar x-symbol-isabelle-encode-alist nil
   "Internal.  Alist used for encoding to Isasym macros.")
 
+;; FIXME: next two not needed for newer X-Symbol versions.
 (defvar x-symbol-isabelle-nomule-decode-exec nil
   "Internal.  File name of Isasym decode executable.")
 (defvar x-symbol-isabelle-nomule-encode-exec nil
