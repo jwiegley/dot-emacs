@@ -613,9 +613,9 @@ proof-shell-retract-files-regexp."
 (setq proof-xsym-font-lock-keywords
       '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
       proof-xsym-activate-command
-      "ML {* print_mode := (!print_mode union [\"xsymbols\",\"symbols\"]) *};"
+      "ML_command {* print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode) *};"
       proof-xsym-deactivate-command
-      "ML {* print_mode := filter_out (fn x=>(rev (explode \"symbols\") prefix rev (explode x))) (!print_mode) *};")
+      "ML_command {* print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]) *};")
 
 
 (provide 'isar)
