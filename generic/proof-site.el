@@ -187,6 +187,52 @@ Note: to change proof assistant, you must start a new Emacs session.")
 ;	  (setq load-path
 ;		(cons path load-path))))))
 
+(defun proof-ready-for-assistant (assistant-name assistantsym)
+  "Configure PG for ASSISTANT-NAME, symbol ASSISTANTSYM."
+  (let*
+      ((sname		 (symbol-name assistantsym))
+       (cusgrp-rt	 
+	;; Normalized a bit to remove spaces and funny characters
+	;; FIXME UGLY compatibility hack  
+	;; (can use cl macro `substitute' but want to avoid cl here)
+	(if (fboundp 'replace-in-string) 
+	    ;; XEmacs
+	    (replace-in-string (downcase assistant-name) "/\\|[ \t]+" "-")
+	  ;; FSF
+	  (subst-char-in-string 
+	   ?/ ?\- 
+	   (subst-char-in-string ?\ ?\- (downcase assistant-name)))))
+	;; END compatibility hack
+       (cusgrp	 (intern cusgrp-rt))
+       (cus-internals  (intern (concat cusgrp-rt "-config")))
+       ;; NB: Dir name for each prover is the same as its symbol name!
+       (elisp-dir    sname))
+    (eval `(progn
+       ;; Make a customization group for this assistant
+       (defgroup ,cusgrp nil
+	 ,(concat "Customization of user options for " assistant-name
+		  " Proof General.")
+	 :group 'proof-general)
+       ;; And another one for internals
+       (defgroup ,cus-internals nil
+	 ,(concat "Customization of internal settings for "
+		  assistant-name " configuration.")
+	 :group 'proof-general-internals
+	 :prefix ,(concat sname "-"))
+    
+       ;; Set the proof-assistant configuration variables
+       ;; NB: tempting to use customize-set-variable: wrong!
+       ;; Here we treat customize as extended docs for these
+       ;; variables.
+       (setq proof-assistant-cusgrp (quote ,cusgrp))
+       (setq proof-assistant-internals-cusgrp (quote ,cus-internals))
+       (setq proof-assistant ,assistant-name)
+       (setq proof-assistant-symbol (quote ,assistantsym))
+       ;; Extend the load path
+       (setq load-path 
+	     (cons (concat proof-home-directory ,elisp-dir "/")
+		   load-path))))))
+
 ;; Now add auto-loads and load-path elements to support the 
 ;; proof assistants selected, and define a stub 
 (let ((assistants proof-assistants))
@@ -205,24 +251,9 @@ Note: to change proof assistant, you must start a new Emacs session.")
 	 (sname		 (symbol-name assistant))
 	 ;; NB: File name for each prover is the same as its symbol name!
 	 (elisp-file   sname)
-	 ;; NB: Dir name for each prover is the same as its symbol name!
-	 (elisp-dir    sname)
 	 ;; NB: Mode name for each prover is <symbol name>-mode!
 	 (proofgen-mode  (intern (concat sname "-mode")))
 	 ;; NB: Customization group for each prover is its l.c.'d name!
-	 (cusgrp-rt	 
-	  ;; Normalized a bit to remove spaces and funny characters
-	  ;; FIXME UGLY compatibility hack  
-	  ;; (can use cl macro `substitute' but want to avoid cl here)
-	  (if (fboundp 'replace-in-string) 
-	      ;; XEmacs
-	      (replace-in-string (downcase assistant-name) "/\\|[ \t]+" "-")
-	    ;; FSF
-	    (subst-char-in-string ?/ ?\- 
-	     (subst-char-in-string ?\ ?\- (downcase assistant-name)))))
-	 ;; END compatibility hack
-	 (cusgrp	 (intern cusgrp-rt))
-	 (cus-internals  (intern (concat cusgrp-rt "-config")))
 
 	 ;; Stub to do some automatic initialization and load
 	 ;; the specific code.
@@ -233,7 +264,6 @@ Note: to change proof assistant, you must start a new Emacs session.")
 		 assistant-name
 		 ".\nThis is a stub which loads the real function.")
 	      (interactive)
-
 	      ;; Give a message and stop loading if proof-assistant is
 	      ;; already set: things go wrong if proof general is
 	      ;; loaded for more than one prover.
@@ -248,30 +278,10 @@ Note: to change proof assistant, you must start a new Emacs session.")
 		      " Proof General error: Proof General already in use for "
 		      proof-assistant))))
 	       (t
-		;; Make a customization group for this assistant
-		(defgroup ,cusgrp nil
-		  ,(concat "Customization of user options for " assistant-name
-			   " Proof General.")
-		  :group 'proof-general)
-		;; And another one for internals
-		(defgroup ,cus-internals nil
-		  ,(concat "Customization of internal settings for "
-			   assistant-name " configuration.")
-		  :group 'proof-general-internals
-		  :prefix ,(concat sname "-"))
-		
-		;; Set the proof-assistant configuration variables
-		;; NB: tempting to use customize-set-variable: wrong!
-		;; Here we treat customize as extended docs for these
-		;; variables.
-		(setq proof-assistant-cusgrp (quote ,cusgrp))
-		(setq proof-assistant-internals-cusgrp (quote ,cus-internals))
-		(setq proof-assistant ,assistant-name)
-		(setq proof-assistant-symbol (quote ,assistant))
-		;; Extend the load path, load the real mode and invoke it.
-		(setq load-path 
-		      (cons (concat proof-home-directory ,elisp-dir "/")
-			    load-path))
+		;; prepare variables and load path
+		(proof-ready-for-assistant ,assistant-name 
+					   (quote ,assistant))
+		;; load the real mode and invoke it. 
 		(load-library ,elisp-file)
 		(,proofgen-mode))))))
 
