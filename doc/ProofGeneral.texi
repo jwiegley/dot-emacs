@@ -2490,7 +2490,7 @@ That way the good command is called when the scripting starts in
 is specific to the file @file{foo.v}, and thus if you set it via the
 configuration tool, you will need to do it each time you load this
 file. On the contrary with this method, Emacs will do this operation
-automatically.
+automatically when loading this file.
 
 Extending the previous example, if the makefile for @file{foo.v} is
 located in directory @file{.../dir/}, you can add the right compile
@@ -2559,9 +2559,11 @@ Coq Proof General author's suggested abbreviations for Coq:
 The above list was taken from the file that Emacs saves between
 sessions.  The easiest way to configure abbreviations is as you write,
 by using the key presses @kbd{C-x a g} (@code{add-global-abbrev}) or
-@kbd{C-x a i g} (@code{inverse-add-global-abbrev}).  To enable expansion
-of abbreviations, the @code{Abbrev} minor mode, type @kbd{M-x
-abbrev-mode RET}.  See the Emacs manual for more details.
+@kbd{C-x a i g} (@code{inverse-add-global-abbrev}).  To enable automatic
+expansion of abbreviations (which can be annoying), the @code{Abbrev}
+minor mode, type @kbd{M-x abbrev-mode RET}. When you are not in Abbrev
+mode you can expand an abbreviation by pressing @kbd{C-x '}
+(@code{expand-abbrev}). See the Emacs manual for more details.
 
 
 
@@ -3328,15 +3330,13 @@ one, and as the lemmas are proved or their proofs aborted they are
 popped off a stack.
 
 Coq Proof General supports this feature of Coq.  Top-level commands
-entered while in a proof are promoted immediately above the outermost
-active proof.  If new lemmas are started, Coq Proof General lets the user
-work on the proof of the new lemma, and when the lemma is finished the
-full proof of that lemma is promoted.  This is supported to any nesting
-depth that Coq allows.
+entered while in a proof are well backtracked. If new lemmas are
+started, Coq Proof General lets the user work on the proof of the new
+lemma, and when the lemma is finished it falls back to the previous
+one.  This is supported to any nesting depth that Coq allows.
 
-@b{Special note:} this feature is disabled since version 3.0 because the
-implementation was unreliable.  (Patches to improve the code in
-@file{coq.el} are welcome).
+@b{Special note:} The old feature that moved nested proofs outside the
+current proof is disabled.
 
 @node User-loaded tactics
 @section User-loaded tactics
@@ -3344,19 +3344,49 @@ implementation was unreliable.  (Patches to improve the code in
 Another feature that Coq allows is the extension of the grammar of the
 proof assistant by new tactic commands.  This feature interacts with the
 proof script management of Proof General, because Proof General needs to
-know when a tactic is called that alters the proof state.
+know when a tactic is called that alters the proof state.  When the user
+tries to retract across an extended tactic in a script, the algorithm
+for calculating how far to undo has a default behavior that is not
+always accurate: do "@code{Undo 1.}" when in proof mode, and "@code{Back
+1.}"  when in toplevel mode.
 
-Unfortunately, Coq Proof General does not currently support tactic
-extension in Coq.  When the user tries to retract across an extended
-tactic in a script, the algorithm for calculating how far to undo does
-not recognize the extension, and so the proof buffer and Coq are not
-synchronized.
+Coq Proof General does not currently support dynamic tactic extension in
+Coq, but provide a way to add tactic and command names in the
+@file{.emacs} file. Four Configurable variables allows to register
+personal new tactics and commands. Commands and Tactics are split into
+backable (resp. undoable), i.e. which need "@code{Back}"
+(resp. "@code{Undo}") to be backtracked, and not backable (resp. not
+undoable).
 
-Until this feature is incorporated into Coq Proof General, the user can
-use C-c C-v to resynchronize.  For example, if the user does C-c C-u to
-move the point back past one extended tactic, he or she can type C-c C-v
-``Undo 1.''  This then undoes the tactic that Proof General failed to
-recognize.
+We give an example of existing commands that fit each category.
+
+@itemize @bullet
+
+@item @code{coq-user-non-backable-commands}: example: "@code{Print}"
+
+@item @code{coq-user-backable-commands}: example: "@code{Require}"
+
+@item @code{coq-user-undoable-tactics}: example: "@code{Intro}"
+ 
+@item @code{coq-user-non-undoable-tactics}: example: "@code{Idtac}"
+@end itemize
+
+This variables are regexp lists. See their documentations in emacs
+(@code{C-h v coq-user...})  for details on how to set them in your .emacs
+file.
+
+Example:
+@lisp
+(setq coq-user-backable-commands 
+      '("MyHint" "MyRequire" "Show\\-+Mydata"))
+@end lisp
+
+
+To re-synchronize by hand, the user can use @code{C-c C-v}.  For
+example, if the user does @code{C-c C-u} to move the point back past an
+unknown tactic T, he or she can type @code{C-c C-v} <tactic before
+T>. This then undoes the backtrack command that Proof General sent
+erroneously.
 
 
 
@@ -3364,13 +3394,13 @@ recognize.
 
 
 
-@c Sorry, there is currently very little specific documentation written for
-@c Coq Proof General. If any Coq user would like to contribute, please send
-@c a message to @code{proofgen@@dcs.ed.ac.uk}.
+@c Sorry, there is currently very little specific documentation
+@c written for Coq Proof General. If any Coq user would like to
+@c contribute, please send a message to @code{proofgen@@dcs.ed.ac.uk}.
 
 @c Type @kbd{C-h C-m} to get a list of all Coq specific commands and
-@c browse the customize menus to find out what customization
-@c options there are for Coq.
+@c browse the customize menus to find out what customization options
+@c there are for Coq.
 
 
 

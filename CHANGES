@@ -69,10 +69,12 @@ contributed by Lucas Dixon (lucasd@dai.ed.ac.uk)
 ** Coq Changes
 
 *** Bug fixed: Much better synchronization of PG/Coq. Commands like
-    Hint, Require, etc, were not backtracked correctly. Nested proofs
-    and commands nested in proofs are now also well backtracked,
-    provided user defined keywords are introduced in the adequat
-    custom variables, see new feature below.
+    Hint, Require, etc, were not backtracked correctly, there are
+    now. Nested proofs and commands nested in proofs are now also well
+    backtracked.
+
+	 User defined keywords are not completely well backtracked. To
+	 solve this we provide customization, see new feature below.
 
 *** New Feature: four Configurable variables allows to register
     personal new tactics and commands. Commands and Tactics are split
@@ -96,12 +98,13 @@ contributed by Lucas Dixon (lucasd@dai.ed.ac.uk)
 
    coq-user-non-undoable-tactics:  example: "Proof"
 
-   This variables are string lists. See their documentations in emacs
+   This variables are regexp lists. See their documentations in emacs
    of this variable (C-h v coq-user...)  for details on how to set
    them in your .emacs file.
 
    Example:
-   (setq coq-user-backable-commands '("MyHint" "MyRequire"))
+   (setq coq-user-backable-commands 
+	  '("MyHint" "MyRequire" "Show\\-+Mydata"))
 
 
 
