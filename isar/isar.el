@@ -186,9 +186,6 @@
 	(and cont (forward-char forward-amount)))
       found-header)))
 
-;; FIXME: uncomment here for testing new parsing function.  
-;; (defalias 'proof-segment-up-to 'proof-segment-up-to-new)
-
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
   (setq
