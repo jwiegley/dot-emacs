@@ -164,7 +164,7 @@ generic Emacs interface for proof assistants.
 
 Proof General @value{version} has been tested with XEmacs
 @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}.  It is
-supplied ready customized for the proof assistants AF2, Coq, Lego, 
+supplied ready customized for the proof assistants PhoX, Coq, Lego, 
 Isabelle, and HOL.  
 
 @menu
@@ -180,7 +180,7 @@ Isabelle, and HOL.
 * Coq Proof General::           
 * Isabelle Proof General::    
 * HOL Proof General::
-@c * AF2 Proof General::
+@c * PhoX Proof General::
 * Obtaining and Installing::  
 * Known bugs and workarounds::  
 * References::                  
@@ -288,10 +288,11 @@ proving theorems.
 Adapting for new proof assistants continues to be made more flexible,
 and easier in several places.  This has been motivated by adding
 experimental support for some new systems.  One new system which had
-good support added in a very short space of time is @b{AF2}
-(see @uref{http://www.lama.univ-savoie.fr/~RAFFALLI/af2.html, the AF2 home page}
-for more information).  AF2 joins the rank of officially supported
-Proof General instances, thanks to its developer Christophe Raffalli.
+good support added in a very short space of time is @b{PhoX} (see
+@uref{http://www.lama.univ-savoie.fr/~RAFFALLI/af2.html, the PhoX home
+page} for more information).  PhoX joins the rank of officially
+supported Proof General instances, thanks to its developer Christophe
+Raffalli.
 
 Breaking the manual into two pieces was overdue: now all details on
 adapting Proof General, and notes on its internals, are in the
