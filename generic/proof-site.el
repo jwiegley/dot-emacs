@@ -210,7 +210,17 @@ Note: to change proof assistant, you must start a new Emacs session.")
 	 ;; NB: Mode name for each prover is <symbol name>-mode!
 	 (proofgen-mode  (intern (concat sname "-mode")))
 	 ;; NB: Customization group for each prover is its l.c.'d name!
-	 (cusgrp-rt	 (substitute ?\- ?\ (downcase assistant-name)))
+	 (cusgrp-rt	 
+	  ;; Normalized a bit to remove spaces and funny characters
+	  ;; FIXME UGLY compatibility hack  
+	  ;; (can use cl macro `substitute' but want to avoid cl here)
+	  (if (fboundp 'replace-in-string) 
+	      ;; XEmacs
+	      (replace-in-string (downcase assistant-name) "/\\|[ \t]+" "-")
+	    ;; FSF
+	    (subst-char-in-string ?/ ?\- 
+	     (subst-char-in-string ?\ ?\- (downcase assistant-name)))))
+	 ;; END compatibility hack
 	 (cusgrp	 (intern cusgrp-rt))
 	 (cus-internals  (intern (concat cusgrp-rt "-config")))
 
