@@ -4,7 +4,7 @@ theory Example = Main:;
 text {*
  Just a few tiny examples to get an idea of how Isabelle/Isar proof documents
  may look like.
- *}
+ *};
 
 lemma I: "A --> A";
 proof;
