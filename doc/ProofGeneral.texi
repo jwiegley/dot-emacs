@@ -2779,6 +2779,14 @@ This hook may be useful for synchronizing with the proof
 assistant, for example, to switch to a new theory
 (in case that isn't already done by commands in the proof
 script).
+
+When functions in this hook are called, the variable
+@samp{activated-interactively} will be non-nil if 
+@code{proof-activate-scripting} was called interactively
+(rather than as a side-effect of some other action).
+If a hook function sends commands to the proof process,
+it should wait for them to complete (so the queue is cleared
+for scripting commands), unless activated-interactively is set.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-stack-to-indent
 @defvar proof-stack-to-indent 
@@ -4108,6 +4116,15 @@ To debug Proof General, it may be helpful to set the
 configuration variable @code{proof-show-debug-messages}.
 
 @c TEXI DOCSTRING MAGIC: proof-show-debug-messages
+@defopt proof-show-debug-messages 
+Whether to display debugging messages in the response buffer.@*
+If non-nil, debugging messages are displayed in the response giving
+information about what Proof General is doing.
+To avoid erasing the messages shortly after they're printed, 
+you should set @samp{@code{proof-tidy-response}} to nil.
+
+The default value is @code{t}.
+@end defopt
 
 For more information about debugging Emacs lisp, consult the Emacs Lisp
 Reference Manual.  I recommend using the source-level debugger

@@ -57,6 +57,12 @@ nil if a region cannot be found."
       ((case-fold-search proof-case-fold-search))
     (string-match regexp string start)))
 
+(defun proof-looking-at (regexp)
+  "Like looking-at, but set case-fold-search to proof-case-fold-search."
+  (let
+      ((case-fold-search proof-case-fold-search))
+    (looking-at regexp)))
+
 
 ;; Generic font-lock
 
