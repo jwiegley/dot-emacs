@@ -3,8 +3,8 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
-;; Revision 1.3  1997/10/16 13:13:40  djs
-;; Merged Coq changes onto main branch
+;; Revision 1.4  1997/10/16 13:14:32  djs
+;; Merged Coq changes with main branch.
 ;;
 ;; Revision 1.2  1997/10/13 17:12:48  tms
 ;; *** empty log message ***
@@ -273,7 +273,7 @@
 			  (match-string 2 str) proof-terminal-string))))
 
 
-      (setq sext (next-span ext 'type)))
+      (setq sext (next-span sext 'type)))
 
       (or ans "COMMENT")))
 
