@@ -847,7 +847,7 @@ Only call this from a scripting buffer."
 	       (setq buffer-display-table disp)))))
 
 (defun proof-mark-buffer-atomic (buffer)
-  "Mark BUFFER as having processed in a single step.
+  "Mark BUFFER as having been processed in a single step.
 
 If buffer already contains a locked region, only the remainder of the
 buffer is closed off atomically." 
@@ -1540,14 +1540,29 @@ locked region or everything in it has been processed."
 	(set-buffer script-buffer)
 	;; We only allow switching of the Scripting buffer if the
 	;; locked region is either empty or full for all buffers.
+	;; Here we check the current Scripting buffer's status.
 	(if (or 
 	     (eq (proof-unprocessed-begin) (point-min))
 	     (progn
 	       ;; Skip empty space at end of buffer
 	       (goto-char (point-max))
 	       (skip-chars-backward " \t\n")
-	       (>= (proof-unprocessed-begin) (point))))
-
+	       (if (>= (proof-unprocessed-begin) (point))
+		   ;; We're switching from a buffer which has been
+		   ;; completely processed.  Make sure that it's
+		   ;; registered on the included files list, in
+		   ;; case it has been processed piecemeal.
+		   (and buffer-file-name
+			;; FIXME: Could alter
+			;; proof-register-new-processed-file to work
+			;; also for possibly non-new cases.
+			(not
+			 (member buffer-file-truename 
+				 proof-included-files-list))
+			(progn
+			  (proof-register-new-processed-file file)
+			  ;; Continue 
+			  t)))))
 	    ;; we are changing the scripting buffer
 	   (progn
 	     (setq proof-active-buffer-fake-minor-mode nil)

@@ -14,15 +14,16 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A* shouldn't a
-    file that has been completed be added to proof-included-files-list?
+A* Fixup multiple files -- needs debugging.
 
-A* Fixup multiple files (mark atomic makes some assumption about
-   non-comment commands in script buffers).  Improve test for
-   locked region being whole of buffer.  This is partly done,
-   may need improvements.  (1hr)
+   1. mark atomic makes some assumption about non-comment commands in
+      script buffers
+      (partly fixed)
+   2. Improve test for locked region being whole of buffer
+      (probably fixed)
+   3. Management of proof-script-buffer-list maybe wrong.
 
-A* Check Info doc configuration with Emacs 20.2
+   (3hrs)
 
 C byte-compilation: check that byte compilation (and compiled code!)
   works for both varieties of Emacs.  Add instructions to INSTALL on 
