@@ -39,12 +39,16 @@ X (Low)     probably not worth spending time on
 ====================================
 
 A Pending work, in progress [da]:
+  
+   - FSF Fixes.   Stacks, oh no.
 
    - name changes: proof-window-dedicated -> proof-keep-windows
            proof-shell-{start,end,goal,blah} -> proof-goals-{blah}
            pbp-{blah} -> proof-goals-{blah}, new proof-goals.el  [maybe later]
      
-
+   - display functions: auto-delete-windows doesn't seem to work
+   with window-dedicated any more (should switch between 2/3 bufs
+   as appropriate?).
 
 
     - reorganization and improvement of menus, keybindings
@@ -59,6 +63,13 @@ re-enabled), proof-toggle-scripting, new configuration options.
     - Fix sentinel infinite loop bug
     - noticeable delay when loading ML files for Isabelle (fontification?)
     - clean up assert-until-point stuff at last!
+
+B BUGLETS:
+   * FSF Emacs poor fontification first time round, maybe before
+     font-lock has loaded.  Right way to start it seems to be
+     by doing global-font-lock-mode.
+
+   
 
 B Have seen "confused" bug: shows up when do lots of C-c C-n as
   process is starting up.

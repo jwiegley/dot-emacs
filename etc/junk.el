@@ -6,6 +6,30 @@
 ;;; removed from main PG (or never added).
 ;;; Left here in case they're useful later.
 ;;;
+;;; Also some testing code.
+;;;
+
+;;; TESTING FRAGMENTS
+
+;;; special display regexps
+(setq special-display-regexps
+     (cons "\\*isabelle-\\(goals\\|response\\)\\*"
+	     special-display-regexps))
+
+
+;;; dump str to buffer ug for testing.
+(defun ugit (str)
+  (save-excursion
+    (set-buffer (get-buffer-create "ug"))
+    (goto-char (point-max))
+    (insert str)
+    (newline)
+    (newline)))
+
+
+
+
+;;; OLD CODE
 
 (defun proof-set-toggle (sym value)
   "Try to set a boolean variable <blah>-enable using function <blah>-toggle."
@@ -59,11 +83,3 @@ arrive."
 
 
 
-;; dump str to buffer ug for testing.
-(defun ugit (str)
-  (save-excursion
-    (set-buffer (get-buffer-create "ug"))
-    (goto-char (point-max))
-    (insert str)
-    (newline)
-    (newline)))

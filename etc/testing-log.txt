@@ -1,3 +1,15 @@
+Thu Nov 11 19:05:39 GMT 1999
+
+ Tested response buffer display: see isa/message-test.ML
+ Made output more regular by removing spurious space/newline 
+ after every prompt, and padding response buffer with 
+ newlines when messages aren't newline terminated.
+
+ Testing window management for multiple frames.  Could find no
+ evidence of old bug message in code about with
+ special-display-regexps, script buffer gets made into
+ dedicated buffer.  Removed the comment.
+
 Mon Aug 23 19:00:26 BST 1999 da
 
   Summary of tests today:
