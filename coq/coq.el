@@ -199,7 +199,7 @@
 
        ((eq (span-property span 'type) 'comment))       
 
-       ((eq (span-property span 'type) 'goalsave)
+       ((eq (span-property span 'type) 'proof)
 	;; Note da 6.10.99: in Lego and Isabelle, it's trivial to
 	;; forget an unnamed theorem.  Coq really does use the 
 	;; identifier "Unnamed_thm", though!  So we don't need
@@ -501,11 +501,82 @@ This is specific to coq-mode."
    proof-indent-close-regexp
    (proof-regexp-alt (proof-ids-to-regexp '("end")) "\\s)"))
   
-  (setq proof-auto-multiple-files t)	; until Coq has real support
+
+  ;; (setq proof-auto-multiple-files t)	; until Coq has real support
+  ;; da: Experimental support for multiple files based on discussions
+  ;; at TYPES 2000. 
+  ;; (Pierre, please fix this as Coq users would like, and for Coq V7 !)
+  (setq proof-shell-inform-file-processed-cmd
+	"Reset Initial. Compile Module %m.")
+  ;; FIXME da: Coq is rather quiet when reading files with "Load <foo>."
+  ;; and sometimes even Require seems quiet?  PG would like some guarantees
+  ;; that messages are issued.  Also, the code to guess the complete file
+  ;; name is flaky, would be better if Coq displayed full path info for PG.
+  (setq proof-shell-process-file 
+	;; FIXME da: Coq output Reinterning message should not
+	;; be suppressed by "Begin Silent" for PG, and should be
+	;; marked by eager annotation (special char).
+	;; For Coq 7, we should get rid of 8 bit chars in PG, too.
+	(cons "Reinterning \\([^ ]+\\) \\.\\.\\.done"
+	      (lambda (str)
+		(let
+		    ((modname (match-string 1 str))
+		     ;; FIXME: next lines will return a directory but maybe
+		     ;; not right one if proof-script-buffer happens to be nil!
+		     (dir     
+		      (or (proof-with-script-buffer default-directory) 
+			  default-directory)))
+		  (concat dir modname ".v")))))
+
+  (setq proof-shell-inform-file-retracted-cmd
+	;; da: This is a HORRIBLE fragile hack: instead of issuing a
+	;; command to the prover we have to run a "coqdep" command to
+	;; find out the dependencies and put them into a temporary
+	;; Makefile, then execute a rather horrible make command.
+	(lambda (fname) 
+	  (let*
+	      ;; Assume buffer is in correct directory, assume current directory
+	      ;; is writeable, assume we have GNU make, etc, etc.  
+	      ;; I hope Coq V7 will provide this operation for us as
+	      ;; a builtin (it should print out a series of messages which
+	      ;; are matched by proof-shell-retract-files-regexp, one for
+	      ;; each dependency).
+	      ;; [In fact, I think this is what should happen when 
+	      ;; Require is undone]
+	      ((depstr 
+(substring (shell-command-to-string
+(concat
+"coqdep *.v | grep " 
+(file-name-nondirectory (file-name-sans-extension fname)) ".v"
+" | awk '{print $1}' | sed 's/.vo:/.v/'")) 0 -1))
+	       (deps (split-string depstr))
+               (current-included proof-included-files-list))
+		;; Now hack the proof-included-files-list to remove the
+		;; dependencies of the retracted file and remove the 
+		;; locked regions
+		;; FIXME: this is too low-level delving in PG. Should
+		;; do with proof-shell-retract-files-regexp really.
+	        (mapcar (lambda (dep) 
+		   (setq proof-included-files-list 
+			   (delete (file-truename dep) 
+				    proof-included-files-list)))
+	           deps)
+		(proof-restart-buffers
+		 (proof-files-to-buffers
+		  (set-difference current-included
+			  proof-included-files-list)))
+		;; Return a comment thingy inserted into the shell
+		;; buffer to help debugging.
+		(concat
+		 "Print (* Proof General ran coqdep command for "
+		 fname " , result: " depstr " *)"))))
+
 
   ;;Coq V7 changes this 
-  (setq proof-shell-start-silent-cmd (if coq-version-is-V7 "Set Silent."   "Begin Silent.")
-	proof-shell-stop-silent-cmd  (if coq-version-is-V7 "Unset Silent." "End Silent."))
+  (setq proof-shell-start-silent-cmd 
+	(if coq-version-is-V7 "Set Silent."   "Begin Silent.")
+	proof-shell-stop-silent-cmd  
+	(if coq-version-is-V7 "Unset Silent." "End Silent."))
 ;  (setq proof-shell-start-silent-cmd "Begin Silent."
 ;	proof-shell-stop-silent-cmd  "End Silent.")
 
@@ -559,9 +630,9 @@ This is specific to coq-mode."
    proof-shell-end-char ?\373 ; not done
    proof-shell-field-char ?\374 ; not done
    proof-shell-goal-char ?\375 ; done
-   proof-shell-eager-annotation-start "\376" ; done
-   proof-shell-eager-annotation-start-length 1
-   proof-shell-eager-annotation-end "\377" ; done
+   proof-shell-eager-annotation-start "\376\\|\\[Reinterning"
+   proof-shell-eager-annotation-start-length 12
+   proof-shell-eager-annotation-end "\377\\|done\\]" ; done
    proof-shell-annotated-prompt-regexp
    (concat proof-shell-prompt-pattern
 	   (char-to-string proof-shell-wakeup-char)) ; done
