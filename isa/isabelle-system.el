@@ -119,6 +119,19 @@ ISABELLE will always override this setting."
   :type 'file
   :group 'isabelle)
 
+(defun isabelle-command-line ()
+  "Make proper command line for running Isabelle"
+  (let
+      ((isabelle (getenv "ISABELLE"))
+       (logic (getenv "PROOFGENERAL_LOGIC")))
+    (if (or (not isabelle) (equal isabelle "") (not logic) (equal logic ""))
+	(or isabelle-prog-name "isabelle")  ; just to make really sure ...
+      ;; The ISABELLE and PROOFGENERAL_LOGIC values (as set when run
+      ;; under the interface wrapper script) indicate that we should
+      ;; determine the proper command line from the current Isabelle
+      ;; settings environment.
+      (concat isabelle " " logic))))
+
 (defun isa-tool-run-command (logic-name)
   "Make a command for running Isabelle using Isabelle tools.
 This function is called with the name of the logic as an argument,
