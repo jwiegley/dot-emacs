@@ -19,6 +19,9 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.24  1997/11/13 10:23:49  hhg
+;; Includes commented code for Coq version of extent protocol
+;;
 ;; Revision 1.23  1997/11/10 18:36:21  djs
 ;; Started modifications for emacs19 port.
 ;;
@@ -612,6 +615,8 @@
 	 ((= c proof-shell-goal-char)
 	  (setq topl (cons op topl)))
 	 ((= c proof-shell-start-char)
+					; Subtract from current length for Coq
+;	  (setq ap (- ap (- (aref string (incf ip)) 128)))
 	  (setq ap (- (aref string (incf ip)) 128))
 	  (incf ip)
 	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
@@ -623,6 +628,12 @@
 	  (setq ext (make-span (car stack) op))
 	  (set-span-property ext 'mouse-face 'highlight)
 	  (set-span-property ext 'proof (cadr stack))
+					; Pop annotation off stack, for Coq
+;	  (setq ap 0)
+;	  (while (< ap (length (cadr stack)))
+;	    (aset ann ap (aref (cadr stack) ap))
+;	    (incf ap))
+					; Finish popping annotations
 	  (setq stack (cddr stack)))
 	 (t (incf op)))
 	(incf ip))
