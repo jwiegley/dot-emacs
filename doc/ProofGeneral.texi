@@ -423,6 +423,7 @@ to @code{proofgen@@dcs.ed.ac.uk}.
 * Features of Proof General::   
 * Supported proof assistants::  
 * Prerequisites for this manual::
+* Organization of this manual::
 @end menu
 
 
@@ -568,16 +569,16 @@ Proof General comes ready-customised for these proof assistants:
 @itemize @bullet
 @item 
 @b{LEGO Proof General} for LEGO Version 1.3.1@*
-@xref{LEGO Proof General} for more details.
+See @ref{LEGO Proof General} for more details.
 @item 
 @b{Coq Proof General} for Coq Version 6.3@*
-@xref{Coq Proof General} for more details.
+See @ref{Coq Proof General} for more details.
 @item 
 @b{Isabelle Proof General} for Isabelle99@*
-@xref{Isabelle Proof General} for more details.
+See @ref{Isabelle Proof General} for more details.
 @item 
 @b{Isabelle/Isar Proof General} for Isabelle99@*
-@xref{Isabelle Proof General} and documentation suplied with
+See @ref{Isabelle Proof General} and documentation suplied with
 Isabelle for more details.
 @end itemize
 Proof General is designed to be generic, so if you know how
@@ -1352,6 +1353,7 @@ you with several escape mechanisms if you want to do this.
 * View of processed files ::    
 * Retracting across files::     
 * Asserting across files::      
+* Automatic multiple file handling::
 * Escaping script management::
 @end menu
 
@@ -1476,6 +1478,7 @@ command with the usual assertion commands, see @ref{Script processing
 commands}. Proof General reminds you that now is a good time to save any
 unmodified buffers.  This is particularly useful as assertion may cause
 the proof assistant to automatically process other files.
+
 
 @node Automatic multiple file handling
 @section Automatic multiple file handling
