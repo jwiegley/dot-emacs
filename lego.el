@@ -112,7 +112,7 @@
 (defvar lego-outline-regexp
   (concat "[[*]\\|"
 	  (ids-to-regexp 
-	   '("Discharge" "DischargeKeep" "Freeze" "Goal" "Module" "Record" "Inductive"
+	   '("Discharge" "DischargeKeep" "Freeze" "$?Goal" "Module" "Record" "Inductive"
      "Unfreeze"))))
 
 (defvar lego-outline-heading-end-regexp ";\\|\\*)")
@@ -123,10 +123,10 @@
 ;; ----- keywords for font-lock. If you want to hack deeper, you'd better
 ;; ----- be fluent in regexps - it's in the YUK section.
 
-(defvar lego-keywords-goal '("Goal"))
+(defvar lego-keywords-goal '("$?Goal"))
 
 (defvar lego-keywords-save
-  '("Save" "SaveFrozen" "SaveUnfrozen"))
+  '("$?Save"))
 
 (defvar lego-keywords
   (append lego-keywords-goal lego-keywords-save '("andI" "Claim"
