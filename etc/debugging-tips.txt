@@ -9,11 +9,14 @@ flag to find out where in the code it occurs, showing a
 stack trace:
 
  (setq debug-on-error t)    ; debug on errors
- (setq debugon-on-quit t)   ; debug on CTRL-G for looping code
+ (setq debug-on-quit t)   ; debug on CTRL-G for looping code
 
 You can make settings like this using M-x set-variable, or writing Lisp
 code as above in the *scratch* buffer, and typing C-x C-e to evaluate
 the expressions, or using M-x eval-expression (ESC-:).
+
+On XEmacs you can also find the above settings under the
+menu Options -> Troubleshooting.
 
 Debugging start-up problems
 ===========================
@@ -54,7 +57,7 @@ you are writing your own additions for Proof General.
 Load the source file <foo>.el, and locate the function you 
 want to debug.  Type
 
-   M-x debug-defun RET
+   M-x edebug-defun RET
 
 to instrument it for debugging.
 
