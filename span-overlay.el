@@ -5,6 +5,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 2.0  1998/08/11 15:00:13  da
+;; New branch
+;;
 ;; Revision 1.9  1998/06/10 14:02:39  hhg
 ;; Wrote generic span functions for making spans read-only or read-write.
 ;; Fixed bug in add-span and remove-span concerning return value of

@@ -3,6 +3,9 @@
 ;; Authors: Healfdene Goguen, Thomas Kleymann, David Aspinall
 
 ;; $Log$
+;; Revision 2.0  1998/08/11 14:59:57  da
+;; New branch
+;;
 ;; Revision 1.1  1998/08/11 14:43:34  da
 ;; Isabelle proof.el support.
 ;;

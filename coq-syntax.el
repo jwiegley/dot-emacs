@@ -4,6 +4,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 2.0  1998/08/11 14:59:53  da
+;; New branch
+;;
 ;; Revision 1.2  1998/08/11 11:43:13  da
 ;; Renamed <file>-fontlock to <file>-syntax
 ;;
