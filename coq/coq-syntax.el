@@ -24,6 +24,9 @@
 "CoInductive"
 "Fixpoint"
 "Inductive"
+"Inductive\\s-+Set"
+"Inductive\\s-+Prop"
+"Inductive\\s-+Type"
 "Mutual\\s-+Inductive"
 "Scheme"
 ))
@@ -184,6 +187,7 @@
 
 (defvar coq-reserved
   '(
+    "as"
     "ALL"
     "Cases"
     "EX"
@@ -191,7 +195,11 @@
     "end"
     "Fix"
     "if"
+    "in"
+    "of"
     "then"
+    "using"
+    "with"
     )
   "Reserved keyworkds of Coq")
 
@@ -224,21 +232,27 @@
 
 (defvar coq-ids (proof-ids coq-id))
 
-(defun coq-abstr-regexp (paren char)
-    (concat paren "\\s-*\\(" coq-ids "\\)\\s-*" char))
+(defun coq-first-abstr-regexp (paren)
+  (concat paren "\\s-*\\(" coq-ids "\\)\\s-*:"))
+
+(defun coq-next-abstr-regexp ()
+  (concat ";\\s-*\\(" coq-ids "\\)\\s-*:"))
 
 (defvar coq-font-lock-terms
   (list
 
    ;; lambda binders
-   (list (coq-abstr-regexp "\\[" ":") 1 'proof-declaration-name-face)
+   (list (coq-first-abstr-regexp "\\[") 1 'proof-declaration-name-face)
 
    ;; Pi binders
-   (list (coq-abstr-regexp "(" ":") 1 'proof-declaration-name-face)
+   (list (coq-first-abstr-regexp "(") 1 'proof-declaration-name-face)
    
+   ;; second, third, etc. abstraction for Lambda of Pi binders
+   (list (coq-next-abstr-regexp) 1 'proof-declaration-name-face)
+
    ;; Kinds
-   (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s-*\\(("
-		   coq-id ")\\)?") 'font-lock-type-face))
+   (cons "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\>" 'font-lock-type-face))
+
   "*Font-lock table for Coq terms.")
 
 ;; According to Coq, "Definition" is both a declaration and a goal.
@@ -253,7 +267,10 @@
   (concat "^" (proof-ids-to-regexp coq-keywords-goal)))
 (defconst coq-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-goal)
-	  "\\)\\s-+\\(" coq-id "\\)\\s-*:"))
+	  "\\)\\s-+\\(" coq-id "\\)\\s-*[:]?")) 
+          ;; Papageno : ce serait plus propre d'omettre le `:' 
+          ;; uniquement pour Correctness
+          ;; et pour Definition f [x,y:nat] := body
 (defconst coq-decl-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-decl)
 	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
