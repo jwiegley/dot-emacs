@@ -1,6 +1,6 @@
 <?php  
   require('functions.php3');
-  small_header("Proof General Project Proposals"); 
+  small_header("Proof General Projects"); 
   ?>
 
 <p>
@@ -12,239 +12,34 @@ involving code development and possibly a portion of supporting
 research.  They would be ideal projects for interested students
 or researchers.
 </p>
+<p>
+For more information on a project, click on its title.
+</p>
 
 <ul>
-<li><b>Proof-by-pointing support for Coq</b>
+<li><?php pgproject("coqpbp","Proof-by-pointing support for Coq") ?></li>
+<li><?php pgproject("isapbp","Proof-by-pointing support for Isabelle") ?></li>
+<li><?php pgproject("outline","Integrating block-structured development and outline mode") ?></li>
+<li><?php pgproject("mm","Multiplexed Modes for Emacs") ?></li>
+<li><?php pgproject("scrgen","Script General") ?></li>
+<li><?php pgproject("thybrowse","A Generic Theory Browser") ?></li>
+<li><?php pgproject("pgml","Specification and tools for PGML") ?></li>
+<li><?php pgproject("pgip","A New Protocol for Interactive Proof in Proof General") ?></li>
+<li><?php pgproject("webreplay","A Web-based Proof Replayer for Proof General") ?></li>
+<li><?php pgproject("test","A Test Harness and Test Suite for Proof General") ?></li>
+</ul>
+
 <p>
-Coq already has sophisticated notions of proof-by-pointing,
-and old work on support for Proof General may be helpful.  
-We want to integrate with the latest version of Coq's
-proof-by-pointing, possibly improving Proof General's
-support along the way.
-</p>
-<p>
-<b>Skills:</b>
- Some understanding of Coq implementation, co-operation with
- the Coq developers to get any Coq modifications (if any) incorporated.
- Minimal Emacs Lisp knowledge. 
-</p><p>
-<b>Proposer:</b>
-<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
+Some projects involve Emacs Lisp.  This is the embedded programming
+language inside Emacs.  It is very easy to learn, since it is small,
+has a good manual, and has an interactive interpreter.  It is easy to
+use, not least because of its <i>self-documenting</i> nature: each
+variable or function is compiled together with documentation of its
+purpose.  (Other languages would do well to follow this).
 </p>
 
-<li><b>Proof-by-pointing support for Isabelle</b>
-<p>
-Isabelle has a sophisticated concrete syntax mechanism which makes it
-difficult to add annotations to connect the displayed output back to
-the internal abstract syntax.  This issue needs to be solved to
-support proof-by-pointing (and other features) in Isabelle.
-A 
-<a href="http://www.informatik.uni-bremen.de/~bu/isa_contrib/isabelle.html">
-patch by Burkhart Wolff</a> 
-providing term structure annotations for a previous release of
-Isabelle may be useful here.  To implement proof-by-pointing itself,
-tactics using the gesture information must be written.
-</p>
-<p>
-<b>Skills:</b>
- Some understanding of Isabelle implementation, 
- co-operation with the Isabelle developers to get
- Isabelle modifications incorporated.
- Skill in writing Isabelle tactics.
- Minimal Emacs Lisp knowledge.
-</p><p>
-<b>Proposer:</b>
-<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
-</p>
-</li>
-
-<li><b>Integrating block-structured development and outline mode</b>
-<p>
-Emacs already provides powerful outline facilities (cf. the
-outl-minor-mode setup for the well-known auc-tex package).  
-Similarly, proof systems such as Isabelle/Isar are inherently based on
-block-structured proof texts, with compositional proof checking.
-</p><p>
-But Proof General currently offers a mostly linear model of
-incremental script management.  The aim of this project is to extend that
-model to a hierarchic one: e.g. sub-proofs could be suppressed in the
-presentation, or even temporarily suspended (to achieve top-down
-development).
-</p><p>
-Outline support would be useful for the large scale structure of formal
-developments as well, e.g. support the basic arrangement into logical
-section (cf. Coq), or even just traditional layout-based ones (cf. LaTeX).
-</p>
-<p>
-<b>Skills:</b>
-Some understanding of the workings of Emacs outline mode and Proof
-General script management.  Good portion of Emacs lisp knowledge.
-</p><p>
-<b>Proposer:</b>
-<a href="http://www.in.tum.de/~wenzelm/">Markus Wenzel</a>.
-</p>
-</li>
-
-
-<li><b>Multiplexed Modes for Emacs</b>
-<p>
-Emacs has a mechanism for customizing the editing behaviour of buffers
-based on their <i>major mode</i>.  A buffer can only have one major
-mode, but in literate styles of programming and proving we want to mix
-program text with documentation in a single file.  A way of
-multiplexing major modes is needed, so that different regions of a
-buffer can be edited in different modes.  One approach may be to use
-"views" onto untangled buffers, although it isn't clear how search and
-replace, etc, should behave in this case.  
-</p><p>
-Emacs hackers may already have worked on this problem and solved it
-sufficiently well (does anybody know?), in which case this project
-might degenerate into applying the work for Coq and Isabelle/Isar, as
-a feasibility demonstration.
-</p><p>
-<b>Skills:</b>
-A passion for Emacs and Emacs Lisp.
-</p><p>
-<b>Proposer:</b>
-<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
-</p>
-</li>
-
-<li><b>Script General</b>
-<p>
-Proof General is based around a core system of script management
-for proof scripts.  But the idea of script management is not
-restricted to proof assistants, it makes sense for many interactive
-scripting languages.  It deserves to be better known and used.
-A worthwhile project would be to rewrite the core script management
-features of Proof General so that they could work for arbitrary
-interactive scripting languages, and instantiate to Proof General as
-well as languages such as ML, Haskell, LISP, Scheme, Python, and
-even Emacs Lisp itself.
-</p>
-<p>
-An alternative version of this project is to implement a 
-generic basis for script management which does <i>not</i> depend on 
-Emacs, but uses a similar protocol to communicate with other
-text editors or display widgets.  This could be implemented in
-SML, OCaml, Java, C++, or any other suitable language.
-<p>
-<b>Skills:</b>
-Proficient Emacs Lisp (or other programming language), 
-knowledge of scripting languages desirable.
-</p><p>
-<b>Proposer:</b>
-<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
-</p>
-</li>
-
-<li><b>A Generic Theory Browser</b>
-<p>
-Proof General has very limited mechanisms for helping the user find
-theorems and definitions during a proof.  It has notion of displaying
-a "current context" for a proof, and configuration with a proof
-engine command for searching for theorems.  It would be useful to
-extend these facilities with a <i>theory browser</i> for investigating
-the theories currently defined in a running proof assistant.  This
-involves designing a small protocol to communicate with the proof
-assistant and a generic way of displaying theories which have
-different aspects from system to system.  A way which would
-fit in well with Emacs would be to use a <tt>dired</tt>-like
-buffer.
-</p>
-<p>
-An alternative version of this project would be to write a standalone
-theory browser which uses an extension of the forthcoming Proof
-General standardized protocol for interaction (see white paper <a
-href="/home/da/drafts/#white">here</a>).  This could be implemented in
-Java, or in a functional language, Perl, C or C++, so long as a nice
-toolkit is chosen (Qt or GTK).
-</p>
-<p>
-<b>Skills:</b>
-Interface programming skills.
-Basic understanding of what theories are for several different proof
-assistants.
-</p><p>
-<b>Proposer:</b>
-<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
-</p>
-</li>
-
-<li><b>Specification and tools for PGML</b>
-<p> 
-PGML is the proposed logical markup language for future versions of
-Proof General.  The basic version legitimizes the present markup
-scheme which is used by Proof General (based on 8-bit characters).
-Ideas for PGML are described in the white paper 
-<a href="/home/da/drafts/#white">here</a>, but no complete description or
-DTD is given there.  This project is to specify PGML using XML or SGML,
-and develop some tools for using it.  Various tools are desirable,
-including: (1) a display tool which displays PGML inside Emacs, or
-converts it to HTML for display by a web browser; (2) a filter or
-revised version of LEGO which converts its 8-bit markup into PGML, for
-testing purposes.
-</p>
-<p> 
-<b>Skills:</b> 
-Understanding of markup languages and tools for using and specifying them.
-Interest in representation of mathematical content. 
-Necessary programming skills.
-</p><p> 
-<b>Proposer:</b> 
-<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
-</p> 
-</li> 
-
-
-<li><b>A New Protocol for Interactive Proof in Proof General</b>
-<p>
-PGIP is a protocol for interactive proof to be used in the next
-version of Proof General.  It is based around the present protocol,
-but implemented with a standard collection of messages rather than
-different messages for different proof assistants.  An outline of PGIP
-is given in the <a href="/home/da/drafts/#white">white paper</a>.  A
-first implementation of PGIP will consist of (1) a filter (or
-modification of the output routines) for an existing proof assistant,
-which could be implemented in perl or some other language; and (2) a
-new backend for Proof General in Emacs, which configures it for PGIP.
-</p>
-<p>
-<b>Skills:</b>
-Interest in interactive proof and basic understanding
-of interaction mechanisms with at least one of 
-LEGO, Coq, Isabelle.   Programmming in Emacs Lisp.
-</p><p>
-<b>Proposer:</b>
-<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
-</p>
-</li>
-
-<li><b>A Web-based Proof Replayer for Proof General</b>
-<p>
-One of the nice features of Proof General is that it is very easy to
-replay existing proofs, by mouse clicks alone.  No low-level
-understanding of a proof assistant is needed to step through proofs.
-We would like to have a web-based version of Proof General which
-allowed for this proof replay (at least), perhaps running a proof
-assistant remotely.  The main aspect is to implement an engine for
-script management (colouring of lines of files), displaying in a web
-browser, sending lines to a proof assistant process, and display the
-results.  Ideally, the ideas for new standard protocols for Proof
-General in the <a href="/home/da/drafts/#white">white paper</a> would
-be followed.
-</p>
-<p>
-<b>Skills:</b>
-Strong web programming skills using scripting languages,
-dynamic HTML, etc.
-</p><p>
-<b>Proposer:</b>
-<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
-</p>
-</li>
-
-<!-- <li><b> </b> -->
+<!-- template for project pages -->
+<!-- <h2> </h2> -->
 <!-- <p> -->
 <!-- </p> -->
 <!-- <p> -->
@@ -253,11 +48,6 @@ dynamic HTML, etc.
 <!-- <b>Proposer:</b> -->
 <!-- <a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>. -->
 <!-- </p> -->
-<!-- </li> -->
-
-</ul>
-
-
 
 <p>
 If you are interested in working on any of these projects,
@@ -275,7 +65,7 @@ to do that.  Contact the project proposer first for more details.
 If you would like to use any of these ideas as a formal project
 proposal for students at your institution, please feel free
 but do <?php hlink("feedback.phtml","let us know ","Feedback form")?>
-if some work is begun, to help coordinate effort.
+if some work is begun, to help coordinate efforts.
 </p>
 
 <p>

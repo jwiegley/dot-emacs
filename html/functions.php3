@@ -182,6 +182,8 @@ function htmlshow($filename,$text="",$title="") {
 }
 
 
+
+
 /* Markup plain text file, by escaping < and > */
 
 function markup_plain_text($filename) {
@@ -261,4 +263,26 @@ function hack_html($filename,$title="")  {
   }
 }
 
+
+
+/* Display a small page with standard header, footer added on.
+   Much like htmlshow.  */
+
+function smallpage($filename,$text="",$title="",$message="") {
+ if ( $text == "") { $text=$filename; };
+ if ( $message == "") { $message=$title; };
+ if ( $message == "") { $message=$filename; };
+ $urlbits = parse_url($filename);
+ hlink("smallpage.phtml"
+       . "?title=" . urlencode($title) 
+       . "&file=" . urlencode($urlbits["path"])
+       . ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]),
+	$text, $message);
+}
+
+/* Specialised version for projects */
+
+function pgproject($filename,$title) {
+   smallpage("projects/$filename.html",$title,"Proof General Project",$title);
+}
 
