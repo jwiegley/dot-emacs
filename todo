@@ -14,6 +14,11 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A* Fixup multiple files (mark atomic makes some assumption about
+   non-comment commands in script buffers).  Improve test for
+   locked region being whole of buffer.  This is partly done,
+   may need improvements.  (1hr)
+
 C byte-compilation: check that byte compilation (and compiled code!)
   works for both varieties of Emacs.  Add instructions to INSTALL on 
   how to byte compile.  (1hr)
@@ -397,7 +402,12 @@ B (part of above): Handle proof-retract-file by querying Isabelle
   also be unlocked.
 
 B (part of above): add multiple file handling for Isabelle
-  (4h).
+  (4h).  
+   Work left to do:
+
+     test sending of "retract_file" command to Isabelle.
+     Handle theory files better.
+
 
 X Write perl scripts to generate TAGS file for ML and thy files.
   (6h, I've completely forgotten perl), or better:
