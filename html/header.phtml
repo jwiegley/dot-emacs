@@ -1,10 +1,10 @@
 <!-- This is the header -->
-<table width="80%">
+<table width="100%">
 <tr>
-<td width="300">
+<td width="190">
 <a href="index.phtml">
 <img src="images/ProofGeneral.jpg" alt="Proof General" align=top
-     width=260 height=302 border=0 >
+     width=158 height=183 border=0 >
 </a>
 </td>
 <td>
@@ -17,7 +17,9 @@
        * Look for $WANTED in array.  If not found, use default of "Home"
        * and fix $WANTED.  Hrefs are given by page parameter to current doc.
        */
+    $separator='<td><img src="images/bullethole.gif" alt="." align="top">';
     $WANTED=$HTTP_GET_VARS["page"];
+    print "<small><table><tr>\n"; 
     $links_arr  =  array(
           "Home"          =>  "main", 
           "News"          =>  "news", 
@@ -28,6 +30,7 @@
 	  "About"	  =>  "about",
 	  "Links"	  =>  "links"
     );
+    $midpoint = "Download";
     $DEFAULT = $links_arr["Home"];
     $wanted_okay = 0;
     for  (reset($links_arr);  $name  =  key($links_arr);  next($links_arr))  {
@@ -41,13 +44,15 @@
     for  (reset($links_arr);  $name  =  key($links_arr);  next($links_arr))  {
         print  $separator;
         if  ($WANTED  ==  $links_arr[$name])  {
-	  print "<b>" . $name . "</b>";
+	  print "<i>" . $name . "</i>";
 	  }
 	else {
             link_root($links_arr[$name],$name);
 	}
-        print "<br>\n";
+        print "</td>\n";
+        if ($name==$midpoint) print "</tr><tr>";
     }
+    print "</tr></table></small>\n"; 
 ?>
  </tr>
 </table>

@@ -45,7 +45,10 @@ or
 <!-- WARNING!  Line below automatically edited by makefile. -->
 <h2><a name="prerel">Pre-release: ProofGeneral-3.2pre000912</a></h2>
 
-
+This version has been tested with XEmacs version 21.1.12 and
+(minimally) with FSF Emacs 20.7.1. 
+We recommend the use of XEmacs; use under FSF Emacs is 
+can no longer be supported.
 <p>
 Check the 
 <!-- WARNING!  Line below automatically edited by makefile. -->
@@ -54,22 +57,25 @@ Check the
 for a summary of changes since the last stable version, and
 notes about work-in-progress.
 </p>
-<ul>
+<table width="80%" cellspacing=8>
+<tr>
+<td width=150>gzip'ed tar file</td>
 <!-- WARNING!  Lines below automatically edited by makefile. -->
-  <li> gzip'ed tar file: 
-      <?php download_link("ProofGeneral-3.2pre000912.tar.gz") ?>,
-      <br>
-      or the same thing in a zip file:
-      <?php download_link("ProofGeneral-3.2pre000912.zip") ?>,
-  </li>
-  <li> Linux RPM package 
-      <?php download_link("ProofGeneral-3.2pre000912-1.noarch.rpm") ?>
-     <br>
-     You probably don't need the 
-    <?php download_link("ProofGeneral-3.2pre000912-1.src.rpm","source RPM") ?>.
-  </li>
+<td><?php download_link("ProofGeneral-3.2pre000912.tar.gz") ?></td>
+</tr>
+<tr>
+<td>zip file</td>
+<td><?php download_link("ProofGeneral-3.2pre000912.zip") ?></td>
+</tr>
+<tr>
+<td>RPM package </td>
+<td><?php download_link("ProofGeneral-3.2pre000912-1.noarch.rpm") ?></td>
+</tr>
+<tr>
+<td>SRPM package</td>
+<td><?php download_link("ProofGeneral-3.2pre000912-1.src.rpm","source RPM") ?></td>
+</table>
 <!-- End Warning. -->
-</ul>
 
 <p>
 For install instructions, see 
@@ -116,13 +122,10 @@ The complete archive also includes:
   <li> working instantiations of Proof General for new provers </li>
 </ul>
 <p>
-Note: there are no pre-built documentation files in the developer's
-release, because developers should have the right tools!
-</p>
-<p>
 You probably <em>don't</em> need to download this if you're only
-interested in hacking the Emacs lisp part of the program for
-a prover that is currently supported.  
+interested in hacking the Emacs lisp part of the program for a prover
+that is currently supported.  Note that there are no pre-built
+documentation files in the developer's release.
 </p>
 
 <?php

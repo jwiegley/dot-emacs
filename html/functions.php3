@@ -113,7 +113,6 @@ function date_modified($filename) {
 }
 
 /* Nav bar separator */
-
 $separator  =  ' <img src="images/bullethole.gif" alt="." align=top> ';
 
 /* A link to one of the main pages (must appear in navbar menu) */
