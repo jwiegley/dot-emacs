@@ -172,8 +172,9 @@
     "next"
     "end"
     "by"
-    ".."
-    "."
+;; FIXME
+;;    ".."
+;;    "."
     )
   "Isabelle/Isar proof command keywords"
   :group 'isar-syntax
@@ -219,7 +220,10 @@
 (defconst isar-ids (proof-ids isar-id "[ \t]*")
   "Matches a sequence of identifiers separated by whitespace.")
 
+;;FIXME
 (defconst isar-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
+;;(defconst isar-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"\\|{|\\(\\([^|]\\||[^}]\\)*\\)|}")
+;;(defconst isar-string "{|\\([^|]*\\)|}")
 
 (defconst isar-string-regexp
   (concat "\\s-*" isar-string "\\s-*")
