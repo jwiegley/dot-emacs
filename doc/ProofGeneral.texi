@@ -3063,9 +3063,17 @@ If invoked outside a locked region, undo the last successfully processed
 command.
 @end defun
 
-To clean up when scripting is stopped or the proof assistant exits, we
-use the functions @code{proof-restart-buffers}, and
+To clean up when scripting is stopped, a script buffer is killed, or the
+proof assistant exits, we use the functions
+@code{proof-deactivate-scripting}, @code{proof-restart-buffers}, and
 @code{proof-script-remove-all-spans-and-deactivate}.
+
+@c TEXI DOCSTRING MAGIC: proof-deactivate-scripting
+@deffn Command proof-deactivate-scripting 
+Deactivate scripting, if the current script buffer is active.
+Set @code{proof-script-buffer} to nil and turn off the modeline indicator.
+If the locked region doesn't cover the entire file, retract it.
+@end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-restart-buffers
 @defun proof-restart-buffers buffers
@@ -3550,9 +3558,16 @@ The distribution is available in three forms
 @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
 @end itemize
 
-Both the tarball and the RPM package include the generic elisp code,
-code for LEGO, Coq, and Isabelle, installation instructions (reproduced
-below) and this documentation.
+Both the source tarball and the RPM package include the generic elisp
+code, code for LEGO, Coq, and Isabelle, installation instructions
+(reproduced below) and this documentation.  
+
+The developer's tarball contains our full source tree, including all of
+the elisp and documentation, along with our low-level list of things to
+do, sources for the images, some make files used to generate the release
+itself from our CVS repository, and some test files.  Developers
+interested in accessing our CVS repository directly should contact
+@code{proofgen@@dcs.ed.ac.uk}.
 
 @c was Installing Proof General from @file{.tar.gz}
 @node Installing Proof General from tarball
@@ -3737,7 +3752,7 @@ Using @kbd{C-g} can leave script management in a mess.  The code is not
 properly protected from Emacs interrupts.
 
 @strong{Workaround:} Don't type @kbd{C-g} while script management is
-processing.  If you do, use @code{proof-restart-scripting} to restart
+processing.  If you do, use @code{proof-shell-restart} to restart
 the system.
 
 @c da: Removed 11.12.98: since PG handles this gracefully now,
@@ -3777,11 +3792,11 @@ which is discharged.
 @subsection Retraction and proving
 @cindex Retraction
 
-Getting retracting right is tricky when working on proofs. 
+Getting retraction right is tricky when working on proofs.
 
 @subsubsection Definitions in a proof state 
-A thorny issues are local
-definitions in a proof state. LEGO cannot undo them explicitly.
+A thorny issue are local definitions in a proof state. LEGO cannot undo
+them explicitly.
 
 @strong{Workaround:} retract back to a command before a definition.
 
@@ -3973,7 +3988,7 @@ A browser would be useful to:
 @itemize @bullet
 @item Provide impoverished proof assistants with a browser
 @item Extend the uniform interface of Proof General to theory browsing 
-@item Interact closely with proof script-writing
+@item Interact closely with proof script writing
 @end itemize
 The last point is the most important. We should be able to integrate a
 search mechanism for proofs of similar theorems, theorems containing
