@@ -111,6 +111,7 @@ A span is before PT if it covers the character before PT."
   nil)
 
 (defalias 'span-object 'extent-object)
+(defalias 'span-string 'extent-string)
   
 
 (provide 'span-extent)
