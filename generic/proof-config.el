@@ -361,12 +361,14 @@ The script buffer's comment-end is set to this string plus a space."
   :group 'prover-config)
 
 (defcustom proof-save-with-hole-regexp nil 
-  "Matches a named save command"
+  "Regexp which matches a command to save a named theorem.
+Match number 2 should be the name of the theorem saved."
   :type 'regexp
   :group 'proof-script)
 
 (defcustom proof-goal-with-hole-regexp nil 
-  "Matches a saved goal command"
+  "Regexp which matches a command used to issue and name a goal.
+Match number 2 should be the name of the goal issued."
   :type 'regexp
   :group 'proof-script)
 
