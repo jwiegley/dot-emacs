@@ -16,7 +16,7 @@
  phox-inductive-option "\\(\\[[^]]*]\\)?"
  phox-spaces-regexp "[ \n\t\r]*"
  phox-sy-definition-regexp (concat 
-   "\\(Cst\\|def\\)"
+   "\\(Cst\\|\\(def\\(rec\\)?\\)\\)"
    phox-comments-regexp
    "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)") 
  phox-sy-inductive-regexp (concat 
@@ -32,13 +32,13 @@
    phox-comments-regexp
    phox-ident-regexp) 
  phox-data-regexp (concat 
-   "Data"
+   "\\(Data\\|type\\)"
    phox-comments-regexp
    phox-inductive-option
    phox-comments-regexp
    phox-ident-regexp) 
  phox-definition-regexp (concat
-   "\\(Cst\\|def\\(_thlist\\)?\\|claim\\|Sort\\)"
+   "\\(Cst\\|def\\(_thlist\\|rec\\)?\\|claim\\|Sort\\)"
    phox-comments-regexp
    phox-ident-regexp)
  phox-prove-claim-regexp (concat
@@ -101,6 +101,7 @@ or for optional argument TABLE."
 "new_equation"
 "new_rewrite"
 "Data"
+"type"
 "Inductive"
 "add_path"
 "Import"
@@ -251,7 +252,7 @@ or for optional argument TABLE."
   "Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment."
   (interactive)
-  (if (and (> (point) 1) (char-equal (char-before (point)) ?\.)) (insert "\n"))
+;  (if (and (> (point) 1) (char-equal (char-before (point)) ?\.)) (insert "\n"))
   (proof-with-script-buffer
    (proof-maybe-save-point
     (goto-char (proof-queue-or-locked-end))

@@ -123,7 +123,8 @@ See `x-symbol-language-access-alist' for details."
   :type 'x-symbol-class-faces)
 
 
-(defvar x-symbol-phox-font-lock-keywords x-symbol-nomule-font-lock-keywords)
+(defvar x-symbol-phox-font-lock-keywords nil)
+
 (defvar x-symbol-phox-font-lock-allowed-faces t)
 
 ;;;===========================================================================
