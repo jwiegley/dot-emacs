@@ -8,6 +8,22 @@ Please also check the BUGS file.
 
 -----------------------------------------------------------------
 
+Q. Proof General fails to load with an error message on start-up: 
+
+     error: "File `.../ProofGeneral/generic/proof-autoloads.elc' was 
+     not compiled in Emacs"
+
+A. We distribute .elcs for XEmacs, so you will have to delete
+   them and (optionally) recompile for GNU Emacs.  Using the Makefile:
+
+     Use 'make clean' to remove all .elc files.  
+     Use 'make compile' to recompile .elc files.
+ 
+   Check that the Makefile sets EMACS to your Emacs executable.
+   
+
+-----------------------------------------------------------------
+
 Q. Emacs appears to hang when the prover process is started.
 
 A. This may be because of UTF-8 issues e.g in Red Hat 8.0/9/glibc 2.2
