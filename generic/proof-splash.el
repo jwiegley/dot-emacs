@@ -205,7 +205,7 @@ Borrowed from startup-center-spaces."
   (interactive)
   (unless (or proof-splash-seen (noninteractive))
     (if proof-splash-enable
-	(proof-splash-display-screen t)
+	(proof-splash-display-screen (interactive-p))
       ;; Otherwise, a message
       (message "Welcome to %s Proof General!" proof-assistant)
     (setq proof-splash-seen t))
