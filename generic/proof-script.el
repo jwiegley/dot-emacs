@@ -116,44 +116,44 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 ;; Basic code for the locked region and the queue region            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; FIXME: da: doc below needs fixing.
-(defvar proof-locked-hwm nil
-  "Upper limit of the locked region")
+;; FIXME da: remove this dead code 
+;; (defvar proof-locked-hwm nil
+;;  "Upper limit of the locked region")
+;; (defvar proof-queue-loose-end nil
+;;  "Limit of the queue region that is not equal to proof-locked-hwm.")
 
-(defvar proof-queue-loose-end nil
-  "Limit of the queue region that is not equal to proof-locked-hwm.")
+(deflocal proof-locked-span nil
+  "The locked span of the buffer.")
 
-(defvar proof-locked-span nil
-  "Upper limit of the locked region")
-
-(defvar proof-queue-span nil
-  "Upper limit of the locked region")
-
-(make-variable-buffer-local 'proof-locked-span)
-(make-variable-buffer-local 'proof-queue-span)
+;; FIXME da: really we only need one queue span rather than one per
+;; buffer, but I've made it local because the initialisation occurs in
+;; proof-init-segmentation, which can happen when a file is visited.
+;; So nasty things might happen if a locked file is visited whilst
+;; another buffer has a non-empty queue region being processed.
+(deflocal proof-queue-span nil
+  "The queue span of the buffer.")
 
 (defun proof-init-segmentation ()
   "Initialise the spans in a proof script buffer."
-  (setq proof-queue-loose-end nil)
+  ;; Initialise queue span, remove it from buffer.
   (if (not proof-queue-span)
       (setq proof-queue-span (make-span 1 1)))
   (set-span-property proof-queue-span 'start-closed t)
   (set-span-property proof-queue-span 'end-open t)
   (span-read-only proof-queue-span)
-
   (set-span-property proof-queue-span 'face 'proof-queue-face)
-
   (detach-span proof-queue-span)
-  
-  (setq proof-locked-hwm nil)
+  ;;
+  ;; FIXME da: remove this dead code
+  ;; (setq proof-locked-hwm nil)
+  ;;
+  ;; Initialised locked span, remove it from buffer
   (if (not proof-locked-span)
       (setq proof-locked-span (make-span 1 1)))
   (set-span-property proof-locked-span 'start-closed t)
   (set-span-property proof-locked-span 'end-open t)
   (span-read-only proof-locked-span)
-
   (set-span-property proof-locked-span 'face 'proof-locked-face)
-
   (detach-span proof-locked-span))
 
 (defsubst proof-lock-unlocked ()
@@ -1278,6 +1278,7 @@ Start up the proof assistant if necessary."
 	     :style toggle
              :selected proof-active-terminator-minor-mode]
             "----")
+	  ;; UGLY COMPATIBILITY 
           (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
 		    "--:doubleLine" "----"))
           proof-shared-menu
@@ -1296,11 +1297,11 @@ Start up the proof assistant if necessary."
   "Active terminator minor mode flag")
 
 (defun proof-active-terminator-minor-mode (&optional arg)
-  "Toggle PROOF's Active Terminator minor mode.
+  "Toggle Proof General's active terminator minor mode.
 With arg, turn on the Active Terminator minor mode if and only if arg
 is positive.
 
-If Active terminator mode is enabled, a terminator will process the
+If active terminator mode is enabled, a terminator will process the
 current command."
 
  (interactive "P")
@@ -1320,8 +1321,7 @@ current command."
     (force-mode-line-update)))
 
 (defun proof-process-active-terminator ()
-  "Insert the proof command terminator, and assert up to it.
-Fire up proof process if necessary."
+  "Insert the proof command terminator, and assert up to it."
   (let ((mrk (point)) ins incomment)
     (if (looking-at "\\s-\\|\\'\\|\\w") 
 	(if (proof-only-whitespace-to-locked-region-p)

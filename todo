@@ -15,8 +15,9 @@ X (Low)    probably not worth wasting time on
 ====================================================================
 
 C  Remove "FIXME notes" which are just notes I've put in about old
-   code in case something breaks   (da, 30mins). 
+   code in case something breaks   (da, 30mins).
 
+C  Check on all FIXME notes.
 
 A* Fix bugs in proof-shell-filter. Don't assume that full match is
    contained in filter chunk.(Should match strings in buffer instead)
