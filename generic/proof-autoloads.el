@@ -3,9 +3,7 @@
 
 ;;;### (autoloads nil "_pkg" "generic/_pkg.el")
 
-; package-provide is not provided by FSFEmacs
-(if (fboundp 'package-provide)
-    (package-provide 'ProofGeneral :version "3.3pre010320" :type 'regular))
+(package-provide 'ProofGeneral :version "3.3pre010320" :type 'regular)
 
 ;;;***
 
