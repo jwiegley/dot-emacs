@@ -283,7 +283,7 @@ suitable for adding to the proof assistant menu."
 	(men (read-string "Name of command on menu: " cmd))
 	(key (if (y-or-n-p "Set a keybinding for this command? : ")
 		 (read-key-sequence 
-		  "Type the key to use (I recommend C-c C-a <key>): " nil t))))
+		  "Type the key to use (binding will be C-c C-a <key>): " nil t))))
      (list cmd ins men key)))
   (let* ((menunames	(split-string (downcase menuname)))
 	 (menuname-sym  (proof-sym (proof-splice-separator "-" menunames)))
