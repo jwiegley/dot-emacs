@@ -1,56 +1,75 @@
-This file describes what to do to be able to run our script management
-mode for xemacs.  Please let us know if you have any problems in
-trying to install it.
+Instructions for installing Proof General
+=========================================
 
-Check the values of coq-tags and coq-prog-name in coq.el to see that
-they correspond to the paths for coqtop and the library on your system.
+This file describes what to do to be able to run Proof General.
+Please let us know if you have any problems in trying to install it.
 
-To install, begin by making sure that your load-path has the current
-directory in it by typing:
-	load-path C-j
-in the *scratch* buffer.  If it does not, type:
-	(setq load-path (cons "." load-path)) C-j
-again in the *scratch* buffer (or add it to your .emacs file).
+Unpack this distribution in some <directory>.  Put this line in your
+.emacs file:
 
-Then put the .el files in an appropriate directory and compile them
-using `byte-recompile-file' in xemacs:
-	M-0 M-x byte-recompile-directory
+    (load-file "<directory>/elisp/generic/proof-site.el")
 
-Put the compiled emacs files and the file script-management.info in a
-suitable directory for local emacs files, as suggested by your system
-administrator.  Otherwise, if you prefer to keep your own private
-copy, alter the variable coq-info-dir in coq.el to that directory and
-add the line:
-	(setq load-path (cons <directory> load-path))
-to your .emacs file, where <directory> is your local directory.
+This will set the Emacs load path and add auto-loads for the
+assistants below:
+
+  .v	    Coq files
+  .l	    LEGO files
+  .thy,.ML  Isabelle files
+
+When you load a file with one of these extensions, the corresponding
+Proof General mode will be entered.
+
+You cannot run more than one instance of Proof General at a time: so
+if you're using Coq, don't edit .ML files!  If there are some assistants
+supported that you never want to use, you can remove them from
+the variable `proof-assistants` in proof-site.el to solve this problem.
+
+In XEmacs, you can do this (and most other customization of Proof
+General) via the Customize mechanism, see the menu:
+
+  Options -> Customize -> Emacs -> External -> Proof General
+
+Further customization may be needed depending on the proof assistant
+(for example, the name of the proof assistant binary).  See the
+entries below for more notes.
+
+If you are installing Proof General site-wide, you can put the
+components in separate directories, providing the variables in
+proof-site.el are adjusted accordingly.  Make sure that the generic
+and assistant-specific elisp files are kept in subdirectories of
+proof-home so that the autoload directory calculations are correct.
+
+
+----------------------------------------------------------------------
+
+Customization for Coq
+=====================
 
 If you want to use this mode for Coq, you need to make sure you have
 an appropriate version, which is from later than 1 March 1998.
 
-Install coqtags or legotags in a standard place.
+Check the values of coq-tags and coq-prog-name in coq.el to see that
+they correspond to the paths for coqtop and the library on your system.
+
+Install coqtags in a standard place or add <proof-home>/coq to your PATH.
 
 If you are running Coq, generate a TAGS file for the library by running
 	coqtags `find . -name \*.v -print`
 in the root directory of the library, $COQTOP/theories.  If you are
 running LEGO, do the same using legotags in the appropriate directory.
 
-Finally, you should add the following lines to your .emacs file.
 
-;;; LEGO and Coq
-(setq auto-mode-alist
-      (cons '("\\.v" . coq-mode)
-	    (cons '("\\.l$" . lego-mode) auto-mode-alist)))
+----------------------------------------------------------------------
 
-(autoload 'coq-mode "coq"
-  "Major mode for editing Coq vernacular." t)
+Customization for LEGO
+======================
 
-(autoload 'lego-mode "lego"
-  "Major mode for editing Lego proof scripts." t)
+Install legotags in a standard place or add <proof-home>/lego 
+to your PATH.
 
-; Tags is unusable with Coq library otherwise:
-(setq tag-always-exact t)
 
-After this, simply load a LEGO or Coq file and the appropriate mode
-will be run automatically.
+----------------------------------------------------------------------
 
-Healfdene GOGUEN
+Customization for Isabelle
+==========================
+
