@@ -1,5 +1,77 @@
 2001-09-09  David Aspinall  <da@proofgeneral.org>
 
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* ChangeLog: Updated.
+
+	* html/hits, html/hits.html:
+	Renamed file
+
+	* Makefile.devel:
+	Fixup copying of releasename link
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel: Finished shift to 3.4
+
+	* html/kit: Link to kit.php
+
+	* html/kit.html, html/kit.php:
+	File determination nonsense
+
+	* html/download.html:
+	Change over to some .php files.
+
+	* CHANGES:
+	Backtrack to previous CHANGES file for now.
+
+	* coq/README, lego/README:
+	Coq/lego confusion
+
+	* coq/BUGS:
+	Bug in new parsing for coq, mention
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel: Update for 3.4pre
+
+	* html/footer.html:
+	Remove validation stamp from footer, since its a lie.
+
+	* CHANGES: No changes yet
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/download.html: Trim page a bit
+
+	* html/news.html, html/oldnews.html:
+	Announce 3.3
+
+	* html/doc.html: Release 3-3.
+
+	* etc/release-log.txt:
+	Release date of 3-3.
+
+	* html/download.html:
+	Mention paper letter registrations.
+
+	* html/download.html:
+	Remove to be released line
+
+	* doc/PG-adapting.texi: Update docs.
+
+2001-09-09  David Aspinall  <da@proofgeneral.org>
+
 	* html/hits, html/hits.html:
 	Renamed file
 
