@@ -1,0 +1,3 @@
+(**)(**)
+theory Scratch = Main:
+
