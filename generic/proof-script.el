@@ -588,14 +588,15 @@ Must be an active scripting buffer."
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of it.
 A possible hook function for proof-shell-handle-error-hook.
-Must be an active script buffer."
+Does nothing if there is no active scripting buffer."
   (interactive)
-  (let* ((pos (save-excursion
-		(set-buffer proof-script-buffer)
-		(proof-locked-end))))
-    (or (pos-visible-in-window-p pos (get-buffer-window
-				      proof-script-buffer t))
-        (proof-goto-end-of-locked-interactive))))
+  (if proof-script-buffer
+      (let* ((pos (save-excursion
+		    (set-buffer proof-script-buffer)
+		    (proof-locked-end))))
+	(or (pos-visible-in-window-p pos (get-buffer-window
+					  proof-script-buffer t))
+	    (proof-goto-end-of-locked-interactive)))))
 
 ;; da: NEW function added 28.10.98.
 ;; This is used by toolbar follow mode (which used to use the function
