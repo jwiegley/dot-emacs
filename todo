@@ -122,7 +122,7 @@ B Fixup sources to follow Elisp conventions better.
   1. The first line of documentation of functions and
      variables should be a whole sentence.  Subsequent lines should
      *not* be indented.  See output of hyper-apropos and
-     poor formatting of current comments.   (1hr, tms)
+     poor formatting of current comments.   (1hr)
   2. Replace defvar's by defconst's where appropriate.
      Introduce new defconsts.
 
@@ -131,9 +131,9 @@ A Update source documentation and manual, in particular document bugs
   (4h hhg & tms & da) 
 
 D Technical documentation to record expertise and allow users of other
-  proof systems to adopt generic package (40h hhg & tms)
+  proof systems to adopt generic package (40h h)
 
-A Implement more generic mechanism for large undos (2h)
+A Implement more generic mechanism for large undos (2h tms)
 
     COQ: C-c u inside a Section should reset the whole section, then
          redo defns 
@@ -149,7 +149,7 @@ A Multiple files are sometimes handled incorrectly, because the
   (1h tms)
 
 D Implement proof-find-previous-terminator and bind it to C-c C-a
-  (45min tms)
+  (45min)
 
 D Support for x-symbols package.
   Provers with sophisticated/configurable syntax should tell Emacs
@@ -215,7 +215,7 @@ X Write a Makefile for the distribution.  It can do things like
 A Change proof by pointing (pbp) stuff into proofstate buffer stuff.
 
 A Fixing up errors caused by pbp-generated commands; currently, script
-  management unwisely assumes that pbp commands cannot fail (2h tms)
+  management unwisely assumes that pbp commands cannot fail (2h)
 
 A Rename pbp-mode to response-mode or goals-mode (which doesn't
   support any actual proof-by-pointing) (30min) 
@@ -233,13 +233,13 @@ X pbp code doesn't quite accord with the tech report; in particular it
 * Here are things to be done to Lego mode
 =========================================
 
-A fix Pbp implementation (10h; tms)
+A fix Pbp implementation (10h)
 
 A release new version of the LEGO proof engine (4h tms)
 
 B Equiv, Next,... aren't handled properly, because LEGO does not
   refresh the proof state. Perhaps it would be easiest to get LEGO to
-  output more information in proof script mode (2h tms)
+  output more information in proof script mode (2h)
 
 B LEGO should not issue warning messages triggered by the interactive
   use of the Module command when invoked by the interface e.g.,
@@ -251,6 +251,12 @@ B LEGO should not issue warning messages triggered by the interactive
   (15min)
 
 X Mechanism to save object file
+
+B Improve legotags. I cannot handle lists e.g., with 	
+
+    [x,y:nat];
+
+  it only tags x but not y. [The same problem exists for coqtags]
 
 * Here are things to be done to Coq mode
 ========================================
@@ -274,6 +280,11 @@ D Proof-by-Pointing (10h hhg)
 A Add coq-add-tactic with a tactic name, which adds that tactic to the 
   undoable tactics and to the font-lock. (2h hhg)
 
+B Improve coqtags. I cannot handle lists e.g., with 	
+
+	Parameter x,y:nat
+
+  it only tags x but not y. [The same problem exists for legotags]
 
 * Here are things to be done to Isabelle Mode
 =============================================
