@@ -277,7 +277,7 @@ takes place (it isn't used for output-only buffers)."
 		;; contents) have changed. Shouldn't x-symbol do this?
 		(font-lock-fontify-buffer)))))))
 
-;;;####autoload
+;;;###autoload
 (defun proof-x-symbol-shell-config ()
   "Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil.
 Assumes that the current buffer is the proof shell buffer."
