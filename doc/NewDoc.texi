@@ -1370,9 +1370,9 @@ be cleared; if this flag is set it will automatically be removed.
 If you want to fix the sizes of your windows you may want to set this
 variable to @code{nil'} to avoid windows being deleted automatically.
 If you use multiple frames, only the windows in the currently
-selected frame will be affected.
+selected frame will be automatically deleted.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 
@@ -1447,11 +1447,13 @@ The default value is @code{locked}.
 @defopt proof-window-dedicated 
 Whether response and goals buffers have dedicated windows.
 If t, windows displaying responses from the prover will not
-be switchable to display other windows.  This helps manage
+be switchable to display other windows.  This may help manage
 your display, but can sometimes be inconvenient, especially
 for experienced Emacs users.
+Moreover, this option may cause problems with multi-frame
+use because of a bug.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 @c FIXME needs to mention that without dedicated windows, buffers may be 
@@ -2289,12 +2291,16 @@ Regexp matching output from an aborted proof.
 @defvar proof-shell-error-regexp 
 Regexp matching an error report from the proof assistant.
 We assume that an error message corresponds to a failure
-in the last proof command executed.  (So don't match
-mere warning messages with this regexp).
+in the last proof command executed.  So don't match
+mere warning messages with this regexp.
+Moreover, an error message should not be matched as
+an eager annotation (see @code{proof-shell-eager-annotation-start})
+otherwise it will be lost.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-interrupt-regexp
 @defvar proof-shell-interrupt-regexp 
 Regexp matching output indicating the assistant was interrupted.
+Similar notes apply as for @code{proof-shell-error-regexp}, which see.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-proof-completed-regexp
 @defvar proof-shell-proof-completed-regexp 
@@ -2354,11 +2360,11 @@ variables.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-handle-error-hook
 @defvar proof-shell-handle-error-hook 
-Hooks run after an error has been reported in the @var{response} buffer.
+Hooks run after an error has been reported in the response buffer.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-process-file
 @defvar proof-shell-process-file 
-A tuple of the form (regexp . function) to match a processed file name.
+A pair (@var{regexp} . @var{function}) to match a processed file name.
 
 If @var{regexp} matches output, then the function @var{function} is invoked on the
 output string chunk. It must return a script file name (with complete
@@ -2742,14 +2748,15 @@ only really need one queue span in total rather than one per buffer).
 @c TEXI DOCSTRING MAGIC: proof-locked-span
 @defvar proof-locked-span 
 The locked span of the buffer.
-Each script buffer has its own locked span, which may be detached.
+Each script buffer has its own locked span, which may be detached
+from the buffer.
 Proof General allows buffers in other modes also to be locked;
-these also have span regions.
+these also have a non-nil value for this variable.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-queue-span
 @defvar proof-queue-span 
-The queue span of the buffer.
+The queue span of the buffer.  May be detached if inactive or empty.
 @end defvar
 
 Various utility functions manipulate and examine the spans.  An
@@ -2933,11 +2940,11 @@ Marker in proof shell buffer pointing to previous command input.
 
 @c TEXI DOCSTRING MAGIC: proof-action-list
 @defvar proof-action-list 
-A list of lists of the form:
+A list of
 @lisp
-  (@var{span} @var{command} @var{action})
+  (@var{span},@var{command},@var{action})
 @end lisp
-which is a queue of things to do.
+triples, which is a queue of things to do.
 See the functions @code{proof-start-queue} and proof-exec-loop.
 @end defvar
 
@@ -2956,16 +2963,16 @@ The function @code{proof-shell-kill-function} performs the converse
 function of shutting things down; it is used as a hook function for
 @code{kill-buffer-hook}.  Then no harm occurs if the user kills the
 shell directly, or if it is done more cautiously via
-@code{proof-shell-exit}.  The function @code{proof-shell-restart}
-allows a less drastic way of restarting scripting, other than
-killing and restarting the process.
+@code{proof-shell-exit}.  The function @code{proof-shell-restart} allows
+a less drastic way of restarting scripting, other than killing and
+restarting the process.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-kill-function
 @defun proof-shell-kill-function 
 Function run when a proof-shell buffer is killed.
 Value for @code{kill-buffer-hook} in shell buffer.
-It shuts down the proof process nicely and clears up all locked regions
-and state variables.
+Attempt to shut down the proof process nicely and
+clears up all the locked regions and state variables.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
@@ -2974,6 +2981,13 @@ Query the user and exit the proof process.
 This simply kills the @code{proof-shell-buffer} relying on the hook function
 to do the hard work.
 @end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-shell-bail-out
+@defun proof-shell-bail-out process event
+Value for the process sentinel for the proof assistant process.
+If the proof assistant dies, kill the shell buffer,
+ensuring that script buffers are cleaned up neatly.
+@end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
 @deffn Command proof-shell-restart 
@@ -2999,14 +3013,18 @@ active scripting buffer for the queue region.
 @c TEXI DOCSTRING MAGIC: proof-shell-exec-loop
 @defun proof-shell-exec-loop 
 Process the @code{proof-action-list}.
-@code{proof-action-list} contains a list of (SPAN COMMAND ACTION) triples.
-This function is called with a non-empty @code{proof-action-list}, where the
+
+@samp{@code{proof-action-list}} contains a list of (@var{span} @var{command} @var{action}) triples.
+
+If this function is called with a non-empty @code{proof-action-list}, the
 head of the list is the previously executed command which succeeded.
-We execute (action span) on the first item, then (action span) on
-following items which have @code{proof-no-command} as their cmd components.
-Return non-nil if the action list becomes empty; unlock the process
-and removes the queue region.  Otherwise send the next command to the
-proof process.
+We execute (@var{action} @var{span}) on the first item, then (@var{action} @var{span}) on
+any following items which have @code{proof-no-command} as their cmd
+components.  If a there is a next command, send it to the process.
+If the action list becomes empty, unlock the process and remove the
+queue region. 
+
+The return value is non-nil if the action list is now empty.
 @end defun
 
 A useful utility function for sending a single command to the process is
@@ -3032,7 +3050,9 @@ the last urgent message seen.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output
 @defun proof-shell-process-output cmd string
-Process shell output by matching on @var{string}.
+Process shell output (resulting from @var{cmd}) by matching on @var{string}.
+@var{cmd} is the first part of the @code{proof-action-list} that lead to this
+output.
 This function deals with errors, start of proofs, abortions of
 proofs and completions of proofs. All other output from the proof
 engine is simply reported to the user in the response buffer
@@ -3066,6 +3086,7 @@ The main processing point which triggers other actions is
 @c TEXI DOCSTRING MAGIC: proof-shell-filter
 @defun proof-shell-filter str
 Filter for the proof assistant shell-process.
+A function for @code{comint-output-filter-functions}.
 
 Process urgent messages first.  As many as possible are processed,
 using the function @samp{@code{proof-shell-process-urgent-messages}}.
@@ -3076,11 +3097,11 @@ and the last input (position of @code{proof-marker}) or the last
 urgent message (position of @code{proof-shell-urgent-message-marker}),
 whichever is later.  For example, in this case:
 @lisp
- PROMPT> @var{input}
+ @var{prompt} @var{input}
  @var{output-1}
  @var{urgent-message}
  @var{output-2}
- PROMPT>
+ @var{prompt}
 @end lisp
 @code{proof-marker} is set after @var{input} by @code{proof-shell-insert} and
 @code{proof-shell-urgent-message-marker} is set after @var{urgent-message}.
