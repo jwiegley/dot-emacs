@@ -217,8 +217,7 @@ to the default toolbar."
 
 ;; Action to take after altering proof-toolbar-enable
 (defalias 'proof-toolbar-enable 'proof-toolbar-setup)
-(fset 'proof-toolbar-toggle 
-      (proof-customize-toggle proof-toolbar-enable))
+(proof-deftoggle proof-toolbar-enable proof-toolbar-toggle)
 
 (deflocal proof-toolbar-refresh-flag nil
   "Flag indicating that the toolbar should be refreshed.")
