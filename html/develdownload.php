@@ -76,7 +76,6 @@ version, and notes about work-in-progress.  </p>
 <!-- End Warning. -->
 <p> 
 <b>Emacs versions:</b>
-<<<<<<< develdownload.php
 This version has been tested with XEmacs version 21.4.12 and with GNU
 Emacs 21.2.1.  XEmacs support is better tested, although use under
 GNU Emacs has certain advantages (e.g., nested comments!).  Please check
