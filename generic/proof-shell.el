@@ -175,7 +175,7 @@ Does nothing if proof assistant is already running."
       ()
     (run-hooks 'proof-pre-shell-start-hook)
     (setq proof-included-files-list nil)
-    (if proof-prog-name-ask-p
+    (if proof-prog-name-ask
 	(save-excursion
 	  (setq proof-prog-name (read-shell-command "Run process: "
 						    proof-prog-name))))

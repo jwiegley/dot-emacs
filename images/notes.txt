@@ -33,10 +33,15 @@ script fu -> logos -> comic book
 
 Then I filled background with web page colour, and shaded portion
 with green colour.
-  
+ 
+----
 
+Proof general logo:
 
+Saved as eps for texi documentation.  
 
-
-	     	     
-
+  Width 3.00 "
+  Height 7.87   (keep aspect ration checked, height not edited though)
+  X-offset 2.8 "
+  Y-offset 1.0 "
+  Rotation: 0

@@ -59,7 +59,7 @@
 ;; *not* normally be touched by prover specific code.
 ;;
 
-(defcustom proof-prog-name-ask-p nil
+(defcustom proof-prog-name-ask nil
   "*If non-nil, query user which program to run for the inferior process."
   :type 'boolean
   :group 'proof-general)

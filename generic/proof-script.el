@@ -406,7 +406,7 @@ the hooks `proof-activate-scripting-hook' are run."
 ;;; This code is still required as of FSF Emacs 20.2.
 ;;;
 ;;; I think bothering with this just to give completion for
-;;; when proof-prog-name-ask-p=t is a big overkill!   - da.
+;;; when proof-prog-name-ask=t is a big overkill!   - da.
 ;;;	
 (defvar read-shell-command-map
   (let ((map (make-sparse-keymap 'read-shell-command-map)))
