@@ -314,4 +314,67 @@ Behaviour is still worse than before."
   (with-current-buffer (overlay-buffer span)
     (buffer-substring (overlay-start span) (overlay-end span))))
 
+
+;Pierre: new untility functions for "holes" 
+(defun set-span-properties (span plist)
+  "Set SPAN's properties, plist is a plist."
+  (let ((pl plist))
+    (while pl
+      (let* ((name (car pl))
+	     (value (car (cdr pl))))
+	(overlay-put span name value)
+	(setq pl (cdr (cdr pl))))
+      )
+    )
+  )
+
+(defsubst span-at-event (event)
+  (car  (overlays-at (posn-point (event-start event))))
+  )
+
+
+(defun make-detached-span ()
+  "Make a span for the range [START, END) in current buffer."
+  (add-span (make-overlay 0 0))
+  )
+
+;hack
+(defun fold-spans-aux (f l &optional FROM MAPARGS)
+  (cond ((and l
+	      (or (span-detached-p l)
+		  (>= (span-start l) (or FROM (point-min)))))
+	 (cons (funcall f l MAPARGS) 
+	       (fold-spans-aux f (span-property l 'before) FROM MAPARGS)))
+	(t ())))
+
+(defun fold-spans (f &optional BUFFER FROM TO DUMMY1 DUMMY2 DUMMY3)
+  (save-excursion
+    (set-buffer (or BUFFER (current-buffer)))
+    (car (or (last (fold-spans-aux f before-list FROM))))
+    )
+  )
+
+(defsubst span-buffer (span)
+  "Return the buffer owning span"
+  (overlay-buffer span)
+  )
+
+(defsubst span-detached-p (span)
+  "is this span detached? nil for no, t for yes"
+  ;(or
+	(eq (span-buffer span) nil)
+	; this should not be necessary
+	;(= (span-start span) (span-end span)))
+  )
+
+(defsubst set-span-face (span face)
+  "set the face of a span"
+  (overlay-put span 'face face)
+  )
+
+(defsubst set-span-keymap (span kmap)
+  "set the face of a span"
+  (overlay-put span 'keymap kmap)
+  )
+
 (provide 'span-overlay)

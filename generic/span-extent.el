@@ -100,5 +100,24 @@ A span is before PT if it covers the character before PT."
 (defalias 'span-object 'extent-object)
 (defalias 'span-string 'extent-string)
   
+;Pierre: new untility functions for "holes" 
+(defsubst fold-spans (FUNCTION &optional OBJECT FROM TO MAPARG FLAGS PROPERTY VALUE)
+  "map on span, see map-extent on xemacs"
+  (map-extents FUNCTION OBJECT FROM TO MAPARG FLAGS PROPERTY VALUE)
+)
+
+(defsubst set-span-properties (span plist)
+  "see extent-properties"
+  (set-extent-properties span plist)
+)
+
+(defsubst set-span-keymap (span kmap)
+  (set-extent-keymap span kmap)
+  )
+
+;there are more args to extent-at-event
+(defsubst span-at-event (event)
+  (extent-at-event event)
+  )
 
 (provide 'span-extent)
