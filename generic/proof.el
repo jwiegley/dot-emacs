@@ -15,43 +15,7 @@
 
 (require 'proof-site)
 
-
-;;
-;;
-;; User options for proof mode
-;;
-;; See proof-config.el for configuration variables.
-;;
-;;
-;; The following variables are user options for Proof General.
-;; They appear in the 'proof' customize group and should
-;; not normally be touched by prover specific code.
-;;
-
-(defcustom proof-prog-name-ask-p nil
-  "*If non-nil, query user which program to run for the inferior process."
-  :type 'boolean
-  :group 'proof)
-
-(defcustom proof-one-command-per-line nil
-  "*If non-nil, format for newlines after each proof command in a script."
-  :type 'boolean
-  :group 'proof)
-
-(defcustom proof-general-home-page
-  "http://www.dcs.ed.ac.uk/home/proofgen"
-  "*Web address for Proof General"
-  :type 'string
-  :group 'proof-internal)
-
-;; configuration variables
 (require 'proof-config)			
-
-;; A global constant
-(defconst proof-mode-name "Proof-General"
-  "Root name for proof script mode.  
-Used internally and in menu titles.")
-
 
 
 ;;;
@@ -209,7 +173,6 @@ No effect if proof-display-splash-time is zero."
 (cond ((fboundp 'make-extent) (require 'span-extent))
       ((fboundp 'make-overlay) (require 'span-overlay))
       (t nil))
-
 
 (require 'proof-syntax)
 (require 'proof-indent)
