@@ -35,7 +35,7 @@
 
 ;;; variable: proof-analyse-using-stack
 ;;;    proof-locked-region-empty-p, proof-shell-insert, pbp-mode,
-;;;    proof-mark-buffer-atomic, proof-shell-invisible-command,
+;;;    proof-complete-buffer-atomic, proof-shell-invisible-command,
 ;;;    prev-span, span-property, next-span, proof-unprocessed-begin,
 ;;;    proof-config-done, proof-shell-config-done
 
@@ -326,7 +326,7 @@ proof-shell-retract-files-regexp."
     ;; form of file-truename.
     (and (member (file-truename buffer-file-truename)
 		 proof-included-files-list)
-	 (proof-mark-buffer-atomic (current-buffer)))
+	 (proof-complete-buffer-atomic (current-buffer)))
     )
    (t 
     ;; Proof mode does that automatically.
