@@ -11,6 +11,12 @@ Minor bug fix for duplicated short output.
 Bug fix with .thy files and X-Symbol mode: subsequently visited
  theory files would have X-Symbols broken.  (NB: Fix in progress)
 
+Bug fix for FSF Emacs 20.5.  (Emacs would freeze when starting proof
+assistant due to character matching problem).
+
+
+
+
 
 Coq Changes
 -----------

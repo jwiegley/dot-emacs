@@ -1,12 +1,25 @@
 Known Bugs and Workarounds for Proof General.
 =============================================
 
-$Id$
-
 Contact:  proofgen@dcs.ed.ac.uk
 See also: http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS
 
------------------
+
+Proof General 3.0 BUGS addendum
+===============================
+
+* FSF Emacs: problem with version 20.5: PG freezes when starting a
+proof assistant.  Fixed in the current pre-release.
+
+
+
+
+
+
+ProofGeneral 3.0 Original BUGS list
+===================================
+
+
 
 Generic problems
 ================
