@@ -63,7 +63,7 @@
 
 ;; Command to initialize the Coq Proof Assistant
 (defconst coq-shell-init-cmd 
-  (format "Set Undo %s." coq-default-undo-limit))
+  (format "Set Undo %s. " coq-default-undo-limit))
 
 
 ;;Pierre: we will have both versions V6 and V7 during a while
@@ -81,13 +81,13 @@
 ;; (included). The bug is already fixed in the next version (V7). So
 ;; we will backtrack this someday.
 (defconst coq-shell-restart-cmd 
-  "Reset Initial.\n Implicit Arguments Off.")
+  "Reset Initial.\n Implicit Arguments Off. ")
 
 (defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
-(defvar coq-shell-cd "Cd \"%s\"."
+(defvar coq-shell-cd "Cd \"%s\". "
   "*Command of the inferior process to change the directory.") 
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
@@ -111,8 +111,8 @@
 (defvar coq-shell-outline-regexp coq-goal-regexp)
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
 
-(defconst coq-kill-goal-command "Abort.")
-(defconst coq-forget-id-command "Reset %s.")
+(defconst coq-kill-goal-command "Abort. ")
+(defconst coq-forget-id-command "Reset %s. ")
 (defconst coq-back-n-command "Back %s. ") ; Pierre: added 
 
 
@@ -160,7 +160,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-set-undo-limit (undos)
-  (proof-shell-invisible-command (format "Set Undo %s." undos)))
+  (proof-shell-invisible-command (format "Set Undo %s. " undos)))
 
 ;;
 ;; FIXME Papageno 05/1999: must take sections in account.
@@ -232,7 +232,7 @@
 
 ;; TODO : add the stuff to handle the "Correctness" command 
 
-;; Pierre: May 29 2002 added a "Back n." command in order to
+;; Pierre: May 29 2002 added a "Back n. " command in order to
 ;; synchronize more accurately.
  
 ;; DA: rewrote to combine behaviour with count-undos, to work with
@@ -383,8 +383,8 @@ This is specific to coq-mode."
 	       (if coq-version-is-V7 "SearchPattern: " "SearchIsos: ") 
 	       nil 'proof-minibuffer-history))
     (proof-shell-invisible-command
-     (format (if coq-version-is-V7 "SearchPattern %s."
-	       "SearchIsos %s.") cmd))))
+     (format (if coq-version-is-V7 "SearchPattern %s. "
+	       "SearchIsos %s. ") cmd))))
 
 
 (defun coq-guess-or-ask-for-string (s)
@@ -404,7 +404,7 @@ This is specific to coq-mode."
     (proof-shell-ready-prover) 
     (setq cmd (coq-guess-or-ask-for-string "Print"))
     (proof-shell-invisible-command
-     (format "Print %s." cmd))))
+     (format "Print %s. " cmd))))
 
 (defun coq-Check ()
   "Ask for a term and print its type"
@@ -413,7 +413,7 @@ This is specific to coq-mode."
     (proof-shell-ready-prover) 
     (setq cmd (coq-guess-or-ask-for-string "Check"))
     (proof-shell-invisible-command
-     (format "Check %s." cmd))))
+     (format "Check %s. " cmd))))
 
 (defun coq-Show ()
   "Ask for a number i and show the ith goal"
@@ -422,12 +422,12 @@ This is specific to coq-mode."
     (proof-shell-ready-prover) 
     (setq cmd (read-string "Show Goal number: " nil 'proof-minibuffer-history))
     (proof-shell-invisible-command
-     (format "Show %s." cmd))))
+     (format "Show %s. " cmd))))
 
 (defun coq-PrintHint ()
   "Print all hints applicable to the current goal"
   (interactive)
-  (proof-shell-invisible-command "Print Hint."))
+  (proof-shell-invisible-command "Print Hint. "))
 
 
 (defun coq-end-Section ()
@@ -569,11 +569,11 @@ This is specific to coq-mode."
   (setq proof-guess-command-line 'coq-guess-command-line)
 
   ;; Commands sent to proof engine
-  (setq proof-showproof-command "Show."
-	proof-context-command "Print All."
-	proof-goal-command "Goal %s."
-	proof-save-command "Save %s."
-	proof-find-theorems-command "Search %s.")
+  (setq proof-showproof-command "Show. "
+	proof-context-command "Print All. "
+	proof-goal-command "Goal %s. "
+	proof-save-command "Save %s. "
+	proof-find-theorems-command "Search %s. ")
 ;; FIXME da: Does Coq have a help or about command?
 ;;	proof-info-command "Help"
 
@@ -609,7 +609,7 @@ This is specific to coq-mode."
   ;; at TYPES 2000. 
   ;; (Pierre, please fix this as Coq users would like, and for Coq V7 !)
   (setq coq-proof-shell-inform-file-processed-cmd
-	"Reset Initial. Compile Module %m.")
+	"Reset Initial. Compile Module %m. ")
   ;; FIXME da: Coq is rather quiet when reading files with "Load <foo>."
   ;; and sometimes even Require seems quiet?  PG would like some guarantees
   ;; that messages are issued.  Also, the code to guess the complete file
@@ -679,11 +679,11 @@ This is specific to coq-mode."
 
   ;;Coq V7 changes this 
   (setq proof-shell-start-silent-cmd 
-	(if coq-version-is-V7 "Set Silent."   "Begin Silent.")
+	(if coq-version-is-V7 "Set Silent. "   "Begin Silent. ")
 	proof-shell-stop-silent-cmd  
-	(if coq-version-is-V7 "Unset Silent." "End Silent."))
-;  (setq proof-shell-start-silent-cmd "Begin Silent."
-;	proof-shell-stop-silent-cmd  "End Silent.")
+	(if coq-version-is-V7 "Unset Silent. " "End Silent. "))
+;  (setq proof-shell-start-silent-cmd "Begin Silent. "
+;	proof-shell-stop-silent-cmd  "End Silent. ")
 
   (coq-init-syntax-table)
 
@@ -760,7 +760,7 @@ This is specific to coq-mode."
   (proof-shell-config-done))
 
 (defun coq-goals-mode-config ()
-  (setq pbp-change-goal "Show %s.")
+  (setq pbp-change-goal "Show %s. ")
   (setq pbp-error-regexp coq-error-regexp)
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
@@ -785,12 +785,12 @@ This is specific to coq-mode."
 ;(defpacustom time-search-isos  nil
 ;  "Whether to display timing of SearchIsos in Coq."
 ;  :type 'boolean
-;  :setting ("Time." . "Untime."))
+;  :setting ("Time. " . "Untime. "))
 
 (defpacustom print-only-first-subgoal  nil
   "Whether to just print the first subgoal in Coq."
   :type 'boolean
-  :setting ("Focus." . "Unfocus."))
+  :setting ("Focus. " . "Unfocus. "))
 
 (defpacustom auto-compile-vos nil
   "Whether to automatically compile vos and track dependencies."
