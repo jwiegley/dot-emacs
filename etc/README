@@ -1,6 +1,8 @@
 Files in the PG/etc directory  (NB: some only in devel distrib)
 ===============================================================
 
+README                 this file
+
 ProofGeneral.spec      For building the Proof General RPM.
 		       Use "rpm -tb" to build from tarball.
 
@@ -17,12 +19,6 @@ isa					 Isabelle Proof General
 isar					 Isar PG
 demoisa					 Isabelle Demo PG
 
-
-README                 this file
-
-example                test protocol for example proof scripts
-
-notes.txt	       Misc notes
 
 bug-notes.txt	       Test cases for Emacs or PG bugs
 cvs-tips.txt	       Notes on  cvs with PG project

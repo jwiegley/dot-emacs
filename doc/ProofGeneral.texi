@@ -1997,7 +1997,7 @@ suggestions for improvements are welcomed).
 By default, experimental features are turned on in development
 releases and turned off in stable releases.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 
