@@ -219,7 +219,7 @@ tags:	$(EL)
 # Add recent messages to ChangeLog.  CVSROOT must be set correctly.
 #
 ChangeLog:	FORCE
-	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) | sed 's|/home/proofgen/src/ProofGeneral/||g' >> ChangeLog.prefix
+	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
 	mv ChangeLog ChangeLog.old
 	cat ChangeLog.prefix ChangeLog.old > ChangeLog
 	rm ChangeLog.prefix ChangeLog.old
