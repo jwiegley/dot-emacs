@@ -2439,15 +2439,15 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 
 (defun proof-config-done-related ()
   "Finish setup of Proof General scripting and related modes.
-This is a subroutine of proof-config-done.
+This is a subroutine of `proof-config-done'.
 
 This is intended for proof assistant buffers which are similar to
 script buffers, but for which scripting is not enabled.  In
 particular, we: lock the buffer if it appears on
-proof-included-files-list; configure font-lock support from
-font-lock-keywords; maybe turn on X-Symbol minor mode.
+`proof-included-files-list'; configure font-lock support from
+`font-lock-keywords'; maybe turn on X-Symbol minor mode.
 
-This is used for Isabelle theory files, which share some scripting 
+This is used for Isabelle theory files, which share some scripting
 mode features, but are only ever processed atomically by the proof
 assistant."
   (setq proof-script-buffer-file-name buffer-file-name)
@@ -2487,24 +2487,6 @@ assistant."
   ;; Assume font-lock case folding follows proof-case-fold-search
   (proof-font-lock-configure-defaults 'autofontify proof-case-fold-search)
   
-  ;; Hack for unfontifying commas (yuck)
-  (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
-  (remove-hook 'font-lock-mode-hook 'proof-unfontify-separator t)
-  (if proof-font-lock-zap-commas
-      (progn
-	(add-hook 'font-lock-after-fontify-buffer-hook 
-		  'proof-zap-commas-buffer nil t)
-	(add-hook 'font-lock-mode-hook 'proof-unfontify-separator 
-		  nil t)
-	;; if we don't have the following in XEmacs, zap-commas fails.
-	(if (boundp 'font-lock-always-fontify-immediately)
-	    (progn
-	      (make-local-variable 'font-lock-always-fontify-immediately)
-	      ;; FIXME da: this is pretty nasty.  Disables use of 
-	      ;; lazy/caching font lock for large files, and they
-	      ;; can take a long time to fontify.
-	      (setq font-lock-always-fontify-immediately t)))))
-
   ;; Maybe turn on x-symbol mode.
   (proof-x-symbol-mode))
 

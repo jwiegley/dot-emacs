@@ -125,7 +125,7 @@ If so, return non-nil."
   "A regular expression for parsing identifiers.")
 
 ;; For font-lock, we treat ,-separated identifiers as one identifier
-;; and refontify commata using \{proof-unfontify-separator}.
+;; and refontify commata using \{proof-zap-commas}.
 
 (defun proof-ids (proof-id &optional sepregexp)
   "Generate a regular expression for separated lists of identifiers.
@@ -140,38 +140,15 @@ Default is comma separated, or SEPREGEXP if set."
 ;; this was even more bogus.                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Refontify the whole line, 'cos that's what font-lock-after-change
-;; does.
-
-;; FIXME: This is quite broken under GNU Emacs, where the elaborate
-;; font-lock support mechanisms tend to get in the way.  Setting
-;; font-lock-support-mode to nil restores the behaviour after editing,
-;; but initial un-fontification is still broken.
-;; FIXME: this should be removed/made specific!!
-;;
-(defun proof-zap-commas-region (start end &optional length)
-  "Remove the face of all `,' within the region (START,END).
-The optional argument LENGTH has no effect. It is required so that we
-may assign this function to `after-change-function'."
-  (save-match-data
-    (save-excursion
-      (let 
-	  ((start (progn (goto-char start) (beginning-of-line) (point)))
-	   (end (progn (goto-char end) (end-of-line) (point))))
-	(goto-char start)
-	(while (search-forward "," end t)
-	  (if (memq (get-char-property (- (point) 1) 'face)
-		    (list 'proof-declaration-name-face
-			  'font-lock-function-name-face))
-	      (font-lock-unfontify-region (- (point) 1) (point))
-	    ))))))
-
-(defun proof-zap-commas-buffer () 
-  "Remove the face of all `,' in the current buffer."
-  (proof-zap-commas-region (point-min) (point-max)))
-
-(defun proof-unfontify-separator ()
-  (add-hook 'after-change-functions 'proof-zap-commas-region t t))
+(defun proof-zap-commas (limit)
+  "Remove the face of all `,' from point to LIMIT.
+Meant to be used from `font-lock-keywords'."
+  (while (search-forward "," limit t)
+    (if (memq (get-text-property (1- (point)) 'face)
+	      '(proof-declaration-name-face
+		font-lock-variable-name-face
+		font-lock-function-name-face))
+	(put-text-property (1- (point)) (point) 'face nil))))
 
 ;;
 ;; Functions for doing something like "format" but with customizable

@@ -118,7 +118,7 @@ whether X-Symbol is installed in your Emacs."
   "*Whether to fontify output from the proof assistant.
 If non-nil, output from the proof assistant will be highlighted
 in the goals and response buffers.
-(This is providing font-lock-keywords have been set for the 
+\(This is providing font-lock-keywords have been set for the 
 buffer modes)."
   :type 'boolean
   :group 'proof-user-options)
@@ -153,7 +153,7 @@ read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!).
 
 If you change proof-strict-read-only during a session, you must 
-use the \"Restart\" button (or M-x proof-shell-restart) before
+use the \"Restart\" button (or \\[proof-shell-restart]) before
 you can see the effect in buffers.
 
 The default value for proof-strict-read-only depends on which
@@ -704,11 +704,11 @@ If a function, it should return the command string to insert."
 
 (defconst proof-toolbar-entries-default
   `((state	"Display Proof State" "Display the current proof state" t 
-		proof-showproof-command)
-    (context	"Display Context" "Display the current context" t 
-		proof-context-command)
+				      proof-showproof-command)
+    (context	"Display Context"     "Display the current context" t 
+				      proof-context-command)
     (goal	"Start a New Proof"   "Start a new proof" t
-		proof-goal-command)
+				      proof-goal-command)
     (retract	"Retract Buffer"      "Retract (undo) whole buffer" t)
     (undo	"Undo Step"           "Undo the previous proof command" t)
     (delete	"Delete Step"         nil t)
@@ -717,15 +717,14 @@ If a function, it should return the command string to insert."
     (goto	"Goto Point"	      "Process or undo to the cursor position" t)
     (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
     (qed	"Finish Proof"        "Close/save proved theorem" t
-		proof-save-command)
+				      proof-save-command)
     (lockedend  "Goto Locked End"     nil t)
-    (find	"Find Theorems"	      "Find theorems" t
-		proof-find-theorems-command)
+    (find	"Find Theorems"	      "Find theorems" t proof-find-theorems-command)
     (command    "Issue Command"	      "Issue a non-scripting command" t)
     (interrupt  "Interrupt Prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
     (visibility "Toggle Visibility"   nil t)
     (info	nil		      "Show online proof assistant information" t
-		proof-info-command)
+				      proof-info-command)
     (help	nil		      "Proof General manual" t))
 "Example value for proof-toolbar-entries.  Also used to define scripting menu.
 This gives a bare toolbar that works for any prover, providing the
@@ -1390,21 +1389,6 @@ for scripting commands), unless activated-interactively is set."
   :group 'proof-script)
 
 
-(defcustom proof-font-lock-zap-commas nil
-  "If non-nil, enable a font-lock hack which unfontifies commas.
-If you fontify variables inside lists like [a,b,c] by matching
-on the brackets `[' and `]', you may take objection to the commas 
-being coloured as well.  In that case, enable this hack which
-will magically restore the commas to the default font for you.
-
-The hack is rather painful and forces immediate fontification of
-files on loading (no lazy, caching locking).  It is unreliable
-under GNU Emacs, to boot.
-
-LEGO and Coq enable it by tradition."
-  :type 'boolean
-  :group 'proof-script)
-
 (defcustom proof-script-font-lock-keywords nil
   "Value of font-lock-keywords used to fontify proof scripts.
 This is currently used only by proof-easy-config mechanism,
@@ -1458,7 +1442,7 @@ See pg-user.el: pg-create-in-span-context-menu for more hints."
 Suggestion: this can be set in proof-pre-shell-start-hook from
 a variable which is in the proof assistant's customization
 group.  This allows different proof assistants to coexist
-(albeit in separate Emacs sessions)."
+\(albeit in separate Emacs sessions)."
   :type 'string
   :group 'proof-shell)
 
@@ -1488,9 +1472,9 @@ See also `proof-shell-init-cmd'."
 (defcustom proof-shell-init-cmd nil
    "The command for initially configuring the proof process.
 This command is sent to the process as soon as synchronization is gained
-(when an annotated prompt is first recognized).  It can be used to configure 
+\(when an annotated prompt is first recognized).  It can be used to configure 
 the proof assistant in some way, or print a welcome message
-(since output before the first prompt is discarded).
+\(since output before the first prompt is discarded).
 
 See also `proof-shell-pre-sync-init-cmd'."
    :type '(choice string (const nil))
@@ -1703,7 +1687,7 @@ See `proof-shell-error-regexp' and `proof-shell-interrupt-regexp'."
   "Regular expression which matches an error message, perhaps with line/column.
 Used by `proof-next-error' to jump to line numbers causing 
 errors during some batch processing of the proof assistant.
-(During \"manual\" script processing, script usually automatically
+\(During \"manual\" script processing, script usually automatically
 jumps to the end of the locked region)
 
 Match number 2 should be the line number, if present.
@@ -1718,13 +1702,13 @@ which is assumed to precede pg-next-error-regexp."
   "Used to locate a filename that an error message refers to.
 Used by `proof-next-error' to jump to locations causing 
 errors during some batch processing of the proof assistant.
-(During \"manual\" script processing, the script usually automatically
+\(During \"manual\" script processing, the script usually automatically
 jumps to the end of the locked region).
 
 Match number 2 should be the file name, if present.
 
 Errors must first be matched by `pg-next-error-regexp'
-(whether they contain a line number or not).  The response buffer
+\(whether they contain a line number or not).  The response buffer
 is then searched *backwards* for a regexp matching this variable,
 `pg-next-error-filename-regexp'.  (So if the
 filename appears after the line number, make the first regexp
@@ -1976,7 +1960,7 @@ This is an experimental feature, currently work-in-progress."
   "Regexp used to split the list of strings which match
 `proof-shell-theorem-dependency-list-regexp'.  Used as
 an argument to `split-string'; nil defaults to whitespace.
-(This setting is necessary for provers which allow whitespace in
+\(This setting is necessary for provers which allow whitespace in
 the names of theorems/definitions/constants), see setting for
 Isabelle in isa/isa.el and isar/isar.el."
   :type '(choice nil regexp)

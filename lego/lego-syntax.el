@@ -103,7 +103,9 @@
      (cons (proof-ids-to-regexp lego-keywords) 'font-lock-keyword-face)
      (cons (proof-ids-to-regexp lego-tacticals) 'proof-tacticals-name-face)
      (list lego-goal-with-hole-regexp 2 'font-lock-function-name-face)
-     (list lego-save-with-hole-regexp 2 'font-lock-function-name-face))))
+     (list lego-save-with-hole-regexp 2 'font-lock-function-name-face)
+     ;; Remove spurious variable and function faces on commas.
+     '(proof-zap-commas))))
      
 (defun lego-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."

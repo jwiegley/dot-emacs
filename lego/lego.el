@@ -339,8 +339,6 @@ Checks the width in the `proof-goals-buffer'"
 
   (setq font-lock-keywords lego-font-lock-keywords-1)
 
-  (setq proof-font-lock-zap-commas t)	; enable the painful hack
-  
   (proof-config-done)
 
 ;; outline

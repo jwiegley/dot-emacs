@@ -407,9 +407,9 @@ Returns new END value."
 	    (narrow-to-region start end)
 	    (run-hooks 'pg-before-fontify-output-hook)
 	    (setq end (point-max)))
-	  (font-lock-default-fontify-region start end nil)
+	  (font-lock-default-fontify-region start end nil))))
 	  ;; FIXME: after-fontify hook might do this ugly zap commas thing.
-	  (proof-zap-commas-region start end))))
+	  ;;(proof-zap-commas-region start end))))
   (save-restriction
     (narrow-to-region start end)
     (run-hooks 'pg-after-fontify-output-hook)

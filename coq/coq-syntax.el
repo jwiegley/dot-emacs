@@ -455,7 +455,9 @@ Idtac (Nop) tactic, put the following line in your .emacs:
      (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face)
      (list coq-decl-with-hole-regexp 2 'font-lock-variable-name-face)
      (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
-     (list coq-save-with-hole-regexp 2 'font-lock-function-name-face))))
+     (list coq-save-with-hole-regexp 2 'font-lock-function-name-face)
+     ;; Remove spurious variable and function faces on commas.
+     '(proof-zap-commas))))
 (defvar coq-font-lock-keywords coq-font-lock-keywords-1)
 
 (defun coq-init-syntax-table ()
