@@ -1,3 +1,4 @@
+-----------------------------------------------------------------
 
 Making a branch to patch a previous release:
 
@@ -31,3 +32,22 @@ NB: this merging will always create conficts with
 $Id$ tags in source. (Is there a way to avoid this?)
   
   
+-----------------------------------------------------------------
+
+Overriding the CVS/Root setting temporarily:
+
+ Use 
+     cvs -d $CVSROOT 
+
+NB: This doesn't alter CVS/Root, but uses NEWROOT in preference.
+($CVSROOT does not overide CVS/Root at all).
+
+Useful command:
+
+  alias cvs='cvs -d $CVSROOT'
+
+to force this behaviour.
+
+This is needed to solve "localssh.dcs" versus "ssh.dcs" problem.
+
+
