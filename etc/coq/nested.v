@@ -38,6 +38,8 @@ Require Logic. (* 1 This needs "Back 1" to be retracted *)
 Require List. (* 2 This needs "Back 1" to be retracted *)
 
 
+Fixpoint f [n:nat] : nat := Cases n of O => O | (S m)=> (f m) end. (*7*)
+
 Lemma t1: (n: nat ) {n=O} + {(EX y | n = (S y))}.  
 (* 3 This needs "Restart" to be retracted if inside the proof, and
 "Reset t1. Back 4."  if outside (after point 12). 3 because of the
@@ -64,6 +66,7 @@ Require Omega. (* 7 This needs "Back 1" to be retracted. *)
     Save.
   Save. (* 8 "Back 1" or "Reset t2". *)
 Intros. (* 9 "Undo": example of retraction 9->6: Undo 2.  Back 3. *)
+  Fixpoint f [n:nat] : nat := Cases n of O => O | (S m)=> (f m) end. (*7*)
   Lemma t3 : O=O. Auto. Save. (* 10 "Back 1" or "Reset t3" *)
 EAuto. (* 11 "Undo" *)
 Save. (* 12 *)
