@@ -1560,8 +1560,19 @@ No action if BUF is nil."
 ;;          Active terminator minor mode                            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; FIXME: Paul Callaghan wants to make the default for this be
+;; 't'.  Perhaps we need a user option which configures the default.
+;; Moreover, this minor mode is only relevant to scripting
+;; buffers, so a buffer-local setting may be inappropriate.
 (deflocal proof-active-terminator-minor-mode nil 
   "Active terminator minor mode flag")
+
+;; Make sure proof-active-terminator-minor-mode is registered
+(or (assq 'proof-active-terminator-minor-mode minor-mode-alist)
+    (setq minor-mode-alist
+	  (append minor-mode-alist
+		  (list '(proof-active-terminator-minor-mode
+			  (concat " " proof-terminal-string))))))
 
 (defun proof-active-terminator-minor-mode (&optional arg)
   "Toggle Proof General's active terminator minor mode.
@@ -1572,13 +1583,6 @@ If active terminator mode is enabled, pressing a terminator will automatically a
 
  (interactive "P")
  
-;; has this minor mode been registered as such?
-  (or (assq 'proof-active-terminator-minor-mode minor-mode-alist)
-      (setq minor-mode-alist
-            (append minor-mode-alist
-                    (list '(proof-active-terminator-minor-mode
-			    (concat " " proof-terminal-string))))))
-
   (setq proof-active-terminator-minor-mode
         (if (null arg) (not proof-active-terminator-minor-mode)
           (> (prefix-numeric-value arg) 0)))
