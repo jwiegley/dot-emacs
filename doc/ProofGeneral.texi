@@ -2788,6 +2788,23 @@ parentheses and commands. It represents these with the characters
 @samp{?(}, @samp{?[} and @samp{@code{proof-terminal-char}}. 
 @end defvar
 
+@xref{Handling multiple files} for more details about the final
+setting in this group.
+@c TEXI DOCSTRING MAGIC: proof-auto-multiple-files
+@defvar proof-auto-multiple-files 
+Whether to use automatic multiple file management.@*
+If non-nil, Proof General will automatically retract a script file
+whenever another one is retracted which it depends on.  It assumes
+a simple linear dependency between files in the order which
+they were processed.
+
+If your proof assistant has no management of file dependencies, or one
+which depends on a simple linear context, you may be able to use this
+setting to good effect.  If the proof assistant has more complex
+file dependencies then you should configure it to communicate with
+Proof General about the dependcies rather than using this setting.
+@end defvar
+
 
 
 @node Proof shell settings
@@ -2861,6 +2878,10 @@ NB: By default, @code{proof-cd} is called from @code{proof-activate-scripting-ho
 so that the prover switches to the directory of a proof
 script every time scripting begins.
 @end defvar
+
+@xref{Handling multiple files} for more details about the final two
+settings in this group.
+
 @c TEXI DOCSTRING MAGIC: proof-shell-inform-file-processed-cmd
 @defvar proof-shell-inform-file-processed-cmd 
 Command to the proof assistant to tell it that a file has been processed.@*
@@ -3047,6 +3068,29 @@ variables.
 @defvar proof-shell-handle-error-hook 
 Hooks run after an error has been reported in the response buffer.
 @end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-shell-process-output-system-specific
+@defvar proof-shell-process-output-system-specific 
+Set this variable to handle system specific output.@*
+Errors, start of proofs, abortions of proofs and completions of
+proofs are recognised in the function @samp{@code{proof-shell-process-output}}.
+All other output from the proof engine is simply reported to the
+user in the @var{response} buffer.
+
+To catch further special cases, set this variable to a pair of
+functions '(condf . actf). Both are given (cmd string) as arguments.
+@samp{cmd} is a string containing the currently processed command.
+@samp{string} is the response from the proof system. To change the
+behaviour of @samp{@code{proof-shell-process-output}}, (condf cmd string) must
+return a non-nil value. Then (actf cmd string) is invoked. See the
+documentation of @samp{@code{proof-shell-process-output}} for the required
+output format.
+@end defvar
+
+
+@xref{Handling multiple files} for more details about the final
+three settings in this section.
+
 @vindex proof-included-files-list
 @c TEXI DOCSTRING MAGIC: proof-shell-process-file
 @defvar proof-shell-process-file 
@@ -3084,23 +3128,8 @@ substring. In practice, this function is likely to inspect the
 previous (global) variable @samp{@code{proof-included-files-list}} and the match
 data triggered by @samp{@code{proof-shell-retract-files-regexp}}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-process-output-system-specific
-@defvar proof-shell-process-output-system-specific 
-Set this variable to handle system specific output.@*
-Errors, start of proofs, abortions of proofs and completions of
-proofs are recognised in the function @samp{@code{proof-shell-process-output}}.
-All other output from the proof engine is simply reported to the
-user in the @var{response} buffer.
 
-To catch further special cases, set this variable to a pair of
-functions '(condf . actf). Both are given (cmd string) as arguments.
-@samp{cmd} is a string containing the currently processed command.
-@samp{string} is the response from the proof system. To change the
-behaviour of @samp{@code{proof-shell-process-output}}, (condf cmd string) must
-return a non-nil value. Then (actf cmd string) is invoked. See the
-documentation of @samp{@code{proof-shell-process-output}} for the required
-output format.
-@end defvar
+
 
 @node Splash screen settings
 @section Splash screen settings
@@ -3117,9 +3146,9 @@ Proof General.
 @c TEXI DOCSTRING MAGIC: proof-splash-contents
 @defvar proof-splash-contents 
 Evaluated to configure splash screen displayed when entering Proof General.@*
-If an element is a string or an image specifier, it is displayed
-centred on the window on its own line.  If it is nil, a new line is
-inserted.
+A list of the screen contents.  If an element is a string or an image
+specifier, it is displayed centred on the window on its own line.  
+If it is nil, a new line is inserted.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-splash-extensions
 @defvar proof-splash-extensions 
@@ -3130,12 +3159,12 @@ These are evaluated and appended to @samp{@code{proof-splash-contents}}.
 
 
 
-@node Goals buffer configuration
-@section Goals buffer configuration
+@node Goals buffer settings
+@section Goals buffer settings
 
-The goals buffer configuration will allow configuration of Proof General
-for proof by pointing or similar features.  At the moment these settings
-are disabled.
+The goals buffer settings allow configuration of Proof General for proof
+by pointing or similar features.
+@c At the moment these settings are disabled.
 
 @c TEXI DOCSTRING MAGIC: pbp-change-goal
 @defvar pbp-change-goal 
@@ -3179,8 +3208,8 @@ unless you want to modify or extend the defaults.
 @defvar proof-general-name 
 Proof General name used internally and in menu titles.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-proof-general-home-page
-@defopt proof-proof-general-home-page 
+@c TEXI DOCSTRING MAGIC: proof-general-home-page
+@defopt proof-general-home-page 
 Web address for Proof General
 
 The default value is @code{"http://www.dcs.ed.ac.uk/home/proofgen"}.
@@ -3201,38 +3230,21 @@ where @samp{k} is a keybinding (vector) and @samp{f} the designated function.
 Large proof developments are typically spread across multiple files.
 Many provers support such developments by keeping track of dependencies
 and automatically processing scripts. Proof General supports this
-mechanism. The user's point of view is
-explored further in @ref{Advanced Script Management}. Here, we 
-describe the more technical nitty gritty. This is what you need to know
-when you customise another proof assistant to work with Proof General.
+mechanism. The user's point of view was considered in @ref{Advanced
+Script Management}. Here, we describe the more technical nitty
+gritty.  This is what you need to know when you customise another proof
+assistant to work with Proof General.  
 
-The key idea is that we leave it to the specific proof assistant to
-worry about managing multiple files as far as possible.  Whenever the
-proof assistant processes or retracts a file it must clearly say so, so
-that Proof General can register this.    
+Documentation for the configuration settings mentioned here appears in
+the previous sections, this section is intended to help explain the use
+of those settings.
 
-Conversely, Proof General is willing to tell the proof assistant that it
-has processed or retracted a file.  This happens only in two special
-instances.  First, when scripting is turned off in a file that has been
-completely processed, Proof General will tell the proof assistant using
-@code{proof-shell-inform-file-processed-cmd}.  Second, when scripting is
-turned on in a file which is completely processed, Proof General will
-tell the proof assistant to reconsider, and that the file should not
-be considered completely processed yet.  This uses the setting
-@code{proof-shell-inform-file-retracted-cmd}.
+Proof General maintains a list @code{proof-included-files-list} of files
+which it thinks have been processed by the proof assistant.  When a file
+which is on this list is visited in Emacs, it will be coloured entirely
+blue to indicate that it has been processed.  No editing of the file
+will be allowed (unless @code{proof-strict-read-only} allows it).
 
-
-@vindex proof-shell-eager-annotation-start
-@vindex proof-shell-eager-annotation-end
-
-Proof General considers @var{output} delimited by the the two regular
-expressions @code{proof-shell-eager-annotation-start} and
-@code{proof-shell-eager-annotation-end} as being important. It displays
-the @var{output} in the Response buffer and analyses their contents
-further. Among possibly other important messages characterised by these
-regular expressions, the prover must tell the interface whenever it
-processes a file and retracts across file boundaries. The variable
-@code{proof-included-files-list} records the file history.
 
 @c TEXI DOCSTRING MAGIC: proof-included-files-list
 @defvar proof-included-files-list 
@@ -3242,14 +3254,15 @@ This list contains files in canonical truename format
 
 Whenever a new file is being processed, it gets added to this list
 via the @code{proof-shell-process-file} configuration settings.
-When the prover retracts across file boundaries, this list 
-is resynchronised via the @code{proof-shell-retract-files-regexp} and
-@code{proof-shell-compute-new-files-list} configuration settings. 
+When the prover retracts a file, this list is resynchronised via the
+@code{proof-shell-retract-files-regexp} and @code{proof-shell-compute-new-files-list} 
+configuration settings.
 
 Only files which have been @strong{fully} processed should be included here.
-Proof General itself will automatically add the filenames of script
-buffers which are completely read, when scripting is deactivated or
-switched to another buffer.
+Proof General itself will automatically add the filenames of a script
+buffer which has been completely read when scripting is deactivated.
+It will automatically remove the filename of a script buffer which
+is completely unread when scripting is deactivated.
 
 NB: Currently there is no generic provision for removing files which
 are only partly read-in due to an error, so ideally the proof assistant
@@ -3257,18 +3270,95 @@ should only output a processed message when a file has been successfully
 read.
 @end defvar
 
+The way that @code{proof-included-files-list} is maintained is the key
+to multiple file management.  (But you should not set this variable
+directly, it is managed via the configuration setttings).
+
 @vindex proof-shell-process-file
 @vindex proof-shell-retract-files-regexp
 @vindex proof-shell-compute-new-files-list
-You should not set this variable directly. The generic Proof General
-will modify @code{proof-included-files-list} itself. Instead, for a
-specific proof assistant you need to customise
-@code{proof-shell-inform-file-processed-cmd},
-@code{proof-shell-inform-file-retracted-cmd}.
-@xref{Proof shell commands}.  And also
-@code{proof-shell-process-file}, @code{proof-shell-retract-files-regexp}
-and @code{proof-shell-compute-new-files-list}. @xref{Hooks and function
-variables}.
+
+There is a range of strategies for managing multiple files.  Ideally,
+file dependencies should be managed by the proof assistant.  Proof
+General will use the prover's low-level commands to process a whole file
+and its requirements non-interactively, without going through script
+management.  So that the user knows which files have been processed, the
+proof assistant should issue messages which Proof General can recognize
+(``file @code{foo} has been processed'') --- see
+@code{proof-shell-process-file}.  When the user wants to edit a file
+which has been processed, it must be retracted (unlocked).  The proof
+assistant should provide a command corresponding to this action, which
+undoes a given file and all its dependencies.  As each file is undone, a
+message should be issued which Proof General can recognize (``file
+@code{foo} has been undone'') -- see
+@code{proof-shell-retract-files-regexp}.  (The function
+@code{proof-shell-compute-new-files-list} can be set to calculate the
+new value for @code{proof-included-files-list}).
+
+
+@c The key idea is that we leave it to the specific proof assistant to
+@c worry about managing multiple files, as far as possible.  Whenever the
+@c proof assistant processes or retracts a file it must clearly say so, so
+@c that Proof General can register this.
+
+As well as this communication from the assistant to Proof General about
+processed or retracted files, Proof General can communicate the other
+way: it will tell the proof assistant when it has processed or retracted
+a file via script management.  This is because during script management,
+the proof assistant may not be aware that it is actually dealing with a
+file of proof commands (rather than just terminal input).
+
+Proof General will provide this information in two special instances.
+First, when scripting is turned off in a file that has been completely
+processed, Proof General will tell the proof assistant using
+@code{proof-shell-inform-file-processed-cmd}.  Second, when scripting is
+turned on in a file which is completely processed, Proof General will
+tell the proof assistant to reconsider: the file should not be
+considered completely processed yet.  This uses the setting
+@code{proof-shell-inform-file-retracted-cmd}.  This second case might
+lead to a series of messages from the prover telling Proof General to
+unlock files which depend on the present one, again via
+@code{proof-shell-retract-files-regexp}.
+
+What we have described so far is the ideal case, but it may require some
+support from the proof assistant to set up (for example, if file-level
+undo is not normally supported, or the messages during file processing
+are not suitable).  Moreover, some proof assistants may not have file
+handling with dependencies, or may have a particularly simple case of a
+linear context: each file depends on all the ones processed before it.
+Proof General allows you a shortcut to get automatic management of
+multiple files in these cases by setting the flag
+@code{proof-auto-multiple-files}.  This setting is probably an
+approximation to the right thing for any proof assistant.  More files
+than necessary will be retracted if the prover has a tree-like file
+dependency rather than a linear one.
+
+@vindex proof-shell-eager-annotation-start
+@vindex proof-shell-eager-annotation-end
+Finally, we should mention how Proof General recognizes file processing
+messages from the proof assistant.  Proof General considers @var{output}
+delimited by the the two regular expressions
+@code{proof-shell-eager-annotation-start} and
+@code{proof-shell-eager-annotation-end} as being important. It displays
+the @var{output} in the Response buffer and analyses the contents
+further. Among possibly other important messages characterised by these
+regular expressions (warnings, errors, or information), the prover can
+tell the interface whenever it processes or retracts a file.
+
+
+To summarize, the settings for multiple file management that may be
+customized are as follows. To recognize file-processing,
+@code{proof-shell-process-file}.  To recognize messages about file
+undoing, @code{proof-shell-retract-files-regexp} and
+@code{proof-shell-compute-new-files-list}.   @xref{Hooks and function
+variables}.  To tell the prover about files handled with
+script management, use 
+ @code{proof-shell-inform-file-processed-cmd} and
+ @code{proof-shell-inform-file-retracted-cmd}.  @xref{Proof shell
+ commands}.  Finally, set the flag @code{proof-auto-multiple-files} 
+for a automatic approximation to multiple file handling.
+@xref{Proof script settings}.
+
 
 
 
@@ -3424,14 +3514,15 @@ This list contains files in canonical truename format
 
 Whenever a new file is being processed, it gets added to this list
 via the @code{proof-shell-process-file} configuration settings.
-When the prover retracts across file boundaries, this list 
-is resynchronised via the @code{proof-shell-retract-files-regexp} and
-@code{proof-shell-compute-new-files-list} configuration settings. 
+When the prover retracts a file, this list is resynchronised via the
+@code{proof-shell-retract-files-regexp} and @code{proof-shell-compute-new-files-list} 
+configuration settings.
 
 Only files which have been @strong{fully} processed should be included here.
-Proof General itself will automatically add the filenames of script
-buffers which are completely read, when scripting is deactivated or
-switched to another buffer.
+Proof General itself will automatically add the filenames of a script
+buffer which has been completely read when scripting is deactivated.
+It will automatically remove the filename of a script buffer which
+is completely unread when scripting is deactivated.
 
 NB: Currently there is no generic provision for removing files which
 are only partly read-in due to an error, so ideally the proof assistant
@@ -3514,9 +3605,9 @@ A warning message is issued if the register request came from the
 proof assistant and Emacs is has a modified buffer visiting the file.
 @end defun
 
-Another important function activates scripting for the current script
-buffer.  This may involve switching from one scripting buffer to
-another.
+An important pair of functions activate and deactivate scripting for the
+current buffer.  This can trigger various actions, such as starting
+up the proof assistant, or altering @code{proof-included-files-list}.
 
 @c TEXI DOCSTRING MAGIC: proof-activate-scripting
 @deffn Command proof-activate-scripting &optional nosaves queuemode
@@ -3541,6 +3632,38 @@ Finally, the hooks @samp{@code{proof-activate-scripting-hook}} are run.
 This can be a useful place to configure the proof assistant for
 scripting in a particular file, for example, loading the
 correct theory, or whatever.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-deactivate-scripting
+@deffn Command proof-deactivate-scripting &optional forcedaction
+Deactivate scripting for the active scripting buffer.
+
+Set @code{proof-script-buffer} to nil and turn off the modeline indicator.
+No action if there is no active scripting buffer.  
+
+We make sure that the active scripting buffer either has no locked
+region or everything in it has been processed. This is done by
+prompting the user or by automatically taking the action indicated in
+the user option @samp{@code{proof-auto-action-when-deactivating-scripting}.}
+
+If the scripting buffer is (or has become) fully processed, and
+it is associated with a file, it is registered on 
+@samp{@code{proof-included-files-list}}.  Conversely, if it is (or has become)
+empty, make sure that it is @strong{not} registered.  This is to
+make sure that the included files list behaves as we might expect
+with respect to the active scripting buffer, in an attempt to 
+harmonize mixed scripting and file reading in the prover.
+
+This function either succeeds, fails because the user 
+refused to process or retract a partly finished buffer,
+or gives an error message because retraction or processing failed.
+If this function succeeds, then proof-script-buffer=nil afterwards.
+
+The optional argument @var{forcedaction} overrides the user option
+@samp{@code{proof-auto-action-when-deactivating-scripting}} and prevents
+questioning the user.  It is used to make a value for
+the @code{kill-buffer-hook} for scripting buffers, so that when
+a scripting buffer is killed it is always retracted.
 @end deffn
 
 The next function is the main one used for parsing the proof script
@@ -4271,11 +4394,11 @@ cannot be undone in a proof state by Proof General.
 
 @strong{Workaround:} retract back to the start of the proof.
 
-@subsubsection Not saving proofs. 
-After LEGO has issued a @samp{*** QED ***} you may undo steps in the
-proof as long as you don't issue a @samp{Save} command or start a new
-proof. LEGO Proof General assumes that all proofs are terminated with a
-proper @samp{Save} command.
+@c @subsubsection Not saving proofs. 
+@c After LEGO has issued a @samp{*** QED ***} you may undo steps in the
+@c proof as long as you don't issue a @samp{Save} command or start a new
+@c proof. LEGO Proof General assumes that all proofs are terminated with a
+@c proper @samp{Save} command.
 
 @strong{Workaround:} Always issue a @samp{Save} command after completing
 a proof. If you forget one, you should retract to a point before the
