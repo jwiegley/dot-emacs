@@ -1,11 +1,10 @@
 (* Simple tests for multiple file handling *)
 
-Goal (A,B:Prop)(and A B) -> (and B A).
-Intros A B H.
-Induction H.
-Apply conj.
-Assumption.
-Assumption.
+Goal forall (A B:Prop),(A /\ B) -> (B /\ A).
+  intros A B H.
+  elim H.
+  intros.
+  split.
+  assumption.
+  assumption.
 Save and_comms_a.
-
-
