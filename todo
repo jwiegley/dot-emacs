@@ -32,6 +32,9 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to do in the generic interface
 
+*** D Make code robust against accidental buffer kills
+      by regenerating auxiliary buffers automatically. 
+
 *** D Bugs with extents: 
       Sometimes probs if try to assert a whole file while one is
       being processed:     (proof-set-queue-start end) call in
@@ -694,6 +697,13 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 LIST OF THINGS FOR PG 3.4
 =========================
+
+** LATEST
+
+-- Coq pbp focussing --- does this part work at least?  Test case.
+-- Pierre's changes
+-- Christophe's changes
+-- Win32 prob noted by N.V.
 
 ** X-SYMBOL PROBLEMS 
     -- GNU emacs probs with Coq and friends.
