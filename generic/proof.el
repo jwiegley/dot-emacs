@@ -225,7 +225,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 ;; Managing font-lock
 ;;
 
-;; Buffers which are output only are *not* kept in special minor
+;; Buffers which are output-only are *not* kept in special minor
 ;; modes font-lock-mode (or x-symbol-mode).  In case the user
 ;; doesn't want fontification we have a user option,
 ;; proof-fontify-output.

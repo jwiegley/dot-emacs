@@ -187,7 +187,9 @@ A value for proof-shell-insert-hook."
 (defun proof-x-symbol-configure ()
   "Configure the current buffer for X-Symbol."
   (if proof-x-symbol-enable
-      (setq x-symbol-language proof-assistant-symbol)
+      (progn
+	(setq x-symbol-language proof-assistant-symbol)
+	(proof-x-symbol-decode-region (point-min) (point-max)))
     (setq x-symbol-language nil)))
 
 (defun proof-x-symbol-mode-all-buffers ()
