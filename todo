@@ -53,6 +53,9 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to do in the generic interface
 
+*** PGIP SUPPORT (minimal for Isabelle patch):
+      -- settings with categories
+
 *** [ Don't query save before retraction ?? ]
 
 *** A settings configuration for Isabelle: add backwards

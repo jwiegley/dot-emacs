@@ -31,11 +31,11 @@ recompile the sources for a particular Emacs version, try:
  
 Check the settings in the Makefile for your Emacs version.
 
-*** Bundling of X-Symbol Mode (4.5 beta)
+*** Bundling of X-Symbol Mode (4.5.1-beta)
 
 !!THIS IS WORK IN PROGRESS, IT MAY WELL BREAK X-SYMBOL FOR YOU!!
 
-[ Currenly should be working in Isabelle, not other provers ]
+[ Currenly should be working in Isabelle, perhaps not other provers ]
 
 To disable use of the bundled version, either delete/move away the
 x-symbol subdirectory, or load your own local version first [put
