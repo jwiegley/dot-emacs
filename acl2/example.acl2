@@ -7,7 +7,3 @@
   (equal (assoc x a)
 	 (assoc-equal x a)))
 
-(defthm assoc->assoc-equal
-  (equal (assoc x a)
-	 (assoc-equal x a)))
-
