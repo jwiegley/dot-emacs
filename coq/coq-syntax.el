@@ -155,14 +155,48 @@
 	  coq-keywords-defn coq-keywords-commands coq-tactics)
   "All keywords in a Coq script")
 
-(defvar coq-tacticals '(
-"Abstract"
-"Do"
-"Idtac"
-"OrElse"
-"Repeat"
-"Try"
-))
+(defvar coq-tacticals 
+  '(
+    "Abstract"
+    "Do"
+    "Idtac"
+    "OrElse"
+    "Repeat"
+    "Try")
+  "Keywords for tacticals in a Coq script")
+
+(defvar coq-reserved
+  '(
+    "ALL"
+    "Cases"
+    "EX"
+    "else"
+    "end"
+    "Fix"
+    "if"
+    "then"
+    )
+  "Reserved keyworkds of Coq")
+
+
+(defvar coq-symbols
+  '(
+    "|"
+    ":"
+    ";"
+    ","
+    "("
+    ")"
+    "["
+    "]"
+    "{"
+    "}"
+    ":="
+    "=>"
+    "->"
+    "."
+    )
+  "Punctuation Symbols used by Coq")
 
 ;; ----- regular expressions
 (defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\|Anomaly\\)"
@@ -216,7 +250,8 @@
     (list
      (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
      (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
-
+     (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
+      
      (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face)
      (list coq-decl-with-hole-regexp 2 'proof-declaration-name-face)
      (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
