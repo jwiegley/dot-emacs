@@ -11,10 +11,6 @@ See also ../todo for generic things to do, priority codes.
 ** C proper proof-by-pointing support (hard; needs major reworking of
 Isabelle's pretty-printing subsystem);
 
-** C speedup indentation (rather do this at generic level?); would be
-nice if current indentation stack would be somehow stored within the
-extend(s) processed last;
-
 ** C tune behaviour of goals/response buffers (e.g. hide empty
 response buffers when using 2 buffer model);
 
