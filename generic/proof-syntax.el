@@ -53,9 +53,9 @@ nil if a region cannot be found."
 	(if (re-search-forward endre nil t)
 	    start))))
 
-;; Function for string matching that takes into account value
-;; of proof-case-fold-search.  Last arg to string-match is
-;; not applicable.
+;; Functions for string matching and searching that take into account
+;; value of proof-case-fold-search.  Last arg to string-match is not
+;; applicable.
 
 (defun proof-re-search-forward (regexp &optional bound noerror count)
   "Like re-search-forward, but set case-fold-search to proof-case-fold-search."
@@ -92,14 +92,19 @@ nil if a region cannot be found."
       ((case-fold-search proof-case-fold-search))
     (looking-at regexp)))
 
+(defun proof-looking-at-safe (regexp)
+  "Like proof-looking-at, but return nil if REGEXP is nil."
+  (if regexp (proof-looking-at regexp)))
+
+(defun proof-looking-at-syntactic-context ()
+  "Determine if current point is at beginning or within comment/string context."
+  (or
+   (buffer-syntactic-context)
+   (proof-looking-at-safe proof-comment-start-regexp)
+   (proof-looking-at-safe proof-string-start-regexp)))
+
 
 ;; Generic font-lock
-
-(defvar proof-indent-commands-regexp ""
-  "Subset of keywords and tacticals which are terminated by the
-`proof-terminal-char'.  Basic indentation is provided automatically
-for these.")
-
 
 (defvar proof-id "\\(\\w\\(\\w\\|\\s_\\)*\\)"
   "A regular expression for parsing identifiers.")
