@@ -58,7 +58,7 @@
 (make-variable-buffer-local 'phox-sym-lock-color)
 (put 'phox-sym-lock-color 'permanent-local t)
 
-(defvar phox-sym-lock-mouse-face 'highlight
+(defvar phox-sym-lock-mouse-face 'default
   "*Face for symbols when under mouse.")
 (make-variable-buffer-local 'phox-sym-lock-mouse-face)
 (put 'phox-sym-lock-mouse-face 'permanent-local t)
