@@ -65,7 +65,7 @@
 
 ;; Command to initialize the Coq Proof Assistant
 (defconst coq-shell-init-cmd 
-  (concat (format "Set Undo %s." coq-default-undo-limit)
+  (concat (format "Set Undo %s.\n" coq-default-undo-limit)
 	  (format "Cd \"%s\"." default-directory)))
 
 ;; Command to reset the Coq Proof Assistant
