@@ -3,7 +3,7 @@
 ;; rearranging Thomas Schreiber's code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <05 Nov 96 tms /home/tms/elisp/proof.el>
+;; Time-stamp: <17 Nov 96 tms /home/tms/elisp/proof.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -351,7 +351,6 @@
   (erase-buffer)
   (funcall proof-shell-mode-is)
   (setq comint-prompt-regexp proof-shell-prompt-pattern)
-  (setq comint-scroll-to-bottom-on-output t)
   (setq comint-input-sender 'proof-input-sender)
   (and running-emacs19 (setq comint-scroll-show-maximum-output t))
   (proof-display-buffer buffer-name)

@@ -4,7 +4,7 @@
 ;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <05 Nov 96 tms /home/tms/elisp/lego.el>
+;; Time-stamp: <20 Nov 96 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -301,10 +301,12 @@
 	   (list (concat "^  \\(" lego-id "\\) = ... :") 1 
 			 'font-lock-function-name-face)
 
-	   (list (concat "^  \\(" lego-id "\\) : ") 1 
+	   (list (concat "^  \\(" lego-id "\\) [:|]") 1 
 			 'font-lock-declaration-name-face)
 
-	   (list (concat "\\<decl\\>  \\(" lego-id "\\) [:|]") 1 
+           ; e.g., decl S1 S2 : prog sort
+	   (list (concat "\\<decl\\>  \\(" lego-id
+			 "\\( " lego-id "\\)*\\) [:|] ") 1 
 			 'font-lock-declaration-name-face)
 		 
 	   (list (concat "^value = \\(" lego-id "\\)") 1
