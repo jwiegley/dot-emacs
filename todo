@@ -80,9 +80,9 @@ B proof-shell-exit has a time delay of 10 secs built-in,
   example writing persistent databases out or the like.
   Also this fact should be documented.
 
-X Is it possible to let C-c C-c (SIGINT) issue additional process input?
-  Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
-  rather, to fail gracefully.
+C Add support for XEmacs 21 packaging.  Make suitable updates available
+  on web page, and make RPM put things in the right place so no .emacs
+  file may need editing(?).  [4 hours]
 
 B Fixup display problems.
    The window dedicated stuff is a real pain and I've
@@ -334,6 +334,10 @@ D Display management is much better than it was, but perhaps
 
 D Fixup display of urgent messages in minibuffer: split at
   newlines so we don't get ^J's in FSF Emacs.
+
+X Is it possible to let C-c C-c (SIGINT) issue additional process input?
+  Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
+  rather, to fail gracefully.
 
 X Consider filtering out special annotations from shell buffer
   rather than merely making them invisible.
