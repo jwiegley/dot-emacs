@@ -49,7 +49,16 @@ A Final stuff for 3.0 release [da]:
 
   - put demo paper on web pages, add more to it.
 
+  - simplify download pages by splitting
+ 
+  - func menu problem with compiled code: is it 
+  eval-after-load thing?  eval-and-compile around it?
 
+  - add message about importance of registering
+  
+  - make mailing list membership by default
+
+  - is there a welcome message for mailing list?
 
 
 ---------------------------------------------

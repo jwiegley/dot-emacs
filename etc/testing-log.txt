@@ -1,6 +1,7 @@
 Wed Nov 17 13:43:11 GMT 1999
 
  Tested compiled version.  Seems to work well for XEmacs!
+ Also for FSF Emacs!  So long as using their own elc's.
 
 Tue Nov 16 15:28:51 GMT 1999
 
