@@ -3,14 +3,14 @@ diff -cr ProofGeneral-2.0/coq/coqtags ProofGeneral-2.0.new/coq/coqtags
 --- ProofGeneral-2.0.new/coq/coqtags	Thu Sep 24 17:04:00 1998
 ***************
 *** 1,4 ****
-! #!/usr/local/bin/perl4
+! #!/usr/local/bin/perl
   #
-  # $Id: ProofGeneral.patch,v 1.1 1998/09/24 16:47:51 da Exp $
+  # $Id: ProofGeneral.patch,v 1.2 1998/09/24 17:34:13 da Exp $
   #
 --- 1,4 ----
 ! #!/usr/bin/perl
   #
-  # $Id: ProofGeneral.patch,v 1.1 1998/09/24 16:47:51 da Exp $
+  # $Id: ProofGeneral.patch,v 1.2 1998/09/24 17:34:13 da Exp $
   #
 diff -cr ProofGeneral-2.0/lego/legotags ProofGeneral-2.0.new/lego/legotags
 *** ProofGeneral-2.0/lego/legotags	Thu Sep 24 16:36:30 1998
@@ -19,12 +19,12 @@ diff -cr ProofGeneral-2.0/lego/legotags ProofGeneral-2.0.new/lego/legotags
 *** 1,4 ****
 ! #!/usr/local/bin/perl
   #
-  # $Id: ProofGeneral.patch,v 1.1 1998/09/24 16:47:51 da Exp $
+  # $Id: ProofGeneral.patch,v 1.2 1998/09/24 17:34:13 da Exp $
   #
 --- 1,4 ----
 ! #!/usr/bin/perl
   #
-  # $Id: ProofGeneral.patch,v 1.1 1998/09/24 16:47:51 da Exp $
+  # $Id: ProofGeneral.patch,v 1.2 1998/09/24 17:34:13 da Exp $
   #
 *** ProofGeneral-2.0/generic/proof-site.el	Thu Sep 24 18:17:33 1998
 --- ProofGeneral-2.0.new/generic/proof-site.el	Thu Sep 24 18:17:43 1998
