@@ -292,6 +292,7 @@ dist:
 	@echo "*************************************************"
 	(cd $(DISTBUILDIR); for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done)
 	$(TAR) -cvhf $(DISTBUILDIR)/$(RELEASENAMETAR) -C $(DISTBUILDIR) $(RELEASENAME) -X $(DISTBUILDIR)/ignoredfiles
+	rm -f ignoredfiles
 	gzip -9 $(DISTBUILDIR)/$(RELEASENAMETAR)
 	@echo "*************************************************"
 	@echo " Finished making dist."
