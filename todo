@@ -30,6 +30,9 @@ A* Fixup multiple files -- needs debugging.
 
    (3hrs)
 
+B Improve web pages after suggestions in doc/notes.txt
+  (da, 1.5hrs)
+
 C byte-compilation: check that byte compilation (and compiled code!)
   works for both varieties of Emacs.  Add instructions to INSTALL on 
   how to byte compile.  (1hr)

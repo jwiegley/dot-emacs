@@ -1,8 +1,29 @@
 Notes to include in documentation.
 ----------------------------------
 
+********
 
 Why is C-c C-b useful?  Could just use the file to read it one go
 (will we have a command to do this other than via the process?).
 BUT it's nice because it stops exactly where a proof fails, so you can
 continue development from there.
+
+
+*********
+
+Suggestions for improving web pages after Rod reading them:
+
+  - slideshow rather than single screen shot
+  - separate feature list
+  - explain what a proof script is and what script management buys you
+
+Get Dave a laptop to demo on.
+
+*********
+
+Isabelle with multiple files.
+
+Multiple file support only works for .ML files which are read via
+the theory loader, with use_thy.  If you want to load .ML files which
+aren't associated with theories, it's best to use a dummy theory,
+see [Reference to Isabelle manual]

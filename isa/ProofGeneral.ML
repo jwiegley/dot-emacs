@@ -173,82 +173,26 @@ end
    These could easily be customized to do different things.
 *)
 
+signature PROOFGENERAL =
+sig
+   val kill_goal : unit -> unit
+   val help : unit -> unit
+   val show_context : unit -> unit
+   val retract_file : string -> unit
+end
+
 structure ProofGeneral =
   struct
     fun kill_goal () = Goal "PROP no_goal_supplied";
     fun help () = print version;
     fun show_context () = the_context();
-  end;       
-
-
-(* duplicated code from thy_read.ML *)
-
-val tmp_loadpath = ref [] : string list ref;
-
-fun find_file "" name =
-      let fun find_it (cur :: paths) =
-                if File.exists (tack_on cur name) then
-                  (if cur = "." then name else tack_on cur name)
-                else
-                  find_it paths
-           | find_it [] = ""
-      in find_it (!tmp_loadpath @ !loadpath) end
-  | find_file path name =
-      if File.exists (tack_on path name) then tack_on path name
-                                         else "";
-
-(*Get absolute pathnames for a new or already loaded theory *)
-(*
-fun get_filenames path name =
-  let fun new_filename () =
-        let val found = find_file path (name ^ ".thy");
-            val absolute_path = absolute_path (OS.FileSys.getDir ());
-            val thy_file = absolute_path found;
-            val (thy_path, _) = split_filename thy_file;
-            val found = find_file path (name ^ ".ML");
-            val ml_file = if thy_file = "" then absolute_path found
-                          else if File.exists (tack_on thy_path (name ^ ".ML"))
-                          then tack_on thy_path (name ^ ".ML")
-                          else "";
-            val searched_dirs = if path = "" then (!tmp_loadpath @ !loadpath)
-                                             else [path]
-        in if thy_file = "" andalso ml_file = "" then
-	     (* Proof General change: only give warning message here *)
-             warning ("Could not find file \"" ^ name ^ ".thy\" or \""
-                    ^ name ^ ".ML\" for theory \"" ^ name ^ "\"\n"
-                    ^ "in the following directories: \"" ^
-                    (space_implode "\", \"" searched_dirs) ^ "\"")
-           else ();
-           (thy_file, ml_file)
-        end;
-
-      val tinfo = get_thyinfo name;
-  in if is_some tinfo andalso path = "" then
-       let val {path = abs_path, ...} = the tinfo;
-           val (thy_file, ml_file) = if abs_path = "" then new_filename ()
-                                     else (find_file abs_path (name ^ ".thy"),
-                                           find_file abs_path (name ^ ".ML"))
-       in if thy_file = "" andalso ml_file = "" then
-            (warning ("File \"" ^ (tack_on path name)
-                      ^ ".thy\"\ncontaining theory \"" ^ name
-                      ^ "\" no longer exists.");
-             new_filename ()
-            )
-          else (thy_file, ml_file)
-       end
-     else new_filename ()
-  end;
-Not needed in latest version of Isabelle with my hack.
-*)
-
-
-fun retract_file thy =
-  let fun file_msg x = if (x <> "") then
+    fun retract_file thy =
+    let fun file_msg x = if (x <> "") then
 			writeln ("Proof General, you can unlock the file "
 			     ^ (quote x))
 	               else ()
       (* output messages for this theory *)
-      val (thy_file, ml_file) = get_thy_filenames (path_of thy) thy
+    val (thy_file, ml_file) = get_thy_filenames (path_of thy) thy
       val _ = file_msg thy_file
       val _ = file_msg ml_file
       (* now process this theory's children *)
@@ -266,29 +210,13 @@ fun retract_file thy =
 		(map retract_file loaded; ())
       else ()
    end;
+  end;       
 
-fun list_loaded_files () =
- let
-   val thys_list = Symtab.dest (!loaded_thys)
-   fun loading_msg (tname,tinfo) = 
-	let val path = path_of tname
-	    val (thy_file,ml_file) = get_thy_filenames path tname
-	    fun file_msg x = if (x <> "") then
-			(* Simulate output of theory loader *)
-			writeln ("Reading " ^ (quote x))
-	               else ()
-	  in
-	     (file_msg thy_file; file_msg ml_file)
-          end
-  in
-    seq loading_msg thys_list
-  end;
 
-(* Get Proof General to cache the loaded files. *)
+(* duplicated code from thy_read.ML *)
 
-(* list_loaded_files(); *)
-   
-use "/home/da/thy_read.ML";
+
+use "/home/da/isa-patches/thy_read.ML";
 open ThyRead;
 update_verbose:=true;
 update();

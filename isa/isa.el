@@ -303,7 +303,7 @@ isa-proofscript-mode."
 ;; backwards in isa-find-and-forget, rather than forwards as
 ;; the old code below does.
 
-(defconst isa-retract-file-command "retract_file \"%s\";"
+(defconst isa-retract-file-command "ProofGeneral.retract_file \"%s\";"
   "Command sent to Isabelle for forgetting")
 
 (defun isa-find-and-forget (span)
