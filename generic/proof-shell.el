@@ -1260,9 +1260,21 @@ MESSAGE should be a string annotated with
 	   (string-match proof-shell-match-pgip-cmd message))
       (require 'pg-xml)
       (require 'pg-pgip)
+      (unless (string-match (match-string 0)
+			    proof-shell-eager-annotation-start)
+	;; Assume that eager annotation regexps are _not_ part of PGIP
+	;; message, and strip them.  This allows hybrid PGIP/non PGIP
+	;; communication, with PGIP embedded in urgent messages.
+	(setq message
+	      (substring 
+	       message
+	       (progn
+		 (string-match proof-shell-eager-annotation-start message)
+		 (match-end 0))
+	       (string-match proof-shell-eager-annotation-end message))))
       (let
 	  ((parsed-pgip  (pg-xml-parse-string message)))
-	(pg-pgip-process-cmd parsed-pgip)))
+	(pg-pgip-process-packet parsed-pgip)))
      
      ;; CASE theorem dependency: prover lists thms used in last proof
      ((and proof-shell-theorem-dependency-list-regexp 
