@@ -1980,7 +1980,7 @@ The command isn't added to the locked region.
 
 If `proof-state-preserving-p' is configured, it is used as a check
 that the command will be safe to execute, in other words, that
-it won't ruin synchronization.  If applied to the command it 
+it won't ruin synchronization.  If when applied to the command it 
 returns false, then an error message is given.  
 
 This command risks spoiling synchronization if the test
@@ -2351,7 +2351,7 @@ This is intended as a value for proof-activate-scripting-hook"
 		  (list '(proof-electric-terminator
 			  (concat " " proof-terminal-string))))))
 
-;; This is a value used by custom-set property = proof-set-bool.
+;; This is a value used by custom-set property = proof-set-value.
 (defun proof-electric-terminator-enable ()
   "Copy proof-electric-terminator-enable to all script mode copies of it.
 Make sure the modeline is updated to display new value for electric terminator."

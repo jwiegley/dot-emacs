@@ -28,7 +28,7 @@
   :group 'lego)
 
 (defcustom lego-indent 2
-  "*Indentation"
+  "*Indentation level."
   :type 'number
   :group 'lego)
 
@@ -41,7 +41,7 @@
 (defcustom lego-help-menu-list
   '(["The LEGO Reference Card" (browse-url lego-www-refcard) t]
     ["The LEGO library (WWW)" (browse-url lego-library-www-page)  t])
-  "List of menu itemsfor LEGO specific help.
+  "List of menu items for LEGO specific help.
 
 See the documentation of `easy-menu-define' "
   :type '(repeat sexp)
