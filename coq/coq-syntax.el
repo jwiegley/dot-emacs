@@ -28,6 +28,11 @@
 "Scheme"
 ))
 
+;; FIXME da: I'm not sure why this variable includes more than
+;; just the Goal-type commands.  Perhaps it was so that func-menu
+;; worked neatly, but it leads to the nasty use of proof-goal-command-p
+;; instead of a proof-goal-regexp.  Func menu configuration has since
+;; been overhauled, so this could maybe be improved now.
 (defvar coq-keywords-goal
   '(
 "Definition"
