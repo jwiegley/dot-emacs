@@ -7,10 +7,12 @@
 
 (defvar x-symbol-hol98-symbol-table 
   '((longarrowright () "->"  "\\<longrightarrow>")
+    (longarrowdblright () "==>" "\\<Longrightarrow>")
     (logicaland     () "/\\" "\\<and>")
     (logicalor      () "\\/" "\\<or>")
     (equivalence    () "<->" "\\<equiv>")
     (existential1   () "EX"  "\\<exists>")
+    (universal1     () "ALL"  "\\<forall>")
     ;; some naughty ones, but probably what you'd like
     ;; (a mess in words like "searching" "philosophy" etc!!)
     (Gamma  () "Gamma" "\\<Gamma>")
