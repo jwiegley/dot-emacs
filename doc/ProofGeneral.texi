@@ -2178,13 +2178,6 @@ If this table is empty or needs adjusting, please make changes using
 @samp{@code{customize-variable}} and send suggestions to proofgen@@dcs.ed.ac.uk.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-add-completions
-@deffn Command proof-add-completions 
-Add completions from <PA>-completion-table to completion database.@*
-Uses @samp{@code{add-completion}} with a negative number of uses and ancient
-last use time, to discourage saving these into the users database.
-@end deffn
-
 The completion facility uses a library @file{completion.el} which
 usually ships with XEmacs and FSF Emacs, and supplies the
 @code{complete} function.
