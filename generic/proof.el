@@ -1197,7 +1197,12 @@ Returns the string (with faces) in the specified region."
       (delete-region start end)
       (insert string)
       (setq end (+ start (length string)))
-      (font-lock-fontify-region start end)
+      ;; This doesn't work with FSF Emacs 20.2's version of Font-lock
+      ;; because there are no known keywords in the process buffer
+      ;; Never mind. In a forthcoming version, the process buffer will
+      ;; not be tempered with. Fontification will take place in a
+      ;; separate response buffer.
+      ;; (font-lock-fontify-region start end)
       (font-lock-append-text-property start end 'face append-face)
       (buffer-substring start end))))
 
@@ -2684,6 +2689,12 @@ finish setup which depends on specific proof assistant configuration."
   (easy-menu-add proof-mode-menu proof-mode-map)
 
   ;; For fontlock
+
+  ;; setting font-lock-defaults explicitly is required by FSF Emacs
+  ;; 20.2's version of font-lock
+  (make-local-variable 'font-lock-defaults)
+  (setq font-lock-defaults '(font-lock-keywords))
+
   ;; FIXME (da): zap commas support is too specific, should be enabled
   ;; by each proof assistant as it likes.
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)

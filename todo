@@ -14,10 +14,6 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A Bug in proof-shell-handle-output run on FSF Emacs, gives error
-  (wrong-type-argument markerp nil) when font-lock-fontify-region
-  is called to fontify the shell buffer.
-
 B proof-issue-goal should refuse to work when a proof is in progress.
   Similarly proof-issue-save should refuse to work when a proof
   hasn't been completed!
