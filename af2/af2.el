@@ -19,7 +19,7 @@
 ;;   ProofGeneral -> Internals -> Af2 config
 ;;
 
-(defcustom af2-prog-name "/home/raffalli/af2-all/af2/src/af2opt -pg"
+(defcustom af2-prog-name "af2 -pg"
   "*Name of program to run Af2."
   :type 'file
   :group 'af2)
@@ -393,7 +393,11 @@ send a delete command to af2 for the symbol whose name is under the cursor."
     "Af2 script" nil
     (af2-config)
     (af2-sym-lock-start)
-    (proof-config-done))
+    (proof-config-done)
+    ;; Configure syntax table for block comments
+    (modify-syntax-entry ?\* ". 23")
+    (modify-syntax-entry ?\( "()1")
+    (modify-syntax-entry ?\) ")(4"))
 
 (define-derived-mode af2-shell-mode proof-shell-mode
    "Af2 shell" nil
