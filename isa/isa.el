@@ -208,15 +208,15 @@ no regular or easily discernable structure."
    proof-shell-leave-annotations-in-output t
 
 
-   ;; === ANNOTATIONS  === ones below here are broken
+   ;; === ANNOTATIONS  === ones here are broken
    proof-shell-result-start	        "\372 Pbp result \373"
    proof-shell-result-end		"\372 End Pbp result \373"
    proof-analyse-using-stack		t
    proof-shell-start-char		?\372
    proof-shell-end-char			?\373
    proof-shell-field-char		?\374
-   ;; NEW NEW for multiple files
-   ;; === NEW NEW: multiple file stuff.  move elsewhere later.
+
+   ;; === MULTIPLE FILE HANDLING ===
    proof-shell-process-file 
    (cons
     ;; Theory loader output and verbose update() output.
@@ -264,6 +264,9 @@ This is a hook function for proof-activate-scripting-hook."
        ;; up to date, after all, the user wasn't allowed to edit
        ;; anything that this file depends on, was she?
       (progn
+	;; Wait after sending, so that queue is cleared 
+	;; for further commands without giving "proof process
+	;; busy" error.
 	(isa-update-thy-only buffer-file-name t t)
 	;; Leave the messages from the update around.
 	(setq proof-shell-erase-response-flag nil))))
