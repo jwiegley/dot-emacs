@@ -44,7 +44,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998 Proof General team, LFCS Edinburgh
+Copyright @copyright{} 1998 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -71,6 +71,7 @@ or later versions.
 
 
 
+@ifinfo
 @node Top
 @top Proof General
 
@@ -164,11 +165,16 @@ Internals of Proof General
 
 @end detailmenu
 @end menu
+@end ifinfo
 
 
 
 @node Introducing Proof General
 @chapter Introducing Proof General
+
+@c maybe not in TeX, just put on title page.
+@c not in info, it can't deal with images.
+@c Maybe in HTML because it doesn't appear in titles?
 @image{ProofGeneral}
 
 @dfn{Proof General} is a generic Emacs interface for proof assistants,
@@ -209,9 +215,8 @@ line:
 @lisp
         (load "@var{ProofGeneral}/generic/proof-site.el")
 @end lisp
-
 into your @file{~/.emacs} file, where @var{ProofGeneral} is the
-directory that Proof General was unpacked in.
+top-level directory that was created when Proof General was unpacked.
 
 For more details on obtaining and installing Proof General,
 see @pxref{Obtaining and Installing Proof General}.
@@ -582,7 +587,7 @@ option settings may have more descriptive names (for example, @var{on}
 and @var{off}) than the low-level lisp values (non-@code{nil},
 @code{nil}) which are mentioned here.
 
-@defopt proof-program-name-ask
+@defopt proof-prog-name-ask
 If non-@code{nil}, query user which program to run for the inferior process.
 @end defopt
 
@@ -860,18 +865,20 @@ Edinburgh.  Visit this page for the latest news!
 
 @node Obtaining Proof General
 @section Obtaining Proof General
-`
+
 You can obtain Proof General from the URL
+@example
 @uref{http://www.dcs.ed.ac.uk/home/proofgen/download.html}.
+@end example
 
 The distribution is available in three forms
 @itemize @bullet
-@item A source tarball, 
-  @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz}
-@item A Linux RPM package (for any architecture)
-  @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm}
-@item A developer's tarball,
-  @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
+@item A source tarball, @*
+@uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz}
+@item A Linux RPM package (for any architecture), @*
+@uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm}
+@item A developer's tarball, @*
+@uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
 @end itemize
 
 Both the tarball and the RPM package include the generic elisp code,
@@ -886,13 +893,16 @@ Copy the distribution to some directory @var{mydir}.
 Unpack it there. For example:
 @example
 # cd @var{mydir}
-# gunzip ProofGeneral-latest.tar.gz
-# tar -xpf ProofGeneral-latest.tar
+# gunzip ProofGeneral-@var{version}.tar.gz
+# tar -xpf ProofGeneral-@var{version}.tar
 @end example
-Proof General will be in some subdirectory of @var{mydir}.  The name of
-the subdirectory will depend on the version number of Proof General.
-For example, it might be ProofGeneral-2.0.  It's convenient to
-link it to a fixed name:
+If you downloaded the version called @var{latest}, you'll find it
+unpacks to a numeric version number.
+
+Proof General will now be in some subdirectory of @var{mydir}.  The name
+of the subdirectory will depend on the version number of Proof General.
+For example, it might be ProofGeneral-2.0.  It's convenient to link it
+to a fixed name:
 @example
 # ln -sf ProofGeneral-2.0 ProofGeneral
 @end example
@@ -958,14 +968,7 @@ Here are some more notes for installing Proof General in more complex
 ways.  Only attempt things in this section if you really understand what
 you're doing.
 
-@menu
-* Byte compilation::
-* Site-wide installation::
-* Removing support for unwanted provers::
-@end menu
-
-@node Byte compilation
-@unnumbered Byte compilation
+@unnumberedsubsec Byte compilation
 
 Compilation of the Emacs lisp files improves efficiency but can
 sometimes cause compatibility problems (especially if you use more than
@@ -975,8 +978,7 @@ You can compile Proof General by typing @code{make} in the directory
 where you installed it.
 
 
-@node Site-wide installation
-@unnumbered Site-wide installation
+@unnumberedsubsec Site-wide installation
 
 If you are installing Proof General site-wide, you can put the
 components in the standard directories of the filesystem if you prefer,
@@ -991,8 +993,7 @@ can put the @code{load-file} command to load @file{proof-site.el} into
 @file{site-start.el} or similar.  Consult the Emacs documention for more
 details if you don't know where to find this file.
 
-@node Removing support for unwanted provers
-@unnumbered Removing support for unwanted provers
+@unnumberedsubsec Removing support for unwanted provers
 
 You cannot run more than one instance of Proof General at a time: so if
 you're using Coq, don't edit @file{.ML} files!  If there are some
@@ -1019,35 +1020,40 @@ or, after loading Proof General, in a proof script buffer
 @node Known bugs and workarounds
 @appendix Known bugs and workarounds
 
-We only mention a few important bugs here.  The list is almost certainly
-incomplete and maybe out of date.  Please consult the file
+We only mention a few important problems here.  The list is not a
+description of all bugs and maybe out of date.  @*
+Please consult the file
 @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS,@file{BUGS}}
-in the distribution for more detailed and up-to-date information.  If
-you discover a problem which isn't mentioned here or in @file{BUGS},
-please let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
+in the distribution for more detailed and up-to-date information.  @*
+If you discover a problem which isn't mentioned in @file{BUGS}, please
+let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
-@itemize @bullet
-@item @strong{Undo in XEmacs}
+@unnumberedsubsec Undo in XEmacs
+
 Ordinary undo in script buffer can edit the "uneditable region" in
 XEmacs.  This doesn't happen in FSFmacs.  Test case: Insert some
 nonsense text after the locked region.  Kill the line. Process to the
 next command.  Press @kbd{C-x u}, nonsense text appears in locked
-region.  @*@strong{Workaround:} be careful with undo.
+region.  
 
-@item @strong{Pressing keyboard quit @kbd{C-g}}
+@strong{Workaround:} be careful with undo.
+
+@unnumberedsubsec  Pressing keyboard quit @kbd{C-g}
+
 Using @kbd{C-g} can leave script management in a mess.  The code is not
-properly protected from Emacs interrupts.  
-@*@strong{Workaround:} Don't type @kbd{C-g} while script management is
+properly protected from Emacs interrupts.
+
+@strong{Workaround:} Don't type @kbd{C-g} while script management is
 processing.  If you do, use @code{proof-restart-scripting} to restart
 the system.
 
-@item @strong{One prover at a time}
+@unnumberedsubsec One prover at a time
 You can't use more than one proof assistant at a time in the same Emacs
 session.  Nasty things happen if @code{proof-assistants} enables more
 than one proof assistant and you load script files for different provers
 simultaneously.
-@*@strong{Workaround:} stick to one prover per Emacs session!
-@end itemize
+
+@strong{Workaround:} stick to one prover per Emacs session.
 
 
 
