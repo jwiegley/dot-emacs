@@ -767,7 +767,9 @@ to `nil' if the proof assistant does not support nested goals."
 Only relevant for proof-find-and-forget-fn.")
 
 (defcustom proof-find-and-forget-fn nil
-  "Function returning a command string to forget back to before its argument span.
+  "Function that returns a command to forget back to before its argument span.
+This setting is used to for retraction (undoing) in proof scripts.
+
 The special string proof-no-command means there is nothing to do."
   :type 'function
   :group 'proof-script)
@@ -781,7 +783,8 @@ when parsing the proofstate output."
   :group 'proof-script)
 
 (defcustom proof-kill-goal-command ""
-  "Command to kill a goal."
+  "Command to kill the currently open goal.
+You must set this (perhaps to a no-op) for script management to work."
   :type 'string
   :group 'proof-script)
 
