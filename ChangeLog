@@ -1,3 +1,52 @@
+2003-05-23  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* isar/isar-syntax.el:
+	Fix from Gerwin to repair grouping
+
+2003-05-21  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-shell.el: Comments
+
+	* generic/proof-menu.el:
+	Add option menu item for dectivate scripting auto action
+
+	* generic/proof-config.el:
+	Note about auto deactivate scripting action
+
+2003-05-20  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* ChangeLog: Cleanup from empty
+
+	* Makefile.devel:
+	Fix tabs in developer list
+
+	* Makefile.devel:
+	Replace obsolete developer email addresses by alias at proofgeneral.org.
+
+	* FAQ: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* isar/isar-syntax.el:
+	Version from Gerwin with performance fixes
+
+	* isar/isar-syntax.el:
+	Version without match save, and disabling isar-match-antiq.
+
+	* generic/proof-script.el:
+	Buglet in proof-mark-buffer-atomic
+
+	* generic/proof-config.el:
+	Default to not using pad-eol
+
+	* CHANGES: Updated.
+
 2003-05-20  David Aspinall  <da@proofgeneral.org>
 
 	* ChangeLog: Cleanup from empty
