@@ -76,8 +76,10 @@ version, and notes about work-in-progress.  </p>
 <!-- End Warning. -->
 <p> 
 <b>Emacs versions:</b>
-This version has been tested with XEmacs version 21.4.8 and with GNU
-Emacs 21.2.1.  XEmacs support is better tested, please check
+<<<<<<< develdownload.php
+This version has been tested with XEmacs version 21.4.12 and with GNU
+Emacs 21.2.1.  XEmacs support is better tested, although use under
+GNU Emacs has certain advantages (e.g., nested comments!).  Please check
 <?php fileshow("ProofGeneral-3.5pre030926/CHANGES","CHANGES"); ?> 
 for detailed notes.  Older releases of Emacs
 <i>may</i> work, but we recommend the use of these or newer versions
@@ -87,7 +89,7 @@ using an <a href="oldrel.php">older release</a> of Proof General.
 </p> 
 <p>
 <b>Prover versions:</b>
-This version has been tested with Coq 7.4, Isabelle2002, Lego 1.3.1,
+This version has been tested with Coq 7.4, Isabelle2003, Lego 1.3.1,
 and PhoX 0.8.
 </p>
 <b>Bundled packages:</b>
