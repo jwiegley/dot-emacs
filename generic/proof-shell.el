@@ -553,10 +553,10 @@ This is a subroutine of proof-shell-handle-error."
     (save-excursion
       (set-buffer proof-shell-buffer)
       (goto-char (point-max))
-      (setq end (search-backward-regexp end-regexp))
+      (setq end (re-search-backward end-regexp))
       (goto-char (marker-position proof-marker))
       (setq start (if start-regexp
-		      (- (search-forward-regexp start-regexp)
+		      (- (re-search-forward start-regexp)
 			 (length (match-string 0)))
 		    (point)))
       ;; FIXME: if the shell buffer is x-symbol minor mode,
@@ -577,6 +577,15 @@ This is a subroutine of proof-shell-handle-error."
 This function handles the cases of proof-shell-delayed-output-kind which
 are not dealt with eagerly during script processing, namely
 'abort, 'response, 'goals outputs."
+  ;; NB: this function is important even when called with an empty
+  ;; delayed output, since it serves to clear buffers.  
+
+  ;; FIXME: there's a display anomaly here with Isar/shrink mode which
+  ;; is tricky to find.  Error message causes an empty delayed output
+  ;; for goals buffer to split main window in two rather than
+  ;; shrinking to fit.  Running through the debugger the right
+  ;; thing happens (display in a correctly sized window).  Somewhere
+  ;; there is a spurious match not protected too: C-c C-n gives
   (cond
    ;; Response buffer output
    ((eq proof-shell-delayed-output-kind 'abort)
@@ -614,7 +623,6 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
   (unless proof-shell-ignore-errors	;; quiet 
     (save-excursion
       (proof-shell-handle-delayed-output))
-    ;; Perhaps we should erase the proof-response-buffer?
     (proof-shell-handle-output
      (if proof-shell-truncate-before-error proof-shell-error-regexp)
      proof-shell-annotated-prompt-regexp 'proof-error-face)
