@@ -31,12 +31,8 @@
 ;  "Customization of Isabelle/Isar's syntax recognition"
 ;  :group 'isar-scripting)
 
+
 ;; ----- syntax for font-lock and other features
-
-(defgroup isar-syntax nil
-  "Customization of Isabelle/Isar syntax for proof mode"
-  :group 'isar-settings)
-
 
 (defconst isar-keywords-theory-enclose
   (append isar-keywords-theory-begin
@@ -84,22 +80,6 @@
   (append isar-keywords-proof-block
 	  isar-keywords-qed-block))
 
-(defconst isar-keywords
-  (append isar-keywords-control
-	  isar-keywords-diag
-	  isar-keywords-theory-begin
-	  isar-keywords-theory-end
-	  isar-keywords-theory-heading
-	  isar-keywords-theory-decl
-	  isar-keywords-theory-goal
-	  isar-keywords-qed
-	  isar-keywords-qed-block
-	  isar-keywords-proof-goal
-	  isar-keywords-proof-block
-	  isar-keywords-proof-chain
-	  isar-keywords-proof-decl
-	  isar-keywords-proof-script))
-
 
 ;; ----- regular expressions
 
@@ -131,17 +111,11 @@
 
 (defconst isar-save-with-hole-regexp "$^") ; n.a.
 
-(defcustom isar-goal-command-regexp
-  (proof-ids-to-regexp isar-keywords-theory-goal)
-  "Regular expression used to match a global goal."
-  :type 'regexp
-  :group 'isabelle-isar-config)
+(defconst isar-goal-command-regexp
+  (proof-ids-to-regexp isar-keywords-theory-goal))
 
-(defcustom isar-local-goal-command-regexp
-  (proof-ids-to-regexp isar-keywords-proof-goal)
-  "Regular expression used to match a local goal."
-  :type 'regexp
-  :group 'isabelle-isar-config)
+(defconst isar-local-goal-command-regexp
+  (proof-ids-to-regexp isar-keywords-proof-goal))
 
 (defconst isar-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
