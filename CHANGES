@@ -9,6 +9,10 @@
 
   Specific menus added for Coq, Isabelle.
 
+*** Proof assistant specific keymap added
+
+  Keybindings for proof assistant now begin with "C-c a".
+
 *** Improved behaviour of electric terminator
 
 *** Efficiency improvement in parsing

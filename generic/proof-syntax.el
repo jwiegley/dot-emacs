@@ -178,4 +178,52 @@ understand ~, for example."
    string))
  
 
+;;
+;; Functions for inserting text into buffer.
+;;
+;; Added for version 3.2 to provide more prover specific shortcuts.
+;;
+
+; Taken from Isamode
+;
+;  %l  - insert the value of isa-logic-name
+;  %s  - insert the value returned by isa-current-subgoal
+
+(defun proof-insert (text)
+  "Insert TEXT into the current buffer.
+TEXT may include these special characters:
+  %p  - place the point here after input
+Any other %-prefixed character inserts itself."
+  ; would be quite nice to have this function:
+  ;(isa-delete-pending-input)
+  (let ((i 0) pos acc)
+    (while (< i (length text))
+      (let ((ch (elt text i)))
+	(if (not (eq ch ?%))
+	    (setq acc (concat acc (char-to-string ch)))
+	  (setq i (1+ i))
+	  (setq ch (elt text i))
+	  (cond ;((eq ch ?l)  
+		; (setq acc (concat acc isa-logic-name)))
+		;((eq ch ?s)  
+		; (setq acc 
+		;       (concat acc 
+		;	       (int-to-string
+		;		(if (boundp 'isa-denoted-subgoal)
+		;		    isa-denoted-subgoal
+		;		  1)))))
+		;((eq ch ?n)
+		; (if acc (insert acc))
+		; (setq acc nil)
+		; (comint-send-input))
+		((eq ch ?p)  
+		 (if acc (insert acc))
+		 (setq acc nil)
+		 (setq pos (point)))
+		(t (setq acc (concat acc (char-to-string ch)))))))
+      (setq i (1+ i)))
+    (if acc (insert acc))
+    (if pos (goto-char pos))))
+
+
 (provide 'proof-syntax)

@@ -277,20 +277,9 @@ Given is the first SPAN which needs to be undone."
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun lego-intros ()
-  "intros."
-  (interactive)
-  (insert "intros "))
-
-(defun lego-Intros () 
-  "insert Intros."
-  (interactive) 
-  (insert "Intros "))
-
-(defun lego-Refine () 
-  "Insert Refine."  
-  (interactive) 
-  (insert "Refine "))
+(proof-defshortcut lego-Intros "Intros "  ?I)
+(proof-defshortcut lego-intros "intros "  ?i)
+(proof-defshortcut lego-Refine "Refine "  ?r)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Lego Indentation                                               ;;
@@ -396,10 +385,6 @@ Checks the width in the `proof-goals-buffer'"
   (setq proof-font-lock-zap-commas t)	; enable the painful hack
   
   (proof-config-done)
-
-  (define-key (current-local-map) [(control c) ?i] 'lego-intros)
-  (define-key (current-local-map) [(control c) ?I] 'lego-Intros)
-  (define-key (current-local-map) [(control c) ?r] 'lego-Refine)
 
 ;; outline
   

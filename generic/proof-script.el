@@ -2267,10 +2267,12 @@ This is intended as a value for proof-activate-scripting-hook"
   "Proof General buffer menu.")
 
 ;; Make the togglers used in options menu below
-(fset 'proof-dont-switch-windows-toggle
-      (proof-customize-toggle proof-dont-switch-windows))
-(fset 'proof-delete-empty-windows-toggle
-      (proof-customize-toggle proof-delete-empty-windows))
+;(fset 'proof-dont-switch-windows-toggle
+;      (proof-customize-toggle proof-dont-switch-windows))
+;(fset 'proof-delete-empty-windows-toggle
+;      (proof-customize-toggle proof-delete-empty-windows))
+(proof-deftoggle proof-dont-switch-windows)
+(proof-deftoggle proof-delete-empty-windows)
 (fset 'proof-multiple-frames-toggle
       (proof-customize-toggle proof-multiple-frames-enable))
 (fset 'proof-output-fontify-toggle
@@ -2484,6 +2486,7 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 ;;
 
 (let ((map proof-mode-map)) ; proof-mode-map comes from define-derived-mode above
+(define-key map [(control c) a] proof-assistant-keymap)
 (define-key map [(control c) (control a)] 'proof-goto-command-start)
 (define-key map [(control c) (control b)] 'proof-process-buffer)
 ; C-c C-c is proof-interrupt-process in universal-keys

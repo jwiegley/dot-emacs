@@ -689,6 +689,11 @@ of `easy-menu-define' for more details."
   :type 'sexp
   :group 'prover-config)
 
+(defcustom proof-assistant-keymap (make-keymap "proof-assistant-keymap")
+  "Proof assistant keymap, defined under prefix C-c a."
+  :type 'sexp
+  :group 'prover-config)
+
 
 
 

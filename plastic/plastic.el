@@ -297,20 +297,13 @@ Given is the first SPAN which needs to be undone."
 ;;   Commands specific to plastic                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun plastic-intros ()
-  "intros."
-  (interactive)
-  (insert (concat plastic-lit-string " intros ")))
+(proof-defshortcut plastic-Intros 
+		   (concat plastic-lit-string " Intros ")  ?I)
+(proof-defshortcut plastic-intros
+		   (concat plastic-lit-string " intros ")  ?i)
+(proof-defshortcut plastic-Refine
+		   (concat plastic-lit-string " Refine ")  ?i)
 
-(defun plastic-Intros () 
-  "List proof state." 
-  (interactive) 
-  (insert (concat plastic-lit-string " Intros ")))
-
-(defun plastic-Refine () 
-  "List proof state."  
-  (interactive) 
-  (insert (concat plastic-lit-string " Refine ")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Plastic Indentation                                               ;;
@@ -436,20 +429,20 @@ Given is the first SPAN which needs to be undone."
 
   (proof-config-done)
 
-  (define-key (current-local-map) [(control c) ?i] 'plastic-intros)
-  (define-key (current-local-map) [(control c) ?I] 'plastic-Intros)
-  (define-key (current-local-map) [(control c) ?r] 'plastic-Refine)
-
 ;; pcc macros etc
 
-  (define-key (current-local-map) [(control c) ?s] 'plastic-small-bar)
-  (define-key (current-local-map) [(control c) ?l] 'plastic-large-bar)
-  (define-key (current-local-map) [(control c) ?a] 'plastic-all-ctxt)
+  ;; da: I've changed this to use the new proof assitant specific keymap.
+  ;; (You can put these define keys at top level now)
+  (define-key proof-assistant-keymap ?s 'plastic-small-bar)
+  (define-key proof-assistant-keymap ?l 'plastic-large-bar)
+  (define-key proof-assistant-keymap ?a 'plastic-all-ctxt)
 
 ;; pcc over-ride the try-cmd fn
 
   (define-key (current-local-map) [(control c) (control t)] 'plastic-try-cmd)
   (define-key (current-local-map) [(control c) (control v)] 'plastic-minibuf)
+
+  ;; FIXME da: these should probably be on the specific keymap too?
   (define-key (current-local-map) [(control c) (control o)] 'plastic-synchro)
   (define-key (current-local-map) [(control c) (control s)] 'plastic-show-shell)
 

@@ -283,18 +283,6 @@
 ;;   Commands specific to coq                                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun coq-Intros () 
-  "Shortcut for Intros.
-This is specific to coq-mode." 
-  (interactive) 
-  (insert "Intros "))
-
-(defun coq-Apply () 
-  "Shortcut for Apply
-This is specific to coq-mode."  
-  (interactive) 
-  (insert "Apply "))
-
 (defun coq-SearchIsos ()
   "Search a term whose type is isomorphic to given type
 This is specific to coq-mode."
@@ -304,11 +292,6 @@ This is specific to coq-mode."
     (setq cmd (read-string "SearchIsos: " nil 'proof-minibuffer-history))
     (proof-shell-invisible-command
      (concat "SearchIsos " cmd proof-terminal-string))))
-
-(defun coq-begin-Section ()
-  "begins a Coq section."
-  (interactive)
-  (insert "Section "))
 
 (defun coq-end-Section ()
   "Ends a Coq section."
@@ -334,6 +317,15 @@ This is specific to coq-mode."
   (let* ((n (buffer-name))
 	 (l (string-match ".v" n)))
     (compile (concat "make " (substring n 0 l) ".vo"))))
+
+(proof-defshortcut coq-Intros        "Intros "  ?i)
+(proof-defshortcut coq-Apply         "Apply "   ?a)
+(proof-defshortcut coq-begin-Section "Section " ?s)
+
+(define-key proof-assistant-keymap ?e 'coq-end-Section)
+(define-key proof-assistant-keymap ?m 'coq-Compile)
+(define-key proof-assistant-keymap ?o 'coq-SearchIsos)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
@@ -471,14 +463,6 @@ This is specific to coq-mode."
   (setq proof-font-lock-zap-commas t)	; enable the painful hack
   
   (proof-config-done)
-
-;; Coq-specific key mappings
-
-  (define-key (current-local-map) [(control c) ?I] 'coq-Intros)
-  (define-key (current-local-map) [(control c) ?a] 'coq-Apply)
-  (define-key (current-local-map) [(control c) ?s] 'coq-begin-Section)
-  (define-key (current-local-map) [(control c) ?e] 'coq-end-Section)
-  (define-key (current-local-map) [(control c) (control m)] 'coq-Compile)
 
 ;; outline
   
