@@ -66,9 +66,10 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
        ((not (condition-case ()
 		 (require xs-feature-sym) ;; NB: lose all errors!
 	       (t (featurep xs-feature-sym))))
- (format
-  "Proof General: for x-symbol support, you must provide a library %s.el"
-  xs-feature))
+	(funcall error-or-warn 
+		 (format
+ "Proof General: for x-symbol support, you must provide a library %s.el"
+		  xs-feature)))
        (t
 	;;
 	;; We've got everything we need!   So initialize.
@@ -124,8 +125,7 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 ;;;###autoload
 (defun proof-x-symbol-enable ()
   "Turn on or off support for x-symbol, initializing if necessary."
-  (if ;(and proof-x-symbol-enable (not proof-x-symbol-initialized))
-      proof-x-symbol-enable
+  (if (and proof-x-symbol-enable (not proof-x-symbol-initialized))
       (progn
 	(setq proof-x-symbol-enable nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
@@ -138,8 +138,9 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
       (proof-customize-toggle proof-x-symbol-enable))
 
 (defun proof-x-symbol-decode-region (start end) 
-  "Call (x-symbol-decode-region START END), if x-symbol support is enabled."
-  (if proof-x-symbol-enable
+  "Call (x-symbol-decode-region A Z), if x-symbol support is enabled.
+This converts tokens in the region into X-Symbol characters."
+  (if (and proof-x-symbol-enable)
       (x-symbol-decode-region start end)))
 
 (defun proof-x-symbol-encode-shell-input ()
@@ -166,6 +167,8 @@ A value for proof-shell-insert-hook."
   (save-excursion			; needed or point moves: why?
     (if proof-x-symbol-initialized
 	(progn
+	  ;; Buffers which have XS minor mode toggled always keep 
+	  ;; x-symbol-language set.
 	  (setq x-symbol-language proof-assistant-symbol)
 	  (if (eq x-symbol-mode (not proof-x-symbol-enable))
 	      ;; toggle x-symbol-mode
@@ -180,22 +183,38 @@ A value for proof-shell-insert-hook."
 		;; contents) have changed. I think x-symbol
 		;; ought to do this really!
 		(font-lock-fontify-buffer)))))))
-	  
+
+(defun proof-x-symbol-configure ()
+  "Configure the current buffer for X-Symbol."
+  (if proof-x-symbol-enable
+      (setq x-symbol-language proof-assistant-symbol)
+    (setq x-symbol-language nil)))
+
 (defun proof-x-symbol-mode-all-buffers ()
-  "Activate/deactivate x-symbol mode in all Proof General buffers.
+  "Activate/deactivate x-symbols in all Proof General buffers.
 A subroutine of proof-x-symbol-enable."
+  ;; Shell has its own routine
   (proof-with-current-buffer-if-exists 
    proof-shell-buffer
    (proof-x-symbol-shell-config))
+  ;; Response and goals buffer are fontified/decoded 
+  ;; manually in the code.
+  (proof-with-current-buffer-if-exists 
+   proof-goals-buffer
+   (proof-x-symbol-configure)
+   (proof-fontify-buffer))
+  (proof-with-current-buffer-if-exists 
+   proof-response-buffer
+   (proof-x-symbol-configure)
+   (proof-fontify-buffer))
+  ;; Script buffers are in x-symbol mode
   (let
-      ((bufs   (append
-		(list proof-goals-buffer proof-response-buffer)
-		(proof-buffers-in-mode proof-mode-for-script))))
+      ((bufs (proof-buffers-in-mode proof-mode-for-script)))
     (while bufs
       ;; mapcar doesn't work with macros
-      (proof-with-current-buffer-if-exists (car bufs)
-					   (proof-x-symbol-mode))
+      (with-current-buffer (car bufs) (proof-x-symbol-mode))
       (setq bufs (cdr bufs)))))
+
 
 ;; #### autoload
 (defun proof-x-symbol-shell-config ()

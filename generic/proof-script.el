@@ -2282,20 +2282,8 @@ finish setup which depends on specific proof assistant configuration."
 
   ;;
   ;; Fontlock.
-  ;; 
-  ;; At the moment, the specific code hacks font-lock-keywords.
-  ;; Here we use the value there to hack font-lock-defaults, which
-  ;; is used by font-lock to set font-lock-keywords from again!!  
-  ;; Yuk.
-  ;; Previously, font-lock-keywords was used directly as a setting
-  ;; for the defaults.  This has a bad interaction with x-symbol
-  ;; which edits font-lock-keywords and loses the setting.  
-  ;; So we make a copy of it in a new variable.
-  ;; 
-  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
-  (make-local-variable 'proof-font-lock-defaults)
-  (setq proof-font-lock-defaults font-lock-keywords)
-  (setq font-lock-defaults '(proof-font-lock-defaults))
+  ;;
+  (proof-font-lock-configure-defaults)
 
   ;; FIXME (da): zap commas support is too specific, should be enabled
   ;; by each proof assistant as it likes.

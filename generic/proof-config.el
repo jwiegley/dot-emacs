@@ -121,6 +121,10 @@ inside your Emacs."
   :set 'proof-set-bool
   :group 'proof-user-options)
 
+(defcustom proof-output-fontify-enable t
+  "*Whether to fontify output from the proof assistant."
+  :type 'boolean
+  :group 'proof-user-options)
 
 (defcustom proof-strict-read-only 
   ;; For FSF Emacs, strict read only is buggy when used in

@@ -82,6 +82,9 @@
 (autoload 'proof-x-symbol-mode "proof-x-symbol"
   "Turn on or off x-symbol mode in the current buffer.")
 
+(autoload 'proof-x-symbol-configure "proof-x-symbol"
+  "Configure the current buffer for X-Symbol.")
+
 ;;;
 ;;; Global variables
 ;;;
@@ -139,7 +142,6 @@ read.")
 
 (defvar proof-terminal-string nil 
   "End-of-line string for proof process.")
-
 
 
 ;;;
@@ -220,13 +222,91 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
    kbl))
 
 ;; -----------------------------------------------------------------
-;; Display functions
+;; Managing font-lock
+;;
 
-;; FIXME: this function should be combined with
-;; proof-shell-maybe-erase-response-buffer.  Should allow
-;; face of nil for unfontified output.
+;; Buffers which are output only are *not* kept in special minor
+;; modes font-lock-mode (or x-symbol-mode).  In case the user
+;; doesn't want fontification we have a user option,
+;; proof-fontify-output.
+
+(deflocal proof-font-lock-defaults nil
+  "Default value for font-lock-keywords in this buffer.
+We set font-lock-defaults to '(proof-font-lock-defaults) for
+compatibility with X-Symbol, which may hack proof-font-lock-defaults
+with extra patterns (in non-mule mode).")
+
+(defun proof-font-lock-configure-defaults ()
+  "Set defaults for font-lock based on current font-lock-keywords."
+  ;;
+  ;; At the moment, the specific assistant code hacks
+  ;; font-lock-keywords.  Here we use that value to hack
+  ;; font-lock-defaults, which is used by font-lock to set
+  ;; font-lock-keywords from again!!  Yuk.
+  ;;
+  ;; Previously, 'font-lock-keywords was used directly as a setting
+  ;; for the defaults.  This has a bad interaction with x-symbol which
+  ;; edits font-lock-keywords and loses the setting.  So we make a
+  ;; copy of it in a new local variable, proof-font-lock-defaults.
+  ;;
+  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
+  (setq proof-font-lock-defaults font-lock-keywords)
+  ;; Setting font-lock-defaults explicitly is required by FSF Emacs
+  ;; 20.2's version of font-lock in any case.
+  (setq font-lock-defaults '(proof-font-lock-defaults)))
+
+
+(defun proof-fontify-region (start end)
+  "Fontify and decode X-Symbols in region START...END.
+Fontifies according to the buffer's font lock defaults.
+Uses proof-x-symbol-decode to decode tokens if x-symbol is present.
+
+If proof-shell-leave-annotations-in-output is set, remove characters
+with top bit set after fontifying so they can be used for
+fontification.
+
+Returns new END value."
+  ;; We fontify first because decoding changes char positions.
+  ;; It's okay because x-symbol-decode works even without font lock.
+  ;; Possible disadvantage is that font lock patterns can't refer
+  ;; to X-Symbol characters.  Probably they shouldn't!
+  (narrow-to-region start end)
+  (if proof-output-fontify-enable
+      (let ((font-lock-keywords proof-font-lock-defaults))
+	(font-lock-fontify-region start end)
+	;; FIXME: this should be optional, really.
+	(proof-zap-commas-region start end)))
+  (if proof-shell-leave-annotations-in-output
+      ;; Remove special characters that were used for font lock,
+      ;; so cut and paste works from here.
+      (let ((p (point)))
+	(goto-char start)
+	(while (< (point) (point-max))
+	  (forward-char)
+	  (unless (< (char-to-int (char-before (point))) 128)
+	    (delete-char -1)))
+	(goto-char p)))
+  (proof-x-symbol-decode-region start (point-max))
+  (prog1 (point-max)
+    (widen)))
+
+;; FIXME todo: add toggle for fontify region which turns it on/off
+;; (maybe).
+
+(defun proof-fontify-buffer ()
+  "Call proof-fontify-region on whole buffer."
+  (proof-fontify-region (point-min) (point-max)))
+
+
+
+;; -----------------------------------------------------------------
+;; Display functions
+;;
+
+
 (defun proof-response-buffer-display (str &optional face)
   "Display STR with FACE in response buffer and return fontified STR."
+  (ugit str) ;; FIXME: debug!
   (let (start end)
     (with-current-buffer proof-response-buffer
       ;; da: I've moved newline before the string itself, to match
@@ -236,10 +316,14 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       (newline)				
       (setq start (point))
       (insert str) 
-      (proof-x-symbol-decode-region start (point))
-      (setq end (point-max))
+      (setq end (proof-fontify-region start (point)))
+      ;; This is why we can't keep the buffer in font-lock
+      ;; minor mode: it destroys this hacky property as soon 
+      ;; as it's made!
       (if face (font-lock-append-text-property start end 'face face))
-      (buffer-substring start end))))
+      ;; This returns the decorated string, but it doesn't appear 
+      ;; decorated in the minibuffer, unfortunately.
+      (buffer-substring start (point-max)))))
 
 ;; FIXME da: this window dedicated stuff is a real pain and I've
 ;; spent ages inserting workarounds.  Why do we want it??

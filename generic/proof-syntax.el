@@ -96,6 +96,9 @@ Default is comma separated, or SEPREGEXP if set."
 
 ;;FIXME: Under FSF Emacs 20.2, when initially fontifying the buffer,
 ;;       commas are not zapped. 
+;; 
+;; FIXME da: this should be more specific!!
+;;
 (defun proof-zap-commas-region (start end &optional length)
   "Remove the face of all `,' within the region (START,END).
 The optional argument LENGTH has no effect. It is required so that we

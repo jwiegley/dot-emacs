@@ -57,3 +57,13 @@ arrive."
 ;      (setq font-lock-defaults '(proof-font-lock-defaults)))))
       ; (put major-mode 'font-lock-defaults (list flks)))))
 
+
+
+;; dump str to buffer ug for testing.
+(defun ugit (str)
+  (save-excursion
+    (set-buffer (get-buffer-create "ug"))
+    (goto-char (point-max))
+    (insert str)
+    (newline)
+    (newline)))

@@ -687,8 +687,8 @@ This is a list of tuples of the form (TYPE . STRING). type is either
 	  (insert string)
 	(insert (substring out 0 op)))
       
-      ;; Display special characters
-      (proof-x-symbol-decode-region (point-min) (point-max))
+      ;; Get fonts and characters right
+      (proof-fontify-region (point-min) (point-max))
 
       (proof-display-and-keep-buffer proof-goals-buffer (point-min))
 
@@ -760,6 +760,24 @@ This is a list of tuples of the form (TYPE . STRING). type is either
       (incf ip))
     (substring out 0 op)))
 
+(defun proof-shell-strip-eager-annotation-specials (string)
+  "Strip special eager annotations from STRING, returning cleaned up string.
+The input STRING should be annotated with expressions matching
+proof-shell-eager-annotation-start and eager-annotation-end.
+We only strip specials from the annotations."
+  (let* ((mstart (progn
+		   (string-match proof-shell-eager-annotation-start string)
+		   (match-end 0)))
+	 (mend	 (string-match proof-shell-eager-annotation-end string))
+	 (msg	 (substring string mstart mend))
+	 (strtan (substring string 0 mstart))
+	 (endan	 (substring string mend)))
+    (concat
+     (proof-shell-strip-special-annotations strtan)
+     msg
+     (proof-shell-strip-special-annotations endan))))
+     
+
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
   "Displays output from `proof-shell-buffer' in `proof-response-buffer'.
 The region in `proof-shell-buffer begins with the first match 
@@ -780,7 +798,7 @@ Returns the string (with faces) in the specified region."
       (setq string
 	    (if proof-shell-leave-annotations-in-output
 		(buffer-substring start end)
-	      (proof-shell-strip-special-annotations 
+	      (proof-shell-strip-special-annotations
 	       (buffer-substring start end)))))
     ;; Erase if need be, and erase next time round too.
     (proof-shell-maybe-erase-response t nil)
@@ -822,7 +840,7 @@ See the documentation for `proof-shell-delayed-output' for further details."
 	(proof-shell-maybe-erase-response t nil)
 	(setq pos (point))
 	(insert str)
-	  (proof-x-symbol-decode-region pos (point))
+	(proof-fontify-region pos (point))
 	(proof-display-and-keep-buffer proof-response-buffer)))
      ;;
      ;; 2. Text to be inserted in goals buffer
@@ -874,7 +892,7 @@ Then we call `proof-shell-handle-error-hook'. "
 	(set-buffer proof-goals-buffer)
 	(erase-buffer)
 	(insert (cdr proof-shell-delayed-output))
-        (proof-x-symbol-decode-region (point-min) (point-max))
+        (proof-fontify-region (point-min) (point-max))
 	(proof-display-and-keep-buffer proof-goals-buffer)))
 
   ;; This prevents problems if the user types in the
@@ -1220,13 +1238,9 @@ Assume proof-script-buffer is active."
 (defun proof-shell-process-urgent-message (message)
   "Analyse urgent MESSAGE for various cases.
 Cases are: included file, retracted file, cleared response buffer, or
-if none of these apply, display it."
-  (save-excursion
-    (set-buffer (get-buffer-create "ug"))
-    (goto-char (point-max))
-    (insert "Hello!")
-    (insert message)
-    (newline))
+if none of these apply, display it.
+MESSAGE should be a string annotated with 
+proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
     (cond
    ;; Is the prover processing a file?
    ;; FIXME da: this interface is quite restrictive: might be
@@ -1329,9 +1343,14 @@ if none of these apply, display it."
     ;; Don't bother remove the window for the response buffer
     ;; because we're about to put a message in it.
     (proof-shell-maybe-erase-response nil nil)
-    (proof-shell-message message)
-    (proof-response-buffer-display message
-				   'proof-eager-annotation-face))))
+    (let ((stripped	(proof-shell-strip-special-annotations message)))
+      (if (< 100 (length stripped))	;; approx test for multi-line msg
+	  (proof-shell-message stripped))
+      (proof-response-buffer-display 
+       (if proof-shell-leave-annotations-in-output
+	   message
+	 stripped)
+       'proof-eager-annotation-face)))))
 
 (defvar proof-shell-urgent-message-marker nil
   "Marker in proof shell buffer pointing to end of last urgent message.")
@@ -1360,8 +1379,7 @@ This is a subroutine of proof-shell-filter."
 	  (save-excursion
 	    (setq lastend end)
 	    (proof-shell-process-urgent-message
-	     (proof-shell-strip-special-annotations 
-	      (buffer-substring start end))))))
+	     (buffer-substring start end)))))
     ;; Set the marker to the (character after) the end of the last
     ;; message found, if any.  Must take care to keep the marker
     ;; behind the process marker otherwise no output is seen!
@@ -1510,7 +1528,7 @@ however, are always processed; hence their name)."
 		      ;;  expensive; but perhaps we could cut and paste
 		      ;;  from here to the goals buffer to
 		      ;;  avoid duplicating effort?
-		      ;; (proof-x-symbol-decode-region startpos (point))
+		      ;; (proof-fontify-region startpos (point))
 		      (setq string (buffer-substring startpos (point)))
 		      (goto-char (point-max))	
 		      (proof-shell-filter-process-output string)))))))))
@@ -1688,40 +1706,19 @@ before and after sending the command."
 		  (cons proof-general-name proof-shell-menu))
 
 
-
-(defun proof-font-lock-configure-defaults ()
-  "Set defaults for font-lock based on current font-lock-keywords."
-  ;; setting font-lock-defaults explicitly is required by FSF Emacs
-  ;; 20.2's version of font-lock
-  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
-  (make-local-variable 'proof-font-lock-defaults)
-  (setq proof-font-lock-defaults font-lock-keywords)
-  (setq font-lock-defaults '(proof-font-lock-defaults))
-  ;; Turn on fontification only if the user has configured it
-  ;; everywhere in general.
-  (if font-lock-auto-fontify
-      (turn-on-font-lock)))
-
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."
   (save-excursion
     (set-buffer proof-goals-buffer)
     (proof-font-lock-configure-defaults)
-    ;; Turn off the display of annotations here
-    (proof-shell-dont-show-annotations)
-    ;; Maybe turn on x-symbols
-    (proof-x-symbol-mode)))
+    (proof-x-symbol-configure)))
 
 (defun proof-response-config-done ()
   "Initialise the response buffer after the child has been configured."
   (save-excursion
     (set-buffer proof-response-buffer)
     (proof-font-lock-configure-defaults)
-    ;; Turn off the display of annotations here
-    (proof-shell-dont-show-annotations)
-    ;; Maybe turn on x-symbols
-    (proof-x-symbol-mode)))
-
+    (proof-x-symbol-configure)))
 
 (defun proof-shell-config-done ()
   "Initialise the specific prover after the child has been configured.
@@ -1745,9 +1742,9 @@ processing."
       ;; Send intitialization command and wait for it to be
       ;; processed.   Also ensure that proof-action-list is
       ;; initialised. 
+      (setq proof-action-list nil)
       (if proof-shell-init-cmd
-	  (proof-shell-invisible-command proof-shell-init-cmd t)
-	(setq proof-action-list nil))
+	  (proof-shell-invisible-command proof-shell-init-cmd t))
       
       ;; Configure for x-symbol
       (proof-x-symbol-shell-config))))
