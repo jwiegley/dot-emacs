@@ -88,6 +88,12 @@ simplifier, when tracing rewriting.
 Also, proof assistant specific menus only appear in scripting buffer.
 These are drawbacks with FSF Emacs menu support.
 
+** Emacs faces sometimes faulty, esp in console mode
+
+Emacs support is let down in console mode, because faces are not
+implemented there.  (XEmacs can use colours and underline in console
+mode)
+
 ** XEmacs 21.1.9 on Win32
 
 Some strange problems reading files with this version of Emacs. Gives
