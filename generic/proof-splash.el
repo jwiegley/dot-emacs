@@ -201,7 +201,7 @@ Borrowed from startup-center-spaces."
 	;; (kill-buffer splashbuf)
 	(if (eq (selected-window) (window-buffer 
 				   (selected-window)))
-	    (switch-to-other-buffer)))))
+	    (bury-buffer splashbuf)))))
 
 (defvar proof-splash-seen nil
   "Flag indicating the user has been subjected to a welcome message.")
