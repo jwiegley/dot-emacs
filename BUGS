@@ -40,9 +40,24 @@ you do, use proof-restart-scripting.
 restrictions of protected region.  Workaround: none, nevermind.
 (If it's hugely needed we could support modified outline commands).
 
-*`proof-find-next-terminator' (bound to C-c C-e) doesn't work
+* `proof-find-next-terminator' (bound to C-c C-e) doesn't work
 properly. Workaround: use other means to navigate in a proof scipt
 buffer. 
+
+* Multiple file handling for Lego and Isabelle is slightly vulnerable.
+Files are not locked when they are being read by the prover, so a long
+file could be edited and saved as the prover is processing it,
+resulting in a loss of synchronization between Emacs and the proof
+assistant.  Files ought to be coloured red while they are being
+processed, just as single lines are.   Workaround: be careful not
+to edit a file as it is being read by the proof assistant!
+
+* XEmacs sometimes has strange start-up delays of several seconds,
+possibly due to face allocation, when running remotely and
+displaying on an 8-bit display.  One workaround (and in fact the
+recommended way of working) is to run XEmacs locally and only
+the proof assistant on your fast compute server, by setting 
+proof-rsh-command.
 
 * There is an problem with process communication on Solaris, where
 there is an input line length limitation for terminals in cooked mode,
@@ -55,12 +70,13 @@ mode, and some commands (notably ls) behave differently when writing
 output to a pipe instead of a tty.  But using a pipe will allow you to
 paste arbitrarily long blocks of text into shell mode.)
 Current workaround:  use another OS, e.g. Linux.
+[1999/08/20: believed to be fixed]
 
 * XEmacs sessions maybe grow excessively in terms of memory
 allocation. Maybe some of the spans aren't removed properly.
 Setting a limit on the size of the process buffer doesn't seem to
-help.  (1998/10/06: Is this bug still present?  Please tell us if
-you think so.)
+help.  
+[1998/10/06: believed to be fixed]
 
 
 FSF Emacs specific bugs
@@ -105,16 +121,18 @@ before the offending proof development.
 with [x,y:nat]; it only tags x but not y. [The same problem exists for
 coqtags] Workaround: don't rely too much on the etags mechanism.
 
+
 Coq Proof General Bugs
 ======================
 
-*coqtags doesn't find all declarations. It cannot handle lists e.g.,
+* coqtags doesn't find all declarations. It cannot handle lists e.g.,
 with "Parameter x,y:nat" it only tags x but not y. [The same problem
 exists for legotags] Workaround: don't rely too much on the etags
 mechanism.
 
-*user defined tactics cannot be retracted. Workaround: you may need to 
-retract to the beginning of the proof.
+* User defined tactics cannot be retracted. Workaround: you may need
+to retract to the beginning of the proof.
+
 
 Isabelle Proof General Bugs
 ===========================
@@ -126,4 +144,9 @@ from the standard functions, tactics, and tacticals.  You will
 usually notice when a function, or whatever, doesn't get highlighted
 as you might expect.  This probably has no detrimental impact on the
 interface unless you use your own "goal" or "qed" forms.
+
+* Blocking when processing multiple files, beginning from a .ML file.
+Proof General will block the Emacs process when it is waiting for
+a theory file (and it's ancestors) to be read.  To avoid this,
+assert the theory file rather than the ML file.
 
