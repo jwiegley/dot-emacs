@@ -660,13 +660,14 @@ We assume that module identifiers coincide with file names."
 
 ;; pcc macros etc
 ;; da: I've moved these key defs out of plastic-mode-config
+;; da: PG 3.5.1: fixed for GNU Emacs compatible syntax
 
-(define-key plastic-keymap ?s 'plastic-small-bar)
-(define-key plastic-keymap ?l 'plastic-large-bar)
-(define-key plastic-keymap ?c 'plastic-all-ctxt)
-(define-key plastic-keymap ?v 'plastic-minibuf)
-(define-key plastic-keymap ?o 'plastic-synchro)
-(define-key plastic-keymap ?p 'plastic-show-shell)
+(define-key plastic-keymap [(control s)] 'plastic-small-bar)
+(define-key plastic-keymap [(control l)] 'plastic-large-bar)
+(define-key plastic-keymap [(control c)] 'plastic-all-ctxt)
+(define-key plastic-keymap [(control v)] 'plastic-minibuf)
+(define-key plastic-keymap [(control o)] 'plastic-synchro)
+(define-key plastic-keymap [(control p)] 'plastic-show-shell)
 
 
 ;; original end.
