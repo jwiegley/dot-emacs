@@ -1512,23 +1512,26 @@ however, are always processed; hence their name)."
 	  ;; Now we're looking for the end of the piece of output
 	  ;; which will be processed.  
 	  
-	  ;; The blasphemous situation that the proof-action-list
-	  ;; is empty is now quietly ignored so that users can
-	  ;; type in the shell buffer without being screamed at.
-	  ;; Also allows the process to output something for
-	  ;; some other reason (perhaps it's just being chatty),
-	  ;; although that could break the synchronization.
-	  ;; Note that any "unexpected" output like this gets
-	  ;; ignored.
+	  ;; Note that the way this filter works, only one piece of
+	  ;; output can be dealt with at a time so we loose sync if
+	  ;; there's more than one bit there.
+	  
+	  ;; The blasphemous situation that the proof-action-list is
+	  ;; empty is now quietly ignored so that users can type in
+	  ;; the shell buffer without being screamed at.  Also allows
+	  ;; the process to output something for some other reason
+	  ;; (perhaps it's just being chatty), although that could
+	  ;; break the synchronization.  Any "unexpected" output like
+	  ;; this gets ignored.
 	  (if proof-action-list
 	      (let ((urgnt    (marker-position 
 			       proof-shell-urgent-message-marker))
 		    string startpos)
-		;; Ignore any urgent messages that have already been 
-		;; dealt with.  This loses in the case mentioned above.
-		;; A more general way of doing this would be
-		;; to filter out or delete the urgent messages which 
-		;; have been processed already.  
+		;; Ignore any urgent messages that have already been
+		;; dealt with.  This loses in the case mentioned
+		;; above.  A more general way of doing this would be
+		;; to filter out or delete the urgent messages which
+		;; have been processed already.
 		(setq startpos (goto-char (marker-position proof-marker)))
 		(if (and urgnt
 			 (< startpos urgnt))
@@ -1538,51 +1541,21 @@ however, are always processed; hence their name)."
 		      (setq startpos (goto-char (+ 2 startpos)))
 		    (setq startpos (goto-char (1+ startpos)))))
 		;; Find next prompt.  
-		;; The process might have sent us several things with
-		;; prompts in-between, so we have to loop.  -stef
-		(while (re-search-forward
+		(if (re-search-forward 
 		     proof-shell-annotated-prompt-regexp nil t)
 		    (progn
 		      (setq proof-shell-last-prompt
 			    (buffer-substring (match-beginning 0) (match-end 0)))
+		      (backward-char (- (match-end 0) (match-beginning 0)))
 		      ;; NB: decoding x-symbols here is perhaps a bit 
 		      ;;  expensive; moreover it leads to problems 
 		      ;;  processing special characters as annotations
 		      ;;  later on.  So no fontify or decode.
 		      ;;   (proof-fontify-region startpos (point))
-		      (setq string (buffer-substring startpos (match-beginning 0)))
-		      ;; We are positioned right after a prompt output by the
-		      ;; process.  If there's anything ahead, it's also output
-		      ;; from the process.  Insert a newline to be sure that
-		      ;; it won't look like input text sent to the process
-		      ;; and so that "^" anchoring works right when matching
-		      ;; process' output.  -stef
-		      (unless (eolp) (newline))
+		      (setq string (buffer-substring startpos (point)))
+		      (goto-char (point-max))	
 		      ;; Process output string.
-		      (if (and (not proof-shell-strip-crs-from-input)
-			       (equal string "") (not (eobp)))
-			  ;; If there was no actual content apart from the
-			  ;; prompt and if there's more output ahead to
-			  ;; process, let's assume that this prompt was just
-			  ;; a spurious result of having sent newlines in
-			  ;; the input.
-			  ;; This is fundamentally ambiguous because we can't
-			  ;; tell the difference between such spurious prompts
-			  ;; and actual empty output: if a multiline command
-			  ;; returns no output, a human would have to type a
-			  ;; silly command and wait for an answer to tell if
-			  ;; the process was done or was still busy (short of
-			  ;; counting prompts, of course).
-			  ;; But we will call proof-shell-filter-process-output
-			  ;; at least once, which is as good as the old code.
-			  ;; We may call it too many times (with an empty
-			  ;; string) because of those spurious prompts but
-			  ;; it hopefully shouldn't lead to any disastrous
-			  ;; effect other than displaying an empty response
-			  ;; and discarding the actual non-empty one.
-			  nil
-			(proof-shell-filter-process-output string))
-		      (setq startpos (set-marker proof-marker (point))))))
+		      (proof-shell-filter-process-output string))))
 	    ;; If proof-action-list is empty, make sure the process lock
 	    ;; is not held!  This should solve continual "proof shell busy"
 	    ;; error messages which sometimes occur during development,
@@ -1607,8 +1580,6 @@ output.
 
 After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue."
-  ;; If we don't strip \n from input, we may get spurious prompts.
-  ;; Ignore the corresponding empty-string.
   (let 
       ;; Some functions may care which command invoked them
       ((cmd  (nth 1 (car proof-action-list))))
