@@ -11,6 +11,20 @@ See also: http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS
 Generic problems
 ================
 
+* If you have problems using Mule versions of FSF Emacs (beware
+setting standard-display-european): Pascal Brisset suggests adding
+this line to .emacs should help:
+
+   (setq process-coding-system-alist '(("" . no-conversion))) 
+
+* If the proof assistant goes into a loop displaying lots of
+information, it may be difficult or impossible to interrupt it,
+because Emacs doesn't get a chance to process the C-c C-c keypress
+or "Stop" button push (or anything else).  In this situation, you
+will need to send an interrupt to the Isabelle process from another
+shell.  This problem can happen with looping rewrite rules in the
+Isabelle simplifier, when tracing rewriting.
+
 * Highlighting script buffers in recent versions of FSF Emacs is a
 mess.  The underlying text property implementation has changed
 and it seems difficult to get the desired behaviour of highlighting
