@@ -15,13 +15,10 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
       --- MMM support
       --- Theorem dependencies
 
-*** Emacs Bug Roundup
-    --- xemacs support for nested comments??
-    --- xemacs undo in read-only regions 
-
 *** Isabelle tweaks
      -- theorem dependencies on spoils ordinary response buffer output
      (dependency info *after* response display loses)
+    [FIXED OR NOT?]
 
 *** Check multiple file support in Isabelle -- maybe has become buggy
      -- Test cases seem to work, still
@@ -31,6 +28,8 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
     are already removed (noticed with auto action set to process).
 
 *** Finish clean-up of web page, broken link fixes.
+
+*** Check list of things at bottom of this file.
 
 
  
@@ -564,7 +563,11 @@ X (Low)		e.g. probably not worth spending time on
    Very useful option of GNU Emacs easy menu to remove items
    from menu altogether, dynamically.   (Or at least, fairly
    dynamically.  Fully dynamically would be guitrocity).
+   [NB: this is there now, perhaps, as :configured]
 
+*** A Undo in "read-only" regions 
+
+*** A Support for nested comments
 
 
 
@@ -781,8 +784,6 @@ List of things postponed from PG 3.4: need to be merged above
 
 *** Comment at the end for Isabelle theory files!!!!
 
-*** X-Symbol 4.4 backwards compatibility for Coq and friends.
-
 *** Check: does proof-follow-mode have any effect???  
     Consider removal to simplify it?
 
@@ -797,10 +798,3 @@ List of things postponed from PG 3.4: need to be merged above
 
 *** proof-nesting-depth:
     This needs to be fixed up in count undos, find-and-forget.
-
-*** Generic versions of count undos and find-and-forget generic.
-
-*** Keybindings on menus: many missing in GNU Emacs.  
-    Also strange things happen with docstrings for macro-generated
-    functions.  (C-h C-c C-p gives message "can't find docstring for
-    proof-prf" at one point, then later finds it?!)

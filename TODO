@@ -30,7 +30,7 @@ Plans for upcoming versions
 * Queue manipulation improvement: allow to extend or reduce
   during processing, with fewer "Proof Process Busy" messages.  
 
-* Support more proof assistants
+* Support more proof assistants.  Add more example proofs.
 
 * Make an XEmacs package
 
