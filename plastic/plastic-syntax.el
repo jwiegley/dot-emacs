@@ -1,7 +1,7 @@
 ;; plastic-syntax.el - Syntax of Plastic
 ;; Author: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
 ;; Maintainer: <author>
-;; $Id$
+;; plastic-syntax.el,v 6.0 2001/09/03 12:11:56 da Exp
 
 ;; adapted from the following, by Paul Callaghan
 ;; ;; lego-syntax.el Syntax of LEGO
@@ -28,7 +28,8 @@
 	    "impE" "impI" "Induction" "Inductive" 
 	    "Invert" "Init" "intros" "Intros" "Module" "Next" 
 	    "Normal" "notE" "notI" "orE" "orIL" "orIR" "qnify" "Qnify"
-	    "Qrepl" "Record" "Refine" "Repeat" "Try" "Unfreeze"))
+	    "Qrepl" "Record" "Refine" "Repeat" "Return" "ReturnAll" 
+	    "Try" "Unfreeze"))
   "Subset of Plastic keywords and tacticals which are terminated by a \?;")
 
 (defconst plastic-keywords

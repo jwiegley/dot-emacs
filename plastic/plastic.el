@@ -1,7 +1,7 @@
 ;; plastic.el  - Major mode for Plastic proof assistant
 ;; Author: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
 ;; Maintainer: <author>
-;; $Id$
+;; plastic.el,v 6.2 2002/07/19 10:38:48 da Exp
 
 ;; adapted from the following, by Paul Callaghan
 ;; ;; lego.el Major mode for LEGO proof assistants
@@ -253,12 +253,13 @@ Given is the first SPAN which needs to be undone."
 	      (string-match "^\\s-*test" string)
 	      (string-match "^\\s-*\\$" string)
 	      (string-match "^\\s-*#" string))
-               (if (yes-or-no-p-dialog-box 
-                           (concat "Can't Undo imports yet\n"
-                                   "You have to exit prover for this\n"
-                                   "Continue with Exit?"))
-                   (proof-shell-exit)
-                   nil) )	;; see if the user wants to quit.
+           
+	    (popup-dialog-box 
+		(list (concat "Can't Undo imports yet\n"
+                                   "You have to exit Plastic for this\n")
+		      ["ok, I'll do this" (lambda () t) t]))
+	    (return)
+           )    ;; warn the user that undo of imports not yet working.
          (t (incf spans))
       )
       (setq span (next-span span 'type))
@@ -290,11 +291,11 @@ Given is the first SPAN which needs to be undone."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (proof-defshortcut plastic-Intros 
-		   (concat plastic-lit-string " Intros ")  ?I)
-(proof-defshortcut plastic-intros
-		   (concat plastic-lit-string " intros ")  ?i)
+		   (concat plastic-lit-string "Intros ")  ?i)
 (proof-defshortcut plastic-Refine
-		   (concat plastic-lit-string " Refine ")  ?i)
+		   (concat plastic-lit-string "Refine ")  ?r)
+(proof-defshortcut plastic-ReturnAll
+		   (concat plastic-lit-string "ReturnAll ") ?u)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -612,6 +613,7 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-minibuf-cmd (cmd)
     "do minibuffer cmd then undo it, if error-free."
+    (print "hello")
     (plastic-reset-error)
     (interactive
        (list (read-string "Command: " nil 'proof-minibuffer-history)))
@@ -663,21 +665,22 @@ We assume that module identifiers coincide with file names."
 
 (define-key plastic-keymap ?s 'plastic-small-bar)
 (define-key plastic-keymap ?l 'plastic-large-bar)
-(define-key plastic-keymap ?a 'plastic-all-ctxt)
-(define-key plastic-keymap [(control c) (control v)] 'plastic-minibuf)
-(define-key plastic-keymap [(control c) (control o)] 'plastic-synchro)
-(define-key plastic-keymap [(control c) (control s)] 'plastic-show-shell)
-
+(define-key plastic-keymap ?c 'plastic-all-ctxt)
+(define-key plastic-keymap ?v 'plastic-minibuf)
+(define-key plastic-keymap ?o 'plastic-synchro)
+(define-key plastic-keymap ?p 'plastic-show-shell)
 
 
 ;; original end.
 
 ;;;;;;;;;;;;;;;;;
-;; hacky overriding of the toolbar command
+;; hacky overriding of the toolbar command and C-c C-v action
 ;; my version handles literate characters. 
 ;; (should do better for long-term though)
 
-(defalias 'proof-toolbar-command 'plastic-minibuf-cmd)
+(defalias 'proof-toolbar-command 'plastic-minibuf)
+(defalias 'proof-minibuffer-cmd  'plastic-minibuf)
+	;; the latter doesn't seem to work (pcc, 05aug02)
 
 ;;;
 
