@@ -212,10 +212,10 @@ this manual!
 
 Second, there are improvements, extensions, and bug fixes in the generic
 basis. Proofs which are unfinished and not explicitly closed by a
- ``save'' type command are supported by the core, if they are allowed by
- the prover.  The design of switching the active scripting buffer has
-been streamlined.  The management of the queue of commands waiting to be
-sent to the shell has been improved, so there are fewer unnecessary
+``save'' type command are supported by the core, if they are allowed by
+the prover.  The design of switching the active scripting buffer has
+been streamlined.  The management of the queue of commands waiting to
+be sent to the shell has been improved, so there are fewer unnecessary
 "Proof Process Busy!" messages.  The proof shell filter has been
 optimized to give hungry proof assistants a better share of CPU cycles.
 Proof-by-pointing has been resurrected; even though LEGO's
@@ -223,8 +223,8 @@ implementation is incomplete, it seems worth maintaining the code in
 Proof General so that the implementors of other proof assistants are
 encouraged to provide support.  For one example, we can certainly hope
 for support in Coq, since the CtCoq proof-by-pointing code has been
-moved into the Coq kernel lately.  Somebody from the Coq community needs
-to help with this.
+moved into the Coq kernel lately.  We need a volunteer from the Coq
+community to help to do this.
 
 An important new feature in Proof General 3.0 is support for
 @uref{http://www.fmi.uni-passau.de/~wedler/x-symbol/,X-Symbol}, 
@@ -2784,7 +2784,7 @@ synchronized.
 Until this feature is incorporated into Coq Proof General, the user can
 use C-c C-v to resynchronize.  For example, if the user does C-c C-u to
 move the point back past one extended tactic, he or she can type C-c C-v
-``Undo 1.''  This then undoes the tactic that the proof mode failed to
+``Undo 1.''  This then undoes the tactic that Proof General failed to
 recognize.
 
 
