@@ -20,12 +20,7 @@ You can adapt Proof General to other proof assistants if you know a
 little bit of Emacs Lisp.
 
 To use Proof General, use the command `proofgeneral', which launches
-XEmacs (or Emacs) for you, or add the line:
-
-   (load-file "/usr/share/emacs/site-lisp/ProofGeneral/generic/proof-site.el")
-
-to your .emacs file so Proof General is available whenever 
-you run Emacs.
+XEmacs (or Emacs) with Proof General loaded.
 
 %package -n ProofGeneral-emacs-elc
 Summary: Compiled ELC files for Proof General/GNU Emacs
@@ -34,7 +29,8 @@ Requires: emacs >= 21.2, ProofGeneral = %{version}-%{release}
 
 %description -n ProofGeneral-emacs-elc
 Proof General is a generic Emacs interface for proof assistants.
-This package contains the byte compiled elisp files for XEmacs.
+This package contains the byte compiled elisp files for GNU Emacs,
+and integrates Proof General into the Emacs startup packages.
 If you want to use GNU Emacs with Proof General, this package is
 recommended.
 
@@ -45,7 +41,8 @@ Requires: xemacs >= 21.4.12, ProofGeneral = %{version}-%{release}
 
 %description -n ProofGeneral-xemacs-elc
 Proof General is a generic Emacs interface for proof assistants.
-This package contains the byte compiled elisp files for XEmacs.
+This package contains the byte compiled elisp files for XEmacs,
+and integrates Proof General into the Emacs startup packages.
 If you want to use XEmacs with Proof General, this package is
 recommended.
 
