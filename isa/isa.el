@@ -157,9 +157,13 @@ and script mode."
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
 
+   ;; FIXME da: this needs improvement.  I don't know why just
+   ;; "No subgoals!" isn't enough.  (Maybe anchored to end-goals
+   ;; for safety).  At the moment, this regexp reportedly causes
+   ;; overflows with large proof states. 
    proof-shell-proof-completed-regexp
    (concat proof-shell-start-goals-regexp
-	   "\\([\000-\377]*\nNo subgoals!\n\\)"
+	   "\\(\\(.\\|\n\\)*\nNo subgoals!\n\\)"
 	   proof-shell-end-goals-regexp)
 
    ;; initial command configures Isabelle by hacking print functions.
