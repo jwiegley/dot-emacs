@@ -3,7 +3,7 @@
 
 ;;;### (autoloads nil "_pkg" "generic/_pkg.el")
 
-(package-provide 'ProofGeneral :version 3\.3pre010320 :type 'regular)
+(package-provide 'ProofGeneral :version "3.3pre010320" :type 'regular)
 
 ;;;***
 
@@ -23,7 +23,7 @@ Indent current line of proof script, if indentation enabled." t nil)
 
 ;;;***
 
-;;;### (autoloads (defpacustom proof-defshortcut proof-menu-define-specific proof-menu-define-main proof-menu-define-keys) "proof-menu" "generic/proof-menu.el")
+;;;### (autoloads (defpacustom proof-defpacustom-fn proof-defshortcut proof-menu-define-specific proof-menu-define-main proof-menu-define-keys) "proof-menu" "generic/proof-menu.el")
 
 (autoload 'proof-menu-define-keys "proof-menu" nil nil nil)
 
@@ -36,6 +36,9 @@ Define shortcut function FN to insert STRING, optional keydef KEY.
 This is intended for defining proof assistant specific functions.
 STRING is inserted using `proof-insert', which see.
 KEY is added onto proof-assistant map." nil 'macro)
+
+(autoload 'proof-defpacustom-fn "proof-menu" "\
+As for macro `defpacustom' but evaluation arguments." nil nil)
 
 (autoload 'defpacustom "proof-menu" "\
 Define a setting NAME for the current proof assitant, default VAL.
