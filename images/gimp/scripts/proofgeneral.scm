@@ -16,8 +16,7 @@
   (let* ((filename (string-append buttonname ".xcf"))
 	 (image    (car (gimp-file-load 1 filename filename)))
 	 (xpmname  (string-append buttonname ".xpm"))
-	 (poor-xpm (string-append buttonname ".8bit.xpm"))
-	 (xbmname  (string-append buttonname ".xbm")))
+	 (poor-xpm (string-append buttonname ".8bit.xpm")))
     (gimp-image-flatten image)
     ;; Full xpm
     (gimp-file-save 1 image (car (gimp-image-active-drawable image))
@@ -26,14 +25,6 @@
     (gimp-convert-indexed image 1 0 8 1 1 "blah")
     (gimp-file-save 1 image (car (gimp-image-active-drawable image))
 		    poor-xpm poor-xpm)
-    ;; Mono image
-    (gimp-convert-rgb image)
-    (gimp-image-flatten image)
-    (gimp-convert-indexed image 1 1 3 2 1 "blah")
-    (file-xbm-save 1 image (car (gimp-image-active-drawable image))
-		    xbmname xbmname
-		    "Proof General button"
-		    FALSE 0 0 "")
     ;; Finish
     (gimp-image-delete image)
     ))
