@@ -534,16 +534,22 @@ KEY is added onto proof-assistant map."
   "Define function FN to send STRING to proof assistant, optional keydef KEY.
 This is intended for defining proof assistant specific functions.
 STRING is sent using proof-shell-invisible-command, which see.
+STRING may be a string or a function which returns a string.
 KEY is added onto proof-assistant map."
   `(progn
      (if ,key
 	 (define-key (proof-ass keymap) (quote ,key) (quote ,fn)))
      (defun ,fn ()
        ,(concat "Command to send " 
-		(replace-in-string  string "\\\\" "\\\\=") ;; for substitute-command-keys
+		(if (stringp string)
+		    (replace-in-string  
+		     string "\\\\" "\\\\=") ;; for substitute-command-keys
+		  "an instruction")
 		" to the proof assistant.")
        (interactive)
-       (proof-shell-invisible-command ,string))))
+       ,(if (stringp string)
+	    (list 'proof-shell-invisible-command string)
+	  (list 'proof-shell-invisible-command (eval string))))))
 
 (defun proof-def-favourite (command inscript menuname &optional key new)
   "Define and a \"favourite\" proof assisant function.
