@@ -37,15 +37,18 @@ structure ProofGeneral =
     (*  Function used internally by Proof General to track
         dependencies between theory and ML files. *)
 
-    fun retract_file thy =
+    (* This retracts a script file and all it's theory/script children,
+       but not it's parent theory. *)
+    fun retract_file1 not_thy thy =
      let fun file_msg x = if (x <> "") then
 			writeln ("Proof General, you can unlock the file "
 			     ^ (quote x))
 	               else ()
          fun show_msgs thy =
            let val (thy_file, ml_file) = get_thy_filenames (path_of thy) thy
-            in (file_msg thy_file; file_msg ml_file) end
-
+            in (if not_thy then ()
+		   else file_msg thy_file; 
+		file_msg ml_file) end
          fun already_loaded thy =
            let val t = get_thyinfo thy
            in if is_none t then false
@@ -59,9 +62,10 @@ structure ProofGeneral =
           in filter already_loaded present end
       in      
        if already_loaded thy then
-	 (show_msgs thy; map retract_file (children_loaded thy); ())
+	 (show_msgs thy; map (retract_file1 false) (children_loaded thy); ())
        else ()
    end;
+   val retract_file = retract_file1 true;
 
    fun repeat_undo 0 = ()
      | repeat_undo n = (undo(); repeat_undo (n-1));
@@ -77,6 +81,7 @@ fun remove_mlfile_fromdb thy =
     in  loaded_thys := Symtab.update ((thy, tinfo), !loaded_thys) end;
 
 
+(*
 fun use_thy_and_update thy =
   (use_thy_no_topml thy;   (* don't read ML but will be in db [useful bug]*)
    update () 		   (* fixup dependencies left broken by use_thy
@@ -84,6 +89,9 @@ fun use_thy_and_update thy =
     handle exn => 
        (remove_mlfile_fromdb thy handle _ => raise exn; raise exn);  
    remove_mlfile_fromdb thy);
+*)
+
+
 
 fun list_loaded_files () =
  let
@@ -101,6 +109,9 @@ fun list_loaded_files () =
   in
     seq loading_msg thys_list
   end;
+
+(* Temporary hack. *)
+fun use_thy_and_update thy = (use_thy_no_topml thy; update(); list_loaded_files());
 
    
 

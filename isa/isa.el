@@ -194,7 +194,7 @@ to set outline heading regexp.")
 ;; We use the top level theory and then force an update, both to fix
 ;; up Isabelle's messy dependency handling and to recache the
 ;; list of loaded files inside emacs.
-(defconst isa-usethy-notopml-command "use_thy_and_update \"%s\"; list_loaded_files();"
+(defconst isa-usethy-notopml-command "use_thy_and_update \"%s\";"
   "Command to send to Isabelle to process theory for this ML file.")
 
 ;; Unfortunately, use_thy_no_topml followed by update(); doesn't work
