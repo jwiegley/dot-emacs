@@ -202,8 +202,7 @@ keyboard.  Type @kbd{C-h m} to get a list of keys for the current mode.
 
 The proof assistant is automatically started inside Emacs when you ask
 for some of the proof script to be processed.  To follow an example use
-of Proof General on a LEGO proof, see @pxref{Walkthrough example in
-LEGO}.
+of Proof General on a LEGO proof, see @pxref{Walkthrough example in LEGO}.
 
 If Proof General has not already been installed, you should insert the
 line:
@@ -359,9 +358,9 @@ file, while it is written and edited.
 @unnumberedsubsec Goals and saves
 
 A proof script contains a sequence of commands used to prove one or more
-theorems.  In general we assume that for each proved theorem,
-a  proof script contains a goal .. save  pair of commands which
-look something like this:
+theorems.  In general we assume that for each proved theorem, a proof
+script contains a goal .. save pair of commands which appear something
+like this:
 @lisp
    goal T is G
    ...
@@ -371,7 +370,7 @@ Proof General recognizes goal .. save pairs in proof scripts.
 The name T can appear in the definitions menu for the proof
 script (see Script definitions menu), and once
 a goal .. save pair is completed it is treated
-as atomic when undoing proof steps (see Undo).
+as atomic when undoing proof steps (see Undo).  
 
 
 @node The buffer model, Regions in a proof script, Proof scripts, Basic Script Management
