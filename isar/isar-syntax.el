@@ -125,9 +125,9 @@
    (cons (concat "\351" isar-id "\350") 'proof-declaration-name-face)    ; class
    (cons (concat "\352'" isar-id "\350") 'proof-tacticals-name-face)     ; tfree
    (cons (concat "\353\\?'" isar-idx "\350") 'font-lock-type-face)       ; tvar
-   (cons (concat "\354" isar-id "\350") 'font-lock-function-face)        ; free
+   (cons (concat "\354" isar-id "\350") 'font-lock-keyword-face)         ; free
    (cons (concat "\355" isar-id "\350") 'font-lock-keyword-face)         ; bound
-   (cons (concat "\356" isar-idx "\350") 'font-lock-function-face)       ; var
+   (cons (concat "\356" isar-idx "\350") 'font-lock-function-name-face)  ; var
    )
   "*Font-lock table for Isabelle terms.")
 
