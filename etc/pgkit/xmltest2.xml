@@ -1,0 +1,23 @@
+<root>
+ <q req_id="default_id"/>
+ <p fixed="bad fixed value" enum="bad enum"/>
+ <p>
+  <b/>
+  <c>
+   <unexpected/>
+   <undefined/>
+  </c>
+  <q req_id="unreferenced_id"/>
+ </p>
+ <n nmtoken="1bad nmtoken"/>
+ <n nmtoken="default_nmtoken"/>
+ <n/>
+ <nn nmtokens="1bad nmtokens"/>
+ <nn nmtokens="default_nmtoken"/>
+ <nn/>
+ <bad_id bad_idref="1bad ID"/>
+ <bad_id/>
+ <bad_ent bad_ent="1bad ENTITY"/>
+ <bad_ent/>
+ <empty>text in empty</empty>
+</root>
