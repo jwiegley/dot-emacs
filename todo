@@ -18,15 +18,16 @@ A proof-toolbar:  Add support for entering a goal and saving a theorem
   up and down functions).  Add toolbar to pbp mode too.  
   (1hr, da)
 
-A Add xbm bitmap images for toolbar.  Probably important to support
-  non-colour displays.  (30mins, da)
-
 X Improve toolbar icons.  Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
   xcf files under CVS rather than xpm files.
   (5h or more to design nice ones)
 
-A Documentation for proof-mode and its derived modes.  (5min)
+X Add support for putting a locked region in processed files.
+
+A Documentation for proof-mode and its derived modes.  
+  (15min for each mode: should base on some generic doc for
+   proof-mode)
 
 A Clean up proof-assert-until-point behaviour.  At the moment we
   get an odd error if it is run in the locked region.  If point
@@ -277,6 +278,4 @@ A fix INSTALL file, add COPYING note
 
 A fix branches after renames
 
-A write Makefile targets to build documentation formats
-  and generate distributable tar.gz file, tag sources,
-  compile .elc, web page (?), with release version.
+A write Makefile targets to build documentation formats, .elc
