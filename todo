@@ -68,6 +68,9 @@ C Outline-mode does not work due to read-only restrictions of
 * Here are things to be done to Lego mode
 =========================================
 
+A set up regular definitions to support definitions of the form
+  id == term (10min; tms)
+
 A fix Pbp implementation (10h; tms)
 
 A LEGO mode might incorporate changes to Coq mode menu, in particular
