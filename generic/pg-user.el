@@ -1036,9 +1036,9 @@ The function `substitute-command-keys' is called on the argument."
 ;; this modifier combination is currently unused.
 (cond 
  (proof-running-on-Emacs21
-  (global-set-key [C-M-mouse-1] 'pg-identifier-under-mouse-query))
+  (global-set-key [C-M-mouse-2] 'pg-identifier-under-mouse-query))
  (proof-running-on-XEmacs
-  (global-set-key '(control meta button1) 'pg-identifier-under-mouse-query)))
+  (global-set-key '(control meta button2) 'pg-identifier-under-mouse-query)))
 
 (defun pg-identifier-under-mouse-query (event)
   (interactive "e")
