@@ -1,24 +1,33 @@
 <?php
+//
+// Dave's PHP3 Header
+//
+// Included in every page.  
+// Prints DTD and defines some useful functions.
+//
+// David Aspinall, June 1999.
+//
+// $Id$
+//
+//
 
-/* PHP3 Functions for Proof General Web Pages
- *
- * Included in every page.  Prints DTD.
- *
- * David Aspinall, June 1999.
- *
- * $Id$
- *
- */
+
+// DTD 
+
+$dtd_strict = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n";
+$dtd_loose = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n";
+
+print $dtd_loose;
+
+// Validator address
+
+$validator = "http://validator.dcs.ed.ac.uk/";
+// $validator = "http://localhost/validator/";
 
 /* Some handy constants */
 
 $pg_email = "proofgen@dcs.ed.ac.uk";
 $pg_list = "proofgeneral@dcs.ed.ac.uk";
-$dtd = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n";
-
-print $dtd;
-
-
 
 $pg_title = "Proof General --- Organize your Proofs!";
 
