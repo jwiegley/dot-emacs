@@ -370,7 +370,7 @@ dist:
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
 	for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done
-	(cd $(DISTBUILDIR); ln -s $(RELEASENAME) $(NAME))
+	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
 	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X ignoredfiles
 	rm -f ignoredfiles
 	@echo "*************************************************"
@@ -415,7 +415,9 @@ develdist:
 release: distclean tag  dist develdist 
 	mkdir -p $(RELEASEDIR)
 	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
-	(cd $(RELEASEDIR); rm -f $(NAME); ln -s $(RELEASENAME) $(NAME))
+# FIXME: NAME appears as a directory in RELEASEDIR at this stage -- why?
+#        for now just force clean out.
+	(cd $(RELEASEDIR); rm -rf $(NAME); ln -sf $(RELEASENAME) $(NAME))
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMEZIP) $(LATESTNAME).zip)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
