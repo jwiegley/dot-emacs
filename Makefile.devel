@@ -107,7 +107,6 @@ FULLVERSION=$(VERSION)
 #   NB: CVS tags can't have points in them.  
 #   Substitute points for hyphens.
 CVS_VERSION=$(shell echo $(FULLVERSION) | sed 's/\./-/g')
-NOCVS=yes
 
 # Name of tar file and RPM file.
 RELEASENAME = $(NAME)-$(VERSION)
