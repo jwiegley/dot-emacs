@@ -6,10 +6,14 @@
 
 *** Visibility control for completed proofs
 
-     You can make proofs invisible using a context sensitive menu
-     (right button on a completed proof), or as soon as they are
-     completed with the "Options -> Disappearing Proofs" option.
-     Two menu items "Show proofs" and "Hide proofs" apply to
+     You can make proofs invisible using a command from a new
+     context sensitive menu (XEmacs only; right button on a completed 
+     proof), or as soon as they are completed with the 
+     "Options -> Disappearing Proofs" option.
+
+     This function is also bound to C-c v (pg-toggle-visibility).
+
+     Two main-menu items "Show proofs" and "Hide proofs" apply to
      all the completed proofs in the buffer.
 
      NB: proofs of theorems with the same name are not 
@@ -46,8 +50,10 @@
  
      In this release, the experimental features are: 
 
-        Context menu options to move spans up/down
-        Context menu dependency commands (Isabelle only, see below)
+        Context menu options to move spans up/down 
+          (Only reliable in XEmacs; also on keys control-meta-up, control-meta-down)
+        Context menu dependency commands 
+          (Isabelle only, see below)
 
      To customize this from the menu:
   
@@ -86,6 +92,9 @@
 
      Fixed Emacs-confusion minibuffer contents switching bug.  (Bug 
      was triggered by using toolbar while minibuffer active).
+
+     Fixed problem with C-x C-v not adding completed files to included
+     files list (it does now).  
 
 ** Coq Changes
 
