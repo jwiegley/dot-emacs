@@ -60,6 +60,8 @@ CVSROOT = /home/proofgen/src
 BYTECOMP = $(EMACS) -batch -q -f batch-byte-compile
 EMACS=xemacs
 
+# GNU version of tar, please
+TAR=tar
 
 # Files not to include the distribution area or tarball 
 NONDISTFILES=todo html etc Makefile doc/Makefile doc/notes.txt images/*.xcf images/notes.txt images/gimp images/Makefile
@@ -229,7 +231,7 @@ dist:
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
 	(cd $(DISTBUILDIR); for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done)
-	tar -cvhf $(DISTBUILDIR)/$(RELEASENAMETAR) -C $(DISTBUILDIR) $(RELEASENAME) -X $(DISTBUILDIR)/ignoredfiles
+	$(TAR) -cvhf $(DISTBUILDIR)/$(RELEASENAMETAR) -C $(DISTBUILDIR) $(RELEASENAME) -X $(DISTBUILDIR)/ignoredfiles
 	gzip -9 $(DISTBUILDIR)/$(RELEASENAMETAR)
 	@echo "*************************************************"
 	@echo " Finished making dist."
@@ -246,7 +248,7 @@ develdist:
 	@echo "*************************************************"
 	mkdir -p $(DISTBUILDIR)
 	(cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(RELEASENAME)-devel $(CVSNAME))
-	tar -cvhf $(DISTBUILDIR)/$(DEVELRELEASENAMETAR) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
+	$(TAR) -cvhf $(DISTBUILDIR)/$(DEVELRELEASENAMETAR) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
 	gzip -9 $(DISTBUILDIR)/$(DEVELRELEASENAMETAR)
 
 
@@ -321,4 +323,4 @@ releaseall: release rpmrelease releaseclean
 distinstall:
 	rm -rf $(DISTINSTALLDIR)
 	mkdir -p $(DISTINSTALLDIR)
-	(cd $(DISTINSTALLDIR); tar -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ))
+	(cd $(DISTINSTALLDIR); $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ))
