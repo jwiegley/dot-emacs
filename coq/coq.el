@@ -122,7 +122,7 @@
 (defconst coq-not-undoable-commands-regexp (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-not-undoable-commands)))
 
 (defconst coq-backable-commands-regexp (proof-ids-to-regexp coq-keywords-backable-commands))
-
+(defconst coq-not-undoable-not-backable-commands-regexp (proof-ids-to-regexp coq-keywords-not-undoable-not-backable-commands))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -200,8 +200,10 @@
        (not (proof-string-match "Definition.*:=" str))
        (not (proof-string-match "Lemma.*:=" str))))
 
-;; TODO : add the stuff to handle the "Correctness" command
+;; TODO : add the stuff to handle the "Correctness" command 
 
+;; Pierre: May 29 2002 added a "Back n." command in order to
+;; synchronize more accurately.
 (defun coq-find-and-forget (span)
   (let (str ans (nbacks 0) answers) 
     (while (and span (not ans))
@@ -242,9 +244,14 @@
 	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
 	(setq ans (format coq-forget-id-command (match-string 2 str))))
 
-		 ; Pierre: added may 29
-		 ((proof-string-match 
-			(concat "\\`\\(" coq-backable-commands-regexp	"\\)") str)
+		 ; Pierre: added may 29 2002
+		 ; REM:
+		 ; It is impossible to guess if a user defined command is
+		 ; backable.  This negative test bets on the fact that user
+		 ; defined commands are probably backable, which is not sure at
+		 ; all. Betting on the opposite is also wrong.
+		 ((not (proof-string-match 
+			(concat "\\`\\(" coq-not-undoable-not-backable-commands-regexp	"\\)") str))
 		  (setq nbacks (+ nbacks 1)))
 		 )
 
