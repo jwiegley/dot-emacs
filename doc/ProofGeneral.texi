@@ -42,10 +42,10 @@
 @c
 
 
-@set version 2.0
+@set version 2.1
 @set xemacsversion 20.4
 @set fsfversion 20.2
-@set last-update December 1998
+@set last-update March 1999
 @set rcsid $Id$
 
 @ifinfo
@@ -81,8 +81,7 @@ END-INFO-DIR-ENTRY
 @iftex
 @image{ProofGeneral}
 @end iftex
-@c @author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
-@author David Aspinall and Thomas Kleymann
+@author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
@@ -186,8 +185,9 @@ General project was initiated in 1994 and coordinated until October 1998
 by Thomas Kleymann. Since October 1998, David Aspinall is in charge of
 Proof General.
 
-An early version of this manual was prepared by Dilip Sequeira.  The
-present version was written by David Aspinall and Thomas Kleymann.
+An early version of this manual was prepared by Dilip.  The present
+version was written by David and Thomas, and Healf supplied some text
+for the section on Coq Proof General.
 
 
 The project has benefited from funding by EPSRC (Applicatins of a Type
@@ -1900,38 +1900,138 @@ See the documentation of @samp{@code{easy-menu-define}}
 @node Coq Proof General
 @chapter Coq Proof General
 
-Coq proof script mode is a mode derived from proof script mode for
-editing Coq scripts. As well as custom popup menus, it has the following
-commands:
+Coq Proof General is an instantiation of Proof General for the Coq proof
+assistant.  It adds several features over the generic parts of Proof
+General.
 
+@menu
+* Coq-specific commands::
+* Coq tags::
+* Editing multiple proofs::
+* User-loaded tactics::
+* Suggested Coq abbreviations::
+@end menu
+
+
+@node Coq-specific commands
+@section Coq-specific commands
 @kindex C-c C-s
 @kindex C-c I 
 @kindex C-c a
-@table @kbd
 
-@item C-c C-s
-search for items in the library of a given type.  This runs the
-@code{Search} command of Coq.
-
-@end table
-
-In addition, there are some abbreviations for common commands, which
-add text to the buffer:
-
+Coq Proof General supplies the following key-bindings:
 @table @kbd
 @item C-c I   
-Intros
+Inserts ``Intros '' into proof buffer.
 @item C-c a
-Apply
+Inserts ``Apply '' into proof buffer.
+@item C-c C-s
+Runs Coq's search utility on a user-provided string, using
+the @code{Search} command of Coq.
 @end table
 
-Sorry, there is currently very little specific documentation written for
-Coq Proof General. If any Coq user would like to contribute, please send
-a message to @code{proofgen@@dcs.ed.ac.uk}.
+@node Coq tags
+@section Coq tags
 
-Type @kbd{C-h C-m} to get a list of all Coq specific commands and
-browse the customize menus to find out what customization
-options there are for Coq.
+Coq tags work as in LEGO, @xref{LEGO tags}.
+
+@node Editing multiple proofs
+@section Editing multiple proofs
+
+Coq allows the user to enter top-level commands while editing a proof
+script.  For example, if the user realizes that the current proof will
+fail without an additional axiom, he or she can add that axiom to the
+system while in the middle of the proof.  Similarly, the user can
+nest lemmas, beginning a new lemma while in the middle of an earlier
+one, and as the lemmas are proved or their proofs aborted they are
+popped off a stack.
+
+Coq Proof General supports this feature of Coq.  Top-level commands
+entered while in a proof are promoted immediately above the outermost
+active proof.  If new lemmas are started, Coq proof mode lets the user
+work on the proof of the new lemma, and when the lemma is finished the
+full proof of that lemma is promoted.  This is supported to any nesting
+depth that Coq allows.
+
+@node User-loaded tactics
+@section User-loaded tactics
+
+Another feature that Coq allows is the extension of the grammar of the
+proof assistant by new tactic commands.  This feature interacts with the
+proof script management of Proof General, because Proof General needs to
+know when a tactic is called that alters the proof state.
+
+Unfortunately, Coq Proof General does not currently support tactic
+extension in Coq.  When the user tries to retract across an extended
+tactic in a script, the algorithm for calculating how far to undo does
+not recognize the extension, and so the proof buffer and Coq are not
+synchronized.
+
+Until this feature is incorporated into Coq Proof General, the user can
+use C-c C-v to resynchronize.  For example, if the user does C-c C-u to
+move the point back past one extended tactic, he or she can type C-c C-v
+``Undo 1.''  This then undoes the tactic that the proof mode failed to
+recognize.
+
+
+@node Suggested Coq abbreviations
+@section Suggested Coq abbreviations
+
+Coq has many command strings that are long, such as ``Reflexivity,''
+``Inductive,'' ``Definition'' and ``Discriminate.''  Although it is
+not a feature particular to Coq, it can be very useful to add
+abbreviations and enable Abbrev mode in the Coq proof mode.
+
+Here is a suggested list of abbreviations for Coq:
+@lisp
+"assn" 0 "Assumption"
+"ax" 0 "Axiom"
+"coern" 0 "Coercion"
+"cofixpt" 0 "CoFixpt"
+"coindv" 0 "CoInductive"
+"constr" 0 "Constructor"
+"contradn" 0 "Contradiction"
+"defn" 0 "Definition"
+"discr" 0 "Discriminate"
+"extrn" 0 "Extraction"
+"fixpt" 0 "Fixpoint"
+"genz" 0 "Generalize"
+"hypo" 0 "Hypothesis"
+"immed" 0 "Immediate"
+"indn" 0 "Induction"
+"indv" 0 "Inductive"
+"injn" 0 "Injection"
+"intn" 0 "Intuition"
+"invn" 0 "Inversion"
+"pmtr" 0 "Parameter"
+"refly" 0 "Reflexivity"
+"rmk" 0 "Remark"
+"specz" 0 "Specialize"
+"symy" 0 "Symmetry"
+"thm" 0 "Theorem"
+"transpt" 0 "Transparent"
+"transy" 0 "Transitivity"
+"trivial" 0 "Trivial"
+"varl" 0 "Variable"
+@end lisp
+You need to read the Emacs manual to find out how to configure these
+abbreviations.  It is possible to copy the text above into a file that
+Emacs reads.
+
+
+
+
+
+
+@c Sorry, there is currently very little specific documentation written for
+@c Coq Proof General. If any Coq user would like to contribute, please send
+@c a message to @code{proofgen@@dcs.ed.ac.uk}.
+
+@c Type @kbd{C-h C-m} to get a list of all Coq specific commands and
+@c browse the customize menus to find out what customization
+@c options there are for Coq.
+
+
 
 @c
 @c  CHAPTER: Isabelle Proof General
