@@ -1,6 +1,6 @@
 ;; proof.el  Proof General loader.  All files require this one.
 ;;
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Copyright (C) 1998,9 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;          Thomas Kleymann and Dilip Sequeira
 ;;
@@ -25,9 +25,7 @@
 
 (require 'proof-config)			; configuration variables
 
-(require 'proof-splash)			; splash screen
-
-(require 'proof-x-symbol)		; support for x-symbol
+(require 'proof-splash)			; display splash screen
 
 ;;;
 ;;; Emacs libraries
@@ -72,6 +70,17 @@
 
 (autoload 'proof-shell-invisible-command "proof-shell"
   "Send CMD to the proof process without revealing it to the user.")
+
+(autoload 'proof-x-symbol-toggle "proof-x-symbol"
+  "Toggle support for x-symbol.  With optional ARG, force on if ARG<>0."
+  t)
+
+(autoload 'proof-x-symbol-decode-region "proof-x-symbol"
+  "Call (x-symbol-decode-region START END), if x-symbol support is enabled.")
+
+(autoload 'proof-x-symbol-mode-all-buffers "proof-x-symbol"
+  "Activate/deactivate x-symbol in Proof General shell, goals, and response buffer.")
+
 
 ;;;
 ;;; Global variables
