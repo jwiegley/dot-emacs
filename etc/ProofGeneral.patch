@@ -1,37 +1,48 @@
-diff -cr ProofGeneral-2.0/coq/coqtags ProofGeneral-2.0.new/coq/coqtags
-*** ProofGeneral-2.0/coq/coqtags	Thu Sep 24 16:36:20 1998
---- ProofGeneral-2.0.new/coq/coqtags	Thu Sep 24 17:04:00 1998
+diff -cr ProofGeneral.old/coq/coqtags ProofGeneral/coq/coqtags
+*** ProofGeneral.old/coq/coqtags	Wed Oct  7 18:36:57 1998
+--- ProofGeneral/coq/coqtags	Wed Oct  7 19:04:35 1998
 ***************
-*** 1,1 ****
+*** 1,4 ****
 ! #!/usr/local/bin/perl
---- 1,1 ----
-! #!/usr/bin/perl
-diff -cr ProofGeneral-2.0/lego/legotags ProofGeneral-2.0.new/lego/legotags
-*** ProofGeneral-2.0/lego/legotags	Thu Sep 24 16:36:30 1998
---- ProofGeneral-2.0.new/lego/legotags	Thu Sep 24 17:04:10 1998
-***************
-*** 1,2 ****
-! #!/usr/local/bin/perl
-  #
---- 1,2 ----
-! #!/usr/bin/perl
-  #
-*** ProofGeneral-2.0/generic/proof-site.el	Thu Sep 24 18:17:33 1998
---- ProofGeneral-2.0.new/generic/proof-site.el	Thu Sep 24 18:17:43 1998
-***************
-*** 60,66 ****
-    :group 'proof-general)
   
-  (defcustom proof-info-dir 
-!   (concat proof-home "doc/")
+  undef $/;
+  
+--- 1,4 ----
+! #!/usr/bin/perl
+  
+  undef $/;
+  
+diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.el
+*** ProofGeneral.old/generic/proof-site.el	Wed Oct  7 18:38:21 1998
+--- ProofGeneral/generic/proof-site.el	Wed Oct  7 19:05:08 1998
+***************
+*** 76,82 ****
+    :group 'proof-internal)
+  
+  (defcustom proof-internal-info-directory
+!   (concat proof-internal-home-directory "doc/")
     "*Where Proof General Info files are installed."
     :type 'directory
-    :group 'proof-general)
---- 60,66 ----
-    :group 'proof-general)
+    :group 'proof-internal)
+--- 76,82 ----
+    :group 'proof-internal)
   
-  (defcustom proof-info-dir 
+  (defcustom proof-internal-info-directory
 !   "/usr/info/"
     "*Where Proof General Info files are installed."
     :type 'directory
-    :group 'proof-general)
+    :group 'proof-internal)
+diff -cr ProofGeneral.old/lego/legotags ProofGeneral/lego/legotags
+*** ProofGeneral.old/lego/legotags	Wed Oct  7 18:37:18 1998
+--- ProofGeneral/lego/legotags	Wed Oct  7 19:04:35 1998
+***************
+*** 1,4 ****
+! #!/usr/local/bin/perl
+  #
+  # $Id: legotags,v 2.1 1998/09/09 14:02:46 da Exp $
+  #
+--- 1,4 ----
+! #!/usr/bin/perl
+  #
+  # $Id: legotags,v 2.1 1998/09/09 14:02:46 da Exp $
+  #
