@@ -65,10 +65,14 @@ Removing support for unwanted provers
 -------------------------------------
 
 You cannot run more than one instance of Proof General at a time:
-e.g. if you're using Coq, don't edit .ML files!  If there are some
-assistants supported that you never want to use, you can remove them
-from the variable `proof-assistants` in proof-site.el to prevent an
-error message when you try to edit two different kinds of script file.
+e.g. if you're using Coq, you won't be able to run LEGO scripts.
+
+If there are some assistants supported that you never want to use, 
+you can remove them from the variable `proof-assistants` in 
+proof-site.el to prevent Proof General autoloading for files
+with particular extensions.  This may be useful if you want
+to use other modes for those files, for example, you may want
+sml-mode for .ML files or Verilog mode for .v files.
 
 The easiest way to do this (and other customization of Proof General)
 is via the Customize mechanism, see the menu:
