@@ -4,6 +4,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.4  1998/05/22 09:37:12  tms
+;; included "Invert" in `lego-keywords'
+;;
 ;; Revision 1.3  1997/11/26 14:11:29  tms
 ;; simplified code:
 ;;   lego-goal-with-hole-regexp and lego-save-with-hole-regexp is now
@@ -35,10 +38,10 @@
   "Constructors" "Cut" "Discharge" "DischargeKeep"
     "Double" "echo" "ElimOver" "exE" "exI" "Expand" "ExpAll"
     "ExportState" "Equiv" "Fields" "Freeze" "From" "Hnf" "Immed"
-    "impE" "impI" "Import" "Induction" "Inductive" "Inversion" "Init"
-    "intros" "Intros" "Module" "Next" "NoReductions" "Normal" "notE"
-    "notI" "orE" "orIL" "orIR" "Parameters" "Qnify" "Qrepl" "Record"
-    "Refine" "Relation" "Theorems" "Unfreeze")))
+    "impE" "impI" "Import" "Induction" "Inductive" "Inversion"
+    "Invert" "Init" "intros" "Intros" "Module" "Next" "NoReductions"
+    "Normal" "notE" "notI" "orE" "orIL" "orIR" "Parameters" "Qnify"
+    "Qrepl" "Record" "Refine" "Relation" "Theorems" "Unfreeze")))
 
 (defvar lego-tacticals '("Then" "Else" "Try" "Repeat" "For"))
 
