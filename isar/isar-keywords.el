@@ -145,14 +145,17 @@
 (defconst isar-keywords-proof-chain
   '("finally"
     "from"
-    "then"))
+    "then"
+    "with"))
 
 (defconst isar-keywords-proof-decl
   '("also"
-    "assume"
-    "fix"
     "let"
-    "note"
+    "note"))
+
+(defconst isar-keywords-proof-asm
+  '("assume"
+    "fix"
     "presume"))
 
 (defconst isar-keywords-proof-script

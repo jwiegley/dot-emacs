@@ -67,6 +67,7 @@
 	  isar-keywords-theory-decl
 	  isar-keywords-proof-block
 	  isar-keywords-proof-decl
+	  isar-keywords-proof-asm
 	  isar-keywords-proof-script))
 
 (defconst isar-keywords-indent-open
@@ -133,6 +134,7 @@
     (cons (proof-ids-to-regexp isar-keywords-theory) 'font-lock-keyword-face)
     (cons (proof-ids-to-regexp isar-keywords-proof-enclose) 'font-lock-function-name-face)
     (cons (proof-ids-to-regexp isar-keywords-proof) 'font-lock-keyword-face)
+    (cons (proof-ids-to-regexp isar-keywords-proof-asm) 'proof-declaration-name-face)
     (cons (proof-ids-to-regexp isar-keywords-proof-script) 'font-lock-reference-face))))
 
 (provide 'isar-syntax)
