@@ -35,6 +35,8 @@
 ## Notes:
 ##   Use 'make untag' before re-trying if 'make releaseall' fails and files
 ##    are changed. This will make sure tags move to correct files
+##    NB: this may create duplicate ChangeLog entries for current day,
+##    watch out!
 ##   Use 'make releaseclean' if giving up, to remove temp dirs.
 ##
 ##   No facility to edit html to make a full release in this makefile.  
