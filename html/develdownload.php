@@ -32,15 +32,15 @@ updated from that of the
 </p>
 <p>
 Here is the pre-release documentation: the user manual in
-<?php htmlshow("ProofGeneral/doc/ProofGeneral_toc.html","HTML","Proof General manual") ?>,
-<?php download_link("ProofGeneral/doc/ProofGeneral.ps.gz", "ps") ?> 
+<?php htmlshow("ProofGeneral-latest/doc/ProofGeneral_toc.html","HTML","Proof General manual") ?>,
+<?php download_link("ProofGeneral-latest/doc/ProofGeneral.ps.gz", "ps") ?> 
 or  
-<?php download_link("ProofGeneral/doc/ProofGeneral.pdf", "pdf") ?>,
+<?php download_link("ProofGeneral-latest/doc/ProofGeneral.pdf", "pdf") ?>,
 and the new separate "adapting" manual, in
-<?php htmlshow("ProofGeneral/doc/PG-adapting_toc.html","HTML","Adapting Proof General manual") ?>,
-<?php download_link("ProofGeneral/doc/PG-adapting.ps.gz", "ps") ?> 
+<?php htmlshow("ProofGeneral-latest/doc/PG-adapting_toc.html","HTML","Adapting Proof General manual") ?>,
+<?php download_link("ProofGeneral-latest/doc/PG-adapting.ps.gz", "ps") ?> 
 or  
-<?php download_link("ProofGeneral/doc/PG-adapting.pdf", "pdf") ?>.
+<?php download_link("ProofGeneral-latest/doc/PG-adapting.pdf", "pdf") ?>.
 </p>
 
 
