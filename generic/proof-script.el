@@ -1773,12 +1773,11 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) ?u]	  'proof-retract-until-point-interactive)
 ;;;; (define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
 (define-key map [(control c) ?\']	  'proof-goto-end-of-locked-interactive)
-;; FIXME da: I don't understand what this function is supposed to do.
-;; It will copy a proof command from within the locked region
-;; to the end of it at the moment (contrary to the name "send", nothing to
+;; FIXME da: this command copies a proof command from within the locked region
+;; to the end of it at the moment (contrary to the old name "send", nothing to
 ;; do with shell).  Perhaps we could define a
 ;; collection of useful copying functions which do this kind of thing.
-;; (define-key map [(control button1)]	  'proof-send-span)
+(define-key map [(control button1)]	  'proof-copy-span)
 ;;; (define-key map [(control c) (control b)] 'proof-process-buffer)
 
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)

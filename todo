@@ -49,6 +49,7 @@ A Pending work, in progress [da]:
     - investigate toolbar refresh problems
     - investigate of excessive processing for large proofs
     - investigate bug fix for vacuous locked regions
+    - document proof-copy-span (new name for proof-send-span, re-enabled).
 
 A Usability enhancement:
    Enable toolbar in other buffers.  Should switch to active

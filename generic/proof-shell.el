@@ -463,9 +463,10 @@ Proof General with the proof assistant."
       (incf a))
     (apply 'concat (nreverse ls))))
 
-;; FIXME da: this is an oddity.  Was bound by default to
-;; control - button1, I've turned it off.
-(defun proof-send-span (event)
+;; FIXME da: this is an oddity.  It copies the span, but does not
+;; send it, contrary to it's old name ("proof-send-span").   
+;; Maybe belongs elsewhere.
+(defun proof-copy-span (event)
   (interactive "e")
   (let* ((span (span-at (mouse-set-point event) 'type))
 	 (str  (if span (span-property span 'cmd))))
