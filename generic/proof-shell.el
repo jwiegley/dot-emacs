@@ -559,8 +559,29 @@ the first match for START-REGEXP.
 If START-REGEXP is nil, begin from the start of the output for
 this command.
 This is a subroutine of `proof-shell-handle-error'."
-;; 3.4: doesn't return the string any more.
-;; Returns the string (with faces) in the specified region."
+  (let (start end string)
+    (save-excursion
+      (set-buffer proof-shell-buffer)
+      (goto-char (point-max))
+      (setq end (re-search-backward 
+		 ;;end-regexp was always proof-shell-annotated-prompt-regexp
+		 proof-shell-annotated-prompt-regexp))
+      (goto-char (marker-position proof-marker))
+      (setq start (if start-regexp
+		      (- (re-search-forward start-regexp)
+			 (length (match-string 0)))
+		    (point)))
+      (setq string (buffer-substring start end))
+      ;; FIXME: if the shell buffer is x-symbol minor mode,
+      ;; this string can contain X-Symbol characters, which
+      ;; is not suitable for processing with proof-fontify-region.
+      (unless pg-use-specials-for-fontify
+	(setq string
+	      (pg-assoc-strip-subterm-markup string)))
+      ;; Erase if need be, and erase next time round too.
+      (proof-shell-maybe-erase-response t nil)
+      (pg-response-display-with-face string append-face))))
+      
   ;; We used to fetch the output from proof-shell-buffer.  I'm not sure what
   ;; difference it makes, except that it's difficult to find the actual
   ;; output over there and that job has already been done in
@@ -571,33 +592,22 @@ This is a subroutine of `proof-shell-handle-error'."
   ;; characters have been stripped from proof-shell-last-output,
   ;; but start-regexp may contain them.
   ;; For now, test _not_ removing specials (see proof-shell-process-output)
-; old version: also received end-regexp as arg
-;  (let (start end string)
-;    (save-excursion
-;      (set-buffer proof-shell-buffer)
-;      (goto-char (point-max))
-;      (setq end (re-search-backward 
-;		 ;;end-regexp was always proof-shell-annotated-prompt-regexp
-;		 proof-shell-annotated-prompt-regexp))
-;      (goto-char (marker-position proof-marker))
-;      (setq start (if start-regexp
-;		      (- (re-search-forward start-regexp)
-;			 (length (match-string 0)))
-;		    (point)))
-;      (setq string (buffer-substring start end))
-  ;; stef's version:
-   (let ((string proof-shell-last-output))
-      (if start-regexp
-   (setq string (substring string (string-match start-regexp string))))
-      ;; FIXME: if the shell buffer is x-symbol minor mode,
-      ;; this string can contain X-Symbol characters, which
-      ;; is not suitable for processing with proof-fontify-region.
-      (unless pg-use-specials-for-fontify
-	(setq string
-	      (pg-assoc-strip-subterm-markup string)))
-    ;; Erase if need be, and erase next time round too.
-    (proof-shell-maybe-erase-response t nil)
-    (pg-response-display-with-face string append-face)))
+;  ;; stef's version:
+;   (let ((string proof-shell-last-output))
+;     ;; Strip off start-regexp --- if it matches 
+;     ;; FIXME: if it doesn't we shouldn't be called, but something
+;     ;;  odd happens here now, so add a safety check.
+;      (if (and start-regexp (string-match start-regexp string))
+;	  (setq string (substring string (match-beginning 0))))
+;      ;; FIXME: if the shell buffer is x-symbol minor mode,
+;      ;; this string can contain X-Symbol characters, which
+;      ;; is not suitable for processing with proof-fontify-region.
+;      (unless pg-use-specials-for-fontify
+;	(setq string
+;	      (pg-assoc-strip-subterm-markup string)))
+;      ;; Erase if need be, and erase next time round too.
+;      (proof-shell-maybe-erase-response t nil)
+;      (pg-response-display-with-face string append-face)))
 
 
 (defun proof-shell-handle-delayed-output ()
