@@ -1047,7 +1047,9 @@ default.
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-goal
 @deffn Command proof-toolbar-goal 
-Insert a goal command into the script buffer, issue it to prover.
+Write a goal command in the script, prompting for the goal.@*
+Issues a command based on ARG to the assistant, using @code{proof-goal-command}.
+The user is prompted for an argument.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-retract
@@ -1081,7 +1083,9 @@ Proof General with the proof assistant.
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-qed
 @deffn Command proof-toolbar-qed 
-Insert a save theorem command into the script buffer, issue it.
+Write a save/qed command in the script, prompting for the theorem name.@*
+Issues a command based on ARG to the assistant, using @code{proof-save-command}.
+The user is prompted for an argument.
 @end deffn
 
 
@@ -1094,6 +1098,7 @@ Insert a save theorem command into the script buffer, issue it.
 @kindex C-c C-c
 @kindex C-c t
 @kindex C-c C-v
+@kindex C-c C-f
 
 There are several commands for interacting with the proof assistant away
 from a proof script.  Here are the keybindings and functions.
@@ -1111,27 +1116,41 @@ from a proof script.  Here are the keybindings and functions.
 @code{proof-try-command}
 @item C-c C-v
 @code{proof-execute-minibuffer-cmd}
+@item C-c C-f
+@code{proof-find-theorems}
 @end table
 
 @c TEXI DOCSTRING MAGIC: proof-prf
 @deffn Command proof-prf 
-List proof state.
+Show the current proof state.@*
+Issues a command to the assistant from @code{proof-prf-string}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-ctxt
 @deffn Command proof-ctxt 
-List context.
+Show the current context.@*
+Issues a command to the assistant from @code{proof-ctxt-string}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-help
 @deffn Command proof-help 
-Print help message giving syntax.
+Show a help or information message from the proof assistant.@*
+Typically, a list of syntax of commands available.
+Issues a command to the assistant from @code{proof-help-string}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-interrupt-process
 @deffn Command proof-interrupt-process 
 Interrupt the proof assistant.  Warning! This may confuse Proof General.
 @end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-find-theorems
+@deffn Command proof-find-theorems arg
+Search for items containing a given constant.@*
+Issues a command based on @var{arg} to the assistant, using @code{proof-find-theorems-command}.
+The user is prompted for an argument.
+@end deffn
+
 
 @c TEXI DOCSTRING MAGIC: proof-try-command
 @deffn Command proof-try-command &optional unclosed-comment-fun
@@ -2431,16 +2450,25 @@ Command to display proof state in proof assistant.
 @defvar proof-goal-command 
 Command to set a goal in the proof assistant.  String or fn.@*
 If a string, the format character @samp{%s} will be replaced by the
-goal string. If a function, should return a command string to
-insert when called interactively.
+goal string. 
+If a function, it should return the command string to insert.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-save-command
 @defvar proof-save-command 
 Command to save a proved theorem in the proof assistant.  String or fn.@*
 If a string, the format character @samp{%s} will be replaced by the
-theorem name. If a function, should return a command string to
-insert when called interactively.
+theorem name. 
+If a function, it should return the command string to insert.
 @end defvar
+@c TEXI DOCSTRING MAGIC: proof-find-theorems-command
+@defvar proof-find-theorems-command 
+Command to search for a theorem containing a given constant. String or fn.@*
+If a string, the format character @samp{%s} will be replaced by the
+constant name.
+If a function, it should return the command string to insert.
+@end defvar
+
+
 
 @c defgroup proof-script
 @node Proof script settings
