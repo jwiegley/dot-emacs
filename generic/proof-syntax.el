@@ -24,9 +24,10 @@
   "Return the regexp which matches any of the regexps ARGS."
   ;; Is this not available in some library?
   (let ((res ""))
-    (dolist (regexp args res)
+    (dolist (regexp args)
       (setq res (concat res (if (string-equal res "") "\\(" "\\|\\(")
-			regexp "\\)")))))
+			regexp "\\)")))
+    res))
 
 (defun proof-regexp-region (start end)
   "Return regexp matching START anything over several lines END."

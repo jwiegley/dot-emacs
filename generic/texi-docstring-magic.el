@@ -191,7 +191,7 @@ including any whitespace included to delimit matches.")
   "Markup DOCSTRING for texi according to regexp matches."
   (let ((case-fold-search nil))
     (setq docstring (texi-docstring-magic-untabify docstring))
-    (dolist (test texi-docstring-magic-munge-table docstring)
+    (dolist (test texi-docstring-magic-munge-table)
       (let ((regexp	(nth 0 test))
 	    (predicate  (nth 1 test))
 	    (replace    (nth 2 test))
