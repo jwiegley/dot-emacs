@@ -65,6 +65,10 @@ See the functions `proof-start-queue' and `proof-exec-loop'.")
 (defvar proof-shell-silent nil
   "A flag, non-nil if PG thinks the prover is silent.")
 
+;; not implemented
+;;(defvar proof-step-counter nil
+;;  "Contains a proof step counter, which counts `outputful' steps.")
+
 
 ;;
 ;; Implementing the process lock
@@ -778,6 +782,10 @@ last match in the buffer for END-REGEXP.  The match for END-REGEXP
 is not part of the specified region.  This mechanism means if there
 are multiple matches for START-REGEXP and END-REGEXP, we match the
 largest region containing them all.
+
+If START-REGEXP is nil, begin from the start of the output for
+this command.
+
 This is a subroutine of proof-shell-handle-error."
 ;; 3.4: doesn't return the string any more.
 ;; Returns the string (with faces) in the specified region."
@@ -787,8 +795,10 @@ This is a subroutine of proof-shell-handle-error."
       (goto-char (point-max))
       (setq end (search-backward-regexp end-regexp))
       (goto-char (marker-position proof-marker))
-      (setq start (- (search-forward-regexp start-regexp)
-		     (length (match-string 0))))
+      (setq start (if start-regexp
+		      (- (search-forward-regexp start-regexp)
+			 (length (match-string 0)))
+		    (point)))
       ;; FIXME: if the shell buffer is x-symbol minor mode,
       ;; this string can contain X-Symbol characters, which
       ;; is not suitable for processing with proof-fontify-region.
@@ -833,6 +843,8 @@ are not dealt with eagerly during script processing, namely
 ;; Processing error output
 ;;
 
+;; FIXME: combine next two functions?
+
 (defun proof-shell-handle-error (cmd)
   "React on an error message triggered by the prover.
 We first flush unprocessed goals to the goals buffer.
@@ -844,8 +856,8 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
     (proof-shell-handle-delayed-output))
   ;; Perhaps we should erase the proof-response-buffer?
   (proof-shell-handle-output
-   proof-shell-error-regexp proof-shell-annotated-prompt-regexp
-   'proof-error-face)
+   (if proof-shell-truncate-before-error proof-shell-error-regexp)
+   proof-shell-annotated-prompt-regexp 'proof-error-face)
   (proof-display-and-keep-buffer proof-response-buffer)
   (proof-shell-error-or-interrupt-action 'error))
 
@@ -854,8 +866,8 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
  Runs proof-shell-error-or-interrupt-action."
    (proof-shell-maybe-erase-response t t t) ; force cleaned now & next
    (proof-shell-handle-output
-    proof-shell-interrupt-regexp proof-shell-annotated-prompt-regexp
-    'proof-error-face)
+    (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
+    proof-shell-annotated-prompt-regexp 'proof-error-face)
 ;  (proof-display-and-keep-buffer proof-response-buffer)
    (proof-warning 
     "Interrupt: script management may be in an inconsistent state
@@ -943,6 +955,7 @@ which see."
      (setq proof-shell-last-output-kind 'interrupt))
     
     ((proof-shell-string-match-safe proof-shell-error-regexp string)
+     ;; FIXME: is the next setting correct or even needed?
      (setq proof-shell-last-output
 	   (proof-shell-strip-special-annotations
 	    (substring string (match-beginning 0))))
@@ -1610,7 +1623,8 @@ Only OUTPUT-2 will be processed.  For this reason, error
 messages and interrupt messages should *not* be considered
 urgent messages.
 
-Output is processed using proof-shell-filter-process-output.
+Output is processed using the function
+`proof-shell-filter-process-output'.
 
 The first time that a prompt is seen, proof-marker is 
 initialised to the end of the prompt.  This should
@@ -1622,10 +1636,11 @@ however, are always processed; hence their name)."
     (and proof-shell-eager-annotation-start
 	 (proof-shell-process-urgent-messages))
 
-    ;; FIXME da: some optimization possible here by customizing
-    ;; filter according to whether proof-shell-wakeup-char, etc,
-    ;; are non-nil.  Make proof-shell-filter into a macro to do
-    ;; this.
+    ;; FIXME da: some optimization possible here by customizing filter
+    ;; according to whether proof-shell-wakeup-char, etc, are non-nil.
+    ;; Could make proof-shell-filter into a macro to do this.
+    ;; On the other hand: it's not clear that wakeup-char is really
+    ;; needed, as matching the prompt may be efficient enough anyway.
 
     (if ;; Some proof systems can be hacked to have annotated prompts;
 	;; for these we set proof-shell-wakeup-char to the annotation 
@@ -2123,28 +2138,17 @@ Internal variable, setting this will have no effect!")
     ;; with property lists, and specifiers should perhaps be set
     ;; for the frame rather than the buffer.  Then could disable
     ;; minibuffer, too.
+    ;; FIXME: add GNU Emacs version here.
     (if (featurep 'toolbar) 
-	(progn
-	  (proof-with-current-buffer-if-exists 
-	   proof-response-buffer
-	   (set-specifier default-toolbar-visible-p nil (current-buffer))
-	   ;; (set-specifier minibuffer (minibuffer-window) (current-buffer))
-	   (set-specifier has-modeline-p nil (current-buffer))
-	   ;; (and (specifierp 'default-gutter-visible)
-	   ;; (set-specifier default-gutter-visibility nil (current-buffer)))
-	   (set-specifier menubar-visible-p nil (current-buffer)))
-	  (proof-with-current-buffer-if-exists 
-	   proof-goals-buffer
-	   (set-specifier default-toolbar-visible-p nil (current-buffer))
-	   ;; (set-specifier minibuffer (minibuffer-window))
-	   (set-specifier has-modeline-p nil (current-buffer))
-	   (set-specifier menubar-visible-p nil (current-buffer)))
-	  (proof-with-current-buffer-if-exists 
-	   proof-trace-buffer
-	   (set-specifier default-toolbar-visible-p nil (current-buffer))
-	   ;; (set-specifier minibuffer (minibuffer-window) (current-buffer))
-	   (set-specifier has-modeline-p nil (current-buffer))
-	   (set-specifier menubar-visible-p nil (current-buffer)))))
+	(proof-map-buffers
+	 (list proof-response-buffer proof-goals-buffer proof-trace-buffer)
+	 (set-specifier default-toolbar-visible-p nil (current-buffer))
+	 ;; (set-specifier minibuffer (minibuffer-window) (current-buffer))
+	 (set-specifier has-modeline-p nil (current-buffer))
+	 (set-specifier menubar-visible-p nil (current-buffer))
+	 ;; gutter controls buffer tab visibility in XE 21.4
+	 (and (boundp 'default-gutter-visible-p)
+	      (set-specifier default-gutter-visible-p nil (current-buffer)))))
     ;; Try to trigger re-display of goals/response buffers,
     ;; on next interaction.  
     ;; FIXME: would be nice to do the re-display here, rather
