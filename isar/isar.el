@@ -203,7 +203,7 @@
    proof-save-command		"qed"
    proof-context-command	"print_context"
    proof-info-command		"help"
-   proof-kill-goal-command	"kill_proof;"
+   proof-kill-goal-command	"ProofGeneral.kill_proof;"
    proof-find-theorems-command  "thms_containing %s;"
    ;; command hooks
    proof-goal-command-p		'isar-goal-command-p
@@ -250,7 +250,7 @@
    proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle/Isar by modifying print functions etc.
    proof-shell-init-cmd                 (isar-verbatim "ProofGeneral.init true;")
-   proof-shell-restart-cmd		"init_toplevel; touch_all_thys; welcome;"
+   proof-shell-restart-cmd		"ProofGeneral.restart;"
    proof-shell-quit-cmd			(isar-verbatim "quit();")
    
    proof-shell-eager-annotation-start   "\360\\|\362"
@@ -287,29 +287,35 @@
    proof-shell-retract-files-regexp
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
-   )
-  (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting)
-  )
+   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\";"
+   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\";")
+  (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting))
 
 
 ;;;
 ;;; Theory loader operations
 ;;;
 
-(defun isar-remove-file (name files)
+(defun isar-remove-file (name files cmp-base)
   (if (not files) nil
-    (let ((file (car files)) (rest (cdr files)))
-      (if (string= (file-name-nondirectory file) name)
-        (isar-remove-file name rest)
-      (cons file (isar-remove-file name rest))))))
+    (let*
+	((file (car files))
+	 (rest (cdr files))
+	 (same (if cmp-base (string= name (file-name-nondirectory file))
+		 (string= name file))))
+      (if same (isar-remove-file name rest cmp-base)
+	(cons file (isar-remove-file name rest cmp-base))))))
 
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
 This is called when Proof General spots output matching
 proof-shell-retract-files-regexp."
-  (isar-remove-file
-   (file-name-nondirectory (file-truename (match-string 1 str)))
-   proof-included-files-list))
+  (let*
+      ((name (match-string 1 str))
+       (base-name (file-name-nondirectory name)))
+    (if (string= name base-name)
+	(isar-remove-file name proof-included-files-list t)
+      (isar-remove-file (file-truename name) proof-included-files-list nil))))
 
 (defun isar-activate-scripting ()
   "Make sure the Isabelle/Isar toplevel is in a sane state.")
@@ -363,16 +369,6 @@ proof-shell-retract-files-regexp."
    (t 
     ;; Proof mode does that automatically.
     (isar-proofscript-mode))))
-
-;; FIXME: could test that the buffer isn't already locked.
-;; FIXME remove?
-(defun isar-process-thy-file (file)
-  "Process the theory file FILE.  If interactive, use buffer-file-name."
-  (interactive (list buffer-file-name))
-  (save-some-buffers)
-  (proof-shell-invisible-command 
-   (format isar-use-thy-only-command
-	   (file-name-sans-extension file))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
