@@ -150,8 +150,8 @@ generic Emacs interface for proof assistants.
 
 Proof General @value{version} has been tested with XEmacs
 @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}.  It is
-supplied ready customized for the proof assistants Coq, Lego, and
-Isabelle.
+supplied ready customized for the proof assistants Coq, Lego, 
+Isabelle, and HOL.
 
 @menu
 * Preface::                     
@@ -165,6 +165,7 @@ Isabelle.
 * LEGO Proof General::          
 * Coq Proof General::           
 * Isabelle Proof General::    
+* HOL Proof General::
 * Adapting Proof General to Other Provers::  
 * Internals of Proof General::  
 * Obtaining and Installing::  
@@ -187,8 +188,15 @@ This preface has some news about the current release, as well as some
 history about previous releases, and acknowledgements to those who have
 helped along the way.
 
+Proof General has a home page at
+@uref{http://www.lfcs.informatics.ed.ac.uk/proofgen}.  
+Visit this page for the latest version of this manual,
+other documentation, system downloads, etc.
+
+
 @menu
 * Latest news::                     
+* News for 3.0::                     
 * History::                     
 * Credits::                     
 @end menu
@@ -197,6 +205,25 @@ helped along the way.
 @node Latest news
 @unnumberedsec Latest news
 @cindex news
+
+Proof General 3.1 is mainly a bug-fix improvement over version 3.0.  It
+solves a few minor problems which came to light since the final testing
+stages for 3.0.  It also solves some compatibility problems, so now it
+works with various versions of Emacs which we hadn't tested with before
+(non-mule FSF Emacs, certain Japanese Emacs versions).
+
+We're also pleased to annouce HOL Proof General, a new instance of Proof
+General for HOL98.  This is supplied as a "technology demonstration"
+for HOL users in the hope that somebody from the HOL community will
+adopt it and become an official maintainer and developer.  (Otherwise
+work on HOL Proof General will not continue).
+
+Apart from that there are a few other small improvements.  Check the
+CHANGES file in the distribution for full details.
+
+
+@node News for 3.0
+@unnumberedsec News for 3.0
 
 Proof General 3.0 has many improvements over 2.x releases.
 
@@ -261,9 +288,6 @@ A new instantiation of Proof General is being worked on for
 @emph{Plastic}, a proof assistant being developed at the University of
 Durham.
 
-Proof General has a home page at
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen}.  Visit this page for
-more news!
 
 
 @node History
@@ -334,7 +358,7 @@ reorganizing the file structure to disentangle the Proof General project
 from LEGO at last.  He cooked up some images and bolted on a toolbar, so
 a naive user can replay proofs without knowing a proof assistant
 language or even Emacs hot-keys.  He also designed some web pages, and
-wrote most of this new manual.  
+wrote most of this manual.  
 
 Proof General 2.0 was the first official release of the improved
 program, made in December 1998.
@@ -355,7 +379,7 @@ encouragement to make the improvements now in Proof General 3.0.
 @cindex @code{lego-mode}
 @cindex maintenance
 
-The main developers of Proof General are
+The main developers of Proof General have been:
 
 @itemize @bullet
 @item @b{David Aspinall},
@@ -398,18 +422,29 @@ file variables.
 
 The Proof General project has benefited from funding by EPSRC
 (Applications of a Type Theory Based Proof Assistant), the EC (Types for
-Proofs and Programs) and the support of the LFCS.  
+Proofs and Programs) and the support of the LFCS.  Version 3.1 was
+prepared whilst David Aspinall was visiting ETL, Japan, supported by the
+British Council.
 
-For testing and feedback for previous versions of Proof General, thanks
-go to Pascal Brisset, Rod Burstall, Martin Hofmann, and James McKinna.
+For testing and feedback for older versions of Proof General, thanks go
+to Rod Burstall, Martin Hofmann, and James McKinna, as well as some
+those who continued to help with the latest 3.x series.
 
 @c FIXME HERE!
-During the development of Proof General 3.0, many people helped provide
-testing and other feedback, including the Proof General maintainers,
+During the development of Proof General 3.x releases, 
+many people helped provide testing and other feedback, 
+including the Proof General maintainers,
 Paul Callaghan, Pierre Courtieu, and Markus Wenzel, and other folk who
-helpfully tested and reported on pre-releases, including Matt
-Fairtlough, John Longley, Tobias Nipkow, Leonor Prensa-Nieto, and David
-von Oheimb.  Thanks to all of you!
+tested pre-releases or sent bug reports, including 
+Pascal Brisset,
+Martin Buechi,
+Matt Fairtlough, 
+John Longley, 
+Tobias Nipkow, 
+Leonor Prensa-Nieto, 
+David von Oheimb,
+and 
+Randy Pollack.  Thanks to all of you!
 
 
 
@@ -472,11 +507,12 @@ Proof General may have been installed for you already. If so, when you
 visit a proof script file for your proof assistant, the corresponding
 Proof General mode will be invoked automatically: 
 @multitable @columnfractions .3 .3 .4
-@item       @b{Prover}    @tab @b{Extensions} @tab @b{Modes}
+@item       @b{Prover}    @tab @b{Extensions} @tab @b{Mode}
 @item       LEGO          @tab @file{.l}      @tab @code{lego-mode}
 @item       Coq           @tab @file{.v}      @tab @code{coq-mode}
 @item       Isabelle      @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
 @item       Isabelle/Isar @tab @file{.thy}    @tab @code{isar-mode}
+@item       HOL98         @tab @file{.sml}    @tab @code{hol98-mode}
 @end multitable
 You can also invoke the mode command directly, e.g., type 
 @kbd{M-x lego-mode}, to turn a buffer into a lego script buffer.
@@ -618,6 +654,9 @@ Proof General comes ready-customized for these proof assistants:
 @b{Isabelle/Isar Proof General} for Isabelle99@*
 @xref{Isabelle Proof General}, and documentation suplied with
 Isabelle for more details.
+@item 
+@b{HOL Proof General} for HOL98@*
+@xref{HOL Proof General}, for more details.
 @end itemize
 Proof General is designed to be generic, so if you know how
 to write regular expressions, you can make:
@@ -1818,6 +1857,17 @@ X-Symbol package and support has been provided in Proof General for a
 token language for your proof assistant.
 The X-Symbol package is available from
 @uref{http://www.fmi.uni-passau.de/~wedler/x-symbol/}.
+
+Notice that for proper symbol support, the proof assistant needs to have
+a special @i{token language}, or a special character set, to use
+symbols.  In this case, the proof assistant will output, and accept as
+input, tokens like @code{\longrightarrow}, which display as the
+corresponding symbols.  However, for proof assistants which do not have
+such token support, we can use "fake" symbol support quite effectively,
+displaying ordinary character sequences such as @code{-->} with symbols.
+The only problem with this hack is that it can cause surprising results,
+for example, using symbols for the greek letters can be confusing
+when words like @code{philosophy} appear!
 
 @xref{Configuring X-Symbol}, for notes about how to configure
 a proof assistant to use X-Symbol in Proof General.
@@ -3059,6 +3109,46 @@ You can use the following format characters:
 @c   @code{%t}  -- replaced by theory name
 @c   @code{%p}  -- replaced by names of parents, separated by @code{+}'s
 @c @end defopt
+
+
+
+@c
+@c  CHAPTER: HOL Proof General
+@c
+
+@node HOL Proof General
+@chapter HOL Proof General
+@cindex HOL Proof General
+
+HOL Proof General is a "technology demonstration" of Proof General for
+HOL98.  This means that only a basic instantiation has been provided,
+and that it is not yet supported as a maintained instantiation of Proof
+General.  Hopefully somebody from the HOL community is willing to adopt
+HOL Proof General and support and improve it.  Please volunteer!  It
+needn't be a large or heavy committment.
+
+HOL Proof General may work with variants of HOL other than HOL98, but is
+untested.  Probably a few of the settings would need to be changed in a
+simple way, to cope with small differences in output between the
+systems.  (Please let us know if you modify the HOL98 version for
+another variant of HOL).
+
+HOL Proof General has basic script management support, with a little bit
+of decoration of scripts and output.  It does not rely on a modified
+version of HOL, so the pattern matching may be fragile in certain cases.
+Support for multiple files deduces dependencies automatically, so there
+is no interaction with the HOL make system yet.
+
+Note that HOL proof scripts often use batch-oriented single step tactic
+proofs, but Proof General does not (yet) offer an easy way to edit these
+kind of proofs.  They will replay simply as a single step proof and you
+will need to convert from the interactive to batch form as usual if you
+wish to obtain batch proofs.   Also note that Proof General does not
+contain an SML parser, so are problems if you write complex ML in
+proof scripts. @xref{ML files}, for the same issue with Isabelle.
+
+
+
 
 
 @node Adapting Proof General to Other Provers
