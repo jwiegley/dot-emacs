@@ -577,7 +577,7 @@ proof-shell-retract-files-regexp."
 ;; x-symbol support for Isabelle PG, provided by David von Oheimb.
 ;;
 ;; The following settings configure the generic PG package.
-;; The token language "Isabelle Symbols" is in file x-symbol-isa.el
+;; The token language "Isabelle Symbols" is in file x-symbol-isar.el
 ;;
 
 (setq proof-xsym-font-lock-keywords
