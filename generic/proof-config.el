@@ -1410,6 +1410,21 @@ to do syntax highlighting with font-lock."
 ;; 5c. hooks and hook-related variables
 ;;
 
+(defcustom proof-shell-process-connection-type 
+  ;; Use ptys unless it seems like we're on Solaris.
+  (not (string-match "[sS]un" (or (getenv "ARCH") "")))
+  "The value of process-connection-type for the proof shell.
+Set non-nil for ptys, nil for pipes.
+The default (and preferred) option is to use pty communication.
+However there is a long-standing backslash/long line problem with
+Solaris which gives a mess of ^G characters when some input is sent
+which has a \ in the 256th position.   We do not force pipes everywhere
+because this risks loss of data and some proof assistants do not 
+flush their output by default after each interaction, which breaks 
+pipe communication."
+  :type 'boolean
+  :group 'proof-shell)
+  
 (defcustom proof-shell-insert-hook nil 
   "Hooks run by proof-shell-insert before inserting a command.
 Can be used to configure the proof assistant to the interface in

@@ -42,13 +42,25 @@
   Emacs would freeze when starting proof assistant due to character 
   matching problem.
 
-*** Fix for infamous Solaris ^G problem, now PG uses pipes
+*** Fix for infamous Solaris ^G problem: proof-shell-process-connection-type 
 
-  We now set process-connection-type=nil to force piped communication
-  instead of ptys.  However, ptys are to be prefered over pipes
-  because pipes can become full or lose data.  Please report any
-  problems of this nature you may suspect; if any are found we
-  will only use pipes for Solaris.
+  A user (or proof assistant configuration) can now specify whether
+  to use pty or piped communication.  This is to fix the problem that
+  Solaris users have (because of a Solaris bug), when lots of ^G's
+  appear.  
+  
+  The default setting for proof-shell-process-connection-type is made
+  by examining the ARCH environment variable.  If this contains "sun"
+  then proof-shell-process-connection-type is set to nil for using
+  pipes.  Otherwise we use ptys which are to be prefered over pipes
+  because pipes can become full or lose data, and pipes don't work
+  which some proof assistants.
+
+  If necessary, you can override this by customization, as usual.
+  
+*** Added new configuration hook:  proof-shell-pre-interrupt-hook
+
+  This is 
 
 ** Coq Changes
 
@@ -59,6 +71,8 @@
 
 
 ** Isabelle Changes
+
+***
 
 
 ** Isar Changes

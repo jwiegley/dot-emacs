@@ -222,16 +222,7 @@ Does nothing if proof assistant is already running."
 	      ;; Split on spaces: FIXME: maybe should be whitespace.
 	      " "))
 
-	    ;; Experimental fix for backslash/long line problem with
-	    ;; Solaris.  Make start-process (called by make-comint)
-	    ;; use a pipe, not a pty, by setting process-connection-type=nil.
-	    ;; It seems to work, but has known disadvantages.  
-	    ;; (I've forgotten what they are, size problems?).
-	    (process-connection-type 
-	     ;; FIXME: might be good to test for Solaris here to use
-	     ;; pty's on Linux as not problematic.
-	     nil))
-
+	    (process-connection-type proof-shell-process-connection-type))
 
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we 
