@@ -143,7 +143,7 @@
 
 (defvar thy-mode-map nil)
 
-(defun thy-add-menus 
+(defun thy-add-menus ()
   "Add Proof General and Isabelle menu to current menu bar."  
   (require 'proof-script)    
   (require 'proof-x-symbol)
