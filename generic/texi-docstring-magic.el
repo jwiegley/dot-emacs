@@ -265,7 +265,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
        (concat "@code{" text "}.\n")))))
  
 
-(defun texi-docstring-magic-texi-for (symbol)
+(defun texi-docstring-magic-texi-for (symbol &optional noerror)
   (cond
    ;; Faces
    ((texi-docstring-magic-find-face symbol)
@@ -317,6 +317,9 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 	(texi-docstring-magic-texi "fn" "Macro" name docstring args))
        (t
 	(texi-docstring-magic-texi "un" nil name docstring args)))))
+   (noerror 
+    (message "Warning: symbol `%s' not defined" (symbol-name symbol))
+    "")
    (t
     (error "Don't know anything about symbol %s" (symbol-name symbol)))))
 
@@ -326,29 +329,39 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 
 
 ;;;###autoload
-(defun texi-docstring-magic ()
-  "Update all texi docstring magic annotations in buffer."
-  (interactive)
+(defun texi-docstring-magic (&optional noerror)
+  "Update all texi docstring magic annotations in buffer.
+With prefix arg, no errors on unknown symbols.  (This results in
+@def .. @end being deleted if not known)."
+  (interactive "P")
   (save-excursion
     (goto-char (point-min))
     (let ((magic (concat "^"
 			 (regexp-quote texi-docstring-magic-comment)
-			 "\\s-*\\(\\(\\w\\|\\-\\)+\\)\\s-*$"))
+			 "\\s-*\\(\\(\\w\\|\\-\\)+\\)[ \t]*$"))
 	  p
-	  symbol)
+	  symbol
+	  deleted)
       (while (re-search-forward magic nil t)
 	(setq symbol (intern (match-string 1)))
 	(forward-line)
 	(setq p (point))
+	;; delete any whitespace following magic comment
+	(skip-chars-forward " \n\t")
+	(delete-region p (point))
 	;; If comment already followed by an environment, delete it.
 	(if (and
 	     (looking-at "@def\\(\\w+\\)\\s-")
 	     (search-forward (concat "@end def" (match-string 1)) nil t))
 	    (progn
 	      (forward-line)
-	      (delete-region p (point))))
+	      (delete-region p (point))
+	      (setq deleted t)))
 	(insert 
-	 (texi-docstring-magic-texi-for symbol))))))
+	 (texi-docstring-magic-texi-for symbol noerror))
+	(unless deleted
+	  ;; Follow newly inserted @def with a single blank.
+	  (insert "\n"))))))
 
 (defun texi-docstring-magic-face-at-point ()
   (ignore-errors
