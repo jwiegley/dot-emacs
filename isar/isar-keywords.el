@@ -29,11 +29,11 @@
     "cd"
     "clear_undo"
     "exit"
+    "init_toplevel"
     "kill"
     "kill_proof"
     "quit"
     "redo"
-    "restart"
     "undo"
     "undos_proof"))
 
@@ -51,18 +51,23 @@
     "print_theory"
     "prop"
     "pwd"
+    "remove_thy"
     "term"
     "thm"
+    "touch_all_thys"
+    "touch_thy"
     "typ"
     "update_thy"
+    "update_thy_only"
     "use"
     "use_thy"
     "use_thy_only"))
 
 (defconst isar-keywords-theory-begin
-  '("context"
-    "theory"
-    "update_context"))
+  '("theory"))
+
+(defconst isar-keywords-theory-switch
+  '("context"))
 
 (defconst isar-keywords-theory-end
   '("end"))
@@ -89,6 +94,7 @@
     "defs"
     "global"
     "inductive"
+    "inductive_cases"
     "lemmas"
     "local"
     "nonterminals"
