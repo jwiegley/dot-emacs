@@ -8,9 +8,6 @@
 ;;
 
 
-;; FIXME: this must be done before loading proof-config, shame.
-(setq proof-tags-support nil) ; no isatags prog, yet.
-
 ;; Add Isabelle image onto splash screen
 (customize-set-variable
  'proof-splash-extensions
@@ -210,7 +207,8 @@
    proof-really-save-command-p	'isar-global-save-command-p
    proof-count-undos-fn		'isar-count-undos
    proof-find-and-forget-fn	'isar-find-and-forget
-   proof-goal-hyp-fn		'isar-goal-hyp
+   ;; da: for pbp.  
+   ;; proof-goal-hyp-fn		'isar-goal-hyp
    proof-state-preserving-p	'isar-state-preserving-p
    proof-script-indent          t
    proof-parse-indent		'isar-parse-indent
@@ -240,10 +238,9 @@
    ;; matches names of assumptions
    proof-shell-assumption-regexp	isar-id
    ;; matches subgoal name
-   ;; FIXME: proof-shell-goal-regexp is *not* used at the generic level!
-   ;;        Perhaps it should be renamed to isar-goal-regexp and be
-   ;;        set somewhere else.  
-   proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
+   ;; da: not used at the moment, maybe after 3.0 used for
+   ;; proof-generic-goal-hyp-fn to get pbp-like features.
+   ;; proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
 
    proof-shell-start-goals-regexp	"\366\n"
    proof-shell-end-goals-regexp		"\367"
@@ -471,9 +468,10 @@ proof-shell-retract-files-regexp."
 ;; that aspect for now and just return the
 ;; subgoal number.
 ;; MMW FIXME: ??
-(defun isar-goal-hyp ()
-  (if (looking-at proof-shell-goal-regexp)
-      (cons 'goal (match-string 1))))
+; da: should be safe to remove this now.
+; (defun isar-goal-hyp ()
+;  (if (looking-at proof-shell-goal-regexp)
+;      (cons 'goal (match-string 1))))
 
 (defun isar-state-preserving-p (cmd)
   "Non-nil if command preserves the proofstate."
@@ -573,5 +571,21 @@ proof-shell-retract-files-regexp."
   (setq font-lock-keywords isar-output-font-lock-keywords-1)
   (isar-outline-setup)
   (proof-goals-config-done))
+
+;; =================================================================
+;;
+;; x-symbol support for Isabelle PG, provided by David von Oheimb.
+;;
+;; The following settings configure the generic PG package.
+;; The token language "Isabelle Symbols" is in file x-symbol-isa.el
+;;
+
+(setq proof-xsym-font-lock-keywords
+      '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
+      proof-xsym-activate-command
+      "ML {* print_mode := (!print_mode union [\"xsymbols\",\"symbols\"]) *};"
+      proof-xsym-deactivate-command
+      "ML {* print_mode := filter_out (fn x=>(rev (explode \"symbols\") prefix rev (explode x))) (!print_mode) *};")
+
 
 (provide 'isar)
