@@ -230,7 +230,11 @@ See -k option for Isabelle interface script."
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
-   proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies are: \\(.*\\)"
+
+   ;; Theorem dependencies.   NB: next regex anchored at end with eager annot end
+   proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\361"
+   proof-shell-theorem-dependency-list-split "\" \""
+   proof-shell-show-dependency-cmd "thm %s;"
 
    ;; Allow font-locking for output based on hidden annotations, see
    ;; isar-output-font-lock-keywords-1
