@@ -239,8 +239,9 @@ A new instantiation of Proof General is being worked on for
 @emph{Plastic}, a proof assistant being developed at the University of
 Durham.
 
-Proof General has a @uref{http://zermelo.dcs.ed.ac.uk/home/proofgen,home
-page} hosted at Edinburgh.  Visit this page for more news!
+Proof General has a home page at
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen}.  Visit this page for
+more news!
 
 
 @node History
@@ -314,7 +315,14 @@ language or even Emacs hot-keys.  He also designed some web pages, and
 wrote most of this new manual.  
 
 Proof General 2.0 was the first official release of the improved
-program.  
+program, made in December 1998.
+
+Version 2.1 was released in August 1999.  It was used at the Types
+Summer School held in Giens, France in September 1999 (see
+@uref{http://www-sop.inria.fr/types-project/types-sum-school.html}).
+About 50 students learning Coq, Isabelle, and LEGO used Proof General
+for all three systems.  This experience provided invaluable feedback and
+encouragement to make the improvements now in Proof General 3.0.
 
 Why not adapt Proof General to your favourite proof assitant?
 
@@ -515,7 +523,7 @@ and @ref{Display customization}.
 
 
 @item @i{Script management}@*
-Proof General colours proof script regions blue when they have already
+Proof General colours proof script regions blue when they have 
 been processed by the prover, and colours regions red when the prover is
 currently processing them.  The appearance of Emacs buffers always
 matches the proof assistant's state. Coloured parts of the buffer cannot
@@ -544,13 +552,15 @@ General.
 For more details, see @ref{Toolbar commands}, @ref{Proof assistant
 commands}, and @ref{Customizing Proof General}.
 
-@item @i{Proof by pointing}
+@item @i{Proof by pointing}@*
 Proof General has support for proof-by-pointing and similar features.
-Proof by pointing allows you to click on a subterm of a goal to
-be proved, and automatically apply an appropriate proof rule or
-tactic.   Proof by pointing is specific to the proof assistant
-(and logic) in use; therefore it is configured mainly on the
-proof assistant side.  
+Proof by pointing allows you to click on a subterm of a goal to be
+proved, and automatically apply an appropriate proof rule or tactic.
+Proof by pointing is specific to the proof assistant (and logic) in use;
+therefore it is configured mainly on the proof assistant side.  If you
+would like to see proof by pointing support for Proof General in a
+particular proof assistant, petition the developers of the proof
+assistant to provide it.
 @c Proof General expects to parse
 @c term-structure annotations on the output syntax of the prover.
 @c It uses these to construct a message to the prover indicating
@@ -612,7 +622,8 @@ of a common interface mechanism.
 To get more from Proof General and adapt it to your liking, it helps to
 know a little bit about how Emacs lisp packages can be customized via
 the Customization mechanism.  It's really easy to use.  For details,
-@xref{How to customize}, and @inforef{Easy customization, ,(xemacs)}.
+see @ref{How to customize}.  @inforef{Easy customization, ,(xemacs)},
+for documentation in XEmacs.
 
 To get the absolute most from Proof General, to improve it or to adapt
 it for new provers, you'll need to know a little bit of Emacs lisp.
@@ -878,7 +889,7 @@ proofs which look something like this:
 interspersed with comments, definitions, and the like.  Of course, the
 exact syntax and terminology will depend on the proof assistant you use.
 
-The name @var{mythm} can appear in the menu for the proof script to help
+The name @var{mythm} can appear in a menu for the proof script to help
 quickly find a proof (@pxref{Support for function menus}).
 
 @c Proof General recognizes the goal-save sequences in proof scripts.
@@ -940,10 +951,9 @@ proof arbitrarily between different buffers; the dependency between the
 commands would be lost and it would be tricky to replay the proof.
 Second, we want to interface with file management in the proof
 assistant.  Proof General assumes that a proof assistant may have a
-notion of which files have been processed, but that the assistant will
-only record files that have been @i{completely} processed.  For more
-explanation of the handling of multiple files, @xref{Switching between
-proof scripts}.
+notion of which files have been processed, but that it will only record
+files that have been @i{completely} processed.  For more explanation of
+the handling of multiple files, @xref{Switching between proof scripts}.
 
 @c TEXI DOCSTRING MAGIC: proof-toggle-active-scripting
 @deffn Command proof-toggle-active-scripting &optional arg
@@ -1990,10 +2000,10 @@ If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!).
 
-If you change @code{proof-strict-read-only} during a session, you must use
-@lisp
-"Restart" (@code{proof-shell-restart})
-@end lisp
+If you change @code{proof-strict-read-only} during a session, you must 
+use the "Restart" button (or M-x @code{proof-shell-restart}) before
+you can see the effect in buffers.
+
 The default value for @code{proof-strict-read-only} depends on which
 version of Emacs you are using.  In FSF Emacs, strict read only is buggy
 when it used in conjunction with font-lock, so it is disabled by default.
@@ -2168,7 +2178,9 @@ The default value is @code{""}.
 The fonts and colours that Proof General uses are configurable.  If you
 alter these through the customize menus, only the particular kind of
 display in use (colour window system, monochrome window system, console,
-@dots{}) will be affected.
+@dots{}) will be affected.  This means you can keep default settings for
+each different display environment you use Proof General in.
+
 
 @c TEXI DOCSTRING MAGIC: proof-queue-face
 @deffn Face proof-queue-face 
@@ -2266,15 +2278,17 @@ scripting, and the group @code{proof-shell} contains those for
 interacting with the proof assistant.
 
 Unfortunately, although you can use the customization mechanism to set
-and save these variables, saving them may have no effect because the
-default settings are often hard-wired into the proof assistant code.
-Ones we expect may need changing appear as proof assistant specific
-configurations.  For example, @code{proof-assistant-home-page} is set in
-the LEGO code from the value of the customization setting
-@code{lego-www-home-page}.  At present there is no easy way to save
-changes to other configuration variables across sessions, other than by
-editing the source code.  Please contact us if this proves to be a
-problem for any variable.
+and save these variables, saving them may have no practical effect
+because the default settings are mostly hard-wired into the proof
+assistant code.  Ones we expect may need changing appear as proof
+assistant specific configurations.  For example,
+@code{proof-assistant-home-page} is set in the LEGO code from the value
+of the customization setting @code{lego-www-home-page}.  At present
+there is no easy way to save changes to other configuration variables
+across sessions, other than by editing the source code.  (In future
+versions of Proof General, we plan to make all settings editable in
+Customize, by shadowing all the settings as prover specific ones).
+@c Please contact us if this proves to be a problem for any variable.
 
 
 
@@ -2543,7 +2557,7 @@ Proof General, including integration with Isabelle's theory
 loader, for proper automatic multiple file handling.
 
 It includes a mode for editing theory files taken from David Aspinall's
-Isamode interface, @uref{http://www.dcs.ed.ac.uk/home/da/Isamode}.
+Isamode interface, see @uref{http://www.dcs.ed.ac.uk/home/da/Isamode}.
 Detailed documentation for the theory file mode is included with
 @code{Isamode}, there are some notes on the special functions available
 and customization settings below.
@@ -2566,7 +2580,7 @@ completely unlocked, because they are processed atomically.
 
 Proof General tries to load the theory file for a @file{.ML} file
 automatically before you start scripting.  This relies on new support
-built especially for Proof General into Isabelle99's theory loader.
+especially for Proof General built into Isabelle99's theory loader.
 
 However, because scripting cannot begin until the theory is loaded, and
 it should not begin if an error occurs during loading the theory, Proof
@@ -2713,7 +2727,8 @@ per-prover basis to configure the various features.  It may sound like a
 lot but don't worry!  Many of the variables occur in pairs (typically
 regular expressions matching the start and end of some text), and you
 can begin by setting just a few variables to get the basic features of
-script management working.
+script management working.  Less than half of the settings documented
+here need to be set to get a working prototype.
 
 For more advanced features you may need (or want) to write some Emacs
 Lisp.  If you're adding new functionality please consider making it
@@ -3499,9 +3514,9 @@ a symbol, set to the callback command which is executed in the proof
 shell filter once @samp{string} has been processed.  The @samp{action} variable
 suggests what class of command is about to be inserted:
 @lisp
- @code{'proof-done-invisible}      A non-scripting command
- @code{'proof-done-advancing}            A "forward" scripting command
- @code{'proof-done-retracting}           A "backward" scripting command
+ @code{'proof-done-invisible}       A non-scripting command
+ @code{'proof-done-advancing}       A "forward" scripting command
+ @code{'proof-done-retracting}      A "backward" scripting command
 @end lisp
 Caveats: You should be very careful about setting this hook.  Proof
 General relies on a careful synchronization with the process between
