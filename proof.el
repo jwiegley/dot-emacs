@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.41  1998/05/12 14:53:14  hhg
+;; Added hook `proof-shell-insert-hook', to replace `proof-shell-config'.
+;;
 ;; Revision 1.40  1998/05/08 17:10:11  hhg
 ;; Made separated indentation more elegant:
 ;; Made proof-assistant specific code into separate procedure,
@@ -255,7 +258,7 @@
 (defvar proof-prog-name nil "program name for proof shell")
 (defvar proof-mode-for-shell nil "mode for proof shell")
 (defvar proof-mode-for-pbp nil "The actual mode for Proof-by-Pointing.")
-(defvar proof-shell-config nil 
+(defvar proof-shell-insert-hook nil 
   "Function to config proof-system to interface")
 
 (defvar proof-pre-shell-start-hook)
@@ -471,7 +474,7 @@
       (proof-init-segmentation)
       (setq proof-active-buffer-fake-minor-mode t)
       ;; emacs19 doesn't have this command
-      (cond (running-xemacs (redraw-modeline)))
+      (and (fboundp 'redraw-modeline) (redraw-modeline))
 
       (or (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
 	  (setq minor-mode-alist
@@ -702,13 +705,12 @@
 (defun proof-pbp-focus-on-first-goal ()
   "If the `proof-pbp-buffer' contains goals, the first one is brought
   into view."
-  (cond (running-xemacs
-	 (let
-	     ((pos (map-extents 'proof-goals-pos proof-pbp-buffer
+  (and (fboundp 'map-extents)
+       (let
+	   ((pos (map-extents 'proof-goals-pos proof-pbp-buffer
 			      nil nil nil nil 'proof-top-element)))
-	   (and pos (set-window-point
-		     (get-buffer-window proof-pbp-buffer t) pos))))
-	(t nil)))
+	 (and pos (set-window-point
+		   (get-buffer-window proof-pbp-buffer t) pos)))))
 
 ;;   The basic output processing function - it can return one of 4  ;;  
 ;;   things: 'error, 'interrupt, 'loopback, or nil. 'loopback means ;;
@@ -760,8 +762,9 @@
 (defun proof-shell-insert (string)
   (set-buffer proof-shell-buffer)
   (goto-char (point-max))
-  
-  (insert (if proof-shell-config (funcall proof-shell-config) "") string)
+
+  (run-hooks 'proof-shell-insert-hook)
+  (insert string)
 
   ;; xemacs and emacs19 have different semantics for what happens when
   ;; shell input is sent next to a marker
@@ -1342,8 +1345,8 @@ deletes the region corresponding to the proof sequence."
 	      (setq stack (cons (list c (point)) stack)))
 	     ((or (eq c ?\)) (eq c ?\]))
 	      (setq stack (cdr stack)))
-	     (t (if proof-parse-indent
-		    (setq stack (funcall proof-parse-indent c stack)))))))
+	     (proof-parse-indent
+	      (setq stack (funcall proof-parse-indent c stack))))))
 	(forward-char))
     (list instring comment-level stack))))
       
@@ -1496,7 +1499,7 @@ current command."
  (setq proof-active-terminator-minor-mode
         (if (null arg) (not proof-active-terminator-minor-mode)
           (> (prefix-numeric-value arg) 0)))
-   (if (fboundp 'redraw-modeline) (redraw-modeline) (redraw-modeline)))
+   (and (fboundp 'redraw-modeline) (redraw-modeline)))
 
 (defun proof-active-terminator ()
   (interactive)
@@ -1554,15 +1557,14 @@ current command."
 		"\\|" (regexp-quote proof-comment-end)))
 
 ;; func-menu --- Jump to a goal within a buffer
-  (cond (running-xemacs
-	 (and (boundp 'fume-function-name-regexp-alist)
-	      (defvar fume-function-name-regexp-proof
-		(cons proof-goal-with-hole-regexp 2))
-	      (push (cons major-mode 'fume-function-name-regexp-proof)
-		    fume-function-name-regexp-alist))
-	 (and (boundp 'fume-find-function-name-method-alist)
-	      (push (cons major-mode 'fume-match-find-next-function-name)
-		    fume-find-function-name-method-alist))))
+  (and (boundp 'fume-function-name-regexp-alist)
+       (defvar fume-function-name-regexp-proof
+	 (cons proof-goal-with-hole-regexp 2))
+       (push (cons major-mode 'fume-function-name-regexp-proof)
+	     fume-function-name-regexp-alist))
+  (and (boundp 'fume-find-function-name-method-alist)
+       (push (cons major-mode 'fume-match-find-next-function-name)
+	     fume-find-function-name-method-alist))
 
 ;; keymap
 
@@ -1600,7 +1602,8 @@ current command."
 
 ;; if we don't have the following, zap-commas fails to work.
 
-  (cond (running-xemacs (setq font-lock-always-fontify-immediately t))))
+  (and (boundp 'font-lock-always-fontify-immediately)
+       (setq font-lock-always-fontify-immediately t)))
 
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof shell mode - not standalone"
