@@ -4072,62 +4072,14 @@ the @file{coq} directory in the Proof General home directory.
 @node Known bugs and workarounds
 @appendix Known bugs and workarounds
 
-We mention a few of the known problems with the generic portion of Proof
-General here.  This is not a description of all bugs/problems known.
+This appendix has been removed!
+
 Please consult the file
 @uref{http://www.proofgeneral.org/ProofGeneral/BUGS,@file{BUGS}} in the
-distribution for more detailed and up-to-date information.  @*
+distribution for an up-to-date description bugs and other issues.
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
 let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
-
-@menu
-* Bugs at the generic level::   
-@end menu
-
-@node Bugs at the generic level
-@section Bugs at the generic level
-
-@subsection Undo in XEmacs
-
-When @code{proof-strict-read-only} is non-nil, ordinary undo in the
-script buffer can edit the "uneditable region" in XEmacs.  This doesn't
-happen in GNU Emacs.  Test case: Insert some nonsense text after the
-locked region.  Kill the line. Process to the next command.  Press
-@kbd{C-x u}, nonsense text appears in locked region.
-
-@strong{Workaround:} be careful with undo.
-
-@subsection Font locking and read-only in GNU Emacs
-
-When @code{proof-strict-read-only} is set and font lock is switched on,
-spurious "Region read only" errors are given which break font lock.
-
-@strong{Workaround:} turn off @code{proof-strict-read-only}, font lock,
-or for the best of all possible worlds, switch to XEmacs.
-
-
-@subsection  Pressing keyboard quit @kbd{C-g}
-
-Using @kbd{C-g} can leave script management in a mess.  The code is not
-properly protected from Emacs interrupts.
-
-@strong{Workaround:} Don't type @kbd{C-g} while script management is
-processing.  If you do, use @code{proof-shell-restart} to restart
-the system.
-
-@c da: Removed 11.12.98: since PG handles this gracefully now,
-@c I no longer consider it a bug really.
-@c @subsection One prover at a time
-@c You can't use more than one proof assistant at a time in the same Emacs
-@c session.  Attempting to load Proof General for a second prover will
-@c fail, leaving a buffer in fundamental mode instead of the Proof General
-@c mode for proof scripts.
-
-@c @strong{Workaround:} stick to one prover per Emacs session, make sure
-@c that the @code{proof-assistants} variable only enables Proof General
-@c for the provers you need.
-
 
 @node References
 @unnumbered References
