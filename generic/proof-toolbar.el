@@ -437,13 +437,14 @@ changed state."
 (defalias 'proof-toolbar-find 'proof-find-theorems)
 
 ;;
-;; Visible button (not on toolbar)
+;; Show and hide buttons (not on toolbar)
 ;;
  
-(defun proof-toolbar-visible-enable-p () 
-  t)
+(defun proof-toolbar-show-enable-p () t)
+(defalias 'proof-toolbar-show 'pg-show-all-proofs)
 
-(defalias 'proof-toolbar-visible 'pg-show-all-proofs)
+(defun proof-toolbar-hide-enable-p () t)
+(defalias 'proof-toolbar-hide 'pg-hide-all-proofs)
 
 
 
