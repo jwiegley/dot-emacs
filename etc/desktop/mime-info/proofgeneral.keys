@@ -1,0 +1,4 @@
+application/proofgeneral
+	open=proofgeneral %f &
+	view=proofgeneral %f &
+        icon-filename=/usr/share/pixmaps/proofgeneral.png
