@@ -10,7 +10,7 @@ a patch...)
 ** X-Symbol probs with Isabelle
    -- \<tokens> don't immediately get decoded
    -- latin1 chars get saved in file
-   -- superscripts/subscripts broken
+   -- superscripts/subscripts not fully working [menu option] 
 
 
 
