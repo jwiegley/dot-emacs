@@ -833,6 +833,9 @@ Then we call `proof-shell-handle-error-hook'. "
 		   (get-buffer-window proof-goals-buffer t) pos)))))
 
            
+(defsubst proof-shell-string-match-safe (regexp string &optional start buffer)
+  "Like string-match except returns nil if REGEXP is nil."
+  (and regexp (string-match regexp string start buffer)))
 
 (defun proof-shell-process-output (cmd string)
   "Process shell output (resulting from CMD) by matching on STRING.
@@ -852,27 +855,26 @@ This function - it can return one of 4 things: 'error, 'interrupt,
 should be inserted into the script buffer and sent back to the proof
 assistant."
   (cond
-   ((string-match proof-shell-interrupt-regexp string)
+   ((proof-shell-string-match-safe proof-shell-interrupt-regexp string)
     'interrupt)
 
-   ((string-match proof-shell-error-regexp string)
+   ((proof-shell-string-match-safe proof-shell-error-regexp string)
     (cons 'error (proof-shell-strip-annotations
 		  (substring string
 			     (match-beginning 0)))))
 
-   ((and proof-shell-abort-goal-regexp
-	 (string-match proof-shell-abort-goal-regexp string))
+   ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
     (proof-clean-buffer proof-goals-buffer)
-   (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
+    (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
     ())
 	 
-   ((string-match proof-shell-proof-completed-regexp string)
+   ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
     (proof-clean-buffer proof-goals-buffer)
     (setq proof-shell-proof-completed t)
     (setq proof-shell-delayed-output
 	  (cons 'insert (concat "\n" (match-string 0 string)))))
 
-   ((string-match proof-shell-start-goals-regexp string)
+   ((proof-shell-string-match-safe proof-shell-start-goals-regexp string)
     (setq proof-shell-proof-completed nil)
     (let (start end)
       (while (progn (setq start (match-end 0))
@@ -882,7 +884,7 @@ assistant."
       (setq proof-shell-delayed-output 
 	    (cons 'analyse (substring string start end)))))
        
-   ((string-match proof-shell-result-start string)
+   ((proof-shell-string-match-safe proof-shell-result-start string)
     (setq proof-shell-proof-completed nil)
     (let (start end)
       (setq start (+ 1 (match-end 0)))
@@ -890,8 +892,8 @@ assistant."
       (setq end (- (match-beginning 0) 1))
       (cons 'loopback (substring string start end))))
    
-   ;; hook to tailor proof-shell-process-output to a specific proof
-   ;; system  
+   ;; Hook to tailor proof-shell-process-output to a specific proof
+   ;; system, in the case that all the above matches fail.
    ((and proof-shell-process-output-system-specific
 	 (funcall (car proof-shell-process-output-system-specific)
 		  cmd string))
