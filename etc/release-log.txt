@@ -1,5 +1,6 @@
 24.03.00  3.1.1 Release 3-1-1
 	  Added more fixes for Isabelle and Windows.
+	  Fixes for Windows, using proper colours, etc.
 	  Markus's Isar syntax patches.
 
 

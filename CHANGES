@@ -99,6 +99,10 @@
   Added for Coq, Isabelle, and HOL.  
   [Reported by Kim Hyung Ho]
 
+**** Fixes for Windows
+  Solve some bizarre file reading problems (some still remain, buggy XEmacs?)
+  Add default colours for using in Windows.
+
 
 
 ** Coq Changes
