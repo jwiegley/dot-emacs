@@ -1007,27 +1007,18 @@ proof-shell-exec-loop, to process the next item."
     (set-buffer proof-shell-buffer)
     (goto-char (point-max))
     
-    ;; See docstring for this hook
+    ;; See docstring for this hook: it allows munging of `string'
+    ;; amongst other hacks.
     (run-hooks 'proof-shell-insert-hook)
 
-    ;; Now we replace CRs from string with spaces. This was done in
-    ;; "proof-send" previously and this function 
-    ;; allowed for input with CRs to be sent.  But it was never
-    ;; used.  The only place this was called instead of proof-send
-    ;; was for proof-shell-init-cmd, but now that is sent via 
-    ;; proof-shell-invisible-command instead.
+    ;; Now we replace CRs from string with spaces. This is done
+    ;; in case CRs in the input strip produce spurious prompts.
 
-    ;; HYPOTHESIS da: I don't know why proof-send strips CRs, no 
-    ;; hints were given in the original code. I assume it is needed 
-    ;; because several CR's can result in several prompts, and 
-    ;; we want to stick to the one prompt per output chunk scenario. 
-    ;; (However stripping carriage returns might just be
-    ;; plain WRONG for some theorem prover's syntax, possibly)
-
-    (let ((l (length string)) (i 0))
-      (while (< i l)
-	(if (= (aref string i) ?\n) (aset string i ?\ ))
-	(incf i)))
+    (if proof-shell-strip-crs-from-input
+      (let ((l (length string)) (i 0))
+	(while (< i l)
+	  (if (= (aref string i) ?\n) (aset string i ?\ ))
+	  (incf i))))
 
     (insert string)
 
@@ -1045,6 +1036,7 @@ proof-shell-exec-loop, to process the next item."
 
     ;; FIXME da: this space fudge is actually a visible hack:
     ;; the response string begins with a space and a newline.
+    ;; It was needed to work around differences in Emacs versions.
     (insert proof-shell-insert-space-fudge)
     (comint-send-input)))
 
