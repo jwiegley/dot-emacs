@@ -8,6 +8,8 @@
 
 ** Generic Changes
 
+*** LICENSE CHANGE to GPL!
+
 *** Remove handling for provers you don't want
 
 You can simply remove the directories from the PG distribution,
