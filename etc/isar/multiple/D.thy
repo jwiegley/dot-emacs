@@ -1,0 +1,4 @@
+
+theory D = Pure:;
+
+end;
