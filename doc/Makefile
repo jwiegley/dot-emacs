@@ -33,7 +33,7 @@ TOC = :_1
 
 DVI2PS = dvips
 TEXI2PDF = texi2pdf
-TEXI2HTML = texi2html
+TEXI2HTML = texi2html -expandinfo -number -split_chapter
 EMACS = xemacs -batch
 
 .SUFFIXES:  .texi .info .dvi .html .pdf .ps .eps .tiff .gz
@@ -59,7 +59,7 @@ EMACS = xemacs -batch
 	$(DVI2PS) $< -o $*.ps
 
 .texi.html:	
-	$(TEXI2HTML) -expandinfo -split_chapter $< 
+	$(TEXI2HTML) $< 
 
 default: doc
 
