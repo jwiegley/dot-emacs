@@ -1,7 +1,6 @@
-This is a pre-release of an update to version 3.5 of Proof General.
+This is a pre-release of version 3.6 of Proof General.
 
-We are working on improving Coq support for the advertised verison of
-PG 3.5, including:
+We are working on improving Coq support of PG 3.5, including:
 
   -- fixes to X-Symbol symbols
   -- multiple file handling
