@@ -955,9 +955,18 @@ which see."
        ;; Find the last goal string in the output
        (while (string-match proof-shell-start-goals-regexp string start)
 	 (setq start (match-end 0)))
-       ;; Convention: provers with special characters don't include
-       ;; the match in their goals output.  Others do.
-       (unless proof-shell-first-special-char
+       ;; Convention: provers with special characters appearing in
+       ;; proof-start-goals-regexp don't include the match in their 
+       ;; goals output.  Others do.
+       ;; (Improvement to examine proof-start-goals-regexp suggested
+       ;;  for Coq by Robert Schneck because Coq has specials but
+       ;;  doesn't markup goals output specially).
+       (unless (and 
+		proof-shell-first-special-char
+		(not (string-equal 
+		      proof-shell-start-goals-regexp
+		      (proof-shell-strip-special-annotations 
+		       proof-shell-start-goals-regexp))))
 	 (setq start (match-beginning 0)))
        (setq end (if proof-shell-end-goals-regexp
 		     (string-match proof-shell-end-goals-regexp string start)
