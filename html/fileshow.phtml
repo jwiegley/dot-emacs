@@ -14,7 +14,7 @@
      print "Sorry, can't show you that file!\n"; 
   } elseif (substr($filename,-3)==".el") {
      elisp_markup($filename,"fileshow.phtml");
-  else {
+  } else {
      outline_markup($filename,"fileshow.phtml",$expanded);
   }
   print "</pre>\n";
