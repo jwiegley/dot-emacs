@@ -4,11 +4,6 @@
   ?>
 
 <p>
-<b>NOTE:</b> The current pre-release is the same as version 3.2.
-It won't be updated with new features until 3.2 has been out for a while.
-</p>
-
-<p>
 <a href="#prerel">Below</a> is the latest pre-release of Proof General,
 made available for those who wish to test the latest features or bug
 fixes.  For developers, this release is also available as a 
@@ -51,10 +46,10 @@ or
 <h2><a name="prerel">Pre-release: ProofGeneral-3.3pre010320</a></h2>
 
 <p>
-This version has been tested with XEmacs version 21.1.12 and
+This version has been tested with XEmacs version 21.4 and
 (minimally) with FSF Emacs 20.7.1. 
 We recommend the use of XEmacs; use under FSF Emacs  
-can no longer be supported.
+can no longer be properly supported.
 </p>
 <p>
 Check the 
@@ -78,12 +73,13 @@ notes about work-in-progress.
 <td>RPM package </td>
 <td><?php download_link("ProofGeneral-3.3pre010320-1.noarch.rpm") ?></td>
 </tr>
-<tr>
-<td>SRPM package</td>
-<td><?php download_link("ProofGeneral-3.3pre010320-1.src.rpm","source RPM") ?></td>
 </table>
 <!-- End Warning. -->
-
+<p>
+NB: we no longer distribute the source RPM, since you can build
+both source and  "binary" RPMs direct from the tarball using
+"rpm -ta".
+</p>
 <p>
 For install instructions, see 
 the <a href="download#install">stable version download</a>.
