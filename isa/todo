@@ -4,6 +4,12 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** C Improvements to Isabelle that would be nice for Proof General:
+
+   -- ability to remove theorem from theorem database, issued
+   when undoing qed
+
+
 ** C Investigate fix for looping rewriting in Isabelle.  Continual
   and frequent messages from the prover lock out the user.
   Is there any easy way of fixing this?
