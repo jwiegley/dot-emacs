@@ -3,159 +3,42 @@
 ;; Author: Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
-
-;; $Log$
-;; Revision 1.52  1998/07/27 15:39:56  tms
-;; Supports official LEGO release 1.3
-;;
-;; Revision 1.51  1998/06/10 11:43:38  hhg
-;; Added lego-init-syntax-table as function to initialize syntax entries
-;; particular to LEGO, and call it from lego-shell-mode-config.
-;;
-;; Revision 1.50  1998/06/03 18:03:02  hhg
-;; Added '?'s before single characters in define-keys for emacs19, at
-;; Pascal Brisset's suggestion.
-;;
-;; Revision 1.49  1998/06/02 15:34:58  hhg
-;; Generalized proof-retract-target, now parameterized by
-;; proof-count-undos and proof-find-and-forget.
-;; Generalized proof-shell-analyse-structure, introduced variable
-;; proof-analyse-using-stack.
-;; Generalized proof menu plus ancillary functions.
-;; Generalized proof-mode-version-string.
-;; Moved various comments into documentation string.
-;;
-;; Revision 1.48  1998/05/29 09:49:47  tms
-;; o outsourced indentation to proof-indent
-;; o support indentation of commands
-;; o replaced test of Emacs version with availability test of specific
-;;   features
-;; o C-c C-c, C-c C-v and M-tab is now available in all buffers
-;;
-;; Revision 1.47  1998/05/23 12:50:42  tms
-;; improved support for Info
-;;   o employed `Info-default-directory-list' rather than
-;;     `Info-directory-list' so that code also works for Emacs 19.34
-;;   o setting of `Info-default-directory-list' now at proof level
-;;
-;; Revision 1.46  1998/05/16 14:52:07  tms
-;; implementation of `lego-shell-adjust-line-width' can now be called as
-;; part of a hook. This change has been caused by replacing
-;; `proof-shell-config' with `proof-shell-insert-hook'
-;;
-;; Revision 1.45  1998/05/15 16:17:41  hhg
-;; Changed variable names [s]ext to span.
-;;
-;; Revision 1.44  1998/05/12 14:52:50  hhg
-;; Added hook `proof-shell-insert-hook', which is initalized to
-;; lego-shell-adjust-line-width.
-;; This replaces `lego-shell-config'.
-;;
-;; Revision 1.43  1998/05/08 17:09:13  hhg
-;; Made separated indentation more elegant.
-;; 	Separated consideration of {}'s so it only happens for LEGO.
-;;
-;; Revision 1.42  1998/05/08 15:36:41  hhg
-;; Merged indentation code for LEGO and Coq into proof.el.
-;;
-;; Revision 1.41  1998/05/06 15:54:50  hhg
-;; Changed lego-undoable-commands-regexp to have "andI" and "andE"
-;; instead of "AndI" and "AndE".
-;;
-;; Revision 1.40  1998/05/06 15:29:30  hhg
-;; Added lego-info-dir so that location of script-management.info can be
-;; hard-coded.
-;;
-;; Revision 1.39  1998/05/05 14:22:48  hhg
-;; Added lego-goal-command-p to fix Coq's problem with "Definition".
-;; Removed lego-killref from menu.
-;;
-;; Revision 1.38  1998/04/27 16:25:33  tms
-;; removed explicit reference to a binary in ctm's home directory
-;;
-;; Revision 1.37  1998/03/25 17:30:41  tms
-;; added support for etags at generic proof level
-;;
-;; Revision 1.36  1998/02/10 14:12:56  tms
-;; added Dnf to lego-undoable-commands-regexp
-;;
-;; Revision 1.35  1998/01/16 15:40:23  djs
-;; Commented the code of proof.el and lego.el a bit. Made a minor change
-;; to the way errors are handled, so that any delayed output is inserted
-;; in the buffer before the error message is printed.
-;;
-;; Revision 1.34  1998/01/15 12:23:59  hhg
-;; Updated method of defining proof-shell-cd to be consistent with other
-;; proof-assistant-dependent variables.
-;; Added ctrl-button1 to copy selected region to end of locked region
-;;
-;; Revision 1.33  1998/01/05 14:59:03  tms
-;; fixed a bug in the indenting functions
-;;
-;; Revision 1.32  1997/11/26 14:15:21  tms
-;; o simplified code:
-;;     lego-goal-with-hole-regexp and lego-save-with-hole-regexp is now
-;;     used for lego-font-lock-keywords-1 as well
-;; o improved lego-find-and-forget
-;;
-;; Revision 1.31  1997/11/24 19:15:11  djs
-;; Added proof-execute-minibuffer-cmd and scripting minor mode.
-;;
-;; Revision 1.30  1997/11/20 13:04:59  hhg
-;; Added lego-global-p as always false, but for consistency with Coq mode.
-;; Changed [meta (control i)] to [meta tab] in key definition.
-;;
-;; Revision 1.29  1997/11/18 19:24:55  djs
-;; Added indentation for lego-mode.
-;;
-;; Revision 1.28  1997/11/17 17:11:17  djs
-;; Added some magic commands: proof-frob-locked-end, proof-try-command,
-;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
-;; Changed the key mapping for assert-until-point to C-c RET.
-;;
-;; Revision 1.27  1997/11/06 16:56:26  hhg
-;; Assign new variable proof-goal-hyp-fn to lego-goal-hyp, which is
-;; simply old code for picking up goal or hypothesis for pbp
-;;
-;; Revision 1.26  1997/10/24 14:51:11  hhg
-;; New indentation for lego-count-undos (smile)
-;;
-;; Revision 1.25  1997/10/16 08:46:16  tms
-;; o merged script management (1.20.2.11) on the main branch
-;; o fixed a bug in lego-find-and-forget due to new treatment of comments
-;;
-;; Revision 1.20.2.11  1997/10/14 17:30:12  djs
-;; Fixed a bunch of bugs to do with comments, moved annotations out-of-band
-;; to exploit a feature which will exist in XEmacs 20.
-;;
-;; Revision 1.20.2.10  1997/10/10 19:24:29  djs
-;; Attempt to create a fresh branch because of Attic-Attack.
-;;
-;; Revision 1.20.2.9  1997/10/10 19:20:00  djs
-;; Added multiple file support, changed the way comments work, fixed a
-;; few minor bugs, and merged in coq support by hhg.
-;;
-;; Revision 1.20.2.7  1997/10/08 08:22:33  hhg
-;; Updated undo, fixed bugs, more modularization
-;;
-;; Revision 1.20.2.6  1997/10/07 13:26:05  hhg
-;; New structure sharing as much as possible between LEGO and Coq.
-;;
-;; Revision 1.20.2.5  1997/07/08 11:52:17  tms
-;; Made dependency on proof explicit
-;;
-
-(require 'lego-fontlock)
+(require 'lego-syntax)
 (require 'outline)
 (require 'proof)
 
-; Configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; User Configuration ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; I believe this is standard for Linux under RedHat -tms
+(defvar lego-tags "/usr/lib/lego/lib_Type/"
+  "*the default TAGS table for the LEGO library")
+
+(defvar lego-indent 2 "*Indentation")
+
+(defvar lego-test-all-name "test_all"
+  "*The name of the LEGO module which inherits all other modules of the
+  library.")
+
+(defvar lego-save-query t
+  "*If non-nil, ask user for permission to save the current buffer before
+  processing a module.")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Configuration of Generic Proof Package ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Users should not need to change this. 
+
+(defvar lego-shell-process-output
+  '((lambda (cmd string) (string-match "^Module" cmd)) .
+    (lambda (cmd string)
+      (setq proof-shell-delayed-output
+	    (cons 'insert "Imports done!"))))
+  "Acknowledge end of processing import declarations.")
 
 (defvar lego-assistant "LEGO"
   "Name of proof assistant")
-
-(defvar lego-tags "/home/tms/lib/lib_Type/TAGS"
-  "the default TAGS table for the LEGO library")
 
 (defconst lego-process-config "Configure PrettyOn; Configure AnnotateOn;"
   "Command to enable pretty printing of the LEGO process.")
@@ -167,12 +50,6 @@
 (defconst lego-interrupt-regexp "Interrupt.."
   "Regexp corresponding to an interrupt")
 
-(defvar lego-indent 2 "Indentation")
-
-(defvar lego-test-all-name "test_all"
-  "The name of the LEGO module which inherits all other modules of the
-  library.")
-
 (defvar lego-path-name "LEGOPATH"
   "The name of the environmental variable to search for modules. This
   is used by \\{legogrep} to find the files corresponding to a
@@ -181,10 +58,6 @@
 (defvar lego-path-separator ":"
   "A character indicating how the items in the \\{lego-path-name} are
   separated.") 
-
-(defvar lego-save-query t
-  "*If non-nil, ask user for permission to save the current buffer before
-  processing a module.")
 
 
 ;; ----- web documentation
@@ -342,23 +215,29 @@
        ((eq (span-property span 'type) 'comment))
 
        ((eq (span-property span 'type) 'goalsave)
-	(setq ans (concat "Forget " 
+	(setq ans (concat lego-forget-id-command
 			  (span-property span 'name) proof-terminal-string)))
 
+       ;; alternative definitions
+       ((string-match lego-definiendum-alternative-regexp str)
+	(setq ans (concat lego-forget-id-command (match-string 1 str)
+			  proof-terminal-string)))
+       ;; declarations
        ((string-match (concat "\\`\\$?" (lego-decl-defn-regexp "[:|=]")) str)
 	(let ((ids (match-string 1 str))) ; returns "a,b"
 	  (string-match proof-id ids)	; matches "a"
-	  (setq ans (concat "Forget " (match-string 1 ids)
+	  (setq ans (concat lego-forget-id-command(match-string 1 ids)
 			    proof-terminal-string))))
 	   
        ((string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
-	(setq ans (concat "Forget " 
+	(setq ans (concat lego-forget-id-command
 			  (match-string 2 str) proof-terminal-string)))
 
        ((string-match 
 	 "\\`\\(Inductive\\|Record\\)\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
 	(setq ans 
-	      (concat "Forget " (match-string 2 str) proof-terminal-string)))
+	      (concat lego-forget-id-command (match-string 2 str)
+		      proof-terminal-string)))
        
        ((string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
 	(setq ans (concat "ForgetMark " (match-string 1 str) 
@@ -573,6 +452,7 @@
         proof-shell-end-goals-regexp "\372 End of Goals \373"
         proof-shell-init-cmd lego-process-config
 	proof-analyse-using-stack nil
+	proof-shell-process-output-system-specific lego-shell-process-output
         lego-shell-current-line-width nil)
 
   (lego-init-syntax-table)
