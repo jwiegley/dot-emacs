@@ -26,7 +26,7 @@
  proof-goal-command-regexp       "^Goal"
  proof-save-command-regexp       "^qed"
  proof-goal-with-hole-regexp     "qed_goal \"\\(\\(.*\\)\\)\""
- proof-save-with-hole-regexp     "qed \"\\(\\(.*\\)\\)\"
+ proof-save-with-hole-regexp     "qed \"\\(\\(.*\\)\\)\""
  proof-non-undoables-regexp      "undo\\|back"
  proof-goal-command              "Goal \"%s\";"
  proof-save-command              "qed \"%s\";"
