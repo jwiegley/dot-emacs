@@ -577,7 +577,7 @@ proof-shell-retract-files-regexp."
   (isar-init-output-syntax-table)
   (setq font-lock-keywords  
 	(append 
-	 isar-output-font-lock-keywords-1
+	 isar-goals-font-lock-keywords
 	 (if (boundp 'x-symbol-isabelle-font-lock-keywords)
 	     x-symbol-isabelle-font-lock-keywords)))
   (proof-goals-config-done))
