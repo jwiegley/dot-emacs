@@ -19,6 +19,13 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.21  1997/11/06 16:56:59  hhg
+;; Parameterize by proof-goal-hyp-fn in pbp-make-top-extent, to handle
+;; Coq goals which start with text rather than simply ?n
+;;
+;; Updated 'let (ap 0)' in proof-shell-analyse structure, to be slightly
+;; more compatible with Coq pbp code
+;;
 ;; Revision 1.20  1997/10/31 15:11:28  tms
 ;; o implented proof-find-next-terminator available via C-c C-e
 ;; o fixed a bug in proof-done-retracting
@@ -131,7 +138,8 @@
 (defvar proof-goal-command-regexp nil "Matches a goal command")
 (defvar proof-goal-with-hole-regexp nil "Matches a saved goal command")
 
-(defvar proof-retract-target-fn  nil "Compute how to retract a target segment")
+(defvar proof-retract-target-fn nil "Compute how to retract a target segment")
+(defvar proof-goal-hyp-fn nil "Is point at goal or hypothesis")
 (defvar proof-kill-goal-command nil "How to kill a goal.")
 
 (defvar pbp-change-goal nil
@@ -578,11 +586,7 @@
 (defun pbp-make-top-extent (start end)
   (let (extent name)
     (goto-char start)
-    (setq name (cond 
-		((looking-at proof-shell-goal-regexp)
-		 (cons 'goal (match-string 1)))
-		((looking-at proof-shell-assumption-regexp)
-		 (cons 'hyp (match-string 1)))))
+    (setq name (funcall proof-goal-hyp-fn))
     (beginning-of-line)
     (setq start (point))
     (goto-char end)
@@ -595,7 +599,7 @@
 
 (defun proof-shell-analyse-structure (string)
   (save-excursion
-    (let* ((ip 0) (op 0) ap (l (length string)) 
+    (let* ((ip 0) (op 0) (ap 0) (l (length string)) 
 	   (ann (make-string (length string) ?x))
            (stack ()) (topl ()) 
 	   (out (make-string l ?x )) c ext)
