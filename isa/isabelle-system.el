@@ -311,6 +311,12 @@ until Proof General is restarted."
   :type 'boolean
   :setting "quick_and_dirty:=%b;")
 
+(defpacustom full-proofs  nil
+  "Whether to record full proof objects internally."
+  :type 'boolean
+  :setting "Library.error_fn := (fn _ => ()); Library.try (fn () => Context.use_mltext \"ProofGeneral.full_proofs %b;\" false None) ();")
+;FIXME should become "ProofGeneral.full_proofs %b;" next time
+
 (defpacustom global-timing  nil
   "Whether to enable timing in Isabelle."
   :type 'boolean
@@ -330,6 +336,7 @@ until Proof General is restarted."
   "Setting for the ML print depth in Isabelle."
   :type 'integer
   :setting "print_depth %i;")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
