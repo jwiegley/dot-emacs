@@ -47,6 +47,146 @@
   (featurep symbol))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Function for taking action when dynamically adjusting customize values
+;;
+(defun proof-set-value (sym value)
+  "Set a customize variable using set-default and a function.
+We first call `set-default' to set SYM to VALUE.
+Then if there is a function SYM (i.e. with the same name as the
+variable SYM), it is called to take some dynamic action for the new
+setting.  
+
+If there is no function SYM, we try stripping 
+proof-assistant-symbol and adding \"proof-\" instead to get
+a function name.  This extends proof-set-value to work with
+generic individual settings.
+
+The dynamic action call only happens when values *change*: as an
+approximation we test whether proof-config is fully-loaded yet."
+  (set-default sym value)
+  (if (featurep 'proof-config)
+      (if (fboundp sym)
+	  (funcall sym)
+	(if (> (length (symbol-name sym)) 
+	       (+ 3 (length (symbol-name proof-assistant-symbol))))
+	    (let ((generic  
+		   (intern
+		    (concat "proof"
+			    (substring (symbol-name sym)
+				       (length (symbol-name
+						proof-assistant-symbol)))))))
+	      (if (fboundp generic)
+		  (funcall generic)))))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Macros for defining per-assistant customization settings.
+;;
+;; This new mechanism is an improved way to handle per-assistant
+;; settings.  Instead of declaring a variable
+;; "proof-assistant-web-page" and duplicating it in the prover
+;; specific code to make the generic setting, we automatically declare
+;; "isabelle-web-page", "coq-web-page", etc, using these macros.
+;;
+;; The advantage of this is that people's save settings will work
+;; properly, and that it will become more possible to use more than
+;; one instance of PG at a time.  The disadvantage is that it is
+;; slightly more complicated, and less "object-oriented" than the
+;; previous approach.  It is also a big change to move all settings.
+;;
+;; NB: this mechanism is work in progress in 3.2.  It will
+;; be expanded, although we may leave most low-level 
+;; settings to use the current mechanism.
+
+(defun proof-ass-symv (sym)
+  "Return the symbol for SYM for the current prover.  SYM is evaluated."
+  (intern (concat (symbol-name proof-assistant-symbol) "-" 
+		  (symbol-name sym))))
+
+(defmacro proof-ass-sym (sym)
+  "Return the symbol for SYM for the current prover.  SYM not evaluated."
+  `(proof-ass-symv (quote ,sym)))
+
+(defun proof-defpgcustom-fn (sym args)
+  "Define a new customization variable <PA>-sym for the current proof assistant.
+Helper for macro `defpgcustom'."
+  (let ((specific-var (proof-ass-symv sym))
+	(generic-var  (intern (concat "proof-assistant-" (symbol-name sym)))))
+    (eval
+     `(defcustom ,specific-var 
+	,@args
+	;; FIXME: would be nicer to grab group from @args here and
+	;; prefix it automatically.  For now, default to internals
+	;; setting for PA.
+	;; FIXME 2: would also be nice to grab docstring from args
+	;; and allow substitution for prover name, etc.  A bit too 
+	;; fancy perhaps!
+	:group ,(quote proof-assistant-internals-cusgrp)))
+    ;; For functions, we could simply use defalias.  Unfortunately there
+    ;; is nothing similar for values, so we define a new set/get function.
+    ;; FIXME: consider removing this code.  Probably we usually
+    ;; only need to read proof-assistant specific settings, not set 
+    ;; them.  Setting is the ob of proof-assistant specific code, 
+    ;; not generic code!
+    (eval
+     `(defun ,generic-var (&optional newval) 
+	,(concat "Set or get value of " (symbol-name sym) " for current proof assistant.
+If NEWVAL is present, set the variable, otherwise return its current value.")
+	(if newval 
+	    (setq ,specific-var newval)
+	  ,specific-var)))))
+
+(defmacro defpgcustom (sym &rest args)
+  "Define a new customization variable <PA>-SYM for the current proof assistant.
+The function proof-assistant-<SYM> is also defined, which can be used in the 
+generic portion of Proof General to set and retrieve the value for the current p.a.
+Arguments as for `defcustom', which see.
+
+Usage: (defpgcustom SYM &rest ARGS)."
+  `(proof-defpgcustom-fn (quote ,sym) (quote ,args)))
+
+(defmacro proof-ass (sym)
+  "Return the value for SYM for the current prover."
+  (eval `(proof-ass-sym ,sym)))
+
+(defun proof-defpgdefault-fn (sym value)
+  "Helper for `defpgdefault', which see.  SYM and VALUE are evaluated."
+  ;; NB: we need this because nothing in customize library seems to do
+  ;; the right thing.
+  (let ((symbol  (proof-ass-symv sym)))
+    (set-default symbol 
+		 (cond
+		  ;; Use saved value if it's set
+		  ((get symbol 'saved-value)
+		   (car (get symbol 'saved-value)))
+		  ;; Otherwise override old default with new one
+		  (t
+		   value)))))
+
+(defmacro defpgdefault (sym value)
+  "Set default for the proof assistant specific variable <PA>-SYM to VALUE.
+This should be used in prover-specific code to alter the default values
+for prover specific settings.
+
+Usage: (defpgdefault SYM VALUE)"
+    `(proof-defpgdefault-fn (quote ,sym) ,value))
+
+;;
+;; Make a function named for the current proof assistant.
+;;
+(defmacro defpgfun (name arglist &rest args)
+  "Define function <PA>-SYM as for defun."
+  `(defun ,(proof-ass-symv name) ,arglist
+     ,@args))
+
+
+;;
+;; End macros
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -422,7 +562,7 @@ The function is defined with `proof-deftoggle-fn', which see."
 (put 'proof-if-setting-configured 'lisp-indent-function 1)
 (put 'proof-define-assistant-command 'lisp-indent-function 'defun)
 (put 'proof-define-assistant-command-witharg 'lisp-indent-function 'defun)
-(put 'proof-defasscustom 'lisp-indent-function 'defun)
+(put 'defpgcustom 'lisp-indent-function 'defun)
 
 (defconst proof-extra-fls
   (list
