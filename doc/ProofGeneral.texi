@@ -4019,7 +4019,7 @@ the @file{coq} directory in the Proof General home directory.
 This appendix has been removed.
 
 Please consult the file
-@uref{http://proofgeneral.inf.ed.ac.uk/ProofGeneral/BUGS,@file{BUGS}} in the
+@uref{http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-latest/BUGS,@file{BUGS}} in the
 distribution for an up-to-date description of bugs and other issues.
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
