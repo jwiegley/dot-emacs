@@ -3,7 +3,7 @@
 ;; rearranging Thomas Schreiber's code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <17 Oct 96 djs /home/lego/emacs/lego.el>
+;; Time-stamp: <25 Oct 96 tms ~/elisp/proof.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -141,6 +141,16 @@
   (concat (substring address 0 (match-end 0))
           (file-name-directory (substring address (match-end 0)))))
 
+(defun occurence (STRING &optional LOWER-BOUND UPPER-BOUND)
+  "Counts the number of occurences of STRING in the current buffer
+   between the positions LOWER-BOUND and UPPER-BOUND.
+   Optional first argument. nil is equivalent to (point-min).
+   Optional second argument. nil is equivalent to (point-max)."
+  (save-excursion
+    (let ((LOWER-BOUND (or LOWER-BOUND (point-min))))
+      (goto-char LOWER-BOUND)
+      (let ((pos (search-forward STRING UPPER-BOUND t)))
+	(if pos (+ 1 (occurence STRING pos UPPER-BOUND)) 0)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          A few random hacks                                      ;;
@@ -168,6 +178,25 @@
 		(point)))
      (goto-char (point-min))
      (proof-skip-comments)))
+
+
+;; there seems to be some duplication of work here, as one might
+;; expect that the functionality of proof-find-end-of-command would be
+;; required in proof-process-active-terminator
+(defun proof-find-end-of-command (&optional COUNT)
+  "Move to the end of the command. COUNT-1 end-of-command symbols
+  `proof-terminal-string' are within comments"
+  (interactive)
+  (let ((point (point))
+	(pos   (search-forward proof-terminal-string nil nil COUNT)))
+    (and pos
+ 	;; an end of command has been found
+	;; is pos within a comment relative to the starting point of
+	;; the search?
+	 (> (occurence proof-comment-start point (point))
+	    (occurence proof-comment-end   point (point)))
+	 (goto-char point)
+	 (proof-find-end-of-command (if COUNT (+ 1 COUNT) 2)))))
 
 (defun proof-shell-buffer () (get-buffer proof-shell-buffer-name))
 
@@ -446,8 +475,8 @@ current command."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Proof mode configuration                                         ;;
-;; Eventually there will be some functionality here common to both  ;;
-;; coq and lego. But for the moment, they're just mode shells.      ;;
+;; Eventually there will be some more                               ;;
+;; functionality here common to both coq and lego.                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -455,6 +484,10 @@ current command."
   "Proof" "Proof mode - not standalone"
   ())
 
+(define-key proof-mode-map [(control c) (control e)]
+  'proof-find-end-of-command)
+(define-key proof-mode-map [(control c) (control j)] 'proof-send-line)
+(define-key proof-mode-map [(control c) (control r)] 'proof-send-region)
 
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof shell mode - not standalone"

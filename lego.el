@@ -3,7 +3,7 @@
 ;; rearranging Thomas Schreiber's code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <17 Oct 96 djs /home/lego/emacs/lego.el>
+;; Time-stamp: <25 Oct 96 tms ~/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -533,13 +533,16 @@ nicked from AUCTeX's tex-buffer.el"
 ;; keymaps and menus
 
   (lego-add-common-bindings lego-mode-map)
-  (define-key lego-mode-map ";"        'proof-active-terminator)
+
+  ;; tms - I don't understand why "(control c) ?;" works, yet
+  ;; "(control c) proof-terminal-char" doesn't 
+  (define-key lego-mode-map [(control c) ?;]
+  'proof-active-terminator-minor-mode)
+  (define-key lego-mode-map proof-terminal-char       'proof-active-terminator)
+
   (define-key lego-mode-map [(control c) (control b)] 'lego-make-buffer)
   (define-key lego-mode-map [(control c) (control h)] 
     'lego-make-buffer-until-point)
-  (define-key lego-mode-map "\C-c;"    'proof-active-terminator-minor-mode)
-  (define-key lego-mode-map [(control c) (control j)] 'proof-send-line)
-  (define-key lego-mode-map [(control c) (control r)] 'proof-send-region)
 
   (easy-menu-add lego-mode-menu lego-mode-map)
 
