@@ -827,13 +827,19 @@ or `proof-script-parse-function'."
   :group 'prover-config)
 
 
-(defcustom proof-script-use-new-parsing nil
+(defcustom proof-script-use-new-parser nil
   "Whether to use the new parsing mechanism, based on `proof-script-parse-function'.
 This is a stop-gap option in Proof General 3.2 added because
 the parsing functions went through several iterations and the final
 (but best) iteration was little tested."
   :type 'boolean
   :group 'prover-config)
+
+;; Unadvertised customization variable
+(defvar proof-script-fly-past-comments t
+  "*If non-nil, fly past comments when scripting, coalescing them into single spans.")
+
+
 
 (defcustom proof-script-parse-function nil
   "A function which parses a portion of the proof script.
@@ -1855,6 +1861,14 @@ Solaris which gives a mess of ^G characters when some input is sent
 which has a \ in the 256th position.   
 So we select pipes by default if it seems like we're on Solaris.
 We do not force pipes everywhere because this risks loss of data."
+  :type 'boolean
+  :group 'proof-shell)
+
+(defcustom proof-shell-strip-crs-from-input t
+  "If non-nil, replace carriage returns in every input with spaces.
+This is enabled by default: it is appropriate for some systems
+because several CR's can result in several prompts, which may mess
+up the display (or even worse, the synchronization)."
   :type 'boolean
   :group 'proof-shell)
   
