@@ -29,7 +29,7 @@
   '((VALID "Isabelle Symbol" (x-symbol-info-face))
     (INVALID "no Isabelle Symbol" (red x-symbol-info-face))))
 (defvar x-symbol-isabelle-class-face-alist nil)
-(defvar x-symbol-isabelle-electric-ignore "[:'][A-Za-z]\\|<=\\|\\[\\[\\|\\]\\]")
+(defvar x-symbol-isabelle-electric-ignore "[:'][A-Za-z]\\|<=\\|\\[\\[\\|\\]\\]\\|~=")
 
 (defvar x-symbol-isabelle-font-lock-keywords nil)
 (defvar x-symbol-isabelle-master-directory  'ignore)
