@@ -41,8 +41,7 @@
     "quit"
     "redo"
     "undo"
-    "undos_proof"
-    "welcome"))
+    "undos_proof"))
 
 (defconst isar-keywords-diag
   '("ML"
@@ -81,7 +80,8 @@
     "update_thy_only"
     "use"
     "use_thy"
-    "use_thy_only"))
+    "use_thy_only"
+    "welcome"))
 
 (defconst isar-keywords-theory-begin
   '("theory"))
