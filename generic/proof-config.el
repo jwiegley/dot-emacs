@@ -1713,7 +1713,7 @@ X-Symbol support is deactivated."
   :group 'proof-general-internals)
 
 (defcustom proof-general-home-page
-  "http://www.dcs.ed.ac.uk/home/proofgen"
+  "http://www.lfcs.informatics.ed.ac.uk/proofgen"
   "*Web address for Proof General"
   :type 'string
   :group 'proof-general-internals)
