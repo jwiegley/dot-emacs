@@ -1,7 +1,7 @@
 ## -*- makefile -*-
 ##
 ## Makefile for Proof General development.
-## 
+##
 ## Author:  David Aspinall <da@dcs.ed.ac.uk>
 ##
 ## Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
@@ -108,7 +108,6 @@ DATEMSG=$(shell if [ $(PRERELEASE_TAG) = $(VERSION) ]; then echo; else date "+ o
 # (Before 3.4, NAME was linked to the development version).
 NAME = ProofGeneral
 LATESTNAME = $(NAME)-latest
-DEVELLATESTNAME = $(NAME)-devel-latest
 
 VERSIONVARIABLE=proof-general-version
 VERSIONFILE=proof-site.el
@@ -122,7 +121,6 @@ CVS_VERSION=$(shell echo $(FULLVERSION) | sed 's/\./-/g')
 
 # Name of tar file and RPM file.
 RELEASENAME = $(NAME)-$(VERSION)
-DEVELRELEASENAME = $(NAME)-$(VERSION)-devel
 CVS_RELEASENAME = Release-$(CVS_VERSION)
 
 # Where to release (i.e. copy) a new distribution to.
@@ -183,9 +181,6 @@ RELEASENAMETARGZ = $(RELEASENAMETAR).gz
 RELEASENAMEZIP = $(RELEASENAME).zip
 # What the RPM should be called.
 RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
-
-DEVELRELEASENAMETAR = $(DEVELRELEASENAME).tar
-DEVELRELEASENAMETARGZ = $(DEVELRELEASENAMETAR).gz
 
 # Files not kept under cvs to clean away.
 # FILES_NONCVS = TAGS
@@ -422,24 +417,6 @@ dist:
 	@echo " Finished making dist."
 	@echo "*************************************************"
 
-############################################################
-##
-## develdist: make a distribution for developers from 
-##	  raw CVS sources, updating the ChangeLog.
-##	    
-develdist:
-	@echo "*************************************************"
-	@echo " Making developer distribution..."
-	@echo "*************************************************"
-	mkdir -p $(DISTBUILDIR)
-	if [ -z "$(NOCVS)" ]; then \
-           (make devel.ChangeLog; cvs commit -m"Updated." ChangeLog; cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME)) \
-	else \
-	   mkdir -p $(DISTBUILDIR)/$(DEVELRELEASENAME); \
-	   cp -pr . $(DISTBUILDIR)/$(DEVELRELEASENAME); \
-	fi
-	$(TAR) cvzf $(DISTBUILDIR)/$(DEVELRELEASENAMETARGZ) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
-
 
 ############################################################
 ##
@@ -449,7 +426,7 @@ develdist:
 ##     WARNING: RELEASEDIR is not cleaned, but files there
 ##     with same names will be overwritten.
 ##
-release: distclean tag  dist develdist 
+release: distclean tag  dist 
 	@echo "*************************************************"
 	@echo " Making release (installing tarball distributions)."
 	@echo "*************************************************"
@@ -465,7 +442,6 @@ release: distclean tag  dist develdist
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMEZIP) $(LATESTNAME).zip)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
-	(cd $(RELEASEDIR); ln -sf $(DEVELRELEASENAMETARGZ) $(DEVELLATESTNAME).tar.gz)
 	(cd $(RELEASEDIR); echo $(PRERELEASE_TAG) > $(PREREL_TAG_FILE))
 	@echo "*************************************************"
 	@echo " Finished installing dist."
