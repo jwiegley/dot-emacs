@@ -4,6 +4,14 @@
 
 ** Generic Changes
 
+*** Proof General startup script welcomes user
+ 
+     The "binary" (startup script) bin/proofgeneral now loads
+     PG and invokes a function to display a splash message,
+     which invites the user to load a file.   A bit more
+     friendly than simply being confronted by a standard 
+     XEmacs screen.
+
 *** Changes to Proof General RPM packaging mechanism
   
      Can now build RPM packages with "rpm -ta" from tarball source.
@@ -26,6 +34,10 @@
      function `pg-insert-last-output-as-comment' (C-c C-;)
      inserts the last output and converts it into a comment
      using `comment-region'.
+
+*** Compatibility fixes.
+
+     Fixes for FSF Emacs and XEmacs 21.4
 
 ** Coq Changes
 
