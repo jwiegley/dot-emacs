@@ -1,3 +1,72 @@
+2003-04-15  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isar/isar.el:
+	Remove isa-mode from automode alist, to allow SML mode in preference
+
+	* isar/isar-syntax.el:
+	Save match data in font-locking function for antiquotations (patch from CW).
+
+2003-04-12  David Aspinall  <da@proofgeneral.org>
+
+	* isa/interface-setup.el:
+	Updated by Gerwin to remove some X-Symbol loading
+
+2003-04-05  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-script.el: Comments.
+
+	* generic/proof-x-symbol.el:
+	Tweak to initialisation; fix prob with turning on during scripting.
+
+	* generic/proof-indent.el:
+	Add proof-indent-pad-eol to add useless spaces
+
+	* generic/proof-config.el:
+	Add proof-indent-pad-eol for prettifying colouring in XEmacs
+
+	* isa/x-symbol-isabelle.el: Comments
+
+2003-03-17  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* generic/proof-shell.el:
+	Make colour of active scripting indicator change as documented
+
+	* ChangeLog: Updated.
+
+	* Makefile.devel:
+	TAGS in devel release only
+
+	* TAGS: New files.
+
+	* ChangeLog: Updated.
+
+	* doc/PG-adapting.texi, doc/ProofGeneral.texi:
+	Updated magic
+
+	* generic/proof-splash.el:
+	Bury splash buffer instead of merely switching away from it.
+
+	* CHANGES: Updated.
+
+	* generic/proof-menu.el, generic/proof-script.el, generic/proof-config.el:
+	Allow proof-strict-read-only to be changed dyamically, add to quick opts menu in place of output highlight setting.
+
+	* generic/proof-toolbar.el:
+	Documentation.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/proof-x-symbol.el, generic/proof-script.el:
+	More tweaks so that (proof-ass x-symbol-enable) is pervasive.
+
 2003-03-17  David Aspinall  <da@proofgeneral.org>
 
 	* generic/proof-shell.el:
