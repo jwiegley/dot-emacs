@@ -58,6 +58,10 @@ A BUGS to investigate:
     Investigate which package/setting he adds is to blame.
   - outline mode when proof-strict-read-only is nil ought to
     work, but there may be problems.
+  - bug mentioned by Martin H. with Lego: "don't know what I should
+    be doing..." error when it shouldn't happen.
+  - Coq: bug reported by a user, and Patrick mentioned that section
+    handling is buggy.
 
 A Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.

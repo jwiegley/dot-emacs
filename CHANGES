@@ -2,7 +2,7 @@ Summary of Changes for Proof General 2.1
 ----------------------------------------
 
 * Documentation improvements.   
-  Text added for Coq mode.
+  Information added for Coq mode.
 
 * In proof-site.el, the environment variable PROOFGENERAL_ASSISTANTS 
   is examined for the default value of proof-assistants.  This
@@ -13,6 +13,9 @@ Summary of Changes for Proof General 2.1
   input and output with special fonts.
   Patches for Isabelle provided by David von Oheimb.
   (currently incomplete)
+
+* Improvements to Coq mode: better recognition of
+  Coq syntax, support for proof-shell-restart-cmd.
 
 * Bug fix for templates in Isabelle theory file mode.
 

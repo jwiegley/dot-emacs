@@ -1,8 +1,7 @@
 ;; coq-syntax.el Font lock expressions for Coq
 ;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
-;; Author: Thomas Kleymann and Healfdene Goguen
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
-;; Please let us know if you could maintain this package!
+;; Authors: Thomas Kleymann and Healfdene Goguen
+;; Maintainer: Patrick Loiseleur <Patrick.Loiseleur@lri.fr> 
 
 ;; $Id$
 
@@ -12,10 +11,11 @@
 
 (defvar coq-keywords-decl
   '(
-"Axiom"
+"Axiom[s]?"
+"Hypotheses"
 "Hypothesis"
-"Parameter"
-"Variable"
+"Parameter[s]?"
+"Variable[s]?"
 ))
 
 (defvar coq-keywords-defn
@@ -53,24 +53,39 @@
 (defvar coq-keywords-commands
   '(
 "AddPath"
+"Begin\\s-+Silent"
 "Cd"
 "Check"
 "Class"
 "Coercion"
 "DelPath"
+"End"
+"End\\s-+Silent"
 "Eval"
 "Extraction"
 "Focus"
-"Immediate"
+"Grammar"
 "Hint"
+"Hints"
 "Infix"
+"Implicit\\s-+Arguments\\s-+On"
+"Implicit\\s-+Arguments\\s-+Off"
+"Load"
+"Local\\s-+Coercion"
 "Opaque"
 "Print"
 "Proof"
 "Pwd"
+"Require\\s-+Export"
+"Require\\s-+Import"
+"Require"
 "Reset"
 "Search"
+"SearchIsos"
+"Section"
 "Show"
+"Syntax"
+"Tactic\\s-+Definition"
 "Transparent"
 ))
 
@@ -80,6 +95,7 @@
 "Apply"
 "Assumption"
 "Auto"
+"AutoRewrite"
 "Case"
 "Change"
 "Clear"
@@ -90,24 +106,22 @@
 "Cut"
 "DHyp"
 "DInd"
-"Dependent"
+"Dependent\\s-+Inversion_clear"
+"Dependent\\s-+Inversion"
 "Destruct"
 "Discriminate"
 "Double"
 "EApply"
 "EAuto"
 "Elim"
-"End"
 "Exact"
 "Exists"
 "Fix"
 "Generalize"
-"Grammar"
 "Hnf"
 "Induction"
 "Injection"
-"Intro"
-"Intros"
+"Intro[s]?"
 "Intuition"
 "Inversion_clear"
 "Inversion"
@@ -125,13 +139,11 @@
 "Replace"
 "Rewrite"
 "Right"
-"Section"
 "Simplify_eq"
 "Simpl"
 "Specialize"
 "Split"
 "Symmetry"
-"Syntax"
 "Tauto"
 "Transitivity"
 "Trivial"
@@ -144,6 +156,7 @@
   "All keywords in a Coq script")
 
 (defvar coq-tacticals '(
+"Abstract"
 "Do"
 "Idtac"
 "OrElse"
@@ -152,7 +165,7 @@
 ))
 
 ;; ----- regular expressions
-(defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\)"
+(defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\|Anomaly\\)"
   "A regular expression indicating that the Coq process has identified
   an error.")
 

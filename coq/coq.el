@@ -3,7 +3,7 @@
 ;; Author: Healfdene Goguen
 ;; Maintainer: Patrick Loiseleur <Patrick.Loiseleur@lri.fr> 
 
-;; $Id$
+;; $Id$ 
 
 (require 'proof-script)
 (require 'coq-syntax)
@@ -145,10 +145,12 @@
   (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
 
-;; da: this one function breaks the nice configuration of Proof General:
-;; would be nice to have proof-goal-regexp instead.
-;; Unfortunately Coq allows Goals beginning with "Definition" and the 
-;; like, so it is difficult to have just a proof-goal-regexp setting.  
+;; FIXME da: this one function breaks the nice configuration of Proof General:
+;; would like to have proof-goal-regexp instead.
+;; Unfortunately Coq allows "Definition" and friends to perhaps have a goal, 
+;; so it appears more difficult than just a proof-goal-regexp setting.
+;; Future improvement may simply to be allow a function value for
+;; proof-goal-regexp.
 
 (defun coq-goal-command-p (str)
   "Decide whether argument is a goal or not"
@@ -312,6 +314,10 @@
   (setq proof-mode-for-pbp 'coq-pbp-mode)
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Configuring proof and pbp mode and setting up various utilities  ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; FIXME: IMHO (tms) this ought to be defined in coq-syntax and not here.
 (defun coq-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."
@@ -399,6 +405,7 @@
   (setq proof-shell-prompt-pattern coq-shell-prompt-pattern
         proof-shell-cd coq-shell-cd
         proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
+	proof-shell-restart-cmd "Reset Initial."
         proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
         proof-shell-error-regexp coq-error-regexp
 	proof-shell-interrupt-regexp coq-interrupt-regexp
@@ -421,7 +428,8 @@
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
         proof-shell-init-cmd nil
 	proof-analyse-using-stack t
-	proof-lift-global 'coq-lift-global)
+	proof-lift-global 'coq-lift-global
+	)
 
   ;; The following hook is removed once it's called.
   (add-hook 'proof-shell-insert-hook 'coq-shell-init-hook nil t)
