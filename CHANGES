@@ -4,12 +4,6 @@ Summary of Changes for Proof General 2.2 from 2.1
 Generic Changes
 ---------------
 
-* [XEmacs only]
-  New function control-button1 (proof-mouse-track-insert) copies 
-  individual commands (highlighted regions) from an open proof.  
-  When a proof is closed, it behaves as mouse-track-insert
-  (the default XEmacs behaviour of control-button1).  
-
 * New function C-c C-f (proof-find) to invoke some prover-specific
   mechanism to search for theories.  
 
@@ -35,6 +29,26 @@ Generic Changes
 
 * Terminal string now automatically added to command for C-c C-v 
 
+* [XEmacs only]
+  New function control-button1 (proof-mouse-track-insert) copies 
+  individual commands (highlighted regions) from an open proof.  
+  When a proof is closed, it behaves as mouse-track-insert
+  (the default XEmacs behaviour of control-button1).  
+
+* Switching scripting buffers is now more flexible.
+  When scripting is turned off in a partly-finished buffer,
+  the user is prompted whether to retract or process the buffer.
+  Automatic retraction or completion can be selected by 
+  configuring the option proof-auto-action-when-deactivating-scripting.
+  (To be compatible with the file operations in a proof assistant,
+   Proof General only allows completely processed or completely
+   unprocessed scripts in non-active buffers).
+
+* New function C-c C-s (proof-toggle-active-scripting) to switch
+  scripting on or off in current buffer.  This is a handy way to
+  discard or finish off scripting in an unfinished buffer
+  triggering the deactivation mechanism mentioned above.
+
 * Cleaned up example files so all demonstrate same theorem "conj_comms".
   Would be nice to add more theorems to compare scripts/proofs in
   different systems.  Please send in example scripts!
@@ -51,6 +65,9 @@ Coq Changes
 -----------
 
 * Set proof-{qed,save}-commands so the toolbar functions work.
+
+* Generic command C-c C-f (proof-find-theorems) replaces Coq
+  specific command C-c C-s (coq-Search).
 
 
 Isabelle and Isar Changes
