@@ -26,10 +26,12 @@
     "simpset"))
 
 (defconst isar-keywords-control
-  '("ProofGeneral\\.inform_file_processed"
+  '("ProofGeneral\\.context_thy_only"
+    "ProofGeneral\\.inform_file_processed"
     "ProofGeneral\\.inform_file_retracted"
     "ProofGeneral\\.kill_proof"
     "ProofGeneral\\.restart"
+    "ProofGeneral\\.try_context_thy_only"
     "cannot_undo"
     "cd"
     "clear_undos"
