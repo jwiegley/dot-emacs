@@ -404,7 +404,7 @@ proof-shell-retract-files-regexp."
 (defun isar-global-save-command-p (span str)
   "Decide whether argument really is a global save command"
   (or
-   (string-match isar-global-save-command-regexp str)
+   (proof-string-match isar-global-save-command-regexp str)
    (let ((ans nil) (lev 0) cmd)
      (while (and (not ans) span (setq span (prev-span span 'type)))
        (setq cmd (span-property span 'cmd))
@@ -474,9 +474,9 @@ proof-shell-retract-files-regexp."
 
 (defun isar-preprocessing ()  ;dynamic scoping of `string'
   "Insert sync markers - acts on variable STRING by dynamic scoping"
-  (if (string-match isabelle-verbatim-regexp string)
+  (if (proof-string-match isabelle-verbatim-regexp string)
       (setq string (match-string 1 string))
-    (unless (string-match ";[ \t]*\\'" string)
+    (unless (proof-string-match ";[ \t]*\\'" string)
       (setq string (concat string ";")))
     (setq string (concat
                   "\\<^sync>"
@@ -489,7 +489,7 @@ proof-shell-retract-files-regexp."
                   ;; comment end in proof-script.el's function
                   ;; proof-segment-upto-cmdstart (which becomes even more
                   ;; Isar specific, then...)
-                  ;; (if (string-match "\\.ML$" (buffer-name proof-script-buffer))
+                  ;; (if (proof-string-match "\\.ML$" (buffer-name proof-script-buffer))
                   ;;    (format "ML_command {* %s *};" string)
                   ;;    string)
                   string

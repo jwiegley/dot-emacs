@@ -185,7 +185,7 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 	   (function (lambda (docdes)
 		       (list
 			(substring docdes 
-				   (string-match "\\(\\S-+\\)[ \t]+" docdes)
+				   (proof-string-match "\\(\\S-+\\)[ \t]+" docdes)
 				   (match-end 1))
 			(substring docdes (match-end 0)))))
 	   (split-string docs "\n"))))))
@@ -207,7 +207,7 @@ Called with one argument: t to save database, nil otherwise."
 ;;; Set proof-shell-pre-interrupt-hook for PolyML 3.
 (if (and
      (not proof-shell-pre-interrupt-hook)
-     (string-match "\\`polyml-3" (isa-getenv "ML_SYSTEM")))
+     (proof-string-match "\\`polyml-3" (isa-getenv "ML_SYSTEM")))
     (add-hook
      'proof-shell-pre-interrupt-hook
      (lambda () (proof-shell-insert (isabelle-verbatim "f") nil))))

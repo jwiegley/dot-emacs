@@ -125,7 +125,7 @@
 (defun isar-ids-to-regexp (l)
   "Maps a non-empty list of tokens `l' to a regexp matching any element"
   (mapconcat
-   (lambda (s) (if (string-match "^\\W$" s) s (concat "\\<" s "\\>")))
+   (lambda (s) (if (proof-string-match "^\\W$" s) s (concat "\\<" s "\\>")))
    l "\\|"))
 
 (defconst isar-long-id-stuff "\\([A-Za-z0-9'_.]+\\)")
