@@ -128,7 +128,7 @@ Isabelle.
 * Index::                       
 @end menu
 
-@detailmenu --- The Detailed Node Listing ---
+@detailmenu  --- The Detailed Node Listing ---
 
 Introducing Proof General
 
@@ -166,17 +166,18 @@ Advanced Script Management
 Support for other Packages
 
 * Support for function menus::  
+* Support for tags::            
 
 Customizing Proof General
 
 * Easy customization::          
 * Setting the user options::        
-* Running on another machine::  
 * Tweaking configuration settings::  
 
 LEGO Proof General
 
 * LEGO specific commands::      
+* LEGO tags::                   
 * LEGO customizations::         
 
 Coq Proof General
@@ -216,11 +217,25 @@ Obtaining and Installing Proof General
 * Installing Proof General from tarball::  
 * Installing Proof General from RPM package::  
 * Notes for syssies::           
+
+Known bugs and workarounds
+
+* Bugs at the generic level::   
+* Bugs specific to LEGO Proof General::  
+* Bugs specific to Coq Proof General::  
+* Bugs specific to Isabelle Proof General::  
+
+Bugs specific to LEGO Proof General
+
+* Retraction and @code{Discharge}::  
+* Retraction and proving::      
+
+Plans and ideas
+
+* Granularity of Atomic Command Sequences::  
+* Browser mode for script files and theories::  
 @end detailmenu
-
 @end ifinfo
-
-
 
 @node Introducing Proof General
 @chapter Introducing Proof General
@@ -255,7 +270,6 @@ features at the generic level wherever possible.  See
 @ref{Adapting Proof General to New Provers}
 for more details, and send ideas, comments, patches,
 and code to @code{proofgen@@dcs.ed.ac.uk}.
-
 
 @menu
 * Quick start guide::           
@@ -1652,6 +1666,25 @@ provers you need.
 
 @node Bugs specific to LEGO Proof General
 @section Bugs specific to LEGO Proof General
+
+@menu
+* Retraction and Discharge::    
+* Retraction and proving::      
+@end menu
+
+@node Retraction and Discharge
+@subsection Retraction and Discharge
+
+After a @code{Discharge}, retraction ought to only be possible back to
+the first declaration/definition which is discharged. However, LEGO
+Proof General does not know that Discharge has such a non-local effect.
+
+@strong{Workaround:} retract back to the first declaration/definition
+which is discharged.
+
+@node Retraction and proving
+@subsection Retraction and proving
+@cindex Retraction
 
 Getting retracting right is tricky when working on proofs. 
 

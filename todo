@@ -175,14 +175,6 @@ C Clean up proof-assert-until-point behaviour.  Discussion results:
     when new commands are added to the buffer needs careful
     thought! (1h)
 
-B Implement more generic mechanism for large undos (4h tms)
-
-    COQ: C-c u inside a Section should reset the whole section, then
-         redo defns 
-
-    LEGO: consider Discharge; perhaps unrol to the beginning of the
-          module?
-
 D Provide a sensible default frame/buffer layout (4h)
 
 C A less drastic version of proof-restart-script would be useful:
@@ -387,13 +379,19 @@ X pbp code doesn't quite accord with the tech report; in particular it
 * Here are things to be done to Lego mode
 =========================================
 
-C fix Pbp implementation (10h)
+C In LEGO, apart from Goal...Save pairs, we have
+  declaration...discharge pairs. See the section "Granularity of
+  Atomic Commands" for a proposal on how to generalise the current
+  implementation so that it can also deal with "Discharge".
+  [See also the Coq problem with Sections] (6h)
 
 C Inoking an "Expand" command produces a new proof state. But this is
   incorrectly displayed in the response buffer and not the goals
   buffer because special annotations are missing. Presumably, one
   ought to replace "Toplevel.Pr()" by "Toplevel.PR()" in the
   definition of "Expand" (see file newtop.sml [Version 1.4]). (30min)
+
+C fix Pbp implementation (10h)
 
 B release new version of the LEGO proof engine (4h tms)
 
@@ -407,6 +405,12 @@ D Improve legotags. It cannot handle lists e.g., with
 
 * Here are things to be done to Coq mode
 ========================================
+
+C Retraction in a Section should retract to the beginning of the whole 
+  section. See the section "Granularity of
+  Atomic Commands" for a proposal on how to generalise the current
+  implementation so that it can also deal with sections.
+  [See also the LEGO problem with Discharge] (6h)
 
 A* Implement multiple file handling.
 
