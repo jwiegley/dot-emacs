@@ -11,11 +11,24 @@
 
 (setq proof-tags-support nil)  ; we don't want it, no isatags prog.
 (require 'proof)
-
 (require 'isa-syntax)
 
 ;; FIXME: outline should be autoloaded
-(require 'outline)			
+(require 'outline)
+
+;; To make byte compiler be quiet.
+(eval-when-compile
+  (require 'proof-shell)
+  (require 'proof-script)
+  (cond ((fboundp 'make-extent) (require 'span-extent))
+	((fboundp 'make-overlay) (require 'span-overlay))))
+
+
+;;; variable: proof-analyse-using-stack
+;;;    proof-locked-region-empty-p, proof-shell-insert, pbp-mode,
+;;;    proof-mark-buffer-atomic, proof-shell-invisible-command,
+;;;    prev-span, span-property, next-span, proof-unprocessed-begin,
+;;;    proof-config-done, proof-shell-config-done
 
 
 ;;;
@@ -47,6 +60,29 @@ no regular or easily discernable structure."
 ;;;
 ;;; ======== Configuration of generic modes ========
 ;;;
+
+;; ===== outline mode
+
+;;; FIXME: test and add more things here
+(defvar isa-outline-regexp
+  (ids-to-regexp '("goal" "Goal" "prove_goal"))
+  "Outline regexp for Isabelle ML files")
+
+;;; End of a command needs parsing to find, so this is approximate.
+(defvar isa-outline-heading-end-regexp ";[ \t\n]*")
+
+(defconst isa-goal-regexp "^[ \t]*[0-9]+\\. "
+  "Regexp to match subgoal headings.
+Used by proof mode to parse proofstate output, and also
+to set outline heading regexp.")
+  
+;; 
+(defvar isa-shell-outline-regexp isa-goal-regexp)
+(defvar isa-shell-outline-heading-end-regexp isa-goal-regexp)
+
+;;; ---- end-outline
+
+
 
 ;;; NB!  Disadvantage of *not* shadowing variables is that user
 ;;; cannot override them.  It might be nice to override some
@@ -203,27 +239,6 @@ proof-shell-retract-files-regexp."
 	  proof-included-files-list))
 
 
-;; ===== outline mode
-
-;;; FIXME: test and add more things here
-(defvar isa-outline-regexp
-  (ids-to-regexp '("goal" "Goal" "prove_goal"))
-  "Outline regexp for Isabelle ML files")
-
-;;; End of a command needs parsing to find, so this is approximate.
-(defvar isa-outline-heading-end-regexp ";[ \t\n]*")
-
-(defconst isa-goal-regexp "^[ \t]*[0-9]+\\. "
-  "Regexp to match subgoal headings.
-Used by proof mode to parse proofstate output, and also
-to set outline heading regexp.")
-  
-;; 
-(defvar isa-shell-outline-regexp isa-goal-regexp)
-(defvar isa-shell-outline-heading-end-regexp isa-goal-regexp)
-
-;;; ---- end-outline
-
 
 ;;
 ;;   Define the derived modes 
@@ -252,6 +267,9 @@ isa-proofscript-mode."
     (and (buffer-file-name)
 	 (string-match ".thy" (buffer-file-name)))
     (thy-mode)
+    ;; Hack for splash screen
+    (if (memq 'proof-splash-timeout-waiter proof-mode-hook)
+	(proof-splash-timeout-waiter))
     ;; Has this theory file already been loaded by Isabelle?
     ;; Colour it blue if so.  
     (and (member buffer-file-truename proof-included-files-list)
@@ -277,6 +295,9 @@ isa-proofscript-mode."
   (proof-shell-invisible-command 
    (format isa-usethy-notopml-command
 	   (file-name-sans-extension file))))
+
+(defconst isa-retract-file-command "ProofGeneral.retract_file \"%s\";"
+  "Command sent to Isabelle for forgetting")
 
 (defun isa-retract-thy-file (file)
   "Retract the theory file FILE. If interactive, use buffer-file-name."
@@ -355,9 +376,6 @@ isa-proofscript-mode."
 ;; forget particular theorems one by one.  So we ought to search
 ;; backwards in isa-find-and-forget, rather than forwards as
 ;; the old code below does.
-
-(defconst isa-retract-file-command "ProofGeneral.retract_file \"%s\";"
-  "Command sent to Isabelle for forgetting")
 
 (defun isa-find-and-forget (span)
   "Return a command to be used to forget SPAN."
