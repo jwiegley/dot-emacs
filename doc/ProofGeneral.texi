@@ -274,9 +274,12 @@ assistant, you will need to configure your proof assistant to understand
 PGIP.  There is a similarity however; the design of PGIP was based
 heavily on the Emacs Proof General framework.
 
-At the moment little work has been done: collaborations are eagerly
-sought.  For more details, see @uref{http://proofgeneral.inf.ed.ac.uk/kit,
-the Proof General Kit webpage}.
+In 2004 a project to develop PGIP inside the Eclipse IDE will begin.
+There is also a prototype version of a PGIP-enabled Isabelle under
+development, and a middleware component for co-ordinating proof written
+in Haskell.  Further collaborations are sought for more developments,
+especially the PGIP enabling of other provers.  For more details, see
+@uref{http://proofgeneral.inf.ed.ac.uk/kit, the Proof General Kit webpage}.
 
 
 
@@ -344,13 +347,15 @@ For testing and feedback for older versions of Proof General, thanks
 go to Rod Burstall, Martin Hofmann, and James McKinna, and some of
 those who continued to help with the latest 3.x series, named next.
 
-@c FIXME HERE!
+@c FIXME: watch contributors here!
 During the development of Proof General 3.x releases, 
 many people helped provide testing and other feedback, 
 including the Proof General maintainers,
-Paul Callaghan, Pierre Courtieu, and Markus Wenzel, and other folk who
+Paul Callaghan, Pierre Courtieu, and Markus Wenzel, 
+Stefan Berghofer, Gerwin Klein, and other folk who
 tested pre-releases or sent bug reports, including 
 Cuihtlauac Alvarado,
+Lennart Beringer,
 Pascal Brisset,
 James Brotherston,
 Martin Buechi,
@@ -368,6 +373,7 @@ Lawrence Paulson,
 Paul Roziere,
 Randy Pollack,
 Robert R. Schneck,
+Norbert Schirmer,
 Sebastian Skalberg,
 Mike Squire, and
 Norbert Voelker.
@@ -1011,7 +1017,7 @@ interspersed with comments, definitions, and the like.  Of course, the
 exact syntax and terminology will depend on the proof assistant you use.
 
 The name @var{mythm} can appear in a menu for the proof script to help
-quickly find a proof (@pxref{Support for function menus}).
+quickly find a proof (@pxref{Imenu and Speedbar (and Function Menu)}).
 
 @c Proof General recognizes the goal-save sequences in proof scripts.
 @c once a goal-save region has been fully processed by the proof assistant,
@@ -2038,7 +2044,7 @@ and @code{etags}.
 @menu
 * Syntax highlighting::         
 * X-Symbol support::
-* Support for function menus::  
+* Imenu and Speedbar (and Function Menu)::
 * Support for outline mode::    
 * Support for completion::            
 * Support for tags::            
@@ -2142,33 +2148,61 @@ its home page at @uref{http://x-symbol.sourceforge.net/}.
 @c a proof assistant to use X-Symbol in Proof General.
 
 
-@node Support for function menus
-@section Support for function menus
+@node Imenu and Speedbar (and Function Menu)
+@section Imenu and Speedbar (and Function Menu)
 @vindex proof-goal-with-hole-regexp
+@vindex proof-goal-with-hole-result
+@c FIXME: should be see alsos.
+@cindex Speedbar
+@cindex Imenu
+@cindex index menu
+@cindex function menu
 @cindex func-menu
 @cindex fume-func
 
-The Emacs package @code{func-menu} (formerly called @code{fume-func}) is
-a handy facility to make a menu from the names of entities declared in a
-buffer.  Proof General configures @code{func-menu} so that you can
-quickly jump to particular proofs in a script buffer.  (This is done
-with the configuration variables @code{proof-goal-with-hole-regexp} and
-@code{proof-save-with-hole-regexp}.)
-@c , @pxref{Proof script mode} for further details.
+The Emacs packages @code{func-menu} and @code{imenu} each provide a menu
+built from the names of entities (e.g., theorems, definitions, etc)
+declared in a buffer.  This allows easy navigation within the file.
+Proof General configures both packages automatically so that you can
+quickly jump to particular proofs in a script buffer.  The automatic
+configuration is done with the settings
+@code{proof-goal-with-hole-regexp} and
+@code{proof-save-with-hole-regexp}.  Better configuration may be made
+manually with several other settings, see the @i{Adapting Proof General}
+manual for further details.
 
-If you want to use function menu, you can simply select "Function menu"
-from the Proof General menu, or type @kbd{M-x function-menu}.
+To use Imenu, select the option
+@lisp
+        Proof General -> Options -> Index Menu
+@end lisp
+This adds an "Index" menu to the main menu bar for proof script buffers.
+You can also use @kbd{M-x imenu} for keyboard-driven completion of tags
+built from names in the buffer.
 
-Although the package is distributed with XEmacs, it is not enabled by
-default every time you visit a buffer.  To enable it by default
-(i.e. avoid typing @code{M-x function-menu}), you should find the file
-@file{func-menu.el} and follow the instructions there.
+To use Function Menu (distributed only with XEmacs), use @kbd{M-x
+function-menu}.  To enable it by default each time you visit a proof
+script file (i.e. avoid typing @code{M-x function-menu}), you should
+find the file @file{func-menu.el} and follow the instructions there.
 
-GNU Emacs 20.4 does not have the function menu library built in, but you
-may be able to download it from the elisp archives.  A similar mode
-which is supported is @code{imenu}, also in XEmacs.  Proof General would
-be grateful if anyone can send patches for using @code{imenu}
-as an alternative to function menu.
+Speedbar displays a file tree in a separate window on the display,
+allowing quick navigation.  Middle/double-clicking or pressing @kbd{+}
+on a file icon opens up to display tags (definitions, theorems, etc)
+within the file.  Middle/double-clicking on a file or tag jumps to that
+file or tag.
+
+To use Speedbar, use 
+@lisp
+        Tools -> Display Speedbar 
+@end lisp
+(for GNU Emacs), or 
+@lisp
+        Proof General -> Advanced -> Speedbar
+@end lisp
+(for XEmacs).  If you prefer the old fashioned way, `M-x speedbar' does
+the same job.
+
+For more information about Speedbar,
+see @uref{http://cedet.sourceforge.net/speedbar.shtml}.
 
 
 @node Support for outline mode
