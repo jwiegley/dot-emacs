@@ -6,15 +6,7 @@
 ;;
 
 (defvar x-symbol-coq-symbol-table 
-  '((arrowup        () "\\+"   "\\<uparrow>")
-    (arrowdown      () "\\-"   "\\<downarrow>")
-    (angleleft      () "\\<\\" "\\<langle>")
-    (angleright     () "\\>\\" "\\<rangle>")
-    (circledot      () "\\dot\\"     "\\<odot>")
-    (reflexsubset   () "\\incl\\"     "\\<rset>")
-    (element        () "\\in\\"     "\\<in>")
-    (emptyset       () "emptyset" "\\<emptyset>")
-    (perpendicular  () "False"  "\\<bottom>")
+  '((perpendicular  () "False"  "\\<bottom>")
     (top            () "True"   "\\<top>")
     (notsign        () "~"       "\\<not>")
     (longarrowright () "->"  "\\<longrightarrow>")
