@@ -55,10 +55,10 @@ Support next error function.
 Isabelle classic mode: highlighting tweaks for ML code contributed by
 Lucas Dixon (lucasd@dai.ed.ac.uk)
 
-*** Active highlighting of variables
+*** Active highlighting of variables  [ EXPERIMENTAL FEATURE: has issues ]
 
 Variables are made active in the goals buffer.  Hovering the mouse
-over an identifier shows its type.  [IN PROGRESS; faulty with X-Sym]
+over an identifier shows its type.  
 
 This handy feature is a glimpse of what could be done with proper
 subterm markup, which needs support to be added in the Isabelle core.
