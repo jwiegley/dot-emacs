@@ -38,8 +38,8 @@
 	  '(proof-shell-ready-prover
 	    proof-start-queue
 	    proof-shell-live-buffer
-	    proof-shell-invisible-command
-	    proof-response-buffer-display)))
+	    proof-shell-invisible-command)))
+;; proof-response-buffer-display now in proof.el, removed from above.
 
 ;;
 ;;  Internal variables used by script mode
