@@ -680,7 +680,7 @@ NAME does not need to be unique."
       (concat (upcase-initials (symbol-name idiom))
 	      (if (and name
 		       (not (equal name proof-unnamed-theorem-name)))
-		  (concat "[" name "]"))))
+		  (concat " [" name "]"))))
      ((or (eq type 'proof) (eq type 'goalsave))
       (concat "Proof"
 	      (let ((name (span-property span 'name)))
@@ -2812,8 +2812,9 @@ Choice of function depends on configuration setting."
 
 (defun proof-setup-imenu ()
   "Setup a default for imenu."
-  (unless (and (boundp 'imenu-generic-expression)
-	       imenu-generic-expression)
+  (unless ;; already setup, leave it alone
+      (and (boundp 'imenu-generic-expression)
+	   imenu-generic-expression)
     (set (make-local-variable 'imenu-generic-expression)
 	 (delq nil
 	       (list
