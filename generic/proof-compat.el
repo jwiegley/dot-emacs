@@ -25,7 +25,7 @@
 (eval-and-compile
 (defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
   "Non-nil if Proof General is running on XEmacs.")
-;; rough test for XEmacs on win32, anyone't know about FSF there?
+;; rough test for XEmacs on win32, anyone know about FSF on win32?
 (defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
   "Non-nil if Proof General is running on a win32 system."))
 
@@ -75,7 +75,44 @@
       "Dummy function for Proof General on FSF Emacs."
       nil)) ;; pretend always interactive.
 
-      
+
+;; In case Emacs is not aware of the function read-shell-command,
+;; we duplicate some code adjusted from minibuf.el distributed 
+;; with XEmacs 21.1.9
+;;
+;; This code is still required as of FSF Emacs 20.6.1
+;;
+;; da: I think bothering with this just to give completion for
+;; when proof-prog-name-ask=t is rather a big overkill!
+;; Still, now it's here we'll leave it in as a pleasant surprise
+;; for FSF Emacs users.
+;;	
+(or (fboundp 'read-shell-command)
+(defvar read-shell-command-map
+  (let ((map (make-sparse-keymap 'read-shell-command-map)))
+    (if (not (fboundp 'set-keymap-parents))
+	(if (fboundp 'set-keymap-parent)
+	    ;; FSF Emacs 20.2
+	    (set-keymap-parent map minibuffer-local-map)
+	  ;; Earlier FSF Emacs
+	  (setq map (append minibuffer-local-map map))
+	  ;; XEmacs versions without read-shell-command?
+	  (set-keymap-parents map minibuffer-local-map)))
+    (define-key map "\t" 'comint-dynamic-complete)
+    (define-key map "\M-\t" 'comint-dynamic-complete)
+    (define-key map "\M-?" 'comint-dynamic-list-completions)
+    map)
+  "Minibuffer keymap used by shell-command and related commands."))
+
+
+(or (fboundp 'read-shell-command)
+(defun read-shell-command (prompt &optional initial-input history)
+      "Just like read-string, but uses read-shell-command-map:
+\\{read-shell-command-map}"
+      (let ((minibuffer-completion-table nil))
+        (read-from-minibuffer prompt initial-input read-shell-command-map
+                              nil (or history 'shell-command-history)))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -107,12 +144,13 @@
 (or (fboundp 'font-lock-append-text-property)
     (autoload 'font-lock-append-text-property "font-lock"))
 
+;; completion not autoloaded in FSF
+(or (fboundp 'complete)
+    (autoload 'complete "completion"))
+
 
 ;; FIXME: todo: keybinding compat here, esp for mouse.
 ;; See Isamode and emu.el for ideas.
-
-	    
-
 
 
 ;; End of proof-compat.el
