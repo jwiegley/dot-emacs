@@ -1,6 +1,10 @@
 -*- mode:outline -*-
 
+Proof General Low-level List of Things to Do
+============================================
+
 $Id$
+
 
 * Priorities
 ============
@@ -19,6 +23,12 @@ A Clarify licence situation for Proof General after question from
   a potential user. Will the LFCS allow it to be used in a commercial 
   environment without a special licence agreement?
 
+B Add a "register" page for registering downloads.  Perhaps filling
+  will be mandatory for users in a non-academic environment.
+  Suggestion: send an email to proofgen@dcs.ed.ac.uk with POST
+  results. Template:
+    http://www.dcs.ed.ac.uk/home/da/Isamode/IsamodeSurvey.html
+
 B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
 
@@ -35,31 +45,14 @@ A BUGS to investigate:
   - Is there a catch bug on Solaris when a process shell killed?
   - There is a catch bug even on Linux, sometimes get the message
     "proc undefined" after the process has died.  Investigate.
-  - There is a bizarre process bug with "\"'s on 254th character.
-    This now seems to be the root cause of the Solaris bug mentioned
-    below.
-
-     ACTION: putative fix is in place. Want to know if it works or
-     if it breaks anything else.
-
   - Thomas has a bizarre .emacs file which causes Seg Faults with
     Proof General and FSF Emacs.  Doesn't happen with "emacs -q".
     Investigate which package/setting he adds is to blame.
   - outline mode when proof-strict-read-only is nil ought to
     work, but there may be problems.
 
-B We need to go over to piped communication rather than ptys to fix
-  the (Solaris) ^G bug.  (Set process-connection-type to nil).
-  In this circumstance there's a bug in the eager annotation code. 
-  Document this problem so that it can be tested for future versions. 
-  [Currently the problem is documented in Email messages sent to lego]
-
 A Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.
-
-B Markus Wenzel was confused by the download page.  We need to point
-  out more explicitly who each distrib is aimed at.  Maybe separate
-  the pages as Thomas once suggested.
 
 B QUESTION: why do we have proof-shell-proof-completed-regexp's
   perhaps objectionable behaviour of forcing the response buffer?
