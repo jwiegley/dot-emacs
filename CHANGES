@@ -46,7 +46,7 @@ Isabelle you can ask for a graph of the theorem dependencies (thm_deps),
 in Coq you can ask for the proof term to be printed.  
 (Please send us suggestions for other useful features here).
 
-*** Menu improvements (Favourites, options saving)
+*** Menu improvements (favourites, options saving)
 
 Favourites are now more robust.  You can delete them and save them
 when you want.  The PG "quick" options can also be saved separately
@@ -63,6 +63,8 @@ For minor issues, see isa/BUGS.
 
 You can simply remove the directories from the PG distribution,
 instead of customizing the `proof-assistants' variable.
+
+*** Various efficiency improvements 
 
 
 
