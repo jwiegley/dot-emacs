@@ -533,7 +533,7 @@ mere warning messages with this regexp)."
   :type 'regexp
   :group 'proof-shell)
 
-(defvar pbp-hyp-command nil
+(defcustom pbp-hyp-command nil
   "Command informing the prover that `pbp-button-action' has been
   requested on an assumption."
   :type 'regexp
