@@ -384,8 +384,9 @@ Returns new END value."
 	  ;; the careful buffer local font-lock-defaults??
 	  ;; ================================================
 	  ;; 3.5.01: call to font-lock-fontify-region breaks
-	  ;; in xemacs 21.4.  Following hack to fix
-	  (if (and (string-match "21\\.4.*XEmacs" emacs-version)
+	  ;; in xemacs 21.4.  Following hack to fix.
+	  (if (and proof-running-on-XEmacs
+		   (>= emacs-minor-version 4)
 		   (not font-lock-cache-position))
 	      (progn
 		(setq font-lock-cache-position (make-marker))
