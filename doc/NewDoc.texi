@@ -35,6 +35,7 @@
 @set xemacsversion 20.4
 @set fsfversion 20.2
 @set last-update November 1998
+@set rcsid $Id$
 
 @ifinfo
 @format
@@ -92,6 +93,8 @@ preserved on all copies.
 This manual documents Proof General, Version @value{version}, for use
 with XEmacs @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}
 or later versions.
+
+Version control stamp: @code{@value{rcsid}}
 @end titlepage
 
 @page
