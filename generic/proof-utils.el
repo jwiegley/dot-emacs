@@ -392,7 +392,8 @@ Returns new END value."
 		(set-marker font-lock-cache-position 0)))
 
 	  ;; ================================================
-	  (font-lock-default-fontify-region start end nil)
+	  (run-hooks 'proof-before-fontify-output-hook)
+	  (font-lock-default-fontify-region start end)
 	  (proof-zap-commas-region start end))))
   (if proof-shell-leave-annotations-in-output
       ;; Remove special characters that were used for font lock,

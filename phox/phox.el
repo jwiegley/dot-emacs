@@ -206,6 +206,7 @@
    font-lock-keywords  phox-font-lock-keywords
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
+  (add-hook 'proof-shell-handle-delayed-output-hook 'phox-sym-lock-font-lock-hook)
   (proof-response-config-done))
 
 (define-derived-mode phox-goals-mode proof-goals-mode
@@ -214,6 +215,7 @@
    font-lock-keywords  phox-font-lock-keywords
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
+  (add-hook 'proof-before-fontify-output-hook 'phox-sym-lock-font-lock-hook)
   (proof-goals-config-done))
 
 ;; The response buffer and goals buffer modes defined above are

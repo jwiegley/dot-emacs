@@ -2055,6 +2055,12 @@ toolbar."
   :type '(repeat function)
   :group 'proof-shell)
 
+(defcustom proof-before-fontify-output-hook nil
+  "This hook is called before fonfitying a region in an output buffer.
+This hook is mainly used by phox-sym-lock."
+  :type '(repeat function)
+  :group 'proof-shell)
+
 (defcustom proof-shell-font-lock-keywords nil
   "Value of font-lock-keywords used to fontify the proof shell.
 This is currently used only by proof-easy-config mechanism,
