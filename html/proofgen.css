@@ -25,6 +25,7 @@ h1{
  font-family: Verdana, Arial, sans-serif;
  color: #FFFFFF;
  font-size: large;
+ font-series: bold
 }
 
 h2{
@@ -37,6 +38,18 @@ h3{
  font-family: Verdana, Arial, sans-serif;	
  font-size: medium;
  color: #FFFFD0
+}
+
+h4{
+ font-family: Verdana, Arial, sans-serif;	
+ font-size: medium;
+ color: #FFD0D0
+}
+
+h5{
+ font-family: Verdana, Arial, sans-serif;	
+ font-size: medium;
+ color: #E0C0C0
 }
 
 blockquote,form,input,select{

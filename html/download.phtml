@@ -57,7 +57,7 @@ of <a href="http://www.xemacs.org">XEmacs</a>
 <a href="http://sunsite.doc.ic.ac.uk/Mirrors/ftp.xemacs.org/pub/xemacs/">
 ftp mirror</a> may help).
 <br>
-<b>or</b> version 20.2 or later (20.4 recommended) of the much poorer 
+<b>or</b> version 20.2 or later (20.5 recommended) of the much poorer 
 <a href="http://www.gnu.org/software/emacs/">FSF GNU Emacs</a>.
 <br>
 Both Emacsen are available for a variety of platforms, including
@@ -85,21 +85,21 @@ package.
 for installation notes.
 <br>X-Symbol presently only works with XEmacs.  
 </li>
-<li>
-For FSF Emacs, a version of <tt>func-menu.el</tt> to get 
-<?php link_root("features#funcmenu","function menus") ?>.
-<br>Unfortunately I can't find a version of this that
-works with current FSF Emacs releases. I'd be grateful 
-for a pointer to one.  
-<br>
-(The package 
-<tt>imenu.el</tt> may be a suitable replacement,
-and it ships with both Emacsen.  Perhaps  
-somebody could contribute patches to use that 
-instead of <tt>func-menu</tt>).
+<!-- <li> -->
+<!-- For FSF Emacs, a version of <tt>func-menu.el</tt> to get  -->
+<!-- <?php link_root("features#funcmenu","function menus") ?>. -->
+<!-- <br>Unfortunately I can't find a version of this that -->
+<!-- works with current FSF Emacs releases. I'd be grateful  -->
+<!-- for a pointer to one.   -->
+<!-- <br> -->
+<!-- (The package  -->
+<!-- <tt>imenu.el</tt> may be a suitable replacement, -->
+<!-- and it ships with both Emacsen.  Perhaps   -->
+<!-- somebody could contribute patches to use that  -->
+<!-- instead of <tt>func-menu</tt>). -->
 </ul>
 <p>
-All components mentioned are distributed under the GPL license.
+All components mentioned above are distributed under the GPL license.
 </p>
 <br>
 <br>
@@ -150,15 +150,21 @@ Check the <?php fileshow("ProofGeneral-3.0/CHANGES","CHANGES"); ?> file
 for a summary of changes since version 2.1.
 <p>
 Check the latest <?php fileshow("ProofGeneral/BUGS","BUGS"); ?> file
-before reporting problems.  If you find a problem not mentioned
-there, please 
+(also 
+<?php fileshow("ProofGeneral/lego/BUGS","lego/BUGS, "); ?>
+<?php fileshow("ProofGeneral/coq/BUGS","coq/BUGS, "); ?>
+<?php fileshow("ProofGeneral/isa/BUGS","isa/BUGS, "); ?>
+<?php fileshow("ProofGeneral/isar/BUGS","isar/BUGS," ); ?>
+<?php fileshow("ProofGeneral/hol98/BUGS","hol98/BUGS"); ?>)
+before reporting problems.  If you find a problem not already mentioned, 
+please 
 <?php hlink("feedback.phtml","send us a note","Feedback form")?>.
 </p>
 
 
 <br>
 <br>
-<h3> Easy installation! </h3> 
+<h3><a name="install">Easy installation!</a></h3> 
 <p>
 To use Proof General, simply unpack the sources with 
 </p>

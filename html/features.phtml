@@ -67,10 +67,11 @@ If not, read on&#8230;
   <?php dt("Multiple files.","multiple") ?>
   <dd>
   Script management in Proof General can work across many script
-  files.  When a script is visited in the editor, it is locked
-  (coloured) to reflect whether the proof assistant has loaded it in
-  this session.  When a file is unlocked, all of the files which
-  depend on it are automatically unlocked too.
+  files, integrating with the file handling of
+  the proof assistant.  When a script is visited in the editor, it 
+  is locked (coloured) to reflect whether the proof assistant has 
+  loaded it in this session.  When a file is unlocked, all of the 
+  files which depend on it are automatically unlocked too.
   <p> 
   Dependencies between script files are either communicated from the
   proof assistant to Proof General, or maintained automatically by
@@ -128,8 +129,9 @@ If not, read on&#8230;
   Instead of seeing "not P", you see "&not; P", instead
    of "a * b", you see "a &times; b", etc. 
   <br>
-   [the examples above are simple so they will work on most browsers 
-    without needing images]
+   (Those examples are simple so they will work on most browsers 
+    without needing images, see the
+    <a href="screenshot.phtml">screenshots</a> for more examples.)
   <p>
   <?php footnote("X-Symbol currently works in XEmacs only") ?>
   </dd>
@@ -153,8 +155,8 @@ If not, read on&#8230;
   <dd>
   Tags are an editing feature which allow you to quickly locate the
   definition or declaration of a particular identifier.  Proof General
-  is supplied with utilities to make tag indexes for Emacs, for the
-  proof assistants LEGO and Coq.  This makes it easy to quickly access
+  is supplied with utilities to make tag indexes for Emacs.
+  This makes it easy to quickly access
   definitions from a standard library, for example, and in large proof
   developments split across multiple files.
 <!--   <?php footnote("Tags programs are provided for LEGO and Coq") ?> -->

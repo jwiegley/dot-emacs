@@ -1,0 +1,138 @@
+<?php  
+  require('functions.php3');
+  small_header("Proof General Mission (draft)"); 
+  ?>
+
+<center>
+<h2>Mission Statement</h2>
+<h2>Proof General Developers</h2>
+<h2>March 2000</h2>
+</center>
+
+<p>
+We seek to provide an interface suite for helping users interact with
+<a href="#pas"><i>proof assistants</i></a>.
+</p>
+
+<p>
+Our approach is based on these principles:
+<ul>
+<li>
+Be useful to both <a href="#experts"><i>experts and novices</i></a>.
+</li>
+<li>
+Be <a href="scalable"><i>scalable</i></a> to large proof developments.
+</li>
+<li>
+Be <a href="#learn"><i>easy to learn</i></a>, 
+yet still provide advanced features.
+</li>
+<li>
+Be <a href="#generic"><i>generic</i></a> 
+to support many proof assistants with
+a uniform interaction mechanism.
+</li>
+<li>
+Be a <a href="#quality"><i>high-quality</i></a> research prototype.
+</li>
+</ul>
+</p>
+<p>
+Above all, we take a <i>pragmatic</i> approach to constructing
+interfaces.  Our primary aim is to provide a tool which is
+immediately useful for proof engineering, rather than 
+to provide publications by conducting research in 
+human-computer interaction.
+</p>
+<p>
+This aim means that we harness a range of 
+<a href="#proven">proven techniques</a>
+reimplemented in our generic system.
+Nevertheless, by the act of constructing Proof General, we do invent
+and incorporate some <a href="#novel">novel advances</a> which
+contribute to research in the field.
+</p>
+
+<hr>
+<p>
+</p>
+<h2>Footnotes and elaboration</h2>
+
+<dl>
+<?php dt("Proof assistants.","pas") ?>
+<dd>
+Computer programs for constructing formal machine proofs.  Terminology
+varies; we include all kinds of theorem proving systems
+which involve user interaction while a proof is constructed.  
+We currently focus on systems based on a notion of <i>proof
+script</i>, which is a file containing a user-level representation
+of the proof or how it was constructed.
+</dd>
+<?php dt("Experts and novices.","experts") ?>
+<dd>
+Many interfaces for proof assistants are aimed at novice or beginner
+users (and often used for teaching).  Instead, we want to provide an
+interface which is useful for expert users in the first place.
+But we believe such a system can also be helpful for beginner users.
+</dd>
+<?php dt("Scalability.","scalable") ?>
+<dd>
+Some interfaces fail to scale to large proof developments;
+we want Proof General to be useful for real-life, large
+projects, consisting of many theorems and theories.
+</dd>
+<?php dt("Easy to learn.","learn") ?>
+<dd>
+It is difficult enough to learn how to use the logic and language
+of a proof assistant, without an extra effort for learning its
+interface.  We want to provide a friendly interface with
+intuitive features, hence a shallow learning curve. 
+</dd>
+<?php dt("Genericity.","generic") ?>
+<dd>
+Proof General is intended to be used with a variety of underlying
+proof assistants.  We appreciate that different proof assistants are
+based on different logical principles, and implement different proof
+languages.  Yet interaction between different systems often has a
+similar behaviour.  We exploit this to provide a good user interface
+for many systems at once, saving repeated development effort by proof
+assistant implementors.  It has the added benefit of providing a
+uniform interaction mechanism between different systems, making it
+easier for users to experiment with several proof assistants.
+</dd>
+<?php dt("High-quality.","quality") ?>
+<dd>
+The developers are working on Proof General in the academic sector,
+and engineering work itself is not directly funded.  Despite this, we
+strive to follow good engineering practices to build a robust and
+maintainable system, which users can easily install (or test on the
+web).  To this end, we employ open-source development with frequent
+test releases before stable releases, and high-priority attention to
+user suggestions and bug reports.  We use CVS for source control,
+a strategy of bottom-up successive improvement, and provide support
+for each proof assistant by an experienced user/developer.
+</dd>
+<?php dt("Proven techniques.","proven") ?>
+<dd>
+Amongst other features, Proof General currently includes 
+<?php link_root("features#script","script management ") ?>
+and
+<?php link_root("features#pbp","proof-by-pointing") ?>,
+both championed in
+<a href="http://www-sop.inria.fr/croap/">Projet CROAP</a>.
+</dd>
+<?php dt("Novel advances.","novel") ?>
+<dd>
+Proof General also advances the state-of-the-art.
+For example, we introduced proof-by-pointing in
+an free-form environment,
+and extended script management to handle
+<?php link_root("features#multiple","multiple files") ?>.
+</dd>
+</dl>
+
+
+<?php
+   click_to_go_back();
+   footer();
+?>

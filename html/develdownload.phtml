@@ -4,10 +4,10 @@
   ?>
 
 <p>
-Here is the latest pre-release of Proof General, made available
-for those who wish to test the latest features or bug fixes.  
-For developers, this release is also available as a complete archive,
-including forthcoming support for more proof assistants.
+<a href="#prerel">Here</a> is the latest pre-release of Proof General,
+made available for those who wish to test the latest features or bug
+fixes.  For developers, this release is also available as a 
+<a href="#devel">complete CVS snapshot</a>.
 </p>
 <p>
 Pre-releases of Proof General may be buggy as we add new features and
@@ -45,6 +45,15 @@ the planned changes to come.
 <!-- End Warning. -->
 </ul>
 
+For install instructions, see 
+the <?php link_root("download#install",stable version download") ?>.
+
+<p>
+</p>
+<p>
+</p>
+
+
 <!-- WARNING!  Line below automatically edited by makefile. -->
 <h2><a name="devel">Complete Archive of ProofGeneral-3.1pre000310 for Developers</a></h2>
 <!-- End Warning. -->
@@ -64,31 +73,19 @@ What's the difference from the user's pre-release above?
 The complete archive also includes:
 </p>
 <ul>
-  <li> provisional instantiations of Proof General to new provers <br>
-	(mentioned in the 
-   <!-- WARNING!  Line below automatically edited by makefile. -->
-  <?php fileshow("ProofGeneral-3.1pre000310/CHANGES","CHANGES"); ?> file),
-   <!-- End Warning. -->
-  </li>
-  <li> the 
-   <!-- WARNING!  Line below automatically edited by makefile. -->
-   <?php fileshow("ProofGeneral-3.1pre000310/todo","generic low-level list of things to do"); ?>
-   and for each prover:
-   <?php fileshow("ProofGeneral-3.1pre000310/isa/todo","isa to do"); ?>,
-   <?php fileshow("ProofGeneral-3.1pre000310/isar/todo","isar to do"); ?>,
-   <?php fileshow("ProofGeneral-3.1pre000310/coq/todo","coq to do"); ?>,
-   <?php fileshow("ProofGeneral-3.1pre000310/lego/todo","lego to do"); ?>.
-   <!-- End Warning. -->
+  <li> the low-level developer's todo files 
+    (see <?php link_root("devel#lowleveltodo","the developers page") ?>)
    and the detailed
    <!-- WARNING!  Line below automatically edited by makefile. -->
    <?php fileshow("ProofGeneral-3.1pre000310/ChangeLog","ChangeLog"); ?>,
    <!-- End Warning. -->
  </li>
-  <li> developer's Makefile used to generate documentation files <br>
-       and the release itself from our CVS repository,  </li>
-  <li> some test files, </li>
-  <li> sources for some of the images, 
-  <li> the web pages.  
+  <li> developer's Makefile used to generate documentation files 
+       and the release itself,</li>
+  <li> test files, </li>
+  <li> image source files, </li>
+  <li> the web pages, </li>
+  <li> working instantiations of Proof General for new provers </li>
 </ul>
 <p>
 Note: there are no pre-built documentation files in the developer's

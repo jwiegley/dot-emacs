@@ -17,6 +17,15 @@ For detailed version numbers, check the
 </p>
 
 <p>
+To read more about what features Proof General
+provides, 
+<?php link_root("features","click here") ?>.
+<br>
+To see what Proof General looks like in use, have a look at these
+<a href="screenshot.phtml">screenshots</a>.
+</p>
+
+<p>
 Proof General is ready-customized for several proof assistants,
 including:
 </p>
@@ -28,7 +37,7 @@ including:
 		   "<img src=\"images/coq-badge.gif\" width=110 height=35 border=0 alt=\"Coq badge\">","The Coq Home Page") ?>
       </td>
     <td>
-     <b> Coq Proof General </b> for 
+     <b><?php fileshow("ProofGeneral/coq/README","Coq Proof General "); ?></b> for 
        <?php hlink("http://pauillac.inria.fr/coq/assis-eng.html",
 		   "Coq","The Coq Home Page") ?>
        <br>
@@ -47,7 +56,7 @@ including:
        "<img src=\"images/lego-badge.gif\" width=123 height=33 border=0 alt=\"LEGO badge\">",
        "The LEGO Home Page") ?>
    </td>
-    <td><b>LEGO Proof General</b> for
+    <td><b><?php fileshow("ProofGeneral/lego/README","LEGO Proof General "); ?></b> for
        <?php hlink("http://www.dcs.ed.ac.uk/home/lego",
 		   "LEGO","The LEGO Home Page") ?>
        <br>
@@ -69,7 +78,7 @@ including:
       "<img src=\"images/isabelle-badge.gif\" width=128 height=37 border=0 alt=\"Isabelle badge\">",
       "The Isabelle Home Page"); ?>
    </td>
-   <td><b> Isabelle Proof General </b> for
+   <td><b><?php fileshow("ProofGeneral/isa/README","Isabelle Proof General "); ?></b> for
        <?php hlink("http://www.cl.cam.ac.uk/Research/HVG/Isabelle/",
 		    "Isabelle", "The Isabelle Home Page"); ?>
       <br>
@@ -78,7 +87,7 @@ including:
       <a href="http://www.dcs.ed.ac.uk/~da">David Aspinall</a>.
       <br>
       Additional maintainance, support for
-      <a href="http://isabelle.in.tum.de/Isar/">Isabelle/Isar</a>
+      <?php fileshow("ProofGeneral/isar/README","Isabelle/Isar "); ?>
       by
       <a href="http://www.in.tum.de/~wenzelm/">Markus Wenzel</a>.
        </div>
@@ -86,21 +95,19 @@ including:
  </tr>
 </table>
 <p>
+There is also a preliminary version of 
+<b><?php fileshow("ProofGeneral/hol98/README","HOL Proof General "); ?></b>, for
+<a href="http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html">HOL98</a>.
+We are seeking a volunteer from the HOL community to support
+and improve this (perhaps also supporting other HOL variants).
+</p>
+<p>
 Proof General is ready to be customized to new proof assistants.
 <br>
 It can be <?php fileshow("ProofGeneral/demoisa/demoisa-easy.el",
 "very easy"); ?> to get basic support working.
 <br>
 Full documentation on configuration is provided.
-</p>
-
-<p>
-To read more about what features Proof General
-provides, 
-<?php link_root("features","click here") ?>.
-<br>
-To see what Proof General looks like in use, have a look at these
-<a href="screenshot.phtml">screenshots</a>.
 </p>
 
 
