@@ -504,6 +504,8 @@ If the locked region doesn't cover the entire file, retract it."
 	  (proof-unregister-buffer-file-name)
 	  (unless (proof-locked-region-empty-p)
 	    (condition-case nil
+		;; If retraction fails (e.g. proof proc busy), 
+		;; never mind.
 		(proof-retract-until-point)
 	      (error nil))))
 	;; In any case, turn off the fake minor mode
@@ -650,6 +652,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 (defun proof-done-advancing (span)
   "The callback function for assert-until-point."
+  ;; FIXME da: if the buffer dies, this function breaks.
+  ;; Needs robustifying.
   (let ((end (span-end span)) nam gspan next cmd)
     (proof-set-locked-end end)
     (proof-set-queue-start end)
@@ -1614,6 +1618,7 @@ sent to the assistant."
 Clean up before a script buffer is killed.
 If killing the active scripting buffer, run proof-deactivate-scripting.
 Otherwise just do proof-restart-buffers to delete some spans from memory."
+  ;; Deactivate scripting in the current buffer if need be.
   (if (eq (current-buffer) proof-script-buffer)
       (proof-deactivate-scripting))
   (proof-restart-buffers (list (current-buffer)))
