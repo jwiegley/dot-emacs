@@ -101,6 +101,27 @@ A span is before PT if it covers the character before PT."
 (defalias 'span-string 'extent-string)
   
 ;Pierre: new untility functions for "holes" 
+(defsubst make-detached-span ()
+  "Return the buffer owning span."
+  (make-extent nil nil)
+  )
+
+
+(defsubst span-buffer (span)
+  "Return the buffer owning span."
+  (extent-buffer span)
+  )
+
+(defsubst span-detached-p (span)
+  "is this span detached? nil for no, t for yes"
+  (extent-detached-p span)
+)
+
+(defsubst set-span-face (span face)
+  "set the face of a span"
+  (set-extent-face span face)
+)
+
 (defsubst fold-spans (FUNCTION &optional OBJECT FROM TO MAPARG FLAGS PROPERTY VALUE)
   "map on span, see map-extent on xemacs"
   (map-extents FUNCTION OBJECT FROM TO MAPARG FLAGS PROPERTY VALUE)
