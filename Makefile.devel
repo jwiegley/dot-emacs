@@ -1,25 +1,91 @@
-#
+##
+## Makefile for Proof General 
+##
+## Author:  David Aspinall <da@dcs.ed.ac.uk>
+##
+## $Id$
+## 
+###########################################################################
+
+
 #  TODO (da):
-#    - tag the release in the sources
-#    - build docs
-#    - distrib is built by running 'make dist' in
-#      exported source dir
-#
-# $Id$
+#    - user-level targets for docs and .elc compile.
 
-CVSROOT = /home/lego/src
-EXPORTDIR = /home/lego/pub/emacs
-RELEASENAME = emacs-2.0
-TRELEASENAME = $(RELEASENAME).tar
 
-EMACS=xemacs
+
+##
+## Use:
+##
+##    make compile        - cleanout all .elc's and recompile
+##    make <file.elc>     - byte compile file if .el file is newer
+##                          (do all if <file.elc> is omitted)
+##    make docs           - build info and .dvi files from isamode.texi
+##    make pdf / html     - make other documentation files
+##    make install        - install .el and .elc's into INSTALLDIR
+##                          .rules files into RULESINSTALLDIR
+##    make public         - install doc files and .el's into PUBLICDIR
+##
+###########################################################################
+##
+## Things to edit: INSTALLDIR, PUBLICDIR, EMACS, MAKEINFO, TEXI2DVI
+##
+## See-also: generic/proof-site.el
+## 
+###########################################################################
+
+
+
 
 # Byte compilation command
 BYTECOMP = $(EMACS) -batch -q -f batch-byte-compile
 
-FILES_NONCVS = ChangeLog
+EMACS=xemacs
+
+
+#############################################################
+##
+## Developer use only:
+##
+##    make ChangeLog	  - make ChangeLog from CVS sources (uses emacs)
+##    make tag		  - tag the CVS sources with CVS_RELEASE_TAG
+##    make dist           - make a distribution from sources with above tag
+## 
+#############################################################
+##
+## Developer variables
+##
+
+# Release tag.  NB: CVS tags can't have points in them.
+RELEASE_TAG=2.0-pre$(shell date "+%y%m%d")
+CVS_RELEASE_TAG=2-0-pre$(shell date "+%y%m%d")
+
+CVSNAME = elisp
+CVSROOT = /home/lego/src
+EXPORTDIR = /home/lego/pub/ProofGeneral
+
+NAME = ProofGeneral
+RELEASENAME = ProofGeneral-2.0
+
+# Files to not include the distribution 
+NONDISTFILES=todo html
+
+# Where to build a distribution
+DISTBUILDIR = /tmp/ProofGeneralRelease
+
+# Where to install a new distribution
+RELEASEDIR = /home/lego/EXPORT/ProofGeneral
+
+# Files not kept under cvs to clean away.
+FILES_NONCVS = ChangeLog 
+
 
 FORCE:
+
+# Targets to pre-compile for distribution
+# Slightly dodgy to include elisp compile here.
+alldist:	docs
+
+
 
 ############################################################
 #
@@ -39,7 +105,7 @@ ChangeLog:	FORCE
 # Idea is to remove all ?'s from 'cvs update' output.
 #
 cvsclean:	clean
-	rm -f $(FILES_NONCVS)
+	rm -rf $(FILES_NONCVS)
 
 
 ############################################################
@@ -52,20 +118,87 @@ clean:
 
 ############################################################
 #
-# Build new release
+# Documentation
 #
-release :
-		     cd /tmp; \
-		     rm -fr lego;\
-		     mkdir lego;\
-		     cd lego;\
-		     cvs -d $(CVSROOT) export -D today elisp;\
-		     cd elisp; \
-		     tar cf $(TRELEASENAME) *;\
-		     compress -c $(TRELEASENAME) > $(TRELEASENAME).Z;\
-		     gzip -c $(TRELEASENAME) > $(TRELEASENAME).gz;\
-		     cp -p $(RELEASENAME).* $(EXPORTDIR);\
-		     cd ..; cvs release -d elisp
+docs:
+
+
+
+############################################################
+##
+## tag:    tag the CVS sources of working directory with RELEASE_TAG,
+##	   and edit version stamp in proof-site.el
+##	   (Developers only)
+##
+tag:		
+	@echo "*************************************************"
+	@echo " Tagging sources... (fails if CVS source dirty)"
+	@echo "*************************************************"
+#	if [ -n "`cvs -n -q update`" ]; then exit 1; fi
+	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/proof-general-version \".*\"/proof-general-version \"Proof General, Version $(RELEASE_TAG) released by da,tms. Email lego@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
+	cvs commit -m"Set version tag for release." generic/proof-site.el
+	cvs tag "Release-$(CVS_RELEASE_TAG)"
+
+
+############################################################
+##
+## dist: make a distribution in DISTBUILDIR from CVS sources
+##       Builds from sources tagged with CVS_RELEASE_TAG.
+##	 Moves html files to parent directory, and removes
+##       non-distributed files.
+##	 (Developer only)
+##	    
+dist:	cvsclean
+	@echo "*************************************************"
+	@echo " Cleaning dist build directory..."
+	@echo "*************************************************"
+	rm -rf $(DISTBUILDIR)
+	mkdir -p $(DISTBUILDIR)
+	@echo "*************************************************"
+	@echo " Running cvs export .."
+	@echo "*************************************************"
+	cvs export -kv -r "Release-$(CVS_RELEASE_TAG)" -d $(DISTBUILDIR)/$(RELEASENAME) $(CVSNAME)
+	@echo "*************************************************"
+	@echo " Running 'make alldist' for new release .."
+	@echo "*************************************************"
+#	(cd $(DISTBUILDIR)/$(RELEASENAME); make alldist)
+	@echo "*************************************************"
+	@echo " Moving html files .."
+	@echo "*************************************************"
+	(cd $(DISTBUILDIR)/$(RELEASENAME)/html; mv * ../..)
+	@echo "*************************************************"
+	@echo " Cleaning non-distributed files .."
+	@echo "*************************************************"
+	(cd $(DISTBUILDIR)/$(RELEASENAME); rm -rf $(NONDISTFILES))
+	@echo "*************************************************"
+	@echo " Making compressed tar file..."
+	@echo "*************************************************"
+	tar -cvhf $(DISTBUILDIR)/$(RELEASENAME).tar -C $(DISTBUILDIR) $(RELEASENAME)
+	gzip -9 $(DISTBUILDIR)/$(RELEASENAME).tar
+	@echo "*************************************************"
+	@echo " Finished."
+	@echo "*************************************************"
+
+
+############################################################
+##
+## release:
+##     tag the CVS sources, and make a distribution.
+##     Then install the distribution in RELEASEDIR.
+##     RELEASEDIR is not cleaned, but files there
+##     with same names will be overwritten.
+##     Moreover, a link ProofGeneral -> ProofGeneral-<version>
+##     is made.
+##	  
+release: tag dist
+	mkdir -p $(RELEASEDIR)
+	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
+	cd $(RELEASEDIR)
+	ln -sf $(RELEASENAME) $(NAME)
+
+
+
+
 
 
 
