@@ -23,7 +23,7 @@ h1{
  font-family: Verdana, Arial, sans-serif;
  color: #FFFFFF;
  font-size: large;
- font-series: bold;
+ font-weight: bold;
 }
 h2{
  font-family: Verdana, Arial, sans-serif;
@@ -157,7 +157,7 @@ TD.head1old {
 }
 td.head1{
  font-family: Verdana, Arial, sans-serif;
- font-series: bold;
+ font-weight: bold;
  font-size: 110%;
  text-align: center;
  color: #FFFFFF;
