@@ -444,6 +444,8 @@ the form of the menu entry for the setting.")
 	      (proof-defstringset-fn pasym)
 	      t)))))
 
+;;; autoload for compiled version: used in macro proof-defpacustom
+;;;###autoload
 (defun proof-defpacustom-fn (name val args)
   "As for macro `defpacustom' but evaluation arguments."
   (let (newargs setting)
