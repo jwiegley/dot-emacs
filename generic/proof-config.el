@@ -53,6 +53,25 @@
   :type 'boolean
   :group 'proof)
 
+(and (featurep 'toolbar)
+(defcustom proof-toolbar-wanted t
+  "*Whether to use toolbar in proof mode."
+  :type 'boolean
+  :group 'proof))
+
+(defcustom proof-toolbar-follow-mode 'follow
+  "*Choice of how point moves with toolbar commands.
+One of the symbols: locked, follow, ignore.
+If locked, point sticks to the end of the locked region with toolbar commands.
+If follow, point moves just when needed to display the locked region end.
+If ignore, point is never moved after toolbar movement commands."
+  :type '(choice
+	  (const :tag "Follow locked region" locked)
+	  (const :tag "Keep locked region displayed" follow)
+	  (const :tag "Never move" ignore))
+  :group 'proof)
+
+
 ;;
 ;; Faces.
 ;; We ought to test that these work sensibly:
@@ -70,6 +89,11 @@
 ;; script languages.
 ;;
 
+(defgroup proof-faces nil
+  "Faces used by Proof General."
+  :group 'proof)
+  
+
 (defface proof-queue-face
   '((((type x) (class color) (background light))
      (:background "mistyrose"))
@@ -78,7 +102,7 @@
     (t				
      (:foreground "white" :background "black")))
   "*Face for commands in proof script waiting to be processed."
-  :group 'proof)
+  :group 'proof-faces)
 
 (defface proof-locked-face
   '((((type x) (class color) (background light))   
@@ -88,7 +112,7 @@
     (t				
      (:underline t)))
   "*Face for locked region of proof script (processed commands)."
-  :group 'proof)
+  :group 'proof-faces)
 
 (defface proof-declaration-name-face
   '((((type x) (class color) (background light))   
@@ -100,7 +124,7 @@
     (t				
      (:italic t :bold t)))
   "*Face for declaration names in proof scripts."
-  :group 'proof)
+  :group 'proof-faces)
 
 (defface proof-tacticals-name-face
   '((((type x) (class color) (background light))   
@@ -110,7 +134,7 @@
     (t				
      (bold t)))
   "*Face for names of tacticals in proof scripts."
-  :group 'proof)
+  :group 'proof-faces)
 
 (defface proof-error-face 
   '((((type x) (class color) (background light))   
@@ -121,7 +145,8 @@
       :bold t))
     (t				
      (:bold t)))
-  "*Face for error messages from proof assistant.")
+  "*Face for error messages from proof assistant."
+  :group 'proof-faces)
 
 (defface proof-warning-face
   '((((type x) (class color) (background light))   
@@ -131,7 +156,8 @@
     (t				
      (:italic t)))
   "*Face for warning messages.
-Could come either from proof assistant or Proof General itself.")
+Could come either from proof assistant or Proof General itself."
+  :group 'proof-faces)
 
 (defface proof-eager-annotation-face
   '((((type x) (class color) (background light))   
@@ -140,7 +166,8 @@ Could come either from proof assistant or Proof General itself.")
      (:background "darkgoldenrod"))
     (t				
      (:italic t)))
-  "*Face for messages from proof assistant.")
+  "*Face for messages from proof assistant."
+  :group 'proof-faces)
 
 
 
@@ -230,17 +257,17 @@ Suggestion: this can be set in the script mode configuration."
 (defcustom proof-ctxt-string ""
   "*Command to display the context in proof assistant."
   :type 'string
-  :group 'proof)
+  :group 'prover-config)
 
 (defcustom proof-help-string ""
   "*Command to ask for help in proof assistant."
   :type 'string
-  :group 'proof)
+  :group 'prover-config)
 
 (defcustom proof-prf-string ""
   "Command to display proof state in proof assistant."
   :type 'string
-  :group 'prover-)
+  :group 'prover-config)
 
 (defcustom proof-goal-command nil
   "Command to set a goal in the proof assistant.  String or fn.
