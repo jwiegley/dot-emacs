@@ -1853,12 +1853,13 @@ Refine
 @node LEGO tags
 @section LEGO tags
 
-The LEGO Proof General provides the program @file{legotags} to generate
-tags for LEGO proof scripts. Invoking @samp{legotags *.l} produces a
-file @file{TAGS} for all LEGO modules in the current directory
-@footnote{You might want to ask your local system administrator to tag
-the directories @file{lib_Prop}, @file{lib_Type} and @file{lib_TYPE} of
-the LEGO library.}. 
+LEGO Proof General provides the program @file{legotags} to generate tags
+for LEGO proof scripts. Invoking @samp{legotags *.l} produces a file
+@file{TAGS} for all LEGO modules in the current directory @footnote{You
+might want to ask your local system administrator to tag the directories
+@file{lib_Prop}, @file{lib_Type} and @file{lib_TYPE} of the LEGO
+library.}.  
+
 See @ref{Support for tags} for further details on tags.
 
 
@@ -1934,7 +1935,10 @@ the @code{Search} command of Coq.
 @section Coq tags
 @c could be generic
 
-Coq tags work as in LEGO, @xref{LEGO tags}.
+Coq Proof General provides the program @file{coqtags} to generate tags
+for Coq proof scripts.  
+
+See @ref{Support for tags} for further details on tags.
 
 @node Editing multiple proofs
 @section Editing multiple proofs
