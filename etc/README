@@ -1,0 +1,12 @@
+Files in this directory  (not part of standard distribution)
+============================================================
+
+ProofGeneral.spec   }  For building the Proof General RPM.
+ProofGeneral.patch  }
+
+announce	       Announcement
+		       
+lego		       Files for testing LEGO Proof General
+		       
+isa		       Files for testing Isabelle Proof General
+
