@@ -136,7 +136,8 @@ If QUEUEMODE is supplied, set the lock to that value."
 Clear proof-shell-busy, and set proof-shell-error-or-interrupt-seen
 to err-or-int."
   (setq proof-shell-error-or-interrupt-seen err-or-int)
-  (setq proof-shell-busy nil))
+  (setq proof-shell-busy nil)
+  (setq proof-shell-spill-output-buffer nil))
 
 
 
@@ -385,7 +386,8 @@ exited by hand (or exits by itself)."
 	proof-shell-last-output nil
 	proof-shell-last-output-kind nil
 	proof-shell-delayed-output nil
-	proof-shell-delayed-output-kind nil))
+	proof-shell-delayed-output-kind nil
+	proof-shell-spill-output-buffer nil))
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
@@ -1308,155 +1310,163 @@ If none of these apply, display MESSAGE.
 MESSAGE should be a string annotated with 
 proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
     (cond
-   ;; Is the prover processing a file?
-   ;; FIXME da: this interface is quite restrictive: might be
-   ;; useful for one message to name several files, or include
-   ;; an instruction to purge the included files list, rather
-   ;; than erasing everything and re-adding it.
-   ;; Contrast retraction interface: there we compute whole
-   ;; new list.
-   ;; (Come to think of it, maybe we could unify the two
-   ;; cases: automatically find removed files and added files
-   ;; between two versions of proof-included-files-list)
-   ((and proof-shell-process-file 
-	 (string-match (car proof-shell-process-file) message))
-    (let
-	((file (funcall (cdr proof-shell-process-file) message)))
-      ;; Special hack: empty string indicates current scripting buffer
-      ;; (not used anywhere presently?)
-      ;; (if (and proof-script-buffer (string= file ""))
-      ;;  (setq file (buffer-file-name proof-script-buffer)))
-      ;; YES!  It *was* used by LEGO.
-      ;; Now we avoid this in favour of altering the processed
-      ;; files list when the current scripting buffer changes,
-      ;; inside Proof General.  Attempt to harmonize behaviour
-      ;; with Isabelle.  Seems wrong to add "example.l" to
-      ;; list of processed files if it's only partly processed?
-      ;; (On the other hand, for lego, it may have declared a 
-      ;;  module heading, which is probably Lego's standard
-      ;;  for what a processed file actually is).
-      (if (and file (not (string= file "")))
-	  (proof-register-possibly-new-processed-file file))))
-
-   ;; CASE retract: the prover is retracting across files
-   ((and proof-shell-retract-files-regexp
-	 (string-match proof-shell-retract-files-regexp message))
-    (let ((current-included proof-included-files-list))
-      (setq proof-included-files-list
-	    (funcall proof-shell-compute-new-files-list message))
+     ;; CASE processing file: the prover is reading a file directly
+     ;;
+     ;; FIXME da: this interface is quite restrictive: might be
+     ;; useful for one message to name several files, or include
+     ;; an instruction to purge the included files list, rather
+     ;; than erasing everything and re-adding it.
+     ;; Contrast retraction interface: there we compute whole
+     ;; new list.
+     ;; (Come to think of it, maybe we could unify the two
+     ;; cases: automatically find removed files and added files
+     ;; between two versions of proof-included-files-list)
+     ((and proof-shell-process-file 
+	   (string-match (car proof-shell-process-file) message))
       (let
-	  ;; Previously active scripting buffer
-	  ((scrbuf proof-script-buffer))
-	;; NB: we assume that no new buffers are *added* by
-	;; the proof-shell-compute-new-files-list 
-	(proof-restart-buffers
-	 (proof-files-to-buffers
+	  ((file (funcall (cdr proof-shell-process-file) message)))
+	;; Special hack: empty string indicates current scripting buffer
+	;; (not used anywhere presently?)
+	;; (if (and proof-script-buffer (string= file ""))
+	;;  (setq file (buffer-file-name proof-script-buffer)))
+	;; YES!  It *was* used by LEGO.
+	;; Now we avoid this in favour of altering the processed
+	;; files list when the current scripting buffer changes,
+	;; inside Proof General.  Attempt to harmonize behaviour
+	;; with Isabelle.  Seems wrong to add "example.l" to
+	;; list of processed files if it's only partly processed?
+	;; (On the other hand, for lego, it may have declared a 
+	;;  module heading, which is probably Lego's standard
+	;;  for what a processed file actually is).
+	(if (and file (not (string= file "")))
+	    (proof-register-possibly-new-processed-file file))))
+
+     ;; CASE retract: the prover is retracting across files
+     ((and proof-shell-retract-files-regexp
+	   (string-match proof-shell-retract-files-regexp message))
+      (let ((current-included proof-included-files-list))
+	(setq proof-included-files-list
+	      (funcall proof-shell-compute-new-files-list message))
+	(let
+	    ;; Previously active scripting buffer
+	    ((scrbuf proof-script-buffer))
+	  ;; NB: we assume that no new buffers are *added* by
+	  ;; the proof-shell-compute-new-files-list 
+	  (proof-restart-buffers
+	   (proof-files-to-buffers
 	  (set-difference current-included
 			  proof-included-files-list)))
-	(cond
-	 ;; Do nothing if there was no active scripting buffer
-	 ((not scrbuf))
-	 ;; Do nothing if active scripting buffer hasn't changed
-	 ;; (NB: it might have been nuked)
-	 ((eq scrbuf proof-script-buffer))
-	 ;; FIXME da: I've forgotten the next condition was needed?
-	 ;; 
-	 ;; In fact, it breaks the case that the current scripting
-	 ;; buffer should be deactivated if the prover retracts it.
-	 ;; When scripting begins again in the buffer, other
-	 ;; files may have to be re-read which may not happen unless
-	 ;; scripting is properly de-activated.
-	 ;;
-	 ;; Otherwise, active scripting buffer has been retracted.
-	 ;; Add it back!!  Why? Presumably because code likes to
-	 ;; have an active scripting buffer??
-	 (t
-	  ;; FIXME da: want to test disabling currently active scripting
-	  ;; buffer.  Unfortunately this doesn't work with current
-	  ;; use of proof-script-buffer-list: always have to have
-	  ;; *some* scripting buffer active.  ARGHH!
-	  ;; FIXME da: test not having this add-back.  Then
-	  ;; scripting buffer may change wrongly and randomly
-	  ;; to some other buffer, without running change functions.
-	  ;;
-	  ;; FIXME da: test setting this to nil, scary!
-	  (setq proof-script-buffer nil)
-	  ;;(setq proof-script-buffer-list 
-	  ;;	(cons scrbuf proof-script-buffer-list))
-	  ;; (save-excursion
-	  ;;  (set-buffer scrbuf)
-	  ;;  (proof-init-segmentation)))))
-	  )))
-      ))
-
-   ;; CASE clear response: prover asks PG to clear response buffer
-   ((and proof-shell-clear-response-regexp
-	 (string-match proof-shell-clear-response-regexp message)
-	 proof-response-buffer)
-    ;; Erase response buffer and possibly its windows.
-    (proof-shell-maybe-erase-response nil t t))
-
-   ;; CASE clear goals: prover asks PG to clear goals buffer
-   ((and proof-shell-clear-goals-regexp
-	 (string-match proof-shell-clear-goals-regexp message)
-	 proof-goals-buffer)
-    ;; Erase goals buffer but and possibly its windows
-    (proof-clean-buffer proof-goals-buffer))
+	  (cond
+	   ;; Do nothing if there was no active scripting buffer
+	   ((not scrbuf))
+	   ;; Do nothing if active scripting buffer hasn't changed
+	   ;; (NB: it might have been nuked)
+	   ((eq scrbuf proof-script-buffer))
+	   ;; FIXME da: I've forgotten the next condition was needed?
+	   ;; 
+	   ;; In fact, it breaks the case that the current scripting
+	   ;; buffer should be deactivated if the prover retracts it.
+	   ;; When scripting begins again in the buffer, other
+	   ;; files may have to be re-read which may not happen unless
+	   ;; scripting is properly de-activated.
+	   ;;
+	   ;; Otherwise, active scripting buffer has been retracted.
+	   ;; Add it back!!  Why? Presumably because code likes to
+	   ;; have an active scripting buffer??
+	   (t
+	    ;; FIXME da: want to test disabling currently active scripting
+	    ;; buffer.  Unfortunately this doesn't work with current
+	    ;; use of proof-script-buffer-list: always have to have
+	    ;; *some* scripting buffer active.  ARGHH!
+	    ;; FIXME da: test not having this add-back.  Then
+	    ;; scripting buffer may change wrongly and randomly
+	    ;; to some other buffer, without running change functions.
+	    ;;
+	    ;; FIXME da: test setting this to nil, scary!
+	    (setq proof-script-buffer nil)
+	    ;;(setq proof-script-buffer-list 
+	    ;;	(cons scrbuf proof-script-buffer-list))
+	    ;; (save-excursion
+	    ;;  (set-buffer scrbuf)
+	    ;;  (proof-init-segmentation)))))
+	    )))
+	))
+     
+     ;; CASE clear response: prover asks PG to clear response buffer
+     ((and proof-shell-clear-response-regexp
+	   (string-match proof-shell-clear-response-regexp message)
+	   proof-response-buffer)
+      ;; Erase response buffer and possibly its windows.
+      (proof-shell-maybe-erase-response nil t t))
+     
+     ;; CASE clear goals: prover asks PG to clear goals buffer
+     ((and proof-shell-clear-goals-regexp
+	   (string-match proof-shell-clear-goals-regexp message)
+	   proof-goals-buffer)
+      ;; Erase goals buffer but and possibly its windows
+      (proof-clean-buffer proof-goals-buffer))
    
-   ;; CASE variable setting: prover asks PG to set some variable 
-   ;; NB: no safety protection whatsoever here, we use blind faith
-   ;; that the prover will not send malicious elisp!!
-   ((and proof-shell-set-elisp-variable-regexp
-	 (string-match proof-shell-set-elisp-variable-regexp message))
-    (let 
-	((variable   (match-string 1 message))
-	 (expr	     (match-string 2 message)))
-      (condition-case err
-	  ;; Easiest way to do this seems to be to dump the lisp
-	  ;; string into another buffer -- no direct way to eval
-	  ;; from a string?
-	(with-temp-buffer
-	  (insert expr)
-	  (set (intern variable) (eval-last-sexp t)))
-	(t (proof-debug 
-	    (concat
-	     "lisp error when obeying proof-shell-set-elisp-variable: \n"
-	     "setting `" variable "'\n to: \n"
-	     expr "\n"))))))
-
-   ;; CASE PGIP message from proof assistant.
-   ((and proof-shell-match-pgip-cmd
-	 (string-match proof-shell-match-pgip-cmd message))
-    (require 'pg-xml)
-    (require 'pg-pgip)
-    (let
-	((parsed-pgip  (pg-xml-parse-string message)))
-     (pg-pgip-process-cmd parsed-pgip)))
-
-   ;; CASE theorem dependency: prover lists thms used in last proof
-   ((and proof-shell-theorem-dependency-list-regexp 
-	 (string-match proof-shell-theorem-dependency-list-regexp message))
+     ;; CASE variable setting: prover asks PG to set some variable 
+     ;; NB: no safety protection whatsoever here, we use blind faith
+     ;; that the prover will not send malicious elisp!!
+     ((and proof-shell-set-elisp-variable-regexp
+	   (string-match proof-shell-set-elisp-variable-regexp message))
+      (let 
+	  ((variable   (match-string 1 message))
+	   (expr	     (match-string 2 message)))
+	(condition-case err
+	    ;; Easiest way to do this seems to be to dump the lisp
+	    ;; string into another buffer -- no direct way to eval
+	    ;; from a string?
+	    (with-temp-buffer
+	      (insert expr)
+	      (set (intern variable) (eval-last-sexp t)))
+	  (t (proof-debug 
+	      (concat
+	       "lisp error when obeying proof-shell-set-elisp-variable: \n"
+	       "setting `" variable "'\n to: \n"
+	       expr "\n"))))))
+     
+     ;; CASE PGIP message from proof assistant.
+     ((and proof-shell-match-pgip-cmd
+	   (string-match proof-shell-match-pgip-cmd message))
+      (require 'pg-xml)
+      (require 'pg-pgip)
+      (let
+	  ((parsed-pgip  (pg-xml-parse-string message)))
+	(pg-pgip-process-cmd parsed-pgip)))
+     
+     ;; CASE theorem dependency: prover lists thms used in last proof
+     ((and proof-shell-theorem-dependency-list-regexp 
+	   (string-match proof-shell-theorem-dependency-list-regexp message))
       (setq proof-last-theorem-dependencies 
 	    (split-string (match-string 1 message))))
-   
-   (t
-    ;; We're about to display a message.  Clear the response buffer
-    ;; if necessary, but don't clear it the next time.
-    ;; Don't bother remove the window for the response buffer
-    ;; because we're about to put a message in it.
-    (proof-shell-maybe-erase-response nil nil)
-    (let ((stripped	(proof-shell-strip-special-annotations message))
-	  firstline)
-      ;; Display first chunk of output in minibuffer.
-      ;; Maybe this should be configurable, it can get noisy.
-      (proof-shell-message 
-       (substring stripped 0 (or (string-match "\n" stripped)
-				 (min (length stripped) 75))))
-      (proof-response-buffer-display 
-       (if proof-shell-leave-annotations-in-output
-	   message
-	 stripped)
-       'proof-eager-annotation-face)))))
+
+     ;; CASE spill begin: prover is dumping a large message which
+     ;; we'll redirect to a new buffer (unless already doing so)
+     ((and proof-shell-spill-output-regexp
+	   (not proof-shell-spill-output-buffer)
+	   (string-match proof-shell-spill-output-regexp message))
+      (proof-shell-spill-output-begin message))
+     
+     (t
+      ;; We're about to display a message.  Clear the response buffer
+      ;; if necessary, but don't clear it the next time.
+      ;; Don't bother remove the window for the response buffer
+      ;; because we're about to put a message in it.
+      (proof-shell-maybe-erase-response nil nil)
+      (let ((stripped	(proof-shell-strip-special-annotations message))
+	    firstline)
+	;; Display first chunk of output in minibuffer.
+	;; Maybe this should be configurable, it can get noisy.
+	(proof-shell-message 
+	 (substring stripped 0 (or (string-match "\n" stripped)
+				   (min (length stripped) 75))))
+	(proof-response-buffer-display 
+	 (if proof-shell-leave-annotations-in-output
+	     message
+	   stripped)
+	 'proof-eager-annotation-face)))))
 
 (defvar proof-shell-urgent-message-marker nil
   "Marker in proof shell buffer pointing to end of last urgent message.")
@@ -1529,6 +1539,46 @@ This is a subroutine of proof-shell-filter."
 	(1- (process-mark (get-buffer-process (current-buffer)))))))
     (goto-char pt)))
 
+(defvar proof-shell-spill-output-buffer nil
+  "Non-nill indicates proof shell output is being spilled into this buffer.")
+
+(defun proof-shell-spill-output-begin (msg)
+  "Begin spill output from prover into a fresh response-like buffer."
+  (let* ((spill (concat "*" (downcase proof-assistant) "-trace*")))
+    ;; FIXME: maybe this should always be the same buffer, proliferation
+    ;; is maybe confusing.
+    (setq proof-shell-spill-output-buffer (generate-new-buffer spill))
+    (save-excursion
+      (set-buffer proof-shell-spill-output-buffer)
+      (funcall proof-mode-for-response)
+      ;; FIXME: set mode and fontification
+      (insert msg)
+      (proof-fontify-region (point-min) (point-max)))
+    (proof-display-and-keep-buffer proof-shell-spill-output-buffer)
+    ;; redisplay to show trace buffer
+    (sit-for 0)))
+
+(defun proof-shell-spill-output (str)
+  ;; We're spilling output eagerly into another buffer, so append
+  ;; the output chunk we've just received.  (NB: may include or even
+  ;; go past prompt, a bit messy but never mind for now)
+  (save-excursion
+    (set-buffer proof-shell-spill-output-buffer)
+    (goto-char (point-max))
+    (let ((start (point)))
+      (insert str)
+      (proof-fontify-region start (point-max)))
+    ;; if a window is displaying trace info, recenter and
+    ;; pause for redisplay
+    (let ((win  (get-buffer-window proof-shell-spill-output-buffer 
+				   'visible)))
+      (if (and win
+	       (not (pos-visible-in-window-p (point) win)))
+	  (recenter -1))
+      (if win
+	  ; (sit-for 0)))))
+	  (redisplay-frame)))))
+
 	    
 ;; NOTE da: proof-shell-filter does *not* update the proof-marker,
 ;; that's done in proof-shell-insert.  Previous docstring below was
@@ -1573,6 +1623,11 @@ correspond with initializing the process.  The
 ordinary output before the first prompt is ignored (urgent messages, 
 however, are always processed; hence their name)."
   (save-excursion
+    ;; Spill output eagerly into some other buffer
+    (if proof-shell-spill-output-buffer
+	(proof-shell-spill-output str))
+
+    ;; Process urgent messages.
     (and proof-shell-eager-annotation-start
 	 (proof-shell-process-urgent-messages))
 
@@ -1661,6 +1716,9 @@ however, are always processed; hence their name)."
 		      ;;   (proof-fontify-region startpos (point))
 		      (setq string (buffer-substring startpos (point)))
 		      (goto-char (point-max))	
+		      ;; Ensure spill mode is off 
+		      (setq proof-shell-output-buffer nil)
+		      ;; Process output string.
 		      (proof-shell-filter-process-output string))))
 	    ;; If proof-action-list is empty, make sure the process lock
 	    ;; is not held!  This should solve continual "proof shell busy"
@@ -1741,6 +1799,9 @@ them off again.
 XEmacs only."
   (interactive)
   (remove-specifier current-display-table (current-buffer)))
+
+
+
 
   
 
