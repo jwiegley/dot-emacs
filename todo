@@ -14,6 +14,10 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A Bug in proof-shell-handle-output run on FSF Emacs, gives error
+  (wrong-type-argument markerp nil) when font-lock-fontify-region
+  is called to fontify the shell buffer.
+
 B proof-issue-goal should refuse to work when a proof is in progress.
   Similarly proof-issue-save should refuse to work when a proof
   hasn't been completed!
@@ -22,10 +26,6 @@ B Bug in proof-retract-until-point when called twice in succession:
   calls backward-char at beginning of buffer.  (Should say no
   locked region, or "nothing to retract").  Problems is that
   there is a proof-locked-end, but it's at (point-min).
-
-B Bug in proof-shell-handle-output run on FSF Emacs, gives error
-  (wrong-type-argument markerp nil) when font-lock-fontify-region
-  is called to fontify the shell buffer.
 
 B proof-find-next-terminator doesn't work properly:
 
@@ -43,11 +43,6 @@ D Add proof-quit-command: some provers may like a quit command to be
 
 D Multiple files (after basic feature added): handle failures in
   reading ancestors.
-
-A* Fix Non Sequitur nonsense with Isabelle when warnings appear before
-  proofstate.  (da, 1hr?)
-
-A* Check & fix support for a recent version of FSFmacs.  (da, 2hr).
 
 A Add support for putting a locked region in processed files.
   (tms 4h)
