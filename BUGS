@@ -11,9 +11,9 @@ Proof General 3.0 BUGS addendum
 * FSF Emacs: problem with version 20.5: PG freezes when starting a
 proof assistant.  Fixed in the current pre-release.
 
-* Problems with Japan versions of FSF Emacs (at least) which have
+* Problems with Japanese versions of FSF Emacs (at least) which have
 older versions of CL macros (defined in file "egg").  Hopefully fixed
-in current pre-release, please details of any problems!
+in current pre-release, please send in details of any problems!
 
 
 

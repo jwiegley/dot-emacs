@@ -22,9 +22,9 @@
 
 *** README file added for each supported prover, explaining support.
 
-*** Fixes for supporting Japan versions of Emacs which have older CL macs.
+*** Fixes for supporting Japanese versions of Emacs which have older CL macs.
  
-  CL macs with Japanicised documentation, defined in "egg.el".
+  Probs with CL macs with Japanicised documentation, defined in "egg.el".
   Japanese Emacs users, please report any other problems you find, they 
   may be fixable for similar reasons.
 
