@@ -9,6 +9,13 @@
 
 
 ;; $Log$
+;; Revision 1.54  1998/06/09 13:14:25  tms
+;; o fixed bug in setting proof-queue-face on a colour terminal for GNU
+;;   Emacs (19.34)
+;; o adjusting the directory (at least for LEGO) must not contain "~". We
+;;   now expand `default-directory' before cding to it. [Under XEmacs
+;;   (unlike Emacs 19.34), `default-directory' is already in expanded form.]
+;;
 ;; Revision 1.53  1998/06/03 18:03:10  hhg
 ;; Added '?'s before single characters in define-keys for emacs19, at
 ;; Pascal Brisset's suggestion.
@@ -516,7 +523,7 @@
   ;; Whether display has color or not
   (cond ((and (fboundp 'device-class) (eq (device-class (frame-device)) 'color))
 	 (set-face-background 'proof-queue-face "mistyrose"))
-	((and (boundp window-system) (and window-system (x-display-color-p)))
+	((and (fboundp 'x-display-color-p) (x-display-color-p))
 	 (set-face-background 'proof-queue-face "mistyrose"))
 	(t (progn
 	     (set-face-background 'proof-queue-face "Black")
@@ -536,8 +543,7 @@
   (cond ((and (fboundp 'device-class)
 	      (eq (device-class (frame-device)) 'color))
 	 (set-face-background 'proof-locked-face "lavender"))
-	((and (boundp 'window-system)
-	      (and window-system (x-display-color-p)))
+	((and (fboundp 'x-display-color-p) (x-display-color-p))
 	 (set-face-background 'proof-locked-face "lavender"))
 	(t (set-face-property 'proof-locked-face 'underline t)))
   (set-span-property proof-locked-span 'face 'proof-locked-face)
@@ -1987,7 +1993,10 @@ current command."
   ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
   ;; to adjust the directory:
   (and proof-shell-cd
-       (proof-shell-insert (format proof-shell-cd default-directory)))
+       (proof-shell-insert (format proof-shell-cd
+       ;; under Emacs 19.34 default-directory contains "~" which causes
+       ;; problems with LEGO's internal Cd command
+				   (expand-file-name default-directory))))
 
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
