@@ -89,7 +89,7 @@ with full path."
   "Like shell-command-to-string except the last character is stripped."
   (let ((s (shell-command-to-string command)))
     (if (equal (length s) 0) s
-      (substring s -1))))
+      (substring s 0 -1))))
 
 (defun isa-getenv (envvar &optional default)
   "Extract an environment variable setting using the `isatool' program.
