@@ -605,4 +605,15 @@ proof-shell-retract-files-regexp."
 	     x-symbol-isabelle-font-lock-keywords)))
   (proof-goals-config-done))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Remove isa-mode from auto-mode-alist, 
+;; to allow SML mode to work in preference to isa-mode.
+;;
+
+(setq auto-mode-alist
+      (delete-if 
+       (lambda (strmod) (memq (cdr strmod) '(isa-mode demoisa-mode)))
+       auto-mode-alist))
+
 (provide 'isar)
