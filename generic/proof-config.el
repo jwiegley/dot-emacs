@@ -715,10 +715,10 @@ If a function, it should return the command string to insert."
     (lockedend  "Locked End"	      nil t)
     (find	"Find Theorems"	      "Find theorems" t
 		proof-find-theorems-command)
-    (show       "Show Proofs"         nil t)
-    (hide       "Hide Proofs"	      nil t)
     (command    "Issue Command"	      "Issue a non-scripting command" t)
     (interrupt  "Interrupt Prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
+    (show       "Show Proofs"         nil t)
+    (hide       "Hide Proofs"	      nil t)
     (info	nil		      "Show online proof assistant information" t
 		proof-info-command)
     (help	nil		      "Proof General manual" t))
@@ -1929,6 +1929,13 @@ This is so that the dependent theorems can be highlighted somehow.
 Set to nil to disable.
 This is an experimental feature, currently work-in-progress."
   :type '(choice nil regexp)
+  :group 'proof-shell)
+
+(defcustom proof-shell-show-dependency-cmd nil
+  "Command sent to the prover to display a dependency.
+This is typically a command used to print a theorem, constant, or whatever.
+A string with %s replaced by the dependency name."
+  :type 'string
   :group 'proof-shell)
 
 (defcustom proof-shell-trace-output-regexp nil
