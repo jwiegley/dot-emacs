@@ -1223,6 +1223,9 @@ the proof script."
 ;; query process as to its state as well.  Also unwind protects
 ;; here.
 
+;; FIXME da: this probably belongs in proof-shell, as do
+;; some of the following functions.
+
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  Warning! This may confuse Proof General."
   (interactive)
