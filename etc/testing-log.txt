@@ -1,0 +1,15 @@
+Mon Dec 14 15:02:52 GMT 1998  da
+
+  Tested Emacs 20.2.1 with lego 1.3 via "ssh hope", 
+		      with lego 1.3.1 via "ssh craro", LEGOVERSION "std"
+
+  Both successfully process example.l
+  Bug with killing off process shell via proof-shell-exit remains.
+
+  With lego 1.3.1 via "ssh craro", LEGOVERSION "alpha", 
+  processing gets stuck, never reports "imports done".  
+  Is this a bug or problem with LEGO installation?
+  
+  
+
+
