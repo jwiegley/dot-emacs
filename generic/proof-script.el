@@ -16,6 +16,9 @@
 (require 'span)				; abstraction of overlays/extents
 (require 'proof-menu)			; menus for script mode
 
+(require 'proof-depends)		; FIXME: make this load automatically
+
+
 
 ;; Nuke some byte-compiler warnings 
 ;; NB: eval-when (compile) is different to eval-when-compile!!
@@ -34,7 +37,17 @@
   "An indication in the modeline that this is the *active* script buffer")
 
 (defvar proof-last-theorem-dependencies nil
-  "Contains the dependencies of the last theorem set in proof-shell-process-urgent-message")
+  "Contains the dependencies of the last theorem 
+Set in proof-shell-process-urgent-message.")
+
+;; FIXME da: is this Isabelle specific?
+(defvar thy-mode-deps-menu nil
+  "Contains the dependence menu for thy mode")
+
+(defvar proof-thm-names-of-files nil
+  "Names of files.
+A list of lists; the first element of each list is a file-name, the
+second element a list of all the thm names in that file")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1016,11 +1029,52 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	(set-span-property gspan 'mouse-face 'highlight)
 	(set-span-property gspan 'type 'goalsave)
 	(set-span-property gspan 'name nam)
-	;; FIONA! New code here:
+
+	;; FIONA: these are the new properties of the span.
+	;; Dependencies returns a list of strings, each string being
+	;; the name of a dependency of that span 
+	;; depcs-within-file returns the names of all the theorems that
+	;; the span depends on which are in the same file as the theorem.
+
 	(if proof-last-theorem-dependencies
-	    (set-span-property gspan 'dependencies proof-last-theorem-dependencies))
-	(setq proof-last-theorem-dependencies nil)
-	
+	    (progn 
+	      (if (boundp 'proof-deps-menu) 
+		  (easy-menu-remove proof-deps-menu))
+	      (set-span-property gspan 'dependencies 
+				 proof-last-theorem-dependencies)
+	      (set-span-property gspan 'keymap span-context-menu-keymap)
+	      (if buffer-file-name
+		  (let* 
+		      ((buffer-file-name-sans-path
+			(car (last (split-string buffer-file-name "/"))))
+		       (buffer-file-name-sans-extension
+			(car (split-string buffer-file-name-sans-path "\\.")))
+		       (depcs-within-file-list 
+			(dependencies-within-file-list 
+			 proof-last-theorem-dependencies 
+			 buffer-file-name-sans-extension)))
+		    (set-span-property gspan 'dependencies-within-file
+				       depcs-within-file-list)
+		    (update-dependents depcs-within-file-list 
+				       buffer-file-name-sans-path 
+				       buffer-file-name-sans-extension 
+				       (span-property gspan 'name))
+		    (proof-menu-define-deps buffer-file-name-sans-path)
+		    (easy-menu-add proof-deps-menu proof-mode-map)
+		    ;; FIXME: this is Isabelle specific, needs moving out
+		    (let ((thy-file (concat 
+				     buffer-file-name-sans-extension ".thy")))
+		      (find-file-noselect thy-file)
+		      (save-excursion
+			(set-buffer thy-file)
+			(thy-add-menus buffer-file-name-sans-path)))))
+	      ;; da: this code was outside if, I've put it inside now
+	      (setq proof-last-theorem-dependencies nil)
+	      (setq proof-thm-names-of-files 
+		    (merge-names-list-it (span-property gspan 'name) 
+					 (buffer-name (span-object gspan)) 
+					 proof-thm-names-of-files))))
+
 	;; In Coq, we have the invariant that if we've done a save and
 	;; there's a top-level declaration then it must be the
 	;; associated goal.  (Notice that because it's a callback it
