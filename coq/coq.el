@@ -148,7 +148,7 @@
 ;; FIXME Papageno 05/1999: must take sections in account.
 ;;
 ;; Pierre modified the test with proof-string-match, this way new tactics
-;; ca be undone (I also added "(*" in not-undoable-commands)
+;; can be undone (I also added "(*" in not-undoable-commands)
 (defun coq-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
   (let ((ct 0) str i)
@@ -224,9 +224,11 @@
 
        ;; If it's not a goal but it contains "Definition" then it's a
        ;; declaration
+       ;; Pierre : I suppressed the ":" here, since 
+       ;; "Definition foo [x:bar]..." is allowed
        ((and (not (coq-goal-command-p str))
 	     (proof-string-match
-	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*:") str))
+	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
 	(setq ans (format coq-forget-id-command (match-string 2 str)))))
 
       (setq span (next-span span 'type)))
