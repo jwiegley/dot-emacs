@@ -1,10 +1,25 @@
-23.8.99   Release_2_1_1
-          First release of Proof General version 2.1.
-	  Missing Isar and with broken version stamp (2.1pre990820)
 
-24.8.99   Release_2_1_2  
-          Office release Proof General 2.1
+26.11.99  Release 3_0
+	  First attempt at 3.0 release
+
+	  Release_3_0_1
+	  Fixed problem with proof-shell-proof-completed-regexp
+	  in Isabelle.
+
+	  Release_3_0_2
+	  Added some more key-bindings and menu entries to
+	  Isabelle's theory file mode.
+
+
+--------------------
+
 
 25.8.99   Release_2_1_3
 	  Fixed RPM package to include isar/
 
+24.8.99   Release_2_1_2  
+          Official release Proof General 2.1
+
+23.8.99   Release_2_1_1
+          First release of Proof General version 2.1.
+	  Missing Isar and with broken version stamp (2.1pre990820)
