@@ -613,56 +613,63 @@ Finally, the hooks `proof-activate-scripting-hook' are run.
 This can be a useful place to configure the proof assistant for
 scripting in a particular file, for example, loading the
 correct theory, or whatever."
-  (proof-shell-ready-prover)
-  (cond 
-   ((not (eq proof-buffer-type 'script)) 
-    (error "Must be running in a script buffer!"))
-
-   ;; If the current buffer is the active one there's nothing to do.
+  ;; FIXME: the scope of this save-excursion is rather wide.
+  ;; Problems without it however: Use button behaves oddly
+  ;; when process is started already.
+  ;; Where is save-excursion needed?
+  ;; First experiment shows that it's the hooks that cause
+  ;; problem, maybe even the use of proof-cd-sync (can't see why).
+  (save-excursion
+    (proof-shell-ready-prover)
+    (cond 
+     ((not (eq proof-buffer-type 'script)) 
+      (error "Must be running in a script buffer!"))
+     
+     ;; If the current buffer is the active one there's nothing to do.
    ((equal (current-buffer) proof-script-buffer))
-
-   ;; Otherwise we need to activate a new Scripting buffer.
+     
+     ;; Otherwise we need to activate a new Scripting buffer.
    (t
-    ;; If there's another buffer currently active, we need to 
-    ;; deactivate it (also fixing up the included files list).
-    (if proof-script-buffer
-	(progn
-	  (proof-deactivate-scripting)
-	  ;; Test whether deactivation worked
-	  (if proof-script-buffer
-	      (error "You cannot have more than one active scripting buffer!"))))
+      ;; If there's another buffer currently active, we need to 
+      ;; deactivate it (also fixing up the included files list).
+      (if proof-script-buffer
+	  (progn
+	    (proof-deactivate-scripting)
+	    ;; Test whether deactivation worked
+	    (if proof-script-buffer
+		(error "You cannot have more than one active scripting buffer!"))))
 	    
-    ;; Set the active scripting buffer, and initialise the 
-    ;; queue and locked regions if necessary.
-    (setq proof-script-buffer (current-buffer))
-    (if (proof-locked-region-empty-p)
-	;; This removes any locked region that was there, but
-	;; sometimes we switch on scripting in "full" buffers,
-	;; so mustn't do this.
-	(proof-init-segmentation))
+      ;; Set the active scripting buffer, and initialise the 
+      ;; queue and locked regions if necessary.
+      (setq proof-script-buffer (current-buffer))
+      (if (proof-locked-region-empty-p)
+	  ;; This removes any locked region that was there, but
+	  ;; sometimes we switch on scripting in "full" buffers,
+	  ;; so mustn't do this.
+	  (proof-init-segmentation))
+      
+      ;; Turn on the minor mode, make it show up.
+      (setq proof-active-buffer-fake-minor-mode t)
+      (if (fboundp 'redraw-modeline)
+	  (redraw-modeline)
+	(force-mode-line-update))
+      
+      ;; This may be a good time to ask if the user wants to save some
+      ;; buffers.  On the other hand, it's jolly annoying to be
+      ;; queried on the active scripting buffer if we've started
+      ;; writing in it.  So pretend that one is unmodified, at least
+      ;; (we certainly don't expect the proof assitant to load it)
+      (if (and
+	   proof-query-file-save-when-activating-scripting
+	   (not nosaves))
+	  (let ((modified (buffer-modified-p)))
+	    (set-buffer-modified-p nil)
+	    (unwind-protect
+		(save-some-buffers)
+	      (set-buffer-modified-p modified))))
 
-    ;; Turn on the minor mode, make it show up.
-    (setq proof-active-buffer-fake-minor-mode t)
-    (if (fboundp 'redraw-modeline)
-	(redraw-modeline)
-      (force-mode-line-update))
-
-    ;; This may be a good time to ask if the user wants to save some
-    ;; buffers.  On the other hand, it's jolly annoying to be
-    ;; queried on the active scripting buffer if we've started
-    ;; writing in it.  So pretend that one is unmodified, at least
-    ;; (we certainly don't expect the proof assitant to load it)
-    (if (and
-	  proof-query-file-save-when-activating-scripting
-	  (not nosaves))
-      (let ((modified (buffer-modified-p)))
-	(set-buffer-modified-p nil)
-	(unwind-protect
-	    (save-some-buffers)
-	  (set-buffer-modified-p modified))))
-
-    ;; Run hooks
-    (run-hooks 'proof-activate-scripting-hook))))
+      ;; Run hooks
+      (run-hooks 'proof-activate-scripting-hook)))))
 
 (defun proof-toggle-active-scripting (&optional arg)
   "Toggle active scripting mode in the current buffer.
