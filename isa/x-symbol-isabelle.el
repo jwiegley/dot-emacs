@@ -111,11 +111,14 @@ or subscript tag."
   :group 'x-symbol-isabelle  
   :type 'regexp)
 
-(defcustom x-symbol-isabelle-single-char-regexp "\\\\\\\\?<[A-Za-z0-9_']+>\\|[^\\]"
+
+;; the [\350-\360].\350 part is there to enable single char sub/super scripts
+;; with coloured Isabelle output. 
+(defcustom x-symbol-isabelle-single-char-regexp 
+  "[\350-\360].\350\\|[^\\]\\|\\\\\\\\?<[A-Za-z0-9_']+>"
   "Return regexp matching \<ident> or c for some char c."
   :group 'x-symbol-isabelle
   :type 'regexp)
-
 
 (defun x-symbol-isabelle-subscript-matcher (limit)  
   (block nil
