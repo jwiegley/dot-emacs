@@ -367,7 +367,10 @@ proof-assistant-table."
 (eval-and-compile
 (defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
   "Non-nil if Proof General is running on XEmacs.")
-;; rough test for XEmacs on win32, anyone know about FSF on win32?
+(defvar proof-running-on-Emacs21 (and (not proof-running-on-XEmacs)
+				      (>= 21 emacs-major-version))
+  "Non-nil if Proof General is running on GNU Emacs 21 or later.")
+;; rough test for XEmacs on win32, anyone know about GNU Emacs on win32?
 (defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
   "Non-nil if Proof General is running on a win32 system."))
 
