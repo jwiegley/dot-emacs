@@ -278,24 +278,28 @@ A span is before PT if it covers the character before PT."
  
 (defun next-span (span prop)
   "Return span after SPAN with property PROP."
+  ;; 3.4 fix here: Now we do a proper search, so this should work with
+  ;; nested overlays, after a fashion.  Use overlays-in to get a list
+  ;; for the entire buffer, this avoids repeatedly checking the same
+  ;; overlays in an ever expanding list (see v6.1).  (However, this
+  ;; list may be huge: is it a bottleneck?)
+  ;; [Why has this function never used the before-list ?]
   (let* ((start     (overlay-start span))
 	 (pos       start)
-	 (searching t)
-	 nextos ovs spanres)
-    ;; 3.4 fix: Now we do a proper search, so this should work with
-    ;; nested overlays, after a fashion.  (We begin from the next
-    ;; overlay change, but search nested ones).
-    (while (and searching (< pos (point-max)))
-      (setq pos (next-overlay-change (+ pos 1)))
-      (setq nextos  (overlays-at pos))
-      (while (and nextos searching)
-	(setq spanres (car nextos))
-	(if (and (span-property spanres prop)
-		 (< start (span-start spanres)))
-	    (setq searching nil)
-	  (setq nextos (cdr nextos)))))
-    (unless searching
-      spanres)))
+	 (nextos    (overlays-in 
+		     (1+ start)
+		     (point-max)))
+	 (resstart  (1+ (point-max)))
+	 spanres newres)
+    ;; overlays are returned in an unspecified order; we
+    ;; must search whole list for a closest-next one.
+    (dolist (newres nextos spanres)
+      (if (and (span-property newres prop)
+	       (< start (span-start newres))
+	       (< (span-start newres) resstart))
+	  (progn
+	    (setq spanres newres)
+	    (setq resstart (span-start spanres)))))))
 
 (defsubst span-live-p (span)
   "Return non-nil if SPAN is in a live buffer."
