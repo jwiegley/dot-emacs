@@ -1,0 +1,162 @@
+Notes on Profiling Proof General in XEmacs  [da]
+------------------------------------------------
+
+M-x clear-profiling-info
+Eval: (profile (proof-toolbar-next) (proof-shell-wait))
+M-x profile-results
+
+NB: Must ignore calls to accept-process-output and sit-for, these
+ are from proof-shell-wait (only).
+
+
+
+Sample Runs. Tue Oct  5
+-----------------------
+
+Processing first line of src/HOL/Real/ROOT.ML  (i.e. loading RealDef)
+
+Function Name                          Ticks    %/Total   Call Count
+===================================    =====    =======   ==========
+(in redisplay)                         1183     44.947    
+re-search-forward                      901      34.233    8061
+sit-for                                159      6.041     11919
+comint-output-filter                   93       3.533     3596
+accept-process-output                  43       1.634     11919
+string-match                           34       1.292     7300
+font-lock-pre-idle-hook                30       1.140     25261
+insert-before-markers                  28       1.064     3597
+let                                    14       0.532     10853
+map-extents                            13       0.494     539
+(in garbage collection)                10       0.380     
+byte-code                              9        0.342     25376
+while                                  8        0.304     3648
+setq                                   7        0.266     8299
+comint-postoutput-scroll-to-bottom     7        0.266     3597
+next-window                            6        0.228     7194
+put-nonduplicable-text-property        5        0.190     1166
+marker-position                        5        0.190     14389
+goto-char                              5        0.190     14097
+walk-windows                           4        0.152     3597
+window-minibuffer-p                    4        0.152     3597
+proof-toolbar-refresh                  4        0.152     3686
+and                                    4        0.152     11162
+selected-window                        3        0.114     14390
+window-start                           3        0.114     3596
+proof-shell-filter                     3        0.114     3597
+itimer-time-difference                 3        0.114     546
+#<compiled-function (window) "...(134)" [window-buffer window current window-point process-mark process scroll t all this selected others string set-window-point comint-scroll-show-maximum-output pos-visible-in-window-p recenter floatp floor window-height 1 -1 sit-for 0] 4>    3        0.114     7194
+#<compiled-function (place &optional x) "...(29)" [place setq x + 1+ callf 1] 5 553442>    3        0.114     1298
+process-buffer                         3        0.114     3596
+point                                  3        0.114     7382
+or                                     3        0.114     7256
+comint-watch-for-password-prompt       3        0.114     3597
+save-excursion                         2        0.076     3655
+proof-shell-process-urgent-messages    2        0.076     3597
+marker-buffer                          2        0.076     3596
+font-lock-fontify-keywords-region      2        0.076     45
+process-mark                           2        0.076     7208
+redisplay-echo-area                    2        0.076     23
+if                                     2        0.076     18901
+buffer-name                            1        0.038     3650
+erase-buffer                           1        0.038     26
+pos-visible-in-window-p                1        0.038     1
+window-buffer                          1        0.038     7195
+self-insert-command                    1        0.038     14
+<                                      1        0.038     4300
+itimer-timer-driver                    1        0.038     182
+font-lock-fontify-glumped-region       1        0.038     31
+get-buffer-process                     1        0.038     3633
+char-to-string                         1        0.038     3597
+save-current-buffer                    1        0.038     17
+insert-string                          1        0.038     23
+--------------------------------------------------------------------
+Total                                  2632     100.00
+
+
+One tick = 1 ms
+
+
+*** After some optimization attempt in proof-shell-process-urgent-messages,
+ to remove re-search-forward hog:
+
+
+Function Name                          Ticks    %/Total   Call Count
+===================================    =====    =======   ==========
+accept-process-output                  3279     62.374    1047436
+(in redisplay)                         919      17.481    
+sit-for                                547      10.405    1047435
+re-search-forward                      134      2.549     8950
+while                                  110      2.092     3648
+comint-output-filter                   65       1.236     3347
+(in garbage collection)                24       0.457     
+font-lock-pre-idle-hook                18       0.342     14166
+insert-before-markers                  15       0.285     3348
+string-match                           10       0.190     7376
+let                                    9        0.171     7010
+#<compiled-function (window) "...(134)" [window-buffer window current window-point process-mark process scroll t all this selected others string set-window-point comint-scroll-show-maximum-output pos-visible-in-window-p recenter floatp floor window-height 1 -1 sit-for 0] 4>    9        0.171     6696
+setq                                   6        0.114     12598
+byte-code                              5        0.095     14879
+#<compiled-function (place &optional x) "...(29)" [place setq x + 1+ callf 1] 5 553442>    5        0.095     4762
+and                                    5        0.095     10936
+comint-postoutput-scroll-to-bottom     5        0.095     3348
+log-message                            4        0.076     98
+save-excursion                         3        0.057     3655
+itimerp                                3        0.057     14128
+selected-window                        3        0.057     13403
+next-window                            3        0.057     6696
+point                                  3        0.057     10722
+proof-toolbar-refresh                  3        0.057     3942
+if                                     3        0.057     23233
+font-lock-default-unfontify-region     3        0.057     295
+walk-windows                           2        0.038     3348
+event-window                           2        0.038     658
+buffer-name                            2        0.038     3670
+erase-buffer                           2        0.038     105
+put-nonduplicable-text-property        2        0.038     590
+window-start                           2        0.038     3347
+null                                   2        0.038     3352
+marker-position                        2        0.038     13393
+marker-buffer                          2        0.038     3347
+itimer-time-difference                 2        0.038     2223
+-                                      2        0.038     3350
+font-lock-fontify-keywords-region      2        0.038     295
+goto-char                              2        0.038     14092
+buffer-substring                       2        0.038     196
+redisplay-echo-area                    2        0.038     104
+run-hook-with-args                     2        0.038     3447
+comint-watch-for-password-prompt       2        0.038     3348
+event-over-vertical-divider-p          1        0.019     254
+event-glyph-extent                     1        0.019     329
+get-buffer                             1        0.019     255
+pointer-image-instance-p               1        0.019     985
+barf-if-buffer-read-only               1        0.019     98
+extent-at                              1        0.019     87
+itimer-value                           1        0.019     6175
+pos-visible-in-window-p                1        0.019     4
+expand-file-name                       1        0.019     192
+file-truename                          1        0.019     104
+center-to-window-line                  1        0.019     4
+proof-shell-process-urgent-messages    1        0.019     3348
+proof-shell-filter                     1        0.019     3348
+set-marker                             1        0.019     3429
+itimer-run-expired-timers              1        0.019     247
+<                                      1        0.019     5950
+min                                    1        0.019     3428
+1-                                     1        0.019     3428
+display-message                        1        0.019     99
+font-lock-fontify-glumped-region       1        0.019     197
+get-buffer-process                     1        0.019     6791
+process-mark                           1        0.019     10124
+default-mouse-motion-handler           1        0.019     329
+char-to-string                         1        0.019     3348
+save-current-buffer                    1        0.019     99
+newline                                1        0.019     98
+or                                     1        0.019     3490
+#<compiled-function (buffer &rest body) "...(8)" [save-current-buffer set-buffer buffer body] 3 540150>    1        0.019     99
+font-lock-unfontify-region             1        0.019     295
+specifier-instance                     1        0.019     329
+--------------------------------------------------------------------
+Total                                  5257     100.00
+
+
+One tick = 1 ms
