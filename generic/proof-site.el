@@ -43,15 +43,13 @@ To change proof assistant, you must start a new Emacs session."
   :group 'proof)
 
 ;; Extend load path
-
 (setq load-path
       (cons (concat proof-home "generic/")
 	    (cons (concat proof-home (symbol-name proof-assistant) "/")
 		  load-path)))
 
 
-;; Now add auto-loads to support the prover selected
-
+;; Add auto-loads to support the prover selected
 (let* ((fileregexp (cond
 		    ((eq proof-assistant 'coq)    "\\.v")
 		    ((eq proof-assistant 'lego)   "\\.l$")
@@ -64,7 +62,8 @@ To change proof assistant, you must start a new Emacs session."
 
   ;; NB: File name for each prover is the same as its symbol name!
   (autoload proof-mode assistant
-    (concat "Major mode for editing scripts for proof assistant " assistant ".")
+    (concat
+     "Major mode for editing scripts for proof assistant " assistant ".")
     t)
   )
   
