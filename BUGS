@@ -9,39 +9,11 @@ Generic bugs are listed here, which may affect all of the supported
 provers.  See lego/BUGS coq/BUGS, etc, for specific bug lists for each
 of the provers supported.
 
-* Proof General 3.0 BUGS addendum (fixed in current pre-rel)
-
-** FSF Emacs: problem with version 20.5
-
-  PG freezes when starting a proof assistant.  
-  Fixed in the current pre-release.
-
-** Problems with Japanese versions of FSF Emacs (at least) 
-
-  These have older versions of CL macros (defined in file "egg")
-  with Japanese documentation.
-  Hopefully fixed in current pre-release, please send in details of
-  any problems!
-
-** You may occasionally see duplications of short (<10 chars)
- messages from the proof assistant.  This is caused by a too high
- setting of the configuration variable
- proof-shell-eager-annotation-start-length.  
- Fixed in current pre-release.
+The bugs here are split into problems which apply for all Emacs
+versions, and those which only apply to particular versions.
 
 
-
-
-
-
-* Generic problems
-
-** If you have problems using Mule versions of FSF Emacs 
-
-Beware setting standard-display-european: Pascal Brisset suggests
-adding this line to .emacs should help:
-
-   (setq process-coding-system-alist '(("" . no-conversion))) 
+* Generic problems, for all Emacs versions
 
 ** If the proof assistant goes into a loop displaying lots of information
 
@@ -57,11 +29,63 @@ simplifier, when tracing rewriting.
  Proof General will lose track of the file.
  Workaround: always turn off active scripting first with C-c C-s.
 
+ Also there is a possibility (untested) of losing synchronization with
+ multiple files if you use these functions.  To be safe, kill 
+ the buffer first and use C-x C-f instead of C-x C-v, or kill
+ and then re-find after C-x C-w.
+
 ** Toolbar enablers for XEmacs 21, some artefacts.
 
  There is a timing issue, so that occasionally the buttons are
  disabled/enabled when they shouldn't be.  An extra click on the
  toolbar solves this.
+
+** Using C-g can leave script management in a mess.  
+
+  The code is not fully protected from Emacs interrupts.
+  Workaround: Don't type C-g while script management is processing.  
+  If you do, use proof-restart-scripting.
+
+** Outline-mode does not work in processed proof script files 
+
+ Because of read-only restrictions of the protected region.  
+ This is an inherent problem with outline because it works by 
+ modifying the buffer.
+ Workaround: none, nevermind.  (If it's hugely needed we could support
+ modified outline commands).
+
+** Multiple file scripting is slightly vulnerable.
+
+ Files are not locked when they are being read by the prover, so a long
+ file could be edited and saved as the prover is processing it,
+ resulting in a loss of synchronization between Emacs and the proof
+ assistant.  Files ought to be coloured red while they are being
+ processed, just as single lines are.   Workaround: be careful not
+ to edit a file as it is being read by the proof assistant!
+ (Only applies to Lego and Isabelle)
+
+** When proof-rsh-command is set to "ssh host", C-c C-c broken
+
+ The whole process may be killed instead of interrupted.  This isn't a
+ bug in Proof General, but the behaviour of ssh.  Try using rsh
+ instead, it is said to forward signals to the remote command.
+
+** In tty mode, the binding C-c C-RET has no effect.  
+
+ Workaround: manually bind C-c RET to 'proof-goto-point instead.
+
+
+
+
+
+* Problems with particular Emacs versions
+
+** If you have problems using Mule versions of FSF Emacs 
+
+Beware setting standard-display-european: Pascal Brisset suggests
+adding this line to .emacs should help:
+
+   (setq process-coding-system-alist '(("" . no-conversion))) 
 
 ** Strict read only disabled by default in FSF Emacs.
 
@@ -78,10 +102,9 @@ simplifier, when tracing rewriting.
  the best of all possible worlds, switch to XEmacs.
 
 
-** Emacs undo in the script buffer can edit the "uneditable region"
+** XEmacs undo in the script buffer can edit the "uneditable region"
 
-  In XEmacs.  This doesn't happen in FSFmacs.  Test case:
-  Insert some nonsense text after the locked region.
+  Test case: Insert some nonsense text after the locked region.
   Kill the line. Process to the next command.
   Press C-x u, nonsense text appears in locked region.
   Workaround: take care with undo in XEmacs.
@@ -97,29 +120,6 @@ simplifier, when tracing rewriting.
   tell me if it affects Mule versions of Emacs?  Workaround: for LEGO
   pbp, use FSFmacs 20.2, or XEmacs 20.4/later.
 
-** Using C-g can leave script management in a mess.  
-
-  The code is not fully protected from Emacs interrupts.
-  Workaround: Don't type C-g while script management is processing.  
-  If you do, use proof-restart-scripting.
-
-** Outline-mode does not work in processed proof script files 
-
- Because of read-only restrictions of the protected region.  
- This is an inherent problem with outline because it works by 
- modifying the buffer.
- Workaround: none, nevermind.  (If it's hugely needed we could support
- modified outline commands).
-
-** Multiple file handling for Lego and Isabelle is slightly vulnerable.
-
- Files are not locked when they are being read by the prover, so a long
- file could be edited and saved as the prover is processing it,
- resulting in a loss of synchronization between Emacs and the proof
- assistant.  Files ought to be coloured red while they are being
- processed, just as single lines are.   Workaround: be careful not
- to edit a file as it is being read by the proof assistant!
-
 ** XEmacs sometimes has strange start-up delays of several seconds.
 
  Possibly due to face allocation, when running remotely and
@@ -127,16 +127,6 @@ simplifier, when tracing rewriting.
  recommended way of working) is to run XEmacs locally and only
  the proof assistant on your fast compute server, by setting 
  proof-rsh-command.
-
-** When proof-rsh-command is set to "ssh host", C-c C-c broken
-
- The whole process may be killed instead of interrupted.  This isn't a
- bug in Proof General, but the behaviour of ssh.  Try using rsh
- instead, it is said to forward signals to the remote command.
-
-** In tty mode, the binding C-c C-RET has no effect.  
-
- Workaround: manually bind C-c RET to 'proof-goto-point instead.
 
 
 
