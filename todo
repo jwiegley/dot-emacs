@@ -38,8 +38,6 @@ A*** Possible bug [Isabelle/all]:
  at the top of a script buffer, sometimes special commands like
  ProofGeneral.kill_goal(); are inserted without reason
 
-A ish Improve LEGO output.
-
 A ish BUG: catch bug on Solaris when process shell killed.
 
 
@@ -107,15 +105,12 @@ C da: goal-hyp: this should be more generic.  At the moment, there are
   default behaviour for proof-goal-hyp-fn a hook function.
   That will work for Isabelle too.   (15 mins)
 
-C Output filtering has some buglets:
-   1. proof-shell-filter could miss output in the unfortunate
-      circumstance that a prompt consists of more than one character and
-      is split between output chunks.  Really the matching should be
-      based on the buffer contents rather than the string just
-      received. [IMPORTANT]
-   2. Handling mixtures of urgent and non-urgent messages:
-      at the moment any non-urgent output *before* an urgent
-      message will not be displayed in the response buffer.  [MINOR]
+
+C Process handling output.
+  Handling mixtures of urgent and non-urgent messages:
+  at the moment any non-urgent output *before* an urgent
+  message will not be displayed in the response buffer.
+  Accept this as a feature for now.
 
 C  proof-goal-command-regexp: add this setting to coq.el.
    Rationalize use of proof-goal-command-p
