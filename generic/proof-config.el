@@ -2011,6 +2011,21 @@ list between values for `proof-buffer-syntactic-context' and strings."
   :type '(or string (list (cons (choice 'nil 'string 'comment)  string)))
   :group 'proof-shell)
 
+;; A feature that could be added to support Isabelle's tracing of
+;; tactics.  Seems to be little used, so probably not worth adding.
+;(defcustom proof-shell-interactive-input-regexp nil
+;  "Matches special interactive input request prompt from the prover.
+;A line which matches this regexp  but would otherwise be treated
+;as an ordinary response is instead treated as a prompt for
+;input to be displayed in the minibuffer.  The line which is
+;input is delivered directly to the proof assistant.
+
+;This can be used if the proof assistant requires return key
+;presses to continue, or similar."
+;  :type 'string
+;  :group 'proof-shell)
+
+
 (defcustom proof-shell-trace-output-regexp nil
   "Matches tracing output which should be displayed in trace buffer.
 Each line which matches this regexp but would otherwise be treated
@@ -2116,6 +2131,8 @@ suggests what class of command is about to be inserted:
  'proof-done-invisible	     A non-scripting command
  'proof-done-advancing	     A \"forward\" scripting command
  'proof-done-retracting	     A \"backward\" scripting command
+ 'init-cmd		     Initialization command sent to prover
+ 'interactive-input	     Special interactive input direct to prover
 
 Caveats: You should be very careful about setting this hook.  Proof
 General relies on a careful synchronization with the process between

@@ -690,7 +690,7 @@ NAME does not need to be unique."
 
 (defun pg-set-span-helphighlights (span &optional nohighlight)
   "Set the help echo message, default highlight, and keymap for SPAN."
-  (let ((helpmsg (concat (pg-span-name span) " region")))
+  (let ((helpmsg (concat (pg-span-name span) ""))) ;;   " region"
     (set-span-property span 'balloon-help helpmsg)
     (if pg-show-hints ;; only message in minibuf if hints on
 	(set-span-property 
@@ -700,8 +700,8 @@ NAME does not need to be unique."
 	   helpmsg
 	   " ("
 	   (if (span-property span 'idiom)
-	       "with point in region, use \\[pg-toggle-visibility]  to show/hide; ")
-	   "use \\[popup-mode-menu] for menu)"))))
+	       "with point in region, \\[pg-toggle-visibility] to show/hide; ")
+	   "\\[popup-mode-menu] for menu)"))))
     (set-span-property span 'keymap pg-span-context-menu-keymap)
     (unless nohighlight
       (set-span-property span 'mouse-face 'proof-mouse-highlight-face))))

@@ -1119,9 +1119,9 @@ The return value is non-nil if the action list is now empty."
 	    nil)))))
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
-  "Insert command sequence triggered by the proof process
-at the end of locked region (after inserting a newline and indenting).
-Assume proof-script-buffer is active."
+  "Insert command sequence sent from prover into script buffer.
+String is inserted at the end of locked region, after a newline 
+and indentation.  Assumes proof-script-buffer is active."
   (unless (string-match "^\\s-*$" cmd)	; FIXME: assumes cmd is single line
     (save-excursion
       (set-buffer proof-script-buffer) 
@@ -1171,6 +1171,15 @@ If none of these apply, display MESSAGE.
 MESSAGE should be a string annotated with 
 `proof-shell-eager-annotation-start', `proof-shell-eager-annotation-end'."
     (cond
+     ;; A feature that could be added to support Isabelle's tracing of
+     ;; tactics.  Seems to be little used, so probably not worth adding.
+     ;;; CASE interactive input regexp: minibuffer prompt for user
+     ;;; FIXME: move this case lower down, for now it clashes with
+     ;;; tracing output in Isabelle
+     ;((and proof-shell-interactive-input-regexp
+     ;	   (string-match proof-shell-interactive-input-regexp message))
+     ;(proof-shell-minibuffer-urgent-interactive-input message))
+
      ;; CASE tracing output: output in the tracing buffer instead
      ;; of the response buffer
      ((and proof-shell-trace-output-regexp
@@ -1364,6 +1373,18 @@ MESSAGE should be a string annotated with
 	   stripped)
 	 'proof-eager-annotation-face)))))
 
+(defvar proof-shell-minibuffer-urgent-interactive-input-history nil)
+
+(defun proof-shell-minibuffer-urgent-interactive-input (msg)
+  "Issue MSG as a prompt and receive user input."
+  (let ((input
+	 (ignore-errors
+	   (read-input 
+	    msg 
+	    nil 
+	    'proof-shell-minibuffer-urgent-interactive-input-history))))
+    ;; Always send something, even if read-input was errorful
+    (proof-shell-insert (or input "") 'interactive-input)))
 
 
 (defun proof-shell-process-urgent-messages ()
