@@ -301,6 +301,11 @@ until Proof General is restarted."
   :type 'boolean
   :setting "trace_simp:=%b;")
 
+(defpacustom trace-rules  nil
+  "Whether to trace the standard rules in Isabelle."
+  :type 'boolean
+  :setting "trace_rules:=%b;")
+
 (defpacustom quick-and-dirty  t
   "Whether to take a few short cuts occasionally."
   :type 'boolean
