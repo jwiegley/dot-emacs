@@ -1,3 +1,87 @@
+2001-08-30  David Aspinall  <da@proofgeneral.org>
+
+	* CHANGES: Clarify 6.3.1 for multi file
+
+	* isa/isabelle-system.el:
+	Fix interrupt hook for PolyML 4 in recent Isabelle
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-shell.el:
+	Add reassurance to interrupt warning to make Markus happier.
+
+	* html/download.html:
+	Note about XEmacs 21 and x-symbol
+
+	* isa/isabelle-system.el:
+	Set proof-shell-pre-interrupt-hook for PolyML (not just PolyML 3).
+
+	* CHANGES:
+	More about invisible proofs and multiple files in Coq.  X-symbol compat
+
+	* generic/proof-x-symbol.el:
+	Updates for recent version of X-symbol, which has no file called x-symbol-autoloads.
+
+	* generic/proof-menu.el:
+	Add :eval form for defpacustom to define PA-specific PG settings as well as PA settings.
+
+	* generic/proof.el:
+	Add variable proof-previous-script-buffer
+
+	* generic/proof-script.el:
+	fixes for FSF Emacs for searching for goal span (don't call goal-command-p on empty string).  Fix bug in add-proof-element for disappearing proofs setting.  Add setting of proof-previous-script-buffer when scripting deactivated
+
+	* generic/proof-compat.el:
+	Added implementation of remassq for FSF Emacs
+
+	* generic/pg-user.el:
+	pg-insert-last-output-as-comment strips special annotations from last output before inserting as comment.
+
+2001-08-28  David Aspinall  <da@proofgeneral.org>
+
+	* doc/PG-adapting.texi, doc/ProofGeneral.texi:
+	Fix web page for kit
+
+2001-08-28  Pierre Courtieu  <courtieu@lri.fr>
+
+	* doc/ProofGeneral.texi:
+	added something in the doc about coq-version-is-V7.
+
+	* coq/coq.el:
+	Added something in the doc about coq-version-is-V7, and made the setting of
+	this variable more trustable with (concat coq-prog-name "-v").
+
+2001-08-28  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-script.el:
+	Change of proof span type back to goalsave fix
+
+	* lego/lego.el, coq/coq.el, phox/phox-fun.el, isar/isar.el:
+	Change of proof span type back to goalsave
+
+	* generic/proof-splash.el:
+	Remove dependent setting of timeout, since bin calls different fn now.
+
+	* bin/proofgeneral:
+	Call function which always waits to prevent odd mode selection bug.
+
+	* generic/proof-splash.el: Trivial
+
+	* generic/proof-splash.el:
+	Remove mention of toolbar variable.  Make timeouts vary according to how started.
+
+	* generic/proof-splash.el:
+	Timeout happens as intended now, while loading some parts of PG.
+
+	* html/header.html, html/proofgen.css:
+	Improve stylesheet syntax, make menubar smaller
+
 2001-08-28  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
