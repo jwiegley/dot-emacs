@@ -1,6 +1,12 @@
 Summary of Changes for Proof General 2.1
 ----------------------------------------
 
+* Two new provisional instantiations of Proof General, for:
+   ** Isabelle/Isar (new proof language for Isabelle) by 
+      Markus Wenzel <wenzelm@informatik.tu-muenchen.de>
+   ** Plastic (http://www.dur.ac.uk/CARG/plastic.html)
+      by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
+
 * Documentation improvements.   
   Information added for Coq mode.
 
