@@ -249,13 +249,15 @@ Restrict to BUFLIST if it's set."
 ;;
 
 (defun pg-save-from-death ()
-  "Prevent this associated buffer from being killed.
+  "Prevent this associated buffer from being killed: merely erase it.
 A hook function for `kill-buffer-hook'.
 This is a fairly crude and not-entirely-robust way to prevent the 
 user accidently killing an associated buffer."
   (if (and (proof-shell-live-buffer) proof-buffer-type)
       (progn
 	(let ((bufname (buffer-name)))
+	  (erase-buffer)
+	  (set-buffer-modified-p nil)
 	  (bury-buffer)
 	  (error
 	   "Warning: buffer %s not killed; still associated with prover process."
@@ -544,14 +546,13 @@ The warning is coloured with proof-warning-face."
   (proof-display-and-keep-buffer proof-response-buffer))
 
 ;; could be a macro for efficiency in compiled code
-(defun proof-debug (&rest args)
-  "Issue the debugging messages ARGS in the response buffer, display it.
+(defun proof-debug (msg &rest args)
+  "Issue the debugging message (format MSG ARGS) in the response buffer, display it.
 If proof-show-debug-messages is nil, do nothing."
   (if proof-show-debug-messages
       (progn
-	(pg-response-display-with-face (apply 'concat 
-					      "PG debug: " 
-					      args)
+	(pg-response-display-with-face (concat "PG debug: " 
+					       (apply 'format msg args))
 				       'proof-debug-message-face)
 	(proof-display-and-keep-buffer proof-response-buffer))))
 
