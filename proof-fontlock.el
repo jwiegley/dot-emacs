@@ -4,6 +4,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.5  1998/05/05 14:25:45  hhg
+;; Simple white-space changes.
+;;
 ;; Revision 1.4  1998/01/16 15:40:28  djs
 ;; Commented the code of proof.el and lego.el a bit. Made a minor change
 ;; to the way errors are handled, so that any delayed output is inserted
@@ -58,7 +61,7 @@
     ;; internal-set-face-1. This is not compatible with XEmacs
     (set-face-foreground
      'font-lock-declaration-name-face "chocolate"))
-    (t (copy-face 'bold-italic 'font-lock-declaration-name-face)))))
+   (t (copy-face 'bold-italic 'font-lock-declaration-name-face)))))
 
 ;;  (if running-emacs19
 ;;      (setq font-lock-declaration-name-face
@@ -68,8 +71,7 @@
 (if (proof-have-color)
     (let ((face (make-face 'font-lock-tacticals-name-face)))
       (dont-compile
-	(set-face-foreground face
-			     "MediumOrchid3"))
+	(set-face-foreground face "MediumOrchid3"))
       face)
   (copy-face 'bold 'font-lock-tacticals-name-face)))
 
@@ -77,8 +79,7 @@
 (if (proof-have-color)
     (let ((face (make-face 'font-lock-error-face)))
       (dont-compile
-	(set-face-foreground face
-			     "red"))
+	(set-face-foreground face "red"))
       face)
   (copy-face 'bold 'font-lock-error-face)))
 
@@ -101,7 +102,8 @@
 	(if (memq (get-char-property (- (point) 1) 'face)
 		'(font-lock-declaration-name-face
 		  font-lock-function-name-face))
-	    (font-lock-remove-face (- (point) 1) (point)))))))
+;	    (font-lock-remove-face (- (point) 1) (point))
+	    )))))
 
 (defun proof-zap-commas-buffer () 
   (proof-zap-commas-region (point-min) (point-max) 0))
