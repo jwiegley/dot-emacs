@@ -260,7 +260,7 @@ Exactly what uses this face depends on the proof assistant."
 
 (defconst proof-tacticals-name-face 'proof-tacticals-name-face
   "Expression that evaluates to a face.
-Required so that 'proof-declaration-name-face is a proper facename in
+Required so that 'proof-tacticals-name-face is a proper facename in
 both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-tactics-name-face
@@ -277,7 +277,7 @@ may want to color them differently."
 
 (defconst proof-tactics-name-face 'default
   "Expression that evaluates to a face.
-Required so that 'proof-declaration-name-face is a proper facename in
+Required so that 'proof-tactics-name-face is a proper facename in
 both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-error-face 
