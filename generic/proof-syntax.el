@@ -152,17 +152,18 @@ Default is comma separated, or SEPREGEXP if set."
   "Remove the face of all `,' within the region (START,END).
 The optional argument LENGTH has no effect. It is required so that we
 may assign this function to `after-change-function'."
-  (save-excursion
-    (let 
-	((start (progn (goto-char start) (beginning-of-line) (point)))
-	 (end (progn (goto-char end) (end-of-line) (point))))
-      (goto-char start)
-      (while (search-forward "," end t)
-	(if (memq (get-char-property (- (point) 1) 'face)
-		(list 'proof-declaration-name-face
-		  'font-lock-function-name-face))
-	    (font-lock-unfontify-region (- (point) 1) (point))
-	    )))))
+  (save-match-data
+    (save-excursion
+      (let 
+	  ((start (progn (goto-char start) (beginning-of-line) (point)))
+	   (end (progn (goto-char end) (end-of-line) (point))))
+	(goto-char start)
+	(while (search-forward "," end t)
+	  (if (memq (get-char-property (- (point) 1) 'face)
+		    (list 'proof-declaration-name-face
+			  'font-lock-function-name-face))
+	      (font-lock-unfontify-region (- (point) 1) (point))
+	    ))))))
 
 (defun proof-zap-commas-buffer () 
   "Remove the face of all `,' in the current buffer."
