@@ -736,6 +736,11 @@ Otherwise return a string for configuring all settings.
 
 If `proof-assistants-settings' is nil and PGIP is supported, then
 first we query settings information from prover."
+  ;; This is a slightly ugly way: this function may be called to
+  ;; calculate a string for setting preferences, and is a possible
+  ;; setting for proof-shell-init-cmd.  But it needs to be evaluated
+  ;; each time (in case preferences change), and may trigger a nested
+  ;; call to proof-shell-invisible-cmd to send askprefs message.
   (if (and (not proof-assistant-settings)
 	   proof-shell-issue-pgip-cmd)
       (pg-pgip-askprefs))
