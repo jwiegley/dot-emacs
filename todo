@@ -1073,9 +1073,8 @@ Would be good to make count undos and find-and-forget generic.
 
 -----------------------------------------------------------------
 
-BUG:   in lego
 
-Warning: forgetting an unfinished proof
-KillRef: ok, not in proof state
+Subterm highlighting when X-Symbol is turned on in Isabelle.
 
-  possibly due to spurious proof span left behind(?)
+
+-----------------------------------------------------------------

@@ -90,7 +90,7 @@ using an <a href="oldrel.php">older release</a> of Proof General.
 <p>
 <b>Prover versions:</b>
 This version has been tested with Coq 7.3, Isabelle2002, Lego 1.3.1,
-and PhoX XXX.
+and PhoX 0.8.
 </p>
 <p>
 For install instructions, see 
@@ -137,10 +137,9 @@ The complete archive also includes:
   <li> working instantiations of Proof General for new provers </li>
 </ul>
 <p>
-You probably <em>don't</em> need to download this if you're only
-interested in hacking the Emacs lisp part of the program for a prover
-that is currently supported.  Note that there are no pre-built
-documentation files in the developer's release.
+Most people don't need this.  Note that there are no pre-built
+documentation files in the developer's release (developers can
+run Make, by definition).
 </p>
 
 <?php
