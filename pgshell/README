@@ -1,6 +1,9 @@
 Proof General for shell scripts/simple command interpreters.
 
-David Aspinall.
+Author:		David Aspinall
+Status:		Supported; experimental
+
+====================================================================
 
 This instance of PG is handy just for using script management to
 cut-and-paste into a buffer running an ordinary shell of some kind.

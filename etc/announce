@@ -29,7 +29,7 @@ Summary of changes since 3.4:
 . Keyboard hints and other messages displayed in minibuffer
 . Auxiliary modes bundled: X-Symbol and MMM Mode
 . Improved menus, user options, script colouring and active highlighting
-. Many changes for compatibility with latest Emacsen and provers
+. Many changes for compatibility with latest Emacsen (esp. GNU) and provers
 . Many other minor improvements and editing features
 . For Coq: a new "holes" system, for editing structured expressions
 . New instances of PG: Casl Consistency Checker, Shell Script

@@ -6,10 +6,10 @@ Later contributions by Patrick Loiseleur, Pierre Courtieu,
 
 Status:		supported
 Maintainer:	Pierre Courtieu
-Coq version:	6.3, 6.3.1, 7.x
+Coq version:	6.3, 6.3.1, 7.x, 8.x
 Coq homepage:	http://pauillac.inria.fr/coq/assis-eng.html
 
-========================================
+===========================================================================
 
 Coq Proof General has experimental multiple file handling for 6.3
 versions.  It does not have support for proof by pointing.

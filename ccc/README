@@ -1,7 +1,9 @@
 Proof General for the Casl Consistency Checker
 
-Author: Christoph Lüth <cxl@informatik.uni-bremen.de>
+Author:	Christoph Lüth <cxl@informatik.uni-bremen.de>
        
+=================================================================
+
 This is a fairly straightforward instantiation of Proof General for
 the Casl Consistency Checker, CCC. 
 

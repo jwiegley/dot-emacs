@@ -1,20 +1,5 @@
 -*- outline -*-
 
-* Bugs to be fixed before PG 3.5 is released; recently noted items
-
-The items below are known and will be fixed (or shifted to the list
-below) before 3.5 is released. Please don't send email about these
-(unless you can fix them).  Please do send email about others.
-
-** Various menu problems with Emacs 21.2.
-
-PG menus may be added to wrong bar during autoload.  See CHANGES for
-temporary workaround.
-
-
-=================================================================
-
-
 * Known Bugs and Workarounds for Proof General.
 
 Contact:  mailto:da+pg-bugs@inf.ed.ac.uk
@@ -54,11 +39,11 @@ An extra click on the toolbar may solve this.  If you have problems,
 please customize `proof-toolbar-use-button-enablers' to nil to
 disable the enablers. 
 
-** Using C-g can leave script management in a mess.  
+** Using C-g can leave script management in a mess (rare).  
 
 The code is not fully protected from Emacs interrupts.
 Workaround: Don't type C-g while script management is processing.  
-If you do, use proof-restart-scripting.
+If you do, use proof-restart-scripting to be sure of synchronizing.
 
 ** Outline-mode does not work in processed proof script files 
 
@@ -89,7 +74,7 @@ to edit a file as it is being read by the proof assistant!
 
 
 
-* Problems with particular Emacs versions
+* Problems with particular Emacs versions [mostly historical]
 
 ** Buggy output fontification with Emacs 21.2 / X-Symbol 4.X
 
@@ -124,8 +109,6 @@ adding this line to .emacs should help:
 
    (setq process-coding-system-alist '(("" . no-conversion))) 
 
-
-
 ** XEmacs undo in the script buffer can edit the "uneditable region"
 
 Test case: Insert some nonsense text after the locked region.
@@ -159,6 +142,3 @@ Several (odd) circumstances cause this version of Emacs to loop,
 in particular, when moving the cursor into multi-byte characters.
 Workarounds have been added to avoid this: you may see junk
 characters in the shell buffer as a side effect. 
-
-
-

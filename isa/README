@@ -3,12 +3,12 @@ Isabelle Proof General
 Written by David Aspinall, later with assistance from
 Markus Wenzel and David von Oheimb.
 
-Status:		   supported
+Status:		   supported 
 Maintainer:	   David Aspinall
 Isabelle versions: Isabelle99-1, Isabelle99-2, Isabelle2002
 Isabelle homepage: http://www.cl.cam.ac.uk/Research/HVG/Isabelle/
 
-========================================
+====================================================================
 
 Isabelle Proof General has full support for multiple file scripting,
 with dependencies between theories communicated between Isabelle and
@@ -24,6 +24,7 @@ Isabelle Proof General via the 'Isabelle' shell command.  These files
 were provided by Markus Wenzel.
 
 Check the value of isabelle-prog-name.
+
 
 ========================================
 
