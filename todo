@@ -13,7 +13,8 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-B CVS management: make image files be treated as binaries. 
+A Test that the release version of the distribution actually works.
+  The tar file doesn't include the whole of what we keep under CVS.
   (da, 30 mins)
 
 A Check & fix support for a recent version of FSFmacs.  (da, 2hr).
