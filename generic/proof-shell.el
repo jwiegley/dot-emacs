@@ -1,6 +1,6 @@
 ; proof-shell.el  Proof General shell mode.
 ;;
-;; Copyright (C) 1994-2002 LFCS Edinburgh. 
+;; Copyright (C) 1994-2004 LFCS Edinburgh. 
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
@@ -2037,10 +2037,8 @@ processing."
 	    ;; preferences are not configured, we may configure them.
 	    ;; (NB: this assumes that PGIP provers are ready-to-go, without
 	    ;;  needing init-cmd before PGIP processing).  We do
-	    ;; this so that preferences may be set in proof-shell-init-cmd.
-	    (if (and (not proof-assistant-settings)
-		     proof-shell-issue-pgip-cmd)
-		(pg-pgip-askprefs))
+	    ;; this so that user preferences may be set in proof-shell-init-cmd.
+	    (proof-maybe-askprefs)
 	    ;; Now send the init cmd proper.
 	    (if proof-shell-init-cmd
 		(proof-shell-invisible-command proof-shell-init-cmd t))

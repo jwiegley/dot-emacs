@@ -807,14 +807,22 @@ evaluate can be provided instead."
 	;;  Could also repeat last command if non-state destroying.
 	)))
 
+(defun proof-maybe-askprefs ()
+  "If `proof-assistant-settings' is unset, try to issue <askprefs>"
+  (if (and (not proof-assistant-settings)
+	   proof-shell-issue-pgip-cmd)
+      (pg-pgip-askprefs)))
+  
 
 (defun proof-assistant-settings-cmd (&optional setting)
   "Return string for settings kept in Proof General customizations.
 If SETTING is non-nil, return a string for just that setting. 
 Otherwise return a string for configuring all settings.
-
-If `proof-assistant-settings' is nil and PGIP is supported, then
-first we query settings information from prover."
+NB: if no settings are configured, we try to do <askprefs> first."  
+  ;; NB: it may seem like this next line is unnecessary because we do
+  ;; proof-maybe-askprefs also in proof-shell-config-done.  But
+  ;; the 
+  (proof-maybe-askprefs) 
   (let
       ((evalifneeded (lambda (expr)
 			(if (and (cadr expr) ;; setting has PA string?
