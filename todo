@@ -16,10 +16,9 @@ X (Low)    probably not worth wasting time on
 
 A byte-compilation: continue fixups for clean byte compile.
   Need to compile from clean Emacs to see proper warnings.
-  Unfortunately I get odd Arithmetic Errors when comiling.
   Check that byte compilation (and compiled code!) 
-  works for both varieties of Emacs.  Add instructions to INSTALL on 
-  how to byte compile.  Fill out Makefile.dist (2hr da)
+  works for both varieties of Emacs. 
+  Fill out Makefile.dist (4hr da)
 
 C  Remove "FIXME notes" which are just notes I've put in about old
    code in case something breaks   (da, 30mins).
@@ -422,4 +421,3 @@ B According to the documentation of font-lock for Emacs 20.2, it
 
 B add links *from* Coq, Lego & Isabelle Web pages (da, tms 10 min)
 
-B add instructions for byte compilation (da 20 min)
