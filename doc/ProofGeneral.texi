@@ -155,6 +155,7 @@ Isabelle.
 @menu
 * Credits::                     
 * History::                     
+* Latest news::                     
 @end menu
 
 @node Credits
@@ -220,6 +221,7 @@ proof scripts in one buffer. Support was provided to automatically send
 parts of the script to the proof process. The last official version with
 the name @code{lego-mode} (1.9) was released in May 1995.
 
+
 @cindex proof by pointing 
 @cindex CtCoq
 @cindex Centaur
@@ -269,6 +271,18 @@ mode. David Aspinall suggested @emph{Proof General}. He also cooked up
 some images and a toolbar. Proof General 2.0 is the first official
 release, ready to conquer the world.  Why not adapt Proof General to
 your favourite proof system?
+
+@node Latest news
+@unnumberedsec Latest news
+@cindex news
+
+Proof General has its own
+@uref{http://www.dcs.ed.ac.uk/home/proofgen,home page} hosted at
+Edinburgh.  Visit this page for the latest news!
+
+
+
+
 
 
 
