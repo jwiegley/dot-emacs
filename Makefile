@@ -14,7 +14,7 @@
 ###########################################################################
 
 
-ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98 af2 twelf
+ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98 af2 twelf acl2
 # FIXME: automate the emacs choice to be xemacs if it can be
 # found, otherwise emacs.
 BATCHEMACS=xemacs -batch -q -no-site-file

@@ -180,7 +180,7 @@ FILES_NONCVS = TAGS
 DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
-ELISP_DIRS=generic lego coq isa isar plastic demoisa hol98 af2 twelf
+ELISP_DIRS=generic lego coq isa isar plastic demoisa hol98 af2 twelf acl2
 SUBDIRS=$(ELISP_DIRS) etc doc html images
 
 PWD=$(shell pwd)
