@@ -29,6 +29,9 @@ to your .emacs file so Proof General is available whenever
 you run Emacs.
 
 %changelog
+* Thu Dec  7 2000 David Aspinall <da@dcs.ed.ac.uk> 
+- Name change af2 -> phox
+
 * Fri Sep 29 2000 David Aspinall <da@dcs.ed.ac.uk> 
 - For 3.2, add more provers (af2, acl2, twelf).  Added proofgeneral script.
 
@@ -64,7 +67,7 @@ gzip ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info ${RPM_BUILD_ROOT}/usr/info/PG-a
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
-cp -pr af2 acl2 twelf coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
+cp -pr phox acl2 twelf coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 
 %clean
@@ -108,9 +111,9 @@ fi
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/hol98
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/hol98/*.el
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/hol98/*.sml
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/af2
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/af2/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/af2/*.af2
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/phox
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/phox/*.el
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/phox/*.phox
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/acl2
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.el
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.acl2
