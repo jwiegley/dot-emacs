@@ -113,36 +113,6 @@
 ;;; Contents of the generic menus
 ;;;
 
-
-(defun proof-deftoggle-fn (var &optional othername)
-  "Define a function <VAR>-toggle for toggling a boolean customize setting VAR.
-The toggle function uses customize-set-variable to change the variable.
-OTHERNAME gives an alternative name than the default <VAR>-toggle."
-  (eval
-   `(defun ,(if othername othername 
-	      (intern (concat (symbol-name var) "-toggle"))) (arg)
-	      ,(concat "Toggle `" (symbol-name var) "'. With ARG, turn on iff ARG>0.
-This function simply uses customize-set-variable to set the variable.
-It was constructed with `proof-customize-toggle-fn'.")
-	      (interactive "P")
-	      (customize-set-variable 
-	       (quote ,var)
-	       (if (null arg) (not ,var)
-		 (> (prefix-numeric-value arg) 0))))))
-
-;;;###autoload
-(defmacro proof-deftoggle (var &optional othername)
-  "Define a function VAR-toggle for toggling a boolean customize setting VAR.
-VAR, OTHERNAME are not evaluated.  
-The function is defined with `proof-customize-toggle-fn', which see."
-  `(proof-deftoggle-fn (quote ,var) (quote ,othername)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Contents of the generic menus
-;;;
-
 (defvar proof-help-menu
   '("Help"
     ["Proof General home page"
