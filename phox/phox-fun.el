@@ -1,28 +1,5 @@
-;;--------------------------------------------------------------------------;;
-;;--------------------------------------------------------------------------;;
-;; program extraction.
-;;
-;; note : program extraction is still experimental
-;;--------------------------------------------------------------------------;;
-
-(defun phox-compile-theorem(name)
-  "Interactive function : 
-ask for the name of a theorem and send a compile command to PhoX for it."
-  (interactive "stheorem : ")
-  (proof-shell-invisible-command (concat "compile " name ".\n")))
-
-(defun phox-compile-theorem-around-point()
-"Interactive function : 
-send a compile command to PhoX for the theorem which name is under the cursor."
-  (interactive)
-  (let (start end)
-    (save-excursion
-      (forward-word 1)
-      (setq start (point))
-      (forward-word -1)
-      (setq end (point)))
-    (phox-compile-theorem (buffer-substring start end))))
-
+;; $State$ $Date$ $Revision$ 
+;; syntax
 
 (setq
  phox-forget-id-command "del %s.\n"
@@ -58,6 +35,23 @@ send a compile command to PhoX for the theorem which name is under the cursor."
    phox-comments-regexp
    "\\(\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)[. \n\t\r]")
 )
+
+
+(defun phox-init-syntax-table ()
+  "Set appropriate values for syntax table in current buffer."
+;; useful for using forward-word
+  (modify-syntax-entry ?_  "w")
+  (modify-syntax-entry ?\. "w")
+;; Configure syntax table for block comments
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4")
+;; à compléter éventuellement
+)
+
+
+
+
 
 (defun phox-find-and-forget (span)
   (let (str ans tmp (lsp -1))
@@ -107,32 +101,6 @@ send a compile command to PhoX for the theorem which name is under the cursor."
 
       (or ans proof-no-command)))
 
-;;--------------------------------------------------------------------------;;
-;;
-;;    Deleting symbols
-;;
-;;--------------------------------------------------------------------------;;
-
-
-(defun phox-delete-symbol(symbol)
-  "Interactive function : 
-ask for a symbol and send a delete command to PhoX for it."
-  (interactive "ssymbol : ")
-  (proof-shell-invisible-command (concat "del " symbol ".\n")))
-
-(defun phox-delete-symbol-around-point()
-"Interactive function : 
-send a delete command to PhoX for the symbol whose name is under the cursor."
-  (interactive)
-  (let (start end)
-    (save-excursion
-      (forward-word -1)
-      (setq start (point))
-      (forward-word 1)
-      (setq end (point)))
-    (if (char-equal (char-after (- end 1)) ?\.)(setq end (- end 1)))
-    (phox-delete-symbol (buffer-substring start end))))
-
 ;;
 ;; Doing commands
 ;;
@@ -149,5 +117,36 @@ If inside a comment, just process until the start of the comment."
     (proof-assert-next-command))
    (proof-maybe-follow-locked-end)))
 
+
+;;--------------------------------------------------------------------------;;
+;;
+;;    Deleting symbols
+;;
+;;--------------------------------------------------------------------------;;
+;; obsolète probablement, sinon à modifier pour en étendre la portée.
+
+(defun phox-delete-symbol(symbol)
+  "Interactive function : 
+ask for a symbol and send a delete command to PhoX for it."
+  (interactive "ssymbol : ")
+  (proof-shell-invisible-command (concat "del " symbol)))
+
+(defun phox-delete-symbol-on-cursor()
+"Interactive function : 
+send a delete command to PhoX for the symbol whose name is under the cursor."
+  (interactive)
+  (let (start end)
+    (save-excursion
+      (forward-word -1)
+      (setq start (point))
+      (forward-word 1)
+      (setq end (point)))
+    (if (char-equal (char-after (- end 1)) ?\.)(setq end (- end 1)))
+    (phox-delete-symbol (buffer-substring start end))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (provide 'phox-fun)
+
 

@@ -1,3 +1,5 @@
+;; $State$ $Date$ $Revision$ 
+
 (require 'proof)			; load generic parts
 
 ;; Adjust toolbar entries.  (Must be done
@@ -71,6 +73,7 @@
   :type 'string
   :group 'phox-config)
 
+(require 'phox-extraction)
 (require 'phox-tags)
 (require 'phox-outline)
 (require 'phox-font)
@@ -79,25 +82,15 @@
 ;; ----- PhoX specific menu
 
 (defpgdefault menu-entries
-  '(    
-    ["Delete symbol around cursor" phox-delete-symbol-around-point t]
-    ["Delete symbol" phox-delete-symbol t]
-    ["Compile theorem under cursor" phox-compile-theorem-around-point t]
-    "----"
-    ("Tags"
-     ["create a tags table for local buffer" phox-tags-create-local-table t]
-     ["------------------" nil nil]
-;    ["load table" phox-tags-load-table t]
-     ["add table"               phox-tags-add-table       t]
-     ["add local table"         phox-tags-add-local-table t]
-     ["add table for libraries" phox-tags-add-lib-table   t]
-     ["add table for text doc"  phox-tags-add-doc-table   t]
-     ["reset tags table list"   phox-tags-reset-table     t]
-     ["------------------" nil nil]
-     ["Find theorem, definition ..." find-tag t]
-     ["complete theorem, definition ..." complete-tag t]
-     )
-    ))
+  (cons
+   phox-tags-menu
+   (cons
+    phox-extraction-menu
+;; not useful ?
+;    '(["Delete symbol around cursor" phox-delete-symbol-around-point t]
+;    ["Delete symbol" phox-delete-symbol t])
+      nil))
+  )
 
 ;;
 ;; ======== Configuration of generic modes ========
@@ -139,6 +132,7 @@
    proof-auto-multiple-files       nil
    font-lock-keywords              phox-font-lock-keywords 
    )
+  (phox-init-syntax-table)
 )
 
 (defun phox-shell-config ()
@@ -177,11 +171,8 @@
     ;; it is nice to do : xmodmap -e "keysym KP_Enter = Linefeed"
 
     (define-key phox-mode-map [(control c) (meta d)] 
-      'phox-delete-symbol-around-point)  
-    ;; Configure syntax table for block comments
-    (modify-syntax-entry ?\* ". 23")
-    (modify-syntax-entry ?\( "()1")
-    (modify-syntax-entry ?\) ")(4"))
+      'phox-delete-symbol-on-cursor)  
+)
 
 (define-derived-mode phox-shell-mode proof-shell-mode
    "PhoX shell" nil

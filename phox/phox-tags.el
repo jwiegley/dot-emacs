@@ -1,3 +1,4 @@
+;; $State$ $Date$ $Revision$ 
 ;;--------------------------------------------------------------------------;;
 ;;--------------------------------------------------------------------------;;
 ;;                         gestion des TAGS
@@ -26,7 +27,7 @@
 					; gnu emacs
     (if (member table tags-table-list)
 	(message (concat table " already loaded."))
-;    (make-local-variable 'tags-table-list) ; ne focntionne pas
+;    (make-local-variable 'tags-table-list) ; ne fonctionne pas
       (setq tags-table-list (cons table tags-table-list))
       )
     )
@@ -51,7 +52,7 @@
 (defun phox-tags-add-lib-table()
   "Add tags in libraries."
   (interactive)
-  (phox-tags-add-table (concat phox-lib-dir "TAGS"))
+  (phox-tags-add-table (concat phox-lib-dir "/TAGS"))
   )
  
 (defun phox-tags-add-local-table()
@@ -70,8 +71,41 @@
 			 (file-name-nondirectory (buffer-file-name))))
   )
 
+
+(defun phox-complete-tag()
+"Complete symbol using tags table. Works with FSF emacs.
+ Problems with xemacs."
+;; xemacs build a table for completion, tag-completion-table
+;; this table donnot contains key words that use ".", probably a
+;; problem with syntax table.
+
+(if proof-running-on-XEmacs
+    (complete-tag)
+  (tag-complete-symbol)))
+
+;; menu
+
+(defvar phox-tags-menu
+     '("Tags"
+       ["create a tags table for local buffer" phox-tags-create-local-table t]
+       ["------------------" nil nil]
+       ["add table"               phox-tags-add-table       t]
+       ["add local table"         phox-tags-add-local-table t]
+       ["add table for libraries" phox-tags-add-lib-table   t]
+       ["add table for text doc"  phox-tags-add-doc-table   t]
+       ["reset tags table list"   phox-tags-reset-table     t]
+       ["------------------" nil nil]
+       ["Find theorem, definition ..." find-tag t]
+       ["complete theorem, definition ..." phox-complete-tag t]
+      )
+"Phox menu for dealing with tags"
+)
+
 ;; default
 
 (if phox-tags-doc (add-hook 'phox-mode-hook 'phox-tags-add-doc-table))
 
 (provide 'phox-tags)
+
+
+
