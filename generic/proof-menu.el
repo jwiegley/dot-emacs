@@ -203,59 +203,56 @@ If in three window or multiple frame mode, display both buffers."
 (defvar proof-quick-opts-menu
   (cons 
    "Options"
-   (append
-    ;; FIXME: remove after 3.2, and promote this setting to proper option
-    (if proof-script-use-new-parser
-	'(["Fly past comments" proof-script-fly-past-comments-toggle
-	   :style toggle
-	   :selected proof-script-fly-past-comments])
-      nil)
-  '(["Disppearing proofs" proof-disappearing-proofs-toggle 
-     :style toggle
-     :selected proof-disappearing-proofs]
-    ["Three window mode" proof-dont-switch-windows-toggle
-     :active (not proof-multiple-frames-enable)
-     :style toggle
-     :selected proof-dont-switch-windows]
-    ["Delete empty windows" proof-delete-empty-windows-toggle
-     :active (not proof-multiple-frames-enable)
-     :style toggle
-     :selected proof-delete-empty-windows]
-    ["Multiple frames" proof-multiple-frames-toggle
-     :active (display-graphic-p)
-     :style toggle
-     :selected proof-multiple-frames-enable]
-    ["Output highlighting" proof-output-fontify-toggle
-     :active t
-     :style toggle
-     :selected proof-output-fontify-enable]
-    ["Toolbar" proof-toolbar-toggle
-     :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
-		  (boundp 'proof-buffer-type)
-		  ;; only allow toggling of toolbar enable in one
-		  ;; buffer to avoid strange effects because we
-		  ;; only keep one flag.  (Strange effects because 
-		  ;; we only turn it off in one buffer at a time)
-		  (eq proof-buffer-type 'script))
-     :style toggle
-     :selected proof-toolbar-enable]
-    ["X-Symbol" proof-x-symbol-toggle
-     :active (proof-x-symbol-support-maybe-available)
-     :style toggle
-     :selected (proof-ass x-symbol-enable)]
-    ("Follow mode" 
-     ["Follow locked region" 
-      (customize-set-variable 'proof-follow-mode 'locked)
-     :style radio
-     :selected (eq proof-follow-mode 'locked)]
-     ["Keep locked region displayed" 
-      (customize-set-variable 'proof-follow-mode 'follow)
-     :style radio
-     :selected (eq proof-follow-mode 'follow)]
-     ["Never move" 
-      (customize-set-variable 'proof-follow-mode 'ignore)
-     :style radio
-     :selected (eq proof-follow-mode 'ignore)]))))
+   '(["Disppearing proofs" proof-disappearing-proofs-toggle 
+      :style toggle
+      :selected proof-disappearing-proofs]
+     ["Three window mode" proof-dont-switch-windows-toggle
+      :active (not proof-multiple-frames-enable)
+      :style toggle
+      :selected proof-dont-switch-windows]
+     ["Delete empty windows" proof-delete-empty-windows-toggle
+      :active (not proof-multiple-frames-enable)
+      :style toggle
+      :selected proof-delete-empty-windows]
+     ["Multiple frames" proof-multiple-frames-toggle
+      :active (display-graphic-p)
+      :style toggle
+      :selected proof-multiple-frames-enable]
+     ["Output highlighting" proof-output-fontify-toggle
+      :active t
+      :style toggle
+      :selected proof-output-fontify-enable]
+     ["Toolbar" proof-toolbar-toggle
+      :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
+		   (boundp 'proof-buffer-type)
+		   ;; only allow toggling of toolbar enable in one
+		   ;; buffer to avoid strange effects because we
+		   ;; only keep one flag.  (Strange effects because 
+		   ;; we only turn it off in one buffer at a time)
+		   (eq proof-buffer-type 'script))
+      :style toggle
+      :selected proof-toolbar-enable]
+     ["X-Symbol" proof-x-symbol-toggle
+      :active (proof-x-symbol-support-maybe-available)
+      :style toggle
+      :selected (proof-ass x-symbol-enable)]
+     ["Fly past comments" proof-script-fly-past-comments-toggle
+      :active (not proof-script-use-old-parser)
+      :style toggle
+      :selected proof-script-fly-past-comments]
+     ("Follow mode" 
+      ["Follow locked region" 
+       (customize-set-variable 'proof-follow-mode 'locked)
+       :style radio
+       :selected (eq proof-follow-mode 'locked)]
+      ["Keep locked region displayed" 
+       (customize-set-variable 'proof-follow-mode 'follow)
+       :style radio
+       :selected (eq proof-follow-mode 'follow)]
+      ["Never move" 
+       (customize-set-variable 'proof-follow-mode 'ignore)
+       :style radio
+       :selected (eq proof-follow-mode 'ignore)])))
   "Proof General quick options.")
 
 (defconst proof-shared-menu
