@@ -4,6 +4,7 @@ $Id$
 
 * Priorities
 ============
+A* (SUPERSONIC URGENT)  to be fixed yesterday.
 A (URGENT) to be fixed immediately for pre-release 
 B (High)   to be fixed before release (Version 2.0)
 C          would be nice to fix before release of 2.0; but not crucial
@@ -21,26 +22,36 @@ B proof-find-next-terminator doesn't work properly:
      move point to "t". Currently, it doesn't do anything. This is a
      bug. 
 
-A Fix Non Sequitur nonsense with Isabelle when warnings appear before
+
+A* Fix Non Sequitur nonsense with Isabelle when warnings appear before
   proofstate.  (da, 1hr?)
 
-A Check & fix support for a recent version of FSFmacs.  (da, 2hr).
+A* Check & fix support for a recent version of FSFmacs.  (da, 2hr).
 
 A Add support for putting a locked region in processed files.
   (tms 4h)
 
-A Clean up proof-assert-until-point behaviour.  At the moment we
-  get an odd error if it is run in the locked region.  If point
-  is on the start of a command it says "nothing to do", but if
-  it is one character into the command, it asserts the whole command!
-  I propose the new function proof-assert-next-command as a 
-  possible alternative/additional behaviour, bound to  C-c C-RET.
-  Another question is whether the point is moved afterwards or not.
-  I suspect it is useful to leave point where it is, so we can
-  easily edit one step in a proof, try the next few steps, then
-  undo them, try a variation, etc.  As an experiment, 
-  proof-assert-next-command does not advance point. 
-  (da, tms/others to assess)
+B Clean up proof-assert-until-point behaviour.  Discussion results:
+    1.  At the moment we get an odd error if it is run in
+    the locked region.    This is a bug.  Should behave same
+    as proof-assert-next-command in this case (simpler) or
+    give better error message.
+
+    2.  At or before first character of proof command, "nothing to do"
+    error message.  This is a bug.  Should behave same
+    as proof-assert-next-command in this case.
+
+    [1,2 have been "fixed" by rebinding C-c RET to 
+     proof-assert-next-command for now, eventually 
+     this may form a new version of proof-assert-until-point]
+
+    3.  Toolbar movement functions should operate just on the locked
+    region, and not move point.  They should maintain visibility of
+    end of locked region, though.
+
+    4.  Movement and possible insertion of spaces/newlines for 
+    when new commands are added to the buffer needs careful
+    thought!
 
 A Write function proof-retract-file. (30min tms)
   Currently, the command ForgetMark (for LEGO) is hardwired in
@@ -63,6 +74,9 @@ A Multiple files are sometimes handled incorrectly, because the
 
 A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
+
+B Simplify icons in proof toolbar (make double triangles into single
+  ones).  (1hr, da)
 
 B Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2 days; da + tms)
@@ -199,21 +213,6 @@ C Fixup sources to follow Elisp conventions better.
      Introduce new defconsts.
   3. Check on use of "*" in docstrings.  Should be used for
      variables which are user-level options, only.
-
-A Implement more generic mechanism for large undos (2h tms)
-
-    COQ: C-c u inside a Section should reset the whole section, then
-         redo defns 
-
-    LEGO: consider Discharge; perhaps unrol to the beginning of the
-          module?
-
-A Multiple files are sometimes handled incorrectly, because the
-  function `proof-steal-process' cannot figure out that some files have
-  already been processed. This is most likely caused by the ad-hoc
-  equality test on file names. Instead, one could employ
-  the built-in `file-truename' to trigger *canonical* file names.
-  (1h tms)
 
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
