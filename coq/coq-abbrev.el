@@ -10,7 +10,7 @@
   (define-abbrev-table 'coq-mode-abbrev-table
 	 '(
 		("a" "auto" holes-abbrev-complete 4)
-		("ar" "autorewrite [ # ] using @{db}" holes-abbrev-complete 1)
+		("ar" "autorewrite with @{db,db...} using @{tac}" holes-abbrev-complete 1)
 		("ab" "absurd " holes-abbrev-complete 0)
 		("abs" "absurd " holes-abbrev-complete 0)
 		("ap" "apply " holes-abbrev-complete 16)
@@ -69,7 +69,7 @@
 		("he" "Hint Extern @{cost} @{pat} => @{tac} : @{db}." holes-abbrev-complete 0)
 		("hi" "Hint Immediate # : @{db}." holes-abbrev-complete 0)
 		("hr" "Hint Resolve # : @{db}." holes-abbrev-complete 0)
-		("hrw" "Hint Rewrite [#] in @{db} using @{tac}." holes-abbrev-complete 0)
+		("hrw" "Hint Rewrite -> @{t1,t2...} using @{tac} : @{db}." holes-abbrev-complete 0)
 		("hs" "Hints # : #." holes-abbrev-complete 0)
 		("hu" "Hint Unfold # : #." holes-abbrev-complete 0)
 		("i" "intro " holes-abbrev-complete 10)
