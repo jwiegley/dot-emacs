@@ -158,11 +158,12 @@ No error messages.  Useful as menu or toolbar enabler."
   (and (proof-shell-live-buffer)
        (not proof-shell-busy)))
 
-;; FIXME: note: removed optional 'relaxed' arg
 (defun proof-grab-lock ()
-  "Grab the proof shell lock."
+  "Grab the proof shell lock, starting the proof assistant if need be.
+Runs proof-state-change-hook to notify state change."
   (proof-shell-ready-prover)
-  (setq proof-shell-busy t))
+  (setq proof-shell-busy t)
+  (run-hooks 'proof-state-change-hook))
 
 (defun proof-release-lock ()
   "Release the proof shell lock."
@@ -209,8 +210,11 @@ Does nothing if proof assistant is already running."
 	  (setq proof-prog-name (read-shell-command "Run process: "
 						    proof-prog-name))))
     (let ((proc
-	   ;; "Inferior" is Emacs terminology for sub-shell processes.
-	   (concat "Inferior "
+	   
+	   (concat 
+	    ;; "Inferior" is Emacs terminology for sub-shell processes.
+	    ;; "Inferior " used to be part of the name, now removed 
+	    ;; for brevity.
 		   ;; Try to pick useful part of command name
 		   ;;  -- basename component of command less arguments
 		   (substring proof-prog-name
