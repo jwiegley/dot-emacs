@@ -1,0 +1,218 @@
+/* x-symbol.css --- CSS for X-Symbol's man pages
+ *
+ * Author: Christoph Wedler <wedler@users.sourceforge.net>
+ * X-URL: http://x-symbol.sourceforge.net/
+ */
+
+/* Common style -------------------------------------------------------------*/
+
+BODY {
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    font-family: serif;
+    background: #F8F8F8;
+}
+
+DIV.main {
+    padding: 0 0.5em 0 1em;
+    padding-right: 0.5em;	/* IE bug: repeat */
+    padding-left: 1em		/* IE bug: repeat */
+}
+
+P {
+    margin: 0.5em 0;
+    padding: 0;
+}
+LI {
+    margin: 0.3em 0;
+    padding: 0;
+}
+PRE {
+    background: #E8E8E8;
+    white-space: pre;		/* Netscape forgets it */
+    font-family: monospace;     /* Netscape forgets it */
+    padding: 0.3em;
+    border: none;               /* Netscape bug workaround */
+    margin: 0.3em 1.2em 0.3em 1.2em;
+}
+LI PRE {
+    margin: 0.3em 1.2em 0.3em 0;
+}
+ADDRESS {
+    padding: 0 0.5em 0.5em;
+}
+
+/* HYPERLINKS.  Order is important! */
+
+A:link {
+    color: #000099;
+}
+A:visited {
+    color: #330066;
+}
+A:active {
+    color: #660000;
+}
+A.inpage:link {
+    color: #333300;
+}
+A.inpage:visited {
+    color: #333300;
+}
+A.inpage:hover {
+    color: #FF0000;
+}
+A.foot:link {
+    color: #666666;
+}
+A.foot:visited {
+    color: #666666;
+}
+A.foot:hover {
+    color: #FF0000;
+}
+A:hover {
+    color: #FF0000;
+}
+
+/* HEADER NAVIGATION */
+
+TABLE.head {
+    border-collapse: collapse;
+    width: 100%;
+    padding: 0.1em;
+    white-space: nowrap;
+    background: #C0C0C0;
+    font-family: sans-serif;
+}
+.head TH {
+    color: #F0F0F0;
+    white-space: nowrap;
+    padding: 0.2em 0.5em 0.2em 0.5em;
+    border: 2px solid #C0C0C0;
+}
+.head A:hover {
+    background: #FFF0D0;
+}
+.head TD {
+    padding: 0.2em 0.3em;
+    width: auto;
+    border: 2px solid #C0C0C0;
+}
+TD.sel {
+    background: #E0E0E0;
+    border-bottom: 2px solid #E0E0E0;
+}
+TD.alt {
+    background: #CCCCCC;
+}
+TD.last {
+    text-align: left;
+    width: 100%;
+}
+
+/* HEADERS, MARKUP.  Avoid font sizes, even %, even 100% => ugly fonts */
+
+H1 {
+    font-family: sans-serif;
+    color: #660000;
+    font-weight: bold;
+}
+H2 {
+    font-family: sans-serif;
+    color: #000066;
+    font-weight: bold;
+}
+H3 {
+    font-family: sans-serif;
+    color: #333333;
+    font-weight: bold;
+}
+STRONG.intro {
+    font-style: normal;
+    font-weight: bold;
+    color: #000066;
+}
+EM.intro {
+    font-style: normal;
+    color: #000066;
+}
+EM EM {
+    font-style: normal;
+}
+
+TT {				/* like CODE.file */
+    color: #000066;
+}
+
+KBD {				/* like KBD.kbd */
+    font-family: monospace;
+    font-weight: bold;
+    color: #660000;
+}
+CODE {				/* like CODE.lisp */
+    color: #660000;
+}
+SAMP {				/* like SAMP.text */
+    color: #330066;
+}
+CITE {
+    font-style: italic;
+    color: #330066;
+}
+
+/* Manual specific ----------------------------------------------------------*/
+
+/* NAVIGATION BAR, PRINT */
+
+DIV.navigation {
+    background: #E0E0E0;
+    width: 100%;
+    margin-left: -0.2em;
+    margin-top: 1.2em;
+    font-family: sans-serif;
+}
+DIV.navigation TABLE {
+    font-size: x-small;
+    color: #E0E0E0;
+}
+DIV.navigation A {
+    text-decoration: none;
+}
+
+.navigation A:link {
+    color: #6666AA;
+}
+.navigation A:visited {
+    color: #8866AA;
+}
+.navigation A:active {
+    color: #886666;
+}
+.navigation A:hover {
+    background: #FFF0D0;
+}
+
+HR {
+    display: none;
+}
+
+P.print {
+    color: #660000;
+}
+
+/* PRE: @smallexample, @example, @smalldisplay, @display: nec? => v1.1 */
+
+.smallexample PRE {
+    margin: 0.1em 0;
+}
+.example PRE {
+    margin: 0.1em 0;
+}
+.smalldisplay PRE {
+    margin: 0.1em 0;
+}
+.display PRE {
+    margin: 0.1em 0;
+}
