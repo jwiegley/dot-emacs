@@ -12,7 +12,7 @@ Suggestion for outline of improved documentation.
  confusing to the users, at least!
  
  1. Introduction						[da]
-	1.1  Description
+	1.1  Quick start guide
 	1.2  Feature list, xref'd to later chaps.
 	1.2  Supported Proof Assistants, xref'd too.
 	      Support for new instances, xref'd to later chaps.

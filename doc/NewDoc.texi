@@ -128,6 +128,7 @@ Advanced Script Management
 
 Customizing Proof General
 
+* Easy customization::
 * Setting user options::        
 * Running on another machine::  
 * Tweaking configuration settings::  
@@ -368,7 +369,7 @@ like this:
 @end lisp
 Proof General recognizes goal .. save pairs in proof scripts.
 The name T can appear in the definitions menu for the proof
-script (see Script definitions menu), and once
+script (see Support for function menus), and once
 a goal .. save pair is completed it is treated
 as atomic when undoing proof steps (see Undo).  
 
@@ -432,7 +433,8 @@ assistant, for example warning or informative messages.
 * Finding the proof shell::
 * View of processed files ::    
 * Switching between proof scripts::  
-* Retracting across files::     
+* Retracting across files::
+* Support for function menus::
 @end menu
 
 @node Finding the proof shell
@@ -475,24 +477,180 @@ General).
 @section Retracting across files
 
 
+@node Support for function menus
+@section Support for function menus
+
+fume-func is a handy package which makes a menu from the function
+declarations in a buffer.  Proof General configures fume-func so that
+you can quickly jump to particular proofs in a script buffer.  This is
+done with the configuration variable @var{proof-goal-with-hole-regexp}.
+
+If you want to use fume-func, you may need to enable it for yourself.
+It is distributed with XEmacs (and FSF GNU Emacs) but by not enabled by
+default.  To enable it you should find the file func-menu.el and follow
+the instructions there.  At the time of writing, the current version of
+XEmacs is 20.4, supplied with function menu version 2.45, which suggests
+the following code for your @file{.emacs} file:
+
+@lisp
+   (require 'func-menu)
+   (define-key global-map 'f8 'function-menu)
+   (add-hook 'find-file-hooks 'fume-add-menubar-entry)
+   (define-key global-map "\C-cl" 'fume-list-functions)
+   (define-key global-map "\C-cg" 'fume-prompt-function-goto)
+   (define-key global-map '(shift button3) 'mouse-function-menu)
+   (define-key global-map '(meta  button1) 'fume-mouse-function-goto)
+@end lisp
+
+If you have another version of Emacs, you should check the fume-func.el
+file supplied with it.
+
+
+
+
 @node Customizing Proof General
 @chapter Customizing Proof General
 
+There are two kinds of customization for Proof General: it can be
+customized for a user's preferences using a particular proof assistant,
+or it can be customized by an Emacs expert to add a new proof assistant.
+Here we cover the user-level customization for Proof General.
+
+We only consider settings for Proof General itself.  The support for a
+particular proof assistant can provide extra customization settings.
+See the chapters covering each assistant for details.
+
+
+
 @menu
+* Easy customization::
 * Setting user options::        
 * Running on another machine::  
 * Tweaking configuration settings::  
 @end menu
 
+@node Easy customization
+@section Easy customization
+
+Proof General uses the Emacs customization library extensively to
+provide a friendly interface.
+
+You can access a menu of the customization settings for Proof General
+via the menu:
+
+@lisp
+   Options -> Customize -> Emacs -> External -> Proof General
+@end lisp
+in XEmacs, or in Emacs
+@c FIXME
+@lisp
+   Options -> Customize -> Emacs -> External -> Proof General
+@end lisp
+
+Before Proof General is fully loaded, not all customization
+settings will be shown in the menu.  Proof General is fully
+loaded when you visit a script file for the first time.
+
+When visiting a script file, there is a more direct route to the
+settings:
+
+@lisp
+   Proof-General -> Customize
+@end lisp
+
+Using the customize facility is straightforward.  You can select the
+setting to customize via the menus, or with @code{M-x
+customize-variable}.  When you have selected a setting, you are shown a
+buffer with its current value, and facility to edit it.  Once you have
+edited it, you can use the special buttons @var{set}, @var{save} and
+@var{done}.  You must use one of @var{set} or @var{save} to get any
+effect.  The @var{save} button stores the setting in your @file{.emacs}
+file.
+
+For more help, see @inforef{Easy Customization, ,xemacs}.
+
+
 @node Setting user options
 @section Setting user options
+
+Here are the user options for Proof General.  These can be set via the
+customization system, via the old-fashioned @code{M-x edit-options}
+mechanism, or simply by adding @code{setq}'s to your @file{.emacs} file.
+The first approach is the recommended one.
+
+Notice that in the customize menus, the variable names may be
+abbreviated by omitting the "@code{proof}-" prefix.  Also, some of the
+option settings may have more descriptive names (for example, @var{on}
+and @var{off}) than the low-level lisp values (non-@code{nil},
+@code{nil}) which are mentioned here.
+
+@defopt proof-program-name-ask
+If non-@code{nil}, query user which program to run for the inferior process.
+@end defopt
+
+@defopt proof-one-command-per-line
+If non-@code{nil}, format for newlines after each proof command in a script.
+@end defopt
+
+@defopt proof-toolbar-wanted
+Whether to use toolbar in proof mode.
+@end defopt
+
+@defopt proof-toolbar-follow-mode
+Choice of how point moves with toolbar commands.
+One of the symbols: @code{locked}, @code{follow}, @code{ignore}.
+If @code{locked}, point sticks to the end of the locked region with
+toolbar commands. @*
+If @code{follow}, point moves just when needed to display the
+locked region end. @*
+If @code{ignore}, point is never moved after toolbar movement commands.
+@end defopt
+
+@defopt proof-window-dedicated
+Whether response and goals buffers have dedicated windows.
+If non-@code{nil}, windows displaying responses from the prover will not
+be switchable to display other windows.  This helps manage your display,
+but can sometimes be inconvenient, especially for experienced Emacs
+users.
+@end defopt
+
 
 @node Running on another machine
 @section Running on another machine
 
+
 @node Tweaking configuration settings
 @section Tweaking configuration settings
 
+Configuration settings are the per-prover customizations of Proof
+General.  Occasionally you may like to adjust some of these settings to
+improve the way Proof General works.  Ideally this should not be
+necessary.  One case when it may be necessary is when a proof assistant
+has a flexible proof script language in which one can define new tactics
+or even operations, and you want Proof General to recognize some of
+these which the default settings don't mention.  So please feel free to
+try adjusting the configuration settings and report to us if you find
+better default values than the ones we have provided.
+
+The configuration settings appear in the customization group
+@code{prover-config}, or via the menu
+@lisp
+    Proof-General -> Internals ->  Prover Config
+@end lisp
+
+Some examples of settings you may like to tweak are:
+
+proof-assistant-home-page
+
+
+More details of the settings are given in @xref{Adapting Proof General
+to New Provers}.
+
+Unfortunately, although you can use the customization mechanism to set
+and save these variables, saving them may have no effect because the
+default settings are mostly hard-wired into the proof assistant code.
+@c FIXME: this is a problem, code does need fixing.
+At present there is no easy way to get around this.
 
 
 @node LEGO Proof General
