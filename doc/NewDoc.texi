@@ -825,6 +825,7 @@ See the chapters covering each assistant for details.
 @menu
 * Easy customization::          
 * Setting the user options::        
+* Changing faces::
 * Tweaking configuration settings::  
 @end menu
 
@@ -921,6 +922,15 @@ The protocol used should be configured so that no user interaction
 Whether to use toolbar in proof mode.
 @end defopt
 
+@defopt proof-auto-delete-windows
+If non-nil, automatically remove windows when they are cleaned.
+For example, at the end of a proof the goals buffer window will
+be cleared; if this flag is set it will automatically be removed.
+If you use several frames to display the Proof General buffers,
+you may want to set this variable to 'nil' to avoid frames being
+deleted automatically.
+@end defopt
+
 @defopt proof-toolbar-follow-mode
 Choice of how point moves with toolbar commands.
 One of the symbols: @code{locked}, @code{follow}, @code{ignore}.
@@ -958,6 +968,53 @@ particular provers.  Enable it if it works for you.
 @defopt proof-one-command-per-line
 If non-@code{nil}, format for newlines after each proof command in a
 script.  This option is not fully-functional at the moment.
+@end defopt
+
+@node Changing faces
+@section Changing faces
+
+The fonts and colours that Proof General uses are configurable.
+
+
+@defopt proof-queue-face
+Face for commands in proof script waiting to be processed.
+@end defopt
+
+@defopt proof-locked-face
+Face for locked region of proof script (processed commands).
+@end defopt
+
+@defopt proof-declaration-name-face
+Face for declaration names in proof scripts.
+Exactly what uses this face depends on the proof assistant.
+@end defopt
+
+@defopt proof-tacticals-name-face
+Face for names of tacticals in proof scripts.
+Exactly what uses this face depends on the proof assistant.
+@end defopt
+
+@defopt proof-error-face
+Face for error messages from proof assistant.
+@end defopt
+
+@defopt proof-warning-face
+Face for warning messages.
+Could come either from proof assistant or Proof General itself.
+@end defopt
+
+@c Maybe this detail of explanation belongs in the internals,
+@c with just a hint here.
+The slightly bizarre name of the next face comes from the idea that
+while large amounts of output are being sent from the prover, some
+messages should be displayed to the user while the bulk of the output is
+hidden.  The messages which are displayed may have a special annotation
+to help Proof General recognize them, and this is an "eager" annotation
+in the sense that it should be processed as soon as it is observed
+by Proof General.
+
+@defopt proof-eager-annotation-face
+Face for messages from proof assistant.
 @end defopt
 
 
