@@ -505,12 +505,13 @@ proof-shell-retract-files-regexp."
 ;;   Commands specific to isar                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(proof-defshortcut isar-super    "\\<^sup>" [(control u)])
-(proof-defshortcut isar-sub      "\\<^sub>"   [(control l)])
-(proof-defshortcut isar-longsup  "\\<^bsup>%p\\<^esup>" [u])
-(proof-defshortcut isar-longsub  "\\<^bsub>%p\\<^esub>" [l])
-(proof-defshortcut isar-idsub    "\\<^isub>" [(control i)])
-(proof-defshortcut isar-raw      "\\<^raw:%p>" [(control r)])
+(proof-defshortcut isar-super     "\\<^sup>%p" [(control u)])
+(proof-defshortcut isar-sub       "\\<^sub>%p" [(control l)])
+(proof-defshortcut isar-longsuper "\\<^bsup>%p\\<^esup>" [u])
+(proof-defshortcut isar-longsub   "\\<^bsub>%p\\<^esub>" [l])
+(proof-defshortcut isar-idsub     "\\<^isub>%p" [(control i)])
+(proof-defshortcut isar-raw       "\\<^raw:%p>" [(control r)])
+(proof-defshortcut isar-antiquote "@{text \"%p\"}" [(control a)])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

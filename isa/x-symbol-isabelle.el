@@ -243,6 +243,7 @@ See `x-symbol-language-access-alist' for details."
     (logicalor "\\<or>")
     (universal1 "\\<forall>")
     (existential1 "\\<exists>")
+    (epsilon "\\<some>")
     (biglogicaland "\\<And>")
     (ceilingleft "\\<lceil>")
     (ceilingright "\\<rceil>")
