@@ -30,6 +30,29 @@
 ;  "Customization of Isabelle's syntax recognition"
 ;  :group 'isa-scripting)
 
+;; ----- character syntax
+
+(defun isa-init-syntax-table ()
+  "Set appropriate values for syntax table in current buffer."
+  (modify-syntax-entry ?\$ ".")
+  (modify-syntax-entry ?\/ ".")
+  (modify-syntax-entry ?\\ ".")
+  (modify-syntax-entry ?+  ".")
+  (modify-syntax-entry ?-  ".")
+  (modify-syntax-entry ?=  ".")
+  (modify-syntax-entry ?%  ".")
+  (modify-syntax-entry ?<  ".")
+  (modify-syntax-entry ?>  ".")
+  (modify-syntax-entry ?\& ".")
+  (modify-syntax-entry ?.  "w")
+  (modify-syntax-entry ?_  "w")
+  (modify-syntax-entry ?\' "w")
+  (modify-syntax-entry ?\| ".")
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4"))
+
+
 ;; ----- syntax for font-lock and other features
 
 ;; FIXME: this command-keyword orientation isn't  good
@@ -99,6 +122,7 @@
   "All keywords in a Isabelle script")
 
 (defconst isa-tacticals '("REPEAT" "THEN" "ORELSE" "TRY"))
+
 
 ;; ----- regular expressions
 
