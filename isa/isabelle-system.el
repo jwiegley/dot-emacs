@@ -161,13 +161,26 @@ ISABELLE will always override this setting."
 		     (concat " " logic) "")))
     (concat isabelle opts logicarg)))
 
+
 (defun isabelle-choose-logic (logic)
   "Adjust isabelle-prog-name and proof-prog-name for running LOGIC."
-  ;; a little bit obnoxious maybe (but what naive user would expect)
+  (interactive 
+   (list (completing-read 
+	  "Use logic: "
+	  (mapcar 'list (cons "Default" 
+			      isabelle-logics-available)))))
+  ;; a little bit obnoxious maybe (but maybe what naive user would expect)
   ;; (customize-save-variable 'isabelle-chosen-logic logic)
-  (customize-set-variable 'isabelle-chosen-logic logic)
+  (if (proof-shell-live-buffer)
+      (error "Can't change logic while Isabelle is running, please exit process first!"))
+  (customize-set-variable 'isabelle-chosen-logic 
+			  (unless (string-equal logic "Default") logic))
   (setq isabelle-prog-name (isabelle-command-line))
-  (setq proof-prog-name isabelle-prog-name))
+  (setq proof-prog-name isabelle-prog-name)
+  ;; Settings are potentiall different between logics, and
+  ;; so are Isar keywords.  FIXME: latter not handled yet.
+  (setq proof-assistant-settings nil)
+  (setq proof-menu-settings nil))
 
 (defun isa-tool-list-logics ()
   "Generate a list of available object logics."
@@ -309,78 +322,82 @@ until Proof General is restarted."
 ;; NB: use of defpacustom here gives  separate customizable
 ;; options for Isabelle and Isabelle/Isar.
 
-(defpacustom show-types  nil
-  "Whether to show types in Isabelle."
-  :type 'boolean
-  :setting "show_types:=%b;")
+;; In next release of Isabelle, these are set automatically via PGIP
+;; sent from Isabelle.  
+;; FIXME: should we add backward compatibility here?
 
-(defpacustom show-sorts  nil
-  "Whether to show sorts in Isabelle."
-  :type 'boolean
-  :setting "show_sorts:=%b;")
+;(defpacustom show-types  nil
+;  "Whether to show types in Isabelle."
+;  :type 'boolean
+;  :setting "show_types:=%b;")
 
-(defpacustom show-consts  nil
-  "Whether to show types of consts in Isabelle goals."
-  :type 'boolean
-  :setting "show_consts:=%b;")
+;(defpacustom show-sorts  nil
+;  "Whether to show sorts in Isabelle."
+;  :type 'boolean
+;  :setting "show_sorts:=%b;")
 
-(defpacustom long-names  nil
-  "Whether to show fully qualified names in Isabelle."
-  :type 'boolean
-  :setting "long_names:=%b;")
+;(defpacustom show-consts  nil
+;  "Whether to show types of consts in Isabelle goals."
+;  :type 'boolean
+;  :setting "show_consts:=%b;")
 
-(defpacustom eta-contract  t
-  "Whether to print terms eta-contracted in Isabelle."
-  :type 'boolean
-  :setting "Syntax.eta_contract:=%b;")
+;(defpacustom long-names  nil
+;  "Whether to show fully qualified names in Isabelle."
+;  :type 'boolean
+;  :setting "long_names:=%b;")
 
-(defpacustom trace-simplifier  nil
-  "Whether to trace the Simplifier in Isabelle."
-  :type 'boolean
-  :setting "trace_simp:=%b;")
+;(defpacustom eta-contract  t
+;  "Whether to print terms eta-contracted in Isabelle."
+;  :type 'boolean
+;  :setting "Syntax.eta_contract:=%b;")
 
-(defpacustom trace-rules  nil
-  "Whether to trace the standard rules in Isabelle."
-  :type 'boolean
-  :setting "trace_rules:=%b;")
+;(defpacustom trace-simplifier  nil
+;  "Whether to trace the Simplifier in Isabelle."
+;  :type 'boolean
+;  :setting "trace_simp:=%b;")
 
-(defpacustom quick-and-dirty  t
-  "Whether to take a few short cuts occasionally."
-  :type 'boolean
-  :setting "quick_and_dirty:=%b;")
+;(defpacustom trace-rules  nil
+;  "Whether to trace the standard rules in Isabelle."
+;  :type 'boolean
+;  :setting "trace_rules:=%b;")
 
-(defpacustom full-proofs  nil
-  "Whether to record full proof objects internally."
-  :type 'boolean
-  :setting "Library.error_fn := (fn _ => ()); Library.try (fn () => Context.use_mltext \"ProofGeneral.full_proofs %b;\" false Library.None) ();")
-;FIXME should become "ProofGeneral.full_proofs %b;" next time
+;(defpacustom quick-and-dirty  t
+;  "Whether to take a few short cuts occasionally."
+;  :type 'boolean
+;  :setting "quick_and_dirty:=%b;")
 
-(defpacustom global-timing  nil
-  "Whether to enable timing in Isabelle."
-  :type 'boolean
-  :setting "Library.timing:=%b;")
+;(defpacustom full-proofs  nil
+;  "Whether to record full proof objects internally."
+;  :type 'boolean
+;  :setting "Library.error_fn := (fn _ => ()); Library.try (fn () => Context.use_mltext \"ProofGeneral.full_proofs %b;\" false Library.None) ();")
+;;FIXME should become "ProofGeneral.full_proofs %b;" next time
 
-(if proof-experimental-features
-(defpacustom theorem-dependencies nil
-  "Whether to track theorem dependencies within Proof General."
-  :type 'boolean
-  :setting ("print_mode := ([\"thm_deps\"] @ ! print_mode);" .
-	    "print_mode := (Library.gen_rems (op =) (! print_mode, [\"thm_deps\"]));")))
+;(defpacustom global-timing  nil
+;  "Whether to enable timing in Isabelle."
+;  :type 'boolean
+;  :setting "Library.timing:=%b;")
 
-(defpacustom goals-limit  10
-  "Setting for maximum number of goals printed in Isabelle."
-  :type 'integer
-  :setting "goals_limit:=%i;")
+;(if proof-experimental-features
+;(defpacustom theorem-dependencies nil
+;  "Whether to track theorem dependencies within Proof General."
+;  :type 'boolean
+;  :setting ("print_mode := ([\"thm_deps\"] @ ! print_mode);" .
+;	    "print_mode := (Library.gen_rems (op =) (! print_mode, [\"thm_deps\"]));")))
 
-(defpacustom prems-limit  10
-  "Setting for maximum number of premises printed in Isabelle/Isar."
-  :type 'integer
-  :setting "ProofContext.prems_limit:=%i;")
+;(defpacustom goals-limit  10
+;  "Setting for maximum number of goals printed in Isabelle."
+;  :type 'integer
+;  :setting "goals_limit:=%i;")
 
-(defpacustom print-depth  10
-  "Setting for the ML print depth in Isabelle."
-  :type 'integer
-  :setting "print_depth %i;")
+;(defpacustom prems-limit  10
+;  "Setting for maximum number of premises printed in Isabelle/Isar."
+;  :type 'integer
+;  :setting "ProofContext.prems_limit:=%i;")
+
+;(defpacustom print-depth  10
+;  "Setting for the ML print depth in Isabelle."
+;  :type 'integer
+;  :setting "print_depth %i;")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
