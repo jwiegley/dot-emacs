@@ -1,0 +1,19 @@
+-*- mode:outline -*-
+
+* Coq Proof General Bugs
+
+See also ../BUGS for generic bugs.
+
+** coqtags doesn't find all declarations. 
+
+It cannot handle lists e.g., with "Parameter x,y:nat" it only tags x
+but not y. [The same problem exists for legotags] Workaround: don't
+rely too much on the etags mechanism.
+
+** User defined tactics cannot be retracted. 
+
+ Workaround: you may need to retract to the beginning of the proof.
+
+** Surely others that aren't mentioned here...
+  
+  Please report them to proofgen@dcs.ed.ac.uk.
