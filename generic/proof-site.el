@@ -7,16 +7,9 @@
 ;; $Id$
 ;;
 
-;; begin UGLY COMPATIBILITY HACK
-(or (featurep 'custom)
-    ;; Quick hack to support defcustom for Emacs 19
-    ;; FIXME da: Remove this soon.
-    ;; Customize works fine with Emacs 20.2
-    (defmacro defcustom (sym val doc &rest args)
-      (defvar sym val doc))
-    (defmacro group (sym mems doc &rest args)))
-;; end UGLY COMPATIBILITY HACK
-
+(if (or  (not (boundp 'emacs-major-version))
+	 (< emacs-major-version 20))
+    (error "Proof General is not compatible with Emacs %s" emacs-version))
 
 (defgroup proof-general nil
   "Customization of Proof General."
