@@ -236,7 +236,7 @@ A. These are part of the 8 bit character codes used by X Symbol to
 
    To fix, type 
 
-	M-x x-symbol-decode-recorde
+	M-x x-symbol-decode-recode
 
    If that doesn't work, type M-x font-lock-mode twice to turn font-lock 
    off then on.   Or reload the file.
