@@ -591,13 +591,16 @@ You must set this variable."
 
 (defcustom proof-comment-start ""
   "String which starts a comment in the proof assistant command language.
-The script buffer's comment-start is set to this string plus a space."
+The script buffer's comment-start is set to this string plus a space.
+Moreover, comments are ignored during script management, and not
+sent to the proof process."
   :type 'string
   :group 'proof-script)
 
 (defcustom proof-comment-end ""
   "String which ends a comment in the proof assistant command language.
-The script buffer's comment-end is set to this string plus a space."
+The script buffer's comment-end is set to this string plus a space.
+See also `proof-comment-start'."
   :type 'string
   :group 'proof-script)
 
@@ -739,16 +742,19 @@ attempted, so the setting of this variable doesn't matter."
   :group 'proof-script)
 
 (defcustom proof-lift-global nil
-  "This function lifts local lemmas from inside goals out to top level.
-This function takes the local goalsave span as an argument. Set this
-to `nil' if the proof assistant does not support nested goals."
+  "Function which lifts local lemmas from inside goals out to top level.
+This function takes the local goalsave span as an argument. Leave this
+set this at `nil' if the proof assistant does not support nested goals,
+or if you don't want to write a function to do move them around."
   :type 'function
   ;; FIXME customize broken on choices with function in them?
   ;; :type '(choice (const :tag "No local lemmas" nil) (function))
   :group 'proof-script)
 
 (defcustom proof-count-undos-fn nil 
-  "Compute number of undos in a target segment"
+  "Function to compute number of undos in a target segment.
+This is an important function for script management.
+Study one of the existing instantiations for examples of how to write it."
   :type 'function
   :group 'proof-script)
 
@@ -783,7 +789,10 @@ Only relevant for proof-find-and-forget-fn.")
   "Function that returns a command to forget back to before its argument span.
 This setting is used to for retraction (undoing) in proof scripts.
 
-The special string proof-no-command means there is nothing to do."
+The special string proof-no-command means there is nothing to do.
+
+This is an important function for script management.
+Study one of the existing instantiations for examples of how to write it."
   :type 'function
   :group 'proof-script)
 
@@ -819,7 +828,9 @@ commands which should be entered directly into the script itself."
 The current buffer will be the newly active scripting buffer.
 
 This hook may be useful for synchronizing with the proof
-assistant, for example, to switch to a new theory."
+assistant, for example, to switch to a new theory
+(in case that isn't already done by commands in the proof
+script)."
   :type '(repeat function)
   :group 'proof-script)
 
@@ -877,7 +888,7 @@ parentheses and commands. It represents these with the characters
 ;;
 
 (defcustom proof-prog-name nil
-  "System command to run program name in proof shell.
+  "System command to run the proof assistant in the proof shell.
 Suggestion: this can be set in proof-pre-shell-start-hook from
 a variable which is in the proof assistant's customization
 group.  This allows different proof assistants to coexist
@@ -893,7 +904,7 @@ print a welcome message.
 Note that it is sent before Proof General's synchronization
 mechanism is engaged (in case the command engages it).  It
 is better to configure the proof assistant via command
-line options is possible."
+line options if possible."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
@@ -921,7 +932,7 @@ directory the file resides in.
 
 NB: By default, proof-cd is called from proof-activate-scripting-hook,
 so that the prover switches to the directory of a proof
-script everytime scripting begins."
+script every time scripting begins."
   :type 'string
   :group 'proof-shell)
 
@@ -940,7 +951,30 @@ issuing this command.
 
 If this is set to nil, no command is issued.
 
-See also proof-shell-process-file, proof-shell-compute-new-files-list."
+See also: proof-shell-inform-file-retracted-cmd, 
+proof-shell-process-file, proof-shell-compute-new-files-list."
+ :type '(choice string (const nil))
+ :group 'proof-shell)
+
+(defcustom  proof-shell-inform-file-retracted-cmd nil
+ "Command to the proof assistant to tell it that a file has been retracted.
+The format character %s is replaced by a complete filename for a
+script file which Proof General wants the prover to consider
+as not completely processed.
+
+This is used to interface with the proof assistant's internal
+management of multiple files, so the proof assistant is kept aware of
+which files have been processed.  Specifically, when scripting
+is activated, the file is removed from Proof General's list of 
+processed files, and the prover is told about it by issuing this 
+command.  The action may cause the prover in turn to suggest to 
+Proof General that files depending on this one are
+also unlocked.
+
+If this is set to nil, no command is issued.
+
+See also: proof-shell-inform-file-processed-cmd, 
+proof-shell-process-file, proof-shell-compute-new-files-list."
  :type '(choice string (const nil))
  :group 'proof-shell)
 
@@ -950,7 +984,7 @@ See also proof-shell-process-file, proof-shell-compute-new-files-list."
 ;;
 
 (defcustom proof-shell-prompt-pattern nil 
-   "Proof shell's value for comint-prompt-pattern."
+   "Proof shell's value for comint-prompt-pattern, which see."
    :type 'regexp
    :group 'proof-shell)
 
@@ -1004,9 +1038,9 @@ It is safe to leave this variable unset (as nil)."
 
 (defcustom proof-shell-interrupt-regexp nil
   "Regexp matching output indicating the assistant was interrupted.
-We assume that an error message corresponds to a failure in the last
+We assume that an interrupt message corresponds to a failure in the last
 proof command executed.  So don't match mere warning messages with
-this regexp.  Moreover, an error message should not be matched as an
+this regexp.  Moreover, an interrupt message should not be matched as an
 eager annotation (see proof-shell-eager-annotation-start) otherwise it
 will be lost.
 
@@ -1018,7 +1052,11 @@ It is safe to leave this variable unset (as nil)."
 
 (defcustom proof-shell-proof-completed-regexp nil
   "Regexp matching output indicating a finished proof.
-Match number 1 should be the response text."
+Match number 1 should be the response text.
+
+This is used to enable the QED function (save a proof) and
+to control what output appears in the response buffer at the
+end of a proof."
   :type 'regexp
   :group 'proof-shell)
 
@@ -1037,7 +1075,10 @@ is shown to the user.  Set to nil to disable."
   :group 'proof-shell)
 
 (defcustom proof-shell-start-goals-regexp ""
-  "Regexp matching the start of the proof state output."
+  "Regexp matching the start of the proof state output.
+This is an important setting.  Output between `proof-shell-start-goals-regexp'
+and `proof-shell-end-goals-regexp' will be pasted into the goals buffer
+and possibly analysed further for proof-by-pointing markup."
   :type 'regexp
   :group 'proof-shell)
 
@@ -1154,7 +1195,7 @@ NB: You should be very careful about setting this hook.  Proof General
 relies on a careful synchronization with the process between inputs
 and outputs.  It expects to see a prompt for each input it sends from
 the queue.  If you add extra input here and it causes more prompts
-than expected, things will break!  Massaging the STRING variable
+than expected, things will break!  Massaging the variable STRING
 may be safer since it is stripped of carriage returns 
 before being sent."
   :type '(repeat function)
@@ -1162,7 +1203,7 @@ before being sent."
 
 (defcustom proof-pre-shell-start-hook nil
   "Hooks run before proof shell is started.
-This may be set to a function which configures the proof shell
+Suggestion: set this to a function which configures the proof shell
 variables."
   :type '(repeat function)
   :group 'proof-shell)

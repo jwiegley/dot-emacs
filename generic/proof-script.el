@@ -429,10 +429,21 @@ to allow other files loaded by proof assistants to be marked read-only."
 		    :test 'equal)))
     (and pos (nth pos buffers))))
 
+;; FIXME da: cleanup of odd asymmetry here: we have a nice setting for
+;; proof-register-possibly-new-processed-file but something much more
+;; complicated for retracting, because we allow a hook function
+;; to calculate the new included files list.
+
 (defun proof-register-possibly-new-processed-file (file &optional informprover)
   "Register a possibly new FILE as having been processed by the prover.
 If INFORMPROVER is non-nil, the proof assistant will be told about this,
-to co-ordinate with its internal file-management."
+to co-ordinate with its internal file-management.  (Otherwise we assume
+that it is a message from the proof assistant which triggers this call).
+
+No action is taken if the file is already registered.
+
+A warning message is issued if the register request came from the
+proof assistant and Emacs is has a modified buffer visiting the file."
   (let* ((cfile (file-truename file))
 	 (buffer (proof-file-to-buffer cfile)))
     (proof-debug (concat "Registering file " cfile 
@@ -440,6 +451,7 @@ to co-ordinate with its internal file-management."
 			     " (already registered, no action)." ".")))
     (unless (member cfile proof-included-files-list)
       (and buffer
+	   (not informprover)
 	   (buffer-modified-p buffer)
 	   (proof-warning (concat "Changes to "
 				  (buffer-name buffer)
@@ -452,20 +464,30 @@ to co-ordinate with its internal file-management."
       ;; Tell the proof assistant, if we should and if we can
       (if (and informprover proof-shell-inform-file-processed-cmd)
 	  (proof-shell-invisible-command 
-	   (format proof-shell-inform-file-processed-cmd cfile))))))
+	   (format proof-shell-inform-file-processed-cmd cfile) 
+	   'wait)))))
 
-(defun proof-unregister-buffer-file-name ()
+(defun proof-unregister-buffer-file-name (&optional informprover)
   "Remove current buffer's filename from the list of included files.
-No effect if the current buffer has no file name."
+No effect if the current buffer has no file name.
+If INFORMPROVER is non-nil,  the proof assistant will be told about this,
+using proof-shell-inform-file-retracted-cmd, to co-ordinate with its 
+internal file-management."
   (if buffer-file-name
       (let ((cfile (file-truename buffer-file-name)))
 	(proof-debug (concat "Unregistering file " cfile 
 			       (if (not (member cfile 
 						proof-included-files-list))
-				   " (not registered)." ".")))
-	(setq proof-included-files-list
-	      (delete cfile proof-included-files-list)))))
-
+				   " (not registered, no action)." ".")))
+	(if (member cfile proof-included-files-list)
+	    (progn
+	      (setq proof-included-files-list
+		    (delete cfile proof-included-files-list))
+	      ;; Tell the proof assistant, if we should and we can.
+	      (if (and informprover proof-shell-inform-file-retracted-cmd)
+		  (proof-shell-invisible-command
+		   (format proof-shell-inform-file-retracted-cmd cfile) 
+		   'wait)))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -596,7 +618,13 @@ a scripting buffer is killed it is always retracted."
 	      
 	      (if (proof-locked-region-empty-p)
 		  ;; If locked region is empty, make sure this buffer is
-		  ;; *off* the included files list.  
+		  ;; *off* the included files list. 
+		  ;; FIXME: probably this isn't necessary: the
+		  ;; file should be unregistered by the retract
+		  ;; action, or in any case since it was only
+		  ;; partly processed.
+		  ;; We move the onus on unregistering now to
+		  ;; the activate-scripting action.
 		  (proof-unregister-buffer-file-name))
 
 	      ;; Turn off Scripting here.
@@ -669,6 +697,12 @@ correct theory, or whatever."
 	  ;; sometimes we switch on scripting in "full" buffers,
 	  ;; so mustn't do this.
 	  (proof-init-segmentation))
+
+      ;; Now make sure that this buffer is off the included files
+      ;; list.  In case we re-activate scripting in an already
+      ;; completed buffer, it may be that the proof assistant
+      ;; needs to retract some of this buffer's dependencies.
+      (proof-unregister-buffer-file-name 'tell-the-prover)
       
       ;; Turn on the minor mode, make it show up.
       (setq proof-active-buffer-fake-minor-mode t)
