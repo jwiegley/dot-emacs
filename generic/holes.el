@@ -794,7 +794,7 @@ end of last abbrev expansion. "
 	 (save-excursion 
 		(previous-line n)
 		(while (>= n 0)
-		  (proof-indent-line)
+		  (funcall indent-line-function)
 		  (next-line 1)
 		  (setq n (- n 1))
 		  )

@@ -529,3 +529,9 @@
 
 (provide 'coq-indent)
 
+;;;   Local Variables: ***
+;;;   tab-width:2 ***
+;;;   fill-column: 85 ***
+;;;   indent-tabs-mode:nil ***
+;;;   End: ***
+

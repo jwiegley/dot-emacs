@@ -1164,6 +1164,8 @@ proof-goal-command-regexp instead)."
 ;;  move the code of isar-global-save-command-p to proof-done-advancing.
 ;; FIXME da: sounds like a good idea, then that would give us a proper 
 ;;  handling of nested proofs?
+;; FIXME: Pierre:Careful: in coq V8 I now need a function to detect save 
+;;  command. Because Proof <term>. is a term, but not Proof with ...
 ;;
 (defcustom proof-really-save-command-p (lambda (span cmd) t)
   "Is this really a save command?
