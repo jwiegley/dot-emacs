@@ -74,6 +74,12 @@ distclean:   clean
 	rm -f $(DOCNAME).info* $(DOCNAME).dvi $(DOCNAME).pdf $(DOCNAME)*.html
 
 
+##
+## cvsclean: remove all non-cvs
+##
+cvsclean: distclean
+
+
 
 
 
