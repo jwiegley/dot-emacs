@@ -29,6 +29,7 @@
 "Inductive\\s-+Prop"
 "Inductive\\s-+Type"
 "Mutual\\s-+Inductive"
+"Record"
 "Scheme"
 ))
 
@@ -72,10 +73,11 @@
 "Extraction"
 "Focus"
 "Grammar"
-"Hint"
 "Hints\\s-+Resolve"
 "Hints\\s-+Immediate"
 "Hints\\s-+Unfold"
+"HintRewrite"
+"Hint"
 "Infix"
 "Initialize"
 "Implicit\\s-+Arguments\\s-+On"
@@ -90,6 +92,7 @@
 "Print\\s-+Coercions"
 "Print\\s-+Graph"
 "Print\\s-+Grammar"
+"Print\\s-+HintDb"
 "Print\\s-+Hint"
 "Print\\s-+LoadPath"
 "Print\\s-+ML\\s-+Path"
