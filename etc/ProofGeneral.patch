@@ -17,21 +17,21 @@ diff -cr ProofGeneral.old/generic/proof-site.el ProofGeneral/generic/proof-site.
 --- ProofGeneral/generic/proof-site.el	Wed Oct  7 19:05:08 1998
 ***************
 *** 76,82 ****
-    :group 'proof-internal)
+    :group 'proof-general-internals)
   
   (defcustom proof-info-directory
 !   (concat proof-home-directory "doc/")
-    "*Where Proof General Info files are installed."
+    "Where Proof General Info files are installed."
     :type 'directory
-    :group 'proof-internal)
+    :group 'proof-general-internals)
 --- 76,82 ----
-    :group 'proof-internal)
+    :group 'proof-general-internals)
   
   (defcustom proof-info-directory
 !   "/usr/info/"
-    "*Where Proof General Info files are installed."
+    "Where Proof General Info files are installed."
     :type 'directory
-    :group 'proof-internal)
+    :group 'proof-general-internals)
 diff -cr ProofGeneral.old/lego/legotags ProofGeneral/lego/legotags
 *** ProofGeneral.old/lego/legotags	Wed Oct  7 18:37:18 1998
 --- ProofGeneral/lego/legotags	Wed Oct  7 19:04:35 1998
