@@ -29,12 +29,15 @@ PERL_SCRIPTS = lego/legotags coq/coqtags
 # output the compile-time load path and
 # ELISP_DIRS so these are set just in that one
 # place.
-BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar" "$(PWD)/plastic") load-path))' -f batch-byte-compile
-
+BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (mapcar (lambda (d) (concat "${PWD}/" (symbol-name d))) (quote (${ELISP_DIRS}))) load-path))' -f batch-byte-compile
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
 
-BROKENELC=proof-toolbar.elc proof-menu.elc proof-indent.elc proof-x-symbol.elc
+# These files may work now, but BC is not yet guaranteed in 3.4.
+# [currently broken for prover instances]
+# proof-toolbar.elc proof-menu.elc proof-indent.elc proof-x-symbol.elc
+BROKENELC=proof-menu.elc # easy-menu-define expanded too early.
+# NB: calls to proof-defshortcut also broken, evaluates define-key.
 
 .SUFFIXES:	.el .elc
 
@@ -51,7 +54,8 @@ compile:
 	@echo "*************************************************"
 	@echo " Byte compiling..."
 	@echo "*************************************************"
-	(rm -f $(ELC); $(BYTECOMP) $(EL))
+	rm -f $(ELC) 
+	$(BYTECOMP) $(EL)
 	rm -f $(BROKENELC)
 	@echo "*************************************************"
 	@echo " Finished."
