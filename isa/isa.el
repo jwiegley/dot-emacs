@@ -201,6 +201,11 @@ no regular or easily discernable structure."
    ;; "^---\\|^\\[opening "
    ;; could be last bracket on end of line, or with ### and ***.
 
+   ;; Dirty hack to allow font-locking for output based on hidden
+   ;; annotations, see isa-output-font-lock-terms
+   proof-shell-leave-annotations-in-output t
+
+
    ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-result-start	        "\372 Pbp result \373"
    proof-shell-result-end		"\372 End Pbp result \373"
