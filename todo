@@ -19,10 +19,6 @@ C  Remove "FIXME notes" which are just notes I've put in about old
 
 C  Check on all FIXME notes.
 
-A* Fix bugs in proof-shell-filter. Don't assume that full match is
-   contained in filter chunk.(Should match strings in buffer instead)
-   (3h da)
-
 A* Fixup for non-script buffer locking:
 
     proof-locked-end called from wrong buffer when error message

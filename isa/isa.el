@@ -124,7 +124,7 @@ no regular or easily discernable structure."
 					  "isa/ProofGeneral.ML\";")
    proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"  ; "^---\\|^\\[opening "
    ;; could be last bracket on end of line, or with ### and ***.
-   proof-shell-eager-annotation-end   "\n" ; "---$\\|\\]$"
+   proof-shell-eager-annotation-end     "\n"
    ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-goal-char	        ?\375
    proof-shell-first-special-char	?\360

@@ -420,6 +420,16 @@ assistant, for example, to switch to a new theory."
   :type '(repeat function)
   :group 'prover-config)
 
+; FIXME: this could be used to replace eager-annotation-start and end.
+;(defcustom proof-shell-urgent-message-regexp nil
+;  "Regexp matching messages to be dealt with during process output.
+;Normally, process output is only dealt with when two successive
+;prompts are seen.  But Proof General can also process 'urgent' messages,
+;for example 'loading file...' or 'warning...' while output
+;before the second prompt is seen. 
+;Set to nil to disable this feature."
+;  :type '(choice nil regexp)
+;  :group 'prover-config)
 
 
 

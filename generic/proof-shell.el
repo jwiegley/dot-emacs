@@ -297,15 +297,15 @@ Does nothing if proof assistant is already running."
   "Eager annotation field start.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
-Set to nil if the proof to disable this feature.")
+Set to nil to disable this feature.
 
-(defvar proof-shell-eager-annotation-end "$"
+The default value is \"\n\" to match up to the end of the line.")
+
+(defvar proof-shell-eager-annotation-end "\n"
   "Eager annotation field end.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
-Set to nil if the proof to disable this feature.
-
-The default value is \"$\" to match up to the end of the line.")
+The default value is \"\n\" to match up to the end of the line.")
 
 (defvar proof-shell-assumption-regexp nil
   "A regular expression matching the name of assumptions.")
@@ -349,8 +349,7 @@ The default value is \"$\" to match up to the end of the line.")
 ;;   processed (assuming they're all successful)
 
 (defvar proof-shell-delayed-output nil
-  "The last interesting output the proof process output, and what to do
-   with it.")
+  "Last interesting output from proof process output and what to do with it.")
 
 (defvar proof-shell-proof-completed nil
   "Flag indicating that a completed proof has just been observed.")
@@ -448,7 +447,7 @@ Returns the string (with faces) in the specified region."
       ;; This doesn't work with FSF Emacs 20.2's version of Font-lock
       ;; because there are no known keywords in the process buffer
       ;; Never mind. In a forthcoming version, the process buffer will
-      ;; not be tempered with. Fontification will take place in a
+      ;; not be tampered with. Fontification will take place in a
       ;; separate response buffer.
       ;; (font-lock-fontify-region start end)
       (font-lock-append-text-property start end 'face append-face)
@@ -504,7 +503,7 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
     ;; previous and the current prompt.
     ;; +/- of our approach
     ;; + Previous not so relevent output is not highlighted
-    ;; - Proof systems have to conform to error messages whose start  can be
+    ;; - Proof systems have to conform to error messages whose start can be
     ;;   detected by a regular expression.
   (proof-shell-handle-output
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
@@ -783,7 +782,7 @@ arrive."
 	  
 		  
 (defun proof-shell-process-urgent-message (message)
-  "Display and analyse urgent MESSAGE for asserting or retracting files."
+  "Analyse urgent MESSAGE for display, included file, or retracted file."
   
   ;; Is the prover processing a file?
   (cond ((and proof-shell-process-file 
@@ -811,27 +810,32 @@ arrive."
 	 (proof-response-buffer-display message
 					'proof-eager-annotation-face))))
 
-;; FIXME da: unfortunately, the assumption made below is NOT
-;; guaranteed and can lead to problems if
-;; proof-shell-eager-annotation-end is, for example, an
-;; undecorated end-of-line.
-(defun proof-shell-process-urgent-messages (str)
-  "Scan the process output for urgent messages.
-Display them immediately in the Response buffer.
-Keep `proof-included-files-list' up to date.
-The input STR is the most recent chunk of output sent to the process
-filter. We assume that urgent messages are fully contained in STR."
-  (let ((start (string-match proof-shell-eager-annotation-start str))
-	end)
-    (and start
-	 (setq end
-	       (string-match proof-shell-eager-annotation-end str
-	       start))
-	 (progn
-	   (proof-shell-process-urgent-message
-	    (proof-shell-strip-annotations (substring str start end)))
-	   (proof-shell-process-urgent-messages (substring str end))))))
+(defvar proof-shell-urgent-message-marker nil
+  "Marker in proof shell buffer used for parsing urgent messages.")
 
+(defun proof-shell-process-urgent-messages ()
+  "Scan the shell buffer for urgent messages.
+Scanning starts from proof-shell-urgent-message-pos and processes
+strings between eager-annotation-start and eager-annotation-end."
+  (goto-char
+   (or (marker-position proof-shell-urgent-message-marker) (point-min)))
+  (let (end start)
+    (while (re-search-forward proof-shell-eager-annotation-start nil t)
+      (setq start (match-beginning 0))
+      (if (setq end
+		(re-search-forward proof-shell-eager-annotation-end nil t))
+	  (proof-shell-process-urgent-message
+	   (proof-shell-strip-annotations (buffer-substring start end))))
+      ;; Set the marker to the end of the last message found, if any.
+      ;; Must take care to keep the marger behind the process marker
+      ;; otherwise no output is seen!  (insert-before-markers in comint)
+      (if end
+	  (set-marker
+	   proof-shell-urgent-message-marker
+	   (min end
+		(1- (process-mark (get-buffer-process (current-buffer)))))))
+      )))
+	    
 ;; FIXME da: I suspect this could miss output in the unfortunate
 ;; circumstance that a prompt consists of more than one character and
 ;; is split between output chunks.  Really the matching should be
@@ -842,7 +846,7 @@ We sleep until we get a wakeup-char in the input, then run
 proof-shell-process-output, and set proof-marker to keep track of
 how far we've got."
   (and proof-shell-eager-annotation-start
-       (proof-shell-process-urgent-messages str)) 
+       (proof-shell-process-urgent-messages))
        
   (if (or
        ;; Some proof systems can be hacked to have annotated prompts;
@@ -855,6 +859,8 @@ how far we've got."
        (string-match proof-shell-annotated-prompt-regexp str))
       (if (null (marker-position proof-marker))
 	  ;; Set marker to first prompt in output buffer, and sleep again.
+	  ;; FIXME da: what happens if we don't get a prompt in the
+	  ;; first output chunk?  This needs fixing in case re-search fails.
 	  (progn
 	    (goto-char (point-min))
 	    (re-search-forward proof-shell-annotated-prompt-regexp)
@@ -862,8 +868,9 @@ how far we've got."
 	;; We've matched against a second prompt in str now.
 	;; First, the blasphemous situation that the proof-action-list
 	;; is empty so that the process has output something for
-	;; some other reason (perhaps it's just chatty).  
-	;; We graciously accept the situation nowadays.
+	;; some other reason (perhaps it's just being chatty).  
+	;; We graciously accept the situation nowadays, rather
+	;; than shrieking out bug reports.
 	(if proof-action-list
 	    ;; the output buffer for the second prompt after the one previously
 	    ;; marked.
@@ -948,13 +955,18 @@ how far we've got."
   (add-hook 'comint-output-filter-functions 'proof-shell-filter nil 'local)
   (setq comint-get-old-input (function (lambda () "")))
   (proof-dont-show-annotations)
+
+  ;; Proof marker is initialised in filter to first prompt found
   (setq proof-marker (make-marker))
+  ;; Urgent message marker defaults to (point-min) if unset.
+  (setq proof-shell-urgent-message-marker (make-marker))
 
   (setq proof-re-end-of-cmd (concat "\\s_*" proof-terminal-string "\\s_*\\\'"))
   (setq proof-re-term-or-comment 
 	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
 		"\\|" (regexp-quote proof-comment-end)))
   )
+
 
 (easy-menu-define proof-shell-menu
 		  proof-shell-mode-map
@@ -963,6 +975,7 @@ how far we've got."
 
 (defun proof-shell-config-done ()
   (accept-process-output (get-buffer-process (current-buffer)))
+
 
   ;; If the proof process in invoked on a different machine e.g.,
   ;; for proof-prog-name="rsh fastmachine proofprocess", one needs
@@ -983,7 +996,8 @@ how far we've got."
   (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
-      (error "Failed to initialise proof process"))))
+      (error "Failed to initialise proof process")))
+  )
 
 (define-derived-mode pbp-mode fundamental-mode 
   proof-mode-name "Proof by Pointing"
