@@ -238,7 +238,7 @@ tag:
 	@echo "*************************************************"
 	if [ -n "`cvs -n -q update`" ]; then exit 1; fi
 # Tag proof-site.el and ProofGeneral.spec
-	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/defconst proof-version \".*\"/defconst proof-version \"Proof General, Version $(VERSION) released by da. Email proofgen@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
+	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/defconst proof-general-version \".*\"/defconst proof-general-version \"Proof General, Version $(VERSION) released by da. Email proofgen@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(VERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
 # Edit $(DOWNLOADHTML) only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
