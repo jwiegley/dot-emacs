@@ -26,7 +26,8 @@ ls
 # * Commands have to be terminated by ';'.  Alternative is to write 
 #   your own scanner to recognize the start of the next command.
 #
-
+# * Undo has no effect, of course, it just navigates in the file.
+#
 
 
 
