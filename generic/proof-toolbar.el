@@ -44,7 +44,7 @@
 ;; The default generic toolbar
 ;;
 (defconst proof-toolbar-entries-default
-  '((show	"Show"		"Show the current proof state" t)
+  '((state	"State"		"Show the current proof state" t)
     (context	"Context"	"Show the current context" t)
     (goal	"Goal"		"Start a new proof" t)
     (retract	"Retract"	"Retract (undo) whole buffer" t)
@@ -371,13 +371,13 @@ Move point if the end of the locked position is invisible."
 (defalias 'proof-toolbar-qed 'proof-issue-save)
 
 ;;
-;; Show button
+;; State button
 ;;
 
-(defun proof-toolbar-show-enable-p ()
+(defun proof-toolbar-state-enable-p ()
   (proof-shell-available-p))
   
-(defalias 'proof-toolbar-show 'proof-prf)
+(defalias 'proof-toolbar-state 'proof-prf)
 
 ;;
 ;; Context button
