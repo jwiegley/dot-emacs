@@ -8,20 +8,29 @@
 
 ** Generic Changes
 
-***  Support added for GNU Emacs 21.
+*** Colours altered
+
+   Queue and locked colours made a little less lurid.
+   (Look in proof-config for proof-locked-face, proof-queue-face
+    and old settings if you want to change back).
+
+*** Support added for GNU Emacs 21.
 
    Toolbar and splash screen supported.  
 
    X-Symbol support in progress
 
    Fontification (as ever) is tricky.
-   Current status for X-symbol: 
+   Current status for X-symbol:
 
-     broken in GNU Emacs 20(?), partly working in 21 (goals broken, script OK)
-     partly broken in XEmacs 21.4 (script buffer faulty, goals OK)
-     fully working in XEmacs 21.1
+     XEmacs 21.1, 21.4:  works with X-Symbol 3.3g
 
-   Future PG development will no longer support Emacs 20.
+     GNU Emacs 21:       partly works with X-Symbol 4.0f
+		            (goals broken, script OK)
+
+     GNU Emacs 20:       broken/unfixable
+	
+   NB: Future PG development will no longer support Emacs 20.
 
 
 *** Support for "tracing" buffers improved and enabled by default.
@@ -49,7 +58,20 @@
 
 ** Isabelle Changes
 
-   Isabelle/Isar syntax changes, other tweaks.
+   Isabelle/Isar syntax changes, other tweaks for Isabelle2002.
+
+
+** Changes for proof assistant developers to note
+  
+*** Improvements in instantiation mechanism
+
+   Allow smoother support for provers which only use scripting, and
+   do not make use of goals window (e.g. Twelf, ACL2).
+
+   No longer warn if inessential settings like proof-goal-command and
+   similar are unset; automatically remove toolbar and menu items
+   correspondingly.   To allow this to work, the following settings
+   need to made early in loading:
 
 
 
