@@ -625,22 +625,26 @@ or if the window is the only window of its frame."
 	      (goto-char (point-min))
 	      (while (and (window-live-p window)
 			  (if expand
-			      (and (not (pos-visible-in-window-p test-pos window))
-				   (< (window-height window) max-height))
-			    (pos-visible-in-window-p test-pos window)))
-		(shrink-window (if expand -1 1) nil window)
+			      (not (pos-visible-in-window-p test-pos window))
+			    (pos-visible-in-window-p test-pos window))
+			  (< n max-height))
+		(ignore-errors
+		    ;; FIXME: this often gives "won't change only window" error
+		    (shrink-window (if expand -1 1) nil window))
 		(setq n (1+ n))))
 	    (if (and (not expand) 
 		     ;; attempt to get some stability: only shrink if
 		     ;; we're more than two lines too big.
 		     (> n 2))
-		(shrink-window (min (1- n)
-				    (- (window-height window)
-				       (1+ window-min-height)))
-			       nil
-			       window)
+		(ignore-errors
+		    (shrink-window (min (1- n)
+					(- (window-height window)
+					   (1+ window-min-height)))
+				   nil
+				   window))
 	      ;; Always expand the window if necessary.
-	      (shrink-window (- n))))))))
+	      (ignore-errors
+		  (shrink-window (- n)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
