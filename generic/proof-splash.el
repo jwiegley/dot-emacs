@@ -1,8 +1,8 @@
 ;; proof-splash.el -- Splash welcome screen for Proof General
 ;;
 ;; Copyright (C) 1998-2001 LFCS Edinburgh. 
-;; Author: David Aspinall
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Author:    David Aspinall
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

@@ -1,6 +1,7 @@
 ;; proof-indent.el Generic Indentation for Proof Assistants
+;;
 ;; Authors:	   Markus Wenzel
-;; Maintainer:     Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; License:        GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

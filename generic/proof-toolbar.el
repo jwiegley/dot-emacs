@@ -1,8 +1,8 @@
 ;; proof-toolbar.el    Toolbar for Proof General
 ;;
 ;; Copyright (C) 1998,9  David Aspinall / LFCS.
-;; Author:     David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer: Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Author:    David Aspinall <da@dcs.ed.ac.uk>
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

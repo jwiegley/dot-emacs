@@ -1,7 +1,8 @@
 ;; span.el	Datatype of "spans" for Proof General.
+;;
 ;; Copyright (C) 1998 LFCS Edinburgh
-;; Author:	Healfdene Goguen
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Author:    Healfdene Goguen
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 

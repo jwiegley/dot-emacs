@@ -1,10 +1,9 @@
 ;; proof-script.el  Major mode for proof assistant script files.
 ;;
 ;; Copyright (C) 1994-2001 LFCS Edinburgh. 
-;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
-;;          Thomas Kleymann and Dilip Sequeira
-;;
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
+;;            Thomas Kleymann and Dilip Sequeira
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

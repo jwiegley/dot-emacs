@@ -1,9 +1,8 @@
 ;; proof-menu.el  Menus, keymaps, and misc commands for Proof General
 ;;
 ;; Copyright (C) 2000,2001 LFCS Edinburgh. 
-;; Authors:  David Aspinall
-;;
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Authors:   David Aspinall
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

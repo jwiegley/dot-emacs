@@ -1,7 +1,8 @@
 ;; proof-config.el  Proof General configuration for proof assistant
 ;;
 ;; Copyright (C) 1998-2002 LFCS Edinburgh. 
-;; Authors: David Aspinall
+;; Author:      David Aspinall <da@dcs.ed.ac.uk> and others
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;

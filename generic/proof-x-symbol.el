@@ -1,8 +1,8 @@
 ;; proof-x-symbol.el  Support for X-Symbol package
 ;;
-;; Copyright (C) 1998,9 LFCS Edinburgh. 
-;; Author: David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Copyright (C) 1998-2002 LFCS Edinburgh
+;; Author:    David Aspinall <da@dcs.ed.ac.uk>
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; The X-Symbol package is currently available at
 ;; http://x-symbol.sourceforge.net/

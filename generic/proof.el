@@ -1,11 +1,9 @@
 ;; proof.el	 Proof General loader.  All files require this one.
 ;;
 ;; Copyright (C) 1998-2002 LFCS Edinburgh. 
-;;
-;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
-;;          Thomas Kleymann and Dilip Sequeira
-;;
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
+;;            Thomas Kleymann and Dilip Sequeira
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

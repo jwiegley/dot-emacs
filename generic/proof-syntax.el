@@ -1,10 +1,9 @@
 ;; proof-syntax.el	Functions for dealing with syntax
-;; Copyright (C)	1997-2001 LFCS Edinburgh. 
 ;;
-;; Authors: David Aspinall, Healfdene Goguen, 
-;;	    Thomas Kleymann, Dilip Sequiera
-;;
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; Copyright (C) 1997-2001 LFCS Edinburgh. 
+;; Authors:   David Aspinall, Healfdene Goguen, 
+;;	      Thomas Kleymann, Dilip Sequiera
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

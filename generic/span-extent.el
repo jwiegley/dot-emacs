@@ -1,7 +1,8 @@
 ;; This file implements spans in terms of extents, for xemacs.
+;;
 ;; Copyright (C) 1998 LFCS Edinburgh
 ;; Author:	Healfdene Goguen
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 

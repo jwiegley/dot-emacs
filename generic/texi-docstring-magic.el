@@ -1,9 +1,9 @@
 ;; texi-docstring-magic.el -- munge internal docstrings into texi
 ;;
 ;; Keywords: lisp, docs, tex
-;; Author: David Aspinall <da@dcs.ed.ac.uk>
-;; Copyright (C) 1998 David Aspinall
-;; Maintainer:  David Aspinall <da@dcs.ed.ac.uk>
+;; Author:     David Aspinall <da@dcs.ed.ac.uk>
+;; Copyright   (C) 1998 David Aspinall
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

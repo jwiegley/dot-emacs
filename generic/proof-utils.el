@@ -1,9 +1,8 @@
 ;; proof-utils.el   Proof General utility functions
 ;;
 ;; Copyright (C) 1998-2002 LFCS Edinburgh. 
-;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk> and others
-;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;
