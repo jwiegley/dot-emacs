@@ -51,11 +51,11 @@ TMPFILE=pgt
 	if `which $(DVISELECT) > /dev/null`; then $(MAKE) rearrange; fi
 
 rearrange:
-	$(DVISELECT) -i $*.dvi -o $*.tmp1 $(TITLERANGE)
-	$(DVISELECT) -i $*.dvi -o $*.tmp2 $(MAINRANGE)
-	$(DVISELECT) -i $*.dvi -o $*.tmp3 $(TOC)
-	$(DVICONCAT) -o $*.dvi $*.tmp1 $*.tmp3 $*.tmp2 
-	rm -f $*.tmp1 $*.tmp2 $*.tmp3
+	$(DVISELECT) -i $(DOCNAME).dvi -o $(DOCNAME).tmp1 $(TITLERANGE)
+	$(DVISELECT) -i $(DOCNAME).dvi -o $(DOCNAME).tmp2 $(MAINRANGE)
+	$(DVISELECT) -i $(DOCNAME).dvi -o $(DOCNAME).tmp3 $(TOC)
+	$(DVICONCAT) -o $(DOCNAME).dvi $(DOCNAME).tmp1 $(DOCNAME).tmp3 $(DOCNAME).tmp2 
+	rm -f $(DOCNAME).tmp1 $(DOCNAME).tmp2 $(DOCNAME).tmp3
 
 .tiff.eps:
 	tiff2ps -e -w 3.48 -h 5 $*.tiff > $*.eps
