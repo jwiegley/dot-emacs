@@ -515,16 +515,17 @@ functions instead.
 
 
 
-Now turn on active terminator minor mode by typing @kbd{C-c ;} and
+Now turn on @dfn{active terminator minor mode} by typing @kbd{C-c ;} and
 enter:
 @lisp
 Module Walkthrough Import lib_logic;
 @end lisp
-The command should be lit in pink (or inverse video if you don't have a
-colour display).  As LEGO imports each module, a line will appear in the
-minibuffer showing the creation of context marks. Eventually the command
-should turn blue, indicating that LEGO has successfully processed
-it. Then type (on a separate line if you like):
+Active terminator minor mode sends commands to the proof assistant as
+you type them.  The command should now be lit in pink (or inverse video
+if you don't have a colour display).  As LEGO imports each module, a
+line will appear in the minibuffer showing the creation of context
+marks. Eventually the command should turn blue, indicating that LEGO has
+successfully processed it. Then type (on a separate line if you like):
 @lisp
 Goal bland_commutes: @{A,B:Prop@} (and A B) -> (and B A);
 @end lisp
