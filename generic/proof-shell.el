@@ -1461,7 +1461,7 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
       (let 
 	  ((variable   (match-string 1 message))
 	   (expr	     (match-string 2 message)))
-	(condition-case err
+	(condition-case nil
 	    ;; Easiest way to do this seems to be to dump the lisp
 	    ;; string into another buffer -- no direct way to eval
 	    ;; from a string?
