@@ -60,6 +60,8 @@ C We need to go over to piped communication rather than ptys to fix
 C Outline-mode does not work due to read-only restrictions of
   protected region
 
+A <tab> can change buffers now!  At least in Coq mode.
+
 * Here are things to be done to Lego mode
 =========================================
 
@@ -91,6 +93,10 @@ A Error messages need to be revised e.g., if an import fails, LEGO
 ? There's a bug so the goal buffer isn't displaying everything that
   happens.
 
+B Allow bib-cite style clicking on Load commands to go to file.
+
+B Add Patrick Loiseleur's commands to search for vernac or ml files.
+
 C Sections and files are handled incorrectly.
 
 A Update documentation to include C-c C-s. (10min hhg)
@@ -102,3 +108,13 @@ A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
   in the buffer as well. (45min hhg)
 
 B Proof-by-Pointing (10h hhg)
+
+* Emacs19
+=========
+
+B Update proof-locked-span so that it detaches the read-only span like 
+  what we do in xemacs code (to avoid not being able to type at the
+  first character in the buffer if you Undo to that point).
+
+B Commands that use overlapping spans or that delete spans don't work
+  (for example: finishing a proof by Save; Undo).
