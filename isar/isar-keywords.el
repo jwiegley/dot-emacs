@@ -40,6 +40,7 @@
     "constdefs"
     "consts"
     "context"
+    "corollary"
     "datatype"
     "declare"
     "def"
@@ -321,7 +322,8 @@
     "inductive_cases"))
 
 (defconst isar-keywords-theory-goal
-  '("instance"
+  '("corollary"
+    "instance"
     "lemma"
     "recdef_tc"
     "theorem"
