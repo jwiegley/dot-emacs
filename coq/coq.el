@@ -194,7 +194,8 @@
 (defun coq-goal-command-p (str)
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
-       (not (proof-string-match "Definition.*:=" str))))
+       (not (proof-string-match "Definition.*:=" str))
+       (not (proof-string-match "Lemma.*:=" str))))
 
 ;; TODO : add the stuff to handle the "Correctness" command
 
