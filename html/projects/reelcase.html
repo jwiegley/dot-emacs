@@ -1,0 +1,34 @@
+<h2>A ClearCase-like Configuration Management tool for Linux</h2>
+<p>
+Managing large libraries of theories and proofs, good software
+engineering practices of configuration management become important
+when using proof assistants.  One powerful and popular configuration
+management tool is the commercial <a
+href="http://www.rational.com/products/clearcase/index.jtmpl">Rational
+ClearCase</a>.  
+</p>
+<p>
+The crucial way that ClearCase goes beyond CVS is in providing a view
+of a configuration directly through a special mountpoint on
+the filesystem.  
+</p>
+<p>
+This is a project to implement a kernel-level filesystem driver for
+Linux using the Linux VFS to create a ClearCase-like view of a
+configuration, through a mountable filesystem.  The underlying
+configuration management could be done through RCS or CVS, perhaps
+invoked via a companion user-level process.
+Particular revisions of files should be accessible through names
+interpreted specially by the filesystem driver, and some
+user-level commands will be needed for other operations.
+</p>
+<p>
+<b>Skills:</b> 
+Expert C programmer, with ability to understand and work on Linux
+kernel code.  Understanding of configuration management principles.
+</p><p>
+<b>Proposers:</b>
+<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>
+from an idea by 
+<a href="http://www.dcs.ed.ac.uk/home/cxl">Christoph L&uuml;th</a>
+</p>
