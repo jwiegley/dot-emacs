@@ -21,12 +21,12 @@
  proof-comment-end               "*)"
  ;; These are all approximations, of course.
  proof-goal-command-regexp     "^g[ `]"
- proof-save-command-regexp     nil ;; "^val .*top_thm()"
+ proof-save-command-regexp     "pg_top_thm_and_drop"
  proof-goal-with-hole-regexp   "val \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*prove"
  proof-save-with-hole-regexp   "val \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*top_thm()"
  proof-non-undoables-regexp      "b()" ; and others..
  proof-goal-command              "g `%s`;"
- proof-save-command              "val %s = top_thm(); drop();"
+ proof-save-command              "val %s = pg_top_thm_and_drop();"
  proof-kill-goal-command         "drop();"
  proof-showproof-command         "p()"
  proof-undo-n-times-cmd          "(pg_repeat backup %s; p());"
@@ -52,7 +52,8 @@
  proof-shell-error-regexp "^! "
  proof-shell-init-cmd		  
  "Help.displayLines:=3000;
-  fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));"
+  fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));
+  fun pg_top_thm_and_drop () = let val t = top_thm(); in (drop(); t) end;"
  ;; FIXME: add optional help topic parameter to help command. 
  ;; Have patch ready for PG 3.2, but PG 3.1 is strictly bug fix.
  proof-info-command "help \"hol\""
@@ -102,6 +103,7 @@
  ;; want to duplicate the information here!
  ;;
  hol98-keywords  '("g" "expand" "e" "val" "store_thm" "top_thm" "by"
+		   "pg_top_thm_and_drop"
 		   "Define" "xDefine" "Hol_defn"
 		   "Induct" "Cases" "Cases_on" "Induct_on"
 		   "std_ss" "arith_ss" "list_ss"
