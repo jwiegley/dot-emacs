@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # $Id$
 #
@@ -6,8 +6,9 @@
 
 ## self references
 
-KIND=$(basename $(dirname "$0"))
-export PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo "$PWD")
+THIS=`cd \`dirname "$0"\`; pwd`
+SUPER=`cd "$THIS/.."; pwd`
+KIND=`basename \`dirname "$0"\``
 
 if [ "$KIND" = isar ]; then
   ISAR=true
@@ -18,7 +19,7 @@ fi
 
 ## diagnostics
 
-function usage()
+usage()
 {
   echo
   echo "Usage: Isabelle [OPTIONS] [FILES ...]"
@@ -40,7 +41,7 @@ function usage()
   exit 1
 }
 
-function fail()
+fail()
 {
   echo "$1" >&2
   exit 2
@@ -58,7 +59,7 @@ WINDOWSYSTEM="true"
 XSYMBOL=""
 XSYMBOLSETUP=true
 
-function getoptions()
+getoptions()
 {
   OPTIND=1
   while getopts "I:X:l:p:u:w:x:" OPT
@@ -94,8 +95,8 @@ function getoptions()
 
 getoptions $PROOFGENERAL_OPTIONS
 
-getoptions "$@"
-shift $(($OPTIND - 1))
+getoptions $*
+shift `expr $OPTIND - 1`
 
 if [ "$ISAR" = true ]; then
   KIND=isar
@@ -131,7 +132,7 @@ fi
 [ ! "$XSYMBOLSETUP" = true ] && XSYMBOL_HOME=""
 
 
-ARGS="$ARGS -l $PROOFGENERAL_HOME/isa/interface-setup.el"
+ARGS="$ARGS -l $SUPER/isa/interface-setup.el"
 
 for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
     "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
@@ -139,8 +140,11 @@ do
   [ -f "$FILE" ] && ARGS="$ARGS -l $FILE"
 done
 
-export PROOFGENERAL_ASSISTANTS="$KIND"
-export PROOFGENERAL_LOGIC="$LOGIC"
-export PROOFGENERAL_XSYMBOL="$XSYMBOL"
+PROOFGENERAL_HOME="$SUPER"
+PROOFGENERAL_ASSISTANTS="$KIND"
+PROOFGENERAL_LOGIC="$LOGIC"
+PROOFGENERAL_XSYMBOL="$XSYMBOL"
+
+export PROOFGENERAL_HOME PROOFGENERAL_ASSISTANTS PROOFGENERAL_LOGIC PROOFGENERAL_XSYMBOL
 
 exec $PROGNAME $ARGS $FILES
