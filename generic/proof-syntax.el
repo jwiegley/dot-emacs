@@ -1,11 +1,12 @@
-;; proof-syntax.el Generic font lock expressions
-;; Copyright (C) 1997-1998 LFCS Edinburgh. 
-;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequiera
+;; proof-syntax.el	Functions for dealing with syntax
+;; Copyright (C) 1997-2000 LFCS Edinburgh. 
+;; Authors: David Aspinall, Healfdene Goguen, 
+;;	    Thomas Kleymann, Dilip Sequiera
+;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;
-
 
 (require 'font-lock)
 (require 'proof-config)
@@ -225,5 +226,14 @@ Any other %-prefixed character inserts itself."
     (if acc (insert acc))
     (if pos (goto-char pos))))
 
+(defun proof-splice-separator (sep strings)
+  "Splice SEP into list of STRINGS."
+  (let (stringsep)
+    (while strings
+      (setq stringsep (concat stringsep (car strings)))
+      (setq strings (cdr strings))
+      (if strings (setq stringsep 
+			(concat stringsep sep))))
+    stringsep))
 
 (provide 'proof-syntax)
