@@ -21,11 +21,15 @@ EMACS=xemacs
 # desktop and doc files under /usr/local are unlikely to work with
 # rest of the system.  If that's no good for you, edit the paths
 # individually before the install section.
+# NB: DEST_PREFIX is used for final destination prefix, in case we're
+# packaging into a build prefix rather than live root (e.g. in rpmbuild).
 PREFIX=/usr
+DEST_PREFIX=/usr
 
 PWD=$(shell pwd)
 
 ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98 phox twelf acl2 mmm
+EXTRA_DIRS = images
 
 BATCHEMACS=${EMACS} -batch -q -no-site-file
 
@@ -73,7 +77,7 @@ compile: .byte-compile
 	-$(BYTECOMP) $(EL)
 	rm -f $(BROKENELC)
 	@echo " Byte compiling X-Symbol..."
-	(cd x-symbol/lisp; rm -f *.elc; $(MAKE))
+	(cd x-symbol/lisp; rm -f *.elc; $(MAKE) EMACS="$(EMACS) -q -no-site-file")
 	echo $(EMACS) > $(@)
 	@echo "*************************************************"
 	@echo " Finished."
@@ -115,12 +119,22 @@ distclean: clean
 ## Install files 
 ##
 DESKTOP_PREFIX=${PREFIX}
+ifeq ($(EMACS),xemacs) 
+ELISP=${PREFIX}/share/xemacs/site-packages/lisp/ProofGeneral
+DEST_ELISP=${DEST_PREFIX}/share/xemacs/site-packages/lisp/ProofGeneral
+ELISP_START=${PREFIX}/share/xemacs/site-packages/lisp/site-start.d
+else
 ELISP=${PREFIX}/share/${EMACS}/site-lisp/ProofGeneral
+DEST_ELISP=${DEST_PREFIX}/share/${EMACS}/site-lisp/ProofGeneral
+ELISP_START=${PREFIX}/share/${EMACS}/site-lisp/site-start.d
+endif
+
+
 BINDIR=${PREFIX}/bin
 DESKTOP=${PREFIX}/share
 DOCDIR=${PREFIX}/share/doc/ProofGeneral
 
-install: install-desktop install-elisp install-bin
+install: install-desktop install-elisp install-extras install-bin install-init
 
 install-desktop:
 	mkdir -p ${DESKTOP}/icons/hicolor/16x16
@@ -148,8 +162,21 @@ install-el:
 
 install-elc: compile
 	mkdir -p ${ELISP}
-	for f in ${ELISP_DIRS}; do mkdir -p ${ELISP}/$$f; done
+	for f in ${ELISP_DIRS} ${EXTRA_DIRS}; do mkdir -p ${ELISP}/$$f; done
 	for f in ${ELISP_DIRS}; do cp -pf $$f/*.elc ${ELISP}/$$f; done
+
+# NB: "elisp" directory actually includes extra subdirs in EXTRA_DIRS,
+# i.e. images.  FIXME: could put these elsewhere, but then need to 
+# adjust paths in proof-site.el
+install-extras:
+	mkdir -p ${ELISP}
+	for f in ${EXTRA_DIRS}; do cp -prf $$f/* ${ELISP}/$$f; done
+
+install-init:
+	mkdir -p ${ELISP_START}
+	echo ';;; pg-init.el --- setup for Proof General' > ${ELISP_START}/pg-init.el
+	echo "(setq load-path (append load-path '(\"${DEST_ELISP}/generic\")))" >> ${ELISP_START}/pg-init.el
+	echo "(require 'proof-site)" >> ${ELISP_START}/pg-init.el
 
 install-bin: scripts
 	mkdir -p ${BINDIR}
@@ -188,7 +215,7 @@ perlscripts:
 	 rm -f .tmp)
 
 pgscripts:
-	@(pghome=${ELISP}; \
+	@(pghome=${DEST_ELISP}; \
 	 for i in $(PG_SCRIPTS); do \
 	   sed "s|PGHOME=.*$$|PGHOME=$$pghome|" < $$i > .tmp \
 	   && cat .tmp > $$i; \
