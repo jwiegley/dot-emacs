@@ -68,6 +68,11 @@ read.")
 (defvar proof-script-buffer nil
   "The currently active scripting buffer or nil if none.")
 
+(defvar proof-previous-script-buffer nil
+  "Previous value of proof-script-buffer, recorded when scripting turned off.
+At the moment, this is only used for Coq's ugly multiple file code,
+to help guess the directory of files Coq says it's reinterning.")
+
 (defvar proof-shell-buffer nil
   "Process buffer where the proof assistant is run.")
 
