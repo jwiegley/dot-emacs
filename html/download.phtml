@@ -1,11 +1,14 @@
 <h2>Please register</h2>
 <p>
-Before downloading Proof General, please
+Before downloading Proof General, <i>please</i>
 <a href="register.phtml">register</a>.
+It only takes a moment.
 <br>
-The information collected will be used only to help a case for
-support for Proof General in the future.
-<br>
+The information collected will be used to help a case for
+support for Proof General, and nothing else.
+It is likely that development of Proof General will 
+<i>finish very soon</i> unless we can find new
+resources.
 If you have already registered you do not need to do so again.
 </p>
 
@@ -16,19 +19,15 @@ Proof General
 </p>
 
 <p>
-You can download the latest
-stable release, 
-<a href="#stable">ProofGeneral-2.1</a>, or the latest pre-release,
-<!-- Warning, next line edited by make file -->
-<a href="#prerel">ProofGeneral-3.0pre991116</a>.
-There is also a complete archive 
-of the current pre-release 
-<a href="#devel">for developers</a>.
+Developers and beta-testers may like to download
+a <a href="devel.phtml">development release</a>
+of Proof General.
 </p>
+
 <p>
-If you are using an older version of one of the proof assistants,
+If you are using an older version of a proof assistant,
 you may wish to check the 
-<a href="#previous">previous releases</a> of Proof General.
+<a href="oldrel.phtml">previous releases</a> of Proof General.
 </p>
 <hr>
 
@@ -99,160 +98,5 @@ Please <a href="mailto:proofgen@dcs.ed.ac.uk">send us</a>
 any problems, suggestions, or patches. 
 </p>
 
-<hr>
-
-<!-- WARNING!  Line below automatically edited by makefile. -->
-<h2><a name="prerel">Pre-release: ProofGeneral-3.0pre991116</a></h2>
-<!-- End Warning. -->
-
-<p>
-This pre-release of Proof General may be buggy as new
-features are added and experimented with.  
-<br>
-Check the 
-<!-- WARNING!  Line below automatically edited by makefile. -->
-<?php fileshow("ProofGeneral-3.0pre991116/CHANGES","CHANGES"); ?> file
-<!-- End Warning. -->
-for a summary of changes since the last stable version, and
-the planned changes to come.
-<br>
-Please test with the current pre-release before reporting any problems
-in a pre-release.
-</p>
-
-<ul>
-<!-- WARNING!  Lines below automatically edited by makefile. -->
-  <li> gzip'ed tar file: 
-      <?php download_link("ProofGeneral-3.0pre991116.tar.gz") ?>
-  </li>
-  <li> Linux RPM package 
-      <?php download_link("ProofGeneral-3.0pre991116-1.noarch.rpm") ?>
-     <br>
-     The source RPM is 
-      <?php download_link("ProofGeneral-3.0pre991116-1.src.rpm","here") ?>.
-  </li>
-<!-- End Warning. -->
-</ul>
-
-<hr>
 
 
-<h2><a name="devel">For Developers</a></h2>
-<p>
-If you are interested in helping to develop the core of Proof General,
-we provide a complete archive of <i>all</i> the sources used to build the
-current Proof General pre-release.  The difference from the working
-version distribution above is that we include:
-</p>
-<ul>
-  <li> provisional instantiations of Proof General to new provers <br>
-	(mentioned in the 
-   <!-- WARNING!  Line below automatically edited by makefile. -->
-  <?php fileshow("ProofGeneral-3.0pre991116/CHANGES","CHANGES"); ?> file),
-   <!-- End Warning. -->
-  </li>
-  <li> the 
-   <!-- WARNING!  Line below automatically edited by makefile. -->
-   <?php fileshow("ProofGeneral-3.0pre991116/todo","low-level list of things to do"); ?>
-   <!-- End Warning. -->
-   and the detailed
-   <!-- WARNING!  Line below automatically edited by makefile. -->
-   <?php fileshow("ProofGeneral-3.0pre991116/ChangeLog","ChangeLog"); ?>,
-   <!-- End Warning. -->
- </li>
-  <li> developer's Makefile used to generate documentation files <br>
-       and the release itself from our CVS repository,  </li>
-  <li> some test files, </li>
-  <li> sources for some of the images, 
-  <li> the web pages.  
-</ul>
-<p>
-Note: there are no pre-built documentation files in the developer's
-release, because developers should have the right tools!
-</p>
-<ul>
-  <li> gzip'ed tar file: 
-<!-- WARNING!  Line below automatically edited by makefile. -->
-      <?php download_link("ProofGeneral-3.0pre991116-devel.tar.gz") ?>
-<!-- End Warning. -->
-  </li>
-</ul>
-
-<p>
-You probably <em>don't</em> need to download this if you're only
-interested in hacking the Emacs lisp part of the program for
-a prover that is currently supported.  But you may
-still like to check the latest
-<!-- WARNING!  Line below automatically edited by makefile. -->
-<?php fileshow("ProofGeneral-3.0pre991116/todo","low-level to-do list"); ?>.
-<!-- End Warning. -->
-</p>
-
-<p>
-We have a mailing list for developers, at
-<a href="mailto:proofgeneral-devel@dcs.ed.ac.uk">
-<tt>proofgeneral-devel@dcs.ed.ac.uk</tt></a>.
-<br>
-To subscribe (or unsubscribe), send a message to 
-<a href="mailto:majordomo@dcs.ed.ac.uk">
- <tt>majordomo@dcs.ed.ac.uk</tt>
-</a>
-with the words "<tt>subscribe proofgeneral-devel</tt>"
-(or "<tt>unsubscribe proofgeneral-devel"</tt>) in the message body.
-</p>
-
-<p>
-If you are interested in developing the core of Proof General,
-we can make our CVS repository accessible to you.  Please 
-<a href="feedback.phtml">ask</a>.
-</p>
-
-
-<hr>
-<h2><a name="previous">Previous Releases</a></h2>
-
-<p>
-Please note that we do not support these old releases in any way.
-</p>
-
-
-<h4>Proof General Version 2.1, released 24th August 1999</h4>
-
-<p>
-This version of Proof General has been tested
-with XEmacs 20.4, XEmacs 21 and FSF Emacs 20.3.<br>
-It supports Coq version 6.3, LEGO version 1.3.1 and
-some pre-release versions of Isabelle version 99.
-<ul>
-  <li> gzip'ed tar file: 
-      <?php download_link("ProofGeneral-2.1.tar.gz") ?>
-  </li>
- <li> Linux RPM package:
-      <?php download_link("ProofGeneral-2.1-1.noarch.rpm") ?>
-     <br>
-     The source RPM is 
-      <?php download_link("ProofGeneral-2.1-1.noarch.rpm","here") ?>.
- </li>
-</ul>
-
-
-<h4>Proof General Version 2.0, released 16th December 1998</h4>
-
-<p>
-This version of Proof General has been tested
-with XEmacs 20.4 and FSF Emacs 20.2, 20.3.<br>
-It supports Coq version 6.2, LEGO version 1.3.1, and
-Isabelle version 98-1.<br>
-</p>
-<ul>
-  <li> gzip'ed tar file: 
-      <?php download_link("ProofGeneral-2.0.tar.gz") ?>
-  </li>
- <li> Linux RPM package:
-      <?php download_link("ProofGeneral-2.0-1.noarch.rpm") ?>
-     <br>
-     The source RPM is 
-      <?php download_link("ProofGeneral-2.0-1.noarch.rpm","here") ?>.
- </li>
-</ul>
-<p>
