@@ -40,6 +40,16 @@
     (autoload 'browse-url "browse-url"
       "Ask a WWW browser to load URL." t))
 
+;; Compatibility with XEmacs 20.3/4
+(or (boundp 'path-separator)
+    (setq path-separator (if proof-running-on-win32 ";" ":")))
+(or (fboundp 'split-path)
+    (defun split-path (path)
+      "Explode a search path into a list of strings.
+The path components are separated with the characters specified
+with `path-separator'."
+      (split-string path (regexp-quote path-separator))))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -138,7 +148,11 @@ Otherwise treat \\ in NEWTEXT string as special:
     (let ((pp (parse-partial-sexp 1 (point))))
       (cond
        ((nth 3 pp) 'string)
-       ((nth 7 pp) 'block-comment)
+       ;; ((nth 7 pp) 'block-comment)
+       ;; "Stefan Monnier" <monnier+misc/news@rum.cs.yale.edu> suggests
+       ;; distinguishing between block comments and ordinary comments
+       ;; is problematic: not what XEmacs claims and different to what
+       ;; (nth 7 pp) tells us in FSF Emacs.
        ((nth 4 pp) 'comment))))))
 
 
