@@ -20,22 +20,21 @@
 
 (defun pg-pgip-process-haspref (node)    ;; for Isabelle 2003
   "Issue a defpacustom from a <haspref> element with attributes ATTRS, name NAME."
-  (unless (stringp name)
-    (pg-pgip-error "pg-pgip-haspref: missing NAME in <haspref>NAME</haspref>."))
   (let*
-      ((type	 (pg-pgip-old-get-type attrs))
-       (defattr  (pg-pgip-get-attr "default" node t))
+      ((name     (pg-xml-get-text-content node))  ;; old PGIP: <haspref>name<haspref>
+       (type	 (pg-pgip-old-get-type node))
+       (defattr  (pg-xml-get-attr 'default node t))
        (default  (if defattr 
 		     (pg-pgip-old-interpret-value defattr type)
 		   (pg-pgip-old-default-for type)))
        (kind	 (intern
-		  (pg-pgip-get-attr "kind" node t "user"))
-       (descr    (pg-pgip-get-attr "descr" node t ""))
+		  (pg-xml-get-attr 'kind node t "user")))
+       (descr    (pg-xml-get-attr 'descr node t ""))
        (subst    (pg-pgip-subst-for type))
        (setting  
-	(pg-prover-interpret-pgip-command
-	 (concat "<pgip><setpref name=\"" name "\">" subst "</setpref></pgip>")))
-       (symname  (intern name))) ;; FIXME: consider Emacs ID normalising
+	(pg-pgip-string-of-command
+	 (concat "<setpref name=\"" name "\">" subst "</setpref>")))
+       (symname  (intern name)))
     (ignore-errors 
       ;; FIXME: allow rest of PGIP to be processed, would be better to
       ;; accumulate errors somehow.
@@ -47,7 +46,7 @@
 	  (concat descr (if descr "\n")
 	   "Setting configured by <haspref> PGIP message")
 	  :type (quote ,type)
-	  :setting ,setting))))))
+	  :setting ,setting)))))
     
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -132,7 +131,7 @@
 (defun pg-pgip-old-get-type (node)
   "Extract and check type value from NODE.  Return type in internal (custom) format."
   (let 
-      ((rawtype (pg-pgip-old-get-attr "type" node)))
+      ((rawtype (pg-xml-get-attr 'type node)))
     (pg-pgip-old-pgiptype rawtype)))
  
 

@@ -39,13 +39,16 @@ The list PGIPS may contain one or more PGIP packets, whose contents are processe
 
 (defun pg-pgip-process-pgip (pgip)
   "Process the commands in the PGIP XML-node PGIP."
+  ;; FIXME: appearances of 'notreallyoptional below should be removed,
+  ;; but they are needed for compatibility with Isabelle 2004 whose
+  ;; PGIP messages are incomplete.
   (let* ((name	   (xml-node-name pgip))
 	 (origin   (pg-xml-get-attr 'origin pgip 'optional))
 	 (id	   (pg-xml-get-attr 'id pgip 'optional))
-	 (class	   (pg-xml-get-attr 'class pgip))
+	 (class	   (pg-xml-get-attr 'class pgip 'notreallyoptional))
 	 (refseq   (pg-xml-get-attr 'refseq pgip 'optional))
 	 (refid    (pg-xml-get-attr 'refid pgip 'optional))
-	 (seq	   (pg-xml-get-attr 'seq pgip)))
+	 (seq	   (pg-xml-get-attr 'seq pgip 'notreallyoptional)))
     (setq pg-pgip-last-seen-id id)
     (setq pg-pgip-last-seen-seq seq)
     (if (eq name 'pgip)
@@ -60,7 +63,8 @@ Return a symbol representing the PGIP command processed, or nil."
 	 (fname	      (intern (concat "pg-pgip-process-" (symbol-name name)))))
     (if (fboundp fname)
 	(progn
-	  (pg-pgip-debug "Processing PGIP message seq %s, type %s" (pg-xml-get-attr 'seq pgip) name)
+	  (pg-pgip-debug "Processing PGIP message seq %s, type %s" 
+			 (pg-xml-get-attr 'seq pgip 'notreallyoptional) name)
 	  (funcall fname pgipmsg)
 	  name)
       (pg-internal-warning "!!! unrecognized/unimplemented PGIP message element `%s'" name)
@@ -68,6 +72,7 @@ Return a symbol representing the PGIP command processed, or nil."
 
 (defvar pg-pgip-post-process-functions
   '((hasprefs . proof-assistant-menu-update)
+    (oldhaspref . proof-assistant-menu-update) ;; FIXME: for Isabelle2004 backward compat
     (menuadd  . proof-assistant-menu-update)
     (menudel  . proof-assistant-menu-update)
     (idtable  . pg-pgip-update-idtables)    ;; TODO: not yet implemented
