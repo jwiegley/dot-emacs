@@ -143,7 +143,9 @@ no regular or easily discernable structure."
    proof-state-preserving-p	'isa-state-preserving-p
    proof-parse-indent		'isa-parse-indent
    proof-stack-to-indent	'isa-stack-to-indent
-   proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list))
+   proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
+   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\";"
+   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\";"))
 
 
 (defun isa-shell-mode-config-set-variables ()
@@ -274,16 +276,26 @@ This is a hook function for proof-activate-scripting-hook."
 	(setq proof-shell-erase-response-flag nil))
     ))
 
+(defun isa-remove-file (name files cmp-base)
+  (if (not files) nil
+    (let*
+	((file (car files))
+	 (rest (cdr files))
+	 (same (if cmp-base (string= name (file-name-nondirectory file))
+		 (string= name file))))
+      (if same (isa-remove-file name rest cmp-base)
+	(cons file (isa-remove-file name rest cmp-base))))))
+
 (defun isa-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
 This is called when Proof General spots output matching
 proof-shell-retract-files-regexp."
-  ;; This assertion is supposed to test that we only remove
-  ;; what was in the list anyway.  But 
-  ;;(assert (member (file-truename (match-string 1 str))
-  ;;		  proof-included-files-list))
-  (remove (file-truename (match-string 1 str)) 
-	  proof-included-files-list))
+  (let*
+      ((name (match-string 1 str))
+       (base-name (file-name-nondirectory name)))
+    (if (string= name base-name)
+	(isa-remove-file name proof-included-files-list t)
+      (isa-remove-file (file-truename name) proof-included-files-list nil))))
 
 
 ;;
