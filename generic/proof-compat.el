@@ -73,6 +73,13 @@ that use a window system such as X, and false for text-only terminals."
 ;;; GNU Emacs compatibility
 ;;;
 
+;;; Chars (borrowed from x-symbol-emacs.el compatability file)
+
+(unless (fboundp 'characterp) (defalias 'characterp 'integerp))
+(unless (fboundp 'int-to-char) (defalias 'int-to-char 'identity))
+(unless (fboundp 'char-to-int) (defalias 'char-to-int 'identity))
+
+
 ;; completion not autoloaded in GNU 20.6.1; we must call 
 ;; dynamic-completion-mode after loading it.
 (or (fboundp 'complete)
