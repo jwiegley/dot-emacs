@@ -1,3 +1,100 @@
+2001-12-11  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* CHANGES:
+	Note about Emacs 21 support and font lock.
+
+	* generic/proof-utils.el:
+	Protect XEmacs only code
+
+	* generic/proof-site.el:
+	Fix test for GNU 21
+
+	* generic/proof-script.el:
+	Change to font-lock support routines.
+
+	* generic/proof-menu.el:
+	Disable customize-menu-create for Emacs 21.
+
+	* generic/proof-utils.el:
+	Rework font-lock variable munging to work in GNU Emacs 21 also.
+
+	* generic/proof-shell.el: Missing paren
+
+	* generic/proof-config.el:
+	Remove double setting, leave test setting in.
+
+	* generic/proof-shell.el:
+	Simplify -goals-config-done and -response-config-done to use current buffer.  Kill trace buffer with other associated buffers, and set specifiers similarly for multiple frames.
+
+	* generic/proof-config.el:
+	Added proof-trace-output-fontify-enable
+
+	* CHANGES: Note of Emacs 21 support
+
+	* generic/proof-toolbar.el:
+	Add support for toolbars on Emacs 21.
+
+	* generic/proof-splash.el:
+	Add support for Emacs 21 image display.
+
+	* generic/proof-site.el:
+	Add proof-running-on-Emacs21 flag.
+
+	* generic/proof-menu.el:
+	Allow toolbar toggle for GNU Emacs 21.
+
+	* html/features.html, generic/proof-config.el:
+	Toolbar allowed in GNU Emacs 21
+
+	* generic/proof-compat.el:
+	Add proof-emacs-imagep function for GNU Emacs 21.
+
+2001-12-10  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-utils.el, generic/proof-shell.el:
+	Add handling of proof-trace-buffer.
+
+	* generic/proof.el:
+	Added proof-trace-buffer.
+
+	* generic/proof-utils.el, generic/proof-shell.el:
+	Dont return a fontified string in proof-response-buffer-display.
+
+2001-12-05  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* generic/proof-shell.el:
+	proof-release-lock: do not touch proof-shell-spill-output-buffer;
+	proof-shell-spill-output-begin: reuse existing buffer;
+
+	* isar/isar.el:
+	activate proof-shell-spill-output-regexp;
+
+2001-12-04  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* CHANGES: Update for 3.4pre
+
+	* html/devel.html:
+	Update mailing list address (point to web page)
+
+2001-12-04  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* doc/PG-adapting.texi:
+	update from make process;
+
+	* doc/ProofGeneral.texi, isar/isar.el:
+	isar specific commands for bold/sup/sub;
+
+	* isa/x-symbol-isabelle.el:
+	added symbols for alternative 0..9;
+
 2001-12-04  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
