@@ -2,107 +2,137 @@
 ;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;; Author: David Aspinall
 
-;; $Log$
-;; Revision 2.1  1998/08/21 14:37:18  da
-;; First attempt, proof state works.
+;; $Id$
 ;;
-;; Revision 2.0  1998/08/11 14:59:57  da
-;; New branch
-;;
-;; Revision 1.1  1998/08/11 14:43:34  da
-;; Isabelle proof.el support.
-;;
-
-;; STATUS:
-;;   - Basic proof state extraction works, using prompt regexp
-;;   - Undo needs attention
 
 
 (require 'isa-syntax)
 (require 'outline)
 (require 'proof)
 
-; Configuration
 
-(defvar isa-assistant "Isabelle"
-  "Name of proof assistant")
+;;;
+;;; ======== User settings for Isabelle ========
+;;;
 
-(defvar isa-tags nil ; "/usr/local/lib/isa/theories/TAGS"
-  "the default TAGS table for the Isa library")
+(defvar isa-prog-name "/usr/lib/Isabelle98/bin/isabelle"
+  "*Name of program to run Isabelle.")
 
-(defconst isa-process-config nil
-  "Command to configure pretty printing of the Isa process for emacs.")
+(defvar isa-thy-file-tags-table "/usr/lib/Isabelle98/src/TAGS.thy"
+  "*Name of theory file tags table for Isabelle.")
 
-(defconst isa-interrupt-regexp "Interrupt"
-  "Regexp corresponding to an interrupt")
+(defvar isa-ML-file-tags-table  "/usr/lib/Isabelle98/src/TAGS.ML"
+  "*Name of ML file tags table for Isabelle.")
 
+(defvar isa-indent 2
+  "*Indentation degree in proof scripts.
+Utterly irrelevant for Isabelle because normal proof scripts have
+no regular or easily discernable structure.")
+  
+
+;;;
+;;; ======== Configuration of generic modes ========
+;;;
+
+(defvar isa-mode-config-table
+  '(;; general
+    proof-assistant		"Isabelle"
+    proof-www-home-page
+     "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html"
+    ;; proof script syntax
+    proof-terminal-char	 ?\;		; ends a proof
+    proof-comment-start	"(*"		; comment in a proof
+    proof-comment-end		"*)"		; 
+    ;; proof engine output syntax
+    proof-save-command-regexp   isa-save-command-regexp
+    proof-save-with-hole-regexp isa-save-with-hole-regexp
+    proof-goal-with-hole-regexp isa-goal-with-hole-regexp
+    proof-kill-goal-command	""   ; FIXME: proof.el should allow nil
+    proof-commands-regexp	 (ids-to-regexp isa-keywords)
+    ;; proof engine commands
+    proof-prf-string		"pr()"
+    proof-ctxt-string		"the_context();" 
+    proof-help-string
+     "print \"No in-built help for Isabelle.\"" ; FIXME: proof.el should allow nil
+    ;; command hooks
+    proof-goal-command-p	'isa-goal-command-p
+    proof-count-undos-fn	'isa-count-undos
+    proof-find-and-forget-fn	'isa-find-and-forget
+    proof-goal-hyp-fn		'isa-goal-hyp
+    proof-state-preserving-p	'isa-state-preserving-p
+    proof-global-p		'isa-global-p    ; FIXME: proof.el should allow nil
+    proof-parse-indent		'isa-parse-indent
+    proof-stack-to-indent	'isa-stack-to-indent)
+  "Table of settings for configuration of proof mode to Isabelle.")
+
+
+(defconst isa-shell-mode-config-table
+  '(;;
+    proof-shell-prompt-pattern		"^2?[---=#>]>? *\\|^\\*\\* .*" ; for ML
+    proof-shell-cd			"cd \"%s\";"
+    ;; this one not set: proof-shell-abort-goal-regexp 
+    proof-shell-proof-completed-regexp "No subgoals!"
+    proof-shell-error-regexp		isa-error-regexp
+    proof-shell-interrupt-regexp        "Interrupt"     ; FIXME: only good for NJ/SML
+    proof-shell-noise-regexp	        ""
+    proof-shell-assumption-regexp	isa-id		   ; matches name of assumptions
+    proof-shell-goal-regexp		"^[ \t]*[0-9]+\\. " ; matches subgoal heading
+    ;; We can't hack the SML prompt, so set wakeup-char to nil.
+    proof-shell-wakeup-char		nil
+    proof-shell-start-goals-regexp	"\370"
+    proof-shell-end-goals-regexp	"\371"
+    ;; initial command configures Isabelle by hacking print functions.
+    ;; may need to set directory somewhere for this:
+    ;; /home/da/devel/lego/elisp/   or  $PROOFGENERIC_HOME ?
+    proof-shell-init-cmd		"use \"isa-print-functions.ML\";"
+    ;; === ANNOTATIONS  === remaining ones broken
+    proof-shell-goal-char	        ?\375
+    proof-shell-first-special-char	?\360
+    proof-shell-eager-annotation-start  "\376" 
+    proof-shell-eager-annotation-end    "\377" 
+    proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern ; impossible to annotate!
+    proof-shell-result-start	        "\372 Pbp result \373"
+    proof-shell-result-end		"\372 End Pbp result \373"
+    proof-analyse-using-stack		t
+    proof-shell-start-char		?\372	
+    proof-shell-end-char		?\373 
+    proof-shell-field-char		?\374)
+    "Table of settings for configuration of proof shell mode to Isabelle.")
+
+
+;; =========================================================================
+;; FIXME: THESE TWO ARE DEAD?
 (defvar isa-save-query t
   "*If non-nil, ask user for permission to save the current buffer before
   processing a module.")
 
-(defvar isa-default-undo-limit 100
-  "Maximum number of Undo's possible when doing a proof.")
-
-;; ----- web documentation
-
-(defvar isa-www-home-page "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html")
-
-;; ----- isa-shell configuration options
-
-;; FIXME: needs to have special characters for proof.el, also path
-;; name shouldn't be here.
-(defvar isa-prog-name "/usr/lib/Isabelle98/bin/isabelle"
-  "*Name of program to run as Isabelle.")
-
 (defvar isa-shell-working-dir ""
   "The working directory of the isabelle shell")
+;; =========================================================================
 
-(defvar isa-shell-prompt-pattern 
-  ;; borrowed from somewhere?
-  ;; "^2?[---=#>]>? *\\|^\\*\\* .*"
-  "^> "
-  "*The prompt pattern for the inferior shell running isabelle.")
 
-(defvar isa-shell-cd "cd \"%s\";"
-  "*Command of the inferior process to change the directory.") 
+;; ===== outline mode
 
-;; FIXME: check this?
-; Don't define this, no correspondence.
-;(defvar isa-shell-abort-goal-regexp nil 
-;  "*Regular expression indicating that the proof of the current goal
-;  has been abandoned.")
-
-(defvar isa-shell-proof-completed-regexp "No subgoals!"
-  "*Regular expression indicating that the proof has been completed.")
-
-(defvar isa-goal-regexp
-  "^[ \t]*[0-9]+\\. "
-  "Regexp to match subgoal heading.")
-
-;; ----- outline
-
-;;; FIXME: BROKEN
+;;; FIXME: test and add more things here
 (defvar isa-outline-regexp
-  (ids-to-regexp 
-	   '("Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact"
-	   "Remark" "Record" "Inductive" "Definition")))
+  (ids-to-regexp '("goal" "Goal" "prove_goal"))
+  "Outline regexp for Isabelle ML files")
 
-(defvar isa-outline-heading-end-regexp "\.\\|\\*)")
+;;; End of a command needs parsing to find, so this is approximate.
+(defvar isa-outline-heading-end-regexp ";[ \t\n]*")
 
+;; 
 (defvar isa-shell-outline-regexp isa-goal-regexp)
 (defvar isa-shell-outline-heading-end-regexp isa-goal-regexp)
 
 ;;; ---- end-outline
 
-(defconst isa-kill-goal-command nil) ; "Abort."
-(defconst isa-forget-id-command nil) ; "Reset "
-
-;;; FIXME!!
-(defconst isa-undoable-commands-regexp (ids-to-regexp isa-tactics))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;  FIXME: I don't think they should be here at all.
 
 (define-derived-mode isa-shell-mode proof-shell-mode
    "isa-shell" "Inferior shell mode for isabelle shell"
@@ -116,17 +146,21 @@
   "pbp" "Proof-by-pointing support for Isabelle"
   (isa-pbp-mode-config))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's Isabelle specific                                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;(defun isa-shell-init-hook ()
-;  (remove-hook 'proof-shell-insert-hook 'isa-shell-init-hook))
 
-;(defun isa-set-undo-limit (undos)
-;  (proof-invisible-command (format "Set Undo %s." undos)))
+;; FIXME: think about the next variable.  I've changed sense from
+;;  LEGO and Coq's treatment.
+(defconst isa-not-undoable-commands-regexp
+  (ids-to-regexp '("undo" "back"))
+  "Regular expression matching commands which are *not* undoable.")
 
+;; This next function is the important one for undo operations.
 (defun isa-count-undos (span)
+  "Count number of undos in a span, return the command needed to undo that far."
   (let ((ct 0) str i)
     (if (and span (prev-span span 'type)
 	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
@@ -136,10 +170,13 @@
       (while span
 	(setq str (span-property span 'cmd))
 	(cond ((eq (span-property span 'type) 'vanilla)
-	       (if (string-match isa-undoable-commands-regexp str)
+	       (or (string-match isa-not-undoable-commands-regexp str)
 		   (setq ct (+ 1 ct))))
 	      ((eq (span-property span 'type) 'pbp)
-	       (cond ((string-match isa-undoable-commands-regexp str)
+	       ;; this case probably redundant for Isabelle, unless
+	       ;; we think of some nice ways of matching non-undoable
+	       ;; commands.
+	       (cond ((not (string-match isa-not-undoable-commands-regexp str))
 		      (setq i 0)
 		      (while (< i (length str))
 			(if (= (aref str i) proof-terminal-char)
@@ -149,14 +186,20 @@
 	(setq span (next-span span 'type)))
       (concat "choplev " (int-to-string ct) proof-terminal-string))))
 
+(defun isa-goal-command-p (str)
+  "Decide whether argument is a goal or not"
+  (string-match isa-goal-command-regexp str)) ; this regexp defined in isa-syntax.el
+
+;; Isabelle has no concept of a Linear context, so forgetting back
+;; to the declaration of a particular something makes no real
+;; sense.  Perhaps in the future there will be functions to remove
+;; theorems from theories, but even then all we could do is
+;; forget particular theorems one by one.
+
+;; FIXME: next function and variable DEAD, irrelevant.
 (defconst isa-keywords-decl-defn-regexp
   (ids-to-regexp (append isa-keywords-decl isa-keywords-defn))
   "Declaration and definition regexp.")
-
-(defun isa-goal-command-p (str)
-  "Decide whether argument is a goal or not"
-  (and (string-match isa-goal-command-regexp str)
-       (not (string-match "Definition.*:=" str))))
 
 (defun isa-find-and-forget (span)
   (let (str ans)
@@ -190,107 +233,59 @@
 (defvar isa-current-goal 1
   "Last goal that emacs looked at.")
 
+;; Parse proofstate output.  Isabelle does not display
+;; named hypotheses in the proofstate output:  they
+;; appear as a list in each subgoal.  Ignore
+;; that aspect for now and just return the
+;; subgoal number.
 (defun isa-goal-hyp ()
-  (cond 
-   ((looking-at "============================\n")
-    (goto-char (match-end 0))
-    (cons 'goal (int-to-string isa-current-goal)))
-   ((looking-at "subgoal \\([0-9]+\\) is:\n")
-    (goto-char (match-end 0))
-    (cons 'goal (match-string 1))
-    (setq isa-current-goal (string-to-int (match-string 1))))
-   ((looking-at proof-shell-assumption-regexp)
-    (cons 'hyp (match-string 1)))
-   (t nil)))
+  (if (looking-at proof-shell-goal-regexp)
+      (cons 'goal (match-string 1))))
 
 (defun isa-state-preserving-p (cmd)
-  (not (string-match isa-undoable-commands-regexp cmd)))
+  "Non-nil if command preserves the proofstate."
+  (string-match isa-not-undoable-commands-regexp cmd))
 
+;; FIXME: I don't really know what this means, but lego sets
+;; it to always return nil.  Probably should be able to
+;; leave it unset.
 (defun isa-global-p (cmd)
-  (or (string-match isa-keywords-decl-defn-regexp cmd)
-      (and (string-match
-	    (concat "Definition\\s-+\\(" isa-id "\\)\\s-*:") cmd)
-	   (string-match ":=" cmd))))
+  nil)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Commands specific to Isabelle                                  ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun isa-Intros () 
-  "List proof state." 
-  (interactive) 
-  (insert "printlev"))
-
-(defun isa-Apply () 
-  "List proof state."  
-  (interactive) 
-  (insert "Apply "))
-
-(defun isa-Search ()
-  "Search for type in goals."
-  (interactive)
-  (let (cmd)
-    (proof-check-process-available)
-    (setq cmd (read-string "Search Type: " nil 'proof-minibuffer-history))
-    (proof-invisible-command (concat "Search " cmd proof-terminal-string))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; "Case" is represented by 'c' on the stack, and
-;; "CoInductive is represented by 'C'.
+;;
+;; Sadly this is pretty pointless for Isabelle.
+;; Proof scripts in Isabelle don't really have an easily-observed
+;; block structure  -- a case split can be done by any obscure tactic,
+;; and then solved in a number of steps that bears no relation to the
+;; number of cases!  And the end is certainly not marked in anyway.
+;; 
 (defun isa-stack-to-indent (stack)
-  (cond
+    (cond
    ((null stack) 0)
    ((null (car (car stack)))
     (nth 1 (car stack)))
-   (t (let ((col (save-excursion
-		   (goto-char (nth 1 (car stack)))
-		   (current-column))))
-	(cond
-	 ((eq (car (car stack)) ?c)
-	  (save-excursion (move-to-column (current-indentation))
-			  (cond 
-			   ((eq (char-after (point)) ?|) (+ col 3))
-			   ((looking-at "end") col)
-			   (t (+ col 5)))))	  
-	 ((or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C))
-	  (+ col (if (eq ?| (save-excursion 
-			      (move-to-column (current-indentation))
-			      (char-after (point)))) 2 4)))
-	 (t (1+ col)))))))
+   (t (save-excursion
+	(goto-char (nth 1 (car stack)))
+	(+ isa-indent (current-column))))))
 
 (defun isa-parse-indent (c stack)
-  (cond
-   ((eq c ?C)
-    (cond ((looking-at "Case")
-	   (cons (list ?c (point)) stack))
-	  ((looking-at "CoInductive")
-	   (forward-char (length "CoInductive"))
-	   (cons (list c (- (point) (length "CoInductive"))) stack))
-	  (t stack)))
-   ((and (eq c ?e) (looking-at "end") (eq (car (car stack)) ?c))
-    (cdr stack))
+  "Indentation function for Isabelle.  Does nothing."
+  stack)
 
-   ((and (eq c ?I) (looking-at "Inductive"))
-    (forward-char (length "Inductive"))
-    (cons (list c (- (point) (length "Inductive"))) stack))
-
-   ((and (eq c ?.) (or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C)))
-    (cdr stack))
-
-   (t stack)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Isa shell startup and exit hooks                               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun isa-pre-shell-start ()
-  (setq proof-prog-name isa-prog-name)
-  (setq proof-mode-for-shell 'isa-shell-mode)
-  (setq proof-mode-for-pbp 'isa-pbp-mode)
-)
+  (setq proof-prog-name		isa-prog-name)
+  (setq proof-mode-for-shell    'isa-shell-mode)
+  (setq proof-mode-for-pbp	'isa-pbp-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
@@ -298,7 +293,6 @@
 
 (defun isa-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."
-
   (modify-syntax-entry ?\$ ".")
   (modify-syntax-entry ?\/ ".")
   (modify-syntax-entry ?\\ ".")
@@ -317,116 +311,40 @@
   (modify-syntax-entry ?\) ")(4"))
 
 (defun isa-mode-config ()
-
-  (setq proof-terminal-char ?\;)
-  (setq proof-comment-start "(*")
-  (setq proof-comment-end "*)")
-
-  (setq proof-assistant isa-assistant
-	proof-www-home-page isa-www-home-page)
-
-  (setq proof-prf-string "pr()"
-	proof-ctxt-string "print \"No context for Isabelle.\""
-	proof-help-string "print \"No in-built help for Isabelle.\"")
-
-  (setq proof-goal-command-p 'isa-goal-command-p
-	proof-count-undos-fn 'isa-count-undos
-	;; this one won't be relevant.
-	proof-find-and-forget-fn 'isa-find-and-forget
-        proof-goal-hyp-fn 'isa-goal-hyp
-	proof-state-preserving-p 'isa-state-preserving-p
-	proof-global-p 'isa-global-p
-	proof-parse-indent 'isa-parse-indent
-	proof-stack-to-indent 'isa-stack-to-indent)
-
-  (setq proof-save-command-regexp isa-save-command-regexp
-	proof-save-with-hole-regexp isa-save-with-hole-regexp
-	proof-goal-with-hole-regexp isa-goal-with-hole-regexp
-	proof-kill-goal-command isa-kill-goal-command
-	proof-commands-regexp (ids-to-regexp isa-keywords))
-
+  (apply 'setq isa-mode-config-table)
   (isa-init-syntax-table)
-
-;; font-lock
-
+  ;; font-lock
   (setq font-lock-keywords isa-font-lock-keywords-1)
-
   (proof-config-done)
-
   (define-key (current-local-map) [(control c) ?I] 'isa-Intros)
   (define-key (current-local-map) [(control c) ?a] 'isa-Apply)
   (define-key (current-local-map) [(control c) (control s)] 'isa-Search)
-
-;; outline
-  
+  ;; outline
+  ;; FIXME: do we need to call make-local-variable here?
   (make-local-variable 'outline-regexp)
   (setq outline-regexp isa-outline-regexp)
-
   (make-local-variable 'outline-heading-end-regexp)
   (setq outline-heading-end-regexp isa-outline-heading-end-regexp)
-
-;; tags
-  (and (boundp 'tag-table-alist)
-       (setq tag-table-alist
-	     (append '(("\\.v$" . isa-tags)
-		       ("isa"  . isa-tags))
-		     tag-table-alist)))
-
+  ;; tags
+  ;  (and (boundp 'tag-table-alist)
+  ;       (setq tag-table-alist
+  ;	     (append '(("\\.ML$"  . isa-ML-file-tags-table)
+  ;		       ("\\.thy$" . isa-thy-file-tags-table))
+  ;		     tag-table-alist)))
   (setq blink-matching-paren-dont-ignore-comments t)
-
-;; hooks and callbacks
-
-  (add-hook 'proof-shell-exit-hook 'isa-zap-line-width nil t)
+  ;; hooks and callbacks
   (add-hook 'proof-pre-shell-start-hook 'isa-pre-shell-start nil t))
 
 
-
 (defun isa-shell-mode-config ()
-  (setq proof-shell-prompt-pattern isa-shell-prompt-pattern
-        proof-shell-cd isa-shell-cd
-; this one not set.
-;        proof-shell-abort-goal-regexp isa-shell-abort-goal-regexp
-        proof-shell-proof-completed-regexp isa-shell-proof-completed-regexp
-        proof-shell-error-regexp isa-error-regexp
-	proof-shell-interrupt-regexp isa-interrupt-regexp
-        proof-shell-noise-regexp ""
-        proof-shell-assumption-regexp isa-id
-        proof-shell-goal-regexp isa-goal-regexp
-        proof-shell-first-special-char ?\360
-        ; The next three represent path annotation information
-
-	proof-shell-eager-annotation-start "\376" 
-	proof-shell-eager-annotation-end "\377" 
-        proof-shell-annotated-prompt-regexp proof-shell-prompt-pattern
-	;(concat proof-shell-prompt-pattern
-	;	(char-to-string proof-shell-wakeup-char))
-        proof-shell-result-start "\372 Pbp result \373"
-        proof-shell-result-end "\372 End Pbp result \373"
-	proof-analyse-using-stack t
-	proof-shell-start-char ?\372 ; not done
-        proof-shell-end-char ?\373 ; not done
-        proof-shell-field-char ?\374  ; not done
-	;; da: settings below here WORK
-	;; ============================
-        proof-shell-goal-char ?\375
-	;; We can't hack the SML prompt, so set wakeup-char to nil.
-        proof-shell-wakeup-char nil
-        proof-shell-start-goals-regexp "\370"
-        proof-shell-end-goals-regexp "\371"
-	;; initial command configures Isabelle by hacking print functions.
-	;; may need directory for this: /home/da/devel/lego/elisp/
-        proof-shell-init-cmd 
-	   "use \"isa-print-functions.ML\";")
-
-
   ;; The following hook is removed once it's called.
   ;; FIXME: maybe add this back later.
   ;;(add-hook 'proof-shell-insert-hook 'isa-shell-init-hook nil t)
-
   (isa-init-syntax-table)
-
+  (apply 'setq isa-shell-mode-config-table)
   (proof-shell-config-done))
 
+;; FIXME: broken, of course, as is all PBP everywhere.
 (defun isa-pbp-mode-config ()
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp isa-error-regexp))

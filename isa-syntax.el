@@ -3,50 +3,79 @@
 
 (require 'proof-syntax)
 
-;; ----- keywords for font-lock.
+
+;;; Proof mode customization: how should it work?
+;;;   Presently we have a bunch of variables in proof.el which are
+;;;   set from a bunch of similarly named variables in <engine>-syntax.el.
+;;;
+;;;   Seems a bit daft: why not just have the customization in
+;;;   one place, and settings hardwired in <engine>-syntax.el.
+;;;
+;;;   That way we can see which settings are part of instantiation of
+;;;   proof.el, and which are part of cusomization for <engine>.
+
+;; ------ customize groups
+
+;(defgroup isa-scripting nil
+;  "Customization of Isabelle script management"
+;  :group 'external
+;  :group 'languages)
+
+;(defgroup isa-syntax nil
+;  "Customization of Isabelle's syntax recognition"
+;  :group 'isa-scripting)
+
+;; ----- syntax for font-lock and other features
+
+;; FIXME: this command-keyword orientation isn't  good
+;;  enough for Isabelle, since we can have arbitrary
+;;  ML code around.  One solution is to define a
+;;  restricted language consisting of the interactive
+;;  commands.  We'd still need regexps below, though.
+;;  Alternatively: customize this for Marcus Wenzel's 
+;;  proof language.
 
 (defvar isa-keywords-decl
-  '(
-))
+  '("val")
+  "Isabelle keywords for declarations")
+;  :group 'isa-syntax
+;  :type '(repeat string))
 
 (defvar isa-keywords-defn
-  '(
-"bind_thm"
-))
+  '("bind_thm")
+  "Isabelle keywords for definitions")
+;  :group 'isa-syntax
+;  :type '(repeat string))
 
+;; isa-keywords-goal is used to manage undo actions
 (defvar isa-keywords-goal
-  '(
-"goal"
-))
+  '("goal" "goalw" "goalw_cterm")
+  "Isabelle commands to begin an interactive proof")
+;  :group 'isa-syntax
+;  :type '(repeat string))
 
 (defvar isa-keywords-save
-  '(
-"qed"
-))
+  '("qed" "result" "uresult" "bind_thm" "store_thm")
+  "Isabelle commands to extract the proved theorem")
+;  :group 'isa-syntax
+;  :type '(repeat string))
 
-(defvar isa-keywords-kill-goal '(
-))
-
+;; FIXME: and a whole lot more... should be conservative
+;; and use any identifier
 (defvar isa-keywords-commands
-  '(
-"by"
-"goal"
-))
+  '("by" "goal"))
 
 ;; See isa-command-table in Isamode/isa-menus.el to get this list.
+;; BUT: tactics are not commands, so appear inside some expression.
 (defvar isa-tactics
-  '(
-"resolve_tac" "assume_tac"
-))
+  '("resolve_tac" "assume_tac"))
 
 (defvar isa-keywords
   (append isa-keywords-goal isa-keywords-save isa-keywords-decl
 	  isa-keywords-defn isa-keywords-commands isa-tactics)
-  "All keywords in a Isa script")
+  "All keywords in a Isabelle script")
 
-(defvar isa-tacticals '(
-"REPEAT" "THEN" "ORELSE" "TRY"
-))
+(defvar isa-tacticals '("REPEAT" "THEN" "ORELSE" "TRY"))
 
 ;; ----- regular expressions
 
@@ -77,9 +106,6 @@
 		   isa-id ")\\)?") 'font-lock-type-face))
   "*Font-lock table for Isa terms.")
 
-;; According to Isa, "Definition" is both a declaration and a goal.
-;; It is understood here as being a goal.  This is important for
-;; recognizing global identifiers, see isa-global-p.
 (defconst isa-save-command-regexp
   (concat "^" (ids-to-regexp isa-keywords-save)))
 (defconst isa-save-with-hole-regexp
