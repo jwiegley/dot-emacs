@@ -209,10 +209,9 @@ ChangeLog:	FORCE
 
 ############################################################
 #
-# Clean up intermediate files and Emacs backup files
+# Clean up intermediate files 
 #
 clean:	
-	find . \( -name '*~' -o -name '#*#' -o -name '\.#.*' \) -print | xargs rm -f
 	(cd doc; $(MAKE) clean)
 	(cd images; $(MAKE) clean)
 	rm -f doc/ProofGeneralPortrait.eps.gz
@@ -222,9 +221,11 @@ clean:
 
 ############################################################
 #
-# Clean up all generated files.
+# Clean up intermediate files, all generated files 
+#  and Emacs backups, CVS temps
 #
 distclean:	clean
+	find . \( -name '*~' -o -name '#*#' -o -name '\.\#*' \) -print | xargs rm -f
 	(cd doc; $(MAKE) distclean)
 	(cd images; $(MAKE) distclean)
 
