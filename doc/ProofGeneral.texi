@@ -65,9 +65,9 @@
 @c
 
 @set version 3.3pre
-@set xemacsversion 21.1
+@set xemacsversion 21.4
 @set fsfversion 20.7
-@set last-update October 2000
+@set last-update May 2001
 @set rcsid $Id$
 
 @ifinfo
@@ -121,7 +121,7 @@ END-INFO-DIR-ENTRY
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998-2000 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998-2001 Proof General team, LFCS Edinburgh.
 
 @c
 @c COPYING NOTICE
@@ -207,20 +207,65 @@ other documentation, system downloads, etc.
 
 
 @menu
-* Latest news for 3.2::                     
+* Latest news for 3.3::
 * Future::
-* Old News for 3.1::                     
-* Old News for 3.0::                     
+* Old News for 3.2::
+* Old News for 3.1::
+* Old News for 3.0::
 * History before 3.0::                     
 * Credits::                     
 @end menu
 
-@node Latest news for 3.2
-@unnumberedsec Latest news for 3.2
+@node Latest news for 3.3
+@unnumberedsec Latest news for 3.3
 @cindex news
 
-Proof General 3.2 has several new features and some bug fixes.
+[ in progress ]
 
+Proof General 3.3 is a minor release.  It includes a few small features
+additions, but mainly the focus has been on compatibility improvements
+for new versions of provers (in particular, Coq 7), and new versions of
+emacs (in particular, XEmacs 21.4).
+
+See the @file{CHANGES} file in the distribution for more complete
+details of changes since 3.2.
+
+
+@node Future
+@unnumberedsec Future
+@cindex Proof General Kit
+@cindex Future
+
+The aim of the Proof General project is to provide a powerful and
+configurable interfaces which help user-interaction with interactive
+proof assistants.  
+
+The strategy Proof General uses is to targets power users rather than
+novices; other interfaces have often neglected this class of users.  But
+we do include general user interface niceties, such as toolbar and
+menus, which make use easier for all.
+
+Proof General has been Emacs based so far, but plans are afoot to
+liberate it from the points and parentheses of Emacs Lisp.  The
+successor project Proof General Kit proposes that proof assistants use a
+@i{standard} XML-based protocol for interactive proof, dubbed @b{PGIP}.
+
+PGIP will enable middleware for interactive proof tools and interface
+components.  Rather than configuring Proof General for your proof
+assistant, you will need to configure your proof assistant to understand
+PGIP.  There is a similarity however; the design of PGIP was based
+heavily on the Emacs Proof General framework.
+
+For more details, see 
+@uref{http://www.proofgeneral.org/kit.html, the Proof General Kit webpage}.
+
+
+
+@node Old news for 3.2
+@unnumberedsec Old news for 3.2
+@cindex news
+
+Proof General 3.2 introduced several new features and some bug fixes.
 One noticeable new feature is the addition of a prover-specific menu for
 each of the supported provers.  This menu has a ``favourites'' feature
 that you can use to easily define new functions.  Please contribute
@@ -274,35 +319,6 @@ Work on this release was undertaken by David Aspinall between
 May-September 2000, and includes contributions from Markus Wenzel,
 Pierre Courtieu, and Christophe Raffalli.  Markus added some Isar
 documentation to this manual.
-
-
-@node Future
-@unnumberedsec Future
-@cindex Proof General Kit
-@cindex Future
-
-The aim of the Proof General project is to provide a powerful and
-configurable interfaces which help user-interaction with interactive
-proof assistants.  
-
-The strategy Proof General uses is to targets power users rather than
-novices; other interfaces have often neglected this class of users.  But
-we do include general user interface niceties, such as toolbar and
-menus, which make use easier for all.
-
-Proof General has been Emacs based so far, but plans are afoot to
-liberate it from the points and parentheses of Emacs Lisp.  The
-successor project Proof General Kit proposes that proof assistants use a
-@i{standard} XML-based protocol for interactive proof, dubbed @b{PGIP}.
-
-PGIP will enable middleware for interactive proof tools and interface
-components.  Rather than configuring Proof General for your proof
-assistant, you will need to configure your proof assistant to understand
-PGIP.  There is a similarity however; the design of PGIP was based
-heavily on the Emacs Proof General framework.
-
-For more details, see 
-@uref{http://www.proofgeneral.org/kit.html, the Proof General Kit webpage}.
 
 
 @node Old News for 3.1
