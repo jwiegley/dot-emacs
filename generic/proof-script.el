@@ -1088,7 +1088,7 @@ Optionally delete the region corresponding to the proof sequence."
 
 ;; FIXME da: Maybe retraction to the start of
 ;; a file should remove it from the list of included files?
-(defun proof-retract-until-point-interactive (delete-region)
+(defun proof-retract-until-point-interactive (&optional delete-region)
   "Tell the proof process to retract until point.
 If invoked outside a locked region, undo the last successfully processed
 command.  If called with a prefix argument (DELETE-REGION non-nil), also
