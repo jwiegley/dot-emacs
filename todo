@@ -5,8 +5,8 @@ $Id$
 * Priorities
 ============
 
-A (URGENT) to be fixed immediately for next pre-release 
-B (High)   to be fixed before next release (Version 2.1)
+A  (URGENT) to be fixed immediately for next pre-release 
+B           to be fixed before next release (Version 2.1)
 C          would be nice to fix before release of 2.1; but not crucial
 D (Medium) desirable to fix at some point
 X (Low)    probably not worth wasting time on
@@ -15,39 +15,32 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-===========
-
-RELEASE 2.0 remaining problems:
-
-A***  Documentation polishing.
-
-         -  New line after first sentence of docstrings.
-         -  Several env variables / LEGO name stuff.
-             Idea: make `STUFF' be literal.
-
-A***  outline mode when proof-strict-read-only is nil, does it really
-work?
-
-A*** QUESTION: why do we have proof-shell-proof-completed-regexp's
-perhaps objectionable behaviour of forcing the response buffer?
-Would it be safe just to set the proof-shell-proof-completed flag
-and output as usual?   (The effect would be to allow Isabelle's
-completed proof message to appear in the goals buffer since it's
-marked up as a proof state output)
-
-A*** catch bug on Solaris when process shell killed?
-
-
-=============
-
-
-A Polish ProofGeneral.texi and publish LaTeX version as an LFCS
+B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
-  Small things: 
 
+   * Fix page rearrangement to insert a blank page
+   * Fix typos/other stuff found by Dave
    * Improve trivial and uniformative docstrings.
    * Fixup markup mistakes by editing docstrings.
    * Fix docstring magic so PROOFGENERAL_HOME is not var'd.
+   * New line after first sentence of docstrings.
+   * Several env variables / LEGO name stuff:: make `STUFF' be literal.
+
+B outline mode when proof-strict-read-only is nil ought to
+  work, but there may be problems.
+
+B QUESTION: why do we have proof-shell-proof-completed-regexp's
+  perhaps objectionable behaviour of forcing the response buffer?
+  Would it be safe just to set the proof-shell-proof-completed flag
+  and output as usual?   (The effect would be to allow Isabelle's
+  completed proof message to appear in the goals buffer since it's
+  marked up as a proof state output)
+
+B Is there a catch bug on Solaris when a process shell killed?
+
+B There is a bizarre process bug with "\"'s on 254th character.
+  This seems to be the root cause of the Solaris bug mentioned
+  later, and might be XEmacs rather than Solaris.
 
 B proof-shell-exit has a time delay of 10 secs built-in, 
   before which the process is killed off.  
@@ -83,6 +76,7 @@ B Improve behaviour when switching active scripting buffer.
   and removes them from proof-included-files-list, we could
   allow switching between scripting buffers automatically,
   (perhaps with an option akin to the old "steal scripting?" idea). 
+  Also we 
 
 C Improve handling of process exiting early (see note at
   end of proof-shell-mode).  (30mins)
