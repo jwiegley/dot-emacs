@@ -44,18 +44,37 @@ Detailed installation Notes for Proof General
 =============================================
 
 
-RPM package.
+RPM packages.
 ------------
 
-If you have the RPM file, this is the line you should add to your
-.emacs file:
+The RPMs are intended to be compatible with the RPMs distributed with
+Red Hat/Fedora.  Three packages are provided: ProofGeneral,
+ProofGeneral-emacs-elc and ProofGeneral-xemacs-elc.  The two elc RPMs
+contain compiled elisp for GNU Emacs and XEmacs respectively.
+
+You should have a fully working ProofGeneral if you just install the
+main package.  The byte compiled files will provide extra
+performance on the respective Emacs versions.
+
+The command "proofgeneral" will launch Emacs with Proof General
+loaded.  If you install the byte compiled files, Proof General should
+be automatically added to your Emacs startup configuration: you can
+just launch an Emacs and edit a proof script file to get going.
+
+If you want to add the uncompiled Proof General version to your
+personal Emacs configuration, add this line:
 
   (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
+
+to your .emacs file.
 
 
 
 Running on Windows
 ------------------
+
+Note that Windows compatibility isn't tested by the maintainers.  If
+you discover problems, please send a fix to the address above.
 
 We recommend XEmacs compiled for Windows, see http://www.xemacs.org.
 Some Isabelle users have reported better operation with cygwin XEmacs.
@@ -120,8 +139,19 @@ files are kept in subdirectories of `proof-home-directory' so that the
 autoload directory calculations are correct.
 
 To save every user needing the line in their .emacs file, you can put
-that into a site-wide file like default.el.  Read the Emacs manual for
-details.
+that into a site-wide file like default.el, or using an automatically
+loaded file stored under site-start.d, if your distribution provides
+that.  
+
+The provided Makefile will install everything in default locations:
+
+	make install
+
+Will copy elisp, compiled elisp, documentation, and the "proofgeneral"
+shell script into perhaps sensible places.  Try with "-n" or examine
+the Makefile carefully before use.
+
+  
 
 
 Removing support for unwanted provers
@@ -154,5 +184,5 @@ example, the name of the proof assistant binary).  See the menu
 and the manual for more details.
 
 
-
+--------------------------------------------------------------------------
 $Id$
