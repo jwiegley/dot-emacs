@@ -41,6 +41,9 @@ X (Low)		probably not worth spending time on
 
 A Final stuff for 3.0 release [da]:
 
+  - proof-shell-done-invisible -> proof-done-invisible again
+  - name change for "automatic multiple files" stuff
+  - proof-auto-delete-windows -> proof-delete-empty-windows
   - See if better fix for FSF overlay mess
   - document mouse functions, proof-cd, process quit timeout, 
     X-Symbol, new menu functions for display.
