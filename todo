@@ -556,16 +556,10 @@ C proof-shell-dont-show-annotations doesn't seem to work.
 contain lines with stuff that looks lisp-ish.  e.g. "(asd . ads)"
 
 
-* Release 
-=========
-
-A add links *from* Isabelle Web pages (da 10 min)
-
-
 * Stable version release checklist
 ==================================
 
-1. Multiple file test suite for LEGO, Isabelle.  Coq example.
+1. Test multiple file test suite for LEGO, Isabelle.  Coq example.
 2. Check case with FSF Emacs
 3. Check case with compiled code, for XEmacs only.
    (Wait for error reports for FSF Emacs)
@@ -574,6 +568,8 @@ A add links *from* Isabelle Web pages (da 10 min)
 5. ProofGeneral.texi docstring magic is up-to-date:
      cd doc; make magic
 6. Update Emacs versions in texi, html/ 
+7. Check web page references from other places.
+
    
 
 
