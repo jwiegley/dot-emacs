@@ -6,6 +6,7 @@
 ;; $Id$ 
 
 (require 'proof)
+(require 'holes) ; in generic directory
 ;; coq-syntaxe is required below
 ;; ----- coq-shell configuration options
 
@@ -81,19 +82,21 @@
   :type 'string
   :group 'coq)
 
+
 ;; ----- coq specific menu
 
 (defpgdefault menu-entries
-  '(["expand abbrev at point" expand-abbrev t]
-    ["list abbrevs" list-abbrevs t]
-    ["3 buffers view" coq-three-b t]
-    ["Print..." coq-Print t]
+  '(["Print..." coq-Print t]
     ["Check..." coq-Check t]
     ["Hints" coq-PrintHint t]
     ["Intros..." coq-Intros t]
     ["Show ith goal..." coq-Show t]
     ["Apply"  coq-Apply t]
     ["Search isos/pattern..." coq-SearchIsos t]
+    ["expand abbrev at point" expand-abbrev t]
+    ["list abbrevs" list-abbrevs t]
+    ["What are those #??" (holes-short-doc)]
+    ["3 buffers view" coq-three-b t]
     ["Begin Section..." coq-begin-Section t]
     ["End Section" coq-end-Section t]
     ["Compile" coq-Compile t]))
