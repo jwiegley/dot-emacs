@@ -1,0 +1,31 @@
+
+Making a branch to patch a previous release:
+
+ cvs checkout -r Release-3-1-3 ProofGeneral
+ cd ProofGeneral
+ cvs tag -b Release-3-1-branch 
+ # Drop this repo, has sticky tag for 3-1-3.
+ cd .. ; cvs release -d ProofGeneral
+ # Get new one
+ cvs checkout -r Release-3-1-branch ProofGeneral
+ cd ProofGeneral
+ patch  ... blah ...
+ cvs commit  ... blah ..
+
+Then make release as ~proofgen:
+
+ mkdir oldbranch
+ cd oldbranch
+ cvs checkout -r Release-3-1-branch ProofGeneral
+ make devel.releaseall VERSION=0.1 FULLVERSION=0.1.99
+
+NB: See warning in Makefile.devel about this (it will
+downgrade web pages).
+ 
+Then perhaps merge in branch changes into main stream:
+
+ cd projects/proofgen/ProofGeneral
+ cvs update -jRelease-3-1-branch
+
+  
+  
