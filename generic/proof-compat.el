@@ -79,6 +79,10 @@ that use a window system such as X, and false for text-only terminals."
 (unless (fboundp 'int-to-char) (defalias 'int-to-char 'identity))
 (unless (fboundp 'char-to-int) (defalias 'char-to-int 'identity))
 
+;;; Missing function, but anyway Emacs has no datatype for events...
+
+(unless (fboundp 'events-to-keys)
+  (defalias 'events-to-keys 'identity))
 
 ;; completion not autoloaded in GNU 20.6.1; we must call 
 ;; dynamic-completion-mode after loading it.
