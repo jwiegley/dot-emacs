@@ -39,12 +39,19 @@ coq by doing 'coqtop -v'.")
 
 (defvar coq-version-is-V74 nil
   "This variable can be set to t to force ProofGeneral to coq version
-above coq-7.4. To do that, put (setq coq-version-is-V74 t) in your
+coq-7.4. To do that, put (setq coq-version-is-V74 t) in your
 .emacs and restart emacs. This variable is overrriden by
 coq-version-is-V6 and coq-version-is-V7. If none of these 3 variables
 is set to t, then ProofGeneral guesses the version of coq by doing
 'coqtop -v'."  )
 
+(defvar coq-version-is-V8 nil
+  "This variable can be set to t to force ProofGeneral to coq version
+above coq-8.0beta. To do that, put (setq coq-version-is-V8 t) in your
+.emacs and restart emacs. This variable is overrriden by
+coq-version-is-V6, coq-version-is-V7 and coq-version-is-V74. If none
+of these 4 variables is set to t, then ProofGeneral guesses the
+version of coq by doing 'coqtop -v'."  )
 
 
 
@@ -53,39 +60,47 @@ is set to t, then ProofGeneral guesses the version of coq by doing
 
 (unless (noninteractive) ;; DA: evaluating here gives error during compile
 (let* ((seedoc " (to force another version, do for example C-h v coq-version-is-V7)")
-		(v74 (concat "proofgeneral is in coq >= 7.4 mode" seedoc))
-		(v7 (concat "proofgeneral is in coq =< 7.3 mode" seedoc))
+		(v8 (concat "proofgeneral is in coq 8 mode" seedoc))
+		(v74 (concat "proofgeneral is in coq 7.4 mode" seedoc))
+		(v7 (concat "proofgeneral is in coq > 6 and =< 7.3 mode" seedoc))
 		(v6 (concat "proofgeneral is in coq V6 mode" seedoc)))
   (cond
-   (coq-version-is-V74 
+	(coq-version-is-V8 
+    (message v8) 
+    (setq coq-version-is-V7.4 t))
+	(coq-version-is-V74 
     (message v74) 
+    (setq coq-version-is-V8 nil)
     (setq coq-version-is-V7 t))
    (coq-version-is-V7  
     (message v7)  
-    (setq coq-version-is-V74 nil))
+    (setq coq-version-is-V74 nil)
+    (setq coq-version-is-V8 nil))
    (coq-version-is-V6  
     (message v6)  
+    (setq coq-version-is-V8 nil) 
     (setq coq-version-is-V74 nil) 
     (setq coq-version-is-V7 nil))
    (t 
     (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
-	   (x (string-match "version \\([.0-9]*\\)" str))
-	   (num (match-string 1 str)))
+			  (x (string-match "version \\([.0-9]*\\)" str))
+			  (num (match-string 1 str)))
       (cond
        ((string-match num "\\<6.") 
-	(message v6)
-	(setq coq-version-is-V7 nil) 
-	(setq coq-version-is-V74 nil))
+		  (message v6)
+		  (setq coq-version-is-V7 nil) 
+		  (setq coq-version-is-V74 nil))
        ((or (string-match num "\\<7.0") (string-match num "\\<7.1") 
-	    (string-match num "\\<7.2") (string-match num "\\<7.3")) 
-	(message v7) 
-	(setq coq-version-is-V7 t) 
-	(setq coq-version-is-V74 nil))
-       ;;default: 7.3.1 and above ---> 7.4 
+				(string-match num "\\<7.2") (string-match num "\\<7.3")) 
+		  (message v7) 
+		  (setq coq-version-is-V7 t)
+		  (setq coq-version-is-V74 nil))
+		 ((string-match num "\\<8"))
        (t 
-	(message v74) 
-	(setq coq-version-is-V7 t) 
-	(setq coq-version-is-V74 t))))))))
+		  (message v8) 
+		  (setq coq-version-is-V8 t)
+		  (setq coq-version-is-V7 t) 
+		  (setq coq-version-is-V74 t))))))))
 
 ;; ----- keywords for font-lock.
 
@@ -116,8 +131,9 @@ is set to t, then ProofGeneral guesses the version of coq by doing
     "Inductive\\s-+Type"
     "Mutual\\s-+Inductive"
     "Record"
+    "Functional\\s-+Scheme"
     "Scheme"
-    "Syntactic\\-+Definition"
+    "Syntactic\\s-+Definition"
     "Structure"))
 
 ;; Modules are like section in v74.
@@ -196,9 +212,10 @@ Print and Check commands, put the following line in your .emacs:
 	    "DelPath"
 	    "Eval"
 	    "Extraction"
+	    "Extraction Library"
 	    "Extraction Module"
 	    "Focus" ;; ???
-	    "Hint\\-+Rewrite"
+	    "Hint\\s-+Rewrite"
 	    "Inspect"
 	    "Locate"
 	    "Locate\\s-+File"
@@ -206,9 +223,9 @@ Print and Check commands, put the following line in your .emacs:
 	    "Opaque"
 	    "Print"
 	    "Proof"
-	    "Recursive\\-+Extraction"
-	    "Recursive\\-+Extraction\\-+Module"
-	    "Remove\\-+LoadPath"
+	    "Recursive\\s-+Extraction"
+	    "Recursive\\s-+Extraction\\s-+Module"
+	    "Remove\\s-+LoadPath"
 	    "Pwd"
 	    "Qed"
 	    "Reset"
@@ -217,9 +234,9 @@ Print and Check commands, put the following line in your .emacs:
 	    "SearchIsos"
 	    "SearchPattern"
 	    "SearchRewrite"
-	    "Set\\-+Hyps_limit"
-	    "Set\\-+Undo"
-	    "Set\\-+Set\\-+Printing\\-+Coercion[^s]"
+	    "Set\\s-+Hyps_limit"
+	    "Set\\s-+Undo"
+	    "Set\\s-+Set\\s-+Printing\\s-+Coercion[^s]"
 	    "Show"
 	    "Test\\s-+Printing\\s-+If"
 	    "Test\\s-+Printing\\s-+Let"
@@ -268,6 +285,7 @@ Print and Check commands, put the following line in your .emacs:
     "Import"
     "Infix"
     "Load"
+	 "Notation"
     "Read\\s-+Module"
     "Remove\\s-+LoadPath"
     "Remove\\s-+Printing\\s-+If\\s-+ident"
@@ -294,6 +312,7 @@ Print and Check commands, put the following line in your .emacs:
     "Unset\\s-+Printing\\s-+Synth"
     "Unset\\s-+Printing\\s-+Wildcard"
     "Syntax"
+	 "Tactic Notation"
     "Transparent"))
 
 
@@ -327,7 +346,114 @@ Intro and Elim tactics, put the following line in your .emacs:
   :group 'coq)
 
 (defvar coq-state-changing-tactics
- (append  '("Absurd"
+ 
+ (cond
+  (coq-version-is-V8 
+	(append  '("absurd"
+	    "apply"
+	    "assert"
+	    "assumption"
+	    "auto"
+	    "autorewrite"
+	    "case"
+	    "cbv"
+	    "change"
+	    "clear"
+	    "clearbody"
+	    "cofix"
+	    "compare"
+	    "compute"
+		 "congruence"
+	    "constructor"
+	    "contradiction"
+	    "cut"
+	    "cutrewrite"
+	    ;;"dhyp"
+	    ;;"dind"
+	    "decide equality"
+	    "decompose"
+	    "dependent inversion"
+	    "dependent inversion_clear"
+	    "dependent rewrite ->"
+	    "dependent rewrite <-"
+	    "dependent\\s-+inversion"
+	    "dependent\\s-+inversion_clear"
+	    "destruct"
+	    "discrr"
+	    "discriminate"
+	    "double\\s-+induction"
+	    "eapply"
+	    "eauto"
+		 "econstructor"
+		 "eleft"
+		 "eright"
+		 "esplit"
+		 "eexists"
+	    "elim"
+	    "elimtype"
+	    "exact"
+	    "exists"
+	    "field"
+		 "firstorder"
+	    "fix"
+	    "fold"
+	    "fourier"
+	    "generalize"
+	    "hnf"
+	    "induction"
+	    "injection"
+		 "instantiate"
+	    "intro[s]?"
+	    "intuition"
+	    "inversion"
+	    "inversion_clear"
+		 "jp"
+	    "lapply"
+	    "lazy"
+	    "left"
+	    "lettac"
+	    "linear"
+	    "load"
+	    "move"
+	    "newdestruct"
+	    "newinduction"
+	    "omega "
+	    "pattern"
+	    "pose"
+	    "program"
+	    "program_all"
+	    "prolog"
+	    "quote"
+	    "realizer"
+	    "red"
+	    "refine"
+	    "reflexivity"
+	    "rename"
+	    "replace"
+	    "resume"
+	    "rewrite"
+	    "right"
+	    "ring"
+		 "set"
+	    "setoid_replace"
+	    "simpl"
+	    "simple\\s-+inversion"
+	    "simplify_eq"
+	    "specialize"
+	    "split"
+	    "splitabsolu"
+	    "splitrmult"
+	    "suspend"
+		 "subst"
+	    "symmetry"
+	    "tauto"
+	    "transitivity"
+	    "trivial"
+	    "unfold"
+		 "functional\\s-+induction")
+	  coq-user-state-changing-tactics))
+  (t 
+	(append  '("Absurd"
 	    "Apply"
 	    "Assert"
 	    "Assumption"
@@ -358,7 +484,7 @@ Intro and Elim tactics, put the following line in your .emacs:
 	    "Destruct"
 	    "DiscrR"
 	    "Discriminate"
-	    "Double\\-+Induction"
+	    "Double\\s-+Induction"
 	    "EApply"
 	    "EAuto"
 	    "Elim"
@@ -417,7 +543,7 @@ Intro and Elim tactics, put the following line in your .emacs:
 	    "Transitivity"
 	    "Trivial"
 	    "Unfold")
-	  coq-user-state-changing-tactics))
+	  coq-user-state-changing-tactics))))
 
 (defcustom coq-user-state-preserving-tactics nil
   "List of user defined Coq tactics that do not need to be backtracked;
@@ -473,8 +599,9 @@ Idtac (Nop) tactic, put the following line in your .emacs:
     "of"
     "then"
     "using"
-    "with")
-  "Reserved keyworkds of Coq.")
+    "with"
+	 "after")
+  "Reserved keywords of Coq.")
 
 (defvar coq-symbols
   '("|"
@@ -494,7 +621,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   "Punctuation Symbols used by Coq.")
 
 ;; ----- regular expressions
-(defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\|Anomaly\\|Uncaught exception\\|Toplevel input\\)"
+(defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\|User Error\\|Anomaly\\|Uncaught exception\\|Toplevel input\\)"
   "A regexp indicating that the Coq process has identified an error.")
 
 (defvar coq-id proof-id)
