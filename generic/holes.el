@@ -63,12 +63,6 @@ TO ACTIVATE A HOLE, click on it with the button 1 of your mouse. You
 can also hit meta-space, it will activate the first hole following the
 point. The previous active hole will be deactivated.
 
-TO JUMP TO THE ACTIVE HOLE, just hit meta-return. You must be in the
-buffer containing the active hole. the point will move to the active
-hole, and the active hole will be destroyed so you can type something
-to put at its place. The following hole is automatically made active,
-so you can hit meta-return again.
-
 TO FORGET A HOLE without deleting its text, click on it with the
 button 2 (middle) of your mouse.
 
@@ -89,10 +83,11 @@ After replacement the next hole is automatically made active so you
 can fill it immediately by hitting again ctrl-meta-y or ctrl + meta +
 shift + mouse select.
 
-TO MOVE TO THE ACTIVE HOLE, hit meta-return, it will move to the
-active hole, destroy it (allowing you to type its replacement) and
-make the next hole active so you can hit meta-return again once you
-have filled the current one.
+TO JUMP TO THE ACTIVE HOLE, just hit meta-return. You must be in the
+buffer containing the active hole. the point will move to the active
+hole, and the active hole will be destroyed so you can type something
+to put at its place. The following hole is automatically made active,
+so you can hit meta-return again.
 
 It is useful in combination with abbreviations. For example in
 coq-mode \"f\" is an abbreviation for Fixpoint # (# : #) {struct #} :
