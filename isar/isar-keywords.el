@@ -195,9 +195,9 @@
 
 (defconst isar-keywords-proof-script
   '("apply"
+    "apply_end"
     "back"
     "defer"
-    "prefer"
-    "then_apply"))
+    "prefer"))
 
 (provide 'isar-keywords)
