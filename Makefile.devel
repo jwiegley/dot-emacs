@@ -123,18 +123,22 @@ RELEASENAME = $(NAME)-$(VERSION)
 DEVELRELEASENAME = $(NAME)-$(VERSION)-devel
 CVS_RELEASENAME = Release-$(CVS_VERSION)
 
-# Where to release (i.e. copy) a new distribution to
-RELEASEDIR = /home/proofgen/www/
+# Where to release (i.e. copy) a new distribution to.
+# This may be the final directory (local) or temporary directory.
+# was: RELEASEDIR = /home/proofgen/www
+RELEASEDIR = /tmp/proofgeneral-www/
 
 # How to make the release "live".  (Could be "true" to do nothing).
-# GOLIVE="scp -r $RELEASEDIR tweed:/home/proofgen/www"
-GOLIVE=true
+# was: GOLIVE=true
+GOLIVE="scp -pr $RELEASEDIR ssh.inf.ed.ac.uk:/group/project/proofgen/web/"
+
 
 CVSNAME = ProofGeneral
 
 # Remote commands to use CVS in server mode and install files.
 # With these settings the build can be done remotely.
 # CVSROOT = :pserver:da@cvs.inf.ed.ac.uk:/disk/cvs/proofgen
+CVSROOT=$(shell cat CVS/Root)
 
 # Emacs for batch compiling
 BATCHEMACS=xemacs -batch -q -no-site-file
@@ -376,7 +380,7 @@ dist:
 	@echo "*************************************************"
 	if [ -z "$(NOCVS)" ]; then \
            (cd $(DISTBUILDIR); \
-	    cvs export -kv -r "${CVS_RELEASENAME}" -d ${RELEASENAME} ${CVSNAME}) \
+	    cvs -d $(CVSROOT) export -kv -r "${CVS_RELEASENAME}" -d ${RELEASENAME} ${CVSNAME}) \
 	else \
 	   mkdir -p $(DISTBUILDIR)/$(RELEASENAME); \
 	   cp -pr . $(DISTBUILDIR)/$(RELEASENAME); \
