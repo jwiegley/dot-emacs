@@ -77,19 +77,23 @@
 *** Minor bug fixes
 
 **** Fix for using electric terminator inside locked region.
-
   With strict read only turned off, would get Emacs error.  
   Now simply inserts terminator char anywhere in locked region.
+  [Reported by David von Oheimb]
+
+**** Fix for turning on multiple frame mode
+  Would trigger error if there was no active scripting buffer.
+  [Reported by David von Oheimb]
 
 **** Fix for duplicated short output.
-  
   Only seen with "val x=1" or similar very short messages.
   We now set proof-shell-eager-annotation-start-length appropriately.
+  [Reported by John Longley]
 
 **** Fixes for filenames with odd characters in them (mainly for Windows)
-
   Fixes to allow filenames with \ and " in them.
   Added for Coq, Isabelle, and HOL.  
+  [Reported by Kim Hyung Ho]
 
 
 
