@@ -482,7 +482,11 @@ Set to nil if proof assistant does not support annotated prompts."
 
 (defcustom proof-shell-annotated-prompt-regexp ""
   "Regexp matching a (possibly annotated) prompt pattern.
-Used to "
+Output is grabbed between pairs of lines matching this regexp.
+To help matching you may be able to annotate the proof assistant
+prompt with a special character not appearing in ordinary output.
+The special character should appear in this regexp, should
+be the value of proof-shell-wakeup-char."
   :type 'regexp
   :group 'proof-shell)
 
@@ -1052,8 +1056,10 @@ The default value is \"$\" to match up to the end of the line.")
 
 ;; FIXME da: where is this variable used?  
 ;;	      dropped in favour of goal-char?
+;; Answer: this is used in *specific* modes, see e.g.
+;; lego-goal-hyp.  This stuff needs making more generic.
 (defvar proof-shell-goal-regexp nil
-  "A regular expressin matching the identifier of a goal.")
+  "A regular expression matching the identifier of a goal.")
 
 (defvar proof-shell-noise-regexp nil
   "Unwanted information output from the proof process within
@@ -1442,41 +1448,47 @@ queue is running."
 ; command's not successful, we bounce the rest of the queue and do
 ; some error processing.
 
-(defun proof-shell-exec-loop ()
-  "Process the proof-action-list.
+(defun proof-shell-exec-loop () 
+"Process the proof-action-list.
 proof-action-list contains a list of (span,command,action) triples.
-This function is called with a non-empty proof-action-list.
-It processes the list by executing (action span) on the first item,
-and then (action span) on following items which have proof-no-command
-as their cmd components.  
-Return non-nil if the action list becomes empty, unlocks the process
+This function is called with a non-empty proof-action-list, where the
+head of the list is the previously executed command which succeeded.
+We execute (action span) on the first item, then (action span) on
+following items which have proof-no-command as their cmd components.
+Return non-nil if the action list becomes empty; unlock the process
 and removes the queue region.  Otherwise send the next command to the
 proof process."
   (save-excursion
     (set-buffer proof-script-buffer)
-    (if (null proof-action-list) 
-	(error "proof-shell-exec-loop: called with empty proof-action-list."))
-    (let ((item (car proof-action-list)))
-      ;; Do (action span) on first item in list
-      (funcall (nth 2 item) (car item))
-      (setq proof-action-list (cdr proof-action-list))
-      ;; Process following items in list with the form
-      ;; ("COMMENT" cmd) by calling (cmd "COMMENT")
-      (while (and proof-action-list
-		(string= 
-		 (nth 1 (setq item (car proof-action-list))) 
-		 proof-no-command))
-	;; Do (action span) on comments
-	(funcall (nth 2 item) (car item))
-	(setq proof-action-list (cdr proof-action-list)))
-      ;; If action list is empty now, release the process lock
-
-      (if (null proof-action-list)
-	  (progn (proof-release-lock)
-		 (proof-detach-queue)
-		 t)
-	(proof-send (nth 1 item))
-	nil))))
+    ;; (if (null proof-action-list) 
+    ;;	(error "proof-shell-exec-loop: called with empty proof-action-list."))
+    ;; Be more relaxed about calls with empty action list
+    (if proof-action-list
+	(let ((item (car proof-action-list)))
+	  ;; Do (action span) on first item in list
+	  (funcall (nth 2 item) (car item))
+	  (setq proof-action-list (cdr proof-action-list))
+	  ;; Process following items in list with the form
+	  ;; ("COMMENT" cmd) by calling (cmd "COMMENT")
+	  (while (and proof-action-list
+		      (string= 
+		       (nth 1 (setq item (car proof-action-list))) 
+		       proof-no-command))
+	    ;; Do (action span) on comments
+	    (funcall (nth 2 item) (car item))
+	    (setq proof-action-list (cdr proof-action-list)))
+	  ;; If action list is empty now, release the process lock
+	  (if (null proof-action-list)
+	      (progn (proof-release-lock)
+		     (proof-detach-queue)
+		     ;; indicate finished
+		     t)
+	    ;; Send the next command to the process
+	    (proof-send (nth 1 item))
+	    ;; indicate not finished
+	    nil))
+      ;; Just indicate finished if called with empty proof-action-list.
+      t)))
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
   "Insert command sequence triggered by the proof process
@@ -2145,7 +2157,7 @@ deletes the region corresponding to the proof sequence."
 
 
 (defun proof-undo-last-successful-command (&optional no-delete)
-  "Undo last successful command at end of locked region.a
+  "Undo last successful command at end of locked region.
 Unless optional NO-DELETE is set, the text is also deleted from
 the proof script."
   (interactive "p")
