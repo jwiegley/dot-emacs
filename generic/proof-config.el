@@ -670,6 +670,13 @@ mere warning messages with this regexp)."
   :type 'regexp
   :group 'proof-shell)
 
+(defcustom proof-shell-clear-response-regexp nil
+  "Regexp matching output telling Proof General to clear the response buffer.
+This feature is useful to give the prover more control over what output
+is shown to the user.  Set to nil to disable."
+  :type 'regexp
+  :group 'proof-shell)
+
 (defcustom pbp-goal-command nil
   "Command informing the prover that `pbp-button-action' has been
   requested on a goal."
@@ -901,10 +908,29 @@ assistant, for example, to switch to a new theory."
 ;; More shell junk to sort out [maybe for pbp]
 ;;
 
-(defvar proof-shell-first-special-char nil "where the specials start")
+(defcustom proof-shell-first-special-char nil
+  "First special character.
+Codes above this character can have special meaning to Proof General,
+and are stripped from the prover's output strings."
+  :type '(choice character (const nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-start-char nil
+  "Starting special for a subterm markup.
+Subsequent characters with values *below* proof-shell-first-special-char
+are assumed to be subterm position indicators.  Subterm markups should
+be finished with proof-shell-end-char."
+  :type '(choice character (const nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-end-char nil
+  "Finishing special for a subterm markup.
+See documentation of proof-shell-start-char."
+  :type '(choice character (const nil))
+  :group 'proof-shell)
+
 (defvar proof-shell-goal-char nil "goal mark")
-(defvar proof-shell-start-char nil "annotation start")
-(defvar proof-shell-end-char nil "annotation end")
+
 (defvar proof-shell-field-char nil "annotated field end")
 
 
