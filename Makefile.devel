@@ -263,7 +263,7 @@ tag:
 # Edit $(DOWNLOADHTML) only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
 	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
-	  (cd html; mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old) \
+	  (cd html; mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old); \
 	  (cd html; mv $(DOWNLOADINFOHTML) $(DOWNLOADINFOHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADINFOHTML).old > $(DOWNLOADINFOHTML); rm $(DOWNLOADINFOHTML).old) \
 	fi
 # This hack to SOURCE: name is only needed because we have an obsolete version
