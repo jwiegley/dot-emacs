@@ -67,8 +67,11 @@
   (format "Set Undo %s." coq-default-undo-limit))
 
 ;; Command to reset the Coq Proof Assistant
+;; Pierre: added Impl... because of a bug of Coq until V6.3
+;; (included). The bug is already fixed in the next version (V7). So
+;; we will backtrack this someday.
 (defconst coq-shell-restart-cmd 
-  "Reset Initial.")
+  "Reset Initial.\n Implicit Arguments Off.")
 
 (defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
