@@ -76,7 +76,7 @@ output format.")
   :group 'proof-general)
 
 (defcustom proof-one-command-per-line nil
-  "*If non-nil, expect newlines after each proof command in a script."
+  "*If non-nil, format for newlines after each proof command in a script."
   :type 'boolean
   :group 'proof-general)
  
@@ -111,10 +111,9 @@ The script buffer's comment-end is set to this string plus a space.")
 (defvar proof-count-undos-fn nil 
   "Compute number of undos in a target segment")
 
-;; FIXME da: "COMMENT" should be defconst'd somewhere.
 (defvar proof-find-and-forget-fn nil
-  "Function to return a command to forget back to before its argument span.
-The special string COMMENT means there is nothing to do.")
+  "Function returning a command string to forget back to before its argument span.
+The special string proof-no-command means there is nothing to do.")
 
 (defvar proof-goal-hyp-fn nil
   "A function which returns cons cell if point is at a goal/hypothesis.
@@ -207,6 +206,7 @@ when parsing the proofstate output")
   "A regular expression indicating that the PROOF process has
   identified an error.")
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Internal variables used by scripting and pbp                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -222,22 +222,24 @@ when parsing the proofstate output")
   "End-of-line string for proof process.")
 
 (defvar proof-re-end-of-cmd nil 
-  "You are not authorised for this information.")
+  "Regexp matching end of command.  Based on proof-terminal-string.
+Set in proof-config-done.")
 
 (defvar proof-re-term-or-comment nil 
-  "You are not authorised for this information.")
+  "Regexp matching terminator, comment start, or comment end.
+Set in proof-config-done.")
 
 (defvar proof-marker nil 
-  "You are not authorised for this information.")
+  "Marker in proof shell buffer pointing to previous command input.")
 
 (defvar proof-shell-buffer nil
-  "The process buffer which communicates with the prover.")
+  "Process buffer where the proof assistant is run.")
 
 (defvar proof-script-buffer nil
-  "The currently-active scripting buffer.")
+  "Currently-active scripting buffer.")
 
 (defvar proof-pbp-buffer nil
-  "You are not authorised for this information.")
+  "The response buffer (also known as the goals or pbp buffer).")
 
 (defvar proof-shell-busy nil 
   "A lock indicating that the proof shell is processing.
@@ -249,6 +251,9 @@ an error.")
 
 (defvar proof-action-list nil "action list")
 
+(defconst proof-no-command "COMMENT"
+  "String used as a nullary action (send no command to the proof assistant)")
+
 (defvar proof-included-files-list nil 
   "List of files currently included in proof process.
 Each element in the list is a tuple of the form (module . file) where
@@ -258,7 +263,7 @@ module is identifies the buffer and file is the file name of the module.")
   "An indication in the modeline that this is the *active* buffer")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; A couple of small utilities                                      ;;
+;; A few small utilities					    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun proof-message (str)
@@ -296,14 +301,6 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
              (substring s
                         (string-match (concat "[^" separator "]")
                                       s end-of-word-occurence)) separator)))))
-
-;; FIXME da: this doesn't belong here, it's only used by lego.
-;; (and it shouldn't be called w3-* !!)
-(defun w3-remove-file-name (address)
-  "Remove the file name in a World Wide Web address"
-  (string-match "://[^/]+/" address)
-  (concat (substring address 0 (match-end 0))
-          (file-name-directory (substring address (match-end 0)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Basic code for the locked region and the queue region            ;;
@@ -421,7 +418,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 
 ;;; in case Emacs is not aware of read-shell-command-map
 
-;; FIXME da: this might obliterate user's customizations
+;; FIXME da: nasty, this might obliterate user's customizations
 ;; to read-shell-command-map.
 (defvar read-shell-command-map
   (let ((map (make-sparse-keymap)))
@@ -462,6 +459,8 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
     (and (re-search-forward r nil t)
 	 (cons (buffer-substring (setq p (match-beginning p)) (point)) p)))))
 
+;; FIXME da: these next two functions slightly different, why?
+;; (unprocessed-begin vs proof-locked-end)
 (defun proof-goto-end-of-locked-interactive ()
   "Jump to the end of the locked region."
   (interactive)
@@ -471,6 +470,10 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 (defun proof-goto-end-of-locked ()
   "Jump to the end of the locked region."
   (goto-char (proof-unprocessed-begin)))
+
+(defun proof-in-locked-region-p ()
+  "Non-nil if point is in locked region.  Assumes proof script buffer current."
+  (< (point) (proof-locked-end)))
 
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of it."
@@ -640,6 +643,14 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 ;;          Turning annotated output into pbp goal set              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+
+
+
+
+
+
+
 (defvar proof-shell-first-special-char nil "where the specials start")
 (defvar proof-shell-goal-char nil "goal mark")
 (defvar proof-shell-start-char nil "annotation start")
@@ -697,11 +708,16 @@ The default value is \"$\" to match up to the end of the line.")
 
 ;;   Output from the proof process is handled lazily, so that only  
 ;;   the output from the last of multiple commands is actually      
-;;   processed (assuming they're all successful)                    
+;;   processed (assuming they're all successful)
+
+
 
 (defvar proof-shell-delayed-output nil
   "The last interesting output the proof process output, and what to do
    with it.")
+
+(defvar proof-shell-proof-completed nil
+  "Flag indicating that a completed proof has just been observed.")
 
 (defvar proof-analyse-using-stack nil
   "Are annotations sent by proof assistant local or global")
@@ -815,6 +831,27 @@ Returns the string (with faces) in the specified region."
   (run-hooks 'proof-shell-handle-delayed-output-hook)
   (setq proof-shell-delayed-output (cons 'insert "done")))
 
+;; Notes on markup in the scripting buffer. (da)
+;;
+;; The locked region is covered by a collection of non-overlaping
+;; spans (our abstraction of extents/overlays).
+;;
+;; For an unfinished proof, there is one extent for each command 
+;; or comment outside a command.   For a finished proof, there
+;; is one extent for the whole proof.
+;;
+;; Each command span has a 'type property, one of:
+;;
+;;     'vanilla      Initialised in proof-semis-to-vanillas, for
+;;     'goalsave 
+;;     'comment      A comment outside a command.
+;;
+;;  All spans except those of type 'comment have a 'cmd property,
+;;  which is set to a string of its command.  This is the
+;;  text in the buffer stripped of leading whitespace and any comments.
+;;
+;; 
+
 (defun proof-shell-handle-error (cmd string)
   "React on an error message triggered by the prover.
 We display the process buffer, scroll to the end, beep and fontify the
@@ -897,10 +934,12 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
     ())
 	 
    ((string-match proof-shell-proof-completed-regexp string)
+    (setq proof-shell-proof-completed t)
     (setq proof-shell-delayed-output
 	  (cons 'insert (concat "\n" (match-string 0 string)))))
 
    ((string-match proof-shell-start-goals-regexp string)
+    (setq proof-shell-proof-completed nil)
     (let (start end)
       (while (progn (setq start (match-end 0))
 		    (string-match proof-shell-start-goals-regexp 
@@ -910,6 +949,7 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
 	    (cons 'analyse (substring string start end)))))
        
    ((string-match proof-shell-result-start string)
+    (setq proof-shell-proof-completed nil)
     (let (start end)
       (setq start (+ 1 (match-end 0)))
       (string-match proof-shell-result-end string)
@@ -1004,7 +1044,7 @@ queue is running."
   (let (item)
     (while (and alist (string= 
 		       (nth 1 (setq item (car alist))) 
-		       "COMMENT"))
+		       proof-no-command))
     (funcall (nth 2 item) (car item))
     (setq alist (cdr alist)))
   (if alist
@@ -1026,7 +1066,7 @@ queue is running."
       (while (and proof-action-list
 		(string= 
 		 (nth 1 (setq item (car proof-action-list))) 
-		 "COMMENT"))
+		 proof-no-command))
 	(funcall (nth 2 item) (car item))
 	(setq proof-action-list (cdr proof-action-list)))
       (if (null proof-action-list)
@@ -1100,7 +1140,7 @@ how far we've got."
        (and proof-shell-wakeup-char
 	   (string-match (char-to-string proof-shell-wakeup-char) str))
        ;; Others rely on a standard top-level (e.g. SML) whose prompt can't
-       ;; be hacked.  For those we use the prompt regexp.
+       ;; be hacked.  For those we use the annotated prompt regexp.
        (string-match proof-shell-annotated-prompt-regexp str))
       (if (null (marker-position proof-marker))
 	  ;; Set marker to first prompt in output buffer, and sleep again.
@@ -1121,6 +1161,11 @@ how far we've got."
 	  (setq cmd (nth 1 (car proof-action-list)))
 	  (save-excursion
 	    (setq res (proof-shell-process-output cmd string))
+	    ;; da: Added this next line to redisplay, for proof-toolbar
+	    ;; FIXME: should do this for all frames displaying the script
+	    ;; buffer!
+	    ;; ODDITY: has strange effect on highlighting, leave it.
+	    ;; (redisplay-frame (window-buffer  t)
 	    (cond
 	     ((eq (car-safe res) 'error)
 	      (proof-shell-handle-error cmd (cdr res)))
@@ -1147,7 +1192,7 @@ how far we've got."
 ;; doesn't apply to Coq at all.  (Never mind Isabelle!)
 (defun proof-steal-process ()
   "This allows us to steal the process if we want to change the buffer
-   in which script management is running."
+in which script management is running."
   (proof-start-shell)
   (if proof-shell-busy (error "Proof Process Busy!"))
   (if (not (eq proof-buffer-type 'script))
@@ -1365,7 +1410,7 @@ the next command end."
 	       (aset str i c)
 	       (incf i)))
 	 
-	 (if (looking-at "\"")		; da: should this be more generic?
+	 (if (looking-at "\"")		; FIXME da: should this be more generic?
 	     (setq quote-parity (not quote-parity)))
 	 
 	 (forward-char)
@@ -1396,7 +1441,7 @@ function) to a set of vanilla extents."
 				    (or callback-fn 'proof-done-advancing))
 			      alist)))
 	(set-span-property span 'type 'comment)
-	(setq alist (cons (list span "COMMENT" 'proof-done-advancing) alist)))
+	(setq alist (cons (list span proof-no-command 'proof-done-advancing) alist)))
 	(setq semis (cdr semis)))
     (nreverse alist)))
 
@@ -1439,15 +1484,13 @@ function) to a set of vanilla extents."
 ;; I find it more convenient to assert up to the current command (command
 ;; point is inside), and move to the character past the terminator.
 ;; This means proofs can be easily replayed with point at the start
-;; of lines.  Above function gives "nothing to do error."
-(defun proof-assert-next-command (&optional dont-move-forward)
+;; of lines.  Above function gives stupid "nothing to do error." when
+;; point is on the start of line or in the locked region.
+(defun proof-assert-next-command ()
   "Experimental variant of proof-assert-until-point.
-Works in locked region and at start of commands.  Moves point
-forward unless optional arg DONT-MOVE-FORWARD is true."
-  (interactive "p")
-  (let ((pt (point))
-	(crowbar (proof-steal-process))
-	semis)
+Works in locked region and at start of commands."
+  (interactive)
+  (let ((crowbar (proof-steal-process))	semis)
     (save-excursion
       ;; CHANGE from proof-assert-until-point: don't bother check
       ;; for non-whitespace between locked region and point.
@@ -1462,9 +1505,7 @@ forward unless optional arg DONT-MOVE-FORWARD is true."
     (skip-chars-forward (if proof-one-command-per-line " \t" " \t\n"))
     (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
       (if crowbar (setq vanillas (cons crowbar vanillas)))
-      (proof-start-queue (proof-locked-end) (point) vanillas))
-    ;; FIXME: why is move-forward non-nil when called from keymap???
-    (and dont-move-forward (goto-char pt))))
+      (proof-start-queue (proof-locked-end) (point) vanillas))))
 
 ;;         insert-pbp-command - an advancing command, for use when  ;;
 ;;         PbpHyp or Pbp has executed in LEGO, and returned a       ;;
@@ -1521,7 +1562,7 @@ deletes the region corresponding to the proof sequence."
 		(setq span (next-span span 'type)))
 	      (setq actions (proof-setup-retract-action
 			     start end 
-			     (if (null span) "COMMENT"
+			     (if (null span) proof-no-command
 			       (funcall proof-count-undos-fn span))
 			     delete-region)
 		    end start))
@@ -1637,6 +1678,18 @@ the proof script."
       (and (re-search-forward "\\S-" nil t)
 	   (proof-assert-until-point nil 'ignore-proof-process)))))
 
+(defun proof-goto-command-start ()
+  "Move point to start of current command."
+  (interactive)
+  (let ((cmd (span-at (point) 'type)))
+    (if cmd (goto-char (span-start cmd)) ; BUG: only works for unclosed proofs.
+      (let ((semis (proof-segment-up-to (point) t)))
+	(if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
+	(if (and semis (car semis) (car (car semis)))
+	    (progn
+	      (goto-char (nth 2 (car (car semis))))
+	      (skip-chars-forward " \t\n")))))))
+
 (defun proof-process-buffer ()
   "Process the current buffer and set point at the end of the buffer."
   (interactive)
@@ -1657,6 +1710,7 @@ script buffer."
 	  (delete-spans (point-min) (point-max) 'type)
 	  (proof-detach-segments)))
     (setq proof-shell-busy nil
+	  proof-shell-proof-completed nil
 	  proof-script-buffer nil)
     (if (buffer-live-p proof-shell-buffer) 
 	(kill-buffer proof-shell-buffer))
@@ -1694,7 +1748,7 @@ Only for use by consenting adults."
       (delete-spans (proof-locked-end) (point-max) 'type))))
 
 (defvar proof-minibuffer-history nil
-  "The last command read from the minibuffer")
+  "History of proof commands read from the minibuffer")
 
 (defun proof-execute-minibuffer-cmd ()
   (interactive)
@@ -1702,9 +1756,33 @@ Only for use by consenting adults."
     (proof-check-process-available 'relaxed)
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
     (proof-invisible-command cmd 'relaxed)))
+
+;; da: below functions for input history simulation are quick hacks.
+;; Could certainly be made more efficient.
+
+(defvar proof-command-history nil
+  "History used by proof-previous-matching-command and friends.")
+
+(defun proof-build-command-history ()
+  "Construct proof-command-history from script buffer.
+Based on position of point."
+  ;; let
+  )
+
+(defun proof-previous-matching-command (arg)
+  "Search through previous commands for new command matching current input."
+  (interactive))
+  ;;(if (not (memq last-command '(proof-previous-matching-command
+  ;; proof-next-matching-command)))
+      ;; Start a new search
+      
+  
+
+(defun proof-next-matching-command (arg)
+  "Search through following commands for new command matching current input."
+  (interactive "p")
+  (proof-previous-matching-command (- arg)))
 	  
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Popup and Pulldown Menu ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1728,9 +1806,17 @@ Only for use by consenting adults."
   :type 'string
   :group 'proof-general)
 
-(defvar proof-goal-command-string nil
-  "Command to set a goal in the proof assistant.
-The format character %s will be replaced by the goal string.")
+(defvar proof-goal-command nil
+  "Command to set a goal in the proof assistant.  String or fn.
+If a string, the format character %s will be replaced by the
+goal string. If a function, should return a command string to
+insert when called interactively.")
+
+(defvar proof-save-command nil
+  "Command to save a proved theorem in the proof assistant.  String or fn.
+If a string, the format character %s will be replaced by the
+theorem name. If a function, should return a command string to
+insert when called interactively.")
 
 ;;; Functions using the above 
 
@@ -1756,24 +1842,82 @@ The format character %s will be replaced by the goal string.")
 ;; a choice of minibuffer prompting (hated by power users, perfect
 ;; for novices).
 ;; Add named goals.
-(defun proof-issue-goal (goal)
-  "Insert a goal command into the script buffer, issue it to the proof assistant."
-  (interactive 
-   (if proof-goal-command-string 
-       '("sGoal: ")
-     (error "Proof General not configured for goals: set proof-goal-command-string.")))
+;; TODO:
+;;   Add named goals.
+;;   Coherent policy for movement here and elsewhere based on
+;;    proof-one-command-per-line user option.
+;;   Coherent policy for sending to process after writing into
+;;    script buffer.  Could have one without the other.
+;;    For example, may be more easy to edit complex goal string
+;;    first in the script buffer.  Ditto for tactics, etc.
+
+(defvar proof-issue-goal-history nil
+  "History of goals for proof-issue-goal.")
+
+(defun proof-issue-goal (goal-cmd)
+  "Insert a goal command into the script buffer, issue it to prover."
+  (interactive
+   (if proof-goal-command 
+       (if (stringp proof-goal-command)
+	   (list (format proof-goal-command-string
+			 (read-string "Goal: " ""
+				      proof-issue-goal-history)))
+	 (proof-goal-command))
+     (error
+      "Proof General not configured for goals: set proof-goal-command.")))
+  (let ((proof-one-command-per-line t))   ; Goals always start at a new line
+    (proof-issue-new-command goal-cmd)))
+
+(defvar proof-issue-save-history nil
+  "History of theorem names for proof-issue-save.")
+
+(defun proof-issue-save (thmsave-cmd)
+  "Insert a save theorem command into the script buffer, issue it."
+  (interactive
+   (if proof-save-command
+       (if (stringp proof-save-command)
+	   (list (format proof-save-command-string
+			 (read-string "Save as: " ""
+				      proof-issue-save-history)))
+	 (proof-save-command))
+     (error
+      "Proof General not configured for save theorem: set proof-save-command.")))
+  (let ((proof-one-command-per-line t))   ; Goals always start at a new line
+    (proof-issue-new-command thmsave-cmd)))
+
+(defun proof-script-new-command-advance ()
+  "Move point to a nice position for a new command.
+Assumes that point is at the end of a command."
+  (interactive)
+  (if proof-one-command-per-line
+      ;; One command per line: move to next new line,
+      ;; creating one if at end of buffer.
+      (if (forward-line)
+	  (newline))
+    ;; Multiple commands per line: skip spaces at point,
+    ;; if no spaces there already, add one.
+    (if (skip-chars-forward " \t")
+	(insert " "))))
+
+(defun proof-issue-new-command (cmd)
+  "Insert CMD into the script buffer and issue it to the proof assistant.
+If point is in the locked region, move to the end of it first.
+Start up the proof assistant if necessary."
   ;; FIXME: da: I think we need a (proof-script-switch-to-buffer)
-  ;; function.
+  ;; function (so there is some control over display).
   (switch-to-buffer proof-script-buffer)
-    ;; Assume point is the right place to insert a new goal.
-    ;; An alternative would be to move to end of buffer
-    ;; (or end of locked region, at least)
-  (let ((goal-string (format proof-goal-command-string goal)))
-    ;; FIXME: fixup behaviour of undo here.  Really want
-    ;; to temporarily disable undo for insertion.
-    ;; (buffer-disable-undo) this trashes whole undo list!
-    (insert goal-string)
-    (proof-assert-until-point)))
+  (if (proof-in-locked-region-p)
+      (proof-goto-end-of-locked-interactive))
+  (proof-script-new-command-advance)
+  ;; FIXME: fixup behaviour of undo here.  Really want
+  ;; to temporarily disable undo for insertion.
+  ;; (buffer-disable-undo) this trashes whole undo list!
+  (insert cmd)
+  ;; FIXME: could do proof-indent-line here, but let's
+  ;; wait until indentation is fixed.
+  (proof-assert-until-point))
+
+
 
 
 ;;; To be called from menu
@@ -1909,9 +2053,10 @@ where `k' is a keybinding (vector) and `f' the designated function.")
 
 ;; Fixed definitions in proof-mode-map, which don't depend on
 ;; prover configuration.
+;;; INDENT HACK: font-lock only recognizes define-key at start of line
 (let ((map proof-mode-map))
-  ;; Funny indentation below is for font-lock to recognize define-key.
 (define-key map [(control c) (control e)] 'proof-find-next-terminator)
+(define-key map [(control c) (control a)] 'proof-goto-command-start)
 (define-key map [(control c) (control return)] 'proof-assert-next-command)
 (define-key map [(control c) (return)]	  'proof-assert-until-point)
 (define-key map [(control c) (control t)] 'proof-try-command)
@@ -1924,8 +2069,10 @@ where `k' is a keybinding (vector) and `f' the designated function.")
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) ?c]	  'proof-ctxt)
 (define-key map [(control c) ?h]	  'proof-help)
+(define-key map [(meta p)]		  'proof-previous-matching-command)
+(define-key map [(meta n)]		  'proof-next-matching-command)
 ;; FIXME da: this shouldn't need setting, because it works
-;; via indent-line-function which is set below.
+;; via indent-line-function which is set below.  Check this.
 (define-key map [tab] 'proof-indent-line)
 (proof-define-keys map proof-universal-keys))
 
@@ -1946,6 +2093,7 @@ finish setup which depends on specific proof assistant configuration."
   ;; calculate some strings and regexps for searching
   (setq proof-terminal-string (char-to-string proof-terminal-char))
 
+  ;; FIXME da: surely these are LEGO (Coq?) specific!
   (setq pbp-goal-command (concat "Pbp %s" proof-terminal-string))
   (setq pbp-hyp-command (concat "PbpHyp %s" proof-terminal-string))
 
@@ -2020,6 +2168,7 @@ finish setup which depends on specific proof assistant configuration."
   (setq proof-buffer-type 'shell)
   (setq proof-shell-busy nil)
   (setq proof-shell-delayed-output (cons 'insert "done"))
+  (setq proof-shell-proof-completed nil)
 
   ;;; COMINT customisation
   (setq comint-prompt-regexp proof-shell-prompt-pattern)
