@@ -183,8 +183,8 @@
      '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
    proof-shell-proof-completed-regexp   nil     ; n.a.
-   proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\360Interrupt"
-   proof-shell-error-regexp             "\364\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
+   proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt"
+   proof-shell-error-regexp             "\364\\*\\*\\*"
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
    ;; matches names of assumptions
