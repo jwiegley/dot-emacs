@@ -439,10 +439,12 @@ Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
 ;; FIXME da: are these defconsts still needed now we use defface?
-;(defconst proof-declaration-name-face 'proof-declaration-name-face
-;  "Expression that evaluates to a face.
-;Required so that 'proof-declaration-name-face is a proper facename in
-;both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
+;; Answer: yes, for FSF Emacs they are.
+
+(defconst proof-declaration-name-face 'proof-declaration-name-face
+  "Expression that evaluates to a face.
+Required so that 'proof-declaration-name-face is a proper facename in
+both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
 
 (defface proof-tacticals-name-face
   (proof-face-specs
@@ -453,10 +455,10 @@ Exactly what uses this face depends on the proof assistant."
 Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
-;(defconst proof-tacticals-name-face 'proof-tacticals-name-face
-;  "Expression that evaluates to a face.
-;Required so that 'proof-tacticals-name-face is a proper facename in
-;both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
+(defconst proof-tacticals-name-face 'proof-tacticals-name-face
+  "Expression that evaluates to a face.
+Required so that 'proof-tacticals-name-face is a proper facename in
+both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-tactics-name-face
   '((t				
@@ -466,10 +468,10 @@ By default, they are printed with default face but the user
 may want to color them differently."
   :group 'proof-faces)
 
-;(defconst proof-tactics-name-face 'proof-tactics-name-face
-;  "Expression that evaluates to a face.
-;Required so that 'proof-tactics-name-face is a proper facename in
-;both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
+(defconst proof-tactics-name-face 'proof-tactics-name-face
+  "Expression that evaluates to a face.
+Required so that 'proof-tactics-name-face is a proper facename in
+both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-error-face 
   (proof-face-specs
