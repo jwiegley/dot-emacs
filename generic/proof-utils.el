@@ -29,6 +29,20 @@
        (with-current-buffer ,buf
 	 ,@body)))
 
+;; Slightly specialized version of above.  This is used in commands
+;; which work from different PG buffers (goals, response), typically
+;; bound to toolbar commands.
+(defmacro proof-with-script-buffer (&rest body)
+  "Execute BODY in some script buffer: current buf or otherwise proof-script-buffer.
+Return nil if not a script buffer or if no active scripting buffer."
+  `(cond
+    ((eq proof-buffer-type 'script)
+     (progn
+       ,@body))
+    ((buffer-live-p proof-script-buffer)
+     (with-current-buffer proof-script-buffer
+       ,@body))))
+      
 (defmacro proof-map-buffers (buflist &rest body)
   "Do BODY on each buffer in BUFLIST, if it exists."
   `(dolist (buf ,buflist)
@@ -394,28 +408,28 @@ Ensure that point is visible in window."
   (let (window)
     (save-excursion
       (set-buffer buffer)
-      (display-buffer buffer)
+      ;; Here's a hack: if we're asking to display BUFFER from a
+      ;; secondary window, and the (next) other one is displaying the
+      ;; script buffer, then we do switch-buffer instead.  This means
+      ;; that goals and response buffer are swapped as expected in
+      ;; two-pane mode even if either one is used to "drive" the
+      ;; scripting.
+      (if (and 
+	   (not proof-dont-switch-windows)
+	   (not (eq (next-window) (selected-window)))
+	   (eq (window-buffer (next-window))
+	       proof-script-buffer))
+	  (set-window-buffer (selected-window) buffer)
+	(display-buffer buffer))
       (setq window (get-buffer-window buffer 'visible))
       (set-window-dedicated-p window proof-dont-switch-windows)
       (and window
 	   (save-selected-window
 	     (select-window window)
-	     
-	     ;; tms: I don't understand why the point in
-	     ;; proof-response-buffer is not at the end anyway.
-	     ;; Is there a superfluous save-excursion somewhere?
-	     ;; da replies: I think it's because of a *missing*
-	     ;; save-excursion above around the font-lock stuff.
-	     ;; Adding one has maybe fixed this problem.
-	     ;; 10.12.98 Experiment removing this so that point
-	     ;; doesn't always go to end of goals buffer
-	     ;; RESULT: point doesn't go to end of response
-	     ;; buffer.  Hypothesis above was wrong, so this
-	     ;; is re-added and optional POS argument added
-	     ;; for this function.
+	     ;; For various reasons, point may get moved
+	     ;; around in response buffer.
 	     (goto-char (or pos (point-max)))
-	     (if pos (beginning-of-line)) ;  Normalization
-
+	     (if pos (beginning-of-line))
 	     ;; Ensure point visible
 	     (or (pos-visible-in-window-p (point) window)
 		 (recenter -1)))))))
