@@ -782,13 +782,6 @@ C New modules:
   comments if the first ACS is a goal-save span. This is however not a 
   problem for LEGO and Isabelle. (30 min)
 
-*** X Idea for future re-engineering:
-  Indirect Buffers seem to be a cunning way
-  to implement the response buffer and goals buffer, since they're
-  basically variants on displaying fragments of the shell buffer
-  output. Unfortunately seems to be implemented only in FSFmacs at the
-  moment.
-
 *** X Improve efficiency for processing for large proofs.
   Currently worse case is about 75%/25% CPU to Prover/XEmacs when
   processing long output stretches on zermelo.  
@@ -896,10 +889,27 @@ C New modules:
 
 
 
+** 6. Future improvements to take advantage of newer Emacsen
+
+*** X XEmacs 21.2 compatibility/improvements
+
+**** Accelerators for PG menus?  (how to customize?)
+
+**** Use one-shot-hook for splash display
+
+*** X FSF and XEmacs improvements
+
+**** Indirect Buffers 
+  Maybe a cunning way to implement the response buffer and goals
+  buffer, since they're basically variants on displaying fragments of
+  the shell buffer output. Appears in XEmacs 21.2, FSF 20.5
 
 
 
-** 6. Bugs in other software beyond our control
+
+
+
+** 7. Bugs in other software beyond our control
 
 
 *** X Odd behaviour of font-lock in script buffers when long strings
@@ -959,7 +969,7 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 
 
-** 7. New Stable Version Release checklist
+** 8. New Stable Version Release checklist
 
 
 ***  0. Make all files have same CVS branch with cvs commit -f 
@@ -985,7 +995,7 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 
 
-** 8. Things to do for Proof General Project
+** 9. Things to do for Proof General Project
 
 
 *** A Try to get small project grant from LFCS to help with
