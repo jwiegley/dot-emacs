@@ -98,7 +98,6 @@ fi
 %attr(-,root,root) /usr/share/icons/mini/pgmini.xpm
 %attr(-,root,root) /usr/lib/menu/ProofGeneral
 %attr(-,root,root) /usr/share/applnk/Applications/ProofGeneral.desktop
-%attr(-,root,root) /usr/share/gnome/apps/Applications/ProofGeneral.desktop
 %attr(-,root,root) /etc/X11/applnk/Applications/ProofGeneral.desktop
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
