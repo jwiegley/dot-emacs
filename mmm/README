@@ -1,0 +1,92 @@
+
+                          MMM Mode for Emacs
+                          ==================
+
+OVERVIEW
+
+  MMM Mode is a minor mode for Emacs that allows Multiple Major Modes
+  (hence the name) to coexist in one buffer.  It is particularly
+  well-suited to editing embedded code, such as Mason server-side
+  Perl, or HTML output in CGI scripts.
+
+INSTALLATION
+
+  MMM Mode has a standard GNU configure-driven installation.  (See the
+  file INSTALL for generic instructions.)  To install mmm-mode in the
+  standard locations, unpack the archive, `cd' to the mmm-mode-X.X.X
+  directory created, and run these commands:
+
+    ./configure
+    make
+    make install
+
+  Alternately, since currently MMM Mode is written in pure Emacs Lisp,
+  you could just copy all the *.el files in the distribution to a
+  directory in your `load-path', and optionally byte-compile them
+  manually (see the Emacs Manual).  The configure installation also
+  installs the MMM Mode info manual in your site info directory, so if
+  you're installing manually, you might want to do that too.
+
+  If you have more than one version of emacs installed and want to
+  use MMM in a version other than /usr/bin/emacs, you must set the
+  environment variable EMACS before running `configure', e.g.
+
+    EMACS=/usr/bin/xemacs ./configure
+    make
+    make install
+
+  If you want to use MMM in more than one version of emacs, you must
+  either have separate site-lisp directories (such as Debian does), or
+  load it from source every time; byte-compiled files are not portable
+  between emacsen.
+
+CONFIGURATION
+
+  Once MMM Mode is installed, it has to be configured correctly.  This
+  can be done in a site-start file or in user's initialization files;
+  probably the latter is preferable, except possibly for autoloads.
+
+  See the info file for full documentation on the available
+  configuration options.  To get started, however, MMM Mode needs to
+  be loaded, either completely, with
+
+    (require 'mmm-mode)
+
+  or conditionally, as necessary, with
+
+    (require 'mmm-auto)
+
+  The second installs only the major-mode hooks and sets up MMM Mode
+  to load itself automatically when necessary.
+
+DOCUMENTATION
+
+  For further information, see (in order) the accompanying info file
+  (as yet incomplete), the documentation strings of functions and
+  variables, the comments in the source code, and the source code
+  itself.
+
+UPDATES
+
+  The latest version of MMM Mode should always be available from
+  http://mmm-mode.sourceforge.net/.
+
+BUG REPORTS
+
+  Bug reports and suggestions can be submitted at
+  <http://sourceforge.net/bugs/?group_id=8658> or through email to
+  viritrilbia@users.sourceforge.net.
+
+CONTACT INFO
+
+  MMM Mode is written and maintained by Michael Abraham Shulman
+  <viritrilbia@users.sourceforge.net>.
+
+MAILING LIST
+
+  To subscribe to the MMM Mode mailing list, visit
+  <http://lists.sourceforge.net/mailman/listinfo/mmm-mode-discuss>.
+  The mailing list receives announcements of new releases and provides
+  a forum for discussion of bugs and features.
+
+  Thanks for using MMM Mode!
