@@ -77,17 +77,18 @@
 
 (defconst isar-keywords-save
   (append isar-keywords-qed
-	  isar-keywords-qed-block))
+	  isar-keywords-qed-block
+	  isar-keywords-qed-global))
 
 (defconst isar-keywords-proof-enclose
   (append isar-keywords-proof-block
-	  isar-keywords-qed
 	  isar-keywords-qed-block))
 
 (defconst isar-keywords-proof
   (append isar-keywords-proof-goal
 	  isar-keywords-proof-chain
-	  isar-keywords-proof-decl))
+	  isar-keywords-proof-decl
+	  isar-keywords-qed))
 
 (defconst isar-keywords-proof-context
   (append isar-keywords-proof-asm
@@ -96,6 +97,10 @@
 (defconst isar-keywords-local-goal
   (append isar-keywords-proof-goal
 	  isar-keywords-proof-asm-goal))
+
+(defconst isar-keywords-proof-improper
+  (append isar-keywords-proof-script
+	  isar-keywords-qed-global))
 
 (defconst isar-keywords-outline
   (append isar-keywords-theory-begin
@@ -122,6 +127,14 @@
   (append isar-keywords-proof-block
 	  isar-keywords-qed-block))
 
+(defconst isar-keywords-indent-reset
+  (append isar-keywords-theory-begin
+	  isar-keywords-theory-switch
+	  isar-keywords-theory-end
+	  isar-keywords-theory-heading
+	  isar-keywords-theory-decl
+	  isar-keywords-qed-global))
+
 
 ;; ----- regular expressions
 
@@ -139,6 +152,9 @@
 
 (defconst isar-save-command-regexp
   (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-save)))
+
+(defconst isar-global-save-command-regexp
+  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-qed-global)))
 
 (defconst isar-save-with-hole-regexp "$^") ; n.a.
 
@@ -232,15 +248,15 @@
 
 (defvar isar-font-lock-keywords-1
   (list
-   (cons (proof-ids-to-regexp isar-keywords-minor) 'font-lock-type-face)
-   (cons (proof-ids-to-regexp isar-keywords-control) 'proof-error-face)
-   (cons (proof-ids-to-regexp isar-keywords-diag) 'proof-tacticals-name-face)
-   (cons (proof-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-function-name-face)
-   (cons (proof-ids-to-regexp isar-keywords-theory) 'font-lock-keyword-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof-enclose) 'font-lock-function-name-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof) 'font-lock-keyword-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof-context) 'proof-declaration-name-face)
-   (cons (proof-ids-to-regexp isar-keywords-proof-script) 'font-lock-reference-face)))
+   (cons (proof-ids-to-regexp isar-keywords-minor)          'font-lock-type-face)
+   (cons (proof-ids-to-regexp isar-keywords-control)        'proof-error-face)
+   (cons (proof-ids-to-regexp isar-keywords-diag)           'proof-tacticals-name-face)
+   (cons (proof-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-preprocessor-face)
+   (cons (proof-ids-to-regexp isar-keywords-theory)         'font-lock-keyword-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof-enclose)  'font-lock-preprocessor-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
+   (cons (proof-ids-to-regexp isar-keywords-proof-improper) 'font-lock-reference-face)))
 
 (defvar isar-output-font-lock-keywords-1
   (list
