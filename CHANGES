@@ -9,5 +9,13 @@
 * Summary of Changes for Proof General 3.5pre from 3.4
 
 
- <<  No changes yet >>
+** GNU Emacs compatibility improvements
 
+*** Several improvements, credit to Stefan Monnier.
+
+
+** Coq
+
+*** Improvements to syntax handling from Stefan Monnier (nested comments)
+
+ 
