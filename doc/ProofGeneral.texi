@@ -3539,7 +3539,7 @@ provided in theory mode for this:
 @c This can cause confusion in the theory loader later,
 @c especially with @code{update()}.  To be safe, try to use just the Proof
 @c General interface, and report any repeatable problems to
-@c @code{isabelle@dcs.ed.ac.uk}.
+@c @code{da+pg-feedback@inf.ed.ac.uk}.
 
 @c Compared to Isamode's theory editing mode, some of the functions and key
 @c bindings for interacting with Isabelle have been removed, and two new
