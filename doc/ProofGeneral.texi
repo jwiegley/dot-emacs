@@ -3393,6 +3393,7 @@ important files, kept in the @file{generic/} subdirectory.
 * Global variables::            
 * Proof script mode::           
 * Proof shell mode::            
+* Debugging::
 @end menu
 
 
@@ -3921,7 +3922,7 @@ object files, used by Lego and Coq).
 @c
 @c INPUT
 @c
-@subsubsection Input
+@subsection Input to the shell
 
 Input to the proof shell via the queue region is managed by the
 functions @code{proof-start-queue} and @code{proof-shell-exec-loop}.
@@ -3985,7 +3986,7 @@ particularly in @code{proof-start-queue} and @code{proof-shell-exec-loop}.
 @c
 @c OUTPUT
 @c
-@subsubsection Output
+@subsection Output from the shell
 
 Two main functions deal with output, @code{proof-shell-process-output}
 and @code{proof-shell-process-urgent-message}.  In effect we consider
@@ -4095,7 +4096,21 @@ output.
 
 
 
+@c
+@c SECTION: Debugging
+@c
+@node Debugging
+@section Debugging
+@cindex debugging
 
+To debug Proof General, it may be helpful to set the
+configuration variable @code{proof-show-debug-messages}.
+
+@c TEXI DOCSTRING MAGIC: proof-show-debug-messages
+
+For more information about debugging Emacs lisp, consult the Emacs Lisp
+Reference Manual.  I recommend using the source-level debugger
+@code{edebug}.
 
 
 
