@@ -36,7 +36,7 @@ Plans for upcoming versions
 * Generic adjusting of pretty-printer line width (currently implemented
   in several instances)
 
-* Queue manipulation improvment: allow to extend or reduce
+* Queue manipulation improvement: allow to extend or reduce
   during processing, with fewer "Proof Process Busy" messages.  
 
 * Improve process handling: disable interrupts and/or catch errors at
