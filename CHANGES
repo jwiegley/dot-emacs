@@ -1,6 +1,10 @@
 Summary of Changes for Proof General 2.1
 ----------------------------------------
 
+* Supports Coq 6.3
+
+* Supports Isabelle 99.  No guarantees for Isabelle 98.
+
 * Two new provisional instantiations of Proof General, for:
    ** Isabelle/Isar (new proof language for Isabelle) by 
       Markus Wenzel <wenzelm@informatik.tu-muenchen.de>
@@ -11,9 +15,8 @@ Summary of Changes for Proof General 2.1
   Information added for Coq mode.
 
 * In proof-site.el, the environment variable PROOFGENERAL_ASSISTANTS 
-  is examined for the default value of proof-assistants.  This
-  means that no editing of proof-site.el should normally be 
-  needed now. 
+  is examined for the default value of proof-assistants.  No
+  editing of proof-site.el should be needed now.
 
 * Support for x-symbol package to beautify 
   input and output with special fonts.
@@ -25,14 +28,11 @@ Summary of Changes for Proof General 2.1
 
 * Toolbar can now be switched on and off via menu.
 
-* Bug fix for templates in Isabelle theory file mode.
-
-* Bug fix for long-lines with funny characters causing
-  ^G's in Solaris.
-
-* Bug fix for case-insensitive matching.  Added 
-  proof-case-fold-search configuration variable to
-  allow for proof script languages with case-insensitive 
-  syntax.
-
-* Other minor bug fixes.
+* Bug fixes:
+   - Long-lines with funny characters causing ^G's in Solaris.
+   - Templates in Isabelle theory file mode.
+   - Fix for case-insensitive matching.  Added proof-case-fold-search 
+     configuration variable to allow for proof script languages with 
+     case-insensitive syntax.
+   - Process killing made robust.
+   - Regular expression fixes causing "nil extent" errors.
