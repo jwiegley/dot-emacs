@@ -38,7 +38,7 @@ DVI2PS = dvips -Pcmz
 TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html -expandinfo -number -split_chapter
 # FIXME: choose emacs automatically if xemacs not available
-EMACS = xemacs -batch
+EMACS = xemacs -q -batch
 
 TMPFILE=pgt
 
