@@ -1,16 +1,15 @@
 Summary of Changes for Proof General 2.2 from 2.1
 -------------------------------------------------
 
+Generic Changes
+---------------
+
 * Toolbar has four new buttons: Show, Context, Info, Command
   These invoke commands previously available on keys/menus.
 
 * Toolbar enablers have been added.   
   Buttons are automatically enabled or disabled as appropriate.   
-  This may require XEmacs 21 for reliable working.  
-  (Toolbar only works with XEmacs)
-
-* Tweaks for Isabelle and Isar syntax.  Fixed problem with
-  recognizing goals of the old form val prems = goal ...
+  This requires XEmacs 20.4 or better for reliable working.  
 
 * Terminal string now automatically added to command for C-c C-v 
 
@@ -18,15 +17,33 @@ Summary of Changes for Proof General 2.2 from 2.1
   Would be nice to add more theorems to compare scripts/proofs in
   different systems.  Please send in example scripts!
 
-* Other minor improvements and alterations:
-  - Shorter buffer names (esp for Coq).
-  - Set proof-{qed,save}-commands so the toolbar functions work.
-  - Removed transparent gif from splash screen because XEmacs can't
-    display it nicely.
-  - Documentation updates
+* Shorter buffer names for convenience.
+ 
+* Removed transparent gif from splash screen because XEmacs can't
+  display it nicely.
+ 
+* Documentation updates.
+
+* Code cleanups and improvements.
+
+
+Coq Changes
+-----------
+
+* Set proof-{qed,save}-commands so the toolbar functions work.
+
+
+Isabelle and Isar Changes
+-------------------------
+
+* Tweaks for input syntax.  
+
+* Recognize goals of the old form val prems = goal ...
+
 
 
 Only in the developer's release:
+--------------------------------
 
 * Provisional instantiation of Proof General for
   Plastic (http://www.dur.ac.uk/CARG/plastic.html)
