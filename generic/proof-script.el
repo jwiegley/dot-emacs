@@ -337,12 +337,16 @@ If non-nil, point is left where it was."
 (defun proof-check-process-available (&optional relaxed)
   "Adjust internal variables for scripting of current buffer.
 
-Signals an error if current buffer is not a proof script or if the
-proof process is not idle. If RELAXED is set, nothing more is done. No
-changes are necessary if the current buffer is already in Scripting
-minor mode. Otherwise, the current buffer will become the current
-scripting buffer provided the current scripting buffer has either no
-locked region or everything in it has been processed."
+Makes sure there is a proof shell running and that it isn't
+busy.  If it is busy, an error is signaled.
+
+If RELAXED is non-nil, nothing more is done. 
+
+Otherwise, the current buffer is prepared for scripting.  No changes
+are necessary if it is already in Scripting minor mode. Otherwise, the
+it will become the current scripting buffer provided the current
+scripting buffer has either no locked region or everything in it has
+been processed."
   (proof-start-shell)
   (cond
    ((not (or relaxed (eq proof-buffer-type 'script)))
