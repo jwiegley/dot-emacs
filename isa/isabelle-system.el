@@ -301,7 +301,7 @@ Otherwise return a string for configuring all settings."
 (proof-deftoggle-fn (proof-ass-sym show-types))
 (proof-deftoggle-fn (proof-ass-sym trace-simplifier))
 
-(proof-setass-default menu-entries
+(proof-defass-default menu-entries
   (append
    `(["Show types" ,(proof-ass-sym show-types-toggle)
      :style toggle
@@ -314,8 +314,9 @@ Otherwise return a string for configuring all settings."
       :selected ,(proof-ass-sym trace-simplifier)])
    (if isa-running-isar
        nil
-     (list "----")
-     (["Switch to theory" thy-find-other-file t]))))
+     (list
+      '(list "----")
+      '(["Switch to theory" thy-find-other-file t])))))
 
 (proof-defass-default help-menu-entries isabelle-docs-menu)
 
