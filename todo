@@ -51,6 +51,7 @@ A Pending work, in progress [da]:
 	. toolbar appears in wrong buffers
     - investigate of excessive processing for large proofs
     - investigate bug fix for vacuous locked regions
+    - bug when prover gives error from proof-find (or similar functions)
     - document proof-mouse-track-insert (new name for proof-send-span, re-enabled).
 
 A Usability enhancement:
