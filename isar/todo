@@ -4,6 +4,8 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** C Electric terminator for non-terminator provers would be nice.
+
 ** B Isabelle support for ML and legacy files: would like to remove "isa" instance
      Could we handle theory files and even allow scripting in ML files
      at the same time as Isar?  Maybe not, if this is even beyond what
