@@ -33,7 +33,7 @@ send a compile command to PhoX for the theorem which name is under the cursor."
 ; phox-comments-regexp : a sequence of comments and white spaces
  phox-comments-regexp "[ \n\t\r]*\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*"
 ; phox-strict-comments-regexp : a not empty sequence of comments and white spaces
- phox-strict-comments-regexp "\\([ \n\t\r]+\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*\\)\\|\\(\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)+\\)"
+ phox-strict-comments-regexp "\\([ \n\t\r]+\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*\\|\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)+\\)"
  phox-ident-regexp "\\(\\([^() \n\t\r=\\[.]\\|\\(\\.[^() \n\t\r]\\)\\)+\\)"
  phox-spaces-regexp "[ \n\t\r]*"
  phox-sy-definition-regexp (concat 
