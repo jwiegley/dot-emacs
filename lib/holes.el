@@ -20,8 +20,6 @@
 
 (require 'span)
 
-;(defvar holes-mode)
-
 (defun holes-short-doc ()
   "prints a short doc for holes"
   (interactive)
@@ -740,16 +738,29 @@ and this is this one. This is not buffer local.")
     map)
   "Keymap to use on the holes's overlays.")
 
+(defvar holes-mode-map
+  (let ((map (make-sparse-keymap)))
+	 (define-key map [(control c) h] 'holes-set-make-active-hole)
+	 (define-key map [(control c) (meta y)] 'holes-replace-update-active-hole)
+	 (define-key map [(control meta down-mouse-1)] 'holes-mouse-set-make-active-hole)
+	 (define-key map [(control meta shift down-mouse-1)] 'holes-mouse-replace-active-hole)
+	 (define-key map [(meta return)] 'holes-set-point-next-hole-destroy)
+    map)
+  "Keymap of holes-mode. This is not the keymap used on holes's overlay
+(see `hole-map' instead). This one is active whenever we are on a
+buffer where holes-mode is active.")  
 
+(message "holes: milieu")
 
-;  (global-set-key  [(control meta ? ) ] 'holes-set-active-hole-next)
+(or (assq 'holes-mode minor-mode-map-alist)
+    (setq minor-mode-map-alist
+          (cons (cons 'holes-mode holes-mode-map)
+                minor-mode-map-alist)))
 
-;  (global-set-key [(control meta y)] 'holes-replace-update-active-hole)
-  ; this shortcut was for mark-defun
-;  (global-set-key [(control meta h)]   'holes-set-make-active-hole)
-;  (global-set-key [(control meta down-mouse-1)] 'holes-mouse-set-make-active-hole)
-;  (global-set-key [(control meta shift down-mouse-1)] 'holes-mouse-replace-active-hole)
-;  (global-set-key [(meta return)] 'holes-set-point-next-hole-destroy)
+(message "holes: milieu après")
+
+;(global-set-key  [(control meta **WRONG** space ) ] 'holes-set-active-hole-next)
+
 
 ;;;;;;;;;;; End Customizable key bindings ;;;;;
 
@@ -919,6 +930,21 @@ created. return t if num is > 0, nil otherwise."
 		)	 
 	 )
   )
+
+(defvar holes-mode nil "t if holes mode is on, nil otherwise.")
+
+(defun holes-mode (&optional arg)
+  "if arg is nil, then toggle holes mode on/off. If arg is
+positive, then turn holes mode on. If arg is negative, then
+turn it off."
+  (interactive)
+  (setq holes-mode (if (null arg) (not holes-mode)
+							(> (prefix-numeric-value arg) 0)))
+  )
+
+(or (assq 'holes-mode minor-mode-alist)
+	 (setq minor-mode-alist
+			 (cons '(holes-mode " Holes") minor-mode-alist)))
 
 (provide 'holes)
 

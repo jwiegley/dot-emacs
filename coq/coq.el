@@ -6,7 +6,7 @@
 ;; $Id$ 
 
 (require 'proof)
-(require 'holes) ; in generic directory
+(require 'holes-load) ; in lib directory
 ;; coq-syntaxe is required below
 ;; ----- coq-shell configuration options
 
@@ -369,6 +369,7 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
       ;;go to next span
       (setq span (next-span span 'type))
       )
+    ;;let's build the backtrack command now:
     (let (last-staten)
       (setq last-staten (coq-last-statenum-safe))
       (setq ans
@@ -797,6 +798,8 @@ Based on idea mentioned in Coq reference manual."
 
   ;; font-lock
   (setq font-lock-keywords coq-font-lock-keywords-1)
+  ;;holes
+  (holes-mode 1)
 
   (proof-config-done)
 
@@ -815,7 +818,6 @@ Based on idea mentioned in Coq reference manual."
                      tag-table-alist)))
 
   (setq blink-matching-paren-dont-ignore-comments t)
-
   ;; multiple file handling
   (setq proof-cannot-reopen-processed-files t
         ;; proof-shell-inform-file-retracted-cmd 'coq-retract-file
@@ -867,7 +869,7 @@ Based on idea mentioned in Coq reference manual."
   
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
-
+  (holes-mode 1)
   (proof-shell-config-done))
 
 (defun coq-goals-mode-config ()
@@ -875,11 +877,13 @@ Based on idea mentioned in Coq reference manual."
   (setq pg-goals-error-regexp coq-error-regexp)
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
+  (holes-mode 1)
   (proof-goals-config-done))
 
 (defun coq-response-config ()
    (coq-init-syntax-table)
    (setq font-lock-keywords coq-font-lock-keywords-1)
+   (holes-mode 1)
    (proof-response-config-done))
 
 

@@ -364,8 +364,8 @@
 ;; previous line of previous line.
 
 ;; prevcol is the indentation column of the previous line, prevpoint
-;; is the indetation point of previous line, record tells if we are
-;; inside a the accolades of a record.
+;; is the indentation point of previous line, record tells if we are
+;; inside the accolades of a record.
 
 (defun coq-indent-expr-offset (kind prevcol prevpoint record)
   "Returns the indentation column of the current line. This function indents a *expression* line (a line inside of a command). Use `coq-indent-command-offset' to indent a line belonging to a command. The fourth argument must be t if inside the {}s of a record, nil otherwise."
@@ -481,12 +481,10 @@
 
 (defun coq-indent-offset ()
   (let (kind prevcol prevpoint)
-	 (message "ici")
 	 (save-excursion
 		(setq kind (coq-back-to-indentation-prevline) ;go to previous *command* (assert)
 				prevcol (current-column)
 				prevpoint (point)))
-	 (message "la")
 	 (cond 
 	  ((= kind 0) 0) ; top of the buffer reached
 	  ((= kind 1) ; we are at the command level
