@@ -264,6 +264,10 @@ an error.")
 ;; A couple of small utilities                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun proof-message (str)
+  "Output STR in minibuffer."
+  (message (concat "[Proof] " str)))
+
 ;; append-element in tl-list
 (defun proof-append-element (ls elt)
   "Append ELT to last of LS if ELT is not nil. [proof.el]
@@ -332,7 +336,6 @@ an error.")
   (span-read-only proof-queue-span)
 
   (make-face 'proof-queue-face)
-  ;; Whether display has color or not
   (cond ((proof-have-color)
 	 (set-face-background 'proof-queue-face "mistyrose"))
 	(t (progn
@@ -350,7 +353,6 @@ an error.")
   (span-read-only proof-locked-span)
 
   (make-face 'proof-locked-face)
-  ;; Whether display has color or not
   (cond ((proof-have-color)
 	 (set-face-background 'proof-locked-face "lavender"))
 	(t (set-face-property 'proof-locked-face 'underline t)))
@@ -777,6 +779,28 @@ Set to nil if the proof to disable this feature.")
       (incf ip))
     (substring out 0 op)))
 
+(defun proof-shell-handle-output (start-regexp end-regexp append-face)
+  "Pretty print output in PROCESS buffer in specified region.
+Removes any annotations in the region.
+Appends APPEND-FACE to the text property of the region .
+Returns the string in the specified region."
+  (let ((string))
+    (save-excursion
+      (set-buffer proof-shell-buffer)
+      (goto-char (point-max))
+      (let* ((end (search-backward-regexp end-regexp))
+	     (start (search-backward-regexp start-regexp)))
+	(setq string
+	      (proof-shell-strip-annotations (buffer-substring start end)))
+	(delete-region start end)
+	(insert string)
+	(setq end (+ start (length string)))
+	(font-lock-fontify-region start end)
+	(font-lock-append-text-property start end 'face append-face)
+
+	;;FIXME: Why are faces not preserved?
+	(buffer-substring start end)))))
+
 (defun proof-shell-handle-delayed-output ()
   (let ((ins (car proof-shell-delayed-output))
 	(str (cdr proof-shell-delayed-output)))
@@ -799,30 +823,19 @@ Set to nil if the proof to disable this feature.")
   "React on an error message triggered by the prover. [proof.el]
 We display the process buffer, scroll to the end, beep and fontify the
 error message. At the end it calls `proof-shell-handle-error-hook'. "
-  (save-excursion
-    (display-buffer (set-buffer proof-shell-buffer))
-
-    (goto-char (point-max))
-    (let* ((end (search-backward-regexp proof-shell-annotated-prompt-regexp))
-	  (start (search-backward-regexp proof-shell-error-regexp))
-	  (string
-	   (proof-shell-strip-annotations (buffer-substring start end))))
-	  
-
-
-    (beep)
-
-    ;; fontification
-
-    ;; remove annotations (otherwise font-lock expressions do not match)
-    
-    (delete-region start end)
-    (insert string)
-    (setq end (+ start (length string)))
-    (font-lock-fontify-region start end)
-    (font-lock-fillin-text-property start end 'face 'font-lock
-				    'font-lock-error-face)
-    ))
+    ;; We extract all text between text matching
+    ;; `proof-shell-error-regexp' and the following prompt.
+    ;; Alternatively one could higlight all output between the
+    ;; previous and the current prompt.
+    ;; +/- of our approach
+    ;; + Previous not so relevent output is not highlighted
+    ;; - Proof systems have to conform to error messages whose start  can be
+    ;;   detected by a regular expression.
+  (proof-shell-handle-output
+   proof-shell-error-regexp proof-shell-annotated-prompt-regexp
+   'font-lock-error-face)
+  (save-excursion (display-buffer proof-shell-buffer))
+  (beep)
 
   ;; unwind script buffer
   (set-buffer proof-script-buffer)
@@ -1054,16 +1067,14 @@ at the end of locked region (after inserting a newline and indenting)."
 while it's doing something (e.g. loading libraries) to say how much
 progress it's made. Obviously we need to display these as soon as they
 arrive."
-  (let (mrk str file module)
-    (save-excursion 
-      (goto-char (point-max))
-      (search-backward proof-shell-eager-annotation-start)
-      (setq mrk (+ 1 (point)))
-      (search-forward proof-shell-eager-annotation-end)
-      (setq str (buffer-substring mrk (- (point) 1)))
-      (display-buffer (set-buffer proof-pbp-buffer))
-      (goto-char (point-max))
-      (insert str "\n"))
+  (let ((str (proof-shell-handle-output
+	      proof-shell-eager-annotation-start
+	      proof-shell-eager-annotation-end
+	      'font-lock-eager-annotation-face))
+	file module)
+    (proof-message str)
+    ;;FIXME: LEGO specific regular expression to detect that LEGO is
+    ;;processing a new module
     (if (string-match "Creating mark \"\\(.*\\)\" \\[\\(.*\\)\\]" str)
 	(progn
 	  (setq file (match-string 2 str)

@@ -71,12 +71,19 @@
   (copy-face 'bold 'font-lock-tacticals-name-face)))
 
 (defvar font-lock-error-face
-(if (proof-have-color)
-    (let ((face (make-face 'font-lock-error-face)))
-      (dont-compile
-	(set-face-foreground face "red"))
-      face)
-  (copy-face 'bold 'font-lock-error-face)))
+  (let ((face (make-face 'font-lock-error-face)))
+    (copy-face 'bold 'font-lock-error-face)
+    (and (proof-have-color) (set-face-background face "salmon1"))
+    face)
+  "*The face for error messages.")
+
+(defvar font-lock-eager-annotation-face
+  (let ((face (make-face 'font-lock-eager-annotation-face)))
+    (if (proof-have-color)
+	(set-face-background face "lemon chiffon")
+      (copy-face 'italic face))
+    face)
+  "*The face for urgent messages.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A big hack to unfontify commas in declarations and definitions.  ;;

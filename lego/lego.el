@@ -427,8 +427,6 @@
 		       ("lego"  . lego-tags))
 		     tag-table-alist)))
 
-  (setq font-lock-keywords lego-font-lock-keywords-1)
-
 ;; where to find files
 
   (setq compilation-search-path (cons nil (lego-get-path)))
@@ -436,6 +434,8 @@
   (setq blink-matching-paren-dont-ignore-comments t)
 
 ;; font-lock
+
+  (setq font-lock-keywords lego-font-lock-keywords-1)
 
 ;; if we don't have the following in xemacs, zap-commas fails to work.
 
@@ -475,7 +475,11 @@
         proof-shell-init-cmd lego-process-config
 	proof-analyse-using-stack nil
 	proof-shell-process-output-system-specific lego-shell-process-output
-        lego-shell-current-line-width nil)
+        lego-shell-current-line-width nil
+
+	;;FIXME: we ought to set up separate font-lock instructions for
+	;;the shell, the goal buffer and the script
+	font-lock-keywords lego-font-lock-keywords-1)
 
   (lego-init-syntax-table)
 
