@@ -2,16 +2,19 @@
 
 * Priorities
 ============
-A (High)   to be fixed before release
+A (High)   to be fixed before release (Version 2.0)
 B (Medium) desirable to fix at some point
 C (Low)    probably not worth wasting time on
 
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A Structured review of complete system (2h hhg & tms)
+A Structured review of complete system. Is there redundent code?
+  Can some of the LEGO/Coq specific code made generic? Reengineering.
+    (2h hhg & tms)
 
-A Update documentation, in particular document bugs and workarounds
+A Update source documentation and manual, in particular document bugs
+  and workarounds
   (4h hhg & tms) 
 
 A Implement more generic mechanism for large undos (2h)
@@ -28,8 +31,6 @@ B Implement proof-find-previous-terminator and bind it to C-c C-a
 B Technical documentation to record expertise and allow users of other
   proof systems to adopt generic package (40h hhg & tms)
 
-B Port packages to XEmacs 20
-
 A Fixing up errors caused by pbp-generated commands; currently, script
   management unwisely assumes that pbp commands cannot fail (2h tms)
 
@@ -38,18 +39,14 @@ C pbp code doesn't quite accord with the tech report; in particular it
   the tech report claims
   --- djs: probably not much faster, actually.
 
-C It would be nice to have a version ported to emacs19 (or
-  20). Unfortunately, it's currently impossible to port the pbp code,
-  since emacs19 doesn't properly handle highlighting of nested
-  overlays. The bulk of the stuff dependent on which version of emacs
-  is running has been moved to proof-dependencies.el, but there are
-  doubtless differences in font-locking and menu code which will
-  require some work. One should check regularly if extents become
-  available in emacs19
-
 B file handling could be more robust; perhaps one should always cd to
   the directory corresponding to the script buffer (currently only
   done for the buffer which starts up the proof system) (30min tms)
+
+B replace (current-buffer) by proof-shell-buffer/proof-script-buffer
+  where ever possible (30 min tms)
+
+B Allow bib-cite style clicking on Load/Import commands to go to file.
 
 C LEGO and Coq modes overwrite each other.
 
@@ -62,6 +59,8 @@ C Outline-mode does not work due to read-only restrictions of
 
 * Here are things to be done to Lego mode
 =========================================
+
+A fix Pbp implementation (10h; tms)
 
 A LEGO mode might incorporate changes to Coq mode menu, in particular
   making help refer to the info file (30min tms)
@@ -88,11 +87,6 @@ A Error messages need to be revised e.g., if an import fails, LEGO
 * Here are things to be done to Coq mode
 ========================================
 
-? There's a bug so the goal buffer isn't displaying everything that
-  happens.
-
-B Allow bib-cite style clicking on Load commands to go to file.
-
 B Add Patrick Loiseleur's commands to search for vernac or ml files.
 
 C Sections and files are handled incorrectly.
@@ -111,6 +105,8 @@ B Proof-by-Pointing (10h hhg)
 B Update proof-locked-span so that it detaches the read-only span like 
   what we do in xemacs code (to avoid not being able to type at the
   first character in the buffer if you Undo to that point).
+    (1h hhg)
 
 B Commands that use overlapping spans or that delete spans don't work
   (for example: finishing a proof by Save; Undo).
+    (5h hhg)
