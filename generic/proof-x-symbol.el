@@ -44,9 +44,10 @@
 
 ;; Current TODO here:
 ;;
-;; -- Fix code at end so that (proof-ass x-symbol-enable) setting works,
-;;    startup follows sequence recommended by CW
-;;
+;; -- Is it possible to remove setting of language in x-symbol-enable?
+;; -- Simplify proof-x-symbol-initialize
+;; -- Investigate font-lock errors (XEmacs 21.4.8):
+;;     Error caught in `font-lock-pre-idle-hook': (wrong-type-argument markerp nil)
 
 
 (defvar proof-x-symbol-initialized nil
@@ -185,10 +186,6 @@ in future if we have just activated it for this buffer."
 	(set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
 	(set (proof-ass-sym x-symbol-enable) t)))
-  ;; FIXME: on startup, x-symbol-language should somehow be
-  ;; set automatically, but perhaps something loads too late.
-  ;; Hence the next line to ensure things work smoothly.
-  (setq x-symbol-language (proof-ass x-symbol-language))
   (x-symbol-mode)
   (proof-x-symbol-mode-associated-buffers))
 
@@ -276,13 +273,19 @@ Assumes that the current buffer is the proof shell buffer."
   ;; (see proof-x-symbol-refresh-output-buffers above)
   ;; [ Actually, we could ask that the activate/decativate command
   ;;   itself does this ]
+  ;;
   (if proof-x-symbol-initialized
       (progn
 	(cond
 	 ((proof-ass x-symbol-enable)
 	  (proof-x-symbol-set-language)
 	  (if (and proof-xsym-activate-command 
-		   (proof-shell-live-buffer))
+		   (proof-shell-live-buffer)
+		   ;; may fail if triggered during scripting.
+		   ;; Also: should cache status of x-symbol mode in
+		   ;; proof shell; current behaviour re-calls this
+		   ;; code every time a script file is loaded...
+		   (proof-shell-available-p))
 	      (proof-shell-invisible-command-invisible-result
 	       proof-xsym-activate-command))
 	 ;; We do encoding as the first step of input manipulation
@@ -340,8 +343,10 @@ Assumes that the current buffer is the proof shell buffer."
 ;;
 ;; Initialize x-symbol-support on load-up if user has asked for it
 ;;
-(if (proof-ass x-symbol-enable) 
-      (proof-x-symbol-initialize))
+;; FIXME: this initialization seems to result in x-symbol-language not
+;; being set properly.  We let this be called on demand instead.
+;(if (proof-ass x-symbol-enable) 
+;      (proof-x-symbol-initialize))
 
 (provide 'proof-x-symbol)
 ;; End of proof-x-symbol.el
