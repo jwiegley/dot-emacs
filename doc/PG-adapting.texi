@@ -369,7 +369,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (af2 "Af2" "\\.af2$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (phox "PhoX" "\\.phx$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$"))}.
 @end defopt
 
 
@@ -1351,10 +1351,10 @@ for more details about the final two settings in this group,
 Command to the proof assistant to tell it that a file has been processed.@*
 The format character @samp{%s} is replaced by a complete filename for a
 script file which has been fully processed interactively with
-Proof General.  The escape sequences in @samp{@code{proof-shell-filename-escapes}} 
-are applied to the filename.
+Proof General.  See @samp{@code{proof-format-filename}} for other possibilities
+to process the filename.
 
-This is used to interface with the proof assistant's internal
+This setting used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
 which files have been processed.  Specifically, when scripting
 is deactivated in a completed buffer, it is added to Proof General's
@@ -1370,9 +1370,9 @@ See also: @code{proof-shell-inform-file-retracted-cmd},
 @defvar proof-shell-inform-file-retracted-cmd 
 Command to the proof assistant to tell it that a file has been retracted.@*
 The format character @samp{%s} is replaced by a complete filename for a
-script file which Proof General wants the prover to consider
-as not completely processed. The escape sequences
-in @samp{@code{proof-shell-filename-escapes}} are applied to the filename.
+script file which Proof General wants the prover to consider as not
+completely processed.  See @samp{@code{proof-format-filename}} for other
+possibilities to process the filename.
 
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
@@ -1802,8 +1802,9 @@ functions '(condf . actf). Both are given (cmd string) as arguments.
 @samp{cmd} is a string containing the currently processed command.
 @samp{string} is the response from the proof system. To change the
 behaviour of @samp{@code{proof-shell-process-output}}, (condf cmd string) must
-return a non-nil value. Then (actf cmd string) is invoked. See the
-documentation of @samp{@code{proof-shell-process-output}} for the required
+return a non-nil value. Then (actf cmd string) is invoked. 
+
+See the documentation of @samp{@code{proof-shell-process-output}} for the required
 output format.
 @end defvar
 
@@ -2350,9 +2351,35 @@ Define command FN to prompt for string @var{cmdvar} to proof assistant.@*
 @var{cmdvar} is a function or string.  Automatically has history.
 @end deffn
 
+@c TEXI DOCSTRING MAGIC: proof-format-filename
 
 
 
+
+
+
+@defun proof-format-filename string filename
+Format @var{string} by replacing quoted chars by escaped version of @var{filename}.
+
+%e uses the canonicalized expanded version of filename (including
+directory, using @code{default-directory} -- see @samp{@code{expand-file-name}}).
+
+%r uses the unadjusted (possibly relative) version of @var{filename}.
+
+%m ('module') uses the basename of the file, without directory
+or extension.
+
+%s means the same as %e.
+
+Using %e can avoid problems with dumb proof assistants who don't
+understand ~, for example.
+
+For all these cases, the escapes in @samp{@code{proof-shell-filename-escapes}}
+are processed.
+
+If @var{string} is in fact a function, instead invoke it on @var{filename} and
+return the resulting (string) value.
+@end defun
 @node Internals of Proof General
 @chapter Internals of Proof General
 
@@ -2445,7 +2472,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'af2} @code{'hol98} @code{'acl2} @code{'plastic} @code{'twelf}.
+A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'phox} @code{'hol98} @code{'acl2} @code{'plastic} @code{'twelf}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
@@ -3128,6 +3155,8 @@ Release the proof shell lock, with error or interrupt flag @var{err-or-int}.@*
 Clear @code{proof-shell-busy}, and set @code{proof-shell-error-or-interrupt-seen}
 to err-or-int.
 @end defun
+
+
 @c
 @c OUTPUT
 @c
@@ -3141,10 +3170,57 @@ prover.
 
 The idea is to conceal as much irrelevant information from the user as
 possible; only the remaining output between prompts and after the last
-urgent message will be a candidate for the goal or response buffer.
-The variable @code{proof-shell-urgent-message-marker} tracks
-the last urgent message seen.
+urgent message will be a candidate for the goal or response buffer.  The
+internal variable @code{proof-shell-urgent-message-marker} tracks the
+last urgent message seen.
 
+When output is grabbed from the prover process, it is stored into
+@code{proof-shell-last-output}, and its type is stored in
+@code{proof-shell-last-output-kind}.  Output which is deferred 
+or possibly discarded until the queue is empty is copied into
+@code{proof-shell-delayed-output}, with type
+@code{proof-shell-delayed-output-kind}.
+
+
+@c TEXI DOCSTRING MAGIC: proof-shell-last-output
+
+@defvar proof-shell-last-output 
+A record of the last string seen from the proof system.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-last-output-kind
+
+@defvar proof-shell-last-output-kind 
+A symbol denoting the type of the last output string from the proof system.@*
+Specifically:
+@lisp
+ @code{'interrupt}      An interrupt message
+ @code{'error}          An error message
+ @code{'abort}          A proof abort message
+ @code{'loopback}       A command sent from the PA to be inserted into the script
+ @code{'response}       A response message
+ @code{'goals}          A goals (proof state) display
+ @code{'systemspecific} } Something specific to a particular system,
+                 }  see @samp{@code{proof-shell-process-output-system-specific}}
+@end lisp
+The output corresponding to this will be in @code{proof-shell-last-output}.
+
+See also @samp{@code{proof-shell-proof-completed}} for further information about
+the proof process output, when ends of proofs are spotted.
+
+This variable can be used for instance specific functions which want
+to examine @code{proof-shell-last-output}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output
+
+@defvar proof-shell-delayed-output 
+A copy of @code{proof-shell-last-output} held back for processing at end of queue.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-delayed-output-kind
+
+
+@defvar proof-shell-delayed-output-kind 
+A copy of proof-shell-last-output-lind held back for processing at end of queue.
+@end defvar
 @vindex proof-action-list
 @c TEXI DOCSTRING MAGIC: proof-shell-process-output
 @defun proof-shell-process-output cmd string
@@ -3171,15 +3247,13 @@ Order of testing is: interrupt, abort, error, completion.
 To extend this function, set @code{proof-shell-process-output-system-specific}.
 
 The "aborted" case is intended for killing off an open proof during
-retraction.  Typically it the error message caused by a
+retraction.  Typically it matches the message caused by a
 @code{proof-kill-goal-command}.  It simply inserts the word "Aborted" into
 the response buffer.  So it is expected to be the result of a 
 retraction, rather than the indication that one should be made.
 
-This function can return one of 4 things as the symbol: @code{'error},
-@code{'interrupt}, @code{'loopback}, or nil. @code{'loopback} means this was output from
-pbp, and should be inserted into the script buffer and sent back to
-the proof assistant.
+This function sets @samp{@code{proof-shell-last-output}} and @samp{@code{proof-shell-last-output-kind}},
+which see.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-urgent-message-marker
