@@ -16,12 +16,24 @@
 	 (require 'span-overlay))))
 
 ;;
-;; Generic functions built on low-level abstract ones
-;;
+;; Generic functions built on low-level concrete ones.
+;; 
 
-(defun span-property-safe (span name)
+(defsubst delete-spans (start end prop)
+  "Delete all spans between START and END with property PROP set."
+  (mapcar-spans 'delete-span start end prop))
+
+(defsubst span-property-safe (span name)
   "Like span-property, but return nil if SPAN is nil."
   (and span (span-property span name)))
   
+(defsubst set-span-start (span value)
+  "Set the start point of SPAN to VALUE."
+  (set-span-endpoints span value (span-end span)))
+
+(defsubst set-span-end (span value)
+  "Set the end point of SPAN to VALUE."
+  (set-span-endpoints span (span-start span) value))
+
 (provide 'span)
 ;; span.el ends here.

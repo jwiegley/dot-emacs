@@ -25,14 +25,6 @@
   "Set the endpoints of SPAN to START, END."
   (set-extent-endpoints span start end))
 
-(defsubst set-span-start (span value)
-  "Set the start point of SPAN to VALUE."
-  (set-extent-endpoints span value (extent-end-position span)))
-
-(defsubst set-span-end (span value)
-  "Set the end point of SPAN to VALUE."
-  (set-extent-endpoints span (extent-start-position span) value))
-
 (defsubst set-span-property (span name value)
   "Set SPAN's property NAME to VALUE."
   (set-extent-property span name value))
@@ -69,10 +61,6 @@
 (defsubst mapcar-spans (fn start end prop &optional val)
   "Apply function FN to all spans between START and END with property PROP set"
   (mapcar-extents fn nil (current-buffer) start end  nil prop val))
-
-(defsubst delete-spans (start end prop)
-  "Delete all spans between START and END with property PROP set."
-  (mapcar-spans 'delete-span start end prop))
 
 (defsubst span-at (pt prop)
   "Return the smallest SPAN at point PT with property PROP."

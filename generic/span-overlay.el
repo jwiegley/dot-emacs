@@ -227,22 +227,9 @@ Re-attaches SPAN if it was removed from the buffer."
   (move-overlay span start end)
   (add-span span))
 
-(defsubst set-span-start (span value)
-  "Set the start point of SPAN to VALUE."
-  (set-span-endpoints span value (span-end span)))
-
-;; This doesn't affect invariant:
-(defsubst set-span-end (span value)
-  "Set the end point of SPAN to VALUE."
-  (set-span-endpoints span (span-start span) value))
-
 (defsubst mapcar-spans (fn start end prop &optional val)
   "Apply function FN to all spans between START and END with property PROP set"
   (mapcar fn (spans-at-region-prop start end prop val)))
-
-(defsubst delete-spans (start end prop)
-  "Delete all spans between START and END with property PROP set."
-  (mapcar-spans 'delete-span start end prop))
 
 (defun map-spans-aux (f l)
   (cond (l (cons (funcall f l) (map-spans-aux f (span-property l 'before))))
