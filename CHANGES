@@ -15,7 +15,7 @@
 
 ** Generic changes
 
-*** Display management: added shring-windows-tofit option
+*** Display management: added shrink-windows-tofit option
 
 Attempt to shrink output windows to fit their contents in
 case it is less than 1/2 the window height.  In progress.  
