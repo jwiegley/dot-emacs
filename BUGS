@@ -88,6 +88,8 @@ Noticed with Emacs 20.6.1.  Seems to affect all provers.
 Workaround:  use C-c C-RET or C-c C-r instead.
 Nasty workaround: (setq debug-on-quit t), hit "c" on each hang
 to continue.
+[ If FSF Emacs support in PG is important to you, please try
+  to debug this since we don't have resource to do it ourselves. ]
 
 ** XEmacs 21.1.9 on Win32
 
