@@ -30,6 +30,15 @@
   "Non-nil if Proof General is running on a win32 system."))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Misc backward compatibility
+;;;
+
+(or (fboundp 'process-live-p)
+(defun process-live-p (obj)
+  "Return t if OBJECT is a process that is alive"
+  (memq (process-status proc) '(open run stop))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
