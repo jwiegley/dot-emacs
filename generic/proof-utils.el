@@ -714,15 +714,18 @@ The name of the defined function is returned."
   ;; the time to waste writing one or trying to find one.
   "Search for PROGNAME on PATH.  Return the full path to PROGNAME, or nil.
 If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
-  (or (and
-       (fboundp 'locate-file)
-       (locate-file progname
-		    (split-path (getenv "PATH")) 
-		    (if proof-running-on-win32 '(".exe"))
-		    1))
-      (and
-       returnnopath
-       progname)))
+  (or 
+   (cond
+    ((fboundp 'executable-find)
+     (executable-find progname))	;; PG 3.4: try a new Emacs function.
+    ((fboundp 'locate-file)
+     (locate-file progname
+		  (split-path (getenv "PATH")) 
+		  (if proof-running-on-win32 '(".exe"))
+		  1))
+    (and
+     returnnopath
+     progname))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
