@@ -811,12 +811,14 @@ an error is signalled here."
 		(error "%s of %s failed!" name buf)))))))
 
 (defun proof-deactivate-scripting-auto () 
-  "Deactivate scripting without asking questions.
+  "Deactivate scripting without asking questions or raising errors.
 If the locked region is full, register the file as processed.
-Otherwise retract it."
-  (proof-deactivate-scripting
-   (proof-with-script-buffer
-    (if (proof-locked-region-full-p) 'process 'retract))))
+Otherwise retract it.  Errors are ignored"
+  (condition-case nil
+      (proof-deactivate-scripting
+       (proof-with-script-buffer
+	(if (proof-locked-region-full-p) 'process 'retract)))
+    ((error nil))))
 
 (defun proof-deactivate-scripting (&optional forcedaction)
   "Deactivate scripting for the active scripting buffer.
@@ -2368,16 +2370,15 @@ If killing the active scripting buffer, run proof-deactivate-scripting-auto.
 Otherwise just do proof-restart-buffers to delete some spans from memory."
   ;; Deactivate scripting in the current buffer if need be, forcing
   ;; automatic retraction if the buffer is not fully processed.
-  (unwind-protect
-      (if (eq (current-buffer) proof-script-buffer)
-	  (proof-deactivate-scripting-auto))
-    (proof-restart-buffers (list (current-buffer)))
-    ;; Hide away goals, response, and tracing.  This is a hack because
-    ;; otherwise we can lead the user to frustration with the
-    ;; dedicated windows nonsense.
-    (proof-map-buffers 
-     (list proof-goals-buffer proof-response-buffer proof-trace-buffer)
-     (bury-buffer (current-buffer)))))
+  (if (eq (current-buffer) proof-script-buffer)
+      (proof-deactivate-scripting-auto))
+  (proof-restart-buffers (list (current-buffer)))
+  ;; Hide away goals, response, and tracing.  This is a hack because
+  ;; otherwise we can lead the user to frustration with the
+  ;; dedicated windows nonsense.
+  (proof-map-buffers 
+   (list proof-goals-buffer proof-response-buffer proof-trace-buffer)
+   (bury-buffer (current-buffer))))
 
 
 ;; Notes about how to deal with killing/reverting/renaming buffers:
