@@ -101,11 +101,11 @@ if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
   ARGS="$ARGS -T Isabelle"
 else
   ARGS="$ARGS -nw"
+  XSYMBOL=false
 fi
 
 
 ARGS="$ARGS -l $PROOFGENERAL_HOME/isa/interface-setup.el"
-ARGS="$ARGS -l $PROOFGENERAL_HOME/generic/proof-site.el"
 
 for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
     "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
