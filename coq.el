@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 2.1  1998/09/03 11:07:07  da
+;; Removed dead code
+;;
 ;; Revision 2.0  1998/08/11 11:39:20  da
 ;; Renamed <file>-fontlock to <file>-syntax
 ;;
@@ -160,10 +163,6 @@
 (defconst coq-interrupt-regexp "Interrupted"
   "Regexp corresponding to an interrupt")
 
-(defvar coq-save-query t
-  "*If non-nil, ask user for permission to save the current buffer before
-  processing a module.")
-
 (defvar coq-default-undo-limit 100
   "Maximum number of Undo's possible when doing a proof.")
 
@@ -175,9 +174,6 @@
 
 (defvar coq-prog-name "coqtop -emacs"
   "*Name of program to run as Coq.")
-
-(defvar coq-shell-working-dir ""
-  "The working directory of the coq shell")
 
 (defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")

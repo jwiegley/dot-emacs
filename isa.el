@@ -41,8 +41,8 @@ no regular or easily discernable structure.")
      "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html"
     ;; proof script syntax
     proof-terminal-char	 ?\;		; ends a proof
-    proof-comment-start	"(*"		; comment in a proof
-    proof-comment-end		"*)"		; 
+    proof-comment-start		"(*"	; comment in a proof
+    proof-comment-end		"*)"	; 
     ;; proof engine output syntax
     proof-save-command-regexp   isa-save-command-regexp
     proof-save-with-hole-regexp isa-save-with-hole-regexp
@@ -52,8 +52,8 @@ no regular or easily discernable structure.")
     ;; proof engine commands
     proof-prf-string		"pr()"
     proof-ctxt-string		"the_context();" 
-    proof-help-string
-     "print \"No in-built help for Isabelle.\"" ; FIXME: proof.el should allow nil
+    proof-help-string ; could be version 
+     "print \" in-built help for Isabelle.\"" ; FIXME: proof.el should allow nil
     ;; command hooks
     proof-goal-command-p	'isa-goal-command-p
     proof-count-undos-fn	'isa-count-undos
@@ -98,17 +98,6 @@ no regular or easily discernable structure.")
     proof-shell-end-char		?\373 
     proof-shell-field-char		?\374)
     "Table of settings for configuration of proof shell mode to Isabelle.")
-
-
-;; =========================================================================
-;; FIXME: THESE TWO ARE DEAD?
-(defvar isa-save-query t
-  "*If non-nil, ask user for permission to save the current buffer before
-  processing a module.")
-
-(defvar isa-shell-working-dir ""
-  "The working directory of the isabelle shell")
-;; =========================================================================
 
 
 ;; ===== outline mode

@@ -21,10 +21,6 @@
   "*The name of the LEGO module which inherits all other modules of the
   library.")
 
-(defvar lego-save-query t
-  "*If non-nil, ask user for permission to save the current buffer before
-  processing a module.")
-
 (defvar lego-help-menu-list
   '(["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
     ["The LEGO library (WWW)" (w3-fetch lego-library-www-page)  t])
@@ -97,9 +93,6 @@
 
 (defvar lego-prog-name "lego"
   "*Name of program to run as lego.")
-
-(defvar lego-shell-working-dir ""
-  "The working directory of the lego shell")
 
 (defvar lego-shell-prompt-pattern "^\\(Lego>[ \201]*\\)+"
   "*The prompt pattern for the inferior shell running lego.")
@@ -424,7 +417,6 @@
 
 ;; hooks and callbacks
 
-  (add-hook 'proof-shell-exit-hook 'lego-zap-line-width nil t)
   (add-hook 'proof-pre-shell-start-hook 'lego-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook 'lego-shell-adjust-line-width))
 
