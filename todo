@@ -51,6 +51,11 @@ re-enabled), proof-toggle-scripting, new configuration options.
     - Fix sentinel infinite loop bug
     - noticeable delay when loading ML files for Isabelle (fontification?)
 
+A Isabelle (and perhaps other prover) multiple file problem: 
+  add configuration setting proof-shell-inform-file-processed-command,
+  and send *retract* action when reactivating scripting in a previously
+  full buffer, but don't actually unlock there.  
+
 A Nested error problem:  conceptually, activate scripting should fail
   if the hook function which causes loading of more files (for isabelle)
   fails.  Maybe fix by adding a new piece of state: 
