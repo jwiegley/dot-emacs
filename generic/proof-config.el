@@ -693,7 +693,7 @@ beginning of the entity's region."
 (defcustom proof-lift-global nil
   "This function lifts local lemmas from inside goals out to top level.
 This function takes the local goalsave span as an argument. Set this
-to `nil' of the proof assistant does not support nested goals."
+to `nil' if the proof assistant does not support nested goals."
   :type 'function
   ;; FIXME customize broken on choices with function in them?
   ;; :type '(choice (const :tag "No local lemmas" nil) (function))
