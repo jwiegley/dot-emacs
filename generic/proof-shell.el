@@ -794,12 +794,9 @@ arrive."
 	   (let
 	       ((scrbuf (car-safe proof-script-buffer-list)))
 	       (proof-restart-buffers
-		;; FIXME: multiple files needs fixing here!!
-		;; (remove (car-safe proof-script-buffer-list)
 		(proof-files-to-buffers
 		 (set-difference current-included
 				 proof-included-files-list)))
-					; )
 	       (cond
 		((not scrbuf))
 		((eq scrbuf (car-safe proof-script-buffer-list)))
