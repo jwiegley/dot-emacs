@@ -111,7 +111,8 @@ For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'.")
 ;;    starts proof shell, gives error if it's busy.
 ;;
 ;;  proof-activate-scripting  (in proof-script.el)
-;;    turns on scripting minor mode for current (scripting) buffer.
+;;    calls proof-shell-ready-prover, and turns on scripting minor
+;;    mode for current (scripting) buffer.
 ;;
 ;; Also, a new enabler predicate:
 ;;  
@@ -562,8 +563,14 @@ If there is no command under the mouse, behaves like mouse-track-insert."
   "Erase the response buffer according to proof-shell-erase-response-flag.
 ERASE-NEXT-TIME is the new value for the flag.
 If CLEAN-WINDOWS is set, use proof-clear-buffer to do the erasing.
-If FORCE, override proof-shell-erase-response-flag."
-  (if (or proof-shell-erase-response-flag force)
+If FORCE, override proof-shell-erase-response-flag.
+
+If the user option proof-tidy-response is nil, then
+the buffer is only cleared when FORCE is set."
+  (if (or (and
+	   proof-tidy-response
+	   proof-shell-erase-response-flag) 
+	  force)
       (if clean-windows
 	  (proof-clean-buffer proof-response-buffer)
 	;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
@@ -1201,7 +1208,8 @@ if none of these apply, display."
       ;; with Isabelle.  Seems wrong to add "example.l" to
       ;; list of processed files if it's only partly processed?
       ;; (On the other hand, for lego, it may have declared a 
-      ;;  module heading).
+      ;;  module heading, which is probably Lego's standard
+      ;;  for what a processed file actually is).
       (if (and file (not (string= file "")))
 	  (proof-register-possibly-new-processed-file file))))
 
