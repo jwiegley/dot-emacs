@@ -4,6 +4,12 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** D Isabelle: I think show_sorts -> show_types, how can we reflect this ?
+
+** D Fix mode naming for Isabelle 
+     (might like isa-proofscript-mode -> isa-mode;
+      but this conflicts with entry mechanism for thy/isa mode).
+
 ** D Might be nice to unify menus a little more, e.g. add Isabelle for .thy
 
    But several of the ops there are not relevant for theory files.
