@@ -199,7 +199,7 @@ Paul Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}.
 @c
 Coq Proof General was crafted by Healfdene Goguen, with
 later contributions from Patrick Loiseleur.
-It is now maintained by Pierre Courtieu <courtieu@lri.fr>
+It is now maintained by Pierre Courtieu <courtieu@@lri.fr>
 @c
 Isabelle Proof General was crafted and is being maintained by David
 Aspinall @i{<isabelle@@dcs.ed.ac.uk>}.  It has benefited greatly
@@ -2482,7 +2482,7 @@ contents of that file.
 * Proof script settings::       
 * Proof shell settings::        
 * Splash screen settings::      
-* Goals buffer configuration::  
+* Goals buffer settings::  
 * Global constants::            
 * Handling multiple files::     
 @end menu
@@ -2797,7 +2797,7 @@ parentheses and commands. It represents these with the characters
 @samp{?(}, @samp{?[} and @samp{@code{proof-terminal-char}}. 
 @end defvar
 
-@xref{Handling multiple files} for more details about the final
+@xref{Handling multiple files}, for more details about the final
 setting in this group.
 @c TEXI DOCSTRING MAGIC: proof-auto-multiple-files
 @defvar proof-auto-multiple-files 
@@ -2888,8 +2888,9 @@ so that the prover switches to the directory of a proof
 script every time scripting begins.
 @end defvar
 
-@xref{Handling multiple files} for more details about the final two
-settings in this group.
+@xref{Handling multiple files},
+for more details about the final two settings in this group,
+
 
 @c TEXI DOCSTRING MAGIC: proof-shell-inform-file-processed-cmd
 @defvar proof-shell-inform-file-processed-cmd 
@@ -3097,8 +3098,8 @@ output format.
 @end defvar
 
 
-@xref{Handling multiple files} for more details about the final
-three settings in this section.
+@xref{Handling multiple files}, for more details about the final three
+settings in this section.
 
 @vindex proof-included-files-list
 @c TEXI DOCSTRING MAGIC: proof-shell-process-file
