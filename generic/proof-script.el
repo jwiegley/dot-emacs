@@ -1204,8 +1204,7 @@ the next command end."
       ;; Only one of (depth > 0) and (not quote-parity)
       ;; should be true at once. -- hhg
     (let* ((start	(proof-queue-or-locked-end))
-	   (str		(make-string (- (buffer-size) start -10) ?x))
-	   (i 0) (depth 0) (quote-parity t) done alist c
+	   (chs nil) (depth 0) (quote-parity t) done alist c
 	  (comment-end-regexp (regexp-quote proof-comment-end))
 	  (comment-start-regexp (regexp-quote proof-comment-start)))
 	  ;; For forthcoming improvements: skip over boring
@@ -1240,10 +1239,9 @@ the next command end."
 	       (setq done t))
 	   (setq depth (- depth 1))
 	   (forward-char (length (match-string 0)))
-	   (if (eq i 0) 
+	   (if (not chs)
 	       (setq alist (cons (list 'comment "" (point)) alist))
-	     (aset str i ?\ )
-	     (incf i))))
+	     (setq chs (cons ?\  chs)))))
 	;; Case 4. Found a comment start, not inside a string
 	((and (proof-looking-at comment-start-regexp) quote-parity)
 	 (setq depth (+ depth 1))
@@ -1256,10 +1254,8 @@ the next command end."
 	 ;; Skip whitespace before the start of a command, otherwise
 	 ;; other characters in the accumulator string str
 	 (setq c (char-after (point)))
-	 (if (or (> i 0) (not (= (char-syntax c) ?\ )))
-	     (progn
-	       (aset str i c)
-	       (incf i)))
+	 (if (or chs (not (= (char-syntax c) ?\ )))
+	     (setq chs (cons c chs)))
 
 	 ;; Maintain quote-parity
 	 (cond
@@ -1274,7 +1270,7 @@ the next command end."
 	 (if (and (= c proof-terminal-char) quote-parity)
 	     (progn 
 	       (setq alist 
-		     (cons (list 'cmd (substring str 0 i) (point)) alist))
+		     (cons (list 'cmd (concat (reverse chs)) (point)) alist))
 	       (cond
 		((> (point) pos)
 		 (setq done t))
@@ -1283,7 +1279,7 @@ the next command end."
 		((and (not next-command-end) (= (point) pos))
 		 (setq done t))
 		(t
-		 (setq i 0))))))))
+		 (setq chs nil))))))))
      alist)))
 
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
