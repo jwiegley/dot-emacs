@@ -544,5 +544,27 @@ the function `pg-remove-specials' can be used instead)."
     "")) ;; Empty string in case called with non PGIP-aware Isabelle.
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Understanding syntax configuration (really should be PGIP, but...)
+;;
+;; [PRESENTLY UNUSED; WORK IN PROGRESS]
+
+(defun isabelle-parse-syntax-dump (buf)
+  (save-excursion
+    (let (consts start lim)
+      (set-buffer buf)
+      (goto-char (point-min))
+      (if (re-search-forward "consts:" nil t)
+	  (progn
+	    (setq start (point))
+	    (setq lim (re-search-forward "parse_ast_translation:" nil t))
+	    (goto-char start)
+	    (while (re-search-forward "\"\\([^\"]*\\)\"" lim t)
+	      (if (< 0 (length (match-string 1)))
+		  (setq consts (cons (match-string 1) consts))))))
+      consts)))
+
+
 (provide 'isabelle-system)
 ;; End of isabelle-system.el
