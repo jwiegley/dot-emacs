@@ -4,7 +4,7 @@
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
-;; Version: 4.4.X
+;; Version: 4.5
 ;; Keywords: WYSIWYG, LaTeX, HTML, wp, math, internationalization
 ;; X-URL: http://x-symbol.sourceforge.net/
 

@@ -1,10 +1,10 @@
 ;;; x-symbol-texi.el --- token language "TeXinfo command" for package x-symbol
 
-;; Copyright (C) 2000, 2002 Free Software Foundation, Inc.
+;; Copyright (C) 2000, 2002, 2003 Free Software Foundation, Inc.
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
-;; Version: 4.4.X
+;; Version: 4.5
 ;; Keywords: WYSIWYG, TeXinfo, wp, internationalization
 ;; X-URL: http://x-symbol.sourceforge.net/
 
@@ -39,13 +39,15 @@
 ;;;===========================================================================
 
 (defcustom x-symbol-texi-auto-style '(t nil nil nil nil nil)
-  "TODO"
+  "Values for X-Symbol's buffer-local variables with language `texi'.
+See language access `x-symbol-LANG-auto-style'."
   :group 'x-symbol-texi
   :group 'x-symbol-mode
   :type 'x-symbol-auto-style)
 
 (defcustom x-symbol-texi-modeline-name "texi"
-  "*String naming the language TeXinfo in the modeline."
+  "Modeline name of token language `texi'.
+See language access `x-symbol-LANG-modeline-name'."
   :group 'x-symbol-texi
   :type 'string)
 
@@ -58,14 +60,15 @@
     ("Circumflex, Caron" circumflex caron)
     ("Diaeresis, Umlaut" diaeresis hungarumlaut)
     ("Acute, Grave" acute grave))
-  "*If non-nil, used in TeXinfo specific grid/menu.
-See `x-symbol-header-groups-alist'."
+  "Header/submenu specification of the specific menu for language `texi'.
+See language access `x-symbol-LANG-header-groups-alist'."
   :group 'x-symbol-texi
   :group 'x-symbol-input-init
   :type 'x-symbol-headers)
 
 (defcustom x-symbol-texi-electric-ignore nil
-  "*Additional TeXinfo version of `x-symbol-electric-ignore'."
+  "Specification restricting input method ELECTRIC with language `texi'.
+See language access `x-symbol-LANG-electric-ignore'."
   :group 'x-symbol-texi
   :group 'x-symbol-input-control
   :type 'x-symbol-function-or-regexp)
@@ -77,15 +80,15 @@ See `x-symbol-header-groups-alist'."
     (no-code "not as code" (x-symbol-emph-info-face))
     (VALID "unknown TeXinfo command" (x-symbol-emph-info-face))
     (INVALID "no TeXinfo command" (x-symbol-emph-info-face)))
-  "Alist for TeXinfo's token classes displayed by info in echo area.
-See `x-symbol-language-access-alist' for details."
+  "Token classes displayed by info in echo area, for language `texi'.
+See language access `x-symbol-LANG-class-alist'."
   :group 'x-symbol-texi
   :group 'x-symbol-info-strings
   :type 'x-symbol-class-info)
 
 (defcustom x-symbol-texi-class-face-alist nil
-  "Alist for TeXinfo's color scheme in TeXinfo's grid and info.
-See `x-symbol-language-access-alist' for details."
+  "Color scheme in language specific grid and info, for language `texi'.
+See language access `x-symbol-LANG-class-face-alist'."
   :group 'x-symbol-texi
   :group 'x-symbol-input-init
   :group 'x-symbol-info-general
@@ -98,13 +101,15 @@ See `x-symbol-language-access-alist' for details."
     :decode-regexp
     "@\\(?:[A-Za-z]+{[A-Za-z]?}\\|[{}]\\|[~^\"'`][A-Za-z]\\|,{[A-Za-z]}\\)"
     :decode-spec (?@))
-  "Token grammar for language `texi'.")
+  "Grammar of token language `texi'.
+See language access `x-symbol-LANG-token-grammar'.")
 
 (defvar x-symbol-texi-user-table nil
   "User table defining TeXinfo commands, used in `x-symbol-texi-table'.")
 
 (defvar x-symbol-texi-generated-data nil
-  "Internal.")
+  "Generated data for token language `texi'.
+See language access `x-symbol-LANG-generated-data'.")
 
 
 ;;;===========================================================================
@@ -325,9 +330,10 @@ See `x-symbol-language-access-alist' for details."
 	  x-symbol-texi-latin1-table
 	  x-symbol-texi-latinN-table
 	  x-symbol-texi-xsymbX-table)
-  "Complete table defining TeXinfo commands.
-Use `x-symbol-texi-user-table' to define/shadow private TeXinfo commands.
-See `x-symbol-init-language' and `x-symbol-texi-token-list'.")
+  "Table defining `texi' tokens for the characters.
+See language access `x-symbol-LANG-table'.  Use
+`x-symbol-texi-user-table' to define private TeXinfo commands or shadow
+existing ones.")
 
 ;;; Local IspellPersDict: .ispell_xsymb
 ;;; x-symbol-texi.el ends here

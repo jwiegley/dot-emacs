@@ -4,7 +4,7 @@
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
-;; Version: 4.4.X
+;; Version: 4.5.X
 ;; Keywords: WYSIWYG, LaTeX, wp, math, internationalization
 ;; X-URL: http://x-symbol.sourceforge.net/
 
@@ -61,7 +61,8 @@
 					'x-symbol-tex-auto-coding-alist)))
     x-symbol-coding (not x-symbol-mode)
     x-symbol-mode x-symbol-mode)
-  "See the documentation of `x-symbol-auto-style'."
+  "Values for X-Symbol's buffer-local variables with language `tex'.
+See language access `x-symbol-LANG-auto-style'."
   :group 'x-symbol-tex
   :group 'x-symbol-mode
   :type 'x-symbol-auto-style)
@@ -76,15 +77,16 @@
     ("\\`[ \t]*%&.*[  \t]+--?translate-file[ \t]*=[ \t]*i\\([A-Za-z]+[0-9]+\\)-" 1
      ("l1" . iso-8859-1)
      ("l2" . iso-8859-2)))
-  "*Alist used to determine the file coding of TeX/LaTeX buffers.
-Used in the default value of `x-symbol-auto-mode-alist'.  See
-variable `x-symbol-auto-coding-alist' for details."
+  "*Alist used to determine the file coding with language `tex'.
+Used in the default value of `x-symbol-tex-auto-style'.  See variable
+`x-symbol-auto-coding-alist' for details."
   :group 'x-symbol-tex
   :group 'x-symbol-mode
   :type 'x-symbol-auto-coding)
 
 (defcustom x-symbol-tex-coding-master 'TeX-master
-  "*If non-nil, symbol of local variable with name of master file."
+  "*If non-nil, symbol of local variable with name of master file.
+Used inside function `x-symbol-tex-auto-coding-alist'."
   :group 'x-symbol-tex
   :group 'x-symbol-mode
   :type 'boolean)
@@ -95,25 +97,27 @@ variable `x-symbol-auto-coding-alist' for details."
 ;;;===========================================================================
 
 (defcustom x-symbol-tex-modeline-name "tex"
-  "*String naming the language TeX in the modeline."
+  "Modeline name of token language `tex'.
+See language access `x-symbol-LANG-modeline-name'."
   :group 'x-symbol-tex
   :type 'string)
 
 (defcustom x-symbol-tex-header-groups-alist nil
-  "*If non-nil, used in TeX specific grid/menu.
-See `x-symbol-header-groups-alist'."
+  "Header/submenu specification of the specific menu for language `tex'.
+See language access `x-symbol-LANG-header-groups-alist'."
   :group 'x-symbol-tex
   :group 'x-symbol-input-init
   :type 'x-symbol-headers)
 
 (defcustom x-symbol-tex-electric-ignore 'x-symbol-tex-default-electric-ignore
-  "*Additional TeX version of `x-symbol-electric-ignore'."
+  "Specification restricting input method ELECTRIC with language `tex'.
+See language access `x-symbol-LANG-electric-ignore'."
   :group 'x-symbol-tex
   :group 'x-symbol-input-control
   :type 'x-symbol-function-or-regexp)
 
 (defcustom x-symbol-tex-electric-ignore-regexp "[A-Za-z]~\\'"
-  "*Regexp match contexts not to be used in TeX for input method ELECTRIC.
+  "*Regexp matching contexts not to be used for input method ELECTRIC.
 Used by `x-symbol-tex-default-electric-ignore'."
   :group 'x-symbol-tex
   :group 'x-symbol-input-control
@@ -135,7 +139,8 @@ according to `x-symbol-token-input', it will not insert the space."
       :active (and x-symbol-mode (not buffer-read-only))]
      ["tex: Remove Braces around Letters" x-symbol-tex-xdecode-old
       :active (and x-symbol-mode (not buffer-read-only))]))
-  "Extra menu entries for language `tex'.")
+  "Extra menu entries in menu for language `tex'.
+See language access `x-symbol-LANG-extra-menu-items'.")
 
 (defvar x-symbol-tex-token-grammar
   '(x-symbol-make-grammar
@@ -146,7 +151,8 @@ according to `x-symbol-token-input', it will not insert the space."
     :input-spec x-symbol-tex-token-input
     :token-list x-symbol-tex-default-token-list
     :after-init x-symbol-tex-after-init-language)
-  "Token grammar for language `tex'.")
+  "Grammar of token language `tex'.
+See language access `x-symbol-LANG-token-grammar'.")
 
 ;; The following vars could be made customizable, but it would not be a good
 ;; idea if different users have a different decode behavior:
@@ -167,7 +173,8 @@ The regexp should also match the surrounding braces.")
   "User table defining TeX macros, used in `x-symbol-tex-table'.")
 
 (defvar x-symbol-tex-generated-data nil
-  "Internal.")
+  "Generated data for token language `tex'.
+See language access `x-symbol-LANG-generated-data'.")
 
 
 ;;;===========================================================================
@@ -175,8 +182,8 @@ The regexp should also match the surrounding braces.")
 ;;;===========================================================================
 
 (defcustom x-symbol-tex-master-directory 'x-symbol-tex-default-master-directory
-  "Function returning the directory of the master file or nil.
-See `x-symbol-image-parse-buffer'."
+  "Specification of the master directory for images for language `tex'.
+See language access `x-symbol-LANG-master-directory'."
   :group 'x-symbol-tex
   :group 'x-symbol-image-language
   :type 'function)
@@ -193,15 +200,15 @@ See `x-symbol-image-parse-buffer'."
 	    (member (setq dir (file-name-as-directory dir)) result)
 	    (push dir result))))
     (nreverse (if (member "./" result) result (cons "./" result))))
-  "Search path used for implicitly relative image file names.
-See `x-symbol-image-use-remote'."
+  "Search path for implicitly relative image file names.
+See language access `x-symbol-LANG-image-searchpath'."
   :group 'x-symbol-tex
   :group 'x-symbol-image-language
   :type '(repeat directory))
 
 (defcustom x-symbol-tex-image-cached-dirs '("figures/")
-  "Directory parts of image file names stored in the memory cache.
-See `x-symbol-image-use-remote'."
+  "Directory parts of images stored in the memory cache.
+See language access `x-symbol-LANG-image-cached-dirs'."
   :group 'x-symbol-tex
   :group 'x-symbol-image-language
   :type '(repeat string))
@@ -213,8 +220,8 @@ See `x-symbol-image-use-remote'."
     ("\\\\e?psfig[ \t]*{file=\\([^ \t\n,{}]+\\.e?ps\\)[^\n{}]*}" 1)
     ("\\\\includegraphics\\*?[ \t]*\\(\\[[^][\n]*\\]\\)?\\(\\[[^][\n]*\\]\\)?{\\([^ \t\n,{}]+\\)}" 3 ".\\.[^./]+\\'" ".eps")
     ("\\\\input[ \t]*{\\([^ \t\n,{}]+\\.pstex\\)_t}" 1))
-  "Keywords used to find image insertion commands.
-See `x-symbol-image-parse-buffer'."
+  "Keywords for image insertion commands of language `tex'.
+See language access `x-symbol-LANG-image-keywords'."
   :group 'x-symbol-tex
   :group 'x-symbol-image-language
   :type 'x-symbol-image-keywords)
@@ -224,15 +231,16 @@ See `x-symbol-image-parse-buffer'."
 ;;;  Super- and Subscripts
 ;;;===========================================================================
 
+(defcustom x-symbol-tex-subscript-matcher 'x-symbol-tex-subscript-matcher
+  "Function matching super-/subscripts for language `tex'.
+See language access `x-symbol-LANG-subscript-matcher'."
+  :group 'x-symbol-tex
+  :type 'function)
+
 (defcustom x-symbol-tex-invisible-braces nil
   "TODO"
   :group 'x-symbol-tex
   :type 'boolean)
-
-(defcustom x-symbol-tex-subscript-matcher 'x-symbol-tex-subscript-matcher
-  "TODO"
-  :group 'x-symbol-tex
-  :type 'function)
 
 (defcustom x-symbol-tex-font-lock-allowed-faces
   '(tex-math-face
@@ -303,8 +311,8 @@ Used in `x-symbol-tex-class-face-alist'."
     (user "user" (x-symbol-emph-info-face))
     (VALID "unknown TeX class" (x-symbol-emph-info-face))
     (INVALID "no TeX macro" (x-symbol-emph-info-face)))
-  "Alist for TeX's token classes displayed by info in echo area.
-See `x-symbol-language-access-alist' for details."
+  "Token classes displayed by info in echo area, for language `tex'.
+See language access `x-symbol-LANG-class-alist'."
   :group 'x-symbol-tex
   :group 'x-symbol-info-strings
   :type 'x-symbol-class-info)
@@ -312,8 +320,8 @@ See `x-symbol-language-access-alist' for details."
 (defcustom x-symbol-tex-class-face-alist
   '((math x-symbol-tex-math-face (x-symbol-tex-math-face))
     (text x-symbol-tex-text-face (x-symbol-tex-text-face)))
-  "Alist for TeX's color scheme in TeX's grid and info.
-See `x-symbol-language-access-alist' for details."
+  "Color scheme in language specific grid and info, for language `tex'.
+See language access `x-symbol-LANG-class-face-alist'."
   :group 'x-symbol-tex
   :group 'x-symbol-input-init
   :group 'x-symbol-info-general
@@ -409,7 +417,8 @@ as default value for `x-symbol-tex-electric-ignore'."
 ;;;===========================================================================
 
 (defvar x-symbol-tex-required-fonts nil
-  "List of features providing fonts for language `tex'.")
+  "Features providing required fonts for language `tex'.
+See language access `x-symbol-LANG-required-fonts'.")
 
 (defvar x-symbol-tex-latin1-table
   '((nobreakspace (space) . "\\nobreakspace")
@@ -881,9 +890,10 @@ as default value for `x-symbol-tex-electric-ignore'."
 	  x-symbol-tex-latinN-table
 	  x-symbol-tex-xsymb0-table
 	  x-symbol-tex-xsymb1-table)
-  "Complete table defining TeX macros.
-Use `x-symbol-tex-user-table' to define/shadow private TeX macros.
-See `x-symbol-init-language' and `x-symbol-tex-token-list'.")
+  "Table defining `tex' tokens for the characters.
+See language access `x-symbol-LANG-table'.  Use
+`x-symbol-tex-user-table' to define private TeX macros or shadow
+existing ones.")
 
 
 ;;;===========================================================================
@@ -1025,14 +1035,14 @@ See `x-symbol-init-language' and `x-symbol-tex-token-list'.")
 	    ;; here instead using an complicated regexp for the main search
 	     (when (looking-at " [A-Za-z]\\|{}")
 	       (goto-char (setq end (match-end 0)))
-	       (when (setq token (buffer-substring beg end)
-			   token (symbol-value
-				 (intern-soft (buffer-substring beg end)
-					      decode-obarray)))
-		 (goto-char end)
-		 (insert-before-markers (gethash (car token)
-						 x-symbol-cstring-table))
-		 (delete-region beg end))))))))
+	       (when (setq token (symbol-value
+				  (intern-soft (buffer-substring beg end)
+					       decode-obarray)))
+		 (unless (x-symbol-decode-unique-test token unique)
+		   (goto-char end)
+		   (insert-before-markers (gethash (car token)
+						   x-symbol-cstring-table))
+		   (delete-region beg end)))))))))
 
 (defun x-symbol-tex-token-input (input-regexp decode-obarray command-char)
   (let ((res (x-symbol-match-token-before

@@ -40,6 +40,7 @@ EFLAG_FINAL = --kill
 # @url and @uref.  Use expanded texi file for texi2pdf...
 PRELOADS = -eval "(progn \
   (defun texi-expand (last) \
+    (setq buffer-read-only nil) \
     (let (replaces text) \
       (goto-char (point-min)) \
       (while (re-search-forward \"^@set[ \\t]+\\\\([a-zA-Z-_]+\\\\)[ \\t]+\\\\(.+\\\\)\" \

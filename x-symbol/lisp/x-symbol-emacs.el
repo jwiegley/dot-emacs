@@ -4,7 +4,7 @@
 ;;
 ;; Authors: Stefan Monnier, Christoph Wedler
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
-;; Version: 4.4.X
+;; Version: 4.5.X
 ;; Keywords: WYSIWYG, LaTeX, HTML, wp, math, internationalization
 ;; X-URL: http://x-symbol.sourceforge.net/
 
@@ -28,16 +28,22 @@
 ;; \\[x-symbol-package-web]) and read the info (use \\[x-symbol-package-info]).
 
 (provide 'x-symbol-emacs)
+;; TODO: Emacs has `buffer-substring-no-properties'
 
 (unless (fboundp 'emacs-version>=)
-  (defun emacs-version>= (major &optional minor)
-  "Return true if the Emacs version is >= to the given MAJOR, and
-MINOR numbers, MINOR is optional.  MINOR is only used in the test if it
-is non-nil."
+(defun emacs-version>= (major &optional minor patch)
+  "Return true if the Emacs version is >= to the given version.
+The version is provided by the required argument MAJOR, and the optional
+arguments MINOR and PATCH.  Only the non-nil arguments are used in the
+test."
   (cond ((> emacs-major-version major))
 	((< emacs-major-version major) nil)
 	((null minor))
-	((>= emacs-minor-version minor)))))
+	((> emacs-minor-version minor))
+	((< emacs-minor-version minor) nil)
+	((null patch))
+	((string-match "^[0-9]+\\.[0-9]+\\.\\([0-9]+\\)" emacs-version)
+	 (>= (string-to-int (match-string 1 emacs-version)) patch)))))
 
 
 ;;;===========================================================================
@@ -73,7 +79,8 @@ is non-nil."
 
 ;; src/fileio.c,v 1.447:
 (defvar x-symbol-emacs-has-correct-find-safe-coding
-  (emacs-version>= 21 4))
+  (not (and (boundp 'char-coding-system-table)
+	    (arrayp char-coding-system-table))))
 
 ;; lisp/format.el,v 1.39 (with src/fileio.c,v 1.447):
 ;;   (setq x-symbol-auto-conversion-method 'format)
@@ -86,7 +93,10 @@ is non-nil."
 
 ;;; Bugs:
 
-(defvar x-symbol-emacs-after-create-image-function 'clear-image-cache)
+(defvar x-symbol-emacs-after-create-image-function
+;; I want to know why `clear-image-cache' is necessary sometimes,
+;; 'redraw-display is not enough
+  (if (emacs-version>= 21 3 50) nil 'clear-image-cache))
 
 ;;; Todo:
 
@@ -109,6 +119,8 @@ is non-nil."
 (require 'fontset)			;seems not to be loaded in batch mode
 
 ;; temp hack:
+(defvar image-types nil)		; necessary in Emacs-21.2 w/o image
+					; support, still in Emacs-21.3?
 (if (memq 'png image-types) (provide 'png))
 (if (memq 'gif image-types) (provide 'gif))
 
@@ -220,6 +232,7 @@ is non-nil."
 
 ;;; Char tables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; TODO: use 'x-symbol instead 'generic with Emacs
 (put 'generic 'char-table-extra-slots 0)
 (unless (fboundp 'put-char-table)
   (defun put-char-table (range val tab) (set-char-table-range tab range val)))
@@ -324,6 +337,7 @@ are separated with SEPARATOR (\", \" by default)."
 			      (< (length x) (length y))))
 	       (or separator ", "))))
 
+;; defined in Emacs-21.3.50
 (unless (fboundp 'file-remote-p)
   (defun file-remote-p (file-name)
     "Test whether FILE-NAME is looked for on a remote system."
@@ -382,7 +396,7 @@ are separated with SEPARATOR (\", \" by default)."
 
 (defvar x-symbol-emacs-w32-font-directories
   (mapcar (lambda (dir) (expand-file-name dir x-symbol-data-directory))
-	  '("fonts/" "genfonts/")))
+	  '("fonts/" "origfonts/" "genfonts/")))
 
 (if (and (eq window-system 'w32)
 	 x-symbol-emacs-w32-font-directories

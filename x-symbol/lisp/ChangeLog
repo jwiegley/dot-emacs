@@ -1,4 +1,26 @@
-2003-03-06  Christoph Wedler  <wedler@users.sourceforge.net>
+2003-05-12  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.5.1-beta.
+
+ * Bug fix: unique decoding would not be unique for TeX
+   accents starting with \c, \k, \v, \u, \H, \r.
+ * Bug fix, Emacs-21.2: Makefile.emacs would not work,
+   variable `image-types' is not defined in -batch Emacs.
+ * Emacs-21.3.50: Would not work with with default value
+   nil for `x-symbol-emacs-has-correct-find-safe-coding'.
+ * Emacs: would issue a warning with value "ASCII" for
+   `current-language-environment'.
+ * Don't provide Emacs bug workaround for images with
+   Emacs-21.3.50.  I want to know why it's necessary, i.e.,
+   write an Emacs bug report...
+ * New variable `x-symbol-set-coding-system-if-undecided'
+   for Emacs, defaults to t.
+
+	Report from Andreas Klein, Eli Tziperman.
+
+2003-03-14  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.5-beta.
 
  * Bug fix: would not hightlight subscripts when using
    font-lock without any font-lock support mode if X-Symbol
@@ -7,8 +29,13 @@
    crypt/crypt++.
  * Bug fix, XEmacs: using C-s = isearch would not always
    reveal the full subscript command when necessary.
- * Make |- and |= electric.
+ * Bug workaround, Emacs/Windows: would show boxes instead
+   Latin-9 characters, sort characters in Latin-9 bdf file.
+ * Emacs/Windows: add origfonts/ to Windows font path.
+ * Make contexts |- and |= electric.
  * Provide unzipped PDF and PS version of manual on web.
+ * Internal: renamed the prefix of language accesses from
+   `x-symbol-' to `x-symbol-LANG-'.
  * Manual, docstring and Makefile updates.
 
 	Report from Felix E. Klee, Gerwin Klein.

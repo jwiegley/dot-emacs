@@ -1,10 +1,10 @@
 ;;; x-symbol-image.el --- display glyphs at the end of image insertion commands
 
-;; Copyright (C) 1997-1999, 2001 Free Software Foundation, Inc.
+;; Copyright (C) 1997-1999, 2001, 2003 Free Software Foundation, Inc.
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
-;; Version: 4.4.X
+;; Version: 4.5
 ;; Keywords: WYSIWYG, LaTeX, HTML, wp, math, internationalization
 ;; X-URL: http://x-symbol.sourceforge.net/
 
@@ -160,7 +160,7 @@ button2 starts an image editor, see `x-symbol-image-editor-alist'.
 button3 pops up a menu, see `x-symbol-image-menu'.
 
 The image insertion commands are recognized by keywords in the language
-access `x-symbol-image-keywords' whose value have the form
+access `x-symbol-LANG-image-keywords' whose value have the form
   (IMAGE-REGEXP KEYWORD ...)
 IMAGE-REGEXP should match all images files and is used to initialize the
 buffer local memory cache, see `x-symbol-image-init-memory-cache'.
@@ -172,8 +172,8 @@ name of the corresponding image file.  If FUNCTION returns nil, the
 command is not highlighted.
 
 Relative image file names are expanded in the directory returned by the
-function in the language access `x-symbol-master-directory', value nil
-means function `default-directory'.  Implicitly relative image file
+function in the language access `x-symbol-LANG-master-directory', value
+nil means function `default-directory'.  Implicitly relative image file
 names are searched in a search path, see `x-symbol-image-use-remote'."
   (interactive)
   (save-excursion
@@ -239,12 +239,13 @@ cache files."
     (unwind-protect
 	(let (;;(case-fold-search nil)
 	      (keywords (cdr (x-symbol-language-value
-			      'x-symbol-image-keywords)))
+			      'x-symbol-LANG-image-keywords)))
 	      (cached-dirs (cons nil
 				 (mapcar 'file-name-as-directory
 					 (x-symbol-language-value
-					  'x-symbol-image-cached-dirs))))
-	      (master-dir (x-symbol-language-value 'x-symbol-master-directory))
+					  'x-symbol-LANG-image-cached-dirs))))
+	      (master-dir (x-symbol-language-value
+			   'x-symbol-LANG-master-directory))
 	      keyword matcher file-fn file-args
 	      file extent cache-elem extent-beg extent-end)
 	  (if master-dir (funcall master-dir))
@@ -311,7 +312,7 @@ cache files."
 
 (defun x-symbol-image-default-file-name (num &optional regexp extension)
   "Return image file name for last match.
-Default FUNCTION in language access `x-symbol-image-keywords', see
+Default FUNCTION in language access `x-symbol-LANG-image-keywords', see
 `x-symbol-image-parse-buffer'.  Return text matched by the NUMth regexp
 group of the corresponding keyword regexp.  If REGEXP is non-nil and the
 file name does not match REGEXP, add EXTENSION to the file name."
@@ -328,14 +329,16 @@ file name does not match REGEXP, add EXTENSION to the file name."
 (defun x-symbol-image-init-memory-cache ()
   "Create an empty memory cache.
 Scan all directories in the searchpath and all subdirectories in the
-language access `x-symbol-image-cached-dirs' for files matched by
-IMAGE-REGEXP in the language access `x-symbol-image-keywords' to build
-`x-symbol-image-memory-cache' where all GLYPHs are nil."
+language access `x-symbol-LANG-image-cached-dirs' for files matched by
+IMAGE-REGEXP in the language access `x-symbol-LANG-image-keywords' to
+build `x-symbol-image-memory-cache' where all GLYPHs are nil."
   (let* ((master-dir (funcall (x-symbol-language-value
-			       'x-symbol-master-directory)))
-	 (cached-dirs (x-symbol-language-value 'x-symbol-image-cached-dirs))
+			       'x-symbol-LANG-master-directory)))
+	 (cached-dirs (x-symbol-language-value
+		       'x-symbol-LANG-image-cached-dirs))
 	 (path (x-symbol-image-searchpath master-dir))
-	 (suffixes (car (x-symbol-language-value 'x-symbol-image-keywords)))
+	 (suffixes (car (x-symbol-language-value
+			 'x-symbol-LANG-image-keywords)))
 	 implicit-dirs
 	 dirs dir)
     (setq x-symbol-image-memory-cache nil)
@@ -367,12 +370,12 @@ IMAGE-REGEXP in the language access `x-symbol-image-keywords' to build
 
 (defun x-symbol-image-searchpath (master-dir)
   "Return language dependent image searchpath in reverse order.
-Uses the language accesses `x-symbol-image-searchpath' and
-`x-symbol-master-directory' (via argument MASTER-DIR).  Include all
+Uses the language accesses `x-symbol-LANG-image-searchpath' and
+`x-symbol-LANG-master-directory' (via argument MASTER-DIR).  Include all
 subdirectories of elements in the image searchpath ending with \"//\",
 except symbolic links if `x-symbol-image-searchpath-follow-symlink' is
 nil."
-  (let ((path (or (x-symbol-language-value 'x-symbol-image-searchpath)
+  (let ((path (or (x-symbol-language-value 'x-symbol-LANG-image-searchpath)
 		  '("./")))
 	(dirs nil)
 	dir truename slashslash)
@@ -431,10 +434,11 @@ nil."
   "Start image editor for the image file FILE used in BUFFER.
 If BUFFER is nil, just return string describing the command.  See
 `x-symbol-image-editor-alist' and `x-symbol-image-current-marker'."
-  (interactive (list (read-file-name "Edit image design file for: "
-				     (funcall (x-symbol-language-value
-					       'x-symbol-master-directory)))
-		     (current-buffer)))
+  (interactive
+   (list (read-file-name "Edit image design file for: "
+			 (funcall (x-symbol-language-value
+				   'x-symbol-LANG-master-directory)))
+	 (current-buffer)))
   (let ((result (and file (x-symbol-match-in-alist
 			   file x-symbol-image-editor-alist))))
     (and file buffer (setq file (x-symbol-image-active-file file buffer)))
@@ -514,7 +518,7 @@ instead."
   (save-excursion
     (set-buffer buffer)
     (let ((master-dir (funcall (x-symbol-language-value
-				'x-symbol-master-directory)))
+				'x-symbol-LANG-master-directory)))
 	  path)
       (if (or (string-match x-symbol-image-explicitly-relative-regexp file)
 	      (file-name-absolute-p file))

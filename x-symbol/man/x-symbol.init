@@ -61,7 +61,7 @@ sub T2H_XSYMB_Top_footer
     my $fh = shift;
     print $fh '<p class=print>
 To <strong>print</strong> out the manual, you might want to download
-<a href="x-symbol.pdf">the PDF version (~735k)</a> or
+<a href="x-symbol.pdf">the PDF version (~730k)</a> or
 <a href="x-symbol.ps">the Postscript version (~720k)</a>, both in
 A4 format</a>.  Other formats can be produced from the TeXinfo source
 in the distribution of X-Symbol.';

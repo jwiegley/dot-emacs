@@ -3,7 +3,7 @@
 ## Copyright (C) 2002 Free Software Foundation, Inc.
 
 ## Author: Masayuki Ataka <ataka@milk.freemail.ne.jp>
-## Version: 4.4.X
+## Version: 4.5
 ## Keywords: fonts, WYSIWYG, LaTeX, HTML, wp, math
 ## X-URL: http://x-symbol.sourceforge.net/
 ## X-URL: http://isweb22.infoseek.co.jp/computer/pop-club/emacs/TeX.html

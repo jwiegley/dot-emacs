@@ -4,7 +4,7 @@
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
-;; Version: 4.4.X
+;; Version: 4.5.X
 ;; Keywords: WYSIWYG, LaTeX, HTML, wp, math, internationalization
 ;; X-URL: http://x-symbol.sourceforge.net/
 
@@ -246,6 +246,9 @@ Use \"locale -ck code_set_name charmap\" and search for the value of
 	(when (coding-system-p cs)
 	  (setq name (cdr (assq (coding-system-base cs)
 				'((raw-text . iso-8859-1) ; console
+				  ;; (undecided . iso-8859-1) "-i" is correct
+				  ;; here, see
+				  ;; `x-symbol-set-coding-system-if-undecided'
 				  (iso-latin-1 . iso-8859-1)
 				  (iso-latin-1-with-esc . iso-8859-1)
 				  (iso-latin-2 . iso-8859-2)
@@ -280,7 +283,8 @@ Use \"locale -ck code_set_name charmap\" and search for the value of
 	 (let* ((cs (default-value 'buffer-file-coding-system))
 		(val (cond (cs
 			    (x-symbol-buffer-coding cs))
-			   ((equal current-language-environment "English")
+			   ((member (downcase current-language-environment)
+				    '("english" "ascii"))
 			    'iso-8859-1)))
 		(loc (x-symbol-coding-system-from-locale)))
 	   (and loc
@@ -364,56 +368,64 @@ You should not set this variable directly, use
 `x-symbol-register-language' instead!")
 
 (defcustom x-symbol-charsym-name "x-symbol charsym"
-  "Name of the pseudo token language x-symbol charsym.
-This pseudo language corresponds to `x-symbol-language' having value nil
-and is used for input methods, not for decoding and encoding.  See
-`x-symbol-language-text'."
+  "Standard name of the pseudo token language x-symbol charsym.
+See language access `x-symbol-LANG-name'.  The pseudo language
+corresponds to `x-symbol-language' having value nil and is only used for
+input methods.  See `x-symbol-language-text'."
   :group 'x-symbol-miscellaneous
   :type 'string)
 
 (defcustom x-symbol-tex-name "TeX macro"
-  "Name of token language `tex'.  See `x-symbol-name'."
+  "Standard name of token language `tex'.
+See language access `x-symbol-LANG-name'."
   :group 'x-symbol-tex
   :type 'string)
 
 (defcustom x-symbol-tex-modes
   '(tex-mode latex-mode plain-tex-mode noweb-mode)
-  "Major modes using language `tex'.  See `x-symbol-mode'."
+  "Major modes typically using X-Symbol with token language `tex'.
+See language access `x-symbol-LANG-modes'."
   :group 'x-symbol-tex
   :group 'x-symbol-mode
   :type '(repeat function))
 
 (defcustom x-symbol-sgml-name "SGML entity"
-  "Name of token language `sgml'.  See `x-symbol-name'."
+  "Standard name of token language `sgml'.
+See language access `x-symbol-LANG-name'."
   :group 'x-symbol-sgml
   :type 'string)
 
 (defcustom x-symbol-sgml-modes
   ;;'(sgml-mode xml-mode html-mode hm--html-mode html-helper-mode)
   '(html-mode hm--html-mode html-helper-mode)
-  "Major modes using language `sgml'.  See `x-symbol-modes'."
+  "Major modes typically using X-Symbol with language `sgml'.
+See language access `x-symbol-LANG-modes'."
   :group 'x-symbol-sgml
   :group 'x-symbol-mode
   :type '(repeat function))
 
 (defcustom x-symbol-bib-name "BibTeX macro"
-  "Name of token language `bib'.  See `x-symbol-name'."
+  "Standard name of token language `bib'.
+See language access `x-symbol-LANG-name'."
   :group 'x-symbol-bib
   :type 'string)
 
 (defcustom x-symbol-bib-modes '(bibtex-mode)
-  "Major modes using language `bib'.  See `x-symbol-modes'."
+  "Major modes typically using X-Symbol with language `bib'.
+See language access `x-symbol-LANG-modes'."
   :group 'x-symbol-bib
   :group 'x-symbol-mode
   :type '(repeat function))
 
 (defcustom x-symbol-texi-name "TeXinfo command"
-  "Name of token language `tex'.  See `x-symbol-name'."
+  "Standard name of token language `texi'.
+See language access `x-symbol-LANG-name'."
   :group 'x-symbol-texi
   :type 'string)
 
 (defcustom x-symbol-texi-modes '(texinfo-mode)
-  "Major modes using language `texi'.  See `x-symbol-modes'."
+  "Major modes typically using X-Symbol with language `texi'.
+See language access `x-symbol-LANG-modes'."
   :group 'x-symbol-texi
   :group 'x-symbol-mode
   :type '(repeat function))
@@ -447,11 +459,18 @@ info in the echo area, etc.")
 
 (defvar x-symbol-coding nil
   "*Coding of 8bit characters in a file.
-Supported values are `iso-8859-1', `iso-8859-2', `iso-8859-3' and
-`iso-8859-9', value nil means the value of `x-symbol-default-coding'.
 Determines which characters are considered to be 8bit characters for
-file operations.  Function `x-symbol-mode' sets this variable to a
-reasonable value if the variable is not yet buffer-local.
+file operations.  Supported values are `iso-8859-1', `iso-8859-2',
+`iso-8859-3', `iso-8859-9', and `iso-8859-15'.  Value nil means a value
+according to `buffer-file-coding-system' with Mule support, or the value
+of `x-symbol-default-coding' without Mule support.
+
+With Mule support, any value other than `nil' is considered invalid if
+encoding according to `buffer-file-coding-system' is neither the same as
+this value nor the same as `x-symbol-default-coding'.
+
+Function `x-symbol-mode' sets this variable to a reasonable value if the
+variable is not yet buffer-local.
 
 During decoding, e.g., when visiting a file, the value is always
 important for the interpretation of 8bit characters, an invalid value is
@@ -469,8 +488,10 @@ is valid and `x-symbol-8bits' is non-nil.")
   "*If non-nil, do not encode 8bit characters.
 Variable `x-symbol-coding' determines which characters are assumed to be
 8bit characters.  Note that tokens representing 8bit characters are
-always decoded.  Function `x-symbol-mode' sets this variable to a
-reasonable value if the variable is not yet buffer-local.")
+always decoded, except if `x-symbol-unique' is non-nil.
+
+Function `x-symbol-mode' sets this variable to a reasonable value if the
+variable is not yet buffer-local.")
 ;; TODO: link to `x-symbol-unique'
 
 (make-variable-buffer-local 'x-symbol-8bits)
@@ -479,8 +500,14 @@ reasonable value if the variable is not yet buffer-local.")
   '(x-symbol-update-modeline))
 
 (defvar x-symbol-unique nil
-  "*If non-nil, only decode canonical tokens.")
-;; TODO: link to `x-symbol-8bits'
+  "*If non-nil, only decode canonical tokens.
+Canonical tokens are those which are produced when X-Symbol encodes the
+corresponding character.  If `x-symbol-8bits' is non-nil, do not decode
+tokens which would be decoded to 8bit characters according to
+`x-symbol-coding'.
+
+Function `x-symbol-mode' sets this variable to a reasonable value if the
+variable is not yet buffer-local.")
 
 (make-variable-buffer-local 'x-symbol-unique)
 (put 'x-symbol-unique 'permanent-local t)
@@ -489,10 +516,12 @@ reasonable value if the variable is not yet buffer-local.")
 
 (defvar x-symbol-subscripts nil
   "*If non-nil, use special fonts to display super- and subscripts.
-This feature must be supported by the token language dependent font-lock
-keywords.  Function `x-symbol-mode' sets this variable to a reasonable
-value if the variable is not yet buffer-local.  Some parts of the text
-might be invisible, see also variable `x-symbol-reveal-invisible'.")
+This feature must be supported by the token language via language access
+`x-symbol-LANG-subscript-matcher'.  Some parts of the text might be
+invisible, see also variable `x-symbol-reveal-invisible'.
+
+Function `x-symbol-mode' sets this variable to a reasonable value if the
+variable is not yet buffer-local.")
 
 (make-variable-buffer-local 'x-symbol-subscripts)
 (x-symbol-define-user-options 'x-symbol-subscripts '(t)
@@ -500,10 +529,11 @@ might be invisible, see also variable `x-symbol-reveal-invisible'.")
 
 (defvar x-symbol-image nil
   "*If non-nil, show little glyphs after image insertion commands.
-This feature must be supported by the token language dependent image
-keywords, see `x-symbol-image-parse-buffer'.  Function `x-symbol-mode'
-sets this variable to a reasonable value if the variable is not yet
-buffer-local.")
+This feature must be supported by the token language via language access
+`x-symbol-LANG-image-keywords'.
+
+Function `x-symbol-mode' sets this variable to a reasonable value if the
+variable is not yet buffer-local.")
 
 (make-variable-buffer-local 'x-symbol-image)
 (x-symbol-define-user-options 'x-symbol-image '(t)
@@ -535,6 +565,9 @@ Used when finding an appropriate value for `x-symbol-8bits'.  See also
   "*Alist to setup X-Symbol values for buffers visiting files.
 Elements look like
   (MATCH LANGUAGE MODE-ON CODING 8BITS UNIQUE SUBSCRIPTS IMAGE)
+or
+  (MATCH LANGUAGE . VARIABLE)
+
 If MATCH matches a buffer in which command `x-symbol-mode' is invoked,
 the rest of the element is used to setup some buffer-local x-symbol
 specific variables.  If no element matches, set `x-symbol-language' to
@@ -542,21 +575,22 @@ the symbol property `x-symbol-language' of the major mode symbol if the
 variable is not already buffer-local.
 
 If `x-symbol-mode' is not already buffer-local, MODE-ON determines
-whether to turn the mode on if `x-symbol-mode' is called with a cons as
-prefix argument.  LANGUAGE, CODING, 8BITS, UNIQUE, SUBSCRIPTS and IMAGE
-are used to set `x-symbol-language', `x-symbol-coding',
-`x-symbol-8bits', `x-symbol-unique', `x-symbol-subscripts' and
-`x-symbol-image' if these values are not already buffer-local.
+whether to turn the mode on with `turn-on-x-symbol-conditionally'.
+LANGUAGE, CODING, 8BITS, UNIQUE, SUBSCRIPTS and IMAGE are used to set
+`x-symbol-language', `x-symbol-coding', `x-symbol-8bits',
+`x-symbol-unique', `x-symbol-subscripts' and `x-symbol-image' if these
+values are not already buffer-local.
 
 MATCH is either a list of major modes which must include the mode of the
 current buffer or a regexp matching the file name ignoring some
 suffixes, see `x-symbol-auto-mode-suffixes', or a value used directly.
+
 MODE-ON, LANGUAGE, CODING, 8BITS, UNIQUE, SUBSCRIPTS and IMAGE are
 `eval'ed in that order.  During the evaluation, `x-symbol-mode' is
 non-nil according to MODE-ON.
 
-See the documentation of `x-symbol-auto-style' for the auto-style
-language accesses."
+VARIABLE is a symbol whose value contains the above mentioned values,
+see the language access `x-symbol-LANG-auto-style'."
   :group 'x-symbol-mode
   :type '(repeat (cons :format "%v"
 		       (choice (repeat :tag "In major modes"
@@ -694,25 +728,29 @@ nil."
 ;;;###autoload
 (defun x-symbol-mode (&optional arg special)
   "Toggle X-Symbol mode.
-If ARG is a cons, e.g., when \\[x-symbol-mode] is preceded by one or
-more \\[universal-argument]'s with no digits, turn on X-Symbol mode
-conditionally, see MODE-ON in `x-symbol-auto-mode-alist'.  Otherwise,
-turn X-Symbol mode on if ARG is positive, else turn it off.  If some
-X-Symbol specific local variables are not buffer-local, set them to
-reasonable values according to `x-symbol-buffer-mode-alist' and
-`x-symbol-auto-mode-alist'.
+Toggle X-Symbol mode.  If provided with a prefix argument, turn X-Symbol
+mode on if the numeric value of the argument is positive, else turn it
+off.  If no token language can be deduced, ask for a token language; if
+provided with a non-numeric prefix argument, always ask.
+
+By default, X-Symbol mode is disabled in special major-modes visiting a
+file, e.g., `vm-mode'.  Use a prefix argument to be asked whether to
+turn in on anyway.
+
+When not already defined, various buffer-local variables are set when
+turning on X-Symbol.  See `x-symbol-auto-style-alist' and the language
+access `x-symbol-LANG-modes'.
 
 Turning X-Symbol mode on requires a valid `x-symbol-language' and also
 decodes tokens if the mode was turned off before, see
-\\[x-symbol-decode].  Turning X-Symbol mode off also encodes x-symbol
-characters if the mode was turned on before, see \\[x-symbol-encode].
-If argument INIT is non-nil, the old mode status is assumed to be off."
+\\[x-symbol-decode-recode].  Turning X-Symbol mode off also encodes
+x-symbol characters if the mode was turned on before, see
+\\[x-symbol-encode-recode].  If optional argument SPECIAL has value
+`init', the old mode status is assumed to be off."
   (interactive (list current-prefix-arg 'interactive))
   (if (eq special 'init) (setq x-symbol-mode nil))
   (let* ((old-mode (if (eq special 'init) nil x-symbol-mode))
-	 (new-mode (if arg
-		       (> (prefix-numeric-value arg) 0)
-		     (not x-symbol-mode)))
+	 (new-mode (if arg (> (prefix-numeric-value arg) 0) (not old-mode)))
 	 (disabled0 (assq major-mode x-symbol-mode-disable-alist))
 	 (disabled1 (if disabled0
 			(cdr disabled0)
@@ -757,7 +795,7 @@ If argument INIT is non-nil, the old mode status is assumed to be off."
 	  (let ((langs x-symbol-language-alist))
 	    (while langs
 	      (if (memq major-mode
-			(symbol-value (get (caar langs) 'x-symbol-modes)))
+			(symbol-value (get (caar langs) 'x-symbol-LANG-modes)))
 		  (setq style (cons (caar langs) t)
 			langs nil)
 		(setq langs (cdr langs))))))
@@ -767,7 +805,7 @@ If argument INIT is non-nil, the old mode status is assumed to be off."
 	;; check language ----------------------------------------------------
 	(if (and x-symbol-language
 		 (symbolp x-symbol-language)
-		 (get x-symbol-language 'x-symbol-feature))
+		 (get x-symbol-language 'x-symbol-LANG-feature))
 	    (when (and (eq special 'interactive) (consp arg))
 	      (setq x-symbol-language
 		    (x-symbol-read-language
@@ -784,12 +822,12 @@ If argument INIT is non-nil, the old mode status is assumed to be off."
 	    (if x-symbol-language (setq x-symbol-language nil)))
 	  (setq style nil))
 	(when x-symbol-language
-	  (require (get x-symbol-language 'x-symbol-feature))
+	  (require (get x-symbol-language 'x-symbol-LANG-feature))
 	  (setq style
 		(cond ((or (null style) (eq (cdr style) t)
 			   (not (eq (car style) x-symbol-language)))
 		       (symbol-value (get x-symbol-language
-					  'x-symbol-auto-style)))
+					  'x-symbol-LANG-auto-style)))
 		      ((and (symbolp (cdr style)) (boundp (cdr style)))
 		       (symbol-value (cdr style)))
 		      (t
@@ -821,8 +859,7 @@ If argument INIT is non-nil, the old mode status is assumed to be off."
 ;;;###autoload
 (defun turn-on-x-symbol-conditionally ()
   "Turn on x-symbol mode conditionally, see `x-symbol-mode'.
-Call `x-symbol-mode' with a cons for ARG and a non-nil INIT.  Used in
-`hack-local-variables-hook'."
+Call `x-symbol-mode' with SPECIAL having value `init'."
   (x-symbol-mode (and (local-variable-p 'x-symbol-mode (current-buffer))
 		      (if x-symbol-mode 1 0))
 		 'init))
@@ -952,7 +989,7 @@ Added to `after-insert-file-functions' if
 	       (setq len (- (point-max) (point-min)))))
 	 (lwarn 'x-symbol 'warning
 	   ;; might leed to quite a few warnings with old XEmacs, get those
-	   "Wrong point position provided for function in `after-insert-file-functions'")))
+	   "Wrong point position %d (len: %d, max: %d) provided by Emacs for functions in `after-insert-file-functions'" (point) len (point-max))))
   len)
 
 (defun x-symbol-write-region-annotate-function (start end)
@@ -1050,10 +1087,10 @@ Its value is set by `x-symbol-update-modeline'.")
 (add-minor-mode 'x-symbol-mode 'x-symbol-modeline-string x-symbol-mode-map)
 (put 'x-symbol-mode :menu-tag "X-Symbol")
 
-(defvar x-symbol-early-language-access-alist
-  '((x-symbol-name "name" nil stringp)
-    (x-symbol-modes "modes" t listp)	; TODO: non-optional
-    (x-symbol-auto-style "auto-style" require)))
+(defconst x-symbol-early-language-access-alist
+  '((x-symbol-LANG-name "name" nil stringp)
+    (x-symbol-LANG-modes "modes" t listp)	; TODO: non-optional
+    (x-symbol-LANG-auto-style "auto-style" require)))
 
 (defun x-symbol-init-language-accesses (language alist)
   "Initialize accesses for token language LANGUAGE according to ALIST.
@@ -1061,7 +1098,7 @@ The symbol property `x-symbol-feature' of LANGUAGE must be set before.
 See also `x-symbol-language-access-alist'."
   ;;If optional NO-TEST is nil, accesses which do not point to a bound
   ;;variable are not set.
-  (let ((feature (get language 'x-symbol-feature))
+  (let ((feature (get language 'x-symbol-LANG-feature))
 	(ok t)
 	symbol)
     (dolist (item alist)
@@ -1091,8 +1128,8 @@ See also `x-symbol-language-access-alist'."
 FEATURE is a feature which `provide's LANGUAGE.  MODES are major modes
 which typically use LANGUAGE.  Using LANGUAGE's accesses will initialize
 LANGUAGE, see `x-symbol-language-value'."
-  (unless (get language 'x-symbol-feature)
-    (put language 'x-symbol-feature feature))
+  (unless (get language 'x-symbol-LANG-feature)
+    (put language 'x-symbol-LANG-feature feature))
   (unless
       (x-symbol-init-language-accesses language
 				       x-symbol-early-language-access-alist)
@@ -1102,7 +1139,8 @@ LANGUAGE, see `x-symbol-language-value'."
     (setq x-symbol-language-alist
 	  (nconc x-symbol-language-alist
 		 (list (cons language
-			     (symbol-value (get language 'x-symbol-name))))))))
+			     (symbol-value
+			      (get language 'x-symbol-LANG-name))))))))
 
 ;;;###autoload
 (defun x-symbol-initialize (&optional arg)
@@ -1169,6 +1207,8 @@ X-Symbol twice."
 				      x-symbol-font-directory) nil t)
 	       (not (eq 0 (call-process "xset" nil nil nil "fp+"
 					x-symbol-font-directory))))))
+	 ;; one cause: other dir with X-Symbol fonts already exists (old
+	 ;; installation)
 	 (lwarn 'x-symbol 'error
 	   "Couldn't add %s to X font path" x-symbol-font-directory))
     ;; Package fast-lock -----------------------------------------------------

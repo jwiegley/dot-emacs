@@ -3,7 +3,7 @@
 
 ;;;### (autoloads nil "_pkg" "lisp/_pkg.el")
 
-(if (fboundp 'package-provide) (package-provide 'x-symbol :version 4.5 :type 'regular))
+(if (fboundp 'package-provide) (package-provide 'x-symbol :version 4.51 :type 'regular))
 
 ;;;***
 
@@ -24,24 +24,29 @@ nil." t nil)
 
 (autoload 'x-symbol-mode "x-symbol-hooks" "\
 Toggle X-Symbol mode.
-If ARG is a cons, e.g., when \\[x-symbol-mode] is preceded by one or
-more \\[universal-argument]'s with no digits, turn on X-Symbol mode
-conditionally, see MODE-ON in `x-symbol-auto-mode-alist'.  Otherwise,
-turn X-Symbol mode on if ARG is positive, else turn it off.  If some
-X-Symbol specific local variables are not buffer-local, set them to
-reasonable values according to `x-symbol-buffer-mode-alist' and
-`x-symbol-auto-mode-alist'.
+Toggle X-Symbol mode.  If provided with a prefix argument, turn X-Symbol
+mode on if the numeric value of the argument is positive, else turn it
+off.  If no token language can be deduced, ask for a token language; if
+provided with a non-numeric prefix argument, always ask.
+
+By default, X-Symbol mode is disabled in special major-modes visiting a
+file, e.g., `vm-mode'.  Use a prefix argument to be asked whether to
+turn in on anyway.
+
+When not already defined, various buffer-local variables are set when
+turning on X-Symbol.  See `x-symbol-auto-style-alist' and the language
+access `x-symbol-LANG-modes'.
 
 Turning X-Symbol mode on requires a valid `x-symbol-language' and also
 decodes tokens if the mode was turned off before, see
-\\[x-symbol-decode].  Turning X-Symbol mode off also encodes x-symbol
-characters if the mode was turned on before, see \\[x-symbol-encode].
-If argument INIT is non-nil, the old mode status is assumed to be off." t nil)
+\\[x-symbol-decode-recode].  Turning X-Symbol mode off also encodes
+x-symbol characters if the mode was turned on before, see
+\\[x-symbol-encode-recode].  If optional argument SPECIAL has value
+`init', the old mode status is assumed to be off." t nil)
 
 (autoload 'turn-on-x-symbol-conditionally "x-symbol-hooks" "\
 Turn on x-symbol mode conditionally, see `x-symbol-mode'.
-Call `x-symbol-mode' with a cons for ARG and a non-nil INIT.  Used in
-`hack-local-variables-hook'." nil nil)
+Call `x-symbol-mode' with SPECIAL having value `init'." nil nil)
 
 (autoload 'x-symbol-fontify "x-symbol-hooks" "\
 Re-fontify region between BEG and END." t nil)
@@ -84,7 +89,7 @@ button2 starts an image editor, see `x-symbol-image-editor-alist'.
 button3 pops up a menu, see `x-symbol-image-menu'.
 
 The image insertion commands are recognized by keywords in the language
-access `x-symbol-image-keywords' whose value have the form
+access `x-symbol-LANG-image-keywords' whose value have the form
   (IMAGE-REGEXP KEYWORD ...)
 IMAGE-REGEXP should match all images files and is used to initialize the
 buffer local memory cache, see `x-symbol-image-init-memory-cache'.
@@ -96,8 +101,8 @@ name of the corresponding image file.  If FUNCTION returns nil, the
 command is not highlighted.
 
 Relative image file names are expanded in the directory returned by the
-function in the language access `x-symbol-master-directory', value nil
-means function `default-directory'.  Implicitly relative image file
+function in the language access `x-symbol-LANG-master-directory', value
+nil means function `default-directory'.  Implicitly relative image file
 names are searched in a search path, see `x-symbol-image-use-remote'." t nil)
 
 (autoload 'x-symbol-image-after-change-function "x-symbol-image" "\
@@ -200,9 +205,13 @@ commands `x-symbol-encode' and `x-symbol-mode'.
 
 Note that in most token languages, different tokens might be decoded to
 the same character, e.g., \\neq and \\ne in `tex', &Auml; and &#196;
-in `sgml'!" t nil)
+in `sgml', see `x-symbol-unique'!" t nil)
 
-(autoload 'x-symbol-decode "x-symbol" nil t nil)
+(autoload 'x-symbol-decode "x-symbol" "\
+Decode all tokens in active region or buffer to characters.
+As opposed to `x-symbol-decode-recode', this function performs no
+recoding, i.e., `x-symbol-coding' is considered to have the value of
+`x-symbol-default-coding'." t nil)
 
 (autoload 'x-symbol-encode-recode "x-symbol" "\
 Encode all characters in active region or buffer to tokens.
@@ -212,7 +221,13 @@ Variables `x-symbol-8bits' and `x-symbol-coding' determine whether to
 encode 8bit characters.  See also commands `x-symbol-decode' and
 `x-symbol-mode'." t nil)
 
-(autoload 'x-symbol-encode "x-symbol" nil t nil)
+(autoload 'x-symbol-encode "x-symbol" "\
+Encode all characters in active region or buffer to tokens.
+As opposed to `x-symbol-encode-recode', this function performs no
+recoding, i.e., `x-symbol-coding' is considered to have the value of
+`x-symbol-default-coding'.  Additionally, `x-symbol-8bits' is assumed to
+be nil if `x-symbol-coding' is not nil or not having the same value as
+`x-symbol-default-coding'." t nil)
 
 (autoload 'x-symbol-unalias "x-symbol" "\
 Resolve all character aliases in active region or buffer.
@@ -230,16 +245,14 @@ resolve a single character before point with \\[x-symbol-modify-key].
 if you have a latin-1 font by default, the `adiaeresis' in a latin-2
 encoded file is a latin-1 `adiaeresis' in the buffer.  When saving the
 buffer, its is again the right 8bit character in the latin-2 encoded
-file.  But note: CHAR ALIASES ARE NOT ENCODED WHEN SAVING THE FILE.
-Invoke this command before, if your buffers have char aliases!  Seven
-positions in latin-3 fonts are not used, the corresponding 8bit bytes in
-latin-3 encoded files are not changed.
+file.  Seven positions in latin-3 fonts are not used, the corresponding
+8bit bytes in latin-3 encoded files are not changed.
 
-In normal cases, buffers do not have char aliases: in XEmacs/Mule, this
-is only possible if you copy characters from buffers with characters
-considered as char aliases by package x-symbol, e.g., from the Mule file
-\"european.el\".  In XEmacs/no-Mule, this is only possible if you use
-commands like `\\[universal-argument] 2 3 4'.
+In normal cases, buffers do not have char aliases: with Mule support,
+this is only possible if you copy characters from buffers with
+characters considered as char aliases by package x-symbol, e.g., from
+the Mule file \"european.el\".  Without Mule support, this is only
+possible if you use commands like `\\[universal-argument] 2 3 4'.
 
 The reason why package x-symbol does not support all versions of
 `adiaeresis'es:

@@ -1,10 +1,10 @@
 ;;; x-symbol-sgml.el --- token language "SGML entity" for package x-symbol
 
-;; Copyright (C) 1996-1999, 2002 Free Software Foundation, Inc.
+;; Copyright (C) 1996-1999, 2002, 2003 Free Software Foundation, Inc.
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
-;; Version: 4.4.X
+;; Version: 4.5
 ;; Keywords: WYSIWYG, HTML, wp, math, internationalization
 ;; X-URL: http://x-symbol.sourceforge.net/
 
@@ -43,7 +43,8 @@
     (x-symbol-auto-coding-alist x-symbol-sgml-auto-coding-alist)
     x-symbol-coding (not x-symbol-mode)
     x-symbol-mode x-symbol-mode)
-  "TODO"
+  "Values for X-Symbol's buffer-local variables with language `sgml'.
+See language access `x-symbol-LANG-auto-style'."
   :group 'x-symbol-sgml
   :group 'x-symbol-mode
   :type 'x-symbol-auto-style)
@@ -55,9 +56,9 @@
      ("iso-8859-3" . iso-8859-3)
      ("iso-8859-9" . iso-8859-9)
      ("iso-8859-15" . iso-8859-15)))
-  "*Alist used to determine the file coding of SGML/HTML buffers.
-Used in the default value of `x-symbol-auto-mode-alist'.  See
-variable `x-symbol-auto-coding-alist' for details."
+  "*Alist used to determine the file coding with language `sgml'.
+Used in the default value of `x-symbol-sgml-auto-style'.  See variable
+`x-symbol-auto-coding-alist' for details."
   :group 'x-symbol-sgml
   :group 'x-symbol-mode
   :type 'x-symbol-auto-coding)
@@ -84,7 +85,8 @@ Used in `x-symbol-sgml-class-face-alist'."
   :group 'x-symbol-info-general)
 
 (defcustom x-symbol-sgml-modeline-name "sgml"
-  "*String naming the language SGML in the modeline."
+  "Modeline name of token language `sgml'.
+See language access `x-symbol-LANG-modeline-name'."
   :group 'x-symbol-sgml
   :type 'string)
 
@@ -102,8 +104,8 @@ Used in `x-symbol-sgml-class-face-alist'."
     ("Circumflex, Caron" circumflex caron)
     ("Diaeresis, Umlaut" diaeresis hungarumlaut)
     ("Acute, Grave" acute grave))
-  "*If non-nil, used in SGML specific grid/menu.
-See `x-symbol-header-groups-alist'."
+  "Header/submenu specification of the specific menu for language `sgml'.
+See language access `x-symbol-LANG-header-groups-alist'."
   :group 'x-symbol-sgml
   :group 'x-symbol-input-init
   :type 'x-symbol-headers)
@@ -113,8 +115,8 @@ See `x-symbol-header-groups-alist'."
     (noname "SGML char-ref" (x-symbol-emph-info-face))
     (VALID "SGML entity" (x-symbol-info-face))
     (INVALID "no SGML entity" (x-symbol-emph-info-face)))
-  "Alist for SGML's token classes displayed by info in echo area.
-See `x-symbol-language-access-alist' for details."
+  "Token classes displayed by info in echo area, for language `sgml'.
+See language access `x-symbol-LANG-class-alist'."
   :group 'x-symbol-sgml
   :group 'x-symbol-info-strings
   :type 'x-symbol-class-info)
@@ -122,38 +124,48 @@ See `x-symbol-language-access-alist' for details."
 (defcustom x-symbol-sgml-class-face-alist
   '((symbol x-symbol-sgml-symbol-face (x-symbol-sgml-symbol-face))
     (noname x-symbol-sgml-noname-face (x-symbol-sgml-noname-face)))
-  "Alist for SGML's color scheme in SGML's grid and info.
-See `x-symbol-language-access-alist' for details."
+  "Color scheme in language specific grid and info, for language `sgml'.
+See language access `x-symbol-LANG-class-face-alist'."
   :group 'x-symbol-sgml
   :group 'x-symbol-input-init
   :group 'x-symbol-info-general
   :type 'x-symbol-class-faces)
 
 (defcustom x-symbol-sgml-electric-ignore nil
-  "*Additional SGML version of `x-symbol-electric-ignore'."
+  "Specification restricting input method ELECTRIC with language `sgml'.
+See language access `x-symbol-LANG-electric-ignore'."
   :group 'x-symbol-sgml
   :group 'x-symbol-input-control
   :type 'x-symbol-function-or-regexp)
 
-
 (defvar x-symbol-sgml-token-list 'x-symbol-sgml-token-list-name
-  "Function returning a list of SGML entities from table specification.
-The TOKEN-SPEC in sgml table look like (NUMBER STRING...) where NUMBER
-is the Unicode value.  See `x-symbol-init-language',
-`x-symbol-sgml-token-list-name', `x-symbol-sgml-token-list-code' and
-`x-symbol-sgml-token-list-netscape'.")
+  "Symbol specifying the token definition for language `sgml'.
+Allowed values are
+ - `x-symbol-sgml-token-list-name': the canonical token for a character
+   is a entity references,
+ - `x-symbol-sgml-token-list-code': the canonical token for a character
+   is a character references,
+ - `x-symbol-sgml-token-list-netscape': the canonical token for a
+   Latin-1 character is a entity references, for others, it is a
+   character references.  Bug workaround for Netscape, v4.6 or lower.
+
+The value is used by function `x-symbol-sgml-default-token-list' which
+is used for the definition of the conversion tables.  See
+`x-symbol-sgml-token-grammar'.")
 
 (defvar x-symbol-sgml-token-grammar
   '(x-symbol-make-grammar
     :decode-regexp "&[#0-9A-Za-z]+;"
     :token-list x-symbol-sgml-default-token-list)
-  "Token grammar for language `sgml'.")
+  "Grammar of token language `sgml'.
+See language access `x-symbol-LANG-token-grammar'.")
 
 (defvar x-symbol-sgml-user-table nil
   "User table defining SGML entities, used in `x-symbol-sgml-table'.")
 
 (defvar x-symbol-sgml-generated-data nil
-  "Internal.")
+  "Generated data for token language `sgml'.
+See language access `x-symbol-LANG-generated-data'.")
 
 
 ;;;===========================================================================
@@ -168,15 +180,15 @@ See `x-symbol-image-parse-buffer'."
   :type 'function)
 
 (defcustom x-symbol-sgml-image-searchpath '("./")
-  "Search path used for implicitly relative image file names.
-See `x-symbol-image-use-remote'."
+  "Search path for implicitly relative image file names.
+See language access `x-symbol-LANG-image-searchpath'."
   :group 'x-symbol-sgml
   :group 'x-symbol-image-language
   :type '(repeat directory))
 
 (defcustom x-symbol-sgml-image-cached-dirs '("images/" "pictures/")
-  "Directory parts of image file names stored in the memory cache.
-See `x-symbol-image-use-remote'."
+  "Directory parts of images stored in the memory cache.
+See language access `x-symbol-LANG-image-cached-dirs'."
   :group 'x-symbol-sgml
   :group 'x-symbol-image-language
   :type '(repeat string))
@@ -215,8 +227,8 @@ E.g., I add the following element to this variable:
   '("\\.\\(gif\\|png\\|jpe?g\\)\\'"
     ("<img[ \t][^\n>]*src=\"\\([^\n\"]+\\)\"[^\n>]*>"
      x-symbol-sgml-image-file-truename 1))
-  "Keywords used to find image insertion commands.
-See `x-symbol-image-parse-buffer'."
+  "Keywords for image insertion commands of language `sgml'.
+See language access `x-symbol-LANG-image-keywords'."
   :group 'x-symbol-sgml
   :group 'x-symbol-image-language
   :type 'x-symbol-image-keywords)
@@ -236,7 +248,8 @@ keyword regexp, after being processed according to
 ;;;===========================================================================
 
 (defcustom x-symbol-sgml-subscript-matcher 'x-symbol-sgml-subscript-matcher
-  "TODO"
+  "Function matching super-/subscripts for language `sgml'.
+See language access `x-symbol-LANG-subscript-matcher'."
   :group 'x-symbol-sgml
   :type 'function)
 
@@ -262,7 +275,7 @@ or subscript tag."
 
 (defcustom x-symbol-sgml-font-lock-alist
   '(("<sub>" . "</sub>") ("<sup>" . "</sup>"))
-  "Alist for correct tag pairs for SGML's super- and subscripts.
+  "Alist for correct tag pairs for HTML's super- and subscripts.
 Each element looks like (OPEN . CLOSE).  All keys OPEN in this alist
 should be matched by `x-symbol-sgml-font-lock-regexp', all CLOSEs should
 be matched by `x-symbol-sgml-font-lock-limit-regexp'."
@@ -631,9 +644,10 @@ be matched by `x-symbol-sgml-font-lock-limit-regexp'."
 	  x-symbol-sgml-latinN-table
 	  x-symbol-sgml-xsymb0-table
 	  x-symbol-sgml-xsymb1-table)
-  "Complete table defining SGML entities.
-Use `x-symbol-sgml-user-table' to define/shadow private entities.
-See `x-symbol-init-language' and `x-symbol-sgml-token-list'.")
+  "Table defining `sgml' tokens for the characters.
+See language access `x-symbol-LANG-table' and variable
+`x-symbol-sgml-token-list'.  Use `x-symbol-sgml-user-table' to define
+private SGML entities or shadow existing ones.")
 
 
 ;;;===========================================================================

@@ -4,7 +4,7 @@
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
-;; Version: 4.4.X
+;; Version: 4.5.X
 ;; Keywords: WYSIWYG, LaTeX, HTML, wp, math, internationalization
 ;; X-URL: http://x-symbol.sourceforge.net/
 
@@ -64,32 +64,37 @@
 ;;;===========================================================================
 
 (defconst x-symbol-language-access-alist
-  `((x-symbol-auto-style "auto-style" t listp) ; redefinition, TODO: optional is just temporary
-    (x-symbol-modeline-name "modeline-name" nil stringp)
-    (x-symbol-required-fonts "required-fonts" t listp)
-    (x-symbol-token-grammar "token-grammar" nil
-			    ,(lambda (x)
-			       (or (vectorp x)
-				   (eq (car-safe x) 'x-symbol-make-grammar))))
+  `((x-symbol-LANG-auto-style "auto-style" t listp) ; redefinition, TODO: optional is just temporary
+    (x-symbol-LANG-modeline-name "modeline-name" nil stringp)
+    (x-symbol-LANG-required-fonts "required-fonts" t listp)
+    (x-symbol-LANG-token-grammar "token-grammar" nil
+				 ,(lambda (x)
+				    (or (vectorp x)
+					(eq (car-safe x)
+					    'x-symbol-make-grammar))))
     ;;(x-symbol-input-token-grammar "input-token-grammar" nil consp)
-    (x-symbol-table "table" nil consp)
-    (x-symbol-generated-data "generated-data" nil null)
+    (x-symbol-LANG-table "table" nil consp)
+    (x-symbol-LANG-generated-data "generated-data" nil null)
     ;; input methods
-    (x-symbol-header-groups-alist "header-groups-alist" nil listp)
-    (x-symbol-class-alist "class-alist" nil listp)
-    (x-symbol-class-face-alist "class-face-alist" t listp)
-    (x-symbol-electric-ignore "electric-ignore")
-    (x-symbol-extra-menu-items "extra-menu-items" t listp)
+    (x-symbol-LANG-header-groups-alist "header-groups-alist" nil listp)
+    (x-symbol-LANG-class-alist "class-alist" nil listp)
+    (x-symbol-LANG-class-face-alist "class-face-alist" t listp)
+    (x-symbol-LANG-electric-ignore "electric-ignore")
+    (x-symbol-LANG-extra-menu-items "extra-menu-items" t listp)
     ;; super-/subscripts, images
-    (x-symbol-subscript-matcher "subscript-matcher" t)
-    (x-symbol-image-keywords "image-keywords" t listp)
-    (x-symbol-master-directory "master-directory" x-symbol-image-keywords
-			       functionp)
-    (x-symbol-image-searchpath "image-searchpath" x-symbol-image-keywords
-			       listp)
-    (x-symbol-image-cached-dirs "image-cached-dirs" x-symbol-image-keywords
-				listp))
+    (x-symbol-LANG-subscript-matcher "subscript-matcher" t)
+    (x-symbol-LANG-image-keywords "image-keywords" t listp)
+    (x-symbol-LANG-master-directory "master-directory"
+				    x-symbol-LANG-image-keywords
+				    functionp)
+    (x-symbol-LANG-image-searchpath "image-searchpath"
+				    x-symbol-LANG-image-keywords
+				    listp)
+    (x-symbol-LANG-image-cached-dirs "image-cached-dirs"
+				     x-symbol-LANG-image-keywords
+				     listp))
   "Alist of token language dependent variable accesses.
+OUTDATED.
 Each element looks like (ACCESS . SUFFIX) or (ACCESS MULE . NOMULE).
 With the first form, the symbol of the LANGUAGE dependent variable is
 `FEATURE-SUFFIX' where FEATURE is the value of LANGUAGE's symbol
@@ -410,16 +415,17 @@ accesses, see `x-symbol-language-access-alist'."
 The returned value is (FACE . FACE-SPECS) where FACE is used for the
 grid and FACE-SPECS for the token in the info.  For the format of
 FACE-SPECS, see `x-symbol-fancy-string'.  The value depends on the first
-token class and the language access `x-symbol-class-face-alist'."
+token class and the language access `x-symbol-LANG-class-face-alist'."
   (cdr (assq (car (gethash charsym
 			   (x-symbol-generated-token-classes
 			    (x-symbol-language-value
-			     'x-symbol-generated-data language))))
-	     (x-symbol-language-value 'x-symbol-class-face-alist language))))
+			     'x-symbol-LANG-generated-data language))))
+	     (x-symbol-language-value 'x-symbol-LANG-class-face-alist
+				      language))))
 
 (defun x-symbol-image-available-p ()
   "Non-nil, if `x-symbol-image' can be set in current file."
-  (and (x-symbol-language-value 'x-symbol-image-keywords)
+  (and (x-symbol-language-value 'x-symbol-LANG-image-keywords)
        (null (file-remote-p default-directory))))
 
 (defun x-symbol-default-context-info-ignore (context charsym)
@@ -472,7 +478,7 @@ If LANGUAGE is non-nil, the result looks like (TOKEN . MISC)."
 					x-symbol-fchar-tables)))))
 	   (gethash charsym (x-symbol-generated-encode-table
 			     (x-symbol-language-value
-			      'x-symbol-generated-data
+			      'x-symbol-LANG-generated-data
 			      (or language x-symbol-language)))))
     (gethash charsym (cdr (assq (or (x-symbol-buffer-coding)
 				    x-symbol-default-coding
@@ -563,7 +569,7 @@ When non-nil, use format string FORMAT."
   "Return text for LANGUAGE, to be presented to the user.
 LANGUAGE defaults to `x-symbol-language'.  If LANGUAGE is nil, return
 `x-symbol-charsym-name'.  When non-nil, use format string FORMAT."
-  (let ((text (or (x-symbol-language-value 'x-symbol-name language)
+  (let ((text (or (x-symbol-language-value 'x-symbol-LANG-name language)
 		  x-symbol-charsym-name)))
     (if format (format format text) text)))
 
@@ -587,15 +593,14 @@ otherwise just return text for CODING1."
 
 (defun x-symbol-language-modeline-text (language)
   "Return text for LANGUAGE, to be presented in the modeline."
-  (or (and (setq language (and (boundp language) (symbol-value language)))
-	   (x-symbol-language-value 'x-symbol-modeline-name))
-      x-symbol-modeline-name))
+  (if language
+      (x-symbol-language-value 'x-symbol-LANG-modeline-name language)
+    x-symbol-charsym-modeline-name))
 
 (defun x-symbol-coding-modeline-text (coding)
-  "Return text for symbol value of CODING, to be used in the modeline.
-Use association in `x-symbol-coding-modeline-alist' if value of CODING
-differs from `x-symbol-default-coding', \"\" otherwise."
-  (setq coding (and (boundp coding) (symbol-value coding)))
+  "Return text for CODING, to be used in the modeline.
+Use association in `x-symbol-coding-modeline-alist' if CODING differs
+from `x-symbol-default-coding', \"\" otherwise."
   (let ((buffer-coding (x-symbol-buffer-coding)))
     (cdr (assq (cond ((null buffer-coding)
 		      (if x-symbol-8bits 'error (if coding 'info 'none)))
@@ -743,7 +748,7 @@ package X-Symbol:
 Thank you for trying package X-Symbol.  If you have problems, please use
 `M-x x-symbol-package-bug' to contact the maintainer.  Do not assume
 that I remember the contents of your message (appended to this reply)...
-er, I have actually deleted it.")
+err, I have actually deleted it.")
   (goto-char (point-max))
   (when (get-buffer " *gnus article copy*")
     (newline)
@@ -794,11 +799,11 @@ which defaults to `x-symbol-exec-threshold'.  Before decoding, decode
   ;;  * Latin decode alists are ordered, see `x-symbol-init-latin-decoding'
   ;;  * No part of the association is a KEY in the conversion alists
   ;;  * Keys in conversion alists are ordered: long...short
-  (let* ((grammar (x-symbol-language-value 'x-symbol-token-grammar))
+  (let* ((grammar (x-symbol-language-value 'x-symbol-LANG-token-grammar))
 	 (decode-obarray (if x-symbol-language
 			     (x-symbol-generated-decode-obarray
 			      (x-symbol-language-value
-			       'x-symbol-generated-data))))
+			       'x-symbol-LANG-generated-data))))
 	 (buffer-coding (x-symbol-buffer-coding))
 	 (unique (and x-symbol-unique t)))
     ;; TODO: recheck.  Decode uniquely and do not decode to 8bit if current
@@ -854,7 +859,7 @@ which defaults to `x-symbol-exec-threshold'.  Before decoding, decode
 		  (intern-soft string
 			       (x-symbol-generated-decode-obarray
 				(x-symbol-language-value
-				 'x-symbol-generated-data))))))
+				 'x-symbol-LANG-generated-data))))))
       (if token (gethash (car token) x-symbol-cstring-table)))))
 
 (defun x-symbol-decode-lisp (contexts decode-regexp decode-obarray unique)
@@ -910,10 +915,10 @@ characters in `x-symbol-coding' or `x-symbol-default-coding' if
 between START and END to BUFFER, make BUFFER current and do conversion
 there.  If BUFFER is non-nil, START and END must be buffer positions or
 START is a string, see kludgy feature of `write-region'."
-  (let ((grammar (x-symbol-language-value 'x-symbol-token-grammar))
+  (let ((grammar (x-symbol-language-value 'x-symbol-LANG-token-grammar))
 	(encode-table (x-symbol-generated-encode-table
 		       (x-symbol-language-value
-			'x-symbol-generated-data)))
+			'x-symbol-LANG-generated-data)))
 	(buffer-coding (x-symbol-buffer-coding))
 	(coding (if x-symbol-coding
 		    (if (assq x-symbol-coding x-symbol-fchar-tables)
@@ -1007,7 +1012,7 @@ commands `x-symbol-encode' and `x-symbol-mode'.
 
 Note that in most token languages, different tokens might be decoded to
 the same character, e.g., \\neq and \\ne in `tex', &Auml\; and &#196\;
-in `sgml'!"
+in `sgml', see `x-symbol-unique'!"
   (interactive (and (region-active-p) (list (region-beginning) (region-end))))
   (unless x-symbol-language
     (error "No token language which can be used for decoding"))
@@ -1029,6 +1034,10 @@ in `sgml'!"
 
 ;;;###autoload
 (defun x-symbol-decode (&optional beg end)
+  "Decode all tokens in active region or buffer to characters.
+As opposed to `x-symbol-decode-recode', this function performs no
+recoding, i.e., `x-symbol-coding' is considered to have the value of
+`x-symbol-default-coding'."
   (interactive (and (region-active-p) (list (region-beginning) (region-end))))
   (if (or (null x-symbol-coding)
 	  (eq x-symbol-coding x-symbol-default-coding))
@@ -1066,11 +1075,12 @@ encode 8bit characters.  See also commands `x-symbol-decode' and
 
 ;;;###autoload
 (defun x-symbol-encode (&optional beg end)
-;;  "Encode all characters in active region or buffer to tokens.
-;;If called interactively and if the region is active, BEG and END are the
-;;boundaries of the region.  BEG and END default to the buffer boundaries.
-;;Always encode all 8bit characters, as opposed to \\[x-symbol-encode],
-;;i.e., `x-symbol-8bits' is assumed to be nil here."
+  "Encode all characters in active region or buffer to tokens.
+As opposed to `x-symbol-encode-recode', this function performs no
+recoding, i.e., `x-symbol-coding' is considered to have the value of
+`x-symbol-default-coding'.  Additionally, `x-symbol-8bits' is assumed to
+be nil if `x-symbol-coding' is not nil or not having the same value as
+`x-symbol-default-coding'."
   (interactive (and (region-active-p) (list (region-beginning) (region-end))))
   (if (or (null x-symbol-coding)
 	  (eq x-symbol-coding x-symbol-default-coding))
@@ -1098,16 +1108,14 @@ resolve a single character before point with \\[x-symbol-modify-key].
 if you have a latin-1 font by default, the `adiaeresis' in a latin-2
 encoded file is a latin-1 `adiaeresis' in the buffer.  When saving the
 buffer, its is again the right 8bit character in the latin-2 encoded
-file.  But note: CHAR ALIASES ARE NOT ENCODED WHEN SAVING THE FILE.
-Invoke this command before, if your buffers have char aliases!  Seven
-positions in latin-3 fonts are not used, the corresponding 8bit bytes in
-latin-3 encoded files are not changed.
+file.  Seven positions in latin-3 fonts are not used, the corresponding
+8bit bytes in latin-3 encoded files are not changed.
 
-In normal cases, buffers do not have char aliases: in XEmacs/Mule, this
-is only possible if you copy characters from buffers with characters
-considered as char aliases by package x-symbol, e.g., from the Mule file
-\"european.el\".  In XEmacs/no-Mule, this is only possible if you use
-commands like `\\[universal-argument] 2 3 4'.
+In normal cases, buffers do not have char aliases: with Mule support,
+this is only possible if you copy characters from buffers with
+characters considered as char aliases by package x-symbol, e.g., from
+the Mule file \"european.el\".  Without Mule support, this is only
+possible if you use commands like `\\[universal-argument] 2 3 4'.
 
 The reason why package x-symbol does not support all versions of
 `adiaeresis'es:
@@ -1148,6 +1156,9 @@ The reason why package x-symbol does not support all versions of
 		 count (x-symbol-region-text t)))))
 
 (defun x-symbol-copy-region-encoded (start end)
+  "Save the region encoded, as if killed.
+Encode characters as `x-symbol-encode' does, but without traces in
+current buffer.  Save the region as `copy-region-as-kill' does."
   ;; WARNING: args might change (for prefix arg: kill, append/prepend).  No,
   ;; this command does not append after a kill as `copy-region-as-kill' does.
   ;; I think it's quite strange to append after a kill, but not after another
@@ -1173,6 +1184,9 @@ The reason why package x-symbol does not support all versions of
     (copy-region-as-kill start end)))
 
 (defun x-symbol-yank-decoded (&optional arg)
+  "Reinsert and decode the last stretch of killed text.
+Reinsert text as `yank' does.  Decode characters as `x-symbol-decode'
+does, but without adding unnessary entries to the `buffer-undo-list'."
   ;; Can also be inserted+decoded directly.  But it would be much longer when
   ;; doing it right (`buffer-undo-list', disable font-lock, etc).
   (interactive "*P")
@@ -1203,11 +1217,10 @@ The reason why package x-symbol does not support all versions of
     (while alist
       (cond ((stringp (car alist))
 	     (or sep (setq sep (car alist))))
-	    ((setq string (if (functionp (cdar alist))
-			      (funcall (cdar alist) (caar alist))
-			    (if (symbol-value (caar alist))
-				(cadar alist)
-			      (cddar alist))))
+	    ((setq string (let ((value (symbol-value (caar alist))))
+			    (if (functionp (cdar alist))
+				(funcall (cdar alist) value)
+			      (if value (cadar alist) (cddar alist)))))
 	     (when sep (push sep strings) (setq sep nil))
 	     (push string strings)))
       (setq alist (cdr alist)))
@@ -1316,6 +1329,10 @@ where KEY is equal to the MATCH'th regexp group of the match."
 	   (0 (progn x-symbol-nomule-font-lock-face) prepend)))))
   "TODO")
 
+(defvar x-symbol-subscript-matcher nil
+  "Internal.
+Used during the font-lock highlighting process.")
+
 (defvar x-symbol-subscript-type nil
   "Internal")
 
@@ -1330,7 +1347,7 @@ where KEY is equal to the MATCH'th regexp group of the match."
 	(and x-symbol-mode x-symbol-subscripts
 	     (find-face 'x-symbol-sub-face) ; TODO: not if in Emacs-21.4
 	     (find-face 'x-symbol-sup-face) ; ditto
-	     (x-symbol-language-value 'x-symbol-subscript-matcher)))
+	     (x-symbol-language-value 'x-symbol-LANG-subscript-matcher)))
   (if (eq x-symbol-subscript-matcher 'ignore)
       (setq x-symbol-subscript-matcher nil)))
 
@@ -1406,7 +1423,17 @@ command `x-symbol-mode' for details."
 	    (progn
 	      (decode-coding-region (point-min) (point-max) 'undecided)
 	      (set-buffer-multibyte t))
-	  (set-buffer-modified-p modified)))))
+	  (set-buffer-modified-p modified))))
+    (and x-symbol-mode
+	 x-symbol-set-coding-system-if-undecided
+	 x-symbol-default-coding
+	 (let ((cs (car (rassq x-symbol-default-coding
+			       '((iso-latin-1 . iso-8859-1)
+				 (iso-latin-2 . iso-8859-2)
+				 (iso-latin-3 . iso-8859-3)
+				 (iso-latin-9 . iso-8859-9)
+				 (iso-latin-15 . iso-8859-15))))))
+	   (if cs (set-buffer-file-coding-system cs)))))
   (if x-symbol-mode (x-symbol-init-font-lock))
   (if conversion
       (let ((modified (buffer-modified-p))
@@ -1505,7 +1532,8 @@ Used in `change-major-mode-hook'."
 
 (defun x-symbol-extra-filter (menu-items)
   (let ((extra (assoc (aref (car menu-items) 0)
-		      (x-symbol-language-value 'x-symbol-extra-menu-items))))
+		      (x-symbol-language-value
+		       'x-symbol-LANG-extra-menu-items))))
     (if extra
 	(append (cdr menu-items) (cdr extra))
       (cdr menu-items))))
@@ -1525,7 +1553,7 @@ Append the global or token-language specific menu to MENU-ITEMS."
 	 (or (and x-symbol-local-menu
 		  x-symbol-language
 		  (x-symbol-generated-menu-alist
-		   (x-symbol-language-value 'x-symbol-generated-data)))
+		   (x-symbol-language-value 'x-symbol-LANG-generated-data)))
 	     x-symbol-menu-alist)))
 
 
@@ -1721,10 +1749,10 @@ See `x-symbol-init-language'."
   (if language
       (if (get language 'x-symbol-initialized)
 	  (message "Token language %S is already initialized"
-		   (x-symbol-language-value 'x-symbol-name language))
+		   (x-symbol-language-value 'x-symbol-LANG-name language))
 	(if (x-symbol-init-language language)
 	    (message "Token language %S has been initialized"
-		     (x-symbol-language-value 'x-symbol-name language))
+		     (x-symbol-language-value 'x-symbol-LANG-name language))
 	  (error "Failed to initialize token language `%s'" language)))))
 
 (defun x-symbol-list-menu (reference charsym)
@@ -1744,7 +1772,7 @@ buffer REFERENCE, see `x-symbol-insert-command'."
 			      (car (gethash charsym
 					    (x-symbol-generated-encode-table
 					     (x-symbol-language-value
-					      'x-symbol-generated-data
+					      'x-symbol-LANG-generated-data
 					      (car language)))))
 			    (symbol-name charsym)))
 	      (push (vector token
@@ -1859,7 +1887,7 @@ mouse is in the upper half of the window, scroll up, otherwise."
 	    (plist-put x-symbol-language-info-caches language cache)))
     (or (gethash charsym cache)
 	(let* ((data (x-symbol-language-value
-		      'x-symbol-generated-data language))
+		      'x-symbol-LANG-generated-data language))
 	       (token (gethash charsym
 			       (x-symbol-generated-encode-table data))))
 	  (x-symbol-puthash
@@ -1874,7 +1902,8 @@ mouse is in the upper half of the window, scroll up, otherwise."
 		   (x-symbol-fancy-associations
 		    (gethash charsym
 			     (x-symbol-generated-token-classes data))
-		    (x-symbol-language-value 'x-symbol-class-alist language)
+		    (x-symbol-language-value 'x-symbol-LANG-class-alist
+					     language)
 		    'x-symbol-info-classes-pre
 		    'x-symbol-info-classes-sep
 		    'x-symbol-info-classes-post
@@ -1932,7 +1961,7 @@ describing key bindings."
   (concat intro
 	  (gethash charsym x-symbol-fontified-cstring-table)
 	  (x-symbol-fancy-value 'x-symbol-info-token-pre)
-	  (if (get language 'x-symbol-name)
+	  (if (get language 'x-symbol-LANG-name)
 	      (x-symbol-language-info charsym language)
 	    (x-symbol-charsym-info charsym))
 	  (x-symbol-coding-info charsym)
@@ -2123,7 +2152,12 @@ See `x-symbol-reveal-invisible', `x-symbol-character-info' and
 ;;		     (setq cw2 quail-overlay)))
 ;;		     ;;(quail-point-in-conversion-region)))
 	   (setq info (x-symbol-point-info after before))
-	   (display-message 'no-log info)))))
+	   (if (featurep 'xemacs)
+	       (display-message 'no-log info)
+	     (let ((resize-mini-windows nil))
+	       (display-message 'no-log info)
+	       ;;(sit-for 0.01) ; does not work, resizes after 0.01s
+	       ))))))
 
 (defun x-symbol-start-itimer-once ()
   "Start idle timer for function `x-symbol-show-info-and-invisible'.
@@ -2160,7 +2194,8 @@ Used in `x-symbol-post-command-hook.'"
 
 
 (defvar x-symbol-language-history nil
-  "History of token languages, long form, see access `x-symbol-name'.")
+  "History of token languages, long form.
+See language access `x-symbol-LANG-name'.")
 (defvar x-symbol-token-history nil
   "History of tokens of any language.")
 
@@ -2223,7 +2258,7 @@ Otherwise signal error `undefined-keystroke-sequence'."
   (let* ((token (if x-symbol-language
 		    (car (gethash charsym (x-symbol-generated-encode-table
 					   (x-symbol-language-value
-					    'x-symbol-generated-data))))))
+					    'x-symbol-LANG-generated-data))))))
 	 (language (x-symbol-read-language 
 		    (format "Insert %s in token language (default %s): "
 			    charsym
@@ -2235,12 +2270,12 @@ Otherwise signal error `undefined-keystroke-sequence'."
 		      (or (null (setq lang (cdr lang)))
 			  (gethash charsym (x-symbol-generated-encode-table
 					    (x-symbol-language-value
-					     'x-symbol-generated-data
+					     'x-symbol-LANG-generated-data
 					     lang))))))))
     (or (if language
 	    (car (gethash charsym (x-symbol-generated-encode-table
 				   (x-symbol-language-value
-				    'x-symbol-generated-data
+				    'x-symbol-LANG-generated-data
 				    language)))))
 	(symbol-name charsym))))
 
@@ -2325,13 +2360,13 @@ nil, argument ARG is passed to `x-symbol-insert-command'."
 	 (decode-obarray (if language
 			     (x-symbol-generated-decode-obarray
 			      (x-symbol-language-value
-			       'x-symbol-generated-data language))
+			       'x-symbol-LANG-generated-data language))
 			   x-symbol-charsym-decode-obarray))
 	 (completion (try-completion "" decode-obarray))
 	 (completion-ignore-case (if language
 				     (x-symbol-grammar-case-function
 				      (x-symbol-language-value
-				       'x-symbol-token-grammar language))))
+				       'x-symbol-LANG-token-grammar language))))
 	 (cstring (completing-read
 		   (format "Insert %s %s: " (car arg-strings) (cdr arg-strings))
 		   decode-obarray
@@ -2374,7 +2409,7 @@ non-nil, see `x-symbol-list-restore'."
 			  x-symbol-language
 			  (x-symbol-generated-grid-alist
 			   (x-symbol-language-value
-			    'x-symbol-generated-data))))
+			    'x-symbol-LANG-generated-data))))
 	 (language (and grid-alist x-symbol-language))
 	 (win-config (and x-symbol-temp-grid (current-window-configuration)))
 	 ;;(ref-buffer (and x-symbol-temp-grid (current-buffer)))
@@ -2490,11 +2525,12 @@ argument.  Also prepare the use of `undo' and `unexpand-abbrev'."
 (defun x-symbol-replace-token (&optional command-char)
   "Replace token by corresponding character.
 If COMMAND-STRING is non-nil, check token shape."
-  (let* ((grammar (x-symbol-language-value 'x-symbol-token-grammar))
-	 (generated (x-symbol-language-value 'x-symbol-generated-data))
+  (let* ((grammar (x-symbol-language-value 'x-symbol-LANG-token-grammar))
+	 (generated (x-symbol-language-value 'x-symbol-LANG-generated-data))
 	 (decode-obarray (x-symbol-generated-decode-obarray generated))
 	 (case-fold-search (x-symbol-grammar-case-function ;#dynamic
-			    (x-symbol-language-value 'x-symbol-token-grammar)))
+			    (x-symbol-language-value
+			     'x-symbol-LANG-token-grammar)))
 	 (input-regexp (x-symbol-grammar-input-regexp grammar))
 	 (input-spec (x-symbol-grammar-input-spec grammar))
 	 (beg (- (point) (x-symbol-generated-max-token-len generated)
@@ -2695,7 +2731,7 @@ Called in `x-symbol-post-command-hook', see `x-symbol-electric-input'."
 		 (x-symbol-call-function-or-regexp
 		  x-symbol-electric-ignore context (cdr pos+charsym))
 		 (x-symbol-call-function-or-regexp
-		  (x-symbol-language-value 'x-symbol-electric-ignore)
+		  (x-symbol-language-value 'x-symbol-LANG-electric-ignore)
 		  context (cdr pos+charsym))
 		 (x-symbol-replace-from (car pos+charsym)
 					(cdr pos+charsym)))))))
@@ -3526,7 +3562,7 @@ The rotate score is more important than the modify score."
   "Return an alists with headers and their charsyms.
 If optional argument LANGUAGE is non-nil, only collect valid charsym in
 that language.  Used for menu and grid.  See variable and language
-access `x-symbol-header-groups-alist'."
+access `x-symbol-LANG-header-groups-alist'."
   (let (group-alist)
     (dolist (charsym x-symbol-all-charsyms)
       (when (or (null language)
@@ -3545,7 +3581,7 @@ access `x-symbol-header-groups-alist'."
 				   (cdr header-groups)))))
 	    (or (and language
 		     (symbol-value
-		      (get language 'x-symbol-header-groups-alist)))
+		      (get language 'x-symbol-LANG-header-groups-alist)))
 		x-symbol-header-groups-alist))))
 
 (defun x-symbol-init-grid/menu (&optional language)
@@ -3607,7 +3643,7 @@ language."
 	  menu-alist (nreverse menu-alist))
     (if language
 	(let ((generated (symbol-value
-			  (get language 'x-symbol-generated-data))))
+			  (get language 'x-symbol-LANG-generated-data))))
 	  (setf (x-symbol-generated-menu-alist generated) menu-alist)
 	  (setf (x-symbol-generated-grid-alist generated) grid-alist))
       (setq x-symbol-menu-alist menu-alist
@@ -3823,7 +3859,8 @@ Set conversion alists according to table and initialize executables, see
 `x-symbol-init-input'.  LANGUAGE should have been registered with
 `x-symbol-register-language' before.
 
-Each element in TABLE, the language access `x-symbol-table', looks like
+Each element in TABLE, the language access `x-symbol-LANG-table', looks
+like
   (CHARSYM CLASSES . TOKEN-SPEC) or nil.
 
 With the first form, pass TOKEN-SPEC to the language aspect
@@ -3841,32 +3878,34 @@ CLASSES are a list of symbols which are used for the character info in
 the echo are, see `x-symbol-character-info', the grid coloring scheme,
 and probably by the token language dependent control of input method
 ELECTRIC, see `x-symbol-electric-input'.  They are used by the language
-accesses `x-symbol-class-alist' and `x-symbol-class-face-alist'.
+accesses `x-symbol-LANG-class-alist' and
+`x-symbol-LANG-class-face-alist'.
 
 If non-nil, the language aspect `x-symbol-input-token-ignore' \"hides\"
 some tokens from input method token.  `x-symbol-call-function-or-regexp'
 uses it with TOKEN and CHARSYM."
-  (when (get language 'x-symbol-feature)
-    (require (get language 'x-symbol-feature))
+  (when (get language 'x-symbol-LANG-feature)
+    (require (get language 'x-symbol-LANG-feature))
     (x-symbol-init-language-accesses language x-symbol-language-access-alist)
     (put language 'x-symbol-initialized t)
-    (dolist (feature (x-symbol-language-value 'x-symbol-required-fonts
+    (dolist (feature (x-symbol-language-value 'x-symbol-LANG-required-fonts
 					      language))
       (require feature))
     (x-symbol-init-input)
-    (let ((grammar (x-symbol-language-value 'x-symbol-token-grammar language)))
+    (let ((grammar (x-symbol-language-value 'x-symbol-LANG-token-grammar
+					    language)))
       (when (eq (car-safe grammar) 'x-symbol-make-grammar)
 	(setq grammar (apply 'x-symbol-make-grammar (cdr grammar)))
-	(set (get language 'x-symbol-token-grammar) grammar))
+	(set (get language 'x-symbol-LANG-token-grammar) grammar))
       (let ((token-list (x-symbol-grammar-token-list grammar))
 	    (after-init (x-symbol-grammar-after-init grammar))
-	    (class-alist (x-symbol-language-value 'x-symbol-class-alist
+	    (class-alist (x-symbol-language-value 'x-symbol-LANG-class-alist
 						  language))
 	    decode-alist encode-alist classes-alist
 	    (warn-double t)
 	    used-charsyms used-tokens secondary
 	    (max-token-len 0) tlen)
-	(dolist (entry (x-symbol-language-value 'x-symbol-table language))
+	(dolist (entry (x-symbol-language-value 'x-symbol-LANG-table language))
 	  (if (null entry)
 	      (setq warn-double nil)
 	    (let* ((charsym (car entry))
@@ -3913,7 +3952,7 @@ uses it with TOKEN and CHARSYM."
 			(setq max-token-len tlen))
 		    (setq secondary t)))))))
 	;; set vars ----------------------------------------------------------
-	(set (get language 'x-symbol-generated-data)
+	(set (get language 'x-symbol-LANG-generated-data)
 	     (x-symbol-make-generated-data
 	      :encode-table (x-symbol-alist-to-hash-table encode-alist)
 	      :decode-obarray (x-symbol-alist-to-obarray decode-alist)

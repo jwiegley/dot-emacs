@@ -1,7 +1,7 @@
 ### Makefile --- create fonts for package x-symbol
 
 ## Author: Christoph Wedler <wedler@users.sourceforge.net>
-## Version: 4.4
+## Version: 4.5
 ## Keywords: fonts, WYSIWYG, LaTeX, HTML, wp, math
 ## X-URL: http://x-symbol.sourceforge.net/
 
@@ -79,8 +79,7 @@ echo:
 
 mkdirs:
 	-if [ ! -d $(GENFONTS) ]; then mkdir $(GENFONTS); fi
-	-if [ ! -d $(PCFDIR) ]; then mkdir $(PCFDIR); \
-			       else rm -f $(PCFDIR)/*.pcf ; fi;
+	-if [ ! -d $(PCFDIR) ]; then mkdir $(PCFDIR); fi
 
 gens: $(GENS)
 

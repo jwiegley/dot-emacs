@@ -10,8 +10,8 @@ END-INFO-DIR-ENTRY
 LaTeX, HTML and other "token languages".  It uses additional fonts and
 provide input methods to insert their characters into your document.
 
-   This is Edition 4.5 (XEmacs) of the X-Symbol Manual for X-Symbol
-4.5, March 2003.
+   This is Edition 4.5.1 (XEmacs) of the X-Symbol Manual for X-Symbol
+4.5.1, May 2003.
 
    Copyright (c) 1998-2003 Free Software Foundation, Inc.
 
@@ -47,12 +47,12 @@ real super-/subscripts and are also supported.
 document, including the indexes.  The rest of the menu lists all the
 lower level nodes in the document.
 
-   This is Edition 4.5 (XEmacs) of the X-Symbol Manual for X-Symbol
-4.5, March 2003.  For recent changes, see *Note News::.
+   This is Edition 4.5.1 (XEmacs) of the X-Symbol Manual for X-Symbol
+4.5.1, May 2003.  For recent changes, see *Note News::.
 
    Bug fixes, bug reports, improvements, and suggestions are strongly
-appreciated.  Please read section *Note Bug Reports:: if you want to
-contact the maintainer of package X-Symbol.
+appreciated.  If you want to contact the maintainer of package X-Symbol,
+please read *Note Bug Reports::.
 
 * Menu:
 
@@ -237,6 +237,7 @@ History and Projects
 
 News: Changes in Recent Versions of X-Symbol
 
+* Changes New::                 To be announced.
 * Changes 4.5::                 Released Mar 2003 as beta.
 * Changes 4.4::                 Released June 2002 as beta.
 * Changes 4.1::                 Released Mar 2002 as beta.
@@ -424,8 +425,9 @@ impression of what can be customized, and it even lists all related
 user options, but it does not describes the technical format of
 possible values of each option.
 
-   Section *Note X-Symbol Internals:: is for the curious reader and for
-people who want to define their own token language.
+   If you want to learn something about X-Symbol's internals, e.g., if
+you want to define your own token language, see *Note X-Symbol
+Internals::.
 
    This manual does not explain Emacs in general or some optional
 programs used by this package such as `convert' (used to produce the
@@ -847,11 +849,16 @@ conversion.  When doing multiple conversion, the sequence matters.
      `efs'/`ange-ftp'!
 
 `latin-unity'
-     Can be used with package X-Symbol, functionality is already
-     provided by X-Symbol for Latin-{1,2,3,5,9} characters: remapping
-     (*note Char Aliases::.) and recoding (*note File Coding::.).  Has
-     some safe-encoding mechanism, but the test comes currently too
-     early (*note Wishlist Emacs::.).
+     This XEmacs package can be used with package X-Symbol,
+     functionality is already provided by X-Symbol for
+     Latin-{1,2,3,5,9} characters: remapping (*note Char Aliases::.)
+     and recoding (*note File Coding::.).  Has some safe-encoding
+     mechanism, but the test comes currently too early (*note Wishlist
+     Emacs::.).
+
+`ucs-tables'
+     The Emacs minor modes `unify-8859-on-decoding-mode' and
+     `unify-8859-on-encoding-mode' can be used with package X-Symbol.
 
 `vc'
      If you use package `crypt', `vc-next-action' and friends encode
@@ -887,8 +894,8 @@ Miscellaneous Packages
 `ispell'
      The package `ispell' assumes the buffer contents to be the same as
      the file contents and does not provide any hook to fix this.  This
-     should be fixed in `ispell', *Note Wishlist Emacs::.  *Note FAQ
-     Spell Check::.
+     should be fixed in `ispell', see *Note Wishlist Emacs::.  *Note
+     FAQ Spell Check::.
 
      Use a future version (hopefully v3.4).  Includes special X-Symbol
      initialization/handling and defines additional token languages.
@@ -1104,7 +1111,7 @@ might not look nice (*note FAQ Font Size::.).
 `x-symbol-mule-change-default-face'
      Package X-Symbol does not change the fonts of pre-defined Mule
      charsets (this can be changed by this variable).  Thus, the
-     variables from Section *Note Installing Fonts Lisp:: might have no
+     variables from *Note Installing Fonts Lisp:: might have no
      influence if Emacs already has defined fonts for the corresponding
      charsets.
 
@@ -1175,7 +1182,7 @@ Concepts of Package X-Symbol
 
    This chapter describes the concepts of package X-Symbol.  It contains
 quite a few forward references to feature which are based on these
-concepts, such as *Note Input Methods:: and *Note Features::.
+concepts, such as *Note Input Methods::, and *Note Features::.
 
 * Menu:
 
@@ -1203,7 +1210,7 @@ entity" (`sgml'), "BibTeX macro" (`bib'), and "TeXinfo command"
 (`texi'), see *Note Supported Languages::.
 
    The token language determines the conversion between X-Symbol
-characters and tokens (*Note Conversion::), the input methods (*note
+characters and tokens (*note Conversion::.), the input methods (*note
 Input Methods::.), and various other features (*note Features::.).
 
    The token language is defined by the following buffer-local variable:
@@ -1366,7 +1373,7 @@ cases:
    * If the normal file encoding is unsupported (any file encoding is
      invalid in this case) or if the normal file encoding is supported
      and the file does not contain 8bit characters, we always encode
-     all X-Symbol character (*Note Controlling 8bit Coding::).  The
+     all X-Symbol character (*note Controlling 8bit Coding::.).  The
      modeline includes `-i' to represent the file encoding (*note Minor
      Mode::.), except if the default encoding is `nil', the normal file
      encoding is unsupported, and the variable `x-symbol-coding' is not
@@ -1391,7 +1398,7 @@ Store or Encode 8bit Characters
 -------------------------------
 
    You can specify that 8bit characters (according to the coding in your
-file, *Note File Coding::), are not encoded to tokens (when saving a
+file, see *Note File Coding::), are not encoded to tokens (when saving a
 file), by setting the following buffer-local variable:
 
 `x-symbol-8bits'
@@ -1460,7 +1467,7 @@ variable:
      will happen.  That means: only decode canonical tokens, and, if
      `x-symbol-8bits' is non-`nil' (*note Controlling 8bit Coding::.),
      do not decode tokens which would be decoded to 8bit characters
-     (according to the coding in your file, *Note File Coding::).
+     (according to the coding in your file, see *Note File Coding::).
 
      You can set this variable in the "local variables list" near the
      end of the file (*note File Variables: (xemacs)File Variables.),
@@ -1516,7 +1523,8 @@ in the menu):
      Encode all characters in buffer to tokens.  No recoding will be
      performed since 8bit characters will always be encoded if the file
      coding is different to the default coding, since `x-symbol-8bits'
-     is relative to the file coding, *Note Controlling 8bit Coding::.
+     is relative to the file coding, see *Note Controlling 8bit
+     Coding::.
 
    All commands work on the region if it is active, or the (narrowed
 part of the) buffer if no region is active.
@@ -1688,7 +1696,8 @@ X-Symbol is turned on:
 
 `x-symbol-LANG-modes'
      Major modes which use token language LANG by default.  *Note
-     Supported Languages::.
+     Supported Languages::.  The languages are checked in registration
+     order (the order shown in the language selection submenus).
 
 `x-symbol-LANG-auto-style'
      Default values for the above mentioned variables `x-symbol-mode',
@@ -1821,7 +1830,7 @@ which can be used for the following:
      for TeX's math-mode characters if we are in text-mode.
 
    The token classes for individual token languages are explained in the
-corresponding sections of chapter *Note Supported Languages:::
+corresponding sections of *Note Supported Languages:::
 
 `x-symbol-LANG-header-groups-alist'
      The Grid and Menu headers for each token language LANG.
@@ -2049,7 +2058,7 @@ commands are used if the mouse pointer is over an highlighted character.
      window and scroll up in the lower half of the window.
 
 `<button3>'
-     Pops up the X-Symbol menu, *Note Input Method Menu::).
+     Pops up the X-Symbol menu, see *Note Input Method Menu::).
 
    When using the keyboard to select a character, the following command
 could be useful:
@@ -2322,8 +2331,8 @@ following variables:
      complicated to you (it is), it actually ensures consistency across
      all input methods.  *Note Defining Input Methods::.
 
-     For example., if you prefer charsym `epsilon1' over `epsilon'
-     (influences input method , you might want to use:
+     For example, if you prefer charsym `epsilon1' over `epsilon' you
+     might want to use:
 
           (setq x-symbol-user-table
                 '((epsilon1 t (greek1 "e" nil "epsilon") nil -3000)))
@@ -2412,10 +2421,6 @@ by setting the following variables:
 
    Super-/subscript commands are `^'/`_' (*note TeX Macro::.) and
 `<sup>'/`<sub>' (*note SGML Entity::.):
-
-`x-symbol-LANG-font-lock-keywords'
-     The super-/subscript `font-lock' keywords for each token language
-     LANG.
 
 
 File: x-symbol.info,  Node: Images,  Next: Info,  Prev: Super and Subscripts,  Up: Features
@@ -2935,8 +2940,8 @@ controlled by:
      if the character is not of the correct TeX mode, i.e., it only
      produces a math-mode character in a math area and a text-mode
      character in a text area (this test requires package `texmathp',
-     *Note LaTeX Packages::).  Postfix tilde is not electric, because
-     `~' produces a space in TeX.
+     see *Note LaTeX Packages::).  Postfix tilde is not electric,
+     because `~' produces a space in TeX.
 
 `x-symbol-tex-token-suppress-space'
      Input method Token (*note Input Method Token::.) only converts a
@@ -3180,7 +3185,7 @@ works as follows:
           not followed by a `%' (comment character), replace the macro
           by the corresponding character and delete the space.  (The
           character following the space must be a letter with unique
-          decoding, *Note Unique Decoding::.)
+          decoding, see *Note Unique Decoding::.)
 
         - Otherwise, do *not decode* the macro!
 
@@ -4012,14 +4017,18 @@ our case, a leading character, *note Char Representation::.) when
 looking at a character.  Thus, you should probably not use encodings
 which represent characters in your default font with a special syntax.
 
+   * In general, escape sequences use the digits of the current font.
+     Thus, you should probably define the encodings 48 to 57 as digits
+     `0' to `9'.
+
    * In LaTeX buffers, characters in `$%\{}' have a special syntax.
-     Thus, you should you should probably not use encodings 36, 37, 92,
-     123 and 125 for characters which could also be useful with token
-     languages `tex' and `utex'.
+     Thus, you should probably not use encodings 36, 37, 92, 123 and
+     125 for characters which could also be useful with token languages
+     `tex' and `utex'.
 
    * In HTML buffers, characters in `&<>' have a special syntax.  Thus,
-     you should you should probably not use encodings 38, 60 and 62 for
-     characters which could also be useful with token language `sgml'.
+     you should probably not use encodings 38, 60 and 62 for characters
+     which could also be useful with token language `sgml'.
 
    You have to tell package X-Symbol which fonts to use for the normal
 text, subscripts and superscripts.  *Note Installing Fonts Lisp::.
@@ -4706,7 +4715,7 @@ causes:
    * You use some version control commands.  You have probably noticed
      that these versions control commands also turn off `font-lock' in
      modes where you don't use X-Symbol, i.e., this is not a problem of
-     package X-Symbol.  *note Wishlist Emacs::. and *Note Spurious
+     package X-Symbol.  *Note Wishlist Emacs::.  *Note Spurious
      Encodings::.
 
 
@@ -4867,7 +4876,8 @@ character is followed by a letter or by `@'.  Thus, decoding
    * Suggestion: Also use a space before `\oplus'.  The alternative
      would be to delete the space which other people won't like.
 
-   *Note TeX Macro Conversion:: for an exact description.
+   For an exact description, *Note TeX Macro Conversion:: for an exact
+description.
 
 
 File: x-symbol.info,  Node: FAQ 8bit Chars,  Next: FAQ Hyphen,  Prev: FAQ Additional Spaces,  Up: FAQ
@@ -4948,9 +4958,9 @@ How to Use X-Symbol with Gnus or VM
 
    You can also use X-Symbol to read and write your News and Mails.
 This sections includes coding for your `~/.emacs' if you want to do so.
-It has been tested for GNUS-5.8.8 and VM-6.96; if you use RMAIL or
+It has been tested for Gnus-5.8.8 and VM-6.96; if you use RMAIL or
 MH-E, you have to try to find a solution yourself (please send it to
-me).  Support for GNUS might become a standard part of X-Symbol.
+me).  Support for Gnus might become a standard part of X-Symbol.
 
      (custom-set-variables
       '(x-symbol-auto-style-alist
@@ -4978,7 +4988,7 @@ message.
          (x-symbol-mode-internal nil)))
      (add-hook 'gnus-article-prepare-hook 'x-symbol-x-gnus-prepare)
 
-   Since GNUS reuses the `*Article*' buffer, where X-Symbol could have
+   Since Gnus reuses the `*Article*' buffer, where X-Symbol could have
 been turned on previously, we must make sure that X-Symbol is turned
 off with the new article.
 
@@ -4992,7 +5002,7 @@ off with the new article.
      	   (x-symbol-mode-internal nil)))))
      (add-hook 'vm-select-message-hook 'x-symbol-x-gnus-prepare)
 
-   The same thing for VM, although the hook is not as nice as GNUS'
+   The same thing for VM, although the hook is not as nice as Gnus'
 one; the function therefore might depend a bit too much on VM's interna.
 
      (put 'vm-mode 'x-symbol-mode-disable
@@ -5021,14 +5031,19 @@ registry-encoding other than `iso8859-1' (Western encoding).
 send a bug report (*note Bugs: (xemacs)Bugs.).  This might look tedious
 to you, but it actually saves a lot of time (your time, too).
 
+   The *general recommendation* for bug/problem reports is: give the
+impression that your really have tried to find the necessary information
+yourself and make your report precise while including all information
+you have.
+
    For each bug/problem report or question you want to send to the
 maintainer, please use the following sequence:
 
   1. Make sure that you use the *newest version* of X-Symbol.  You are
-     reading Edition 4.5 (XEmacs) of the manual for X-Symbol 4.5.
+     reading Edition 4.5.1 (XEmacs) of the manual for X-Symbol 4.5.1.
 
   2. Read the manual, especially *Note Checking Installation::, *Note
-     Problems:: and *Note FAQ::.  The four indexes (*note Indexes::.)
+     Problems::, and *Note FAQ::.  The four indexes (*note Indexes::.)
      might also lead you to an answer to your question.
 
   3. Use `M-x x-symbol-package-bug' (also to be found in X-Symbol's
@@ -5044,8 +5059,8 @@ maintainer, please use the following sequence:
      If `M-x x-symbol-package-bug' fails to work, you have a problem
      with your installation and your report should be about this
      problem.  In this case, use `x-symbol VERSION; SUMMARY' as Subject
-     header where VERSION is the version of X-Symbol and SUMMARY is a
-     brief summary of your installation problem.
+     header where VERSION is the version of X-Symbol (it should be
+     4.5.1) and SUMMARY is a brief summary of your installation problem.
 
      (*Rationale*: This command automatically extracts some essential
      information without any work by you.  Don't waste your time
@@ -5058,9 +5073,9 @@ maintainer, please use the following sequence:
           ..., but didn't find anything which helped me with the
           following problem:
 
-     The sections SECTION1, SECTION2, etc are names (not numbers!) of
-     the sections (not whole chapters!) in the manual where you would
-     expect an answer to your question/problem/bug.
+     The sections SECTION1, SECTION2, etc are names of the sections
+     (not whole chapters) in the manual where you would expect an
+     answer to your question/problem/bug.
 
      If you didn't know which sections to inspect, please check the
      indexes.  If they are not helpful, send me words/terms which
@@ -5129,9 +5144,9 @@ maintainer, please use the following sequence:
           the size of `MY-PROBLEM.el' as described above.
 
   9. If the problem is not reproducible with an *arbitrary* (`.tex',
-     `.html', ...) file, try to minimize the file such that the problem
-     can be still reproducible, and include the file with its full file
-     name into your bug report.
+     `.html', ...) file, include the file with its full file name into
+     your bug report.  (If you like, you can try to minimize the file
+     if the problem is still reproducible.)
 
      (*Rationale*: Most problems are only reproducible with specific
      files.)
@@ -5199,6 +5214,7 @@ changes before Version 3.0.
 
 * Menu:
 
+* Changes New::                 To be announced.
 * Changes 4.5::                 Released Mar 2003 as beta.
 * Changes 4.4::                 Released June 2002 as beta.
 * Changes 4.1::                 Released Mar 2002 as beta.
@@ -5210,7 +5226,17 @@ changes before Version 3.0.
 * Changes Old::                 Overview of old releases.
 
 
-File: x-symbol.info,  Node: Changes 4.5,  Next: Changes 4.4,  Prev: News,  Up: News
+File: x-symbol.info,  Node: Changes New,  Next: Changes 4.5,  Prev: News,  Up: News
+
+Changes in X-Symbol 4.5.1
+-------------------------
+
+   Version 4.5.1 has not yet been announced.
+
+   * Various bug fixes and minor changes.
+
+
+File: x-symbol.info,  Node: Changes 4.5,  Next: Changes 4.4,  Prev: Changes New,  Up: News
 
 Changes in X-Symbol 4.5
 -----------------------
@@ -5230,9 +5256,9 @@ Changes in X-Symbol 4.5
    * Bug fix (Emacs): package now works with package `crypt'/`crypt++'.
 
    * Token language `sgml': always encode characters to entity
-     references by default (not possible with most Latin-N characters,
-     where we still use character entities).  Include `hm--html-mode',
-     `html-helper-mode', remove `sgml-mode' as typical major modes.
+     references by default (where defined by the HTML standard).
+     Include `hm--html-mode', `html-helper-mode', remove `sgml-mode' as
+     typical major modes which use X-Symbol.
 
    * Token language `tex': support some symbols of package
      `stmaryrd.sty'.
@@ -5263,8 +5289,8 @@ Changes in X-Symbol 4.5
 
 File: x-symbol.info,  Node: Changes 4.4,  Next: Changes 4.1,  Prev: Changes 4.5,  Up: News
 
-Changes in X-Symbol 4.2, 4.3, 4.4
----------------------------------
+Changes in X-Symbol 4.2 to 4.4
+------------------------------
 
    Version 4.4 has been released on June 2002 as beta.
 
@@ -5610,38 +5636,34 @@ File: x-symbol.info,  Node: Wishlist Fonts,  Next: Wishlist Emacs,  Prev: Wishli
 Wishlist: Generated Fonts
 -------------------------
 
-   One direction of font generation would be from `.bdf' or `.pcf' font
-files to Windows fonts to get rid of the limited support for XEmacs on
-Windows (*note Requirements::.).  If you have successfully converted
-X-Symbol's fonts from the Unix format to the Windows format (via
-`bdftofon' or whatever) or if you have free and real Latin-N fonts for
-Windows, please *let me know*!  I would also appreciate if you would
-actively try to get those missing Windows fonts.
+   A specific direction of font generation would be from `.bdf' or
+`.pcf' font files to Windows fonts to get rid of the limited support
+for XEmacs on Windows (*note Requirements::.).  If you have
+successfully converted X-Symbol's fonts from the Unix format to the
+Windows format (via `bdftofon' or whatever) or if you have free and
+real Latin-N fonts for Windows, please *let me know*!  I would also
+appreciate if you would actively try to get those missing Windows fonts.
 
-   Solofo Ramangalahy suggests to automatically generate the `.bdf'
-fonts from other sources.  This would have various advantages:
-
-   * We could easily create different sizes for our symbol font.
-
-   * It would be quite simple to create a `.bdf' font for AmsTeX
-     macros, calligraphical letters etc, which would be displayed as
-     X-Symbol characters by package X-Symbol.
+   The general direction is to automatically generate the `.bdf' or
+`.fon' fonts from other sources.  This would have various advantages:
 
    * We could easily create different sizes for our symbol font.
 
-   Solofo has worked on Postscript fonts.  Although the results are good
-for big sizes, this cannot replace bdf fonts for "small" sizes like 14.
-Besides, the X font server is not very good for postscript fonts
-(compared with ATM where you have anti-aliasing for example).  Now that
-XEmacs run under Windows, it may be that the result is better under
-Windows than under Unix.  This has not been tested.
+   * It would be quite simple to create a font for AmsTeX macros, etc.,
+     which would be displayed as X-Symbol characters by package
+     X-Symbol.
 
-   An other possibility is to use true type fonts as true type font
-servers can achieve better results with good hinted fonts.  This has
-not been done yet.
+   * We could easily create different sizes for our symbol font.
 
-   There are also some problems which are not optimally solved in the
-current xsymb font either:
+   * We would have fonts for both X11 and Windows.
+
+   New fonts for X-Symbol are being worked on.  You can find material to
+generate them at the web pages of X-Symbol (http://x-symbol.sourceforge.net/news.html).  Quite a few problems needs to be fixed though, so
+it is considered as experimental.  You are welcome to try, fix and
+report on the X-Symbol development mailing list (x-symbol-devel@lists.sourceforge.net).
+
+   General open design issues (i.e., they could be re-thought for the
+currently used handcrafted fonts, too) are:
 
    * Different TeX macros (same appearance, different TeX class =
      different spacing) use the same MetaFont character, e.g., `\dagger'
@@ -5662,20 +5684,6 @@ character anyway....  Here are the options:
 
    - not distinguished
 
-   Solofo Ramangalahy originally though of generating the `.bdf' fonts
-out of TeX fonts (`.mf', `.pk') by `mftobdf' of SeeTeX, which can be
-found at `CTAN/dviware/seetex/' among others distributions having this
-tool.  He dropped this idea for the following reason:
-
-     The created fonts need some correction by hand, since it's
-     difficult to make good fonts at small size.  MF fonts were created
-     to be printed at high resolutions (in the MetaFont book, cheapo is
-     200 pixel per inch, resolution of screens are around 100 pixel per
-     inch).  The parameters `blacker', `fillin' and `o_correction' are
-     not sufficient for tuning the computer modern fonts at low
-     resolutions (they will not do the job of hints of a postscript
-     font).
-
 
 File: x-symbol.info,  Node: Wishlist Emacs,  Next: Wishlist LaTeX,  Prev: Wishlist Fonts,  Up: Wishlist
 
@@ -5689,7 +5697,7 @@ Wishlist: Changes in Emacs/XEmacs
 
    * The package `ispell' assumes the buffer contents to be the same as
      the file contents and does not provide any hook to fix this.  This
-     should be fixed in `ispell' (it will be better in Emacs-21.4),
+     should be fixed in `ispell' (it will be better in Emacs-21.4), see
      *Note Miscellaneous Packages::.
 
    * Some versions control commands turn off `font-lock'.  This should
@@ -5729,8 +5737,8 @@ Wishlist: Changes in Emacs/XEmacs
      `post-error-or-quit-hook'.  *Note Nomule Problems::.
 
    * In XEmacs.  There are some bugs in package `custom'/`widget'
-     (XEmacs-21.0-b59) which are visible during the customization of
-     X-Symbol.
+     (still in XEmacs-21.4) which are visible during the customization
+     of X-Symbol.
 
 
 File: x-symbol.info,  Node: Wishlist LaTeX,  Next: Wishlist Various,  Prev: Wishlist Emacs,  Up: Wishlist
@@ -5841,6 +5849,11 @@ and decoding right.  Christophe Raffalli suggested to use a decode
 method which can be used for a larger class of token languages.  He
 also proved that it is faster.
 
+   Solofo Ramangalahy is working on scripts to generate X-Symbol fonts
+from other sources.  This has various advantages and is discussed in
+more detail at *Note Wishlist Fonts::.  His work is now available at the
+X-Symbol download area.
+
    Package `math-mode' by Renaud Marlet and the extension of it by
 Julian Bradfield gave the basic idea for the following features:
 supporting TeX's math macros, input methods token, context/electric,
@@ -5872,10 +5885,10 @@ Klee, Gerwin Klein, Thomas Kleymann, Ekkehard Koehler, Fred Labrosse,
 Jan-Ake Larsson, Bernhard Lehner, Stefan Monnier, Harald Muehlboeck,
 Karsten Muehlmann, Jakub Narebski, Peter Mo/ller Neergaard, Raymond
 Nijssen, David von Oheimb, Alex Ott, Sudeep Kumar Palat, Arshak
-Petrosyan, Jim Radford, Christophe Raffalli, Solofo Ramangalahy,
-Marciano Siniscalchi, Richard M. Stallman, Alex Russell, Eli Tziperman,
-Jan Vroonhof, Markus Wenzel, Sabine Wetzel, Pierre-Henri Wuillemin,
-Roland Zumkeller, Marco Zunino, Gerard Zwaan.
+Petrosyan, Jim Radford, Christophe Raffalli, Solofo Ramangalahy, Alex
+Russell, Marciano Siniscalchi, Richard M. Stallman, Axel Thimm, Eli
+Tziperman, Jan Vroonhof, Markus Wenzel, Sabine Wetzel, Pierre-Henri
+Wuillemin, Roland Zumkeller, Marco Zunino, Gerard Zwaan.
 
    Thanks for general information to: Per Abrahamsen, Steve L. Baur,
 Kenichi Handa, David Kastrup, Gerd Moellmann, Stefan Monnier, Primoz
@@ -5970,19 +5983,19 @@ Program and Package Index
 * amssymb.sty:                           TeX Macro Symbols.
 * ange-ftp:                              File IO Packages.
 * auctex <1>:                            Requirements.
-* auctex <2>:                            LaTeX Packages.
-* auctex:                                Spurious Encodings.
+* auctex <2>:                            Spurious Encodings.
+* auctex:                                LaTeX Packages.
 * bdftofon:                              Wishlist Fonts.
 * bib-cite:                              LaTeX Packages.
 * bibtex:                                BibTeX Macro.
 * comint:                                File IO Packages.
 * completion:                            Miscellaneous Packages.
-* convert <1>:                           Installing Image Converter.
-* convert <2>:                           Images.
+* convert <1>:                           Images.
+* convert <2>:                           Image Conversion.
 * convert <3>:                           Requirements.
-* convert:                               Image Conversion.
-* crypt <1>:                             No Encoding.
-* crypt <2>:                             File IO Packages.
+* convert:                               Installing Image Converter.
+* crypt <1>:                             File IO Packages.
+* crypt <2>:                             No Encoding.
 * crypt <3>:                             Open Questions.
 * crypt:                                 Spurious Encodings.
 * crypt++:                               File IO Packages.
@@ -5993,13 +6006,13 @@ Program and Package Index
 * Exceed:                                Installing Fonts Exceed.
 * fast-lock:                             Syntax Hiliting Packages.
 * flyspell:                              Miscellaneous Packages.
-* font-latex <1>:                        Syntax Hiliting Packages.
-* font-latex:                            FAQ Stupid Subscripts.
-* font-lock <1>:                         FAQ Stupid Subscripts.
-* font-lock <2>:                         FAQ font-lock.
+* font-latex <1>:                        FAQ Stupid Subscripts.
+* font-latex:                            Syntax Hiliting Packages.
+* font-lock <1>:                         Syntax Hiliting Packages.
+* font-lock <2>:                         FAQ Stupid Subscripts.
 * font-lock <3>:                         Char Representation.
-* font-lock <4>:                         Requirements.
-* font-lock:                             Syntax Hiliting Packages.
+* font-lock <4>:                         FAQ font-lock.
+* font-lock:                             Requirements.
 * fontenc.sty:                           TeX Macro Symbols.
 * format:                                Alt Auto Conversion.
 * frame-icon:                            Acknowledgments.
@@ -6011,20 +6024,20 @@ Program and Package Index
 * iso-cvt:                               File IO Packages.
 * iso-sgml:                              File IO Packages.
 * ispell <1>:                            FAQ Spell Check.
-* ispell <2>:                            Miscellaneous Packages.
-* ispell:                                Wishlist Emacs.
+* ispell <2>:                            Wishlist Emacs.
+* ispell:                                Miscellaneous Packages.
 * jka-compr:                             File IO Packages.
-* latex2html <1>:                        Installing Manual.
-* latex2html:                            Requirements.
+* latex2html <1>:                        Requirements.
+* latex2html:                            Installing Manual.
 * latexsym.sty:                          TeX Macro Symbols.
-* latin-unity <1>:                       Char Aliases.
-* latin-unity:                           File IO Packages.
+* latin-unity <1>:                       File IO Packages.
+* latin-unity:                           Char Aliases.
 * lazy-lock:                             Syntax Hiliting Packages.
 * lazy-shot <1>:                         Requirements.
 * lazy-shot:                             Syntax Hiliting Packages.
-* makeinfo <1>:                          TeXinfo Command.
-* makeinfo <2>:                          Requirements.
-* makeinfo:                              Installing Manual.
+* makeinfo <1>:                          Requirements.
+* makeinfo <2>:                          Installing Manual.
+* makeinfo:                              TeXinfo Command.
 * math-mode:                             Acknowledgments.
 * Mathematica:                           FAQ Strange Chars.
 * Message:                               FAQ News and Mail.
@@ -6040,16 +6053,17 @@ Program and Package Index
 * reftex:                                LaTeX Packages.
 * session:                               Miscellaneous Packages.
 * stmaryrd.sty:                          TeX Macro Symbols.
-* texi2dvi <1>:                          Installing Manual.
-* texi2dvi:                              Requirements.
+* texi2dvi <1>:                          Requirements.
+* texi2dvi:                              Installing Manual.
 * texi2html:                             TeXinfo Command.
 * texinfo:                               TeXinfo Command.
-* texmathp <1>:                          TeX Macro Basics.
+* texmathp <1>:                          LaTeX Packages.
 * texmathp <2>:                          Requirements.
-* texmathp:                              LaTeX Packages.
-* vc <1>:                                Spurious Encodings.
+* texmathp:                              TeX Macro Basics.
+* ucs-tables:                            File IO Packages.
+* vc <1>:                                File IO Packages.
 * vc <2>:                                Wishlist Emacs.
-* vc:                                    File IO Packages.
+* vc:                                    Spurious Encodings.
 * VM:                                    FAQ News and Mail.
 * x-compose:                             Miscellaneous Packages.
 * XEmacs:                                Requirements.
@@ -6102,8 +6116,8 @@ Command, Function and Variable Index
 * sgml-slash:                            Tagging Insert Commands.
 * TeX-insert-dollar:                     Tagging Insert Commands.
 * TeX-insert-punctuation:                Tagging Insert Commands.
-* TeX-insert-quote:                      Tagging Insert Commands.
 * tex-insert-quote:                      Tagging Insert Commands.
+* TeX-insert-quote:                      Tagging Insert Commands.
 * TeX-master <1>:                        TeX Macro Basics.
 * TeX-master <2>:                        TeX Macro Features.
 * TeX-master:                            LaTeX Packages.
@@ -6112,6 +6126,8 @@ Command, Function and Variable Index
 * TeX-translate-location-hook:           LaTeX Packages.
 * TEXINPUTS:                             TeX Macro Features.
 * TEXPICTS:                              TeX Macro Features.
+* unify-8859-on-decoding-mode:           File IO Packages.
+* unify-8859-on-encoding-mode:           File IO Packages.
 * vc-next-action:                        File IO Packages.
 * vm:                                    FAQ News and Mail.
 * vm-mail:                               FAQ News and Mail.
@@ -6124,8 +6140,8 @@ Command, Function and Variable Index
 * write-file-hooks <1>:                  No Encoding.
 * write-file-hooks:                      Alt Auto Conversion.
 * write-region:                          No Encoding.
-* write-region-annotate-functions <1>:   Alt Auto Conversion.
-* write-region-annotate-functions:       Wishlist Emacs.
+* write-region-annotate-functions <1>:   Wishlist Emacs.
+* write-region-annotate-functions:       Alt Auto Conversion.
 * x-symbol-8bits:                        Controlling 8bit Coding.
 * x-symbol-after-init-input-hook:        Customizing Input Method.
 * x-symbol-auto-8bit-search-limit:       Controlling 8bit Coding.
@@ -6171,22 +6187,22 @@ Command, Function and Variable Index
 * x-symbol-grid-ignore-charsyms:         Input Method Grid.
 * x-symbol-grid-reuse:                   Input Method Grid.
 * x-symbol-grid-tab-width:               Input Method Grid.
-* x-symbol-group-input-alist <1>:        Customizing Input Methods.
-* x-symbol-group-input-alist:            Customizing Input Method.
+* x-symbol-group-input-alist <1>:        Customizing Input Method.
+* x-symbol-group-input-alist:            Customizing Input Methods.
 * x-symbol-group-syntax-alist:           Misc Internals.
 * x-symbol-header-groups-alist:          Customizing Input Method.
 * x-symbol-heading-strut-glyph:          Input Method Grid.
 * x-symbol-help:                         Input Method Keyboard.
-* x-symbol-idle-delay <1>:               Super and Subscripts.
-* x-symbol-idle-delay:                   Info.
+* x-symbol-idle-delay <1>:               Info.
+* x-symbol-idle-delay:                   Super and Subscripts.
 * x-symbol-image:                        Image Display.
 * x-symbol-image-cache-directories:      Image Caching.
 * x-symbol-image-colormap-allocation:    Image Conversion.
 * x-symbol-image-convert-colormap:       Image Conversion.
 * x-symbol-image-convert-file-alist:     Image Conversion.
 * x-symbol-image-convert-mono-regexp:    Image Conversion.
-* x-symbol-image-convert-program <1>:    Installing Image Converter.
-* x-symbol-image-convert-program:        Image Conversion.
+* x-symbol-image-convert-program <1>:    Image Conversion.
+* x-symbol-image-convert-program:        Installing Image Converter.
 * x-symbol-image-converter <1>:          Installing Image Converter.
 * x-symbol-image-converter:              Image Conversion.
 * x-symbol-image-current-marker:         Image Editor.
@@ -6207,10 +6223,10 @@ Command, Function and Variable Index
 * x-symbol-image-update-cache:           Image Caching.
 * x-symbol-image-use-remote:             Image Caching.
 * x-symbol-init-language-interactive:    Language Internals.
-* x-symbol-initialize <1>:               Open Questions.
-* x-symbol-initialize:                   Installing Lisp.
-* x-symbol-installer-address <1>:        Package Information.
-* x-symbol-installer-address:            System-wide Installation.
+* x-symbol-initialize <1>:               Installing Lisp.
+* x-symbol-initialize:                   Open Questions.
+* x-symbol-installer-address <1>:        System-wide Installation.
+* x-symbol-installer-address:            Package Information.
 * x-symbol-key-min-length:               Customizing Input Methods.
 * x-symbol-key-suffix-string:            Char Descriptions.
 * x-symbol-LANG-auto-style:              Minor Mode.
@@ -6218,7 +6234,6 @@ Command, Function and Variable Index
 * x-symbol-LANG-class-face-alist:        Char Group.
 * x-symbol-LANG-electric-ignore:         Input Method Electric.
 * x-symbol-LANG-extra-menu-items:        Minor Mode.
-* x-symbol-LANG-font-lock-keywords:      Super and Subscripts.
 * x-symbol-LANG-header-groups-alist:     Char Group.
 * x-symbol-LANG-image-cached-dirs:       Image Caching.
 * x-symbol-LANG-image-keywords:          Image Display.
@@ -6796,144 +6811,145 @@ Concept Index
 
 
 Tag Table:
-Node: Top1403
-Node: Introduction12086
-Node: Copying12710
-Node: Summary14748
-Node: About18257
-Node: Installation20065
-Node: Requirements21694
-Node: Installing Files23374
-Node: System-wide Installation24919
-Node: Installing Lisp26697
-Node: Installing Image Converter28465
-Node: Package Integration29959
-Node: LaTeX Packages31272
-Node: Syntax Hiliting Packages34193
-Node: File IO Packages35670
-Node: Miscellaneous Packages37745
-Node: Installing Fonts39703
-Node: Installing Fonts Exceed43260
-Node: Installing Fonts Lisp45517
-Node: Installing Manual48570
-Node: Checking Installation49732
-Node: Concepts51230
-Node: Token Language52018
-Node: Conversion53584
-Node: Default Coding54887
-Node: File Coding57325
-Node: Controlling 8bit Coding60802
-Node: Unique Decoding62802
-Node: Conversion Commands64870
-Node: Copy with Conversion66780
-Node: Char Aliases68622
-Node: Minor Mode70734
-Node: Poor Mans Mule74596
-Node: Role of font-lock76133
-Node: Char Group77412
-Node: Input Methods79733
-Node: Introducing Input Methods81246
-Node: Input Method Token83328
-Node: Input Method Read Token84627
-Node: Input Method Menu85580
-Node: Input Method Grid87058
-Node: Input Method Keyboard90524
-Node: Input Method Context92738
-Node: Input Method Electric94978
-Node: Input Method Quail97704
-Node: Customizing Input Method98402
-Node: Features100049
-Node: Super and Subscripts100739
-Node: Images103379
-Node: Image Display104209
-Node: Image Conversion106118
-Node: Image Caching108865
-Node: Special Images111605
-Node: Image Editor112907
-Node: Info114690
-Node: Ascii Representation116834
-Node: Package Information117982
-Node: Supported Languages118906
-Node: Pseudo Language119606
-Node: TeX Macro120648
-Node: TeX Macro Basics121465
-Node: TeX Macro Features124641
-Node: TeX Macro Problems128206
-Node: TeX Macro Conversion133153
-Node: TeX Macro Symbols137380
-Node: SGML Entity140578
-Node: SGML Entity Basics141306
-Node: SGML Entity Features143224
-Node: SGML Entity Conversion144938
-Node: BibTeX Macro146341
-Node: TeXinfo Command147981
-Node: External Languages150629
-Node: X-Symbol Internals151105
-Node: Char Representation152096
-Node: Defining Charsets154357
-Node: Defining Input Methods156374
-Node: Input Method Objectives156995
-Node: Intro Char Descriptions158916
-Node: Char Descriptions161438
-Node: Example Char Descriptions165065
-Node: Customizing Input Methods167013
-Node: Extending X-Symbol168503
-Node: Extending with Fonts169274
-Node: Input Definitions171192
-Node: Font Definition File173767
-Node: Language Extension File175116
-Node: Language Definition File177145
-Node: Various Internals179280
-Node: Tagging Insert Commands179603
-Node: Avoiding Flickering180378
-Node: Design Alternatives181268
-Node: Alt Token Representations181725
-Node: Alt Global Mode184582
-Node: Alt Auto Conversion185510
-Node: Language Internals187150
-Node: Misc Internals189653
-Node: Problems190365
-Node: Nomule Problems190980
-Node: Spurious Encodings194041
-Node: No Encoding196055
-Node: FAQ196712
-Node: FAQ XEmacs Core197838
-Node: FAQ font-lock198701
-Node: FAQ Strange Chars199776
-Node: FAQ No Subscripts201637
-Node: FAQ Stupid Subscripts202650
-Node: FAQ Font Size204372
-Node: FAQ Conversion205224
-Node: FAQ Additional Spaces205688
-Node: FAQ 8bit Chars206636
-Node: FAQ Hyphen207308
-Node: FAQ Spell Check207915
-Node: FAQ News and Mail209449
-Node: Bug Reports212198
-Node: History219592
-Node: News219957
-Node: Changes 4.5220739
-Node: Changes 4.4222388
-Node: Changes 4.1224566
-Node: Changes 3.4225025
-Node: Changes 3.3226188
-Node: Changes 3.2226953
-Node: Changes 3.1227709
-Node: Changes 3.0228378
-Node: Changes Old230384
-Node: Wishlist232429
-Node: Wishlist Languages233266
-Node: Wishlist Fonts233832
-Node: Wishlist Emacs237143
-Node: Wishlist LaTeX239607
-Node: Wishlist Various240907
-Node: Wishlist Rejected241547
-Node: Open Questions242231
-Node: Acknowledgments243408
-Node: Indexes247246
-Node: Key Index247882
-Node: Program Index250066
-Node: Variable Index255655
-Node: Concept Index271896
+Node: Top1405
+Node: Introduction12132
+Node: Copying12756
+Node: Summary14794
+Node: About18303
+Node: Installation20134
+Node: Requirements21763
+Node: Installing Files23443
+Node: System-wide Installation24988
+Node: Installing Lisp26766
+Node: Installing Image Converter28534
+Node: Package Integration30028
+Node: LaTeX Packages31341
+Node: Syntax Hiliting Packages34262
+Node: File IO Packages35739
+Node: Miscellaneous Packages37984
+Node: Installing Fonts39946
+Node: Installing Fonts Exceed43503
+Node: Installing Fonts Lisp45760
+Node: Installing Manual48805
+Node: Checking Installation49967
+Node: Concepts51465
+Node: Token Language52254
+Node: Conversion53821
+Node: Default Coding55124
+Node: File Coding57562
+Node: Controlling 8bit Coding61040
+Node: Unique Decoding63044
+Node: Conversion Commands65116
+Node: Copy with Conversion67035
+Node: Char Aliases68877
+Node: Minor Mode70989
+Node: Poor Mans Mule74959
+Node: Role of font-lock76496
+Node: Char Group77775
+Node: Input Methods80088
+Node: Introducing Input Methods81601
+Node: Input Method Token83683
+Node: Input Method Read Token84982
+Node: Input Method Menu85935
+Node: Input Method Grid87413
+Node: Input Method Keyboard90883
+Node: Input Method Context93097
+Node: Input Method Electric95337
+Node: Input Method Quail98063
+Node: Customizing Input Method98761
+Node: Features100380
+Node: Super and Subscripts101070
+Node: Images103592
+Node: Image Display104422
+Node: Image Conversion106331
+Node: Image Caching109078
+Node: Special Images111818
+Node: Image Editor113120
+Node: Info114903
+Node: Ascii Representation117047
+Node: Package Information118195
+Node: Supported Languages119119
+Node: Pseudo Language119819
+Node: TeX Macro120861
+Node: TeX Macro Basics121678
+Node: TeX Macro Features124858
+Node: TeX Macro Problems128423
+Node: TeX Macro Conversion133370
+Node: TeX Macro Symbols137601
+Node: SGML Entity140799
+Node: SGML Entity Basics141527
+Node: SGML Entity Features143445
+Node: SGML Entity Conversion145159
+Node: BibTeX Macro146562
+Node: TeXinfo Command148202
+Node: External Languages150850
+Node: X-Symbol Internals151326
+Node: Char Representation152317
+Node: Defining Charsets154578
+Node: Defining Input Methods156595
+Node: Input Method Objectives157216
+Node: Intro Char Descriptions159137
+Node: Char Descriptions161659
+Node: Example Char Descriptions165286
+Node: Customizing Input Methods167234
+Node: Extending X-Symbol168724
+Node: Extending with Fonts169495
+Node: Input Definitions171550
+Node: Font Definition File174125
+Node: Language Extension File175474
+Node: Language Definition File177503
+Node: Various Internals179638
+Node: Tagging Insert Commands179961
+Node: Avoiding Flickering180736
+Node: Design Alternatives181626
+Node: Alt Token Representations182083
+Node: Alt Global Mode184940
+Node: Alt Auto Conversion185868
+Node: Language Internals187508
+Node: Misc Internals190011
+Node: Problems190723
+Node: Nomule Problems191338
+Node: Spurious Encodings194399
+Node: No Encoding196413
+Node: FAQ197070
+Node: FAQ XEmacs Core198196
+Node: FAQ font-lock199059
+Node: FAQ Strange Chars200131
+Node: FAQ No Subscripts201992
+Node: FAQ Stupid Subscripts203005
+Node: FAQ Font Size204727
+Node: FAQ Conversion205579
+Node: FAQ Additional Spaces206043
+Node: FAQ 8bit Chars207017
+Node: FAQ Hyphen207689
+Node: FAQ Spell Check208296
+Node: FAQ News and Mail209830
+Node: Bug Reports212579
+Node: History220215
+Node: News220580
+Node: Changes New221411
+Node: Changes 4.5221640
+Node: Changes 4.4223268
+Node: Changes 4.1225440
+Node: Changes 3.4225899
+Node: Changes 3.3227062
+Node: Changes 3.2227827
+Node: Changes 3.1228583
+Node: Changes 3.0229252
+Node: Changes Old231258
+Node: Wishlist233303
+Node: Wishlist Languages234140
+Node: Wishlist Fonts234706
+Node: Wishlist Emacs237117
+Node: Wishlist LaTeX239590
+Node: Wishlist Various240890
+Node: Wishlist Rejected241530
+Node: Open Questions242214
+Node: Acknowledgments243391
+Node: Indexes247479
+Node: Key Index248115
+Node: Program Index250299
+Node: Variable Index255947
+Node: Concept Index272243
 
 End Tag Table
