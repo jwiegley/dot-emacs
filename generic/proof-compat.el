@@ -60,6 +60,19 @@ that use a window system such as X, and false for text-only terminals."
       (or (eq (console-type) 'x)
 	  (eq (console-type) 'mswindows))))
 
+(or (fboundp 'subst-char-in-string)
+;; Code is taken from Emacs 21.2.1/subr.el 
+(defun subst-char-in-string (fromchar tochar string &optional inplace)
+  "Replace FROMCHAR with TOCHAR in STRING each time it occurs.
+Unless optional argument INPLACE is non-nil, return a new string."
+  (let ((i (length string))
+	(newstr (if inplace string (copy-sequence string))))
+    (while (> i 0)
+      (setq i (1- i))
+      (if (eq (aref newstr i) fromchar)
+	  (aset newstr i tochar)))
+    newstr)))
+
 (or (fboundp 'replace-regexp-in-string)
 ;; Code is taken from Emacs 21.1.1/subr.el 
 (defun replace-regexp-in-string (regexp rep string &optional
