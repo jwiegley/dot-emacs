@@ -276,7 +276,7 @@ Otherwise the response buffer will accumulate output from the prover."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-show-debug-messages t
+(defcustom proof-show-debug-messages nil
   "*Whether to display debugging messages in the response buffer.
 If non-nil, debugging messages are displayed in the response giving
 information about what Proof General is doing.
