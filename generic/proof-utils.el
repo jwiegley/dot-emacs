@@ -590,22 +590,25 @@ The warning is coloured with proof-warning-face."
   (pg-response-display-with-face (apply 'concat args) 'proof-warning-face)
   (proof-display-and-keep-buffer proof-response-buffer))
 
-(defun pg-internal-warning (message)
-  "Display internal warning MESSAGE."
-  (if (fboundp 'display-warning)
-      (display-warning 'proof-general message)
-    (message message)))
+(defun pg-internal-warning (message &rest args)
+  "Display internal warning MESSAGE with ARGS as for format."
+  (let ((formatted (apply 'format message args)))
+    (if (fboundp 'display-warning)
+	(display-warning 'proof-general formatted)
+    (message formatted))))
 
 ;; could be a macro for efficiency in compiled code
 (defun proof-debug (msg &rest args)
   "Issue the debugging message (format MSG ARGS) in the response buffer, display it.
 If proof-show-debug-messages is nil, do nothing."
   (if proof-show-debug-messages
-      (progn
-	(pg-response-display-with-face (concat "PG debug: " 
-					       (apply 'format msg args))
-				       'proof-debug-message-face)
-	(proof-display-and-keep-buffer proof-response-buffer))))
+      (let ((formatted (apply 'format msg args)))
+	(if (fboundp 'display-warning) ;; use builtin warning system in XEmacs
+	    (display-warning 'proof-general formatted 'info)
+	  ;; otherwise use response buffer with dedicated font, & display it
+	  (progn
+	    (pg-response-display-with-face 'proof-debug-message-face)
+	    (proof-display-and-keep-buffer proof-response-buffer))))))
 
 
 ;;; A handy utility function used in the "Buffers" menu, and throughout
