@@ -573,6 +573,16 @@ This is a subroutine of `proof-shell-handle-error'."
 			 (length (match-string 0)))
 		    (point)))
       (setq string (buffer-substring start end))
+      ;; Strip off start-regexp --- if it matches 
+      ;; FIXME: if it doesn't we shouldn't be called, but some
+      ;;  other prob may cause this, so add a safety check.
+      ;;(if (and start-regexp (string-match start-regexp string))
+      ;;(setq string (substring string (match-beginning 0))))
+
+      ;; FIXME: if the shell buffer is x-symbol minor mode,
+      ;; this string can contain X-Symbol characters, which
+      ;; is not suitable for processing with proof-fontify-region.
+
       ;; FIXME: if the shell buffer is x-symbol minor mode,
       ;; this string can contain X-Symbol characters, which
       ;; is not suitable for processing with proof-fontify-region.
@@ -588,11 +598,17 @@ This is a subroutine of `proof-shell-handle-error'."
   ;; output over there and that job has already been done in
   ;; proof-shell-filter.  -stef
   ;; da: Not quite, unfortunately: proof-shell-last-output had
-  ;; special characters stripped.  
+  ;; special characters stripped and there may be other differences.
+
   ;; This breaks Isabelle, for example, because special
   ;; characters have been stripped from proof-shell-last-output,
   ;; but start-regexp may contain them.
   ;; For now, test _not_ removing specials (see proof-shell-process-output)
+  ;; 
+  ;; Sun Feb 16: test removing of specials again, to see if this
+  ;; fixes PG/Isabelle <^sync> problem.
+  ;;
+
 ;  ;; stef's version:
 ;   (let ((string proof-shell-last-output))
 ;     ;; Strip off start-regexp --- if it matches 
@@ -762,12 +778,6 @@ which see."
      (setq proof-shell-last-output-kind 'interrupt))
     
     ((proof-shell-string-match-safe proof-shell-error-regexp string)
-     ;; FIXME: is the next setting correct or even needed?
-     ;; da: removed in pre3.5 test after Stefan's change to
-     ;; simplify proof-shell-handle-output.
-     ;;(setq proof-shell-last-output
-     ;; (pg-assoc-strip-subterm-markup
-     ;; (substring string (match-beginning 0))))
      (setq proof-shell-last-output-kind 'error))
     
     ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
@@ -1467,11 +1477,11 @@ however, are always processed; hence their name)."
 	;; for these we set proof-shell-wakeup-char to the annotation 
 	;; special, and look for it in the output before doing anything.
 	(if proof-shell-wakeup-char
-	    ;; FIXME: this match doesn't work in emacs-mule, darn.
+	    ;; NB: this match doesn't work in emacs-mule, darn.
 	    ;; (string-match (char-to-string proof-shell-wakeup-char) str))
-	    ;; FIXME: this match doesn't work in FSF emacs 20.5, darn.
+	    ;; NB: this match doesn't work in FSF emacs 20.5, darn.
 	    ;; (find proof-shell-wakeup-char str)
-	    ;; FIXME: [3.1] temporarily, use both tests!
+	    ;; So let's use both tests!
 	    (or
 	     (string-match (char-to-string proof-shell-wakeup-char) str)
 	     (find proof-shell-wakeup-char str))
@@ -1605,11 +1615,6 @@ by the filter is to send the next command from the queue."
     (save-excursion
       ;; 
       (proof-shell-process-output cmd string)
-      ;; da: Added this next line to redisplay, for proof-toolbar
-      ;; FIXME: should do this for all frames displaying the script
-      ;; buffer!
-      ;; ODDITY: has strange effect on highlighting, leave it.
-      ;; (redisplay-frame (window-buffer  t)
       (cond
        ((eq proof-shell-last-output-kind 'error)
 	(proof-shell-handle-error cmd))
