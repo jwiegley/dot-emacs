@@ -236,7 +236,7 @@ perlscripts:
 pgscripts:
 	@(pghome=${DEST_ELISP}; \
 	 for i in $(PG_SCRIPTS); do \
-	   sed "s|PGHOME=.*$$|PGHOME=$$pghome|" < $$i > .tmp \
+	   sed "s|PGHOMEDEFAULT=.*$$|PGHOMEDEFAULT=$$pghome|" < $$i > .tmp \
 	   && cat .tmp > $$i; \
 	 done; \
 	 rm -f .tmp)
