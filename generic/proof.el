@@ -125,19 +125,6 @@ are only partly read-in due to an error.")
 ;;; Utilities/macros used in several files  (proof-utils)
 ;;;
 
-(defun proof-string-to-list (s separator) 
-  "Return the list of words in S separated by SEPARATOR."
-  (let ((end-of-word-occurence (string-match (concat separator "+") s)))
-    (if (not end-of-word-occurence)
-        (if (string= s "") 
-            nil
-          (list s))
-      (cons (substring s 0 end-of-word-occurence) 
-            (proof-string-to-list 
-             (substring s
-                        (string-match (concat "[^" separator "]")
-                                      s end-of-word-occurence)) separator)))))
-
 (defun proof-define-keys (map kbl)
   "Adds keybindings KBL in MAP.
 The argument KBL is a list of tuples (k . f) where `k' is a keybinding

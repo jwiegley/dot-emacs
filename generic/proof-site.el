@@ -1,10 +1,13 @@
-;; proof-site.el -- Configuration for site and choice of provers.
+;; proof-site.el -- Loading stubs for Proof General.
+;;		    Configuration for site and choice of provers.
 ;;
 ;; Copyright (C) 1998 LFCS Edinburgh. 
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
+;;
+;; NB: Normally you will not need to edit this file.  
 ;;
 
 (if (or  (not (boundp 'emacs-major-version))
@@ -98,10 +101,30 @@ You can use customize to set this variable."
        (setq Info-dir-contents nil))))
 
 
-;; Might be nicer to have a boolean for each supported assistant.
+;; A utility function.  Is there an alternative?
+(defun proof-string-to-list (s separator) 
+  "Return the list of words in S separated by SEPARATOR.
+If S is nil, return empty list."
+  (if s
+      (let ((end-of-word-occurence (string-match (concat separator "+") s)))
+	(if (not end-of-word-occurence)
+	    (if (string= s "") 
+		nil
+	      (list s))
+	  (cons (substring s 0 end-of-word-occurence) 
+		(proof-string-to-list 
+		 (substring s
+			    (string-match (concat "[^" separator "]")
+					  s end-of-word-occurence)) 
+		 separator))))))
+
 (defcustom proof-assistants
-  (mapcar (lambda (astnt) (car astnt))
-	  proof-assistant-table)
+  ;; FIXME: we could check that this setting is sensible.
+  (or (mapcar 'intern
+	      (proof-string-to-list
+	       (getenv "PROOFGENERAL_ASSISTANTS") " "))
+      (mapcar (lambda (astnt) (car astnt))
+	      proof-assistant-table))
   (concat
    "*Choice of proof assistants to use with Proof General.
 A list of symbols chosen from:" 
@@ -113,6 +136,13 @@ providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
 To avoid accidently invoking a proof assistant you don't have,
 only select the proof assistants you (or your site) may need.
+
+You can select which proof assistants you want by setting this
+variable before `proof-site.el' is loaded, or by setting
+the environment variable `PROOFGENERAL_ASSISTANTS' to the
+symbols you want, for example \"lego isa\".  Or you can
+edit proof-site.el itself.
+
 Note: to change proof assistant, you must start a new Emacs session.")
   :type (cons 'set 
 	      (mapcar (lambda (astnt)
