@@ -23,20 +23,6 @@
 ;;;
 
 
-(defvar proof-stack-to-indent nil
-  "Prover-specific code for indentation.")
-
-(defvar proof-parse-indent nil
-  "Proof-assistant specific function for parsing characters for
-  indentation which is invoked in `proof-parse-to-point.'. Must be a
-  function taking two arguments, a character (the current character)
-  and a stack reflecting indentation, and must return a stack. The
-  stack is a list of the form (c . p) where `c' is a character
-  representing the type of indentation and `p' records the column for
-  indentation. The generic `proof-parse-to-point.' function supports
-  parentheses and commands. It represents these with the characters
-  `?\(', `?\[' and `proof-terminal-char'. ")
-
 ;; This is quite different from sml-mode, but borrows some bits of
 ;; code.  It's quite a lot less general, but works with nested
 ;; comments.

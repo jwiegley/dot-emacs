@@ -385,48 +385,9 @@ This is used to handle nested goals allowed by some provers."
   :type 'function
   :group 'proof-script)
 
-(defcustom pbp-change-goal nil
-  "Command to change to the goal %s"
-  :type 'string
-  :group 'prover-config)
 
-(defcustom proof-shell-process-output-system-specific nil
-  "Set this variable to handle system specific output.
-Errors, start of proofs, abortions of proofs and completions of
-proofs are recognised in the function `proof-shell-process-output'.
-All other output from the proof engine is simply reported to the
-user in the RESPONSE buffer.
 
-To catch further special cases, set this variable to a pair of
-functions '(condf . actf). Both are given (cmd string) as arguments.
-`cmd' is a string containing the currently processed command.
-`string' is the response from the proof system. To change the
-behaviour of `proof-shell-process-output', (condf cmd string) must
-return a non-nil value. Then (actf cmd string) is invoked. See the
-documentation of `proof-shell-process-output' for the required
-output format."
-  :type '(cons (function function))
-  :group 'prover-config)
 
-(defcustom proof-activate-scripting-hook nil
-  "Hook run when a buffer is switched into scripting mode.
-The current buffer will be the newly active scripting buffer.
-
-This hook may be useful for synchronizing with the proof
-assistant, for example, to switch to a new theory."
-  :type '(repeat function)
-  :group 'prover-config)
-
-; FIXME: this could be used to replace eager-annotation-start and end.
-;(defcustom proof-shell-urgent-message-regexp nil
-;  "Regexp matching messages to be dealt with during process output.
-;Normally, process output is only dealt with when two successive
-;prompts are seen.  But Proof General can also process 'urgent' messages,
-;for example 'loading file...' or 'warning...' while output
-;before the second prompt is seen. 
-;Set to nil to disable this feature."
-;  :type '(choice nil regexp)
-;  :group 'prover-config)
 
 
 
@@ -563,6 +524,31 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
   :type 'regexp
   :group 'proof-shell)
 
+(defcustom proof-shell-eager-annotation-start nil
+  "Eager annotation field start.  A regular expression or nil.
+An eager annotation indicates to Emacs that some following output
+should be displayed immediately and not accumulated for parsing.
+Set to nil to disable this feature.
+
+The default value is \"\n\" to match up to the end of the line."
+  :type '(choice regexp nil)
+  :group 'proof-shell)
+
+(defcustom proof-shell-eager-annotation-end "\n"
+  "Eager annotation field end.  A regular expression or nil.
+An eager annotation indicates to Emacs that some following output
+should be displayed immediately and not accumulated for parsing.
+The default value is \"\n\" to match up to the end of the line."
+  :type '(choice regexp nil)
+  :group 'proof-shell)
+
+(defcustom proof-shell-assumption-regexp nil
+  "A regular expression matching the name of assumptions."
+  :type '(choice regexp nil)
+  :group 'proof-shell)
+
+
+
 ;;
 ;; 5c. hooks 
 ;;
@@ -635,6 +621,7 @@ data triggered by `proof-shell-retract-files-regexp'."
 
 
 
+
 
 ;;
 ;; 6. Global constants
@@ -669,6 +656,89 @@ where `k' is a keybinding (vector) and `f' the designated function."
 
 
 
+;;; 
+;;; FIXME: unsorted below here
+;;;
+
+(defcustom pbp-change-goal nil
+  "Command to change to the goal %s"
+  :type 'string
+  :group 'prover-config)
+
+(defcustom proof-shell-process-output-system-specific nil
+  "Set this variable to handle system specific output.
+Errors, start of proofs, abortions of proofs and completions of
+proofs are recognised in the function `proof-shell-process-output'.
+All other output from the proof engine is simply reported to the
+user in the RESPONSE buffer.
+
+To catch further special cases, set this variable to a pair of
+functions '(condf . actf). Both are given (cmd string) as arguments.
+`cmd' is a string containing the currently processed command.
+`string' is the response from the proof system. To change the
+behaviour of `proof-shell-process-output', (condf cmd string) must
+return a non-nil value. Then (actf cmd string) is invoked. See the
+documentation of `proof-shell-process-output' for the required
+output format."
+  :type '(cons (function function))
+  :group 'prover-config)
+
+(defcustom proof-activate-scripting-hook nil
+  "Hook run when a buffer is switched into scripting mode.
+The current buffer will be the newly active scripting buffer.
+
+This hook may be useful for synchronizing with the proof
+assistant, for example, to switch to a new theory."
+  :type '(repeat function)
+  :group 'prover-config)
+
+
+
+
+;;
+;; Proof script indentation
+;;
+
+;; FIXME: document this junk
+(defcustom proof-stack-to-indent nil
+  "Prover-specific code for indentation."
+  :type 'sexp
+  :group 'proof-script)
+
+(defcustom proof-parse-indent nil
+  "Proof-assistant specific function for parsing characters for
+  indentation which is invoked in `proof-parse-to-point.'. Must be a
+  function taking two arguments, a character (the current character)
+  and a stack reflecting indentation, and must return a stack. The
+  stack is a list of the form (c . p) where `c' is a character
+  representing the type of indentation and `p' records the column for
+  indentation. The generic `proof-parse-to-point.' function supports
+  parentheses and commands. It represents these with the characters
+  `?\(', `?\[' and `proof-terminal-char'. "
+  :type 'sexp
+  :group 'proof-script)
+
+
+;;
+;; More shell junk to sort out [maybe for pbp]
+;;
+
+(defvar proof-shell-first-special-char nil "where the specials start")
+(defvar proof-shell-goal-char nil "goal mark")
+(defvar proof-shell-start-char nil "annotation start")
+(defvar proof-shell-end-char nil "annotation end")
+(defvar proof-shell-field-char nil "annotated field end")
+
+
+(defvar proof-shell-goal-regexp nil
+  "A regular expression matching the identifier of a goal.")
+
+(defvar proof-shell-noise-regexp nil
+  "Unwanted information output from the proof process within
+  `proof-start-goals-regexp' and `proof-end-goals-regexp'.")
+
+(defvar proof-analyse-using-stack nil
+  "Are annotations sent by proof assistant local or global")
 
 
 ;; End of proof-config.el

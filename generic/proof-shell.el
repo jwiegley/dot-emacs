@@ -36,6 +36,7 @@
 	    proof-restart-buffers
 	    proof-dont-show-annotations)))
 
+;;
 ;; Internal variables used by shell mode
 ;;
 
@@ -304,39 +305,10 @@ Does nothing if proof assistant is already running."
 ;;          Turning annotated output into pbp goal set              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar proof-shell-first-special-char nil "where the specials start")
-(defvar proof-shell-goal-char nil "goal mark")
-(defvar proof-shell-start-char nil "annotation start")
-(defvar proof-shell-end-char nil "annotation end")
-(defvar proof-shell-field-char nil "annotated field end")
-
-(defvar proof-shell-eager-annotation-start nil
-  "Eager annotation field start.  A regular expression or nil.
-An eager annotation indicates to Emacs that some following output
-should be displayed immediately and not accumulated for parsing.
-Set to nil to disable this feature.
-
-The default value is \"\n\" to match up to the end of the line.")
-
-(defvar proof-shell-eager-annotation-end "\n"
-  "Eager annotation field end.  A regular expression or nil.
-An eager annotation indicates to Emacs that some following output
-should be displayed immediately and not accumulated for parsing.
-The default value is \"\n\" to match up to the end of the line.")
-
-(defvar proof-shell-assumption-regexp nil
-  "A regular expression matching the name of assumptions.")
-
 ;; FIXME da: where is this variable used?  
 ;;	      dropped in favour of goal-char?
 ;; Answer: this is used in *specific* modes, see e.g.
 ;; lego-goal-hyp.  This stuff needs making more generic.
-(defvar proof-shell-goal-regexp nil
-  "A regular expression matching the identifier of a goal.")
-
-(defvar proof-shell-noise-regexp nil
-  "Unwanted information output from the proof process within
-  `proof-start-goals-regexp' and `proof-end-goals-regexp'.")
 
 (defun pbp-make-top-span (start end)
   (let (span name)
@@ -367,9 +339,6 @@ The default value is \"\n\" to match up to the end of the line.")
 
 (defvar proof-shell-delayed-output nil
   "Last interesting output from proof process output and what to do with it.")
-
-(defvar proof-analyse-using-stack nil
-  "Are annotations sent by proof assistant local or global")
 
 (defun proof-shell-analyse-structure (string)
   (save-excursion
