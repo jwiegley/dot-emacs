@@ -19,6 +19,8 @@ A* Fixup multiple files (mark atomic makes some assumption about
    locked region being whole of buffer.  This is partly done,
    may need improvements.  (1hr)
 
+A* Check Info doc configuration with Emacs 20.2
+
 C byte-compilation: check that byte compilation (and compiled code!)
   works for both varieties of Emacs.  Add instructions to INSTALL on 
   how to byte compile.  (1hr)
