@@ -74,7 +74,7 @@ NB: To change proof assistant, you must start a new Emacs session."
 	 (fileregexp 
 	  (cond ((eq proof-assistant 'coq)    "\\.v")
 		((eq proof-assistant 'lego)   "\\.l$")
-		((eq proof-assistant 'isa)    "\\.ML$|\\.thy$")))
+		((eq proof-assistant 'isa)    "\\.ML$\\|\\.thy$")))
 	 (assistant-name   (symbol-name proof-assistant))
 	 (proof-mode  (intern (concat assistant-name "-mode"))))
       (setq auto-mode-alist 
