@@ -19,6 +19,10 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.20  1997/10/31 15:11:28  tms
+;; o implented proof-find-next-terminator available via C-c C-e
+;; o fixed a bug in proof-done-retracting
+;;
 ;; Revision 1.19  1997/10/30 15:58:33  hhg
 ;; Updates for coq, including:
 ;; 	* pbp-goal-command and pbp-hyp-command use proof-terminal-string
@@ -1055,28 +1059,41 @@ at the end of locked region (after inserting a newline)."
 	(setq semis (cdr semis)))
     (nreverse alist)))
 
-; default action if inside a comment is just to go until the start of
-; the comment. If you want something different, put it inside
+; 
 
-(defun proof-assert-until-point (&optional unclosed-comment-hook)
+(defun proof-assert-until-point
+  (&optional unclosed-comment-fun ignore-proof-process-p)
+  "Process the region from the end of the locked-region until point.
+   Default action if inside a comment is just to go until the start of
+   the comment. If you want something different, put it inside
+   unclosed-comment-fun. If ignore-proof-process-p is set, no commands
+   will be added to the queue."
   (interactive)
-  (let ((pt  (point)) semis crowbar vanillas)
+  (let ((pt  (point)) semis crowbar)
     (setq crowbar (proof-steal-process))
     (save-excursion
       (if (not (re-search-backward "\\S-" (proof-end-of-locked) t))
 	  (progn (goto-char pt)
 		 (error "Nothing to do!")))
       (setq semis (proof-segment-up-to (point))))
-    (if (and unclosed-comment-hook (eq 'unclosed-comment (car semis)))
-	(funcall unclosed-comment-hook)
+    (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
+	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-      (if (and (not crowbar) (null semis)) (error "Nothing to do!"))
+      (if (and (not ignore-proof-process-p) (not crowbar) (null semis))
+	  (error "Nothing to do!"))
       (goto-char (caddar semis))
-      (setq vanillas (proof-semis-to-vanillas (nreverse semis)))
-      (if crowbar (setq vanillas (cons crowbar vanillas)))
-      (proof-start-queue (proof-end-of-locked) (point) vanillas))))
+      (and (not ignore-proof-process-p)
+	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
+	     (if crowbar (setq vanillas (cons crowbar vanillas)))
+	     (proof-start-queue (proof-end-of-locked) (point) vanillas))))))
     
-(defun proof-done-retracting (ext &optional delete-region)
+(defun proof-find-next-terminator ()
+  "Set point after next `proof-terminal-char'."
+  (interactive)
+  (and (re-search-forward "\\S-" nil t)
+       (proof-assert-until-point nil 'ignore-proof-process)))
+
+(defun proof-done-retracting (ext)
   "Updates display after proof process has reset its state. See also
 the documentation for `proof-retract-until-point'. It optionally
 deletes the region corresponding to the proof sequence."
@@ -1086,7 +1103,7 @@ deletes the region corresponding to the proof sequence."
     (proof-segment-buffer start proof-queue-loose-end)
     (delete-spans start end 'type)
     (delete-span ext)
-    (if kill delete-region start end)))
+    (and kill (delete-region start end))))
 
 (defun proof-setup-retract-action (start end proof-command delete-region)
   (let ((span (make-span start end)))
@@ -1224,6 +1241,9 @@ current command."
   (define-key proof-mode-map
     (vconcat [(control c)] (vector proof-terminal-char))
     'proof-active-terminator-minor-mode)
+
+  (define-key proof-mode-map [(control c) (control e)]
+    'proof-find-next-terminator)
 
   (define-key proof-mode-map proof-terminal-char 'proof-active-terminator)
   (define-key proof-mode-map [(control c) (control a)]    'proof-assert-until-point)
