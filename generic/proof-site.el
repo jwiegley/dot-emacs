@@ -137,8 +137,8 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 (let ((assistants proof-assistants) assistant)
   (while assistants
     (let*  
-	((assistant (car assistants))
-	 (nameregexp 
+	((assistant (car assistants))	; compiler bogus warning here
+	 (nameregexp			
 	  (or 
 	   (cdr-safe 
 	    (assoc assistant
