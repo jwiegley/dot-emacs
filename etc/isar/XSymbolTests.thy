@@ -1,4 +1,8 @@
 (* Some checks for X-Symbol behaviour.  
+
+   This file should be displayed sensibly, and also the
+   display back from Isabelle ought to match.
+
    $Id$
 *)
 
@@ -22,7 +26,7 @@ term "a\<^sup>k" (* k should be a black constant *)
 lemma "A ==> A" .  -- OK
 
 consts A :: bool
-lemma "A ==> A" .  -- "xsymbols not displayed?"
+lemma "A ==> A" .  -- "xsymbols shuld be displayed!"
 
 
 (* Test electric token input: writing a token 
@@ -41,11 +45,16 @@ constdefs
    prover fixes.
 *)
 
+thm P1_def P2_def	(* check display from Isabelle *)
+
 constdefs (* long sub/sups, new 29/12/03, added by Gerwin Klein *)
 
  Plow :: bool ("P\<^bsub>low\<^esub>")		(* spanning subscript *)
+  "P\<^bsub>low\<^esub> \<equiv> True"
  Phigh :: bool ("P\<^bsup>high\<^esup>")		(* spanning superscript *)
+  "P\<^bsup>high\<^esup> \<equiv> True"
 
+thm Plow_def Phigh_def	(* check display from Isabelle *)
 
 theorem "P\<^sub>1 \<and> P\<^sup>2";  (* check fonts in goals window *)
 by (simp add: P1_def P2_def)  (* .. and response window *)
