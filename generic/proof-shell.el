@@ -1,4 +1,4 @@
-;; proof-shell.el  Proof General shell mode.
+; proof-shell.el  Proof General shell mode.
 ;;
 ;; Copyright (C) 1994-2002 LFCS Edinburgh. 
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
@@ -1782,8 +1782,8 @@ Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended
 in some cases.   May be called by `proof-shell-invisible-command'."
   (while proof-shell-busy
-    (accept-process-output nil timeout)
-    (sit-for 0)))
+    (accept-process-output nil (or timeout 2)) ;; FIXME: make this longer
+    (sit-for 0)))			       ;; (use less CPU for busy wait)
 
 
 (defun proof-done-invisible (span)
