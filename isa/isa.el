@@ -39,6 +39,8 @@
 ;	 (mapcar (lambda (str) (list 'const str))
 ;		 (split-string-by-char
 ;		  (substring (shell-command-to-string "isatool findlogics") 0 -1)
+;                                                      ^^^^^^^
+; MW: Must not assume isatool in PATH!!!  Use $ISATOOL instead.
 ;		  ?\ )))
 ;  :group 'isabelle)
 
@@ -163,9 +165,8 @@ and script mode."
    proof-shell-cd-cmd			"Library.cd \"%s\""
 
    ;; Escapes for filenames inside ML strings.
-   ;; We also make a hack for a bug in Isabelle, by switching from 
-   ;; backslashes to forward slashes if it looks like we're running
-   ;; on Windows.
+   ;; We also make a hack for Isabelle, by switching from backslashes
+   ;; to forward slashes if it looks like we're running on Windows.
    proof-shell-filename-escapes		
    (if (fboundp 'win32-long-file-name)	; rough test for XEmacs on win32 
        ;; Patterns to unixfy names.  Avoids a deliberate bomb in Isabelle which
@@ -272,7 +273,7 @@ and script mode."
 (defun isa-update-thy-only (file try wait)
   "Tell Isabelle to update current buffer's theory, and all ancestors."
   ;; First make sure we're in the right directory to take care of
-  ;; relative "files" paths inside theory file.  (Isabelle bug??)
+  ;; relative "files" paths inside theory file.
   (proof-cd-sync)
   (proof-shell-invisible-command
    (proof-format-filename
@@ -420,9 +421,9 @@ you will be asked to retract the file or process the remainder of it."
   (interactive (list buffer-file-name))
   (proof-deactivate-scripting)
   (proof-shell-invisible-command
-   (proof-format-filename isa-retract-thy-file-command
-			  (file-name-nondirectory 
-			   (file-name-sans-extension file)))))
+   (format isa-retract-thy-file-command
+	   (file-name-nondirectory 
+	    (file-name-sans-extension file)))))
 
 
 ;; Next bits taken from isa-load.el
