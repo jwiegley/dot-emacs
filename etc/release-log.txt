@@ -1,3 +1,10 @@
+
+xx.03.00  3.1	Release 3-1
+	  First version of 3.1 release
+
+--------------------
+
+
 30.11.99  3.0.3  Release-3-0-3
 	  Full version now in version stamp.
 
