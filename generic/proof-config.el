@@ -89,12 +89,14 @@ If 'ignore, point is never moved after toolbar movement commands."
 	  (const :tag "Never move" ignore))
   :group 'proof-general)
 
-(defcustom proof-window-dedicated t
+(defcustom proof-window-dedicated nil
   "*Whether response and goals buffers have dedicated windows.
 If t, windows displaying responses from the prover will not
-be switchable to display other windows.  This helps manage
+be switchable to display other windows.  This may help manage
 your display, but can sometimes be inconvenient, especially
-for experienced Emacs users."
+for experienced Emacs users.
+Moreover, this option may cause problems with multi-frame
+use because of a bug."
   :type 'boolean
   :group 'proof-general)
 
@@ -721,13 +723,17 @@ be the value of proof-shell-wakeup-char."
 (defcustom proof-shell-error-regexp nil
   "Regexp matching an error report from the proof assistant.
 We assume that an error message corresponds to a failure
-in the last proof command executed.  (So don't match
-mere warning messages with this regexp)."
+in the last proof command executed.  So don't match
+mere warning messages with this regexp.
+Moreover, an error message should not be matched as
+an eager annotation (see proof-shell-eager-annotation-start)
+otherwise it will be lost."
   :type 'regexp
   :group 'proof-shell) 
 
 (defcustom proof-shell-interrupt-regexp nil
-  "Regexp matching output indicating the assistant was interrupted."
+  "Regexp matching output indicating the assistant was interrupted.
+Similar notes apply as for proof-shell-error-regexp, which see."
   :type 'regexp
   :group 'proof-shell) 
 
@@ -799,18 +805,18 @@ variables."
 
 (defcustom proof-shell-handle-delayed-output-hook
   '(proof-pbp-focus-on-first-goal)
-  "Hooks run after new output has been displayed in the RESPONSE buffer."
+  "Hooks run after new output has been displayed in the response buffer."
   :type '(repeat function)
   :group 'proof-shell)
 
 (defcustom proof-shell-handle-error-hook
   '(proof-goto-end-of-locked-if-pos-not-visible-in-window)
-  "Hooks run after an error has been reported in the RESPONSE buffer."
+  "Hooks run after an error has been reported in the response buffer."
   :type '(repeat function)
   :group 'proof-shell)
 
 (defcustom proof-shell-process-file nil
-  "A tuple of the form (regexp . function) to match a processed file name.
+  "A pair (REGEXP . FUNCTION) to match a processed file name.
 
 If REGEXP matches output, then the function FUNCTION is invoked on the
 output string chunk. It must return a script file name (with complete
