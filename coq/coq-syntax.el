@@ -62,14 +62,42 @@
 (defvar coq-keywords-kill-goal '(
 "Abort"
 ))
-;; commands that have to be counted when undoing
-(defvar coq-keywords-undoable-commands
-  '(
-"Focus"
-))
 
-(defvar coq-keywords-not-undoable-not-backable-commands
-  '(
+
+
+
+(defcustom coq-user-backable-commands nil
+ 
+"Configuration variable (default to nil). List of strings containing
+the user defined Coq commands that need to be backtracked (like
+Require, Definition, etc).
+
+For example if MyHint and MyRequire are user defined variants of the
+Hint and Require commands, put the following line in your .emacs:
+
+(setq coq-user-backable-commands 
+		'(\"MyHint\" \"MyRequire\"))
+"
+)
+
+(defvar coq-user-non-backable-commands nil
+ 
+"Configuration variable (default to nil). List of strings containing
+the user defined Coq commands that do not need to be backtracked (like
+Print, Check, Show etc).
+
+For example if MyPrint and MyCheck are user defined variants of the
+Print and Check commands, put the following line in your .emacs:
+
+(setq coq-user-non-backable-commands 
+		'(\"MyPrint\" \"MyCheck\"))
+"
+)
+
+;; 
+
+(defvar coq-keywords-non-backable-commands
+  (append '(
 "(*" ;;Pierre comments must not be undone
 "Add\\s-+LoadPath"
 "Add\\s-+Rec\\s-+LoadPath"
@@ -82,6 +110,7 @@
 "End\\s-+Silent"
 "Eval"
 "Extraction"
+"Focus" ;; ???
 "Locate\\s-+File"
 "Locate\\s-+Library"
 "Locate"
@@ -106,17 +135,17 @@
 "Show\\s-+Proof"
 "Show\\s-+Script"
 "Show"
-	 )
+"Unfocus" ; ???
 )
+			 coq-user-non-backable-commands
+			 )
+  )
 
 
 
 
-
-
-
-(defvar coq-keywords-backable-commands
-  '(
+(defvar coq-keywords-backable-misc-commands
+ '(
 "Begin\\s-+Silent"
 "Class"
 "Coercion"
@@ -139,22 +168,41 @@
 "Require"
 "Syntax"
 "Transparent"
-	 )
 )
+ )
 
-(defvar coq-keywords-not-undoable-commands
-  (append coq-keywords-backable-commands coq-keywords-not-undoable-not-backable-commands)
-)
-
+(defvar coq-keywords-backable-commands
+  (append
+	coq-keywords-backable-misc-commands
+	coq-keywords-decl
+	coq-keywords-defn
+	coq-keywords-goal
+	coq-user-backable-commands
+	)
+  )
 
 (defvar coq-keywords-commands
-  (append coq-keywords-not-undoable-commands  coq-keywords-undoable-commands)
+  (append coq-keywords-backable-commands
+			 coq-keywords-non-backable-commands)
   "All commands keyword")
 
 
+(defcustom coq-user-undoable-tactics nil
+ 
+"Configuration variable (default to nil). List of strings containing
+the user defined Coq tactics that need to be backtracked (like almost
+all tactics, but \"Proof\").
 
-(defvar coq-tactics
-  '(
+For example if MyIntro and MyElim are user defined variants of the
+Intro and Elim tactics, put the following line in your .emacs:
+
+(setq coq-user-undoable-tactics
+		'(\"MyIntro\" \"MyElim\"))
+"
+)
+
+(defvar coq-undoable-tactics
+ (append  '(
 "Absurd"
 "Apply"
 "Assert"
@@ -224,7 +272,46 @@
 "Transitivity"
 "Trivial"
 "Unfold"
-))
+)
+coq-user-undoable-tactics
+)
+
+)
+
+(defcustom coq-user-non-undoable-tactics nil
+ 
+"Configuration variable (default to nil). List of strings containing
+the user defined Coq tactics that do not need to be backtracked (like
+\"Proof\" (no other one to my knowledge ?)).
+
+For example if MyProof and Do_nthing are user defined variants of the
+Proof (Nop) tactic, put the following line in your .emacs:
+
+(setq coq-user-non-undoable-tactics
+		'(\"MyProof\" \"Do_nthing\"))
+"
+)
+
+(defvar coq-non-undoable-tactics 
+  (append '(
+"Proof"
+)
+			 coq-user-non-undoable-tactics
+)
+)
+
+(defvar coq-tactics 
+  (append coq-undoable-tactics coq-non-undoable-tactics))
+
+
+(defvar coq-retractable-instruct
+  (append coq-undoable-tactics coq-keywords-backable-commands)
+  )
+
+(defvar coq-non-retractable-instruct
+  (append coq-non-undoable-tactics
+			 coq-keywords-non-backable-commands)
+  )
 
 (defvar coq-keywords
   (append coq-keywords-goal coq-keywords-save coq-keywords-decl

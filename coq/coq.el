@@ -117,12 +117,22 @@
 (defconst coq-forget-id-command "Reset %s.")
 (defconst coq-back-n-command "Back %s. ") ; Pierre: added 
 
-(defconst coq-undoable-commands-regexp (proof-ids-to-regexp (append coq-tactics coq-keywords-undoable-commands)))
 
-(defconst coq-not-undoable-commands-regexp (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-not-undoable-commands)))
 
-(defconst coq-backable-commands-regexp (proof-ids-to-regexp coq-keywords-backable-commands))
-(defconst coq-not-undoable-not-backable-commands-regexp (proof-ids-to-regexp coq-keywords-not-undoable-not-backable-commands))
+(defconst coq-undoable-tactics-regexp 
+  (proof-ids-to-regexp coq-undoable-tactics))
+(defconst coq-non-undoable-tactics-regexp 
+  (proof-ids-to-regexp coq-non-undoable-tactics))
+(defconst coq-tactics-regexp
+  (proof-ids-to-regexp coq-tactics))
+(defconst coq-backable-commands-regexp
+  (proof-ids-to-regexp coq-keywords-backable-commands))
+(defconst coq-non-backable-commands-regexp 
+  (proof-ids-to-regexp coq-keywords-non-backable-commands))
+(defvar coq-retractable-instruct-regexp 
+  (proof-ids-to-regexp coq-retractable-instruct))
+(defvar coq-non-retractable-instruct-regexp
+  (proof-ids-to-regexp coq-non-retractable-instruct))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -157,8 +167,6 @@
 ;;
 ;; FIXME Papageno 05/1999: must take sections in account.
 ;;
-;; Pierre modified the test with proof-string-match, this way new tactics
-;; can be undone (I also added "(*" in not-undoable-commands)
 (defun coq-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
   (let ((ct 0) str i)
@@ -170,10 +178,10 @@
       (while span
 	(setq str (span-property span 'cmd))
 	(cond ((eq (span-property span 'type) 'vanilla)
-	       (if (not (proof-string-match coq-not-undoable-commands-regexp str))
-		   (setq ct (+ 1 ct))))
+	       (if (proof-string-match coq-undoable-tactics-regexp str)
+				  (setq ct (+ 1 ct))))
 	      ((eq (span-property span 'type) 'pbp)
-	       (cond ((not (proof-string-match coq-not-undoable-commands-regexp str))
+	       (cond ((proof-string-match coq-undoable-tactics-regexp str)
 		      (setq i 0)
 		      (while (< i (length str))
 			(if (= (aref str i) proof-terminal-char)
@@ -253,15 +261,18 @@
 		 ; It is impossible to guess if a user defined command is
 		 ; backable.  This negative test bets on the fact that user
 		 ; defined commands are probably backable, which is not sure at
-		 ; all. Betting on the opposite is also wrong.
+		 ; all. Betting on the opposite is also wrong. I made the 
+		 ; user definable elisp variables coq-user... to avoid this
+		 ; problem anyway.
 		 ((and 
 			(not (coq-goal-command-p str)) ;; saved goals are catched before this point
-			(not (proof-string-match ;; now we should match all things that deal with Back
-					(concat "\\`\\(" coq-undoable-commands-regexp "\\)")
+			;; now we should match all things that do not deal with Back
+			(not (proof-string-match 
+					(concat "\\`\\(" coq-tactics-regexp "\\)")
 				  str))
 			(not (proof-string-match 
 					(concat "\\`\\(" 
-							  coq-not-undoable-not-backable-commands-regexp
+							  coq-non-backable-commands-regexp
 							  "\\)")
 					str)))
 			(setq nbacks (+ nbacks 1)))
@@ -274,8 +285,6 @@
 	 (if ans (setq answers (cons ans answers)))
 	 (if (null answers) proof-no-command (apply 'concat answers))
   ))
-
-;  (or ans proof-no-command)
 
   
   
@@ -322,7 +331,7 @@
 ; 	  (proof-lock-unlocked)))))
 
 (defun coq-state-preserving-p (cmd)
-  (not (proof-string-match coq-undoable-commands-regexp cmd)))
+  (not (proof-string-match coq-retractable-instruct-regexp cmd)))
 
 (defun coq-global-p (cmd)
   (or (proof-string-match coq-keywords-decl-defn-regexp cmd)
