@@ -1,8 +1,19 @@
-; This file is an attempt to abstract away from the differences between
-; XEmacs and FSF Emacs. Everything that is done differently between one
-; or other version should be appropriately wrapped in here.
+;;; This file implements spans in terms of overlays, for emacs19.
+;;; Copyright (C) 1998 LFCS Edinburgh
+;;; Author: Healfdene Goguen
 
-;;; Now define "spans" in terms of extents.
+;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+
+;; $Log$
+;; Revision 1.2  1998/05/19 15:30:27  hhg
+;; Added header and log message.
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;               Bridging the emacs19/xemacs gulf                   ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Now define "spans" in terms of extents.
 
 (defsubst make-span (start end)
   (make-extent start end))
