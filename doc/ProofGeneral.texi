@@ -1386,9 +1386,11 @@ key-bindings and functions.
 
 @c TEXI DOCSTRING MAGIC: proof-display-some-buffers
 @deffn Command proof-display-some-buffers 
-Display the reponse or goals buffer, toggling between them.@*
-Also move point to the end of the response buffer.
-If in three window or multiple frame mode, display both buffers.
+Display the reponse, goals, trace, or shell buffer, rotating.@*
+A fixed number of repetitions of this command switches back to
+the same buffer.
+Also move point to the end of the response buffer if it's selected.
+If in three window or multiple frame mode, display two buffers.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-prf
