@@ -1,7 +1,7 @@
 ;; proof-site.el -- Loading stubs for Proof General.
 ;;		    Configuration for site and choice of provers.
 ;;
-;; Copyright (C) 1998 LFCS Edinburgh. 
+;; Copyright (C) 1998,9 LFCS Edinburgh. 
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
