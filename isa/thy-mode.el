@@ -215,7 +215,7 @@ You can use the following format characters:
   
   (if file
      (progn (easy-menu-remove thy-mode-deps-menu)
-	    (thy-menu-define-deps file)
+	    (proof-thy-menu-define-deps file)
 	    (easy-menu-add thy-mode-deps-menu thy-mode-map))))
 
 
