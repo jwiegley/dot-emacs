@@ -408,7 +408,7 @@ It was constructed with `proof-customize-toggle-fn'.")
 (defmacro proof-deftoggle (var &optional othername)
   "Define a function VAR-toggle for toggling a boolean customize setting VAR.
 VAR, OTHERNAME are not evaluated.  
-The function is defined with `proof-customize-toggle-fn', which see."
+The function is defined with `proof-deftoggle-fn', which see."
   `(proof-deftoggle-fn (quote ,var) (quote ,othername)))
 
 
