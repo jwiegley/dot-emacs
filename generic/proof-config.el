@@ -1091,8 +1091,7 @@ Proof General."
   '(list
     nil
     nil
-    (proof-splash-display-image "text_proof" t)
-    (proof-splash-display-image "text_general" t)
+    (proof-splash-display-image "pg-text" t)
     nil
     (proof-splash-display-image "ProofGeneral")
     nil
