@@ -46,6 +46,8 @@
     (demoisa    "Isabelle Demo"	"\\.ML$")
     (isar       "Isabelle/Isar" "\\.thy$")
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
+    ;; Next line for testing only
+    ;; (pgip	"PGIP/Isa"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
     (phox	"PhoX"		"\\.phx$")
@@ -310,13 +312,4 @@ Note: to change proof assistant, you must start a new Emacs session.")
  "Version string identifying Proof General release.")
 
 (provide 'proof-site))
-
 ;; proof-site.el ends here
-
-
-		 
-  
-
-
-      
-
