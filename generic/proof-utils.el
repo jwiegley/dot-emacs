@@ -425,17 +425,29 @@ Ensure that point is visible in window."
     (save-excursion
       (set-buffer buffer)
       ;; Here's a hack: if we're asking to display BUFFER from a
-      ;; secondary window, and the (next) other one is displaying the
+      ;; secondary window and the (next) other one is displaying the
       ;; script buffer, then we do switch-buffer instead.  This means
       ;; that goals and response buffer are swapped as expected in
       ;; two-pane mode even if either one is used to "drive" the
       ;; scripting.
+      ;; FIXME: would be better to deduce here which buffer
+      ;; we're displaying, and use windows-of-buffer to do
+      ;; something sensible.
       (if (and 
 	   (not proof-dont-switch-windows)
 	   (not (eq (next-window) (selected-window)))
-	   (eq (window-buffer (next-window))
+	   (eq (window-buffer (next-window nil 'ignoreminibuf))
 	       proof-script-buffer))
-	  (set-window-buffer (selected-window) buffer)
+	  (if (eq (selected-window) (minibuffer-window))
+	      ;; 17.8.01: avoid switching the minibuffer's contents 
+	      ;; -- terrrible confusion -- use next-window after
+	      ;; script buffer instead.
+	      ;; (another hack which is mostly right)
+	      (set-window-buffer 
+	       (next-window 
+		(car-safe (windows-of-buffer proof-script-buffer))
+		'ignoreminibuf) buffer)
+	    (set-window-buffer (selected-window) buffer))
 	(display-buffer buffer))
       (setq window (get-buffer-window buffer 'visible))
       (set-window-dedicated-p window proof-dont-switch-windows)
