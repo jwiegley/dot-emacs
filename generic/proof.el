@@ -36,6 +36,7 @@
       "Ask a WWW browser to load URL." t))
 
 ;; These are internal functions of font-lock
+(autoload 'font-lock-set-defaults "font-lock")
 (autoload 'font-lock-fontify-region "font-lock")
 (autoload 'font-lock-append-text-property "font-lock")
 
@@ -254,11 +255,19 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 ;;   doesn't want fontification we have a user option,
 ;;   proof-output-fontify-enable.
 
-(deflocal proof-font-lock-defaults nil
-  "Default value for font-lock-keywords in this buffer.
-We set font-lock-defaults to '(proof-font-lock-defaults) for
-compatibility with X-Symbol, which may hack proof-font-lock-defaults
+(deflocal proof-font-lock-keywords nil
+  "Value of font-lock-keywords in this buffer.
+We set font-lock-defaults to '(proof-font-lock-keywords t) for
+compatibility with X-Symbol, which may hack proof-font-lock-keywords
 with extra patterns (in non-mule mode).")
+
+; (deflocal proof-font-lock-defaults nil
+;  "Value of font-lock-defaults in this buffer.
+; Used because
+
+;; Define a toggler for the enable flag.
+(fset 'proof-output-fontify-toggle
+   (proof-customize-toggle proof-output-fontify-enable))
 
 (defun proof-font-lock-configure-defaults (&optional case-fold)
   "Set defaults for font-lock based on current font-lock-keywords."
@@ -271,25 +280,17 @@ with extra patterns (in non-mule mode).")
   ;; Previously, 'font-lock-keywords was used directly as a setting
   ;; for the defaults.  This has a bad interaction with x-symbol which
   ;; edits font-lock-keywords and loses the setting.  So we make a
-  ;; copy of it in a new local variable, proof-font-lock-defaults.
+  ;; copy of it in a new local variable, proof-font-lock-keywords.
   ;;
-  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
-  (setq proof-font-lock-defaults font-lock-keywords)
+  ;; FIXME: specific code could set this variable directly, really.
+  (setq proof-font-lock-keywords font-lock-keywords)
   (setq font-lock-keywords-case-fold-search case-fold)
   ;; Setting font-lock-defaults explicitly is required by FSF Emacs
   ;; 20.4's version of font-lock in any case.
-  (setq font-lock-defaults `(proof-font-lock-defaults nil ,case-fold))
+  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
+  (setq font-lock-defaults `(proof-font-lock-keywords nil ,case-fold))
   ;; FIXME: font-lock turned on somewhere, where?
   (setq font-lock-keywords nil))
-
-(defun proof-font-lock-fontify-region (start end)
-  "font-lock-fontify-region doesn't work for FSF Emacs 20.4, sigh."
-  (if (string-match "XEmacs" emacs-version)
-      (font-lock-fontify-region start end)
-    ;; This version is very noisy.  Hopefully it's okay because we
-    ;; do a narrow-to-region below, so whole buffer appears to
-    ;; be the region we want.
-    (font-lock-fontify-buffer)))
 
 (defun proof-fontify-region (start end)
   "Fontify and decode X-Symbols in region START...END.
@@ -306,13 +307,18 @@ Returns new END value."
   ;; Possible disadvantage is that font lock patterns can't refer
   ;; to X-Symbol characters.  Probably they shouldn't!
   (narrow-to-region start end)
+
   (if proof-output-fontify-enable
-      (let ((font-lock-keywords proof-font-lock-defaults))
-	(proof-font-lock-fontify-region start end)
-	; has annoying messages
-	; (font-lock-fontify-buffer)	; hope okay cos narrow region.
-	;; FIXME: this should be optional, really.
-	(proof-zap-commas-region start end)))
+      (progn
+	;; FSF hack, yuk.
+	(unless (string-match "XEmacs" emacs-version)
+	  (font-lock-set-defaults))
+	(let ((font-lock-keywords proof-font-lock-keywords))
+	  ;; FIXME: should set other bits of font lock defaults,
+	  ;; perhaps, such as case fold etc.  What happened to
+	  ;; the careful buffer local font-lock-defaults??
+	  (font-lock-fontify-region start end)
+	  (proof-zap-commas-region start end))))
   (if proof-shell-leave-annotations-in-output
       ;; Remove special characters that were used for font lock,
       ;; so cut and paste works from here.
@@ -362,7 +368,8 @@ Returns new END value."
       ;; This is one reason why we don't keep the buffer in font-lock
       ;; minor mode: it destroys this hacky property as soon as it's
       ;; made!  (Using the minor mode is much more convenient, tho')
-      (if face (font-lock-append-text-property start end 'face face))
+      (if (and face proof-output-fontify-enable)
+	  (font-lock-append-text-property start end 'face face))
       ;; This returns the decorated string, but it doesn't appear 
       ;; decorated in the minibuffer, unfortunately.
       (buffer-substring start (point-max))))))
