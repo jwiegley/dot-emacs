@@ -458,6 +458,16 @@ insert when called interactively."
   :type '(choice string function)
   :group 'prover-config)
 
+(defcustom proof-find-theorems-command nil
+  "Command to search for a theorem containing a given constant. String or fn.
+If a string, the format character `%s' will be replaced by the
+constant name. If a function, should return a command string to
+insert when called interactively."
+  :type '(choice string function)
+  :group 'prover-config)
+
+
+
 
 
 ;;
