@@ -5,6 +5,20 @@
 * Things to do for Isabelle
 ===========================
 
+C Investigate fix for looping rewriting in Isabelle.  Continual
+  and frequent messages from the prover lock out the user.
+  Is there any easy way of fixing this?
+  
+C X-Symbol support for theory files: bugs at the moment, because
+  of duplicate calls to proof-x-symbol-mode and mess with
+  font-lock initialization.  Problem with current version:
+  visit a.thy, b.thy then turn on xsym.  Broken in b.thy.
+  Seems okay visiting new buffers after that.
+  Must also check interaction with xsym-isa-latex stuff
+  may be broken by removal of mode hook settings.
+  [DvO reports okay].
+  (May need to split extra modes into two parts?)
+
 B auto-adjust Pretty.setmargin when window is resized.  Use
   generic code once it's implemented.
 

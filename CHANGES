@@ -3,7 +3,24 @@
 * Summary of Changes for Proof General 3.1 from 3.0
 
 
+** New instantiations of Proof General!
+
+*** HOL 98 (http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html)
+
+   by David Aspinall.  This is a bare-bones Proof General instance
+   only, hopefully to entice HOL users so that someone may improve it.
+   See README in the hol98 directory for more details.
+
+*** Plastic (http://www.dur.ac.uk/CARG/plastic.html)
+  
+   by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
+   The Plastic system itself is not yet publicly available,
+   so this is only included in the developers tar file.
+
+
 ** Generic Changes
+
+*** README file added for each supported prover, explaining support.
 
 *** Fixes for supporting Japan versions of Emacs which have older CL macs.
  
@@ -49,22 +66,11 @@
 *** Minor syntax tweaks.
 
 
-
-** New instantiations of Proof General for:
-
-*** Plastic (http://www.dur.ac.uk/CARG/plastic.html)
-  
-   by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
-   The Plastic system itself is not yet publicly available.
-
-*** HOL 98 (http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html)
-
-   by David Aspinall.  This is a bare-bones Proof General instance
-   only, hopefully to entice HOL users so that someone may improve it.
-   See README in the hol98 directory for more details.
-
-
 ** Changes for developers to note
+
+*** todo file added for each prover, split from global todo file
+
+
 
 
 
