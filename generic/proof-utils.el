@@ -630,7 +630,8 @@ or if the window is the only window of its frame."
 	    ;; FIXME: is count-lines too expensive for v.large
 	    ;; buffers?  Probably not an issue for us, but one
 	    ;; wonders at the shrink to fit strategy.
-	    (+ extraline 1 (count-lines (point-min) (point-max)))))
+	    ;; NB: way to calculate pixel fraction?
+	    (+ extraline 2 (count-lines (point-min) (point-max)))))
 	;; 
 	;; Let's shrink or expand
 	(cond
