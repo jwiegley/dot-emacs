@@ -35,7 +35,8 @@
     "quit"
     "redo"
     "undo"
-    "undos_proof"))
+    "undos_proof"
+    "welcome"))
 
 (defconst isar-keywords-diag
   '("ML"
@@ -58,6 +59,7 @@
     "remove_thy"
     "term"
     "thm"
+    "thms_containing"
     "touch_all_thys"
     "touch_thy"
     "typ"
@@ -84,7 +86,8 @@
     "title"))
 
 (defconst isar-keywords-theory-decl
-  '("arities"
+  '("ML_setup"
+    "arities"
     "axclass"
     "axioms"
     "classes"
