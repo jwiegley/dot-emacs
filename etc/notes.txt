@@ -1,0 +1,15 @@
+Misc notes.
+==========
+
+-----------------------------------------------------------------
+
+Regenerating screen shot in html/IsaPGscreen.jpg:
+
+ 30x80 sized XEmacs.  Visit isa/example.ML.
+ Click on "next" button four times. 
+ Drag middle modeline to display whole proof script.
+ Move point to end of locked region.
+ Grab with gimp, Xtns -> Screen Shot.
+ Save with default quality settings.
+
+-----------------------------------------------------------------
