@@ -907,25 +907,28 @@ Group number 1 matches the name of the library which is required.")
 ;; These appear on the Coq -> Setting menu.
 ;;
 
-(defpacustom print-only-first-subgoal  nil
-  "Whether to just print the first subgoal in Coq."
-  :type 'boolean
-  :setting ("Focus. " . "Unfocus. "))
+; FIXME da: we should send this command only inside a proof,
+; otherwise it gives an error message.  It should be on
+; a different menu command.
+;(defpacustom print-only-first-subgoal  nil
+;  "Whether to just print the first subgoal in Coq."
+;  :type 'boolean
+;  :setting ("Focus. " . "Unfocus. "))
 
 (defpacustom print-fully-explicit nil
   "*Print fully explicit terms."
   :type 'boolean
-  :setting ("Set Printing All." . "Unset Printing All."))
+  :setting ("Set Printing All. " . "Unset Printing All. "))
 
 (defpacustom print-coercions nil
   "*Print coercions."
   :type 'boolean
-  :setting ("Set Printing Coercions." . "Unset Printing Coercions."))
+  :setting ("Set Printing Coercions. " . "Unset Printing Coercions. "))
 
 (defpacustom print-match-wildcards t
   "*Print underscores for unused variables in matches."
   :type 'boolean
-  :setting ("Set Printing Coercions." . "Unset Printing Coercions."))
+  :setting ("Set Printing Coercions. " . "Unset Printing Coercions. "))
 
 
 (defpacustom time-commands nil
