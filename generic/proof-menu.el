@@ -77,6 +77,7 @@ If in three window or multiple frame mode, display both buffers."
 ;; (define-key map [(meta n)]		  'proof-next-matching-command)
 ;; Standard binding for completion
 (define-key map [(control return)] 'proof-script-complete)
+(define-key map [(control c) (control ?\;)] 'pg-insert-last-output-as-comment)
 ;; Add the universal keys bound in all PG buffers.
 ;; C-c ` is next-error in universal-keys
 (proof-define-keys map proof-universal-keys))
@@ -187,6 +188,7 @@ If in three window or multiple frame mode, display both buffers."
 (proof-deftoggle proof-delete-empty-windows)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
 (proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
+(proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 
 (defvar proof-quick-opts-menu
@@ -199,7 +201,10 @@ If in three window or multiple frame mode, display both buffers."
 	   :style toggle
 	   :selected proof-script-fly-past-comments])
       nil)
-  '(["Three window mode" proof-dont-switch-windows-toggle
+  '(["Disppearing proofs" proof-disappearing-proofs-toggle 
+     :style toggle
+     :selected proof-disappearing-proofs]
+    ["Three window mode" proof-dont-switch-windows-toggle
      :style toggle
      :selected proof-dont-switch-windows]
     ["Delete empty windows" proof-delete-empty-windows-toggle
