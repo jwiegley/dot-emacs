@@ -7,7 +7,7 @@
 ##
 ## $Id$
 ##
-##  make buttons   make *.xpm, *.xbm from gimp xcf files
+##  make buttons   make *.xpm from gimp xcf files
 ##  make webpix    make *.jpg from gimp xcf files
 ##  make install   copy *.jpg to ../html directory
 ##  make clean	   remove dummy targets
@@ -54,7 +54,7 @@ backgroundize-xpm: $(BUTTONS)
 	for f in *.xpm; do sed 's/#BCBCBC"/#BCBCBC s backgroundToolBarColor"/g' $$f > $$f.new; mv $$f.new $$f; done
 
 # NB: gimp sometimes fails with this argument, in case it is built
-# without support for one of the image formats, e.g. xbm.
+# without support for one of the image formats.
 # (Happens with gimp from Mandrake 6.0, for example)
 buttons: $(BUTTONS)
 	$(GIMP) '(script-fu-proofgeneral-make-all-buttons 1)' '(gimp-quit 0)'
@@ -67,12 +67,12 @@ webpix: $(WEBPIX)
 
 cvsclean: clean
 # For the time being we keep all this junk under CVS too, for convenience.
-#	rm -f *.xpm *.xbm *.jpg gimp/pluginrc
+#	rm -f *.xpm *.jpg gimp/pluginrc
 #	rm -f *.jpg gimp/pluginrc
 
 # Remove all the generated targets and other junk.
 wellclean: clean
-	rm -f *.xpm *.xbm *.jpg *.gif
+	rm -f *.xpm *.jpg *.gif
 
 distclean: clean
 
@@ -91,9 +91,8 @@ install: webpix
 ## With '1' as first argument to indicate "non-interactive", things
 ## don't work.  With '0', we get popup menus and args are ignored!
 
-# NB: .xbm used as target, but also generates .xpm's.
-#%.xbm: %.xcf
-#	$(GIMP) '(script-fu-proofgeneral-make-buttons "$(CWD)/$*")' '(gimp-quit 0)'
+%.xpm: %.xcf
+	$(GIMP) '(script-fu-proofgeneral-make-buttons "$(CWD)/$*")' '(gimp-quit 0)'
 
 #%.jpg: %.xcf
 #	$(GIMP) '(script-fu-proofgeneral-save-jpg 0 "$(CWD)/$*")' '(gimp-quit 0)'
