@@ -262,14 +262,18 @@ If in three window or multiple frame mode, display two buffers."
       :active t
       :style toggle
       :selected proof-output-fontify-enable]
+
+     ;; X-Symbol and MM are minor modes which PG settings
+     ;; enable by default for PG buffers
      ["X-Symbol"  (proof-x-symbol-toggle (if x-symbol-mode 0 1))
       :active (proof-x-symbol-support-maybe-available)
       :style toggle
-      :selected (and (boundp 'x-symbol-mode) x-symbol-mode)] ;; display minor mode flag
+      :selected (and (boundp 'x-symbol-mode) x-symbol-mode)]
      ["Multiple modes" (proof-mmm-toggle (if mmm-mode 0 1))
       :active (proof-mmm-support-available)
       :style toggle
-      :selected mmm-mode] 
+      :selected (and (boundp 'mmm-mode) mmm-mode)]
+ 
      ["Toolbar" proof-toolbar-toggle
       ;; should really be split into :active & GNU Emacs's :visible
       :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
