@@ -66,7 +66,7 @@ Require Omega. (* 7 This needs "Back 1" to be retracted. *)
     Save.
   Save. (* 8 "Back 1" or "Reset t2". *)
 Intros. (* 9 "Undo": example of retraction 9->6: Undo 2.  Back 3. *)
-  Fixpoint f [n:nat] : nat := Cases n of O => O | (S m)=> (f m) end. (*7*)
+  Fixpoint g [n:nat] : nat := Cases n of O => O | (S m)=> (g m) end. (*7*)
   Lemma t3 : O=O. Auto. Save. (* 10 "Back 1" or "Reset t3" *)
 EAuto. (* 11 "Undo" *)
 Save. (* 12 *)
