@@ -185,10 +185,9 @@ No effect if proof-display-splash is nil."
    (list 'make-variable-buffer-local (list 'quote var))
    (list 'setq-default var value)))
 
-;; Load toolbar code if running XEmacs in X
-(and (featurep 'x)
-     (string-match "XEmacs" emacs-version)
-     (require 'proof-toolbar))
+;; Load toolbar code if toolbars available.
+(if (featurep 'toolbar)
+    (require 'proof-toolbar))
 
 
 
@@ -453,7 +452,7 @@ variables."
    :group 'proof-sheel)
 
 ;; FIXME da: replace this with wakeup-regexp or prompt-regexp?
-;; May not need next regexp.
+;; May not need next variable.
 (defcustom proof-shell-wakeup-char nil
   "A special character which terminates an annotated prompt.
 Set to nil if proof assistant does not support annotated prompts."
@@ -471,7 +470,10 @@ Set to nil if proof assistant does not support annotated prompts."
   :group 'proof-shell)
 
 (defcustom proof-shell-error-regexp nil
-  "Regexp matching an error report from the proof assistant."
+  "Regexp matching an error report from the proof assistant.
+We assume that an error message corresponds to a failure
+in the last proof command executed.  (So don't match
+warning messages with this regexp)."
   :type 'regexp
   :group 'proof-shell) 
 
@@ -675,34 +677,47 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
   (detach-span proof-locked-span))
 
 (defsubst proof-lock-unlocked ()
+  "Make the locked region read only."
   (span-read-only proof-locked-span))
 
 (defsubst proof-unlock-locked ()
+  "Make the locked region read-write."
   (span-read-write proof-locked-span))
 
 (defsubst proof-set-queue-endpoints (start end)
+  "Set the queue span to be START, END."
   (set-span-endpoints proof-queue-span start end))
 
 (defsubst proof-set-locked-endpoints (start end)
+  "Set the locked span to be START, END."
   (set-span-endpoints proof-locked-span start end))
 
 (defsubst proof-detach-queue ()
+  "Remove the span for the queue region."
   (and proof-queue-span (detach-span proof-queue-span)))
 
 (defsubst proof-detach-locked ()
+  "Remove the span for the locked region."
   (and proof-locked-span (detach-span proof-locked-span)))
 
 (defsubst proof-set-queue-start (start)
-  (set-span-endpoints proof-queue-span start (span-end proof-queue-span)))
+  "Set the queue span to begin at START."
+  (set-span-start proof-queue-span start))
 
 (defsubst proof-set-queue-end (end)
-  (set-span-endpoints proof-queue-span (span-start proof-queue-span) end))
+  "Set the queue span to end at END."
+  (set-span-end proof-queue-span end))
 
 (defun proof-detach-segments ()
+  "Remove the queue and locked spans from the buffer."
   (proof-detach-queue)
   (proof-detach-locked))
 
 (defsubst proof-set-locked-end (end)
+  "Set the end of the locked region to be END, sort of? FIXME.
+If END is past the end of the buffer, remove the locked region.
+Otherwise set the locked region to be from the start of the
+buffer to END."
   (if (>= (point-min) end)
       (proof-detach-locked)
     (set-span-endpoints proof-locked-span (point-min) end)))
@@ -723,6 +738,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
     (error "bug: proof-locked-end called from wrong buffer")))
 
 (defsubst proof-end-of-queue ()
+  "Return the end of the queue region, or nil if none."
   (and proof-queue-span (span-end proof-queue-span)))
 
 (defun proof-dont-show-annotations ()
@@ -892,6 +908,8 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
        (format "Starting %s process... done." proc)))))
   
 
+;; Should this be the same as proof-restart-script?
+;; Perhaps this is redundant.
 (defun proof-stop-shell ()
   "Exit the proof process.  Runs proof-shell-exit-hook if non-nil"
   (interactive)
@@ -1246,7 +1264,7 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
            
 
 (defun proof-shell-process-output (cmd string)
-  "Process shell output.
+  "Process shell output by matching on STRING.
 This function deals with errors, start of proofs, abortions of
 proofs and completions of proofs. All other output from the proof
 engine is simply reported to the user in the response buffer.
@@ -1395,19 +1413,42 @@ queue is running."
 
 ; returns t if it's run out of input
 
+
+;; 
+;; The loop looks like: Execute the
+; command, and if it's successful, do action on span.  If the
+; command's not successful, we bounce the rest of the queue and do
+; some error processing.
+
 (defun proof-shell-exec-loop ()
+  "Process the proof-action-list.
+proof-action-list contains a list of (span,command,action) triples.
+This function is called with a non-empty proof-action-list.
+It processes the list by executing (action span) on the first item,
+and then (action span) on following items which have proof-no-command
+as their cmd components.  
+Return non-nil if the action list becomes empty, unlocks the process
+and removes the queue region.  Otherwise send the next command to the
+proof process."
   (save-excursion
     (set-buffer proof-script-buffer)
-    (if (null proof-action-list) (error "Non Sequitur"))
+    (if (null proof-action-list) 
+	(error "proof-shell-exec-loop: called with empty proof-action-list."))
     (let ((item (car proof-action-list)))
+      ;; Do (action span) on first item in list
       (funcall (nth 2 item) (car item))
       (setq proof-action-list (cdr proof-action-list))
+      ;; Process following items in list with the form
+      ;; ("COMMENT" cmd) by calling (cmd "COMMENT")
       (while (and proof-action-list
 		(string= 
 		 (nth 1 (setq item (car proof-action-list))) 
 		 proof-no-command))
+	;; Do (action span) on comments
 	(funcall (nth 2 item) (car item))
 	(setq proof-action-list (cdr proof-action-list)))
+      ;; If action list is empty now, release the process lock
+
       (if (null proof-action-list)
 	  (progn (proof-release-lock)
 		 (proof-detach-queue)
@@ -1499,6 +1540,7 @@ how far we've got."
 	  (goto-char (point-max))	; da: assumed to be after a prompt?
 	  (setq cmd (nth 1 (car proof-action-list)))
 	  (save-excursion
+	    ;; 
 	    (setq res (proof-shell-process-output cmd string))
 	    ;; da: Added this next line to redisplay, for proof-toolbar
 	    ;; FIXME: should do this for all frames displaying the script
@@ -2128,6 +2170,13 @@ the proof script."
   (proof-assert-until-point))
 
 ;; For when things go horribly wrong
+;; FIXME: this needs to politely stop the process by sending
+;; an EOF or customizable command.  (maybe timeout waiting for
+;; it to die before killing the buffer)
+;; maybe better:
+;;  Put a funciton to remove all extents in buffers into
+;; the kill-buffer-hook for the proof shell.  Then this
+;; function just stops the shell nicely (see proof-stop-shell).
 (defun proof-restart-script ()
   "Restart Proof General.
 Kill off the proof assistant process and remove all markings in the
@@ -2576,7 +2625,9 @@ finish setup which depends on specific proof assistant configuration."
 		    (cons proof-mode-name
 			  (append
 			   (cdr proof-menu)
-			   (list (customize-menu-create 'proof)))))
+			   (list (customize-menu-create 'proof)
+				 (customize-menu-create 'proof-internal
+				  "Internals")))))
   (easy-menu-add proof-mode-menu proof-mode-map)
 
   ;; For fontlock
