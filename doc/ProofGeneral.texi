@@ -115,8 +115,8 @@ END-INFO-DIR-ENTRY
 @c image{ProofGeneralPortrait}
 @end ifset
 @end iftex
-@author David Aspinall with
-@author P. Courtieu, H. Goguen, T. Kleymann, D. Sequeira, M. Wenzel.
+@author David Aspinall and Thomas Kleymann
+@author with P. Courtieu, H. Goguen, D. Sequeira, M. Wenzel.
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
@@ -294,20 +294,20 @@ The original developers of the basis of Proof General were:
 @item @b{Dilip Sequeira}.
 @end itemize
 
-LEGO Proof General (the successor of @code{lego-mode}) was crafted by
+LEGO Proof General (the successor of @code{lego-mode}) was written by
 Thomas Kleymann and Dilip Sequeira. 
 @c
 It is presently maintained by David Aspinall and
 Paul Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. 
 @c
-Coq Proof General was crafted by Healfdene Goguen, with
+Coq Proof General was written by Healfdene Goguen, with
 later contributions from Patrick Loiseleur.
 It is now maintained by Pierre Courtieu @i{<courtieu@@lri.fr>}.
 @c
-Isabelle Proof General was crafted and is being maintained by David
+Isabelle Proof General was written and is being maintained by David
 Aspinall @i{<David.Aspinall@@ed.ac.uk>}.  It has benefited greatly from tweaks
 and suggestions by Markus Wenzel
-@i{<wenzelm@@informatik.tu-muenchen.de>}, who crafted and maintains
+@i{<wenzelm@@informatik.tu-muenchen.de>}, who wrote and maintains
 Isabelle/Isar Proof General.  Markus also added Proof General support
 inside Isabelle.  David von Oheimb supplied the original patches for
 X-Symbol support, which improved Proof General significantly.
@@ -611,9 +611,9 @@ Note that there is some variation between the features supported by
 different instances of Proof General.  The main variation is proof by
 pointing, which is only supported in LEGO at the moment.  For advanced
 features like this, some extensions to the output routines of the proof
-assistant are required, typically.  If you like Proof General, please
+assistant are required, typically.  If you like Proof General, @b{please
 help us by asking the implementors of your favourite proof assistant to
-support Proof General as much as possible.
+support Proof General} as much as possible.
 
 @node Prerequisites for this manual
 @section Prerequisites for this manual
@@ -3756,8 +3756,9 @@ The distribution is available in three forms
 @end itemize
 
 Both the source tarball and the RPM package include the generic elisp
-code, code for LEGO, Coq, and Isabelle, installation instructions
-(reproduced below) and this documentation.  
+code, and code for LEGO, Coq, Isabelle, and other provers. Also included
+are installation instructions (reproduced in brief below) and this
+documentation.
 
 The developer's tarball contains our full source tree, including all of
 the elisp and documentation, along with our low-level list of things to
