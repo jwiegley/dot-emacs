@@ -21,6 +21,8 @@ bugs	      proofgen@dcs.ed.ac.uk
 users	      proofgeneral@dcs.ed.ac.uk
 devel	      proofgeneral-devel@dcs.ed.ac.uk
 majordomo     majordomo@dcs.ed.ac.uk
+da	      da@dcs.ed.ac.uk
+
 
 
 
