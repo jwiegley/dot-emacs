@@ -10,11 +10,12 @@ Please also check the BUGS file.
 
 Q. Emacs appears to hang when the prover process is started.
 
-A. This may be because of UTF-8 issues e.g in Red Hat 8.0/9/glibc 2.2
+A. Perhaps this because of UTF-8 in recent linuxes with glibc 2.2 or later
+   (e.g in Red Hat 8.0/9/Suse 9.1)
 
-   RedHat 8 and later has glibc 2.2 and UTF8 encoded output may be
-   turned on in default locale.  Unfortunately Proof General relies on
-   8-bit characters which are UTF8 prefixes in the output of proof
+   Glibc 2.2 and later may be enabled with UTF8 encoded output in your
+   default locale.  Unfortunately Proof General relies on 8-bit
+   characters which are UTF8 prefixes in the output of proof
    assistants (inc Coq, Isabelle).  These prefix characters are not
    flushed to stdout individually.  As a workaround we must find a way
    to disable interpretation of UTF8 in the C libraries that Coq and
@@ -36,7 +37,7 @@ A. This may be because of UTF-8 issues e.g in Red Hat 8.0/9/glibc 2.2
 
    NB: a related issue is warnings from x-symbol: "Emacs language 
    environment and system locale specify different encoding, I'll 
-   assume `iso-8859-1'".  This warning appears to be mainly harmless.
+   assume `iso-8859-1'".  This warning appears to be mostly harmless.
    Notice that the variable `buffer-file-coding-system' may determine
    the format that files are saved in.  
 
