@@ -2,8 +2,9 @@
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;          Thomas Kleymann and Dilip Sequeira
-
-;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;;
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;;
 ;; Thanks to Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens
 ;;

@@ -3,6 +3,8 @@
 ##
 ## Author:  David Aspinall <da@dcs.ed.ac.uk>
 ##
+## Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+##
 ## $Id$
 ## 
 ###########################################################################

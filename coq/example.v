@@ -2,6 +2,8 @@
     Example proof script for testing Coq Proof General.
  
     $Id$
+
+    Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 *)    
 
 (****************************************************************************)

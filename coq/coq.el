@@ -1,6 +1,7 @@
 ;; coq.el Major mode for Coq proof assistant
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen and Thomas Kleymann
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 
 ;; $Id$
 

@@ -1,7 +1,7 @@
 ;; coq-syntax.el Font lock expressions for Coq
 ;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
 ;; Author: Thomas Kleymann and Healfdene Goguen
-;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 
 ;; $Id$
 

@@ -1,7 +1,7 @@
 ;; proof-syntax.el Generic font lock expressions
 ;; Copyright (C) 1997-1998 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequiera
-;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;

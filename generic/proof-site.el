@@ -2,7 +2,7 @@
 ;;
 ;; Copyright (C) 1998 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Thomas Kleymann
-;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;

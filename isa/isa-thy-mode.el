@@ -1,13 +1,14 @@
-;;; isa-thy-mode.el - Mode for Isabelle theory files.
-;;;
-;;; Author:  David Aspinall <da@dcs.ed.ac.uk>
-;;;
-;;; Taken from Isamode, version: 3.6 1998/09/02 11:40:45
-;;;
-;;; $Id$
-;;;
-;;; NAMESPACE management: all functions and variables declared
-;;; in this file begin with isa-thy-
+;; isa-thy-mode.el - Mode for Isabelle theory files.
+;;
+;; Author:      David Aspinall <da@dcs.ed.ac.uk>
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;;
+;; Taken from Isamode, version: 3.6 1998/09/02 11:40:45
+;;
+;; $Id$
+;;
+;; NAMESPACE management: all functions and variables declared
+;; in this file begin with isa-thy-
 
 (require 'isa)
 

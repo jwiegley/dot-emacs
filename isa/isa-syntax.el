@@ -1,6 +1,8 @@
 ;; isa-syntax.el Syntax expressions for Isabelle
+;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;;
-;; David Aspinall <da@dcs.ed.ac.uk>
+;; Author:      David Aspinall <da@dcs.ed.ac.uk>
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;

@@ -40,6 +40,17 @@ and assistant-specific elisp files are kept in subdirectories of
 proof-home so that the autoload directory calculations are correct.
 
 
+   In case of difficulty, please contact us via the address below.
+   
+   Proof General maintainer <proofgen@dcs.ed.ac.uk>
+   School of Computer Science,
+   Division Of Informatics,
+   University of Edinburgh.
+   Edinburgh.
+   
+   http://www.dcs.ed.ac.uk/home/proofgen
+
+
 ----------------------------------------------------------------------
 
 Customization for Coq

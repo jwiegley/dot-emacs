@@ -1,7 +1,8 @@
 ;; proof-toolbar.el    Toolbar for Proof General
 ;;
 ;; David Aspinall <da@dcs.ed.ac.uk>
-;; 
+;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;;
 ;; $Id$
 ;;
 ;; NB: XEmacs specific code!
