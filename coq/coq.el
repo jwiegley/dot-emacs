@@ -273,7 +273,7 @@ have been used."
 
 	;; da: try using just Back since "Reset" causes loss of proof
 	;; state.
-;; (format coq-forget-id-command (span-property span 'name)))
+	;; (format coq-forget-id-command (span-property span 'name)))
 	(if (span-property span 'nestedundos) 
 	    (setq nbacks (+ 1 nbacks (span-property span 'nestedundos)))
 	  ) 
@@ -289,21 +289,21 @@ have been used."
        ;;   will take us outside a proof, and use the first
        ;;   Reset found if so: but this is tricky to co-ordinate
        ;;   with the number of Backs, perhaps? ]
-       ((and 
-	 (eq proof-nesting-depth 0)
-	 (proof-string-match 
-	  (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
-		  proof-id 
-		  ;; Section .. End Section should be atomic!
-		  "\\)\\s-*[\\[,:.]") str))
-	(setq ans (format coq-forget-id-command (match-string 2 str))))
+;       ((and 
+;	 (eq proof-nesting-depth 0)
+;	 (proof-string-match 
+;	  (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
+;		  proof-id 
+;		  ;; Section .. End Section should be atomic!
+;		  "\\)\\s-*[\\[,:.]") str))
+;	(setq ans (format coq-forget-id-command (match-string 2 str))))
 
-       ;; If it's not a goal but it contains "Definition" then it's a
-       ;; declaration  [ da: is this not covered by above case??? ]
-       ((and (eq proof-nesting-depth 0)
-	     (proof-string-match
-	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
-	(setq ans (format coq-forget-id-command (match-string 2 str))))
+;       ;; If it's not a goal but it contains "Definition" then it's a
+;       ;; declaration  [ da: is this not covered by above case??? ]
+;       ((and (eq proof-nesting-depth 0)
+;	     (proof-string-match
+;	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
+;	(setq ans (format coq-forget-id-command (match-string 2 str))))
 
        ;; Pierre: added may 29 2002 
        ;; REM: It is impossible to guess if a user defined command is
@@ -327,7 +327,13 @@ have been used."
        ;; Finally all other proof commands, which are undone with
        ;; Undo.  But only count them if they are outermost, not
        ;; within an aborted goal.
-       ((eq 0 naborts)
+       ((and
+	 (eq 0 naborts)
+	 (proof-string-match 
+	       (concat "\\`\\(" 
+		       coq-undoable-tactics-regexp
+		       "\\)")
+	       str))
 	(incf nundos)))
 
       (setq span (next-span span 'type)))
@@ -374,39 +380,8 @@ have been used."
     (cons 'hyp (match-string 1)))
    (t nil)))
 
-;;
-;; This code is broken
-;; 
-; (defun coq-lift-global (glob-span)
-;   "This function lifts local lemmas from inside goals out to top level."
-;   (let (start (next (span-at 1 'type)) str (goal-p nil))
-;     (while (and next (and (not (eq next glob-span)) (not goal-p)))
-;       (if (and (eq (span-property next 'type) 'vanilla)
-; 	       (funcall proof-goal-command-p (span-property next 'cmd)))
-; 	  (setq goal-p t)
-; 	(setq next (next-span next 'type))))
-    
-;     (if (and next (not (eq next glob-span)))
-; 	(progn
-; 	  (proof-unlock-locked)
-; 	  (setq str (buffer-substring (span-start glob-span)
-; 				      (span-end glob-span)))
-; 	  (delete-region (span-start glob-span) (span-end glob-span))
-; 	  (goto-char (span-start next))
-; 	  (setq start (point))
-; 	  (insert str "\n")
-; 	  (set-span-endpoints glob-span start (point))
-; 	  (set-span-start next (point))
-; 	  (proof-lock-unlocked)))))
-
 (defun coq-state-preserving-p (cmd)
   (not (proof-string-match coq-retractable-instruct-regexp cmd)))
-
-(defun coq-global-p (cmd)
-  (or (proof-string-match coq-keywords-decl-defn-regexp cmd)
-      (and (proof-string-match
-	    (concat "Definition\\s-+\\(" coq-id "\\)\\s-*:") cmd)
-	   (proof-string-match ":=" cmd))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to coq                                       ;;
@@ -623,8 +598,7 @@ This is specific to coq-mode."
   (setq proof-goal-command-p 'coq-goal-command-p
 	proof-find-and-forget-fn 'coq-find-and-forget
         proof-goal-hyp-fn 'coq-goal-hyp
-	proof-state-preserving-p 'coq-state-preserving-p
-	proof-global-p 'coq-global-p)
+	proof-state-preserving-p 'coq-state-preserving-p)
 
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
@@ -789,9 +763,7 @@ This is specific to coq-mode."
 	                 ; Coq has no global settings?
 			 ; (proof-assistant-settings-cmd))
    proof-shell-restart-cmd coq-shell-restart-cmd
-   proof-analyse-using-stack t
-   ;;	proof-lift-global 'coq-lift-global
-   )
+   proof-analyse-using-stack t)
   
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
