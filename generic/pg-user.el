@@ -8,10 +8,11 @@
 ;;
 ;;
 
+(require 'proof-config)			; for proof-follow-mode
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; First a couple of helper functions 
+;; first a couple of helper functions 
 ;;
 
 (defmacro proof-maybe-save-point (&rest body)

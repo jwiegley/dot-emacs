@@ -49,6 +49,9 @@
   '(xml)
   "List of special elements which don't require closing.")
 
+(defvar xmlparse nil
+  "Used to store parse result.")
+
 (defun pg-xml-add-text (text)		
   "If TEXT is non empty, add it to subtree at top of `xmlparse'."
   (unless (string-equal text "")
@@ -68,7 +71,7 @@ is
     (goto-char (point-min))
     (let ((xmlparse nil)
 	  (pos	    (point))
-	  openelts attrs elt)
+	  openelts elt)
       (unless (looking-at pg-xml-start-open-elt-regexp)
 	(warn "pg-xml-parse-buffer: Junk at start of document: %s"
 	      (buffer-substring 
