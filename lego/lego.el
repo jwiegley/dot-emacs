@@ -384,11 +384,8 @@ Checks the width in the `proof-goals-buffer'"
 
   (setq font-lock-keywords lego-font-lock-keywords-1)
 
-;; if we don't have the following in xemacs, zap-commas fails to work.
-
-  (and (boundp 'font-lock-always-fontify-immediately)
-       (setq font-lock-always-fontify-immediately t))
-
+  (setq proof-font-lock-zap-commas t)	; enable the painful hack
+  
   (proof-config-done)
 
   (define-key (current-local-map) [(control c) ?i] 'lego-intros)
