@@ -513,7 +513,7 @@ both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-error-face 
   (proof-face-specs
-   (:background "salmon1" :bold t)
+   (:background "firebrick1" :bold t)
    (:background "brown" :bold t)
    (:bold t))
   "*Face for error messages from proof assistant."
