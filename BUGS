@@ -3,7 +3,8 @@
 * Known Bugs and Workarounds for Proof General.
 
 Contact:  mailto:da+pg-bugs@inf.ed.ac.uk
-See also: http://proofgeneral.inf.ed.ac.uk/BUGS
+For latest, see: http://proofgeneral.inf.ed.ac.uk/BUGS
+See also FAQ:    http://proofgeneral.inf.ed.ac.uk/FAQ
 
 Generic bugs are listed here, which may affect all of the supported
 provers.  See lego/BUGS coq/BUGS, etc, for specific bug lists for each
@@ -11,6 +12,10 @@ of the provers supported.
 
 The bugs here are split into problems which apply for all Emacs
 versions, and those which only apply to particular versions.
+
+NB: some issues which affect PG but which are not necessarily bugs in
+PG are mentioned in the FAQ.
+
 
 
 * Generic problems, for all Emacs versions
