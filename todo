@@ -49,6 +49,15 @@ C Undoing comments with FSF Emacs weirdness.
 
 C Problem with startup for Coq and HOL.  See BUGS.
 
+C Solaris bugs: font locking and button enabling.
+
+  [Markus]: I can only produce this problem on Solaris, where we have
+  both a mule and non-mule version of xemacs-21.1.8.  On my Linux box
+  at home there is no problem present (using xemacs-21.1.7-mule).
+
+  Note that on the Solaris boxes the problem is already exhibited by
+  visiting a new/empty thy file: buttons are off and are not enabled
+  by typing new stuff.
 
 *** Scheduled improvements for 3.2
 
@@ -64,6 +73,11 @@ C Problem with startup for Coq and HOL.  See BUGS.
    Doc this change.
    Means old C-c C-a and C-c C-e are lost.
    Consider adding new submap for movement in proof script.
+
+**** C Improvements to customization mechanism: watch the use
+   of customize-set-variable, odd for users who think it
+   means they've changed a setting!
+   (currently: next-entity-regexps, proof-splash-settings for Isabelle).
 
 **** C Isabelle: I think show_sorts -> show_types ?
    
