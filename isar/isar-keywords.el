@@ -31,14 +31,11 @@
     "exit"
     "kill"
     "kill_proof"
-    "prev"
     "quit"
     "redo"
     "restart"
-    "top"
     "undo"
-    "undos_proof"
-    "up"))
+    "undos_proof"))
 
 (defconst isar-keywords-diag
   '("ML"
