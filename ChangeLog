@@ -1,5 +1,70 @@
 2002-07-16  David Aspinall  <da@proofgeneral.org>
 
+	* etc/isar/Parsing.thy:
+	Add { and } example
+
+	* Makefile.devel: Fix crucial typo
+
+	* ChangeLog: Updated.
+
+	* Makefile.devel:
+	Make tags for both manuals.
+
+	* Makefile.devel:
+	Tweak link creation/deletion
+
+	* CHANGES: Minor
+
+	* todo: Updated
+
+	* etc/Mailman/note.txt: Updated.
+
+	* html/register: Buggy tag
+
+	* html/proofgen.css:
+	Fix monospace typeface name
+
+	* isar/isar.el: Add more nags
+
+	* html/main.html: Edit for brevity
+
+	* html/head.html:
+	Use linked style sheet, add charset metatag.
+
+	* generic/span-overlay.el:
+	Dodgy patch to fix selection ordering of overlays. PBP works in Emacs now.
+
+	* isa/x-symbol-isabelle.el:
+	Patch so works without x-symbol
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel: Link in LATESTNAME
+
+	* generic/proof.el: Fix comment
+
+	* generic/pg-goals.el, generic/pg-response.el, generic/proof-shell.el:
+	Refactoring
+
+	* generic/proof-x-symbol.el: Comments
+
+	* isar/isar.el:
+	Revert some premature changes in x-sym support
+
+	* isa/x-symbol-isabelle.el:
+	Merge patches from Christoph, and add Isabelle/Isar capabilities
+
+	* generic/proof-compat.el:
+	Add char-to-int and friends, borrowed from x-symbol-emacs.
+
+	* generic/proof-shell.el:
+	Cleaning up PBP code
+
+	* etc/lego/pbp.l: Example of using pbp
+
+2002-07-16  David Aspinall  <da@proofgeneral.org>
+
 	* Makefile.devel:
 	Make tags for both manuals.
 
