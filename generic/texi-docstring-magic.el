@@ -7,10 +7,15 @@
 ;;
 ;; $Id$
 ;;
+;; This package is distributed under the terms of the 
+;; GNU General Public License, Version 2.   
+;; You should have a copy of the GPL with your version of 
+;; GNU Emacs or the Texinfo distribution.
+;; 
 ;;
-;; This package generates TexInfo source fragments from Emacs 
+;; This package generates Texinfo source fragments from Emacs 
 ;; docstrings.   This avoids documenting functions and variables
-;; in more than one place, and automatically adds TexInfo markup
+;; in more than one place, and automatically adds Texinfo markup
 ;; to docstrings.
 ;;
 ;; It relies heavily on you following the Elisp documentation
@@ -54,7 +59,7 @@
 ;;
 ;; -----
 ;;
-;; Useful key binding when writing TeXInfo:
+;; Useful key binding when writing Texinfo:
 ;;
 ;;  (define-key TeXinfo-mode-map "C-cC-d" 'texi-docstring-magic-insert-magic)
 ;;
@@ -231,7 +236,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
       (texi-docstring-magic-texi "fn" "Face" name docstring nil)))
    ((fboundp symbol)
     ;; Functions.
-    ;; Don't handle macros,  aliases, compiled fns properly.
+    ;; We don't handle macros,  aliases, or compiled fns properly.
     (let*
 	((function  symbol)
 	 (name	    (symbol-name function))
