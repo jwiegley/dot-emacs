@@ -53,6 +53,8 @@
 (load "thy-mode.el")
 (load "proof-menu.el")
 (load "proof-toolbar.el")
+(load "proof-script.el")
+(load "proof-shell.el")
 
 ;; A couple of comint symbols are mentioned in the docs
 (require 'comint)
