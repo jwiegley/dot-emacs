@@ -29,16 +29,21 @@ X (Low)		e.g. probably not worth spending time on
 
 *** Things to fix before 3.2
 
-A Ignore table entries for non-existent directories?
-
+A test rpm package and script.  Try to get specific doc files into RPM package
+A Web pages: fix features page to look better / remove HTML errors.
+A Update html to link 3.2 docs in doc page.  
+A Update /etc/release-note.txt
+A Check list below for new release
+A Proof read documentation, check list of todos below for it.
 A Remove fileshow urls in html
-
-C The PG isabelle-completion-table seems to be subject to case-fold, which
-  it shouldn't be: \<sqinter> does not work, but \<Sqinter> is OK.
-
-B Keybindings for processing theory in thy mode gone??
+B Think about adding wmconfig stuff to RPM file
 
 ** 2. Things to in the generic interface
+
+*** C The PG isabelle-completion-table seems to be subject to case-fold, which
+      it shouldn't be: \<sqinter> does not work, but \<Sqinter> is OK.
+
+*** C Ignore table entries for non-existent directories in proof-site.el
 
 *** B generalize from Isabelle's "atomic scripting" theory file mode
       to allow other instances which do not allow incremental
@@ -669,9 +674,6 @@ B Keybindings for processing theory in thy mode gone??
 
 *** A Doc new bits:  settings mechanism via defpacustom 
 
-*** A Doc new bits: 
-      --- which XEmacs packages does PG use?  (for INSTALL)
-
 *** B Manual improvements before techreport publishing (see notes at end also):
   - Mention configuring function menus, outline.
   - Consider splitting up chapter 9?
@@ -695,9 +697,6 @@ B Keybindings for processing theory in thy mode gone??
 
 *** D texi-docstring-magic: first time deffn's, etc, are added, whitespace
   after magic comment is left.
-
-
-
 
 *** B Doc enhancement: explain conditions for switching buffers and auto
   switching of scripting buffers.  (See doc of 
@@ -884,7 +883,6 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 ***  0. Make all files have same CVS branch with cvs commit -f 
     (only seems to work locally, not via cvs server).
-    Innessential convention.  Could increment head number.
 ***  1. Test multiple file test suite for LEGO, Isabelle.  Coq example.
 ***  2. Check case with FSF Emacs
 ***  3. Check case with compiled code, for XEmacs only.
@@ -939,7 +937,3 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 	- research on ways of conducting a formalization, cf
 	  ways of writing a program.  Common idioms that PG could
 	  help with.
-
-*** A Add instructions for developers to use cvs repository 
-    remotely.
-
