@@ -41,7 +41,7 @@
 ## To customize the tags in case of a re-release with the same official
 ## version:
 ##
-##    make releaseall VERSION=2.0 CVS_VERSION=2_0_1
+##    make releaseall VERSION=2.0 FULLVERSION=2.0.1
 ##
 ##
 ## $Id$
@@ -73,9 +73,12 @@ DEVELLATESTNAME = $(NAME)-devel-latest
 VERSIONVARIABLE=proof-general-version
 VERSIONFILE=proof-site.el
 
+# Full version number defaults to ordinary version number.
+FULLVERSION=$(VERSION)
+
 #   NB: CVS tags can't have points in them.  
 #   Substitute points for hyphens.
-CVS_VERSION=$(shell echo $(VERSION) | sed 's/\./-/g')
+CVS_VERSION=$(shell echo $(FULLVERSION) | sed 's/\./-/g')
 
 # Name of tar file and RPM file.
 RELEASENAME = $(NAME)-$(VERSION)
@@ -254,8 +257,8 @@ tag:
 # Update the sources, this is almost always what we want to do.
 	if [ -z "$(NOCVS)" ] && [ -n "`cvs -n -q update`" ]; then cvs update -d; exit 1; fi
 # Tag proof-site.el and ProofGeneral.spec
-	(cd generic; mv $(VERSIONFILE) $(VERSIONFILE).old; sed -e 's/defconst $(VERSIONVARIABLE) \".*\"/defconst $(VERSIONVARIABLE) \"Proof General Version $(VERSION). Released by da$(DATEMSG).\"/g' $(VERSIONFILE).old > $(VERSIONFILE); rm $(VERSIONFILE).old)
-	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(VERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
+	(cd generic; mv $(VERSIONFILE) $(VERSIONFILE).old; sed -e 's/defconst $(VERSIONVARIABLE) \".*\"/defconst $(VERSIONVARIABLE) \"Proof General Version $(FULLVERSION). Released by da$(DATEMSG).\"/g' $(VERSIONFILE).old > $(VERSIONFILE); rm $(VERSIONFILE).old)
+	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(FULLVERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
 # Edit $(DOWNLOADHTML) only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
 	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
