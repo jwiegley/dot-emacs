@@ -1678,6 +1678,9 @@ usual, unless NOERROR is non-nil."
 ;;;###autoload
 (define-derived-mode proof-shell-mode comint-mode 
   "proof-shell" "Proof General shell mode class for proof assistant processes"
+
+
+
   (setq proof-buffer-type 'shell)
   
   ;; Clear state
@@ -1698,7 +1701,12 @@ usual, unless NOERROR is non-nil."
 
   (add-hook 'comint-output-filter-functions 'proof-shell-filter nil 'local)
   (setq comint-get-old-input (function (lambda () "")))
-  (proof-shell-dont-show-annotations)
+
+  ;; FIXME: this is a work-around for a nasty GNU Emacs 21.2
+  ;; bug which HANGS Emacs sometimes if special characters
+  ;; are hidden.  (e.g. try M-x column-number-mode)
+  (unless proof-running-on-Emacs21
+    (proof-shell-dont-show-annotations))
 
   ;; Proof marker is initialised in filter to first prompt found
   (setq proof-marker (make-marker))
