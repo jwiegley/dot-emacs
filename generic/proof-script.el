@@ -1614,11 +1614,20 @@ This version is used when `proof-script-command-start-regexp' is set."
 				  ;; (If it were accepted it could upset the
 				  ;; undo behaviour)
 			       (goto-char prev-no-blanks)
+			       ;; Update: PG 3.4: try to deal with sequences
+			       ;; of comments as well, since previous behaviour
+			       ;; breaks Isar, in fact, since repeated
+			       ;; comments get categorized as commands, 
+			       ;; breaking sync.
 			       (if (and 
 				    (looking-at commentre)
 				    (re-search-forward proof-comment-end-regexp)
-				    (skip-chars-forward " \t\n")
-				    (>= (point) comend))
+				    (progn
+				      (skip-chars-forward " \t\n")
+				      (while (looking-at commentre)
+					(skip-chars-forward " \t\n")
+					(re-search-forward proof-comment-end-regexp))
+				      (>= (point) comend)))
 				   'comment 'cmd)))
 		     (string (if (eq type 'comment) "" bufstr)))
 		(setq prev (point))
