@@ -1,8 +1,11 @@
-Files in this directory  (not part of standard distribution)
-============================================================
+Files in this directory  (not all part of standard distribution - some only in devel)
+=====================================================================================
 
-ProofGeneral.spec   }  For building the Proof General RPM.
-ProofGeneral.patch  }
+ProofGeneral.spec      For building the Proof General RPM.
+		       Use "rpm -tb" to build from tarball.
+
+ProofGeneral.menu      Menu file for some Linux versions.  
+		       Install in /usr/lib/menu.
 
 announce	       Announcement
 		       
