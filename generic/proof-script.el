@@ -1973,6 +1973,19 @@ the proof script."
    (proof-retract-until-point-interactive))
   (proof-maybe-follow-locked-end))
 
+(defun proof-retract-current-goal ()
+  "Retract the current proof, and move point to its start."
+  (interactive)
+  (proof-maybe-save-point
+   (let
+      ((span (proof-last-goal-or-goalsave)))
+     (if (and span (not (eq (span-property span 'type) 'goalsave))
+	      (< (span-end span) (proof-unprocessed-begin)))
+	 (progn
+	   (goto-char (span-start span))
+	   (proof-retract-until-point-interactive)
+	   (proof-maybe-follow-locked-end))
+       (error "Not proving")))))
 
 ;;
 ;; Interrupt
