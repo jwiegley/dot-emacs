@@ -10,28 +10,6 @@
 (require 'proof-syntax)
 (require 'isar-keywords)
 
-;;; Proof mode customization: how should it work?
-;;;   Presently we have a bunch of variables in proof.el which are
-;;;   set from a bunch of similarly named variables in <engine>-syntax.el.
-;;;
-;;;   Seems a bit daft: why not just have the customization in
-;;;   one place, and settings hardwired in <engine>-syntax.el.
-;;;
-;;;   That way we can see which settings are part of instantiation of
-;;;   proof.el, and which are part of cusomization for <engine>.
-
-;; ------ customize groups
-
-;(defgroup isar-scripting nil
-;  "Customization of Isabelle/Isar script management"
-;  :group 'external
-;  :group 'languages)
-
-;(defgroup isar-syntax nil
-;  "Customization of Isabelle/Isar's syntax recognition"
-;  :group 'isar-scripting)
-
-
 ;; ----- character syntax
 
 (defun isar-init-syntax-table ()
