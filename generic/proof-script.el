@@ -13,8 +13,8 @@
 (require 'span)				; abstraction of overlays/extents
 (require 'pg-user)			; user-level commands
 (require 'proof-menu)			; menus for script mode
-(require 'proof-x-symbol)		; x-symbol (maybe put on automode list)
-(require 'proof-mmm)			; mmm (ditto)
+(require 'proof-x-symbol)		; x-symbol (maybe initialize)
+(require 'proof-mmm)			; mmm (maybe put on automode list)
 
 
 ;; Nuke some byte-compiler warnings 
@@ -2713,6 +2713,11 @@ finish setup which depends on specific proof assistant configuration."
     (cond
      ((and img proof-running-on-XEmacs)
       (set-glyph-image invisible-text-glyph img (current-buffer)))))
+
+  ;; FIXME: next expr shouldn't be needed, if loads happen in
+  ;; correct order.
+  (if (proof-ass x-symbol-enable)
+      (proof-x-symbol-enable))
 
   ;; Finally, make sure the user has been welcomed!
   ;; [NB: this doesn't work well, can get zapped by loading messages]

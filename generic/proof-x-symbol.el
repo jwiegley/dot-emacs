@@ -185,6 +185,10 @@ in future if we have just activated it for this buffer."
 	(set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
 	(set (proof-ass-sym x-symbol-enable) t)))
+  ;; FIXME: on startup, x-symbol-language should somehow be
+  ;; set automatically, but perhaps something loads too late.
+  ;; Hence the next line to ensure things work smoothly.
+  (setq x-symbol-language (proof-ass x-symbol-language))
   (x-symbol-mode)
   (proof-x-symbol-mode-associated-buffers))
 
