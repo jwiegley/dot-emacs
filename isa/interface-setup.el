@@ -11,7 +11,7 @@
 ;;
 
 ;;;
-;;; X-Symbol mode
+;;; X-Symbol
 ;;;
 
 (let ((xsymbol-home (getenv "XSYMBOL_HOME"))
@@ -32,3 +32,11 @@
   ;; tell Proof General about -x option
   (if (and xsymbol (not (equal xsymbol "")))
       (customize-set-variable enable-var (equal xsymbol "true"))))
+
+
+;;
+;; Proof General
+;;
+
+(if (not (featurep 'proof-site))
+    (load (concat (getenv "PROOFGENERAL_HOME") "/generic/proof-site.el")))
