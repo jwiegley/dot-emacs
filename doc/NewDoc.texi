@@ -332,7 +332,8 @@ For more details, see @pxref{Basic Script Management}
 and @pxref{Advanced Script Management}.
 @item @i{Script editing mode}@*
 Proof General provides useful facilities for editing proof scripts,
-including syntax hilighting and a menu to jump to particular goals.
+including syntax hilighting and a menu to jump to particular goals,
+definitions, or declarations.
 Special editing functions send lines of proof script to the proof
 assistant, or undo previous proof steps.
 
