@@ -5,6 +5,10 @@
 
 
 ;; $Log$
+;; Revision 1.51  1998/06/10 11:43:38  hhg
+;; Added lego-init-syntax-table as function to initialize syntax entries
+;; particular to LEGO, and call it from lego-shell-mode-config.
+;;
 ;; Revision 1.50  1998/06/03 18:03:02  hhg
 ;; Added '?'s before single characters in define-keys for emacs19, at
 ;; Pascal Brisset's suggestion.
@@ -453,6 +457,16 @@
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun lego-init-syntax-table ()
+  "Set appropriate values for syntax table in current buffer."
+
+  (modify-syntax-entry ?_ "_")
+  (modify-syntax-entry ?\' "_")
+  (modify-syntax-entry ?\| ".")
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4"))
+
 (defun lego-mode-config ()
 
   (setq proof-terminal-char ?\;)
@@ -481,12 +495,7 @@
 	proof-kill-goal-command lego-kill-goal-command
 	proof-commands-regexp (ids-to-regexp lego-commands))
 
-  (modify-syntax-entry ?_ "_")
-  (modify-syntax-entry ?\' "_")
-  (modify-syntax-entry ?\| ".")
-  (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4")
+  (lego-init-syntax-table)
 
   (proof-config-done)
 
@@ -562,8 +571,10 @@
         proof-shell-init-cmd lego-process-config
 	proof-analyse-using-stack nil
         lego-shell-current-line-width nil)
-  (proof-shell-config-done)
-)
+
+  (lego-init-syntax-table)
+
+  (proof-shell-config-done))
 
 (defun lego-pbp-mode-config ()
   (setq pbp-change-goal "Next %s;")
