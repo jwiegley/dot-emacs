@@ -499,8 +499,8 @@ X (Low)		e.g. probably not worth spending time on
 *** D Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.
 
-*** D texi-docstring-magic: first time deffn's, etc, are added, whitespace
-  after magic comment is left.
+*** D texi-docstring-magic: difference between GNU Emacs and XEmacs regexps
+  GNU Emacs gives buggy behaviour with "@lisp" regions.
 
 *** B Doc enhancement: explain conditions for switching buffers and auto
   switching of scripting buffers.  (See doc of 
