@@ -9,6 +9,10 @@
 
 
 ;; $Log$
+;; Revision 1.57  1998/06/11 12:20:35  hhg
+;; Moved proof-mode-hooks from proof-shell-config-done to
+;; proof-config-done.
+;;
 ;; Revision 1.56  1998/06/10 14:00:21  hhg
 ;; In proof-init-segmentation, only create proof-queue-span and
 ;; proof-locked-span if they don't already exist.
@@ -2009,7 +2013,9 @@ current command."
 ;; if we don't have the following, zap-commas fails to work.
 
   (and (boundp 'font-lock-always-fontify-immediately)
-       (setq font-lock-always-fontify-immediately t)))
+       (setq font-lock-always-fontify-immediately t))
+
+  (run-hooks 'proof-mode-hook))
 
 (defun proof-shell-config-done ()
   (accept-process-output (get-buffer-process (current-buffer)))
@@ -2033,9 +2039,7 @@ current command."
   (while (null (marker-position proof-marker))
     (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
-      (error "Failed to initialise proof process")))
-
-  (run-hooks 'proof-mode-hook))
+      (error "Failed to initialise proof process"))))
 
 (define-derived-mode pbp-mode fundamental-mode 
   "Proof" "Proof by Pointing"
