@@ -17,7 +17,12 @@ Generic Changes
 
 * [XEmacs only] Toolbar enablers have been added.   
   Buttons are automatically enabled or disabled as appropriate.   
-  This requires XEmacs 20.4 or better for reliable working.  
+  This requires XEmacs 21 or better for reliable working,
+  so is disabled for earlier versions.
+  If do not like enablers, you can turn them off with
+  the new configuration variable proof-toolbar-use-enablers.
+  With this variable nil, buttons do nothing when they 
+  otherwise be disabled.
 
 * Menus and keybindings have been reorganized.  
   Now keybindings invoke the same functions as the toolbar.
