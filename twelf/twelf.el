@@ -41,7 +41,6 @@
  proof-prog-name		 "twelf-server"
  proof-assistant-home-page       "http://www.cs.cmu.edu/~twelf/"
 
- proof-script-use-new-parser t          ;; FIXME: remove for PG 3.3
  proof-terminal-char             ?\.
  proof-comment-start             "%"	;; for inserting comments
  proof-comment-end               ""
