@@ -211,7 +211,7 @@
    proof-shell-prompt-pattern		"^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd			"ML {* Library.cd \"%s\" *}"
+   proof-shell-cd-cmd			"ML_command {* Library.cd \"%s\" *}"
 
    ;; Escapes for filenames inside ML strings.
    ;; We also make a hack for a bug in Isabelle, by switching from 
@@ -501,7 +501,7 @@ proof-shell-retract-files-regexp."
 		  ;; proof-segment-upto-cmdstart (which becomes even more
 		  ;; Isar specific, then...)
 		  ;; (if (string-match "\\.ML$" (buffer-name proof-script-buffer))
-		  ;;    (format "ML_setup {* %s *};" string)
+		  ;;    (format "ML_command {* %s *};" string)
 		  ;;    string)
 		  string
 		  "\\<^sync>;"))))
