@@ -19,6 +19,8 @@ X (Low)    probably not worth wasting time on
 
 RELEASE 2.0 remaining problems:
 
+A***  Documentation polishing.
+
 A***  BUG: FSF Emacs process handling (check on proof-shell-insert fix), 
       killing buffer problems.
 
@@ -276,6 +278,9 @@ D Display management is much better than it was, but perhaps
     On other cases of retraction, it does.
     Perhaps retraction should set the flag to ensure
     it's cleared.
+
+X Add ChangeLog to developers distribution to give them
+  something more to look at.  (30mins).
 
 X Allow bib-cite style clicking on Load/Import commands to go
   to file.
