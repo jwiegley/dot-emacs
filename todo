@@ -368,6 +368,9 @@ X Is it possible to let C-c C-c (SIGINT) issue additional process input?
   [ This item reduced to X since Poly/ML is now obsolete.  This may
     still be useful for future proof assistants, though. ]
 
+X splash screen: report XEmacs problem of not displaying transparent
+  gif properly.
+
 X Consider filtering out special annotations from shell buffer
   rather than merely making them invisible.
 
