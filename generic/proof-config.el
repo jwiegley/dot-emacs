@@ -1415,6 +1415,18 @@ See also proof-{shell,resp,goals}-font-lock-keywords."
   :group 'proof-script)
 
 
+;;
+;; Proof script context menu customization
+;;
+(defcustom proof-script-span-context-menu-extensions nil
+  "Extensions for the in-span context sensitive menu.
+This should be a function which accepts three arguments: SPAN IDIOM NAME.
+See pg-user.el: pg-create-in-span-context-menu for more hints."
+  :type 'function
+  :group 'proof-script)
+  
+
+
 
 
 
@@ -1933,6 +1945,16 @@ settings."
 The matching string will be parsed as XML and then processed by 
 `pg-pgip-process-cmd'."
   :type '(choice nil regexp)
+  :group 'proof-shell)
+
+;; FIXME FIXME: this next one not yet used.  It's hard to interleave
+;; commands with the ordinary queue anyway: the prover should
+;; automatically output this information if it is enabled.
+(defcustom proof-shell-query-dependencies-cmd nil
+  "Command to query the prover for dependencies of given theorem name.
+%s is replaced by the name of the theorem.   This command will be
+sent when a proof is completed."
+  :type 'string
   :group 'proof-shell)
 
 (defcustom proof-shell-theorem-dependency-list-regexp nil
