@@ -1,14 +1,38 @@
 Developers' Notes about Web Pages
 ---------------------------------
 
+NEW: server hacks needed to serve these pages, giving nice urls
+
+ PHP3  module included
+ .html treated as application
+
+ Mime magic configured:
+
+LoadModule mime_magic_module  modules/mod_mime_magic.so
+AddModule mod_mime_magic.c
+MimeMagicFile /etc/httpd/conf/magic
+
+to recognize files beginning <?php, by
+ adding this to /etc/httpd/conf/magic:
+
+0	string		<?php		application/x-httpd-php3
+
+Then add these links:
+
+  news -> index.html
+  doc -> index.html
+
+etc.
+
+***************
+
 Notes about php:
 
 Some functions I've written
 
- <?php link_root("pagename","text")?>
  <?php hlink("html file","text","status message")?>
 
-NB: no space after text in each case so you must write
+NB: no space after text so you must write
  
    <?php ... ?> blah 
 
