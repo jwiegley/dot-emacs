@@ -101,7 +101,9 @@ A span is before PT if it covers the character before PT."
     "Return non-nil if SPAN is live and in a live buffer."
   (and span
        (extent-live-p span)
-       (buffer-live-p (extent-object span))))
+       (buffer-live-p (extent-object span))
+       ;; PG 3.4: add third test here to see not detached.
+       (not (extent-detached-p span))))
 
 (defun span-raise (span)
   "Function added for FSF Emacs compatibility.  Do nothing here."
