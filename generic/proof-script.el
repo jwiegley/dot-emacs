@@ -2604,7 +2604,9 @@ assistant."
   ;; Fontlock support.
   ;;
   ;; Assume font-lock case folding follows proof-case-fold-search
-  (proof-font-lock-configure-defaults 'autofontify proof-case-fold-search))
+  (proof-font-lock-configure-defaults 'autofontify proof-case-fold-search)
+
+)
   
 
 
