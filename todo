@@ -32,13 +32,6 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to in the generic interface
 
-*** D RPM package todos: 
-        - get specific doc files into RPM package (subdirs of doc/)
-	- Think about adding wmconfig stuff (icons in images/ now)
-
-*** C Fix the doc makefiles to adapt the image flag in PG-adapting.tex
-      properly, for dvi/ps targets
-
 *** C The PG isabelle-completion-table seems to be subject to case-fold, which
       it shouldn't be: \<sqinter> does not work, but \<Sqinter> is OK.
 
@@ -50,6 +43,18 @@ X (Low)		e.g. probably not worth spending time on
       E.g. twelf ACL2
 
 *** B Move 3.3 over to new better designed parsing function mechanism.
+
+*** C ChangeLog generation still not right.  
+      Suggested fix: use the prefix that rcs2log generates, without prepending.
+      Take a tail of the current ChangeLog and use that as the starting point,
+      perhaps?
+
+*** D RPM package todos: 
+        - get specific doc files into RPM package (subdirs of doc/)
+	- Think about adding wmconfig stuff (icons in images/ now)
+
+*** C Fix the doc makefiles to adapt the image flag in PG-adapting.tex
+      properly, for dvi/ps targets
 
 *** D some renaming for uniformity: 
 
