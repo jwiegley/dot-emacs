@@ -1,6 +1,10 @@
 
 theory Example = Main:;
 
+text {*
+ Just a few tiny examples to get an idea of how Isabelle/Isar proof documents
+ may look like.
+ *}
 
 lemma I: "A --> A";
 proof;
@@ -16,6 +20,11 @@ proof;
     show A; .;
   qed;
 qed;
+
+text {*
+ This one is a good test for ProofGeneral to cope with block-structured
+ proof texts.  Have fun with automatic indentation!
+ *};
 
 lemma S: "(A --> B --> C) --> (A --> B) --> A --> C";
 proof;
