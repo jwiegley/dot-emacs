@@ -436,14 +436,13 @@ exited by hand (or exits by itself)."
       ;; Run hooks
       (run-hooks 'proof-shell-kill-function-hooks)
       ;; Kill buffers associated with shell buffer
-      (dolist
-	  (buf '(proof-goals-buffer 
-		 proof-response-buffer 
-		 proof-trace-buffer))
-	(if (buffer-live-p (eval buf))
-	    (progn 
-	      (kill-buffer (eval buf))
-	      (set buf nil))))
+      (let ((proof-shell-buffer nil)) ;; fool kill buffer hooks
+ 	(dolist (buf '(proof-goals-buffer proof-response-buffer 
+					  proof-trace-buffer))
+ 	  (if (buffer-live-p (eval buf))
+ 	      (progn 
+ 		(kill-buffer (eval buf))
+ 		(set buf nil)))))
       (message "%s exited." bufname))))
 
 (defun proof-shell-clear-state ()
@@ -1693,6 +1692,9 @@ usual, unless NOERROR is non-nil."
   (proof-shell-clear-state)
 
   (make-local-variable 'proof-shell-insert-hook)
+
+  ;; Efficiency: don't keep undo history
+  (buffer-disable-undo)
 
   ;; comint customisation. comint-prompt-regexp is used by
   ;; comint-get-old-input, comint-skip-prompt, comint-bol, backward
