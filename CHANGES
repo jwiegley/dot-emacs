@@ -12,8 +12,10 @@
 
 *** Parsing internals changed: minor user visible differences
 
-Please report any problems/annoyances.   
-Not yet enabled for Isabelle/Isar.
+Please report any problems/annoyances which may be unexpected.
+NB: Not yet enabled for Isabelle/Isar.
+
+*** Colour improvements
 
 
 ** GNU Emacs compatibility improvements
