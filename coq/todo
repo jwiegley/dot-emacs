@@ -5,6 +5,8 @@
 See also ../todo for generic things to do, priority codes.
 
 
+** D Coq pbp focussing, would be helpful if this part works at least
+
 ** C Auto-compile-vos
    Would be nice to ressurect this: interaction between PG
    and make system is tricky and tedious.  
