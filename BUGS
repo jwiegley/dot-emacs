@@ -126,6 +126,16 @@ bug which may be Emacs-related: from now on I will add a note here
 rather than try to investigate older Emacsen and add more patches 
 to the code.
 
+** XEmacs "nesting too deep for parser" warnings (unresolved in any XEmacs)
+
+This is sometimes triggered by very complex output, typically with
+Isabelle's tracing messages when font-lock is called. 
+
+XEmacs implementation of parse-partial-sexp appears at fault.  It
+gives this error message when nesting depth reaches 100.  With 
+GNU Emacs, a nesting depth of 40000 or more is possible.
+
+
 ** XEmacs font-lock problem in earlier versions of XEmacs 21.4
 
 When reloading (with C-x C-f) an already loaded script file that has
