@@ -93,7 +93,7 @@ END-INFO-DIR-ENTRY
 @title Adapting Proof General
 @subtitle Proof General --- Organize your proofs!
 @sp 1
-@subtitle Adapting Proof General @value{version} to New Provers
+@subtitle Adapting Proof General @value{version} to new provers
 @subtitle @value{last-update}
 @subtitle @b{www.proofgeneral.org}
 
@@ -108,7 +108,7 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@c image{ProofGeneralPortrait}
+@image{ProofGeneralPortrait}
 @end ifset
 @end iftex
 @author David Aspinall with T. Kleymann
