@@ -1,6 +1,6 @@
 ;; proof-comapt.el   Operating system and Emacs version compatibility
 ;;
-;; Copyright (C) 2000-2001 LFCS Edinburgh. 
+;; Copyright (C) 2000-2002 LFCS Edinburgh. 
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk> and others
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
@@ -53,6 +53,21 @@ with `path-separator'."
   (defun proof-emacs-imagep (img)
     "See if IMG is an Emacs 21 image descriptor (returns nil since not E21)."
     nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; XEmacs compatibility with GNU Emacs
+;;;
+
+(or (fboundp 'display-graphic-p)
+    (defun display-graphic-p ()
+      "Return non-nil if DISPLAY is a graphic display.
+Graphical displays are those which are capable of displaying several
+frames and several different fonts at once.  This is true for displays
+that use a window system such as X, and false for text-only terminals."
+      (or (eq (console-type) 'x)
+	  (eq (console-type) 'mswindows))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
