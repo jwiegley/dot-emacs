@@ -55,6 +55,8 @@ B Manual improvements before techreport publishing (see notes at end also):
   - Consider splitting up chapter 9?
   - document mouse functions, proof-cd, process quit timeout, 
     X-Symbol, prog-name-guess, new menu functions for display.
+  - general tips on what to do when things go wrong: try
+    interrupt, restart, finally exit proof assistant.
   - improvements after feedback from users.
 
 D Improve goto button image [suggestion from Markus]

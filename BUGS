@@ -144,13 +144,15 @@ to proofgen@dcs.ed.ac.uk.
 Isabelle Proof General Bugs
 ===========================
 
-* General difficulty with complex proof scripts.  Since Isabelle uses
-ML as a top-level language for writing proof-scripts, Proof General
-may have difficulty understanding scripts which stray too far away
-from the standard functions, tactics, and tacticals.  You will
-usually notice when a function, or whatever, doesn't get highlighted
-as you might expect.  This probably has no detrimental impact on the
-interface unless you use your own "goal" or "qed" forms.
+* There is a general difficulty with proof scripts containing ML
+structures, functions, etc.  Proof General does not understand full ML
+syntax(!), so it will be confused by structures which contain 
+semi-colons after declarations, for example.  Also, it cannot undo
+function declarations.  Moreover, with ML you can even redefine
+the entire proof command language, which will certainly confuse
+Proof General!  Stick to using the standard functions, tactics, and
+tacticals and there should be no problems.  (Actually, there should
+be no problems unless you use your own "goal" or "qed" forms).
 
 * Blocking when processing multiple files, beginning from a .ML file.
 Proof General will block the Emacs process when it is waiting for a
