@@ -1,5 +1,5 @@
 From: Proof General maintainer <proofgen@dcs.ed.ac.uk>
-To:  bra-types@cs.chalmers.se, coq-club@pauillac.inria.fr, lego-club@dcs.ed.ac.uk, uitp@dcs.gla.ac.uk, isabelle-users@cl.cam.ac.uk
+To:  bra-types@cs.chalmers.se, coq-club@pauillac.inria.fr, isabelle-users@cl.cam.ac.uk, lego-club@dcs.ed.ac.uk, uitp@dcs.gla.ac.uk
 Subject: Generic Emacs interface for proof assistants - pre-release
 --text follows this line--
 
