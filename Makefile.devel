@@ -43,6 +43,9 @@
 ##
 ##    make releaseall VERSION=2.0 FULLVERSION=2.0.1
 ##
+## NB: if this release is made from an old branch, beware that html
+## files (news!)  etc, will all be downgraded.  To fix, make a
+## development release immediately afterwards.
 ##
 ## $Id$
 ## 
