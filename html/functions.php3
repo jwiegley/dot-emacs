@@ -203,7 +203,7 @@ function markup_plain_text($filename) {
 }
 
 /* Hack an html file to be shown with our style sheet
-   and hack relative links to go via htmlshow.html. 
+   and hack relative links to go via htmlshow.php. 
    This isn't particularly robust, but seems to work for
    the output of texi2html.
 */
@@ -240,7 +240,7 @@ function hack_html($filename,$title="")  {
        if ($urlbits["host"]=="") { 
 	  /* Assume a relative link, let's hack it. */
 	  /* Use same title */
-	  $newurl = "htmlshow.html?title=" . urlencode($title);
+	  $newurl = "htmlshow.php?title=" . urlencode($title);
 	  if ($urlbits["path"]=="") {
 	     /* A fragment in same file */
 	     $newurl = $newurl . "&file=" 
