@@ -20,6 +20,7 @@
 
 (require 'span)
 
+;(defvar holes-mode)
 
 (defun holes-short-doc ()
   "prints a short doc for holes"
@@ -197,41 +198,41 @@ and this is this one. This is not buffer local.")
 
 
 
-(defun region-beginning-or-nil ()
+(defun holes-region-beginning-or-nil ()
   (and (holes-region-exists-p) (region-beginning))
   )
 
-(defun region-end-or-nil ()  
+(defun holes-region-end-or-nil ()  
   (and (holes-region-exists-p) (region-end))
   )
 
-(defun copy-active-region ()
+(defun holes-copy-active-region ()
   (assert (holes-region-exists-p) nil "the region is not active now.")
   (copy-region-as-kill (region-beginning) (region-end))
   (car kill-ring)
   )
 
-(defun is-hole-p (SPAN) 
+(defun holes-is-hole-p (SPAN) 
 	(span-property SPAN 'hole)
 	
   )
 
-(defun hole-start-position (HOLE)
-  (assert (is-hole-p HOLE) t "hole-start-position: given span is not a hole")
+(defun holes-hole-start-position (HOLE)
+  (assert (holes-is-hole-p HOLE) t "holes-hole-start-position: given span is not a hole")
   (span-start HOLE)
   )
 
-(defun hole-end-position (HOLE)
-  (assert (is-hole-p HOLE) t "hole-end-position:given span is not a hole")
+(defun holes-hole-end-position (HOLE)
+  (assert (holes-is-hole-p HOLE) t "holes-hole-end-position:given span is not a hole")
   (span-end HOLE)
   )
 
-(defun hole-buffer (HOLE)
-  (assert (is-hole-p HOLE) t "hole-buffer: given span is not a hole")
+(defun holes-hole-buffer (HOLE)
+  (assert (holes-is-hole-p HOLE) t "holes-hole-buffer: given span is not a hole")
   (span-buffer HOLE)
   )
 
-(defun hole-at (&optional pos)
+(defun holes-hole-at (&optional pos)
   "Returns the hole (an span) at pos in current buffer if pos is not
   in a hole raises an error."
 
@@ -240,7 +241,7 @@ and this is this one. This is not buffer local.")
   )
 
 
-(defun active-hole-exist-p ()
+(defun holes-active-hole-exist-p ()
 
   "Returns t if the active hole exists and is not empty (ie
   detached). Use this to know if the active hole is set and
@@ -250,114 +251,114 @@ and this is this one. This is not buffer local.")
   )
 
 
-(defun active-hole-start-position ()
+(defun holes-active-hole-start-position ()
   "Returns the position of the start of the active hole
   (see `active-hole-buffer' to get its buffer). Returns an
   error if active hole doesn't exist (the marker is set to
   nothing)."
 
-  (assert (active-hole-exist-p) t 
-	  "active-hole-start-position: no active hole")
-  (hole-start-position holes-active-hole)
+  (assert (holes-active-hole-exist-p) t 
+	  "holes-active-hole-start-position: no active hole")
+  (holes-hole-start-position holes-active-hole)
   )
 
-(defun active-hole-end-position ()
+(defun holes-active-hole-end-position ()
   "Returns the position of the start of the active hole
   (see `active-hole-buffer' to get its buffer). Returns an
   error if active hole doesn't exist (the marker is set to
   nothing)."
   
-  (assert (active-hole-exist-p) t
-	  "active-hole-end-position: no active hole")
-  (hole-end-position holes-active-hole)
+  (assert (holes-active-hole-exist-p) t
+	  "holes-active-hole-end-position: no active hole")
+  (holes-hole-end-position holes-active-hole)
   )
 
 
-(defun active-hole-buffer ()
+(defun holes-active-hole-buffer ()
 
   "Returns the buffer containing the active hole, raise an
   error if the active hole is not set. Don't care if the
   active hole is empty."
 
-  (assert (active-hole-exist-p) t
-	  "active-hole-buffer: no active hole")
-  (hole-buffer holes-active-hole)
+  (assert (holes-active-hole-exist-p) t
+	  "holes-active-hole-buffer: no active hole")
+  (holes-hole-buffer holes-active-hole)
   )
 
-(defun goto-active-hole ()
+(defun holes-goto-active-hole ()
   
   "Sets point to active hole and raises an error if
   active-hole is not set"
   
   (interactive)
-  (assert (active-hole-exist-p) t 
-	  "goto-active-hole: no active hole")
-  (goto-char (active-hole-start-position)) ; (active-hole-buffer)
+  (assert (holes-active-hole-exist-p) t 
+	  "holes-goto-active-hole: no active hole")
+  (goto-char (holes-active-hole-start-position)) ; (holes-active-hole-buffer)
   )
 
 
-(defun highlight-hole-as-active (HOLE)
+(defun holes-highlight-hole-as-active (HOLE)
   "Highlights a hole with the `active-hole-face'. DON'T USE
   this as it would break synchronization (non active hole
   highlighted)."
 
-  (assert (is-hole-p HOLE) t
-	  "highlight-hole-as-active: given span is not a hole")
+  (assert (holes-is-hole-p HOLE) t
+	  "holes-highlight-hole-as-active: given span is not a hole")
   (set-span-face HOLE 'active-hole-face)
   )
 
-(defun highlight-hole (HOLE)
+(defun holes-highlight-hole (HOLE)
   "Highlights a hole with the not active face. DON'T USE
   this as it would break synchronization (active hole non
   highlighted)."
 
-  (assert (is-hole-p HOLE) t
-	  "highlight-hole: given span is not a hole %S" HOLE)
+  (assert (holes-is-hole-p HOLE) t
+	  "holes-highlight-hole: given span is not a hole %S" HOLE)
   (set-span-face HOLE 'inactive-hole-face)
   )
 
 
-(defun disable-active-hole ()
+(defun holes-disable-active-hole ()
   "Disable the active hole, the goal remains but is not the
   active one anymore. Does nothing if the active hole is
   already disable."
 
-  (if (not (active-hole-exist-p)) 
+  (if (not (holes-active-hole-exist-p)) 
       ()
      ; HACK: normal hole color, this way undo will show this
      ; hole normally and not as active hole. Ideally, undo
      ; should restore the active hole, but it doesn't, so
      ; we put the 'not active' color
-    (highlight-hole holes-active-hole)
+    (holes-highlight-hole holes-active-hole)
     (setq holes-active-hole holes-default-hole)
     )
   )
 
 
 
-(defun set-active-hole (HOLE)
+(defun holes-set-active-hole (HOLE)
 
   "Sets active hole to HOLE. Error if HOle is not a hole."
   
-  (assert (is-hole-p HOLE) t
-	  "set-active-hole: given span is not a hole")
-  (if (active-hole-exist-p) (highlight-hole holes-active-hole))
+  (assert (holes-is-hole-p HOLE) t
+	  "holes-set-active-hole: given span is not a hole")
+  (if (holes-active-hole-exist-p) (holes-highlight-hole holes-active-hole))
   (setq holes-active-hole HOLE)
-  (highlight-hole-as-active holes-active-hole)
+  (holes-highlight-hole-as-active holes-active-hole)
   )
 
 
-(defun is-in-hole-p (&optional pos)
+(defun holes-is-in-hole-p (&optional pos)
 
   "Returns t if pos (default: point) is in a hole, nil
   otherwise."
 
-  (not (eq (hole-at pos) nil))
+  (not (eq (holes-hole-at pos) nil))
   )
 
 
 
-(defun make-hole (start end)
+(defun holes-make-hole (start end)
   "Makes and returns an (span) hole from start to end."
   (let ((ext (make-span start end)))
     (set-span-properties
@@ -382,111 +383,111 @@ and this is this one. This is not buffer local.")
     ) 
   )
 
-(defun make-hole-at (&optional start end)
+(defun holes-make-hole-at (&optional start end)
 
   "makes a hole from start to end, if no arg default hole after point,
   if only one arg: error. Returns the span"
   (interactive)
   
-  (let* ((rstart (or start (region-beginning-or-nil) (point)))
-			(rend (or end (region-end-or-nil) (point))))
+  (let* ((rstart (or start (holes-region-beginning-or-nil) (point)))
+			(rend (or end (holes-region-end-or-nil) (point))))
     (if (eq rstart rend) 
 		  (progn 
 			 (insert-string holes-empty-hole-string)
 			 (setq rend (point))
 			 )
       )
-    (make-hole rstart rend)
+    (holes-make-hole rstart rend)
     )
   )
 
 
-(defun clear-hole (HOLE)
-  (assert (is-hole-p HOLE) t
-			 "clear-hole: given span is not a hole")
+(defun holes-clear-hole (HOLE)
+  (assert (holes-is-hole-p HOLE) t
+			 "holes-clear-hole: given span is not a hole")
   
-  (if (and (active-hole-exist-p) (eq holes-active-hole HOLE))
-      (disable-active-hole)
+  (if (and (holes-active-hole-exist-p) (eq holes-active-hole HOLE))
+      (holes-disable-active-hole)
     )
   (delete-span HOLE)
   )
 
-(defun clear-hole-at (&optional pos)
+(defun holes-clear-hole-at (&optional pos)
   "Clears hole at pos (default=point)."
   (interactive)
-  (if (not (is-in-hole-p (or pos (point)))) 
-	   (error "clear-hole-at: no hole here"))
-  (clear-hole (hole-at (or pos (point))))
+  (if (not (holes-is-in-hole-p (or pos (point)))) 
+	   (error "holes-clear-hole-at: no hole here"))
+  (holes-clear-hole (holes-hole-at (or pos (point))))
   )
 
 
-(defun map-holes (FUNCTION &optional OBJECT FROM TO)
+(defun holes-map-holes (FUNCTION &optional OBJECT FROM TO)
   (fold-spans FUNCTION OBJECT FROM TO nil nil 'hole) 
   )
 
 
 
-(defun mapcar-holes (FUNCTION &optional FROM TO PROP)
+(defun holes-mapcar-holes (FUNCTION &optional FROM TO PROP)
   (mapcar-spans FUNCTION FROM TO 'hole)
   )
 
-(defun clear-all-buffer-holes (&optional start end)
+(defun holes-clear-all-buffer-holes (&optional start end)
 
   "clears all holes leaving their contents"
 
   (interactive)
-  (disable-active-hole)
-  (mapcar-holes 'clear-hole (or start (point-min)) (or end (point-max)) 'hole)
+  (holes-disable-active-hole)
+  (holes-mapcar-holes 'holes-clear-hole (or start (point-min)) (or end (point-max)) 'hole)
   )
 
 
 
 ; limit ?
-(defun next-hole (pos BUFFER)
+(defun holes-next (pos BUFFER)
 
   "returns the first hole after pos (or after the hole at pos if there
   is one) (default pos= point), if no hole found, returns nil. limit
   is unused for now."
   
-  (map-holes '(lambda (h x) (and (is-hole-p h) h)) BUFFER pos)
+  (holes-map-holes '(lambda (h x) (and (holes-is-hole-p h) h)) BUFFER pos)
   )
 
-(defun next-after-active-hole ()
-  (assert (active-hole-exist-p) t 
+(defun holes-next-after-active-hole ()
+  (assert (holes-active-hole-exist-p) t 
 			 "next-active-hole: no active hole")
-  (next-hole (active-hole-end-position)
-				 (active-hole-buffer))
+  (holes-next (holes-active-hole-end-position)
+				 (holes-active-hole-buffer))
   )
 
-(defun set-active-hole-next (&optional BUFFER pos)
+(defun holes-set-active-hole-next (&optional BUFFER pos)
 
   "sets the active hole to the first hole after pos
   (default pos=point), in BUFFER."
   
   (interactive)
-  (let ((nxthole (next-hole (or pos (point))
+  (let ((nxthole (holes-next (or pos (point))
 									 (or BUFFER (current-buffer)))))
     (if nxthole 
 		  (progn 
-	       (set-active-hole nxthole)
+	       (holes-set-active-hole nxthole)
 			 )
-		(disable-active-hole)
+		(holes-disable-active-hole)
       )
     )
   )
 
-(defun set-active-hole-next-after-active ()
-  "sets the active hole to the first hole after active
-  hole."
+;(defun holes-set-active-hole-next-after-active ()
+;  "sets the active hole to the first hole after active
+;  hole.";;;;
 
-  (interactive)
-  (next-after-active-hole)
-)
-
-
+;  (interactive)
+;  (holes-next-after-active-hole)
+;)
 
 
-(defun replace-segment (start end str &optional BUFFER)
+
+
+(defun holes-replace-segment (start end str &optional BUFFER)
 
   "Erase chars between start and end, and insert str at its
   place, shifting markers."
@@ -502,7 +503,7 @@ and this is this one. This is not buffer local.")
 
 
 
-(defun replace-hole (str &optional thehole)
+(defun holes-replace (str &optional thehole)
 
   "Replace the hole (default = the active hole) by str (str was
   optionnal but not anymore), do not use this, it breaks the right
@@ -510,76 +511,76 @@ and this is this one. This is not buffer local.")
   instead. "
 
   (if (and (not thehole)
-	   (not (active-hole-exist-p)))
+	   (not (holes-active-hole-exist-p)))
       (error "no hole to fill")
     ; defensive: replacing the hole should make it 
     ; detached and therefore inexistent
     ; other reason: this a hack: unhighlight so
     ; that undo wont show it highlighted)
-    (if (and (active-hole-exist-p)
+    (if (and (holes-active-hole-exist-p)
 				 thehole
 				 (eq holes-active-hole thehole))
-		  (disable-active-hole)
+		  (holes-disable-active-hole)
       )
     (let ((exthole (or thehole holes-active-hole)))
-      (replace-segment (hole-start-position exthole)
-							  (hole-end-position exthole)
+      (holes-replace-segment (holes-hole-start-position exthole)
+							  (holes-hole-end-position exthole)
 							  (or str (car kill-ring)) ;kill ring?
 							  (span-buffer exthole)
 							  )
 		(detach-span exthole) ; this seems necessary for span overlays,
 			    ; where the buffer attached to the span is not removed
 			    ; automatically by the fact that the span is removed from
-			    ; the buffer (replace-segment should perhaps take care of
+			    ; the buffer (holes-replace-segment should perhaps take care of
 			    ; that)
 		)
     )
   )
 
-(defun replace-active-hole (&optional str)
+(defun holes-replace-active-hole (&optional str)
    "Replace the active hole by str, if no str is given, then put the selection instead."
-  (if (not (active-hole-exist-p)) ()
-    (replace-hole 
+  (if (not (holes-active-hole-exist-p)) ()
+    (holes-replace 
      (or str (holes-get-selection) (error "nothing to put in hole"))
      holes-active-hole)
     ))
 
 
-(defun replace-update-active-hole (&optional str)
+(defun holes-replace-update-active-hole (&optional str)
 
-  "replace holes-active-hole by str like replace-active-hole,
+  "replace holes-active-hole by str like holes-replace-active-hole,
   but then sets active-hole to the following hole if it
   exists."
 
   (interactive)
-  (assert (active-hole-exist-p) t 
-	  "replace-update-active-hole: no active hole")
-  (if (not (active-hole-exist-p)) 
+  (assert (holes-active-hole-exist-p) t 
+	  "holes-replace-update-active-hole: no active hole")
+  (if (not (holes-active-hole-exist-p)) 
       ()
-    (let ((nxthole (next-after-active-hole)))
-      (replace-active-hole 
+    (let ((nxthole (holes-next-after-active-hole)))
+      (holes-replace-active-hole 
        (or str 
-			  (and (holes-region-exists-p) (copy-active-region))
+			  (and (holes-region-exists-p) (holes-copy-active-region))
 			  (holes-get-selection) (error "nothing to put in hole")))
-      (if nxthole (set-active-hole nxthole)
+      (if nxthole (holes-set-active-hole nxthole)
 		  (setq holes-active-hole holes-default-hole))
       )
     )
   )
 
 
-(defun delete-update-active-hole () 
+(defun holes-delete-update-active-hole () 
 
   "deletes active-hole and supresses its content and sets
   holes-active-hole to the next hole if it exists"
 
   (interactive)
-  (replace-update-active-hole "")
+  (holes-replace-update-active-hole "")
   )
 
-(defun set-make-active-hole (&optional start end)
+(defun holes-set-make-active-hole (&optional start end)
   (interactive)
-  (set-active-hole (make-hole-at start end))
+  (holes-set-active-hole (holes-make-hole-at start end))
   )
 
 ;;; mouse stuff, I want to make something close to mouse-track-insert
@@ -592,11 +593,11 @@ and this is this one. This is not buffer local.")
 (eval-and-compile
  (cond
   ((fboundp 'mouse-track)   
-   (defsubst track-mouse-selection (event) 
+   (defsubst holes-track-mouse-selection (event) 
      "see `mouse-track'"
      (mouse-track event)))
   ((fboundp 'mouse-drag-region)   
-   (defsubst track-mouse-selection (event)
+   (defsubst holes-track-mouse-selection (event)
      "see `mouse-drag-region'"
      (mouse-drag-region event)))
   (t
@@ -610,11 +611,11 @@ and this is this one. This is not buffer local.")
 (eval-and-compile
  (cond
   ((fboundp 'mouse-track)   
-   (defsubst track-mouse-clicks () 
+   (defsubst holes-track-mouse-clicks () 
      "see `mouse-track-click-count'"
      mouse-track-click-count))
   ((fboundp 'mouse-drag-region)   
-   (defsubst track-mouse-clicks ()
+   (defsubst holes-track-mouse-clicks ()
      "see `mouse-selection-click-count'"
      (+ mouse-selection-click-count 1)))
   (t
@@ -624,17 +625,17 @@ and this is this one. This is not buffer local.")
   )
  )
 
-(defun mouse-replace-active-hole (event)
+(defun holes-mouse-replace-active-hole (event)
   (interactive "*e")
-  (track-mouse-selection event)
+  (holes-track-mouse-selection event)
   (save-excursion
     ;;HACK: nothing if one click (but a second is perhaps coming)
-    (if (and (eq (track-mouse-clicks) 1)
+    (if (and (eq (holes-track-mouse-clicks) 1)
 				 (not (holes-region-exists-p)))
 		  ()
       (if (not (holes-region-exists-p)) 
 			 (error "nothing to put in hole")
-		  (replace-update-active-hole (holes-get-selection))
+		  (holes-replace-update-active-hole (holes-get-selection))
 		  (message "hole replaced")
 		  )
       )
@@ -642,14 +643,14 @@ and this is this one. This is not buffer local.")
 ;  (zmacs-deactivate-region)
   )
 
-(defun destroy-hole (&optional SPAN)
+(defun holes-destroy-hole (&optional SPAN)
   (interactive)
-  (let* ((sp (or SPAN (hole-at (point)) (error "no hole to destroy"))))
+  (let* ((sp (or SPAN (holes-hole-at (point)) (error "no hole to destroy"))))
 	 (save-excursion
-		(if (and (active-hole-exist-p)
+		(if (and (holes-active-hole-exist-p)
 					(eq sp holes-active-hole))
-			 (disable-active-hole))
-		(replace-hole "" sp)
+			 (holes-disable-active-hole))
+		(holes-replace "" sp)
 		(detach-span sp)
 		)
 	 (message "hole killed")
@@ -657,22 +658,22 @@ and this is this one. This is not buffer local.")
   )
 
 
-(defun hole-at-event (event) (span-at-event event 'hole))
+(defun holes-hole-at-event (event) (span-at-event event 'hole))
 
-(defun mouse-destroy-hole (event)
+(defun holes-mouse-destroy-hole (event)
   (interactive "*e")
-  (destroy-hole (hole-at-event event))
+  (holes-destroy-hole (holes-hole-at-event event))
   )
 
 
 ;(span-at-event EVENT &optional PROPERTY BEFORE AT-FLAG)
 ;;comprend pas??
-(defun mouse-forget-hole (event)
+(defun holes-mouse-forget-hole (event)
   (interactive "*e")
   (save-excursion
-    (let ((ext (hole-at-event event)))
+    (let ((ext (holes-hole-at-event event)))
       (if (eq ext holes-active-hole)
-			 (disable-active-hole))
+			 (holes-disable-active-hole))
       (detach-span ext)
       )
     )
@@ -681,43 +682,43 @@ and this is this one. This is not buffer local.")
 
 
 
-(defun mouse-set-make-active-hole (event)
+(defun holes-mouse-set-make-active-hole (event)
   (interactive "*e")
  ;(set-mark (point))
-  (track-mouse-selection event)
+  (holes-track-mouse-selection event)
 
-  (if (and (eq (track-mouse-clicks) 1)
+  (if (and (eq (holes-track-mouse-clicks) 1)
 			  (not (holes-region-exists-p)))
-		(set-make-active-hole (point) (point))
+		(holes-set-make-active-hole (point) (point))
 
 	 (if (holes-region-exists-p)
-		  (set-make-active-hole)
-		(let ((ext (hole-at-event event)))
-		  (if (and ext (is-hole-p ext))
+		  (holes-set-make-active-hole)
+		(let ((ext (holes-hole-at-event event)))
+		  (if (and ext (holes-is-hole-p ext))
 				(error "Already a hole here")
-			 (set-active-hole (make-hole-at)))
+			 (holes-set-active-hole (holes-make-hole-at)))
 		  )
 		)
 	 )
   )
 
-(defun mouse-set-active-hole (event)
+(defun holes-mouse-set-active-hole (event)
   (interactive "*e")
-  (let ((ext (hole-at-event event)))
-    (if (and ext (is-hole-p ext))
-	(set-active-hole ext)
+  (let ((ext (holes-hole-at-event event)))
+    (if (and ext (holes-is-hole-p ext))
+	(holes-set-active-hole ext)
       (error "No hole here"))
     )
   )
 
 
-(defun set-point-next-hole-destroy ()
+(defun holes-set-point-next-hole-destroy ()
   (interactive)
-  (assert (active-hole-exist-p) nil "no active hole")
-  (assert (eq (current-buffer) (active-hole-buffer)) nil
+  (assert (holes-active-hole-exist-p) nil "no active hole")
+  (assert (eq (current-buffer) (holes-active-hole-buffer)) nil
 	  "active hole not in this buffer")
-  (goto-active-hole)
-  (delete-update-active-hole)
+  (holes-goto-active-hole)
+  (holes-delete-update-active-hole)
   )
 
 
@@ -729,26 +730,26 @@ and this is this one. This is not buffer local.")
   (let ((map (make-sparse-keymap)))
     (cond
      ((featurep 'xemacs)
-      (define-key map [(button1)] 'mouse-set-active-hole)
-      (define-key map [(button3)] 'mouse-destroy-hole)
-      (define-key map [(button2)] 'mouse-forget-hole))
+      (define-key map [(button1)] 'holes-mouse-set-active-hole)
+      (define-key map [(button3)] 'holes-mouse-destroy-hole)
+      (define-key map [(button2)] 'holes-mouse-forget-hole))
      (t
-      (define-key map [(mouse-1)] 'mouse-set-active-hole)
-      (define-key map [(mouse-3)] 'mouse-destroy-hole)
-      (define-key map [(mouse-2)] 'mouse-forget-hole)))
+      (define-key map [(mouse-1)] 'holes-mouse-set-active-hole)
+      (define-key map [(mouse-3)] 'holes-mouse-destroy-hole)
+      (define-key map [(mouse-2)] 'holes-mouse-forget-hole)))
     map)
   "Keymap to use on the holes's overlays.")
 
 
 
-;  (global-set-key  [(control meta ? ) ] 'set-active-hole-next)
+;  (global-set-key  [(control meta ? ) ] 'holes-set-active-hole-next)
 
-;  (global-set-key [(control meta y)] 'replace-update-active-hole)
+;  (global-set-key [(control meta y)] 'holes-replace-update-active-hole)
   ; this shortcut was for mark-defun
-;  (global-set-key [(control meta h)]   'set-make-active-hole)
-;  (global-set-key [(control meta down-mouse-1)] 'mouse-set-make-active-hole)
-;  (global-set-key [(control meta shift down-mouse-1)] 'mouse-replace-active-hole)
-;  (global-set-key [(meta return)] 'set-point-next-hole-destroy)
+;  (global-set-key [(control meta h)]   'holes-set-make-active-hole)
+;  (global-set-key [(control meta down-mouse-1)] 'holes-mouse-set-make-active-hole)
+;  (global-set-key [(control meta shift down-mouse-1)] 'holes-mouse-replace-active-hole)
+;  (global-set-key [(meta return)] 'holes-set-point-next-hole-destroy)
 
 ;;;;;;;;;;; End Customizable key bindings ;;;;;
 
@@ -762,13 +763,13 @@ and this is this one. This is not buffer local.")
 ; where replace-#-after-abbrev2 should be a function which replace the
 ; two #'s (two occurences going backward from abbrev expantion point)
 ; by holes and leave point at the first # (deleting
-; it). set-point-next-hole-destroy allow to go to the next hole.
+; it). holes-set-point-next-hole-destroy allow to go to the next hole.
 
 ;following function allow to replace occurrences of a string by a
 ;hole.
 
 ;c must be a string of length 1
-(defun count-char-in-string (c str)
+(defun holes-count-char-in-string (c str)
   (let ((cpt 0) (s str))
 	 (while (not (string-equal s ""))
 		(if (string-equal (substring s 0 1) c) (setq cpt (+ cpt 1)))
@@ -778,7 +779,7 @@ and this is this one. This is not buffer local.")
 	 )
   )
 
-(defun count-re-in-string (regexp str)
+(defun holes-count-re-in-string (regexp str)
   (let ((cpt 0) (s str))
 	 (while (and (not (string-equal s "")) (string-match regexp s) )
 		(setq cpt (+ cpt 1))
@@ -788,18 +789,18 @@ and this is this one. This is not buffer local.")
 	 )
   )
 
-(defun count-chars-in-last-expand ()
+(defun holes-count-chars-in-last-expand ()
   (length (abbrev-expansion last-abbrev-text))
   )
 
-(defun count-newlines-in-last-expand ()
-  (count-char-in-string "\n" (abbrev-expansion last-abbrev-text))
+(defun holes-count-newlines-in-last-expand ()
+  (holes-count-char-in-string "\n" (abbrev-expansion last-abbrev-text))
   )
 
-(defun indent-last-expand ()
+(defun holes-indent-last-expand ()
   "Indents last abbrev expansion. Must be called when the point is at
 end of last abbrev expansion. "
-  (let ((n (count-newlines-in-last-expand)))
+  (let ((n (holes-count-newlines-in-last-expand)))
 	 (save-excursion 
 		(previous-line n)
 		(while (>= n 0)
@@ -811,37 +812,37 @@ end of last abbrev expansion. "
 	 )
   )
 
-(defun count-holes-in-last-expand ()
-  (count-re-in-string holes-empty-hole-regexp (abbrev-expansion last-abbrev-text))
+(defun holes-count-holes-in-last-expand ()
+  (holes-count-re-in-string holes-empty-hole-regexp (abbrev-expansion last-abbrev-text))
   )
 
-(defun replace-string-by-holes (start end str)
+(defun holes-replace-string-by-holes (start end str)
 
   "make occurrence of str holes between start and end. sets the
 active hole to the last created hole and unsets it if no hole is
 created"
 
   (interactive)
-  (disable-active-hole)
+  (holes-disable-active-hole)
   (let ((lgth (length str)))
     (save-excursion
       (goto-char end)
       (while (search-backward str start t) 
-	(make-hole (point) (+ (point) lgth))
-	(set-active-hole-next)
+	(holes-make-hole (point) (+ (point) lgth))
+	(holes-set-active-hole-next)
 	)
       )
     )
   )
 
-(defun replace-string-by-holes-backward (num regexp)
+(defun holes-replace-string-by-holes-backward (num regexp)
 
   "make num occurrences of str be holes looking backward. sets the
 active hole to the last created hole and unsets it if no hole is
 created. return t if num is > 0, nil otherwise."
 
   (interactive)
-  (disable-active-hole)
+  (holes-disable-active-hole)
   (if (<= num 0) nil
 	 (let* ((n num) (lgth 0))
 		(save-excursion
@@ -849,13 +850,13 @@ created. return t if num is > 0, nil otherwise."
 			 (progn 
 				(re-search-backward regexp)
 				(if (string-equal (match-string 0) holes-empty-hole-string) 
-					 (make-hole (match-beginning 0) (match-end 0))
-				  (make-hole (match-beginning 2) (match-end 2))
+					 (holes-make-hole (match-beginning 0) (match-end 0))
+				  (holes-make-hole (match-beginning 2) (match-end 2))
 				  (goto-char (match-beginning 3))
 				  (delete-char (length (match-string 3)))
 				  (goto-char (match-beginning 1))
 				  (delete-char (length (match-string 1))))
-				  (set-active-hole-next)
+				  (holes-set-active-hole-next)
 				(setq n (- n 1)))
 			 )
 		  )
@@ -865,18 +866,18 @@ created. return t if num is > 0, nil otherwise."
   )
 
 
-(defun replace-string-by-holes-move-point (start end str)
+(defun holes-replace-string-by-holes-move-point (start end str)
 
   (interactive)
-  (replace-string-by-holes start end str)
-  (set-point-next-hole-destroy)
+  (holes-replace-string-by-holes start end str)
+  (holes-set-point-next-hole-destroy)
   )
 
-(defun replace-string-by-holes-backward-move-point (num str)
+(defun holes-replace-string-by-holes-backward-move-point (num str)
 
   (interactive)
-  (and (replace-string-by-holes-backward num str)
-		 t ;(set-point-next-hole-destroy)
+  (and (holes-replace-string-by-holes-backward num str)
+		 t ;(holes-set-point-next-hole-destroy)
 		 )
   )
 
@@ -885,16 +886,16 @@ created. return t if num is > 0, nil otherwise."
 (defun holes-abbrev-complete ()
   "Complete abbrev by putting holes and indenting. Moves point at beginning of expanded text."
   (let ((pos last-abbrev-location))
-	 (indent-last-expand)
-	 (replace-string-by-holes-backward-move-point 
-	  (count-holes-in-last-expand) holes-empty-hole-regexp)
-	 (if (> (count-holes-in-last-expand) 1) 
+	 (holes-indent-last-expand)
+	 (holes-replace-string-by-holes-backward-move-point 
+	  (holes-count-holes-in-last-expand) holes-empty-hole-regexp)
+	 (if (> (holes-count-holes-in-last-expand) 1) 
 		  (progn (goto-char pos)
 					(message "Hit M-ret to jump to active hole. M-x holes-short-doc to see holes doc."))
 
-		(if (= (count-holes-in-last-expand) 0) () ; no hole, stay here.
+		(if (= (holes-count-holes-in-last-expand) 0) () ; no hole, stay here.
 		  (goto-char pos)
-		  (set-point-next-hole-destroy) ; if only one hole, go to it.
+		  (holes-set-point-next-hole-destroy) ; if only one hole, go to it.
 		  )
 		)
 	 )
@@ -904,15 +905,15 @@ created. return t if num is > 0, nil otherwise."
 ; possible to implement it with a simple ((insert s) (expand-abbrev))
 ; but undo would show the 2 steps, which is bad.
 
-(defun insert-and-expand (s)
+(defun holes-insert-and-expand (s)
   (let* ((pos (point))
 			(exp (abbrev-expansion s))
-			(c (count-re-in-string holes-empty-hole-regexp exp)))
+			(c (holes-count-re-in-string holes-empty-hole-regexp exp)))
 	 (insert exp)
-	 (replace-string-by-holes-backward-move-point c holes-empty-hole-regexp)
+	 (holes-replace-string-by-holes-backward-move-point c holes-empty-hole-regexp)
 	 (if (> c 1) (goto-char pos)
 		(goto-char pos)
-		(set-point-next-hole-destroy) ; if only one hole, go to it.
+		(holes-set-point-next-hole-destroy) ; if only one hole, go to it.
 		)
 	 (if (> c 1) (message "Hit M-ret to jump to active hole. M-x holes-short-doc to see holes doc.")
 		)	 

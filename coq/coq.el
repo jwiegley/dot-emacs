@@ -106,9 +106,9 @@ To disable coqc being called (and use only make), set this to nil."
   (interactive  "sSection name: ")
   (let ((p (point)))
     (insert "Section " s ".\n#\nEnd " s ".")
-    (replace-string-by-holes-backward-move-point 1 empty-hole-string)
+    (holes-replace-string-by-holes-backward-move-point 1 holes-empty-hole-string)
     (goto-char p)
-    (set-point-next-hole-destroy))
+    (holes-set-point-next-hole-destroy))
 )
 
 (defconst module-kinds-table 
@@ -128,12 +128,12 @@ To disable coqc being called (and use only make), set this to nil."
     (if (string-equal typkind "")
         (progn
           (insert mods " " s ".\n#\nEnd " s ".")
-          (replace-string-by-holes-backward-move-point 1 empty-hole-string)
+          (holes-replace-string-by-holes-backward-move-point 1 holes-empty-hole-string)
           (goto-char p))
       (insert mods " " s " " typkind " #.\n#\nEnd " s ".")
-      (replace-string-by-holes-backward-move-point 2 empty-hole-string)
+      (holes-replace-string-by-holes-backward-move-point 2 holes-empty-hole-string)
       (goto-char p)
-      (set-point-next-hole-destroy))
+      (holes-set-point-next-hole-destroy))
     )
   )
 ;  (completing-read "Section name: " )
