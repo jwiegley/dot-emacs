@@ -59,8 +59,13 @@
 	    (cons 'insert "Imports done!"))))
   "Acknowledge end of processing import declarations.")
 
-(defconst lego-process-config "Configure PrettyOn; Configure AnnotateOn;"
-  "Command to enable pretty printing of the LEGO process.")
+(defconst lego-process-config
+  "Init XCC; Configure PrettyOn; Configure AnnotateOn;"
+  "Command to initialise the LEGO process.
+
+Initialises empty context and prepares XCC theory.
+Enables pretty printing.
+Activates extended printing routines required for Proof General.")
 
 (defconst lego-pretty-set-width "Configure PrettyWidth %s; "
   "Command to adjust the linewidth for pretty printing of the LEGO
@@ -474,6 +479,7 @@ We assume that module identifiers coincide with file names."
         proof-shell-start-goals-regexp "\372 Start of Goals \373"
         proof-shell-end-goals-regexp "\372 End of Goals \373"
         proof-shell-init-cmd lego-process-config
+	proof-shell-restart-cmd lego-process-config
 	proof-analyse-using-stack nil
 	proof-shell-process-output-system-specific lego-shell-process-output
         lego-shell-current-line-width nil
