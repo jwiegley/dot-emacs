@@ -983,6 +983,7 @@ the next command end."
 	  ;	   (substring proof-comment-end 1 1)
 	  ;	   (char-to-string proof-terminal-char)
 	  ;	   "\"")))
+      (goto-char start)
      (while (not done)
        (cond
 	;; Case 1. We've reached POS, not allowed to go past it,
