@@ -318,7 +318,7 @@ buffer is closed off atomically."
 	      (not buffer)
 	      (proof-mark-buffer-atomic buffer))))))
 
-;; NEW utility functions, use them!
+;; three NEW predicates, let's use them!
 
 (defun proof-locked-region-full-p ()
   "Non-nil if the locked region covers all the buffer's non-whitespace.
@@ -332,6 +332,12 @@ Should be called from a proof script buffer."
   "Non-nil if the locked region is empty.
 Should be called from a proof script buffer."
   (eq (proof-unprocessed-begin) (point-min)))
+
+(defun proof-only-whitespace-to-locked-region-p ()
+  "Non-nil if only whitespace separates point from end of locked region.
+NB: If nil, point is left at first non-whitespace character found.
+If non-nil, point is left where it was."
+  (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
 
 
 (defun proof-check-process-available (&optional relaxed)
@@ -741,9 +747,9 @@ will be added to the queue."
 	semis)
     (save-excursion
       ;; Give error if no non-whitespace between point and end of locked region.
-      (if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
-	  (progn (goto-char pt)
-		 (error "I don't know what I should be doing in this buffer!")))
+      (if (proof-only-whitespace-to-locked-region-p)
+	  (error "I don't know what I should be doing in this buffer!"))
+      ;; NB: (point) has now been moved backwards to first non-whitespace char.
       (setq semis (proof-segment-up-to (point))))
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
@@ -936,7 +942,7 @@ deletes the region corresponding to the proof sequence."
   (let ((pt (point)) semis crowbar test)
     (setq crowbar (proof-check-process-available))
     (save-excursion
-      (if (not (re-search-backward "\\S-" (proof-locked-end) t))
+      (if (proof-only-whitespace-to-locked-region-p)
 	  (progn (goto-char pt)
 		 (error "I don't know what I should be doing in this buffer!")))
       (setq semis (proof-segment-up-to (point))))
@@ -1308,7 +1314,7 @@ current command."
 Fire up proof process if necessary."
   (let ((mrk (point)) ins incomment)
     (if (looking-at "\\s-\\|\\'\\|\\w") 
-	(if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
+	(if (proof-only-whitespace-to-locked-region-p)
 	    (error "I don't know what I should be doing in this buffer!")))
     (if (not (= (char-after (point)) proof-terminal-char))
 	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
