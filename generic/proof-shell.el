@@ -559,28 +559,6 @@ user types by hand."
 	  (format pbp-change-goal (cdr top-info))))))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;          Turning annotated output into pbp goal set              ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun pbp-make-top-span (start end)
-  (let (span name)
-    (goto-char start)
-    (setq name (funcall proof-goal-hyp-fn))
-    (beginning-of-line)
-    (setq start (point))
-    (goto-char end)
-    (beginning-of-line)
-    (backward-char)
-    (setq span (make-span start (point)))
-    (set-span-property span 'mouse-face 'highlight)
-    (set-span-property span 'proof-top-element name)))
-
-;; Need this for processing error strings and so forth
-
-
-
-		  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Processing output from the prover
@@ -632,34 +610,12 @@ to examine proof-shell-last-output.")
 ;;
 ;; Goals buffer processing
 ;;
+;; FIXME: rename next fn proof-display-in-goals or similar
 (defun proof-shell-analyse-structure (string)
   "Analyse the term structure of STRING and display it in proof-goals-buffer.
 This function converts proof-by-pointing markup into mouse-highlighted
 extents."
   (save-excursion
-    (let* ((ip 0) (op 0) ap (l (length string)) 
-	   (ann (make-string (length string) ?x))
-           (stack ()) (topl ()) 
-	   (out (make-string l ?x)) 
-	   c span)
-
-      ;; Form output string by removing characters 128 or greater,
-      ;; (ALL annotations), unless proof-shell-leave-annotations-in-output 
-      ;; is set.  
-
-      ;; FIXME da: this can be removed now that we strip annotations
-      ;; immediately after fontification in proof-fontify-region.  We
-      ;; may no longer need the setting
-      ;; proof-shell-leave-annotations-in-ouput, unless it breaks LEGO
-      ;; font lock patterns for example.
-
-      (unless proof-shell-leave-annotations-in-output
-	(while (< ip l)	
-	  (if (< (setq c (aref string ip)) 128)
-	      (progn (aset out op c)
-		     (incf op)))
-	  (incf ip)))
-
       ;; Response buffer may be out of date. It may contain (error)
       ;; messages relating to earlier proof states
       
@@ -670,94 +626,125 @@ extents."
       ;; We should only clear the output that was displayed from
       ;; the *previous* prompt.
 
-      ;; FIXME da: I get a lot of empty response buffers displayed
-      ;; which might be nicer removed. Temporary test for this
-      ;; clean-buffer to see if it behaves well.
-
       ;; Erase the response buffer if need be, maybe also removing the
       ;; window.  Indicate that it should be erased before the next
       ;; output.
       (proof-shell-maybe-erase-response t t)
 
+      ;; Erase the goals buffer and add in the new string
       (set-buffer proof-goals-buffer)
-
       (erase-buffer)
-
-      ;; Insert the (possibly cleaned up) string.
-      (let ((dispstring (if proof-shell-leave-annotations-in-output
-			    string
-			  (substring out 0 op))))
-	(insert dispstring)
-	;; Override record of last command output
-	(setq proof-shell-last-output dispstring))
+      (insert string)
       
-      ;; Get fonts and characters right
+      ;; Do term-structure markup if its enabled
+      (unless (not proof-shell-goal-char) 
+	(proof-shell-analyse-structure1 (point-min) (point-max)))
+
+      ;; Now get fonts and characters right
+      ;; FIXME: this may be broken by markup or aided by it!
       (proof-fontify-region (point-min) (point-max))
+
+      ;; Record a cleaned up version of output string
+      (setq proof-shell-last-output 
+	    (buffer-substring (point-min) (point-max)))
 
       (set-buffer-modified-p nil)	; nicety
 
       ;; Keep point at the start of the buffer.  Might be nicer to
       ;; keep point at "current" subgoal a la Isamode, but never mind
       ;; just now.
-      (proof-display-and-keep-buffer proof-goals-buffer (point-min))
+      (proof-display-and-keep-buffer proof-goals-buffer (point-min))))
 
-      ;; FIXME: This code is broken for Emacs 20.3 (mule?) which has
-      ;; 16 bit character codes.  (Despite earlier attempts to make
-      ;; character codes in this buffer 8 bit) 
-      ;; But this is a more serious future problem in Proof General
-      ;; which requires re-engineering all this 128 mess.
-      ;; FIXME Mk II: This is also going to be broken for X-Symbol
-      ;; interaction, when tokens (several chars long) are replaced by
-      ;; single characters.
-      (unless
-	  (or
-	   ;; No point if we haven't set the pbp char vars
-	   (not proof-shell-goal-char)
-	   ;; Don't do it for Emacs 20.3 or any version which
-	   ;; has this suspicious function.
-	   (fboundp 'toggle-enable-multibyte-characters))
-	(setq ip 0
-	      op 1)
-	(while (< ip l)
-	  (setq c (aref string ip))
-	  (cond
-	   ((= c proof-shell-goal-char)
-	    (setq topl (cons op topl))
-	    (setq ap 0))
-	   ((= c proof-shell-start-char)
-	    (if proof-analyse-using-stack
-		(setq ap (- ap (- (aref string (incf ip)) 128)))
-	      (setq ap (- (aref string (incf ip)) 128)))
-	    (incf ip)
-	    (while (not (= (setq c (aref string ip)) proof-shell-end-char))
-	      (aset ann ap (- c 128))
-	      (incf ap)
-	      (incf ip))
-	    (setq stack (cons op (cons (substring ann 0 ap) stack))))
-	   ((and (consp stack) (= c proof-shell-field-char))
-	    ;; (consp stack) has been added to make the code more robust.
-	    ;; In fact, this condition is violated when using
-	    ;; lego/example.l and FSF GNU Emacs 20.3
-	    (setq span (make-span (car stack) op))
-	    (set-span-property span 'mouse-face 'highlight)
-	    (set-span-property span 'goalsave (car (cdr stack)));; FIXME: really goalsave?
+
+(defun proof-shell-analyse-structure1 (start end)
+  "Really analyse the structure here."
+  (let* 
+      ((cur start)
+       (len (- end start))
+       (ann (make-string len ?x)) ; (more than) enough space for longest ann'n
+       (ap  0)
+       c stack topl span)
+
+    (while (< cur end)
+      (setq c (char-after cur))
+      (cond
+       ;; Seen goal char: this is the start of a top extent
+       ;; (assumption or goal)
+       ((= c proof-shell-goal-char)
+	(setq topl (cons cur topl))
+	(setq ap 0))
+
+       ;; Seen subterm start char: it's followed by at least 
+       ;; one subterm pointer byte
+       ((= c proof-shell-start-char)
+	(incf cur)
+	(if proof-analyse-using-stack
+	    (setq ap (- ap (- (char-after cur) 128)))
+	  (setq ap (- (char-after cur) 128)))
+	(incf cur)
+	;; Now search for a matching end-annotation char, recording the 
+	;; annotation found.
+	(while (not (= (setq c (char-after cur)) proof-shell-end-char))
+	  (aset ann ap (- c 128))
+	  (incf ap)
+	  (incf cur))
+	;; Push the buffer pos and annotation
+	(setq stack (cons cur 
+			  (cons (substring ann 0 ap) stack))))
+
+       ;; Seen a field char, which terminates an annotated position
+       ;; in the concrete syntax.  We make a highlighting span now.
+       ((and (consp stack) (= c proof-shell-field-char))
+	;; (consp stack) added to make the code more robust.
+	;; [ Condition violated with lego/example.l and GNU Emacs 20.3 ]
+	(setq span (make-span (car stack) cur))
+	(set-span-property span 'mouse-face 'highlight)
+	(set-span-property span 'goalsave (cadr stack));; FIXME: 'goalsave?
+	(if proof-analyse-using-stack
 	    ;; Pop annotation off stack
-	    (and proof-analyse-using-stack
-		 (progn
-		   (setq ap 0)
-		   (while (< ap (length (cadr stack)))
-		     (aset ann ap (aref (cadr stack) ap))
-		     (incf ap))))
-	    ;; Finish popping annotations
-	    (setq stack (cdr (cdr stack))))
-	   (t (incf op)))
-	  (incf ip))
-	(setq topl (reverse (cons (point-max) topl)))
-	;; If we want Coq pbp: (setq coq-current-goal 1)
-	(if proof-goal-hyp-fn
-	    (while (setq ip (car topl) 
-			 topl (cdr topl))
-	      (pbp-make-top-span ip (car topl))))))))
+	    (progn
+	      (setq ap 0)
+	      (while (< ap (length (cadr stack)))
+		(aset ann ap (aref (cadr stack) ap))
+		(incf ap))))
+	;; Finish popping annotations
+	(setq stack (cdr (cdr stack)))))
+      ;; On to next char
+      (incf cur))
+    
+    ;; List of subterm regions (goals) found
+    (setq topl (reverse (cons end topl)))
+    
+    ;; If we want Coq pbp: (setq coq-current-goal 1)
+    (if proof-goal-hyp-fn
+	(while (setq ip (car topl) 
+		     topl (cdr topl))
+	  (pbp-make-top-span ip (car topl))))
+
+    ;; Finally: strip the specials.  This should
+    ;; leave the spans in exactly the right place.
+    (proof-shell-strip-special-annotations-buf start end)))
+
+
+(defun pbp-make-top-span (start end)
+  "Make a top span (goal area) for mouse active output."
+  (let (span name)
+    (goto-char start)
+    ;; We need to skip an annotation here for proof-goal-hyp-fn
+    ;; to work again now we don't strip buffers.  Is it
+    ;; safe to assume that we're called exactly at proof-goal-char?
+    ;; [maybe except for last case?]
+    (forward-char)
+    (setq name (funcall proof-goal-hyp-fn))
+    (beginning-of-line)
+    (setq start (point))
+    (goto-char end)
+    (beginning-of-line)
+    (backward-char)
+    (setq span (make-span start (point)))
+    (set-span-property span 'mouse-face 'highlight)
+    (set-span-property span 'proof-top-element name)))
+
 
 (defun proof-shell-strip-special-annotations (string)
   "Strip special annotations from a string, returning cleaned up string.
@@ -771,6 +758,11 @@ If proof-shell-first-special-char is unset, return STRING unchanged."
 	      (if (char-equal (aref string ip) proof-shell-start-char)
 		  (progn (incf ip)
 			 (while 
+			     ;; FIXME: this relies on annotations 
+			     ;; being characters between 
+			     ;; \200 and \360 (first special char).
+			     ;; Why do we not just look for the 
+			     ;; field char??
 			     (< (aref string ip) 
 				proof-shell-first-special-char)
 			   (incf ip))))
@@ -779,6 +771,31 @@ If proof-shell-first-special-char is unset, return STRING unchanged."
 	  (incf ip))
 	(substring out 0 op))
     string))
+
+(defun proof-shell-strip-special-annotations-buf (start end)
+  "Strip specials and return new END value."
+  (let (c)
+    (goto-char start)
+    (while (< (point) end)
+      ;; FIXME: small OBO here: if char at end is special
+      ;; it won't be removed.
+      (if (>= (setq c (char-after (point))) 
+	      proof-shell-first-special-char)
+	  (progn
+	    (delete-char)
+	    (decf end)
+	    (if (char-equal c proof-shell-start-char)
+		(progn 
+		  ;; FIXME: could simply replace this by replace
+		  ;; match, matching on field-char??
+		  (while (and (< (point) end)
+			      (< (char-after (point))
+				 proof-shell-first-special-char))
+		    (delete-char)
+		    (decf end)))))
+	(forward-char)))
+    end))
+
 
 ;;
 ;; Response buffer processing
