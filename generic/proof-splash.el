@@ -194,7 +194,8 @@ Otherwise, timeout inside this function after 10 seconds or so."
       ;; be no way currently to remove the top item of the stack.
       ((winconf   (current-window-configuration))
        (splashbuf (get-buffer-create proof-splash-welcome))
-       (after-change-functions nil) ; no font-lock, thank you
+       (after-change-functions nil)	; no font-lock, thank-you.
+       (pop-up-frames nil)		; display in the same frame.
        (splash-contents (append
 			 (eval proof-splash-contents)
 			 (eval proof-splash-extensions)))
