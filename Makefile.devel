@@ -19,6 +19,11 @@
 ##    make release	  - make tag, dist, and install it in RELEASEDIR.
 ##    make releaseall	  - make release and rpmrelease.
 ##
+##    make distinstall	  - install distribution build by 'make dist'
+##			    into DISTINSTALLDIR.
+##
+##    make releaseclean   - clean up after 'make dist' 'make rpmrelease'.
+##
 ## $Id$
 ## 
 ###########################################################################
@@ -79,6 +84,12 @@ DEVELRELEASENAMETARGZ = $(DEVELRELEASENAMETAR).gz
 
 # Files not kept under cvs to clean away.
 FILES_NONCVS = ChangeLog 
+
+# Where to install a distribution 
+# DISTINSTALLDIR=/usr/local/share/elisp/proofgeneral
+# value for dcs.ed.ac.uk:
+DISTINSTALLDIR=/export/local/share/elisp/proofgeneral
+
 
 FORCE:
 
@@ -301,12 +312,13 @@ releaseall: release rpmrelease releaseclean
 
 ############################################################
 #
-# dcsinstall:
-#   Install distribution from $(DISTBUILDIR) at dcs.ed
-#   Clean out DCSEXPORTDIR first.
+# distinstall:
+#   Install distribution from $(DISTBUILDIR) into DISTINSTALLDIR
+#   Clean out DISTINSTALLDIR first.
+#   NB!  Simple install, no attempt to put info files, etc, in
+#   special places.
 #
-DCSEXPORTDIR=/export/local/shar/elisp/proofgeneral
-dcsinstall:
-	rm -rf $(DCSEXPORTDIR)
-	mkdir -p $(DCSEXPORTDIR)
-	(cd $(DCSEXPORTDIR); tar -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ))
+distinstall:
+	rm -rf $(DISTINSTALLDIR)
+	mkdir -p $(DISTINSTALLDIR)
+	(cd $(DISTINSTALLDIR); tar -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ))
