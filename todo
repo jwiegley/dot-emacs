@@ -11,10 +11,17 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
      -- remove on/off setting for all buffers (too slow), use
         same mechanism as proof-mmm.
 
-*** Finish/cleanup MMM support for Isar.  Document (but who reads?)
+*** Finish/cleanup MMM support for Isar.  Document (but who reads it?)
     Add MMM for other provers where relevant
 
-
+*** Behaviour of X-Symbol and MMM options
+      -- should have "global" behaviour, but apply to future?
+      -- just have local behaviour, add extra option for global?
+      [confusion is that particular buffer may be different from global]
+      -- does it make sense simply to synchronize global with local
+	 whenever local is changed?  
+	  [maybe: turn it off, stays off in new buffers]
+ 
 * Proof General Infeasibly Long Low-Level List of Things to Do
 
 
