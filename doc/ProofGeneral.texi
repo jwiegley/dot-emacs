@@ -310,7 +310,8 @@ Pascal Brisset,
 Rod Burstall, 
 Paul Callaghan,
 Martin Hofmann,
-James McKinna, 
+James McKinna,
+David von Oheimb,
 and Markus Wenzel.  Thanks to all of you!
 
 
@@ -367,13 +368,15 @@ instantiation for Isabelle. Actually, our previous version wasn't quite
 as generic as we had hoped. Whereas LEGO and Coq are similar systems in
 many ways, Isabelle was really a different beast. Fierce reengineering
 and various improvements were provided by David Aspinall and Thomas
-Kleymann to really make the code generic. 
+Kleymann to make it easier to instantiate to new proof systems.  The
+major technical improvement was the extension of script management to
+work across multiple files.
 
-It was time to come up with a
-better name than just @code{proof} mode. David Aspinall suggested
-@emph{Proof General}. He also cooked up some images and a toolbar. Proof
-General 2.0 is the first official release, ready to conquer the world.
-Why not adapt Proof General to your favourite proof system?
+It was time to come up with a better name than just @code{proof}
+mode. David Aspinall suggested @emph{Proof General}. He also cooked up
+some images and a toolbar. Proof General 2.0 is the first official
+release, ready to conquer the world.  Why not adapt Proof General to
+your favourite proof system?
 
 
 
