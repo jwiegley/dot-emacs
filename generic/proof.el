@@ -256,7 +256,9 @@ an error.")
 (defvar proof-action-list nil "action list")
 
 (defvar proof-included-files-list nil 
-  "Files currently included in proof process")
+  "List of files currently included in proof process.
+Each element in the list is a tuple of the form (module . file) where
+module is identifies the buffer and file is the file name of the module.")
 
 (deflocal proof-active-buffer-fake-minor-mode nil
   "An indication in the modeline that this is the *active* buffer")
@@ -790,20 +792,21 @@ Removes any annotations in the region.
 Fontifies the region.
 Appends APPEND-FACE to the text property of the region .
 Returns the string (with faces) in the specified region."
-  (let ((string))
+  (let (start end string)
     (save-excursion
       (set-buffer proof-shell-buffer)
       (goto-char (point-max))
-      (let* ((end (search-backward-regexp end-regexp))
-	     (start (search-backward-regexp start-regexp)))
-	(setq string
-	      (proof-shell-strip-annotations (buffer-substring start end)))
-	(delete-region start end)
-	(insert string)
-	(setq end (+ start (length string)))
-	(font-lock-fontify-region start end)
-	(font-lock-append-text-property start end 'face append-face)
-	(buffer-substring start end)))))
+      (setq start (search-backward-regexp start-regexp))
+      (save-excursion (setq end (- (search-forward-regexp end-regexp)
+				   (length (match-string 0)) 1)))
+      (setq string
+	    (proof-shell-strip-annotations (buffer-substring start end)))
+      (delete-region start end)
+      (insert string)
+      (setq end (+ start (length string)))
+      (font-lock-fontify-region start end)
+      (font-lock-append-text-property start end 'face append-face)
+      (buffer-substring start end))))
 
 (defun proof-shell-handle-delayed-output ()
   (let ((ins (car proof-shell-delayed-output))
@@ -1098,8 +1101,8 @@ arrive."
 We sleep until we get a wakeup-char in the input, then run
 proof-shell-process-output, and set proof-marker to keep track of
 how far we've got."
-  (and proof-shell-eager-annotation-end
-       (string-match proof-shell-eager-annotation-end str)
+  (and proof-shell-eager-annotation-start
+       (string-match proof-shell-eager-annotation-start str)
        (proof-shell-popup-eager-annotation))
   (if (or
        ;; Some proof systems can be hacked to have annotated prompts;
