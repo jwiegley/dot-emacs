@@ -52,11 +52,16 @@
 (autoload 'proof-shell-mode "proof-shell"
   "Proof General shell mode class for proof assistant processes")
 
-(if (featurep 'toolbar)
+;; FIXME: toolbar defines scripting menu as well as toolbar,
+;; so FSF *does* need to load it.  Could consider separating
+;; menu code from proof-toolbar.
+
+;;(if (featurep 'toolbar)
     ;; toolbar code is only loaded for XEmacs
     (autoload 'proof-toolbar-setup "proof-toolbar"
       "Initialize Proof General toolbar and enable it for the current buffer" t)
-  (defun proof-toolbar-setup ()))
+;;;  (defun proof-toolbar-setup ()))
+
 
 ;;;
 ;;; More autoloads to help define interface between files
