@@ -653,7 +653,8 @@ We assume that module identifiers coincide with file names."
     "undo whatever was tried, if error-free"
     (interactive)
     (plastic-reset-error)
-    (proof-try-command)
+    (let ((proof-state-preserving-p nil)) ; allow any command
+      (proof-execute-minibuffer-cmd))
     (plastic-call-if-no-error 'plastic-send-one-undo))
 
 (defun plastic-minibuf ()
