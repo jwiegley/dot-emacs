@@ -6,7 +6,7 @@
 
 theory Example = Main:
 
-text {* Proper proof text -- naive version. *}
+text {* Proper proof text -- \textit{naive version}. *}
 
 theorem and_comms: "A & B --> B & A"
 proof
@@ -20,7 +20,7 @@ proof
 qed
 
 
-text {* Proper proof text -- advanced version. *}
+text {* Proper proof text -- \textit{advanced version}. *}
 
 theorem "A & B --> B & A"
 proof
