@@ -47,6 +47,7 @@
     (goal	"Start a new proof"   "Start a new proof" t)
     (retract	"Retract buffer"      "Retract (undo) whole buffer" t)
     (undo	"Undo step"           "Undo the previous proof command" t)
+    (goto	"Goto point"	      "Process or undo to the cursor position" t)
     (next	"Next step"           "Process the next proof command" t)
     (use	"Use buffer"  	      "Process whole buffer" t)
     (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
@@ -284,6 +285,21 @@ changed state."
 
 
 ;;
+;; Goto button
+;;
+
+(defun proof-toolbar-goto-enable-p ()
+  t)  ;; we don't want to update the toolbar on every movement of point
+;  (and
+;   (not (equal (point) (proof-locked-end))) ; bug in powtlrp
+;   (or
+;    (< (point) (proof-locked-end))
+;    (not (proof-only-whitespace-to-locked-region-p)))))
+
+(defalias 'proof-toolbar-goto 'proof-goto-point)
+
+
+;;
 ;; Retract button
 ;;
 
@@ -435,17 +451,11 @@ changed state."
    
 (defconst proof-toolbar-scripting-menu
   ;; Toolbar contains commands to manipulate script and
-  ;; other handy stuff.  Called "Scripting"
+  ;; other handy stuff.  
   (apply 'append
 	  (mapcar 'proof-toolbar-make-menu-item 
 		  proof-toolbar-entries))
   "Menu made from the Proof General toolbar commands.")
-
-;;
-;; Add this menu to proof-menu
-;;
-; (setq proof-menu
-;      (append proof-menu (list proof-toolbar-menu)))
 
  
 ;; 
