@@ -322,7 +322,7 @@ Suggestion: this can be set in proof-pre-shell-start-hook."
   :type 'function
   :group 'prover-config)
 
-(defcustom proof-mode-for-script 'ignore
+(defcustom proof-mode-for-script 'proof-mode
   "Mode for proof script buffers.
 This is used by Proof General to find out which buffers 
 contain proof scripts.
