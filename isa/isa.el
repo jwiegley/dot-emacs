@@ -370,7 +370,11 @@ isa-proofscript-mode."
     ;; isn't true for Isabelle.  
     ;; (proof-config-done-related and proof-shell-mode refer to
     ;; the troublesome settings in question)
+    ;; 3.3 fix: add require proof-script since context menus are 
+    ;; now added for response/goals buffer, which requires proof mode. 
     (unless proof-terminal-char
+      (require 'proof-script)
+      (proof-menu-define-specific)	
       (isa-mode-config-set-variables))
 
     (thy-mode)
