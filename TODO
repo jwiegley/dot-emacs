@@ -14,6 +14,10 @@ da+pg-feedback@inf.ed.ac.uk.  Thanks!
 Plans for upcoming versions
 ---------------------------
 
+* Use CEDET Emacs framework for development tools, to allow more
+  powerful parsing of proof scripts and features arising from that.  
+  See http://cedet.sourceforge.net/.
+
 * Add a browser mode for browsing script files and/or live theory
   data-structures, in the prover.
 
@@ -25,10 +29,6 @@ Plans for upcoming versions
 
 * Queue manipulation improvement: allow to extend or reduce
   during processing, with fewer "Proof Process Busy" messages.  
-
-* Improve process handling: disable interrupts and/or catch errors at
-  crucial points in code so that C-g can safely be used during script 
-  processing.  Handle deleted buffers smoothly.
 
 * Support more proof assistants
 
