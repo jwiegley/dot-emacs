@@ -6,31 +6,24 @@ The items below are known and will be fixed before 3.5 is released.
 Please don't send email about them (unless you can fix them).
 
 
-** Problems with Red Hat 8.0  &  (at least) Coq.  
+** UTF-8 problems with Red Hat 8.0  &  (at least) Coq.  
 
-Issue seems to be a problem with output handling arising in Coq
-itself, perhaps caused by a change in the libraries(?) shipped with
-RH8.0.  Perhaps a 16-bit char problem (output is flushed before 16-bit
-char is sent?).  Example, run "coqtop -emacs" on MDK9.0 machine,
-inside XEmacs (21.4.9) shell window, pressing return:
+RedHat 8 has Glibc 2.2 and UTF8 encoded output may be turned on in
+default locale.  Unfortunately Proof General relies on 8-bit
+characters which are UTF8 prefixes in the output of proof assistants
+(inc Coq, Isabelle).  These prefix characters are not flushed to
+stdout individually.  As a workaround we must find a way to disable
+interpretation of UTF8 in the C libraries that Coq and friends use.
 
-   [montague]da: coqtop -emacs
-   Welcome to Coq 7.3.1 (Oct 2002)
+Doing this inside PG/Emacs seems tricky; locale settings are
+set/inherited in strange ways.  One solution is to run the Emacs
+process itself in a different locale, for example, starting XEmacs by
+typing:
 
-   Coq < ù
-   Coq < ù
-   Coq < ù
+  $  LANG=en_GB xemacs &
 
-Now do same thing on RH8 (21.4.8):
+[ suggestions for a better workaround inside Emacs would be welcome ]
 
-   [da@fraenkel generic]$ coqtop -emacs
-   Welcome to Coq 7.3.1 (Oct 2002)
-
-   Coq < 
-   ?< 
-   ?< 
-
-Same behaviour is seen in ordinary shell window, in fact.
 
 
 =================================================================
