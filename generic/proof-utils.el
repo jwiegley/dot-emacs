@@ -681,7 +681,7 @@ or if the window is the only window of its frame."
       ((reporter-prompt-for-summary-p 
 	"(Very) brief summary of problem or suggestion: "))
     (reporter-submit-bug-report
-     "bugs@proofgeneral.org"
+     "da+pg-bugs@inf.ed.ac.uk"
      "Proof General" 
      (list 'proof-general-version 'proof-assistant)
      nil nil

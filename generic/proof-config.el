@@ -867,7 +867,7 @@ or `proof-script-parse-function'."
   "Whether to use the old parsing mechanism.
 By default, this is set to nil in Proof General 3.5.  
 Please report any proof script parsing oddities to 
-support@proofgeneral.org.
+da+pg@@inf.ed.ac.uk.
 
 (NB: Specific example where new parser fails: Isar relies on certain
 text being sent to prover which according to syntax configuration
@@ -2476,7 +2476,7 @@ of `easy-menu-define' for more details."
 Completion is activated with \\[complete].
 
 If this table is empty or needs adjusting, please make changes using
-`customize-variable' and send suggestions to support@@proofgeneral.org"
+`customize-variable' and send suggestions to da+pg-support@@inf.ed.ac.uk"
   :type '(list string)
   :group 'prover-config)
 
