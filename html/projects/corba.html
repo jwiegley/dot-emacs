@@ -1,27 +1,37 @@
-<h2>An Experimental CORBA binding for ML</h2>
+<h2>An Experimental CORBA binding and IDL mapping for ML</h2>
 <p>
 The future version of Proof General may use CORBA as a communication
 mechanism between different components.  CORBA is also used by the
 Unix/Linux desktops KDE and GNOME, which use the free implementations
 MICO and ORBIT respectively.  We would like to be able to use ML to
-write applications and utilities in, to interface with other CORBA
-components on the desktop and network.  For this a CORBA binding for
-ML is needed.  This project involves the design and implementation of
-an experimental version of such a binding, using one of the
-open-source ML compilers such as Moscow ML, Poly/ML or OCaml (there
-may already be a project underway for the last of these).
+write to interface with other CORBA components on the desktop and 
+network.  For this a binding for ORB functions in ML is needed, as well 
+as perhaps a mapping from the CORBA IDL into Standard ML, so that
+we can write CORBA enabled applications in SML.  
 </p>
 <p>
-A CORBA binding for Haskell would also be an interesting project.
+This project involves the design and implementation of an experimental
+version (subset of features) of such a system, using one of the
+open-source ML compilers such as Moscow ML, Poly/ML or OCaml (in fact,
+there is already some handling of COM in OCaml which can be used to
+access an ORB).  Essentially, we want to analyse the feasibility
+and performance of using a CORBA architecture for Proof General.
 </p>
+<p>
+An CORBA binding for Haskell would also be an interesting project.
+</p>
+<p>
+See 
+<a href="http://www.cl.cam.ac.uk/~cvr21/projects.html">Claudio Russo's</a> 
+project suggestion for a similar proposal, including useful links.
 </p>
 <p>
 <b>Skills:</b>
-Good ML programming skills and understanding of abstraction
-mechanisms, basic understanding of CORBA.
+Good ML, C, C++, programming skills and understanding of abstraction
+mechanisms, basic understanding of CORBA and willing to get to
+grasps with some of MICO or ORBIT.
 </p><p>
 <b>Proposers:</b>
 <a href="http://www.in.tum.de/~wenzelm/">Markus Wenzel</a> and
 <a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
-
 </p>
