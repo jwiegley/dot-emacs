@@ -2239,8 +2239,8 @@ This is intended as a value for proof-activate-scripting-hook"
 ;; Make the togglers used in options menu below
 (fset 'proof-dont-switch-windows-toggle
       (proof-customize-toggle proof-dont-switch-windows))
-(fset 'proof-auto-delete-windows-toggle
-      (proof-customize-toggle proof-auto-delete-windows))
+(fset 'proof-delete-empty-windows-toggle
+      (proof-customize-toggle proof-delete-empty-windows))
 (fset 'proof-multiple-frames-toggle
       (proof-customize-toggle proof-multiple-frames-enable))
 (fset 'proof-output-fontify-toggle
@@ -2254,10 +2254,10 @@ This is intended as a value for proof-activate-scripting-hook"
      :active t
      :style toggle
      :selected proof-dont-switch-windows]
-    ["Delete empty windows" proof-auto-delete-windows-toggle
+    ["Delete empty windows" proof-delete-empty-windows-toggle
      :active t
      :style toggle
-     :selected proof-auto-delete-windows]
+     :selected proof-delete-empty-windows]
     ["Multiple frames" proof-multiple-frames-toggle
      :active t
      :style toggle

@@ -417,13 +417,13 @@ Ensure that point is visible in window."
 		 (recenter -1)))))))
 
 (defun proof-clean-buffer (buffer)
-  "Erase buffer and hide from display if proof-auto-delete-windows set.
+  "Erase buffer and hide from display if proof-delete-empty-windows set.
 Auto deletion only affects selected frame.  (We assume that the selected
 frame is the one showing the script buffer.)"
   (with-current-buffer buffer
     ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
     (erase-buffer)
-    (if proof-auto-delete-windows
+    (if proof-delete-empty-windows
 	(delete-windows-on buffer t))))
 
 (defun proof-message (&rest args)

@@ -184,7 +184,7 @@ the goals and response buffers, by altering the Emacs variable
   :set 'proof-set-bool
   :group 'proof-user-options)
 
-(defcustom proof-auto-delete-windows 
+(defcustom proof-delete-empty-windows 
   nil
   "*If non-nil, automatically remove windows when they are cleaned.
 For example, at the end of a proof the goals buffer window will
