@@ -33,6 +33,12 @@ Current "experimental" features
    You must select the Isabelle option "Theorem Dependencies",
    and then restart Isabelle.
 
-
-
-
+** Active highlighting for variables in Isabelle.
+   Moving the mouse over variables in the goal display will display
+   some information.  The information in Isabelle/Isar is the type of
+   the variable, usually.  In Isabelle it is useless.
+   This feature is a hint of what could be done with proper subterm
+   markup from the Isabelle engine.  Without this, it cannot work
+   well, because no context is available to Proof General, so only
+   variables bound at the outer level can have meaningful information
+   displayed, via the "term" command.
