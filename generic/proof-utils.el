@@ -435,7 +435,7 @@ Default to whole buffer.  Leave point at END."
 	(narrow-to-region start end))
     (goto-char (or start (point-min)))
     (proof-replace-regexp pg-special-char-regexp "")
-    (point-max)))
+    (goto-char (point-max))))
 
   
 
