@@ -1145,7 +1145,7 @@ This version is used when `proof-script-command-start-regexp' is set."
 		     (type   (if (eq (string-match commentre bufstr) 0)
 				 'comment 'cmd))
 		     (string (if (eq type 'comment) "" bufstr)))
-		(skip-chars-forward " \t\n")
+;		(skip-chars-forward " \t\n")      ; FIXME markus: just don't do this
 		(setq prev (point))
 		(goto-char tmp)
 		;; NB: Command string excludes whitespace, span includes it.
@@ -1160,11 +1160,16 @@ This version is used when `proof-script-command-start-regexp' is set."
 	   (re-search-forward proof-script-command-start-regexp
 			      nil t)   ; search for next command
 	   (setq comstart (match-beginning 0)); save command start
-	   (or (buffer-syntactic-context)   ; continue if inside comment/string
+	   (or (save-excursion
+		 (goto-char comstart)
+		 (or ; continue if inside (or at start of) comment/string
+		  (buffer-syntactic-context)
+		  (looking-at proof-comment-start-regexp)
+		  (looking-at proof-string-start-regexp)))
 	       (progn			    ; or, if found command...
 		 (setq cmdfnd 
 		       (> comstart startpos)); ignore first match
-		   (<= prev pos))))
+		 (<= prev pos))))
 	(if cmdfnd (progn
 		     (funcall add-segment-for-cmd)
 		     (setq cmdfnd nil))))
