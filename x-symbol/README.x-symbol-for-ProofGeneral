@@ -4,5 +4,10 @@ The code in this directory is taken from
 
 This is version 4.5  (direct from author)
 
-No changes have been made for Proof General.
+No changes have been made for Proof General, although the
+following rearrangements from the package directory layout
+have been made:
+
+  for f in etc lisp man; do mv $f/x-symbol/* $f; rmdir $f/x-symbol; done
+
 
