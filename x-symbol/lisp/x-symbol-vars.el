@@ -37,7 +37,7 @@
 (require 'x-symbol-hooks)
 (eval-when-compile (require 'cl))
 
-(defconst x-symbol-version "4.5.1"
+(defconst x-symbol-version "4.5.1 [Proof General]"
   "Current development version of package X-Symbol.
 Check <http://x-symbol.sourceforge.net/> for the newest.")
 
