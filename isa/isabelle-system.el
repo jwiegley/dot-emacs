@@ -140,10 +140,12 @@ ISABELLE will always override this setting."
 		  (getenv "ISABELLE")	; overrides default, may be updated
 		  isabelle-program-name ; calculated earlier
 		  "isabelle"))		; to be really sure
-       (logic    (or isabelle-chosen-logic
-		     (getenv "PROOFGENERAL_LOGIC")))
-       (logicarg (if logic (concat " " logic) "")))
-    (concat isabelle logicarg)))
+       (opts (if isa-running-isar " -PI" ""))
+       (logic (or isabelle-chosen-logic
+		  (getenv "PROOFGENERAL_LOGIC")))
+       (logicarg (if (and logic (not (equal logic "")))
+		     (concat " " logic) "")))
+    (concat isabelle opts logicarg)))
 
 (defun isabelle-choose-logic (logic)
   "Adjust isabelle-prog-name and proof-prog-name for running LOGIC."
@@ -294,11 +296,10 @@ until Proof General is restarted."
   :type 'boolean
   :setting "quick_and_dirty:=%b;")
 
-;; FIXME: for 99-1
-; (defpacustom global-timing  nil
-;  "Whether to enable timing in Isabelle."
-;  :type 'boolean
-;  :setting "Library.timing:=%b;")
+(defpacustom global-timing  nil
+  "Whether to enable timing in Isabelle."
+  :type 'boolean
+  :setting "Library.timing:=%b;")
 
 (defpacustom print-depth  10
   "Setting for the ML print depth in Isabelle."
