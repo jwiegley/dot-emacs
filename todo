@@ -32,8 +32,6 @@ X (Low)		e.g. probably not worth spending time on
 C The PG isabelle-completion-table seems to be subject to case-fold, which
   it shouldn't be: \<sqinter> does not work, but \<Sqinter> is OK.
 
-A file-loading messages from Isabelle not recognized any more?  (multiple file eg)
-
 B Keybindings for processing theory in thy mode gone??
 
 B Exiting isar broken?
