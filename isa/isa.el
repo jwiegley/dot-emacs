@@ -609,7 +609,7 @@ you will be asked to retract the file or process the remainder of it."
   (proof-goals-config-done))
 
 
-;; =================================================================
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; x-symbol support for Isabelle PG, provided by David von Oheimb.
 ;;
@@ -625,5 +625,125 @@ you will be asked to retract the file or process the remainder of it."
       "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode);"
       proof-xsym-deactivate-command
       "print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]);")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Completion table for Isabelle identifiers
+;;
+;; Ideally this could be set automatically from the running process,
+;; and maybe a default value could be dumped by Isabelle when it is
+;; built.
+
+(defpgdefault completion-table
+  '("quit" 
+    "cd" "use" "use_thy" "time_use" "time_use_thy"
+    "Pretty.setdepth" "Pretty.setmargin" "print_depth"
+    "show_hyps" "show_types" "show_sorts"
+    "print_exn"
+    "goal" "goalw" "goalw_cterm" "premises"
+    "by" "byev" 
+    "result" "uresult"
+    "chop" "choplev" "back" "undo"
+    "pr" "prlev" "goals_limit"
+    "proof_timing"
+    "prove_goal" "prove_goalw" "prove_goalw_cterm"
+    "push_proof" "pop_proof" "rotate_proof"
+    "save_proof" "restore_proof"
+    "read" "prin" "printyp"
+    "topthm" "getgoal" "gethyps"
+    "filter_goal" "compat_goal"
+
+    ;; short cuts - should these be included?
+    "ba" "br" "be" "bd" "brs" "bes" "bds"
+    "fs" "fr" "fe" "fd" "frs" "fes" "fds"
+    "bw" "bws" "ren"
+
+    "resolve_tac" "eresolve_tac" "dresolve_tac" "forward_tac"
+    "assume_tac" "eq_assume_tac"
+    "match_tac" "ematch_tac" "dmatch_tac"
+    "res_inst_tac" "eres_inst_tac" "dres_inst_tac" "forw_inst_tac"
+    "rewrite_goals_tac" "rewrite_tac" "fold_goals_tac"
+    "fold_goals_tac" "fold_tac"
+    "cut_facts_tac" "subgoal_tac"
+
+    ;; short cuts - should these be included?
+    "rtac" "etac" "dtac" "atac" "ares_tac" "rewtac"
+
+    ;; In general, I think rules should appear in rule tables, not here.
+    "asm_rl" "cut_rl"  
+
+    "flexflex_tac" "rename_tac" "rename_last_tac"
+    "Logic.set_rename_prefix" "Logic.auto_rename"
+
+    "compose_tac"
+
+    "biresolve_tac" "bimatch_tac" "subgoals_of_brl" "lessb"
+    "head_string" "insert_thm" "delete_thm" "compat_resolve_tac"
+
+    "could_unify" "filter_thms" "filt_resolve_tac"
+
+    ;; probably shouldn't be included:
+    "tapply" "Tactic" "PRIMITIVE" "STATE" "SUBGOAL"
+
+    "pause_tac" "print_tac"
+
+    "THEN" "ORELSE" "APPEND" "INTLEAVE"
+    "EVERY" "FIRST" "TRY" "REPEAT_DETERM" "REPEAT" "REPEAT1"
+    "trace_REPEAT"
+    "all_tac" "no_tac"
+    "FILTER" "CHANGED" "DEPTH_FIRST" "DEPTH_SOLVE"
+    "DEPTH_SOLVE_1" "trace_DEPTH_FIRST"
+    "BREADTH_FIRST" "BEST_FIRST" "THEN_BEST_FIRST"
+    "trace_BEST_FIRST"
+    "COND" "IF_UNSOLVED" "DETERM" 
+    
+    "SELECT_GOAL" "METAHYPS"
+
+    "ALLGOALS" "TRYALL" "SOMEGOAL" "FIRSTGOAL"
+    "REPEAT_SOME" "REPEAT_FIRST" "trace_goalno_tac"
+
+    ;; include primed versions of tacticals?
+
+    "EVERY1" "FIRST1"
+
+    "prth" "prths" "prthq"
+    "RSN" "RLN" "RL"
+
+    ;; simplifier
+    
+    "addsimps" "addeqcongs" "delsimps"
+    "setsolver" "setloop" "setmksimps" "setsubgoaler"
+    "empty_ss" "merge_ss" "prems_of_ss" "rep_ss"
+    "simp_tac" "asm_full_simp_tac" "asm_simp_tac"
+
+    ;; classical prover
+
+    "empty_cs" 
+    "addDs" "addEs" "addIs" "addSDs" "addSEs" "addSIs" 
+    "print_cs" 
+    "rep_claset" "best_tac" "chain_tac" "contr_tac" "eq_mp_tac"
+    "fast_tac" "joinrules" "mp_tac" "safe_tac" "safe_step_tac" 
+    "slow_best_tac" "slow_tac" "step_tac" "swapify" 
+    "swap_res_tac" "inst_step_tac" 
+    
+    ;; that's it for now!
+    ))
+
+(eval-after-load "x-symbol-isa"
+ ;; Add x-symbol tokens to isa-completion-table and rebuild
+ ;; internal completion table if completion is already active
+'(progn
+(defpgdefault completion-table
+  (append (proof-ass completion-table)
+	  (mapcar (lambda (xsym) (nth 2 xsym))
+		  x-symbol-isa-table)))
+(if (featurep 'completion)
+    (proof-add-completions))))
+
+
+
+
+
 
 (provide 'isa)
