@@ -1,3 +1,135 @@
+2000-12-01  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* doc/ProofGeneral.texi, doc/PG-adapting.texi:
+	3.2 -> 3.3pre
+
+2000-12-01  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* af2/af2-font.el, af2/af2-fun.el:
+	add rewrite list
+
+	* af2/af2.el, af2/af2-font.el, af2/af2-fun.el:
+	*** empty log message ***
+
+2000-11-27  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* coq/README: fixed spelling;
+
+2000-11-24  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	Continuing Coq V7 compatibility work, Begin Silent -> Set Silent, etc...
+
+	* coq/coq.el:
+	Add a little change to coq-find-and-forget to work better
+
+2000-11-24  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-shell.el, generic/proof-config.el:
+	Added proof-shell-match-pgip-cmd
+
+	* generic/pg-pgip.el: Update branch
+
+	* generic/pg-xml.el:
+	Added pg-xml-parse-string function.
+
+	* generic/pg-pgip.el:
+	Functions to process pgip commands.
+
+2000-11-23  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el, coq/coq-syntax.el:
+	I am starting to make PG coqV7 compatible, I think the best is to
+	allow both V6 and V7 for a while. Theoretically, incompatibilities
+	will not be numerous.
+
+2000-11-22  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/interface, isa/interface:
+	disable trace option;
+
+2000-11-21  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/interface, isa/interface:
+	converted from sh back to bash;
+	use "#!/usr/bin/env bash" as interpreter to determine bash from PATH;
+	handle spaces in file names;
+
+2000-11-17  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2000-11-15  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2000-11-15  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* af2/af2.el, af2/af2-font.el, af2/af2-fun.el:
+	*** empty log message ***
+
+2000-11-13  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* af2/sym-lock.el, doc/PG-adapting.texi:
+	*** empty log message ***
+
+2000-11-10  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* doc/docstring-magic.el, doc/PG-adapting.texi, af2/sym-lock.el:
+	*** empty log message ***
+
+2000-10-31  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-syntax.el:
+	tuned isar-goals-font-lock-keywords;
+
+2000-10-30  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-syntax.el:
+	tuned font-lock-keywords;
+
+	* isa/x-symbol-isabelle.el:
+	replaced \<macron> by \<inverse> (better than nothing);
+
+2000-10-30  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* generic/proof-utils.el, generic/proof-script.el, generic/proof-config.el, af2/example.af2, af2/af2.el, af2/af2-fun.el:
+	*** empty log message ***
+
+2000-10-27  David Aspinall  <da@proofgeneral.org>
+
+	* CHANGES: Ready for 3.2 changes.
+
+2000-10-27  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* af2/example.af2, generic/proof-utils.el, generic/proof-script.el:
+	*** empty log message ***
+
+2000-10-26  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-syntax.el:
+	font-lock support for antiquotations;
+
+2000-10-26  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* generic/proof-utils.el, af2/af2.el, af2/af2-fun.el, af2/example.af2:
+	*** empty log message ***
+
+2000-10-19  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Second part of moving to 3.3pre series.
+
 2000-10-19  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.html, generic/proof-site.el:
