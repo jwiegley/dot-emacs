@@ -150,8 +150,8 @@ no regular or easily discernable structure."
   (setq
    proof-shell-first-special-char	?\360
 
-   proof-shell-annotated-prompt-regexp   ; ">\372"
-   "^\\(val it = () : unit\n\\)?> "
+   proof-shell-annotated-prompt-regexp   ">\372"
+   ;; "^\\(val it = () : unit\n\\)?> "
    ;; non-annotation, with val it's: "^\\(val it = () : unit\n\\)?> "
 
    ;; This pattern is just for comint, it matches a range of
@@ -181,7 +181,7 @@ no regular or easily discernable structure."
    proof-shell-init-cmd
      (concat "use \"" proof-home-directory "isa/ProofGeneral.ML\";")
    proof-shell-restart-cmd		"ProofGeneral.restart();"
-   proof-shell-quit-cmd			"exit 1;"
+   proof-shell-quit-cmd			"exit 0;"
    
    proof-shell-eager-annotation-start   "\360\\|\362\\|\364"
    proof-shell-eager-annotation-end     "\361\\|\363\\|\365"
@@ -260,9 +260,12 @@ This is a hook function for proof-activate-scripting-hook."
       ;; Send a use_thy command if there is a corresponding .thy file.
       ;; Let Isabelle do the work of checking whether any work needs
       ;; doing.  Really this should be force_use_thy, too.
+      ;; Wait for response from proof assistant before continuing.
       (proof-shell-insert
        (format isa-usethy-notopml-command
-	       (file-name-sans-extension buffer-file-name)))))
+	       (file-name-sans-extension buffer-file-name))
+       t)
+    ))
 
 (defun isa-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
@@ -313,6 +316,9 @@ proof-included-files-list."
 (define-derived-mode isa-proofscript-mode proof-mode
     "Isabelle script" nil
     (isa-mode-config)))
+
+(define-key isa-proofscript-mode-map
+  [(control c) (control l)] 'proof-prf)	; keybinding like Isamode
 
   
 

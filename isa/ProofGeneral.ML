@@ -377,10 +377,10 @@ in
   fun print_current_goals_with_plain_output i j t =
     Library.setmp prs_fn out (print_current_goals_default i j) t;
 
-  (* Annoyingly, Proof General waits for the first prompt before doing
-     anything.  Hack sending a prompt to get things going *)
+(* Annoyingly, Proof General waits for the first prompt before doing
+  anything.  Hack sending a prompt to get things going *)
 
-  val _ = out "> \n";
+ val _ = out ">\250 \n";
 end;
 
 print_current_goals_fn := print_current_goals_with_plain_output;
@@ -388,9 +388,11 @@ print_current_goals_fn := print_current_goals_with_plain_output;
 
 (* add specials to ml prompts *)
 
+ml_prompts ">\250" "-\251"; (* ?\372, ?\373 *)
+
+
+
 (*
-   ml_prompts ">\250" "-\251"; (* ?\372, ?\373 *)
-   
    NB: Obscure bug with proof-shell-annotated-prompt-regexp set
    properly to include annotations: PG doesn't recognize first proof
    state output.
