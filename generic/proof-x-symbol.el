@@ -109,9 +109,14 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 	  (x-symbol-register-language xs-lang xs-feature-sym all-xs-modes)
 	  ;; Put the extra modes on the auto-mode-alist
 	  ;; 3.0: don't bother: rashly assume that their mode
-	  ;; functions invoke proof-x-symbol.  That way we can
+	  ;; functions invoke proof-x-symbol-mode.  That way we can
 	  ;; turn on/off cleanly in proof-x-symbol-mode-all-buffers.
 	  ;; (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
+	  ;; Okay, let's be less rash and put it on a hook list
+	  (dolist (mode proof-xsym-extra-modes)
+	    (add-hook 
+	     (intern (concat (symbol-name mode) "-hook"))
+	     'proof-x-symbol-mode))
 	  ;; Font lock support is optional
 	  (if flks
 	      (put symmode 'font-lock-defaults (list flks)))
@@ -203,7 +208,8 @@ A subroutine of proof-x-symbol-enable."
 ;;;### autoload
 (defun proof-x-symbol-mode ()
   "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable.
-The X-Symbol minor mode is only useful in script buffers."
+The X-Symbol minor mode is only useful in buffers where symbol input
+takes place (it isn't used for output-only buffers)."
   (interactive)
   (save-excursion			; needed or point moves: why?
     (if proof-x-symbol-initialized
