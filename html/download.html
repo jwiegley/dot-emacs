@@ -4,20 +4,20 @@ Before downloading Proof General, <i>please</i>
 <a href="register">register</a>.
 It's free, it only takes a moment.
 If you have already registered you do not need to do so again.
-</p>
-<p>
-The statistics collected from registrations will be used to help a
-case for support for Proof General, and nothing else.  
-It is likely that development of Proof General will <i>finish soon</i> unless
-we can find new resources.  
-As a courtesy, we do not make registration compulsory and I can tell
-from the server logs that the majority of people downloading do not
-register.  But if you don't register now, please consider returning to
-register later if you find Proof General interesting or useful.  If
-you don't want to fill the form, please <a
-href="mailto:proofgen@dcs.ed.ac.uk">send an email</a> directly
-or even a paper letter to the 
-<a href="http://www.lfcs.informatics.ed.ac.uk/">LFCS</a>.
+The statistics collected from registrations are used to help
+make a case for support for Proof General, and nothing else.  
+It is likely that development of Proof General will <i>finish soon</i> 
+unless we find new resources.  As a courtesy, we do not make
+registration compulsory and I can tell from the server logs that the
+majority of people downloading do not register.  But if you don't
+register now, please consider returning to register later if you find
+Proof General interesting or useful.  If you don't want to fill the
+form, please <a href="mailto:proofgen@dcs.ed.ac.uk">send an email</a>
+directly or even a paper letter to the <a
+href="http://www.lfcs.informatics.ed.ac.uk/">LFCS</a>.  If you
+can offer to help resource the development of Proof General
+in some way, please
+<a href="feedback.html">contact us</a>.
 </p>
 
 <p>
@@ -35,7 +35,75 @@ you may need to download one of the
 Please check the 
 <?php fileshow("ProofGeneral/COPYING","license conditions "); ?>
 for using Proof General.
+<br>
+See <a href="#prereq">below</a> for pre-requisites for running Proof General.
 </p>
+
+<h2><a name="stable">
+    Proof General Version 3.3, released 9th September 2001
+    </a>
+</h2>
+
+<p>
+Proof General is available as an archive and an RPM package.
+</p>
+<table width="80%" cellspacing=8>
+<tr>
+<td width=150>gzip'ed tar file</td>
+<!-- WARNING!  Lines below automatically edited by makefile. -->
+<td><?php download_link("ProofGeneral-3.3.tar.gz") ?></td>
+</tr>
+<tr>
+<td>zip file</td>
+<td><?php download_link("ProofGeneral-3.3.zip") ?></td>
+</tr>
+<tr>
+<td>RPM package </td>
+<td><?php download_link("ProofGeneral-3.3-1.noarch.rpm") ?></td>
+</tr>
+<tr>
+<td>individual files</td>
+<td><a href="ProofGeneral-3.3">browse individual files</a>
+</tr>
+</table>
+<p>
+Both the tarball and the RPM package include the generic elisp
+code, 
+code for the supported provers, installation instructions
+and documentation in Info and HTML formats.
+Documentation is available in other formats
+here <a href="doc">here</a>.  
+If you want to format the documentation yourself,
+you may like to download the
+<?php download_link("ProofGeneralPortrait.eps.gz", 
+"front page image") ?>.
+Note that we don't ship an SRPM now, since you can build the RPM directly 
+from the source tarball using <tt>rpm -ta</tt>.
+</p>
+<p>
+This version of Proof General has been tested
+with XEmacs 21.4 and (briefly with) FSF Emacs 20.7.
+It supports earlier versions of both Emacsen, but
+we recommend using the latest versions available
+</p>
+<p>
+Check the <?php fileshow("ProofGeneral-3.3/CHANGES","CHANGES"); ?> file
+for >a summary of changes since version 3.2.
+</p>
+<p>
+Check the latest <?php fileshow("ProofGeneral/BUGS","BUGS"); ?> file
+(also 
+<?php fileshow("ProofGeneral/lego/BUGS","lego/BUGS, "); ?>
+<?php fileshow("ProofGeneral/coq/BUGS","coq/BUGS, "); ?>
+<?php fileshow("ProofGeneral/isa/BUGS","isa/BUGS, "); ?>
+<?php fileshow("ProofGeneral/isar/BUGS","isar/BUGS," ); ?>)
+<!-- <?php fileshow("ProofGeneral/hol98/BUGS","hol98/BUGS"); ?>) -->
+before reporting problems.  If you find a problem not already mentioned, 
+please 
+<?php hlink("feedback.html","send us a note","Feedback form")?>.
+</p>
+<br>
+<br>
 
 <h2><a name="prereq">
     What you need to run Proof General
@@ -99,75 +167,7 @@ All components mentioned above are distributed under the GPL license.
 <br>
 <br>
 
-<h2><a name="stable">
-    Proof General Version 3.3, released 9th September 2001
-    </a>
-</h2>
-
-<p>
-Proof General is available as an archive and an RPM package.
-</p>
-<ul>
-  <li> gzip'ed tar file: 
-      <?php download_link("ProofGeneral-3.3.tar.gz") ?>,
-      <br>
-      or the same thing in a zip file:
-      <?php download_link("ProofGeneral-3.3.zip") ?>.
-  </li>
- <li> Linux RPM package:
-      <?php download_link("ProofGeneral-3.3-1.noarch.rpm") ?>
-     <br>
- </li>
- <li> individual files: 
-   <a href="ProofGeneral-3.3">browse the package here</a>.
- </li>
-</tr>
-
-</ul>
-<p>
-Both the tarball and the RPM package include the generic elisp
-code, <br>
-code for the supported provers, installation instructions
-and documentation in Info and HTML formats.
-</p>
-<p>
-Documentation is available in other formats
-here <a href="doc">here</a>.  
-If you want to format the documentation yourself,
-you may like to download the
-<?php download_link("ProofGeneralPortrait.eps.gz", 
-"front page image") ?>.
-</p>
-<p>
-We no longer offer a SRPM, since you can now build the RPM directly 
-from the source tarball using <tt>rpm -ta</tt>.
-</p>
-<p>
-This version of Proof General has been tested
-with XEmacs 21.4 and (briefly with) FSF Emacs 20.7.
-It supports earlier versions of both Emacsen, but
-we recommend using the latest versions available
-</p>
-<p>
-Check the <?php fileshow("ProofGeneral-3.3/CHANGES","CHANGES"); ?> file
-for >a summary of changes since version 3.2.
-</p>
-<p>
-Check the latest <?php fileshow("ProofGeneral/BUGS","BUGS"); ?> file
-(also 
-<?php fileshow("ProofGeneral/lego/BUGS","lego/BUGS, "); ?>
-<?php fileshow("ProofGeneral/coq/BUGS","coq/BUGS, "); ?>
-<?php fileshow("ProofGeneral/isa/BUGS","isa/BUGS, "); ?>
-<?php fileshow("ProofGeneral/isar/BUGS","isar/BUGS," ); ?>)
-<!-- <?php fileshow("ProofGeneral/hol98/BUGS","hol98/BUGS"); ?>) -->
-before reporting problems.  If you find a problem not already mentioned, 
-please 
-<?php hlink("feedback.html","send us a note","Feedback form")?>.
-</p>
-<br>
-<br>
-
-<h3><a name="install">Easy installation</a></h3> 
+<h3><a name="install">Easy installation of Proof General</a></h3> 
 <p>
 To use Proof General, simply unpack the sources with 
 </p>
