@@ -1,30 +1,35 @@
-From: Proof General maintainer <proofgen@dcs.ed.ac.uk>
-To:  coq-club@pauillac.inria.fr, isabelle-users@cl.cam.ac.uk, lego-club@dcs.ed.ac.uk
-Subject: Generic Emacs interface for proof assistants - pre-release
---text follows this line--
+From: David Aspinall <da@dcs.ed.ac.uk>
+To: coq-club@pauillac.inria.fr, isabelle-users@cl.cam.ac.uk, lego-club@dcs.ed.ac.uk
+Subject: Proof General --- pre-release
+Date: Tue, 13 Oct 1998 18:01:23 +0100 (BST)
 
 Proof General is a generic Emacs interface for proof assistants. It is
-supplied ready-customised for the systems
+supplied ready-customised for Coq, Isabelle and LEGO.  Details
+are on the web at:
 
-  Coq, Isabelle and LEGO 
+  http://www.dcs.ed.ac.uk/home/proofgen/
 
-The code is designed to be generic, so you can adapt Proof General to
-other proof assistants if you know a little bit of Emacs Lisp. It
-supports script management, a toolbar, fontification, tags, function
-menu, multiple files and remote proof assistants.
+The interface supports script management, a toolbar, fontification,
+tags, function menu, multiple files and remote proof assistants.  
+The code is designed to be adaptable to other proof assistants, by
+writing a little bit of Emacs Lisp.
 
 Proof General and its instantiations were written by David Aspinall,
 Healfdene Goguen, Thomas Kleymann and Dilip Sequeira with help from
 Yves Bertot and using ideas from Project CROAP.
 
-This is the first official pre-release and an ideal opportunity
-for interested users to give us feedback at an early stage. Don't
-forget to tell us which version you are testing. Improvements are
-being made while you read this message...
+This is the first official pre-release and an ideal opportunity for
+interested users to give us feedback at an early stage. Don't forget
+to tell us which version you are testing. Improvements are being made
+while you read this message...
 
-Further information and the sources are available from
+ -- David Aspinall & Thomas Kleymann
+    (Please contact via  proofgen@dcs.ed.ac.uk)
 
-  http://www.dcs.ed.ac.uk/home/proofgen/
+*******
 
-
-David Aspinall & Thomas Kleymann
+P.S. for Isabelle users: this interface provides slightly different
+features to Isamode.  One idea behind script management is that
+interaction is centred on the script rather than the shell buffer.  
+In the future Isamode may be combined with Proof General, or Isamode
+may be extended to offer script management.
