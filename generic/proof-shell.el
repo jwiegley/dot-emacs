@@ -795,6 +795,9 @@ assistant."
 
 ;; FIXME: note: removed optional 'relaxed' arg
 (defun proof-start-queue (start end alist)
+  "Begin processing a queue of commands in ALIST.
+If START is non-nil, START and END are buffer positions in the
+active scripting buffer for the queue region."
   (if start
       (proof-set-queue-endpoints start end))
   (let (item)

@@ -21,7 +21,7 @@
   :group 'thy)
 
 (defcustom thy-indent-level 2
-  "Indentation level for Isabelle theory files."
+  "Indentation level for Isabelle theory files.  An integer."
   :type  'integer
   :group 'thy)
 
@@ -33,7 +33,10 @@ any of the usual bracket characters in unusual ways."
   :group 'thy)
 
 (defcustom thy-use-sml-mode nil
-  "*If non-nil, invoke sml-mode inside \"ML\" section of theory files."
+  "*If non-nil, invoke sml-mode inside \"ML\" section of theory files.
+This option is left-over from Isamode.  Really, it would be more
+useful if the script editing mode of Proof General itself could be based 
+on sml-mode, but at the moment there is no way to do this."
   :type 'boolean
   :group 'thy)
 
@@ -430,8 +433,10 @@ Here is the full list of theory mode key bindings:
 
 (defun thy-find-other-file (&optional samewindow)
   "Find associated .ML or .thy file.
-If SAMEWINDOW is non-nil (prefix argument when called interactively),
-use find-file instead of find-file-other-window."
+Finds and switch to the associated ML file (when editing a theory file)
+or theory file (when editing an ML file).  
+If SAMEWINDOW is non-nil (interactively, with an optional argument)
+the other file replaces the one in the current window."
   (interactive "p")
   (and 
    (buffer-file-name)

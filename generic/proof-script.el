@@ -729,8 +729,9 @@ the next command end."
      alist)))
 
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
-  "Convert a sequence of semicolon positions (returned by the above
-function) to a set of vanilla extents."
+  "Convert a sequence of terminator positions to a set of vanilla extents.
+Proof terminator positions SEMIS has the form returned by
+the function proof-segment-up-to."
   (let ((ct (proof-unprocessed-begin)) span alist semi)
     (while (not (null semis))
       (setq semi (car semis)
