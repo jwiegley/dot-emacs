@@ -106,7 +106,7 @@ To disable coqc being called (and use only make), set this to nil."
   (interactive  "sSection name: ")
   (let ((p (point)))
     (insert "Section " s ".\n#\nEnd " s ".")
-    (holes-replace-string-by-holes-backward-move-point 1 holes-empty-hole-string)
+    (holes-replace-string-by-holes-backward p)
     (goto-char p)
     (holes-set-point-next-hole-destroy))
 )
@@ -128,10 +128,10 @@ To disable coqc being called (and use only make), set this to nil."
     (if (string-equal typkind "")
         (progn
           (insert mods " " s ".\n#\nEnd " s ".")
-          (holes-replace-string-by-holes-backward-move-point 1 holes-empty-hole-string)
+          (holes-replace-string-by-holes-backward p)
           (goto-char p))
       (insert mods " " s " " typkind " #.\n#\nEnd " s ".")
-      (holes-replace-string-by-holes-backward-move-point 2 holes-empty-hole-string)
+      (holes-replace-string-by-holes-backward p)
       (goto-char p)
       (holes-set-point-next-hole-destroy))
     )
@@ -638,12 +638,6 @@ Based on idea mentioned in Coq reference manual."
 ;; `proof-layout-windows' lays out according to current display
 ;; mode: you can use this (C-c C-l) to do what binding below did.
 ;;(define-key coq-keymap [(control f3)] 'coq-three-b)
-
-; This is arguable, but completion with a three key shortcut is bad, 
-; and the default meta-/ is bad on some keyboards (especially french ones)
-(define-key global-map [(control backspace)] 'expand-abbrev)
-;; da: do you also want a key for unexpand-abbrev?  (maybe just undo is ok)
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

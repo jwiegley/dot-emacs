@@ -221,7 +221,7 @@
      ["fun3          f3<C-BS>" (holes-insert-and-expand "f3") t]
      ["fun4          f4<C-BS>" (holes-insert-and-expand "f4") t]
      ""
-     ["if then else  if<C-BS>"  (holes-insert-and-expand "li") t]
+     ["if then else  if<C-BS>"  (holes-insert-and-expand "if") t]
      ["let in        li<C-BS>"  (holes-insert-and-expand "li") t]
      ""
      ["match         m<C-BS>"  (holes-insert-and-expand "m") t]

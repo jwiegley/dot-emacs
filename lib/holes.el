@@ -1,8 +1,11 @@
 ;;; holes.el --- a little piece of elisp to define holes in your buffer
 ;; Copyright (C) 2001 Pierre Courtieu
 ;;
-;; This file uses spans, an interface for extent (Xemacs) and overlays
+;; This file uses spans, an interface for extent (XEmacs) and overlays
 ;; (emacs), by Healfdene Goguen for the proofgeneral mode.
+;; 
+;; Credits also to Stefan Monnier for great help in making this file
+;; cleaner.
 ;; 
 ;; This software is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public
@@ -80,7 +83,7 @@ then two methods:
  o Select text with mouse while pressing ctrl, meta and shift
    (`C-M-S-select').  This is a
    generalization of the `mouse-track-insert' feature of XEmacs.  This
-   method allows to fill different holes faster than with the usual
+   method allows you to fill different holes faster than with the usual
    copy-paste method.
 
 After replacement the next hole is automatically made active so you
@@ -110,73 +113,59 @@ more click is needed to really see the replacement
 it mean anyway?)
 
  o With Emacs, cutting or pasting a hole wil not produce new
-holes, and undoing on holes cannot make holes re-appear. With Xemacs
+holes, and undoing on holes cannot make holes re-appear. With XEmacs
 it will, but if you copy paste the active hole, you will get several
 holes highlighted as the active one (whereas only one of them really
 is), which is annoying")
 
 ;;; Code:
 
-
 (cond
- ((string-match "NU Emacs" (emacs-version))
-  ;;Pierre: should do almost what region-exists-p does in xemacs
-  (defmacro holes-region-exists-p nil
-    "Returns t if the mark is active, nil otherwise."
-    `(not (eq mark-active nil)))
-  (defmacro holes-get-selection nil "see current-kill"
-    '(current-kill 0))))
-
-(cond
- ((string-match "XEmacs" (emacs-version))
-  (defmacro holes-region-exists-p nil "see region-exists-p"
-    '(region-exists-p))
-  (defmacro holes-get-selection nil "see get-selection"
-    '(get-selection))))
+ ((featurep 'xemacs)
+  (defalias 'holes-region-exists-p 'region-exists-p)
+  (defalias 'holes-get-selection 'get-selection))
+ (t
+  ;;Pierre: should do almost what region-exists-p does in XEmacs
+  (defun holes-region-exists-p nil
+    "Return t if the mark is active, nil otherwise."
+    mark-active)
+  (defun holes-get-selection nil "See `current-kill'."
+    (current-kill 0))))
 
 
 ;;; initialization
 (defvar holes-default-hole (make-detached-span)
-  "A empty detached hole used as the default hole.
+  "An empty detached hole used as the default hole.
 You should not use this variable.")
 (detach-span holes-default-hole)
 (defvar holes-active-hole holes-default-hole
   "The current active hole.
 There can be only one active hole at a time,
 and this is this one.  This is not buffer local.")
-
-(defvar holes-counter 0
-  "The global number of holes.
-For internal use only.  This this counter is used to differenciate
-every hole.")
 ;;; end initialization
 
 ;;;customizable
 (defcustom holes-empty-hole-string "#"
   "String to be inserted for empty hole (don't put an empty string).")
 
-(defcustom holes-empty-hole-regexp "#\\|\\(@{\\)\\([^{}]*\\)\\(}\\)"
+(defcustom holes-empty-hole-regexp "#\\|@{\\([^{}]*\\)}"
   "Regexp denoting a hole in abbrevs.
-Must match either `holes-empty-hole-string' or a regexp formed by
-three consecutive groups (i.e. \\\\(...\\\\) ) (other groups must be
-shy (i.e. \\\\(?:...\\\\))), denoting the exact limits of the hole
-(the middle group), the opening and closing delimiters of the hole
-(first and third groups) which will be deleted after abbrev expand.
-For example: \"#\\|\\(@{\\)\\([^{}]*\\)\\(}\\)\" matches any # or
-@{text} but in the second case the abbrev expand will be a hole
-containing text without brackets.")
+Subgroup 1 is treated specially: if it matches, it is assumed that
+everything before it and after it in the regexp matches delimiters
+which should be removed when making the text into a hole.")
+
 
 (defcustom holes-search-limit 1000
   "Number of chars to look forward when looking for the next hole, unused for now.") ;unused for the moment
 
-; The following is customizable by a command of the form:
-;for dark background
-;(custom-set-faces
-; '(holes-active-hole-face
-;   ((((type x) (class color) (background light))
-;     (:background "paleVioletRed")))
-;   )
-; )
+;; The following is customizable by a command of the form:
+;;for dark background
+;;(custom-set-faces
+;; '(holes-active-hole-face
+;;   ((((type x) (class color) (background light))
+;;     (:background "paleVioletRed")))
+;;   )
+;; )
 
 (defface active-hole-face
   '((((class grayscale) (background light)) (:background "dimgrey"))
@@ -223,37 +212,35 @@ containing text without brackets.")
   )
 
 (defun holes-is-hole-p (SPAN)
-					; checkdoc-params: (SPAN)
+  ;; checkdoc-params: (SPAN)
   "Internal."
   (span-property SPAN 'hole)
   )
 
 (defun holes-hole-start-position (HOLE)
-					; checkdoc-params: (HOLE)
+ ;; checkdoc-params: (HOLE)
   "Internal."
-  (assert (holes-is-hole-p HOLE) t "holes-hole-start-position: given span is not a hole")
+  (assert (holes-is-hole-p HOLE) t "holes-hole-start-position: %s is not a hole")
   (span-start HOLE)
   )
 
 (defun holes-hole-end-position (HOLE)
-					; checkdoc-params: (HOLE)
+  ;; checkdoc-params: (HOLE)
   "Internal."
-  (assert (holes-is-hole-p HOLE) t "holes-hole-end-position:given span is not a hole")
+  (assert (holes-is-hole-p HOLE) t "holes-hole-end-position: %s is not a hole")
   (span-end HOLE)
   )
 
 (defun holes-hole-buffer (HOLE)
-					; checkdoc-params: (HOLE)
+  ;; checkdoc-params: (HOLE)
   "Internal."
-  (assert (holes-is-hole-p HOLE) t "holes-hole-buffer: given span is not a hole")
+  (assert (holes-is-hole-p HOLE) t "holes-hole-buffer: %s is not a hole")
   (span-buffer HOLE)
   )
 
 (defun holes-hole-at (&optional pos)
   "Return the hole (an span) at POS in current buffer.
 If pos is not in a hole raises an error."
-
-  (interactive)
   (span-at (or pos (point)) 'hole)
   )
 
@@ -318,7 +305,7 @@ DON'T USE this as it would break synchronization (non active hole
 highlighted)."
 
   (assert (holes-is-hole-p HOLE) t
-	  "holes-highlight-hole-as-active: given span is not a hole")
+	  "holes-highlight-hole-as-active: %s is not a hole")
   (set-span-face HOLE 'active-hole-face)
   )
 
@@ -328,7 +315,7 @@ DON'T USE this as it would break synchronization (active hole non
 highlighted)."
 
   (assert (holes-is-hole-p HOLE) t
-	  "holes-highlight-hole: given span is not a hole %S" HOLE)
+	  "holes-highlight-hole: %s is not a hole")
   (set-span-face HOLE 'inactive-hole-face)
   )
 
@@ -343,7 +330,7 @@ the active hole is already disable."
     ;; HACK: normal hole color, this way undo will show this hole
     ;; normally and not as active hole.  Ideally, undo should restore
     ;; the active hole, but it doesn't, so we put the 'not active'
-    ;; color
+    ;; color.
     (holes-highlight-hole holes-active-hole)
     (setq holes-active-hole holes-default-hole)
     )
@@ -357,7 +344,7 @@ the active hole is already disable."
 Error if HOLE is not a hole."
   
   (assert (holes-is-hole-p HOLE) t
-	  "holes-set-active-hole: given span is not a hole")
+	  "holes-set-active-hole: %s is not a hole")
   (if (holes-active-hole-exist-p) (holes-highlight-hole holes-active-hole))
   (setq holes-active-hole HOLE)
   (holes-highlight-hole-as-active holes-active-hole)
@@ -365,8 +352,8 @@ Error if HOLE is not a hole."
 
 
 (defun holes-is-in-hole-p (&optional pos)
-  "Return t if POS (default: point) is in a hole, nil otherwise."
-  (not (eq (holes-hole-at pos) nil))
+  "Return non-nil if POS (default: point) is in a hole, nil otherwise."
+  (holes-hole-at pos)
   )
 
 
@@ -376,24 +363,23 @@ Error if HOLE is not a hole."
   (let ((ext (make-span start end)))
     (set-span-properties
      ext `(
-	   hole ,holes-counter
+	   hole t
 	   mouse-face highlight
-	   priority 100;; what should I put here? I want big priority
+	   priority 100 ;; what should I put here? I want big priority
 	   face secondary-selection
 	   start-open nil
 	   end-open t
 	   duplicable t
 	   ;; unique t
 	   ;; really disappear if empty:
-	   evaporate t;; Emacs
-	   detachable t;; XEmacs
+	   evaporate t  ;; Emacs
+	   detachable t ;; XEmacs
 	   ;; pointer frame-icon-glyph
 	   help-echo "this is a \"hole\", button 2 to forget, button 3 to destroy, button 1 to make active"
 	   'balloon-help "this is a \"hole\", button 2 to forget, button 3 to destroy, button 1 to make active"
 	   ))
 
     (set-span-keymap ext hole-map)
-    (setq holes-counter (+ holes-counter 1))
     ext
     )
   )
@@ -409,7 +395,7 @@ the span."
     (if (eq rstart rend)
 	(progn
 	  (goto-char rstart)
-	  (insert-string holes-empty-hole-string)
+	  (insert holes-empty-hole-string)
 	  (setq rend (point))
 	  )
       )
@@ -422,7 +408,7 @@ the span."
 					; checkdoc-params: (HOLE)
   "Internal."
   (assert (holes-is-hole-p HOLE) t
-	  "holes-clear-hole: given span is not a hole")
+	  "holes-clear-hole: %s is not a hole")
   
   (if (and (holes-active-hole-exist-p) (eq holes-active-hole HOLE))
       (holes-disable-active-hole)
@@ -479,16 +465,14 @@ hole found, return nil."
 	      (holes-active-hole-buffer))
   )
 
-(defun holes-set-active-hole-next (&optional BUFFER pos)
+(defun holes-set-active-hole-next (&optional buffer pos)
   "Set the active hole in BUFFER to the first hole after POS.
 Default pos = point and buffer = current."
   (interactive)
   (let ((nxthole (holes-next (or pos (point))
-			     (or BUFFER (current-buffer)))))
-    (if nxthole
-	(progn
-	  (holes-set-active-hole nxthole)
-	  )
+			     (or buffer (current-buffer)))))
+    (if nxthole 
+	(holes-set-active-hole nxthole)
       (holes-disable-active-hole)
       )
     )
@@ -516,6 +500,14 @@ Shift markers.  optionnal argument BUFFER specifies in which buffer."
     (insert-string str)
     )
   )
+(defun holes-replace-segment (start end str &optional buffer)
+  "Erase chars between START and END, and replace them with STR."
+  (with-current-buffer (or buffer (current-buffer))
+    (goto-char end)
+    ;; Insert before deleting, so the markers at `start' and `end' don't get
+    ;; mixed up together.
+    (insert str)
+    (delete-region start end)))
 
 
 
@@ -540,7 +532,7 @@ goal(FIXME?).  Use `replace-active-hole' instead."
 			     (or str (car kill-ring)) ;kill ring?
 			     (span-buffer exthole)
 			     )
-      (detach-span exthole);; this seems necessary for span overlays,
+      (detach-span exthole) ;; this seems necessary for span overlays,
       ;; where the buffer attached to the span is
       ;; not removed automatically by the fact
       ;; that the span is removed from the buffer
@@ -595,7 +587,7 @@ Sets `holes-active-hole' to the next hole if it exists."
   )
 
 
-;;; mouse stuff, I want to make something close to `mouse-track-insert'
+;; mouse stuff, I want to make something close to `mouse-track-insert'
 ;; of Xemacs, but with modifier ctrl-meta and ctrl-meta-shift
 
 ;;; Emacs and Xemacs have different ways of dealing with mouse
@@ -606,27 +598,12 @@ Sets `holes-active-hole' to the next hole if it exists."
 (eval-and-compile
   (cond
    ((fboundp 'mouse-track)
-    (defsubst holes-track-mouse-selection (event)"see `mouse-track'"
-      (mouse-track event)))
-   ((fboundp 'mouse-drag-region)
-    (defsubst holes-track-mouse-selection (event)
-      "see `mouse-drag-region'"
-      (mouse-drag-region event)))
-   (t
-    (error
-     "Your (X)Emacs version is not compatible with holes (too old or
-    new version?), sorry"))
-   )
-  )
-
-;;; number of clicks for emacs and xemacs
-(eval-and-compile
-  (cond
-   ((fboundp 'mouse-track)
+    (defalias 'holes-track-mouse-selection 'mouse-track)
     (defsubst holes-track-mouse-clicks ()
       "see `mouse-track-click-count'"
       mouse-track-click-count))
    ((fboundp 'mouse-drag-region)
+    (defalias 'holes-track-mouse-selection 'mouse-drag-region)
     (defsubst holes-track-mouse-clicks ()
       "see `mouse-selection-click-count'"
       (+ mouse-selection-click-count 1)))
@@ -654,7 +631,7 @@ Sets `holes-active-hole' to the next hole if it exists."
 	)
       )
     )
-;  (zmacs-deactivate-region)
+  ;;  (zmacs-deactivate-region)
   )
 
 (defun holes-destroy-hole (&optional SPAN)
@@ -785,16 +762,15 @@ This is not the keymap used on holes's overlay
   buffer where `holes-mode' is active.")
 
 (or (assq 'holes-mode minor-mode-map-alist)
-    (setq minor-mode-map-alist
-          (cons (cons 'holes-mode holes-mode-map)
-                minor-mode-map-alist)))
+    (push (cons 'holes-mode holes-mode-map)
+	  minor-mode-map-alist))
 
 ;;;(global-set-key  [(control meta **WRONG** space ) ] 'holes-set-active-hole-next)
 
 
 ;;;;;;;;;;; End Customizable key bindings ;;;;;
 
-;;; utilities to be used in conjunction with abbrevs.
+;; utilities to be used in conjunction with abbrevs.
 ;; The idea is to put abbrevs of the form:
 ;;(define-abbrev-table 'tuareg-mode-abbrev-table
 ;;      '(
@@ -806,165 +782,34 @@ This is not the keymap used on holes's overlay
 ;; by holes and leave point at the first # (deleting
 ;; it).  holes-set-point-next-hole-destroy allow to go to the next hole.
 
-;;;following function allow to replace occurrences of a string by a
+;;following function allow to replace occurrences of a string by a
 ;;hole.
 
-;;;c must be a string of length 1
-(defun holes-count-char-in-string (c str)
-					; checkdoc-params: (c str)
-  "Internal."
-  (let ((cpt 0) (s str))
-    (while (not (string-equal s ""))
-      (if (string-equal (substring s 0 1) c) (setq cpt (+ cpt 1)))
-      (setq s (substring s 1))
-      )
-    cpt
-    )
-  )
-
-(defun holes-count-re-in-string (regexp str)
-					; checkdoc-params: (regexp str)
-  "Internal."
-  (let ((cpt 0) (s str))
-    (while (and (not (string-equal s "")) (string-match regexp s) )
-      (setq cpt (+ cpt 1))
-      (setq s (substring s (match-end 0)))
-      )
-    cpt
-    )
-  )
-
-(defun holes-count-chars-in-last-expand ()
-  "Internal."
-  (length (abbrev-expansion last-abbrev-text))
-  )
-
-(defun holes-count-newlines-in-last-expand ()
-  "Internal."
-  (holes-count-char-in-string "\n" (abbrev-expansion last-abbrev-text))
-  )
-
-(defun holes-indent-last-expand ()
-  "Indent last abbrev expansion.
-Must be called when the point is at end of last abbrev expansion."
-  (let ((n (holes-count-newlines-in-last-expand)))
-    (save-excursion
-      (previous-line n)
-      (funcall indent-line-function)
-      (while (> n 0)
-	(next-line 1)
-	(funcall indent-line-function)
-	(setq n (- n 1))
-	)
-      )
-    )
-  )
-
-(defun holes-count-holes-in-last-expand ()
-  "Internal."
-  (holes-count-re-in-string holes-empty-hole-regexp (abbrev-expansion last-abbrev-text))
-  )
-
-(defun holes-replace-string-by-holes (start end str)
-  "Make holes of occurrence (between START and END) of STR.
-Sets the active hole to the last created hole and unsets it if no hole
-is created."
-
-  (interactive)
+(defun holes-replace-string-by-holes-backward (limit)
+  "Change each occurrence of REGEXP into a hole.
+Sets the active hole to the last created hole and unsets it if no hole is
+created.  Return the number of holes created."
   (holes-disable-active-hole)
-  (let ((lgth (length str)))
+  (let ((n 0))
     (save-excursion
-      (goto-char end)
-      (while (search-backward str start t)
-	(holes-make-hole (point) (+ (point) lgth))
-	(holes-set-active-hole-next)
-	)
-      )
-    )
-  )
+      (while (re-search-backward holes-empty-hole-regexp limit t)
+	(incf n)
+	(if (not (match-end 1))
+	    (holes-make-hole (match-beginning 0) (match-end 0))
+	  (holes-make-hole (match-beginning 1) (match-end 1))
+	  ;; delete end first to avoid shifting of marks
+	  (delete-region (match-end 1) (match-end 0)) 
+	  (delete-region (match-beginning 0) (match-beginning 1)))
+	(holes-set-active-hole-next)))
+    n))
 
-(defun holes-replace-string-by-holes-backward (num regexp)
-
-  "Make NUM occurrences of REGEXP be holes looking backward.
-Sets the active hole to the last created hole and unsets it if no hole
-is created.  Return t if num is > 0, nil otherwise."
-
-  (interactive)
-  (holes-disable-active-hole)
-  (if (<= num 0) nil
-    (let* ((n num) (lgth 0))
-      (save-excursion
-	(while (> n 0)
-	  (progn
-	    (re-search-backward regexp)
-	    (if (string-equal (match-string 0) holes-empty-hole-string)
-		(holes-make-hole (match-beginning 0) (match-end 0))
-	      (holes-make-hole (match-beginning 2) (match-end 2))
-	      (goto-char (match-beginning 3))
-	      (delete-char (length (match-string 3)))
-	      (goto-char (match-beginning 1))
-	      (delete-char (length (match-string 1))))
-	    (holes-set-active-hole-next)
-	    (setq n (- n 1)))
-	  )
-	)
-      t
-      )
-    )
-  )
-
-
-(defun holes-replace-string-by-holes-move-point (start end str)
-					; checkdoc-params: (start end str)
-  "Internal."
-
-  (interactive)
-  (holes-replace-string-by-holes start end str)
-  (holes-set-point-next-hole-destroy)
-  )
-
-(defun holes-replace-string-by-holes-backward-move-point (num str)
-					; checkdoc-params: (num str)
-  "Internal."
-
-  (interactive)
-  (and (holes-replace-string-by-holes-backward num str)
-       t				;(holes-set-point-next-hole-destroy)
-       )
-  )
-
-
-(defvar skeleton-positions nil)
-
-(defun holeskel-add-pos ()
-  (add-to-list 'skeleton-positions (point))
-  )
-
-
-(defun holeskel-build-skel-list (l)
-  "Replaces @s in the arguments of define-skeleton to mimick Emacs behavior.
-As soon as XEmacs does have this feature, I remove this hack."
-  (if (car-safe l)
-      (let ((hd (car l)) (tl (cdr l)))
-	(if (eq hd '@) 
-	    (cons '(progn (holeskel-add-pos) nil) 
-		  (holeskel-build-skel-list tl))
-	  (cons hd (holeskel-build-skel-list tl))
-	  )
-	)
-    )
-  )
-
-
-;;; Works only for Emacs
 (defun holes-skeleton-end-hook ()
-  "Default hook after a skeleton insertin: put holes at each interesting position."
-  (let ((lpos skeleton-positions))
-    (while lpos
-      (holes-set-make-active-hole (car lpos) (car lpos)) ; put a hole here
-      (setq lpos (cdr lpos))
-      )
-  ))
+  "Default hook after a skeleton insertion: put holes at each interesting position."
+  ;; Not all versions of skeleton provide `skeleton-positions' and the
+  ;; corresponding @ operation :-(
+  (when (boundp 'skeleton-positions)
+    (dolist (pos skeleton-positions)
+      (holes-set-make-active-hole pos pos)))) ; put a hole here
 
 (defconst holes-jump-doc 
   (concat "Hit \\[holes-set-point-next-hole-destroy] to jump "
@@ -977,46 +822,34 @@ Moves point at beginning of expanded text.  Put this function as
 call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
 become holes."
   (let ((pos last-abbrev-location))
-    (holes-indent-last-expand)
-    (holes-replace-string-by-holes-backward-move-point
-     (holes-count-holes-in-last-expand) holes-empty-hole-regexp)
-    (if (> (holes-count-holes-in-last-expand) 1)
-	(progn 
-	  (goto-char pos)
-	  (message (substitute-command-keys holes-jump-doc)))
-      (if (= (holes-count-holes-in-last-expand) 0) () ; no hole, stay here.
-	(goto-char pos)
-	(holes-set-point-next-hole-destroy) ; if only one hole, go to it.
-	)
-      )
-    )
-  )
-
-;;; insert the expansion of abbrev s, and replace #s by holes.  It was
-;; possible to implement it with a simple ((insert s) (expand-abbrev))
-;; but undo would show the 2 steps, which is bad.
+    (save-excursion (indent-region pos (point) nil))
+    (let ((n (holes-replace-string-by-holes-backward pos)))
+      (case n
+	(0 nil)				; no hole, stay here.
+	(1
+	 (goto-char pos)
+	 (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
+	(t
+	 (goto-char pos)
+	 (message (substitute-command-keys
+		   "Hit \\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))))
 
 (defun holes-insert-and-expand (s)
   "Insert S, expand it and replace #s and @{]s by holes."
-  (let* ((pos (point))
-	 (exp (abbrev-expansion s))
-	 (c (holes-count-re-in-string holes-empty-hole-regexp exp)))
-    (insert exp)
-    (holes-replace-string-by-holes-backward-move-point c holes-empty-hole-regexp)
-    (if (> c 1) (goto-char pos)
-      (goto-char pos)
-      (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
-    (if (> c 1) (message (substitute-command-keys holes-jump-doc))
-      )
-    )
-  )
+  ;; insert the expansion of abbrev s, and replace #s by holes.  It was
+  ;; possible to implement it with a simple ((insert s) (expand-abbrev))
+  ;; but undo would show the 2 steps, which is bad.
+  (let ((pos (point)))
+    (insert (abbrev-expansion s))
+    (let ((last-abbrev-location pos))
+      (holes-abbrev-complete))))
 
 (defvar holes-mode nil
   "Is equal to t if holes mode is on, nil otherwise.")
-
 (make-variable-buffer-local 'holes-mode)
-(set-default 'holes-mode nil)
 
+;; FIXME: Use define-minor-mode, or at least add-minor-mode.
+;;;###autoload
 (defun holes-mode (&optional arg)
   "If ARG is nil, then toggle holes mode on/off.
 If arg is positive, then turn holes mode on.  If arg is negative, then
@@ -1024,23 +857,15 @@ turn it off."
   (interactive)
   (setq holes-mode (if (null arg) (not holes-mode)
 		     (> (prefix-numeric-value arg) 0)))
-  )
+  (cond
+   (holes-mode
+    (add-hook 'skeleton-end-hook 'holes-skeleton-end-hook nil t))
+   (t
+    (remove-hook 'skeleton-end-hook 'holes-skeleton-end-hook t))
+  (run-hooks 'holes-mode-hook)))
 
 (or (assq 'holes-mode minor-mode-alist)
     (setq minor-mode-alist
 	  (cons '(holes-mode " Holes") minor-mode-alist)))
 
 (provide 'holes)
-
-
-(provide 'holes)
-
-
-;;; Local Variables:
-;; End:
-
-;; holes.el ends here
-
-(provide 'holes)
-
-;;; holes.el ends here
