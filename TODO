@@ -3,20 +3,29 @@ This is our brief list of planned things to do to Proof General.
 Please send any suggestions, comments, or offers of help to
 proofgen@dcs.ed.ac.uk.  Thanks!
 
-Plan of Changes for Proof General 2.2
---------------------------------------
+Plan of Changes for Proof General 3.0
+-------------------------------------
 
 * Fix bugs and improve code and documentation
   Based on user feedback.  
-
-* Queue manipulation improvment: allow to extend or reduce
-  during processing, with fewer "Proof Process Busy"
-  messages.  
 
 * Font-lock based on annotations in proof assistant output.
   Particularly: colouration for Isabelle variable names.
 
 * x-symbol support integration.
+
+* More toolbar buttons.  Improvement of menus.
+
+
+Plans for later versions
+------------------------
+
+* Add an example instantiation of Proof General
+  using no prover-specific extensions (perhaps for Isabelle)
+
+* Queue manipulation improvment: allow to extend or reduce
+  during processing, with fewer "Proof Process Busy"
+  messages.  
 
 * Isabelle PG: Non-blocking for .thy loading from .ML files.
   (hopefully as happy side effect of queue improvement)
@@ -27,15 +36,8 @@ Plan of Changes for Proof General 2.2
   processing.  Handle deleted buffers smoothly.
 
 
-MEDIUM TERM
------------
-
-* Add an example instantiation of Proof General
-  using no prover-specific extensions (perhaps for Isabelle)
-
-
-LONGER TERM
------------
+Plans for even later versions
+-----------------------------
 
 * Add a browser mode for browsing script files 
   and/or theory data-structures in the prover.

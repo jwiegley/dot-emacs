@@ -51,7 +51,7 @@
 
 # Release tag.  For pre-releases.  Watch out with
 # substitution in tag target below, which edits $(DOWNLOADHTML)
-PRERELEASE_TAG=2.2pre$(shell date "+%y%m%d")
+PRERELEASE_TAG=3.0pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
 # html/download.phtml
