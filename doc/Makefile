@@ -124,6 +124,7 @@ ps:	dvi $(DOCNAME).ps
 psz:	ps $(DOCNAME).ps.gz
 pdf:    ProofGeneralPortrait.pdf $(DOCNAME).pdf
 html:   $(DOCNAME).html
+	ln -sf $(DOCNAME)_toc.html index.html
 info:   ProofGeneral.txt $(DOCNAME).info
 
 # NB: for info, could make localdir automatically from
