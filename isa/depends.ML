@@ -20,7 +20,7 @@ Visualize dependencies of theorems.
 
 signature BASIC_THM_DEPS =
 sig
-  val new_thm_deps : thm list -> unit
+  val PG_thm_deps : thm list -> unit
 end;
 
 signature PG_THM_DEPS =
@@ -78,7 +78,7 @@ fun make_deps_graph (p, AbsP (_, _, prf)) = make_deps_graph (p, prf)
           make_deps_graph ((gra, parents), prf')
       end;
 
-fun new_thm_deps thms =
+fun PG_thm_deps thms =
   let
     val header = "Proof General, the theorem dependencies are: \"";
     val gra = map snd (Symtab.dest (fst (foldl make_deps_graph ((Symtab.empty, []),
@@ -100,25 +100,25 @@ val old_qed = qed;
 fun qed name = 
   let val _ = old_qed name
       val proved_thm = thm name
-   in new_thm_deps [proved_thm] end;
+   in PG_thm_deps [proved_thm] end;
 
 val old_qed_goal = qed_goal;
 fun qed_goal name thy goal tacsf =
   let val _ = old_qed_goal name thy goal tacsf
       val proved_thm = thm name
-   in new_thm_deps [proved_thm] end;
+   in PG_thm_deps [proved_thm] end;
 
 val old_qed_goalw = qed_goalw;
 fun qed_goalw name thy rews goal tacsf =
   let val _ = old_qed_goalw name thy rews goal tacsf
       val proved_thm = thm name
-   in new_thm_deps [proved_thm] end;
+   in PG_thm_deps [proved_thm] end;
 
 (* FIXME: this one only in HOL?? *)
 val old_qed_spec_mp = qed_spec_mp;
 fun qed_spec_mp name = 
   let val _ = old_qed_spec_mp name
       val proved_thm = thm name
-   in new_thm_deps [proved_thm] end;
+   in PG_thm_deps [proved_thm] end;
 
 
