@@ -20,6 +20,21 @@ versions, and those which only apply to particular versions.
 If you have more than one theorem with the same name in a buffer,
 their proof visibilities are controlled together.
 
+** Issues with tracing mode (Isabelle only)
+
+1. Large volumes of output can cause Emacs to hog CPU spending
+all its time processing the output (esp with fontifying and X-symbol
+decoding).   It becomes difficult to use normal editing commands,
+even C-c C-c to interrupt the prover.  Workaround: hitting C-g,
+the Emacs quit key, will interrupt the prover in this state.
+See manual for further description of this.
+
+2. Interrupt response may be lost in large volumes of output, when
+using pty communication.  Symptom is interrupt on C-g, but PG thinks
+the prover is still busy.  Workaround: hit return in the shell buffer,
+or set proof-shell-process-connection-type to nil to use piped
+communication.
+
 ** If the proof assistant goes into a loop displaying lots of information
 
 It may be difficult or impossible to interrupt it, because Emacs
