@@ -4508,7 +4508,7 @@ I know of the following package---please check its manual for details.
 @item
 @pindex ProofGeneral
 @cindex Isabelle Symbol
-Package @uref{http://www.proofgeneral.org/,ProofGeneral} defines token
+Package @uref{http://proofgeneral.inf.ed.ac.uk/,ProofGeneral} defines token
 language ``Isabelle symbol''.
 @end itemize
 
@@ -6924,7 +6924,7 @@ to create the executables (type @kbd{M-x x-symbol-exec-create}).
 New functions used for interaction with Emacs package @code{comint}.
 This is necessary for new token language ``Isabelle symbol'', to be
 distributed with Emacs package
-@uref{http://www.proofgeneral.org/,ProofGeneral}.
+@uref{http://proofgeneral.inf.ed.ac.uk/,ProofGeneral}.
 
 @item
 New characters used for token languages ``@TeX{} macro'' and ``Isabelle
