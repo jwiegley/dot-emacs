@@ -1,0 +1,108 @@
+/* Style sheet for the Proof General web pages. 
+ *
+ * David Aspinall, June 1999.
+ *
+ * $Id$
+ *
+ */
+
+body{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	/* font for the doc body */
+ background: #2D1D03;					/* background brown */
+ background-image: url(images/canvaswallpaper.jpg);     /* background wallpaper */
+ background-attachment: fixed;				/* background shouldn't scroll */
+ color: #FFFFFF						/* text colour is white */
+}
+
+p{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	/* Netscape is picky, */
+ color: #FFFFFF					/* so we must set every tag */
+}
+
+pre{
+ font-family: LucidaTypewriter, mono;
+ color: #FFFFFF					
+}
+
+h1{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;
+ color: #FFFFFF;
+ font-size: large
+}
+
+h2{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;
+ font-size: medium;
+ color: #FFFFD0
+}
+
+h3{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ font-size: medium;
+ color: #FFFFD0
+}
+
+blockquote,form,input,select{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ color: #FFFFFF
+}
+
+address{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ font-size: small;				/* "smaller" is better on IE */
+ color: #FFFFFF					/* but varies randomly in NN */
+}
+
+input,select,textarea {
+ background: #2D1D03;
+ color: #FFFFFF
+}
+
+/* Lists */
+
+dl{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ color: #FFFFFF
+}
+dt{ font-style: italic; font-weight: bold }      /* Netscape misses this, */
+.descitem{ font-style: italic; font-weight: bold } /* so duplicate by hand */
+
+ul{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ color: #FFFFFF
+}
+
+/* Table Elements */
+table{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ color: #FFFFFF
+}
+
+td{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ color: #FFFFFF
+}
+
+tr{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ color: #FFFFFF
+}
+
+/* Link Elements */
+a:link,a:visited{					/* visited appears same */
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ text-decoration: none;				/* Remove the underline */
+ color: #FFD820
+}
+
+/* hover is IE specific? */
+a:active,a:hover{
+ font-family: Verdana, Arial, LucidaSans, sans-serif;	
+ text-decoration: underline;			/* Underline on mouse over */
+ color: #FFF030					/* Brighter colour too */
+}
+
+p.nb{
+ font-size: smaller,
+ font-style: italic
+}
