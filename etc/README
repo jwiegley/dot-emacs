@@ -14,10 +14,12 @@ ProofGeneral.desktop   Menu file for some Linux versions.
 
 announce	       Announcement
 		       
-lego		       Files for testing LEGO Proof General
-isa					 Isabelle Proof General
-isar					 Isar PG
-demoisa					 Isabelle Demo PG
+lego		       Files for testing: LEGO Proof General
+isa					  Isabelle Proof General
+isar					  Isar PG
+demoisa					  Isabelle Demo PG
+coq					  Coq
+<otherprover>				   .. others, similarly
 
 
 bug-notes.txt	       Test cases for Emacs or PG bugs
