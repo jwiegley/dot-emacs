@@ -203,7 +203,7 @@
 ;;; Added NT Emacs bug workaround
 
 (require 'comint)
-(require 'auc-menu) 
+(require 'easymenu) 
 
 ;;;----------------------------------------------------------------------
 ;;; User visible variables

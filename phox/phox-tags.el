@@ -109,10 +109,6 @@
 "Phox menu for dealing with tags"
 )
 
-;; default
-
-(if phox-tags-doc (add-hook 'phox-mode-hook 'phox-tags-add-doc-table))
-
 (provide 'phox-tags)
 
 

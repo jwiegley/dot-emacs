@@ -79,6 +79,11 @@
 (require 'phox-tags)
 (require 'phox-outline)
 
+;; default for tags [da: moved here to fix compilation 15/02/03]
+
+(if phox-tags-doc 
+    (add-hook 'phox-mode-hook 'phox-tags-add-doc-table))
+
 
 ;; ----- PhoX specific menu
 

@@ -11,10 +11,37 @@
 
 (require 'proof-syntax)
 
+;; da 15/2/03: without defvars compilation breaks
+;; This may have broken some of logic below
+(defvar coq-version-is-V74 nil)
+(defvar coq-version-is-V7 nil)
+
+
+;; Pierre: we will have both versions V6 and V7 during a while the test with "coqtop
+;; -v" can be skipped if the variable coq-version-is-V7 is already set (useful for
+;; people dealing with several version of coq) We also have coq-version-is-V74, to
+;; deal with the new module system
+(cond
+ ((boundp 'coq-version-is-V74) (setq coq-version-is-V7 t))
+ ((boundp 'coq-version-is-V7) (setq coq-version-is-V74 nil))
+ (t 
+  (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
+         (x (string-match "version \\([.0-9]*\\)" str))
+         (num (match-string 1 str)))
+    (cond
+     ((string-match num "\\<6.")
+      (message "coq is V6") (setq coq-version-is-V7 nil) (setq coq-version-is-V74 nil))
+     ((or (string-match num "\\<7.0") (string-match num "\\<7.1") 
+          (string-match num "\\<7.2") (string-match num "\\<7.3")) 
+      (message "coq is V7 =< 7.3") 
+      (setq coq-version-is-V7 t) (setq coq-version-is-V74 nil))
+      ;default: 7.3.1 and above ---> 7.4 
+     (t (message "coq is => V7.3.1")
+        (setq coq-version-is-V7 t) (setq coq-version-is-V74 t))))))
+
+
+
 ;; ----- keywords for font-lock.
-
-
-
 
 
 (defvar coq-keywords-decl
