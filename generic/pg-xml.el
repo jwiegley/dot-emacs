@@ -1,6 +1,6 @@
 ;; pg-xml.el	 XML functions for Proof General
 ;;
-;; Copyright (C) 2000-2001 LFCS Edinburgh. 
+;; Copyright (C) 2000-2002 LFCS Edinburgh. 
 ;;
 ;; Author: David Aspinall <da@dcs.ed.ac.uk>
 ;;
@@ -181,9 +181,11 @@ is
 ;; Producing functions: state-based writing of an XML doc,
 ;;			built up in pg-xml-doc
 
+(defconst pg-xml-header 
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 
 (defvar pg-xml-doc nil
-  "Current document being written")
+  "Current document being written (a reversed list of strings).")
 
 (defvar pg-xml-openelts nil
   "Stack of openelements")
@@ -191,8 +193,9 @@ is
 (defvar pg-xml-indentp nil
   "Whether to indent written XML documents")
 
-(defun pg-xml-begin-write ()
-  (setq pg-xml-doc nil
+(defun pg-xml-begin-write (&optional header)
+  "Start writing an XML document.  If HEADER is non-nil, add <?xml ?>"
+  (setq pg-xml-doc (if header (list pg-xml-header))
 	pg-xml-openelts nil))
 
 (defun pg-xml-indent ()
@@ -240,7 +243,7 @@ is
 
 ;; Test document:
 ;;(progn
-;;  (pg-xml-begin-write)
+;;  (pg-xml-begin-write t)
 ;;  (pg-xml-openelt 'root)
 ;;  (pg-xml-openelt 'a '((class . "1B")))
 ;;  (pg-xml-writetext "text a")
