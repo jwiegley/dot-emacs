@@ -1421,7 +1421,11 @@ and positions makes possible the @kbd{M-.} command which finds the
 definition of a function by looking up which of the files it is in.
 
 Some instantiations of Proof General (currently LEGO and Coq) are
-supplied with external programs for making tags tables.  Once a tag
+supplied with external programs (@file{legotags} and @file{coqtags}) for
+making tags tables.  For example, invoking @samp{coqtags *.v} produces a file
+@file{TAGS} for all files @samp{*.v} in the current directory. Invoking @samp{coqtags `find . -name \*.v`} produces a file
+@file{TAGS} for all files ending in @samp{.v} in the current directory 
+structure. Once a tag
 table has been made for your proof developments, you can use the Emacs
 tags mechanisms to find tags, and complete symbols from tags table.
 
@@ -1853,14 +1857,11 @@ Refine
 @node LEGO tags
 @section LEGO tags
 
-LEGO Proof General provides the program @file{legotags} to generate tags
-for LEGO proof scripts. Invoking @samp{legotags *.l} produces a file
-@file{TAGS} for all LEGO modules in the current directory @footnote{You
+You
 might want to ask your local system administrator to tag the directories
 @file{lib_Prop}, @file{lib_Type} and @file{lib_TYPE} of the LEGO
-library.}.  
+library. See @ref{Support for tags} for further details on tags.
 
-See @ref{Support for tags} for further details on tags.
 
 
 @node LEGO customizations
@@ -1907,7 +1908,6 @@ General.
 
 @menu
 * Coq-specific commands::
-* Coq tags::
 * Editing multiple proofs::
 * User-loaded tactics::
 * Suggested Coq abbreviations::
@@ -1930,16 +1930,6 @@ Inserts ``Apply '' into proof buffer.
 Runs Coq's search utility on a user-provided string, using
 the @code{Search} command of Coq.
 @end table
-
-@node Coq tags
-@section Coq tags
-@c could be generic
-
-Coq Proof General provides the program @file{coqtags} to generate tags
-for Coq proof scripts. Invoking @samp{coqtags *.v} produces a file
-@file{TAGS} for all files @samp{*.v} in the current directory.
-
-See @ref{Support for tags} for further details on tags.
 
 @node Editing multiple proofs
 @section Editing multiple proofs
