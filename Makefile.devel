@@ -102,11 +102,11 @@ TAR=tar
 DEVELMAKE=make -f Makefile.devel
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneral.eps* doc/ProofGeneral.pdf images/*.xcf images/notes.txt images/gimp images/Makefile isa/wip.ML html/notes.txt plastic/ isar/ 
+NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneral.eps* doc/ProofGeneral.pdf images/*.xcf images/notes.txt images/gimp images/Makefile html/notes.txt plastic/
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
-IGNOREDFILES=doc/ProofGeneral.dvi doc/ProofGeneral.eps.gz Makefile.devel todo isa/wip.ML ChangeLog
+IGNOREDFILES=doc/ProofGeneral.dvi doc/ProofGeneral.eps.gz Makefile.devel todo ChangeLog
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -137,11 +137,11 @@ FILES_NONCVS = ChangeLog TAGS
 DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
-ELISP_DIRS=generic lego coq isa
+ELISP_DIRS=generic lego coq isa isar
 
 PWD=$(shell pwd)
 
-BYTECOMP = $(EMACS) -batch -q -no-site-file -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa") load-path))' -f batch-byte-compile
+BYTECOMP = $(EMACS) -batch -q -no-site-file -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa" "$(PWD)/isar") load-path))' -f batch-byte-compile
 
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
