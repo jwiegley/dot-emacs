@@ -480,12 +480,22 @@ Names must be unique for a given "
 (defun pg-show-all-proofs ()
   "Display all completed proofs in the buffer."
   (interactive)
-  (pg-show-all-portions "proof"))
+  (pg-show-all-portions "proof")
+  (unless proof-running-on-XEmacs
+    ;; FSF Emacs requires redisplay here to see result
+    ;; (sit-for 0) not enough
+    (redraw-frame (selected-frame))))
+  
 
 (defun pg-hide-all-proofs ()
   "Hide all completed proofs in the buffer."
   (interactive)
-  (pg-show-all-portions "proof" 'hide))
+  (pg-show-all-portions "proof" 'hide)
+  (unless proof-running-on-XEmacs
+    ;; FSF Emacs requires redisplay here to see result
+    ;; (sit-for 0) not enough
+    (redraw-frame (selected-frame))))
+
 
 (defun pg-add-proof-element (name span controlspan)
   (pg-add-element "proof" name span)
@@ -494,12 +504,37 @@ Names must be unique for a given "
   (set-span-property span 'idiom 'proof)
   (set-span-property span 'controlspan controlspan)
   ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
+  (pg-set-span-helphighlights span 'nohighlight)
   (if proof-disappearing-proofs 
       (pg-make-element-invisible "proof" name)))
 
+(defun pg-span-name (span)
+  "Return a user-level name for SPAN."
+  (let ((type    (span-property span 'type))
+	(idiom   (span-property span 'idiom))
+	(name    (span-property span 'name)))
+    (cond 
+     (idiom
+      (concat (upcase-initials (symbol-name idiom))
+	      (if name (concat ": " name))))
+     ((or (eq type 'proof) (eq type 'goalsave))
+      (concat "Proof" 
+	      (let ((name (span-property span 'name)))
+		(if name (concat " of " name)))))
+     ((eq type 'comment)   "Comment")
+     ((eq type 'vanilla)   "Command")
+     ((eq type 'pbp)       "PBP command")
+     ((eq type 'proverproc)
+		           "Prover-processed region"))))
 
-  
-
+(defun pg-set-span-helphighlights (span &optional nohighlight)
+  "Set the help echo message, default highlight, and keymap for SPAN."
+  (let ((helpmsg (pg-span-name span)))
+    (set-span-property span 'balloon-help helpmsg)
+    (set-span-property span 'help-echo helpmsg)
+    (set-span-property span 'keymap pg-span-context-menu-keymap)
+    (unless nohighlight
+      (set-span-property span 'mouse-face 'proof-mouse-highlight-face))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1135,10 +1170,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
     (cond
      ;; CASE 1: Comments just get highlighted
      ((eq (span-property span 'type) 'comment)
-      (set-span-property span 'mouse-face 'proof-mouse-highlight-face))
-      ;; Testing for 3.4:
-      ;; (pg-add-element "comment" "everycomment" span)
-      ;; (set-span-property span 'keymap pg-span-context-menu-keymap))
+      (pg-set-span-helphighlights span))
       
      ;; CASE 2: Save command seen, now we'll amalgamate spans.
      ((and proof-save-command-regexp
@@ -1213,10 +1245,10 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; Now make the new goal-save span
 	(setq goalend (span-end gspan))
 	(set-span-end gspan end)
-	(set-span-property gspan 'mouse-face 'proof-mouse-highlight-face)
 	(set-span-property gspan 'type 'goalsave)
 	(set-span-property gspan 'idiom 'proof);; links to nested proof element
 	(set-span-property gspan 'name nam)
+	(pg-set-span-helphighlights gspan)
 
 	;; Make a nested span which contains the purported body of the
 	;; proof, and add to buffer-local list of elements, maybe
@@ -1226,9 +1258,6 @@ the ACS is marked in the current buffer. If CMD does not match any,
 				      saveend savestart))))
 	  (pg-add-proof-element nam proofbodyspan gspan))
 
-	;; Set the context sensitive menu/keys
-	(set-span-property gspan 'keymap pg-span-context-menu-keymap)
-	
 	;; *** Theorem dependencies ***
 	(if proof-last-theorem-dependencies
 	    (proof-depends-process-dependencies nam gspan))
@@ -1318,12 +1347,12 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  ;; Don't bother with Coq's lift global stuff, we assume this
 	  ;; case is only good for non-nested goals.
 	  (set-span-end gspan newend)
-	  (set-span-property gspan 'mouse-face 'proof-mouse-highlight-face)
 	  (set-span-property gspan 'type 'goalsave)
-	  (set-span-property gspan 'name nam))
+	  (set-span-property gspan 'name nam)
+	  (pg-set-span-helphighlights span))
 	;; Finally, do the usual thing with highlighting for the span.
 	(unless swallow
-	  (set-span-property span 'mouse-face 'proof-mouse-highlight-face))))
+	  (pg-set-span-helphighlights span))))
 
 
      ;; "ACS" for possible future implementation
@@ -1333,7 +1362,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
      (t
       (if proof-shell-proof-completed
 	  (incf proof-shell-proof-completed))
-      (set-span-property span 'mouse-face 'proof-mouse-highlight-face)
+      (pg-set-span-helphighlights span)
       (and proof-global-p 
 	   (funcall proof-global-p cmd)
 	   proof-lift-global
