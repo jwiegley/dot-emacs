@@ -1,3 +1,9 @@
+04.04.00  3.1.3 Release 3-1-3
+	  Fixed two problems with Isabelle theory loader interface 
+          (first introduced accidently in 3.1, second a bug/issue in Isabelle)
+	  Markus's continuing Isar syntax patches.
+	  Updated some copyright notices.
+
 24.03.00  3.1.2 Release 3-1-2
 	  Small improvement to HOL support.
 
@@ -5,7 +11,6 @@
 	  Added more fixes for Isabelle and Windows.
 	  Fixes for Windows, using proper colours, etc.
 	  Markus's Isar syntax patches.
-
 
 23.03.00  3.1	Release 3-1
 	  First version of 3.1 release
