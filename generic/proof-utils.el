@@ -590,6 +590,12 @@ The warning is coloured with proof-warning-face."
   (pg-response-display-with-face (apply 'concat args) 'proof-warning-face)
   (proof-display-and-keep-buffer proof-response-buffer))
 
+(defun pg-internal-warning (message)
+  "Display internal warning MESSAGE."
+  (if (fboundp 'display-warning)
+      (display-warning 'proof-general message)
+    (message message)))
+
 ;; could be a macro for efficiency in compiled code
 (defun proof-debug (msg &rest args)
   "Issue the debugging message (format MSG ARGS) in the response buffer, display it.
