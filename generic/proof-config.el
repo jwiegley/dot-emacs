@@ -123,6 +123,11 @@ support depends on whether your proof assistant supports it."
   :set 'proof-set-value
   :group 'proof-user-options)
 
+(defcustom pg-show-hints t
+  "*Whether to display keyboard hints in the minibuffer."
+  :type 'boolean
+  :group 'proof-user-options)
+  
 (defcustom proof-output-fontify-enable t
   "*Whether to fontify output from the proof assistant.
 If non-nil, output from the proof assistant will be highlighted
