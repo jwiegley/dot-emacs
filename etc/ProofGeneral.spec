@@ -50,10 +50,12 @@ mkdir -p ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 mkdir -p ${RPM_BUILD_ROOT}/usr/bin
 mv lego/legotags coq/coqtags ${RPM_BUILD_ROOT}/usr/bin
 
-# Put info file in proper place.
+# Put info file in proper place, compress it.
 mkdir -p ${RPM_BUILD_ROOT}/usr/info
-mv doc/ProofGeneral.info doc/ProofGeneral.info-* ${RPM_BUILD_ROOT}/usr/info
-gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info-*
+mv doc/ProofGeneral.info* ${RPM_BUILD_ROOT}/usr/info
+mv doc/PG-adapting.info*  ${RPM_BUILD_ROOT}/usr/info
+gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info 
+gzip ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info*
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
@@ -67,14 +69,18 @@ fi
 
 %post
 /sbin/install-info /usr/info/ProofGeneral.info.gz /usr/info/dir
+/sbin/install-info /usr/info/PG-adapting.info.gz /usr/info/dir
 
 %preun
 /sbin/install-info --delete /usr/info/ProofGeneral.info.gz /usr/info/dir
+/sbin/install-info --delete /usr/info/PG-adapting.info.gz /usr/info/dir
 
 %files
 %attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/* {coq,lego,isa,isar,hol98}/README */BUGS
 %attr(-,root,root) /usr/info/ProofGeneral.info.gz
 %attr(-,root,root) /usr/info/ProofGeneral.info-*.gz
+%attr(-,root,root) /usr/info/PG-adapting.info.gz
+%attr(-,root,root) /usr/info/PG-adapting.info-*.gz
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
