@@ -289,17 +289,6 @@
     (proof-shell-invisible-command
      (concat "SearchIsos " cmd proof-terminal-string))))
 
-(defun coq-Search ()
-  "Search all constant that have the given head symbol
-
-  This is specific to coq-mode."
-  (interactive)
-  (let (cmd)
-    (proof-shell-ready-prover) 
-    (setq cmd (read-string "Search: " nil 'proof-minibuffer-history))
-    (proof-shell-invisible-command
-     (concat "Search " cmd proof-terminal-string))))
-
 (defun coq-begin-Section ()
   "begins a Coq section."
   (interactive)
@@ -457,7 +446,6 @@
 
   (define-key (current-local-map) [(control c) ?I] 'coq-Intros)
   (define-key (current-local-map) [(control c) ?a] 'coq-Apply)
-  (define-key (current-local-map) [(control c) (control s)] 'coq-Search)
   (define-key (current-local-map) [(control c) ?s] 'coq-begin-Section)
   (define-key (current-local-map) [(control c) ?e] 'coq-end-Section)
   (define-key (current-local-map) [(control c) (control m)] 'coq-Compile)
