@@ -204,9 +204,7 @@ Checks based on those in proof-check-process-available, but
 without giving error messages."
   (and (eq proof-buffer-type 'script)
        (proof-shell-live-buffer)
-       (not proof-shell-busy)
-       ;; this last check is wrong for pbp buffer!
-       (eq (car proof-script-buffer-list) (current-buffer))))
+       (not proof-shell-busy)))
 
 (defun proof-toolbar-undo-enable-p () 
   (and (proof-toolbar-process-available-p)
@@ -237,7 +235,8 @@ Move point if the end of the locked position is invisible."
   (proof-goto-end-of-locked-if-pos-not-visible-in-window))
 
 (defun proof-toolbar-retract-enable-p ()
-  (proof-toolbar-process-available-p))
+  (and (proof-toolbar-process-available-p)
+       (member (current-buffer) proof-script-buffer-list)))
 
 (defun proof-toolbar-retract ()
   "Retract buffer."
