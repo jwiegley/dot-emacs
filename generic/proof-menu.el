@@ -242,6 +242,8 @@ If in three window or multiple frame mode, display two buffers."
 (proof-deftoggle proof-disappearing-proofs)
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 
+
+
 (defvar proof-quick-opts-menu
   (cons 
    "Options"
@@ -305,13 +307,15 @@ If in three window or multiple frame mode, display two buffers."
        :style radio
        :selected (eq proof-follow-mode 'ignore)])
      "----"
-     ["Save Options" (proof-quick-opts-save) t]))
+     ["Reset Options" (proof-quick-opts-reset) 
+      (proof-quick-opts-changed-from-defaults-p)]
+     ["Save Options" (proof-quick-opts-save) 
+      (proof-quick-opts-changed-from-saved-p)]))
   "Proof General quick options.")
 
-(defun proof-quick-opts-save ()
-  "Save current values of PG Options menu items using Custom."
-  (interactive)
-  (pg-custom-save-vars
+(defun proof-quick-opts-vars ()
+  "Return a list of the quick option variables."
+  (list
    'proof-electric-terminator-enable
    'proof-script-fly-past-comments
    'proof-disappearing-proofs 
@@ -326,6 +330,24 @@ If in three window or multiple frame mode, display two buffers."
    'proof-multiple-frames-enable
    ;; Follow mode sub-menu
    'proof-follow-mode))
+
+(defun proof-quick-opts-changed-from-defaults-p ()
+  ;; FIXME: would be nice to add.  Custom support?
+  t)
+
+(defun proof-quick-opts-changed-from-saved-p ()
+  ;; FIXME: would be nice to add.  Custom support?
+  t)
+
+(defun proof-quick-opts-save ()
+  "Save current values of PG Options menu items using custom."
+  (interactive)
+  (apply 'pg-custom-save-vars (proof-quick-opts-vars)))
+
+(defun proof-quick-opts-reset ()
+  "Reset PG Options menu to default values, using custom."
+  (interactive)
+  (apply 'pg-custom-reset-vars (proof-quick-opts-vars)))
 
 (defconst proof-config-menu
   (list "----"
@@ -551,14 +573,21 @@ the form of the menu entry for the setting.")
 
 (defun proof-menu-define-settings-menu ()
   "Return menu generated from `proof-assistant-settings', update `proof-menu-settings'."
-  (let ((setgs proof-assistant-settings) ents)
-    (while setgs
-      (setq ents (cons 
-		  (apply 'proof-menu-entry-for-setting (car setgs)) ents))
-      (setq setgs (cdr setgs)))
-    (if ents
+  (if proof-assistant-settings
+      (let ((setgs proof-assistant-settings) 
+	    (save  (list "----"
+			 ["Reset Settings" (proof-settings-reset) 
+			  (proof-settings-changed-from-defaults-p)]
+			 ["Save Settings" (proof-settings-save)
+			  (proof-settings-changed-from-saved-p)]
+	    ents)
+	(while setgs
+	  (setq ents (cons 
+		      (apply 'proof-menu-entry-for-setting (car setgs)) ents))
+	  (setq setgs (cdr setgs)))
 	(setq proof-menu-settings 
-	      (list (cons "Settings" ents))))))
+	      (list (cons "Settings" 
+			  (nconc ents save)))))))
 
 (defun proof-menu-entry-name (symbol)
   "Return a nice menu entry name for SYMBOL."
@@ -582,6 +611,30 @@ the form of the menu entry for the setting.")
       (vector entry-name 
 	      (proof-defstringset-fn pasym)
 	      t)))))
+
+(defun proof-settings-vars ()
+  "Return a list of proof assistant setting variables."
+  (mapcar (lambda (setting) (proof-ass-symv (car setting)))
+	  proof-assistant-settings))
+
+(defun proof-settings-changed-from-defaults-p ()
+  ;; FIXME: would be nice to add.  Custom support?
+  t)
+
+(defun proof-settings-changed-from-saved-p ()
+  ;; FIXME: would be nice to add.  Custom support?
+  t)
+
+(defun proof-settings-save ()
+  "Save current values of proof assistant settings using Custom."
+  (interactive)
+  (apply 'pg-custom-save-vars (proof-settings-vars)))
+
+(defun proof-settings-reset ()
+  "Reset proof assistant settings to their default values."
+  (interactive)
+  (apply 'pg-custom-reset-vars (proof-settings-vars)))
+
 
 ;;; autoload for compiled version: used in macro proof-defpacustom
 ;;;###autoload
@@ -679,7 +732,13 @@ evaluate can be provided instead."
 (defun proof-assistant-settings-cmd (&optional setting)
   "Return string for making setting vals kept in Proof General customizations.
 If SETTING is non-nil, return a string for just that setting. 
-Otherwise return a string for configuring all settings."
+Otherwise return a string for configuring all settings.
+
+If `proof-assistants-settings' is nil and PGIP is supported, then
+first we query settings information from prover."
+  (if (and (not proof-assistant-settings)
+	   proof-shell-issue-pgip-cmd)
+      (pg-pgip-askprefs))
   (let
       ((evalifneeded (lambda (expr)
 			(if (and (cadr expr) ;; setting has PA string?
@@ -724,8 +783,6 @@ NB: variable curvalue is dynamically scoped (used in proof-assistant-format).")
 
 (defun proof-assistant-format-string (value)
   (funcall proof-assistant-format-string-fn value))
-
-
 
 
 
