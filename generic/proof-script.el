@@ -2108,11 +2108,17 @@ others)."
 	(setq span (prev-span span 'type)))
       span)))
 
+;;
 ;; NB: Should carefully explain/document this behaviour somewhere.
 ;; The undo is three-phase:
 ;;    undo-cmd - ...  - undo-cmd  within proof
 ;;    kill proof		  exit proof
 ;;    forget-to-declaration       forget target span
+;;
+;; It turns out that this behaviour is not quite right for Coq.
+;; It might be simpler to just use a single undo/forget 
+;; command, which is called in all cases.
+;;
 (defun proof-retract-target (target delete-region)
   "Retract the span TARGET and delete it if DELETE-REGION is non-nil.
 Notice that this necessitates retracting any spans following TARGET,
@@ -2122,14 +2128,18 @@ up to the end of the locked region."
 	(span  (proof-last-goal-or-goalsave))
 	actions)
 
+    ;; NB: first section only entered if proof-kill-goal-command is
+    ;; non-nill.  Otherwise we expect proof-find-and-forget-fn to do
+    ;; all relevent work for arbitrary retractions.  FIXME: clean up
 
     ;; Examine the last span in the locked region.  
     
     ;; If the last goal or save span is not a proof or
-    ;; prover processed file, we examine to see how to remove it
-    (if (and span (not (or
-			(memq (span-property span 'type) 
-			      '(goalsave proverproc)))))
+    ;; prover processed file, we examine to see how to remove it.
+    (if (and span proof-kill-goal-command 
+	     (not (or
+		   (memq (span-property span 'type) 
+			 '(goalsave proverproc)))))
 	;; If the goal or goalsave span ends before the target span,
 	;; then we are retracting within the last unclosed proof,
 	;; and the retraction just amounts to a number of undo
@@ -2165,6 +2175,8 @@ up to the end of the locked region."
     ;; Check the start of the target span lies before the end
     ;; of the locked region (should always be true since we don't
     ;; make spans outside the locked region at the moment)...
+    ;; But end may have moved backwards above: this just checks whether
+    ;; there is more retraction to be done.
     (if (> end start) 
 	(setq actions
 	      ;; Append a retract action to clear the entire
