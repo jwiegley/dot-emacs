@@ -46,8 +46,8 @@
 
 (defvar coq-keywords-goal
   '("Chapter"
-    "Module\\s-+Type"
     "Module"
+    "Module\\s-+Type"
     "Section"
     "Correctness"
     "Definition"
