@@ -37,53 +37,55 @@
 ;; font lock faces: declarations, errors, tacticals                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; FIXME 1: these names are bad, should be proof-<blah>-face.
-;; FIXME 2: use defface here
 
-(defun proof-have-color ()
-  "Do we have support for colour?"
-  (or (and (fboundp 'device-class)
-	   (eq (device-class (frame-device)) 'color))
-      (and (fboundp 'x-display-color-p) (x-display-color-p))))
+;; FACES have been moved to proof-config.
+;; Old code left here while testing.
 
-(defvar font-lock-declaration-name-face 
-(progn 
-  (cond 
-   ((proof-have-color)
-    (copy-face 'bold 'font-lock-declaration-name-face)
+;(defun proof-have-color ()
+;  "Do we have support for colour?"
+;  (or (and (fboundp 'device-class)
+;	   (eq (device-class (frame-device)) 'color))
+;      (and (fboundp 'x-display-color-p) (x-display-color-p))))
 
-    ;; Emacs 19.28 compiles this down to
-    ;; internal-set-face-1. This is not compatible with XEmacs
-    (set-face-foreground
-     'font-lock-declaration-name-face "chocolate"))
-   (t (copy-face 'bold-italic 'font-lock-declaration-name-face)))))
+;(defvar font-lock-declaration-name-face 
+;(progn 
+;  (cond 
+;   ((proof-have-color)
+;    (copy-face 'bold 'font-lock-declaration-name-face)
+
+;    ;; Emacs 19.28 compiles this down to
+;    ;; internal-set-face-1. This is not compatible with XEmacs
+;    (set-face-foreground
+;     'font-lock-declaration-name-face "chocolate"))
+;   (t (copy-face 'bold-italic 'font-lock-declaration-name-face)))))
 
 ;;  (if running-emacs19
 ;;      (setq font-lock-declaration-name-face
 ;;	    (face-name 'font-lock-declaration-name-face))
 
-(defvar font-lock-tacticals-name-face
-(if (proof-have-color)
-    (let ((face (make-face 'font-lock-tacticals-name-face)))
-      (dont-compile
-	(set-face-foreground face "MediumOrchid3"))
-      face)
-  (copy-face 'bold 'font-lock-tacticals-name-face)))
 
-(defvar font-lock-error-face
-  (let ((face (make-face 'font-lock-error-face)))
-    (copy-face 'bold 'font-lock-error-face)
-    (and (proof-have-color) (set-face-background face "salmon1"))
-    face)
-  "*The face for error messages.")
+;(defvar font-lock-tacticals-name-face
+;(if (proof-have-color)
+;    (let ((face (make-face 'font-lock-tacticals-name-face)))
+;      (dont-compile
+;	(set-face-foreground face "MediumOrchid3"))
+;      face)
+;  (copy-face 'bold 'font-lock-tacticals-name-face)))
 
-(defvar font-lock-eager-annotation-face
-  (let ((face (make-face 'font-lock-eager-annotation-face)))
-    (if (proof-have-color)
-	(set-face-background face "lemon chiffon")
-      (copy-face 'italic face))
-    face)
-  "*The face for urgent messages.")
+;(defvar font-lock-error-face
+;  (let ((face (make-face 'font-lock-error-face)))
+;    (copy-face 'bold 'font-lock-error-face)
+;    (and (proof-have-color) (set-face-background face "salmon1"))
+;    face)
+;  "*The face for error messages.")
+
+;(defvar font-lock-eager-annotation-face
+;  (let ((face (make-face 'font-lock-eager-annotation-face)))
+;    (if (proof-have-color)
+;	(set-face-background face "lemon chiffon")
+;      (copy-face 'italic face))
+;    face)
+;  "*The face for urgent messages.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A big hack to unfontify commas in declarations and definitions.  ;;
@@ -103,7 +105,7 @@
       (goto-char start)
       (while (search-forward "," end t)
 	(if (memq (get-char-property (- (point) 1) 'face)
-		'(font-lock-declaration-name-face
+		'(proof-declaration-name-face
 		  font-lock-function-name-face))
 	    (font-lock-remove-face (- (point) 1) (point))
 	    )))))

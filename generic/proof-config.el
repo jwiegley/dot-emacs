@@ -66,6 +66,23 @@ Used internally and in menu titles."
   :type 'boolean
   :group 'proof)
 
+;;
+;; Faces.
+;; We ought to test that these work sensibly:
+;;   a) with default colours
+;;   b) with -rv
+;;   c) on console 
+;;   d) on win32
+;;   e) all above with FSF Emacs and XEmacs.
+;; But it's difficult to keep track of all that!  
+;; Please report any bad/failing colour 
+;; combinations to proofgen@dcs.ed.ac.uk
+;;
+;; Some of these faces aren't used by default in Proof General,
+;; but you can use them in font lock patterns for specific
+;; script languages.
+;;
+
 (defface proof-queue-face
   '((((type x) (class color) (background light))
      (:background "mistyrose"))
@@ -73,7 +90,7 @@ Used internally and in menu titles."
      (:background "mediumvioletred"))
     (t				
      (:foreground "white" :background "black")))
-  "Face for commands in proof script waiting to be processed."
+  "*Face for commands in proof script waiting to be processed."
   :group 'proof)
 
 (defface proof-locked-face
@@ -83,8 +100,51 @@ Used internally and in menu titles."
      (:background "navy"))
     (t				
      (:underline t)))
-  "Face for locked region of proof script (processed commands)."
+  "*Face for locked region of proof script (processed commands)."
   :group 'proof)
+
+(defface proof-declaration-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "chocolate" 
+      :bold t))
+    (((type x) (class color) (background dark))   
+     (:foreground "orange"
+      :bold t))
+    (t				
+     (:italic t :bold t)))
+  "*Face for declaration names in proof scripts."
+  :group 'proof)
+
+(defface proof-tacticals-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "MediumOrchid3"))
+    (((type x) (class color) (background dark))   
+     (:foreground "orchid"))
+    (t				
+     (bold t)))
+  "*Face for names of tacticals in proof scripts."
+  :group 'proof)
+
+(defface proof-error-face 
+  '((((type x) (class color) (background light))   
+     (:background "salmon1"  
+      :bold t))
+    (((type x) (class color) (background dark))   
+     (:background "brown" 
+      :bold t))
+    (t				
+     (:bold t)))
+  "*Face for error messages from proof assistant.")
+
+(defface proof-eager-annotation-face
+  '((((type x) (class color) (background light))   
+     (:background "lemon chiffon"))
+    (((type x) (class color) (background dark))   
+     (:background "darkgoldenrod"))
+    (t				
+     (:italic t)))
+  "*Face for messages from proof assistant.")
+
 
 
 

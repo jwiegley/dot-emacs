@@ -64,7 +64,7 @@
 
    ; lambda binders
      (list (lego-decl-defn-regexp "[:|]") 1
-	   'font-lock-declaration-name-face)
+	   'proof-declaration-name-face)
 
      ; let binders
      (list lego-definiendum-alternative-regexp 1 'font-lock-function-name-face)
@@ -72,7 +72,7 @@
 
      ; Pi and Sigma binders
      (list (concat "[{<]\\s *\\(" lego-ids "\\)") 1
-	   'font-lock-declaration-name-face)
+	   'proof-declaration-name-face)
    
      ;; Kinds
      (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("

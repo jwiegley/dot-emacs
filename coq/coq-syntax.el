@@ -167,10 +167,10 @@
   (list
 
    ;; lambda binders
-   (list (coq-abstr-regexp "\\[" ":") 1 'font-lock-declaration-name-face)
+   (list (coq-abstr-regexp "\\[" ":") 1 'proof-declaration-name-face)
 
    ;; Pi binders
-   (list (coq-abstr-regexp "(" ":") 1 'font-lock-declaration-name-face)
+   (list (coq-abstr-regexp "(" ":") 1 'proof-declaration-name-face)
    
    ;; Kinds
    (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s-*\\(("
@@ -202,10 +202,10 @@
     coq-font-lock-terms
     (list
      (cons (ids-to-regexp coq-keywords) 'font-lock-keyword-face)
-     (cons (ids-to-regexp coq-tacticals) 'font-lock-tacticals-name-face)
+     (cons (ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
 
      (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face)
-     (list coq-decl-with-hole-regexp 2 'font-lock-declaration-name-face)
+     (list coq-decl-with-hole-regexp 2 'proof-declaration-name-face)
      (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
      (list coq-save-with-hole-regexp 2 'font-lock-function-name-face))))
 

@@ -400,7 +400,7 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
     ;;   detected by a regular expression.
   (proof-shell-handle-output
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
-   'font-lock-error-face)
+   'proof-error-face)
   (save-excursion (display-buffer proof-shell-buffer)
 		  (beep)
 
@@ -656,7 +656,7 @@ arrive."
   (let ((str (proof-shell-handle-output
 	      proof-shell-eager-annotation-start
 	      proof-shell-eager-annotation-end
-	      'font-lock-eager-annotation-face))
+	      'proof-eager-annotation-face))
 	file module)
     (proof-message str)))
 
@@ -717,7 +717,7 @@ arrive."
 	(t
 	 (proof-message message)
 	 (proof-response-buffer-display message
-					'font-lock-eager-annotation-face))))
+					'proof-eager-annotation-face))))
 
 (defun proof-shell-process-urgent-messages (str)
   "Scan the process output for urgent messages.

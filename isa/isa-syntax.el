@@ -111,10 +111,10 @@
   (list
    ;; lambda binders
    (list (concat "\%\\s-*\\(" isa-ids "\\)\\.") 1
-	 'font-lock-declaration-name-face)
+	 'proof-declaration-name-face)
 
    ;; Pi binders
-   (list (isa-abstr-regexp "(" ":") 1 'font-lock-declaration-name-face)
+   (list (isa-abstr-regexp "(" ":") 1 'proof-declaration-name-face)
    
    ;; Kinds
    (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s-*\\(("
@@ -143,10 +143,10 @@
     isa-font-lock-terms
     (list
      (cons (ids-to-regexp isa-keywords) 'font-lock-keyword-face)
-     (cons (ids-to-regexp isa-tacticals) 'font-lock-tacticals-name-face)
+     (cons (ids-to-regexp isa-tacticals) 'proof-tacticals-name-face)
 
      (list isa-goal-with-hole-regexp 2 'font-lock-function-name-face)
-     (list isa-decl-with-hole-regexp 2 'font-lock-declaration-name-face)
+     (list isa-decl-with-hole-regexp 2 'proof-declaration-name-face)
      (list isa-defn-with-hole-regexp 2 'font-lock-function-name-face)
      (list isa-save-with-hole-regexp 2 'font-lock-function-name-face))))
 
