@@ -639,7 +639,9 @@ This is a list of tuples of the form (TYPE . STRING). type is either
          `proof-response-buffer' ")
 
 (defun proof-shell-analyse-structure (string)
-  "Analyse the term structure of STRING and display it in proof-goals-buffer."
+  "Analyse the term structure of STRING and display it in proof-goals-buffer.
+This function converts proof-by-pointing markup into mouse-highlighted
+extents."
   (save-excursion
     (let* ((ip 0) (op 0) ap (l (length string)) 
 	   (ann (make-string (length string) ?x))
@@ -649,7 +651,14 @@ This is a list of tuples of the form (TYPE . STRING). type is either
 
       ;; Form output string by removing characters 128 or greater,
       ;; (ALL annotations), unless proof-shell-leave-annotations-in-output 
-      ;; is set.
+      ;; is set.  
+
+      ;; FIXME da: this can be removed now that we strip annotations
+      ;; immediately after fontification in proof-fontify-region.  We
+      ;; may no longer need the setting
+      ;; proof-shell-leave-annotations-in-ouput, unless it breaks LEGO
+      ;; font lock patterns for example.
+
       (unless proof-shell-leave-annotations-in-output
 	(while (< ip l)	
 	  (if (< (setq c (aref string ip)) 128)
@@ -698,6 +707,10 @@ This is a list of tuples of the form (TYPE . STRING). type is either
       ;; character codes in this buffer 8 bit)
       ;; But this is a more general problem in Proof General
       ;; which requires re-engineering all this 128 mess.
+      ;; FIXME Mk II:
+      ;; This is also going to be broken for X-Symbol interaction,
+      ;; when tokens (several chars long) are replaced by single
+      ;; characters.
       (unless
 	  ;; Don't do it for Emacs 20.3 or any version which
 	  ;; has this suspicious function.
@@ -760,6 +773,7 @@ This is a list of tuples of the form (TYPE . STRING). type is either
       (incf ip))
     (substring out 0 op)))
 
+;; FIXME: dead code
 (defun proof-shell-strip-eager-annotation-specials (string)
   "Strip special eager annotations from STRING, returning cleaned up string.
 The input STRING should be annotated with expressions matching
@@ -879,6 +893,7 @@ See the documentation for `proof-shell-delayed-output' for further details."
 ;; FIXME da: the magical use of "Done." and "done" as values in
 ;; proof-shell-handled-delayed-output is horrendous.  Should
 ;; be changed to something more understandable!!
+
 (defun proof-shell-handle-error (cmd string)
   "React on an error message triggered by the prover.
 Called with shell buffer current.
@@ -997,7 +1012,9 @@ assistant."
     (proof-clean-buffer proof-goals-buffer)
     (setq proof-shell-proof-completed t)
     (setq proof-shell-delayed-output
-	  (cons 'insert (concat "\n" (match-string 1 string)))))
+	  (cons (if proof-goals-display-qed-message
+		    'analyse 'insert)
+		(match-string 1 string))))
 
    ((proof-shell-string-match-safe proof-shell-start-goals-regexp string)
     (setq proof-shell-proof-completed nil)

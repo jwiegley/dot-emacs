@@ -95,7 +95,6 @@ it is called to take some action for the new setting."
   :type 'boolean
   :group 'proof-user-options)
 
-
 (defcustom proof-electric-terminator-enable nil 
   "*If non-nil, use electric terminator mode on start-up.
 If electric terminator mode is enabled, pressing a terminator will 
@@ -122,7 +121,11 @@ inside your Emacs."
   :group 'proof-user-options)
 
 (defcustom proof-output-fontify-enable t
-  "*Whether to fontify output from the proof assistant."
+  "*Whether to fontify output from the proof assistant.
+If non-nil, output from the proof assistant will be highlighted
+in the goals and response buffers.
+(This is providing font-lock-keywords have been set for the 
+buffer modes)."
   :type 'boolean
   :group 'proof-user-options)
 
@@ -170,7 +173,8 @@ experienced Emacs users."
   :type 'boolean 
   :group 'proof-user-options)
 
-(defcustom proof-auto-delete-windows nil
+(defcustom proof-auto-delete-windows 
+  nil
   "*If non-nil, automatically remove windows when they are cleaned.
 For example, at the end of a proof the goals buffer window will
 be cleared; if this flag is set it will automatically be removed.
@@ -181,7 +185,8 @@ selected frame will be automatically deleted."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-toolbar-use-button-enablers t
+(defcustom proof-toolbar-use-button-enablers 
+  t
   "*If non-nil, toolbars buttons may be enabled/disabled automatically.
 Toolbar buttons can be automatically enabled/disabled according to
 the context.  Set this variable to nil if you don't like this feature
@@ -196,7 +201,7 @@ next start Proof General."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-auto-retract
+(defcustom proof-auto-retract 
   nil
   "*If non-nil, retract automatically when locked region is edited.
 With this option active, the locked region will automatically be
@@ -207,7 +212,7 @@ Note: this feature has not been implemented yet, it is only an idea."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-query-file-save-when-activating-scripting
+(defcustom proof-query-file-save-when-activating-scripting 
   t
 "*If non-nil, query user to save files when activating scripting.
 
@@ -223,7 +228,8 @@ files which are out of date with respect to the lodead buffers!"
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-script-indent nil
+(defcustom proof-script-indent 
+  nil
   ;; Particular proof assistants can enable this if they feel
   ;; confident about it.  (I don't). -da
   "*If non-nil, enable indentation code for proof scripts.
@@ -233,22 +239,26 @@ provers.  Enable it if it works for you."
   :type 'boolean 
   :group 'proof-user-options)
 
-(defcustom proof-prog-name-ask nil
+;; FIXME: implement it!  Use in indentation code.
+(defcustom proof-one-command-per-line 
+  nil
+  "*If non-nil, format for newlines after each proof command in a script.
+This option is not fully-functional at the moment."
+  :type 'boolean
+  :group 'proof-user-options)
+
+
+(defcustom proof-prog-name-ask 
+  nil
   "*If non-nil, query user which program to run for the inferior process."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-prog-name-guess nil
+(defcustom proof-prog-name-guess 
+  nil
   "*If non-nil, use `proof-guess-command-line' to guess proof-prog-name.
 This option is compatible with proof-prog-name-ask.
 No effect if proof-guess-command-line is nil."
-  :type 'boolean
-  :group 'proof-user-options)
-
-;; FIXME: rationalize and combine next two
-(defcustom proof-one-command-per-line nil
-  "*If non-nil, format for newlines after each proof command in a script.
-This option is not fully-functional at the moment."
   :type 'boolean
   :group 'proof-user-options)
 
@@ -274,6 +284,8 @@ To avoid erasing the messages shortly after they're printed,
 you should set `proof-tidy-response' to nil."
   :type 'boolean
   :group 'proof-user-options)
+
+;;; NON BOOLEAN OPTIONS 
 
 (defcustom proof-toolbar-follow-mode 'locked
   "*Choice of how point moves with toolbar commands.
@@ -1418,6 +1430,17 @@ See documentation of proof-shell-start-char."
 (defcustom proof-shell-field-char nil
   "annotated field end"
   :type '(choice character (const nil))
+  :group 'proof-goals)
+
+(defcustom proof-goals-display-qed-message nil
+  "If non-nil, display the proof-completed message in the goals buffer.
+For some proof assistants (e.g. Isabelle) it seems aesthetic to
+display the QED message in the goals buffer, even though it doesn't
+contain any goals and shouldn't be marked up for proof-by-pointing.
+
+If this setting is non-nil, QED messages appear in the goals
+buffer.  Otherwise they appear in the response buffer."
+  :type 'boolean
   :group 'proof-goals)
 
 
