@@ -118,6 +118,7 @@ DEFAULT gives return value in case image not valid."
    ;; Support GNU Emacs 21
    ((and
      proof-running-on-Emacs21
+     window-system
      (setq img
 	   (find-image
 	    (list
