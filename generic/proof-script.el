@@ -35,7 +35,7 @@
 
 (defvar proof-last-theorem-dependencies nil
   "Contains the dependencies of the last theorem.  A list of strings.
-Set in proof-shell-process-urgent-message.")
+Set in `proof-shell-process-urgent-message'.")
 
 (defvar proof-nesting-depth 0
   "Current depth of a nested proof.  
@@ -45,7 +45,7 @@ This variable is maintained in proof-done-advancing; it is zeroed
 in proof-shell-clear-state.")
 
 (defvar proof-element-counters nil
-  "Table of (name . count) pairs, counting elements in scripting buffer.")
+  "Table of (name .  count) pairs, counting elements in scripting buffer.")
 
 
 ;; Buffer-local variables
@@ -2800,4 +2800,3 @@ finish setup which depends on specific proof assistant configuration."
 
 (provide 'proof-script)
 ;; proof-script.el ends here.
-
