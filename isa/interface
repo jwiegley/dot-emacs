@@ -30,6 +30,7 @@ usage()
   echo "    -P BOOL      actually start Proof General (default true), otherwise"
   echo "                 run plain tty session"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
+  echo "    -k NAME      use specific isar-keywords for named logic"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -m MODE      add print mode for output"
   echo "    -p NAME      Emacs program name (default xemacs)"
@@ -58,6 +59,7 @@ fail()
 
 ISABELLE_OPTIONS=""
 START_PG="true"
+KEYWORDS=""
 LOGIC="$ISABELLE_LOGIC"
 PROGNAME="xemacs"
 INITFILE="true"
@@ -68,7 +70,7 @@ XSYMBOLSETUP=true
 getoptions()
 {
   OPTIND=1
-  while getopts "I:P:X:l:m:p:u:w:x:" OPT
+  while getopts "I:P:X:k:l:m:p:u:w:x:" OPT
   do
     case "$OPT" in
       I)
@@ -79,6 +81,9 @@ getoptions()
         ;;
       X)
         XSYMBOLSETUP="$OPTARG"
+        ;;
+      k)
+        KEYWORDS="$OPTARG"
         ;;
       l)
         LOGIC="$OPTARG"
@@ -161,8 +166,16 @@ else
   
   
   ARGS="$ARGS -l '$SUPER/isa/interface-setup.el'"
-  
-  if [ -f "$ISABELLE_HOME_USER/etc/isar-keywords.el" ]; then
+
+  if [ -n "$KEYWORDS" ]; then
+    if [ -f "$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el" ]; then
+      ARGS="$ARGS -l '$ISABELLE_HOME_USER/etc/isar-keywords-$KEYWORDS.el'"
+    elif [ -f "$ISABELLE_HOME/etc/isar-keywords-$KEYWORDS.el" ]; then
+      ARGS="$ARGS -l '$ISABELLE_HOME/etc/isar-keywords-$KEYWORDS.el'"
+    else
+      fail "No isar-keywords file for '$KEYWORDS'"
+    fi
+  elif [ -f "$ISABELLE_HOME_USER/etc/isar-keywords.el" ]; then
     ARGS="$ARGS -l '$ISABELLE_HOME_USER/etc/isar-keywords.el'"
   elif [ -f "$ISABELLE_HOME/etc/isar-keywords.el" ]; then
     ARGS="$ARGS -l '$ISABELLE_HOME/etc/isar-keywords.el'"
