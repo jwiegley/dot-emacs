@@ -20,7 +20,7 @@ Now start PG and start a process with the Foo logic image.
 Tests:
 
   Process this file, exit, start.  
-  Unprocess, exit, start.		[FAILS]
+  Unprocess, exit, start.		[FAILS with Isabelle2002]
 
 *)
 
