@@ -39,6 +39,11 @@ rm -f */*.orig
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/ProofGeneral
 cp -pr coq lego isa images generic ${RPM_BUILD_ROOT}/usr/lib/ProofGeneral
 
+%clean
+if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
+    rm -rf $RPM_BUILD_ROOT
+fi
+
 %files
 %attr(-,root,root) %doc BUGS INSTALL doc/*
 %attr(0755,root,root) %dir /usr/lib/ProofGeneral
