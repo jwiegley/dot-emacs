@@ -402,6 +402,7 @@ exited by hand (or exits by itself)."
 	proof-shell-silent nil
 	proof-shell-last-output nil
 	proof-shell-last-output-kind nil
+	proof-shell-last-prompt nil
 	proof-shell-delayed-output nil
 	proof-shell-delayed-output-kind nil))
 
@@ -584,6 +585,11 @@ user types by hand."
 ;; flag indicating its type, as well as a previous ("delayed") to use
 ;; when the end of the queue is reached or an error or interrupt
 ;; occurs.
+
+;; A raw record of the last prompt from the proof system
+(defvar proof-shell-last-prompt nil
+  "A record of the last prompt seen from the proof system.
+This is the string matched by proof-shell-annotated-prompt-regexp.")
 
 ;; A raw record of the last output from the proof system
 (defvar proof-shell-last-output nil
@@ -1713,6 +1719,8 @@ however, are always processed; hence their name)."
 		(if (re-search-forward 
 		     proof-shell-annotated-prompt-regexp nil t)
 		    (progn
+		      (setq proof-shell-last-prompt
+			    (buffer-substring (match-beginning 0) (match-end 0)))
 		      (backward-char (- (match-end 0) (match-beginning 0)))
 		      ;; NB: decoding x-symbols here is perhaps a bit 
 		      ;;  expensive; moreover it leads to problems 
