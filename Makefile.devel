@@ -149,15 +149,17 @@ ZIP=zip
 DEVELMAKE=make -f Makefile.devel
 
 # Files not to include the distribution area or tarball 
+# FIXME: really this should be an opt-in list!
 UNFINISHED_ELISP=generic/pg-metadata.el generic/pg-xhhtml.el generic/pg-xml.el generic/_pkg.el
-NONDISTFILES=.cvsignore */.cvsignore html Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt pgkit $(UNFINISHED_ELISP)
+ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt pgkit etc/Mailman
+NONDISTFILES=.cvsignore */.cvsignore html Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile $(UNFINISHED_ELISP) $(ETC_FILES)
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo
+IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo etc/TESTS
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
