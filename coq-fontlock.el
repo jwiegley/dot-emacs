@@ -4,6 +4,11 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.12  1998/06/03 18:01:54  hhg
+;; Changed Compute from command to tactic.
+;; Added Fix, Destruct and Cofix as tactics.
+;; Added Local as goal.
+;;
 ;; Revision 1.11  1998/06/02 15:33:16  hhg
 ;; Minor modifications to comments
 ;;
@@ -77,6 +82,7 @@
 "Fact"
 "Goal"
 "Lemma"
+"Local"
 "Remark"
 "Theorem"
 ))
@@ -98,7 +104,6 @@
 "Cd"
 "Check"
 "Class"
-"Compute"
 "Coercion"
 "DelPath"
 "Eval"
@@ -126,12 +131,15 @@
 "Case"
 "Change"
 "Clear"
+"Cofix"
+"Compute"
 "Constructor"
 "Contradiction"
 "Cut"
 "DHyp"
 "DInd"
 "Dependent"
+"Destruct"
 "Discriminate"
 "Double"
 "EApply"
@@ -140,6 +148,7 @@
 "End"
 "Exact"
 "Exists"
+"Fix"
 "Generalize"
 "Grammar"
 "Hnf"
