@@ -67,6 +67,13 @@ Instead the menu reflects the current minor mode status; toggling it
 will also update the default "global for PG" behaviour for new script
 buffers.
 
+*** Movement of cursor on interrupt is disabled
+
+By default, the cursor jumps to the end of the locked region on an
+error.  Previously it also jumped on an interrupt.  This is configurable
+via `proof-shell-handle-error-or-interrupt-hook', which see.
+
+
 *** Proof General -> Options menu changes
 
 **** Improvement to options handling
