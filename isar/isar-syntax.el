@@ -1,5 +1,5 @@
 ;; isar-syntax.el Syntax expressions for Isabelle/Isar
-;; Copyright (C) 1994-1998 LFCS Edinburgh. 
+;; Copyright (C) 1994-1998 LFCS Edinburgh.
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Markus Wenzel <wenzelm@in.tum.de>
@@ -50,68 +50,74 @@
 
 (defconst isar-keywords-theory-enclose
   (append isar-keywords-theory-begin
-	  isar-keywords-theory-switch
-	  isar-keywords-theory-end))
+          isar-keywords-theory-switch
+          isar-keywords-theory-end))
 
 (defconst isar-keywords-theory
   (append isar-keywords-theory-heading
-	  isar-keywords-theory-decl
-	  isar-keywords-theory-goal))
+          isar-keywords-theory-decl
+          isar-keywords-theory-goal))
 
 (defconst isar-keywords-save
   (append isar-keywords-qed
-	  isar-keywords-qed-block
-	  isar-keywords-qed-global))
+          isar-keywords-qed-block
+          isar-keywords-qed-global))
 
 (defconst isar-keywords-proof-enclose
   (append isar-keywords-proof-block
-	  isar-keywords-proof-open
-	  isar-keywords-proof-close
-	  isar-keywords-qed-block))
+          isar-keywords-proof-open
+          isar-keywords-proof-close
+          isar-keywords-qed-block))
 
 (defconst isar-keywords-proof
   (append isar-keywords-proof-goal
-	  isar-keywords-proof-chain
-	  isar-keywords-proof-decl
-	  isar-keywords-qed))
+          isar-keywords-proof-chain
+          isar-keywords-proof-decl
+          isar-keywords-qed))
 
 (defconst isar-keywords-proof-context
   (append isar-keywords-proof-asm
-	  isar-keywords-proof-asm-goal))
+          isar-keywords-proof-asm-goal))
 
 (defconst isar-keywords-local-goal
   (append isar-keywords-proof-goal
-	  isar-keywords-proof-asm-goal))
+          isar-keywords-proof-asm-goal))
 
 (defconst isar-keywords-proof-improper
   (append isar-keywords-proof-script
-	  isar-keywords-qed-global))
+          isar-keywords-qed-global))
 
-(defconst isar-keywords-outline
+(defconst isar-keywords-outline-1
   (append isar-keywords-theory-begin
-	  isar-keywords-theory-heading
-	  isar-keywords-theory-goal))
+          isar-keywords-theory-heading
+          isar-keywords-theory-goal
+          isar-keywords-theory-end
+	  isar-keywords-save))
+
+(defconst isar-keywords-outline-2
+  (append ;FIXME isar-keywords-proof-heading
+	  isar-keywords-proof-goal))
 
 (defconst isar-keywords-fume
   (append isar-keywords-theory-begin
-	  isar-keywords-theory-heading
-	  isar-keywords-theory-decl
-	  isar-keywords-theory-goal))
+          isar-keywords-theory-heading
+          isar-keywords-theory-decl
+          isar-keywords-theory-goal))
 
 (defconst isar-keywords-indent-open
   (append isar-keywords-theory-goal
-	  isar-keywords-proof-goal
-	  isar-keywords-proof-asm-goal
-	  isar-keywords-proof-open))
+          isar-keywords-proof-goal
+          isar-keywords-proof-asm-goal
+          isar-keywords-proof-open))
 
 (defconst isar-keywords-indent-close
   (append isar-keywords-save
-	  isar-keywords-proof-close))
+          isar-keywords-proof-close))
 
 (defconst isar-keywords-indent-enclose
   (append isar-keywords-proof-block
-	  isar-keywords-proof-close
-	  isar-keywords-qed-block))
+          isar-keywords-proof-close
+          isar-keywords-qed-block))
 
 
 ;; ----- regular expressions
@@ -166,19 +172,19 @@
 ;; ----- Isabelle inner syntax hilite
 
 (defface isabelle-class-name-face
-  '((((type x) (class color) (background light))   
+  '((((type x) (class color) (background light))
      (:foreground "red"))
-    (((type x) (class color) (background dark))   
+    (((type x) (class color) (background dark))
      (:foreground "red3"))
-    (t				
+    (t
      (bold t)))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-tfree-name-face
-  '((((type x) (class color) (background light))   
+  '((((type x) (class color) (background light))
      (:foreground "purple"))
-    (((type x) (class color) (background dark))   
+    (((type x) (class color) (background dark))
      (:foreground "purple3"))
     (t
      (bold t)))
@@ -186,41 +192,41 @@
   :group 'proof-faces)
 
 (defface isabelle-tvar-name-face
-  '((((type x) (class color) (background light))   
+  '((((type x) (class color) (background light))
      (:foreground "purple"))
-    (((type x) (class color) (background dark))   
+    (((type x) (class color) (background dark))
      (:foreground "purple3"))
-    (t				
+    (t
      (bold t)))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-free-name-face
-  '((((type x) (class color) (background light))   
+  '((((type x) (class color) (background light))
      (:foreground "blue"))
-    (((type x) (class color) (background dark))   
+    (((type x) (class color) (background dark))
      (:foreground "blue3"))
-    (t				
+    (t
      (bold t)))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-bound-name-face
-  '((((type x) (class color) (background light))   
+  '((((type x) (class color) (background light))
      (:foreground "green4"))
-    (((type x) (class color) (background dark))   
+    (((type x) (class color) (background dark))
      (:foreground "green"))
-    (t				
+    (t
      (bold t)))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
 
 (defface isabelle-var-name-face
-  '((((type x) (class color) (background light))   
+  '((((type x) (class color) (background light))
      (:foreground "darkblue"))
-    (((type x) (class color) (background dark))   
+    (((type x) (class color) (background dark))
      (:foreground "blue3"))
-    (t				
+    (t
      (bold t)))
   "*Face for Isabelle term / type hiliting"
   :group 'proof-faces)
@@ -259,9 +265,9 @@
    )
   "*Font-lock table for Isabelle terms.")
 
-(defvar isar-goals-font-lock-keywords 
+(defvar isar-goals-font-lock-keywords
   (append
-   (list 
+   (list
     "^theory "
     "^proof (prove):"
     "^proof (state):"
@@ -324,19 +330,19 @@
 
 (defconst isar-any-entity-regexp
   (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-	  "\\(" isar-name-regexp "[[:=]\\)?"))
+          "\\(" isar-name-regexp "[[:=]\\)?"))
 
 (defconst isar-named-entity-regexp
   (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-	  isar-name-regexp "[[:=]"))
+          isar-name-regexp "[[:=]"))
 
 (defconst isar-unnamed-entity-regexp
   (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"))
 
 (defconst isar-next-entity-regexps
   (list isar-any-entity-regexp
-	(list isar-named-entity-regexp '(1 2))
-	(list isar-unnamed-entity-regexp 1)))
+        (list isar-named-entity-regexp '(1 2))
+        (list isar-unnamed-entity-regexp 1)))
 
 
 ;; ----- indentation
@@ -351,6 +357,35 @@
   (proof-regexp-alt (isar-ids-to-regexp isar-keywords-indent-open) "\\s("))
 (defconst isar-indent-close-regexp
   (proof-regexp-alt (isar-ids-to-regexp isar-keywords-indent-close) "\\s)"))
+
+
+;; ----- outline mode
+
+(defconst isar-outline-command-regexp
+  (isar-ids-to-regexp
+   (append isar-keywords-outline-1
+           isar-keywords-outline-2)))
+
+(defconst isar-outline-regexp
+  (concat "[ \t]*\\(" isar-outline-command-regexp "\\)")
+  "Outline regexp for Isabelle/Isar documents")
+
+(defconst isar-outline-heading-end-regexp  ;    "[\n]"
+  isar-outline-regexp
+;  (concat isar-outline-regexp isar-name-regexp "[[:=]")
+  "Outline heading end regexp for Isabelle/Isar ML files.")
+
+(defun isar-outline-level ()
+  "Return the depth to which a statement is nested in the outline."
+;  (debug)
+  (save-excursion
+    (looking-at isar-outline-regexp)
+    (let ((str (match-string 1)))
+      (cond
+       ((proof-looking-at-syntactic-context) 1000)
+       ((member str isar-keywords-outline-2)
+	(+ (current-indentation) 1))
+       (t 1)))))  ;FIXME  (length str)
 
 
 (provide 'isar-syntax)
