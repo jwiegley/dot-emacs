@@ -49,7 +49,7 @@ EMACS=xemacs
 
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=todo html etc Makefile doc/Makefile images/*.xcf images/notes.txt
+NONDISTFILES=todo html etc Makefile doc/Makefile images/*.xcf images/notes.txt images/gimp
 
 # Files not to include in the distribution tarball
 IGNOREDFILES=doc/ProofGeneral.dvi 
@@ -96,6 +96,7 @@ ChangeLog:	FORCE
 #
 clean:	
 	(cd doc; $(MAKE) clean)
+	(cd images; $(MAKE) clean)
 
 
 ############################################################
@@ -103,8 +104,17 @@ clean:
 # Clean up all generated files.
 #
 distclean:	clean
+	(cd doc; $(MAKE) distclean)
+	(cd images; $(MAKE) distclean)
+
+############################################################
+#
+# Clean up all non-cvs files.
+#
+cvsclean:	clean
 	rm -rf $(FILES_NONCVS)
 	(cd doc; $(MAKE) distclean)
+	(cd images; $(MAKE) cvsclean)
 
 ############################################################
 #
