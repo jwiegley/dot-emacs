@@ -122,44 +122,49 @@ is), which is annoying.
  ((string-match "NU Emacs" (emacs-version))
   (transient-mark-mode 1)  ; for holes created by a simple click
 ;Pierre: should do almost what region-exists-p does in xemacs
-  (defmacro hole-region-exists-p nil
+  (defmacro holes-region-exists-p nil
 	 "Returns t if the mark is active, nil otherwise."
 	 `(not (eq mark-active nil))
 	 )
-  (defmacro hole-get-selection nil "see x-get-selection"
+  (defmacro holes-get-selection nil "see x-get-selection"
 	 '(x-get-selection))))
 
 (cond
  ((string-match "XEmacs" (emacs-version))
-  (defmacro hole-region-exists-p nil "see region-exists-p"
+  (defmacro holes-region-exists-p nil "see region-exists-p"
 	 '(region-exists-p)
 	 )
-  (defmacro hole-get-selection nil "see get-selection"
+  (defmacro holes-get-selection nil "see get-selection"
 	 '(get-selection))))
 
 ;intialization;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq default-hole (make-detached-span))
-(detach-span default-hole)
-(setq active-hole default-hole)
+(defvar holes-default-hole (make-detached-span)
+  "A empty detached hole used as the default hole. You should not use 
+this variable.")
+(detach-span holes-default-hole)
+(defvar holes-active-hole holes-default-hole
+  "The current active hole. There can be only one active hole at a time, 
+and this is this one. This is not buffer local.")
 ;this counter is used to differenciate every hole
-(setq hole-counter 0)
+(defvar holes-counter 0 
+  "The global number of holes. For internal use only.")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;customizable;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defcustom empty-hole-string "#"
+(defcustom holes-empty-hole-string "#"
   "string to be inserted for empty hole (don't put an empty string).")
 
-(defcustom empty-hole-regexp "#\\|\\(@{\\)\\([^{}]*\\)\\(}\\)"
-  "Regexp denoting a hole in abbrevs. Must match either `empty-hole-string' or a regexp formed by three consecutive groups (i.e. \\\\(...\\\\) )  (other groups must be shy (i.e. \\\\(?:...\\\\))), denoting the exact limits of the hole (the middle group), the opening and closing delimiters of the hole (first and third groups) which will be deleted after abbrev expand. For example: \"#\\|\\(@{\\)\\([^{}]*\\)\\(}\\)\" matches any # or @{text} but in the second case the abbrev expand will be a hole containing text without brackets.")
+(defcustom holes-empty-hole-regexp "#\\|\\(@{\\)\\([^{}]*\\)\\(}\\)"
+  "Regexp denoting a hole in abbrevs. Must match either `holes-empty-hole-string' or a regexp formed by three consecutive groups (i.e. \\\\(...\\\\) )  (other groups must be shy (i.e. \\\\(?:...\\\\))), denoting the exact limits of the hole (the middle group), the opening and closing delimiters of the hole (first and third groups) which will be deleted after abbrev expand. For example: \"#\\|\\(@{\\)\\([^{}]*\\)\\(}\\)\" matches any # or @{text} but in the second case the abbrev expand will be a hole containing text without brackets.")
 
-(defcustom hole-search-limit 1000
+(defcustom holes-search-limit 1000
   "number of chars to look forward when looking for the next hole, unused for now");unused for the moment
 
 
 ; The following is customizable by a command of the form:
 ;for dark background
 ;(custom-set-faces
-; '(active-hole-face 
+; '(holes-active-hole-face 
 ;   ((((type x) (class color) (background light))     
 ;     (:background "paleVioletRed")))
 ;   )
@@ -186,24 +191,22 @@ is), which is annoying.
     )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(setq hole-map (make-keymap))
-
+ 
 
 
 
 
 
 (defun region-beginning-or-nil ()
-  (and (hole-region-exists-p) (region-beginning))
+  (and (holes-region-exists-p) (region-beginning))
   )
 
 (defun region-end-or-nil ()  
-  (and (hole-region-exists-p) (region-end))
+  (and (holes-region-exists-p) (region-end))
   )
 
 (defun copy-active-region ()
-  (assert (hole-region-exists-p) nil "the region is not active now.")
+  (assert (holes-region-exists-p) nil "the region is not active now.")
   (copy-region-as-kill (region-beginning) (region-end))
   (car kill-ring)
   )
@@ -243,7 +246,7 @@ is), which is annoying.
   detached). Use this to know if the active hole is set and
   usable (don't use the active-hole-marker variable)."
 
-  (not (span-detached-p active-hole))
+  (not (span-detached-p holes-active-hole))
   )
 
 
@@ -255,7 +258,7 @@ is), which is annoying.
 
   (assert (active-hole-exist-p) t 
 	  "active-hole-start-position: no active hole")
-  (hole-start-position active-hole)
+  (hole-start-position holes-active-hole)
   )
 
 (defun active-hole-end-position ()
@@ -266,7 +269,7 @@ is), which is annoying.
   
   (assert (active-hole-exist-p) t
 	  "active-hole-end-position: no active hole")
-  (hole-end-position active-hole)
+  (hole-end-position holes-active-hole)
   )
 
 
@@ -278,7 +281,7 @@ is), which is annoying.
 
   (assert (active-hole-exist-p) t
 	  "active-hole-buffer: no active hole")
-  (hole-buffer active-hole)
+  (hole-buffer holes-active-hole)
   )
 
 (defun goto-active-hole ()
@@ -325,8 +328,8 @@ is), which is annoying.
      ; hole normally and not as active hole. Ideally, undo
      ; should restore the active hole, but it doesn't, so
      ; we put the 'not active' color
-    (highlight-hole active-hole)
-    (setq active-hole default-hole)
+    (highlight-hole holes-active-hole)
+    (setq holes-active-hole holes-default-hole)
     )
   )
 
@@ -338,9 +341,9 @@ is), which is annoying.
   
   (assert (is-hole-p HOLE) t
 	  "set-active-hole: given span is not a hole")
-  (if (active-hole-exist-p) (highlight-hole active-hole))
-  (setq active-hole HOLE)
-  (highlight-hole-as-active active-hole)
+  (if (active-hole-exist-p) (highlight-hole holes-active-hole))
+  (setq holes-active-hole HOLE)
+  (highlight-hole-as-active holes-active-hole)
   )
 
 
@@ -359,7 +362,7 @@ is), which is annoying.
   (let ((ext (make-span start end)))
     (set-span-properties
      ext `(
-			  hole ,hole-counter
+			  hole ,holes-counter
 			  mouse-face highlight
 			  priority 100		; what should I put here? I want holes to have big priority 
 			  face secondary-selection
@@ -374,7 +377,7 @@ is), which is annoying.
 			  ))
 
     (set-span-keymap ext hole-map)
-    (setq hole-counter (+ hole-counter 1))
+    (setq holes-counter (+ holes-counter 1))
     ext
     ) 
   )
@@ -389,7 +392,7 @@ is), which is annoying.
 			(rend (or end (region-end-or-nil) (point))))
     (if (eq rstart rend) 
 		  (progn 
-			 (insert-string empty-hole-string)
+			 (insert-string holes-empty-hole-string)
 			 (setq rend (point))
 			 )
       )
@@ -402,7 +405,7 @@ is), which is annoying.
   (assert (is-hole-p HOLE) t
 			 "clear-hole: given span is not a hole")
   
-  (if (and (active-hole-exist-p) (eq active-hole HOLE))
+  (if (and (active-hole-exist-p) (eq holes-active-hole HOLE))
       (disable-active-hole)
     )
   (delete-span HOLE)
@@ -515,10 +518,10 @@ is), which is annoying.
     ; that undo wont show it highlighted)
     (if (and (active-hole-exist-p)
 				 thehole
-				 (eq active-hole thehole))
+				 (eq holes-active-hole thehole))
 		  (disable-active-hole)
       )
-    (let ((exthole (or thehole active-hole)))
+    (let ((exthole (or thehole holes-active-hole)))
       (replace-segment (hole-start-position exthole)
 							  (hole-end-position exthole)
 							  (or str (car kill-ring)) ;kill ring?
@@ -537,14 +540,14 @@ is), which is annoying.
    "Replace the active hole by str, if no str is given, then put the selection instead."
   (if (not (active-hole-exist-p)) ()
     (replace-hole 
-     (or str (hole-get-selection) (error "nothing to put in hole"))
-     active-hole)
+     (or str (holes-get-selection) (error "nothing to put in hole"))
+     holes-active-hole)
     ))
 
 
 (defun replace-update-active-hole (&optional str)
 
-  "replace active-hole by str like replace-active-hole,
+  "replace holes-active-hole by str like replace-active-hole,
   but then sets active-hole to the following hole if it
   exists."
 
@@ -556,10 +559,10 @@ is), which is annoying.
     (let ((nxthole (next-after-active-hole)))
       (replace-active-hole 
        (or str 
-			  (and (hole-region-exists-p) (copy-active-region))
-			  (hole-get-selection) (error "nothing to put in hole")))
+			  (and (holes-region-exists-p) (copy-active-region))
+			  (holes-get-selection) (error "nothing to put in hole")))
       (if nxthole (set-active-hole nxthole)
-		  (setq active-hole default-hole))
+		  (setq holes-active-hole holes-default-hole))
       )
     )
   )
@@ -568,7 +571,7 @@ is), which is annoying.
 (defun delete-update-active-hole () 
 
   "deletes active-hole and supresses its content and sets
-  active-hole to the next hole if it exists"
+  holes-active-hole to the next hole if it exists"
 
   (interactive)
   (replace-update-active-hole "")
@@ -627,11 +630,11 @@ is), which is annoying.
   (save-excursion
     ;;HACK: nothing if one click (but a second is perhaps coming)
     (if (and (eq (track-mouse-clicks) 1)
-				 (not (hole-region-exists-p)))
+				 (not (holes-region-exists-p)))
 		  ()
-      (if (not (hole-region-exists-p)) 
+      (if (not (holes-region-exists-p)) 
 			 (error "nothing to put in hole")
-		  (replace-update-active-hole (hole-get-selection))
+		  (replace-update-active-hole (holes-get-selection))
 		  (message "hole replaced")
 		  )
       )
@@ -644,7 +647,7 @@ is), which is annoying.
   (let* ((sp (or SPAN (hole-at (point)) (error "no hole to destroy"))))
 	 (save-excursion
 		(if (and (active-hole-exist-p)
-					(eq sp active-hole))
+					(eq sp holes-active-hole))
 			 (disable-active-hole))
 		(replace-hole "" sp)
 		(detach-span sp)
@@ -668,7 +671,7 @@ is), which is annoying.
   (interactive "*e")
   (save-excursion
     (let ((ext (hole-at-event event)))
-      (if (eq ext active-hole)
+      (if (eq ext holes-active-hole)
 			 (disable-active-hole))
       (detach-span ext)
       )
@@ -684,10 +687,10 @@ is), which is annoying.
   (track-mouse-selection event)
 
   (if (and (eq (track-mouse-clicks) 1)
-			  (not (hole-region-exists-p)))
+			  (not (holes-region-exists-p)))
 		(set-make-active-hole (point) (point))
 
-	 (if (hole-region-exists-p)
+	 (if (holes-region-exists-p)
 		  (set-make-active-hole)
 		(let ((ext (hole-at-event event)))
 		  (if (and ext (is-hole-p ext))
@@ -722,37 +725,30 @@ is), which is annoying.
 
 
 
+(defvar hole-map
+  (let ((map (make-sparse-keymap)))
+    (cond
+     ((featurep 'xemacs)
+      (define-key map [(button1)] 'mouse-set-active-hole)
+      (define-key map [(button3)] 'mouse-destroy-hole)
+      (define-key map [(button2)] 'mouse-forget-hole))
+     (t
+      (define-key map [(mouse-1)] 'mouse-set-active-hole)
+      (define-key map [(mouse-3)] 'mouse-destroy-hole)
+      (define-key map [(mouse-2)] 'mouse-forget-hole)))
+    map)
+  "Keymap to use on the holes's overlays.")
 
-;;this for both, these are global keybindings because holes.el is
-;;actually a mini mode that can be used in any mode.
 
-(cond
- ((string-match "NU Emacs" (emacs-version))
-  ; the mouse binding specific to the keymap of an overlay does not
-  ; work for fsf emacs < 21
-  (define-key hole-map [(mouse-1)] 'mouse-set-active-hole)
-  (define-key hole-map [(mouse-3)] 'mouse-destroy-hole)
-  (define-key hole-map [(mouse-2)] 'mouse-forget-hole)
-  ; this shortcut was for mark-sexp
-  (global-set-key  [(control meta ? ) ] 'set-active-hole-next)
-  )
 
- ((string-match "XEmacs" (emacs-version))
-  ;don't know how to make these three work for fsf emacs
-  (define-key hole-map [(button1)] 'mouse-set-active-hole)
-  (define-key hole-map [(button3)] 'mouse-destroy-hole)
-  (define-key hole-map [(button2)] 'mouse-forget-hole)
-  ; this shortcut was for mark-sexp
-  (global-set-key [(control meta space)] 'set-active-hole-next)
-  ))
+;  (global-set-key  [(control meta ? ) ] 'set-active-hole-next)
 
-  (global-set-key [(control meta y)] 'replace-update-active-hole)
+;  (global-set-key [(control meta y)] 'replace-update-active-hole)
   ; this shortcut was for mark-defun
-  (global-set-key [(control meta h)]   'set-make-active-hole)
-  (global-set-key [(control meta down-mouse-1)] 'mouse-set-make-active-hole)
-  (global-set-key [(control meta shift down-mouse-1)]
-	 'mouse-replace-active-hole)
-  (global-set-key [(meta return)] 'set-point-next-hole-destroy)
+;  (global-set-key [(control meta h)]   'set-make-active-hole)
+;  (global-set-key [(control meta down-mouse-1)] 'mouse-set-make-active-hole)
+;  (global-set-key [(control meta shift down-mouse-1)] 'mouse-replace-active-hole)
+;  (global-set-key [(meta return)] 'set-point-next-hole-destroy)
 
 ;;;;;;;;;;; End Customizable key bindings ;;;;;
 
@@ -816,7 +812,7 @@ end of last abbrev expansion. "
   )
 
 (defun count-holes-in-last-expand ()
-  (count-re-in-string empty-hole-regexp (abbrev-expansion last-abbrev-text))
+  (count-re-in-string holes-empty-hole-regexp (abbrev-expansion last-abbrev-text))
   )
 
 (defun replace-string-by-holes (start end str)
@@ -852,7 +848,7 @@ created. return t if num is > 0, nil otherwise."
 		  (while (> n 0)
 			 (progn 
 				(re-search-backward regexp)
-				(if (string-equal (match-string 0) empty-hole-string) 
+				(if (string-equal (match-string 0) holes-empty-hole-string) 
 					 (make-hole (match-beginning 0) (match-end 0))
 				  (make-hole (match-beginning 2) (match-end 2))
 				  (goto-char (match-beginning 3))
@@ -891,7 +887,7 @@ created. return t if num is > 0, nil otherwise."
   (let ((pos last-abbrev-location))
 	 (indent-last-expand)
 	 (replace-string-by-holes-backward-move-point 
-	  (count-holes-in-last-expand) empty-hole-regexp)
+	  (count-holes-in-last-expand) holes-empty-hole-regexp)
 	 (if (> (count-holes-in-last-expand) 1) 
 		  (progn (goto-char pos)
 					(message "Hit M-ret to jump to active hole. M-x holes-short-doc to see holes doc."))
@@ -911,9 +907,9 @@ created. return t if num is > 0, nil otherwise."
 (defun insert-and-expand (s)
   (let* ((pos (point))
 			(exp (abbrev-expansion s))
-			(c (count-re-in-string empty-hole-regexp exp)))
+			(c (count-re-in-string holes-empty-hole-regexp exp)))
 	 (insert exp)
-	 (replace-string-by-holes-backward-move-point c empty-hole-regexp)
+	 (replace-string-by-holes-backward-move-point c holes-empty-hole-regexp)
 	 (if (> c 1) (goto-char pos)
 		(goto-char pos)
 		(set-point-next-hole-destroy) ; if only one hole, go to it.
