@@ -9,9 +9,7 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A Structured review of complete system. Is there redundant code?
-  Can some of the LEGO/Coq specific code made generic? Re-engineering.
-    (2h hhg & tms)
+A Write function proof-retract-file. (hhg? 30min)
 
 A Update source documentation and manual, in particular document bugs
   and workarounds
