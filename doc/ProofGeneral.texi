@@ -171,6 +171,12 @@ Isabelle.
 @node Preface
 @unnumbered Preface
 
+Welcome to Proof General!
+
+This preface has some news about the current release, as well as some
+history about previous releases, and acknowledgements to those who have
+helped along the way.
+
 @menu
 * Latest news::                     
 * History::                     
@@ -306,10 +312,10 @@ In June 1998, David Aspinall reentered the picture by providing an
 instantiation for Isabelle. Actually, our previous version wasn't quite
 as generic as we had hoped. Whereas LEGO and Coq are similar systems in
 many ways, Isabelle was really a different beast. Fierce reengineering
-and various usability improvements were provided by David Aspinall and
-Thomas Kleymann to make it easier to instantiate to new proof
-systems. The major technical improvement was a truly generic extension
-of script management to work across multiple files.
+and various usability improvements were provided by Aspinall and
+Kleymann to make it easier to instantiate to new proof systems. The
+major technical improvement was a truly generic extension of script
+management to work across multiple files.
 
 It was time to come up with a better name than just @code{proof}
 mode. David Aspinall suggested @emph{Proof General} and set about
@@ -373,7 +379,7 @@ along the way.  In October 1998, the project became Proof General and
 has been managed by David Aspinall since then.
 
 This manual was written by David Aspinall and Thomas Kleymann.  Some
-words found there way here from the user documentation of LEGO mode,
+words found their way here from the user documentation of LEGO mode,
 prepared by Dilip Sequeria.  Healfdene Goguen supplied some text for Coq
 Proof General.  The extensive revision of this manual for Proof General
 3.0 has been made by David Aspinall.
@@ -386,10 +392,11 @@ For testing and feedback for previous versions of Proof General, thanks
 go to Pascal Brisset, Rod Burstall, Martin Hofmann, and James McKinna.
 
 @c FIXME HERE!
-During the development of Proof General 3.0, the following people helped
-provide testing and other feedback: Paul Callaghan, Pierre Courtieu,
-Matt Fairtlough, David von Oheimb, Leonor xxx, Tobias Nipkow, and Markus
-Wenzel.  Thanks to all of you!
+During the development of Proof General 3.0, many people helped provide
+testing and other feedback, including the Proof General maintainers,
+Paul Callaghan, Pierre Courtieu, and Markus Wenzel, and other folk who
+helpfully tested and reported on pre-releases, Matt Fairtlough, David
+von Oheimb, Leonor xxx, and Tobias Nipkow.  Thanks to all of you!
 
 
 
@@ -1381,9 +1388,10 @@ The user is prompted for an argument.
 
 This chapter describes what you can do from inside the goals buffer,
 providing support for these features exists for your proof assistant.
-As of Proof General 3.0, it only exists for LEGO.  If would like to see
-proof by pointing support for Proof General in another proof assistant,
-please petition the developers of the proof assistant to provide it!
+As of Proof General 3.0, it only exists for LEGO.  If you would like to
+see proof by pointing support for Proof General in another proof
+assistant, please petition the developers of that proof assistant to
+provide it!
 
 @menu
 * Goals buffer commands::
@@ -1398,6 +1406,7 @@ buttons for commands in the goals buffer, to avoid the need to move the
 cursor between buffers.
 
 The mouse bindings are these:
+
 @table @kbd
 @item button2
 @code{pbp-button-action}
@@ -1406,6 +1415,7 @@ The mouse bindings are these:
 @item button3
 @code{pbp-yank-subterm}
 @end table
+
 Where @kbd{button2} indicates the middle mouse button, and @kbd{button3}
 indicates the right hand mouse button.
 
@@ -1690,10 +1700,12 @@ General).
 
 If synchronization is lost, you have two options to resynchronize. If
 you are lucky, it might suffice to use the key:
+
 @table @kbd
 @item C-c C-z
 @code{proof-frob-locked-end}
 @end table
+
 This command is disabled by default, to protect novices using it
 accidently.
 
@@ -4410,9 +4422,15 @@ Version string identifying Proof General release.
 @cindex conventions
 @cindex user options
 
+The file @file{proof-config.el} defines the configuration variables for
+Proof General, including user options.  @xref{Adapting Proof General to
+Other Provers}, for details of its contents.  Here we mention some
+conventions for declaring user options.
+
 User options are declared using @code{defcustom} as usual, but have
-`@code{*}' as the first character of their docstrings.  Also, they live
-in the customize group @code{proof-user-options}.
+`@code{*}' as the first character of their docstrings (standard Emacs
+convention).  Also, they live in the customize group
+@code{proof-user-options}.
 
 If changing a user option setting amounts to more than just setting a
 variable (it may have some dynamic effect), we set the @code{custom-set}
@@ -4516,17 +4534,11 @@ of the proof (starting from 1).
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-error-or-interrupt-seen
-
-
 @defvar proof-shell-error-or-interrupt-seen 
 Flag indicating that an error or interrupt has just occurred.@*
 Set to @code{'error} or @code{'interrupt} if one was observed from the proof 
 assistant during the last group of commands.
 @end defvar
-The file @file{proof.el} also loads @file{proof-config.el} which declares the
-proof assistant configuration variables for Proof General.
-@xref{Adapting Proof General to Other Provers}, for details
-of the contents of @file{proof-config.el}.
 
 
 @node Proof script mode
