@@ -76,7 +76,11 @@
    
      ;; Kinds
      (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("
-		   lego-id ")\\)?") 'font-lock-type-face))
+		   lego-id ")\\)?") 'font-lock-type-face)
+
+     ;; Special hacks!!
+     (cons "Discharge.." 'font-lock-keyword-face)
+     (cons "\\*\\*\\* QED \\*\\*\\*" 'font-lock-keyword-face))
   "*Font-lock table for LEGO terms.")
 
 ;; Instead of "[^:]+", it may be better to use "lego-id". Furthermore,
