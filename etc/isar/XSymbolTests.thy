@@ -41,12 +41,19 @@ constdefs
    prover fixes.
 *)
 
+constdefs (* long sub/sups, new 29/12/03, added by Gerwin Klein *)
+
+ Plow :: bool ("P\<^bsub>low\<^esub>")		(* spanning subscript *)
+ Phigh :: bool ("P\<^bsup>high\<^esup>")		(* spanning superscript *)
+
+
 theorem "P\<^sub>1 \<and> P\<^sup>2";  (* check fonts in goals window *)
 by (simp add: P1_def P2_def)  (* .. and response window *)
 
 consts
  "P\<^sup>\<alpha>" :: bool   (* superscript of a token char *)
- "\<^bold>X"  :: bool   (* bold character *)
+ "\<^bold>X"  :: bool   (* bold character 
+			    [not supported in current X-Symbols] *)
 
 
 (* test: using a symbol as a subscript *)
