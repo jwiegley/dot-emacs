@@ -1,0 +1,26 @@
+<?php
+  $counterFile = "counter.txt";
+  $counterStart = "counterstart.txt";
+  $maxlen=10;
+  require('functions.php3');
+  small_header("Hit counter");
+  print "<p>";
+  if (is_readable($counterFile)) {
+     print "These pages have been accessed ";
+     readfile($counterFile);
+     print " times ";
+     if (is_readable($counterStart)) {
+     	$fp=fopen($counterStart,"r");
+     	$start=fgets($fp,20);
+	print "since ";
+     	print strftime("%d %B %Y",$start);
+     	print ".\n";
+     } else {
+        print "<br>\n(could not access time stamp file $counterStart)\n";
+     };
+  } else {
+     echo "Could not access hit counter file $counterFile\n";
+  };
+  print "</p>";
+  footer();
+?>

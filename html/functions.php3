@@ -12,6 +12,7 @@
 
 $pg_email = "proofgen@dcs.ed.ac.uk";
 $pg_list = "proofgeneral@dcs.ed.ac.uk";
+$dtd = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n";
 
 $pg_title = "Proof General --- Organize your Proofs!";
 
@@ -98,12 +99,21 @@ $separator  =  ' <img src="images/bullethole.gif" alt="." align=top> ';
 function link_root($page,$text) {
     print  "<a  href=\"index.phtml?page=" . $page . "\">";
     print $text;
-    print "</a>\n";
+    print "</a>";
 }
 
 function small_header($title) {
+  print $dtd;
+  print "<html>";
+  include('head.phtml');
   include('smallheader.phtml'); 
   print "<h1>" . $title . "</h1>\n</td>\n</table>\n";
+}
+
+function small_header_body($title) {
+  include('smallheader.phtml'); 
+  print "<h1>" . $title . "</h1>\n</td>\n</table>\n";
+  print "<p>";  /* FIXME: hack to get CSS to work with bad HTML from texi2html */
 }
 
 /* FIXME: improve this function */
@@ -139,10 +149,11 @@ function fileshow($filename,$text="",$title="") {
 function htmlshow($filename,$text="",$title="") {
  if ( $text == "") { $text=$filename; };
  $message=$title;
- $urlbits = parse_url($filename);
  if ( $message == "") { $message=$filename; };
- hlink("htmlshow.phtml?file=" . urlencode($urlbits["path"])
-       . "&title=" . urlencode($title) 
+ $urlbits = parse_url($filename);
+ hlink("htmlshow.phtml"
+       . "?title=" . urlencode($title) 
+       . "&file=" . urlencode($urlbits["path"])
        . ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]),
 	$text, $message);
 }
@@ -179,6 +190,7 @@ function hack_html($filename,$title="")  {
 	print "-->\n</style>\n";
         /* End style sheet paste in */
         print $line;
+	$i++;
 	break;
      } else { print $line; };
   }
@@ -196,18 +208,26 @@ function hack_html($filename,$title="")  {
        $urlbits = parse_url($linebits[4]);
        if ($urlbits["host"]=="") { 
 	  /* Assume a relative link, let's hack it. */
-	  $newurl = "htmlshow.phtml?file=" 
-	    . urlencode(dirname($filename)) . "/" 
-	    . $urlbits["path"] 
-	    . ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]);
+	  /* Use same title */
+	  $newurl = "htmlshow.phtml?title=" . urlencode($title);
+	  if ($urlbits["path"]=="") {
+	     /* A fragment in same file */
+	     $newurl = $newurl . "&file=" 
+	       . urlencode($filename) . "#" . $urlbits["fragment"];
+	  } else {
+	     /* Another file */
+	     $newurl = $newurl . "&file=" 
+	    	. urlencode(dirname($filename) . "/" . $urlbits["path"])
+		. ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]);
+	  };
 	  print "<A " . $linebits[2] . " HREF=\"" . $newurl . "\"";
 	} else { print "<A " . $linebits[2] . $linebits[3]; }
      };
      /* Hack on a header and footer */
      if (eregi("<BODY>",$line)) { 
        /* Assume there's nothing else interesting on the line, whoops. */
-       small_header("");
        print $line;
+       small_header_body($title);
      } elseif (eregi("</BODY>",$line)) {
        /* Assume there's nothing else interesting on the line, whoops. */
        click_to_go_back();

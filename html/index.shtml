@@ -1,1 +1,3 @@
-<!--#include file="index.phtml">
+<!-- This is the entry point to the Proof General web pages -->
+<!--#include file="counter.php3"-->
+<!--#include file="index.phtml"-->

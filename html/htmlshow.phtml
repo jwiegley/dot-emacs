@@ -1,16 +1,5 @@
 <?php
   require('functions.php3');
-  $filename=$HTTP_GET_VARS["file"];
-  $title=$HTTP_GET_VARS["title"];
-  $type=$HTTP_GET_VARS["type"];
-  if ($title=="") { $title = $filename; };
-/*  small_header($title); */
-
-/*  print "<p><pre>\n"; */
-  hack_html($filename);
-/*  print "</pre></p>\n";
-  print "<hr>";
-  click_to_go_back();
+  hack_html($file,$title);
   footer(); 
-*/
 ?>
