@@ -197,6 +197,8 @@ APIs), then you may have to upgrade your Isabelle version as well.
 
 ** Changes for Coq
 
+*** Indentation
+
 *** Menu entries for commands, tactics and terms
 
 *** "Holes" system, for editing structured expressions
@@ -215,4 +217,5 @@ are now introduced by '__' and '^^' respectively, and the rest of the
 word is sub/superscripted. to put spaces inside sub/superscripts, use
 _{...} or ^{...}. Notice that this syntax is not understood by Coq
 and you will need to defined it with the "Notation" command of Coq.
+
 
