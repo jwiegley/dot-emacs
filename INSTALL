@@ -49,13 +49,19 @@ Supported Emacs Versions.
 This release has been tested with XEmacs 21.4.14 and GNU Emacs 21.3.1
 (running on i386 Linux).  We recommend using these or later versions.  
 
-Other *recent* versions of either Emacs should also work, but please
-do not send bug reports for any version of Emacs which is more than a
+If you're not sure of your version of Emacs, inspect the
+variable `emacs-version' by doing:
+
+  C-h C-v emacs-version RET
+
+Other *recent* versions of either Emacs may also work, but please do
+not send bug reports for any version of Emacs which is more than a
 year older than the most recent stable release of that Emacs, unless
 you are reasonably sure that the bug has something to do with Proof
 General rather than Emacs.  Unfortunately, compatibility across
 different Emacs versions is very difficult to maintain as APIs change
 frequently and bugs come and go between Emacs releases.
+
 
 
 RPM packages.
@@ -100,6 +106,21 @@ Unpack the Proof General tar or zip file, and rename the folder to
 into .emacs.  You should put .emacs in value of HOME if you set that,
 or else in directory you installled XEmacs in, e.g.  
 c:\Program Files\XEmacs\.emacs
+
+
+Running on Mac OS X
+-------------------
+
+Larry Paulson maintains a web page on running Isabelle on Mac OS X
+which includes instructions for using Proof General in that
+environment.  See here:
+
+   http://www.cl.cam.ac.uk/Research/HVG/Isabelle/macosx.html
+
+His brief summary is:
+ 
+  1. Install X11 or OroborOSX.
+  2. Install XEmacs, or install GNU Emacs and recompile Proof General.
 
 
 Dependency on Other Emacs Packages
