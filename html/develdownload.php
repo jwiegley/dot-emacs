@@ -77,7 +77,9 @@ version, and notes about work-in-progress.  </p>
 <p> 
 <b>Emacs versions:</b>
 This version has been tested with XEmacs version 21.4.8 and with GNU
-Emacs 21.2.1.  XEmacs support is better tested.  Older releases of Emacs
+Emacs 21.2.1.  XEmacs support is better tested, please check
+<?php fileshow("ProofGeneral-3.5pre030204/CHANGES","CHANGES"); ?> 
+for detailed notes.  Older releases of Emacs
 <i>may</i> work, but we recommend the use of these or newer versions
 because backwards compatibility across different Emacs versions is too
 difficult to support.  If you cannot upgrade your Emacs, consider
