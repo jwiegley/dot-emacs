@@ -140,25 +140,15 @@
   :group 'isabelle-config)
 
 (defconst isa-string-regexp
-  (concat "\\s-*\"\\(" isa-id "\"\\)\\s-*")
+  (concat "\\s-*\"\\(" isa-id "\\)\"\\s-*")
   "Regexp matching ML strings, with contents bracketed.")
 
 (defconst isa-goal-with-hole-regexp
   (concat "\\("
 	  ;; Don't bother with "val xxx = prove_goal blah".
 	  (proof-ids-to-regexp '("qed_goal"))
-	  "\\)" isa-string-regexp ".*;\\s-*$")
+	  "\\)" isa-string-regexp)
   "Regexp matching goal commands in Isabelle which name a theorem")
-
-;; FIXME: rubbish for Isabelle
-(defconst isa-decl-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp isa-keywords-decl)
-	  "\\)\\s-+\\(" isa-ids "\\)\\s-*:"))
-
-;; FIXME: rubbish for Isabelle
-(defconst isa-defn-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp isa-keywords-defn)
-	  "\\)\\s-+\\(" isa-id "\\)\\s-*[:[]"))
 
 (defvar isa-font-lock-keywords-1
    (append
@@ -168,8 +158,6 @@
      (cons (proof-ids-to-regexp isa-tacticals) 'proof-tacticals-name-face)
 
      (list isa-goal-with-hole-regexp 2 'font-lock-function-name-face)
-     (list isa-decl-with-hole-regexp 2 'proof-declaration-name-face)
-     (list isa-defn-with-hole-regexp 2 'font-lock-function-name-face)
      (list isa-save-with-hole-regexp 2 'font-lock-function-name-face))))
 
 (provide 'isa-syntax)
