@@ -1,124 +1,98 @@
 ;; proof-indent.el Generic Indentation for Proof Assistants
-;; Copyright (C) 1997, 1998 LFCS Edinburgh
-;; Authors: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
+;; Authors: Markus Wenzel
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;
 
-(require 'proof)			; loader
-(require 'proof-script)			; indent code is for script editing
+(require 'proof)                        ; loader
+(require 'proof-script)                 ; indent code is for script editing
 
-;; This is quite different from sml-mode, but borrows some bits of
-;; code.  It's quite a lot less general, but works with nested
-;; comments.
 
-;; parse-to-point: If from is nil, parsing starts from either
-;; proof-locked-end if we're in the proof-script-buffer or the
-;; beginning of the buffer. Otherwise state must contain a valid
-;; triple.
+(defun proof-indent-indent ()
+  "Determine indentation caused by syntax element at current point."
+  (cond
+   ((proof-looking-at-safe proof-indent-open-regexp)
+    proof-indent)
+   ((proof-looking-at-safe proof-indent-close-regexp)
+    (- proof-indent))
+   (t 0)))
 
-(defun proof-parse-to-point (&optional from state)
-  (let ((cmt-level 0) (stack (list (list nil 0)))
-	(end (point)) instring c forward-amount)
-    (save-excursion
-      (if (null from)
-	  (goto-char (point-min))
-	(goto-char from)
-	(setq instring (car state)
-	      cmt-level (nth 1 state)
-	      stack (nth 2 state)))
-      (while (< (point) end)
-	(setq c (char-after (point)))
-	(setq forward-amount 1)   ; may be subject to dynamic scoping!
-	(cond 
-	 ;; strings
-	 ((and instring (proof-looking-at proof-string-end-regexp))
-	  (setq forward-amount (length (match-string 0)))
-	  (setq instring nil))
-	 (instring)
-	 ((proof-looking-at proof-string-start-regexp)
-	  (setq forward-amount (length (match-string 0)))
-	  (setq instring t))
+(defun proof-indent-offset ()
+  "Determine offset of syntax element at current point"
+  (cond
+   ((proof-looking-at-syntactic-context)
+    proof-indent)
+   ((proof-looking-at-safe proof-indent-inner-regexp)
+    proof-indent)
+   ((proof-looking-at-safe proof-indent-enclose-regexp)
+    proof-indent-enclose-offset)
+   ((proof-looking-at-safe proof-indent-open-regexp)
+    proof-indent-open-offset)
+   ((proof-looking-at-safe proof-indent-close-regexp)
+    proof-indent-close-offset)
+   ((proof-looking-at-safe proof-indent-any-regexp) 0)
+   ((proof-looking-at-safe "\\s-*$") 0)
+   (t proof-indent)))
 
-	 ;; comments
-	 ((proof-looking-at proof-comment-start-regexp)
-	  (setq forward-amount (length (match-string 0)))
-	  (incf cmt-level))
-	 ((proof-looking-at proof-comment-end-regexp)
-	  (setq forward-amount (length (match-string 0)))
-	  (decf cmt-level))
-	 ((> cmt-level 0))
+(defun proof-indent-inner-p ()
+  "Check if current point is between actual indentation elements."
+  (or
+   (proof-looking-at-syntactic-context)
+   (proof-looking-at-safe proof-indent-inner-regexp)
+   (not
+    (or (proof-looking-at-safe proof-indent-any-regexp)
+        (proof-looking-at-safe "\\s-*$")))))
 
-	 ;; parentheses
-	 ((proof-looking-at "\\s(")
-	  (setq stack (cons (list c (point)) stack)))
-	 ((proof-looking-at "\\s)")
-	  (setq stack (cdr stack)))
-	 
-	 ;; basic indentation for commands
-	 ((proof-looking-at proof-indent-commands-regexp)
-	  (setq stack (cons (list proof-terminal-char (point)) stack)))
-	 ((and (eq c proof-terminal-char)
-	       (eq (car (car stack)) proof-terminal-char))
-	  (setq stack (cdr stack)))
+(defun proof-indent-goto-prev ()   ; Note: may change point, even in case of failure!
+  "Goto to previous syntax element for script indentation, ignoring string/comment contexts."
+  (and
+   (proof-re-search-backward proof-indent-any-regexp nil t)
+   (or (not (proof-looking-at-syntactic-context))
+       (proof-indent-goto-prev))))
 
-	 ;; prover specific plugin
-	 (proof-parse-indent
-	  (setq stack (funcall proof-parse-indent c stack))))
+(defun proof-indent-calculate (indent inner)  ; Note: may change point!
+  "Calculate proper indentation level at current point"
+  (let*
+      ((current (point))
+       (found-prev (proof-indent-goto-prev)))
+    (if (not found-prev) (goto-char current))   ; recover position
+    (cond
+     ((and found-prev (or proof-indent-hang (= (current-indentation) (current-column))))
+      (+ indent
+         (current-column)
+         (if (and inner (not (proof-indent-inner-p))) 0 (proof-indent-indent))
+         (- (proof-indent-offset))))
+     ((not found-prev) 0)         ;FIXME mmw: improve this case!?
+     (t
+      (proof-indent-calculate
+       (+ indent (if inner 0 (proof-indent-indent))) inner)))))
 
-	(forward-char forward-amount))
-      (list instring cmt-level stack))))
 
-;;;###autoload      
+;;;###autoload
 (defun proof-indent-line ()
   "Indent current line of proof script, if indentation enabled."
   (interactive)
   (unless (not (proof-ass script-indent))
-    (if (< (point) (proof-locked-end))
-	(if (< (current-column) (current-indentation))
-	    (skip-chars-forward "\t "))
-      (save-excursion
-	(beginning-of-line)
-	(let* ((state (proof-parse-to-point))
-	       (beg (point))
-	       (indent (cond 
-			((car state) 1)
-			((> (nth 1 state) 0) 1)
-			(t (funcall proof-stack-to-indent (nth 2 state))))))
-	  (skip-chars-forward "\t ")
-	  (if (not (eq (current-indentation) indent))
-	      (progn (delete-region beg (point))
-		     (indent-to indent)))))
-      (skip-chars-forward "\t "))))
+          (if (< (point) (proof-locked-end))
+              (if (< (current-column) (current-indentation))
+                  (skip-chars-forward "\t "))
+            (save-excursion
+              (indent-line-to
+               (max 0 (save-excursion
+                        (back-to-indentation)
+                        (proof-indent-calculate (proof-indent-offset) (proof-indent-inner-p))))))
+            (if (< (current-column) (current-indentation))
+                (back-to-indentation)))))
 
-;;;###autoload      
+
+;;;###autoload
+;FIXME mmw: remove this obsolete function!?
 (defun proof-indent-region (start end)
   (interactive "r")
   (if (< (point) (proof-locked-end))
       (error "can't indent locked region!"))
-  (save-excursion
-    (goto-char start)
-    (beginning-of-line)
-    (let* ((beg (point))
-	   (state (proof-parse-to-point))
-	   indent)
-      ;; End of region changes with new indentation
-      (while (< (point) end)
-	(setq indent
-	      (cond ((car state) 1)
-		    ((> (nth 1 state) 0) 1)
-		    (t (funcall proof-stack-to-indent (nth 2 state)))))
-	(skip-chars-forward "\t ")
-	(let ((diff (- (current-indentation) indent)))
-	  (if (not (eq diff 0))
-	      (progn
-		(delete-region beg (point))
-		(indent-to indent)
-		(setq end (- end diff)))))
-	(end-of-line)
-	(if (< (point) (point-max)) (forward-char))
-	(setq state (proof-parse-to-point beg state)
-	      beg (point))))))
+  (indent-region start end))
+
 
 (provide 'proof-indent)
