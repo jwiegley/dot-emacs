@@ -595,7 +595,7 @@ a scripting buffer is killed it is always retracted."
 	      ;; And now there is no active scripting buffer
 	      (setq proof-script-buffer nil))))))
   
-(defun proof-activate-scripting (&optional nosaves)
+(defun proof-activate-scripting (&optional nosaves queuemode)
   "Ready prover and activate scripting for the current script buffer.
 
 The current buffer is prepared for scripting. No changes are
@@ -609,10 +609,15 @@ user wants to save some buffers; this is done if the user
 option `proof-query-file-save-when-activating-scripting' is set
 and provided the optional argument NOSAVES is non-nil.
 
+The optional argument QUEUEMODE relaxes the test for a
+busy proof shell to allow one which has mode QUEUEMODE.
+In all other cases, a proof shell busy error is given.
+
 Finally, the hooks `proof-activate-scripting-hook' are run.  
 This can be a useful place to configure the proof assistant for
 scripting in a particular file, for example, loading the
 correct theory, or whatever."
+  (interactive)
   ;; FIXME: the scope of this save-excursion is rather wide.
   ;; Problems without it however: Use button behaves oddly
   ;; when process is started already.
@@ -620,7 +625,7 @@ correct theory, or whatever."
   ;; First experiment shows that it's the hooks that cause
   ;; problem, maybe even the use of proof-cd-sync (can't see why).
   (save-excursion
-    (proof-shell-ready-prover)
+    (proof-shell-ready-prover queuemode)
     (cond 
      ((not (eq proof-buffer-type 'script)) 
       (error "Must be running in a script buffer!"))
@@ -954,7 +959,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 ;; may be helpful here.
 
 (defun proof-segment-up-to (pos &optional next-command-end)
-  "Create a list of (type,int,string) tuples from end of locked region to POS.
+  "Create a list of (type,int,string) tuples from end of queue/locked region to POS.
 Each tuple denotes the command and the position of its terminator,
 type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
 the start if the segment finishes with an unclosed comment.
@@ -965,9 +970,9 @@ the next command end."
       ;; quote-parity is false if we're inside quotes.
       ;; Only one of (depth > 0) and (not quote-parity)
       ;; should be true at once. -- hhg
-    (let ((str (make-string (- (buffer-size)
-			       (proof-unprocessed-begin) -10) ?x))
-	  (i 0) (depth 0) (quote-parity t) done alist c
+    (let* ((start	(proof-queue-or-locked-end))
+	   (str		(make-string (- (buffer-size) start -10) ?x))
+	   (i 0) (depth 0) (quote-parity t) done alist c
 	  (comment-end-regexp (regexp-quote proof-comment-end))
 	  (comment-start-regexp (regexp-quote proof-comment-start)))
 	  ;; For forthcoming improvements: skip over boring
@@ -978,7 +983,6 @@ the next command end."
 	  ;	   (substring proof-comment-end 1 1)
 	  ;	   (char-to-string proof-terminal-char)
 	  ;	   "\"")))
-     (proof-goto-end-of-locked)
      (while (not done)
        (cond
 	;; Case 1. We've reached POS, not allowed to go past it,
@@ -1149,7 +1153,7 @@ UNCLOSED-COMMENT-FUN. If IGNORE-PROOF-PROCESS-P is set, no commands
 will be added to the queue and the buffer will not be activated for
 scripting."
   (unless ignore-proof-process-p 
-    (proof-activate-scripting))
+    (proof-activate-scripting nil 'advancing))
   (let ((semis))
     (save-excursion
       ;; Give error if no non-whitespace between point and end of locked region.
@@ -1164,11 +1168,11 @@ scripting."
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (null semis))
-	  (error "I can't see any complete commands to process!"))
+	  (error "I can't find any complete commands to process!"))
       (goto-char (nth 2 (car semis)))
       (and (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-	     (proof-start-queue (proof-unprocessed-begin) (point) vanillas))))))
+	     (proof-extend-queue (point) vanillas))))))
 
 
 ;; da: This is my alternative version of the above.
@@ -1203,7 +1207,7 @@ Afterwards, move forward to near the next command afterwards, unless
 DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
 a space or newline will be inserted automatically."
   (unless ignore-proof-process-p
-    (proof-activate-scripting))
+    (proof-activate-scripting nil 'advancing))
   (or ignore-proof-process-p
       (if (proof-locked-region-full-p)
 	  (error "Locked region is full, no more commands to do!")))
@@ -1229,7 +1233,7 @@ a space or newline will be inserted automatically."
       (if (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
 ;	     (if crowbar (setq vanillas (cons crowbar vanillas)))
-	     (proof-start-queue (proof-unprocessed-begin) (point) vanillas)))
+	     (proof-extend-queue (point) vanillas)))
       ;; This is done after the queuing to be polite: it means the
       ;; spacing policy enforced here is not put into the locked
       ;; region so the user can re-edit.
@@ -1308,32 +1312,60 @@ Optionally delete the region corresponding to the proof sequence."
   "Retract the span TARGET and delete it if DELETE-REGION is non-nil.
 Notice that this necessitates retracting any spans following TARGET,
 up to the end of the locked region."
-  (let ((end (proof-locked-end))
+  (let ((end   (proof-unprocessed-begin))
 	(start (span-start target))
-	(span (proof-last-goal-or-goalsave))
+	(span  (proof-last-goal-or-goalsave))
 	actions)
+
+    ;; Examine the last span in the locked region.  
     
+    ;; If the last goal or save span is not a goalsave (i.e. it's
+    ;; open) we examine to see how to remove it
     (if (and span (not (eq (span-property span 'type) 'goalsave)))
+	;; If the goal or goalsave span ends before the target span,
+	;; then we are retracting within the last unclosed proof,
+	;; and the retraction just amounts to a number of undo
+	;; steps.  
+	;; FIXME: really, there shouldn't be more work to do: so
+	;;  why call proof-find-and-forget-fn later?
 	(if (< (span-end span) (span-end target))
 	    (progn
+	      ;; Skip comment spans at and immediately following target
 	      (setq span target)
 	      (while (and span (eq (span-property span 'type) 'comment))
 		(setq span (next-span span 'type)))
+	      ;; Calculate undos for the current open segment
+	      ;; of proof commands
 	      (setq actions (proof-setup-retract-action
 			     start end 
 			     (if (null span) proof-no-command
 			       (funcall proof-count-undos-fn span))
 			     delete-region)
 		    end start))
-	  
+	  ;; Otherwise, start the retraction by killing off the
+	  ;; currently active goal.
+	  ;; FIXME: and couldn't we move the end upwards?
 	  (setq actions 
 		(proof-setup-retract-action (span-start span) end
 					    proof-kill-goal-command
 						    delete-region)
 		end (span-start span))))
-    
+    ;; Check the start of the target span lies before the end
+    ;; of the locked region (should always be true since we don't
+    ;; make spans outside the locked region at the moment)...
     (if (> end start) 
 	(setq actions
+	      ;; Append a retract action to clear the entire
+	      ;; start-end region.  Rely on proof-find-and-forget-fn
+	      ;; to calculate a command which "forgets" back to
+	      ;; the first definition, declaration, or whatever
+	      ;; that comes after the target span.
+	      ;; FIXME: originally this assumed a linear context, 
+	      ;; and that forgetting the first thing  forgets all 
+	      ;; subsequent ones.  it might be more general to 
+	      ;; allow *several* commands, and even queue these
+	      ;; separately for each of the spans following target
+	      ;; which are concerned.
 	      (nconc actions (proof-setup-retract-action 
 			      start end
 			      (funcall proof-find-and-forget-fn target)
@@ -1363,6 +1395,8 @@ If DELETE-REGION is non-nil, delete the region in the proof script
 corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
 command."
+  ;; Make sure we're ready
+  ;; FIXME: next step in extend regions: (proof-activate-scripting nil 'retracting)
   (proof-activate-scripting)
   (let ((span (span-at (point) 'type)))
     ;; FIXME da: shouldn't this test be earlier??

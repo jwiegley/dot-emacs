@@ -209,8 +209,7 @@ An early version of this manual was prepared by Dilip.  The present
 version was written by David and Thomas, and Healf supplied some text
 for the section on Coq Proof General.
 
-
-The project has benefited from funding by EPSRC (Applicatins of a Type
+The project has benefited from funding by EPSRC (Applications of a Type
 Theory Based Proof Assistant) and the EC (Types for Proofs and Programs).
 During the development of Proof General, the following people helped
 by providing feedback, testing, or code:
@@ -267,7 +266,7 @@ In 1997, Dilip Sequeira implemented script management in our Emacs
 interface for LEGO following the recipe in
 [BT98]. Inspired by the project CROAP, the
 implementation made some effort to be generic. A working prototype was
-presented at UITP'97.
+demonstrated at UITP'97.
 
 In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Part
 of the generic code in the @code{lego} package was outsourced (and made
@@ -294,29 +293,47 @@ language or even Emacs hot-keys.  He also designed some web pages, and
 wrote most of this new manual.  
 
 Proof General 2.0 was the first official release of the improved
-program.  Why not adapt Proof General to your favourite proof assitant?
+program.  
+
+Why not adapt Proof General to your favourite proof assitant?
 
 @node Latest news
 @unnumberedsec Latest news
 @cindex news
 
-Proof General 2.2 is mainly a usability enhancement and bug fix release
-over previous 2.x releases.  See the CHANGES file for more information.
-Developers should check the ChangeLog in the developer's release for
-details of internal changes.
+Proof General 3.0 offers many enhancements over 2.x releases.
 
-Two new instantiations of Proof General are being worked on.
-@emph{Isar}, for the new theory language of Isabelle, and
-@emph{Plastic}, for a proof assistant being developed at the University
-of Durham.
+There are usability improvements.  The toolbar has twice as many
+buttons, and now includes all of the useful functions used during proof
+which were previously hidden on the menu, or even only available as key
+presses.  The menu has been redesigned and co-ordinated with toolbar.
+
+Second, there are improvements, extensions, and bug fixes in the core
+code. Proofs which are unfinished and not explicitly closed by a
+ ``save'' type command are supported by the core, if they are allowed by
+ the prover.  The design of switching the active scripting buffer has
+been streamlined.  The proof shell filter has been optimized to give
+hungry proof assistants a better share of CPU cycles.  Proof General is
+easier to adapt to new provers --- it fails more gracefully (or not at
+all!) when particular configuration variables are unset.
+
+
+See the @code{CHANGES} file in the distribution for more information.
+Developers should check the @code{ChangeLog} in the developer's release
+for detailed comments on internal changes.
+
+Most of the work has been done by David Aspinall, with help from Markus
+Wenzel for Isabelle support and Patrick Loiseleur for Coq support.
+Markus has also provided support for his Isar language, a new proof
+language for Isabelle.
+
+A new instantiation of Proof General is being worked on for
+@emph{Plastic}, a proof assistant being developed at the University of
+Durham.
 
 Proof General has its own
-@uref{http://www.dcs.ed.ac.uk/home/proofgen,home page} hosted at
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen,home page} hosted at
 Edinburgh.  Visit this page for more news!
-
-
-
-
 
 
 
@@ -669,8 +686,6 @@ with a new list of subgoals to be solved, or perhaps with a failure
 report.  Proof General manages the dialogue to only show the human the
 information which is relevant at each step.
 
-@c Many proof assistants can also process proof scripts held in files
-
 Often we want to keep a record of the proof commands used to prove a
 theorem, to build up a library of proved results.  An easy way to store
 a proof is to keep a text file which contains a proof script; the proof
@@ -726,7 +741,7 @@ in the script buffer can include a number of
 @cindex pink text
 
 
-A script buffer is divided into three regions:
+The three regions that a script buffer can be divided into are: @c 
 
 @itemize @bullet
 @item The @emph{locked} region appears in blue (underlined on monochrome
@@ -747,7 +762,8 @@ region always at the end. The queue region only exists if there is input
 waiting to be sent to the proof process.
 
 Proof mode has two fundamental operations which transfer commands
-between these regions: @emph{assertion} and @emph{retraction}.
+between these regions: @emph{assertion} (or processing) and
+@emph{retraction} (or undoing).
 
 @cindex Assertion
 @strong{Assertion} causes commands from the editing region to be
@@ -817,21 +833,61 @@ one buffer at a time can be used to process a proof script
 incrementally: this is the @dfn{active scripting buffer}.
 
 The active scripting buffer has a special indicator: the word
-@code{Scripting} appears in its mode line.
+@code{Scripting} appears in its mode line.  
 
-Proof General will give an error message: @code{Cannot have more than
-one active scripting buffer!} if you attempt to use the script
-processing commands in a new script buffer when there is already an
-active scripting buffer which is only partly completed.  If you get this
-error message, you must choose either to assert the remainder of the
-active buffer, or to retract what has been proved so far, before you can
-start scripting in another buffer.
+When you use a scripting command, it will automatically turn a buffer
+into the active scripting mode.  You can also do this by hand, via the
+menu command 'Toggle Scripting' or the key @kbd{C-c C-s}.
 
-For more explanation of this, @xref{Switching between proof scripts}.
+@table @asis
+@item @kbd{C-c C-s}
+@code{proof-toggle-active-scripting}
+@end table
 
-@c A completed script buffer is one which is completely blue: the locked
-@c region covers the whole buffer, indicating that all the commands been
-@c successfully processed by the prover. 
+When active scripting mode is turned on, several things may happen to
+get ready for scripting (exactly what happens depends on which proof
+assistant you are using and some user settings).  First, the proof
+assistant is started if it is not already running.  Second, a command is
+sent to the proof assistant to change directory to the directory of the
+current buffer.  If the current buffer corresponds to a file, this is
+the directory the file lives in.  This is in case any scripting commands
+refer to files in the same directory as the script.  The third thing
+that may happen is that you are prompted to save some unsaved buffers.
+This is in case any scripting commands may read in files which you are
+editing.  Finally, some proof assistants may automatically read in
+files which the current file depends on implicitly.  In Isabelle, for
+example, there is an implicit dependency between a @code{.ML} script
+file and a @code{.thy} theory file which defines its theory.
+
+If you have a partly processed scripting buffer and use @kbd{C-c C-s},
+or you attempt to use script processing in a new buffer, Proof General
+will ask you if you want to retract what has been proved so far,
+@code{Scripting incomplete in buffer myproof.l, retract?}
+or if you want to process the remainder of the active buffer, 
+@code{Completely process buffer myproof.l instead?}
+before you can start scripting in a new buffer.  If you refuse to do
+either, Proof General will give an error message: 
+@code{Cannot have more than one active scripting buffer!}.
+
+To turn off active scripting, the buffer must be completely processed
+(all blue), or completely unprocessed.  There are two reasons for this.
+First, it would be confusing if it were possible to split parts of a
+proof arbitrarily between different buffers; the dependency between the
+commands would be lost and it would be tricky to replay the proof.
+Second, we want to interface with file management in the proof
+assistant.  Proof General assumes that a proof assistant may have a
+notion of which files have been processed, but that the assistant will
+only record files that have been @i{completely} processed.  For more
+explanation of the handling of multiple files, @xref{Switching between
+proof scripts}.
+
+@c TEXI DOCSTRING MAGIC: proof-toggle-active-scripting
+@deffn Command proof-toggle-active-scripting &optional arg
+Toggle active scripting mode in the current buffer.@*
+With @var{arg}, turn on scripting iff @var{arg} is positive.
+@end deffn
+
+
 
 
 @node Summary of Proof General buffers
@@ -1190,6 +1246,10 @@ There are a few commands for stopping, starting, and restarting the
 proof assistant process which have menu entries but no key bindings.
 As with any Emacs command, you can invoke these with @kbd{M-x}.
 
+Here's a tip: if you accidently kill one of the Proof General special
+buffers (goals or response), exiting the proof assistant and restarting
+it will solve the problem.
+
 @c TEXI DOCSTRING MAGIC: proof-shell-start
 @deffn Command proof-shell-start 
 Initialise a shell-like buffer for a proof assistant.
@@ -1241,12 +1301,17 @@ developments. These are typically spread across various files which
 depend on each other in some way. Proof General knows enough about the
 dependencies to allow script management across multiple files.
 
+With large developments particularly, users may occasionally need to
+escape from script management, in case Proof General loses
+syncrhonization with the proof assistant.  Proof General provides
+you with several escape mechanisms if you want to do this.
+
 @menu
 * Switching between proof scripts::  
 * View of processed files ::    
 * Retracting across files::     
 * Asserting across files::      
-* Working directly with the proof shell::  
+* Escaping script managment::
 @end menu
 
 @node Switching between proof scripts
@@ -1289,13 +1354,13 @@ or retract the current script buffer.
 @node View of processed files 
 @section  View of processed files
 
-Proof General is aware of all files that the proof assistant has
-processed or is currently processing. In fact, it relies on the proof
-assistant explicitly telling Proof General whenever it processes a
-new file which corresponds@footnote{For example, LEGO generates additional compiled
-(optimised) proof script files for efficiency.} to a file containing a proof
-script. For further technical
-details, see @ref{Handling multiple files}. 
+Proof General tries to be aware of all files that the proof assistant
+has processed or is currently processing.  In fact, it relies on the
+proof assistant explicitly telling it whenever it processes a new file
+which corresponds@footnote{For example, LEGO generates additional
+compiled (optimised) proof script files for efficiency.} to a file
+containing a proof script. For further technical details, see
+@ref{Handling multiple files}.
 
 If the current proof script buffer depends on background material from
 other files, proof assistants typically process these files
@@ -1348,15 +1413,15 @@ unmodified buffers. This is particularly useful as assertion may cause
 the proof assistant to automatically process other files.
 
 
-@node Working directly with the proof shell
-@section Working directly with the proof shell
+@node Escaping script managment
+@section Escaping script managment
 @cindex Shell
 
 Occasionally you may want to review the dialogue of the entire session
 with the proof assistant, or check that it hasn't done something
-unexpected. Experienced users may also want to directly communicate with 
-the proof assistant rather than sending commands via the minibuffer,  
-see @ref{Proof assistant commands}.
+unexpected.  Experienced users may also want to directly communicate
+with the proof assistant rather than sending commands via the
+minibuffer, see @ref{Proof assistant commands}.
 
 Although the proof shell is usually hidden from view, it is run in a
 buffer which provides the usual full editing and history facilities of
@@ -1379,8 +1444,7 @@ the prover (which depends on the particular instantiation of Proof
 General).
 
 To resynchronise, you have two options. If you are lucky, it might
-suffice to
-
+suffice to use the key:
 @table @kbd
 @item C-c C-z
 move the end of the locked region backwards to the end of the segment
@@ -1390,6 +1454,10 @@ containing the point.
 Otherwise, you will need to restart script management altogether
 (@pxref{Proof assistant commands}).
 
+@c TEXI DOCSTRING MAGIC: proof-frob-locked-end
+@deffn Command proof-frob-locked-end 
+Not documented.
+@end deffn
 
 
 
@@ -1808,6 +1876,46 @@ Non-nil prevents splash screen display when Proof General is loaded.
 
 The default value is @code{nil}.
 @end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-query-file-save-when-activating-scripting
+@defopt proof-query-file-save-when-activating-scripting 
+If non-nil, query user to save files when activating scripting.
+
+Often, activating scripting or executing the first scripting command
+of a proof script will cause the proof assistant to load some files
+needed by the current proof script.  If this option is non-nil, the
+user will be prompted to save some unsaved buffers in case any of 
+them corresponds to a file which may be loaded by the proof assistant.
+
+You can turn this option off if the save queries are annoying, but
+be warned that with some proof assistants this may risk processing 
+files which are out of date with respect to the lodead buffers!
+
+The default value is @code{t}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-auto-action-when-deactivating-scripting
+@defopt proof-auto-action-when-deactivating-scripting 
+If @code{'retract} or @code{'process}, do that when deactivating scripting.
+
+With this option set to @code{'retract} or @code{'process}, when scripting 
+is turned off in a partly processed buffer, the buffer will be 
+retracted or processed automatically.
+
+With this option unset (nil), the user is questioned instead.
+
+Proof General insists that only one script buffer can be partly
+processed: all others have to be completely processed or completely
+unprocessed.  This is to make sure that handling of multiple files
+makes sense within the proof assistant.
+
+NB: A buffer is completely processed when all non-whitespace is
+locked (coloured blue); a buffer is completely unprocessed when there
+is no locked region.
+
+The default value is @code{nil}.
+@end defopt
+
 
 
 @node Changing faces
@@ -2421,7 +2529,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (plastic "Plastic" "\\.lf$"))}.
+The default value is @code{((isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (plastic "Plastic" "\\.lf$"))}.
 @end defopt
 
 @node Major modes used by Proof General
@@ -2600,7 +2708,9 @@ Compute number of undos in a target segment
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-find-and-forget-fn
 @defvar proof-find-and-forget-fn 
-Function returning a command string to forget back to before its argument span.@*
+Function that returns a command to forget back to before its argument span.@*
+This setting is used to for retraction (undoing) in proof scripts.
+
 The special string @code{proof-no-command} means there is nothing to do.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goal-hyp-fn
@@ -2612,7 +2722,8 @@ when parsing the proofstate output.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-kill-goal-command
 @defvar proof-kill-goal-command 
-Command to kill a goal.
+Command to kill the currently open goal.@*
+You must set this (perhaps to a no-op) for script management to work.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-global-p
 @defvar proof-global-p 
@@ -3160,7 +3271,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'isa} @code{'lego} @code{'coq} @code{'plastic}.
+A list of symbols chosen from: @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'plastic}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
@@ -3175,7 +3286,7 @@ edit the file @samp{proof-site.el} itself.
 
 Note: to change proof assistant, you must start a new Emacs session.
 
-The default value is @code{(isa lego coq plastic)}.
+The default value is @code{(isar isa lego coq plastic)}.
 @end defopt
 
 The file @file{proof-site.el} also defines a version variable.
@@ -3309,7 +3420,7 @@ buffer.  This may involve switching from one scripting buffer to
 another.
 
 @c TEXI DOCSTRING MAGIC: proof-activate-scripting
-@defun proof-activate-scripting &optional nosaves
+@deffn Command proof-activate-scripting &optional nosaves queuemode
 Ready prover and activate scripting for the current script buffer.
 
 The current buffer is prepared for scripting. No changes are
@@ -3323,18 +3434,22 @@ user wants to save some buffers; this is done if the user
 option @samp{@code{proof-query-file-save-when-activating-scripting}} is set
 and provided the optional argument @var{nosaves} is non-nil.
 
+The optional argument @var{queuemode} relaxes the test for a
+busy proof shell to allow one which has mode @var{queuemode}.
+In all other cases, a proof shell busy error is given.
+
 Finally, the hooks @samp{@code{proof-activate-scripting-hook}} are run.  
 This can be a useful place to configure the proof assistant for
 scripting in a particular file, for example, loading the
 correct theory, or whatever.
-@end defun
+@end deffn
 
 The next function is the main one used for parsing the proof script
 buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-segment-up-to
 @defun proof-segment-up-to pos &optional next-command-end
-Create a list of (type,int,string) tuples from end of locked region to @var{pos}.@*
+Create a list of (type,int,string) tuples from end of queue/locked region to @var{pos}.@*
 Each tuple denotes the command and the position of its terminator,
 type is one of @code{'comment}, or @code{'cmd}. @code{'unclosed-comment} may be consed onto
 the start if the segment finishes with an unclosed comment.

@@ -326,7 +326,7 @@ changed state."
 Move point if the end of the locked position is invisible."
   (interactive)
   (proof-toolbar-move
-   (goto-char (proof-unprocessed-begin))
+   (goto-char (proof-queue-or-locked-end)) ; was unprocessed-begin
    (proof-assert-next-command-interactive))
   (proof-toolbar-follow))
 

@@ -142,11 +142,15 @@ For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'.")
 ;;
 ;;  -da.
 
-(defun proof-shell-ready-prover ()
+(defun proof-shell-ready-prover (&optional queuemode)
   "Make sure the proof assistant is ready for a command.
+If QUEUEMODE is set, succeed if the proof shell is busy but
+has mode QUEUEMODE.
+Otherwise, if the shell is busy, give an error.
 No change to current buffer or point."
   (proof-shell-start)
-  (if proof-shell-busy (error "Proof Process Busy!")))
+  (unless (or (not proof-shell-busy) (eq queuemode proof-shell-busy))
+    (error "Proof Process Busy!")))
 
 (defun proof-shell-live-buffer ()
   "Return buffer of active proof assistant, or nil if none running."
@@ -160,11 +164,12 @@ No error messages.  Useful as menu or toolbar enabler."
   (and (proof-shell-live-buffer)
        (not proof-shell-busy)))
 
-(defun proof-grab-lock ()
+(defun proof-grab-lock (&optional queuemode)
   "Grab the proof shell lock, starting the proof assistant if need be.
-Runs proof-state-change-hook to notify state change."
+Runs proof-state-change-hook to notify state change.
+If QUEUEMODE is supplied, set the lock to that value."
   (proof-shell-ready-prover)
-  (setq proof-shell-busy t)
+  (setq proof-shell-busy (or queuemode t))
   (run-hooks 'proof-state-change-hook))
 
 (defun proof-release-lock ()
@@ -228,10 +233,15 @@ Does nothing if proof assistant is already running."
 
     ;; da: We don't really need this.  We never have more than
     ;; one proof shell running at a time.  We might as well
-    ;; kill off the old buffer anyway.  But leave it in for now for
-    ;; future expansion, or for user to inspect the old buffer.
+    ;; kill off the old buffer anyway.  Only possible use is
+    ;; for future expansion, or for user to inspect the old buffer.
+    ;;  (while (get-buffer (concat "*" proc "*"))
+    ;;	(if (string= (substring proc -1) ">")
+    ;;	    (aset proc (- (length proc) 2) 
+    ;;		  (+ 1 (aref proc (- (length proc) 2))))
+    ;;	  (setq proc (concat proc "<2>"))))
 
-    ;; da: Removed this because it leads to objectionable 
+    ;; da: Finally removed this because it leads to objectionable 
     ;; proliferation of buffers when startup fails.
 
      ;; (while (get-buffer (concat "*" proc "*"))
@@ -461,7 +471,8 @@ so that loading them the next time round does not require re-processing."
   (proof-script-remove-all-spans-and-deactivate)
   (setq proof-included-files-list nil
 	proof-shell-busy nil
-	proof-shell-proof-completed nil)
+	proof-shell-proof-completed nil
+	proof-action-list nil)
   (if (and (buffer-live-p proof-shell-buffer)
 	   proof-shell-restart-cmd)
 	   (proof-shell-invisible-command
@@ -820,7 +831,7 @@ See the documentation for `proof-shell-delayed-output' for further details."
      ;;
      ;; 3. Nothing else should happen
      ;;
-     (t (assert nil))))
+     (t (assert nil "proof-shell-handle-delayed-output: wrong type!"))))
   (run-hooks 'proof-shell-handle-delayed-output-hook)
   (setq proof-shell-delayed-output (cons 'insert "done")))
 
@@ -899,21 +910,17 @@ Then we call `proof-shell-handle-error-hook'. "
 
 ;; FIXME da: this function is a mess.
 (defun proof-shell-handle-interrupt ()
-  (save-excursion 
-    (set-buffer proof-goals-buffer)
-    (display-buffer proof-goals-buffer)
-    (goto-char (point-max))
-    (newline 2)
-    (insert-string 
-     "Interrupt: Script Management may be in an inconsistent state\n")
-    (beep)
-    (if proof-script-buffer
-	(set-buffer proof-script-buffer)))
-  (if proof-shell-busy
-      (progn (proof-detach-queue)
-	     (setq proof-action-list nil)
-	     (delete-spans (proof-locked-end) (point-max) 'type)
-	     (proof-release-lock))))
+  (proof-shell-maybe-erase-response t t t)
+  (proof-warning 
+   "Interrupt: script management may be in an inconsistent state")
+  (beep)
+  (if (and proof-shell-busy proof-script-buffer)
+      (with-current-buffer proof-script-buffer
+	(proof-detach-queue)
+	;; FIXME: point-max seems a bit excessive here
+	(delete-spans (proof-locked-end) (point-max) 'type)))
+  (setq proof-action-list nil)
+  (proof-release-lock))
 
 (defun proof-goals-pos (span maparg)
   "Given a span, return the start of it if corresponds to a goal, nil otherwise."
@@ -1079,13 +1086,12 @@ particularly in proof-start-queue and proof-shell-exec-loop."
 
 ; Pass start and end as nil if the cmd isn't in the buffer.
 
-;; FIXME: note: removed optional 'relaxed' arg
-(defun proof-start-queue (start end alist)
-  "Begin processing a queue of commands in ALIST.
-If START is non-nil, START and END are buffer positions in the
-active scripting buffer for the queue region."
-  (if start
-      (proof-set-queue-endpoints start end))
+
+(defun proof-append-alist (alist &optional queuemode)
+  "Chop off the vacuous prefix of the command queue ALIST and queue it.
+For each proof-no-command item, at the head of the list, invoke its 
+callback and remove it from the list.
+Returns the possibly shortened list."
   (let (item)
     (while (and alist (string= 
 		       (nth 1 (setq item (car alist))) 
@@ -1093,11 +1099,36 @@ active scripting buffer for the queue region."
       (funcall (nth 2 item) (car item))
       (setq alist (cdr alist)))
     (if alist
-	(progn
-	  (proof-grab-lock) 
-	  (setq proof-shell-delayed-output (cons 'insert "Done."))
-	  (setq proof-action-list alist)
-	  (proof-shell-insert (nth 1 item))))))
+	(if proof-action-list
+	    (progn
+	      ;; internal check: correct queuemode in force
+	      (and queuemode (assert (eq proof-shell-busy queuemode)))
+	      ;; append to the current queue
+	      (setq proof-action-list
+		    (nconc proof-action-list alist)))
+	  ;; start processing a new queue
+	  (progn
+	    (proof-grab-lock queuemode) 
+	    (setq proof-shell-delayed-output (cons 'insert "Done."))
+	    (setq proof-action-list alist)
+	    (proof-shell-insert (nth 1 item)))))))
+    
+(defun proof-start-queue (start end alist)
+  "Begin processing a queue of commands in ALIST.
+If START is non-nil, START and END are buffer positions in the
+active scripting buffer for the queue region."
+  (if start
+      (proof-set-queue-endpoints start end))
+  (proof-append-alist alist))
+
+(defun proof-extend-queue (end alist)
+  "Extend the current queue with commands in ALIST, queue end END.
+To make sense, the commands should correspond to processing actions
+for processing a region from (buffer-queue-or-locked-end) to END.
+The queue mode is set to 'advancing"
+  (proof-set-queue-endpoints (proof-unprocessed-begin) end)
+  (proof-append-alist alist 'advancing))
+
 
 ; returns t if it's run out of input
 
