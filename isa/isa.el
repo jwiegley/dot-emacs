@@ -612,9 +612,6 @@ you will be asked to retract the file or process the remainder of it."
 ;;
 
 (setq proof-xsym-extra-modes '(thy-mode)
-      proof-xsym-font-lock-keywords
-      ;; fontification for tokens themselves  (FIXME: broken)
-      '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
       proof-xsym-activate-command
       "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode);"
       proof-xsym-deactivate-command
@@ -723,19 +720,6 @@ you will be asked to retract the file or process the remainder of it."
     
     ;; that's it for now!
     ))
-
-(eval-after-load "x-symbol-isa"
- ;; Add x-symbol tokens to isa-completion-table and rebuild
- ;; internal completion table if completion is already active
-'(progn
-(defpgdefault completion-table
-  (append (proof-ass completion-table)
-	  (mapcar (lambda (xsym) (nth 2 xsym))
-		  x-symbol-isa-table)))
-(if (featurep 'completion)
-    (proof-add-completions))))
-
-
 
 
 

@@ -288,5 +288,30 @@ until Proof General is restarted."
 (defpgdefault help-menu-entries isabelle-docs-menu)
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; X-Symbol language configuration, and adding to completion table
+;;
+
+(defpgdefault x-symbol-language 'isabelle)
+
+(setq proof-xsym-font-lock-keywords
+      ;; fontification for tokens themselves  (FIXME: broken)
+      '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face))))
+
+(eval-after-load "x-symbol-isabelle"
+ ;; Add x-symbol tokens to isa-completion-table and rebuild
+ ;; internal completion table if completion is already active
+'(progn
+   (defpgdefault completion-table
+     (append (proof-ass completion-table)
+	     (mapcar (lambda (xsym) (nth 2 xsym))
+		     x-symbol-isabelle-table)))
+   (if (featurep 'completion)
+       (proof-add-completions))))
+
+
+
+
 (provide 'isabelle-system)
 ;; End of isabelle-system.el

@@ -567,15 +567,14 @@ proof-shell-retract-files-regexp."
 ;; x-symbol support for Isabelle PG, provided by David von Oheimb.
 ;;
 ;; The following settings configure the generic PG package.
-;; The token language "Isabelle Symbols" is in file x-symbol-isar.el
+;; The token language "Isabelle Symbols" is in file x-symbol-isabelle.el
 ;;
 
-(setq proof-xsym-font-lock-keywords
-      '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
-      proof-xsym-activate-command
-      "ML_command {* print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode) *};"
-      proof-xsym-deactivate-command
-      "ML_command {* print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]) *};")
+(setq 
+ proof-xsym-activate-command
+ "ML_command {* print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode) *};"
+ proof-xsym-deactivate-command
+ "ML_command {* print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]) *};")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -586,17 +585,6 @@ proof-shell-retract-files-regexp."
 ;; running process.
 
 (defpgdefault completion-table isar-keywords-major)
-
-(eval-after-load "x-symbol-isar"
- ;; Add x-symbol tokens to isar-completion-table and rebuild
- ;; internal completion table if completion is already active
-'(progn
-(defpgdefault completion-table
-  (append (proof-ass completion-table)
-	  (mapcar (lambda (xsym) (nth 2 xsym))
-		  x-symbol-isar-table)))
-(if (featurep 'completion)
-    (proof-add-completions))))
 
 
 (provide 'isar)
