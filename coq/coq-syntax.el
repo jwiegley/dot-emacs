@@ -10,61 +10,49 @@
 ;; ----- keywords for font-lock.
 
 (defvar coq-keywords-decl
-  '(
-"Axiom[s]?"
-"Hypotheses"
-"Hypothesis"
-"Parameter[s]?"
-;; da: 3.2 I added Section here, to try to fix undo for Sections working
-;; better.
-;;Pierre : Chapter also
-"Variable[s]?"
-"Global\\s-+Variable"
-;;added tactic def here because it needs Reset to be undone correctly
-"Tactic\\s-+Definition"
-))
+  '("Axiom[s]?"
+    "Hypotheses"
+    "Hypothesis"
+    "Parameter[s]?"
+    "Variable[s]?"
+    "Global\\s-+Variable"
+    ;;added tactic def here because it needs Reset to be undone correctly
+    "Tactic\\s-+Definition"))
 
 (defvar coq-keywords-defn
-  '(
-"CoFixpoint"
-"CoInductive"
-"Fixpoint"
-"Inductive"
-"Inductive\\s-+Set"
-"Inductive\\s-+Prop"
-"Inductive\\s-+Type"
-"Mutual\\s-+Inductive"
-"Record"
-"Scheme"
-"Syntactic\\-+Definition"
-"Structure"
-))
+  '("CoFixpoint"
+    "CoInductive"
+    "Fixpoint"
+    "Inductive"
+    "Inductive\\s-+Set"
+    "Inductive\\s-+Prop"
+    "Inductive\\s-+Type"
+    "Mutual\\s-+Inductive"
+    "Record"
+    "Scheme"
+    "Syntactic\\-+Definition"
+    "Structure"))
 
 (defvar coq-keywords-goal
-  '(
-"Chapter"
-"Section"
-"Correctness"
-"Definition"
-"Fact"
-"Goal"
-"Lemma"
-"Local"
-"Remark"
-"Theorem"
-))
+  '("Chapter"
+    "Section"
+    "Correctness"
+    "Definition"
+    "Fact"
+    "Goal"
+    "Lemma"
+    "Local"
+    "Remark"
+    "Theorem"))
 
 (defvar coq-keywords-save
-  '(
-"Defined"
-"Save"
-"Qed"
-"End"
-))
+  '("Defined"
+    "Save"
+    "Qed"
+    "End"))
 
-(defvar coq-keywords-kill-goal '(
-"Abort"
-))
+(defvar coq-keywords-kill-goal 
+  '("Abort"))
 
 
 
