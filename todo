@@ -1,16 +1,17 @@
-This is a list of things which need doing to the lego mode.
+-*- mode:outline -*-
+* This is a list of things which need doing in the generic interface
+====================================================================
 
-* Fixing up errors caused by pbp-generated commands.
+o Implement proof-find-previous-terminator and bind it to C-c C-a
 
-* undo support for LEGO needs to consider Discharge; perhaps unrol to
-  the beginning of the module?
+o Fixing up errors caused by pbp-generated commands.
 
-* pbp code doesn't quite accord with the tech report; in particular it
+o pbp code doesn't quite accord with the tech report; in particular it
   decodes annotations eagerly. Lazily would be faster, and it's what
   the tech report claims
   --- djs: probably not much faster, actually.
 
-* It would be nice to have a version ported to emacs19 (or
+o It would be nice to have a version ported to emacs19 (or
   20). Unfortunately, it's currently impossible to port the pbp code,
   since emacs19 doesn't properly handle highlighting of nested
   overlays. The bulk of the stuff dependent on which version of emacs
@@ -18,26 +19,33 @@ This is a list of things which need doing to the lego mode.
   doubtless differences in font-locking and menu code which will
   require some work.
 
-* file handling could be more robust
+o file handling could be more robust
 
-* LEGO mode might incorporate changes to Coq mode menu, in particular
+o LEGO and Coq modes overwrite each other.
+
+o We need to go over to piped communication rather than ptys to fix
+  the (Solaris) ^G bug. In this circumstance there's a bug in the
+  eager annotation code
+
+* Here are things to be done to Lego mode
+=========================================
+
+o undo support for LEGO needs to consider Discharge; perhaps unrol to
+  the beginning of the module?
+
+o LEGO mode might incorporate changes to Coq mode menu, in particular
   making help refer to the info file.
 
-* LEGO and Coq modes overwrite each other.
+* Here are things to be done to Coq mode
+========================================
 
-* We need to go over to piped communication rather than ptys to fix the
-  ^G bug. In this circumstance there's a bug in the eager annotation
-  code
+o Restart if going back to beginning of proof.
 
-Here are things to be done to Coq mode:
+o C-c u inside a Section should reset the whole section, then redo defns
 
-* Restart if going back to beginning of proof.
-
-* C-c u inside a Section should reset the whole section, then redo defns
-
-* There's a bug so the goal buffer isn't displaying everything that
+o There's a bug so the goal buffer isn't displaying everything that
   happens.
 
-* Sections and files are handled incorrectly.
+o Sections and files are handled incorrectly.
 
-* Update documentation to include C-c C-s.
+o Update documentation to include C-c C-s.
