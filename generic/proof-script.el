@@ -1829,12 +1829,7 @@ finish setup which depends on specific proof assistant configuration."
   ;; Offer to save script mode buffers which have no files,
   ;; in case Emacs is exited accidently.
   (or (buffer-file-name)
-      (setq buffer-offer-save t))
-
-  ;; FIXME da: does proof mode hook call belong here?
-  ;; Moreover, isn't it already called by
-  ;; (define-derived-mode proof-mode ...) ???
-  (run-hooks 'proof-mode-hook))
+      (setq buffer-offer-save t)))
 
 
 (provide 'proof-script)
