@@ -33,10 +33,13 @@
   :type 'file
   :group 'phox)
 
-(defcustom phox-x-symbol-enable t
-  "*Whether to use x-symbol or not."
-  :type 'boolean
-  :group 'phox)
+; da: I commented this out, it should be defined automatically
+; in proof-config.el.  If you want to change the default to t,
+; then perhaps:  (custom-set-default phox-x-symbol-enable t)
+;(defcustom phox-x-symbol-enable t
+;  "*Whether to use x-symbol or not."
+;  :type 'boolean
+;  :group 'phox)
 
 (defcustom phox-web-page
   "http://www.lama.univ-savoie.fr/~RAFFALLI/phox.html"
