@@ -235,6 +235,7 @@
 (defun coq-goal-command-p (str)
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
+       (not (proof-string-match "Local.*:=" str))
        (not (proof-string-match "Definition.*:=" str))
        (not (proof-string-match "Module.*:=" str))
        (not (proof-string-match "Declare Module.*:" str)) ;neither : or :=
