@@ -1,0 +1,20 @@
+About Proof General Kit
+=======================
+
+Proof General has been Emacs based so far, but plans are afoot to
+liberate it from the points and parentheses of Emacs Lisp.  The
+successor framework, Proof General Kit, proposes that proof assistants
+use a *standard* XML-based protocol for interactive proof, dubbed
+PGIP.  
+
+PGIP will allow a middleware layer for many interactive proof tools
+and interface components (including Emacs).  The design of PGIP was
+made possible by the present Emacs-based Proof General framework.  
+
+For more on Proof General Kit, see
+http://www.proofgeneral.org/kit.html
+
+
+
+		
+
