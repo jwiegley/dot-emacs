@@ -116,14 +116,17 @@
      ["Functional Scheme     fs<C-BS>" (insert-and-expand "fs") t]
      ["Functional Scheme with    fsw<C-BS>" (insert-and-expand "fsw") t]
      ""
-     ["hint Constructors     hc<C-BS>" (insert-and-expand "hc") t]
-     ["hint Immediate        hi<C-BS>" (insert-and-expand "hi") t]
-     ["hint Resolve          hr<C-BS>" (insert-and-expand "hr") t]
-     ["hint Rewrite          hrw<C-BS>" (insert-and-expand "hrw") t]
-     ["hint extern           he<C-BS>" (insert-and-expand "he") t]
-     ["hints                 hs<C-BS>" (insert-and-expand "hs") t]
+     ["Hint Constructors     hc<C-BS>" (insert-and-expand "hc") t]
+     ["Hint Immediate        hi<C-BS>" (insert-and-expand "hi") t]
+     ["Hint Resolve          hr<C-BS>" (insert-and-expand "hr") t]
+     ["Hint Rewrite          hrw<C-BS>" (insert-and-expand "hrw") t]
+     ["Hint Extern           he<C-BS>" (insert-and-expand "he") t]
      ""
      ["infix                 inf<C-BS>" (insert-and-expand "inf") t]     
+     ["Notation (no assoc)   nota<C-BS>" (insert-and-expand "nota") t]     
+     ["Notation (assoc)         notas<C-BS>" (insert-and-expand "notas") t]     
+     ["Notation (no assoc, scope) notasc<C-BS>" (insert-and-expand "notasc") t]     
+     ["Notation (assoc, scope) notassc<C-BS>" (insert-and-expand "notassc") t]     
      )
 
     ("Insert term" 
