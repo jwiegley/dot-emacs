@@ -386,7 +386,9 @@
   ; or from the command start (if we are in an Inductive type)
 	  ((proof-looking-at-safe coq-indent-pattern-regexp) 
 		(save-excursion (coq-find-unclosed 1 real-start)
-							 (+ (current-column) proof-indent)))
+							 (if (proof-looking-at-safe "\\s(")
+								  (+ (current-indentation) proof-indent)
+								  (+ (current-column) proof-indent))))
 
   ; if we find a "then" we indent from the first unclosed if
   ; or from the command start (should not happen)

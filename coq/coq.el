@@ -725,9 +725,9 @@ This is specific to coq-mode."
 (defun coq-mode-config ()
 
   (setq proof-terminal-char ?\.)
-  (setq proof-script-command-end-regexp   ;"\\(\\w\\|\\s-\\|\\(\\.\\.\\)+\\)\\.[^\\w\\.]"
+  (setq proof-script-command-end-regexp
         (if coq-version-is-V7 
-            "\\(?:\\w\\|\\s-\\|\\(?:\\.\\.\\)+\\)\\.\\(\\s-\\|\\'\\)"
+            "\\(?:\\w\\|\\s-\\|\\s)\\|\\(?:\\.\\.\\)+\\)\\.\\(\\s-\\|\\'\\)"
           "[.]"))
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
