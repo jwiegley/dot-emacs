@@ -1,4 +1,5 @@
 @c TODO: check new doc for hiding; add doc for dependencies, tracing.
+@c Stuff for moving spans, navigating through locked region.
 
 \def\fontdefs{\psfamily{bsf}{r}{c}{b}{b}{ri}{ri}{ro}{bo}\def\mainmagstep{1200}}
 \input texinfo
@@ -65,7 +66,7 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.3pre
+@set version 3.3
 @set xemacsversion 21.4
 @set fsfversion 20.7
 @set last-update September 2001
