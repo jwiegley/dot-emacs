@@ -25,8 +25,7 @@
     "simpset"))
 
 (defconst isar-keywords-control
-  '("break"
-    "cannot_undo"
+  '("cannot_undo"
     "cd"
     "clear_undo"
     "exit"
