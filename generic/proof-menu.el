@@ -216,36 +216,36 @@ without adjusting window layout."
 
 (defvar proof-buffer-menu
   (cons "Buffers"
-	'(;;["Active Scripting"
-	  ;;  (proof-switch-to-buffer proof-script-buffer)
-	  ;;  :active (buffer-live-p proof-script-buffer)]
-	   ["Layout Windows"
-	    proof-layout-windows]
-	   ["Rotate Output Buffers"
-	    proof-display-some-buffers
-	    :active (buffer-live-p proof-goals-buffer)]
-	   ;;["Goals"
-	   ;; (proof-switch-to-buffer proof-goals-buffer t)
-	   ;; :active (buffer-live-p proof-goals-buffer)]
-	   ;;["Response"
-	   ;; (proof-switch-to-buffer proof-response-buffer t)
-	   ;; :active (buffer-live-p proof-response-buffer)]
-	   ["Show Shell"
-	    (proof-switch-to-buffer proof-shell-buffer)
-	    :active (buffer-live-p proof-shell-buffer)]
-	   ;; FIXME: this next test doesn't work since menus
-	   ;; loaded before proof-shell-trace-output-regexp is
-	   ;; set (in proof-shell hook).  Should be better with
-	   ;; simplified customization mechanism.
-	   ;; ( if proof-shell-trace-output-regexp ... )
-	   ;;'(["Trace"
-	   ;;(proof-switch-to-buffer proof-trace-buffer)
-	   ;;:active (buffer-live-p proof-trace-buffer)])
-	   ["Clear Responses"
-	    pg-response-clear-displays
-	    :active (buffer-live-p proof-response-buffer)]))
+	'(["Layout Windows"
+	   proof-layout-windows]
+	  ["Rotate Output Buffers"
+	   proof-display-some-buffers
+	   :active (buffer-live-p proof-goals-buffer)]
+	  ["Clear Responses"
+	   pg-response-clear-displays
+	   :active (buffer-live-p proof-response-buffer)]
+	  "----"
+	  ["Active Scripting"
+	   (proof-switch-to-buffer proof-script-buffer)
+	   :active (buffer-live-p proof-script-buffer)]
+	  ["Goals"
+	   (proof-switch-to-buffer proof-goals-buffer t)
+	   :active (buffer-live-p proof-goals-buffer)]
+	  ["Response"
+	   (proof-switch-to-buffer proof-response-buffer t)
+	   :active (buffer-live-p proof-response-buffer)]
+	  ;; FIXME: next test doesn't work: menus are loaded before
+	  ;; proof-shell-trace-output-regexp is set (in proof-shell hook).  
+	  ;; Should be better with simplified customization mechanism.
+	  ;; ( if proof-shell-trace-output-regexp ... )
+	  ["Trace"
+	   (proof-switch-to-buffer proof-trace-buffer)
+	   :active (buffer-live-p proof-trace-buffer)]
+	  ["Shell"
+	   (proof-switch-to-buffer proof-shell-buffer)
+	   :active (buffer-live-p proof-shell-buffer)]))
   "Proof General buffer menu.")
-
+	  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
