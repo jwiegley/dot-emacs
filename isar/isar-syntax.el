@@ -72,7 +72,8 @@
           isar-keywords-qed-block))
 
 (defconst isar-keywords-proof
-  (append isar-keywords-proof-goal
+  (append isar-keywords-proof-heading
+	  isar-keywords-proof-goal
           isar-keywords-proof-chain
           isar-keywords-proof-decl
           isar-keywords-qed))
