@@ -90,6 +90,10 @@ C Usability enhancement:
 	- Add option for many commands per line.
 	- Maybe shell like behaviour with pressing return?
 
+   Also: movement when queue region is active is odd.
+   E.g.: press C-c C-n twice on lego/example.l.  
+   Point hops backwards!
+
 C Usability enhancement:
    Rationalize next and undo.  Make same as toolbar 
    commands and have different commands for power users
