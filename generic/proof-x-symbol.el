@@ -42,10 +42,7 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
        ;; First, some checks on x-symbol.
        ;;
        ((and (not (featurep 'x-symbol-autoloads))
-	     ;; try requiring it
-	     (not (condition-case ()
-		      (require 'x-symbol) ;; NB: lose all errors!
-		    (t (featurep 'x-symbol)))))
+	     (not (proof-try-require 'x-symbol)))
 	(funcall error-or-warn
  "Proof General: x-symbol package must be installed for x-symbol-support!
 The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
@@ -63,9 +60,7 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
        ;; FIXME: maybe we should let x-symbol load the feature, in
        ;; case it uses x-symbol stuff inside.
        ;; Is there an easy way of testing for library exists?
-       ((not (condition-case ()
-		 (require xs-feature-sym) ;; NB: lose all errors!
-	       (t (featurep xs-feature-sym))))
+       ((not (proof-try-require xs-feature-sym))
 	(funcall error-or-warn 
 		 (format
  "Proof General: for x-symbol support, you must provide a library %s.el"
@@ -112,7 +107,7 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 	  (set symnamevar symname)
 	  (set symmodelinevar symmodelinenm)
 	  (x-symbol-register-language xs-lang xs-feature-sym all-xs-modes)
-	  ;; Put just the extra modes on the auto-mode-alist
+	  ;; Put the extra modes on the auto-mode-alist
 	  (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
 	  ;; Font lock support is optional
 	  (if flks
@@ -124,17 +119,27 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 
 ;;;###autoload
 (defun proof-x-symbol-enable ()
-  "Turn on or off support for x-symbol, initializing if necessary."
+  "Turn on or off support for x-symbol, initializing if necessary.
+Calls proof-x-symbol-toggle-clean-buffers afterwards."
   (if (and proof-x-symbol-enable (not proof-x-symbol-initialized))
       (progn
 	(setq proof-x-symbol-enable nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
 	(setq proof-x-symbol-enable t)))
-  (proof-x-symbol-mode-all-buffers))
+  (proof-x-symbol-mode-all-buffers)
+  (proof-x-symbol-toggle-clean-buffers))
 
-;; A toggling function for the menu.
-(fset 'proof-x-symbol-toggle
-      (proof-customize-toggle proof-x-symbol-enable))
+;; First inclination was to put this function in a hook called by
+;; enable function.  But rather than proliferate hooks needlessly, it
+;; seems better to wait to find out whether they're really needed.
+(defun proof-x-symbol-toggle-clean-buffers ()
+  "Clear the response buffer and send proof-showproof-command.
+This function is intended to clean the display after a change
+in the status of X-Symbol display.
+This is a subroutine of x-symbol-enable."
+  (proof-shell-maybe-erase-response nil t t)
+  (if (and proof-showproof-command (proof-shell-available-p))
+    (proof-shell-invisible-command proof-showproof-command)))
 
 ;;;###autoload
 (defun proof-x-symbol-decode-region (start end) 
@@ -169,17 +174,20 @@ A value for proof-shell-insert-hook."
 (defun proof-x-symbol-mode-all-buffers ()
   "Activate/deactivate x-symbols in all Proof General buffers.
 A subroutine of proof-x-symbol-enable."
-  ;; Shell has its own configuration
-  (proof-with-current-buffer-if-exists proof-shell-buffer
-   (proof-x-symbol-shell-config))
   ;; Response and goals buffer are fontified/decoded 
   ;; manually in the code, configuration only sets
   ;; x-symbol-language.
   (proof-map-buffers (list proof-goals-buffer proof-response-buffer)
    (proof-x-symbol-configure))
-  ;; Script buffers are in X-Symbol's minor mode
-  (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
-   (proof-x-symbol-mode)))
+  ;; Shell has its own configuration
+  (proof-with-current-buffer-if-exists proof-shell-buffer
+   (proof-x-symbol-shell-config))
+  ;; Script buffers are in X-Symbol's minor mode, 
+  ;; And so are any other buffers kept in the same token language
+  (dolist (mode (cons proof-mode-for-script proof-xsym-extra-modes))
+    (proof-map-buffers 
+     (proof-buffers-in-mode mode)
+     (proof-x-symbol-mode))))
 
 ;;
 ;; Three functions for configuring buffers:
