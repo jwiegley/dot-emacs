@@ -1,3 +1,67 @@
+2000-12-15  David Aspinall  <da@proofgeneral.org>
+
+	* html/main.html: rename af2 -> Phox
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.html, html/devel.html:
+	Set version tag for new release.
+
+2000-12-15  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/x-symbol-isabelle.el:
+	tuned some (rarely used) symbols;
+
+2000-12-14  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-script.el:
+	Remove some user-level functions to pg-user.
+	Fix bug in proof-goto-end-of-locked.
+
+	* generic/proof-config.el:
+	Add proof-disappearing-proofs
+	Make proofs visible command
+	pg-insert-output-as-comment-fn hook
+	Alter docstrings for functions using proof-format-filename
+
+	* generic/proof-syntax.el:
+	Generalise proof-format-filename
+
+	* generic/pg-user.el:
+	Factor out some material from proof-script.el
+
+	* generic/proof-menu.el:
+	Add bindings for pg-insert-last-output-as-comment and proof-disappearing-proofs-toggle
+
+	* generic/proof-toolbar.el:
+	Add visible enable command
+
+	* generic/span-extent.el, generic/span-overlay.el:
+	Add span-object, mapcar-spans
+
+	* etc/coq/multiple/.cvsignore:
+	*** empty log message ***
+
+	* etc/coq/multiple/a.v, etc/coq/multiple/b.v, etc/coq/multiple/c.v, etc/coq/multiple/README:
+	Updated to use Require commands
+
+2000-12-07  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* generic/pg-pgip.el: Typo.
+
+	* etc/ProofGeneral.spec, Makefile, Makefile.devel:
+	Name change af2 -> phox
+
+	* generic/pg-pgip.el:
+	Beginnings of pgip processing
+
+	* generic/pg-xml.el: Add provide
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
 2000-12-07  David Aspinall  <da@proofgeneral.org>
 
 	* ChangeLog: Updated.
