@@ -2750,13 +2750,11 @@ Note that in ``classic'' Isabelle, @file{.thy} files contain definitions
 and declarations for a theory, while @file{.ML} contain proof scripts.
 So most of Proof General's functions only make sense in @file{.ML}
 files, and there is no toolbar and only a short menu for @file{.thy}
-files.  Also note that Proof General does not understand full ML
-syntax(!), so you should only use the scripting commands on @file{.ML}
-files which contain proof commands (no ML functions, structures, etc).
+files.  
 
 There is no specific documentation here for the Isabelle/Isar instance
-of Proof General.  With Isar, @file{.thy} files contain proofs as well
-as theory definitions, and so they support the toolbar and usual
+of Proof General.  With Isabelle/Isar, @file{.thy} files contain proofs
+as well as theory definitions, and so they support the toolbar and usual
 scripting functions of Proof General.  To load the Isabelle/Isar
 instance of Proof General, you can set
 @code{PROOFGENERAL_ASSISTANTS=isar} in the shell before starting Emacs,
@@ -2764,10 +2762,65 @@ to make sure ordinary Isabelle theory file mode isn't loaded instead.
 
 
 @menu
+* ML files::
 * Theory files::                
 * Isabelle specific commands::  
 * Isabelle customizations::     
 @end menu
+
+
+@node ML files
+@section ML files
+@cindex ML files (in Isabelle)
+@cindex Isabelle proof scripts
+
+In Isabelle, ML files are used to hold proof scripts, as well as
+definitions of tactics, proof procedures, etc.  So ML files are the
+normal domain of Proof General.  But there are some things to be wary
+of.
+
+Proof General does not understand full ML syntax(!), so ideally you
+should only use Proof General's scripting commands on @file{.ML} files
+which contain proof commands (no ML functions, structures, etc).
+
+If you do use files with Proof General which declare functions, tactics,
+etc, you should be okay provided your code doesn't include non-top level
+semi-colons (which will confuse Proof General's parser), and provided
+value declarations (and other non proof-steps) occur outside proofs.
+This is becuase within proofs, Proof General considers every ML command
+to be a proof step which is undoable.
+
+For example, do this
+@lisp
+    val intros1 = REPEAT (resolve_tac [impI,allI] 1);
+    Goal "Q(x) --> (ALL x. P(x) --> P(x))";
+    br impI 1;
+    by intros1;
+    ba 1;
+    qed "mythm";
+@end lisp
+instead of this:
+@lisp
+    Goal "Q(x) --> (ALL x. P(x) --> P(x))";
+    br impI 1;
+    val intros1 = REPEAT (resolve_tac [impI,allI] 1);
+    by intros1;
+    ba 1;
+    qed "mythm";
+@end lisp
+In the second case, Proof General wrongly considers the @code{val}
+declaration to be a proof step, and if you undo, it will issue an
+@code{undo} to Isabelle to undo it.  This leads to a loss of
+synchronization.  To fix things when this happens, simply retract
+to some point before the @code{Goal} command and fix your script.
+
+Having ML as a top-level, Isabelle even lets you redefine the entire
+proof command language, which will certainly confuse Proof General!
+Stick to using the standard functions, tactics, and tacticals and there
+should be no problems.  (In fact, there should be no problems provided
+you don't use your own "goal" or "qed" forms, which Proof General
+recognizes.  As the example above shows, Proof General makes no
+attempt to recognize arbitrary tactic applications).
 
 
 @node Theory files

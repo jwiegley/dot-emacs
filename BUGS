@@ -150,14 +150,11 @@ goals output that appears *after* Isabelle messages, but Isabelle
 prints the timing message after the goals are displayed.
 
 * There is a general difficulty with proof scripts containing ML
-structures, functions, etc.  Proof General does not understand full ML
-syntax(!), so it will be confused by structures which contain 
+structures, functions, etc.  Proof General does not understand full
+ML syntax(!), so it will be confused by structures which contain
 semi-colons after declarations, for example.  Also, it cannot undo
-function declarations.  Moreover, with ML you can even redefine
-the entire proof command language, which will certainly confuse
-Proof General!  Stick to using the standard functions, tactics, and
-tacticals and there should be no problems.  (Actually, there should
-be no problems unless you use your own "goal" or "qed" forms).
+function declarations.  See the section on ML files in the manual
+for more details.
 
 * Blocking when processing multiple files, beginning from a .ML file.
 Proof General will block the Emacs process when it is waiting for a
