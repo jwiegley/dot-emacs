@@ -15,6 +15,13 @@
 ;;
 ;; TESTING NOTES: turn on `proof-show-debug-messages' for
 ;; useful tracing messages: (setq proof-show-debug-messages t).
+;;
+;; TODO NEXT:
+;; -- completion command for completion tables 
+;; -- parsescript input/outputs
+;; -- guiconfig, some parts of
+;; -- support fully native PGIP mode
+;; 
 
 (require 'pg-xml)
 (require 'pg-pgip-old)			;; Handle some PGIP 1.X format messages
@@ -22,6 +29,9 @@
 (defalias 'pg-pgip-debug   'proof-debug)
 (defalias 'pg-pgip-error   'error)
 (defalias 'pg-pgip-warning 'pg-internal-warning)
+
+(defconst pg-pgip-version-supported "2.0"
+  "Version of PGIP supported by this library.")
 
 ;;;###autoload
 (defun pg-pgip-process-packet (pgips)
@@ -96,6 +106,11 @@ Return a symbol representing the PGIP command processed, or nil."
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun pg-pgip-process-askpgip (node)
+  (pg-pgip-debug "Received <askpgip> message with version `%s'" version)
+  ;; FIXME: send a uses PGIP message back?
+  )
+
 (defun pg-pgip-process-usespgip (node)
   (let ((version (pg-pgip-get-version node)))
     (pg-pgip-debug "Received <usespgip> message with version `%s'" version)))
@@ -125,13 +140,13 @@ Return a symbol representing the PGIP command processed, or nil."
 	 (descr	      (pg-pgip-get-descr node t "<no description supplied>"))
 	 (version     (pg-pgip-get-version node t "<no version supplied>"))
 	 (url         (pg-pgip-get-url node t))
-	 (welcomeelt  (pg-xml-child 'welcomemsg node)))
-	 (welcomemsg  (if welcomeelt (pg-pgip-get-text welcomeelt)))
+	 (welcomeelt  (pg-xml-get-child 'welcomemsg node))
+	 (welcomemsg  (if welcomeelt (pg-xml-get-text-content welcomeelt)))
 	 (icon	      (xml-get-children node 'icon))
 	 (helpdocs    (xml-get-children node 'helpdocs)))
   ;; TODO: enter the data into a table of provers (see proof-site.el).
   ;; Seems little point doing this while we have the single-prover limitation.
-    )
+    ))
 
 ;;
 ;; Preferences
@@ -304,9 +319,6 @@ Return a symbol representing the PGIP command processed, or nil."
 (defun pg-pgip-process-metainforesponse (node)
   )
 
-(defun pg-pgip-process-parseresult (node)
-  )
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
 ;; Message processing: fromprovermsg/fileinfomsg
@@ -414,7 +426,7 @@ Also sets local proverid and srcid variables for buffer."
   ;; Text ought to be cdata or something. We'll stick it into a buffer
   ;; and run the proof-script code on it.
   (save-excursion
-    (let* ((text (pg-pgip-get-text-content node))
+    (let* ((text (pg-xml-get-text-content node))
 	   (buf  (get-buffer-create " *pgip-parsescript*")))
       (delete-region (point-min) (point-max)) ; wipe previous contents
       (insert text)
@@ -568,13 +580,13 @@ Also sets local proverid and srcid variables for buffer."
   (pg-xml-get-attr 'objtype node optional defaultval))
 
 (defsubst pg-pgip-get-value (node)
-  (pg-xml-get-text node))
+  (pg-xml-get-text-content node))
 
 (defalias 'pg-pgip-get-displaytext 'pg-pgip-get-pgmltext)
 
 (defun pg-pgip-get-pgmltext (node)
   ;; TODO: fetch text or markup XML with text properties
-  (pg-xml-get-text node))
+  (pg-xml-get-text-content node))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -646,6 +658,12 @@ the prover.  For remaining optional args, see doc of
 ;;
 
 ;;;###autoload
+(defun pg-pgip-maybe-askpgip ()
+  "Send an <askpgip> message to the prover if PGIP is supported."
+  (if proof-shell-issue-pgip-cmd
+      (pg-pgip-issue "<askpgip/>" 'block)))
+
+;;;###autoload
 (defun pg-pgip-askprefs ()
   "Send an <askprefs> message to the prover."
   (pg-pgip-issue "<askprefs/>" 'block))
@@ -687,6 +705,16 @@ the prover.  For remaining optional args, see doc of
 ;;   (let (instuff outstuff)
 ;;     (while (setq (read-char standard-input)) ;; reads lisp!!!
 ;; )))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Constants for export
+;;
+
+(defconst pg-pgip-start-element-regexp "<pgip\\s-")
+(defconst pg-pgip-end-element-regexp   "</pgip>")
+
 
 
 (provide 'pg-pgip)
