@@ -39,12 +39,16 @@ X (Low)     probably not worth spending time on
 ====================================
 
 A Pending work, in progress [da]:
+
+   - make pretty printer line width altering generic.
   
    - FSF Fixes.   Stacks, oh no.
 
-   - name changes: proof-window-dedicated -> proof-keep-windows
-           proof-shell-{start,end,goal,blah} -> proof-goals-{blah}
+   - name changes: 
+
+           proof-shell-{start,end,goal,blah} -> proof-goals-{blah} [later]
            pbp-{blah} -> proof-goals-{blah}, new proof-goals.el  [maybe later]
+           
      
    - display functions: auto-delete-windows doesn't seem to work
    with window-dedicated any more (should switch between 2/3 bufs
@@ -65,11 +69,19 @@ re-enabled), proof-toggle-scripting, new configuration options.
     - clean up assert-until-point stuff at last!
 
 B BUGLETS:
-   * FSF Emacs poor fontification first time round, maybe before
-     font-lock has loaded.  Right way to start it seems to be
-     by doing global-font-lock-mode.
+  - If Proof General is loaded with M-x load-library, it gets set up
+    for *no* proof assistant!!
+  - Repetition of "load .emacs" on menu bar even when it's been loaded.
 
-   
+B SMALL DELTAS:
+  - Consider setting proof-mode-for-script automatically?
+  Is it ever needed in the shell before the script mode has
+  been entered?
+  - In case active terminator leads to an error, delete it again?
+  (problem synchronizing)
+  - Difference in menubar appearance depending on whether X-Symbol
+  is loaded before Proof General or not.
+
 
 B Have seen "confused" bug: shows up when do lots of C-c C-n as
   process is starting up.
