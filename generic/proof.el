@@ -58,6 +58,9 @@
 (autoload 'proof-shell-available-p "proof-shell"
   "Returns non-nil if there is a proof shell active and available.")
 
+(autoload 'proof-shell-invisible-command "proof-shell"
+  "Send CMD to the proof process without revealing it to the user.")
+
 ;;;
 ;;; Global variables
 ;;;
@@ -168,11 +171,12 @@ Also ensures that point is visible."
 		 (recenter -1)))))))
 
 (defun proof-clean-buffer (buffer)
-  "Erase buffer and hide from display."
+  "Erase buffer and hide from display if proof-auto-delete-windows set"
   (save-excursion
     (set-buffer buffer)
     (erase-buffer))
-  (delete-windows-on buffer))
+  (if proof-auto-delete-windows
+      (delete-windows-on buffer)))
 
 (provide 'proof)
 ;; proof.el ends here

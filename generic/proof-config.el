@@ -132,6 +132,14 @@ The protocol used should be configured so that no user interaction
   :type 'string
   :group 'proof-general)
 
+(defcustom proof-auto-delete-windows nil
+  ;; da: I've set default to nil for principle of least surprise
+  "If non-nil, automatically remove windows when they are cleaned.
+For example, at the end of a proof the goals buffer window will
+be cleared; if this flag is set it will automatically be removed.
+If you use several frames to display the Proof General buffers,
+you may want to set this variable to 'nil' to avoid frames being
+deleted automatically.")
 
 ;;
 ;; Faces.
