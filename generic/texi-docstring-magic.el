@@ -29,9 +29,6 @@
 
 (defconst texi-docstring-magic-munge-table
   '(;; 1. Indented lines are gathered into @lisp environment.
-    ;; FIXME: this isn't quite as good as it could be, we
-    ;; get the last empty line included in the environment
-    ;; rather than outside it.
     ("\\(^.*\\S-.*$\\)"
      t
      (let
@@ -80,7 +77,11 @@
      t
      (concat (match-string 2 docstring)
 	     "@code{" (match-string 3 docstring) "}"
-	     (match-string 5 docstring))))
+	     (match-string 5 docstring)))
+    ;; 6,7. Clean up for @lisp environments left with spurious newlines
+    ;; after 1.
+    ("\\(\\(^\\s-*$\\)\n@lisp\\)" t "@lisp")
+    ("\\(\\(^\\s-*$\\)\n@end lisp\\)" t "@end lisp"))
     "Table of regexp matches and replacements used to markup docstrings.
 Format of table is a list of elements of the form
    (regexp predicate replacement-form)
