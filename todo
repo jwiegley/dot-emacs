@@ -95,6 +95,14 @@ X (Low)		e.g. probably not worth spending time on
 *** PGIP SUPPORT (minimal for Isabelle patch):
       -- settings with categories
 
+*** A Oddity: Weirdness with regions turning blue even though they
+    haven't been processed.  Noticed with HOL/CCC experimental setups.
+    Send a few regions queueing, no result from interpreter, yet sometimes
+    turns blue.  Why???
+
+*** Allow empty retract action that doesn't produce new prompt
+    (Noticed with HOL4).
+
 *** [ Don't query save before retraction ?? ]
 
 *** C Implement optional arg to next/undo which doesn't update

@@ -15,6 +15,12 @@ versions, and those which only apply to particular versions.
 
 * Generic problems, for all Emacs versions
 
+** X-Symbol support removed from "secondary" provers (HOL, ACL2, LEGO, Twelf)
+
+If anyone was actually using this, please let me know.  It should be
+very easy to revive by copying coq/x-symbol-coq.el (although a generic
+version might be desirable).
+
 ** Visibility control doesn't distinguish theorems with same name.
 
 If you have more than one theorem with the same name in a buffer,

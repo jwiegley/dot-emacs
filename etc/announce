@@ -7,7 +7,7 @@
 Proof General is a generic (X)Emacs interface for proof assistants.
 It can be instantiated for the proof assistant of your choice, and is
 supplied ready-customised for Isabelle, Coq, LEGO, and PhoX, and, 
-experimentally, for HOL98, Twelf, and ACL2.
+experimentally, several other systems.
 
 Proof General includes these features, amongst others:
 
