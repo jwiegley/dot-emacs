@@ -54,12 +54,14 @@ NB: To change proof assistant, you must start a new Emacs session."
 ;; to support the proof assistants selected
 (let ((assistants proof-assistants) proof-assistant)
   (while assistants
-    (let*  ((proof-assistant (car assistants))
-	    (fileregexp (cond ((eq proof-assistant 'coq)    "\\.v")
-			      ((eq proof-assistant 'lego)   "\\.l$")
-			      ((eq proof-assistant 'isa)    "\\.ML$")))
-	    (assistant-name   (symbol-name proof-assistant))
-	    (proof-mode  (intern (concat assistant-name "-mode"))))
+    (let*  
+	((proof-assistant (car assistants))
+	 (fileregexp 
+	  (cond ((eq proof-assistant 'coq)    "\\.v")
+		((eq proof-assistant 'lego)   "\\.l$")
+		((eq proof-assistant 'isa)    "\\.ML$|\\.thy$")))
+	 (assistant-name   (symbol-name proof-assistant))
+	 (proof-mode  (intern (concat assistant-name "-mode"))))
       (setq auto-mode-alist 
 	    (cons (cons fileregexp proof-mode) auto-mode-alist))
       ;; NB: File name for each prover is the same as its symbol name!
