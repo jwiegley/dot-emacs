@@ -1116,51 +1116,38 @@ the ACS is marked in the current buffer. If CMD does not match any,
 ;; parse strings and comments ourselves.
 ;;
 ;; NB: compared with old code,
-;; (1) this never includes comments separately in list,
-;; only commands possibly preceded by previous comment!
-;;
-;; FIXME: this is nice because it will unify next/undo
-;; behaviour.  But it is broken because comments are kept
-;; in command field, but command field is used to guess
-;; correct undo command.  So they *must* be stripped or
-;; parsed separately after all.
-;; 
+;; (1) this doesn't treat comments quite so well, but parsing
+;; should be rather more efficient.
+;; (2) comments are treated less like commands, and are only
+;; coloured blue "in passing" when commands are sent.
 
-(defun proof-segment-up-to-new (pos &optional next-command-end)
+
+(defun proof-segment-up-to-cmdstart (pos &optional next-command-end)
   "Parse the script buffer from end of locked to POS.
 Return a list of (type, string, int) tuples.
 
 Each tuple denotes the command and the position of its terminator,
-type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
-the start if the segment finishes with an unclosed comment.
+type is one of 'comment, or 'cmd.
 
 If optional NEXT-COMMAND-END is non-nil, we include the command
-which continues past POS, if any."
+which continues past POS, if any.  (NOT IMPLEMENTED IN THIS VERSION).
+
+This version is used when `proof-script-command-start-regexp' is set."
   (save-excursion
-    ;; FIXME: this is a bit hairy.  Probably simpler just to have two
-    ;; variants, one for finding starts other for finding ends!
-    ;; And another for dealing with braces, I suppose.
-    (let* ((findingends	(not (null proof-script-command-end-regexp)))
-	   (regexp	(if findingends
-			    proof-script-command-end-regexp
-			  proof-script-command-start-regexp))
-	   (commentre   (regexp-quote proof-comment-start))
+    (let* ((commentre   (concat "[ \t\n]*" proof-comment-start-regexp))
 	   (add-segment-for-cmd		; local function: advances "prev"
 	    (lambda ()
-	      (unless (or findingends (eobp))
-		;; Find end of previous command
-		(setq tmp (point))
-		(goto-char comstart)
-		(skip-chars-backward " \t\n"))
+	      ;; Find end of previous command
+	      (setq tmp (point))
+	      (goto-char comstart)
+	      (skip-chars-backward " \t\n")
 	      (let* ((bufstr (buffer-substring prev (point)))
-		     (type   (if (string-match commentre bufstr)
+		     (type   (if (eq (string-match commentre bufstr) 0)
 				 'comment 'cmd))
 		     (string (if (eq type 'comment) "" bufstr)))
 		(skip-chars-forward " \t\n")
 		(setq prev (point))
-		;; FIXME: does two commands always!
-		(unless findingends
-		  (goto-char tmp))
+		(goto-char tmp)
 		;; NB: Command string excludes whitespace, span includes it.
 		(setq alist (cons (list type string prev) alist)))))
 	   alist prev cmdfnd startpos comstart tmp)
@@ -1170,22 +1157,95 @@ which continues past POS, if any."
       (setq startpos (point))
       (while 
 	  (and 
-	   (re-search-forward regexp nil t) ; search for next command
-	   (unless findingends
-	     (setq comstart (match-beginning 0))) ; save command start
+	   (re-search-forward proof-script-command-start-regexp
+			      nil t)   ; search for next command
+	   (setq comstart (match-beginning 0)); save command start
 	   (or (buffer-syntactic-context)   ; continue if inside comment/string
 	       (progn			    ; or, if found command...
 		 (setq cmdfnd 
-		       (or findingends	    ; ignore first match for com start
-			   (> comstart startpos)))
-		 (if findingends
-		     (<= (point) pos)
-		   (<= prev pos)))))	    ; two comms after pos if findingstart
+		       (> comstart startpos)); ignore first match
+		   (<= prev pos))))
+	(if cmdfnd (progn
+		     (funcall add-segment-for-cmd)
+		     (setq cmdfnd nil))))
+      ;; End of parse; see if we found some text at the end of the
+      ;; buffer which could be a command.  (NB: With a regexp for 
+      ;; start of commands only, we can't be sure it is a complete
+      ;; command).
+      (if (and comstart			; previous command was found
+	       (<= prev pos)		; last command within range
+	       (goto-char (point-max))
+	       (setq comstart (point))	; pretend there's another cmd here
+	       (not (buffer-syntactic-context))) ; buffer ends well
+	  (funcall add-segment-for-cmd))
+      ; (if (and cmdfnd next-command-end)
+      ; (funcall add-segment-for-cmd))
+      ;; Return resulting list
+      alist)))
+
+
+;; FIXME: this needs fixing to include final comment in buffer
+;; if there is one!!
+
+(defun proof-segment-up-to-cmdend (pos &optional next-command-end)
+  "Parse the script buffer from end of locked to POS.
+Return a list of (type, string, int) tuples.
+
+Each tuple denotes the command and the position of its terminator,
+type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
+the start if the segment finishes with an unclosed comment.
+
+If optional NEXT-COMMAND-END is non-nil, we include the command
+which continues past POS, if any.
+
+This version is used when `proof-script-command-end-regexp' is set."
+  (save-excursion
+    (let* ((commentre   (concat "[ \t\n]*" proof-comment-start-regexp))
+	   (add-segment-for-cmd		; local function: advances "prev"
+	    (lambda ()
+	      (let ((cmdend (point)) start)
+		(goto-char prev)
+		;; String may start with comments, let's strip them off
+		(while 
+		    (and
+		     (setq start (point))
+		     (re-search-forward commentre cmdend t)
+		     (eq (match-beginning 0) start))
+		  ;; Look for the end of the comment 
+		  ;; (FIXME: ignore nested comments here, we should
+		  ;; have a consistent policy!)
+		  (unless
+		      (re-search-forward proof-comment-end-regexp cmdend t)
+		    (error
+		     "PG error: proof-segment-up-to-cmd-end didn't find comment end."))
+		  (setq alist (cons (list 'comment "" (point)) alist)))
+		;; There should be something left: a command.
+		(skip-chars-forward " \t\n")
+		(setq alist (cons (list 'cmd 
+					(buffer-substring
+					 (point) cmdend) 
+					cmdend) alist))
+		(setq prev cmdend)
+		(goto-char cmdend))))
+	   alist prev cmdfnd startpos tmp)
+      (goto-char (proof-queue-or-locked-end))
+      (setq prev (point))
+      (skip-chars-forward " \t\n")
+      (setq startpos (point))
+      (while 
+	  (and 
+	   (re-search-forward proof-script-command-end-regexp
+			      nil t) ; search for next command
+	   (or (buffer-syntactic-context)   ; continue if inside comment/string
+	       (progn			    ; or, if found command...
+		 (setq cmdfnd t)
+		 (<= (point) pos))))
 	(if cmdfnd (progn
 		     (funcall add-segment-for-cmd)
 		     (setq cmdfnd nil))))
       ;; End of parse; if we found a command past POS maybe add it.
-      (if (and cmdfnd next-command-end)
+      ;; FIXME: also, if we found a *comment* maybe add it!
+      (if cmdfnd ; (and cmdfnd next-command-end)
 	  (funcall add-segment-for-cmd))
       ;; Return resulting list
       alist)))
@@ -1211,9 +1271,7 @@ the next command end."
       ;; Only one of (depth > 0) and (not quote-parity)
       ;; should be true at once. -- hhg
     (let* ((start	(proof-queue-or-locked-end))
-	   (chs nil) (depth 0) (quote-parity t) done alist c
-	  (comment-end-regexp (regexp-quote proof-comment-end))
-	  (comment-start-regexp (regexp-quote proof-comment-start)))
+	   (chs nil) (depth 0) (quote-parity t) done alist c)
 	  ;; For forthcoming improvements: skip over boring
 	  ;; characters, calculate strings with buffer-substring
 	  ;; rather than character at a time.
@@ -1239,7 +1297,7 @@ the next command end."
 	   (setq done t alist (cons 'unclosed-comment alist))))
 	 (setq done t))
 	;; Case 3. Found a comment end, not inside a string
-	((and (proof-looking-at comment-end-regexp) quote-parity)
+	((and (proof-looking-at proof-comment-end-regexp) quote-parity)
 	 (if (= depth 0) 
 	     (progn
 	       (message "Warning: extraneous comment end")
@@ -1250,7 +1308,7 @@ the next command end."
 	       (setq alist (cons (list 'comment "" (point)) alist))
 	     (setq chs (cons ?\  chs)))))
 	;; Case 4. Found a comment start, not inside a string
-	((and (proof-looking-at comment-start-regexp) quote-parity)
+	((and (proof-looking-at proof-comment-start-regexp) quote-parity)
 	 (setq depth (+ depth 1))
 	 (forward-char (length (match-string 0))))
 	;; Case 5. Inside a comment. 
@@ -1288,10 +1346,6 @@ the next command end."
 		(t
 		 (setq chs nil))))))))
      alist)))
-
-;; FIXME: testing new version of above function
-;; (defalias 'proof-segment-up-to 'proof-segment-up-to-new)
-(defalias 'proof-segment-up-to 'proof-segment-up-to-old)
 
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
   "Convert a sequence of terminator positions to a set of vanilla extents.
@@ -2393,6 +2447,12 @@ last use time, to discourage saving these into the users database."
 (eval-after-load "completion" 
   '(proof-add-completions))
 
+(defun proof-script-complete (&optional arg)
+  "Like `complete' but case-fold-search set to proof-case-fold-search."
+  (interactive "*p")
+  (let ((case-fold-search proof-case-fold-search))
+    (complete arg)))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2545,17 +2605,19 @@ assistant."
   ;; calculate some strings and regexps for searching
   (setq proof-terminal-string (char-to-string proof-terminal-char))
 
-  ;; FIXME da: I'm not sure we ought to add spaces here, but if
-  ;; we don't, there would be trouble overloading these settings
-  ;; to also use as regexps for finding comments.
-  ;; 
   (make-local-variable 'comment-start)
   (setq comment-start (concat proof-comment-start " "))
   (make-local-variable 'comment-end)
   (setq comment-end (concat " " proof-comment-end))
+  
+  (unless proof-comment-start-regexp
+    (setq proof-comment-start-regexp (regexp-quote proof-comment-start)))
+  (unless proof-comment-end-regexp
+    (setq proof-comment-end-regexp (regexp-quote proof-comment-end)))
+
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip 
-    (concat (regexp-quote proof-comment-start) "+\\s_?"))
+    (concat proof-comment-start-regexp "+\\s_?"))
 
   ;;
   ;; Fontlock support.
@@ -2738,14 +2800,21 @@ finish setup which depends on specific proof assistant configuration."
   (proof-menu-define-specific)
   (easy-menu-add proof-assistant-menu proof-mode-map)
 
-  ;; Some settings for the new parsing mechanism
-  ;; FIXME: ongoing
-  (unless (or proof-script-command-end-regexp
-	      proof-script-command-start-regexp)
-      (progn
-	(proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
-	(setq proof-script-command-end-regexp
-	      (regexp-quote (char-to-string proof-terminal-char)))))
+  ;; Use new parsing mechanism which works for different
+  ;; kinds of script syntax
+  (cond
+   (proof-script-command-start-regexp
+    (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
+   (proof-running-on-XEmacs
+    (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
+    (unless proof-script-command-end-regexp
+      (proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
+      (setq proof-script-command-end-regexp
+	    (if proof-terminal-char
+		(regexp-quote (char-to-string proof-terminal-char))
+	      "$")))) ;  default if nothing set is EOL.
+   (t
+    (defalias 'proof-segment-up-to 'proof-segment-up-to-old)))
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
