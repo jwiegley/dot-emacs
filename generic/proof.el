@@ -435,6 +435,18 @@ If proof-show-debug-messages is nil, do nothing."
 	(proof-display-and-keep-buffer proof-response-buffer))))
 
 
+;;; A handy utility function used in the "Buffers" menu.
+(defun proof-switch-to-buffer (buf &optional noselect)
+  "Switch to or display buffer BUF in other window unless already displayed.
+If optional arg NOSELECT is true, don't switch, only display it.
+No action if BUF is nil."
+  ;; Maybe this needs to be more sophisticated, using 
+  ;; proof-display-and-keep-buffer ?
+  (and buf
+       (unless (eq buf (window-buffer (selected-window)))
+	 (if noselect
+	     (display-buffer buf t)
+	   (switch-to-buffer-other-window buf)))))
 
 
 ;; -----------------------------------------------------------------
