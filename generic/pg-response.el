@@ -161,7 +161,8 @@ Internal variable, setting this will have no effect!")
 
 (defun proof-layout-windows ()
   "Refresh the display of windows according to current display mode.
-This uses a canonical layout."
+This uses a canonical layout.  
+It obeys the setting of `proof-eagerly-raise' for multiple frame mode."
   (interactive)
   (cond
    (proof-multiple-frames-enable
@@ -169,7 +170,8 @@ This uses a canonical layout."
     (if proof-script-buffer
 	(switch-to-buffer proof-script-buffer))
     (proof-map-buffers (proof-associated-buffers)
-      (proof-display-and-keep-buffer (current-buffer)))
+      (if proof-eagerly-raise
+	  (proof-display-and-keep-buffer (current-buffer))))
     ;; Restore an existing frame configuration (seems buggy, typical)
     (if pg-frame-configuration
 	(set-frame-configuration pg-frame-configuration 'nodelete)))
