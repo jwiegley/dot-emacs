@@ -50,8 +50,8 @@
 
 @ifinfo
 @format
-START-INFO-DIR-ENTRY 
-* ProofGeneral::Organize your proofs with Emacs!
+START-INFO-DIR-ENTRY
+* ProofGeneral:: Organize your proofs with Emacs!
 END-INFO-DIR-ENTRY
 @end format
 @end ifinfo
