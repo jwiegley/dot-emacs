@@ -1,3 +1,8 @@
+Admin user:
+Admin pwd hint: new year hills
+
+=================================================================
+
 intro-proofgeneral<-devel>.html
 is header set in general options
 http://lists.informatics.ed.ac.uk/mailman/admin/proofgeneral/general
