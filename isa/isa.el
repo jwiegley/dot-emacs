@@ -95,6 +95,21 @@ and script mode."
 	 (list isa-goal-with-hole-regexp 2)
 	 (list isa-save-with-hole-regexp 2
 	       'backward isa-goal-command-regexp))
+
+   ;; Indentation 
+   ;; FIXME: I don't understand how this works.  
+   ;; Also it doesn't work because of anchoring problems.
+   ;; Tips from Markus?
+   proof-indent-close-offset	-1
+   proof-indent-open-regexp     (proof-regexp-alt 
+				 isa-goal-command-regexp 
+				 "\\s(")
+   proof-indent-close-regexp    (proof-regexp-alt 
+				 isa-save-command-regexp
+				 "\\s)")
+   proof-indent-any-regexp      (apply 'proof-regexp-alt 
+				       isa-keywords-commands)
+   
    
    ;; proof engine commands
    proof-showproof-command	"pr();"
