@@ -1,24 +1,33 @@
 Handling of Multiple Files
 ==========================
 
+[C depends on A and B]
+
+Notation: A  means that buffer A.l is unlocked
+          A+ means that buffer A.l is partly locked
+          A* means that buffer A.l is locked
+	  ? means that behaviour might be different for proof systems
+  	    with non-linear contexts
+
 
 Test Protocol
 -------------
 
- 1) visit A.l
- 2) visit C.l
- 3) assert C       =>   all of C should be locked
- 4) switch to A.l  =>   all of A should be locked
- 5) visit B.l      =>   all of B should be locked
- 6) visit D.l      =>   D should not be locked
- 7) retract to middle of B  =>   B should be (completely) unlocked
- 8) assert first command of B
- 9) A should still be locked; C and D should be unlocked
-10) assert C       => should signal error
-11) assert B then D => A,B,D should be locked and C unlocked
-12) retract B => A should be locked; B,C should be unlocked 
-                    D should be unlocked in systems with linear
-                    dependencies (e.g. LEGO)
-13) assert C  => A,B,C should be locked; status of D unchanged
-14) M-x proof-restart-script => A,B,C,D should be unlocked
+ 1) visit A.l                 EFFECTS A
+ 2) visit C.l                 EFFECTS A     C
+ 3) assert C                  EFFECTS A*    C*
+ 4) visit B.l                 EFFECTS A* B* C*
+ 5) visit D.l                 EFFECTS A* B* C* D
+ 6) retract to middle of B    EFFECTS A* B  C  D
+ 7) assert first command of B EFFECTS A* B+ C  D
+ 8) assert C                  EFFECTS A* B+ C  D [error message]
+ 9) assert B                  EFFECTS A* B* C  D
+10) assert D                  EFFECTS A* B* C  D*
+11) retract B                 EFFECTS A* B  C  D?
+12) assert C                  EFFECTS A* B* C* D?
+13) retract B                 EFFECTS A* B  C  D?
+14) assert B                  EFFECTS A* B* C  D?
+15) assert C                  EFFECTS A* B* C* D?
+16) retract to middle of B    EFFECTS A* B+ C  D?
+14) M-x proof-restart-script  EFFECTS A  B  C  D
 
