@@ -1,0 +1,37 @@
+FAQs for Proof General
+======================
+
+$Id$
+
+For latest version, see http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/FAQ
+
+======================
+
+Q. I'm using Proof General for prover X, then I load a file for prover Y.
+   The buffer doesn't enter the mode for prover Y.  Why not?
+
+A. Unfortunately the architecture of Proof General is designed so
+   that you can only use one prover at a time in the same Emacs
+   session.   If you want to run more than one prover at a time,
+   you have to run more than one Emacs.
+
+
+Q. How do I use Proof General for Isabelle/Isar instead of Isabelle classic?
+
+A. There are several ways:
+
+   1. Use the Isabelle settings mechanism, invoke with "Isabelle"
+   2. Set the environment variable PROOFGENERAL_ASSISTANTS=isar
+      before starting Emacs.
+   3. Put the line (* -*- isar -*- *) at the top of your Isar files.
+
+   Unfortunately Isabelle/Isar and Isabelle classic are two quite
+   separate Proof General instances.  Ideally they should be
+   combined into one, if anyone fancies some elisp hacking...
+
+
+Q. Can I join any mailing lists for Proof General?
+
+A. Of course, email "majordomo@dcs.ed.ac.uk" with the 
+   lines "subscribe proofgeneral" or "subscribe proofgeneral-devel"
+   in the message body.
