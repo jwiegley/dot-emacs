@@ -230,7 +230,9 @@ of STRG matching REGEXP. Empty match are counted once."
   )
 
 
-(defvar coq-keywords-save
+
+
+(defvar coq-keywords-save-strict
   '("Defined"
     "Save"
     "Qed"
@@ -238,9 +240,13 @@ of STRG matching REGEXP. Empty match are counted once."
 	 "Admitted"
 	 ))
 
-(defun coq-save-command-p (str)
+(defvar coq-keywords-save
+  (append coq-keywords-save-strict '("Proof"))
+)
+
+(defun coq-save-command-p (span str)
   "Decide whether argument is a Save command or not"
-  (or (proof-string-match coq-save-command-regexp str)
+  (or (proof-string-match coq-save-command-regexp-strict str)
 		(and (proof-string-match "\\`Proof\\>" str)
 			  (not (proof-string-match "Proof\\s-*\\(\\.\\|\\<with\\>\\)" str)))
 		)
@@ -735,10 +741,12 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 ;; According to Coq, "Definition" is both a declaration and a goal.
 ;; It is understood here as being a goal.  This is important for
 ;; recognizing global identifiers, see coq-global-p.
+(defconst coq-save-command-regexp-strict
+  (proof-anchor-regexp (proof-ids-to-regexp coq-keywords-save-strict)))
 (defconst coq-save-command-regexp
   (proof-anchor-regexp (proof-ids-to-regexp coq-keywords-save)))
 (defconst coq-save-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp coq-keywords-save)
+  (concat "\\(" (proof-ids-to-regexp coq-keywords-save-strict)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*\."))
 (defconst coq-goal-command-regexp
   (proof-anchor-regexp (proof-ids-to-regexp coq-keywords-goal)))

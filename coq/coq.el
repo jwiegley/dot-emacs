@@ -758,6 +758,7 @@ This is specific to coq-mode."
 	proof-state-preserving-p 'coq-state-preserving-p)
 
   (setq proof-save-command-regexp coq-save-command-regexp
+        proof-really-save-command-p 'coq-save-command-p ;pierre:deals with Proof <term>.
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
 	proof-nested-undo-regexp coq-state-changing-commands-regexp)
