@@ -3,7 +3,7 @@
 ;; rearranging Thomas Schreiber's code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <30 Oct 96 tms /home/tms/elisp/proof.el>
+;; Time-stamp: <05 Nov 96 tms /home/tms/elisp/proof.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -129,13 +129,11 @@
                                       s end-of-word-occurence)) separator)))))
 
 
+
 (defun ids-to-regexp (l)
   "transforms a non-empty list of identifiers `l' into a regular
   expression matching any of its elements"
-  (let ((tail (cdr l))
-	(id (concat "\\<" (regexp-quote (car l)) "\\>")))
-    (if (atom tail) (regexp-quote id)
-      (concat id "\\|" (ids-to-regexp tail)))))
+(mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
 
 (defun w3-remove-file-name (address)
   "remove the file name in a World Wide Web address"

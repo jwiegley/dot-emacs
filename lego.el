@@ -4,7 +4,7 @@
 ;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <01 Nov 96 tms /home/tms/elisp/lego.el>
+;; Time-stamp: <05 Nov 96 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -240,12 +240,16 @@
 ;;    *     ****   *    *    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar lego-w "\\(\\w\\|,\\)"
+(defvar lego-id "\\w\\(\\w\\|\\s_\\)*"
+  "A regular expression for parsing LEGO identifiers.")
+
+(defvar lego-ids (concat lego-id "\\(\\s *,\\s *" lego-id "\\)*")
   "*For font-lock, we treat \",\" separated identifiers as one identifier
   and refontify commata using \\{lego-fixup-change}.")
 
 (defun lego-decl-defn-regexp (char)
-    (concat "\\[\\s *\\(" lego-w "+\\)\\s *\\(\\[[^]]+\\]\\s *\\)*" char))
+    (concat "\\[\\s *\\(" lego-ids
+ "\\)\\s *\\(\\[[^]]+\\]\\s *\\)*" char))
 ; Examples
 ;              ^        ^^^^        ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^
 ;              [        sort                                 =
@@ -258,38 +262,52 @@
      (cons (ids-to-regexp lego-keywords) 'font-lock-keyword-face)
      (cons (ids-to-regexp lego-tacticals) 'font-lock-tacticals-name-face)
 
-     (list (lego-decl-defn-regexp "\\(:\\||\\)") 1
+     (list (lego-decl-defn-regexp "[:|]") 1
 	   'font-lock-declaration-name-face)
      (list (lego-decl-defn-regexp "=") 1 'font-lock-function-name-face)
 
-     (list (concat "[{<]\\s *\\(" lego-w "+\\)") 1
+     (list (concat "[{<]\\s *\\(" lego-ids "\\)") 1
 ;            ^  Pi binder
 ;             ^ Sigma binder            
 		   'font-lock-declaration-name-face)
 
      (list (concat "\\("
-		   (ids-to-regexp (append lego-keywords-goal
-					  lego-keywords-save))
-		   "\\)\\s *\\(" lego-w "+\\)")
+		   (ids-to-regexp lego-keywords-goal)
+		   "\\)\\s *\\(" lego-id "\\)\\s *:")
+             2 'font-lock-function-name-face)
+
+     (list (concat "\\("
+		   (ids-to-regexp lego-keywords-save)
+		   "\\)\\s *\\(" lego-id "\\)")
              2 'font-lock-function-name-face)
 
      ;; Kinds
-     '("\\<Prop\\>\\|\\<Type\\s *\\((\\w]+)\\)?" . font-lock-type-face)))
+     (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("
+		   lego-id ")\\)?") 'font-lock-type-face)))
 
 (defvar lego-shell-font-lock-keywords-1
   (append lego-font-lock-keywords-1
 	  (list
 	   (cons (ids-to-regexp lego-shell-keywords) 
 		 'font-lock-keyword-face)
-	   '("\\<defn\\>  \\(\\w+\\) =" 1 font-lock-function-name-face)
-	  '("^\\(value of\\|type  of\\) \\(\\w+\\) =" 2 
-	    font-lock-function-name-face)
-	  '("^  \\(\\w+\\) = ... :" 1 font-lock-function-name-face)
+	   
+	   (list (concat "\\<defn\\>  \\(" lego-id "\\) =") 1
+		 'font-lock-function-name-face)
+	   
+	   (list (concat "^\\(value of\\|type  of\\) \\(" lego-id "\\) =") 2 
+			 'font-lock-function-name-face)
 
-	  '("^  \\(\\w+\\) : " 1 font-lock-declaration-name-face)
-	  '("\\<decl\\>  \\(\\w+\\) :" 1 font-lock-declaration-name-face)
-	  '("\\<decl\\>  \\(\\w+\\) |" 1 font-lock-declaration-name-face)
-	  '("^value = \\(\\w+\\)" 1 font-lock-declaration-name-face)
+	   (list (concat "^  \\(" lego-id "\\) = ... :") 1 
+			 'font-lock-function-name-face)
+
+	   (list (concat "^  \\(" lego-id "\\) : ") 1 
+			 'font-lock-declaration-name-face)
+
+	   (list (concat "\\<decl\\>  \\(" lego-id "\\) [:|]") 1 
+			 'font-lock-declaration-name-face)
+		 
+	   (list (concat "^value = \\(" lego-id "\\)") 1
+			 'font-lock-declaration-name-face)
 
 	  ;; Error Messages (only required in the process buffer)
 
@@ -494,7 +512,9 @@
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
 
-  (modify-syntax-entry ?_ "w")
+  (modify-syntax-entry ?_ "_")
+  (modify-syntax-entry ?\' "_")
+  (modify-syntax-entry ?\| ".")
   (modify-syntax-entry ?\* ". 23")
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4")
@@ -525,11 +545,13 @@
 ;; tags
   (cond ((boundp 'tags-table-list)
 	 (make-local-variable 'tags-table-list)
-	 (setq tags-table-list (cons lego-tags tags-table-list))
-	 (setq tag-table-alist
-	       (append '(("\\.l$" . lego-tags)
-			 ("lego"  . lego-tags))
-		       tag-table-alist))))
+	 (setq tags-table-list (cons lego-tags tags-table-list))))
+
+  (and (boundp 'tag-table-alist)
+       (setq tag-table-alist
+	     (append '(("\\.l$" . lego-tags)
+		       ("lego"  . lego-tags))
+		     tag-table-alist)))
 
 ;; font lock hacks
 
