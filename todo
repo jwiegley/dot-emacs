@@ -708,52 +708,33 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 =================================================================
 
-LIST OF THINGS FOR PG 3.4
-=========================
+List of things postponed from PG 3.4: need to be merged above
 
-** LATEST
+*** Stefan Monnier's big patch (Coq stuff, imenu, other)
 
--- Coq pbp focussing --- does this part work at least?  Test case.
--- Pierre's changes
--- Christophe's changes
+*** Isar tracing error: (error/warning) Error in process filter: (error Nesting too deep for parser)
 
-** X-SYMBOL PROBLEMS 
-    -- GNU emacs probs with Coq and friends.
-    -- Isabelle probs (electric token, latin1, sub/sup).
+*** Coq pbp focussing --- does this part work at least?  Test case.
 
-** Check all instantiations.
+*** Christophe's changes suggested for handling x-sym / highlighting.
 
-** Nested idiom spans:
-    - check nested 'idiom spans are removed in all cases.
-       (Maybe they should have type annotation after all?)
+*** Comment at the end for Isabelle theory files!!!!
 
-** GNU Emacs probs:
- Another miscellaneous hang: on "Exit Isabelle" after doing
- retraction because of part-way through processing a file.
+*** X-Symbol 4.4 backwards compatibility for Coq and friends.
 
-** Announce mailing list move, new test version.
+*** Check: does proof-follow-mode have any effect???  
+    Consider removal to simplify it?
 
-** Does proof-follow-mode have any effect???
+*** Fix-up show/hide for nested proofs.  (Wierdness with
+   cursor jumping as well)
 
-** Fix-up show/hide for nested proofs.  (Wierdness with cursor jumping as well)
+*** Cleanup undo behaviour to cope with new Coq mechanism.
 
-** Show/hide in FSF Emacs.
+ Is the simplified mechanism better for other provers too, or does the
+ split still apply?  Probably best to leave Isar as-is and have
+ proof-nesting-depth left as experimental.
 
-** Context menu for FSF Emacs.
+*** proof-nesting-depth:
+    This needs to be fixed up in count undos, find-and-forget.
 
-** Cleanup undo behaviour to cope with new Coq mechanism.
-   Is the simplified mechanism better for other provers too, or does the
-   split still apply?  Probably best to leave Isar as-is and have
-   proof-nesting-depth left as experimental.  (Branch?)
-
-** Cleanup Coq undo: discussion with Pierre clarified. 
-   Docs, variable names need improvement.
-
-** proof-shell-proof-completed
-  Doesn't behave right for Isabelle/Isar??
-
-** proof-nesting-depth:
-  This needs to be fixed up in count undos, find-and-forget.
-
-** Would be good to make count undos and find-and-forget generic.
-    [ Perhaps too tricky/temperamental to get this right ]
+*** Generic versions of count undos and find-and-forget generic.

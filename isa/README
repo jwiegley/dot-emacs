@@ -15,7 +15,7 @@ with dependencies between theories communicated between Isabelle and
 Proof General.  It has a mode for editing theory files taken from
 Isamode.
 
-There is proper support for X Symbol, using the Isabelle print mode
+There is excellent support for X Symbol, using the Isabelle print mode
 for X Symbol tokens.  Many Isabelle theories have X Symbol syntax
 already defined and it's easy to add to your own theories.
 

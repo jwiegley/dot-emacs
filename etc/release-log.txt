@@ -1,5 +1,4 @@
-XX.08.02  3.4 Release 3-4-1
-
+29.08.02  3.4 Release 3-4 based on branch 7.0
 
 --------------------
 
