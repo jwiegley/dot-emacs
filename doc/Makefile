@@ -36,6 +36,8 @@ TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html -expandinfo -number -split_chapter
 EMACS = xemacs -batch
 
+TMPFILE=pgt
+
 .SUFFIXES:  .texi .info .dvi .html .pdf .ps .eps .tiff .gz
 
 .texi.info:
@@ -72,12 +74,13 @@ ProofGeneral.txt:
 ProofGeneral.eps:
 	if [ -f ProofGeneral.eps.gz ]; then gunzip -c ProofGeneral.eps.gz > ProofGeneral.eps; fi
 	if [ -f ProofGeneral.eps ]; then \
-	  sed 's/@clear haveeps/@set haveeps/g' ProofGeneral.texi > pgt; \
-	  sed 's/@c image{ProofGeneral}/@image{ProofGeneral}/g' pgt > ProofGeneral.texi; \
+	  sed 's/@clear haveeps/@set haveeps/g' ProofGeneral.texi > $(TMPFILE); \
+	  sed 's/@c image{ProofGeneral}/@image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
 	else   \
-	  sed 's/@set haveeps/@clear haveeps/g' ProofGeneral.texi > pgt; \
-	  sed 's/@image{ProofGeneral}/@c image{ProofGeneral}/g' pgt > ProofGeneral.texi; \
+	  sed 's/@set haveeps/@clear haveeps/g' ProofGeneral.texi > $(TMPFILE); \
+	  sed 's/@image{ProofGeneral}/@c image{ProofGeneral}/g' $(TMPFILE) > ProofGeneral.texi; \
 	fi
+	rm -f $(TMPFILE)
 
 %.gz : %
 	gzip -f -9 $*
