@@ -1,0 +1,30 @@
+Experimental features in this release of Proof General.
+======================================================
+
+Proof General includes a few features designated as "experimental"
+because they have not been fully tested or completed.  Enabling these
+will usually have no detrimental effects on using standard features of
+PG, but the experimental features themselves may be less robust.
+
+Experimental features can be enabled by customizing the variable
+`proof-experimental-features'.  If you set this to `t', and restart
+Proof General, then the features mentioned below will be enabled.
+
+We encourage users to set this flag and test the features, but being
+aware that the features are regarded as incomplete (problem reports
+and suggestions for improvements are welcomed).
+
+
+Current "experimental" features
+===============================
+
+** "Move up" and "Move down" functions in context span menu 
+   (use right-click on highlighted spans), also bound on
+   C-M-up/C-M-down.
+
+** Theorem dependencies: displaying and highlighting dependencies
+   Only works for Isabelle/classic at the moment.  You must also
+   select the Isabelle option "Theorem Dependencies".
+
+
+
