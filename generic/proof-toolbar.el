@@ -53,7 +53,7 @@
     (use	"Use"		"Process whole buffer" t)
     (restart	"Restart"	"Restart scripting (clear all locked regions)" t)
     (qed	"QED"		"Close/save proved theorem" t)
-    (command    "Command"	"Issue a non-scripting command")
+    (command    "Command"	"Issue a non-scripting command" t)
     (info	"Info"		"Show proof assistant information" t)
     (find	"Find"		"Find something from the proof assistant" t)
     (help	"Help"		"Proof General manual" t))
