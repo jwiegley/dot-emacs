@@ -69,18 +69,16 @@ we wait for the remaining time.  Must be a value less than 40."
 (defun proof-remove-splash-screen (conf)
   "Make function to remove splash screen and restore window config to conf."
   `(lambda ()
-     (and ;; If splash buffer is still alive 
-      (get-buffer proof-welcome)
-      (if (get-buffer-window (get-buffer proof-welcome))
-	  ;; Restore the window config if splash is being displayed
-	  (set-window-configuration ,conf)
-	t)
-      ;; And destroy splash buffer.
+     (if (get-buffer proof-welcome) ; splash buffer still alive
+	 (if (get-buffer-window (get-buffer proof-welcome))
+	     ;; Restore the window config if it's being displayed
+	     (set-window-configuration ,conf))
+      ;; Destroy splash buffer.
       (kill-buffer proof-welcome))))
 
 (defun proof-display-splash-screen ()
   "Save window config and display Proof General splash screen.
-No effect if proof-display-splash-time is zero."
+No effect if proof-display-splash is nil."
   (interactive)
   (if proof-display-splash
       (let*
@@ -91,8 +89,8 @@ No effect if proof-display-splash-time is zero."
 					       "ProofGeneral.jpg")))))
 	   ;; Keep win config explicitly instead of pushing/popping because
 	   ;; if the user switches windows by hand in some way, we want
-	   ;; to ignore the saved value.  Unfortunately there seems to
-	   ;; be no way currently to remove the top item of the stack.
+	   ;; to ignore the saved value.  Unfortunately there currently
+	   ;; seems to be no way to remove the top item of the stack.
 	   (removefn    (proof-remove-splash-screen
 			 (current-window-configuration))))
 	(save-excursion
@@ -225,7 +223,7 @@ No effect if proof-display-splash-time is zero."
 ;; Putting these in a customize group is useful for documenting
 ;; this type of variable, and for developing a new instantiation
 ;; of Proof General.
-;; But it is *not* useful for final user-level customization.
+;; But it is *not* useful for final user-level customization!
 ;; The reason is that saving these customizations across a session is
 ;; not liable to work, because the prover specific elisp usually
 ;; overrides with a series of setq's in <assistant>-mode-config type
@@ -281,7 +279,7 @@ output format."
 
 (defgroup proof-script nil
   "Proof General configuration of scripting buffer mode."
-  :group 'proover-config)
+  :group 'prover-config)
 
 
 (defcustom proof-terminal-char nil
@@ -290,7 +288,7 @@ output format."
   :group 'proof-script)
 
 (defcustom proof-comment-start ""
-  "String which starts a comment in the proof assistant command language.
+  "String which end a comment in the proof assistant command language.
 The script buffer's comment-start is set to this string plus a space."
   :type 'string
   :group 'proof-script)
@@ -318,7 +316,7 @@ The script buffer's comment-end is set to this string plus a space."
 
 (defcustom proof-goal-command-p nil 
   "Is this a goal"
-  :type 'regexp
+  :type 'function
   :group 'proof-script)
 
 (defcustom proof-count-undos-fn nil 
@@ -327,7 +325,8 @@ The script buffer's comment-end is set to this string plus a space."
   :group 'proof-script)
 
 (defconst proof-no-command "COMMENT"
-  "String used as a nullary action (send no command to the proof assistant)")
+  "String used as a nullary action (send no command to the proof assistant).
+Only relevant for proof-find-and-forget-fn.")
 
 (defcustom proof-find-and-forget-fn nil
   "Function returning a command string to forget back to before its argument span.
@@ -343,7 +342,7 @@ when parsing the proofstate output"
   :type 'function
   :group 'proof-script)
 
-(defcustom proof-kill-goal-command nil 
+(defcustom proof-kill-goal-command ""
   "Command to kill a goal."
   :type 'string
   :group 'proof-script)
@@ -389,7 +388,7 @@ This is used to handle nested goals allowed by some provers."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  Generic config for script management                            ;;
+;;  Generic config for proof shell	                            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; The variables in this section concern the proof shell mode.
@@ -397,7 +396,7 @@ This is used to handle nested goals allowed by some provers."
 ;; The second group of variables are concerned with matching the output
 ;; from the proof assistant.
 ;;
-;; Variables her are put into the customize group 'proof-shell'.
+;; Variables here are put into the customize group 'proof-shell'.
 ;;
 ;; These should be set in the shell mode configuration, again,
 ;; before proof-shell-config-done is called.
@@ -416,18 +415,18 @@ This is used to handle nested goals allowed by some provers."
 Can be used to configure the proof assistant to the interface in
 various ways (for example, setting the line width of output).
 Any text inserted by these hooks will be sent to the proof process
-before the command issued by Proof General."
+before every command issued by Proof General."
   :type '(repeat function)
   :group 'proof-shell)
 
 (defcustom proof-pre-shell-start-hook nil
-  "Hook run before proof shell is started.
+  "Hooks run before proof shell is started.
 Usually this is set to a function which configures the proof shell
 variables."
   :type '(repeat function)
   :group 'proof-shell)
 
-(defcustom proof-shell-init-cmd nil
+(defcustom proof-shell-init-cmd ""
    "The command for initially configuring the proof process."
    :type '(choice string (const nil))
    :group 'proof-shell)
@@ -711,12 +710,14 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 (defun proof-unprocessed-begin ()
   "Return end of locked region in script buffer or (point-min) otherwise."
   (or 
-   (and (eq proof-script-buffer (current-buffer))
-	proof-locked-span (span-end proof-locked-span))
+   (and 
+    (eq proof-script-buffer (current-buffer))
+    proof-locked-span 
+    (span-end proof-locked-span))
    (point-min)))
 
 (defun proof-locked-end ()
-  "Return end of the locked region.  Only call this from a scripting buffer."
+  "Return end of the locked region.  Only call from active scripting buffer."
   (if (eq proof-script-buffer (current-buffer))
       (proof-unprocessed-begin)
     (error "bug: proof-locked-end called from wrong buffer")))
@@ -892,10 +893,11 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
   
 
 (defun proof-stop-shell ()
-  "Exit the proof process.  Runs proof-shell-exit-hook if non nil"
+  "Exit the proof process.  Runs proof-shell-exit-hook if non-nil"
   (interactive)
   (save-excursion
-    (let ((buffer (proof-shell-live-buffer)) (proc))
+    (let ((buffer (proof-shell-live-buffer)) 
+	  proc)
       (if buffer
 	  (progn
 	    (save-excursion
@@ -1122,7 +1124,7 @@ The default value is \"$\" to match up to the end of the line.")
     (substring out 0 op)))
 
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
-  "Pretty print output in PROCESS buffer in specified region.
+  "Pretty print output in process buffer in specified region.
 The region begins with the match for START-REGEXP and is delimited by
 END-REGEXP. The match for END-REGEXP is not part of the specified region.
 Removes any annotations in the region.
