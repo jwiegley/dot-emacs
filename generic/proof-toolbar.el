@@ -208,6 +208,13 @@ to the default toolbar."
   (setq proof-toolbar-inhibit
        (or force-on (not proof-toolbar-inhibit)))
   (proof-toolbar-setup))
+
+(defun proof-toolbar-refresh ()
+  "Force refresh of toolbar display to re-evaluate enablers."
+  (if (featurep 'toolbar)		; won't work in FSF Emacs
+      (progn
+	(remove-specifier default-toolbar (current-buffer))
+	(set-specifier default-toolbar proof-toolbar (current-buffer)))))
   
 
 ;;
