@@ -56,13 +56,14 @@ If it is nil, a new line is inserted."
   :type 'sexp
   :group 'proof-general-internals)
 
-(defconst proof-splash-extensions 
-  (if (featurep 'proof-config) nil
-    ;; Display additional hint if we guess we're being loaded
-    ;; by shell script rather than find-file.
-    '(list
-      "To start using Proof General, visit a proof script file"
-      "for your prover, using C-x C-f or the \"File\" menu.")))
+(defconst proof-splash-startup-msg 
+  '(if (featurep 'proof-config) nil
+     ;; Display additional hint if we guess we're being loaded
+     ;; by shell script rather than find-file.
+     '(list
+       "To start using Proof General, visit a proof script file"
+       "for your prover, using C-x C-f or the \"File\" menu."))
+  "Additional form evaluated and put onto splash screen.")
 
 (defconst proof-splash-welcome "*Proof General Welcome*"
   "Name of the Proof General splash buffer.")
@@ -194,7 +195,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
        (pop-up-frames nil)		; display in the same frame.
        (splash-contents (append
 			 (eval proof-splash-contents)
-			 (eval proof-splash-extensions)))
+			 (eval proof-splash-startup-msg)))
        s)
     (with-current-buffer splashbuf
       (erase-buffer)
