@@ -72,13 +72,6 @@ Set in proof-shell-mode.")
 triples, which is a queue of things to do.
 See the functions `proof-start-queue' and `proof-exec-loop'.")
 
-(defvar proof-analyse-using-stack nil
-  "Choice of syntax tree encoding for terms.
-
-If `nil', prover is expected to make no optimisations.
-If non-`nil', the pretty printer of the prover only reports local changes. 
-For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'.")
-
 
 ;;
 ;; Implementing the process lock
@@ -514,6 +507,17 @@ object files, used by Lego and Coq)."
 
 ;; New function added for 3.0 -da
 (defun pbp-yank-subterm (event)
+  "Copy the subterm indicated by the mouse-click EVENT.
+This function should be bound to a mouse button in the Proof General
+goals buffer.
+
+The EVENT is used to find the smallest subterm around a point.  The
+subterm is copied to the kill-ring, and immediately yanked (copied)
+into the current buffer at the current cursor position.
+
+In case the current buffer is the goals buffer itself, the yank
+is not performed.  Then the subterm can be retrieved later by an
+explicit yank."
   (interactive "e")
   (let (span)
     (save-window-excursion
@@ -527,6 +531,18 @@ object files, used by Lego and Coq)."
 	(yank))))
 
 (defun pbp-button-action (event)
+  "Construct a proof-by-pointing command based on the mouse-click EVENT.
+This function should be bound to a mouse button in the Proof General
+goals buffer.
+
+The EVENT is used to find the smallest subterm around a point.  A
+position code for the subterm is sent to the proof assistant, to ask
+it to construct an appropriate proof command.  The command which is
+constructed will be inserted at the end of the locked region in the
+proof script buffer, and immediately sent back to the proof assistant.
+If it succeeds, the locked region will be extended to cover the
+proof-by-pointing command, just as for any proof command the 
+user types by hand."
    (interactive "e")
    (mouse-set-point event)
    (pbp-construct-command))
@@ -1108,10 +1124,19 @@ proof-shell-exec-loop, to process the next item."
 
 (defun proof-append-alist (alist &optional queuemode)
   "Chop off the vacuous prefix of the command queue ALIST and queue it.
-For each proof-no-command item, at the head of the list, invoke its 
+For each `proof-no-command' item at the head of the list, invoke its 
 callback and remove it from the list.
-Returns the possibly shortened list."
+
+Append the result onto `proof-action-list', and if the proof 
+shell isn't already busy, grab the lock with QUEUEMODE and
+start processing the queue.
+
+If the proof shell is busy when this function is called,
+then QUEUEMODE must match the mode of the queue currently
+being processed."
   (let (item)
+    ;; FIXME: may be wrong time to invoke callbacks for no-op commands,
+    ;; if the queue is not empty.
     (while (and alist (string= 
 		       (nth 1 (setq item (car alist))) 
 		       proof-no-command))
@@ -1139,7 +1164,9 @@ Returns the possibly shortened list."
 (defun proof-start-queue (start end alist)
   "Begin processing a queue of commands in ALIST.
 If START is non-nil, START and END are buffer positions in the
-active scripting buffer for the queue region."
+active scripting buffer for the queue region.
+
+This function calls `proof-append-alist'."
   (if start
       (proof-set-queue-endpoints start end))
   (proof-append-alist alist))
