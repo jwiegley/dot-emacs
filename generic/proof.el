@@ -292,6 +292,13 @@ output format."
   :type '(cons (function function))
   :group 'prover-config)
 
+(defcustom proof-activate-scripting-hook nil
+  "Hook run when a buffer is switched into scripting mode.
+The current buffer will be the newly active scripting buffer.
+
+This hook may be useful for synchronizing with the proof
+assistant, for example, to switch to a new theory.")
+
 ;;
 ;; The following variables should be set before proof-config-done
 ;; is called.  These configure the mode for the script buffer,
@@ -1022,6 +1029,7 @@ Does nothing if proof assistant is already running."
       (setq proof-script-buffer-list (list (current-buffer)))
       (proof-init-segmentation)
       (setq proof-active-buffer-fake-minor-mode t)
+      (run-hooks 'proof-activate-scripting-hook)
 
       (if (fboundp 'redraw-modeline)
 	  (redraw-modeline)
@@ -1509,22 +1517,25 @@ locked region or everything in it has been processed."
 
    ;; No buffer is in Scripting minor mode.
    ;; We assume the setup is done somewhere else
-   ((null proof-script-buffer-list) ())
+   ((null proof-script-buffer-list) (assert nil))
 
    ;; The current buffer is in Scripting minor mode
-   ((equal (current-buffer) (car proof-script-buffer-list)) ())
+   ((equal (current-buffer) (car proof-script-buffer-list)))
+
    (t
     (let ((script-buffer (car proof-script-buffer-list))
 	  (current-buffer (current-buffer)))
       (save-excursion
 	(set-buffer script-buffer)
-	;; FIXME: Here we try to find the last bit of blue in a
-	;; completed buffer --- probably not quite right yet!
-	(goto-char (point-max))
-	(skip-chars-backward "\\S-")
 	;; We only allow switching of the Scripting buffer if the
-	;; locked region is either empty of full for all buffers.
-	(if (member (proof-unprocessed-begin) (list (point-min) (point)))
+	;; locked region is either empty or full for all buffers.
+	(if (or 
+	     (eq (proof-unprocessed-begin) (point-min))
+	     (progn
+	       ;; Skip empty space at end of buffer
+	       (goto-char (point-max))
+	       (skip-chars-backward " \t\n")
+	       (>= (proof-unprocessed-begin) (point))))
 
 	    ;; we are changing the scripting buffer
 	   (progn
@@ -1538,7 +1549,8 @@ locked region or everything in it has been processed."
 	       (proof-init-segmentation))
 	     (setq proof-script-buffer-list
 		   (cons current-buffer proof-script-buffer-list))
-	     (setq proof-active-buffer-fake-minor-mode t))
+	     (setq proof-active-buffer-fake-minor-mode t)
+	     (run-hooks 'proof-activate-scripting-hook))
 	  (error "Cannot deal with two unfinished script buffers!")
 	))))))
 
@@ -1714,7 +1726,7 @@ arrive."
 	      (string-match proof-shell-retract-files-regexp message))
 	 (let ((current-included proof-included-files-list))
 	   (setq proof-included-files-list
-		 (proof-shell-compute-new-files-list message))
+		 (funcall proof-shell-compute-new-files-list message))
 	   (proof-restart-buffers
 	    (remove (car proof-script-buffer-list)
 		    (proof-files-to-buffers
@@ -2863,6 +2875,7 @@ finish setup which depends on specific proof assistant configuration."
   (setq proof-shell-busy nil)
   (setq proof-shell-delayed-output (cons 'insert "done"))
   (setq proof-shell-proof-completed nil)
+  (make-local-variable 'proof-shell-insert-hook)
 
   ;; comint customisation. comint-prompt-regexp is used by
   ;; comint-get-old-input, comint-skip-prompt, comint-bol, backward
