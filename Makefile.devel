@@ -9,7 +9,7 @@
 
 
 #  TODO (da):
-#    - user-level targets for docs and .elc compile.
+#    - user-level targets for .elc compile.
 
 
 
@@ -19,17 +19,19 @@
 ##    make compile        - cleanout all .elc's and recompile
 ##    make <file.elc>     - byte compile file if .el file is newer
 ##                          (do all if <file.elc> is omitted)
-##    make docs           - build info and .dvi files from isamode.texi
-##    make pdf / html     - make other documentation files
 ##    make install        - install .el and .elc's into INSTALLDIR
 ##                          .rules files into RULESINSTALLDIR
 ##    make public         - install doc files and .el's into PUBLICDIR
+##
+##    make docs           - build info and .dvi files from isamode.texi
+##    make alldocs        - make all docs (pdf,html,dvi,info)
+##
 ##
 ###########################################################################
 ##
 ## Things to edit: INSTALLDIR, PUBLICDIR, EMACS, MAKEINFO, TEXI2DVI
 ##
-## See-also: generic/proof-site.el
+## See-also: generic/proof-site.el   doc/Makefile
 ## 
 ###########################################################################
 
@@ -66,8 +68,11 @@ EXPORTDIR = /home/lego/pub/ProofGeneral
 NAME = ProofGeneral
 RELEASENAME = ProofGeneral-2.0
 
-# Files to not include the distribution 
+# Files not to include the distribution area / tarball 
 NONDISTFILES=todo html
+
+# Files not to include in the distribution tarball
+IGNOREDFILES=doc/ProofGeneral.pdf doc/ProofGeneral.dvi 
 
 # Where to build a distribution
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -83,7 +88,7 @@ FORCE:
 
 # Targets to pre-compile for distribution
 # Slightly dodgy to include elisp compile here.
-alldist:	docs
+alldist:	doc
 
 
 
@@ -100,28 +105,29 @@ ChangeLog:	FORCE
 
 ############################################################
 #
-# Clean up for cvs (developer only)
+# Clean up intermediate files
 #
-# Idea is to remove all ?'s from 'cvs update' output.
-#
-cvsclean:	clean
-	rm -rf $(FILES_NONCVS)
+clean:	
+	(cd doc; $(MAKE) clean)
 
 
 ############################################################
 #
-# Clean 
+# Clean up all generated files.
 #
-clean:	
-
-
+distclean:	clean
+	rm -rf $(FILES_NONCVS)
+	(cd doc; $(MAKE) distclean)
 
 ############################################################
 #
 # Documentation
 #
-docs:
+doc:
+	(cd doc; $(MAKE) doc)
 
+alldocs:
+	(cd doc; $(MAKE) all)
 
 
 ############################################################
@@ -161,7 +167,12 @@ dist:	cvsclean
 	@echo "*************************************************"
 	@echo " Running 'make alldist' for new release .."
 	@echo "*************************************************"
-#	(cd $(DISTBUILDIR)/$(RELEASENAME); make alldist)
+	(cd $(DISTBUILDIR)/$(RELEASENAME); make alldist)
+	(cd $(DISTBUILDIR)/$(RELEASENAME); make clean)
+	@echo "*************************************************"
+	@echo " Copying doc files .."
+	@echo "*************************************************"
+	(cp -pr $(DISTBUILDIR)/$(RELEASENAME)/doc $(DISTBUILDIR))
 	@echo "*************************************************"
 	@echo " Moving html files .."
 	@echo "*************************************************"
@@ -173,7 +184,8 @@ dist:	cvsclean
 	@echo "*************************************************"
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
-	tar -cvhf $(DISTBUILDIR)/$(RELEASENAME).tar -C $(DISTBUILDIR) $(RELEASENAME)
+	(cd $(DISTBUILDIR); for f in $(IGNOREDFILES); do echo $f >> ignoredfiles; done)
+	tar -cvhf $(DISTBUILDIR)/$(RELEASENAME).tar -C $(DISTBUILDIR) $(RELEASENAME) -X $(DISTBUILDIR)/ignoredfiles
 	gzip -9 $(DISTBUILDIR)/$(RELEASENAME).tar
 	@echo "*************************************************"
 	@echo " Finished making dist."
@@ -185,7 +197,7 @@ dist:	cvsclean
 ## release:
 ##     tag the CVS sources, and make a distribution.
 ##     Then install the distribution in RELEASEDIR.
-##     RELEASEDIR is not cleaned, but files there
+##     WARNING: RELEASEDIR is not cleaned, but files there
 ##     with same names will be overwritten.
 ##     Moreover, a link ProofGeneral -> ProofGeneral-<version>
 ##     is made.
@@ -199,7 +211,12 @@ release: tag dist
 	@echo "*************************************************"
 
 
-
-
-
-
+## Same except do the install remotely.
+##
+REMOTE=ssh ssh.dcs.ed.ac.uk
+remoterelease: tag dist
+	$(REMOTE) cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
+	$(REMOTE) (cd $(RELEASEDIR); ln -sf $(RELEASENAME) $(NAME))
+	@echo "*************************************************"
+	@echo " Finished installing dist."
+	@echo "*************************************************"
