@@ -1137,18 +1137,22 @@ the start if the segment finishes with an unclosed comment.
 If optional NEXT-COMMAND-END is non-nil, we include the command
 which continues past POS, if any."
   (save-excursion
-    (let (alist prev cmdfnd
+    (let ((regexp	(or proof-script-command-end-regexp
+			    proof-script-command-start-regexp))
           (add-segment-for-cmd		; local function: advances "prev"
 	   (lambda ()
+	     (unless (or proof-script-command-end-regexp (eobp))
+	       ;; Find end of previous command
+	       (skip-chars-backward " \t\n"))
 	     (let ((string (buffer-substring prev (point))))
 	       (skip-chars-forward " \t\n")
 	       (setq prev (point))
-	       ;; Command string excludes whitespace, span includes it.
-	       (setq alist (cons (list 'cmd string prev) alist))))))
+	       ;; NB: Command string excludes whitespace, span includes it.
+	       (setq alist (cons (list 'cmd string prev) alist)))))
+	  alist prev cmdfnd)
       (goto-char (proof-queue-or-locked-end))
       (setq prev (point))
-      (while (and (re-search-forward 
-		   proof-script-command-end-regexp nil t)
+      (while (and (re-search-forward regexp nil t)
 		  (or (buffer-syntactic-context) ;; inside comment/string
 		      (progn			 ;; ow found command.
 			(setq cmdfnd t)		 
@@ -2705,11 +2709,12 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Some settings for the new parsing mechanism
   ;; FIXME: ongoing
-;  (unless proof-script-command-end-regexp
-;      (progn
-;	(proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
-;	(setq proof-script-command-end-regexp
-;	      (regexp-quote (char-to-string proof-terminal-char)))))
+  (unless (or proof-script-command-end-regexp
+	      proof-script-command-start-regexp)
+      (progn
+	(proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
+	(setq proof-script-command-end-regexp
+	      (regexp-quote (char-to-string proof-terminal-char)))))
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
