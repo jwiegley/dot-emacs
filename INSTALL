@@ -10,7 +10,7 @@ Put this line in your emacs file:
 
     (load-file "<proofgeneral-home>/generic/proof-site.el")
 
-Where <proofgeneral-home> is replaced by the full path name for
+Where <proofgeneral-home> is replaced by the full path name to
 Proof-General-<something>.
 
 The command above will set the Emacs load path and add auto-loads for
@@ -28,7 +28,7 @@ notes below, and the file BUGS.  If this doesn't help, then contact us
 via the address below.
    
    Proof General maintainer <proofgen@dcs.ed.ac.uk>
-   School of Computer Science,
+   LFCS,
    Division Of Informatics,
    University of Edinburgh.
    Edinburgh.
@@ -68,11 +68,11 @@ You cannot run more than one instance of Proof General at a time:
 e.g. if you're using Coq, you won't be able to run LEGO scripts.
 
 If there are some assistants supported that you never want to use, 
-you can remove them from the variable `proof-assistants` in 
-proof-site.el to prevent Proof General autoloading for files
-with particular extensions.  This may be useful if you want
-to use other modes for those files, for example, you may want
-sml-mode for .ML files or Verilog mode for .v files.
+you can remove them from the variable `proof-assistants`  
+to prevent Proof General autoloading for files with particular
+extensions.  This may be useful if you want to use other modes for
+those files, for example, you may want sml-mode for .ML files or
+Verilog mode for .v files.
 
 The easiest way to do this (and other customization of Proof General)
 is via the Customize mechanism, see the menu:
@@ -134,18 +134,4 @@ Check the value of isabelle-prog-name.
 
 The distribution includes a version of Isamode's theory file mode.
 Use C-h m to check on the features available.
-
-Proof General attempts to lock theory files as well as ML files
-when they are loaded.  It also attempts to load the theory file
-for a .ML file automatically before you start scripting.  This
-is tricky because Isabelle's theory loader assumes that ML
-files are always read together with theory files.  At the moment
-Proof General uses an altered version of use_thy which doesn't
-load the top-level ML file.  This can cause confusion in the
-theory loader later, especially with update().  To be safe,
-try to use just the Proof General interface, and report any
-problems to isabelle@dcs.ed.ac.uk.
-
-
-
 
