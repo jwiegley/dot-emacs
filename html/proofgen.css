@@ -63,9 +63,23 @@ address{
  color: #FFFFFF; 			       /* but varies randomly in NN */
 }
 
-input,select,textarea {
- background: #3D2D33;
+textarea,select,input {
+ font-family: Verdana, Arial, sans-serif;	
+ font-size: 100%;
+ background: #2D1D03;
  color: #FFFFFF;
+}
+
+input[type=submit],input[type=Submit] {
+ font-family: Verdana, Arial, sans-serif;
+ font-size: 80%;
+ padding-top: 0px;
+ padding-bottom: 0px;
+ background: #401010;
+}
+
+#button:active{
+ background: #402020;
 }
 
 dl,ul,dir,li{
@@ -90,6 +104,9 @@ table.menubar{
  font-size: smaller;
  color: #FFFFFF;
 }
+
+
+
 
 td,tr{
  font-family: Verdana, Arial, sans-serif;	
@@ -121,4 +138,42 @@ pre{
 p.nb{
  font-size: smaller;
  font-style: italic;
+}
+
+/* These bits for Mailman pages for mailing lists */
+TD.head1old {
+ font-family: Verdana, Arial, sans-serif;
+  text-align: center;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 110%;
+}
+td.head1{
+ font-family: Verdana, Arial, sans-serif;
+ font-series: bold;
+ font-size: 110%;
+ text-align: center;
+ color: #FFFFFF;
+}
+td.head2{
+ font-family: Verdana, Arial, sans-serif;
+ font-size: 100%;
+ font-weight: bold;
+ color: #FFFFD0;
+ padding: 2px 4px 4px 4px;
+ background: #7D4D33;
+}
+td.head3{
+ font-family: Verdana, Arial, sans-serif;	
+ padding: 2px 2px 2px 2px;
+ margin-right: 10%;
+ background: #6D3D43;
+ font-size: 80%;
+ color: #FFFFD0;
+}
+td.head4{
+ font-family: Verdana, Arial, sans-serif;	
+ font-size: 100%;
+ font-weight: bold;
+ color: #FFD0D0;
 }
