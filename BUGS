@@ -13,6 +13,8 @@ a patch...)
 ** X-Symbol probs with Coq, LEGO
    -- X-Symbol 4.x not supported, don't try it or your Emacs will explode
 
+
+
 * Known Bugs and Workarounds for Proof General.
 
 Contact:  mailto:bugs@proofgeneral.org
@@ -20,7 +22,7 @@ See also: http://www.proofgeneral.org/ProofGeneral/BUGS
 
 Generic bugs are listed here, which may affect all of the supported
 provers.  See lego/BUGS coq/BUGS, etc, for specific bug lists for each
-of the provers supported.
+of the provers supported.  
 
 The bugs here are split into problems which apply for all Emacs
 versions, and those which only apply to particular versions.
