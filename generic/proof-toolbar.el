@@ -51,12 +51,12 @@
     (use	"Use buffer"  	      "Process whole buffer" t)
     (goto	"Goto point"	      "Process or undo to the cursor position" t)
     (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
-    (qed	"Finish proof"        "Close/save proved theorem" t)
-    (find	"Find theorems"	      "Find theorems" t)
-    (command    "Issue command"	      "Issue a non-scripting command" t)
-    (interrupt  "Interrupt prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
-    (info	nil		      "Show proof assistant information" t)
-    (help	nil		      "Proof General manual" t))
+    (qed	"Finish proof"     "Close/save proved theorem" t)
+    (find	"Find theorems"	   "Find theorems" t)
+    (command    "Issue command"	   "Issue a non-scripting command" t)
+    (interrupt  "Interrupt prover" "Interrupt the proof assistant (warning: may break synchronization)" t)
+    (info	nil		   "Show online proof assistant information" t)
+    (help	nil		   "Proof General manual" t))
 "Example value for proof-toolbar-entries.  Also used to define Scripting menu.
 This gives a bare toolbar that works for any prover.  To add
 prover specific buttons, see documentation for proof-toolbar-entries
