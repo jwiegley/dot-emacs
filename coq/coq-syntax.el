@@ -65,10 +65,10 @@ version of coq by doing 'coqtop -v'."  )
 		(v7 (concat "proofgeneral is in coq > 6 and =< 7.3 mode" seedoc))
 		(v6 (concat "proofgeneral is in coq V6 mode" seedoc)))
   (cond
-	(coq-version-is-V8 
+   (coq-version-is-V8 
     (message v8) 
-    (setq coq-version-is-V7.4 t))
-	(coq-version-is-V74 
+    (setq coq-version-is-V74 t))
+   (coq-version-is-V74 
     (message v74) 
     (setq coq-version-is-V8 nil)
     (setq coq-version-is-V7 t))
