@@ -1329,6 +1329,7 @@ where KEY is equal to the MATCH'th regexp group of the match."
       (setq x-symbol-subscript-type
 	    (funcall x-symbol-subscript-matcher limit))))
 
+;; TODO: make easier, is no language access anymore
 (defun x-symbol-init-font-lock ()
   "Initialize all font-lock keywords for current `major-mode'.
 The additional x-symbol keywords are determined by the language access
@@ -1396,6 +1397,7 @@ command `x-symbol-mode' for details."
 	      (decode-coding-region (point-min) (point-max) 'undecided)
 	      (set-buffer-multibyte t))
 	  (set-buffer-modified-p modified)))))
+  (if x-symbol-mode (x-symbol-init-font-lock))
   (if conversion
       (let ((modified (buffer-modified-p))
 	    (buffer-read-only nil)	; always allow conversion
@@ -1427,8 +1429,6 @@ command `x-symbol-mode' for details."
   (x-symbol-set-image nil x-symbol-image)
   (if x-symbol-mode
       (progn
-	;; set font-lock keywords
-	(x-symbol-init-font-lock)
 	(make-local-hook 'pre-command-hook)
 	(make-local-hook 'post-command-hook)
 	(add-hook 'pre-command-hook 'x-symbol-pre-command-hook nil t)
@@ -2017,22 +2017,23 @@ the execution of the command.  E.g., `forward-char' uses `1+'."
 		   (if (eq x-symbol-reveal-invisible t)
 		       (>= (caddr x-symbol-invisible-spec) pos)
 		     (> (caddr x-symbol-invisible-spec) pos))))
-      (x-symbol-ignore-property-changes
-	(if (eq x-symbol-font-lock-with-extra-props 'invisible)
-	    (progn
-	      (put-text-property (cadr x-symbol-invisible-spec)
-				 (caddr x-symbol-invisible-spec)
-				 'invisible 'hide)
-	      (unless (eq this-command 'eval-expression)
-		(setq x-symbol-trace-invisible
-		      (text-properties-at (cadr x-symbol-invisible-spec)))))
-	  (funcall (if (consp (cdddr x-symbol-invisible-spec))
-		       'put-text-property
-		     'put-nonduplicable-text-property)
-		   (cadr x-symbol-invisible-spec)
-		   (caddr x-symbol-invisible-spec)
-		   'face (cdddr x-symbol-invisible-spec)
-		   (car x-symbol-invisible-spec)))
+      (when (buffer-live-p (car x-symbol-invisible-spec))
+	(x-symbol-ignore-property-changes
+	 (if (eq x-symbol-font-lock-with-extra-props 'invisible)
+	     (progn
+	       (put-text-property (cadr x-symbol-invisible-spec)
+				  (caddr x-symbol-invisible-spec)
+				  'invisible 'hide)
+	       (unless (eq this-command 'eval-expression)
+		 (setq x-symbol-trace-invisible
+		       (text-properties-at (cadr x-symbol-invisible-spec)))))
+	   (funcall (if (consp (cdddr x-symbol-invisible-spec))
+                       'put-text-property
+		      'put-nonduplicable-text-property)
+		    (cadr x-symbol-invisible-spec)
+		    (caddr x-symbol-invisible-spec)
+		    'face (cdddr x-symbol-invisible-spec)
+		    (car x-symbol-invisible-spec))))
 	(setq x-symbol-invisible-spec nil)))))
 
 (defun x-symbol-reveal-invisible (after before)
@@ -2057,6 +2058,17 @@ with `x-symbol-hide-revealed-at-point'."
 			   (eq faces iface)))))
       (let ((start (previous-single-property-change (1+ after) 'face nil
 						    (point-at-bol)))
+      (when (featurep 'xemacs)
+        ;; `isearch-secondary' face would induce a prop change
+        (unless (eq x-symbol-font-lock-with-extra-props 'invisible) ; safety
+          (let (faces2 start2)
+            (while (and (setq faces2 (get-text-property (1- start) 'face))
+                        (if (consp faces2)
+                            (memq iface faces2)
+                          (eq faces2 iface))
+                        (setq start2 (previous-single-property-change
+                                      start 'face nil (point-at-bol))))
+              (setq start start2)))))
 	    (end (next-single-property-change after 'face nil
 					      (point-at-eol))))
 	(setq x-symbol-invisible-spec
