@@ -2673,8 +2673,7 @@ finish setup which depends on specific proof assistant configuration."
   (setq proof-electric-terminator proof-electric-terminator-enable)
 
   (make-local-variable 'indent-line-function)
-  (if proof-script-indent
-      (setq indent-line-function 'proof-indent-line))
+  (setq indent-line-function 'proof-indent-line)
 
   ;; Toolbar and scripting menu
   ;; NB: autloads proof-toolbar, which defines proof-toolbar-scripting-menu.
