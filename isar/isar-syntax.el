@@ -2,9 +2,9 @@
 ;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer:  Isabelle maintainer <isabelle@dcs.ed.ac.uk>
+;; Maintainer:  Markus Wenzel <wenzelm@in.tum.de>
 ;;
-;; isar-syntax.el,v 2.14 1998/11/03 14:41:54 da Exp
+;; $Id isar-syntax.el,v 2.14 1998/11/03 14:41:54 da Exp$
 ;;
 
 (require 'proof-syntax)
@@ -39,6 +39,33 @@
 ;MMW FIXME This stuff should be generated automatically (and made logic specific).
 ;MMW FIXME Tune these categories.
 ;MMW FIXME Can I invent new categories?
+
+(defcustom isar-keywords-begin-theory
+  '(
+    "update_context"
+    "theory"
+    "context"
+    )
+  "Isabelle/Isar keywords begin theory commands."
+  :group 'isar-syntax
+  :type '(repeat string))
+
+(defcustom isar-keywords-end-theory
+  '(
+    "end"
+    )
+  "Isabelle/Isar keywords end theory commands."
+  :group 'isar-syntax
+  :type '(repeat string))
+
+
+(defcustom isar-keywords-diag
+  '()
+  "Isabelle/Isar keywords diagnostic commands."
+  :group 'isar-syntax
+  :type '(repeat string))
+
+
 
 (defcustom isar-keywords-decl
   '(
@@ -88,7 +115,7 @@
     "nonterminals"
     "local"
     "load"
-    "kill"
+    "kill_proof"
     "inductive"
     "help"
     "global"
@@ -114,18 +141,15 @@
 
 (defcustom isar-keywords-defn
   '(
-    "theory"
     "theorems"
     "lemmas"
     "defs"
-    "context"
     "axclass"
     )
   "Isabelle/Isar keywords for definitions"
   :group 'isar-syntax
   :type '(repeat string))
 
-;; isar-keywords-goal is used to manage undo actions
 (defcustom isar-keywords-goal
   '(
     "typedef"
@@ -140,6 +164,10 @@
 (defcustom isar-keywords-save
   '(
     "qed_with"
+    "qed"
+    "by"
+    "\\.\\."
+    "\\."
     )
   "Isabelle/Isar commands finish a top-level proof and store the theorem"
   :group 'isar-syntax
@@ -167,14 +195,12 @@
 
 (defcustom isar-keywords-proof-commands
   '(
-    "qed"
+;    "qed"
     "proof" 
     "next"
-    "end"
-    "by"
-;; FIXME
-;;    ".."
-;;    "."
+;    "by"
+;    "\\.\\."
+;    "\\."
     )
   "Isabelle/Isar proof command keywords"
   :group 'isar-syntax
@@ -195,9 +221,10 @@
     "have"
     "from"
     "fix"
-    "begin"
     "back"
     "assume"
+    "{{"
+    "}}"
     )
   "Isabelle/Isar command keywords"
   :group 'isar-syntax
@@ -207,8 +234,8 @@
 ;; NB: this means that any adjustments above by customize will
 ;; only have effect in next session.
 (defconst isar-keywords
-  (append isar-keywords-goal isar-keywords-save isar-keywords-decl
-	  isar-keywords-defn isar-keywords-commands)
+  (append isar-keywords-diag isar-keywords-goal isar-keywords-save
+	  isar-keywords-decl isar-keywords-defn isar-keywords-commands)
   "All keywords in a Isabelle/Isar theory")
 
 
@@ -243,8 +270,13 @@
 (defconst isar-save-command-regexp
   (concat "^" (proof-ids-to-regexp isar-keywords-save)))
 
-(defconst isar-save-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp isar-keywords-save) isar-string-regexp "\\)"))
+; FIXME ?
+;(defconst isar-save-with-hole-regexp
+;  (concat "\\(" (proof-ids-to-regexp isar-keywords-save) isar-string-regexp "\\)"))
+;(defconst isar-save-with-hole-regexp
+;  (concat "\\(qed_with\\)\\s*:\\s*" isar-string-regexp))
+
+(defconst isar-save-with-hole-regexp "^FIXME$\\(\\)")
 
 (defcustom isar-goal-command-regexp
   (proof-ids-to-regexp isar-keywords-goal)
@@ -255,7 +287,7 @@
 ;; MMW FIXME ??
 (defconst isar-goal-with-hole-regexp
   (concat "\\("
-	  (proof-ids-to-regexp '("lemma" "theorem"))
+	  (proof-ids-to-regexp isar-keywords-goal)
 	  "\\)" isar-string-regexp)
   "Regexp matching goal commands in Isabelle/Isar which name a theorem")
 
