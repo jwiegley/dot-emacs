@@ -52,8 +52,8 @@ See `x-symbol-header-groups-alist'."
   ;; '(x-symbol-make-grammar ...)
   (if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
       (x-symbol-make-grammar
-       :encode-spec '(((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*-%!{}:|]")) .
-                    ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*-%!{}:|]")))
+       :encode-spec '(((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-+-*%!{}:|]")) .
+                    ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-+-*%!{}:|]")))
        :decode-spec nil
        :decode-regexp "\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:|-]+\\)"
        :token-list #'x-symbol-coq-default-token-list
@@ -111,7 +111,76 @@ See `x-symbol-header-groups-alist'."
 ;;;===========================================================================
 ;not implemeted yet
 
-(defvar x-symbol-coq-font-lock-keywords nil)
+(defcustom x-symbol-coq-subscript-matcher 'x-symbol-coq-subscript-matcher
+  "Function matching super-/subscripts for language `isa'.
+See language access `x-symbol-LANG-subscript-matcher'."
+  :group 'x-symbol-coq
+  :type 'function)
+
+(defcustom x-symbol-coq-font-lock-regexp "___?\\|^^^?"
+  "Regexp matching the start tag of Coq super- and subscripts."
+  :group 'x-symbol-coq
+  :type 'regexp)
+
+(defcustom x-symbol-coq-font-lock-limit-regexp "\n\\|__"
+  "Regexp matching the end of line and the end tag of Coq
+spanning super- and subscripts."
+  :group 'x-symbol-coq
+  :type 'regexp)
+
+(defcustom x-symbol-coq-font-lock-contents-regexp "\\S-*"
+  "*Regexp matching the spanning super- and subscript contents.
+This regexp should match the text between the opening and closing super-
+or subscript tag."
+  :group 'x-symbol-coq  
+  :type 'regexp)
+
+(defcustom x-symbol-coq-single-char-regexp "\\S-"
+  "Return regexp matching \<ident> or c for some char c."
+  :group 'x-symbol-coq
+  :type 'regexp)
+
+(defun x-symbol-coq-subscript-matcher (limit)  
+  (block nil
+    (let (open-beg open-end close-end close-beg script-type)
+      (while (re-search-forward x-symbol-coq-font-lock-regexp limit t)
+        (setq open-beg (match-beginning 0)
+              open-end (match-end 0)
+              script-type (if (eq (char-after (- open-end 1)) ?_)
+                              'x-symbol-sub-face
+									 'x-symbol-sup-face))
+        (if (or (eq (char-after (- open-end 3)) ?_)
+					 (eq (char-after (- open-end 3)) ?^)) ; if is spanning sup-/subscript
+            (when (re-search-forward x-symbol-coq-font-lock-limit-regexp
+                                     limit 'limit)
+              (setq close-beg (match-beginning 0)
+                    close-end (match-end 0))
+              (when
+                  (save-excursion
+                    (goto-char open-end)
+                    (re-search-forward x-symbol-coq-font-lock-contents-regexp
+                                       close-beg t))
+                (store-match-data (list open-beg close-end
+                                        open-beg open-end
+                                        open-end close-beg
+                                        close-beg close-end))
+                (return script-type))
+              (goto-char close-beg)) 
+          (when (re-search-forward x-symbol-coq-single-char-regexp
+                                   limit 'limit)
+            (setq close-end (match-end 0))
+            (store-match-data (list open-beg close-end
+                                    open-beg open-end
+                                    open-end close-end))
+            (return script-type))
+			 )))))
+   
+(defun coq-match-subscript (limit)
+  (if (proof-ass x-symbol-enable)
+      (setq x-symbol-coq-subscript-type
+            (funcall x-symbol-coq-subscript-matcher limit))))
+
+;(defvar x-symbol-coq-font-lock-keywords nil)
 
 (defvar x-symbol-coq-font-lock-allowed-faces t)
 
@@ -433,7 +502,7 @@ See `x-symbol-language-access-alist' for details."
     nil   ;; x-symbol-coding
     'null ;; x-symbol-8bits	   [NEVER want it; null disables search]
     nil   ;; x-symbol-unique
-    nil     ;; x-symbol-subscripts
+    t     ;; x-symbol-subscripts
     nil)  ;; x-symbol-image
   "Variable used to document a language access.
 See documentation of `x-symbol-auto-style'."
