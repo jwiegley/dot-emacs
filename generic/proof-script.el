@@ -1095,8 +1095,9 @@ up to the end of the locked region."
 			     delete-region)
 		    end start))
 	  
-	  (setq actions (proof-setup-retract-action (span-start span) end
-						    proof-kill-goal-command
+	  (setq actions 
+		(proof-setup-retract-action (span-start span) end
+					    proof-kill-goal-command
 						    delete-region)
 		end (span-start span))))
     
@@ -1401,41 +1402,19 @@ even more dangerous than proof-try-command."
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Popup and Pulldown Menu ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 
+;;; User-level commands invoking common commands for
+;;; the underlying proof assistant.
+;;;
 
-;;; Menu commands for the underlying proof assistant
-
-;;; These are defcustom'd so that users may re-configure
-;;; the system to their liking.
-;;; Functions using the above 
-
-(defun proof-ctxt ()
-  "List context."
-  (interactive) 
-  (proof-shell-invisible-command 
-   (concat proof-ctxt-string proof-terminal-string)))
-
-(defun proof-help ()
-  "Print help message giving syntax."
-  (interactive)
-  (proof-shell-invisible-command 
-   (concat proof-help-string proof-terminal-string)))
-
-(defun proof-prf ()
-  "List proof state."
-  (interactive)
-  (proof-shell-invisible-command
-   (concat proof-prf-string proof-terminal-string)))
-
+;;; These are based on defcustom'd settings so that users may 
+;;; re-configure the system to their liking.
 
 
 ;; FIXME: da: add more general function for inserting into the
 ;; script buffer and the proof process together, and using
 ;; a choice of minibuffer prompting (hated by power users, perfect
 ;; for novices).
-;; Add named goals.
 ;; TODO:
 ;;   Add named goals.
 ;;   Coherent policy for movement here and elsewhere based on
@@ -1445,39 +1424,56 @@ even more dangerous than proof-try-command."
 ;;    For example, may be more easy to edit complex goal string
 ;;    first in the script buffer.  Ditto for tactics, etc.
 
-(defvar proof-issue-goal-history nil
-  "History of goals for proof-issue-goal.")
 
-(defun proof-issue-goal (goal-cmd)
-  "Insert a goal command into the script buffer, issue it to prover."
-  (interactive
-   (if proof-goal-command 
-       (if (stringp proof-goal-command)
-	   (list (format proof-goal-command
-			 (read-string "Goal: " ""
-				      proof-issue-goal-history)))
-	 (funcall proof-goal-command))
-     (error
-      "Proof General not configured for goals: set proof-goal-command.")))
-  (let ((proof-one-command-per-line t))   ; Goals always start at a new line
-    (proof-issue-new-command goal-cmd)))
 
-(defvar proof-issue-save-history nil
-  "History of theorem names for proof-issue-save.")
+;;; FIXME: should move these to a new file, not really scripting
+;;; related.
 
-(defun proof-issue-save (thmsave-cmd)
-  "Insert a save theorem command into the script buffer, issue it."
-  (interactive
-   (if proof-save-command
-       (if (stringp proof-save-command)
-	   (list (format proof-save-command
-			 (read-string "Save as: " ""
-				      proof-issue-save-history)))
-	 (funcall proof-save-command))
-     (error
-      "Proof General not configured for save theorem: set proof-save-command.")))
-  (let ((proof-one-command-per-line t))   ; Goals always start at a new line
-    (proof-issue-new-command thmsave-cmd)))
+;;; FIXME: rationalize use of terminator string (i.e. remove
+;;; it below, add it to each instance for consistency).
+
+
+;;
+;; Helper macros and functions
+;;
+
+;; See put expression at end to give this indentation like while form
+(defmacro proof-if-setting-configured (var &rest body)
+  "Give error if a configuration setting VAR is unset, otherwise eval BODY."
+  `(if ,var
+       (progn ,@body)
+     (error "Proof General not configured for this: set %s" 
+	    ,(symbol-name var))))
+
+(defmacro proof-define-assistant-command (fn cmdvar)
+  "Define command FN to send string CMDVAR to proof assistant."
+  `(defun ,fn ()
+     ,(concat "Issue a command to the assistant from " 
+	      (symbol-name cmdvar) ".")
+     (interactive)
+     (proof-if-setting-configured ,cmdvar
+       (proof-shell-invisible-command
+	(concat ,cmdvar proof-terminal-string)))))
+
+(defmacro proof-define-assistant-command-witharg (fn cmdvar prompt &rest body)
+  "Define command FN to prompt for string CMDVAR to proof assistant.
+CMDVAR is a function or string.  Automatically has history."
+  `(progn
+     (defvar ,(intern (concat (symbol-name fn) "-history")) nil
+       ,(concat "History of arguments for " (symbol-name fn) "."))
+     (defun ,fn (arg)
+     ,(concat "Issue a command based on ARG to the assistant, using " 
+	      (symbol-name cmdvar) ".\n"
+	      "The user is prompted for an argument.")
+      (interactive
+       (proof-if-setting-configured ,cmdvar
+	   (if (stringp ,cmdvar)
+	       (list (format ,cmdvar
+		 	 (read-string 
+			   ,(concat prompt ": ") ""
+			   ,(intern (concat (symbol-name fn) "-history")))))
+	     (funcall ,cmdvar))))
+       ,@body)))
 
 (defun proof-issue-new-command (cmd)
   "Insert CMD into the script buffer and issue it to the proof assistant.
@@ -1498,9 +1494,42 @@ Start up the proof assistant if necessary."
   ;; wait until indentation is fixed.
   (proof-assert-until-point-interactive))
 
+;;
+;; Commands which do not require a prompt and send an invisible command.
+;;
+
+(proof-define-assistant-command proof-ctxt proof-ctxt-string)
+(proof-define-assistant-command proof-help proof-help-string)
+(proof-define-assistant-command proof-prf  proof-prf-string)
+
+;;
+;; Commands which require an argument, and maybe affect the script.
+;;
+
+(proof-define-assistant-command-witharg proof-find-theorems
+ proof-find-theorems-command
+ "Find theorems containing the constant"
+ (proof-shell-invisible-command arg))
+
+(proof-define-assistant-command-witharg proof-issue-goal
+ proof-goal-command
+ "Goal"
+ (let ((proof-one-command-per-line t))   ; Goals always start at a new line
+   (proof-issue-new-command arg)))
+
+(proof-define-assistant-command-witharg proof-issue-save 
+ proof-save-command
+ "Save as"
+ (let ((proof-one-command-per-line t))   ; Saves always start at a new line
+   (proof-issue-new-command arg)))
 
 
-;; A handy utility function used in buffer menu.
+
+;;;
+;;; Definition of Menus
+;;;
+
+;;; A handy utility function used in buffer menu.
 (defun proof-switch-to-buffer (buf &optional noselect)
   "Switch to or display buffer BUF in other window unless already displayed.
 If optional arg NOSELECT is true, don't switch, only display it.
@@ -1884,3 +1913,11 @@ finish setup which depends on specific proof assistant configuration."
 
 (provide 'proof-script)
 ;; proof-script.el ends here.
+
+;; 
+;;; Local Variables:
+;;; eval: (put 'proof-if-setting-configured 'lisp-indent-function 1)
+;;; eval: (put 'proof-define-assistant-command 'lisp-indent-function 'defun)
+;;; eval: (put 'proof-define-assistant-command-wtharg 'lisp-indent-function 'defun)
+;;; End:
+
