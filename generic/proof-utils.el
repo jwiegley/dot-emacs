@@ -859,6 +859,7 @@ EXTRAPATH is a list of extra path components"
 (put 'proof-define-assistant-command-witharg 'lisp-indent-function 'defun)
 (put 'defpgcustom 'lisp-indent-function 'defun)
 (put 'proof-map-buffers 'lisp-indent-function 'defun)
+(put 'proof-with-current-buffer-if-exists 'lisp-indent-function 'defun)
 
 (defconst proof-extra-fls
   (list
