@@ -1,0 +1,30 @@
+From: Proof General maintainer <proofgen@dcs.ed.ac.uk>
+To:  bra-types@cs.chalmers.se, coq-club@pauillac.inria.fr, lego-club@dcs.ed.ac.uk, uitp@dcs.gla.ac.uk
+Subject: Generic Emacs interface for proof assistants - pre-release
+--text follows this line--
+
+Proof General is a generic Emacs interface for proof assistants. It is
+supplied ready-customised for the systems
+
+  Coq, Isabelle and Lego 
+
+The code is designed to be generic, so you can adapt Proof General to
+other proof assistants if you know a little bit of Emacs Lisp. It
+supports script management, font lock, tags, function menu, multiple
+files and remote proof assistants.
+
+Proof General and its instantiations were written by David Aspinall,
+Healfdene Goguen, Thomas Kleymann and Dilip Sequeira with help from
+Yves Bertot and using ideas from Project CROAP.
+
+This is the first official pre-release and an ideal opportunity
+for interested users to give us feedback at an early stage. Don't
+forget to tell us which version you are testing. Improvements are
+being made while you read this message...
+
+Further information and the sources are available from
+
+  http://www.dcs.ed.ac.uk/home/proofgen/
+
+
+David Aspinall & Thomas Kleymann
