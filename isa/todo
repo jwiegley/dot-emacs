@@ -4,6 +4,13 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** D Might be nice to unify menus a little more, e.g. add Isabelle for .thy
+
+   But several of the ops there are not relevant for theory files.
+   Well, favourites at least.  What we have at the moment is verging
+   GUI-atrocity: one shouldn't have menus of the same name with
+   different entries, but should rather use greyed out.
+
 ** C Improvements to Isabelle that would be nice for Proof General:
 
    -- ability to remove theorem from theorem database, issued
