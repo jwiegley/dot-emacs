@@ -1,3 +1,52 @@
+2002-02-14  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2002-02-12  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/interface, isa/interface:
+	option -g GEOMETRY;
+
+	* isar/isar.el:
+	observe isar-undo-ignore-regexp in isar-count-undos and isar-find-and-forget;
+
+	* isar/isar-syntax.el:
+	added isar-undo-ignore-regexp;
+
+2002-02-08  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar.el:
+	more robust proof-shell-interrupt-regexp and proof-shell-error-regexp;
+
+2002-01-31  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* html/about.html:
+	Fix more broken front page links
+
+	* INSTALL: Update for recent releases.
+
+	* ChangeLog: Updated.
+
+	* generic/proof-script.el:
+	Simplify fix for repeated comments (commentre includes whitespace).
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-syntax.el:
+	Tweak comment
+
+	* generic/proof-script.el:
+	Fix problem noticed with Isar and repeated comments.
+
+	* etc/isar/CommentParsingBug.thy:
+	New files.
+
 2002-01-31  David Aspinall  <da@proofgeneral.org>
 
 	* html/about.html:
