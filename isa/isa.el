@@ -203,12 +203,17 @@ no regular or easily discernable structure."
    proof-shell-process-file 
    (cons
     ;; Theory loader output and verbose update() output.
-    "Reading \"\\(.*\\)\"\\|Not reading \"\\(.*\\)\""
+    "Proof General, this file is loaded: \"\\(.*\\)\""
     (lambda (str)
-      (or (match-string 1 str) 
-	  (match-string 2 str))))
+      (match-string 1 str)))
+   ;; \\|Not reading \"\\(.*\\)\"
+   ;;    (lambda (str)
+   ;;   (or (match-string 1 str) 
+   ;;	  (match-string 2 str))))
    ;; This is the output returned by a special command to
    ;; query Isabelle for outdated files.
+ ;;   proof-shell-clear-included-files-regexp
+ ;;   "Proof General, please clear your record of loaded files."
    proof-shell-retract-files-regexp
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
@@ -227,7 +232,7 @@ no regular or easily discernable structure."
 ;;; So we rely on some hacked versions.
 ;;;
 
-(defcustom isa-usethy-notopml-command "ProofGeneral.use_thy_and_update \"%s\";"
+(defcustom isa-usethy-notopml-command "ProofGeneral.use_thy \"%s\";"
   "Sent to Isabelle to process theory for this ML file, and all ancestors."
   :type 'string
   :group 'isabelle-config)
@@ -266,6 +271,25 @@ proof-shell-retract-files-regexp."
   ;;		  proof-included-files-list))
   (remove (file-truename (match-string 1 str)) 
 	  proof-included-files-list))
+
+;;
+;; Hack for update
+;;
+
+(defcustom isa-update-command "ProofGeneral.update();"
+  "Sent to Isabelle to re-load theory files as needed and synchronise."
+  :type 'string
+  :group 'isabelle-config)
+  
+(defun isa-update ()
+  "Issue an update command to the Isabelle process.
+This re-reads any theory files as necessary and resynchronizes
+proof-included-files-list."
+  (interactive)
+  (save-some-buffers)
+  (proof-shell-insert isa-update-command))
+
+  
 
 
 
