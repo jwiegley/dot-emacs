@@ -61,8 +61,8 @@ no regular or easily discernable structure."
   :group 'isabelle)
 
 (defcustom isabelle-web-page
-  ;; "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html"
-  "http://www.dcs.ed.ac.uk/home/isabelle"
+  "http://www.cl.cam.ac.uk/Research/HVG/isabelle.html"
+  ;; "http://www.dcs.ed.ac.uk/home/isabelle"
   "URL of web page for Isabelle."
   :type 'string
   :group 'isabelle)
@@ -635,5 +635,38 @@ you will be asked to retract the file or process the remainder of it.
   (isa-init-output-syntax-table)
   (setq font-lock-keywords isa-output-font-lock-keywords-1)
   (proof-goals-config-done))
+
+
+;; =================================================================
+;;
+;; x-symbol support for Isabelle PG, provided by David von Oheimb.
+;;
+;; The following settings configure the generic PG package.
+;;
+;; The token language "Isabelle Symbols" is in file x-symbol-isa.el
+;;
+
+;; name of minor isa mode
+(defvar x-symbol-isa-name "Isabelle Symbols")
+
+(defvar x-symbol-isa-modes 
+  '(isasym-mode 
+    isa-proofscript-mode 
+    proof-response-mode			; should be isa-response-mode?
+    proofstate-mode			; isa-proofstate-mode?
+    isa-shell-mode 
+    isa-pbp-mode
+    thy-mode				; necessary?
+    isa-thy-mode
+    shell-mode				; necessary?
+    ))
+
+(defvar isasym-font-lock-keywords
+  '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face))))
+
+(setq proof-xsym-activate-command
+      "print_mode := !print_mode @ ["xsymbols","symbols"]"
+      proof-xsym-deactivate-command
+      "print_mode := filter_out (fn x=>prefix(rev (explode "symbols"),rev (explode x))) (!print_mode")
 
 (provide 'isa)
