@@ -53,9 +53,9 @@ assistant, `SYMBOL-mode', run when files with AUTOMODE-REGEXP
 are visited.  SYMBOL is also used to form the name of the
 directory and elisp file for the mode, which will be
  
-    <proof-home-directory>/SYMBOL/SYMBOL.el
+    PROOF-HOME-DIRECTORY/SYMBOL/SYMBOL.el
 
-where `<proof-home-directory>/' is the value of the
+where `PROOF-HOME-DIRECTORY' is the value of the
 variable proof-home-directory."
   :type '(repeat (list symbol string string))
   :group 'proof-general-internals)

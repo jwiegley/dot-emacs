@@ -116,8 +116,9 @@ ML\n"
 Contains a default selection of sections in a traditional order.
 You can use the following format characters:
 
-%t --- replaced by theory name
-%p --- replaced by names of parents, separated by `+' characters"
+%t --- replaced by theory name.
+
+%p --- replaced by names of parents, separated by `+' characters."
  :group 'thy
  :type 'string)
 

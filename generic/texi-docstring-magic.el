@@ -60,15 +60,7 @@
     ("\\(\\*\\(\\w+\\)\\*\\)"
      t
      (concat "@strong{" (match-string 2 docstring) "}"))
-    ;; 4. Upper cased words ARG corresponding to arguments become @var{arg}
-    ;; In fact, include any word so long as it is more than 3 characters
-    ;; long.
-    ("\\([A-Z0-9\\-]+\\)\\(\)\\|\\s-\\|\\s.\\|$\\)"
-     (or (> (length (match-string 1 docstring)) 3)
-	 (member (downcase (match-string 1 docstring)) args))
-     (concat "@var{" (downcase (match-string 1 docstring)) "}"
-	     (match-string 2 docstring)))
-    ;; 6. Words sym which are symbols become @code{sym}.
+    ;; 4. Words sym which are symbols become @code{sym}.
     ;; Must have at least one hyphen to be recognized,
     ;; terminated in whitespace, end of line, or punctuation.
     ;; (Only consider symbols made from word constituents
@@ -78,6 +70,17 @@
 	 (fboundp (intern (match-string 2 docstring))))
      (concat "@code{" (match-string 2 docstring) "}"
 	     (match-string 4 docstring)))
+    ;; 5. Upper cased words ARG corresponding to arguments become
+    ;; @var{arg}
+    ;; In fact, include any word so long as it is more than 3 characters
+    ;; long.  (Comes after symbols to avoid recognizing the
+    ;; lowercased form of an argument as a symbol)
+    ("\\([A-Z0-9\\-]+\\)\\(/\\|-\\|\)\\|}\\|\\s-\\|\\s.\\|$\\)"
+     (or (> (length (match-string 1 docstring)) 3)
+	 (member (downcase (match-string 1 docstring)) args))
+     (concat "@var{" (downcase (match-string 1 docstring)) "}"
+	     (match-string 2 docstring)))
+
     ;; 7. Words 'sym which are lisp quoted are
     ;; marked with @code.
     ("\\(\\(\\s-\\|^\\)'\\(\\(\\w\\|\\-\\)+\\)\\)\\(\\s\)\\|\\s-\\|\\s.\\|$\\)"

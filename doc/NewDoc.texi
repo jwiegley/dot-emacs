@@ -318,9 +318,9 @@ of Proof General on a LEGO proof, see @pxref{Walkthrough example in LEGO}.
 If Proof General has not already been installed, you should insert the
 line:
 @lisp
-        (load "@var{ProofGeneral}/generic/proof-site.el")
+        (load "@var{proof-general-home}/generic/proof-site.el")
 @end lisp
-into your @file{~/.emacs} file, where @var{ProofGeneral} is the
+into your @file{~/.emacs} file, where @var{proof-general-home} is the
 top-level directory that was created when Proof General was unpacked.
 
 For more details on obtaining and installing Proof General,
@@ -877,7 +877,7 @@ scripting.
 Set up the proof process for retracting until point.
 In particular, set a flag for the filter process to call @samp{@code{proof-done-retracting}}
 after the proof process has actually successfully reset its state.
-If @var{@code{delete-region}} is non-nil, delete the region in the proof script
+If @var{delete-region} is non-nil, delete the region in the proof script
 corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
 command.
@@ -1896,8 +1896,9 @@ Template for theory files.
 Contains a default selection of sections in a traditional order.
 You can use the following format characters:
 
-%t --- replaced by theory name
-%p --- replaced by names of parents, separated by @samp{+} characters
+%t --- replaced by theory name.
+
+%p --- replaced by names of parents, separated by @samp{+} characters.
 @end defvar
 
 @c ideal for above:
@@ -1942,7 +1943,7 @@ contents of that file.
 @section Overview of adding a new prover
 
 Each proof assistant supported has its own subdirectory under
-@var{proof-home-directory}, used to store a root elisp file and any
+@code{proof-home-directory}, used to store a root elisp file and any
 other files needed to adapt the proof assistant for Proof General.
 
 @c Here we show how a minimal configuration of Proof General works for
@@ -1952,11 +1953,12 @@ Here is how to go about adding support for a new prover.
 
 @itemize @bullet
 @item Make a directory called @file{myassistant/} under the Proof General home
-directory, to put the specific customization and associated files in.
+directory @code{proof-home-directory}, to put the specific customization
+and associated files in.
 @item Add a file @file{myassistant.el} to the new directory.
 @item Edit @file{proof-site.el} to add a new entry to the
-  @var{proof-assistants-table} variable.  The new entry should look like
-this:
+  @code{proof-assistants-table} variable.  The new entry should look
+like this:
 @lisp
     (myassistant "My New Assistant" "\\.myasst$")
 @end lisp    
@@ -1964,7 +1966,7 @@ The first item is used to form the name of the internal variables for
 the new mode as well as the directory and file where it loads from.  The
 second is a string, naming the proof assistant.  The third item is a
 regular expression to match names of proof script files for this
-assistant.  See the documentation of @var{proof-assistant-table} for
+assistant.  See the documentation of @code{proof-assistant-table} for
 more details.
 @item Define the new modes in @file{myassistant.el}, by looking at 
  the files for the currently supported assistants for example.
@@ -1989,13 +1991,13 @@ Each entry is a list of the form
 @end lisp
 The @var{name} is a string, naming the proof assistant.
 The @var{symbol} is used to form the name of the mode for the
-assistant, @samp{SYMBOL-mode}, run when files with @var{automode-regexp}
+assistant, @samp{@var{symbol}-mode}, run when files with @var{automode-regexp}
 are visited.  @var{symbol} is also used to form the name of the
 directory and elisp file for the mode, which will be
 @lisp
-    <proof-home-directory>/SYMBOL/@var{symbol}.el
+    @var{proof-home-directory}/@var{symbol}/@var{symbol}.el
 @end lisp
-where @samp{<proof-home-directory>/} is the value of the
+where @samp{@var{proof-home-directory}} is the value of the
 variable @code{proof-home-directory}.
 
 The default value is @code{((isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$"))}.
@@ -2880,7 +2882,7 @@ The main command for retracting parts of a script is
 Set up the proof process for retracting until point.
 In particular, set a flag for the filter process to call @samp{@code{proof-done-retracting}}
 after the proof process has actually successfully reset its state.
-If @var{@code{delete-region}} is non-nil, delete the region in the proof script
+If @var{delete-region} is non-nil, delete the region in the proof script
 corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
 command.
@@ -3563,10 +3565,10 @@ specific and not robust enough.
 
 Proof-by-pointing requires rather heavy support from the proof
 assistant.  There are two aspects to the support:
-@itemise @bullet
+@itemize @bullet
 @item term structure mark-up
 @item proof by pointing command generation
-@end itemise
+@end itemize
 Term structure mark-up is useful in itself: it allows the user to
 explore the structure of a term using the mouse (the smallest
 subexpression that the mouse is over is highlighted), and easily copy
