@@ -23,8 +23,7 @@ There is no support for proof by pointing yet, and no tags program.
 The script `interface' and file 'interface-setup.el' are used
 internally to start Isabelle Proof General via the 'Isabelle' shell
 command.  This is the default way to invoke Proof General from the
-Isabelle perspective.  For `interface' you may need to adjust the path
-to bash on the first line.
+Isabelle perspective.
 
 Check the value of isabelle-prog-name.
 
