@@ -42,6 +42,8 @@
 RELEASE_TAG=2.0pre$(shell date "+%y%m%d")
 CVS_RELEASE_TAG=2-0pre$(shell date "+%y%m%d")
 NAME = ProofGeneral
+LATESTNAME = ProofGeneral-latest
+DEVELLATESTNAME = ProofGeneral-devel-latest
 # Name of tar file and RPM file.
 RELEASENAME = ProofGeneral-$(RELEASE_TAG)
 DEVELRELEASENAME = ProofGeneral-$(RELEASE_TAG)-devel
@@ -86,6 +88,8 @@ RPM=rpm --rcfile $(RPMRC)
 
 RELEASENAMETAR = $(RELEASENAME).tar
 RELEASENAMETARGZ = $(RELEASENAMETAR).gz
+# What the RPM should be called.
+RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
 
 DEVELRELEASENAMETAR = $(DEVELRELEASENAME).tar
 DEVELRELEASENAMETARGZ = $(DEVELRELEASENAMETAR).gz
@@ -295,6 +299,9 @@ release: distclean tag dist develdist
 	mkdir -p $(RELEASEDIR)
 	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(NAME); ln -s $(RELEASENAME) $(NAME))
+	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
+	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
+	(cd $(RELEASEDIR); ln -sf $(DEVELRELEASENAMETARGZ) $(DEVELLATESTNAME).tar.gz)
 	@echo "*************************************************"
 	@echo " Finished installing dist."
 	@echo "*************************************************"
