@@ -36,10 +36,7 @@ Proof General."
     "Welcome to"
     (concat proof-assistant " Proof General!")
     nil
-    (substring proof-general-version
-	       (string-match "Version [^ ]+ " 
-			     proof-general-version)
-	       (match-end 0))
+    (concat "Version " proof-general-short-version ".")
     nil
     "(C) LFCS, University of Edinburgh, 2004."
     nil
