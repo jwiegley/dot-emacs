@@ -848,11 +848,13 @@ or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-script-use-old-parser t ;; nil ;;experiment and let folk complain 
+(defcustom proof-script-use-old-parser nil ;;experiment and let folk complain 
   "Whether to use the old parsing mechanism.
-This is a stop-gap option in Proof General 3.4 added for
-proof assistants which still depend on peculiarities of the old
-parsing functions. (Specific example: Isar relies on certain
+By default, this is set to nil in Proof General 3.5.  
+Please report any proof script parsing oddities to 
+support@proofgeneral.org.
+
+(NB: Specific example where new parser fails: Isar relies on certain
 text being sent to prover which according to syntax configuration
 are comments; new parser does not send these currently.)"
   :type 'boolean
@@ -873,11 +875,12 @@ initial ``goal'' and the final ``save'' command."
   :type 'boolean
   :group 'prover-config)
 
-;; Unadvertised customization variable
-(defvar proof-script-fly-past-comments t
-  "*If non-nil, fly past comments when scripting, coalescing them into single spans.")
-
-
+(defcustom proof-script-fly-past-comments nil
+  "*If non-nil, fly past comments when scripting, coalescing them into single spans.
+The default setting for this before PG 3.5 was t, now it is nil.  If you
+prefered the old behaviour, customize this variable to t."
+  :type 'boolean
+  :group 'prover-config)
 
 (defcustom proof-script-parse-function nil
   "A function which parses a portion of the proof script.
