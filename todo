@@ -48,20 +48,6 @@ C byte-compilation: check that byte compilation (and compiled code!)
   works for both varieties of Emacs.  Add instructions to INSTALL on 
   how to byte compile.  (1hr)
 
-D proof-site (da): I think it would be nice to change the architecture
-  to make customization for new provers much easier.
-  The standard use of 'define-derived-mode' could be invoked
-  automatically in proof-site, and we could easily get away from the 
-  kludge of proof-config-done and friends.
-  (Compare this to the way font-lock works automatically for XEmacs
-  when the right variable name is set, but for FSF Emacs you have
-  to write something special).
-  The objection to doing this is based on the idea that we should use
-  an object-like inheritance mechanism to define the new modes.
-  But if this is forgone, it might even be possible to add
-  support for new assistants entirely via the customize mechanism,
-  without any knowledge of elisp apart from regular expressions!
-
 C Remove .gif, .jpg, .xpm, .xbm files from the CVS repository.  Add 
   .cvsignore's for them instead.  Disadvantage: developers will need
   to have the Gimp installed to build them via 'make images'
@@ -258,6 +244,20 @@ D Remove duplication of variables e.g., proof-prog-name and
 C Make completion more generic. For Isabelle and Lego, we can build a
   completion table by querying the process, which is better than
   messing with tags.
+
+X proof-site (da): I think it would be nice to change the architecture
+  to make customization for new provers much easier.
+  The standard use of 'define-derived-mode' could be invoked
+  automatically in proof-site, and we could easily get away from the 
+  kludge of proof-config-done and friends.
+  (Compare this to the way font-lock works automatically for XEmacs
+  when the right variable name is set, but for FSF Emacs you have
+  to write something special).
+  The objection to doing this is based on the idea that we should use
+  an object-like inheritance mechanism to define the new modes.
+  But if this is forgone, it might even be possible to add
+  support for new assistants entirely via the customize mechanism,
+  without any knowledge of elisp apart from regular expressions!
 
 X Support a history of proof commands, with a "redo" command to
   redo undo-to-point or sequences of toolbar undo's.
