@@ -543,7 +543,7 @@ Warning messages can come from proof assistant or from Proof General itself."
 
 (defface proof-mouse-highlight-face
   (proof-face-specs
-   (:background "paleturquoise")
+   (:background "lightblue")
    (:background "darkslateblue")
    (:italic t))
   "*General mouse highlighting face."
