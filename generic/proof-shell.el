@@ -583,8 +583,8 @@ Specifically:
  'loopback    	 A command sent from the PA to be inserted into the script
  'response    	 A response message
  'goals	      	 A goals (proof state) display
- 'systemspecific } Something specific to a particular system,
-		 }  see `proof-shell-process-output-system-specific'
+ 'systemspecific Something specific to a particular system,
+		  -- see `proof-shell-process-output-system-specific'
 
 The output corresponding to this will be in proof-shell-last-output.
 
