@@ -10,3 +10,6 @@ lego		       Files for testing LEGO Proof General
 		       
 isa		       Files for testing Isabelle Proof General
 
+README                 this file
+
+example                test protocol for example proof script

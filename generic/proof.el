@@ -151,21 +151,26 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 
 
 (defun proof-display-and-keep-buffer (buffer)
-  "Display BUFFER and mark window according to `proof-window-dedicated-p'."
-  (let ((window (get-buffer-window buffer 'visible)))
-    (save-selected-window
-      (save-excursion 
-	(display-buffer buffer)
-	(set-window-dedicated-p (get-buffer-window buffer)
-				proof-window-dedicated-p)
-	(and window
-	     (progn (select-window window)
-		    ;; tms: I don't understand why the point in
-		    ;; proof-response-buffer is not at the end anyway.
-		    ;; Is there a superfluous save-excursion somewhere?
-		    (set-buffer buffer)
-		    (goto-char (point-max))
-		    (or (pos-visible-in-window-p) (recenter -1))))))))
+  "Display BUFFER and mark window according to `proof-window-dedicated-p'.
+
+Also ensures that point is visible."
+  (let (window)
+    (save-excursion
+      (set-buffer buffer)
+      (display-buffer buffer)
+      (setq window (get-buffer-window buffer 'visible))
+      (set-window-dedicated-p window proof-window-dedicated-p)
+      (and window
+	   (save-selected-window
+	     (select-window window)
+	     
+	     ;; tms: I don't understand why the point in
+	     ;; proof-response-buffer is not at the end anyway.
+	     ;; Is there a superfluous save-excursion somewhere?
+	     (goto-char (point-max))
+
+	     (or (pos-visible-in-window-p (point) window)
+		 (recenter -1)))))))
 
 (defun proof-clean-buffer (buffer)
   "Erase buffer and hide from display."

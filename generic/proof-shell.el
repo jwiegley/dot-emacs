@@ -363,6 +363,9 @@ This is a list of tuples of the form (type . string). type is either
 	(incf ip))
       (set-buffer proof-pbp-buffer)
       (erase-buffer)
+      ;; Perhaps we ought to erase the proof-response-buffer at this
+      ;; point as well. It may contain an error message referring to
+      ;; an *earlier* state in the proof.
       (insert (substring out 0 op))
       (proof-display-and-keep-buffer proof-pbp-buffer)
 
@@ -490,6 +493,8 @@ we call `proof-shell-handle-error-hook'. "
 	(insert (proof-shell-strip-annotations 
 		   (cdr proof-shell-delayed-output)))
 	(proof-display-and-keep-buffer proof-pbp-buffer)))
+
+  ;; Perhaps we should erase the buffer in proof-response-buffer, too?
 
     ;; We extract all text between text matching
     ;; `proof-shell-error-regexp' and the following prompt.

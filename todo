@@ -14,8 +14,6 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A* Fix display handling problems  (tms, all week)
-
 A* multiple files bug fix:
    It can happen (in Isabelle) that the prover retracts a file
    which asks for another to be retracted which is *not* on
@@ -72,6 +70,8 @@ C  Remove "FIXME notes" which are just notes I've put in about old
    code in case something breaks   (da, 10mins).
 
 C  Check on all FIXME notes.
+
+C  automise testing procedures in etc/
 
 C  Write proof-define-derived-mode which automatically adds a 
    call back hook somehow.  Propose this to maintainer of derived.el.
