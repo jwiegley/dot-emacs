@@ -2063,6 +2063,110 @@ functions in Proof General which you can consider as exported in the
 generic interface.  Be careful using more functions than are mentioned
 here because the internals of Proof General may change between versions.
 
+@menu
+* Default values for generic settings::
+* Adding prover-specific configurations::
+* Useful variables::
+* Useful functions and macros::        
+@end menu
+
+@node Default values for generic settings
+@section Default values for generic settings
+
+Several generic settings are defined using @code{defpgcustom} in
+@file{proof-config.el}.  This introduces settings of the form
+@code{<PA>-name} for each proof assistant @var{PA}.
+
+To set the default value for these settings in prover-specific cases,
+you should use the special @code{defpgdefault} macro:
+
+@c TEXI DOCSTRING MAGIC: defpgdefault
+@deffn Macro defpgdefault 
+Set default for the proof assistant specific variable <PA>@var{-sym} to @var{value}.@*
+This should be used in prover-specific code to alter the default values
+for prover specific settings.
+
+Usage: (defpgdefault SYM @var{value})
+@end deffn
+
+In your prover-specific code you can simply use the setting
+@code{<PA>-sym} directly, i.e., write @code{myprover-home-page}.
+
+In the generic code, you can use a macro, writing @code{(proof-ass
+home-page)} to refer to the @code{<PA>-home-page} setting for the
+currently running instance of Proof General.
+
+@xref{Configuration variable mechanisms}, for more details on this
+mechanism.
+
+
+@node Adding prover-specific configurations
+@section Adding prover-specific configurations
+
+Apart from the generic settings, your prover instance will probably need
+some specific customizable settings.
+
+Defining new prover-specific settings using customize is pretty easy.
+You should do it at least for your prover-specific user options.
+
+The code in @file{proof-site.el} provides each prover with two
+customization groups automatically (based on the name of the assistant): 
+@code{<PA>} for user options for prover @var{PA}
+and 
+@code{<PA>-config} for configuration of prover @var{PA}.
+Typically @code{<PA>-config} holds settings which are
+constants but which may be nice to tweak.
+
+The first group appears in the menu
+@lisp
+  ProofGeneral -> Customize -> <PA> 
+@end lisp
+The second group appears in the menu:
+@lisp
+  ProofGeneral -> Internals -> <PA> config
+@end lisp
+
+A typical use of @code{defcustom} looks like this:
+@lisp
+(defcustom myprover-search-page
+  "http://findtheorem.myprover.org"
+  "URL of search web page for myprover."
+  :type 'string
+  :group 'myprover-config)
+@end lisp
+This introduces a new customizable setting, which you might use to make
+a menu entry, for example.  The default value is the string
+@code{"http://findtheorem.myprover.org"}.
+
+
+
+
+
+
+@node Useful variables
+@section Useful variables
+
+In @file{proof-compat}, two architecture flags are defined.  These can
+be used to write conditional pieces of code for different Emacs and
+operating systems.  
+
+
+@c TEXI DOCSTRING MAGIC: proof-running-on-XEmacs
+
+@defvar proof-running-on-XEmacs 
+Non-nil if Proof General is running on XEmacs.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-running-on-win32
+
+
+
+
+@defvar proof-running-on-win32 
+Non-nil if Proof General is running on a win32 system.
+@end defvar
+@node Useful functions and macros
+@section Useful functions and macros
+
 The recommended functions you may invoke are these:
 
 @itemize @bullet
@@ -2390,11 +2494,10 @@ Process buffer where the proof assistant is run.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-response-buffer
-
-
 @defvar proof-response-buffer 
 The response buffer.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-goals-buffer
 @defvar proof-goals-buffer 
 The goals buffer.
