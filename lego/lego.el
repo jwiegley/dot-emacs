@@ -166,7 +166,7 @@
 (define-derived-mode lego-mode proof-mode
    "lego" nil
    (lego-mode-config)
-   (easy-menu-change (list proof-mode-name) (car proof-help-menu)
+   (easy-menu-change (list proof-general-name) (car proof-help-menu)
 		     (append (cdr proof-help-menu) lego-help-menu-list)))
 
 (eval-and-compile
@@ -375,6 +375,7 @@ Given is the first SPAN which needs to be undone."
 	proof-stack-to-indent 'lego-stack-to-indent)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
+	proof-goal-command-regexp lego-goal-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
 	proof-goal-with-hole-regexp lego-goal-with-hole-regexp
 	proof-kill-goal-command lego-kill-goal-command
