@@ -24,6 +24,11 @@
 ##
 ##    make releaseclean   - clean up after 'make dist' 'make rpmrelease'.
 ##
+##
+## Notes:
+##   Use 'make untag' before re-trying if 'make releaseall' fails.
+##   Use 'make releaseclean' if giving up, to remove temp dirs.
+##
 ## $Id$
 ## 
 ###########################################################################
