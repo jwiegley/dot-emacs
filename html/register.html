@@ -78,7 +78,7 @@ again, so return to <a href="download#prereq">the download page</a>.
 	    . "\nEmail:\t\t " . $email
 	    . "\nSite:\t\t " . $site
 	    . "\nSubmitted:\t" . date("h:ia D jS F Y");
-   mail("proofgen@dcs.ed.ac.uk",
+   mail("register@proofgeneral.org",
 	"[Registration form from ~proofgen]",
 	 $message);
    
@@ -91,7 +91,7 @@ again, so return to <a href="download#prereq">the download page</a>.
 
    if ($mailinglist) {
 	$message = "subscribe proofgeneral"; 
-	mail("majordomo@dcs.ed.ac.uk",
+	mail("mailman@inf.ed.ac.uk",
 	     "[Web form from ~proofgen]",
 	     $message,
 	    "Reply-To: " . $email . "\nFrom: " . $email);
