@@ -3,7 +3,7 @@
 ;; Copyright (C) 1996 LFCS Edinburgh & INRIA Sophia Antipolis
 ;; Author: Yves Bertot < Yves.Bertot@sophia.inria.fr>
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <05 Dec 96 tms /home/tms/elisp/pbp.el>
+;; Time-stamp: <12 Dec 96 tms /home/tms/elisp/pbp.el>
 ;; Reference: Yves Bertot and Laurent Théry
 ;;            A Generic Approach to Building User Interfaces for
 ;;            Theorem Provers
@@ -177,7 +177,10 @@
     (if (re-search-backward proof-error-regexp nil t) 
 	(delete-region (- (point) 2) (point-max)))
     (newline 2)
-    (insert-string string)))
+    (let ((start (point)))
+	  (insert-string string)
+	  (put-nonduplicable-text-property start (point-max)
+					   'face font-lock-error-face))))
 
 (defun pbp-send-and-remember (string)
   (save-excursion
