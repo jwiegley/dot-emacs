@@ -299,6 +299,10 @@ Return nil if `x-symbol-mode' or `x-symbol-subscripts' is nil.  Uses
     (bigcirclemultiply "\\<Otimes>")
     (bigcircleplus "\\<Oplus>")
     (coproduct "\\<Coprod>")
+    (cedilla "\\<cedilla>")
+    (diaeresis "\\<dieresis>")
+    (acute "\\<acute>")
+    (hungarumlaut "\\<hungarumlaut>")
     ))
 
 (defvar x-symbol-isabelle-user-table nil)
