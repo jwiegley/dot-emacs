@@ -24,6 +24,13 @@ which break font lock.
 Workaround: turn off proof-strict-read-only, font-lock, or for
 the best of all possible worlds, switch to XEmacs.
 
+* As of FSFmacs 20.3, multi-byte character codes are used.  This
+breaks some of the code in Proof General, which is turned off in
+case the suspicious looking function
+toggle-enable-multibyte-characters is present.  This could effect
+forthcoming versions of XEmacs.
+Workaround: use FSFmacs 20.2, or XEmacs 20.4.
+
 * Using C-g can leave script management in a mess.  The code
 needs to have some regions protected from Emacs interrupts.
 Workaround: Don't type C-g while script management is processing.  If
