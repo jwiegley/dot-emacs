@@ -29,13 +29,21 @@
 *** Bundling of X-Symbol Mode (4.5 beta)
 
     !!THIS IS WORK IN PROGRESS, IT MAY WELL BREAK X-SYMBOL FOR YOU!!
+    
+    [ Currenly should be working in Isabelle, not other provers ]
+
     To disable use of the bundled version, either delete/move away
     the x-symbol subdirectory, or load your own local version
-    first [put (require 'x-symbol-hooks) in .emacs].
+    first [put (require 'x-symbol-hooks) in .emacs, or unpack
+    in your own .xemacs directory].
 
     From now on, PG is not backward compatible with previous X-Symbol
     versions.  Either upgrade your installed version, or be careful to
     load PG first (so that the bundled version of X-Symbol is used).
+
+    Notice that the package version of X-Symbol may load itself first
+    by default during XEmacs startup, so it may be tricky to override.
+    If in doubt, run with "xemacs -no-site-file -q" first.
 
 *** Bundling of MMM Mode (for multiple modes in one buffer)
 
