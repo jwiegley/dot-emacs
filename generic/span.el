@@ -14,6 +14,14 @@
 	 (require 'span-extent))
  	(t 
 	 (require 'span-overlay))))
+
+;;
+;; Generic functions built on low-level abstract ones
+;;
+
+(defun span-property-safe (span name)
+  "Like span-property, but return nil if SPAN is nil."
+  (and span (span-property span name)))
   
 (provide 'span)
 ;; span.el ends here.
