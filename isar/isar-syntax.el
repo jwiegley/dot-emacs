@@ -215,16 +215,17 @@
 
 (defun isar-match-antiq (limit)
   "Match Isabelle/Isar antiquotations."
-  (or
-   (and (proof-looking-at-syntactic-context)
-	(proof-looking-at isar-antiq-regexp))
-   (let (done ans)
-     (while (not done)
-       (if (proof-re-search-forward isar-antiq-regexp limit t)
-	   (and (proof-looking-at-syntactic-context)
-		(setq done t) (setq ans t))
-	 (setq done t)))
-     ans)))
+  (save-match-data
+    (or
+     (and (proof-looking-at-syntactic-context)
+	  (proof-looking-at isar-antiq-regexp))
+     (let (done ans)
+       (while (not done)
+	 (if (proof-re-search-forward isar-antiq-regexp limit t)
+	     (and (proof-looking-at-syntactic-context)
+		  (setq done t) (setq ans t))
+	   (setq done t)))
+       ans))))
 
 
 ;; ----- Isabelle inner syntax hilite
