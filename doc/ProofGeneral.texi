@@ -66,7 +66,7 @@
 @set version 3.4
 @set xemacsversion 21.4
 @set fsfversion 21.2
-@set last-update July 2002
+@set last-update August 2002
 @set rcsid $Id$
 
 @ifinfo
@@ -115,7 +115,8 @@ END-INFO-DIR-ENTRY
 @c image{ProofGeneralPortrait}
 @end ifset
 @end iftex
-@author David Aspinall with P. Courtieu, H. Goguen, T. Kleymann, D. Sequeira, M. Wenzel.
+@author David Aspinall with
+@author P. Courtieu, H. Goguen, T. Kleymann, D. Sequeira, M. Wenzel.
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
@@ -171,7 +172,7 @@ Isabelle, and HOL.
 * Preface::                     
 * Introducing Proof General::   
 * Basic Script Management::     
-* Proof by Pointing::
+* Subterm Activation and Proof by Pointing::
 * Advanced Script Management::  
 * Support for other Packages::  
 * Hints and Tips::
@@ -184,6 +185,7 @@ Isabelle, and HOL.
 * Obtaining and Installing::  
 * Known bugs and workarounds::  
 * References::                  
+* History of Proof General::
 * Function Index::              
 * Variable Index::              
 * Keystroke Index::             
@@ -196,9 +198,11 @@ Isabelle, and HOL.
 
 Welcome to Proof General!
 
-This preface has some news about the current release series, as well as
-some history about previous releases, and acknowledgements to those who
-have helped along the way.
+This preface has some news about the current release, future plans,
+and acknowledgements to those who have helped along the way.
+The appendix @ref{History of Proof General} contains old
+news about previous releases, and notes on the development
+of Proof General.
 
 Proof General has a home page at
 @uref{http://www.proofgeneral.org}.  
@@ -209,11 +213,6 @@ other documentation, system downloads, etc.
 @menu
 * Latest news for 3.4::
 * Future::
-* Old News for 3.3::
-* Old News for 3.2::
-* Old News for 3.1::
-* Old News for 3.0::
-* History before 3.0::                     
 * Credits::                     
 @end menu
 
@@ -233,10 +232,16 @@ is due to Pierre Courtieu, who also updated the documentation in this
 manual.
 
 As of version 3.4, Proof General is distributed under the GNU General
-Public License (GPL).
+Public License (GPL).  Compared with the previous more restrictive
+license, this means the program can now be redistributed by third
+parties, and used in any context without applying for a special
+license.  Despite these legal changes, we would still appreciate if
+you send us back any useful improvements you make to Proof General,
+and register your use of Proof General on the web site.
 
 See the @file{CHANGES} file in the distribution for more complete
-details of changes since 3.3.
+details of changes since 3.3, and the appendix
+@ref{History of Proof General} for old news.
 
 
 @node Future
@@ -270,270 +275,8 @@ the Proof General Kit webpage}.
 
 
 
-@node Old News for 3.3
-@unnumberedsec Old News for 3.3
-
-Proof General 3.3 includes a few feature additions, but mainly the focus
-has been on compatibility improvements for new versions of provers (in
-particular, Coq 7), and new versions of emacs (in particular, XEmacs
-21.4).
-
-One new feature is control over visibility of completed proofs,
-@xref{Visibility of completed proofs}.  Another new feature is the
-tracking of theorem dependencies inside Isabelle.  A context-sensitive
-menu (right-button on proof scripts) provides facility for browsing the
-ancestors and child theorems of a theorem, and highlighting them.  The
-idea of this feature is that it can help you untangle and rearrange big
-proof scripts, by seeing which parts are interdependent.  The implementation
-is provisional and not documented yet in the body of this manual.  It only
-works for the "classic" version of Isabelle99-2.
-
-See the @file{CHANGES} file in the distribution for more complete
-details of changes since 3.2.
 
 
-
-
-@node Old News for 3.2
-@unnumberedsec Old News for 3.2
-@cindex news
-
-Proof General 3.2 introduced several new features and some bug fixes.
-One noticeable new feature is the addition of a prover-specific menu for
-each of the supported provers.  This menu has a ``favourites'' feature
-that you can use to easily define new functions.  Please contribute
-other useful functions (or suggestions) for things you
-would like to appear on these menus.
-
-Because of the new menus and to make room for more commands, we have
-made a new key map for prover specific functions.  These now all begin
-with @kbd{C-c C-a}.  This has changed a few key bindings slightly.
-
-Another new feature is the addition of prover-specific completion
-tables, to encourage the use of Emacs's completion facility, using
-@kbd{C-RET}.  @xref{Support for completion}, for full details.
-
-A less obvious new feature is support for turning the proof assistant
-output on and off internally, to improve efficiency when processing
-large scripts.  This means that more of your CPU cycles can be spent on
-proving theorems.
-
-Adapting for new proof assistants continues to be made more flexible,
-and easier in several places.  This has been motivated by adding
-experimental support for some new systems.  One new system which had
-good support added in a very short space of time is @b{PhoX} (see
-@uref{http://www.lama.univ-savoie.fr/~RAFFALLI/af2.html, the PhoX home
-page} for more information).  PhoX joins the rank of officially
-supported Proof General instances, thanks to its developer Christophe
-Raffalli.
-
-Breaking the manual into two pieces was overdue: now all details on
-adapting Proof General, and notes on its internals, are in the
-@i{Adapting Proof General} manual.  You should find a copy of that
-second manual close to wherever you found this one; consult the
-Proof General home page if in doubt.
-
-The internal code of Proof General has been significantly overhauled for
-this version, which should make it more robust and readable.  The
-generic code has an improved file structure, and there is support for
-automatic generation of autoload functions.  There is also a new
-mechanism for defining prover-specific customization and instantiation
-settings which fits better with the customize library.  These settings
-are named in the form @code{@i{PA}-setting-name} in the documentation;
-you replace @i{PA} by the symbol for the proof assistant you are
-interested in.  @xref{Customizing Proof General}, for details.
-
-Finally, important bug fixes include the robustification against
-@code{write-file} (@kbd{C-x C-w}), @code{revert-buffer}, and friends.
-These are rather devious functions to use during script management, but
-Proof General now tries to do the right thing if you're deviant enough
-to try them out!
-
-Work on this release was undertaken by David Aspinall between
-May-September 2000, and includes contributions from Markus Wenzel,
-Pierre Courtieu, and Christophe Raffalli.  Markus added some Isar
-documentation to this manual.
-
-
-@node Old News for 3.1
-@unnumberedsec Old News for 3.1
-@cindex news
-
-Proof General 3.1 (released March 2000) is a bug-fix improvement over
-version 3.0.  There are some minor cosmetic improvements, but large
-changes have been held back to ensure stability.  This release solves a
-few minor problems which came to light since the final testing stages
-for 3.0.  It also solves some compatibility problems, so now it works
-with various versions of Emacs which we hadn't tested with before
-(non-mule GNU Emacs, certain Japanese Emacs versions).
-
-We're also pleased to announce HOL Proof General, a new instance of
-Proof General for HOL98.  This is supplied as a "technology
-demonstration" for HOL users in the hope that somebody from the HOL
-community will volunteer to adopt it and become a maintainer and
-developer.  (Otherwise, work on HOL Proof General will not continue).
-
-Apart from that there are a few other small improvements.  Check the
-CHANGES file in the distribution for full details.
-
-The HOL98 support and much of the work on Proof General 3.1 was
-undertaken by David Aspinall while he was visiting ETL, Osaka, Japan,
-supported by the British Council and ETL.
-
-
-@node Old News for 3.0
-@unnumberedsec Old News for 3.0
-
-Proof General 3.0 (released November 1999) has many improvements over
-2.x releases.
-
-First, there are usability improvements.  The toolbar was somewhat
-impoverished before.  It now has twice as many buttons, and includes all
-of the useful functions used during proof which were previously hidden
-on the menu, or even only available as key-presses.  Key-bindings have
-been re-organized, users of previous versions may notice.  The menu has
-been redesigned and coordinated with the toolbar, and now gives easy
-access to more of the features of Proof General.  Previously several
-features were only likely to be discovered by those keen enough to read
-this manual!
-
-Second, there are improvements, extensions, and bug fixes in the generic
-basis. Proofs which are unfinished and not explicitly closed by a
-``save'' type command are supported by the core, if they are allowed by
-the prover.  The design of switching the active scripting buffer has
-been streamlined.  The management of the queue of commands waiting to be
-sent to the shell has been improved, so there are fewer unnecessary
-"Proof Process Busy!" messages.  The support for scripting with multiple
-files was improved so that it behaves reliably with Isabelle99; file
-reading messages can be communicated in both directions now.  The proof
-shell filter has been optimized to give hungry proof assistants a better
-share of CPU cycles.  Proof-by-pointing has been resurrected; even
-though LEGO's implementation is incomplete, it seems worth maintaining
-the code in Proof General so that the implementors of other proof
-assistants are encouraged to provide support.  For one example, we can
-certainly hope for support in Coq, since the CtCoq proof-by-pointing
-code has been moved into the Coq kernel lately.  We need a volunteer
-from the Coq community to help to do this.
-
-An important new feature in Proof General 3.0 is support for
-@uref{http://x-symbol.sourceforge.net/,X-Symbol}, 
-which means that real logical symbols, Greek letters,
-etc can be displayed during proof development, instead of their ASCII
-approximations. This makes Proof General a more serious competitor to
-native graphical user interfaces.
-
-Finally, Proof General has become much easier to adapt to new provers
---- it fails gracefully (or not at all!) when particular configuration
-variables are unset, and provides more default settings which work
-out-of-the-box.  An example configuration for Isabelle is provided,
-which uses just 25 or so simple settings.
-
-This manual has been updated and extended for Proof General 3.0.
-Amongst other improvements, it has a better description of how to add
-support for a new prover.
-
-See the @code{CHANGES} file in the distribution for more information
-about the latest improvements in Proof General.  Developers should check
-the @code{ChangeLog} in the developer's release for detailed comments on
-internal changes.
-
-Most of the work for Proof General 3.0 has been done by David Aspinall.
-Markus Wenzel helped with Isabelle support, and provided invaluable
-feedback and testing, especially for the improvements to multiple file
-handling.  Pierre Courtieu took responsibility from Patrick Loiseleur
-for Coq support, although the improvements in both the Coq and LEGO code
-for this release were made by David Aspinall.  Markus Wenzel also
-provided support for his Isar language, a new proof language for
-Isabelle.  David von Oheimb helped to develop and debug the generic
-version of his X-Symbol patch which he originally provided for Isabelle.
-
-A new instantiation of Proof General is being worked on for
-@emph{Plastic}, a proof assistant being developed at the University of
-Durham.
-
-
-
-@node History before 3.0
-@unnumberedsec History before 3.0
-@cindex @code{lego-mode}
-@cindex history
-
-It all started some time in 1994. There was no Emacs interface for LEGO.
-Back then, Emacs militants worked directly with the Emacs shell to
-interact with the LEGO system. 
-
-David Aspinall convinced Thomas Kleymann that programming in
-Emacs Lisp wasn't so difficult after all. In fact, Aspinall had already
-implemented an Emacs interface for Isabelle with bells and whistles,
-called @uref{http://www.proofgeneral.org/~isamode,Isamode}. Soon
-after, the package @code{lego-mode} was born. Users were able to develop
-proof scripts in one buffer. Support was provided to automatically send
-parts of the script to the proof process. The last official version with
-the name @code{lego-mode} (1.9) was released in May 1995.
-
-
-@cindex proof by pointing 
-@cindex CtCoq
-@cindex Centaur
-The interface project really took off the ground in November 1996. Yves
-Bertot had been working on a sophisticated user interface for the Coq
-system (CtCoq) based on the generic environment Centaur. He visited the
-Edinburgh LEGO group for a week to transfer proof-by-pointing
-technology. Even though proof-by-pointing is an inherently
-structure-conscious algorithm, within a week, Yves Bertot, Dilip Sequeira 
-and Thomas Kleymann managed to implement a first prototype of
-proof-by-pointing in the Emacs interface for LEGO [BKS97].
-
-@cindex structure editor
-@cindex script management
-
-Perhaps we could reuse even more of the CtCoq system. It being a
-structure editor did no longer seem to be such an obstacle. Moreover,
-to conveniently use proof-by-pointing in actual developments, one would
-need better support for script management.
-
-@cindex generic
-In 1997, Dilip Sequeira implemented script management in our Emacs
-interface for LEGO following the recipe in
-[BT98]. Inspired by the project CROAP, the
-implementation made some effort to be generic. A working prototype was
-demonstrated at UITP'97.
-
-In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Part
-of the generic code in the @code{lego} package was outsourced (and made
-more generic) in a new package called @code{proof}. Dilip Sequeira
-provided some LEGO-specific support for handling multiple files and
-wrote a few manual pages. The system was reasonably robust and we
-shipped out the package to friends.
-
-In June 1998, David Aspinall reentered the picture by providing an
-instantiation for Isabelle. Actually, our previous version wasn't quite
-as generic as we had hoped. Whereas LEGO and Coq are similar systems in
-many ways, Isabelle was really a different beast. Fierce re-engineering
-and various usability improvements were provided by Aspinall and
-Kleymann to make it easier to instantiate to new proof systems. The
-major technical improvement was a truly generic extension of script
-management to work across multiple files.
-
-It was time to come up with a better name than just @code{proof}
-mode. David Aspinall suggested @emph{Proof General} and set about
-reorganizing the file structure to disentangle the Proof General project
-from LEGO at last.  He cooked up some images and bolted on a toolbar, so
-a naive user can replay proofs without knowing a proof assistant
-language or even Emacs hot-keys.  He also designed some web pages, and
-wrote most of this manual.  
-
-Proof General 2.0 was the first official release of the improved
-program, made in December 1998.
-
-Version 2.1 was released in August 1999.  It was used at the Types
-Summer School held in Giens, France in September 1999 (see
-@uref{http://www-sop.inria.fr/types-project/types-sum-school.html}).
-About 50 students learning Coq, Isabelle, and LEGO used Proof General
-for all three systems.  This experience provided invaluable feedback and
-encouragement to make the improvements now in Proof General 3.0.
-
-@c Why not adapt Proof General to your favourite proof assitant?
 
 
 
@@ -542,12 +285,12 @@ encouragement to make the improvements now in Proof General 3.0.
 @cindex @code{lego-mode}
 @cindex maintenance
 
-The main developers of Proof General have been:
+The original developers of the basis of Proof General were:
 
 @itemize @bullet
 @item @b{David Aspinall},
 @item @b{Healfdene Goguen},
-@item @b{Thomas Kleymann} and
+@item @b{Thomas Kleymann}, and
 @item @b{Dilip Sequeira}.
 @end itemize
 
@@ -563,10 +306,13 @@ It is now maintained by Pierre Courtieu @i{<courtieu@@lri.fr>}.
 @c
 Isabelle Proof General was crafted and is being maintained by David
 Aspinall @i{<da@@dcs.ed.ac.uk>}.  It has benefited greatly from tweaks
-and suggestions by Markus Wenzel @i{<wenzelm@@informatik.tu-muenchen.de>}, 
-who crafted and maintains Isabelle/Isar Proof General.  Markus also
-added Proof General support inside Isabelle.  David von Oheimb supplied
-the original patches for X-Symbol support.
+and suggestions by Markus Wenzel
+@i{<wenzelm@@informatik.tu-muenchen.de>}, who crafted and maintains
+Isabelle/Isar Proof General.  Markus also added Proof General support
+inside Isabelle.  David von Oheimb supplied the original patches for
+X-Symbol support, which improved Proof General significantly.
+Christoph Wedler, the author of X-Symbol, has provided much useful
+support in adapting his package for PG.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
 Goguen and Aspinall. It follows some of the ideas used in Project
@@ -578,20 +324,20 @@ Aspinall since then.
 
 This manual was written by David Aspinall and Thomas Kleymann.  Some
 words found their way here from the user documentation of LEGO mode,
-prepared by Dilip Sequeira.  Healfdene Goguen supplied some text for Coq
-Proof General.  Since Proof General 2.0, this manual has been maintained
-and improved by David Aspinall.  Pierre Courtieu wrote the section on
-file variables.
+prepared by Dilip Sequeira.  Healfdene Goguen supplied some text for
+Coq Proof General.  Since Proof General 2.0, this manual has been
+maintained and improved by David Aspinall.  Pierre Courtieu and Markus
+Wenzel contributed some sections.
 
-The Proof General project has benefited from funding by EPSRC
-(Applications of a Type Theory Based Proof Assistant), the EC (Types for
-Proofs and Programs) and the support of the LFCS.  Version 3.1 was
-prepared whilst David Aspinall was visiting ETL, Japan, supported by the
-British Council.
+The Proof General project has benefited indirectly from funding by
+EPSRC (Applications of a Type Theory Based Proof Assistant), the EC
+(Types for Proofs and Programs) and the support of the LFCS.  Version
+3.1 was prepared whilst David Aspinall was visiting ETL, Japan,
+supported by the British Council.
 
-For testing and feedback for older versions of Proof General, thanks go
-to Rod Burstall, Martin Hofmann, and James McKinna, and some of those
-who continued to help with the latest 3.x series, named next.
+For testing and feedback for older versions of Proof General, thanks
+go to Rod Burstall, Martin Hofmann, and James McKinna, and some of
+those who continued to help with the latest 3.x series, named next.
 
 @c FIXME HERE!
 During the development of Proof General 3.x releases, 
@@ -599,20 +345,28 @@ many people helped provide testing and other feedback,
 including the Proof General maintainers,
 Paul Callaghan, Pierre Courtieu, and Markus Wenzel, and other folk who
 tested pre-releases or sent bug reports, including 
+Cuihtlauac Alvarado,
 Pascal Brisset,
+James Brotherston
 Martin Buechi,
+Lucas Dixon,
 Matt Fairtlough, 
 Kim Hyung Ho,
+Greg O'Keefe,
 Pierre Lescanne,
 John Longley, 
 Tobias Nipkow, 
 Leonor Prensa Nieto, 
 David von Oheimb,
+Lawrence Paulson,
+Paul Roziere,
 Randy Pollack,
 Robert R. Schneck,
 Sebastian Skalberg,
-and
-Mike Squire.  Thanks to all of you!
+Mike Squire, and
+Norbert Voelker.
+
+Thanks to all of you (and apologies to anyone missed).
 
 
 
@@ -703,7 +457,7 @@ some detail.
 
 The proof assistant itself is started automatically inside Emacs as an
 "inferior" process when you ask for some of the proof script to be
-processed.  You can also start the proof assistant directly with the
+processed.  You can start the proof assistant manually with the
 menu command "Start proof assistant".
 
 To follow an example use of Proof General on a LEGO proof, 
@@ -829,9 +583,10 @@ Proof General comes ready-customized for these proof assistants:
 @b{Isabelle Proof General} for Isabelle2002@*
 @xref{Isabelle Proof General}, for more details.
 @item 
-@b{Isabelle/Isar Proof General} for Isabelle2002*
+@b{Isabelle/Isar Proof General} for Isabelle2002@*
 @xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
+@item
 @b{HOL Proof General} for HOL98@*
 @xref{HOL Proof General}, for more details.
 @end itemize
@@ -949,10 +704,11 @@ then describe the concepts and functions in more detail.
 @section Walkthrough example in LEGO
 
 Here's a short example in LEGO to see how script management is used.
-The file you are asked to type below is included in the distribution as
-@file{lego/example.l}.  If you're not using LEGO, substitute some lines
-from a simple proof for your proof assistant, or consult the file
-called something like @file{foo/example.foo} for proof assistant Foo.
+The file you are asked to type below is included in the distribution
+as @file{lego/example.l}.  If you're not using LEGO, substitute some
+lines from a simple proof for your proof assistant, or consult the
+example file supplied with Proof General for your prover, called
+something like @file{foo/example.foo} for a proof assistant Foo.
 
 This walkthrough is keyboard based, but you could easily use the toolbar
 and menu functions instead.  The best way to learn Emacs key bindings is
@@ -1798,13 +1554,13 @@ use a fresh Emacs.)
 @c
 @c CHAPTER: Proof by Pointing
 @c 
-@node Proof by Pointing
-@chapter Proof by Pointing
+@node Subterm Activation and Proof by Pointing
+@chapter Subterm Activation and Proof by Pointing
 
 This chapter describes what you can do from inside the goals buffer,
 providing support for these features exists for your proof assistant.
 As of Proof General 3.0, it only exists for LEGO.  If you would like to
-see proof by pointing support for Proof General in another proof
+see subterm activation support for Proof General in another proof
 assistant, please petition the developers of that proof assistant to
 provide it!
 
@@ -2458,7 +2214,7 @@ Add completions from the current tags table.
 @node Hints and Tips
 @chapter Hints and Tips
 
-Apart from the packages officially supported in Proof General, many.
+Apart from the packages officially supported in Proof General, 
 many other features of Emacs are useful when using Proof General, even
 though they need no specific configuration for Proof General.  It is
 worth taking a bit of time to explore the Emacs manual to find out about
@@ -2469,9 +2225,43 @@ users have found valuable with Proof General.  Further contributions to
 this chapter are welcomed!
 
 @menu
+* Adding your own keybindings::
 * Using file variables::
 * Using abbreviations::
 @end menu
+
+@node Adding your own keybindings
+@section Adding your own keybindings
+@cindex keybindings
+
+Proof General follows Emacs convention in using @key{C-c} bindings for
+its functions, which is why some keyboard short-cuts are quite
+lengthy.
+
+Some users may prefer to add additional keybindings for shorter
+sequences.  This can be done interactively with the command
+@code{M-x local-set-key}, or for longevity, by adding 
+code like this to your @file{.emacs} (or @file{.xemacs/init.el}) file:
+@lisp
+
+(eval-after-load "proof-script" '(progn
+ (define-key proof-mode-map [(control n)] 
+                            'proof-assert-next-command-interactive)
+ (define-key proof-mode-map [(control b)] 
+                            'proof-undo-last-successful-command)
+ ))
+@end lisp
+
+This lisp fragment adds bindings for every buffer in proof script
+mode (the Emacs keymap is called @code{proof-mode-map}).  To just
+affect one prover, use a keymap name like @code{isar-mode-map} and
+evaluate after the library @code{isar} has been loaded.
+
+To find the names of the functions you may want to bind, look in this
+manual, or query current bindings interactively with @kbd{C-h k}
+(which works for menu operations as well).  As a last resort you could
+also examine the lisp files which make up Proof General, such
+as @file{proof-menu.el}, but that's only for the brave.
 
 
 @node Using file variables
@@ -3584,8 +3374,8 @@ when they are loaded.  Theory files are always completely locked or
 completely unlocked, because they are processed atomically.
 
 Proof General tries to load the theory file for a @file{.ML} file
-automatically before you start scripting.  This relies on new support
-especially for Proof General built into Isabelle99's theory loader.
+automatically before you start scripting.  This relies on support
+especially for Proof General built into Isabelle's theory loader.
 
 However, because scripting cannot begin until the theory is loaded, and
 it should not begin if an error occurs during loading the theory, Proof
@@ -4083,6 +3873,7 @@ distribution for an up-to-date description bugs and other issues.
 If you discover a problem which isn't mentioned in @file{BUGS}, please
 let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
+
 @node References
 @unnumbered References
 
@@ -4115,6 +3906,284 @@ Proof by Pointing without a
 Structure Editor}. LFCS Technical Report ECS-LFCS-97-368. Also published as Rapport de recherche de
 l'INRIA Sophia Antipolis RR-3286 
 @end itemize
+
+
+
+@c
+@c
+@c APPENDIX: History
+@c
+@c
+@node History of Proof General
+@unnumbered History of Proof General
+@cindex @code{lego-mode}
+@cindex history
+
+It all started some time in 1994. There was no Emacs interface for LEGO.
+Back then, Emacs militants worked directly with the Emacs shell to
+interact with the LEGO system. 
+
+David Aspinall convinced Thomas Kleymann that programming in
+Emacs Lisp wasn't so difficult after all. In fact, Aspinall had already
+implemented an Emacs interface for Isabelle with bells and whistles,
+called @uref{http://www.proofgeneral.org/~isamode,Isamode}. Soon
+after, the package @code{lego-mode} was born. Users were able to develop
+proof scripts in one buffer. Support was provided to automatically send
+parts of the script to the proof process. The last official version with
+the name @code{lego-mode} (1.9) was released in May 1995.
+
+
+@cindex proof by pointing 
+@cindex CtCoq
+@cindex Centaur
+The interface project really took off the ground in November 1996. Yves
+Bertot had been working on a sophisticated user interface for the Coq
+system (CtCoq) based on the generic environment Centaur. He visited the
+Edinburgh LEGO group for a week to transfer proof-by-pointing
+technology. Even though proof-by-pointing is an inherently
+structure-conscious algorithm, within a week, Yves Bertot, Dilip Sequeira 
+and Thomas Kleymann managed to implement a first prototype of
+proof-by-pointing in the Emacs interface for LEGO [BKS97].
+
+@cindex structure editor
+@cindex script management
+
+Perhaps we could reuse even more of the CtCoq system. It being a
+structure editor did no longer seem to be such an obstacle. Moreover,
+to conveniently use proof-by-pointing in actual developments, one would
+need better support for script management.
+
+@cindex generic
+In 1997, Dilip Sequeira implemented script management in our Emacs
+interface for LEGO following the recipe in
+[BT98]. Inspired by the project CROAP, the
+implementation made some effort to be generic. A working prototype was
+demonstrated at UITP'97.  
+
+In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Part
+of the generic code in the @code{lego} package was outsourced (and made
+more generic) in a new package called @code{proof}. Dilip Sequeira
+provided some LEGO-specific support for handling multiple files and
+wrote a few manual pages. The system was reasonably robust and we
+shipped out the package to friends.
+
+In June 1998, David Aspinall reentered the picture by providing an
+instantiation for Isabelle. Actually, our previous version wasn't quite
+as generic as we had hoped. Whereas LEGO and Coq are similar systems in
+many ways, Isabelle was really a different beast. Fierce re-engineering
+and various usability improvements were provided by Aspinall and
+Kleymann to make it easier to instantiate to new proof systems. The
+major technical improvement was a truly generic extension of script
+management to work across multiple files.
+
+It was time to come up with a better name than just @code{proof} mode.
+David Aspinall suggested @emph{Proof General} and set about
+reorganizing the file structure to disentangle the Proof General
+project from LEGO at last.  He cooked up some images and bolted on a
+toolbar, so a naive user can replay proofs without knowing a proof
+assistant language or even Emacs hot-keys.  He also designed some web
+pages, and wrote most of this manual.  
+
+Despite views of some detractors, we demonstrated that an interface
+both friendly and powerful can be built on top of Emacs.  Proof
+General 2.0 was the first official release of the improved program,
+made in December 1998.
+
+Version 2.1 was released in August 1999.  It was used at the Types
+Summer School held in Giens, France in September 1999 (see
+@uref{http://www-sop.inria.fr/types-project/types-sum-school.html}).
+About 50 students learning Coq, Isabelle, and LEGO used Proof General
+for all three systems.  This experience provided invaluable feedback and
+encouragement to make the improvements that went into Proof General 3.0.
+
+@menu
+* Old News for 3.0::
+* Old News for 3.1::
+* Old News for 3.2::
+* Old News for 3.3::
+@end menu
+
+
+@node Old News for 3.0
+@unnumberedsec Old News for 3.0
+
+Proof General 3.0 (released November 1999) has many improvements over
+2.x releases.
+
+First, there are usability improvements.  The toolbar was somewhat
+impoverished before.  It now has twice as many buttons, and includes all
+of the useful functions used during proof which were previously hidden
+on the menu, or even only available as key-presses.  Key-bindings have
+been re-organized, users of previous versions may notice.  The menu has
+been redesigned and coordinated with the toolbar, and now gives easy
+access to more of the features of Proof General.  Previously several
+features were only likely to be discovered by those keen enough to read
+this manual!
+
+Second, there are improvements, extensions, and bug fixes in the generic
+basis. Proofs which are unfinished and not explicitly closed by a
+``save'' type command are supported by the core, if they are allowed by
+the prover.  The design of switching the active scripting buffer has
+been streamlined.  The management of the queue of commands waiting to be
+sent to the shell has been improved, so there are fewer unnecessary
+"Proof Process Busy!" messages.  The support for scripting with multiple
+files was improved so that it behaves reliably with Isabelle99; file
+reading messages can be communicated in both directions now.  The proof
+shell filter has been optimized to give hungry proof assistants a better
+share of CPU cycles.  Proof-by-pointing has been resurrected; even
+though LEGO's implementation is incomplete, it seems worth maintaining
+the code in Proof General so that the implementors of other proof
+assistants are encouraged to provide support.  For one example, we can
+certainly hope for support in Coq, since the CtCoq proof-by-pointing
+code has been moved into the Coq kernel lately.  We need a volunteer
+from the Coq community to help to do this.
+
+An important new feature in Proof General 3.0 is support for
+@uref{http://x-symbol.sourceforge.net/,X-Symbol}, 
+which means that real logical symbols, Greek letters,
+etc can be displayed during proof development, instead of their ASCII
+approximations. This makes Proof General a more serious competitor to
+native graphical user interfaces.  
+
+Finally, Proof General has become much easier to adapt to new provers
+--- it fails gracefully (or not at all!) when particular configuration
+variables are unset, and provides more default settings which work
+out-of-the-box.  An example configuration for Isabelle is provided,
+which uses just 25 or so simple settings.
+
+This manual has been updated and extended for Proof General 3.0.
+Amongst other improvements, it has a better description of how to add
+support for a new prover.
+
+See the @code{CHANGES} file in the distribution for more information
+about the latest improvements in Proof General.  Developers should check
+the @code{ChangeLog} in the developer's release for detailed comments on
+internal changes.
+
+Most of the work for Proof General 3.0 has been done by David Aspinall.
+Markus Wenzel helped with Isabelle support, and provided invaluable
+feedback and testing, especially for the improvements to multiple file
+handling.  Pierre Courtieu took responsibility from Patrick Loiseleur
+for Coq support, although improvements in both Coq and LEGO instances
+for this release were made by David Aspinall.  Markus Wenzel provided
+support for his Isar language, a new proof language for Isabelle.  David
+von Oheimb helped to develop the generic version of his X-Symbol
+addition which he originally provided for Isabelle.
+
+A new instantiation of Proof General is being worked on for
+@emph{Plastic}, a proof assistant being developed at the University of
+Durham.
+
+@node Old News for 3.1
+@unnumberedsec Old News for 3.1
+@cindex news
+
+Proof General 3.1 (released March 2000) is a bug-fix improvement over
+version 3.0.  There are some minor cosmetic improvements, but large
+changes have been held back to ensure stability.  This release solves a
+few minor problems which came to light since the final testing stages
+for 3.0.  It also solves some compatibility problems, so now it works
+with various versions of Emacs which we hadn't tested with before
+(non-mule GNU Emacs, certain Japanese Emacs versions).
+
+We're also pleased to announce HOL Proof General, a new instance of
+Proof General for HOL98.  This is supplied as a "technology
+demonstration" for HOL users in the hope that somebody from the HOL
+community will volunteer to adopt it and become a maintainer and
+developer.  (Otherwise, work on HOL Proof General will not continue).
+
+Apart from that there are a few other small improvements.  Check the
+CHANGES file in the distribution for full details.
+
+The HOL98 support and much of the work on Proof General 3.1 was
+undertaken by David Aspinall while he was visiting ETL, Osaka, Japan,
+supported by the British Council and ETL.
+
+
+@node Old News for 3.2
+@unnumberedsec Old News for 3.2
+@cindex news
+
+Proof General 3.2 introduced several new features and some bug fixes.
+One noticeable new feature is the addition of a prover-specific menu for
+each of the supported provers.  This menu has a ``favourites'' feature
+that you can use to easily define new functions.  Please contribute
+other useful functions (or suggestions) for things you
+would like to appear on these menus.
+
+Because of the new menus and to make room for more commands, we have
+made a new key map for prover specific functions.  These now all begin
+with @kbd{C-c C-a}.  This has changed a few key bindings slightly.
+
+Another new feature is the addition of prover-specific completion
+tables, to encourage the use of Emacs's completion facility, using
+@kbd{C-RET}.  @xref{Support for completion}, for full details.
+
+A less obvious new feature is support for turning the proof assistant
+output on and off internally, to improve efficiency when processing
+large scripts.  This means that more of your CPU cycles can be spent on
+proving theorems.
+
+Adapting for new proof assistants continues to be made more flexible,
+and easier in several places.  This has been motivated by adding
+experimental support for some new systems.  One new system which had
+good support added in a very short space of time is @b{PhoX} (see
+@uref{http://www.lama.univ-savoie.fr/~RAFFALLI/af2.html, the PhoX home
+page} for more information).  PhoX joins the rank of officially
+supported Proof General instances, thanks to its developer Christophe
+Raffalli.
+
+Breaking the manual into two pieces was overdue: now all details on
+adapting Proof General, and notes on its internals, are in the
+@i{Adapting Proof General} manual.  You should find a copy of that
+second manual close to wherever you found this one; consult the
+Proof General home page if in doubt.
+
+The internal code of Proof General has been significantly overhauled for
+this version, which should make it more robust and readable.  The
+generic code has an improved file structure, and there is support for
+automatic generation of autoload functions.  There is also a new
+mechanism for defining prover-specific customization and instantiation
+settings which fits better with the customize library.  These settings
+are named in the form @code{@i{PA}-setting-name} in the documentation;
+you replace @i{PA} by the symbol for the proof assistant you are
+interested in.  @xref{Customizing Proof General}, for details.
+
+Finally, important bug fixes include the robustification against
+@code{write-file} (@kbd{C-x C-w}), @code{revert-buffer}, and friends.
+These are rather devious functions to use during script management, but
+Proof General now tries to do the right thing if you're deviant enough
+to try them out!
+
+Work on this release was undertaken by David Aspinall between
+May-September 2000, and includes contributions from Markus Wenzel,
+Pierre Courtieu, and Christophe Raffalli.  Markus added some Isar
+documentation to this manual.
+
+
+@node Old News for 3.3
+@unnumberedsec Old News for 3.3
+
+Proof General 3.3 includes a few feature additions, but mainly the focus
+has been on compatibility improvements for new versions of provers (in
+particular, Coq 7), and new versions of emacs (in particular, XEmacs
+21.4).
+
+One new feature is control over visibility of completed proofs,
+@xref{Visibility of completed proofs}.  Another new feature is the
+tracking of theorem dependencies inside Isabelle.  A context-sensitive
+menu (right-button on proof scripts) provides facility for browsing the
+ancestors and child theorems of a theorem, and highlighting them.  The
+idea of this feature is that it can help you untangle and rearrange big
+proof scripts, by seeing which parts are interdependent.  The implementation
+is provisional and not documented yet in the body of this manual.  It only
+works for the "classic" version of Isabelle99-2.
+
+See the @file{CHANGES} file in the distribution for more complete
+details of changes since 3.2.
+
+
+
 
 
 
