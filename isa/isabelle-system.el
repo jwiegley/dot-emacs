@@ -195,6 +195,29 @@ ISABELLE will always override this setting."
 	     "isa-view-doc" nil
 	     (list isa-isatool-command "doc" docname))))
 
+(defvar isabelle-version-string 'unset)
+
+(defun isa-version ()
+  "Try to retrieve a version value for Isabelle."
+  (unless (stringp isabelle-version-string)
+    (setq isabelle-version-string
+	  (if (isa-set-isatool-command)
+	      (isa-shell-command-to-string
+	       ;; This may return the string "Unknown Isabelle tool:
+	       ;; version", but that's fine.
+	       (concat isa-isatool-command " version"))
+	    "Unknown")))
+  isabelle-version-string)
+
+;; We're going to need to know this pretty soon, so let's do it now.
+(defconst isa-supports-pgip 
+  ;; PGIP-aware Isabelle versions are also aware of their own version
+  (not (string-match "^Unknown" (isa-version)))
+  "Whether the currently configured version of Isabelle supports PGIP.")
+
+      
+
+
 (defun isa-tool-list-docs ()
   "Generate a list of documentation files available, with descriptions.
 This function returns a list of lists of the form
@@ -314,7 +337,6 @@ until Proof General is restarted."
 (defconst isabelle-logics-menu (isabelle-logics-menu-calculate)
   "Isabelle logics menu.  Calculated when Proof General is loaded.")
 
-
 ;; Added in PG 3.4: load isar-keywords file.
 ;; This roughly follows the method given in the interface script.
 ;; It could be used to add an elisp command at the bottom of
@@ -342,82 +364,85 @@ until Proof General is restarted."
 ;; NB: use of defpacustom here gives  separate customizable
 ;; options for Isabelle and Isabelle/Isar.
 
-;; In next release of Isabelle, these are set automatically via PGIP
-;; sent from Isabelle.  
-;; FIXME: should we add backward compatibility here?
+;; In latest release of Isabelle, these are set automatically via PGIP
+;; sent from Isabelle.
 
-;(defpacustom show-types  nil
-;  "Whether to show types in Isabelle."
-;  :type 'boolean
-;  :setting "show_types:=%b;")
+;; BEGIN backwards compatibility 
+(cond 
+ ((not isa-supports-pgip)
+(defpacustom show-types  nil
+  "Whether to show types in Isabelle."
+  :type 'boolean
+  :setting "show_types:=%b;")
 
-;(defpacustom show-sorts  nil
-;  "Whether to show sorts in Isabelle."
-;  :type 'boolean
-;  :setting "show_sorts:=%b;")
+(defpacustom show-sorts  nil
+  "Whether to show sorts in Isabelle."
+  :type 'boolean
+  :setting "show_sorts:=%b;")
 
-;(defpacustom show-consts  nil
-;  "Whether to show types of consts in Isabelle goals."
-;  :type 'boolean
-;  :setting "show_consts:=%b;")
+(defpacustom show-consts  nil
+  "Whether to show types of consts in Isabelle goals."
+  :type 'boolean
+  :setting "show_consts:=%b;")
 
-;(defpacustom long-names  nil
-;  "Whether to show fully qualified names in Isabelle."
-;  :type 'boolean
-;  :setting "long_names:=%b;")
+(defpacustom long-names  nil
+  "Whether to show fully qualified names in Isabelle."
+  :type 'boolean
+  :setting "long_names:=%b;")
 
-;(defpacustom eta-contract  t
-;  "Whether to print terms eta-contracted in Isabelle."
-;  :type 'boolean
-;  :setting "Syntax.eta_contract:=%b;")
+(defpacustom eta-contract  t
+  "Whether to print terms eta-contracted in Isabelle."
+  :type 'boolean
+  :setting "Syntax.eta_contract:=%b;")
 
-;(defpacustom trace-simplifier  nil
-;  "Whether to trace the Simplifier in Isabelle."
-;  :type 'boolean
-;  :setting "trace_simp:=%b;")
+(defpacustom trace-simplifier  nil
+  "Whether to trace the Simplifier in Isabelle."
+  :type 'boolean
+  :setting "trace_simp:=%b;")
 
-;(defpacustom trace-rules  nil
-;  "Whether to trace the standard rules in Isabelle."
-;  :type 'boolean
-;  :setting "trace_rules:=%b;")
+(defpacustom trace-rules  nil
+  "Whether to trace the standard rules in Isabelle."
+  :type 'boolean
+  :setting "trace_rules:=%b;")
 
-;(defpacustom quick-and-dirty  t
-;  "Whether to take a few short cuts occasionally."
-;  :type 'boolean
-;  :setting "quick_and_dirty:=%b;")
+(defpacustom quick-and-dirty  t
+  "Whether to take a few short cuts occasionally."
+  :type 'boolean
+  :setting "quick_and_dirty:=%b;")
 
-;(defpacustom full-proofs  nil
-;  "Whether to record full proof objects internally."
-;  :type 'boolean
-;  :setting "Library.error_fn := (fn _ => ()); Library.try (fn () => Context.use_mltext \"ProofGeneral.full_proofs %b;\" false Library.None) ();")
-;;FIXME should become "ProofGeneral.full_proofs %b;" next time
+(defpacustom full-proofs  nil
+  "Whether to record full proof objects internally."
+  :type 'boolean
+  :setting "Library.error_fn := (fn _ => ()); Library.try (fn () => Context.use_mltext \"ProofGeneral.full_proofs %b;\" false Library.None) ();")
+;FIXME should become "ProofGeneral.full_proofs %b;" next time
 
-;(defpacustom global-timing  nil
-;  "Whether to enable timing in Isabelle."
-;  :type 'boolean
-;  :setting "Library.timing:=%b;")
+(defpacustom global-timing  nil
+  "Whether to enable timing in Isabelle."
+  :type 'boolean
+  :setting "Library.timing:=%b;")
 
-;(if proof-experimental-features
-;(defpacustom theorem-dependencies nil
-;  "Whether to track theorem dependencies within Proof General."
-;  :type 'boolean
-;  :setting ("print_mode := ([\"thm_deps\"] @ ! print_mode);" .
-;	    "print_mode := (Library.gen_rems (op =) (! print_mode, [\"thm_deps\"]));")))
+(if proof-experimental-features
+(defpacustom theorem-dependencies nil
+  "Whether to track theorem dependencies within Proof General."
+  :type 'boolean
+  :setting ("print_mode := ([\"thm_deps\"] @ ! print_mode);" .
+	    "print_mode := (Library.gen_rems (op =) (! print_mode, [\"thm_deps\"]));")))
 
-;(defpacustom goals-limit  10
-;  "Setting for maximum number of goals printed in Isabelle."
-;  :type 'integer
-;  :setting "goals_limit:=%i;")
+(defpacustom goals-limit  10
+  "Setting for maximum number of goals printed in Isabelle."
+  :type 'integer
+  :setting "goals_limit:=%i;")
 
-;(defpacustom prems-limit  10
-;  "Setting for maximum number of premises printed in Isabelle/Isar."
-;  :type 'integer
-;  :setting "ProofContext.prems_limit:=%i;")
+(defpacustom prems-limit  10
+  "Setting for maximum number of premises printed in Isabelle/Isar."
+  :type 'integer
+  :setting "ProofContext.prems_limit:=%i;")
 
-;(defpacustom print-depth  10
-;  "Setting for the ML print depth in Isabelle."
-;  :type 'integer
-;  :setting "print_depth %i;")
+(defpacustom print-depth  10
+  "Setting for the ML print depth in Isabelle."
+  :type 'integer
+  :setting "print_depth %i;")))
+;; END backwards compatibility 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -510,11 +535,14 @@ the function `pg-remove-specials' can be used instead)."
 
 (defun isabelle-process-pgip (xmlstring)
   "Return an Isabelle or Isabelle/Isar command to process PGIP in XMLSTRING."
-  (let ((mlcmd (format "ProofGeneral.process_pgip(\"%s\");"
-		       (isabelle-xml-sml-escapes xmlstring))))
-    (if (eq proof-assistant-symbol 'isar)
-	(isar-markup-ml mlcmd)
-      mlcmd)))
+  (if isa-supports-pgip
+      (let ((mlcmd (format "ProofGeneral.process_pgip(\"%s\");"
+			   (isabelle-xml-sml-escapes xmlstring))))
+	(if (eq proof-assistant-symbol 'isar)
+	    (isar-markup-ml mlcmd)
+	  mlcmd))
+    "")) ;; Empty string in case called with non PGIP-aware Isabelle.
+
 
 (provide 'isabelle-system)
 ;; End of isabelle-system.el

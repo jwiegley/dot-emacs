@@ -2,8 +2,11 @@
 ;; Copyright (C) 1994-1998 LFCS Edinburgh.
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; Author:              David Aspinall <da@dcs.ed.ac.uk>
-;; Author / Maintainer: Markus Wenzel <wenzelm@in.tum.de>
+;; Maintainer:    Stefan Berghofer 
+;;
+;; Authors:       David Aspinall <da@dcs.ed.ac.uk>
+;;   	          Markus Wenzel <wenzelm@in.tum.de>
+;;
 ;;
 ;; $Id$
 ;;
@@ -220,7 +223,8 @@ See -k option for Isabelle interface script."
    ;; Would be nice to remove this somehow else, it's only used for 
    ;; Isar.  One way would be to hack the (now obsolete) defpacustom calls.
    ;; 
-   ;; proof-assistant-setting-format       'isar-markup-ml
+   proof-assistant-setting-format       
+   (unless isa-supports-pgip 'isar-markup-ml)
    proof-shell-init-cmd                 '(proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
@@ -230,8 +234,10 @@ See -k option for Isabelle interface script."
    ;; see isar-pre-shell-start for proof-shell-trace-output-regexp
 
    ;; Isabelle is learning to talk PGIP...
+   ;; FIXME: we need to be backwards compatible here
    proof-shell-match-pgip-cmd		"<pgip"
-   proof-shell-issue-pgip-cmd		'isabelle-process-pgip
+   proof-shell-issue-pgip-cmd		
+	(if isa-supports-pgip 'isabelle-process-pgip nil)
 
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
@@ -610,8 +616,10 @@ proof-shell-retract-files-regexp."
 
 (setq
  proof-xsym-activate-command
- (isar-markup-ml "print_mode := ([\"xsymbols\", \"symbols\"] @ ! print_mode)")
+ (isar-markup-ml 
+  "print_mode := ([\"xsymbols\", \"symbols\"] @ ! print_mode)")
  proof-xsym-deactivate-command
- (isar-markup-ml "print_mode := (Library.gen_rems (op =) (! print_mode, [\"xsymbols\", \"symbols\"]))"))
+ (isar-markup-ml 
+  "print_mode := (Library.gen_rems (op =) (! print_mode, [\"xsymbols\", \"symbols\"]))"))
 
 (provide 'isar)
