@@ -542,13 +542,15 @@ If `focus-follows-mouse' is non-nil, keyboard focus is left unchanged."
 ;; wrong with PG groups on Emacs 21.  (It works with 'customize
 ;; though).  We just disable it there. It's not worth this hassle.
 ;;
-(cond
- (proof-running-on-XEmacs
-  (defun pg-customize-menu-create (grp &optional name)
-    (list (customize-menu-create grp name))))
- (t
-  (defun pg-customize-menu-create (grp &optional name)
-    nil)))
+;; PG 3.5: this was used in proof-menu.el.  Things seem okay again 
+;; as of GNU Emacs 21.3.1.
+;; (cond
+;;  (proof-running-on-XEmacs
+;;   (defun pg-customize-menu-create (grp &optional name)
+;;     (list (customize-menu-create grp name))))
+;;  (t
+;;   (defun pg-customize-menu-create (grp &optional name)
+;;     nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
