@@ -1,35 +1,28 @@
 Index: coq/coqtags
 ===================================================================
 RCS file: /home/proofgen/src/ProofGeneral/coq/coqtags,v
-retrieving revision 4.2
-diff -c -r4.2 coqtags
-*** coq/coqtags	2000/05/25 19:42:55	4.2
---- coq/coqtags	2000/05/25 19:56:11
+retrieving revision 4.3
+diff -c -r4.3 coqtags
+*** coq/coqtags	2000/05/25 20:13:43	4.3
+--- coq/coqtags	2000/05/25 20:14:27
 ***************
-*** 1,8 ****
+*** 1,4 ****
 ! #!/usr/local/bin/perl
   #
-  # $Id: coqtags,v 4.2 2000/05/25 19:42:55 da Exp $
+  # $Id: coqtags,v 4.3 2000/05/25 20:13:43 da Exp $
   #
-- 
-  undef $/;
-  
-  if($#ARGV<$[) {die "No Files\n";}
---- 1,7 ----
+--- 1,4 ----
 ! #!/usr/bin/perl
   #
-  # $Id: coqtags,v 4.2 2000/05/25 19:42:55 da Exp $
+  # $Id: coqtags,v 4.3 2000/05/25 20:13:43 da Exp $
   #
-  undef $/;
-  
-  if($#ARGV<$[) {die "No Files\n";}
 Index: generic/proof-site.el
 ===================================================================
 RCS file: /home/proofgen/src/ProofGeneral/generic/proof-site.el,v
 retrieving revision 4.26
 diff -c -r4.26 proof-site.el
 *** generic/proof-site.el	2000/05/25 14:52:30	4.26
---- generic/proof-site.el	2000/05/25 19:56:12
+--- generic/proof-site.el	2000/05/25 20:14:27
 ***************
 *** 99,105 ****
     :group 'proof-general-internals)
@@ -53,7 +46,7 @@ RCS file: /home/proofgen/src/ProofGeneral/lego/legotags,v
 retrieving revision 4.2
 diff -c -r4.2 legotags
 *** lego/legotags	2000/05/25 19:42:55	4.2
---- lego/legotags	2000/05/25 19:56:12
+--- lego/legotags	2000/05/25 20:14:27
 ***************
 *** 1,4 ****
 ! #!/usr/local/bin/perl
