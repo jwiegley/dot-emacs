@@ -1562,7 +1562,7 @@ No action if BUF is nil."
 
 (defun proof-active-terminator-minor-mode (&optional arg)
   "Toggle Proof General's active terminator minor mode.
-With arg, turn on the Active Terminator minor mode if and only if arg
+With ARG, turn on the Active Terminator minor mode if and only if ARG
 is positive.
 
 If active terminator mode is enabled, pressing a terminator will automatically activate `proof-assert-next-command' for convenience."
