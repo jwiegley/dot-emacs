@@ -160,6 +160,14 @@ Internal changes for developers to note
    Added proof-shell-inform-file-processed-cmd setting to 
    tell the prover about files which are processed completely 
    inside Proof General.
+   This is called when scripting is turned off inside a completely
+   processed buffer.
+   Added proof-shell-inform-file-retracted-cmd setting for
+   symmetric case: to tell the prover when files which are to be
+   considered *not* completely processed inside Proof General.
+   The is called when scripting is turned on inside a completely
+   processed buffer (as the conceptual state of the buffer changes
+   to partly-processed).
 
 * Many code cleanups and improvements.
 
