@@ -57,6 +57,9 @@ A Usability enhancement:
     - Fix asymmetry between "doing" and "undoing": doing will skip comments,
       undoing will not.  e.g. test case: (* tester *) intros; 
 
+A Usability enhancement:
+    - Fix proof-script-command-separator and proof-one-command-per-line flag.
+
 C Compatibility enhancement:
     - Consider sending comments to proof process after all.  They might
       contain special (e.g. LaTeX) directives or something.

@@ -150,10 +150,20 @@ provers.  Enable it if it works for you."
   :type 'boolean 
   :group 'proof-general)
 
+;; FIXME: rationalize and combine next two
 (defcustom proof-one-command-per-line nil
   "*If non-nil, format for newlines after each proof command in a script.
 This option is not fully-functional at the moment."
   :type 'boolean
+  :group 'proof-general)
+
+
+(defcustom proof-script-command-separator " "
+  "*String separating commands in proof scripts.
+For example, if a proof assistant prefers one command per line, then 
+this string should be set to a newline.  Otherwise it should be
+set to a space."
+  :type 'string
   :group 'proof-general)
 
 (defcustom proof-rsh-command ""
