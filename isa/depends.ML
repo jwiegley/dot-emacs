@@ -70,15 +70,31 @@ fun new_thm_deps thms =
     val header = "Proof General, the theorem dependencies are: \"";
     val gra = map snd (Symtab.dest (fst (foldl make_deps_graph ((Symtab.empty, []),
       map (#2 o #der o Thm.rep_thm) thms))));
-    val deps = foldl (op@) ([],(map #parents gra))
+    val deps = sort_strings (foldl (op union) ([],(map #parents gra)))
     val msg = header ^ (space_implode " " deps) ^ "\""
   in priority msg end;
 
 val old_qed = qed;
-
-fun qed s = 
-  let val _ = old_qed s
-      val proved_thm = thm s
+fun qed name = 
+  let val _ = old_qed name
+      val proved_thm = thm name
    in new_thm_deps [proved_thm] end;
 
+val old_qed_goal = qed_goal;
+fun qed_goal name thy goal tacsf =
+  let val _ = old_qed_goal name thy goal tacsf
+      val proved_thm = thm name
+   in new_thm_deps [proved_thm] end;
 
+val old_qed_goalw = qed_goalw;
+fun qed_goalw name thy rews goal tacsf =
+  let val _ = old_qed_goalw name thy rews goal tacsf
+      val proved_thm = thm name
+   in new_thm_deps [proved_thm] end;
+
+(* FIXME: this one only in HOL?? *)
+val old_qed_spec_mp = qed_spec_mp;
+fun qed_spec_mp name = 
+  let val _ = old_qed_spec_mp name
+      val proved_thm = thm name
+   in new_thm_deps [proved_thm] end;
