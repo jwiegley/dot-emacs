@@ -7,3 +7,6 @@ Proof General now works under Windows with the following restrictions:
   tested with XEmacs cygwin or any other version)
 
 - Toolbar: enablers do not work so the buttons are always active
+
+
+[ Christoph Rafalli <Christophe.Raffalli@univ-savoie.fr>, 1.8.01 ]
