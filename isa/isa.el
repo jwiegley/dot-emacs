@@ -177,7 +177,7 @@ no regular or easily discernable structure."
    ;;        set somewhere else.  
    proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
 
-   proof-shell-start-goals-regexp	"\366"
+   proof-shell-start-goals-regexp	"\366\n"
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle by hacking print functions.
@@ -224,7 +224,7 @@ no regular or easily discernable structure."
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
    )
-  (add-hook 'proof-activate-scripting-hook 'isa-shell-hack-use-thy)
+  (add-hook 'proof-activate-scripting-hook 'isa-shell-update-thy)
   )
 
 
@@ -232,13 +232,13 @@ no regular or easily discernable structure."
 ;;; Theory loader operations
 ;;;
 
-(defcustom isa-usethy-notopml-command "update_thy_only \"%s\";"
-  "Sent to Isabelle to process theory for this ML file, and all ancestors."
-  :type 'string
-  :group 'isabelle-config)
-
-(defun isa-shell-hack-use-thy ()
-  "Possibly issue  use_thy_no_topml command to Isabelle.
+(defun isa-update-thy-only (file wait)
+  "Tell Isabelle to update current buffer's theory, and all ancestors."
+  (proof-shell-invisible-command
+   (format "update_thy_only \"%s\";" (file-name-sans-extension file)) wait))
+  
+(defun isa-shell-update-thy ()
+  "Possibly issue update_thy_only command to Isabelle.
 If the current buffer has an empty locked region, the interface is
 about to send commands from it to Isabelle.  This function sends
 a command to read any theory file corresponding to the current ML file.
@@ -254,18 +254,14 @@ This is a hook function for proof-activate-scripting-hook."
        buffer-file-name
        (file-exists-p 
 	(concat (file-name-sans-extension buffer-file-name) ".thy")))
-      ;; Send a use_thy command if there is a corresponding .thy file.
-      ;; Let Isabelle do the work of checking whether any work needs
-      ;; doing.  Really this should be force_use_thy, too.
-      ;; Wait after sending, so that queue is cleared for further commands.
-      ;; (there would be no harm in letting the queue be extended
-      ;; if it were allowed for).
+
+      ;; Send a update_thy_only command if there is a corresponding
+      ;; .thy file.  Let Isabelle do the work of checking whether any
+      ;; work needs doing.  Wait after sending, so that queue is
+      ;; cleared for further commands.
       (progn
-	(proof-shell-invisible-command
-	 (format isa-usethy-notopml-command
-		 (file-name-sans-extension buffer-file-name))
-	 t)
-	;; Leave the messages from the use around.
+	(isa-update-thy-only buffer-file-name t)
+	;; Leave the messages from the update around.
 	(setq proof-shell-erase-response-flag nil))
     ))
 
@@ -347,9 +343,7 @@ isa-proofscript-mode."
   "Process the theory file FILE.  If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
   (save-some-buffers)
-  (proof-shell-invisible-command 
-   (format isa-usethy-notopml-command
-	   (file-name-sans-extension file))))
+  (isa-update-thy-only file nil))
 
 (defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%s\";"
   "Sent to Isabelle to forget theory file and descendants.
@@ -362,7 +356,7 @@ Resulting output from Isabelle will be parsed by Proof General."
   (interactive (list buffer-file-name))
   (proof-shell-invisible-command
    (format isa-retract-thy-file-command
-	   (file-name-sans-extension file))))
+	   (file-name-nondirectory (file-name-sans-extension file)))))
 
 
 
@@ -573,27 +567,6 @@ Resulting output from Isabelle will be parsed by Proof General."
   (setq proof-prog-name		isabelle-prog-name)
   (setq proof-mode-for-shell    'isa-shell-mode)
   (setq proof-mode-for-pbp	'isa-pbp-mode))
-
-; FIXME: IMHO (tms) this ought to be defined in isa-syntax and not here.
-(defun isa-init-syntax-table ()
-  "Set appropriate values for syntax table in current buffer."
-  (modify-syntax-entry ?\$ ".")
-  (modify-syntax-entry ?\/ ".")
-  (modify-syntax-entry ?\\ ".")
-  (modify-syntax-entry ?+  ".")
-  (modify-syntax-entry ?-  ".")
-  (modify-syntax-entry ?=  ".")
-  (modify-syntax-entry ?%  ".")
-  (modify-syntax-entry ?<  ".")
-  (modify-syntax-entry ?>  ".")
-  (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?.  "w")
-  (modify-syntax-entry ?_  "w")
-  (modify-syntax-entry ?\' "w")
-  (modify-syntax-entry ?\| ".")
-  (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4"))
 
 (defun isa-mode-config ()
   (isa-mode-config-set-variables)
