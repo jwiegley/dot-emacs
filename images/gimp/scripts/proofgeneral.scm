@@ -48,7 +48,7 @@
 
 (define (script-fu-proofgeneral-make-all-buttons)
   (mapcar script-fu-proofgeneral-make-button
-	  '("goal" "next" "qed" "restart" "retract" "undo" "use" "state" "context" "info" "command" "find" "help" "interrupt")))
+	  '("goal" "next" "qed" "restart" "retract" "undo" "use" "state" "context" "info" "command" "find" "help" "interrupt" "goto")))
 
 (script-fu-register "script-fu-proofgeneral-make-all-buttons" 
 		    "<Toolbox>/Xtns/Script-Fu/Proof General/Make All Buttons"
