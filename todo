@@ -9,6 +9,20 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+B Remove dead code from all files.
+   da suggests maybe this stuff is defunct:
+    <coq|isa|lego>-save-query	      
+		  -shell-working-dir
+    coq-zap-line-width
+      (proof-shell-exit-hook value, not defined anywhere?)
+  (1hr)
+
+B Add support to proof.el for *not* setting variables for
+  commands which aren't supported by a prover.  For example,
+  in Isabelle there is no such thing as killing a goal.
+  For the minimum set of variables to cover, see FIXME's in isa.el
+  (1.5hrs)						   
+				    
 B Outsource script management features from proof.el to
   proof-script.el 		(1h)
 
@@ -17,8 +31,13 @@ A Write function proof-retract-file. (30min tms)
   proof-steal-process.
 
 B Improve documentation in proof.el to help porting/understanding 
-  Also add notes into script-management.texinfo
+  Also add notes into script-management.texinfo.
   (ongoing, da).
+
+B Fixup sources to follow Elisp conventions better.
+  The first line of documentation of functions and
+  variables should be a whole sentence.  See output of
+  hyper-apropos for why.   (1hr)
 
 A Update source documentation and manual, in particular document bugs
   and workarounds
@@ -94,6 +113,12 @@ B use proof buffer instead of response buffer and leave non-proof
 B Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name . (1h)
 
+B As well as duplicated variables, we also have duplicated modes,
+  which could be removed.  We never use proof-shell-mode, proof-mode,
+  pbp-mode, only the derived instances.
+  Shouldn't the generic interface directly *define* the derived
+  version required?   (1h to fix)
+
 
 * Proof-by-Pointing
 ===================
@@ -158,6 +183,34 @@ B Proof-by-Pointing (10h hhg)
 A Add coq-add-tactic with a tactic name, which adds that tactic to the 
   undoable tactics and to the font-lock. (2h hhg)
 
+
+* Here are things to be done to Isabelle Mode
+=============================================
+
+A Get basic features working:
+    proof state extraction  -- okay.
+    undo		    -- needs work.
+
+	  	Check these things:
+
+     abort-goal-regexp
+
+B Write perl scripts to generate TAGS file for ML and thy files.
+  (6h, I've completely forgotten perl)
+
+B Add useful specific commands for Isabelle.  Many could
+  be added.  Would be better to merge in Isamode's menus.
+  (probably a week's work to bring together Isamode and proof.el,
+   making some of Isamode generic)
+
+B Add ability to choose logic.  Maybe not necessary: can use default
+  set in Isabelle settings nowadays, in the premise that most people
+  stick to a particular logic?   But then no support for loading
+  user-saved databases.
+  (ponder this)
+
+	 
+
 * Emacs19
 =========
 
@@ -172,11 +225,12 @@ A remove CVS history in all files
 
 A extend Copyright to 1998
 
-A Release Number 2.0
+A fix INSTALL file, add COPYING note
 
-A Make ready for distribution: fix INSTALL file, add COPYING note
-  and write Makefile to build documentation formats and generate distributable
-  tar.gz file, tag sources with release version.  Perhaps add subdirectories
-  doc/ elisp/ misc/ ?
-  (2h, da willing)
+A write Makefile targets to build documentation formats
+  and generate distributable tar.gz file, tag sources
+  with release version.  Perhaps add subdirectories
+  doc/ etc/ proof/ coq/ lego/ isabelle/
+  (3h, da moderately willing to do the dirty work)
+
 
