@@ -1,0 +1,11 @@
+Developers' Notes about Web Pages
+---------------------------------
+
+Suggestions for improving web pages after Rod reading them:
+
+  - slideshow rather than single screen shot
+  - separate feature list
+  - explain what a proof script is and what script management buys you
+
+Get Dave a laptop to do demos on!
+
