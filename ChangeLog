@@ -1,5 +1,45 @@
 2001-08-10  David Aspinall  <da@proofgeneral.org>
 
+	* CHANGES: Explain symptom properly
+
+	* generic/proof-script.el:
+	Use proof-looking-at-syntactic-context function from proof-syntax, as suggested by Markus
+
+	* generic/proof-syntax.el:
+	Found another instance of buffer-syntactic-context
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Put all in dist except pgkit
+
+	* README:
+	Rearrange list of assistants, note REGISTER.
+
+	* FAQ: Remove note about 3.1
+
+	* BUGS: Comment about win32 XEmacs
+
+	* generic/proof-compat.el:
+	Workaround for buffer-syntactic-context bug in XEmacs 21.1
+
+	* generic/proof-script.el, isar/isar.el:
+	Change buffer-syntactic-context -> proof-buffer-syntactic-context
+
+	* etc/isar/XEmacsSyntacticContextProb.thy:
+	Bug test case, note workaround date
+
+	* etc/isar/XEmacsSyntacticContextProb.thy:
+	Bug test case
+
+	* CHANGES:
+	Note of bug fix for buffer-syntactic-context
+
+2001-08-10  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
