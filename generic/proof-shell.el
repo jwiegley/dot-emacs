@@ -1217,27 +1217,17 @@ Assume proof-script-buffer is active."
   ;; 'format' which could appear in STR.
   (message "%s" (concat "[" proof-assistant "] " str)))
 
-;; FIXME: highlight eager annotation-end : fix proof-shell-handle-output
-;; to highlight whole string.
-;; FIXME da: this function seems to be dead
-(defun proof-shell-popup-eager-annotation ()
-  "Process urgent messages.
-Eager annotations are annotations which the proof system produces
-while it's doing something (e.g. loading libraries) to say how much
-progress it's made. Obviously we need to display these as soon as they
-arrive."
-  (let ((str (proof-shell-handle-output
-	      proof-shell-eager-annotation-start
-	      proof-shell-eager-annotation-end
-	      'proof-eager-annotation-face))
-    (proof-shell-message str))))
-
 (defun proof-shell-process-urgent-message (message)
   "Analyse urgent MESSAGE for various cases.
-Included file, retracted file, cleared response buffer, or
-if none of these apply, display."
-
-  (cond
+Cases are: included file, retracted file, cleared response buffer, or
+if none of these apply, display it."
+  (save-excursion
+    (set-buffer (get-buffer-create "ug"))
+    (goto-char (point-max))
+    (insert "Hello!")
+    (insert message)
+    (newline))
+    (cond
    ;; Is the prover processing a file?
    ;; FIXME da: this interface is quite restrictive: might be
    ;; useful for one message to name several files, or include
@@ -1351,7 +1341,7 @@ if none of these apply, display."
 
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
-Scanning starts from proof-shell-urgent-message-marker and handles
+Scanning starts from proof-shell-urgent-message-scanner and handles
 strings between regexps eager-annotation-start and eager-annotation-end.
 
 Note that we must search the buffer rather than the chunk of output
@@ -1359,34 +1349,50 @@ being filtered process because we have no guarantees about where
 chunks are broken: it may be in the middle of an annotation.
 
 This is a subroutine of proof-shell-filter."
-  (let ((pt (point)) end start)
+  (let ((pt (point)) (end t) lastend start)
     (goto-char (marker-position proof-shell-urgent-message-scanner))
-    (while (re-search-forward proof-shell-eager-annotation-start nil 'end)
+    (while (and end
+		(re-search-forward proof-shell-eager-annotation-start nil 'end))
       (setq start (match-beginning 0))
       (if (setq end
 		(re-search-forward proof-shell-eager-annotation-end nil t))
-	  (proof-shell-process-urgent-message
-	   (proof-shell-strip-special-annotations 
-	    (buffer-substring start end)))))
-    ;; Set the marker to the end of the last message found, if any.
-    ;; Must take care to keep the marger behind the process marker
-    ;; otherwise no output is seen!  (insert-before-markers in comint)
-    (if end
+	  ;; Process the text including annotations (stripped if specials)
+	  (save-excursion
+	    (setq lastend end)
+	    (proof-shell-process-urgent-message
+	     (proof-shell-strip-special-annotations 
+	      (buffer-substring start end))))))
+    ;; Set the marker to the (character after) the end of the last
+    ;; message found, if any.  Must take care to keep the marker
+    ;; behind the process marker otherwise no output is seen!
+    ;; (insert-before-markers in comint)
+    ;; FIXME: maybe we don't need to be as careful as these three checks?
+    (if lastend
 	(set-marker
 	 proof-shell-urgent-message-marker
-	 (min end
+	 (min lastend
 	      (1- (process-mark (get-buffer-process (current-buffer)))))))
-    ;; Now set the scanner marker to the limit of the last search,
-    ;; less the maximal length of the annotation.   This is an optimization
-    ;; to avoid searching the same bit of text over and over, but it
-    ;; requires that we know the maximum possible length of an annotation
-    ;; to avoid missing them.
-    ;; FIXME hardwired annotation length=5 in here: should be a user
-    ;; option.
-    (set-marker
-     proof-shell-urgent-message-scanner
-     (min (- (point) proof-shell-eager-annotation-start-length)
+    ;; Now an optimization to avoid searching the same bit of text
+    ;; over and over.  But it requires that we know the maximum
+    ;; possible length of an annotation to avoid missing them.
+    (if end
+	;; If the search for the starting annotation was unsuccessful,
+	;; set the scanner marker to the limit of the last search for
+	;; the starting annotation, less the maximal length of the
+	;; annotation.
+	(set-marker
+	 proof-shell-urgent-message-scanner
+	 (min
+	  (- (point) proof-shell-eager-annotation-start-length)
 	  (1- (process-mark (get-buffer-process (current-buffer))))))
+      ;; Otherwise, the search for the ending annotation was
+      ;; unsuccessful, so we set the scanner marker to the start of
+      ;; the annotation found.
+      (set-marker
+       proof-shell-urgent-message-scanner
+       (min
+	start
+	(1- (process-mark (get-buffer-process (current-buffer)))))))
     (goto-char pt)))
 
 	    
@@ -1549,8 +1555,7 @@ output."
   "Set display values of annotations in BUFFER to be invisible.
 
 Annotations are characters 128-255."
-  (save-excursion
-    (set-buffer (or buffer (current-buffer)))
+  (with-current-buffer (or buffer (current-buffer))
     (let ((disp (make-display-table))
 	  (i 128))
       (while (< i 256)
@@ -1560,6 +1565,13 @@ Annotations are characters 128-255."
 	     (add-spec-to-specifier current-display-table disp (current-buffer)))
 	    ((boundp 'buffer-display-table)
 	     (setq buffer-display-table disp))))))
+
+;; This is for debugging only.  XEmacs only.
+(defun proof-shell-show-annotations ()
+  "Remove display table specifier from current buffer."
+  (remove-specifier current-display-table (current-buffer)))
+
+  
 
 
 ;;

@@ -52,6 +52,11 @@ re-enabled), proof-toggle-scripting, new configuration options.
     - noticeable delay when loading ML files for Isabelle (fontification?)
     - clean up assert-until-point stuff at last!
 
+C Add binding for proof info function to help menu.
+
+D Why don't PG's minor modes appear on XEmacs minor mode menu?
+  (C-right on status bar)
+
 A Markus's bug reminder list:
   - cut&paste from hilited Isabelle output includes invisible specials;
   - c-c c-c does not work reliably;

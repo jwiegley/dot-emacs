@@ -15,3 +15,20 @@
 	   (tgfn (if i (intern (concat (substring nm 0 i) "-toggle")))))
       (if (and tgfn (fboundp tgfn))
 	  (funcall tgfn (if value 1 0))))))
+
+
+;; Was in proof-shell.el
+(defun proof-shell-popup-eager-annotation ()
+  "Process urgent messages.
+Eager annotations are annotations which the proof system produces
+while it's doing something (e.g. loading libraries) to say how much
+progress it's made. Obviously we need to display these as soon as they
+arrive."
+;; FIXME: highlight eager annotation-end : fix proof-shell-handle-output
+;; to highlight whole string.
+  (let ((str (proof-shell-handle-output
+	      proof-shell-eager-annotation-start
+	      proof-shell-eager-annotation-end
+	      'proof-eager-annotation-face))
+    (proof-shell-message str))))
+
