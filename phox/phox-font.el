@@ -16,7 +16,7 @@
        "I\\(mport\\|nductive\\)\\|"
        "Use\\|"
        "Sort\\|"
-       "new_\\(intro\\|elim\\|rewrite\\)\\|"
+       "new_\\(intro\\|e\\(lim\\|quation\\)\\|rewrite\\)\\|"
        "a\\(dd_path\\|uthor\\)\\|"
        "c\\(l\\(aim\\|ose_def\\)\\|or\\(ollary\\)?\\)\\|"
        "d\\(e\\(f\\(_thlist\\)?\\|l\\(_proof\\)\\)\\|ocuments\\|epend\\)\\|"

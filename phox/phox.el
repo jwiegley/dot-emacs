@@ -108,14 +108,14 @@
    proof-script-comment-end               "*)"
    proof-state-command             "goals."
    proof-goal-command-regexp       
-    "\\`\\(goal[ \t\n\r]\\|pro\\(p\\(osition\\)?\\|ve_claim\\)\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
+    "\\`\\(Local[ \t\n\r]+\\)?\\(goal[ \t\n\r]\\|pro\\(p\\(osition\\)?\\|ve_claim\\)\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
    proof-save-command-regexp       "\\`save"
    proof-goal-with-hole-regexp  
    (concat 
-    "\\`\\(pro\\(p\\(osition\\)?\\|ve_claim\\)\\(osition\\)?\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
+    "\\`\\(Local[ \t\n\r]+\\)?\\(pro\\(p\\(osition\\)?\\|ve_claim\\)\\(osition\\)?\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
     phox-strict-comments-regexp
     phox-ident-regexp)
-   proof-goal-with-hole-result     15
+   proof-goal-with-hole-result     16
    proof-save-with-hole-regexp     
    (concat 
     "\\`save"
@@ -206,7 +206,10 @@
    font-lock-keywords (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
-  (add-hook 'proof-shell-handle-delayed-output-hook 'phox-sym-lock-font-lock-hook)
+  (if (and (featurep 'phox-sym-lock) phox-sym-lock)
+      (add-hook 'proof-shell-handle-delayed-output-hook 
+		'phox-sym-lock-font-lock-hook)
+    )
   (proof-response-config-done))
 
 (define-derived-mode phox-goals-mode proof-goals-mode
@@ -215,7 +218,9 @@
    font-lock-keywords  (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
-  (add-hook 'pg-before-fontify-output-hook 'phox-sym-lock-font-lock-hook)
+  (if (and (featurep 'phox-sym-lock) phox-sym-lock)
+      (add-hook 'pg-before-fontify-output-hook 
+		'phox-sym-lock-font-lock-hook))
   (proof-goals-config-done))
 
 ;; The response buffer and goals buffer modes defined above are

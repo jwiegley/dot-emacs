@@ -6,7 +6,7 @@
  phox-forget-proof-command "del_proof %s.\n"
  phox-forget-new-elim-command "edel elim %s.\n"
  phox-forget-new-intro-command "edel intro %s.\n"
- phox-forget-new-rewrite-command "edel rewrite %s.\n"
+ phox-forget-new-equation-command "edel equation %s.\n"
  phox-forget-close-def-command "edel closed %s.\n"
 ; phox-comments-regexp : a sequence of comments and white spaces
  phox-comments-regexp "[ \n\t\r]*\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*"
@@ -54,6 +54,9 @@
  phox-new-rewrite-regexp (concat
    "new_rewrite\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
    phox-ident-regexp)
+ phox-new-equation-regexp (concat
+   "new_equation\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
+   phox-ident-regexp)
  phox-close-def-regexp (concat
    "close_def"
    phox-comments-regexp
@@ -95,6 +98,7 @@ or for optional argument TABLE."
 "edel"
 "new_elim"
 "new_intro"
+"new_equation"
 "new_rewrite"
 "Data"
 "Inductive"
@@ -190,9 +194,14 @@ or for optional argument TABLE."
 	      (concat (format phox-forget-new-intro-command 
 				  (match-string 3 str)) ans)))
 
-       ((proof-string-match phox-new-rewrite-regexp str)
+       ((proof-string-match phox-new-rewrite-regexp str) ; deprecated
 	(setq ans 
-	      (concat (format phox-forget-new-rewrite-command 
+	      (concat (format phox-forget-new-equation-command 
+				  (match-string 3 str)) ans)))
+
+       ((proof-string-match phox-new-equation-regexp str)
+	(setq ans 
+	      (concat (format phox-forget-new-equation-command 
 				  (match-string 3 str)) ans)))
 
        ((proof-string-match phox-close-def-regexp str)
@@ -268,12 +277,12 @@ Gives the list of all axioms which have been used to prove the theorem."
   "Interactive function : 
 ask for a string and send an eshow command to PhoX for it. 
 
-Shows the given extension-list.  Possible extension lists are : rewrite
-(the list of rewriting rules introduced by the new_rewrite command),
-elim, intro, (the introduction and elimination rules introduced by the
-new_elim and new_intro {-t} commands), closed (closed definitions
-introduced by the close_def command) and tex (introduced by the
-tex_syntax command)."
+Shows the given extension-list.  Possible extension lists are : equation
+(the list of equations added to unification introduced by the new_equation
+command), elim, intro, (the introduction and elimination rules
+introduced by the new_elim and new_intro {-t} commands), closed
+(closed definitions introduced by the close_def command) and tex
+(introduced by the tex_syntax command)."
 
 (interactive "sextension list: ")
 (proof-shell-invisible-command (concat "eshow " extlist)))
