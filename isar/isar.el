@@ -147,6 +147,7 @@ See -k option for Isabelle interface script."
    proof-save-with-hole-regexp  nil
    proof-script-next-entity-regexps isar-next-entity-regexps
    proof-script-imenu-generic-expression isar-generic-expression
+   imenu-syntax-alist isar-script-syntax-table-alist
 
    proof-indent-enclose-offset  (- proof-indent)
    proof-indent-open-offset     0

@@ -15,44 +15,61 @@
 
 ;; ----- character syntax
 
-(defun isar-init-syntax-table ()
-  "Set appropriate values for syntax table in current buffer."
-  (modify-syntax-entry ?\$ ".")
-  (modify-syntax-entry ?\/ ".")
-  (modify-syntax-entry ?\\ "w")
-  (modify-syntax-entry ?+  ".")
-  (modify-syntax-entry ?-  ".")
-  (modify-syntax-entry ?=  ".")
-  (modify-syntax-entry ?%  ".")
-  (modify-syntax-entry ?<  "w")
-  (modify-syntax-entry ?>  "w")
-  (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?.  "w")
-  (modify-syntax-entry ?_  "w")
-  (modify-syntax-entry ?\' "w")
-  (modify-syntax-entry ??  "w")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4")
-  (cond
-   (proof-running-on-XEmacs
-    ;; We classify {* sequences *} as comments, although
-    ;; they need to be passed as command args as text.
-    ;; NB: adding a comment sequence b seems to break
-    ;; buffer-syntactic-context, best to use emulated 
-    ;; version.
-    (modify-syntax-entry ?\{ "(}5")
-    (modify-syntax-entry ?\} "){8")
-    (modify-syntax-entry ?\* ". 2367"))
+(defconst isar-script-syntax-table-entries 
+  (append
+       '(?\$ "." ?\/ "."
+	 ?\\ "w"
+	 ?+  "."
+	 ?-  "."
+	 ?=  "."
+	 ?%  "."
+	 ?<  "w"
+	 ?>  "w"
+	 ?\& "."
+	 ?.  "w"
+	 ?_  "w"
+	 ?\' "w"
+	 ??  "w"
+	 ?\( "()1"
+	 ?\) ")(4")
+   (cond
+    (proof-running-on-XEmacs
+     ;; We classify {* sequences *} as comments, although
+     ;; they need to be passed as command args as text.
+     ;; NB: adding a comment sequence b seems to break
+     ;; buffer-syntactic-context, best to use emulated 
+     ;; version.
+    '(?\{ "(}5"
+      ?\} "){8"
+      ?\* ". 2367"))
     ;; previous version confuses the two comment sequences,
     ;; but works with buffer-syntactic-context.
-    ;;(modify-syntax-entry ?\{ "(}1")
-    ;;(modify-syntax-entry ?\} "){4")
-    ;;(modify-syntax-entry ?\* ". 23"))
-   (proof-running-on-Emacs21
-    (modify-syntax-entry ?\{ "(}1b")
-    (modify-syntax-entry ?\} "){4b")
-    (modify-syntax-entry ?\* ". 23n"))))
+    ;;(?\{ "(}1")
+    ;;(?\} "){4")
+    ;;(?\* ". 23"))
+    (proof-running-on-Emacs21
+     '(?\{ "(}1b"
+       ?\} "){4b"
+       ?\* ". 23n"))))
+   "Syntax table entries for Isar scripts.
+This list is in the right format for proof-easy-config.")
 
+(defconst isar-script-syntax-table-alist
+  ;; NB: this is used for imenu.  Probably only need word syntax
+  (let ((syn isar-script-syntax-table-entries)
+	al)
+    (while syn
+      (setq al (cons (cons (char-to-string (car syn)) (cadr syn)) al))
+      (setq syn (cddr syn)))
+    al))
+
+(defun isar-init-syntax-table ()
+  "Set appropriate values for syntax table in current buffer."
+  (let ((syn isar-script-syntax-table-entries))
+    (while syn
+      (modify-syntax-entry 
+       (car syn) (cadr syn))
+      (setq syn (cddr syn)))))
 
 (defun isar-init-output-syntax-table ()
   "Set appropriate values for syntax table for Isabelle output."
@@ -425,6 +442,7 @@
 ;; da: I've removed unnamed entities, they clutter the menu 
 ;; NB: to add back, need ? at end of isar-any-entity-regexp
 ;;	(list isar-unnamed-entity-regexp 1)))
+;; Might also remove heading
 
 (defconst isar-generic-expression
   (mapcar (lambda (kw) 
