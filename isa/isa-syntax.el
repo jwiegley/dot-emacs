@@ -125,8 +125,14 @@
 (defconst isa-save-with-hole-regexp
   (concat "\\(" (ids-to-regexp isa-keywords-save)
 	  "\\)\\s-+\\(" isa-id "\\)\\s-*\."))
-(defconst isa-goal-command-regexp
-  (concat "^" (ids-to-regexp isa-keywords-goal)))
+
+;; FIXME: where?
+(defcustom isa-goal-command-regexp
+  (concat "^" (ids-to-regexp isa-keywords-goal))
+  "Regular expression used to match a goal."
+  :type 'regexp
+  :group 'isabelle-config)
+
 (defconst isa-goal-with-hole-regexp
   (concat "\\(" (ids-to-regexp isa-keywords-goal)
 	  "\\)\\s-+\\(" isa-id "\\)\\s-*:"))

@@ -42,6 +42,12 @@
 ;;; ======== User settings for Isabelle ========
 ;;;
 
+;;; proof-site provides us with the cusomization groups
+;;;
+;;; 'isabelle         -  User options for Isabelle Proof General
+;;; 'isabelle-config  -  Configuration of Isabelle Proof General
+;;;			 (constants, but may be nice to tweak)
+
 (defcustom isabelle-prog-name "isabelle"
   "*Name of program to run Isabelle."
   :type 'file
@@ -60,9 +66,6 @@ no regular or easily discernable structure."
   "URL of web page for Isabelle."
   :type 'string
   :group 'isabelle)
-  
-  
-  
 
 ;;;
 ;;; ======== Configuration of generic modes ========
@@ -71,12 +74,17 @@ no regular or easily discernable structure."
 ;; ===== outline mode
 
 ;;; FIXME: test and add more things here
-(defvar isa-outline-regexp
+(defcustom isa-outline-regexp
   (ids-to-regexp '("goal" "Goal" "prove_goal"))
-  "Outline regexp for Isabelle ML files")
+  "Outline regexp for Isabelle ML files"
+  :type 'regexp
+  :group 'isabelle-config)
 
 ;;; End of a command needs parsing to find, so this is approximate.
-(defvar isa-outline-heading-end-regexp ";[ \t\n]*")
+(defcustom isa-outline-heading-end-regexp ";[ \t\n]*"
+  "Outline heading end regexp for Isabelle ML files."
+  :type 'regexp
+  :group 'isabelle-config)
 
 ;; FIXME: not sure about this one
 (defvar isa-shell-outline-regexp "\370[ \t]*\\([0-9]+\\)\\.")
@@ -125,33 +133,28 @@ no regular or easily discernable structure."
 (defun isa-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle."
   (setq
-   ;; This first pattern is crucial.
-   ;; It should match the 'top-level' prompt from ML,
-   ;; optionally proceeded by vacuous assignment output.
-   ;;
-   ;; It doesn't match the tracing output prompt or secondary
-   ;; prompts (continued lines), although these would usually
-   ;; be nice for comint-prompt-regexp to work.
-   ;; 
-   ;; Probably it isn't general enough for all MLs, please send me
-   ;; problem reports / patches.
-   ;;
+   proof-shell-first-special-char	?\360
+
    proof-shell-annotated-prompt-regexp  "\372>"
-   ;; non annotation, with val it's: "^\\(val it = () : unit\n\\)?> "
+   ;; non-annotation, with val it's: "^\\(val it = () : unit\n\\)?> "
 
    ;; This pattern is just for comint, it matches a range of
    ;; prompts from a range of MLs.
    proof-shell-prompt-pattern		"^2?[-=#>]>? *"
 
+   ;; for issuing command, not used to track cwd in any way.
    proof-shell-cd			"cd \"%s\";"
    proof-shell-proof-completed-regexp   "No subgoals!"
+
    ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-error-regexp		"^.*Error:\\|^\\*\\*\\*"
    proof-shell-interrupt-regexp         "Interrupt"
    
    ;; nothing appropriate for: proof-shell-abort-goal-regexp
+
    ;; proof-shell-noise-regexp isn't used anywhere at the moment.
    proof-shell-noise-regexp	        "val it = () : unit\n"
+
    ;; matches names of assumptions
    proof-shell-assumption-regexp	isa-id
    ;; matches subgoal name
@@ -173,7 +176,6 @@ no regular or easily discernable structure."
    ;; could be last bracket on end of line, or with ### and ***.
 
    ;; === ANNOTATIONS  === ones below here are broken
-   proof-shell-first-special-char	?\360
    proof-shell-result-start	        "\372 Pbp result \373"
    proof-shell-result-end		"\372 End Pbp result \373"
    proof-analyse-using-stack		t
@@ -198,17 +200,21 @@ no regular or easily discernable structure."
   (add-hook 'proof-activate-scripting-hook 'isa-shell-hack-use-thy)
   )
 
-;; We use the top level theory and then force an update, both to fix
-;; up Isabelle's messy dependency handling and to recache the
-;; list of loaded files inside emacs.
-(defconst isa-usethy-notopml-command "use_thy_and_update \"%s\";"
-  "Command to send to Isabelle to process theory for this ML file.")
 
-;; Unfortunately, use_thy_no_topml followed by update(); doesn't work
-;; for *theory* files, because update() will report that the ML file
-;; 
-(defconst isa-usethy-command "use_thy \"%s\"; update();"
-  "Command to send to Isabelle to process a theory file.")
+;;;
+;;;  use_thy and friends.
+;;;
+;;; Quite tricky to get these right.  By default, Isabelle's
+;;; theory loader glues together theory and ML files whenever
+;;; it can, but that's not what we want here.
+;;;
+;;; So we rely on some hacked versions.
+;;;
+
+(defcustom isa-usethy-notopml-command "use_thy_and_update \"%s\";"
+  "Sent to Isabelle to process theory for this ML file, and all ancestors."
+  :type 'string
+  :group 'isabelle-config)
 
 (defun isa-shell-hack-use-thy ()
   "Possibly issue  use_thy_no_topml command to Isabelle.
@@ -293,9 +299,6 @@ isa-proofscript-mode."
 (define-key map "\C-c\C-b" 'isa-process-thy-file)
 (define-key map "\C-c\C-u" 'isa-retract-thy-file)))
 
-
-;; NB: could chose to use top ml command as well here.
-
 (defun isa-process-thy-file (file)
   "Process the theory file FILE.  If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
@@ -303,14 +306,23 @@ isa-proofscript-mode."
    (format isa-usethy-notopml-command
 	   (file-name-sans-extension file))))
 
-(defconst isa-retract-file-command "ProofGeneral.retract_file \"%s\";"
-  "Command sent to Isabelle for forgetting")
+(defcustom isa-retract-thy-file-command "ProofGeneral.retract_thy_file \"%s\";"
+  "Sent to Isabelle to forget theory file and descendants.
+Resulting output from Isabelle will be parsed by Proof General."
+  :type 'string
+  :group 'isabelle-config)
+
+(defcustom isa-retract-ML-file-command "ProofGeneral.retract_ML_file \"%s\";"
+  "Sent to Isabelle to forget ML file and descendants.
+Resulting output from Isabelle will be parsed by Proof General."
+  :type 'string
+  :group 'isabelle-config)
 
 (defun isa-retract-thy-file (file)
   "Retract the theory file FILE. If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
   (proof-shell-invisible-command
-   (format isa-retract-file-command
+   (format isa-retract-thy-file-command
 	   (file-name-sans-extension file))))
 
 
@@ -340,9 +352,11 @@ isa-proofscript-mode."
 
 ;; FIXME: think about the next variable.  I've changed sense from
 ;;  LEGO and Coq's treatment.
-(defconst isa-not-undoable-commands-regexp
+(defcustom isa-not-undoable-commands-regexp
   (ids-to-regexp '("undo" "back"))
-  "Regular expression matching commands which are *not* undoable.")
+  "Regular expression matching commands which are *not* undoable."
+  :type 'regexp
+  :group 'isabelle-config)
 
 ;; This next function is the important one for undo operations.
 (defun isa-count-undos (span)
@@ -395,7 +409,7 @@ isa-proofscript-mode."
     (goto-char (point-max))
     (skip-chars-backward " \t\n") 
     (if (>= (proof-unprocessed-begin) (point))
-	(format isa-retract-file-command 
+	(format isa-retract-ML-file-command 
 		(file-name-sans-extension 
 		 (file-name-nondirectory
 		  (buffer-file-name))))

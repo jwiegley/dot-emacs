@@ -20,7 +20,8 @@ sig
    val kill_goal : unit -> unit
    val help : unit -> unit
    val show_context : unit -> unit
-   val retract_file : string -> unit
+   val retract_ML_file : string -> unit
+   val retract_thy_file : string -> unit
    val repeat_undo : int -> unit
 end
 
@@ -37,10 +38,9 @@ structure ProofGeneral =
     (*  Function used internally by Proof General to track
         dependencies between theory and ML files. *)
 
-    (* This retracts a script file and all it's theory/script children,
-       but not it's parent theory. *)
-    fun retract_file1 not_thy thy =
-     let fun file_msg x = if (x <> "") then
+    fun retract_file1 not_thy filename =
+     let val (path, tname) = split_filename filename
+         fun file_msg x = if (x <> "") then
 			writeln ("Proof General, you can unlock the file "
 			     ^ (quote x))
 	               else ()
@@ -61,11 +61,21 @@ structure ProofGeneral =
 	     val present = filter (is_some o get_thyinfo) children;
           in filter already_loaded present end
       in      
-       if already_loaded thy then
-	 (show_msgs thy; map (retract_file1 false) (children_loaded thy); ())
+       if already_loaded tname then
+	 (show_msgs tname; 
+	  map (retract_file1 false) (children_loaded tname); ())
        else ()
    end;
-   val retract_file = retract_file1 true;
+
+   (* retract a script file and all it's theory/script children,
+       but not it's parent theory. *)
+
+   val retract_ML_file = retract_file1 true;
+
+   (* retract a theory file and all it's theory/script children *)
+
+   val retract_thy_file = retract_file1 false;
+   
 
    fun repeat_undo 0 = ()
      | repeat_undo n = (undo(); repeat_undo (n-1));
@@ -111,7 +121,21 @@ fun list_loaded_files () =
   end;
 
 (* Temporary hack. *)
-fun use_thy_and_update thy = (use_thy_no_topml thy; update(); list_loaded_files());
+(* 
+ NB: this has bad behaviour because update will force loading of
+   the theory file if used again later.  Need a test case for 
+   this, and to fix it.
+*)
+
+(* 
+ Possible alternative: parse "children are out of date"
+ message, and unlock those ones (plus descendants).
+ This seems feasible, but use_thy ought to do update
+ anyway, I think. 
+*)
+
+fun use_thy_and_update thy = 
+  (use_thy_no_topml thy; update(); list_loaded_files());
 
    
 
