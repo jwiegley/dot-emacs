@@ -113,7 +113,7 @@ function small_header($title) {
 function small_header_body($title) {
   include('smallheader.phtml'); 
   print "<h1>" . $title . "</h1>\n</td>\n</table>\n";
-  print "<p>";  /* FIXME: hack to get CSS to work with bad HTML from texi2html */
+/*  print "<p>";  FIXME: hack to get CSS to work with bad HTML from texi2html */
 }
 
 /* FIXME: improve this function */
@@ -224,7 +224,7 @@ function hack_html($filename,$title="")  {
 	} else { print "<A " . $linebits[2] . $linebits[3]; }
      };
      /* Hack on a header and footer */
-     if (eregi("<BODY>",$line)) { 
+     if (eregi("<BODY.*>",$line)) { 
        /* Assume there's nothing else interesting on the line, whoops. */
        print $line;
        small_header_body($title);
