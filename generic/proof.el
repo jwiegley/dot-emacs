@@ -8,10 +8,13 @@
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
 
+(require 'proof-site)
+
+; FIXME: I think some of these should be autoloaded (etags,...)
 (require 'cl)
 (require 'compile)
 (require 'comint)
-(require 'etags)
+(require 'etags)			
 (cond ((fboundp 'make-extent) (require 'span-extent))
       ((fboundp 'make-overlay) (require 'span-overlay))
       (t nil))
