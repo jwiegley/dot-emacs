@@ -60,7 +60,9 @@
 (defvar x-symbol-hol98-electric-ignore nil)
 (defvar x-symbol-hol98-required-fonts nil)
 (defvar x-symbol-hol98-case-insensitive nil)
-(defvar x-symbol-hol98-token-shape nil)
+;; Setting token shape prevents "philosophy" example, but still
+;; problems, e.g. delphi, false1.  (Pierre)
+(defvar x-symbol-hol98-token-shape '(?_ "[A-Za-z]+" . "[A-Za-z_]"))
 (defvar x-symbol-hol98-table x-symbol-hol98-symbol-table)
 (defun x-symbol-hol98-default-token-list (tokens) tokens)
 (defvar x-symbol-hol98-token-list 'x-symbol-hol98-default-token-list)

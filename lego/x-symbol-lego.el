@@ -57,7 +57,9 @@
 (defvar x-symbol-lego-electric-ignore nil)
 (defvar x-symbol-lego-required-fonts nil)
 (defvar x-symbol-lego-case-insensitive nil)
-(defvar x-symbol-lego-token-shape nil)
+;; Setting token shape prevents "philosophy" example, but still
+;; problems, e.g. delphi, false1.  (Pierre)
+(defvar x-symbol-lego-token-shape '(?_ "[A-Za-z]+" . "[A-Za-z_]"))
 (defvar x-symbol-lego-table x-symbol-lego-symbol-table)
 (defun x-symbol-lego-default-token-list (tokens) tokens)
 (defvar x-symbol-lego-token-list 'x-symbol-lego-default-token-list)
