@@ -77,7 +77,7 @@
   "*The prompt pattern for the inferior shell running coq.")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
-(defvar coq-shell-cd "Cd \"%s\""
+(defvar coq-shell-cd "Cd \"%s\"."
   "*Command of the inferior process to change the directory.") 
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
@@ -102,7 +102,7 @@
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
 
 (defconst coq-kill-goal-command "Abort.")
-(defconst coq-forget-id-command "Reset ")
+(defconst coq-forget-id-command "Reset %s.")
 
 (defconst coq-undoable-commands-regexp (proof-ids-to-regexp coq-tactics))
 
@@ -148,7 +148,7 @@
 	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
 	     (coq-goal-command-p
 	      (span-property (prev-span span 'type) 'cmd)))
-	(concat "Restart" proof-terminal-string)
+	"Restart."
       (while span
 	(setq str (span-property span 'cmd))
 	(cond ((eq (span-property span 'type) 'vanilla)
@@ -163,7 +163,7 @@
 			(setq i (+ 1 i))))
 		     (t nil))))
 	(setq span (next-span span 'type)))
-      (concat "Undo " (int-to-string ct) proof-terminal-string))))
+      (concat "Undo " (int-to-string ct) "."))))
 
 (defconst coq-keywords-decl-defn-regexp
   (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
@@ -197,8 +197,7 @@
 	;; identifier "Unnamed_thm", though!  So we don't need
 	;; this test:
 	;; (unless (eq (span-property span 'name) proof-unnamed-theorem-name)
-	(setq ans (concat coq-forget-id-command
-			  (span-property span 'name) proof-terminal-string)))
+	(setq ans (format coq-forget-id-command (span-property span 'name))))
 
        ((proof-string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
 				    "\\)\\s-*\\(" proof-id 
@@ -213,16 +212,14 @@
 				    ;; Section .. End Section should be
 				    ;; atomic!
 				    "\\)\\s-*[\\[,:.]") str)
-	(setq ans (concat coq-forget-id-command
-			  (match-string 2 str) proof-terminal-string)))
+	(setq ans (format coq-forget-id-command (match-string 2 str))))
 
        ;; If it's not a goal but it contains "Definition" then it's a
        ;; declaration
        ((and (not (coq-goal-command-p str))
 	     (proof-string-match
 	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*:") str))
-	(setq ans (concat coq-forget-id-command
-			  (match-string 2 str) proof-terminal-string))))
+	(setq ans (format coq-forget-id-command (match-string 2 str)))))
 
       (setq span (next-span span 'type)))
 
@@ -290,7 +287,7 @@ This is specific to coq-mode."
     (proof-shell-ready-prover) 
     (setq cmd (read-string "SearchIsos: " nil 'proof-minibuffer-history))
     (proof-shell-invisible-command
-     (concat "SearchIsos " cmd proof-terminal-string))))
+     (format "SearchIsos %s." cmd))))
 
 (defun coq-end-Section ()
   "Ends a Coq section."
@@ -423,8 +420,8 @@ This is specific to coq-mode."
   (setq proof-guess-command-line 'coq-guess-command-line)
 
   ;; Commands sent to proof engine
-  (setq proof-showproof-command "Show"
-	proof-context-command "Print All"
+  (setq proof-showproof-command "Show."
+	proof-context-command "Print All."
 	proof-goal-command "Goal %s."
 	proof-save-command "Save %s."
 	proof-find-theorems-command "Search %s."

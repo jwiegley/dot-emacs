@@ -114,7 +114,7 @@ Activates extended printing routines required for Proof General.")
 (defvar lego-shell-prompt-pattern "^\\(Lego>[ \201]*\\)+"
   "*The prompt pattern for the inferior shell running lego.")
 
-(defvar lego-shell-cd "Cd \"%s\""
+(defvar lego-shell-cd "Cd \"%s\";"
   "*Command of the inferior process to change the directory.") 
 
 (defvar lego-shell-abort-goal-regexp 
@@ -131,7 +131,7 @@ Activates extended printing routines required for Proof General.")
   (concat "^" (proof-ids-to-regexp lego-keywords-goal)))
 
 (defvar lego-kill-goal-command "KillRef;")
-(defvar lego-forget-id-command "Forget ")
+(defvar lego-forget-id-command "Forget %s;")
 
 (defvar lego-undoable-commands-regexp
   (proof-ids-to-regexp '("Dnf" "Refine" "Intros" "intros" "Next" "Normal"
@@ -204,7 +204,8 @@ Given is the first SPAN which needs to be undone."
 	       (if (= (aref str i) proof-terminal-char) (setq ct (+ 1 ct)))
 	       (setq i (+ 1 i)))))
       (setq span (next-span span 'type)))
-    (concat "Undo " (int-to-string ct) proof-terminal-string)))
+    ;; FIXME: make this stuff generic.  This should be undo-n-times-cmd
+    (concat "Undo " (int-to-string ct) ";")))
 
 (defun lego-goal-command-p (str)
   "Decide whether argument is a goal or not"
@@ -221,33 +222,26 @@ Given is the first SPAN which needs to be undone."
 
        ((eq (span-property span 'type) 'goalsave)
 	(unless (eq (span-property span 'name) proof-unnamed-theorem-name)
-	  (setq ans (concat lego-forget-id-command
-			    (span-property span 'name) proof-terminal-string))))
-
+	  (setq ans (format lego-forget-id-command (span-property span 'name)))))
        ;; alternative definitions
        ((proof-string-match lego-definiendum-alternative-regexp str)
-	(setq ans (concat lego-forget-id-command (match-string 1 str)
-			  proof-terminal-string)))
+	(setq ans (format lego-forget-id-command (match-string 1 str))))
        ;; declarations
        ((proof-string-match (concat "\\`\\$?" (lego-decl-defn-regexp "[:|=]")) str)
 	(let ((ids (match-string 1 str))) ; returns "a,b"
 	  (proof-string-match proof-id ids)	; matches "a"
-	  (setq ans (concat lego-forget-id-command(match-string 1 ids)
-			    proof-terminal-string))))
+	  (setq ans (format lego-forget-id-command (match-string 1 ids)))))
 	   
        ((proof-string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
-	(setq ans (concat lego-forget-id-command
-			  (match-string 2 str) proof-terminal-string)))
+	(setq ans (format lego-forget-id-command (match-string 2 str))))
 
        ((proof-string-match 
 	 "\\`\\(Inductive\\|Record\\)\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
 	(setq ans 
-	      (concat lego-forget-id-command (match-string 2 str)
-		      proof-terminal-string)))
+	      (format lego-forget-id-command (match-string 2 str))))
        
        ((proof-string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
-	(setq ans (concat "ForgetMark " (match-string 1 str) 
-			  proof-terminal-string))))
+	(setq ans (format "ForgetMark %s;" (match-string 1 str)))))
       ;; Carry on searching forward for something to forget
       ;; (The first thing to be forget will forget everything following)
       (setq span (next-span span 'type)))
@@ -344,11 +338,11 @@ Checks the width in the `proof-goals-buffer'"
   
   (setq proof-mode-for-script 'lego-mode)
 
-  (setq proof-showproof-command "Prf"
+  (setq proof-showproof-command "Prf;"
 	proof-goal-command "Goal %s;"
 	proof-save-command "Save %s;"
-	proof-context-command "Ctxt"
-	proof-info-command "Help")
+	proof-context-command "Ctxt;"
+	proof-info-command "Help;")
 
   (setq proof-goal-command-p 'lego-goal-command-p
 	proof-completed-proof-behaviour 'closeany ; new in 3.0
@@ -369,8 +363,8 @@ Checks the width in the `proof-goals-buffer'"
   (lego-init-syntax-table)
 
   ;; da: I've moved these out of proof-config-done in proof-script.el 
-  (setq pbp-goal-command (concat "Pbp %s" proof-terminal-string))
-  (setq pbp-hyp-command (concat "PbpHyp %s" proof-terminal-string))
+  (setq pbp-goal-command "Pbp %s;")
+  (setq pbp-hyp-command "PbpHyp %s;")
 
 ;; font-lock
 
