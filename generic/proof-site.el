@@ -126,8 +126,8 @@ You can use customize to set this variable."
     ;; The following provers have experimental support, WIP
     (plastic	"Plastic"	"\\.lf$")
     (lclam      "Lambda-CLAM"   "\\.lcm$")
-    ;; Next line for testing only
-    ;; (pgip	"PGIP/Isa"	"\\.ML$\\|\\.thy$")
+    ;; Finally, the next instance isn't a prover at all!
+    (pgshell	"PG-Shell"	"\\.pgsh$")
     )))
   "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
