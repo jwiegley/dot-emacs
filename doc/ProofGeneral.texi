@@ -63,7 +63,7 @@
 @c        @ref{node}                without "see". Careful for info.
 @c
 
-@set version 3.5pre
+@set version 3.5
 @set xemacsversion 21.4
 @set fsfversion 21.3
 @set last-update April 2004
@@ -221,15 +221,17 @@ other documentation, system downloads, etc.
 @cindex news
 
 Proof General 3.5 is released to collect together a cummulative set of
-improvements to Proof General 3.4.  There are compatibility fixes,
-particularly for GNU Emacs: credit is due to Stefan Monnier for an
-intense period of debugging and patching.  The options menu has been
-simplified and extended, and improved display management.  There are
+improvements to Proof General 3.4.  There are compatibility fixes for
+newer Emacs versions, and particularly for GNU Emacs: credit is due to
+Stefan Monnier for an intense period of debugging and patching.  The
+options menu has been simplified and extended, and the display
+management is improved and repaired for Emacs API changes.  There are
 some other usability improvements, prompted in part by feedback after
 Proof General's appearance at the TYPES 2002 Summer School.
 
 Compatible versions of the Emacs packages X-Symbol (for mathematical
-symbols) and MMM Mode (for multiple modes in one buffer) are now bundled.
+symbols) and MMM Mode (for multiple modes in one buffer) are now
+bundled.
 
 Proof General 3.5 runs reliably as compiled Elisp code, and is available
 in RPM package format which includes desktop integration on

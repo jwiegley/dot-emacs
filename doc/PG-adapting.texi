@@ -61,7 +61,7 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.5pre
+@set version 3.5
 @set xemacsversion 21.4
 @set fsfversion 21.3
 @set last-update April 2004
