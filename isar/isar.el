@@ -240,8 +240,9 @@ See -k option for Isabelle interface script."
    pg-subterm-start-char                ?\372
    pg-subterm-sep-char                  ?\373
    pg-subterm-end-char                  ?\374
-   pg-after-fontify-output-hook	'isabelle-convert-idmarkup-to-subterm
-					;'pg-remove-specials
+   pg-after-fontify-output-hook	
+   (if proof-experimental-features 
+       'isabelle-convert-idmarkup-to-subterm 'pg-remove-specials)
    pg-subterm-help-cmd			"term %s" 
 
    proof-shell-process-file
