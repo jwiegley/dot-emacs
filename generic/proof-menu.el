@@ -168,7 +168,15 @@ If in three window or multiple frame mode, display two buffers."
 		      '(browse-url proof-assistant-home-page)
 		      ,menuvisiblep proof-assistant-home-page])
 		   (proof-ass help-menu-entries))))))))
-	   
+
+(defun proof-assistant-menu-update ()
+  "Update proof assistant menu in scripting buffers."
+  (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
+     (proof-menu-define-settings-menu)
+     (proof-menu-define-specific)
+     (easy-menu-remove proof-assistant-menu)
+     (easy-menu-add proof-assistant-menu proof-mode-map)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -542,7 +550,7 @@ the form of the menu entry for the setting.")
   "Settings submenu for Proof General.")
 
 (defun proof-menu-define-settings-menu ()
-  "Return menu generated from `proof-assistant-settings'."
+  "Return menu generated from `proof-assistant-settings', update `proof-menu-settings'."
   (let ((setgs proof-assistant-settings) ents)
     (while setgs
       (setq ents (cons 
@@ -602,9 +610,13 @@ the form of the menu entry for the setting.")
 		      (eq (eval type) 'integer) 
 		      (eq (eval type) 'string)))
       (error "defpacustom: missing :type keyword or wrong :type value"))
+    ;; Debug message in case a defpacustom is repeated.
+    ;; NB: this *may* happen dynamically, but shouldn't: if the
+    ;; interface queries the prover for the settings it supports,
+    ;; then the internal list should be cleared first.
     (if (assoc name proof-assistant-settings)
-	(error "defpacustom: Proof assistanting setting %s already defined!"
-	       name))
+	(proof-debug "defpacustom: Proof assistanting setting %s re-defined!"
+		     name))
     ;; Could consider moving the bulk of the remainder of this
     ;; function to a function proof-assistant-setup-settings which
     ;; defines the custom vals *and* menu entries.   This would
@@ -625,7 +637,8 @@ the form of the menu entry for the setting.")
 	  (proof-assistant-invisible-command-ifposs
 	   (proof-assistant-settings-cmd (quote ,name))))))
     (setq proof-assistant-settings
-	  (cons (list name setting (eval type)) proof-assistant-settings))))
+	  (cons (list name setting (eval type)) 
+		(remassoc name proof-assistant-settings)))))
 
 ;;;###autoload
 (defmacro defpacustom (name val &rest args)
