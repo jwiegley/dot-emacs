@@ -166,19 +166,6 @@
 
 ;; antiquotations
 
-(defface isabelle-antiq-face
-  '((((type x) (class color) (background light))
-     (:background "honeydew3"))
-    (((type x) (class color) (background dark))
-     (:background "honeydew4"))
-    (t
-     (bold t)))
-  "*Face for Isabelle/Isar antiquotation"
-  :group 'proof-faces)
-
-(defconst isabelle-antiq-face 'isabelle-antiq-face)
-
-
 (defconst isar-antiq-regexp
   (concat "\\(@{\\([^\"{}]+\\|" isar-string "\\)\\{0,7\\}}\\)")
   "Regexp matching Isabelle/Isar antiquoations.")
@@ -278,7 +265,7 @@
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
    (cons isar-tac-regexp 'font-lock-reference-face)
-   '(isar-match-antiq (0 isabelle-antiq-face append))))
+   '(isar-match-antiq (0 'font-lock-variable-name-face prepend))))
 
 (defvar isar-output-font-lock-keywords-1
   (list
