@@ -44,19 +44,19 @@
 ;; The default generic toolbar
 ;;
 (defconst proof-toolbar-entries-default
-  '((state	"State"		"Show the current proof state" t)
-    (context	"Context"	"Show the current context" t)
-    (goal	"Goal"		"Start a new proof" t)
-    (retract	"Retract"	"Retract (undo) whole buffer" t)
-    (undo	"Undo"		"Undo the previous proof command" t)
-    (next	"Next"		"Process the next proof command" t)
-    (use	"Use"		"Process whole buffer" t)
-    (restart	"Restart"	"Restart scripting (clear all locked regions)" t)
-    (qed	"QED"		"Close/save proved theorem" t)
-    (find	"Find"		"Find something from the proof assistant" t)
-    (command    "Command"	"Issue a non-scripting command" t)
-    (info	"Info"		"Show proof assistant information" t)
-    (help	"Help"		"Proof General manual" t))
+  `((state	"Display proof state" "Display the current proof state" t)
+    (context	"Display context"     "Display the current context" t)
+    (goal	"Start a new proof"   "Start a new proof" t)
+    (retract	"Retract buffer"      "Retract (undo) whole buffer" t)
+    (undo	"Undo step"           "Undo the previous proof command" t)
+    (next	"Next step"           "Process the next proof command" t)
+    (use	"Use buffer"  	      "Process whole buffer" t)
+    (restart	"Restart"	      "Restart scripting (clear all locked regions)" t)
+    (qed	"Finish proof"        "Close/save proved theorem" t)
+    (find	"Find theorems"	      "Find theorems" t)
+    (command    "Issue command"	      "Issue a non-scripting command" t)
+    (info	nil		      "Show proof assistant information" t)
+    (help	nil		      "Proof General manual" t))
 "Example value for proof-toolbar-entries.
 This gives a bare toolbar that works for any prover.  To add
 prover specific buttons, see documentation for proof-toolbar-entries
@@ -65,10 +65,11 @@ and the file proof-toolbar.el.")
 (defvar proof-toolbar-entries
   proof-toolbar-entries-default
   "List of entries for Proof General toolbar.
-Format of each entry is (TOKEN MENUNAME TOOLBARTEXT ENABLER-P).
+Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
 For each TOKEN, we expect an icon with base filename TOKEN,
 		          a function proof-toolbar-<TOKEN>,
-         and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.")
+         and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.
+If MENUNAME is nil, item will not appear on the \"Scripting\" menu.")
 
 
 ;;
@@ -95,19 +96,22 @@ For each TOKEN, we expect an icon with base filename TOKEN,
        (menuname  (cadr tle))
        (tooltip   (nth 2 tle))
        (enablep	  (nth 3 tle)))
-    (apply 'vector
+    (if menuname
+	(list 
+	 (apply 'vector
 	   (append
 	    (list menuname (proof-toolbar-function token))
 	    (if enablep 
-		(list ':active (list (proof-toolbar-enabler token))))))))
+		(list ':active (list (proof-toolbar-enabler token))))))))))
    
 (defconst proof-toolbar-menu
   ;; Toolbar contains commands to manipulate script and
   ;; other handy stuff.  Called "Scripting"
   (append
    '("Scripting")
-   (mapcar 'proof-toolbar-make-menu-item 
-	   proof-toolbar-entries))
+   (apply 'append
+	  (mapcar 'proof-toolbar-make-menu-item 
+		  proof-toolbar-entries)))
   "Menu made from the Proof General toolbar commands.")
 
 ;;
@@ -273,6 +277,11 @@ changed state."
 ;;
 ;;
 
+;; TODO:
+;;
+;; Combine these with standard movement functions, rationalizing.
+;;
+
 
 ;;
 ;; Helper functions 
@@ -318,9 +327,6 @@ changed state."
   (and
    (not (proof-locked-region-full-p))
    (not (and (proof-shell-live-buffer) proof-shell-busy))))
-
-;; No error if enabler fails: if it is because proof shell is busy,
-;; it gets messy when clicked quickly in succession.
 
 (defun proof-toolbar-next ()
   "Assert next command in proof to proof process.
