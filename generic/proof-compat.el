@@ -233,8 +233,17 @@ Otherwise treat \\ in NEWTEXT string as special:
 
 
 
-;; FIXME: todo: keybinding compat here, esp for mouse.
-;; See Isamode and emu.el for ideas.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Nasty: Emacs bug/problem fix section
+;;;
+
+
+;; Error in FSF emacs that this is undefined.  I haven't time to
+;; investigate why.
+(unless proof-running-on-XEmacs
+  (defvar font-lock-preprocessor-face nil))
+
 
 
 ;; End of proof-compat.el
