@@ -136,5 +136,32 @@ may assign this function to `after-change-function'."
 	   (append (delq 'proof-zap-commas-region after-change-functions)
 		   '(proof-zap-commas-region))))
 
+;;
+;; Functions for doing something like "format" but with customizable
+;; control characters.
+;;
+
+(defun proof-format (alist string)
+  "Format a string by matching regexps in ALIST against STRING"
+  (while alist
+    (let ((idx 0))
+      (while (string-match (car (car alist)) string idx)
+	(setq string
+	      (concat (substring string 0 (match-beginning 0))
+		      (cdr (car alist))
+		      (substring string (match-end 0))))
+	(setq idx (+ (match-beginning 0) (length (cdr (car alist)))))))
+    (setq alist (cdr alist)))
+  string)
+
+(defun proof-format-filename (string filename)
+  "Format STRING by replacing %s or %e by expanded version of FILENAME.
+%e is special form meaning use proof-shell-string-escapes."
+  (proof-format 
+   (list (cons "%s" (expand-file-name filename))
+	 (cons "%e" (proof-format proof-shell-string-escapes 
+				  (expand-file-name filename))))
+   string))
+ 
 
 (provide 'proof-syntax)
