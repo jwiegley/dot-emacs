@@ -1,3 +1,38 @@
+2001-01-12  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2001-01-11  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el:
+	*** empty log message ***
+
+2001-01-11  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* generic/proof-shell.el, generic/pg-xml.el, generic/proof-script.el:
+	fixed format strings in message, error, etc.
+
+2001-01-10  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-syntax.el:
+	proper font-lock of isar-keywords-proof-heading;
+
+	* isa/x-symbol-isabelle.el:
+	added \<wrong>;
+
+2001-01-09  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/x-symbol-isabelle.el:
+	added \<cedilla>, \<dieresis>, \<acute>, \<hungarumlaut>;
+
+2001-01-05  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.html, html/devel.html:
+	Set version tag for new release.
+
 2001-01-05  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.html, html/devel.html:
