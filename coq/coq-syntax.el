@@ -127,19 +127,21 @@ version of coq by doing 'coqtop -v'."  )
     "CoInductive"
 	 "Definition" ;; careful: if not followed by :=, then it is a goal cmd
     "Fixpoint"
+    "CoInductive"
     "Inductive"
     "Inductive\\s-+Set"
     "Inductive\\s-+Prop"
     "Inductive\\s-+Type"
     "Mutual\\s-+Inductive"
     "Record"
-    "Functional\\s-+Scheme"
     "Scheme"
+    "Functional\\s-+Scheme"
     "Syntactic\\s-+Definition"
-    "Structure"))
+    "Structure"
+	 "Ltac"))
 
-;; Modules are like section in v74.
-(if coq-version-is-V74
+;; Modules are like section in v > 7.4.
+(if (or coq-version-is-V74 coq-version-is-V8)
 	 (defvar coq-keywords-goal
 		'("Chapter"
 		  "Declare\\s-+Module";;only if not followed by:=(see coq-proof-mode-p in coq.el)
@@ -169,7 +171,9 @@ version of coq by doing 'coqtop -v'."  )
   '("Defined"
     "Save"
     "Qed"
-    "End"))
+    "End"
+	 "Admitted"
+	 ))
 
 (defvar coq-keywords-kill-goal 
   '("Abort"))
@@ -201,7 +205,6 @@ Print and Check commands, put the following line in your .emacs:
   :group 'coq)
 
 ;; 
-;; Hint Rewrite/Resolve... ==> state-changing
 ;; Print Hint ==> state preserving
 (defvar coq-keywords-state-preserving-commands
   (append '("(*" ;;Pierre comments must not be undone
@@ -217,7 +220,6 @@ Print and Check commands, put the following line in your .emacs:
 	    "Extraction Library"
 	    "Extraction Module"
 	    "Focus" ;; ???
-	    "Hint\\s-+Rewrite"
 	    "Inspect"
 	    "Locate"
 	    "Locate\\s-+File"
@@ -225,8 +227,7 @@ Print and Check commands, put the following line in your .emacs:
 	    "Opaque"
 	    "Print"
 	    "Proof"
-	    "Recursive\\s-+Extraction"
-	    "Recursive\\s-+Extraction\\s-+Module"
+	    "Recursive\\s-+Extraction\\(?:\\s-+Module\\)?"
 	    "Remove\\s-+LoadPath"
 	    "Pwd"
 	    "Qed"
@@ -278,8 +279,14 @@ Print and Check commands, put the following line in your .emacs:
     "Extraction\\s-+Language"
     "Extraction\\s-+NoInline"
     "Grammar"
-    "\\`Hint" ;; Pierre fev-2003: Hack: must not match "Print Hint."
-    "Hints"
+;    "\\`Hint" ;; Pierre fev-2003: Hack: must not match "Print Hint."
+	 "Hint\\s-+Resolve"
+	 "Hint\\s-+Immediate"
+	 "Hint\\s-+Rewrite"
+	 "Hint\\s-+Unfold"
+	 "Hint\\s-+Extern"
+	 "Hint\\s-+Constructors"
+    "Hints" ;no more a keyword in v8
     "Identity\\s-+Coercion"
     "Implicit\\s-+Arguments\\s-+Off"
     "Implicit\\s-+Arguments\\s-+On"
@@ -403,6 +410,7 @@ Intro and Elim tactics, put the following line in your .emacs:
 	    "generalize"
 	    "hnf"
 	    "induction"
+	    "coinduction"
 	    "injection"
 		 "instantiate"
 	    "intro[s]?"
@@ -589,11 +597,16 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 (defvar coq-reserved
   '("as"
     "ALL"
-    "Cases"
+	 "True"
+	 "False"
+	 "Cases"
+    "match"
     "EX"
     "else"
     "end"
     "Fix"
+    "forall"
+	 "fun"
     "if"
     "in"
     "into"
@@ -669,7 +682,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 	  "\\)\\s-+\\(" coq-ids "\\)\\s-*[:]"))
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
-          "\\)\\s-+\\(" coq-id "\\)\\s-*[[:]"))
+          "\\)\\s-+\\(" coq-id "\\)\\s-*."))
 (defvar coq-font-lock-keywords-1
    (append
     coq-font-lock-terms
@@ -709,6 +722,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   (modify-syntax-entry ?_  "w")
   (modify-syntax-entry ?\' "_")
   (modify-syntax-entry ?\| ".")
+  (modify-syntax-entry ?\. "_")
   (condition-case nil
       ;; Try to use Emacs-21's nested comments.
       (modify-syntax-entry ?\* ". 23n")
@@ -716,6 +730,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
     (error (modify-syntax-entry ?\* ". 23")))
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4"))
+
 
 (provide 'coq-syntax)
 ;;; coq-syntax.el ends here

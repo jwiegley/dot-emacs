@@ -92,14 +92,14 @@
       "COMMAND               ABBREVIATION"
      ["Definition            def<ctrl-backspace>" (insert-and-expand "def") t]
      ["Fixpoint              fix<ctrl-backspace>" (insert-and-expand "fix") t]
-     ["Functional Scheme     fs<ctrl-backspace>" (insert-and-expand "fs") t]
-     ["Functional Scheme w   fsw<ctrl-backspace>" (insert-and-expand "fsw") t]
+     ["Lemma                 l<ctrl-backspace>" (insert-and-expand "l") t]
+     ""
      ["Inductive             indv<ctrl-backspace>" (insert-and-expand "indv") t]
      ["Inductive1            indv1<ctrl-backspace>" (insert-and-expand "indv1") t]
      ["Inductive2             indv2<ctrl-backspace>" (insert-and-expand "indv2") t]
      ["Inductive3            indv3<ctrl-backspace>" (insert-and-expand "indv3") t]
      ["Inductive4            indv4<ctrl-backspace>" (insert-and-expand "indv4") t]
-     ["Lemma                 l<ctrl-backspace>" (insert-and-expand "l") t]
+     ""
      ["Module                mo<ctrl-backspace>" (insert-and-expand "mo") t]
      ["Module (<:)           mo2<ctrl-backspace>" (insert-and-expand "mo") t]
      ["Module (interactive)  moi<ctrl-backspace>" (insert-and-expand "moi") t]
@@ -110,13 +110,18 @@
      ["Declare Module (<:)   dm2<ctrl-backspace>" (insert-and-expand "dm") t]
      ["Declare Module (inter.) dmi<ctrl-backspace>" (insert-and-expand "dmi") t]
      ["Declare Module (inter. <:) dmi2<ctrl-backspace>" (insert-and-expand "dmi2") t]
-
+     ""
      ["Scheme                sc<ctrl-backspace>" (insert-and-expand "sc") t]
+     ["Functional Scheme     fs<ctrl-backspace>" (insert-and-expand "fs") t]
+     ["Functional Scheme with    fsw<ctrl-backspace>" (insert-and-expand "fsw") t]
+     ""
      ["hint Constructors     hc<ctrl-backspace>" (insert-and-expand "hc") t]
      ["hint Immediate        hi<ctrl-backspace>" (insert-and-expand "hi") t]
      ["hint Resolve          hr<ctrl-backspace>" (insert-and-expand "hr") t]
      ["hint extern           he<ctrl-backspace>" (insert-and-expand "he") t]
      ["hints                 hs<ctrl-backspace>" (insert-and-expand "hs") t]
+     ""
+     ["infix                 inf<ctrl-backspace>" (insert-and-expand "inf") t]     
      )
 
     ("Insert term" 
@@ -204,21 +209,40 @@
      ["unfold                 u<ctrl-bacspace>"  (insert-and-expand "u") t]
      )
 
+    ["What are those #??" (holes-short-doc) t]
+    ["expand abbrev at point" expand-abbrev t]
+    ["list abbrevs" list-abbrevs t]
+    ["Insert Section..." coq-insert-section t]
+    ["Insert Module..." coq-insert-module t]
     ["Print..." coq-Print t]
     ["Check..." coq-Check t]
     ["Hints" coq-PrintHint t]
     ["Show ith goal..." coq-Show t]
     ["Search isos/pattern..." coq-SearchIsos t]
-    ["expand abbrev at point" expand-abbrev t]
-    ["What are those #??" (holes-short-doc) t]
-    ["list abbrevs" list-abbrevs t]
     ["3 buffers view" coq-three-b t]
-    ["Begin Section..." coq-begin-Section t]
-    ["End Section" coq-end-Section t]
     ["Compile" coq-Compile t] ))
 
 
 
+
+(defun coq-insert-section (s)
+  (interactive  "sSection name: ")
+  (insert "Section " s ".\n#\nEnd " s ".")
+(replace-string-by-holes-backward-move-point 1 empty-hole-string)
+)
+
+(setq-default module-kinds-table 
+              '(("Module" 1) ("Module Type" 2) ("Declare Module" 3)))
+
+(defun coq-insert-module ()
+  (interactive)
+  (let* ((mods (completing-read "kind of module: " module-kinds-table))
+         (s (read-string  "sModule name: ")))
+    (insert mods " " s ": #.\n#\nEnd " s ".")
+    (replace-string-by-holes-backward-move-point 2 empty-hole-string)
+    )
+  )
+;  (completing-read "Section name: " )
 
 ;; ----- outline
 
@@ -621,10 +645,11 @@ This is specific to coq-mode."
 
 (proof-defshortcut coq-Intros        "Intros "  [(control ?i)])
 (proof-defshortcut coq-Apply         "Apply "   [(control ?a)])
-(proof-defshortcut coq-begin-Section "Section " [(control ?s)])
+;(proof-defshortcut coq-begin-Section "Section " [(control ?s)])
 
+(define-key coq-keymap [(control ?s)] 'coq-insert-section)
+(define-key coq-keymap [(control ?m)] 'coq-insert-module)
 (define-key coq-keymap [(control ?e)] 'coq-end-Section)
-(define-key coq-keymap [(control ?m)] 'coq-Compile)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?c)] 'coq-Check)

@@ -4,64 +4,9 @@
 ;(defvar coq-version-is-V7 nil)
 ;(defvar coq-version-is-V6 nil)
 
+;#s are replaced by holes by holes-abbrev-complete
 (if (boundp 'holes-abbrev-complete)
-	 (define-abbrev-table 'coq-mode-abbrev-table
-		'(
-		  ("a" "auto" nil 0)
-		  ("ab" "absurd" nil 0)
-		  ("abs" "absurd" nil 0)
-		  ("ao" "abstract omega" nil 0)
-		  ("ap" "apply" nil 0)
-		  ("as" "assumption" nil 0)
-		  ("au" "auto" nil 0)
-		  ("aw" "auto with" nil 0)
-		  ("awa" "auto with arith" nil 0)
-		  ("con" "constructor" nil 0)
-		  ("dec" "decompose []" nil 0)
-		  ("def" "Definition : :=." nil 0)
-		  ("di" "discriminate" nil 0)
-		  ("dis" "discriminate" nil 0)
-		  ("e" "elim" nil 0)
-		  ("ea" "eauto" nil 0)
-		  ("eap" "eapply" nil 0)
-		  ("eaw" "eauto with" nil 0)
-		  ("eawa" "eauto with arith" nil 0)
-		  ("el" "elim" nil 0)
-		  ("ex" "exists" nil 0)
-		  ("f" "forall #:#,#" nil 0)
-		  ("f" "fun (:) => " nil 0)
-		  ("fi" "functional induction" nil 0)
-		  ("fix" "Fixpoint X (X : X) {struct X} : X := X." nil 0)
-		  ("fs" "Functional Scheme xxx := Induction for yyy (opt:with ...)." nil 0)
-		  ("g" "generalize" nil 0)
-		  ("ge" "generalize" nil 0)
-		  ("gen" "generalize" nil 0)
-		  ("h" "Hints  : ." nil 0)
-		  ("hr" "Hint Resolve :." nil 0)
-		  ("i" "intro" nil 0)
-		  ("in" "intro" nil 0)
-		  ("ind" "induction" nil 0)
-		  ("indv" "Inductive" nil 0)
-		  ("inv" "inversion" nil 0)
-		  ("is" "intros" nil 0)
-		  ("l" "Lemma  :" nil 0)
-		  ("o" "abstract omega" nil 0)
-		  ("p" "Print" nil 0)
-		  ("pr" "Print" nil 0)
-		  ("r" "rewrite" nil 0)
-		  ("r<" "rewrite <-" nil 0)
-		  ("re" "rewrite" nil 0)
-		  ("re<" "rewrite <-" nil 0)
-		  ("s" "simpl" nil 0)
-		  ("sc" "Scheme := Induction for Sort ." nil 0)
-		  ("si" "simpl" nil 0)
-		  ("sy" "symmetry" nil 0)
-		  ("sym" "symmetry" nil 0)
-		  ("t" "trivial" nil 0)
-		  ("tr" "trivial" nil 0)
-		  ("u" "unfold" nil 0)
-		  ("un" "unfold" nil 0)
-		  ))
+	 ()
   (define-abbrev-table 'coq-mode-abbrev-table
 	 '(
 		("a" "auto" holes-abbrev-complete 4)
@@ -90,6 +35,10 @@
 		("desu" "destruct # using #" holes-abbrev-complete 0)
 		("desa" "destruct # as #" holes-abbrev-complete 0)
 		("dis" "discriminate" holes-abbrev-complete 0)
+		("dm" "Declare Module # : # := #." holes-abbrev-complete 0)
+		("dm2" "Declare Module # <: # := #." holes-abbrev-complete 0)
+		("dmi" "Declare Module # : #.\n#\nEnd #." holes-abbrev-complete 0)
+		("dmi2" "Declare Module # <: #.\n#\nEnd #." holes-abbrev-complete 0)
 		("e" "elim #" holes-abbrev-complete 1)
 		("ea" "eauto" holes-abbrev-complete 0)
 		("eap" "eapply #" holes-abbrev-complete 0)
@@ -104,7 +53,7 @@
 		("f3" "fun (#:#) (#:#) (#:#) => #" holes-abbrev-complete 0)
 		("f4" "fun (#:#) (#:#) (#:#) (#:#) => #" holes-abbrev-complete 0)
 		("fi" "functional induction #" holes-abbrev-complete 0)
-		("fix" "Fixpoint # (#:#) {struct #} : # :=" holes-abbrev-complete 3)
+		("fix" "Fixpoint # (#:#) {struct #} : # :=\n#." holes-abbrev-complete 3)
 		("fo" "forall #,#" holes-abbrev-complete 0)
 		("fo1" "forall #:#,#" holes-abbrev-complete 0)
 		("fo2" "forall (#:#) (#:#), #" holes-abbrev-complete 0)
@@ -125,8 +74,13 @@
 		("i" "intro #" holes-abbrev-complete 10)
 		("if" "if # then # else #" holes-abbrev-complete 1)
 		("in" "intro" holes-abbrev-complete 1)
+		("inf" "infix \"#\" := # (at level #) : #." holes-abbrev-complete 1)
 		("ind" "induction #" holes-abbrev-complete 2)
 		("indv" "Inductive # : # := # : #." holes-abbrev-complete 0)
+		("indv2" "Inductive # : # :=\n# : #\n| # : #." holes-abbrev-complete 0)
+		("indv3" "Inductive # : # :=\n  # : #\n| # : #\n| # : #." holes-abbrev-complete 0)
+		("indv4" "Inductive # : # :=\n  # : #\n| # : #\n| # : #\n| # : #." holes-abbrev-complete 0)
+		("indv5" "Inductive # : # :=\n  # : #\n| # : #\n| # : #\n| # : #\n| # : #." holes-abbrev-complete 0)
 		("inj" "injection #" holes-abbrev-complete 2)
 		("inv" "inversion #" holes-abbrev-complete 9)
 		("intu" "intuition #" holes-abbrev-complete 9)
@@ -134,6 +88,17 @@
 		("ite" "if # then # else #" holes-abbrev-complete 1)
 		("l" "Lemma # : #." holes-abbrev-complete 4)
 		("li" "let # := # in #" holes-abbrev-complete 1)
+		("m" "match # with\n# => #\nend" holes-abbrev-complete 1)
+		("m2" "match # with\n # => #\n| # => #\nend" holes-abbrev-complete 1)
+		("m3" "match # with\n  # => #\n| # => #\n| # => #\nend" holes-abbrev-complete 1)
+		("m4" "match # with\n# => #\n| # => #\n| # => #\n| # => #\nend" holes-abbrev-complete 1)
+		("m5" "match # with\n  # => #\n| # => #\n| # => #\n| # => #\n| # => #\nend" holes-abbrev-complete 1)
+		("mt" "Module Type # := #." holes-abbrev-complete 0)
+		("mti" "Module Type #.\n#\nEnd #." holes-abbrev-complete 0)
+		("mo" "Module # : # := #." holes-abbrev-complete 0)
+		("mo2" "Module # <: # := #." holes-abbrev-complete 0)
+		("moi" "Module # : #.\n#\nEnd #." holes-abbrev-complete 0)
+		("moi2" "Module # <: #.\n#\nEnd #." holes-abbrev-complete 0)
 		("o" "omega" holes-abbrev-complete 0)
 		("om" "Omega" holes-abbrev-complete 0)
 		("p" "Print #" holes-abbrev-complete 3)
@@ -166,71 +131,8 @@
 		("ta" "tauto" holes-abbrev-complete 1)
 		("u" "unfold #" holes-abbrev-complete 1)
 		("un" "unfold #" holes-abbrev-complete 7)
-
-		("mt" "Module Type # := #." holes-abbrev-complete 0)
-		("mti" "Module Type #.
-#
-End #." holes-abbrev-complete 0)
-		("mo" "Module # : # := #." holes-abbrev-complete 0)
-		("mo2" "Module # <: # := #." holes-abbrev-complete 0)
-		("moi" "Module # : #.
-#
-End #." holes-abbrev-complete 0)
-		("moi2" "Module # <: #.
-#
-End #." holes-abbrev-complete 0)
-
-
-		("dm" "Declare Module # : # := #." holes-abbrev-complete 0)
-		("dm2" "Declare Module # <: # := #." holes-abbrev-complete 0)
-		("dmi" "Declare Module # : #.
-#
-End #." holes-abbrev-complete 0)
-		("dmi2" "Declare Module # <: #.
-#
-End #." holes-abbrev-complete 0)
-
-
-
-
-		("m" "match # with 
-# => #" holes-abbrev-complete 1)
-		("m2" "match # with 
- # => #
-| # => #" holes-abbrev-complete 1)
-		("m3" "match # with 
-  # => #
-| # => #
-| # => #" holes-abbrev-complete 1)
-		("m4" "match # with 
-  # => #
-| # => #
-| # => #
-| # => #" holes-abbrev-complete 1)
-		("m5" "match # with 
-  # => #
-| # => #
-| # => #
-| # => #
-| # => #" holes-abbrev-complete 1)
-		("indv2" "Inductive # : # :=
-  # : #
-| # : #." holes-abbrev-complete 0)
-		("indv3" "Inductive # : # :=
-  # : #
-| # : #
-| # : #." holes-abbrev-complete 0)
-		("indv4" "Inductive # : # :=
-  # : #
-| # : #
-| # : #
-| # : #." holes-abbrev-complete 0)
-		("indv5" "Inductive # : # :=
-  # : #
-| # : #
-| # : #
-| # : #
-| # : #." holes-abbrev-complete 0)
+		("v" "Variable # : #." holes-abbrev-complete 7)
+		("vs" "Variables # : #." holes-abbrev-complete 7)
 		)
 	 )
   )

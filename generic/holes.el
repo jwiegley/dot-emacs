@@ -38,17 +38,16 @@ to learn how to use holes.
                           HOLES
 
 
-Holes are inspired from other interactive programs ( Pcoq ). It
-allows to defines \"holes\" in your buffer. A hole is a piece of
-text (highlighted) that may be replaced by another part of text
-later. This feature is useful to build complicated expressions by
-copy pasting several peaces of text from different parts of a
-buffer (even from different buffers).
+A hole is a piece of (highlighted) text that may be replaced by
+another part of text later. This feature is useful to build
+complicated expressions by copy pasting several peaces of text from
+different parts of a buffer (or even from different buffers).
 
                           USE
 
-Holes are highlighted, there is always one or zero active hole,
-highlighted with a different color.
+At any time only one particular hole, called \"active\", can be
+\"filled\". Holes can be in several buffers but there is always one or
+zero active hole globally.  It is highlighted with a different color.
 
 TO DEFINE A HOLE, two methods:
 
@@ -62,6 +61,12 @@ then a hole containing '#' is created.
 TO ACTIVATE A HOLE, click on it with the button 1 of your mouse. You
 can also hit meta-space, it will activate the first hole following the
 point. The previous active hole will be deactivated.
+
+TO JUMP TO THE ACTIVE HOLE, just hit meta-return. You must be in the
+buffer containing the active hole. the point will move to the active
+hole, and the active hole will be destroyed so you can type something
+to put at its place. The following hole is automatically made active,
+so you can hit meta-return again.
 
 TO FORGET A HOLE without deleting its text, click on it with the
 button 2 (middle) of your mouse.
@@ -86,27 +91,26 @@ active hole, destroy it (allowing you to type its replacement) and
 make the next hole active so you can hit meta-return again once you
 have filled the current one.
 
-It is useful in combination with abbreviations, for example in
-coq-mode \"f\" is an abbreviation for 
-Fixpoint # (# : #) {struct #} : # := #, where each # is a hole then
-hitting meta-return goes from one hole to the following and you can
-fill-in each hole very quickly.
+It is useful in combination with abbreviations. For example in
+coq-mode \"f\" is an abbreviation for Fixpoint # (# : #) {struct #} :
+# := #, where each # is a hole. Then hitting meta-return goes from one
+hole to the following and you can fill-in each hole very quickly.
 
                           BUGS
 
- o replace holes with mouse in fsf emacs works but it seems that one
+ o Replacing holes with mouse in fsf emacs works but it seems that one
 more click is needed to really see the replacement
 
  o Don't try to make overlapping holes, it doesn't work. (what would
 it mean anyway?)
 
  o With FSF emacs, cutting or pasting a hole wil not produce new
-holes, and undoing on holes cannot make reappear holes. With Xemacs it
-will, but if you copy paste the active hole, you will get several
+holes, and undoing on holes cannot make holes re-appear. With Xemacs
+it will, but if you copy paste the active hole, you will get several
 holes highlighted as the active one (whereas only one of them really
 is), which is annoying.
 
- o tell me (Pierre.Courtieu@univ-orleans.fr)
+ o Tell me (Pierre.Courtieu@univ-orleans.fr)
 
 ")
   (goto-char (point-min))
@@ -288,9 +292,7 @@ is), which is annoying.
 
   (assert (is-hole-p HOLE) t
 	  "highlight-hole-as-active: given span is not a hole")
-;  (message "debug: highlight as active avant")
   (set-span-face HOLE 'active-hole-face)
-;  (message "debug: highlight as active avant")
   )
 
 (defun highlight-hole (HOLE)
@@ -334,7 +336,7 @@ is), which is annoying.
   )
 
 
-(defun is-in-hole (&optional pos)
+(defun is-in-hole-p (&optional pos)
 
   "Returns t if pos (default: point) is in a hole, nil
   otherwise."
@@ -347,22 +349,21 @@ is), which is annoying.
 (defun make-hole (start end)
   "Makes and returns an (span) hole from start to end."
   (let ((ext (make-span start end)))
-
     (set-span-properties
      ext `(
-       hole ,hole-counter
-       mouse-face highlight
-       priority 5 ; what should I put here, I want holes to have big priority 
-       face secondary-selection
-       start-open nil
-       end-open t
-       duplicable t
+			  hole ,hole-counter
+			  mouse-face highlight
+			  priority 5		; what should I put here? I want holes to have big priority 
+			  face secondary-selection
+			  start-open nil
+			  end-open t
+			  duplicable t
 ;       unique t
-       detachable t ;really disappear if empty; doesn't work with overlays
+			  detachable t			 ;really disappear if empty; doesn't work with gnu emacs
 ;       pointer frame-icon-glyph
-		 help-echo "this is a \"hole\", button 2 to forget, button 3 to destroy, button 1 to make active"
-		 'balloon-help "this is a \"hole\", button 2 to forget, button 3 to destroy, button 1 to make active"
-       ))
+			  help-echo "this is a \"hole\", button 2 to forget, button 3 to destroy, button 1 to make active"
+			  'balloon-help "this is a \"hole\", button 2 to forget, button 3 to destroy, button 1 to make active"
+			  ))
 
     (set-span-keymap ext hole-map)
     (setq hole-counter (+ hole-counter 1))
@@ -377,12 +378,12 @@ is), which is annoying.
   (interactive)
   
   (let* ((rstart (or start (region-beginning-or-nil) (point)))
-	 (rend (or end (region-end-or-nil) (point))))
+			(rend (or end (region-end-or-nil) (point))))
     (if (eq rstart rend) 
-	(progn 
-	  (insert-string empty-hole-string)
-	  (setq rend (point))
-	  )
+		  (progn 
+			 (insert-string empty-hole-string)
+			 (setq rend (point))
+			 )
       )
     (make-hole rstart rend)
     )
@@ -391,7 +392,7 @@ is), which is annoying.
 
 (defun clear-hole (HOLE)
   (assert (is-hole-p HOLE) t
-	  "clear-hole: given span is not a hole")
+			 "clear-hole: given span is not a hole")
   
   (if (and (active-hole-exist-p) (eq active-hole HOLE))
       (disable-active-hole)
@@ -400,11 +401,9 @@ is), which is annoying.
   )
 
 (defun clear-hole-at (&optional pos)
-
   "Clears hole at pos (default=point)."
-
   (interactive)
-  (if (not (is-in-hole (or pos (point)))) 
+  (if (not (is-in-hole-p (or pos (point)))) 
 	   (error "clear-hole-at: no hole here"))
   (clear-hole (hole-at (or pos (point))))
   )
@@ -417,9 +416,7 @@ is), which is annoying.
 
 
 (defun mapcar-holes (FUNCTION &optional BUFFER-OR-STRING FROM TO)
-  (mapcar-spans FUNCTION nil 
-		  BUFFER-OR-STRING FROM 
-		  TO nil 'hole)
+  (mapcar-spans FUNCTION nil BUFFER-OR-STRING FROM TO nil 'hole)
   )
 
 (defun clear-all-buffer-holes (&optional start end)
@@ -445,9 +442,9 @@ is), which is annoying.
 
 (defun next-after-active-hole ()
   (assert (active-hole-exist-p) t 
-	  "next-active-hole: no active hole")
+			 "next-active-hole: no active hole")
   (next-hole (active-hole-end-position)
-	     (active-hole-buffer))
+				 (active-hole-buffer))
   )
 
 (defun set-active-hole-next (&optional BUFFER pos)
@@ -457,13 +454,12 @@ is), which is annoying.
   
   (interactive)
   (let ((nxthole (next-hole (or pos (point))
-			    (or BUFFER (current-buffer)))))
+									 (or BUFFER (current-buffer)))))
     (if nxthole 
-	(progn 
+		  (progn 
 	       (set-active-hole nxthole)
-	  )
-      (message "ici")
-      (disable-active-hole)
+			 )
+		(disable-active-hole)
       )
     )
   )
@@ -780,6 +776,29 @@ is), which is annoying.
   (count-char-in-string empty-hole-string (abbrev-expansion last-abbrev-text))
   )
 
+(defun count-chars-in-last-expand ()
+  (length (abbrev-expansion last-abbrev-text))
+  )
+
+(defun count-newlines-in-last-expand ()
+  (count-char-in-string "\n" (abbrev-expansion last-abbrev-text))
+  )
+
+(defun indent-last-expand ()
+  "Indents last abbrev expansion. Must be called when the point is at
+end of last abbrev expansion. "
+  (setq n (count-newlines-in-last-expand))
+  (save-excursion 
+	 (previous-line n)
+	 (while (>= n 0)
+		(indent-according-to-mode)
+		(next-line 1)
+		(setq n (- n 1))
+		)
+	 )
+  )
+
+
 (defun replace-string-by-holes (start end str)
 
   "make occurrence of str holes between start and end. sets the
@@ -837,6 +856,7 @@ created"
   )
 
 (defun holes-abbrev-complete ()
+  (indent-last-expand)
   (replace-string-by-holes-backward-move-point 
 	(count-holes-in-last-expand) empty-hole-string)
   )
