@@ -86,9 +86,7 @@ fi
 %files
 %attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README.* REGISTER doc/* */README.*
 %attr(-,root,root) /usr/share/info/ProofGeneral.info.*
-%attr(-,root,root) /usr/share/info/ProofGeneral.info-*.*
 %attr(-,root,root) /usr/share/info/PG-adapting.info.*
-%attr(-,root,root) /usr/share/info/PG-adapting.info-*.*
 %attr(-,root,root) /usr/bin/proofgeneral
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
