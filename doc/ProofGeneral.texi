@@ -2129,6 +2129,17 @@ just use
 once it has been selected.  (Alternatively, customize the setting
 @code{@emph{PA}-x-symbol-enable}).
 
+You may also simply use @code{M-x x-symbol-mode} to turn on and off
+X-Symbol display in the scripting buffer, as you would when using
+X-Symbol for other modes, or indeed, as for any other Emacs minor mode.
+However, this way of turning on and off symbols will only affect the
+current script buffer, and will not change the status of any symbol
+configuration for the prover input/output (some proof assistants, such
+as Isabelle, have switches for enabling symbol output).  To make
+sure that symbol output is switched on or off for the prover
+as a whole, use the menu option mentioned above, or its underlying
+command, @code{M-x proof-x-symbol-toggle}.
+
 Notice that for proper symbol support, the proof assistant needs to have
 a special @i{token language}, or a special character set, to use
 symbols.  In this case, the proof assistant will output, and accept as
