@@ -117,7 +117,7 @@
   "*Font-lock table for Isabelle terms.")
 
 (defconst isa-save-command-regexp
-  (concat "^" (proof-ids-to-regexp isa-keywords-save)))
+  (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-save))))
 
 ;; CHECKED
 (defconst isa-save-with-hole-regexp
@@ -125,7 +125,7 @@
 	  "\\)\\s-+\"\\(" isa-id "\\)\"\\s-*;"))
 
 (defcustom isa-goal-command-regexp
-  (proof-ids-to-regexp isa-keywords-goal)
+  (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-goal))
   "Regular expression used to match a goal."
   :type 'regexp
   :group 'isabelle-config)

@@ -269,12 +269,12 @@
 ;; It is understood here as being a goal.  This is important for
 ;; recognizing global identifiers, see coq-global-p.
 (defconst coq-save-command-regexp
-  (concat "^" (proof-ids-to-regexp coq-keywords-save)))
+  (proof-anchor-regexp (proof-ids-to-regexp coq-keywords-save)))
 (defconst coq-save-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-save)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*\."))
 (defconst coq-goal-command-regexp
-  (concat "^" (proof-ids-to-regexp coq-keywords-goal)))
+  (proof-anchor-regexp (proof-ids-to-regexp coq-keywords-goal)))
 (defconst coq-goal-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-goal)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*[:]?")) 

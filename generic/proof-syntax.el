@@ -17,6 +17,10 @@
   expression matching any of its elements"
   (mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
 
+(defun proof-anchor-regexp (e)
+  "Anchor (^) and group the regexp."
+  (concat "^\\(" e "\\)"))
+
 (defun proof-regexp-alt (&rest args)
   "Return the regexp which matches any of the regexps ARGS."
   ;; Is this not available in some library?
