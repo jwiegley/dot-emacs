@@ -1755,8 +1755,7 @@ arrive."
 		  
 (defun proof-shell-process-urgent-message (message)
   "Display and analyse urgent MESSAGE for asserting or retracting files."
-  (proof-message message)
-  (proof-response-buffer-display message 'font-lock-eager-annotation-face)
+  
 
   ;; Is the prover processing a file?
   (cond ((and proof-shell-process-file 
@@ -1777,7 +1776,11 @@ arrive."
 	    (remove (car proof-script-buffer-list)
 		    (proof-files-to-buffers
 		     (set-difference current-included
-				     proof-included-files-list))))))))
+				     proof-included-files-list))))))
+	(t
+	 (proof-message message)
+	 (proof-response-buffer-display message
+					'font-lock-eager-annotation-face))))
 
 (defun proof-shell-process-urgent-messages (str)
   "Scan the process output for urgent messages.
