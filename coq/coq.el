@@ -216,45 +216,37 @@
 
 ;; Pierre: May 29 2002 added a "Back n." command in order to
 ;; synchronize more accurately.
+
 (defun coq-find-and-forget (span)
   (let (str ans (nbacks 0) answers) 
     (while (and span (not ans))
       (setq str (span-property span 'cmd))
       (cond
-
-       ((eq (span-property span 'type) 'comment))       
-
+       ((eq (span-property span 'type) 'comment))
        ((eq (span-property span 'type) 'goalsave)
-	;; Note da 6.10.99: in Lego and Isabelle, it's trivial to
-	;; forget an unnamed theorem.  Coq really does use the 
-	;; identifier "Unnamed_thm", though!  So we don't need
-	;; this test:
-	;; (unless (eq (span-property span 'name) proof-unnamed-theorem-name)
-	(setq ans (format coq-forget-id-command (span-property span 'name))))
 
-       ((proof-string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
-				    "\\)\\s-*\\(" proof-id 
-				    ;; da: PG 3.1: I added "." here to try
-				    ;; to get undo for Section working.
-				    ;; (also changes in coq-syntax)
-				    ;; Coq users will have to tell me if it
-				    ;; works better now or not?
-				    ;; At least I can do C-c C-r in files
-				    ;; with Section in them.  But problem
-				    ;; with closure still present:
-				    ;; Section .. End Section should be
-				    ;; atomic!
-				    "\\)\\s-*[\\[,:.]") str)
-	(setq ans (format coq-forget-id-command (match-string 2 str))))
+	;; Note da 6.10.99: in Lego and Isabelle, it's trivial to forget an
+	;; unnamed theorem.  Coq really does use the identifier
+   ;; "Unnamed_thm", though!  So we don't need this test:
+   ;;(unless (eq (span-property span 'name) proof-unnamed-theorem-name)
+
+		  (setq ans (format coq-forget-id-command (span-property span 'name)))
+		  (if (span-property span 'nestedundos)
+				(setq nbacks (+ nbacks (span-property span 'nestedundos)))))
+
+       ((proof-string-match 
+			(concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
+					  proof-id 
+					  ;; Section .. End Section should be atomic!
+					  "\\)\\s-*[\\[,:.]") str)
+		  (setq ans (format coq-forget-id-command (match-string 2 str))))
 
        ;; If it's not a goal but it contains "Definition" then it's a
        ;; declaration
-       ;; Pierre : I suppressed the ":" here, since 
-       ;; "Definition foo [x:bar]..." is allowed
        ((and (not (coq-goal-command-p str))
-	     (proof-string-match
-	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
-	(setq ans (format coq-forget-id-command (match-string 2 str))))
+				 (proof-string-match
+				  (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
+		  (setq ans (format coq-forget-id-command (match-string 2 str))))
 
 		 ; Pierre: added may 29 2002
 		 ; REM:
@@ -265,7 +257,7 @@
 		 ; user definable elisp variables coq-user... to avoid this
 		 ; problem anyway.
 		 ((and 
-			(not (coq-goal-command-p str)) ;; saved goals are catched before this point
+			(not (coq-goal-command-p str)) ;; unsaved goals
 			;; now we should match all things that do not deal with Back
 			(not (proof-string-match 
 					(concat "\\`\\(" coq-tactics-regexp "\\)")
