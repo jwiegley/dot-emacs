@@ -208,7 +208,7 @@
    proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle/Isar by modifying print functions etc.
    proof-shell-init-cmd                 "ProofGeneral.init true;"
-   proof-shell-restart-cmd		"init_toplevel; touch_all_thys;"
+   proof-shell-restart-cmd		"init_toplevel; touch_all_thys; welcome;"
    proof-shell-quit-cmd			"quit();"
    
    proof-shell-eager-annotation-start   "\360\\|\362"
