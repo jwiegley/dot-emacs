@@ -58,7 +58,7 @@ function dt($string) {
 /* FIXME: for now, just inline them. */
 
 function footnote ($text) {
-   print "<p><small><i>[" . $text . "]</i></small></p>";
+   print "<p><i><small>[" . $text . "]</small></i></p>";
 }
 
 /* A hyper-link with optional mouse over text.

@@ -83,3 +83,58 @@ arrive."
 
 
 
+;; was is proof-shell, never used.
+(defun proof-shell-strip-eager-annotation-specials (string)
+  "Strip special eager annotations from STRING, returning cleaned up string.
+The input STRING should be annotated with expressions matching
+proof-shell-eager-annotation-start and eager-annotation-end.
+We only strip specials from the annotations."
+  (let* ((mstart (progn
+		   (string-match proof-shell-eager-annotation-start string)
+		   (match-end 0)))
+	 (mend	 (string-match proof-shell-eager-annotation-end string))
+	 (msg	 (substring string mstart mend))
+	 (strtan (substring string 0 mstart))
+	 (endan	 (substring string mend)))
+    (concat
+     (proof-shell-strip-special-annotations strtan)
+     msg
+     (proof-shell-strip-special-annotations endan))))
+     
+
+
+;; 2. proof-find-and-forget-fn
+;;
+;; This calculates undo operations outwith a proof.  If we retract
+;; before a "Goal" command, proof-kill-goal-command is sent, followed
+;; by whatever is calculated by this function.
+;;
+;; Isabelle has no concept of a linear context, and you can happily
+;; redeclare values in ML.  So forgetting back to the declaration of a
+;; particular something makes no real sense.  
+;; The function is given a trivial implementation in this case.
+;;
+;; Find LEGO or Coq's implementation of this function to see how to
+;; write it for proof assistants that can do this.
+
+
+
+;; FIXME: this is supposed to be a handy way of swapping
+;; between goals and response buffer.  Never mind.
+;(defun proof-bury-buffer-after (buf)
+;  (if (and (string-match "XEmacs" emacs-version) ; XEmacs speciality
+;	   (buffer-live-p buf))
+;      (bury-buffer (current-buffer) buf)
+;    (bury-buffer)))
+
+;(defun proof-bury-buffer-after-goals ()
+;  (interactive)
+;  (proof-bury-buffer-after proof-goals-buffer))
+
+
+
+;(defun proof-bury-buffer-after-response ()
+;  (interactive)
+;  (if proof-response-buffer
+;      (with-current-buffer proof-response-buffer
+;	(proof-bury-buffer-after proof-goals-buffer))))

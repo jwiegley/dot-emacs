@@ -1,4 +1,3 @@
-Reply-To: "Proof General Maintainer <proofgen@dcs.ed.ac.uk>"
 To: coq-club@pauillac.inria.fr,
     isabelle-users@cl.cam.ac.uk,
     lego-club@dcs.ed.ac.uk,
@@ -33,54 +32,58 @@ Subject: Proof General --- Version 3.0 release
 
    A Generic Emacs interface for Interactive Proof Assistants
 
-            http://zermelo.dcs.ed.ac.uk/home/proofgen
+           http://zermelo.dcs.ed.ac.uk/home/proofgen
+
+           contact: David Aspinall <da@dcs.ed.ac.uk>
 
 		 =========================
 
-Proof General is supplied ready-customised for LEGO, Coq, and
-Isabelle.  It includes these features (amongst others):
+Proof General is an Emacs interface for developing proof scripts.
+It can be instantiated for the proof assistant of your choice,
+and is supplied ready-customised for Isabelle, Coq, and LEGO.
 
- . Script management: files and regions of files processed by
-   prover have a blue background and are read-only; the state
-   of the proof assistant is reflected inside the editor.
-   Script management works across multiple files for
-   LEGO and Isabelle.
-   
- . A toolbar for building and replaying proofs and interacting
-   with the proof assistant.
- 
- . Syntax highlighting of proof scripts and prover output
- 
- . Simplified communication: the proof assistant is run in
-   an Emacs shell buffer, but by default it is hidden from view
-   and only the most recent messages and proofstate are displayed
-   to the user, simplifying the dialogue.
-   
- . Menu for jumping to theorems in a proof script, Emacs outlining
-   of proof scripts
-   
- . Provision to easily run proof assistant on a remote host
+Proof General includes these features, amongst others:
 
-Script management is the main feature.  
+. Script management: proof assistant state reflected in editor
+. Toolbar and menus: commands for building and replaying proofs
+. Syntax highlighting of proof scripts and prover output
+. Integration with X-Symbol to provide logical symbols, etc
+. Simplified communication: proof assistant verbosity hidden
+. Menu for jumping to theorems in a proof script
+. Provision to easily run proof assistant on a remote host
 
 Summary of changes since 2.1:
 
- . Six new toolbar buttons, enabled depending on context
- . Reorganized and improved menus 
- . New function to search for theorems 
- . Lots more fine-grained improvements, for full details
-   http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/CHANGES
+. Six new toolbar buttons, enabled depending on context
+. Improved and reorganized menus and keybindings, options settings
+. Easier to adapt to new systems, comes with example (30 setqs)
+. New function to search for theorems 
+. Lots more fine-grained improvements, for full details
+  http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/CHANGES
 
 The user manual contains full details, and is available on-line at: 
 http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/doc/ProofGeneral_toc.html
+
+Proof General needs a recent version of Emacs to run with, and it much
+prefers XEmacs to FSF GNU Emacs.  Proof General 3.0 has been tested
+with XEmacs 21.1 and Emacs 20.4.  (It should work back to XEmacs 20.4
+and Emacs 20.2, though).  
+
+Installing Proof General is easy.  Give it a try!
+
+ - David Aspinall <da@dcs.ed.ac.uk>
+
+
 
 The rest of this announcement contains notes addressed to different
 user communities: LEGO, Coq, and Isabelle; users of other proof
 assistants, user-interface/theorem-proving researchers and, finally,
 Emacs gurus.
 
+
 To users of LEGO, Coq, and Isabelle:
 ------------------------------------
+
 Proof General 3.0 has several new features as well as bug fixes and
 improvements over versions 2.1 and 2.0.  It supports the latest
 theorem prover versions: LEGO 1.3.1, Coq 6.3 and Isabelle 99.
@@ -88,11 +91,7 @@ theorem prover versions: LEGO 1.3.1, Coq 6.3 and Isabelle 99.
 Please try it and let us know what you think of it!
 
 We have worked hard on the user documentation, and on making Proof
-General robust and easy to install. Ideally you should use it with
-XEmacs, but it also works with limited features in FSF GNU Emacs. 
-
-We have tested on XEmacs 21.1 and Emacs 20.2, 20.3. (It probably works
-with earlier versions of either Emacs but we cannot guarantee this).
+General robust and easy to install.
 
 
 To users of other proof assistants:
@@ -110,7 +109,7 @@ General for it, and let us know how you get on.
 To user-interface/theorem-proving researchers:
 ---------------------------------------------- 
 Proof General provides a unified interface to different theorem
-provers. The advantage is that a novice who understands the Proof
+provers.  The advantage is that a novice who understands the Proof
 General interface can inspect and replay proofs in any of the theorem
 provers supported, without knowing the specific commands needed to
 drive them.  Moreover, by implementing your user-interface ideas in
@@ -120,20 +119,22 @@ large community of both novice and expert proof assistant users.
 A desirable avenue towards further and easier unification would be to
 invent a unified proof script (input) language and proof-state
 (output) language for theorem provers. The Proof General experience
-could provide useful insight into such a project. We'd be interested
-to hear from workers interested in collaborating in this area.
+could provide useful insight into such a project.  I'd be keen to hear
+from workers interested in collaborating in this area.
 
-To Emacs gurus:
----------------
-If you are an Emacs guru and want to contribute to the development of
-Proof General, please join in!  There are plenty of exciting avenues
-for improving this tool, for example, to add proof by pointing
-facilities (a basis already exists for LEGO), and a theory browser.
+
+To Emacs gurus: 
+--------------- 
+If case happen to be an Emacs guru also interested in interactive
+proof, we want you to contribute to the development of Proof General!
+Please join in!  There are plenty of exciting avenues for improving
+this tool, for example, to add proof by pointing facilities (a basis
+already exists for LEGO), and a theory browser.
 
 Apart from proof assistants, script management makes sense for many
 other systems or languages with an interactive shell-like interpreter.
-We would be interested to hear from any Emacs developers interesting
-in adapting Proof General's script management for development in Lisp,
+I would be keen to hear from any Emacs developers interesting in
+adapting Proof General's script management for development in Lisp,
 SML, or other languages.
 
 

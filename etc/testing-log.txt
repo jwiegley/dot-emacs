@@ -1,3 +1,15 @@
+Tue Nov 16 15:28:51 GMT 1999
+
+ Tested automatic multiple file handling: see etc/demoisa
+
+ Tested FSF Emacs, after fixing several things.
+
+ Tested proof by pointing in LEGO.  Fixes for bugs,
+ empty pbp response, and added a useful click
+ (C-button 3) for undoing and deleting the last 
+ pbp command.  Can now prove example.l by PBP.
+ Proof-by-pointing lives!
+
 Thu Nov 11 19:05:39 GMT 1999
 
  Tested response buffer display: see isa/message-test.ML
