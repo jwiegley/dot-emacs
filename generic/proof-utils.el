@@ -568,14 +568,16 @@ Ensure that point is visible in window."
 (defun proof-clean-buffer (buffer)
   "Erase buffer and hide from display if proof-delete-empty-windows set.
 Auto deletion only affects selected frame.  (We assume that the selected
-frame is the one showing the script buffer.)"
-  (with-current-buffer buffer
-    (erase-buffer)
-    (set-buffer-modified-p nil)
-    (if (eq buffer proof-response-buffer)
-	(setq pg-response-next-error nil))	; all error msgs lost!
-    (if proof-delete-empty-windows
-	(delete-windows-on buffer t))))
+frame is the one showing the script buffer.)
+No effect if buffer is dead."
+  (if (buffer-live-p buffer)
+      (with-current-buffer buffer
+	(erase-buffer)
+	(set-buffer-modified-p nil)
+	(if (eq buffer proof-response-buffer)
+	    (setq pg-response-next-error nil))	; all error msgs lost!
+	(if proof-delete-empty-windows
+	    (delete-windows-on buffer t)))))
 
 (defun proof-message (&rest args)
   "Issue the message ARGS in the response buffer and display it."
@@ -745,7 +747,8 @@ or if the window is the only window of its frame."
     (reporter-submit-bug-report
      "da+pg-bugs@inf.ed.ac.uk"
      "Proof General" 
-     (list 'proof-general-version 'proof-assistant)
+     (list 'proof-general-version 'proof-assistant 
+	   'x-symbol-version)
      nil nil
      "[ When reporting a bug, please include a small test case for us to repeat it.
  Please also check that it is not already covered in the BUGS files that came with
