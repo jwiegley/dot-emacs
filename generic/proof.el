@@ -11,12 +11,17 @@
 
 (defmacro deflocal (var value &optional docstring)
   "Define a buffer local variable VAR with default value VALUE."
- (list 'progn
-   (list 'defvar var 'nil docstring)
-   (list 'make-variable-buffer-local (list 'quote var))
-   (list 'setq-default var value)))
+ `(progn
+    (defvar ,var nil ,docstring)
+    (make-variable-buffer-local (quote ,var))
+    (setq-default ,var ,value)))
 
 (require 'proof-site)			; site config
+
+;; cl is dumped with my XEmacs 20.4, but not FSF Emacs 20.2.
+(require 'cl)				
+
+
 
 (require 'proof-config)			; configuration variables
 
@@ -25,9 +30,6 @@
 ;;;
 ;;; Emacs libraries
 ;;;
-
-;; cl is dumped with my XEmacs 20.4, but not FSF Emacs 20.2.
-(require 'cl)				
 
 ;; browse-url function doesn't seem to be autoloaded in
 ;; XEmacs 20.4, but it is in FSF Emacs 20.2.
