@@ -5,6 +5,8 @@
 
 $Id$
 
+This is an outline file.  
+Use C-c C-n, C-c C-p or menu to navigate.
 
 * Contents
 ==========
@@ -13,32 +15,40 @@ $Id$
  * Things to do in the generic interface
  * FSF Emacs issues
  * Things to do for Proof-by-Pointing
- * Things to do for Lego
- * Things to do for Coq
- * Things to do for Isabelle
  * Bugs in other software beyond our control
  * Stable version release checklist
  * Things to do for Proof General Project
 
+See <prover>/todo for things to do for each prover.
 
 
 * Priorities
 ============
 
-A (High)	to be fixed ASAP for next pre-release 
-B		to be fixed before next release
-C (Medium)	would be nice to fix before next release; not crucial
-D		desirable to fix at some point
-X (Low)		probably not worth spending time on
+A (High)	e.g. to be fixed ASAP for next pre-release 
+B		e.g. to be fixed before next release
+C (Medium)	e.g. would be nice to fix before next release; not crucial
+D		e.g. desirable to fix at some point
+X (Low)		e.g. probably not worth spending time on
 
 
 
-* Priority Fixes for 3.1
-========================
+* Top Priority Fixes for 3.1
+============================
 
 ** Isabelle regexp overflow problem on proof-shell-proof-completed-regexp
 ** Solaris ^G problem and FSF Emacs mule/non-mule support
 ** Recognition of ; only at eol (DvO reported bug)
+
+
+* Scheduled improvements for 3.2
+================================
+
+** Scheme to detect type of buffer
+** More proof assistants supported
+
+
+
 
 
 * Things to in the generic interface
@@ -60,12 +70,14 @@ C X-Symbol support for theory files: bugs at the moment, because
   font-lock initialization.  Problem with current version:
   visit a.thy, b.thy then turn on xsym.  Broken in b.thy.
   Seems okay visiting new buffers after that.
-  Must also check interaction with xsym-isa-latex stuff,
+  Must also check interaction with xsym-isa-latex stuff
   may be broken by removal of mode hook settings.
+  [DvO reports okay].
   (May need to split extra modes into two parts?)
 
 C Investigate support under Mule.  Suggestion we need to set
   process-coding-system-alist somehow to prevent coding.
+  What about Mew ?
 
 C Investigate fix for looping rewriting in Isabelle.  Continual
   and frequent messages from the prover lock out the user.
@@ -692,7 +704,6 @@ X Idea for future re-engineering:
 
 
 
-
 * FSF Emacs issues
 ==================
 
@@ -747,16 +758,23 @@ X pbp code doesn't quite accord with the tech report; in particular it
 
 
 
-* Things to do for Web Pages
-============================
 
-B Improve screenshot: add several, like the gallery.
+
+* Things to do for Web Pages, Distribution
+==========================================
+
+A Add some one-stop-shop pages.  Ask permission to redistribute
+  packages for PAs.  Maybe do Windows and Linux versions.
+
+B Add an animation, showing proof replay.
 
 B Validate pages.  
-      Current failures for HTML 4.0 to do with CGI-style arguments with "&",
-      this is a problem with PHP3 really.
+   Current failures for HTML 4.0 to do with CGI-style arguments with "&",
+   this is a problem with PHP3 really.
 
-C Wanted for links:  something to UITP.
+B Update ETAPS demo
+
+C Wanted for links: something to UITP.  Are there any pages?
 
 C Broken (old) links:
     (Applications of a Type Theory based Proof Assistant)
@@ -770,7 +788,7 @@ D Restructure so that page titles are different to help
 
 C Add etc/announce somewhere.
 
-C Convert to SSI only plus a meta-generation phase?
+X Convert to SSI only plus a meta-generation phase?
 
 X Check appearance in V3 browsers.
  
@@ -781,139 +799,6 @@ X Add status bar messages to navigation bar
 X Get rid of footer() function.
 
 
-
-
-
-* Things to do for Lego
-=======================
-
-C Improve X-Symbol support.
-
-D Fix Pbp implementation in LEGO itself (10h)
-
-D In LEGO, apart from Goal...Save pairs, we have
-  declaration...discharge pairs. See the section "Granularity of
-  Atomic Commands" for a proposal on how to generalise the current
-  implementation so that it can also deal with "Discharge".
-  [See also the Coq problem with Sections] (6h)
-
-D Inoking an "Expand" command produces a new proof state. But this is
-  incorrectly displayed in the response buffer and not the goals
-  buffer because special annotations are missing. Presumably, one
-  ought to replace "Toplevel.Pr()" by "Toplevel.PR()" in the
-  definition of "Expand" (see file newtop.sml [Version 1.4]). (30min)
-
-D Even with the more flexible region model, with 
-  proof-nested-goals-behaviour=closequick, Proof General doesn't
-  do quite the right thing.  Forget for a definition when inside
-  a proofstate kills off the whole proofstate.  Effectively,
-  the definition is *global* rather than local to the proofstate,
-  and could perhaps be lifted to before the goal
-  (with the lift-global nonsense not so daft after all?  Editing
-   behind the user's back is still objectionable though).
-  Another alternative fix would be to trigger some retraction action
-  on seeing the "Abort" regexp, rather than assuming it is the result of
-  some retraction action.  More generally this could be used for error
-  handling.
-
-D Improve legotags. It cannot handle lists e.g., with 	
-    [x,y:nat];
-  it only tags x but not y. [The same problem exists for coqtags]
-
-X Mechanism to save object file. Specifically, after having processed
-  a script (interactively), it would be nice if one could now save the
-  buffer in object format. At the moment, it only gets converted
-  (automatically) when it is read in indirectly at a later stage.
-  However, there is currently no LEGO command to do this.  [4h]
-
-
-
-* Things to do for Coq
-======================
-
-B Improve X-Symbol support.
-
-B C-c C-c breaks the coherence with prover state
-  (da: can somebody tell me if this is still true? 
-   what problem specifically?)
-
-C Retraction in a Section should retract to the beginning of the whole 
-  section. See the section "Granularity of
-  Atomic Commands" for a proposal on how to generalise the current
-  implementation so that it can also deal with sections.
-  [See also the LEGO problem with Discharge] (6h)
-
-C Proof-by-Pointing (1 week?)
-  da: Yves Bertot told me that his CtCoq proof-by-pointing code
-  is in the Coq kernel now, so would be useful for PG.
-  We need a Coq hacker to do this (Pierre?)
-
-D Add Patrick Loiseleur's commands to search for vernac or ml files.
-  (they are in a separate file that is part of Coq distrib.
-   should I really integrate that in PG ? Patrick) 
-  (maybe not if they're orthogonal to PG, but might help users - da)
-
-D Add coq-add-tactic with a tactic name, which adds that tactic to the 
-  undoable tactics and to the font-lock. (2h)
-
-D Improve coqtags. It cannot handle lists e.g., with 	
-	Parameter x,y:nat
-  it only tags x but not y. [The same problem exists for legotags]
-
-
-
-* Things to do for Isabelle
-===========================
-
-B auto-adjust Pretty.setmargin when window is resized.  Use
-  generic code once it's implemented.
-
-D Implement completion for Isabelle using tables generated by
-  the running process.  Would be a nice addition. (1 day)
-
-D Add useful specific commands for Isabelle.  Many could
-  be added.  Would be better to merge in Isamode's menus.
-  (however, probably 2 week's work to bring together Isamode 
-   and proof.el, making some of Isamode generic)
-
-D Switching to other file with C-c C-o could be more savy
-  with file names and extensions (use some standard function?)
-
-X weird bug: interrupting Isabelle process (under sml-nj) sometimes
-  doesn't return, why? (see first half of interrupt error only:
-
-    *** Interrupt.
-    *** At command "time_use".
-  
-    uncaught exception ERROR
-      raised at: library.ML:1100.35-1100.40
-  But not "uncaught exception" part.  
-  What is worse: prompt disappears!  But process still seems to be
-  there underneath.  Not sure where this bug comes from.
-
-  Moreover, killing process then hangs Emacs with message 
-  "cleaning up", and get error
-    (1) (error/warning) Error in process sentinel: (no-catch exited t)
-
-  To see if this is some SML/NJ or Isabelle weirdness, test in 
-  xterm: use "ROOT.ML", interrrupt, use "ROOT.ML" again.
-  sig 11!  (flaky hardware?)  
-    /usr/lib/Isabelle_22-Sep-1999/../../share/smlnj/bin/sml: Fatal error -- unexpected fault, signal = 11, code = 0x2ad09c43
-  Not reliably repeatable, but:
-    ProofGeneral.isa_restart(); 
-    /usr/lib/Isabelle_22-Sep-1999/../../share/smlnj/bin/sml: Fatal error -- unexpected fault, signal = 11, code = 0x2af9e01b
-
-X Add ability to choose logic.  Maybe not necessary: can use default
-  set in Isabelle settings nowadays, in the premise that most people
-  stick to a particular logic?   But then no support for loading
-  user-saved databases.  (ponder this)
-
-X Write perl scripts to generate TAGS file for ML and thy files.
-  (6h, I've completely forgotten perl).  
-
-X Manage multiple proofs, perhaps by automatically inserting
-  push_proof() and pop_proof() commands into the proof script.
-  But would lead to unholy mess for script management!
 
 
 
@@ -1008,19 +893,13 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 A Try to get small project grant from LFCS to help with
   development of Proof General.  Latest news: success is 
-  doubtful. Needs a self-contained project that would be useful 
-  to LFCS.   Possibles:
-    - Proof-by-pointing for Coq 
-		      - for Isabelle (hard)
-    - Re-engineering Proof General to use XML-style 
-      markup instead of 8bit chars, and proposing a
-      standard goals/pbp output scheme
-    - Fix up FSF Emacs support (character problem)
-
-A Consider writing a grant proposal related to
-  Proof General to generate funding for Proof General.
+  doubtful. Needs a self-contained project that 
+  *would be useful to LFCS*
 
 A Find new people to help advance and develop Proof General.
+  Getting more instances would be a good way.  Also encouraging
+  feedback.  Here stories of bugs by word-of-mouth, they don't
+  get reported often enough.
   Consider passing on project elsewhere if no LFCS interest.
 
 A Polish ProofGeneral.texi and publish LaTeX as an LFCS
@@ -1028,3 +907,10 @@ A Polish ProofGeneral.texi and publish LaTeX as an LFCS
 
 A Write paper on design and development of Proof General.
 
+A Write white paper on future of PG project.
+
+A Write grant proposal on white paper to generate funding for 
+  Proof General.
+
+A Add more PG projects, ensure interest is generated and as many
+  as possible proposed!
