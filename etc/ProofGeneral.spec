@@ -113,7 +113,7 @@ fi
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/hol98/*.sml
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/phox
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/phox/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/phox/*.phox
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/phox/*.phx
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/acl2
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.el
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.acl2
