@@ -144,7 +144,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       ;; da: I've moved newline before the string itself, to match
       ;; the other cases when messages are inserted and to cope
       ;; with warnings after delayed output (non newline terminated).
-      ;; Also assume that point is at end of buffer already.
+      (goto-char (point-max))
       (newline)				
       (setq start (point))
       (insert str) (setq end (point))
