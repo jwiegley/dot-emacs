@@ -170,7 +170,7 @@ or for optional argument TABLE."
 
 
 (defun phox-find-and-forget (span)
-  (let (str ans tmp (lsp -1))
+  (let (str ans tmp (lsp -1) name sname) ;; da: added name,sname.  are tmp/lsp not used?
     (while span 
       (setq str (span-property span 'cmd))
 
