@@ -125,7 +125,7 @@ no regular or easily discernable structure."
 	 (list isa-save-with-hole-regexp 2
 	       'backward isa-goal-command-regexp))
    ;;
-   proof-commands-regexp	(proof-ids-to-regexp isa-keywords)
+   proof-indent-commands-regexp	(proof-ids-to-regexp isa-keywords)
    
    ;; proof engine commands (first three for menus, last for undo)
    proof-prf-string		"pr();"

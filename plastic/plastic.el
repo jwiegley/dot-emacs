@@ -406,7 +406,7 @@ Given is the first SPAN which needs to be undone."
 	proof-save-with-hole-regexp plastic-save-with-hole-regexp
 	proof-goal-with-hole-regexp plastic-goal-with-hole-regexp
 	proof-kill-goal-command plastic-kill-goal-command
-	proof-commands-regexp (proof-ids-to-regexp plastic-commands))
+	proof-indent-commands-regexp (proof-ids-to-regexp plastic-commands))
 
   (plastic-init-syntax-table)
 

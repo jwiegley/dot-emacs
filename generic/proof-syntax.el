@@ -56,10 +56,10 @@ nil if a region cannot be found."
 
 ;; Generic font-lock
 
-;; proof-commands-regexp is used for indentation
-(defvar proof-commands-regexp ""
+(defvar proof-indent-commands-regexp ""
   "Subset of keywords and tacticals which are terminated by the
-  `proof-terminal-char'") 
+`proof-terminal-char'.  Basic indentation is provided automatically
+for these.")
 
 
 (defvar proof-id "\\(\\w\\(\\w\\|\\s_\\)*\\)"

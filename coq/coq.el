@@ -443,7 +443,7 @@
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
 	proof-kill-goal-command coq-kill-goal-command
-	proof-commands-regexp (proof-ids-to-regexp coq-keywords))
+	proof-indent-commands-regexp (proof-ids-to-regexp coq-keywords))
 
   (coq-init-syntax-table)
 

@@ -368,7 +368,7 @@ Checks the width in the `proof-goals-buffer'"
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
 	proof-goal-with-hole-regexp lego-goal-with-hole-regexp
 	proof-kill-goal-command lego-kill-goal-command
-	proof-commands-regexp (proof-ids-to-regexp lego-commands))
+	proof-indent-commands-regexp (proof-ids-to-regexp lego-commands))
 
   (lego-init-syntax-table)
 
