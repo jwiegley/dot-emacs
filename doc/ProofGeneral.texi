@@ -5710,9 +5710,17 @@ proofs, so be careful not to retract more than you need!
 @node Plans and ideas
 @appendix Plans and ideas
 
-This section contains some tentative plans and ideas for improving Proof
-General.  Please send us contributions to this wish list, or better
-still, an offer to implement something from it!
+This appendix contains some tentative plans and ideas for improving Proof
+General.  
+
+This appendix is no longer extended: instead we keep a list of Proof
+General projects on the web, and forthcoming plans and ideas in the
+@file{TODO} and @file{todo} files included in the ordinary and
+developers distributions, respectively.  Once the items mentioned below
+are implemented, they will be removed from here.
+
+Please send us contributions to our wish lists, or better still, an
+offer to implement something from them!
 
 @menu
 * Proof by pointing and similar features::
