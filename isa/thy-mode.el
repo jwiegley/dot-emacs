@@ -201,15 +201,14 @@ You can use the following format characters:
 		    "Menu for Isabelle Proof General, theory file mode."
 		    (cons "Theory"
 			  (list
-			   ["Next section" thy-goto-next-section]
-			   ["Prev section" thy-goto-prev-section]
+			   ["Next section" thy-goto-next-section t]
+			   ["Prev section" thy-goto-prev-section t]
 			   ["Insert template" thy-insert-template t]
 			   ["Process theory" isa-process-thy-file
-			    :active (proof-locked-region-empty-p)
-			    ]
+			    :active (proof-locked-region-empty-p)]
 			   ["Retract theory" isa-retract-thy-file
-			    :active (proof-locked-region-full-p)
-			    ]
+			    :active (proof-locked-region-full-p)]
+			   ["Next error" proof-next-error t]
 			   ["Switch to script" thy-find-other-file t])))
     (easy-menu-add thy-mode-pg-menu thy-mode-map)
     (easy-menu-add thy-mode-isa-menu thy-mode-map))
