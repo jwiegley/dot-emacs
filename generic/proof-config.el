@@ -1133,6 +1133,15 @@ default."
   :type 'function
   :group 'proof-script)
 
+
+(defcustom proof-script-imenu-generic-expression nil
+  "Regular expressions to help find definitions and proofs in a script.
+Value for `imenu-generic-expression', see documentation of Imenu
+and that variable for details."
+  :type 'sexp
+  :group 'proof-script)
+
+
 ;; FIXME da: This next one is horrible.  We clearly would rather
 ;; have just proof-goal-command regexp instead.  This was born to solve
 ;; problem that Coq can have goals which look like definitions, etc.

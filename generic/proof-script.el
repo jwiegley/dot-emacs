@@ -2811,19 +2811,21 @@ Choice of function depends on configuration setting."
 
 
 (defun proof-setup-imenu ()
-  "Setup a default for imenu."
+  "Setup a default for imenu, perhaps using `proof-script-imenu-generic-expression'."
   (unless ;; already setup, leave it alone
       (and (boundp 'imenu-generic-expression)
 	   imenu-generic-expression)
     (set (make-local-variable 'imenu-generic-expression)
-	 (delq nil
+	 (or 
+	  proof-script-imenu-generic-expression
+	     (delq nil
 	       (list
 		(if proof-goal-with-hole-regexp
 		    (list nil proof-goal-with-hole-regexp
 			  proof-goal-with-hole-result))
 		(if proof-save-with-hole-regexp
 		    (list "Saves" proof-save-with-hole-regexp
-			  proof-save-with-hole-result)))))))
+			  proof-save-with-hole-result))))))))
 
 (defun proof-setup-func-menu ()
   "Configure func-menu for a proof script buffer."
