@@ -18,8 +18,11 @@
 @c   . add more index entries
 @c   . screenshots might be nice (one day)
 @c   . follow conventions:  
-@c         key-binding or key binding ?
-@c   
+@c       key-binding or key binding ?
+@c       references: 
+@c        @xref{node}  blah         start of sentence: See [ref]
+@c        blah (@pxref{node}) blah  bla (see [ref]), best at end of sentence
+@c        @ref{node}                without "see". Careful for info.
 
 @c
 @c IMPORTANT NOTE ABOUT THIS TEXINFO FILE:
@@ -316,7 +319,7 @@ keyboard.  Type @kbd{C-h m} to get a list of keys for the current mode.
 
 The proof assistant is automatically started inside Emacs when you ask
 for some of the proof script to be processed.  To follow an example use
-of Proof General on a LEGO proof, see @pxref{Walkthrough example in LEGO}.
+of Proof General on a LEGO proof, see @ref{Walkthrough example in LEGO}.
 
 If Proof General has not already been installed, you should insert the
 line:
@@ -327,7 +330,7 @@ into your @file{~/.emacs} file, where @var{proof-general-home} is the
 top-level directory that was created when Proof General was unpacked.
 
 For more details on obtaining and installing Proof General,
-see @pxref{Obtaining and Installing Proof General}.
+see @ref{Obtaining and Installing Proof General}.
 
 
 @node Features of Proof General
@@ -350,8 +353,8 @@ This means that the user only sees the output from the most recent proof
 step, rather than a screen full of output from the proof assistant.
 @c Optionally, the goals buffer and script buffer can be identified.
 
-For more details, see @xref{Basic Script Management},
-@xref{Script buffers} and @xref{Summary of Proof General buffers}.
+For more details, see @ref{Basic Script Management}, @ref{Script
+buffers} and @ref{Summary of Proof General buffers}.
 
 @item @i{Script management}@*
 Proof General colours proof script regions blue when they have already
@@ -362,9 +365,9 @@ be edited.  Proof General has functions for @emph{asserting} or
 @emph{retracting} parts of a proof script, which alters the coloured
 regions.
 
-For more details, see @xref{Basic Script Management},
-@xref{Script processing commands}.
-and @pxref{Advanced Script Management}.
+For more details, see @ref{Basic Script Management},
+@xef{Script processing commands}.
+and @xref{Advanced Script Management}.
 @item @i{Script editing mode}@*
 Proof General provides useful facilities for editing proof scripts,
 including syntax hilighting and a menu to jump to particular goals,
@@ -372,16 +375,16 @@ definitions, or declarations.
 Special editing functions send lines of proof script to the proof
 assistant, or undo previous proof steps.
 
-For more details, see @pxref{Script editing commands}
-and @pxref{Script processing commands}.
+For more details, see @ref{Script editing commands}
+and @ref{Script processing commands}.
 @item @i{Toolbar and menus}@*
 A script buffer has a toolbar with navigation buttons for processing
 parts of the proof script.  A menu provides further functions for
 operations in the proof assistant, as well as customization of Proof
 General.
 
-For more details, see @pxref{Toolbar commands}, @pxref{Proof assistant
-commands}, and @pxref{Customizing Proof General}.
+For more details, see @ref{Toolbar commands}, @ref{Proof assistant
+commands}, and @ref{Customizing Proof General}.
 
 @c not yet
 @c @item @i{Proof by pointing}
@@ -399,14 +402,14 @@ Proof General comes ready-customised for these proof assistants:
 @c written by Thomas Kleymann and Dilip Sequeira.
 @c
 All features of Proof General are supported.  
-See @pxref{LEGO Proof General} for more details.
+@xref{LEGO Proof General} for more details.
 
 @item 
 @b{Coq Proof General} for Coq Version 6.2@*
 @c written by Healfdene Goguen.
 @c
 All of features of Proof General are supported except multiple files.
-See @pxref{Coq Proof General} for more details.
+@xref{Coq Proof General} for more details.
 
 @item 
 @b{Isabelle Proof General} for Isabelle 98-1@*
@@ -415,14 +418,14 @@ All features of Proof General are supported, except for an external tags
 program.  Isabelle Proof General handles theory files as well as ML
 (proof script files), and has an extensive theory file editing mode
 taken from @uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}.
-See @pxref{Isabelle Proof General} for more details.
+@xref{Isabelle Proof General} for more details.
 @end itemize
 Proof General is designed to be generic, so you can adapt it to other
 proof assistants if you know a little bit of Emacs Lisp.
 @itemize @bullet
 @item
 @b{Your Proof General} for your favourite proof assistant@*
-See @pxref{Adapting Proof General to New Provers}
+@xref{Adapting Proof General to New Provers}
 for more details of how to make Proof General work
 with another proof assistant.
 @end itemize
@@ -444,7 +447,7 @@ of a common interface mechanism.
 
 To get more from Proof General and adapt it to your liking, it helps to
 know a little bit about how Emacs lisp packages can be customized via
-the Customization mechanism.  It's really easy to use.  See @xref{Easy
+the Customization mechanism.  It's really easy to use.  @xref{Easy
 customization} and @inforef{Easy customization, ,(xemacs)} for details.
 
 To get the absolute most from Proof General, to improve it or to adapt
@@ -754,7 +757,7 @@ proofs.
 @itemize @bullet
 @item The @dfn{proof shell buffer} is an Emacs shell buffer
  used to run your proof assistant.  Usually it is hidden from view
- (but see @xref{Working directly with the proof shell}).
+ (but see @ref{Working directly with the proof shell}).
  Communication with the proof shell takes place via two or three
  intermediate buffers.
 @item  A @dfn{script buffer}, as we have explained, is a buffer for editing a
@@ -774,8 +777,8 @@ proofs.
 
 Normally Proof General will automatically reveal and hide the goals and
 response buffers as necessary during scripting.  However there are ways
-to customize the way the buffers are displayed, @pxref{Display
-customization}.
+to customize the way the buffers are displayed (@pxref{Display
+customization}).
 
 The menu @code{Proof General -> Buffers} provides a convenient way to
 display or switch to one of the four buffers: active scripting, goals,
@@ -805,7 +808,7 @@ Specific proof assistant code may elaborate on these basics.
 @findex indent-for-tab-command
 @vindex proof-script-indent
 Indentation is controlled by the user option @code{proof-script-indent}
-@pxref{User options}.  When indentation is enabled, Proof General
+(@pxref{User options}).  When indentation is enabled, Proof General
 will indent lines of proof script with the usual Emacs functions,
 particularly @kbd{TAB}, @code{indent-for-tab-command}.
 
@@ -1070,7 +1073,7 @@ even more dangerous than @code{proof-try-command}.
 
 As if the last few commands weren't dangerous enough, there's also a
 command which explicitly adjusts the end of the locked region, to be
-used in extreme circumstances only.  @pxref{Working directly with the
+used in extreme circumstances only.  @xref{Working directly with the
 proof shell}.
 
 @c Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working
@@ -1177,7 +1180,7 @@ assistant explicitly telling Proof General whenever it processes a
 new file which corresponds@footnote{For example, LEGO generates additional compiled
 (optimised) proof script files for efficiency.} to a file containing a proof
 script. For further technical
-details, @pxref{Handling multiple files}. 
+details, see @ref{Handling multiple files}. 
 
 If the current proof script buffer depends on background material from
 other files, proof assistants typically process these files
@@ -1195,7 +1198,7 @@ complains with an error message, the buffer will still be marked as
 having been completely processed. Sorry. You need to visit the
 troublesome file, retract (which will always retract to the beginning of 
 the file) and debug the problem e.g., by asserting all of the buffer
-under the supervision of Proof General, @pxref{Script processing
+under the supervision of Proof General, see @ref{Script processing
 commands}. 
 
 In case you wondered, inconsistencies may arise when you have unsaved
@@ -1224,7 +1227,7 @@ time to save any unmodified buffers.
 Make sure that the current script buffer has either been completely
 asserted or retracted. Then you can assert proof scripts in a different
 file. Simply visit a file that contains no locked region and assert some
-command with the usual assertion commands, @pxref{Script processing
+command with the usual assertion commands, see @ref{Script processing
 commands}. Proof General reminds you that now is a good time to save any
 unmodified buffers. This is particularly useful as assertion may cause
 the proof assistant to automatically process other files.
@@ -1238,7 +1241,7 @@ Occasionally you may want to review the dialogue of the entire session
 with the proof assistant, or check that it hasn't done something
 unexpected. Experienced users may also want to directly communicate with 
 the proof assistant rather than sending commands via the minibuffer,  
-@pxref{Proof assistant commands}.
+see @ref{Proof assistant commands}.
 
 Although the proof shell is usually hidden from view, it is run in a
 buffer which provides the usual full editing and history facilities of
@@ -1269,8 +1272,8 @@ move the end of the locked region backwards to the end of the segment
 containing the point.
 @end table
 
-Otherwise, you will need to restart script management altogether,
-@pxref{Toolbar commands}.
+Otherwise, you will need to restart script management altogether
+(@pxref{Proof assistant commands}).
 
 
 
@@ -1333,7 +1336,7 @@ Proof General configures Emacs variables (@code{outline-regexp} and
 @code{outline-heading-end-regexp}) so that outline minor mode can be
 used on proof script files.  The headings taken for outlining are the
 "goal" statements at the start of goal-save sequences, 
-@xref{Goal-save sequences}.
+see @ref{Goal-save sequences}.
 
 Use @kbd{M-x outline-minor-mode} to turn on outline minor mode.
 Functions for navigating, hiding, and revealing the proof script are
@@ -1384,7 +1387,7 @@ There are two kinds of customization for Proof General: it can be
 customized for a user's preferences using a particular proof assistant,
 or it can be customized by an Emacs expert to add a new proof assistant.
 Here we cover the user-level customization for Proof General,
-@xref{Adapting Proof General to New Provers} for how to configure
+see @ref{Adapting Proof General to New Provers} for how to configure
 for a new proof assisstant.
 
 We only consider settings for Proof General itself.  The support for a
@@ -1696,8 +1699,8 @@ One basic example of a setting you may like to tweak is:
 Web address for information on proof assistant
 @end defvar
 
-Most of the others are more complicated.  More details of the settings
-are given in @xref{Adapting Proof General to New Provers}.  To browse
+Most of the others are more complicated.  For more details of the settings,
+see @ref{Adapting Proof General to New Provers}.  To browse
 them, you can look through the customization groups
 @code{prover-config}, @code{proof-script} and @code{proof-shell}.  The
 group @code{proof-script} contains the configuration variables for
@@ -2843,7 +2846,7 @@ Flag indicating that a completed proof has just been observed.
 @end defvar
 
 The @file{proof.el} also loads @file{proof-config.el} which declares the
-proof assistant configuration variables for Proof General,
+proof assistant configuration variables for Proof General.
 @xref{Adapting Proof General to New Provers} for details.
 
 
@@ -2896,7 +2899,7 @@ to allow other files loaded by proof assistants to be marked read-only.
 
 Atomic locking is instigated by the next function, which uses the
 variables @code{proof-included-files-list} documented earlier
-(@xref{Handling multiple files} and @xref{Global variables}).
+(@pxref{Handling multiple files} and @pxref{Global variables}).
 
 @c TEXI DOCSTRING MAGIC: proof-register-possibly-new-processed-file
 @defun proof-register-possibly-new-processed-file file
@@ -3457,7 +3460,7 @@ where you installed it.
 If you are installing Proof General site-wide, you can put the
 components in the standard directories of the filesystem if you prefer,
 providing the variables in @file{proof-site.el} are adjusted
-accordingly, @xref{Proof General site configuration}.  Make sure that
+accordingly, see @ref{Proof General site configuration}.  Make sure that
 the @file{generic} and assistant-specific elisp files are kept in
 subdirectories (@file{coq}, @file{isa}, @file{lego}) of
 @code{proof-home-directory} so that the autoload directory calculations
@@ -3475,7 +3478,7 @@ you're using Coq, visiting an @file{.ML} file will not load Isabelle
 Proof General, and the buffer remains in fundamental mode.  If there are
 some assistants supported that you never want to use, you can adjust the
 variable @code{proof-assistants} in @file{proof-site.el} to solve this
-problem, @xref{Proof General site configuration}.
+problem, see @ref{Proof General site configuration}.
 
 @c Via the Customize mechanism, see the menu:
 @c @example
@@ -3692,8 +3695,8 @@ This is a note by David Aspinall about proof by pointing and similar
 features.
 
 In fact, Proof General already contains code for proof by pointing, for
-a reference @xref{Credits and References}.  However, it is slightly LEGO
-specific and not robust enough.
+a reference see @ref{Credits and References}.  However, it is slightly
+LEGO specific and not robust enough.
 
 Proof-by-pointing requires rather heavy support from the proof
 assistant.  There are two aspects to the support:
@@ -3721,8 +3724,8 @@ addition to Proof General.
 @cindex ACS (Atomic Command Sequence)
 
 This is a proposal by Thomas Kleymann for generalising the way Proof
-General handles sequences of proof commands @pxref{Goal-save sequences},
-particularly to make retraction more flexible.
+General handles sequences of proof commands (@pxref{Goal-save
+sequences}), particularly to make retraction more flexible.
 
 The locked region of a script buffer contains the initial segment of
 the proof script which has been processed successfully. It consists of
