@@ -298,6 +298,10 @@ If in three window or multiple frame mode, display two buffers."
        (customize-set-variable 'proof-follow-mode 'locked)
        :style radio
        :selected (eq proof-follow-mode 'locked)]
+      ["Follow Locked Region Down" 
+       (customize-set-variable 'proof-follow-mode 'followdown)
+       :style radio
+       :selected (eq proof-follow-mode 'followdown)]
       ["Keep Locked Region Displayed" 
        (customize-set-variable 'proof-follow-mode 'follow)
        :style radio
@@ -366,7 +370,9 @@ If in three window or multiple frame mode, display two buffers."
 	 proof-show-hide-menu
 	 (list "-----")
 	 ;; NB: customize-menu-create was buggy in earlier 
-	 ;; Emacs 21.X; okay since 21.1.1
+	 ;; Emacs 21.X; okay since 21.1.1. 
+	 ;; Oops: buggy again in 21.2.1, argh! 
+	 ;; See proof-compat.
 	 (list (customize-menu-create 'proof-general))
 	 (list (customize-menu-create 'proof-general-internals 
 				      "Internals"))))
