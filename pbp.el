@@ -3,7 +3,7 @@
 ;; Copyright (C) 1996 LFCS Edinburgh & INRIA Sophia Antipolis
 ;; Author: Yves Bertot < Yves.Bertot@sophia.inria.fr>
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <22 Nov 96 tms /home/tms/elisp/pbp.el>
+;; Time-stamp: <26 Nov 96 tms /home/tms/elisp/pbp.el>
 ;; Reference: Yves Bertot and Laurent Théry
 ;;            A Generic Approach to Building User Interfaces for
 ;;            Theorem Provers
@@ -228,8 +228,6 @@
 
 ;; NEED TO SET LAST_MARK ***BEFORE*** calling process-region 
 
-(defvar pbp-last-mark-debug nil)
-
 (defun pbp-filter (string)
   (save-excursion
     (set-buffer (proof-shell-buffer))
@@ -238,15 +236,11 @@
 	() 
        (goto-char (point-max))
        (setq pbp-last-mark (point-marker)))
-    (setq pbp-last-mark-debug
-	  (cons string (cons pbp-last-mark pbp-last-mark-debug)))
     (let (old-mark)
       (while (progn (goto-char pbp-last-mark)
 		    (re-search-forward proof-shell-prompt-pattern () t))
 	(setq old-mark pbp-last-mark)
 	(setq pbp-last-mark (point-marker))
-	(setq pbp-last-mark-debug
-	      (cons string (cons pbp-last-mark pbp-last-mark-debug)))
 	(goto-char (match-beginning 0))
 	(pbp-process-region old-mark (point-marker))
 	(pbp-sanitise-region old-mark pbp-last-mark)))))
