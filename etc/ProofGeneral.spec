@@ -1,12 +1,12 @@
 Summary:	Proof General, Emacs interface for Proof Assistants
 Name:		ProofGeneral
-Version:	3.5pre040208
+Version:	3.5pre040229
 Release:	1
 Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
 Url:		http://proofgeneral.inf.ed.ac.uk/
-Packager:	David Aspinall <da@dcs.ed.ac.uk>
-Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.5pre040208.tar.gz
+Packager:	David Aspinall <David.Aspinall@ed.ac.uk>
+Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.5pre040229.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 PreReq:		/sbin/install-info
 Prefixes:	/usr/share/emacs /usr/bin /usr/share/info
@@ -22,13 +22,35 @@ little bit of Emacs Lisp.
 To use Proof General, use the command `proofgeneral', which launches
 XEmacs (or Emacs) for you, or add the line:
 
-   (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
+   (load-file "/usr/share/emacs/site-lisp/ProofGeneral/generic/proof-site.el")
 
 to your .emacs file so Proof General is available whenever 
 you run Emacs.
 
+%package -n ProofGeneral-emacs-elc
+Summary: Compiled ELC files for Proof General/GNU Emacs
+Group: Applications/Editors/Emacs
+Requires: emacs >= 21.2, ProofGeneral = %{version}-%{release}
+
+%description -n ProofGeneral-emacs-elc
+Proof General is a generic Emacs interface for proof assistants.
+This package contains the byte compiled elisp files for XEmacs.
+If you want to use GNU Emacs with Proof General, this package is
+recommended.
+
+%package -n ProofGeneral-xemacs-elc
+Summary: Compiled ELC files for Proof General/XEmacs
+Group:		Applications/Editors/Emacs
+Requires: xemacs >= 21.4.12, ProofGeneral = %{version}-%{release}
+
+%description -n ProofGeneral-xemacs-elc
+Proof General is a generic Emacs interface for proof assistants.
+This package contains the byte compiled elisp files for XEmacs.
+If you want to use XEmacs with Proof General, this package is
+recommended.
+
 %changelog
-* Fri May  4 2001 David Aspinall <da@dcs.ed.ac.uk> 
+* Fri May  4 2001 David Aspinall <David.Aspinall@ed.ac.uk> 
 - Changelog in CVS now; official spec file developed with source.
 
 %prep
@@ -40,38 +62,25 @@ you run Emacs.
 %install
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
-# Put binaries in proper place
-mkdir -p ${RPM_BUILD_ROOT}/usr/bin
-mv bin/proofgeneral lego/legotags coq/coqtags isar/isartags ${RPM_BUILD_ROOT}/usr/bin
+# Clean out any .elc's that were in the tar file, and
+# rebuild for the required emacs version.
+make distclean
 
-# Put info file in proper place, compress it.
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/info
-mv doc/ProofGeneral.info* ${RPM_BUILD_ROOT}/usr/share/info
-mv doc/PG-adapting.info*  ${RPM_BUILD_ROOT}/usr/share/info
-gzip ${RPM_BUILD_ROOT}/usr/share/info/ProofGeneral.info*
-gzip ${RPM_BUILD_ROOT}/usr/share/info/PG-adapting.info*
-# Remove duff bits
-rm -f doc/dir doc/localdir 
+# Build packages for both emacs and xemacs, with only elc's.
+make install-elc install-init PREFIX=${RPM_BUILD_ROOT}/usr EMACS=emacs DEST_PREFIX=/usr
+make install-elc install-init PREFIX=${RPM_BUILD_ROOT}/usr  EMACS=xemacs DEST_PREFIX=/usr 
 
-# Desktop integration for freedesktop.org compliant desktops.
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/16x16
-cp etc/desktop/icons/16x16/proofgeneral.png ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/16x16
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/32x32
-cp etc/desktop/icons/32x32/proofgeneral.png ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/32x32
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/48x48
-cp etc/desktop/icons/48x48/proofgeneral.png ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/48x48
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/pixmaps
-cp etc/desktop/icons/48x48/proofgeneral.png ${RPM_BUILD_ROOT}/usr/share/pixmaps
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/applications
-cp etc/desktop/proofgeneral.desktop ${RPM_BUILD_ROOT}/usr/share/applications
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/mime-info
-cp etc/desktop/mime-info/proofgeneral.mime ${RPM_BUILD_ROOT}/usr/share/mime-info
-cp etc/desktop/mime-info/proofgeneral.keys ${RPM_BUILD_ROOT}/usr/share/mime-info
+# Finally, install the desktop and .el files into non-Emacs version specific locations
+make install-desktop install-el install-extras install-bin PREFIX=${RPM_BUILD_ROOT}/usr ELISPP=share/ProofGeneral DEST_PREFIX=/usr
 
-# Documentation
+# Install docs too
+make install-doc PREFIX=${RPM_BUILD_ROOT}/usr DEST_PREFIX=/usr
+rm -f ${RPM_BUILD_ROOT}/usr/share/info/dir
+gzip ${RPM_BUILD_ROOT}/usr/share/info/*
+
+# Rename READMEs in subdirs to avoid clashes
 for f in */README; do mv $f $f.`dirname $f`; done
 
-cp -pr phox acl2 twelf coq lego isa isar hol98 images generic mmm x-symbol ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 %clean
 if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
@@ -87,42 +96,26 @@ fi
 /sbin/install-info --delete /usr/share/info/PG-adapting.info.* /usr/share/info/dir
 
 %files
-%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README.* REGISTER doc/* */README.*
-%attr(-,root,root) /usr/share/info/ProofGeneral.info.*
-%attr(-,root,root) /usr/share/info/PG-adapting.info.*
-%attr(-,root,root) /usr/bin/proofgeneral
-%attr(-,root,root) /usr/bin/coqtags
-%attr(-,root,root) /usr/bin/legotags
-%attr(-,root,root) /usr/bin/isartags
-%attr(-,root,root) /usr/share/pixmaps/proofgeneral.png
-%attr(-,root,root) /usr/share/icons/hicolor/16x16/proofgeneral.png
-%attr(-,root,root) /usr/share/icons/hicolor/32x32/proofgeneral.png
-%attr(-,root,root) /usr/share/icons/hicolor/48x48/proofgeneral.png
-%attr(-,root,root) /usr/share/applications/proofgeneral.desktop
-%attr(-,root,root) /usr/share/mime-info/proofgeneral.mime
-%attr(-,root,root) /usr/share/mime-info/proofgeneral.keys
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/coq
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/lego
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isa
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isar
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/hol98
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/phox
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/acl2
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/twelf
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/mmm
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/x-symbol
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/images/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/generic/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/coq/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/lego/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/isa/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/isar/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/hol98/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/phox/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/acl2/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/twelf/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/mmm/*
-%attr(-,root,root) /usr/share/emacs/ProofGeneral/x-symbol/*
+%defattr(-,root,root)
+# FIXME: warning: source file `doc/README.doc' specified more than once
+%doc AUTHORS BUGS CHANGES COPYING INSTALL README.* REGISTER doc/* */README.*
+%{_bindir}/*
+# no man page yet
+# %{_mandir}/man1/*
+%{_datadir}/pixmaps/proofgeneral.png
+%{_datadir}/icons/hicolor/*/proofgeneral.png
+%{_datadir}/mime-info/proofgeneral.*
+%{_datadir}/ProofGeneral/*
+%{_datadir}/man/man1/*
+%{_datadir}/info/*.info.gz
+%{_datadir}/applications/proofgeneral.desktop
+
+%files -n ProofGeneral-emacs-elc
+%defattr(-,root,root)
+%{_datadir}/emacs/*/ProofGeneral/*
+%{_datadir}/emacs/*/*/pg-init.el
+
+%files -n ProofGeneral-xemacs-elc 
+%defattr(-,root,root)
+%{_datadir}/xemacs/*/*/ProofGeneral/*
+%{_datadir}/xemacs/*/*/*/pg-init.el
