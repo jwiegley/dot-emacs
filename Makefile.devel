@@ -350,7 +350,7 @@ release: distclean tag dist develdist
 rpm:	
 	rm -rf $(RPMTOPDIR)
 	mkdir -p $(RPMTOPDIR) $(RPMTOPDIR)/BUILD $(RPMTOPDIR)/SOURCES $(RPMTOPDIR)/SRPMS $(RPMTOPDIR)/RPMS $(RPMTOPDIR)/RPMS/noarch
-#	echo "_rpmdir: $(RPMTOPDIR)" > $(RPMRC)
+	echo "_topdir: $(RPMTOPDIR)" > $(RPMRC)
 	cp -p etc/ProofGeneral.patch $(RPMTOPDIR)/SOURCES
 	cp -p $(DISTBUILDIR)/$(RELEASENAMETARGZ) $(RPMTOPDIR)/SOURCES
 	$(RPM) -ba etc/ProofGeneral.spec
