@@ -452,7 +452,7 @@ signals to the remote host."
 
 (defface proof-queue-face 
   (proof-face-specs 
-   (:background "darksalmon") ;; was "mistyrose" in 3.3
+   (:background "mistyrose") ;; was "darksalmon" in PG 3.4,3.5
    (:background "mediumvioletred")
    (:foreground "white" :background "black"))
   "*Face for commands in proof script waiting to be processed."
@@ -460,7 +460,12 @@ signals to the remote host."
 
 (defface proof-locked-face
   (proof-face-specs
-   (:background "lightsteelblue") ;; was "lavender", later "lightcyan" in 3.3
+   ;; This colour is quite subjective and may be best chosen according
+   ;; to the type of display you have.
+   ;; PG 3.3: lavender, later "lightcyan"
+   ;; PG 3.4,3.5: lightsteelblue (stronger colour, more visible on data projectors)
+   ;; PG 4.0: aliceblue (lighter even than lavender)
+   (:background "lightsteelblue")
    (:background "navy")
    (:underline t))
   "*Face for locked region of proof script (processed commands)."
