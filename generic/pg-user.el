@@ -706,23 +706,38 @@ last use time, to discourage saving these into the users database."
 (defun pg-span-context-menu (event)
   (interactive "e")
   (select-window (event-window event))
-  (let* 
-      ((event-span (span-at (event-point event) 'type))
-       (idiom      (symbol-name (span-property event-span 'idiom)))
-       (portname   (span-property event-span 'name))
-       (spano	   (span-object event-span))
-       (event-file (and (bufferp spano) (buffer-file-name spano))))
-    (popup-menu (pg-create-in-span-context-menu event-span 
-					     idiom portname event-file))))
+  (let ((span   (span-at (event-point event) 'type))
+	cspan)
+    ;; Find controlling span 
+    (while (setq cspan (span-property span 'controlspan))
+      (setq span cspan))
+    (let* 
+      ((idiom      (symbol-name (span-property span 'idiom)))
+       (portname   (span-property span 'name)))
+    (popup-menu (pg-create-in-span-context-menu span idiom portname)))))
 
-(defun pg-create-in-span-context-menu (span idiom name file)
-  `(,(concat (if idiom (upcase-initials idiom)) ": " name)
-    ,(vector
-      "Show/hide"   (list 'pg-toggle-element-visibility idiom name) idiom)))
+(defun pg-create-in-span-context-menu (span idiom name)
+  (append
+   (list (concat (if idiom (upcase-initials idiom)) (if name (concat ": " name))))
+   (list (vector
+	  "Show/hide"   (list 'pg-toggle-element-visibility idiom name) idiom))
+   (list (vector
+	  "Copy"	(list 'pg-copy-span-contents span) t))
+   (if (featurep 'proof-depends)
+       (proof-dependency-in-span-context-menu span))))
 
-
-
-
+(defun pg-copy-span-contents (span)
+  "Copy contents of SPAN to kill ring, sans surrounding whitespace."
+  (copy-region-as-kill 
+   (save-excursion 
+     (goto-char (span-start span))
+     (skip-chars-forward " \t\n")
+     (point))
+   (save-excursion
+     (goto-char (span-end span))
+     (skip-chars-backward " \t\n")
+     (point)))
+  (own-clipboard (car kill-ring)))
   
 
 
