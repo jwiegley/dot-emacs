@@ -24,3 +24,18 @@ This is a list of things which need doing to the lego mode.
 
 * LEGO mode might incorporate changes to Coq mode menu, in particular
   making help refer to the info file.
+
+* LEGO and Coq modes overwrite each other.
+
+Here are things to be done to Coq mode:
+
+* Restart if going back to beginning of proof.
+
+* C-c u inside a Section should reset the whole section, then redo defns
+
+* There's a bug so the goal buffer isn't displaying everything that
+  happens.
+
+* Sections and files are handled incorrectly.
+
+* Update documentation to include C-c C-s.
