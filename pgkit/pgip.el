@@ -1,5 +1,5 @@
 ;; pgip.el Proof General instance for PGIP protocol (for Isabelle)
-;; Copyright (C) 2001 LFCS Edinburgh.
+;; Copyright (C) 2003 LFCS Edinburgh.
 ;;
 ;; Author:              David Aspinall <da@dcs.ed.ac.uk>
 ;;
