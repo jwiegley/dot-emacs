@@ -375,7 +375,7 @@ exited by hand (or exits by itself)."
     (message "%s, cleaning up and exiting..." bufname)
     (let ((inhibit-quit t)		; disable C-g for now
 	  timeout-id)
-      (sit-for 0)			; redisplay
+      (sit-for 0)			; redisplay [does it work?]
       (if alive				; process still there
 	  (progn
 	    (catch 'exited
@@ -387,6 +387,10 @@ exited by hand (or exits by itself)."
 	      ;; partly processed when exiting, and registering completed
 	      ;; files).  
 	      (proof-deactivate-scripting-auto)
+	      ;; FIXME: if the shell is busy now, we should wait
+	      ;; for a while (in case deactivate causes processing)
+	      ;; and the send an interrupt.
+
 	      ;; Second, we try to shut down the proof process
 	      ;; politely.  Do this before deleting other buffers,
 	      ;; etc, so that any closing down processing works okay.

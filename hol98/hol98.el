@@ -17,8 +17,8 @@
 (proof-easy-config  'hol98 "HOL" 
  proof-prog-name		 "hol.unquote"
  proof-terminal-char             ?\;
- proof-comment-start             "(*"
- proof-comment-end               "*)"
+ proof-script-comment-start             "(*"
+ proof-script-comment-end               "*)"
  ;; These are all approximations, of course.
  proof-goal-command-regexp     "^g[ `]"
  proof-save-command-regexp     "pg_top_thm_and_drop"
@@ -55,8 +55,7 @@
   fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));
   fun pg_top_thm_and_drop () = let val t = top_thm(); in (drop(); t) end;"
  ;; FIXME: add optional help topic parameter to help command. 
- ;; Have patch ready for PG 3.2, but PG 3.1 is strictly bug fix.
- proof-info-command "help \"hol\""
+ proof-info-command		    "help \"hol\""
  proof-shell-proof-completed-regexp "Initial goal proved"
  ;; FIXME: next one needs setting so that "urgent" messages are displayed
  ;; eagerly from HOL.

@@ -1504,13 +1504,13 @@ to the function which parses the script segment by segment."
   (let ((notout t))
     ;; Find end of comment (NB: doesn't undertand nested comments)
     (while (and notout (re-search-forward 
-			proof-comment-end-regexp nil 'movetolimit))
+			proof-script-comment-end-regexp nil 'movetolimit))
       (setq notout (proof-buffer-syntactic-context)))
     (not (proof-buffer-syntactic-context))))
   
 (defun proof-script-generic-parse-cmdend ()
   "Used for proof-script-parse-function if proof-script-command-end-regexp is set."
-  (if (looking-at proof-comment-start-regexp)
+  (if (looking-at proof-script-comment-start-regexp)
       ;; Handle comments
       (if (proof-script-generic-parse-find-comment-end) 'comment)
     ;; Handle non-comments: assumed to be commands
@@ -1549,7 +1549,7 @@ to the function which parses the script segment by segment."
   ;; Another improvement idea might be to take into account both
   ;; command starts *and* ends, but let's leave that for another day.
   ;;
-  (if (looking-at proof-comment-start-regexp)
+  (if (looking-at proof-script-comment-start-regexp)
       ;; Find end of comment
       (if (proof-script-generic-parse-find-comment-end) 'comment)
     ;; Handle non-comments: assumed to be commands
@@ -1585,7 +1585,7 @@ to the function which parses the script segment by segment."
 (defun proof-script-generic-parse-sexp ()
   "Used for proof-script-parse-function if proof-script-sexp-commands is set."
   ;; Usual treatment of comments
-  (if (looking-at proof-comment-start-regexp)
+  (if (looking-at proof-script-comment-start-regexp)
       ;; Find end of comment
       (if (proof-script-generic-parse-find-comment-end) 'comment)
     (let* ((parse-sexp-ignore-comments t)	; gobble comments into commands
@@ -1615,8 +1615,8 @@ which continues past POS, if any.  (NOT IMPLEMENTED IN THIS VERSION).
 
 This version is used when `proof-script-command-start-regexp' is set."
   (save-excursion
-    (let* ((commentre   (concat "[ \t\n]*" proof-comment-start-regexp))
-	   (commentend   (concat proof-comment-end-regexp "[ \t\n]*" ))
+    (let* ((commentre   (concat "[ \t\n]*" proof-script-comment-start-regexp))
+	   (commentend   (concat proof-script-comment-end-regexp "[ \t\n]*" ))
 	   (add-segment-for-cmd		; local function: advances "prev"
 	    (lambda ()
 	      (setq tmp (point))
@@ -1661,10 +1661,10 @@ This version is used when `proof-script-command-start-regexp' is set."
 			       ;; breaking sync.
 			       (if (and 
 				    (looking-at commentre)
-				    (re-search-forward proof-comment-end-regexp)
+				    (re-search-forward proof-script-comment-end-regexp)
 				    (progn
 				      (while (looking-at commentre)
-					(re-search-forward proof-comment-end-regexp))
+					(re-search-forward proof-script-comment-end-regexp))
 				      (>= (point) comend)))
 				   'comment 'cmd)))
 		     (string (if (eq type 'comment) "" bufstr)))
@@ -1726,7 +1726,7 @@ which continues past POS, if any.
 This version is used when `proof-script-command-end-regexp' is set."
   (save-excursion
     (let* 
-	((commentre   (concat "[ \t\n]*" proof-comment-start-regexp))
+	((commentre   (concat "[ \t\n]*" proof-script-comment-start-regexp))
 	 (add-segment-for-cmd		; local function: advances "prev"
 	  (lambda ()
 	    (let ((cmdend (point)) start)
@@ -1745,7 +1745,7 @@ This version is used when `proof-script-command-end-regexp' is set."
 		;; have a consistent policy!)
 		(unless
 		    (proof-re-search-forward 
-		     proof-comment-end-regexp cmdend t)
+		     proof-script-comment-end-regexp cmdend t)
 		  (error
 		   "PG error: proof-segment-up-to-cmd-end didn't find comment end."))
 		(setq alist (cons (list 'comment "" (point)) alist)))
@@ -2382,18 +2382,18 @@ assistant."
 	  ""))
 
   (make-local-variable 'comment-start)
-  (setq comment-start (concat proof-comment-start " "))
+  (setq comment-start (concat proof-script-comment-start " "))
   (make-local-variable 'comment-end)
-  (setq comment-end (concat " " proof-comment-end))
+  (setq comment-end (concat " " proof-script-comment-end))
   
-  (unless proof-comment-start-regexp
-    (setq proof-comment-start-regexp (regexp-quote proof-comment-start)))
-  (unless proof-comment-end-regexp
-    (setq proof-comment-end-regexp (regexp-quote proof-comment-end)))
+  (unless proof-script-comment-start-regexp
+    (setq proof-script-comment-start-regexp (regexp-quote proof-script-comment-start)))
+  (unless proof-script-comment-end-regexp
+    (setq proof-script-comment-end-regexp (regexp-quote proof-script-comment-end)))
 
   (make-local-variable 'comment-start-skip)
   (setq comment-start-skip 
-    (concat proof-comment-start-regexp "+\\s_?"))
+    (concat proof-script-comment-start-regexp "+\\s_?"))
 
   ;;
   ;; Fontlock support.
@@ -2521,8 +2521,8 @@ with something different."
 ;;
 
 (defconst proof-script-important-settings
-  '(proof-comment-start			;
-    proof-comment-end
+  '(proof-script-comment-start			;
+    proof-script-comment-end
     ; proof-goal-command-regexp	  not needed if proof-goal-command-p is set
     proof-save-command-regexp
 ;    proof-goal-with-hole-regexp		; non-essential?

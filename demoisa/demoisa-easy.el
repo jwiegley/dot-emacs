@@ -27,8 +27,8 @@
  'demoisa "Isabelle Demo" 
  proof-prog-name		 "isabelle"
  proof-terminal-char             ?\;
- proof-comment-start             "(*"
- proof-comment-end               "*)"
+ proof-script-comment-start             "(*"
+ proof-script-comment-end               "*)"
  proof-goal-command-regexp       "^Goal"
  proof-save-command-regexp       "^qed"
  proof-goal-with-hole-regexp     "qed_goal \"\\(\\(.*\\)\\)\""

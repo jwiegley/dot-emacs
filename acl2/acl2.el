@@ -24,8 +24,8 @@
  proof-prog-name		 "acl2"
 
  proof-script-sexp-commands	 t
- proof-comment-start             ";"
- proof-comment-start             ";"
+ proof-script-comment-start             ";"
+ proof-script-comment-start             ";"
 
  proof-shell-annotated-prompt-regexp "ACL2[ !]*>+"
 

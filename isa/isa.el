@@ -73,8 +73,8 @@ and script mode."
    proof-mode-for-script	'isa-proofscript-mode
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
-   proof-comment-start		"(*"	; comment in a proof
-   proof-comment-end		"*)"	; 
+   proof-script-comment-start		"(*"	; comment in a proof
+   proof-script-comment-end		"*)"	; 
    ;; Next few used for func-menu and recognizing goal..save regions in
    ;; script buffer.
    proof-save-command-regexp    isa-save-command-regexp

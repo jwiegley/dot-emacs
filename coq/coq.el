@@ -541,8 +541,8 @@ This is specific to coq-mode."
   (setq proof-terminal-char ?\.)
   (setq proof-script-command-end-regexp   
 	(if coq-version-is-V7 "[.]\\([ \t\n\r]\\)\\|[.]\\'" "[.]"))
-  (setq proof-comment-start "(*")
-  (setq proof-comment-end "*)")
+  (setq proof-script-comment-start "(*")
+  (setq proof-script-comment-end "*)")
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
 
   (setq proof-assistant-home-page coq-www-home-page)

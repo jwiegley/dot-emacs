@@ -765,38 +765,38 @@ reliable behaviour of the parsing functions, you may need to modify the
 syntax table for your prover's mode.  Read the Elisp manual for details
 about that.
 
-@c TEXI DOCSTRING MAGIC: proof-comment-start
-@defvar proof-comment-start 
+@c TEXI DOCSTRING MAGIC: proof-script-comment-start
+@defvar proof-script-comment-start 
 String which starts a comment in the proof assistant command language.@*
 The script buffer's @code{comment-start} is set to this string plus a space.
 Moreover, comments are usually ignored during script management, and not
 sent to the proof process.
 
 You should set this variable for reliable working of Proof General,
-as well as @samp{@code{proof-comment-end}}.
+as well as @samp{@code{proof-script-comment-end}}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-comment-start-regexp
+@c TEXI DOCSTRING MAGIC: proof-script-comment-start-regexp
 
-@defvar proof-comment-start-regexp 
+@defvar proof-script-comment-start-regexp 
 Regexp which matches a comment start in the proof command language.
 
-The default value for this is set as (@code{regexp-quote} @code{proof-comment-start})
+The default value for this is set as (@code{regexp-quote} @code{proof-script-comment-start})
 but you can set this variable to something else more precise if necessary.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-comment-end
-@defvar proof-comment-end 
+@c TEXI DOCSTRING MAGIC: proof-script-comment-end
+@defvar proof-script-comment-end 
 String which ends a comment in the proof assistant command language.@*
 The script buffer's @code{comment-end} is set to a space plus this string.
-See also @samp{@code{proof-comment-start}}.
+See also @samp{@code{proof-script-comment-start}}.
 
 You should set this variable for reliable working of Proof General,
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-comment-end-regexp
-@defvar proof-comment-end-regexp 
+@c TEXI DOCSTRING MAGIC: proof-script-comment-end-regexp
+@defvar proof-script-comment-end-regexp 
 Regexp which matches a comment end in the proof command language.
 
-The default value for this is set as (@code{regexp-quote} @code{proof-comment-end})
+The default value for this is set as (@code{regexp-quote} @code{proof-script-comment-end})
 but you can set this variable to something else more precise if necessary.
 @end defvar
 
@@ -3686,8 +3686,8 @@ Proof General.
  'demoisa "Isabelle Demo" 
  proof-prog-name		 "isabelle"
  proof-terminal-char             ?\;
- proof-comment-start             "(*"
- proof-comment-end               "*)"
+ proof-script-comment-start             "(*"
+ proof-script-comment-end               "*)"
  proof-goal-command-regexp       "^Goal"
  proof-save-command-regexp       "^qed"
  proof-goal-with-hole-regexp     "qed_goal \"\\(\\(.*\\)\\)\""
@@ -3798,8 +3798,8 @@ Proof General.
   "Configure Proof General scripting for Isabelle."
   (setq
    proof-terminal-char		?\;	; ends every command
-   proof-comment-start		"(*"
-   proof-comment-end		"*)"
+   proof-script-comment-start	"(*"
+   proof-script-comment-end	"*)"
    proof-goal-command-regexp    "^Goal"
    proof-save-command-regexp    "^qed"
    proof-goal-with-hole-regexp  "qed_goal \"\\(\\(.*\\)\\)\""

@@ -67,8 +67,8 @@ See -k option for Isabelle interface script."
   "Detect new-style theory header in current buffer"
   (let ((header-regexp (isar-ids-to-regexp '("header" "theory")))
         (white-space-regexp "\\(\\s-\\|\n\\)+")
-        (cmt-end-regexp (regexp-quote proof-comment-end))
-        (cmt-start-regexp (regexp-quote proof-comment-start))
+        (cmt-end-regexp (regexp-quote proof-script-comment-end))
+        (cmt-start-regexp (regexp-quote proof-script-comment-start))
         (found-header nil) forward-amount
         (end (point-max)) (cont t) (cmt-level 0))
     (save-excursion
@@ -127,11 +127,11 @@ See -k option for Isabelle interface script."
                                       isar-any-command-regexp
                                       (regexp-quote ";"))
    proof-script-integral-proofs t
-   proof-script-use-old-parser  t
-   proof-comment-start          isar-comment-start
-   proof-comment-end            isar-comment-end
-   proof-comment-start-regexp   isar-comment-start-regexp
-   proof-comment-end-regexp     isar-comment-end-regexp
+;   proof-script-use-old-parser  t
+   proof-script-comment-start          isar-comment-start
+   proof-script-comment-end            isar-comment-end
+   proof-script-comment-start-regexp   isar-comment-start-regexp
+   proof-script-comment-end-regexp     isar-comment-end-regexp
    proof-string-start-regexp    isar-string-start-regexp
    proof-string-end-regexp      isar-string-end-regexp
 

@@ -42,10 +42,10 @@
  proof-assistant-home-page       "http://www.cs.cmu.edu/~twelf/"
 
  proof-terminal-char             ?\.
- proof-comment-start             "%"	;; for inserting comments
- proof-comment-end               ""
- proof-comment-start-regexp	 "%[%{ \t\n\f]" ;; recognizing
- proof-comment-end-regexp	 "%}\\|\n"      ;; comments
+ proof-script-comment-start             "%"	;; for inserting comments
+ proof-script-comment-end               ""
+ proof-script-comment-start-regexp	 "%[%{ \t\n\f]" ;; recognizing
+ proof-script-comment-end-regexp	 "%}\\|\n"      ;; comments
 
  proof-shell-auto-terminate-commands nil ; server commands don't end with .
  proof-shell-strip-crs-from-input nil	 ; server needs CRs with readDecl

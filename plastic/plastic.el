@@ -351,8 +351,8 @@ Given is the first SPAN which needs to be undone."
   ;; (setq proof-electric-terminator-enable t)	;; force semicolons active.
 
   (setq proof-terminal-char ?\;)
-  (setq proof-comment-start "(*")			;; these still active
-  (setq proof-comment-end "*)")
+  (setq proof-script-comment-start "(*")			;; these still active
+  (setq proof-script-comment-end "*)")
 
   (setq proof-assistant-home-page plastic-www-home-page)
   (setq proof-mode-for-script 'plastic-mode)

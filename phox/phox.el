@@ -104,8 +104,8 @@
   (setq
    proof-terminal-char		?\.	; ends every command
    proof-script-command-end-regexp "[.]\\([ \t\n\r]\\)"
-   proof-comment-start             "(*"
-   proof-comment-end               "*)"
+   proof-script-comment-start             "(*"
+   proof-script-comment-end               "*)"
    proof-state-command             "goals."
    proof-goal-command-regexp       
     "\\`\\(goal[ \t\n\r]\\|pro\\(p\\(osition\\)?\\|ve_claim\\)\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"

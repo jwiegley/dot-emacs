@@ -301,8 +301,8 @@ Checks the width in the `proof-goals-buffer'"
 (defun lego-mode-config ()
 
   (setq proof-terminal-char ?\;)
-  (setq proof-comment-start "(*")
-  (setq proof-comment-end "*)")
+  (setq proof-script-comment-start "(*")
+  (setq proof-script-comment-end "*)")
 
   (setq proof-assistant-home-page lego-www-home-page)
   

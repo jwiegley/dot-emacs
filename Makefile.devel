@@ -229,9 +229,9 @@ tags:	$(EL)
 #
 ChangeLog:	FORCE
 	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
-	mv ChangeLog ChangeLog.old
+	if [ -f ChangeLog ]; then mv ChangeLog ChangeLog.old; else echo > ChangeLog.old; fi
 	cat ChangeLog.prefix ChangeLog.old > ChangeLog
-#	rm ChangeLog.prefix ChangeLog.old
+	rm ChangeLog.prefix ChangeLog.old
 
 ############################################################
 #
