@@ -288,6 +288,8 @@ D The proof-locked-span isn't set to read-only, because overlays don't
 * Release
 =========
 
+A validate/fix web pages.
+
 A remove CVS history in all files  (replace with idents $Id)
 
 A extend Copyright to 1998
