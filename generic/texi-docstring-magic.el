@@ -7,10 +7,9 @@
 ;;
 ;; $Id$
 ;;
-;; This package is distributed under the terms of the 
-;; GNU General Public License, Version 2.   
-;; You should have a copy of the GPL with your version of 
-;; GNU Emacs or the Texinfo distribution.
+;; This file is distributed under the terms of the GNU General Public
+;; License, Version 2.  Find a copy of the GPL with your version of
+;; GNU Emacs or Texinfo.
 ;; 
 ;;
 ;; This package generates Texinfo source fragments from Emacs 
