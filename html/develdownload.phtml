@@ -69,7 +69,12 @@ The complete archive also includes:
   </li>
   <li> the 
    <!-- WARNING!  Line below automatically edited by makefile. -->
-   <?php fileshow("ProofGeneral-3.1pre000301/todo","low-level list of things to do"); ?>
+   <?php fileshow("ProofGeneral-3.1pre000301/todo","generic low-level list of things to do"); ?>
+   and for each prover:
+   <?php fileshow("ProofGeneral-3.1pre000301/isa/todo","isa to do"); ?>,
+   <?php fileshow("ProofGeneral-3.1pre000301/isar/todo","isar to do"); ?>,
+   <?php fileshow("ProofGeneral-3.1pre000301/coq/todo","coq to do"); ?>,
+   <?php fileshow("ProofGeneral-3.1pre000301/lego/todo","lego to do"); ?>.
    <!-- End Warning. -->
    and the detailed
    <!-- WARNING!  Line below automatically edited by makefile. -->
@@ -89,11 +94,7 @@ release, because developers should have the right tools!
 <p>
 You probably <em>don't</em> need to download this if you're only
 interested in hacking the Emacs lisp part of the program for
-a prover that is currently supported.  But you may
-still like to check the latest
-<!-- WARNING!  Line below automatically edited by makefile. -->
-<?php fileshow("ProofGeneral-3.1pre000301/todo","low-level to-do list"); ?>.
-<!-- End Warning. -->
+a prover that is currently supported.  
 </p>
 
 <?php
