@@ -324,5 +324,5 @@ distinstall:
 	rm -rf $(DISTINSTALLDIR)/$(NAME)
 	mkdir -p $(DISTINSTALLDIR)
 	(cd $(DISTINSTALLDIR); \
-	 $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) \
+	 $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ); \
 	 mv $(RELEASENAME) $(NAME))
