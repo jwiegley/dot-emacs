@@ -50,10 +50,11 @@
      (concat "@var{" (downcase (match-string 1 docstring)) "}"
 	     (match-string 2 docstring)))
     ;; Words sym which are symbols become @code{sym}.
-    ;; Must have at least one hyphen to be recognized.
+    ;; Must have at least one hyphen to be recognized,
+    ;; terminated in whitespace, end of line, or punctuation.
     ;; (Only consider symbols made from word constituents
     ;; and hyphens).
-    ("\\(\\w+\\-\\(\\w\\|\\-\\)+\\)\\(\\s-\\|\\.\\|$\\)"
+    ("\\(\\w+\\-\\(\\w\\|\\-\\)+\\)\\(\\s-\\|\\s.\\|$\\)"
       (or (boundp (intern (match-string 1 docstring)))
 	 (fboundp (intern (match-string 1 docstring))))
      (concat "@code{" (match-string 1 docstring) "}"
@@ -76,6 +77,7 @@ and forms such as (match-string 1 docstring)")
 	    (replace    (nth 2 test))
 	    (i		0)
 	    in-quoted-region)
+	
 	(while (and
 		(< i (length docstring))
 		(string-match regexp docstring i))
