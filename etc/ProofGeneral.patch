@@ -5,12 +5,12 @@ diff -cr ProofGeneral-2.0/coq/coqtags ProofGeneral-2.0.new/coq/coqtags
 *** 1,4 ****
 ! #!/usr/local/bin/perl4
   #
-  # $Id: coqtags,v 2.1 1998/09/09 14:02:29 da Exp $
+  # $Id: ProofGeneral.patch,v 1.1 1998/09/24 16:47:51 da Exp $
   #
 --- 1,4 ----
 ! #!/usr/bin/perl
   #
-  # $Id: coqtags,v 2.1 1998/09/09 14:02:29 da Exp $
+  # $Id: ProofGeneral.patch,v 1.1 1998/09/24 16:47:51 da Exp $
   #
 diff -cr ProofGeneral-2.0/lego/legotags ProofGeneral-2.0.new/lego/legotags
 *** ProofGeneral-2.0/lego/legotags	Thu Sep 24 16:36:30 1998
@@ -19,11 +19,29 @@ diff -cr ProofGeneral-2.0/lego/legotags ProofGeneral-2.0.new/lego/legotags
 *** 1,4 ****
 ! #!/usr/local/bin/perl
   #
-  # $Id: legotags,v 2.1 1998/09/09 14:02:46 da Exp $
+  # $Id: ProofGeneral.patch,v 1.1 1998/09/24 16:47:51 da Exp $
   #
 --- 1,4 ----
 ! #!/usr/bin/perl
   #
-  # $Id: legotags,v 2.1 1998/09/09 14:02:46 da Exp $
+  # $Id: ProofGeneral.patch,v 1.1 1998/09/24 16:47:51 da Exp $
   #
-
+*** ProofGeneral-2.0/generic/proof-site.el	Thu Sep 24 18:17:33 1998
+--- ProofGeneral-2.0.new/generic/proof-site.el	Thu Sep 24 18:17:43 1998
+***************
+*** 60,66 ****
+    :group 'proof-general)
+  
+  (defcustom proof-info-dir 
+!   (concat proof-home "doc/")
+    "*Where Proof General Info files are installed."
+    :type 'directory
+    :group 'proof-general)
+--- 60,66 ----
+    :group 'proof-general)
+  
+  (defcustom proof-info-dir 
+!   "/usr/info/"
+    "*Where Proof General Info files are installed."
+    :type 'directory
+    :group 'proof-general)

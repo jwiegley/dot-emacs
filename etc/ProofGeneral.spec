@@ -9,6 +9,7 @@ Packager:	David Aspinall <da@dcs.ed.ac.uk>
 Source:		http://www.dcs.ed.ac.uk/proofgen/dist/ProofGeneral-%{version}.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 Patch:		ProofGeneral.patch
+PreReq:		/sbin/install-info
 BuildArchitectures: noarch
 
 %description
@@ -36,16 +37,38 @@ rm -f */*.orig
 %build
 
 %install
-mkdir -p ${RPM_BUILD_ROOT}/usr/lib/ProofGeneral
+mkdir -p ${RPM_BUILD_ROOT}/usr/lib/emacs/ProofGeneral
+
+# Put binaries in proper place
+mkdir -p ${RPM_BUILD_ROOT}/usr/bin
+mv lego/legotags coq/coqtags ${RPM_BUILD_ROOT}/usr/bin
+
+# Put info file in proper place.
+mkdir -p ${RPM_BUILD_ROOT}/usr/info
+mv doc/ProofGeneral.info ${RPM_BUILD_ROOT}/usr/info
+gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info
+# Remove duff bits
+rm -f doc/dir doc/localdir doc/ProofGeneral.texi
+
 cp -pr coq lego isa images generic ${RPM_BUILD_ROOT}/usr/lib/emacs/ProofGeneral
+
 
 %clean
 if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
     rm -rf $RPM_BUILD_ROOT
 fi
 
+%post
+/sbin/install-info /usr/info/ProofGeneral.info.gz /usr/info/dir
+
+%preun
+/sbin/install-info --delete /usr/info/ProofGeneral.info.gz /usr/info/dir
+
 %files
 %attr(-,root,root) %doc BUGS INSTALL doc/*
+%attr(-,root,root) /usr/info/ProofGeneral.info.gz
+%attr(-,root,root) /usr/bin/coqtags
+%attr(-,root,root) /usr/bin/legotags
 %attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral
 %attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/coq
 %attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/coq/*
@@ -57,12 +80,3 @@ fi
 %attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/images/*
 %attr(0755,root,root) %dir /usr/lib/emacs/ProofGeneral/generic
 %attr(-,root,root) %dir /usr/lib/emacs/ProofGeneral/generic/*
-
-
-
-
-
-
-
-
-
