@@ -16,16 +16,14 @@ Please help us with this aim!  Configure Proof General for your proof
 assistant, by adding features at the generic level wherever possible.
 Send ideas, comments, patches, code to feedback@proofgeneral.org
 
-See INSTALL for installation details.
-
-See COPYING for license details.
-
-See REGISTER for registration information (please register).
-
-See doc/ for documentation of Proof General.
+See INSTALL   for installation details.
+    COPYING   for license details.
+    REGISTER  for registration information (please register).
+    FAQ, doc/ for documentation of Proof General.
 
 See http://www.proofgeneral.org/mailinglist for the Proof General
-mailing lists.
+mailing lists.  If you have problems, please contact 
+support@proofgeneral.org in the first instance.
 
 For notes on the supported assistants, see the README files
 in the subdirectories:

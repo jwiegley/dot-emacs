@@ -7,6 +7,16 @@ Credits to the anonymous authors of questions/answers below.
 
 -----------------------------------------------------------------
 
+Q. I have a problem installing/using Proof General, what can I do?
+
+A. Please check the documentation carefully, particularly the
+   requirements for a full-featured and recent Emacs version, as
+   mentioned in INSTALL (see "Dependency on Other Emacs Packages").  
+   If you still cannot solve your problem, send a message to
+   support@proofgeneral.org in the first instance.
+
+-----------------------------------------------------------------
+
 Q. I'm using Proof General for prover X, then I load a file for prover Y.
    The buffer doesn't enter the mode for prover Y.  Why not?
 
