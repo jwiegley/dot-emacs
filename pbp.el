@@ -58,11 +58,11 @@
 (deflocal pbp-end-goals-string "-- End of Goals --"
   "String indicating the end of the proof state.")
 
-(deflocal pbp-goal-command "Pbp %s"
+(deflocal pbp-goal-command "Pbp %s;"
   "Command informing the prover that `pbp-buttion-action' has been
   requested on a goal.")
 
-(deflocal pbp-hyp-command "PbpHyp %s"
+(deflocal pbp-hyp-command "PbpHyp %s;"
   "Command informing the prover that `pbp-buttion-action' has been
   requested on an assumption.")
 
@@ -155,17 +155,20 @@
 ; Receiving the data from Lego is performed that a filter function
 ; added among the comint-output-filter-functions of the shell-mode.
 
-(deflocal pbp-last-mark nil "last mark")
+(deflocal pbp-mark-ext nil "last mark")
 (deflocal pbp-sanitise t "sanitise output?")
 
 (defun pbp-sanitise-region (start end)
   (if pbp-sanitise 
       (progn
 	(goto-char start)
-	(if (search-forward pbp-start-goals-string end t) 
-	    (backward-delete-char (+ (length pbp-start-goals-string) 1)))
-	(if (search-forward pbp-end-goals-string end t) 
-	    (backward-delete-char (+ (length pbp-end-goals-string) 1)))
+	(while (search-forward pbp-start-goals-string end t) 
+	    (backward-delete-char (length pbp-start-goals-string))
+            (delete-char 1))
+        (goto-char start)
+	(while (search-forward pbp-end-goals-string end t) 
+	    (backward-delete-char (length pbp-end-goals-string))
+            (delete-char 1))
 	(goto-char start)
 	(while (search-forward pbp-annotation-close end t)
 	  (backward-delete-char 1))
@@ -239,26 +242,31 @@
   (if (string-match pbp-wakeup-character string)
       (save-excursion
 	(set-buffer (proof-shell-buffer))
-	(let (old-mark)
-	  (while (progn (goto-char pbp-last-mark)
+	(let (mrk)
+	  (while (progn (goto-char (extent-start-position pbp-mark-ext))
+			(setq mrk (point-marker))                        
 			(re-search-forward proof-shell-prompt-pattern () t))
-	    (setq old-mark pbp-last-mark)
-	    (setq pbp-last-mark (point-marker))
+	    (set-extent-endpoints pbp-mark-ext (point) (point))
 	    (goto-char (match-beginning 0))
-	    (pbp-process-region old-mark (point-marker))
-	    (pbp-sanitise-region old-mark pbp-last-mark))))))
+	    (pbp-process-region mrk (point))
+	    (pbp-sanitise-region mrk (extent-start-position pbp-mark-ext)))))))
 
 ; Call after the shell is started
 
 (defun pbp-goals-init ()
-  (setq pbp-goals-buffer (get-buffer-create pbp-goals-buffer-name ))
-  (erase-buffer pbp-goals-buffer)
-  (add-hook 'comint-output-filter-functions 'pbp-filter t)
-  (pbp-sanitise-region (point-min) (point-max))
-  (setq pbp-last-mark (point-max-marker (proof-shell-buffer)))
-  (add-hook 'proof-shell-exit-hook
-	    (lambda ()
-	      (remove-hook 'comint-output-filter-functions 'pbp-filter))))
+  (save-excursion
+    (setq pbp-goals-buffer (get-buffer-create pbp-goals-buffer-name ))
+    (erase-buffer pbp-goals-buffer)
+    (add-hook 'comint-output-filter-functions 'pbp-filter t)
+    (pbp-sanitise-region (point-min) (point-max))
+    (setq pbp-mark-ext 
+	  (make-extent (point-max) (point-max) (proof-shell-buffer)))
+    (set-extent-property pbp-mark-ext 'detachable nil)
+    (set-extent-property pbp-mark-ext 'start-open nil)
+    (set-extent-property pbp-mark-ext 'end-open t)
+    (add-hook 'proof-shell-exit-hook
+	      (lambda ()
+		(remove-hook 'comint-output-filter-functions 'pbp-filter)))))
 
 ; Now, using the extents in a mouse behavior is quite simple:
 ; from the mouse position, find the relevant extent, then get its annotation
@@ -285,22 +293,14 @@
 	       (proof-command
 		(if (eq 'hyp (car top-info))
 		    (format pbp-hyp-command path)
-		  (format pbp-goal-command  path))
+		  (format pbp-goal-command  path)) t)))
 
-		; t would send the command silently
-                ; however, this doesn't work as the output by LEGO
-                ; apparently gets inserted before pbp-last-mark.
-		; I don't understand why.
-		nil)))
-	    ((extentp top-ext)
-	     (let ((top-info (extent-property top-ext 'pbp-top-element)))
-	       (let ((value (if (eq 'hyp (car top-info))
-		    (format pbp-hyp-command (cdr top-info))
-		  (format proof-shell-change-goal (cdr top-info)))))
-               (pbp-send-and-remember value)))))))
-
-
-
+	     ((extentp top-ext)
+	      (let ((top-info (extent-property top-ext 'pbp-top-element)))
+		(if (eq 'hyp (car top-info))
+		    (proof-command (format pbp-hyp-command (cdr top-info)) t)
+		  (pbp-send-and-remember 
+		   (format proof-shell-change-goal (cdr top-info)))))))))
 
 ; a little package to manage a stack of locations
 

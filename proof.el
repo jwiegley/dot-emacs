@@ -345,8 +345,8 @@
       
       (proof-spawn-process proof-shell-prog-name 
 			 proof-shell-process-name proof-shell-buffer-name)
-      (pbp-goals-init)
       (run-hooks 'proof-post-shell-start-hook)
+      (pbp-goals-init)
       (message 
        (format "Starting %s process... done." proof-shell-process-name)))))
   
