@@ -28,7 +28,7 @@
        "p\\(ath\\|r\\(int\\(_sort\\)?\\|iority\\|op\\(osition\\)?\\|ove_claim\\)\\)\\|"
        "quit\\|"
        "s\\(ave\\|earch\\)\\|"
-       "t\\(ex\\(_syntax\\)?\\|eheo\\(rem\\)?\\|itle\\)"
+       "t\\(ex\\(_syntax\\)?\\|heo\\(rem\\)?\\|itle\\)"
        "\\)[ \t\n\r.]")
       '(0 'font-lock-keyword-face t))
 ;proof command
