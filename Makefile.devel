@@ -27,8 +27,7 @@
 ##			    into DISTINSTALLDIR.
 ##
 ##    make links	  - add some links which help testing web pages
-##			    from the html directory, and ensure that the
-## 
+##			    from the html directory.
 ##
 ##    make releaseclean   - clean up after 'make dist' 'make rpmrelease'.
 ##
@@ -86,6 +85,9 @@ PRERELEASE_PREFIX=3\.5pre
 PRERELEASE_TAG=3.5pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
+# Path to web pages in repository, used for automatically 
+# updating with release information.
+HTMLDIR=../web
 DOWNLOADHTML=develdownload.php
 DOWNLOADINFOHTML=devel.html
 
@@ -130,7 +132,7 @@ RELEASEDIR = /tmp/proofgeneral-www/
 
 # How to make the release "live".  (Could be "true" to do nothing).
 # was: GOLIVE=true
-GOLIVE="scp -pr $RELEASEDIR ssh.inf.ed.ac.uk:/group/project/proofgen/web/"
+GOLIVE="scp -pr $RELEASEDIR ssh.inf.ed.ac.uk:/group/project/proofgen/web/releases/"
 
 
 CVSNAME = ProofGeneral
@@ -155,7 +157,7 @@ DEVELMAKE=make -f Makefile.devel
 # FIXME: really this should be an opt-in list!
 UNFINISHED_ELISP=generic/pg-metadata.el generic/pg-xhhtml.el generic/_pkg.el
 ETC_FILES=etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt pgkit etc/Mailman
-NONDISTFILES=.cvsignore */.cvsignore html Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile $(UNFINISHED_ELISP) $(ETC_FILES)
+NONDISTFILES=.cvsignore */.cvsignore Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile $(UNFINISHED_ELISP) $(ETC_FILES)
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
@@ -195,7 +197,7 @@ DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
 ELISP_DIRS=generic acl2 coq demoisa hol98 isa isar lclam lego pgkit phox plastic twelf
-SUBDIRS=$(ELISP_DIRS) etc doc html images
+SUBDIRS=$(ELISP_DIRS) etc doc images
 
 PWD=$(shell pwd)
 
@@ -251,7 +253,7 @@ clean:
 	(cd doc; $(MAKE) clean)
 	(cd images; $(MAKE) clean)
 	rm -f doc/ProofGeneralPortrait.eps.gz
-	rm -f html/ProofGeneral
+	rm -f $(HTMLDIR)/ProofGeneral
 
 
 
@@ -297,7 +299,7 @@ doc:	FORCE
 
 distdocs: FORCE
 	@echo "***** MAKING DISTRIBUTION DOCS  ****"
-	(cd doc; ln -s ../html/ProofGeneralPortrait.eps.gz .; $(MAKE) dist)
+	(cd doc; ln -s $(HTMLDIR)/ProofGeneralPortrait.eps.gz .; $(MAKE) dist)
 
 ############################################################
 #
@@ -340,15 +342,15 @@ tag:
 # Edit $(DOWNLOADHTML) only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
 	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
-	  (cd html; mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old); \
-	  (cd html; mv $(DOWNLOADINFOHTML) $(DOWNLOADINFOHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADINFOHTML).old > $(DOWNLOADINFOHTML); rm $(DOWNLOADINFOHTML).old) \
+	  (cd $(HTMLDIR); mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old); \
+	  (cd $(HTMLDIR); mv $(DOWNLOADINFOHTML) $(DOWNLOADINFOHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADINFOHTML).old > $(DOWNLOADINFOHTML); rm $(DOWNLOADINFOHTML).old) \
 	fi
 # This hack to SOURCE: name is only needed because we have an obsolete version
 # of rpm installed on standard machines at dcs.ed, and we have to build with
 # that version.  Otherwise we could use the %{version} macro in the spec file.
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.tar.gz/$(RELEASENAMETARGZ)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.zip/$(RELEASENAMEZIP)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
-	if [ -z "$(NOCVS)" ]; then cvs commit -m"Set version tag for new release." generic/$(VERSIONFILE) html/$(DOWNLOADHTML) html/$(DOWNLOADINFOHTML) etc/ProofGeneral.spec; fi
+	if [ -z "$(NOCVS)" ]; then cvs commit -m"Set version tag for new release." generic/$(VERSIONFILE) $(HTMLDIR)/$(DOWNLOADHTML) $(HTMLDIR)/$(DOWNLOADINFOHTML) etc/ProofGeneral.spec; fi
 	if [ -z "$(NOCVS)" ]; then cvs tag -cF "$(CVS_RELEASENAME)"; fi
 
 ############################################################
@@ -394,10 +396,10 @@ dist:
 #	@echo " Copying doc files .."
 #	@echo "*************************************************"
 #	(cp -pr $(DISTBUILDIR)/$(RELEASENAME)/doc $(DISTBUILDIR))
-	@echo "*************************************************"
-	@echo " Moving html files .."
-	@echo "*************************************************"
-	(cd $(DISTBUILDIR)/$(RELEASENAME)/html; mv * ../..)
+#	@echo "*************************************************"
+#	@echo " Moving html files .."
+#	@echo "*************************************************"
+#	(cd $(DISTBUILDIR)/$(RELEASENAME)/html; mv * ../..)
 	@echo "*************************************************"
 	@echo " Cleaning non-distributed files .."
 	@echo "*************************************************"
@@ -568,8 +570,8 @@ distinstall:
 #   Make some handy links for developers.
 #
 links:
-	ln -sf ../html/ProofGeneralPortrait.eps.gz doc
-	ln -sf ../../ProofGeneral html
+	ln -sf $(HTMLDIR)/ProofGeneralPortrait.eps.gz doc
+	ln -sf ../../ProofGeneral $(HTMLDIR)
 
 #################################################################
 ##
