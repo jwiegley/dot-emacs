@@ -122,7 +122,7 @@ NB: the toolbar is only available with XEmacs."
   :set 'proof-set-value
   :group 'proof-user-options)
 
-(defcustom proof-x-symbol-enable nil
+(proof-defasscustom x-symbol-enable nil
   "*Whether to use x-symbol in Proof General buffers.
 If you activate this variable, whether or not you get x-symbol support
 depends on whether your proof assistant supports it and whether
@@ -2011,6 +2011,21 @@ of `easy-menu-define' for more details."
   "Proof assistant specific keymap, used under prefix C-c a."
   :type 'sexp
   :group 'prover-config)
+
+(proof-defasscustom completion-table nil
+  "List of identifiers to use for completion for this proof assistant.
+Completion is activated with \\[complete].
+
+If this table is empty or needs adjusting, please make changes using
+`customize-variable' and send suggestions to proofgen@@dcs.ed.ac.uk."
+  :type '(list string)
+  :group 'prover-config)
+
+(proof-defasscustom tags-program nil
+  "Program to run to generate TAGS table for proof assistant."
+  :type 'file
+  :group 'prover-config)
+
 
 
 
