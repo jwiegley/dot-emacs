@@ -223,7 +223,7 @@ This list is in the right format for proof-easy-config.")
   "Regexp matching any Isabelle/Isar command keyword.")
 
 (defconst isar-name-regexp
-  (concat "\\s-*\\(?:" isar-string "\\|" isar-id "\\)\\s-*")
+  (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
   "Regexp matching Isabelle/Isar names; surrounding space and contents grouped.")
 
 (defconst isar-tac-regexp
@@ -438,7 +438,7 @@ This list is in the right format for proof-easy-config.")
 
 (defconst isar-next-entity-regexps
   (list isar-any-entity-regexp
-        (list isar-named-entity-regexp '(1 2))))
+        (list isar-named-entity-regexp '(1 3))))
 ;; da: I've removed unnamed entities, they clutter the menu 
 ;; NB: to add back, need ? at end of isar-any-entity-regexp
 ;;	(list isar-unnamed-entity-regexp 1)))
@@ -450,7 +450,7 @@ This list is in the right format for proof-easy-config.")
 		  (concat "\\<" kw "\\>"
 			  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
 			  isar-name-regexp "[[:=]")
-		  1))
+		  2))
 	  isar-keywords-fume))
 
 ;; ----- indentation
