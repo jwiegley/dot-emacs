@@ -9,26 +9,29 @@
 ;;
 
 
-(setq proof-tags-support nil)  ; we don't want it, no isatags prog.
+(eval-when-compile
+  (require 'proof-config))
 
 ;; Add Isabelle image onto splash screen
 (custom-set-variables
  '(proof-splash-extensions
-   '(list
-     nil
-     (proof-splash-display-image "isabelle_transparent" t))))
+   (list
+    nil
+    (proof-splash-display-image "isabelle_transparent" t))))
+(custom-set-variables
+ '(proof-tags-support nil))  ; we don't want it, no isatags prog.
+
 (require 'proof)
 (require 'isa-syntax)
-
-;; FIXME: outline should be autoloaded
-(require 'outline)
 
 ;; To make byte compiler be quiet.
 (eval-when-compile
   (require 'proof-shell)
   (require 'proof-script)
+  (require 'outline)
   (cond ((fboundp 'make-extent) (require 'span-extent))
 	((fboundp 'make-overlay) (require 'span-overlay))))
+
 
 
 ;;; variable: proof-analyse-using-stack
@@ -258,17 +261,20 @@ proof-shell-retract-files-regexp."
 ;;
 ;;   Define the derived modes 
 ;;
+(eval-and-compile
 (define-derived-mode isa-shell-mode proof-shell-mode
    "Isabelle shell" nil
-   (isa-shell-mode-config))
+   (isa-shell-mode-config)))
 
+(eval-and-compile			; to define vars for byte comp.
 (define-derived-mode isa-pbp-mode pbp-mode
   "Isabelle proofstate" nil
-  (isa-pbp-mode-config))
+  (isa-pbp-mode-config)))
 
+(eval-and-compile			; to define vars for byte comp.
 (define-derived-mode isa-proofscript-mode proof-mode
-   "Isabelle script" nil
-   (isa-mode-config))
+    "Isabelle script" nil
+    (isa-mode-config)))
 
   
 
@@ -332,7 +338,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 	   (file-name-sans-extension file))))
 
 
-;; Next portion taken from isa-load.el
+;; Next bits taken from isa-load.el
 ;; isa-load.el,v 3.8 1998/09/01 
 
 (defgroup thy nil
@@ -346,6 +352,33 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 (autoload 'thy-find-other-file "thy-mode" 
 	    "Find associated .ML or .thy file." t nil)
+
+(defun isa-splice-separator (sep strings)
+  (let (stringsep)
+    (while strings
+      (setq stringsep (concat stringsep (car strings)))
+      (setq strings (cdr strings))
+      (if strings (setq stringsep 
+			(concat stringsep sep))))
+    stringsep))
+
+(defun isa-file-name-cons-extension (name)
+  "Return cons cell of NAME without final extension and extension"
+  (if (string-match "\\.[^\\.]+$" name)
+      (cons (substring name 0 (match-beginning 0))
+	    (substring name (match-beginning 0)))
+    (cons name "")))
+
+(defun isa-format (alist string)
+  "Format a string by matching regexps in ALIST against STRING"
+  (while alist
+    (while (string-match (car (car alist)) string)
+      (setq string
+	    (concat (substring string 0 (match-beginning 0))
+		    (cdr (car alist))
+		    (substring string (match-end 0)))))
+    (setq alist (cdr alist)))
+  string)
 
 ;; Key to switch to theory mode
 (define-key isa-proofscript-mode-map 

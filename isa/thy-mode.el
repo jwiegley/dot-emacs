@@ -228,137 +228,137 @@ Here is the full list of theory mode key bindings:
 ;;; file - yuk!!
 ;;; The next version of Isabelle will be more consistent.
 
-(defun thy-use-file (&optional force-use_thy)
-  "Send the file of the current buffer to an Isabelle buffer with use_thy or use."
-  (interactive "P")
-  (let ((fname (buffer-file-name)))
-    (if fname
-	(isa-query-save (current-buffer))
-      (setq fname
-	    (or (buffer-file-name)
-		(read-file-name "Use file: " nil nil t))))
-    (let*
-	((has-thy-extn   (string-match "\\.thy$" fname))   ; o/w assume ML.
-	 (tname          (if has-thy-extn 
-			     (substring fname 0 -4); cos use_thy is daft!
-			   fname))
-	 (use            (if (or has-thy-extn force-use_thy)
-			     "use_thy"
-			   "use"))
-	 (use-thy-string (concat use " \"" tname "\";"))
-	 (logic (isa-guess-root)))
-      (thy-send-string logic use-thy-string))))
+;(defun thy-use-file (&optional force-use_thy)
+;  "Send the file of the current buffer to an Isabelle buffer with use_thy or use."
+;  (interactive "P")
+;  (let ((fname (buffer-file-name)))
+;    (if fname
+;	(isa-query-save (current-buffer))
+;      (setq fname
+;	    (or (buffer-file-name)
+;		(read-file-name "Use file: " nil nil t))))
+;    (let*
+;	((has-thy-extn   (string-match "\\.thy$" fname))   ; o/w assume ML.
+;	 (tname          (if has-thy-extn 
+;			     (substring fname 0 -4); cos use_thy is daft!
+;			   fname))
+;	 (use            (if (or has-thy-extn force-use_thy)
+;			     "use_thy"
+;			   "use"))
+;	 (use-thy-string (concat use " \"" tname "\";"))
+;	 (logic (isa-guess-root)))
+;      (thy-send-string logic use-thy-string))))
 
-(defun thy-use-region (beg end)
-  "Send the region to an Isabelle buffer, with use"
-  (interactive "r")
-  (write-region beg end thy-use-tempname nil 'nomessage)
-  (let* ((use-thy-string (concat "use \"" thy-use-tempname "\";"))
-	 (logic (isa-guess-root)))
-    (thy-send-string logic use-thy-string)))
+;(defun thy-use-region (beg end)
+;  "Send the region to an Isabelle buffer, with use"
+;  (interactive "r")
+;  (write-region beg end thy-use-tempname nil 'nomessage)
+;  (let* ((use-thy-string (concat "use \"" thy-use-tempname "\";"))
+;	 (logic (isa-guess-root)))
+;    (thy-send-string logic use-thy-string)))
 
-(defun thy-copy-region (beg end &optional isa-buffer)
-  "Copy the region to an Isabelle buffer."
-  (interactive "r")
-  (let ((text (buffer-substring beg end))
-	(logic (isa-guess-root)))
-    (save-excursion
-      (thy-send-string logic text))))
+;(defun thy-copy-region (beg end &optional isa-buffer)
+;  "Copy the region to an Isabelle buffer."
+;  (interactive "r")
+;  (let ((text (buffer-substring beg end))
+;	(logic (isa-guess-root)))
+;    (save-excursion
+;      (thy-send-string logic text))))
 
-(defun thy-use-line (&optional isabuffer)
-  "Send the current interactive ML line to an Isabelle buffer.
-Advance to the next line."
-  (interactive)
-  (isa-apply-to-interactive-line 'thy-copy-region))
+;(defun thy-use-line (&optional isabuffer)
+;  "Send the current interactive ML line to an Isabelle buffer.
+;Advance to the next line."
+;  (interactive)
+;  (isa-apply-to-interactive-line 'thy-copy-region))
 
-(defun thy-send-string (logic text &optional hide)
-  "Send TEXT to a buffer running LOGIC.
-If LOGIC is nil, pick the first Isabelle buffer."
-  (require 'isa-mode)
-  (setq logic nil) ;;; #### HACK! This all needs changing for single-session.
-  (let ((cur-frm (selected-frame)))	; Preserve selected frame.
-    (if logic				; switch to Isabelle buffer, without
-	(isabelle-session logic)	; raising the frame.
-					; (NB: this fails if was renamed).
-      (set-buffer
-       (or (car-safe (isa-find-buffers-in-mode 'isa-mode))
-	   (error "Can't find an Isabelle buffer"))))
-    (if hide
-	(isa-send-string
-	 (get-buffer-process (current-buffer))
-	 text)
-      (isa-insert-ret text))     ; send use command
-    (select-frame cur-frm)))
+;(defun thy-send-string (logic text &optional hide)
+;  "Send TEXT to a buffer running LOGIC.
+;If LOGIC is nil, pick the first Isabelle buffer."
+;  (require 'isa-mode)
+;  (setq logic nil) ;;; #### HACK! This all needs changing for single-session.
+;  (let ((cur-frm (selected-frame)))	; Preserve selected frame.
+;    (if logic				; switch to Isabelle buffer, without
+;	(isabelle-session logic)	; raising the frame.
+;					; (NB: this fails if was renamed).
+;      (set-buffer
+;       (or (car-safe (isa-find-buffers-in-mode 'isa-mode))
+;	   (error "Can't find an Isabelle buffer"))))
+;    (if hide
+;	(isa-send-string
+;	 (get-buffer-process (current-buffer))
+;	 text)
+;      (isa-insert-ret text))     ; send use command
+;    (select-frame cur-frm)))
 
 (defun thy-proofgeneral-send-string (logic text &optional hide)
   ;; FIXME -- new function!
   )
 
-(defun thy-raise-windows ()
-  "Raise windows/frames associated with Isabelle session."
-  (interactive)
-  (isa-select-buffer isa-session-buffer t)
-  (let ((raise t))
-    (mapcar 'isa-display-if-active   
-	    isa-associated-buffers)))
+;(defun thy-raise-windows ()
+;  "Raise windows/frames associated with Isabelle session."
+;  (interactive)
+;  (isa-select-buffer isa-session-buffer t)
+;  (let ((raise t))
+;    (mapcar 'isa-display-if-active   
+;	    isa-associated-buffers)))
 
 
-(defun thy-guess-logic-in-use ()
-  (if (featurep 'isa-mode)
-      (let* ((buf (car-safe (isa-find-buffers-in-mode 'isa-mode)))
-	     (log (and buf
-		       (save-excursion
-			 (set-buffer buf)
-			 isa-logic-name))))
-	log)
-    nil))
+;(defun thy-guess-logic-in-use ()
+;  (if (featurep 'isa-mode)
+;      (let* ((buf (car-safe (isa-find-buffers-in-mode 'isa-mode)))
+;	     (log (and buf
+;		       (save-excursion
+;			 (set-buffer buf)
+;			 isa-logic-name))))
+;	log)
+;    nil))
 
 
-(defvar thy-use-tempname ".region.ML"
-  "*Name of temporary file to hold region dring thy-use-region.")
+;(defvar thy-use-tempname ".region.ML"
+;  "*Name of temporary file to hold region dring thy-use-region.")
 
 
-(defconst thy-logic-image-regexp
-  "[lL][oO][gG][iI][cC] [iI][mM][aA][gG][eE]:[ \t]*\"?\\([^ \t\n\"]+\\)\"?[ \t]*$"
-  "Regexp for locating name of logic image file in a .thy or .ML file.")
+;(defconst thy-logic-image-regexp
+;  "[lL][oO][gG][iI][cC] [iI][mM][aA][gG][eE]:[ \t]*\"?\\([^ \t\n\"]+\\)\"?[ \t]*$"
+;  "Regexp for locating name of logic image file in a .thy or .ML file.")
 
-(defvar isa-logic-parents
-  ;; I can't be bothered to write all of them in here,
-  ;; and anyway they're ambiguous.  Use "Logic image:"
-  ;; instead.  (Or find a way of getting emacs to track
-  ;; theory structure...)
-  '(("List" . "HOL") ("Prod" . "HOL") ("Nat" . "HOL")
-    ("Ord" . "HOL") ("Set" ."HOL") ("Sexp" . "HOL")
-    ("Univ" . "HOL") ("WF" . "HOL") ("Sum" . "HOL")
-    ("IFOL" . "FOL"))
-  "*An alist of parents of theories that live in logic files.")
+;(defvar isa-logic-parents
+;  ;; I can't be bothered to write all of them in here,
+;  ;; and anyway they're ambiguous.  Use "Logic image:"
+;  ;; instead.  (Or find a way of getting emacs to track
+;  ;; theory structure...)
+;  '(("List" . "HOL") ("Prod" . "HOL") ("Nat" . "HOL")
+;    ("Ord" . "HOL") ("Set" ."HOL") ("Sexp" . "HOL")
+;    ("Univ" . "HOL") ("WF" . "HOL") ("Sum" . "HOL")
+;    ("IFOL" . "FOL"))
+;  "*An alist of parents of theories that live in logic files.")
 
-(defun isa-guess-root ()
-  "Guess the root logic of the .thy or .ML file in current buffer.
-Choice based on first name found by:
-  (i) special text: \"Logic Image: <name>\" toward start of file
- (ii) guess work based on parent in THY = <parent> if a .thy file."
-  (save-excursion
-    (goto-char (point-min))
-    (cond
-     ((re-search-forward thy-logic-image-regexp 500 t)
-      (buffer-substring (match-beginning 1) (match-end 1)))
-     ((and (string-match "\\.thy$" (or (buffer-file-name) ""))
-	   (re-search-forward 
-	    "\\w+[ \t\n]*=[ \t\n]*\\(\\w+\\)[ \t\n]*\\+") 500 t)
-      ;; Something looks like a parent theory:
-      ;; 		MyThy = HOL + ...
-      (let ((child
-	     (buffer-substring (match-beginning 1) (match-end 1))))
-	    (or (cdr-safe (assoc child isa-logic-parents))
-		child))))))
+;(defun isa-guess-root ()
+;  "Guess the root logic of the .thy or .ML file in current buffer.
+;Choice based on first name found by:
+;  (i) special text: \"Logic Image: <name>\" toward start of file
+; (ii) guess work based on parent in THY = <parent> if a .thy file."
+;  (save-excursion
+;    (goto-char (point-min))
+;    (cond
+;     ((re-search-forward thy-logic-image-regexp 500 t)
+;      (buffer-substring (match-beginning 1) (match-end 1)))
+;     ((and (string-match "\\.thy$" (or (buffer-file-name) ""))
+;	   (re-search-forward 
+;	    "\\w+[ \t\n]*=[ \t\n]*\\(\\w+\\)[ \t\n]*\\+") 500 t)
+;      ;; Something looks like a parent theory:
+;      ;; 		MyThy = HOL + ...
+;      (let ((child
+;	     (buffer-substring (match-beginning 1) (match-end 1))))
+;	    (or (cdr-safe (assoc child isa-logic-parents))
+;		child))))))
 
-(defun isa-query-save (buffer)
-  (and (buffer-modified-p buffer)
-       (y-or-n-p (concat "Save file "
-			 (buffer-file-name buffer)
-			 "? "))
-       (save-excursion (set-buffer buffer) (save-buffer))))
+;(defun isa-query-save (buffer)
+;  (and (buffer-modified-p buffer)
+;       (y-or-n-p (concat "Save file "
+;			 (buffer-file-name buffer)
+;			 "? "))
+;       (save-excursion (set-buffer buffer) (save-buffer))))
 
 
 
@@ -371,12 +371,13 @@ Choice based on first name found by:
 
 (defun isa-sml-hook ()
   "Hook to customize sml-mode for use with Isabelle."
-  (isa-menus)				; Add Isabelle main menu
+  ;(isa-menus)				; Add Isabelle main menu
   ;; NB: these keydefs will affect other sml-mode buffers too!
   (define-key sml-mode-map "\C-c\C-o" 'thy-find-other-file)
-  (define-key sml-mode-map "\C-c\C-u" 'thy-use-file)
-  (define-key sml-mode-map "\C-c\C-r" 'thy-use-region)
-  (define-key sml-mode-map "\C-c\C-l" 'thy-use-line)
+  ; Disabled for proof general 
+  ;(define-key sml-mode-map "\C-c\C-u" 'thy-use-file)
+  ;(define-key sml-mode-map "\C-c\C-r" 'thy-use-region)
+  ;(define-key sml-mode-map "\C-c\C-l" 'thy-use-line)
   ;; listener minor mode removed: \C-c\C-c freed up
   (define-key sml-mode-map "\C-c\C-t" 'thy-insert-id-header))
 
@@ -593,25 +594,27 @@ If not, will turn off simulated minor mode and run thy-indent-line."
   "Read a number from the minibuffer."
   (read-number prompt t))
 
-(defun thy-read-thy-name ()
-  (let* ((default  (car 
-		    (isa-file-name-cons-extension
-		     (file-name-nondirectory 
-		      (abbreviate-file-name (buffer-file-name)))))))
-    default))
-
 ;(defun thy-read-thy-name ()
 ;  (let* ((default  (car 
 ;		    (isa-file-name-cons-extension
 ;		     (file-name-nondirectory 
-;		      (abbreviate-file-name (buffer-file-name))))))
-;	 (name     (read-string 
-;		    (format "Name of theory [default %s]: " default))))
-;    (if (string= name "") default name)))
+;		      (abbreviate-file-name (buffer-file-name)))))))
+;    default))
+
+(defun thy-read-thy-name ()
+  (let* ((default  (car 
+		    (isa-file-name-cons-extension
+		     (file-name-nondirectory 
+		      (abbreviate-file-name (buffer-file-name))))))
+	 (name     (read-string 
+		    (format "Name of theory [default %s]: " default))))
+    (if (string= name "") default name)))
 
 (defun thy-read-logic-image ()
-  (let*	((defimage (or (thy-guess-logic-in-use)
-		       "Pure"))
+  (let*	((defimage "Pure")
+	   ;; (or (thy-guess-logic-in-use)
+	   ;; "Pure"))
+	   
 	 (logic    (read-string
 		    (format "Name of logic image to use [default %s]: "
 			    defimage))))
