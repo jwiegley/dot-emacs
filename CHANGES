@@ -9,7 +9,7 @@ Generic Changes
   without the "Proof Process Busy" message.
 
 * New function C-c C-f (proof-find) to invoke some prover-specific
-  mechanism to search for theories.  
+  mechanism to search for theorems.  
 
 * Whenever scripting is triggered in a new file, a cd command
   is sent to the proof assistant to switch to the right directory
@@ -23,7 +23,7 @@ Generic Changes
   Buttons are automatically enabled or disabled as appropriate.   
   This requires XEmacs 21 or better for reliable working,
   so is disabled for earlier versions.
-  If do not like enablers, you can turn them off with
+  If you do not like enablers, you can turn them off with
   the new configuration variable proof-toolbar-use-enablers.
   With this variable nil, buttons do nothing when they 
   otherwise be disabled.
