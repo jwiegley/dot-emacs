@@ -157,10 +157,19 @@ no regular or easily discernable structure."
   "Command to send to Isabelle to process theory for this ML file.")
 
 (defun isa-shell-hack-use-thy ()
-  "Send a use_thy_no_topml command to the process for the current ML file.
-This makes Isabelle read the theory corresponding to the current ML file.
+  "Possibly issue  use_thy_no_topml command to Isabelle.
+If the current buffer has an empty locked region, the interface is
+about to send commands from it to Isabelle.  This function sends
+a command to read any theory file corresponding to the current ML file.
 This is a hook function for proof-activate-scripting-hook."
   (if (and
+       (eq (proof-unprocessed-begin) (point-min))
+       ;; If we switch to this buffer and it *does* have a locked
+       ;; region, we could check that no updates are needed and
+       ;; unlock the whole buffer in case they were.  But that's
+       ;; a bit messy.  Instead we assume that things must be
+       ;; up to date, after all, the user wasn't allowed to edit
+       ;; anything that this file depends on, was she?
        buffer-file-name
        (file-exists-p 
 	(concat (file-name-sans-extension buffer-file-name) ".thy")))
