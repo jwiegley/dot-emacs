@@ -103,14 +103,14 @@ A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
 
 B Proof-by-Pointing (10h hhg)
 
+A Add coq-add-tactic with a tactic name, which adds that tactic to the 
+  undoable tactics and to the font-lock. (2h hhg)
+
 * Emacs19
 =========
-
-A proof-lift-global doesn't work correctly.  This seems to relate to
-  the behavior of delete-region and insert with respect to overlays:
-  inserting at the beginning of an overlay in emacs19 may extend 
-  that overlay, whereas in xemacs it doesn't. (2hr hhg)
 
 B The proof-locked-span isn't set to read-only, because overlays don't 
   have that capability.  This needs to be done with text-regions.
   (2hr hhg)
+
+A Switching buffers doesn't work correctly. (1h hhg)
