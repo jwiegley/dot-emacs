@@ -2109,7 +2109,7 @@ is off (nil)."
 ;; pear-shaped.
 
 ;; In fact, it's so risky, we'll disable it by default
-(if (if (string-match "XEmacs" emacs-version)
+(if (if proof-running-on-XEmacs
 	(get 'proof-frob-locked-end 'disabled t)
       ;; FSF code more approximate
       (not (member 'disabled (symbol-plist 'proof-frob-locked-end))))
@@ -2801,20 +2801,24 @@ finish setup which depends on specific proof assistant configuration."
   (easy-menu-add proof-assistant-menu proof-mode-map)
 
   ;; Use new parsing mechanism which works for different
-  ;; kinds of script syntax
-  (cond
-   (proof-script-command-start-regexp
-    (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
-   (proof-running-on-XEmacs
-    (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
-    (unless proof-script-command-end-regexp
-      (proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
-      (setq proof-script-command-end-regexp
-	    (if proof-terminal-char
-		(regexp-quote (char-to-string proof-terminal-char))
-	      "$")))) ;  default if nothing set is EOL.
-   (t
-    (defalias 'proof-segment-up-to 'proof-segment-up-to-old)))
+  ;; kinds of script syntax.  Choice of function depends
+  ;; on configuration setting.  FSF Emacs uses old 
+  ;; function because it lacks the buffer-syntactic-context
+  ;; builtin used on XEmacs.
+  (unless (fboundp 'proof-segment-up-to)
+    (cond
+     (proof-script-command-start-regexp
+      (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
+     (proof-running-on-XEmacs
+      (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
+      (unless proof-script-command-end-regexp
+	(proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
+	(setq proof-script-command-end-regexp
+	      (if proof-terminal-char
+		  (regexp-quote (char-to-string proof-terminal-char))
+		"$")))) ;  default if nothing set is EOL.
+     (t
+      (defalias 'proof-segment-up-to 'proof-segment-up-to-old))))
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
