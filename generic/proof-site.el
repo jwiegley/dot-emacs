@@ -48,13 +48,16 @@
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
-    ;; The following provers are not fully supported
-    ;; (please volunteer!)
+    (af2	"Af2"		"\\.af2$")
+    ;; The following provers are not fully supported, 
+    ;; and have only preliminary support written 
+    ;; (please volunteer to improve them!)
     (hol98	"HOL"		"\\.sml$")
+    (acl2	"ACL2"		"\\.acl2$")
     ;; The following provers have experimental support
     (plastic	"Plastic"	"\\.lf$")
     (twelf	"Twelf"		"\\.elf$")
-    (af2	"Af2"		"\\.af2$"))
+    )
   "*Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
