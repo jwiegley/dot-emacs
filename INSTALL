@@ -132,10 +132,14 @@ NB: You may need to change the path to perl at the top of the file.
 
 ----------------------------------------------------------------------
 
-Notes for Isabelle
-==================
+Notes for Isabelle and Isabelle/Isar
+====================================
 
 Check the value of isabelle-prog-name.
+
+If you use the interface wrapper scripts isa/interface or
+isar/interface, you may need to change the path to bash
+on the first line.
 
 The distribution includes a version of Isamode's theory file mode.
 Use C-h m to check on the features available.
