@@ -57,11 +57,14 @@ For minor issues, see isa/BUGS.
 You can simply remove the directories from the PG distribution,
 instead of customizing the `proof-assistants' variable.
 
-*** Various efficiency improvements 
-
-
 *** Desktop integration for RedHat 7.3, Mandrake 8.2 in RPM package.
 
+RPM package now works on RedHat as well as Mandrake, and adds PG application
+to desktop menus.
+
+*** Efficiency improvements 
+
+Process buffers no longer keep undo information.
 
 
 

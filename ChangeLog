@@ -1,5 +1,143 @@
 2002-08-29  David Aspinall  <da@proofgeneral.org>
 
+	* CHANGES: Updated.
+
+	* bin/proofgeneral:
+	Observe EMACS environment variable
+
+	* CHANGES, ChangeLog:
+	Updated.
+
+	* etc/ProofGeneral.spec:
+	Remove bogus file
+
+	* etc/ProofGeneral.menu: Update comment
+
+	* CHANGES: Remove development note
+
+	* ChangeLog, Makefile.devel:
+	Updated.
+
+	* etc/ProofGeneral.spec: Missing mkdir
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel: pre 3.4 -> 3.5
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* etc/release-log.txt: Updated
+
+	* etc/ProofGeneral.spec:
+	Support dekstop entries for KDE and GNOME, tested in RedHat 7.3
+
+	* etc/ProofGeneral.desktop:
+	Desktop file for KDE.
+
+	* isa/isabelle-system.el:
+	Search for isabelle binary in standard places.
+
+	* generic/proof-utils.el:
+	Add additional path to proof-locate-executable.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* twelf/twelf.el: Updated.
+
+	* twelf/twelf.el, twelf/x-symbol-twelf.el, twelf/twelf-old.el, twelf/example.elf, twelf/twelf-font.el, plastic/test.lf, plastic/todo, twelf/README, plastic/plastic.el, plastic/plastic-syntax.el, plastic/README, phox/phox.el, phox/phox-sym-lock.el, phox/phox-tags.el, phox/x-symbol-phox.el, phox/example.phx, phox/phox-extraction.el, phox/phox-font.el, phox/phox-fun.el, phox/phox-outline.el, pgkit/pgip.el, phox/.cvsignore, phox/README, papers/README, pgkit/README, lego/legotags, lego/readonly/readonly.l, lego/todo, lego/x-symbol-lego.el, lego/example2.l, lego/lego.el, lego/lego-syntax.el, lego/BUGS, lego/example.l, lego/README, isar/todo, lclam/example.lcm, lclam/lclam.el, isar/isar.el, isar/isartags, isar/Example.thy, isar/interface, isar/isar-keywords.el, isar/isar-syntax.el, isar/README, isar/BUGS, isa/todo, isa/x-symbol-isabelle.el, isa/isabelle-system.el, isa/thy-mode.el, isa/interface, isa/interface-setup.el, isa/isa.el, isa/isa-syntax.el, isa/Example2.ML, isa/Example.ML, isa/Example.thy, isa/README, images/gimp/scripts/proofgeneral.scm, isa/BUGS, isa/Example-Xsym.ML, images/gimp/.cvsignore, images/use.8bit.xpm, images/use.xcf, images/use.xpm, images/undo.8bit.xpm, images/undo.xcf, images/undo.xpm, images/retract.xpm, images/state.8bit.xpm, images/state.xcf, images/state.xpm, images/restart.8bit.xpm, images/restart.xcf, images/restart.xpm, images/retract.8bit.xpm, images/retract.xcf, images/pgmini.xpm, images/qed.8bit.xpm, images/qed.xcf, images/qed.xpm, images/pgicon.png, images/pg-text.jpg, images/pg-text.xcf, images/next.xpm, images/notes.txt, images/pg-text.8bit.gif, images/pg-text.gif, images/next.8bit.xpm, images/next.xcf, images/isabelle_transparent.8bit.gif, images/isabelle_transparent.gif, images/isabelle_transparent.xcf, images/lego-badge.xcf, images/interrupt.xcf, images/interrupt.xpm, images/isabelle-badge.xcf, images/info.8bit.xpm, images/info.xcf, images/info.xpm, images/interrupt.8bit.xpm, images/help.xcf, images/help.xpm, images/hiddenproof.xcf, images/hiddenproof.xpm, images/goto.8bit.xpm, images/goto.xcf, images/goto.xpm, images/help.8bit.xpm, images/goal_large.xcf, images/goal.xpm, images/fireworks.xcf, images/goal.8bit.xpm, images/goal.xcf, images/find.8bit.xpm, images/find.xcf, images/find.xpm, images/coq-badge.xcf, images/command.xpm, images/context.8bit.xpm, images/context.xcf, images/context.xpm, images/abort.xpm, images/blank.xcf, images/command.8bit.xpm, images/command.xcf, images/abort.8bit.xpm, images/abort.xcf, images/README, images/ProofGeneral.jpg, images/ProofGeneral.xcf, images/Makefile, images/ProofGeneral.8bit.gif, images/ProofGeneral.gif, html/projects/xmlpgip.html, images/.cvsignore, html/projects/test.html, html/projects/thybrowse.html, html/projects/webreplay.html, html/projects/pgip.html, html/projects/pgml.html, html/projects/reelcase.html, html/projects/scrgen.html, html/projects/isapbp.html, html/projects/mm.html, html/projects/outline.html, html/projects/coqfile.html, html/projects/coqpbp.html, html/projects/corba.html, html/projects/hol.html, html/projects/acs.html, html/papers/pgtalk.pdf, html/papers/pgoutline.pdf, html/papers/pgoutline.ps.gz, html/images/whip.jpg, html/images/whole-man.jpg, html/images/whole-man-thumb.jpg, html/images/silverrule.gif, html/images/vh40.gif, html/images/whip-thumb.jpg, html/images/pg-text.gif, html/images/phox-einstein.jpg, html/images/portrait.jpg, html/images/portrait-thumb.jpg, html/images/pg-isar-thumb.png, html/images/pg-lego-console.png, html/images/pg-lego-console-thumb.png, html/images/pg-lego-screenshot.png, html/images/pg-lego-thumb.png, html/images/pg-isar-screenshot.png, html/images/pg-isa-screenshot.png, html/images/pg-isa-thumb.png, html/images/lego-badge.gif, html/images/pg-coq-screenshot.png, html/images/pg-coq-thumb.png, html/images/coq-badge.gif, html/images/coqlogo4.gif, html/images/coqlogo4.xcf, html/images/isabelle-badge.gif, html/images/isabelle.gif, html/images/bullethole.gif, html/images/canvaswallpaper.jpg, html/images/PG-small.jpg, html/images/ProofGeneral.jpg, html/images/.cvsignore, html/images/IsaPGscreen.jpg, html/Kit/dtd/pgml.dtd, html/Kit/dtd/pgip.dtd, html/Kit/Makefile, html/userman, html/smallheader.html, html/smallpage.html, html/smallpage.php, html/register, html/register.html, html/screenshot, html/screenshot.html, html/oldrel.php, html/projects.html, html/proofgen.css, html/news, html/news.html, html/notes.txt, html/oldnews.html, html/main, html/main.html, html/mission.html, html/links, html/links.html, html/mailinglist, html/mailinglist.html, html/index.shtml, html/kit, html/kit.html, html/kit.php, html/hits, html/htmlshow.html, html/htmlshow.php, html/index.php, html/gallery, html/gallery.php, html/header.html, html/head.html, html/fileshow.php, html/footer.html, html/functions.php3, html/feedback.php, html/features, html/features.html, html/feedback, html/eeproof.php, html/elispmarkup.php3, html/eproofe.php, html/favicon.ico, html/doc.html, html/download, html/download.html, html/eeproof, html/develdownload.html, html/develdownload.php, html/doc, html/develdownload, html/devel.html, html/cvsweb.cgi, html/cvsweb.conf, html/devel, html/components, html/components.html, html/counter.php3, html/about, html/about.html, html/adaptingman, html/ProofGeneralPortrait.eps.gz, html/.cvsignore, html/FAQ, html/.htaccess, hol98/example.sml, hol98/hol98.el, hol98/todo, hol98/x-symbol-hol98.el, generic/span.el, generic/texi-docstring-magic.el, hol98/README, generic/span-extent.el, generic/span-overlay.el, generic/proof.el, generic/proof-x-symbol.el, generic/proof-system.el, generic/proof-toolbar.el, generic/proof-utils.el, generic/proof-splash.el, generic/proof-syntax.el, generic/proof-site.el, generic/proof-shell.el, generic/proof-menu.el, generic/proof-script.el, generic/proof-easy-config.el, generic/proof-indent.el, generic/proof-depends.el, generic/pg-xml.el, generic/proof-autoloads.el, generic/proof-compat.el, generic/proof-config.el, generic/pg-response.el, generic/pg-user.el, generic/pg-xhtml.el, generic/pg-assoc.el, generic/pg-goals.el, generic/pg-metadata.el, generic/pg-pgip.el, etc/pgkit/xmltest2.xml, generic/_pkg.el, generic/README, etc/patches/duplicated-short-messages-fix.txt, etc/patches/fix-attempt-for-eager-cleaning.txt, etc/pgkit/xmltest1.xml, etc/lego/multiple/B.l, etc/lego/multiple/C.l, etc/lego/multiple/D.l, etc/lego/multiple/README, etc/lego/multiple/A.l, etc/lego/pbp.l, etc/lego/unsaved-goals.l, etc/lego/error-eg.l, etc/lego/lego-site.el, etc/lego/long-line-backslash.l, etc/isar/multiple/D.thy, etc/isar/multiple/README, etc/lego/GoalGoal.l, etc/isar/multiple/A.thy, etc/isar/multiple/B.thy, etc/isar/multiple/C.thy, etc/isar/trace_simp.thy, etc/isar/bad1.thy, etc/isar/bad2.thy, etc/isar/new-parsing-test.el, etc/isar/XSymbolTests.thy, etc/isar/Fibonacci.thy, etc/isar/Parsing.thy, etc/isar/Persistent.thy, etc/isar/README, etc/isar/XEmacsSyntacticContextProb.thy, etc/isar/CommentParsingBug.thy, etc/isa/thy/test.ML, etc/isa/multiple/Err.thy, etc/isa/multiple/foobar/foo.ML, etc/isa/multiple/README, etc/isa/multiple/C.thy, etc/isa/multiple/D.ML, etc/isa/multiple/D.thy, etc/isa/multiple/Err.ML, etc/isa/multiple/A.thy, etc/isa/multiple/B.ML, etc/isa/multiple/B.thy, etc/isa/multiple/C.ML, etc/isa/depends/Primes.thy, etc/isa/depends/Usedepends.ML, etc/isa/depends/Usedepends.thy, etc/isa/multiple/A.ML, etc/isa/depends/Fib.ML, etc/isa/depends/Fib.thy, etc/isa/depends/Primes.ML, etc/isa/\backslashname/test.ML, etc/isa/\backslashname/test.thy, etc/isa/xsym.ML, etc/isa/long-line-backslash.ML, etc/isa/message-test.ML, etc/isa/parsing.ML, etc/isa/settings.ML, etc/demoisa/D.ML, etc/demoisa/README, etc/isa/completed-proof.ML, etc/isa/goal-matching.ML, etc/coq/multiple/c.v, etc/demoisa/A.ML, etc/demoisa/B.ML, etc/demoisa/C.ML, etc/coq/multiple/a.v, etc/coq/multiple/b.v, etc/coq/multiple/.cvsignore, etc/coq/multiple/README, etc/coq/nested.v, etc/coq/queryreplace.v, etc/coq/unnamed_thm.v, etc/Mailman/listinfo.html, etc/Mailman/note.txt, etc/Mailman/options.html, etc/Mailman/subscribe.html, etc/Mailman/handle_opts.html, etc/Mailman/intro-proofgeneraldevel.html, etc/Mailman/intro-proofgeneral.html, etc/testing-log.txt, etc/proofgeneral-domain.txt, etc/release-log.txt, etc/screenshot-notes.txt, etc/test-schedule.txt, etc/doc-notes.txt, etc/junk.el, etc/profiling.txt, etc/announce-header.txt, etc/bug-notes.txt, etc/cvs-tips.txt, etc/debugging-tips.txt, etc/announce, etc/README, etc/TESTS, doc/docstring-magic.el, etc/ProofGeneral.menu, etc/ProofGeneral.spec, doc/dir, doc/README.doc, doc/ProofGeneral.texi, doc/ProofGeneral.jpg, doc/.cvsignore, doc/Makefile, doc/Makefile.doc, doc/PG-adapting.texi, demoisa/demoisa-easy.el, demoisa/demoisa.el, demoisa/README, coq/example.v, coq/todo, coq/x-symbol-coq.el, coq/coq.el, coq/coqtags, bin/proofgeneral, coq/BUGS, coq/coq-syntax.el, coq/README, acl2/acl2.el, acl2/example.acl2, acl2/x-symbol-acl2.el, acl2/README:
+	Updating branch
+
+	* todo.defunct, bugs, todo, TODO, Makefile.xemacs, README, README.devel, README.exper, REGISTER, Makefile, Makefile.devel, FAQ, INSTALL, ChangeLog, COPYING, BUGS, CHANGES, AUTHORS, .cvsignore:
+	Updating branch for new version number.
+
+	* Makefile.devel: Updated.
+
+	* pgkit/pgip.el: New files.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/download.html, todo:
+	Updated.
+
+	* generic/proof-menu.el:
+	Make C-c C-w appear on binding list
+
+	* todo, html/develdownload.php, README.exper, ChangeLog:
+	Updated.
+
+	* isa/isabelle-system.el:
+	Dependencies classed as experimental.
+
+	* doc/PG-adapting.texi: Update magic
+
+	* etc/announce, etc/release-log.txt:
+	Updated.
+
+	* Makefile:
+	Simplify byte comp, notes of brokenness.
+
+	* etc/announce-header.txt: New files.
+
+	* todo, TODO, isa/README:
+	Updated.
+
+	* isar/isar.el, isa/isa.el:
+	New theorem deps settings
+
+	* phox/example.phx: AF2 eradicate
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-menu.el:
+	Simplify menu structure further by adding Advanced menu.
+
+	* doc/ProofGeneral.texi: Update magic
+
+	* html/download.html, html/news.html, html/oldnews.html:
+	News about 3.4; links to download.
+
+	* plastic/plastic.el:
+	Fix calls on proof-defshortcut
+
+2002-08-28  David Aspinall  <da@proofgeneral.org>
+
+	* plastic/plastic.el:
+	Fix interactive posn
+
+	* generic/proof-menu.el:
+	Comments: possible fix to compiles.
+
+	* generic/proof-menu.el:
+	Fix for docstrings in proof-def-shortcut, proof-def-invisible.
+
+	* generic/proof-utils.el:
+	Alternative version of proof-ass macro to support byte-compiled files.
+
+	* generic/proof-script.el:
+	checkdoc induced docstring tweaks.
+
+	* generic/proof-depends.el:
+	Change to proof-shell-theorem-dependency-regexp; also add code to make nested submenus of deps.
+
+	* generic/proof-shell.el, generic/proof-config.el:
+	Change proof-shell-theorem-dependency-regexp to use two pieces: names and dependencies
+
+2002-08-29  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec:
 	Remove bogus file
 
