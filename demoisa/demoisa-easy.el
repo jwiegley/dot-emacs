@@ -1,4 +1,4 @@
-;; proof-easy.el Example Proof General instance for Isabelle
+;; demoisa-easy.el Example Proof General instance for Isabelle
 ;;
 ;; Copyright (C) 1999 LFCS Edinburgh. 
 ;;
@@ -7,12 +7,13 @@
 ;; $Id$
 ;;
 ;; This is an alternative version of demoisa.el which uses the
-;; proof-easy-config mechanism to avoid declaring derived modes, etc.
-;; NB: proof-easy-config is experimental.
+;; proof-easy-config macro to do the work of declaring derived modes,
+;; etc.  NB: proof-easy-config is currently experimental.
 ;;
-;; See demoisa.el for documentation.
+;; See demoisa.el and the Proof General manual for more documentation.
 ;;
 ;; To test this file you must rename it demoisa.el.
+;;
 
 (require 'proof-easy-config)            ; easy configure mechanism
 
@@ -51,3 +52,5 @@
  "\\(\\(.\\|\n\\)*No subgoals!\n\\)"
  proof-shell-eager-annotation-start   
  "^\\[opening \\|^###\\|^Reading")
+
+(provide 'demoisa)
