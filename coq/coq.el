@@ -508,7 +508,10 @@ This is specific to coq-mode."
    proof-shell-result-end "\372 End Pbp result \373"
    proof-shell-start-goals-regexp "[0-9]+ subgoals?"
    proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
-   proof-shell-init-cmd coq-shell-init-cmd
+   proof-shell-init-cmd  ; (concat
+			 coq-shell-init-cmd
+	                 ; Coq has no global settings?
+			 ; (proof-assistant-settings-cmd))
    proof-shell-restart-cmd coq-shell-restart-cmd
    proof-analyse-using-stack t
    ;;	proof-lift-global 'coq-lift-global
@@ -537,10 +540,15 @@ This is specific to coq-mode."
 ;; Flags and other settings for Coq.
 ;;
 
-(defpacustom time-search-isos  nil
-  "Whether to display timing of SearchIsos in Coq."
-  :type 'boolean
-  :setting ("Time." . "Untime."))
+;; da: neither of these work very well.
+;; I think "time" must just be for special search isos top level,
+;; and "Focus" on works during a proof, so sending the setting
+;; at the start of a session is wrong.
+
+;(defpacustom time-search-isos  nil
+;  "Whether to display timing of SearchIsos in Coq."
+;  :type 'boolean
+;  :setting ("Time." . "Untime."))
 
 (defpacustom print-only-first-subgoal  nil
   "Whether to just print the first subgoal in Coq."
