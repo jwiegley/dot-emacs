@@ -262,14 +262,6 @@ until Proof General is restarted."
   :type 'integer
   :setting "print_depth %i;")
 
-;; FIXME: move this somewhere sensible.
-;; (actually only needs setting for isar)
-(setq proof-assistant-setting-format 'isar-markup-ml)
-
-(defun isar-markup-ml (string)
-  "Return marked up version of STRING for Isar if we seem to be using Isar."
-  (if isa-running-isar (format "ML_command {* %s *};" string) string))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Generic Isabelle menu for Isabelle and Isabelle/Isar
