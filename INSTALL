@@ -47,9 +47,12 @@ Notes for Proof General
 
 Byte Compilation.
 -----------------
+
 Compilation of the Emacs lisp files improves efficiency but can
-sometimes cause compatibility problems.  You can compile Proof General
-by typing 'make' in the directory where you installed it.
+sometimes cause compatibility problems.  It should be okay if you run
+with the same version of Emacs that you compiled with.  You can
+compile Proof General by typing 'make' in the directory where you
+installed it.  Check the Makefile sets EMACS to your Emacs executable.
 
 
 Site-wide Installation
