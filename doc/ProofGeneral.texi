@@ -2114,18 +2114,20 @@ the proof assistant to use tokens, yet appear to be using special
 characters.  So proof scripts and proofs can be processed with real
 mathematical symbols, Greek letters, etc.
 
-You will be able to enable X-Symbol support if you have installed the
-X-Symbol package and support has been provided in Proof General for a
-token language for your proof assistant.
-The X-Symbol package is available from
-@uref{http://x-symbol.sourceforge.net/}.
-To enable X-Symbol, use the menu item:
+The X-Symbol package is now bundled with Proof General.  You will be
+able to enable X-Symbol support if support has been provided in Proof
+General for a token language for your proof assistant.  To
+enable X-Symbol, use the menu item:
 @example
   Proof-General -> Options -> X-Symbol
 @end example
 To enable it automatically every time you use Proof General,
-you need to customize the setting
-@code{@emph{PA}-x-symbol-enable}.
+just use
+@example
+  Proof-General -> Options -> Save Options
+@end example
+once it has been selected.  (Alternatively, customize the setting
+@code{@emph{PA}-x-symbol-enable}).
 
 Notice that for proper symbol support, the proof assistant needs to have
 a special @i{token language}, or a special character set, to use
@@ -2133,10 +2135,11 @@ symbols.  In this case, the proof assistant will output, and accept as
 input, tokens like @code{\longrightarrow}, which display as the
 corresponding symbols.  However, for proof assistants which do not have
 such token support, we can use "fake" symbol support quite effectively,
-displaying ordinary character sequences such as @code{-->} with symbols.
-The only problem with this hack is that it can cause surprising results,
-when you really want character sequences instead of, for example, Greek
-letters!
+displaying ordinary ASCII character sequences such as @code{-->} with
+symbols.  
+
+For more information about the X-Symbol package, please visit
+its home page at @uref{http://x-symbol.sourceforge.net/}.  
 
 @c @xref{Configuring X-Symbol}, for notes about how to configure
 @c a proof assistant to use X-Symbol in Proof General.
