@@ -40,6 +40,7 @@ Fixpoint f [n:nat] : nat := Cases n of O => O | (S m)=> (f m) end.
 (* 2b.  Retraction to 2a from here uses "Reset".  
    Retraction to 2a from inside proof uses "Abort. Back." *)
 
+
 Lemma t1: (n: nat ) {n=O} + {(EX y | n = (S y))}.  
 (* 3 This needs "Restart" to be retracted if inside the proof, and
 "Reset t1. Back 4."  if outside (after point 12). 3 because of the
@@ -73,8 +74,12 @@ Intros. (* 9 "Undo": example of retraction 9->6: Undo 2.  Back 3. *)
 EAuto. (* 11 "Undo" *)
 Save. (* 12 *)
 
-
+End Apple.
 
 Section Banana.
 
+Lemma Coq:  O=O. Auto. Save.   (* silly example to show that testing
+				  prompt to determine if we're in proof
+				  mode is not good enough. *)
 
+End Banana.
