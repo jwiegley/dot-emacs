@@ -20,11 +20,6 @@
   :type 'file
   :group 'lego)
 
-(defcustom lego-indent 2
-  "*Indentation level."
-  :type 'number
-  :group 'lego)
-
 (defcustom lego-test-all-name "test_all"
   "*The name of the LEGO module which inherits all other modules of the
   library."
@@ -263,24 +258,6 @@ Given is the first SPAN which needs to be undone."
 (proof-defshortcut lego-intros "intros "  [(control i)])
 (proof-defshortcut lego-Refine "Refine "  [(control r)])
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Lego Indentation                                               ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun lego-stack-to-indent (stack)
-  (cond
-   ((null stack) 0)
-   ((null (car (car stack)))
-    (nth 1 (car stack)))
-   (t (save-excursion
-	(goto-char (nth 1 (car stack)))
-	(+ lego-indent (current-column))))))
-
-(defun lego-parse-indent (c stack)
-  (cond
-   ((eq c ?\{) (cons (list c (point)) stack))
-   ((eq c ?\}) (cdr stack))
-   (t stack)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Lego shell startup and exit hooks                              ;;
@@ -341,16 +318,15 @@ Checks the width in the `proof-goals-buffer'"
 	proof-count-undos-fn 'lego-count-undos
 	proof-find-and-forget-fn 'lego-find-and-forget
         proof-goal-hyp-fn 'lego-goal-hyp
-	proof-state-preserving-p 'lego-state-preserving-p
-	proof-parse-indent 'lego-parse-indent
-	proof-stack-to-indent 'lego-stack-to-indent)
+	proof-state-preserving-p 'lego-state-preserving-p)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
 	proof-goal-command-regexp lego-goal-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
 	proof-goal-with-hole-regexp lego-goal-with-hole-regexp
 	proof-kill-goal-command lego-kill-goal-command
-	proof-indent-commands-regexp (proof-ids-to-regexp lego-commands))
+	proof-indent-any-regexp
+	(proof-regexp-alt (proof-ids-to-regexp lego-commands) "\\s(" "\\s)"))
 
   (lego-init-syntax-table)
 

@@ -360,49 +360,52 @@ This is specific to coq-mode."
 ;;   Indentation                                                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; "Case" is represented by 'c' on the stack, and
-;; "CoInductive" is represented by 'C'.
-(defun coq-stack-to-indent (stack)
-  (cond
-   ((null stack) 0)
-   ((null (car (car stack)))
-    (nth 1 (car stack)))
-   (t (let ((col (save-excursion
-		   (goto-char (nth 1 (car stack)))
-		   (current-column))))
-	(cond
-	 ((eq (car (car stack)) ?c)
-	  (save-excursion (move-to-column (current-indentation))
-			  (cond 
-			   ((eq (char-after (point)) ?|) (+ col 3))
-			   ((proof-looking-at "end") col)
-			   (t (+ col 5)))))	  
-	 ((or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C))
-	  (+ col (if (eq ?| (save-excursion 
-			      (move-to-column (current-indentation))
-			      (char-after (point)))) 2 4)))
-	 (t (1+ col)))))))
+;; FIXME mmw: code disabled; Is the new indentation scheme general
+;; enough to handle Coq as well?
 
-(defun coq-parse-indent (c stack)
-  (cond
-   ((eq c ?C)
-    (cond ((proof-looking-at "Case")
-	   (cons (list ?c (point)) stack))
-	  ((proof-looking-at "CoInductive")
-	   (forward-char (length "CoInductive"))
-	   (cons (list c (- (point) (length "CoInductive"))) stack))
-	  (t stack)))
-   ((and (eq c ?e) (proof-looking-at "end") (eq (car (car stack)) ?c))
-    (cdr stack))
-
-   ((and (eq c ?I) (proof-looking-at "Inductive"))
-    (forward-char (length "Inductive"))
-    (cons (list c (- (point) (length "Inductive"))) stack))
-
-   ((and (eq c ?.) (or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C)))
-    (cdr stack))
-
-   (t stack)))
+;;; "Case" is represented by 'c' on the stack, and
+;;; "CoInductive" is represented by 'C'.
+;(defun coq-stack-to-indent (stack)
+;  (cond
+;   ((null stack) 0)
+;   ((null (car (car stack)))
+;    (nth 1 (car stack)))
+;   (t (let ((col (save-excursion
+;		   (goto-char (nth 1 (car stack)))
+;		   (current-column))))
+;	(cond
+;	 ((eq (car (car stack)) ?c)
+;	  (save-excursion (move-to-column (current-indentation))
+;			  (cond 
+;			   ((eq (char-after (point)) ?|) (+ col 3))
+;			   ((proof-looking-at "end") col)
+;			   (t (+ col 5)))))	  
+;	 ((or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C))
+;	  (+ col (if (eq ?| (save-excursion 
+;			      (move-to-column (current-indentation))
+;			      (char-after (point)))) 2 4)))
+;	 (t (1+ col)))))))
+;
+;(defun coq-parse-indent (c stack)
+;  (cond
+;   ((eq c ?C)
+;    (cond ((proof-looking-at "Case")
+;	   (cons (list ?c (point)) stack))
+;	  ((proof-looking-at "CoInductive")
+;	   (forward-char (length "CoInductive"))
+;	   (cons (list c (- (point) (length "CoInductive"))) stack))
+;	  (t stack)))
+;   ((and (eq c ?e) (proof-looking-at "end") (eq (car (car stack)) ?c))
+;    (cdr stack))
+;
+;   ((and (eq c ?I) (proof-looking-at "Inductive"))
+;    (forward-char (length "Inductive"))
+;    (cons (list c (- (point) (length "Inductive"))) stack))
+;
+;   ((and (eq c ?.) (or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C)))
+;    (cdr stack))
+;
+;   (t stack)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;    To guess the command line options   ;;
@@ -467,15 +470,23 @@ This is specific to coq-mode."
 	proof-find-and-forget-fn 'coq-find-and-forget
         proof-goal-hyp-fn 'coq-goal-hyp
 	proof-state-preserving-p 'coq-state-preserving-p
-	proof-global-p 'coq-global-p
-	proof-parse-indent 'coq-parse-indent
-	proof-stack-to-indent 'coq-stack-to-indent)
+	proof-global-p 'coq-global-p)
 
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
-	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
-	proof-indent-commands-regexp (proof-ids-to-regexp coq-keywords))
-
+	proof-goal-with-hole-regexp coq-goal-with-hole-regexp)
+  
+  (setq	
+   proof-indent-close-offset -1
+   proof-indent-any-regexp
+   (proof-regexp-alt (proof-ids-to-regexp
+		      (append (list "Cases" "end") coq-keywords)) "\\s(" "\\s)")
+   proof-indent-enclose-regexp "|"
+   proof-indent-open-regexp
+   (proof-regexp-alt (proof-ids-to-regexp '("Cases")) "\\s(")
+   proof-indent-close-regexp
+   (proof-regexp-alt (proof-ids-to-regexp '("end")) "\\s)"))
+  
   (setq proof-auto-multiple-files t)	; until Coq has real support
 
   (setq proof-shell-start-silent-cmd "Begin Silent."
