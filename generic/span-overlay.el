@@ -265,13 +265,23 @@ A span is before PT if it covers the character before PT."
     (find-span-aux prev-prop-p (span-property span 'before))))
 
 ; overlays are [start, end)
-(defun next-span (span prop)
-  "Return span after SPAN with property PROP.
-If there are two spans overlapping then this won't work."
-  (let ((l (member-if (lambda (span) (span-property span prop))
-		       (overlays-at
-			(next-overlay-change (overlay-start span))))))
-    (car-safe l)))
+; Then test is for a dirty bug fix with FSF Emacs with next-span not 
+; advancing the span !
+(if proof-running-on-XEmacs
+    (defun next-span (span prop)
+      "Return span after SPAN with property PROP. If there are two spans overlapping then this won't work."
+      (let ((l (member-if (lambda (span) (span-property span prop))
+			  (overlays-at
+			   (next-overlay-change (overlay-start span))))))
+	(car-safe l)))
+    (defun next-span (span prop)
+      "Return span after SPAN with property PROP. If there are two spans overlapping then this won't work."
+      (let (spanres (l (member-if (lambda (span) (span-property span prop))
+			  (overlays-at
+			   (next-overlay-change (overlay-start span))))))
+	(setq spanres (car-safe l))
+	(if (and spanres (<= (span-start spanres) (span-start span))) 
+	    nil spanres))))
 
 
 (defsubst span-live-p (span)
