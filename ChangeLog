@@ -1,5 +1,59 @@
 2002-06-08  David Aspinall  <da@proofgeneral.org>
 
+	* etc/ProofGeneral.spec:
+	Add install for isartags
+
+	* ChangeLog: Updated.
+
+	* isar/isar.el:
+	Fix bug in string syntax in isar-strip-terminators: did this work correctly before?
+
+	* generic/span.el:
+	Clean up span.el loading; make compat with bbdb.el in FSF
+
+	* generic/proof-shell.el:
+	Clean up span.el loading
+
+	* ChangeLog: Updated.
+
+	* todo: Updates
+
+	* acl2/example.acl2: Remove duplicate
+
+	* etc/ProofGeneral.spec: Add isartags
+
+	* isar/isartags: Program [broken]
+
+	* doc/ProofGeneral.texi: Update magic
+
+	* coq/coqtags, lego/legotags:
+	Default to /usr/bin/perl
+
+	* CHANGES: Note about removing dirs
+
+	* html/projects.html:
+	Remove PGK mention, other obs projects
+
+	* ChangeLog: Updated.
+
+	* generic/proof-script.el:
+	Robustness fixes/bug notes
+
+	* generic/proof-menu.el: Spacing
+
+	* generic/span-extent.el:
+	Tweak liveness test
+
+	* generic/proof-site.el: Alter order
+
+	* generic/proof-config.el:
+	Fix keysym to use FSF syntax
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2002-06-08  David Aspinall  <da@proofgeneral.org>
+
 	* isar/isar.el:
 	Fix bug in string syntax in isar-strip-terminators: did this work correctly before?
 
