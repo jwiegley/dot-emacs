@@ -132,6 +132,18 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
       (setq load-path
 	    (cons proof-lisp-path load-path))))
 
+;; During compilation from the Makefile, generic is on the load path.
+;; Add all of the prover directories.
+;; FIXME: this doesn't work quite right.  We want to test
+;; whether we are running during a compilation.  How?
+; (eval-when-compile
+;  (dolist (assistant proof-internal-assistant-table)
+;    (let ((path (concat proof-internal-home-directory
+;			(concat (symbol-name (car assistant)) "/"))))
+;      (or (member path load-path)
+;	  (setq load-path
+;		(cons path load-path))))))
+
 ;; Now add auto-loads and load-path elements to support the 
 ;; proof assistants selected, and define a stub 
 (let ((assistants proof-assistants) assistant)

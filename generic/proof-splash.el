@@ -157,7 +157,9 @@ Only do it if proof-splash-display is nil."
 ;; redisplay until proof-internal-display-splash-time has elapsed. 
 
 ;; Display the screen ASAP...
-(proof-splash-display-screen)
+;; FIXME: don't want this to display during compilation!
+(eval-when (load)
+  (proof-splash-display-screen))
 
 (defun proof-splash-timeout-waiter ()
   "Wait for proof-splash-timeout, then remove self from hook."

@@ -10,6 +10,7 @@
 ;; NAMESPACE management: all functions and variables declared
 ;; in this file begin with isa-thy-
 
+(require 'proof-site)
 (require 'isa)
 
 ;;; ========== Theory File Mode User Options ==========

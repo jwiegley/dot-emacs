@@ -9,7 +9,16 @@
 ;; $Id$
 ;;
 
-(require 'proof-config)
+(require 'proof)
+(require 'proof-syntax)
+(require 'proof-indent)
+
+;; Spans are our abstraction of extents/overlays.
+(cond ((fboundp 'make-extent) (require 'span-extent))
+      ((fboundp 'make-overlay) (require 'span-overlay)))
+
+(eval-when-compile
+  (require 'func-menu))
 
 ;;
 ;;  Internal variables used by script mode
@@ -23,26 +32,6 @@
 (defvar proof-terminal-string nil 
   "End-of-line string for proof process.")
 
-(defvar proof-marker nil 
-  "Marker in proof shell buffer pointing to previous command input.")
-
-(defvar proof-shell-buffer nil
-  "Process buffer where the proof assistant is run.")
-
-(defvar proof-script-buffer-list nil
-  "Scripting buffers with locked regions.
-The first element is current and in scripting minor mode.
-The cdr of the list of corresponding file names is a subset of
-`proof-included-files-list'.")
-
-(defvar proof-pbp-buffer nil
-  "The goals buffer (also known as the pbp buffer).")
-
-(defvar proof-response-buffer nil
-  "The response buffer.")
-
-(deflocal proof-buffer-type nil 
-  "Symbol indicating the type of this buffer: 'script, 'shell, or 'pbp.")
 
 (defvar proof-action-list nil "action list")
 
@@ -69,7 +58,7 @@ name. Moves point after the match.
 
 The package fume-func provides the function
 `fume-match-find-next-function-name' with the same specification.
-However, fume-func's version is incorrec"
+However, fume-func's version is incorrect"
   ;; DO NOT USE save-excursion; we need to move point!
   ;; save-excursion is called at a higher level in the func-menu
   ;; package 
@@ -1360,9 +1349,11 @@ sent to the assistant."
 ;; sml-mode.
 ;; FIXME: add more doc to the mode below, to give hints on
 ;; configuring for new assistants.
+
+;;;###autoload
 (define-derived-mode proof-mode fundamental-mode 
   proof-mode-name
-  "Proof General major mode for proof scripts.
+  "Proof General major mode class for proof scripts.
 \\{proof-mode-map}"
   (setq proof-buffer-type 'script)
 
@@ -1467,7 +1458,7 @@ finish setup which depends on specific proof assistant configuration."
   (setq indent-line-function 'proof-indent-line)
 
   ;; Toolbar
-  (if (featurep 'proof-toolbar)
+  (if (featurep 'toolbar)
       (proof-toolbar-setup))
 
   ;; Menu

@@ -1,4 +1,4 @@
-;; proof-config.el  Proof General configuration for proof assistant.
+;; proof-config.el  Proof General configuration for proof assistant
 ;;
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
@@ -623,6 +623,9 @@ previous (global) variable `proof-included-files-list' and the match
 data triggered by `proof-shell-retract-files-regexp'."
   :type '(choice function (const nil))
   :group 'proof-shell)
+
+
+
 
 
 

@@ -9,9 +9,11 @@
 ;; $Id$
 ;;
 
-(require 'lego-syntax)
-(require 'outline)
 (require 'proof)
+(require 'lego-syntax)
+
+;; FIXME: outline should be autoloaded
+(require 'outline)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; User Configuration ;;;

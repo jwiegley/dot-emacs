@@ -5,9 +5,11 @@
 ;;
 ;; $Id$
 ;;
+;; FIXME: byte compile complains about not knowing
+;; proof-script-buffer-list, proof-goto-end-of-locked,
+;; proof-locked-end
 
-(require 'cl)
-(require 'proof-syntax)
+(require 'proof)
 
 (defvar proof-stack-to-indent nil
   "Prover-specific code for indentation.")

@@ -10,7 +10,12 @@
 ;; Toolbar is just for scripting buffer at  the moment.
 ;;
 
-(require 'proof-config)
+(require 'proof-script)
+(require 'proof-shell)
+
+;; FIXME: would be nice to have proof-shell autoloaded when shell is
+;; actually started.  Need to fixup references to variables here to be
+;; autoloaded functions from proof-shell, and remove from enablers.
 
 (defcustom proof-toolbar-wanted t
   "*Whether to use toolbar in proof mode."
@@ -31,6 +36,20 @@
 This gives a bare toolbar that works for any prover.  To add
 prover specific buttons, see proof-toolbar.el.")
 
+(defconst proof-toolbar-iconlist
+  '((proof-toolbar-next-icon "next")
+    (proof-toolbar-undo-icon "undo")
+    (proof-toolbar-retract-icon "retract")
+    (proof-toolbar-use-icon "use")
+    (proof-toolbar-goal-icon "goal")
+    (proof-toolbar-qed-icon  "qed")
+    (proof-toolbar-restart-icon "restart"))
+  "List of icon variable names and their associated image files.
+A list of lists of the form (VAR IMAGE).  IMAGE is the root name
+for an image file in proof-internal-images-directory.  The toolbar
+code expects to find files IMAGE.xbm, IMAGE.xpm, IMAGE.8bit.xpm
+and chooses the best one for the display properites.")
+
 (defvar proof-toolbar-button-list proof-toolbar-default-button-list
   "A toolbar descriptor evaluated in proof-toolbar-setup.
 Specifically, a list of sexps which evaluate to entries in a toolbar
@@ -40,15 +59,25 @@ will work for any proof assistant.")
 (defvar proof-toolbar nil
   "Proof mode toolbar button list.  Set in proof-toolbar-setup.")
 
+(defconst proof-old-toolbar default-toolbar
+  "Saved value of default-toolbar for proofmode.")
+
+
 ;; FIXME: edit-toolbar cannot edit proof toolbar (even in a proof mode)
 ;; Need a variable containing  a specifier or similar.
-; (defvar proof-toolbar-specifier nil
-;   "Specifier for proof toolbar.")
+;; (defvar proof-toolbar-specifier nil
+;;   "Specifier for proof toolbar.")
+;; This doesn't seem worth fixing until XEmacs toolbar implementation
+;; settles a bit.  Enablers don't work too well at the moment.
 
+;; FIXME: could automatically defvar the icon variables.
+
+;;; ###autoload
 (defun proof-toolbar-setup ()
-  "Initialize proof-toolbar and enable it for the current buffer.
+  "Initialize Proof General toolbar and enable it for the current buffer.
 If proof-mode-use-toolbar is nil, change the current buffer toolbar
 to the default toolbar."
+  (interactive)
   (if (and
        proof-toolbar-wanted
        ;; NB for FSFmacs use window-system, not console-type
@@ -73,9 +102,6 @@ to the default toolbar."
 	;; Finally ensure current buffer will display this toolbar
 	(set-specifier default-toolbar proof-toolbar (current-buffer)))
     (set-specifier default-toolbar proof-old-toolbar (current-buffer))))
-
-(defconst proof-old-toolbar default-toolbar
-  "Saved value of default-toolbar for proofmode.")
 
 ;;
 ;; GENERIC PROOF TOOLBAR BUTTONS
@@ -186,16 +212,6 @@ Initialised in proof-toolbar-setup.")
    ;; (proof-toolbar-qed-enable-p)
    "Save proved theorem"])
 
-(defconst proof-toolbar-iconlist
-  '((proof-toolbar-next-icon "next")
-    (proof-toolbar-undo-icon "undo")
-    (proof-toolbar-retract-icon "retract")
-    (proof-toolbar-use-icon "use")
-    (proof-toolbar-goal-icon "goal")
-    (proof-toolbar-qed-icon  "qed")
-    (proof-toolbar-restart-icon "restart"))
-  "List of icon variable names and their associated image files")
-
 ;;
 ;; GENERIC PROOF TOOLBAR FUNCTIONS
 ;;
@@ -280,6 +296,7 @@ Move point if the end of the locked position is invisible."
   "Insert a save theorem command into the script buffer, issue it."
   (interactive)
   (if (proof-toolbar-qed-enable-p)
-      (call-interactively 'proof-issue-save)))
+      (call-interactively 'proof-issue-save)
+    (error "I can't see a completed proof!")))
 ;; 
 (provide 'proof-toolbar)

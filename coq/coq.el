@@ -6,9 +6,11 @@
 
 ;; $Id$
 
-(require 'coq-syntax)
-(require 'outline)
 (require 'proof)
+(require 'coq-syntax)
+
+;; FIXME: outline and info should be autoloaded.
+(require 'outline)
 (require 'info)
 
 ; Configuration

@@ -9,7 +9,7 @@
 ;; $Id$
 ;;
 
-(require 'proof-config)
+(require 'proof)
 
 ;; Internal variables used by shell mode
 ;;
@@ -21,6 +21,11 @@ Set in proof-shell-mode.")
 (defvar proof-re-term-or-comment nil 
   "Regexp matching terminator, comment start, or comment end.
 Set in proof-shell-mode.")
+
+(defvar proof-marker nil 
+  "Marker in proof shell buffer pointing to previous command input.")
+
+
 
 
 
@@ -34,11 +39,6 @@ Set in proof-shell-mode.")
 ;; or by the process filter trying to deal with more output.
 ;;
 ;;
-
-(defvar proof-shell-busy nil 
-  "A lock indicating that the proof shell is processing.
-When this is non-nil, proof-shell-ready-prover will give
-an error.")
 
 ;;
 ;; History of these horrible functions.
@@ -350,9 +350,6 @@ The default value is \"\n\" to match up to the end of the line.")
 
 (defvar proof-shell-delayed-output nil
   "Last interesting output from proof process output and what to do with it.")
-
-(defvar proof-shell-proof-completed nil
-  "Flag indicating that a completed proof has just been observed.")
 
 (defvar proof-analyse-using-stack nil
   "Are annotations sent by proof assistant local or global")
@@ -933,9 +930,11 @@ how far we've got."
 ;; Proof General shell mode definition				    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; This has to come after proof-mode is defined
+;; OLD COMMENT: "This has to come after proof-mode is defined"
+
+;;###autoload
 (define-derived-mode proof-shell-mode comint-mode 
-  "proof-shell" "Proof shell mode - not standalone"
+  "proof-shell" "Proof General shell mode class for proof assistant processes"
   (setq proof-buffer-type 'shell)
   (setq proof-shell-busy nil)
   (setq proof-shell-delayed-output (cons 'insert "done"))

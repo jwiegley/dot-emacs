@@ -9,7 +9,6 @@
 
 (require 'proof-syntax)
 
-
 ;;; Proof mode customization: how should it work?
 ;;;   Presently we have a bunch of variables in proof.el which are
 ;;;   set from a bunch of similarly named variables in <engine>-syntax.el.

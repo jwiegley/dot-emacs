@@ -14,6 +14,13 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A byte-compilation: continue fixups for clean byte compile.
+  Need to compile from clean Emacs to see proper warnings.
+  Unfortunately I get odd Arithmetic Errors when comiling.
+  Check that byte compilation (and compiled code!) 
+  works for both varieties of Emacs.  Add instructions to INSTALL on 
+  how to byte compile.  Fill out Makefile.dist (2hr da)
+
 C  Remove "FIXME notes" which are just notes I've put in about old
    code in case something breaks   (da, 30mins).
 
@@ -25,9 +32,6 @@ A* Fixup for non-script buffer locking:
     is output.
 
     proof-restart-script is now broken (2h da)
-
-A* Fixup for clean byte compile now that proof.el has been split.
-   (30min da)
 
 A* Fixup multiple files -- needs debugging.
 
@@ -43,10 +47,6 @@ A* Fixup multiple files -- needs debugging.
 
 B Improve web pages after suggestions in doc/notes.txt
   (da, 1.5hrs)
-
-C byte-compilation: check that byte compilation (and compiled code!)
-  works for both varieties of Emacs.  Add instructions to INSTALL on 
-  how to byte compile.  (1hr)
 
 C Remove .gif, .jpg, .xpm, .xbm files from the CVS repository.  Add 
   .cvsignore's for them instead.  Disadvantage: developers will need

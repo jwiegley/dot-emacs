@@ -6,6 +6,7 @@
 ;; $Id$
 ;;
 
+
 (require 'font-lock)
 
 ;;; FIXME: change this to proof-

@@ -9,10 +9,13 @@
 ;;
 
 
-(require 'isa-syntax)
-(require 'outline)
 (setq proof-tags-support nil)  ; we don't want it, no isatags prog.
 (require 'proof)
+
+(require 'isa-syntax)
+
+;; FIXME: outline should be autoloaded
+(require 'outline)			
 
 
 ;;;

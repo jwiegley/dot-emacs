@@ -31,6 +31,10 @@
   "Set the end point of SPAN to VALUE."
   (set-extent-endpoints span (extent-start-position span) value))
 
+(defsubst set-span-property (span name value)
+  "Set SPAN's property NAME to VALUE."
+  (set-extent-property span name value))
+
 (defsubst span-read-only (span)
   "Set SPAN to be read only."
   (set-span-property span 'read-only t))
@@ -42,10 +46,6 @@
 (defsubst span-property (span name)
   "Return SPAN's value for property PROPERTY."
   (extent-property span name))
-
-(defsubst set-span-property (span name value)
-  "Set SPAN's property NAME to VALUE."
-  (set-extent-property span name value))
 
 (defsubst delete-span (span)
   "Delete SPAN."
