@@ -52,10 +52,10 @@ See `x-symbol-header-groups-alist'."
   ;; '(x-symbol-make-grammar ...)
   (if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
       (x-symbol-make-grammar
-       :encode-spec '(((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-+-*%!{}:|]")) .
-                    ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-+-*%!{}:|]")))
+       :encode-spec '(((id . "['a-zA-Z0-9]") (op . "[]><=\\/~&+-+-*%!{}:|]")) .
+                    ((id . "['a-zA-Z0-9]") (op . "[]><=\\/~&+-+-*%!{}:|]")))
        :decode-spec nil
-       :decode-regexp "\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:|-]+\\)"
+       :decode-regexp "\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:|-]+\\)"
        :token-list #'x-symbol-coq-default-token-list
 		 :input-spec nil)))
 
@@ -117,25 +117,25 @@ See language access `x-symbol-LANG-subscript-matcher'."
   :group 'x-symbol-coq
   :type 'function)
 
-(defcustom x-symbol-coq-font-lock-regexp "___?\\|^^^?"
+(defcustom x-symbol-coq-font-lock-regexp "_{\\|__\\|\\^{\\|\\^\\^"
   "Regexp matching the start tag of Coq super- and subscripts."
   :group 'x-symbol-coq
   :type 'regexp)
 
-(defcustom x-symbol-coq-font-lock-limit-regexp "\n\\|__"
+(defcustom x-symbol-coq-font-lock-limit-regexp "}\\|\n"
   "Regexp matching the end of line and the end tag of Coq
 spanning super- and subscripts."
   :group 'x-symbol-coq
   :type 'regexp)
 
-(defcustom x-symbol-coq-font-lock-contents-regexp "\\S-*"
+(defcustom x-symbol-coq-font-lock-contents-regexp ".*"
   "*Regexp matching the spanning super- and subscript contents.
 This regexp should match the text between the opening and closing super-
 or subscript tag."
   :group 'x-symbol-coq  
   :type 'regexp)
 
-(defcustom x-symbol-coq-single-char-regexp "\\S-"
+(defcustom x-symbol-coq-single-char-regexp "\\>"
   "Return regexp matching \<ident> or c for some char c."
   :group 'x-symbol-coq
   :type 'regexp)
@@ -146,11 +146,10 @@ or subscript tag."
       (while (re-search-forward x-symbol-coq-font-lock-regexp limit t)
         (setq open-beg (match-beginning 0)
               open-end (match-end 0)
-              script-type (if (eq (char-after (- open-end 1)) ?_)
+              script-type (if (eq (char-after (- open-end 2)) ?_)
                               'x-symbol-sub-face
 									 'x-symbol-sup-face))
-        (if (or (eq (char-after (- open-end 3)) ?_)
-					 (eq (char-after (- open-end 3)) ?^)) ; if is spanning sup-/subscript
+        (if (or (eq (char-after (- open-end 1)) ?{)) ; if is spanning sup-/subscript
             (when (re-search-forward x-symbol-coq-font-lock-limit-regexp
                                      limit 'limit)
               (setq close-beg (match-beginning 0)
