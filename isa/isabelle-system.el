@@ -74,6 +74,10 @@ Returns non-nil if isa-isatool-command is valid."
 
 (defun isa-shell-command-to-string (command)
   "Like shell-command-to-string except the last character is stripped."
+  ;; FIXME: sometimes the command may fail. This will usually cause PG
+  ;; to break.  Bit of an effort to trap errors here, we would need
+  ;; to provide some advice to shell-command-to-string to retain result
+  ;; of call to call-process, and raise and error in case it failed.
   (substring (shell-command-to-string command) 0 -1))
 
 (defun isa-getenv (envvar &optional default)
