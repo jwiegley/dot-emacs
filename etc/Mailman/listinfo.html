@@ -1,0 +1,189 @@
+<!-- Based on Informatics Mailman template Revision: 1.21  -->
+<!-- Template for Proof General $Id$ -->
+<html>
+<head>
+    <link rel="SHORTCUT ICON" href="http://www.proofgeneral.org/pg/favicon.ico">
+    <title><MM-List-Name> Mailing List Info Page</title>
+    <meta name="author" content="David Aspinall <da@dcs.ed.ac.uk>">
+    <meta name="keywords" content="Isabelle, LEGO, Coq, Emacs, XEmacs, 
+      Interface, Theorem Prover, GUI, David Aspinall">
+    <meta name="description" content="Proof General is an Emacs based 
+      generic interface for theorem provers">
+    <link href="http://www.proofgeneral.org/pg/proofgen.css" rel="stylesheet" type="text/css">
+</head>
+<body
+ bgcolor="#2D1D03"
+ background="http://www.proofgeneral.org/images/canvaswallpaper.jpg"
+ text="#FFFFFF"
+ link="#FFD820"
+ vlink="#FFD820"
+ alink="#FFF030"
+ >
+<table width="80%">
+<tr>
+<td width="15%">
+<a href="">
+<img src="http://www.proofgeneral.org/images/PG-small.jpg" align=top width=37 height=50 border=0 alt="Proof General Home">
+</a>
+</td>
+<td width="85%">
+<h1><MM-List-Name> Mailing List Info Page</h1>
+</td>
+</table>
+
+    <MM-Subscribe-Form-Start> 
+      <TABLE COLS="1" BORDER="0" CELLSPACING="4" CELLPADDING="5">
+        <tr>
+            <td colspan="2">
+              <p>&nbsp;
+            </td>
+          </tr>
+<!--          <tr> -->
+<!-- <TD COLSPAN="2" WIDTH="100%" BGCOLOR="#FFF0D0"> -->
+<!-- <B><FONT COLOR="#000000">About <MM-List-Name></FONT></B> -->
+<!-- </TD> -->
+<!-- </TR> -->
+<!-- This should be the same as above, but via style sheets -->
+        <TR>
+          <TD class="head1" COLSPAN="2" WIDTH="100%">
+            <MM-List-Name> -- <MM-List-Description>
+          </TD>
+          </TR>
+	<tr>
+	    <td colspan="2">
+	      <p>&nbsp;
+	    </td>
+	  </tr>
+
+<!--	<TR> -->
+<!-- <TD COLSPAN="2" WIDTH="100%" BGCOLOR="#99CCFF" ALIGN="CENTER"> -->
+<!-- <B><FONT COLOR="#000000" SIZE="+1"><MM-List-Name> -->
+<!-- <MM-List-Description></FONT></B> -->
+<!-- </TD> -->
+<!-- </TR> -->
+
+<!-- Again this should be the same as above, but via style sheets -->
+          <tr>
+            <TD class="head2" COLSPAN="2" WIDTH="100%">
+              About <MM-List-Name>
+            </TD>
+          </TR>
+	<tr>
+	    <td colspan="2">
+	      <p>&nbsp;
+	    </td>
+	  </tr>
+
+	    <tr>
+	      <td colspan="2">
+		<P><MM-List-Info></P>
+	  <p> To see the collection of prior postings to the list,
+	      visit the <MM-Archive><MM-List-Name>
+		  Archives</MM-Archive>.
+	      <MM-Restricted-List-Message>
+	  </p>
+	</TD>
+      </TR>
+<!--      <TR> -->
+<!--	<TD COLSPAN="2" WIDTH="100%" BGCOLOR="#FFF0D0"-->
+<!-- <B><FONT COLOR="#000000">Using <MM-List-Name></FONT></B>-->
+<!-- </TD> -->
+<!-- </TR> -->
+          <tr>
+            <TD class="head2" COLSPAN="2" WIDTH="100%">
+              Using <MM-List-Name>
+            </TD>
+          </TR>
+      <tr>
+	<td colspan="2">
+	  To post a message to all the list members, send email to
+	  <A HREF="mailto:<MM-Posting-Addr>"><MM-Posting-Addr></A>.
+
+	  <p>You can subscribe to the list, or change your existing
+	    subscription, in the sections below.
+	</td>
+      </tr>
+      <!--<TR> -->
+	<!--<TD COLSPAN="2" WIDTH="100%"> -->
+	  <!--<B><FONT COLOR="#000000">Subscribing to <MM-List-Name></FONT></B> -->
+	<!--</TD> -->
+      <!--</TR> -->
+          <tr>
+            <TD class="head2" COLSPAN="2" WIDTH="100%">
+              Subscribing to <MM-List-Name>
+            </TD>
+          </TR>
+      <tr>
+	<td colspan="2">
+	  <P>
+	    Subscribe to <MM-List-Name> by filling out the following
+	      form.
+	  <MM-List-Subscription-Msg>
+	  <ul>
+	      <TABLE BORDER="0" CELLSPACING="2" CELLPADDING="2"
+		WIDTH="90%" HEIGHT= "112">
+		<TR>
+		  <TD class="head3" WIDTH="55%">Your email address:</TD>
+		  <TD WIDTH="33%"><MM-Subscribe-Box>
+	</TD>
+	<TD WIDTH="12%">&nbsp;</TD></TR>
+      <TR>
+	<TD COLSPAN="3"><FONT SIZE=-1>You must enter a
+	    privacy password. This provides only mild security,
+	    but should prevent others from messing with your
+	    subscription.  <b>Do not use a valuable password</b> as
+	    it will occasionally be emailed back to you in cleartext.
+	    <MM-Reminder>
+	</TD>
+      </TR>  
+      <TR>
+	<TD class="head3">Pick a password:</TD>
+	<TD><MM-New-Password-Box></TD>
+	<TD>&nbsp;</TD></TR>
+      <TR> 
+	<TD class="head3">Reenter password to confirm:</TD>
+	<TD><MM-Confirm-Password></TD>
+	<TD>&nbsp; </TD></TR>
+      <tr>
+	<td>Would you like to receive list mail batched in a daily
+	  digest?
+	  </td>
+	<td><MM-Undigest-Radio-Button> No
+	    <MM-Digest-Radio-Button>  Yes
+	</TD>
+      </tr>
+      <tr>
+	<td colspan="3">
+	  <center><MM-Subscribe-Button></P></center>
+    </TABLE>
+    <MM-Form-End>
+    </ul>
+    </td>
+    </tr>
+    <!-- <TR> -->
+      <!-- <TD COLSPAN="2" WIDTH="100%" BGCOLOR="#FFF0D0"> -->
+	<!-- <a name="subscribers"> -->
+        <!-- <B><FONT COLOR="#000000"><MM-List-Name> Subscribers</FONT></B></a> -->
+      <!-- </TD> -->
+    <!-- </TR> -->
+          <tr>
+	     <a name="subscribers">
+            <TD class="head2" COLSPAN="2" WIDTH="100%">
+              <MM-List-Name> subscribers
+            </TD>
+          </TR>
+    <tr>
+      <TD COLSPAN="2" WIDTH="100%">
+	<MM-Roster-Form-Start>
+	<MM-Roster-Option>
+	    <MM-Form-End>
+	  <p>
+	<MM-Subscribe-Form-Start>
+	<MM-Editing-Options>
+	<MM-Form-End>
+      </td>
+    </tr>
+  </table>
+<MM-Mailman-Footer>
+</BODY>
+</HTML>
