@@ -14,31 +14,44 @@
 ;;; Miscellaneous commands
 ;;;
 
+(defvar proof-display-some-buffers-count 0)
+
 (defun proof-display-some-buffers ()
-  "Display the reponse or goals buffer, toggling between them.
-Also move point to the end of the response buffer.
-If in three window or multiple frame mode, display both buffers."
-;; NB: with tracing buffer, might be handy to show that.
+  "Display the reponse, goals, trace, or shell buffer, rotating.
+A fixed number of repetitions of this command switches back to
+the same buffer.
+Also move point to the end of the response buffer if it's selected.
+If in three window or multiple frame mode, display two buffers."
   (interactive)
-  (cond
-   ((or proof-three-window-mode proof-multiple-frames-enable)
-    ;; Display both
-    (proof-switch-to-buffer proof-response-buffer 'noselect)
-    (set-window-point (get-buffer-window proof-response-buffer)
-		      (point-max))
-    (proof-switch-to-buffer proof-goals-buffer 'noselect))
-   ((and (buffer-live-p proof-response-buffer)
-	 (get-buffer-window proof-response-buffer 'visible))
-    ;; Response buffer visible, let's display goals
-    (proof-switch-to-buffer proof-goals-buffer 'noselect))
-   ((buffer-live-p proof-response-buffer)
-    ;; Response buffer invisible, let's display it
-    (proof-switch-to-buffer proof-response-buffer 'noselect)
-    (set-window-point (get-buffer-window proof-response-buffer)
-		      (point-max)))
+  ;; The GUI-tessence here is to implement a humane toggle, which
+  ;; allows habituation.  E.g. two taps of C-c C-l always
+  ;; shows the goals buffer, three the trace buffer, etc.
+  (cond 
+   ((and (interactive-p) 
+	 (eq last-command 'proof-display-some-buffers))
+    (incf proof-display-some-buffers-count))
    (t
-    ;; No buffers existing, do nothing (might crank up process)
-    nil)))
+    (setq proof-display-some-buffers-count 0)))
+  (let* ((assocbufs   (remove-if-not 'buffer-live-p 
+				    (list proof-response-buffer
+					  proof-goals-buffer
+					  proof-trace-buffer
+					  proof-shell-buffer)))
+	(selectedbuf (nth (mod proof-display-some-buffers-count 
+			       (length assocbufs)) assocbufs)))
+    (cond
+     ((or proof-three-window-mode proof-multiple-frames-enable)
+      ;; Display two buffers: next in rotation and goals/response
+      ;; FIXME: this doesn't work as well as it might.
+      (proof-switch-to-buffer selectedbuf 'noselect)
+      (proof-switch-to-buffer (if (eq selectedbuf proof-goals-buffer)
+				  proof-response-buffer
+				proof-goals-buffer) 'noselect))
+     (selectedbuf
+      (proof-switch-to-buffer selectedbuf 'noselect)))
+    (if (eq selectedbuf proof-response-buffer)
+	(set-window-point (get-buffer-window proof-response-buffer)
+			  (point-max)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -177,33 +190,32 @@ If in three window or multiple frame mode, display both buffers."
 
 (defvar proof-buffer-menu
   (cons "Buffers"
-	(append
-	 '(["Goal or Response"
-	    proof-display-some-buffers
-	    :active (or (buffer-live-p proof-goals-buffer)
-			(buffer-live-p proof-response-buffer))]
-	   ["Active Scripting"
+	'(["Active Scripting"
 	    (proof-switch-to-buffer proof-script-buffer)
 	    :active (buffer-live-p proof-script-buffer)]
+	   ["Rotate Output Buffers"
+	    proof-display-some-buffers
+	    :active (buffer-live-p proof-goals-buffer)]
 	   ;;["Goals"
 	   ;; (proof-switch-to-buffer proof-goals-buffer t)
 	   ;; :active (buffer-live-p proof-goals-buffer)]
 	   ;;["Response"
 	   ;; (proof-switch-to-buffer proof-response-buffer t)
 	   ;; :active (buffer-live-p proof-response-buffer)]
-	   ["Shell"
-	    (proof-switch-to-buffer proof-shell-buffer)
-	    :active (buffer-live-p proof-shell-buffer)])
-	 ;; FIXME: this next test doesn't work since menus
-	 ;; loaded before proof-shell-trace-output-regexp is
-	 ;; set (in proof-shell hook).  Should be better with
-	 ;; simplified customization mechanism.
-	 ;; ( if proof-shell-trace-output-regexp ... )
-	   '(["Trace"
-	      (proof-switch-to-buffer proof-trace-buffer)
-	      :active (buffer-live-p proof-trace-buffer)])
-	   '(["Clear Responses"
-	      (pg-response-clear-displays) t])))
+	   ;;["Shell"
+	   ;; (proof-switch-to-buffer proof-shell-buffer)
+	   ;; :active (buffer-live-p proof-shell-buffer)])
+	   ;; FIXME: this next test doesn't work since menus
+	   ;; loaded before proof-shell-trace-output-regexp is
+	   ;; set (in proof-shell hook).  Should be better with
+	   ;; simplified customization mechanism.
+	   ;; ( if proof-shell-trace-output-regexp ... )
+	   ;;'(["Trace"
+	   ;;(proof-switch-to-buffer proof-trace-buffer)
+	   ;;:active (buffer-live-p proof-trace-buffer)])
+	   ["Clear Responses"
+	    (pg-response-clear-displays)
+	    :active (buffer-live-p proof-response-buffer)]))
   "Proof General buffer menu.")
 
 
@@ -293,27 +305,35 @@ If in three window or multiple frame mode, display both buffers."
   (list "----"
 	;; buffer menu might better belong in toolbar menu?
 	proof-buffer-menu
-	proof-quick-opts-menu
-	;; NB: customize-menu-create was buggy in earlier 
-	;; Emacs 21.X; okay since 21.1.1
-	(customize-menu-create 'proof-general)
-	(customize-menu-create 'proof-general-internals 
-			       "Internals"))
+	proof-quick-opts-menu)
   "Proof General configuration menu.")
 
+(defconst proof-advanced-menu
+  (cons "Advanced..."
+	(append
+	 '(["Electric Terminator" proof-electric-terminator-toggle
+	    :style toggle
+	    :selected proof-electric-terminator-enable]
+	   ["Function Menu" function-menu
+	    :active (fboundp 'function-menu)]
+	   ["Complete Identifier" complete t]
+	   ["Next Error" proof-next-error
+	    :active pg-next-error-regexp])
+	 (list "-----")
+	 proof-show-hide-menu
+	 (list "-----")
+	 ;; NB: customize-menu-create was buggy in earlier 
+	 ;; Emacs 21.X; okay since 21.1.1
+	 (list (customize-menu-create 'proof-general))
+	 (list (customize-menu-create 'proof-general-internals 
+				      "Internals"))))
+  "Advanced sub-menu of script functions and customize.")
+
+
 (defvar proof-menu  
-  '("----"
-    ["Scripting Active" proof-toggle-active-scripting
+  '(["Scripting Active" proof-toggle-active-scripting
      :style toggle
-     :selected (eq proof-script-buffer (current-buffer))]
-    ["Electric Terminator" proof-electric-terminator-toggle
-     :style toggle
-     :selected proof-electric-terminator-enable]
-    ["Function Menu" function-menu
-     :active (fboundp 'function-menu)]
-    ["Complete Identifier" complete t]
-    ["Next Error" proof-next-error
-     :active pg-next-error-regexp])
+     :selected (eq proof-script-buffer (current-buffer))])
   "The Proof General generic menu for scripting buffers.")
 
 
@@ -321,9 +341,9 @@ If in three window or multiple frame mode, display both buffers."
   (cons proof-general-name
 	(append
 	 proof-toolbar-scripting-menu
-	 proof-show-hide-menu
 	 proof-menu
 	 proof-config-menu
+	 (list proof-advanced-menu)
 	 (list proof-help-menu)))
   "PG main menu used in scripting buffers.")
 
