@@ -1618,6 +1618,7 @@ output."
   "Set display values of annotations in BUFFER to be invisible.
 
 Annotations are characters 128-255."
+  (interactive)
   (with-current-buffer (or buffer (current-buffer))
     (let ((disp (make-display-table))
 	  (i 128))
@@ -1629,9 +1630,13 @@ Annotations are characters 128-255."
 	    ((boundp 'buffer-display-table)
 	     (setq buffer-display-table disp))))))
 
-;; This is for debugging only.  XEmacs only.
 (defun proof-shell-show-annotations ()
-  "Remove display table specifier from current buffer."
+  "Remove display table specifier from current buffer.
+This function is for testing purposes only, to reveal 8-bit characters
+in the shell buffer.  Use proof-shell-dont-show-annotations to turn
+them off again.
+XEmacs only."
+  (interactive)
   (remove-specifier current-display-table (current-buffer)))
 
   
