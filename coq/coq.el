@@ -43,13 +43,14 @@
 ;; Pierre: I add Print Check and PrintHint
 ;; maybe Print and Check should be buttons ?
 (defpgdefault menu-entries
-  '(["Print" coq-Print t]
-    ["Check" coq-Check t]
+  '(["Print..." coq-Print t]
+    ["Check..." coq-Check t]
     ["Hints" coq-PrintHint t]
-    ["Intros" coq-Intros t]
+    ["Intros..." coq-Intros t]
+    ["Show ith goal..." coq-Show t]
     ["Apply"  coq-Apply t]
-    ["Search isos" coq-SearchIsos t]
-    ["Begin Section" coq-begin-Section t]
+    ["Search isos..." coq-SearchIsos t]
+    ["Begin Section..." coq-begin-Section t]
     ["End Section" coq-end-Section t]
     ["Compile" coq-Compile t]))
 
@@ -90,7 +91,7 @@
 (defvar coq-outline-regexp
   (concat "(\\*\\|" (proof-ids-to-regexp 
 	   '(
-"Tactic" "Axiom" "Parameter" "Parameters" "Variable" "Variables" "Syntax" "Grammar" "Syntactic" "Load" "Require" "Hint" "Hints" "Correctness" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact" "Remark" "Record" "Inductive" "Mutual" "Definition" "Fixpoint"))))
+"Tactic" "Axiom" "Parameter" "Parameters" "Variable" "Variables" "Syntax" "Grammar" "Syntactic" "Load" "Require" "Hint" "Hints" "Correctness" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact" "Remark" "Record" "Inductive" "Mutual" "Definition" "Fixpoint" "Save" "Qed" "Defined"))))
 
 (defvar coq-outline-heading-end-regexp "\\*\)\n\\|\\.\n")
 
@@ -101,6 +102,8 @@
 (defconst coq-forget-id-command "Reset %s.")
 
 (defconst coq-undoable-commands-regexp (proof-ids-to-regexp (append coq-tactics coq-keywords-undoable-commands)))
+
+(defconst coq-not-undoable-commands-regexp (proof-ids-to-regexp coq-keywords-not-undoable-commands))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
@@ -136,7 +139,8 @@
 ;;
 ;; FIXME Papageno 05/1999: must take sections in account.
 ;;
-
+;; Pierre modified the test with proof-string-match, this way new tactics
+;; ca be undone (I also added "(*" in not-undoable-commands)
 (defun coq-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
   (let ((ct 0) str i)
@@ -148,10 +152,10 @@
       (while span
 	(setq str (span-property span 'cmd))
 	(cond ((eq (span-property span 'type) 'vanilla)
-	       (if (proof-string-match coq-undoable-commands-regexp str)
+	       (if (not (proof-string-match coq-not-undoable-commands-regexp str))
 		   (setq ct (+ 1 ct))))
 	      ((eq (span-property span 'type) 'pbp)
-	       (cond ((proof-string-match coq-undoable-commands-regexp str)
+	       (cond ((not (proof-string-match coq-not-undoable-commands-regexp str))
 		      (setq i 0)
 		      (while (< i (length str))
 			(if (= (aref str i) proof-terminal-char)
@@ -303,6 +307,15 @@ This is specific to coq-mode."
     (setq cmd (read-string "Check: " nil 'proof-minibuffer-history))
     (proof-shell-invisible-command
      (format "Check %s." cmd))))
+
+(defun coq-Show ()
+  "Ask for a number i and show the ith goal"
+  (interactive)
+  (let (cmd)
+    (proof-shell-ready-prover) 
+    (setq cmd (read-string "Show Goal number: " nil 'proof-minibuffer-history))
+    (proof-shell-invisible-command
+     (format "Show %s." cmd))))
 
 (defun coq-PrintHint ()
   "Print all hints applicable to the current goal"

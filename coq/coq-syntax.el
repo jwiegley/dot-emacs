@@ -16,8 +16,10 @@
 "Hypothesis"
 "Parameter[s]?"
 ;; da: 3.2 I added Section here, to try to fix undo for Sections working
-;; better.  
-"Section"				
+;; better.
+;;Pierre : Chapter also
+"Chapter"
+"Section"
 "Variable[s]?"
 "Global\\s-+Variable"
 ;;added tactic def here because it needs Reset to be undone correctly
@@ -69,12 +71,12 @@
 
 (defvar coq-keywords-not-undoable-commands
   '(
+"(*" ;;Pierre comments must not be undone
 "Add\\s-+ML\\s-+Path"
 "AddPath"
 "Begin\\s-+Silent"
 "Cd"
 "Check"
-"Chapter"
 "Class"
 "Coercion"
 "DelPath"
