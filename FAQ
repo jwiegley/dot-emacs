@@ -5,7 +5,15 @@ $Id$
 
 For latest version, see http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/FAQ
 
-======================
+
+Q. How can I keep the Proof General option settings across sessions?
+
+A. Simply use the ordinary XEmacs menu: Options -> Save Options
+
+   In FSF Emacs, you can do M-x customize-save-customized
+   or use the Custom->Save menu in a customize buffer.
+
+-----------------------------------------------------------------
 
 Q. I'm using Proof General for prover X, then I load a file for prover Y.
    The buffer doesn't enter the mode for prover Y.  Why not?
@@ -14,6 +22,8 @@ A. Unfortunately the architecture of Proof General is designed so
    that you can only use one prover at a time in the same Emacs
    session.   If you want to run more than one prover at a time,
    you have to run more than one Emacs.
+
+-----------------------------------------------------------------
 
 
 Q. How do I use Proof General for Isabelle/Isar instead of Isabelle classic?
@@ -29,6 +39,8 @@ A. There are several ways:
    separate Proof General instances.  Ideally they should be
    combined into one, if anyone fancies some elisp hacking...
 
+
+-----------------------------------------------------------------
 
 Q. Can I join any mailing lists for Proof General?
 
