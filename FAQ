@@ -7,6 +7,31 @@ For latest version, see http://www.proofgeneral.org/ProofGeneral/FAQ
 
 -----------------------------------------------------------------
 
+Q. I have just installed Emacs, ProofGeneral and a proof assistant.
+   It works but X-Symbol is not being activated.
+
+A. Once X-Symbol is picked up by Emacs (e.g. is working for TeX), 
+   you should enable it inside Proof General by the menu item:
+
+     Proof-General -> Options -> X-Symbol
+  
+   To enable it automatically every time you use Proof General,
+   type
+
+        M-x customize-variable RET isar-x-symbol-enable RET
+
+   and change/set/save the setting to `on'.  
+
+   Note that we don't do this by default, because from the system's
+   perspective it is difficult to determine if this will succeed ---
+   or just produce funny characters that confuse new users even more.
+
+   If you are using Isabelle, the wrapper script will load X-Symbol
+   from any location, and you can enable it by passing the option 
+   "-x true".
+
+-----------------------------------------------------------------
+
 Q. I'm afraid I got stuck very early on.  I sent the following line:
       by (swap_res_tac [psubsetI] 1;
    Notice that I forgot the right bracket.  The line went pink, the
