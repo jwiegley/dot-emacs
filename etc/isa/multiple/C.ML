@@ -1,3 +1,3 @@
 (* Scripting buffer for theory C *)
 
-val it = ();
+val c = 5;
