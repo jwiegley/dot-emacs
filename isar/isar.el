@@ -534,7 +534,18 @@ proof-shell-retract-files-regexp."
     (setq string (concat 
 		  "\\<^sync>" 
 		  (isar-shell-adjust-line-width) 
-		  string 
+		  ;; da: this was an attempted hack to deal with ML files,
+		  ;; unfortunately Isar complains about not seeing a theory
+		  ;; command first: ML_setup illegal at first line
+		  ;; Another failure is that: (* comment *) foo; 
+		  ;; ignores foo.  This could be fixed by scanning for
+		  ;; comment end in proof-script.el's function 
+		  ;; proof-segment-upto-cmdstart (which becomes even more
+		  ;; Isar specific, then...)
+		  ;; (if (string-match "\\.ML$" (buffer-name proof-script-buffer))
+		  ;;    (format "ML_setup {* %s *};" string)
+		  ;;    string)
+		  string
 		  "\\<^sync>;"))))
 
 (defun isar-markup-ml (string)
