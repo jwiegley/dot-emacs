@@ -843,7 +843,7 @@ or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-script-use-old-parser t
+(defcustom proof-script-use-old-parser t ;; nil ;;experiment and let folk complain 
   "Whether to use the old parsing mechanism.
 This is a stop-gap option in Proof General 3.4 added for
 proof assistants which still depend on peculiarities of the old
@@ -892,38 +892,38 @@ and its friends are set."
   :group 'prover-config)
 
 
-(defcustom proof-comment-start ""
+(defcustom proof-script-comment-start ""
   "String which starts a comment in the proof assistant command language.
 The script buffer's comment-start is set to this string plus a space.
 Moreover, comments are usually ignored during script management, and not
 sent to the proof process.
 
 You should set this variable for reliable working of Proof General,
-as well as `proof-comment-end'."
+as well as `proof-script-comment-end'."
   :type 'string
   :group 'proof-script)
 
-(defcustom proof-comment-start-regexp nil
+(defcustom proof-script-comment-start-regexp nil
   "Regexp which matches a comment start in the proof command language.
 
-The default value for this is set as (regexp-quote proof-comment-start)
+The default value for this is set as (regexp-quote proof-script-comment-start)
 but you can set this variable to something else more precise if necessary."
   :type 'string
   :group 'proof-script)
 
-(defcustom proof-comment-end "\n"
+(defcustom proof-script-comment-end "\n"
   "String which ends a comment in the proof assistant command language.
 The script buffer's comment-end is set to a space plus this string.
-See also `proof-comment-start'.
+See also `proof-script-comment-start'.
 
 You should set this variable for reliable working of Proof General,"
   :type 'string
   :group 'proof-script)
 
-(defcustom proof-comment-end-regexp nil
+(defcustom proof-script-comment-end-regexp nil
   "Regexp which matches a comment end in the proof command language.
 
-The default value for this is set as (regexp-quote proof-comment-end)
+The default value for this is set as (regexp-quote proof-script-comment-end)
 but you can set this variable to something else more precise if necessary."
   :type 'string
   :group 'proof-script)
@@ -1483,8 +1483,8 @@ See also `proof-shell-pre-sync-init-cmd'."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
-;; FIXME could add option to quiz user before rude kill.
-(defcustom proof-shell-quit-timeout 10
+(defcustom proof-shell-quit-timeout 4
+  ;; FIXME could add option to quiz user before rude kill.
   "The number of seconds to wait after sending proof-shell-quit-cmd.
 After this timeout, the proof shell will be killed off more rudely.
 If your proof assistant takes a long time to clean up (for
