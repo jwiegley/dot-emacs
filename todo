@@ -49,7 +49,11 @@ X Solaris bugs: font locking and button enabling.
   visiting a new/empty thy file: buttons are off and are not enabled
   by typing new stuff.
 
+  Moved down the list now, instead we disable button enablers on
+  Solaris.
+
 *** Scheduled improvements for 3.2
+
 
 **** A Doc new bits: font lock keywords, filename %e, %r.
   Added proof-{script,shell,goals,resp}-font-lock-keywords.
