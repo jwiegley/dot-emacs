@@ -11,7 +11,8 @@
 ##    make distclean	  - remove all generated files
 ##
 ##    make ChangeLog	  - make ChangeLog from CVS sources (uses emacs)
-##    make tag		  - tag the CVS sources with CVS_RELEASE_TAG
+##    make tag		  - tag the CVS sources with CVS_RELEASENAME
+##    make untag	  - remove tag CVS_RELEASENAME from the sources
 ##    make dist           - make a distribution from sources with above tag
 ##    make rpm		  - make RPM packages based on etc/ProofGeneral.spec
 ##
@@ -33,6 +34,7 @@ CVS_RELEASE_TAG=2-0pre$(shell date "+%y%m%d")
 NAME = ProofGeneral
 # Name of tar file and RPM file.
 RELEASENAME = ProofGeneral-$(RELEASE_TAG)
+CVS_RELEASENAME = Release-$(CVS_RELEASE_TAG)
 
 # Where to release (i.e. copy) a new distribution to
 RELEASEDIR = /home/proofgen/www/
@@ -146,12 +148,20 @@ tag:
 	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/defconst proof-general-version\n \".*\"/defconst proof-general-version\n \"Proof General, Version $(RELEASE_TAG) released by da,tms. Email proofgen@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
 	(cd html; mv download.html download.html.old; sed -e 's|ProofGeneral-2\.0*\.|ProofGeneral-$(RELEASE_TAG).|g' download.html.old > download.html.old2 ; sed -e 's|ProofGeneral-2\.0*-|ProofGeneral-$(RELEASE_TAG)-|g' download.html.old2 > download.html; rm download.html.old*)
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(RELEASE_TAG)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
-	# This hack to SOURCE: name is only needed because we have an obsolete version
-	# of rpm installed on standard machines at dcs.ed, and we have to build with
-	# that version.
+# This hack to SOURCE: name is only needed because we have an obsolete version
+# of rpm installed on standard machines at dcs.ed, and we have to build with
+# that version.
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.tar.gz/ProofGeneral-$(RELEASE_TAG).tar.gz/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
 	cvs commit -m"Set version tag for release." generic/proof-site.el html/download.html etc/ProofGeneral.spec
-	cvs tag "Release-$(CVS_RELEASE_TAG)"
+	cvs tag "$(CVS_RELEASENAME)"
+
+############################################################
+##
+## untag:  Remove the CVS_RELEASENAME tag from the CVS sources.
+##
+
+untag:
+	cvs tag -d "$(CVS_RELEASENAME)"
 
 
 ############################################################
