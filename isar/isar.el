@@ -164,6 +164,7 @@
    proof-ctxt-string		"print_context"
    proof-help-string		"help"
    proof-kill-goal-command	"kill_proof;"
+   proof-find-theorems-command  "thms_containing %s;"
    ;; command hooks
    proof-goal-command-p		'isar-goal-command-p
    proof-really-save-command-p	'isar-global-save-command-p
@@ -223,6 +224,10 @@
    ;; "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"
    ;; "^---\\|^\\[opening "
    ;; could be last bracket on end of line, or with ### and ***.
+
+   ;; Dirty hack to allow font-locking for output based on hidden
+   ;; annotations, see isar-output-font-lock-keywords-1
+   proof-shell-leave-annotations-in-output t
 
    ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-result-start	        "\372 Pbp result \373"
@@ -521,13 +526,13 @@ proof-shell-retract-files-regexp."
 (defun isar-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle/Isar."
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords isar-output-font-lock-terms)
+  (setq font-lock-keywords isar-output-font-lock-keywords-1)
   (isar-shell-mode-config-set-variables)
   (proof-shell-config-done)
   (isar-outline-setup))
 
 (defun isar-response-mode-config ()
-  (setq font-lock-keywords isar-output-font-lock-terms)
+  (setq font-lock-keywords isar-output-font-lock-keywords-1)
   (isar-init-output-syntax-table)
   (isar-outline-setup)
   (proof-response-config-done))
@@ -537,7 +542,7 @@ proof-shell-retract-files-regexp."
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords isar-output-font-lock-terms)
+  (setq font-lock-keywords isar-output-font-lock-keywords-1)
   (isar-outline-setup)
   (proof-goals-config-done))
 
