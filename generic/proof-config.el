@@ -238,7 +238,7 @@ selected frame will be automatically deleted."
   :group 'proof-general)
 
 (defcustom proof-tidy-response
-  nil
+  t
   "*Non-nil indicates that the response buffer should be cleared often.
 The response buffer can be set either to accumulate output, or to
 clear frequently.  
@@ -599,7 +599,7 @@ NB: This setting is not used for matching output from the prover."
   "Regexp which matches a command to save a named theorem.
 Match number 2 should be the name of the theorem saved.
 Used for setting names of goal..save regions and for default
-func-menu configuration in proof-script-find-next-goalsave."
+function-menu configuration in proof-script-find-next-entity."
   :type 'regexp
   :group 'proof-script)
 
@@ -612,7 +612,7 @@ func-menu configuration in proof-script-find-next-goalsave."
   "Regexp which matches a command used to issue and name a goal.
 Match number 2 should be the name of the goal issued.
 Used for setting names of goal..save regions and for default
-func-menu configuration in proof-script-find-next-goalsave."
+function-menu configuration in proof-script-find-next-entity."
   :type 'regexp
   :group 'proof-script)
 
@@ -666,14 +666,21 @@ proof-goal-command-regexp, and proof-save-with-hole-regexp."
 This is used to configure func-menu.  The default value is
 proof-script-find-next-entity, which searches for the next entity
 based on fume-function-name-regexp which by default is set from
-proof-script-next-entity-regexps.  The function should move
-point forward in a buffer, and return a cons cell of the name and the
-beginning of the entity's region."
+proof-script-next-entity-regexps.  
+
+The function should move point forward in a buffer, and return a cons
+cell of the name and the beginning of the entity's region.
+
+Note that proof-script-next-entity-regexps is set to a default value
+from proof-goal-with-hole-regexp and proof-save-with-hole-regexp in
+the function proof-config-done, so you may not need to worry about any
+of this.  See whether function menu does something sensible by
+default."
   :type 'function
   :group 'proof-script)
 
 ;; FIXME da: This next one is horrible.  We clearly would rather
-;; have proof-goal-regexp instead.  This was born to solve
+;; have just proof-goal-command regexp instead.  This was born to solve
 ;; problem that Coq can have goals which look like definitions, etc.
 ;; Perhaps we can generalise the matching to understand function
 ;; values as well as regexps. 
@@ -684,10 +691,22 @@ beginning of the entity's region."
   :group 'proof-script)
 
 ;; FIXME mmw: increasing the horror even more ...
-
+;; FIXME da: why do you need the span below?   I would like to replace
+;;  this mess by single config variables which are allowed to be
+;;  regexps or functions, handled in proof-string-match.
 (defcustom proof-really-save-command-p (lambda (span cmd) t)
   "Is this really a save command?"
   :type 'function
+  :group 'proof-script)
+
+(defcustom proof-nested-goals-allowed nil
+  "Whether the proof assistant allows nested goals.  
+If it does not, Proof General assumes that successive goals automatically 
+discard the previous proof state  
+
+Some proof assistants may simply give an error when nested goals are
+attempted, so the setting of this variable doesn't matter."
+  :type 'boolean
   :group 'proof-script)
 
 (defcustom proof-lift-global nil
