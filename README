@@ -1,16 +1,17 @@
 Proof General --- Organize your proofs!  [proofgeneral.inf.ed.ac.uk]
-====================================================================
- 
-  IMPORTANT NOTE: Please note that proofgeneral.org is no longer owned
-  by the Proof General project; please update your links to use the
-  new web address http://proofgeneral.inf.ed.ac.uk.  
 
-  Report bugs, feedback, suggestions directly to me.  It helps if you
-  use an appropriate +-extension to my mail address, e.g.
-		
-	David Aspinall <da+pg-feedback@inf.ed.ac.uk>
- 
-====================================================================
+=========================================================================
+|									|
+|  IMPORTANT NOTE: Please note that proofgeneral.org is no longer owned |
+|  by the Proof General project; please update your links to use the    |
+|  new web address http://proofgeneral.inf.ed.ac.uk.                    |
+|									|
+|  Report bugs, feedback, suggestions directly to me.  It helps if you  |
+|  use one of the suggested + extensions to my mail address, e.g.	|
+|									|
+|	David Aspinall <da+pg-feedback@inf.ed.ac.uk>			|
+|									|
+=========================================================================
 
 Proof General is a generic Emacs interface for proof assistants.
 
@@ -49,7 +50,7 @@ in the subdirectories:
     lego/   LEGO
  plastic/   Plastic
    twelf/   Twelf
-   pgkit/   PG Kit      [ in development release only ]
+   pgkit/   PG Kit
 
  generic/   Generic basis for Proof General
 
@@ -61,7 +62,4 @@ For the latest news and downloads, visit Proof General on the web
 at: http://proofgeneral.inf.ed.ac.uk
 
 David Aspinall <da+pg-feedback@inf.ed.ac.uk>
-February 2004.
-
------
-
+March 2004.
