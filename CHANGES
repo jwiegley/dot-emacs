@@ -10,6 +10,14 @@
 
 ** Generic changes
 
+*** Bundling of MMM Mode (for multiple modes in one buffer)
+
+    MMM mode allows submodes to be used in the same file.
+    See http://mmm-mode.sourceforge.net/.
+    At present it is configured for Isar, to allow LaTeX and
+    sml-mode to be used inside Isar scripts.
+    Contributions of configuration for other provers welcomed.
+
 *** X-Symbol (and MMM-mode) minor mode behaviour simplified
  
     These minor modes like to be responsible for turning themselves
@@ -18,13 +26,6 @@
     of fontification!).  Instead the menu reflects the current
     minor mode status; toggling it will also update the default
     "global for PG" behaviour for new script buffers.
-
-*** Bundling and configuration for Multiple Modes (MMM-Mode)
-
-    MMM mode allows submodes to be used in the same file.
-    See http://mmm-mode.sourceforge.net/.
-    At present it is configured for Isar, to allow LaTeX and
-    sml-mode to be used inside Isar scripts.
 
 *** Follow mode: add "followdown" setting
 

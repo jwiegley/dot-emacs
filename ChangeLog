@@ -1,3 +1,99 @@
+2003-02-19  David Aspinall  <da@proofgeneral.org>
+
+	* etc/isar/Depends.thy: New files.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* CHANGES, BUGS:
+	Updated.
+
+	* generic/proof-mmm.el, generic/proof-script.el, generic/proof-x-symbol.el, generic/proof-autoloads.el, generic/proof-menu.el:
+	Leave packages' own hooks (X-Symbol, MMM) to deal with turning on or
+	off minor modes in buffers automatically.  Now the PG setting controls
+	the "default global for PG buffers" for each of these.  The menu
+	checkbox simply displays the current minor mode status.  When this
+	is changed, the PG global mode follows suit.  We do not try to
+	apply the change to all PG buffers (30 minutes of fontification!).
+
+2003-02-18  David Aspinall  <da@proofgeneral.org>
+
+	* Makefile.devel:
+	Add pg-xml to main dist
+
+	* generic/pg-metadata.el, generic/pg-xhtml.el:
+	Comments.
+
+	* html/projects.html: Updated.
+
+	* html/projects/mm.html: Deleted files.
+
+	* todo: Updated.
+
+	* isar/isar-mmm.el:
+	Test with -- short comments.  Docs
+
+	* README.devel: Delete
+
+	* etc/README.devel: New files.
+
+	* generic/proof-mmm.el: Small bugfix.
+
+	* etc/isar/MultipleModes.thy:
+	New files.
+
+	* todo, AUTHORS:
+	Updated.
+
+	* etc/mmm-install: New files.
+
+	* generic/proof-mmm.el: Updated.
+
+	* generic/proof-menu.el, generic/proof-script.el, generic/proof-autoloads.el, generic/proof-config.el:
+	Add support for MMM mode
+
+	* generic/proof-script.el:
+	Refactor proof-config-done for clarity
+
+	* generic/proof-mmm.el: New files.
+
+	* isar/isar.el: Documentation.
+
+	* isar/Example.thy:
+	Decoration to show off MMM mode
+
+	* isar/isar-mmm.el: New files.
+
+2003-02-17  David Aspinall  <da@proofgeneral.org>
+
+	* CHANGES: Mention adding MMM mode
+
+	* mmm/ProofGeneral.txt, mmm/TODO, mmm/version.texi, mmm/mmm-utils.el, mmm/mmm-vars.el, mmm/NEWS, mmm/README, mmm/mmm-rpm.el, mmm/mmm-sample.el, mmm/mmm.texinfo, mmm/mmm-univ.el, mmm/mmm-compat.el, mmm/mmm-mason.el, mmm/mmm-mode.el, mmm/mmm-region.el, mmm/INSTALL, mmm/mmm-auto.el, mmm/mmm-class.el, mmm/mmm-cmds.el, mmm/AUTHORS, mmm/COPYING, mmm/FAQ:
+	New files.
+
+	* ChangeLog: Updated.
+
+	* etc/isar/ParsingBug1.thy:
+	Test case for {nested proof} in isabelle
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isar/isar-syntax.el:
+	Revert to old isar-ids-to-regexp
+
+	* FAQ:
+	Larrys suggestion for lookup-syntax-properties.
+
+	* html/footer.html, html/oldnews.html, html/register.html:
+	Update addresses
+
+	* generic/proof-shell.el:
+	Remove proof-shell-filter patch of Stefan Monnier which deals with multiple prompts, but produces spurious output with Isabelle.
+
+	* generic/proof-shell.el:
+	Remove subterm markup striping in proof-shell-process-output (error case).  Docs
+
 2003-02-17  David Aspinall  <da@proofgeneral.org>
 
 	* etc/isar/ParsingBug1.thy:

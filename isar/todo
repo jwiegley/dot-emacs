@@ -4,6 +4,12 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** B theorem dependencies: using Isar's "thm" command does not
+   work at top level.  This is annoying for browsing the fully
+   qualified dependency names.  (Even the ML_command "thm"
+   returns unknown theory context error).  Can we use something
+   else?
+
 ** B visualise dependencies: sometimes not applicable.
 
 ** C func-menu: observe proof-syntactic-context (general problem of
