@@ -171,7 +171,9 @@ A list of symbols chosen from:"
    (apply 'concat (mapcar (lambda (astnt) 
 			    (concat " '" (symbol-name (car astnt))))
 			  proof-assistant-table)) 
-".\nEach proof assistant defines its own instance of Proof General,
+".\nIf nil, the default will be ALL proof assistants.
+
+Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
 To avoid accidently invoking a proof assistant you don't have,
