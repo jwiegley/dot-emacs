@@ -8,6 +8,10 @@
 
 ** Generic Changes
 
+*** Toolbar and menubar removed from small windows in multiple frame mode
+
+  More screen real estate for your windows.
+
 *** Added proof-next-error function, bound to C-c `
 
   When the proof assistant batch loads files "in the background"

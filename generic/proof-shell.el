@@ -1991,8 +1991,20 @@ Internal variable, setting this will have no effect!")
     (setq special-display-regexps
 	  (union special-display-regexps 
 		 (list proof-shell-special-display-regexp)))
+    ;; If we're on XEmacs with toolbar, turn off toolbar and
+    ;; menubar for the small frames to save space.
+    (if (featurep 'toolbar) 
+	(progn
+	  (proof-with-current-buffer-if-exists 
+	   proof-response-buffer
+	   (set-specifier default-toolbar-visible-p nil (current-buffer))
+	   (set-specifier menubar-visible-p nil (current-buffer)))
+	  (proof-with-current-buffer-if-exists 
+	   proof-goals-buffer
+	   (set-specifier default-toolbar-visible-p nil (current-buffer))
+	   (set-specifier menubar-visible-p nil (current-buffer))))?)
     ;; Try to trigger re-display of goals/response buffers,
-    ;; on next interaction.  Do this by 
+    ;; on next interaction.  
     ;; FIXME: would be nice to do the re-display here, rather
     ;; than waiting for next re-display
     (delete-other-windows 
