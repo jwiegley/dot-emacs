@@ -60,10 +60,11 @@ cp images/pgicon.png ${RPM_BUILD_ROOT}/usr/share/icons
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/pixmaps
 cp images/pgicon.png ${RPM_BUILD_ROOT}/usr/share/pixmaps
 mkdir -p ${RPM_BUILD_ROOT}/usr/lib/menu
-mkdir -p ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications/
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/applnk/Applications
+mkdir -p ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications
 mv etc/ProofGeneral.menu ${RPM_BUILD_ROOT}/usr/lib/menu/ProofGeneral	     # Mandrake
-cp etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/usr/share/applnk/Applications/ # RH KDE
-mv etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications/   # RH Gnome
+cp etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/usr/share/applnk/Applications  # RH KDE
+mv etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications    # RH Gnome
 
 for f in */README; do mv $f $f.`dirname $f`; done
 
