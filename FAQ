@@ -7,6 +7,19 @@ Credits to the anonymous authors of questions/answers below.
 
 -----------------------------------------------------------------
 
+Q. XEmacs 21.4 displays a progress bar during fontification which
+   sometimes gets stuck or messes up the display.  
+   Is this a Proof General bug?  What can I do?
+
+A. This is an XEmacs bug.  What you can do is prevent the use
+   of the widget, for example by adding 
+
+     (setq progress-feedback-use-echo-area t)
+
+   inside your configuration file `.xemacs/init.el'
+
+-----------------------------------------------------------------
+
 Q. I have a problem installing/using Proof General, what can I do?
 
 A. Please check the documentation carefully, particularly the
