@@ -323,18 +323,21 @@ Given is the first SPAN which needs to be undone."
 ;; running and is out of sync with the screen width
 
 (defun lego-shell-adjust-line-width ()
-  "Use LEGO's pretty printing facilities to adjust output line width."
-  (save-excursion 
-    (set-buffer proof-shell-buffer)
-    (and (proof-shell-live-buffer)
+  "Use LEGO's pretty printing facilities to adjust output line width.
+Checks the width in the `proof-goals-buffer'"
+  (and (buffer-live-p proof-goals-buffer)
+       (proof-shell-live-buffer)
+       (save-excursion 
+	 (set-buffer proof-goals-buffer)
 	 (let ((current-width
-		;; FIXME da: I suspect this is the wrong window to
-		;; check the width of.  Probably we want the width
-		;; of proof-goals-buffer?
-		(window-width (get-buffer-window proof-shell-buffer))))
+		;; Actually, one might sometimes
+		;; want to get the width of the proof-response-buffer
+		;; instead. Never mind. 
+		(window-width (get-buffer-window proof-goals-buffer))))
 	   (if (equal current-width lego-shell-current-line-width) ()
 	     ; else
 	     (setq lego-shell-current-line-width current-width)
+	     (set-buffer proof-shell-buffer)
 	     (insert (format lego-pretty-set-width (- current-width 1)))
 	     )))))
 
