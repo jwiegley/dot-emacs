@@ -1,3 +1,204 @@
+2003-09-25  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/Makefile.devel: Fixup
+
+	* /disk/cvs/proofgen/ProofGeneral/Makefile.devel:
+	Problem with export, temp fix
+
+	* /disk/cvs/proofgen/ProofGeneral/etc/ProofGeneral.spec, /disk/cvs/proofgen/ProofGeneral/generic/proof-site.el, /disk/cvs/proofgen/ProofGeneral/html/develdownload.php, /disk/cvs/proofgen/ProofGeneral/html/devel.html:
+	Set version tag for new release.
+
+2003-09-24  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/CHANGES, /disk/cvs/proofgen/ProofGeneral/todo:
+	Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-pgip.el:
+	Include class attribute in PGIP commands
+
+	* /disk/cvs/proofgen/ProofGeneral/html/kit.php:
+	Describe work currrently underway; distribute some docs
+
+	* /disk/cvs/proofgen/ProofGeneral/html/news.html: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/Example-Xsym.thy, /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgip.rnc, /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgml.rnc, /disk/cvs/proofgen/ProofGeneral/html/Kit/docs/uitp03.pdf, /disk/cvs/proofgen/ProofGeneral/html/Kit/docs/commentary.pdf:
+	New files.
+
+	* /disk/cvs/proofgen/ProofGeneral/html/Kit/Makefile: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/fonts/heriR12.bdf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/fonts/heriR14.bdf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/fonts/Makefile, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/genfonts/heriR12sub.bdf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/genfonts/heriR12sup.bdf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/genfonts/heriR14sub.bdf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/genfonts/heriR14sup.bdf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/Makefile.emacs, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/pcf/heriR12.pcf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/pcf/heriR12sub.pcf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/pcf/heriR12sup.pcf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/pcf/heriR14.pcf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/pcf/heriR14sub.pcf, /disk/cvs/proofgen/ProofGeneral/x-symbol/etc/pcf/heriR14sup.pcf, /disk/cvs/proofgen/ProofGeneral/x-symbol/info/x-symbol.info, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/auto-autoloads.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/ChangeLog, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/_pkg.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-bib.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-emacs.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-hooks.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-image.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-macs.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-mule.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-nomule.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-sgml.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-tex.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-texi.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-vars.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/x-symbol-xmacs.el, /disk/cvs/proofgen/ProofGeneral/x-symbol/man/Makefile, /disk/cvs/proofgen/ProofGeneral/x-symbol/man/x-symbol.init, /disk/cvs/proofgen/ProofGeneral/x-symbol/man/x-symbol.texi, /disk/cvs/proofgen/ProofGeneral/x-symbol/README.x-symbol-for-ProofGeneral:
+	Update to 4.5.1-beta from sourceforge.
+
+	* /disk/cvs/proofgen/ProofGeneral/x-symbol/lisp/.ispell_xsymb:
+	Deleted file
+
+	* /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgip.dtd, /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgml.dtd:
+	Updated from Kit repo
+
+	* /disk/cvs/proofgen/ProofGeneral/etc/cvs-tips.txt:
+	Notice about using cvs.inf instead
+
+2003-09-22  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/x-symbol/README.x-symbol-for-ProofGeneral:
+	Updated.
+
+2003-09-05  Stefan Berghofer  <berghofe@in.tum.de>
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/isar-syntax.el:
+	Yet another fix from Sebastian Skalberg.
+
+2003-08-29  Stefan Berghofer  <berghofe@in.tum.de>
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/isar-syntax.el:
+	Corrected fix from Sebastian Skalberg.
+
+2003-08-28  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/isar-syntax.el:
+	Fix from Sebastian Skalberg <skalberg@in.tum.de>
+
+2003-08-20  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/isar-syntax.el:
+	Fix SML comment syntax oops
+
+2003-08-19  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/isar-syntax.el:
+	Use newer undo function ProofGeneral.undo (no output undo).
+
+2003-07-01  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/html/Kit/dtd/pgip.dtd:
+	Updated from Kit repo
+
+2003-06-19  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-response.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-shell.el:
+	Add idle timer to cleanup tracing display.
+
+2003-06-16  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-script.el:
+	Give text default for hidden proof image.
+
+	* /disk/cvs/proofgen/ProofGeneral/etc/debugging-tips.txt: Updated.
+
+2003-06-13  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-splash.el:
+	Check display is really available: XEmacs now defines device-pixel-depth even on terminals.
+
+2003-06-09  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-user.el: Fix typo.
+
+2003-06-08  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/isar.el, /disk/cvs/proofgen/ProofGeneral/generic/pg-user.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-config.el:
+	Extend proof-shell-identifier-under-mouse to allow regions, and also depend on buffer context.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-user.el:
+	Robustness in pg-identifier-under-mouse-query.
+
+	* /disk/cvs/proofgen/ProofGeneral/CHANGES: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/isar/isar.el:
+	Set proof-shell-identifier-under-mouse-cmd
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-shell.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-utils.el:
+	Comments.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-compat.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-utils.el:
+	Attempt to prevent recording of buffer switching history (display-buffer cannot be stopped, sadly)
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-user.el:
+	GNU Emacs keybinding for pg-identifier-under-mouse-query
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-script.el:
+	Only give hint about C-c C-. if not already visible
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-menu.el:
+	Add insert last output onto menu
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-config.el, /disk/cvs/proofgen/ProofGeneral/generic/pg-user.el:
+	Add simple but effective identifier-under-mouse-query command.
+
+2003-06-05  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-response.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-shell.el:
+	Add code to recognize fast tracing output from prover, and play slow catchup.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-config.el:
+	Remove proof-trace-output-fontify-enable (unused) in favour of proof-trace-output-slow-catchup
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-script.el: Typo
+
+	* /disk/cvs/proofgen/ProofGeneral/doc/PG-adapting.texi: Update magic
+
+	* /disk/cvs/proofgen/ProofGeneral/doc/ProofGeneral.texi:
+	Typo; update magic
+
+	* /disk/cvs/proofgen/ProofGeneral/phox/phox-fun.el, /disk/cvs/proofgen/ProofGeneral/plastic/plastic.el, /disk/cvs/proofgen/ProofGeneral/coq/coq.el, /disk/cvs/proofgen/ProofGeneral/lego/lego.el, /disk/cvs/proofgen/ProofGeneral/isar/isar.el:
+	Make find-and-forget robust for proverproc regions
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-script.el:
+	Simplify mark-buffer-atomic to just make 'proverproc span.
+
+	* /disk/cvs/proofgen/ProofGeneral/CHANGES: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-user.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-config.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-script.el:
+	By default, do not move pointer on interrupt, only error; tune hints for spans
+
+2003-05-28  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/etc/cvs-tips.txt, /disk/cvs/proofgen/ProofGeneral/BUGS, /disk/cvs/proofgen/ProofGeneral/FAQ:
+	Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/Makefile.devel:
+	Add Gerwin and Stefan canonical emails to ChangeLog generation
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-script.el:
+	proof-strict-read-only: only alter locked span if live (bug fix)
+
+2003-05-24  David Aspinall  <da@proofgeneral.org>
+
+	* /disk/cvs/proofgen/ProofGeneral/ChangeLog: Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/etc/ProofGeneral.spec, /disk/cvs/proofgen/ProofGeneral/generic/proof-site.el, /disk/cvs/proofgen/ProofGeneral/html/develdownload.php, /disk/cvs/proofgen/ProofGeneral/html/devel.html:
+	Set version tag for new release.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-user.el:
+	Rotate buffers display can display next buffer
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-menu.el:
+	Include next buffer in hint for rotate buffers
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-response.el:
+	Revert to displaying empty buffer for sake of pr in Isar
+
+	* /disk/cvs/proofgen/ProofGeneral/etc/profiling.txt, /disk/cvs/proofgen/ProofGeneral/CHANGES:
+	Updated.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-shell.el:
+	Add hint triggered when processing complete
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-menu.el:
+	Switch order of buffers displayed by C-c C-l.  Add hint.
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-utils.el:
+	Tweak to shrink-to-fit
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-user.el:
+	Added hint mechanism
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/pg-response.el:
+	Do not display empty responses
+
+	* /disk/cvs/proofgen/ProofGeneral/generic/proof-config.el:
+	Add pg-show-hints
+
 2003-05-24  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
