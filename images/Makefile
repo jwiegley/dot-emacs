@@ -19,7 +19,7 @@
 ###########################################################################
 
 # Sources
-BUTTONS=goal.xcf next.xcf qed.xcf restart.xcf retract.xcf undo.xcf use.xcf state.xcf context.xcf info.xcf command.xcf help.xcf find.xcf interrupt.xcf goto.xcf
+BUTTONS=goal.xcf next.xcf qed.xcf restart.xcf retract.xcf undo.xcf use.xcf state.xcf context.xcf info.xcf command.xcf help.xcf find.xcf interrupt.xcf goto.xcf abort.xcf
 WEBPIX=isabelle_transparent.xcf ProofGeneral.xcf pg-text.xcf
 
 # Targets for html directory
