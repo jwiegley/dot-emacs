@@ -23,7 +23,7 @@ sig
    val retract_ML_file : string -> unit
    val retract_thy_file : string -> unit
    val repeat_undo : int -> unit
-end
+end;
 
 structure ProofGeneral =
   struct
@@ -155,7 +155,7 @@ in
        warning_fn :=
 	   (fn s => out ("\242" ^ (prefix_lines "###" s) ^ "\243"));
        error_fn :=
-	   (fn s => out ("\244" ^ (prefix_lines "###" s) ^ "\245")))
+	   (fn s => out ("\244" ^ (prefix_lines "***" s) ^ "\245")))
 end;
 
 (* add specials to ml prompts *)
@@ -176,15 +176,8 @@ local
   fun out s =
     (TextIO.output (TextIO.stdOut, s); TextIO.flushOut TextIO.stdOut);
 in
-    fun print_current_goals_with_plain_output i j t =
-  let
-    val curr_prs = !prs_fn
-    val _ = prs_fn := (fn s => out s)
-    val _ = (print_current_goals_default i j t)
-		handle e => (prs_fn := curr_prs; raise e)
-  in       
-    prs_fn := curr_prs
-  end
+  fun print_current_goals_with_plain_output i j t =
+    Library.setmp prs_fn out (print_current_goals_default i j) t;
 end;
 
 print_current_goals_fn := print_current_goals_with_plain_output;
