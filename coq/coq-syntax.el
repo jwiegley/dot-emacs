@@ -3,120 +3,71 @@
 ;; Authors: Thomas Kleymann and Healfdene Goguen
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
 
-;; To be added for coq 7.4:
-
-;;"And" -> ???
-
 ;; $Id$
 
 (require 'proof-syntax)
 
 ;; da 15/2/03: without defvars compilation breaks
 ;; This may have broken some of logic below
-(defvar coq-version-is-V74 nil)
-(defvar coq-version-is-V7 nil)
 
+;; Pierre: we will have both versions V8.0 and V8.1 during a while the
+;; test with "coqtop -v" can be skipped if one of the variables
+;; coq-version-is-V8-0/1 is already set (useful for people dealing
+;; with several version of coq).
 
-;; Pierre: we will have both versions V6 and V7 during a while the test with "coqtop
-;; -v" can be skipped if the variable coq-version-is-V7 is already set (useful for
-;; people dealing with several version of coq) We also have coq-version-is-V74, to
-;; deal with the new module system
+; this one is temporary, for compatibility
+(defvar coq-version-is-V8 nil "Obsolete, use `coq-version-is-V8-0' instead.")
 
-(defvar coq-version-is-V6 nil 
+(defvar coq-version-is-V8-0 nil 
 "This variable can be set to t to force ProofGeneral to coq version
-coq-6.x. To do that, put (setq coq-version-is-V6 t) in your .emacs and
-restart emacs. This variable overrides coq-version-is-V7, V8 and
-V74. If none of these 3 variables is set to t, then ProofGeneral
-guesses the version of coq by doing 'coqtop -v'.")
+coq-8.0. To do that, put (setq coq-version-is-V8-0 t) in your .emacs and
+restart emacs. This variable cannot be true simultaneously with
+coq-version-is-V8-1. If none of these 2 variables is set to t, then
+ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
 
-(defvar coq-version-is-V7 nil 
-"This variable can be set to t to force ProofGeneral to coq version
-between coq-7.0 and coq-7.3.1. To do that, put (setq coq-version-is-V7
-t) in your .emacs and restart emacs. This variable overrides
-coq-version-is-V74 and V8 and is overrriden by coq-version-is-V6.  If
-none of these 3 variables is set to t, then ProofGeneral guesses the
-version of coq by doing 'coqtop -v'.")
+(defvar coq-version-is-V8-1 nil 
+  "This variable can be set to t to force ProofGeneral to coq version
+coq-8.1 (use it for coq-8.0cvs after january 2005). To do that, put
+(setq coq-version-is-V8-1 t) in your .emacs and restart emacs. This
+variable cannot be true simultaneously with coq-version-is-V8-0. If
+none of these 2 variables is set to t, then ProofGeneral guesses the
+version of coq by doing 'coqtop -v'." )
 
-(defvar coq-version-is-V74 nil 
-"This variable can be set to t to force ProofGeneral to coq version
-coq-7.4. To do that, put (setq coq-version-is-V74 t) in your .emacs
-and restart emacs. This variable is overrriden by coq-version-is-V6
-and coq-version-is-V7. If none of these 3 variables is set to t, then
-ProofGeneral guesses the version of coq by doing 'coqtop -v'. If this
-variable is put to t (before PG is loaded) then V7 is automatically
-put to t."  )
-
-(defvar coq-version-is-V8 nil 
-"This variable can be set to t to force ProofGeneral to coq version
-above coq-8.0beta. To do that, put (setq coq-version-is-V8 t) in your
-.emacs and restart emacs. This variable is overrriden by
-coq-version-is-V6, coq-version-is-V7 and coq-version-is-V74. If none
-of these 4 variables is set to t, then ProofGeneral guesses the
-version of coq by doing 'coqtop -v'. If this variable is put to t
-\(before PG is loaded) then V74 is automatically put to t." )
-
-
-
-;; only coq-version-is-V74 and coq-version-is-V7 are used later (V6
-;; corresponds to v7=nil and v74=nil)
-
+;;FIXME: how to make compilable?
 (unless (noninteractive);; DA: evaluating here gives error during compile
-  (let* ((seedoc " (to force another version, do for example C-h v coq-version-is-V7)")
-			(v8 (concat "proofgeneral is in coq 8 mode" seedoc))
-			(v74 (concat "proofgeneral is in coq 7.4 mode" seedoc))
-			(v7 (concat "proofgeneral is in coq > 6 and =< 7.3 mode" seedoc))
-			(v6 (concat "proofgeneral is in coq V6 mode" seedoc)))
+  (let* 
+		(
+		 (seedoc (concat " (to force another version, see for example"
+							  " C-h v `coq-version-is-V8-0)'."))
+		 (v80 (concat "proofgeneral is in coq 8.0 mode" seedoc))
+		 (v81 (concat "proofgeneral is in coq 8.1 mode" seedoc))
+		 (err (concat "Both config variables coq-version-is-V8-1 and"
+						  " coq-version-is-V8-0 are set to true. This is"
+						  "contradictory.")))
+	 
 	 (cond
-	  (coq-version-is-V8 
-		(message v8) 
-		(setq coq-version-is-V74 t))
-	  (coq-version-is-V74 
-		(message v74) 
-		(setq coq-version-is-V8 nil)
-		(setq coq-version-is-V7 t))
-	  (coq-version-is-V7  
-		(message v7)  
-		(setq coq-version-is-V74 nil)
-		(setq coq-version-is-V8 nil))
-	  (coq-version-is-V6  
-		(message v6)  
-		(setq coq-version-is-V8 nil) 
-		(setq coq-version-is-V74 nil) 
-		(setq coq-version-is-V7 nil))
-	  (t 
-		(let ((str (shell-command-to-string 
-						(concat coq-prog-name " -v"))))
+	  ((and coq-version-is-V8-1 coq-version-is-V8-0) 
+		(error err))
+	  (coq-version-is-V8-1 (message v81))
+	  (coq-version-is-V8-0 (message v80))
+	  (coq-version-is-V8 (setq coq-version-is-V8-0 t coq-version-is-V8-1 nil)
+								(message v80))
+	  (t;; otherwise do coqtop -v and see which version we have
+		(let ((str (shell-command-to-string (concat coq-prog-name " -v"))))
 		  ;; this match sets match-string below
 		  (string-match "version \\([.0-9]*\\)" str)
+		  (message str)
 		  (let ((num (match-string 1 str)))
-		  ;; da: added this to avoid type error in case coq command fails
-		  (if (null num) (setq num ""))
-		  (cond
-			((string-match "\\<6." num) 
-			 (message v6)
-			 (setq coq-version-is-V7 nil) 
-			 (setq coq-version-is-V74 nil))
-			((or (string-match "\\<7.0" num) 
-				  (string-match "\\<7.1" num) 
-				  (string-match "\\<7.2" num) 
-				  (string-match "\\<7.3" num)) 
-			 (message v7) 
-			 (setq coq-version-is-V7 t)
-			 (setq coq-version-is-V74 nil))
-			((string-match "\\<7.4" num) 
-			 (message v74)
-			 (setq coq-version-is-V74 t)
-			 (setq coq-version-is-V7 t) )
-			((string-match "\\<8." num) 
-			 (message v8)
-			 (setq coq-version-is-V8 t)
-			 (setq coq-version-is-V7 t) 
-			 (setq coq-version-is-V74 t))			
-			(t
-			 (message (concat "Falling back to default: " v8))
-			 (setq coq-version-is-V8 t)
-			 (setq coq-version-is-V7 t) 
-			 (setq coq-version-is-V74 t)))))))))
+			 ;; da: added this to avoid type error in case coq command fails
+			 (if (null num) (setq num ""))
+			 (cond
+			  ((or (string-match "\\<8.1" num)) 
+				(message v81)
+				(setq coq-version-is-V8-1 t))			
+			  (t ;; temporary, should be 8.1 when it is officially out
+				(message (concat "Falling back to default: " v80))
+				(setq coq-version-is-V8-0 t)
+				))))))))
 
 ;; ----- keywords for font-lock.
 
@@ -154,33 +105,22 @@ version of coq by doing 'coqtop -v'. If this variable is put to t
     "Structure"
 	 "Ltac"))
 
-;; Modules are like section in v > 7.4.
+;; Modules are like sections
 (defvar coq-keywords-goal
-  (if (or coq-version-is-V74 coq-version-is-V8)
-		'("Add\\s-+Morphism"
-		  "Chapter"
-	"Declare\\s-+Module" ;;only if not followed by:=(see coq-proof-mode-p in coq.el)
-		  "Module"
-		  "Module\\s-+Type"
-		  "Section"
-		  "Correctness"
-	"Definition" ;; only if not followed by := (see coq-proof-mode-p in coq.el)
-		  "Fact"
-		  "Goal"
-		  "Lemma"
-		  "Local"
-		  "Remark"
-	"Theorem")
-	 '("Chapter"
-		"Correctness"
-      "Definition" ;; only if not followed by := (see coq-proof-mode-p in coq.el)
-		"Fact"
-		"Goal"
-		"Lemma"
-		"Local"
-		"Remark"
-		"Section"
-		"Theorem")))
+  '("Add\\s-+Morphism"
+	 "Chapter"
+	 "Declare\\s-+Module";;only if not followed by:=(see coq-proof-mode-p in coq.el)
+	 "Module"
+	 "Module\\s-+Type"
+	 "Section"
+	 "Correctness"
+	 "Definition";; only if not followed by := (see coq-proof-mode-p in coq.el)
+	 "Fact"
+	 "Goal"
+	 "Lemma"
+	 "Local"
+	 "Remark"
+	 "Theorem"))
 
 ;; FIXME da: this one function breaks the nice configuration of Proof General:
 ;; would like to have proof-goal-regexp instead.
@@ -237,8 +177,6 @@ of STRG matching REGEXP. Empty match are counted once."
 			)
 	 )
   )
-
-
 
 
 (defvar coq-keywords-save-strict
@@ -373,7 +311,6 @@ Print and Check commands, put the following line in your .emacs:
 	 "Hint\\s-+Unfold"
 	 "Hint\\s-+Extern"
 	 "Hint\\s-+Constructors"
-    "Hints" ;no more a keyword in v8
     "Identity\\s-+Coercion"
     "Implicit\\s-+Arguments\\s-+Off"
     "Implicit\\s-+Arguments\\s-+On"
@@ -429,6 +366,42 @@ Print and Check commands, put the following line in your .emacs:
 			 coq-keywords-state-preserving-commands)
   "All commands keyword.")
 
+(defvar coq-tacticals
+  '("abstract"
+	 "do"
+	 "idtac" ;; also in state-preserving-tactic
+	 "fail"
+	 "orelse"
+	 "repeat"
+	 "try"
+	 "Time")
+  "Keywords for tacticals in a Coq script.")
+
+; From JF Monin:
+(defvar coq-reserved
+  '("False"
+	 "True"
+	 "after"
+	 "as"
+	 "cofix"
+	 "fix"
+	 "forall"
+	 "fun"
+	 "match"
+	 "return"
+	 "struct"
+    "else"
+    "end"
+    "if"
+    "in"
+    "into"
+    "let"
+    "then"
+    "using"
+    "with"
+	 )
+  "Reserved keywords of Coq.")
+
 
 (defcustom coq-user-state-changing-tactics nil
   "List of user defined Coq tactics that need to be backtracked;
@@ -442,205 +415,112 @@ Intro and Elim tactics, put the following line in your .emacs:
   :group 'coq)
 
 (defvar coq-state-changing-tactics
- 
- (cond
-  (coq-version-is-V8 
-	(append  '("absurd"
-	    "apply"
-	    "assert"
-	    "assumption"
-	    "auto"
-	    "autorewrite"
-	    "case"
-	    "cbv"
-	    "change"
-	    "clear"
-	    "clearbody"
-	    "cofix"
-	    "compare"
-	    "compute"
-		 "congruence"
-	    "constructor"
-	    "contradiction"
-	    "cut"
-	    "cutrewrite"
-	    ;;"dhyp"
-	    ;;"dind"
-	    "decide equality"
-	    "decompose"
-	    "dependent inversion"
-	    "dependent inversion_clear"
-	    "dependent rewrite ->"
-	    "dependent rewrite <-"
-	    "dependent\\s-+inversion"
-	    "dependent\\s-+inversion_clear"
-	    "destruct"
-	    "discrr"
-	    "discriminate"
-	    "double\\s-+induction"
-	    "eapply"
-	    "eauto"
-		 "econstructor"
-		 "eleft"
-		 "eright"
-		 "esplit"
-		 "eexists"
-	    "elim"
-	    "elimtype"
-	    "exact"
-	    "exists"
-	    "field"
-		 "firstorder"
-	    "fix"
-	    "fold"
-	    "fourier"
-	    "generalize"
-	    "hnf"
-	    "induction"
-	    "coinduction"
-	    "injection"
-		 "instantiate"
-	    "intro[s]?"
-	    "intuition"
-	    "inversion"
-	    "inversion_clear"
-		 "jp"
-	    "lapply"
-	    "lazy"
-	    "left"
-	    "lettac"
-	    "linear"
-	    "load"
-	    "move"
-	    "newdestruct"
-	    "newinduction"
-	    "omega "
-	    "pattern"
-	    "pose"
-	    "program"
-	    "program_all"
-	    "prolog"
-	    "quote"
-	    "realizer"
-	    "red"
-	    "refine"
-	    "reflexivity"
-	    "rename"
-	    "replace"
-	    "resume"
-	    "rewrite"
-	    "right"
-	    "ring"
-		 "set"
-	    "setoid_replace"
-	    "simpl"
-	    "simple\\s-+inversion"
-	    "simplify_eq"
-	    "specialize"
-	    "split"
-	    "splitabsolu"
-	    "splitrmult"
-	    "suspend"
-		 "subst"
-	    "symmetry"
-	    "tauto"
-	    "transitivity"
-	    "trivial"
-	    "unfold"
-		 "functional\\s-+induction")
-	  coq-user-state-changing-tactics))
-  (t 
-	(append  '("Absurd"
-	    "Apply"
-	    "Assert"
-	    "Assumption"
-	    "Auto"
-	    "AutoRewrite"
-	    "Case"
-	    "Cbv"
-	    "Change"
-	    "Clear"
-	    "ClearBody"
-	    "Cofix"
-	    "Compare"
-	    "Compute"
-	    "Constructor"
-	    "Contradiction"
-	    "Cut"
-	    "CutRewrite"
-	    ;;"DHyp"
-	    ;;"DInd"
-	    "Decide Equality"
-	    "Decompose"
-	    "Dependent Inversion"
-	    "Dependent Inversion_clear"
-	    "Dependent Rewrite ->"
-	    "Dependent Rewrite <-"
-	    "Dependent\\s-+Inversion"
-	    "Dependent\\s-+Inversion_clear"
-	    "Destruct"
-	    "DiscrR"
-	    "Discriminate"
-	    "Double\\s-+Induction"
-	    "EApply"
-	    "EAuto"
-	    "Elim"
-	    "ElimType"
-	    "Exact"
-	    "Exists"
-	    "Field"
-	    "Fix"
-	    "Fold"
-	    "Fourier"
-	    "Generalize"
-	    "Hnf"
-	    "Induction"
-	    "Injection"
-	    "Intro[s]?"
-	    "Intuition"
-	    "Inversion"
-	    "Inversion_clear"
-	    "LApply"
-	    "Lazy"
-	    "Left"
-	    "LetTac"
-	    "Linear"
-	    "Load"
-	    "Move"
-	    "NewDestruct"
-	    "NewInduction"
-	    "Omega "
-	    "Pattern"
-	    "Pose"
-	    "Program"
-	    "Program_all"
-	    "Prolog"
-	    "Quote"
-	    "Realizer"
-	    "Red"
-	    "Refine"
-	    "Reflexivity"
-	    "Rename"
-	    "Replace"
-	    "Resume"
-	    "Rewrite"
-	    "Right"
-	    "Ring"
-	    "Setoid_replace"
-	    "Simpl"
-	    "Simple Inversion"
-	    "Simplify_eq"
-	    "Specialize"
-	    "Split"
-	    "SplitAbsolu"
-	    "SplitRmult"
-	    "Suspend"
-	    "Symmetry"
-	    "Tauto"
-	    "Transitivity"
-	    "Trivial"
-	    "Unfold")
-	  coq-user-state-changing-tactics))))
+  (append  
+	'(
+	  "absurd"
+	  "apply"
+	  "assert"
+	  "assumption"
+	  "auto"
+	  "autorewrite"
+	  "case"
+	  "cbv"
+	  "change"
+	  "clear"
+	  "clearbody"
+	  "cofix"
+	  "compare"
+	  "compute"
+	  "congruence"
+	  "constructor"
+	  "contradiction"
+	  "cut"
+	  "cutrewrite"
+	  ;;"dhyp"
+	  ;;"dind"
+	  "decide equality"
+	  "decompose"
+	  "dependent inversion"
+	  "dependent inversion_clear"
+	  "dependent rewrite ->"
+	  "dependent rewrite <-"
+	  "dependent\\s-+inversion"
+	  "dependent\\s-+inversion_clear"
+	  "destruct"
+	  "discrr"
+	  "discriminate"
+	  "double\\s-+induction"
+	  "eapply"
+	  "eauto"
+	  "econstructor"
+	  "eleft"
+	  "eright"
+	  "esplit"
+	  "eexists"
+	  "elim"
+	  "elimtype"
+	  "exact"
+	  "exists"
+	  "field"
+	  "firstorder"
+	  "fix"
+	  "fold"
+	  "fourier"
+	  "generalize"
+	  "hnf"
+	  "induction"
+	  "coinduction"
+	  "injection"
+	  "instantiate"
+	  "intro[s]?"
+	  "intuition"
+	  "inversion"
+	  "inversion_clear"
+	  "jp"
+	  "lapply"
+	  "lazy"
+	  "left"
+	  "lettac"
+	  "linear"
+	  "load"
+	  "move"
+	  "newdestruct"
+	  "newinduction"
+	  "omega "
+	  "pattern"
+	  "pose"
+	  "program"
+	  "program_all"
+	  "prolog"
+	  "quote"
+	  "realizer"
+	  "red"
+	  "refine"
+	  "reflexivity"
+	  "rename"
+	  "replace"
+	  "resume"
+	  "rewrite"
+	  "right"
+	  "ring"
+	  "set"
+	  "setoid_replace"
+	  "simpl"
+	  "simple\\s-+inversion"
+	  "simplify_eq"
+	  "specialize"
+	  "split"
+	  "splitabsolu"
+	  "splitrmult"
+	  "suspend"
+	  "subst"
+	  "symmetry"
+	  "tauto"
+	  "transitivity"
+	  "trivial"
+	  "unfold"
+	  "functional\\s-+induction")
+	coq-user-state-changing-tactics))
 
 (defcustom coq-user-state-preserving-tactics nil
   "List of user defined Coq tactics that do not need to be backtracked;
@@ -672,66 +552,6 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 	  coq-keywords-defn coq-keywords-commands)
   "All keywords in a Coq script.")
 
-(defvar coq-tacticals
-  (cond 
-	(coq-version-is-V8 
-	 '("abstract"
-		"do"
-		"idtac"									 ; also in  state-preserving-tactic
-		"fail"
-		"orelse"
-		"repeat"
-		"try"
-		"Time"))
-	(t '("Abstract"
-		  "Do"
-		  "Idtac"								 ; also in  state-preserving-tactic
-		  "Fail"
-		  "Orelse"
-		  "Repeat"
-		  "Try"
-		  "Time")))
-  "Keywords for tacticals in a Coq script.")
-
-; From JF Monin:
-(defvar coq-reserved-common
-  '("as"
-	 "True"
-	 "False"
-    "else"
-    "end"
-    "if"
-    "in"
-    "into"
-    "let"
-    "then"
-    "using"
-    "with"
-	 "after")
-  "Reserved keywords of Coq.")
-
-(defvar coq-reserved-V8
-  '(
-	 "cofix"
-	 "fix"
-	 "struct"
-	 "match"
-	 "forall"
-	 "fun"
-	 "return"
-	 ))
-
-(defvar coq-reserved-V7
-  '(
-	 "ALL" "Cases" "EX" "Fix" "of" "CoFix"
-	 ))
-
-(defvar coq-reserved 
-  (cond
-	(coq-version-is-V8 
-	 (append coq-reserved-common coq-reserved-V8))
-	(t 
-	 (append coq-reserved-common coq-reserved-V7))))
 
 
 (defvar coq-symbols

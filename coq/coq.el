@@ -40,25 +40,24 @@ To disable coqc being called (and use only make), set this to nil."
 (require 'coq-indent)
 
 ;; Command to reset the Coq Proof Assistant
-;; Pierre: added Impl... because of a bug of Coq until V6.3
-;; (included). The bug is already fixed in the next version (V7). So
-;; we will backtrack this someday.
-(defconst coq-shell-restart-cmd 
-  "Reset Initial.\n Implicit Arguments Off. ")
+(defconst coq-shell-restart-cmd "Reset Initial.\n ")
 
 
 ;; NB: da: PG 3.5: added \n here to account for blank line
 ;; in Coq output.  (FIXME: Is this OK in Coq pre 8.x?)
 ;; Better result for shrinking windows, grabbing shell output
-(defvar coq-shell-prompt-pattern (concat "^\n?" proof-id " < ")
+;; Pierre added the state number here, this is new in Coq.
+
+; patch provisoire envoye a coqdev:
+;(defvar coq-shell-prompt-pattern (concat "^\n?" proof-id " < "  "\\(?:\\*[0-9]+\\)?")
+(defvar coq-shell-prompt-pattern 
+  (concat "^\n?" proof-id " < "  "\\(?:\\*[0-9]+\\)?")
   "*The prompt pattern for the inferior shell running coq.")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
 ;; da: 3.5: add experimetntal
 (defvar coq-shell-cd 
-  (if coq-version-is-V8 
-      "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
-    "Cd \"%s\"")
+  "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
   "*Command of the inferior process to change the directory.")
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
@@ -101,13 +100,7 @@ To disable coqc being called (and use only make), set this to nil."
 
 ;; ----- coq specific menu is defined in coq-abbrev.el
 
-(cond
- (coq-version-is-V8 (require 'coq-abbrev))
- (t (require 'coq-abbrev-V7))
- )
-
-
-
+(require 'coq-abbrev)
 
 (defun coq-insert-section (s)
   (interactive  "sSection name: ")
@@ -173,15 +166,15 @@ To disable coqc being called (and use only make), set this to nil."
   (proof-ids-to-regexp coq-keywords-state-changing-commands))
 (defconst coq-state-preserving-commands-regexp 
   (proof-ids-to-regexp coq-keywords-state-preserving-commands))
+(defconst coq-commands-regexp 
+  (proof-ids-to-regexp coq-keywords-commands))
 (defvar coq-retractable-instruct-regexp 
   (proof-ids-to-regexp coq-retractable-instruct))
 (defvar coq-non-retractable-instruct-regexp
   (proof-ids-to-regexp coq-non-retractable-instruct))
 
 (defvar coq-keywords-section
-  (cond 
-   (coq-version-is-V74 '("Section" "Module\\-+Type" "Declare\\s-+Module" "Module"))
-   (t '("Section"))))
+  '("Section" "Module\\-+Type" "Declare\\s-+Module" "Module"))
 
 (defvar coq-section-regexp 
   (concat "\\(" (proof-ids-to-regexp coq-keywords-section) "\\)")
@@ -219,22 +212,15 @@ To disable coqc being called (and use only make), set this to nil."
 (defun coq-set-undo-limit (undos)
   (proof-shell-invisible-command (format "Set Undo %s. " undos)))
 
-;;
-;; FIXME Papageno 05/1999: must take sections in account.
-;;
 ;; da: have now combined count-undos and find-and-forget, they're the
 ;; same now we deal with nested proofs and send general sequence
-;; "Abort. ... Abort. Back n. Undo n."
+;; "Abort. ... Abort. BackTo n. Undo n."
 ;;
 
 (defconst coq-keywords-decl-defn-regexp
   (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
 
-; Pierre: This is a try, for use in find-and-forget. It seems to work but 
-; is it correct with respect to the asynchronous communication between Coq 
-; and emacs?  
-; DA: should be okay, communication is not as asynchronous as you think
 (defun coq-proof-mode-p ()
   "Allows to know if we are currentlly in proof mode. 
 Look at the last line of the *coq* buffer to see if the prompt is the
@@ -243,9 +229,6 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
   (not (string-match "^Coq < " proof-shell-last-prompt)))
 
 
-;; Pierre: May 29 2002 added a "Back n. " command in order to
-;; synchronize more accurately.
- 
 ;; DA: rewrote to combine behaviour with count-undos, to work with
 ;; nested proofs.
 
@@ -266,8 +249,23 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
 (defun coq-state-preserving-command-p (str)
   (proof-string-match (concat "\\`\\(" coq-state-preserving-commands-regexp "\\)") str))
 
+(defun coq-command-p (str)
+  (proof-string-match (concat "\\`\\(" coq-commands-regexp "\\)") str))
+
 (defun coq-state-preserving-tactic-p (str)
-  (proof-string-match (concat "\\`\\(" coq-state-preserving-tactics-regexp "\\)") str))
+  (proof-string-match 
+   (concat "\\`\\(" 
+           coq-state-preserving-tactics-regexp "\\)") str))
+
+(defun coq-state-changing-tactic-p (str) ; unknown things are considered (state
+                                        ;changing) tactics here
+  (and (not (coq-command-p str)) 
+       (not (coq-state-preserving-tactic-p str)))
+  )
+;  (proof-string-match 
+;   (concat "\\(\\`\\|\\`abstract\\s-+\\)\\(" 
+;           coq-state-changing-tactics-regexp "\\)") str))
+
 
 (defun coq-state-changing-command-p (str)
   (proof-string-match (concat "\\`\\(" coq-state-changing-commands-regexp "\\)") str))
@@ -280,10 +278,122 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
    (concat "\\`" coq-section-regexp 
            "\\s-+\\(" proof-id "\\)\\(\\s-*\\(" proof-id "\\)\\)?") str)) 
 
-;;(span-at (point) 'type)
-;;(span-property (span-at (point) 'type) 'cmd)
 
-(defun coq-find-and-forget (span)
+;;New: using the statenumber inside the coq prompte to backtrack more easily
+;;FIXME: make this more robust and faster
+(defun coq-last-statenum (s)
+  "reads the last prompt state number in the coq process buffer. It is supposed that
+  we are already in the coq buffer."
+  (let* ((lastprompt (or s (error "no prompt !!?")))
+         (s (string-match "< \\*\\([0-9]+\\)ù" lastprompt)))
+    (string-to-int (match-string 1 lastprompt))
+    )
+  )
+
+(defun coq-last-statenum-safe ()
+  "See `coq-last-statenum'."
+  (coq-last-statenum proof-shell-last-prompt)
+  )
+
+;; The state number we want to put in a span is the prompt number given *just before*
+;; the command was sent. This variable remembers this number and will be updated when
+;; used see coq-set-state-number. Initially 1 because Coq initial state has number 1.
+(defvar coq-last-but-one-statenum 1)
+
+(defun coq-get-span-statenum (span)
+  "Returns the state number of the span."
+  (span-property span 'statenum)
+  )
+
+(defun coq-set-span-statenum (span val)
+  "Sets the state number of the span to val."
+  (set-span-property span 'statenum val)
+  )
+
+(defun proof-last-locked-span () 
+  (save-excursion ;; didn't found a way to avoid buffer switching
+    (set-buffer proof-script-buffer)
+    (span-at (- (proof-locked-end) 1) 'type)
+    )
+  )
+
+;; Each time the state changes (hook below), (try to) put the state number in the
+;; last locked span (will fail if there is already a number which should happen when
+;; going back in the script).  The state number we put is not the last one because
+;; the last one has been sent by Coq *after* the change. We use
+;; `coq-last-but-one-statenum' instead and then update it.
+
+(defun coq-set-state-number ()
+  "Sets the last locked span's state number to the number found in the *last but one*
+  prompt (variable `coq-last-but-one-statenum'), unless it has already a state
+  number. Also updates `coq-last-but-one-statenum' to the last state number because
+  next time this function will be called, a new prompt will be in
+  `proof-shell-last-prompt'."
+  (if (and proof-shell-last-prompt proof-script-buffer)
+      (let ((sp (proof-last-locked-span)))
+        (unless (or (not sp) (coq-get-span-statenum sp))
+          (coq-set-span-statenum sp coq-last-but-one-statenum))
+        (setq coq-last-but-one-statenum (coq-last-statenum-safe))
+        )
+    )
+  )
+
+;; This hook seems the one we want (if we are in V8.1 mode only):
+(add-hook 'proof-state-change-hook 
+          '(lambda () (if coq-version-is-V8-1 (coq-set-state-number))))
+
+
+;; Simplified version of backtracking which uses state numbers
+(defun coq-find-and-forget-v81 (span)
+  (let (str ans (naborts 0) (nundos 0) 
+            (span-staten (coq-get-span-statenum span)))
+    ;; go from the top of the backtracked region to the bottom
+    ;; and computes naborts and nundos
+    (while (and span (not ans))
+      (setq str (span-property span 'cmd))
+      (cond
+       ((coq-is-comment-or-proverprocp span)) ; do nothing for comments
+       ;; unsaved goal --> increment naborts 
+       ;; (modules are "goals" but not here (they don't need abort, just backto, even
+       ;;  if unclosed))
+       ((and (not (coq-is-goalsave-p span)) 
+             (coq-goal-command-p str)
+             (not (coq-section-or-module-start-p str))) 
+        (incf naborts))
+       ;; if nabort<>0 then current goal is actually aborted
+       ((and (coq-proof-mode-p) (coq-state-changing-tactic-p str) (= naborts 0))
+        (incf nundos))
+       ;; default case: command, do nothing (BackTo will deal with this)
+       (t ())
+       )
+      ;;go to next span
+      (setq span (next-span span 'type))
+      )
+    (let (last-staten)
+      (setq last-staten (coq-last-statenum-safe))
+      (setq ans
+            (concat
+             (if (> naborts 0)
+                 ;; ugly, but blame Coq
+                 (let ((aborts "Abort. "))
+                   (while (> (decf naborts) 0) (setq aborts (concat "Abort. " aborts)))
+                   aborts))
+             (if (> nundos 0) 
+                 (concat "Undo " (int-to-string nundos) ". "))
+             (if (and span-staten last-staten (not (= span-staten last-staten))) 
+                 (concat "BackTo " (int-to-string span-staten) ". "))
+             ))
+      (if (string-equal ans "") proof-no-command ; not here because if
+        ;; we backtrack a state preserving command, we must do
+        ;; *nothing*, not even a CR (in v74, no prompt is returned
+        ;; with "\n")
+        ans)
+      )
+    )
+  )
+
+
+(defun coq-find-and-forget-v80 (span)
   (let (str ans (naborts 0) (nbacks 0) (nundos 0))
     (while (and span (not ans))
       (setq str (span-property span 'cmd))
@@ -319,7 +429,7 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
        
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
-       ((coq-goal-command-p str) (incf naborts))
+       ((coq-goal-command-p str) (incf naborts)) ; FIX: nundos<-0 ?
 
        ;; If we are already outside a proof, issue a Reset.  [ improvement would be
        ;; to see if the undoing will take us outside a proof, and use the first Reset
@@ -373,7 +483,15 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
 						 ; *nothing*, not even a CR (in v74, no prompt is returned
 						 ; with "\n")
       ans))))
-  
+
+;; I don't like this but it make compilation possible
+(defun coq-find-and-forget (span)
+ (cond 
+  (coq-version-is-V8-1 (coq-find-and-forget-v81 span))
+  (coq-version-is-V8-0 (coq-find-and-forget-v80 span))
+  (t (coq-find-and-forget-v80 span)) ;; this is temporary
+  )
+ )  
 
 (defvar coq-current-goal 1
   "Last goal that emacs looked at.")
@@ -404,12 +522,8 @@ This is specific to coq-mode."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
-    (setq cmd (read-string 
-	       (if coq-version-is-V7 "SearchPattern: " "SearchIsos: ") 
-	       nil 'proof-minibuffer-history))
-    (proof-shell-invisible-command
-     (format (if coq-version-is-V7 "SearchPattern %s. "
-	       "SearchIsos %s. ") cmd))))
+    (setq cmd (read-string "SearchPattern: " nil 'proof-minibuffer-history))
+    (proof-shell-invisible-command (format "SearchPattern %s. " cmd))))
 
 
 (defun coq-guess-or-ask-for-string (s)
@@ -611,7 +725,8 @@ Based on idea mentioned in Coq reference manual."
                                 (if coq-translate-to-v8 " -translate")))
   (setq proof-mode-for-shell    'coq-shell-mode)
   (setq proof-mode-for-goals    'coq-goals-mode)
-  (setq proof-mode-for-response 'coq-response-mode))
+  (setq proof-mode-for-response 'coq-response-mode)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
@@ -620,11 +735,8 @@ Based on idea mentioned in Coq reference manual."
 (defun coq-mode-config ()
 
   (setq proof-terminal-char ?\.)
-  (setq proof-script-command-end-regexp
-        (if coq-version-is-V7 
-;            "\\(?:\\w\\|\\s-\\|\\s)\\|\\\\*\\|\\(?:\\.\\.\\)+\\)\\.\\(\\s-\\|\\'\\)"
-            "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)"
-          "[.]"))
+  (setq proof-script-command-end-regexp 
+        "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\.\\(\\s-\\|\\'\\)")
   (setq proof-script-comment-start "(*")
   (setq proof-script-comment-end "*)")
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
@@ -649,9 +761,9 @@ Based on idea mentioned in Coq reference manual."
   (setq proof-kill-goal-command nil)
 
   (setq proof-goal-command-p 'coq-goal-command-p
-	proof-find-and-forget-fn 'coq-find-and-forget
+        proof-find-and-forget-fn 'coq-find-and-forget
         pg-topterm-goalhyp-fn 'coq-goal-hyp
-	proof-state-preserving-p 'coq-state-preserving-p)
+        proof-state-preserving-p 'coq-state-preserving-p)
 
   (setq proof-save-command-regexp coq-save-command-regexp
         proof-really-save-command-p 'coq-save-command-p ;pierre:deals with Proof <term>.
@@ -677,13 +789,8 @@ Based on idea mentioned in Coq reference manual."
   ;; span menu 
   (setq proof-script-span-context-menu-extensions 'coq-create-span-menu)
 
-  ;;Coq V7 changes this 
-  (setq proof-shell-start-silent-cmd 
-	(if coq-version-is-V7 "Set Silent. "   "Begin Silent. ")
-	proof-shell-stop-silent-cmd  
-	(if coq-version-is-V7 "Unset Silent. " "End Silent. "))
-;  (setq proof-shell-start-silent-cmd "Begin Silent. "
-;	proof-shell-stop-silent-cmd  "End Silent. ")
+  (setq proof-shell-start-silent-cmd "Set Silent. "
+        proof-shell-stop-silent-cmd "Unset Silent. ")
 
   (coq-init-syntax-table)
   (setq comment-quote-nested nil) ;; we can cope with nested comments
@@ -787,7 +894,7 @@ Based on idea mentioned in Coq reference manual."
 ;; Updated and simplified for Coq 8, PG 3.5 (22.04.04) by DA.
 
 ;; First note that coq-shell-cd is sent whenever we activate scripting, 
-;; for V8 it extends the loadpath with the current directory.
+;; it extends the loadpath with the current directory.
 
 ;; When scripting is turned off, we compile the file to update the .vo.
 (defun coq-maybe-compile-buffer ()
