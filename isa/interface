@@ -27,7 +27,8 @@ usage()
   echo
   echo "  Options are:"
   echo "    -I BOOL      use Isabelle/Isar instead of classic Isabelle (default $ISAR)"
-  echo "    -P BOOL      actually start Proof General (default true), otherwise plain tty session"
+  echo "    -P BOOL      actually start Proof General (default true), otherwise"
+  echo "                 run plain tty session"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -m MODE      add print mode for output"
