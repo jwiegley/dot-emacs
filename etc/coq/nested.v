@@ -1,15 +1,10 @@
-(* Nested Proofs, and backtrack mechanism in general.
+(* Testing nested Proofs, and backtrack mechanism in general.
 
     BUGS:
 
-    - Still will be one buggy case, when kill-goal command is
-      assumed to be good enough to kill off current goal without
-      calculating the Back commands to do inside.  Needs tweaking
-      of PG undo mechanism to allow a single undo function, without
-      forcing the split.
-      Exercise: produce a test case showing this bug(!).
+      None???
 
-======= Below here fixed [?]
+======= Below here fixed
 
     - Retract 7a -> 6  needs to do 3 sorts of undo commands!  
       Abort, Undo, Back.
@@ -38,7 +33,12 @@ Require Logic. (* 1 This needs "Back 1" to be retracted *)
 Require List. (* 2 This needs "Back 1" to be retracted *)
 
 
-Fixpoint f [n:nat] : nat := Cases n of O => O | (S m)=> (f m) end. (*7*)
+Section Apple.
+
+(* 2a. *)
+Fixpoint f [n:nat] : nat := Cases n of O => O | (S m)=> (f m) end. 
+(* 2b.  Retraction to 2a from here uses "Reset".  
+   Retraction to 2a from inside proof uses "Abort. Back." *)
 
 Lemma t1: (n: nat ) {n=O} + {(EX y | n = (S y))}.  
 (* 3 This needs "Restart" to be retracted if inside the proof, and
@@ -53,7 +53,7 @@ environment. Try this with the current version and with my patch *)
 Intros. (* 4 This needs "Undo" to be retracted *)
 Case n. (* 5 "Undo" *)
 EAuto. (* 6 "Undo" *)
-
+Definition foo:=O. (* 6.5 between 6 and 7 *)
 Require Omega. (* 7 This needs "Back 1" to be retracted. *)
   Lemma t2 : O=O.   (* 7a. -> 6: "Abort. Back 1. Undo 1." *)
     Auto.           
@@ -70,3 +70,9 @@ Intros. (* 9 "Undo": example of retraction 9->6: Undo 2.  Back 3. *)
   Lemma t3 : O=O. Auto. Save. (* 10 "Back 1" or "Reset t3" *)
 EAuto. (* 11 "Undo" *)
 Save. (* 12 *)
+
+
+
+Section Banana.
+
+
