@@ -1502,12 +1502,12 @@ Does nothing if proof assistant is already running.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
 @deffn Command proof-shell-restart 
-Clear script buffers and send @code{proof-shell-restart-cmd}.@*
+Clear script buffers and send @samp{@code{proof-shell-restart-cmd}}.@*
 All locked regions are cleared and the active scripting buffer
 deactivated.  
 
 If the proof shell is busy, an interrupt is sent with
-@code{proof-interrupt-process} and we wait until the process is ready.
+@samp{@code{proof-interrupt-process}} and we wait until the process is ready.
 
 The restart command should re-synchronize Proof General with the proof
 assistant, without actually exiting and restarting the proof assistant
@@ -1524,8 +1524,8 @@ object files, used by Lego and Coq).
 @deffn Command proof-shell-exit 
 Query the user and exit the proof process.
 
-This simply kills the @code{proof-shell-buffer} relying on the hook function
-@code{proof-shell-kill-function} to do the hard work.
+This simply kills the @samp{@code{proof-shell-buffer}} relying on the hook function
+@samp{@code{proof-shell-kill-function}} to do the hard work.
 @end deffn
 
 
@@ -2598,14 +2598,6 @@ If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!).
 
-If you change @code{proof-strict-read-only} during a session, you must 
-use the "Restart" button (or M-x @code{proof-shell-restart}) before
-you can see the effect in buffers.
-
-The default value for @code{proof-strict-read-only} depends on which
-version of Emacs you are using.  In GNU Emacs, strict read only is buggy
-when it used in conjunction with font-lock, so it is disabled by default.
-
 The default value is @code{strict}.
 @end defopt
 
@@ -2710,10 +2702,11 @@ The default value is @code{nil}.
 @c TEXI DOCSTRING MAGIC: proof-follow-mode
 @defopt proof-follow-mode 
 Choice of how point moves with script processing commands.@*
-One of the symbols: @code{'locked}, @code{'follow}, @code{'ignore}.
+One of the symbols: @code{'locked}, @code{'follow}, @code{'followdown}, @code{'ignore}.
 
 If @code{'locked}, point sticks to the end of the locked region.
 If @code{'follow}, point moves just when needed to display the locked region end.
+If @code{'followdown}, point if necessary to stay in writeable region
 If @code{'ignore}, point is never moved after movement commands or on errors.
 
 If you choose @code{'ignore}, you can find the end of the locked using
