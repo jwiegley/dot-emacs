@@ -162,7 +162,11 @@ elements = S0 S1 S2 .... [tl-seq.el]"
       (if (not (memq (car os) overlays))
 	  (setq overlays (cons (car os) overlays)))
       (setq os (cdr os)))
-    overlays))
+    ;; NB: 6.4 (PG 3.4) da: added this next reverse
+    ;; since somewhere order is being confused;
+    ;; PBP is selecting _largest_ region rather than
+    ;; smallest!?
+    (if overlays (nreverse overlays))))
 
 ;; assumes that there are no repetitions in l or m
 (defun append-unique (l m)
