@@ -1,6 +1,58 @@
 2001-05-08  David Aspinall  <da@proofgeneral.org>
 
 	* Makefile.devel:
+	Clean out NAME, force link.
+
+	* ChangeLog: Updated.
+
+	* Makefile.devel:
+	Include a few files from etc in the distribution, esp .spec file
+
+	* etc/ProofGeneral.menu:
+	*** empty log message ***
+
+	* etc/ProofGeneral.patch:
+	Deleted files.
+
+	* ChangeLog: Updated.
+
+	* doc/ProofGeneral.texi:
+	Fix section title for makeinfo
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Dont make SRPM any more.  Use rpm -tb to build binary package from tarball
+
+	* CHANGES: Updates
+
+	* etc/ProofGeneral.spec:
+	Updates, removal of patch so that rpm -ta works
+
+	* doc/ProofGeneral.texi:
+	Updates for 3.3
+
+	* generic/proof-utils.el:
+	Fixes for fontification in Xemacs 21.4
+
+	* generic/proof-site.el, generic/proof-syntax.el, generic/proof-shell.el, generic/proof-easy-config.el, generic/proof-indent.el, generic/proof-menu.el, generic/proof-config.el, generic/pg-pgip.el, generic/pg-user.el, generic/pg-xml.el, generic/proof-compat.el:
+	Copyright date updated
+
+	* generic/README:
+	Add Markus to list of authors
+
+	* html/main.html:
+	preliminary -> experimental
+
+	* html/develdownload.php:
+	No longer distrib SRPM
+
+	* html/news.html: New news item
+
+2001-05-08  David Aspinall  <da@proofgeneral.org>
+
+	* Makefile.devel:
 	Include a few files from etc in the distribution, esp .spec file
 
 	* etc/ProofGeneral.menu:
