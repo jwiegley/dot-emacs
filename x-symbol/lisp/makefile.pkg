@@ -1,0 +1,8 @@
+PACKAGE = x-symbol
+# list-mode.el 
+ELFILES = x-symbol-hooks.el x-symbol-macs.el \
+	x-symbol-mule.el x-symbol-emacs.el \
+	x-symbol-vars.el x-symbol.el \
+	x-symbol-image.el x-symbol-sgml.el \
+	x-symbol-tex.el x-symbol-bib.el \
+	x-symbol-texi.el
