@@ -1,3 +1,99 @@
+2002-01-11  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2001-12-27  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/Example.thy: tuned;
+
+	* isa/isabelle-system.el:
+	trace_rules flag;
+
+	* isar/BUGS, isa/README, isar/README, isar/todo:
+	updated;
+
+	* generic/README: fixed spelling;
+
+2001-12-21  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar.el:
+	do not set proof-shell-quit-cmd (admits persistent sessions);
+
+2001-12-12  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/interface, isa/interface:
+	incorporate smart X11 font installation (used to be in isatool installfonts);
+
+2001-12-11  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* html/develdownload.php, html/main.html:
+	Be politically correct about FSF GNU Emacs; update to mention version 21.
+
+	* html/news.html, html/oldnews.html:
+	fix links to devel download.
+
+	* ChangeLog: Updated.
+
+	* html/news.html:
+	News item about Emacs 21 support
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* CHANGES:
+	Note about Emacs 21 support and font lock.
+
+	* generic/proof-utils.el:
+	Protect XEmacs only code
+
+	* generic/proof-site.el:
+	Fix test for GNU 21
+
+	* generic/proof-script.el:
+	Change to font-lock support routines.
+
+	* generic/proof-menu.el:
+	Disable customize-menu-create for Emacs 21.
+
+	* generic/proof-utils.el:
+	Rework font-lock variable munging to work in GNU Emacs 21 also.
+
+	* generic/proof-shell.el: Missing paren
+
+	* generic/proof-config.el:
+	Remove double setting, leave test setting in.
+
+	* generic/proof-shell.el:
+	Simplify -goals-config-done and -response-config-done to use current buffer.  Kill trace buffer with other associated buffers, and set specifiers similarly for multiple frames.
+
+	* generic/proof-config.el:
+	Added proof-trace-output-fontify-enable
+
+	* CHANGES: Note of Emacs 21 support
+
+	* generic/proof-toolbar.el:
+	Add support for toolbars on Emacs 21.
+
+	* generic/proof-splash.el:
+	Add support for Emacs 21 image display.
+
+	* generic/proof-site.el:
+	Add proof-running-on-Emacs21 flag.
+
+	* generic/proof-menu.el:
+	Allow toolbar toggle for GNU Emacs 21.
+
+	* html/features.html, generic/proof-config.el:
+	Toolbar allowed in GNU Emacs 21
+
+	* generic/proof-compat.el:
+	Add proof-emacs-imagep function for GNU Emacs 21.
+
 2001-12-11  David Aspinall  <da@proofgeneral.org>
 
 	* html/develdownload.php, html/main.html:
