@@ -29,21 +29,14 @@
 ;;;  General language accesses, see `x-symbol-language-access-alist'
 ;;;===========================================================================
 
-;; FIXME da: these next two are also set in proof-x-symbol.el, but
+;; NB da: these next two are also set in proof-x-symbol.el, but
 ;; it would be handy to be able to use this file away from PG.  
-;; In future could fix things so just (require 'proof-x-symbol) 
-;; would be enough here.
+;; FIXME: In future could fix things so just 
+;; (require 'proof-x-symbol) would be enough here.
 (defvar x-symbol-isabelle-name "Isabelle Symbol")
 (defvar x-symbol-isabelle-modeline-name "isa")
 
 (defcustom x-symbol-isabelle-header-groups-alist nil
-;'(("Operator" bigop operator)
-;    ("Relation" relation)
-;    ("Arrow, Punctuation" arrow triangle shape
-;     white line dots punctuation quote parenthesis)
-;    ("Symbol" symbol currency mathletter setsymbol)
-;    ("Greek Letter" greek greek1)
-;    ("Acute, Grave" acute grave))
    "*If non-nil, used in isasym specific grid/menu.
 See `x-symbol-header-groups-alist'."
   :group 'x-symbol-isabelle
@@ -174,13 +167,6 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
 ;;;  Charsym Info
 ;;;===========================================================================
 
-;; FIXME: next line is a hack in case x-symbol-vars is not
-;; loaded: this is needed because isar forces
-;; a load x-symbol-isabelle even if x-symbol is not available
-;; (argh)
-(unless (fboundp 'x-symbol-set-cache-variable)
-  (defun x-symbol-set-cache-variable (var value) (set var value)))
-
 (defcustom x-symbol-isabelle-class-alist
   '((VALID "Isabelle Symbol" (x-symbol-info-face))
     (INVALID "no Isabelle Symbol" (red x-symbol-info-face)))
@@ -209,16 +195,10 @@ See `x-symbol-language-access-alist' for details."
 
 (defvar x-symbol-isabelle-case-insensitive nil)
 
-(defvar x-symbol-isabelle-token-shape nil)
-;(defvar x-symbol-isabelle-token-shape '(?\\ "\\\\\\<[A-Za-z][A-Za-z0-9_']*>\\a'" . "[A-Za-z]"))
-
+;; FIXME: next one not needed in X-Symbol 4
 (defvar x-symbol-isabelle-exec-specs 
   '(nil ("\\`\\\\<[A-Za-z][A-Za-z0-9_']*>\\'" .
 	 "\\\\<[A-Za-z][A-Za-z0-9_']*>")))
-
-(defvar x-symbol-isabelle-input-token-ignore nil)
-;; (defun x-symbol-isabelle-default-token-list (tokens) tokens)
-
 
 (defvar x-symbol-isabelle-token-list 'identity)
 
@@ -514,30 +494,5 @@ See `x-symbol-language-access-alist' for details."
   "Internal.  File name of Isasym decode executable.")
 (defvar x-symbol-isabelle-nomule-encode-exec nil
   "Internal.  File name of Isasym encode executable.")
-
-
-
-;;;===========================================================================
-;;;  useful key bindings
-;;;===========================================================================
-
-
-;; FIXME: these break some standard bindings, and should only be set
-;; for proof shell, script (or minibuffer) modes.
-
-;(global-set-key [(meta l)] 'x-symbol-INSERT-lambda)
-
-;(global-set-key [(meta n)] 'x-symbol-INSERT-notsign)
-;(global-set-key [(meta a)] 'x-symbol-INSERT-logicaland)
-;(global-set-key [(meta o)] 'x-symbol-INSERT-logicalor)
-;(global-set-key [(meta f)] 'x-symbol-INSERT-universal1)
-;(global-set-key [(meta t)] 'x-symbol-INSERT-existential1)
-
-;(global-set-key [(meta A)] 'x-symbol-INSERT-biglogicaland)
-;(global-set-key [(meta e)] 'x-symbol-INSERT-equivalence)
-;(global-set-key [(meta u)] 'x-symbol-INSERT-notequal)
-;(global-set-key [(meta m)] 'x-symbol-INSERT-arrowdblright)
-
-;(global-set-key [(meta i)] 'x-symbol-INSERT-longarrowright)
 
 (provide 'x-symbol-isabelle)
