@@ -1,0 +1,107 @@
+This change should have gone into 3.0, but I forgot to make the
+setting and so it missed testing.
+
+Minor bug without it is that Isabelle (others?) will sometimes
+display messages less than 10 characters long twice, since
+the urgent message scanner gets moved too far back.
+
+Sould probably also add this fix in proof-shell/proof-shell-insert:
+
+    ;; FIXME: possible improvement.  Make for post 3.0 releases
+    ;; in case of problems.
+    ;; (set-marker proof-shell-urgent-message-marker (point))
+    ;; (set-marker proof-shell-urgent-message-scanner (point))
+
+ - da.
+
+
+
+
+? etc/duplicated-short-messages-fix.txt
+Index: coq/coq.el
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/coq/coq.el,v
+retrieving revision 3.0
+diff -c -r3.0 coq.el
+*** coq.el	1999/11/17 20:39:08	3.0
+--- coq.el	1999/11/29 13:22:14
+***************
+*** 502,507 ****
+--- 502,508 ----
+          proof-shell-field-char ?\374 ; not done
+          proof-shell-goal-char ?\375 ; done
+  	proof-shell-eager-annotation-start "\376" ; done
++ 	proof-shell-eager-annotation-start-length 1
+  	proof-shell-eager-annotation-end "\377" ; done
+          proof-shell-annotated-prompt-regexp
+  	(concat proof-shell-prompt-pattern
+Index: isa/isa.el
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/isa/isa.el,v
+retrieving revision 3.4
+diff -c -r3.4 isa.el
+*** isa.el	1999/11/29 12:14:05	3.4
+--- isa.el	1999/11/29 13:22:15
+***************
+*** 172,177 ****
+--- 172,178 ----
+     proof-shell-quit-cmd			"quit();"
+     
+     proof-shell-eager-annotation-start   "\360\\|\362"
++    proof-shell-eager-annotation-start-length 1
+     proof-shell-eager-annotation-end     "\361\\|\363"
+  
+     ;; Some messages delimited by eager annotations
+Index: isar/isar.el
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/isar/isar.el,v
+retrieving revision 3.1
+diff -c -r3.1 isar.el
+*** isar.el	1999/11/18 15:00:57	3.1
+--- isar.el	1999/11/29 13:22:15
+***************
+*** 250,255 ****
+--- 250,256 ----
+     proof-shell-restart-cmd		"ProofGeneral.restart;"
+     proof-shell-quit-cmd			(isar-verbatim "quit();")
+     
++    proof-shell-eager-annotation-start-length 1
+     proof-shell-eager-annotation-start   "\360\\|\362"
+     proof-shell-eager-annotation-end     "\361\\|\363"
+  
+Index: lego/lego.el
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/lego/lego.el,v
+retrieving revision 3.1
+diff -c -r3.1 lego.el
+*** lego.el	1999/11/24 21:48:24	3.1
+--- lego.el	1999/11/29 13:22:16
+***************
+*** 453,458 ****
+--- 453,459 ----
+          proof-shell-field-char ?\374
+          proof-shell-goal-char ?\375
+  	proof-shell-eager-annotation-start "\376"
++ 	proof-shell-eager-annotation-start-length 1
+  	proof-shell-eager-annotation-end "\377"
+          proof-shell-annotated-prompt-regexp "Lego> \371"
+          proof-shell-result-start "\372 Pbp result \373"
+Index: plastic/plastic.el
+===================================================================
+RCS file: /home/proofgen/src/ProofGeneral/plastic/plastic.el,v
+retrieving revision 3.1
+diff -c -r3.1 plastic.el
+*** plastic.el	1999/11/22 18:52:47	3.1
+--- plastic.el	1999/11/29 13:22:16
+***************
+*** 538,543 ****
+--- 538,546 ----
+          proof-shell-field-char ?\374
+          proof-shell-goal-char ?\375
+          proof-shell-eager-annotation-start "\376"
++ 	;; FIXME da: if p-s-e-a-s is implemented, you should set
++ 	;; proof-shell-eager-annotation-start-length=1 to
++ 	;; avoid possibility of duplicating short messages.
+          proof-shell-eager-annotation-end "\377"
+  
+          proof-shell-annotated-prompt-regexp "LF> \371"
