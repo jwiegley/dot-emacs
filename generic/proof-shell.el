@@ -1735,14 +1735,10 @@ usual, unless NOERROR is non-nil."
   ;; shell startup fails.  Ugly, but low priority to fix.
   ))
 
-;; watch difference with proof-shell-menu, proof-shell-mode-menu.
-(defvar proof-shell-menu proof-shared-menu
-  "The menu for the Proof-assistant shell.")
-
 (easy-menu-define proof-shell-mode-menu
 		  proof-shell-mode-map
 		  "Menu used in Proof General shell mode."
-		  (cons proof-general-name proof-shell-menu))
+		  proof-aux-menu)
 
 
 ;;

@@ -49,17 +49,12 @@ May enable proof-by-pointing or similar features.
 
 
 ;;
-;; Menu for goals buffer  (identical to response mode menu currently)
+;; Menu for goals buffer
 ;;
 (easy-menu-define proof-goals-mode-menu
 		  proof-goals-mode-map
 		  "Menu for Proof General goals buffer."
-		  (cons proof-general-name 
-			(append
-			 proof-toolbar-scripting-menu
-			 proof-shared-menu
-			 proof-config-menu
-			 proof-bug-report-menu)))
+		  proof-aux-menu)
 
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."

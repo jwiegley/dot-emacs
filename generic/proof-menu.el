@@ -110,13 +110,7 @@ If in three window or multiple frame mode, display both buffers."
    proof-mode-menu  
    proof-mode-map
    "The main Proof General menu"
-   (cons proof-general-name
-	 (append
-	  proof-toolbar-scripting-menu
-	  proof-menu
-	  proof-config-menu
-	  proof-bug-report-menu))))
-
+   proof-main-menu))
 
 ;; The proof assistant specific menu
 
@@ -159,35 +153,35 @@ If in three window or multiple frame mode, display both buffers."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Contents of the generic menus
+;;; Contents of the menus
 ;;;
 
 (defvar proof-help-menu
   '("Help"
-    ["Proof General home page"
-     (browse-url proof-general-home-page) t]
-    ["Proof General Info"
-     (info "ProofGeneral") t])
+    ["PG Info"      	(info "ProofGeneral") t]
+    ["PG Homepage"  	(browse-url proof-general-home-page) t]
+    ["About PG"        proof-splash-display-screen t]
+    ["Send Bug Report" proof-submit-bug-report t])
   "Proof General help menu.")
 
 (defvar proof-buffer-menu
   '("Buffers"
-    ["Display some"
-     proof-display-some-buffers
-     :active (or (buffer-live-p proof-goals-buffer)
-		 (buffer-live-p proof-response-buffer))]
-    ["Active scripting"
-     (proof-switch-to-buffer proof-script-buffer)
-     :active (buffer-live-p proof-script-buffer)]
-    ["Goals"
-     (proof-switch-to-buffer proof-goals-buffer t)
-     :active (buffer-live-p proof-goals-buffer)]
-    ["Response"
-     (proof-switch-to-buffer proof-response-buffer t)
-     :active (buffer-live-p proof-response-buffer)]
-    ["Shell"
-     (proof-switch-to-buffer proof-shell-buffer)
-     :active (buffer-live-p proof-shell-buffer)])
+     ["Display Some"
+      proof-display-some-buffers
+      :active (or (buffer-live-p proof-goals-buffer)
+		  (buffer-live-p proof-response-buffer))]
+     ["Active Scripting"
+      (proof-switch-to-buffer proof-script-buffer)
+      :active (buffer-live-p proof-script-buffer)]
+     ["Goals"
+      (proof-switch-to-buffer proof-goals-buffer t)
+      :active (buffer-live-p proof-goals-buffer)]
+     ["Response"
+      (proof-switch-to-buffer proof-response-buffer t)
+      :active (buffer-live-p proof-response-buffer)]
+     ["Shell"
+      (proof-switch-to-buffer proof-shell-buffer)
+      :active (buffer-live-p proof-shell-buffer)])
   "Proof General buffer menu.")
 
 ;; Make the togglers used in options menu below
@@ -203,22 +197,22 @@ If in three window or multiple frame mode, display both buffers."
 (defvar proof-quick-opts-menu
   (cons 
    "Options"
-   '(["Disppearing proofs" proof-disappearing-proofs-toggle 
+   '(["Disppearing Proofs" proof-disappearing-proofs-toggle 
       :style toggle
       :selected proof-disappearing-proofs]
-     ["Three window mode" proof-dont-switch-windows-toggle
+     ["Three Window Mode" proof-dont-switch-windows-toggle
       :active (not proof-multiple-frames-enable)
       :style toggle
       :selected proof-dont-switch-windows]
-     ["Delete empty windows" proof-delete-empty-windows-toggle
+     ["Delete Empty Windows" proof-delete-empty-windows-toggle
       :active (not proof-multiple-frames-enable)
       :style toggle
       :selected proof-delete-empty-windows]
-     ["Multiple frames" proof-multiple-frames-toggle
+     ["Multiple Frames" proof-multiple-frames-toggle
       :active (display-graphic-p)
       :style toggle
       :selected proof-multiple-frames-enable]
-     ["Output highlighting" proof-output-fontify-toggle
+     ["Output Highlighting" proof-output-fontify-toggle
       :active t
       :style toggle
       :selected proof-output-fontify-enable]
@@ -236,63 +230,90 @@ If in three window or multiple frame mode, display both buffers."
       :active (proof-x-symbol-support-maybe-available)
       :style toggle
       :selected (proof-ass x-symbol-enable)]
-     ["Fly past comments" proof-script-fly-past-comments-toggle
+     ["Fly Past Comments" proof-script-fly-past-comments-toggle
       :active (not proof-script-use-old-parser)
       :style toggle
       :selected proof-script-fly-past-comments]
-     ("Follow mode" 
-      ["Follow locked region" 
+     ("Follow Mode" 
+      ["Follow Locked Region" 
        (customize-set-variable 'proof-follow-mode 'locked)
        :style radio
        :selected (eq proof-follow-mode 'locked)]
-      ["Keep locked region displayed" 
+      ["Keep Locked Region Displayed" 
        (customize-set-variable 'proof-follow-mode 'follow)
        :style radio
        :selected (eq proof-follow-mode 'follow)]
-      ["Never move" 
+      ["Never Move" 
        (customize-set-variable 'proof-follow-mode 'ignore)
        :style radio
-       :selected (eq proof-follow-mode 'ignore)])))
+       :selected (eq proof-follow-mode 'ignore)])
+     ["Save Options" proof-quick-opts-save t]))
   "Proof General quick options.")
 
-(defconst proof-shared-menu
-  (append
-   (list "----")
-   (list proof-buffer-menu)
-   (list proof-quick-opts-menu)
-   (list proof-help-menu))
-  "Proof General menu for various modes.")
+(defun proof-quick-opts-save ()
+  "Save current values of PG Options menu items using Custom."
+  ;; Based on menu-bar-options-save in menu-bar.el (GNU Emacs).
+  (interactive)
+  (dolist (elt (list
+		'proof-disappearing-proofs 
+		'proof-multiple-frames-enable
+		'proof-dont-switch-windows
+		'proof-delete-empty-windows
+		'proof-multiple-frames-enable
+		'proof-output-fontify-enable
+		'proof-toolbar-enable
+		'proof-script-fly-past-comments
+		(proof-ass x-symbol-enable)
+		'proof-follow-mode))
+    (if (default-value elt)
+	(customize-save-variable elt (default-value elt)))))
+  
 
 (defconst proof-config-menu
-  ;; FIXME: customize-menu-create seems to break in Emacs 21.
-  (unless proof-running-on-Emacs21
-    (list "----"
-	  (customize-menu-create 'proof-general)
-	  (customize-menu-create 'proof-general-internals)))
-   ;;"Internals"))
+  (list "----"
+	;; buffer menu might better belong in toolbar menu?
+	proof-buffer-menu
+	proof-quick-opts-menu
+	;; NB: customize-menu-create was buggy in earlier 
+	;; Emacs 21.X; okay since 21.1.1
+	(customize-menu-create 'proof-general)
+	(customize-menu-create 'proof-general-internals 
+			       "Internals"))
   "Proof General configuration menu.")
 
-(defvar proof-bug-report-menu
-  (list "----"
-   ["About Proof General" proof-splash-display-screen t]
-   ["Submit bug report"   proof-submit-bug-report t])
-  "Proof General menu for submitting bug report (one item plus separator).")
-
 (defvar proof-menu  
-  (append '("----"
-	    ["Scripting active" proof-toggle-active-scripting
-	     :style toggle
-	     :selected (eq proof-script-buffer (current-buffer))]
-	    ["Electric terminator" proof-electric-terminator-toggle
-	     :style toggle
-             :selected proof-electric-terminator-enable]
-	    ["Function menu" function-menu
-	     :active (fboundp 'function-menu)]
-	    ["Complete identifier" complete t]
-	    ["Next error" proof-next-error
-	     :active proof-shell-next-error-regexp])
-	    proof-shared-menu)
-  "The Proof General generic menu.  Functions for scripting buffers.")
+  '("----"
+    ["Scripting Active" proof-toggle-active-scripting
+     :style toggle
+     :selected (eq proof-script-buffer (current-buffer))]
+    ["Electric Terminator" proof-electric-terminator-toggle
+     :style toggle
+     :selected proof-electric-terminator-enable]
+    ["Function Menu" function-menu
+     :active (fboundp 'function-menu)]
+    ["Complete Identifier" complete t]
+    ["Next Error" proof-next-error
+     :active proof-shell-next-error-regexp])
+  "The Proof General generic menu for scripting buffers.")
+
+
+(defvar proof-main-menu
+  (cons proof-general-name
+	(append
+	 proof-toolbar-scripting-menu
+	 proof-menu
+	 proof-config-menu
+	 (list proof-help-menu)))
+  "PG main menu used in scripting buffers.")
+
+(defvar proof-aux-menu
+  (cons proof-general-name 
+	(append
+	 proof-toolbar-scripting-menu
+	 proof-config-menu
+	 (list proof-help-menu)))
+  "PG auxiliary menu used in non-scripting buffers.")
+
 
 
 
@@ -314,10 +335,10 @@ If in three window or multiple frame mode, display both buffers."
 	  (list 
 	   (cons "Favourites" 
 		 (append ents
-			 '(["Add favourite" 
+			 '(["Add Favourite" 
 			    (call-interactively 
 			     'proof-add-favourite) t]
-			   ["Delete favourite" 
+			   ["Delete Favourite" 
 			    (call-interactively 
 			     'proof-del-favourite) t])))))))
   

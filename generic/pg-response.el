@@ -36,12 +36,7 @@
 (easy-menu-define proof-response-mode-menu
 		  proof-response-mode-map
 		  "Menu for Proof General response buffer."
-		  (cons proof-general-name 
-			(append
-			 proof-toolbar-scripting-menu
-			 proof-shared-menu
-			 proof-config-menu
-			 proof-bug-report-menu)))
+		  proof-aux-menu)
 
 
 (defun proof-response-config-done ()
