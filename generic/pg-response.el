@@ -97,7 +97,8 @@ Internal variable, setting this will have no effect!")
     (modeline . nil)			; ignored?
     (unsplittable . t)
     (menu-bar-lines . 0)
-    (tool-bar-lines . nil))
+    (tool-bar-lines . nil)
+    (proofgeneral . t)) ;; indicates generated for/by PG  FIXME!!
   "List of GNU Emacs frame parameters for secondary frames.")
 
 (defun proof-multiple-frames-enable ()
@@ -446,33 +447,45 @@ See `pg-next-error-regexp'."
 
 (defvar proof-trace-last-fontify-pos nil)
 
+(defun proof-trace-fontify-pos ()
+  "Return the position to fontify from in the tracing buffer, if any."
+  (if proof-trace-last-fontify-pos
+      (if (> proof-trace-last-fontify-pos (point))
+	  (point-min);; in case buffer cleared
+	proof-trace-last-fontify-pos)))
+
 ;; An analogue of pg-response-display-with-face 
 (defun proof-trace-buffer-display (str)
-  "Output STR in the trace buffer.
-If STR is empty, just ensure that fontification is up to date."
+  "Output STR in the trace buffer, moving the pointer downwards.
+We fontify the output only if we're not too busy to do so."
   (with-current-buffer proof-trace-buffer
     (goto-char (point-max))
-    (unless (string-equal str "")
-      (newline))
+    (newline)
     (or proof-trace-last-fontify-pos 
 	(setq proof-trace-last-fontify-pos (point)))
     (insert str)
-    (unless (or (bolp) (string-equal str ""))
+    (unless (bolp)
       (newline))
     ;; If tracing output is prolific, we try to avoid
     ;; fontifying every chunk and batch it up instead.
     (unless pg-tracing-slow-mode
-      (let ((fontifystart (if (> proof-trace-last-fontify-pos (point))
-			      (point-min);; in case buffer cleared
-			    proof-trace-last-fontify-pos)))
+      (let ((fontifystart (proof-trace-fontify-pos)))
 	;; Catch errors here: this is to deal with ugly problem when
 	;; fontification of large output gives error Nesting too deep
-	;; for parser
+	;; for parser [see etc/isar/nesting-too-deep-for-parser.txt],
+	;; a serious flaw in XEmacs version of parse-partial-sexp
 	(unwind-protect
-	  (proof-fontify-region fontifystart (point))
+	    (proof-fontify-region fontifystart (point))
 	  (setq proof-trace-last-fontify-pos nil))
 	(set-buffer-modified-p nil)))))
 
+(defun proof-trace-buffer-finish ()
+  "Complete fontification in tracing buffer now that there's time to do so."
+  (let ((fontifystart (proof-trace-fontify-pos)))
+    (if fontifystart ;; may be done already
+	(save-excursion
+	   (set-buffer proof-trace-buffer)
+	   (proof-fontify-region fontifystart (point-max))))))
 
 
 

@@ -1020,6 +1020,9 @@ If NUM is negative, move upwards.  Return new span."
 (defun pg-goals-buffers-hint ()
   (pg-hint "Use \\[proof-display-some-buffers] to rotate output buffers; \\[pg-response-clear-displays] to clear response & trace."))
 
+(defun pg-slow-fontify-tracing-hint ()
+  (pg-hint "Large tracing output; decorating intermittently.  Use \\[pg-response-clear-displays] to clear trace."))
+
 (defun pg-response-buffers-hint (&optional nextbuf)
   (pg-hint
    (format

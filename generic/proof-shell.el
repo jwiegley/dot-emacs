@@ -1176,6 +1176,9 @@ The return value is non-nil if the action list is now empty."
 		     ;; give a hint to the user in case we've finished
 		     ;; a batch of input
 		     (pg-processing-complete-hint)
+		     ;; complete the tracing buffer display in case 
+		     ;; we need to catch up.
+		     (pg-finish-tracing-display)
 		     ;; indicate finished
 		     t)
 	    ;; Otherwise, send the next command to the process.
@@ -1776,7 +1779,7 @@ Only works when system timer has microsecond count available."
 	  ;; quickly consecutive and large tracing outputs: go into slow mode
 	  (progn
 	    (setq pg-tracing-slow-mode t)
-	    (message "Fast tracing output: fontifying output intermittently")
+	    (pg-slow-fontify-tracing-hint)
 	    (setq pg-tracing-cleanup-timer
 		  (run-with-idle-timer 2 nil 'pg-finish-tracing-display))
 	    t)
@@ -1786,8 +1789,10 @@ Only works when system timer has microsecond count available."
 
 (defun pg-finish-tracing-display ()
   "Cancel tracing slow mode and ensure tracing buffer is fontified."
-  (setq pg-tracing-slow-mode nil)
-  (proof-trace-buffer-display ""))
+  (if pg-tracing-slow-mode
+      (progn
+	(setq pg-tracing-slow-mode nil)
+	(proof-trace-buffer-finish))))
 
 
 
