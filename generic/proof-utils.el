@@ -353,7 +353,8 @@ font-lock-mode."
 (defun proof-fontify-region (start end &optional keepspecials)
   "Fontify and decode X-Symbols in region START...END.
 Fontifies according to the buffer's font lock defaults.
-Uses proof-x-symbol-decode to decode tokens if x-symbol is present.
+Uses `proof-x-symbol-decode-region' to decode tokens
+if X-Symbol is enabled.
 
 If `pg-use-specials-for-fontify' is set, remove characters
 with top bit set after fontifying so they don't spoil cut and paste,
@@ -403,13 +404,8 @@ Returns new END value."
     (proof-font-lock-clear-font-lock-vars)))
 
 
-(defconst pg-special-char-regexp
-  (let ((c 128) (r "\200"))
-    (while (< c 256) 
-      (setq r (concat r "\\|" (regexp-quote (char-to-string c))))
-      (incf c))
-    r)
-  "Regexp matchin any special character (top bit set).")
+(defconst pg-special-char-regexp "[\200-\377]" 
+  "Regexp matching any \"special\" character (top bit set).")
 
 
 (defun pg-remove-specials (&optional start end)

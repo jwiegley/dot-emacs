@@ -2283,9 +2283,14 @@ tokens (for example, editing documentation or source code files)."
   :type '(repeat symbol)
   :group 'proof-x-symbol)
 
-;; I don't really know what this setting is good for?
+;; FIXME: should perhaps be one of these per prover
+;; FIXME: actually this setting doesn't seem to be needed:
+;; instead X-Symbol uses x-symbol-<lang>-font-lock-keywords.
 (defcustom proof-xsym-font-lock-keywords nil
-  "Font lock keywords to use for the proof assistants X-Symbol token language."
+  "Font lock keywords to use for the proof assistants X-Symbol token language.
+This should be set to the additional font-lock-keywords used for the
+proof assistant when X-Symbol is enabled.  (For example, additional
+keywords used for bold or superscript text: see isa/x-symbol-isabelle.el)"
   :type 'sexp
   :group 'proof-x-symbol)
 

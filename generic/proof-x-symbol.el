@@ -16,6 +16,24 @@
 ;;
 ;; $Id$
 ;;
+;; =================================================================
+;;
+;; Notes on interacing to X-Symbol.
+;;
+;; 1. Proof script buffers.
+;; Font lock and X-Symbol minor modes are engaged as usual.
+;; Rather than using piecemeal enabling of X-Symbol
+;; or putting it onto an auto-mode list, we use
+;; proof-x-symbol-enable to cleanly turn on/off 
+;; X-Symbol in all PG buffers.
+;;
+;; 2. Output buffers (goals, response, tracing)
+;; Neither font-lock nor X-Symbol mode is engaged.
+;; Instead, we simply set `x-symbol-language', and call
+;; `x-symbol-decode' or `x-symbol-decode-region', via
+;; `proof-fontify-region' (which see).
+;;
+
 
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
@@ -112,9 +130,6 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	  (set symmodelinevar symmodelinenm)
 	  (x-symbol-register-language xs-lang xs-feature-sym all-xs-modes)
 	  ;; Put the extra modes on the auto-mode-alist
-	  ;; 3.0: don't bother: rashly assume that their mode
-	  ;; functions invoke proof-x-symbol-mode.  That way we can
-	  ;; turn on/off cleanly in proof-x-symbol-mode-all-buffers.
 	  ;; (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
 	  ;; Okay, let's be less rash and put it on a hook list.
 	  ;; 12.1.00: Nope, there's a problem here!  
@@ -153,9 +168,6 @@ Calls proof-x-symbol-toggle-clean-buffers afterwards."
   (proof-x-symbol-mode-all-buffers)
   (proof-x-symbol-toggle-clean-buffers))
 
-;; First inclination was to put this function in a hook called by
-;; enable function.  But rather than proliferate hooks needlessly, it
-;; seems better to wait to find out whether they're really needed.
 (defun proof-x-symbol-toggle-clean-buffers ()
   "Clear the response buffer and send proof-showproof-command.
 This function is intended to clean the display after a change
@@ -182,6 +194,8 @@ Return new END value."
 	  (point-max)))
     end))
 
+;; FIXME: see whether X-Symbol's supplied hook does the right
+;; thing here.
 (defun proof-x-symbol-encode-shell-input ()
   "Encode shell input in the variable STRING.
 A value for proof-shell-insert-hook."
@@ -343,8 +357,7 @@ Assumes that the current buffer is the proof shell buffer."
     (progn
       (proof-x-symbol-initialize)
       (unless proof-x-symbol-initialized
-	;; If initialization failed, turn off
-	;; x-symbol-enable for the session.
+	;; If init failed, turn off x-symbol-enable for the session.
 	(customize-set-variable (proof-ass-sym x-symbol-enable) nil))))
 
 (provide 'proof-x-symbol)
