@@ -33,9 +33,6 @@ C  The semantics of `proof-script-buffer-list' is ambigous. The first
    dynamically if a buffer is instrumented for scripting, contains a
    locked region, etc. (4h, including testing)
 
-
-
-
 A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2+2 days; da + tms)
 
@@ -46,6 +43,15 @@ A* FIX INDENTATION CODE, EDITING .ML (& other?) FILES IS CHRONICALLY SLOW.
   (da, 2hrs: will investigate if fault lies with Isabelle syntax config)
   (8hrs, estimated time to fixup indentation code otherwise.  May be
          best removed altogether, or replaced with elisp code clone)
+
+C Regions in script buffer have nice "name" property and configurers
+  have to set regexps carefully so that it works, but is it actually
+  used anywhere?   What's it good for?
+
+B Proofs in Isabelle scripts can be non-interactive.  Non-interactive
+  proofs have only one command.  We need to find a way to integrate
+  these into Proof General nicely.  Perhaps things would work
+  fine simply if these match save goal forms?  (da, 1hr)
 
 C ROBUSTness: deal gracefully with possibility that goals buffer is
   killed during session.   (2h)
