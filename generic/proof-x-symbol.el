@@ -7,8 +7,12 @@
 ;; The X-Symbol package is at http://x-symbol.sourceforge.net/
 ;;
 ;; With enormous thanks to David von Oheimb for providing the original
-;; patches for using X-Symbol with Isabelle Proof General, and helping
-;; to write this file.
+;; patches for using X-Symbol with Isabelle Proof General, and 
+;; of course, to Christoph Wedler for providing the wonderful
+;; X-Symbol package in the first place.  Christoph also helped
+;; with configuration and tweaks in X-Symbol for Proof General.
+;;
+;; ================================================================
 ;;
 ;; Ideally this file ought to be standalone so that the X-Symbol mode
 ;; for particular proof assistants may be used elsewhere (e.g. in
@@ -38,10 +42,18 @@
 ;;;###autoload
 (defun proof-x-symbol-support-maybe-available ()
   "A test to see whether x-symbol support may be available."
-  (and window-system		    ; Not on a tty
-       (condition-case ()
-	   (require 'x-symbol-hooks)
-	 (t (featurep 'x-symbol-hooks)))))
+  (or (featurep 'x-symbol-hooks)	; already loaded
+      (and window-system		; Not on a tty
+	   (progn
+	     ;; put bundled version on load path
+	     ;; FIXME 21.2.03: bundled versionis 4.45 beta,
+	     ;; doesn't yet work with PG.
+	     ;(setq load-path
+	     ;	   (cons 
+	     ;	    (concat proof-home-directory "x-symbol/lisp/") 
+	     ;	load-path))
+	     ;; *should* always succeed unless bundled version broken
+	     (proof-try-require 'x-symbol-hooks)))))
 
 
 (defun proof-x-symbol-initialize (&optional error)
@@ -137,6 +149,9 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	  ;; Finished.
 	  (setq proof-x-symbol-initialized t))))))
 
+
+;;!!!!FIXME: x-symbol 4.45 no longer seems to use x-symbol-auto-mode-alist? !!!!
+(defvar x-symbol-auto-mode-alist nil)
 
 (defun proof-x-symbol-set-global (enable)
   "Set global status of X-Symbol mode for PG buffers to be ENABLE."
