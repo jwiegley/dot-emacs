@@ -261,11 +261,12 @@ of the queue region."
        (car proof-shell-active-scripting-indicator)
        '(face proof-locked-face)))))
 
-(setq minor-mode-alist
-      (append minor-mode-alist
-	      (list '(proof-active-buffer-fake-minor-mode
-		      proof-shell-active-scripting-indicator))))
-
+(unless
+    (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
+  (setq minor-mode-alist
+	(append minor-mode-alist
+		(list '(proof-active-buffer-fake-minor-mode
+			proof-shell-active-scripting-indicator)))))
 
 
 ;;
@@ -279,8 +280,10 @@ It shuts down the proof process nicely and clears up all locked regions
 and state variables."
   (let* ((alive    (comint-check-proc (current-buffer)))
 	(proc     (get-buffer-process (current-buffer)))
-	(procname (and proc (process-name proc))))
+	(procname (and proc (process-name proc)))
+	(delay	  10))
     (message "%s, cleaning up and exiting..." procname)
+    (sit-for 0)				; redisplay
     (if alive				; process still there
 	(progn
 	  ;; Try to shut it down politely
@@ -290,9 +293,10 @@ and state variables."
 	  ;; Wait a while for it to die
 	  ;; Do this before deleting other buffers, etc, so that
 	  ;; any closing down processing works okay.
-	  ;; FIXME: want to protect this region, however.
-	  (while (> 1 (process-exit-status proc))
-	    (sit-for 1))))
+	  ;; FIXME: may want to protect this region, however.
+	  (while (and (comint-check-proc (current-buffer)) (> 0 delay))
+	    (sit-for 1)
+	    (decf i))))
     ;; Restart all scripting buffers
     (proof-script-remove-all-spans-and-deactivate)
     ;; Clear state
@@ -771,7 +775,9 @@ assistant."
 ;; things to do?  Then errors during processing would prevent it being
 ;; sent.  Also the proof shell lock would be set automatically, which
 ;; might be nice?
-(defun proof-shell-insert (string)
+(defun proof-shell-insert (string &optional wait)
+  "Insert STRING at the end of the proof shell, call comint-send-input.
+If WAIT is non-nil, wait for the proof marker to move on before returning."
   (save-excursion
     (set-buffer proof-shell-buffer)
     (goto-char (point-max))
@@ -786,7 +792,15 @@ assistant."
 	(let ((inserted (point)))
 	  (comint-send-input)
 	  (set-marker proof-marker inserted))
-      (comint-send-input))))
+      (comint-send-input))
+
+    ;; If WAIT is set, wait for proof marker to change, with a timeout.
+    (if wait
+	(let (pm (marker-position proof-marker))
+	  (while (eq pm (marker-position proof-marker))
+	    (accept-process-output (get-buffer-process proof-shell-buffer) 15))
+	  (if (eq pm (marker-position proof-marker))
+	      (error "Waiting for Proof Assistant process timed out."))))))
 
 ;; da: This function strips carriage returns from string, then
 ;; sends it.  (Why strip CRs?)
@@ -1056,8 +1070,6 @@ strings between eager-annotation-start and eager-annotation-end."
 ;; circumstance that a prompt consists of more than one character and
 ;; is split between output chunks.  Really the matching should be
 ;; based on the buffer contents rather than the string just received.
-;; FIXME da: moreover, are urgent messages full processed??
-;; some seem to get dumped in response buffer.
 
 (defun proof-shell-filter (str)
   "Filter for the proof assistant shell-process.
@@ -1266,7 +1278,8 @@ Annotations are characters 128-255."
   "Initialise the specific prover after the child has been configured."
   (save-excursion
     (set-buffer proof-shell-buffer)
-    (accept-process-output (get-buffer-process proof-shell-buffer))
+    ;; Flush pending output from startup
+    (accept-process-output (get-buffer-process proof-shell-buffer) 1)
 
     ;; If the proof process in invoked on a different machine e.g.,
     ;; for proof-prog-name="ssh fastmachine proofprocess", one needs
@@ -1279,22 +1292,19 @@ Annotations are characters 128-255."
 		  ;; which causes problems with LEGO's internal Cd
 		  ;; command
 		  (expand-file-name default-directory))))
-    
-    (if proof-shell-init-cmd
-	(proof-shell-insert proof-shell-init-cmd))
+
+    ;; Flush pending output from cd command
+    (accept-process-output (get-buffer-process proof-shell-buffer) 1)
 
     ;; Add the kill buffer function
-    (make-variable-buffer-local 'kill-buffer-hook)
-    (add-hook 'kill-buffer-hook 'proof-shell-kill-function t)
-    
-    ;; Note that proof-marker actually gets set in proof-shell-filter.
-    ;; This is manifestly a hack, but finding somewhere more convenient
-    ;; to do the setup is tricky.
+    (make-local-hook 'kill-buffer-hook)
+    (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
 
-    (while (null (marker-position proof-marker))
-      (if (accept-process-output (get-buffer-process proof-shell-buffer) 15)
-	  ()
-	(error "Failed to initialise proof process")))))
+    ;; Send intitialization command and wait for the proof
+    ;; marker to change
+    (if proof-shell-init-cmd
+	(proof-shell-insert proof-shell-init-cmd t))))
+    
 
 (eval-and-compile
 (define-derived-mode proof-universal-keys-only-mode fundamental-mode

@@ -1457,7 +1457,7 @@ No action if BUF is nil."
      ["Display proof state"
       proof-prf
       :active (proof-shell-live-buffer)]
-     ["Restart"
+     ["Restart scripting"
       proof-shell-restart
       :active (proof-shell-live-buffer)]
      ["Exit proof assistant"
@@ -1565,8 +1565,8 @@ sent to the assistant."
 \\{proof-mode-map}"
   (setq proof-buffer-type 'script)
 
-  (make-local-variable 'kill-buffer-hook)
-  (add-hook 'kill-buffer-hook 'proof-script-kill-buffer-fn)))
+  (make-local-hook 'kill-buffer-hook)
+  (add-hook 'kill-buffer-hook 'proof-script-kill-buffer-fn t t)))
 
 (defun proof-script-kill-buffer-fn ()
   "Value of kill-buffer-hook for proof script buffers.
