@@ -68,7 +68,7 @@ If it is nil, a new line is inserted."
     ;; FIXME (minor): shouldn't be defcustom since evaluated here
     '(list
       "To start using Proof General, visit a proof script file"
-      "for your prover, using C-x C-f or the File menu."))
+      "for your prover, using C-x C-f or the \"File\" menu."))
     "Prover specific extensions of splash screen.
 These are evaluated and appended to `proof-splash-contents'."
   :type 'sexp
