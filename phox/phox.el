@@ -150,7 +150,7 @@
    proof-shell-interrupt-regexp    "Interrupt"
    proof-shell-start-goals-regexp  "^Goals left to prove:"
    proof-shell-quit-cmd            "quit."
-   proof-shell-restart-cmd         "quit."
+   proof-shell-restart-cmd         "restart."
    proof-shell-proof-completed-regexp   "^.*^proved"
 ))
 
