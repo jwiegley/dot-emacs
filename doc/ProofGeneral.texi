@@ -2713,8 +2713,7 @@ The default value is @code{nil}.
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-enable
 @defopt proof-toolbar-enable 
-If non-nil, display Proof General toolbar for script buffers.@*
-NB: the toolbar is only available with XEmacs and GNU Emacs>=21.
+If non-nil, display Proof General toolbar for script buffers.
 
 The default value is @code{t}.
 @end defopt
