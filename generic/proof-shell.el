@@ -9,7 +9,10 @@
 ;; $Id$
 ;;
 
-(require 'proof)
+;; FIXME: needed because of menu definitions, which should
+;; be factored out into proof-menus.  Then require here is
+;; just on proof-shell.
+(require 'proof-script)			
 
 ;; Nuke some byte compiler warnings.
 
@@ -37,6 +40,10 @@
 	    proof-file-to-buffer 
 	    proof-register-possibly-new-processed-file
 	    proof-restart-buffers)))
+
+;; FIXME:
+;; Some variables from proof-shell are also used, in particular,
+;; the menus.  These should probably be moved out to proof-menu.
 
 ;;
 ;; Internal variables used by shell mode
@@ -992,13 +999,24 @@ Annotations are characters 128-255."
   (setq proof-re-term-or-comment 
 	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
 		"\\|" (regexp-quote proof-comment-end)))
+  
+  ;; easy-menu-add must be in the mode function for XEmacs.
+  (easy-menu-add proof-shell-mode-menu proof-shell-mode-map)
   ))
 
+;; watch difference with proof-shell-menu, proof-shell-mode-menu.
+(defvar proof-shell-menu proof-shared-menu
+  "The menu for the Proof-assistant shell")
 
-(easy-menu-define proof-shell-menu
+(easy-menu-define proof-shell-mode-menu
 		  proof-shell-mode-map
 		  "Menu used in Proof General shell mode."
 		  (cons proof-mode-name (cdr proof-shell-menu)))
+
+
+
+
+
 
 (defun proof-font-lock-minor-mode ()
   "Start font-lock as a minor mode in the current buffer."
@@ -1067,7 +1085,20 @@ Annotations are characters 128-255."
 (eval-and-compile
 (define-derived-mode proof-response-mode proof-universal-keys-only-mode
   "PGResp" "Responses from Proof Assistant"
-  (setq proof-buffer-type 'response)))
+  (setq proof-buffer-type 'response)
+  (easy-menu-add proof-response-mode-menu proof-response-mode-map)))
+
+
+(easy-menu-define proof-response-mode-menu
+		  proof-response-mode-map
+		  "Menu for Proof General response buffer."
+		  (cons proof-mode-name
+			(cdr proof-shared-menu)))
+
+
+			
+
+
 
 
 

@@ -72,14 +72,6 @@ However, fume-func's version is incorrect"
       (and (re-search-forward r nil t)
 	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))
 
-;; append-element in tl-list
-(defun proof-append-element (ls elt)
-  "Append ELT to last of LS if ELT is not nil. [proof.el]
-This function coincides with `append-element' in the package
-[tl-list.el.]"
-  (if elt
-      (append ls (list elt))
-    ls))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1288,6 +1280,19 @@ Start up the proof assistant if necessary."
   (interactive)
   (info "ProofGeneral"))
 
+;; A handy utility function used in buffer menu.
+(defun proof-switch-to-buffer (buf &optional noselect)
+  "Switch to or display buffer BUF in other window unless already displayed.
+If optional arg NOSELECT is true, don't switch, only display it.
+No action if BUF is nil."
+  ;; Maybe this needs to be more sophisticated, using 
+  ;; proof-display-and-keep-buffer ?
+  (and buf
+       (unless (eq buf (window-buffer (selected-window)))
+	 (if noselect
+	     (display-buffer buf t)
+	   (switch-to-buffer-other-window buf)))))
+
 (defun proof-menu-exit ()
   "Exit Proof-assistant."
   (interactive)
@@ -1301,11 +1306,23 @@ Start up the proof assistant if necessary."
      (browse-url proof-proof-general-home-page) t]
     ["Proof General Info" proof-menu-invoke-info t]
     )
-  "The Help Menu in Script Management.")
+  "Proof General help menu.")
+
+(defvar proof-buffer-menu
+  '("Buffers"
+    ["Active scripting"
+     (proof-switch-to-buffer (car-safe proof-script-buffer-list))
+     :active (car-safe proof-script-buffer-list)]
+    ["Response"
+     (proof-switch-to-buffer proof-response-buffer t)
+     :active proof-response-buffer]
+    ["Shell"
+     (proof-switch-to-buffer proof-shell-buffer)
+     :active (proof-shell-live-buffer)])
+  "Proof General buffer menu.")
 
 (defvar proof-shared-menu
-  (proof-append-element
-   (append
+  (append
     (list
      ["Display context" proof-ctxt
       :active (proof-shell-live-buffer)]
@@ -1317,8 +1334,10 @@ Start up the proof assistant if necessary."
 	(list
 	 "----"
 	 ["Find definition/declaration" find-tag-other-window t])
-      nil))
-    proof-help-menu))
+      nil)
+    (list proof-help-menu)
+    (list proof-buffer-menu))
+  "Proof General menu for various modes.")
 
 (defvar proof-menu  
   (append '("Commands"
@@ -1332,10 +1351,8 @@ Start up the proof assistant if necessary."
 		    "--:doubleLine" "----"))
           proof-shared-menu
           )
-  "*The menu for the proof assistant.")
+  "The menu for the proof assistant.")
 
-(defvar proof-shell-menu proof-shared-menu
-  "The menu for the Proof-assistant shell")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
