@@ -565,7 +565,7 @@ British Council.
 
 For testing and feedback for older versions of Proof General, thanks go
 to Rod Burstall, Martin Hofmann, and James McKinna, and some of those
-who continued to help with the latest 3.x series.
+who continued to help with the latest 3.x series, named next.
 
 @c FIXME HERE!
 During the development of Proof General 3.x releases, 
@@ -805,7 +805,6 @@ Proof General comes ready-customized for these proof assistants:
 @b{Isabelle/Isar Proof General} for Isabelle99-1@*
 @xref{Isabelle Proof General}, and documentation supplied with
 Isabelle for more details.
-@item 
 @b{HOL Proof General} for HOL98@*
 @xref{HOL Proof General}, for more details.
 @end itemize
@@ -818,11 +817,17 @@ For more details of how to make Proof General work
 with another proof assistant,
 see the accompanying manual @i{Adapting Proof General}.
 @end itemize
+The exact list of Proof Assistants supported may vary according to the
+version of Proof General you have and its local configuration; only the
+standard instances documented in this manual are listed above.
+
 Note that there is some variation between the features supported by
 different instances of Proof General.  The main variation is proof by
 pointing, which is only supported in LEGO at the moment.  For advanced
 features like this, some extensions to the output routines of the proof
-assistant are required, typically.
+assistant are required, typically.  If you like Proof General, please
+help us by asking the implementors of your favourite proof assistant to
+support Proof General as much as possible.
 
 @node Prerequisites for this manual
 @section Prerequisites for this manual
