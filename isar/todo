@@ -17,8 +17,4 @@ Isabelle's pretty-printing subsystem);
 ** C tune behaviour of goals/response buffers (e.g. hide empty
 response buffers when using 2 buffer model);
 
-** D Fixup so that typing in shell buffer updates locked buffer status.
-It works in Isabelle/classic, why not here?  (But users shouldn't
-type in shell buffer, anyway).
-
 ** D support proof-next-error?
