@@ -380,7 +380,6 @@
 
 (defun isar-outline-level ()
   "Return the depth to which a statement is nested in the outline."
-;  (debug)
   (save-excursion
     (looking-at isar-outline-regexp)
     (let ((str (match-string 1)))
