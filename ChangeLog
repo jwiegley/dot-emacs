@@ -1,3 +1,33 @@
+2002-11-08  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isa/isa.el, isar/isar.el:
+	Add trigger for <pgip messages
+
+2002-11-07  David Aspinall  <da@proofgeneral.org>
+
+	* generic/pg-pgip.el:
+	Debuggin pg-pgip-haspref.
+
+	* BUGS: Updated.
+
+	* generic/proof-compat.el:
+	Add subst-char-in-string (Monnier patch) for XEmacs.
+
+	* generic/proof-shell.el:
+	Patch from Stefan Monnier to attempt to handle multi-line inputs in Coq; plus cosmetics.
+
+	* generic/proof-site.el: Updated.
+
+2002-09-16  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
 2002-09-16  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
