@@ -48,19 +48,20 @@
 	  (if (eq c ?\") (setq instring nil)))
 	 (t (cond
 	     ((eq c ?\()
-	      (if (looking-at "(\\*") (progn 
-					(incf comment-level)
-					(forward-char))
-		;; Why is this >= 0?  Surely it's always true!
-		(if (>= 0 comment-level) 
-		    (setq stack (cons (list c (point)) stack)))))
+	      (cond
+	       ((looking-at "(\\*")
+		(progn
+		  (incf comment-level)
+		  (forward-char)))
+	       ((eq comment-level 0)
+		(setq stack (cons (list ?\( (point)) stack)))))
 	     ((and (eq c ?\*) (looking-at "\\*)"))
 	      (decf comment-level)
 	      (forward-char))
 	     ((> comment-level 0))
 	     ((eq c ?\") (setq instring t))
 	     ((eq c ?\[)
-	      (setq stack (cons (list c (point)) stack)))
+	      (setq stack (cons (list ?\[ (point)) stack)))
 	     ((or (eq c ?\)) (eq c ?\]))
 	      (setq stack (cdr stack)))
 	     ((looking-at proof-commands-regexp)
