@@ -1252,7 +1252,8 @@ With ARG, turn on scripting iff ARG is positive."
       ;; extent as argument.  Seems odd.
       (proof-debug 
        "Proof General idiosyncrasy: proof-done-advancing called with a dead span!")
-    ;; 
+
+    ;; otherwise...
     (let ((end     (span-end span))
 	  (cmd     (span-property span 'cmd)))
       ;; State of spans after advancing: 
@@ -1379,7 +1380,7 @@ With ARG, turn on scripting iff ARG is positive."
 	    (setq cmd (span-property gspan 'cmd))
 	    (cond
 	     ;; Ignore comments [may have null cmd setting]
-	     ((eq (span-property span 'type) 'comment))
+	     ((eq (span-property gspan 'type) 'comment))
 	     ;; Nested goal saves: add in any nestedcmds
 	     ((eq (span-property gspan 'type) 'goalsave)
 	      (setq nestedundos
@@ -1480,7 +1481,7 @@ With ARG, turn on scripting iff ARG is positive."
 	 gspan
 	 (or 
 	  (eq (span-property gspan 'type) 'comment)
-	  (eq (span-property gspan 'type) 'proverproc) ;; NB: not necess currently
+	  ;;(eq (span-property gspan 'type) 'proverproc) ;; NB: not necess currently
 	  (and
 	   (setq ncmd (span-property gspan 'cmd))
 	   (not (funcall proof-goal-command-p (setq cmd ncmd)))
