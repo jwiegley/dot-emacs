@@ -178,6 +178,13 @@ If QUEUEMODE is supplied, set the lock to that value."
   (proof-shell-ready-prover queuemode)
   (setq proof-shell-error-or-interrupt-seen nil)
   (setq proof-shell-busy (or queuemode t))
+  ;; Make modeline indicator follow state (on XEmacs at least)
+  (cond
+   (proof-running-on-XEmacs
+    (if (extentp (car proof-shell-active-scripting-indicator))
+	(set-extent-properties
+	 (car proof-shell-active-scripting-indicator)
+	 '(face proof-queue-face)))))
   (run-hooks 'proof-state-change-hook))
 
 (defun proof-release-lock (&optional err-or-int)
@@ -185,7 +192,14 @@ If QUEUEMODE is supplied, set the lock to that value."
 Clear `proof-shell-busy', and set `proof-shell-error-or-interrupt-seen'
 to err-or-int."
   (setq proof-shell-error-or-interrupt-seen err-or-int)
-  (setq proof-shell-busy nil))
+  (setq proof-shell-busy nil)
+  (cond
+   (proof-running-on-XEmacs
+    (if (extentp (car proof-shell-active-scripting-indicator))
+	(set-extent-properties
+	 (car proof-shell-active-scripting-indicator)
+	 '(face proof-locked-face))))))
+
 
 
 
@@ -355,13 +369,6 @@ If first component is extent it will automatically follow the colour
 of the queue region."
   :type 'sexp
   :group 'proof-general-internals)
-
-(cond
- (proof-running-on-XEmacs
-  (if (extentp (car proof-shell-active-scripting-indicator))
-      (set-extent-properties
-       (car proof-shell-active-scripting-indicator)
-       '(face proof-locked-face)))))
 
 (unless
     (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
