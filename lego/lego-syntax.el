@@ -1,8 +1,8 @@
 ;; lego-syntax.el Syntax of LEGO
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Author: Thomas Kleymann and Dilip Sequeira
-;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Please let us know if you could maintain this package!
+;; Maintainer: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
+
 ;;
 ;; $Id$
 ;;
