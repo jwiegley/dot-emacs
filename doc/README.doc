@@ -10,13 +10,13 @@ your convenience.  Otherwise you will need to run
 	make html
 
 according to what format you'd like.  Everything is generated
-from the master Texinfo file ProofGeneral.texi, so you'll
-need the proper tools for conversion.  Check the Makefile
+from the master Texinfo files ProofGeneral.texi and PG-adapting.texi,
+so you'll need the proper tools for conversion.  Check Makefile.doc
 for details.
 
 Front Image for Manual
 ----------------------
-If you want a front image on the printed dvi/gs manual, you need to
+If you want a front image on the printed dvi/gs manuals, you need to
 have the ProofGeneral.eps file in this directory.  You can download a
 compressed version from
 
@@ -35,4 +35,4 @@ Running "made dvi" will adjust the Texinfo file to make the front
 page blank if there is no ProofGeneral.eps file available.
 
 David Aspinall.
-August 1999.
+August 2000.
