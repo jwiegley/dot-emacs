@@ -10,6 +10,7 @@ Source:		http://www.dcs.ed.ac.uk/proofgen/ProofGeneral-2.1.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 Patch:		ProofGeneral.patch
 PreReq:		/sbin/install-info
+Prefix:		/usr
 BuildArchitectures: noarch
 
 %description
@@ -26,6 +27,9 @@ To use Proof General, add the line
 to your .emacs file.
 
 %changelog
+* Wed Aug 25 1999 David Aspinall <da@dcs.ed.ac.uk>
+  For 2.1 and 2.2pre series: made relocatable, added isar/ to package.
+
 * Thu Sep 24 1998 David Aspinall <da@dcs.ed.ac.uk>
   First version.
 
@@ -50,7 +54,7 @@ gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info ${RPM_BUILD_ROOT}/usr/info/Pro
 # Remove duff bits
 rm -f doc/dir doc/localdir doc/ProofGeneral.texi
 
-cp -pr coq lego isa images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
+cp -pr coq lego isa isar images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 
 %clean
@@ -77,6 +81,8 @@ fi
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/lego/*
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isa
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isar
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/*
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/images/*
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
