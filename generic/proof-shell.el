@@ -1912,15 +1912,17 @@ May enable proof-by-pointing or similar features.
 <<pbp-mode-map>>"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
-; button 2 is a nuisance on 2 button mice
-;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
-  (define-key pbp-mode-map [mouse-3] 'pbp-button-action)
   (cond 
    ((string-match "XEmacs" emacs-version)
-
+    (define-key pbp-mode-map [(button2)] 'pbp-button-action)
+    (define-key pbp-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
+;; button 2 is a nuisance on 2 button mice, so we'll do 3 as well.
     (define-key pbp-mode-map [(button3)] 'pbp-button-action)
     (define-key pbp-mode-map [(control button3)] 'proof-undo-and-delete-last-successful-command))
    (t
+    (define-key pbp-mode-map [mouse-2] 'pbp-button-action)
+    (define-key pbp-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
+    (define-key pbp-mode-map [mouse-3] 'pbp-button-action)
     (define-key pbp-mode-map [C-mouse-3] 'proof-undo-and-delete-last-successful-command)))
   (define-key pbp-mode-map [q] 'bury-buffer)
   (easy-menu-add proof-goals-mode-menu pbp-mode-map)
