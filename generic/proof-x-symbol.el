@@ -24,8 +24,7 @@
 ;;; ###autoload
 (defun proof-x-symbol-support-maybe-available ()
   "A test to see whether x-symbol support may be available."
-  (and (fboundp 'console-type)		; FSF Emacs doesn't have this
-       (eq (console-type) 'x)		; (neither does it have x-symbol)
+  (and window-system		    ; Not on a tty
        (condition-case ()
 	   (require 'x-symbol-hooks)
 	 (t (featurep 'x-symbol-hooks)))))
@@ -53,10 +52,9 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	(funcall error-or-warn
  "Proof General: x-symbol package must be installed for x-symbol-support!
 The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
-       ((not (and (fboundp 'console-type)  ; FSF doesn't have this
-		  (eq (console-type) 'x))) ; (window-system) instead
+       ((not window-system)
 	(funcall error-or-warn 
- "Proof General: x-symbol package only runs under X!"))
+ "Proof General: x-symbol package only runs under a window system!"))
        ((or (not (fboundp 'x-symbol-initialize))
 	    (not (fboundp 'x-symbol-register-language)))
 	(funcall error-or-warn 
@@ -165,10 +163,20 @@ This is a subroutine of proof-x-symbol-enable."
 
 ;;;###autoload
 (defun proof-x-symbol-decode-region (start end) 
-  "Call (x-symbol-decode-region A Z), if x-symbol support is enabled.
-This converts tokens in the region into X-Symbol characters."
-  (if (and (proof-ass x-symbol-enable))
-      (x-symbol-decode-region start end)))
+  "Call (x-symbol-decode-region START END), if x-symbol support is enabled.
+This converts tokens in the region into X-Symbol characters.
+Return new END value."
+  (if (proof-ass x-symbol-enable)
+      (save-excursion
+	(save-restriction
+	  (narrow-to-region start end)
+	  ;; FIXME: for GNU 21, this doesn't work always?? 
+	  ;; (OK for response, but not for goals, why?)
+	  (x-symbol-decode-region start end)
+	  ;; Decoding may change character positions.  
+	  ;; Return new end value
+	  (point-max)))
+    end))
 
 (defun proof-x-symbol-encode-shell-input ()
   "Encode shell input in the variable STRING.
@@ -186,7 +194,8 @@ A value for proof-shell-insert-hook."
 		 (setq x-symbol-8bits nil)
 		 (setq x-symbol-coding nil)
                  (x-symbol-encode-all nil coding))
-               (prog1 (buffer-substring)
+               (prog1 
+		   (buffer-substring (point-min) (point-max))
 		 ;; FIXME da: maybe more efficient just to delete
 		 ;; region.  Make buffer name start with space
 		 ;; to be unselectable.
