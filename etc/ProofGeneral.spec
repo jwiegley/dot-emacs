@@ -53,19 +53,22 @@ gzip ${RPM_BUILD_ROOT}/usr/share/info/PG-adapting.info*
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
-# Put icons and menu entry into suitable place (at least for RedHat, Mandrake)
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/mini
-cp images/pgmini.xpm ${RPM_BUILD_ROOT}/usr/share/icons/mini
-cp images/pgicon.png ${RPM_BUILD_ROOT}/usr/share/icons
+# Desktop integration for freedesktop.org compliant desktops.
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/16x16
+cp etc/desktop/icons/16x16/proofgeneral.png ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/16x16
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/32x32
+cp etc/desktop/icons/32x32/proofgeneral.png ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/32x32
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/48x48
+cp etc/desktop/icons/48x48/proofgeneral.png ${RPM_BUILD_ROOT}/usr/share/icons/hicolor/48x48
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/pixmaps
-cp images/pgicon.png ${RPM_BUILD_ROOT}/usr/share/pixmaps
-mkdir -p ${RPM_BUILD_ROOT}/usr/lib/menu
-mkdir -p ${RPM_BUILD_ROOT}/usr/share/applnk/Applications
-mkdir -p ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications
-mv etc/ProofGeneral.menu ${RPM_BUILD_ROOT}/usr/lib/menu/ProofGeneral	     # Mandrake
-cp etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/usr/share/applnk/Applications  # RH KDE
-mv etc/ProofGeneral.desktop ${RPM_BUILD_ROOT}/etc/X11/applnk/Applications    # RH Gnome
+cp etc/desktop/icons/48x48/proofgeneral.png ${RPM_BUILD_ROOT}/usr/share/pixmaps
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/applications
+cp etc/desktop/proofgeneral.desktop ${RPM_BUILD_ROOT}/usr/share/applications
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/mime-info
+cp etc/desktop/mime-info/proofgeneral.mime ${RPM_BUILD_ROOT}/usr/share/mime-info
+cp etc/desktop/mime-info/proofgeneral.keys ${RPM_BUILD_ROOT}/usr/share/mime-info
 
+# Documentation
 for f in */README; do mv $f $f.`dirname $f`; done
 
 cp -pr phox acl2 twelf coq lego isa isar hol98 images generic mmm x-symbol ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
@@ -91,12 +94,13 @@ fi
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
 %attr(-,root,root) /usr/bin/isartags
-%attr(-,root,root) /usr/share/icons/pgicon.png
-%attr(-,root,root) /usr/share/pixmaps/pgicon.png
-%attr(-,root,root) /usr/share/icons/mini/pgmini.xpm
-%attr(-,root,root) /usr/lib/menu/ProofGeneral
-%attr(-,root,root) /usr/share/applnk/Applications/ProofGeneral.desktop
-%attr(-,root,root) /etc/X11/applnk/Applications/ProofGeneral.desktop
+%attr(-,root,root) /usr/share/pixmaps/proofgeneral.png
+%attr(-,root,root) /usr/share/icons/hicolor/16x16/proofgeneral.png
+%attr(-,root,root) /usr/share/icons/hicolor/32x32/proofgeneral.png
+%attr(-,root,root) /usr/share/icons/hicolor/48x48/proofgeneral.png
+%attr(-,root,root) /usr/share/applications/proofgeneral.desktop
+%attr(-,root,root) /usr/share/mime-info/proofgeneral.mime
+%attr(-,root,root) /usr/share/mime-info/proofgeneral.keys
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
