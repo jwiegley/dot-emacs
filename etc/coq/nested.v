@@ -2,7 +2,7 @@
 
     BUGS:
 
-      None???
+    - Nested sections...
 
 ======= Below here fixed
 
@@ -79,7 +79,21 @@ End Apple.
 Section Banana.
 
 Lemma Coq:  O=O. Auto. Save.   (* silly example to show that testing
-				  prompt to determine if we're in proof
-				  mode is not good enough. *)
+				  prompt in coq-proof-mode-p to determine 
+				  if we're in proof mode is not good enough. 
+				  Hopefully nobody calls their theorems "Coq".*)
 
 End Banana.
+
+(* Nested sections?  
+   Oh no, this is too horrible to even think about.  *)
+
+Section Cranberry.
+
+  Section Damson.
+   
+    Lemma CoqIsStrange:  O=O. Auto. Save.
+
+  End Damson.
+
+End Cranberry.
