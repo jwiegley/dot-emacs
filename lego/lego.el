@@ -378,6 +378,8 @@
 
   (setq proof-www-home-page lego-www-home-page)
 
+  (setq proof-mode-for-script 'lego-mode)
+
   (setq proof-prf-string "Prf"
 	proof-goal-command "Goal %s;"
 	proof-save-command "Save %s;"

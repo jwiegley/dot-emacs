@@ -329,6 +329,8 @@
 
   (setq proof-www-home-page coq-www-home-page)
 
+  (setq proof-mode-for-script 'coq-mode)
+
   (setq proof-prf-string "Show"
 	proof-ctxt-string "Print All"
 	proof-help-string "Help")

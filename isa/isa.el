@@ -53,6 +53,7 @@ no regular or easily discernable structure."
   "Configure generic proof scripting mode variables for Isabelle."
   (setq
    proof-www-home-page		isabelle-web-page
+   proof-mode-for-script	'isa-proofscript-mode
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
    proof-comment-start		"(*"	; comment in a proof

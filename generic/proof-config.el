@@ -196,21 +196,22 @@ from the name given in proof-internal-assistant-table."
 (defcustom proof-mode-for-shell nil
   "Mode for proof shell buffers.
 Suggestion: this can be set in proof-pre-shell-start-hook."
-  :type 'function
+  :type 'symbol
   :group 'prover-config)
 
 (defcustom proof-mode-for-pbp nil
   "Mode for proof state display buffers.
 Suggestion: this can be set in proof-pre-shell-start-hook."
-  :type 'function
+  :type 'symbol
   :group 'prover-config)
 
 (defcustom proof-mode-for-script nil
-  "Major mode for proof script buffers."
-  :type 'function
+  "Mode for proof script buffers.
+This is used by Proof General to find out which buffers 
+contain proof scripts.
+Suggestion: this can be set in the script mode configuration."
+  :type 'symbol
   :group 'prover-config)
-
-
 
 
 
@@ -443,7 +444,10 @@ assistant, for example, to switch to a new theory."
 
 (defcustom proof-prog-name nil
   "System command to run program name in proof shell.
-Suggestion: this can be set in proof-pre-shell-start-hook."
+Suggestion: this can be set in proof-pre-shell-start-hook from
+a variable which is in the proof assistant's customization
+group.  This allows different proof assistants to coexist
+(albeit in separate Emacs sessions)."
   :type 'string
   :group 'proof-shell)
 
