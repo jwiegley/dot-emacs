@@ -1932,6 +1932,12 @@ The matching string will be parsed as XML and then processed by
   :type '(choice nil regexp)
   :group 'proof-shell)
 
+(defcustom proof-shell-issue-pgip-cmd nil
+  "Command sent to prover to process PGIP command in %s placeholder."
+  :type '(choice nil string)
+  :group 'proof-shell)
+
+
 ;; FIXME FIXME: this next one not yet used.  It's hard to interleave
 ;; commands with the ordinary queue anyway: the prover should
 ;; automatically output this information if it is enabled.
