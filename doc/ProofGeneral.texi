@@ -1932,6 +1932,7 @@ the @code{Search} command of Coq.
 
 @node Coq tags
 @section Coq tags
+@c could be generic
 
 Coq tags work as in LEGO, @xref{LEGO tags}.
 
@@ -1948,7 +1949,7 @@ popped off a stack.
 
 Coq Proof General supports this feature of Coq.  Top-level commands
 entered while in a proof are promoted immediately above the outermost
-active proof.  If new lemmas are started, Coq proof mode lets the user
+active proof.  If new lemmas are started, Coq Proof General lets the user
 work on the proof of the new lemma, and when the lemma is finished the
 full proof of that lemma is promoted.  This is supported to any nesting
 depth that Coq allows.
@@ -1976,11 +1977,12 @@ recognize.
 
 @node Suggested Coq abbreviations
 @section Suggested Coq abbreviations
+@c could be generic
 
 Coq has many command strings that are long, such as ``Reflexivity,''
 ``Inductive,'' ``Definition'' and ``Discriminate.''  Although it is
 not a feature particular to Coq, it can be very useful to add
-abbreviations and enable Abbrev mode in the Coq proof mode.
+abbreviations and enable Abbrev mode in Coq Proof General.
 
 Here is a suggested list of abbreviations for Coq:
 @lisp
@@ -2017,6 +2019,8 @@ Here is a suggested list of abbreviations for Coq:
 You need to read the Emacs manual to find out how to configure these
 abbreviations.  It is possible to copy the text above into a file that
 Emacs reads.
+@c How?
+
 
 
 
@@ -2283,7 +2287,7 @@ directory and elisp file for the mode, which will be
 @lisp
     @var{proof-home-directory}/@var{symbol}/@var{symbol}.el
 @end lisp
-where @samp{@var{proof-home-directory}} is the value of the
+where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
 The default value is @code{((isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$"))}.
@@ -2939,7 +2943,7 @@ is located in, or to the variable of the environment variable
 @c TEXI DOCSTRING MAGIC: proof-home-directory
 @defvar proof-home-directory 
 Directory where Proof General is installed. Ends with slash.@*
-Default value taken from environment variable @samp{PROOFGENERAL_@var{home}} if set, 
+Default value taken from environment variable @samp{PROOFGENERAL_HOME} if set, 
 otherwise based on where the file @samp{proof-site.el} was loaded from.
 You can use customize to set this variable.
 @end defvar
@@ -2980,6 +2984,13 @@ providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
 To avoid accidently invoking a proof assistant you don't have,
 only select the proof assistants you (or your site) may need.
+
+You can select which proof assistants you want by setting this
+variable before @samp{proof-site.el} is loaded, or by setting
+the environment variable @samp{PROOFGENERAL_ASSISTANTS} to the
+symbols you want, for example "lego isa".  Or you can
+edit the file @samp{proof-site.el} itself.
+
 Note: to change proof assistant, you must start a new Emacs session.
 
 The default value is @code{(isa lego coq)}.
