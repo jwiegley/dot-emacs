@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.19  1998/05/08 15:42:42  hhg
+;; Merged indentation code for LEGO and Coq into proof.el.
+;;
 ;; Revision 1.18  1998/05/06 16:39:10  hhg
 ;; Removed default instantiation of undo limit to 100.
 ;;
@@ -445,58 +448,6 @@
 ;;   Indentation                                                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; This is quite different from sml-mode, but borrows some bits of
-;; code.  It's quite a lot less general, but works with nested
-;; comments.
-
-;; parse-to-point:
-;; If from is nil, parsing starts from locked-end. Otherwise state
-;; must contain a valid triple.
-
-(defun coq-parse-to-point (&optional from state)
-  (let ((comment-level 0) (stack (list (list nil 0)))
-	(end (point)) instring c)
-    (save-excursion
-      (if (null from)
-	  (proof-goto-end-of-locked)
-	(goto-char from)
-	(setq instring (car state)
-	      comment-level (nth 1 state)
-	      stack (nth 2 state)))
-      (while (< (point) end)
-	(setq c (char-after (point)))
-	(cond 
-	 (instring 
-	  (if (eq c ?\") (setq instring nil)))
-	 (t (cond
-	     ((eq c ?\()
-	      (if (looking-at "(\\*") (progn 
-					(incf comment-level)
-					(forward-char))
-		(if (>= 0 comment-level) 
-		    (setq stack (cons (list c (point)) stack)))))
-	     ((and (eq c ?\*) (looking-at "\\*)"))
-	      (decf comment-level)
-	      (forward-char))
-	     ((> comment-level 0))
-
-	     ((and (eq c ?c) (looking-at "case"))
-	      (setq stack (cons (list c (point)) stack)))
-	     ((and (eq c ?e) (looking-at "end") (eq (car (car stack)) ?c))
-	      (setq stack (cdr stack)))
-
-	     ((eq c ?I) (looking-at "Inductive")
-	      (setq stack (cons (list c (point)) stack)))
-	     ((and (eq c ?.)  (eq (car (car stack)) ?I))
-	      (setq stack (cdr stack)))	     
-	     ((eq c ?\") (setq instring t))
-	     ((or (eq c ?\{) (eq c ?\[))
-	      (setq stack (cons (list c (point)) stack)))
-	     ((or (eq c ?\)) (eq c ?\}) (eq c ?\]))
-	      (setq stack (cdr stack))))))
-	(forward-char))
-    (list instring comment-level stack))))
-      
 (defun coq-stack-to-indent (stack)
   (cond
    ((null stack) 0)
@@ -517,48 +468,6 @@
 			      (move-to-column (current-indentation))
 			      (char-after (point)))) 8 10)))
 	 (t (1+ col)))))))
-
-
-(defun coq-indent-line ()
-  (interactive)
-  (save-excursion
-    (beginning-of-line)
-    (if (and (< (point) (proof-locked-end))
-	     (eq proof-script-buffer (current-buffer)))
-	(error "can't indent locked region!"))
-    (let* ((state (coq-parse-to-point))
-	   (beg (point))
-	   (indent (cond ((car state) 1)
-			 ((> (nth 1 state) 0) 1)
-			 (t (coq-stack-to-indent (nth 2 state))))))
-      (skip-chars-forward "\t ")
-      (delete-region beg (point))
-      (indent-to indent)))
-  (if (< (current-column) (current-indentation))
-      (skip-chars-forward "\t ")))
-
-(defun coq-indent-region (start end)
-  (interactive "r")
-  (save-excursion
-    (goto-char start)
-    (beginning-of-line)
-    (if (and (< (point) (proof-locked-end))
-	     (eq proof-script-buffer (current-buffer)))
-	(error "can't indent locked region!"))
-    (let* ((beg (point))
-	   (state (coq-parse-to-point))
-	   indent)
-      (while (<= (point) end)
-	(setq indent (cond ((car state) 1)
-			   ((> (nth 1 state) 0) 1)
-			   (t (coq-stack-to-indent (nth 2 state)))))	
-	(skip-chars-forward "\t ")
-	(delete-region beg (point))
-	(indent-to indent)
-	(end-of-line)
-	(if (< (point) (point-max)) (forward-char))
-	(setq state (coq-parse-to-point beg state)
-	      beg (point))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Coq shell startup and exit hooks                               ;;
@@ -584,7 +493,8 @@
 	proof-retract-target-fn 'coq-retract-target
         proof-goal-hyp-fn 'coq-goal-hyp
 	proof-state-preserving-p 'coq-state-preserving-p
-	proof-global-p 'coq-global-p)
+	proof-global-p 'coq-global-p
+	proof-stack-to-indent 'coq-stack-to-indent)
 
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
@@ -620,7 +530,6 @@
   (define-key (current-local-map) [(control c) I] 'coq-Intros)
   (define-key (current-local-map) [(control c) a] 'coq-Apply)
   (define-key (current-local-map) [(control c) (control s)] 'coq-Search)
-  (define-key (current-local-map) [tab]      'coq-indent-line)
 
 ;; outline
   
