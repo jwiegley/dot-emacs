@@ -48,6 +48,10 @@
      Emacs would freeze when starting proof assistant due to character 
      matching problem.
 
+**** Fixes for XEmacs on Windows.  
+     Toolbar now enabled when console-type=mswindows.
+
+
 *** Fix for infamous Solaris ^G problem: proof-shell-process-connection-type 
 
   A user (or proof assistant configuration) can now specify whether
