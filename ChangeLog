@@ -1,3 +1,75 @@
+2002-03-21  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Revert accidental commit by crr
+
+	* CHANGES: Updated.
+
+	* generic/proof.el, generic/proof-toolbar.el, generic/proof-utils.el, generic/pg-pgip.el, generic/pg-user.el, generic/proof-depends.el, generic/proof-easy-config.el, generic/proof-splash.el, generic/pg-metadata.el:
+	Year changes
+
+	* generic/proof-shell.el:
+	Remove toolbar gutters in multiple frame mode.  Add proof-shell-truncate-before-error setting.
+
+	* generic/proof-script.el:
+	Dont set type property for proof elements (experiment).  Tweak name determination/reporting.   Provide generic implementation of find-and-forget. Dont warn about some unnecessary settings
+
+	* generic/proof-menu.el:
+	Added activations for frame/window controls.
+
+	* generic/proof-config.el:
+	Added proof-shell-truncate-before-error, adjusted proof-toolbar-entries-default.
+
+	* generic/proof-compat.el:
+	Added emultation of display-graphic-p for XEmacs
+
+	* generic/pg-xml.el:
+	Add header to XML docs
+
+	* generic/pg-xhtml.el: New files.
+
+	* doc/PG-adapting.texi:
+	Document some new settings
+
+2002-03-21  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/x-symbol-phox.el, generic/proof-config.el, generic/proof-utils.el, phox/phox-font.el, Makefile.devel:
+	added hook: proof-before-fontify-output-hook
+
+2002-03-05  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/phox-sym-lock.el, phox/README, phox/x-symbol-phox.el:
+	*** empty log message ***
+
+2002-02-23  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-shell.el:
+	Add check for Emacs21.
+
+	* generic/pg-user.el:
+	Bug fix in proof-goto-command-end.  Decode x-syms in pg-insert-output-as-comment.
+
+	* generic/proof-x-symbol.el:
+	Simplify enabling tests to just check window-system.  Fix proof-x-symbol-decode-region to return new END value after decoding.
+
+	* generic/proof-utils.el:
+	Updates to font-lock handling in proof-fontify-region, proof-font-lock-clear-font-lock-vars.  Fix final return value in fontify region.
+
+	* CHANGES: Update X-Sym status
+
+2002-02-14  David Aspinall  <da@proofgeneral.org>
+
+	* Makefile.devel:
+	Remove latest-src-rpm link
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
 2002-02-14  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
