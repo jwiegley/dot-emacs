@@ -194,8 +194,10 @@ See `x-symbol-language-access-alist' for details."
 ;;;===========================================================================
 
 (defvar x-symbol-isabelle-case-insensitive nil)
+(defvar x-symbol-isabelle-token-shape nil)
+(defvar x-symbol-isabelle-input-token-ignore nil)
 
-;; FIXME: next one not needed in X-Symbol 4
+;; FIXME: next one not needed in X-Symbol 4, kept for back compat.
 (defvar x-symbol-isabelle-exec-specs 
   '(nil ("\\`\\\\<[A-Za-z][A-Za-z0-9_']*>\\'" .
 	 "\\\\<[A-Za-z][A-Za-z0-9_']*>")))
