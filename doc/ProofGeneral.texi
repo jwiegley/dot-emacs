@@ -53,10 +53,10 @@ and using ideas from Projet CROAP.
 
 Proof General is suitable for use by pacifists and Emacs lovers alike.
 
-The code for this Emacs mode is designed to be generic, so you can adapt
-the mode to other proof assistants if you know a little bit of Emacs
-Lisp. Please feel free to download Proof General to customize it for
-another system, and tell us how you get on.
+The code is designed to be generic, so you can adapt Proof General to
+other proof assistants if you know a little bit of Emacs Lisp.  Please
+feel free to download Proof General to customize it for another system,
+and tell us how you get on.
 
 @menu
 * Introduction::                
@@ -602,9 +602,14 @@ Suppose your new assistant is
 called myassistant.
 
 @itemize @minus
-@item Make a directory myassistant to put the specific customization and associated files in,
-  called myassistant
-@item Edit proof-site.el to add a new case to the 'proof-assistant' variable.
+@item Make a directory myassistant to put the specific customization and associated files in,  called myassistant
+@item Add a file myassistant.el to the new directory, and a customization group:
+(defcustom myassistant-settings nil
+  "Customization of MyAssistant specifics for Proof General."
+  :group 'proof-general)
+@item Define the derived modes for the new assistant:
+
+@item Edit proof-site.el to add a new case to the 'proof-general-supported-assistants' variable
 @end itemize
 
 @node Literature, , Adding New Proof Assistant, Internals
