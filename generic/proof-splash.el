@@ -22,10 +22,16 @@
 Different formats are chosen from according to what can be displayed.
 Unless NOJPEG is set, try jpeg first. Then try gif.
 Gif filename depends on colour depth of display."
+  (let ((jpg (vector 'jpeg :file
+		     (concat proof-images-directory name ".jpg"))))
   (cond
-   ((and window-system (featurep 'jpeg) (not nojpeg))
-    (vector 'jpeg :file
-	    (concat proof-images-directory name ".jpg")))
+   ((and window-system (featurep 'jpeg) (not nojpeg)
+	 ;; Actually, jpeg can fail even if it is compiled in.
+	 ;; FIXME: this test doesn't work, though: still gives
+	 ;; t when visiting the file displays failure message.
+	 ;; What's the correct test?
+	 (valid-instantiator-p jpg 'image))
+    jpg)
    ((and window-system (featurep 'gif))
     (vector 'gif :file
 	    (concat proof-images-directory 
@@ -37,7 +43,7 @@ Gif filename depends on colour depth of display."
 				;; Low colour gif for poor displays
 				".8bit.gif")))))
    (t
-    (concat "[ image " name " ]"))))
+    (concat "[ image " name " ]")))))
 
 (defcustom proof-splash-inhibit
   nil
