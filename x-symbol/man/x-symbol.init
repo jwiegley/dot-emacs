@@ -26,7 +26,7 @@
 $T2H_BODYTEXT = 'LANG="' . $T2H_LANG . '"';
 
 $T2H_SPLIT_INDEX = 10000;	# one file for index
-$T2H_WORDS_IN_PAGE = 10;	# always use navigation at bottom
+$T2H_WORDS_IN_PAGE = 0;	# always use navigation at bottom
 
 $T2H_EXTRA_HEAD = '<link rel="StyleSheet" href="x-symbol.css">';
 $T2H_SMALL_FONT_SIZE = 'smaller';
@@ -61,11 +61,12 @@ sub T2H_XSYMB_Top_footer
     my $fh = shift;
     print $fh '<p class=print>
 To <strong>print</strong> out the manual, you might want to download
-<a href="x-symbol.pdf.gz">the PDF version</a> or
-<a href="x-symbol.ps.gz">the Postscript version</a> (both in A4 format,
-zipped)</a>.  Other formats can be produced from the TeXinfo source in
-the distribution of X-Symbol.';
-    T2H_DEFAULT_Top_footer;
+<a href="x-symbol.pdf">the PDF version (~735k)</a> or
+<a href="x-symbol.ps">the Postscript version (~720k)</a>, both in
+A4 format</a>.  Other formats can be produced from the TeXinfo source
+in the distribution of X-Symbol.';
+    
+    T2H_DEFAULT_print_Top_footer($fh);
   }
 
 $to_skip{'detailmenu'} = 0;
