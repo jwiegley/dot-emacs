@@ -43,6 +43,10 @@ EMACS = xemacs -batch
 
 .texi.dvi:
 	$(TEXI2DVI) $<
+	$(DVISELECT) -i $*.dvi -o $*.tmp1 $(TITLERANGE)
+	$(DVISELECT) -i $*.dvi -o $*.tmp2 $(MAINRANGE)
+	$(DVISELECT) -i $*.dvi -o $*.tmp3 $(TOC)
+	$(DVICONCAT) -o $*.dvi $*.tmp1 $*.tmp3 $*.tmp2 
 	rm -f $*.tmp1 $*.tmp2 $*.tmp3
 
 .tiff.eps:
