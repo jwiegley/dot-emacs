@@ -254,6 +254,7 @@ Does nothing if proof assistant is already running."
 		proof-prog-name)
 	      ;; Split on spaces: FIXME: maybe should be whitespace.
 	      " "))
+
 	    ;; Experimental fix for backslash/long line problem.  
 	    ;; Make start-process (called by make-comint)
 	    ;; use a pipe, not a pty.  Seems to work.
@@ -265,18 +266,25 @@ Does nothing if proof assistant is already running."
 	;; Seems hardly worth it.
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
-      
-      ;; Create the associated buffers and set buffer variables
-      (setq proof-shell-buffer (get-buffer (concat "*" proc "*"))
-	    proof-goals-buffer (get-buffer-create (concat "*" proc "-goals*"))
-	    proof-response-buffer (get-buffer-create (concat "*" proc
-	    "-response*")))
 
-      
+      (setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
+
+      (unless (proof-shell-live-buffer)
+	;; Give error now if shell buffer isn't live
+	;; Solves problem of make-comint succeeding but process
+	;; exiting immediately.
+	;; Might still be problems here if sentinels are set.
+	(setq proof-shell-buffer nil)
+	(error (format "Starting process: %s..failed" proof-prog-name)))
+
+      ;; Create the associated buffers and set buffer variables
+      (setq proof-goals-buffer (get-buffer-create (concat "*" proc "-goals*"))
+	    proof-response-buffer (get-buffer-create 
+				     (concat "*" proc "-response*")))
+
       (proof-x-symbol-toggle (if proof-x-symbol-support 1 0))     ;; DvO
       (and (featurep 'x-symbol)
 	   (proof-x-symbol-mode-all-buffers proof-x-symbol-support-on)) ;; DvO
-
 
       (save-excursion
 	(set-buffer proof-shell-buffer)
