@@ -1,3 +1,192 @@
+2002-07-14  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/develdownload.php: Reformat
+
+	* html/mailinglist: Typo
+
+	* html/download.html:
+	Remove 3.3 download, encourage test version use.
+
+	* html/news.html: Rewrite history
+
+	* html/oldrel.php: Move 3.3 to oldrel
+
+	* html/devel.html: Improve layout
+
+	* html/proofgen.css: Tweaks for forms.
+
+	* html/feedback.php: Improve layout.
+
+	* html/main.html:
+	Simplify system infos.
+
+	* html/images/phox-einstein.jpg:
+	New files.
+
+	* demoisa/demoisa-easy.el:
+	Layout, comments.
+
+	* html/features.html, html/main.html:
+	Move project desc to features listing
+
+	* html/register: Improve layout
+
+	* html/proofgen.css:
+	Style for lists tweaked.
+
+	* etc/Mailman/note.txt: New files.
+
+	* etc/Mailman/subscribe.html, etc/Mailman/handle_opts.html, etc/Mailman/listinfo.html, etc/Mailman/options.html:
+	Cleanup html, fix URLs to final versions.
+
+2002-07-13  David Aspinall  <da@proofgeneral.org>
+
+	* etc/Mailman/subscribe.html, etc/Mailman/handle_opts.html:
+	First customized versions
+
+	* etc/Mailman/options.html:
+	Fix up.  Still ugly.
+
+	* etc/Mailman/handle_opts.html, etc/Mailman/subscribe.html, etc/Mailman/options.html:
+	New files.
+
+	* etc/Mailman/listinfo.html:
+	Tidy up source, improve titles.
+
+	* etc/Mailman/listinfo.html: New files.
+
+	* html/functions.php3:
+	Fix link in mozilla in click_to_go_back.
+
+	* html/header.html:
+	Change colour but not boldness
+
+	* html/download.html:
+	Remove length rant
+
+	* html/proofgen.css: Fix typo
+
+	* html/register: Improve form
+
+	* html/about.html: Triv
+
+	* html/projects/mm.html:
+	Link to page mentioned by emacs guy
+
+	* html/mailinglist:
+	Remove extra hr, use h3
+
+	* html/functions.php3:
+	Use proofgeneral.org mailing addresses again.
+
+	* html/smallheader.html:
+	Reduce size to keep it smaller than main header
+
+	* html/mailinglist:
+	Fix mailman links, remove subscription form from here.
+
+	* html/devel.html: Fix link
+
+	* html/screenshot.html:
+	Fix layout a bit
+
+	* html/devel.html:
+	Tweak mailing list details, order of items.
+
+	* html/header.html:
+	Compress header, shrink images
+
+	* html/about.html:
+	Reorder, include links here.
+
+	* html/images/pg-text.gif: Reformat
+
+	* html/head.html: Add favicon to head
+
+	* images/notes.txt:
+	Add note about favicon.
+
+	* html/favicon.ico: New files.
+
+	* html/images/favicon.ico: Deleted file
+
+	* html/images/favicon.ico: New files.
+
+2002-07-12  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-shell.el: Trivial
+
+	* generic/proof-script.el:
+	condition-case -> ignore-errors, comment.
+
+	* BUGS:
+	Mention probs with tracing mode.
+
+	* etc/isar/Parsing.thy:
+	Add some nesting examples
+
+2002-07-02  David Aspinall  <da@proofgeneral.org>
+
+	* html/doc.html:
+	Give link to develdownload for latest docs
+
+	* doc/ProofGeneral.texi:
+	Remove description of known bugs.
+
+	* isar/isar-syntax.el:
+	Remove FIXME: have added definition of font-lock-preprocessor-face
+
+	* generic/proof-compat.el:
+	Add definition of font-lock-preprocessor-face
+
+2002-07-01  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* html/news.html: Syntax error
+
+	* doc/ProofGeneral.texi, doc/PG-adapting.texi:
+	Updates for 3.4
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/news.html: Fix date on news item
+
+	* generic/proof-utils.el:
+	Use executable-find
+
+	* generic/proof-script.el:
+	proof-restart: also remove idiom internal spans.
+
+	* generic/proof-x-symbol.el:
+	Fix problem with GNU Emacs support: switch to multibyte in output buffers
+
+	* isa/x-symbol-isabelle.el:
+	Doc difference between isa and isar, fix prob with isa support.
+
+	* isa/isabelle-system.el:
+	Added isabelle-load-isar-keywords mimic of script startup.
+
+	* isar/isar-syntax.el:
+	Adjust syntax tables.
+
+	* isar/isar.el:
+	Adjust load order, and try to load a good isar-keywords file.  Add several FIXMEs.
+
+	* isar/test.el:
+	Add code to test new parser.
+
+2002-06-30  David Aspinall  <da@proofgeneral.org>
+
+	* isar/isar-keywords.el:
+	Revert to previous version.  Explain existence of other versions
+
 2002-07-01  David Aspinall  <da@proofgeneral.org>
 
 	* html/news.html: Syntax error
