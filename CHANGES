@@ -45,7 +45,7 @@
      XEmacs 21.1 has faulty implementation of buffer-syntactic-context,
      workaround added.  (Symptom was parsing breaking, giving unexpected
      "I can't see any complete commands to process!" error message, esp
-     with strings broken across lines).
+     with strings broken across lines containing parentheses).
 
 ** Coq Changes
 
