@@ -21,7 +21,7 @@ Proof General includes these features, amongst others:
 . Provision to easily run proof assistant on a remote host
 . Works on any platform Emacs does, in window system or plain console 
 
-Summary of changes since 3.4:
+Summary of interesting changes since 3.4:
 
 . Speedbar and Index Menu.  Speedbar provides a handy file/tag tree.
 . Improved display management.  
@@ -29,10 +29,11 @@ Summary of changes since 3.4:
 . Keyboard hints and other messages displayed in minibuffer
 . Auxiliary modes bundled: X-Symbol and MMM Mode
 . Improved menus, user options, script colouring and active highlighting
-. Many changes for compatibility with latest Emacsen (esp. GNU) and provers
-. Many other minor improvements and editing features
 . For Coq: a new "holes" system, for editing structured expressions
+. For Isabelle: browsing/highlighting theorem dependencies
 . New instances of PG: Casl Consistency Checker, Shell Script
+. Many other minor improvements and editing features
+. Many changes for compatibility with latest Emacsen (esp. GNU) and provers
 
 For details of changes since 3.4, see
 http://proofgeneral.inf.ed.ac.uk/fileshow.php?file=ProofGeneral-3.5%2FCHANGES

@@ -5,20 +5,19 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 =================================================================
 
-* THINGS TO DO BEFORE 3.5 RELEASE
+* THINGS TO DO BEFORE/DURING 3.5 RELEASE
 
 *** Spam-protect email addresses on web pages
 
 *** Fixup HTML on mailing list pages
 
 *** Update documentation.  
+      --- MMM support
+      --- Theorem dependencies
 
 *** Emacs Bug Roundup
     --- xemacs support for nested comments??
     --- xemacs undo in read-only regions 
-
-*** Finish/cleanup MMM support for Isar.  Document.
-       Add MMM for other provers where relevant
 
 *** Isabelle tweaks
      -- theorem dependencies on spoils ordinary response buffer output
@@ -63,6 +62,8 @@ X (Low)		e.g. probably not worth spending time on
 
 
 ** 2. Things to do in the generic interface
+
+*** C Add MMM for other provers where relevant/useful
 
 *** C Further display management improvement (it's a nightmare)
     Glitches to resolve:
