@@ -32,8 +32,8 @@ and old settings if you want to change back).
 
 *** Improvements to visibility controls
 
-Visibility controls now work for comments and commands in proof
-scripts.  An image is used in XEmacs to signal hidden text.
+Visibility controls now work for comments as well as proofs in
+proof scripts.  An image is used in XEmacs to signal hidden text.
 
 *** Menu improvements (Favourites, options saving)
 
