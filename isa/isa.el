@@ -99,7 +99,9 @@ no regular or easily discernable structure."
 ;;; variables, which ones?
 
 (defun isa-mode-config-set-variables ()
-  "Configure generic proof scripting mode variables for Isabelle."
+  "Configure generic proof scripting/thy mode variables for Isabelle.
+Settings here are the ones which are needed for both shell mode
+and script mode."
   (setq
    proof-assistant-home-page	isabelle-web-page
    proof-mode-for-script	'isa-proofscript-mode
@@ -340,22 +342,27 @@ isa-proofscript-mode."
    (;; Theory files only if they have the right extension
     (and (buffer-file-name)
 	 (string-match "\\.thy$" (buffer-file-name)))
+
+    ;; Enter theory mode, but first configure settings for proof
+    ;; script if they haven't been done already.  This is a hack,
+    ;; needed because Proof General assumes that the script mode must
+    ;; have been configured before shell mode can be triggered, which
+    ;; isn't true for Isabelle.  
+    ;; (proof-config-done-related and proof-shell-mode refer to
+    ;; the troublesome settings in question)
+    (unless proof-terminal-char
+      (isa-mode-config-set-variables))
+
     (thy-mode)
+
+    ;; related mode configuration including locking buffer.
+    (proof-config-done-related)		
+
     ;; Hack for splash screen
     (if (and (boundp 'proof-mode-hook)
 	     (memq 'proof-splash-timeout-waiter proof-mode-hook))
-	(proof-splash-timeout-waiter))
-    ;; Has this theory file already been loaded by Isabelle?
-    ;; Colour it blue if so.  
-    ;; NB: call to file-truename is needed for FSF Emacs which
-    ;; chooses to make buffer-file-truename abbreviate-file-name
-    ;; form of file-truename.
-    (and (member (file-truename buffer-file-truename)
-		 proof-included-files-list)
-	 (proof-complete-buffer-atomic (current-buffer)))
-    )
+	(proof-splash-timeout-waiter)))
    (t 
-    ;; Proof mode does that automatically.
     (isa-proofscript-mode))))
 
 (eval-after-load 

@@ -2209,10 +2209,19 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 ;; elegant mechanism for computing constants after the child has
 ;; configured.
 
-(defun proof-config-done () 
-  "Finish setup of Proof General scripting mode.
-Call this function in the derived mode for the proof assistant to
-finish setup which depends on specific proof assistant configuration."
+(defun proof-config-done-related ()
+  "Finish setup of Proof General scripting and related modes.
+This is a subroutine of proof-config-done.
+
+This is intended for proof assistant buffers which are similar to
+script buffers, but for which scripting is not enabled.  In
+particular, we: lock the buffer if it appears on
+proof-included-files-list; configure font-lock support from
+font-lock-keywords; maybe turn on X-Symbol minor mode.
+
+This is used for Isabelle theory files, which share some scripting 
+mode features, but are only ever processed atomically by the proof
+assistant."
   ;; Has buffer already been processed?
   ;; NB: call to file-truename is needed for FSF Emacs which
   ;; chooses to make buffer-file-truename abbreviate-file-name
@@ -2237,11 +2246,50 @@ finish setup which depends on specific proof assistant configuration."
   (setq comment-start-skip 
     (concat (regexp-quote proof-comment-start) "+\\s_?"))
 
+  ;;
+  ;; Fontlock support.
+  ;;
+  ;; Assume font-lock case folding follows proof-case-fold-search
+  (proof-font-lock-configure-defaults proof-case-fold-search)
+
+  ;; FIXME (da): zap commas support is too specific, should be enabled
+  ;; by each proof assistant as it likes.
+  (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
+  (add-hook 'font-lock-after-fontify-buffer-hook 
+	    'proof-zap-commas-buffer nil t)
+  (remove-hook 'font-lock-mode-hook 'proof-unfontify-separator t)
+  (add-hook 'font-lock-mode-hook 'proof-unfontify-separator nil t)
+
+  ;; if we don't have the following, zap-commas fails to work.
+  (if (boundp 'font-lock-always-fontify-immediately)
+      (progn
+	(make-local-variable 'font-lock-always-fontify-immediately)
+	;; FIXME testing: this was "t".
+	(setq font-lock-always-fontify-immediately nil)))
+
+  ;; Maybe turn on x-symbol mode  
+  ;;  [no need for script mode files to be on xsymbol-auto-mode-alist;
+  ;;  having the switch here also takes care of non-files switched
+  ;;  into the mode by hand]
+  (proof-x-symbol-mode))
+
+(defun proof-config-done () 
+  "Finish setup of Proof General scripting mode.
+Call this function in the derived mode for the proof assistant to
+finish setup which depends on specific proof assistant configuration."
+
+  (proof-config-done-related)
+
   ;; Additional key definitions which depend on configuration for
   ;; specific proof assistant.
   ;; FIXME da: robustify here.  
   ;;   This is rather fragile: we assume terminal char is something
   ;;   sensible (and exists) for this to be set.
+
+  ;; Following group of settings only relevant if the current
+  ;; buffer is really a scripting buffer.  Isabelle Proof General
+  ;; has theory file buffers which share some aspects 
+
   (define-key proof-mode-map
     (vconcat [(control c)] (vector proof-terminal-char))
     'proof-electric-terminator-toggle)
@@ -2280,28 +2328,6 @@ finish setup which depends on specific proof assistant configuration."
   ;; Put the ProofGeneral menu on the menubar
   (easy-menu-add proof-mode-menu proof-mode-map)
 
-  ;;
-  ;; Fontlock.
-  ;;
-  (proof-font-lock-configure-defaults)
-
-  ;; FIXME (da): zap commas support is too specific, should be enabled
-  ;; by each proof assistant as it likes.
-  (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
-  (add-hook 'font-lock-after-fontify-buffer-hook 
-	    'proof-zap-commas-buffer nil t)
-  (remove-hook 'font-lock-mode-hook 'proof-unfontify-separator t)
-  (add-hook 'font-lock-mode-hook 'proof-unfontify-separator nil t)
-
-  ;; if we don't have the following, zap-commas fails to work.
-  (if (boundp 'font-lock-always-fontify-immediately)
-      (progn
-	(make-local-variable 'font-lock-always-fontify-immediately)
-;; FIXME testing: this was "t".
-	(setq font-lock-always-fontify-immediately nil)))
-
-  ;; Assume font-lock case folding follows proof-case-fold-search
-  (setq font-lock-keywords-case-fold-search proof-case-fold-search)
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
@@ -2359,12 +2385,7 @@ finish setup which depends on specific proof assistant configuration."
   ;; Offer to save script mode buffers which have no files,
   ;; in case Emacs is exited accidently.
   (or (buffer-file-name)
-      (setq buffer-offer-save t))
-
-  ;; Maybe turn on x-symbol mode  
-  ;;  [no need for script mode files to be on xsymbol-auto-mode-alist;
-  ;;   having the switch here takes care of non-files]
-  (proof-x-symbol-mode))
+      (setq buffer-offer-save t)))
 
 
 
