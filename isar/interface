@@ -94,8 +94,10 @@ shift $(($OPTIND - 1))
 
 if [ "$ISAR" = true ]; then
   KIND=isar
+  DEFAULT_FILES="Scratch.thy"
 else
   KIND=isa
+  DEFAULT_FILES="Scratch.thy Scratch.ML"
 fi
 
 
@@ -104,7 +106,7 @@ fi
 FILES="$@"
 shift "$#"
 
-[ -z "$FILES" ] && FILES="Scratch.thy"
+[ -z "$FILES" ] && FILES="$DEFAULT_FILES"
 
 
 ## main
