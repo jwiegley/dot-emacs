@@ -1870,8 +1870,10 @@ proof itself, Proof General can hide completed proofs.
 
 You can toggle the visibility of a proof by using a context sensitive
 menu triggered by @b{clicking the right mouse button on a completed
-proof}.   You can also select the ``disappearing proofs'' mode from
-the menu, 
+proof}, or the key @kbd{C-c v}, which runs @code{pg-toggle-visibility}.
+
+
+You can also select the ``disappearing proofs'' mode from the menu,
 @lisp
   Proof-General -> Options -> Disappearing Proofs
 @end lisp
@@ -1889,6 +1891,10 @@ proof boundaries.
 
 The relevant elisp functions and settings are mentioned below.
 
+@c TEXI DOCSTRING MAGIC: pg-toggle-visibility
+@deffn Command pg-toggle-visibility 
+Toggle visibility of region under point.
+@end deffn
 
 @c TEXI DOCSTRING MAGIC: pg-show-all-proofs
 @deffn Command pg-show-all-proofs 
