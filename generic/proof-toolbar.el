@@ -189,8 +189,11 @@ to the default toolbar."
 	    (set-specifier default-toolbar proof-toolbar (current-buffer))
 	    ;; Set the callback for updating the enablers
 	    (add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
-	    ;; A rather pervasive hook
-	    (add-hook 'after-change-functions 'proof-toolbar-refresh)
+	    ;; Also call it whenever text changes in this buffer,
+	    ;; provided it's a script buffer.
+	    (if (eq proof-buffer-type 'script)
+		(add-hook 'after-change-functions 
+			  'proof-toolbar-refresh nil t))
 	    ;; And the interval timer for really refreshing the toolbar
 	    (setq proof-toolbar-itimer
 		  (start-itimer "proof toolbar refresh"
