@@ -123,20 +123,25 @@ and chooses the best one for the display properites.")
 
 (defun proof-toolbar-make-toolbar-item (tle)
   "Make a toolbar button descriptor from a proof-toolbar-entries entry."
-  (let
-      ((token	  (car tle))
-       (menuname  (cadr tle))
-       (tooltip   (nth 2 tle))
-       ;; FIXME: enabler now enabled, for testing at least.
-       ;; (enablep nil))
-       (enablep  (nth 3 tle)))
-    (vector
-     (proof-toolbar-icon token)
-     (proof-toolbar-function token)
-     (if enablep 
-	 (list (proof-toolbar-enabler token))
-       t)
-     tooltip)))
+  (let*
+      ((token	      (car tle))
+       (menuname      (cadr tle))
+       (tooltip       (nth 2 tle))
+       (existsenabler (nth 3 tle))
+       (enablep	      (and proof-toolbar-use-enablers
+			   (>= emacs-major-version 21)
+			   existsenabler))
+       (enabler	      (proof-toolbar-enabler token))
+       (enableritem   (if enablep (list enabler) t))
+       (buttonfn      (proof-toolbar-function token))
+       (icon	      (proof-toolbar-icon token))
+       (actualfn      (if (or enablep (not existsenabler))
+			  buttonfn
+			;; Add the enabler onto the function if necessary.
+			`(lambda ()
+				   (if (,enabler) 
+				       (call-interactively (quote ,buttonfn)))))))
+    (vector icon actualfn enableritem tooltip)))
 
 (defvar proof-toolbar-button-list 
   (append
@@ -437,6 +442,7 @@ Move point if the end of the locked position is invisible."
   t)
 
 (defun proof-toolbar-help ()
+  (interactive)
   (info "ProofGeneral"))
 
 ;;
