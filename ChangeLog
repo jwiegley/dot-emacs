@@ -1,5 +1,60 @@
 2002-03-21  David Aspinall  <da@proofgeneral.org>
 
+	* CHANGES: Improvement to ACL2
+
+	* acl2/acl2.el:
+	Greatly improved support.
+
+	* html/download.html: Typo
+
+	* html/develdownload.php:
+	No longer recommend XEmacs exclusively.
+
+	* html/oldrel.php: FSF -> GNU
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Revert accidental commit by crr
+
+	* CHANGES: Updated.
+
+	* generic/proof.el, generic/proof-toolbar.el, generic/proof-utils.el, generic/pg-pgip.el, generic/pg-user.el, generic/proof-depends.el, generic/proof-easy-config.el, generic/proof-splash.el, generic/pg-metadata.el:
+	Year changes
+
+	* generic/proof-shell.el:
+	Remove toolbar gutters in multiple frame mode.  Add proof-shell-truncate-before-error setting.
+
+	* generic/proof-script.el:
+	Dont set type property for proof elements (experiment).  Tweak name determination/reporting.   Provide generic implementation of find-and-forget. Dont warn about some unnecessary settings
+
+	* generic/proof-menu.el:
+	Added activations for frame/window controls.
+
+	* generic/proof-config.el:
+	Added proof-shell-truncate-before-error, adjusted proof-toolbar-entries-default.
+
+	* generic/proof-compat.el:
+	Added emultation of display-graphic-p for XEmacs
+
+	* generic/pg-xml.el:
+	Add header to XML docs
+
+	* generic/pg-xhtml.el: New files.
+
+	* doc/PG-adapting.texi:
+	Document some new settings
+
+2002-03-21  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/x-symbol-phox.el, generic/proof-config.el, generic/proof-utils.el, phox/phox-font.el, Makefile.devel:
+	added hook: proof-before-fontify-output-hook
+
+2002-03-21  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
