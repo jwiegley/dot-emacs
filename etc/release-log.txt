@@ -7,8 +7,10 @@
 
 --------------------
 
-9.9.01    3.3 Release 3-3 based on branch 6.0
+09.09.01  3.3 Release 3-3 based on branch 6.0
 	  (repeated 10.9.01 to fix doc build)
+
+--------------------
 
 02.10.00  3.2 Release 3-2  based on branch 5.0
 
@@ -18,7 +20,7 @@
           Button enablers are not used by default on XEmacs/Solaris.
 	  When button enablers disabled, don't use itimer or after-change hook.
 
-9.05.00   3.1.5 Release 3-1-5, from Release-3-1-branch
+09.05.00  3.1.5 Release 3-1-5, from Release-3-1-branch
           Improved proof-find-theorems-command for Isabelle 
 	  (allow multiple constants separated by commas).
 
