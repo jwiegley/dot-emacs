@@ -164,7 +164,7 @@ tags:	$(ELC)
 #
 ChangeLog:	FORCE
 	rm -f ChangeLog
-	$(EMACS) -batch -q -f vc-update-change-log -f save-buffer
+	$(EMACS) -batch -q -eval "(setq a (default-directory))" -eval "(require 'vc)" -f vc-update-change-log -eval '(write-file (concat a "ChangeLog"))'
 
 
 
