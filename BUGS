@@ -16,6 +16,16 @@ versions, and those which only apply to particular versions.
 NB: some issues which affect PG but which are not necessarily bugs in
 PG are mentioned in the FAQ.
 
+* Reporting bugs
+
+If you have a problem that is not mentioned here, please contact me at
+the address above.  Please describe your problem carefully, include a
+short demonstration file and tell me the exact version of Emacs and
+Proof General that you are using.  You can use the menu command
+
+  Proof General -> Help -> Send Bug Report
+
+to conveniently include the proper version numbers in your message.
 
 
 * Generic problems, for all Emacs versions
@@ -135,6 +145,11 @@ XEmacs implementation of parse-partial-sexp appears at fault.  It
 gives this error message when nesting depth reaches 100.  With 
 GNU Emacs, a nesting depth of 40000 or more is possible.
 
+Some error handling has been added in the code to cope with this
+condition.  If you notice the disappearance of correct syntax
+highlighting in the response buffer when large output with unbalanced
+parentheses is produced, this error may be the cause.  You can clear
+the response buffer by hitting "c" when it is selected.
 
 ** XEmacs font-lock problem in certain versions of XEmacs 21.4
 
