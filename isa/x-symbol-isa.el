@@ -1,7 +1,10 @@
 ;;  ID:         $Id$
 ;;  Author:     David von Oheimb
 ;;  Copyright   1998 Technische Universitaet Muenchen
-;;; token language "Isabelle Symbols" for package x-symbol
+;;  token language "Isabelle Symbols" for package x-symbol
+;;  
+;; NB: Part of Proof General distribution.
+;;
 
 (defvar x-symbol-isa-required-fonts nil)
 

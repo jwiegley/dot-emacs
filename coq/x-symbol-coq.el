@@ -1,3 +1,10 @@
+;; x-symbol-coq.el
+;;
+;; David Aspinall, adapted from file supplied by David von Obheimb
+;;
+;; $Id$
+;;
+
 (defvar x-symbol-coq-symbol-table 
   '((longarrowright () "->"  "\\<longrightarrow>")
     (logicaland     () "/\\" "\\<and>")
