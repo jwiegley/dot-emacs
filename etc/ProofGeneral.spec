@@ -52,7 +52,7 @@ mkdir -p ${RPM_BUILD_ROOT}/usr/info
 mv doc/ProofGeneral.info doc/ProofGeneral.info-* ${RPM_BUILD_ROOT}/usr/info
 gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info-*
 # Remove duff bits
-rm -f doc/dir doc/localdir doc/ProofGeneral.texi
+rm -f doc/dir doc/localdir 
 
 cp -pr coq lego isa isar images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
@@ -69,7 +69,7 @@ fi
 /sbin/install-info --delete /usr/info/ProofGeneral.info.gz /usr/info/dir
 
 %files
-%attr(-,root,root) %doc BUGS INSTALL doc/*
+%attr(-,root,root) %doc BUGS INSTALL CHANGES doc/*
 %attr(-,root,root) /usr/info/ProofGeneral.info.gz
 %attr(-,root,root) /usr/info/ProofGeneral.info-*.gz
 %attr(-,root,root) /usr/bin/coqtags
