@@ -1,10 +1,9 @@
 FAQs for using Proof General 
 ============================
 
+With thanks to the anonymous authors of questions/answers below.
+
 For latest version, see http://www.proofgeneral.org/FAQ
-
-Credits to the anonymous authors of questions/answers below.
-
 Please also check the BUGS file.
 
 -----------------------------------------------------------------
@@ -13,24 +12,24 @@ Q. Emacs appears to hang when the prover process is started.
 
 A. This may be because of UTF-8 issues e.g in Red Hat 8.0/9/glibc 2.2
 
-RedHat 8 has glibc 2.2 and UTF8 encoded output may be turned on in
-default locale.  Unfortunately Proof General relies on 8-bit
-characters which are UTF8 prefixes in the output of proof assistants
-(inc Coq, Isabelle).  These prefix characters are not flushed to
-stdout individually.  As a workaround we must find a way to disable
-interpretation of UTF8 in the C libraries that Coq and friends use.
+   RedHat 8 and later has glibc 2.2 and UTF8 encoded output may be
+   turned on in default locale.  Unfortunately Proof General relies on
+   8-bit characters which are UTF8 prefixes in the output of proof
+   assistants (inc Coq, Isabelle).  These prefix characters are not
+   flushed to stdout individually.  As a workaround we must find a way
+   to disable interpretation of UTF8 in the C libraries that Coq and
+   friends use.
 
-Doing this inside PG/Emacs seems tricky; locale settings are
-set/inherited in strange ways.  One solution is to run the Emacs
-process itself in a different locale, for example, starting XEmacs by
-typing:
+   Doing this inside PG/Emacs seems tricky; locale settings are
+   set/inherited in strange ways.  One solution is to run the Emacs
+   process itself in a different locale, for example, starting XEmacs
+   by typing:
 
-  $  LANG=en_GB xemacs &
+   $  LANG=en_GB xemacs &
 
-Another solution is to set LANG inside a file ~/.i18n, which will
-be read the shell.  This will affect all applications, though.
-[ suggestions for a better workaround inside Emacs would be welcome ]
-
+   Another solution is to set LANG inside a file ~/.i18n, which will
+   be read the shell.  This will affect all applications, though.
+   [ suggestions for a better workaround inside Emacs would be welcome ]
 
 -----------------------------------------------------------------
 
@@ -47,12 +46,7 @@ A. This is an XEmacs bug.  What you can do is prevent the use
 
 -----------------------------------------------------------------
 
-Q. I have a problem installing/using Proof General.
-   For example, I see the message
-
-   (file-error "Cannot open load file" "executable")
-
-   when I start the program.
+Q. I have a problem installing/using Proof General, what can I do?
 
 A. Please check the documentation carefully, particularly the
    requirements for a full-featured and recent Emacs version, as
@@ -132,15 +126,6 @@ A. For options set in the Proof General -> Options menu use the
 
    For other options set via customize (Proof General -> Advanced -> 
    Customize), use the customize buttons, or M-x customize-save-customized.
-
------------------------------------------------------------------
-
-Q. I'm experiencing debilitating performance problems with font-lock
-   and X-Symbol under XEmacs 21.4.  Can you help?
-
-A. There are some settings that can improve things:
-
-      [ FIXME ]
 
 -----------------------------------------------------------------
 
