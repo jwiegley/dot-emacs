@@ -2615,25 +2615,30 @@ with something different."
   ;; general at the moment: will only issue one und command.
   ;; FIXME: would be much cleaner to wrap up the undo behaviour
   ;; also within proofs in this function.
-  (let (str ans typ name answers)
-    (while span
-      (setq ans nil)
-      (setq str (span-property span 'cmd))
-      (setq typ (span-property span 'type))
-      (cond
-       ;; comment, diagnostic, prover processed, nested proof command: skip
-       ((or (eq typ 'comment)
-	    (eq typ 'proverproc)
-	    (eq typ 'proof)
-	    (and proof-ignore-for-undo-count cmd
-		 (proof-string-match proof-ignore-for-undo-count cmd))))
-       ;; some named element: use generic forget-id function; finish.
-       ((setq name (span-property span 'name))
-        (setq ans (format proof-forget-id-command name))
-	(setq span nil)))
-      (if ans (setq answers (cons ans answers)))
-      (if span (setq span (next-span span 'type))))
-    (if (null answers) proof-no-command (apply 'concat answers))))
+  (cond
+   ((not proof-forget-id-command)
+    (proof-debug "proof-generic-find-and-forget: proof-forget-id-command is unset, no action taken.")
+    "")
+   (t
+    (let (ans typ name answers cmd)
+      (while span
+	(setq ans nil)
+	(setq cmd (span-property span 'cmd))
+	(setq typ (span-property span 'type))
+	(cond
+	 ;; comment, diagnostic, prover processed, nested proof command: skip
+	 ((or (eq typ 'comment)
+	      (eq typ 'proverproc)
+	      (eq typ 'proof)
+	      (and proof-ignore-for-undo-count cmd
+		   (proof-string-match proof-ignore-for-undo-count cmd))))
+	 ;; some named element: use generic forget-id function; finish.
+	 ((setq name (span-property span 'name))
+	  (setq ans (format proof-forget-id-command name))
+	  (setq span nil)))
+	(if ans (setq answers (cons ans answers)))
+	(if span (setq span (next-span span 'type))))
+      (if (null answers) proof-no-command (apply 'concat answers))))))
 
 ;;
 ;; End of new generic functions
