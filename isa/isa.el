@@ -134,6 +134,7 @@ no regular or easily discernable structure."
    proof-ctxt-string		"ProofGeneral.show_context()"
    proof-help-string		"ProofGeneral.help()"
    proof-kill-goal-command	"ProofGeneral.kill_goal();"
+   proof-find-theorems-command  "ProofGeneral.thms_containing [\"%s\"]"
    ;; command hooks
    proof-goal-command-p		'isa-goal-command-p
    proof-count-undos-fn		'isa-count-undos
