@@ -149,8 +149,6 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
 ;;;  Charsym Info
 ;;;===========================================================================
 
-;;; FIXME: da: attempting to compile these defcustoms gives error on
-;;;   !! Symbol's function definition is void ((x-symbol-set-cache-variable))
 (defcustom x-symbol-isabelle-class-alist
   '((VALID "Isabelle Symbol" (x-symbol-info-face))
     (INVALID "no Isabelle Symbol" (red x-symbol-info-face)))
@@ -158,7 +156,7 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
 See `x-symbol-language-access-alist' for details."
   :group 'x-symbol-texi
   :group 'x-symbol-info-strings
-  :set 'x-symbol-set-cache-variable
+;;  :set 'x-symbol-set-cache-variable   [causes compile error]
   :type 'x-symbol-class-info)
 
 
@@ -168,7 +166,7 @@ See `x-symbol-language-access-alist' for details."
   :group 'x-symbol-isabelle
   :group 'x-symbol-input-init
   :group 'x-symbol-info-general
-  :set 'x-symbol-set-cache-variable
+;;  :set 'x-symbol-set-cache-variable   [causes compile error]
   :type 'x-symbol-class-faces)
 
 
@@ -457,19 +455,16 @@ See `x-symbol-language-access-alist' for details."
 ;;
 ;; User-level settings for X-Symbol 
 ;;
+;; this is MODE-ON CODING 8BITS UNIQUE SUBSCRIPTS IMAGE
 (defcustom x-symbol-isabelle-auto-style
-  ;; Following x-symbol SGML, first setting seems to be for
-  ;; when x-symbol is enabled for Isabelle in a alien buffer,
-  ;; i.e. *not* already in isar-mode or isa-mode
-  '((proof-ass x-symbol-enable) nil nil nil nil nil)
-;; DA: I'm confused about this setting: above was recommended by
-;; CW initially, but then he supplied a file which has below instead
-;  '((not (memq major-mode '(isar-mode isa-mode)))
-;    (x-symbol-auto-coding-alist x-symbol-isabelle-auto-coding-alist)
-;    x-symbol-coding (not x-symbol-mode)
-    ;; DA: CW had here: x-symbol-mode x-symbol-mode
-;    t x-symbol-mode)
-  "TODO"
+  '((proof-ass x-symbol-enable)	 ; MODE-ON: whether to turn on interactively
+    nil   ;; x-symbol-coding
+    'null ;; x-symbol-8bits [NEVER want it; null disables search]
+    nil   ;; x-symbol-unique
+    t     ;; x-symbol-subscripts
+    nil)  ;; x-symbol-image
+  "Variable used to document a language access.
+See documentation of `x-symbol-auto-style'."
   :group 'x-symbol-isabelle
   :group 'x-symbol-mode
   :type 'x-symbol-auto-style)
