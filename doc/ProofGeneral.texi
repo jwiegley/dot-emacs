@@ -3909,7 +3909,7 @@ all specific shell modes derived from it.
 @menu
 * Proof shell commands::        
 * Settings for matching output from proof process::  
-* Hooks and function variables::  
+* Hooks and other settings::  
 @end menu
 
 @node Proof shell commands
@@ -3957,8 +3957,10 @@ need to bump up this value.
 Command to the proof assistant to change the working directory.@*
 The format character %s is replaced with the directory, and the
 @code{proof-terminal-char} is added on to the end.
+The format character %e is replaced by the directory, after applying
+escapes specified in @samp{@code{proof-shell-string-escapes}}, which see.
 
-This is used to define the function @code{proof-cd} which 
+This setting is used to define the function @code{proof-cd} which 
 changes to the value of (@code{default-directory}) for script buffers.
 For files, the value of (@code{default-directory}) is simply the
 directory the file resides in.
@@ -4136,11 +4138,23 @@ used to help parse the goals buffer to annotate it for proof by pointing.
 @end defvar
 
 
-@node Hooks and function variables
-@subsection Hooks and function variables
+@node Hooks and other settings
+@subsection Hooks and other settings
 
-The first of these is not really a hook, but a special configuration
-option.
+@c TEXI DOCSTRING MAGIC: proof-shell-string-escapes
+@defvar proof-shell-string-escapes 
+A list of escapes that are applied for %e substitutions.@*
+This allows handling some special syntax for commands.
+A list of cons cells, car of which is string to be replaced
+by the cdr.
+For example, when directories are sent to Isabelle or HOL,
+they appear inside ML strings, so the backslash character must
+be escaped.  The setting
+@lisp
+  '(("\\" . "@var{\\\\}"))
+@end lisp
+achieves this.
+@end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-connection-type
 @defvar proof-shell-process-connection-type 
@@ -4532,9 +4546,9 @@ To summarize, the settings for multiple file management that may be
 customized are as follows. To recognize file-processing,
 @code{proof-shell-process-file}.  To recognize messages about file
 undoing, @code{proof-shell-retract-files-regexp} and
-@code{proof-shell-compute-new-files-list}.   @xref{Hooks and function
-variables}.  To tell the prover about files handled with
-script management, use 
+@code{proof-shell-compute-new-files-list}.  @xref{Hooks and other
+settings}.  To tell the prover about files handled with script
+management, use
  @code{proof-shell-inform-file-processed-cmd} and
  @code{proof-shell-inform-file-retracted-cmd}.  @xref{Proof shell
  commands}.  Finally, set the flag @code{proof-auto-multiple-files} 
