@@ -20,8 +20,13 @@ get a patch from Sun, or use Linux.
 Development  (move these above if decided not to fix):
 ======================================================
 
+Retract button can give "BUG" error message "called from wrong buffer"
+when the process is inactive.
+
+Toolbar is not updated properly.  See redisplay-frame attempt
+in proof-shell-filter.  Why does this behave strangely?
+
 XEmacs sessions seem to grow excessively in terms of memory
-allocation. Maybe some of the spans aren't removed properly.
-Setting a limit on the size of the process buffer doesn't seem to
-help. 
+allocation. Maybe some of the spans aren't removed properly.  Setting
+a limit on the size of the process buffer doesn't seem to help.
 
