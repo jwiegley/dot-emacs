@@ -1,11 +1,14 @@
-;; isar.el	 Major mode for Isabelle/Isar proof assistant
-;; Copyright (C) 1994-2003 LFCS Edinburgh.
+;; isar.el	  Major mode for Isabelle/Isar proof assistant
+;; Copyright (C) 1994-2004 LFCS Edinburgh.
+;;
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; Maintainer:    Stefan Berghofer 
+;; Maintainers:   David Aspinall, Stefan Berghofer
 ;;
 ;; Authors:       David Aspinall <David.Aspinall@ed.ac.uk>
 ;;   	          Markus Wenzel <wenzelm@in.tum.de>
+;;
+;; Contributors:  David von Oheimb, Sebastian Skalberg
 ;;
 ;;
 ;; $Id$
@@ -139,8 +142,8 @@ See -k option for Isabelle interface script."
    ;; script buffer.
    proof-save-command-regexp    isar-save-command-regexp
    proof-goal-command-regexp    isar-goal-command-regexp
-   proof-goal-with-hole-regexp  isar-named-entity-regexp ; da
-   proof-goal-with-hole-result	3
+   proof-goal-with-hole-regexp  isar-named-entity-regexp
+   proof-goal-with-hole-result	2
    proof-save-with-hole-regexp  nil
    proof-script-next-entity-regexps isar-next-entity-regexps
 
@@ -227,7 +230,7 @@ See -k option for Isabelle interface script."
    proof-assistant-setting-format       
    (unless isa-supports-pgip 'isar-markup-ml)
 
-   proof-shell-init-cmd                 '(proof-assistant-settings-cmd)
+   proof-shell-init-cmd			'(proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
    proof-shell-eager-annotation-start-length 1
