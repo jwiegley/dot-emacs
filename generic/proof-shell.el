@@ -335,9 +335,17 @@ exited by hand (or exits by itself)."
 	    (catch 'exited
 	      (set-process-sentinel proc
 				    (lambda (p m) (throw 'exited t)))
-	      ;; Try to shut it down politely
-	      ;; Do this before deleting other buffers, etc, so that
-	      ;; any closing down processing works okay.
+	      ;; First, turn off scripting in any active scripting
+	      ;; buffer.  (This helps support persistent sessions with
+	      ;; Isabelle, for example, by making sure that no file is
+	      ;; partly processed when exiting).  Rather than
+	      ;; questioning the user, we behave as killing a script
+	      ;; buffer: forcibly retract a partly processed file and
+	      ;; always succeed.
+	      (proof-deactivate-scripting 'forceretract)
+	      ;; Second, we try to shut down the proof process
+	      ;; politely.  Do this before deleting other buffers,
+	      ;; etc, so that any closing down processing works okay.
 	      (if proof-shell-quit-cmd
 		  (comint-send-string proc
 				      (concat proof-shell-quit-cmd "\n"))
