@@ -752,6 +752,13 @@ is shown to the user.  Set to nil to disable."
   :type 'regexp
   :group 'proof-shell)
 
+(defcustom proof-shell-clear-goals-regexp nil
+  "Regexp matching output telling Proof General to clear the goals buffer.
+This feature is useful to give the prover more control over what output
+is shown to the user.  Set to nil to disable."
+  :type 'regexp
+  :group 'proof-shell)
+
 (defcustom proof-shell-start-goals-regexp ""
   "Regexp matching the start of the proof state output."
   :type 'regexp
