@@ -92,6 +92,14 @@ to the default toolbar."
 ;; 
 ;;
 
+;; FIXME: In the future, add back the enabler functions.
+;; As of 20.4, they *almost* work, but it seems difficult
+;; to get the toolbar to update at the right times.
+;; For older versions of XEmacs (19.15, P.C.Callaghan@durham.ac.uk
+;; reports) the toolbar specifier format doesn't like
+;; arbitrary sexps as the enabler, either.
+;;
+
 (defvar proof-toolbar-next-icon nil
   "Glyph list for next button in proof toolbar.
 Initialised in proof-toolbar-setup.")
@@ -99,7 +107,9 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-next-button
   [proof-toolbar-next-icon
    proof-toolbar-next
-   (proof-toolbar-next-enable-p)
+   ;; XEmacs isn't ready for enablers yet
+   t
+   ;; (proof-toolbar-next-enable-p)
    "Process the next proof command"])
 
 (defvar proof-toolbar-undo-icon nil
@@ -109,7 +119,9 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-undo-button
   [proof-toolbar-undo-icon
    proof-toolbar-undo
-   (proof-toolbar-undo-enable-p)
+   ;; XEmacs isn't ready for enablers yet
+   t
+   ;; (proof-toolbar-undo-enable-p)
    "Undo the previous proof command"])
 
 (defvar proof-toolbar-retract-icon nil
@@ -119,7 +131,9 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-retract-button
   [proof-toolbar-retract-icon
    proof-toolbar-retract
-   (proof-toolbar-retract-enable-p)
+   ;; XEmacs isn't ready for enablers yet
+   t
+   ;; (proof-toolbar-retract-enable-p)
    "Retract buffer"])
 
 (defvar proof-toolbar-use-icon nil
@@ -129,7 +143,9 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-use-button
   [proof-toolbar-use-icon
    proof-toolbar-use
-   (proof-toolbar-use-enable-p)
+   ;; XEmacs isn't ready for enablers yet
+   t
+   ;; (proof-toolbar-use-enable-p)
    "Process whole buffer"])
 
 (defvar proof-toolbar-restart-icon nil
@@ -139,7 +155,9 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-restart-button
   [proof-toolbar-restart-icon
    proof-toolbar-restart
-   (proof-toolbar-restart-enable-p)
+   ;; XEmacs isn't ready for enablers yet
+   t
+   ;; (proof-toolbar-restart-enable-p)
    "Restart the proof assistant"])
 
 (defvar proof-toolbar-goal-icon nil
@@ -149,7 +167,9 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-goal-button
   [proof-toolbar-goal-icon
    proof-toolbar-goal
-   (proof-toolbar-goal-enable-p)
+   ;; XEmacs isn't ready for enablers yet
+   t
+   ;; (proof-toolbar-goal-enable-p)
    "Start a new proof"])
 
 (defvar proof-toolbar-qed-icon nil
@@ -159,7 +179,9 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-qed-button
   [proof-toolbar-qed-icon
    proof-toolbar-qed
-   (proof-toolbar-qed-enable-p)
+   ;; XEmacs isn't ready for enablers yet
+   t
+   ;; (proof-toolbar-qed-enable-p)
    "Save proved theorem"])
 
 (defconst proof-toolbar-iconlist
@@ -192,8 +214,9 @@ without giving error messages."
 
 (defun proof-toolbar-undo ()
   "Undo last successful in locked region, without deleting it."
-  (save-excursion
-    (proof-undo-last-successful-command t)))
+  (if (proof-toolbar-undo-enable-p)
+      (save-excursion
+	(proof-undo-last-successful-command t))))
 
 (defun proof-toolbar-next-enable-p ()
   ;; Could check if there *is* a next command here, to avoid
@@ -217,9 +240,10 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-retract ()
   "Retract buffer."
   ;; proof-retract-file might be better here!
-  (save-excursion
-    (goto-char (point-min))
-    (proof-retract-until-point)))
+  (if (proof-toolbar-retract-enable-p)
+      (save-excursion
+	(goto-char (point-min))
+	(proof-retract-until-point))))
 
 (defun proof-toolbar-use-enable-p ()
   ;; Could check to see that whole buffer hasn't been
@@ -237,8 +261,9 @@ Move point if the end of the locked position is invisible."
   (eq proof-buffer-type 'script))
 
 (defun proof-toolbar-restart  ()
-  (if (yes-or-no-p (concat "Restart " proof-assistant " scripting?"))
-      (proof-restart-script)))
+  (if (proof-toolbar-restart-enable-p)
+      ((if (yes-or-no-p (concat "Restart " proof-assistant " scripting?"))
+	   (proof-restart-script)))))
 
 (defun proof-toolbar-goal-enable-p ()
   ;; Goals are always allowed: will crank up process if need be.
@@ -252,7 +277,8 @@ Move point if the end of the locked position is invisible."
   (and proof-shell-proof-completed
        (proof-toolbar-process-available-p)))
 
-(defalias 'proof-toolbar-qed 'proof-issue-save)
-
+(defun proof-toolbar-qed 
+  (if (proof-toolbar-qed-enable-p)
+      (proof-issue-save)))
 ;; 
 (provide 'proof-toolbar)
