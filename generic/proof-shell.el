@@ -1063,9 +1063,17 @@ if none of these apply, display."
 	((file (funcall (cdr proof-shell-process-file) message)))
       ;; Special hack: empty string indicates current scripting buffer
       ;; (not used anywhere presently?)
-      (if (and proof-script-buffer (string= file ""))
-	  (setq file (buffer-file-name proof-script-buffer)))
-      (if file
+      ;; (if (and proof-script-buffer (string= file ""))
+      ;;  (setq file (buffer-file-name proof-script-buffer)))
+      ;; YES!  It *was* used by LEGO.
+      ;; Now we avoid this in favour of altering the processed
+      ;; files list when the current scripting buffer changes,
+      ;; inside Proof General.  Attempt to harmonize behaviour
+      ;; with Isabelle.  Seems wrong to add "example.l" to
+      ;; list of processed files if it's only partly processed?
+      ;; (On the other hand, for lego, it may have declared a 
+      ;;  module heading).
+      (if (and file (not (string= file "")))
 	  (proof-register-possibly-new-processed-file file))))
 
    ;; Is the prover retracting across files?
