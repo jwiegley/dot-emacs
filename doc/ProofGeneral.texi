@@ -2827,7 +2827,7 @@ next start Proof General.
 * The default value for XEmacs built for solaris is nil, because
 of unreliabilities with enablers there.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 @c This one removed: proof-auto-retract
@@ -3708,6 +3708,24 @@ Shows proof methods available in current theory context.
 Shows all available commands of Isabelle/Isar's outer syntax.
 @item C-c C-a h t
 Shows theorems stored in the current theory node.
+@end table
+
+@kindex C-c C-a b
+@kindex C-c C-a u
+@kindex C-c C-a l
+
+The following shortcuts insert control sequences into the text,
+modifying the appearance of individual symbols (single letters,
+mathematical entities etc.); the X-Symbol package will provide immediate
+visual feedback.
+
+@table @kbd
+@item C-c C-a b
+Inserts "\<^bold>"
+@item C-c C-a u
+Inserts "\<^sup>"
+@item C-c C-a l
+Inserts "\<^sub>"
 @end table
 
 Command termination via `@code{;}' is an optional feature of Isar
