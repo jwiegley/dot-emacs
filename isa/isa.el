@@ -205,6 +205,7 @@ and script mode."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
    proof-shell-set-elisp-variable-regexp "Proof General, please set the variable \\([^ ]+\\) to: #\\([^#]+\\)#\\."
    proof-shell-theorem-dependency-list-regexp    "Proof General, the theorem dependencies are: \"\\([^\"]*\\)\"" 
+   proof-shell-show-dependency-cmd	"thm \"%s\";" 
    
    ;; Dirty hack to allow font-locking for output based on hidden
    ;; annotations, see isa-output-font-lock-keywords-1
