@@ -8,7 +8,7 @@
 ;; $Id$
 ;;
 
-(require 'proof-toolbar)		; needed for proof-toolbar-scripting-menu
+(require 'proof-toolbar)     ; needed for proof-toolbar-scripting-menu
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -231,8 +231,12 @@ If in three window or multiple frame mode, display both buffers."
      :style toggle
      :selected proof-output-fontify-enable]
     ["Toolbar" proof-toolbar-toggle
-     :active (and (featurep 'toolbar) 
+     :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
 		  (boundp 'proof-buffer-type)
+		  ;; only allow toggling of toolbar enable in one
+		  ;; buffer to avoid strange effects because we
+		  ;; only keep one flag.  (Strange effects because 
+		  ;; we only turn it off in one buffer at a time)
 		  (eq proof-buffer-type 'script))
      :style toggle
      :selected proof-toolbar-enable]
