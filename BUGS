@@ -25,18 +25,6 @@ doesn't stop things, you can try 'kill -FPE <emacs-pid>'.
 This problem can happen with looping rewrite rules in the Isabelle
 simplifier, when tracing rewriting.
 
-** Do not use C-x C-v or C-x C-w on a script file in active scripting mode
-
- Proof General will lose track of the file.
- Workaround: always turn off active scripting first with C-c C-s.
-
- Also there is a possibility (untested) of losing synchronization with
- multiple files if you use these functions.  To be safe, kill 
- the buffer first and use C-x C-f instead of C-x C-v, or kill
- and then re-find after C-x C-w.
-
- [ FIXED, testing with 3.2 pre-releases. ]
-
 ** Toolbar enablers for XEmacs 21, some artefacts.
 
  There is a timing issue, so that occasionally the buttons are
@@ -101,8 +89,8 @@ mode)
 
 Some strange problems reading files with this version of Emacs. Gives
 spurious "end of internal input stream", or silently ignores parts of
-files.  Example is coq/coq.el which reads in fine on Linux.  
-[ Is my suspicioun of XEmacs correct?  Any suggestions? ]
+files.  Example is coq/coq.el which reads in fine on Linux.
+Solution: use a more recent version of XEmacs.  
 
 ** If you have problems using Mule versions of FSF Emacs 
 
