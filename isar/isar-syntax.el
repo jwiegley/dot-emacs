@@ -67,6 +67,7 @@
 
 (defconst isar-keywords-theory-enclose
   (append isar-keywords-theory-begin
+	  isar-keywords-theory-switch
 	  isar-keywords-theory-end))
 
 (defconst isar-keywords-theory
@@ -173,7 +174,7 @@
 (defconst isar-kill "kill;")
 
 (defun isar-remove (name)
-  (concat "init_toplevel; remove_thy \"" name "\""))
+  (concat "init_toplevel; remove_thy \"" name "\";"))
 
 (defun isar-undos (i)
   (if (> i 0)
