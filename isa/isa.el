@@ -194,6 +194,9 @@ and script mode."
    proof-shell-eager-annotation-end     "\361\\|\363"
    ;; see isa-pre-shell-start for proof-shell-trace-output-regexp
 
+   ;; Isabelle is learning to talk PGIP...
+   proof-shell-match-pgip-cmd		"<pgip"
+
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
