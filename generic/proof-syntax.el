@@ -2,6 +2,9 @@
 ;; Copyright (C) 1997-1998 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequiera
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;;
+;; $Id$
+;;
 
 (require 'font-lock)
 
@@ -33,6 +36,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; font lock faces: declarations, errors, tacticals                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; FIXME 1: these names are bad, should be proof-<blah>-face.
+;; FIXME 2: use defface here
 
 (defun proof-have-color ()
  ())
@@ -71,6 +77,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A big hack to unfontify commas in declarations and definitions.  ;;
+;; Useful for provers which have declarations of the form x,y,z:Ty  ;;
 ;; All that can be said for it is that the previous way of doing    ;;
 ;; this was even more bogus.                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
