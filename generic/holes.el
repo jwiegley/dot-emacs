@@ -765,12 +765,13 @@ is), which is annoying.
 
 ;c must be a string of length 1
 (defun count-char-in-string (c str)
-  (setq cpt 0)
-  (while (not (string-equal s ""))
-	 (if (string-equal (substring s 0 1) c) (setq cpt (+ cpt 1)))
-	 (setq s (substring s 1))
+  (let ((cpt 0) (s str))
+	 (while (not (string-equal s ""))
+		(if (string-equal (substring s 0 1) c) (setq cpt (+ cpt 1)))
+		(setq s (substring s 1))
+		)
+	 cpt
 	 )
-  cpt
   )
 
 (defun count-chars-in-last-expand ()
@@ -799,29 +800,6 @@ end of last abbrev expansion. "
 (defun count-holes-in-last-expand ()
   (count-char-in-string empty-hole-string (abbrev-expansion last-abbrev-text))
   )
-
-(defun count-chars-in-last-expand ()
-  (length (abbrev-expansion last-abbrev-text))
-  )
-
-(defun count-newlines-in-last-expand ()
-  (count-char-in-string "\n" (abbrev-expansion last-abbrev-text))
-  )
-
-(defun indent-last-expand ()
-  "Indents last abbrev expansion. Must be called when the point is at
-end of last abbrev expansion. "
-  (setq n (count-newlines-in-last-expand))
-  (save-excursion 
-	 (previous-line n)
-	 (while (>= n 0)
-		(indent-according-to-mode)
-		(next-line 1)
-		(setq n (- n 1))
-		)
-	 )
-  )
-
 
 (defun replace-string-by-holes (start end str)
 

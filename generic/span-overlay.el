@@ -315,7 +315,7 @@ Behaviour is still worse than before."
     (buffer-substring (overlay-start span) (overlay-end span))))
 
 
-;Pierre: new untility functions for "holes" 
+;Pierre: new utility functions for "holes" 
 (defun set-span-properties (span plist)
   "Set SPAN's properties, plist is a plist."
   (let ((pl plist))

@@ -100,7 +100,7 @@ A span is before PT if it covers the character before PT."
 (defalias 'span-object 'extent-object)
 (defalias 'span-string 'extent-string)
   
-;Pierre: new untility functions for "holes" 
+;Pierre: new utility functions for "holes" 
 (defsubst make-detached-span ()
   "Return the buffer owning span."
   (make-extent nil nil)
