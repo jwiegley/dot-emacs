@@ -347,7 +347,7 @@ Paul Callaghan, Pierre Courtieu, and Markus Wenzel, and other folk who
 tested pre-releases or sent bug reports, including 
 Cuihtlauac Alvarado,
 Pascal Brisset,
-James Brotherston
+James Brotherston,
 Martin Buechi,
 Lucas Dixon,
 Matt Fairtlough, 
