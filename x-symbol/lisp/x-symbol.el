@@ -71,7 +71,7 @@
 			    ,(lambda (x)
 			       (or (vectorp x)
 				   (eq (car-safe x) 'x-symbol-make-grammar))))
-    (x-symbol-input-token-grammar "input-token-grammar" nil consp)
+    ;;(x-symbol-input-token-grammar "input-token-grammar" nil consp)
     (x-symbol-table "table" nil consp)
     (x-symbol-generated-data "generated-data" nil null)
     ;; input methods
@@ -170,9 +170,10 @@ language has been initialized, see `x-symbol-init-language':
 ;;;  Structure data types
 ;;;===========================================================================
 
-(defstruct (x-symbol-generated (:type vector)
-			       (:constructor x-symbol-make-generated-data)
-			       (:copier nil))
+(defstruct (x-symbol-generated
+	    (:type vector)
+	    (:constructor x-symbol-make-generated-data)
+	    (:copier nil))
   encode-table
   decode-obarray
   menu-alist
@@ -180,15 +181,23 @@ language has been initialized, see `x-symbol-init-language':
   token-classes
   max-token-len)
 
-(defstruct (x-symbol-grammar (:type vector)
-			     (:constructor x-symbol-make-grammar)
-			     (:copier nil))
-  case-function
-  encode-spec
-  decode-regexp
-  decode-spec
-  token-list
-  after-init)
+(defstruct (x-symbol-grammar
+	    (:type vector)
+	    (:constructor x-symbol-make-grammar)
+	    (:copier nil))
+  (case-function nil :read-only t)
+  (encode-spec nil :read-only t)
+  (decode-regexp (error "Must provide :decode-regexp") :read-only t)
+  (decode-spec nil :read-only t)
+  (token-list nil :read-only t)
+  (after-init nil :read-only t)
+  (input-regexp (concat "\\(?:" decode-regexp "\\)\\'") :read-only t)
+  (input-spec (if (and (not (functionp decode-spec))
+		       (equal decode-spec encode-spec))
+		  encode-spec
+		(warn "Must provide :input-spec") ; TODO: `error'
+		encode-spec)
+	      :read-only t))
 
 
 ;;;===========================================================================
@@ -1296,9 +1305,6 @@ where KEY is equal to the MATCH'th regexp group of the match."
 	'((x-symbol-nomule-match-cstring
 	   (0 (progn x-symbol-nomule-font-lock-face) prepend)))))
   "TODO")
-
-(defvar x-symbol-subscript-matcher nil
-  "Internal")
 
 (defvar x-symbol-subscript-type nil
   "Internal")
@@ -2467,13 +2473,13 @@ argument.  Also prepare the use of `undo' and `unexpand-abbrev'."
 (defun x-symbol-replace-token (&optional command-char)
   "Replace token by corresponding character.
 If COMMAND-STRING is non-nil, check token shape."
-  (let* ((grammar (x-symbol-language-value 'x-symbol-input-token-grammar))
+  (let* ((grammar (x-symbol-language-value 'x-symbol-token-grammar))
 	 (generated (x-symbol-language-value 'x-symbol-generated-data))
 	 (decode-obarray (x-symbol-generated-decode-obarray generated))
 	 (case-fold-search (x-symbol-grammar-case-function ;#dynamic
 			    (x-symbol-language-value 'x-symbol-token-grammar)))
-	 (input-regexp (car grammar))
-	 (input-spec (cdr grammar))
+	 (input-regexp (x-symbol-grammar-input-regexp grammar))
+	 (input-spec (x-symbol-grammar-input-spec grammar))
 	 (beg (- (point) (x-symbol-generated-max-token-len generated)
 		 x-symbol-token-search-prelude-size))
 	 (res (save-excursion
@@ -2483,7 +2489,7 @@ If COMMAND-STRING is non-nil, check token shape."
 		      (funcall input-spec input-regexp decode-obarray
 			       command-char)
 		    (x-symbol-match-token-before input-spec
-						 (list input-regexp)
+						 input-regexp
 						 decode-obarray
 						 command-char))))))
     (if res (x-symbol-replace-from (car res) (cadr res)))))
@@ -2500,6 +2506,7 @@ If COMMAND-STRING is non-nil, check token shape."
       (setq before-context nil))
     (or before-context after-context (setq contexts nil))
 
+    (or (listp token-regexps) (setq token-regexps (list token-regexps)))
     (while token-regexps
       (goto-char (point-min))
       (and (re-search-forward (pop token-regexps) nil t)
@@ -3905,9 +3912,12 @@ uses it with TOKEN and CHARSYM."
 ;;;;  The Tables
 ;;;;##########################################################################
 
-;; ISO 2022/2375 final char/byte (for charset extension/switching): 0x30-0x3F
-;; are reserved as user-defined.  Emacs keeps 0x3A-0x3F [:;<=>?] free for
-;; users, although XEmacs defines the charset `thai-xtis' with final ??...
+;; EMACS: comment in lisp/international/mule-conf.el: ------------------------
+;; ISO-2022 allows a use of character sets not registered in ISO with
+;; final characters `0' (0x30) through `?' (0x3F).  Among them, Emacs
+;; reserves `0' through `9' to support several private character sets.
+;; The remaining final characters `:' through `?' [:;<=>?] are for users.
+;; XEMACS: new charset in lisp/mule/thai-xtis-chars.el: with final ?? --------
 
 (defvar x-symbol-latin1-cset
   '((("iso8859-1" . iso-8859-1) ?\237 -3750)
@@ -4017,7 +4027,7 @@ uses it with TOKEN and CHARSYM."
     (Udiaeresis 220 (diaeresis "U" udiaeresis))
     (Yacute 221 (acute "Y" yacute))
     (THORN 222 (letter "TH" thorn))
-    (ssharp 223 (letter "ss" nil))
+    (ssharp 223 (letter "ss" nil) nil nil ("ss" "s:" t ":s" "s\"" "\"s"))
     (agrave 224 (grave "a" Agrave))
     (aacute 225 (acute "a" Aacute))
     (acircumflex 226 (circumflex "a" Acircumflex))
@@ -4735,9 +4745,9 @@ uses it with TOKEN and CHARSYM."
 		(propersucc))
     (properprec 178 (relation) (shape curly . propersubset))
     (propersucc 179 (relation) (shape curly . propersuperset))
-    (bardash 180 (arrow) (direction east . perpendicular) nil ("|-"))
+    (bardash 180 (arrow) (direction east . perpendicular) nil (t "|-"))
     (dashbar 181 (arrow) (direction west . perpendicular) nil ("-|"))
-    (bardashdbl 182 (arrow) (direction east) nil ("|="))
+    (bardashdbl 182 (arrow) (direction east) nil (t "|="))
     (smlintegral 183 (bigop) (size sml . integral))
     (circleintegral 184 (bigop) (size big) nil (t "|'O") (integral))
     (coproduct 185 (bigop) (direction south . product) nil (t "|_|"))
