@@ -306,9 +306,7 @@ changed state."
 ;;
 
 (defun proof-toolbar-next-enable-p ()
-  (and
-   (not (proof-locked-region-full-p))
-   (not (and (proof-shell-live-buffer) proof-shell-busy))))
+  (not (proof-locked-region-full-p)))
 
 (defalias 'proof-toolbar-next 'proof-assert-next-command-interactive)
 
