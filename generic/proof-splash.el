@@ -97,6 +97,7 @@ DEFAULT gives return value in case image not valid."
 			     name
 			     (or (and
 				  (fboundp 'device-pixel-depth)
+				  (not (null (device-pixel-depth)))
 				  (> (device-pixel-depth) 8)
 				  ".gif")
 				 ;; Low colour gif for poor displays
