@@ -2170,6 +2170,10 @@ others)."
   (run-hooks 'proof-state-change-hook))
 
 (defun proof-setup-retract-action (start end proof-command delete-region)
+  "Make span from START to END which corresponds to retraction.
+Returns retraction action destined for proof shell queue, and make span.
+Action holds PROOF-COMMAND and `proof-done-retracting' callback.
+Span deletion property set to flag DELETE-REGION."
   (let ((span (make-span start end)))
     (set-span-property span 'delete-me delete-region)
     (list (list span proof-command 'proof-done-retracting))))
@@ -2299,28 +2303,18 @@ If DELETE-REGION is non-nil, delete the region in the proof script
 corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
 command."
-  ;; Make sure we're ready
-  ;; FIXME: next step in extend regions: (proof-activate-scripting nil 'retracting)
-  (proof-activate-scripting)
-  (let ((span (span-at (point) 'type)))
-    ;; FIXME da: shouldn't this test be earlier??
-    (if (proof-locked-region-empty-p)
-	(error "No locked region"))
-    ;; FIXME da: rationalize this: it retracts the last span
-    ;; in the buffer if there was no span at point, right?
-    ;; why?
-    (and (null span)
-	 (progn 
-	   (proof-goto-end-of-locked) 
-	   (backward-char)
-	   (setq span (span-at (point) 'type))))
-    ;; FIXME mmw: make sure we pass by a proof body overlay (is there a better way?)
-    ;; FIXME da: why do this??  
-    ;; Seems to break expected behaviour.
-    ;; (
-    ;; (and (eq (span-property span 'type) 'proof)
-    ;; (setq span (prev-span span 'type)))
-    (proof-retract-target span delete-region)))
+  (if (proof-locked-region-empty-p)
+      (error "No locked region")
+    ;; Make sure we're ready: either not busy, or already advancing/retracting.
+    ;;(proof-activate-scripting nil '(advancing retracting))
+    (proof-activate-scripting)
+    (let ((span (span-at (point) 'type)))
+      ;; If no span at point, retracts the last span in the buffer.
+      (unless span
+	(proof-goto-end-of-locked) 
+	(backward-char)
+	(setq span (span-at (point) 'type)))
+      (proof-retract-target span delete-region))))
 
 
 
