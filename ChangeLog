@@ -1,3 +1,82 @@
+2001-05-08  David Aspinall  <da@proofgeneral.org>
+
+	* doc/ProofGeneral.texi:
+	Fix section title for makeinfo
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Dont make SRPM any more.  Use rpm -tb to build binary package from tarball
+
+	* CHANGES: Updates
+
+	* etc/ProofGeneral.spec:
+	Updates, removal of patch so that rpm -ta works
+
+	* doc/ProofGeneral.texi:
+	Updates for 3.3
+
+	* generic/proof-utils.el:
+	Fixes for fontification in Xemacs 21.4
+
+	* generic/proof-site.el, generic/proof-syntax.el, generic/proof-shell.el, generic/proof-easy-config.el, generic/proof-indent.el, generic/proof-menu.el, generic/proof-config.el, generic/pg-pgip.el, generic/pg-user.el, generic/pg-xml.el, generic/proof-compat.el:
+	Copyright date updated
+
+	* generic/README:
+	Add Markus to list of authors
+
+	* html/main.html:
+	preliminary -> experimental
+
+	* html/develdownload.php:
+	No longer distrib SRPM
+
+	* html/news.html: New news item
+
+2001-05-03  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-splash.el:
+	change for Emacs compatibility and FSF/Xemacs update.  Copyright update.
+
+	* generic/proof-script.el:
+	Emacs fix  (extent->span).  Copyright update.
+
+2001-05-01  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* doc/ProofGeneral.texi, doc/Makefile.doc, doc/PG-adapting.texi:
+	Try to disable image for now
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/devel.html: Change link to kit
+
+	* html/download.html:
+	Change link to register page
+
+	* html/feedback.html, html/index.shtml:
+	Include php file
+
+	* html/register, html/kit:
+	Register and kit shortcuts
+
+	* html/develdownload.html:
+	Include php file
+
+	* html/functions.php3:
+	Link to php files instead of html
+
+	* html/links, html/main, html/news, html/about, html/devel, html/doc, html/download, html/features:
+	Include php instead of html
+
+	* html/smallpage.php, html/htmlshow.php, html/index.php, html/develdownload.php, html/feedback.php, html/fileshow.php:
+	Rename some html files php
+
+	* html/index.html: Deleted files.
+
 2001-05-01  David Aspinall  <da@proofgeneral.org>
 
 	* doc/ProofGeneral.texi, doc/Makefile.doc, doc/PG-adapting.texi:
