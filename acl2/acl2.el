@@ -20,7 +20,8 @@
        auto-mode-alist))	
 
 (proof-easy-config  'acl2 "ACL2" 
- proof-prog-name		 "bash"
+ proof-assistant-home-page       "http://www.cs.utexas.edu/users/moore/acl2"
+ proof-prog-name		 "acl2"
  proof-script-sexp-commands	 t
  proof-comment-start             ";"
  ;; FIXME:
@@ -47,8 +48,7 @@
  (proof-regexp-alt "^[ \t]*: GoalstackPure.goalstack"
 		   "^[ \t]*: GoalstackPure.proofs")
  proof-shell-quit-cmd            "quit();"
- proof-assistant-home-page       
- "http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html"
+
  proof-shell-annotated-prompt-regexp 
  "^\\[.*\\]"
  ;; This one is nice but less reliable, I think.
