@@ -2809,9 +2809,8 @@ a generic implementation of this."
 ;; Sanity checks on important settings
 ;;
 
-(defvar proof-script-important-settings
-  '(proof-shell-annotated-prompt-regexp ; crucial
-    proof-terminal-char			; soon not to be essential
+(defconst proof-script-important-settings
+  '(proof-terminal-char			; soon not to be essential
     proof-comment-start			;
     proof-comment-end
     ; proof-goal-command-regexp	  not needed if proof-goal-command-p is set
