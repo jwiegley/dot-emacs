@@ -165,3 +165,10 @@ Proof General will block the Emacs process when it is waiting for
 a theory file (and it's ancestors) to be read.  To avoid this,
 assert the theory file rather than the ML file.
 
+* Cut-and-paste from Isabelle output (e.g. goals buffer) is
+problematic.  You will find that this inserts otherwise-invisible
+special characters into the script buffer, which are used to do the
+highlighting.  If you really need to do cut-and-paste, customize the
+variable proof-shell-leave-annotations-in-output to nil.
+Unfortunately this will turn off highlighting.
+
