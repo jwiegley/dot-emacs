@@ -28,24 +28,25 @@ Current "experimental" features
    in orange.   This allows easy editing of theories to remove
    dead lemmas, re-order proofs, etc.
 
-   Only works for Isabelle/classic at the moment (support is
-   required from proof assistant authors: please mention to them).  
-   You must select the Isabelle option "Theorem Dependencies",
-   and then restart Isabelle.
+   This only works for a pre-release version of Isabelle at the moment.
+   (Support is required from other proof assistant authors: please 
+   mention to them).  You must select the Isabelle setting 
+   "Theorem Dependencies".
 
 ** Active highlighting for variables in Isabelle.
    Moving the mouse over variables in the goal display will display
    some information.  The information in Isabelle/Isar is the type of
-   the variable, usually.  In Isabelle it is useless.
-   This feature is a hint of what could be done with proper subterm
+   the variable, often, but it depends on the context and may be
+   wrong.  In Isabelle/classic the type information is useless.
+   This feature is a vague hint of what could be done with proper subterm
    markup from the Isabelle engine.  Without this, it cannot work
-   well, because no context is available to Proof General, so only
-   variables bound at the outer level can have meaningful information
-   displayed, via the "term" command.
+   well, because no context is available for Proof General to send
+   back to the prover, so only variables bound at the outer level can 
+   have sensible information displayed, via the "term" command.
 
 
 Known problems with experimental features
 =========================================
 
-** Move up/down functions make spoil visibility behaviour.
+** Move up/down functions may spoil visibility behaviour.
    
