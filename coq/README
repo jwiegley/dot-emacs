@@ -46,20 +46,22 @@ Grammar for x-symbols:
   connectives /\, \/, etc.  See the X-Symbol char table for details.
 
   a symbol is encoded only if 
-   - preceded by _ or some space or some symbol
+   - preceded by _ or ' or some space or some symbol
   **and**
-   - followed by _ or some space or some symbol
+   - followed by _ or ' or some space or some symbol
 
   Grammar for sub/superscript: 
 
    - a double _ introduces a subscript that ends at the first space
    - a double ^ introduces a superscript that ends at the first space
   
-   - a _ followed by { introduces a subscript
-     expression that ends at the first }
-   - a ^ followed by { introduces a superscript
-     expression that ends at the first }
+   - a , followed by { introduces a subscript expression that ends at
+     the first } (_{...} was not possible due to coq notation mechanism)
 
+   - a ^ followed by { introduces a superscript expression that ends
+     at the first }
+
+	See example-x-symbols.v in this directory for examples.
 
 ========================================
 
