@@ -163,7 +163,7 @@ no regular or easily discernable structure."
    proof-shell-proof-completed-regexp   "No subgoals!"
 
    ;; FIXME: the next two are probably only good for NJ/SML
-   proof-shell-error-regexp		"^.*Error:\\|^\\364\\*\\*\\*"
+   proof-shell-error-regexp		"^.*Error:\\|^\364\\*\\*\\*"
    proof-shell-interrupt-regexp         "Interrupt"
    
    ;; nothing appropriate for: proof-shell-abort-goal-regexp
@@ -322,6 +322,7 @@ isa-proofscript-mode."
 (defun isa-process-thy-file (file)
   "Process the theory file FILE.  If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
+  (save-some-buffers)
   (proof-shell-invisible-command 
    (format isa-usethy-notopml-command
 	   (file-name-sans-extension file))))
