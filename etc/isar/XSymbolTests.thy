@@ -8,7 +8,7 @@
 
 theory XSymbolTests = Main:
 
-(* Thu Sep 25 16:26:47 BST 2030.  
+(* Thu Sep 25 16:26:47 BST 2003.  
    Problem reported by Norbert Schirmer <norbert.schirmer@web.de>
    Currently, superscript output highlighting seems broken anyway? *)
 
