@@ -1,8 +1,29 @@
-Summary of Changes for Proof General 2.2 from 2.0
+Summary of Changes for Proof General 2.2 from 2.1
 -------------------------------------------------
 
-* Tweaks for Isabelle syntax.
+* Toolbar has four new buttons: Show, Context, Info, Command
+  These invoke commands previously available on keys/menus.
 
+* Toolbar enablers have been added.   
+  Buttons are automatically enabled or disabled as appropriate.   
+  This may require XEmacs 21 for reliable working.  
+  (Toolbar only works with XEmacs)
+
+* Tweaks for Isabelle and Isar syntax.  Fixed problem with
+  recognizing goals of the old form val prems = goal ...
+
+* Terminal string now automatically added to command for C-c C-v 
+
+* Cleaned up example files so all demonstrate same theorem "conj_comms".
+  Would be nice to add more theorems to compare scripts/proofs in
+  different systems.  Please send in example scripts!
+
+* Other minor improvements and alterations:
+  - Shorter buffer names (esp for Coq).
+  - Set proof-{qed,save}-commands so the toolbar functions work.
+  - Removed transparent gif from splash screen because XEmacs can't
+    display it nicely.
+  - Documentation updates
 
 
 Only in the developer's release:
