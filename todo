@@ -119,6 +119,9 @@ B As well as duplicated variables, we also have duplicated modes,
   Shouldn't the generic interface directly *define* the derived
   version required?   (1h to fix)
 
+B Fixup implementation of "spans".   Add documentation!
+  (2h)
+
 
 * Proof-by-Pointing
 ===================
@@ -228,9 +231,10 @@ A extend Copyright to 1998
 A fix INSTALL file, add COPYING note
 
 A write Makefile targets to build documentation formats
-  and generate distributable tar.gz file, tag sources
-  with release version.  Perhaps add subdirectories
-  doc/ etc/ proof/ coq/ lego/ isabelle/
+  and generate distributable tar.gz file, tag sources,
+  compile .elc, web page (?), with release version.
+
+  Perhaps add subdirectories doc/ generic/ coq/ lego/ isabelle/
   (3h, da moderately willing to do the dirty work)
 
 
