@@ -283,6 +283,8 @@
    (list 
     "^Level [0-9].*"
     "^No subgoals!$"
+    "^Variables:$"
+    "^Constants:$"
     "\\s-*[0-9][0-9]?\\. ")
    isa-output-font-lock-keywords-1))
 
