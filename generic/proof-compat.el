@@ -176,49 +176,41 @@ and replace a sub-expression, e.g.
 The GNU Emacs implementation of easy-menu-define has a very handy
 :visible keyword.  To use that when it's available, we use this constant.")
 
+ 
+(or (fboundp 'frame-parameter)
+    (defalias 'frame-parameter 'frame-property))
 
-;; Add get-window-with-predicate from Emacs 21.2.1 to XE 21.4.12
-;; Reason: unidentified function(!) calls this during PG startup
-(or (fboundp 'get-window-with-predicate)
-(defun get-window-with-predicate (predicate &optional minibuf
-					    all-frames default)
-  "Return a window satisfying PREDICATE.
+(or (boundp 'window-size-fixed)
+    (defvar window-size-fixed nil 
+      "Fudged version of GNU Emacs' setting.  Completely ignored."))
 
-This function cycles through all visible windows using `walk-windows',
-calling PREDICATE on each one.  PREDICATE is called with a window as
-argument.  The first window for which PREDICATE returns a non-nil
-value is returned.  If no window satisfies PREDICATE, DEFAULT is
-returned.
+(or (fboundp 'window-text-height)
+    (defalias 'window-text-height 'window-text-area-height))
 
-Optional second arg MINIBUF t means count the minibuffer window even
-if not active.  MINIBUF nil or omitted means count the minibuffer iff
-it is active.  MINIBUF neither t nor nil means not to count the
-minibuffer even if it is active.
+(or (fboundp 'set-window-text-height)
+(defun set-window-text-height (window height)
+  "Sets the height in lines of the text display area of WINDOW to HEIGHT.
+This doesn't include the mode-line (or header-line if any) or any
+partial-height lines in the text display area.
 
-Several frames may share a single minibuffer; if the minibuffer
-counts, all windows on all frames that share that minibuffer count
-too.  Therefore, if you are using a separate minibuffer frame
-and the minibuffer is active and MINIBUF says it counts,
-`walk-windows' includes the windows in the frame from which you
-entered the minibuffer, as well as the minibuffer window.
+If WINDOW is nil, the selected window is used.
 
-ALL-FRAMES is the optional third argument.
-ALL-FRAMES nil or omitted means cycle within the frames as specified above.
-ALL-FRAMES = `visible' means include windows on all visible frames.
-ALL-FRAMES = 0 means include windows on all visible and iconified frames.
-ALL-FRAMES = t means include windows on all frames including invisible frames.
-If ALL-FRAMES is a frame, it means include windows on that frame.
-Anything else means restrict to the selected frame."
-  (catch 'found
-    (walk-windows #'(lambda (window)
-		      (when (funcall predicate window)
-			(throw 'found window)))
-		  minibuf all-frames)
-    default)))
+Note that the current implementation of this function cannot always set
+the height exactly, but attempts to be conservative, by allocating more
+lines than are actually needed in the case where some error may be present."
+  (let ((delta (- height (window-text-height window))))
+    (unless (zerop delta)
+      (let ((window-min-height 1))
+	(if (and window (not (eq window (selected-window))))
+	    (save-selected-window
+	      (select-window window)
+	      (enlarge-window delta))
+	  (enlarge-window delta)))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; GNU Emacs compatibility
+;;; GNU Emacs compatibility with XEmacs
 ;;;
 
 ;; Chars (borrowed from x-symbol-emacs.el compatability file)
@@ -407,6 +399,56 @@ The modified ALIST is returned."
 	(setq newalist (cons (car alist) newalist)))
       (setq alist (cdr alist)))
     (nreverse newalist))))
+
+(or (fboundp 'frames-of-buffer)
+;; From XEmacs 21.4.12, aliases expanded
+(defun frames-of-buffer (&optional buffer visible-only)
+  "Return list of frames that BUFFER is currently being displayed on.
+If the buffer is being displayed on the currently selected frame, that frame
+is first in the list.  VISIBLE-ONLY will only list non-iconified frames."
+  (let ((list (get-buffer-window-list buffer))
+	(cur-frame (selected-frame))
+	next-frame frames save-frame)
+
+    (while list
+      (if (memq (setq next-frame (window-frame (car list)))
+		frames)
+	  nil
+	(if (eq cur-frame next-frame)
+	    (setq save-frame next-frame)
+	  (and
+	   (or (not visible-only)
+	       (frame-visible-p next-frame))
+	   (setq frames (append frames (list next-frame))))))
+	(setq list (cdr list)))
+
+    (if save-frame
+	(append (list save-frame) frames)
+      frames))))
+
+;; These functions are used in the intricate logic around
+;; shrink-to-fit.  
+
+;; window-leftmost-p, window-rightmost-p: my implementations
+(or (fboundp 'window-leftmost-p)
+    (defun window-leftmost-p (window)
+      (zerop (car (window-edges window)))))
+
+(or (fboundp 'window-rightmost-p)
+    (defun window-rightmost-p (window)
+      (>= (nth 2 (window-edges window))
+	  (frame-width (window-frame window)))))
+
+;; with-selected-windown from XEmacs 21.4.12
+(or (fboundp 'with-selected-window)
+(defmacro with-selected-window (window &rest body)
+  "Execute forms in BODY with WINDOW as the selected window.
+The value returned is the value of the last form in BODY."
+  `(save-selected-window
+     (select-window ,window)
+     ,@body)))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
