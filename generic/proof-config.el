@@ -398,69 +398,65 @@ The protocol used should be configured so that no user interaction
   :group 'proof-general
   :prefix "proof-")
   
-(defface proof-queue-face
-  '((((type x) (class color) (background light))
-     (:background "mistyrose"))
-    (((type x) (class color) (background dark))
-     (:background "mediumvioletred"))
-    (((type mswindows) (class color) (background light))
-     (:background "mistyrose"))
-    (t				
-     (:foreground "white" :background "black")))
+(defmacro proof-face-specs (bl bd ow)
+  "Return a spec for `defface' with BL for light bg, BD for dark, OW o/w."
+  `(append
+    (apply 'append
+     (mapcar 
+     (lambda (ty) (list
+		     (list (list (list 'type ty) '(class color)
+			   (list 'background 'light))
+			   (quote ,bl))
+		     (list (list (list 'type ty) '(class color)
+				 (list 'background 'dark))
+			   (quote ,bd))))
+     '(x mswindows gtk)))
+    (list (list t (quote ,ow)))))
+
+(defface proof-queue-face 
+  (proof-face-specs 
+   (:background "mistyrose")
+   (:background "mediumvioletred")
+   (:foreground "white" :background "black"))
   "*Face for commands in proof script waiting to be processed."
   :group 'proof-faces)
 
 (defface proof-locked-face
-  '((((type x) (class color) (background light))   
-     (:background "lightsteelblue2"))	; was "lavender"
-    (((type x) (class color) (background dark))   
-     (:background "navy"))
-    (((type mswindows) (class color) (background light))   
-     (:background "lightsteelblue2"))
-    (t				
-     (:underline t)))
+  (proof-face-specs
+   (:background "lightsteelblue2")	; was "lavender"
+   (:background "navy")
+   (:underline t))
   "*Face for locked region of proof script (processed commands)."
   :group 'proof-faces)
 
 (defface proof-declaration-name-face
-  '((((type x) (class color) (background light))   
-     (:foreground "chocolate" 
-      :bold t))
-    (((type x) (class color) (background dark))   
-     (:foreground "orange"
-      :bold t))
-    (((type mswindows) (class color) (background light))   
-     (:foreground "chocolate" 
-      :bold t))
-    (t				
-     (:italic t :bold t)))
+  (proof-face-specs
+   (:foreground "chocolate" :bold t)
+   (:foreground "orange" :bold t)
+   (:italic t :bold t))
   "*Face for declaration names in proof scripts.
 Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
 ;; FIXME da: are these defconsts still needed now we use defface?
-(defconst proof-declaration-name-face 'proof-declaration-name-face
-  "Expression that evaluates to a face.
-Required so that 'proof-declaration-name-face is a proper facename in
-both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
+;(defconst proof-declaration-name-face 'proof-declaration-name-face
+;  "Expression that evaluates to a face.
+;Required so that 'proof-declaration-name-face is a proper facename in
+;both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
 
 (defface proof-tacticals-name-face
-  '((((type x) (class color) (background light))   
-     (:foreground "MediumOrchid3"))
-    (((type x) (class color) (background dark))   
-     (:foreground "orchid"))
-    (((type mswindows) (class color) (background light))   
-     (:foreground "MediumOrchid3"))
-    (t				
-     (bold t)))
+  (proof-face-specs
+   (:foreground "MediumOrchid3")
+   (:foreground "orchid")
+   (bold t))
   "*Face for names of tacticals in proof scripts.
 Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
-(defconst proof-tacticals-name-face 'proof-tacticals-name-face
-  "Expression that evaluates to a face.
-Required so that 'proof-tacticals-name-face is a proper facename in
-both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
+;(defconst proof-tacticals-name-face 'proof-tacticals-name-face
+;  "Expression that evaluates to a face.
+;Required so that 'proof-tacticals-name-face is a proper facename in
+;both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-tactics-name-face
   '((t				
@@ -470,75 +466,51 @@ By default, they are printed with default face but the user
 may want to color them differently."
   :group 'proof-faces)
 
-(defconst proof-tactics-name-face 'proof-tactics-name-face
-  "Expression that evaluates to a face.
-Required so that 'proof-tactics-name-face is a proper facename in
-both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
+;(defconst proof-tactics-name-face 'proof-tactics-name-face
+;  "Expression that evaluates to a face.
+;Required so that 'proof-tactics-name-face is a proper facename in
+;both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
 
 (defface proof-error-face 
-  '((((type x) (class color) (background light))   
-     (:background "salmon1"  
-      :bold t))
-    (((type x) (class color) (background dark))   
-     (:background "brown" 
-      :bold t))
-    (((type mswindows) (class color) (background light))   
-     (:background "salmon1"  
-      :bold t))
-    (t				
-     (:bold t)))
+  (proof-face-specs
+   (:background "salmon1" :bold t)
+   (:background "brown" :bold t)
+   (:bold t))
   "*Face for error messages from proof assistant."
   :group 'proof-faces)
 
 (defface proof-warning-face
-  '((((type x) (class color) (background light))   
-     (:background "lemon chiffon"))
-    (((type x) (class color) (background dark))   
-     (:background "orange2"))
-    (((type mswindows) (class color) (background light))   
-     (:background "lemon chiffon"))
-    (t				
-     (:italic t)))
+  (proof-face-specs
+   (:background "lemon chiffon")
+   (:background "orange2")
+   (:italic t))
   "*Face for warning messages.
 Warning messages can come from proof assistant or from Proof General itself."
   :group 'proof-faces)
 
 (defface proof-eager-annotation-face
-  '((((type x) (class color) (background light))   
-     (:background "lightgoldenrod"))
-    (((type x) (class color) (background dark))   
-     (:background "darkgoldenrod"))
-    (((type mswindows) (class color) (background light))   
-     (:background "lightgoldenrod"))
-    (t				
-     (:italic t)))
+  (proof-face-specs
+   (:background "lightgoldenrod")
+   (:background "darkgoldenrod")
+   (:italic t))
   "*Face for important messages from proof assistant."
   :group 'proof-faces)
 
 (defface proof-debug-message-face
-  '((((type x) (class color) (background light))   
-     (:foreground "Gray65"))
-    (((type x) (class color) (background dark))   
-     (:background "Gray30"))
-    (((type mswindows) (class color) (background light))   
-     (:foreground "Gray65"))
-    (t				
-     (:italic t)))
+  (proof-face-specs
+   (:foreground "Gray65")
+   (:background "Gray30")
+   (:italic t))
   "*Face for debugging messages from Proof General."
   :group 'proof-faces)
 
 (defface proof-boring-face
-  '((((type x) (class color) (background light))   
-     (:foreground "Gray65"))
-    (((type x) (class color) (background dark))   
-     (:background "Gray30"))
-    (((type mswindows) (class color) (background light))   
-     (:foreground "Gray65"))
-    (t				
-     (:italic t)))
+  (proof-face-specs
+   (:foreground "Gray65")
+   (:background "Gray30")
+   (:italic t))
   "*Face for boring text in proof assistant output."
   :group 'proof-faces)
-
 
 
 
@@ -851,12 +823,19 @@ NB: This setting is not used for matching output from the prover."
   "Regexp which matches a command to save a named theorem.
 Match number 2 should be the name of the theorem saved.
 Used for setting names of goal..save regions and for default
-function-menu configuration in proof-script-find-next-entity."
+function-menu configuration in proof-script-find-next-entity.
+
+It's safe to leave this setting as nil."
   :type 'regexp
   :group 'proof-script)
 
+;; FIXME: unify uses so that proof-anchor-regexp works sensibly
 (defcustom proof-goal-command-regexp nil
-  "Matches a goal command in the proof script.   Must be set."
+  "Matches a goal command in the proof script.   
+This is used (1) to make the default value for `proof-goal-command-p',
+used as an important part of script management to find the start
+of an atomic undo block, and (2) to construct the default 
+for `proof-script-next-entity-regexps' used for function menus."
   :type 'regexp
   :group 'proof-script)
 
@@ -864,7 +843,9 @@ function-menu configuration in proof-script-find-next-entity."
   "Regexp which matches a command used to issue and name a goal.
 Match number 2 should be the name of the goal issued.
 Used for setting names of goal..save regions and for default
-function-menu configuration in proof-script-find-next-entity."
+function-menu configuration in proof-script-find-next-entity.
+
+It's safe to leave this setting as nil."
   :type 'regexp
   :group 'proof-script)
 
@@ -872,7 +853,7 @@ function-menu configuration in proof-script-find-next-entity."
   "Regular expression matching commands which are *not* undoable.
 Used in default functions `proof-generic-state-preserving-p' 
 and `proof-generic-count-undos'.  If you don't use those,
-May be left as nil."
+may be left as nil."
   :type '(choice nil regexp)
   :group 'proof-script)
 
@@ -965,6 +946,9 @@ default."
 ;;  regexps or functions, handled in proof-string-match.
 ;; FIXME mmw: the span is required to scan backwards through the text,
 ;;  determining the depth of proof nesting.
+;; FIXME da: yuck!  What I'd really like to replace the mess with is
+;;  feedback from the proof assistant, saying "that was a save", etc.
+;;
 (defcustom proof-really-save-command-p (lambda (span cmd) t)
   "Is this really a save command?"
   :type 'function
