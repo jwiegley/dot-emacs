@@ -26,14 +26,24 @@ A Add support for people typing directly into the inferior process.
   get in the way of experienced users.
   (da, 1hr: I'm not sure of the best way of doing this)
 
-A proof-toolbar:  Add support for entering a goal and saving a theorem
-  at the generic level.  These functions should also
-  be accessible from menus.  Fixup movement of point (choice of
+A proof-toolbar:  Fixup movement of point (choice of
   up and down functions).  Add toolbar to pbp mode too.  
-  (1hr, da)
+  (30mins, da)
 
-B proof-toolbar: add more buttons for moving to top and bottom of
-  whole file.  Use "standard" CD-player type icons.
+B Better support for adding a new prover: give error messages which
+  hint at what variable to set (see proof-issue-goal for example).
+
+X Read-only mode of extents sometimes gets in the way: for example,
+  if file changes on disk, can't reload it via usual functions.
+  Can this be improved?  Always have to retract first, and that
+  always leaves stuff around.
+
+B User-level functions: 
+  1. add new version of undo-until-point which behaves analogously to 
+  proof-assert-next-command.
+  2. make version of proof-restart-script which will start or
+  restart the proof assistant as appropriate.  (It's handy to have
+  a direct function to start the proof assistant).
   (1hr, da)
 
 X Improve toolbar icons.  Automatically generate reduced and
@@ -191,6 +201,8 @@ X Comment support is not very generic: we don't support end-of-line
 
 * Proof-by-Pointing
 ===================
+
+A Change proof by pointing (pbp) stuff into proofstate buffer stuff.
 
 A Fixing up errors caused by pbp-generated commands; currently, script
   management unwisely assumes that pbp commands cannot fail (2h tms)
