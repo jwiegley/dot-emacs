@@ -207,7 +207,7 @@ to the default toolbar." t nil)
 
 ;;;***
 
-;;;### (autoloads (proof-x-symbol-configure proof-x-symbol-shell-config proof-x-symbol-mode proof-x-symbol-decode-region proof-x-symbol-enable proof-x-symbol-support-maybe-available) "proof-x-symbol" "generic/proof-x-symbol.el")
+;;;### (autoloads (proof-x-symbol-config-output-buffer proof-x-symbol-shell-config proof-x-symbol-mode proof-x-symbol-decode-region proof-x-symbol-enable proof-x-symbol-support-maybe-available) "proof-x-symbol" "generic/proof-x-symbol.el")
 
 (autoload 'proof-x-symbol-support-maybe-available "proof-x-symbol" "\
 A test to see whether x-symbol support may be available." nil nil)
@@ -230,7 +230,7 @@ takes place (it isn't used for output-only buffers)." t nil)
 Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil.
 Assumes that the current buffer is the proof shell buffer." nil nil)
 
-(autoload 'proof-x-symbol-configure "proof-x-symbol" "\
+(autoload 'proof-x-symbol-config-output-buffer "proof-x-symbol" "\
 Configure the current output buffer (goals/response/trace) for X-Symbol." nil nil)
 
 ;;;***

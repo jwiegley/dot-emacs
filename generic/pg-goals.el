@@ -74,7 +74,7 @@ May enable proof-by-pointing or similar features.
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."
   (proof-font-lock-configure-defaults nil)
-  (proof-x-symbol-configure))
+  (proof-x-symbol-config-output-buffer))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

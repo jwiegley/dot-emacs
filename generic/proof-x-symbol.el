@@ -21,15 +21,14 @@
 ;; Notes on interacing to X-Symbol.
 ;;
 ;; 1. Proof script buffers.
-;; Font lock and X-Symbol minor modes are engaged as usual.
-;; We use proof-x-symbol-enable to add/remove PG buffers
-;; to X-Symbol's auto-mode list.
+;; Font lock and X-Symbol minor modes are engaged as usual.  We use
+;; proof-x-symbol-enable to add/remove PG buffers to X-Symbol's
+;; auto-mode list.
 ;;
 ;; 2. Output buffers (goals, response, tracing)
-;; Neither font-lock nor X-Symbol mode is engaged.
-;; Instead, we simply set `x-symbol-language', and call
-;; `x-symbol-decode' or `x-symbol-decode-region', via
-;; `proof-fontify-region' (which see).
+;; Neither font-lock nor X-Symbol mode is engaged.  Instead, we simply
+;; set `x-symbol-language', and call `x-symbol-decode' or
+;; `x-symbol-decode-region', via `proof-fontify-region' (which see).
 ;;
 
 
@@ -61,9 +60,7 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	      (if error (error str) (warn str))))))
       ;; Check that support is provided.
       (cond
-       ;;
        ;; First, some checks on x-symbol.
-       ;;
        ((and (not (featurep 'x-symbol))
 	     (not (proof-try-require 'x-symbol)))
 	(funcall error-or-warn
@@ -80,8 +77,7 @@ The package is available at http://x-symbol.sourceforge.net/"))
        ;; Now check proof assistant has support provided
        ;;
        ;; FIXME: maybe we should let x-symbol load the feature, in
-       ;; case it uses x-symbol stuff inside.
-       ;; Is there an easy way of testing for library exists?
+       ;; case it uses x-symbol stuff inside.  
        ((not (proof-try-require xs-feature-sym))
 	(funcall error-or-warn 
 		 (format
@@ -92,25 +88,23 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	(require 'x-symbol-vars)  ;; [new requirement to require this]
 	(let*
 	    ((xs-xtra-modes  proof-xsym-extra-modes)
-	     (xs-std-modes   (list
-			      ;; NB: there is a problem with
-			      ;; initialization order here, these
-			      ;; variables are set in script/shell
-			      ;; mode initialization.  They ought to
-			      ;; be set earlier, and enforced as part
-			      ;; of the generic scheme.  For the time
-			      ;; being, we use default constructed
-			      ;; names [which every prover should
-			      ;; follow]
-			      (or proof-mode-for-shell
-				  (intern (concat assistant "-shell-mode")))
-			      (or proof-mode-for-response
-				  (intern (concat assistant "-response-mode")))
-			      (or proof-mode-for-script
-				  ;; FIXME: next one only correct for isabelle
-				  (intern (concat assistant "-proofscript-mode")))
-			      (or  proof-mode-for-goals
-				   (intern (concat assistant "-goals-mode")))))
+	     (xs-std-modes   
+	      (list
+	       ;; NB: there is a problem with initialization order
+	       ;; here, these variables are set in script/shell mode
+	       ;; initialization.  They ought to be set earlier, and
+	       ;; enforced as part of the generic scheme.  For the
+	       ;; time being, we use default constructed names [which
+	       ;; every prover should follow]
+	       (or proof-mode-for-shell
+		   (intern (concat assistant "-shell-mode")))
+	       (or proof-mode-for-response
+		   (intern (concat assistant "-response-mode")))
+	       (or proof-mode-for-script
+		   ;; FIXME: next one only correct for isabelle
+		   (intern (concat assistant "-proofscript-mode")))
+	       (or  proof-mode-for-goals
+		    (intern (concat assistant "-goals-mode")))))
 	     (all-xs-modes   (append xs-std-modes xs-xtra-modes))
 	     (am-entry       (list proof-xsym-extra-modes t 
 				   `(quote ,xs-lang)))
@@ -129,14 +123,14 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	  (set symnamevar symname)
 	  (set symmodelinevar symmodelinenm)
 	  (x-symbol-register-language xs-lang xs-feature-sym all-xs-modes)
-	  ;; Put the extra modes on the auto-mode-alist
-	  ;; (temporarily disabled: may be okay to re-add now, if necessary)
+	  ;; Put the extra modes on the auto-mode-alist (temporarily
+	  ;; disabled: may be okay to re-add now, if necessary)
+
 	  ;; (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
 	  ;; (isa-latex).
 
-	  ;; FIXME: Isabelle wants this for sup/sub scripts presently
-	  ;; loads too early and extends in modedef setups.  Want to
-	  ;; adjust here.
+	  ;; FIXME: Need for Isabelle sup/sub scripts presently; loads
+	  ;; too early and extends in modedef setups.  Adjust here.
 	  (if flks
 	      (put symmode 'font-lock-defaults (list flks)))
 	  ;;
@@ -158,16 +152,17 @@ The package is available at http://x-symbol.sourceforge.net/"))
 
 ;;;###autoload
 (defun proof-x-symbol-enable ()
-  "Turn on or off support for X-Symbol, initializing if necessary.
-Calls proof-x-symbol-toggle-clean-buffers afterwards."
+  "Turn on or off X-Symbol in current Proof General script buffer.
+This invokes `x-symbol-mode' to toggle the setting for the current
+buffer, and then sets PG's option for default to match.
+Also we arrange to have X-Symbol mode turn itself on automatically 
+in future if we have just activated it for this buffer."
+;; Calls proof-x-symbol-toggle-clean-buffers afterwards.
   (if (not proof-x-symbol-initialized) ;; Check inited
       (progn
 	(set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
 	(set (proof-ass-sym x-symbol-enable) t)))
-  ;; 3.5: New behaviour is to just toggle for local buffer and
-  ;; output buffers, and try to persuade X-Symbol to follow
-  ;; our setting for defaults (on file loading) from now on.
   (proof-x-symbol-set-global (not x-symbol-mode))
   (x-symbol-mode)
   (proof-x-symbol-mode-associated-buffers))
@@ -176,12 +171,15 @@ Calls proof-x-symbol-toggle-clean-buffers afterwards."
 ;; buffers --- but this can take ages if there are many buffers!  
 ;; We also used to refresh the output, but this doesn't always work.
 ;; (proof-x-symbol-mode-all-buffers)
-;; (proof-x-symbol-toggle-clean-buffers))
+;; (proof-x-symbol-refresh-output-buffers))
 
 
-
-
-(defun proof-x-symbol-toggle-clean-buffers ()
+(defun proof-x-symbol-refresh-output-buffers ()
+  ;; FIXME: this isn't used.  Might be nice to do so again, turning
+  ;; off X-Sym can leave junk displayed.  OTOH, sending messages to PA
+  ;; can give errors, because there is no generic "refresh" or
+  ;; "repeat" option.  (Isar: gives errors outside proof mode).
+  ;; Another possibility would just be to clear the display.
   "Clear the response buffer and send proof-showproof-command.
 This function is intended to clean the display after a change
 in the status of X-Symbol display.
@@ -189,6 +187,28 @@ This is a subroutine of proof-x-symbol-enable."
   (proof-shell-maybe-erase-response nil t t)
   (if (and proof-showproof-command (proof-shell-available-p))
     (proof-shell-invisible-command proof-showproof-command)))
+
+
+(defun proof-x-symbol-mode-associated-buffers ()
+  "Activate/deactivate x-symbols in all Proof General associated buffers.
+A subroutine of proof-x-symbol-enable."
+  ;; Response and goals buffer are fontified/decoded 
+  ;; manually in the code, configuration only sets
+  ;; x-symbol-language.
+  (proof-map-buffers (list proof-goals-buffer 
+			   proof-response-buffer
+			   proof-trace-buffer)
+   (proof-x-symbol-config-output-buffer))
+  ;; Shell has its own configuration
+  (proof-with-current-buffer-if-exists proof-shell-buffer
+   (proof-x-symbol-shell-config)))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Possible DEAD CODE if X-Symbol functions suffice here now
+;; 
 
 ;;;###autoload
 (defun proof-x-symbol-decode-region (start end) 
@@ -233,39 +253,13 @@ A value for proof-shell-insert-hook."
                  (kill-buffer (current-buffer)))))))
 
 
-
-(defun proof-x-symbol-mode-associated-buffers ()
-  "Activate/deactivate x-symbols in all Proof General associated buffers.
-A subroutine of proof-x-symbol-enable."
-  ;; Response and goals buffer are fontified/decoded 
-  ;; manually in the code, configuration only sets
-  ;; x-symbol-language.
-  (proof-map-buffers (list proof-goals-buffer 
-			   proof-response-buffer
-			   proof-trace-buffer)
-   (proof-x-symbol-configure))
-  ;; Shell has its own configuration
-  (proof-with-current-buffer-if-exists proof-shell-buffer
-   (proof-x-symbol-shell-config)))
-
-
-(defun proof-x-symbol-mode-all-buffers ()
-  "Activate/deactivate x-symbols in all Proof General buffers.
-A subroutine of proof-x-symbol-enable."
-  (proof-x-symbol-mode-associated-buffers)
-  ;; Script buffers are in X-Symbol's minor mode, 
-  ;; And so are any other buffers kept in the same token language
-  (dolist (mode (cons proof-mode-for-script proof-xsym-extra-modes))
-    (proof-map-buffers 
-     (proof-buffers-in-mode mode)
-     (proof-x-symbol-mode))))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Three functions for configuring buffers:
+;; There are three functions for configuring buffers:
 ;;
-;;  proof-x-symbol-mode:	  for script buffer (X-Symbol minor mode)
-;;  proof-x-symbol-shell-config:  for shell buffer (input hook)
-;;  proof-x-symbol-configure:     for goals/response buffer (font lock)
+;;  x-symbol-mode:	                 script buffer (X-Symbol minor mode)
+;;  proof-x-symbol-shell-config:         shell buffer (input hook)
+;;  proof-x-symbol-config-output-buffer: goals/response buffer (font lock)
 ;;
 
 (defun proof-x-symbol-set-language ()
@@ -273,41 +267,22 @@ A subroutine of proof-x-symbol-enable."
   (setq x-symbol-language (proof-ass x-symbol-language)))
 
 ;;;###autoload
-(defun proof-x-symbol-mode ()
-  "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable.
-The X-Symbol minor mode is only useful in buffers where symbol input
-takes place (it isn't used for output-only buffers)."
-  (interactive)
-  (save-excursion			; needed or point moves: why?
-    (if proof-x-symbol-initialized
-	(progn
-	  ;; Buffers which have XS minor mode toggled always keep 
-	  ;; x-symbol-language set.
-	  (proof-x-symbol-set-language)
-	  (x-symbol-mode (if (proof-ass x-symbol-enable) 1 0))
-	  ;; Font lock mode must be engaged for x-symbol to do its job
-          ;; properly, at least when there is no mule around.
-	  (if (and x-symbol-mode (not (featurep 'mule)))
-	      (if (not font-lock-mode)
-		  (font-lock-mode)
-		;; Even if font-lock was on before we may need to
-		;; refontify now that the patterns (and buffer
-		;; contents) have changed. Shouldn't x-symbol do this?
-		(font-lock-fontify-buffer)))))))
-
-;;;###autoload
 (defun proof-x-symbol-shell-config ()
   "Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil.
 Assumes that the current buffer is the proof shell buffer."
-  ;; The best strategy seems to be *not* to turn on decoding
-  ;; in the shell itself.  The reason is that there can be
-  ;; a clash between annotations and X-Symbol characters
-  ;; which leads to funny effects later.  Moreover, the
-  ;; user isn't encouraged to interact directly with the
-  ;; shell, so we don't need to be helpful there.
-  ;; So we keep the shell buffer as plain text plus annotations.
-  ;; Even font-lock is problematical, so it should be switched off
-  ;; too.
+  ;; The best strategy seems to be *not* to turn on decoding in the
+  ;; shell itself.  The reason is that there can be a clash between
+  ;; annotations and X-Symbol characters which leads to funny effects
+  ;; later.  Moreover, the user isn't encouraged to interact directly
+  ;; with the shell, so we don't need to be helpful there.  So we keep
+  ;; the shell buffer as plain text plus annotations.  Even font-lock
+  ;; is problematical, so it should be switched off too.
+
+  ;; NB: after changing X-Symbols in output it would be nice to
+  ;; refresh display, but there's no robust way of doing that yet
+  ;; (see proof-x-symbol-refresh-output-buffers above)
+  ;; [ Actually, we could ask that the activate/decativate command
+  ;;   itself does this ]
   (if proof-x-symbol-initialized
       (progn
 	(cond
@@ -315,16 +290,16 @@ Assumes that the current buffer is the proof shell buffer."
 	  (proof-x-symbol-set-language)
 	  (if (and proof-xsym-activate-command 
 		   (proof-shell-live-buffer))
-	      (proof-shell-invisible-command 
-	       proof-xsym-activate-command 'wait))
+	      (proof-shell-invisible-command-invisible-result
+	       proof-xsym-activate-command))
 	  ;; We do encoding as the first step of input manipulation
 	  (add-hook 'proof-shell-insert-hook
 		    'proof-x-symbol-encode-shell-input))
 	 ((not (proof-ass x-symbol-enable))
 	  (if (and proof-xsym-deactivate-command 
 		   (proof-shell-live-buffer))
-	      (proof-shell-invisible-command 
-	       proof-xsym-deactivate-command 'wait))
+	      (proof-shell-invisible-command-invisible-result
+	       proof-xsym-deactivate-command))
 	  (remove-hook 'proof-shell-insert-hook
 		       'proof-x-symbol-encode-shell-input)
 	  ;; NB: x-symbol automatically adds an output filter but
@@ -334,7 +309,7 @@ Assumes that the current buffer is the proof shell buffer."
 		       'x-symbol-comint-output-filter))))))
 
 ;;;###autoload
-(defun proof-x-symbol-configure ()
+(defun proof-x-symbol-config-output-buffer ()
   "Configure the current output buffer (goals/response/trace) for X-Symbol."
   (if (proof-ass x-symbol-enable)
       (progn
@@ -368,6 +343,7 @@ Assumes that the current buffer is the proof shell buffer."
   ;     (x-symbol-encode))))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Try to initialize x-symbol-support on load-up if user has asked for it
 ;;
@@ -375,7 +351,7 @@ Assumes that the current buffer is the proof shell buffer."
     (progn
       (proof-x-symbol-initialize)
       (if proof-x-symbol-initialized
-	  (proof-x-symbol-set-auto-mode t) ;; turn on in all PG buffers
+	  (proof-x-symbol-set-global t) ;; turn on in all PG buffers
 	;; If init failed, turn off x-symbol-enable for the session.
 	(customize-set-variable (proof-ass-sym x-symbol-enable) nil))))
 

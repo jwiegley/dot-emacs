@@ -1743,6 +1743,14 @@ usual, unless NOERROR is non-nil."
     (setq proof-shell-ignore-errors nil))
   proof-shell-last-output)
 
+(defun proof-shell-invisible-command-invisible-result (cmd &optional noerror)
+  "Execute CMD, wait for but do not display result."
+  ;; Just same as previous function, except we discard result
+  (proof-shell-invisible-cmd-get-result cmd noerror)
+  nil)
+  
+  
+
 
 
 

@@ -47,7 +47,7 @@
 (defun proof-response-config-done ()
   "Complete initialisation of a response-mode derived buffer."
   (proof-font-lock-configure-defaults nil)
-  (proof-x-symbol-configure))
+  (proof-x-symbol-config-output-buffer))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
