@@ -348,8 +348,9 @@ proof-shell-retract-files-regexp."
       (setq str (span-property span 'cmd))
       (cond ((eq (span-property span 'type) 'vanilla)
              (or (proof-string-match isar-undo-skip-regexp str)
+		 (proof-string-match isar-undo-ignore-regexp str)
                  (setq ct (+ 1 ct))))
-            ((eq (span-property span 'type) 'pbp)
+            ((eq (span-property span 'type) 'pbp)  ;FIXME dead code?
              ;; this case probably redundant for Isabelle, unless
              ;; we think of some nice ways of matching non-undoable
              ;; commands.
@@ -373,7 +374,8 @@ proof-shell-retract-files-regexp."
       (cond
        ;; comment or diagnostic command: skip
        ((or (eq (span-property span 'type) 'comment)
-            (proof-string-match isar-undo-skip-regexp str)))
+            (proof-string-match isar-undo-skip-regexp str)
+            (proof-string-match isar-undo-ignore-regexp str)))
        ;; finished goal: undo
        ((eq (span-property span 'type) 'goalsave)
         (setq ans isar-undo))
