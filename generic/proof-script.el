@@ -1141,11 +1141,12 @@ This version is used when `proof-script-command-start-regexp' is set."
 	      (setq tmp (point))
 	      (goto-char comstart)
 	      (skip-chars-backward " \t\n")
-	      (let* ((bufstr (buffer-substring prev (point)))
+	      (let* ((prev-no-blanks
+		      (save-excursion (goto-char prev) (skip-chars-forward " \t\n") (point)))
+		     (bufstr (buffer-substring prev-no-blanks (point)))
 		     (type   (if (eq (string-match commentre bufstr) 0)
 				 'comment 'cmd))
 		     (string (if (eq type 'comment) "" bufstr)))
-;		(skip-chars-forward " \t\n")      ; FIXME markus: just don't do this
 		(setq prev (point))
 		(goto-char tmp)
 		;; NB: Command string excludes whitespace, span includes it.
