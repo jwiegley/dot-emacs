@@ -29,31 +29,46 @@
 ##   Use 'make untag' before re-trying if 'make releaseall' fails.
 ##   Use 'make releaseclean' if giving up, to remove temp dirs.
 ##
+##   No facility to edit html to make a full release in this makefile.  
+##   Too much effort for infrequenty used function.  
+##   Must edit download.html by hand, then run 
+##
+##    make releaseall VERSION=2.0
+##
+##   Or similar to make the required version.
+##
 ## $Id$
 ## 
 ###########################################################################
 
 
-# TODO: (da) Add target for byte compilation.
+# Release tag.  For pre-releases.  Watch out with
+# substitution in tag target below, which edits
+# html/download.html
+PRERELEASE_TAG=2.0pre$(shell date "+%y%m%d")
 
-# Release tags. 
-#   NB: 1. CVS tags can't have points in them.
-#       2. RPM names can't have hyphens in them
-RELEASE_TAG=2.0pre$(shell date "+%y%m%d")
-CVS_RELEASE_TAG=2-0pre$(shell date "+%y%m%d")
+# This is used for full releases to control the tag name
+# and distribution name.  No editing of html is done
+# when PRERELEASE_TAG != VERSION
+VERSION=$(PRERELEASE_TAG)
+
 NAME = ProofGeneral
 LATESTNAME = ProofGeneral-latest
 DEVELLATESTNAME = ProofGeneral-devel-latest
+
+#   NB: CVS tags can't have points in them.  
+#   Substitute points for hyphens.
+CVS_VERSION=$(shell echo $(VERSION) | sed 's/\./-/g')
+
 # Name of tar file and RPM file.
-RELEASENAME = ProofGeneral-$(RELEASE_TAG)
-DEVELRELEASENAME = ProofGeneral-$(RELEASE_TAG)-devel
-CVS_RELEASENAME = Release-$(CVS_RELEASE_TAG)
+RELEASENAME = ProofGeneral-$(VERSION)
+DEVELRELEASENAME = ProofGeneral-$(VERSION)-devel
+CVS_RELEASENAME = Release-$(CVS_VERSION)
 
 # Where to release (i.e. copy) a new distribution to
 RELEASEDIR = /home/proofgen/www/
 
 CVSNAME = ProofGeneral
-#CVSROOT = /home/proofgen/src
 
 # Remote commands to use CVS in server mode and install files.
 # With these settings the build can be done remotely.
@@ -61,7 +76,6 @@ CVSNAME = ProofGeneral
 # CVSROOT = :ext:$(USER)@$(MACHINE).dcs.ed.ac.uk:/home/proofgen/src
 # CVS_RSH=ssh
 CVSROOT = /home/proofgen/src
-
 
 # Emacs
 EMACS=xemacs
@@ -194,24 +208,28 @@ images:	FORCE
 
 ############################################################
 ##
-## tag:    tag the CVS sources of working directory with RELEASE_TAG,
-##	   and edit version stamp in proof-site.el
-##	   (Developers only)
+## tag:    tag the CVS sources of working directory with CVS_RELEASENAME,
+##	   set version stamp in proof-site.el and ProofGeneral.spec 
+##         to VERSION, and edit download.html if VERSION matches 
+##	   PRERELEASE_TAG.
 ##
 tag:		
 	@echo "*************************************************"
 	@echo " Tagging sources... (fails if CVS source dirty)"
 	@echo "*************************************************"
 	if [ -n "`cvs -n -q update`" ]; then exit 1; fi
-	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/defconst proof-version \".*\"/defconst proof-version \"Proof General, Version $(RELEASE_TAG) released by da,tms. Email proofgen@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
-# FIXME: the sed command below relies on previous value of RELEASE_TAG.
+	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/defconst proof-version \".*\"/defconst proof-version \"Proof General, Version $(VERSION) released by da,tms. Email proofgen@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
+# FIXME: the sed command below relies on previous value of PRERELEASE_TAG.
 # (that it begins with 2.0pre)
-	(cd html; mv download.html download.html.old; sed -e 's|ProofGeneral-2\.0pre......|ProofGeneral-$(RELEASE_TAG)|g' download.html.old > download.html; rm download.html.old)
-	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(RELEASE_TAG)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
+	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
+	  (cd html; mv download.html download.html.old; sed -e 's|ProofGeneral-2\.0pre......|ProofGeneral-$(PRERELEASE_TAG)|g' download.html.old > download.html; rm download.html.old) \
+	fi
+	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(VERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old) \
+	fi
 # This hack to SOURCE: name is only needed because we have an obsolete version
 # of rpm installed on standard machines at dcs.ed, and we have to build with
-# that version.
-	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.tar.gz/ProofGeneral-$(RELEASE_TAG).tar.gz/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
+# that version.  Otherwise we could use the %{version} macro in the spec file.
+	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.tar.gz/$(RELEASENAMETARGZ)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
 	cvs commit -m"Set version tag for new release." generic/proof-site.el html/download.html etc/ProofGeneral.spec
 	cvs tag "$(CVS_RELEASENAME)"
 
@@ -228,10 +246,9 @@ untag:
 ##
 ## dist: make a distribution in DISTBUILDIR from CVS sources
 ##       Builds for user-distribution, from sources tagged 
-##       with CVS_RELEASE_TAG.
+##       with CVS_RELEASENAME.
 ##	 Moves html files to parent directory, removes
 ##       non-distributed files.
-##	 (Developer only)
 ##	    
 dist:	
 	@echo "*************************************************"
@@ -346,6 +363,16 @@ releaseclean:
 ##     Do everything!
 ##	  
 releaseall: release rpmrelease distinstall releaseclean 
+
+
+############################################################
+##
+## releasefinal:
+##     Do everything for a final release based on a pre-release.
+##     Don't use       
+##
+releasefinal: release rpmrelease distinstall releaseclean 
+
 
 ############################################################
 ##
