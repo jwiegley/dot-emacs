@@ -542,14 +542,55 @@ General).
 @node Adapting Proof General to New Provers
 @chapter Adapting Proof General to New Provers
 
+Proof General has about 60 configuration variables which are set on a
+per-prover basis to configure the various features.  However, many of
+these variables occcur in pairs (typically regular expressions matching
+the start and end of some text), and you can begin by setting just a few
+variables to get the basic features working.
+
+
 @menu
 * Skeleton example::            
 * Proof script settings::       
 * Proof shell settings::        
 @end menu
 
+
 @node Skeleton example
 @section Skeleton example
+
+Each proof assistant supported has its own subdirectory under
+@var{proof-home-directory}, used to store a root elisp file and any
+other files needed to adapt the proof assistant for Proof General.
+
+Here we show how a minimal configuration of Proof General works for
+Isabelle, without any special changes to Isabelle.
+
+@begin itemize
+@item Make a directory called 'myassistant' under the Proof General home
+directory, to put the specific customization and associated files in.
+@item Add a file myassistant.el to the new directory.
+@item Edit proof-site.el to add a new entry to the
+  @var{proof-assistants-table} variable.  The new entry should
+look like this:
+
+    (myassistant "My New Assistant" "\\.myasst$")
+
+The first item is used to form the name of the internal variables
+for the new mode as well as the directory and file where it loads
+from.  The second is a string, naming the proof assistant.
+The third item is a regular expression to match names of 
+proof script files for this assistant.  See the documentation
+of @var{proof-assistants-table} for more details.
+@item Define the new modes in myassistant.el, by looking at 
+ the files for the currently supported assistants for example.
+ Basically you need to define some modes using @code{define-derived-mode}
+ and set the configuration variables.  You could begin by setting
+ a minimum number of the variables, then adjust the 
+ settings via the customize menus, under Proof-General -> Internals.
+@end itemize
+
+
 
 @node Proof script settings
 @section Proof script settings
