@@ -3,7 +3,7 @@
 ;; Copyright (C) 1996 LFCS Edinburgh & INRIA Sophia Antipolis
 ;; Author: Yves Bertot < Yves.Bertot@sophia.inria.fr>
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <13 Dec 96 tms /home/tms/elisp/pbp.el>
+;; Time-stamp: <03 Mar 97 tms /home/tms/elisp/pbp.el>
 ;; Reference: Yves Bertot and Laurent Théry
 ;;            A Generic Approach to Building User Interfaces for
 ;;            Theorem Provers
@@ -55,13 +55,17 @@
 (deflocal pbp-end-goals-string "@s End of Goals @e"
   "String indicating the end of the proof state.")
 
-(deflocal pbp-goal-command "Pbp %s;"
+(deflocal pbp-goal-command "Pbp %s %s;"
   "Command informing the prover that `pbp-buttion-action' has been
-  requested on a goal.")
+  requested on a goal. The first argument refers to the number of the
+  goal, the second to the path correpsonding to the selected subterm
+  of the goal.")
 
-(deflocal pbp-hyp-command "PbpHyp %s;"
+(deflocal pbp-hyp-command "PbpHyp %s %s;"
   "Command informing the prover that `pbp-buttion-action' has been
-  requested on an assumption.")
+  requested on an assumption. The first argument refers to the name of
+  the hypothesis, the second to the path corresponding to the selected
+  subterm of the assumption.")
 
 (deflocal pbp-result-start "@s Pbp result @e"
   "String indicating the start of an output from the prover following
@@ -279,21 +283,16 @@
    (let ((ext (extent-at (point) () 'pbp))
          (top-ext (extent-at (point) () 'pbp-top-element)))
 
-      (cond ((and (extentp top-ext) (extentp ext))
+      (cond ((extentp top-ext)
 	     (let* ((top-info (extent-property top-ext 'pbp-top-element))
-		   (path
-		    (concat (cdr top-info) " " (extent-property ext 'pbp))))
+		    (path (if (extentp ext)
+			       (extent-property ext 'pbp) ""))
+		    (command (if (eq 'hyp (car top-info))
+				 pbp-hyp-command pbp-goal-command)))
 	       (proof-command
-		(if (eq 'hyp (car top-info))
-		    (format pbp-hyp-command path)
-		  (format pbp-goal-command  path)))))
+		(format command  (cdr top-info) path)))))))
 
-	     ((extentp top-ext)
-	      (let ((top-info (extent-property top-ext 'pbp-top-element)))
-		(if (eq 'hyp (car top-info))
-		    (proof-command (format pbp-hyp-command (cdr top-info)))
-		  (pbp-send-and-remember 
-		   (format proof-shell-change-goal (cdr top-info)))))))))
+
 
 (define-derived-mode pbp-mode fundamental-mode "Pbp" "Proof by Pointing"
   (suppress-keymap pbp-mode-map))
