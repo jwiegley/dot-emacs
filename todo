@@ -249,6 +249,9 @@ X Oddity in RPM build: reports
 	 /var/tmp/rpm-tmp.65808: line 29: 30875 Broken pipe             /bin/gzip -dc /tmp/ProofGeneral-rpm/SOURCES/ProofGeneral-2.0pre981012.tar.gz
   Why?  It still seems okay otherwise.
 
+X Support a history of proof commands, with a "redo" command to
+  redo undo-to-point or sequences of toolbar undo's.
+
 X Support for x-symbols package.
   Provers with sophisticated/configurable syntax should tell Emacs
   about their syntax somehow, rather than trying to duplicate
@@ -406,8 +409,11 @@ D Add ability to choose logic.  Maybe not necessary: can use default
   user-saved databases.
   (ponder this)
 
-X New features ideas:
-   1. Manage multiple proofs (markers in possibly different buffers)
+B Set wakeup-char by using Isabelle's ml-prompts function.
+
+X Add Isabelle logo to splash screen.  (30 mins)
+
+
 	 
 
 * Emacs19
