@@ -80,9 +80,12 @@ Borrowed from startup-center-spaces."
 	  ;; Destroy splash buffer 
 	  (kill-buffer splashbuf)))))
 
+(defvar proof-splash-seen nil
+  "Flag indicating the user has been subjected to a welcome message.")
+
 (defun proof-splash-display-screen ()
   "Save window config and display Proof General splash screen.
-Only do it if proof-splash-display is nil."
+Only do it if proof-splash-enable is non-nil."
   (if (and
        proof-splash-enable
        ;; FIXME: UGLY COMPATIBILITY HACK
@@ -128,7 +131,15 @@ Only do it if proof-splash-display is nil."
 	       (add-timeout proof-splash-time
 			    'proof-splash-remove-screen
 			    winconf)
-	       winconf))))))
+	       winconf)))
+      (setq proof-splash-seen t))))
+
+(defun proof-splash-message ()
+  "Make sure the user gets welcomed one way or another."
+  (unless proof-splash-seen
+    (message "Welcome to %s Proof General!" proof-assistant)
+    (setq proof-splash-seen t)
+    (sit-for 0)))
 
 ;; PROBLEM: when to call proof-splash-display-screen?
 ;; We'd like to call it during loading/initialising.  But it's
@@ -144,12 +155,13 @@ Only do it if proof-splash-display is nil."
 (proof-splash-display-screen)
 
 (defun proof-splash-timeout-waiter ()
-  "Wait for proof-splash-timeout, then remove self from hook."
+  "Wait for proof-splash-timeout or input, then remove self from hook."
   (while (and (get-buffer proof-splash-welcome)
 	      (not (input-pending-p)))
     (if (string-match "XEmacs" emacs-version)
 	(sit-for 0 t)			; XEmacs: wait without redisplay
-      (sit-for 0)))			; FSF: FIXME
+      ; (sit-for 1 0 t)))		; FSF: NODISP arg seems broken
+      (sit-for 0)))
   (if (get-buffer proof-splash-welcome)
       (proof-splash-remove-screen (cdr proof-splash-timeout-conf)))
   ;; Make sure timeout is stopped
