@@ -1,3 +1,47 @@
+2001-07-23  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-menu.el:
+	Prevent error msg in proof-display-some-buffers if response dead.
+
+	* generic/proof-shell.el:
+	Bug report from Robert Schneck.  Make proof-shell-restart start shell.  Goals display convention, not hack.
+
+2001-07-09  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* todo:
+	TODO for proof-ass fixing added.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-toolbar.el:
+	Clean for compile
+
+	* generic/proof-menu.el:
+	Clean for compile: new autload
+
+	* generic/proof-autoloads.el: Refresh
+
+	* generic/pg-xml.el, generic/pg-user.el:
+	Clean-up compile
+
+	* generic/proof-compat.el:
+	Add require for arch flags, cleaner compilation.
+
+	* generic/pg-pgip.el:
+	Fix some bugs shown by byte comp
+
+	* generic/proof-autoloads.el:
+	Updated autoloads
+
+	* generic/_pkg.el:
+	Package file (old attempt -- not working)
+
 2001-07-09  David Aspinall  <da@proofgeneral.org>
 
 	* todo:
