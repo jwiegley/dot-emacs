@@ -78,6 +78,10 @@ CVS_RELEASENAME = Release-$(CVS_VERSION)
 # Where to release (i.e. copy) a new distribution to
 RELEASEDIR = /home/proofgen/www/
 
+# How to make the release "live".  (Could be "true" to do nothing).
+# GOLIVE="scp -r $RELEASEDIR tweed:/home/proofgen/www"
+GOLIVE=true
+
 CVSNAME = ProofGeneral
 
 # Remote commands to use CVS in server mode and install files.
@@ -97,7 +101,7 @@ TAR=tar
 DEVELMAKE=make -f Makefile.devel
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt images/*.xcf images/notes.txt images/gimp images/Makefile isa/wip.ML html/notes.txt plastic/ isar/ 
+NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneral.eps* doc/ProofGeneral.pdf images/*.xcf images/notes.txt images/gimp images/Makefile isa/wip.ML html/notes.txt plastic/ isar/ 
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
@@ -147,7 +151,7 @@ FORCE:
 # Targets to pre-compile for distribution
 # Slightly dodgy to include elisp compile here, because
 # it can be incompatible across emacs versions.
-alldist:	alldocs
+alldist:	distdocs
 
 
 ############################################################
@@ -203,8 +207,8 @@ cvsclean:	clean
 doc:	FORCE
 	(cd doc; $(MAKE) doc)
 
-alldocs: FORCE
-	(cd doc; $(MAKE) all)
+distdocs: FORCE
+	(cd doc; $(MAKE) dist)
 
 ############################################################
 #
@@ -373,8 +377,15 @@ releaseclean:
 ## releaseall:
 ##     Do everything!
 ##	  
-releaseall: release rpmrelease distinstall releaseclean 
+releaseall: release rpmrelease distinstall releaseclean golive
 
+############################################################
+##
+## golive:
+##     Execute golive command.
+##	  
+golive:
+	$(GOLIVE)
 
 ############################################################
 ##
