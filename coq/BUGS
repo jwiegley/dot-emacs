@@ -4,11 +4,14 @@
 
 See also ../BUGS for generic bugs.
 
+** X-Symbol does not work on GNU Emacs.  
+
+Please don't even try it, it will mess up your Emacs.  
+
 ** With new syntax in Coq 7, comments at end of files cannot be processed.
 
 Leads to annoying retract/process questions when switching buffers.
 Workaround: don't use a comment as the last line of the buffer, for now.
-
 
 ** coqtags doesn't find all declarations. 
 
