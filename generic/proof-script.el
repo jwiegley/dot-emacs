@@ -257,7 +257,9 @@ This position should be the first writable position in the buffer."
 	 (span-end proof-locked-span))
 	(t
 	 (point-min))))
-	
+
+;; FIXME: get rid of this function.  Some places expect this
+;; to return nil if locked region is empty.	
 (defun proof-locked-end ()
   "Return end of the locked region of the current buffer.
 Only call this from a scripting buffer."
@@ -1006,10 +1008,17 @@ deletes the region corresponding to the proof sequence."
   (proof-shell-ready-prover)
   (proof-activate-scripting)
   (let ((span (span-at (point) 'type)))
-    (if (null (proof-locked-end)) (error "No locked region"))
+    ;; FIXME da: shouldn't this test be earlier??
+    (if (proof-locked-region-empty-p)
+	(error "No locked region"))
+    ;; FIXME da: rationalize this: it retracts the last span
+    ;; in the buffer if there was no span at point, right?
+    ;; why?
     (and (null span)
-	 (progn (proof-goto-end-of-locked) (backward-char)
-		(setq span (span-at (point) 'type))))
+	 (progn 
+	   (proof-goto-end-of-locked) 
+	   (backward-char)
+	   (setq span (span-at (point) 'type))))
     (proof-retract-target span delete-region)))
 
 ;;         proof-try-command                                        ;;
