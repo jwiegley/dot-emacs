@@ -1,10 +1,17 @@
 ;; lego.el Major mode for LEGO proof assistants
-;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
+;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Author: Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 
 ;; $Log$
+;; Revision 1.48  1998/05/29 09:49:47  tms
+;; o outsourced indentation to proof-indent
+;; o support indentation of commands
+;; o replaced test of Emacs version with availability test of specific
+;;   features
+;; o C-c C-c, C-c C-v and M-tab is now available in all buffers
+;;
 ;; Revision 1.47  1998/05/23 12:50:42  tms
 ;; improved support for Info
 ;;   o employed `Info-default-directory-list' rather than
@@ -126,7 +133,7 @@
 ; Configuration                                  
 
 (defconst lego-mode-version-string
-  "LEGO-MODE. ALPHA Version 2 (November 1997) LEGO Team <lego@dcs.ed.ac.uk>")
+  "LEGO-MODE. ALPHA Version 2 (May 1998) LEGO Team <lego@dcs.ed.ac.uk>")
 
 (defvar lego-tags "/home/tms/lib/lib_Type/TAGS"
   "the default TAGS table for the LEGO library")
@@ -141,18 +148,11 @@
 (defconst lego-interrupt-regexp "Interrupt.."
   "Regexp corresponding to an interrupt")
 
+(defvar lego-indent 2 "Indentation")
+
 (defvar lego-test-all-name "test_all"
   "The name of the LEGO module which inherits all other modules of the
   library.")
-
-;; Could be set to "Load". To cite Mark, "Although this may sound
-;; strange at first side, the Make command is much, much slower for my
-;; files then the load command. That is because .o files do not save
-;; Equiv's. So a Make of a .o file needs to find the proper
-;; conversions itself, and hence will be much slower in some
-;; cases. Especially when doing larger examples."
-
-(defvar lego-make-command "Make")
 
 (defvar lego-path-name "LEGOPATH"
   "The name of the environmental variable to search for modules. This
@@ -178,7 +178,8 @@
 ;; `lego-www-refcard' ought to be set to
 ;; "ftp://ftp.dcs.ed.ac.uk/pub/lego/refcard.dvi.gz", but  
 ;;    a) w3 fails to decode the image before invoking xdvi
-;;    b) ange-ftp and efs cannot handle Solaris ftp servers
+;;    b) ftp.dcs.ed.ac.uk is set up in a too non-standard way 
+
 
 
 (defvar lego-library-www-page
@@ -545,7 +546,7 @@
     (nth 1 (car stack)))
    (t (save-excursion
 	(goto-char (nth 1 (car stack)))
-	(1+ (current-column))))))
+	(+ lego-indent (current-column))))))
 
 (defun lego-parse-indent (c stack)
   (cond
@@ -605,7 +606,8 @@
   (setq	proof-save-command-regexp lego-save-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
 	proof-goal-with-hole-regexp lego-goal-with-hole-regexp
-	proof-kill-goal-command lego-kill-goal-command)
+	proof-kill-goal-command lego-kill-goal-command
+	proof-commands-regexp (ids-to-regexp lego-commands))
 
   (modify-syntax-entry ?_ "_")
   (modify-syntax-entry ?\' "_")
@@ -653,11 +655,13 @@
   (easy-menu-add lego-mode-menu lego-mode-map)
 
   (setq blink-matching-paren-dont-ignore-comments t)
+
 ;; font-lock
 
 ;; if we don't have the following in xemacs, zap-commas fails to work.
 
-  (cond (running-xemacs (setq font-lock-always-fontify-immediately t)))
+  (and (boundp 'font-lock-always-fontify-immediately)
+       (setq font-lock-always-fontify-immediately t))
 
 ;; hooks and callbacks
 

@@ -3,7 +3,16 @@
 ;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
+;; should perhaps be called lego-syntax instead of lego-fontlock
+
 ;; $Log$
+;; Revision 1.5  1998/05/29 09:49:40  tms
+;; o outsourced indentation to proof-indent
+;; o support indentation of commands
+;; o replaced test of Emacs version with availability test of specific
+;;   features
+;; o C-c C-c, C-c C-v and M-tab is now available in all buffers
+;;
 ;; Revision 1.4  1998/05/22 09:37:12  tms
 ;; included "Invert" in `lego-keywords'
 ;;
@@ -28,22 +37,28 @@
 
 ;; ----- keywords for font-lock.
 
-(defvar lego-keywords-goal '("$?Goal"))
+(defconst lego-keywords-goal '("$?Goal"))
 
-(defvar lego-keywords-save '("$?Save" "SaveFrozen" "SaveUnfrozen"))
+(defconst lego-keywords-save '("$?Save" "SaveFrozen" "SaveUnfrozen"))
 
-(defvar lego-keywords
+(defconst lego-commands
   (append lego-keywords-goal lego-keywords-save
 	  '("allE" "allI" "andE" "andI" "Assumption" "Claim"
-  "Constructors" "Cut" "Discharge" "DischargeKeep"
-    "Double" "echo" "ElimOver" "exE" "exI" "Expand" "ExpAll"
-    "ExportState" "Equiv" "Fields" "Freeze" "From" "Hnf" "Immed"
-    "impE" "impI" "Import" "Induction" "Inductive" "Inversion"
-    "Invert" "Init" "intros" "Intros" "Module" "Next" "NoReductions"
-    "Normal" "notE" "notI" "orE" "orIL" "orIR" "Parameters" "Qnify"
-    "Qrepl" "Record" "Refine" "Relation" "Theorems" "Unfreeze")))
+	    "Cut" "Discharge" "DischargeKeep"
+	    "echo" "exE" "exI" "Expand" "ExpAll"
+	    "ExportState" "Equiv" "For" "Freeze" "Hnf" "Immed"
+	    "impE" "impI" "Induction" "Inductive" 
+	    "Invert" "Init" "intros" "Intros" "Module" "Next" 
+	    "Normal" "notE" "notI" "orE" "orIL" "orIR" "Qnify"
+	    "Qrepl" "Record" "Refine" "Repeat" "Try" "Unfreeze"))
+  "Subset of LEGO keywords and tacticals which are terminated by a \?;")
 
-(defvar lego-tacticals '("Then" "Else" "Try" "Repeat" "For"))
+(defconst lego-keywords
+  (append lego-commands
+	  '("Constructors" "Double" "ElimOver" "Fields" "Import" "Inversion"
+	    "NoReductions" "Parameters" "Relation" "Theorems")))
+
+(defconst lego-tacticals '("Then" "Else" "Try" "Repeat" "For"))
 
 ;; ----- regular expressions for font-lock
 (defvar lego-error-regexp "^\\(Error\\|Lego parser\\)"

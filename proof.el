@@ -1,5 +1,5 @@
 ;; proof.el Major mode for proof assistants
-;; Copyright (C) 1994 - 1997 LFCS Edinburgh. 
+;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Authors: Yves Bertot, Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
@@ -9,6 +9,13 @@
 
 
 ;; $Log$
+;; Revision 1.48  1998/05/29 09:50:01  tms
+;; o outsourced indentation to proof-indent
+;; o support indentation of commands
+;; o replaced test of Emacs version with availability test of specific
+;;   features
+;; o C-c C-c, C-c C-v and M-tab is now available in all buffers
+;;
 ;; Revision 1.47  1998/05/26 10:46:13  hhg
 ;; Removed commented code in proof-dont-show-annotations
 ;; proof-done-trying deletes the spans that were created
@@ -221,18 +228,6 @@
 ;; fixed a bug in proof-retract-until-point
 ;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;               Bridging the emacs19/xemacs gulf                   ;;
-;;               (We don't support emacs19 yet)                     ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defvar running-xemacs  nil)
-(defvar running-emacs19 nil)
-
-(setq running-xemacs  (string-match "XEmacs\\|Lucid" emacs-version))
-(or running-xemacs
-    (setq running-emacs19 (string-match "^19\\." emacs-version)))
-
 (require 'compile)
 (require 'comint)
 (require 'etags)
@@ -240,6 +235,7 @@
       ((fboundp 'make-overlay) (require 'span-overlay))
       (t nil))
 (require 'proof-fontlock)
+(require 'proof-indent)
 
 (autoload 'w3-fetch "w3" nil t)
 
@@ -255,6 +251,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defconst proof-info-dir "/usr/local/share/info")
+
+(defvar proof-universal-keys
+  (list (cons '[(control c) (control c)] 'proof-interrupt-process)
+	(cons '[(control c) (control v)]
+	      'proof-execute-minibuffer-cmd)
+	(cons '[(meta tab)] 'tag-complete-symbol))
+  "List of keybindings which are valid in both in the script and the
+  response buffer. Elements of the list are tuples (k . f) 
+  where `k' is a keybinding (vector) and `f' the designated function.")
 
 (defvar proof-shell-cd nil
   "*Command of the inferior process to change the directory.") 
@@ -287,9 +292,6 @@
 (defvar proof-state-preserving-p nil
   "whether a command preserves the proof state")
 
-(defvar proof-stack-to-indent nil
-  "Prover-specific code for indentation.")
-
 (defvar pbp-change-goal nil
   "*Command to change to the goal %s")
 
@@ -319,13 +321,6 @@
   '(proof-goto-end-of-locked-if-pos-not-visible-in-window)
   "*This hook is called after an error has been reported in the
   RESPONSE buffer.")  
-
-;; This could be explained better, but see proof-parse-to-point.
-(defvar proof-parse-indent nil
-  "Proof-assistant specific function for parsing characters for
-  indentation.  Must be a function taking two arguments, a character
-  (the current character) and a stack reflecting indentation, and must
-  return a stack.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Generic config for script management                            ;;
@@ -426,6 +421,16 @@
 ;; A couple of small utilities                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun proof-define-keys (map kbl)
+  "Adds keybindings `kbl' in `map'. The argument `kbl' is a list of
+  tuples (k . f) where `k' is a keybinding (vector) and `f' the
+  designated function."
+  (mapcar
+   (lambda (kbl)
+     (let ((k (car kbl)) (f (cdr kbl)))
+         (define-key map k f)))
+   kbl))
+
 (defun proof-string-to-list (s separator) 
   "converts strings `s' separated by the character `separator' to a
   list of words" 
@@ -474,9 +479,9 @@
 
   (make-face 'proof-queue-face)
   ;; Whether display has color or not
-  (cond ((and running-xemacs (eq (device-class (frame-device)) 'color))
+  (cond ((and (fboundp 'device-class) (eq (device-class (frame-device)) 'color))
 	 (set-face-background 'proof-queue-face "mistyrose"))
-	((and running-emacs19 (and window-system (x-display-color-p)))
+	((and (boundp window-system) (and window-system (x-display-color-p)))
 	 (set-face-background 'proof-queue-face "mistyrose"))
 	(t (progn
 	     (set-face-background 'proof-queue-face "Black")
@@ -493,24 +498,26 @@
 
   (make-face 'proof-locked-face)
   ;; Whether display has color or not
-  (cond ((and running-xemacs (eq (device-class (frame-device)) 'color))
+  (cond ((and (fboundp 'device-class)
+	      (eq (device-class (frame-device)) 'color))
 	 (set-face-background 'proof-locked-face "lavender"))
-	((and running-emacs19 (and window-system (x-display-color-p)))
+	((and (boundp 'window-system)
+	      (and window-system (x-display-color-p)))
 	 (set-face-background 'proof-locked-face "lavender"))
 	(t (set-face-property 'proof-locked-face 'underline t)))
   (set-span-property proof-locked-span 'face 'proof-locked-face)
 
   (detach-span proof-locked-span))
 
-;; for read-only, not done for emacs19:
+;; for read-only, currently only implemented in span-extent package 
 (defsubst proof-lock-unlocked ()
-  (cond (running-xemacs
+  (cond ((featurep 'span-extent)
 	 (set-span-property proof-locked-span 'read-only t))
 	(t ())))
 
 ;; for read-only, not done for emacs19:
 (defsubst proof-unlock-locked ()
-  (cond (running-xemacs
+  (cond ((featurep 'span-extent)
 	 (set-span-property proof-locked-span 'read-only nil))
 	(t ())))
 
@@ -981,22 +988,29 @@
       (incf i)))
   (save-excursion (proof-shell-insert string)))
 
-;; grab the process and return t, otherwise return nil. Note that this
-;; is not really intended for anything complicated - just to stop the
-;; user accidentally sending a command while the queue is running.
-
-(defun proof-check-process-available ()
+;; Note that this is not really intended for anything complicated -
+;; just to stop the user accidentally sending a command while the
+;; queue is running.
+(defun proof-check-process-available (&optional relaxed)
+  "Checks
+     (1) Is a proof process running?
+     (2) Is the proof process idle?
+     (3) Does the current buffer own the proof process?
+     (4) Is the current buffer a proof script?
+    and signals an error if at least one of the conditions is not
+    fulfilled. If relaxed is set, only (1) and (2) are tested."
   (if (proof-shell-live-buffer)
       (cond
        (proof-shell-busy (error "Proof Process Busy!"))
+       (relaxed ())			;exit cond
        ((not (eq proof-script-buffer (current-buffer)))
 	(error "Don't own proof process"))))
-  (if (not (eq proof-buffer-type 'script))
+  (if (not (or relaxed (eq proof-buffer-type 'script)))
       (error "Must be running in a script buffer")))
 
-(defun proof-grab-lock ()
+(defun proof-grab-lock (&optional relaxed)
   (proof-start-shell)
-  (proof-check-process-available)
+  (proof-check-process-available relaxed)
   (setq proof-shell-busy t))
 
 (defun proof-release-lock ()
@@ -1010,7 +1024,7 @@
 
 ; Pass start and end as nil if the cmd isn't in the buffer.
 
-(defun proof-start-queue (start end alist)
+(defun proof-start-queue (start end alist &optional relaxed)
   (if start
       (proof-set-queue-endpoints start end))
   (let (item)
@@ -1021,7 +1035,7 @@
     (setq alist (cdr alist)))
   (if alist
       (progn
-	(proof-grab-lock) 
+	(proof-grab-lock relaxed) 
 	(setq proof-shell-delayed-output (cons 'insert "Done."))
 	(setq proof-action-list alist)
 	(proof-send (nth 1 item))))))
@@ -1189,16 +1203,15 @@ at the end of locked region (after inserting a newline and indenting)."
 	(list nil cmd 'proof-done-invisible))
        (t nil))))))
 
-;;         proof-invisible-command                                  ;;
-;;         Run something without responding to the user             ;;
-
 (defun proof-done-invisible (span) ())
 
-(defun proof-invisible-command (cmd)
-  (proof-check-process-available)
+(defun proof-invisible-command (cmd &optional relaxed)
+  "Send cmd to the proof process without responding to the user."
+  (proof-check-process-available relaxed)
   (if (not (string-match proof-re-end-of-cmd cmd))
       (setq cmd (concat cmd proof-terminal-string)))
-  (proof-start-queue nil nil (list (list nil cmd 'proof-done-invisible))))
+  (proof-start-queue nil nil (list (list nil cmd
+  'proof-done-invisible)) relaxed))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          User Commands                                           ;;
@@ -1500,106 +1513,6 @@ deletes the region corresponding to the proof sequence."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Indentation                                                    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; This is quite different from sml-mode, but borrows some bits of
-;; code.  It's quite a lot less general, but works with nested
-;; comments.
-
-;; parse-to-point: If from is nil, parsing starts from either
-;; proof-locked-end if we're in the proof-script-buffer or the
-;; beginning of the buffer. Otherwise state must contain a valid
-;; triple.
-
-(defun proof-parse-to-point (&optional from state)
-  (let ((comment-level 0) (stack (list (list nil 0)))
-	(end (point)) instring c)
-    (save-excursion
-      (if (null from)
-	  (if (eq proof-script-buffer (current-buffer))
-	      (proof-goto-end-of-locked)
-	    (goto-char 1))
-	(goto-char from)
-	(setq instring (car state)
-	      comment-level (nth 1 state)
-	      stack (nth 2 state)))
-      (while (< (point) end)
-	(setq c (char-after (point)))
-	(cond 
-	 (instring 
-	  (if (eq c ?\") (setq instring nil)))
-	 (t (cond
-	     ((eq c ?\()
-	      (if (looking-at "(\\*") (progn 
-					(incf comment-level)
-					(forward-char))
-		;; Why is this >= 0?  Surely it's always true!
-		(if (>= 0 comment-level) 
-		    (setq stack (cons (list c (point)) stack)))))
-	     ((and (eq c ?\*) (looking-at "\\*)"))
-	      (decf comment-level)
-	      (forward-char))
-	     ((> comment-level 0))
-	     ((eq c ?\") (setq instring t))
-	     ((eq c ?\[)
-	      (setq stack (cons (list c (point)) stack)))
-	     ((or (eq c ?\)) (eq c ?\]))
-	      (setq stack (cdr stack)))
-	     (proof-parse-indent
-	      (setq stack (funcall proof-parse-indent c stack))))))
-	(forward-char))
-    (list instring comment-level stack))))
-      
-(defun proof-indent-line ()
-  (interactive)
-  (if (and (eq proof-script-buffer (current-buffer))
-	   (< (point) (proof-locked-end)))
-      (if (< (current-column) (current-indentation))
-	  (skip-chars-forward "\t "))
-    (save-excursion
-      (beginning-of-line)
-      (let* ((state (proof-parse-to-point))
-	     (beg (point))
-	     (indent (cond ((car state) 1)
-			   ((> (nth 1 state) 0) 1)
-			   (t (funcall proof-stack-to-indent (nth 2 state))))))
-	(skip-chars-forward "\t ")
-	(if (not (eq (current-indentation) indent))
-	    (progn (delete-region beg (point))
-		   (indent-to indent)))))
-    (skip-chars-forward "\t ")))
-
-(defun proof-indent-region (start end)
-  (interactive "r")
-  (if (and (eq proof-script-buffer (current-buffer))
-	   (< (point) (proof-locked-end)))
-      (error "can't indent locked region!"))
-  (save-excursion
-    (goto-char start)
-    (beginning-of-line)
-    (let* ((beg (point))
-	   (state (proof-parse-to-point))
-	   indent)
-      ;; End of region changes with new indentation
-      (while (< (point) end)
-	(setq indent
-	      (cond ((car state) 1)
-		    ((> (nth 1 state) 0) 1)
-		    (t (funcall proof-stack-to-indent (nth 2 state)))))
-	(skip-chars-forward "\t ")
-	(let ((diff (- (current-indentation) indent)))
-	  (if (not (eq diff 0))
-	      (progn
-		(delete-region beg (point))
-		(indent-to indent)
-		(setq end (- end diff)))))
-	(end-of-line)
-	(if (< (point) (point-max)) (forward-char))
-	(setq state (proof-parse-to-point beg state)
-	      beg (point))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;         misc other user functions                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1679,9 +1592,9 @@ deletes the region corresponding to the proof sequence."
 (defun proof-execute-minibuffer-cmd ()
   (interactive)
   (let (cmd)
-    (proof-check-process-available)
+    (proof-check-process-available 'relaxed)
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
-    (proof-invisible-command cmd)))
+    (proof-invisible-command cmd 'relaxed)))
 	  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;          Active terminator minor mode                            ;;
@@ -1732,6 +1645,7 @@ current command."
      (function (lambda ()
 		 (if ins (backward-delete-char 1))
 		 (goto-char mrk) (insert proof-terminal-string))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Proof mode configuration                                         ;;
@@ -1785,8 +1699,7 @@ current command."
 	    (cons proof-info-dir Info-default-directory-list)))
 
 ;; keymap
-
-  (define-key proof-mode-map [(meta tab)] 'tag-complete-symbol)
+  (proof-define-keys proof-mode-map proof-universal-keys)
 
   (define-key proof-mode-map
     (vconcat [(control c)] (vector proof-terminal-char))
@@ -1794,8 +1707,7 @@ current command."
 
   (define-key proof-mode-map [(control c) (control e)]
     'proof-find-next-terminator)
-  (define-key proof-mode-map [(control c) (control c)]
-    'proof-interrupt-process)
+
   (define-key proof-mode-map (vector proof-terminal-char)
     'proof-active-terminator)
   (define-key proof-mode-map [(control c) (return)] 'proof-assert-until-point)
@@ -1803,14 +1715,14 @@ current command."
   (define-key proof-mode-map [(control c) ?u] 'proof-retract-until-point)
   (define-key proof-mode-map [(control c) (control u)]
     'proof-undo-last-successful-command)
-  (define-key proof-mode-map [(control c) (control v)]
-    'proof-execute-minibuffer-cmd)
+
   (define-key proof-mode-map [(control c) ?\'] 'proof-goto-end-of-locked)
   (define-key proof-mode-map [(control button1)] 'proof-send-span)
   (define-key proof-mode-map [(control c) (control b)] 'proof-process-buffer)
   (define-key proof-mode-map [(control c) (control z)] 'proof-frob-locked-end)
 
   (define-key proof-mode-map [tab]      'proof-indent-line)
+  (setq indent-line-function 'proof-indent-line)
 
 ;; For fontlock
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
@@ -1861,6 +1773,7 @@ current command."
   (setq proof-buffer-type 'pbp)
   (suppress-keymap pbp-mode-map 'all)
 ;  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
+  (proof-define-keys pbp-mode-map proof-universal-keys)
   (erase-buffer))
 
 (provide 'proof)

@@ -4,6 +4,13 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.7  1998/05/29 09:49:53  tms
+;; o outsourced indentation to proof-indent
+;; o support indentation of commands
+;; o replaced test of Emacs version with availability test of specific
+;;   features
+;; o C-c C-c, C-c C-v and M-tab is now available in all buffers
+;;
 ;; Revision 1.6  1998/05/06 15:56:14  hhg
 ;; Fixed problem introduced by working on emacs19 in
 ;; proof-zap-commas-region.
@@ -37,6 +44,13 @@
   (mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
 
 ;; Generic font-lock
+
+;; proof-commands-regexp is used for indentation
+(defvar proof-commands-regexp ""
+  "Subset of keywords and tacticals which are terminated by the
+  `proof-terminal-char'") 
+
+
 (defvar proof-id "\\(\\w\\(\\w\\|\\s_\\)*\\)"
   "A regular expression for parsing identifiers.")
 

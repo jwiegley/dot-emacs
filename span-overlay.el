@@ -5,6 +5,13 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.5  1998/05/29 09:50:10  tms
+;; o outsourced indentation to proof-indent
+;; o support indentation of commands
+;; o replaced test of Emacs version with availability test of specific
+;;   features
+;; o C-c C-c, C-c C-v and M-tab is now available in all buffers
+;;
 ;; Revision 1.4  1998/05/21 17:27:41  hhg
 ;; Removed uninitialized os variable in spans-at-region.
 ;;
@@ -83,8 +90,7 @@
 
 (defsubst detach-span (span)
   (remove-span span)
-  (cond (running-emacs19 (delete-overlay span))
-	(running-xemacs (detach-extent span)))
+  (delete-overlay span)
   (add-span span))
 
 (defsubst delete-span (span)

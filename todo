@@ -24,12 +24,26 @@ A Implement more generic mechanism for large undos (2h)
 
     LEGO: consider Discharge; perhaps unrol to the beginning of the
           module?
-    
+
+A Multiple files are sometimes handled incorrectly, because the
+  function `proof-steal-process' cannot figure out that some files have
+  already been processed. This is most likely caused by the ad-hoc
+  equality test on file names. Instead, one could employ
+  the built-in `file-truename' to trigger *canonical* file names.
+  (1h tms)
+
 B Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min tms)
 
 B Technical documentation to record expertise and allow users of other
   proof systems to adopt generic package (40h hhg & tms)
+
+B Support for x-symbols package 
+
+C XEmacs sessions seem to grow excessively in terms of memory
+  allocation. Perhaps some of the spans aren't removed properly?
+  Setting a limit on the size of the process buffer doesn't seem to
+  help. 
 
 A Fixing up errors caused by pbp-generated commands; currently, script
   management unwisely assumes that pbp commands cannot fail (2h tms)
@@ -93,6 +107,9 @@ A Error messages need to be revised e.g., if an import fails, LEGO
 
 * Here are things to be done to Coq mode
 ========================================
+
+B set proof-commands-regexp to support indentation for commands
+						    (10min hhg)
 
 B Add Patrick Loiseleur's commands to search for vernac or ml files.
 
