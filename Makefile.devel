@@ -59,7 +59,7 @@
 # Arguments for rcs2log for ChangeLog target
 
 DEVELOPERS=\
--u "da	David Aspinall	da@dcs.ed.ac.uk" \
+-u "da	David Aspinall	da@proofgeneral.org" \
 -u "markus	Markus Wenzel	wenzelm@informatik.tu-muenchen.de" \
 -u "pier	Pierre Courtieu	courtieu@lri.fr" \
 -u "crr	Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
