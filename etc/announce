@@ -1,8 +1,8 @@
-            Announcing  Proof General  Version 3.4
+            Announcing  Proof General  Version 3.5
     A Generic Emacs interface for Interactive Proof Assistants
-                 http://www.proofgeneral.org
+                 http://proofgeneral.inf.ed.ac.uk
 
-           Contact: David Aspinall <da@proofgeneral.org>
+        Contact: David Aspinall <da+pg-feedback@inf.ed.ac.uk>
 
 Proof General is a generic (X)Emacs interface for proof assistants.
 It can be instantiated for the proof assistant of your choice, and is
@@ -21,28 +21,22 @@ Proof General includes these features, amongst others:
 . Provision to easily run proof assistant on a remote host
 . Works on any platform Emacs does, in window system or plain console 
 
-Summary of changes since 3.3:
+Summary of changes since 3.4:
 
-. GPL license
-. Improvements to menus, colour schemes
-. Visibility control over portions of proof script
-. In Isabelle: tracing buffers, dependency highlighting support
-. In Coq: much improved synchronization (inc sections, nested proofs)
-. Bug fixes, efficiency improvements, better generic code.
-. Compatibility improvements: XEmacs 21.4, Emacs 21.2
+. FIXME
 
-For details of changes since 3.3, see
-http://www.proofgeneral.org/fileshow.php?file=ProofGeneral-3.4%2FCHANGES
+For details of changes since 3.4, see
+http://www.proofgeneral.org/fileshow.php?file=ProofGeneral-3.5%2FCHANGES
 
-For the latest user manual, see http://www.proofgeneral.org/doc
+For the latest user manual, see http://proofgeneral.inf.ed.ac.uk/doc
 
-Proof General needs a recent version of Emacs to run with.  Proof
-General 3.4 has been tested with XEmacs 21.1 and 21.4, and GNU Emacs
-21.2.  Older versions of either XEmacs may work but are not
+Proof General needs a recent version of Emacs to run with.  
+Proof General 3.5 has been tested with XEmacs 21.1 and 21.4, and 
+GNU Emacs 21.2.  Older versions of either XEmacs may work but are not
 guaranteed.
 
 Installing Proof General is easy.  Why not give it a try?
 
- - David Aspinall <da@proofgeneral.org>
-   August 2002.
+ - David Aspinall.
+   XXX 2004.
 
