@@ -1,3 +1,68 @@
+2002-05-03  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* html/eproofe.php, html/eproofe:
+	New files.
+
+	* generic/proof-x-symbol.el:
+	Fix X-symbol URL
+
+	* generic/proof-utils.el:
+	Fix font lock for E21 (I hope)
+
+	* generic/proof-config.el:
+	Try to support next-error key binding for both Emacs versions.
+
+	* doc/ProofGeneral.texi:
+	Reflect change in load order
+
+	* CHANGES: Updates
+
+	* generic/proof-site.el:
+	Fix loading order to load Isar before Isa
+
+	* isar/isar.el:
+	Added support for proof-shell-next-error
+
+	* isar/isar.el:
+	Add support for proof-next-error.
+
+	* generic/proof-config.el:
+	Craftily set experimental fetures on for devel release.
+
+	* generic/pg-user.el:
+	Began adding generic line-width adjust
+
+2002-04-24  David Aspinall  <da@proofgeneral.org>
+
+	* CHANGES: Remove indents
+
+	* isa/isa-syntax.el:
+	Updated list of SML keywords
+
+2002-04-23  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* doc/ProofGeneral.texi, doc/PG-adapting.texi, html/projects.html, html/screenshot.html, html/download.html, html/features.html, html/oldnews.html:
+	Fix URL for X-symbol
+
+	* todo: Updated
+
+	* CHANGES:
+	Add syntax highlighting cahanges from Lucas Dixon
+
+	* isa/isa.el:
+	Fix for E21 with isa-pre-shell-start.
+
+	* isa/isa-syntax.el:
+	Add syntax highlighting cahanges from Lucas Dixon
+
 2002-04-23  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
