@@ -286,7 +286,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 ;;   and copy it into "font-lock-keywords" to engage font-lock.
 ;;   Present method for XEmacs is to put a 'font-lock-defaults 
 ;;   property on the major-mode symbol, or use font-lock-defaults
-;;   buffer local variable.  We use the later.
+;;   buffer local variable.  We use the latter.
 ;;
 ;; * Buffers which are output-only are *not* kept in special minor
 ;;   modes font-lock-mode (or x-symbol-mode).  In case the user
@@ -295,7 +295,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 
 (deflocal proof-font-lock-keywords nil
   "Value of font-lock-keywords in this buffer.
-We set font-lock-defaults to '(proof-font-lock-keywords t) for
+We set `font-lock-defaults' to '(proof-font-lock-keywords t) for
 compatibility with X-Symbol, which may hack proof-font-lock-keywords
 with extra patterns (in non-mule mode).")
 
