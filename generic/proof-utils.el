@@ -158,6 +158,12 @@ If NEWVAL is present, set the variable, otherwise return its current value.")
 	    (setq ,specific-var newval)
 	  ,specific-var)))))
 
+(defun undefpgcustom (sym)
+  (let ((specific-var (proof-ass-symv sym))
+	(generic-var  (intern (concat "proof-assistant-" (symbol-name sym)))))
+    (pg-custom-undeclare-variable specific-var)
+    (fmakunbound generic-var)))
+
 (defmacro defpgcustom (sym &rest args)
   "Define a new customization variable <PA>-SYM for the current proof assistant.
 The function proof-assistant-<SYM> is also defined, which can be used in the 
