@@ -2649,43 +2649,44 @@ finish setup which depends on specific proof assistant configuration."
   ;; Choose parsing mechanism according to different kinds of script syntax.  
   ;; Choice of function depends on configuration setting.
   (unless (fboundp 'proof-segment-up-to)
-    (if (or proof-script-use-new-parser
-	    proof-script-sexp-commands)
-	;; 3.3 and later mechanism here
-	(progn
-	  (defalias 'proof-segment-up-to 'proof-segment-up-to-parser)
-	  (cond   
-	   (proof-script-parse-function
-	    ;; already set, nothing to do
-	    )
-	   (proof-script-sexp-commands
-	    (setq proof-script-parse-function 'proof-script-generic-parse-sexp))
-	   (proof-script-command-start-regexp
-	    (setq proof-script-parse-function 'proof-script-generic-parse-cmdstart))
-	   ((or proof-script-command-end-regexp proof-terminal-char)
-	    (setq  proof-script-parse-function 'proof-script-generic-parse-cmdend)
-	    (unless proof-script-command-end-regexp
-	      (proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
-	      (setq proof-script-command-end-regexp
-		    (if proof-terminal-char
-			(regexp-quote (char-to-string proof-terminal-char))
-		      "$"))))
-	   (t
-	    (error "Configuration error: must set `proof-terminal-char' or one of its friends."))))
-      (cond
-       (proof-script-parse-function	;; still allowed to override in 3.2
-	(defalias 'proof-segment-up-to 'proof-segment-up-to-parser))
-       ;; 3.2 mechanism here
-       (proof-script-command-start-regexp
-	(defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
-       (t
-	(defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
-	(unless proof-script-command-end-regexp
-	  (proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
-	  (setq proof-script-command-end-regexp
-		(if proof-terminal-char
-		    (regexp-quote (char-to-string proof-terminal-char))
-		  "$"))))))) ;  default if nothing set is EOL.
+    (if proof-script-use-old-parser
+	;; Configuration for using old parsing mechanism.
+	(cond
+	 (proof-script-parse-function	;; still allowed to override in 3.2
+	  (defalias 'proof-segment-up-to 'proof-segment-up-to-parser))
+	 ;; 3.2 mechanism here
+	 (proof-script-command-start-regexp
+	  (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
+	 (t
+	  (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
+	  (unless proof-script-command-end-regexp
+	    (proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
+	    (setq proof-script-command-end-regexp
+		  (if proof-terminal-char
+		      (regexp-quote (char-to-string proof-terminal-char))
+		    "$")))))
+      ;; Configuration for using new parsing (3.3 and later)
+      (progn
+	(defalias 'proof-segment-up-to 'proof-segment-up-to-parser)
+	(cond   
+	 (proof-script-parse-function
+	  ;; already set, nothing to do
+	  )
+	 (proof-script-sexp-commands
+	  (setq proof-script-parse-function 'proof-script-generic-parse-sexp))
+	 (proof-script-command-start-regexp
+	  (setq proof-script-parse-function 'proof-script-generic-parse-cmdstart))
+	 ((or proof-script-command-end-regexp proof-terminal-char)
+	  (setq  proof-script-parse-function 'proof-script-generic-parse-cmdend)
+	  (unless proof-script-command-end-regexp
+	    (proof-warn-if-unset "probof-config-done" 'proof-terminal-char)
+	    (setq proof-script-command-end-regexp
+		  (if proof-terminal-char
+		      (regexp-quote (char-to-string proof-terminal-char))
+		    "$"))))
+	 (t
+	  (error "Configuration error: must set `proof-terminal-char' or one of its friends."))))
+      )) ;  default if nothing set is EOL.
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
