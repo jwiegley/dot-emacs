@@ -88,6 +88,7 @@ END-INFO-DIR-ENTRY
 @image{ProofGeneral}
 @c FIXME: for html, just do @image ProofGeneral, it
 @c gets confused by the braces.
+@c FIXME: doesn't work for PDF image at the moment.
 @end iftex
 @author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
 @page
