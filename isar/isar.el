@@ -30,56 +30,6 @@
 (require 'isabelle-system)
 
 
-;;;
-;;; help menu
-;;;
-
-(defun isar-help-antiquotations () (interactive) (proof-shell-invisible-command "print_antiquotations"))
-(defun isar-help-attributes () (interactive) (proof-shell-invisible-command "print_attributes"))
-(defun isar-help-cases () (interactive) (proof-shell-invisible-command "print_cases"))
-(defun isar-help-claset () (interactive) (proof-shell-invisible-command "print_claset"))
-(defun isar-help-commands () (interactive) (proof-shell-invisible-command "print_commands"))
-(defun isar-help-facts () (interactive) (proof-shell-invisible-command "print_facts"))
-(defun isar-help-syntax () (interactive) (proof-shell-invisible-command "print_syntax"))
-(defun isar-help-methods () (interactive) (proof-shell-invisible-command "print_methods"))
-(defun isar-help-simpset () (interactive) (proof-shell-invisible-command "print_simpset"))
-(defun isar-help-binds () (interactive) (proof-shell-invisible-command "print_binds"))
-(defun isar-help-theorems () (interactive) (proof-shell-invisible-command "print_theorems"))
-(defun isar-help-trans-rules () (interactive) (proof-shell-invisible-command "print_trans_rules"))
-
-(defun isar-init-help-keys (map)
-  (define-key map [(control c) h A] 'isar-help-antiquotations)
-  (define-key map [(control c) h a] 'isar-help-attributes)
-  (define-key map [(control c) h c] 'isar-help-cases)
-  (define-key map [(control c) h C] 'isar-help-claset)
-  (define-key map [(control c) h o] 'isar-help-commands)
-  (define-key map [(control c) h f] 'isar-help-facts)
-  (define-key map [(control c) h i] 'isar-help-syntax)
-  (define-key map [(control c) h m] 'isar-help-methods)
-  (define-key map [(control c) h S] 'isar-help-simpset)
-  (define-key map [(control c) h b] 'isar-help-binds)
-  (define-key map [(control c) h t] 'isar-help-theorems)
-  (define-key map [(control c) h T] 'isar-help-trans-rules))
-
-(defpgdefault help-menu-entries
-  (append
-   isabelle-docs-menu
-   (list
-    (cons "Show me ..."
-          (list
-           ["antiquotations"     (isar-help-antiquotations) t]
-           ["attributes"         (isar-help-attributes)     t]
-           ["cases"              (isar-help-cases)          t]
-           ["classical rules"    (isar-help-claset)         t]
-           ["commands"           (isar-help-commands)       t]
-           ["facts"              (isar-help-facts)          t]
-           ["inner syntax"       (isar-help-syntax)         t]
-           ["methods"            (isar-help-methods)        t]
-           ["simplifier rules"   (isar-help-simpset)        t]
-           ["term bindings"      (isar-help-binds)          t]
-           ["theorems"           (isar-help-theorems)       t]
-           ["transitivity rules" (isar-help-trans-rules)    t])))))
-
 
 ;;;
 ;;; theory header
@@ -135,7 +85,7 @@
   "Configure generic proof scripting mode variables for Isabelle/Isar."
   (setq
    proof-assistant-home-page    isabelle-web-page
-   proof-mode-for-script        'isar-proofscript-mode
+   proof-mode-for-script        'isar-mode
    ;; proof script syntax
    proof-terminal-char          ?\;     ; forcibly ends a proof command
    proof-script-command-start-regexp (proof-regexp-alt
@@ -319,16 +269,55 @@ proof-shell-retract-files-regexp."
   (isar-goals-mode-config)))
 
 (eval-and-compile                       ; to define vars for byte comp.
-(define-derived-mode isar-proofscript-mode proof-mode
+(define-derived-mode isar-mode proof-mode
     "Isabelle/Isar script" nil
     (isar-mode-config)))
 
-(defalias 'isar-mode 'isar-proofscript-mode)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's Isabelle/Isar specific                             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;
+;;; help menu  
+;;;
+
+;;; da: how about a `C-c C-a h ?' for listing available keys?
+
+;;; NB: definvisible must come after derived modes because uses
+;;; isar-mode-map
+(proof-definvisible isar-help-antiquotations "print_antiquotations" [h A])
+(proof-definvisible isar-help-attributes "print_attributes" [h a])
+(proof-definvisible isar-help-cases "print_cases" [h c])
+(proof-definvisible isar-help-claset "print_claset" [h C])
+(proof-definvisible isar-help-commands "print_commands" [h o])
+(proof-definvisible isar-help-facts "print_facts" [h f])
+(proof-definvisible isar-help-syntax "print_syntax" [h i])
+(proof-definvisible isar-help-methods "print_methods" [h m])
+(proof-definvisible isar-help-simpset "print_simpset" [h S])
+(proof-definvisible isar-help-binds "print_binds" [h b])
+(proof-definvisible isar-help-theorems "print_theorems" [h t])
+(proof-definvisible isar-help-trans-rules "print_trans_rules" [h T])
+
+(defpgdefault help-menu-entries
+  (append
+   isabelle-docs-menu
+   (list
+    (cons "Show me ..."
+          (list
+           ["antiquotations"     isar-help-antiquotations t]
+           ["attributes"         isar-help-attributes     t]
+           ["cases"              isar-help-cases          t]
+           ["classical rules"    isar-help-claset         t]
+           ["commands"           isar-help-commands       t]
+           ["facts"              isar-help-facts          t]
+           ["inner syntax"       isar-help-syntax         t]
+           ["methods"            isar-help-methods        t]
+           ["simplifier rules"   isar-help-simpset        t]
+           ["term bindings"      isar-help-binds          t]
+           ["theorems"           isar-help-theorems       t]
+           ["transitivity rules" isar-help-trans-rules    t])))))
 
 ;; undo proof commands
 (defun isar-count-undos (span)
@@ -497,7 +486,6 @@ proof-shell-retract-files-regexp."
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
-  (isar-init-help-keys isar-proofscript-mode-map)
   (isar-init-syntax-table)
   (setq font-lock-keywords isar-font-lock-keywords-1)
   (proof-config-done)
