@@ -26,7 +26,7 @@
   '((VALID "Isabelle Symbol" (x-symbol-info-face))
     (INVALID "no Isabelle Symbol" (red x-symbol-info-face))))
 (defvar x-symbol-isa-class-face-alist nil)
-(defvar x-symbol-isa-electric-ignore "'[A-Za-z]\\|<=")
+(defvar x-symbol-isa-electric-ignore "[:'][A-Za-z]\\|<=")
 
 (defvar x-symbol-isa-font-lock-keywords nil)
 (defvar x-symbol-isa-master-directory  'ignore)
