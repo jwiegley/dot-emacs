@@ -1487,7 +1487,11 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
       ;; fully-occupied processing prover output
       (and (fboundp 'redisplay-frame)
 	   ;; XEmacs fn 
-	   (redisplay-frame)))
+	   (redisplay-frame))
+      ;; If user quits during tracing output, send an interrupt
+      ;; to the prover.
+      (if (and quit-flag proof-action-list)
+	  (proof-interrupt-process)))
 	   
       ;; Similarly, try to determine if there are command events
       ;; waiting which are being ignored;
