@@ -316,8 +316,9 @@ clears up all the locked regions and state variables."
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
+
 This simply kills the proof-shell-buffer relying on the hook function
-to do the hard work."
+proof-shell-kill-function to do the hard work."
   (interactive)
   (if (buffer-live-p proof-shell-buffer)
       (if (yes-or-no-p (format "Exit %s process? " proof-assistant))
@@ -333,8 +334,10 @@ ensuring that script buffers are cleaned up neatly."
   (kill-buffer proof-shell-buffer))
 
 (defun proof-shell-restart ()
-  "Restart the proof shell by sending the restart command
-and clearing all script buffers."
+  "Clear script buffers and send proof-shell-restart-cmd.
+All locked regions are cleared and the active scripting buffer
+deactivated.  The restart command should re-synchronize
+Proof General with the proof assitant."
   (interactive)
   (proof-script-remove-all-spans-and-deactivate)
   (setq proof-included-files-list nil

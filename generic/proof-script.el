@@ -1092,7 +1092,11 @@ command."
 			
 (defun proof-try-command (&optional unclosed-comment-fun) 
   "Process the command at point, but don't add it to the locked region. 
-This will only happen if the command satisfies proof-state-preserving-p.
+
+Supplied to let the user to test the types and values of
+expressions. Checks via the function proof-state-preserving-p that the
+command won't change the proof state, but this isn't guaranteed to be
+foolproof and may cause Proof General to lose sync with the prover.
 
 Default action if inside a comment is just to go until the start of
 the comment. If you want something different, put it inside
@@ -1145,7 +1149,7 @@ the proof script."
 ;; here.
 
 (defun proof-interrupt-process ()
-  "Interrupt the proof assistant.  WARNING! This may confuse Proof General."
+  "Interrupt the proof assistant.  Warning! This may confuse Proof General."
   (interactive)
   (if (not (proof-shell-live-buffer))
       (error "Proof Process Not Started!"))
@@ -1264,7 +1268,11 @@ Only for use by consenting adults."
   "History of proof commands read from the minibuffer")
 
 (defun proof-execute-minibuffer-cmd ()
-  "Prompt for a command in the minibuffer and send it to proof assistant."
+  "Prompt for a command in the minibuffer and send it to proof assistant.
+The command isn't added to the locked region.
+
+Warning! No checking whatsoever is done on the command, so this is
+even more dangerous than proof-try-command."
   (interactive)
   (let (cmd)
     ;; FIXME note: removed ready-prover call since it's done by
