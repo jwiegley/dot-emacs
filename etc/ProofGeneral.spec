@@ -69,7 +69,7 @@ fi
 /sbin/install-info --delete /usr/info/ProofGeneral.info.gz /usr/info/dir
 
 %files
-%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README doc/*
+%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/*
 %attr(-,root,root) /usr/info/ProofGeneral.info.gz
 %attr(-,root,root) /usr/info/ProofGeneral.info-*.gz
 %attr(-,root,root) /usr/bin/coqtags
