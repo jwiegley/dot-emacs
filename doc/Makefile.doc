@@ -15,8 +15,8 @@
 ##
 ###########################################################################
 
-# DOCNAME = ProofGeneral
 
+MAKE = make -f Makefile.doc 
 MAKEINFO = makeinfo
 TEXI2DVI = texi2dvi
 
@@ -51,7 +51,7 @@ default: doc
 
 .texi.dvi:
 	$(TEXI2DVI) $<
-	if `which $(DVISELECT) > /dev/null`; then $(MAKE) rearrange; fi
+	if `which $(DVISELECT) > /dev/null`; then $(MAKE) rearrange DOCNAME=$*; fi
 
 rearrange:
 	$(DVISELECT) -i $(DOCNAME).dvi -o $(DOCNAME).tmp1 $(TITLERANGE)
