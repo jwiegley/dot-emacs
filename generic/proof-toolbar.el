@@ -5,7 +5,9 @@
 ;;
 ;; $Id$
 ;;
-;; NB: XEmacs specific code!
+;; NB: FSF GNU Emacs has no toolbar facility. This file defines
+;; proof-toolbar-menu which holds the same commands and is put on the
+;; menubar by proof-toolbar-setup (surprisingly).
 ;;
 ;; Toolbar is just for scripting buffer at  the moment.
 ;;
@@ -26,6 +28,42 @@
   "Example value for proof-toolbar-button-list.
 This gives a bare toolbar that works for any prover.  To add
 prover specific buttons, see proof-toolbar.el.")
+
+;;
+;; Menu built from toolbar functions
+;;
+
+(defconst proof-toolbar-menu
+  ;; Toolbar contains commands to manipulate script: "Scripting"
+  '("Scripting"
+    ["Goal"
+     proof-toolbar-goal
+     :active (proof-toolbar-goal-enable-p)]
+    ["Retract"
+     proof-toolbar-retract
+     :active (proof-toolbar-retract-enable-p)]
+    ["Undo"
+     proof-toolbar-undo
+     :active (proof-toolbar-undo-enable-p)]
+    ["Next"
+     proof-toolbar-next
+     :active (proof-toolbar-next-enable-p)]
+    ["Use"
+     proof-toolbar-use
+     :active (proof-toolbar-use-enable-p)]
+    ["Restart"
+     proof-toolbar-restart
+     :active (proof-toolbar-restart-enable-p)]
+    ["QED"
+     proof-toolbar-qed
+     :active (proof-toolbar-qed-enable-p)])
+  "Menu made from the toolbar commands.")
+
+;;
+;; Add this menu to proof-menu
+;;
+(setq proof-menu
+      (append proof-menu (list proof-toolbar-menu)))
 
 (defconst proof-toolbar-iconlist
   '((proof-toolbar-next-icon "next")
@@ -50,7 +88,7 @@ will work for any proof assistant.")
 (defvar proof-toolbar nil
   "Proof mode toolbar button list.  Set in proof-toolbar-setup.")
 
-(defconst proof-old-toolbar default-toolbar
+(defconst proof-old-toolbar (and (boundp 'default-toolbar) default-toolbar)
   "Saved value of default-toolbar for proofmode.")
 
 
@@ -69,30 +107,31 @@ will work for any proof assistant.")
 If proof-mode-use-toolbar is nil, change the current buffer toolbar
 to the default toolbar."
   (interactive)
-  (if (and
-       proof-toolbar-wanted
-       ;; NB for FSFmacs use window-system, not console-type
-       (eq (console-type) 'x))
-      (let
-	  ((icontype   (if (featurep 'xpm)
-			   (if (< (device-pixel-depth) 16)
-			       ".8bit.xpm" ".xpm")
-			 ".xbm")))
-	;; First set the button variables to glyphs.  
-	(mapcar
-	 (lambda (buttons)
-	   (let ((var	(car buttons))
-		 (iconfiles (mapcar (lambda (name)
-				      (concat proof-images-directory
-					      name
-					      icontype)) (cdr buttons))))
-	     (set var (toolbar-make-button-list iconfiles))))
-	 proof-toolbar-iconlist)
-	;; Now evaluate the toolbar descriptor
-	(setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
-	;; Finally ensure current buffer will display this toolbar
-	(set-specifier default-toolbar proof-toolbar (current-buffer)))
-    (set-specifier default-toolbar proof-old-toolbar (current-buffer))))
+  (if (featurep 'toolbar)		; won't work in FSF Emacs
+      (if (and	
+	   proof-toolbar-wanted
+	   ;; NB for FSFmacs use window-system, not console-type
+	   (eq (console-type) 'x))
+	  (let
+	      ((icontype   (if (featurep 'xpm)
+			       (if (< (device-pixel-depth) 16)
+				   ".8bit.xpm" ".xpm")
+			     ".xbm")))
+	    ;; First set the button variables to glyphs.  
+	    (mapcar
+	     (lambda (buttons)
+	       (let ((var	(car buttons))
+		     (iconfiles (mapcar (lambda (name)
+					  (concat proof-images-directory
+						  name
+						  icontype)) (cdr buttons))))
+		 (set var (toolbar-make-button-list iconfiles))))
+	     proof-toolbar-iconlist)
+	    ;; Now evaluate the toolbar descriptor
+	    (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
+	    ;; Finally ensure current buffer will display this toolbar
+	    (set-specifier default-toolbar proof-toolbar (current-buffer)))
+	(set-specifier default-toolbar proof-old-toolbar (current-buffer)))))
 
 ;;
 ;; GENERIC PROOF TOOLBAR BUTTONS
@@ -310,7 +349,8 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-restart-enable-p ()
   ;; Could disable this unless there's something running.
   ;; But it's handy to clearup extents, etc, I suppose.
-  (eq proof-buffer-type 'script))
+  (eq proof-buffer-type 'script)	; should always be t
+  )
 
 (defun proof-toolbar-restart  ()
   (interactive)
@@ -344,5 +384,9 @@ Move point if the end of the locked position is invisible."
   (if (proof-toolbar-qed-enable-p)
       (call-interactively 'proof-issue-save)
     (error "I can't see a completed proof!")))
+
+
+
+
 ;; 
-  (provide 'proof-toolbar)
+(provide 'proof-toolbar)
