@@ -116,13 +116,26 @@ If 'ignore, point is never moved after toolbar movement commands."
 
 (defcustom proof-window-dedicated nil
   "*Whether response and goals buffers have dedicated windows.
-If t, windows displaying responses from the prover will not
-be switchable to display other windows.  This may help manage
-your display, but can sometimes be inconvenient, especially
-for experienced Emacs users.
-Moreover, this option may cause problems with multi-frame
-use because of a bug."
-  :type 'boolean
+If non-nil, Emacs windows displaying messages from the prover will not
+be switchable to display other windows.
+
+This option can help manage your display.
+
+Setting this option triggers a three-buffer mode of interaction where
+the goals buffer and response buffer are both displayed, rather than
+the two-buffer mode where they are switched between.  It also prevents
+Emacs automatically resizing windows between proof steps.  
+
+If you use several frames (X windows), you can force a frame to stick
+to showing the goals or response buffer.
+
+For single frame use this option may be inconvenient for
+experienced Emacs users."  
+  ;; Did say: 
+  ;; Moreover, this option may cause problems with multi-frame 
+  ;; use because of a bug.  
+  ;; but I can't find it as of 3.0pre201099.  
+  :type 'boolean 
   :group 'proof-general)
 
 (defcustom proof-strict-read-only 
@@ -911,6 +924,25 @@ so that the prover switches to the directory of a proof
 script everytime scripting begins."
   :type 'string
   :group 'proof-shell)
+
+(defcustom  proof-shell-inform-file-processed-command nil
+ "Command to the proof assistant to tell it that a file has been processed.
+The format character %s is replaced by a complete filename for a
+script file which has been fully processed interactively with
+Proof General.  
+
+This is used to interface with the proof assistant's internal
+management of multiple files, so the proof assistant is kept aware of
+which files have been processed.  Specifically, when scripting
+is deactivated in a completed buffer, it is added to Proof General's
+list of processed files, and the prover is told about it by
+issuing this command.
+
+If this is set to nil, no command is issued.
+
+See also proof-shell-process-file, proof-shell-compute-new-files-list."
+ :type '(choice string (const nil))
+ :group 'proof-shell)
 
 
 ;;

@@ -429,26 +429,30 @@ to allow other files loaded by proof assistants to be marked read-only."
 		    :test 'equal)))
     (and pos (nth pos buffers))))
 
-(defun proof-register-possibly-new-processed-file (file)
-  "Register a possibly new FILE as having been processed by the prover."
+(defun proof-register-possibly-new-processed-file (file &optional informprover)
+  "Register a possibly new FILE as having been processed by the prover.
+If INFORMPROVER is non-nil, the proof assistant will be told about this,
+to co-ordinate with its internal file-management."
   (let* ((cfile (file-truename file))
 	 (buffer (proof-file-to-buffer cfile)))
     (proof-debug (concat "Registering file " cfile 
 			 (if (member cfile proof-included-files-list)
-			     " (already registered)." ".")))
-    (if (not (member cfile proof-included-files-list))
-	(progn
-	  (and buffer
-	       (buffer-modified-p buffer)
-	       (proof-warning (concat "Changes to "
-				      (buffer-name buffer)
-				      " have not been saved!")))
-	  (setq proof-included-files-list
-		(cons cfile proof-included-files-list))
-	  ;; If the file is loaded into a buffer, put an
-	  ;; atomic locked region in it.
-	  (if buffer
-	      (proof-complete-buffer-atomic buffer))))))
+			     " (already registered, no action)." ".")))
+    (unless (member cfile proof-included-files-list)
+      (and buffer
+	   (buffer-modified-p buffer)
+	   (proof-warning (concat "Changes to "
+				  (buffer-name buffer)
+				  " have not been saved!")))
+      (setq proof-included-files-list
+	    (cons cfile proof-included-files-list))
+      ;; If the file is loaded into a buffer, make sure it is completely locked
+      (if buffer
+	  (proof-complete-buffer-atomic buffer))
+      ;; Tell the proof assistant, if we should and if we can
+      (if (and informprover proof-shell-inform-file-processed-command)
+	  (proof-shell-invisible-command 
+	   (format proof-shell-inform-file-processed-command cfile))))))
 
 (defun proof-unregister-buffer-file-name ()
   "Remove current buffer's filename from the list of included files.
@@ -583,10 +587,12 @@ a scripting buffer is killed it is always retracted."
 
 	      (if (proof-locked-region-full-p)
 		  ;; If locked region is full, make sure that this buffer
-		  ;; is registered on the included files list.
+		  ;; is registered on the included files list, and
+		  ;; let the prover know it can consider it processed.
 		  (if buffer-file-name
 		      (proof-register-possibly-new-processed-file 
-		       buffer-file-name)))
+		       buffer-file-name
+		       'tell-the-prover)))
 	      
 	      (if (proof-locked-region-empty-p)
 		  ;; If locked region is empty, make sure this buffer is
