@@ -3,30 +3,38 @@ Known Bugs and Workarounds.
 
 $Id$
 
-* Outline-mode does not work in proof script files due to read-only
-restrictions of protected region
+* Toolbar: retract button can give "BUG" error message "called from
+wrong buffer" when the process is inactive.
+
+* Toolbar: not updated properly.  See redisplay-frame attempt
+in proof-shell-filter.  Why does this behave strangely?
+
+* Ordinary undo in script buffer can edit the "uneditable region"
+in XEmacs.  This doesn't happen in FSFmacs!  Test case:
+  Insert some nonsense text after the locked region.
+  Kill the line. Process to the next command.
+  Press C-x u, nonsense text appears in locked region!
+
+* Using C-g can leave script management in a mess.  The code
+needs to have some regions protected from Emacs interrupts.
+At the moment, don't type C-g while script management is
+processing.  If you do, use proof-restart-scripting.
 
 * You can't use more than one proof assistant at a time in the same
 Emacs session.  Nasty things happen if proof-assistants enables
 more than one proof assistant and you load files for different
-provers.  Workaround: stick to one prover per Emacs session!!
+provers.  Workaround: stick to one prover per Emacs session!
+
+* Outline-mode does not work in proof script files due to read-only
+restrictions of protected region.  Workaround: none, nevermind.
+(If it's hugely needed we could support modified outline commands).
 
 * There is an obscure bug with processes on Solaris which results in
 buffers full of ^G after certain combinations of input.  Workaround:
 get a patch from Sun, or use Linux.
 
-
-
-Development  (move these above if decided not to fix):
-======================================================
-
-Retract button can give "BUG" error message "called from wrong buffer"
-when the process is inactive.
-
-Toolbar is not updated properly.  See redisplay-frame attempt
-in proof-shell-filter.  Why does this behave strangely?
-
-XEmacs sessions seem to grow excessively in terms of memory
-allocation. Maybe some of the spans aren't removed properly.  Setting
-a limit on the size of the process buffer doesn't seem to help.
+* XEmacs sessions perhaps grow excessively in terms of memory
+allocation. Maybe some of the spans aren't removed properly.
+Setting a limit on the size of the process buffer doesn't seem to
+help.  (1998/10/06: Is this bug still present?  Test examples?)
 
