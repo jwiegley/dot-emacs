@@ -1404,7 +1404,7 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
    ((if proof-shell-theorem-dependency-list-regexp 
 	(string-match proof-shell-theorem-dependency-list-regexp message))
       (setq proof-last-theorem-dependencies 
-	  (match-string 1)))
+	  (match-string 1 message)))
    
      ;; FIONA!  New code needs to go in here: match 
    ;; against proof-shell-theorem-dependency-list-regexp and set a 
