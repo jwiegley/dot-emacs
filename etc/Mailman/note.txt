@@ -19,3 +19,18 @@ See Mailman docs at http://www.imsa.edu/~ckolar/mailman/
 
 (For mail admin settings, see here:
   http://www.imsa.edu/~ckolar/mailman/mailman-administration-v2.html)
+
+=================================================================
+
+FIXME:
+
+Header of options/result seems broken in Mailman/inf:
+
+following junk appears at start of page defined:
+
+<html>
+<head>
+</head>
+<body
+<BODY bgcolor="#ffffff">
+
