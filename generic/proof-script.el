@@ -2055,6 +2055,12 @@ appropriate."
 ;;         straightforward                                          ;;
 
 
+;; FIXME: we need to adjust proof-nesting-depth appropriately here.
+;; It would help to know the type of retraction which has just
+;; occurred: a kill-proof may be assumed to set nesting depth
+;; to zero; an undo sequence may alter it some other way.
+;; FIXME FIXME: at the moment, the adjustment is made in
+;; the wrong place!!
 (defun proof-done-retracting (span)
   "Callback for proof-retract-until-point.
 We update display after proof process has reset its state.
@@ -2147,6 +2153,10 @@ up to the end of the locked region."
 	  ;; Otherwise, start the retraction by killing off the
 	  ;; currently active goal.
 	  ;; FIXME: and couldn't we move the end upwards?
+	  ;; FIXME: hack proof-nesting-depth here.  This is
+	  ;; in the wrong place: it should be done *after* the
+	  ;; retraction has succeeded.
+	  (setq proof-nesting-depth (1- proof-nesting-depth))
 	  (setq actions 
 		(proof-setup-retract-action (span-start span) end
 					    proof-kill-goal-command
