@@ -441,6 +441,7 @@ rpm:
 	mkdir -p $(RPMTOPDIR)/RPMS
 	mkdir -p $(RPMTOPDIR)/SPECS
 	mkdir -p $(RPMTOPDIR)/SOURCES
+	mkdir -p $(RPMTOPDIR)/BUILD
 	$(RPM) -tb $(DISTBUILDIR)/$(RELEASENAMETARGZ)
 
 ############################################################
