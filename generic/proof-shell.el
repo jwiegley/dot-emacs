@@ -565,10 +565,11 @@ are not dealt with eagerly during script processing, namely
   (cond
    ;; Response buffer output
    ((eq proof-shell-delayed-output-kind 'abort)
-    (pg-response-display proof-shell-delayed-output))
      ;; "Aborted."  why??
-   ((eq proof-shell-delayed-output-kind 'response)
     (pg-response-display proof-shell-delayed-output))
+   ((eq proof-shell-delayed-output-kind 'response)
+    (unless proof-shell-no-response-display
+      (pg-response-display proof-shell-delayed-output)))
    ;; Goals buffer output
    ((eq proof-shell-delayed-output-kind 'goals)
     (pg-goals-display proof-shell-delayed-output))
@@ -577,9 +578,14 @@ are not dealt with eagerly during script processing, namely
   (run-hooks 'proof-shell-handle-delayed-output-hook))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
 ;; Processing error output
 ;;
+
+(defvar proof-shell-ignore-errors nil
+  "If non-nil, be quiet about errors from the prover.
+An internal setting used in `proof-shell-invisible-cmd-get-result'.")
 
 ;; FIXME: combine next two functions?
 
@@ -590,18 +596,20 @@ The error message is displayed in the responsebuffer.
 Then we call `proof-shell-error-or-interrupt-action', which see."
   ;; [FIXME: Why not flush goals also for interrupts?]
   ;; Flush goals or response buffer (from some last successful proof step)
-  (save-excursion
-    (proof-shell-handle-delayed-output))
-  ;; Perhaps we should erase the proof-response-buffer?
-  (proof-shell-handle-output
-   (if proof-shell-truncate-before-error proof-shell-error-regexp)
-   proof-shell-annotated-prompt-regexp 'proof-error-face)
-  (proof-display-and-keep-buffer proof-response-buffer)
+  (unless proof-shell-ignore-errors	;; quiet 
+    (save-excursion
+      (proof-shell-handle-delayed-output))
+    ;; Perhaps we should erase the proof-response-buffer?
+    (proof-shell-handle-output
+     (if proof-shell-truncate-before-error proof-shell-error-regexp)
+     proof-shell-annotated-prompt-regexp 'proof-error-face)
+    (proof-display-and-keep-buffer proof-response-buffer))
   (proof-shell-error-or-interrupt-action 'error))
 
 (defun proof-shell-handle-interrupt ()
    "React on an interrupt message from the prover.
  Runs proof-shell-error-or-interrupt-action."
+  (unless proof-shell-ignore-errors	;; quiet 
    (proof-shell-maybe-erase-response t t t) ; force cleaned now & next
    (proof-shell-handle-output
     (if proof-shell-truncate-before-error proof-shell-interrupt-regexp)
@@ -609,7 +617,7 @@ Then we call `proof-shell-error-or-interrupt-action', which see."
 ;  (proof-display-and-keep-buffer proof-response-buffer)
    (proof-warning 
     "Interrupt: script management may be in an inconsistent state
-           (but it's probably okay)")
+           (but it's probably okay)"))
    (proof-shell-error-or-interrupt-action 'interrupt))
 
 (defun proof-shell-error-or-interrupt-action (&optional err-or-int)
@@ -620,10 +628,9 @@ We sound a beep, clear queue spans and proof-action-list, and set the flag
 proof-shell-error-or-interrupt-seen to the ERR-OR-INT argument.
 Then we call `proof-shell-handle-error-or-interrupt-hook'."
   (save-excursion			;; for safety.
-    (beep)
-    ;; NB: previously for interrupt, clear-queue-spans 
-    ;; was only called if shell busy.  Any harm calling it always?
-    (proof-script-clear-queue-spans) 
+    (unless proof-shell-ignore-errors	;; quiet 
+      (beep))
+    (proof-script-clear-queue-spans)
     (setq proof-action-list nil)
     (proof-release-lock err-or-int)
     ;; Make sure that prover is outputting data now.
@@ -1255,6 +1262,9 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
 	   stripped)
 	 'proof-eager-annotation-face)))))
 
+(defvar proof-shell-no-response-display nil
+  "A setting to disable displays in the response buffer.")
+
 (defvar proof-shell-urgent-message-marker nil
   "Marker in proof shell buffer pointing to end of last urgent message.")
 
@@ -1519,6 +1529,11 @@ by the filter is to send the next command from the queue."
 
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Utility functions
+;;
 (defun proof-shell-dont-show-annotations (&optional buffer)
   "Set display values of annotations in BUFFER to be invisible.
 
@@ -1550,8 +1565,9 @@ XEmacs only."
   
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; proof-shell-invisible-command: used to implement user-level commands.
+;; proof-shell-invisible-command: for user-level commands.
 ;;
 
 ;;;###autoload
@@ -1630,12 +1646,28 @@ If WAIT is an integer, wait for that many seconds afterwards."
 			    cmd 'proof-done-invisible)))
   (if wait (proof-shell-wait (if (numberp wait) wait))))
 
+(defun proof-shell-invisible-cmd-get-result (cmd &optional noerror)
+  "Execute CMD and return result as a string.
+This expects CMD to print something to the response buffer.
+The output in the response buffer is disabled, and the result
+(contents of `proof-shell-last-output') is returned as a 
+string instead.  
 
+Errors are not supressed and will result in a display as 
+usual, unless NOERROR is non-nil."
+  (setq proof-shell-no-response-display t)
+  (setq proof-shell-ignore-errors noerror)
+  (unwind-protect
+      (proof-shell-invisible-command cmd 'waitforit)
+    (setq proof-shell-no-response-display nil)
+    (setq proof-shell-ignore-errors nil))
+  proof-shell-last-output)
 
 
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Proof General shell mode definition
 ;;
@@ -1760,6 +1792,7 @@ processing."
 
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Next error function.
