@@ -2,8 +2,6 @@ Example Proof General instance for Isabelle
 
 Written by David Aspinall.
 
-$Id$
-
 Status:	supported as a demonstration only
 
 ========================================
@@ -51,5 +49,7 @@ See demoisa.el and demoisa-easy.el for more details.
 
 
 
+========================================
 
+$Id$
 
