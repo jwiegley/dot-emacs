@@ -13,10 +13,10 @@
 (require 'proof)
 
 (defvar proof-easy-config-derived-modes-table
-  '((""         "script" proof-mode (proof-config-done))
-    ("shell"    "shell"  proof-shell-mode (proof-shell-config-done))
-    ("response" "resp"   proof-response-mode (proof-response-config-done))
-    ("goals"	"goals"  pbp-mode (proof-goals-config-done)))
+  '((""         "script"     proof-mode (proof-config-done))
+    ("shell"    "shell"      proof-shell-mode (proof-shell-config-done))
+    ("response" "response"   proof-response-mode (proof-response-config-done))
+    ("goals"	"goals"      proof-goals-mode (proof-goals-config-done)))
   "A list of (PREFIXSYM SUFFIXNAME PARENT MODEBODY) for derived modes.")
 
 (defun proof-easy-config-define-derived-modes ()
@@ -76,9 +76,7 @@
      (proof-easy-config-check-setup ,sym ,name)
      (setq
       ,@body)
-     (proof-easy-config-define-derived-modes)
-     ;; FIXME: Non-uniformity in current code
-     (setq proof-mode-for-goals proof-mode-for-pbp)))
+     (proof-easy-config-define-derived-modes)))
   
 ;; 
 (provide 'proof-easy-config)

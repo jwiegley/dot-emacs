@@ -262,7 +262,7 @@ Does nothing if proof assistant is already running."
 	      (set-buffer proof-goals-buffer)
 	      (and (fboundp 'toggle-enable-multibyte-characters)
 		   (toggle-enable-multibyte-characters -1))
-	      (funcall proof-mode-for-pbp))
+	      (funcall proof-mode-for-goals))
 	  (switch-to-buffer proof-shell-buffer)
 	  (error "%s process exited!" proc)))
       (message 
@@ -863,6 +863,8 @@ Then we call `proof-shell-handle-error-or-interrupt-hook'."
     (proof-script-clear-queue-spans) 
     (setq proof-action-list nil)
     (proof-release-lock err-or-int)
+    ;; Make sure that prover is outputting data now.
+
     ;; New: this is called for interrupts too.
     (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
 
@@ -1926,35 +1928,35 @@ processing."
 ;;
 
 
-(eval-and-compile			; to define pbp-mode-map
-(define-derived-mode pbp-mode proof-universal-keys-only-mode
+(eval-and-compile			; to define proof-goals-mode-map
+(define-derived-mode proof-goals-mode proof-universal-keys-only-mode
   proof-general-name 
   "Mode for goals display.  
 May enable proof-by-pointing or similar features.
-\\{pbp-mode-map}"
-  ;; defined-derived-mode pbp-mode initialises pbp-mode-map
-  (setq proof-buffer-type 'pbp)
+\\{proof-goals-mode-map}"
+  ;; defined-derived-mode proof-goals-mode initialises proof-goals-mode-map
+  (setq proof-buffer-type 'goals)
   (cond 
    ((string-match "XEmacs" emacs-version)
-    (define-key pbp-mode-map [(button2)] 'pbp-button-action)
-    (define-key pbp-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
+    (define-key proof-goals-mode-map [(button2)] 'pbp-button-action)
+    (define-key proof-goals-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
     ;; button 2 is a nuisance on 2 button mice, so we'll do 1 as well.
     ;; Actually we better hadn't, people like to use it for cut and paste.
-    ;; (define-key pbp-mode-map [(button1)] 'pbp-button-action)
-    ;; (define-key pbp-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
-    (define-key pbp-mode-map [(button3)] 'pbp-yank-subterm))
+    ;; (define-key proof-goals-mode-map [(button1)] 'pbp-button-action)
+    ;; (define-key proof-goals-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
+    (define-key proof-goals-mode-map [(button3)] 'pbp-yank-subterm))
    (t
-    (define-key pbp-mode-map [mouse-2] 'pbp-button-action)
-    (define-key pbp-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
-    ;; (define-key pbp-mode-map [mouse-1] 'pbp-button-action)
-    ;; (define-key pbp-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
-   (define-key pbp-mode-map [mouse-3] 'pbp-yank-subterm)))
-  (define-key pbp-mode-map [q] 'bury-buffer)
-  (easy-menu-add proof-goals-mode-menu pbp-mode-map)
+    (define-key proof-goals-mode-map [mouse-2] 'pbp-button-action)
+    (define-key proof-goals-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
+    ;; (define-key proof-goals-mode-map [mouse-1] 'pbp-button-action)
+    ;; (define-key proof-goals-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
+   (define-key proof-goals-mode-map [mouse-3] 'pbp-yank-subterm)))
+  (define-key proof-goals-mode-map [q] 'bury-buffer)
+  (easy-menu-add proof-goals-mode-menu proof-goals-mode-map)
   (erase-buffer)))
 
 (easy-menu-define proof-goals-mode-menu
-		  pbp-mode-map
+		  proof-goals-mode-map
 		  "Menu for Proof General goals buffer."
 		  (cons proof-general-name proof-shared-menu))
 

@@ -87,8 +87,8 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 			      (or proof-mode-for-script
 				  ;; FIXME: next one only correct for isabelle
 				  (intern (concat assistant "-proofscript-mode")))
-			      (or  proof-mode-for-pbp
-				   (intern (concat assistant "-pbp-mode")))))
+			      (or  proof-mode-for-goals
+				   (intern (concat assistant "-goals-mode")))))
 	     (all-xs-modes   (append xs-std-modes xs-xtra-modes))
 	     (am-entry       (list proof-xsym-extra-modes t 
 				   `(quote ,xs-lang)))
