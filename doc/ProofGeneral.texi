@@ -258,7 +258,7 @@ PGIP.  There is a similarity however; the design of PGIP was based
 heavily on the Emacs Proof General framework.
 
 For more details, see 
-@uref{http://www.proofgeneral.org/kit.html, the Proof General Kit webpage}.
+@uref{http://www.proofgeneral.org/kit, the Proof General Kit webpage}.
 
 
 

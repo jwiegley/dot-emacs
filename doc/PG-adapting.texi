@@ -258,7 +258,7 @@ provers to communicate using PGIP.
 
 At the time of writing, these ideas are in early stages. For latest
 details, or to become involved, see
-@uref{http://www.proofgeneral.org/kit.html, the Proof General Kit
+@uref{http://www.proofgeneral.org/kit, the Proof General Kit
 webpage}.
 
 
