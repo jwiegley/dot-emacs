@@ -160,7 +160,7 @@
     "Abstract"
     "Do"
     "Idtac"
-    "OrElse"
+    "Orelse"
     "Repeat"
     "Try")
   "Keywords for tacticals in a Coq script")
