@@ -52,6 +52,18 @@ nil if a region cannot be found."
 ;; of proof-case-fold-search.  Last arg to string-match is
 ;; not applicable.
 
+(defun proof-re-search-forward (regexp &optional bound noerror count)
+  "Like re-search-forward, but set case-fold-search to proof-case-fold-search."
+  (let
+      ((case-fold-search proof-case-fold-search))
+    (re-search-forward regexp bound noerror count)))
+
+(defun proof-re-search-backward (regexp &optional bound noerror count)
+  "Like re-search-backward, but set case-fold-search to proof-case-fold-search."
+  (let
+      ((case-fold-search proof-case-fold-search))
+    (re-search-backward regexp bound noerror count)))
+
 (defun proof-string-match (regexp string &optional start)
   "Like string-match, but set case-fold-search to proof-case-fold-search."
   (let
