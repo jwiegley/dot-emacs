@@ -1,10 +1,13 @@
-;;; This file implements spans in terms of overlays, for emacs19.
+;;; This file implements spans in terms of extents, for xemacs.
 ;;; Copyright (C) 1998 LFCS Edinburgh
 ;;; Author: Healfdene Goguen
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.3  1998/06/02 15:36:44  hhg
+;; Corrected comment about this being for xemacs.
+;;
 ;; Revision 1.2  1998/05/19 15:30:27  hhg
 ;; Added header and log message.
 ;;
