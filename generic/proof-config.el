@@ -383,7 +383,7 @@ The protocol used should be configured so that no user interaction
 
 (defface proof-locked-face
   '((((type x) (class color) (background light))   
-     (:background "lavender"))
+     (:background "lightsteelblue2"))	; was "lavender"
     (((type x) (class color) (background dark))   
      (:background "navy"))
     (t				
