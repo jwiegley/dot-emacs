@@ -48,6 +48,7 @@
 ;; proof-response-buffer-display now in proof.el, removed from above.
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Internal variables used by script mode
@@ -2532,10 +2533,7 @@ assistant."
 	      ;; can take a long time to fontify.
 	      (setq font-lock-always-fontify-immediately t)))))
 
-  ;; Maybe turn on x-symbol mode  
-  ;;  [no need for script mode files to be on xsymbol-auto-mode-alist;
-  ;;  having the switch here also takes care of non-files switched
-  ;;  into the mode by hand]
+  ;; Maybe turn on x-symbol mode.
   (proof-x-symbol-mode))
 
 
