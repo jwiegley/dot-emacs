@@ -1572,7 +1572,8 @@ The packages currently supported are @code{font-lock} @code{func-menu},
 @code{outline-mode} and @code{etags}.
 
 @menu
-* Syntax Highlighting::         
+* Syntax highlighting::         
+* X-Symbol symbol support::
 * Support for function menus::  
 * Support for outline mode::    
 * Support for tags::            
@@ -1585,13 +1586,38 @@ The packages currently supported are @code{font-lock} @code{func-menu},
 @vindex isa-mode-hooks
 @cindex font-lock 
 @cindex colour
+@c Proof General specifics  
+
 In XEmacs, proof script buffers are coloured (fontified as they say) by
 default. To automatically switch on fontification in FSF GNU Emacs 20.4,
 you may need to engage @code{M-x global-font-lock-mode}.
 
-The old mechanism of adding hooks to the mode functions is no longer
+The old mechanism of adding hooks to the mode hooks
+(@code{lego-mode-hooks}, @code{coq-mode-hooks}, etc) is no longer
 recommended; it should not be needed in latest Emacs versions which have
 more flexible customization.
+
+
+
+
+@node X-Symbol symbol support
+@section X-Symbol symbol support
+
+The X-Symbol package (by Christoph Wedler) displays characters from a
+variety of fonts in Emacs buffers, automatically converting between
+codes for special characters and @i{tokens} which are character
+sequences stored in files.
+
+Proof General can use X-Symbol to allow interaction between the user and
+the proof assistant to use tokens, yet appear to be using special
+characters.  So proof scripts and proofs themselves can be processed
+with non-ascii characters for mathematical symbols.
+
+You will be able to enable X-Symbol support if you have installed the
+X-Symbol package and support has been provided in Proof General for a
+token language for your proof assistant @pxref{Configuring X-Symbol}.
+
+
 
 
 @node Support for function menus
@@ -3836,31 +3862,29 @@ for a automatic approximation to multiple file handling.
 @section Configuring X-Symbol
 @cindex X-Symbol
 
-The X-Symbol package (by Christoph Wedler) displays characters from a
-variety of fonts in Emacs buffers, automatically converting between
-codes for special characters and @i{tokens} which are character
-sequences stored in files.
+The X-Symbol package was mentioned earlier @pxref{X-Symbol symbol
+support}.  To configure X-Symbol for Proof General, you must understand
+a little bit of how X-Symbol works: read the documentation that is
+supplied with it.  
 
-Proof General can use X-Symbol to allow interaction between the user and
-the proof assistant to use tokens, yet appear to be using special
-characters.  So proof scripts and proofs themselves can be processed
-with non-ascii characters for mathematical symbols.
-
-To configure X-Symbol for Proof General, you must understand a little
-bit of how X-Symbol works: read the documentation that is supplied with
-it.  The basic task is to set up a @i{token language} for your proof
+The basic task is to set up a @i{token language} for your proof
 assistant.  If your assistant is stored in the subdirectory
 @var{myprover}, the token language will be called @var{myprover} and be
 defined in a file @file{x-symbol-@var{myprover}.el} which is
 automatically loaded by X-Symbol.  The name of the token language mode
 will be @code{@var{myprover}sym}.
 
-In the usual configuration file @file{@var{myprover}.el}, you must set
-several variables that Proof General uses to configure X-Symbol with.
+Proof General will check that the file @file{x-symbol-@var{myprover}.el}
+exists and set up X-Symbol to load it.  The token language file must
+define a number of standard settings, and X-Symbol will give warnings if
+any of them are missing.
 
-@c FIXME: more here!! unfinished!!
+Apart from the token language file, there are several settings for
+X-Symbol which you can set in the usual configuration file
+@file{@var{myprover}.el}.  These settings are optional.
 
-@code{@var{myprover}sym-font-lock-keywords}
+@c There's also proof-xsym-font-lock-keywords, but I don't 
+@c really know what this setting is good for.
 
 @c TEXI DOCSTRING MAGIC: proof-xsym-activate-command
 @defvar proof-xsym-activate-command 
