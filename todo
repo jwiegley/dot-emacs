@@ -54,6 +54,9 @@ X Solaris bugs: font locking and button enabling.
 
 *** Scheduled improvements for 3.2
 
+**** A make C-c C-l go to bottom of response buffer while output
+       is arriving (set-window-point (point)) or similar.
+
 **** A Doc new bits: proof-next-error
 
 **** A Doc new bits: font lock keywords, filename %e, %r.
