@@ -502,6 +502,7 @@ See `x-symbol-language-access-alist' for details."
 (defvar x-symbol-isabelle-encode-alist nil
   "Internal.  Alist used for encoding to Isasym macros.")
 
+
 ;; FIXME: next two not needed for newer X-Symbol versions.
 (defvar x-symbol-isabelle-nomule-decode-exec nil
   "Internal.  File name of Isasym decode executable.")
@@ -513,6 +514,9 @@ See `x-symbol-language-access-alist' for details."
 ;; DA: experiments here for X-Symbol 4.45
 ;;
 (defcustom x-symbol-isabelle-auto-style
+  ;; Following x-symbol SGML, first setting seems to be for
+  ;; when x-symbol is enabled for Isabelle in a alien buffer,
+  ;; i.e. *not* already in isar-mode or isa-mode
   '((not (memq major-mode '(isar-mode isa-mode)))
     (x-symbol-auto-coding-alist x-symbol-isabelle-auto-coding-alist)
     x-symbol-coding (not x-symbol-mode)
@@ -522,13 +526,7 @@ See `x-symbol-language-access-alist' for details."
   :group 'x-symbol-mode
   :type 'x-symbol-auto-style)
 
-(defcustom x-symbol-isabelle-auto-coding-alist
-  '((
-     ("iso-8859-1" . iso-8859-1)
-     ("iso-8859-2" . iso-8859-2)
-     ("iso-8859-3" . iso-8859-3)
-     ("iso-8859-9" . iso-8859-9)
-     ("iso-8859-15" . iso-8859-15)))
+(defcustom x-symbol-isabelle-auto-coding-alist nil
   "*Alist used to determine the file coding of ISABELLE buffers.
 Used in the default value of `x-symbol-auto-mode-alist'.  See
 variable `x-symbol-auto-coding-alist' for details."
