@@ -171,29 +171,20 @@ You can use the following format characters:
       (define-key map "\C-k" 'thy-kill-line)
       (setq thy-mode-map map)))
 
-;; NEW for Proof General
-(defun thy-add-proofgeneral-menu ()
-  "Add Proof General menu to current menu bar."
+(defun thy-add-menus ()
+  "Add Proof General and Isabelle menu to current menu bar."
   (require 'proof-script)		; Later: proof-menu, autoloaded
-  (easy-menu-define thy-mode-menu
+  (easy-menu-define thy-mode-pg-menu
 		    thy-mode-map
-		    "Menu for Isabelle Proof General, theory file mode."
+		    "PG Menu for Isabelle Proof General"
 		    (cons proof-general-name
 			  (append
 			   (list
-			    ["Process theory" isa-process-thy-file
-			     :active (proof-locked-region-empty-p)
-			     ]
-			    ["Retract theory" isa-retract-thy-file
-			     :active (proof-locked-region-full-p)
-			     ]
-			    ["Switch to script" thy-find-other-file t]
-			    ["Insert template" thy-insert-template t]
-			    ;; A couple from the toolbar that make sense here
-			    ;; (also in proof-universal-keys)
+			   ;; A couple from the toolbar that make sense here
+			   ;; (also in proof-universal-keys)
 			    ["Issue command" proof-minibuffer-cmd t]
 			    ["Interrupt prover" proof-interrupt-process t])
-			   proof-shared-menu 
+			   proof-shared-menu
 			   ;; begin UGLY COMPATIBILTY HACK
 			   ;; older/non-existent customize doesn't have 
 			   ;; this function.  
@@ -205,7 +196,23 @@ You can use the following format characters:
 			     nil)
 			   ;; end UGLY COMPATIBILTY HACK
 			   )))
-  (easy-menu-add thy-mode-menu thy-mode-map))
+  (easy-menu-define thy-mode-isa-menu
+		    thy-mode-map
+		    "Menu for Isabelle Proof General, theory file mode."
+		    (cons "Theory"
+			  (list
+			   ["Next section" thy-goto-next-section]
+			   ["Prev section" thy-goto-prev-section]
+			   ["Insert template" thy-insert-template t]
+			   ["Process theory" isa-process-thy-file
+			    :active (proof-locked-region-empty-p)
+			    ]
+			   ["Retract theory" isa-retract-thy-file
+			    :active (proof-locked-region-full-p)
+			    ]
+			   ["Switch to script" thy-find-other-file t])))
+    (easy-menu-add thy-mode-pg-menu thy-mode-map)
+    (easy-menu-add thy-mode-isa-menu thy-mode-map))
 
 
 (defun thy-mode (&optional nomessage)
@@ -236,8 +243,7 @@ Here is the full list of theory mode key bindings:
   (setq major-mode 'thy-mode)
   (setq mode-name "Theory")
   (use-local-map thy-mode-map)
-;;  (isa-menus)				                ; Add "isabelle" menu.
-  (thy-add-proofgeneral-menu)
+  (thy-add-menus)
 
   (set-syntax-table thy-mode-syntax-table)
   (make-local-variable 'indent-line-function)
