@@ -45,6 +45,14 @@ Some test cases for Proof General.
   FIXME: Using C-x C-v to revert to saved version doesn't
   seem to work because it renames the buffer or something.
 
+16.12.98 KILLING THE PROOF PROCESS
+==================================
+
+  Process some proof script buffer. Invoke 
+
+    M-x proof-shell-exit
+
+  Process should exit cleanly.
   
 
     
