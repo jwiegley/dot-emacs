@@ -1,14 +1,14 @@
 (*
-    Example proof script for Coq Proof General.
+    Example proof script for Coq Proof General (Coq V8 syntax).
 
     $Id$
 *)
 
-Goal (A,B:Prop)(A /\ B) -> (B /\ A).
-  Intros A B H.
-  Elim H.
-  Intros.
-  Split.
-  Assumption.
-  Assumption.
+Goal forall (A B:Prop),(A /\ B) -> (B /\ A).
+  intros A B H.
+  elim H.
+  intros.
+  split.
+  assumption.
+  assumption.
 Save and_comms.
