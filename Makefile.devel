@@ -86,7 +86,7 @@ clean:
 #
 # Clean up all generated files.
 #
-`distclean:	clean
+distclean:	clean
 	rm -rf $(FILES_NONCVS)
 	(cd doc; $(MAKE) distclean)
 
@@ -173,7 +173,7 @@ dist:
 ##     Moreover, a link ProofGeneral -> ProofGeneral-<version>
 ##     is made.
 ##	  
-release: tag dist
+release: distclean tag dist
 	$(REMOTE) mkdir -p $(RELEASEDIR)
 	$(REMOTE) cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
 	$(REMOTE) (cd $(RELEASEDIR); ln -sf $(RELEASENAME) $(NAME))
