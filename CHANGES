@@ -8,6 +8,14 @@
 
 * Summary of Changes for Proof General 3.5pre from 3.4
 
+*** Bundling and configuration for Multiple Modes (MMM-Mode)
+
+    MMM mode allows submodes to be used in the same file.
+    See http://mmm-mode.sourceforge.net/.
+    At present it is configured for Isar, to allow LaTeX and
+    sml-mode to be used inside Isar scripts.
+
+
 ** GNU Emacs compatibility, simplified font-lock, handling nested comments
 
 *** Numerous improvements, thanks due to Stefan Monnier.
