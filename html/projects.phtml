@@ -138,6 +138,38 @@ knowledge of scripting languages desirable.
 </p>
 </li>
 
+<li><b>A Generic Theory Browser</b>
+<p>
+Proof General has very limited mechanisms for helping the user find
+theorems and definitions during a proof.  It has notion of displaying
+a ``current context'' for a proof, and configuration with a proof
+engine command for searching for theorems.  It would be useful to
+extend these facilities with a <i>theory browser</i> for investigating
+the theories currently defined in a running proof assistant.  This
+involves designing a small protocol to communicate with the proof
+assistant and a generic way of displaying theories which have
+different aspects from system to system.  A way which would
+fit in well with Emacs would be to use a <tt>dired</tt>-like
+buffer.
+</p>
+<p>
+An alternative version of this project would be to write a standalone
+theory browser which uses an extension of the forthcoming Proof
+General standardized protocol for interaction.  This could be
+implemented in Java, or in a functional language, Perl, C or C++, so
+long as a nice toolkit is chosen (Qt or GTK).
+</p>
+<p>
+<b>Skills:</b>
+Interface programming skills.
+Basic understanding of what theories are for several different proof
+assistants.
+</p><p>
+<b>Proposer:</b>
+<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
+</p>
+</li>
+
 <!-- <li><b> </b> -->
 <!-- <p> -->
 <!-- </p> -->
