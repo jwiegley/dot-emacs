@@ -201,7 +201,9 @@ A subroutine of proof-x-symbol-enable."
   ;; Response and goals buffer are fontified/decoded 
   ;; manually in the code, configuration only sets
   ;; x-symbol-language.
-  (proof-map-buffers (list proof-goals-buffer proof-response-buffer)
+  (proof-map-buffers (list proof-goals-buffer 
+			   proof-response-buffer
+			   proof-trace-buffer)
    (proof-x-symbol-configure))
   ;; Shell has its own configuration
   (proof-with-current-buffer-if-exists proof-shell-buffer
