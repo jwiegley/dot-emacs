@@ -1,0 +1,18 @@
+-*- outline -*-
+
+* Developer's list of bugs.
+
+These are obscure/minor issues which are known about and
+could be investigated fixed as low priority.
+
+** GNU Emacs oddity via menus
+
+Toggle scripting in incomplete buffer: Emacs hangs after
+clicking on "yes".
+
+
+
+
+
+
+
