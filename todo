@@ -13,9 +13,8 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A Test that the release version of the distribution actually works.
-  The tar file doesn't include the whole of what we keep under CVS.
-  (da, 30 mins)
+A Fix Non Sequitur nonsense with Isabelle when warnings appear before
+  proofstate.  (da, 1hr?)
 
 A Check & fix support for a recent version of FSFmacs.  (da, 2hr).
 
@@ -102,6 +101,11 @@ C Investigate and improve indentation/font-locking code.
   At the moment editing .ML files in Isabelle Proof General is
   *very* slow.  Moreover the indentation is screwy.  Also
   seems screwy in LEGO/Coq PG.  (da, 2hr)
+
+C Improve Linux install via spec file: hack the load line into 
+  site-start.el.  Could use emacs to determine its location,
+  automatically detect both XEmacs and Emacs, etc.  See if
+  other Emacs packages do something clever. 
 
 B New buffer model:
 
