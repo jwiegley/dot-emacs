@@ -177,9 +177,20 @@ The replacement must cover the whole match (match string 0),
 including any whitespace included to delimit matches.")
 
 
+(defun texi-docstring-magic-untabify (string)
+  "Convert tabs in STRING into multiple spaces."
+  (save-excursion
+    (set-buffer
+     (get-buffer-create " texi-docstring-magic-untabify"))
+    (insert string)
+    (untabify (point-min) (point-max))
+    (prog1 (buffer-substring)
+      (kill-buffer (current-buffer)))))
+
 (defun texi-docstring-magic-munge-docstring (docstring args)
   "Markup DOCSTRING for texi according to regexp matches."
   (let ((case-fold-search nil))
+    (setq docstring (texi-docstring-magic-untabify docstring))
     (dolist (test texi-docstring-magic-munge-table docstring)
       (let ((regexp	(nth 0 test))
 	    (predicate  (nth 1 test))
@@ -296,6 +307,8 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
   "@c TEXI DOCSTRING MAGIC:"
   "Magic string in a texi buffer expanded into @defopt, or @deffn.")
 
+
+
 (defun texi-docstring-magic ()
   "Update all texi docstring magic annotations in buffer."
   (interactive)
@@ -317,7 +330,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 	    (progn
 	      (forward-line)
 	      (delete-region p (point))))
-	(insert
+	(insert 
 	 (texi-docstring-magic-texi-for symbol))))))
 
 (defun texi-docstring-magic-face-at-point ()
