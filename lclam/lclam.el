@@ -137,9 +137,7 @@
 ;;
 
 (define-derived-mode thy-mode fundamental-mode "Lambda-CLAM theory file mode"
-  (interactive)
-  (thy-add-menus)
-)
+  (thy-add-menus))
 
 (defvar thy-mode-map nil)
 
