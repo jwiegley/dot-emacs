@@ -523,6 +523,7 @@
   (modify-syntax-entry ?\* ". 23")
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4")
+  (setq blink-matching-paren-dont-ignore-comments t)
 
   (proof-config-done)
 
