@@ -20,12 +20,8 @@
    so this is only included in the developers tar file.
 
 
+
 ** Generic Changes
-
-*** Fixes for filenames with \ characters in them (mainly for Windows)
-
-  Fixed for Coq, Isabelle, and HOL.  
-
 
 *** Added key binding C-c C-BS and menu entry for delete last command
 
@@ -38,34 +34,19 @@
 
   Check these files for detail of support and issues with each prover.
 
-*** Names of shell, goals, script buffers now based on proof assistant name
+*** Fixes for different Emacsen compatibility
 
-  Basing the name on the command isn't very abstract and leads to strange 
-  names for some provers, "coqtop" and "hol.unquote".  Now we just use
-  the lower case of the proof assistant name.
+**** Supporting Japanese versions of Emacs which have older CL macs.
+    Problems occurred with CL macs with Japanicised documentation,
+    defined in "egg.el". 
+    Japanese Emacs users, please report any other problems you find,
+    they may be fixable for similar reasons.  Better still, report these
+    compatibility problems also to the Japanese Emacs developers, I
+    don't know who to contact.
 
-*** Fixes for supporting Japanese versions of Emacs which have older CL macs.
- 
-  Problems occurred with CL macs with Japanicised documentation,
-  defined in "egg.el". 
-
-  Japanese Emacs users, please report any other problems you find, they 
-  may be fixable for similar reasons.  Better still, report these compatibility
-  problems also to the Japanese Emacs developers, I don't know who to contact.
-
-*** Minor bug fix for duplicated short output.
-  
-  Only seen with "val x=1" or similar very short messages.
-  We now set proof-shell-eager-annotation-start-length appropriately.
-
-*** Bug fix with .thy files and X-Symbol mode
-  
-  Subsequently visited theory files would have X-Symbols broken.  
-
-*** Bug fix for (non-mule) FSF Emacs 20.5.  
-
-  Emacs would freeze when starting proof assistant due to character 
-  matching problem.
+**** Bug fix for (non-mule) FSF Emacs 20.5.  
+     Emacs would freeze when starting proof assistant due to character 
+     matching problem.
 
 *** Fix for infamous Solaris ^G problem: proof-shell-process-connection-type 
 
@@ -83,14 +64,34 @@
 
   If necessary, you can override this by customization, as usual.
   
-*** Added new configuration hook:  proof-shell-pre-interrupt-hook
 
-  This is added particularly for Isabelle running with Poly/ML,
-  which requires interaction after an interrupt.
+*** Minor cosmetic improvements
 
-*** Minor cosmetic improvement
+**** Names of shell, goals, script buffers now based on proof assistant name
+   Basing the name on the command wasn't very abstract and lead to strange 
+   names for some provers, "coqtop" and "hol.unquote".  Now we just use
+   the lower case of the proof assistant name.
 
-  Name of proof assistant "Start Isabelle" etc. in menu.
+**** Name of proof assistant "Start Isabelle" etc. appears in menu.
+
+*** Minor bug fixes
+
+**** Fix for using electric terminator inside locked region.
+
+  With strict read only turned off, would get Emacs error.  
+  Now simply inserts terminator char anywhere in locked region.
+
+**** Fix for duplicated short output.
+  
+  Only seen with "val x=1" or similar very short messages.
+  We now set proof-shell-eager-annotation-start-length appropriately.
+
+**** Fixes for filenames with odd characters in them (mainly for Windows)
+
+  Fixes to allow filenames with \ and " in them.
+  Added for Coq, Isabelle, and HOL.  
+
+
 
 ** Coq Changes
 
@@ -101,9 +102,15 @@
   should be treated as atomic, but it means that you can retract
   a file with sections in, at least.
 
+
+
+
 ** LEGO Changes
 
 *** Fix for error messages, now properly displays "cannot assume" message.
+
+
+
 
 
 ** Isabelle Changes
@@ -111,6 +118,12 @@
 *** Fix for Poly/ML with interrupts: use proof-shell-pre-interrupt-hook
 
 *** Fix for directory changes under Windows
+
+*** Bug fix with .thy files and X-Symbol mode
+  
+    Subsequently visited theory files would have X-Symbols broken.  
+
+
 
 
 ** Isar Changes
@@ -122,9 +135,16 @@
 *** Fix for directory changes under Windows
 
 
+
+
 ** Changes for developers to note
 
 *** todo files added for each prover (todo split from global todo).
+
+*** Added new configuration hook:  proof-shell-pre-interrupt-hook
+
+  This is added particularly for Isabelle running with Poly/ML,
+  which requires interaction after an interrupt.
 
 *** Added new customization: proof-shell-filename-escapes
 
