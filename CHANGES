@@ -17,17 +17,6 @@ It is now permitted to use Proof General in any context, without
 applying for a special license from University of Edinburgh.  
 Free redistribution is also allowed under the GPL conditions.
 
-*** Remove handling for provers you don't want
-
-You can simply remove the directories from the PG distribution,
-instead of customizing the `proof-assistants' variable.
-
-*** Colours altered
-
-Queue and locked colours made a little less lurid.
-(Look in proof-config for proof-locked-face, proof-queue-face
-and old settings if you want to change back).
-
 *** Support added for GNU Emacs 21.X; no support for GNU Emacs 20.X
 
 Toolbar, splash screen, and X-Symbol are all supported in GNU Emacs.  
@@ -35,7 +24,21 @@ Toolbar, splash screen, and X-Symbol are all supported in GNU Emacs.
 Sorry, this version of PG does not support Emacs 20; backwards
 compatibility is far too difficult to maintain.
 
-*** Improvement to "Favourites" user-defined menus (deletion added)
+*** Colours altered
+
+Queue and locked colours made a little less lurid.
+(Look in proof-config for proof-locked-face, proof-queue-face
+and old settings if you want to change back).
+
+*** Improvements to visibility controls
+
+Visibility controls now work for comments and commands in proof
+scripts.  An image is used in XEmacs to signal hidden text.
+
+*** Improvement to "Favourites" user-defined menus 
+
+Favourites are now more robust.  You can delete them and save them
+when you want.
 
 *** Support for "tracing" buffers improved and enabled by default.
 
@@ -43,6 +46,11 @@ compatibility is far too difficult to maintain.
 Compared with experimental tracing in PG 3.3, there is now only one
 tracing buffer, treated somewhat like a response buffer.
 For minor issues, see isa/BUGS.
+
+*** Easily remove handling for provers you don't want 
+
+You can simply remove the directories from the PG distribution,
+instead of customizing the `proof-assistants' variable.
 
 
 

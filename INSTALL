@@ -1,12 +1,13 @@
 Instructions for installing Proof General
 =========================================
 
-This file describes what to do to run Proof General.
-Please let us know if you have problems trying to install it.
+Proof General runs on a variety of platforms and with a variety of
+Emacs versions; see notes below for particular hints.  Please send us
+additional hints for alternative platforms/Emacsen not mentioned.
 
-Unpack this distribution somewhere.  It will create a top-level
-directory containing Proof General, called Proof-General-<something>.
-Put this line in your .emacs file:
+To install, unpack the distribution somewhere.  It will create a
+top-level directory containing Proof General, called
+Proof-General-<something>.  Put this line in your .emacs file:
 
     (load-file "<proofgeneral-home>/generic/proof-site.el")
 
@@ -16,28 +17,17 @@ you can use the script in bin/proofgeneral to launch Emacs with
 Proof General loaded.
 
 The command above will set the Emacs load path and add auto-loads for
-the assistants below:
-
-  .v	    Coq files
-  .l	    LEGO files
-  .thy      Isabelle files
-  .ML       Isabelle files
-  .phx	    PhoX files
-  .sml	    HOL98 files
-  .elf	    Twelf files
-  .acl2	    ACL2 files
-
-When you load a file with one of these extensions, the corresponding
-Proof General mode will be entered.
+proof assistants, for example, visiting a file ending in .v will start
+Coq Proof General, and a file ending in .thy will start 
+Isabelle/Isar Proof General.  See the manual for a full list of file
+extensions and proof assistants, and the note below for how to disable
+those you don't need.
 
 In case of difficulty, please check the documentation in doc/, the
 notes below, the README file for each prover, and the file BUGS.  
 
-If none of these files t help, then contact us via the address below.
+If none of these files help, then contact us via the address below.
 
-				- David Aspinall.
-
-   
    Proof General maintainer <support@proofgeneral.org>
    LFCS,
    Division Of Informatics,
@@ -67,7 +57,8 @@ If you have the RPM file, this is the line you should add to your
 Running on Windows
 ------------------
 
-We recommend XEmacs compiled for Windows, see http://www.xemacs.org
+We recommend XEmacs compiled for Windows, see http://www.xemacs.org.
+Some Isabelle users have reported better operation with cygwin XEmacs.
 
 Unpack the Proof General tar or zip file, and rename the folder to
 "ProofGeneral" to remove the version number.  Put a line like this:
@@ -78,17 +69,16 @@ into .emacs.  You should put .emacs in value of HOME if you set that,
 or else in directory you installled XEmacs in, e.g.  
 c:\Program Files\XEmacs\.emacs
 
-See also README.windows
 
 
 Dependency on Other Emacs Packages
 ----------------------------------
 
 Proof General relies on several other Emacs packages, which are
-probably already supplied with your version of Emacs.  If not,
-you will need to find them.  Note that XEmacs is now being unbundled,
-so you may need to select packages (or package groups) specially.
-These are the packages that you need to use Proof General:
+probably already supplied with your version of Emacs.  If not, you
+will need to find them.  XEmacs is sometimes unbundled, so you may
+need to select packages (or package groups) specially.  These are the
+packages that you need to use Proof General:
 
  ESSENTIAL:
   * cl-macs
@@ -126,8 +116,8 @@ If you are installing Proof General site-wide, you can put the
 components in the standard directories of the filesystem if you
 prefer, providing the variables in proof-site.el are adjusted
 accordingly.  Make sure that the generic and assistant-specific elisp
-files are kept in subdirectories of proof-home so that the autoload
-directory calculations are correct.
+files are kept in subdirectories of `proof-home-directory' so that the
+autoload directory calculations are correct.
 
 To save every user needing the line in their .emacs file, you can put
 that into a site-wide file like default.el.  Read the Emacs manual for
@@ -137,15 +127,15 @@ details.
 Removing support for unwanted provers
 -------------------------------------
 
-You cannot run more than one instance of Proof General at a time:
-e.g. if you're using Coq, you won't be able to run LEGO scripts.
+You cannot run more than one instance of Proof General at a time in
+the same Emacs process: e.g. if you're using Coq, you won't be able to
+run LEGO scripts.
 
-If there are some assistants supported that you never want to use, 
-you can remove them from the variable `proof-assistants`  
-to prevent Proof General autoloading for files with particular
-extensions.  This may be useful if you want to use other modes for
-those files, for example, you may want sml-mode for .ML files or
-Verilog mode for .v files.
+If there are some assistants supported that you never want to use, you
+can remove them from the variable `proof-assistants' to prevent Proof
+General autoloading for files with particular extensions.  This may be
+useful if you want to use other modes for those files, for example,
+you may want sml-mode for .ML files or Verilog mode for .v files.
 
 The easiest way to do this (and other customization of Proof General)
 is via the Customize mechanism, see the menu:

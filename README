@@ -4,7 +4,7 @@ Proof General --- Organize your proofs!
 Proof General is a generic Emacs interface for proof assistants.
 
 This is version 3.4 of Proof General.   
-(Check the About screen for precise version number).
+(Check the About screen for a precise version number).
 
 The aim of the Proof General project is to provide a powerful and
 configurable interfaces which help user-interaction with interactive
@@ -50,7 +50,7 @@ mailing list for Proof General, visit Proof General on the web
 at: http://www.proofgeneral.org
 
 David Aspinall <da@proofgeneral.org>
-July 2002.
+August 2002.
 
 -----
 

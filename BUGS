@@ -1,22 +1,17 @@
 -*- outline -*-
 
-* Known issues which will be resolved before 3.4 
+* Bugs to be fixed before PG 3.4 is released.
 
 The items below are known and will be fixed (I hope!) before 3.4
 is released.  Please don't send email about them (unless you have
 a patch...)
-
 
 ** X-Symbol probs with Isabelle
    -- latin1 chars may get saved in file [XE 21.1 only?]
    -- superscripts/subscripts not fully working [menu option ignored] 
 
 ** X-Symbol probs with Coq, LEGO
-   -- X-Symbol 4.x not supported, don't try it or your Emacs will 
-      explode
-
------------------------------------------------------------------
-
+   -- X-Symbol 4.x not supported, don't try it or your Emacs will explode
 
 * Known Bugs and Workarounds for Proof General.
 

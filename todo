@@ -723,8 +723,6 @@ LIST OF THINGS FOR PG 3.4
 
 ** Does proof-follow-mode have any effect???
 
-** Add glyphs for hidden proofs. 
-
 ** Fix-up show/hide for nested proofs.  (Wierdness with cursor jumping as well)
 
 ** Show/hide in FSF Emacs.
