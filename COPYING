@@ -16,11 +16,12 @@ makes no warranty in respect of Proof General.  Nevertheless you are
 encouraged to report to LFCS any problems with or suggestions for
 improvement of Proof General.
 
-5. The licensee may modify Proof General on condition that any
+5. You may freely modify Proof General on condition that any
 significant changes are notified to LFCS and made available to LFCS
-such that they may be incorporated within future releases of Proof
-General and licenced under the conditions of this licence agreement.
+such that they may be incorporated within future releases of 
+Proof General and licenced under the conditions of this licence
+agreement.
 
 6. You will acknowledge LFCS and The University of Edinburgh as the
-designers and implementors of Proof in any relevant document or
-publication.
+designers and implementors of Proof General in any relevant document
+or publication.
