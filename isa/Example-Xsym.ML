@@ -6,7 +6,7 @@
     Just a version of Example.ML using XSymbol
 *)    
 
-Goal "A \\<and>  B \\<longrightarrow> B \\<and>  A";
+Goal "A \\<and> B \\<longrightarrow> B \\<and> A";
 by (rtac impI 1);
 by (etac conjE 1);
 by (rtac conjI 1);
