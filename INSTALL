@@ -122,6 +122,9 @@ His brief summary is:
   1. Install X11 or OroborOSX.
   2. Install XEmacs, or install GNU Emacs and recompile Proof General.
 
+If you use XEmacs bear in mind the note below (if you are using fink,
+install xemacs-sumo-pkg).
+
 
 Dependency on Other Emacs Packages
 ----------------------------------
