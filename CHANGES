@@ -61,6 +61,11 @@
    Isabelle/Isar syntax changes, other tweaks for Isabelle2002.
 
 
+** Changes for other provers
+
+    - ACL2 improved (now issues undo commands); still experimental and
+      in need of official support.
+
 ** Changes for proof assistant developers to note
   
 *** Improvements in instantiation mechanism
