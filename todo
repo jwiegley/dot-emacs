@@ -46,14 +46,11 @@ B Manual improvements before techreport publishing (see notes at end also):
   - general tips on what to do when things go wrong: try
     interrupt, restart, finally exit proof assistant.
   - improvements after feedback from users.
+  - add screenshots?
+  - add more index entries
 
 D Change the name of "automatic multiple files" to something
   more comprehensible.
-
-X Improve goto button image [suggestion from Markus]
-  Is it possible to avoid the arrows to touch in the middle,
-  emphasizing the 'point' a bit more.  The arrows look a bit outwards
-  bent, too.
 
 D X-Symbol improvements: see if we can get support for 
   proof-xsym-extra-modes outside PG (just by loading proof-site).
@@ -289,6 +286,11 @@ D Idea: introduce a dynamic follow mode which follows
   jump from under fingers (although no typing anyway, hardly
   matters).  Alternative is dynamic recenter mode to 
   keep end of locked region in buffer.
+
+X Improve goto button image [suggestion from Markus]
+  Is it possible to avoid the arrows to touch in the middle,
+  emphasizing the 'point' a bit more.  The arrows look a bit outwards
+  bent, too.
 
 X Check compilation okay, check on use of eval-and-compile.
 
