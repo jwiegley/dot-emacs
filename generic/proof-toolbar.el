@@ -60,6 +60,7 @@
     (qed	"Finish proof"        "Close/save proved theorem" t)
     (find	"Find theorems"	      "Find theorems" t)
     (command    "Issue command"	      "Issue a non-scripting command" t)
+    (interrupt  "Interrupt prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
     (info	nil		      "Show proof assistant information" t)
     (help	nil		      "Proof General manual" t))
 "Example value for proof-toolbar-entries.  Also used to define Scripting menu.
@@ -442,6 +443,15 @@ Move point if the end of the locked position is invisible."
   (proof-shell-available-p))
 
 (defalias 'proof-toolbar-find 'proof-find-theorems)
+
+;;
+;; Interrupt button
+;; 
+
+(defun proof-toolbar-interrupt-enable-p ()
+  proof-shell-busy)
+
+(defalias 'proof-toolbar-interrupt 'proof-interrupt-process)
 
 
 ;;
