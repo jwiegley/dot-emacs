@@ -53,6 +53,7 @@
     (goto	"Goto point"	      "Process or undo to the cursor position" t)
     (restart	"Restart scripting"   "Restart scripting (clear all locked regions)" t)
     (qed	"Finish proof"     "Close/save proved theorem" t)
+    (lockedend  "Locked end"	   nil t)
     (find	"Find theorems"	   "Find theorems" t)
     (command    "Issue command"	   "Issue a non-scripting command" t)
     (interrupt  "Interrupt prover" "Interrupt the proof assistant (warning: may break synchronization)" t)
@@ -286,6 +287,16 @@ changed state."
        (> (proof-unprocessed-begin) (point-min))))
 
 (defalias 'proof-toolbar-delete 'proof-undo-and-delete-last-successful-command)
+
+
+;;
+;; Lockedend button  (not actually on toolbar)
+;;
+
+(defun proof-toolbar-lockedend-enable-p () 
+  t)
+
+(defalias 'proof-toolbar-lockedend 'proof-goto-end-of-locked)
 
 
 
