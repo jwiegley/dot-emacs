@@ -124,7 +124,7 @@ proof-script-next-entity-regexps, which see."
 ;;
 ;; Each command span has a 'type property, one of:
 ;;
-;;     'proof	     A goal..savegoal region in the buffer, a completed proof.
+;;     'goalsave     A goal..savegoal region in the buffer, a completed proof.
 ;;     'vanilla      Initialised in proof-semis-to-vanillas, for
 ;;     'comment      A comment outside a command.
 ;;     'proverproc   A region closed by the prover, processed outwith PG
@@ -400,7 +400,7 @@ Does nothing if there is no active scripting buffer, or if
 ;; TODO:
 ;;   -- Use fine-scale and large scale control, after all?
 ;;   -- Deleting spans must remove their entries in pg-script-portions !!
-
+;;   -- Names should be made unique somehow.
 
 ;; FIXME: this should be a configuration variable
 (defvar pg-idioms '(proof)
@@ -443,6 +443,11 @@ Does nothing if there is no active scripting buffer, or if
   (setq buffer-invisibility-spec
 	(remassq (pg-visname idiom name) buffer-invisibility-spec)))
 
+(defun pg-toggle-element-visibility (idiom name)
+  (if (member (cons (pg-visname idiom name) t) buffer-invisibility-spec)
+      (pg-make-element-visible idiom name)
+    (pg-make-element-invisible idiom name)))
+
 (defun pg-show-all-portions (idiom &optional hide)
   "Show or hide all portions of kind IDIOM"
   (interactive
@@ -460,13 +465,33 @@ Does nothing if there is no active scripting buffer, or if
     (mapcar alterfn elts)))
 
 (defun pg-show-all-proofs ()
+  "Display all completed proofs in the buffer."
   (interactive)
   (pg-show-all-portions "proof"))
 
+(defun pg-hide-all-proofs ()
+  "Hide all completed proofs in the buffer."
+  (interactive)
+  (pg-show-all-portions "proof" 'hide))
+
+;;(defun pg-toggle-proof-visibility ()
+;;  (interactive))
+;; If any proof element is invisible, show all, else hide all.
+
+; see pg-user.el for span-context-menu default.
+; (defun pg-proof-element-menu (name)
+;  `(,(concat "Proof of " name)
+;    ["Show"  (pg-make-element-visible "proof" ,name)]
+;    ["Hide"  (pg-make-element-invisible "proof" ,name)]))
+
 (defun pg-add-proof-element (name span)
   (pg-add-element "proof" name span)
+  (set-span-property proofbodyspan 'name name)
+  (set-span-property proofbodyspan 'type 'proof)
+  (set-span-property proofbodyspan 'idiom 'proof)
+  ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
   (if proof-disappearing-proofs 
-      (pg-make-element-invisible "proof" name)))
+      (pg-make-element-invisible "proof" uniqnm)))
 
 
   
@@ -1048,8 +1073,11 @@ Assumes script buffer is current"
 ; some error processing.
 ;
 ; when a span has been processed, we classify it as follows:
-; 'proof - denoting a 'proof pair in the locked region
-;    a 'proof region has a 'name property which is the name of the goal
+; 'goalsave - denoting a goal-save pair in the locked region
+;    A goalsave may have a nested 'proof region which is the body
+;    of the proof and may be hidden.
+;    'goalsave and 'proof regions have a 'name property which 
+;    is the name of the goal
 ; 'comment - denoting a comment
 ; 'pbp - denoting a span created by pbp
 ; 'vanilla - denoting any other span.
@@ -1121,7 +1149,9 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (setq proof-shell-proof-completed nil)
 
       ;; FIXME: subroutine here:
-      (let (nam gspan next)
+      (let ((gspan     span)
+	    (savestart (span-start span))
+	    goalend nam next)
 
 	;; Try to set the name of the theorem from the save
 	(message "%s" cmd)
@@ -1133,9 +1163,9 @@ the ACS is marked in the current buffer. If CMD does not match any,
 		       (replace-match proof-save-with-hole-result nil nil cmd)
 		     (match-string proof-save-with-hole-result cmd))))
 	(message "%s" nam)
+
 	;; Search backwards for first goal command, 
 	;; deleting spans along the way.
-	(setq gspan span)
 	(while (and gspan
 		    (or (eq (span-property gspan 'type) 'comment)
 			(not (funcall proof-goal-command-p 
@@ -1170,18 +1200,22 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; pg-add-new-proof-span
 
 	;; Now make the new goal-save span
+	(setq goalend (span-end gspan))
 	(set-span-end gspan end)
 	(set-span-property gspan 'mouse-face 'highlight)
-	(set-span-property gspan 'type 'proof)
+	(set-span-property gspan 'type 'goalsave)
+	(set-span-property gspan 'idiom 'proof);; links to nested proof element
 	(set-span-property gspan 'name nam)
 
+	;; Make a nested span which contains the purported body of the
+	;; proof, and add to buffer-local list of elements, maybe
+	;; making invisible.
+	(let ((proofbodyspan (make-span goalend savestart)))
+	  (pg-add-proof-element nam proofbodyspan))
 
 	;; Set the context sensitive menu/keys
-	(set-span-property gspan 'keymap span-context-menu-keymap)
+	(set-span-property gspan 'keymap pg-span-context-menu-keymap)
 	
-	;; Add to buffer-local list of elements, maybe making invisible
-	(pg-add-proof-element nam gspan)
-
 	;; *** Theorem dependencies ***
 	;; Dependencies returns a list of strings, each string being
 	;; the name of a dependency of that span 
@@ -1194,7 +1228,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 		  (easy-menu-remove proof-deps-menu))
 	      (set-span-property gspan 'dependencies 
 				 proof-last-theorem-dependencies)
-	      (set-span-property gspan 'keymap span-context-menu-keymap)
+	      (set-span-property gspan 'keymap pg-span-context-menu-keymap)
 	      (if buffer-file-name
 		  (let* 
 		      ((buffer-file-name-sans-path
@@ -1247,6 +1281,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
      ;;
      ;; FIXME: abstract common part of this case and case above,
      ;; to improve code by making a useful subroutine.
+     ;; FIXME: add proof element here for hiding.
      ((and
        proof-shell-proof-completed
        (or (and (eq proof-completed-proof-behaviour 'extend)
@@ -1312,7 +1347,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  ;; case is only good for non-nested goals.
 	  (set-span-end gspan newend)
 	  (set-span-property gspan 'mouse-face 'highlight)
-	  (set-span-property gspan 'type 'proof)
+	  (set-span-property gspan 'type 'goalsave)
 	  (set-span-property gspan 'name nam))
 	;; Finally, do the usual thing with highlighting for the span.
 	(unless swallow
@@ -1969,7 +2004,7 @@ others)."
   (save-excursion
     (let ((span (span-at-before (proof-locked-end) 'type)))
     (while (and span 
-		(not (eq (span-property span 'type) 'proof))
+		(not (eq (span-property span 'type) 'goalsave))
 		(or (eq (span-property span 'type) 'comment)
 		    (not (funcall proof-goal-command-p
 				  (span-property span 'cmd)))))
