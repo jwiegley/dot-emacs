@@ -15,6 +15,13 @@ versions, and those which only apply to particular versions.
 
 * Generic problems, for all Emacs versions
 
+** Looping in Emacs 21.2
+
+Several (odd) circumstances cause this version of Emacs to loop.
+For example, (setq-default column-number-mode t) before starting
+Emacs, or moving the cursor around in the *coq* buffer.
+It seems likely that these are Emacs bugs, workaround unknown.
+
 ** Visibility control doesn't distinguish theorems with same name.
 
 If you have more than one theorem with the same name in a buffer,
