@@ -432,7 +432,7 @@
 		  (concat "\\<" kw "\\>"
 			  "\\(?:\\s-*(\\s-*in[^)]+)\\)?"
 			  isar-name-regexp "[[:=]")
-		  2))
+		  1))
 	  isar-keywords-fume))
 
 ;; ----- indentation
