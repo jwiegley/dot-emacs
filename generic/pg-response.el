@@ -169,12 +169,13 @@ Returns non-nil if response buffer was cleared."
 	(setq start (point))
 	(insert str)
 	(unless (bolp) (newline))
-	(setq end (proof-fontify-region start (point)))
+	(proof-fontify-region start (point))
 	;; This is one reason why we don't keep the buffer in font-lock
 	;; minor mode: it destroys this hacky property as soon as it's
 	;; made!  (Using the minor mode is much more convenient, tho')
 	(if (and face proof-output-fontify-enable)
-	    (font-lock-append-text-property start end 'face face))
+	    (font-lock-append-text-property 
+	     start (point-max) 'face face))
 	;; This returns the decorated string, but it doesn't appear 
 	;; decorated in the minibuffer, unfortunately.
 	;; [ FIXME: users have asked for that to be fixed ]
@@ -292,6 +293,13 @@ and start at the first error."
 ;; Tracing buffers
 ;;
 
+;; NB: fontifying massive trace output can be expensive: might be nice
+;; to have heuristic here (or use lazy-shot style mode) to see if we
+;; can fontify less eagerly.  Actually, this might be solved best by
+;; actually using the lazy-shot mechanism and having buffers in
+;; x-symbool and font-lock modes.  To fix that, though, we would have
+;; to fix up the cut-and-paste behaviour somehow.
+
 ;; An analogue of pg-response-display-with-face 
 (defun proof-trace-buffer-display (str)
   "Display STR in the trace buffer."
@@ -308,6 +316,7 @@ and start at the first error."
       (condition-case nil
 	  (proof-fontify-region start (point)))
       (set-buffer-modified-p nil))))
+
 
 
 
