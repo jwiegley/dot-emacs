@@ -44,6 +44,7 @@
 	    proof-shell-invisible-command)))
 ;; proof-response-buffer-display now in proof.el, removed from above.
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Internal variables used by script mode
@@ -735,6 +736,7 @@ correct theory, or whatever."
   ;; First experiment shows that it's the hooks that cause
   ;; problem, maybe even the use of proof-cd-sync (can't see why).
   (save-excursion
+    ;; FIXME: proof-shell-ready-prover here s
     (proof-shell-ready-prover queuemode)
     (cond 
      ((not (eq proof-buffer-type 'script)) 
@@ -1404,11 +1406,7 @@ scripting."
 ;; FIXME: polish the undo behaviour and quit behaviour of this
 ;; command (should inhibit quit somewhere or other).
 
-(defun proof-assert-next-command-interactive ()
-  "Process until the end of the next unprocessed command after point.
-If inside a comment, just process until the start of the comment."
-  (interactive)
-  (proof-assert-next-command))
+
   
 (defun proof-assert-next-command
   (&optional unclosed-comment-fun ignore-proof-process-p
@@ -1645,38 +1643,99 @@ command."
     (proof-retract-target span delete-region)))
 
 
+
+
+
+
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;         misc other user functions                                ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; User-level functions.
+;;
+;; FIXME: put these in a new file, proof-user, which defines
+;; user-level scripting mode.
+;;
 
-;; FIXME: it turns out that this function is identical to the one below.
-(defun proof-undo-last-successful-command-interactive (delete)
-  "Undo last successful command at end of locked region.
-If DELETE argument is set (called with a prefix argument), 
-the text is also deleted from the proof script."
-  (interactive "P")
-  (proof-undo-last-successful-command (not delete)))
 
-(defun proof-undo-last-successful-command (&optional no-delete)
+;; First a couple of helper functions 
+
+(defmacro proof-maybe-save-point (&rest body)
+  "Save point according to proof-follow-mode, execute BODY."
+  `(if (eq proof-follow-mode 'locked)
+       (progn
+	 ,@body)				; nb no error catching
+     (save-excursion
+	,@body)))
+
+(defun proof-maybe-follow-locked-end ()
+  "Maybe point to the make sure the locked region is displayed."
+  (if (eq proof-follow-mode 'follow)
+    (proof-goto-end-of-queue-or-locked-if-not-visible)))
+
+
+;;
+;; Doing commands
+;;
+
+(defun proof-assert-next-command-interactive ()
+  "Process until the end of the next unprocessed command after point.
+If inside a comment, just process until the start of the comment."
+  (interactive)
+  (proof-maybe-save-point
+   (goto-char (proof-queue-or-locked-end))
+   (proof-assert-next-command))
+  (proof-maybe-follow-locked-end))
+
+(defun proof-process-buffer ()
+  "Process the current buffer, and maybe move point to the end."
+  (interactive)
+  (proof-script-maybe-save-point
+   (goto-char (point-max))
+   (proof-assert-until-point-interactive))
+  (proof-script-maybe-follow-locked-end))
+
+
+;;
+;; Undoing commands
+;;
+
+(defun proof-undo-last-successful-command ()
+  "Undo last successful command at end of locked region."
+  (interactive)
+  (proof-undo-last-successful-command-1))
+
+(defun proof-undo-and-delete-last-successful-command ()
+  "Undo and delete last successful command at end of locked region."
+  (interactive)
+  (proof-undo-last-successful-command-1 'delete))
+
+;; No direct key-binding for this one: C-c C-u is too dangerous,
+;; when used quickly it's too easy to accidently delete!
+(defun proof-undo-last-successful-command-1 (&optional delete)
   "Undo last successful command at end of locked region.
-Unless optional NO-DELETE is set, the text is also deleted from
+If optional DELETE is non-nil, the text is also deleted from
 the proof script."
-  (unless (proof-locked-region-empty-p)
-    (let ((lastspan (span-at-before (proof-locked-end) 'type)))
-      (if lastspan
-	  (progn
-	    (goto-char (span-start lastspan))
-	    (proof-retract-until-point (not no-delete)))
-	(error "Nothing to undo!")))))
+  (interactive "P")
+  (proof-maybe-save-point
+   (unless (proof-locked-region-empty-p)
+     (let ((lastspan (span-at-before (proof-locked-end) 'type)))
+       (if lastspan
+	   (progn
+	     (goto-char (span-start lastspan))
+	     (proof-retract-until-point delete))
+	 (error "Nothing to undo!")))))
+  (proof-maybe-follow-locked-end))
 
+(defun proof-retract-buffer ()
+  "Retract the current buffer, and maybe move point to the start."
+  (interactive)
+  (proof-script-maybe-save-point
+   (goto-char (point-min))
+   (proof-retract-until-point-interactive))
+  (proof-script-maybe-follow-locked-end))
 
-;; FIXME da: need to add some way of recovery here.  Perhaps
-;; query process as to its state as well.  Also unwind protects
-;; here.
-
-;; FIXME da: this probably belongs in proof-shell, as do
-;; some of the following functions.
+;;
+;; Interrupt
+;;
 
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  Warning! This may confuse Proof General.
@@ -1694,8 +1753,14 @@ handling of interrupt signals."
   (unless proof-shell-busy
     (error "Proof Process Not Active!"))
   (with-current-buffer proof-shell-buffer
+    ;; Just send an interrrupt.  
+    ;; Action on receiving one is triggered in proof-shell
     (comint-interrupt-subjob)))
   
+
+;;
+;; Movement commands
+;;
     
 (defun proof-find-next-terminator ()
   "Set point after next `proof-terminal-char'."
@@ -1763,26 +1828,10 @@ handling of interrupt signals."
     (skip-chars-backward " \t\n")
     (backward-char)))	; should land on terminal char
 
-(defun proof-process-buffer ()
-  "Process the current buffer and set point at the end of the buffer."
-  (interactive)
-  (goto-char (point-max))
-  (proof-assert-until-point-interactive))
 
-(defun proof-retract-buffer ()
-  "Retract the current buffer and set point at the start of the buffer."
-  (interactive)
-  (goto-char (point-min))
-  (proof-retract-until-point-interactive))
+;;
+;;
 
-
-
-;; FIXME da: this could do with some tweaking.  Be careful to
-;; avoid memory leaks.  If a buffer is killed and it's local
-;; variables are, then so should all the spans which were allocated
-;; for that buffer.  Is this what happens?  By garbage collection?
-;; Otherwise we should perhaps *delete* spans corresponding to 
-;; the locked and queue regions as well as the others.
 (defun proof-restart-buffers (buffers)
   "Remove all extents in BUFFERS and maybe reset `proof-script-buffer'.
 No effect on a buffer which is nil or killed.  If one of the buffers
@@ -1828,13 +1877,44 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 	;; proof-queue-or-locked-end should be enough.
 	(delete-spans (proof-locked-end) (point-max) 'type))))
 
+
+;;
+;; Minibuffer non-scripting command
+;;
+
+(defvar proof-minibuffer-history nil
+  "History of proof commands read from the minibuffer")
+
+(defun proof-minibuffer-cmd (cmd)
+  "Prompt for a command in the minibuffer and send it to proof assistant.
+The command isn't added to the locked region.
+
+If `proof-state-preserving-p' is configured, it is used as a check
+that the command will be safe to execute, in other words, that
+it won't ruin synchronization.  If applied to the command it 
+returns false, then an error message is given.  
+
+This command risks spoiling synchronization if the test
+`proof-state-preserving-p' is not configured, or if it is
+only an approximate test."
+  (interactive
+   (read-string "Command: " nil 'proof-minibuffer-history))
+  (if (and proof-state-preserving-p
+	   (not (funcall proof-state-preserving-p cmd)))
+      (error "Command is not state preserving, I won't execute it!"))
+  (proof-shell-invisible-command cmd))
+
+
+;;
+;; Frobbing locked end
+;;
+
 ;; A command for making things go horribly wrong - it moves the
 ;; end-of-locked-region marker backwards, so user had better move it
 ;; correctly to sync with the proof state, or things will go all
 ;; pear-shaped.
 
 ;; In fact, it's so risky, we'll disable it by default
-;; unless it's already been overridden.
 (if (if (string-match "XEmacs" emacs-version)
 	(get 'proof-frob-locked-end 'disabled t)
       ;; FSF code more approximate
@@ -1863,36 +1943,8 @@ a proof command."
    (t (proof-set-locked-end (point))	
       (delete-spans (proof-locked-end) (point-max) 'type))))
 
-(defvar proof-minibuffer-history nil
-  "History of proof commands read from the minibuffer")
 
-(defun proof-execute-minibuffer-cmd ()
-  "Prompt for a command in the minibuffer and send it to proof assistant.
-The command isn't added to the locked region.
 
-If `proof-state-preserving-p' is configured, it is used as a check
-that the command will be safe to execute, in other words, that
-it won't ruin synchronization.  If applied to the command it 
-returns false, then an error message is given.  
-
-This command risks spoiling synchronization if the test
-`proof-state-preserving-p' is not configured, or if it is
-only an approximate test."
-  (interactive)
-  (let (cmd)
-    ;; FIXME note: removed ready-prover call since it's done by
-    ;; proof-shell-invisible-command anyway.
-    ;; (proof-shell-ready-prover)
-    ;; was (proof-check-process-available 'relaxed) 
-    (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
-    (if (and
-	 proof-state-preserving-p
-	 (not (funcall proof-state-preserving-p cmd)))
-	  (error "Command is not state preserving, I won't execute it!"))
-    (proof-shell-invisible-command 
-     (if proof-terminal-string
-	 (concat cmd proof-terminal-string)
-       cmd))))
 
 
 
@@ -1932,8 +1984,7 @@ only an approximate test."
 
 
 ;;; 
-;;; User-level commands invoking common commands for
-;;; the underlying proof assistant.
+;;; Non-scripting proof assistant commands.
 ;;;
 
 ;;; These are based on defcustom'd settings so that users may 
@@ -1953,13 +2004,6 @@ only an approximate test."
 ;;    For example, may be more easy to edit complex goal string
 ;;    first in the script buffer.  Ditto for tactics, etc.
 
-
-
-;;; FIXME: should move these to a new file, not really scripting
-;;; related.
-
-;;; FIXME: rationalize use of terminator string (i.e. remove
-;;; it below, add it to each instance for consistency).
 
 
 ;;
@@ -2011,23 +2055,22 @@ CMDVAR is a function or string.  Automatically has history."
   "Insert CMD into the script buffer and issue it to the proof assistant.
 If point is in the locked region, move to the end of it first.
 Start up the proof assistant if necessary."
-  ;; FIXME: da: I think we need a (proof-script-switch-to-buffer)
-  ;; function (so there is some control over display).
-  ;; (switch-to-buffer proof-script-buffer)
+  ;; FIXME: da: need (proof-switch-to-buffer proof-script-buffer) here?
   (if (proof-shell-live-buffer)
       (if (proof-in-locked-region-p)
 	  (proof-goto-end-of-locked t)))
   (proof-script-new-command-advance)
-  ;; FIXME: fixup behaviour of undo here.  Really want
-  ;; to temporarily disable undo for insertion.
-  ;; (buffer-disable-undo) this trashes whole undo list!
+  ;; FIXME: fixup behaviour of undo here.  Really want to temporarily
+  ;; disable undo for insertion.  but (buffer-disable-undo) trashes
+  ;; whole undo list!
   (insert cmd)
-  ;; FIXME: could do proof-indent-line here, but let's
-  ;; wait until indentation is fixed.
+  ;; FIXME: could do proof-indent-line here, but let's wait until
+  ;; indentation is fixed.
   (proof-assert-until-point-interactive))
 
 ;;
-;; Commands which do not require a prompt and send an invisible command.
+;; Commands which do not require a prompt and send an invisible
+;; command.
 ;;
 
 (proof-define-assistant-command proof-prf  
@@ -2089,19 +2132,6 @@ This is intended as a value for proof-activate-scripting-hook"
 ;;; Definition of Menus
 ;;;
 
-;;; A handy utility function used in buffer menu.
-(defun proof-switch-to-buffer (buf &optional noselect)
-  "Switch to or display buffer BUF in other window unless already displayed.
-If optional arg NOSELECT is true, don't switch, only display it.
-No action if BUF is nil."
-  ;; Maybe this needs to be more sophisticated, using 
-  ;; proof-display-and-keep-buffer ?
-  (and buf
-       (unless (eq buf (window-buffer (selected-window)))
-	 (if noselect
-	     (display-buffer buf t)
-	   (switch-to-buffer-other-window buf)))))
-
 (defvar proof-help-menu
   `("Help"
     [,(concat proof-assistant " information")
@@ -2131,9 +2161,6 @@ No action if BUF is nil."
      :active (buffer-live-p proof-shell-buffer)])
   "Proof General buffer menu.")
 
-;; FIXME da: could move this elsewhere.  
-;; FIXME da: rationalize toolbar menu items with this menu, i.e.
-;; remove common stuff.
 (defvar proof-shared-menu
   (append
     (list
@@ -2176,7 +2203,6 @@ No action if BUF is nil."
      :active t]))
   "Proof General menu for submitting bug report (one item plus separator).")
 
-
 (defvar proof-menu  
   (append '("----"
 	    ["Scripting active" proof-toggle-active-scripting
@@ -2202,6 +2228,10 @@ No action if BUF is nil."
           proof-shared-menu
           )
   "The menu for the proof assistant.")
+
+
+
+
 
 
 
@@ -2267,18 +2297,10 @@ sent to the assistant."
 
 
 
-
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Proof General scripting mode definition			    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;; da: this isn't so nice if a scripting buffer should inherit
-;; from another mode: e.g. for Isabelle, we would like to use
-;; sml-mode.
-;; FIXME: add more doc to the mode below, to give hints on
-;; configuring for new assistants.
+;;
+;; Proof General scripting mode definition, part 1.
+;;
 
 ;;;###autoload
 (eval-and-compile			; to define vars
@@ -2314,6 +2336,7 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
   (if proof-goals-buffer (bury-buffer proof-goals-buffer))
   (if proof-response-buffer (bury-buffer proof-response-buffer)))
   
+
 
 ;;
 ;; Scripting mode key bindings
@@ -2321,23 +2344,18 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 ;; These have been cleaned up for Proof General 3.0.
 ;;
 
-;; FIXME: move 'proof-toolbar' commands somewhere else, so
-;; they don't really require the toolbar.
-
-
-;;; INDENT HACK: font-lock only recognizes define-key at start of line
-(let ((map proof-mode-map))
+(let ((map proof-mode-map)) ; proof-mode-map comes from define-derived-mode above
 (define-key map [(control c) (control a)] 'proof-goto-command-start)
-(define-key map [(control c) (control b)] 'proof-toolbar-use)
+(define-key map [(control c) (control b)] 'proof-process-buffer)
 ; C-c C-c is proof-interrupt-process in universal-keys
 (define-key map [(control c) (control e)] 'proof-goto-command-end)
-(define-key map [(control c) (control n)] 'proof-toolbar-next)
+(define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
 (define-key map [(control c) (control p)] 'proof-prf)
-(define-key map [(control c) (control r)] 'proof-toolbar-retract)
+(define-key map [(control c) (control r)] 'proof-retract-buffer)
 (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
 (define-key map [(control c) (control t)] 'proof-ctxt)
-(define-key map [(control c) (control u)] 'proof-toolbar-undo)
-; C-c C-v is proof-execute-minibuffer-cmd in universal-keys
+(define-key map [(control c) (control u)] 'proof-undo-last-successful-command)
+; C-c C-v is proof-minibuffer-cmd in universal-keys
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
 (define-key map [(control c) (control return)] 'proof-goto-point)
@@ -2355,9 +2373,10 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (proof-define-keys map proof-universal-keys))
 
 
+
 
 ;;
-;;  Proof Script mode configuration - part 2
+;;  Proof General scripting mode definition - part 2
 ;; 
 
 ;; The callback *-config-done mechanism is an irritating hack - there
