@@ -151,6 +151,14 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 	(font-lock-append-text-property start end 'face face))
       (buffer-substring start end))))
 
+;; FIXME da: this window dedicated stuff is a real pain and I've
+;; spent ages inserting workarounds.  Why do we want it??
+;; The latest problem is that with
+;;  (setq special-display-regexps
+;;       (cons "\\*Inferior .*-\\(goals\\|response\\)\\*"
+;;	     special-display-regexps))
+;; I get the script buffer made into a dedicated buffer,
+;; presumably because the wrong window is selected below?
 
 (defun proof-display-and-keep-buffer (buffer)
   "Display BUFFER and mark window according to `proof-window-dedicated'.
