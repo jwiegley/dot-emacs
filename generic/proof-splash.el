@@ -78,6 +78,18 @@ These are evaluated and appended to `proof-splash-contents'."
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;; Compatibility between Emacs/XEmacs.
+(if (string-match "XEmacs" emacs-version)
+  ;; Constant nil function
+  (defun proof-emacs-imagep (img)
+    "See if IMG is an Emacs 21 image descriptor (returns nil since not E21)."
+    nil)
+  (defun proof-emacs-imagep (img)
+    "See if IMG is an Emacs 21 image descriptor."
+    (and (listp img) (eq (car img) 'image))))
+
+
 (defun proof-splash-display-image (name &optional nojpeg)
   "Construct an image instantiator for an image, or string failing that.
 Different formats are chosen from according to what can be displayed.
