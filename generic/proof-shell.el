@@ -1976,8 +1976,6 @@ usual, unless NOERROR is non-nil."
   ;; Clear state
   (proof-shell-clear-state)
 
-  (make-local-variable 'proof-shell-insert-hook)
-
   ;; Efficiency: don't keep undo history
   (buffer-disable-undo)
 
@@ -2091,11 +2089,12 @@ processing."
 	    (proof-maybe-askprefs)
 	    
 	    ;; Now send the init cmd proper.
-	    (if proof-shell-init-cmd
-		(proof-shell-invisible-command proof-shell-init-cmd t))
-      
-	    ;; Configure for x-symbol
-	    (proof-x-symbol-shell-config))))))
+	    (unwind-protect
+		(if proof-shell-init-cmd
+		    (proof-shell-invisible-command proof-shell-init-cmd t))
+
+	      ;; Configure for x-symbol [even if the init cmd caused some error]
+	      (proof-x-symbol-shell-config)))))))
 
 
 (provide 'proof-shell)
