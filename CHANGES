@@ -35,6 +35,7 @@ Toolbar, splash screen, and X-Symbol are all supported in GNU Emacs.
 Sorry, this version of PG does not support Emacs 20; backwards
 compatibility is far too difficult to maintain.
 
+*** Improvement to "Favourites" user-defined menus (deletion added)
 
 *** Support for "tracing" buffers improved and enabled by default.
 
