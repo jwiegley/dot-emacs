@@ -124,11 +124,13 @@ If ignore, point is never moved after toolbar movement commands."
       :bold t))
     (t				
      (:italic t :bold t)))
-  "*Face for declaration names in proof scripts.
-
-Don't forget to *double* quote this face for font-lock. FSF Emacs
-20.2's version only supports *expressions* for faces."
+  "*Face for declaration names in proof scripts."
   :group 'proof-faces)
+
+(defconst proof-declaration-name-face 'proof-declaration-name-face
+  "Expression that evaluates to a face.
+Required so that 'proof-declaration-name-face is a proper facename in
+both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
 
 (defface proof-tacticals-name-face
   '((((type x) (class color) (background light))   
@@ -137,11 +139,13 @@ Don't forget to *double* quote this face for font-lock. FSF Emacs
      (:foreground "orchid"))
     (t				
      (bold t)))
-  "*Face for names of tacticals in proof scripts.
-
-Don't forget to *double* quote this face for font-lock. FSF Emacs
-20.2's version only supports *expressions* for faces."
+  "*Face for names of tacticals in proof scripts."
   :group 'proof-faces)
+
+(defconst proof-tacticals-name-face 'proof-tacticals-name-face
+  "Expression that evaluates to a face.
+Required so that 'proof-declaration-name-face is a proper facename in
+both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
 
 (defface proof-error-face 
   '((((type x) (class color) (background light))   
