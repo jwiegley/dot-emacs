@@ -13,10 +13,12 @@
 PGHOME=/usr/share/emacs/ProofGeneral
 #PGHOME=~/ProofGeneral
 
-if which xemacs > /dev/null; then 
-    EMACS=xemacs
-else 
-    EMACS=emacs
+if [ -z "EMACS" ]; then
+    if which xemacs > /dev/null; then 
+	EMACS=xemacs
+    else 
+	EMACS=emacs
+    fi
 fi
 
 $EMACS -q -l $PGHOME/generic/proof-site.el -f proof-splash-display-screen "$@"
