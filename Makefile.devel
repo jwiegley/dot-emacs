@@ -26,6 +26,8 @@
 ##    make distinstall	  - install distribution build by 'make dist'
 ##			    into DISTINSTALLDIR.
 ##
+##    make golive	  - publish previously built distribution
+##
 ##    make links	  - add some links which help testing web pages
 ##			    from the html directory.
 ##
@@ -132,7 +134,7 @@ RELEASEDIR = /tmp/proofgeneral-www
 # was: GOLIVE=true
 # GOLIVE=scp -pr $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/
 # use rsync instead of scp: it copies links
-GOLIVE=rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/
+GOLIVE=(rsync -e ssh -auv $(RELEASEDIR)/* ssh.inf.ed.ac.uk:/group/project/proofgeneral/web/releases/; rm -rf $(RELEASEDIR); cd $(HTMLDIR); make pub.$(DOWNLOADHTML); make pub.${DOWNLOADINFOHTML})
 
 
 CVSNAME = ProofGeneral
