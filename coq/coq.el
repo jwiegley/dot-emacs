@@ -119,14 +119,14 @@
 
 (defconst coq-undoable-tactics-regexp 
   (proof-ids-to-regexp coq-undoable-tactics))
-(defconst coq-non-undoable-tactics-regexp 
-  (proof-ids-to-regexp coq-non-undoable-tactics))
+(defconst coq-state-preserving-tactics-regexp 
+  (proof-ids-to-regexp coq-state-preserving-tactics))
 (defconst coq-tactics-regexp
   (proof-ids-to-regexp coq-tactics))
-(defconst coq-backable-commands-regexp
-  (proof-ids-to-regexp coq-keywords-backable-commands))
-(defconst coq-non-backable-commands-regexp 
-  (proof-ids-to-regexp coq-keywords-non-backable-commands))
+(defconst coq-state-changing-commands-regexp
+  (proof-ids-to-regexp coq-keywords-state-changing-commands))
+(defconst coq-state-preserving-commands-regexp 
+  (proof-ids-to-regexp coq-keywords-state-preserving-commands))
 (defvar coq-retractable-instruct-regexp 
   (proof-ids-to-regexp coq-retractable-instruct))
 (defvar coq-non-retractable-instruct-regexp
@@ -185,6 +185,7 @@
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
        (not (proof-string-match "Definition.*:=" str))
+		 (not (proof-string-match "Recursive Definition" str))
        ;; da: 3.4 test: do not exclude Lemma: we want goal-command-p to
        ;; succeed for nested goals too now.
        ;; (should we also exclude Definition?)
@@ -223,34 +224,34 @@ This assumes that no \"Resume\" command has been used."
        ;; [ Maybe not: Section is being treated as a _goal_ command
        ;;   now, so this test has to appear before the goalsave ]
        ((proof-string-match 
-	 (concat "Section\\s-+\\(" proof-id "\\)\\s-*") str)
-	(unless (eq (span-property span 'type) 'goalsave)
-	  ;; If we're resetting to beginning of a section from
-	  ;; inside, need to fix the nesting depth.
-	  ;; FIXME: this is not good enough: the scanning loop
-	  ;; exits immediately but Reset has implicit Aborts
-	  ;; which are not being counted here.  Really
-	  ;; we need to set the "master reset" command which
-	  ;; subsumes the others, but still count the depth.
-	  (decf proof-nesting-depth))
-	(setq ans (format coq-forget-id-command (match-string 2 str))))
+         (concat "Section\\s-+\\(" proof-id "\\)\\s-*") str)
+        (unless (eq (span-property span 'type) 'goalsave)
+          ;; If we're resetting to beginning of a section from
+          ;; inside, need to fix the nesting depth.
+          ;; FIXME: this is not good enough: the scanning loop
+          ;; exits immediately but Reset has implicit Aborts
+          ;; which are not being counted here.  Really
+          ;; we need to set the "master reset" command which
+          ;; subsumes the others, but still count the depth.
+          (decf proof-nesting-depth))
+        (setq ans (format coq-forget-id-command (match-string 2 str))))
        
        ((eq (span-property span 'type) 'goalsave)
-	;; Note da 6.10.99: in Lego and Isabelle, it's trivial to forget an
-	;; unnamed theorem.  Coq really does use the identifier
-	;; "Unnamed_thm", though!  So we don't need this test:
-	;;(unless (eq (span-property span 'name) proof-unnamed-theorem-name)
+        ;; Note da 6.10.99: in Lego and Isabelle, it's trivial to forget an
+        ;; unnamed theorem.  Coq really does use the identifier
+        ;; "Unnamed_thm", though!  So we don't need this test:
+        ;;(unless (eq (span-property span 'name) proof-unnamed-theorem-name)
 
-	;; da: try using just Back since "Reset" causes loss of proof
-	;; state.
-	;; (format coq-forget-id-command (span-property span 'name)))
-	(if (span-property span 'nestedundos) 
-	    (setq nbacks (+ 1 nbacks (span-property span 'nestedundos)))))
+        ;; da: try using just Back since "Reset" causes loss of proof
+        ;; state.
+        ;; (format coq-forget-id-command (span-property span 'name)))
+        (if (span-property span 'nestedundos) 
+            (setq nbacks (+ 1 nbacks (span-property span 'nestedundos)))))
        
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
        ((coq-goal-command-p str)
-	(incf naborts))
+        (incf naborts))
        
        ;; If we are already outside a proof, issue a Reset.
        ;; [ improvement would be to see if the undoing
@@ -258,53 +259,56 @@ This assumes that no \"Resume\" command has been used."
        ;;   Reset found if so: but this is tricky to co-ordinate
        ;;   with the number of Backs, perhaps? ]
        ((and 
-	 (not (coq-proof-mode-p)) ;; (eq proof-nesting-depth 0)
-	 (proof-string-match 
-	  (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
-		  proof-id 
-		  ;; Section .. End Section should be atomic!
-		  "\\)\\s-*[\\[,:.]") str))
-	(setq ans (format coq-forget-id-command (match-string 2 str))))
+         (not (coq-proof-mode-p));; (eq proof-nesting-depth 0)
+         (proof-string-match 
+          (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
+                  proof-id 
+                  ;; Section .. End Section should be atomic!
+                  "\\)\\s-*[\\[,:.]") str))
+        (setq ans (format coq-forget-id-command (match-string 2 str))))
 
        ;; FIXME: combine with coq-keywords-decl-defn-regexp case above?
        ;; If it's not a goal but it contains "Definition" then it's a
        ;; declaration  [ da: is this not covered by above case??? ]
-       ((and (not (coq-proof-mode-p)) ;; (eq proof-nesting-depth 0)
-	     (proof-string-match
-	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
-	(setq ans (format coq-forget-id-command (match-string 2 str))))
+       ((and (not (coq-proof-mode-p));; (eq proof-nesting-depth 0)
+             (proof-string-match
+              (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
+        (setq ans (format coq-forget-id-command (match-string 2 str))))
+		 
+       ;; Outside a proof: cannot be a tactic, if unknown: do back 
+       ;; (we may decide otherwise, it is false anyhow, use elisp 
+       ;; vars instead for the perfect thing).
+       ((and (not (coq-proof-mode-p))
+             (not (proof-string-match 
+                   (concat "\\`\\(" 
+                           coq-state-preserving-commands-regexp
+                           "\\)")
+                   str)))
+        (incf nbacks))
 
-       ;; Pierre: added may 29 2002 
-       ;; REM: It is impossible to guess if a user defined command is
-       ;; backable.  This negative test bets on the fact that user
-       ;; defined commands are probably backable, which is not sure at
-       ;; all. Betting on the opposite is also wrong. I made the user
-       ;; definable elisp variables coq-user... to avoid this problem
-       ;; anyway.
-       ((and 
-	 ;; now we should match all things that do not deal with Back
-	 (not (proof-string-match 
-	       (concat "\\`\\(" coq-tactics-regexp "\\)")
-	       str))
-	 (not (proof-string-match 
-	       (concat "\\`\\(" 
-		       coq-non-backable-commands-regexp
-		       "\\)")
-	       str)))
-	(incf nbacks))
-
-       ;; Finally all other proof commands, which are undone with
-       ;; Undo.  But only count them if they are outermost, not
-       ;; within an aborted goal.
-       ((and
-	 (eq 0 naborts)
-	 (proof-string-match 
-	       (concat "\\`\\(" 
-		       coq-undoable-tactics-regexp
-		       "\\)")
-	       str))
-	(incf nundos)))
-
+       ;; inside a proof: if known command then back or nothing (depending 
+       ;;                 on the command), 
+       ;; if known "need not undo tactic" then nothing
+       ;; otherwise : undo (unknown tactics are considered needing undo, 
+       ;;                    which is ok at 99%, use elisp vars for the 
+       ;;                    1% remaining).
+       ;; no undo if abort
+       ((coq-proof-mode-p)
+        (cond
+         ((proof-string-match 
+           (concat "\\`\\(" coq-state-changing-commands-regexp "\\)")
+           str)
+          (incf nbacks))
+         ((and (eq 0 naborts)
+               (not (proof-string-match 
+                     (concat "\\`\\(" coq-state-preserving-commands-regexp "\\)")
+                     str))
+               (not (proof-string-match 
+                     (concat "\\`\\(" coq-state-preserving-tactics-regexp "\\)")
+                     str)))
+          (incf nundos))
+         ))
+       )
       (setq span (next-span span 'type)))
     
     ;; Now adjust proof-nesting depth according to the
@@ -315,21 +319,21 @@ This assumes that no \"Resume\" command has been used."
     (setq proof-nesting-depth (- proof-nesting-depth naborts))
 
     (setq ans
-	  (concat
-	   (if (stringp ans) ans)
-	   (if (> naborts 0)
-	       ;; ugly, but blame Coq
-	       (let ((aborts "Abort. "))
-		 (while (> (decf naborts) 0)
-		   (setq aborts (concat "Abort. " aborts)))
-		 aborts))
-	   (if (> nbacks 0)
-	       (concat "Back " (int-to-string nbacks) ". "))
-	   (if (> nundos 0) 
-	       (concat "Undo " (int-to-string nundos) ". "))))
+          (concat
+           (if (stringp ans) ans)
+           (if (> naborts 0)
+               ;; ugly, but blame Coq
+               (let ((aborts "Abort. "))
+                 (while (> (decf naborts) 0)
+                   (setq aborts (concat "Abort. " aborts)))
+                 aborts))
+           (if (> nbacks 0)
+               (concat "Back " (int-to-string nbacks) ". "))
+           (if (> nundos 0) 
+               (concat "Undo " (int-to-string nundos) ". "))))
 
     (if (null ans) 
-	proof-no-command ;; FIXME: this is an error really (assert nil)
+        proof-no-command;; FIXME: this is an error really (assert nil)
       ans)))
   
 
@@ -572,7 +576,7 @@ This is specific to coq-mode."
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
-	proof-nested-undo-regexp coq-backable-commands-regexp)
+	proof-nested-undo-regexp coq-state-changing-commands-regexp)
   
   (setq	
    proof-indent-close-offset -1
@@ -787,3 +791,11 @@ This is specific to coq-mode."
 		proof-shell-inform-file-retracted-cmd nil)))
 
 (provide 'coq)
+
+
+;;;   Local Variables: ***
+;;;   tab-width:2 ***
+;;;   indent-tabs-mode:nil ***
+;;;   End: ***
+
+

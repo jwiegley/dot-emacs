@@ -69,7 +69,7 @@
 
 
 
-(defcustom coq-user-backable-commands nil
+(defcustom coq-user-state-changing-commands nil
  
 "Configuration variable (default to nil). List of strings containing
 the user defined Coq commands that need to be backtracked (like
@@ -78,12 +78,12 @@ Require, Definition, etc).
 For example if MyHint and MyRequire are user defined variants of the
 Hint and Require commands, put the following line in your .emacs:
 
-(setq coq-user-backable-commands 
+(setq coq-user-state-changing-commands 
 		'(\"MyHint\" \"MyRequire\"))
 "
 )
 
-(defvar coq-user-non-backable-commands nil
+(defvar coq-user-state-preserving-commands nil
  
 "Configuration variable (default to nil). List of strings containing
 the user defined Coq commands that do not need to be backtracked (like
@@ -92,14 +92,14 @@ Print, Check, Show etc).
 For example if MyPrint and MyCheck are user defined variants of the
 Print and Check commands, put the following line in your .emacs:
 
-(setq coq-user-non-backable-commands 
+(setq coq-user-state-preserving-commands 
 		'(\"MyPrint\" \"MyCheck\"))
 "
 )
 
 ;; 
 
-(defvar coq-keywords-non-backable-commands
+(defvar coq-keywords-state-preserving-commands
   (append '(
 "(*" ;;Pierre comments must not be undone
 "Add\\s-+LoadPath"
@@ -120,7 +120,7 @@ Print and Check commands, put the following line in your .emacs:
 "Locate\\s-+Library"
 "Opaque"
 "Print"
-"Proof"; also in non-undoable-tactic
+"Proof"
 "Recursive\\-+Extraction"
 "Recursive\\-+Extraction\\-+Module"
 "Remove\\-+LoadPath"
@@ -146,14 +146,14 @@ Print and Check commands, put the following line in your .emacs:
 "Unset\\s-+Printing\\s-+Coercion[^s]"
 "Transparent"
 "Write\\s-+State")
-			 coq-user-non-backable-commands
+			 coq-user-state-preserving-commands
 			 )
   )
 
 
 
 
-(defvar coq-keywords-backable-misc-commands
+(defvar coq-keywords-state-changing-misc-commands
  '(
 "Add\\s-+Abstract\\s-+Ring"
 "Add\\s-+Abstract\\s-+Semi\\s-+Ring"
@@ -221,19 +221,19 @@ Print and Check commands, put the following line in your .emacs:
 
 
 
-(defvar coq-keywords-backable-commands
+(defvar coq-keywords-state-changing-commands
   (append
-	coq-keywords-backable-misc-commands
+	coq-keywords-state-changing-misc-commands
 	coq-keywords-decl
 	coq-keywords-defn
 	coq-keywords-goal
-	coq-user-backable-commands
+	coq-user-state-changing-commands
 	)
   )
 
 (defvar coq-keywords-commands
-  (append coq-keywords-backable-commands
-			 coq-keywords-non-backable-commands)
+  (append coq-keywords-state-changing-commands
+			 coq-keywords-state-preserving-commands)
   "All commands keyword")
 
 
@@ -241,7 +241,7 @@ Print and Check commands, put the following line in your .emacs:
  
 "Configuration variable (default to nil). List of strings containing
 the user defined Coq tactics that need to be backtracked (like almost
-all tactics, but \"Proof\").
+all tactics, but \"Idtac\" (\"Proof\" is a command actually)).
 
 For example if MyIntro and MyElim are user defined variants of the
 Intro and Elim tactics, put the following line in your .emacs:
@@ -325,6 +325,7 @@ Intro and Elim tactics, put the following line in your .emacs:
 "Reflexivity"
 "Rename"
 "Replace"
+"Resume"
 "Rewrite"
 "Right"
 "Ring"
@@ -336,6 +337,7 @@ Intro and Elim tactics, put the following line in your .emacs:
 "Split"
 "SplitAbsolu"
 "SplitRmult"
+"Suspend"
 "Symmetry"
 "Tauto"
 "Transitivity"
@@ -347,40 +349,39 @@ coq-user-undoable-tactics
 
 )
 
-(defcustom coq-user-non-undoable-tactics nil
+(defcustom coq-user-state-preserving-tactics nil
  
 "Configuration variable (default to nil). List of strings containing
 the user defined Coq tactics that do not need to be backtracked (like
-\"Proof\" (no other one to my knowledge ?)).
+\"Idtac\" (no other one to my knowledge ?)).
 
-For example if MyProof and Do_nthing are user defined variants of the
-Proof (Nop) tactic, put the following line in your .emacs:
+For example if MyIdtac and Do_nthing are user defined variants of the
+Idtac (Nop) tactic, put the following line in your .emacs:
 
-(setq coq-user-non-undoable-tactics
-		'(\"MyProof\" \"Do_nthing\"))
+(setq coq-user-state-preserving-tactics
+		'(\"MyIdtac\" \"Do_nthing\"))
 "
 )
 
-(defvar coq-non-undoable-tactics 
+(defvar coq-state-preserving-tactics 
   (append '(
-"Proof" ; also in non-backable-command
 "Idtac"
 )
-			 coq-user-non-undoable-tactics
+			 coq-user-state-preserving-tactics
 )
 )
 
 (defvar coq-tactics 
-  (append coq-undoable-tactics coq-non-undoable-tactics))
+  (append coq-undoable-tactics coq-state-preserving-tactics))
 
 
 (defvar coq-retractable-instruct
-  (append coq-undoable-tactics coq-keywords-backable-commands)
+  (append coq-undoable-tactics coq-keywords-state-changing-commands)
   )
 
 (defvar coq-non-retractable-instruct
-  (append coq-non-undoable-tactics
-			 coq-keywords-non-backable-commands)
+  (append coq-state-preserving-tactics
+			 coq-keywords-state-preserving-commands)
   )
 
 (defvar coq-keywords
@@ -392,7 +393,7 @@ Proof (Nop) tactic, put the following line in your .emacs:
   '(
     "Abstract"
     "Do"
-    "Idtac" ; also in  non-undoable-tactic
+    "Idtac" ; also in  state-preserving-tactic
     "Orelse"
     "Repeat"
     "Try")
