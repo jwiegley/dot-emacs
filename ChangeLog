@@ -1,3 +1,184 @@
+2002-07-16  David Aspinall  <da@proofgeneral.org>
+
+	* Makefile.devel:
+	Make tags for both manuals.
+
+	* Makefile.devel:
+	Tweak link creation/deletion
+
+	* CHANGES: Minor
+
+	* todo: Updated
+
+	* etc/Mailman/note.txt: Updated.
+
+	* html/register: Buggy tag
+
+	* html/proofgen.css:
+	Fix monospace typeface name
+
+	* isar/isar.el: Add more nags
+
+	* html/main.html: Edit for brevity
+
+	* html/head.html:
+	Use linked style sheet, add charset metatag.
+
+	* generic/span-overlay.el:
+	Dodgy patch to fix selection ordering of overlays. PBP works in Emacs now.
+
+	* isa/x-symbol-isabelle.el:
+	Patch so works without x-symbol
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel: Link in LATESTNAME
+
+	* generic/proof.el: Fix comment
+
+	* generic/pg-goals.el, generic/pg-response.el, generic/proof-shell.el:
+	Refactoring
+
+	* generic/proof-x-symbol.el: Comments
+
+	* isar/isar.el:
+	Revert some premature changes in x-sym support
+
+	* isa/x-symbol-isabelle.el:
+	Merge patches from Christoph, and add Isabelle/Isar capabilities
+
+	* generic/proof-compat.el:
+	Add char-to-int and friends, borrowed from x-symbol-emacs.
+
+	* generic/proof-shell.el:
+	Cleaning up PBP code
+
+	* etc/lego/pbp.l: Example of using pbp
+
+2002-07-15  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* Makefile.devel:
+	Do not link devel release.  Fix releasefinal to do that.
+
+	* html/download.html:
+	Cleanup, details on versions
+
+	* html/screenshot, html/screenshot.html, html/index.php, html/news.html:
+	Fix
+
+	* html/features.html: Tweak
+
+	* html/functions.php3:
+	Add stuff for alternative DTD
+
+	* html/main.html: Put isa first
+
+	* html/header.html: Fix link, tag.
+
+2002-07-14  David Aspinall  <da@proofgeneral.org>
+
+	* etc/Mailman/note.txt: Updated.
+
+	* etc/Mailman/intro-proofgeneraldevel.html, etc/Mailman/intro-proofgeneral.html:
+	Add links
+
+	* html/mailinglist:
+	Mention developers list too
+
+	* etc/Mailman/listinfo.html:
+	Remove spurious white space
+
+	* html/proofgen.css:
+	font-series -> weight fixes.
+
+	* etc/Mailman/intro-proofgeneral.html, etc/Mailman/intro-proofgeneraldevel.html:
+	New files.
+
+	* ChangeLog: Updated.
+
+	* Makefile.devel: Flag on cp
+
+	* ChangeLog: Updated.
+
+	* hol98/hol98.el: ws
+
+	* twelf/twelf.el: Remove use new parser
+
+	* todo: Stick 3.4 stuff on end
+
+	* isa/BUGS, isar/BUGS, BUGS:
+	Tracing bug
+
+	* html/oldrel.php: Add check changes
+
+	* doc/ProofGeneral.texi: Fix authorship
+
+	* Makefile.devel: Add prune to update
+
+	* Makefile.devel: Try to debug
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/develdownload.php: Reformat
+
+	* html/mailinglist: Typo
+
+	* html/download.html:
+	Remove 3.3 download, encourage test version use.
+
+	* html/news.html: Rewrite history
+
+	* html/oldrel.php: Move 3.3 to oldrel
+
+	* html/devel.html: Improve layout
+
+	* html/proofgen.css: Tweaks for forms.
+
+	* html/feedback.php: Improve layout.
+
+	* html/main.html:
+	Simplify system infos.
+
+	* html/images/phox-einstein.jpg:
+	New files.
+
+	* demoisa/demoisa-easy.el:
+	Layout, comments.
+
+	* html/features.html, html/main.html:
+	Move project desc to features listing
+
+	* html/register: Improve layout
+
+	* html/proofgen.css:
+	Style for lists tweaked.
+
+	* etc/Mailman/note.txt: New files.
+
+	* etc/Mailman/subscribe.html, etc/Mailman/handle_opts.html, etc/Mailman/listinfo.html, etc/Mailman/options.html:
+	Cleanup html, fix URLs to final versions.
+
+2002-07-13  David Aspinall  <da@proofgeneral.org>
+
+	* etc/Mailman/subscribe.html, etc/Mailman/handle_opts.html:
+	First customized versions
+
+	* etc/Mailman/options.html:
+	Fix up.  Still ugly.
+
+	* etc/Mailman/handle_opts.html, etc/Mailman/subscribe.html, etc/Mailman/options.html:
+	New files.
+
+	* etc/Mailman/listinfo.html:
+	Tidy up source, improve titles.
+
 2002-07-14  David Aspinall  <da@proofgeneral.org>
 
 	* Makefile.devel: Flag on cp
