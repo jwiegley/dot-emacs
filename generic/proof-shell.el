@@ -234,12 +234,11 @@ Does nothing if proof assistant is already running."
 	;; PG 3.4: clear output from previous sessions.
 	(erase-buffer)
 
-	;; FIXME: Disable 16 Bit
+	;; Disable multi-byte characters in GNU Emacs.
 	;; We noticed that for LEGO, it otherwise converts annotations
 	;; to characters with (non-ASCII) code around 3000 which screws
-	;; up our conventions that annotations lie between 128 and
-	;; 256. We only observed the problem with FSF GNU Emacs 20.3 at
-	;; present.
+	;; up our conventions that annotations lie between 128 and 256. 
+	;;
 	(and (fboundp 'toggle-enable-multibyte-characters)
 	     (toggle-enable-multibyte-characters -1))
 	
@@ -247,9 +246,8 @@ Does nothing if proof assistant is already running."
 	;; Q: should this be done every time the process is started?
 	;; A: yes, it does the process initialization, which is a bit
 	;; odd (would expect it to be done here, maybe).
-
-
 	(funcall proof-mode-for-shell)
+
 	;; Check to see that the process is still going.
 	;; Otherwise the sentinel will have killed off the
 	;; other buffers and there's no point initialising
@@ -380,14 +378,14 @@ exited by hand (or exits by itself)."
       ;; Run hooks
       (run-hooks 'proof-shell-kill-function-hooks)
       ;; Kill buffers associated with shell buffer
-      (if (buffer-live-p proof-goals-buffer)
-	  (progn 
-	    (kill-buffer proof-goals-buffer)
-	    (setq proof-goals-buffer nil)))
-      (if (buffer-live-p proof-response-buffer)
-	  (progn 
-	    (kill-buffer proof-response-buffer)
-	    (setq proof-response-buffer nil)))
+      (dolist
+	  (buf '(proof-goals-buffer 
+		 proof-response-buffer 
+		 proof-trace-buffer))
+	(if (buffer-live-p (eval buf))
+	    (progn 
+	      (kill-buffer (eval buf))
+	      (set buf nil))))
       (message "%s exited." bufname))))
 
 (defun proof-shell-clear-state ()
@@ -1996,8 +1994,8 @@ processing."
     (dolist (sym proof-shell-important-settings)
       (proof-warn-if-unset "proof-shell-config-done" sym))
 
-    ;; We do not enable font-lock here, it's a waste of cycles.
-    ;; (proof-font-lock-configure-defaults)
+    ;; We do not use font-lock here, it's a waste of cycles.
+    ;; (proof-font-lock-configure-defaults nil)
 
     (let ((proc (get-buffer-process proof-shell-buffer)))
       ;; Add the kill buffer function and process sentinel
@@ -2064,11 +2062,9 @@ processing."
 
 
 (defun proof-response-config-done ()
-  "Initialise the response buffer after the child has been configured."
-  (save-excursion
-    (set-buffer proof-response-buffer)
-    (proof-font-lock-configure-defaults)
-    (proof-x-symbol-configure)))
+  "Complete initialisation of a response-mode derived buffer."
+  (proof-font-lock-configure-defaults nil)
+  (proof-x-symbol-configure))
 
 
 ;;
@@ -2087,12 +2083,12 @@ May enable proof-by-pointing or similar features.
   (easy-menu-add proof-goals-mode-menu proof-goals-mode-map)
   (easy-menu-add proof-assistant-menu proof-goals-mode-map)
   (proof-toolbar-setup)
-  (erase-buffer))
+  (erase-buffer)))
 
 ;;
 ;; Keys for goals buffer
 ;;
-(define-key proof-goals-mode-map [q] 'bury-buffer))
+(define-key proof-goals-mode-map [q] 'bury-buffer)
 (cond 
 (proof-running-on-XEmacs
 (define-key proof-goals-mode-map [(button2)] 'pbp-button-action)
@@ -2125,10 +2121,8 @@ May enable proof-by-pointing or similar features.
 
 (defun proof-goals-config-done ()
   "Initialise the goals buffer after the child has been configured."
-  (save-excursion
-    (set-buffer proof-goals-buffer)
-    (proof-font-lock-configure-defaults)
-    (proof-x-symbol-configure)))
+  (proof-font-lock-configure-defaults nil)
+  (proof-x-symbol-configure))
 
 
 ;; 
@@ -2160,13 +2154,21 @@ Internal variable, setting this will have no effect!")
 	   (set-specifier default-toolbar-visible-p nil (current-buffer))
 	   ;; (set-specifier minibuffer (minibuffer-window) (current-buffer))
 	   (set-specifier has-modeline-p nil (current-buffer))
+	   ;; (and (specifierp 'default-gutter-visible)
+	   ;; (set-specifier default-gutter-visibility nil (current-buffer)))
 	   (set-specifier menubar-visible-p nil (current-buffer)))
 	  (proof-with-current-buffer-if-exists 
 	   proof-goals-buffer
 	   (set-specifier default-toolbar-visible-p nil (current-buffer))
 	   ;; (set-specifier minibuffer (minibuffer-window))
 	   (set-specifier has-modeline-p nil (current-buffer))
-	   (set-specifier menubar-visible-p nil (current-buffer)))))
+	   (set-specifier menubar-visible-p nil (current-buffer)))
+	  (proof-with-current-buffer-if-exists 
+	   proof-trace-buffer
+	   (set-specifier default-toolbar-visible-p nil (current-buffer))
+	   ;; (set-specifier minibuffer (minibuffer-window) (current-buffer))
+	   (set-specifier has-modeline-p nil (current-buffer))
+	   (set-specifier menubar-visible-p nil (current-buffer))))
     ;; Try to trigger re-display of goals/response buffers,
     ;; on next interaction.  
     ;; FIXME: would be nice to do the re-display here, rather
