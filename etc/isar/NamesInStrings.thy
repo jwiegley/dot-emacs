@@ -1,4 +1,4 @@
-theory "a b" = Main:   (* NB: must also check case without quotes! *)
+theory "Names In Strings" = Main:   (* NB: must also check case without quotes! *)
 
 lemma foo: "B --> B" by auto
 
