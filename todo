@@ -54,6 +54,14 @@ A Pending work, in progress [da]:
     - document proof-copy-span (new name for proof-send-span, re-enabled).
 
 A Usability enhancement:
+    - Fix asymmetry between "doing" and "undoing": doing will skip comments,
+      undoing will not.  e.g. test case: (* tester *) intros; 
+
+C Compatibility enhancement:
+    - Consider sending comments to proof process after all.  They might
+      contain special (e.g. LaTeX) directives or something.
+
+A Usability enhancement:
    Enable toolbar in other buffers.  Should switch to active
    scripting buffer first if it is non current.
    (In fact, a sensible subset of scripting commands would
