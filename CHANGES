@@ -63,7 +63,9 @@
      Compatibility for V7 added.
 
      Experimental enhancements to handling of compiled files and 
-     file dependency.  (Only tested with Coq 6.3.1)
+     file dependency.  (Only tested with Coq 6.3.1: we need help
+     from Coq implementors to add primitive support in V7, please
+     appeal to them to help Proof General!).
 
        1) At the end of scripting foo.v (i.e. when activing scripting is
        switched off), "Reset Initial. Compile Module <foo>" is
@@ -88,6 +90,29 @@
 
      This functionality is enabled with the Coq settings option 
      "Auto Compile Vos".
+
+
+** Isabelle Changes
+
+   Support for theorem dependency tracking: in-context menu provides
+   facility for browsing the ancestors and child theorems of a
+   theorem, and highlighting them.  This facility is not yet closely
+   integrated with Isabelle and relies on an auxiliary ML file which
+   is only compatible with Isabelle99-2.  It is only supplied for
+   Isabelle/classic.
+
+   The idea of this feature is that it can help you untangle and
+   rearrange big proof scripts, by seeing which parts are
+   interdependent.
+ 
+   To activate the feature, use the Isabelle setting option "Theorem
+   Dependencies."  Notice that you need to switch this on *after*
+   starting an Isabelles session, and must switch on/off on every
+   restart.  (This behaviour will improve once better integrated 
+   with Isabelle).
+
+   Not yet documented.    Comments and suggestions welcome.
+
 
 ** Changes for developers to note
 
