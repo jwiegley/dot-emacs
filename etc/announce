@@ -5,10 +5,8 @@ To: coq-club@pauillac.inria.fr,
     uitp@dcs.gla.ac.uk,
     bra-types@cs.chalmers.se,
     info-hol@leopard.cs.byu.edu,
-    protagonist@cs.kun.nl,			???
     pvs@csl.sri.com, 
     qed@mcs.anl.gov,				
-    softverf@leopard.cs.byu.edu,	        ???
     theorem-provers@ai.mit.edu,
     types@cs.indiana.edu,
     formal-methods@cs.uidaho.edu,
@@ -113,17 +111,15 @@ Proof General provides a unified interface to different theorem
 provers. The advantage is that a novice who understands the Proof
 General interface can inspect and replay proofs in any of the theorem
 provers supported, without knowing the specific commands needed to
-drive them. An obvious avenue towards further and easier unification
-would be to invent a unified proof script (input) language and
-proof-state (output) language for theorem provers. The Proof General
-experience could provide useful insight into such a project. We'd be
-interested to hear from workers interested in collaborating in this
-area.
+drive them.  Moreover, by implementing your user-interface ideas in
+the Proof General framework, your contributions automatically reach a
+large community of both novice and expert proof assistant users.
 
-Moreover, by implementing your user-interface ideas in the Proof
-General framework, your contributions automatically reach a large
-community of both novice and expert proof assistant users.
-
+An obvious avenue towards further and easier unification would be to
+invent a unified proof script (input) language and proof-state
+(output) language for theorem provers. The Proof General experience
+could provide useful insight into such a project. We'd be interested
+to hear from workers interested in collaborating in this area.
 
  -- David Aspinall & Thomas Kleymann
     (Please contact via  proofgen@dcs.ed.ac.uk)
