@@ -35,10 +35,15 @@ When writing your modes, please follow the Emacs Lisp Conventions
 See the Emacs Lisp reference manual, node Style Tips.
 
 
+** Standards for each instance of PG
+
+We include a README file and low-level todo file for each prover.
+
+
 ** Using custom library
 
-Please use custom library for all variable declarations, apart from
-very low-level variables.  Follow the customize group conventions
+Please use the custom library for all variable declarations, apart
+from very low-level variables.  Follow the customize group conventions
 laid out in generic/proof-config.el
 
 
