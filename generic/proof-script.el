@@ -840,9 +840,9 @@ With ARG, turn on scripting iff ARG is positive."
 	(> (prefix-numeric-value arg) 0))
       (progn
 	(if proof-script-buffer 
-	    (call-interactively (proof-deactivate-scripting)))
-	(call-interactively (proof-activate-scripting)))
-    (call-interactively (proof-deactivate-scripting))))
+	    (call-interactively proof-deactivate-scripting))
+	(call-interactively proof-activate-scripting))
+    (call-interactively proof-deactivate-scripting)))
 
 ;; This function isn't such a wise idea: the buffer will often be fully
 ;; locked when writing a script, but we don't want to keep toggling
