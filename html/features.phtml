@@ -71,7 +71,7 @@ If not, read on&#8230;
   Proof General also uses the subterm structure to make it easy to cut
   and paste from complicated terms.
   </p>
-  <?php footnote("Proof by pointing for Proof General is only supported by LEGO (experimentally) at the moment.  We need help from each proof assistant implementors to add it elsewhere.")  ?>
+  <?php footnote("Proof by pointing for Proof General is only supported by LEGO (experimentally) at the moment.  For others, we need help from each proof assistant implementor to add support for their system.")  ?>
   </dd>
   <a name="toolbar"><?php dt("Toolbar and menus") ?></a>
   <dd>
@@ -119,7 +119,8 @@ If not, read on&#8230;
   A pull-down menu gives easy
   access to definitions, declarations and proofs in the current
   buffer.  
-  <?php footnote("Definitions menu is available in XEmacs only") ?>
+<!-- it is in FSF Emacs if you download func-menu.el from somewhere -->
+<!--   <?php footnote("Definitions menu is available in XEmacs only") ?> -->
   </dd>
   <?php dt("Remote proof assistant.") ?>
   <dd>
@@ -146,21 +147,17 @@ If not, read on&#8230;
   buttons, no text file editing!).   
   <p>
   Most importantly, Proof General is generic, so you can adapt it to 
-  a new proof assistant with surprisingly little effort.
+  a new proof assistant with surprisingly little effort
   <p>
   Adapting for a new proof assistant is mainly a matter of setting
   some variables with regular expressions to help parse output from
   the prover, and setting other variables with commands to send to the
-  prover.  To get the most from Proof General (proof by pointing, for
-  example), it may be necessary to augment the output routines of the
-  proof assistant.  
-  </p>
-  <p>
-  New!  With Proof General 3.0, adapting to a new prover is easier
-  than ever before!
-  <a href="ProofGeneral/demoisa/demoisa-easy.el">Here</a>
-  is an example instance of Proof General for Isabelle, which 
-  configures the main core of the interface.
+  prover.  See this basic
+ <?php fileshow("ProofGeneral/demoisa/demoisa-easy.el", 
+	  "example instance"); ?>.
+  To get the most from Proof General (proof by pointing, for
+  example), it may be necessary to put some hooks in
+  the output routines of the proof assistant.  
   </p>
   Please feel free to download Proof General to customize it for a new
   system, and 
