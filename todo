@@ -25,8 +25,8 @@ $Id$
 ============
 
 A  (URGENT) to be fixed immediately for next pre-release 
-B           to be fixed before next release (Version 2.1)
-C           would be nice to fix before release of 2.1; but not crucial
+B           to be fixed before next release
+C           would be nice to fix before next release; but not crucial
 D (Medium)  desirable to fix at some point
 X (Low)     probably not worth spending time on
 
@@ -48,7 +48,7 @@ A Pending work, in progress [da]:
     - investigate bug fix for vacuous locked regions
     - document proof-mouse-track-insert (new name for proof-send-span, re-enabled).
 
-C Usability enhancement:
+D Usability enhancement:
     - Fix asymmetry between "doing" and "undoing": doing will skip comments,
       undoing will not.  e.g. test case: (* tester *) intros; 
 
@@ -56,7 +56,7 @@ C Usability enhancement:
     - Fix proof-script-command-separator and proof-one-command-per-line flag,
       document them.
 
-C Internal improvements for marking up proof assistant output.
+D Internal improvements for marking up proof assistant output.
     We need a better mechanism for allowing "invisible" mark up
     of assistant output based on annotations.  Present code
     allows proof-shell-leave-annotations-in-output=t to work
@@ -73,7 +73,7 @@ C Internal improvements for marking up proof assistant output.
     I'm put off that because it's not so standardly a part of XEmacs yet.
     Or maybe w3's code for HTML mark up could be borrowed.
 
-C Usability enhancement:
+D Usability enhancement:
    Enable toolbar in other PG buffers.  Should switch to active
    scripting buffer first if it is non current.
    In fact, a sensible subset of scripting commands would
@@ -86,25 +86,20 @@ X Compatibility enhancement:
       contain special (e.g. LaTeX) directives or something.
       Probably only worth considering if/when it becomes a problem.
 
-A Usability enhancement:
+C Usability enhancement:
    Movement of point after assert/retract commands
         - configure by default for one command/line.
 	- Add option for many commands per line.
 	- Maybe shell like behaviour with pressing return?
 
-A Usability enhancement:
-   Optional argument to delete region should be removed 
-   from C-c C-u, pressing quickly in succession can delete
-   from buffer
-
-B Usability enhancement:
+C Usability enhancement:
    Rationalize next and undo.  Make same as toolbar 
    commands and have different commands for power users
    to assert/retract until point.
    At the moment this is done by binding to the toolbar
    commands, we need to remove these from proof-toolbar now.
 
-B Usability enhancement:
+C Usability enhancement:
    Have toolbar button/command to goto a point.
    Proof General itself should work out whether it's a 
    retraction or advancement!
@@ -526,6 +521,11 @@ X proof-site (da): I think it would be nice to change the architecture
 
 X Support a history of proof commands, with a "redo" command to
   redo undo-to-point or sequences of toolbar undo's.
+
+C Support an extended version of dynamic abbreviations, to work
+  for commands rather than words.  Should behave a bit like a history
+  mechanism in shell buffer: use M-n M-p to scroll up and down
+  through previous and forthcoming (matching) commands.
 
 X Provers with sophisticated/configurable syntax should tell Emacs
   about their syntax somehow, rather than trying to duplicate

@@ -1112,7 +1112,6 @@ The user is prompted for an argument.
 @kindex C-c c
 @kindex C-c h
 @kindex C-c C-c
-@kindex C-c t
 @kindex C-c C-v
 @kindex C-c C-f
 
@@ -1126,12 +1125,12 @@ from a proof script.  Here are the keybindings and functions.
 @code{proof-ctxt}
 @item C-c h
 @code{proof-help}
+@item C-c C-f
+@code{proof-find-theorems}
 @item C-c C-c
 @code{proof-interrupt-process}
 @item C-c C-v
 @code{proof-execute-minibuffer-cmd}
-@item C-c C-f
-@code{proof-find-theorems}
 @end table
 
 @c TEXI DOCSTRING MAGIC: proof-prf
@@ -1153,16 +1152,16 @@ Typically, a list of syntax of commands available.
 Issues a command to the assistant from @code{proof-info-command}.
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-interrupt-process
-@deffn Command proof-interrupt-process 
-Interrupt the proof assistant.  Warning! This may confuse Proof General.
-@end deffn
-
 @c TEXI DOCSTRING MAGIC: proof-find-theorems
 @deffn Command proof-find-theorems arg
 Search for items containing a given constant.@*
 Issues a command based on @var{arg} to the assistant, using @code{proof-find-theorems-command}.
 The user is prompted for an argument.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-interrupt-process
+@deffn Command proof-interrupt-process 
+Interrupt the proof assistant.  Warning! This may confuse Proof General.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-execute-minibuffer-cmd
@@ -1174,10 +1173,10 @@ Warning! No checking whatsoever is done on the command, so this is
 even more dangerous than @code{proof-try-command}.
 @end deffn
 
-As if the last few commands weren't dangerous enough, there's also a
-command which explicitly adjusts the end of the locked region, to be
-used in extreme circumstances only.  @xref{Working directly with the
-proof shell}.
+As if the last two commands weren't risky enough, there's also a command
+which explicitly adjusts the end of the locked region, to be used in
+extreme circumstances only.  @xref{Working directly with the proof
+shell}.
 
 @c Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working
 @c directly with the proof shell}
@@ -1229,11 +1228,10 @@ This simply kills the @code{proof-shell-buffer} relying on the hook function
 @chapter Advanced Script Management
 @cindex Multiple Files
 
-What we really mean by @emph{advanced} is that Proof General supports
-large proof developments. These are typically spread across various
-files which depend on each other in some way. Proof General knows enough
-about the dependencies to allow script management across multiple files.
-
+By @emph{advanced} we mean script management for large proof
+developments. These are typically spread across various files which
+depend on each other in some way. Proof General knows enough about the
+dependencies to allow script management across multiple files.
 
 @menu
 * Switching between proof scripts::  
@@ -1412,7 +1410,7 @@ The packages currently supported are @code{font-lock} @code{func-menu},
 @vindex isa-mode-hooks
 @cindex font-lock 
 @cindex colour
-In XEmacs, proof script buffer are coloured (fontified as they say)
+In XEmacs, proof script buffers are coloured (fontified as they say)
 by default. To automatically switch on fontification in FSF GNU Emacs 20.2,
 you need to configure the @code{font-lock} package yourself. This can be
 achieved by modifying the @var{prover}-mode-hooks where @var{prover} is either
