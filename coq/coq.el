@@ -449,8 +449,7 @@
 
   (setq font-lock-keywords coq-font-lock-keywords-1)
 
-  (and (boundp 'font-lock-always-fontify-immediately)
-       (setq font-lock-always-fontify-immediately t))
+  (setq proof-font-lock-zap-commas t)	; enable the painful hack
   
   (proof-config-done)
 

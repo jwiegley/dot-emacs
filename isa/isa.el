@@ -381,7 +381,9 @@ isa-proofscript-mode."
     ;; Hack for splash screen
     (if (and (boundp 'proof-mode-hook)
 	     (memq 'proof-splash-timeout-waiter proof-mode-hook))
-	(proof-splash-timeout-waiter)))
+	(proof-splash-timeout-waiter)
+      ;; Otherwise, user may need welcoming.
+      (proof-splash-message)))
    (t 
     (isa-proofscript-mode))))
 
