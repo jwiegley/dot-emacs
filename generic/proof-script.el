@@ -248,11 +248,11 @@ If END is at or before (point-min), remove the locked region.
 Otherwise set the locked region to be from (point-min) to END."
   (if (>= (point-min) end)
       (proof-detach-locked)
-    (set-span-endpoints proof-locked-span (point-min) end)
-    ;; FIXME: the next line doesn't fix the disappearing regions
-    ;; (was span property is lost in latest FSF Emacs, maybe?)
-    ;; (set-span-property proof-locked-span 'face 'proof-locked-face)
-    ))
+    (set-span-endpoints 
+     proof-locked-span 
+     (point-min) 
+     (min (point-max) end) ;; safety: sometimes called with end>point-max(?)
+    )))
 
 ;; Reimplemented this to mirror above because of remaining
 ;; span problen
@@ -1181,7 +1181,10 @@ the ACS is marked in the current buffer. If CMD does not match any,
   (let ((end (span-end span)) cmd)
     ;; State of spans after advancing: 
     (proof-set-locked-end end)
-    (proof-set-queue-start end)
+    ;; FIXME: bug here, can sometimes arrive with queue span already detached.
+    ;; (I think when complete file process is requested during scripting)
+    (if (span-live-p proof-queue-span)
+	(proof-set-queue-start end))
     (setq cmd (span-property span 'cmd))
     (cond
      ;; CASE 1: Comments just get highlighted
