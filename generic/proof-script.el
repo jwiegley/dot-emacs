@@ -1350,15 +1350,14 @@ to the function which parses the script segment by segment."
 
 (defun proof-script-generic-parse-sexp ()
   "Used for proof-script-parse-function if proof-script-sexp-commands is set."
-  (skip-chars-forward " \t\n")
-  (let* ((parse-sexp-ignore-comments t)	; gobble comments into commands
-	 (end (scan-sexps (point) 1)))
-    (if end
-	(progn 
-	  (goto-char end)
-	  (list 'cmd))
-      ;; Didn't find command end
-      (list nil))))
+  ;; Usual treatment of comments
+  (if (looking-at proof-comment-start-regexp)
+      ;; Find end of comment
+      (if (proof-script-generic-parse-find-comment-end) 'comment)
+    (let* ((parse-sexp-ignore-comments t)	; gobble comments into commands
+	   (end (scan-sexps (point) 1)))
+      (if end
+	  (progn (goto-char end) 'cmd)))))
     
 
 ;; NEW parsing functions for 3.2
