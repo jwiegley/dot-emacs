@@ -12,6 +12,11 @@
      Two menu items "Show proofs" and "Hide proofs" apply to
      all the completed proofs in the buffer.
 
+     Notes: 
+      1. Proofs of theorems with the same name are not 
+         distinguished, visibility controlled together.
+      2. FSF Emacs implementation is flaky
+
 *** Proof General startup script welcomes user
  
      The "binary" (startup script) bin/proofgeneral now loads
@@ -24,6 +29,7 @@
   
      Can now build RPM packages with "rpm -ta" from tarball source.
      RPM includes menu file and icons (tested under Linux Mandrake).
+     We no longer distribute an SRPM.
 
 *** Command to insert last output as comment in proof script.
 
@@ -36,7 +42,11 @@
 *** Compatibility fixes.
 
      Fixes for FSF Emacs and XEmacs 21.4
+
      Better support for win32 versions of XEmacs (see README.windows).
+
+     Fixes for recent version 3.3g of X-Symbol (and note on
+      web page about using ~/.xemacs/xemacs-packages/ for install locn).
 
 *** Bug fixes.
 
@@ -55,13 +65,29 @@
      Experimental enhancements to handling of compiled files and 
      file dependency:
 
-     1) At the end of scripting foo.v (i.e. when activing scripting is
-     switched off), "Reset Initial. Compile Module <foo>" is
-     automatically issued. This clears the context and writes a .vo file,
-     to keep your .vo files up to date. It means that when using PG Coq, 
-     you should use the correct commands ("Require foo.") to load all
-     the modules you depend on, so that scripting can continue in the
-     next file.
+       1) At the end of scripting foo.v (i.e. when activing scripting is
+       switched off), "Reset Initial. Compile Module <foo>" is
+       automatically issued. This clears the context and writes a .vo file,
+       to keep your .vo files up to date. It means that when using PG Coq, 
+       you should use the correct commands ("Require foo.") to load all
+       the modules you depend on, so that scripting can continue in the
+       next file.
+
+       2) PG tracks file dependencies by noticing "Reinterning" messages
+       from Coq.  When a file "b.v" is processed which has a "Require a", 
+       command, PG will try to find "a.v" and will automatically lock
+       it.  (This part of the process is fragile, for two reasons: it
+       is hard to find the directory for a.v, since Coq doesn't report
+       it, and the reinterning message is only issued the first time the
+       file is reinterned).
+
+       3) When a file is retracted, PG attempts to automatically unlock
+       all the dependent files, by issuing a coqdep command to determine
+       the dependencies.  (This is a rather nasty hack, it's hoped for
+       the future that Coq will support this functionality directly).
+
+     This functionality is enabled with the Coq settings option 
+     "Auto Compile Vos".
 
 ** Changes for developers to note
 
