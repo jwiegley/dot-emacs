@@ -327,12 +327,9 @@ rpmrelease: rpm
 
 ############################################################
 ##
-## distclean,releaseclean:
-##     Cleanup after building dist/release.
+## releaseclean:
+##     Clean up temporary directories after building dist/release.
 ##
-distclean:
-	rm -rf $(DISTBUILDIR)
-
 releaseclean:
 	rm -rf $(DISTBUILDIR) $(RPMTOPDIR)
 
@@ -348,7 +345,7 @@ releaseall: release rpmrelease distinstall releaseclean
 ## distinstall:
 ##     Do everything for a local release.
 ##	  
-distall: distclean tag dist distinstall distclean
+distall: distclean tag dist distinstall releaseclean
 
 
 
