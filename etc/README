@@ -7,9 +7,11 @@ ProofGeneral.patch  }
 announce	       Announcement
 		       
 lego		       Files for testing LEGO Proof General
-		       
-isa		       Files for testing Isabelle Proof General
+isa					 Isabelle Proof General
+isar					 Isar PG
 
 README                 this file
 
-example                test protocol for example proof script
+example                test protocol for example proof scripts
+
+notes.txt	       Misc notes
