@@ -76,9 +76,14 @@ Coq Changes
 Isabelle and Isar Changes
 -------------------------
 
-* Tweaks for input syntax.  
+* Several tweaks for input syntax.  
 
 * Recognize goals of the old form val prems = goal ...
+  and saves of the old form val thm = result.
+
+* Proofs which are "unfinished", i.e. have no qed or result,
+  are now closed off automatically when a new goal is begun,
+  mirroring the behaviour of Isabelle.
 
 
 Only in the developers' release

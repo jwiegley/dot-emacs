@@ -48,6 +48,11 @@ A Pending work, in progress [da]:
     - investigate bug fix for vacuous locked regions
     - document proof-mouse-track-insert (new name for proof-send-span, re-enabled), proof-toggle-scripting, new configuration options.
 
+B Robustify and cleanup code by allowing functions in place of regexps
+  for proof-goal-command-regexp and proof-save-command-regexp.
+  New names: proof-goal-command-match, proof-save-command-match.
+  Then we can remove duplicity and simplify code.
+
 B Fix colouring of response buffer, may be broken.  The idea was
   that the latest message would always be highlighted, I think.
 
@@ -669,10 +674,6 @@ D Improve coqtags. It cannot handle lists e.g., with
 * Things to do for Isabelle
 ===========================
 
-A Multiple files needs careful testing.  There are cases when
-  retracting asks for files to be removed which were never loaded.
-  This might be harmless, but might be better cleaned up.
-
 B auto-adjust Pretty.setmargin when window is resized
 
 C Unify display of proof output for final level "No subgoals" 
@@ -703,8 +704,10 @@ X Write perl scripts to generate TAGS file for ML and thy files.
   (6h, I've completely forgotten perl).  Does anyone
   actually want this?
 
-X Manage multiple proofs (markers in possibly different buffers)
-	 
+X Manage multiple proofs, perhaps by automatically inserting
+  push_proof() and pop_proof() commands into the proof script.
+  But would lead to unholy mess for script management!
+
 
 
 * FSF Emacs issues
@@ -730,7 +733,7 @@ X possible bug: Thomas had a bizarre .emacs file which causes
 * Bugs in other packages beyond our control
 ===========================================
 
-. Odd behaviour of font-lock in elisp buffers when long strings
+. Odd behaviour of font-lock in script buffers when long strings
 contain lines with stuff that looks lisp-ish.  e.g. "(asd . ads)"
 
 . oddity: startup delay when running XEmacs remotely and local display
@@ -767,6 +770,11 @@ binders (removed because they appear inside strings anyway)
 
 A Try to get small project grant from LFCS to help with
   development of Proof General
+
+A Consider writing another grant proposal related to
+  Proof General to generate funding for Proof General.
+
+A Find new person to help advance and develop Proof General.
 
 A Find new person to help maintain Coq Proof General
 
