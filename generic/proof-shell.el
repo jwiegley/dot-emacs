@@ -243,7 +243,23 @@ Does nothing if proof assistant is already running."
 	      " "))
 
 	    (process-connection-type 
-	     proof-shell-process-connection-type))
+	     proof-shell-process-connection-type)
+
+	    ;; PG 3.5: adjust the LANG variable to remove UTF-8
+	    ;; encoding that may be there.  This fix is targeted at RH
+	    ;; 8 which has glibc 2.2, unicode encoding by default.
+	    ;; FIXME: unfortunately this fix doesn't work; it's
+	    ;; not enough to alter process-environment to effect
+	    ;; a locale change.   In bash, LANG=x <prog> works though.
+	    (process-environment
+	     (if (not proof-shell-wakeup-char) ;; if specials not used,
+		 process-environment	       ;; leave it alone
+	       (if (getenv "LANG")
+		   (setenv 
+		    "LANG" 
+		    (replace-in-string (getenv "LANG")
+				       "\\.UTF-8" "")))
+	       process-environment)))
 
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we 
