@@ -720,18 +720,6 @@ If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
-(defcustom proof-assistant-menu-entries nil
-  "Entries for proof assistant specific menu. 
-A list of menu items [NAME CALLBACK ENABLE].  See the documentation
-of `easy-menu-define' for more details."
-  :type 'sexp
-  :group 'prover-config)
-
-(defcustom proof-assistant-keymap (make-keymap "proof-assistant-keymap")
-  "Proof assistant keymap, defined under prefix C-c a."
-  :type 'sexp
-  :group 'prover-config)
-
 
 
 
@@ -1818,6 +1806,7 @@ Proof General."
     nil
     nil
     "(C) LFCS, University of Edinburgh, 2000."
+    "D. Aspinall, H. Goguen, T. Kleymann, D. Sequiera"
     nil
     nil
 "    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
@@ -1888,34 +1877,107 @@ X-Symbol support is deactivated."
 ;; 9. Prover specific settings 
 ;;
 
-;; FIXME: this is a way to renovate all the settings, and have
+;; FIXME: MAJOR REORGANIZATION
+;;
+;; This new mechanism is a way to renovate all the settings, and have
 ;; them all prover-specific automatically.  Then people's save
-;; settings would work, and we could remove "mirror" settings.
-;; Is it worth it?
-
+;; settings would work, and we could remove all the "mirror" settings.
+;;
 ;; NB: this section is work in progress
 
-(defmacro proof-defasscustom (sym &rest args)
-  `(defcustom ,(intern (concat (symbol-name proof-assistant-symbol)
-			       "-"
-			       (symbol-name sym)))
-     ,@args
-     ;; Would be nicer to put group earlier so it might be
-     ;; overriden in real call, but that means taking apart args.
-     :group ,(quote proof-assistant-cusgrp)))
 
-(defmacro proof-ass (sym)
-  "Return the value of SYM for the current prover."
-  (intern (concat (symbol-name proof-assistant-symbol)
-		  "-"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Macros
+;;
+
+
+(defun proof-ass-symv (sym)
+  "Return the symbol for SYM for the current prover.  SYM is evaluated."
+  (intern (concat (symbol-name proof-assistant-symbol) "-" 
 		  (symbol-name sym))))
 
+(defmacro proof-ass-sym (sym)
+  "Return the symbol for SYM for the current prover.  SYM not evaluated."
+  `(proof-ass-symv (quote ,sym)))
+
+(defun proof-defasscustom-fn (sym args)
+  "Define a new customization variable <PA>-sym for the current proof assistant.
+Helper for macro `proof-defasscustom'."
+  (let ((specific-var (proof-ass-symv sym))
+	(generic-var  (intern (concat "proof-assistant-" (symbol-name sym)))))
+    (eval
+     `(defcustom ,specific-var 
+	,@args
+	;; FIXME: would be nicer to grab group from @args here and
+	;; prefix it automatically.  For now, default to internals
+	;; setting for PA.
+	:group ,(quote proof-assistant-internals-cusgrp)))
+    ;; For functions, we could simply use defalias.  Unfortunately there
+    ;; is nothing similar for values, so we define a new set/get function.
+    (eval
+     `(defun ,generic-var (&optional newval) 
+	,(concat "Set or get value of " (symbol-name sym) " for current proof assistant.
+If NEWVAL is present, set the variable, otherwise return its current value.")
+	(if newval 
+	    (setq ,specific-var newval)
+	  ,specific-var)))))
+
+(defmacro proof-defasscustom (sym &rest args)
+  "Define a new customization variable <PA>-sym for the current proof assistant.
+The function proof-assistant-<SYM> is also defined, which can be used in the 
+generic portion of Proof General to set and retrieve the value for the current p.a.
+Arguments as for `defcustom', which see."
+  `(proof-defasscustom-fn (quote ,sym) (quote ,args)))
+
+(defmacro proof-ass (sym)
+  "Return the value for SYM for the current prover."
+  (eval `(proof-ass-sym ,sym)))
+
+(defun proof-setass-default-fn (sym value)
+  "Set default for the proof assistant specific variable <PA>-SYM to VALUE.
+This should be used in prover-specific code to alter the default values
+for prover specific settings."
+  ;; NB: we need this because nothing in customize library seems to do
+  ;; the right thing.
+  (let ((symbol  (proof-ass-symv sym)))
+    (set-default symbol 
+		 (cond
+		  ;; Use saved value if it's set
+		  ((get symbol 'saved-value)
+		   (car (get symbol 'saved-value)))
+		  ;; Otherwise override old default with new one
+		  (t
+		   value)))))
+
+(defmacro proof-defass-default (sym value)
+  `(proof-setass-default-fn (quote ,sym) ,value))
+   
+
+
+;; End macros
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (proof-defasscustom favourites nil
-  "Favourites on proof assistant specific menu.")
+  "Favourite commands for this proof assistant.")
 
-; (proof-defasscustom help-menu nil
-;  "Favourites on proof assistant specific menu.")
+(proof-defasscustom menu-entries nil
+  "Extra entries for proof assistant specific menu. 
+A list of menu items [NAME CALLBACK ...].  See the documentation
+of `easy-menu-define' for more details."
+  :type 'sexp)
+
+(proof-defasscustom help-menu-entries nil
+  "Extra entries for help submenu for proof assistant specific help menu.
+A list of menu items [NAME CALLBACK ...].  See the documentation
+of `easy-menu-define' for more details."
+  :type 'sexp)
+
+(proof-defasscustom keymap (make-keymap (concat proof-assistant " keymap"))
+  "Proof assistant specific keymap, used under prefix C-c a."
+  :type 'sexp
+  :group 'prover-config)
+
 
 
 		     
