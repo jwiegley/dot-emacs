@@ -729,8 +729,9 @@ Returns the string (with faces) in the specified region."
       (setq start (search-backward-regexp start-regexp))
       (setq end (- (search-forward-regexp end-regexp)
 				   (length (match-string 0))))
-      (unless proof-shell-leave-annotations-in-output
-	(setq string
+      (setq string
+	    (if proof-shell-leave-annotations-in-output
+		(buffer-substring start end)
 	      (proof-shell-strip-special-annotations 
 	       (buffer-substring start end)))))
     ;; Erase if need be, and erase next time round too.
