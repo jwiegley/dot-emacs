@@ -266,7 +266,10 @@
     (greatersim "\\<greatersim>")
     (lessapprox "\\<lessapprox>")
     (greaterapprox "\\<greaterapprox>")
-    (definedas "\\<triangleq>")))
+    (definedas "\\<triangleq>")
+    (parendblleft "\\<lparr>")
+    (parendblright "\\<rparr>")
+    ))
 
 (defvar x-symbol-isabelle-user-table nil)
 
