@@ -120,6 +120,9 @@ fun list_loaded_files () =
     seq loading_msg thys_list
   end;
 
+
+
+
 (* Temporary hack. *)
 (* 
  NB: this has bad behaviour because update will force loading of
@@ -160,7 +163,11 @@ end;
 
 (* add specials to ml prompts *)
 
-ml_prompts "\250>" "\251-";  (* ?\372, ?\373 *)
+(* disabled because of bugs *)
+
+(* ml_prompts ">\250" "-\251"; *) (* ?\372, ?\373 *)
+
+
 
 (* add markup to proof state output *)
 
@@ -189,11 +196,19 @@ print_current_goals_fn := print_current_goals_with_plain_output;
 
 (* Get Proof General to cache the loaded files. *)
 
+(* 
+list_loaded_files(); 
+writeln ("Reading "  ^ (quote "wiggle"));
+warning "Could not find blah";
+
+*)
+
 list_loaded_files();
 
+(*
+prs "Reading \"/usr/lib/Isabelle98-1/src/HOL/Arith.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Arith.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Integ/Bin.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Integ/Bin.ML\"\n###Could not find file \"CPure.thy\" or \"CPure.ML\" for theory \"CPure\"\n###in the following directories: \".\"\n###File \"CPure.thy\"\n###containing theory \"CPure\" no longer exists.\n###Could not find file \"CPure.thy\" or \"CPure.ML\" for theory \"CPure\"\n###in the following directories: \".\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Datatype.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Divides.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Divides.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Integ/Equiv.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Integ/Equiv.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Finite.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Finite.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Fun.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Fun.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Gfp.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Gfp.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/HOL.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/HOL.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Inductive.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Integ/Int.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Integ/Int.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Integ/IntDef.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Integ/IntDef.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Lfp.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Lfp.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/List.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/List.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Main.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Map.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Map.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Nat.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Nat.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/NatDef.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/NatDef.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Option.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Option.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Ord.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Ord.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Power.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Power.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Prod.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Prod.ML\"\n###Could not find file \"ProtoPure.thy\" or \"ProtoPure.ML\" for theory \"ProtoPure\"\n###in the following directories: \".\"\n###File \"ProtoPure.thy\"\n###containing theory \"ProtoPure\" no longer exists.\n###Could not find file \"ProtoPure.thy\" or \"ProtoPure.ML\" for theory \"ProtoPure\"\n###in the following directories: \".\"\n###Could not find file \"Pure.thy\" or \"Pure.ML\" for theory \"Pure\"\n###in the following directories: \".\"\n###File \"Pure.thy\"\n###containing theory \"Pure\" no longer exists.\n###Could not find file \"Pure.thy\" or \"Pure.ML\" for theory \"Pure\"\n###in the following directories: \".\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Recdef.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Record.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/RelPow.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/RelPow.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Relation.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Relation.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Set.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Set.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Sexp.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Sexp.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/String.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Sum.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Sum.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Trancl.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Trancl.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Univ.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Univ.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Vimage.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/Vimage.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/WF.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/WF.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/WF_Rel.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/WF_Rel.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/equalities.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/equalities.ML\"\nReading \"/home/da/example.thy\"\nReading \"/home/da/example.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/mono.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/mono.ML\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/subset.thy\"\nReading \"/usr/lib/Isabelle98-1/src/HOL/subset.ML\"\n";
 
-
-  
+  *)
 
 
 

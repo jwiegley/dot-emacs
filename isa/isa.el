@@ -136,7 +136,8 @@ no regular or easily discernable structure."
   (setq
    proof-shell-first-special-char	?\360
 
-   proof-shell-annotated-prompt-regexp  "\372>"
+   proof-shell-annotated-prompt-regexp   ; ">\372"
+   "^\\(val it = () : unit\n\\)?> "
    ;; non-annotation, with val it's: "^\\(val it = () : unit\n\\)?> "
 
    ;; This pattern is just for comint, it matches a range of
