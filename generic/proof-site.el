@@ -105,22 +105,29 @@ You can use customize to set this variable."
 	(if (and atts (eq 't (car atts)))
 	    (list dne)
 	  nil)))
-   '(;; For demonstration instance of Proof General,
-    ;; export PROOFGENERAL_ASSISTANTS=demoisa. 
-    ;;
-    ;; To use Isabelle/Isar instead of classic Isabelle,
-    ;; export PROOFGENERAL_ASSISTANTS=isar
-    ;;
-    (demoisa    "Isabelle Demo"	"\\.ML$")
-    (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
-    (isar       "Isabelle/Isar" "\\.thy$")
+   '(
+;; To use classic Isabelle instead of Isabelle/Isar,
+;; uncomment appropriate line below and set
+;; export PROOFGENERAL_ASSISTANTS=isar
+;;
+;; To Use HOL, uncomment the line below.  It's disabled
+;; by default because of clash with SML mode (same for .ML).
+;;
+;; For the demonstration instance of Proof General,
+;; uncomment first line below and set
+;; export PROOFGENERAL_ASSISTANTS=demoisa. 
+;;
+;;    (demoisa    "Isabelle Demo"	"\\.ML$")
+;;    (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
+    (isar       "Isabelle"      "\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$\\|\\.v8$\\|\\.v7$")
     (phox	"PhoX"		"\\.phx$")
     (ccc        "CASL Consistency Checker"  "\\.ccc$")
     ;; The following provers are not fully supported, and have only
     ;; preliminary support written (please volunteer to improve them!)
-    (hol98	"HOL"		"\\.sml$")
+
+;;    (hol98	"HOL"		"\\.sml$")
     (acl2	"ACL2"		"\\.acl2$")
     (twelf	"Twelf"		"\\.elf$")
     ;; The following provers have experimental support, WIP
