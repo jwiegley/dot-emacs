@@ -826,7 +826,8 @@ are not dealt with eagerly during script processing, namely
   (cond
    ;; Response buffer output
    ((eq proof-shell-delayed-output-kind 'abort)
-    (proof-shell-show-as-response "Aborted."))
+    (proof-shell-show-as-response proof-shell-delayed-output))
+     ;; "Aborted."  why??
    ((eq proof-shell-delayed-output-kind 'response)
     (proof-shell-show-as-response proof-shell-delayed-output))
    ;; Goals buffer output
