@@ -541,7 +541,8 @@ we call `proof-shell-handle-error-hook'. "
 
 (defun proof-shell-handle-interrupt ()
   (save-excursion 
-    (display-buffer (set-buffer proof-pbp-buffer))
+    (set-buffer proof-pbp-buffer)
+    (display-buffer proof-pbp-buffer)
     (goto-char (point-max))
     (newline 2)
     (insert-string 
@@ -930,10 +931,10 @@ how far we've got."
 
 ;; da: What is the rationale here for making the *command* sent
 ;; invisible, rather than the stuff returned????
-;; doc string makes no sense of this.
+;; old doc string said "without responding to the user" which was wrong.
 ;; FIXME: note: removed optional 'relaxed' arg
 (defun proof-shell-invisible-command (cmd)
-  "Send cmd to the proof process without responding to the user."
+  "Send CMD to the proof process without revealing it to the user."
   (proof-shell-ready-prover)
   (if (not (string-match proof-re-end-of-cmd cmd))
       (setq cmd (concat cmd proof-terminal-string)))
