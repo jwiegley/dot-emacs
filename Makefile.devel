@@ -299,8 +299,8 @@ dist:
 	@echo "*************************************************"
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
-	(cd $(DISTBUILDIR); for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done)
-	$(TAR) -cvhf $(DISTBUILDIR)/$(RELEASENAMETAR) -C $(DISTBUILDIR) $(RELEASENAME) -X $(DISTBUILDIR)/ignoredfiles
+	for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done
+	$(TAR) -cvhf $(DISTBUILDIR)/$(RELEASENAMETAR) -C $(DISTBUILDIR) $(RELEASENAME) -X ignoredfiles
 	rm -f ignoredfiles
 	gzip -9 $(DISTBUILDIR)/$(RELEASENAMETAR)
 	@echo "*************************************************"

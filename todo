@@ -39,14 +39,17 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
    * Update menus in texi
   [6 hours]
 
-C Web pages improvements:
-   - Validate.  Check appearance of V3 browsers.
+X Web pages:
+   - Check appearance in V3 browsers.
+   - Validate pages.  
+      Current failures for HTML 4.0 to do with CGI-style arguments with "&",
+      this is a problem with PHP3 really.
    - Restructure so that page titles are different to help
-   browsing.  (Move links_arr from header.phtml somewhere new,
-   and set $pg_title appropriately before head.phtml is included).
+      browsing.  (Move links_arr from header.phtml somewhere new,
+      and set $pg_title appropriately before head.phtml is included).
    - Add pdf documentation as soon as DCS upgrades its ancient
-   TeX installation, or as soon as making release from elsewhere
-   works.  Also need to fix inclusion of image in pdf. 
+      TeX installation, or as soon as making release from elsewhere
+      works.  Also need to fix inclusion of image in pdf. 
    - Add status bar messages to navigation bar
    - Get rid of footer() function.
    - Convert to SSI only plus a meta-generation phase?
