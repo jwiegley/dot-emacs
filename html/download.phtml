@@ -1,0 +1,154 @@
+<h2>Please register</h2>
+<p>
+Before downloading Proof General, we'd be grateful if you 
+<a href="register.phtml">register</a>.
+<br>
+The information collected will be used only to help a case for
+support for Proof General in the future.
+</p>
+
+<p>
+If you have already registered you do not need to do so again.
+</p>
+
+<p>
+You may also like to consider joining the 
+Proof General
+<a href="mailinglist.phtml">mailing list</a>.
+</p>
+
+<p>
+You can download the latest
+<a href="#stable">stable release</a>
+or the latest
+<a href="#unstable">pre-release</a>.
+</p>
+
+<hr>
+
+<a name="stable"><h2>Proof General Version 2.0, released 16 December 1998</h2></a>
+
+<p>
+This version of Proof General has been tested
+with XEmacs 20.4 and FSF Emacs 20.2, 20.3<br>
+It is available in two formats:
+</p>
+<ul>
+  <li> gzip'ed tar file: 
+      <?php download_link("ProofGeneral-2.0.tar.gz") ?>
+  </li>
+ <li> Linux RPM package:
+      <?php download_link("ProofGeneral-2.0-1.noarch.rpm") ?>
+     <br>
+     The source RPM is 
+      <?php download_link("ProofGeneral-2.0-1.noarch.rpm","here") ?>.
+ </li>
+</ul>
+<p>
+Both the tarball and the RPM package include the generic elisp
+code, <br>
+code for LEGO, Coq, and Isabelle, installation instructions
+and documentation. 
+</p>
+
+<h3> Easy installation! </h3> 
+<p>
+To use Proof General, simply unpack the sources with 
+</p>
+ <blockquote>
+   <tt>tar -xpzf ProofGeneral-2.0.tar.gz</tt>
+ </blockquote>
+<p>
+(use <tt>gunzip</tt> in place of -z if you don't have GNU tar),<br>
+and then add this one line to your .emacs file:
+</p>
+ <blockquote>
+  <tt> (load-file "<var>directory</var>/generic/proof-site.el")</tt>
+ </blockquote>
+<p>
+Where <var>directory</var> is the directory in which you unpacked
+the sources.  
+<br>
+If you use the RPM package, <var>directory</var> is
+<tt>/usr/share/emacs/ProofGeneral</tt>
+</p>
+<p>
+Further customization is possible via the Customize menus in
+Emacs.  
+<br>
+See the <?php fileshow("ProofGeneral/INSTALL","INSTALL")?> 
+file in the distribution for more details.
+</p>
+<p>
+Please <a href="mailto:proofgen@dcs.ed.ac.uk">send us</a>
+any problems, suggestions, or patches. 
+</p>
+
+<hr>
+
+<!-- WARNING!  Line below automatically edited by makefile. -->
+<h2><a name="unstable">Pre-release: ProofGeneral-2.1pre990607</a></h2>
+<!-- End Warning. -->
+
+<p>
+This pre-release of Proof General may be unstable as new
+features are added and experimented with.  
+<br>
+Check the 
+<!-- WARNING!  Line below automatically edited by makefile. -->
+<?php fileshow("ProofGeneral-2.1pre990607/CHANGES","CHANGES"); ?>
+<!-- End Warning. -->
+
+file for a summary of changes since the last stable version.
+<br>
+Please make test with the latest pre-release before reporting any problems
+in a pre-release.
+</p>
+<ul>
+<!-- WARNING!  Lines below automatically edited by makefile. -->
+  <li> gzip'ed tar file: 
+      <?php download_link("ProofGeneral-2.1pre990607.tar.gz") ?>
+  </li>
+  <li> Linux RPM package 
+      <?php download_link("ProofGeneral-2.1pre990607.noarch.rpm") ?>
+     <br>
+     The source RPM is 
+      <?php download_link("ProofGeneral-2.1pre990607-1.src.rpm","here") ?>.
+  </li>
+<!-- End Warning. -->
+</ul>
+<h3><a name="devel">For Developers</a></h3>
+<p>
+If you are interested in helping to develop the core of Proof General,
+you may like to download a complete archive of all the sources used to
+build the Proof General pre-release.  The difference from the working
+version distribution above is that we include our low-level list of
+things to do, some developer's make files used to generate
+documentation files and the release itself from our CVS repository,
+some test files, sources for some of the images (in <a
+href="http://www.gimp.org">GIMP</a> form), and the web pages.
+</p>
+<ul>
+  <li> gzip'ed tar file: 
+<!-- WARNING!  Line below automatically edited by makefile. -->
+      <?php download_link("ProofGeneral-2.1pre990607-devel.tar.gz") ?>
+<!-- End Warning. -->
+  </li>
+</ul>
+
+<p>
+You probably <em>don't</em> need to download this if you're only
+interested in hacking the Emacs lisp part of the program (but you may
+still like to check the latest
+<!-- WARNING!  Line below automatically edited by makefile. -->
+<?php fileshow("ProofGeneral-2.1pre990607/todo","low-level to-do list"); ?>).
+<!-- End Warning. -->
+</p>
+
+<p>
+If there is any interest from developers, we could make our
+CVS repository open to anonymous cvs server access.  Please 
+<a href="feedback.phtml">ask</a>.
+</p>
+
+

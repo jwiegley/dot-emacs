@@ -1,0 +1,140 @@
+<!-- <h2><a name="why">Why should I use Proof General?</a></h2> -->
+
+<p>
+It doesn't matter if you're an Emacs militant or a pacifist!
+</p>
+
+<p>
+Proof General will be useful to you if you use a proof
+assistant, and you'd like some of the following features:
+</p>
+
+<dl>
+  <?php dt("Script management.") ?>
+  <dd>
+  A <em>proof script</em> is a sequence of commands sent to
+  a proof assistant to construct a proof, usually stored in
+  a file.  <emScript management</em> connects the editing of a 
+  proof script directly to an interactive proof process,
+  maintaining consistency between the edit buffer
+  and the state of the proof assistant.
+  <p>
+  Proof General colours a proof script to show the state in the proof
+  assistant.  Parts of a proof script that have been processed are
+  displayed in blue and are "locked" -- they cannot be edited.  Parts
+  of the script currently being processed by the proof assistant are
+  shown in red.  Commands are provided to process new parts of the
+  buffer, or undo already processed parts.
+  </p>
+  <p>
+  Take a look at this
+  <a href="screenshot.phtml">screenshot</a>
+  of Proof General to see script managament in action.
+  </p>
+  </dd>
+  <?php dt("Multiple files.") ?>
+  <dd>
+  Script management in Proof General can work across many script
+  files.  When a script is visited in the editor, it is
+  coloured to reflect whether the proof assistant has loaded it in
+  this session.  
+  <p> 
+  Dependencies between script files is
+  communicated from the proof assistant to Proof General.  
+  If you want to edit a file which has been loaded into the
+  proof assistant already, Proof General will unlock the file
+  and all the files which depend on it.  This connects the
+  editor with the theory dependency or make system of the
+  proof assistant.
+  </p>
+  <?php footnote("Multiple files currently supported in LEGO and Isabelle only")?>
+  </dd>
+  <?php dt("Proof by Pointing.") ?>
+  <dd>
+  <em>Proof by pointing</em> allows you to click on a subterm of
+  a goal to be proved, and apply an appropriate rule or 
+  tactic automatically.  
+  <p>
+  Proof by pointing uses the 
+  interface to highlight subterms under the mouse, and Proof General
+  uses the subterm structure to make it easy
+  to cut and paste complicated subterms.
+  </p>
+  <?php footnote("No assistant fully supports proof-by-pointing in Proof General
+  yet.  LEGO provides subterm markup for exploring term
+  structure.") ?>
+  </dd>
+  <?php dt("Toolbar.") ?> 
+  <dd>
+  Proof General has a toolbar with buttons for starting a proof, 
+  manoeuvring in the proof script, restarting the prover 
+  and saving a proof. 
+  <p>
+  Using the toolbar, you can replay proofs without knowing any 
+  low-level commands of the proof assistant or any Emacs hot-keys! 
+  </p>
+  <?php footnote("Toolbar is available in XEmacs only") ?>
+  </dd>
+  <?php dt("Syntax highlighting.") ?>
+  <dd>
+  Syntax highlighting is an editing feature which decorates a file
+  with different colours or fonts according to the syntax of some
+  language (usually a programming language). 
+  <p>
+  Proof General decorates proof scripts: proof commands are
+  highlighted and different fonts may be used for definitions and
+  assumptions, for example.
+  </p>
+  </dd>
+  <?php dt("Tags.") ?>  
+  <dd>
+  Tags are an editing feature which allow you to quickly locate 
+  the definition or declaration of a particular identifier.
+  <p>
+  Proof General is supplied with utilities to make tag indexes
+  for Emacs.  This makes it easy to quickly access definitions from a  
+  standard library, for example, and in large proof developments
+  split across multiple files.
+  <?php footnote("Tags programs are provided for LEGO and Coq") ?>
+  <p></p>
+  </dd>
+  <?php dt("Definitions Menu.") ?> 
+  <dd>
+  A pull-down menu gives easy
+  access to definitions, declarations and proofs in the current
+  buffer.  
+  <?php footnote("Definitions menu is available in XEmacs only") ?>
+  </dd>
+  <?php dt("Remote proof assistant.") ?>
+  <dd>
+  Sometimes you may want to run a proof assistant on a powerful remote
+  machine.  Proof General can communicate with a proof assistant running
+  remotely, while your files and editor reside on your local machine.
+  <p></p>
+  </dd>
+  <?php dt("Adaptability.") ?> 
+  <dd>
+  Proof General is designed to be generic, so you can adapt it
+  to a new proof assistant if you know a little bit of Emacs
+  Lisp. 
+  <p>
+  Adapting for a new proof assistant is mainly a matter of setting
+  some variables with regular expressions to help parse output from
+  the prover, and setting other variables with commands to send to the
+  prover.  
+  To get the most from Proof General (proof-by-pointing, for example), 
+  it may be necessary to augment the output routines of the
+  proof assistant.
+  </p>
+  Please feel free to download Proof General to customize it for a new
+  system, and 
+  <?php hlink("feedback.phtml","tell us ","Feedback form")?>
+  how you get on.
+  </dd>
+</dl>
+
+<p>
+For more details of the above features, see the 
+<?php link_root("doc","documentation page.") ?>
+</p>
+

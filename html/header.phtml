@@ -1,0 +1,52 @@
+<table width="80%" align=top>
+<tr>
+<td width="300">
+<!-- <A HREF="http://www.dcs.ed.ac.uk/~proofgen/">-->
+<img src="images/ProofGeneral.jpg" alt="[ Proof General logo ]" align=top
+     width=260 height=302 >
+<!-- </A>-->
+</td>
+<td>
+  <img src="images/pg-text.gif">
+  <br>
+  <h1>Organize your proofs!</h1>
+<?php
+      /* Header link generator.  David Aspinall, June 1999.
+       * Based orginially on navbar.php3 by Douglas Campbell
+       * Look for $WANTED in array.  If not found, use default of "Home"
+       * and fix $WANTED.  Hrefs are given by page parameter to current doc.
+       */
+    $WANTED=$HTTP_GET_VARS["page"];
+    $links_arr  =  array(
+          "Home"          =>  "main", 
+          "News"          =>  "news", 
+	  "Features"	  =>  "features",
+	  "Download"      =>  "download",
+          "Documentation" =>  "doc",
+	  "About"	  =>  "about",
+	  "Links"	  =>  "links"
+    );
+    $DEFAULT = $links_arr["Home"];
+    $wanted_okay = 0;
+    for  (reset($links_arr);  $name  =  key($links_arr);  next($links_arr))  {
+	  if ($WANTED  ==  $links_arr[$name]) {
+		$wanted_okay = 1;
+	  }
+    };
+    if (! $wanted_okay) {
+	$WANTED = "main";
+    };
+    for  (reset($links_arr);  $name  =  key($links_arr);  next($links_arr))  {
+        print  $separator;
+        if  ($WANTED  ==  $links_arr[$name])  {
+	  print "<b>" . $name . "</b>";
+	  }
+	else {
+            link_root($links_arr[$name],$name);
+	}
+        print "<br>\n";
+    }
+?>
+ </tr>
+</table>
+
