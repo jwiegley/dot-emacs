@@ -1,14 +1,14 @@
-30.11.99  3.0.3  Release_3_0_3
+30.11.99  3.0.3  Release-3-0-3
 	  Full version now in version stamp.
 
-29.11.99  3.0.2  Release_3_0_2
+29.11.99  3.0.2  Release-3-0-2
 	  Added some more key-bindings and menu entries to
 	  Isabelle's theory file mode.
 
-26.11.99  3.0    Release 3_0
+26.11.99  3.0    Release 3-0
 	  First attempt at 3.0 release
 
-	  3.0.1  Release_3_0_1
+	  3.0.1  Release-3-0-1
 	  Fixed problem with proof-shell-proof-completed-regexp
 	  in Isabelle.
 
@@ -16,12 +16,12 @@
 --------------------
 
 
-25.8.99   2.1.3  Release_2_1_3
+25.8.99   2.1.3  Release-2-1-3
 	  Fixed RPM package to include isar/
 
-24.8.99   2.1.2  Release_2_1_2  
+24.8.99   2.1.2  Release-2-1-2  
           Official release Proof General 2.1
 
-23.8.99   2.1.1  Release_2_1_1
+23.8.99   2.1.1  Release-2-1-1
           First release of Proof General version 2.1.
 	  Missing Isar and with broken version stamp (2.1pre990820)
