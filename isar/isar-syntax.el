@@ -192,8 +192,9 @@
 ;   l "\\|"))
 
 (defconst isar-long-id-stuff "\\(?:[A-Za-z0-9'_.]+\\)")
+(defconst isar-ext-letter "\\(?:\\\\<[A-Za-z]+>\\|[A-Za-z]\\)")
 
-(defconst isar-id "\\(?:[A-Za-z][A-Za-z0-9'_]*\\)")
+(defconst isar-id (concat "\\(?:" isar-ext-letter "+\\)"))
 (defconst isar-idx (concat isar-id "\\(?:\\.[0-9]+\\)?"))
 
 (defconst isar-string "\"\\(?:\\(?:[^\"]\\|\\\\\"\\)*\\)\"")
@@ -319,7 +320,7 @@
    (cons (isar-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-preprocessor-face)
    (cons (isar-ids-to-regexp isar-keywords-theory)         'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-enclose)  'font-lock-preprocessor-face)
-   (cons (isar-ids-to-regexp isar-keywords-proof)           'font-lock-keyword-face)
+   (cons (isar-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
    (cons isar-tac-regexp 'font-lock-reference-face)
