@@ -6,15 +6,6 @@ The items below are known and will be fixed (I hope!) before 3.4
 is released.  Please don't send email about them (unless you have
 a patch...)
 
-** X-Symbol probs with Isabelle
-   -- latin1 chars may get saved in file [XE 21.1 only?]
-   -- superscripts/subscripts not fully working [menu option ignored] 
-
-** X-Symbol probs with Coq, LEGO
-   -- X-Symbol 4.x not supported, don't try it or your Emacs will explode
-
-
-
 * Known Bugs and Workarounds for Proof General.
 
 Contact:  mailto:bugs@proofgeneral.org
@@ -44,7 +35,8 @@ interrupt to the (e.g.) Isabelle process from another shell.  If that
 doesn't stop things, you can try 'kill -FPE <emacs-pid>'.  
 This problem can happen with looping rewrite rules in the Isabelle
 simplifier, when tracing rewriting.  It seems to be worse on 
-certain architectures, and slower machines.
+certain architectures, and slower machines.  Behaviour seems
+better on Emacs than XEmacs.
 
 ** Toolbar enablers unreliable on some platforms.
 
@@ -90,18 +82,11 @@ to edit a file as it is being read by the proof assistant!
 
 * Problems with particular Emacs versions
 
-** Looping in Emacs 21.2
+** Buggy output fontification with Emacs 21.2 / X-Symbol 4.X
 
-Several (odd) circumstances cause this version of Emacs to loop.
-For example, (setq-default column-number-mode t) before starting
-Emacs, or moving the cursor around in the *coq* buffer.
-It seems likely that these are Emacs bugs, workaround unknown.
-Please contact us if you can help.
-
-** Buggy output fontification with Emacs 21.2 / X-Symbol
-
-Output colouration may spill into adjacent symbols when
-X-Symbol support is switched on.
+Output colouration may spill into adjacent symbols when X-Symbol
+support is switched on.  X-Symbol 4.X isn't yet finished, and will
+only officially support Emacs from 21.4 onwards.
 
 ** Emacs menus: options not updated dynamically, positions erratic, etc.
 
@@ -173,8 +158,12 @@ recommended way of working) is to run XEmacs locally and only
 the proof assistant on your fast compute server, by setting 
 proof-rsh-command.
 
+** Looping in Emacs 21.2
 
-
+Several (odd) circumstances cause this version of Emacs to loop,
+in particular, when moving the cursor into multi-byte characters.
+Workarounds have been added to avoid this: you may see junk
+characters in the shell buffer as a side effect. 
 
 
 
