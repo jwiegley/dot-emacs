@@ -49,6 +49,7 @@
 ;;; FSF compatibility
 ;;;
 
+
 ;; These days cl is dumped with XEmacs (20.4,21.1) but not FSF Emacs
 ;; 20.2.  Would rather it was autoloaded but the autoloads are broken
 ;; in FSF so we load it now.
@@ -74,6 +75,58 @@
     (defun noninteractive ()
       "Dummy function for Proof General on FSF Emacs."
       nil)) ;; pretend always interactive.
+
+;; Replacing in string (useful function from subr.el in XEmacs 21.1.9)
+(or (fboundp 'replace-in-string)
+(defun replace-in-string (str regexp newtext &optional literal)
+  "Replace all matches in STR for REGEXP with NEWTEXT string,
+ and returns the new string.
+Optional LITERAL non-nil means do a literal replacement.
+Otherwise treat \\ in NEWTEXT string as special:
+  \\& means substitute original matched text,
+  \\N means substitute match for \(...\) number N,
+  \\\\ means insert one \\."
+  ;; Not present in FSF
+  ;; (check-argument-type 'stringp str)
+  ;; (check-argument-type 'stringp newtext)
+  (let ((rtn-str "")
+	(start 0)
+	(special)
+	match prev-start)
+    (while (setq match (string-match regexp str start))
+      (setq prev-start start
+	    start (match-end 0)
+	    rtn-str
+	    (concat
+	      rtn-str
+	      (substring str prev-start match)
+	      (cond (literal newtext)
+		    (t (mapconcat
+			(lambda (c)
+			  (if special
+			      (progn
+				(setq special nil)
+				(cond ((eq c ?\\) "\\")
+				      ((eq c ?&)
+				       (substring str
+						  (match-beginning 0)
+						  (match-end 0)))
+				      ((and (>= c ?0) (<= c ?9))
+				       (if (> c (+ ?0 (length
+						       (match-data))))
+					   ;; Invalid match num
+					   (error "Invalid match num: %c" c)
+					 (setq c (- c ?0))
+					 (substring str
+						    (match-beginning c)
+						    (match-end c))))
+				      (t (char-to-string c))))
+			    (if (eq c ?\\) (progn (setq special t) nil)
+			      (char-to-string c))))
+			 newtext ""))))))
+    (concat rtn-str (substring str start)))))
+
+
 
 
 ;; In case Emacs is not aware of the function read-shell-command,
