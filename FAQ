@@ -34,18 +34,6 @@ A. Simply use the ordinary XEmacs menu: Options -> Save Options
 
 -----------------------------------------------------------------
 
-Q. When using X-Symbol, why do I sometimes see funny characters like
-   \233 in the buffer?
-
-A. These are part of the 8 bit character codes used by X Symbol to
-   get symbols from particular fonts.  Sometimes X-Symbol forgets to
-   fontify the buffer properly to make it use the right fonts.
-   To fix, type M-x font-lock-fontify-buffer
-   If that doesn't work, type M-x font-lock-mode twice to turn
-   font-lock off then on.  Or reload the file.
-
------------------------------------------------------------------
-
 
 Q. I'm using Proof General for prover X, then I load a file for prover Y.
    The buffer doesn't enter the mode for prover Y.  Why not?
@@ -71,6 +59,22 @@ A. There are several ways:
    separate Proof General instances.  Ideally they should be
    combined into one, if anyone fancies some elisp hacking...
 
+
+-----------------------------------------------------------------
+
+Q. When using X-Symbol, why do I sometimes see funny characters like
+   \233 in the buffer?
+
+A. These are part of the 8 bit character codes used by X Symbol to
+   get symbols from particular fonts.  Sometimes X-Symbol forgets to
+   fontify the buffer properly to make it use the right fonts.
+   To fix, type M-x x-font-lock-fontify-buffer or M-x x-symbol-fontify.
+   If that doesn't work, type M-x font-lock-mode twice to turn
+   font-lock off then on.  Or reload the file.
+   
+   Note that X-Symbol is more robust when used with XEmacs/Mule.
+
+   Read the X-Symbol documentation for (much) more information.
 
 -----------------------------------------------------------------
 
