@@ -18,7 +18,7 @@
 @c http://www.proofgeneral.org/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
-@clear haveeps
+@set haveeps
 @iftex
 @afourpaper
 @end iftex
@@ -59,7 +59,7 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.2
+@set version 3.3pre
 @set xemacsversion 21.1
 @set fsfversion 20.7
 @set last-update October 2000
@@ -108,7 +108,7 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@c image{ProofGeneralPortrait}
+@image{ProofGeneralPortrait}
 @end ifset
 @end iftex
 @author David Aspinall with T. Kleymann
