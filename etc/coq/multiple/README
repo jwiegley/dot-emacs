@@ -1,21 +1,5 @@
-Quick test for automatic multiple files:
-
-
-------
-
-1.
-
-Process a.v, b.v, c.v in turn.
-Undo in b.v
-Should automatically unlock c.v.
-
-
-------
-
-2. 
-
-Process as before.  
-Delete buffer b.v.
-Retract in a.v
-
+New in 3.3: experimental proper handling of multiple files.
+  Not expected to be robust, see comments in coq.el
+  Should be improved for Coq 7, I hope!
+  Test also for automatic compilation.
 

@@ -1,4 +1,4 @@
-(* Silly tests for automatic auto file handling *)
+(* Simple tests for multiple file handling *)
 
 Goal (A,B:Prop)(and A B) -> (and B A).
 Intros A B H.
