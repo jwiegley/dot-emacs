@@ -19,13 +19,18 @@ o It would be nice to have a version ported to emacs19 (or
   doubtless differences in font-locking and menu code which will
   require some work.
 
-o file handling could be more robust
+o file handling could be more robust; perhaps one should always cd to
+  the directory corresponding to the script buffer (currently only
+  done for the buffer which starts up the proof system)
 
 o LEGO and Coq modes overwrite each other.
 
 o We need to go over to piped communication rather than ptys to fix
   the (Solaris) ^G bug. In this circumstance there's a bug in the
   eager annotation code
+
+o Outline-mode does not work due to read-only restrictions of
+  protected region
 
 * Here are things to be done to Lego mode
 =========================================
@@ -35,6 +40,19 @@ o undo support for LEGO needs to consider Discharge; perhaps unrol to
 
 o LEGO mode might incorporate changes to Coq mode menu, in particular
   making help refer to the info file.
+
+o Sometimes e.g., ~tms/lego/imperative/recursion/Prepare_vc.l,
+  annotations are recorded in the object file. This needs to be
+  changed in the SML code.
+
+o Mechanism to save object file (does this apply to Coq as well?)
+
+o Equiv, Next,... aren't handled properly, because LEGO does not
+  refresh the proof state. Perhaps it would be easiest to get LEGO to
+  output more information in proof script mode
+
+o due to bugs in the LEGO system, object files may fail.
+  Script-management needs to be aware of this problem.
 
 * Here are things to be done to Coq mode
 ========================================
