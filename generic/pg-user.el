@@ -1032,9 +1032,13 @@ The function `substitute-command-keys' is called on the argument."
 ;; Identifier under mouse query  (added in PG 3.5)
 ;;
 
-;; FIXME: next setting perhaps a bit obnoxious, but this modifier
-;; combination is currently unused.
-(global-set-key '(control meta button1) 'pg-identifier-under-mouse-query)
+;; FIXME: making the binding globally is perhaps a bit obnoxious, but
+;; this modifier combination is currently unused.
+(cond 
+ (proof-running-on-Emacs21
+  (global-set-key [C-M-mouse-1] 'pg-identifier-under-mouse-query))
+ (proof-running-on-Xemacs
+  (global-set-key '(control meta button1) 'pg-identifier-under-mouse-query)))
 
 (defun pg-identifier-under-mouse-query (event)
   (interactive "e")
