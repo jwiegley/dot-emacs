@@ -274,7 +274,7 @@
     "^using this:"
     "^this:"
     "^term bindings:"
-    "^local theorems:"
+    "^facts:"
     "^cases:"
     "^prems:"
     "^fixed variables:"
