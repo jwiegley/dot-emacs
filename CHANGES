@@ -193,3 +193,26 @@ effort.  This means that if you upgrade your Emacs version, which
 forces you to upgrade Proof General because Emacs upgrades usually
 break Proof General (Emacs authors pay little heed to maintaining
 APIs), then you may have to upgrade your Isabelle version as well.
+
+
+** Changes for Coq
+
+*** Menu entries for commands, tactics and terms
+
+*** "Holes" system, for editing structured expressions
+
+Holes are a powerful feature for complex expression editing. It is
+inspired from other tools, like Pcoq
+(http://www-sop.inria.fr/lemme/pcoq/index.html). The principle is
+simple, holes are pieces of text that can be "filled" by different
+means. The new menu system makes use of the hole system. Almost all
+holes operation are available in the Coq/holes menu.
+
+*** X-symbols are much improved (more symbols, cleaner grammar)
+
+Symbols are encoded only if between spaces or _'s. Sub/superscripts
+are now introduced by '__' and '^^' respectively, and the rest of the
+word is sub/superscripted. to put spaces inside sub/superscripts, use
+_{...} or ^{...}. Notice that this syntax is not understood by Coq
+and you will need to defined it with the "Notation" command of Coq.
+
