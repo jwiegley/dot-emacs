@@ -5,6 +5,10 @@
 
 
 ;; $Log$
+;; Revision 1.50  1998/06/03 18:03:02  hhg
+;; Added '?'s before single characters in define-keys for emacs19, at
+;; Pascal Brisset's suggestion.
+;;
 ;; Revision 1.49  1998/06/02 15:34:58  hhg
 ;; Generalized proof-retract-target, now parameterized by
 ;; proof-count-undos and proof-find-and-forget.
@@ -486,9 +490,9 @@
 
   (proof-config-done)
 
-  (define-key (current-local-map) [(control c) i] 'lego-intros)
-  (define-key (current-local-map) [(control c) I] 'lego-Intros)
-  (define-key (current-local-map) [(control c) r] 'lego-Refine)
+  (define-key (current-local-map) [(control c) ?i] 'lego-intros)
+  (define-key (current-local-map) [(control c) ?I] 'lego-Intros)
+  (define-key (current-local-map) [(control c) ?r] 'lego-Refine)
 
 ;; outline
   

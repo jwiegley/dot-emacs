@@ -9,6 +9,10 @@
 
 
 ;; $Log$
+;; Revision 1.53  1998/06/03 18:03:10  hhg
+;; Added '?'s before single characters in define-keys for emacs19, at
+;; Pascal Brisset's suggestion.
+;;
 ;; Revision 1.52  1998/06/03 17:34:04  hhg
 ;; Added (require 'cl) for emacs19.
 ;;
@@ -1962,8 +1966,8 @@ current command."
   (setq indent-line-function 'proof-indent-line)
 
   (define-key (current-local-map) [(control c) (control p)] 'proof-prf)
-  (define-key (current-local-map) [(control c) c] 'proof-ctxt)
-  (define-key (current-local-map) [(control c) h] 'proof-help)
+  (define-key (current-local-map) [(control c) ?c] 'proof-ctxt)
+  (define-key (current-local-map) [(control c) ?h] 'proof-help)
 
 ;; For fontlock
   (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)

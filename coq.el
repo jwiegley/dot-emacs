@@ -3,6 +3,10 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.28  1998/06/03 18:02:54  hhg
+;; Added '?'s before single characters in define-keys for emacs19, at
+;; Pascal Brisset's suggestion.
+;;
 ;; Revision 1.27  1998/06/03 13:57:10  hhg
 ;; Added definition of proof-commands-regexp for coq
 ;;
@@ -448,8 +452,8 @@
 
   (proof-config-done)
 
-  (define-key (current-local-map) [(control c) I] 'coq-Intros)
-  (define-key (current-local-map) [(control c) a] 'coq-Apply)
+  (define-key (current-local-map) [(control c) ?I] 'coq-Intros)
+  (define-key (current-local-map) [(control c) ?a] 'coq-Apply)
   (define-key (current-local-map) [(control c) (control s)] 'coq-Search)
 
 ;; outline
