@@ -21,6 +21,29 @@ Get Dave a laptop to demo on.
 
 *********
 
+Support for fume-function.
+
+fume-func is a handy package which makes a menu from the function
+declarations in a buffer.  Proof General configures fume-func so
+that you can quickly jump to particular proofs in a script buffer.
+
+If you want to use fume-func, you may need to enable it for
+yourself.  It is distributed with XEmacs (and FSF GNU Emacs)
+but by not enabled by default.  To enable it you should find
+the file fume-func.el and follow the instructions there.  
+If you have XEmacs 20.4, what you need to do is this:
+
+  ......
+
+If you have any other version of Emacs, you should check the
+fume-func.el file
+
+
+
+
+*********
+
+
 Isabelle with multiple files.
 
 Multiple file support only works for .ML files which are read via
