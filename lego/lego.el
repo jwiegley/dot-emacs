@@ -15,8 +15,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defgroup lego-settings nil
-  "Customization of Lego specifics for proof mode."
-  :group 'proof)
+  "Customization of Lego specifics for Proof General."
+  :group 'proof-general)
 
 ;; I believe this is standard for Linux under RedHat -tms
 (defcustom lego-tags "/usr/lib/lego/lib_Type/"
