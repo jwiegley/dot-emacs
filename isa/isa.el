@@ -608,7 +608,7 @@ you will be asked to retract the file or process the remainder of it."
 ;; x-symbol support for Isabelle PG, provided by David von Oheimb.
 ;;
 ;; The following settings configure the generic PG package.
-;; The token language "Isabelle Symbols" is in file x-symbol-isa.el
+;; The token language "Isabelle Symbols" is in file x-symbol-isabelle.el
 ;;
 
 (setq proof-xsym-extra-modes '(thy-mode)
