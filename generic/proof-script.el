@@ -2743,6 +2743,9 @@ finish setup which depends on specific proof assistant configuration."
   (proof-setup-imenu)
   (proof-setup-func-menu)
 
+  ;; Add the Index menu, if enabled
+  (proof-imenu-enable)
+
   ;; Offer to save script mode buffers which have no files,
   ;; in case Emacs is exited accidently.
   (or (buffer-file-name)
