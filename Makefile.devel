@@ -414,10 +414,10 @@ develdist:
 ##
 release: distclean tag  dist develdist 
 	mkdir -p $(RELEASEDIR)
-	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
-# FIXME: NAME appears as a directory in RELEASEDIR at this stage -- why?
-#        for now just force clean out.
-	(cd $(RELEASEDIR); rm -rf $(NAME); ln -sf $(RELEASENAME) $(NAME))
+# clean destination a bit.  NB: link RELEASENAME->NAME is copied, 
+# so we remove that too.
+	(cd $(RELEASEDIR); rm -f $(NAME); rm -rf $(RELEASENAME))
+	cp -pfdr $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMEZIP) $(LATESTNAME).zip)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
