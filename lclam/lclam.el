@@ -144,7 +144,7 @@
 (defvar thy-mode-map nil)
 
 (defun thy-add-menus ()
-  "Add Proof General and Isabelle menu to current menu bar."  
+  "Add Lambda-CLAM menu to current menu bar."  
   (require 'proof-script)    
   (require 'proof-x-symbol)
   (easy-menu-define thy-mode-pg-menu
