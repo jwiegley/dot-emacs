@@ -14,36 +14,25 @@
   :type 'boolean
   :group 'proof-general)
 
-(defconst proof-toolbar-bare-button-list
+(defconst proof-toolbar-default-button-list
   '(proof-toolbar-goal-button
     proof-toolbar-retract-button
     proof-toolbar-undo-button
     proof-toolbar-next-button
     proof-toolbar-use-button
     proof-toolbar-restart-button
+    proof-toolbar-qed-button
     '[:style 3d]
     nil)
   "Example value for proof-toolbar-button-list.
 This gives a bare toolbar that works for any prover.  To add
 prover specific buttons, see proof-toolbar.el.")
 
-(defconst proof-toolbar-full-button-list
-  '(proof-toolbar-goal-button
-    proof-toolbar-next-button
-    proof-toolbar-undo-button
-    proof-toolbar-retract-button
-    proof-toolbar-restart-button
-    '[:style 3d]
-    nil)
-  "Example value for proof-toolbar-button-list.
-This button list includes all the buttons which have icons
-and hooks provided.  Some hooks must be set for prover-specific
-functions.")
-
-(defvar proof-toolbar-button-list proof-toolbar-bare-button-list
+(defvar proof-toolbar-button-list proof-toolbar-default-button-list
   "A toolbar descriptor evaluated in proof-toolbar-setup.
 Specifically, a list of sexps which evaluate to entries in a toolbar
-descriptor.")
+descriptor.   The default value proof-toolbar-default-button-list
+will work for any proof assistant.")
 
 (defvar proof-toolbar nil
   "Proof mode toolbar.  Set in proof-toolbar-setup.")
@@ -97,7 +86,7 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-next-button
   [proof-toolbar-next-icon
    proof-toolbar-next
-   proof-toolbar-next-enable
+   (proof-toolbar-next-enable-p)
    "Process the next proof command"])
 
 (defvar proof-toolbar-undo-icon nil
@@ -107,7 +96,7 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-undo-button
   [proof-toolbar-undo-icon
    proof-toolbar-undo
-   proof-toolbar-undo-enable
+   (proof-toolbar-undo-enable-p)
    "Undo the previous proof command"])
 
 (defvar proof-toolbar-retract-icon nil
@@ -117,7 +106,7 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-retract-button
   [proof-toolbar-retract-icon
    proof-toolbar-retract
-   proof-toolbar-retract-enable
+   (proof-toolbar-retract-enable-p)
    "Retract buffer"])
 
 (defvar proof-toolbar-use-icon nil
@@ -127,7 +116,7 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-use-button
   [proof-toolbar-use-icon
    proof-toolbar-use
-   proof-toolbar-use-enable
+   (proof-toolbar-use-enable-p)
    "Process whole buffer"])
 
 (defvar proof-toolbar-restart-icon nil
@@ -137,29 +126,8 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-restart-button
   [proof-toolbar-restart-icon
    proof-toolbar-restart
-   proof-toolbar-restart-enable
+   (proof-toolbar-restart-enable-p)
    "Restart the proof assistant"])
-
-
-(defvar proof-toolbar-next-icon nil
-  "Glyph list for next level button in proof toolbar.
-Initialised in proof-toolbar-setup.")
-
-(defvar proof-toolbar-next-button
-  [proof-toolbar-next-icon
-   proof-toolbar-next
-   proof-toolbar-next-enable
-   "Display the next level of the proofstate"])
-
-(defvar proof-toolbar-prev-icon nil
-  "Glyph list for previous level button in proof toolbar.
-Initialised in proof-toolbar-setup.")
-
-(defvar proof-toolbar-prev-button
-  [proof-toolbar-prev-icon
-   proof-toolbar-prev
-   proof-toolbar-prev-enable
-   "Display the prev level of the proofstate"])
 
 (defvar proof-toolbar-goal-icon nil
     "Glyph list for goal button in proof toolbar.
@@ -168,7 +136,7 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-goal-button
   [proof-toolbar-goal-icon
    proof-toolbar-goal
-   proof-toolbar-goal-enable
+   (proof-toolbar-goal-enable-p)
    "Start a new proof"])
 
 (defvar proof-toolbar-qed-icon nil
@@ -178,7 +146,7 @@ Initialised in proof-toolbar-setup.")
 (defvar proof-toolbar-qed-button
   [proof-toolbar-qed-icon
    proof-toolbar-qed
-   proof-toolbar-qed-enable
+   (proof-toolbar-qed-enable-p)
    "Save proved theorem"])
 
 (defconst proof-toolbar-iconlist
@@ -205,28 +173,25 @@ without giving error messages."
        ;; this last check is wrong for pbp buffer!
        (eq proof-script-buffer (current-buffer))))
 
-(defvar proof-toolbar-undo-enable 
-  (lambda ()
-    (and (proof-toolbar-process-available-p)
-       (proof-locked-end))))
+(defun proof-toolbar-undo-enable-p () 
+  (and (proof-toolbar-process-available-p)
+       (proof-locked-end)))
 
 (defun proof-toolbar-undo ()
   "Undo last successful in locked region, without deleting it."
   (proof-undo-last-successful-command t))
 
-(defvar proof-toolbar-next-enable 
-  ;; Could also check if there *is* a next command here,
-  ;; but using proof-segment-up-to can involve tedious parsing.
-  (lambda () 
-    (proof-toolbar-process-available-p)))
+(defun proof-toolbar-next-enable-p ()
+  ;; Could check if there *is* a next command here, to avoid
+  ;; stupid "nothing to do" errors.
+  t)
 
 (defun proof-toolbar-next ()
   "Assert next command in proof to proof process."
   (proof-assert-next-command))
 
-(defconst proof-toolbar-retract-enable 
-  (lambda () 
-    (proof-toolbar-process-available-p)))
+(defun proof-toolbar-retract-enable-p ()
+  (proof-toolbar-process-available-p))
 
 (defun proof-toolbar-retract ()
   "Retract buffer."
@@ -234,24 +199,35 @@ without giving error messages."
   (goto-char (point-min))
   (proof-retract-until-point))
 
-(defconst proof-toolbar-use-enable
-  (symbol-function 'proof-toolbar-process-available-p))
+(defun proof-toolbar-use-enable-p ()
+  ;; Could check to see that whole buffer hasn't been
+  ;; processed already.
+  t)
 
 (defalias 'proof-toolbar-use 'proof-process-buffer)
 
-(defconst proof-toolbar-restart-enable
-  (lambda () (eq proof-buffer-type 'script)))
+(defun proof-toolbar-restart-enable-p ()
+  ;; Could disable this unless there's something running.
+  ;; But it's handy to clearup extents, etc, I suppose.
+  (eq proof-buffer-type 'script))
 
 (defun proof-toolbar-restart  ()
-  (if (yes-or-no-p (concat "Restart " proof-assistant "?"))
+  (if (yes-or-no-p (concat "Restart " proof-assistant " scripting?"))
       (proof-restart-script)))
 
-;; A goal button will need a variable for string to insert,
-;; actually.
-(defconst proof-toolbar-goal-enable
-  (symbol-function 'proof-toolbar-process-available-p))
+(defun proof-toolbar-goal-enable-p ()
+  ;; Goals are always allowed: will crank up process if need be.
+  t)
 
 (defalias 'proof-toolbar-goal 'proof-issue-goal)
+
+;; Actually this should only be available when "no subgoals"
+
+(defun proof-toolbar-qed-enable-p ()
+  (and proof-shell-proof-completed
+       (proof-toolbar-process-available-p)))
+
+(defalias 'proof-toolbar-qed 'proof-issue-save)
 
 ;; 
 (provide 'proof-toolbar)
