@@ -286,6 +286,11 @@ proof-shell-retract-files-regexp."
    "Isabelle/Isar shell" nil
    (isar-shell-mode-config)))
 
+(eval-and-compile
+(define-derived-mode isar-response-mode proof-response-mode
+  "Isabelle/Isar response" nil
+  (isar-response-mode-config)))
+
 (eval-and-compile			; to define vars for byte comp.
 (define-derived-mode isar-pbp-mode pbp-mode
   "Isabelle/Isar proofstate" nil
@@ -462,7 +467,8 @@ proof-shell-retract-files-regexp."
 (defun isar-pre-shell-start ()
   (setq proof-prog-name		isabelle-isar-prog-name)
   (setq proof-mode-for-shell    'isar-shell-mode)
-  (setq proof-mode-for-pbp	'isar-pbp-mode))
+  (setq proof-mode-for-pbp	'isar-pbp-mode)
+  (setq proof-mode-for-response 'isar-response-mode))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -499,16 +505,25 @@ proof-shell-retract-files-regexp."
 
 (defun isar-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle/Isar."
-  (isar-init-syntax-table)
+  (isar-init-output-syntax-table)
+  (setq font-lock-keywords isar-output-font-lock-terms)
   (isar-shell-mode-config-set-variables)
   (proof-shell-config-done)
   (isar-outline-setup))
 
-;; FIXME: broken, of course, as is all PBP everywhere.
+(defun isar-response-mode-config ()
+  (setq font-lock-keywords isar-output-font-lock-terms)
+  (isar-init-output-syntax-table)
+  (isar-outline-setup)
+  (proof-response-config-done))
+
 (defun isar-pbp-mode-config ()
+  ;; FIXME: next two broken, of course, as is all PBP everywhere.
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp proof-shell-error-regexp)
-  (isar-outline-setup))
-
+  (isar-init-output-syntax-table)
+  (setq font-lock-keywords isar-output-font-lock-terms)
+  (isar-outline-setup)
+  (proof-goals-config-done))
 
 (provide 'isar)
