@@ -121,7 +121,7 @@ no regular or easily discernable structure."
 					 "use \""
 					 proof-internal-home-directory
 					  "isa/ProofGeneral.ML\";")
-   proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading\\|^Proof General"
+   proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"
    proof-shell-eager-annotation-end     "$"
    ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-goal-char	        ?\375
@@ -136,10 +136,11 @@ no regular or easily discernable structure."
    ;; === NEW NEW: multiple file stuff.  move elsewhere later.
    proof-shell-process-file 
    (cons
-    ;; Theory loader output 
-    "Reading \"\\(.*\\.ML\\)\""
+    ;; Theory loader output and verbose update() output.
+    "Reading \"\\(.*\\.ML\\)\"\\|Not reading \"\\(.*\\.ML\\)\""
     (lambda (str)
-      (match-string 1 str)))
+      (or (match-string 1 str)
+	  (match-string 2 str))))
    ;; This is the output returned by a special command to
    ;; query Isabelle for outdated files.
    proof-shell-retract-files-regexp
@@ -149,10 +150,10 @@ no regular or easily discernable structure."
   (add-hook 'proof-activate-scripting-hook 'isa-shell-hack-use-thy)
   )
 
-;; NB: could consider doing update() here, but hopefully this
-;; will be managed automatically by the interaction with
-;; retraction and unlocking files.
-(defconst isa-usethy-notopml-command "use_thy_no_topml \"%s\";"
+;; We use the top level theory and then force an update, both to fix
+;; up Isabelle's messy dependency handling and to recache the
+;; list of loaded files inside emacs.
+(defconst isa-usethy-notopml-command "use_thy_no_topml \"%s\"; update();"
   "Command to send to Isabelle to process theory for this ML file.")
 
 (defun isa-shell-hack-use-thy ()

@@ -286,8 +286,12 @@ fun list_loaded_files () =
 
 (* Get Proof General to cache the loaded files. *)
 
-list_loaded_files();
+(* list_loaded_files(); *)
    
+use "/home/da/thy_read.ML";
+open ThyRead;
+update_verbose:=true;
+update();
 
 
   
