@@ -1641,16 +1641,6 @@ tokens (for example, editing documentation or source code files)."
   :type '(repeat symbol)
   :group 'proof-x-symbol)
 
-(defcustom proof-xsym-extra-modes nil
-  "List of additional mode names to use X-Symbol with Proof General tokens.
-These modes will have X-Symbol enabled for the proof assistant token language,
-in addition to the four modes for Proof General (script, shell, response, pbp).
-
-Set this variable if you want additional modes to also display 
-tokens (for example, editing documentation or source code files)."
-  :type '(repeat symbol)
-  :group 'proof-x-symbol)
-
 (defcustom proof-xsym-font-lock-keywords nil
   "Font lock keywords to use for the proof assistants X-Symbol token language."
   :type 'sexp
