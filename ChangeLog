@@ -1,3 +1,29 @@
+2002-04-23  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* doc/ProofGeneral.texi, doc/PG-adapting.texi, html/projects.html, html/screenshot.html, html/download.html, html/features.html, html/oldnews.html:
+	Fix URL for X-symbol
+
+	* todo: Updated
+
+	* CHANGES:
+	Add syntax highlighting cahanges from Lucas Dixon
+
+	* isa/isa.el:
+	Fix for E21 with isa-pre-shell-start.
+
+	* isa/isa-syntax.el:
+	Add syntax highlighting cahanges from Lucas Dixon
+
+2002-03-22  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
 2002-03-22  David Aspinall  <da@proofgeneral.org>
 
 	* ChangeLog: Updated.
