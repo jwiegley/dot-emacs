@@ -32,13 +32,10 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to in the generic interface
 
-FOR 3.3:
+*** B Documentation:
+      Check new doc for hiding; add doc for dependencies, tracing.
+      Moving spans; navigating through locked region.
 
-*** A Fix movement commands
-
-*** A Doc visibility controls
-
-====================
 
 *** C Fix byte compilation
       Problem with proof-ass macro mechanism -- gets expanded during compilation.
