@@ -1587,6 +1587,15 @@ If non-nil, query user which program to run for the inferior process.
 The default value is @code{nil}.
 @end defopt
 
+@c TEXI DOCSTRING MAGIC: proof-prog-name-guess
+@defopt proof-prog-name-guess
+If non-nil, ProofGeneral tries to run `make -n' to guess
+the command line arguments for the proof assistant
+(Currently implemented for Coq only)
+
+The default value is @code{nil}.
+@end defopt
+
 
 @c TEXI DOCSTRING MAGIC: proof-rsh-command
 @defopt proof-rsh-command 

@@ -5,6 +5,12 @@
 
 ;; $Id$ 
 
+;TODO Papageno 05/1999:
+;
+;* Correct the C-c C-c bug
+;* Fix the coq-lift-global code
+;* color of error messages is beuark
+
 (require 'proof-script)
 (require 'coq-syntax)
 
@@ -24,7 +30,13 @@
 
 (setq tags-always-exact t) ; Tags is unusable with Coq library otherwise:
 
-(defcustom coq-tags "/usr/local/lib/coq/theories/TAGS"
+(defun coq-library-directory () 
+  (let ((c (substring (shell-command-to-string "coqtop -where") 0 -1 )))
+    (if (string-match c "not found")
+	  "/usr/local/lib/coq"
+      c)))
+
+(defcustom coq-tags (concat (coq-library-directory) "/theories/TAGS")
   "the default TAGS table for the Coq library"
   :type 'string
   :group 'coq)
@@ -75,7 +87,7 @@
 
 (defvar coq-outline-regexp
   (proof-ids-to-regexp 
-	   '("Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact"
+	   '("Correctness" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact"
 	   "Remark" "Record" "Inductive" "Definition")))
 
 (defvar coq-outline-heading-end-regexp "\.\\|\\*)")
@@ -98,6 +110,13 @@
    nil
    (coq-shell-mode-config))
 
+(eval-and-compile
+  (define-derived-mode coq-response-mode proof-response-mode
+    "CoqResp" nil
+    (setq font-lock-keywords coq-font-lock-terms)
+    (coq-init-syntax-table)
+    (proof-response-config-done)))
+ 
 (define-derived-mode coq-mode proof-mode
    "coq" nil
    (coq-mode-config))
@@ -248,23 +267,52 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-Intros () 
-  "List proof state." 
+  "Shortcut for Intros.
+
+  This is specific to coq-mode." 
   (interactive) 
   (insert "Intros "))
 
 (defun coq-Apply () 
-  "List proof state."  
+  "Shortcut for Apply
+
+  This is specific to coq-mode."  
   (interactive) 
   (insert "Apply "))
 
 (defun coq-Search ()
-  "Search for type in goals."
+  "Search for type in goals
+
+  This is specific to coq-mode."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) ;; was (proof-check-process-available)
     (setq cmd (read-string "Search Type: " nil 'proof-minibuffer-history))
     (proof-shell-invisible-command
      (concat "Search " cmd proof-terminal-string))))
+
+(defun coq-begin-Section ()
+  "begins a Coq section."
+  (interactive)
+  (insert "Section "))
+
+(defun coq-end-Section ()
+  "Ends a Coq section."
+  (interactive)
+  (let ((section 
+	 (save-excursion 
+	   (progn 
+	     (setq count 1) ; The number of section already "Ended" + 1
+	     (while (and (> count 0) 
+			 (search-backward-regexp 
+			  "Chapter\\|Section\\|End" 0 t))
+	       (if (char-equal (char-after (point)) ?E)
+		   (setq count (1+ count))
+		 (setq count (1- count))))
+	     (buffer-string
+	      (progn (beginning-of-line) (point)) 
+	      (progn (end-of-line) (point)))))))
+    (insert (replace-string "Section" "End" section))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
@@ -314,6 +362,23 @@
 
    (t stack)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;    To guess the command line options   ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun coq-guess-command-line (filename)
+  "Guess the right command line options to compile FILENAME using `make -n'"
+  (let* ((dir (file-name-directory filename))
+	 (compiled-file (concat (substring 
+				 filename 0 
+				 (string-match ".v$" filename)) ".vo"))
+	 (command (shell-command-to-string 
+		   (concat  "cd " dir ";"
+			    "gmake -n -W " filename " " compiled-file
+			    "| sed s/coqc/coqtop/"))))
+    (concat 
+     (substring command 0 (string-match " [^ ]*$" command))
+     " -emacs")))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Coq shell startup and exit hooks                               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -359,6 +424,8 @@
 
   (setq proof-mode-for-script 'coq-mode)
 
+  (setq proof-guess-command-line 'coq-guess-command-line)
+
   (setq proof-prf-string "Show"
 	proof-ctxt-string "Print All"
 	proof-help-string "Help")
@@ -389,6 +456,8 @@
   (define-key (current-local-map) [(control c) ?I] 'coq-Intros)
   (define-key (current-local-map) [(control c) ?a] 'coq-Apply)
   (define-key (current-local-map) [(control c) (control s)] 'coq-Search)
+  (define-key (current-local-map) [(control c) ?s] 'coq-Section)
+  (define-key (current-local-map) [(control c) ?e] 'coq-end-Section)
 
 ;; outline
   

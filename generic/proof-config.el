@@ -71,6 +71,13 @@
   :type 'boolean
   :group 'proof-general)
 
+(defcustom proof-prog-name-guess nil
+  "*If non-nil, use `proof-guess-command-line' to guess the correct
+   value of proof-prog-name when starting proof assisant
+   This option is compatible with proof-prog-name-ask"
+  :type 'boolean
+  :group 'proof-general)
+
 (and (featurep 'toolbar)
 (defcustom proof-toolbar-inhibit nil
   "*Non-nil prevents toolbar being used for script buffers."
@@ -384,6 +391,12 @@ Suggestion: this can be set in the script mode configuration."
   :type 'function
   :group 'prover-config)
 
+(defcustom proof-guess-command-line nil
+  "Function that takes a filename as argument, runs `make -n' and 
+  translates the result into an invocation of the proof assistant
+  with the same command line options"
+  :type 'function
+  :group 'prover-config)
 
 
 
@@ -1030,7 +1043,6 @@ See documentation of proof-shell-start-char."
   "annotated field end"
   :type '(choice character (const nil))
   :group 'proof-goals)
-
 
 
 

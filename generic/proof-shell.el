@@ -195,6 +195,17 @@ Does nothing if proof assistant is already running."
       ()
     (run-hooks 'proof-pre-shell-start-hook)
     (setq proof-included-files-list nil)
+
+    ;; Added 05/99 by Papageno
+    (let ((name (buffer-file-name (current-buffer))))
+      ;; FIXME : we check that the buffer corresponds to a file,
+      ;; but we do not check that it is in coq- or isa-mode
+      (if (and name proof-prog-name-guess proof-guess-command-line)
+	  (let ((dir (file-name-directory name)))
+	    (if (file-exists-p (concat dir "Makefile"))
+		(setq proof-prog-name 
+		      (apply proof-guess-command-line (list name)))))))
+
     (if proof-prog-name-ask
 	(save-excursion
 	  (setq proof-prog-name (read-shell-command "Run process: "
@@ -205,14 +216,15 @@ Does nothing if proof assistant is already running."
     (let ((proc
 	   (concat "Inferior "
 		   (substring proof-prog-name
-			      (string-match "[^/]*$" proof-prog-name)))))
+			       (string-match "[^ /]* " proof-prog-name)
+			       (string-match  " " proof-prog-name)))))
       (while (get-buffer (concat "*" proc "*"))
 	(if (string= (substring proc -1) ">")
 	    (aset proc (- (length proc) 2) 
 		  (+ 1 (aref proc (- (length proc) 2))))
 	  (setq proc (concat proc "<2>"))))
-
-      (message (format "Starting %s process..." proc))
+      
+      (message (format "Starting process : %s" proof-prog-name))
 
       ;; Starting the inferior process (asynchronous)
       (let ((prog-name-list 
