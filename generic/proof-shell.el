@@ -889,8 +889,8 @@ Then we call `proof-shell-handle-error-or-interrupt-hook'."
 (defun proof-pbp-focus-on-first-goal ()
   "If the `proof-goals-buffer' contains goals, bring the first one into view.
 This is a hook function for proof-shell-handle-delayed-output-hook."
-  ;; FIXME: does nothing in FSF
-  (and (fboundp 'map-extents)
+  (and proof-running-on-XEmacs 		;; FIXME: map-extents exists on Emacs21
+       (fboundp 'map-extents)		;; but with different typing
        (let
 	   ((pos (map-extents 'proof-goals-pos proof-goals-buffer
 			      nil nil nil nil 'proof-top-element)))
