@@ -38,7 +38,7 @@ again, so return to <a href="download#prereq">the download page</a>.
 <?php endif; ?>
 <h2>Registration Form</h2>
 <form method=post action="<?php print $PHP_SELF . "?submit"; ?>">
-<table width="300" border="0" cellspacing="2" cellpadding="0">
+<table width="600" border="0" cellspacing="2" cellpadding="0">
 <tr>
  <td width="30%">Your name:</td>
  <td width="70%"><input type=text name="name" size="40" 
@@ -50,7 +50,7 @@ again, so return to <a href="download#prereq">the download page</a>.
 		  value="<?php echo $email;?>"></td>
 </tr>
 <tr>
- <td width="30%">Site name:</td>
+ <td width="30%">Your site name:</td>
  <td width="70%"><input type=text name="site" size="40"
 		  value="<?php echo $site;?>"></td>
 </tr>
@@ -90,12 +90,12 @@ again, so return to <a href="download#prereq">the download page</a>.
       Could be a function in functions.php3 */
 
    if ($mailinglist) {
-	$message = "subscribe proofgeneral"; 
-	mail("majordomo@dcs.ed.ac.uk",
-	     "[Web form from ~proofgen]",
+	$message = "subscribe address=$email"; 
+	mail("proofgeneral-request@informatics.ed.ac.uk",
+	     "[Web form from Proof General]",
 	     $message,
 	    "Reply-To: " . $email . "\nFrom: " . $email);
-        print "Your name has been added to the Proof General mailing list.<br>";
+        print "A subscription request has been sent for the Proof General mailing list.<br>";
    }
    print "</p>\n<p>";
 
