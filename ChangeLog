@@ -1,3 +1,68 @@
+2002-01-31  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-syntax.el:
+	Tweak comment
+
+	* generic/proof-script.el:
+	Fix problem noticed with Isar and repeated comments.
+
+	* etc/isar/CommentParsingBug.thy:
+	New files.
+
+2002-01-26  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-keywords.el: tuned comment;
+
+2002-01-21  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/isabelle-system.el:
+	full-proofs setting;
+
+	* isa/README, isar/README:
+	Isabelle2002 instead of Isabelle2001;
+
+2002-01-17  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/.cvsignore:
+	*** empty log message ***
+
+2002-01-16  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* lego/example.l, isar/Example.thy, coq/example.v:
+	Whitespace
+
+	* generic/proof.el: Comments
+
+	* generic/proof-script.el:
+	Also bury trace buffer
+
+	* generic/proof-config.el: Comments
+
+	* isa/Example.ML: Whitespace
+
+	* generic/proof-shell.el:
+	Only create trace buffer if liable to be used.  Remove experimental spill-output style tracing code.
+
+	* generic/proof-config.el, isar/isar.el, isa/isa.el:
+	Set proof-shell-trace-output-regexp in proof-pre-shell-start-hook
+
+	* isa/isa.el, isar/isar.el, generic/proof-config.el:
+	Rename proof-shell-spill-output-regexp -> proof-shell-trace-output-regexp
+
+	* doc/PG-adapting.texi:
+	FSF Emacs -> GNU Emacs
+
+	* doc/ProofGeneral.texi:
+	Document the tracing buffer; FSF Emacs -> GNU Emacs
+
 2002-01-16  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
