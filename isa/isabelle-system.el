@@ -202,7 +202,7 @@ generated with the lisp form `(isa-tool-list-logics)'."
   :type (list 'string)
   :group 'isabelle)
   
-;; FIXME: type here needs to be dynamic based on isabelle-logics-avalable
+;; FIXME: type here needs to be dynamic based on isabelle-logics-available
 ;; Is that possible?
 ;; Otherwise it should be updated on re-loading.
 (defcustom isabelle-logic "HOL"
@@ -256,6 +256,11 @@ until Proof General is restarted."
   "Whether to trace the Simplifier in Isabelle."
   :type 'boolean
   :setting "trace_simp:=%b;")
+
+(defpacustom global-timing  nil
+  "Whether to enable timing in Isabelle."
+  :type 'boolean
+  :setting "Library.timing:=%b;")
 
 (defpacustom print-depth  10
   "Setting for the ML print depth in Isabelle."
