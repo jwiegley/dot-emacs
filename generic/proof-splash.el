@@ -6,8 +6,6 @@
 ;;
 ;; $Id$
 ;;
-;; TODO: centre display better.  support FSFmacs.
-;;
 ;; NB: try not to use cl or other autoloaded macro sets here,
 ;; to minimise delay before splash screen is shown. 
 ;;

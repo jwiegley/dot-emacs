@@ -1,6 +1,6 @@
 ;; proof-script.el  Major mode for proof assistant script files.
 ;;
-;; Copyright (C) 1994 - 1999 LFCS Edinburgh. 
+;; Copyright (C) 1994-2000 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;          Thomas Kleymann and Dilip Sequeira
 ;;
