@@ -92,7 +92,7 @@
 ;;;
 
 (deflocal proof-buffer-type nil 
-  "Symbol indicating the type of this buffer: 'script, 'shell, or 'pbp.")
+  "Symbol indicating the type of this buffer: 'script, 'shell, 'pbp, or 'response.")
 
 (defvar proof-shell-busy nil 
   "A lock indicating that the proof shell is processing.
