@@ -1,21 +1,35 @@
-<!-- $Revision$ -->
-<HEAD>
-<TITLE><MM-List-Name> Info Page</TITLE>
-<LINK href="http://www.lists.informatics.ed.ac.uk/liststyle.css" 
-rel="stylesheet" type="text/css">
-</HEAD>
-<BODY BGCOLOR="#ffffff" FGCOLOR="#000000">
-<!--#include virtual="http://www.lists.informatics.ed.ac.uk/listhead.html"-->
+<!-- PG Template $Id$.  Based on Informatics/MM Revision: 1.21 -->
+<html>
+<head>
+    <link rel="SHORTCUT ICON" href="http://www.proofgeneral.org/pg/favicon.ico">
+    <title><MM-List-Name> Mailing List Options Page</title>
+    <meta name="author" content="David Aspinall <da@dcs.ed.ac.uk>">
+    <meta name="keywords" content="Isabelle, LEGO, Coq, Emacs, XEmacs, 
+      Interface, Theorem Prover, GUI, David Aspinall">
+    <meta name="description" content="Proof General is an Emacs based 
+      generic interface for theorem provers">
+    <link href="http://www.proofgeneral.org/pg/proofgen.css" rel="stylesheet" type="text/css">
+</head>
+<body
+ bgcolor="#2D1D03"
+ background="http://www.proofgeneral.org/images/canvaswallpaper.jpg"
+ text="#FFFFFF"
+ link="#FFD820"
+ vlink="#FFD820"
+ alink="#FFF030"
+ >
+<table width="80%">
+<tr>
+<td width="15%">
+<a href="">
+<img src="http://www.proofgeneral.org/images/PG-small.jpg" align=top width=37 height=50 border=0 alt="Proof General Home">
+</a>
+</td>
+<td width="85%">
+<h1><MM-List-Name> Mailing List Options Page</h1>
+</td>
+</table>
 
-	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="5">
-<!-- Added style sheet -->
-        <TR>
-          <TD class="head4" COLSPAN="2" WIDTH="100%">
-            <MM-List-Name> Configuration for <MM-Presentable-User> 
-          </TD>
-          </TR>
-
-</TABLE>
 <MM-Form-Start>
 
 <p>
@@ -84,17 +98,17 @@ address. <p>
 <a name=changepw>
 <center>
 <h3>Change Your Password</h3>
-      <TABLE BORDER="0" CELLSPACING="2" CELLPADDING="2" WIDTH="70%" COLS=2>
+      <TABLE BORDER="0" CELLSPACING="2" CELLPADDING="2" WIDTH="90%" COLS=2>
       <TR>
-	<TD WIDTH="30%" BGCOLOR="#dddddd">Old password:</TD>
+	<TD class="head3" WIDTH="30%" >Old password:</TD>
 	<TD WIDTH="70%"><MM-Old-Pw-Box></TD>
       </TR>
       <TR>
-	<TD BGCOLOR="#dddddd">New password:</TD>
+	<TD class="head3">New password:</TD>
 	<TD><MM-New-Pass-Box></TD>
       </TR>
       <TR> 
-	<TD BGCOLOR="#dddddd">Again to confirm:</TD>
+	<TD class="head3">Again to confirm:</TD>
 	<TD><MM-Confirm-Pass-Box></TD>
       </TR>
 </table>
@@ -117,7 +131,7 @@ address. <p>
 <i><strong>Current values are checked.</strong></i><p>
 <p>
 <TABLE BORDER="0" CELLSPACING="2" CELLPADDING="3" WIDTH="80%">
-<tr><TD BGCOLOR="#dcdcdc">
+<tr><TD class="head3">
 <a name="disable">
 <strong> Disable mail delivery </strong> <br>
 Turn this on if you want mail to not be delivered to you for a little while.<br>
@@ -125,7 +139,7 @@ Turn this on if you want mail to not be delivered to you for a little while.<br>
 <mm-delivery-disable-button> On <p>
 </a>
 </td></tr>
-<tr><TD BGCOLOR="#dcdcdc">
+<tr><TD class="head3">
 <strong> Set Digest Mode</strong> <br>
 If you turn digest mode on, you'll get posts bundled together once a
 day, instead singly when they're sent.  If digest mode is changed from 
@@ -133,28 +147,28 @@ on to off, you will receive one last digest.<br>
 <MM-Undigest-Radio-Button> Off
 <MM-Digest-Radio-Button> On<br>
 </td></tr>
-<tr><TD BGCOLOR="#dcdcdc">
+<tr><TD class="head3">
 <strong> Get MIME or Plain Text Digests?</strong> <br>
 If you have any problems with MIME digests, select plain text. <br>
 <MM-Mime-Digests-Button> MIME
 <MM-Plain-Digests-Button> Plain Text <p>
 </td></tr>
-<tr><TD BGCOLOR="#dcdcdc">
+<tr><TD class="head3">
 <strong> Receive posts you send to the list? </strong><br>
 <mm-receive-own-mail-button> Yes
 <mm-dont-receive-own-mail-button> No <p>
 </td></tr>
-<tr><TD BGCOLOR="#dcdcdc">
+<tr><TD class="head3">
 <strong> Receive acknowledgement mail when you send mail to the list? </strong><br>
 <mm-dont-ack-posts-button> No
 <mm-ack-posts-button> Yes <p>
 </td></tr>
-<tr><TD BGCOLOR="#dcdcdc">
+<tr><TD class="head3">
 <strong> Conceal yourself from subscriber list? </strong><br>
 <MM-Public-Subscription-Button> No
 <MM-Hide-Subscription-Button> Yes <p>
 </td></tr>
-<tr><TD BGCOLOR="#dcdcdc">
+<tr><TD class="head3">
 Password: <MM-Digest-Pw-Box>  <MM-Digest-Submit><p>
 </td></tr></table>
 </center>
@@ -165,3 +179,4 @@ Password: <MM-Digest-Pw-Box>  <MM-Digest-Submit><p>
 <MM-Mailman-Footer>
 </body>
 </html>
+
