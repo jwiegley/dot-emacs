@@ -9,9 +9,8 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A Rename proof.el, etc to something more sensible: script-management.el?
-  Rename functions and variables inside all files to have consistent
-  prefixes.  This is emacs name space "management"!		(30min)
+B Outsource script management features from proof.el to
+  proof-script.el 		(1h)
 
 A Write function proof-retract-file. (30min)
   Currently, the command ForgetMark (for LEGO) is hardwired in
@@ -61,9 +60,10 @@ A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
 
 A Replace "You are not authorised for this information." by a proper
-  documentation 
+  documentation (2h)
 
 A Reengineer *-count-undos and *-find-and-forget at generic level
+    (3h)
 
 B Allow bib-cite style clicking on Load/Import commands to go to file.
 
@@ -88,6 +88,13 @@ B Response buffer: after an error message has been displayed; ensure
 B Introduce keybinding to save the proof e.g., in LEGO, this should
   insert "Save id" or "$Save id" depending on the name of the theorem. 
 
+B use proof buffer instead of response buffer and leave non-proof
+  state output in the process buffer (1h)
+
+B Remove duplication of variables e.g., proof-prog-name and
+  lego-prog-name . (1h)
+
+
 * Proof-by-Pointing
 ===================
 
@@ -95,9 +102,10 @@ A Fixing up errors caused by pbp-generated commands; currently, script
   management unwisely assumes that pbp commands cannot fail (2h tms)
 
 A Rename pbp-mode to response-mode (which doesn't support any actual
-  proof-by-pointing)  
+  proof-by-pointing) (30min) 
 
-A Outsource actual pbp functionality
+A Outsource actual pbp functionality (30min)
+    (separate pbp annotations from other annotations)
 
 C pbp code doesn't quite accord with the tech report; in particular it
   decodes annotations eagerly. Lazily would be faster, and it's what
