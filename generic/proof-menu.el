@@ -18,6 +18,7 @@
   "Display the reponse or goals buffer, toggling between them.
 Also move point to the end of the response buffer.
 If in three window or multiple frame mode, display both buffers."
+;; NB: with tracing buffer, might be handy to show that.
   (interactive)
   (cond
    ((or proof-dont-switch-windows proof-multiple-frames-enable)
@@ -165,23 +166,32 @@ If in three window or multiple frame mode, display both buffers."
   "Proof General help menu.")
 
 (defvar proof-buffer-menu
-  '("Buffers"
-     ["Display Some"
-      proof-display-some-buffers
-      :active (or (buffer-live-p proof-goals-buffer)
-		  (buffer-live-p proof-response-buffer))]
-     ["Active Scripting"
-      (proof-switch-to-buffer proof-script-buffer)
-      :active (buffer-live-p proof-script-buffer)]
-     ["Goals"
-      (proof-switch-to-buffer proof-goals-buffer t)
-      :active (buffer-live-p proof-goals-buffer)]
-     ["Response"
-      (proof-switch-to-buffer proof-response-buffer t)
-      :active (buffer-live-p proof-response-buffer)]
-     ["Shell"
-      (proof-switch-to-buffer proof-shell-buffer)
-      :active (buffer-live-p proof-shell-buffer)])
+  (cons "Buffers"
+	(append
+	 '(["Goal or Response"
+	    proof-display-some-buffers
+	    :active (or (buffer-live-p proof-goals-buffer)
+			(buffer-live-p proof-response-buffer))]
+	   ["Active Scripting"
+	    (proof-switch-to-buffer proof-script-buffer)
+	    :active (buffer-live-p proof-script-buffer)]
+	   ;;["Goals"
+	   ;; (proof-switch-to-buffer proof-goals-buffer t)
+	   ;; :active (buffer-live-p proof-goals-buffer)]
+	   ;;["Response"
+	   ;; (proof-switch-to-buffer proof-response-buffer t)
+	   ;; :active (buffer-live-p proof-response-buffer)]
+	   ["Shell"
+	    (proof-switch-to-buffer proof-shell-buffer)
+	    :active (buffer-live-p proof-shell-buffer)])
+	 ;; FIXME: this next test doesn't work since menus
+	 ;; loaded before proof-shell-trace-output-regexp is
+	 ;; set (in proof-shell hook).  Should be better with
+	 ;; simplified customization mechanism.
+	 ;; ( if proof-shell-trace-output-regexp ... )
+	   '(["Trace"
+	      (proof-switch-to-buffer proof-trace-buffer)
+	      :active (buffer-live-p proof-trace-buffer)])))
   "Proof General buffer menu.")
 
 ;; Make the togglers used in options menu below
@@ -247,12 +257,17 @@ If in three window or multiple frame mode, display both buffers."
        (customize-set-variable 'proof-follow-mode 'ignore)
        :style radio
        :selected (eq proof-follow-mode 'ignore)])
-     ["Save Options" proof-quick-opts-save t]))
+     ["Save Options" 
+      custom-save-all ; proof-quick-opts-save  [ see comments therein ]
+      t]))
   "Proof General quick options.")
 
 (defun proof-quick-opts-save ()
   "Save current values of PG Options menu items using Custom."
-  ;; Based on menu-bar-options-save in menu-bar.el (GNU Emacs).
+  ;; Adapted from menu-bar-options-save in menu-bar.el (GNU Emacs).
+  ;; BUT: that turns out to be a daft function, I think.
+  ;; FIXME: investigate that in latest GNU and report as a 
+  ;; possible bug.
   (interactive)
   (dolist (elt (list
 		'proof-disappearing-proofs 
@@ -263,11 +278,22 @@ If in three window or multiple frame mode, display both buffers."
 		'proof-output-fontify-enable
 		'proof-toolbar-enable
 		'proof-script-fly-past-comments
-		(proof-ass x-symbol-enable)
+		(proof-ass-sym x-symbol-enable)
 		'proof-follow-mode))
-    (if (default-value elt)
+    (if (or
+	 ;; XEmacs way: see custom-save-variables in cus-edit.el
+	 (let ((spec (car-safe (get elt 'theme-value))))
+	   (or
+	    (and spec
+		 (eq (car spec) 'user)
+		 (eq (second spec) 'set))
+	    (and (null spec) (get elt 'saved-value))))
+	 ;; Emacs way: surely fails for vals set to nil.
+	 (default-value elt))
+	;; Oh dear: call to save-variable results in setting with set
+	;; function, then saving, writing the whole file out numerous
+	;; times and anyway saves all changes!
 	(customize-save-variable elt (default-value elt)))))
-  
 
 (defconst proof-config-menu
   (list "----"
