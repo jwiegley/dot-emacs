@@ -1,5 +1,36 @@
 2003-10-05  David Aspinall  <da@proofgeneral.org>
 
+    * /disk/cvs/proofgen/ProofGeneral/html/develdownload.php: Remove CVS junk
+
+    * /disk/cvs/proofgen/ProofGeneral/ChangeLog: Updated.
+
+    * /disk/cvs/proofgen/ProofGeneral/etc/ProofGeneral.spec, /disk/cvs/proofgen/ProofGeneral/generic/proof-site.el, /disk/cvs/proofgen/ProofGeneral/html/develdownload.php, /disk/cvs/proofgen/ProofGeneral/html/devel.html:
+    Set version tag for new release.
+
+    * /disk/cvs/proofgen/ProofGeneral/html/news.html: Fix HTML
+
+    * /disk/cvs/proofgen/ProofGeneral/images/favicon.icon: New files.
+
+    * /disk/cvs/proofgen/ProofGeneral/coq/example.v: Rever to simplest example
+
+    * /disk/cvs/proofgen/ProofGeneral/todo, /disk/cvs/proofgen/ProofGeneral/Makefile.devel, /disk/cvs/proofgen/ProofGeneral/FAQ, /disk/cvs/proofgen/ProofGeneral/CHANGES:
+    Updated.
+
+    * /disk/cvs/proofgen/ProofGeneral/generic/proof-shell.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-script.el, /disk/cvs/proofgen/ProofGeneral/generic/proof-config.el:
+    Add interactive input setting, and extra flags for action.
+
+    * /disk/cvs/proofgen/ProofGeneral/isar/isar.el:
+    Remove proof-shell-interactive-input-regexp again!
+
+    * /disk/cvs/proofgen/ProofGeneral/html/components.html: Fix more links.
+
+    * /disk/cvs/proofgen/ProofGeneral/isar/isar.el:
+    Set proof-shell-interactive-input-regexp
+
+    * /disk/cvs/proofgen/ProofGeneral/pgkit/pgip.el: Updated.
+
+2003-10-05  David Aspinall  <da@proofgeneral.org>
+
     * /disk/cvs/proofgen/ProofGeneral/etc/ProofGeneral.spec, /disk/cvs/proofgen/ProofGeneral/generic/proof-site.el, /disk/cvs/proofgen/ProofGeneral/html/develdownload.php, /disk/cvs/proofgen/ProofGeneral/html/devel.html:
     Set version tag for new release.
 
