@@ -64,13 +64,6 @@
   :type 'file
   :group 'isabelle-isar)
 
-(defcustom isabelle-isar-indent 2
-  "*Indentation degree in documents"
-  :type 'number
-  :group 'isabelle-isar)
-
-(defpgdefault script-indent t)		; indentation enabled
-
 
 ;;;
 ;;; ======== Configuration of generic modes ========
@@ -107,44 +100,6 @@
 ; FIXME tmp
 (defun isar-outline-setup () t)
 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Indentation                                                    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun isar-stack-to-indent (stack)
-  (cond
-   ((null stack) 0)
-   ((null (car (car stack)))
-    (nth 1 (car stack)))
-   (t (let* ((col (save-excursion
-		   (goto-char (nth 1 (car stack)))
-		   (current-indentation)))
-	    (ind-col (+ isabelle-isar-indent col)))
-	(if (eq (car (car stack)) ?p)
-	    (save-excursion
-	      (move-to-column (current-indentation))
-	      (cond
-	       ((proof-looking-at isar-indent-enclose-regexp) col)
-	       ((proof-looking-at isar-indent-reset-regexp) 0)
-	       (t ind-col)))
-	  ind-col)))))
-
-(defun isar-parse-indent (c stack)
-  (cond
-   ;; toplevel / other
-   ((proof-looking-at isar-indent-reset-regexp)
-    (cons (list proof-terminal-char (point)) (list (list nil 0))))
-   ((proof-looking-at isar-indent-regexp)
-    (cons (list proof-terminal-char (point)) stack))
-   ;; open / close
-   ((proof-looking-at isar-indent-open-regexp)
-    (cons (list ?p (point)) stack))
-   ((and (proof-looking-at isar-indent-close-regexp)
-	 (eq (car (car stack)) ?p))
-    (cdr stack))
-   (t stack)))
 
 
 ;;;
@@ -207,17 +162,28 @@
    proof-script-command-start-regexp (proof-regexp-alt
 				      isar-any-command-regexp
 				      (regexp-quote ";"))
-   proof-comment-start		"(*"	; comment in a proof
-   proof-comment-end		"*)"
-   proof-string-start-regexp    "\"\\|{\\*"
-   proof-string-end-regexp      "\"\\|\\*}"
+   proof-comment-start		isar-comment-start
+   proof-comment-end		isar-comment-end
+   proof-comment-start-regexp	isar-comment-start-regexp
+   proof-comment-end-regexp	isar-comment-end-regexp
+   proof-string-start-regexp    isar-string-start-regexp
+   proof-string-end-regexp      isar-string-end-regexp
    ;; Next few used for func-menu and recognizing goal..save regions in
    ;; script buffer.
    proof-save-command-regexp    isar-save-command-regexp
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-goal-with-hole-regexp
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
-   proof-indent-commands-regexp	proof-no-regexp
+
+   proof-indent-enclose-offset  (- proof-indent)
+   proof-indent-open-offset     0
+   proof-indent-close-offset    0
+   proof-indent-any-regexp      isar-indent-any-regexp
+;   proof-indent-inner-regexp    isar-indent-inner-regexp
+   proof-indent-enclose-regexp  isar-indent-enclose-regexp
+   proof-indent-open-regexp     isar-indent-open-regexp
+   proof-indent-close-regexp    isar-indent-close-regexp
+
    ;; proof engine commands
    proof-showproof-command	"pr"
    proof-goal-command		"lemma \"%s\";"
@@ -236,8 +202,6 @@
    ;; da: for pbp.  
    ;; proof-goal-hyp-fn		'isar-goal-hyp
    proof-state-preserving-p	'isar-state-preserving-p
-   proof-parse-indent		'isar-parse-indent
-   proof-stack-to-indent	'isar-stack-to-indent
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list))
 
 (defun isar-shell-mode-config-set-variables ()
@@ -621,30 +585,7 @@ proof-shell-retract-files-regexp."
 ;; Ideally this could be set and adjusted automatically from the
 ;; running process.
 
-(defconst isar-all-keywords
-  (append
-   isar-keywords-major
-   isar-keywords-minor
-   isar-keywords-control
-   isar-keywords-diag
-   isar-keywords-theory-begin
-   isar-keywords-theory-switch
-   isar-keywords-theory-end
-   isar-keywords-theory-heading
-   isar-keywords-theory-decl
-   isar-keywords-theory-goal
-   isar-keywords-qed
-   isar-keywords-qed-block
-   isar-keywords-qed-global
-   isar-keywords-proof-goal
-   isar-keywords-proof-block
-   isar-keywords-proof-chain
-   isar-keywords-proof-decl
-   isar-keywords-proof-asm
-   isar-keywords-proof-asm-goal
-   isar-keywords-proof-script))
-
-(defpgdefault completion-table isar-all-keywords)
+(defpgdefault completion-table isar-keywords-major)
 
 (eval-after-load "x-symbol-isar"
  ;; Add x-symbol tokens to isar-completion-table and rebuild
@@ -656,7 +597,6 @@ proof-shell-retract-files-regexp."
 		  x-symbol-isar-table)))
 (if (featurep 'completion)
     (proof-add-completions))))
-
 
 
 (provide 'isar)
