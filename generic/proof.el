@@ -2090,7 +2090,7 @@ finish setup which depends on specific proof assistant configuration."
   ;; calculate some strings and regexps for searching
   (setq proof-terminal-string (char-to-string proof-terminal-char))
 
-  ;; FIXME da: surely these are LEGO (Coq?) specific!
+  ;; FIXME: these are LEGO specific!
   (setq pbp-goal-command (concat "Pbp %s" proof-terminal-string))
   (setq pbp-hyp-command (concat "PbpHyp %s" proof-terminal-string))
 
@@ -2143,6 +2143,7 @@ finish setup which depends on specific proof assistant configuration."
 		    proof-mode-map
 		    "Menu used in Proof General scripting mode."
 		    (cons proof-mode-name (cdr proof-menu)))
+  (easy-menu-add proof-mode-menu proof-mode-map)
 
   ;; For fontlock
   ;; FIXME (da): zap commas support is too specific, should be enabled
