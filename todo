@@ -44,6 +44,7 @@ C Web pages improvements:
    - Add pdf documentation as soon as DCS upgrades its ancient
    TeX installation, or as soon as making release from elsewhere
    works.  Also need to fix inclusion of image in pdf. 
+   - Add status bar messages to navigation bar
 
 C Check compilation okay, check on use of eval-and-compile.
 
