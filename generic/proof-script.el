@@ -1821,14 +1821,18 @@ finish setup which depends on specific proof assistant configuration."
   (if proof-script-indent
       (setq indent-line-function 'proof-indent-line))
 
-  ;; Toolbar
-  ;; (NB: autloads proof-toolbar, which extends proof-menu variable)
+  ;; Toolbar and scripting menu
+  ;; NB: autloads proof-toolbar, which defines proof-toolbar-scripting-menu.
   (proof-toolbar-setup)
+  (easy-menu-define proof-mode-script-menu
+		    proof-mode-map
+		    "Scripting menu of Proof General"
+		    proof-toolbar-scripting-menu)
 
   ;; Menu
   (easy-menu-define proof-mode-menu  
 		    proof-mode-map
-		    "Menu used in Proof General scripting mode."
+		    "Proof General menu"
 		    (cons proof-general-name
 			  (append
 			   (cdr proof-menu)
@@ -1843,7 +1847,12 @@ finish setup which depends on specific proof assistant configuration."
 			     nil)
 			   ;; end UGLY COMPATIBILTY HACK
 			   )))
+
+  ;; Put the ProofGeneral menu first on the menubar, then Scripting menu
+  ;; (makes Scripting menu more obvious)
   (easy-menu-add proof-mode-menu proof-mode-map)
+  (easy-menu-add proof-mode-script-menu proof-mode-map)
+
 
   ;; For fontlock
 

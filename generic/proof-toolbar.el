@@ -104,7 +104,7 @@ If MENUNAME is nil, item will not appear on the \"Scripting\" menu.")
 	    (if enablep 
 		(list ':active (list (proof-toolbar-enabler token))))))))))
    
-(defconst proof-toolbar-menu
+(defconst proof-toolbar-scripting-menu
   ;; Toolbar contains commands to manipulate script and
   ;; other handy stuff.  Called "Scripting"
   (append
@@ -117,8 +117,8 @@ If MENUNAME is nil, item will not appear on the \"Scripting\" menu.")
 ;;
 ;; Add this menu to proof-menu
 ;;
-(setq proof-menu
-      (append proof-menu (list proof-toolbar-menu)))
+; (setq proof-menu
+;      (append proof-menu (list proof-toolbar-menu)))
 
 ;;
 ;; Now the toolbar icons and buttons
