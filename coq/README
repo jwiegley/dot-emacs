@@ -6,8 +6,8 @@ Later contributions by Patrick Loiseleur, Pierre Courtieu,
 
 Status:		supported
 Maintainer:	Pierre Courtieu
-Coq version:	6.3, 6.3.1, 7.x, 8.x
-Coq homepage:	http://pauillac.inria.fr/coq/assis-eng.html
+=Coq version:	6.3, 6.3.1, 7.x, 8.0
+Coq homepage:	http://coq.inria.fr/
 
 ===========================================================================
 
@@ -20,7 +20,7 @@ than a special language of tokens.  See notes below for syntax.
 There is a tags program, coqtags.
 
 There is a menu option for running Coq V8 in compatibility mode
-(i.e. with the -translate flag).
+(i.e. with the -translate flag), see Coq -> Settings.
 
 ===========================================================================
 
