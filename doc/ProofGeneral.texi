@@ -3777,10 +3777,14 @@ indentation code is somewhat broken.
 Since Isabelle uses ML as a top-level language for writing
 proof-scripts, Proof General may have difficulty understanding scripts
 which stray too far away from the standard functions, tactics, and
-tacticals.  You will usually notice when a function, or whatever,
-doesn't get highlighted as you might expect.  This probably has no
-detrimental impact on the interface unless you use your own variants
-of the @code{goal} or @code{qed} forms.
+tacticals, or include nested structure with semicolons within a
+top-level phrase.  You will usually notice when a function, or whatever,
+doesn't get highlighted as you might expect, or when only part of a
+top-level phrase gets parsed as a command and Proof General gets
+``stuck''.  Sometimes you will be able to fix things by changing the
+script.  Generally this probably has no detrimental impact on the
+interface unless you use your own variants of the @code{goal} or
+@code{qed} forms.
 
 @strong{Workaround:} Restrict yourself to standard proof script
 functions, or customize some of the variables from @file{isa.el} and
