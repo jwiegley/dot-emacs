@@ -35,6 +35,8 @@ When writing your modes, please follow the Emacs Lisp Conventions
 See the Emacs Lisp reference manual, node Style Tips.
 
 
+
+
 ** Standards for each instance of PG
 
 We include a README file and low-level todo file for each prover.
@@ -54,11 +56,13 @@ maintaining compatibility across different versions of Emacs.
 
 XEmacs is the primary development (and use) platform, but we'd like to
 maintain compatibility with FSF Emacs, and the Japanicised versions of
-that.
+that.  The development policy is for the main codebase to be written
+for the latest stable version of XEmacs.  We follow XEmacs advice on
+removing obsolete function calls.
 
 Hopefully one day we may have a proper test suite and mechanism to
-test across different versions of Emacs.  For the time being, be care
-of the following tips (gathered from experience).
+test across different versions of Emacs.  For the time being, be
+careful of the following tips (gathered from experience).
 
 *** Common Lisp macros  -- Japan Emacsen have older versions
 
@@ -71,3 +75,8 @@ of the following tips (gathered from experience).
 *** Moving to new branch.
 
    find * -path '*/CVS' -prune -o -path 'CVS' -prune -o -print | xargs cvs commit -m"Updating branch" -f -r 4.0         
+
+
+*** Making a new branch.
+ 
+   See etc/cvs-tips.txt
