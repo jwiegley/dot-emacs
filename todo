@@ -41,6 +41,8 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
 
 X Web pages:
    - Check appearance in V3 browsers.
+   - Make front page logo be an image map.  
+   - Reduce text size and front page image, for 1024x768 screens.
    - Validate pages.  
       Current failures for HTML 4.0 to do with CGI-style arguments with "&",
       this is a problem with PHP3 really.
