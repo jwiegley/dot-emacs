@@ -57,10 +57,11 @@ nil if a region cannot be found."
 ;; For font-lock, we treat ,-separated identifiers as one identifier
 ;; and refontify commata using \{proof-unfontify-separator}.
 
-(defun proof-ids (proof-id)
-  "Function to generate a regular expression for separated lists of
-  identifiers."
-  (concat proof-id "\\(\\s-*,\\s-*" proof-id "\\)*"))
+(defun proof-ids (proof-id &optional sepregexp)
+  "Generate a regular expression for separated lists of identifiers.
+Default is comma separated, or SEPREGEXP if set."
+  (concat proof-id "\\(\\s-*"   (or sepregexp ",") "\\s-*"
+	  proof-id "\\)*"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A big hack to unfontify commas in declarations and definitions.  ;;
