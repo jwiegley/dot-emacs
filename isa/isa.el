@@ -622,8 +622,8 @@ you will be asked to retract the file or process the remainder of it."
       ;; fontification for tokens themselves  (FIXME: broken)
       '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
       proof-xsym-activate-command
-      "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode)"
+      "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode);"
       proof-xsym-deactivate-command
-      "print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"])")
+      "print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]);")
 
 (provide 'isa)
