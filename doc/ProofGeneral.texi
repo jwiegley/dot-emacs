@@ -95,7 +95,7 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@image{ProofGeneral}
+@image{ProofGeneralPortrait}
 @c FIXME: for html, just do @c image ProofGeneral, it
 @c gets confused by the braces.
 @c FIXME: doesn't work for PDF image at the moment.
@@ -435,10 +435,11 @@ Proof General may have been installed for you already. If so, when you
 visit a proof script file for your proof assistant, the corresponding
 Proof General mode will be invoked automatically: 
 @multitable @columnfractions .3 .3 .4
-@item       @b{Prover} @tab @b{Extensions} @tab @b{Modes}
-@item       LEGO   @tab @file{.l}  @tab @code{lego-mode}
-@item       Coq    @tab @file{.v}  @tab @code{coq-mode}
-@item       Isabelle @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
+@item       @b{Prover}    @tab @b{Extensions} @tab @b{Modes}
+@item       LEGO          @tab @file{.l}      @tab @code{lego-mode}
+@item       Coq           @tab @file{.v}      @tab @code{coq-mode}
+@item       Isabelle      @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
+@item       Isabelle/Isar @tab @file{.thy}    @tab @code{isar-mode}
 @end multitable
 You can also invoke the mode command directly, e.g., type 
 @kbd{M-x lego-mode}, to turn a buffer into a lego script buffer.
@@ -478,23 +479,40 @@ information.
 
 Why would you want to use Proof General?
 
-Here is an outline of its main features.
+@c FIXME: would like to keep this synched with web page, really.
+@c but web page needs extra markup.
+
+Proof General is designed to be useful for novices and expert users
+alike.  It will be useful to you if you use a proof assistant, and you'd
+like an interface with the following features: simplified interaction,
+script management, multiple file scripting, a script editing mode, proof
+by pointing, toolbar and menus, syntax highlighting, real symbols,
+functions menu, tags, and finally, adaptability.
+
+Here is an outline of some of these features.   Look in the contents
+page or index of this manual to find out about the others!
 
 @itemize @bullet
-@item @i{Simplified communication}@*
-The proof assistant's shell is normally hidden from the user.
-Communication takes place via two or three buffers.  The @dfn{script
+@item @i{Simplified interaction}@*
+  Proof General is designed for proof assistants which have a
+  command-line shell interpreter.  When using Proof General, the proof
+  assistant's shell is hidden from the user.  Communication takes
+  place via three buffers (Emacs text widgets).
+Communication takes place via three buffers.  The @dfn{script
 buffer} holds input, the commands to construct a proof.  The @dfn{goals
 buffer} displays the current list of subgoals to be solved.  The
 @dfn{response buffer} displays other output from the proof assistant.
-This means that the user normally only sees the output from the most recent proof
-step, rather than a screen full of output from the proof assistant.
-However, the user can still access the proof assistant shell to examine
-it and run commands.
-@c Optionally, the goals buffer and script buffer can be identified.
+By default, only two of these three buffers are displayed. 
+This means that the user normally only sees the output from the most
+recent interaction, rather than a screen full of output from the proof
+assistant.  
 
-For more details, see @ref{Basic Script Management}, @ref{Script
-buffers} and @ref{Summary of Proof General buffers}.
+Proof General does not commandeer the proof assistant shell: the user
+still has complete access to it if necessary.
+
+For more details, see @ref{Summary of Proof General buffers}
+and @ref{Display customization}.
+
 
 @item @i{Script management}@*
 Proof General colours proof script regions blue when they have already
@@ -550,40 +568,32 @@ Proof General comes ready-customised for these proof assistants:
 @itemize @bullet
 @item 
 @b{LEGO Proof General} for LEGO Version 1.3.1@*
-@c written by Thomas Kleymann and Dilip Sequeira.
-@c
-All features of Proof General are supported.  
-For more details @xref{LEGO Proof General}.
-
+@xref{LEGO Proof General} for more details.
 @item 
 @b{Coq Proof General} for Coq Version 6.3@*
-@c written by Healfdene Goguen.
-@c
-All features of Proof General are supported except multiple files.
-For more details @xref{Coq Proof General}.
-
+@xref{Coq Proof General} for more details.
 @item 
 @b{Isabelle Proof General} for Isabelle99@*
-@c written by David Aspinall.
-All features of Proof General are supported, except for an external tags
-program.  Isabelle Proof General handles theory files as well as ML
-(proof script files), and has an extensive theory file editing mode
-taken from @uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}.
-For more details @xref{Isabelle Proof General}.
+@xref{Isabelle Proof General} for more details.
+@item 
+@b{Isabelle/Isar Proof General} for Isabelle99@*
+@xref{Isabelle Proof General} and documentation suplied with
+Isabelle for more details.
 @end itemize
-
-Proof General is designed to be generic, so if you know a little bit of
-Emacs Lisp, you can make
-
+Proof General is designed to be generic, so if you know how
+to write regular expressions, you can make:
 @itemize @bullet
 @item
 @b{Your Proof General} for your favourite proof assistant.@*
 For more details of how to make Proof General work
 with another proof assistant,
-@xref{Adapting Proof General to Other Provers}.
+see @ref{Adapting Proof General to Other Provers}.
 @end itemize
-
-
+Note that there is some variation between the features supported by
+different instances of Proof General.  The main variation is proof by
+pointing, which is only supported in LEGO at the moment.  For advanced
+features like proof by pointing, it is necessary to put some hooks in
+the output routines of the proof assistant for Proof General.
 
 @node Prerequisites for this manual
 @section Prerequisites for this manual
@@ -622,11 +632,16 @@ everything!  Here are some useful commands:
 @code{describe-variable}
 @end table
 
-Most of this manual covers the user-level view and customization of
-Proof General.  Towards the end we consider adapting Proof General to
-new proof assistants, and document some of the internals of Proof
-General.  The manual concludes with some credits and references.
-See the table of contents for details.
+
+@node Organization of this manual
+@section Organization of this manual
+
+About half of this manual covers the user-level view and customization
+of Proof General.  The other half considers adapting Proof General to
+new proof assistants, and documents some of the internals of Proof
+General.  The manual concludes with some appendices and indexes.  See
+the table of contents for details.
+
 
 
 
@@ -1212,7 +1227,7 @@ This sends an interrupt signal to the proof assistant, if Proof General
 thinks it is busy.  
 
 This command is risky because when an interrupt is trapped in the
-proof assistant, we don't know whether the last command succeeeded or
+proof assistant, we don't know whether the last command succeeded or
 not.  The assumption is that it didn't, which should be true most of
 the time, and all of the time if the proof assistant has a careful
 handling of interrupt signals.
@@ -1319,14 +1334,17 @@ The user is prompted for an argument.
 @chapter Advanced Script Management
 @cindex Multiple Files
 
-By @emph{advanced} we mean script management for large proof
-developments. These are typically spread across various files which
-depend on each other in some way. Proof General knows enough about the
+If you are working with large proof developments, you may want to know
+about the advanced script management features of Proof General covered
+in this chapter.
+
+Large proof developments are typically spread across various files which
+depend on each other in some way.  Proof General knows enough about the
 dependencies to allow script management across multiple files.
 
 With large developments particularly, users may occasionally need to
 escape from script management, in case Proof General loses
-syncrhonization with the proof assistant.  Proof General provides
+synchronization with the proof assistant.  Proof General provides
 you with several escape mechanisms if you want to do this.
 
 @menu
@@ -1378,50 +1396,74 @@ or retract the current script buffer.
 @section  View of processed files
 
 Proof General tries to be aware of all files that the proof assistant
-has processed or is currently processing.  In fact, it relies on the
-proof assistant explicitly telling it whenever it processes a new file
-which corresponds@footnote{For example, LEGO generates additional
+has processed or is currently processing.  In the best case, it relies
+on the proof assistant explicitly telling it whenever it processes a new
+file which corresponds@footnote{For example, LEGO generates additional
 compiled (optimised) proof script files for efficiency.} to a file
-containing a proof script. For further technical details, see
-@ref{Handling multiple files}.
+containing a proof script.
 
 If the current proof script buffer depends on background material from
 other files, proof assistants typically process these files
 automatically. If you visit such a file, the whole file is locked as
-having been processed in a single step. From the user's point of view,
+having been processed in a single step.  From the user's point of view,
 you can only retract but not assert in this buffer. Furthermore,
 retraction is only possible to the @emph{beginning} of the buffer.
+@c This isn't strictly true, is it?  We lock off buffers atomically,
+@c but spans in them to start with stay there.  (Only meaningful
+@c for reading currently active scripting file)
 
-To be more precise, buffers are locked as soon the proof assistant
-notifies Proof General of processing a file different from the
-current proof script. Thus, if you visit the file while the proof
-assistant is still processing the file, it is already completely locked.
-If the proof assistant is not happy with the script and
-complains with an error message, the buffer will still be marked as
-having been completely processed. Sorry. You need to visit the
-troublesome file, retract (which will always retract to the beginning of 
-the file) and debug the problem e.g., by asserting all of the buffer
-under the supervision of Proof General, see @ref{Script processing
-commands}. 
+Unlike a script buffer that has been processed step-by-step via Proof
+General, automatically loaded script buffers do not pass through a
+``red'' phase to indicate that they are currently being processed.  This
+is a limitation of the present implementation.  Proof General locks a
+buffer as soon as it sees the appropriate message from the proof
+assistant.  Different proof assistants may use different messages:
+either @emph{early locking} when processing a file begins (e.g. LEGO) or
+@emph{late locking} when processing a file ends (e.g. Isabelle).
 
-In case you wondered, inconsistencies may arise when you have unsaved
-changes in a proof script buffer and the proof assistant suddenly
-decides to automatically process the corresponding file. The good news
-is that Proof General detects this problem and flashes up a warning in
-the response buffer. You might then want to visit the modified buffer,
-save it and retract to the beginning. Then you are back on track.
+With @emph{early locking}, you may find that a script which has only
+been partly processed (due to an error or interrupt, for example), is
+wrongly completely locked by Proof General.  Visit the file and retract
+back to the start to fix this.
+
+With @emph{late locking}, there is the chance that you can break
+synchronization by editing a file as it is being read by the proof
+assistant, and saving it before processing finishes.
+
+In fact, there is a general problem of editing files which may be
+processed by the proof assistant automatically.  Synchronization can be
+broken whenever you have unsaved changes in a proof script buffer and
+the proof assistant processes the corresponding file.  (Of course, this
+problem is familiar from programming development using separate editors
+and compilers).  The good news is that Proof General can detect the
+problem and flashes up a warning in the response buffer.  You can then
+visit the modified buffer, save it and retract to the beginning. Then
+you are back on track.
+
+
+
+@c only true for LEGO!
+@c If the proof assistant is not happy with the script and
+@c complains with an error message, the buffer will still be marked as
+@c having been completely processed. Sorry. You need to visit the
+@c troublesome file, retract (which will always retract to the beginning of 
+@c the file) and debug the problem e.g., by asserting all of the buffer
+@c under the supervision of Proof General, see @ref{Script processing
+@c commands}. 
+
 
 @node Retracting across files
 @section Retracting across files
 @cindex Retraction
 
 Make sure that the current script buffer has either been completely
-asserted or retracted. Then you can retract proof scripts in a different
-file. Simply visit a file that has been processed earlier and retract in
-it, using the retraction commands from @ref{Script processing commands}. Apart from removing parts of the locked region in this
-buffer, all files which depend on it will be retracted (and thus
-unlocked) automatically. Proof General reminds you that now is a good
-time to save any unmodified buffers.
+asserted or retracted (Proof General enforces this).  Then you can
+retract proof scripts in a different file. Simply visit a file that has
+been processed earlier and retract in it, using the retraction commands
+from @ref{Script processing commands}. Apart from removing parts of the
+locked region in this buffer, all files which depend on it will be
+retracted (and thus unlocked) automatically. Proof General reminds you
+that now is a good time to save any unmodified buffers.
 
 @node Asserting across files
 @section Asserting across files
@@ -1432,8 +1474,31 @@ asserted or retracted. Then you can assert proof scripts in a different
 file. Simply visit a file that contains no locked region and assert some
 command with the usual assertion commands, see @ref{Script processing
 commands}. Proof General reminds you that now is a good time to save any
-unmodified buffers. This is particularly useful as assertion may cause
+unmodified buffers.  This is particularly useful as assertion may cause
 the proof assistant to automatically process other files.
+
+@node Automatic multiple file handling
+@section Automatic multiple file handling
+
+To make it easier to adapt Proof General for a proof assistant, there is
+another possibility for multiple file support --- that it is provided
+automatically by Proof General and not integrated with the
+file-management system of the proof assistant.
+
+In this case, Proof General assumes that the only files processed are
+the ones it has sent to the proof assistant itself.  Moreover, it
+(conservatively) assumes that there is a linear dependency between files
+in the order they were processed.
+
+If you only have automatic multiple file handling, you'll find that any
+files loaded directly by the proof assistant are @emph{not} locked when
+you visit them in Proof General.  Moreover, if you retract a file it may
+retract more than is strictly necessary (because it assumes a linear
+dependency).
+
+For further technical details of the ways multiple file scripting is
+configured, see @ref{Handling multiple files}.
+
 
 
 @node Escaping script management
@@ -1652,6 +1717,7 @@ See the chapters covering each assistant for details.
 
 
 @menu
+* Basic options::
 * How to customize::          
 * Display customization::       
 * User options::                
@@ -1659,16 +1725,36 @@ See the chapters covering each assistant for details.
 * Tweaking configuration settings::  
 @end menu
 
+@node Basic options
+@section Basic options
+
+Proof General has some basic on/off options which you can toggle
+directly from the menu:
+@lisp
+   Proof-General -> Options
+@end lisp
+The effect of changing one of these options will be seen immediately (or
+in the next proof step).  The window-control options
+on this menu are described shortly.  @xref{Display customization}.
+
+To save these options, use the usual Emacs save options command,
+for XEmacs on the menu:
+@lisp
+   Options -> Save Options
+@end lisp
+or @code{M-x customize-save-customized}.
+
+The options on this sub-menu are also available in the complete
+user customization options group for Proof General.
+
 @node How to customize
 @section How to customize
 @cindex Using Customize
 @cindex Emacs customization library 
 
 Proof General uses the Emacs customization library to provide a friendly
-interface.
-
-Visit a proof script file for some prover.  Now you can access the
-customization settings for Proof General via the menu:
+interface.  You can access all the customization settings for Proof
+General via the menu:
 @lisp
    Proof-General -> Customize
 @end lisp
@@ -1773,23 +1859,17 @@ selected frame will be automatically deleted.
 
 The default value is @code{nil}.
 @end defopt
+This option only has an effect when you have set
+@code{proof-dont-switch-windows}.
 
-If you are working on a workstation with a window system, you can use
-Emacs to manage several @i{frames} on the display, to keep the goals
-buffer displayed in a fixed place on your screen and in a certain font,
-for example.  A convenient way to do this is via
-@code{special-display-regexps}, for example:
-@lisp
-(setq special-display-regexps
-        (cons "\\*isabelle-\\(goals\\|response\\)\\*"
-         special-display-regexps))
-@end lisp
-This setting makes the @code{*isabelle-goals*} and
-@code{*isabelle-response*} buffers automatically create their own
-frames.  
+If you are working on a machine with a window system, you can use Emacs
+to manage several @i{frames} on the display, to keep the goals buffer
+displayed in a fixed place on your screen and in a certain font, for
+example.  A convenient way to do this is via the user option
+@c TEXI DOCSTRING MAGIC: proof-multiple-frames-enable
 
-Multiple frames work best when @code{proof-auto-delete-windows} is
-@code{nil} and @code{proof-dont-switch-windows} is @code{t}.
+Multiple frames work best when @code{proof-auto-delete-windows} is off
+and @code{proof-dont-switch-windows} is on.
 
 
 @node User options
@@ -2422,12 +2502,15 @@ Emacs reads.
 @chapter Isabelle Proof General
 @cindex Isabelle Proof General
 
-Isabelle Proof General includes a mode for editing theory files taken
-from David Aspinall's Isamode interface,
-@uref{http://www.dcs.ed.ac.uk/home/da/Isamode}.  Detailed documentation
-for the theory file mode is included with @code{Isamode}, there are some
-notes on the special functions available and customization settings
-below.
+Isabelle Proof General supports all of the generic features of
+Proof General, including integration with Isabelle's theory
+loader, for proper automatic multiple file handling.
+
+It includes a mode for editing theory files taken from David Aspinall's
+Isamode interface, @uref{http://www.dcs.ed.ac.uk/home/da/Isamode}.
+Detailed documentation for the theory file mode is included with
+@code{Isamode}, there are some notes on the special functions available
+and customization settings below.
 
 @menu
 * Theory files::                
@@ -2441,19 +2524,20 @@ below.
 @cindex Theory files (in Isabelle)
 @cindex ML files (in Isabelle)
 
-Isabelle Proof General attempts to lock theory files as well as ML files
+As well as locking ML files, Isabelle Proof General locks theory files
 when they are loaded.  Theory files are always completely locked or
 completely unlocked, because they are processed atomically.
 
-Proof General attempts to load the theory file for a @file{.ML} file
+Proof General tries to load the theory file for a @file{.ML} file
 automatically before you start scripting.  This relies on new support
 built especially for Proof General into Isabelle99's theory loader.
 
 However, because scripting cannot begin until the theory is loaded, and
 it should not begin if an error occurs during loading the theory, Proof
-General blocks waiting for the theory loader to finish.  This means that
-if you have a theory file which takes a long time to load, you might
-want to use it directly:
+General @strong{blocks} waiting for the theory loader to finish.  If you
+have a theory file which takes a long time to load, you might want to
+load it directly, from the @file{.thy} buffer.  Extra commands are
+provided in theory mode for this:
 
 @c FIXME: should say something about this:
 @c This can cause confusion in the theory loader later,
@@ -2468,7 +2552,8 @@ want to use it directly:
 The key @kbd{C-c C-b} (@code{isa-process-thy-file}) will cause Isabelle
 to read the theory file being edited.  This causes the file and all its
 children (both theory and ML files) to be read.  Any top-level ML file
-associated with this theory file is also read.
+associated with this theory file is @emph{not} read, in contrast
+with the @code{use_thy} command of Isabelle.
 
 The key @kbd{C-c C-u} (@code{isa-retract-thy-file}) will retract
 (unlock) the theory file being edited.  This unlocks the file and all
@@ -2914,7 +2999,7 @@ work for goal..saves is calculated from @code{proof-goal-with-hole-regexp},
 Name of function to find next interesting entity in a script buffer.@*
 This is used to configure @code{func-menu}.  The default value is
 @code{proof-script-find-next-entity}, which searches for the next entity
-based on @code{fume-function-name-regexp} which by default is set from
+based on fume-function-name-regexp which by default is set from
 @code{proof-script-next-entity-regexps}.  
 
 The function should move point forward in a buffer, and return a cons
@@ -3379,8 +3464,8 @@ shell filter once @samp{string} has been processed.  The @samp{action} variable
 suggests what class of command is about to be inserted:
 @lisp
  @code{'proof-shell-done-invisible}      A non-scripting command
- @code{'proof-done-advancing}		  A "forward" scripting command
- @code{'proof-done-retracting}		  A "backward" scripting command
+ @code{'proof-done-advancing}            A "forward" scripting command
+ @code{'proof-done-retracting}           A "backward" scripting command
 @end lisp
 Caveats: You should be very careful about setting this hook.  Proof
 General relies on a careful synchronization with the process between
@@ -4169,6 +4254,7 @@ be sent to the proof assistant.
 Convert a sequence of terminator positions to a set of vanilla extents.@*
 Proof terminator positions @var{semis} has the form returned by
 the function @code{proof-segment-up-to}.
+Set the callback to @var{callback-fn} or @code{'proof-done-advancing} by default.
 @end defun
 
 The function @code{proof-assert-until-point} is the main one used to
@@ -4441,7 +4527,7 @@ Input is actually inserted into the shell buffer and sent to the process
 by the low-level function @code{proof-shell-insert}.  
 
 @c TEXI DOCSTRING MAGIC: proof-shell-insert
-@defun proof-shell-insert string &optional action
+@defun proof-shell-insert string action
 Insert @var{string} at the end of the proof shell, call @code{comint-send-input}.
 
 First call @code{proof-shell-insert-hook}.  The argument @var{action} may be
@@ -5017,7 +5103,7 @@ proofs, so be careful not to retract more than you need!
 
 This section contains some tentative plans and ideas for improving Proof
 General.  Please send us contributions to this wish list, or better
-still, offers to implement something from it!
+still, an offer to implement something from it!
 
 @menu
 * Proof by pointing and similar features::
@@ -5032,12 +5118,11 @@ still, offers to implement something from it!
 This is a note by David Aspinall about proof by pointing and similar
 features.
 
-In fact, Proof General already contains code for proof by pointing, for
-a reference see @ref{History}.  However, it is slightly
-LEGO specific and not robust enough.
-
-Proof-by-pointing requires rather heavy support from the proof
-assistant.  There are two aspects to the support:
+Proof General already supports proof by pointing, and experimental
+support is provided in LEGO.  We would like to extend this support to
+other proof assistants.  Unfortunately, proof by pointing requires
+rather heavy support from the proof assistant.  There are two aspects to
+the support:
 @itemize @bullet
 @item term structure mark-up
 @item proof by pointing command generation
@@ -5047,12 +5132,22 @@ explore the structure of a term using the mouse (the smallest
 subexpression that the mouse is over is highlighted), and easily copy
 subterms from the output to a proof script.
 
-Command generation for proof by pointing might be specific to a
-particular logic in use, if we hope to generate a proof command
+Command generation for proof by pointing is usually specific to a
+particular logic in use, if we hope to generate a good proof command
 unambiguously for any particular click. However, Proof General could
 easily be generalised to offer the user a context-sensitive choice of
 next commands to apply, which may be more useful in practice, and a
 worthy addition to Proof General.
+
+Implementors of new proof assistants should be encouraged to consider
+supporting term-structure mark up from the start.  Command generation
+should be something that the logic-implementor can specify in some way.
+
+Of the supported provers, we can certainly hope for proof-by-pointing
+support from Coq, since the CtCoq proof-by-pointing code has been moved
+into the Coq kernel lately.  I hope the Coq community can encourage
+somebody to do this.
+
 
 @node Granularity of atomic command sequences
 @section Granularity of atomic command sequences
