@@ -363,7 +363,8 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
        ;; if nabort<>0 then current goal is actually aborted
        ((and (coq-proof-mode-p) (coq-state-changing-tactic-p str) (= naborts 0))
         (incf nundos))
-       ;; default case: command, do nothing (BackTo will deal with this)
+       ;; default case: command or state preserving tactic, do nothing (BackTo will
+       ;; deal with this)
        (t ())
        )
       ;;go to next span

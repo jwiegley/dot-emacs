@@ -1,6 +1,10 @@
 ;; default abbrev table
 ; This is for coq V8, you should test coq version before loading
 
+(defun holes-show-doc () 
+  (interactive)
+  (describe-variable 'holes-doc))
+
 ;#s are replaced by holes by holes-abbrev-complete
 (if (boundp 'holes-abbrev-complete)
 	 ()
@@ -312,7 +316,7 @@
      ["Replace active hole by selection"  holes-replace-update-active-hole t]
      ["Jump to active hole"  holes-set-point-next-hole-destroy t]
      ["Forget all holes in buffer"  holes-clear-all-buffer-holes t]
-     ["Tell me about holes?" holes-short-doc t]
+     ["Tell me about holes?" holes-show-doc t]
      ;; look a bit better at the bottom
      "Make hole with mouse: C-M-select"
      "Replace hole with mouse: C-M-Shift select"  ;; da: does this one work??
@@ -339,7 +343,7 @@
 ;; da: Moved this from the main menu to the Help submenu.  
 ;; It also appears under Holes, anyway.
 (defpgdefault help-menu-entries
-  '(["Tell me about holes?" holes-short-doc t]))
+  '(["Tell me about holes?" holes-show-doc t]))
 
 
 (provide 'coq-abbrev)

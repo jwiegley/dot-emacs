@@ -3354,41 +3354,25 @@ Prompts for a SearchIsos argument.
 
 @node Coq-specific variables
 @section Coq-specific variables
-@kindex coq-version-is-Vx
+@kindex coq-version-is-V8-0
+@kindex coq-version-is-V8-1
 
 The variable
 @lisp
   coq-version-is-Vx
 @end lisp
-(where x is 6, 74, 7 or 8) is used to force version of Coq, if it is t,
-then Coq is considered in version x. You should not have to set this
-variable, since ProofGeneral sets it by doing the shell command:
+(where x is 8-0 or 8-1) is used to force version of Coq, if it is t,
+then Coq is considered in version x. ProofGeneral sets it automatically
+by doing the following shell command: 
 @lisp
   (concat coq-prog-name "-v")
 @end lisp
 
-If you have problems with different versions of Coq, you can set to t
-the variable corresponding to the version you are using in your config
-file (before ProofGeneral is loaded).
+So you should not have to set this variable unless you have problems
+with different versions of Coq, you can set to t the variable
+corresponding to the version you are using in your config file (before
+ProofGeneral is loaded) and ProofGeneral won't override it.
 
-@kindex coq-version-is-V7
-
-@c The variable
-@c @lisp
-@c   coq-version-is-V74
-@c @end lisp
-
-@c (PG > 3.5pre030204) is used to force version of Coq, if it is t, then
-@c Coq is considered in version 7.4 (i.e. with the module system enabled),
-@c if it is nil, then Coq is considered in an old version (V7 or V6,
-@c depending on @code{coq-version-is-V7}). You should not have to set this
-@c variable, since ProofGeneral sets it by doing the shell command:
-@c @lisp
-@c   (concat coq-prog-name "-v")
-@c @end lisp
-
-@c If you have problems with different versions of Coq, you can set this
-@c variable in your config file (before ProofGeneral is loaded).
 
 @node Editing multiple proofs
 @section Editing multiple proofs
@@ -3423,8 +3407,7 @@ proof script management of Proof General, because Proof General needs to
 know when a tactic is called that alters the proof state.  When the user
 tries to retract across an extended tactic in a script, the algorithm
 for calculating how far to undo has a default behavior that is not
-always accurate: do "@code{Undo 1.}" when in proof mode, and "@code{Back
-1.}"  when in toplevel mode.
+always accurate in proof mode: do "@code{Undo}".
 
 Coq Proof General does not currently support dynamic tactic extension in
 Coq: this is desirable but requires assistance from the Coq core.
