@@ -19,6 +19,18 @@ DOCNAME = ProofGeneral
 
 MAKEINFO = makeinfo
 TEXI2DVI = texi2dvi
+
+DVICONCAT = dviconcat
+DVISELECT = dviselect
+
+# Assumes actual first two pages belong to titlepage
+TITLERANGE = =1,=2
+
+# Assumes that main document starts on third actual page
+MAINRANGE = =3,=4,5:
+
+TOC = :_1
+
 DVI2PS = dvips
 TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html
@@ -30,7 +42,12 @@ EMACS = xemacs -batch
 	$(MAKEINFO) $< 
 
 .texi.dvi:
-	$(TEXI2DVI) $< 
+	$(TEXI2DVI) $<
+	$(DVISELECT) -i $*.dvi -o $*.tmp1 $(TITLERANGE)
+	$(DVISELECT) -i $*.dvi -o $*.tmp2 $(MAINRANGE)
+	$(DVISELECT) -i $*.dvi -o $*.tmp3 $(TOC)
+	$(DVICONCAT) -o $*.dvi $*.tmp1 $*.tmp3 $*.tmp2 
+	rm -f $*.tmp1 $*.tmp2 $*.tmp3
 
 
 .texi.pdf:
