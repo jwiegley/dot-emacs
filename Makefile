@@ -27,14 +27,16 @@ PWD=$(shell pwd)
 BYTECOMP = $(EMACS) -batch -q -no-site-file -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa") load-path))' -f batch-byte-compile
 
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
-ELC=$(shell for f in $(ELISP_DIRS); do ls $$f/*.elc 2>/dev/null; done)
+ELC=$(EL:.el=.elc)
 
 .SUFFIXES:	.el .elc
 
 ## 
 ## compile : byte compile files in working directory:
 ##           Clearout old .elc's and re-compile in a
-##           single Emacs process.
+##           single Emacs process.  This is faster than make all,
+##	     but can have artefacts because of context between
+##	     compiles.
 ##
 compile:
 	@echo "*************************************************"
@@ -45,6 +47,7 @@ compile:
 	@echo " Finished."
 	@echo "*************************************************"
 
+all:	$(ELC)
 
 .el.elc:
 	$(BYTECOMP) $*.el
