@@ -28,6 +28,7 @@ notes below, the README file for each prover, and the file BUGS.
 
 If none of these files help, then contact me via the address below.
 
+
    David Aspinall <da+pg-support@inf.ed.ac.uk>
    LFCS, School Of Informatics,
    University of Edinburgh.
@@ -41,6 +42,20 @@ If none of these files help, then contact me via the address below.
 
 Detailed installation Notes for Proof General
 =============================================
+
+Supported Emacs Versions.
+-------------------------
+
+This release has been tested with XEmacs 21.4.14 and GNU Emacs 21.3.1
+(running on i386 Linux).  We recommend using these or later versions.  
+
+Other *recent* versions of either Emacs should also work, but please
+do not send bug reports for any version of Emacs which is more than a
+year older than the most recent stable release of that Emacs, unless
+you are reasonably sure that the bug has something to do with Proof
+General rather than Emacs.  Unfortunately, compatibility across
+different Emacs versions is very difficult to maintain as APIs change
+frequently and bugs come and go between Emacs releases.
 
 
 RPM packages.
@@ -68,7 +83,6 @@ personal Emacs configuration, add this line:
 to your .emacs file.
 
 
-
 Running on Windows
 ------------------
 
@@ -88,7 +102,6 @@ or else in directory you installled XEmacs in, e.g.
 c:\Program Files\XEmacs\.emacs
 
 
-
 Dependency on Other Emacs Packages
 ----------------------------------
 
@@ -106,8 +119,10 @@ packages that you need to use Proof General:
 
  OPTIONAL:
   * outline
-  * func-menu
-  * X Symbol
+  * func-menu or imenu
+
+The X Symbol package is now bundled with Proof General so you
+do not need to download it separately.
 
 
 
