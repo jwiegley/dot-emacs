@@ -117,7 +117,7 @@
       "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)"
       af2-comments-regexp
       af2-ident-regexp)
-   proof-non-undoables-regexp      "\\(constraints\\|flags\\|goals\\"
+   proof-ignore-for-undo-count      "constraints\\|flags\\|goals\\|print\\|print_sort\\|eshow\\|search\\|priority\\|depend"
    proof-goal-with-hole-result     5
    proof-save-with-hole-regexp     (concat 
       "save"

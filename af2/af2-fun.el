@@ -127,7 +127,7 @@ send a delete command to af2 for the symbol whose name is under the cursor."
       (setq start (point))
       (forward-word 1)
       (setq end (point)))
-    (if (char-equal (char-after (- end 1)) ?.)(setq end (- end 1)))
+    (if (char-equal (char-after (- end 1)) ?\.)(setq end (- end 1)))
     (af2-delete-symbol (buffer-substring start end))))
 
 ;;
@@ -139,12 +139,7 @@ send a delete command to af2 for the symbol whose name is under the cursor."
 If inside a comment, just process until the start of the comment."
   (interactive)
   (message "test")
-  (if (or 
-       (and (= (point) (point-max)) (= (char-before (point)) ?.))
-       (and (not (proof-re-search-forward proof-script-command-end-regexp
-					  (point-max) t))
-	    (proof-re-search-forward "\\.\\'" (point-max) t)))
-       (insert "\n"))
+  (if (and (> (point) 1) (char-equal (char-before (point)) ?\.)) (insert "\n"))
   (proof-with-script-buffer
    (proof-maybe-save-point
     (goto-char (proof-queue-or-locked-end))
