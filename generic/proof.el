@@ -273,7 +273,10 @@ Returns new END value."
   (narrow-to-region start end)
   (if proof-output-fontify-enable
       (let ((font-lock-keywords proof-font-lock-defaults))
+	; fontify-region doesn't work for FSF Emacs 20.4, sigh.
 	(font-lock-fontify-region start end)
+	; has annoying messages
+	; (font-lock-fontify-buffer)	; hope okay cos narrow region.
 	;; FIXME: this should be optional, really.
 	(proof-zap-commas-region start end)))
   (if proof-shell-leave-annotations-in-output
@@ -283,7 +286,7 @@ Returns new END value."
 	(goto-char start)
 	(while (< (point) (point-max))
 	  (forward-char)
-	  (unless (< (char-to-int (char-before (point))) 128)
+	  (unless (< (char-before (point)) 128) ; char-to-int in XEmacs
 	    (delete-char -1)))
 	(goto-char p)))
   (proof-x-symbol-decode-region start (point-max))
@@ -304,34 +307,31 @@ Returns new END value."
 ;;
 
 
+;; FIXME: this function should be combined with
+;; proof-shell-maybe-erase-response-buffer. 
 (defun proof-response-buffer-display (str &optional face)
   "Display STR with FACE in response buffer and return fontified STR."
+  (if (string-equal str "\n")	
+      str				; quick exit, no display.
   (let (start end)
     (with-current-buffer proof-response-buffer
       ;; da: I've moved newline before the string itself, to match
       ;; the other cases when messages are inserted and to cope
       ;; with warnings after delayed output (non newline terminated).
+      ; (ugit (format "End is %i" (point-max)))
       (goto-char (point-max))
       (newline)				
       (setq start (point))
-      (insert str) 
+      (insert str)
+      (unless (bolp) (newline))
       (setq end (proof-fontify-region start (point)))
-      ;; This is why we can't keep the buffer in font-lock
-      ;; minor mode: it destroys this hacky property as soon 
-      ;; as it's made!
+      ;; This is one reason why we don't keep the buffer in font-lock
+      ;; minor mode: it destroys this hacky property as soon as it's
+      ;; made!  (Using the minor mode is much more convenient, tho')
       (if face (font-lock-append-text-property start end 'face face))
       ;; This returns the decorated string, but it doesn't appear 
       ;; decorated in the minibuffer, unfortunately.
-      (buffer-substring start (point-max)))))
-
-;; FIXME da: this window dedicated stuff is a real pain and I've
-;; spent ages inserting workarounds.  Why do we want it??
-;; The latest problem is that with
-;;  (setq special-display-regexps
-;;       (cons "\\*Inferior .*-\\(goals\\|response\\)\\*"
-;;	     special-display-regexps))
-;; I get the script buffer made into a dedicated buffer,
-;; presumably because the wrong window is selected below?
+      (buffer-substring start (point-max))))))
 
 (defun proof-display-and-keep-buffer (buffer &optional pos)
   "Display BUFFER and mark window according to `proof-window-dedicated'.

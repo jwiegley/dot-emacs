@@ -597,7 +597,7 @@ If there is no command under the mouse, behaves like mouse-track-insert."
   (&optional erase-next-time clean-windows force)
   "Erase the response buffer according to proof-shell-erase-response-flag.
 ERASE-NEXT-TIME is the new value for the flag.
-If CLEAN-WINDOWS is set, use proof-clear-buffer to do the erasing.
+If CLEAN-WINDOWS is set, use proof-clean-buffer to do the erasing.
 If FORCE, override proof-shell-erase-response-flag.
 
 If the user option proof-tidy-response is nil, then
@@ -676,20 +676,21 @@ extents."
       ;; We should only clear the output that was displayed from
       ;; the *previous* prompt.
 
-      ;; da: I get a lot of empty response buffers displayed
-      ;; which might be nicer removed. Temporary test for
-      ;; this clean-buffer to see if it behaves well.
+      ;; FIXME da: I get a lot of empty response buffers displayed
+      ;; which might be nicer removed. Temporary test for this
+      ;; clean-buffer to see if it behaves well.
 
-      ;; NEW!!
       ;; Erase the response buffer if need be, maybe also removing the
-      ;; window.  Indicate that it should be erased before the next output.
+      ;; window.  Indicate that it should be erased before the next
+      ;; output.
       (proof-shell-maybe-erase-response t t)
 
       (set-buffer proof-goals-buffer)
-      ;; NEW!!  10.12.98 Keep point at beginning of buffer instead
-      ;; of end.  Might be nicer to keep it at "current" subgoal
-      ;; a la Isamode, but never mind.
+
+      ;; Might be nicer to keep point at "current" subgoal a la
+      ;; Isamode, but never mind.
       (erase-buffer)
+      (newline)				; waste a line
 
       ;; Insert the (possibly cleaned up) string.
       (if proof-shell-leave-annotations-in-output
@@ -699,18 +700,18 @@ extents."
       ;; Get fonts and characters right
       (proof-fontify-region (point-min) (point-max))
 
+      (set-buffer-modified-p nil)	; nicety
+
       (proof-display-and-keep-buffer proof-goals-buffer (point-min))
 
-      ;; FIXME: 
-      ;; This code is broken for Emacs 20.3 which has 16 bit
-      ;; character codes.  (Despite earlier attempts to make
-      ;; character codes in this buffer 8 bit)
-      ;; But this is a more general problem in Proof General
+      ;; FIXME: This code is broken for Emacs 20.3 (mule?) which has
+      ;; 16 bit character codes.  (Despite earlier attempts to make
+      ;; character codes in this buffer 8 bit) 
+      ;; But this is a more serious future problem in Proof General
       ;; which requires re-engineering all this 128 mess.
-      ;; FIXME Mk II:
-      ;; This is also going to be broken for X-Symbol interaction,
-      ;; when tokens (several chars long) are replaced by single
-      ;; characters.
+      ;; FIXME Mk II: This is also going to be broken for X-Symbol
+      ;; interaction, when tokens (several chars long) are replaced by
+      ;; single characters.
       (unless
 	  ;; Don't do it for Emacs 20.3 or any version which
 	  ;; has this suspicious function.
@@ -800,6 +801,7 @@ last match in the buffer for END-REGEXP.  The match for END-REGEXP
 is not part of the specified region.  This mechanism means if there
 are multiple matches for START-REGEXP and END-REGEXP, we match the
 largest region containing them all.
+This is a subroutine of proof-shell-handle-error.
 Returns the string (with faces) in the specified region."
   (let (start end string)
     (save-excursion
@@ -809,6 +811,9 @@ Returns the string (with faces) in the specified region."
       (goto-char (marker-position proof-marker))
       (setq start (- (search-forward-regexp start-regexp)
 		     (length (match-string 0))))
+      ;; FIXME: if the shell buffer is x-symbol minor mode,
+      ;; this string can contain X-Symbol characters, which
+      ;; is not suitable for processing with proof-fontify-region.
       (setq string
 	    (if proof-shell-leave-annotations-in-output
 		(buffer-substring start end)
@@ -838,24 +843,32 @@ See the documentation for `proof-shell-delayed-output' for further details."
       ;; Anyway, we leave it alone now, maybe to see some spurious 
       ;; "done" displays 
 
+      ;; FIXME: this can be done away with, probably.
       (unless proof-shell-leave-annotations-in-output
 	(setq str (proof-shell-strip-special-annotations str)))
+      
+      (proof-shell-maybe-erase-response t nil)
+      (proof-response-buffer-display str)
+      (proof-display-and-keep-buffer proof-response-buffer))
 
-      (with-current-buffer proof-response-buffer
-	;; FIXME da: have removed this, possibly it junks 
-	;; relevant messages.  Instead set a flag to indicate
-	;; that response buffer should be cleared before the
-	;; next command.
-	;; (erase-buffer)
+     ;; old code duplicated much of proof-response-buffer-display
 
-	;; NEW!
-	;; Erase the response buffer if need be, and indicate that
-	;; it is to be erased again before the next message.
-	(proof-shell-maybe-erase-response t nil)
-	(setq pos (point))
-	(insert str)
-	(proof-fontify-region pos (point))
-	(proof-display-and-keep-buffer proof-response-buffer)))
+;      (with-current-buffer proof-response-buffer
+;	;; FIXME da: have removed this, possibly it junks 
+;	;; relevant messages.  Instead set a flag to indicate
+;	;; that response buffer should be cleared before the
+;	;; next command.
+;	;; (erase-buffer)
+
+;	;; NEW!
+;	;; Erase the response buffer if need be, and indicate that
+;	;; it is to be erased again before the next message.
+;	(proof-shell-maybe-erase-response t nil)
+;	(goto-char (point-max))
+;	(setq pos (point))
+;	(insert str)
+;	(proof-fontify-region pos (point))
+;	(proof-display-and-keep-buffer proof-response-buffer)))
      ;;
      ;; 2. Text to be inserted in goals buffer
      ;;
@@ -902,13 +915,21 @@ The error message is displayed in the `proof-response-buffer'.
 Then we call `proof-shell-handle-error-hook'. "
 
   ;; flush goals
-  (or (equal proof-shell-delayed-output (cons 'insert "Done."))
-      (save-excursion ;current-buffer
-	(set-buffer proof-goals-buffer)
-	(erase-buffer)
-	(insert (cdr proof-shell-delayed-output))
-        (proof-fontify-region (point-min) (point-max))
-	(proof-display-and-keep-buffer proof-goals-buffer)))
+  (unless
+      (equal proof-shell-delayed-output (cons 'insert "Done."))
+    (save-excursion
+      ;; da: Maybe we don't know it's a perfect string for analysis,
+      ;; but give it a shot anyway.
+      (proof-shell-analyse-structure 
+       (cdr proof-shell-delayed-output))))
+; old code duplicated first part of analyse-structure.
+;      (save-excursion ;current-buffer
+;	(set-buffer proof-goals-buffer)
+;	(erase-buffer)
+;	(newline)
+;	(insert (cdr proof-shell-delayed-output))
+;        (proof-fontify-region (point-min) (point-max))
+;	(proof-display-and-keep-buffer proof-goals-buffer)))
 
   ;; This prevents problems if the user types in the
   ;; shell buffer: without it the same error is seen by
@@ -1074,7 +1095,9 @@ particularly in proof-start-queue and proof-shell-exec-loop."
     ;; Lego uses this hook for setting the pretty printer
     ;; width, Coq uses it for sending an initialization string
     ;; (although it could presumably use proof-shell-init-cmd?).
-    ;; Plastic uses this hook to remove literate-style markup from 'string'. 
+    ;; Plastic uses it to remove literate-style markup from 'string'. 
+    ;; x-symbol mode uses this hook to convert special characters into
+    ;; tokens for the proof assistant.
     (run-hooks 'proof-shell-insert-hook)
 
     ;; Now we replace CRs from string with spaces. This was done in
@@ -1098,6 +1121,8 @@ particularly in proof-start-queue and proof-shell-exec-loop."
 
     (insert string)
     (set-marker proof-marker (point))
+    ;; FIXME da: this space fudge is actually a visible hack:
+    ;; the response string begins with a space and a newline.
     (insert proof-shell-insert-space-fudge)
     (comint-send-input)))
 
@@ -1510,9 +1535,9 @@ however, are always processed; hence their name)."
 	  ;; Now we're looking for the end of the piece of output
 	  ;; which will be processed.  
 	  
-	  ;; Note that the way this filter works,
-	  ;; only one piece of output can be dealt with at a time
-	  ;; so we loose sync if there's more than one bit there.
+	  ;; Note that the way this filter works, only one piece of
+	  ;; output can be dealt with at a time so we loose sync if
+	  ;; there's more than one bit there.
 	  
 	  ;; The blasphemous situation that the proof-action-list
 	  ;; is empty is now quietly ignored so that users can
@@ -1523,27 +1548,31 @@ however, are always processed; hence their name)."
 	  ;; Note that any "unexpected" output like this gets
 	  ;; ignored.
 	  (if proof-action-list
-	      (let ((startpos (goto-char (marker-position proof-marker)))
-		    (urgnt    (marker-position
+	      (let ((urgnt    (marker-position 
 			       proof-shell-urgent-message-marker))
-		    string)
+		    string startpos)
 		;; Ignore any urgent messages that have already been 
 		;; dealt with.  This loses in the case mentioned above.
 		;; A more general way of doing this would be
 		;; to filter out or delete the urgent messages which 
 		;; have been processed already.  
+		(setq startpos (goto-char (marker-position proof-marker)))
 		(if (and urgnt
-			 (< (point) urgnt))
-		    (setq startpos (goto-char urgnt)))
+			 (< startpos urgnt))
+		    (setq startpos (goto-char urgnt))
+		  ;; Otherwise, skip possibly a (fudge) space and new line
+		  (if (eq (char-after startpos) ?\ )
+		      (setq startpos (goto-char (+ 2 startpos)))
+		    (setq startpos (goto-char (1+ startpos)))))
 		;; Find next prompt.  
 		(if (re-search-forward 
 		     proof-shell-annotated-prompt-regexp nil t)
 		    (progn
 		      (backward-char (- (match-end 0) (match-beginning 0)))
 		      ;; FIXME: decoding x-symbols here is perhaps a bit 
-		      ;;  expensive; but perhaps we could cut and paste
-		      ;;  from here to the goals buffer to
-		      ;;  avoid duplicating effort?
+		      ;;  expensive; moreover it leads to problems 
+		      ;;  processing special characters as annotations
+		      ;;  later on.  So no fontify or decode.
 		      ;; (proof-fontify-region startpos (point))
 		      (setq string (buffer-substring startpos (point)))
 		      (goto-char (point-max))	
@@ -1743,7 +1772,8 @@ processing."
   (save-excursion			
     (set-buffer proof-shell-buffer)
 
-    (proof-font-lock-configure-defaults)
+    ;; We do not enable font-lock here 
+    ;; (proof-font-lock-configure-defaults)
 
     (let ((proc (get-buffer-process proof-shell-buffer)))
       ;; Add the kill buffer function and process sentinel
