@@ -306,7 +306,6 @@ Returns new END value."
 
 (defun proof-response-buffer-display (str &optional face)
   "Display STR with FACE in response buffer and return fontified STR."
-  (ugit str) ;; FIXME: debug!
   (let (start end)
     (with-current-buffer proof-response-buffer
       ;; da: I've moved newline before the string itself, to match
