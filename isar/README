@@ -1,14 +1,17 @@
 Isabelle/Isar Proof General
 
-Written by Markus Wenzel
+Written by Markus Wenzel and David Aspinall.
 
-Status:		   supported
-Maintainer:	   David Aspinall
-Isabelle versions: Isabelle99-1, Isabelle99-2, Isabelle2002
-Isabelle homepage: http://www.cl.cam.ac.uk/Research/HVG/Isabelle/
-Isar homepage:	   http://isabelle.in.tum.de/Isar/
+Contributions from David von Oheimb, Stefan Berghofer, 
+		   Sebastian Skalberg, Gerwin Klein.
 
-========================================
+Status:		    supported
+Maintainers:	    David Aspinall, Stefan Berghofer
+Isabelle versions:  Isabelle2004
+Isabelle homepage:  http://www.cl.cam.ac.uk/Research/HVG/Isabelle/
+Isar homepage:	    http://isabelle.in.tum.de/Isar/
+
+===========================================================================
 
 Isabelle/Isar Proof General has full support for multiple file
 scripting, with dependencies between theories communicated between
