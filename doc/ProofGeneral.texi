@@ -137,7 +137,7 @@ Isabelle.
 * Isabelle Proof General::      
 * Adapting Proof General to Other Provers::  
 * Internals of Proof General::  
-* Obtaining and Installing Proof General::  
+* Obtaining and Installing::  
 * Known bugs and workarounds::  
 * Plans and ideas::             
 * References::                  
@@ -375,7 +375,7 @@ line:
 into your @file{~/.emacs} file, where @var{proof-general-home} is the
 top-level directory that was created when Proof General was unpacked.
 
-@xref{Obtaining and Installing Proof General}, if you need more
+@xref{Obtaining and Installing}, if you need more
 information.
 
 
@@ -2377,8 +2377,9 @@ The script buffer's @code{comment-end} is set to this string plus a space.
 @c TEXI DOCSTRING MAGIC: proof-case-fold-search
 @defvar proof-case-fold-search 
 Value for @code{case-fold-search} when recognizing portions of proof scripts.@*
-If your prover has a case-insensitive syntax, this should be set
-to @code{'t'}.
+The default value is @code{'nil'}.  If your prover has a case @strong{insensitive}
+input syntax, @code{proof-case-fold-search} should be set to @code{'t'} instead.  
+NB: This setting is not used for matching output from the prover.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-save-command-regexp
 @defvar proof-save-command-regexp 
@@ -3531,11 +3532,11 @@ output.
 
 @c
 @c
-@c APPENDIX: Obtaining and Installing Proof General
+@c APPENDIX: Obtaining and Installing
 @c
 @c
-@node Obtaining and Installing Proof General
-@appendix Obtaining and Installing Proof General
+@node Obtaining and Installing
+@appendix Obtaining and Installing
 
 Proof General has its own
 @uref{http://www.dcs.ed.ac.uk/home/proofgen,home page} hosted at
