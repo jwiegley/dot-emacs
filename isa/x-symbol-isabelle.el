@@ -31,7 +31,32 @@
 (defvar x-symbol-isabelle-class-face-alist nil)
 (defvar x-symbol-isabelle-electric-ignore "[:'][A-Za-z]\\|<=\\|\\[\\[\\|\\]\\]\\|~=")
 
-(defvar x-symbol-isabelle-font-lock-keywords nil)
+
+;;  Super- and subscripts
+
+(defconst x-symbol-isabelle-font-lock-regexp
+  "\\(\\\\?\\\\<^su[bp]>\\)\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"
+  "Regexp matching super- and subscript markers in Isabelle.")
+
+(defun x-symbol-isabelle-match-subscript (limit)
+  ;; checkdoc-params: (limit)
+  "Match and skip over super- and subscripts.
+Return nil if `x-symbol-mode' or `x-symbol-subscripts' is nil.  Uses
+`x-symbol-isabelle-font-lock-regexp'."
+  (and x-symbol-mode ;x-symbol-subscripts (FIXME need proper default for)
+       (or (proof-looking-at x-symbol-isabelle-font-lock-regexp)
+	   (proof-re-search-forward x-symbol-isabelle-font-lock-regexp limit t))))
+
+(defvar x-symbol-isabelle-font-lock-keywords
+  '((x-symbol-isabelle-match-subscript
+     (1 x-symbol-invisible-face t)
+     (2	(if (or (eq (char-after (+ 5 (match-beginning 1))) ?b)
+		(eq (char-after (+ 6 (match-beginning 1))) ?b))
+	    'x-symbol-sub-face 'x-symbol-sup-face)
+	prepend)))
+  "Isabelle font-lock keywords for super- and subscripts.")
+
+
 (defvar x-symbol-isabelle-master-directory  'ignore)
 (defvar x-symbol-isabelle-image-searchpath '("./"))
 (defvar x-symbol-isabelle-image-cached-dirs '("images/" "pictures/"))
