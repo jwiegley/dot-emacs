@@ -1,6 +1,6 @@
 Summary:	Proof General, Emacs interface for Proof Assistants
 Name:		ProofGeneral
-Version:	3.0.3
+Version:	3.0
 Release:	1
 Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
