@@ -198,6 +198,9 @@ clean:
 	find . \( -name '*~' -o -name '#*#' -o -name '\.#.*' \) -print | xargs rm -f
 	(cd doc; $(MAKE) clean)
 	(cd images; $(MAKE) clean)
+	rm -f doc/ProofGeneralPortrait.eps.gz
+	rm -f html/ProofGeneral
+
 
 
 ############################################################
@@ -461,3 +464,14 @@ distinstall:
 	(cd $(DISTINSTALLDIR); \
 	 $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ); \
 	 mv $(RELEASENAME) $(NAME))
+
+############################################################
+#
+# links:
+#   
+#   Make some handy links for developers.
+#
+links:
+	ln -sf ../html/ProofGeneralPortrait.eps.gz doc
+	ln -sf ../../ProofGeneral html
+
