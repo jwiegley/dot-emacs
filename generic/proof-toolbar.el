@@ -217,7 +217,7 @@ Initialised in proof-toolbar-setup.")
    ;; XEmacs isn't ready for enablers yet
    t
    ;; (proof-toolbar-restart-enable-p)
-   "Restart the proof assistant"])
+   "Restart scripting"])
 
 (defvar proof-toolbar-goal-icon nil
     "Glyph list for goal button in proof toolbar.
