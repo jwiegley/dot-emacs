@@ -815,18 +815,28 @@ be the value of proof-shell-wakeup-char."
 
 (defcustom proof-shell-error-regexp nil
   "Regexp matching an error report from the proof assistant.
-We assume that an error message corresponds to a failure
-in the last proof command executed.  So don't match
-mere warning messages with this regexp.
-Moreover, an error message should not be matched as
-an eager annotation (see proof-shell-eager-annotation-start)
-otherwise it will be lost."
-  :type 'regexp
+
+We assume that an error message corresponds to a failure in the last
+proof command executed.  So don't match mere warning messages with
+this regexp.  Moreover, an error message should not be matched as an
+eager annotation (see proof-shell-eager-annotation-start) otherwise it
+will be lost.
+
+The engine matches interrupts before errors, see proof-shell-interupt-regexp.
+
+It is safe to leave this variable unset nil."
+  :type '(choice nil regexp)
   :group 'proof-shell) 
 
 (defcustom proof-shell-interrupt-regexp nil
   "Regexp matching output indicating the assistant was interrupted.
-Similar notes apply as for `proof-shell-error-regexp'."
+We assume that an interrupt message corresponds to a failure
+in the last proof command executed. So don't match
+mere warning messages with this regexp.
+Moreover, an interrupt message should not be matched as
+an eager annotation (see proof-shell-eager-annotation-start)
+otherwise it will be lost.
+The engine matches interrupts before errors."
   :type 'regexp
   :group 'proof-shell) 
 
