@@ -677,7 +677,7 @@ group.  This allows different proof assistants to coexist
    :type '(choice string (const nil))
    :group 'proof-shell)
 
-(defcustom proof-shell-quit-cmd ""
+(defcustom proof-shell-quit-cmd nil
   "A command to quit the proof process.  If nil, send EOF instead."
    :type '(choice string (const nil))
    :group 'proof-shell)
