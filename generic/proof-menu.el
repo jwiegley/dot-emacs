@@ -68,6 +68,7 @@ If in three window or multiple frame mode, display both buffers."
 (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
 (define-key map [(control c) (control t)] 'proof-ctxt)
 (define-key map [(control c) (control u)] 'proof-undo-last-successful-command)
+(define-key map [(control c) (control w)] 'pg-response-clear-displays)
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control backspace)] 'proof-undo-and-delete-last-successful-command)
 ; C-c C-v is proof-minibuffer-cmd in universal-keys
