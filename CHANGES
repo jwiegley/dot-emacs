@@ -8,6 +8,8 @@
 
 ** Generic Changes
 
+*** Bug fix: "next" button enabled more often.  Solaris turns off enablers.
+
 *** Menu reorganization, including new proof assistant specific menus.  
 
   Specific menus added for Coq, LEGO, Isabelle.
