@@ -78,7 +78,6 @@ Suggestion for outline of improved documentation.
  C. Future ideas and plans
  
  
-
 ********
 
 Why is C-c C-b useful?  Could just use the file to read it one go
@@ -118,18 +117,80 @@ fume-func.el file
 
 
 
-
 *********
 
 
 Isabelle with multiple files.
 
-Multiple file support only works for .ML files which are read via
-the theory loader, with use_thy.  If you want to load .ML files which
-aren't associated with theories, it's best to use a dummy theory,
-see [Reference to Isabelle manual]
+Proper multiple file support only works for .ML files which are read
+via the theory loader, with use_thy.  If you want to load .ML files
+which aren't associated with theories, it's best to use a dummy
+theory, see [Reference to Isabelle manual]
 
 
 **********
+
+*****************************************************************
+
+Notes for writing a paper describing Proof General
+-------------------------------------------------
+
+
+Thesis/introduction
+===================
+
+As programming languages have evolved, environments for developing and
+debugging programs have also improved.  However, discounting various
+"visual" programming languages, a program is usually still a piece of
+text which can be directly edited by a programmer, a situation which
+hasn't changed since the early days when VDUs replaced punched cards.
+
+Similarly, whilst the history of languages for proof assistants is
+much shorter, we believe that a proof script, describing the
+operations needed to construct a proof, will remain the fundamental
+form of input for proof systems.
+
+...
+- interactive proof assistants geared to developing proof scripts
+  interactively, but may not come with integrated editing support.
+  Problem of shell-like interaction is that input has to be
+  tediously reassembled after or during proof to get a successful
+  proof script.
+
+- script management [refs] aims to make this process easier.
+
+
+
+Aspects of design
+=================
+
+- Generic.  Fits inside Emacs architecture.  (Compare with comint).
+- Script management with multiple files
+
+
+Seen one proof assistant, use them all
+======================================
+
+- Same interface for different underlying systems
+
+- Compare: web technology, where "browsing" works for 
+  different protocols: http, ftp, etc
+
+- Anyone can use Proof General to browse and replay proofs from
+  other systems, without needing to know how to invoke
+  the system, etc. 
+
+- However, proof script language and output remains particular to
+  each prover.   It would be another (interesting) project to attempt to
+  map input and output into an interchange format for proof systems.
+
+
+
+A Specification for a proof assistant interface
+===============================================
+
+The settings to instantiate Proof General can be seen as a set of 
+requirements for a proof assistant interface.
+
 
 
