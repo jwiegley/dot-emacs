@@ -1,13 +1,32 @@
 
 To: coq-club@pauillac.inria.fr,
     isabelle-users@cl.cam.ac.uk,
-    lego-club@dcs.ed.ac.uk
+    lego-club@dcs.ed.ac.uk,
+    uitp@dcs.gla.ac.uk,
+    info-hol@leopard.cs.byu.edu,
+    lics-request@research.bell-labs.com,
+    protagonist@cs.kun.nl,			???
+    pvs@csl.sri.com, 
+    qed@mcs.anl.gov,				???
+    softverf@leopard.cs.byu.edu,	        ???
+    theorem-provers@ai.mit.edu,
+    types@cs.indiana.edu,
+    formal-methods@cs.uidaho.edu,
+    reliable_computing@interval.usl.edu,
+    prog-lang@diku.dk
 
-    gnu.emacs.sources
-    comp.os.linux.announce
-    freshmeat.net
+    Also newsgroups:
+     comp.lang.sml
+     gnu.emacs.sources
+     comp.os.linux.announce
+     freshmeat.net
+     comp.*.xemacs
 
-    comp.*.xemacs
+    Bring message about script management in other systems
+    under "Emacs gurus" higher in text for non-theory
+    postings.
+
+      
 
         
 Subject: Proof General --- Version 2.0 release
@@ -29,22 +48,25 @@ Isabelle.  It includes these features (amongst others):
    Script management works across multiple files for
    LEGO and Isabelle.
    
+ . A toolbar for building and replaying proofs
+ 
+ . Syntax highlighting of proof scripts and prover output
+ 
  . Simplified communication: the proof assistant is run in
    an Emacs shell buffer, but by default it is hidden from view
    and only the most recent messages and proofstate are displayed
    to the user, simplifying the dialogue.
    
- . A toolbar for building and replaying proofs
- 
- . Syntax highlighting of proof scripts and prover output
- 
  . Menu for jumping to theorems in a proof script, Emacs outlining
    of proof scripts
    
- . Easy provision to run proof assistant on a remote host
+ . Provision to easily run proof assistant on a remote host
+
+Script management is the main feature.  
 
 See http://www.dcs.ed.ac.uk/proofgen/ProofGeneral/ProofGeneral.html
 for the user manual which contains full details.
+
 
 To users of LEGO, Coq, and Isabelle:
 ------------------------------------
@@ -58,6 +80,7 @@ Emacs.  We have tested on XEmacs 20.4 and Emacs 20.2, 20.3.  (It
 probably works with earlier versions of either Emacs but we cannot
 guarantee this).
 
+
 To users of other proof assistants:
 -----------------------------------
 Our aim is provide a powerful and configurable Emacs mode which helps
@@ -69,12 +92,33 @@ Emacs Lisp (mainly regular expressions).  If you are using or
 designing another proof assistant, please try configuring Proof
 General for it, and let us know how you get on.
 
+
 To Emacs gurus:
 ---------------
 If you are an Emacs guru and want to contribute to the development of
 Proof General, please join in!  There are plenty of exciting avenues
 for improving this tool, for example, to add proof by pointing
 facilities (a basis already exists for LEGO), and a theory browser.
+
+Apart from proof assistants, script management makes sense for many
+other systems or languages with an interactive shell-like interpreter.
+We would be interested to hear from any Emacs developers interesting
+in using Proof General's script management for development in Lisp,
+SML, or other languages.
+
+
+To user-interface/theorem-proving researchers:
+---------------------------------------------- 
+Proof General provides a unified interface to different theorem
+provers.  The advantage is that a novice who understands the Proof
+General interface can inspect and replay proofs in any of the theorem
+provers supported, without knowing the specific commands needed to
+drive them.  An obvious avenue towards further and easier unification
+would be to invent a unified proof script (input) language and
+proof-state (output) language for theorem provers.  The Proof General
+experience could provide useful insight into such a project, and we'd
+be interested to hear from workers interested in collaborating in this
+area.
 
 
  -- David Aspinall & Thomas Kleymann
