@@ -18,7 +18,9 @@
        * and fix $WANTED.  Hrefs are given by page parameter to current doc.
        */
     $separator='<td><img src="images/bullethole.gif" width=15 height=15 align="top" alt=".">';
-    $WANTED=$HTTP_GET_VARS["page"];
+    $urlbits = parse_url($REQUEST_URI);
+    $file = ereg_replace("^(.*/)+","",$urlbits["path"]);
+    $WANTED = ereg_replace(".html","",$file);
     print "<table><tr>\n"; 
     $links_arr  =  array(
           "Home"          =>  "main", 
@@ -47,7 +49,7 @@
 	  print "<b>" . $name . "</b>";
 	  }
 	else {
-            link_root($links_arr[$name],$name);
+          print "<a href=\"$links_arr[$name]\">$name</a>";
 	}
         print " </td>\n";
         if ($name=="Download" || $name=="Documentation") print "</tr>\n<tr>";

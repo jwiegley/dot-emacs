@@ -17,16 +17,19 @@ You need a recent version in either case.
 The aim of the Proof General project is to provide a powerful and
 configurable interfaces which help user-interaction with interactive
 proof assistants.  The strategy of Proof General is to target power
-users rather than novices, but we include general user interface
-niceties, such as toolbar and menus, which make use easier for all.
+users rather than novices, building an environment for <i>proof
+engineering</i>.  But we include general user interface niceties, such
+as toolbar and menus, which make use easier for all.  Proof General is
+now used for organizing large proof developments, and for teaching
+interactive proof.
 <p>
 To read more about what Proof General
 provides, 
-<?php link_root("features","check the features list") ?>.
+<a href="features">check the features list</a>.
 To see what Proof General looks like in use, have a look at these
 <a href="screenshot.html">screenshots</a>.
 To download Proof General, visit the
-<?php link_root("download","download page") ?>.
+<a href="download">download page</a>.
 To contact the developers, click
 <?php hlink("feedback.html","here","Feedback form")?>.
 </p>
@@ -35,8 +38,7 @@ To contact the developers, click
 
 <h2>What systems does Proof General work with?</h2>
 <p>
-Proof General comes ready-customized for several proof assistants,
-including:
+Proof General comes ready-customized for these proof assistants:
 </p>
 
 <table width="90%">
@@ -122,11 +124,24 @@ including:
  </tr>
 </table>
 <p>
-There is also a preliminary version of 
-<b><?php fileshow("ProofGeneral/hol98/README","HOL Proof General"); ?></b>, for
-<a href="http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html">HOL98</a>.
-We are seeking a volunteer from the HOL community to support
-and improve this (perhaps also supporting other HOL variants).
+There are also <i>preliminary</i> instances of Proof General:
+<ul>
+<li><b><?php fileshow("ProofGeneral/hol98/README","HOL Proof General"); ?></b>,
+for <a href="http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html">HOL98</a>.
+</li>
+<li><b><?php fileshow("ProofGeneral/twelf/README","Twelf Proof General"); ?></b>,
+for <a href="http://www.twelf.org">Twelf</a>.
+</li>
+<li><b><?php fileshow("ProofGeneral/acl2/README","ACL2 Proof General"); ?></b>,
+for <a href="http://www.cs.utexas.edu/users/moore/acl2">ACL2</a>.
+</li>
+</ul>
+<p>
+These instances of Proof General are functional, but only show a bare
+fraction of the functionality possible.  We are
+seeking volunteers to support and improve each of these 
+(please <a href="feedback.html">send a note to 
+	<tt>feedback@proofgen.org</tt></a> if you're interested).
 </p>
 <p>
 Proof General is ready to be customized to new proof assistants.
