@@ -80,7 +80,8 @@ A Usability enhancement:
 A Usability enhancement:
    Add toolbar button for interrupting.
 
-
+B Web pages: improve screenshots section to include a slideshow, or
+  at least, a series of pictures of PG in action.  (3 hours)
 
 D bug: outline mode when proof-strict-read-only is nil ought to
   work, but there may be problems.
