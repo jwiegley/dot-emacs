@@ -17,7 +17,7 @@ Then make release as ~proofgen:
  mkdir oldbranch
  cd oldbranch
  cvs checkout -r Release-3-1-branch ProofGeneral
- make devel.releaseall VERSION=0.1 FULLVERSION=0.1.99
+ make devel.releaseall VERSION=3.1 FULLVERSION=3.1.99
 
 NB: See warning in Makefile.devel about this (it will
 downgrade web pages).
