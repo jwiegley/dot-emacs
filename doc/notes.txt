@@ -11,14 +11,13 @@ Suggestion for outline of improved documentation.
  mode, etc, but no buffer is directly in that mode, which is
  confusing to the users, at least!
  
- 1. Introduction
-	     Description
-	1.1 
+ 1. Introduction						[da]
+	1.1  Description
 	1.2  Feature list, xref'd to later chaps.
 	1.2  Supported Proof Assistants, xref'd too.
 	      Support for new instances, xref'd to later chaps.
 	
- 2. Basics of script management
+ 2. Basics of script management					[da]
         
 	2.1  What a proof script is
 	2.2  Locked region and queue region
@@ -27,55 +26,57 @@ Suggestion for outline of improved documentation.
         2.5  Other commands
 	2.4  Walkthrough example [maybe in appendix?]
 
- 3. Script management with multiple files
+ 3. Advanced script management					[tms]
         3.1  Proof General's view of processed files
 	3.2  Switching between proof scripts
-	3.2  Retracting across files
-	[ 3.3  Re-synchronizing with the proof assistant - if added ]
+	3.3  Retracting across files
+	3.4  Handy hints and tips  (e.g. C-c C-b stuff?)
+	3.5  Using the proof shell
+	[ 3.6  Re-synchronizing with the proof assistant - if added ]
 
- 5. Customizing Proof General
-	5.1  Setting user options, what they are:
+ 4. Customizing Proof General					[da]
+	4.1  Setting user options, what they are:
 	       proof-splash-inhibit
 	       etc.
-        5.2  Using proof assistant on another machine
-	5.3  Examining configuration settings (xref'd later)
+        4.2  Using proof assistant on another machine
+	4.3  Examining configuration settings (xref'd later)
 	
- 6. LEGO Proof General
-	6.1  LEGO commands
-	6.2  LEGO customizations
+ 5. LEGO Proof General						[tms]
+	5.1  LEGO commands
+	5.2  LEGO customizations
 	
- 7. Coq Proof General
-        7.1  Coq commands
-	7.2  Coq customizations
+ 6. Coq Proof General						[anon]
+        6.1  Coq commands
+	6.2  Coq customizations
 
- 8. Isabelle Proof General
-	8.1  Isabelle commands
-	8.2  Isabelle customizations
-	8.3  Notes about multiple files
+ 7. Isabelle Proof General					[da]
+	7.1  Isabelle commands
+	7.2  Isabelle customizations
+	7.3  Notes about multiple files
 
- 9. Adapting Proof General to New Provers
-	9.1  Files and directories.  Skeleton code.
-	9.2  Settings for proof scripts
-	9.3  Settings for proof shell
+ 8. Adapting Proof General to New Provers			[da]
+	8.1  Files and directories.  Skeleton code.
+	8.2  Settings for proof scripts
+	8.3  Settings for proof shell
 	     -- Special annotations
 	
- 10. Internals of Proof General.
-	10.1  Proof script mode:
+ 9. Internals of Proof General.					[tms]
+	9.1  Proof script mode:
 		- fontification hacks
 		- spans in locked region
-	10.2  Proof shell mode
+	9.2  Proof shell mode
 		- proof-action-list
 		- proof-shell-exec-loop
 		- proof-shell-output-filter
 		- eager annotations
 
- 11. Credits and history
+ 10. Credits and history					[done]
  
  APPENDIX
 
- A. Obtaining and installing the software
- B. Known bugs
- C. Future ideas and plans
+ A. Obtaining and installing the software			[da]
+ B. Known bugs							[tms]
+ C. Future ideas and plans					[da]
  
  
 ********
