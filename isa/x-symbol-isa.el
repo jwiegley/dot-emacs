@@ -207,17 +207,21 @@
 ;;;  useful key bindings
 ;;;===========================================================================
 
-(global-set-key [(meta l)] 'x-symbol-INSERT-lambda)
 
-(global-set-key [(meta n)] 'x-symbol-INSERT-notsign)
-(global-set-key [(meta a)] 'x-symbol-INSERT-logicaland)
-(global-set-key [(meta o)] 'x-symbol-INSERT-logicalor)
-(global-set-key [(meta f)] 'x-symbol-INSERT-universal1)
-(global-set-key [(meta t)] 'x-symbol-INSERT-existential1)
+;; FIXME: these break some standard bindings, and should only be set
+;; for proof shell, script (or minibuffer) modes.
 
-(global-set-key [(meta A)] 'x-symbol-INSERT-biglogicaland)
-(global-set-key [(meta e)] 'x-symbol-INSERT-equivalence)
-(global-set-key [(meta u)] 'x-symbol-INSERT-notequal)
-(global-set-key [(meta m)] 'x-symbol-INSERT-arrowdblright)
+;(global-set-key [(meta l)] 'x-symbol-INSERT-lambda)
 
-(global-set-key [(meta i)] 'x-symbol-INSERT-longarrowright)
+;(global-set-key [(meta n)] 'x-symbol-INSERT-notsign)
+;(global-set-key [(meta a)] 'x-symbol-INSERT-logicaland)
+;(global-set-key [(meta o)] 'x-symbol-INSERT-logicalor)
+;(global-set-key [(meta f)] 'x-symbol-INSERT-universal1)
+;(global-set-key [(meta t)] 'x-symbol-INSERT-existential1)
+
+;(global-set-key [(meta A)] 'x-symbol-INSERT-biglogicaland)
+;(global-set-key [(meta e)] 'x-symbol-INSERT-equivalence)
+;(global-set-key [(meta u)] 'x-symbol-INSERT-notequal)
+;(global-set-key [(meta m)] 'x-symbol-INSERT-arrowdblright)
+
+;(global-set-key [(meta i)] 'x-symbol-INSERT-longarrowright)
