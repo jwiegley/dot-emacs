@@ -92,7 +92,7 @@ elements = S0 S1 S2 .... [tl-seq.el]"
 (defun span-write-warning (span)
   "Give a warning message when SPAN is changed."
   (set-span-property span 'modification-hooks '(span-give-warning))
-  (set-span-property span 'modification-hooks '(span-give-warning)))
+  (set-span-property span 'insert-in-front-hooks '(span-give-warning)))
 
 (defun int-nil-lt (m n)
   (cond

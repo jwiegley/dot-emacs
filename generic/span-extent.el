@@ -51,6 +51,7 @@
   "Give a warning message when SPAN is changed."
   ;; FIXME: implement this in XEmacs, perhaps with after-change-functions
   ;;
+  (set-span-property span 'read-only nil)
   )
 
 (defsubst span-property (span name)

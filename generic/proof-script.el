@@ -191,13 +191,19 @@ buffer, so the locked region is made empty by this function."
   (set-span-property proof-locked-span 'face 'proof-locked-face)
   (detach-span proof-locked-span))
 
-(defsubst proof-lock-unlocked ()
-  "Make the locked region read only."
-  (proof-span-read-only proof-locked-span))
-
+;; These two functions are used in coq.el to edit the locked region
+;; (by lifting local (nested) lemmas out of a proof, to make them global).   
 (defsubst proof-unlock-locked ()
-  "Make the locked region read-write."
+  "Make the locked region writable.  
+Used in lisp programs for temporary editing of the locked region.
+See proof-lock-unlocked for the reverse operation."
   (span-read-write proof-locked-span))
+
+(defsubst proof-lock-unlocked ()
+  "Make the locked region read only (according to proof-strict-read-only).
+Used in lisp programs for temporary editing of the locked region.
+See proof-unlock-locked for the reverse operation."
+  (proof-span-read-only proof-locked-span))
 
 (defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END."
@@ -1271,9 +1277,9 @@ the proof script."
 ;; FIXME da: this could do with some tweaking.  Be careful to
 ;; avoid memory leaks.  If a buffer is killed and it's local
 ;; variables are, then so should all the spans which were allocated
-;; for that buffer.  Is this what happens?  Otherwise we should
-;; perhaps *delete* spans corresponding to the locked and
-;; queue regions as well as the others.
+;; for that buffer.  Is this what happens?  By garbage collection?
+;; Otherwise we should perhaps *delete* spans corresponding to 
+;; the locked and queue regions as well as the others.
 (defun proof-restart-buffers (buffers)
   "Remove all extents in BUFFERS and maybe reset `proof-script-buffer'.
 No effect on a buffer which is nil or killed.  If one of the buffers
@@ -1287,7 +1293,10 @@ will deactivated."
 	     (if proof-active-buffer-fake-minor-mode
 		 (setq proof-active-buffer-fake-minor-mode nil))
 	     (delete-spans (point-min) (point-max) 'type)
-	     (proof-detach-segments buffer)))
+	     (proof-detach-segments buffer)
+	     ;; 29.9.99. Added next line to allow useful toggling
+	     ;; of strict-read-only during a session.
+	     (proof-init-segmentation)))
        (if (eq buffer proof-script-buffer)
 	   (setq proof-script-buffer nil))))
    buffers))
