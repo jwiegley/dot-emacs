@@ -203,7 +203,7 @@
   "Regexp matching any Isabelle/Isar command keyword.")
 
 (defconst isar-name-regexp
-  (concat "\\s-*\\(?:" isar-string "\\|" isar-id "\\)\\s-*")
+  (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
   "Regexp matching Isabelle/Isar names, with contents grouped.")
 
 (defconst isar-tac-regexp
@@ -233,8 +233,12 @@
 
 ;; antiquotations
 
+;; the \{0,10\} bound is there because otherwise font-lock sometimes hangs for
+;; incomplete antiquotations like @{text bla"} (even though it is supposed to
+;; stop at eol anyway). 
+
 (defconst isar-antiq-regexp
-  (concat "@{\\(?:[^\"{}]+\\|" isar-string "\\)*}")
+  (concat "@{\\(?:[^\"{}]+\\|" isar-string "\\)\\{0,10\\}}")
   "Regexp matching Isabelle/Isar antiquoations.")
 
 
