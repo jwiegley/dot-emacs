@@ -363,7 +363,7 @@ isa-proofscript-mode."
 			(setq i (+ 1 i))))
 		     (t nil))))
 	(setq span (next-span span 'type)))
-      (concat "choplev " (int-to-string ct) proof-terminal-string))))
+      (concat "ProofGeneral.repeat_undo " (int-to-string ct) proof-terminal-string))))
 
 (defun isa-goal-command-p (str)
   "Decide whether argument is a goal or not"

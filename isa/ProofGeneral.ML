@@ -21,6 +21,7 @@ sig
    val help : unit -> unit
    val show_context : unit -> unit
    val retract_file : string -> unit
+   val repeat_undo : int -> unit
 end
 
 structure ProofGeneral =
@@ -61,7 +62,10 @@ structure ProofGeneral =
 	 (show_msgs thy; map retract_file (children_loaded thy); ())
        else ()
    end;
-  end;
+
+   fun repeat_undo 0 = ()
+     | repeat_undo n = (undo(); repeat_undo (n-1));
+ end;
 
 fun remove_mlfile_fromdb thy =
   let val tinfo =  case Symtab.lookup (!loaded_thys, thy) of
@@ -123,12 +127,14 @@ in
        error_fn := (fn s => out (prefix_suffix_lines "*** " s "")))
 end;
 
+      
+
 
 (* add markup to proof state output *)
 
-val proof_state_special_prefix="\248";
-val proof_state_special_suffix="\249";
-val goal_start_special="\253";
+val proof_state_special_prefix="\248";  (* \370 octal *)
+val proof_state_special_suffix="\249";  (* \371 *)
+val goal_start_special="\253";	        (* \375 *)
 
 current_goals_markers:=(proof_state_special_prefix,
 			proof_state_special_suffix,
