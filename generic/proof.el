@@ -400,11 +400,16 @@ The warning is coloured with proof-warning-face."
     (proof-response-buffer-display (apply 'concat args) 'proof-warning-face)
     (proof-display-and-keep-buffer proof-response-buffer))
 
-(defmacro proof-debug (&rest args)
+;; could be a macro for efficiency in compiled code
+(defun proof-debug (&rest args)
   "Issue the debugging messages ARGS in the response buffer, display it.
 If proof-show-debug-messages is nil, do nothing."
   (if proof-show-debug-messages
-      `(proof-warning ,@args)))
+      (progn
+	(proof-response-buffer-display (apply 'concat args) 
+				       'proof-debug-message-face)
+	(proof-display-and-keep-buffer proof-response-buffer))))
+
 
 
 

@@ -468,7 +468,17 @@ Warning messages can come from proof assistant or from Proof General itself."
      (:background "darkgoldenrod"))
     (t				
      (:italic t)))
-  "*Face for messages from proof assistant."
+  "*Face for important messages from proof assistant."
+  :group 'proof-faces)
+
+(defface proof-debug-message-face
+  '((((type x) (class color) (background light))   
+     (:foreground "Gray65"))
+    (((type x) (class color) (background dark))   
+     (:background "Gray30"))
+    (t				
+     (:italic t)))
+  "*Face for debugging messages from Proof General."
   :group 'proof-faces)
 
 
@@ -1309,8 +1319,16 @@ into tokens for the proof assistant."
 
 (defcustom proof-pre-shell-start-hook nil
   "Hooks run before proof shell is started.
-Suggestion: set this to a function which configures the proof shell
-variables."
+Suggestion: set this to a function which configures just these proof
+shell variables: 
+
+   proof-prog-name
+   proof-mode-for-shell
+   proof-mode-for-response
+   proof-mode-for-pbp
+
+This is the bare minimum needed to get a shell buffer and
+its friends configured in the function proof-shell-start."
   :type '(repeat function)
   :group 'proof-shell)
 
@@ -1537,12 +1555,20 @@ tokens (for example, editing documentation or source code files)."
   :type 'sexp
   :group 'proof-x-symbol)
 
+(defcustom proof-xsym-activate-command nil
+  "Command to activate token input/output for X-Symbol.
+If non-nil, this command is sent to the proof assistant when 
+X-Symbol support is activated."
+  :type 'string
+  :group 'proof-x-symbol)
+
 (defcustom proof-xsym-deactivate-command nil
   "Command to deactivate token input/output for X-Symbol.
 If non-nil, this command is sent to the proof assistant when 
 X-Symbol support is deactivated."
   :type 'string
   :group 'proof-x-symbol)
+
 
 
 
