@@ -177,6 +177,7 @@
 (defconst isar-keywords-proof-decl
   '("also"
     "let"
+    "moreover"
     "note"
     "sect"
     "subsect"
