@@ -32,6 +32,10 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to in the generic interface
 
+*** C Fix byte compilation
+      Problem with proof-ass macro mechanism -- gets expanded during
+      compilation.
+
 *** C The PG isabelle-completion-table seems to be subject to case-fold, which
       it shouldn't be: \<sqinter> does not work, but \<Sqinter> is OK.
 
