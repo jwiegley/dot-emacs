@@ -5,6 +5,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.4  1998/06/10 14:01:48  hhg
+;; Wrote generic span functions for making spans read-only or read-write.
+;;
 ;; Revision 1.3  1998/06/02 15:36:44  hhg
 ;; Corrected comment about this being for xemacs.
 ;;
@@ -32,6 +35,12 @@
 
 (defsubst set-span-end (span value)
   (set-extent-endpoints span (extent-start-position span) value))
+
+(defsubst span-read-only (span)
+  (set-span-property span 'read-only t))
+
+(defsubst span-read-write (span)
+  (set-span-property span 'read-only nil))
 
 (defsubst span-property (span name)
   (extent-property span name))
