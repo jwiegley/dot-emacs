@@ -5,7 +5,7 @@
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; The X-Symbol package is currently available at
-;; http://www.fmi.uni-passau.de/~wedler/x-symbol
+;; http://x-symbol.sourceforge.net/
 ;;
 ;; With thanks to David von Oheimb for providing the original 
 ;; patches for using X-Symbol with Isabelle Proof General, 
@@ -51,7 +51,7 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	     (not (proof-try-require 'x-symbol)))
 	(funcall error-or-warn
  "Proof General: x-symbol package must be installed for x-symbol-support!
-The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
+The package is available at http://x-symbol.sourceforge.net/"))
        ((not window-system)
 	(funcall error-or-warn 
  "Proof General: x-symbol package only runs under a window system!"))
