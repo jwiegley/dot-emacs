@@ -181,13 +181,6 @@
   (proof-ids-to-regexp isa-keywords-proof-commands)
   "Regexp to match proof commands, with no extra output (apart from proof state)")
 
-(defconst isa-verbatim-regexp "^\^VERBATIM: \\(.*\\)"
-  "Regexp matching internal marker for verbatim command output")
-
-(defun isa-verbatim (str)
-  "Mark internal command for verbatim output"
-  (concat "\^VERBATIM: " str))
-
 
 ;; ----- Isabelle inner syntax hilite
 
