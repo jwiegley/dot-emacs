@@ -740,7 +740,7 @@ to allow other files loaded by proof assistants to be marked read-only."
       (if (< (proof-unprocessed-begin) (proof-script-end))
 	(let ((span (make-span (proof-unprocessed-begin)
 			       (proof-script-end)))
-	      cmd)
+	      dummycmd)
 	  ;; Reset queue and locked regions.
 	  (proof-init-segmentation)
 	  ;; End of locked region is always end of buffer
@@ -749,7 +749,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  (set-span-property span 'type 'proverproc)
 	  ;; A dummy command for retraction which examines it
 	  ;; FIXME: shouldn't be necessary really
-	  (set-span-property span 'cmd "")
+	  (set-span-property span 'dummycmd "")
 	  (pg-set-span-helphighlights span 'nohighlight))))))
 
 
@@ -2004,7 +2004,7 @@ Assumes that point is at the end of a command."
 	  (p (point)))
       (if proof-script-command-separator
 	  (insert proof-script-command-separator)
-	(insert-char ?\ newspace)
+	(insert-char ?\040  newspace)
 	(goto-char p)))))
 
 (defun proof-script-next-command-advance ()
