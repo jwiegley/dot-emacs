@@ -6,7 +6,10 @@
 ;;
 
 (defvar x-symbol-coq-symbol-table 
-  '((longarrowright () "->"  "\\<longrightarrow>")
+  '((perpendicular  () "False"  "\\<bottom>")
+    (top            () "True"   "\\<top>")
+    (notsign       () "~"       "\\<not>")
+    (longarrowright () "->"  "\\<longrightarrow>")
     (logicaland     () "/\\" "\\<and>")
     (logicalor      () "\\/" "\\<or>")
     (equivalence    () "<->" "\\<equiv>")
@@ -58,7 +61,15 @@
 (defvar x-symbol-coq-electric-ignore nil)
 (defvar x-symbol-coq-required-fonts nil)
 (defvar x-symbol-coq-case-insensitive nil)
-(defvar x-symbol-coq-token-shape nil)
+
+;Pierre: let's try this, phi1 will be encoded, but not phia or
+;philosophy. problem: blaphi will be encoded, other problem: false1
+;sholud not be encoded (this on eshould be easy:
+;x-symbol-coq-token-shape is a list)
+
+(defvar x-symbol-coq-token-shape '(?_ "[A-Za-z]+" . "[^0-9\ \t\n]"))
+;(defvar x-symbol-coq-token-shape nil)
+
 (defvar x-symbol-coq-table x-symbol-coq-symbol-table)
 (defun x-symbol-coq-default-token-list (tokens) tokens)
 (defvar x-symbol-coq-token-list 'x-symbol-coq-default-token-list)
