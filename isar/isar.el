@@ -172,8 +172,9 @@
    ;; script buffer.
    proof-save-command-regexp    isar-save-command-regexp
    proof-goal-command-regexp    isar-goal-command-regexp
-   proof-goal-with-hole-regexp  isar-goal-with-hole-regexp
-   proof-save-with-hole-regexp  isar-save-with-hole-regexp
+   proof-goal-with-hole-regexp  nil
+   proof-save-with-hole-regexp  nil
+   proof-script-next-entity-regexps isar-next-entity-regexps
 
    proof-indent-enclose-offset  (- proof-indent)
    proof-indent-open-offset     0

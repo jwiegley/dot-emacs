@@ -92,6 +92,12 @@
 	  isar-keywords-theory-heading
 	  isar-keywords-theory-goal))
 
+(defconst isar-keywords-fume
+  (append isar-keywords-theory-begin
+	  isar-keywords-theory-heading
+	  isar-keywords-theory-decl
+	  isar-keywords-theory-goal))
+
 (defconst isar-keywords-indent-open
   (append isar-keywords-theory-goal
 	  isar-keywords-proof-goal
@@ -142,17 +148,11 @@
 (defconst isar-global-save-command-regexp
   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-qed-global)))
 
-(defconst isar-save-with-hole-regexp proof-no-regexp)
-
 (defconst isar-goal-command-regexp
   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-goal)))
 
 (defconst isar-local-goal-command-regexp
   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-local-goal)))
-
-(defconst isar-goal-with-hole-regexp
-  (concat "\\(" (isar-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
-  "Regexp matching goal commands in Isabelle/Isar which name a theorem")
 
 (defconst isar-comment-start "(*")
 (defconst isar-comment-end "*)")
@@ -318,6 +318,25 @@
 
 (defconst isar-undo-kill-regexp
   (proof-anchor-regexp (isar-ids-to-regexp isar-keywords-theory-switch)))
+
+
+;; ----- function-menu
+
+(defconst isar-any-entity-regexp
+  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
+	  "\\(" isar-name-regexp "[[:=]\\)?"))
+
+(defconst isar-named-entity-regexp
+  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
+	  isar-name-regexp "[[:=]"))
+
+(defconst isar-unnamed-entity-regexp
+  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"))
+
+(defconst isar-next-entity-regexps
+  (list isar-any-entity-regexp
+	(list isar-named-entity-regexp '(1 2))
+	(list isar-unnamed-entity-regexp 1)))
 
 
 ;; ----- indentation
