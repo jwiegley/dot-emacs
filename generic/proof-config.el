@@ -383,7 +383,7 @@ Suggestion: this can be set in the script mode configuration."
 
 (defcustom proof-goal-command nil
   "Command to set a goal in the proof assistant.  String or fn.
-If a string, the format character %s will be replaced by the
+If a string, the format character `%s' will be replaced by the
 goal string. If a function, should return a command string to
 insert when called interactively."
   :type '(choice string function)
@@ -391,7 +391,7 @@ insert when called interactively."
 
 (defcustom proof-save-command nil
   "Command to save a proved theorem in the proof assistant.  String or fn.
-If a string, the format character %s will be replaced by the
+If a string, the format character `%s' will be replaced by the
 theorem name. If a function, should return a command string to
 insert when called interactively."
   :type '(choice string function)
@@ -459,7 +459,7 @@ func-menu configuration in proof-script-find-next-goalsave."
   :group 'proof-script)
 
 (defcustom proof-script-next-entity-regexps nil
-  "Regular expressions to control finding definitions in script.
+  "Regular expressions to help find definitions and proofs in a script.
 This is the list of the form
 
    (ANYENTITY-REGEXP
@@ -806,15 +806,14 @@ The default value is \"\\n\" to match up to the end of the line."
 Can be used to configure the proof assistant to the interface in
 various ways -- for example, to observe or alter the commands sent to
 the prover, or to sneak in extra commands to configure the 
-prover (e.g. setting the pretty printer's line width if a window 
-width size has changed).
+prover (LEGO uses this to set the pretty printer's line width if 
+the window width has changed).
 
-This hook is called by proof-shell-insert.  The call takes place
-inside a save-excursion with the proof-shell-buffer current, just
-before inserting the text in the variable STRING.  The hook can
-massage STRING or insert additional text directly into the
-proof-shell-buffer.  Before sending STRING, it will be stripped of
-carriage returns.
+This hook is called inside a save-excursion with the proof-shell-buffer 
+current, just before inserting and sending the text in the 
+variable STRING.  The hook can massage STRING or insert additional 
+text directly into the proof-shell-buffer.  
+Before sending STRING, it will be stripped of carriage returns.
 
 NB: You should be very careful about setting this hook.  Proof General
 relies on a careful synchronization with the process between inputs
@@ -913,7 +912,7 @@ output format."
   :prefix "pbp-")
 
 (defcustom pbp-change-goal nil
-  "Command to change to the goal %s"
+  "Command to change to the goal `%s'"
   :type 'string
   :group 'proof-goals)
 
