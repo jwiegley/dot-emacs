@@ -15,6 +15,12 @@
   :type 'string
   :group 'coq)
 
+(defcustom coq-compile-command "coqc %s"
+  "*Command to compile a coq file.
+This is called when `coq-auto-compile-vos' is set."
+  :type 'string
+  :group 'coq)
+
 ;; Command to initialize the Coq Proof Assistant
 
 (defcustom coq-default-undo-limit 100
@@ -39,12 +45,19 @@
   "Reset Initial.\n Implicit Arguments Off. ")
 
 
-(defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
+;; NB: da: PG 3.5: added \n here to account for blank line
+;; in Coq output.  (FIXME: Is this OK in Coq pre 8.x?)
+;; Better result for shrinking windows, grabbing shell output
+(defvar coq-shell-prompt-pattern (concat "^\n?" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
-(defvar coq-shell-cd "Cd \"%s\". "
-  "*Command of the inferior process to change the directory.") 
+;; da: 3.5: add experimetntal
+(defvar coq-shell-cd 
+  (if coq-version-is-V8 
+      "Add LoadPath \"%s\"." ;; fixes unadorned Require (if .vo exists).
+    "Cd \"%s\"")
+  "*Command of the inferior process to change the directory.")
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
   "*Regexp indicating that the current goal has been abandoned.")
@@ -434,6 +447,18 @@ This is specific to coq-mode."
     (proof-shell-invisible-command
      (format "Show %s. " cmd))))
 
+
+(proof-definvisible coq-PrintHint "Print Hint. ")
+
+;; Items on show menu
+(proof-definvisible coq-show-tree "Show Tree.")
+(proof-definvisible coq-show-proof "Show Proof.")
+(proof-definvisible coq-show-conjectures "Show Conjectures.")
+(proof-definvisible coq-show-intros "Show Intros.")
+;; Coq ref manual says of show intro: "with an appropriate Proof General macro"... can 
+;; we have it to add to PG, please?
+
+
 (defun coq-PrintHint ()
   "Print all hints applicable to the current goal"
   (interactive)
@@ -465,10 +490,24 @@ This is specific to coq-mode."
 	 (l (string-match ".v" n)))
     (compile (concat "make " (substring n 0 l) ".vo"))))
 
-(proof-defshortcut coq-Intros        "Intros "  [(control ?i)])
-(proof-defshortcut coq-Apply         "Apply "   [(control ?a)])
-;(proof-defshortcut coq-begin-Section "Section " [(control ?s)])
+(defun coq-intros ()
+  "Insert successive Intros commands with names given by Show Intros.
+Based on idea mentioned in Coq reference manual."
+  (interactive)
+  (let* ((shints  (proof-shell-invisible-cmd-get-result 
+                   "Show Intros."))
+         (intros  (replace-in-string shints "^\\([^\n]+\\)\n" "intros \\1.\n")))
+    (proof-goto-end-of-locked)
+    (unless (< (length shints) 2)       ;; empty response is just NL
+      (newline)
+      (let ((start (point)))
+        (insert intros)
+        (indent-region start (point) nil)))))
 
+(proof-defshortcut coq-Apply         "Apply "   [(control ?a)])
+
+;(proof-defshortcut coq-begin-Section "Section " [(control ?s)])
+(define-key coq-keymap [(control ?i)] 'coq-intros)
 (define-key coq-keymap [(control ?s)] 'coq-insert-section)
 (define-key coq-keymap [(control ?m)] 'coq-insert-module)
 (define-key coq-keymap [(control ?e)] 'coq-end-Section)
@@ -483,8 +522,9 @@ This is specific to coq-mode."
 ;;(define-key coq-keymap [(control f3)] 'coq-three-b)
 
 ; This is arguable, but completion with a three key shortcut is bad, 
-; and the feault meta-/ is bad on some keyboards (especially french ones)
+; and the default meta-/ is bad on some keyboards (especially french ones)
 (define-key global-map [(control backspace)] 'expand-abbrev)
+;; da: do you also want a key for unexpand-abbrev?  (maybe just undo is ok)
 
 
 
@@ -565,11 +605,11 @@ This is specific to coq-mode."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-pre-shell-start ()
-  (setq proof-prog-name coq-prog-name)
+  (setq proof-prog-name (concat coq-prog-name
+                                (if coq-translate-to-v8 " -translate")))
   (setq proof-mode-for-shell    'coq-shell-mode)
   (setq proof-mode-for-goals    'coq-goals-mode)
-  (setq proof-mode-for-response 'coq-response-mode)
-)
+  (setq proof-mode-for-response 'coq-response-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
@@ -629,87 +669,10 @@ This is specific to coq-mode."
 ;   proof-indent-enclose-regexp  coq-indent-enclose-regexp
    proof-indent-open-regexp     coq-indent-open-regexp
    proof-indent-close-regexp    coq-indent-close-regexp
-)
-
+   )
 
   ;; span menu 
   (setq proof-script-span-context-menu-extensions 'coq-create-span-menu)
-
-
-  ;; (setq proof-auto-multiple-files t)	; until Coq has real support
-  ;; da: Experimental support for multiple files based on discussions
-  ;; at TYPES 2000. 
-  ;; (Pierre, please fix this as Coq users would like, and for Coq V7 !)
-  (setq coq-proof-shell-inform-file-processed-cmd
-	"Reset Initial. Compile Module %m. ")
-  ;; FIXME da: Coq is rather quiet when reading files with "Load <foo>."
-  ;; and sometimes even Require seems quiet?  PG would like some guarantees
-  ;; that messages are issued.  Also, the code to guess the complete file
-  ;; name is flaky, would be better if Coq displayed full path info for PG.
-  (setq coq-proof-shell-process-file 
-	;; FIXME da: Coq output Reinterning message should not
-	;; be suppressed by "Begin Silent" for PG, and should be
-	;; marked by eager annotation (special char).
-	;; For Coq 7, we should get rid of 8 bit chars in PG, too.
-	(cons "Reinterning \\(.+\\)\\.\\.\\.done"
-	      (lambda (str)
-		(let*
-		    ((modname (match-string 1 str))
-		     ;; FIXME: next lines will return a directory but maybe
-		     ;; not right one if proof-script-buffer happens to be nil!
-		     (buf     (or proof-script-buffer
-				  proof-previous-script-buffer))
-		     (dir     (if (buffer-live-p buf)
-				  (with-current-buffer buf
-				    default-directory)
-				;; This next guess is pretty hopeless.
-				default-directory)))
-		  (message "%s%s.v" dir modname)
-		  (format "%s%s.v" dir modname)))))
-
-  ;; FIXME da: coq-proof-shell-inform-file-retracted-cmd, etc, need
-  ;; defvars somewhere to avoid compiler warnings (or TBD: easy-config)
-  (setq coq-proof-shell-inform-file-retracted-cmd
-	;; da: This is a HORRIBLE fragile hack!  Instead of issuing a
-	;; command to the prover we have to run a "coqdep" command to
-	;; find out the dependencies.
-	(lambda (fname) 
-	  (let*
-	      ;; Assume buffer is in correct directory, assume current directory
-	      ;; is writeable, assume we have GNU make, etc, etc.  
-	      ;; I hope Coq V7 will provide this operation for us as
-	      ;; a builtin (it should print out a series of messages which
-	      ;; are matched by proof-shell-retract-files-regexp, one for
-	      ;; each dependency).
-	      ;; [In fact, I think this is what should happen when 
-	      ;; Require is undone]
-	      ((depstr 
-		(substring (shell-command-to-string
-			    (concat
-			     "coqdep *.v | grep " 
-			     (file-name-nondirectory 
-			      (file-name-sans-extension fname)) ".v"
-			      " | awk '{print $1}' | sed 's/.vo:/.v/'")) 0 -1))
-	       (deps (split-string depstr))
-               (current-included proof-included-files-list))
-		;; Now hack the proof-included-files-list to remove the
-		;; dependencies of the retracted file and remove the 
-		;; locked regions
-		;; FIXME: this is too low-level delving in PG. Should
-		;; do with proof-shell-retract-files-regexp really.
-	        (mapcar (lambda (dep) 
-		   (setq proof-included-files-list 
-			   (delete (file-truename dep) 
-				    proof-included-files-list)))
-	           deps)
-		(proof-restart-buffers
-		 (proof-files-to-buffers
-		  (set-difference current-included
-			  proof-included-files-list)))
-		;; Return a comment thingy inserted into the shell
-		;; buffer to help debugging.
-		(format "Print (* Proof General ran coqdep command for %s, result: %s.  Removed files: %s *)" fname depstr deps))))
-
 
   ;;Coq V7 changes this 
   (setq proof-shell-start-silent-cmd 
@@ -721,32 +684,38 @@ This is specific to coq-mode."
 
   (coq-init-syntax-table)
 
-;; font-lock
-
+  ;; font-lock
   (setq font-lock-keywords coq-font-lock-keywords-1)
 
   (proof-config-done)
 
-;; outline
-  
+  ;; outline
   (make-local-variable 'outline-regexp)
   (setq outline-regexp coq-outline-regexp)
 
   (make-local-variable 'outline-heading-end-regexp)
   (setq outline-heading-end-regexp coq-outline-heading-end-regexp)
 
-;; tags
+  ;; tags
   (and (boundp 'tag-table-alist)
        (setq tag-table-alist
-	     (append '(("\\.v$" . coq-tags)
-		       ("coq"  . coq-tags))
-		     tag-table-alist)))
+             (append '(("\\.v$" . coq-tags)
+                       ("coq"  . coq-tags))
+                     tag-table-alist)))
 
   (setq blink-matching-paren-dont-ignore-comments t)
 
-;; hooks and callbacks
-  
-  (add-hook 'proof-pre-shell-start-hook 'coq-pre-shell-start nil t))
+  ;; multiple file handling
+  (setq proof-cannot-reopen-processed-files t
+        proof-shell-inform-file-retracted-cmd 'coq-retract-file)
+
+  ;; hooks and callbacks
+  (add-hook 'proof-pre-shell-start-hook 'coq-pre-shell-start nil t)
+  ;; FIXME: PG 3.5, next one shouldn't be needed but setting is
+  ;; now lost in define-derived-mode for some reason.
+  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)
+  (add-hook 'proof-activate-scripting-hook 'coq-maybe-remove-vo nil t)
+  (add-hook 'proof-deactivate-scripting-hook 'coq-maybe-compile-buffer nil t))
   
 
 
@@ -802,39 +771,186 @@ This is specific to coq-mode."
    (proof-response-config-done))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Multiple file handling
+;;
+;; This is an imperfect attempt.  It really needs prover assistance!
+;;
+;; Experimental support for multiple files was first added 
+;; for Coq 6.X based on discussions at TYPES 2000 between DA and PC.
+;; Updated and simplified for Coq 8, PG 3.5 (22.04.04) by DA.
+
+;; First note that coq-shell-cd is sent whenever we activate scripting, 
+;; for V8 it extends the loadpath with the current directory.
+
+;; When scripting is turned on, we delete the corresponding .vo file
+;; in anticipation of the file being outdated.
+(defun coq-maybe-remove-vo ()
+  "If `coq-auto-compile-vos' is non-nil, delete current buffer's .vo.
+This is a value for the `proof-activate-scripting-hook'."
+  (if (and coq-auto-compile-vos
+           buffer-file-name
+           (file-exists-p (concat buffer-file-name "o")))
+      (delete-file (concat buffer-file-name "o"))))
+
+;; When scripting is turned off, we compile the file to update the .vo.
+(defun coq-maybe-compile-buffer ()
+  "If the current buffer is completely processed, maybe compile it.
+The attempt is made if `coq-auto-compile-vos' is non-nil.
+This is a value for the `proof-deactivate-scripting-hook'."
+  (if (and coq-auto-compile-vos
+           (proof-locked-region-full-p)
+           buffer-file-name)
+      (progn
+        ;; FIXME: in PG 4, this next step will be done inside
+        ;; proof-register-possibly-new-processed-file.
+        (ignore-errors 
+          (proof-save-some-buffers (list buffer)))
+        (message "Compiling %s..." buffer-file-name)
+        (shell-command 
+         (format coq-compile-command buffer-file-name)))))
+
+
+;; Dependency management 1: when a buffer is retracted, we also
+;; need to retract any children buffers.
+;; To do that, we run coqdep on each of the processed files, 
+;; and see whether the buffer being retracted is an ancestor.
+
+(defun coq-v-of-vo (filename)
+  (concat (file-name-sans-extension filename) ".v"))
+
+(defun coq-ancestors-of (filename)
+  "Return ancestor .v files of RFILENAME.
+This is based on the output of coqtop FILENAME.
+Currently this doesn't take the loadpath into account."
+  ;; FIXME: is there any way to bring in the load path here in coqdep?
+  ;; We might use Coq's "Locate File string." command to help.
+  (let* ((filedir   (file-name-directory filename))
+         (cdline    (shell-command-to-string 
+                     (format "coqdep -I %s %s" filedir filename)))
+         (matchdeps (string-match ": \\(.*\\)$" cdline))
+         (deps      (and matchdeps
+                         (split-string (match-string 1 cdline)))))
+    (mapcar 
+     ;; normalise to include directories, defaulting
+     ;; to same dir.  Change .vo -> v
+     (lambda (file)
+       (concat 
+        (if (file-name-directory file) "" filedir)
+        (file-name-sans-extension file) ".v"))
+     ;; first dep is vacuous: file itself
+     (cdr-safe deps))))
+
+
+;; FIXME: memoise here
+;; FIXME: end up with duplicates
+(defun coq-all-ancestors-of (filename)
+  "Return transitive closure of `coq-ancestors-of'."
+  (let ((ancs   (coq-ancestors-of filename))
+        all)
+    (dolist (anc ancs)
+      (setq all (union (cons anc
+                             (coq-all-ancestors-of anc))
+                       all)))
+    all))
+
+(defun coq-included-children (filename)
+  "Return a list of children of FILENAME on `proof-included-files-list'."
+  (let (children)
+    (dolist (incf proof-included-files-list)
+      ;; Compute all ancestors transitively: could be expensive
+      ;; if we have a lot of included files with many ancestors.
+      (let ((ancestors (coq-all-ancestors-of incf)))
+        (if (member filename ancestors)
+            (setq children (cons incf children)))))
+    children))
+
+
+;; Dependency management 2: when a "Require " is executed,
+;; PG should lock all files whose .vo's are loaded.
+;; This would be easy if Coq would output some handy
+;; messages tracking dependencies in .vo's.  
+;; But it doesn't.
+;; FIXME: to do this we'll need to watch the
+;; Require commands ourselves, and then *lock* their
+;; ancestors. TBD.
+
+(defun coq-process-file (rfilename)
+  "Adjust the value of `proof-included-files-list' when processing RFILENAME."
+  (if coq-auto-compile-vos
+      (progn
+        (add-to-list proof-included-files-list rfilename)
+        ;; recursively call on ancestors: we hope coqdep doesn't give loop!
+        (coq-process-file (coq-ancestors-of rfilename)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Flags and other settings for Coq.
+;; These appear on the Coq -> Setting menu.
 ;;
-
-;; da: neither of these work very well.
-;; I think "time" must just be for special search isos top level,
-;; and "Focus" on works during a proof, so sending the setting
-;; at the start of a session is wrong.
-
-;(defpacustom time-search-isos  nil
-;  "Whether to display timing of SearchIsos in Coq."
-;  :type 'boolean
-;  :setting ("Time. " . "Untime. "))
 
 (defpacustom print-only-first-subgoal  nil
   "Whether to just print the first subgoal in Coq."
   :type 'boolean
   :setting ("Focus. " . "Unfocus. "))
 
+(defpacustom print-fully-explicit nil
+  "*Print fully explicit terms."
+  :type 'boolean
+  :setting ("Set Printing All." . "Unset Printing All."))
+
+(defpacustom print-coercions nil
+  "*Print coercions."
+  :type 'boolean
+  :setting ("Set Printing Coercions." . "Unset Printing Coercions."))
+
+(defpacustom print-match-wildcards t
+  "*Print underscores for unused variables in matches."
+  :type 'boolean
+  :setting ("Set Printing Coercions." . "Unset Printing Coercions."))
+
+
+(defpacustom time-commands nil
+  "*Whether to display timing information for each command."
+  :type 'boolean)
+
 (defpacustom auto-compile-vos nil
   "Whether to automatically compile vos and track dependencies."
   :type 'boolean
   :eval (if coq-auto-compile-vos
-            (setq proof-shell-inform-file-processed-cmd 
-                  coq-proof-shell-inform-file-processed-cmd
-                  proof-shell-process-file
+            (setq proof-shell-process-file
                   coq-proof-shell-process-file
                   proof-shell-inform-file-retracted-cmd
                   coq-proof-shell-inform-file-retracted-cmd)
           (setq proof-shell-inform-file-processed-cmd nil
                 proof-shell-process-file nil
                 proof-shell-inform-file-retracted-cmd nil)))
+
+;; da: what a shame -translate is a command line flag and not a
+;; command in Coq. Otherwise we could enable/disable interactively.  
+;; As it is, this setting will only work between restarts.
+;; Moreover, if we had collaborated on this we could easily have
+;; implemented a hook to translate automatically in PG with some
+;; extra markup.  Scanning the whitespace as formatted presently 
+;; is messy.
+
+(defpacustom translate-to-v8 nil
+  "*Whether to use -translate argument to Coq"
+  :type 'boolean)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Pre-processing of input string  (PG 3.5)
+;;
+
+(defun coq-preprocessing () ;; NB: dynamic scoping of `string'
+  (cond
+   (coq-time-commands
+    (setq string (concat "Time " string)))))
+      
+(add-hook 'proof-shell-insert-hook 'coq-preprocessing)
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
