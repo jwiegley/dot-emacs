@@ -31,8 +31,6 @@ Plans for upcoming 3.x versions
   point-and-click in goals buffer.  Useful when pbp isn't supported.
   [Now partially implemented in 3.2pre]
 
-* Make an XEmacs package
-
 * Support more proof assistants
 
 * A more flexible way of choosing which instance of PG we want,
@@ -44,6 +42,8 @@ Plans for upcoming 3.x versions
 
 Plans for later versions
 ------------------------
+
+* Make an XEmacs package
 
 * Queue manipulation improvment: allow to extend or reduce
   during processing, with fewer "Proof Process Busy" messages.  
