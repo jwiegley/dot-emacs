@@ -445,24 +445,24 @@ command line options.  For an example, see coq/coq.el."
 (defcustom proof-goal-command nil
   "Command to set a goal in the proof assistant.  String or fn.
 If a string, the format character `%s' will be replaced by the
-goal string. If a function, should return a command string to
-insert when called interactively."
+goal string. 
+If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
 (defcustom proof-save-command nil
   "Command to save a proved theorem in the proof assistant.  String or fn.
 If a string, the format character `%s' will be replaced by the
-theorem name. If a function, should return a command string to
-insert when called interactively."
+theorem name. 
+If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
 (defcustom proof-find-theorems-command nil
   "Command to search for a theorem containing a given constant. String or fn.
 If a string, the format character `%s' will be replaced by the
-constant name. If a function, should return a command string to
-insert when called interactively."
+constant name.
+If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
