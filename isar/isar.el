@@ -73,14 +73,8 @@
 
 ;; ===== outline mode
 
-(defcustom isar-keywords-section
-  '("chapter" "section" "subsection" "subsubsection" "text")
-  "Isabelle/Isar section headings"
-  :group 'isar-syntax
-  :type '(repeat string))
-
 (defcustom isar-outline-regexp
-  (proof-ids-to-regexp (append isar-keywords-goal isar-keywords-section))
+  (proof-ids-to-regexp (append isar-keywords-theory-heading isar-keywords-theory-goal))
   "Outline regexp for Isabelle/Isar documents"
   :type 'regexp
   :group 'isabelle-isar-config)
@@ -102,8 +96,6 @@
 	 '(outline-mac-style t))
 	(outl-mouse-minor-mode))
     (outline-minor-mode)))
-
-(defvar isar-undo "undo")
 
 
 ;;; NB!  Disadvantage of *not* shadowing variables is that user
@@ -132,9 +124,10 @@
    proof-save-command		"qed"
    proof-ctxt-string		"print_theory"
    proof-help-string		"help"
-   proof-kill-goal-command	"kill_proof"
+   proof-kill-goal-command	"kill_proof;"
    ;; command hooks
    proof-goal-command-p		'isar-goal-command-p
+   proof-global-save-command-p	'isar-global-save-command-p
    proof-count-undos-fn		'isar-count-undos
    proof-find-and-forget-fn	'isar-find-and-forget
    proof-goal-hyp-fn		'isar-goal-hyp
@@ -234,8 +227,8 @@
   :group 'isabelle-isar-config)
 
 (defun isar-activate-scripting ()
-  "Make sure the Isabelle/Isar toplevel is in a sane state."
-  (proof-shell-invisible-command proof-shell-restart-cmd))
+  "Make sure the Isabelle/Isar toplevel is in a sane state.")
+;FIXME  (proof-shell-invisible-command proof-shell-restart-cmd))
 
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
@@ -400,54 +393,56 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;;   Code that's Isabelle specific                                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Variations on undo
 
-;; FIXME: think about the next variable.  I've changed sense from
-;;  LEGO and Coq's treatment.
-(defcustom isar-not-undoable-commands-regexp
-  (proof-ids-to-regexp '("break" "context" "clear_undo" "end" "theory" "undo"))
-  "Regular expression matching commands which are *not* undoable."
+(defconst isar-undo "undo;")
+
+(defun isar-undos (i)
+  (concat "undos " (int-to-string i) proof-terminal-string))
+
+(defun isar-cannot-undo (cmd)
+  (concat "ML {| val _:unit = error \"Cannot undo command '" cmd "'\" |};"))
+
+
+(defcustom isar-cannot-undo-regexp
+  (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))
+  "Regular expression matching commands that *cannot* be undone."
   :type 'regexp
   :group 'isabelle-isar-config)
 
-;; This next function is the important one for undo operations.
+(defcustom isar-state-preserving-regexp
+  (proof-ids-to-regexp isar-keywords-diag)
+  "Regular expression matching commands that preserve the toplevel state."
+  :type 'regexp
+  :group 'isabelle-isar-config)
+
+
+;; undo proof commands
 (defun isar-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
   (let
       ((case-fold-search nil)
        (ct 0) str i)
-    (if (and span (prev-span span 'type)
-	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
-	     (isar-goal-command-p
-	      (span-property (prev-span span 'type) 'cmd)))
-	(concat "top clear_undo" proof-terminal-string)
-      (while span
-	(setq str (span-property span 'cmd))
-	(cond ((eq (span-property span 'type) 'vanilla)
-	       (or (proof-string-match isar-not-undoable-commands-regexp str)
-		   (setq ct (+ 1 ct))))
-	      ((eq (span-property span 'type) 'pbp)
-	       ;; this case probably redundant for Isabelle, unless
-	       ;; we think of some nice ways of matching non-undoable
-	       ;; commands.
-	       (cond ((not (proof-string-match isar-not-undoable-commands-regexp str))
-		      (setq i 0)
-		      (while (< i (length str))
-			(if (= (aref str i) proof-terminal-char)
-			    (setq ct (+ 1 ct)))
-			(setq i (+ 1 i))))
-		     (t nil))))
-	(setq span (next-span span 'type)))
-      (concat "undos " (int-to-string ct) proof-terminal-string))))
+    (while span
+      (setq str (span-property span 'cmd))
+      (cond ((eq (span-property span 'type) 'vanilla)
+	     (or (proof-string-match isar-state-preserving-regexp str)
+		 (setq ct (+ 1 ct))))
+	    ((eq (span-property span 'type) 'pbp)
+	     ;; this case probably redundant for Isabelle, unless
+	     ;; we think of some nice ways of matching non-undoable
+	     ;; commands.
+	     (cond ((not (proof-string-match isar-state-preserving-regexp str))
+		    (setq i 0)
+		    (while (< i (length str))
+		      (if (= (aref str i) proof-terminal-char)
+			  (setq ct (+ 1 ct)))
+		      (setq i (+ 1 i))))
+		   (t nil))))
+      (setq span (next-span span 'type)))
+    (isar-undos ct)))
 
-(defun isar-goal-command-p (str)
-  "Decide whether argument is a goal or not"
-  (proof-string-match isar-goal-command-regexp str)) ; this regexp defined in isar-syntax.el
-
-
-(defconst isar-keywords-decl-defn-regexp
-  (proof-ids-to-regexp (append isar-keywords-decl isar-keywords-defn))
-  "Declaration and definition regexp.")
-
+;; undo theory commands
 (defun isar-find-and-forget (span)
   "Return a command to be used to forget SPAN."
   (let (str ans)
@@ -457,10 +452,39 @@ Resulting output from Isabelle will be parsed by Proof General."
        ((eq (span-property span 'type) 'comment))
        ((eq (span-property span 'type) 'goalsave)
 	(setq ans isar-undo))
-       ((string-match isar-keywords-decl-defn-regexp str)
+       ((proof-string-match isar-cannot-undo-regexp str)
+	(setq ans (isar-cannot-undo str)))
+       (t
 	(setq ans isar-undo)))
       (setq span (next-span span 'type)))
     (or ans proof-no-command)))
+
+
+
+(defun isar-goal-command-p (str)
+  "Decide whether argument is a goal or not"
+  (proof-string-match isar-goal-command-regexp str))
+
+(defun isar-global-save-command-p (span str)
+  "Decide whether argument really is a global save command"
+  (and (proof-string-match isar-save-command-regexp str)
+       (let ((ans nil) (lev 0) cmd)
+	 (while (and span (not ans))
+	   (setq span (prev-span span 'type))
+	   (setq cmd (span-property span 'cmd))
+	   (cond
+	    ;; comment: skip
+	    ((eq (span-property span 'type) 'comment))
+	    ;; local qed: enter block
+	    ((proof-string-match isar-save-command-regexp cmd)
+	     (setq lev (+ lev 1)))
+	    ;; local goal: leave block, or done
+	    ((proof-string-match isar-local-goal-command-regexp cmd)
+	     (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
+	    ;; global goal: done
+	    ((proof-string-match isar-goal-command-regexp cmd)
+	     (setq ans 'yes))))
+	 (eq ans 'yes))))
 
 (defvar isar-current-goal 1
   "Last goal that emacs looked at.")
@@ -477,7 +501,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 (defun isar-state-preserving-p (cmd)
   "Non-nil if command preserves the proofstate."
-  (proof-string-match isar-not-undoable-commands-regexp cmd))
+  (proof-string-match isar-state-preserving-regexp cmd))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -530,12 +554,15 @@ Resulting output from Isabelle will be parsed by Proof General."
   (modify-syntax-entry ?<  ".")
   (modify-syntax-entry ?>  ".")
   (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?_  "_")
-  (modify-syntax-entry ?\' "_")
-  (modify-syntax-entry ?\| ".")
+  (modify-syntax-entry ?.  "w")
+  (modify-syntax-entry ?_  "w")
+  (modify-syntax-entry ?\' "w")
   (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\| ". 23")
   (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4"))
+  (modify-syntax-entry ?\) ")(4")
+  (modify-syntax-entry ?\{ "(}1")
+  (modify-syntax-entry ?\} "){4"))
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
