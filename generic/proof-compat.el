@@ -362,7 +362,7 @@ The modified ALIST is returned."
 
 (or (fboundp 'remassoc)
 (defun remassoc (key alist)
-  "Delete any elements of ALIST whose car is `eq' to KEY.
+  "Delete any elements of ALIST whose car is `equal' to KEY.
 The modified ALIST is returned."
 ;; The builtin version deletes by side-effect, but don't bother here.
   (let (newalist)
