@@ -37,7 +37,7 @@
     "restart"
     "top"
     "undo"
-    "undos"
+    "undos_proof"
     "up"))
 
 (defconst isar-keywords-diag
