@@ -208,14 +208,15 @@ without giving error messages."
 
 (defun proof-toolbar-undo-enable-p () 
   (and (proof-toolbar-process-available-p)
-       (proof-locked-end)))
+       (> (proof-unprocessed-begin) (point-min))))
 
 (defun proof-toolbar-undo ()
   "Undo last successful in locked region, without deleting it."
   (interactive)
   (if (proof-toolbar-undo-enable-p)
       (save-excursion
-	(proof-undo-last-successful-command t))))
+	(proof-undo-last-successful-command t))
+    (error "I don't know what I should undo in this buffer!")))
 
 (defun proof-toolbar-next-enable-p ()
   ;; Could check if there *is* a next command here, to avoid
@@ -228,7 +229,7 @@ Move point if the end of the locked position is invisible."
   (interactive)
   (save-excursion
     (if (proof-shell-live-buffer)
-      (goto-char (proof-locked-end))
+      (goto-char (proof-unprocessed-begin))
       (goto-char (point-min)))
     (proof-assert-next-command))
   ;; FIXME: not sure about whether this is nice or not.

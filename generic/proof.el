@@ -370,6 +370,25 @@ to `nil' of the proof assistant does not support nested goals."
   :type 'function
   :group 'proof-script)
 
+(defcustom proof-atomic-sequence-lists nil
+  "list of instructions for setting up atomic sequences of commands (ACS).
+
+Each instruction is
+a list of the form `(END START &optional FORGET-COMMAND)'. END is a
+regular expression to recognise the last command in an ACS. START
+is a function. Its input is the last command of an ACS. Its output
+is a regular exression to recognise the first command of the ACS.
+It is evaluated once and the output is successively matched agains
+previously processed commands until a match occurs (or the
+beginning of the current buffer is reached). The region determined
+by (START,END) is locked as an ACS. Optionally, the ACS is
+annotated with the actual command to retract the ACS. This is
+computed by applying FORGET-COMMAND to the first and last command
+of the ACS."
+  :type '(repeat (cons regexp function (choice (const nil) function)))
+  :group 'proof-shell)
+
+
 (defconst proof-no-command "COMMENT"
   "String used as a nullary action (send no command to the proof assistant).
 Only relevant for proof-find-and-forget-fn.")
@@ -633,7 +652,7 @@ Set in proof-config-done.")
 (defvar proof-script-buffer-list nil
   "Scripting buffers with locked regions.
 The first element is current and in scripting minor mode.
-The list of corresponding file names is a subset of
+The cdr of the list of corresponding file names is a subset of
 `proof-included-files-list'.")
 
 (defvar proof-pbp-buffer nil
@@ -1880,6 +1899,15 @@ how far we've got."
 ;;         setup and callback                                       ;;
 
 
+(defun proof-check-atomic-sequents-lists (span cmd end)
+  "Check if CMD is the final command in an ACS.
+
+If CMD is matched by the end regexp in `proof-atomic-sequents-list',
+the ACS is marked in the current buffer. If CMD does not match any,
+`nil' is returned, otherwise non-nil."
+  ;;FIXME tms: needs implementation
+  nil)
+
 (defun proof-done-advancing (span)
   "The callback function for assert-until-point."
   (let ((end (span-end span)) nam gspan next cmd)
@@ -1889,6 +1917,7 @@ how far we've got."
     (cond
      ((eq (span-property span 'type) 'comment)
       (set-span-property span 'mouse-face 'highlight))
+     ((proof-check-atomic-sequents-lists span cmd end))
      ((string-match proof-save-command-regexp cmd)
       ;; In coq, we have the invariant that if we've done a save and
       ;; there's a top-level declaration then it must be the
@@ -2105,13 +2134,13 @@ Assumes that point is at the end of a command."
     (save-excursion
       (if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
 	  (progn (goto-char pt)
-		 (error "Nothing to do!")))
+		 (error "I don't know what I should be doing in this buffer!")))
       (setq semis (proof-segment-up-to (point))))
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (not crowbar) (null semis))
-	  (error "Nothing to do!"))
+	  (error "I don't know what I should be doing in this buffer!"))
       (goto-char (nth 2 (car semis)))
       (and (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
@@ -2157,7 +2186,7 @@ a space or newline will be inserted automatically."
     ;; old code:
     ;;(if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
     ;;	  (progn (goto-char pt)
-    ;;       (error "Nothing to do!")))
+    ;;       (error "I don't know what I should be doing in this buffer!")))
     ;; (setq semis (proof-segment-up-to (point))))
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
@@ -2166,7 +2195,7 @@ a space or newline will be inserted automatically."
 	  ;; suggests.
 	  (setq semis nil))
       (if (and (not ignore-proof-process-p) (not crowbar) (null semis))
-	  (error "Nothing to do!"))
+	  (error "I don't know what I should be doing in this buffer!"))
       (goto-char (nth 2 (car semis)))
       (if (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
@@ -2301,12 +2330,12 @@ deletes the region corresponding to the proof sequence."
     (save-excursion
       (if (not (re-search-backward "\\S-" (proof-locked-end) t))
 	  (progn (goto-char pt)
-		 (error "Nothing to do!")))
+		 (error "I don't know what I should be doing in this buffer!")))
       (setq semis (proof-segment-up-to (point))))
     (if (and unclosed-comment-fun (eq 'unclosed-comment (car semis)))
 	(funcall unclosed-comment-fun)
       (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-      (if (and (not crowbar) (null semis)) (error "Nothing to do!"))
+      (if (and (not crowbar) (null semis)) (error "I don't know what I should be doing in this buffer!"))
       (setq test (car semis))
       (if (not (funcall proof-state-preserving-p (nth 1 test)))
 	  (error "Command is not state preserving"))
@@ -2699,7 +2728,7 @@ Fire up proof process if necessary."
   (let ((mrk (point)) ins incomment)
     (if (looking-at "\\s-\\|\\'\\|\\w") 
 	(if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
-	    (error "Nothing to do!")))
+	    (error "I don't know what I should be doing in this buffer!")))
     (if (not (= (char-after (point)) proof-terminal-char))
 	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
     (proof-assert-until-point
