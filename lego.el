@@ -281,7 +281,7 @@
 	  (list
 	   (cons (ids-to-regexp lego-shell-keywords) 
 		 'font-lock-keyword-face)
-	   '("\\<defn\\>  \\(\\w]+\\) =" 1 font-lock-function-name-face)
+	   '("\\<defn\\>  \\(\\w+\\) =" 1 font-lock-function-name-face)
 	  '("^\\(value of\\|type  of\\) \\(\\w+\\) =" 2 
 	    font-lock-function-name-face)
 	  '("^  \\(\\w+\\) = ... :" 1 font-lock-function-name-face)
