@@ -32,6 +32,30 @@
 ;  :group 'isar-scripting)
 
 
+;; ----- character syntax
+
+(defun isar-init-syntax-table ()
+  "Set appropriate values for syntax table in current buffer."
+  (modify-syntax-entry ?\$ ".")
+  (modify-syntax-entry ?\/ ".")
+  (modify-syntax-entry ?\\ ".")
+  (modify-syntax-entry ?+  ".")
+  (modify-syntax-entry ?-  ".")
+  (modify-syntax-entry ?=  ".")
+  (modify-syntax-entry ?%  ".")
+  (modify-syntax-entry ?<  ".")
+  (modify-syntax-entry ?>  ".")
+  (modify-syntax-entry ?\& ".")
+  (modify-syntax-entry ?.  "w")
+  (modify-syntax-entry ?_  "w")
+  (modify-syntax-entry ?\' "w")
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4")
+  (modify-syntax-entry ?\{ "(}1")
+  (modify-syntax-entry ?\} "){4"))
+
+
 ;; ----- syntax for font-lock and other features
 
 (defconst isar-keywords-theory-enclose
@@ -93,8 +117,8 @@
 (defconst isar-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
 
 (defconst isar-name-regexp
-  (concat "\\s-*\\(?:" isar-string "\\|" isar-id "\\)\\s-*")
-  "Regexp matching Isabelle/Isar names, with contents bracketed.")
+  (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
+  "Regexp matching Isabelle/Isar names, with contents grouped.")
 
 (defvar isar-font-lock-terms
   (list
@@ -136,5 +160,39 @@
     (cons (proof-ids-to-regexp isar-keywords-proof) 'font-lock-keyword-face)
     (cons (proof-ids-to-regexp isar-keywords-proof-asm) 'proof-declaration-name-face)
     (cons (proof-ids-to-regexp isar-keywords-proof-script) 'font-lock-reference-face))))
+
+
+;; ----- variations on undo
+
+(defconst isar-undo "undo;")
+(defconst isar-kill "kill;")
+
+(defun isar-remove (name)
+  (concat "init_toplevel; remove_thy \"" name "\""))
+
+(defun isar-undos (i)
+  (if (> i 0)
+      (concat "undos_proof " (int-to-string i) ";")
+    proof-no-command))
+
+(defun isar-cannot-undo (cmd)
+  (concat "cannot_undo \"" cmd "\";"))
+
+
+(defconst isar-undo-fail-regexp
+  (proof-anchor-regexp
+   (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))))
+
+(defconst isar-undo-skip-regexp
+  (proof-anchor-regexp (concat ";\\|" (proof-ids-to-regexp isar-keywords-diag))))
+
+(defconst isar-undo-remove-regexp
+  (concat
+   (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-begin))
+   isar-name-regexp))
+
+(defconst isar-undo-kill-regexp
+  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-switch)))
+
 
 (provide 'isar-syntax)
