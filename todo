@@ -998,20 +998,37 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 *** A Try to get small project grant from LFCS to help with
   development of Proof General.  Latest news: success is 
   doubtful. Needs a self-contained project that 
-  *would be useful to LFCS*
+  *would be useful to LFCS*.  
+  One idea: an LFCS CDROM featuring Proof General and 
+  bundled with other theorem provers?    How much does a 
+  short-run (200 CDs?) cost?
+
+*** A 
+
+*** A Write grant proposal on white paper for Proof General Kit.
 
 *** A Find new people to help advance and develop Proof General.
   Getting more instances would be a good way.  Also encouraging
-  feedback.  Here stories of bugs by word-of-mouth, they don't
+  feedback.  Hear stories of bugs by word-of-mouth, they don't
   get reported often enough.
   Consider passing on project elsewhere if no LFCS interest.
 
-*** A Polish ProofGeneral.texi and publish LaTeX as a tech report
+*** A Polish ProofGeneral.texi and publish as a tech report
+  For PG 3.2, probably.  
 
 *** A Write paper on design and development of Proof General.
 
 *** A Write white paper on future of PG project.
 
-*** A Write grant proposal on white paper for Proof General Kit.
+*** A Add more PG projects, publicise them.
 
-*** A Add more PG projects, ensure interest is generated!
+*** A Push PG research directions:
+	- configuration management / dependency organization
+	- ideas about proof engineering cf software engineering
+	- research on ways of conducting a formalization, cf
+	  ways of writing a program.  Common idioms that PG could
+	  help with.
+
+*** A Add instructions for developers to use cvs repository 
+    remotely.
+

@@ -4,7 +4,7 @@
 
 ----- NB: this is a pre-release of PG 3.2.  Bugs likely, please report ------ 
 
-
+----- PG 3.2 is scheduled for release in Autumn 2000. -----
 
 ** Generic Changes
 
@@ -47,12 +47,13 @@
 
 *** Bug fix: first line ignored problem fixed for Coq and others.
  
-  To fix this properly, we have added `proof-shell-pre-sync-init-cmd'
-  for provers that need initialization before synchronization can be
-  secured.  [Developers note: LEGO needs to wait for second prompt
-  before sync, whereas Isabelle managed to sync on first prompt.  
-  Coq was best, with sync set before startup, using a command line option.
-  That is the recommended route for new proof assistants.]
+  [Developers note: to fix this properly, we have added
+   `proof-shell-pre-sync-init-cmd' for provers that need initialization
+   before synchronization can be secured.  LEGO needs to wait for
+   second prompt before sync, whereas Isabelle managed to sync on first
+   prompt.  Coq was best, with sync set before startup, using a command
+   line option.  That is the recommended route for new proof
+   assistants.]
 
 *** Bug fix: script management is now more robust against C-x C-v, C-x C-w
 
@@ -62,11 +63,11 @@
 
   Specific menus added for Coq, LEGO, Isabelle.
 
-*** Favourites: user-defined commands added proof assistant specific menu
-
 *** Proof assistant specific keymap added
 
   Keybindings for proof assistant now begin with "C-c C-a".
+
+*** Favourites: user-defined commands can be added to PA-specific menu.
 
 *** Improved behaviour of electric terminator
 
