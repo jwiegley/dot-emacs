@@ -25,12 +25,9 @@
            (not (get 'x-symbol 'x-symbol-initialized)))
       (progn
         (load (expand-file-name "lisp/x-symbol/auto-autoloads" xsymbol-home))
-        (setq load-path
-              (cons (expand-file-name "lisp/x-symbol" xsymbol-home) load-path))
+        (push (expand-file-name "lisp/x-symbol" xsymbol-home) load-path)
         (if (boundp 'data-directory-list)
-            (setq data-directory-list
-                  (cons (expand-file-name "etc/" xsymbol-home) data-directory-list)))
-        (require 'x-symbol-hooks)
+            (push (expand-file-name "etc/" xsymbol-home) data-directory-list))
         (x-symbol-initialize)))
   ;; tell Proof General about -x option
   (if (and xsymbol (not (equal xsymbol "")))
