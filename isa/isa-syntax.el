@@ -104,26 +104,17 @@
 
 (defconst isa-id proof-id)
 
-(defconst isa-ids (proof-ids isa-id))
+(defconst isa-ids (proof-ids isa-id "[ \t]*")
+  "Matches a sequence of identifiers separated by whitespace.")
 
-;; FIXME: rubbish syntax here.
-(defun isa-abstr-regexp (paren char)
-    (concat paren "\\s-*\\(" isa-ids "\\)\\s-*" char))
+(defun isa-binder-regexp (binder dot)
+    (concat binder "\\s-*\\(" isa-ids "\\)\\s-*" dot))
 
-;; FIXME: rubbish syntax here.
 (defvar isa-font-lock-terms
   (list
    ;; lambda binders
-   (list (concat "\%\\s-*\\(" isa-ids "\\)\\.") 1
-	 'proof-declaration-name-face)
-
-   ;; Pi binders
-   (list (isa-abstr-regexp "(" ":") 1 'proof-declaration-name-face)
-   
-   ;; Kinds
-   (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s-*\\(("
-		   isa-id ")\\)?") 'font-lock-type-face))
-  "*Font-lock table for Isa terms.")
+   (list (isa-binder-regexp "\%" "\\.") 1 'proof-declaration-name-face))
+  "*Font-lock table for Isabelle terms.")
 
 (defconst isa-save-command-regexp
   (concat "^" (proof-ids-to-regexp isa-keywords-save)))

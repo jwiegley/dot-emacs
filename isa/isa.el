@@ -183,6 +183,9 @@ no regular or easily discernable structure."
    proof-shell-eager-annotation-start   "\360\\|\362\\|\364"
    proof-shell-eager-annotation-end     "\361\\|\363\\|\365"
 
+   ;; Some messages delineated by eager annotations
+   proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
+
    ;; Tested values of proof-shell-eager-annotation-start: 
    ;; "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"
    ;; "^---\\|^\\[opening "
@@ -224,7 +227,7 @@ no regular or easily discernable structure."
 ;;; So we rely on some hacked versions.
 ;;;
 
-(defcustom isa-usethy-notopml-command "use_thy_and_update \"%s\";"
+(defcustom isa-usethy-notopml-command "ProofGeneral.use_thy_and_update \"%s\";"
   "Sent to Isabelle to process theory for this ML file, and all ancestors."
   :type 'string
   :group 'isabelle-config)
