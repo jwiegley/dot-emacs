@@ -476,14 +476,12 @@ The script buffer's comment-end is set to this string plus a space."
   :group 'proof-script)
 
 (defcustom proof-string-start-regexp "\""
-  "Regexp which matches the start of a quoted string in the proof
-assistant command language."
+  "Matches the start of a quoted string in the proof assistant command language."
   :type 'string
   :group 'proof-script)
 
 (defcustom proof-string-end-regexp "\""
-  "Regexp which matches the end of a quoted string in the proof
-assistant command language."
+  "Matches the end of a quoted string in the proof assistant command language."
   :type 'string
   :group 'proof-script)
 
@@ -578,13 +576,13 @@ beginning of the entity's region."
   :group 'proof-script)
 
 ;; FIXME da: This next one is horrible.  We clearly would rather
-;; have proof-goal-regexp instead.  I think this was born to
-;; solve func-menu configuration for Coq (or a similar problem),
-;; but now that can be configured in a better way.
-;; This function variable needs removing.
+;; have proof-goal-regexp instead.  This was born to solve
+;; problem that Coq can have goals which look like definitions, etc.
+;; Perhaps we can generalise the matching to understand function
+;; values as well as regexps. 
 
 (defcustom proof-goal-command-p nil 
-  "Is this a goal"
+  "Is this really a goal command?"
   :type 'function
   :group 'proof-script)
 
