@@ -32,12 +32,18 @@ h1{
 h2{
  font-family: Verdana, Arial, sans-serif;
  font-size: medium;
- color: #FFFFD0
+ font-weight: bold;
+ color: #FFFFD0;
+ padding: 2px 4px 4px 4px;
+ background: #7D4D33
 }
 
 h3{
  font-family: Verdana, Arial, sans-serif;	
  font-size: medium;
+ padding: 2px 2px 2px 2px;
+ margin-right: 10%;
+ background: #6D3D43;
  color: #FFFFD0
 }
 
@@ -75,7 +81,11 @@ dl,ul,dir,li{
  font-family: Verdana, Arial, sans-serif;	
  color: #FFFFFF
 }
-dt{ font-style: italic; font-weight: bold }      /* Netscape misses this */
+dt{ font-style: italic; 
+    padding: 2px 2px 2px 2px;
+    margin-left: 20px;
+    margin-right: 20px;
+    background: #6D3D43; }
 
 /* Table Elements */
 table{
@@ -86,8 +96,8 @@ table{
 
 td,tr{
  font-family: Verdana, Arial, sans-serif;	
-/* background: #2D1D03; */
- color: #FFFFFF
+/* background-color: #2D1D03;   */
+ color: #FFFFFF;
 }
 
 /* Link Elements */
