@@ -22,6 +22,11 @@
 
 ** Generic Changes
 
+*** Fixes for filenames with \ characters in them (mainly for Windows)
+
+  Fixed for Coq, Isabelle, and HOL.  
+
+
 *** Added key binding C-c C-BS and menu entry for delete last command
 
   This restores the old function of the sequence "C-u C-c C-u" onto
@@ -105,17 +110,27 @@
 
 *** Fix for Poly/ML with interrupts: use proof-shell-pre-interrupt-hook
 
+*** Fix for directory changes under Windows
+
 
 ** Isar Changes
 
 *** Syntax tweaks.
+
+*** Fix for Poly/ML with interrupts: use proof-shell-pre-interrupt-hook
+
+*** Fix for directory changes under Windows
 
 
 ** Changes for developers to note
 
 *** todo files added for each prover (todo split from global todo).
 
+*** Added new customization: proof-shell-filename-escapes
 
+ See documentation for details.  This was to fix filename substitution
+ for occasions when Proof General needs to escape some special
+ characters in the filename.  Each prover should set this for
+ good behaviour with strange filenames (including those of Windows!)
 
-
-
+*** for others, see ChangeLog.
