@@ -35,55 +35,10 @@
   :prefix "proof-")
 
 
-;; Master table of supported assistants.  
-(defcustom proof-assistant-table
-  '(;; For demonstration instance of Proof General,
-    ;; export PROOFGENERAL_ASSISTANTS=demoisa. 
-    ;;
-    ;; To use Isabelle/Isar instead of classic Isabelle,
-    ;; export PROOFGENERAL_ASSISTANTS=isar
-    ;;
-    (demoisa    "Isabelle Demo"	"\\.ML$")
-    (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
-    (isar       "Isabelle/Isar" "\\.thy$")
-    (lego	"LEGO"		"\\.l$")
-    (coq	"Coq"		"\\.v$")
-    (phox	"PhoX"		"\\.phx$")
-    ;; The following provers are not fully supported, 
-    ;; and have only preliminary support written 
-    ;; (please volunteer to improve them!)
-    (hol98	"HOL"		"\\.sml$")
-    (acl2	"ACL2"		"\\.acl2$")
-    (twelf	"Twelf"		"\\.elf$")
-    ;; The following provers have experimental support
-    (plastic	"Plastic"	"\\.lf$")
-    ;; Next line for testing only
-    ;; (pgip	"PGIP/Isa"	"\\.ML$\\|\\.thy$")
-    )
-  "*Proof General's table of supported proof assistants.
-Extend this table to add a new proof assistant.
-Each entry is a list of the form
-
-    (SYMBOL NAME AUTOMODE-REGEXP)
-
-The NAME is a string, naming the proof assistant.
-The SYMBOL is used to form the name of the mode for the
-assistant, `SYMBOL-mode', run when files with AUTOMODE-REGEXP
-are visited.  SYMBOL is also used to form the name of the
-directory and elisp file for the mode, which will be
- 
-    PROOF-HOME-DIRECTORY/SYMBOL/SYMBOL.el
-
-where `PROOF-HOME-DIRECTORY' is the value of the
-variable proof-home-directory."
-  :type '(repeat (list symbol string string))
-  :group 'proof-general-internals)
-
-
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Directories
-
+;;
 (defun proof-home-directory-fn ()
   "Used to set proof-home-directory"
   (let ((s (getenv  "PROOFGENERAL_HOME")))
@@ -129,6 +84,66 @@ You can use customize to set this variable."
 		   Info-directory-list))
        ;; Clear cache of info dir
        (setq Info-dir-contents nil))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Master table of supported proof assistants. 
+;;
+(defcustom proof-assistant-table
+  (apply 
+   'append
+   (mapcar
+   ;; Discard entries whose directories have been removed.
+    (lambda (dne)
+      (let ((atts (file-attributes (concat proof-home-directory 
+					   (symbol-name (car dne))))))
+	(if (and atts (eq 't (car atts)))
+	    (list dne)
+	  nil)))
+   '(;; For demonstration instance of Proof General,
+    ;; export PROOFGENERAL_ASSISTANTS=demoisa. 
+    ;;
+    ;; To use Isabelle/Isar instead of classic Isabelle,
+    ;; export PROOFGENERAL_ASSISTANTS=isar
+    ;;
+    (demoisa    "Isabelle Demo"	"\\.ML$")
+    (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
+    (isar       "Isabelle/Isar" "\\.thy$")
+    (lego	"LEGO"		"\\.l$")
+    (coq	"Coq"		"\\.v$")
+    (phox	"PhoX"		"\\.phx$")
+    ;; The following provers are not fully supported, 
+    ;; and have only preliminary support written 
+    ;; (please volunteer to improve them!)
+    (hol98	"HOL"		"\\.sml$")
+    (acl2	"ACL2"		"\\.acl2$")
+    (twelf	"Twelf"		"\\.elf$")
+    ;; The following provers have experimental support
+    (plastic	"Plastic"	"\\.lf$")
+    ;; Next line for testing only
+    ;; (pgip	"PGIP/Isa"	"\\.ML$\\|\\.thy$")
+    )))
+  "*Proof General's table of supported proof assistants.
+Extend this table to add a new proof assistant.
+Each entry is a list of the form
+
+    (SYMBOL NAME AUTOMODE-REGEXP)
+
+The NAME is a string, naming the proof assistant.
+The SYMBOL is used to form the name of the mode for the
+assistant, `SYMBOL-mode', run when files with AUTOMODE-REGEXP
+are visited.  SYMBOL is also used to form the name of the
+directory and elisp file for the mode, which will be
+ 
+    PROOF-HOME-DIRECTORY/SYMBOL/SYMBOL.el
+
+where `PROOF-HOME-DIRECTORY' is the value of the
+variable proof-home-directory."
+  :type '(repeat (list symbol string string))
+  :group 'proof-general-internals)
+
+
+
 
 
 ;; A utility function.  Is there an alternative?
