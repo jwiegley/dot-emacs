@@ -1,3 +1,65 @@
+2003-02-22  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* x-symbol/lisp/TEMPLATE.el.tpl, x-symbol/lisp/Makefile:
+	Deleting
+
+	* x-symbol/lisp/makefile.pkg:
+	Deleted file
+
+	* generic/proof-x-symbol.el:
+	Fixes to work with bundled version
+
+	* generic/proof-script.el:
+	Temporarily disable mode-class prop on script major mode (for X-sym 4.45beta)
+
+	* mmm/README.ProofGeneral, todo, CHANGES, README:
+	Updated.
+
+	* isa/x-symbol-isabelle.el:
+	auto-coding-alist
+
+	* isa/x-symbol-isa.el: New files.
+
+	* isa/isa.el:
+	Move x-sym config to x-symbol-isa.el
+
+	* isar/isar.el:
+	Move x-sym config to x-symbol-isar.el
+
+	* isar/x-symbol-isar.el: New files.
+
+	* isa/x-symbol-isabelle.el:
+	Experiments with auto-style
+
+	* generic/proof-x-symbol.el:
+	Add code to use bundled version, commented out since broken.
+
+2003-02-21  David Aspinall  <da@proofgeneral.org>
+
+	* x-symbol/README.ProofGeneral:
+	X-Symbol version 4.45 beta
+
+2003-02-20  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2003-02-20  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el, coq/ex-module.v, coq/coq-syntax.el:
+	corrected a bug of pg/coq, the following line was not recognized as a
+	module start:
+	Module M:T with Definition A:=u.
+
+	I had to count the number of 'with' and ':=' to know if the last ':='
+	was a Module given explicitely (--> no module start) or only part of a
+	'with ...:=' (--> module start).
+
 2003-02-20  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
