@@ -115,7 +115,7 @@
    (concat
     "^"
     phox-comments-regexp
-    "\\(goal\\|prop\\(osition\\)?\\|em\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)")
+    "\\(goal\\|prop\\(osition\\)?\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)")
    proof-save-command-regexp       
    (concat
     "^"
