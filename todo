@@ -12,6 +12,13 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+B Cleanup handling of proof-terminal-string.  At the moment some
+  commands need to have the terminal string, some don't.
+  da: I suggest removing proof-terminal-string altogether and
+  adding back the semi-colons or fullstops at the specific level.
+  It's not a big deal and would support other provers which
+  may use a mixture of terminators, or no terminators at all.
+
 A Add support for people typing directly into the inferior process.
   The error messages are going to drive experienced Isabelle users
   mad otherwise!  Fair enough to hide the buffer from those
