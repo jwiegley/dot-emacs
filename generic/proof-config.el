@@ -287,12 +287,12 @@ you should set `proof-tidy-response' to nil."
 
 ;;; NON BOOLEAN OPTIONS 
 
-(defcustom proof-toolbar-follow-mode 'locked
-  "*Choice of how point moves with toolbar commands.
+(defcustom proof-follow-mode 'locked
+  "*Choice of how point moves with script processing commands.
 One of the symbols: 'locked, 'follow, 'ignore.
-If 'locked, point sticks to the end of the locked region with toolbar commands.
+If 'locked, point sticks to the end of the locked region.
 If 'follow, point moves just when needed to display the locked region end.
-If 'ignore, point is never moved after toolbar movement commands."
+If 'ignore, point is never moved after movement commands."
   :type '(choice
 	  (const :tag "Follow locked region" locked)
 	  (const :tag "Keep locked region displayed" follow)
@@ -404,6 +404,7 @@ The protocol used should be configured so that no user interaction
 Exactly what uses this face depends on the proof assistant."
   :group 'proof-faces)
 
+;; FIXME da: are these defconsts still needed now we use defface?
 (defconst proof-declaration-name-face 'proof-declaration-name-face
   "Expression that evaluates to a face.
 Required so that 'proof-declaration-name-face is a proper facename in
@@ -909,7 +910,7 @@ This is used to handle nested goals allowed by some provers."
 
 (defcustom proof-state-preserving-p nil
   "A predicate, non-nil if its argument (a command) preserves the proof state.
-If set, used by proof-execute-minibuffer-cmd to filter out scripting
+If set, used by proof-minibuffer-cmd to filter out scripting
 commands which should be entered directly into the script itself."
   :type 'function
   :group 'proof-script)
@@ -1510,7 +1511,7 @@ buffer.  Otherwise they appear in the response buffer."
 ;; 7. Splash screen settings
 ;;
 
-(defcustom proof-splash-time 2.5
+(defcustom proof-splash-time 1.5
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise 
@@ -1634,7 +1635,7 @@ X-Symbol support is deactivated."
 ;; various PG modes?
 (defcustom proof-universal-keys
   '(([(control c) (control c)] . proof-interrupt-process)
-    ([(control c) (control v)] . proof-execute-minibuffer-cmd))
+    ([(control c) (control v)] . proof-minibuffer-cmd))
 "List of keybindings made for the script, goals and response buffer. 
 Elements of the list are tuples `(k . f)' 
 where `k' is a keybinding (vector) and `f' the designated function."
