@@ -1,11 +1,16 @@
 #
-# Update dtds from PG Kit repository.
+# Update exported Kit files from PG Kit repository.
+# [interim]
 #
 
-.PHONY: dtdupdate
+.PHONY: update
 
-DTDTARGS=dtd/pgip.dtd dtd/pgml.dtd
+CVSROOT=:pserver:da@cvs.inf.ed.ac.uk:/disk/cvs/proofgen
 
-# checkout in temp dir because otherwise CVS complains of repo clash (fixes?)
-dtdupdate:	
-	mkdir dtdtmp; cvs -d :ext:da@localssh.dcs.ed.ac.uk:/home/proofgen/src export -kv -D today -d dtdtmp Kit/dtd; mv dtdtmp/* dtd; rmdir dtdtmp; cvs commit -m"Updated from Kit repo" dtd
+# checkout in temp dir because otherwise CVS complains of working dir checkout
+update:	
+	mkdir kittmp
+	cvs -d ${CVSROOT} export -kv -D today -d kittmp kitwebfiles
+	(cd kittmp; tar -c . | (cd ..; tar -xp))
+	rm -rf kittmp
+	cvs commit -m"Updated from Kit repo"
