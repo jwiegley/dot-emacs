@@ -42,6 +42,7 @@
     "commit"
     "help"
     "pr"
+    "pretty_setmargin"
     "print_attributes"
     "print_binds"
     "print_facts"
