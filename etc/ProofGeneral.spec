@@ -1,4 +1,4 @@
-Summary:	Proof General  Theorem Prover
+Summary:	Proof General, Emacs interface for Proof Assistants
 Name:		ProofGeneral
 Version:	2.0pre981008
 Release:	1
