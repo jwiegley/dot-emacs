@@ -5,9 +5,9 @@
 ##
 ##  make		- do "compile" and "scripts" targets
 ##  make compile	- make .elc's in a single session
-##  make all		- make .elc's in separate sessions
-##  make scripts	- edit paths to bash/perl in scripts
+##  make scripts	- edit paths to bash/perl/PGHOME in scripts
 ##  make install	- install into system directories
+##  make clean		- return to clean source
 ##
 ## $Id$
 ## 
@@ -109,6 +109,8 @@ clean:	cleanpgscripts
 	(cd doc; $(MAKE) clean)
 	(cd x-symbol/lisp; $(MAKE) distclean)
 
+distclean: clean
+
 ##
 ## Install files 
 ##
@@ -136,11 +138,17 @@ install-desktop:
 	cp etc/desktop/mime-info/proofgeneral.keys ${DESKTOP}/mime-info
 
 # NB: .el files are not strictly necessary, but we package/install them
-# for the time being to help with debugging.
-install-elisp: compile
+# for the time being to help with debugging, or for users to recompile.
+install-elisp: install-el install-elc
+
+install-el:
 	mkdir -p ${ELISP}
 	for f in ${ELISP_DIRS}; do mkdir -p ${ELISP}/$$f; done
 	for f in ${ELISP_DIRS}; do cp -pf $$f/*.el ${ELISP}/$$f; done
+
+install-elc: compile
+	mkdir -p ${ELISP}
+	for f in ${ELISP_DIRS}; do mkdir -p ${ELISP}/$$f; done
 	for f in ${ELISP_DIRS}; do cp -pf $$f/*.elc ${ELISP}/$$f; done
 
 install-bin: scripts
