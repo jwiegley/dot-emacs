@@ -66,6 +66,7 @@ read.")
 (defvar proof-script-buffer nil
   "The currently active scripting buffer or nil if none.")
 
+;; FIXME: should fixup Coq's multiple file mode
 (defvar proof-previous-script-buffer nil
   "Previous value of proof-script-buffer, recorded when scripting turned off.
 At the moment, this is only used for Coq's ugly multiple file code,
@@ -83,6 +84,10 @@ to help guess the directory of files Coq says it's reinterning.")
 (defvar proof-trace-buffer nil
   "A tracing buffer for storing tracing output from the proof shell.
 See `proof-shell-trace-output-regexp' for details.")
+
+(defvar proof-thms-buffer nil
+  "A buffer for displaying a list of theorems from the proof assistant.
+See `proof-shell-thm-display-regexp' for details.")
 
 (defvar proof-shell-error-or-interrupt-seen nil
   "Flag indicating that an error or interrupt has just occurred.
