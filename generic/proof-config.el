@@ -789,6 +789,10 @@ Only relevant for proof-find-and-forget-fn.")
   "Function that returns a command to forget back to before its argument span.
 This setting is used to for retraction (undoing) in proof scripts.
 
+It should undo the effect of all settings between its target span
+up to (proof-unlocked-begin).  This may involve forgetting a number
+of definitions, declarations, or whatever.
+
 The special string proof-no-command means there is nothing to do.
 
 This is an important function for script management.
@@ -978,6 +982,20 @@ proof-shell-process-file, proof-shell-compute-new-files-list."
  :type '(choice string (const nil))
  :group 'proof-shell)
 
+(defcustom proof-auto-multiple-files nil
+  "Whether to use automatic multiple file management.
+If non-nil, Proof General will automatically retract a script file
+whenever another one is retracted which it depends on.  It assumes
+a simple linear dependency between files in the order which
+they were processed.
+
+If your proof assistant has no management of file dependencies, or one
+which depends on a simple linear context, you may be able to use this
+setting to good effect.  If the proof assistant has more complex
+file dependencies then you should configure it to communicate with
+Proof General about the dependcies rather than using this setting."
+  :type 'boolean
+  :group 'proof-shell)
 
 ;;
 ;; 5b. Regexp variables for matching output from proof process.
