@@ -5,6 +5,12 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.8  1998/06/10 12:41:47  hhg
+;; Compare span-end first rather than span-start in span-lt, because
+;; proof-lock-span is often changed and has starting point 1.
+;; Factored out common code of add-span and remove-span into
+;; span-traverse.
+;;
 ;; Revision 1.7  1998/06/03 17:40:07  hhg
 ;; Changed last-span to before-list.
 ;; Added definitions of foldr and foldl if they aren't already loaded.
@@ -89,6 +95,12 @@ elements = S0 S1 S2 .... [tl-seq.el]"
 (defsubst span-end (span)
   (overlay-end span))
 
+(defun set-span-property (span name value)
+  (overlay-put span name value))
+
+(defsubst span-property (span name)
+  (overlay-get span name))
+
 (defun int-nil-lt (m n)
   (cond
    ((eq m n) nil)
@@ -96,30 +108,57 @@ elements = S0 S1 S2 .... [tl-seq.el]"
    ((not m) nil)
    (t (< m n))))
 
+;; We use end first because proof-locked-queue is often changed, and
+;; its starting point is always 1
 (defun span-lt (s u)
-  (or (int-nil-lt (span-start s) (span-start u))
-      (and (eq (span-start s) (span-start u))
-	   (int-nil-lt (span-end s) (span-end u)))))
+  (or (int-nil-lt (span-end s) (span-end u))
+      (and (eq (span-end s) (span-end u))
+	   (int-nil-lt (span-start s) (span-start u)))))
 
-(defun add-span (span)
+(defun span-traverse (span prop)
   (cond
    ((not before-list)
-    (set-span-property span 'before nil)
-    (setq before-list span))
-   ((span-lt before-list span)
-    (set-span-property span 'before before-list)
-    (setq before-list span))
+    ;; before-list empty
+    'empty)
+   ((funcall prop before-list span)
+    ;; property holds for before-list and span
+    'hd)
    (t
+    ;; traverse before-list for property
     (let ((l before-list) (before (span-property before-list 'before)))
-      (while (and before (span-lt span before))
+      (while (and before (not (funcall prop before span)))
 	(setq l before)
 	(setq before (span-property before 'before)))
-      (set-span-property l 'before span)
-      (set-span-property span 'before before))
-    span)))
+      l))))
+
+(defun add-span (span)
+  (let ((ans (span-traverse span 'span-lt)))
+    (cond
+     ((eq ans 'empty)
+      (set-span-property span 'before nil)
+      (setq before-list span))
+     ((eq ans 'hd)
+      (set-span-property span 'before before-list)
+      (setq before-list span))
+     (t
+      (set-span-property (car ans) span)
+      (set-span-property span 'before
+			 (span-property (car ans) 'before))))))
 
 (defun make-span (start end)
   (add-span (make-overlay start end)))
+
+(defun remove-span (span)
+  (let ((ans (span-traverse span 'eq)))
+    (cond
+     ((eq ans 'empty)
+      (error "Bug: empty span list"))
+     ((eq ans 'hd)
+      (setq before-list (span-property before-list 'before)))
+     ((car ans)
+      (set-span-property (car ans) 'before
+			 (span-property span 'before)))
+     (t (error "Bug: span does not occur in span list")))))
 
 ;; extent-at gives "smallest" extent at pos
 ;; we're assuming right now that spans don't overlap
@@ -161,27 +200,6 @@ elements = S0 S1 S2 .... [tl-seq.el]"
 
 (defun span-at (pt prop)
   (car (spans-at-point-prop pt prop)))
-
-(defsubst span-property (span name)
-  (overlay-get span name))
-
-(defun set-span-property (span name value)
-  (overlay-put span name value))
-
-(defun remove-span (span)
-  (cond
-   ((not before-list)
-    (error "Bug: empty span list"))
-   ((eq before-list span)
-    (setq before-list (span-property before-list 'before)))
-   (t
-    (let ((l before-list) (before (span-property before-list 'before)))
-      (while (and before (not (eq span before)))
-	(setq l before)
-	(setq before (span-property before 'before)))
-      (if before
-	  (set-span-property l 'before (span-property span 'before))
-	(error "Bug: span does not occur in span list"))))))
 
 (defsubst detach-span (span)
   (remove-span span)
