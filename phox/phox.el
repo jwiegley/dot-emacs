@@ -107,14 +107,14 @@
    proof-comment-end               "*)"
    proof-state-command             "goals."
    proof-goal-command-regexp       
-    "\\`\\(goal\\|prop\\(osition\\)?\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
+    "\\`\\(goal\\|pro\\(p\\(osition\\)?\\|ve_claim\\)\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
    proof-save-command-regexp       "\\`save"
    proof-goal-with-hole-regexp  
    (concat 
-    "\\`\\(prop\\(osition\\)?\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
+    "\\`\\(pro\\(p\\(osition\\)?\\|ve_claim\\)\\(osition\\)?\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
     phox-strict-comments-regexp
     phox-ident-regexp)
-   proof-goal-with-hole-result     13
+   proof-goal-with-hole-result     14
    proof-save-with-hole-regexp     
    (concat 
     "\\`save"

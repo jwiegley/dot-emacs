@@ -3,6 +3,7 @@
 
 (setq
  phox-forget-id-command "del %s.\n"
+ phox-forget-proof-command "del_proof %s.\n"
  phox-forget-new-elim-command "edel elim %s.\n"
  phox-forget-new-intro-command "edel intro %s.\n"
  phox-forget-new-rewrite-command "edel rewrite %s.\n"
@@ -12,13 +13,36 @@
 ; phox-strict-comments-regexp : a not empty sequence of comments and white spaces
  phox-strict-comments-regexp "\\([ \n\t\r]+\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*\\|\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)+\\)"
  phox-ident-regexp "\\(\\([^() \n\t\r=\\[.]\\|\\(\\.[^() \n\t\r]\\)\\)+\\)"
+ phox-inductive-option "\\(\\[[^]]*]\\)?"
  phox-spaces-regexp "[ \n\t\r]*"
  phox-sy-definition-regexp (concat 
    "\\(Cst\\|def\\)"
    phox-comments-regexp
    "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)") 
+ phox-sy-inductive-regexp (concat 
+   "Inductive"
+   phox-comments-regexp
+   phox-inductive-option
+   phox-comments-regexp
+   "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)") 
+ phox-inductive-regexp (concat 
+   "Inductive"
+   phox-comments-regexp
+   phox-inductive-option
+   phox-comments-regexp
+   phox-ident-regexp) 
+ phox-data-regexp (concat 
+   "Data"
+   phox-comments-regexp
+   phox-inductive-option
+   phox-comments-regexp
+   phox-ident-regexp) 
  phox-definition-regexp (concat
    "\\(Cst\\|def\\(_thlist\\)?\\|claim\\|Sort\\)"
+   phox-comments-regexp
+   phox-ident-regexp)
+ phox-prove-claim-regexp (concat
+   "prove_claim"
    phox-comments-regexp
    phox-ident-regexp)
  phox-new-elim-regexp (concat
@@ -64,6 +88,7 @@
 "def"
 "def_thlist"
 "del"
+"del_proof"
 "Sort"
 "close_def"
 "edel"
@@ -84,6 +109,7 @@
 "print"
 "print_sort"
 "priority"
+"prove_claim"
 "search"
 "compile"
 "tdef"
@@ -147,8 +173,11 @@
        ((eq (span-property span 'type) 'comment))       
 
        ((eq (span-property span 'type) 'proof)
-	(setq ans (concat (format phox-forget-id-command
-				  (span-property span 'name)) ans)))
+	(if (proof-string-match phox-prove-claim-regexp str)
+	    (setq ans (concat (format phox-forget-proof-command 
+				      (match-string 4 str)) ans))
+	  (setq ans (concat (format phox-forget-id-command
+				    (span-property span 'name)) ans))))
 
        ((proof-string-match phox-new-elim-regexp str)
 	(setq ans 
@@ -175,10 +204,27 @@
 	      (concat (format phox-forget-id-command 
 				  (concat "$" (match-string 7 str))) ans)))
 
+       ((proof-string-match phox-sy-inductive-regexp str)
+	(setq ans 
+	      (concat (format phox-forget-id-command 
+				  (concat "$" (match-string 10 str))) ans)))
+
+       ((proof-string-match phox-inductive-regexp str)
+	(setq ans 
+	      (concat (format phox-forget-id-command 
+				  (match-string 8 str)) ans)))
+
+       ((proof-string-match phox-data-regexp str)
+	(setq
+	  name (match-string 8 str)
+          sname (concat (downcase (substring name 0 1)) 
+			(substring name 1 nil))
+	  ans (concat (format phox-forget-id-command 
+			      sname) ans)))
+
        ((proof-string-match phox-definition-regexp str)
 	(setq ans (concat (format phox-forget-id-command 
 				      (match-string 6 str)) ans))))
-
 
       (setq lsp (span-start span))
       (setq span (next-span span 'type)))
