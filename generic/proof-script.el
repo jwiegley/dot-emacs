@@ -38,7 +38,8 @@
 	  '(proof-shell-ready-prover
 	    proof-start-queue
 	    proof-shell-live-buffer
-	    proof-shell-invisible-command)))
+	    proof-shell-invisible-command
+	    proof-shell-proof-completed)))
 ;; proof-response-buffer-display now in proof.el, removed from above.
 
 ;;
@@ -669,6 +670,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
      ((proof-check-atomic-sequents-lists span cmd end))
      ((and (proof-string-match proof-save-command-regexp cmd)
 	   (funcall proof-really-save-command-p span cmd))
+      ;; First, clear the proof completed flag
+      (setq proof-shell-proof-completed nil)
       ;; In coq, we have the invariant that if we've done a save and
       ;; there's a top-level declaration then it must be the
       ;; associated goal.  (Notice that because it's a callback it
@@ -1032,6 +1035,9 @@ a space or newline will be inserted automatically."
   "Update display after proof process has reset its state.
 See also the documentation for `proof-retract-until-point'.
 Optionally delete the region corresponding to the proof sequence."
+  ;; 10.9.99: da: added this line so that undo always clears the
+  ;; proof completed flag.  Maybe this belongs elsewhere.
+  (setq proof-shell-proof-completed nil)
   (if (span-live-p span)
       (let ((start (span-start span))
 	    (end (span-end span))
