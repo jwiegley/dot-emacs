@@ -114,7 +114,6 @@
   (insert-buffer-substring (proof-shell-buffer) start end))
 
 (defun lego-pbp-process-region (pbp-start pbp-end)
-  (message "process")
   (let (start end)
    (save-excursion 
     (goto-char pbp-start)
@@ -132,7 +131,9 @@
       (lego-pbp-sanitise-region pbp-start pbp-end)
       (lego-pbp-display-error start pbp-end))
 
-     ((setq start (search-forward "-- Start of Goals --" pbp-end t))
+     ((search-forward "-- Start of Goals --" pbp-end t)
+      (goto-char pbp-end)
+      (setq start (+ 20 (search-backward "-- Start of Goals --" pbp-start t)))
       (setq end (- (search-forward "-- End of Goals --" pbp-end t) 18))
       (set-buffer lego-goals-buffer)
       (erase-buffer)
@@ -140,7 +141,6 @@
       (lego-pbp-analyse-structure))
 
      ((search-forward "-- Pbp result --" () t)
-      (message "pbp")
       (end-of-line)
       (setq start (point))
       (search-forward "-- End Pbp result --" () t)
@@ -157,7 +157,6 @@
 ;; NEED TO SET LAST_MARK ***BEFORE*** calling process-region 
 
 (defun lego-pbp-filter (string)
-  (message "filter")
   (save-excursion
     (set-buffer (proof-shell-buffer))
 
