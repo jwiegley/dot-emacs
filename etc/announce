@@ -1,4 +1,4 @@
-
+Reply-To: "Proof General Maintainer <proofgen@dcs.ed.ac.uk>"
 To: coq-club@pauillac.inria.fr,
     isabelle-users@cl.cam.ac.uk,
     lego-club@dcs.ed.ac.uk,
@@ -65,6 +65,10 @@ Script management is the main feature.
 See http://www.dcs.ed.ac.uk/proofgen/ProofGeneral/ProofGeneral.html
 for the user manual which contains full details.
 
+The rest of this announcement contains notes addressed to different
+user communities: LEGO, Coq, and Isabelle; users of other proof
+assistants, user-interface/theorem-proving researchers and, finally,
+Emacs gurus.
 
 To users of LEGO, Coq, and Isabelle:
 ------------------------------------
@@ -91,20 +95,6 @@ designing another proof assistant, please try configuring Proof
 General for it, and let us know how you get on.
 
 
-To Emacs gurus:
----------------
-If you are an Emacs guru and want to contribute to the development of
-Proof General, please join in!  There are plenty of exciting avenues
-for improving this tool, for example, to add proof by pointing
-facilities (a basis already exists for LEGO), and a theory browser.
-
-Apart from proof assistants, script management makes sense for many
-other systems or languages with an interactive shell-like interpreter.
-We would be interested to hear from any Emacs developers interesting
-in using Proof General's script management for development in Lisp,
-SML, or other languages.
-
-
 To user-interface/theorem-proving researchers:
 ---------------------------------------------- 
 Proof General provides a unified interface to different theorem
@@ -120,6 +110,20 @@ invent a unified proof script (input) language and proof-state
 (output) language for theorem provers. The Proof General experience
 could provide useful insight into such a project. We'd be interested
 to hear from workers interested in collaborating in this area.
+
+To Emacs gurus:
+---------------
+If you are an Emacs guru and want to contribute to the development of
+Proof General, please join in!  There are plenty of exciting avenues
+for improving this tool, for example, to add proof by pointing
+facilities (a basis already exists for LEGO), and a theory browser.
+
+Apart from proof assistants, script management makes sense for many
+other systems or languages with an interactive shell-like interpreter.
+We would be interested to hear from any Emacs developers interesting
+in using Proof General's script management for development in Lisp,
+SML, or other languages.
+
 
  -- David Aspinall & Thomas Kleymann
     (Please contact via  proofgen@dcs.ed.ac.uk)
