@@ -286,6 +286,7 @@
     "^Variables:$"
     "^Constants:$"
     "\\s-*[0-9][0-9]?\\. ")
-   isa-output-font-lock-keywords-1))
+   isa-output-font-lock-keywords-1)
+  "*Font-lock table for Isabelle goals output.")
 
 (provide 'isa-syntax)
