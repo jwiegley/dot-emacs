@@ -16,7 +16,10 @@
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-splash-time 2
+(defcustom proof-splash-time 
+  ;; a shorter timeout if we're being loaded via visit-file.
+  ;; FIXME (minor): shouldn't be defcustom since evaluated here
+  (if (featurep 'proof-config) 2 6)
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise 
@@ -59,10 +62,14 @@ If it is nil, a new line is inserted."
   :group 'proof-general-internals)
 
 (defcustom proof-splash-extensions 
-  '(list
-    "To start using Proof General, visit a proof script file"
-    "for your prover, using C-x C-f or the File menu.")
-  "Prover specific extensions of splash screen.
+  (if (featurep 'proof-config) nil
+    ;; Display additional hint if we guess we're being loaded
+    ;; by shell script rather than find-file.
+    ;; FIXME (minor): shouldn't be defcustom since evaluated here
+    '(list
+      "To start using Proof General, visit a proof script file"
+      "for your prover, using C-x C-f or the File menu."))
+    "Prover specific extensions of splash screen.
 These are evaluated and appended to `proof-splash-contents'."
   :type 'sexp
   :group 'prover-config)
@@ -135,7 +142,7 @@ Borrowed from startup-center-spaces."
 	      (progn
 		(kill-buffer splashbuf)
 		(set-window-configuration conf)
-		(if (and proof-running-on-XEmacs proof-toolbar-enable)
+		(if proof-running-on-XEmacs
 		    (redraw-frame nil t)))
 	    (kill-buffer splashbuf))))))
 
