@@ -333,16 +333,18 @@ releases and turned off in stable releases."
 
 (defcustom proof-follow-mode 'locked
   "*Choice of how point moves with script processing commands.
-One of the symbols: 'locked, 'follow, 'ignore.
+One of the symbols: 'locked, 'follow, 'followdown, 'ignore.
 
 If 'locked, point sticks to the end of the locked region.
 If 'follow, point moves just when needed to display the locked region end.
+If 'followdown, point if necessary to stay in writeable region
 If 'ignore, point is never moved after movement commands or on errors.
 
 If you choose 'ignore, you can find the end of the locked using
 `M-x proof-goto-end-of-locked'."
   :type '(choice
 	  (const :tag "Follow locked region" locked)
+	  (const :tag "Follow locked region down" followdown)
 	  (const :tag "Keep locked region displayed" follow)
 	  (const :tag "Never move" ignore))
   :group 'proof-user-options)

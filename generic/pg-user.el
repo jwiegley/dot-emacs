@@ -24,10 +24,14 @@
 	,@body)))
 
 (defun proof-maybe-follow-locked-end ()
-  "Maybe point to the make sure the locked region is displayed."
-  (if (eq proof-follow-mode 'follow)
-    (proof-goto-end-of-queue-or-locked-if-not-visible)))
-
+  "Maybe move point to make sure the locked region is displayed."
+  (cond
+   ((eq proof-follow-mode 'follow)
+    (proof-goto-end-of-queue-or-locked-if-not-visible))
+   ((eq proof-follow-mode 'followdown)
+    (if (> (proof-queue-or-locked-end) (point))
+	(goto-char (proof-queue-or-locked-end))))))
+	
 
 ;;
 ;; Doing commands

@@ -15,6 +15,11 @@
 
 ** Generic changes
 
+*** Follow mode: add "followdown" setting
+
+In this mode, the point moves with the locked region when it moves
+down in the buffer (processing).  For undo, the point does not move.
+
 *** Options and proof assistant settings improvements
 
 Facility to reset to default values added, and saving
