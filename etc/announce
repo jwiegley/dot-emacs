@@ -7,26 +7,38 @@ To: coq-club@pauillac.inria.fr,
     pvs@csl.sri.com, 
     qed@mcs.anl.gov,				
     theorem-provers@ai.mit.edu,
-    types@cs.indiana.edu,
+    types@cis.upenn.edu,
     formal-methods@cs.uidaho.edu,
     reliable_computing@interval.usl.edu,
     prog-lang@diku.dk
 
     Also newsgroups:
-     comp.lang.sml
+     comp.lang.ml
+     comp.lang.functional
      gnu.emacs.sources
+     comp.emacs.xemacs
      comp.os.linux.announce
      freshmeat.net
-     comp.*.xemacs
 
     Bring message about script management in other systems
     under "Emacs gurus" higher in text for non-theory
     postings.
 
-      
+ 
+tag for comp.lang.ml, comp.lang.functional: 
+     
+[Posted here because ML and functional languages generally are
+ traditional for implementing interactive theorem provers.
+ Implementors of such systems may be interested in Proof General.
+ Apologies for multiple copies]
 
+
+ 
         
 Subject: Proof General --- Version 3.0 release
+
+[Apologies for multiple copies]
+
 
             Announcing  Proof General  Version 3.0
 
@@ -47,20 +59,21 @@ Proof General includes these features, amongst others:
 . Script management: proof assistant state reflected in editor
 . Toolbar and menus: commands for building and replaying proofs
 . Syntax highlighting of proof scripts and prover output
-. Integration with X-Symbol to provide logical symbols, etc
+. Display of real logical symbols, greek letters, etc
 . Simplified communication: proof assistant verbosity hidden
 . Menu for jumping to theorems in a proof script
 . Provision to easily run proof assistant on a remote host
+. Works on any platform Emacs does, in window system or plain console 
 
 Summary of changes since 2.1:
 
 . Eight new toolbar buttons, now enabled depending on context
 . Improved and reorganized menus and key-bindings, options settings
-. Easier to adapt to new systems, comes with example (30 setqs)
+. Much easier to adapt to new systems, comes with example (< 30 setqs)
 . New function to search for theorems 
 . X-Symbol support for Coq, LEGO, and Isabelle
 . Lots more fine-grained improvements, for full details
-  http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/CHANGES
+  http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral-3.0/CHANGES
 
 The user manual contains full details, and is available on-line at: 
 http://zermelo.dcs.ed.ac.uk/~proofgen/index.phtml?page=doc
@@ -70,9 +83,15 @@ prefers XEmacs to FSF GNU Emacs.  Proof General 3.0 has been tested
 with XEmacs 21.1 and Emacs 20.4.  (It should work back to XEmacs 20.4
 and Emacs 20.2, though).  
 
-Installing Proof General is easy.  Give it a try!
+Installing Proof General is easy.  Why not give it a try?
 
  - David Aspinall <da@dcs.ed.ac.uk>
+
+
+
+
+Appendix
+========
 
 
 
@@ -126,7 +145,7 @@ from workers interested in collaborating in this area.
 
 To Emacs gurus: 
 --------------- 
-If case happen to be an Emacs guru also interested in interactive
+If you happen to be an Emacs guru also interested in interactive
 proof, we want you to contribute to the development of Proof General!
 Please join in!  There are plenty of exciting avenues for improving
 this tool, for example, to add proof by pointing facilities (a basis
@@ -140,6 +159,5 @@ SML, or other languages.
 
 
  -- David Aspinall <da@dcs.ed.ac.uk>
-    November 1999.
-
+    December 1999.
 
