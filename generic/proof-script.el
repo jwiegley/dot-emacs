@@ -356,6 +356,13 @@ to allow other files loaded by proof assistants to be marked read-only."
 		     t))
 	      (proof-mark-buffer-atomic buffer))))))
 
+(defun proof-unregister-buffer-file-name ()
+  "Remove current buffer's filename from the list of included files."
+  (if buffer-file-name
+      (let ((cfile (file-truename buffer-file-name)))
+	(setq proof-included-files-list
+	      (delete cfile proof-included-files-list)))))
+
 ;; three NEW predicates, let's use them!
 
 (defun proof-locked-region-full-p ()
@@ -380,8 +387,9 @@ NB: If nil, point is left at first non-whitespace character found.
 If non-nil, point is left where it was."
   (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
 
+
 (defun proof-activate-scripting ()
-  "Activate scripting minor mode for current scripting buffer.
+  "Activate scripting for the current script buffer.
 
 The current buffer is prepared for scripting.  No changes are
 necessary if it is already in Scripting minor mode. Otherwise, it
@@ -423,17 +431,20 @@ buffers."
 	  ;; FIXME: this test isn't necessary if the current
 	  ;; buffer was already in proof-script-buffer-list.
 	  (or (proof-locked-region-empty-p)
-	      (proof-locked-region-full-p) ;; should be always t
+	      (proof-locked-region-full-p)
 	      (error 
 	       "Cannot have more than one active scripting buffer!"))
 	    
 	  (if (proof-locked-region-full-p)
 	      ;; We're switching from a buffer which has been
 	      ;; completely processed.  Make sure that it's
-	      ;; registered on the included files list. 
+	      ;; registered on the included files list.
 	      (if buffer-file-name
 		  (proof-register-possibly-new-processed-file 
 		   buffer-file-name)))
+	  ;; FIXME: if it's *not* completely processed, should
+	  ;; we make sure it isn't on the included files list?
+	  ;; (see proof-deactivate-scripting below)
 
 	  ;; Turn off Scripting in the old buffer.
 	  (setq proof-active-buffer-fake-minor-mode nil)))
@@ -455,6 +466,37 @@ buffers."
     ;; This may be a good time to ask if the user wants to save some
     ;; buffers
     (save-some-buffers))))
+
+;; This could be a subroutine to the above for a more sophisticated
+;; behaviour upon switching.
+(defun proof-deactivate-scripting ()
+  "Deactivate scripting, if the current script buffer is active.
+Set proof-script-buffer to nil and turn off the modeline indicator.
+If the locked region doesn't cover the entire file, retract it."
+  (interactive)
+  (if (eq (current-buffer) proof-script-buffer)
+      (let ((bname  (buffer-name proof-script-buffer)))
+	(message "Turning off scripting in %s..." bname)
+	(unwind-protect
+	    ;; If the buffer is not fully processed, 
+	    ;; ensure it's removed from the list of included files
+	    ;; and retract it.  
+	    (unless (proof-locked-region-full-p)
+	      (goto-char (point-min))
+	      (proof-unregister-buffer-file-name)
+	      (proof-retract-until-point))
+	  ;; In any case, make some cleanup attempts
+	  (proof-restart-buffers (list proof-script-buffer))
+	  ;; And turn off the fake minor mode
+	  (setq proof-active-buffer-fake-minor-mode nil)
+	  ;; Make status of active scripting buffer show up
+	  (if (fboundp 'redraw-modeline)
+	      (redraw-modeline)
+	    (force-mode-line-update))
+	  (message "Turning off scripting in %s... done." bname)))))
+
+	
+
 
 
 
@@ -823,7 +865,7 @@ Assumes that point is at the end of a command."
   "Process the region from the end of the locked-region until point.
 Default action if inside a comment is just process as far as the start of
 the comment. If you want something different, put it inside
-unclosed-comment-fun. If ignore-proof-process-p is set, no commands
+UNCLOSED-COMMENT-FUN. If IGNORE-PROOF-PROCESS-P is set, no commands
 will be added to the queue and the buffer will not be activated for
 scripting."
   (interactive)
@@ -1005,14 +1047,16 @@ deletes the region corresponding to the proof sequence."
 ;; FIXME da:  I would rather that this function moved point to
 ;; the start of the region retracted?
 
+;; FIXME da: Maybe retraction to the start of
+;; a file should remove it from the list of included files?
 (defun proof-retract-until-point (&optional delete-region)
-  "Sets up the proof process for retracting until point. In
-   particular, it sets a flag for the filter process to call
-   `proof-done-retracting' after the proof process has actually
-   successfully reset its state. It optionally deletes the region in
-   the proof script corresponding to the proof command sequence. If
-   this function is invoked outside a locked region, the last
-   successfully processed command is undone."
+  "Set up the proof process for retracting until point.
+In particular, set a flag for the filter process to call `proof-done-retracting'
+after the proof process has actually successfully reset its state.
+If DELETE-REGION is non-nil, delete the region in the proof script
+corresponding to the proof command sequence.
+If invoked outside a locked region, undo the last successfully processed
+command."
   (interactive)
   (proof-shell-ready-prover)
   (proof-activate-scripting)
@@ -1048,7 +1092,7 @@ This will only happen if the command satisfies proof-state-preserving-p.
 
 Default action if inside a comment is just to go until the start of
 the comment. If you want something different, put it inside
-unclosed-comment-fun."
+UNCLOSED-COMMENT-FUN."
   (interactive)
   (proof-shell-ready-prover)
   (proof-activate-scripting)
@@ -1091,6 +1135,11 @@ the proof script."
 	    (proof-retract-until-point (not no-delete)))
 	(error "Nothing to undo!")))))
 
+
+;; FIXME da: need to add some way of recovery here.  Perhaps
+;; query process as to its state as well.  Also unwind protects
+;; here.
+
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  WARNING! This may confuse Proof General."
   (interactive)
@@ -1132,6 +1181,12 @@ the proof script."
   (goto-char (point-max))
   (proof-assert-until-point))
 
+;; FIXME da: this could do with some tweaking.  Be careful to
+;; avoid memory leaks.  If a buffer is killed and it's local
+;; variables are, then so should all the spans which were allocated
+;; for that buffer.  Is this what happens?  Otherwise we should
+;; perhaps *delete* spans corresponding to the locked and
+;; queue regions as well as the others.
 (defun proof-restart-buffers (buffers)
   "Remove all extents in BUFFERS and maybe reset `proof-script-buffer'.
 No effect on a buffer which is nil or killed.  If one of the buffers
@@ -1164,14 +1219,7 @@ value of proof-locked span."
   "Remove all spans from scripting buffers via proof-restart-buffers."
   (proof-restart-buffers (proof-script-buffers-with-spans)))
 
-;; For when things go horribly wrong
-;; FIXME: this needs to politely stop the process by sending
-;; an EOF or customizable command.  (maybe timeout waiting for
-;; it to die before killing the buffer)
-;; maybe better:
-;;  Put a funciton to remove all extents in buffers into
-;; the kill-buffer-hook for the proof shell.  Then this
-;; function just stops the shell nicely (see proof-stop-shell).
+;; THIS HAS BEEN REPLACED WITH proof-shell-exit, proof-shell-restart.
 
 ;(defun proof-restart-script ()
 ;  "Restart Proof General.
@@ -1514,10 +1562,22 @@ sent to the assistant."
   (setq proof-buffer-type 'script)
 
   (make-local-variable 'kill-buffer-hook)
-  (add-hook 'kill-buffer-hook
-	    (lambda ()
-	      (if (eq (current-buffer) proof-script-buffer)
-		  (setq proof-script-buffer nil))))))
+  (add-hook 'kill-buffer-hook 'proof-script-kill-buffer-fn)))
+
+(defun proof-script-kill-buffer-fn ()
+  "Value of kill-buffer-hook for proof script buffers.
+Clean up before a script buffer is killed.
+If killing the active scripting buffer, run proof-deactivate-scripting.
+Otherwise just do proof-restart-buffers to delete some spans from memory."
+  (if (eq (current-buffer) proof-script-buffer)
+      (proof-deactivate-scripting)
+    (proof-restart-buffers (list (current-buffer))))
+  ;; Hide away goals and response: this is a hack because otherwise
+  ;; we can lead the user to frustration with the dedicated windows
+  ;; nonsense.
+  (if proof-pbp-buffer (bury-buffer proof-pbp-buffer))
+  (if proof-response-buffer (bury-buffer proof-response-buffer)))
+  
 
 ;; Fixed definitions in proof-mode-map, which don't depend on
 ;; prover configuration.
@@ -1531,7 +1591,12 @@ sent to the assistant."
 (define-key map [(control c) ?u]	  'proof-retract-until-point)
 (define-key map [(control c) (control u)] 'proof-undo-last-successful-command)
 (define-key map [(control c) ?\']	  'proof-goto-end-of-locked-interactive)
-(define-key map [(control button1)]	  'proof-send-span)
+;; FIXME da: I don't understand what this function is supposed to do.
+;; It will copy a proof command from within the locked region
+;; to the end of it at the moment (contrary to the name "send", nothing to
+;; do with shell).  Perhaps we could define a
+;; collection of useful copying functions which do this kind of thing.
+;; (define-key map [(control button1)]	  'proof-send-span)
 (define-key map [(control c) (control b)] 'proof-process-buffer)
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control p)] 'proof-prf)
