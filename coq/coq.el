@@ -614,7 +614,9 @@ This is specific to coq-mode."
         proof-really-save-command-p 'coq-save-command-p ;pierre:deals with Proof <term>.
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
-	proof-nested-undo-regexp coq-state-changing-commands-regexp)
+	proof-nested-undo-regexp coq-state-changing-commands-regexp
+  proof-script-imenu-generic-expression coq-generic-expression
+  )
   
   (setq	
 ;indentation is implemented in coq-indent.el

@@ -839,6 +839,12 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   (modify-syntax-entry ?\) ")(4"))
 
 
+(defconst coq-generic-expression
+  (mapcar (lambda (kw) 
+				(list (capitalize kw)
+						(concat "\\<" kw "\\>" "\\s-+\\(\\w+\\)\\W" )
+						1))
+			 (append coq-keywords-decl coq-keywords-defn coq-keywords-goal)))
 
 
 (provide 'coq-syntax)
