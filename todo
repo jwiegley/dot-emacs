@@ -23,7 +23,9 @@ A Clarify licence situation for Proof General after question from
   a potential user. Will the LFCS allow it to be used in a commercial 
   environment without a special licence agreement? A new licence is
   currently [22 Jan 1999] being drafted by UNIVED.
-  Will wait for this (at least) before releasing 2.1.
+  (And I understand the answer is "yes", so long as no money 
+   is derived directly from ProofGeneral itself).
+  Will wait for this before releasing 2.1.
 
 B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
@@ -47,6 +49,7 @@ C Web pages improvements:
    works.  Also need to fix inclusion of image in pdf. 
    - Add status bar messages to navigation bar
    - Get rid of footer() function.
+   - Convert to SSI only plus a meta-generation phase?
 
 C Check compilation okay, check on use of eval-and-compile.
 
@@ -73,7 +76,7 @@ B QUESTION: why do we have proof-shell-proof-completed-regexp's
   completed proof message to appear in the goals buffer since it's
   marked up as a proof state output)
 
-B proof-shell-exit has a time delay of 10 secs built-in, 
+C proof-shell-exit has a time delay of 10 secs built-in, 
   before which the process is killed off.  
   This should be configurable to allow for proof assistants 
   which really want to do some work before exiting, for
@@ -107,7 +110,6 @@ B Improve behaviour when switching active scripting buffer.
   and removes them from proof-included-files-list, we could
   allow switching between scripting buffers automatically,
   (perhaps with an option akin to the old "steal scripting?" idea). 
-  Also we 
 
 B Check matching code carefully, in view of bug reported (now fixed)
   for Isabelle.
