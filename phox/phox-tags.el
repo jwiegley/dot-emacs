@@ -24,11 +24,11 @@
   (if proof-running-on-XEmacs
       (let ((association (cons buffer-file-name table)))
 	(if (member association tag-table-alist)
-	    (message (concat table " already loaded."))
+	    (message "%s already loaded." table)
 	  (setq tag-table-alist (cons association tag-table-alist))))
 					; gnu emacs
     (if (member table tags-table-list)
-	(message (concat table " already loaded."))
+	(message "%s already loaded." table)
 ;    (make-local-variable 'tags-table-list) ; ne fonctionne pas
       (setq tags-table-list (cons table tags-table-list))
       )
