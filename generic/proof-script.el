@@ -1090,26 +1090,25 @@ a scripting buffer is killed it is always retracted."
 
 The current buffer is prepared for scripting.  No changes are
 necessary if it is already in Scripting minor mode.  Otherwise, it
-will become the new active scripting buffer, provided scripting
-can be switched off in the previous active scripting buffer
-with `proof-deactivate-scripting'.
+will become the new active scripting buffer, provided scripting can be
+switched off in the previous active scripting buffer with
+`proof-deactivate-scripting'.
 
-Activating a new script buffer may be a good time to ask if the
-user wants to save some buffers; this is done if the user
-option `proof-query-file-save-when-activating-scripting' is set
-and provided the optional argument NOSAVES is non-nil.
+Activating a new script buffer may be a good time to ask if the user
+wants to save some buffers; this is done if the user option
+`proof-query-file-save-when-activating-scripting' is set and provided
+the optional argument NOSAVES is non-nil.
 
-The optional argument QUEUEMODE relaxes the test for a
-busy proof shell to allow one which has mode QUEUEMODE.
-In all other cases, a proof shell busy error is given.
+The optional argument QUEUEMODE relaxes the test for a busy proof
+shell to allow one which has mode QUEUEMODE.  In all other cases, a
+proof shell busy error is given.
 
-Finally, the hooks `proof-activate-scripting-hook' are run.
-This can be a useful place to configure the proof assistant for
-scripting in a particular file, for example, loading the
-correct theory, or whatever.  If the hooks issue commands
-to the proof assistant (via `proof-shell-invisible-command')
-which result in an error, the activation is considered to
-have failed and an error is given."
+Finally, the hooks `proof-activate-scripting-hook' are run.  This can
+be a useful place to configure the proof assistant for scripting in a
+particular file, for example, loading the correct theory, or whatever.
+If the hooks issue commands to the proof assistant (via
+`proof-shell-invisible-command') which result in an error, the
+activation is considered to have failed and an error is given."
   (interactive)
   ;; FIXME: the scope of this save-excursion is rather wide.
   ;; Problems without it however: Use button behaves oddly
@@ -2366,10 +2365,17 @@ command."
   (if (proof-locked-region-empty-p)
       (error "No locked region")
     ;; Make sure we're ready: either not busy, or already advancing/retracting.
-    ;; Also: if this file is completed, we may have to re-open it for
-    ;; scripting again.
+    ;; Notes:
+    ;; 1. Could consider generalising here to allow retracting from queue
+    ;; 2. If this file is completely processed, we may have to re-open it for
+    ;;    scripting again which could involve retracting other files.
+    ;; 3. It seems odd at first here to allow proof-activate-scripting to
+    ;;    query saves -- we're undoing (in) the buffer, after all -- but what
+    ;;    may happen is that when scripting starts going forward again, we hit
+    ;;    a command that loads other files, but the user hasn't saved the latest
+    ;;    edits.  Therefore it is right to query saves here.
     (proof-activate-scripting)
-    (unless (proof-locked-region-empty-p) ;; re-opening may discard history
+    (unless (proof-locked-region-empty-p) ;; re-opening may discard locked region!
       (let ((span (span-at (point) 'type)))
 	;; If no span at point, retracts the last span in the buffer.
 	(unless span
