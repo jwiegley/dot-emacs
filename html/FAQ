@@ -1,4 +1,5 @@
 <?php require('functions.php3');
+      require('elispmarkup.php3');
       fileshowmarkup("ProofGeneral/FAQ",
 		     "Frequently Asked Questions about using Proof General");
 ?>
