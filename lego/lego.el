@@ -53,7 +53,7 @@ See the documentation of `easy-menu-define' "
 ;; Users should not need to change this. 
 
 (defvar lego-shell-process-output
-  '((lambda (cmd string) (string-match "^Module" cmd)) .
+  '((lambda (cmd string) (proof-string-match "^Module" cmd)) .
     (lambda (cmd string)
       (setq proof-shell-delayed-output
 	    ;;FIXME: This should be displayed in the minibuffer only
@@ -190,9 +190,9 @@ Given is the first SPAN which needs to be undone."
     (while span
       (setq str (span-property span 'cmd))
       (cond ((eq (span-property span 'type) 'vanilla)
-	     (if (or (string-match lego-undoable-commands-regexp str)
-		     (and (string-match "Equiv" str)
-			  (not (string-match "Equiv\\s +[TV]Reg" str))))
+	     (if (or (proof-string-match lego-undoable-commands-regexp str)
+		     (and (proof-string-match "Equiv" str)
+			  (not (proof-string-match "Equiv\\s +[TV]Reg" str))))
 		 (setq ct (+ 1 ct))))
 	    ((eq (span-property span 'type) 'pbp)
 	     (setq i 0)
@@ -204,7 +204,7 @@ Given is the first SPAN which needs to be undone."
 
 (defun lego-goal-command-p (str)
   "Decide whether argument is a goal or not"
-  (string-match lego-goal-command-regexp str))
+  (proof-string-match lego-goal-command-regexp str))
 
 (defun lego-find-and-forget (span) 
   (let (str ans)
@@ -220,27 +220,27 @@ Given is the first SPAN which needs to be undone."
 			  (span-property span 'name) proof-terminal-string)))
 
        ;; alternative definitions
-       ((string-match lego-definiendum-alternative-regexp str)
+       ((proof-string-match lego-definiendum-alternative-regexp str)
 	(setq ans (concat lego-forget-id-command (match-string 1 str)
 			  proof-terminal-string)))
        ;; declarations
-       ((string-match (concat "\\`\\$?" (lego-decl-defn-regexp "[:|=]")) str)
+       ((proof-string-match (concat "\\`\\$?" (lego-decl-defn-regexp "[:|=]")) str)
 	(let ((ids (match-string 1 str))) ; returns "a,b"
-	  (string-match proof-id ids)	; matches "a"
+	  (proof-string-match proof-id ids)	; matches "a"
 	  (setq ans (concat lego-forget-id-command(match-string 1 ids)
 			    proof-terminal-string))))
 	   
-       ((string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
+       ((proof-string-match "\\`\\(Inductive\\|\\Record\\)\\s-*\\[\\s-*\\w+\\s-*:[^;]+\\`Parameters\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
 	(setq ans (concat lego-forget-id-command
 			  (match-string 2 str) proof-terminal-string)))
 
-       ((string-match 
+       ((proof-string-match 
 	 "\\`\\(Inductive\\|Record\\)\\s-*\\[\\s-*\\(\\w+\\)\\s-*:" str)
 	(setq ans 
 	      (concat lego-forget-id-command (match-string 2 str)
 		      proof-terminal-string)))
        
-       ((string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
+       ((proof-string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
 	(setq ans (concat "ForgetMark " (match-string 1 str) 
 			  proof-terminal-string))))
       
@@ -261,7 +261,7 @@ Given is the first SPAN which needs to be undone."
 
 
 (defun lego-state-preserving-p (cmd)
-  (not (string-match lego-undoable-commands-regexp cmd)))
+  (not (proof-string-match lego-undoable-commands-regexp cmd)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
