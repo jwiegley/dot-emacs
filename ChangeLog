@@ -1,3 +1,57 @@
+2001-09-09  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/download.html: Trim page a bit
+
+	* html/news.html, html/oldnews.html:
+	Announce 3.3
+
+	* html/doc.html: Release 3-3.
+
+	* etc/release-log.txt:
+	Release date of 3-3.
+
+	* html/download.html:
+	Mention paper letter registrations.
+
+	* html/download.html:
+	Remove to be released line
+
+	* doc/PG-adapting.texi: Update docs.
+
+2001-09-06  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/interface, isar/interface:
+	tuned usage;
+
+2001-09-05  David Aspinall  <da@proofgeneral.org>
+
+	* doc/ProofGeneral.texi:
+	Mention pg-toggle-visibility and its keybinding
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/pg-metadata.el: Incomplete
+
+	* doc/ProofGeneral.texi: Todo
+
+	* CHANGES, todo:
+	Updated
+
+	* generic/proof-menu.el:
+	Add keybindings for new commands for moving/navigating spans.
+
+	* generic/proof-script.el:
+	Fix problem with C-x C-v by copying buffer-file-name. Add children property to control spans.
+
+	* generic/pg-user.el:
+	Improved span moving and navigation commands.
+
 2001-09-05  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
