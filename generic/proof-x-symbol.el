@@ -18,7 +18,7 @@
 ;;; ###autoload
 (defun proof-x-symbol-support-maybe-available ()
   "A test to see whether x-symbol support may be available."
-  (and (boundp 'console-type)		; FSF Emacs doesn't have this
+  (and (fboundp 'console-type)		; FSF Emacs doesn't have this
        (eq (console-type) 'x)		; (neither does it have x-symbol)
        (condition-case ()
 	   (require 'x-symbol-autoloads) 
