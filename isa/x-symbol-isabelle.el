@@ -17,6 +17,7 @@
 ;; Isabelle/Isar:  \<foo>
 ;;
 
+;; CW: this sexpr can be deleted with X-Symbol 4.4.3
 (eval-when-compile
   ;; Next lines should allow this file to work standalone 
   ;; without proof-x-symbol.el.  See comments further below too.
@@ -59,6 +60,8 @@ See `x-symbol-header-groups-alist'."
 
 
 (defvar x-symbol-isabelle-token-grammar
+  ;; CW: for X-Symbol-4.4.3:
+  ;; '(x-symbol-make-grammar ...)
   (if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
       (x-symbol-make-grammar
        :encode-spec '(((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")) .
@@ -71,9 +74,13 @@ See `x-symbol-header-groups-alist'."
 					; but not used in output strings.  
 					; FIXME: is this right??
 	"\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+")
+       ;; CW: according to `x-symbol-isabelle-prepare-table', also `isar' uses
+       ;; \\<SYM>, although this is not the preferred representation
+       ;; "\\\\\\\\?<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+")
        :token-list #'x-symbol-isabelle-default-token-list)))
 
 (defvar x-symbol-isabelle-input-token-grammar
+;;  '("\\(?:\\\\\\\\?<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
   '("\\(?:\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
      ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
      (id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
@@ -83,7 +90,8 @@ See `x-symbol-header-groups-alist'."
   (mapcar 
    (lambda (x)
      (cons x 
-	   (cond 
+	   (cond
+	    ;; CW: where are the shapes `id' and `op' used?
 	    ((string-match "\\`[A-Za-z_][A-Za-z_0-9]+\\'" x)
 	     'id)
 	    ((string-match "\\`[<>!+-*/|&]+\\'" x) 
@@ -117,8 +125,8 @@ See `x-symbol-header-groups-alist'."
 (defun x-symbol-isabelle-make-ctrl-regexp (s)
   "Return regexp matching \<^S>\<ident> or \<^S>c for some char c."
   (concat 
-   "\\(\\\\?\\\\<\\^" s ">\\)"
-   "\\(\\\\?\\\\<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
+   "\\(\\\\\\\\?<\\^" s ">\\)"
+   "\\(\\\\\\\\?<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
 
 (defconst x-symbol-isabelle-font-lock-bold-regexp
   (x-symbol-isabelle-make-ctrl-regexp "bold")
@@ -467,17 +475,20 @@ See `x-symbol-language-access-alist' for details."
     x-symbol-isabelle-symbol-table
     x-symbol-isabelle-xsymbol-table)))
 
-;; override for x-symbol-user-table, adding[removing?] a couple of shortcuts 
-(defvar x-symbol-user-table
-  (append
-   (if (boundp 'x-symbol-user-table) x-symbol-user-table nil)
-   '((bardash 180 (arrow) (direction east . perpendicular) nil (t "|-"))
-     (bardashdbl 182 (arrow) (direction east) nil (t "|=")))))
+;; override for x-symbol-user-table, adding[removing?] a couple of shortcuts
+;; CW: please delete this (it has no effect anyway in most situations).  If you
+;; think these chars should be made electric, please tell me.
+;(defvar x-symbol-user-table
+;  (append
+;   (if (boundp 'x-symbol-user-table) x-symbol-user-table nil)
+;   '((bardash 180 (arrow) (direction east . perpendicular) nil (t "|-"))
+;     (bardashdbl 182 (arrow) (direction east) nil (t "|=")))))
 
 
 ;;;===========================================================================
 ;;;  Internal
 ;;;===========================================================================
+;; CW: all are not needed in X-Symbol >= v4.3
 
 (defvar x-symbol-isabelle-menu-alist nil
   "Internal.  Alist used for Isasym specific menu.")
