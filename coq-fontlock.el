@@ -4,6 +4,9 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.6  1997/11/06 16:46:20  hhg
+;; Updates to Coq fontlock tables
+;;
 ;; Revision 1.5  1997/10/30 15:58:29  hhg
 ;; Updates for coq, including:
 ;; 	* pbp-goal-command and pbp-hyp-command use proof-terminal-string
@@ -44,6 +47,7 @@
 (defvar coq-keywords-defn
   '(
 "Definition"
+"Fixpoint"
 "Inductive"
 ))
 
@@ -84,12 +88,9 @@
 "Pwd"
 "Reset"
 "Search"
+"Show"
 "Transparent"
 ))
-
-; There seems to be a bug with fontlock: "_" is part of the symbol
-; table, but fontlock doesn't fontify "Inversion_clear" but only
-; "Inversion" -- hhg
 
 (defvar coq-tactics
   '(
@@ -99,6 +100,7 @@
 "Auto"
 "Case"
 "Change"
+"Clear"
 "Constructor"
 "Contradiction"
 "Cut"
