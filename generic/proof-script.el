@@ -2256,7 +2256,8 @@ will deactivated."
 	   (with-current-buffer buffer
 	     (if proof-active-buffer-fake-minor-mode
 		 (setq proof-active-buffer-fake-minor-mode nil))
-	     (delete-spans (point-min) (point-max) 'type) ;; remove spans
+	     (delete-spans (point-min) (point-max) 'type) ; remove top-level spans
+	     (delete-spans (point-min) (point-max) 'idiom) ; and embedded spans
 	     (setq pg-script-portions nil)		  ;; also the record of them
 	     (proof-detach-segments buffer)		  ;; detach queue and locked 
 	     (proof-init-segmentation)))
