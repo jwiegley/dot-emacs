@@ -65,6 +65,15 @@
 ;; strings by real stuff
 ;; cxl: TBD: to undo "holcasl", we need to issue "holcasl_abort()"
 
+;; > - in normal CCC proofs, we need undo (or undo_steps);
+;; > - once we entered HOL-CASL with a holcasl command (this is not a 
+;; > tactic), we use Isabelle's Goals.undo;
+;; > - but to undo the holcasl command itself, we use holcasl_abort();
+;; > If we do CCC's undo()  inside a HOL-CASL proof, we go back to the CCC 
+;; > step _before_ holcasl (precisely because holcasl is not a proper CCC 
+;; > tactic, and undo undoes the last applied tactic, just like in Isabelle).
+
+
 (defun ccc-count-undos (span)
   "Count number of undos in a span, return the command needed to undo that far."
   (let
@@ -81,11 +90,16 @@
 		   (setq count-casl (+ 1 count-casl))
 		 (setq count-ccc (+ 1 count-ccc))))))
       (setq span (next-span span 'type)))
-    (format
-     "funpow (%s) (Goals.undo) (); undo_steps (%s);" 
-     count-casl count-ccc)
-   ))
-
+    (cond
+     ((and casl (> count-casl 0)) 
+      ;; we're undoing to outside "holcasl"
+      (format "holcasl_abort(); undo_steps (%s);" count-ccc))
+     (casl
+      ;; we're undoing within HOL-CASL
+      (format "funpow (%s) (Goals.undo) ();" count-casl))
+     (t
+      ;; we're undoing within CCC
+      (format "undo_steps (%s);" count-ccc)))))
 
 (provide 'ccc)
 
