@@ -1,3 +1,46 @@
+2003-02-17  David Aspinall  <da@proofgeneral.org>
+
+	* etc/isar/ParsingBug1.thy:
+	Test case for {nested proof} in isabelle
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isar/isar-syntax.el:
+	Revert to old isar-ids-to-regexp
+
+	* FAQ:
+	Larrys suggestion for lookup-syntax-properties.
+
+	* html/footer.html, html/oldnews.html, html/register.html:
+	Update addresses
+
+	* generic/proof-shell.el:
+	Remove proof-shell-filter patch of Stefan Monnier which deals with multiple prompts, but produces spurious output with Isabelle.
+
+	* generic/proof-shell.el:
+	Remove subterm markup striping in proof-shell-process-output (error case).  Docs
+
+2003-02-16  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el, coq/coq-syntax.el:
+	Added documentation string to the variables coq-version-is-V6 (new),
+	coq-version-is-V7 and coq-version-is-V74.
+
+2003-02-16  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isar/isar.el: Documentation.
+
+	* isa/isa.el, isa/isabelle-system.el, isar/isar.el:
+	Add backwards compatibility for old pre-PGIP settings mechanism
+
+	* html/develdownload.php: Updated.
+
 2003-02-16  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
