@@ -52,6 +52,26 @@ A Pending work, in progress [da]:
 re-enabled), proof-toggle-scripting, new configuration options.
     proof-cd
 
+B After interrupt, queue region is left intact.  Seems odd. 
+  Let's remove it.
+
+B bug: interrupting Isabelle process sometimes doesn't return, why?
+  (see first half of interrupt error only:
+    *** Interrupt.
+    *** At command "time_use".
+  
+    uncaught exception ERROR
+      raised at: library.ML:1100.35-1100.40
+  But not "uncaught exception" part.  
+  What is worse: prompt disappears!  But process still seems to be
+  there underneath.  Not sure where this bug comes from.
+
+  Moreover, killing process then hangs Emacs with message 
+  "cleaning up", and get error
+    (1) (error/warning) Error in process sentinel: (no-catch exited t)
+
+C Add new test cases for closure of unfinished proofs in Lego,
+  Isabelle.
 
 C Usability enhancement:
    Movement of point after assert/retract commands
