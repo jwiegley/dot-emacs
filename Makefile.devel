@@ -64,16 +64,19 @@ DOWNLOADHTML=download.phtml
 VERSION=$(PRERELEASE_TAG)
 
 NAME = ProofGeneral
-LATESTNAME = ProofGeneral-latest
-DEVELLATESTNAME = ProofGeneral-devel-latest
+LATESTNAME = $(NAME)-latest
+DEVELLATESTNAME = $(NAME)-devel-latest
+
+VERSIONVARIABLE=proof-general-version
+VERSIONFILE=proof-site.el
 
 #   NB: CVS tags can't have points in them.  
 #   Substitute points for hyphens.
 CVS_VERSION=$(shell echo $(VERSION) | sed 's/\./-/g')
 
 # Name of tar file and RPM file.
-RELEASENAME = ProofGeneral-$(VERSION)
-DEVELRELEASENAME = ProofGeneral-$(VERSION)-devel
+RELEASENAME = $(NAME)-$(VERSION)
+DEVELRELEASENAME = $(NAME)-$(VERSION)-devel
 CVS_RELEASENAME = Release-$(CVS_VERSION)
 
 # Where to release (i.e. copy) a new distribution to
@@ -112,7 +115,7 @@ IGNOREDFILES=doc/ProofGeneral.dvi doc/ProofGeneral.eps.gz Makefile.devel todo Ch
 DISTBUILDIR = /tmp/ProofGeneralRelease
 
 # Temporary RPM topdir for building packages as non-root user.
-RPMTOPDIR=/tmp/ProofGeneral-rpm
+RPMTOPDIR=/tmp/$(NAME)-rpm
 # rpm 3.0 has changed rc file beyond recognition.
 # now wants a macro file included and stuck in ~/.rpmmacros.
 # Alternative is to use --define from command line.
@@ -236,9 +239,9 @@ tag:
 	@echo "*************************************************"
 	@echo " Tagging sources... (fails if CVS source dirty)"
 	@echo "*************************************************"
-	if [ -n "`cvs -n -q update`" ]; then exit 1; fi
+	if [ -z "$(NOCVS)" && -n "`cvs -n -q update`" ]; then exit 1; fi
 # Tag proof-site.el and ProofGeneral.spec
-	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/defconst proof-general-version \".*\"/defconst proof-general-version \"Proof General, Version $(VERSION) released by da. Email proofgen@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
+	(cd generic; mv $(VERSIONFILE) $(VERSIONFILE).old; sed -e 's/defconst $(VERSIONVARIABLE) \".*\"/defconst $(VERSIONVARIABLE) \"Proof General, Version $(VERSION) released by da. Email proofgen@dcs.ed.ac.uk.\"/g' $(VERSIONFILE).old > $(VERSIONFILE); rm $(VERSIONFILE).old)
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(VERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
 # Edit $(DOWNLOADHTML) only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
@@ -249,8 +252,8 @@ tag:
 # of rpm installed on standard machines at dcs.ed, and we have to build with
 # that version.  Otherwise we could use the %{version} macro in the spec file.
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.tar.gz/$(RELEASENAMETARGZ)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
-	cvs commit -m"Set version tag for new release." generic/proof-site.el html/$(DOWNLOADHTML) etc/ProofGeneral.spec
-	cvs tag "$(CVS_RELEASENAME)"
+	if [ -z "$(NOCVS)" ]; then cvs commit -m"Set version tag for new release." generic/$(VERSIONFILE) html/$(DOWNLOADHTML) etc/ProofGeneral.spec; fi
+	if [ -z "$(NOCVS)" ]; then cvs tag "$(CVS_RELEASENAME)"; fi
 
 ############################################################
 ##
@@ -317,7 +320,7 @@ develdist:
 	@echo " Making developer distribution..."
 	@echo "*************************************************"
 	mkdir -p $(DISTBUILDIR)
-	(cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(RELEASENAME)-devel $(CVSNAME))
+	(cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME))
 	$(TAR) -cvhf $(DISTBUILDIR)/$(DEVELRELEASENAMETAR) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
 	gzip -9 $(DISTBUILDIR)/$(DEVELRELEASENAMETAR)
 
@@ -377,6 +380,16 @@ rpmrelease: rpm
 ##
 releaseclean:
 	rm -rf $(DISTBUILDIR) $(RPMTOPDIR)
+
+############################################################
+##
+## fakereleaseall:
+##     Do everything, but don't access CVS.  Just for
+##     testing on non-live system, really.
+##	  
+## 
+fakereleaseall: 
+	$(MAKE) -f Makefile.devel release rpmrelease  releaseclean golive NOCVS="no" 
 
 ############################################################
 ##
