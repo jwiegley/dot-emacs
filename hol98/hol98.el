@@ -62,6 +62,8 @@
  ;; proof-shell-eager-annotation-start
  proof-find-theorems-command	"DB.match [] (%s);"
 
+ proof-forget-id-command	";" ;; vacuous: but empty string doesn't give
+				    ;; new prompt
  ;; We must force this to use ptys since mosml doesn't flush its output
  ;; (on Linux, presumably on Solaris too).
  proof-shell-process-connection-type t

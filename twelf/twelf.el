@@ -64,7 +64,10 @@
  ;; or recognize while the prover is pontificating
  proof-shell-eager-annotation-start   
  "^\\[Opening \\|\\[Closing "
- proof-shell-eager-annotation-end "\n")
+ proof-shell-eager-annotation-end "\n"
+
+ ;; next setting is just to prevent warning
+ proof-save-command-regexp	proof-no-regexp)
 
 
 ;; unset: all of the interactive proof commands

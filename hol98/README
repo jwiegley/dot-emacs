@@ -4,17 +4,17 @@ Written by David Aspinall.
 
 Status:	      not officially supported yet
 Maintainer:   volunteer required
-HOL version:  HOL98, tested with Taupo 2
-HOL homepage: http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html
+HOL version:  HOL4/HOL98, tested with HOL 4 Kananaskis 2
+HOL homepage: http://hol.sourceforge.net
 
 ========================================
 
 
-This is a "technology demonstration" of Proof General for HOL 98.
+This is a "technology demonstration" of Proof General for HOL4.
 
 It may work with other versions of HOL, but is untested (please let me
-know if you try).  Probably just a few settings need changing
-to configure for different output formats.
+know if you try).  Probably just a few settings need changing to
+configure for different output formats.
 
 It has basic script management support, with a little bit of
 decoration of scripts and output.
@@ -37,7 +37,7 @@ Emacs interface by Koichi Takahashi and Masima Hagiya addressed this,
 and to some extent so perhaps does the Emacs interface supplied with
 HOL.  Perhaps one of these could be embedded/reimplemented inside
 Proof General.  Implemented in a generic way, managing batch vs
-interactive proofs might also be useful for Isabelle.
+interactive proofs might also be useful for other provers.
 
 Another problem is that HOL scripts sometimes use SML structures,
 which can cause confusion because Proof General does not really parse
