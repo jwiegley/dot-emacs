@@ -1,5 +1,5 @@
-Tips for Debugging Proof General   -- David Aspinall, 1999,2002
-===============================================================
+Tips for Debugging Proof General   -- David Aspinall
+====================================================
 
 Emacs debug flags
 =================
@@ -11,9 +11,38 @@ stack trace:
  (setq debug-on-error t)    ; debug on errors
  (setq debugon-on-quit t)   ; debug on CTRL-G for looping code
 
-You can make settings like this using M-x set-variable, writing Lisp
+You can make settings like this using M-x set-variable, or writing Lisp
 code as above in the *scratch* buffer, and typing C-x C-e to evaluate
 the expressions, or using M-x eval-expression (ESC-:).
+
+Debugging start-up problems
+===========================
+
+If you get an error when visiting a theorem prover file
+(i.e. around the time that the splash screen appears), try 
+starting XEmacs normally:
+
+   xemacs -q -no-site-file 
+
+setting the debug flag:
+
+   M-x eval-expression RET (setq debug-on-error t) RET
+
+and then visiting a theory file (e.g. empty Test.thy), *before* 
+loading Proof General.  Load Proof General with the command:
+
+   M-x load-file <PATH-TO-ProofGeneral>/generic/proof-site.el
+
+And then issue the command to switch the buffer into the mode
+which is giving you problems, e.g.
+
+   M-x isar-mode RET
+
+Hopefully this should produce a stack trace.  (The stack trace
+may otherwise be hidden, since some versions of Emacs try to
+hide errors which occur when a file is visited).
+
+
 
 
 Quick hints for edebug (source-level debugger)
