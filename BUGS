@@ -83,6 +83,14 @@ using rsh instead, it is said to forward signals to the remote command.
 * In tty mode, the binding C-c C-RET has no effect.  
 Workaround: manually bind C-c RET to 'proof-goto-point instead.
 
+* You may occasionally see duplications of short (<10 chars)
+messages from the proof assistant.  This is caused by a too high
+setting of the configuration variable
+proof-shell-eager-annotation-start-length.  
+Add (setq proof-shell-eager-annotation-start-length 1) to your .emacs
+if it bothers you badly.  This fix will be made in the next
+pre-release phase, it was too late to make it in time for testing for
+release 3.0.
 
 
 LEGO Proof General Bugs
