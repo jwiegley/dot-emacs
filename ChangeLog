@@ -1,3 +1,55 @@
+2001-08-17  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-script.el:
+	Trim visibility implementation:
+	   - remove visibility specs and script portion records during undo
+	   - clear visibility specs on restart
+
+	* generic/span-extent.el, generic/span-overlay.el:
+	Add span-delete-action hook
+
+	* CHANGES: Minibuffer contents bug fix
+
+	* generic/proof-utils.el:
+	Fix bug in proof-display-and-keep-buffer which had resulted in switching minibuffer windows buffer.
+
+2001-08-16  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* doc/ProofGeneral.texi:
+	Document visibility control
+
+	* html/devel.html:
+	Add link to browse files
+
+	* html/download.html:
+	Add link to browse package
+
+	* html/develdownload.php:
+	Add link to individual files
+
+	* CHANGES:
+	Move visibility item up, removed "in progress"
+
+	* generic/proof-shell.el:
+	Switch back to using goalsave spans in PBP code
+
+	* generic/proof-config.el, generic/proof-toolbar.el:
+	Add hide/show commands instead of make proofs visible
+
+	* generic/proof-script.el:
+	Generate intermediate proof span for contents of proof; other becomes 'goalsave again.  Add idiom property.
+
+	* generic/pg-user.el:
+	Function name fixes, use idiom property in span for popup menu name.
+
 2001-08-16  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
