@@ -255,7 +255,7 @@ Does nothing if proof assistant is already running."
 (defcustom proof-shell-active-scripting-indicator
   (if (string-match "XEmacs" emacs-version)
       (cons (make-extent nil nil) " Scripting ")
-    "Scripting")
+    " Scripting")
   "Modeline indicator for active scripting buffer.
 If first component is extent it will automatically follow the colour
 of the queue region."
@@ -273,8 +273,10 @@ of the queue region."
     (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
   (setq minor-mode-alist
 	(append minor-mode-alist
-		(list '(proof-active-buffer-fake-minor-mode
-			proof-shell-active-scripting-indicator)))))
+		(list 
+		 (list
+		  'proof-active-buffer-fake-minor-mode
+		  proof-shell-active-scripting-indicator)))))
 
 
 ;;
@@ -306,7 +308,9 @@ clears up all the locked regions and state variables."
 				(lambda (p m) (throw 'exited t)))
 	  (catch 'exited
 	    (accept-process-output nil 10)
-	    (kill-process proc))))
+	    (kill-process proc)
+	    ;; another chance to catch
+	    (accept-process-output))))
     ;; Restart all scripting buffers
     (proof-script-remove-all-spans-and-deactivate)
     ;; Clear state
@@ -744,8 +748,8 @@ output.
 This function deals with errors, start of proofs, abortions of
 proofs and completions of proofs. All other output from the proof
 engine is simply reported to the user in the response buffer
-by setting proof-shell-delayed-output to a cons cell of
-(INSERT . TEXT) where TEXT is the text to be inserted.
+by setting proof-shell-delayed-output to a cons 
+cell of (INSERT . TEXT) where TEXT is the text to be inserted.
 
 To extend this function, set
 proof-shell-process-output-system-specific.
@@ -808,11 +812,16 @@ assistant."
 ;;   Low-level commands for shell communication                     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defvar proof-shell-insert-space-fudge 
+  (if (string-match "XEmacs" emacs-version) "" " ")
+  "String to insert after setting proof marker to prevent it moving.
+Fixes a bug/problem with FSF Emacs.")
+
 (defun proof-shell-insert (string)
   "Insert STRING at the end of the proof shell, call comint-send-input.
 Update the proof-marker to point to the end of the inserted text.
-(This means that any output received up til now but not processed
-by the proof-shell-filter will be lost!)
+This means that any output received up til now but not processed
+by the proof-shell-filter will be lost!
 This function is used by proof-send, particularly in
 proof-start-queue and proof-shell-exec-loop."
   (save-excursion
@@ -824,18 +833,33 @@ proof-start-queue and proof-shell-exec-loop."
     ;; da: I don't think either of these is quite right,
     ;; but perhaps this is just a relatively harmless place
     ;; to insert more commands?
+    ;; Of course, still must watch out for extra prompts
+    ;; (perhaps in funny places) which could break the
+    ;; synchronization.  Probably the inserted string
+    ;; should not have any CRs.
     (run-hooks 'proof-shell-insert-hook)
 
     (insert string)
+    (set-marker proof-marker (point))
+    (insert proof-shell-insert-space-fudge)
+    (comint-send-input)))
 
-    ;; xemacs and emacs19 have different semantics for what happens when
-    ;; shell input is sent next to a marker
-    ;; the following code accommodates both definitions
-    (if (marker-position proof-marker)
-	(let ((inserted (point)))
-	  (comint-send-input)
-	  (set-marker proof-marker inserted))
-      (comint-send-input))))
+;; OLD BUGGY CODE here 
+;; Left in as a warning of a race condition.  
+;; It seems that comint-send-input can lead to the 
+;; output filter running before it returns, so that
+;; the set-marker call below is executed too late.
+;; The result is that the filter deals with
+;; the previous portion of output instead of the 
+;; most recent one!
+;;
+;; xemacs and FSF emacs have different semantics for what happens when
+;; shell input is sent next to a marker
+;; the following code accommodates both definitions
+;    (let ((inserted (point)))
+;      (comint-send-input)
+;      (set-marker proof-marker inserted))))
+
 
 ;; HYPOTHESIS da: I don't know why proof-send strips CRs, no hints
 ;; were given in the original code.
@@ -958,7 +982,9 @@ Assume proof-script-buffer is active."
 
 (defun proof-shell-message (str)
   "Output STR in minibuffer."
-  (message (concat "[" proof-assistant "] " str)))
+  ;; %s is used below to escape characters special to 
+  ;; 'format' which could appear in STR.
+  (message "%s" (concat "[" proof-assistant "] " str)))
 
 ;; FIXME: highlight eager annotation-end : fix proof-shell-handle-output
 ;; to highlight whole string.
@@ -986,7 +1012,7 @@ arrive."
   "Analyse urgent MESSAGE for various cases.
 Included file, retracted file, cleared response buffer, or
 if none of these apply, display."
-  
+
   (cond
    ;; Is the prover processing a file?
    ;; FIXME da: this interface is quite restrictive: might be
@@ -1067,6 +1093,13 @@ if none of these apply, display."
     ;; Erase response buffer and possibly its windows.
     (proof-shell-maybe-erase-response nil t t))
 
+   ;; Is the prover asking Proof General to clear the goals buffer?
+   ((and proof-shell-clear-goals-regexp
+	 (string-match proof-shell-clear-goals-regexp message)
+	 proof-goals-buffer)
+    ;; Erase goals buffer but and possibly its windows
+    (proof-clean-buffer proof-goals-buffer))
+
    (t
     ;; We're about to display a message.  Clear the response buffer
     ;; if necessary, but don't clear it the next time.
@@ -1105,28 +1138,28 @@ strings between eager-annotation-start and eager-annotation-end."
 	))
     (goto-char pt)))
 	    
-;; FIXME da: I suspect that proof-shell-filter could miss output in
-;; the unfortunate circumstance that a prompt consists of more than
-;; one character and is split between output chunks.  Really the
-;; matching should be based on the buffer contents rather than the
-;; string just received.
-
-;; FIXME da: proof-shell-filter does *not* update the proof-marker,
-;; that's done in proof-shell-insert.  Previous docstring below was wrong.
-;; The one case where this function updates proof-marker is the
-;; first time through the loop. 
+;; NOTE da: proof-shell-filter does *not* update the proof-marker,
+;; that's done in proof-shell-insert.  Previous docstring below was
+;; wrong.  The one case where this function updates proof-marker is
+;; the first time through the loop to synchronize.
 (defun proof-shell-filter (str)
   "Filter for the proof assistant shell-process.
 A function for comint-output-filter-functions.
 
-Process urgent messages first.  As many as possible are processed,
+Deal with output and issue new input from the queue.
+
+Handle urgent messages first.  As many as possible are processed,
 using the function `proof-shell-process-urgent-messages'.
 
-Otherwise wait until an annotated prompt appears in the input, then
-run proof-shell-process-output on the output between the new prompt
-and the last input (position of proof-marker) or the last
-urgent message (position of proof-shell-urgent-message-marker),
-whichever is later.  For example, in this case:
+Otherwise wait until an annotated prompt appears in the input.  
+If proof-shell-wakeup-char is set, wait until we see that in the
+output chunk STR.  This optimizes the filter a little bit.
+
+If a prompt is seen, run proof-shell-process-output on the output
+between the new prompt and the last input (position of proof-marker)
+or the last urgent message (position of
+proof-shell-urgent-message-marker), whichever is later.  
+For example, in this case:
 
  PROMPT INPUT
  OUTPUT-1
@@ -1140,94 +1173,114 @@ Only OUTPUT-2 will be processed.  For this reason, error
 messages and interrupt messages should *not* be considered
 urgent messages.
 
-Appropriate action is taken depending on the what
-proof-shell-process-output returns: maybe handle an interrupt, an
-error, or deal with ordinary output which is a candidate
-for the goal or response buffer.
-Ordinary output is only displayed when the proof action list
-becomes empty, to avoid a confusing rapidly changing output."
+Output is processed using proof-shell-filter-process-output.
+
+The first time that a prompt is seen, proof-marker is 
+initialised to the end of the prompt.  This should
+correspond with initializing the process.  The 
+ordinary output before the first prompt is ignored (urgent messages, 
+however, are always processed)."
   (save-excursion
     (and proof-shell-eager-annotation-start
 	 (proof-shell-process-urgent-messages))
        
     (if (or
 	 ;; Some proof systems can be hacked to have annotated prompts;
-	 ;; for these we set proof-shell-wakeup-char to the annotation special.  
+	 ;; for these we set proof-shell-wakeup-char to the annotation 
+	 ;; special.  
 	 (and proof-shell-wakeup-char
 	      (string-match (char-to-string proof-shell-wakeup-char) str))
 	 ;; Others may rely on a standard top-level (e.g. SML) whose
 	 ;; prompt are difficult or impossible to hack.
-	 ;; For those we use the annotated prompt regexp.
-	 (string-match proof-shell-annotated-prompt-regexp str))
+	 ;; For those we must search in the buffer for the prompt.
+	 t)
 	(if (null (marker-position proof-marker))
-	    ;; Set marker to first prompt in output buffer if one can
-	    ;; be found now, and sleep again.
+	    ;; Initialisation of proof-marker:
+	    ;; Set marker to after the first prompt in the
+	    ;; output buffer if one can be found now.
 	    (progn
 	      (goto-char (point-min))
 	      (if (re-search-forward proof-shell-annotated-prompt-regexp nil t)
-		  (set-marker proof-marker (point))))
-	  ;; We've matched against a second prompt in str now.
-	  ;; First, the blasphemous situation that the proof-action-list
-	  ;; is empty so that the process has output something for
-	  ;; some other reason (perhaps it's just being chatty).  
-	  ;; We graciously accept the situation nowadays, rather
-	  ;; than shrieking out bug reports.
-	  (if proof-action-list 
-	      ;; the output buffer for the second prompt after the
-	      ;; one previously marked.
+		  (progn
+		    (set-marker proof-marker (point))
+		    ;; The first time a prompt is seen we ignore any 
+		    ;; output that occured before it.  Process the
+		    ;; action list to remove the first item if need
+		    ;; be (proof-shell-init-cmd sent if 
+		    ;; proof-shell-config-done).
+		    (if proof-action-list
+			(proof-shell-filter-process-output "")))))
+	  ;; Now we're looking for the end of the piece of output
+	  ;; which will be processed.  
+
+          ;; Note that the way this filter works,
+          ;; only one piece of output can be dealt with at a time
+          ;; so we loose sync if there's more than one bit there.
+
+	  ;; The blasphemous situation that the proof-action-list
+	  ;; is empty is now quietly ignored so that users can
+	  ;; type in the shell buffer without being screamed at.
+	  ;; Also allows the process to output something for
+	  ;; some other reason (perhaps it's just being chatty),
+	  ;; although that could break the synchronization.
+	  ;; Note that any "unexpected" output like this gets
+	  ;; ignored.
+	  (if proof-action-list
 	      (let ((startpos (goto-char (marker-position proof-marker)))
 		    (urgnt    (marker-position
 			       proof-shell-urgent-message-marker))
-		    string res cmd)
-		
-		;; da FIXME in testing: Try to ignore any urgent
-		;; messages that have already been dealt with.
-		;;
-		;; FIXME da:  a more general way of doing this would be
-		;; to filter out the messages which have been
-		;; processed already.  Either delete them or
-		;; re-parse the output.  At the moment we lose with
-		;; the case
-		;;  <PROMPT>
-		;;  <NON-URGENT-MESSAGE>
-		;;  <URGENT-MESSAGE>
-		;;  <NON-URGENT-MESSAGE>
-		;;  <PROMPT>
-		;; when only <URGENT-MESSAGE> and second <NON-URGENT-MESSAGE>
-		;; are displayed.
+		    string)
+		;; Ignore any urgent messages that have already been 
+		;; dealt with.  This loses in the case mentioned above.
+		;; A more general way of doing this would be
+		;; to filter out or delete the urgent messages which 
+		;; have been processed already.  
 		(if (and urgnt
 			 (< (point) urgnt))
 		    (setq startpos (goto-char urgnt)))
+		;; Find next prompt.  
+		(if (re-search-forward 
+		     proof-shell-annotated-prompt-regexp nil t)
+		    (progn
+		      (backward-char (- (match-end 0) (match-beginning 0)))
+		      (setq string (buffer-substring startpos (point)))
+		      (goto-char (point-max))	; da: why?
+		      (proof-shell-filter-process-output string)))))))))
 
-		;; Find next prompt
-		(re-search-forward proof-shell-annotated-prompt-regexp nil t)
-		(backward-char (- (match-end 0) (match-beginning 0)))
-		(setq string (buffer-substring startpos (point)))
-		
-		(goto-char (point-max))	; da: why?
-		
-		(setq cmd (nth 1 (car proof-action-list)))
-		(save-excursion		;current-buffer
-		  ;; 
-		  (setq res (proof-shell-process-output cmd string))
-		  ;; da: Added this next line to redisplay, for proof-toolbar
-		  ;; FIXME: should do this for all frames displaying the script
-		  ;; buffer!
-		  ;; ODDITY: has strange effect on highlighting, leave it.
-		  ;; (redisplay-frame (window-buffer  t)
-		  (cond
-		   ((eq (car-safe res) 'error)
-		    (proof-shell-handle-error cmd (cdr res)))
-		   ((eq res 'interrupt)
-		    (proof-shell-handle-interrupt))
-		   ((eq (car-safe res) 'loopback)
-		    (proof-shell-insert-loopback-cmd (cdr res))
-		    (proof-shell-exec-loop))
-		   ;; Otherwise, it's an 'insert or 'analyse indicator,
-		   ;; but we don't act on it unless all the commands
-		   ;; in the queue region have been processed.
-		   (t (if (proof-shell-exec-loop)
-			  (proof-shell-handle-delayed-output)))))))))))
+
+
+(defun proof-shell-filter-process-output (string)
+  "Subroutine of proof-shell-filter to process output STRING.
+
+Appropriate action is taken depending on the what
+proof-shell-process-output returns: maybe handle an interrupt, an
+error, or deal with ordinary output which is a candidate for the goal
+or response buffer.  Ordinary output is only displayed when the proof
+action list becomes empty, to avoid a confusing rapidly changing
+output."
+  (let (cmd res)
+    (setq cmd (nth 1 (car proof-action-list)))
+    (save-excursion		;current-buffer
+      ;; 
+      (setq res (proof-shell-process-output cmd string))
+      ;; da: Added this next line to redisplay, for proof-toolbar
+      ;; FIXME: should do this for all frames displaying the script
+      ;; buffer!
+      ;; ODDITY: has strange effect on highlighting, leave it.
+      ;; (redisplay-frame (window-buffer  t)
+      (cond
+       ((eq (car-safe res) 'error)
+	(proof-shell-handle-error cmd (cdr res)))
+       ((eq res 'interrupt)
+	(proof-shell-handle-interrupt))
+       ((eq (car-safe res) 'loopback)
+	(proof-shell-insert-loopback-cmd (cdr res))
+	(proof-shell-exec-loop))
+       ;; Otherwise, it's an 'insert or 'analyse indicator,
+       ;; but we don't act on it unless all the commands
+       ;; in the queue region have been processed.
+       (t (if (proof-shell-exec-loop)
+	      (proof-shell-handle-delayed-output)))))))
 
 
 (defun proof-shell-dont-show-annotations ()
@@ -1382,6 +1435,11 @@ before and after sending the command."
   (save-excursion
     (set-buffer proof-shell-buffer)
     (let ((proc (get-buffer-process proof-shell-buffer)))
+      ;; Add the kill buffer function and process sentinel
+      (make-local-hook 'kill-buffer-hook)
+      (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
+      (set-process-sentinel proc 'proof-shell-bail-out)
+
       ;; Flush pending output from startup
       (accept-process-output proc 1)
 
@@ -1389,27 +1447,31 @@ before and after sending the command."
       ;; for proof-prog-name="ssh fastmachine proofprocess", one needs
       ;; to adjust the directory. Perhaps one might even want to issue
       ;; this command whenever a new scripting buffer is active?
-      (and proof-shell-cd
-	   (proof-shell-insert
-	    (format proof-shell-cd
-		    ;; under Emacs 19.34 default-directory contains "~"
-		    ;; which causes problems with LEGO's internal Cd
-		    ;; command
-		    (expand-file-name default-directory))))
 
-      ;; Flush pending output from cd command
+      ;; This is the last unsynchronized input to the process.
+      ;; It would be better to synchronize it but then we lose
+      ;; any startup messages from proof-shell-init-cmd.
+
+      (if (and proof-shell-cd t) ;  proof-rsh-command)
+ 	  (proof-send
+	   (format proof-shell-cd
+		   ;; under Emacs 19.34 default-directory contains "~"
+		   ;; which causes problems with LEGO's internal Cd
+		   ;; command
+		   (expand-file-name default-directory))))
+
+      ;; Try to flush the output from the cd command.
       (accept-process-output proc 1)
 
-      ;; Add the kill buffer function and process sentinel
-      (make-local-hook 'kill-buffer-hook)
-      (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
-      (set-process-sentinel proc 'proof-shell-bail-out)
-			  
       ;; Send intitialization command and wait for it to be
       ;; processed.   This also ensures proof-action-list is
-      ;; initialised.
+      ;; initialised. 
       (if proof-shell-init-cmd
 	  (proof-shell-invisible-command proof-shell-init-cmd t)))))
+
+      ;; Set proof marker to current end of buffer
+      ;; (temp hack for old code)
+      ;;(set-marker proof-marker (point-max))))))
 
 (eval-and-compile
 (define-derived-mode proof-universal-keys-only-mode fundamental-mode
