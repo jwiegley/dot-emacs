@@ -1,6 +1,6 @@
 ;; pg-metadata.el   Persistant storage of metadata for proof scripts
 ;;
-;; Copyright (C) 2001 LFCS Edinburgh. 
+;; Copyright (C) 2001-2 LFCS Edinburgh. 
 ;; Author:      David Aspinall
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;

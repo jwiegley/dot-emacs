@@ -1,6 +1,6 @@
-;; proof-depends.el  Managing theorem-theorem and theorem-definition dependencies.
+;; proof-depends.el  Theorem-theorem and theorem-definition dependencies.
 ;;
-;; Copyright (C) 2000,1 University of Edinburgh. 
+;; Copyright (C) 2000-2002 University of Edinburgh. 
 ;; Authors:      Fiona McNeill, David Aspinall.
 ;;
 ;; Status:      Experimental code
@@ -8,8 +8,8 @@
 ;;
 ;; $Id$
 ;; 
-;; Based on Fiona McNeill's MSc project on analysing dependencies within proofs.
-;; Code rewritten by David Aspinall.
+;; Based on Fiona McNeill's MSc project on analysing dependencies
+;; within proofs.  Code rewritten by David Aspinall.
 ;; 
 
 ;; Variables

@@ -1,6 +1,6 @@
 ;; proof.el	 Proof General loader.  All files require this one.
 ;;
-;; Copyright (C) 1998-2000 LFCS Edinburgh. 
+;; Copyright (C) 1998-2002 LFCS Edinburgh. 
 ;;
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;          Thomas Kleymann and Dilip Sequeira

@@ -1,6 +1,6 @@
 ;; proof-easy-config.el    Easy configuration for Proof General
 ;;
-;; Copyright (C) 1999-2001  David Aspinall / LFCS.
+;; Copyright (C) 1999-2002  David Aspinall / LFCS.
 ;; Author:     David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer: Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;

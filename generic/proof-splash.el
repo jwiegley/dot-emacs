@@ -41,7 +41,7 @@ Proof General."
 			     proof-general-version)
 	       (match-end 0))
     nil
-    "(C) LFCS, University of Edinburgh, 2001."
+    "(C) LFCS, University of Edinburgh, 2002."
     nil
     nil
 "    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 

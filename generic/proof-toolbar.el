@@ -87,22 +87,14 @@
     (if tooltip
 	(list (list iconvar iconname)))))
   
-(defconst proof-toolbar-iconlist
-  (apply 'append
-	 (mapcar 'proof-toolbar-make-icon 
-		 (proof-ass toolbar-entries)))
-  "List of icon variable names and their associated image files.
-A list of lists of the form (VAR IMAGE).  IMAGE is the root name
-for an image file in proof-images-directory.  The toolbar
-code expects to find files IMAGE.xpm or IMAGE.8bit.xpm
-and chooses the best one for the display properites.")
 
 (defun proof-toolbar-make-toolbar-item (tle)
   "Make a toolbar button descriptor from a PA-toolbar-entries entry."
   (let*
-      ((token	      (car tle))
-       (menuname      (cadr tle))
-       (tooltip       (nth 2 tle))
+      ((token	      (nth 0 tle))
+       (includep      (or (< (length tle) 5) (eval (nth 4 tle))))
+       (menuname      (and includep (nth 1 tle)))
+       (tooltip       (and includep (nth 2 tle)))
        (existsenabler (nth 3 tle))
        (enablep	      (and proof-toolbar-use-button-enablers
 			   (>= emacs-major-version 21)
@@ -130,16 +122,6 @@ and chooses the best one for the display properites.")
 			(if enabler (list :enable (list enabler)))))))))
 		
 
-(defvar proof-toolbar-button-list 
-  (append
-   (apply 'append (mapcar 'proof-toolbar-make-toolbar-item 
-			  (proof-ass toolbar-entries)))
-   (if proof-running-on-XEmacs
-       (list [:style 3d])))
-  "A toolbar descriptor evaluated in proof-toolbar-setup.
-Specifically, a list of sexps which evaluate to entries in a toolbar
-descriptor.   The default value proof-toolbar-default-button-list
-will work for any proof assistant.")
 
 ;;
 ;; Code for displaying and refreshing toolbar
@@ -200,13 +182,36 @@ to the default toolbar."
 
 (defun proof-toolbar-build ()
   "Build proof-toolbar."
-  (let ((icontype   
-	 ;; Select 8bit xpm's if we've got a 
-	 ;; limited colour depth.
-	 (if (and (boundp 'device-pixel-depth)
-		  (< (device-pixel-depth) 16))
-	     ".8bit.xpm" ".xpm")))
-    
+  (let 
+      ((icontype (if (and (boundp 'device-pixel-depth)
+			  (< (device-pixel-depth) 16))
+		     ;; Select 8bit xpm's if we've got a 
+		     ;; limited colour depth.
+		     ".8bit.xpm" ".xpm"))
+
+       (proof-toolbar-icon-list
+	;; List of icon variable names and their associated image
+	;; files.  A list of lists of the form (VAR IMAGE).  IMAGE is
+	;; the root name for ;an image file in proof-images-directory.
+	;; The toolbar code expects to find files IMAGE.xpm or
+	;; IMAGE.8bit.xpm and chooses the best one for the display
+	;; properites.
+	(apply 'append
+	       (mapcar 'proof-toolbar-make-icon 
+		       (proof-ass toolbar-entries))))
+
+       (proof-toolbar-button-list
+	;; A toolbar descriptor evaluated in proof-toolbar-setup.
+	;; Specifically, a list of sexps which evaluate to entries in
+	;; a toolbar descriptor.  The default value
+	;; proof-toolbar-default-button-list will work for any proof
+	;; assistant.
+	(append
+	 (apply 'append (mapcar 'proof-toolbar-make-toolbar-item 
+				(proof-ass toolbar-entries)))
+	 (if proof-running-on-XEmacs
+	     (list [:style 3d])))))
+
     ;; First set the button variables to glyphs.  
     ;; (NB: this is a bit long-winded).
     (mapcar
@@ -223,30 +228,26 @@ to the default toolbar."
 		;; On GNU emacs, it holds a filename for the icon,
 		;; without path or extension.
 		(eval (cadr buttons))))))
-     ;; On GNU Emacs, it holds an image descriptor or vector of
-     ;;(if (> 1 (length iconfiles))
-     ;; (apply 'vector (mapcar 'create-image iconfiles))
-     ;; (create-image (car iconfiles)))))))
-     proof-toolbar-iconlist))
+     proof-toolbar-icon-list)
 
-  (if proof-running-on-XEmacs
-      ;; For XEmacs, we evaluate the specifier.
-      (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
+    (if proof-running-on-XEmacs
+	;; For XEmacs, we evaluate the specifier.
+	(setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
 
-    ;; On GNU emacs, we need to make a new "key"map, 
-    ;; and set a local copy of tool-bar-map to it.
-    (setq proof-toolbar (make-sparse-keymap))
-    (let ((tool-bar-map proof-toolbar)
-	  (load-path (list proof-images-directory))) ; for finding images
-      (dolist (but proof-toolbar-button-list)
-	(apply 
-	 'tool-bar-add-item 
-	 (eval (nth 0 but))		; image filename
-	 (nth 1 but)			; function symbol
-	 (nth 2 but)			; dummy key
-	 (nthcdr 3 but)))))		; remaining properties
+      ;; On GNU emacs, we need to make a new "key"map, 
+      ;; and set a local copy of tool-bar-map to it.
+      (setq proof-toolbar (make-sparse-keymap))
+      (let ((tool-bar-map proof-toolbar)
+	    (load-path (list proof-images-directory))) ; for finding images
+	(dolist (but proof-toolbar-button-list)
+	  (apply 
+	   'tool-bar-add-item 
+	   (eval (nth 0 but))		; image filename
+	   (nth 1 but)			; function symbol
+	   (nth 2 but)			; dummy key
+	   (nthcdr 3 but)))))		; remaining properties
     ;; Finished
-    )
+    ))
 
 
 ;; Action to take after altering proof-toolbar-enable
@@ -447,9 +448,11 @@ changed state."
 ;;
 
 (defun proof-toolbar-goal-enable-p ()
-  ;; Goals are always allowed: will crank up process if need be.
-  ;; Actually this should only be available when "no subgoals"
-  t)
+  ;; Goals are always allowed, provided proof-goal-command is set.
+  ;; Will crank up process if need be.
+  ;; (Actually this should only be available when "no subgoals")
+  proof-goal-command)
+
 
 (defalias 'proof-toolbar-goal 'proof-issue-goal)
 
@@ -460,7 +463,8 @@ changed state."
 
 (defun proof-toolbar-qed-enable-p ()
   (proof-with-script-buffer
-   (and proof-shell-proof-completed
+   (and proof-save-command
+	proof-shell-proof-completed
 	(proof-shell-available-p))))
 
 (defalias 'proof-toolbar-qed 'proof-issue-save)
