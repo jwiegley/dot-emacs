@@ -281,10 +281,14 @@ and script mode."
 
 (defun isa-update-thy-only (file try wait)
   "Tell Isabelle to update current buffer's theory, and all ancestors."
+  ;; First make sure we're in the right directory to take care of
+  ;; relative "files" paths inside theory file.  (Isabelle bug??)
+  (proof-cd-sync)
   (proof-shell-invisible-command
    (proof-format-filename
-    (format "ProofGeneral.%supdate_thy_only \"%%s\";" (if try "try_" ""))
-    (file-name-sans-extension file))
+    ;; %r parameter means relative (don't expand) path
+    (format "ProofGeneral.%supdate_thy_only \"%%r\";" (if try "try_" ""))
+    (file-name-nondirectory (file-name-sans-extension file)))
    wait))
 
 (defun isa-shell-update-thy ()
