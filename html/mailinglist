@@ -9,7 +9,7 @@ used for announcements of new versions, and occasional
 discussions amongst users.
 </p>
 
-<h2>Subscriptions</h2>
+<h3>Subscriptions</h3>
 <p>
 To <b>subscribe or unsubscribe</b>, visit
 the 
@@ -24,7 +24,7 @@ in the message body.
 </p>
 
 
-<h2>Posting</h2>
+<h3>Posting</h3>
 <p>
 The canonical mailing list address is 
 <a href="mailto:users@proofgeneral.org"><tt>users@proofgeneral.org</tt></a>.
@@ -37,13 +37,11 @@ In an effort to prevent spam, posting is restricted to list members.
 Please <a href="http://lists.informatics.ed.ac.uk/mailman/listinfo/proofgeneral">subscribe here</a> before attempting to post.
 </p>
 
-<h2>Archives</h2>
+<h3>Archives</h3>
 <p>
 Archives of the list (since July 2002) are kept
 <a href="http://lists.informatics.ed.ac.uk/pipermail/proofgeneral">here</a>.
 </p>
-
-<hr>
 
 <?php
    click_to_go_back();
