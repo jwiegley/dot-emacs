@@ -58,6 +58,9 @@
 		    (cons 
 		     (concat proof-home-directory "x-symbol/lisp/") 
 		     load-path))
+	      ;; avoid warning about installing in proper place
+	      (setq x-symbol-data-directory 
+		    (concat proof-home-directory "x-symbol/etc/"))
 	      ;; *should* always succeed unless bundled version broken
 	      (proof-try-require 'x-symbol-hooks))))
    ;; See if there is prover-specific config in x-symbol-<foo>.el
