@@ -59,6 +59,7 @@
 # Arguments for rcs2log for ChangeLog target
 
 DEVELOPERS=\
+ -u "da		David Aspinall	da@dcs.ed.ac.uk" \
  -u "markus	Markus Wenzel	wenzelm@informatik.tu-muenchen.de" \
  -u "pier	Pierre Courtieu	courtieu@lri.fr" \
  -u "crr	Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
@@ -365,7 +366,8 @@ dist:
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
 	for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done
-	$(TAR) -cvhf $(DISTBUILDIR)/$(RELEASENAMETAR) -C $(DISTBUILDIR) $(RELEASENAME) -X ignoredfiles
+	(cd $(DISTBUILDIR); ln -s $(RELEASENAME) $(NAME))
+	$(TAR) -cvf $(DISTBUILDIR)/$(RELEASENAMETAR) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X ignoredfiles
 	rm -f ignoredfiles
 	gzip -9 $(DISTBUILDIR)/$(RELEASENAMETAR)
 	@echo "*************************************************"
@@ -394,7 +396,7 @@ develdist:
 	   mkdir -p $(DISTBUILDIR)/$(DEVELRELEASENAME); \
 	   cp -pr . $(DISTBUILDIR)/$(DEVELRELEASENAME); \
 	fi
-	$(TAR) -cvhf $(DISTBUILDIR)/$(DEVELRELEASENAMETAR) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
+	$(TAR) -cvf $(DISTBUILDIR)/$(DEVELRELEASENAMETAR) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
 	gzip -9 $(DISTBUILDIR)/$(DEVELRELEASENAMETAR)
 
 
