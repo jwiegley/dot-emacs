@@ -1,25 +1,17 @@
-;; new-x-symbol-coq.el   
-
-;;	directly inspired from x-symbol-isabelle.el of ProofGeneral by
-;;	Markus Wenzel, Christoph Wedler, David Aspinall.
-
-;; Token language "Coq Symbols" for package x-symbol
+;; x-symbol-coq.el
 ;;
-;;  License     GPL (GNU GENERAL PUBLIC LICENSE)
+;; Author:	Pierre Courtieu
+;; Maintainer:  Pierre Courtieu
+;; License      GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
+;; Directly inspired from x-symbol-isabelle.el of ProofGeneral by
+;; Markus Wenzel, Christoph Wedler, David Aspinall.
+;; 
+;; $Id$
 ;;
-;; NB: Part of Proof General distribution.
+;; NB: This file is part of the Proof General distribution.
 ;;
 
-; ?? (defvar x-symbol-coq-required-fonts nil)
-
-
-;; CW: this sexpr can be deleted with X-Symbol 4.4.3
-(eval-when-compile
-  ;; Next lines should allow this file to work standalone 
-  ;; without proof-x-symbol.el.  See comments further below too.
-  (require 'cl)
-  (ignore-errors (require 'x-symbol-vars)))
 
 (defvar x-symbol-coq-required-fonts nil)
   
@@ -29,8 +21,6 @@
 
 ;; NB da: these next two are also set in proof-x-symbol.el, but
 ;; it would be handy to be able to use this file away from PG.  
-;; FIXME: In future could fix things so just 
-;; (require 'proof-x-symbol) would be enough here.
 (defvar x-symbol-coq-name "Coq Symbol")
 (defvar x-symbol-coq-modeline-name "coq")
 
@@ -56,16 +46,13 @@ See `x-symbol-header-groups-alist'."
 
 
 (defvar x-symbol-coq-token-grammar
-  ;; CW: for X-Symbol-4.4.3:
-  ;; '(x-symbol-make-grammar ...)
-  (if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
-      (x-symbol-make-grammar
-       :encode-spec '(((id . "['a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")) .
-                    ((id . "['a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")))
-       :decode-spec nil
-		 ;; decode-spec seems to go with highlighting encoding??
-       :decode-regexp "\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
-       :token-list #'x-symbol-coq-default-token-list)))
+  (x-symbol-make-grammar
+   :encode-spec '(((id . "['a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")) .
+		  ((id . "['a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")))
+   :decode-spec nil
+   ;; decode-spec seems to go with highlighting encoding??
+   :decode-regexp "\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
+   :token-list #'x-symbol-coq-default-token-list))
 
 ;(defvar x-symbol-coq-input-token-grammar
 ;  '("\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
@@ -469,11 +456,13 @@ See `x-symbol-language-access-alist' for details."
 
 
 (defun x-symbol-coq-prepare-table (table)
-  "Builds the x-symbol coq table from `x-symbol-coq-user-table', ` x-symbol-coq-symbol-table' and `x-symbol-coq-xsymbol-table'."
-    (mapcar (lambda (entry)
-              (list (car entry) nil
-		    (cadr entry)))
-            table))
+  "Builds the x-symbol coq table.
+Data taken from `x-symbol-coq-user-table', `x-symbol-coq-symbol-table' 
+and `x-symbol-coq-xsymbol-table'."
+  (mapcar (lambda (entry)
+	    (list (car entry) nil
+		  (cadr entry)))
+	  table))
 
 (defvar x-symbol-coq-table
   (x-symbol-coq-prepare-table
@@ -481,33 +470,6 @@ See `x-symbol-language-access-alist' for details."
     x-symbol-coq-user-table
     x-symbol-coq-symbol-table
     x-symbol-coq-xsymbol-table)))
-
-
-
-(provide 'x-symbol-coq)
-
-;;;===========================================================================
-;;;  Internal
-;;;===========================================================================
-;; CW: all are not needed in X-Symbol >= v4.3
-
-(defvar x-symbol-coq-menu-alist nil
-  "Internal.  Alist used for Isasym specific menu.")
-(defvar x-symbol-coq-grid-alist nil
-  "Internal.  Alist used for Isasym specific grid.")
-
-(defvar x-symbol-coq-decode-atree nil
-  "Internal.  Atree used by `x-symbol-token-input'.")
-(defvar x-symbol-coq-decode-alist nil
-  "Internal.  Alist used for decoding of Isasym macros.")
-(defvar x-symbol-coq-encode-alist nil
-  "Internal.  Alist used for encoding to Isasym macros.")
-
-;; FIXME: next two not needed for newer X-Symbol versions.
-(defvar x-symbol-coq-nomule-decode-exec nil
-  "Internal.  File name of Isasym decode executable.")
-(defvar x-symbol-coq-nomule-encode-exec nil
-  "Internal.  File name of Isasym encode executable.")
 
 (defcustom x-symbol-coq-auto-style
   '((proof-ass x-symbol-enable)	 ; MODE-ON: whether to turn on interactively
@@ -521,6 +483,7 @@ See documentation of `x-symbol-auto-style'."
   :group 'x-symbol-coq
   :group 'x-symbol-mode
   :type 'x-symbol-auto-style)
+
 
 (provide 'x-symbol-coq)
 
