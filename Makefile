@@ -3,8 +3,11 @@
 ## 
 ## Author:  David Aspinall <da@dcs.ed.ac.uk>
 ##
+##  make		- do "compile" and "scripts" targets
 ##  make compile	- make .elc's in a single session
 ##  make all		- make .elc's in separate sessions
+##  make scripts	- edit paths in isabelle interface scripts,
+##			  legotags and coqtags
 ##
 ## $Id$
 ## 
@@ -18,6 +21,7 @@ BATCHEMACS=xemacs -batch -q -no-site-file
 
 PWD=$(shell pwd)
 BASH_SCRIPTS = isa/interface isar/interface
+PERL_SCRIPTS = lego/legotags coq/coqtags
 
 # FIXME: would rather set load path in Elisp,
 # but seems tricky to do only during compilation.
@@ -32,6 +36,8 @@ ELC=$(EL:.el=.elc)
 
 .SUFFIXES:	.el .elc
 
+default: compile scripts
+
 ## 
 ## compile : byte compile files in working directory:
 ##           Clearout old .elc's and re-compile in a
@@ -39,7 +45,7 @@ ELC=$(EL:.el=.elc)
 ##	     but can have artefacts because of context between
 ##	     compiles.
 ##
-compile: scripts
+compile: 
 	@echo "*************************************************"
 	@echo " Byte compiling..."
 	@echo "*************************************************"
@@ -53,17 +59,31 @@ all:	$(ELC)
 .el.elc:
 	$(BYTECOMP) $*.el
 
-## scripts: try to patch bash scripts with path to bash 
-## 
 ##
-scripts:
+## scripts: try to patch bash and perl scripts with correct paths
+##
+scripts: bashscripts perlscripts
+
+bashscripts:
 	@(bash="`which bash`"; \
 	 if [ -z "$$bash" ]; then \
-	   echo "Could not find bash - bash path not checked" >&2; \
+	   echo "Could not find bash - bash paths not checked" >&2; \
 	   exit 0; \
 	 fi; \
 	 for i in $(BASH_SCRIPTS); do \
 	   sed "s|^#.*!.*/bin/bash.*$$|#!$$bash|" < $$i > .tmp \
+	   && cat .tmp > $$i; \
+	 done; \
+	 rm -f .tmp)
+
+perlscripts:
+	@(perl="`which perl`"; \
+	 if [ -z "$$perl" ]; then \
+	   echo "Could not find perl - perl paths not checked" >&2; \
+	   exit 0; \
+	 fi; \
+	 for i in $(PERL_SCRIPTS); do \
+	   sed "s|^#.*!.*/bin/perl.*$$|#!$$perl|" < $$i > .tmp \
 	   && cat .tmp > $$i; \
 	 done; \
 	 rm -f .tmp)
