@@ -37,8 +37,9 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
   (interactive)
   ; (unless proof-x-symbol-initialized
     (let*
-	((assistant	 (symbol-name proof-assistant-symbol))
-	 (xs-feature     (concat "x-symbol-" assistant))
+	((xs-lang        (proof-ass x-symbol-language))
+	 (xs-lang-name	 (symbol-name xs-lang))
+	 (xs-feature     (concat "x-symbol-" xs-lang-name))
 	 (xs-feature-sym (intern xs-feature))
 	 (error-or-warn	 
 	  (lambda (str) (if error (error str) (warn str)))))
@@ -74,8 +75,7 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
        (t
 	;; We've got everything we need!   So initialize.
 	(let*
-	    ((xs-lang	     proof-assistant-symbol)
-	     (xs-xtra-modes  proof-xsym-extra-modes)
+	    ((xs-xtra-modes  proof-xsym-extra-modes)
 	     (xs-std-modes   (list
 			      ;; NB: there is a problem with
 			      ;; initialization order here, these
@@ -98,12 +98,12 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 	     (all-xs-modes   (append xs-std-modes xs-xtra-modes))
 	     (am-entry       (list proof-xsym-extra-modes t 
 				   `(quote ,xs-lang)))
-	     (symmode-nm     (concat assistant "sym-mode"))
+	     (symmode-nm     (concat xs-lang-name "sym-mode"))
 	     (symmode        (intern symmode-nm))
 	     (symnamevar     (intern (concat xs-feature "-name")))
-	     (symname	     (concat proof-assistant " Symbols"))
+	     (symname	     (concat xs-lang-name " Symbols"))
 	     (symmodelinevar (intern (concat xs-feature "-modeline-name")))
-	     (symmodelinenm  assistant)
+	     (symmodelinenm  xs-lang-name)
 	     (flks	     proof-xsym-font-lock-keywords))
 
 
@@ -221,6 +221,10 @@ A subroutine of proof-x-symbol-enable."
 ;;  proof-x-symbol-configure:     for goals/response buffer (font lock)
 ;;
 
+(defun proof-x-symbol-set-language ()
+  "Set x-symbol-language for the current proof assistant."
+  (setq x-symbol-language (proof-ass x-symbol-language)))
+
 ;;;###autoload
 (defun proof-x-symbol-mode ()
   "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable.
@@ -232,7 +236,7 @@ takes place (it isn't used for output-only buffers)."
 	(progn
 	  ;; Buffers which have XS minor mode toggled always keep 
 	  ;; x-symbol-language set.
-	  (setq x-symbol-language proof-assistant-symbol)
+	  (proof-x-symbol-set-language)
 	  (x-symbol-mode (if (proof-ass x-symbol-enable) 1 0))
 	  ;; Font lock mode must be engaged for x-symbol to do its job
           ;; properly, at least when there is no mule around.
@@ -261,7 +265,7 @@ Assumes that the current buffer is the proof shell buffer."
       (progn
 	(cond
 	 ((proof-ass x-symbol-enable)
-	  (setq x-symbol-language proof-assistant-symbol)
+	  (proof-x-symbol-set-language)
 	  (if (and proof-xsym-activate-command 
 		   (proof-shell-live-buffer))
 	      (proof-shell-invisible-command 
@@ -287,7 +291,7 @@ Assumes that the current buffer is the proof shell buffer."
   "Configure the current buffer (goals or response) for X-Symbol."
   (if (proof-ass x-symbol-enable)
       (progn
-	(setq x-symbol-language proof-assistant-symbol)
+	(proof-x-symbol-set-language)
 	;; If we're turning on x-symbol, attempt to convert to 
 	;; characters.  (Only works if the buffer already
 	;; contains tokens!)

@@ -2003,6 +2003,11 @@ X-Symbol support is deactivated."
   :type 'string
   :group 'proof-x-symbol)
 
+(defpgcustom x-symbol-language proof-assistant-symbol
+  "Setting for x-symbol-language for the current proof assistant.
+It defaults to proof-assistant-symbol, which makes X Symbol
+look for files named x-symbol-<PA>.el.")
+
 
 
 
