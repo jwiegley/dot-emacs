@@ -2790,13 +2790,12 @@ This is a long-range forget: we know that there is no
 open goal at the moment, so forgetting involves unbinding
 declarations, etc, rather than undoing proof steps.
 
-CURRENTLY UNIMPLEMENTED: just returns proof-no-command.
-Check the lego-find-and-forget or coq-find-and-forget
-functions for examples of how to write this function.
+Currently this has a trivial implementation: it 
+just returns proof-no-command, meaning `do nothing'.
 
-In the next release of Proof General, there will be
-a generic implementation of this."
-  ;; FIXME: come true on the promise above!
+Check the lego-find-and-forget or coq-find-and-forget
+functions for examples of how to write this function."
+  ;; FIXME: implement a useful generic find-and-forget
   proof-no-command)
 
 ;;
