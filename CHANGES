@@ -2,9 +2,6 @@
 
 * Summary of Changes for Proof General 3.2 from 3.1
 
------ NB: this is a pre-release of PG 3.2.  Bugs likely, please report ------ 
------ PG 3.2 is scheduled for release at the end of September 2000. -----
-
 ** Generic Changes
 
 *** Keybindings alterations 
