@@ -157,7 +157,8 @@ Only do it if proof-splash-display is nil."
       (setq unread-command-event (next-command-event)))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
-(add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
+(unless proof-splash-inhibit
+  (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
 (provide 'proof-splash)
 ;; End of proof-splash.
