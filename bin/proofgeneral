@@ -2,20 +2,27 @@
 #
 # Simple shell script for launching Proof General.
 #
-# Uses XEmacs in preference to Emacs
+# Set EMACS to override choice of Emacs version
+# (otherwise script chooses xemacs in preference to emacs)
 #
 # PGHOME must be set to the directory where the lisp files of
-# Proof General are installed.
+# Proof General are installed.  Script checks standard locations
+# in /usr/share/emacs/site-lisp, or uses PGHOMEDEFAULT
+#
+# We load ~/.proofgeneral instead of ~/.emacs if it exists.
+#
+# Thanks to Achim Brucker for suggestions.
 #
 # $Id$
 #
 
-# The default path works if you unpack Proof General in your
-# home directory.
-# NB: no trailing backslash here!
-PGHOME=/home/da/ProofGeneral
 
-# Try to find an Emacs executable 
+# The default path should work if you are using the Proof General RPM
+# or unpack Proof General in your home directory.
+# NB: no trailing backslash here!
+PGHOMEDEFAULT=$HOME/ProofGeneral
+
+# Try to find a default Emacs executable 
 if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
     if which xemacs > /dev/null; then 
 	EMACS=`which xemacs`
@@ -81,10 +88,36 @@ while
   esac
 do shift; done
 
-
 if [ ! -x "$EMACS" ]; then
     echo "$NAME: cannot find an Emacs or XEmacs executable.  Set EMACS or your PATH." 1>&2
     exit 1
 fi
+
+EMACSVERSION=`basename $EMACS`
+
+# Try to find Proof General directory
+if [ -d $PGHOMEDEFAULT ]; then
+    PGHOME=$PGHOMEDEFAULT
+elif [ -d /usr/share/${EMACSVERSION}/site-lisp/proofgeneral ]; then
+    PGHOME=/usr/share/${EMACSVERSION}/site-lisp/proofgeneral
+else
+    echo "Cannot find a Proof General list files: please set PGHOMEDEFAULT"
+    exit 1
+fi
+
+# Deal with UTF issue
+if [ `locale | grep LC_CTYPE | grep UTF` ]; then
+   echo "Warning: detected Unicode LC_CTYPE setting, switched back to C"
+   echo "         See FAQ for more details."
+   export LC_CTYPE=C
+fi
+
+# User may use .proofgeneral in preference to .emacs or .xemacs/init.el
+if [ -f $HOME/.proofgeneral ]; then
+    STARTUP="-q -l $HOME/.proofgeneral"
+else
+    STARTUP=""
+fi
+
     
-exec $EMACS -eval "(or (featurep (quote proof-site)) (load \"$PGHOME/generic/proof-site.el\"))" -f proof-splash-display-screen "$@"
+exec $EMACS $STARTUP -eval "(or (featurep (quote proof-site)) (load \"$PGHOME/generic/proof-site.el\"))" -f proof-splash-display-screen "$@"
