@@ -229,7 +229,7 @@ until Proof General is restarted."
   (let ((vc '(lambda (docdes)
 	       (vector (car (cdr docdes))
 		       (list 'isa-view-doc (car docdes)) t))))
-    (list (cons "Isatool Docs" (mapcar vc (isa-tool-list-docs)))))
+    (list (cons "Isabelle documentation" (mapcar vc (isa-tool-list-docs)))))
   "Isabelle documentation menu.  Constructed dynamically.")
 
 
