@@ -2,6 +2,7 @@
 ;;
 ;; Copyright (C) 1998 LFCS Edinburgh
 ;; Author:	Healfdene Goguen
+;; Maintainer:  David Aspinall <da@dcs.ed.ac.uk>
 ;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
