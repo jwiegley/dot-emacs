@@ -111,7 +111,7 @@ no regular or easily discernable structure."
    proof-shell-noise-regexp	        ""
    proof-shell-assumption-regexp	isa-id  ; matches name of assumptions
    proof-shell-goal-regexp		isa-goal-regexp    ; matches subgoal heading
-   ;; We can't hack the SML prompt, so set wakeup-char to nil.
+   ;; FIXME: hack the SML prompt using ml_prompt and set wakeup-char.
    proof-shell-wakeup-char		nil
    proof-shell-start-goals-regexp	"\370"
    proof-shell-end-goals-regexp		"\371"
@@ -122,8 +122,9 @@ no regular or easily discernable structure."
 					 "use \""
 					 proof-internal-home-directory
 					  "isa/ProofGeneral.ML\";")
-   proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"
-   proof-shell-eager-annotation-end     "$"
+   proof-shell-eager-annotation-start   "^\\[opening \\|^###\\|^Reading\\|^Proof General\\|^Not reading"  ; "^---\\|^\\[opening "
+   ;; could be last bracket on end of line, or with ### and ***.
+   proof-shell-eager-annotation-end   "\n" ; "---$\\|\\]$"
    ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-goal-char	        ?\375
    proof-shell-first-special-char	?\360
@@ -154,7 +155,7 @@ no regular or easily discernable structure."
 ;; We use the top level theory and then force an update, both to fix
 ;; up Isabelle's messy dependency handling and to recache the
 ;; list of loaded files inside emacs.
-(defconst isa-usethy-notopml-command "use_thy_no_topml \"%s\"; update();"
+(defconst isa-usethy-notopml-command "use_thy_and_update \"%s\";"
   "Command to send to Isabelle to process theory for this ML file.")
 
 ;; Unfortunately, use_thy_no_topml followed by update(); doesn't work

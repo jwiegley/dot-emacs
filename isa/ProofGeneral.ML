@@ -9,8 +9,10 @@
 *)
 
 
-use "/home/da/isa-patches/thy_read.ML";
-open ThyRead;
+(*
+ use "/home/da/isa-patches/thy_read.ML";
+ open ThyRead;
+*) 
 
 
 signature PROOFGENERAL =
@@ -59,7 +61,68 @@ structure ProofGeneral =
 	 (show_msgs thy; map retract_file (children_loaded thy); ())
        else ()
    end;
-  end;       
+  end;
+
+fun remove_mlfile_fromdb thy =
+  let val tinfo =  case Symtab.lookup (!loaded_thys, thy) of
+	Some ({path, children, parents = parents, thy_time, theory,...}) =>
+	{ path = path, children = children, parents = parents, theory=theory,
+          thy_time = thy_time, ml_time = None }
+             | None => error 
+	 ("remove_mlfile_from_db: theory " ^ thy ^ " not found");
+    in  loaded_thys := Symtab.update ((thy, tinfo), !loaded_thys) end;
+
+
+fun use_thy_and_update thy =
+  (use_thy_no_topml thy;   (* don't read ML but will be in db [useful bug]*)
+   update () 		   (* fixup dependencies left broken by use_thy
+	(question: can it re-read the top ML, though??  hope not) *)
+    handle exn => 
+       (remove_mlfile_fromdb thy handle _ => raise exn; raise exn);  
+   remove_mlfile_fromdb thy);
+
+fun list_loaded_files () =
+ let
+   val thys_list = Symtab.dest (!loaded_thys)
+   fun loading_msg (tname,tinfo) = 
+	let val path = path_of tname
+	    val (thy_file,ml_file) = get_thy_filenames path tname
+	    fun file_msg x = if (x <> "") then
+			(* Simulate output of theory loader *)
+			writeln ("Reading " ^ (quote x))
+	               else ()
+	  in
+	     (file_msg thy_file; file_msg ml_file)
+          end
+  in
+    seq loading_msg thys_list
+  end;
+
+   
+
+(* configure output channels to decorate output *)
+
+(*
+ Frustratingly, Isabelle uses prs_fn also when displaying
+ the goal state, so it's no use setting that hoping to catch
+ all "normal" output separately.  We really need a fourth
+ output channel.
+ *)
+	       
+local
+  fun out s =
+    (TextIO.output (TextIO.stdOut, s); TextIO.flushOut TextIO.stdOut);
+
+  fun prefix_suffix_lines prfx txt sufx  =
+    txt |> split_lines |> map (fn s => prfx ^ s ^ sufx ^ "\n") |> implode;
+in
+    val _ =
+      (* No difference to original functions at the moment. *)
+      (prs_fn := (fn s => out s) ;
+       warning_fn :=  (fn s => out (prefix_suffix_lines "### " s "")) ;
+       error_fn := (fn s => out (prefix_suffix_lines "*** " s "")))
+end;
+
 
 (* add markup to proof state output *)
 
@@ -73,11 +136,14 @@ current_goals_markers:=(proof_state_special_prefix,
 
 
 
-(* Turn on verbose update output, Proof General likes to parse it. *)
-update_verbose:=true;
+(* Turn on verbose update output, Proof General likes to parse it.
+      update_verbose:=true;
+   Unfortunately broken.  We use list_loaded_files instead. *)
 
-(* Let Proof General see the theories loaded in the logic image. *)
-update();
+(* Get Proof General to cache the loaded files. *)
+
+list_loaded_files();
+
 
 
   
