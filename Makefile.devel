@@ -33,6 +33,8 @@
 ##
 ##    make releaseclean   - clean up after 'make dist' 'make rpmrelease'.
 ##
+##    make testall.xemacs - run all autotest files in Emacs named "xemacs"
+##
 ##
 ## Notes:
 ##   Use 'make untag' before re-trying if 'make releaseall' fails and files
