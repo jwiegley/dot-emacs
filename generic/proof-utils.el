@@ -427,6 +427,8 @@ frame is the one showing the script buffer.)"
   (with-current-buffer buffer
     ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
     (erase-buffer)
+    (if (eq buffer proof-response-buffer)
+	(setq proof-shell-next-error nil))	; all error msgs lost!
     (if proof-delete-empty-windows
 	(delete-windows-on buffer t))))
 
@@ -499,6 +501,7 @@ Returns non-nil if response buffer was cleared."
 	  ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
 	  ;; (erase-buffer proof-response-buffer)
 	    (with-current-buffer proof-response-buffer
+	      (setq proof-shell-next-error nil)	; all error msgs lost!
 	      (erase-buffer))))
       (setq proof-shell-erase-response-flag erase-next-time)
       doit)))
