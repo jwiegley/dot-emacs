@@ -448,7 +448,7 @@ proof assistant and Emacs is has a modified buffer visiting the file."
 	 (buffer (proof-file-to-buffer cfile)))
     (proof-debug (concat "Registering file " cfile 
 			 (if (member cfile proof-included-files-list)
-			     " (already registered, no action)" "")))
+			     " (already registered, no action)." ".")))
     (unless (member cfile proof-included-files-list)
       (and buffer
 	   (not informprover)
@@ -539,11 +539,10 @@ proof-included-files-list before this one will be automatically
 retracted using proof-auto-retract-dependencies."
   (if buffer-file-name
       (let ((cfile (file-truename buffer-file-name)))
-	(proof-debug 
-	 (concat "Unregistering file " cfile 
-		 (if (not (member cfile 
-				  proof-included-files-list))
-		     " (not registered, no action)" "")))
+	(proof-debug (concat "Unregistering file " cfile 
+			       (if (not (member cfile 
+						proof-included-files-list))
+				   " (not registered, no action)." ".")))
 	(if (member cfile proof-included-files-list)
 	    (progn
 	      (proof-auto-retract-dependencies cfile informprover)
