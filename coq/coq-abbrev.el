@@ -97,6 +97,9 @@
 		("mo2" "Module # <: # := #." holes-abbrev-complete 0)
 		("moi" "Module # : #.\n#\nEnd #." holes-abbrev-complete 0)
 		("moi2" "Module # <: #.\n#\nEnd #." holes-abbrev-complete 0)
+		("nots" "Notation # := #." holes-abbrev-complete 0)
+		("notsl" "Notation Local # := #." holes-abbrev-complete 0)
+		("not" "Notation \"#\" := # (at level #, # at level #)." holes-abbrev-complete 0)
 		("nota" "Notation \"#\" := # (at level #, # at level #)." holes-abbrev-complete 0)
 		("notas" "Notation \"#\" := # (at level #, # associativity)." holes-abbrev-complete 0)
 		("notasc" "Notation \"#\" := # (at level #, # at level #) : @{scope}." holes-abbrev-complete 0)
@@ -193,6 +196,10 @@
       ["Notation (assoc)                notas<C-BS>" (insert-and-expand "notas") t]     
       ["Notation (no assoc, scope)      notasc<C-BS>" (insert-and-expand "notasc") t]     
       ["Notation (assoc, scope)         notassc<C-BS>" (insert-and-expand "notassc") t]
+		""
+      ["Notation (simple)               nots<C-BS>" (insert-and-expand "nots") t]     
+      ["Notation (simple,local)         notsl<C-BS>" (insert-and-expand "nots") t]     
+
       )
      )
 
