@@ -1057,8 +1057,7 @@ particularly in proof-start-queue and proof-shell-exec-loop."
     ;; Lego uses this hook for setting the pretty printer
     ;; width, Coq uses it for sending an initialization string
     ;; (although it could presumably use proof-shell-init-cmd?).
-    ;; Paul Callaghan wants to use this hook to massage STRING
-    ;; to remove literate-style markup from input. 
+    ;; Plastic uses this hook to remove literate-style markup from 'string'. 
     (run-hooks 'proof-shell-insert-hook)
 
     ;; Now we replace CRs from string with spaces. This was done in
