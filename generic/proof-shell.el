@@ -232,7 +232,7 @@ Does nothing if proof assistant is already running."
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	
-	;; Disable 16 Bit
+	;; FIXME: Disable 16 Bit
 	;; We noticed that for LEGO, it otherwise converts annotations
 	;; to characters with (non-ASCII) code around 3000 which screws
 	;; up our conventions that annotations lie between 128 and
@@ -254,7 +254,6 @@ Does nothing if proof assistant is already running."
 	      (set-buffer proof-goals-buffer)
 	      (and (fboundp 'toggle-enable-multibyte-characters)
 		   (toggle-enable-multibyte-characters -1))
-	      
 	      (funcall proof-mode-for-pbp))
 	  (switch-to-buffer proof-shell-buffer)
 	  (error "%s process exited!" proc)))
@@ -512,6 +511,9 @@ This is a list of tuples of the form (type . string). type is either
 	   (ann (make-string (length string) ?x))
            (stack ()) (topl ()) 
 	   (out (make-string l ?x)) c span)
+
+      ;; Form output string by removing characters 
+      ;; 128 or greater.
       (while (< ip l)	
 	(if (< (setq c (aref string ip)) 128)
 	    (progn (aset out op c)
@@ -545,47 +547,57 @@ This is a list of tuples of the form (type . string). type is either
       (insert (substring out 0 op))
       (proof-display-and-keep-buffer proof-goals-buffer (point-min))
 
-      (setq ip 0
-	    op 1)
-      (while (< ip l)
-	(setq c (aref string ip))
-	(cond
-	 ((= c proof-shell-goal-char)
-	  (setq topl (cons op topl))
-	  (setq ap 0))
-	 ((= c proof-shell-start-char)
-	  (if proof-analyse-using-stack
-	      (setq ap (- ap (- (aref string (incf ip)) 128)))
-	    (setq ap (- (aref string (incf ip)) 128)))
-	  (incf ip)
-	  (while (not (= (setq c (aref string ip)) proof-shell-end-char))
-	    (aset ann ap (- c 128))
-	    (incf ap)
-	    (incf ip))
-	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
-	 ((and (consp stack) (= c proof-shell-field-char))
-	  ;; (consp stack) has been added to make the code more robust.
-	  ;; In fact, this condition is violated when using
-	  ;; lego/example.l and FSF GNU Emacs 20.3
-	  (setq span (make-span (car stack) op))
-	  (set-span-property span 'mouse-face 'highlight)
-	  (set-span-property span 'proof (car (cdr stack)))
-	  ;; Pop annotation off stack
-	  (and proof-analyse-using-stack
-	       (progn
-		 (setq ap 0)
-		 (while (< ap (length (cadr stack)))
-		   (aset ann ap (aref (cadr stack) ap))
-		   (incf ap))))
-	  ;; Finish popping annotations
-	  (setq stack (cdr (cdr stack))))
-	 (t (incf op)))
-	(incf ip))
-      (setq topl (reverse (cons (point-max) topl)))
-      ;; If we want Coq pbp: (setq coq-current-goal 1)
-      (while (setq ip (car topl) 
-		   topl (cdr topl))
-	(pbp-make-top-span ip (car topl))))))
+      ;; FIXME: 
+      ;; This code is broken for Emacs 20.3 which has 16 bit
+      ;; character codes.  (Despite earlier attempts to make
+      ;; character codes in this buffer 8 bit)
+      ;; But this is a more general problem in Proof General
+      ;; which requires re-engineering all this 128 mess.
+      (unless
+	  ;; Don't do it for Emacs 20.3 or any version which
+	  ;; has this suspicious function.
+	  (fboundp 'toggle-enable-multibyte-characters)
+	(setq ip 0
+	      op 1)
+	(while (< ip l)
+	  (setq c (aref string ip))
+	  (cond
+	   ((= c proof-shell-goal-char)
+	    (setq topl (cons op topl))
+	    (setq ap 0))
+	   ((= c proof-shell-start-char)
+	    (if proof-analyse-using-stack
+		(setq ap (- ap (- (aref string (incf ip)) 128)))
+	      (setq ap (- (aref string (incf ip)) 128)))
+	    (incf ip)
+	    (while (not (= (setq c (aref string ip)) proof-shell-end-char))
+	      (aset ann ap (- c 128))
+	      (incf ap)
+	      (incf ip))
+	    (setq stack (cons op (cons (substring ann 0 ap) stack))))
+	   ((and (consp stack) (= c proof-shell-field-char))
+	    ;; (consp stack) has been added to make the code more robust.
+	    ;; In fact, this condition is violated when using
+	    ;; lego/example.l and FSF GNU Emacs 20.3
+	    (setq span (make-span (car stack) op))
+	    (set-span-property span 'mouse-face 'highlight)
+	    (set-span-property span 'proof (car (cdr stack)))
+	    ;; Pop annotation off stack
+	    (and proof-analyse-using-stack
+		 (progn
+		   (setq ap 0)
+		   (while (< ap (length (cadr stack)))
+		     (aset ann ap (aref (cadr stack) ap))
+		     (incf ap))))
+	    ;; Finish popping annotations
+	    (setq stack (cdr (cdr stack))))
+	   (t (incf op)))
+	  (incf ip))
+	(setq topl (reverse (cons (point-max) topl)))
+	;; If we want Coq pbp: (setq coq-current-goal 1)
+	(while (setq ip (car topl) 
+		     topl (cdr topl))
+	  (pbp-make-top-span ip (car topl)))))))
 
 (defun proof-shell-strip-annotations (string)
   "Strip special annotations from a string, returning cleaned up string.
