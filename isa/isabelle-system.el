@@ -74,7 +74,7 @@ with full path."
 	   nil nil t)))
   (if (and proof-running-on-win32
 	   (not (file-executable-p isa-isatool-command)))
-      (warning "Proof General: isatool command not found; ignored because Win32 system detected."))
+      (warn "Proof General: isatool command not found; ignored because Win32 system detected."))
   (file-executable-p isa-isatool-command))
 
 (defun isa-shell-command-to-string (command)
