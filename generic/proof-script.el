@@ -1182,16 +1182,12 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 ;; NEW parsing functions for 3.2
 ;;
-;; FIXME da: this version is XEmacs specific, using
-;; bultin buffer-syntactic-context.  Means we don't need to
-;; parse strings and comments ourselves.
-;;
 ;; NB: compared with old code,
 ;; (1) this doesn't treat comments quite so well, but parsing
 ;; should be rather more efficient.
 ;; (2) comments are treated less like commands, and are only
 ;; coloured blue "in passing" when commands are sent.
-
+;; However, undo still process comments step-by-step.
 
 (defun proof-segment-up-to-cmdstart (pos &optional next-command-end)
   "Parse the script buffer from end of locked to POS.
