@@ -36,6 +36,13 @@ Generic Changes
   take an optional argument to delete the retracted text
   (it was too easy for the user to accidently type C-u C-c C-u !)
 
+* User options have been re-organized and renamed to be
+  more suggestive.  "Active terminator minor mode" is now 
+  called "electric terminator".  Boolean options can be
+  toggled from the menu and saved with "Save options"
+  on the ordinary Emacs "Options" menu.  (Others can
+  be set via Customize).
+  
 * Command C-c C-t (proof-try-command) removed in favour of C-c C-v
   (proof-execute-minibuffer-cmd), which now uses the
   filter proof-state-preserving-p to check that a command is safe.
