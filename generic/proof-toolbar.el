@@ -218,6 +218,8 @@ to the default toolbar."
   "Flag indicating that the toolbar should be refreshed.")
 
 ;; &rest args needed for after change function args
+;; FIXME: don't want to do this in every buffer, really;
+;; we'll have proof-toolbar-refresh-flag defined everywhere.
 (defun proof-toolbar-refresh (&rest args)
   "Set flag to indicate that the toolbar should be refreshed."
   (setq proof-toolbar-refresh-flag t))
