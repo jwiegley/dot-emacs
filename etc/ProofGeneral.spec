@@ -82,10 +82,10 @@ fi
 
 %files
 %attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/* 
-%attr(-,root,root) /usr/info/ProofGeneral.info.gz
-%attr(-,root,root) /usr/info/ProofGeneral.info-*.gz
-%attr(-,root,root) /usr/info/PG-adapting.info.gz
-%attr(-,root,root) /usr/info/PG-adapting.info-*.gz
+%attr(-,root,root) /usr/info/ProofGeneral.info.*
+%attr(-,root,root) /usr/info/ProofGeneral.info-*.*
+%attr(-,root,root) /usr/info/PG-adapting.info.*
+%attr(-,root,root) /usr/info/PG-adapting.info-*.*
 %attr(-,root,root) /usr/bin/proofgeneral
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
