@@ -113,10 +113,10 @@ fi
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/af2/*.af2
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/acl2
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.af2
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.acl2
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/twelf
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/twelf/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/twelf/*.af2
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/twelf/*.twelf
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/images/*
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
