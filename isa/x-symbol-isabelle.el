@@ -1,7 +1,10 @@
+;; x-symbol-isabelle.el   Token language "Isabelle Symbols" for package x-symbol
+;;
 ;;  ID:         $Id$
 ;;  Author:     David von Oheimb
 ;;  Copyright   1998 Technische Universitaet Muenchen
-;;  token language "Isabelle Symbols" for package x-symbol
+;;  License     GPL (GNU GENERAL PUBLIC LICENSE)
+;;
 ;;
 ;; NB: Part of Proof General distribution.
 ;;

@@ -1,6 +1,7 @@
-;; x-symbol-coq.el
+;; x-symbol-lego.el
 ;;
 ;; David Aspinall, adapted from file supplied by David von Obheimb
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; $Id$
 ;;

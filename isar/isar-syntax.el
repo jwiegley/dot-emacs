@@ -1,5 +1,6 @@
 ;; isar-syntax.el Syntax expressions for Isabelle/Isar
 ;; Copyright (C) 1994-1998 LFCS Edinburgh.
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Markus Wenzel <wenzelm@in.tum.de>

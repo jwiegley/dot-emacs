@@ -1,8 +1,8 @@
 ;; twelf.el  Proof General instance for Twelf
 ;;
 ;; Copyright (C) 2000 LFCS Edinburgh. 
-;;
-;; Author: David Aspinall <da@dcs.ed.ac.uk>
+;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
+;; Author:    David Aspinall <da@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;

@@ -1,6 +1,7 @@
 ;; lego.el Major mode for LEGO proof assistants
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Author:      Thomas Kleymann and Dilip Sequeira
+;; License:     GPL (GNU GENERAL PUBLIC LICENSE)
 ;; Maintainer: Paul Callaghan <P.C.Callaghan@durham.ac.uk>
 
 ;;
