@@ -152,6 +152,10 @@
 
 (defconst isar-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
 
+(defconst isar-any-command-regexp
+  (isar-ids-to-regexp isar-keywords-major)
+  "Regexp matching any Isabelle/Isar command keyword.")
+
 (defconst isar-name-regexp
   (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
   "Regexp matching Isabelle/Isar names, with contents grouped.")
