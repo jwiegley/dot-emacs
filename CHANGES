@@ -32,7 +32,7 @@ the current display mode.  This uses a vertical-horizontal split
 scheme for three-pane mode (due to Pierre Courtieu), but three-pane
 mode also works with three-way horizontal split as before.
 
-*** Improved RPM packaging 
+*** Improved RPM packages
 
 Three packages are provided: ProofGeneral, ProofGeneral-emacs-elc and
 ProofGeneral-xemacs-elc.  The two elc RPMs contain compiled elisp for
@@ -53,7 +53,7 @@ Hints for keyboard usage and reporting on file processing are now
 displayed in the minibuffer.  If you do not like this behaviour,
 customize the `pg-show-hints' variable.
 
-*** pre-compiled .elc files: NOTE recompile needed for GNU Emacs
+*** pre-compiled .elc files. NOTE: recompile needed for GNU Emacs
 
 Proof General can now be reliably run as compiled code.
 
@@ -191,15 +191,25 @@ strings) and theorems (outside).
 
 ** Changes for Isabelle
 
-Beginnings of support PGIP protocol (work in progress with Isabelle
-2004).  Presently allows Isabelle to configure Proof General prover
-settings menu.
+*** Automatic refreshing of Logics list
 
-Backward compatibility may not be maintained: it's simply too much
-effort.  This means that if you upgrade your Emacs version, which
-forces you to upgrade Proof General because Emacs upgrades usually
-break Proof General (Emacs authors pay little heed to maintaining
-APIs), then you may have to upgrade your Isabelle version as well.
+*** Theorem dependencies: displaying and highlighting dependencies.
+
+Dependencies for a theorem (i.e. other theorems,lemmas) can be
+displayed.  Local dependencies within the same file can be highlighted
+in yellow, and places where a theorem is used are highlighted in
+orange.  This aids editing of theories to remove dead lemmas, re-order
+proofs, etc.  To activate it you need to select the "Theorem
+Dependencies" option in the Isabelle(/Isar) -> Settings menu.  
+
+You may need to restart the prover before doing this to gather full
+dependency information.
+
+*** Beginnings of support PGIP protocol (wip with Isabelle2004)  
+
+This is an internal change.  Presently, it allows Isabelle to
+configure Proof General prover settings menu directly rather 
+than using Elisp.
 
 
 ** Changes for Coq
