@@ -29,12 +29,10 @@
    (list 'setq var value)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;               Configuration                                      ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst proof-mode-version-string
-  "PROOF-MODE. ALPHA Version 2 (August 1998) LEGO Team <lego@dcs.ed.ac.uk>")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Generic config for proof assistant				    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar proof-assistant ""
   "Name of the proof assistant")
@@ -43,23 +41,7 @@
   "Web address for information on proof assistant")
 
 (defvar proof-shell-cd nil
-  "*Command of the inferior process to change the directory.") 
-
-(defconst proof-info-dir "/usr/local/share/info"
-  "Directory to search for Info documents on Script Management.")
-
-(defvar proof-universal-keys
-  (list (cons '[(control c) (control c)] 'proof-interrupt-process)
-	(cons '[(control c) (control v)]
-	      'proof-execute-minibuffer-cmd)
-	(cons '[(meta tab)] 'tag-complete-symbol))
-  "List of keybindings which are valid in both in the script and the
-  response buffer. Elements of the list are tuples (k . f) 
-  where `k' is a keybinding (vector) and `f' the designated function.")
-
-(defvar proof-prog-name-ask-p nil
-  "*If t, you will be asked which program to run when the inferior
- process starts up.")
+  "*Command of the inferior process to change the directory.")
 
 (defvar proof-shell-process-output-system-specific nil
   "*Errors, start of proofs, abortions of proofs and completions of
@@ -75,6 +57,32 @@
   return a non-nil value. Then (actf cmd string) is invoked. See the
   documentation of `proof-shell-process-output' for the required
   output format.")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Proof mode variables                                           ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconst proof-mode-version-string
+  "PROOF-MODE. ALPHA Version 2 (August 1998) LEGO Team <lego@dcs.ed.ac.uk>")
+
+(defconst proof-info-dir "/usr/local/share/info"
+  "Directory to search for Info documents on Script Management.")
+
+(defconst proof-universal-keys
+  (list (cons '[(control c) (control c)] 'proof-interrupt-process)
+	(cons '[(control c) (control v)]
+	      'proof-execute-minibuffer-cmd)
+	(cons '[(meta tab)] 'tag-complete-symbol))
+  "List of keybindings which are valid in both in the script and the
+  response buffer. Elements of the list are tuples (k . f) 
+  where `k' is a keybinding (vector) and `f' the designated function.")
+
+(defvar proof-prog-name-ask-p nil
+  "*If t, you will be asked which program to run when the inferior
+ process starts up.")
+
+
  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Other buffer-local variables used by proof mode                 ;;
@@ -85,7 +93,7 @@
 (defvar proof-terminal-char nil "terminator character")
 
 (defvar proof-comment-start nil "Comment start")
-(defvar proof-comment-end nil "Comment end")
+(defvar proof-comment-end nil   "Comment end")
 
 (defvar proof-save-command-regexp nil "Matches a save command")
 (defvar proof-save-with-hole-regexp nil "Matches a named save command")
@@ -94,12 +102,19 @@
 (defvar proof-goal-command-p nil "Is this a goal")
 (defvar proof-count-undos-fn nil "Compute number of undos in a target segment")
 (defvar proof-find-and-forget-fn nil "Compute command to forget up to point")
-(defvar proof-goal-hyp-fn nil "Is point at goal or hypothesis")
+
+(defvar proof-goal-hyp-fn nil
+  "A function which returns cons cell if point is at a goal/hypothesis.
+First element of cell is a symbol, 'goal' or 'hyp'.  The second
+element is a string: the goal or hypothesis itself.  This is used
+when parsing the proofstate output")
+
 (defvar proof-kill-goal-command nil "How to kill a goal.")
-(defvar proof-global-p nil "Is this a global declaration")
+(defvar proof-global-p nil
+  "Is this a global declaration")
 
 (defvar proof-state-preserving-p nil
-  "whether a command preserves the proof state")
+  "A predicate, non-nil if its argument preserves the proof state")
 
 (defvar pbp-change-goal nil
   "*Command to change to the goal %s")
@@ -130,6 +145,7 @@
   '(proof-goto-end-of-locked-if-pos-not-visible-in-window)
   "*This hook is called after an error has been reported in the
   RESPONSE buffer.")  
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Generic config for script management                            ;;
@@ -246,6 +262,7 @@
                         (string-match (concat "[^" separator "]")
                                       s end-of-word-occurence)) separator)))))
 
+;; FIXME: this doesn't belong here  (and shouldn't be called w3-* !!)
 (defun w3-remove-file-name (address)
   "remove the file name in a World Wide Web address"
   (string-match "://[^/]+/" address)
@@ -620,6 +637,7 @@
 (defun pbp-make-top-span (start end)
   (let (span name)
     (goto-char start)
+    ;; FIXME: why name?  This is a character function
     (setq name (funcall proof-goal-hyp-fn))
     (beginning-of-line)
     (setq start (point))
@@ -1199,6 +1217,7 @@ arrive."
 	      (setq nam (match-string 2 (span-property gspan 'cmd)))
 	    ;; This only works for Coq, but LEGO raises an error if
 	    ;; there's no name.
+	    ;; FIXME: a nonsense for Isabelle.
 	    (setq nam "Unnamed_thm")))
 
       (set-span-end gspan end)
@@ -1762,6 +1781,7 @@ current command."
   (define-key proof-mode-map [(control c) (control z)] 'proof-frob-locked-end)
 
   (define-key proof-mode-map [tab]      'proof-indent-line)
+  (make-local-variable 'indent-line-function)
   (setq indent-line-function 'proof-indent-line)
 
   (define-key (current-local-map) [(control c) (control p)] 'proof-prf)
