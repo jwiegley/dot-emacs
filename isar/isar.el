@@ -9,11 +9,10 @@
 ;;
 
 ;; Add Isabelle image onto splash screen
-(customize-set-variable
- 'proof-splash-extensions
+(setq proof-splash-extensions
  '(list
    nil
-   (proof-splash-display-image "isabelle_transparent" t)))
+   (proof-get-image "isabelle_transparent" t)))
 
 (require 'proof)
 

@@ -29,9 +29,9 @@ Proof General."
     nil
 ;;; Remove the text for now: XEmacs makes a mess of displaying the
 ;;; transparent parts of the gif (at least, on all machines I have seen)
-;;;    (proof-splash-display-image "pg-text" t)
+;;;    (proof-get-image "pg-text" t)
     nil
-    (proof-splash-display-image "ProofGeneral")
+    (proof-get-image "ProofGeneral")
     nil
     "Welcome to"
     (concat proof-assistant " Proof General!")
@@ -44,14 +44,11 @@ Proof General."
     "(C) LFCS, University of Edinburgh, 2002."
     nil
     nil
-"    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
+"    Please send problems and suggestions to support@proofgeneral.org, 
      or use the menu command Proof-General -> Submit bug report."
     nil
-    ;; Don't bother with XEmacs propaganda for GNU Emacs 21.
     (unless (or proof-running-on-XEmacs proof-running-on-Emacs21)
-      "For a better Proof General experience, please use XEmacs")
-    (unless (or proof-running-on-XEmacs proof-running-on-Emacs21)
-      "(visit  http://www.xemacs.org)"))
+     "For a better Proof General experience, please use XEmacs or Emacs 21.X"))
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
 specifier, it is displayed centred on the window on its own line.  
@@ -63,14 +60,13 @@ If it is nil, a new line is inserted."
   (if (featurep 'proof-config) nil
     ;; Display additional hint if we guess we're being loaded
     ;; by shell script rather than find-file.
-    ;; FIXME (minor): shouldn't be defcustom since evaluated here
     '(list
       "To start using Proof General, visit a proof script file"
       "for your prover, using C-x C-f or the \"File\" menu."))
     "Prover specific extensions of splash screen.
 These are evaluated and appended to `proof-splash-contents'."
-  :type 'sexp
-  :group 'prover-config)
+    :type 'sexp
+    :group 'prover-config)
 
 (defconst proof-splash-welcome "*Proof General Welcome*"
   "Name of the Proof General splash buffer.")
@@ -90,36 +86,38 @@ These are evaluated and appended to `proof-splash-contents'."
     (and (listp img) (eq (car img) 'image))))
 
 
-(defun proof-splash-display-image (name &optional nojpeg)
+;; could be in proof-utils 
+(defun proof-get-image (name &optional nojpeg default)
   "Construct an image instantiator for an image, or string failing that.
 Different formats are chosen from according to what can be displayed.
-Unless NOJPEG is set, try jpeg first. Then try gif.
-Gif filename depends on colour depth of display."
+Unless NOJPEG is set, try jpeg first. Then try gif, then xpm.
+Gif filename depends on colour depth of display.
+DEFAULT gives return value in case image not valid."
   (let ((jpg (vector 'jpeg :file
 		     (concat proof-images-directory name ".jpg")))
+	(gif (vector 'gif :file
+		     (concat proof-images-directory 
+			     name
+			     (or (and
+				  (fboundp 'device-pixel-depth)
+				  (> (device-pixel-depth) 8)
+				  ".gif")
+				 ;; Low colour gif for poor displays
+				 ".8bit.gif"))))
+	(xpm (vector 'xpm :file
+		     (concat proof-images-directory name ".xpm")))
+	(validfn (lambda (inst)
+		   (and (valid-instantiator-p inst 'image)
+			(file-readable-p (aref inst 2)))))
 	img)
   (cond
-   ((and window-system 
-	 proof-running-on-XEmacs
-	 (featurep 'jpeg) (not nojpeg)
-	 ;; Actually, jpeg can fail even if it is compiled in.
-	 ;; FIXME: this test doesn't work, though: still gives
-	 ;; t when visiting the file displays failure message.
-	 ;; What's the correct test?
-	 (valid-instantiator-p jpg 'image))
+   ((and window-system proof-running-on-XEmacs (featurep 'jpeg) (not nojpeg)
+	 (funcall validfn jpg))
     jpg)
-   ((and window-system 
-	 proof-running-on-XEmacs
-	 (featurep 'gif))
-    (vector 'gif :file
-	    (concat proof-images-directory 
-		    (concat name
-			    (or (and
-				 (fboundp 'device-pixel-depth)
-				 (> (device-pixel-depth) 8)
-				 ".gif")
-				;; Low colour gif for poor displays
-				".8bit.gif")))))
+   ((and window-system proof-running-on-XEmacs (featurep 'gif) (funcall validfn gif))
+    gif)
+   ((and window-system proof-running-on-XEmacs (featurep 'xpm) (funcall validfn xpm))
+    xpm)
    ;; Support GNU Emacs 21
    ((and
      proof-running-on-Emacs21
@@ -129,10 +127,12 @@ Gif filename depends on colour depth of display."
 	     (list :type 'jpeg
 		   :file (concat proof-images-directory name ".jpg"))
 	     (list :type 'gif
-		   :file (concat proof-images-directory name ".gif"))))))
+		   :file (concat proof-images-directory name ".gif"))
+	     (list :type 'xpm
+		   :file (concat proof-images-directory name ".xpm"))))))
     img)
    (t
-    (concat "[ image " name " ]")))))
+    (or default (concat "[ image " name " ]"))))))
 
 ;; Would be nice to get rid of this variable, but it's tricky
 ;; to construct a hook function, with a higher order function,
