@@ -72,7 +72,7 @@
 # NB: must use TAB as separator in list below.
 
 DEVELOPERS=\
--u "da	David Aspinall	da+pg-da@inf.ed.ac.uk" \
+-u "da	David Aspinall	da@inf.ed.ac.uk" \
 -u "gkein	Gerwin Klein	gklein@in.tum.de" \
 -u "sberghof	Stefan Berghofer	berghofe@in.tum.de" \
 -u "markus	Markus Wenzel	da+pg-wenzelm@inf.ed.ac.uk" \
