@@ -1989,6 +1989,10 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
   "Prompt for a command in the minibuffer and send it to proof assistant.
 The command isn't added to the locked region.
 
+If a prefix arg is given and there is a selected region, that is
+pasted into the command.  This is handy for copying terms, etc from
+the script.
+
 If `proof-strict-state-preserving' is set, and `proof-state-preserving-p' 
 is configured, then the latter is used as a check that the command
 will be safe to execute, in other words, that it won't ruin
