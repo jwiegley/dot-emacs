@@ -168,7 +168,7 @@ of the proof (starting from 1).")
 ;; Handy macros
 
 (defmacro proof-with-current-buffer-if-exists (buf &rest body)
-  "As with-current-buffer if BUF exists, otherwise nothing."
+  "As with-current-buffer if BUF exists and is live, otherwise nothing."
   `(if (buffer-live-p ,buf)
        (with-current-buffer ,buf
 	 ,@body)))
@@ -343,9 +343,14 @@ Returns new END value."
 
 
 ;; -----------------------------------------------------------------
-;; Display functions
+;; Messaging and display functions
 ;;
 
+
+(defun proof-warn-if-unset (tag sym)
+  "Give a warning (with TAG) if symbol SYM is unbound or nil."
+  (unless (and (boundp sym) (symbol-value sym))
+    (warn "Proof General %s: %s is unset."  tag (symbol-name sym))))
 
 ;; FIXME: this function should be combined with
 ;; proof-shell-maybe-erase-response-buffer. 
@@ -471,7 +476,9 @@ No action if BUF is nil."
      "Proof General" 
      (list 'proof-general-version 'proof-assistant)
      nil nil
-     "[When reporting a bug, please include a small test case for us to repeat it.]")))
+     "[When reporting a bug, please include a small test case for us to repeat it.
+ Please also check that it is not already covered in the BUGS file that came with
+ the distribution, or http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/BUGS]")))
 
 
 
