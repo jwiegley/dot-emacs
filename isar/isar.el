@@ -541,7 +541,7 @@ proof-shell-retract-files-regexp."
  proof-xsym-activate-command
  (isar-markup-ml "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode)")
  proof-xsym-deactivate-command
- (isar-markup-ml "print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"])"))
+ (isar-markup-ml "print_mode := (Library.gen_rems (op =) (! print_mode, [\"xsymbols\",\"symbols\"]))"))
 
 
 (provide 'isar)
