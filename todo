@@ -104,7 +104,8 @@ B Make completion more generic. For Isabelle and Lego, we can build a
   messing with tags.  
 A* fix any bits I've broken  (da, 1hr)
 
-C Add menu function to switch to proof shell buffer (and maybe others).
+B Add menu function to switch to proof shell buffer, goals buffer,
+  response buffer and current proof script buffer. (30min)
 
 C support for templates e.g., in LEGO it would be nice if, by default, 
   fresh buffers corrsponding to file foo.l would automatically insert

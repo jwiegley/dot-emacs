@@ -384,8 +384,8 @@ as atomic when undoing proof steps (see Undo).
 @c FIXME: fix this in the light of what gets implemented.
 
 Proof General runs your proof assistant in a shell buffer in Emacs.
-This @dfn{proof shell buffer} is usually hidden from view.
-(Occasionally you want to find it, see @pxref{Finding the proof shell}).
+This @dfn{proof shell buffer} is usually hidden from view, 
+@pxref{Working Directly with the Proof Shell} for further details.
 When Proof General sees an error in the shell buffer, it will
 highlight the error and display the buffer automatically.
 
@@ -425,6 +425,9 @@ assistant, for example warning or informative messages.
 @node Other commands
 @section Other commands
 
+Please explain C-c C-v here.
+
+Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working Directly with the Proof Shell}
 @node Walkthrough example in LEGO
 @section Walkthrough example in LEGO
 
@@ -432,30 +435,141 @@ assistant, for example warning or informative messages.
 
 @node Advanced Script Management
 @chapter Advanced Script Management
+@cindex Multiple Files
+
+What we really mean by @emph{advanced} is that Proof General supports large
+proof developments. These are typically spread across various files
+which depend on each other in some way. The good news is that Proof
+General knows enough about the dependencies to allow script management
+across multiple files. 
+
 
 @menu
-* Finding the proof shell::
+* Switching between Proof Scripts::  
 * View of processed files ::    
-* Switching between proof scripts::  
-* Retracting across files::
-* Support for function menus::
+* Retracting Across Files::     
+* Asserting Across Files::      
+* Working Directly with the Proof Shell::  
+* Support for function menus::  
 @end menu
 
-@node Finding the proof shell
-@section Finding the proof shell
+@node Switching between Proof Scripts
+@section Switching between Proof Scripts
+@cindex Switching between Proof Scripts
+
+Basic modularity in large proof developments can be achieved by
+splitting proof scripts across various files. Let's assume that you are
+in the middle of a proof development. You are working on a soundness
+proof of Hoare Logic in a file called@footnote{The suffix may depend of
+the specific proof assistant you are using e.g, LEGO's proof script
+files have to end with @file{.l}.} @file{HSound.l}. It
+depends on a number of other files which develop underlying
+concepts e.g. syntax and semantics of expressions, assertions,
+imperative programs. You notice that the current lemma is too difficult
+to prove because you have forgotten to prove some more basic properties
+about determinism of the programming language. Or perhaps a previous
+definition is too cumbersome or even wrong.
+
+At this stage, you would like to visit the appropriate file, say
+@file{sos.l} and retract to where changes are required. For further
+details on how to accomplish this, we refer to @pxref{Retracting Across Files}. Then, using scipt
+management, you want to develop some more basic theory in @file{sos.l}.
+Once this task has been completed (possibly involving retraction across
+even earlier files) and the new development has been
+asserted, you want to swich back to @file{HSound.l} and replay to the
+point you got stuck previously. 
+
+Some hours (or days) later you have completed the soundness proof and
+are ready to tackle new challenges. Perhaps, you want to prove a
+property that builds on soundness or you want to prove an orthogonal
+property such as completeness.
+
+Proof General lets you do all of this while maintaining the consistency
+between proof script buffers and the state of the proof assistant.
+However, you cannot have more than one buffer where only a fraction of
+the proof script contains a locked region. Before you can employ script
+management in  another proof script buffer, you must either fully assert
+or retract the current script buffer.
+
+@node View of processed files 
+@section  View of processed files
+
+Proof General is aware of all files that the proof assistant has
+processed or is currently processing. In fact, it relies on the proof
+assistant explicitly telling the Proof General whenever it processes a
+new file which corresponds to a file containing a proof
+script@footnote{For example, LEGO generates additional compiled
+(optimised) proof script files for efficiency.}. For further technical
+details, @pxref{Handling Multiple Files}. 
+
+If the current proof script buffer depends on background material from
+other files, proof assistants typically process these files
+automatically. If you visit such a file, the whole file is locked as
+having been processed in a single step. From the user's point of view,
+you can only retract but not assert in this buffer. Furthermore,
+retraction is only possible to the @emph{beginning} of the buffer.
+
+To be more precise, buffers are locked as soon the Proof Assistant
+notifies the Proof General of processing a file different from the
+current proof script. Thus, when you can visit the file while the Proof
+Assitant is still processing the file, it is already completely locked.
+If the Proof Assistant is not happy with the contents and
+complains with an error message, the buffer will still be marked as
+having been completely processed. Sorry. You need to visit the
+troublesome file, retract (which will always retract to the beginning of 
+the file) and debug the problem e.g., by asserting all of the buffer
+under the supervision of the Proof General.
+
+In case you wondered, inconsistencies may arise when you have unsaved
+changes in a proof script buffer and the Proof Assistant suddenly
+decides to automatically process the corresponding file. The good news
+is that Proof General detects this problem and flashes up a warning in
+the response buffer. You might then want to visit the modified buffer,
+save it and retract to the beginning. Then you are back on track.
+
+@node Retracting Across Files
+@section Retracting Across Files
+@cindex Retraction
+
+Make sure that the current script buffer has either been completely
+asserted or retracted. Then you can retract in a different file.
+Simply visit a file that has been processed earlier and retract in it.
+Apart from removing parts of the locked region in this buffer, all files 
+which depend on it will be retracted (and thus unlocked) automatically.
+Proof General reminds you that now is a good time to save any unmodified 
+buffers.
+
+@node Asserting Across Files
+@section Asserting Across Files
+@cindex Assertion
+
+Make sure that the current script buffer has either been completely
+asserted or retracted. Then you can assert in a different file. Simply
+visit a file that contains no locked region and assert some command.
+Proof General reminds you that now is a good time to save any unmodified
+buffers. This is particularly useful as assertion may cause the Proof
+Assistant to automatically process other files.
+
+
+@node Working Directly with the Proof Shell
+@section Working Directly with the Proof Shell
+@cindex Shell
 
 Occasionally you may want to review the dialogue of the entire session
 with the proof assistant, or check that it hasn't done something
-unexpected.
+unexpected. Experienced users may also want to directly communicate with 
+the Proof Assistant rather than sending commands via the minibuffer,  
+@pxref{Other commands}.
 
-Although the proof shell is usually hidden from view, it is run in an
+
+Although the proof shell is usually hidden from view, it is run in a
 buffer which provides the usual full editing and history facilities of
 Emacs shells (see the package @file{comint.el} distributed with your
-version of Emacs).
+version of Emacs). You can switch to it using the menu:
 
-If you're running Isabelle, the proof shell buffer will be called
-something like @code{*Inferior Isabelle*}.  You can switch to it using
-@kbd{C-x b} (@code{switch-to-buffer}).
+@lisp
+  Proof-General -> Switch to buffers -> Proof Shell
+@end lisp
 
 @b{Warning:} you can probably cause confusion by typing in the shell
 buffer!  Proof General may lose track of the state of the proof
@@ -468,16 +582,17 @@ depends on how complete the communication is between Proof General and
 the prover (which depends on the particular instantion of Proof
 General).
 
+To resynchronise, you have two options. Perhaps it would suffice to 
+
+@table @kbd
+@item C-c C-z
+move the end of the locked region backwards to the end of the segment
+containing the point.
+@end table
+
+Otherwise, you will need to restart script management altogether, @pxref{Toolbar commands}.
 
 
-@node View of processed files 
-@section  View of processed files
-
-@node Switching between proof scripts
-@section Switching between proof scripts
-
-@node Retracting across files
-@section Retracting across files
 
 
 @node Support for function menus
@@ -793,16 +908,20 @@ of @var{proof-assistants-table} for more details.
 @chapter Internals of Proof General
 
 @menu
-* Proof script mode::           
-* Proof shell mode::            
+* Proof Script Mode::           
+* Proof Shell Mode::            
+* Handling Multiple Files::     
 @end menu
 
-@node Proof script mode
-@section Proof script mode
+@node Proof Script Mode
+@section Proof Script Mode
 
-@node Proof shell mode
-@section Proof shell mode
+@node Proof Shell Mode
+@section Proof Shell Mode
 
+@node Handling Multiple Files
+@section Handling Multiple Files
+@cindex Multiple Files
 
 @c
 @c
