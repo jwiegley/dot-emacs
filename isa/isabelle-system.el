@@ -354,11 +354,12 @@ until Proof General is restarted."
   :type 'boolean
   :setting "Library.timing:=%b;")
 
+(if proof-experimental-features
 (defpacustom theorem-dependencies nil
   "Whether to track theorem dependencies within Proof General."
   :type 'boolean
   :setting ("print_mode := ([\"thm_deps\"] @ ! print_mode);" .
-	    "print_mode := (Library.gen_rems (op =) (! print_mode, [\"thm_deps\"]));"))
+	    "print_mode := (Library.gen_rems (op =) (! print_mode, [\"thm_deps\"]));")))
 
 (defpacustom goals-limit  10
   "Setting for maximum number of goals printed in Isabelle."
