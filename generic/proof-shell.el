@@ -6,7 +6,7 @@
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
-;; $Id$
+;; proof-shell.el,v 2.70 1999/08/23 20:02:26 da Exp
 ;;
 
 ;; FIXME: needed because of menu definitions, which should
@@ -257,6 +257,13 @@ Does nothing if proof assistant is already running."
 	    proof-goals-buffer (get-buffer-create (concat "*" proc "-goals*"))
 	    proof-response-buffer (get-buffer-create (concat "*" proc
 	    "-response*")))
+
+      
+      (proof-x-symbol-toggle (if proof-x-symbol-support 1 0))     ;; DvO
+      (and (featurep 'x-symbol)
+	   (proof-x-symbol-mode-all-buffers proof-x-symbol-support-on)) ;; DvO
+
+
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	
