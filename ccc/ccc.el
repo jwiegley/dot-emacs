@@ -41,6 +41,34 @@
  proof-shell-init-cmd            ""
  proof-shell-proof-completed-regexp "^Consistency proof successfully finished."
  proof-shell-eager-annotation-start "^\\[opening \\|^###\\|^Reading" ;;; ???
+ proof-count-undos-fn		'ccc-count-undos
 )
 
+
+;; da: example of a possible count undos function -- replace upper case
+;; strings by real stuff
+
+(defun ccc-count-undos (span)
+  "Count number of undos in a span, return the command needed to undo that far."
+  (let
+      ((count-ccc 0) 
+       (count-casl 0)
+       casl)
+    (while span
+      (setq str (span-property span 'cmd))
+      (if (proof-string-match "HOL-CASL GOAL COMMAND REGEXP" str)
+	  (setq casl t))
+      (cond ((eq (span-property span 'type) 'vanilla)
+             (unless (proof-string-match proof-non-undoables-regexp str)
+	       (if casl
+		   (setq count-casl (+ 1 count-casl))
+		 (setq count-ccc (+ 1 count-ccc))))))
+      (setq span (next-span span 'type)))
+    (format
+     "HOL-CASL UNDOS (%s); CCC-UNDOS (%s);" 
+     count-cassl count-ccc)))
+
+
 (provide 'ccc)
+
+
