@@ -69,18 +69,7 @@
 ;;
 ;; ==================================================
 
-
-;; Function for setting values dynamically
-(defun proof-set-value (sym value)
-  "Set a customize variable using set-default and a function.
-We first call `set-default' to set SYM to VALUE.
-Then if there is a function SYM (i.e. with the same name as the
-variable SYM), it is called to take some dynamic action for the new
-setting.  This only happens when values *change*: we test whether
-proof-config is fully-loaded yet."
-  (set-default sym value)
-  (if (and (featurep 'proof-config) (fboundp sym))
-      (funcall sym)))
+(require 'proof-utils)			;; Macros used below
 
 
 
@@ -122,11 +111,11 @@ NB: the toolbar is only available with XEmacs."
   :set 'proof-set-value
   :group 'proof-user-options)
 
-(defcustom proof-x-symbol-enable nil
-  "*Whether to use x-symbol in Proof General buffers.
-If you activate this variable, whether or not you get x-symbol support
-depends on whether your proof assistant supports it and whether
-X-Symbol is installed in your Emacs."
+(defpgcustom x-symbol-enable nil
+  "*Whether to use x-symbol in Proof General for this assistant.
+If you activate this variable, whether or not you really get x-symbol
+support depends on whether your proof assistant supports it and
+whether X-Symbol is installed in your Emacs."
   :type 'boolean
   :set 'proof-set-value
   :group 'proof-user-options)
@@ -268,14 +257,11 @@ files which are out of date with respect to the loaded buffers!"
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-script-indent 
-  nil
-  ;; Particular proof assistants can enable this if they feel
-  ;; confident about it.  (I don't). -da
+(defpgcustom script-indent nil
   "*If non-nil, enable indentation code for proof scripts.
 Currently the indentation code can be rather slow for large scripts,
 and is critical on the setting of regular expressions for particular
-provers.  Enable it if it works for you."  
+provers.  Enable it if it works for you, turn it off if it's too slow."  
   :type 'boolean 
   :group 'proof-user-options)
 
@@ -748,10 +734,16 @@ If a function, it should return the command string to insert."
 
 
 (defcustom proof-terminal-char nil
-  "Character which terminates a command in a script buffer.
+  "Character which terminates a command in a script buffer, or nil if none.
 You must set this variable in script mode configuration."
   :type 'character
   :group 'proof-script)
+
+(defcustom proof-script-command-end-regexp nil
+  "Regular expression which matches end of commands in proof script.
+If nil, then `proof-terminal-char' must be set, and is used for the default."
+  :type 'string
+  :group 'prover-config)
 
 (defcustom proof-comment-start ""
   "String which starts a comment in the proof assistant command language.
@@ -1896,123 +1888,33 @@ X-Symbol support is deactivated."
 ;;
 ;; 9. Prover specific settings 
 ;;
+;; The settings defined here automatically use the current proof
+;; assistant symbol as a prefix, i.e.  isa-favourites, coq-favourites,
+;; or whatever will be defined on evaluation.
 
-;; FIXME: MAJOR REORGANIZATION
-;;
-;; This new mechanism is a way to renovate all the settings, and have
-;; them all prover-specific automatically.  Then people's save
-;; settings would work, and we could remove all the "mirror" settings.
-;;
-;; NB: this section is work in progress for 3.2,  probably
-;; to be moved to proof-utils
+(defpgcustom favourites nil
+  "*Favourite commands for this proof assistant.")
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Macros
-;;
-(defun proof-ass-symv (sym)
-  "Return the symbol for SYM for the current prover.  SYM is evaluated."
-  (intern (concat (symbol-name proof-assistant-symbol) "-" 
-		  (symbol-name sym))))
-
-(defmacro proof-ass-sym (sym)
-  "Return the symbol for SYM for the current prover.  SYM not evaluated."
-  `(proof-ass-symv (quote ,sym)))
-
-(defun proof-defasscustom-fn (sym args)
-  "Define a new customization variable <PA>-sym for the current proof assistant.
-Helper for macro `proof-defasscustom'."
-  (let ((specific-var (proof-ass-symv sym))
-	(generic-var  (intern (concat "proof-assistant-" (symbol-name sym)))))
-    (eval
-     `(defcustom ,specific-var 
-	,@args
-	;; FIXME: would be nicer to grab group from @args here and
-	;; prefix it automatically.  For now, default to internals
-	;; setting for PA.
-	:group ,(quote proof-assistant-internals-cusgrp)))
-    ;; For functions, we could simply use defalias.  Unfortunately there
-    ;; is nothing similar for values, so we define a new set/get function.
-    ;; FIXME: consider removing this code.  Maybe we only need to read
-    ;; proof-assistant specific settings, not set them.  That is the
-    ;; job of proof-assistant specific code, not generic code!
-    (eval
-     `(defun ,generic-var (&optional newval) 
-	,(concat "Set or get value of " (symbol-name sym) " for current proof assistant.
-If NEWVAL is present, set the variable, otherwise return its current value.")
-	(if newval 
-	    (setq ,specific-var newval)
-	  ,specific-var)))))
-
-(defmacro proof-defasscustom (sym &rest args)
-  "Define a new customization variable <PA>-sym for the current proof assistant.
-The function proof-assistant-<SYM> is also defined, which can be used in the 
-generic portion of Proof General to set and retrieve the value for the current p.a.
-Arguments as for `defcustom', which see."
-  `(proof-defasscustom-fn (quote ,sym) (quote ,args)))
-
-(defmacro proof-ass (sym)
-  "Return the value for SYM for the current prover."
-  (eval `(proof-ass-sym ,sym)))
-
-
-;; FIXME: consider combining this with proof-defasscustom?
-;; In other words, only get a proof-assistant specific instance
-;; if one is defined explicitly somehow?  Probably not.
-(defun proof-defass-default-fn (sym value)
-  "Set default for the proof assistant specific variable <PA>-SYM to VALUE.
-This should be used in prover-specific code to alter the default values
-for prover specific settings."
-  ;; NB: we need this because nothing in customize library seems to do
-  ;; the right thing.
-  (let ((symbol  (proof-ass-symv sym)))
-    (set-default symbol 
-		 (cond
-		  ;; Use saved value if it's set
-		  ((get symbol 'saved-value)
-		   (car (get symbol 'saved-value)))
-		  ;; Otherwise override old default with new one
-		  (t
-		   value)))))
-
-(defmacro proof-defass-default (sym value)
-    `(proof-defass-default-fn (quote ,sym) ,value))
-
-;;
-;; Make a function named for the current proof assistant.
-;;
-(defmacro proof-defassfun (name arglist &rest args)
-  "Define function <PA>-SYM as for defun."
-  `(defun ,(proof-ass-symv name) ,arglist
-     ,@args))
-
-
-
-;; End macros
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(proof-defasscustom favourites nil
-  "Favourite commands for this proof assistant.")
-
-(proof-defasscustom menu-entries nil
+(defpgcustom menu-entries nil
   "Extra entries for proof assistant specific menu. 
 A list of menu items [NAME CALLBACK ENABLER ...].  See the documentation
 of `easy-menu-define' for more details."
-  :type 'sexp)
+  :type 'sexp
+  :group 'prover-config)
 
-(proof-defasscustom help-menu-entries nil
+(defpgcustom help-menu-entries nil
   "Extra entries for help submenu for proof assistant specific help menu.
 A list of menu items [NAME CALLBACK ENABLER ...].  See the documentation
 of `easy-menu-define' for more details."
-  :type 'sexp)
+  :type 'sexp
+  :group 'prover-config)
 
-(proof-defasscustom keymap (make-keymap (concat proof-assistant " keymap"))
+(defpgcustom keymap (make-keymap (concat proof-assistant " keymap"))
   "Proof assistant specific keymap, used under prefix C-c a."
   :type 'sexp
   :group 'prover-config)
 
-(proof-defasscustom completion-table nil
+(defpgcustom completion-table nil
   "List of identifiers to use for completion for this proof assistant.
 Completion is activated with \\[complete].
 
@@ -2021,36 +1923,11 @@ If this table is empty or needs adjusting, please make changes using
   :type '(list string)
   :group 'prover-config)
 
-(proof-defasscustom tags-program nil
+;; FIXME: not used yet.
+(defpgcustom tags-program nil
   "Program to run to generate TAGS table for proof assistant."
   :type 'file
   :group 'prover-config)
-
-;; FIXME: temp hacks to get doc working before proper commit
-(proof-defasscustom x-symbol-enable nil
-  "*Whether to use x-symbol in Proof General buffers.
-If you activate this variable, whether or not you get x-symbol support
-depends on whether your proof assistant supports it and whether
-X-Symbol is installed in your Emacs."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'proof-user-options)
-(proof-defasscustom script-indent 
-  nil
-  ;; Particular proof assistants can enable this if they feel
-  ;; confident about it.  (I don't). -da
-  "*If non-nil, enable indentation code for proof scripts.
-Currently the indentation code can be rather slow for large scripts,
-and is critical on the setting of regular expressions for particular
-provers.  Enable it if it works for you."  
-  :type 'boolean 
-  :group 'proof-user-options)
-(defalias 'defpgcustom 'proof-defasscustom)
-(defalias 'defpgdefault 'proof-defass-default)
-
-
-
-
 
 		     
 
