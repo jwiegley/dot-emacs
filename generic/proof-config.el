@@ -723,7 +723,7 @@ If a function, it should return the command string to insert."
     (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
     (qed	"Finish Proof"        "Close/save proved theorem" t
 		proof-save-command)
-    (lockedend  "Locked End"	      nil t)
+    (lockedend  "Goto Locked End"     nil t)
     (find	"Find Theorems"	      "Find theorems" t
 		proof-find-theorems-command)
     (command    "Issue Command"	      "Issue a non-scripting command" t)
