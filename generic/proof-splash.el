@@ -82,8 +82,9 @@ Borrowed from startup-center-spaces."
   "Flag indicating the user has been subjected to a welcome message.")
 
 ;;;###autoload
-(defun proof-splash-display-screen ()
+(defun proof-splash-display-screen (&optional timeout)
   "Save window config and display Proof General splash screen."
+ (interactive "P")
   (let
       ;; Keep win config explicitly instead of pushing/popping because
       ;; if the user switches windows by hand in some way, we want
@@ -120,7 +121,7 @@ Borrowed from startup-center-spaces."
 	  (sit-for 0))
 	(setq proof-splash-timeout-conf
 	      (cons
-	       (add-timeout proof-splash-time
+	       (add-timeout (if timeout proof-splash-time 20)
 			    'proof-splash-remove-screen
 			    winconf)
 	       winconf)))
@@ -133,7 +134,11 @@ Borrowed from startup-center-spaces."
     ;; loaded by a call to proof-mode.  We display the screen now and add
     ;; a wait procedure temporarily to proof-mode-hook which prevents
     ;; redisplay until proof-splash-time has elapsed. 
-    (add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
+    (if timeout
+	(add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
+      ;; Otherwise, this was an "about" type of call, so we wait
+      ;; for a key press or timeout event
+      (proof-splash-timeout-waiter))
     (setq proof-splash-seen t)))
 
 (defun proof-splash-message ()
