@@ -122,7 +122,7 @@
    ;; script buffer.
    proof-save-command-regexp    isar-save-command-regexp
    proof-goal-command-regexp    isar-goal-command-regexp
-   proof-goal-with-hole-regexp  nil
+   proof-goal-with-hole-regexp  isar-named-entity-regexp ; da
    proof-save-with-hole-regexp  nil
    proof-script-next-entity-regexps isar-next-entity-regexps
 
