@@ -5,12 +5,10 @@ Generic Changes
 ---------------
 
 * New function C-c C-f (proof-find) to invoke some prover-specific
-  mechanism to search for theories.
-  [in progress]
+  mechanism to search for theories.  Also a new toolbar button for it.
 
 * Toolbar has five new buttons (State, Context, Info, Command,
   Help) which invoke commands previously available on keys/menus.
-  [in progress]
 
 * Toolbar enablers have been added.   
   Buttons are automatically enabled or disabled as appropriate.   
