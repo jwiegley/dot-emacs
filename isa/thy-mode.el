@@ -192,32 +192,22 @@ You can use the following format characters:
 			   ;; (also in proof-universal-keys)
 			    ["Issue command" proof-minibuffer-cmd t]
 			    ["Interrupt prover" proof-interrupt-process t])
-			   proof-shared-menu
-			   ;; begin UGLY COMPATIBILTY HACK
-			   ;; older/non-existent customize doesn't have 
-			   ;; this function.  
-			   (if (fboundp 'customize-menu-create)
-			       (list (customize-menu-create 'proof-general)
-				     (customize-menu-create
-				      'proof-general-internals
-				      "Internals"))
-			     nil)
-			   ;; end UGLY COMPATIBILTY HACK
-			   )))
+			   (list proof-buffer-menu)
+			   (list proof-help-menu))))
   (easy-menu-define thy-mode-isa-menu
 		    thy-mode-map
 		    "Menu for Isabelle Proof General, theory file mode."
 		    (cons "Theory"
 			  (list
-			   ["Next section" thy-goto-next-section t]
-			   ["Prev section" thy-goto-prev-section t]
-			   ["Insert template" thy-insert-template t]
-			   ["Process theory" isa-process-thy-file
+			   ["Next Section" thy-goto-next-section t]
+			   ["Prev Section" thy-goto-prev-section t]
+			   ["Insert Template" thy-insert-template t]
+			   ["Process Theory" isa-process-thy-file
 			    :active (proof-locked-region-empty-p)]
-			   ["Retract theory" isa-retract-thy-file
+			   ["Retract Theory" isa-retract-thy-file
 			    :active (proof-locked-region-full-p)]
-			   ["Next error" proof-next-error t]
-			   ["Switch to script" thy-find-other-file t])))
+			   ["Next Error" proof-next-error t]
+			   ["Switch to Script" thy-find-other-file t])))
   (easy-menu-add thy-mode-pg-menu thy-mode-map)
   (easy-menu-add thy-mode-isa-menu thy-mode-map)
   

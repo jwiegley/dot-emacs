@@ -157,7 +157,8 @@
                            ;; (also in proof-universal-keys)
                             ["Issue command" proof-minibuffer-cmd t]
                             ["Interrupt prover" proof-interrupt-process t])
-                           proof-help-menu)))
+			   (list proof-buffer-menu)
+                           (list proof-help-menu))))
 
   (easy-menu-define thy-mode-lclam-menu
                     thy-mode-map
