@@ -201,7 +201,6 @@
    proof-assistant-setting-format       'isar-markup-ml
    proof-shell-init-cmd                 (proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
-   proof-shell-quit-cmd                 "quit();"
 
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
