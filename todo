@@ -25,10 +25,6 @@ A proof-toolbar:  Add support for entering a goal and saving a theorem
   up and down functions).  Add toolbar to pbp mode too.  
   (1hr, da)
 
-A proof-toolbar: Down button in toolbar gives error "proof process
-  busy" if pressed when the process is busy --- but it should be
-  allowed!  (10 mins,da)
-
 B proof-toolbar: add more buttons for moving to top and bottom of
   whole file.  Use "standard" CD-player type icons.
   (1hr, da)
