@@ -377,7 +377,7 @@ This is specific to coq-mode."
 (defun coq-guess-or-ask-for-string (s)
   (let ((guess
 			(if (region-exists-p) 
-				 (buffer-substring (region-beginning) (region-end))
+				 (buffer-substring-no-properties (region-beginning) (region-end))
 				 (symbol-near-point))))
 	 (read-string 
 	  (if guess (concat s " (" guess "):")(concat s ":"))
@@ -430,9 +430,9 @@ This is specific to coq-mode."
 		 (if (char-equal (char-after (point)) ?E)
 		     (setq count (1+ count))
 		   (setq count (1- count))))
-	       (buffer-string
-		(progn (beginning-of-line) (forward-word 1) (point)) 
-		(progn (end-of-line) (point)))))))
+	       (buffer-substring-no-properties
+          (progn (beginning-of-line) (forward-word 1) (point)) 
+          (progn (end-of-line) (point)))))))
       (insert (concat "End" section)))))
 
 (defun coq-Compile ()
@@ -804,7 +804,7 @@ This is specific to coq-mode."
 (defun coq-fake-constant-markup ()
   "Markup constants in Coq goal output by matching on regexps.
 This is a horrible and approximate way of doing subterm markup.
-(Code used to be in Coq, but got lost between versions 5 and 7).
+\(Code used to be in Coq, but got lost between versions 5 and 7).
 This is a hook setting for `pg-after-fontify-output-hook' to
 enable identifiers to be highlighted and allow useful 
 mouse activation."
