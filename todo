@@ -29,6 +29,8 @@ X (Low)		e.g. probably not worth spending time on
 
 *** Outstanding bugs to investigate
 
+B Exiting isar broken?
+
 C Undoing comments with FSF Emacs weirdness.
  Noticed with Emacs 20.6.1.  Seems to affect all provers.
  Workaround:  use C-c C-RET or C-c C-r instead.
