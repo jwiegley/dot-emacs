@@ -13,8 +13,7 @@
 ;; FIXME da: would regexp-opt be better here?  Or maybe
 ;;  (concat "\\<" (regexp-opt l) "\\>")
 (defun proof-ids-to-regexp (l)
-  "transforms a non-empty list of identifiers `l' into a regular
-  expression matching any of its elements"
+  "Maps a non-empty list of tokens `l' to a regexp matching any element"
   (mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
 
 (defun proof-anchor-regexp (e)
