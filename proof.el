@@ -19,6 +19,10 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.16  1997/10/17 15:15:57  djs
+;; proof-active-terminator inside comment case fixed. Also maybe the
+;; continuous pbp-buffer update bug.
+;;
 ;; Revision 1.15  1997/10/17 14:38:33  tms
 ;; fixed a bug in proof-process-active-terminator. Notice that it still
 ;; doesn't work when you are inside a comment and press the
@@ -772,7 +776,8 @@
 	(progn (proof-release-lock)
 	       (proof-segment-buffer proof-locked-hwm proof-locked-hwm)
 	       t)
-      (proof-send (cadar proof-action-list)))))
+      (proof-send (cadar proof-action-list))
+      nil)))
 
 (defun proof-shell-insert-loopback-cmd  (cmd)
   "Insert command sequence triggered by the proof process
@@ -1028,6 +1033,9 @@ at the end of locked region (after inserting a newline)."
 	(setq semis (cdr semis)))
     (nreverse alist)))
 
+; default action if inside a comment is just to go until the start of
+; the comment. If you want something different, put it inside
+
 (defun proof-assert-until-point (&optional unclosed-comment-hook)
   (interactive)
   (let ((pt  (point)) semis crowbar vanillas)
@@ -1036,15 +1044,15 @@ at the end of locked region (after inserting a newline)."
       (if (not (re-search-backward "\\S-" (proof-end-of-locked) t))
 	  (progn (goto-char pt)
 		 (error "Nothing to do!")))
-      (setq semis (proof-segment-up-to (point)))
-      (if (eq 'unclosed-comment (car semis))
-	  (progn (run-hooks unclosed-comment-hook)
-		 (setq semis (cdr semis))))
-      (if (and (not crowbar) (null semis)) (error "Nothing to do!")))
-    (goto-char (caddar semis))
-    (setq vanillas (proof-semis-to-vanillas (nreverse semis)))
-    (if crowbar (setq vanillas (cons crowbar vanillas)))
-    (proof-start-queue (proof-end-of-locked) (point) vanillas)))
+      (setq semis (proof-segment-up-to (point))))
+    (if (and unclosed-comment-hook (eq 'unclosed-comment (car semis)))
+	(funcall unclosed-comment-hook)
+      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
+      (if (and (not crowbar) (null semis)) (error "Nothing to do!"))
+      (goto-char (caddar semis))
+      (setq vanillas (proof-semis-to-vanillas (nreverse semis)))
+      (if crowbar (setq vanillas (cons crowbar vanillas)))
+      (proof-start-queue (proof-end-of-locked) (point) vanillas))))
     
 (defun proof-done-retracting (ext &optional delete-region)
   "Updates display after proof process has reset its state. See also
@@ -1149,10 +1157,9 @@ current command."
     (if (not (= (char-after (point)) proof-terminal-char))
 	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
     (proof-assert-until-point
-     ;; BEWARE: doesn't work when inside a comment!
-     (function ()
-	       (if ins (backward-delete-char 1))
-	       (goto-char mrk) (insert proof-terminal-string)))))
+     (function (lambda ()
+		 (if ins (backward-delete-char 1))
+		 (goto-char mrk) (insert proof-terminal-string))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Proof mode configuration                                         ;;
