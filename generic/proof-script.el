@@ -637,6 +637,9 @@ the ACS is marked in the current buffer. If CMD does not match any,
 ;; Emacs should be better at skipping whitespace and comments than the
 ;; proof process itself!
 
+;; FIXME da: this annoyingly slow even in a buffer only several
+;; hundred lines long, even when compiled.
+
 (defun proof-segment-up-to (pos &optional next-command-end)
   "Create a list of (type,int,string) tuples from end of locked region to POS.
 Each tuple denotes the command and the position of its terminator,
@@ -651,7 +654,17 @@ the next command end."
       ;; should be true at once. -- hhg
     (let ((str (make-string (- (buffer-size)
 			       (proof-unprocessed-begin) -10) ?x))
-	  (i 0) (depth 0) (quote-parity t) done alist c)
+	  (i 0) (depth 0) (quote-parity t) done alist c
+	  (comment-end-regexp (regexp-quote proof-comment-end))
+	  (comment-start-regexp (regexp-quote proof-comment-start))
+	  ;; For forthcoming improvements: skip over boring
+	  ;; characters, calculate strings with buffer-substring
+	  ;; rather than character at a time.
+	  (interesting-chars
+	   (concat (substring proof-comment-start 1 1)
+		   (substring proof-comment-end 1 1)
+		   (char-to-string proof-terminal-char)
+		   "\"")))
      (proof-goto-end-of-locked)
      (while (not done)
        (cond
@@ -669,7 +682,7 @@ the next command end."
 	   (setq done t alist (cons 'unclosed-comment alist))))
 	 (setq done t))
 	;; Case 3. Found a comment end, not inside a string
-	((and (looking-at (regexp-quote proof-comment-end)) quote-parity)
+	((and (looking-at comment-end-regexp) quote-parity)
 	 (if (= depth 0) 
 	     (progn
 	       (message "Warning: extraneous comment end")
@@ -681,7 +694,7 @@ the next command end."
 	     (aset str i ?\ )
 	     (incf i))))
 	;; Case 4. Found a comment start, not inside a string
-	((and (looking-at (regexp-quote proof-comment-start)) quote-parity)
+	((and (looking-at comment-start-regexp) quote-parity)
 	 (setq depth (+ depth 1))
 	 (forward-char (length proof-comment-start)))
 	;; Case 5. Inside a comment. 
