@@ -1688,7 +1688,7 @@ to the function which parses the script segment by segment."
 	  (progn (goto-char end) 'cmd)))))
     
 
-;; Parsing functions new in v3.2
+;; Parsing functions for v3.2
 ;;
 ;; NB: compared with old code,
 ;; (1) this doesn't treat comments quite so well, but parsing
@@ -2496,8 +2496,10 @@ assistant."
   ;; Assume font-lock case folding follows proof-case-fold-search
   (proof-font-lock-configure-defaults 'autofontify proof-case-fold-search)
   
-  ;; Maybe turn on x-symbol mode.
-  (proof-x-symbol-mode))
+  ;; Maybe turn on x-symbol mode and MMM mode
+  (proof-x-symbol-mode)
+  (proof-mmm-enable))
+
 
 
 
@@ -2615,12 +2617,8 @@ with something different."
 Call this function in the derived mode for the proof assistant to
 finish setup which depends on specific proof assistant configuration."
 
+  ;; Common configuration for shared script/other related buffers.
   (proof-config-done-related)
-
-  ;; Following group of settings only relevant if the current
-  ;; buffer is really a scripting buffer.  Isabelle Proof General
-  ;; has theory file buffers which share some aspects, they
-  ;; just use proof-config-done-related.
 
   ;; Preamble: make this mode class "pg-sticky" so that renaming file
   ;; to something different doesn't change the mode, no matter what
@@ -2674,8 +2672,42 @@ finish setup which depends on specific proof assistant configuration."
   (easy-menu-add proof-mode-menu proof-mode-map)
   (easy-menu-add proof-assistant-menu proof-mode-map)
 
-  ;; Choose parsing mechanism according to different kinds of script syntax.
-  ;; Choice of function depends on configuration setting.
+  ;; Define parsing functions
+  (proof-setup-parsing-mechanism)
+
+  ;; Setup imenu and/or func-menu.
+  (proof-setup-imenu)
+  (proof-setup-func-menu)
+
+  ;; Offer to save script mode buffers which have no files,
+  ;; in case Emacs is exited accidently.
+  (or (buffer-file-name)
+      (setq buffer-offer-save t))
+
+  ;; Localise the invisibility glyph (XEmacs only):
+  (let ((img (proof-get-image "hiddenproof" t nil)))
+    (cond
+     ((and img proof-running-on-XEmacs)
+      (set-glyph-image invisible-text-glyph img (current-buffer)))))
+
+  ;; To begin with, make everything visible in the buffer
+  ;; (FIXME: this is done via proof-init-segmentation, now,
+  ;; when is that called?)
+  (setq buffer-invisibility-spec nil)
+
+  ;; Finally, make sure the user has been welcomed!
+  ;; [NB: this doesn't work well, can get zapped by loading messages]
+  (proof-splash-message))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Subroutines of proof-config-done
+;;
+
+(defun proof-setup-parsing-mechanism ()
+  "Choose parsing mechanism according to different kinds of script syntax.
+Choice of function depends on configuration setting."
   (unless (fboundp 'proof-segment-up-to)
     (if proof-script-use-old-parser
 	;; Configuration for using old parsing mechanism.
@@ -2699,24 +2731,26 @@ finish setup which depends on specific proof assistant configuration."
 	(cond
 	 (proof-script-parse-function
 	  ;; already set, nothing to do
-	  )
+	 )
 	 (proof-script-sexp-commands
-	  (setq proof-script-parse-function 'proof-script-generic-parse-sexp))
+	 (setq proof-script-parse-function 'proof-script-generic-parse-sexp))
 	 (proof-script-command-start-regexp
-	  (setq proof-script-parse-function 'proof-script-generic-parse-cmdstart))
+	 (setq proof-script-parse-function 'proof-script-generic-parse-cmdstart))
 	 ((or proof-script-command-end-regexp proof-terminal-char)
-	  (setq  proof-script-parse-function 'proof-script-generic-parse-cmdend)
-	  (unless proof-script-command-end-regexp
-	    (proof-warn-if-unset "probof-config-done" 'proof-terminal-char)
-	    (setq proof-script-command-end-regexp
-		  (if proof-terminal-char
-		      (regexp-quote (char-to-string proof-terminal-char))
-		    "$"))))
+	 (setq  proof-script-parse-function 'proof-script-generic-parse-cmdend)
+	 (unless proof-script-command-end-regexp
+	   (proof-warn-if-unset "probof-config-done" 'proof-terminal-char)
+	   (setq proof-script-command-end-regexp
+		 (if proof-terminal-char
+		     (regexp-quote (char-to-string proof-terminal-char))
+		   "$"))))
 	 (t
-	  (error "Configuration error: must set `proof-terminal-char' or one of its friends"))))
-      )) ;  default if nothing set is EOL.
+	 (error "Configuration error: must set `proof-terminal-char' or one of its friends"))))
+      )))				;  default if nothing set is EOL.
 
-  ;; Setup a default for imenu.
+
+(defun proof-setup-imenu ()
+  "Setup a default for imenu."
   (unless (and (boundp 'imenu-generic-expression)
 	       imenu-generic-expression)
     (set (make-local-variable 'imenu-generic-expression)
@@ -2727,83 +2761,71 @@ finish setup which depends on specific proof assistant configuration."
 			  proof-goal-with-hole-result))
 		(if proof-save-with-hole-regexp
 		    (list "Saves" proof-save-with-hole-regexp
-			  proof-save-with-hole-result))))))
+			  proof-save-with-hole-result)))))))
 
-  ;; Make sure func menu is configured.  (NB: Ideal place for this and
-  ;; similar stuff would be in something evaluated at top level after
-  ;; defining the derived mode: normally we wouldn't repeat this
-  ;; each time the mode function is run, so we wouldn't need "pushnew").
+(defun proof-setup-func-menu ()
+  "Configure func-menu for a proof script buffer"
+  ;; NB: Ideal place for this and similar stuff would be in something
+  ;; evaluated at top level after defining the derived mode: normally
+  ;; we wouldn't repeat this each time the mode function is run, so we
+  ;; wouldn't need "pushnew").
+  (if (proof-try-require 'func-menu)
+   (progn
+     ;; FIXME: we'd like to let the library load later, but
+     ;; it's a bit tricky: this stuff doesn't seem to work
+     ;; in an eval-after-load body (local vars?).
+     (unless proof-script-next-entity-regexps ; unless already set
+       ;; Try to calculate a useful default value.
+       ;; FIXME: this is rather complicated!  The use of the regexp
+       ;; variables needs sorting out.
+       (customize-set-variable
+	'proof-script-next-entity-regexps
+	(let ((goal-discrim
+	       ;; Goal discriminator searches forward for matching
+	       ;; save if the regexp is set.
+	       (if proof-goal-with-hole-regexp
+		   (if proof-save-command-regexp
+		       (list
+			proof-goal-with-hole-regexp 2
+			'forward proof-save-command-regexp)
+		     (list proof-goal-with-hole-regexp 2))))
+	      ;; Save discriminator searches backward for matching
+	      ;; goal if the regexp is set.
+	      (save-discrim
+	       (if proof-save-with-hole-regexp
+		   (if proof-goal-command-regexp
+		       (list
+			proof-save-with-hole-regexp 2
+			'backward proof-goal-command-regexp)
+		     (list proof-save-with-hole-regexp 2)))))
+	  (cond
+	   ((and proof-goal-with-hole-regexp proof-save-with-hole-regexp)
+	    (list
+	     (proof-regexp-alt
+	      proof-goal-with-hole-regexp
+	      proof-save-with-hole-regexp) goal-discrim save-discrim))
+	   
+	   (proof-goal-with-hole-regexp
+	    (list proof-goal-with-hole-regexp goal-discrim))
+	   
+	   (proof-save-with-hole-regexp
+	    (list proof-save-with-hole-regexp save-discrim))))))
+     
+     (if proof-script-next-entity-regexps
+	 ;; Enable func-menu for this mode if regexps set now
+	 (progn
+	   (pushnew
+	    (cons major-mode 'proof-script-next-entity-regexps)
+	    fume-function-name-regexp-alist)
+	   (pushnew
+	    (cons major-mode proof-script-find-next-entity-fn)
+	    fume-find-function-name-method-alist))))))
 
-  (cond ((proof-try-require 'func-menu)
-	 ;; FIXME: we'd like to let the library load later, but
-	 ;; it's a bit tricky: this stuff doesn't seem to work
-	 ;; in an eval-after-load body (local vars?).
-	 (unless proof-script-next-entity-regexps ; unless already set
-	   ;; Try to calculate a useful default value.
-	   ;; FIXME: this is rather complicated!  The use of the regexp
-	   ;; variables needs sorting out.
-	     (customize-set-variable
-	      'proof-script-next-entity-regexps
-	      (let ((goal-discrim
-		     ;; Goal discriminator searches forward for matching
-		     ;; save if the regexp is set.
-		     (if proof-goal-with-hole-regexp
-			 (if proof-save-command-regexp
-			     (list
-			      proof-goal-with-hole-regexp 2
-			      'forward proof-save-command-regexp)
-			   (list proof-goal-with-hole-regexp 2))))
-		    ;; Save discriminator searches backward for matching
-		    ;; goal if the regexp is set.
-		    (save-discrim
-		     (if proof-save-with-hole-regexp
-			 (if proof-goal-command-regexp
-			     (list
-			      proof-save-with-hole-regexp 2
-			      'backward proof-goal-command-regexp)
-			   (list proof-save-with-hole-regexp 2)))))
-		(cond
-		 ((and proof-goal-with-hole-regexp proof-save-with-hole-regexp)
-		  (list
-		   (proof-regexp-alt
-		    proof-goal-with-hole-regexp
-		    proof-save-with-hole-regexp) goal-discrim save-discrim))
-		  
-		 (proof-goal-with-hole-regexp
-		  (list proof-goal-with-hole-regexp goal-discrim))
-		 
-		 (proof-save-with-hole-regexp
-		  (list proof-save-with-hole-regexp save-discrim))))))
 
-	 (if proof-script-next-entity-regexps
-	     ;; Enable func-menu for this mode if regexps set now
-	     (progn
-	       (pushnew
-		(cons major-mode 'proof-script-next-entity-regexps)
-		fume-function-name-regexp-alist)
-	       (pushnew
-		(cons major-mode proof-script-find-next-entity-fn)
-		fume-find-function-name-method-alist)))))
 
-  ;; Offer to save script mode buffers which have no files,
-  ;; in case Emacs is exited accidently.
-  (or (buffer-file-name)
-      (setq buffer-offer-save t))
 
-  ;; Localise the invisibility glyph (XEmacs only):
-  (let ((img (proof-get-image "hiddenproof" t nil)))
-    (cond
-     ((and img proof-running-on-XEmacs)
-      (set-glyph-image invisible-text-glyph img (current-buffer)))))
 
-  ;; To begin with, make everything visible in the buffer
-  ;; (FIXME: this is done via proof-init-segmentation, now,
-  ;; when is that called?)
-  (setq buffer-invisibility-spec nil)
 
-  ;; Finally, make sure the user has been welcomed!
-  ;; [NB: this doesn't work well, gets zapped by loading messages]
-  (proof-splash-message))
 
 
 (provide 'proof-script)
