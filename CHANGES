@@ -107,6 +107,8 @@
 
 *** Fix for stack overflow in regexp which occurred with large proof states
 
+*** The back() command is now undoable as it should be
+
 ** Isar Changes
 
 *** Fix for stack overflow in regexp which occurred with large proof states
