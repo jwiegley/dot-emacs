@@ -182,26 +182,41 @@ NOTE: to change proof assistant, you must start a new Emacs session.")
 		 assistant-name
 		 ".\nThis is a stub which loads the real function.")
 	      (interactive)
-	      ;; Make a customization group for this assistant
-	      (defgroup ,cusgrp nil
-		,(concat "Customization of user options for " assistant-name
-			 " Proof General.")
-		:group 'proof-general)
-	      ;; And another one for internals
-	      (defgroup ,cus-internals nil
-		,(concat "Customization of internal settings for "
-			 assistant-name " configuration.")
-		:group 'proof-general-internals
-		:prefix ,(concat sname "-"))
 
-	      ;; Set the proof-assistant configuration variable
-	      (setq proof-assistant ,assistant-name)
-	      ;; Extend the load path, load the real mode and invoke it.
-	      (setq load-path 
-		    (cons (concat proof-home-directory ,elisp-dir "/")
-			  load-path))
-	      (load-library ,elisp-file)
-	      (,proofgen-mode))))
+	      ;; Give a message and stop loading if proof-assistant is
+	      ;; already set: things go wrong if proof general is
+	      ;; loaded for more than one prover.
+	      (cond
+	       ((boundp 'proof-assistant)
+		(unless (string-equal proof-assistant ,assistant-name)
+		  ;; If Proof General was partially loaded last time
+		  ;; and mode function wasn't redefined,  be silent.
+		  (message 
+		     (concat 
+		      ,assistant-name 
+		      " Proof General error: Proof General already in use for "
+		      proof-assistant))))
+	       (t
+		;; Make a customization group for this assistant
+		(defgroup ,cusgrp nil
+		  ,(concat "Customization of user options for " assistant-name
+			   " Proof General.")
+		  :group 'proof-general)
+		;; And another one for internals
+		(defgroup ,cus-internals nil
+		  ,(concat "Customization of internal settings for "
+			   assistant-name " configuration.")
+		  :group 'proof-general-internals
+		  :prefix ,(concat sname "-"))
+		
+		;; Set the proof-assistant configuration variable
+		(setq proof-assistant ,assistant-name)
+		;; Extend the load path, load the real mode and invoke it.
+		(setq load-path 
+		      (cons (concat proof-home-directory ,elisp-dir "/")
+			    load-path))
+		(load-library ,elisp-file)
+		(,proofgen-mode))))))
 
       (setq auto-mode-alist 
 	    (cons (cons regexp proofgen-mode) auto-mode-alist))
