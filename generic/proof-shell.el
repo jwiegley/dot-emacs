@@ -421,8 +421,15 @@ left around so the user may discover what killed the process."
 (defun proof-shell-restart ()
   "Clear script buffers and send proof-shell-restart-cmd.
 All locked regions are cleared and the active scripting buffer
-deactivated.  The restart command should re-synchronize
-Proof General with the proof assistant."
+deactivated.  
+
+The restart command should re-synchronize Proof General with the proof
+assistant, without actually exiting and restarting the proof assistant
+process.  
+
+It is up to the proof assistant how much context is cleared: for
+example, theories already loaded may be \"cached\" in some way,
+so that loading them the next time round does not require re-processing."
   (interactive)
   (proof-script-remove-all-spans-and-deactivate)
   (setq proof-included-files-list nil
