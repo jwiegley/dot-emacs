@@ -193,6 +193,11 @@ from the name given in proof-internal-assistant-table."
 ;; 2. The major modes used by Proof General.
 ;;
 
+;; FIXME: these symbols could be set automatically to standard values,
+;; i.e. <assistant>-mode, <assistant>-shell-mode, <assistant>-pbp-mode.
+;; FIXME: mode-for-script is unused at the moment, added just for
+;; uniformity.  The other two are used when a shell buffer is started.
+
 (defcustom proof-mode-for-shell nil
   "Mode for proof shell buffers.
 Suggestion: this can be set in proof-pre-shell-start-hook."
