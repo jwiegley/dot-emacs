@@ -192,7 +192,7 @@ Called with one argument: t to save database, nil otherwise."
 ;;; Set proof-shell-pre-interrupt-hook for PolyML.
 (if (and
      (not proof-shell-pre-interrupt-hook)
-     (string-match "\\'polyml" (isa-getenv "ML_SYSTEM")))
+     (string-match "\\`polyml" (isa-getenv "ML_SYSTEM")))
     (add-hook
      'proof-shell-pre-interrupt-hook
      (lambda () (proof-shell-insert (isabelle-verbatim "f") nil))))
