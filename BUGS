@@ -6,9 +6,9 @@ The items below are known and will be fixed before 3.5 is released.
 Please don't send email about them (unless you can fix them).
 
 
-** UTF-8 problems with Red Hat 8.0  &  (at least) Coq.  
+** UTF-8 problems with Red Hat 8.0 / glibc 2.2  and (at least) Coq.  
 
-RedHat 8 has Glibc 2.2 and UTF8 encoded output may be turned on in
+RedHat 8 has glibc 2.2 and UTF8 encoded output may be turned on in
 default locale.  Unfortunately Proof General relies on 8-bit
 characters which are UTF8 prefixes in the output of proof assistants
 (inc Coq, Isabelle).  These prefix characters are not flushed to
