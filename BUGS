@@ -24,9 +24,3 @@ allocation. Maybe some of the spans aren't removed properly.
 Setting a limit on the size of the process buffer doesn't seem to
 help. 
 
-
-customize:  odd behaviour after setting proof-assistant in
-.emacs file via customize: customize reports "mismatch"
-and "set outside customize".  Second of these probably
-okay.  Why first?
-
