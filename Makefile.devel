@@ -95,6 +95,12 @@ VERSION=$(PRERELEASE_TAG)
 DATEMSG=$(shell if [ $(PRERELEASE_TAG) = $(VERSION) ]; then echo; else date "+ on %a %e %b %Y"; fi)
 
 
+# devel just means developer's package, with more files.
+# bit ambiguous: "development version" means latest version,
+# in development.
+# LATESTNAME is linked to the development version.
+# NAME is linked to the current release.
+# (Before 3.4, NAME was linked to the development version).
 NAME = ProofGeneral
 LATESTNAME = $(NAME)-latest
 DEVELLATESTNAME = $(NAME)-devel-latest
@@ -427,11 +433,11 @@ release: distclean tag  dist develdist
 #	clean source dir (remove link to this release)
 	(cd $(DISTBUILDIR); rm -f $(NAME))
 #	clean target dir (remove link for latest release)
-	(cd $(RELEASEDIR); rm -f $(LASTESTNAME); rm -rf $(RELEASENAME))
+	(cd $(RELEASEDIR); rm -rf $(RELEASENAME))
 #	Seem to need R instead of r here now,
 #	Otherwise cp tries to make hard link instead of symlink?!
 	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
-	(cd $(RELEASEDIR); ln -s  $(RELEASENAME) $(LATESTNAME))
+	(cd $(RELEASEDIR); rm -f $(LATESTNAME); ln -s  $(RELEASENAME) $(LATESTNAME))
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMEZIP) $(LATESTNAME).zip)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
