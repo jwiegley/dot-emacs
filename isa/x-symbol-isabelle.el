@@ -81,20 +81,19 @@ See `x-symbol-header-groups-alist'."
 
 
 ;;;===========================================================================
-;;  Bold, super- and subscripts
+;;  super- and subscripts
 ;;;===========================================================================
 
-;; DA: Apparently bold is no longer supported in X-Symbol 4.5
-;; \<^bold>, \<^sup>, \<^sub>, \<^isub>, and \<^isup>.
+;; \<^sup>, \<^sub>, \<^isub>, and \<^isup>.
 
 (defvar x-symbol-isabelle-subscript-matcher
   'x-symbol-isabelle-subscript-matcher)
 
-(defun x-symbol-isabelle-subscript-matcher (limit)
+(defun x-symbol-isabelle-subscript-matcher (limit)  
   (when (re-search-forward x-symbol-isabelle-font-lock-scripts-regexp
 			   limit 'limit)
     (if (eq (char-after (- (match-end 1) 2)) ?b)
-	'x-symbol-sub-face
+        'x-symbol-sub-face
       'x-symbol-sup-face)))
 
 (defun x-symbol-isabelle-make-ctrl-regexp (s)
@@ -103,45 +102,26 @@ See `x-symbol-header-groups-alist'."
    "\\(\\\\\\\\?<\\^" s ">\\)"
    "\\(\\\\\\\\?<[A-Za-z][A-Za-z0-9_']*>\\|[^\\]\\)"))
 
-(defconst x-symbol-isabelle-font-lock-bold-regexp
-  (x-symbol-isabelle-make-ctrl-regexp "bold")
-  "Regexp matching bold marker in Isabelle.")
-
 (defconst x-symbol-isabelle-font-lock-scripts-regexp
   (x-symbol-isabelle-make-ctrl-regexp "i?su[bp]")
   "Regexp matching super- and subscript markers in Isabelle.")
 
-(defun x-symbol-isabelle-match-bold (limit)
-  ;; checkdoc-params: (limit)
-  "Match and skip over bold face.
-Return nil if `x-symbol-mode' is nil.
-Uses `x-symbol-isabelle-font-lock-bold-regexp'."
-  (and (proof-ass x-symbol-enable)
-       (or (proof-looking-at x-symbol-isabelle-font-lock-bold-regexp)
-	   (proof-re-search-forward 
-	    x-symbol-isabelle-font-lock-bold-regexp limit t))))
+(defun isabelle-match-subscript (limit)
+  (if (proof-ass x-symbol-enable)
+      (setq x-symbol-isabelle-subscript-type
+            (funcall x-symbol-isabelle-subscript-matcher limit))))
 
-(defun x-symbol-isabelle-match-scripts (limit)
-  ;; checkdoc-params: (limit)
-  "Match and skip over super- and subscripts.
-Return nil if `x-symbol-mode' is nil.
-Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
-  (and (proof-ass x-symbol-enable)
-       (or (proof-looking-at x-symbol-isabelle-font-lock-scripts-regexp)
-	   (proof-re-search-forward 
-	    x-symbol-isabelle-font-lock-scripts-regexp limit t))))
-
+;; these are used for Isabelle output only. x-symbol does its own
+;; setup of font-lock-keywords for the theory buffer
+;; (x-symbol-isabelle-font-lock-keywords does not belong to language
+;; access any more)
 (defvar x-symbol-isabelle-font-lock-keywords
-  '((x-symbol-isabelle-match-bold
+  '((isabelle-match-subscript
      (1 x-symbol-invisible-face t)
-     (2	'underline prepend))
-    (x-symbol-isabelle-match-scripts
-     (1 x-symbol-invisible-face t)
-     (2	(if (or ;; check two positions in token [isabelle vs isar]
-	     (eq (char-after (+ 5 (match-beginning 1))) ?b)
-	     (eq (char-after (+ 6 (match-beginning 1))) ?b))
-	    'x-symbol-sub-face 'x-symbol-sup-face) prepend)))
-  "Isabelle font-lock keywords for bold, super- and subscripts.")
+     (2 (progn x-symbol-isabelle-subscript-type) prepend)
+     (3 x-symbol-invisible-face t t)))
+; lsf: 3 not necessary at the moment but may be useful later
+  "Isabelle font-lock keywords for super- and subscripts.")
 
 (defvar x-symbol-isabelle-font-lock-allowed-faces t)
 
