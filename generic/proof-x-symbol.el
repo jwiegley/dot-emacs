@@ -4,7 +4,7 @@
 ;; Author: David Aspinall <da@dcs.ed.ac.uk>
 ;;
 ;; With thanks to David von Oheimb for providing the original 
-;; patches for using x-symbol with Isabelle Proof General, 
+;; patches for using X-Symbol with Isabelle Proof General, 
 ;; and helping to write this file.
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
@@ -34,10 +34,8 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	((assistant	 (symbol-name proof-assistant-symbol))
 	 (xs-feature     (concat "x-symbol-" assistant))
 	 (xs-feature-sym (intern xs-feature))
-	 ;; utility fn
 	 (error-or-warn	 
 	  (lambda (str) (if error (error str) (warn str)))))
-      ;;
       ;; Check that support is provided.
       (cond
        ;;
@@ -73,21 +71,20 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
  "Proof General: for x-symbol support, you must provide a library %s.el"
 		  xs-feature)))
        (t
-	;;
 	;; We've got everything we need!   So initialize.
-	;; 
 	(let*
 	    ((xs-lang	     proof-assistant-symbol)
 	     (xs-xtra-modes  proof-xsym-extra-modes)
 	     (xs-std-modes   (list
 			      ;; NB: there is a problem with
 			      ;; initialization order here, these
-			      ;; variables are set in script/shell mode
-			      ;; initialization.  They ought to be set
-			      ;; earlier, and enforced as part of the
-			      ;; generic scheme.  For the time being,
-			      ;; we use default constructed names
-			      ;; [which every prover should follow]
+			      ;; variables are set in script/shell
+			      ;; mode initialization.  They ought to
+			      ;; be set earlier, and enforced as part
+			      ;; of the generic scheme.  For the time
+			      ;; being, we use default constructed
+			      ;; names [which every prover should
+			      ;; follow]
 			      (or proof-mode-for-shell
 				  (intern (concat assistant "-shell-mode")))
 			      (or proof-mode-for-response
@@ -123,7 +120,7 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 	  ;;
 	  ;; Finished.
 	  (setq proof-x-symbol-initialized t))))))
-;)
+
 
 ;;;###autoload
 (defun proof-x-symbol-enable ()
@@ -136,10 +133,10 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
   (proof-x-symbol-mode-all-buffers))
 
 ;; A toggling function for the menu.
-;;;###autload
 (fset 'proof-x-symbol-toggle
       (proof-customize-toggle proof-x-symbol-enable))
 
+;;;###autoload
 (defun proof-x-symbol-decode-region (start end) 
   "Call (x-symbol-decode-region A Z), if x-symbol support is enabled.
 This converts tokens in the region into X-Symbol characters."
@@ -170,51 +167,48 @@ A value for proof-shell-insert-hook."
   "Activate/deactivate x-symbols in all Proof General buffers.
 A subroutine of proof-x-symbol-enable."
   ;; Shell has its own configuration
-  (proof-with-current-buffer-if-exists 
-   proof-shell-buffer
+  (proof-with-current-buffer-if-exists proof-shell-buffer
    (proof-x-symbol-shell-config))
   ;; Response and goals buffer are fontified/decoded 
   ;; manually in the code, configuration only sets
   ;; x-symbol-language.
-  (proof-with-current-buffer-if-exists 
-   proof-goals-buffer
+  (proof-map-buffers (list proof-goals-buffer proof-response-buffer)
    (proof-x-symbol-configure))
-  (proof-with-current-buffer-if-exists 
-   proof-response-buffer
-   (proof-x-symbol-configure))
-  ;; Script buffers are in x-symbol mode
-  (let
-      ((bufs (proof-buffers-in-mode proof-mode-for-script)))
-    (while bufs
-      ;; mapcar doesn't work with macros
-      (with-current-buffer (car bufs) (proof-x-symbol-mode))
-      (setq bufs (cdr bufs)))))
+  ;; Script buffers are in X-Symbol's minor mode
+  (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
+   (proof-x-symbol-mode)))
 
+;;
 ;; Three functions for configuring buffers:
 ;;
-;;  proof-x-symbol-configure:     for goals/response buffer
+;;  proof-x-symbol-mode:	  for script buffer (X-Symbol minor mode)
 ;;  proof-x-symbol-shell-config:  for shell buffer (input hook)
+;;  proof-x-symbol-configure:     for goals/response buffer (font lock)
 ;;
 
+;;;### autoload
+(defun proof-x-symbol-mode ()
+  "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable.
+The X-Symbol minor mode is only useful in script buffers."
+  (interactive)
+  (save-excursion			; needed or point moves: why?
+    (if proof-x-symbol-initialized
+	(progn
+	  ;; Buffers which have XS minor mode toggled always keep 
+	  ;; x-symbol-language set.
+	  (setq x-symbol-language proof-assistant-symbol)
+	  (x-symbol-mode (if proof-x-symbol-enable 1 0))
+	  ;; Font lock mode must be engaged for x-symbol to do its job
+          ;; properly, at least when there is no mule around.
+	  (if (and x-symbol-mode (not (featurep 'mule)))
+	      (if (not font-lock-mode)
+		  (font-lock-mode)
+		;; Even if font-lock was on before we may need to
+		;; refontify now that the patterns (and buffer
+		;; contents) have changed. Shouldn't x-symbol do this?
+		(font-lock-fontify-buffer)))))))
 
-;; ###autoload
-(defun proof-x-symbol-configure ()
-  "Configure the current buffer (goals or response) for X-Symbol."
-  (if proof-x-symbol-enable
-      (progn
-	(setq x-symbol-language proof-assistant-symbol)
-	;; If we're turning on x-symbol, attempt to convert to 
-	;; characters.  (Only works if the buffer already
-	;; contains tokens!)
-	(x-symbol-decode))))
-  ;; Encoding back to tokens doesn't work too well: needs to 
-  ;; do some de-fontification to remove font properties, and
-  ;; is flaky anyway because token -> char not nec injective.
-  ;  (if (boundp 'x-symbol-language)
-  ;	;; If we're turning off x-symbol, convert back to tokens.
-  ;     (x-symbol-encode))))
-
-;; #### autoload
+;;;#### autoload
 (defun proof-x-symbol-shell-config ()
   "Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil.
 Assumes that the current buffer is the proof shell buffer."
@@ -252,27 +246,22 @@ Assumes that the current buffer is the proof shell buffer."
 	  (remove-hook 'comint-output-filter-functions
 		       'x-symbol-comint-output-filter))))))
 
-;; ### autoload
-(defun proof-x-symbol-mode ()
-  "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable.
-The X-Symbol minor mode is only useful in script buffers."
-  (interactive)
-  (save-excursion			; needed or point moves: why?
-    (if proof-x-symbol-initialized
-	(progn
-	  ;; Buffers which have XS minor mode toggled always keep 
-	  ;; x-symbol-language set.
-	  (setq x-symbol-language proof-assistant-symbol)
-	  (x-symbol-mode (if proof-x-symbol-enable 1 0))
-	  ;; Font lock mode must be engaged for x-symbol to do its job
-          ;; properly, at least when there is no mule around.
-	  (if (and x-symbol-mode (not (featurep 'mule)))
-	      (if (not font-lock-mode)
-		  (font-lock-mode)
-		;; Even if font-lock was on before we may need to
-		;; refontify now that the patterns (and buffer
-		;; contents) have changed. Shouldn't x-symbol do this?
-		(font-lock-fontify-buffer)))))))
+;;;###autoload
+(defun proof-x-symbol-configure ()
+  "Configure the current buffer (goals or response) for X-Symbol."
+  (if proof-x-symbol-enable
+      (progn
+	(setq x-symbol-language proof-assistant-symbol)
+	;; If we're turning on x-symbol, attempt to convert to 
+	;; characters.  (Only works if the buffer already
+	;; contains tokens!)
+	(x-symbol-decode))))
+  ;; Encoding back to tokens doesn't work too well: needs to 
+  ;; do some de-fontification to remove font properties, and
+  ;; is flaky anyway because token -> char not nec injective.
+  ;  (if (boundp 'x-symbol-language)
+  ;	;; If we're turning off x-symbol, convert back to tokens.
+  ;     (x-symbol-encode))))
 
 
 
