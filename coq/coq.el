@@ -67,7 +67,7 @@
 
 ;; Command to initialize the Coq Proof Assistant
 (defconst coq-shell-init-cmd 
-  (format "Set Undo %s" coq-default-undo-limit))
+  (format "Set Undo %s." coq-default-undo-limit))
 
 ;; Command to reset the Coq Proof Assistant
 (defconst coq-shell-restart-cmd 
@@ -317,13 +317,13 @@ This is specific to coq-mode."
 	 (l (string-match ".v" n)))
     (compile (concat "make " (substring n 0 l) ".vo"))))
 
-(proof-defshortcut coq-Intros        "Intros "  [?i])
-(proof-defshortcut coq-Apply         "Apply "   [?a])
-(proof-defshortcut coq-begin-Section "Section " [?s])
+(proof-defshortcut coq-Intros        "Intros "  [(control ?i)])
+(proof-defshortcut coq-Apply         "Apply "   [(control ?a)])
+(proof-defshortcut coq-begin-Section "Section " [(control ?s)])
 
-(define-key coq-keymap [?e] 'coq-end-Section)
-(define-key coq-keymap [?m] 'coq-Compile)
-(define-key coq-keymap [?o] 'coq-SearchIsos)
+(define-key coq-keymap [(control ?e)] 'coq-end-Section)
+(define-key coq-keymap [(control ?m)] 'coq-Compile)
+(define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
