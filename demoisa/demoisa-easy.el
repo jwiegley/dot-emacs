@@ -10,6 +10,12 @@
 ;; proof-easy-config macro to do the work of declaring derived modes,
 ;; etc.  
 ;;
+;; This mechanism is in fact recommended for new instantiations of
+;; Proof General since it follows a regular pattern, and we can more
+;; easily adapt the it in the future to new versions of Proof General.
+;; It is easy to augment with additional elisp functions and
+;; other settings.
+;;
 ;; See demoisa.el and the Proof General manual for more documentation.
 ;;
 ;; To test this file you must rename it demoisa.el.
