@@ -27,7 +27,15 @@
   (switch-to-buffer-other-window "*doc holes*")
   (insert "
 
-        HOLES
+The highlighted # in your buffer are \"holes\", a powerful feature for
+program editing. the character '#' is inserted to make empty holes
+visible. If you don't replace \"#\"s by something else (see below), it
+will be saved in the buffer's file. Highlighting of holes is made
+without any interaction with the buffer's file. to delete a hole,
+click with button 3 of your mouse. See the short documentation below
+to learn how to use holes.
+
+                          HOLES
 
 
 Holes are inspired from other interactive programs ( Pcoq ). It
@@ -37,7 +45,7 @@ later. This feature is useful to build complicated expressions by
 copy pasting several peaces of text from different parts of a
 buffer (even from different buffers).
 
-   USE
+                          USE
 
 Holes are highlighted, there is always one or zero active hole,
 highlighted with a different color.
@@ -84,7 +92,7 @@ Fixpoint # (# : #) {struct #} : # := #, where each # is a hole then
 hitting meta-return goes from one hole to the following and you can
 fill-in each hole very quickly.
 
-   BUGS
+                          BUGS
 
  o replace holes with mouse in fsf emacs works but it seems that one
 more click is needed to really see the replacement
@@ -98,7 +106,7 @@ will, but if you copy paste the active hole, you will get several
 holes highlighted as the active one (whereas only one of them really
 is), which is annoying.
 
- o tell me
+ o tell me (Pierre.Courtieu@univ-orleans.fr)
 
 ")
   (goto-char (point-min))
