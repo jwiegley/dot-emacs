@@ -59,10 +59,10 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.2
+@set version 3.2prerelease
 @set xemacsversion 21.1
 @set fsfversion 20.5
-@set last-update April 2000
+@set last-update May 2000
 @set rcsid $Id$
 
 @ifinfo
@@ -207,20 +207,28 @@ other documentation, system downloads, etc.
 @unnumberedsec Latest news for 3.2
 @cindex news
 
-Proof General 3.2 has some new features and some bug fixes.
+Proof General 3.2 has several new features and some bug fixes.
 
 One noticeable new feature is the addition of a prover-specific menu for
-each of the supported provers.  Please contribute useful functions (or
-suggestions) for things you would like to appear on these menus!
+each of the supported provers.  This menu has a ``favourites'' feature
+that you can use to easily define new functions.  Please contribute
+useful functions (or suggestions for functions) for things you would
+like to appear on these menus, to the maintainer for the instance
+of Proof General you use.
 
 Because of the new menus and to make room for more commands, we have
 made a new key map for prover specific functions.  These now all begin
 with @code{C-c a}.  This has changed a few keybindings slightly.
 
-A new feature that is less obvious is support for turning the proof
-assistant output on and off internally, to improve efficiency when
-processing large scripts.  This should let more of your CPU cycles be
-spent on proving theorems.
+A less obvious new feature is support for turning the proof assistant
+output on and off internally, to improve efficiency when processing
+large scripts.  This means that more of your CPU cycles can be spent on
+proving theorems.
+
+The internal code of Proof General has been significantly overhauled for
+this version, which should make it more robust and readable.  The
+generic code has an improved file structure, and there is support for
+automatic generation of autoload functions.
 
 
 
