@@ -16,6 +16,7 @@
 ; See the GNU General Public License version 2 for more details
 ; (enclosed in the file GPL).
 ;
+; See documentation in variable holes-short-doc.
 
 
 (require 'span)
@@ -49,7 +50,7 @@ zero active hole globally.  It is highlighted with a different color.
 TO DEFINE A HOLE, two methods:
 
  o Select a region with keyboard (ctrl-space) or mouse, then hit
-ctrl-meta-h. If the selected region is empty (i.e. if you just hit
+ctrl-c h. If the selected region is empty (i.e. if you just hit
 ctrl+meta+h), then a hole containing '#' is created.
 
  o Select text with mouse while pressing ctrl + meta.  If the selected
@@ -69,7 +70,7 @@ of your mouse.
 TO FILL A HOLE with a text selection, first make sure it is active,
 then two methods:
 
- o Select text with keyboard (ctrl-space) or mouse and hit ctrl-meta-y
+ o Select text with keyboard (ctrl-space) or mouse and hit ctrl-c meta-y
 
  o Select text with mouse while pressing ctrl + meta + shift. This is
 a generalization of the mouse-track-insert feature (ctrl + select
