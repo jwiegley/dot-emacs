@@ -1,0 +1,37 @@
+Large x-symbol fonts for Isabelle running with ProofGeneral 3.5
+  Revision 2, 2004-07-26
+
+This package provides 18 and 24pt x-symbol fonts for presentations.
+The fonts were edited manually and some of the characters don't look
+particularly nice.  Also, font size is determined at start-up, not
+interactively through xemacs' font size menu.  The package was not
+tested with GNU emacs.
+
+Apart from this README file, the package contains big18.el and
+big24.el, required to set up xemacs.  Move these to a convenient
+location (for example, one in your search path).  The file fonts.tar
+must be unpacked into the x-symbol package that came along with
+ProofGeneral:
+
+  tar xfv fonts.tar -C <your path>/ProofGeneral-3.5/x-symbol/etc
+
+Then do "make" in <your path>/ProofGeneral-3.5/x-symbol/etc/fonts.
+This requires a program called "bdftopcf" that usually comes with X11
+which you should have installed anyway.
+
+You can now use the large fonts by starting Isabelle with the commands
+  Isabelle -p "xemacs -l big18.el"
+and
+  Isabelle -p "xemacs -l big24.el"
+
+The outcome of the size of the courier font appears to be system
+dependent.  This can be adjusted by editing big18/24.el accordingly.
+
+Enjoy.
+
+Clemens Ballarin
+
+---
+History of changes:
+
+2004-07-26: set pixelsize to 180 in xsymb1_18.bdf
