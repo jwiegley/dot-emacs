@@ -282,11 +282,18 @@ We set font-lock-defaults to '(proof-font-lock-keywords t) for
 compatibility with X-Symbol, which may hack proof-font-lock-keywords
 with extra patterns (in non-mule mode).")
 
-; (deflocal proof-font-lock-defaults nil
-;  "Value of font-lock-defaults in this buffer."
+(deflocal proof-font-lock-keywords-case-fold-search nil
+  "Value of font-lock-keywords-case-fold-search in this buffer.")
 
-(defun proof-font-lock-configure-defaults (&optional case-fold)
-  "Set defaults for font-lock based on current font-lock-keywords."
+(defun proof-font-lock-configure-defaults (autofontify &optional case-fold)
+  "Set defaults for font-lock based on current font-lock-keywords.
+This is a delicate operation, because we only want to use font-lock-mode
+in some buffers, so we have to tread carefully around the font-lock
+code to avoid it turning itself on in the buffers where that actually
+*breaks* fontification.
+
+AUTOFONTIFY must be nil for buffers where we may want to really use
+font-lock-mode."
   ;;
   ;; At the moment, the specific assistant code hacks
   ;; font-lock-keywords.  Here we use that value to hack
@@ -298,18 +305,47 @@ with extra patterns (in non-mule mode).")
   ;; edits font-lock-keywords and loses the setting.  So we make a
   ;; copy of it in a new local variable, proof-font-lock-keywords.
   ;;
-  ;; FIXME: specific code could set this variable directly, really.
+  (make-local-variable 'proof-font-lock-keywords)
+  (make-local-variable 'proof-font-lock-keywords-case-fold-search)
   (setq proof-font-lock-keywords font-lock-keywords)
-  (setq font-lock-keywords-case-fold-search case-fold)
-  ;; Setting font-lock-defaults explicitly is required by FSF Emacs
+  (setq proof-font-lock-keywords-case-fold-search case-fold)
+    ;; Setting font-lock-defaults explicitly is required by FSF Emacs
   ;; 20.4's version of font-lock in any case.
-  (make-local-variable 'font-lock-defaults) ; not needed in XEmacs, FSF?
-  (setq font-lock-defaults `(proof-font-lock-keywords nil ,case-fold))
-  ;; 12.1.99: testing: For XEmacs, we must also set the property.
-  ;; This is needed for buffers which are put into font-lock-mode
-  ;; (rather than fontified by hand).
-  (put major-mode 'font-lock-defaults font-lock-defaults)
-  (setq font-lock-keywords nil))
+
+  (if autofontify
+      (progn
+	(make-local-variable 'font-lock-defaults) ; needed??
+	(setq font-lock-defaults `(proof-font-lock-keywords nil ,case-fold))
+	;; 12.1.99: For XEmacs, we must also set the mode property.
+	;; This is needed for buffers which are put into font-lock-mode
+	;; (rather than fontified by hand).
+	(put major-mode 'font-lock-defaults font-lock-defaults))
+    ;; 11.12.01: Emacs 21 is very eager about turning on font
+    ;; lock and has hooks all over the place to do it.  To make
+    ;; sure it doesn't happen we have to eradicate all sense of
+    ;; having any fontification ability.  
+    (proof-font-lock-clear-font-lock-vars)
+    ;; In fact, this still leaves font-lock switched on! But
+    ;; hopefully in a useless way.  XEmacs has better control
+    ;; over which modes not to enable it for (although annoying
+    ;; that it's a custom setting)
+    (setq font-lock-mode-disable-list 
+	  (cons major-mode font-lock-mode-disable-list))))
+
+(defun proof-font-lock-clear-font-lock-vars ()
+  (kill-local-variable 'font-lock-defaults)
+  (kill-local-variable 'font-lock-keywords)
+  (setq font-lock-keywords nil)
+  (put major-mode 'font-lock-defaults nil)
+  ;; Ensure it's switched off, too.
+  (font-lock-mode -1))
+
+(defun proof-font-lock-set-font-lock-vars ()
+  (setq font-lock-defaults 
+	`(proof-font-lock-keywords 
+	  nil 
+	  ,proof-font-lock-keywords-case-fold-search))
+  (setq font-lock-keywords proof-font-lock-keywords))
 
 (defun proof-fontify-region (start end)
   "Fontify and decode X-Symbols in region START...END.
@@ -332,8 +368,11 @@ Returns new END value."
 
   (if proof-output-fontify-enable
       (progn
-	;; FSF hack, yuk.
-	(unless (string-match "XEmacs" emacs-version)
+	;; Temporarily set font-lock defaults
+	(proof-font-lock-set-font-lock-vars)
+	;; (put major-mode 'font-lock-defaults font-lock-defaults)
+	;; GNU Emacs hack, yuk.
+	(unless proof-running-on-XEmacs
 	  (font-lock-set-defaults))
 	(let ((font-lock-keywords proof-font-lock-keywords))
 	  ;; FIXME: should set other bits of font lock defaults,
@@ -349,7 +388,7 @@ Returns new END value."
 		(set-marker font-lock-cache-position 0)))
 
 	  ;; ================================================
-	  (font-lock-fontify-region start end)
+	  (font-lock-default-fontify-region start end nil)
 	  (proof-zap-commas-region start end))))
   (if proof-shell-leave-annotations-in-output
       ;; Remove special characters that were used for font lock,
@@ -362,6 +401,7 @@ Returns new END value."
 	    (delete-char -1)))
 	(goto-char p)))
   (proof-x-symbol-decode-region start (point-max))
+  (proof-font-lock-clear-font-lock-vars)
   (point-max))
 ;; old ending:
 ;; (prog1 (point-max)
