@@ -901,8 +901,10 @@ a variable which is in the proof assistant's customization
 group.  This allows different proof assistants to coexist
 (albeit in separate Emacs sessions).
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-pre-sync-init-cmd
 
+@c TEXI DOCSTRING MAGIC: proof-shell-auto-terminate-commands
+
+@c TEXI DOCSTRING MAGIC: proof-shell-pre-sync-init-cmd
 @defvar proof-shell-pre-sync-init-cmd 
 The command for configuring the proof process to gain synchronization.@*
 This command is sent before Proof General's synchronization
@@ -915,6 +917,7 @@ does not need to be set.
 
 See also @samp{@code{proof-shell-init-cmd}}.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-init-cmd
 @defvar proof-shell-init-cmd 
 The command for initially configuring the proof process.@*
@@ -925,14 +928,17 @@ the proof assistant in some way, or print a welcome message
 
 See also @samp{@code{proof-shell-pre-sync-init-cmd}}.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-restart-cmd
 @defvar proof-shell-restart-cmd 
 A command for re-initialising the proof process.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-quit-cmd
 @defvar proof-shell-quit-cmd 
 A command to quit the proof process.  If nil, send EOF instead.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-quit-timeout
 @defvar proof-shell-quit-timeout 
 The number of seconds to wait after sending @code{proof-shell-quit-cmd}.@*
@@ -941,6 +947,7 @@ If your proof assistant takes a long time to clean up (for
 example writing persistent databases out or the like), you may
 need to bump up this value.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-shell-cd-cmd
 @defvar proof-shell-cd-cmd 
 Command to the proof assistant to change the working directory.@*
