@@ -373,6 +373,8 @@ Should be called from a proof script buffer."
     (skip-chars-backward " \t\n")
     (>= (proof-unprocessed-begin) (point))))
 
+;; FIXME: doesn't need to be called from proof script buffer now
+;; proof-unprocessed-begin is generalised.
 (defun proof-locked-region-empty-p ()
   "Non-nil if the locked region is empty.
 Should be called from a proof script buffer."
@@ -1075,12 +1077,13 @@ unclosed-comment-fun."
 Unless optional NO-DELETE is set, the text is also deleted from
 the proof script."
   (interactive "p")
-  (let ((lastspan (span-at-before (proof-locked-end) 'type)))
-    (if lastspan
-	(progn
-	  (goto-char (span-start lastspan))
-	  (proof-retract-until-point (not no-delete)))
-      (error "Nothing to undo!"))))
+  (unless (proof-locked-region-empty-p)
+    (let ((lastspan (span-at-before (proof-locked-end) 'type)))
+      (if lastspan
+	  (progn
+	    (goto-char (span-start lastspan))
+	    (proof-retract-until-point (not no-delete)))
+	(error "Nothing to undo!")))))
 
 (defun proof-interrupt-process ()
   "Interrupt the proof assistant.  WARNING! This may confuse Proof General."
