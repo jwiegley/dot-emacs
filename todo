@@ -12,12 +12,19 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A Change mail address to proofgen@dcs.ed.ac.uk everywhere.
+
 B Cleanup handling of proof-terminal-string.  At the moment some
   commands need to have the terminal string, some don't.
   da: I suggest removing proof-terminal-string altogether and
   adding back the semi-colons or fullstops at the specific level.
   It's not a big deal and would support other provers which
   may use a mixture of terminators, or no terminators at all.
+
+B Investigate and improve indentation/font-locking code.
+  At the moment editing .ML files in Isabelle Proof General is
+  *very* slow.  Moreover the indentation is screwy.  Also
+  seems screwy in LEGO/Coq PG.  (da, 2hr)
 
 A Add support for people typing directly into the inferior process.
   The error messages are going to drive experienced Isabelle users
@@ -27,11 +34,15 @@ A Add support for people typing directly into the inferior process.
   (da, 1hr: I'm not sure of the best way of doing this)
 
 A proof-toolbar:  Fixup movement of point (choice of
-  up and down functions).  Add toolbar to pbp mode too.  
+  up and down functions).  Add toolbar to response mode too.  
   (30mins, da)
 
 A toolbar icons: Fixup for low-colour modes again.  Improve restart
-  icon (30mins, da).
+  and qed icon (30mins, da).
+
+B toolbar icons: Automatically generate reduced and
+  pressed/greyed-out versions from gimp xcf files.  Keep the
+  xcf files under CVS rather than xpm files.  (2h, da)
 
 B Better support for adding a new prover: give error messages which
   hint at what variable to set (see proof-issue-goal for example).
@@ -49,13 +60,14 @@ B User-level functions:
   a direct function to start the proof assistant).
   (1hr, da)
 
-X Improve toolbar icons.  Automatically generate reduced and
-  pressed/greyed-out versions from gimp xcf files.  Keep the
-  xcf files under CVS rather than xpm files.  
-  (5h or more to design nice ones)
-
 B Write test schedule for things to try out with a new instantiation
   of Proof General.
+
+B Add skeleton instantiation files for a dummy prover "myassistant" to
+  make it easier to add support for new assistants -- looking at
+  any of the existing modes is confusing because of the
+  prover-specific stuff.  Ideally it should work for one of
+  the default provers as an impoverished example mode.  (2h)
 
 X Add support for putting a locked region in processed files.
 
@@ -68,10 +80,6 @@ X Make process handling smarter: because Emacs is single-threaded,
   could remove them from the queue.  If there are no commands waiting,
   we have to wait until something becomes blue to undo it by sending
   a command to the process.
-
-A Documentation for proof-mode and its derived modes.  
-  (15min for each mode: should base on some generic doc for
-   proof-mode)
 
 A Clean up proof-assert-until-point behaviour.  At the moment we
   get an odd error if it is run in the locked region.  If point
@@ -93,11 +101,6 @@ A A less drastic version of proof-restart-script would be useful:
 D Code in proof.el assumes all characters with top bit set are special
   instructions to Emacs.  This is rather arrogant, and precludes proof
   systems which utilize 8-bit character sets!  Needs repair.  (3h)
-
-A Add a small script "example.l" etc to each of the prover subdirectories,
-  for testing/example purposes.  (Perhaps proving the same thing?
-  commutativity of conjunction?) 
-  Only needed for Coq now.   (10min, hhg)
 
 D Prune dead code.  (1h)
 
@@ -151,7 +154,7 @@ A Multiple files are sometimes handled incorrectly, because the
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
 
-D Support for x-symbols package.
+X Support for x-symbols package.
   Provers with sophisticated/configurable syntax should tell Emacs
   about their syntax somehow, rather than trying to duplicate
   specifications inside Emacs.
@@ -164,9 +167,6 @@ A file handling could be more robust; perhaps one should always cd to
 
 A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
-
-A Replace "You are not authorised for this information." by a proper
-  documentation (2h, da)
 
 A Reengineer *-count-undos and *-find-and-forget at generic level
   (3h)
@@ -207,6 +207,16 @@ B Make completion more generic.  For Isabelle we can build a
 X Write a Makefile for the distribution.  It can do things like
   install the info file properly.  The work is at the moment done
   in the RPM spec file instead.
+
+X Ideas for efficiency improvements.  Rather than repeatedly
+  re-parsing the buffer, we could parse the whole buffer *once*
+  and make adjustments after edits, like font-lock.  We could
+  make an extent for every command, and set it to "blue", "red"
+  or "clear" as appropriate.  (This would allow proofs to be
+  sent out-of-order to the proof process too, although perhaps
+  that's not so nice).
+  The function proof-segment-up-to could be made to cache its
+  result.
 
 
 * Proof-by-Pointing
@@ -299,6 +309,11 @@ A Get basic features working:
     Check these things:
 
     abort-goal-regexp
+
+  Still get non-sequitur errors, why?
+
+  BUG: undo after last step undoes till top of proof in
+  process buffer, not in script!  
 
 A CRUCIAL: Do something to manage .thy and .ML files coherently.
   At the moment loading one into Isabelle will force the
