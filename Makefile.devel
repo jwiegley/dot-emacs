@@ -25,10 +25,13 @@
 
 # TODO: (da) Add target for byte compilation.
 
-# Release tags.  NB: CVS tags can't have points in them.
-RELEASE_TAG=2.0-pre$(shell date "+%y%m%d")
-CVS_RELEASE_TAG=2-0-pre$(shell date "+%y%m%d")
+# Release tags. 
+#   NB: 1. CVS tags can't have points in them.
+#       2. RPM names can't have hyphens in them
+RELEASE_TAG=2.0pre$(shell date "+%y%m%d")
+CVS_RELEASE_TAG=2-0pre$(shell date "+%y%m%d")
 NAME = ProofGeneral
+# Name of tar file and RPM file.
 RELEASENAME = ProofGeneral-$(RELEASE_TAG)
 
 # Where to release (i.e. copy) a new distribution to
