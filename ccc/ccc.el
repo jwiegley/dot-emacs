@@ -82,24 +82,24 @@
        casl)
     (while span
       (setq str (span-property span 'cmd))
-      (if (proof-string-match "^holcasl .*" str)
-	  (setq casl t))
       (cond ((eq (span-property span 'type) 'vanilla)
-             (unless (proof-string-match proof-non-undoables-regexp str)
-	       (if casl
-		   (setq count-casl (+ 1 count-casl))
-		 (setq count-ccc (+ 1 count-ccc))))))
+	     (if (proof-string-match "^holcasl .*" str)
+		 (setq casl t)
+	       (unless (proof-string-match proof-non-undoables-regexp str)
+		 (if casl
+		     (setq count-casl (+ 1 count-casl))
+		   (setq count-ccc (+ 1 count-ccc)))))))
       (setq span (next-span span 'type)))
     (cond
-     ((and casl (> count-ccc 0)) 
-      ;; we're undoing to outside "holcasl"
-      (format "holcasl_abort(); undo_steps (%s);" count-ccc))
-     (casl
+     ((not casl)
+      ;; we're undoing within CCC
+      (format "undo_steps (%s);" count-ccc))
+     ((and (> count-casl 0) (= count-ccc 0))
       ;; we're undoing within HOL-CASL
       (format "funpow (%s) (Goals.undo) ();" count-casl))
-     (t
-      ;; we're undoing within CCC
-      (format "undo_steps (%s);" count-ccc)))))
+     (t 
+      ;; we're undoing to outside "holcasl" (or just holcasl command)
+      (format "holcasl_abort(); undo_steps (%s);" count-ccc)))))
 
 (provide 'ccc)
 
