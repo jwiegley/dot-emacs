@@ -17,7 +17,7 @@
 @c http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
-@clear haveeps
+@set haveeps
 @iftex
 @afourpaper
 @end iftex
@@ -105,14 +105,14 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@c image{ProofGeneralPortrait}
+@image{ProofGeneralPortrait}
 @end ifset
 @end iftex
 @author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
-Copyright @copyright{} 1998,9 Proof General team, LFCS Edinburgh.
+Copyright @copyright{} 1998-2000 Poof General team, LFCS Edinburgh.
 
 
 @c
