@@ -1,12 +1,18 @@
 ;; isa.el Major mode for Isabelle proof assistant
-;; Copyright (C) 1994-1998 LFCS Edinburgh. 
+;; Copyright (C) 1994-2000 LFCS Edinburgh, David Aspinall.
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
-
 ;;
 ;; $Id$
 ;;
+;; -----------------------------------------------------------------
+;;
+;; This file and the rest of Isabelle Proof General contain code taken
+;; from David Aspinall's Isamode system, a personal project undertaken
+;; 1994-1999 as a contribution to the Isabelle community.
+;;
+;; -----------------------------------------------------------------
 
 
 ;; Add Isabelle image onto splash screen
@@ -16,6 +22,13 @@
  '(list
    nil
    (proof-splash-display-image "isabelle_transparent" t)))
+
+;; In case Isa mode was invoked directly or by -*- isa -*- at
+;; the start of the file, ensure that Isa mode is used from now
+;; on for .thy and .ML files.  
+;; FIXME: be less messy with auto-mode-alist here (remove dups)
+(setq auto-mode-alist 
+      (cons '("\\.ML$\\|\\.thy$" . isa-mode) auto-mode-alist))
 
 (require 'proof)
 (require 'isa-syntax)

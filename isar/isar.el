@@ -15,6 +15,14 @@
    nil
    (proof-splash-display-image "isabelle_transparent" t)))
 
+;; In case Isar mode was invoked directly or by -*- isar -*- at
+;; the start of the file, ensure that Isar mode is used from now
+;; on for .thy files.
+;; FIXME: be less messy with auto-mode-alist here (remove dups)
+(setq auto-mode-alist 
+      (cons '("\\.thy$" . isar-mode) auto-mode-alist))
+
+
 (require 'proof)
 (require 'isar-syntax)
 
