@@ -1,4 +1,4 @@
-            Announcing  Proof General  Version 3.5.1
+            Announcing  Proof General  Version 3.6
     A Generic Emacs interface for Interactive Proof Assistants
               http://proofgeneral.inf.ed.ac.uk
 
@@ -21,7 +21,12 @@ Proof General includes these features, amongst others:
 . Provision to easily run proof assistant on a remote host
 . Works on any platform Emacs does, in window system or plain console 
 
-Summary of interesting changes since 3.4:
+Summary of interesting changes since 3.5 (April 2004):
+
+. Updates and bug fixes for Coq 8.0
+. Extensions for development version of Isabelle, esp. PGIP support
+
+Summary of interesting changes since 3.4 (August 2002):
 
 . Speedbar and Index Menu.  Speedbar provides a handy file/tag tree.
 . Improved display management.  
@@ -41,11 +46,10 @@ http://proofgeneral.inf.ed.ac.uk/fileshow.php?file=ProofGeneral-3.5%2FCHANGES
 
 For the latest user manual, see http://proofgeneral.inf.ed.ac.uk/doc
 
-Proof General needs a recent version of Emacs to run with.  Proof
-General 3.5 has been tested with XEmacs 21.4.14, and GNU Emacs 21.3.1.  
-Other recent versions of either Emacs may work but are not guaranteed.
-
-Installing Proof General is easy.  Why not give it a try?
+Proof General needs a recent version of Emacs to run with.  
+Proof General 3.6 has been tested with XEmacs 21.4.15, and 
+GNU Emacs 21.3.1.  Other recent versions of either Emacs may work but 
+are not guaranteed.
 
  - David Aspinall.
-   May 2004.
+   September 2004.
