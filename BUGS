@@ -19,9 +19,10 @@ Workaround: Don't type C-g while script management is processing.  If
 you do, use proof-restart-scripting.
 
 * You can't use more than one proof assistant at a time in the same
-Emacs session.  Nasty things happen if proof-assistants enables
-more than one proof assistant and you load files for different
-provers.  Workaround: stick to one prover per Emacs session!
+Emacs session.  Attempting to load Proof General for a second prover
+will fail.  Workaround: stick to one prover per Emacs session, 
+make sure that the proof-assistants variables only enables 
+Proof General for the provers you need.
 
 * Outline-mode does not work in proof script files due to read-only
 restrictions of protected region.  Workaround: none, nevermind.

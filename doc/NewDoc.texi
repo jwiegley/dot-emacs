@@ -202,7 +202,10 @@ Obtaining and Installing Proof General
 @c maybe not in TeX, just put on title page.
 @c not in info, it can't deal with images.
 @c Maybe in HTML because it doesn't appear in titles?
+
+@ifhtml
 @image{ProofGeneral}
+@end ifhtml
 
 @dfn{Proof General} is a generic Emacs interface for proof assistants,
 developed at the LFCS in the University of Edinburgh.
@@ -310,7 +313,7 @@ LEGO Proof General supports all of the generic features of Proof
 General.
 
 See @pxref{LEGO Proof General} for more details.
-@c
+
 @item 
 @b{Coq Proof General} for Coq Version 6.2@*
 @c written by Healfdene Goguen.
@@ -319,7 +322,7 @@ Coq Proof General supports all of the generic features of Proof General
 except multiple files.
 
 See @pxref{Coq Proof General} for more details.
-@c
+
 @item 
 @b{Isabelle Proof General} for Isabelle 98-1@*
 @c written by David Aspinall.
@@ -627,7 +630,8 @@ move the end of the locked region backwards to the end of the segment
 containing the point.
 @end table
 
-Otherwise, you will need to restart script management altogether, @pxref{Toolbar commands}.
+Otherwise, you will need to restart script management altogether,
+@pxref{Toolbar commands}.
 
 
 
@@ -1276,10 +1280,11 @@ details if you don't know where to find this file.
 @unnumberedsubsec Removing support for unwanted provers
 
 You cannot run more than one instance of Proof General at a time: so if
-you're using Coq, don't edit @file{.ML} files!  If there are some
-assistants supported that you never want to use, you can remove them
-from the variable @code{proof-assistants} in @file{proof-site.el} to
-solve this problem.
+you're using Coq, visiting an @file{.ML} file will not load Isabelle
+Proof General, and the buffer remains in fundamental mode.  If there are
+some assistants supported that you never want to use, you can remove
+them from the variable @code{proof-assistants} in @file{proof-site.el}
+to solve this problem.
 
 Via the Customize mechanism, see the menu:
 @example
@@ -1338,11 +1343,14 @@ the system.
 
 @unnumberedsubsec One prover at a time
 You can't use more than one proof assistant at a time in the same Emacs
-session.  Nasty things happen if @code{proof-assistants} enables more
-than one proof assistant and you load script files for different provers
-simultaneously.
+session.  Attempting to load Proof General for a second prover will
+fail, leaving a buffer in fundamental mode instead of the Proof General
+mode for proof scripts.
 
-@strong{Workaround:} stick to one prover per Emacs session.
+@strong{Workaround:} stick to one prover per Emacs session, make sure
+that the proof-assistants variables only enables Proof General for the
+provers you need.
+
 
 @node Bugs specific to LEGO Proof General
 @section Bugs specific to LEGO Proof General
