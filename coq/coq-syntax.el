@@ -3,77 +3,7 @@
 ;; Author: Thomas Kleymann and Healfdene Goguen
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
-;; $Log$
-;; Revision 2.0  1998/09/09 13:57:04  da
-;; Fixup branch number
-;;
-;; Revision 1.1  1998/09/03 13:51:13  da
-;; Renamed for new subdirectory structure
-;;
-;; Revision 2.0  1998/08/11 14:59:53  da
-;; New branch
-;;
-;; Revision 1.2  1998/08/11 11:43:13  da
-;; Renamed <file>-fontlock to <file>-syntax
-;;
-;; Revision 1.14  1998/06/11 12:20:14  hhg
-;; Added "Scheme" as definition keyword.
-;;
-;; Revision 1.13  1998/06/10 11:38:04  hhg
-;; Added "Mutual Inductive" as definition keyword.
-;; Changed "\\s " into "\\s-" as whitespace pattern.
-;;
-;; Revision 1.12  1998/06/03 18:01:54  hhg
-;; Changed Compute from command to tactic.
-;; Added Fix, Destruct and Cofix as tactics.
-;; Added Local as goal.
-;;
-;; Revision 1.11  1998/06/02 15:33:16  hhg
-;; Minor modifications to comments
-;;
-;; Revision 1.10  1998/05/15 16:13:23  hhg
-;; Added CoFixpoint and tactics.
-;; Changed indentation.
-;;
-;; Revision 1.9  1998/05/05 14:19:39  hhg
-;; Added CoInductive.
-;; Made updates to reflect problem with "Definition", which couldn't be
-;; used with proof scripts.
-;;
-;; Revision 1.8  1998/01/15 13:30:17  hhg
-;; Added coq-shell-cd
-;; Some new fontlocks
-;;
-;; Revision 1.7  1997/11/26 17:12:55  hhg
-;; Incorporated tms's suggestion for simplifying coq-font-lock-keywords-1
-;;
-;; Revision 1.6  1997/11/06 16:46:20  hhg
-;; Updates to Coq fontlock tables
-;;
-;; Revision 1.5  1997/10/30 15:58:29  hhg
-;; Updates for coq, including:
-;; 	* pbp-goal-command and pbp-hyp-command use proof-terminal-string
-;; 	* updates to keywords
-;; 	* fix for goal regexp
-;;
-;; Revision 1.4  1997/10/24 14:51:07  hhg
-;; Changed order of "Inversion_clear" and "Inversion" so that former is
-;; fontified first.
-;; Added "Print" to list of commands.
-;;
-;; Revision 1.3  1997/10/17 14:45:53  hhg
-;; Added "Induction" as tactic
-;;
-;; Revision 1.2  1997/10/13 17:10:29  tms
-;; *** empty log message ***
-;;
-;; Revision 1.1.2.2  1997/10/08 08:22:28  hhg
-;; Updated undo, fixed bugs, more modularization
-;;
-;; Revision 1.1.2.1  1997/10/07 13:34:10  hhg
-;; New structure to share as much as possible between LEGO and Coq.
-;;
-;;
+;; $Id$
 
 (require 'proof-syntax)
 
