@@ -79,8 +79,7 @@
   "*Command of the inferior process to change the directory.") 
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
-  "*Regular expression indicating that the proof of the current goal
-  has been abandoned.")
+  "*Regexp indicating that the current goal has been abandoned.")
 
 (defvar coq-shell-proof-completed-regexp "Subtree proved!"
   "*Regular expression indicating that the proof has been completed.")
@@ -112,22 +111,22 @@
 (eval-and-compile 
   (define-derived-mode coq-shell-mode proof-shell-mode
     "coq-shell" nil
-    (coq-shell-mode-config))
+    (coq-shell-mode-config)))
   
 (eval-and-compile 
   (define-derived-mode coq-response-mode proof-response-mode
   "CoqResp" nil
-    (coq-response-config))
+    (coq-response-config)))
  
 (eval-and-compile
   (define-derived-mode coq-mode proof-mode
    "coq" nil
-   (coq-mode-config))
+   (coq-mode-config)))
 
 (eval-and-compile
   (define-derived-mode coq-pbp-mode pbp-mode
     "pbp" nil
-    (coq-pbp-mode-config))
+    (coq-pbp-mode-config)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's coq specific                                      ;;
