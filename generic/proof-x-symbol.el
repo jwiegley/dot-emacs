@@ -51,7 +51,8 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	(funcall error-or-warn
  "Proof General: x-symbol package must be installed for x-symbol-support!
 The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
-       ((not (and (boundp 'console-type) (eq (console-type) 'x)))
+       ((not (and (fboundp 'console-type)  ; FSF doesn't have this
+		  (eq (console-type) 'x))) ; (window-system) instead
 	(funcall error-or-warn 
  "Proof General: x-symbol package only runs under X!"))
        ((or (not (fboundp 'x-symbol-initialize))
