@@ -69,8 +69,8 @@ contributed by Lucas Dixon (lucasd@dai.ed.ac.uk)
 ** Coq Changes
 
 *** New Feature: There are some configurable variables that allow the
-    user to register his own tactics and commands. Tactics and
-    commands are split into backable (resp. undoable), i.e. which need
+    user to register his own tactics and commands. commands and
+    Tactics are split into backable (resp. undoable), i.e. which need
     "Back" (resp. "Undo") to be backtracked and not backable
     (resp. not undoable). We give an example of existing commands that
     fit each category.
