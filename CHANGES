@@ -1,163 +1,18 @@
 -*- outline -*-
 
-* Summary of Changes for Proof General 3.2 from 3.1
+* Summary of Changes for Proof General 3.3 from 3.2
 
 ** Generic Changes
 
-*** Keybindings alterations 
-
-  Keybindings for proof assistant now begin with "C-c C-a", to make more room.
-
-*** Menu reorganization, including new proof assistant specific menus.  
-
-  Menu layout more consistent and convenient (though larger).
-  Specific menus added automatically for each proof assistant.
-  (Additional content in specific menus added for Coq, LEGO, Isabelle).
-  Menus appear in goals and response buffers too.
-
-*** Toolbar added to response and goals buffer in single frame mode.
-
-  Disappearing toolbar was a source of confusion for novice Emacs users.
-  Also better for proof-by-pointing interactions.
-
-*** Toolbar and menubar removed from small windows in multiple frame mode
-
-  More screen real estate for your windows.  (XEmacs only)
-
-*** Favourites: user-defined commands can be added to PA specific menus.
-
-*** Improved behaviour of electric terminator
-
-*** Proof-follow-mode: quick menu option, improved 'ignore behaviour.
-
-  Previously point was always moved when an error occurred.
-  It's nicer to do this manually if you like the 'ignore mode,
-  using M-x proof-goto-end-of-locked  (C-c C-.)
-
-*** Added handy proof-display-some-buffers (C-c C-l)
- 
-  This displays the response or goals buffer, and toggles between
-  them in two-pane mode.  In three-pane or multiple frame mode,
-  it makes sure both response and goals buffer are visible.
-
-*** Added proof-next-error function, bound to C-c `
-
-  When the proof assistant batch loads files "in the background"
-  rather than incrementally via script management, error messages
-  may appear in the response buffer with file/line numbers.
-  Proof General can now parse these messages to jump to the
-  location of the error.  
-  [Currently implemented for: Isabelle]
-
-*** New more efficient and generalised parsing functions
- 
-  The new functions have slightly different behaviour around comments.
-  Also avoids crash bug with long strings in certain XEmacs versions.
-
-*** New indentation code, indentation enabled for all provers now
-
-  Supplied by Markus Wenzel.
-
-*** Added possibility (internal) for switching prover's output on/off.
-
-  Already implemented in Coq and Isabelle(/Isar).  
-  This improves efficiency by giving more CPU to prover.
-
-*** Makefile has new target "scripts" to adjust paths in bash/perl scripts
-
-*** Solaris/Windows turn off toolbar enablers due to problems.
-
-*** Bug fix: "next" button enabled more often.  
-
-*** Bug fix: first line ignored problem fixed for Coq and others.
- 
-  [Developers note: to fix this properly, we have added
-   `proof-shell-pre-sync-init-cmd' for provers that need initialization
-   before synchronization can be secured.  LEGO needs to wait for
-   second prompt before sync, whereas Isabelle managed to sync on first
-   prompt.  Coq was best, with sync set before startup, using a command
-   line option.  That is the recommended route for new proof assistants.]
-
-*** Bug fix: script management is now more robust against C-x C-v, C-x C-w
-
-  Please let me know of any cases where this fails.  
-
-
-
 ** Coq Changes
-
-*** More decoration of Coq output, uses CoqResp mode now
 
 ** LEGO Changes
 
-*** Slight change in output during proof: shows final discharge messages
-
- This is a side effect of code rationalization in PG elsewhere.
-
 ** Isabelle Changes
-
-*** More code from Isamode has been merged into Proof General
-
- Particularly: the user now can choose a logic image from inside PG.
-
-*** Fix for stack overflow in regexp which occurred with large proof states
-
-*** The back() command is now undoable as it should be
 
 ** Isar Changes
 
-*** No longer requires explicit terminators ";" in text.  (XEmacs only)
-
-  Also note that isar-strip-terminators cleans up existing theories.
-
-*** Fix for stack overflow in regexp which occurred with large proof states
-
-*** Improved Help menu provides basic context browsing facilities.
-
 ** HOL Changes
 
-*** Output decoration improvements.
-
 ** Changes for developers to note
-
-*** Rearrangement of elisp files and loading mechanism.
-    
-      Autoloads in proof-autoloads.el are generated from
-      ;;;###autoload comments with `make devel.autoloads'
-
-      Several new files, to "modularize" the code a bit more.
-
-*** New mechanism for defining customizations per prover
-
-      See Section 9 of proof-config.el.  New macros mean that we can
-      write for example `proof-defasscustom web-page' to automatically get 
-      `isa-webpage', `hol-webpage', etc, declared on loading.
-      
-      Proof assistant specific code can then just set/use these
-      variables, without needing to set `proof-assistant-webpage' from
-      `isa-webpage' etc.
-
-      This slightly breaks the original pseudo object-oriented idea
-      behind the instantiation mechanism (overriding methods, setting
-      attributes) but works much more smoothly with customization.
-
-*** Changed buffer mode name: pbp-mode -> proof-goals-mode, for uniformity.
-
-*** Removed proof-terminal-string to simplify command setting
-
-  As a simplification of the code, and to allow possibility of
-  PAs without a terminal string, more smoothly.
-  It is now the responsibility of each proof assistant's customization
-  to add proof-terminal-string to commands where necessary.  
-
-*** New parsing mechanism 
-
-  See the PG Adapting manual for information about the new variations
-  possible for `proof-segment-up-to'.  These are supported for XEmacs only, 
-  since FSF Emacs lacks the useful fast primitives we use.
-
-*** Other minor things (interest only to independent developers of PG modes):
-
-  No need for match string 1 in proof-shell-proof-completed
-  Added proof-shell-pre-sync-init-cmd, see doc.
 
