@@ -11,20 +11,30 @@
 
 theory Example = Main:
 
-text {* Proper proof text. *}
+text {* Proper proof text -- naive version. *}
 
 theorem and_comms: "A & B --> B & A"
 proof
   assume "A & B"
-  thus "B & A"
+  then show "B & A"
   proof
     assume B and A
-    thus ?thesis ..
+    then show ?thesis ..
   qed
 qed
 
 
-text {* Proof script. *}
+text {* Proper proof text -- advanced version. *}
+
+theorem "A & B --> B & A"
+proof
+  assume "A & B"
+  then obtain B and A ..
+  then show "B & A" ..
+qed
+
+
+text {* Unstructured proof script. *}
 
 theorem "A & B --> B & A"
   apply (rule impI)
