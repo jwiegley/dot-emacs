@@ -1215,7 +1215,7 @@ Issues a command to the assistant based on @code{proof-info-command}.
 
 @c TEXI DOCSTRING MAGIC: proof-find-theorems
 @deffn Command proof-find-theorems arg
-Search for items containing a given constant.@*
+Search for items containing given constants.@*
 Issues a command based on @var{arg} to the assistant, using @code{proof-find-theorems-command}.
 The user is prompted for an argument.
 @end deffn
