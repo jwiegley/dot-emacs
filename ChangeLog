@@ -1,3 +1,63 @@
+2001-09-05  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/pg-metadata.el: Incomplete
+
+	* doc/ProofGeneral.texi: Todo
+
+	* CHANGES, todo:
+	Updated
+
+	* generic/proof-menu.el:
+	Add keybindings for new commands for moving/navigating spans.
+
+	* generic/proof-script.el:
+	Fix problem with C-x C-v by copying buffer-file-name. Add children property to control spans.
+
+	* generic/pg-user.el:
+	Improved span moving and navigation commands.
+
+2001-09-04  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/Example.thy: tuned proof text;
+	added script version;
+
+	* isa/interface, isar/interface:
+	added option -P: actually start Proof General (default true);
+
+2001-09-04  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/pg-xml.el:
+	Issue parsing messages
+
+	* generic/pg-user.el:
+	Add commands to move spans up/down.  Enable features only if experimental flag set
+
+	* generic/proof-script.el:
+	Nested proof spans are duplicable
+
+	* generic/proof-config.el:
+	Add experimental features setting
+
+	* Makefile: Delete rogue elcs
+
+	* CHANGES, INSTALL:
+	Updates
+
+2001-09-04  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/README: tuned;
+
+	* isa/README, isar/README:
+	no need to adjust the path to bash on the first line (due to /usr/bin/env);
+
 2001-09-04  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
