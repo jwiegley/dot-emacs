@@ -289,9 +289,13 @@ Does nothing if proof assistant is already running."
 	(error (format "Starting process: %s..failed" proof-prog-name)))
 
       ;; Create the associated buffers and set buffer variables
-      (setq proof-goals-buffer (get-buffer-create (concat "*" proc "-goals*"))
-	    proof-response-buffer (get-buffer-create 
-				     (concat "*" proc "-response*")))
+      (let ((goals	(concat "*" proc "-goals*"))
+	    (resp	(concat "*" proc "-response*")))
+	(setq proof-goals-buffer (get-buffer-create goals))
+	(setq proof-response-buffer (get-buffer-create resp))
+	;; Set the special-display-regexps now we have the buffer names
+	(setq proof-shell-special-display-regexp (proof-regexp-alt goals resp))
+	(proof-multiple-frames-enable))
 
       (save-excursion
 	(set-buffer proof-shell-buffer)
@@ -569,35 +573,8 @@ object files, used by Lego and Coq)."
 
 ;; Need this for processing error strings and so forth
 
-
 
-
-;;
-;; Flag and function to keep response buffer tidy.
-;;
-(defvar proof-shell-erase-response-flag nil
-  "Indicates that the response buffer should be cleared before next message.")
 
-(defun proof-shell-maybe-erase-response
-  (&optional erase-next-time clean-windows force)
-  "Erase the response buffer according to proof-shell-erase-response-flag.
-ERASE-NEXT-TIME is the new value for the flag.
-If CLEAN-WINDOWS is set, use proof-clean-buffer to do the erasing.
-If FORCE, override proof-shell-erase-response-flag.
-
-If the user option proof-tidy-response is nil, then
-the buffer is only cleared when FORCE is set."
-  (if (or (and
-	   proof-tidy-response
-	   proof-shell-erase-response-flag) 
-	  force)
-      (if clean-windows
-	  (proof-clean-buffer proof-response-buffer)
-	;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
-	;; (erase-buffer proof-response-buffer)
-	(with-current-buffer proof-response-buffer
-	  (erase-buffer))))
-  (setq proof-shell-erase-response-flag erase-next-time))
 		  
 
 
@@ -824,33 +801,12 @@ See the documentation for `proof-shell-delayed-output' for further details."
       (proof-shell-maybe-erase-response t nil)
       (proof-response-buffer-display str)
       (proof-display-and-keep-buffer proof-response-buffer))
-
-     ;; old code duplicated much of proof-response-buffer-display
-
-;      (with-current-buffer proof-response-buffer
-;	;; FIXME da: have removed this, possibly it junks 
-;	;; relevant messages.  Instead set a flag to indicate
-;	;; that response buffer should be cleared before the
-;	;; next command.
-;	;; (erase-buffer)
-
-;	;; NEW!
-;	;; Erase the response buffer if need be, and indicate that
-;	;; it is to be erased again before the next message.
-;	(proof-shell-maybe-erase-response t nil)
-;	(goto-char (point-max))
-;	(setq pos (point))
-;	(insert str)
-;	(proof-fontify-region pos (point))
-;	(proof-display-and-keep-buffer proof-response-buffer)))
      ;;
      ;; 2. Text to be inserted in goals buffer
-     ;;
      ((eq ins 'analyse)
       (proof-shell-analyse-structure str))
      ;;
      ;; 3. Nothing else should happen
-     ;;
      (t (assert nil "proof-shell-handle-delayed-output: wrong type!"))))
   (run-hooks 'proof-shell-handle-delayed-output-hook)
   (setq proof-shell-delayed-output (cons 'insert "done")))
@@ -888,46 +844,30 @@ See the documentation for `proof-shell-delayed-output' for further details."
 We first flush unprocessed goals to the goals buffer.
 The error message is displayed in the responsebuffer.
 Then we call `proof-shell-error-or-interrupt-action', which see."
-
-  ;; FIXME: this is messy, should be done in a subroutine.
-  ;; Why not also for interrupts anyway?
+  ;; Why not flush goals also for interrupts?
   (unless
-      (equal proof-shell-delayed-output (cons 'insert "Done."))
+      (or
+       ;; da: a first safety check 
+       (not (eq (car proof-shell-delayed-output) 'insert))
+       (equal (cdr proof-shell-delayed-output) "Done.")
+       ;; da: added this, seems little point in printing "done" either?
+       (equal (cdr proof-shell-delayed-output) "done"))
+    ;; Flush goals (from some last successful proof step) to goals
+    ;; buffer
     (save-excursion
-      ;; da: Maybe we don't know it's a perfect string for analysis,
-      ;; but give it a shot anyway.
       (proof-shell-analyse-structure 
        (cdr proof-shell-delayed-output))))
-; old code duplicated first part of analyse-structure.
-;      (save-excursion ;current-buffer
-;	(set-buffer proof-goals-buffer)
-;	(erase-buffer)
-;	(newline)
-;	(insert (cdr proof-shell-delayed-output))
-;        (proof-fontify-region (point-min) (point-max))
-;	(proof-display-and-keep-buffer proof-goals-buffer)))
-
-  ;; Perhaps we should erase the buffer in proof-response-buffer, too?
-
-    ;; We extract all text between text matching
-    ;; `proof-shell-error-regexp' and the following prompt.
-    ;; Alternatively one could higlight all output between the
-    ;; previous and the current prompt.
-    ;; +/- of our approach
-    ;; + Previous not so relevant output is not highlighted
-    ;; - Proof systems have to conform to error messages whose start can be
-    ;;   detected by a regular expression.
+  ;; Perhaps we should erase the proof-response-buffer?
   (proof-shell-handle-output
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
    'proof-error-face)
-
   (proof-display-and-keep-buffer proof-response-buffer)
   (proof-shell-error-or-interrupt-action 'error))
 
 (defun proof-shell-handle-interrupt ()
    "React on an interrupt message from the prover.
  Runs proof-shell-error-or-interrupt-action."
-  (proof-shell-maybe-erase-response t t t)
+  (proof-shell-maybe-erase-response t t t) ; force cleaned now & next
   (proof-shell-handle-output
    proof-shell-interrupt-regexp proof-shell-annotated-prompt-regexp
    'proof-error-face)
@@ -1011,10 +951,10 @@ the proof assistant."
    ((proof-shell-string-match-safe proof-shell-interrupt-regexp string)
     'interrupt)
 
-   ((proof-shell-string-match-safe proof-shell-error-regexp string)
-    (cons 'error (proof-shell-strip-special-annotations
-		  (substring string
-			     (match-beginning 0)))))
+     ((proof-shell-string-match-safe proof-shell-error-regexp string)
+      (cons 'error (proof-shell-strip-special-annotations
+		    (substring string
+			       (match-beginning 0)))))
 	 
    ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
     (proof-clean-buffer proof-goals-buffer)
@@ -1048,15 +988,16 @@ the proof assistant."
       (setq proof-shell-delayed-output 
 	    (cons 'analyse (substring string start end)))))
        
-   ((proof-shell-string-match-safe proof-shell-result-start string)
-    (let (start end)
-      (setq start (+ 1 (match-end 0)))
-      (string-match proof-shell-result-end string)
-      (setq end (- (match-beginning 0) 1))
-      (cons 'loopback (substring string start end))))
+    ;; Test for a proof by pointing command hint
+     ((proof-shell-string-match-safe proof-shell-result-start string)
+      (let (start end)
+	(setq start (+ 1 (match-end 0)))
+	(string-match proof-shell-result-end string)
+	(setq end (- (match-beginning 0) 1))
+	(cons 'loopback (substring string start end))))
    
-   ;; Hook to tailor proof-shell-process-output to a specific proof
-   ;; system, in the case that all the above matches fail.
+     ;; Hook to tailor proof-shell-process-output to a specific proof
+     ;; system, in the case that all the above matches fail.
    ((and proof-shell-process-output-system-specific
 	 (funcall (car proof-shell-process-output-system-specific)
 		  cmd string))
@@ -1941,11 +1882,32 @@ May enable proof-by-pointing or similar features.
     (proof-x-symbol-configure)))
 
 
+;; 
+;; Multiple frames for goals and response buffers
+;;
+;;  -- because who's going to bother do this by hand?
+;;
 
+(defvar proof-shell-special-display-regexp nil
+  "Regexp for special-display-regexps for multiple frame use.")
 
-
-
-
+(defun proof-multiple-frames-enable ()
+  (cond
+   (proof-multiple-frames-enable
+    (setq special-display-regexps
+	  (union special-display-regexps 
+		 (list proof-shell-special-display-regexp)))
+    ;; Try to trigger re-display of goals/response buffers. 
+    ;; FIXME: would be nice to do the re-display here, rather
+    ;; than waiting for next re-display
+    (delete-other-windows 
+     (get-buffer-window proof-script-buffer t)))
+   (t
+    ;; FIXME: would be nice to kill off frames automatically,
+    ;; but let's leave it to the user for now.
+    (setq special-display-regexps
+	  (delete proof-shell-special-display-regexp 
+		  special-display-regexps)))))
 
 (provide 'proof-shell)
 ;; proof-shell.el ends here.
