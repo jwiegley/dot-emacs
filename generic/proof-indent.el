@@ -87,13 +87,5 @@
                 (back-to-indentation)))))
 
 
-;;;###autoload
-;FIXME mmw: remove this obsolete function!?
-(defun proof-indent-region (start end)
-  (interactive "r")
-  (if (< (point) (proof-locked-end))
-      (error "can't indent locked region!"))
-  (indent-region start end))
-
 
 (provide 'proof-indent)
