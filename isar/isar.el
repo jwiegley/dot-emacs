@@ -42,15 +42,15 @@
 	  (list
 	   ["antiquotations" (proof-shell-invisible-command "print_antiquotations") t]
 	   ["attributes" (proof-shell-invisible-command "print_attributes") t]
+	   ["cases" (proof-shell-invisible-command "print_cases") t]
 	   ["classical rules" (proof-shell-invisible-command "print_claset") t]
 	   ["commands" (proof-shell-invisible-command "print_commands") t]
-	   ["global theorems" (proof-shell-invisible-command "print_theorems") t]
+	   ["facts" (proof-shell-invisible-command "print_facts") t]
 	   ["inner syntax" (proof-shell-invisible-command "print_syntax") t]
-	   ["local contexts" (proof-shell-invisible-command "print_cases") t]
-	   ["local theorems" (proof-shell-invisible-command "print_facts") t]
 	   ["methods" (proof-shell-invisible-command "print_methods") t]
 	   ["simplifier rules" (proof-shell-invisible-command "print_simpset") t]
 	   ["term bindings" (proof-shell-invisible-command "print_binds") t]
+	   ["theorems" (proof-shell-invisible-command "print_theorems") t]
 	   ["transitivity rules" (proof-shell-invisible-command "print_trans_rules") t])))))
 
 
