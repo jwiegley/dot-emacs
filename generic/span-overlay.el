@@ -273,4 +273,10 @@ If there are two spans overlapping then this won't work."
     (if l (car l) nil)))
 
 
+(defsubst span-live-p (span)
+  "Return non-nil if SPAN is in a live buffer."
+  (and span
+       (overlay-buffer span)
+       (buffer-live-p (overlay-buffer span))))
+
 (provide 'span-overlay)

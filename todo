@@ -314,6 +314,9 @@ D Display management is much better than it was, but perhaps
     Perhaps retraction should set the flag to ensure
     it's cleared.
 
+D Fixup display of urgent messages in minibuffer: split at
+  newlines so we don't get ^J's in FSF Emacs.
+
 X Consider filtering out special annotations from shell buffer
   rather than merely making them invisible.
 

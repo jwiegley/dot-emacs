@@ -1018,18 +1018,19 @@ a space or newline will be inserted automatically."
 
 
 (defun proof-done-retracting (span)
-  "Updates display after proof process has reset its state. See also
-the documentation for `proof-retract-until-point'. It optionally
-deletes the region corresponding to the proof sequence."
-  (let ((start (span-start span))
-        (end (span-end span))
-	(kill (span-property span 'delete-me)))
-    (unless (proof-locked-region-empty-p)
-      (proof-set-locked-end start)
-      (proof-set-queue-end start))
-    (delete-spans start end 'type)
-    (delete-span span)
-    (if kill (kill-region start end))))
+  "Update display after proof process has reset its state.
+See also the documentation for `proof-retract-until-point'.
+Optionally delete the region corresponding to the proof sequence."
+  (if (span-live-p span)
+      (let ((start (span-start span))
+	    (end (span-end span))
+	    (kill (span-property span 'delete-me)))
+	(unless (proof-locked-region-empty-p)
+	  (proof-set-locked-end start)
+	  (proof-set-queue-end start))
+	(delete-spans start end 'type)
+	(delete-span span)
+	(if kill (kill-region start end)))))
 
 (defun proof-setup-retract-action (start end proof-command delete-region)
   (let ((span (make-span start end)))

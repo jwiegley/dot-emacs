@@ -303,45 +303,56 @@ of the queue region."
 
 (defun proof-shell-kill-function ()
   "Function run when a proof-shell buffer is killed.
-Value for kill-buffer-hook in shell buffer.
 Attempt to shut down the proof process nicely and
-clears up all the locked regions and state variables."
+clear up all the locked regions and state variables.
+Value for kill-buffer-hook in shell buffer.
+Also called by proof-shell-bail-out if the process is
+exited by hand (or exits by itself)."
   (let* ((alive    (comint-check-proc (current-buffer)))
-	 (proc      (get-buffer-process (current-buffer)))
-	 (bufname   (buffer-name)))
+	 (proc     (get-buffer-process (current-buffer)))
+	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
-    (sit-for 0)				; redisplay
-    (if alive				; process still there
-	(progn
-	  ;; Try to shut it down politely
-	  ;; Do this before deleting other buffers, etc, so that
-	  ;; any closing down processing works okay.
-	  (if proof-shell-quit-cmd
-	      (comint-send-string proc
-				  (concat proof-shell-quit-cmd "\n"))
-	    (comint-send-eof))
-	  ;; Wait a while for it to die before killing
-	  ;; it off more rudely.
-	  (set-process-sentinel proc
-				(lambda (p m) (throw 'exited t)))
+    (let ((inhibit-quit t))		; disable C-g for now
+      (sit-for 0)				; redisplay
+      (if alive				; process still there
 	  (catch 'exited
-	    (accept-process-output nil 10)
-	    (kill-process proc)
-	    ;; another chance to catch
-	    (accept-process-output))))
-    ;; Restart all scripting buffers
-    (proof-script-remove-all-spans-and-deactivate)
-    ;; Clear state
-    (setq proof-included-files-list nil
-	  proof-shell-busy nil
-	  proof-shell-proof-completed nil)
-    ;; Kill buffers associated with shell buffer
-    (if (buffer-live-p proof-goals-buffer)
-	(kill-buffer proof-goals-buffer))
-    (if (buffer-live-p proof-response-buffer)
-	(kill-buffer proof-response-buffer))
-    (message "%s exited." bufname)))
-
+	    (set-process-sentinel proc
+				  (lambda (p m) (throw 'exited t)))
+	    ;; Try to shut it down politely
+	    ;; Do this before deleting other buffers, etc, so that
+	    ;; any closing down processing works okay.
+	    (if proof-shell-quit-cmd
+		(comint-send-string proc
+				    (concat proof-shell-quit-cmd "\n"))
+	      (comint-send-eof))
+	    ;; Wait a while for it to die before killing
+	    ;; it off more rudely.  In XEmacs, accept-process-output
+	    ;; or sit-for will run process sentinels if a process
+	    ;; changes state.
+	    ;; In FSF I've no idea how to get the process sentinel
+	    ;; to run outside the top-level loop.
+	    ;; So put an ugly timeout and busy wait here instead
+	    ;; of simply (accept-process-output nil 10).
+	    (add-timeout 10 (lambda (&rest args)
+			      (unless (comint-check-proc (current-buffer))
+				(kill-process proc))
+			      (throw 'exited t)) nil)
+	    (while (comint-check-proc (current-buffer))
+	      (sit-for 1))))
+      ;; For FSF Emacs, proc may be nil if killed already.
+      (if proc (set-process-sentinel proc nil))
+      ;; Restart all scripting buffers
+      (proof-script-remove-all-spans-and-deactivate)
+      ;; Clear state
+      (setq proof-included-files-list nil
+	    proof-shell-busy nil
+	    proof-shell-proof-completed nil)
+      ;; Kill buffers associated with shell buffer
+      (if (buffer-live-p proof-goals-buffer)
+	  (kill-buffer proof-goals-buffer))
+      (if (buffer-live-p proof-response-buffer)
+	  (kill-buffer proof-response-buffer))
+      (message "%s exited." bufname))))
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
