@@ -2,9 +2,13 @@
 ;; Copyright (C) 1994-1998 LFCS Edinburgh. 
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer:  Isabelle maintainer <isabelle@dcs.ed.ac.uk>
+;; Maintainer:  David Aspinall <da@dcs.ed.ac.uk>
 ;;
 ;; $Id$
+;;
+;;
+;; FIXME: the syntax needs checking carefully, and splitting
+;; into output vs input syntax.
 ;;
 
 (require 'proof-syntax)
@@ -126,10 +130,13 @@
 
 ;; ----- regular expressions
 
-(defconst isa-id proof-id)
+(defconst isa-id "\\([A-Za-z][A-Za-z0-9'_]*\\)")
+(defconst isa-idx (concat isa-id "\\(\\.[0-9]+\\)?"))
 
 (defconst isa-ids (proof-ids isa-id "[ \t]*")
   "Matches a sequence of identifiers separated by whitespace.")
+
+(defconst isar-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
 
 (defun isa-binder-regexp (binder dot)
     (concat binder "\\s-*\\(" isa-ids "\\)\\s-*" dot))
@@ -180,5 +187,46 @@
 
      (list isa-goal-with-hole-regexp 2 'font-lock-function-name-face)
      (list isa-save-with-hole-regexp 2 'font-lock-function-name-face))))
+
+
+;;
+;; Configuration for output from Isabelle process
+;;
+
+(defun isa-init-output-syntax-table ()
+  "Set appropriate values for syntax table for Isabelle output."
+  ;; copied from above
+  (modify-syntax-entry ?\$ ".")
+  (modify-syntax-entry ?\/ ".")
+  (modify-syntax-entry ?\\ ".")
+  (modify-syntax-entry ?+  ".")
+  (modify-syntax-entry ?-  ".")
+  (modify-syntax-entry ?=  ".")
+  (modify-syntax-entry ?%  ".")
+  (modify-syntax-entry ?<  ".")
+  (modify-syntax-entry ?>  ".")
+  (modify-syntax-entry ?\& ".")
+  (modify-syntax-entry ?.  "w")
+  (modify-syntax-entry ?_  "w")
+  (modify-syntax-entry ?\' "w")
+  (modify-syntax-entry ?\| ".")
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4")
+  ;; ignore strings so font-locking works
+  ;; inside them
+  (modify-syntax-entry ?\" " "))
+
+(defvar isa-output-font-lock-terms
+  (list
+   (cons (concat "\351" isa-id "\350") 'proof-declaration-name-face)    ; class
+   (cons (concat "\352'" isa-id "\350") 'proof-tacticals-name-face)     ; tfree
+   (cons (concat "\353\\?'" isa-idx "\350") 'font-lock-type-face)       ; tvar
+   (cons (concat "\354" isa-id "\350") 'font-lock-keyword-face)         ; free
+   (cons (concat "\355" isa-id "\350") 'font-lock-keyword-face)         ; bound
+   (cons (concat "\356" isa-idx "\350") 'font-lock-function-name-face)  ; var
+   )
+  "*Font-lock table for output from the Isabelle process.")
+
 
 (provide 'isa-syntax)
