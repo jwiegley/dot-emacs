@@ -255,7 +255,6 @@
     ["Hints" coq-PrintHint t]
     ["Show ith goal..." coq-Show t]
     ["Search isos/pattern..." coq-SearchIsos t]
-    ["3 buffers view" coq-three-b t]
     ["Compile" coq-Compile t] ))
 
 (provide 'coq-abbrev-V7)
