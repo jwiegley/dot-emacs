@@ -14,6 +14,12 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+
+B Bug in proof-retract-until-point when called twice in succession:
+  calls backward-char at beginning of buffer.  (Should say no
+  locked region, or "nothing to retract").  Problems is that
+  there is a proof-locked-end, but it's at (point-min).
+
 B proof-find-next-terminator doesn't work properly:
 
      first;second;third
