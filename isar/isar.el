@@ -179,8 +179,8 @@
    ;; initial command configures Isabelle/Isar by hacking print functions.
    proof-shell-init-cmd
     (concat "use \"" proof-home-directory "isar/ProofGeneral.ML\";")
-   proof-shell-restart-cmd		"restart"
-   proof-shell-quit-cmd			"quit"
+   proof-shell-restart-cmd		"restart;"
+   proof-shell-quit-cmd			"quit;"
    
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-end     "\361\\|\363"
