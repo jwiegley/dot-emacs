@@ -107,9 +107,11 @@
   :type '(repeat string))
 
 (defcustom isa-keywords-sml
-  '("if" "then" "let" "in" "end" "sig" "struct" "else" "use" "open" "of" 
-    "and" "andalso" "orelse"
-    "type" "datatype" "eqtype" "val" "fun" "functor" "signature" "structure")
+  '("abstype" "and" "andalso" "as" "case" "datatype" "do" "else" "end"
+    "eqtype" "exception" "fn" "fun" "functor" "handle" "if" "in" "include"
+    "infix" "infixr" "let" "local" "nonfix" "of" "op" "open" "orelse"
+    "raise" "rec" "sharing" "sig" "signature" "struct" "structure" "then"
+    "type" "val" "while" "with" "withtype")
     "Standard ML keywords that are nice to have coloured."
   :group 'isa-syntax
   :type '(repeat string))
