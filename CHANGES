@@ -14,6 +14,10 @@
 
 ** Generic Changes
 
+*** Added proof assistant specific menu facility.  
+
+  Specific menus added for Coq, Isabelle.
+
 *** Improved behaviour of electric terminator
 
 *** Efficiency improvement in parsing
@@ -32,7 +36,9 @@
 
 ** LEGO Changes
 
-*** Slight change in output during proof: show final discharge messages
+*** Slight change in output during proof: shows final discharge messages
+
+ This is a side effect of code rationalization in PG elsewhere.
 
 ** Isabelle Changes
 

@@ -3534,6 +3534,19 @@ The following variables should be set in the script mode before
 @code{proof-config-done} is called.  These make some settings for the
 commands and menus available in Proof General.
 
+The first setting controls the proof-assistant specific menu,
+if any is defined.
+
+@c TEXI DOCSTRING MAGIC: proof-assistant-menu-entries
+@defvar proof-assistant-menu-entries 
+Entries for proof assistant specific menu. @*
+A list of menu items [@var{name} @var{callback} ENABLE].  See the documentation
+of @samp{@code{easy-menu-define}} for more details.
+@end defvar
+
+The remaining settings control the standard commands available
+from the generic menu and the toolbar.
+
 @c TEXI DOCSTRING MAGIC: proof-assistant-home-page
 @defvar proof-assistant-home-page 
 Web address for information on proof assistant.@*
@@ -3573,6 +3586,8 @@ Command to search for a theorem containing a given term. String or fn.@*
 If a string, the format character @samp{%s} will be replaced by the term.
 If a function, it should return the command string to insert.
 @end defvar
+
+
 
 
 

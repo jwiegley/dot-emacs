@@ -2346,8 +2346,11 @@ This is intended as a value for proof-activate-scripting-hook"
 	     :active (fboundp 'function-menu)]
 	    "----")
           proof-shared-menu)
-  "The menu for the proof assistant.")
+  "The Proof General generic menu.")
 
+(defvar proof-assistant-menu
+  nil
+  "The Proof General proof-assistant specific menu.")
 
 
 
@@ -2723,7 +2726,7 @@ finish setup which depends on specific proof assistant configuration."
   ;; NB: autloads proof-toolbar, which defines proof-toolbar-scripting-menu.
   (proof-toolbar-setup)
 
-  ;; Menu
+  ;; Menus
   (easy-menu-define proof-mode-menu  
 		    proof-mode-map
 		    "Proof General menu"
@@ -2747,6 +2750,16 @@ finish setup which depends on specific proof assistant configuration."
 
   ;; Put the ProofGeneral menu on the menubar
   (easy-menu-add proof-mode-menu proof-mode-map)
+
+  ;; Deal with the proof assistant specific menu 
+  (if proof-assistant-menu-entries
+      (progn
+	(easy-menu-define proof-assistant-menu 
+			  proof-mode-map
+			  proof-assistant
+			  (cons proof-assistant
+				proof-assistant-menu-entries))
+	(easy-menu-add proof-assistant-menu proof-mode-map)))
 
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and

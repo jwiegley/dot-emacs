@@ -682,6 +682,13 @@ If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
+(defcustom proof-assistant-menu-entries nil
+  "Entries for proof assistant specific menu. 
+A list of menu items [NAME CALLBACK ENABLE].  See the documentation
+of `easy-menu-define' for more details."
+  :type 'sexp
+  :group 'prover-config)
+
 
 
 
