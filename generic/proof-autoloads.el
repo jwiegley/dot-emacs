@@ -7,6 +7,20 @@
 
 ;;;***
 
+;;;### (autoloads (pg-pgip-process-cmd) "pg-pgip" "generic/pg-pgip.el")
+
+(autoload 'pg-pgip-process-cmd "pg-pgip" "\
+Process the command in PGIP, which should be parsed XML according to pg-xml-parse-*." nil nil)
+
+;;;***
+
+;;;### (autoloads (pg-xml-parse-string) "pg-xml" "generic/pg-xml.el")
+
+(autoload 'pg-xml-parse-string "pg-xml" "\
+Parse string in ARG, same as pg-xml-parse-buffer." nil nil)
+
+;;;***
+
 ;;;### (autoloads (proof-dependency-in-span-context-menu proof-depends-process-dependencies) "proof-depends" "generic/proof-depends.el")
 
 (autoload 'proof-depends-process-dependencies "proof-depends" "\
@@ -151,7 +165,7 @@ to the default toolbar." t nil)
 
 ;;;***
 
-;;;### (autoloads (proof-x-symbol-configure proof-x-symbol-mode proof-x-symbol-decode-region proof-x-symbol-enable) "proof-x-symbol" "generic/proof-x-symbol.el")
+;;;### (autoloads (proof-x-symbol-configure proof-x-symbol-shell-config proof-x-symbol-mode proof-x-symbol-decode-region proof-x-symbol-enable) "proof-x-symbol" "generic/proof-x-symbol.el")
 
 (autoload 'proof-x-symbol-enable "proof-x-symbol" "\
 Turn on or off support for x-symbol, initializing if necessary.
@@ -166,6 +180,10 @@ Return new END value." nil nil)
 Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable.
 The X-Symbol minor mode is only useful in buffers where symbol input
 takes place (it isn't used for output-only buffers)." t nil)
+
+(autoload 'proof-x-symbol-shell-config "proof-x-symbol" "\
+Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil.
+Assumes that the current buffer is the proof shell buffer." nil nil)
 
 (autoload 'proof-x-symbol-configure "proof-x-symbol" "\
 Configure the current output buffer (goals/response/trace) for X-Symbol." nil nil)
