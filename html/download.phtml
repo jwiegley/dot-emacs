@@ -47,7 +47,7 @@ for using Proof General.
     </a>
 </h2>
 <p>
-To run Proof General, you should have:
+To run Proof General, you <strong>must</strong> have:
 </p>
 <ul>
 <li>
@@ -64,28 +64,40 @@ Both Emacsen are available for a variety of platforms, including
 Unix variants and NT.
 </li>
 <li>
+One or more of the supported proof assistants.  Or write your own
+support for a new assistant.  
+<br>
+See the 
+<?php link_root("main","front page") ?> for links to supported
+assistants.
+</li>
+</ul>
+<p>
+
+There are also some <strong>optional</strong> components for using
+Proof General:
+<ul>
+<li>
 For displaying logical and mathematical symbols, the excellent
 <a href="http://www.fmi.uni-passau.de/~wedler/x-symbol/">X-Symbol</a>
 package. 
 <br>X-Symbol presently only works with XEmacs.  
-Its use with Proof General is optional.
 </li>
 <li>
 For FSF Emacs, a version of <tt>func-menu.el</tt> to get 
 <?php link_root("features#funcmenu","function menus") ?>.
-<br>I can't find a version of this that
+<br>Unfortunately I can't find a version of this that
 works with current FSF Emacs releases. I'd be grateful 
-for a pointer to one.  (Alternatively, the package 
+for a pointer to one.  
+<br>
+(The package 
 <tt>imenu.el</tt> may be a suitable replacement,
-and it ships with both Emacs.  Perhaps  
+and it ships with both Emacsen.  Perhaps  
 somebody could contribute patches to use that 
 instead of <tt>func-menu</tt>).
-<br>
-Proof General works fine without this feature.
 </ul>
 <p>
-All these components are distributed under the 
-GPL license.
+All components mentioned are distributed under the GPL license.
 </p>
 <br>
 <br>
