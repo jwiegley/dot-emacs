@@ -44,15 +44,7 @@ inside your Emacs."
 	 ;; Check proof assistant specific settings here
 	 ))
     ;; 
-    (if enable
-	;; Turn it on
-	(progn
-	  (add-hook 'proof-shell-insert-hook
-		    'proof-x-symbol-encode-shell-input))
-      ;; Turn it off
-      (remove-hook  'proof-shell-insert-hook
-		    'proof-x-symbol-encode-shell-input))
-
+    (proof-x-symbol-mode-all-buffers enable);;DvO
     (setq proof-x-symbol-support-on enable)))
 
 ;; Initialize x-symbol-support.
@@ -62,20 +54,14 @@ inside your Emacs."
 ;  (if proof-x-symbol-support-on
 ;      (setq x-symbol-language 
 
-(defun proof-x-symbol-decode-region (start end)
-  "Decode region START to END using x-symbol-decode-all.
-No action if proof-x-symbol-support-on is nil."
-  (if proof-x-symbol-support-on
-      (save-restriction
-	(narrow-to-region start end)
-	(x-symbol-decode-all)
-	(unless (featurep 'mule) (x-symbol-nomule-fontify-cstrings)))))
-
+;;DvO to be removed, replaced by x-symbol-decode-region
+(defun proof-x-symbol-decode-region (start end) 
+(x-symbol-decode-region start end))
 
 (defun proof-x-symbol-encode-shell-input ()
   "Encode shell input in the variable STRING.
 A value for proof-shell-insert-hook."
-  (and x-symbol-mode x-symbol-language
+  (and x-symbol-language
        (setq string
              (save-excursion
                (let ((language x-symbol-language)
@@ -89,41 +75,67 @@ A value for proof-shell-insert-hook."
                (prog1 (buffer-substring)
                  (kill-buffer (current-buffer)))))))
 
-(defun proof-x-symbol-mode ()
+(defun proof-x-symbol-mode (enable)
   (if proof-x-symbol-support-on
       (progn
 	(setq x-symbol-language proof-assistant-symbol)
-	(if (not x-symbol-mode)
+	(if (eq x-symbol-mode (not enable));;DvO
 	    (x-symbol-mode))
 	;; Needed ?  Should let users do this in the 
 	;; usual way, if it works.
-	(if (not font-lock-mode) 
-	    (font-lock-mode)))))
+	(if (and x-symbol-mode (not font-lock-mode));;DvO
+	    (font-lock-mode)
+	    (unless (featurep 'mule) (x-symbol-nomule-fontify-cstrings))))));;DvO
  ;; 
  ;;(setq comint-input-sender 'x-symbol-comint-send)
 
 
-;; FIXME: where do we need the next function?
-(defun proof-x-symbol-comint-send (proc string)
-  (and x-symbol-mode x-symbol-language
-       (setq string
-             (save-excursion
-               (let ((language x-symbol-language)
-                     (coding x-symbol-coding)
-                     (selective selective-display))
-                 (set-buffer (get-buffer-create "x-symbol comint"))
-                 (erase-buffer)
-                 (insert string)
-                 (setq x-symbol-language language)
-                 (x-symbol-encode-all nil coding))
-               (prog1 (buffer-substring)
-                 (kill-buffer (current-buffer))))))
-  (funcall x-symbol-orig-compint-input-sender proc string))
 
 
 
+(defun proof-x-symbol-mode-all-buffers (enable);;;DvO
+  (if enable
+      (add-hook 'proof-shell-insert-hook
+		'proof-x-symbol-encode-shell-input)
+      (remove-hook 'proof-shell-insert-hook
+		   'proof-x-symbol-encode-shell-input)
+  )
+  (remove-hook 'comint-output-filter-functions
+		   'x-symbol-comint-output-filter)
+  (save-excursion
+    (and proof-shell-buffer
+	 (set-buffer proof-shell-buffer)
+	 (proof-x-symbol-mode enable))
+    (and proof-goals-buffer
+	 (set-buffer proof-goals-buffer)
+	 (proof-x-symbol-mode enable))
+    (and proof-response-buffer
+	 (set-buffer proof-response-buffer)
+	 (proof-x-symbol-mode enable))))
 
 (provide 'proof-x-symbol)
 ;; End of proof-x-symbol.el
 
+;; FIXME da: shouldn't the next part be in x-symbol-isa.el ??
 
+;; name of minor isa mode
+(defvar x-symbol-isa-name "Isabelle Symbols")
+
+(defvar proof-general-isabelle-modes '(thy-mode isa-proofscript-mode 
+		proof-response-mode isa-shell-mode isa-pbp-mode isasym-mode))
+(defvar isa-modes '(isa-thy-mode isa-mode proofstate-mode))
+;; major modes that  should invoke minor isa mode
+(defvar x-symbol-isa-modes (cons 'shell-mode (cons 'isasym-mode (append isa-modes proof-general-isabelle-modes))))
+
+(x-symbol-register-language 'isa 'x-symbol-isa x-symbol-isa-modes)
+;; install auto-invocation
+(push (list x-symbol-isa-modes t ''isa) x-symbol-auto-mode-alist)
+
+(put 'isasym-mode 'font-lock-defaults '(isasym-font-lock-keywords))
+(defvar isasym-font-lock-keywords
+  '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face))))
+; end added part ;;DvO
+
+
+(provide 'proof-x-symbol)
+;; End of proof-x-symbol.el
