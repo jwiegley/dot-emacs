@@ -136,18 +136,17 @@
  (list
   (cons (proof-ids-to-regexp '("Proof manager status" 
 			       "proof" "Incomplete"
-			       "Initial goal proved."
+			       "Initial goal proved"
 			       "Initial goal"
-			       "There are currently no proofs."
-			       "OK.."))
+			       "There are currently no proofs"
+			       "OK"))
 	'font-lock-keyword-face)
   (cons (regexp-quote "------------------------------------")
 	'font-lock-comment-face)
-  (cons (proof-ids-to-regexp '(": GoalstackPure.goalstack"
-			       ": GoalstackPure.proofs"
-			       "val it ="))
-	'proof-boring-face))
-
+  (cons ": GoalstackPure.goalstack" 'proof-boring-face)
+  (cons ": GoalstackPure.proofs"    'proof-boring-face)
+  (cons ": Thm.thm"		    'proof-boring-face)
+  (cons "val it ="		    'proof-boring-face))
  
  ;; End of easy config.
  )
