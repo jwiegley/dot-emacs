@@ -12,9 +12,10 @@ Generic problems
 ================
 
 * Highlighting of locked (blue) and queue (red) regions in FSF Emacs
-may be unreliable in some cases.  Cause unknown.  If you observe
-this, please submit a bug report with details of your system.  
-Workaround: switch to using XEmacs.
+may be unreliable (disappear) in some cases.  Cause unknown.  If you
+observe this, please submit a bug report with details of your system
+and any other information you think may be relevant.  Workaround:
+switch to using XEmacs.
 
 * Ordinary undo in script buffer can edit the "uneditable region"
 in XEmacs.  This doesn't happen in FSFmacs.  Test case:
