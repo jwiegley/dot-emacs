@@ -476,34 +476,15 @@ This is specific to coq-mode."
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [(control ?h)] 'coq-PrintHint)
-(define-key coq-keymap [(control f3)] 'coq-three-b)
+;; da: I've moved this three buffer layout into the main code now,
+;; making it default for three bufer mode.  The function 
+;; `proof-layout-windows' lays out according to current display
+;; mode: you can use this (C-c C-l) to do what binding below did.
+;;(define-key coq-keymap [(control f3)] 'coq-three-b)
 
 ; This is arguable, but completion with a three key shortcut is bad, 
 ; and the feault meta-/ is bad on some keyboards (especially french ones)
 (define-key global-map [(control backspace)] 'expand-abbrev)
-
-
-
-(defun three-b (b1 b2 b3)
-       "Select three buffers.
-     Put them into three windows, selecting the last one."
-         (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
-         (delete-other-windows)
-         (split-window-horizontally)
-         (switch-to-buffer b1)
-         (other-window 1)
-         (split-window-vertically)
-         (switch-to-buffer b2)
-         (other-window 1)
-         (switch-to-buffer b3)
-	 (other-window 1)
-)
-
-(defun coq-three-b ()
-  (interactive)
-  (three-b (buffer-name (first (buffer-list)))
-	   "*coq-response*" "*coq-goals*")
-)
 
 
 
@@ -841,15 +822,15 @@ This is specific to coq-mode."
   "Whether to automatically compile vos and track dependencies."
   :type 'boolean
   :eval (if coq-auto-compile-vos
-	    (setq proof-shell-inform-file-processed-cmd 
-		  coq-proof-shell-inform-file-processed-cmd
-		  proof-shell-process-file
-		  coq-proof-shell-process-file
-		  proof-shell-inform-file-retracted-cmd
-		  coq-proof-shell-inform-file-retracted-cmd)
-	  (setq proof-shell-inform-file-processed-cmd nil
-		proof-shell-process-file nil
-		proof-shell-inform-file-retracted-cmd nil)))
+            (setq proof-shell-inform-file-processed-cmd 
+                  coq-proof-shell-inform-file-processed-cmd
+                  proof-shell-process-file
+                  coq-proof-shell-process-file
+                  proof-shell-inform-file-retracted-cmd
+                  coq-proof-shell-inform-file-retracted-cmd)
+          (setq proof-shell-inform-file-processed-cmd nil
+                proof-shell-process-file nil
+                proof-shell-inform-file-retracted-cmd nil)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
