@@ -62,8 +62,10 @@ Isabelle.  It includes these features (amongst others):
 
 Script management is the main feature.  
 
-See http://www.dcs.ed.ac.uk/proofgen/ProofGeneral/ProofGeneral.html
-for the user manual which contains full details.
+
+The user manual contains full details, and is available on-line at: 
+http://www.dcs.ed.ac.uk/~proofgen/ProofGeneral/doc/ProofGeneral_toc.html
+
 
 The rest of this announcement contains notes addressed to different
 user communities: LEGO, Coq, and Isabelle; users of other proof
