@@ -280,4 +280,10 @@ If there are two spans overlapping then this won't work."
        (overlay-buffer span)
        (buffer-live-p (overlay-buffer span))))
 
+(defun span-raise (span)
+  "Set priority of span to make it appear above other spans.
+FIXME: new hack added nov 99 because of disappearing overlays.
+Behaviour is still worse than before."
+  (set-span-property span 'priority 100))
+
 (provide 'span-overlay)

@@ -97,4 +97,8 @@ A span is before PT if it covers the character before PT."
        (extent-live-p span)
        (buffer-live-p (extent-object span))))
 
+(defun span-raise (span)
+  "Function added for FSF Emacs compatibility.  Do nothing here."
+  nil)
+
 (provide 'span-extent)

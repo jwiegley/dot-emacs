@@ -154,7 +154,10 @@ Allocate spans if need be.  The spans are detached from the
 buffer, so the regions are made empty by this function."
   ;; Initialise queue span, remove it from buffer.
   (unless proof-queue-span
-      (setq proof-queue-span (make-span 1 1)))
+      (setq proof-queue-span (make-span 1 1))
+      ;; FIXME: span-raise is an FSF hack to make locked span appear.
+      ;; overlays still don't work as well as they did/should.
+      (span-raise proof-queue-span))
   (set-span-property proof-queue-span 'start-closed t)
   (set-span-property proof-queue-span 'end-open t)
   (proof-span-read-only proof-queue-span)
@@ -162,7 +165,8 @@ buffer, so the regions are made empty by this function."
   (detach-span proof-queue-span)
   ;; Initialise locked span, remove it from buffer
   (unless proof-locked-span
-      (setq proof-locked-span (make-span 1 1)))
+      (setq proof-locked-span (make-span 1 1))
+      (span-raise proof-locked-span))
   (set-span-property proof-locked-span 'start-closed t)
   (set-span-property proof-locked-span 'end-open t)
   (proof-span-read-only proof-locked-span)
@@ -1652,7 +1656,8 @@ command."
 ;; User-level functions.
 ;;
 ;; FIXME: put these in a new file, proof-user, which defines
-;; user-level scripting mode.
+;; user-level scripting mode.  Or put stuff above in a new
+;; file, proof-core.el for low-level scripting functions.
 ;;
 
 
