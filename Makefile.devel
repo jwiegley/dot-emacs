@@ -83,6 +83,11 @@ DEVELOPERS=\
 
 # PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
 # line in tag target below, which edits $(DOWNLOADHTML)
+# The prereltag.txt is kept as a record in the distrib area
+# of the current pre-release version (currently not used explicitly 
+# anywhere for web pages and the like).
+# FIXME: could include tag in web pages, and link using -latest
+# sym links.  Would avoid needing to edit html below.
 PRERELEASE_PREFIX=3\.5pre
 PRERELEASE_TAG=3.5pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
