@@ -267,7 +267,7 @@ See `x-symbol-language-access-alist' for details."
     (dotequal "doteq")
     (wrong "wrong")
     (equivalence "<->")
-    (notequal "noteq")
+    (notequal "<>")
     (propersqsubset "sqsubset")
     (reflexsqsubset "sqsubseteq")
     (properprec "prec")
