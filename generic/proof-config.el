@@ -721,13 +721,13 @@ If a function, it should return the command string to insert."
     (next	"Next Step"           "Process the next proof command" t)
     (use	"Use Buffer"  	      "Process whole buffer" t)
     (goto	"Goto Point"	      "Process or undo to the cursor position" t)
-    (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
     (qed	"Finish Proof"        "Close/save proved theorem" t
 				      proof-save-command)
     (lockedend  "Goto Locked End"     nil t)
     (find	"Find Theorems"	      "Find theorems" t proof-find-theorems-command)
     (command    "Issue Command"	      "Issue a non-scripting command" t)
     (interrupt  "Interrupt Prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
+    (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
     (visibility "Toggle Visibility"   nil t)
     (info	nil		      "Show online proof assistant information" t
 				      proof-info-command)
@@ -1356,8 +1356,10 @@ for scripting commands), unless activated-interactively is set."
   :type 'number
   :group 'proof-script)
 
-(defcustom proof-indent-pad-eol t
-  "*Whether to add spaces to end of lines."
+(defcustom proof-indent-pad-eol nil
+  "*Whether to add spaces to end of lines.
+If enabled, spaces are added to the end of lines in an attempt to improve
+the appearance of locked regions in XEmacs."
   :type 'boolean
   :group 'proof-script)
 
