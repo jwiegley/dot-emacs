@@ -25,9 +25,20 @@ A proof-toolbar:  Add support for entering a goal and saving a theorem
   up and down functions).  Add toolbar to pbp mode too.  
   (1hr, da)
 
+A proof-toolbar: Down button in toolbar gives error "proof process
+  busy" if pressed when the process is busy --- but it should be
+  allowed!  (10 mins,da)
+
+A proof-toolbar: make icons with reduced colour for 256 colour modes.
+  (20 mins, da)
+
+B proof-toolbar: add more buttons for moving to top and bottom of
+  whole file.  Use "standard" CD-player type icons.
+  (1hr, da)
+
 X Improve toolbar icons.  Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
-  xcf files under CVS rather than xpm files.
+  xcf files under CVS rather than xpm files.  
   (5h or more to design nice ones)
 
 X Add support for putting a locked region in processed files.

@@ -16,8 +16,8 @@ get a patch from Sun, or use Linux.
 
 
 
-Development  (move these above once decided not to fix):
-========================================================
+Development  (move these above if decided not to fix):
+======================================================
 
 XEmacs sessions seem to grow excessively in terms of memory
 allocation. Maybe some of the spans aren't removed properly.
