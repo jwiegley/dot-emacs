@@ -1427,6 +1427,7 @@ If IGNORE-PROOF-PROCESS-P is set, no commands will be added to the queue.
 Afterwards, move forward to near the next command afterwards, unless
 DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
 a space or newline will be inserted automatically."
+  (interactive)
   (unless ignore-proof-process-p
     (proof-activate-scripting nil 'advancing))
   (or ignore-proof-process-p
@@ -1910,7 +1911,7 @@ This command risks spoiling synchronization if the test
 `proof-state-preserving-p' is not configured, or if it is
 only an approximate test."
   (interactive
-   (read-string "Command: " nil 'proof-minibuffer-history))
+   (list (read-string "Command: " nil 'proof-minibuffer-history)))
   (if (and proof-state-preserving-p
 	   (not (funcall proof-state-preserving-p cmd)))
       (error "Command is not state preserving, I won't execute it!"))
@@ -2372,9 +2373,9 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 ;; FIXME: not implemented yet 
 ;; (define-key map [(meta p)]		  'proof-previous-matching-command)
 ;; (define-key map [(meta n)]		  'proof-next-matching-command)
-;; FIXME: deprecated bindings, will be removed soon!
-(define-key map [(control c) return] 'proof-goto-point)
-(define-key map [(control c) ?u] 'proof-retract-until-point-interactive)
+;; Deprecated bindings
+;(define-key map [(control c) return] 'proof-assert-next-command)
+;(define-key map [(control c) ?u] 'proof-retract-until-point-interactive)
 ;; Add keys bound in all PG buffers.
 (proof-define-keys map proof-universal-keys))
 
