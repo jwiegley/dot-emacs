@@ -27,6 +27,7 @@ usage()
   echo
   echo "  Options are:"
   echo "    -I BOOL      use Isabelle/Isar instead of classic Isabelle (default $ISAR)"
+  echo "    -P BOOL      actually start Proof General (default true), otherwise plain tty session"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -m MODE      add print mode for output"
@@ -55,6 +56,7 @@ fail()
 # options
 
 ISABELLE_OPTIONS=""
+START_PG="true"
 LOGIC="$ISABELLE_LOGIC"
 PROGNAME="xemacs"
 INITFILE="true"
@@ -65,11 +67,14 @@ XSYMBOLSETUP=true
 getoptions()
 {
   OPTIND=1
-  while getopts "I:X:l:m:p:u:w:x:" OPT
+  while getopts "I:P:X:l:m:p:u:w:x:" OPT
   do
     case "$OPT" in
       I)
         ISAR="$OPTARG"
+        ;;
+      P)
+        START_PG="$OPTARG"
         ;;
       X)
         XSYMBOLSETUP="$OPTARG"
@@ -132,49 +137,58 @@ fi
 
 ## main
 
-ARGS=""
+if [ "$START_PG" = false ]; then
 
-[ "$INITFILE" = false ] && ARGS="$ARGS -q"
+  [ "$ISAR" = true ] && ISABELLE_OPTIONS="$ISABELLE_OPTIONS -I"
+  exec "$ISABELLE" $ISABELLE_OPTIONS "$LOGIC"
 
-if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
-  ARGS="$ARGS -T Isabelle"
-  [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOLSETUP" = true ] && "$ISATOOL" installfonts -x
 else
-  ARGS="$ARGS -nw"
-  XSYMBOL=false
+
+  ARGS=""
+
+  [ "$INITFILE" = false ] && ARGS="$ARGS -q"
+  
+  if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
+    ARGS="$ARGS -T Isabelle"
+    [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOLSETUP" = true ] && "$ISATOOL" installfonts -x
+  else
+    ARGS="$ARGS -nw"
+    XSYMBOL=false
+  fi
+  
+  [ ! "$XSYMBOLSETUP" = true ] && XSYMBOL_HOME=""
+  
+  
+  ARGS="$ARGS -l '$SUPER/isa/interface-setup.el'"
+  
+  if [ -f "$ISABELLE_HOME_USER/etc/isar-keywords.el" ]; then
+    ARGS="$ARGS -l '$ISABELLE_HOME_USER/etc/isar-keywords.el'"
+  elif [ -f "$ISABELLE_HOME/etc/isar-keywords.el" ]; then
+    ARGS="$ARGS -l '$ISABELLE_HOME/etc/isar-keywords.el'"
+  fi
+  
+  for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
+      "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
+  do
+    [ -f "$FILE" ] && ARGS="$ARGS -l '$FILE'"
+  done
+  
+  case "$LOGIC" in
+    /*)
+      ;;
+    */*)
+      LOGIC="$PWD/$LOGIC"
+      ;;
+  esac
+  
+  PROOFGENERAL_HOME="$SUPER"
+  PROOFGENERAL_ASSISTANTS="$KIND"
+  PROOFGENERAL_LOGIC="$LOGIC"
+  PROOFGENERAL_XSYMBOL="$XSYMBOL"
+  
+  export PROOFGENERAL_HOME PROOFGENERAL_ASSISTANTS PROOFGENERAL_LOGIC PROOFGENERAL_XSYMBOL
+  export ISABELLE_OPTIONS
+  
+  eval exec "$PROGNAME" "$ARGS" "$FILES"
+
 fi
-
-[ ! "$XSYMBOLSETUP" = true ] && XSYMBOL_HOME=""
-
-
-ARGS="$ARGS -l '$SUPER/isa/interface-setup.el'"
-
-if [ -f "$ISABELLE_HOME_USER/etc/isar-keywords.el" ]; then
-  ARGS="$ARGS -l '$ISABELLE_HOME_USER/etc/isar-keywords.el'"
-elif [ -f "$ISABELLE_HOME/etc/isar-keywords.el" ]; then
-  ARGS="$ARGS -l '$ISABELLE_HOME/etc/isar-keywords.el'"
-fi
-
-for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
-    "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
-do
-  [ -f "$FILE" ] && ARGS="$ARGS -l '$FILE'"
-done
-
-case "$LOGIC" in
-  /*)
-    ;;
-  */*)
-    LOGIC="$PWD/$LOGIC"
-    ;;
-esac
-
-PROOFGENERAL_HOME="$SUPER"
-PROOFGENERAL_ASSISTANTS="$KIND"
-PROOFGENERAL_LOGIC="$LOGIC"
-PROOFGENERAL_XSYMBOL="$XSYMBOL"
-
-export PROOFGENERAL_HOME PROOFGENERAL_ASSISTANTS PROOFGENERAL_LOGIC PROOFGENERAL_XSYMBOL
-export ISABELLE_OPTIONS
-
-eval exec "$PROGNAME" "$ARGS" "$FILES"
