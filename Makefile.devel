@@ -476,9 +476,8 @@ rpmrelease: rpm
 ## releaseclean:
 ##     Clean up temporary directories after building dist/release.
 ##
-DISTTEMPFILES
 releaseclean:
-	rm -rf $(DISTBUILDIR) $(RPMTOPDIR) $(DISTTEMPFILES)
+	rm -rf $(DISTBUILDIR) $(RPMTOPDIR)
 
 ############################################################
 ##
