@@ -44,13 +44,6 @@
 ;;; 'isabelle-config  -  Configuration of Isabelle Proof General
 ;;;			 (constants, but may be nice to tweak)
 
-(defcustom isabelle-indent 2
-  "*Indentation degree in proof scripts.
-Somewhat irrelevant for Isabelle because normal proof scripts have
-no regular or easily discernable structure."
-  :type 'number
-  :group 'isabelle)
-
 
 ;;;
 ;;; ======== Configuration of generic modes ========
@@ -102,8 +95,6 @@ and script mode."
 	 (list isa-goal-with-hole-regexp 2)
 	 (list isa-save-with-hole-regexp 2
 	       'backward isa-goal-command-regexp))
-   ;;
-   proof-indent-commands-regexp	(proof-ids-to-regexp isa-keywords)
    
    ;; proof engine commands
    proof-showproof-command	"pr();"
@@ -123,8 +114,6 @@ and script mode."
    proof-count-undos-fn		'isa-count-undos
    proof-find-and-forget-fn	'isa-find-and-forget
    proof-state-preserving-p	'isa-state-preserving-p
-   proof-parse-indent		'isa-parse-indent
-   proof-stack-to-indent	'isa-stack-to-indent
 
    ;; close goal..save regions eagerly
    proof-completed-proof-behaviour 'closeany
@@ -542,30 +531,6 @@ you will be asked to retract the file or process the remainder of it."
 (defun isa-state-preserving-p (cmd)
   "Non-nil if command preserves the proofstate."
   (not (proof-string-match isa-not-undoable-commands-regexp cmd)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Indentation                                                    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;
-;; Sadly this is pretty pointless for Isabelle.
-;; Proof scripts in Isabelle don't really have an easily-observed
-;; block structure  -- a case split can be done by any obscure tactic,
-;; and then solved in a number of steps that bears no relation to the
-;; number of cases!  And the end is certainly not marked in anyway.
-;; 
-(defun isa-stack-to-indent (stack)
-    (cond
-   ((null stack) 0)
-   ((null (car (car stack)))
-    (nth 1 (car stack)))
-   (t (save-excursion
-	(goto-char (nth 1 (car stack)))
-	(+ isabelle-indent (current-column))))))
-
-(defun isa-parse-indent (c stack)
-  "Indentation function for Isabelle.  Does nothing."
-  stack)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -37,11 +37,6 @@
   :type 'file
   :group 'plastic)
 
-(defcustom plastic-indent 2
-  "*Indentation"
-  :type 'number
-  :group 'plastic)
-
 (defcustom plastic-test-all-name "need_a_global_lib"
   "*The name of the LEGO module which inherits all other modules of the
   library."
@@ -310,25 +305,6 @@ Given is the first SPAN which needs to be undone."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Plastic Indentation                                               ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun plastic-stack-to-indent (stack)
-  (cond
-   ((null stack) 0)
-   ((null (car (car stack)))
-    (nth 1 (car stack)))
-   (t (save-excursion
-	(goto-char (nth 1 (car stack)))
-	(+ plastic-indent (current-column))))))
-
-(defun plastic-parse-indent (c stack)
-  (cond
-   ((eq c ?\{) (cons (list c (point)) stack))
-   ((eq c ?\}) (cdr stack))
-   (t stack)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Plastic shell startup and exit hooks                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -404,16 +380,15 @@ Given is the first SPAN which needs to be undone."
 	proof-count-undos-fn 'plastic-count-undos
 	proof-find-and-forget-fn 'plastic-find-and-forget
         proof-goal-hyp-fn 'plastic-goal-hyp
-	proof-state-preserving-p 'plastic-state-preserving-p
-	proof-parse-indent 'plastic-parse-indent
-	proof-stack-to-indent 'plastic-stack-to-indent)
+	proof-state-preserving-p 'plastic-state-preserving-p)
 
   (setq	proof-save-command-regexp plastic-save-command-regexp
 	proof-goal-command-regexp plastic-goal-command-regexp
 	proof-save-with-hole-regexp plastic-save-with-hole-regexp
 	proof-goal-with-hole-regexp plastic-goal-with-hole-regexp
 	proof-kill-goal-command plastic-kill-goal-command
-	proof-indent-commands-regexp (proof-ids-to-regexp plastic-commands))
+	proof-indent-any-regexp
+	(proof-regexp-alt (proof-ids-to-regexp plastic-commands) "\\s(" "\\s)"))
 
   (plastic-init-syntax-table)
 
