@@ -12,6 +12,8 @@
 ;; within proofs.  Code rewritten by David Aspinall.
 ;; 
 
+(require 'span)
+
 ;; Variables
 
 (defvar proof-thm-names-of-files nil
@@ -117,23 +119,23 @@ proof-last-theorem-dependencies is set."
   "Make a portion of a context-sensitive menu showing proof dependencies." 
   (list
    "-------------"
-   (proof-dep-make-submenu "Local dependency..."
+   (proof-dep-make-submenu "Local Dependency..."
 			   (lambda (namespan) (car namespan))
 			   'proof-goto-dependency
 			   (span-property span 'dependencies-within-file))
-   (proof-make-highlight-depts-menu "Highlight dependencies"
+   (proof-make-highlight-depts-menu "Highlight Dependencies"
 				    'proof-highlight-depcs
 				    span 'dependencies-within-file)
-   (proof-dep-make-submenu "Local dependents..."
+   (proof-dep-make-submenu "Local Dependents..."
 			   (lambda (namepos) (car namepos))
 			   'proof-goto-dependency
 			   (span-property span 'dependents))
-   (proof-make-highlight-depts-menu "Highlight dependents"
+   (proof-make-highlight-depts-menu "Highlight Dependents"
 				    'proof-highlight-depts
 				    span 'dependents)
    ["Unhighlight all" proof-dep-unhighlight t]
    "-------------"
-   (proof-dep-make-submenu "All dependencies..." 
+   (proof-dep-make-submenu "All Dependencies..." 
 			   (lambda (name) (car name))
 			   'proof-show-dependency 
 			   (mapcar 'list (span-property span 'dependencies)))))
