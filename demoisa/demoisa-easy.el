@@ -15,8 +15,12 @@
 ;; using alternative architectures. It is still easy to augment 
 ;; with additional elisp functions and other settings.
 ;;
+;; The most important setting is `proof-shell-annotated-prompt-regexp' 
+;; used to recognize prompt texts from the prover.
+;;
 ;; See demoisa.el and the Adapting Proof General manual for more
-;; documentation.
+;; documentation.  Please do read the documentation of the variables
+;; to understand how things work.
 ;;
 ;; To test this file you must rename it demoisa.el.
 ;;
@@ -47,7 +51,7 @@
  proof-shell-end-goals-regexp    "val it"
  proof-shell-quit-cmd            "quit();"
  proof-assistant-home-page       "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
- proof-shell-annotated-prompt-regexp "^\\(val it = () : unit\n\\)?ML>? "
+ proof-shell-annotated-prompt-regexp "^\\(val it = () : unit\n\\)?\\(ML\\)?> "
  proof-shell-error-regexp        "\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
  proof-shell-init-cmd            "fun pg_repeat f 0 = () | pg_repeat f n = (f(); pg_repeat f (n-1));"
  proof-shell-proof-completed-regexp "^No subgoals!"
