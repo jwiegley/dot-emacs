@@ -16,6 +16,7 @@
 ;; XEmacs advice on removing obsolete function calls.
 ;;
 
+(require 'proof-site)			; for architecture flags
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
