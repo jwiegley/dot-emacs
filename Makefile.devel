@@ -86,10 +86,10 @@ CVSNAME = ProofGeneral
 
 # Remote commands to use CVS in server mode and install files.
 # With these settings the build can be done remotely.
-# MACHINE=hope
 # CVSROOT = :ext:$(USER)@$(MACHINE).dcs.ed.ac.uk:/home/proofgen/src
+# CVSROOT = /home/proofgen/src
 # CVS_RSH=ssh
-CVSROOT = /home/proofgen/src
+CVSROOT = :ext:da@scar.dcs.ed.ac.uk:/home/proofgen/src
 
 # Emacs
 EMACS=xemacs
