@@ -22,12 +22,17 @@
   :group 'processes)
 
 
-;; Master table of supported assistants.
-
+;; This customization group gathers together
+;; the internals of Proof General which control
+;; configuration to different proof assistants.
+;; This is for development purposes rather than
+;; user-level customization, so this group does
+;; not belong to 'proof (or any other group).
 (defgroup proof-internal nil
-  "Customization of Proof General internals."
-  :group 'proof)
+  "Customization of Proof General internals.")
 
+
+;; Master table of supported assistants.
 (defcustom proof-internal-assistant-table
   '((isa	"Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
