@@ -1,5 +1,7 @@
 ProofGeneral.log
 ProofGeneral.dvi
+ProofGeneral.ps
+ProofGeneral.kys
 ProofGeneral.aux
 ProofGeneral.cp
 ProofGeneral.fn
@@ -26,3 +28,6 @@ NewDoc.info
 NewDoc.cps
 NewDoc.fns
 NewDoc.vrs
+NewDoc.ps
+NewDoc.kys
+
