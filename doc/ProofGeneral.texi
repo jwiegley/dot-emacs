@@ -3612,10 +3612,9 @@ General is loaded.  To load it manually, type
   M-x load-library RET proof RET
 @end lisp
 
-Notice that the customization mechanism is only available in Emacs 20.x
-and XEmacs.  If you cannot use customize, simply add a line like this:
+If you do not want to use customize, simply add a line like this:
 @lisp
-  (setq isabelle-prog-name "/usr/bin/isabelle FOL")
+  (setq coq-prog-name "/usr/bin/coqtop -emacs")
 @end lisp
 to your @file{.emacs} file.
 
