@@ -204,6 +204,10 @@ B Make completion more generic.  For Isabelle we can build a
   completion table by querying the process, which is better than
   messing with tags.
 
+X Write a Makefile for the distribution.  It can do things like
+  install the info file properly.  The work is at the moment done
+  in the RPM spec file instead.
+
 
 * Proof-by-Pointing
 ===================
