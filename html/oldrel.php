@@ -27,6 +27,10 @@ Isabelle2002.
       <?php download_link("ProofGeneral-3.2-1.noarch.rpm") ?>
  </li>
 </ul>
+<p>
+Check the <?php fileshow("ProofGeneral-3.3/CHANGES","CHANGES"); ?> file
+for a summary of changes since version 3.2.
+</p>
 
 
 <h2>Proof General Version 3.2, released 2nd October 2000</h2>
@@ -52,7 +56,6 @@ Isabelle99-1.
 	"source RPM") ?>.
  </li>
 </ul>
-
 <p>
 Check the <?php fileshow("ProofGeneral-3.2/CHANGES","CHANGES"); ?> file
 for a summary of changes since version 3.1.
@@ -131,10 +134,6 @@ some pre-release versions of Isabelle version 99.
       <?php download_link("ProofGeneral-2.1-1.noarch.rpm","here") ?>.
  </li>
 </ul>
-<p>
-Check the <?php fileshow("ProofGeneral-2.1/CHANGES","CHANGES"); ?> file
-for a summary of changes since version 2.0.
-</p>
 
 
 <h2>Proof General Version 2.0, released 16th December 1998</h2>
