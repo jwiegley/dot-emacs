@@ -647,10 +647,13 @@ last use time, to discourage saving these into the users database."
 ;;
 ;; Tags table building
 ;;
-;; New in 3.3... or perhaps later.  
+;; New in 3.3... or perhaps later!
 ;;
 ;; FIXME: incomplete.  Add function to build tags table from
 ;; 
+
+
+
 
 
 
@@ -911,6 +914,39 @@ If NUM is negative, move upwards.  Return new span."
 
 
   
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Generic adjustmenth of prover's pretty-printing width
+;; (adapted from Lego's mode, was also used in Isar and Plastic)
+;; 
+;; FIXME: complete this.
+
+;(defvar pg-prover-current-line-width nil
+;  "Cache value for pg-adjust-line-width to avoid repeatedly changing width.")
+
+;(defun pg-adjust-line-width (buffer)
+;  "Adjust the prover's line width to match that of BUFFER."
+;  (proof-if-setting-configured proof-shell-adjust-line-width-cmd)
+;  proof-shell-(let* ((win    (get-buffer-window buffer))
+;	 (curwid (if win (window-width win))))
+;    (if (and curwid
+;	     (not (equal curwid pg-prover-current-line-width)))
+;	(progn
+;	  ;; Update the prover's output width
+;	  (proof-shell-invisible-command
+	   
+	
+;with-current-buffer buffer
+;    (let ((current-width
+;	   (window-width (get-buffer-window proof-goals-buffer)))
+;      (if (equal current-width lego-shell-current-line-width) ()
+;	     ; else
+;	     (setq lego-shell-current-line-width current-width)
+;	     (set-buffer proof-shell-buffer)
+;	     (insert (format lego-pretty-set-width (- current-width 1)))
+;	     )))))
+
 
 
 
