@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.38  1998/04/27 16:25:33  tms
+;; removed explicit reference to a binary in ctm's home directory
+;;
 ;; Revision 1.37  1998/03/25 17:30:41  tms
 ;; added support for etags at generic proof level
 ;;
@@ -161,7 +164,7 @@
 
 ;; ----- lego-shell configuration options
 
-(defvar lego-prog-name "/home/ctm/lego/bin/legoML"
+(defvar lego-prog-name "lego"
   "*Name of program to run as lego.")
 
 (defvar lego-shell-working-dir ""
@@ -189,12 +192,11 @@
 (defvar lego-forget-id-command "Forget ")
 
 (defvar lego-undoable-commands-regexp
-  (ids-to-regexp '("\\`Dnf\\'" "Refine" "Intros" "intros" "Next" "Qrepl" "Claim"
-		   "For" "Repeat" "Succeed" "Fail" "Try" "Assumption" "UTac"
-		   "Qnify" "AndE" "AndI" "exE" "exI" "orIL" "orIR" "orE"
-		   "ImpI" "impE" "notI" "notE" "allI" "allE" "Expand"
-		   "Induction" "Immed"))
-  "Undoable list")
+  (ids-to-regexp '("Dnf" "Refine" "Intros" "intros" "Next" "Normal"
+  "Qrepl" "Claim" "For" "Repeat" "Succeed" "Fail" "Try" "Assumption"
+  "UTac" "Qnify" "AndE" "AndI" "exE" "exI" "orIL" "orIR" "orE" "ImpI"
+  "impE" "notI" "notE" "allI" "allE" "Expand" "Induction" "Immed"
+  "Invert")) "Undoable list")
 
 ;; ----- outline
 
