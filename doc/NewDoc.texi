@@ -857,7 +857,7 @@ Edinburgh.  Visit this page for the latest news!
 
 @menu
 * Obtaining Proof General::     
-* Installing Proof General from .tar.gz::  
+* Installing Proof General from tarball::  
 * Installing Proof General from RPM package::  
 * Notes for syssies::           
 @end menu
@@ -886,8 +886,8 @@ code for LEGO, Coq, and Isabelle, installation instructions (reproduced
 below) and this documentation.
 
 @c was Installing Proof General from @file{.tar.gz}
-@node Installing Proof General from .tar.gz
-@section Installing Proof General from @file{.tar.gz}
+@node Installing Proof General from tarball
+@section Installing Proof General from tarball
 
 Copy the distribution to some directory @var{mydir}.
 Unpack it there. For example:
@@ -901,8 +901,8 @@ unpacks to a numeric version number.
 
 Proof General will now be in some subdirectory of @var{mydir}.  The name
 of the subdirectory will depend on the version number of Proof General.
-For example, it might be ProofGeneral-2.0.  It's convenient to link it
-to a fixed name:
+For example, it might be @file{ProofGeneral-2.0}.  It's convenient to
+link it to a fixed name:
 @example
 # ln -sf ProofGeneral-2.0 ProofGeneral
 @end example
@@ -915,7 +915,7 @@ This command will load @file{proof-site} which sets the Emacs load path
 for Proof General and add auto-loads and modes for the assistants below:
 
 @multitable @columnfractions .3 .3 .4
-@item       Prover @tab Extensions @tab Modes
+@item       @b{Prover} @tab @b{Extensions} @tab @b{Modes}
 @item       Coq    @tab @file{.v}  @tab @code{coq-mode}
 @item       LEGO   @tab @file{.l}  @tab @code{lego-mode}
 @item       Isabelle @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
@@ -929,7 +929,7 @@ If not, you will need to set the appropriate variables.  The easiest way
 to do this (and most other customization of Proof General) is via the
 Customize mechanism, see the menu item:
 @example
-  Proof-General -> Customize -> <Name of Assistant> -> Prog Name
+  Proof-General -> Customize -> @var{Name of Assistant} -> Prog Name
 @end example
 The Proof-General menu is available from script buffers after 
 Proof General is loaded.  To load it manually, type 
