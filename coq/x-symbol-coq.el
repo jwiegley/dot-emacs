@@ -33,7 +33,6 @@ See `x-symbol-header-groups-alist'."
 
 (defcustom x-symbol-coq-electric-ignore 
   nil
-  ;;"[:'][A-Za-z]\\|<=\\|\\[\\[\\|\\]\\]\\|~="
   "*Additional Coq version of `x-symbol-electric-ignore'."
   :group 'x-symbol-coq
   :group 'x-symbol-input-control
@@ -53,16 +52,17 @@ See `x-symbol-header-groups-alist'."
   ;; '(x-symbol-make-grammar ...)
   (if (fboundp 'x-symbol-make-grammar) ;; x-symbol >=4.3 versions
       (x-symbol-make-grammar
-       :encode-spec '(((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")) .
-                    ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")))
+       :encode-spec '(((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*-%!{}:|]")) .
+                    ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*-%!{}:|]")))
        :decode-spec nil
-       :decode-regexp "\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
-       :token-list #'x-symbol-coq-default-token-list)))
+       :decode-regexp "\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:|-]+\\)"
+       :token-list #'x-symbol-coq-default-token-list
+		 :input-spec nil)))
 
 (defvar x-symbol-coq-input-token-grammar
-  '("\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
-     ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
-     (id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
+  '("\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*-%!{}:|]+\\)"
+     ((id . "[A-Za-z_0-9]") (op . "[-<>!+*/|&]"))
+     (id . "[A-Za-z_0-9]") (op . "[-<>!+*/|&]"))
   "Grammar of input method Token for language `coq'.")
 
 (defun x-symbol-coq-default-token-list (tokens)
@@ -73,7 +73,7 @@ See `x-symbol-header-groups-alist'."
 	    ;; CW: where are the shapes `id' and `op' used?
 	    ((string-match "\\`[A-Za-z_][A-Za-z_0-9]+\\'" x)
 	     'id)
-	    ((string-match "\\`[<>!+-*/|&]+\\'" x) 
+	    ((string-match "\\`[-<>!+*/|&]+\\'" x) 
 	     'op))))
    tokens))
 
@@ -109,92 +109,11 @@ See `x-symbol-header-groups-alist'."
 ;;;===========================================================================
 ;;  super- and subscripts
 ;;;===========================================================================
+;not implemeted yet
 
-;; one char: \<^sup>, \<^sub>, \<^isub>, and \<^isup>
-;; spanning: \<^bsup>...\<^esup> and \<^bsub>..\<^esub>
-
-(defcustom x-symbol-coq-subscript-matcher 'x-symbol-coq-subscript-matcher
-  "Function matching super-/subscripts for language `coq'.
-See language access `x-symbol-LANG-subscript-matcher'."
-  :group 'x-symbol-coq
-  :type 'function)
-
-(defcustom x-symbol-coq-font-lock-regexp "\\\\<\\^[ib]?su[bp]>"
-  "Regexp matching the start tag of Coq super- and subscripts."
-  :group 'x-symbol-coq
-  :type 'regexp)
-
-(defcustom x-symbol-coq-font-lock-limit-regexp "\n\\|\\\\<\\^esu[bp]>"
-  "Regexp matching the end of line and the end tag of Coq
-spanning super- and subscripts."
-  :group 'x-symbol-coq
-  :type 'regexp)
-
-(defcustom x-symbol-coq-font-lock-contents-regexp "."
-  "*Regexp matching the spanning super- and subscript contents.
-This regexp should match the text between the opening and closing super-
-or subscript tag."
-  :group 'x-symbol-coq
-  :type 'regexp)
-
-(defcustom x-symbol-coq-single-char-regexp "\\\\\\\\?[A-Za-z0-9_']+\\|[^\\]"
-  "Return regexp matching \ident or c for some char c."
-  :group 'x-symbol-coq
-  :type 'regexp)
-
-
-(defun x-symbol-coq-subscript-matcher (limit)  
-  (block nil
-    (let (open-beg open-end close-end close-beg script-type)
-      (while (re-search-forward x-symbol-coq-font-lock-regexp limit t)
-        (setq open-beg (match-beginning 0)
-              open-end (match-end 0)
-              script-type (if (eq (char-after (- open-end 2)) ?b)
-                              'x-symbol-sub-face
-                           'x-symbol-sup-face))
-        (if (eq (char-after (- open-end 5)) ?b) ; if is spanning sup-/subscript
-            (when (re-search-forward x-symbol-coq-font-lock-limit-regexp
-                                     limit 'limit)
-              (setq close-beg (match-beginning 0)
-                    close-end (match-end 0))
-              (when
-                  (save-excursion
-                    (goto-char open-end)
-                    (re-search-forward x-symbol-coq-font-lock-contents-regexp
-                                       close-beg t))
-                (store-match-data (list open-beg close-end
-                                        open-beg open-end
-                                        open-end close-beg
-                                        close-beg close-end))
-                (return script-type))
-              (goto-char close-beg)) 
-          (when (re-search-forward x-symbol-coq-single-char-regexp
-                                   limit 'limit)
-            (setq close-end (match-end 0))
-            (store-match-data (list open-beg close-end
-                                    open-beg open-end
-                                    open-end close-end))
-            (return script-type))
-      )))))
-   
-(defun coq-match-subscript (limit)
-  (if (proof-ass x-symbol-enable)
-      (setq x-symbol-coq-subscript-type
-            (funcall x-symbol-coq-subscript-matcher limit))))
-
-;; these are used for Coq output only. x-symbol does its own
-;; setup of font-lock-keywords for the theory buffer
-;; (x-symbol-coq-font-lock-keywords does not belong to language
-;; access any more)
-(defvar x-symbol-coq-font-lock-keywords
-  '((coq-match-subscript
-     (1 x-symbol-invisible-face t)
-     (2 (progn x-symbol-coq-subscript-type) prepend)
-     (3 x-symbol-invisible-face t t)))
-  "Coq font-lock keywords for super- and subscripts.")
+(defvar x-symbol-coq-font-lock-keywords nil)
 
 (defvar x-symbol-coq-font-lock-allowed-faces t)
-
 
 ;;;===========================================================================
 ;;;  Charsym Info
@@ -263,6 +182,7 @@ See `x-symbol-language-access-alist' for details."
     (chi "chi")
     (psi "psi")
     (omega "omega")
+
     (notsign "~")
     (logicaland "/\\")
     (logicalor "\\/")
@@ -273,7 +193,7 @@ See `x-symbol-language-access-alist' for details."
     (ceilingright "rceil")
     (floorleft "lfloor")
     (floorright "rfloor")
-    (bardash "turnstile")
+    (bardash "|-")
     (bardashdbl "Turnstile")
     (semanticsleft "lbrakk")
     (semanticsright "rbrakk")
@@ -298,17 +218,18 @@ See `x-symbol-language-access-alist' for details."
     (reflexsqsubset "sqsubseteq")
     (properprec "prec")
     (reflexprec "preceq")
-    (propersucc "succ")
+;    (propersucc "succ")
     (approxequal "approx")
     (similar "sim")
     (simequal "simeq")
-    (lessequal "le")
+    (lessequal "<=")
     (coloncolon "Colon")
-    (arrowleft "leftarrow")
+;    (arrowleft "leftarrow")
+    (arrowleft "<-")
     (endash "midarrow")
 ;    (arrowright "rightarrow") ; only ->
     (arrowright "->")
-    (arrowdblleft "Leftarrow")
+;    (arrowdblleft "Leftarrow")
 ;   (nil "Midarrow")
 ;    (arrowdblright "Rightarrow") ; only => 
     (arrowdblright "=>")
@@ -378,7 +299,7 @@ See `x-symbol-language-access-alist' for details."
     (heart "heartsuit")
     (spade "spadesuit")
     (arrowboth "leftrightarrow")
-    (greaterequal "ge")
+    (greaterequal ">=")
     (proportional "propto")
     (partialdiff "partial")
     (ellipsis "dots")
@@ -512,7 +433,7 @@ See `x-symbol-language-access-alist' for details."
     nil   ;; x-symbol-coding
     'null ;; x-symbol-8bits	   [NEVER want it; null disables search]
     nil   ;; x-symbol-unique
-    t     ;; x-symbol-subscripts
+    nil     ;; x-symbol-subscripts
     nil)  ;; x-symbol-image
   "Variable used to document a language access.
 See documentation of `x-symbol-auto-style'."
@@ -533,10 +454,10 @@ variable `x-symbol-auto-coding-alist' for details."
      
 ;; from x-symbol-isa.el
 
-(setq proof-xsym-extra-modes '(coq-mode)
-      proof-xsym-activate-command
-      "print_mode := ([\"xsymbols\", \"symbols\"] @ ! print_mode);"
-      proof-xsym-deactivate-command
-      "print_mode := (! print_mode \\\\ [\"xsymbols\", \"symbols\"]);")
+;(setq proof-xsym-extra-modes '(coq-mode)
+;      proof-xsym-activate-command
+;      "print_mode := ([\"xsymbols\", \"symbols\"] @ ! print_mode);"
+;      proof-xsym-deactivate-command
+;      "print_mode := (! print_mode \\\\ [\"xsymbols\", \"symbols\"]);")
 
 (provide 'x-symbol-coq)
