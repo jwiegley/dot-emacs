@@ -1,22 +1,19 @@
+<!-- FIXME: would be nice to provide links from features
+  mentioned here to user-manual. -->
 <h2>Features of Proof General</h2>
 <p>
 It doesn't matter if you're an Emacs militant or a pacifist!
 </p>
 
 <p> The aim of Proof General is to provide powerful and configurable
-interfaces which help user-interaction with interactive proof
-assistants.  Proof General targets power users rather than novices, to
-build an environment for serious <i>proof engineering</i>.  Proof
-General is equipped with modern user interface features, such as
-toolbar and menus, which make use easier for all kinds of user.  Proof
-General is currently used by many people for organizing large proof
-developments, and also for teaching interactive proof.  </p>
-
-<p>
-Proof General is designed to be useful for novices and expert users alike.
-<br>
-It will be useful to you if you use a proof assistant, and
-you'd like an interface with the following features...
+interfaces which help user-interaction with proof assistants.  Proof
+General targets power users rather than novices, but is designed to be
+useful to both.  Proof General leads to an environment for serious
+<i>proof engineering</i> of interactively-constructed proofs.
+</p>
+<p>Proof General is used by many people for organizing large proof
+developments, and also for teaching interactive proof. 
+They enjoy the following features:</p>
 </p>
 <dl>
   <?php dt("Script management","script") ?>
@@ -44,10 +41,10 @@ you'd like an interface with the following features...
   </p>
   </dd>
 </dl><dl>
-  <?php dt("Simplified interaction","simple") ?>
+  <?php dt("Simplified interaction model","simple") ?>
   <dd>
   Proof General is designed for proof assistants which have a
-  command-line shell interpreter.  When using Proof General, the proof
+  command-line (shell) interpreter.  When using Proof General, the proof
   assistant's shell is hidden from the user.  Communication takes
   place via three buffers (Emacs text widgets).  The <i>script
   buffer</i> holds input, the commands to construct a proof.  The
@@ -79,19 +76,23 @@ you'd like an interface with the following features...
   </p>
   </dd>
 </dl><dl>
-  <?php dt("Proof by Pointing","pbp") ?>
+  <?php dt("Subterm highlighting and proof by pointing","pbp") ?>
   <dd>
-  <em>Proof by pointing</em> allows you to click on a subterm of
-  a goal to be proved, and apply an appropriate rule or 
-  tactic automatically.  
   <p>
-  Proof by pointing uses the interface to highlight subterms under the
-  mouse, and sends messages asking the prover for hints to proceed.
-  Proof General also uses the subterm structure to make it easy to cut
-  and paste from complicated terms.
+  Using hidden markup in the concrete syntax, Proof General allows the
+  user to explore the structure of complex terms output by the prover.
+  This provides nifty features for cutting-and-pasting subterms,
+  querying the type of a subterm, looking up the definition of an
+  identifier, and so on.
   </p>
-  <?php footnote("Proof by pointing for Proof General is only supported by LEGO (experimentally) at the moment.  For others, we need help from each proof assistant implementor to add support for their system.  Please canvas the implementor of your favourite 
-proof assistant to add PBP support.")  ?>
+  <p>
+  <em>Proof by pointing</em> uses this markup to allow the prover
+  to suggest steps in a proof, guided by the user's gestures
+  in displayed goals.  For example, clicking on a hypothesis inserts 
+  a proof step into the script to solve a goal using that hypothesis, 
+  and executes it.
+  </p>
+  <?php footnote("Subterm markup is only fully supported by LEGO at the moment, with an experimental implementation of proof by pointing.  Isabelle highlights only variables.  If you would like to see these features better supported in your favourite proof assistant, please canvas the implementor to add subterm-markup support.")  ?>
   </dd>
 </dl><dl>
   <?php dt("Toolbar and menus","toolbar") ?>
@@ -108,7 +109,6 @@ proof assistant to add PBP support.")  ?>
   available on menus; you don't need to know magical key presses for
   any features.
   </p>
-  <?php footnote("Toolbar is available not available on GNU Emacs < 21") ?>
   </dd>
 </dl><dl>
   <?php dt("Syntax highlighting","fontlock") ?>
@@ -138,14 +138,21 @@ proof assistant to add PBP support.")  ?>
     without needing images, see the
     <a href="screenshot">screenshots</a> for more examples.)
   <p>
-  <?php footnote("X-Symbol currently works in XEmacs only") ?>
   </dd>
 </dl><dl>
-  <?php dt("Functions Menu","funcmenu") ?>
+  <?php dt("Proof-script editing facilities","funcmenu") ?>
   <dd>
-  A pull-down menu gives easy
-  navigations to theorems, definitions, and declarations
-  proved in the current buffer.  
+  <p>
+  Many facilities are provided for editing proof scripts.   
+  The <i>completion</i> mechanism of Emacs can be used to
+  help type keywords and identifier names.
+  The <i>outline</i> mode of Emacs allows hiding of parts of proof scripts;
+  a further special <i>proof hiding</i> facility is provided to
+  hide the body of completed proofs.
+  <i>Navigation</i> in the script is supported by a pull-down menu 
+  which gives easy access to the theorems, definitions, and declarations
+  in the current buffer.  
+  </p>
 <!-- it is in FSF Emacs if you download func-menu.el from somewhere -->
 <!--   <?php footnote("Definitions menu is available in XEmacs only") ?> -->
   <p>
