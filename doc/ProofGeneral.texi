@@ -182,7 +182,7 @@ Isabelle.
 @cindex @code{lego-mode}
 @cindex maintenance
 
-Proof General has been developed by
+The main developers of Proof General are
 
 @itemize @bullet
 @item @b{David Aspinall},
@@ -192,11 +192,20 @@ Proof General has been developed by
 @end itemize
 
 LEGO Proof General (the successor of @code{lego-mode}) was crafted by
-Thomas Kleymann and Dilip Sequeira. It is now maintained by Paul
-Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. Coq Proof General was
-crafted by Healfdene Goguen. It is now maintained by Patrick Loiseleur
-@i{<Patrick.Loiseleur@@lri.fr>}. Isabelle Proof General was crafted and
-is being maintained by David Aspinall @i{<isabelle@@dcs.ed.ac.uk>}.
+Thomas Kleymann and Dilip Sequeira. 
+@c
+It is presently maintained by 
+Paul Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. 
+@c
+Coq Proof General was crafted by Healfdene Goguen, with
+later contributions from Patrick Loiseleur.
+It is now maintained by Pierre Courtieu <courtieu@lri.fr>
+@c
+Isabelle Proof General was crafted and is being maintained by David
+Aspinall @i{<isabelle@@dcs.ed.ac.uk>}.  It has benefited greatly
+from code and suggestions by Markus Wenzel, who crafted and maintains
+Isabelle/Isar Proof General.  David von Oheimb supplied patches
+for x-symbol support.
 
 The generic base for Proof General was developed by Kleymann, Sequeira,
 Goguen and Aspinall (in order of appearance). It follows some of the
