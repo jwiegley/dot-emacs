@@ -87,9 +87,18 @@ using an <a href="oldrel.php">older release</a> of Proof General.
 </p> 
 <p>
 <b>Prover versions:</b>
-This version has been tested with Coq 7.3, Isabelle2002, Lego 1.3.1,
+This version has been tested with Coq 7.4, Isabelle2002, Lego 1.3.1,
 and PhoX 0.8.
 </p>
+<b>Bundled packages:</b>
+Proof General is now bundled with several Emacs packages, to
+save the effort needed of installing them separately, and to
+solve compatibility problems.  
+This <b>includes X-Symbol</b>, so you don't need to download
+it separately any more.  If you want to override PG's preference
+for it's own packages, simply load your versions into memory
+before starting Proof General (e.g. with <tt>(require 'x-symbol)</tt>
+in your <tt>.emacs</tt> file).
 <p>
 For install instructions, see 
 the <a href="download#install">stable version download</a>.
