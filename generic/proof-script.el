@@ -943,6 +943,9 @@ the ACS is marked in the current buffer. If CMD does not match any,
 ;; FIXME da: this annoyingly slow even in a buffer only several
 ;; hundred lines long, even when compiled.
 
+;; FIXME da: using the family of functions buffer-syntactic-context-*
+;; may be helpful here.
+
 (defun proof-segment-up-to (pos &optional next-command-end)
   "Create a list of (type,int,string) tuples from end of locked region to POS.
 Each tuple denotes the command and the position of its terminator,

@@ -139,5 +139,10 @@ Internal changes for developers to note
     proof-help-string -> proof-info-command
     proof-prf-string  -> proof-showproof-command
 
+* Speed optimizations for the proof-shell-filter, to attempt
+  to give more CPU to a hungry and noisy proof process.
+  To help with this there is a new configuration variable 
+  proof-shell-eager-annotation-start-length.
+
 * Many code cleanups and improvements.
 

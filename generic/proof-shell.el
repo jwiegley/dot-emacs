@@ -251,8 +251,7 @@ Does nothing if proof assistant is already running."
 	    ;; Experimental fix for backslash/long line problem.  
 	    ;; Make start-process (called by make-comint)
 	    ;; use a pipe, not a pty.
-	    (process-connection-type nil)
-	    )
+	    (process-connection-type nil))
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
       
@@ -348,7 +347,7 @@ exited by hand (or exits by itself)."
     (message "%s, cleaning up and exiting..." bufname)
     (let ((inhibit-quit t)		; disable C-g for now
 	  timeout-id)
-      (sit-for 0)				; redisplay
+      (sit-for 0)			; redisplay
       (if alive				; process still there
 	  (progn
 	    (catch 'exited
@@ -424,6 +423,9 @@ left around so the user may discover what killed the process."
 All locked regions are cleared and the active scripting buffer
 deactivated.  
 
+If the proof shell is busy, an interrupt is sent with
+proof-interrupt-process and we wait until the process is ready. 
+
 The restart command should re-synchronize Proof General with the proof
 assistant, without actually exiting and restarting the proof assistant
 process.  
@@ -432,6 +434,11 @@ It is up to the proof assistant how much context is cleared: for
 example, theories already loaded may be \"cached\" in some way,
 so that loading them the next time round does not require re-processing."
   (interactive)
+  (if proof-shell-busy
+      (progn
+	(proof-interrupt-process)
+	(proof-shell-wait)))
+  ;; Now clear all context
   (proof-script-remove-all-spans-and-deactivate)
   (setq proof-included-files-list nil
 	proof-shell-busy nil
@@ -1295,30 +1302,49 @@ if none of these apply, display."
 (defvar proof-shell-urgent-message-marker nil
   "Marker in proof shell buffer pointing to end of last urgent message.")
 
+(defvar proof-shell-urgent-message-scanner nil
+  "Marker in proof shell buffer pointing to scan start for urgent messages.")
+
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
-Scanning starts from proof-shell-urgent-message-marker and processes
-strings between eager-annotation-start and eager-annotation-end."
-  (let ((pt (point)))
-    (goto-char
-     (or (marker-position proof-shell-urgent-message-marker) (point-min)))
-    (let (end start)
-      (while (re-search-forward proof-shell-eager-annotation-start nil t)
-	(setq start (match-beginning 0))
-	(if (setq end
-		  (re-search-forward proof-shell-eager-annotation-end nil t))
-	    (proof-shell-process-urgent-message
-	     (proof-shell-strip-special-annotations (buffer-substring start end))))
-	;; Set the marker to the end of the last message found, if any.
-	;; Must take care to keep the marger behind the process marker
-	;; otherwise no output is seen!  (insert-before-markers in comint)
-	(if end
-	    (set-marker
-	     proof-shell-urgent-message-marker
-	     (min end
-		  (1- (process-mark (get-buffer-process (current-buffer)))))))
-	))
+Scanning starts from proof-shell-urgent-message-marker and handles
+strings between regexps eager-annotation-start and eager-annotation-end.
+
+Note that we must search the buffer rather than the chunk of output
+being filtered process because we have no guarantees about where
+chunks are broken: it may be in the middle of an annotation.
+
+This is a subroutine of proof-shell-filter."
+  (let ((pt (point)) end start)
+    (goto-char (marker-position proof-shell-urgent-message-scanner))
+    (while (re-search-forward proof-shell-eager-annotation-start nil 'end)
+      (setq start (match-beginning 0))
+      (if (setq end
+		(re-search-forward proof-shell-eager-annotation-end nil t))
+	  (proof-shell-process-urgent-message
+	   (proof-shell-strip-special-annotations 
+	    (buffer-substring start end)))))
+    ;; Set the marker to the end of the last message found, if any.
+    ;; Must take care to keep the marger behind the process marker
+    ;; otherwise no output is seen!  (insert-before-markers in comint)
+    (if end
+	(set-marker
+	 proof-shell-urgent-message-marker
+	 (min end
+	      (1- (process-mark (get-buffer-process (current-buffer)))))))
+    ;; Now set the scanner marker to the limit of the last search,
+    ;; less the maximal length of the annotation.   This is an optimization
+    ;; to avoid searching the same bit of text over and over, but it
+    ;; requires that we know the maximum possible length of an annotation
+    ;; to avoid missing them.
+    ;; FIXME hardwired annotation length=5 in here: should be a user
+    ;; option.
+    (set-marker
+     proof-shell-urgent-message-scanner
+     (min (- (point) proof-shell-eager-annotation-start-length)
+	  (1- (process-mark (get-buffer-process (current-buffer))))))
     (goto-char pt)))
+
 	    
 ;; NOTE da: proof-shell-filter does *not* update the proof-marker,
 ;; that's done in proof-shell-insert.  Previous docstring below was
@@ -1343,11 +1369,11 @@ or the last urgent message (position of
 proof-shell-urgent-message-marker), whichever is later.  
 For example, in this case:
 
- PROMPT INPUT
+ PROMPT> INPUT
  OUTPUT-1
  URGENT-MESSAGE
  OUTPUT-2
- PROMPT
+ PROMPT>
 
 proof-marker is set after INPUT by proof-shell-insert and
 proof-shell-urgent-message-marker is set after URGENT-MESSAGE.
@@ -1361,25 +1387,25 @@ The first time that a prompt is seen, proof-marker is
 initialised to the end of the prompt.  This should
 correspond with initializing the process.  The 
 ordinary output before the first prompt is ignored (urgent messages, 
-however, are always processed)."
+however, are always processed; hence their name)."
   (save-excursion
     (and proof-shell-eager-annotation-start
 	 (proof-shell-process-urgent-messages))
        
-    (if (or
-	 ;; Some proof systems can be hacked to have annotated prompts;
-	 ;; for these we set proof-shell-wakeup-char to the annotation 
-	 ;; special.  
-	 (and proof-shell-wakeup-char
-	      (string-match (char-to-string proof-shell-wakeup-char) str))
-	 ;; Others may rely on a standard top-level (e.g. SML) whose
-	 ;; prompt are difficult or impossible to hack.
-	 ;; For those we must search in the buffer for the prompt.
-	 t)
+    (if ;; Some proof systems can be hacked to have annotated prompts;
+	;; for these we set proof-shell-wakeup-char to the annotation 
+	;; special.  
+	(and proof-shell-wakeup-char
+	     (string-match (char-to-string proof-shell-wakeup-char) str))
+	;; Others may rely on a standard top-level (e.g. SML) whose
+	;; prompt are difficult or impossible to hack.
+	;; For those we must search in the buffer for the prompt.
 	(if (null (marker-position proof-marker))
 	    ;; Initialisation of proof-marker:
 	    ;; Set marker to after the first prompt in the
 	    ;; output buffer if one can be found now.
+	    ;; FIXME da: we'd rather do this initialization outside
+	    ;; of the filter function for better efficiency!
 	    (progn
 	      (goto-char (point-min))
 	      (if (re-search-forward proof-shell-annotated-prompt-regexp nil t)
@@ -1394,11 +1420,11 @@ however, are always processed)."
 			(proof-shell-filter-process-output "")))))
 	  ;; Now we're looking for the end of the piece of output
 	  ;; which will be processed.  
-
-          ;; Note that the way this filter works,
-          ;; only one piece of output can be dealt with at a time
-          ;; so we loose sync if there's more than one bit there.
-
+	  
+	  ;; Note that the way this filter works,
+	  ;; only one piece of output can be dealt with at a time
+	  ;; so we loose sync if there's more than one bit there.
+	  
 	  ;; The blasphemous situation that the proof-action-list
 	  ;; is empty is now quietly ignored so that users can
 	  ;; type in the shell buffer without being screamed at.
@@ -1420,6 +1446,10 @@ however, are always processed)."
 		(if (and urgnt
 			 (< (point) urgnt))
 		    (setq startpos (goto-char urgnt)))
+		;; EXPERIMENTAL OPTIMIZATION
+		;; Let's search backwards from end of buffer, to check
+		;; newly inserted text for a prompt.
+		;; For this to work well, we assume that 
 		;; Find next prompt.  
 		(if (re-search-forward 
 		     proof-shell-annotated-prompt-regexp nil t)
@@ -1492,7 +1522,7 @@ Needed between sequences of commands to maintain synchronization,
 because Proof General does not allow for the action list to be extended.
 May be called by proof-shell-invisible-command."
   (while proof-shell-busy
-    (accept-process-output)
+    (accept-process-output nil)
     (sit-for 0)))
 
 
@@ -1556,8 +1586,13 @@ before and after sending the command."
 
   ;; Proof marker is initialised in filter to first prompt found
   (setq proof-marker (make-marker))
-  ;; Urgent message marker defaults to (point-min) if unset.
+  ;; Urgent message marker records end position of last urgent
+  ;; message seen.
   (setq proof-shell-urgent-message-marker (make-marker))
+  ;; Urgent message scan marker records starting position to 
+  ;; scan for urgent messages from
+  (setq proof-shell-urgent-message-scanner (make-marker))
+  (set-marker proof-shell-urgent-message-scanner (point-min))
 
   (setq proof-re-end-of-cmd (concat "\\s_*" proof-terminal-string "\\s_*\\\'"))
   (setq proof-re-term-or-comment 
@@ -1619,7 +1654,7 @@ before and after sending the command."
 
 (defun proof-shell-config-done ()
   "Initialise the specific prover after the child has been configured."
-  (save-excursion
+  (save-excursion			
     (set-buffer proof-shell-buffer)
     (let ((proc (get-buffer-process proof-shell-buffer)))
       ;; Add the kill buffer function and process sentinel

@@ -1004,6 +1004,17 @@ Set to nil to disable this feature."
   :type '(choice regexp (const :tag "Disabled" nil))
   :group 'proof-shell)
 
+(defcustom proof-shell-eager-annotation-start-length 1
+  "Maximum length of an eager annotation start. 
+Must be set to the maximum length of the text that may match
+`proof-shell-eager-annotation-start' (at least 1).
+If this value is too low, eager annotations may be lost!
+
+This value is used internally by Proof General to optimize the process
+filter to avoid unnecessary searching."
+  :type 'integer
+  :group 'proof-shell)
+
 (defcustom proof-shell-eager-annotation-end "\n"
   "Eager annotation field end.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
