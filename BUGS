@@ -29,7 +29,7 @@ breaks some of the code in Proof General, which is turned off in
 case the suspicious looking function
 toggle-enable-multibyte-characters is present.  This could effect
 forthcoming versions of XEmacs.
-Workaround: use FSFmacs 20.2, or XEmacs 20.4.
+Workaround: use FSFmacs 20.2, or XEmacs 20.4/later.
 
 * Using C-g can leave script management in a mess.  The code
 needs to have some regions protected from Emacs interrupts.
@@ -41,8 +41,8 @@ restrictions of protected region.  Workaround: none, nevermind.
 (If it's hugely needed we could support modified outline commands).
 
 * `proof-find-next-terminator' (bound to C-c C-e) doesn't work
-properly. Workaround: use other means to navigate in a proof scipt
-buffer. 
+properly.  Neither does 'proof-goto-command-start' (C-c C-a).
+Workaround: use other means to navigate in a proof scipt buffer. 
 
 * Multiple file handling for Lego and Isabelle is slightly vulnerable.
 Files are not locked when they are being read by the prover, so a long
