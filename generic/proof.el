@@ -181,12 +181,12 @@ Also ensures that point is visible."
 		 (recenter -1)))))))
 
 (defun proof-clean-buffer (buffer)
-  "Erase buffer and hide from display if proof-auto-delete-windows set"
-  (save-excursion
-    (set-buffer buffer)
-    (erase-buffer))
+  "Erase buffer and hide from display if proof-auto-delete-windows set.
+Auto deletion only affects selected frame.  (We assume that the selected
+frame is the one showing the script buffer.)"
+  (erase-buffer buffer)
   (if proof-auto-delete-windows
-      (delete-windows-on buffer)))
+      (delete-windows-on buffer t)))
 
 (provide 'proof)
 ;; proof.el ends here
