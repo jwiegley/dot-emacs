@@ -155,6 +155,7 @@
    proof-state-preserving-p     'isar-state-preserving-p
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list))
 
+
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
@@ -372,8 +373,12 @@ proof-shell-retract-files-regexp."
       (setq str (span-property span 'cmd))
       (setq ans nil)
       (cond
-       ;; comment or diagnostic command: skip
+       ;; comment, diagnostic, nested proof command: skip
+       ;; (da: adding new span types may break this code,
+       ;;  ought to test for type 'cmd before looking at 
+       ;;  str below)
        ((or (eq (span-property span 'type) 'comment)
+	    (eq (span-property span 'type) 'proof); da: needed?
             (proof-string-match isar-undo-skip-regexp str)
             (proof-string-match isar-undo-ignore-regexp str)))
        ;; finished goal: undo
