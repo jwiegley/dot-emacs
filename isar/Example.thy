@@ -40,8 +40,10 @@ theorem "A & B --> B & A"
   apply (rule impI)
   apply (erule conjE)
   apply (rule conjI)
-   apply assumption
   apply assumption
-  done
+  apply assumption
+done
 
 end
+
+(* comment at the end *)

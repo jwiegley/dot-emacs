@@ -4,7 +4,6 @@
     $Id$
 *)
 
-
 Goal (A,B:Prop)(A /\ B) -> (B /\ A).
   Intros A B H.
   Induction H.
