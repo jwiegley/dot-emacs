@@ -257,6 +257,8 @@ Note: to change proof assistant, you must start a new Emacs session.")
 		;; NB: tempting to use customize-set-variable: wrong!
 		;; Here we treat customize as extended docs for these
 		;; variables.
+		(setq proof-assistant-cusgrp (quote ,cusgrp))
+		(setq proof-assistant-internals-cusgrp (quote ,cus-internals))
 		(setq proof-assistant ,assistant-name)
 		(setq proof-assistant-symbol (quote ,assistant))
 		;; Extend the load path, load the real mode and invoke it.
