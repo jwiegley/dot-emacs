@@ -2439,6 +2439,11 @@ assistant."
 
 (defun proof-generic-state-preserving-p (cmd)
   "Is CMD state preserving?  Match on proof-non-undoables-regexp."
+  ;; FIXME: logic here is not quite finished: proof-non-undoables are
+  ;; certainly not state preserving, but so are a bunch more things,
+  ;; i.e. ordinary proof commands which may appear in proof scripts.
+  ;; Might be better to add positive and negative regexps for
+  ;; state-preserving tests (only one of which needs to be set).
   (not (proof-string-match-safe proof-non-undoables-regexp cmd)))
 
 (defun proof-generic-count-undos (span)
