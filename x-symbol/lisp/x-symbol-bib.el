@@ -88,13 +88,9 @@ See `x-symbol-language-access-alist' for details."
     :encode-spec (?\\ (math . "[a-z@-Z]"))
     :decode-regexp "\\\\\\(?:[@A-Za-z]+\\|[-{}#_&]\\)\\|{\\\\\\(?:[ckvuHr]\\(?: [A-Za-z]\\|{}\\|\\\\ \\)\\|[@A-Za-z]+\\|[.~^\"'`=]\\(?:[A-Za-z]\\|{}\\|\\\\[ij]\\)\\)}"
     :decode-spec (?\\)
+    :input-spec (?\\ (math . "[a-z@-Z]"))
     :token-list x-symbol-bib-default-token-list)
   "Token grammar for language `bib'.")
-
-(defvar x-symbol-bib-input-token-grammar
-  '("\\\\\\(?:[@A-Za-z]+\\|[-{}#_&]\\)\\'\\|{\\\\\\(?:[ckvuHr]\\(?: [A-Za-z]\\|{}\\|\\\\ \\)\\|[@A-Za-z]+\\|[.~^\"'`=]\\(?:[A-Za-z]\\|{}\\|\\\\[ij]\\)\\)}\\'"
-    ?\\ (math . "[a-z@-Z]"))
-  "Grammar of input method Token for language `bib'.")
 
 (defvar x-symbol-bib-required-fonts x-symbol-tex-required-fonts
   "List of features providing fonts for language `bib'.")

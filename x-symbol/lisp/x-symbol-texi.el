@@ -100,11 +100,6 @@ See `x-symbol-language-access-alist' for details."
     :decode-spec (?@))
   "Token grammar for language `texi'.")
 
-(defvar x-symbol-texi-input-token-grammar
-  '("@\\(?:[A-Za-z]+{[A-Za-z]?}\\|[{}]\\|[~^\"'`][A-Za-z]\\|,{[A-Za-z]}\\)\\'"
-    ?@)
-  "Grammar of input method Token for language `texi'.")
-
 (defvar x-symbol-texi-user-table nil
   "User table defining TeXinfo commands, used in `x-symbol-texi-table'.")
 

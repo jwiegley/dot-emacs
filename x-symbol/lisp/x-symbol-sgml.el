@@ -149,10 +149,6 @@ is the Unicode value.  See `x-symbol-init-language',
     :token-list x-symbol-sgml-default-token-list)
   "Token grammar for language `sgml'.")
 
-(defvar x-symbol-sgml-input-token-grammar
-  '("&[#0-9A-Za-z]+;\\'")
-  "Grammar of input method Token for language `sgml'.")
-
 (defvar x-symbol-sgml-user-table nil
   "User table defining SGML entities, used in `x-symbol-sgml-table'.")
 
