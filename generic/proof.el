@@ -144,7 +144,8 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       (goto-char (point-max))
       (newline)				
       (setq start (point))
-      (insert str) (setq end (point))
+      (insert str) 
+      (setq end (point))
       (save-excursion
 	(font-lock-set-defaults)		;required for FSF Emacs 20.2
 	(font-lock-fontify-region start end)
