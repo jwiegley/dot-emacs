@@ -204,7 +204,9 @@
    proof-mode-for-script	'isar-proofscript-mode
    ;; proof script syntax
    proof-terminal-char		?\;	; forcibly ends a proof command
-   proof-script-command-start-regexp isar-any-command-regexp
+   proof-script-command-start-regexp (proof-regexp-alt
+				      isar-any-command-regexp
+				      (regexp-quote ";"))
    proof-comment-start		"(*"	; comment in a proof
    proof-comment-end		"*)"
    proof-string-start-regexp    "\"\\|{\\*"
@@ -599,6 +601,51 @@ proof-shell-retract-files-regexp."
       "ML_command {* print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode) *};"
       proof-xsym-deactivate-command
       "ML_command {* print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]) *};")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Completion table for Isabelle/Isar identifiers
+;;
+;; Ideally this could be set and adjusted automatically from the
+;; running process.
+
+(defconst isar-all-keywords
+  (append
+   isar-keywords-major
+   isar-keywords-minor
+   isar-keywords-control
+   isar-keywords-diag
+   isar-keywords-theory-begin
+   isar-keywords-theory-switch
+   isar-keywords-theory-end
+   isar-keywords-theory-heading
+   isar-keywords-theory-decl
+   isar-keywords-theory-goal
+   isar-keywords-qed
+   isar-keywords-qed-block
+   isar-keywords-qed-global
+   isar-keywords-proof-goal
+   isar-keywords-proof-block
+   isar-keywords-proof-chain
+   isar-keywords-proof-decl
+   isar-keywords-proof-asm
+   isar-keywords-proof-asm-goal
+   isar-keywords-proof-script))
+
+(defpgdefault completion-table isar-all-keywords)
+
+(eval-after-load "x-symbol-isar"
+ ;; Add x-symbol tokens to isar-completion-table and rebuild
+ ;; internal completion table if completion is already active
+'(progn
+(defpgdefault completion-table
+  (append (proof-ass completion-table)
+	  (mapcar (lambda (xsym) (nth 2 xsym))
+		  x-symbol-isar-table)))
+(if (featurep 'completion)
+    (proof-add-completions))))
+
 
 
 (provide 'isar)
