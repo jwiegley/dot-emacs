@@ -47,6 +47,8 @@ A Pending work, in progress [da]:
 	. update documentation
     - test support for x-symbol
     - investigate toolbar refresh problems
+	. extra clicks are needed
+	. toolbar appears in wrong buffers
     - investigate of excessive processing for large proofs
     - investigate bug fix for vacuous locked regions
     - document proof-copy-span (new name for proof-send-span, re-enabled).
