@@ -44,6 +44,8 @@ TMPFILE=pgt
 
 .SUFFIXES:  .texi .info .dvi .html .pdf .ps .eps .tiff .gz
 
+default: doc
+
 .texi.info:
 	$(MAKEINFO) $< 
 
@@ -108,6 +110,7 @@ ProofGeneralPortrait.pdf:
 ## doc : build info and dvi files from $(DOCNAME).texi
 ##
 doc:	dvi info
+
 
 ## 
 ## all : build all documentation targets
