@@ -23,10 +23,6 @@ See also ../todo for generic things to do, priority codes.
    when undoing qed
 
 
-** C Investigate fix for looping rewriting in Isabelle.  Continual
-  and frequent messages from the prover lock out the user.
-  Is there any easy way of fixing this?
-  
 ** C X-Symbol support for theory files: bugs at the moment, because
   of duplicate calls to proof-x-symbol-mode and mess with
   font-lock initialization.  Problem with current version:
@@ -51,30 +47,6 @@ See also ../todo for generic things to do, priority codes.
 
 ** D Switching to other file with C-c C-o could be more savy
   with file names and extensions (use some standard function?)
-
-** X weird bug: interrupting Isabelle process (under sml-nj) sometimes
-  doesn't return, why? (see first half of interrupt error only:
-
-    *** Interrupt.
-    *** At command "time_use".
-  
-    uncaught exception ERROR
-      raised at: library.ML:1100.35-1100.40
-  But not "uncaught exception" part.  
-  What is worse: prompt disappears!  But process still seems to be
-  there underneath.  Not sure where this bug comes from.
-
-  Moreover, killing process then hangs Emacs with message 
-  "cleaning up", and get error
-    (1) (error/warning) Error in process sentinel: (no-catch exited t)
-
-  To see if this is some SML/NJ or Isabelle weirdness, test in 
-  xterm: use "ROOT.ML", interrrupt, use "ROOT.ML" again.
-  sig 11!  (flaky hardware?)  
-    /usr/lib/Isabelle_22-Sep-1999/../../share/smlnj/bin/sml: Fatal error -- unexpected fault, signal = 11, code = 0x2ad09c43
-  Not reliably repeatable, but:
-    ProofGeneral.isa_restart(); 
-    /usr/lib/Isabelle_22-Sep-1999/../../share/smlnj/bin/sml: Fatal error -- unexpected fault, signal = 11, code = 0x2af9e01b
 
 ** X Write perl scripts to generate TAGS file for ML and thy files.
   (60h, any volunteers?) (hard);

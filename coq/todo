@@ -5,32 +5,7 @@
 See also ../todo for generic things to do, priority codes.
 
 
-** B See if there is a way to turn off the superfluous output of scripts
-
-  from Coq when inside ProofGeneral, i.e. output like this:
-
-   Intros A B G.
-   Induction G.
-   Apply conj.
-   Assumption.
-   
-   Assumption.
-   
-   and_comms is defined
-
-  In PG, only the last line is relevant!!
-  If it isn't possible to turn it off, can we send a suggestion
-  to the Coq implementors for the next version?
-
-** B Fix silly startup sychronization problem that displays
-  cwd on startup.
-
-** B C-c C-c breaks the coherence with prover state
-  (da: can somebody tell me if this is still true? 
-   what problem specifically?)
-   Pierre: I never had this problem, it's all I can say
-
-** B Proof-by-Pointing [2 weeks]
+** B Proof-by-Pointing [1 month]
   da: Yves Bertot told me that his CtCoq proof-by-pointing code
   is in the Coq kernel now, so would be useful for PG.
   We need a Coq hacker to do this.
@@ -38,6 +13,7 @@ See also ../todo for generic things to do, priority codes.
   da: I have old version of code sent to my by Healf.
   Pierre: Since the code is to be changed, I suggest that we
   wait for V7.
+  da: V7 is here now...
 
 ** C Improve X-Symbol support.  Integrate with Coq syntax mechanism somehow?
   pierre: Yes, the greatest would be to allow users to easily declare
@@ -49,17 +25,6 @@ See also ../todo for generic things to do, priority codes.
   'File Variables' feature of Emacs). Another thing is that we may ask
   Coq developers to be unicode compliant or something like that.
 
-
-** C Retraction in a Section should retract to the beginning of the whole 
-  section. See the section "Granularity of
-  Atomic Commands" for a proposal on how to generalise the current
-  implementation so that it can also deal with sections.
-  [See also the LEGO problem with Discharge] (6h)
-
-** C Correct the C-c C-c bug (typing C-c C-c during the execution of a
-   tactic breaks the consitency with Coq)
-
-** C Fix the coq-lift-global code
 
 ** D Add Patrick Loiseleur's commands to search for vernac or ml files.
   (they are in a separate file that is part of Coq distrib.
@@ -75,4 +40,3 @@ See also ../todo for generic things to do, priority codes.
 ** D Improve coqtags. It cannot handle lists e.g., with 	
 	Parameter x,y:nat
   it only tags x but not y. [The same problem exists for legotags]
-

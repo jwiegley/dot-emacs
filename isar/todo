@@ -13,6 +13,3 @@ func-menu setup?);
 
 ** C proper proof-by-pointing support (hard; needs major reworking of
 Isabelle's pretty-printing subsystem);
-
-** C tune behaviour of goals/response buffers (e.g. hide empty
-response buffers when using 2 buffer model);
