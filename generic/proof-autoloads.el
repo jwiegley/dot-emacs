@@ -7,12 +7,15 @@
 
 ;;;***
 
-;;;### (autoloads (proof-depends-process-dependencies) "proof-depends" "generic/proof-depends.el")
+;;;### (autoloads (proof-dependency-in-span-context-menu proof-depends-process-dependencies) "proof-depends" "generic/proof-depends.el")
 
 (autoload 'proof-depends-process-dependencies "proof-depends" "\
 Process dependencies reported by prover, for NAME in span GSPAN.
 Called from `proof-done-advancing' when a save is processed and
 proof-last-theorem-dependencies is set." nil nil)
+
+(autoload 'proof-dependency-in-span-context-menu "proof-depends" "\
+Make a portion of a context-sensitive menu showing proof dependencies." nil nil)
 
 ;;;***
 

@@ -115,8 +115,10 @@ proof-last-theorem-dependencies is set."
 ;; which the dependency information is used.
 
 
+;;;###autoload    
 (defun proof-dependency-in-span-context-menu (span)
   "Make a portion of a context-sensitive menu showing proof dependencies." 
+  ;; FIXME: might only activate this for dependency-relevant spans.
   (list
    "-------------"
    (proof-dep-make-submenu "Local Dependency..."
@@ -168,8 +170,9 @@ If LIST is empty, return a disabled menu item with NAME."
   (skip-chars-forward " \t\n"))
 
 (defun proof-show-dependency (thm)
-  ;; FIXME: make this prover independent with new regexp for print command!!
-  (proof-shell-invisible-command (format "thm \"%s\";" thm)))
+  "Show dependency THM using `proof-show-dependency-cmd'."
+  (if proof-shell-show-dependency-cmd ;; robustness
+      (proof-shell-invisible-command (format proof-shell-show-dependency-cmd thm))))
 
 (defun proof-highlight-depcs (name nmspans)
   (let ((helpmsg  (concat "This item is a dependency (ancestor) of " name)))
