@@ -72,9 +72,8 @@
   :group 'proof-general)
 
 (defcustom proof-prog-name-guess nil
-  "*If non-nil, use `proof-guess-command-line' to guess the correct
-   value of proof-prog-name when starting proof assisant
-   This option is compatible with proof-prog-name-ask"
+  "*If non-nil, use `proof-guess-command-line' to guess proof-prog-name.
+This option is compatible with proof-prog-name-ask."
   :type 'boolean
   :group 'proof-general)
 
