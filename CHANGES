@@ -65,5 +65,16 @@ Only in the developers' release
 Internal changes for developers to note
 ---------------------------------------
 
+* proof-shell-leave-annotations-in-output variable has been added.
+  This allows quick and dirty mark up of output from the proof
+  assistant using special characters with codes above 128 and
+  font-lock.  Such characters are hidden from display in the
+  output buffers.  
+  However, it is NOT recommended to use this mechanism, because
+  it breaks the usability of cut and paste (which copies the
+  special characters).  Furthermore the entire mechanism of
+  using special character codes is fragile and needs replacing
+  in future versions of Proof General!
+
 * Code cleanups and improvements.
 

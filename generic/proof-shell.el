@@ -587,11 +587,12 @@ If FORCE, override proof-shell-erase-response-flag."
 (defvar proof-shell-delayed-output nil
   "Last interesting output from proof process output and what to do with it.
 
-This is a list of tuples of the form (type . string). type is either
+This is a list of tuples of the form (TYPE . STRING). type is either
 'analyse or 'insert. 
 
 'analyse denotes that string's term structure  ought to be analysed
          and displayed in the `proof-goals-buffer'
+
 'insert  denotes that string ought to be displayed in the
          `proof-response-buffer' ")
 
@@ -604,13 +605,15 @@ This is a list of tuples of the form (type . string). type is either
 	   (out (make-string l ?x)) 
 	   c span)
 
-      ;; Form output string by removing characters 
-      ;; 128 or greater.
-      (while (< ip l)	
-	(if (< (setq c (aref string ip)) 128)
-	    (progn (aset out op c)
-		   (incf op)))
-	(incf ip))
+      ;; Form output string by removing characters 128 or greater,
+      ;; (ALL annotations), unless proof-shell-leave-annotations-in-output 
+      ;; is set.
+      (unless proof-shell-leave-annotations-in-output
+	(while (< ip l)	
+	  (if (< (setq c (aref string ip)) 128)
+	      (progn (aset out op c)
+		     (incf op)))
+	  (incf ip)))
 
       ;; Response buffer may be out of date. It may contain (error)
       ;; messages relating to earlier proof states
@@ -636,7 +639,12 @@ This is a list of tuples of the form (type . string). type is either
       ;; of end.  Might be nicer to keep it at "current" subgoal
       ;; a la Isamode, but never mind.
       (erase-buffer)
-      (insert (substring out 0 op))
+
+      ;; Insert the (possibly cleaned up) string.
+      (if proof-shell-leave-annotations-in-output
+	  (insert string)
+	(insert (substring out 0 op)))
+
       (proof-x-symbol-decode-region (point-min) (point-max))
       (proof-display-and-keep-buffer proof-goals-buffer (point-min))
 
@@ -692,9 +700,9 @@ This is a list of tuples of the form (type . string). type is either
 		     topl (cdr topl))
 	  (pbp-make-top-span ip (car topl)))))))
 
-(defun proof-shell-strip-annotations (string)
+(defun proof-shell-strip-special-annotations (string)
   "Strip special annotations from a string, returning cleaned up string.
-Special annotations are characters with codes higher than
+*Special* annotations are characters with codes higher than
 'proof-shell-first-special-char'."
   (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
     (while (< ip l)
@@ -721,8 +729,10 @@ Returns the string (with faces) in the specified region."
       (setq start (search-backward-regexp start-regexp))
       (setq end (- (search-forward-regexp end-regexp)
 				   (length (match-string 0))))
-      (setq string
-	    (proof-shell-strip-annotations (buffer-substring start end))))
+      (unless proof-shell-leave-annotations-in-output
+	(setq string
+	      (proof-shell-strip-special-annotations 
+	       (buffer-substring start end)))))
     ;; Erase if need be, and erase next time round too.
     (proof-shell-maybe-erase-response t nil)
     (proof-response-buffer-display string append-face)))
@@ -730,31 +740,48 @@ Returns the string (with faces) in the specified region."
 (defun proof-shell-handle-delayed-output ()
   "Display delayed output.
 This function expects 'proof-shell-delayed-output' to be a cons cell
-of the form '(insert . txt) or '(analyse . txt).
+of the form ('insert . TXT) or ('analyse . TXT).
 See the documentation for `proof-shell-delayed-output' for further details."
   (let ((ins (car proof-shell-delayed-output))
 	(str (cdr proof-shell-delayed-output)))
     (cond 
+     ;; 
+     ;; 1. Text to be inserted in response buffer.
+     ;;
      ((eq ins 'insert)
-       ; (unless (string-equal str "done") ;; FIXME da: nasty, breaks something?
-	(setq str (proof-shell-strip-annotations str))
-	(with-current-buffer proof-response-buffer
-	  ;; FIXME da: have removed this, possibly it junks 
-	  ;; relevant messages.  Instead set a flag to indicate
-	  ;; that response buffer should be cleared before the
-	  ;; next command.
-	  ;; (erase-buffer)
+      ;; FIXME da: this next line is nasty, it breaks something?
+      ;;   (unless (string-equal str "done")  
+      ;; Think this was meant as a get out clause from somewhere.
+      ;; Maybe if the output string from the prover is empty?
+      ;; Anyway, we leave it alone now, maybe to see some spurious 
+      ;; "done" displays 
 
-	  ;; NEW!
-	  ;; Erase the response buffer if need be, and indicate that
-	  ;; it is to be erased again before the next message.
-	  (proof-shell-maybe-erase-response t nil)
-	  (let ((pos (point)))
-	    (insert str)
-	    (proof-x-symbol-decode-region pos (point)))
-	  (proof-display-and-keep-buffer proof-response-buffer)))
+      (unless proof-shell-leave-annotations-in-output
+	(setq str (proof-shell-strip-special-annotations str)))
+
+      (with-current-buffer proof-response-buffer
+	;; FIXME da: have removed this, possibly it junks 
+	;; relevant messages.  Instead set a flag to indicate
+	;; that response buffer should be cleared before the
+	;; next command.
+	;; (erase-buffer)
+
+	;; NEW!
+	;; Erase the response buffer if need be, and indicate that
+	;; it is to be erased again before the next message.
+	(proof-shell-maybe-erase-response t nil)
+	(let ((pos (point)))
+	  (insert str)
+	  (proof-x-symbol-decode-region pos (point)))
+	(proof-display-and-keep-buffer proof-response-buffer)))
+     ;;
+     ;; 2. Text to be inserted in goals buffer
+     ;;
      ((eq ins 'analyse)
       (proof-shell-analyse-structure str))
+     ;;
+     ;; 3. Nothing else should happen
+     ;;
      (t (assert nil))))
   (run-hooks 'proof-shell-handle-delayed-output-hook)
   (setq proof-shell-delayed-output (cons 'insert "done")))
@@ -796,7 +823,7 @@ Then we call `proof-shell-handle-error-hook'. "
       (save-excursion ;current-buffer
 	(set-buffer proof-goals-buffer)
 	(erase-buffer)
-	(insert (proof-shell-strip-annotations 
+	(insert (proof-shell-strip-special-annotations 
 		   (cdr proof-shell-delayed-output)))
 	(proof-display-and-keep-buffer proof-goals-buffer)))
 
@@ -893,7 +920,7 @@ assistant."
     'interrupt)
 
    ((proof-shell-string-match-safe proof-shell-error-regexp string)
-    (cons 'error (proof-shell-strip-annotations
+    (cons 'error (proof-shell-strip-special-annotations
 		  (substring string
 			     (match-beginning 0)))))
 
@@ -1268,7 +1295,7 @@ strings between eager-annotation-start and eager-annotation-end."
 	(if (setq end
 		  (re-search-forward proof-shell-eager-annotation-end nil t))
 	    (proof-shell-process-urgent-message
-	     (proof-shell-strip-annotations (buffer-substring start end))))
+	     (proof-shell-strip-special-annotations (buffer-substring start end))))
 	;; Set the marker to the end of the last message found, if any.
 	;; Must take care to keep the marger behind the process marker
 	;; otherwise no output is seen!  (insert-before-markers in comint)
@@ -1425,20 +1452,19 @@ output."
 	      (proof-shell-handle-delayed-output)))))))
 
 
-(defun proof-shell-dont-show-annotations ()
-  "Set display values of annotations in process buffer to be invisible.
+(defun proof-shell-dont-show-annotations (&optional buffer)
+  "Set display values of annotations in BUFFER to be invisible.
 
 Annotations are characters 128-255."
   (save-excursion
-    (set-buffer proof-shell-buffer)
+    (set-buffer (or buffer (current-buffer)))
     (let ((disp (make-display-table))
 	  (i 128))
       (while (< i 256)
 	(aset disp i [])
 	(incf i))
       (cond ((fboundp 'add-spec-to-specifier)
-	     (add-spec-to-specifier current-display-table disp
-				    proof-shell-buffer))
+	     (add-spec-to-specifier current-display-table disp (current-buffer)))
 	    ((boundp 'buffer-display-table)
 	     (setq buffer-display-table disp))))))
 
@@ -1529,11 +1555,16 @@ before and after sending the command."
 
   ;; FIXME da: before entering proof assistant specific code,
   ;; we'd do well to check that process is actually up and
+    ;; Should already be in proof-goals-buffer, really.
   ;; running now.  If not, call the process sentinel function
   ;; to display the buffer, and give an error.
   ;; (Problem to fix is that process can die before sentinel is set:
   ;;  it ought to be set just here, perhaps: but setting hook here
   ;;  had no effect for some odd reason).
+
+  ;; da added this 23/8/99.  LEGO set font-lock-terms in shell,
+  ;; but didn't use it until now.
+  (proof-font-lock-minor-mode)
   ))
 
 ;; watch difference with proof-shell-menu, proof-shell-mode-menu.
@@ -1549,7 +1580,6 @@ before and after sending the command."
 
 (defun proof-font-lock-minor-mode ()
   "Start font-lock as a minor mode in the current buffer."
-
   ;; setting font-lock-defaults explicitly is required by FSF Emacs
   ;; 20.2's version of font-lock
   (make-local-variable 'font-lock-defaults)
@@ -1560,14 +1590,18 @@ before and after sending the command."
   "Initialise the goals buffer after the child has been configured."
   (save-excursion
     (set-buffer proof-goals-buffer)
-    (proof-font-lock-minor-mode)))
-
+    (proof-font-lock-minor-mode)
+    ;; Turn off the display of annotations here
+    (proof-shell-dont-show-annotations)))
 
 (defun proof-response-config-done ()
   "Initialise the response buffer after the child has been configured."
   (save-excursion
     (set-buffer proof-response-buffer)
-    (proof-font-lock-minor-mode)))
+    (proof-font-lock-minor-mode)
+    ;; Turn off the display of annotations here
+    (proof-shell-dont-show-annotations)))
+
 
 (defun proof-shell-config-done ()
   "Initialise the specific prover after the child has been configured."

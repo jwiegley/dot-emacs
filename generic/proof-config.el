@@ -113,14 +113,16 @@ use because of a bug."
 (defcustom proof-strict-read-only 
   ;; For FSF Emacs, strict read only is buggy when used in
   ;; conjunction with font-lock.
-
   ;; The second conjunctive ensures that the expression is either
-  ;; `nil' or `strict' (and not 15).  
+  ;; `nil' or `strict' (and not 15!!).  
   (and (string-match "XEmacs" emacs-version) 'strict)
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
-you a reprimand!)
+you a reprimand!).
+
+If you change proof-strict-read-only during a session, you must use
+\"Restart\" (proof-shell-restart)
 
 The default value for proof-strict-read-only depends on which
 version of Emacs you are using.  In FSF Emacs, strict read only is buggy
@@ -130,13 +132,12 @@ when it used in conjunction with font-lock, so it is disabled by default."
 
 (defcustom proof-auto-retract
   nil
-  ;; Not implemented yet, only an idea.
   "*If non-nil, retract automatically when locked region is edited.
 With this option active, the locked region will automatically be
 unlocked when the user attempts to edit it.   To make use of this
 option, proof-strict-read-only should be turned off.
 
-Note: this feature has not been implemented yet."
+Note: this feature has not been implemented yet, it's only an idea."
   :type 'boolean
   :group 'proof-general)
 
@@ -156,7 +157,6 @@ provers.  Enable it if it works for you."
 This option is not fully-functional at the moment."
   :type 'boolean
   :group 'proof-general)
-
 
 (defcustom proof-script-command-separator " "
   "*String separating commands in proof scripts.
@@ -956,6 +956,14 @@ data triggered by `proof-shell-retract-files-regexp'."
   :type '(choice function (const nil))
   :group 'proof-shell)
 
+(defcustom proof-shell-leave-annotations-in-output nil
+  "Flag indicating whether to strip annotations from output or not.
+\"annotations\" are special characters with the top bit set.
+If annotations are left in, they are made invisible and can be used
+to do syntax highlighting with font-lock."
+  :type 'boolean
+  :group 'proof-shell)
+
 
 
 ;;
@@ -995,7 +1003,7 @@ variables."
 
 (defcustom proof-shell-handle-delayed-output-hook
   '(proof-pbp-focus-on-first-goal)
-  "Hooks run after new output has been displayed in the response buffer."
+  "Hooks run after new output has been displayed in goals or response buffer."
   :type '(repeat function)
   :group 'proof-shell)
 
