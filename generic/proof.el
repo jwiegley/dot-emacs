@@ -45,6 +45,13 @@
       "Initialize Proof General and enable it for the current buffer" t))
 
 ;;;
+;;; More autoloads to help define interface between files
+;;;
+
+(autoload 'proof-shell-available-p "proof-shell"
+  "Returns non-nil if there is a proof shell active and available.")
+
+;;;
 ;;; Utilities/macros used in several files  (proof-utils)
 ;;;
 
