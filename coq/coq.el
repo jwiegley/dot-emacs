@@ -49,8 +49,13 @@
 
 ;; ----- coq specific menu
 
+;; Pierre: I add Print Check and PrintHint
+;; maybe Print and Check should be buttons ?
 (defpgdefault menu-entries
-  '(["Intros" coq-Intros t]
+  '(["Print" coq-Print t]
+    ["Check" coq-Check t]
+    ["Hints" coq-PrintHint t]
+    ["Intros" coq-Intros t]
     ["Apply"  coq-Apply t]
     ["Search isos" coq-SearchIsos t]
     ["Begin Section" coq-begin-Section t]
@@ -289,6 +294,31 @@ This is specific to coq-mode."
     (proof-shell-invisible-command
      (format "SearchIsos %s." cmd))))
 
+
+(defun coq-Print ()
+  "Ask for an ident and print the corresponding term"
+  (interactive)
+  (let (cmd)
+    (proof-shell-ready-prover) 
+    (setq cmd (read-string "Print: " nil 'proof-minibuffer-history))
+    (proof-shell-invisible-command
+     (format "Print %s." cmd))))
+
+(defun coq-Check ()
+  "Ask for a term and print its type"
+  (interactive)
+  (let (cmd)
+    (proof-shell-ready-prover) 
+    (setq cmd (read-string "Check: " nil 'proof-minibuffer-history))
+    (proof-shell-invisible-command
+     (format "Check %s." cmd))))
+
+(defun coq-PrintHint ()
+  "Print all hints applicable to the current goal"
+  (interactive)
+  (proof-shell-invisible-command "Print Hint."))
+
+
 (defun coq-end-Section ()
   "Ends a Coq section."
   (interactive)
@@ -321,6 +351,9 @@ This is specific to coq-mode."
 (define-key coq-keymap [(control ?e)] 'coq-end-Section)
 (define-key coq-keymap [(control ?m)] 'coq-Compile)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
+(define-key coq-keymap [(control ?p)] 'coq-Print)
+(define-key coq-keymap [(control ?c)] 'coq-Check)
+(define-key coq-keymap [(control ?h)] 'coq-PrintHint)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -554,6 +587,5 @@ This is specific to coq-mode."
   "Whether to just print the first subgoal in Coq."
   :type 'boolean
   :setting ("Focus." . "Unfocus."))
-
 
 (provide 'coq)
