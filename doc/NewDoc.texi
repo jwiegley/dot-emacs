@@ -698,6 +698,23 @@ At present there is no easy way to get around this.
 @node Isabelle specific commands
 @section Isabelle specific commands
 
+@unnumberedsubsec Associated files
+@cindex Associated files
+
+In Isabelle proofscript mode, @kbd{C-c C-o} (@code{thy-find-other-file})
+finds and switches to the associated theory file, that is, the file with
+the same base name but extension @file{.thy} swapped for @file{.ML}.
+
+The same function (and keybinding) switches back to an ML file from the
+theory file.
+
+@deffn Command thy-find-other-file
+Find and switch to the associated ML file (when editing a theory file)
+or theory file (when editing an ML file).  
+@end deffn
+
+
+
 @node Isabelle customizations
 @section Isabelle customizations
 

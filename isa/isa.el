@@ -270,6 +270,10 @@ proof-shell-retract-files-regexp."
    "Isabelle script" nil
    (isa-mode-config))
 
+  
+
+
+
 ;; Automatically selecting theory mode or Proof General script mode.
 
 (defun isa-mode ()
@@ -345,6 +349,15 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 (autoload 'thy-mode "thy-mode" 
 	  "Major mode for Isabelle theory files" t nil)
+
+(autoload 'thy-find-other-file "thy-mode" 
+	    "Find associated .ML or .thy file." t nil)
+
+;; Key to switch to theory mode
+(define-key isa-proofscript-mode-map 
+  [(control c) (control o)] 'thy-find-other-file)
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
