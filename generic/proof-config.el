@@ -801,12 +801,28 @@ as well as `proof-comment-end'."
   :type 'string
   :group 'proof-script)
 
+(defcustom proof-comment-start-regexp nil
+  "Regexp which matches a comment start in the proof command language.
+
+The default value for this is set as (regexp-quote proof-comment-start)
+but you can set this variable to something else more precise if necessary."
+  :type 'string
+  :group 'proof-script)
+
 (defcustom proof-comment-end ""
   "String which ends a comment in the proof assistant command language.
 The script buffer's comment-end is set to this string plus a space.
 See also `proof-comment-start'.
 
 You should set this variable for reliable working of Proof General,"
+  :type 'string
+  :group 'proof-script)
+
+(defcustom proof-comment-end-regexp nil
+  "Regexp which matches a comment end in the proof command language.
+
+The default value for this is set as (regexp-quote proof-comment-end)
+but you can set this variable to something else more precise if necessary."
   :type 'string
   :group 'proof-script)
 
@@ -822,8 +838,9 @@ You should set this variable for reliable working of Proof General,"
 
 (defcustom proof-case-fold-search nil
   "Value for case-fold-search when recognizing portions of proof scripts.
-The default value is 'nil'.  If your prover has a case *insensitive*
-input syntax, proof-case-fold-search should be set to 't' instead.  
+Also used for completion, via `proof-script-complete'.
+The default value is `nil'.  If your prover has a case *insensitive*
+input syntax, proof-case-fold-search should be set to `t' instead.  
 NB: This setting is not used for matching output from the prover."  
   :type 'boolean :group
   'proof-script)
