@@ -671,12 +671,24 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   "All keywords in a Coq script.")
 
 (defvar coq-tacticals
-  '("Abstract"
-    "Do"
-    "Idtac" ; also in  state-preserving-tactic
-    "Orelse"
-    "Repeat"
-    "Try")
+  (cond 
+	(coq-version-is-V8 
+	 '("abstract"
+		"do"
+		"idtac"									 ; also in  state-preserving-tactic
+		"fail"
+		"orelse"
+		"repeat"
+		"try"
+		"Time"))
+	(t '("Abstract"
+		  "Do"
+		  "Idtac"								 ; also in  state-preserving-tactic
+		  "Fail"
+		  "Orelse"
+		  "Repeat"
+		  "Try"
+		  "Time")))
   "Keywords for tacticals in a Coq script.")
 
 ; From JF Monin:
