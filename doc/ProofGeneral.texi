@@ -1579,8 +1579,8 @@ The packages currently supported are @code{font-lock} @code{func-menu},
 * Support for tags::            
 @end menu
 
-@node Syntax Highlighting
-@section Syntax Highlighting
+@node Syntax highlighting
+@section Syntax highlighting
 @vindex lego-mode-hooks
 @vindex coq-mode-hooks
 @vindex isa-mode-hooks
