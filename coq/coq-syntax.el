@@ -132,12 +132,18 @@ Print and Check commands, put the following line in your .emacs:
 "SearchIsos"
 "SearchPattern"
 "SearchRewrite"
+"Set\\-+Hyps_limit"
+"Set\\-+Undo"
+"Set\\-+Set\\-+Printing\\-+Coercion[^s]"
 "Show"
 "Test\\s-+Printing\\s-+If"
 "Test\\s-+Printing\\s-+Let"
 "Test\\s-+Printing\\s-+Synth"
 "Test\\s-+Printing\\s-+Wildcard"
 "Unfocus" ; ???
+"Unset\\s-+Hyps_limit"
+"Unset\\s-+Undo"
+"Unset\\s-+Printing\\s-+Coercion[^s]"
 "Transparent"
 "Write\\s-+State")
 			 coq-user-non-backable-commands
@@ -195,34 +201,24 @@ Print and Check commands, put the following line in your .emacs:
 "Remove\\s-+Printing\\s-+If\\s-+ident"
 "Remove\\s-+Printing\\s-+Let\\s-+ident"
 "Restore\\s-+State"
-"Set" ; wrong see below
-"Unset" ; wrong
+"Set\\s-+Extraction\\s-+AutoInline"
+"Set\\s-+Extraction\\s-+Optimize"
+"Set\\s-+Implicit\\s-+Arguments"
+"Set\\s-+Printing\\s-+Coercions"
+"Set\\s-+Printing\\s-+Synth"
+"Set\\s-+Printing\\s-+Wildcard"
+"Unset\\s-+Extraction\\s-+AutoInline"
+"Unset\\s-+Extraction\\s-+Optimize"
+"Unset\\s-+Implicit\\s-+Arguments"
+"Unset\\s-+Printing\\s-+Coercions"
+"Unset\\s-+Printing\\s-+Synth"
+"Unset\\s-+Printing\\s-+Wildcard"
 "Syntax"
 "Transparent"
 )
  )
 
 
-;
-;Set Hyps_limit  ------------> pour tous les Set/Unset, fais un
-;Set Implicit Arguments        "Print Tables" ; les synchroneous sont
-;Set Undo                      les backable
-;Set Extraction AutoInline
-;Set Extraction Optimize
-;Set Printing Coercion
-;Set Printing Coercions
-;Set Printing Synth
-;Set Printing Wildcard
-;Unset Extraction AutoInline
-;Unset Extraction Optimize
-;Unset Hyps_limit
-;Unset Implicit Arguments
-;Unset Printing Coercion
-;Unset Printing Coercions
-;Unset Printing Synth
-;Unset Printing Wildcard
-;Unset Undo
-;
 
 
 (defvar coq-keywords-backable-commands
