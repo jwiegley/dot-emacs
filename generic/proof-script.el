@@ -50,39 +50,86 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; A few small utilities					    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Configuration of func-menu ("fume")	
+;;
+;; This code is only enabled if the user loads func-menu into Emacs.
+;;
 
-(defun proof-match-find-next-function-name (buffer)
-  "General next function name in BUFFER finder using match.
-The regexp is assumed to be a two item list the car of which is the regexp
-to use, and the cdr of which is the match position of the function
-name. Moves point after the match.
+(eval-after-load "func-menu"	'(progn	; BEGIN if func-menu
+;; BEGIN OLD
+;; FIXME da: wasn't this supposed to return a cons of a string
+;; and a buffer position?
+;(defun proof-match-find-next-function-name (buffer)
+;  "General next function name in BUFFER finder using match.
+;The regexp is assumed to be a two item list the car of which is the regexp
+;to use, and the cdr of which is the match position of the function
+;name. Moves point after the match.
 
-The package fume-func provides the function
-`fume-match-find-next-function-name' with the same specification.
-However, fume-func's version is incorrect"
-  ;; DO NOT USE save-excursion; we need to move point!
-  ;; save-excursion is called at a higher level in the func-menu
-  ;; package 
-    (set-buffer buffer)
-    (let ((r (car fume-function-name-regexp))
-	  (p (cdr fume-function-name-regexp)))
-      (and (re-search-forward r nil t)
-	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))
+;The package fume-func provides the function
+;`fume-match-find-next-function-name' with the same specification.
+;However, fume-func's version is incorrect"
+;  ;; DO NOT USE save-excursion; we need to move point!
+;  ;; save-excursion is called at a higher level in the func-menu
+;  ;; package 
+;    (set-buffer buffer)
+;    (let ((r (car fume-function-name-regexp))
+;	  (p (cdr fume-function-name-regexp)))
+;      (and (re-search-forward r nil t)
+;	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))
+;; END OLD.
+
+;; This is actually a fairly general function.
+
+(deflocal proof-script-last-entity nil
+  "Record of last entity found.   A hack for entities that are named
+in two places, so that find-next-entity doesn't return the same values
+twice.")
+
+(defun proof-script-find-next-entity (buffer)
+  "Find the next entity for function menu in a proof script.
+A value for fume-find-function-name-method-alist for proof scripts.
+Uses fume-function-name-regexp, which is intialised from 
+proof-script-next-entity-regexps, which see."
+  ;; Hopefully this function is fast enough.
+  (set-buffer buffer)
+  ;;  could as well use next-entity-regexps directly since this is
+  ;;  not really meant to be used as a general function. 
+  (let ((anyentity	(car fume-function-name-regexp)))
+    (if (re-search-forward anyentity nil t)
+	;; We've found some interesting entity, but have to find out
+	;; which one, and where it begins.  
+	(let ((entity (buffer-substring (match-beginning 0) (match-end 0)))
+	      (start (match-beginning 0))
+	      (discriminators (cdr fume-function-name-regexp))
+	      (p (point))
+	      disc res)
+	  (while (and (not res) (setq disc (car-safe discriminators)))
+	    (if (string-match (car disc) entity)
+		(let ((name (substring
+			     entity
+			     (match-beginning (nth 1 disc))
+			     (match-end (nth 1 disc)))))
+		  (cond
+		   ((eq (nth 2 disc) 'backward)
+		    (setq start
+			  (or (re-search-backward (nth 3 disc) nil t)
+			      start))
+		    (goto-char p))
+		   ((eq (nth 2 disc) 'forward)
+		    (re-search-forward (nth 3 disc))))
+		  (setq res (cons name start)))
+	      (setq discriminators (cdr discriminators))))
+	  res))))
+
+))					; END if func-menu
+
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Basic code for the locked region and the queue region            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; FIXME da: remove this dead code 
-;; (defvar proof-locked-hwm nil
-;;  "Upper limit of the locked region")
-;; (defvar proof-queue-loose-end nil
-;;  "Limit of the queue region that is not equal to proof-locked-hwm.")
 
 (deflocal proof-locked-span nil
   "The locked span of the buffer.")
@@ -92,7 +139,6 @@ However, fume-func's version is incorrect"
 ;; proof-init-segmentation, which can happen when a file is visited.
 ;; So nasty things might happen if a locked file is visited whilst
 ;; another buffer has a non-empty queue region being processed.
-
 
 (deflocal proof-queue-span nil
   "The queue span of the buffer.")
@@ -405,9 +451,6 @@ the hooks `proof-activate-scripting-hook' are run."
     ;; This may be a good time to ask if the user wants to save some
     ;; buffers
     (save-some-buffers))))
-
-
-
 
 
 
@@ -1432,7 +1475,7 @@ sent to the assistant."
 ;;;###autoload
 (eval-and-compile			; to define vars
 (define-derived-mode proof-mode fundamental-mode 
-  proof-mode-name
+  proof-general-name
   "Proof General major mode class for proof scripts.
 \\{proof-mode-map}"
   (setq proof-buffer-type 'script)
@@ -1494,20 +1537,6 @@ finish setup which depends on specific proof assistant configuration."
   (setq comment-start-skip 
     (concat (regexp-quote proof-comment-start) "+\\s_?"))
 
-  ;; func-menu --- Jump to a goal within a buffer
-  ;; FIXME 1: is there any way to get this to work for named saves
-  ;; instead of named goals?
-  ;; FIXME 2: each time proof mode is entered these extensions are
-  ;; made!  Probably needs moving out of this function.
-  (and (boundp 'fume-function-name-regexp-alist)
-       (defvar fume-function-name-regexp-proof
-	 (cons proof-goal-with-hole-regexp 2))
-       (push (cons major-mode 'fume-function-name-regexp-proof)
-	     fume-function-name-regexp-alist))
-  (and (boundp 'fume-find-function-name-method-alist)
-       (push (cons major-mode 'proof-match-find-next-function-name)
-	     fume-find-function-name-method-alist))
-
   ;; Additional key definitions which depend on configuration for
   ;; specific proof assistant.
   (define-key proof-mode-map
@@ -1529,7 +1558,7 @@ finish setup which depends on specific proof assistant configuration."
   (easy-menu-define proof-mode-menu  
 		    proof-mode-map
 		    "Menu used in Proof General scripting mode."
-		    (cons proof-mode-name
+		    (cons proof-general-name
 			  (append
 			   (cdr proof-menu)
 			   ;; begin UGLY COMPATIBILTY HACK
@@ -1566,8 +1595,61 @@ finish setup which depends on specific proof assistant configuration."
   (and (boundp 'font-lock-always-fontify-immediately)
        (setq font-lock-always-fontify-immediately t))
 
-  (run-hooks 'proof-mode-hook))
+  ;; Make sure func menu is configured.  (NB: Ideal place for this and
+  ;; similar stuff would be in something evaluated at top level after
+  ;; defining the derived mode: normally we wouldn't repeat this
+  ;; each time the mode function is run, so we wouldn't need "pushnew").
 
+  (cond ((featurep 'func-menu)
+	 (unless proof-script-next-entity-regexps ; unless already set
+	   ;; Try to calculate a useful default value.
+	   ;; FIXME: this is rather complicated!  The use of the regexp
+	   ;; variables needs sorting out. 
+	     (customize-set-variable
+	      'proof-script-next-entity-regexps
+	      (let ((goal-discrim
+		     ;; Goal discriminator searches forward for matching
+		     ;; save if the regexp is set.
+		     (if proof-goal-with-hole-regexp
+			 (if proof-save-command-regexp
+			     (list
+			      proof-goal-with-hole-regexp 2
+			      'forward proof-save-command-regexp)
+			   (list proof-goal-with-hole-regexp 2))))
+		    ;; Save discriminator searches backward for matching
+		    ;; goal if the regexp is set.
+		    (save-discrim
+		     (if proof-save-with-hole-regexp
+			 (if proof-goal-command-regexp
+			     (list
+			      proof-save-with-hole-regexp 2
+			      'backward proof-goal-command-regexp)
+			   (list proof-save-with-hole-regexp 2)))))
+		(cond
+		 ((and proof-goal-with-hole-regexp proof-save-with-hole-regexp)
+		  (list
+		   (proof-regexp-alt
+		    proof-goal-with-hole-regexp
+		    proof-save-with-hole-regexp) goal-discrim save-discrim))
+		  
+		 (proof-goal-with-hole-regexp
+		  (list proof-goal-with-hole-regexp goal-discrim))
+		 
+		 (proof-save-with-hole-regexp
+		  (list proof-save-with-hole-regexp save-discrim))))))
+
+	   (if proof-script-next-entity-regexps
+	       ;; Enable func-menu for this mode if regexps set
+	       (progn
+		 (pushnew
+		  (cons major-mode 'proof-script-next-entity-regexps)
+		  fume-function-name-regexp-alist)
+		 (pushnew
+		  (cons major-mode proof-script-find-next-entity-fn)
+		  fume-find-function-name-method-alist)))))
+
+  ;; FIXME da: does proof mode hook call belong here? 
+  (run-hooks 'proof-mode-hook))
 
 
 (provide 'proof-script)

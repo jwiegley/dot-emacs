@@ -407,19 +407,89 @@ The script buffer's comment-end is set to this string plus a space."
 (defcustom proof-save-command-regexp nil 
   "Matches a save command"
   :type 'regexp
-  :group 'prover-config)
+  :group 'proof-script)
 
 (defcustom proof-save-with-hole-regexp nil 
   "Regexp which matches a command to save a named theorem.
-Match number 2 should be the name of the theorem saved."
+Match number 2 should be the name of the theorem saved.
+Used for setting names of goal..save regions and for default
+func-menu configuration in proof-script-find-next-goalsave."
+  :type 'regexp
+  :group 'proof-script)
+
+(defcustom proof-goal-command-regexp nil
+  "Matches a goal command."
   :type 'regexp
   :group 'proof-script)
 
 (defcustom proof-goal-with-hole-regexp nil 
   "Regexp which matches a command used to issue and name a goal.
-Match number 2 should be the name of the goal issued."
+Match number 2 should be the name of the goal issued.
+Used for setting names of goal..save regions and for default
+func-menu configuration in proof-script-find-next-goalsave."
   :type 'regexp
   :group 'proof-script)
+
+(defcustom proof-script-next-entity-regexps nil
+  "Regular expressions to control finding definitions in script.
+This is the list of the form
+
+   (ANYENTITY-REGEXP
+    DISCRIMINATOR-REGEXP  ... DISCRIMINATOR-REGEXP)
+
+The idea is that ANYENTITY-REGEXP matches any named entity in the
+proof script, on a line where the name appears.  This is assumed to be
+the start or the end of the entity.  The discriminators then test
+which kind of entity has been found, to get its name.  A
+DISCRIMINATOR-REGEXP has one of the forms
+
+  (REGEXP MATCHNO) 
+  (REGEXP MATCHNO 'backward BACKREGEXP) 
+  (REGEXP MATCHNO 'forward FORWARDREGEXP)
+
+If REGEXP matches the string captured by ANYENTITY-REGEXP, then
+MATCHNO is the match number for the substring which names the entity.
+
+If 'backward BACKREGEXP is present, then the start of the entity
+is found by searching backwards for BACKREGEXP.
+
+Conversely, if 'forward FORWARDREGEXP is found, then the end of
+the entity is found by searching forwards for FORWARDREGEXP.
+
+Otherwise, the start and end of the entity will be the region matched
+by ANYENTITY-REGEXP.
+
+This mechanism allows fairly complex parsing of the buffer, in
+particular, it allows for goal..save regions which are named only at
+the end.  However, it does not parse strings, comments. or parentheses.
+
+A default value which should work for goal..saves is calculated from
+proof-goal-with-hole-regexp, proof-goal-command-regexp, and
+proof-save-with-hole-regexp."
+  :type 'sexp
+    ;; Bit tricky.
+    ;; (list (regexp :tag "Any entity matcher")
+    ;;    (:inline t repeat (choice regexp (const 'backward) etc
+  :group 'proof-script)
+
+
+(defcustom proof-script-find-next-entity-fn
+  'proof-script-find-next-entity
+  "Name of function to find next interesting entity in a script buffer.
+This is used to configure func-menu.  The default value is
+proof-script-find-next-entity, which searches for the next entity
+based on fume-function-name-regexp which by default is set from
+proof-script-next-entity-regexps.  The function should move
+point forward in a buffer, and return a cons cell of the name and the
+beginning of the entity's region."
+  :type 'function
+  :group 'proof-script)
+
+;; FIXME da: This next one is horrible.  We clearly would rather
+;; have proof-goal-regexp instead.  I think this was born to
+;; solve func-menu configuration for Coq (or a similar problem),
+;; but now that can be configured in a better way.
+;; This function variable needs removing.
 
 (defcustom proof-goal-command-p nil 
   "Is this a goal"
@@ -739,9 +809,8 @@ data triggered by `proof-shell-retract-files-regexp'."
 ;;
 ;; 6. Global constants
 ;; 
-(defcustom proof-mode-name "Proof-General"
-  "Root name for proof script mode.  
-Used internally and in menu titles."
+(defcustom proof-general-name "Proof-General"
+  "Proof General name used internally and in menu titles."
   :type 'string
   :group 'proof-general-internals)
 

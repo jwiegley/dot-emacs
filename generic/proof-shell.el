@@ -1011,7 +1011,7 @@ Annotations are characters 128-255."
 (easy-menu-define proof-shell-mode-menu
 		  proof-shell-mode-map
 		  "Menu used in Proof General shell mode."
-		  (cons proof-mode-name (cdr proof-shell-menu)))
+		  (cons proof-general-name (cdr proof-shell-menu)))
 
 
 
@@ -1070,13 +1070,13 @@ Annotations are characters 128-255."
 
 (eval-and-compile
 (define-derived-mode proof-universal-keys-only-mode fundamental-mode
-    proof-mode-name "Universal keymaps only"
+    proof-general-name "Universal keymaps only"
     (suppress-keymap proof-universal-keys-only-mode-map 'all)
     (proof-define-keys proof-universal-keys-only-mode-map proof-universal-keys)))
 
 (eval-and-compile			; to define vars
 (define-derived-mode pbp-mode proof-universal-keys-only-mode
-  proof-mode-name "Proof by Pointing"
+  proof-general-name "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
   ;; (define-key pbp-mode-map [(button2)] 'pbp-button-action)
@@ -1092,15 +1092,8 @@ Annotations are characters 128-255."
 (easy-menu-define proof-response-mode-menu
 		  proof-response-mode-map
 		  "Menu for Proof General response buffer."
-		  (cons proof-mode-name
+		  (cons proof-general-name
 			(cdr proof-shared-menu)))
-
-
-			
-
-
-
-
 
 
 (provide 'proof-shell)

@@ -17,6 +17,32 @@
   expression matching any of its elements"
   (mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
 
+(defun proof-regexp-alt (&rest args)
+  "Return the regexp which matches any of the regexps ARGS."
+  ;; Is this not available in some library?
+  (let ((res ""))
+    (dolist (regexp args res)
+      (setq res (concat res (if (string-equal res "") "\\(" "\\|\\(")
+			regexp "\\)")))))
+
+(defun proof-regexp-region (start end)
+  "Return regexp matching START anything over several lines END."
+  ;; FIXME: would like to use shy grouping here \\(?: but it seems
+  ;; buggy or unimplemented in XEmacs.
+  ;; WARNING: this produces nasty regexps that lead to stack
+  ;; overflows.  It's better to have a loop that searches over lines,
+  ;; see next function.
+  (concat "\\(" start "\\)\\(\n\\|.\\)*\\(" end "\\)"))
+
+(defun proof-re-search-forward-region (startre endre)
+  "Search for a region delimited by regexps STARTRE and ENDRE.
+Return the start position of the match for STARTRE, or
+nil if a region cannot be found."
+  (if (re-search-forward startre nil t)
+      (let ((start (match-beginning 0)))
+	(if (re-search-forward endre nil t)
+	    start))))
+
 ;; Generic font-lock
 
 ;; proof-commands-regexp is used for indentation
