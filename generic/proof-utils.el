@@ -62,6 +62,31 @@ Return nil if not a script buffer or if no active scripting buffer."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; Simplified version of save-some-buffers, with useful arg
+;;
+
+(defun proof-save-some-buffers (buffers)
+  ;; code based on extract from files.el in XEmacs 21.4.14
+  (map-y-or-n-p
+   (lambda (buffer)
+     (if
+	 (and (buffer-modified-p buffer)
+	      (not (buffer-base-buffer buffer))
+	      (buffer-file-name buffer))
+	 ;; we deliberately don't switch to show the buffer;
+	 ;; let's assume user can see it or knows what's in it.
+	 (format "Save file %s? "
+		 (buffer-file-name buffer))))
+   (lambda (buffer)
+     (set-buffer buffer)
+     (condition-case ()
+	 (save-buffer)
+       (error nil)))
+   buffers))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Function for taking action when dynamically adjusting customize values
 ;;
 (defun proof-set-value (sym value)
