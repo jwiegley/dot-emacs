@@ -127,12 +127,12 @@ no regular or easily discernable structure."
    ;;
    proof-indent-commands-regexp	(proof-ids-to-regexp isa-keywords)
    
-   ;; proof engine commands (first three for menus, last for undo)
-   proof-prf-string		"pr();"
+   ;; proof engine commands
+   proof-prf-string		"pr()"
    proof-goal-command		"Goal \"%s\";"
    proof-save-command		"qed \"%s\";"
-   proof-ctxt-string		"ProofGeneral.show_context();"
-   proof-help-string		"ProofGeneral.help();"
+   proof-ctxt-string		"ProofGeneral.show_context()"
+   proof-help-string		"ProofGeneral.help()"
    proof-kill-goal-command	"ProofGeneral.kill_goal();"
    ;; command hooks
    proof-goal-command-p		'isa-goal-command-p
