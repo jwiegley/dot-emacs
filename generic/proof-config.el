@@ -843,7 +843,7 @@ or `proof-script-parse-function'."
   :type 'string
   :group 'prover-config)
 
-(defcustom proof-script-use-old-parser nil
+(defcustom proof-script-use-old-parser t
   "Whether to use the old parsing mechanism.
 This is a stop-gap option in Proof General 3.4 added for
 proof assistants which still depend on peculiarities of the old
