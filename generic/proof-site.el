@@ -12,6 +12,10 @@
 
 (unless (featurep 'proof-site)		; don't load twice
 
+(require 'cl)				; we're going to need it sooner
+					; or later, and FSF doesn't
+					; autoload it properly.
+
 (if (or  (not (boundp 'emacs-major-version))
 	 (< emacs-major-version 20))
     (error "Proof General is not compatible with Emacs %s" emacs-version))
