@@ -1933,8 +1933,6 @@ scripting (to do undo operations), the whole history is discarded.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-require-command-regexp
-
-
 @defvar proof-shell-require-command-regexp 
 A regular expression to match a Require-type of command, or nil.@*
 If set to a regexp, then @samp{@code{proof-done-advancing-require-function}}
@@ -1944,11 +1942,8 @@ This can be used to adjust @samp{@code{proof-included-files-list}} based on the
 lines of script that have been processed/parsed, rather than relying
 on information from the prover.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-done-advancing-require-function
-
-
-
-
 @defvar proof-done-advancing-require-function 
 Invoked from @samp{@code{proof-done-advancing}}, see @samp{@code{proof-shell-require-command-regexp}}.@*
 The function is passed the span and the command as arguments.
