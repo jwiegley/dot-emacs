@@ -2433,7 +2433,6 @@ Regexp matching output indicating a finished proof.
 Regexp matching output telling Proof General to clear the response buffer.
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable.
-@c TEXI DOCSTRING MAGIC: proof-shell-clear-goals-regexp
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-start-goals-regexp
 @defvar proof-shell-start-goals-regexp 
@@ -2474,7 +2473,21 @@ Can be used to configure the proof assistant to the interface in
 various ways (for example, setting the line width of output).
 Any text inserted by these hooks will be sent to the proof process
 before every command issued by Proof General.
+
+NB: You should be very careful about setting this hook. 
+Proof General relies on a careful synchronization with
+the process between inputs and outputs.  It expects to see
+a prompt for each input it sends from the queue.  If your
+extra input here causes more prompts than expected, things
+will break!  Probably any insertions made should not have 
+carriage returns.
 @end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-shell-preprocess-command
+@defvar proof-shell-preprocess-command 
+Any preprocessing required for a command, e.g. stripping comments.
+@end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-pre-shell-start-hook
 @defvar proof-pre-shell-start-hook 
 Hooks run before proof shell is started.
@@ -3184,8 +3197,8 @@ output.
 This function deals with errors, start of proofs, abortions of
 proofs and completions of proofs. All other output from the proof
 engine is simply reported to the user in the response buffer
-by setting @code{proof-shell-delayed-output} to a cons cell of
-(@var{insert} . @var{text}) where @var{text} is the text to be inserted.
+by setting @code{proof-shell-delayed-output} to a cons 
+cell of (@var{insert} . @var{text}) where @var{text} is the text to be inserted.
 
 To extend this function, set
 @code{proof-shell-process-output-system-specific}.
@@ -3216,14 +3229,20 @@ The main processing point which triggers other actions is
 Filter for the proof assistant shell-process.
 A function for @code{comint-output-filter-functions}.
 
-Process urgent messages first.  As many as possible are processed,
+Deal with output and issue new input from the queue.
+
+Handle urgent messages first.  As many as possible are processed,
 using the function @samp{@code{proof-shell-process-urgent-messages}}.
 
-Otherwise wait until an annotated prompt appears in the input, then
-run @code{proof-shell-process-output} on the output between the new prompt
-and the last input (position of @code{proof-marker}) or the last
-urgent message (position of @code{proof-shell-urgent-message-marker}),
-whichever is later.  For example, in this case:
+Otherwise wait until an annotated prompt appears in the input.  
+If @code{proof-shell-wakeup-char} is set, wait until we see that in the
+output chunk @var{str}.  This optimizes the filter a little bit.
+
+If a prompt is seen, run @code{proof-shell-process-output} on the output
+between the new prompt and the last input (position of @code{proof-marker})
+or the last urgent message (position of
+@code{proof-shell-urgent-message-marker}), whichever is later.  
+For example, in this case:
 @lisp
  @var{prompt} @var{input}
  @var{output-1}
@@ -3237,15 +3256,26 @@ Only @var{output-2} will be processed.  For this reason, error
 messages and interrupt messages should @strong{not} be considered
 urgent messages.
 
-Appropriate action is taken depending on the what
-@code{proof-shell-process-output} returns: maybe handle an interrupt, an
-error, or deal with ordinary output which is a candidate
-for the goal or response buffer.
-Ordinary output is only displayed when the proof action list
-becomes empty, to avoid a confusing rapidly changing output.
+Output is processed using @code{proof-shell-filter-process-output}.
+
+The first time that a prompt is seen, @code{proof-marker} is 
+initialised to the end of the prompt.  This should
+correspond with initializing the process.  The 
+ordinary output before the first prompt is ignored (urgent messages, 
+however, are always processed).
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-filter-process-output
+@defun proof-shell-filter-process-output string
+Subroutine of @code{proof-shell-filter} to process output @var{string}.
+
+Appropriate action is taken depending on the what
+@code{proof-shell-process-output} returns: maybe handle an interrupt, an
+error, or deal with ordinary output which is a candidate for the goal
+or response buffer.  Ordinary output is only displayed when the proof
+action list becomes empty, to avoid a confusing rapidly changing
+output.
+@end defun
 
 
 

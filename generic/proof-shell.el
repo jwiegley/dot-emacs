@@ -839,6 +839,12 @@ proof-start-queue and proof-shell-exec-loop."
     ;; should not have any CRs.
     (run-hooks 'proof-shell-insert-hook)
 
+    ;; This hook added for Paul Callaghan's instantiation,
+    ;; to remove extra markup used for his "literate"
+    ;; style of input.
+    (and proof-shell-preprocess-command
+	 (setq string (funcall proof-shell-preprocess-command string)))
+
     (insert string)
     (set-marker proof-marker (point))
     (insert proof-shell-insert-space-fudge)

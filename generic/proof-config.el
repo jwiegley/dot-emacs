@@ -889,6 +889,12 @@ output format."
   :type '(cons (function function))
   :group 'proof-shell)
 
+(defcustom proof-shell-preprocess-command nil
+   "Any preprocessing required for a command, e.g. stripping comments.
+This function will be applied to each string sent to the process."
+   :type 'function
+   :group 'proof-shell)
+
 
 
 
