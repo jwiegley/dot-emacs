@@ -112,7 +112,7 @@ The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
 	  ;; functions invoke proof-x-symbol-mode.  That way we can
 	  ;; turn on/off cleanly in proof-x-symbol-mode-all-buffers.
 	  ;; (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
-	  ;; Okay, let's be less rash and put it on a hook list
+	  ;; Okay, let's be less rash and put it on a hook list.
 	  (dolist (mode proof-xsym-extra-modes)
 	    (add-hook 
 	     (intern (concat (symbol-name mode) "-hook"))
