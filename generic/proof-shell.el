@@ -222,11 +222,21 @@ Does nothing if proof assistant is already running."
 	      ;; Split on spaces: FIXME: maybe should be whitespace.
 	      " "))
 
-	    ;; Experimental fix for backslash/long line problem.  
-	    ;; Make start-process (called by make-comint)
-	    ;; use a pipe, not a pty.  Seems to work.
-	    ; (process-connection-type nil))
-	    )
+	    ;; Experimental fix for backslash/long line problem with
+	    ;; Solaris.  Make start-process (called by make-comint)
+	    ;; use a pipe, not a pty, by setting process-connection-type=nil.
+	    ;; It seems to work, but has known disadvantages.  
+	    ;; (I've forgotten what they are, size problems?).
+	    ;; Unfortunately, this appears to conflict with *non*-mule
+	    ;; versions of FSF Emacs which don't work properly
+	    ;; with piped communication.  (Anyone know why?)
+	    ;; So non-mule FSF loses with Solaris.
+	    (process-connection-type 
+	     ;; FIXME: test for Solaris here to use pty's on Linux
+	     (if (or (string-match "XEmacs" emacs-version)
+		     (boundp 'mule-version))
+		 nil
+	       process-connection-type)))  ; default
 
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we 
