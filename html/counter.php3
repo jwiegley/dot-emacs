@@ -15,6 +15,13 @@ $maxlen = 10;
 //     if file doesn't exist already, so start with
 //     empty files made with touch.
 
+// Here's how to cause it to be initialized:
+//
+//  rm -f counter.txt counterstart.txt
+//  touch counter.txt counterstart.txt
+//  chmod o+w counter.txt counterstart.txt
+//
+
 if (is_readable($counterFile) && is_writeable($counterFile)) {
   $fp   = fopen($counterFile,"r+");
   if (filesize($counterFile)<1) {
