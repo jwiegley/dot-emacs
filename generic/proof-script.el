@@ -95,17 +95,17 @@ This uses and updates `proof-element-counters'."
 ;;
 
 (deflocal proof-script-last-entity nil
-  "Record of last entity found.   
-A hack for entities that are named in two places, so that find-next-entity 
+  "Record of last entity found.
+A hack for entities that are named in two places, so that `find-next-entity'
 doesn't return the same values twice.")
 
 ;; FIXME mmw: maybe handle comments/strings by using
 ;; proof-looking-at-syntactic-context 
 (defun proof-script-find-next-entity (buffer)
   "Find the next entity for function menu in a proof script.
-A value for fume-find-function-name-method-alist for proof scripts.
-Uses fume-function-name-regexp, which is intialised from 
-proof-script-next-entity-regexps, which see."
+A value for `fume-find-function-name-method-alist' for proof scripts.
+Uses `fume-function-name-regexp', which is initialised from
+`proof-script-next-entity-regexps', which see."
   ;; Hopefully this function is fast enough.
   (set-buffer buffer)
   ;;  could as well use next-entity-regexps directly since this is
@@ -2615,7 +2615,7 @@ with something different."
 ;    proof-kill-goal-command		; do
     ))
 
-(defun proof-config-done () 
+(defun proof-config-done ()
   "Finish setup of Proof General scripting mode.
 Call this function in the derived mode for the proof assistant to
 finish setup which depends on specific proof assistant configuration."
@@ -2641,9 +2641,9 @@ finish setup which depends on specific proof assistant configuration."
   (unless proof-mode-for-script
       (setq proof-mode-for-script major-mode))
 
-  (if (and proof-non-undoables-regexp 
+  (if (and proof-non-undoables-regexp
 	   (not proof-ignore-for-undo-count))
-      (setq proof-ignore-for-undo-count 
+      (setq proof-ignore-for-undo-count
 	    proof-non-undoables-regexp))
 
   ;; Give warnings if some crucial settings haven't been made
@@ -2663,7 +2663,7 @@ finish setup which depends on specific proof assistant configuration."
 	(define-key proof-mode-map (vector proof-terminal-char)
 	  'proof-electric-terminator)))
   ;; It's ugly, but every script buffer has a local copy changed in
-  ;; sync by the fn proof-electric-terminator-enable 
+  ;; sync by the fn proof-electric-terminator-enable
   (setq proof-electric-terminator proof-electric-terminator-enable)
 
   (make-local-variable 'indent-line-function)
@@ -2679,7 +2679,7 @@ finish setup which depends on specific proof assistant configuration."
   (easy-menu-add proof-mode-menu proof-mode-map)
   (easy-menu-add proof-assistant-menu proof-mode-map)
 
-  ;; Choose parsing mechanism according to different kinds of script syntax.  
+  ;; Choose parsing mechanism according to different kinds of script syntax.
   ;; Choice of function depends on configuration setting.
   (unless (fboundp 'proof-segment-up-to)
     (if proof-script-use-old-parser
@@ -2701,7 +2701,7 @@ finish setup which depends on specific proof assistant configuration."
       ;; Configuration for using new parsing (3.3 and later)
       (progn
 	(defalias 'proof-segment-up-to 'proof-segment-up-to-parser)
-	(cond   
+	(cond
 	 (proof-script-parse-function
 	  ;; already set, nothing to do
 	  )
@@ -2718,8 +2718,21 @@ finish setup which depends on specific proof assistant configuration."
 		      (regexp-quote (char-to-string proof-terminal-char))
 		    "$"))))
 	 (t
-	  (error "Configuration error: must set `proof-terminal-char' or one of its friends."))))
+	  (error "Configuration error: must set `proof-terminal-char' or one of its friends"))))
       )) ;  default if nothing set is EOL.
+
+  ;; Setup a default for imenu.
+  (unless (and (boundp 'imenu-generic-expression)
+	       imenu-generic-expression)
+    (set (make-local-variable 'imenu-generic-expression)
+	 (delq nil
+	       (list
+		(if proof-goal-with-hole-regexp
+		    (list nil proof-goal-with-hole-regexp
+			  proof-goal-with-hole-result))
+		(if proof-save-with-hole-regexp
+		    (list "Saves" proof-save-with-hole-regexp
+			  proof-save-with-hole-result))))))
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
@@ -2727,13 +2740,13 @@ finish setup which depends on specific proof assistant configuration."
   ;; each time the mode function is run, so we wouldn't need "pushnew").
 
   (cond ((proof-try-require 'func-menu)
-	 ;; FIXME: we'd like to let the library load later, but 
+	 ;; FIXME: we'd like to let the library load later, but
 	 ;; it's a bit tricky: this stuff doesn't seem to work
 	 ;; in an eval-after-load body (local vars?).
 	 (unless proof-script-next-entity-regexps ; unless already set
 	   ;; Try to calculate a useful default value.
 	   ;; FIXME: this is rather complicated!  The use of the regexp
-	   ;; variables needs sorting out. 
+	   ;; variables needs sorting out.
 	     (customize-set-variable
 	      'proof-script-next-entity-regexps
 	      (let ((goal-discrim
