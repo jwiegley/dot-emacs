@@ -62,14 +62,10 @@
 Internal variable, setting this will have no effect!")
 
 ;; NB: this list uses XEmacs defaults in the non-multiframe case.
-;; We handle specifiers quit crudely, but (1) to set for the 
+;; We handle specifiers quit crudely, bute (1) to set for the 
 ;; frame specifically we'd need to get hold of the frame,
-;; (2) specifiers have been completely buggy.
+;; (2) specifiers have been (still are) quite buggy.
 (defconst proof-multiframe-specifiers 
-;  (mapcar
-;   (lambda (spec) (list spec nil t)) ;; (specifier-specs spec)
-;     (list has-modeline-p menubar-visible-p 
-;	   default-gutter-visible-p default-toolbar))
   (if proof-running-on-XEmacs
       (list 
        (list has-modeline-p nil nil) ;; nil even in ordinary case.
@@ -81,21 +77,22 @@ Internal variable, setting this will have no effect!")
 (defun proof-map-multiple-frame-specifiers (multiframep locale)
   "Set XEmacs specifiers according to MULTIFRAMEP in LOCALE."
   (dolist (spec proof-multiframe-specifiers)
+    ;; FIXME: Unfortunately these specifiers seem to get lost very
+    ;; easily --- the toolbar, gutter, modeline all come back
+    ;; for no good reason.  Can we construct a simple bug example?
     (set-specifier (car spec) 
-		   (if multiframep (cadr spec) (caddr spec) )
-		   locale)))
+		   (if multiframep (cadr spec) (caddr spec))
+		    locale)))
 
 (defconst proof-multiframe-parameters
   '((minibuffer . nil)
+    (modeline . nil)			; ignored?
     (unsplittable . t)
     (menu-bar-lines . 0)
     (tool-bar-lines . nil))
   "List of GNU Emacs frame parameters for secondary frames.")
 
 (defun proof-multiple-frames-enable ()
-  ;; FIXME: add GNU Emacs version here.
-  ;; Try to trigger re-display of goals/response buffers,
-  ;; on next interaction.  
   (if proof-running-on-XEmacs
       (proof-map-buffers
        (proof-associated-buffers)
