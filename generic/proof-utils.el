@@ -505,13 +505,20 @@ Ensure that point is visible in window."
 		 ;; otherwise the window will adopt to the smallest
 		 ;; sized output for good.
 		 (proof-resize-window-tofit))
-	     ;; For various reasons, point may get moved
-	     ;; around in response buffer.
+	     ;; For various reasons, point may get moved around in
+	     ;; response buffer.  Attempt to normalise its position.
 	     (goto-char (or pos (point-max)))
-	     (if pos (beginning-of-line))
+	     (if pos 
+		 (beginning-of-line)
+	       (skip-chars-backward "\n\t "))
 	     ;; Ensure point visible
-	     (or (pos-visible-in-window-p (point) window)
-		 (recenter -1)))))))
+	     (or 
+	      ;; FIXME: test proof-shrink-windows-tofit here as a
+	      ;; hack to avoid odd/bad behaviour of shrinking
+	      ;; moving window contents beyond start of display
+	      proof-shrink-windows-tofit
+	      (pos-visible-in-window-p (point) window)
+	      (recenter -1)))))))
 
 (defun proof-clean-buffer (buffer)
   "Erase buffer and hide from display if proof-delete-empty-windows set.
