@@ -336,7 +336,7 @@ Move point if the end of the locked position is invisible."
   (not (proof-locked-region-full-p)))
 
 (defun proof-toolbar-use ()
-  "Process the whole buffer"
+  "Process the whole buffer."
   (interactive)
   (if (proof-toolbar-use-enable-p)
       (progn
