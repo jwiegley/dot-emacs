@@ -1,0 +1,6 @@
+# robots.txt for http://proofgeneral.inf.ed.ac.uk
+# see http://httpd.apache.org/docs/misc/howto.html
+ 
+User-agent: *
+Disallow: /cgi/ # cgi scripts
+# Disallow: /manual/ # get it somewhere else
