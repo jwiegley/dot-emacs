@@ -859,8 +859,8 @@ Regexp which matches a command to save a named theorem.@*
 The name of the theorem is build from the variable
 @code{proof-save-with-hole-result} using the same convention as 
 @code{query-replace-regexp}. 
-Used for setting names of goal..save regions and for default
-@code{function-menu} configuration in @code{proof-script-find-next-entity}.
+Used for setting names of goal..save and proof regions and for 
+default @code{function-menu} configuration in @code{proof-script-find-next-entity}.
 
 It's safe to leave this setting as nil.
 @end defvar
@@ -2720,6 +2720,7 @@ important one is @code{proof-init-segmentation}.
 Initialise the queue and locked spans in a proof script buffer.@*
 Allocate spans if need be.  The spans are detached from the
 buffer, so the regions are made empty by this function.
+Also clear list of script portions.
 @end defun
 
 For locking files loaded by a proof assistant, we use the next function.
