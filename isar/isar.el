@@ -381,7 +381,7 @@ proof-shell-retract-files-regexp."
 (proof-definvisible isar-print-draft 
   '(if (y-or-n-p 
 	(format "Print draft of file %s ?" buffer-file-name))
-       (format "display_drafts \"%s\"" buffer-file-name)
+       (format "print_drafts \"%s\"" buffer-file-name)
      (error "Aborted."))
   [(control p)])
 
