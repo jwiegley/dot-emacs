@@ -1315,7 +1315,7 @@ front of the list. When the prover retracts across file boundaries, this
 list is resynchronised. It contains files in canonical truename format.
 @inforef{Truenames,,lispref}. You should not set this variable directly.
 The generic Proof General will modify @code{proof-included-files-list}
-itself. Instead for a specific proof assistant you need to customise
+itself. Instead, for a specific proof assistant you need to customise
 @code{proof-shell-process-file}. @code{proof-shell-retract-files-regexp} 
 and @code{proof-shell-compute-new-files-list}.
 
@@ -1388,9 +1388,6 @@ Rod Burstall,
 Paul Callaghan,
 Martin Hofmann,
 James McKinna, 
-Mark Ruys, 
-Martin Steffen, 
-Perdita Stevens,
 and Markus Wenzel.  Thanks to all of you!
 
 

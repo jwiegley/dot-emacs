@@ -185,28 +185,11 @@
 ;;   Code that's lego specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Martin Steffen <mnsteffe@informatik.uni-erlangen.de> has pointed
-;; out that calling lego-get-path has to deal with a user who hasn't
-;; set the environmental variable LEGOPATH. It is probably best if
-;; lego is installed as a shell script which sets a sensible default
-;; for LEGOPATH if the user hasn't done so before. See the
-;; documentation of the library for further details.
-
-(defun lego-get-path ()
-  (let ((path-name (getenv lego-path-name)))
-    (cond ((not path-name)
-           (message "Warning: LEGOPATH has not been set!")
-           (setq path-name ".")))       
-    (proof-string-to-list path-name lego-path-separator)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   This is how to work out what the undo commands are, given the  ;;
-;;   first span which needs to be undone                            ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; needs to handle Normal as well
 ;; it should ignore Normal TReg Normal VReg and (Normal ...)
 (defun lego-count-undos (span)
+  "This is how to work out what the undo commands are.
+Given is the first SPAN which needs to be undone."
   (let ((ct 0) str i)
     (while span
       (setq str (span-property span 'cmd))
@@ -427,10 +410,6 @@
 	     (append '(("\\.l$" . lego-tags)
 		       ("lego"  . lego-tags))
 		     tag-table-alist)))
-
-;; where to find files
-
-  (setq compilation-search-path (cons nil (lego-get-path)))
 
   (setq blink-matching-paren-dont-ignore-comments t)
 
