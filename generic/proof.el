@@ -380,7 +380,7 @@ Returns new END value."
       (buffer-substring start (point-max))))))
 
 (defun proof-display-and-keep-buffer (buffer &optional pos)
-  "Display BUFFER and mark window according to `proof-window-dedicated'.
+  "Display BUFFER and mark window according to `proof-dont-switch-windows'.
 If optional POS is present, will set point to POS.  
 Otherwise move point to the end of the buffer.
 Ensure that point is visible in window."
@@ -389,7 +389,7 @@ Ensure that point is visible in window."
       (set-buffer buffer)
       (display-buffer buffer)
       (setq window (get-buffer-window buffer 'visible))
-      (set-window-dedicated-p window proof-window-dedicated)
+      (set-window-dedicated-p window proof-dont-switch-windows)
       (and window
 	   (save-selected-window
 	     (select-window window)

@@ -1713,11 +1713,11 @@ model.
 If your screen is large enough, you may prefer to display all three of
 the interaction buffers at once.  This is useful, for example, to see
 output from the @code{proof-find-theorems} command at the same time as
-the subgoal list.  Set the user option @code{proof-window-dedicated} to
+the subgoal list.  Set the user option @code{proof-dont-switch-windows} to
 make Proof General keep both the goals and response buffer displayed.
 
-@c TEXI DOCSTRING MAGIC: proof-window-dedicated
-@defopt proof-window-dedicated 
+@c TEXI DOCSTRING MAGIC: proof-dont-switch-windows
+@defopt proof-dont-switch-windows 
 Whether response and goals buffers have dedicated windows.@*
 If non-nil, Emacs windows displaying messages from the prover will not
 be switchable to display other windows.
@@ -1771,7 +1771,7 @@ This setting makes the @code{*isabelle-goals*} and
 frames.  
 
 Multiple frames work best when @code{proof-auto-delete-windows} is
-@code{nil} and @code{proof-window-dedicated} is @code{t}.
+@code{nil} and @code{proof-dont-switch-windows} is @code{t}.
 
 
 @node User options
