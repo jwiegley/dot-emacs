@@ -9,7 +9,7 @@
     $Id$
 *)
 
-Section sect.
+Module sect.
 
 Goal (A,B:Prop)(A /\ B) -> (B /\ A).
  Intros A B H.
@@ -32,5 +32,9 @@ End mod.
 
 Module Type newmod.
 Definition type1:=Set.
+
+Goal (n:nat)n=n.
+Auto.
+Save toto.
 End newmod.
 

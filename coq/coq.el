@@ -152,8 +152,8 @@
    (t '("Section"))))
 
 (defvar coq-section-regexp 
-;  (proof-ids-to-regexp coq-keywords-section)
-  "\\(\\<Section\\>\\|\\<Module\\>\\-+\\<Type\\>\\|\\<Module\\>\\)"
+  (concat "\\(" (proof-ids-to-regexp coq-keywords-section) "\\)")
+;  "\\(\\<Section\\>\\|\\<Module\\>\\-+\\<Type\\>\\|\\<Module\\>\\)"
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -210,7 +210,8 @@
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
        (not (proof-string-match "Definition.*:=" str))
-		 (not (proof-string-match "Recursive Definition" str))
+       (not (proof-string-match "Module.*:=" str))
+       (not (proof-string-match "Recursive Definition" str))
        ;; da: 3.4 test: do not exclude Lemma: we want goal-command-p to
        ;; succeed for nested goals too now.
        ;; (should we also exclude Definition?)
@@ -245,7 +246,18 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
       (setq str (span-property span 'cmd))
       (cond
        ((eq (span-property span 'type) 'comment))
-       
+       ;; One more particular case (7.4, coq raise an error if < 7.4): 
+       ;; Module <Type> T ... :=... . inside proof (shoul perhaps been disallowed in coq)
+       ;; Should behave like Definition ... :=... . (ie no proof started, and no section-like started)
+       ;; Should go in last cond, but I have a problem trying to avoid next cond to match.
+       ((and (coq-proof-mode-p) (proof-string-match "\\(\\<Module\\>\\).*:=" str))
+        (incf nbacks))
+       ;; this case is correctly treated by the next 
+       ;; one because 'Module :=' is not a 'goalsave span
+       ;((and (not (coq-proof-mode-p)) 
+       ;      (proof-string-match 
+       ;       (concat "\\(\\<Module\\>\\)\\s-+\\(" proof-id "\\).*:=") str))
+       ; (setq ans (format coq-forget-id-command (match-string 2 str))))
        ;; FIXME: combine with coq-keywords-decl-defn-regexp case below?
        ;; [ Maybe not: Section is being treated as a _goal_ command
        ;;   now, so this test has to appear before the goalsave ]       
@@ -264,8 +276,7 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
         (if (equal (match-string 2 str) "Type") ;Module Type id: take the third word
             (progn 
               (setq ans (format coq-forget-id-command (match-string 5 str))))
-          (setq ans (format coq-forget-id-command (match-string 2 str))))
-        )
+          (setq ans (format coq-forget-id-command (match-string 2 str)))))
        ((eq (span-property span 'type) 'goalsave)
         ;; Note da 6.10.99: in Lego and Isabelle, it's trivial to forget an
         ;; unnamed theorem.  Coq really does use the identifier
@@ -281,7 +292,7 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
        ((coq-goal-command-p str)
-        ;;Todo Hack: if Definition:foo. inside a "Module Type": it is
+        ;;TODO if Definition:foo. inside a "Module Type": it is
         ;;not a proof start!!
         ;(if (and (proof-string-match "Definition\\-+:[^=]?" str)
         ;         (inside-module-type))
