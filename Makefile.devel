@@ -88,10 +88,10 @@ TAR=tar
 DEVELMAKE=make -f Makefile.devel
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=html etc Makefile.devel doc/notes.txt images/*.xcf images/notes.txt images/gimp images/Makefile
+NONDISTFILES=html etc Makefile.devel doc/notes.txt images/*.xcf images/notes.txt images/gimp images/Makefile isa/wip.ML
 
 # Files not to include in the distribution tarball
-IGNOREDFILES=doc/ProofGeneral.dvi Makefile.devel todo
+IGNOREDFILES=doc/ProofGeneral.dvi Makefile.devel todo isa/wip.ML
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
