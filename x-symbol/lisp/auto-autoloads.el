@@ -130,7 +130,7 @@ VAR's options has been defined with `x-symbol-define-user-options'." nil nil)
 
 ;;;***
 
-;;;### (autoloads (x-symbol-init-input x-symbol-rotate-key x-symbol-modify-key x-symbol-grid x-symbol-read-language x-symbol-init-language-interactive x-symbol-mode-internal x-symbol-auto-8bit-search x-symbol-auto-coding-alist x-symbol-unalias x-symbol-encode x-symbol-encode-recode x-symbol-decode x-symbol-decode-recode x-symbol-encode-all x-symbol-decode-single-token x-symbol-decode-all x-symbol-decode-region x-symbol-package-reply-to-report x-symbol-package-bug x-symbol-package-info x-symbol-package-web x-symbol-translate-to-ascii) "x-symbol" "lisp/x-symbol.el")
+;;;### (autoloads (x-symbol-init-input x-symbol-rotate-key x-symbol-modify-key x-symbol-grid x-symbol-read-language x-symbol-init-language-interactive x-symbol-mode-internal x-symbol-auto-8bit-search x-symbol-auto-coding-alist x-symbol-unalias x-symbol-encode x-symbol-encode-recode x-symbol-decode x-symbol-decode-recode x-symbol-encode-all x-symbol-encode-string x-symbol-decode-single-token x-symbol-decode-all x-symbol-decode-region x-symbol-package-reply-to-report x-symbol-package-bug x-symbol-package-info x-symbol-package-web x-symbol-translate-to-ascii) "x-symbol" "lisp/x-symbol.el")
 
 (autoload 'x-symbol-translate-to-ascii "x-symbol" "\
 Translate STRING to an ascii string.
@@ -177,6 +177,8 @@ which defaults to `x-symbol-exec-threshold'.  Before decoding, decode
 8bit characters in CODING which defaults to `x-symbol-coding'." nil nil)
 
 (autoload 'x-symbol-decode-single-token "x-symbol" nil nil nil)
+
+(autoload 'x-symbol-encode-string "x-symbol" nil nil nil)
 
 (autoload 'x-symbol-encode-all "x-symbol" "\
 Encode all characters in buffer to tokens.

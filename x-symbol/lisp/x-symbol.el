@@ -776,12 +776,13 @@ er, I have actually deleted it.")
   "Decode all tokens between BEG and END.
 Make sure that X-Symbol characters are correctly displayed under
 XEmacs/no-Mule even when font-lock is disabled."
-  (save-restriction
-    (narrow-to-region beg end)
-    (x-symbol-decode-all)
-    ;; Is the following really necessary?  Anyway, it doesn't hurt...
-    (unless (featurep 'mule) (x-symbol-nomule-fontify-cstrings))
-    ))
+  (save-excursion
+    (save-restriction
+      (narrow-to-region beg end)
+      (x-symbol-decode-all)
+      ;; Is the following really necessary?  Anyway, it doesn't hurt...
+      (unless (featurep 'mule) (x-symbol-nomule-fontify-cstrings))
+      (point-max))))
 
 ;;;###autoload
 (defun x-symbol-decode-all ()
@@ -886,6 +887,17 @@ which defaults to `x-symbol-exec-threshold'.  Before decoding, decode
 	    ((setq charsym (car token))
 	     (insert-before-markers (gethash charsym x-symbol-cstring-table))
 	     (delete-region beg end))))))
+
+;;;###autoload
+(defun x-symbol-encode-string (string buffer)
+  (save-excursion
+    (set-buffer (get-buffer-create " x-symbol string conversion"))
+    (erase-buffer)
+    (insert string)
+    (x-symbol-inherit-from-buffer buffer)
+    ;;(setq x-symbol-mode t)		; not needed
+    (x-symbol-encode-all)
+    (buffer-string)))
 
 ;;;###autoload
 (defun x-symbol-encode-all (&optional buffer start end)
@@ -1245,9 +1257,7 @@ where KEY is equal to the MATCH'th regexp group of the match."
 
 ;; TODO: quick hack
 ;;;###autoload
-(defun x-symbol-auto-8bit-search (&optional limit)
-  (or limit (setq limit x-symbol-auto-8bit-search-limit))
-  (if (eq limit 'point-max) (setq limit nil))
+(defun x-symbol-auto-8bit-search (limit)
   (let ((cs (if (featurep 'mule)
 		(cdr (assq (x-symbol-buffer-coding)
 			   '((iso-8859-1 . latin-iso8859-1)
@@ -1419,7 +1429,7 @@ command `x-symbol-mode' for details."
 					; valid coding and buffer-fc = default
 			       (assq x-symbol-coding x-symbol-fchar-tables))
 			  (setq x-symbol-8bits
-				(x-symbol-auto-8bit-search 'point-max)))
+				(x-symbol-auto-8bit-search nil)))
 		    (setq x-symbol-8bits nil))
 		  (x-symbol-decode-all))
 	      (x-symbol-encode-all))
@@ -2019,21 +2029,21 @@ the execution of the command.  E.g., `forward-char' uses `1+'."
 		     (> (caddr x-symbol-invisible-spec) pos))))
       (when (buffer-live-p (car x-symbol-invisible-spec))
 	(x-symbol-ignore-property-changes
-	 (if (eq x-symbol-font-lock-with-extra-props 'invisible)
-	     (progn
-	       (put-text-property (cadr x-symbol-invisible-spec)
-				  (caddr x-symbol-invisible-spec)
-				  'invisible 'hide)
-	       (unless (eq this-command 'eval-expression)
-		 (setq x-symbol-trace-invisible
-		       (text-properties-at (cadr x-symbol-invisible-spec)))))
-	   (funcall (if (consp (cdddr x-symbol-invisible-spec))
-                       'put-text-property
-		      'put-nonduplicable-text-property)
-		    (cadr x-symbol-invisible-spec)
-		    (caddr x-symbol-invisible-spec)
-		    'face (cdddr x-symbol-invisible-spec)
-		    (car x-symbol-invisible-spec))))
+	  (if (eq x-symbol-font-lock-with-extra-props 'invisible)
+	      (progn
+		(put-text-property (cadr x-symbol-invisible-spec)
+				   (caddr x-symbol-invisible-spec)
+				   'invisible 'hide)
+		(unless (eq this-command 'eval-expression)
+		  (setq x-symbol-trace-invisible
+			(text-properties-at (cadr x-symbol-invisible-spec)))))
+	    (funcall (if (consp (cdddr x-symbol-invisible-spec))
+			 'put-text-property
+		       'put-nonduplicable-text-property)
+		     (cadr x-symbol-invisible-spec)
+		     (caddr x-symbol-invisible-spec)
+		     'face (cdddr x-symbol-invisible-spec)
+		     (car x-symbol-invisible-spec))))
 	(setq x-symbol-invisible-spec nil)))))
 
 (defun x-symbol-reveal-invisible (after before)
@@ -2046,31 +2056,26 @@ with `x-symbol-hide-revealed-at-point'."
 	(iface (if (eq x-symbol-font-lock-with-extra-props 'invisible)
 		   'x-symbol-revealed-face
 		 'x-symbol-invisible-face)))
-    (when (setq x-symbol-invisible-spec
-		(or (if (consp faces)
-			(memq iface faces)
-		      (eq faces iface))
-		    (and (eq x-symbol-reveal-invisible t)
-			 (setq after before)
-			 (setq faces (get-text-property after 'face))
-			 (if (consp faces)
-			     (memq iface faces)
-			   (eq faces iface)))))
+    (setq x-symbol-invisible-spec nil)	; safety (should be precondition)
+    (when (or (if (consp faces) (memq iface faces) (eq faces iface))
+	      (and (eq x-symbol-reveal-invisible t)
+		   (setq after before)
+		   (setq faces (get-text-property after 'face))
+		   (if (consp faces) (memq iface faces) (eq faces iface))))
       (let ((start (previous-single-property-change (1+ after) 'face nil
 						    (point-at-bol)))
-      (when (featurep 'xemacs)
-        ;; `isearch-secondary' face would induce a prop change
-        (unless (eq x-symbol-font-lock-with-extra-props 'invisible) ; safety
-          (let (faces2 start2)
-            (while (and (setq faces2 (get-text-property (1- start) 'face))
-                        (if (consp faces2)
-                            (memq iface faces2)
-                          (eq faces2 iface))
-                        (setq start2 (previous-single-property-change
-                                      start 'face nil (point-at-bol))))
-              (setq start start2)))))
 	    (end (next-single-property-change after 'face nil
 					      (point-at-eol))))
+	(when (featurep 'xemacs)
+	  ;; `isearch-secondary' face would induce a prop change
+	  (unless (eq x-symbol-font-lock-with-extra-props 'invisible) ; safety
+	    (let (faces2 start2)
+	      (while
+		  (and (setq faces2 (get-text-property (1- start) 'face))
+		       (if (consp faces2) (memq iface faces2) (eq faces2 iface))
+		       (setq start2 (previous-single-property-change
+				     start 'face nil (point-at-bol))))
+		(setq start start2)))))
 	(setq x-symbol-invisible-spec
 	      (list* (current-buffer) start end faces))
 	(x-symbol-ignore-property-changes

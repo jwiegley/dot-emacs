@@ -37,7 +37,7 @@
 (require 'x-symbol-hooks)
 (eval-when-compile (require 'cl))
 
-(defconst x-symbol-version "4.5"
+(defconst x-symbol-version "4.4.5g"
   "Current development version of package X-Symbol.
 Check <http://x-symbol.sourceforge.net/> for the newest.")
 
@@ -169,19 +169,19 @@ A value of such a language access looks like
 
 If `x-symbol-mode' is not already buffer-local, MODE-ON determines
 whether to turn the mode on if \\[x-symbol-mode] is called with a cons
-as prefix argument.  LANGUAGE, CODING, 8BITS, UNIQUE, SUBSCRIPTS and
-IMAGE are used to set `x-symbol-language', `x-symbol-coding',
-`x-symbol-8bits', `x-symbol-unique', `x-symbol-subscripts' and
-`x-symbol-image' if these values are not already buffer-local.
+as prefix argument.  CODING, 8BITS, UNIQUE, SUBSCRIPTS and IMAGE are
+used to set `x-symbol-coding', `x-symbol-8bits', `x-symbol-unique',
+`x-symbol-subscripts' and `x-symbol-image' if these values are not
+already buffer-local.
 
 During evaluation, a non-nil `buffer-file-name' is sans backup versions
 or strings, and without suffixes in `x-symbol-auto-mode-suffixes', and
 `x-symbol-mode' is bound to the `eval'ed MODE-ON.  Then, the above
-mentioned variables are set to the `eval'ed LANGUAGE, CODING, 8BITS,
-UNIQUE, SUBSCRIPTS and IMAGE in that order, if the variables is not
-already buffer-local.  If CODING evaluates to nil, `x-symbol-coding' is
-set according to `x-symbol-auto-8bit-search-limit', if CODING evaluates
-to `null', `x-symbol-coding' is set to nil.
+mentioned variables are set to the `eval'ed CODING, 8BITS, UNIQUE,
+SUBSCRIPTS and IMAGE in that order, if the variables is not already
+buffer-local.  If CODING evaluates to nil, `x-symbol-coding' is set
+according to `x-symbol-auto-8bit-search-limit', if CODING evaluates to
+`null', `x-symbol-coding' is set to nil.
 
 Users might prefer to customize `x-symbol-auto-style-alist' instead.")
 

@@ -1,13 +1,17 @@
-2003-03-04  Christoph Wedler  <wedler@users.sourceforge.net>
+2003-03-06  Christoph Wedler  <wedler@users.sourceforge.net>
 
+ * Bug fix: would not hightlight subscripts when using
+   font-lock without any font-lock support mode if X-Symbol
+   is turned on the first time, but not automatically.
  * Bug fix, Emacs: would still not work with package
    crypt/crypt++.
+ * Bug fix, XEmacs: using C-s = isearch would not always
+   reveal the full subscript command when necessary.
  * Make |- and |= electric.
  * Provide unzipped PDF and PS version of manual on web.
  * Manual, docstring and Makefile updates.
 
-	Report from Felix E. Klee.  Suggestion from Gerwin
-	Klein.
+	Report from Felix E. Klee, Gerwin Klein.
 
 2003-01-18  Christoph Wedler  <wedler@users.sourceforge.net>
 

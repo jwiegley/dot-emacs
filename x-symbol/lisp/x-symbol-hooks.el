@@ -291,16 +291,18 @@ Use \"locale -ck code_set_name charmap\" and search for the value of
 	(t
 	 (warn "X-Symbol: cannot deduce default encoding, I'll assume `iso-8859-1'")
 	 'iso-8859-1))
-  "Coding used for 8bit characters in buffers.
-Also used for a 8bit file codings where `x-symbol-coding' has value nil.
-Supported values are `iso-8859-1', `iso-8859-2', `iso-8859-3' and
-`iso-8859-9', it should correspond to the normal charset registry of
-your `default' face.
+  "Default coding used for 8bit characters in buffers.
+Supported values are `iso-8859-1', `iso-8859-2', `iso-8859-3',
+`iso-8859-9', `iso-8859-15', and nil.  Value nil is the same as
+`iso-8859-1', while disabling some uses of `x-symbol-coding'.
 
-WARNING: Under XEmacs/Mule, package x-symbol is only tested with value
-`iso-8859-1'!  It is assumed that you have not changed any of the
-various Mule codings-system variables, i.e., it assumes iso-8859-1.  Use
-\\[x-symbol-package-bug] to give the author some advice on Mule.")
+Without Mule support, the value determines the coding in all buffers
+with value nil for `x-symbol-coding'.  With Mule support, Emacs
+recognizes the coding itself.
+
+This value is also used to determine the canoncial character if a
+character is supported by various latin charsets, see
+\\[x-symbol-unalias].")
 
 (unless (or (memq x-symbol-default-coding
 		  '(nil iso-8859-1 iso-8859-2 iso-8859-3 iso-8859-9))
@@ -796,7 +798,8 @@ If argument INIT is non-nil, the old mode status is assumed to be off."
 	  (x-symbol-auto-set-variable 'x-symbol-coding (cadr style))
 	  (or (local-variable-p 'x-symbol-8bits (current-buffer))
 	      (setq x-symbol-8bits (or (eval (caddr style))
-				       (x-symbol-auto-8bit-search))
+				       (x-symbol-auto-8bit-search
+					x-symbol-auto-8bit-search-limit))
 		    ;; use value `null' to disable 8bit char search
 		    x-symbol-8bits (and (not (eq x-symbol-8bits 'null))
 					x-symbol-8bits)))
@@ -858,29 +861,16 @@ Call `x-symbol-mode' with a cons for ARG and a non-nil INIT.  Used in
   "Decode output of comint's process.
 Used as value in `comint-output-filter-functions'."
   (and x-symbol-mode x-symbol-language
-       (save-excursion
-	 (x-symbol-decode-region (if (interactive-p)
-				     comint-last-input-end
-				   comint-last-output-start)
-				 (process-mark (get-buffer-process
-						(current-buffer)))))))
+       (x-symbol-decode-region
+	(if (interactive-p) comint-last-input-end comint-last-output-start)
+	(process-mark (get-buffer-process (current-buffer))))))
 
 (defun x-symbol-comint-send (proc string)
   "Encode STRING and send it to process PROC.
 Used as value of `comint-input-sender', uses
 `x-symbol-orig-comint-input-sender'."
   (and x-symbol-mode x-symbol-language
-       (setq string
-	     (save-excursion
-	       (let ((orig-buffer (current-buffer))
-		     (selective selective-display))
-		 (set-buffer (get-buffer-create " x-symbol comint"))
-		 (erase-buffer)
-		 (insert string)
-		 (x-symbol-inherit-from-buffer orig-buffer)
-		 (x-symbol-encode-all)
-		 (setq selective-display selective))
-		 (buffer-string))))
+       (setq string (x-symbol-encode-string string (current-buffer))))
   (funcall x-symbol-orig-comint-input-sender proc string))
 
 
@@ -1009,30 +999,32 @@ value other than nil or `fast'.  Refontifies buffer if
 	     (lambda ()
 	       (x-symbol-encode-all)
 	       (continue-save-buffer)))
-	  (let ((buffer-undo-list nil)
-		;; Kludge to prevent undo list truncation:
-		(undo-limit most-positive-fixnum) ; Emacs
-		(undo-strong-limit most-positive-fixnum) ; Emacs
-		(undo-high-threshold -1)	; XEmacs
-		(undo-threshold -1))		; XEmacs
-	    (unwind-protect
-		(let ((file-hooks (cdr (memq 'x-symbol-write-file-hook
-					     (default-value
-					       'write-file-hooks))))
-		      setmodes)
-		  (x-symbol-encode-all)
-		  (or (run-hook-with-args-until-success 'file-hooks)
-		      (setq setmodes (basic-save-buffer-1)))
-		  ;; See `basic-save-buffer'.  TODO: do I also have to set the
-		  ;; coding system and `buffer-file-number'?
-		  (if setmodes
-		      (condition-case ()
-			  (set-file-modes buffer-file-name setmodes)
-			(error nil))))
-	      (let ((tail buffer-undo-list))
-		(setq buffer-undo-list t)
-		(while tail
-		  (setq tail (primitive-undo (length tail) tail)))))))
+	  ;; not called inside `save-excursion' in Emacs >= 20.3
+	  (save-excursion
+	    (let ((buffer-undo-list nil)
+		  ;; Kludge to prevent undo list truncation:
+		  (undo-limit most-positive-fixnum) ; Emacs
+		  (undo-strong-limit most-positive-fixnum) ; Emacs
+		  (undo-high-threshold -1)	; XEmacs
+		  (undo-threshold -1))		; XEmacs
+	      (unwind-protect
+		  (let ((file-hooks (cdr (memq 'x-symbol-write-file-hook
+					       (default-value
+						 'write-file-hooks))))
+			setmodes)
+		    (x-symbol-encode-all)
+		    (or (run-hook-with-args-until-success 'file-hooks)
+			(setq setmodes (basic-save-buffer-1)))
+		    ;; See `basic-save-buffer'.  TODO: do I also have to set the
+		    ;; coding system and `buffer-file-number'?
+		    (if setmodes
+			(condition-case ()
+			    (set-file-modes buffer-file-name setmodes)
+			  (error nil))))
+		(let ((tail buffer-undo-list))
+		  (setq buffer-undo-list t)
+		  (while tail
+		    (setq tail (primitive-undo (length tail) tail))))))))
 	(and (eq x-symbol-auto-conversion-method 'slowest)
 	     font-lock-mode
 	     (x-symbol-fontify))
