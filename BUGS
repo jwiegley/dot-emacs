@@ -77,9 +77,12 @@ simplifier, when tracing rewriting.
 
  Workaround: manually bind C-c RET to 'proof-goto-point instead.
 
+** Active minibuffer can cause strange buffer selection behaviour.
 
-
-
+Try this: start PG/isar, step into a proof, activate a mini buffer (by
+visit-file etc.), now update goals output by clicking the toolbar.  PG
+will attempt to put the output into the minibuffer portion of the
+frame!  To get back to a sane state, use C-]
 
 * Problems with particular Emacs versions
 
