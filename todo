@@ -396,6 +396,9 @@ B (part of above): Handle proof-retract-file by querying Isabelle
   about the decendants of a file.  Then all the descendents can
   also be unlocked.
 
+B (part of above): add multiple file handling for Isabelle
+  (4h).
+
 X Write perl scripts to generate TAGS file for ML and thy files.
   (6h, I've completely forgotten perl), or better:
 
