@@ -30,6 +30,12 @@
 (require 'isabelle-system)
 
 
+;; Adjust toolbar entries (must be done before proof-toolbar is loaded).
+
+(if proof-running-on-XEmacs
+    (setq isar-toolbar-entries
+	  (remassoc 'qed (remassoc 'goal isar-toolbar-entries))))
+
 
 ;;;
 ;;; theory header
