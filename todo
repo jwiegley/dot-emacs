@@ -50,9 +50,6 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   [6 hours]
 
 A BUGS to investigate:
-  - Is there a catch bug on Solaris when a process shell killed?
-  - There is a catch bug even on Linux, sometimes get the message
-    "proc undefined" after the process has died.  Investigate.
   - Thomas has a bizarre .emacs file which causes Seg Faults with
     Proof General and FSF Emacs.  Doesn't happen with "emacs -q".
     Investigate which package/setting he adds is to blame.
