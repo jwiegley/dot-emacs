@@ -1,7 +1,6 @@
 xx.10.00  3.2.1 Release 3-2-1
-	  First patch to 3.2 release.
-	  Minor fixes to doc/Makefile.doc
-
+          [pending]
+	
 02.10.00  3.2   Release 3-2  based on branch 5.0
 	  First version of 3.2 release.
 
