@@ -236,7 +236,7 @@ Print and Check commands, put the following line in your .emacs:
 	    "SearchRewrite"
 	    "Set\\s-+Hyps_limit"
 	    "Set\\s-+Undo"
-	    "Set\\s-+Set\\s-+Printing\\s-+Coercion[^s]"
+	    "Set\\s-+Printing\\s-+Coercion[^s]"
 	    "Show"
 	    "Test\\s-+Printing\\s-+If"
 	    "Test\\s-+Printing\\s-+Let"
