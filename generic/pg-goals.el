@@ -12,6 +12,10 @@
 
 (require 'pg-assoc)
 
+;; Nuke some byte compiler warnings.
+(eval-when-compile
+  (require 'easymenu))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Goals buffer mode

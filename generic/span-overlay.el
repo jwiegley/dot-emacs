@@ -347,7 +347,7 @@ Behaviour is still worse than before."
 	       (fold-spans-aux f (span-property l 'before) FROM MAPARGS)))
 	(t ())))
 
-(defun fold-spans (f &optional BUFFER FROM TO DUMMY1 DUMMY2 DUMMY3)
+(defun fold-spans (f &optional BUFFER FROM TO DUMMY1 DUMMY2 DUMMY3 DUMMY4)
   (save-excursion
     (set-buffer (or BUFFER (current-buffer)))
     (car (or (last (fold-spans-aux f before-list FROM))))

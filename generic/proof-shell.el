@@ -10,11 +10,22 @@
 
 (require 'proof-menu)
 (require 'span)
-(require 'pg-goals)			; associated output
+
+;;
+;; Internal variables used in sub-modules
+;;
+
+;; A raw record of the last output from the proof system
+(defvar proof-shell-last-output nil
+  "A record of the last string seen from the proof system.")
+
+
+;; sub-modules
+
 (require 'pg-response)			; buffers for goals/response
+(require 'pg-goals)			; associated output
 
 ;; Nuke some byte compiler warnings.
-
 (eval-when-compile
   (require 'comint)
   (require 'font-lock))
@@ -77,10 +88,6 @@ See the functions `proof-start-queue' and `proof-exec-loop'.")
 (defvar proof-shell-last-prompt nil
   "A record of the last prompt seen from the proof system.
 This is the string matched by `proof-shell-annotated-prompt-regexp'.")
-
-;; A raw record of the last output from the proof system
-(defvar proof-shell-last-output nil
-  "A record of the last string seen from the proof system.")
 
 ;; A flag indicating the type of thing proof-shell-last-output
 (defvar proof-shell-last-output-kind nil

@@ -142,18 +142,18 @@ If in three window or multiple frame mode, display two buffers."
 ;;;###autoload
 (defun proof-menu-define-specific ()
   (easy-menu-define 
-   proof-assistant-menu 
-   proof-mode-map
+    proof-assistant-menu 
+    proof-mode-map
     (concat "The menu for " proof-assistant)
     (cons proof-assistant
-	   (append
-	    (proof-ass menu-entries)
-	    '("----")
-	    (or proof-menu-favourites
-		(proof-menu-define-favourites-menu))
-	    (or proof-menu-settings
-		(proof-menu-define-settings-menu))
-	    '("----")
+	    (append
+	     (proof-ass menu-entries)
+	     '("----")
+	     (or proof-menu-favourites
+		 (proof-menu-define-favourites-menu))
+	     (or proof-menu-settings
+		 (proof-menu-define-settings-menu))
+	     '("----")
 	    (list
 	     (vector
 	      (concat "Start " proof-assistant)
