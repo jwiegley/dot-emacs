@@ -373,6 +373,11 @@ The protocol used should be configured so that no user interaction
   :type 'string
   :group 'proof-user-options)
 
+(defcustom proof-disappearing-proofs nil
+  "*Non-nil causes Proof General to hide proofs as they are completed."
+  :type 'boolean
+  :group 'proof-user-options)
+
 
 
 
@@ -704,6 +709,7 @@ If a function, it should return the command string to insert."
     (qed	"Finish proof"        "Close/save proved theorem" t)
     (lockedend  "Locked end"	      nil t)
     (find	"Find theorems"	      "Find theorems" t)
+    (visible    "Make proofs visible" nil t)
     (command    "Issue command"	      "Issue a non-scripting command" t)
     (interrupt  "Interrupt prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
     (info	nil		      "Show online proof assistant information" t)
@@ -893,6 +899,12 @@ You should set this variable for reliable working of Proof General,"
 The default value for this is set as (regexp-quote proof-comment-end)
 but you can set this variable to something else more precise if necessary."
   :type 'string
+  :group 'proof-script)
+
+(defcustom pg-insert-output-as-comment-fn nil
+  "Function to insert last output as a comment.  Passed output as arg.
+If left as nil, the default behaviour is to insert and call `comment-region'."
+  :type '(choice function nil)
   :group 'proof-script)
 
 (defcustom proof-string-start-regexp "\""
@@ -1481,10 +1493,10 @@ to disable silent mode altogether)."
  "Command to the proof assistant to tell it that a file has been processed.
 The format character `%s' is replaced by a complete filename for a
 script file which has been fully processed interactively with
-Proof General.  The escape sequences in `proof-shell-filename-escapes' 
-are applied to the filename.
+Proof General.  See `proof-format-filename' for other possibilities
+to process the filename.
 
-This is used to interface with the proof assistant's internal
+This setting used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
 which files have been processed.  Specifically, when scripting
 is deactivated in a completed buffer, it is added to Proof General's
@@ -1501,9 +1513,9 @@ proof-shell-process-file, proof-shell-compute-new-files-list."
 (defcustom  proof-shell-inform-file-retracted-cmd nil
  "Command to the proof assistant to tell it that a file has been retracted.
 The format character `%s' is replaced by a complete filename for a
-script file which Proof General wants the prover to consider
-as not completely processed. The escape sequences
-in `proof-shell-filename-escapes' are applied to the filename.
+script file which Proof General wants the prover to consider as not
+completely processed.  See `proof-format-filename' for other
+possibilities to process the filename.
 
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
@@ -1992,10 +2004,11 @@ functions '(condf . actf). Both are given (cmd string) as arguments.
 `cmd' is a string containing the currently processed command.
 `string' is the response from the proof system. To change the
 behaviour of `proof-shell-process-output', (condf cmd string) must
-return a non-nil value. Then (actf cmd string) is invoked. See the
-documentation of `proof-shell-process-output' for the required
-output format."
-  :type '(repeat function)
+return a non-nil value. Then (actf cmd string) is invoked. 
+
+See the documentation of `proof-shell-process-output' for the required
+output format."  
+  :type '(repeat function) 
   :group 'proof-shell)
 
 (defcustom proof-state-change-hook nil
