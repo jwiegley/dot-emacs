@@ -1959,7 +1959,7 @@ file. On the contrary with this method, Emacs will do this operation
 automatically.
 
 Extending the previous example, if the makefile for @file{foo.v} is
-located in directory @file{.../dir/}, you can add the good compile
+located in directory @file{.../dir/}, you can add the right compile
 command:
 
 @lisp
@@ -1971,10 +1971,11 @@ command:
 *)
 @end lisp
 
-And then the good call to makefile will be done if you use the @kbd{M-x
+And then the right call to make will be done if you use the @kbd{M-x
 compile} command. Notice that the lines are commented in order to be
 ignored by the proof assistant. It is possible to use this mechanism for
-any other buffer local variable. Read (@inforef{File Variables, ,xemacs}.
+any other buffer local variable. Read (@inforef{File Variables,
+,xemacs}.
 
 
 
