@@ -464,7 +464,10 @@ explicit yank."
     (save-window-excursion
       (save-excursion
 	(mouse-set-point event)
-	(setq span (span-at (point) 'proof))
+	;; Get either the proof body or whole goalsave
+	(setq span (or 
+		    (span-at (point) 'proof))
+		    (span-at (point) 'goalsave))
 	(if span (copy-region-as-kill
 		  (span-start span) 
 		  (span-end span)))))
@@ -504,7 +507,7 @@ user types by hand."
     (apply 'concat (nreverse ls))))
 
 (defun pbp-construct-command ()
-  (let* ((span (span-at (point) 'proof))
+  (let* ((span (span-at (point) 'goalsave))
 	 (top-span (span-at (point) 'proof-top-element))
 	 top-info)
     (if (null top-span) ()
@@ -516,7 +519,7 @@ user types by hand."
 	 (format (if (eq 'hyp (car top-info)) pbp-hyp-command 
 		                              pbp-goal-command)
 		 (concat (cdr top-info) (proof-expand-path 
-					 (span-property span 'proof))))))
+					 (span-property span 'goalsave))))))
        ((eq (car top-info) 'hyp)
 	(proof-shell-invisible-command
 	 (format pbp-hyp-command (cdr top-info))))
@@ -701,7 +704,7 @@ extents."
 	    ;; lego/example.l and FSF GNU Emacs 20.3
 	    (setq span (make-span (car stack) op))
 	    (set-span-property span 'mouse-face 'highlight)
-	    (set-span-property span 'proof (car (cdr stack)))
+	    (set-span-property span 'goalsave (car (cdr stack)));; FIXME: really goalsave?
 	    ;; Pop annotation off stack
 	    (and proof-analyse-using-stack
 		 (progn
