@@ -1019,10 +1019,19 @@ may be left as nil."
   :type '(choice nil regexp)
   :group 'proof-script)
 
-;; FIXME: doc this next one.
 (defcustom proof-nested-undo-regexp nil
   "Regexp for commands that must be counted in nested goal-save regions.
-Used for provers which allow nested-goal saves but a flat history."
+
+Used for provers which allow nested atomic goal-saves, but with some
+nested history that must be undone specially.
+
+At the moment, the behaviour is that a goal-save span has a 'nestedundos
+property which is set to the number of commands within it which match
+this regexp.  The idea is that the prover-specific code can create a
+customized undo command to retract the goal-save region, based on the
+'nestedundos setting.  Coq uses this to forget declarations, since
+declarations in Coq reside in a separate context with its own (flat)
+history."
   :type '(choice nil regexp)
   :group 'proof-script)
 
@@ -1247,6 +1256,7 @@ will be attempted."
 
 (defcustom proof-kill-goal-command ""
   "Command to kill the currently open goal.
+
 If this is set to nil, PG will expect proof-find-and-forget-fn
 to do all the work of retracting to an arbitrary point in a file.
 Otherwise, the generic split-phase mechanism will be used:
@@ -1274,15 +1284,16 @@ need to set this variable."
 
 (defcustom proof-nested-goals-history-p nil
   "Whether the prover supports recovery of history for nested proofs.
-If it does, Proof General will retain history inside nested proofs;
-otherwise Proof General will amalgamate nested proofs into single
-steps."
+If it does (non-nil), Proof General will retain history inside 
+nested proofs.
+If it does not, Proof General will amalgamate nested proofs into single
+steps within the outer proof."
   :type 'boolean
   :group 'proof-script)
 
 (defcustom proof-state-preserving-p 'proof-generic-state-preserving-p
   "A predicate, non-nil if its argument (a command) preserves the proof state.
-If set, used by proof-minibuffer-cmd to filter out scripting
+This is a safety-test used by proof-minibuffer-cmd to filter out scripting
 commands which should be entered directly into the script itself.
 
 The default setting for this function, `proof-generic-state-preserving-p'
