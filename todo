@@ -972,3 +972,100 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 	- research on ways of conducting a formalization, cf
 	  ways of writing a program.  Common idioms that PG could
 	  help with.
+
+
+=================================================================
+
+LIST OF THINGS FOR PG 3.4
+=========================
+
+
+Check all instantiations.
+
+  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Nested idiom spans:
+
+ ;; FIXME: should also remove nested 'idiom spans.
+
+Maybe they should have type annotation after all?
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+GNU Emacs probs:
+================
+
+-- Another miscellaneous hang: on "Exit Isabelle" after doing
+retraction because of part-way through processing a file.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+X-Sym 4.4   backwards compat for 3.3, though  
+
+(boundp 'x-symbol-make-grammar)
+
+Signaling: (wrong-type-argument stringp ("\\<spacespace>"))
+  search-forward(("\\<spacespace>") nil limit)
+  x-symbol-decode-all(nil)
+  x-symbol-mode-internal(t)
+  x-symbol-mode(1)
+
+-----------------------------------------------------------------
+
+Announce mailing list move, new test version.
+
+-----------------------------------------------------------------
+
+Does proof-follow-mode have any effect???
+
+-----------------------------------------------------------------
+
+!!!! MOVE MAILING LIST !!!! 
+
+-----------------------------------------------------------------
+
+
+-----------------------------------------------------------------
+
+X-Symbol: update for latest X-Symbol????
+
+-----------------------------------------------------------------
+
+
+** Add glyphs for hidden proofs.  (Wow factor)
+
+** Fix-up show/hide for nested proofs.  (Wierdness with
+   cursor jumping as well)
+
+** Show/hide in FSF Emacs.
+
+
+-----------------------------------------------------------------
+
+LICENSE: chase-up ERI to get something for PG 3.4.
+
+-----------------------------------------------------------------
+
+Cleanup undo behaviour to cope with new Coq mechanism.
+
+Is the simplified mechanism better for other provers too, or does the
+split still apply?  Probably best to leave Isar as-is and have
+proof-nesting-depth left as experimental.
+
+-----------------------------------------------------------------
+
+proof-shell-proof-completed
+  Doesn't behave right for Isabelle/Isar??
+
+proof-nesting-depth:
+  This needs to be fixed up in count undos, find-and-forget.
+
+Would be good to make count undos and find-and-forget generic.
+  [ Perhaps too tricky/temperamental to get this right ]
