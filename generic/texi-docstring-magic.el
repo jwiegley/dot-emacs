@@ -47,7 +47,7 @@
 ;;
 ;; Automatic markup rules:
 ;;
-;; 1. Indented lines are gathered into @lisp environment.
+;; 1. Indented lines are gathered into a @lisp environment.
 ;; 2. Pieces of text `stuff' or surrounded in quotes marked up with @samp. 
 ;; 3. Words *emphasized* are made @strong{emphasized}
 ;; 4. Words sym-bol which are symbols become @code{sym-bol}.
@@ -123,7 +123,7 @@
     ;; 4. Words sym-bol which are symbols become @code{sym-bol}.
     ;; Must have at least one hyphen to be recognized,
     ;; terminated in whitespace, end of line, or punctuation.
-    ;; (Only consider symbols made from word constituents
+    ;; Only consider symbols made from word constituents
     ;; and hyphen.
     ("\\(\\(\\w+\\-\\(\\w\\|\\-\\)+\\)\\)\\(\\s\)\\|\\s-\\|\\s.\\|$\\)"
      (or (boundp (intern (match-string 2 docstring)))
@@ -138,7 +138,7 @@
     ;; FIXME: maybe we don't want to downcase stuff already
     ;; inside @samp
     ;; FIXME: should - terminate?  should _ be included?
-    ("\\([A-Z0-9\\-]+\\)\\(/\\|\)\\|}\\|\\s-\\|\\s.\\|$\\)"
+    ("\\([A-Z0-9_\\-]+\\)\\(/\\|\)\\|}\\|\\s-\\|\\s.\\|$\\)"
      (or (> (length (match-string 1 docstring)) 3)
 	 (member (downcase (match-string 1 docstring)) args))
      (concat "@var{" (downcase (match-string 1 docstring)) "}"
@@ -154,7 +154,12 @@
     ;; 7,8. Clean up for @lisp environments left with spurious newlines
     ;; after 1.
     ("\\(\\(^\\s-*$\\)\n@lisp\\)" t "@lisp")
-    ("\\(\\(^\\s-*$\\)\n@end lisp\\)" t "@end lisp"))
+    ("\\(\\(^\\s-*$\\)\n@end lisp\\)" t "@end lisp")
+    ;; 9. Hack to remove @samp{@var{...}} sequences.
+    ;; Changed to just @samp of uppercase.
+    ("\\(@samp{@var{\\([^}]+\\)}}\\)" 
+     t
+     (concat "@samp{" (upcase (match-string 2 docstring)) "}")))
     "Table of regexp matches and replacements used to markup docstrings.
 Format of table is a list of elements of the form
    (regexp predicate replacement-form)
