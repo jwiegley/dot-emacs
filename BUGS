@@ -1,0 +1,20 @@
+
+Known bugs and workarounds.
+===========================
+
+
+
+
+
+
+Development:
+============
+
+customize:  odd behaviour after setting proof-assistant in
+.emacs file via customize: customize reports "mismatch"
+and "set outside customize".  Second of these probably
+okay.  Why first?
+
+
+da: How to remove a directory from CVS?  I think it needs
+editing in the repository.  'isabelle' is defunct.
