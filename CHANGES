@@ -1,8 +1,19 @@
 -*- outline -*-
 
-* Summary of Changes for Proof General 3.5 from 3.4
-
 See also etc/release-log.txt for minor patches.
+
+* Summary of Changes for Proof General 3.6 from 3.5
+
+*** Improved compatibility with Coq 8
+
+*** Support for forthcoming Isabelle versions
+
+Menu function to display and print drafts of buffer contents.
+Support latest PGIP version inside Isabelle for settings
+configuration.
+
+
+* Summary of Changes for Proof General 3.5 from 3.4
 
 ** Generic changes
 
