@@ -2010,7 +2010,9 @@ is off (nil)."
   (interactive
    (list (read-string "Command: " 
 		      (if (and current-prefix-arg (region-exists-p))
-			  (buffer-substring (region-beginning) (region-end)))
+			  (replace-in-string 
+			   (buffer-substring (region-beginning) (region-end))
+			   "[ \t\n]+" " "))
 		      'proof-minibuffer-history)))
   (if (and proof-strict-state-preserving
 	   proof-state-preserving-p
