@@ -1,4 +1,4 @@
-;; isa.el Major mode for Isabelle proof assistant
+;; isa-mode.el	 Emacs support for Isabelle proof assistant
 ;; Copyright (C) 1994-2000 LFCS Edinburgh, David Aspinall.
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
@@ -32,6 +32,7 @@
 
 (require 'proof)
 (require 'isa-syntax)
+(require 'isa-system)
 
 ;;;
 ;;; ======== User settings for Isabelle ========
@@ -42,31 +43,6 @@
 ;;; 'isabelle         -  User options for Isabelle Proof General
 ;;; 'isabelle-config  -  Configuration of Isabelle Proof General
 ;;;			 (constants, but may be nice to tweak)
-
-; FIXME: fancy logic choice stuff to go in for 3.2
-;(defcustom isabelle-logic "HOL"
-;  "*Choice of logic to use with Isabelle.
-;If non-nil, will be added into isabelle-prog-name as default value."
-;  :type (append
-;	 (list 'choice '(const :tag "Unset" nil))
-;	 (mapcar (lambda (str) (list 'const str))
-;		 (split-string-by-char
-;		  (substring (shell-command-to-string "isatool findlogics") 0 -1)
-;                                                      ^^^^^^^
-; MW: Must not assume isatool in PATH!!!  Use $ISATOOL instead.
-;		  ?\ )))
-;  :group 'isabelle)
-
-(defcustom isabelle-prog-name 
-  (if (fboundp 'win32-long-file-name)	; rough test for XEmacs on win32
-      "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\HOL"
-    "isabelle")
-  "*Name of program to run Isabelle.
-The default value when running under Windows expects SML/NJ in C:\\sml
-and an Isabelle image for HOL in C:\Isabelle.  You can change this
-by customization."
-  :type 'file
-  :group 'isabelle)
 
 (defcustom isabelle-indent 2
   "*Indentation degree in proof scripts.
@@ -82,45 +58,22 @@ no regular or easily discernable structure."
   :type 'string
   :group 'isabelle)
 
-;; User options for isabelle (EXPERIMENTAL: to be generalised)
-
-(defcustom isabelle-show-types  nil
-  "Whether to show types in Isabelle."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'isabelle)
-
-(defcustom isabelle-show-sorts  nil
-  "Whether to show sorts in Isabelle."
-  :type 'boolean
-  :set 'proof-set-value
-  :group 'isabelle)
-
-(defun isa-format-bool (string val)
-  (proof-format (list (cons "%b" (if val "true" "false"))) string))
-
-(defun isabelle-show-types ()
-  ;; Better would be to queue the command, or interrupt a queue
-  ;; in progress.  Also must send current settings at start
-  ;; of session somehow.
-  (if (proof-shell-available-p)
-      (progn
-	(proof-shell-invisible-command 
-	 (isa-format-bool "show_types:=%b;" isabelle-show-types))
-	(proof-prf) ; refresh display, should only do if goals on.
-	)))
-
-(defun isabelle-show-sorts ()
-  (proof-shell-invisible-command 
-   (isa-format-bool "show_sorts:=%b;" isabelle-show-sorts)))
+;; FIXME: deftoggle should only define toggler, not setter?
+(proof-deftoggle isabelle-show-sorts)
+(proof-deftoggle isabelle-show-types)
 
 (defcustom isabelle-menu-entries
-  '(["Show types" isabelle-show-types-toggle
+  (append
+   '(["Switch to theory" thy-find-other-file t])
+   (list "----")
+   '(["Show types" isabelle-show-types-toggle
      :active t :style toggle
      :selected isabelle-show-types]
     ["Show sorts" isabelle-show-sorts-toggle
      :active t :style toggle
      :selected isabelle-show-sorts])
+   (list "----")
+   (list isa-docs-menu))
   "Entries for Isabelle menu.")
 
 (proof-deftoggle isabelle-show-sorts)
@@ -252,7 +205,9 @@ and script mode."
 
    ;; initial command configures Isabelle by hacking print functions.
    ;; FIXME: temporary hack for almost enabling/disabling printing.
-   proof-shell-init-cmd                 "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0); ProofGeneral.init false;"
+   ;; Also for setting default values.
+   proof-shell-init-cmd                 (concat (isa-set-default-cmd)
+ "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0); ProofGeneral.init false;")
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
    
