@@ -1929,7 +1929,7 @@ This version is used when `proof-script-command-end-regexp' is set."
 		(unless
 		    (if (progn
 			  (goto-char (or (match-end 1) (match-beginning 0)))
-			  (forward-comment))
+			  (forward-comment 1))
 		    (proof-re-search-forward
 		     proof-script-comment-end-regexp cmdend t))
 		  (error
