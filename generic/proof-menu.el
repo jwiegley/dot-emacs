@@ -369,13 +369,11 @@ If in three window or multiple frame mode, display two buffers."
 	 (list "-----")
 	 proof-show-hide-menu
 	 (list "-----")
-	 ;; NB: customize-menu-create was buggy in earlier 
-	 ;; Emacs 21.X; okay since 21.1.1. 
-	 ;; Oops: buggy again in 21.2.1, argh! 
+	 ;; NB: customize-menu-create is buggy in GNU Emacs
+	 ;; (was bad in 21.1.0, good in 21.1.1, bad in 21.2.1, argh!)
 	 ;; See proof-compat.
-	 (list (customize-menu-create 'proof-general))
-	 (list (customize-menu-create 'proof-general-internals 
-				      "Internals"))))
+	 (pg-customize-menu-create 'proof-general)
+	 (pg-customize-menu-create 'proof-general-internals "Internals")))
   "Advanced sub-menu of script functions and customize.")
 
 
