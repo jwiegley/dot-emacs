@@ -142,6 +142,9 @@ packages that you need to use Proof General:
   * outline
   * func-menu or imenu
 
+If in doubt and you have the option, select the aptly named XEmacs
+"sumo" package.
+
 The X Symbol package is now bundled with Proof General so you
 do not need to download it separately.
 
