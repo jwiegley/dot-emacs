@@ -220,13 +220,20 @@ other documentation, system downloads, etc.
 @unnumberedsec Latest news for 3.3
 @cindex news
 
-Proof General 3.3 includes a few small features additions, but mainly
-the focus has been on compatibility improvements for new versions of
-provers (in particular, Coq 7), and new versions of emacs (in
-particular, XEmacs 21.4).
+Proof General 3.3 includes a few feature additions, but mainly the focus
+has been on compatibility improvements for new versions of provers (in
+particular, Coq 7), and new versions of emacs (in particular, XEmacs
+21.4).
 
 One new feature is control over visibility of completed proofs,
-@xref{Visibility of completed proofs}.
+@xref{Visibility of completed proofs}.  Another new feature is the
+tracking of theorem dependencies inside Isabelle.  A context-sensitive
+menu (right-button on proof scripts) provides facility for browsing the
+ancestors and child theorems of a theorem, and highlighting them.  The
+idea of this feature is that it can help you untangle and rearrange big
+proof scripts, by seeing which parts are interdependent.  The implementation
+is provisional and not documented yet in the body of this manual.  It only
+works for the "classic" version of Isabelle99-2.
 
 See the @file{CHANGES} file in the distribution for more complete
 details of changes since 3.2.
