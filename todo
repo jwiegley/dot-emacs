@@ -16,7 +16,7 @@ $Id$
  * Things to do for Lego
  * Things to do for Coq
  * Things to do for Isabelle
- * Bugs in other packages beyond our control
+ * Bugs in other software beyond our control
  * Stable version release checklist
  * Things to do for Proof General Project
 
@@ -896,7 +896,7 @@ X Manage multiple proofs, perhaps by automatically inserting
 
 
 
-* Bugs in other packages beyond our control
+* Bugs in other software beyond our control
 ===========================================
 
 X Odd behaviour of font-lock in script buffers when long strings
@@ -913,6 +913,39 @@ X spurious byte comp warning in XEmacs 21.1.4:
   for this code:
                (prog1 (buffer-substring)
                  (kill-buffer (current-buffer))
+
+X Error with pdftexinfo (hacked version of teTeX pre-release, 1.0.6).
+Gives problem with @value{blah} inside @pdfurl.  May be absent from
+pdftexinfo.tex, but that version doesn't seem to generate web links?
+
+(/usr/share/texmf.local/pdftex/texinfo/pdftexinfo.tex
+Loading texinfo [version 1999-09-25.10]: Basics, pdf,
+(/usr/share/texmf/pdftex/plain/misc/pdfcolor.tex) fonts, page headings,
+tables, conditionals, indexing, sectioning, toc, environments, defuns, macros,
+cross references, (/usr/share/texmf/tex/plain/dvips/epsf.tex) localization,
+and turning on texinfo input format.)) (ProofGeneral.aux) [1[/usr/share/texmf/d
+vips/config/pdftex.map][/usr/share/texmf.local/dvips/config/dalucida.map][/usr/
+share/texmf.local/dvips/adobe/agaramon/pad.map][/usr/share/texmf.local/dvips/co
+nfig/wp1.map][/usr/share/texmf.local/dvips/config/mscore.map][/usr/share/texmf.
+local/dvips/config/barbedor-ttf.map][/usr/share/texmf.local/dvips/config/goodtt
+.map]] [2] (Preface)
+! Undefined control sequence.
+@indexbreaks ->@catcode `@-=@active @let -
+                                          @realdash 
+@value ...ode `@-=12 @catcode `@_=12 @indexbreaks 
+                                                  @let _@normalunderscore @v...
+<argument> @value 
+                  {URLpghome}
+@pdfurl ...r{/Subtype /Link /A << /S /URI /URI (#1
+                                                  ) >>}@endgroup 
+@douref ...->@begingroup @unsepspaces @pdfurl {#1}
+                                                  @setbox 0 = @hbox {@ignore...
+l.264 @uref{@value{URLpghome}}
+                              .  Visit this page for
+? x
+<cmtt10.pfb><cmsy10.pfb><8r.enc><bsfr8a.pfb><bsfc8a.pfb>
+Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
+
 
 
 
