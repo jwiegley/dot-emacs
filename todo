@@ -53,8 +53,6 @@ A BUGS to investigate:
     work, but there may be problems.
   - bug mentioned by Martin H. with Lego: "don't know what I should
     be doing..." error when it shouldn't happen.
-  - Coq: bug reported by a user, and Patrick mentioned that section
-    handling is buggy.
 
 A Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.
@@ -520,7 +518,7 @@ X Mechanism to save object file. Specifically, after having processed
 * Here are things to be done to Coq mode
 ========================================
 
-A* Implement multiple file handling.
+A C-c C-c breaks the coherence with prover state
 
 C Retraction in a Section should retract to the beginning of the whole 
   section. See the section "Granularity of
@@ -528,12 +526,9 @@ C Retraction in a Section should retract to the beginning of the whole
   implementation so that it can also deal with sections.
   [See also the LEGO problem with Discharge] (6h)
 
-C derive a coq-response-mode from proof-response-mode; see lego.el (10min)
-
-D set proof-commands-regexp to support indentation for commands
-						    (10min)
-
 D Add Patrick Loiseleur's commands to search for vernac or ml files.
+  (they are in a separate file that is part of Coq distrib.
+   should I really integrate that in PG ? Patrick) 
 
 D Proof-by-Pointing (10h)
 
@@ -545,8 +540,6 @@ D Improve coqtags. It cannot handle lists e.g., with
 	Parameter x,y:nat
 
   it only tags x but not y. [The same problem exists for legotags]
-
-X Sections and files are handled incorrectly.
 
 
 * Here are things to be done to Isabelle Mode
