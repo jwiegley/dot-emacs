@@ -849,7 +849,11 @@ There is no built-in understanding of the undo behaviour of nested
 proofs; instead there is some support for un-nesting nested proofs in
 the proof-lift-global mechanism.  Of course, this is risky because of
 nested contexts!"
-  :type 'boolean
+  :type '(choice
+	  (const :tag "Close on save only" nil)
+	  (const :tag "Close next command" closeany)
+	  (const :tag "Close next goal" closegoal)
+	  (const :tag "Extend" ignore))
   :group 'proof-script)
 
 (defcustom proof-lift-global nil
