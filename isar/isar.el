@@ -25,9 +25,13 @@
 (require 'proof)
 (require 'isar-syntax)
 
+;; Completion table for Isabelle/Isar identifiers
+(defpgdefault completion-table isar-keywords-major)
+
 ;; Add generic code for Isabelle and Isabelle/Isar
 (setq load-path (cons (concat proof-home-directory "isa/") load-path))
 (require 'isabelle-system)
+(require 'x-symbol-isabelle)
 
 (defcustom isar-web-page
   "http://isabelle.in.tum.de/Isar/"
@@ -489,7 +493,7 @@ proof-shell-retract-files-regexp."
                   ;;    (format "ML_command {* %s *};" string)
                   ;;    string)
                   string
-                  "\\<^sync>;"))))
+                  " \\<^sync>;"))))
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
@@ -502,16 +506,17 @@ proof-shell-retract-files-regexp."
   (add-hook 'proof-pre-shell-start-hook 'isar-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook 'isar-preprocessing))
 
-
 (defun isar-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle/Isar."
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords isar-output-font-lock-keywords-1)
+  (setq font-lock-keywords  ;FIXME handle x-symbol stuff by generic code!?
+	(append isar-output-font-lock-keywords-1 x-symbol-isabelle-font-lock-keywords))
   (isar-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
 (defun isar-response-mode-config ()
-  (setq font-lock-keywords isar-output-font-lock-keywords-1)
+  (setq font-lock-keywords  ;FIXME handle x-symbol stuff by generic code!?
+	(append isar-output-font-lock-keywords-1 x-symbol-isabelle-font-lock-keywords))
   (isar-init-output-syntax-table)
   (proof-response-config-done))
 
@@ -520,7 +525,8 @@ proof-shell-retract-files-regexp."
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
-  (setq font-lock-keywords isar-goals-font-lock-keywords)
+  (setq font-lock-keywords  ;FIXME handle x-symbol stuff by generic code!?
+	(append isar-goals-font-lock-keywords x-symbol-isabelle-font-lock-keywords))
   (proof-goals-config-done))
 
 
@@ -536,16 +542,6 @@ proof-shell-retract-files-regexp."
  (isar-markup-ml "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode)")
  proof-xsym-deactivate-command
  (isar-markup-ml "print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"])"))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Completion table for Isabelle/Isar identifiers
-;;
-;; Ideally this could be set and adjusted automatically from the
-;; running process.
-
-(defpgdefault completion-table isar-keywords-major)
 
 
 (provide 'isar)
