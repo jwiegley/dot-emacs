@@ -30,12 +30,7 @@
   Also works around crash bug in xemacs-21.1.7/SuSE.
   Fix to previous function (used by FSF Emacs) by Markus Wenzel.
   XEmacs uses new functions which have slightly different 
-  behaviour.  If this is problematical, please report, and
-  force the use of the old function by writing:
-
-     (defalias 'proof-segment-up-to 'proof-segment-up-to-old)
- 
-  in your .emacs file. (Warning: only during pre-release!)
+  behaviour around comments.  
 
 *** Makefile has new target "scripts" to adjust paths in bash/perl scripts
 

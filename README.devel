@@ -64,19 +64,20 @@ Hopefully one day we may have a proper test suite and mechanism to
 test across different versions of Emacs.  For the time being, be
 careful of the following tips (gathered from experience).
 
+*** Compatibility hacks collected in proof-compat.el
+
+ - This file contains implementations/emulations of functions to
+ provide uniformity between different Emacs versions.  If you
+ use a function specific to XEmacs or newer versions, consider adding
+ a conditional definition of it here to support other versions
+ for a while.
+
 *** Common Lisp macros  -- Japan Emacsen have older versions
 
  - Use (dolist (var list) body), not (dolist (var list result) body).
 
 
 
-** Handy tips
+** CVS tips
 
-*** Moving to new branch.
-
-   find * -path '*/CVS' -prune -o -path 'CVS' -prune -o -print | xargs cvs commit -m"Updating branch" -f -r 4.0         
-
-
-*** Making a new branch.
- 
    See etc/cvs-tips.txt
