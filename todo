@@ -13,10 +13,13 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
  3. Things to do for the documentation
  4. FSF Emacs issues
  5. Things to do for Proof-by-Pointing
- 6. Bugs in other software beyond our control
- 7. Stable version release checklist
- 8. Things to do for Proof General Project
- 9. See <prover>/todo for things to do for each prover.
+ 6. Things to do for Web Pages, Distribution
+ 7. Future improvements to take advantage of newer Emacsen
+ 8. Bugs in other software beyond our control
+ 9. Stable version release checklist
+10. Things to do for Proof General Project
+ 
+    See <prover>/todo for things to do for each prover.
 
 ** 1. Priorities
 
@@ -27,18 +30,14 @@ D		e.g. desirable to fix at some point
 X (Low)		e.g. probably not worth spending time on
 
 
-*** Things to fix before 3.2
-
-A test rpm package and script.  Try to get specific doc files into RPM package
-A Web pages: fix features page to look better / remove HTML errors.
-A Update html to link 3.2 docs in doc page.  
-A Update /etc/release-note.txt
-A Check list below for new release
-A Proof read documentation, check list of todos below for it.
-A Remove fileshow urls in html
-B Think about adding wmconfig stuff to RPM file
-
 ** 2. Things to in the generic interface
+
+*** D RPM package todos: 
+        - get specific doc files into RPM package (subdirs of doc/)
+	- Think about adding wmconfig stuff (icons in images/ now)
+
+*** C Fix the doc makefiles to adapt the image flag in PG-adapting.tex
+      properly, for dvi/ps targets
 
 *** C The PG isabelle-completion-table seems to be subject to case-fold, which
       it shouldn't be: \<sqinter> does not work, but \<Sqinter> is OK.
@@ -721,7 +720,7 @@ B Think about adding wmconfig stuff to RPM file
 
 
 
-** 4. Things to do for Proof-by-Pointing
+** 5. Things to do for Proof-by-Pointing
 
 *** B Unify proof-insert-pbp-command and proof-shell-insert-loopback-cmd.
   Add some debugging messages in proof-done-advancing to indicate
@@ -759,14 +758,18 @@ B Think about adding wmconfig stuff to RPM file
 
 
 
-** 5. Things to do for Web Pages, Distribution
-
-*** B Validate pages.  
-   Current failures for HTML 4.0 to do with CGI-style arguments with "&",
-   this is a problem with PHP3 really.
+** 6. Things to do for Web Pages, Distribution
 
 *** B Add some one-stop-shop pages.  Ask permission to redistribute
   packages for PAs.  Maybe do Windows and Linux versions.
+
+*** B Remove fileshow urls in html
+
+*** C Web pages: fix features page to look better / remove HTML errors.
+
+*** C Validate pages.  
+   Current failures for HTML 4.0 to do with CGI-style arguments with "&",
+   this is a problem with PHP3 really.
 
 *** C Add an animation, showing proof replay.
 
@@ -786,9 +789,6 @@ B Think about adding wmconfig stuff to RPM file
 
 *** X Convert to SSI only plus a meta-generation phase?
 
-*** X Check appearance in V3 browsers.
- 
-
 *** X Add status bar messages to navigation bar
 
 *** X Get rid of footer() function.
@@ -796,7 +796,7 @@ B Think about adding wmconfig stuff to RPM file
 
 
 
-** 6. Future improvements to take advantage of newer Emacsen
+** 7. Future improvements to take advantage of newer Emacsen
 
 *** X XEmacs 21.2 compatibility/improvements
 
@@ -816,7 +816,7 @@ B Think about adding wmconfig stuff to RPM file
 
 
 
-** 7. Bugs in other software beyond our control
+** 8. Bugs in other software beyond our control
 
 *** X useful if call-process would keep last error state 
       (primarily for exec-to-string, in case of errors)
@@ -878,19 +878,18 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 
 
-** 8. New Stable Version Release checklist
+** 9. New Stable Version Release checklist
 
 
 ***  0. Make all files have same CVS branch with cvs commit -f 
-    (only seems to work locally, not via cvs server).
-***  1. Test multiple file test suite for LEGO, Isabelle.  Coq example.
+***  1. Tests: multiple file test suites for LEGO, Isabelle; other egs
 ***  2. Check case with FSF Emacs
 ***  3. Check case with compiled code, for XEmacs only.
     (Wait for error reports for FSF Emacs)
     Even if the code is faulty afterwards, compiling is 
     worthwhile just because it shows up bugs in unbound variables, etc.
 ***  4. Dates and versions updated.
-        Check README, doc/ProofGeneral.texi, html/download.html
+        Check README, doc/ProofGeneral.texi, html/download.html, others.
 ***  5. ProofGeneral.texi docstring magic is up-to-date: cd doc; make magic
 ***  6. Update Emacs and prover versions in texi, html/ 
 ***  7. Check web page references from other places.
@@ -903,7 +902,7 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 
 
-** 9. Things to do for Proof General Project
+** 10. Things to do for Proof General Project
 
 
 *** A Try to get small project grant from LFCS to help with
