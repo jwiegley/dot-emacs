@@ -2224,7 +2224,7 @@ This is intended as a value for proof-activate-scripting-hook"
 (proof-define-assistant-command-witharg proof-find-theorems
  "Search for items containing given constants."
  proof-find-theorems-command
- "Find theorems containing the constant(s)"
+ "Find theorems containing"
  (proof-shell-invisible-command arg))
 
 (proof-define-assistant-command-witharg proof-issue-goal
