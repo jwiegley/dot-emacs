@@ -960,6 +960,13 @@ the ACS is marked in the current buffer. If CMD does not match any,
   "The callback function for assert-until-point."
   ;; FIXME da: if the buffer dies, this function breaks horribly.
   ;; Needs robustifying.
+  (if (not (span-live-p span))
+      ;; FIXME da: Sometimes this function is called with a destroyed
+      ;; extent as argument.  When?  Isn't this a bug?
+      ;; NB: this patch doesn't work!  Are spans being destroyed
+      ;; sometime *during* this code??
+      (proof-debug "Proof General idiosyncrasy: proof-done-advancing called with a dead span!")
+  ;; 
   (let ((end (span-end span)) cmd)
     ;; State of spans after advancing: 
     (proof-set-locked-end end)
@@ -990,12 +997,17 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; deleting spans along the way.
 	;; (FIXME da: what happens if no goal is found?)
 	(setq gspan span)
-	(while (or (eq (span-property gspan 'type) 'comment)
-		   (not (funcall proof-goal-command-p 
-				 (setq cmd (span-property gspan 'cmd)))))
+	(while (and gspan
+		    (or (eq (span-property gspan 'type) 'comment)
+			(not (funcall proof-goal-command-p 
+				      (setq cmd (span-property gspan 'cmd))))))
 	  (setq next (prev-span gspan 'type))
 	  (delete-span gspan)
 	  (setq gspan next))
+	(if (not gspan)
+	    ;; No goal span found!  Issue a warning and do nothing more.
+	    (proof-warning
+	     "Proof General: script management confused, couldn't find goal span for save.")
 
 	;; If the name isn't set, try to set it from the goal. 
 	(unless nam
@@ -1003,9 +1015,9 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	       (proof-string-match proof-goal-with-hole-regexp
 				   (span-property gspan 'cmd))
 	       (setq nam (match-string 2 (span-property gspan 'cmd)))))
-	;; As a final desparate attempt, set the name to "Unnamed_thm".
-	;; FIXME da: maybe this should be prover specific: is
-	;; "Unnamed_thm" actually a Coq identifier?
+	;; As a final desparate attempt, set the name to 
+	;; proof-unnamed-theorem-name  (Coq actually uses a default
+	;; name for unnamed theorems, believe it or not).
 	(unless nam
 	  (setq nam proof-unnamed-theorem-name))
 
@@ -1020,7 +1032,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; associated goal.  (Notice that because it's a callback it
 	;; must have been approved by the theorem prover.)
 	(and proof-lift-global
-	     (funcall proof-lift-global gspan))))
+	     (funcall proof-lift-global gspan)))))
 
      ;; Goal command just processed, no nested goals allowed.
      ;; We make a fake goal-save from any previous 
@@ -1086,7 +1098,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	   (funcall proof-lift-global span)))))
 
   ;; State of scripting may have changed now
-  (run-hooks 'proof-state-change-hook))
+  (run-hooks 'proof-state-change-hook)))
 
 
 ;; FIXME da: Below it would probably be faster to use the primitive
