@@ -7,15 +7,18 @@
 ;;
 ;; $Id$
 ;;
+;; This mode is used for the response buffer proper, and
+;; also the trace and theorems buffer.
+
 
 ;; A sub-module of proof-shell; assumes proof-script loaded.
 (require 'pg-assoc)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Response buffer mode
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (eval-and-compile
 (define-derived-mode proof-response-mode proof-universal-keys-only-mode
@@ -101,10 +104,7 @@ Internal variable, setting this will have no effect!")
 ;; Displaying in the response buffer
 ;;
 
-;;
 ;; Flag and function to keep response buffer tidy.
-;;
-;;
 (defvar pg-response-erase-flag nil
   "Indicates that the response buffer should be cleared before next message.")
 
@@ -300,6 +300,32 @@ and start at the first error."
       (unless (bolp) (newline))
       (proof-fontify-region start (point))
       (set-buffer-modified-p nil))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Theorems buffer
+;;
+;; New in PG 3.5.  
+;;
+;; Revives an old idea from Isamode: a buffer displaying a bunch
+;; of theorem names.
+;;
+
+
+(defun pg-thms-buffer-clear ()
+  "Clear the theorems buffer."
+  (with-current-buffer proof-thms-buffer
+      (goto-char (point-max))
+      (newline)				
+      (setq start (point))
+      (insert str)
+      (unless (bolp) (newline))
+      (proof-fontify-region start (point))
+      (set-buffer-modified-p nil)))
+
+
 
 
 
