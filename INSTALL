@@ -22,7 +22,7 @@ the assistants below:
   .l	    LEGO files
   .thy      Isabelle files
   .ML       Isabelle files
-  .af2	    AF2 files
+  .phx	    PhoX files
   .sml	    HOL98 files
   .elf	    Twelf files
   .acl2	    ACL2 files
