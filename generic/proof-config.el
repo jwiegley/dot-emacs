@@ -1650,7 +1650,11 @@ to do syntax highlighting with font-lock."
   :type 'boolean
   :group 'proof-shell)
 
-
+(defcustom proof-shell-theorem-dependency-list-regexp nil
+  "Regexp matching output telling Proof General what the dependencies are.  
+This is so that the dependent theorems can be highlighted.  Set to nil to disable."
+  :type '(choice nil regexp)
+  :group 'proof-shell)
 
 ;;
 ;; 5c. hooks and other miscellaneous customizations

@@ -33,6 +33,8 @@
 (deflocal proof-active-buffer-fake-minor-mode nil
   "An indication in the modeline that this is the *active* script buffer")
 
+(defvar proof-last-theorem-dependencies nil
+  "Contains the dependencies of the last theorem set in proof-shell-process-urgent-message")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -156,7 +158,8 @@ buffer, so the regions are made empty by this function."
   (set-span-property proof-locked-span 'end-open t)
   (proof-span-read-only proof-locked-span)
   (set-span-property proof-locked-span 'face 'proof-locked-face)
-  (detach-span proof-locked-span))
+  (detach-span proof-locked-span)
+  (setq proof-last-theorem-dependencies nil))
 
 ;; These two functions are used in coq.el to edit the locked region
 ;; (by lifting local (nested) lemmas out of a proof, to make them global).   
@@ -1013,6 +1016,10 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	(set-span-property gspan 'mouse-face 'highlight)
 	(set-span-property gspan 'type 'goalsave)
 	(set-span-property gspan 'name nam)
+	;; FIONA! New code here:
+	(if proof-last-theorem-dependencies
+	    (set-span-property gspan 'dependencies proof-last-theorem-dependencies))
+	(setq proof-last-theorem-dependencies nil)
 	
 	;; In Coq, we have the invariant that if we've done a save and
 	;; there's a top-level declaration then it must be the

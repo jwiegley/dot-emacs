@@ -1400,6 +1400,15 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
 	 proof-goals-buffer)
     ;; Erase goals buffer but and possibly its windows
     (proof-clean-buffer proof-goals-buffer))
+   
+   ((if proof-shell-theorem-dependency-list-regexp 
+	(string-match proof-shell-theorem-dependency-list-regexp message))
+      (setq proof-last-theorem-dependencies 
+	  (match-string 1)))
+   
+     ;; FIONA!  New code needs to go in here: match 
+   ;; against proof-shell-theorem-dependency-list-regexp and set a 
+   ;; variable proof-last-theorem-depencies from the match string
 
    (t
     ;; We're about to display a message.  Clear the response buffer
