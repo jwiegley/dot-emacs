@@ -8,7 +8,7 @@
 ;;
 ;; This is an alternative version of demoisa.el which uses the
 ;; proof-easy-config macro to do the work of declaring derived modes,
-;; etc.  NB: proof-easy-config is currently experimental.
+;; etc.  
 ;;
 ;; See demoisa.el and the Proof General manual for more documentation.
 ;;
