@@ -77,7 +77,7 @@
 
 
 (defun isar-strip-terminators ()
-  "Remove explicit Isabelle/Isar command terminators `;' from buffer"
+  "Remove explicit Isabelle/Isar command terminators `;' from the buffer."
   (interactive)
   (save-excursion
     (goto-char (point-min))
@@ -493,7 +493,6 @@ proof-shell-retract-files-regexp."
   (proof-config-done)
   (set (make-local-variable 'outline-regexp) isar-outline-regexp)
   (set (make-local-variable 'outline-heading-end-regexp) isar-outline-heading-end-regexp)
-  (set (make-local-variable 'outline-level) 'isar-outline-level)
   (setq blink-matching-paren-dont-ignore-comments t)
   (add-hook 'proof-pre-shell-start-hook 'isar-pre-shell-start nil t)
   (add-hook 'proof-shell-insert-hook 'isar-preprocessing))
