@@ -6,8 +6,8 @@
 ;; cut-and-paste into a buffer running an ordinary shell of some kind.
 ;;
 ;; I'm providing this so that tool demonstrators may use it instead of
-;; tediously doing cut-and-paste of commands from a file.  Nothing
-;; to do with theorem proving really!
+;; tediously doing cut-and-paste of commands from a file.  No history
+;; management, and nothing to do with theorem proving really!
 ;;
 ;; To use this instance of PG, visit a file with the ".pgsh" extension.
 ;; 
@@ -18,11 +18,12 @@
 (require 'proof-syntax)
 
 (proof-easy-config  'pgshell	"PG-Shell"
- proof-prog-name		 "/bin/sh" ;; or choose your shell
- proof-terminal-char             ?\;	   ;; better: parse the syntax
+ proof-prog-name		 "/bin/sh"       ;; or choose your shell
+ proof-terminal-char             ?\;		 ;; better: parse the syntax
  proof-script-comment-start      "\#"
  proof-shell-annotated-prompt-regexp  "^.*[$] $" ;; matches shell prompts
- ;; next settings are just to prevent warnings
+
+ ;; next setting is just to prevent warning
  proof-save-command-regexp	proof-no-regexp
  )
 
