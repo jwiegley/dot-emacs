@@ -192,9 +192,12 @@ Runs proof-state-change-hook to notify state change."
 Also generates goal and response buffers.
 Does nothing if proof assistant is already running."
   (interactive)
-  (if (proof-shell-live-buffer)
-      ()
+  (unless (proof-shell-live-buffer)
+
+    ;; This should configure the generic variables
     (run-hooks 'proof-pre-shell-start-hook)
+
+    ;; Clear some state
     (setq proof-included-files-list nil)
 
     ;; Added 05/99 by Patrick L.
