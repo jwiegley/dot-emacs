@@ -1,10 +1,16 @@
 ;; lego.el Major mode for LEGO proof assistants
 ;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
-;; Author: Thomas Schreiber and Dilip Sequeira
+;; Author: Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 
 ;; $Log$
+;; Revision 1.32  1997/11/26 14:15:21  tms
+;; o simplified code:
+;;     lego-goal-with-hole-regexp and lego-save-with-hole-regexp is now
+;;     used for lego-font-lock-keywords-1 as well
+;; o improved lego-find-and-forget
+;;
 ;; Revision 1.31  1997/11/24 19:15:11  djs
 ;; Added proof-execute-minibuffer-cmd and scripting minor mode.
 ;;
@@ -60,9 +66,9 @@
 ; Configuration                                  
 
 (defconst lego-mode-version-string
-  "LEGO-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
+  "LEGO-MODE. ALPHA Version 2 (November 1997) LEGO Team <lego@dcs.ed.ac.uk>")
 
-(defvar lego-tags "/usr/local/share/lego/lib-alpha/lib_all/TAGS"
+(defvar lego-tags "/home/tms/lib/lib_Type/TAGS"
   "the default TAGS table for the LEGO library")
 
 (defconst lego-process-config "Configure PrettyOn; Configure AnnotateOn;"
@@ -136,7 +142,7 @@
 
 ;; ----- lego-shell configuration options
 
-(defvar lego-prog-name "/home/ctm/lego/bin/legoML"
+(defvar lego-prog-name "/home/tms/src/lego/bin/lego"
   "*Name of program to run as lego.")
 
 (defvar lego-shell-working-dir ""
@@ -154,12 +160,8 @@
 
 (defvar lego-save-command-regexp
   (concat "^" (ids-to-regexp lego-keywords-save)))
-(defvar lego-save-with-hole-regexp
-  (concat "\\(" (ids-to-regexp lego-keywords-save) "\\)\\s-+\\([^;]+\\)"))
 (defvar lego-goal-command-regexp
   (concat "^" (ids-to-regexp lego-keywords-goal)))
-(defvar lego-goal-with-hole-regexp
-  (concat "\\(" (ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^:]+\\)"))
 
 (defvar lego-kill-goal-command "KillRef;")
 (defvar lego-forget-id-command "Forget ")
@@ -275,6 +277,8 @@
            (setq path-name ".")))       
     (string-to-list path-name lego-path-separator)))
 
+;; needs to handle Normal as well
+;; it should ignore Normal TReg Normal VReg and (Normal ...)
 (defun lego-count-undos (sext)
   (let ((ct 0) str i)
     (while sext
@@ -305,7 +309,7 @@
 	(setq ans (concat "Forget " 
 			  (span-property sext 'name) proof-terminal-string)))
 
-       ((string-match (concat "\\`" (lego-decl-defn-regexp "[:|=]")) str)
+       ((string-match (concat "\\`\\$?" (lego-decl-defn-regexp "[:|=]")) str)
 	(let ((ids (match-string 1 str))) ; returns "a,b"
 	  (string-match proof-id ids)	; matches "a"
 	  (setq ans (concat "Forget " (match-string 1 ids)
@@ -600,6 +604,7 @@
 		     tag-table-alist)))
 
   (setq font-lock-keywords lego-font-lock-keywords-1)
+
 
 ;; where to find files
 
