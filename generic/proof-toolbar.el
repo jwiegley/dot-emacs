@@ -1,7 +1,7 @@
 ;; proof-toolbar.el    Toolbar for Proof General
 ;;
 ;; David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
+;; Maintainer: Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;
@@ -13,7 +13,7 @@
 (defcustom proof-toolbar-wanted t
   "*Whether to use toolbar in proof mode."
   :type 'boolean
-  :group 'proof-general)
+  :group 'proof)
 
 (defconst proof-toolbar-default-button-list
   '(proof-toolbar-goal-button
@@ -42,16 +42,23 @@ will work for any proof assistant.")
   "Initialize proof-toolbar and enable it for the current buffer.
 If proof-mode-use-toolbar is nil, change the current buffer toolbar
 to the default toolbar."
-  (if proof-toolbar-wanted
+  (if (and
+       proof-toolbar-wanted
+       ;; NB for FSFmacs use window-system, not console-type
+       (eq (console-type) 'x))
       (let
-	  ((icontype   (if (featurep 'xpm) "xpm" "xbm")))
+	  ((icontype   (if (featurep 'xpm)
+			   (if (< (device-pixel-depth) 16)
+			       ".8bit.xpm" ".xpm")
+			 ".xbm")))
 	;; First set the button variables to glyphs.  
 	(mapcar
 	 (lambda (buttons)
 	   (let ((var	(car buttons))
 		 (iconfiles (mapcar (lambda (name)
-				      (concat proof-image-directory name
-					      "." icontype)) (cdr buttons))))
+				      (concat proof-internal-images-directory
+					      name
+					      icontype)) (cdr buttons))))
 	     (set var (toolbar-make-button-list iconfiles))))
 	 proof-toolbar-iconlist)
 	;; Now evaluate the toolbar descriptor
