@@ -19,7 +19,7 @@ Non-dependent Pi type.
 >	[A,B:Type]
 >	[Pi_ : Type]
 >	Constructors
->	[La_ : (f:(x:A)B)Pi_ ];
+>	[La_ : (f:(x:El A)El B)Pi_ ];
 
 
 application of Pi_ types, ie conversion to a dependent product.

@@ -430,16 +430,12 @@ Given is the first SPAN which needs to be undone."
   (proof-config-done)
 
 ;; pcc macros etc
-
   ;; da: I've changed this to use the new proof assitant specific keymap.
   ;; (You can put these define keys at top level now)
   (define-key proof-assistant-keymap ?s 'plastic-small-bar)
   (define-key proof-assistant-keymap ?l 'plastic-large-bar)
   (define-key proof-assistant-keymap ?a 'plastic-all-ctxt)
 
-;; pcc over-ride the try-cmd fn
-
-  (define-key (current-local-map) [(control c) (control t)] 'plastic-try-cmd)
   (define-key (current-local-map) [(control c) (control v)] 'plastic-minibuf)
 
   ;; FIXME da: these should probably be on the specific keymap too?
@@ -645,19 +641,23 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-send-one-undo ()
 	"send an Undo cmd"
-    ;; FIXME da IMPORTANT: please use proof-shell-invisible-command
-    ;; instead here, or tell me why you can't if it doesn't work.
-    ;; Interface to proof-shell-insert now requires two args (for the
-    ;; sake of plastic!) and shouldn't be called from PG instances 
+    ;; FIXME etc
+    ;; is like this because I don't want the undo output to be shown. 
     (proof-shell-insert (concat plastic-lit-string " &S Undo;")
-			'proof-done-invisible))
+                        'proof-done-invisible))
 
-(defun plastic-try-cmd ()
-    "undo whatever was tried, if error-free"
-    (interactive)
+;; hacky expt version.
+;; still don't understand the significance of cmd!
+
+(defun plastic-minibuf-cmd (cmd)
+    "do minibuffer cmd then undo it, if error-free."
     (plastic-reset-error)
-    (let ((proof-state-preserving-p nil)) ; allow any command
-      (call-interactively 'proof-minibuffer-cmd))
+    (interactive
+       (list (read-string "Command: " nil 'proof-minibuffer-history)))
+    (if (and proof-state-preserving-p
+           (not (funcall proof-state-preserving-p cmd)))
+      (error "Command is not state preserving, I won't execute it!"))
+    (proof-shell-invisible-command cmd)
     (plastic-call-if-no-error 'plastic-send-one-undo))
 
 (defun plastic-minibuf ()
@@ -698,5 +698,14 @@ We assume that module identifiers coincide with file names."
     (proof-switch-to-buffer proof-shell-buffer))
 
 ;; original end.
+
+;;;;;;;;;;;;;;;;;
+;; hacky overriding of the toolbar command
+;; my version handles literate characters. 
+;; (should do better for long-term though)
+
+(defalias 'proof-toolbar-command 'plastic-minibuf-cmd)
+
+;;;
 
 (provide 'plastic)
