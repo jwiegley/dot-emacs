@@ -257,11 +257,10 @@
 (defconst isar-kill "kill;")
 
 (defun isar-remove (name)
-  (concat "init_toplevel; remove_thy \"" name "\";"))
+  (concat "init_toplevel; kill_thy \"" name "\";"))
 
 (defun isar-undos (i)
-  (if (> i 0)
-      (concat "undos_proof " (int-to-string i) ";")
+  (if (> i 0) (concat "undos_proof " (int-to-string i) ";")
     proof-no-command))
 
 (defun isar-cannot-undo (cmd)
