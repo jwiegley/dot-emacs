@@ -76,7 +76,7 @@ for using Proof General.
 	    . "\nEmail:\t\t " . $email
 	    . "\nSite:\t\t " . $site
 	    . "\nSubmitted:\t" . date("h:ia D jS F Y");
-   mail("da", /* "proofgen@dcs.ed.ac.uk", */
+   mail("proofgen@dcs.ed.ac.uk",
 	"[Registration form from ~proofgen]",
 	 $message);
    
@@ -89,7 +89,7 @@ for using Proof General.
 
    if ($mailinglist) {
 	$message = "subscribe proofgeneral"; 
-	mail("da", /* "majordomo@dcs.ed.ac.uk", */
+	mail("majordomo@dcs.ed.ac.uk",
 	     "[Web form from ~proofgen]",
 	     $message,
 	    "Reply-To: " . $email . "\nFrom: " . $email);
