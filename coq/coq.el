@@ -19,9 +19,13 @@
       c)))
 
 ;;Pierre: we will have both versions V6 and V7 during a while
-(setq coq-version-is-V7
-  (let ((c (substring (shell-command-to-string "coqtop -v") 0 -1 )))
-    (if (string-match "version 7" c) t nil)))
+;;        the test with "coqtop -v" can be skipped if the variable 
+;;        coq-version-is-V7 is already set (usefull for people 
+;;        dealing with several version of coq)
+(if (boundp 'coq-version-is-V7) () ; if this variable is bound, do nothing 
+  (setq coq-version-is-V7          ; else test with "coqtop -v"
+	(if (string-match "version 7" (shell-command-to-string "coqtop -v")) 
+	    t nil)))
 
 (defcustom coq-tags (concat (coq-library-directory) "/theories/TAGS")
   "the default TAGS table for the Coq library"
