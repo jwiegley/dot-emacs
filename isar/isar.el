@@ -190,7 +190,7 @@
    ;; for issuing command, not used to track cwd in any way.
    proof-shell-cd			"cd \"%s\";"
 
-   proof-shell-proof-completed-regexp   "$^"    ; n.a.
+   proof-shell-proof-completed-regexp   nil     ; n.a.
    proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\360Interrupt"
    proof-shell-error-regexp		"^\364\\*\\*\\*"
    proof-shell-abort-goal-regexp        nil     ; n.a.
