@@ -92,7 +92,9 @@
     (goto-char (point-min))
     (while (search-forward ";" (point-max) t)
       (if (not (proof-buffer-syntactic-context))
-          (delete-backward-char 1)))))
+	  (progn
+	    (delete-backward-char 1)
+	    (or (proof-looking-at ";\\|\s-\\|$") (insert " ")))))))
 
 
 (defun isar-markup-ml (string)
