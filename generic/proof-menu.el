@@ -450,9 +450,6 @@ without adjusting window layout."
 	 (list "-----")
 	 proof-show-hide-menu
 	 (list "-----")
-	 ;; NB: customize-menu-create is buggy in some versions of GNU Emacs
-	 ;; (bad in 21.1.0, good in 21.1.1, bad in 21.2.1, ...).  Comment
-	 ;; these next lines out if you must use one of these versions.
 	 (list (customize-menu-create 'proof-general))
 	 (list (customize-menu-create 'proof-general-internals "Internals"))))
   "Advanced sub-menu of script functions and customize.")

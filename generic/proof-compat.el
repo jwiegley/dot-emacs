@@ -622,8 +622,23 @@ The corresponding face should be set using `edit-faces' or the
 ;;; Nasty: Emacs bug/problem fix section
 ;;;
 
-
-
+;; NB: customize-menu-create is buggy in some versions of GNU Emacs
+;; (bad in 21.1.0, good in 21.1.1, bad in 21.2.1, ...).  Comment
+;; these next lines out if you must use one of these versions.
+;; PG 3.5.1: add hack in proof-compat.el to deal with this
+(if
+    (and
+     proof-running-on-Emacs21
+     (or
+      (string-equal emacs-version "21.2.1")
+      (string-equal emacs-version "21.1.0")))
+    (defun customize-menu-create (symbol &optional name)
+      (cons 
+       (or name "Customize")
+       (list 
+	["Your version of Emacs is buggy; update to get this menu" 
+	 '(w3-goto-url "http://www.gnu.org/software/emacs/")
+	 t]))))
 
 
 ;; End of proof-compat.el
