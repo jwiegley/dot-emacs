@@ -33,14 +33,11 @@ A Obscure BUGS to investigate:
   - startup delay when running XEmacs remotely and local display
     is 8 bit.  Suspect an XEmacs issue to do with face allocations.
 
-B Clarify licence situation for Proof General after question from 
-  a potential user. Will the LFCS allow it to be used in a commercial 
-  environment without a special licence agreement? A new licence is
-  currently [22 Jan 1999] being drafted by UNIVED.
-  (And I understand the answer is "yes", so long as no money 
-   is derived directly from ProofGeneral itself).
-  Latest [23 Aug 1999] is that license is not ready!
-  Will ship with 2.2
+C Improve Makefile.devel, Makefile, ProofGeneral.spec by abstracting
+  ELISP_DIRS somehow.
+
+B Improve relocatability of RPM package, and produce package for XEmacs
+  which installs directly under ~/.xemacs/packages.
 
 B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
