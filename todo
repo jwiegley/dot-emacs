@@ -313,7 +313,7 @@ X Span convenience functions for special 'type property.
 X Read-only mode of extents sometimes gets in the way: for example,
   if file changes on disk, can't reload it via usual functions.
   Can this be improved?  Always have to retract first, and that
-  always leaves stuff around.
+  leaves stuff around.
 
 X toolbar icons: Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
@@ -349,10 +349,6 @@ X Support for x-symbols package.
 X Comment support is not very generic: we don't support end-of-line
   terminated comments.  Is there any case where this might be
   worthwhile?  (2h to add it).
-
-X Write a Makefile for the distribution.  It can do things like
-  install the info file properly.  The work is at the moment done
-  in the RPM spec file instead.
 
 X Make process handling smarter: because Emacs is single-threaded,
   no process output can be dealt with when we are running some
