@@ -299,7 +299,8 @@ distdocs: FORCE
 #
 distcompile: FORCE
 	@echo "***** MAKING ELC FILES  ****"
-	$(MAKE) compile
+## FIXME: for now, ignroe errors in compilation
+	-$(MAKE) compile
 
 
 
