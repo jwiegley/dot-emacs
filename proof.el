@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.35  1998/03/25 17:30:28  tms
+;; added support for etags at generic proof level
+;;
 ;; Revision 1.34  1998/03/24 17:26:15  tms
 ;; *** empty log message ***
 ;;
@@ -1477,6 +1480,8 @@ current command."
 	       
 
 ;; keymap
+
+  (define-key proof-mode-map [(meta tab)] 'tag-complete-symbol)
 
   (define-key proof-mode-map
     (vconcat [(control c)] (vector proof-terminal-char))

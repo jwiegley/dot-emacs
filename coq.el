@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.15  1998/03/25 17:30:35  tms
+;; added support for etags at generic proof level
+;;
 ;; Revision 1.14  1998/01/15 13:30:18  hhg
 ;; Added coq-shell-cd
 ;; Some new fontlocks
@@ -561,10 +564,6 @@
 
   (proof-config-done)
 
-;  (define-key (current-local-map) [(meta tab)]
-;    (if (fboundp 'complete-tag)
-;	'complete-tag		; Emacs 19.31 (superior etags)
-;      'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
   (define-key (current-local-map) [(control c) (control p)] 'coq-prf)
   (define-key (current-local-map) [(control c) c] 'coq-ctxt)
   (define-key (current-local-map) [(control c) h] 'coq-help)

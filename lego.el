@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.37  1998/03/25 17:30:41  tms
+;; added support for etags at generic proof level
+;;
 ;; Revision 1.36  1998/02/10 14:12:56  tms
 ;; added Dnf to lego-undoable-commands-regexp
 ;;
@@ -599,10 +602,6 @@
 
   (proof-config-done)
 
-  (define-key (current-local-map) [(meta tab)]
-    (if (fboundp 'complete-tag)
-	'complete-tag		; Emacs 19.31 (superior etags)
-      'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
   (define-key (current-local-map) [(control c) (control p)] 'lego-prf)
   (define-key (current-local-map) [(control c) c] 'lego-ctxt)
   (define-key (current-local-map) [(control c) h] 'lego-help)
