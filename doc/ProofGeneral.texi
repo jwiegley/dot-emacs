@@ -391,8 +391,8 @@ has been managed by David Aspinall since then.
 This manual was written by David Aspinall and Thomas Kleymann.  Some
 words found their way here from the user documentation of LEGO mode,
 prepared by Dilip Sequeira.  Healfdene Goguen supplied some text for Coq
-Proof General.  The extensive revision of this manual for Proof General
-3.0 has been made by David Aspinall.
+Proof General.  Since Proof General 2.0, this manual has been maintained
+and improved by David Aspinall.
 
 The Proof General project has benefited from funding by EPSRC
 (Applications of a Type Theory Based Proof Assistant), the EC (Types for
