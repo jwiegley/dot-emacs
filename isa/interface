@@ -149,6 +149,12 @@ fi
 
 ARGS="$ARGS -l '$SUPER/isa/interface-setup.el'"
 
+if [ -f "$ISABELLE_HOME_USER/etc/isar-keywords.el" ]; then
+  ARGS="$ARGS -l '$ISABELLE_HOME_USER/etc/isar-keywords.el'"
+elif [ -f "$ISABELLE_HOME/etc/isar-keywords.el" ]; then
+  ARGS="$ARGS -l '$ISABELLE_HOME/etc/isar-keywords.el'"
+fi
+
 for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
     "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
 do
