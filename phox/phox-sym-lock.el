@@ -177,7 +177,9 @@
 			  'graphic 1))
       (set-face-property 'phox-sym-lock-adobe-symbol-face 
 			 'font phox-sym-lock-font-name nil
-			 '(mule-fonts) 'prepend))
+			 ;; DA: removed next line, it breaks "make magic" in doc
+			 ;; '(mule-fonts) 'prepend,   
+			 ))
   (set-face-font 'phox-sym-lock-adobe-symbol-face phox-sym-lock-font-name 'global))
 
 (defun phox-sym-lock-set-foreground ()
