@@ -203,7 +203,7 @@
    ;;        set somewhere else.  
    proof-shell-goal-regexp		"\370[ \t]*\\([0-9]+\\)\\."
 
-   proof-shell-start-goals-regexp	"\366"
+   proof-shell-start-goals-regexp	"\366\n"
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
    ;; initial command configures Isabelle/Isar by modifying print functions etc.
