@@ -950,7 +950,7 @@ deletes the region corresponding to the proof sequence."
       (proof-set-queue-end start))
     (delete-spans start end 'type)
     (delete-span span)
-    (if kill (delete-region start end))))
+    (if kill (kill-region start end))))
 
 (defun proof-setup-retract-action (start end proof-command delete-region)
   (let ((span (make-span start end)))
