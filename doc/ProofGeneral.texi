@@ -2982,11 +2982,11 @@ common commands:
 @kindex C-c I 
 @kindex C-c R 
 @table @kbd
-@item C-c a i   
+@item C-c C-a C-i   
 intros
-@item C-c a I   
+@item C-c C-a C-I   
 Intros
-@item C-c a R   
+@item C-c C-a C-R   
 Refine
 @end table
 
@@ -3051,14 +3051,16 @@ but does not have integrated file management or proof-by-pointing yet.
 
 Coq Proof General supplies the following key-bindings:
 @table @kbd
-@item C-c a i   
+@item C-c C-a C-i   
 Inserts ``Intros '' 
-@item C-c a a
+@item C-c C-a C-a
 Inserts ``Apply '' 
-@item C-c a s
+@item C-c C-a C-s
 Inserts ``Section ''
-@item C-c a e
+@item C-c C-a C-e
 Inserts ``End <section-name>.'' (this should work well with nested sections).
+@item C-c C-a C-o
+Prompts for a SearchIsos argument.
 @end table
 
 @node Editing multiple proofs
