@@ -119,6 +119,7 @@
      ["hint Constructors     hc<C-BS>" (insert-and-expand "hc") t]
      ["hint Immediate        hi<C-BS>" (insert-and-expand "hi") t]
      ["hint Resolve          hr<C-BS>" (insert-and-expand "hr") t]
+     ["hint Rewrite          hrw<C-BS>" (insert-and-expand "hrw") t]
      ["hint extern           he<C-BS>" (insert-and-expand "he") t]
      ["hints                 hs<C-BS>" (insert-and-expand "hs") t]
      ""
