@@ -2393,25 +2393,33 @@ Make sure the modeline is updated to display new value for electric terminator."
       (proof-customize-toggle proof-electric-terminator-enable))
 
 (defun proof-process-electric-terminator ()
-  "Insert the proof command terminator, and assert up to it."
+  "Insert the proof command terminator, and assert up to it.
+This is a little bit clever with placement of semicolons, and will
+try to avoid duplicating them in the buffer.
+When used in the locked region (and so with strict read only off), it
+always defaults to inserting a semi (nicer might be to parse for a
+comment, and insert or skip to the next semi)."
   (let ((mrk (point)) ins incomment)
-    ;; NB: now we ensure that point 
-    (if (looking-at "\\s-\\|\\'\\|\\w") 
-	(if (proof-only-whitespace-to-locked-region-p)
+    (if (< mrk (proof-locked-end))
+	;; In locked region, just insert terminator without further ado
+	(insert proof-terminal-char)
+      ;; Otherwise, do other thing.
+      (if (looking-at "\\s-\\|\\'\\|\\w") 
+	  (if (proof-only-whitespace-to-locked-region-p)
 	      (error "There's nothing to do!")))
-    (if (not (= (char-after (point)) proof-terminal-char))
-	(progn 
-	  (forward-char) ;; immediately after command end.
-	  (insert proof-terminal-string) 
-	  (setq ins t)))
-    (proof-assert-until-point
-     (function (lambda ()
-		 (setq incomment t)
-		 (if ins (backward-delete-char 1))
-		 (goto-char mrk)
-		 (insert proof-terminal-string))))
-    (or incomment
-	(proof-script-next-command-advance))))
+      (if (not (= (char-after (point)) proof-terminal-char))
+	  (progn 
+	    (forward-char) ;; immediately after command end.
+	    (insert proof-terminal-string) 
+	    (setq ins t)))
+      (proof-assert-until-point
+       (function (lambda ()
+		   (setq incomment t)
+		   (if ins (backward-delete-char 1))
+		   (goto-char mrk)
+		   (insert proof-terminal-string))))
+      (or incomment
+	  (proof-script-next-command-advance)))))
 
 (defun proof-electric-terminator ()
   "Insert the terminator, perhaps sending the command to the assistant.
