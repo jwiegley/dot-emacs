@@ -515,41 +515,6 @@ object files, used by Lego and Coq)."
       (incf a))
     (apply 'concat (nreverse ls))))
 
-;; FIXME da: this is an oddity.  It copies the span, but does not
-;; send it, contrary to it's old name ("proof-send-span").   
-;; Maybe belongs elsewhere.
-;; Now made more general to behave like mouse-track-insert
-;; when not over a span.
-;; FIXME da: improvement would be to allow selection of part
-;; of command by dragging, as in ordinary mouse-track-insert.
-;; Maybe by setting some of the mouse track hooks.
-(defun proof-mouse-track-insert (event)
-  "Copy highlighted command under the mouse to point.  Ignore comments.
-If there is no command under the mouse, behaves like mouse-track-insert."
-  (interactive "e")
-  (let ((str
-	 (save-window-excursion
-	   (save-excursion
-	     (let* ((span (span-at (mouse-set-point event) 'type)))
-	       (and
-		span
-		;; Next test might be omitted to allow for non-script
-		;; buffer copying (e.g. from spans in the goals buffer)
-		(eq (current-buffer) proof-script-buffer)
-		;; Test for type=vanilla means that closed goal-save regions
-		;; are not copied.
-		(eq (span-property span 'type) 'vanilla)
-		;; Finally, extracting the 'cmd part prevents copying
-		;; comments, and supresses leading spaces, at least.
-		;; Odd.
-		(span-property span 'cmd)))))))
-    ;; Insert copied command in original window, 
-    ;; buffer, point position.
-    (if str 
-	(insert str proof-script-command-separator)
-      (mouse-track-insert event))))
-
-
 (defun pbp-construct-command ()
   (let* ((span (span-at (point) 'proof))
 	 (top-span (span-at (point) 'proof-top-element))

@@ -1746,6 +1746,7 @@ the proof script."
    (proof-retract-until-point-interactive))
   (proof-maybe-follow-locked-end))
 
+
 ;;
 ;; Interrupt
 ;;
@@ -1842,7 +1843,61 @@ handling of interrupt signals."
     (backward-char)))	; should land on terminal char
 
 
+
 ;;
+;; Mouse functions
+;;
+
+;; FIXME oddity here: with proof-follow-mode='locked, when retracting,
+;; point stays where clicked.  When advancing, it moves.  Might
+;; be nicer behaviour than actually moving point into locked region
+;; which is only useful for cut and paste, really.
+(defun proof-mouse-goto-point (event)
+  "Call proof-goto-point on the click position."
+  (interactive "e")
+  (proof-maybe-save-point
+   (mouse-set-point event)
+   (proof-goto-point)))
+  
+
+;; FIXME da: this is an oddity.  It copies the span, but does not
+;; send it, contrary to it's old name ("proof-send-span").   
+;; Now made more general to behave like mouse-track-insert
+;; when not over a span.
+;; FIXME da: improvement would be to allow selection of part
+;; of command by dragging, as in ordinary mouse-track-insert.
+;; Maybe by setting some of the mouse track hooks.
+(defun proof-mouse-track-insert (event)
+  "Copy highlighted command under the mouse to point.  Ignore comments.
+If there is no command under the mouse, behaves like mouse-track-insert."
+  (interactive "e")
+  (let ((str
+	 (save-window-excursion
+	   (save-excursion
+	     (let* ((span (span-at (mouse-set-point event) 'type)))
+	       (and
+		span
+		;; Next test might be omitted to allow for non-script
+		;; buffer copying (e.g. from spans in the goals buffer)
+		(eq (current-buffer) proof-script-buffer)
+		;; Test for type=vanilla means that closed goal-save regions
+		;; are not copied.
+		(eq (span-property span 'type) 'vanilla)
+		;; Finally, extracting the 'cmd part prevents copying
+		;; comments, and supresses leading spaces, at least.
+		;; Odd.
+		(span-property span 'cmd)))))))
+    ;; Insert copied command in original window, 
+    ;; buffer, point position.
+    (if str 
+	(insert str proof-script-command-separator)
+      (mouse-track-insert event))))
+
+
+
+
+;;
+;; Restarting and clearing spans (FIXME: belongs in core code, above)
 ;;
 
 (defun proof-restart-buffers (buffers)
@@ -2366,7 +2421,9 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
 (define-key map [(control c) (control return)] 'proof-goto-point)
-(define-key map [(control button1)]	  'proof-mouse-track-insert)
+(define-key map [(control button1)]	  'proof-mouse-track-insert) ; no FSF
+(define-key map [(control button3)]	  'proof-mouse-goto-point)
+(define-key map [mouse-3]		  'proof-mouse-goto-point) ; FSF
 ;; NB: next binding overwrites comint-find-source-code.  
 (define-key map [(control c) (control f)] 'proof-find-theorems)
 (define-key map [(control c) (control h)] 'proof-help)
