@@ -105,7 +105,7 @@ proof-script-next-entity-regexps, which see."
 	      (p (point))
 	      disc res)
 	  (while (and (not res) (setq disc (car-safe discriminators)))
-	    (if (string-match (car disc) entity)
+	    (if (proof-string-match (car disc) entity)
 		(let ((name (substring
 			     entity
 			     (match-beginning (nth 1 disc))
@@ -662,12 +662,12 @@ the ACS is marked in the current buffer. If CMD does not match any,
      ((eq (span-property span 'type) 'comment)
       (set-span-property span 'mouse-face 'highlight))
      ((proof-check-atomic-sequents-lists span cmd end))
-     ((string-match proof-save-command-regexp cmd)
+     ((proof-string-match proof-save-command-regexp cmd)
       ;; In coq, we have the invariant that if we've done a save and
       ;; there's a top-level declaration then it must be the
       ;; associated goal.  (Notice that because it's a callback it
       ;; must have been approved by the theorem prover.)
-      (if (string-match proof-save-with-hole-regexp cmd)
+      (if (proof-string-match proof-save-with-hole-regexp cmd)
 	  (setq nam (match-string 2 cmd)))
       (setq gspan span)
       (while (or (eq (span-property gspan 'type) 'comment)
@@ -678,7 +678,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	(setq gspan next))
 
       (if (null nam)
-	  (if (string-match proof-goal-with-hole-regexp
+	  (if (proof-string-match proof-goal-with-hole-regexp
 			    (span-property gspan 'cmd))
 	      (setq nam (match-string 2 (span-property gspan 'cmd)))
 	    ;; This only works for Coq, but LEGO raises an error if
@@ -1777,6 +1777,9 @@ finish setup which depends on specific proof assistant configuration."
   ;; probably make it local.
   (and (boundp 'font-lock-always-fontify-immediately)
        (setq font-lock-always-fontify-immediately t))
+
+  ;; Assume font-lock case folding follows proof-case-fold-search
+  (setq font-lock-keywords-case-fold-search proof-case-fold-search)
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
