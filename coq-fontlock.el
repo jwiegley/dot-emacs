@@ -4,6 +4,11 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.9  1998/05/05 14:19:39  hhg
+;; Added CoInductive.
+;; Made updates to reflect problem with "Definition", which couldn't be
+;; used with proof scripts.
+;;
 ;; Revision 1.8  1998/01/15 13:30:17  hhg
 ;; Added coq-shell-cd
 ;; Some new fontlocks
@@ -53,13 +58,14 @@
 
 (defvar coq-keywords-defn
   '(
-"Definition"
+"CoInductive"
 "Fixpoint"
 "Inductive"
 ))
 
 (defvar coq-keywords-goal
   '(
+"Definition"
 "Fact"
 "Goal"
 "Lemma"
@@ -83,7 +89,9 @@
 "AddPath"
 "Cd"
 "Check"
+"Class"
 "Compute"
+"Coercion"
 "DelPath"
 "Eval"
 "Extraction"
@@ -138,6 +146,7 @@
 "Linear"
 "Load"
 "Pattern"
+"Program_all"
 "Program"
 "Prolog"
 "Realizer"
@@ -192,17 +201,17 @@
    ; lambda binders
      (list (coq-abstr-regexp "\\[" ":") 1 'font-lock-declaration-name-face)
 
-     ; let binders
-;;     (list (coq-decl-defn-regexp "=") 1 'font-lock-function-name-face)
-
      ; Pi binders
      (list (coq-abstr-regexp "(" ":") 1 'font-lock-declaration-name-face)
    
      ;; Kinds
-     (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("
+     (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s *\\(("
 		   coq-id ")\\)?") 'font-lock-type-face))
   "*Font-lock table for Coq terms.")
 
+;; According to Coq, "Definition" is both a declaration and a goal.
+;; It is understood here as being a goal.  This is important for
+;; recognizing global identifiers, see coq-global-p.
 (defconst coq-save-command-regexp
   (concat "^" (ids-to-regexp coq-keywords-save)))
 (defconst coq-save-with-hole-regexp
@@ -215,10 +224,10 @@
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*:"))
 (defconst coq-decl-with-hole-regexp
   (concat "\\(" (ids-to-regexp coq-keywords-decl)
-	  "\\)\\s-*\\(" coq-id "\\)\\s-*:"))
+	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (ids-to-regexp coq-keywords-defn)
-	  "\\)\\s-*\\(" coq-id "\\)\\s-*[:[]"))
+	  "\\)\\s-+\\(" coq-id "\\)\\s-*[:[]"))
 
 (defvar coq-font-lock-keywords-1
    (append
