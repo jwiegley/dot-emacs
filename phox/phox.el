@@ -115,7 +115,7 @@
     "\\`\\(pro\\(p\\(osition\\)?\\|ve_claim\\)\\(osition\\)?\\|lem\\(ma\\)?\\|fact\\|cor\\(ollary\\)?\\|theo\\(rem\\)?\\)"
     phox-strict-comments-regexp
     phox-ident-regexp)
-   proof-goal-with-hole-result     14
+   proof-goal-with-hole-result     15
    proof-save-with-hole-regexp     
    (concat 
     "\\`save"
