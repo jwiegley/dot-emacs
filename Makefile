@@ -64,10 +64,10 @@ clean:
 ##
 ## This special target lets us use targets defined 
 ## in developer's makefile Makefile.devel conveniently,
-## via make <target>.devel
+## via make devel.<target>
 ##
 
-%.devel:
+devel.%:
 	make -f Makefile.devel $*
 
 
