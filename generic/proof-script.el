@@ -996,7 +996,6 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 	;; Search backwards for first goal command, 
 	;; deleting spans along the way.
-	;; (FIXME da: what happens if no goal is found?)
 	(setq gspan span)
 	(while (and gspan
 		    (or (eq (span-property gspan 'type) 'comment)
