@@ -4,6 +4,10 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.8  1998/01/15 13:30:17  hhg
+;; Added coq-shell-cd
+;; Some new fontlocks
+;;
 ;; Revision 1.7  1997/11/26 17:12:55  hhg
 ;; Incorporated tms's suggestion for simplifying coq-font-lock-keywords-1
 ;;
@@ -84,10 +88,12 @@
 "Eval"
 "Extraction"
 "Focus"
+"Immediate"
 "Hint"
 "Infix"
 "Opaque"
 "Print"
+"Proof"
 "Pwd"
 "Reset"
 "Search"
@@ -197,20 +203,22 @@
 		   coq-id ")\\)?") 'font-lock-type-face))
   "*Font-lock table for Coq terms.")
 
-;; Instead of "[^:]+", it may be better to use "lego-id". Furthermore,
-;; it might be safer to append "\\s-*:".
 (defconst coq-save-command-regexp
   (concat "^" (ids-to-regexp coq-keywords-save)))
 (defconst coq-save-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-save) "\\)\\s-+\\([^.]+\\)"))
+  (concat "\\(" (ids-to-regexp coq-keywords-save)
+	  "\\)\\s-+\\(" coq-id "\\)\\s-*\."))
 (defconst coq-goal-command-regexp
   (concat "^" (ids-to-regexp coq-keywords-goal)))
 (defconst coq-goal-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-goal) "\\)\\s-+\\([^:]+\\)"))
+  (concat "\\(" (ids-to-regexp coq-keywords-goal)
+	  "\\)\\s-+\\(" coq-id "\\)\\s-*:"))
 (defconst coq-decl-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-decl) "\\)\\s-*\\([^:]+\\)"))
+  (concat "\\(" (ids-to-regexp coq-keywords-decl)
+	  "\\)\\s-*\\(" coq-id "\\)\\s-*:"))
 (defconst coq-defn-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-defn) "\\)\\s-*\\([^:]+\\)"))
+  (concat "\\(" (ids-to-regexp coq-keywords-defn)
+	  "\\)\\s-*\\(" coq-id "\\)\\s-*[:[]"))
 
 (defvar coq-font-lock-keywords-1
    (append

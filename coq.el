@@ -3,6 +3,10 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.14  1998/01/15 13:30:18  hhg
+;; Added coq-shell-cd
+;; Some new fontlocks
+;;
 ;; Revision 1.13  1997/11/26 17:23:51  hhg
 ;; Added C-c C-s to run "Search" in Coq.
 ;; Moved coq-goal-with-hole-regexp etc to coq-fontlock.
@@ -70,10 +74,13 @@
 
 ; Configuration                                  
 
+(defvar proof-shell-cd "Cd \"%s\""
+  "*Command of the inferior process to change the directory.") 
+
 (defconst coq-mode-version-string
   "Coq-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
 
-(defvar coq-tags "/net/pauillac/constr/V6.2/theories/TAGS"
+(defvar coq-tags "/obj/local/coq/V6.1.beta/theories/TAGS"
   "the default TAGS table for the Coq library")
 
 (defconst coq-process-config ""
@@ -107,6 +114,9 @@
 (defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
 
+(defvar coq-shell-cd "Cd \"%s\"."
+  "*Command of the inferior process to change the directory.") 
+
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
   "*Regular expression indicating that the proof of the current goal
   has been abandoned.")
@@ -114,18 +124,17 @@
 (defvar coq-shell-proof-completed-regexp "Subtree proved!"
   "*Regular expression indicating that the proof has been completed.")
 
-;; ----- outline
-
 (defvar coq-goal-regexp
   "\\(============================\\)\\|\\(subgoal [0-9]+ is:\\)\n")
 
-(defvar coq-outline-regexp
-  (concat "[[*]\\|"
-	  (ids-to-regexp 
-	   '("Discharge" "DischargeKeep" "Freeze" "$?Goal" "Module" "Record" "Inductive"
-     "Unfreeze"))))
+;; ----- outline
 
-(defvar coq-outline-heading-end-regexp ";\\|\\*)")
+(defvar coq-outline-regexp
+  (ids-to-regexp 
+	   '("Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact"
+	   "Remark" "Record" "Inductive" "Definition")))
+
+(defvar coq-outline-heading-end-regexp "\.\\|\\*)")
 
 (defvar coq-shell-outline-regexp coq-goal-regexp)
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
@@ -346,6 +355,7 @@
   (interactive) 
   (insert "Apply "))
 
+<<<<<<< coq.el
 (defun coq-Search ()
   "Search for type in goals."
   (interactive)
@@ -436,7 +446,8 @@
   (interactive)
   (save-excursion
     (beginning-of-line)
-    (if (< (point) (proof-locked-end))
+    (if (and (< (point) (proof-locked-end))
+	     (eq proof-script-buffer (current-buffer)))
 	(error "can't indent locked region!"))
     (let* ((state (coq-parse-to-point))
 	   (beg (point))
@@ -454,7 +465,8 @@
   (save-excursion
     (goto-char start)
     (beginning-of-line)
-    (if (< (point) (proof-locked-end))
+    (if (and (< (point) (proof-locked-end))
+	     (eq proof-script-buffer (current-buffer)))
 	(error "can't indent locked region!"))
     (let* ((beg (point))
 	   (state (coq-parse-to-point))
@@ -578,7 +590,7 @@
 
 ;; Info
   (setq Info-directory-list
-	(cons "/home/hhg/src/info" Info-directory-list))
+	(cons "/home/hhg/src/doc/info" Info-directory-list))
 
 ;; keymaps and menus
   (easy-menu-add coq-mode-menu coq-mode-map)
@@ -594,7 +606,7 @@
 
 (defun coq-shell-mode-config ()
   (setq proof-shell-prompt-pattern coq-shell-prompt-pattern
-        proof-shell-abort-goal-regexp coq-shell-abort-goal-regexp
+        proof-shell-cd coq-shell-cd
         proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
         proof-shell-error-regexp coq-error-regexp
 	proof-shell-interrupt-regexp coq-interrupt-regexp
