@@ -1601,11 +1601,16 @@ to the function which parses the script segment by segment."
     (let (foundend)
       ;; Find end of command
       (while (and (setq foundend 
-			(re-search-forward proof-script-command-end-regexp nil t))
+			(progn
+			  (and
+			   (re-search-forward proof-script-command-end-regexp nil t)
+			   (or (match-beginning 1) ;; optional start of white space
+			       (match-end 0)))))
 		  (proof-buffer-syntactic-context))
 	;; inside a string or comment before the command end
 	)
-      (if (and foundend 
+      (if (and foundend
+	       (goto-char foundend)	; move to command end
 	       (not (proof-buffer-syntactic-context)))
 	  ;; Found command end outside string/comment
 	  'cmd
