@@ -7,9 +7,9 @@
 
 ;TODO Papageno 05/1999:
 ;
-;* Correct the C-c C-c bug
+;* Correct the C-c C-c bug (typing C-c C-c during the execution of a
+;   tactic breaks the consitency with Coq)
 ;* Fix the coq-lift-global code
-;* color of error messages is beuark
 
 (require 'proof-script)
 (require 'coq-syntax)
@@ -109,21 +109,25 @@
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-derived-mode coq-shell-mode proof-shell-mode
-   "coq-shell" nil
-   (coq-shell-mode-config))
-
-(define-derived-mode coq-response-mode proof-response-mode
+(eval-and-compile 
+  (define-derived-mode coq-shell-mode proof-shell-mode
+    "coq-shell" nil
+    (coq-shell-mode-config))
+  
+(eval-and-compile 
+  (define-derived-mode coq-response-mode proof-response-mode
   "CoqResp" nil
-  (coq-response-config))
+    (coq-response-config))
  
-(define-derived-mode coq-mode proof-mode
+(eval-and-compile
+  (define-derived-mode coq-mode proof-mode
    "coq" nil
    (coq-mode-config))
 
-(define-derived-mode coq-pbp-mode pbp-mode
-  "pbp" nil
-  (coq-pbp-mode-config))
+(eval-and-compile
+  (define-derived-mode coq-pbp-mode pbp-mode
+    "pbp" nil
+    (coq-pbp-mode-config))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's coq specific                                      ;;
@@ -222,32 +226,31 @@
    ((looking-at proof-shell-assumption-regexp)
     (cons 'hyp (match-string 1)))
    (t nil)))
-;;
-;; Papageno 05/1999 : this feature is (1) broken (2) extemely annoying
-;;
-;; I remove that waiting a better solution to be found
 
-;(defun coq-lift-global (glob-span)
-;  "This function lifts local lemmas from inside goals out to top level."
-;  (let (start (next (span-at 1 'type)) str (goal-p nil))
-;    (while (and next (and (not (eq next glob-span)) (not goal-p)))
-;      (if (and (eq (span-property next 'type) 'vanilla)
-;	       (funcall proof-goal-command-p (span-property next 'cmd)))
-;	  (setq goal-p t)
-;	(setq next (next-span next 'type))))
-
-;    (if (and next (not (eq next glob-span)))
-;	(progn
-;	  (proof-unlock-locked)
-;	  (setq str (buffer-substring (span-start glob-span)
-;				      (span-end glob-span)))
-;	  (delete-region (span-start glob-span) (span-end glob-span))
-;	  (goto-char (span-start next))
-;	  (setq start (point))
-;	  (insert str "\n")
-;	  (set-span-endpoints glob-span start (point))
-;	  (set-span-start next (point))
-;	  (proof-lock-unlocked)))))
+;;
+;; This code is broken
+;; 
+; (defun coq-lift-global (glob-span)
+;   "This function lifts local lemmas from inside goals out to top level."
+;   (let (start (next (span-at 1 'type)) str (goal-p nil))
+;     (while (and next (and (not (eq next glob-span)) (not goal-p)))
+;       (if (and (eq (span-property next 'type) 'vanilla)
+; 	       (funcall proof-goal-command-p (span-property next 'cmd)))
+; 	  (setq goal-p t)
+; 	(setq next (next-span next 'type))))
+    
+;     (if (and next (not (eq next glob-span)))
+; 	(progn
+; 	  (proof-unlock-locked)
+; 	  (setq str (buffer-substring (span-start glob-span)
+; 				      (span-end glob-span)))
+; 	  (delete-region (span-start glob-span) (span-end glob-span))
+; 	  (goto-char (span-start next))
+; 	  (setq start (point))
+; 	  (insert str "\n")
+; 	  (set-span-endpoints glob-span start (point))
+; 	  (set-span-start next (point))
+; 	  (proof-lock-unlocked)))))
 
 (defun coq-state-preserving-p (cmd)
   (not (proof-string-match coq-undoable-commands-regexp cmd)))
@@ -276,14 +279,25 @@
   (interactive) 
   (insert "Apply "))
 
-(defun coq-Search ()
-  "Search for type in goals
+(defun coq-SearchIsos ()
+  "Search a term whose type is isomorphic to given type
 
   This is specific to coq-mode."
   (interactive)
   (let (cmd)
-    (proof-shell-ready-prover) ;; was (proof-check-process-available)
-    (setq cmd (read-string "Search Type: " nil 'proof-minibuffer-history))
+    (proof-shell-ready-prover) 
+    (setq cmd (read-string "SearchIsos: " nil 'proof-minibuffer-history))
+    (proof-shell-invisible-command
+     (concat "SearchIsos " cmd proof-terminal-string))))
+
+(defun coq-Search ()
+  "Search all constant that have the given head symbol
+
+  This is specific to coq-mode."
+  (interactive)
+  (let (cmd)
+    (proof-shell-ready-prover) 
+    (setq cmd (read-string "Search: " nil 'proof-minibuffer-history))
     (proof-shell-invisible-command
      (concat "Search " cmd proof-terminal-string))))
 
@@ -309,6 +323,13 @@
 		(progn (beginning-of-line) (forward-word 1) (point)) 
 		(progn (end-of-line) (point)))))))
       (insert (concat "End" section)))))
+
+(defun coq-Compile ()
+  "compiles current buffer"
+  (interactive)
+  (let* ((n (buffer-name))
+	 (l (string-match ".v" n)))
+    (compile (concat "make " (substring n 0 l) ".vo"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
@@ -425,9 +446,6 @@
 
   (coq-init-syntax-table)
 
-;; font-lock
-
-  (setq font-lock-keywords coq-font-lock-keywords-1)
 
   (proof-config-done)
 
@@ -438,6 +456,7 @@
   (define-key (current-local-map) [(control c) (control s)] 'coq-Search)
   (define-key (current-local-map) [(control c) ?s] 'coq-begin-Section)
   (define-key (current-local-map) [(control c) ?e] 'coq-end-Section)
+  (define-key (current-local-map) [(control c) (control m)] 'coq-Compile)
 
 ;; outline
   
@@ -456,9 +475,18 @@
 
   (setq blink-matching-paren-dont-ignore-comments t)
 
-;; hooks and callbacks
+;; font-lock
 
+  (setq font-lock-keywords coq-font-lock-keywords-1)
+
+  (and (boundp 'font-lock-always-fontify-immediately)
+       (setq font-lock-always-fontify-immediately t))
+  
+;; hooks and callbacks
+  
   (add-hook 'proof-pre-shell-start-hook 'coq-pre-shell-start nil t))
+  
+
 
 (defun coq-shell-mode-config ()
   (setq proof-shell-prompt-pattern coq-shell-prompt-pattern
