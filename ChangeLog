@@ -1,3 +1,72 @@
+2001-02-07  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2001-02-07  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/phox-font.el, phox/phox-fun.el, phox/phox-tags.el, phox/phox-extraction.el:
+	*** empty log message ***
+
+2001-02-06  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2001-02-02  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox-font.el:
+	*** empty log message ***
+
+2001-02-01  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* doc/ProofGeneral.texi:
+	updated thms_containing;
+
+2001-02-01  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox-sym-lock.el, phox/phox.el, phox/phox-font.el:
+	*** empty log message ***
+
+2001-01-24  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/x-symbol-isabelle.el:
+	renamed \<ll> to \<lless> and \<gg> to \<ggreater>;
+
+2001-01-18  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar.el:
+	proof-xsym-deactivate-command: use Library.gen_rems (op =) to avoid \\\\;
+
+2001-01-18  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox-extraction.el, phox/phox.el, phox/phox-fun.el, phox/phox-tags.el:
+	*** empty log message ***
+
+2001-01-12  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/isa.el: proof-string-match;
+
+2001-01-12  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* isa/isa.el:
+	Fix loading thy mode fist problem: require proof-script since context
+	menus are now added for response/goals buffer, which requires proof mode.
+
+2001-01-12  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/isabelle-system.el, isar/isar.el, isar/isar-syntax.el:
+	proof-string-match;
+
+2001-01-12  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
 2001-01-12  David Aspinall  <da@proofgeneral.org>
 
 	* ChangeLog: Updated.
