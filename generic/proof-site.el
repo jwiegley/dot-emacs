@@ -14,7 +14,7 @@
 ;; below could re-adjust load path and autoloads.
 
 ;; 
-(defvar proof-general-version "Proof General, Version 2.0-prerel-980910 released by da,tms. Contact: lego@dcs.ed.ac.uk"
+(defvar proof-general-version "Proof General, Version 2.0-pre980910 released by da,tms. Email lego@dcs.ed.ac.uk."
   "Version string for Proof General.")
 
 (or (featurep 'custom)
