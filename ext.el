@@ -13,6 +13,8 @@
 ; and the last bits are cleared.
 
 (defvar *script-buffer*)
+(defvar lego-goals-buffer)
+(defvar lego-error-buffer)
 
 (defun lego-pbp-analyse-structure ()
   (map-extents
@@ -80,58 +82,103 @@
 
 ; Receiving the data from Lego is performed that a filter function
 ; added among the comint-output-filter-functions of the shell-mode.
-; This function is a two state function.  It may happen that the
-; last string that was processed was in the middle of a goal listing,
-; in this case one must go on reading the rest of the goals.
+
+(defvar lego-pbp-last-mark)
+(defvar lego-pbp-next-mark)
+(defvar lego-pbp-sanitise t)
+
+(defun lego-pbp-sanitise-region (start end)
+  (if lego-pbp-sanitise 
+      (progn
+	(goto-char start)
+	(if (search-forward "-- Start of Goals --" end t) 
+	    (backward-delete-char 21))
+	(if (search-forward "-- End of Goals --" end t) 
+	    (backward-delete-char 19))
+	(goto-char start)
+	(while (search-forward "@" end t) (backward-delete-char 1))
+	(goto-char start)
+	(while (search-forward "&" end t) (backward-delete-char 1))
+	(goto-char start)
+	(while (setq start (search-forward "%" end t)) 
+	  (search-forward "|" end t)
+	  (delete-region (- start 1) (point))))))
+
+(defun lego-pbp-display-error (start end)
+  (set-buffer lego-goals-buffer)
+  (goto-char (point-max))
+  (if (or (search-backward "Error:" nil t) 
+	  (search-backward "Lego parser;" nil t))
+      (delete-region (- (point) 2) (point-max)))
+  (newline 2)
+  (insert-buffer-substring (proof-shell-buffer) start end))
+
+(defun lego-pbp-process-region (pbp-start pbp-end)
+  (message "process")
+  (let (start end)
+   (save-excursion 
+    (goto-char pbp-start)
+    (cond 
+     ((search-forward "KillRef: ok, not in proof state" pbp-end t)
+      (erase-buffer lego-goals-buffer))
+     
+     ((search-forward "*** QED ***" pbp-end t)
+      (erase-buffer lego-goals-buffer)
+      (insert-string "\n   *** QED ***" lego-goals-buffer))
+     
+     ((or (search-forward "Error:" pbp-end t)
+	  (search-forward "Lego parser;" pbp-end t))
+      (setq start (match-beginning 0))
+      (lego-pbp-sanitise-region pbp-start pbp-end)
+      (lego-pbp-display-error start pbp-end))
+
+     ((setq start (search-forward "-- Start of Goals --" pbp-end t))
+      (setq end (- (search-forward "-- End of Goals --" pbp-end t) 18))
+      (set-buffer lego-goals-buffer)
+      (erase-buffer)
+      (insert-buffer-substring (proof-shell-buffer) start end)
+      (lego-pbp-analyse-structure))
+
+     ((search-forward "-- Pbp result --" () t)
+      (message "pbp")
+      (end-of-line)
+      (setq start (point))
+      (search-forward "-- End Pbp result --" () t)
+      (beginning-of-line)
+      (setq end (- (point) 1))
+      (proof-simple-send (buffer-substring start end))
+      (if (boundp '*script-buffer*)
+	  (progn (set-buffer *script-buffer*)
+		 (end-of-buffer)
+		 (insert-buffer-substring (proof-shell-buffer) start end))))
+     ))))
+
+
+;; NEED TO SET LAST_MARK ***BEFORE*** calling process-region 
 
 (defun lego-pbp-filter (string)
+  (message "filter")
   (save-excursion
-    (set-buffer *lego-tmp-goals*)
-    (goto-char (point-max))
-    (insert string)
-    (while (progn (goto-char (point-min))
-		  (re-search-forward proof-shell-prompt-pattern () t))
-      (narrow-to-region (point-min) (point))
-      (lego-pbp-process-region)
-      (delete-region (point-min) (point-max))
-      (widen))))
+    (set-buffer (proof-shell-buffer))
 
-(defun lego-pbp-process-region ()
-  (save-excursion 
-    (goto-char (point-min))
-    (cond ((search-forward "KillRef: ok, not in proof state" () t)
-	   (erase-buffer *lego-goals*))
-	  ((search-forward "*** QED ***" () t)
-	   (erase-buffer *lego-goals*)
-	   (insert-string "\n   *** QED ***" *lego-goals*))
-	  ((search-forward "-- Start of Goals --" () t)
-	   (delete-region (point-min) (point))
-	   (search-forward "-- End of Goals --" () t)
-	   (backward-char 18)
-	   (delete-region (point)(point-max))
-	   (set-buffer *lego-goals*)
-	   (erase-buffer)
-	   (insert-buffer-substring *lego-tmp-goals*)
-	   (lego-pbp-analyse-structure))
-	  ((search-forward "-- Pbp result --" () t)
-	   (end-of-line)
-	   (delete-region 1 (point))
-	   (search-forward "-- End Pbp result --" () t)
-	   (beginning-of-line)
-	   (delete-region (- (point) 1) (point-max))
-	   (proof-simple-send (buffer-substring 1 (point-max)))
-	   (if *script-buffer*
-	       (progn (set-buffer *script-buffer*)
-		      (end-of-buffer)
-		      (insert-buffer-substring *lego-tmp-goals*)))))))
-
+    (if (and (boundp 'lego-pbp-last-mark) 
+	     (equal (marker-buffer lego-pbp-last-mark) (proof-shell-buffer)))
+	() 
+       (goto-char (point-max))
+       (setq lego-pbp-last-mark (point-marker)))
+    (let (old-mark)
+      (while (progn (goto-char lego-pbp-last-mark)
+		    (re-search-forward proof-shell-prompt-pattern () t))
+	(setq old-mark lego-pbp-last-mark)
+	(setq lego-pbp-last-mark (point-marker))
+	(goto-char (match-beginning 0))
+	(lego-pbp-process-region old-mark (point-marker))
+	(lego-pbp-sanitise-region old-mark lego-pbp-last-mark)))))
 
 (defun lego-goals-init ()
-  (setq *lego-tmp-goals* (get-buffer-create "*lego-tmp-goals*"))
-  (setq *lego-goals* (get-buffer-create "*lego goals*"))
-  (erase-buffer *lego-goals*)
-  (erase-buffer *lego-tmp-goals*)
-  (bury-buffer *lego-tmp-goals*))
+  (setq lego-goals-buffer (get-buffer-create "*lego goals*"))
+  (erase-buffer lego-goals-buffer))
+
 
 ; Now, using the extents in a mouse behavior is quite simple:
 ; from the mouse position, find the relevant extent, then get its annotation
