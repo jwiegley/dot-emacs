@@ -1,12 +1,13 @@
 /* Style sheet for the Proof General web pages. 
  * David Aspinall, June 1999.
- * $Id$
+ * proofgen.css,v 4.0 2000/03/13 07:36:57 da Exp
  */
 
 body{
  font-family: Verdana, Arial, sans-serif;	/* font for the doc body */
  background: #2D1D03;					/* background brown */
- background-image: url(images/canvaswallpaper.jpg);     /* background wallpaper */
+ background-image: 
+	url(http://zermelo.dcs.ed.ac.uk/~proofgen/images/canvaswallpaper.jpg);
  background-attachment: fixed;				/* background shouldn't scroll */
  color: #FFFFFF						/* text colour is white */
 }
@@ -79,11 +80,13 @@ dt{ font-style: italic; font-weight: bold }      /* Netscape misses this */
 /* Table Elements */
 table{
  font-family: Verdana, Arial, sans-serif;	
+/* background: #2D1D03; */
  color: #FFFFFF
 }
 
 td,tr{
  font-family: Verdana, Arial, sans-serif;	
+/* background: #2D1D03; */
  color: #FFFFFF
 }
 
@@ -101,7 +104,15 @@ a:active,a:hover{
  color: #FFF030					/* Brighter colour too */
 }
 
+
+pre{
+ background: #2D1D03;
+}
+
+/* Specifics */
+
 p.nb{
  font-size: smaller,
  font-style: italic
 }
+
