@@ -1261,7 +1261,14 @@ will be attempted."
 
 (defcustom proof-kill-goal-command ""
   "Command to kill the currently open goal.
-You must set this (perhaps to a no-op) for script management to work."
+If this is set to nil, PG will expect proof-find-and-forget-fn
+to do all the work of retracting to an arbitrary point in a file.
+Otherwise, the generic split-phase mechanism will be used:
+
+  1. If inside an unclosed proof, use proof-count-undos.
+  2. If retracting to before an unclosed proof, use 
+     proof-kill-goal-command, followed by proof-find-and-forget-fn
+     if necessary."
   :type 'string
   :group 'proof-script)
 
