@@ -111,16 +111,11 @@
 
 (define-derived-mode coq-shell-mode proof-shell-mode
    "coq-shell" nil
-
-   (coq-shell-mode-config)
-   (setq font-lock-keywords coq-font-lock-keywords-1)
-   (font-lock-mode))
+   (coq-shell-mode-config))
 
 (define-derived-mode coq-response-mode proof-response-mode
   "CoqResp" nil
-  (setq font-lock-keywords coq-font-lock-terms)
-  (coq-init-syntax-table)
-  (proof-response-config-done))
+  (coq-response-config))
  
 (define-derived-mode coq-mode proof-mode
    "coq" nil
@@ -496,11 +491,21 @@
 	)
 
   (coq-init-syntax-table)
+  (setq font-lock-keywords coq-font-lock-keywords-1)
 
   (proof-shell-config-done))
 
 (defun coq-pbp-mode-config ()
   (setq pbp-change-goal "Show %s.")
-  (setq pbp-error-regexp coq-error-regexp))
+  (setq pbp-error-regexp coq-error-regexp)
+
+  (coq-init-syntax-table)
+  (setq font-lock-keywords coq-font-lock-keywords-1)
+  (proof-font-lock-minor-mode))
+
+(defun coq-response-config ()
+   (coq-init-syntax-table)
+   (setq font-lock-keywords coq-font-lock-keywords-1)
+   (proof-response-config-done))
 
 (provide 'coq)

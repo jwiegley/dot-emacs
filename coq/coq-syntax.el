@@ -278,10 +278,10 @@
           ;; et pour Definition f [x,y:nat] := body
 (defconst coq-decl-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-decl)
-	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
+	  "\\)\\s-+\\(" coq-ids "\\)\\s-*[:]"))
 (defconst coq-defn-with-hole-regexp
   (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
-	  "\\)\\s-+\\(" coq-id "\\)\\s-*[:[]"))
+	  "\\)\\s-+\\(" coq-id "\\)\\s-*[:]"))
 
 (defvar coq-font-lock-keywords-1
    (append
@@ -310,7 +310,7 @@
   (modify-syntax-entry ?<  ".")
   (modify-syntax-entry ?>  ".")
   (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?_  "_")
+  (modify-syntax-entry ?_  "w")
   (modify-syntax-entry ?\' "_")
   (modify-syntax-entry ?\| ".")
   (modify-syntax-entry ?\* ". 23")
