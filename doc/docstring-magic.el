@@ -16,6 +16,7 @@
 (require 'proof-utils)
 
 
+(provide 'sym-lock) ;  Hack for af2: sym-lock gives error when loaded, why?
 
 ;; FIXME: Loading several prover files at once is a bit of a problem
 ;; with new config mechanism.
