@@ -302,11 +302,11 @@ releaseall: release rpmrelease releaseclean
 ############################################################
 #
 # dcsinstall:
-#   Install distribution from $(RELEASEDIR) at dcs.ed
+#   Install distribution from $(DISTBUILDIR) at dcs.ed
 #   Clean out DCSEXPORTDIR first.
 #
 DCSEXPORTDIR=/export/local/shar/elisp/proofgeneral
 dcsinstall:
 	rm -rf $(DCSEXPORTDIR)
 	mkdir -p $(DCSEXPORTDIR)
-	(cd $(DCSEXPORTDIR); tar -xpzf $(RELEASEDIR)$(RELEASENAMETARGZ))
+	(cd $(DCSEXPORTDIR); tar -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ))
