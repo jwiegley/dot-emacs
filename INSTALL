@@ -1,20 +1,14 @@
 To install, put the .el files in an appropriate directory and compile
 them using `byte-compile-file' in xemacs:
-	M-x byte-compile-file proof-dependencies-xemacs.el
-	M-x byte-compile-file proof-fontlock.el
-	M-x byte-compile-file proof.el
-	M-x byte-compile-file lego-fontlock.el
-	M-x byte-compile-file coq-fontlock.el
-	M-x byte-compile-file lego.el
-	M-x byte-compile-file coq.el
-	M-x byte-compile-file pbp.el
+	M-0 M-x byte-recompile-directory
 
 If you want to use this mode for Coq, you need to make sure you have
 an appropriate version, which is from later than 1 March 1998.
 
-Put the compiled emacs files and the file
-script-management.info in a suitable directory for local emacs files,
-as suggested by your system administrator.
+Put the compiled emacs files and the file script-management.info in a
+suitable directory for local emacs files, as suggested by your system
+administrator.  Otherwise, alter the coq-info-dir in coq.el to a
+hard-coded path where you put the file script-management.info.
 
 Install coqtags or legotags in a standard place.
 
