@@ -106,7 +106,7 @@ automatically issue `proof-assert-next-command' for convenience,
 to send the command straight to the proof process.  If the command
 you want to send already has a terminator character, you don't
 need to delete the terminator character first.  Just press the
-terminator somwhere nearby.  Electric!"
+terminator somewhere nearby.  Electric!"
   :type 'boolean
   :set 'proof-set-value
   :group 'proof-user-options)
@@ -121,7 +121,7 @@ NB: the toolbar is only available with XEmacs."
 (defcustom proof-x-symbol-enable nil
   "*Whether to use x-symbol in Proof General buffers.
 If you activate this variable, whether or not you get x-symbol support
-depends on whether your proof assistant supports it and whehter
+depends on whether your proof assistant supports it and whether
 X-Symbol is installed in your Emacs."
   :type 'boolean
   :set 'proof-set-value
@@ -1719,9 +1719,9 @@ X-Symbol support is deactivated."
 (defcustom proof-universal-keys
   '(([(control c) (control c)] . proof-interrupt-process)
     ([(control c) (control v)] . proof-minibuffer-cmd))
-"List of keybindings made for the script, goals and response buffer. 
+"List of key-bindings made for the script, goals and response buffer. 
 Elements of the list are tuples `(k . f)' 
-where `k' is a keybinding (vector) and `f' the designated function."
+where `k' is a key-binding (vector) and `f' the designated function."
   :type 'sexp
   :group 'proof-general-internals)
 
