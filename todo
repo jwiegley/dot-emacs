@@ -35,12 +35,13 @@ C Remove .gif, .jpg, .xpm, .xbm files from the CVS repository.  Add
 
 B proof-issue-goal should refuse to work when a proof is in progress.
   Similarly proof-issue-save should refuse to work when a proof
-  hasn't been completed!
+  hasn't been completed! Algorithm: Search the last goal and check
+  length of span.  (45min)
 
 B Bug in proof-retract-until-point when called twice in succession:
   calls backward-char at beginning of buffer.  (Should say no
   locked region, or "nothing to retract").  Problems is that
-  there is a proof-locked-end, but it's at (point-min).
+  there is a proof-locked-end, but it's at (point-min). (30min)
 
 B proof-find-next-terminator doesn't work properly:
 
@@ -48,7 +49,8 @@ B proof-find-next-terminator doesn't work properly:
            ^
      Invoking proof-find-next-terminator in cursor position (^) should 
      move point to "t". Currently, it doesn't do anything. This is a
-     bug. 
+     bug. Perhaps just use new implementation of
+     proof-assert-until-point (30min)
 
 B Add proof-rsh-command and note in documentation about how to
   use widely-advertised "remote shell" feature.  (1hr)
@@ -111,7 +113,7 @@ A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
 B Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2 days; da + tms)
 
-B Provide a sensible default frame/buffer layout (4h)
+C Provide a sensible default frame/buffer layout (4h)
 
 B A less drastic version of proof-restart-script would be useful:
   one that doesn't involve killing off the proof assistant process
@@ -127,10 +129,6 @@ B A less drastic version of proof-restart-script would be useful:
   in case it's the active buffer.
   (da, 20mins)
   
-B Improve script stealing stuff.  It should display the other buffer
-  which was scripting.  Proof there should be killed off and
-  locked region shrunk/deleted accordingly.
-	
 C Improve proof-goal-command and proof-save-command:
   `proof-goal-command' should be more flexible and support a
   placeholder for the name and the actual goal. In LEGO, we have
@@ -167,10 +165,8 @@ B New buffer model:
     4. (hidden) process buffer
     5. Minibuffer for additionally sending information to the process 
 
-B proof-toolbar:  Fixup movement of point (choice of
-  up and down functions).  Add toolbar to response mode too.  
-
-B Split code; particularly proof.el
+B Split code; particularly proof.el Warning: we need to synchronise
+   code before!(1h)
 
 C toolbar icons: Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
@@ -438,9 +434,6 @@ X Add Isabelle logo to splash screen.  (30 mins)
 * Emacs19
 =========
 
-D The proof-locked-span isn't set to read-only, because overlays don't 
-  have that capability.  This needs to be done with text-regions.
-  (2hr hhg)
 
 * Release
 =========
