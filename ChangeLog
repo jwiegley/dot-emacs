@@ -1,5 +1,30 @@
 2004-02-07  David Aspinall  <da+pg-da@inf.ed.ac.uk>
 
+    * Makefile.devel: Updates for moving html out of ProofGeneral dir
+
+    * ChangeLog: Updated.
+
+    * Makefile.devel: Add options to tag so devel.untag not needed
+
+    * generic/proof-config.el, generic/proof-utils.el:
+    Remove more proofgeneral.org mail aliases
+
+    * Makefile.devel:
+    Adjust RELEASEDIR and GOLIVE for pub to /group/project on DICE.
+
+    * etc/ProofGeneral.spec, generic/proof-site.el:
+    Set version tag for new release.
+
+    * Makefile.devel: Fix for pserver return code on update
+
+    * Makefile.devel: Add Emacs mode tag
+
+    * FAQ: Updated
+
+    * etc/Mailman/note.txt: Updated.
+
+2004-02-07  David Aspinall  <da+pg-da@inf.ed.ac.uk>
+
     * Makefile.devel: Add options to tag so devel.untag not needed
 
     * generic/proof-config.el, generic/proof-utils.el:
