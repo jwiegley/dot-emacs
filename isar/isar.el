@@ -309,8 +309,8 @@ proof-shell-retract-files-regexp."
 
 (eval-and-compile                       ; to define vars for byte comp.
 (define-derived-mode isar-mode proof-mode
-    "Isabelle/Isar script" nil
-    (isar-mode-config)))
+  "Isabelle/Isar script" nil
+  (isar-mode-config)))
 
 
 
@@ -566,7 +566,7 @@ proof-shell-retract-files-regexp."
   (setq font-lock-keywords  
 	(append 
 	 isar-output-font-lock-keywords-1
-	 (if (boundp 'x-symbol-isabelle-font-lock-keywords)
+	 (if (proof-ass x-symbol-enable)
 	     x-symbol-isabelle-font-lock-keywords)))
   (proof-response-config-done))
 
@@ -578,7 +578,7 @@ proof-shell-retract-files-regexp."
   (setq font-lock-keywords  
 	(append 
 	 isar-goals-font-lock-keywords
-	 (if (boundp 'x-symbol-isabelle-font-lock-keywords)
+	 (if (proof-ass x-symbol-enable)
 	     x-symbol-isabelle-font-lock-keywords)))
   (proof-goals-config-done))
 
