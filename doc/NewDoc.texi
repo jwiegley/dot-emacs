@@ -310,10 +310,11 @@ of how to do this.
 
 
 
-@node Basic Script Management
+@node Basic Script Management, Advanced Script Management, Introducing Proof General, Top
 @chapter Basic Script Management
 
 @menu
+* Proof scripts::               
 * The buffer model::            
 * Regions in a proof script::   
 * Script editing commands::     
@@ -323,7 +324,7 @@ of how to do this.
 * Walkthrough example in LEGO::  
 @end menu
 
-@node Proof scripts
+@node Proof scripts, The buffer model, Basic Script Management, Basic Script Management
 @section Proof scripts
 
 A @dfn{proof script} is a sequence of commands to a proof assistant used
@@ -350,7 +351,11 @@ interactive proofs by issuing commands directly from a proof script
 file, while it is written and edited.
 @c developing them in proof script files.
 
-@node Goals and saves
+@menu
+* Goals and saves::             
+@end menu
+
+@node Goals and saves,  , Proof scripts, Proof scripts
 @unnumberedsubsec Goals and saves
 
 A proof script contains a sequence of commands used to prove one or more
@@ -369,7 +374,7 @@ a goal .. save pair is completed it is treated
 as atomic when undoing proof steps (see Undo).
 
 
-@node The buffer model
+@node The buffer model, Regions in a proof script, Proof scripts, Basic Script Management
 @section The buffer model
 
 @c FIXME: fix this in the light of what gets implemented.
@@ -394,11 +399,11 @@ the same time as the script buffer.
 The @dfn{response buffer} displays other output from the proof
 assistant, for example warning or informative messages.
 
-Optionally, the goals buffer and script buffer can be identified
-@pxref{Identify goals and response}.  The disadvantage of this is that
-the goals display can be replaced by other messages, so you must ask for
-it to be refreshed.  The advantage is that it is simpler to deal with
-fewer Emacs buffers.
+@c Optionally, the goals buffer and script buffer can be identified
+@c @pxref{Identify goals and response}.  The disadvantage of this is that
+@c the goals display can be replaced by other messages, so you must ask for
+@c it to be refreshed.  The advantage is that it is simpler to deal with
+@c fewer Emacs buffers.
 
 
 @node Regions in a proof script
@@ -566,7 +571,7 @@ other files needed to adapt the proof assistant for Proof General.
 Here we show how a minimal configuration of Proof General works for
 Isabelle, without any special changes to Isabelle.
 
-@begin itemize
+@itemize @bullet
 @item Make a directory called 'myassistant' under the Proof General home
 directory, to put the specific customization and associated files in.
 @item Add a file myassistant.el to the new directory.
