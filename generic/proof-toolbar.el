@@ -12,7 +12,7 @@
 (defcustom proof-toolbar-wanted t
   "*Whether to use toolbar in proof mode."
   :type 'boolean
-  :group 'proof)
+  :group 'proof-general)
 
 (defconst proof-toolbar-bare-button-list
   '(proof-toolbar-goal-button
