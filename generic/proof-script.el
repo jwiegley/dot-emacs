@@ -197,21 +197,25 @@ scripting buffer may have an active queue span.")
 
 ;; ** Getters and setters
 
-(defun proof-span-read-only (span)
-  "Make span be read-only, if proof-strict-read-only is non-nil.
-Otherwise make span give a warning message on edits."
-  ;; Note: perhaps the queue region should always be locked strictly.
-  (if proof-strict-read-only
+(defun proof-span-read-only (span &optional always)
+  "Make span be read-only according to `proof-strict-read-only' or ALWAYS."
+  (if (or always proof-strict-read-only)
       (span-read-only span)
+    (span-read-write span)
     (span-write-warning span)))
 
-;; not implemented yet: presently must toggle via restarting scripting
-;; (defun proof-toggle-strict-read-only ()
-;;  "Toggle proof-strict-read-only, changing current spans."
-;;  (interactive)
-;;   map-spans blah
-;;  )
-
+(defun proof-strict-read-only ()
+  "Set locked spans in script buffers according to `proof-strict-read-only'."
+  ;; NB: this implements the behaviour that read-only is synchronized
+  ;; in all script buffers to follow the current setting of 
+  ;; `proof-strict-read-only'.  Another possibility would be to
+  ;; just change for local buffer, while at the same time changing
+  ;; the default/global setting.   This would be consistent with
+  ;; behaviour of "expensive" x-symbol/mmm options.
+  (interactive)
+  (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
+		     (proof-span-read-only proof-locked-span)))
+   
 (defsubst proof-set-queue-endpoints (start end)
   "Set the queue span to be START, END."
   (set-span-endpoints proof-queue-span start end))
@@ -270,7 +274,7 @@ Also clear list of script portions."
       (span-raise proof-queue-span))
   (set-span-property proof-queue-span 'start-closed t)
   (set-span-property proof-queue-span 'end-open t)
-  (proof-span-read-only proof-queue-span)
+  (proof-span-read-only proof-queue-span 'always)
   (set-span-property proof-queue-span 'face 'proof-queue-face)
   (detach-span proof-queue-span)
   ;; Initialise locked span, remove it from buffer

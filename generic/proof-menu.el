@@ -181,9 +181,9 @@ If in three window or multiple frame mode, display two buffers."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;; Contents of the menus
-;;;
+;;
+;; Contents of sub menus
+;;
 
 (defvar proof-help-menu
   '("Help"
@@ -233,19 +233,26 @@ If in three window or multiple frame mode, display two buffers."
   "Proof General buffer menu.")
 
 
-;; Make the togglers used in options menu below
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; "Quick" (or main) options
+;;
+
+;; First, make the togglers used in options menu below
 
 (proof-deftoggle proof-three-window-mode)
 (proof-deftoggle proof-script-fly-past-comments)
 (proof-deftoggle proof-delete-empty-windows)
 (proof-deftoggle proof-shrink-windows-tofit)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
-(proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
+;; (proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
 (proof-deftoggle proof-disappearing-proofs)
+(proof-deftoggle proof-strict-read-only)
 
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle)
 
+;; Here is the menu
 
 (defvar proof-quick-opts-menu
   (cons 
@@ -260,10 +267,15 @@ If in three window or multiple frame mode, display two buffers."
      ["Disppearing Proofs" proof-disappearing-proofs-toggle 
       :style toggle
       :selected proof-disappearing-proofs]
-     ["Output Highlighting" proof-output-fontify-toggle
-      :active t
+
+;     ["Output Highlighting" proof-output-fontify-toggle
+;      :active t
+;      :style toggle
+;      :selected proof-output-fontify-enable]
+
+     ["Strict read only" proof-strict-read-only-toggle
       :style toggle
-      :selected proof-output-fontify-enable]
+      :selected proof-strict-read-only]
 
      ;; X-Symbol and MM are minor modes which PG settings
      ;; enable by default for PG buffers
@@ -334,7 +346,8 @@ If in three window or multiple frame mode, display two buffers."
    'proof-electric-terminator-enable
    'proof-script-fly-past-comments
    'proof-disappearing-proofs 
-   'proof-output-fontify-enable
+   ;;'proof-output-fontify-enable
+   'proof-strict-read-only
    (proof-ass-sym x-symbol-enable)
    (proof-ass-sym mmm-enable)
    'proof-toolbar-enable
@@ -371,6 +384,13 @@ If in three window or multiple frame mode, display two buffers."
   "Reset PG Options menu to default (or user-set) values, using custom."
   (interactive)
   (apply 'pg-custom-reset-vars (proof-quick-opts-vars)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Main menu
+;;
+
 
 (defconst proof-config-menu
   (list "----"

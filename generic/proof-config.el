@@ -152,23 +152,16 @@ directly (instead, they may only be entered as part of the script).
 
 Clever or arrogant users may want to avoid this test, which is
 done if this `proof-strict-state-preserving' is turned off (nil)."
-  :type 'boolean
+  :type  'boolean
   :group 'proof-user-options)
 
 (defcustom proof-strict-read-only 'strict
   "*Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
-you a reprimand!).
-
-If you change proof-strict-read-only during a session, you must 
-use the \"Restart\" button (or \\[proof-shell-restart]) before
-you can see the effect in buffers.
-
-The default value for proof-strict-read-only depends on which
-version of Emacs you are using.  In GNU Emacs, strict read only is buggy
-when it used in conjunction with font-lock, so it is disabled by default."
-  :type 'boolean
+you a reprimand!)."
+  :type  'boolean
+  :set   'proof-set-value
   :group 'proof-user-options)
 
 
