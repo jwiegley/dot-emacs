@@ -1542,11 +1542,15 @@ No action if BUF is nil."
 
 (defvar proof-menu  
   (append '("Commands"
-            ["Toggle active terminator" proof-active-terminator-minor-mode
+            ["Active terminator" proof-active-terminator-minor-mode
 	     :active t
 	     :style toggle
              :selected proof-active-terminator-minor-mode]
-            "----")
+	    ["Toolbar" proof-toolbar-toggle
+	       :active (featurep 'toolbar)
+	       :style toggle
+	       :selected (not proof-toolbar-inhibit)]
+	    "----")
 	  ;; UGLY COMPATIBILITY  FIXME: remove this soon
           (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
 		    "--:doubleLine" "----"))

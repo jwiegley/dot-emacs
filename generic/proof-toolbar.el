@@ -92,10 +92,6 @@ will work for any proof assistant.")
 (defvar proof-toolbar nil
   "Proof mode toolbar button list.  Set in proof-toolbar-setup.")
 
-(defconst proof-old-toolbar (and (boundp 'default-toolbar) default-toolbar)
-  "Saved value of default-toolbar for proofmode.")
-
-
 ;; FIXME: edit-toolbar cannot edit proof toolbar (even in a proof mode)
 ;; Need a variable containing  a specifier or similar.
 ;; (defvar proof-toolbar-specifier nil
@@ -135,8 +131,15 @@ to the default toolbar."
 	    (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
 	    ;; Finally ensure current buffer will display this toolbar
 	    (set-specifier default-toolbar proof-toolbar (current-buffer)))
-	(set-specifier default-toolbar proof-old-toolbar (current-buffer)))))
+	(remove-specifier default-toolbar (current-buffer)))))
 
+(defun proof-toolbar-toggle (&optional force-on)
+  "Toggle display of Proof General toolbar."
+  (interactive "P")
+  (setq proof-toolbar-inhibit
+       (or force-on (not proof-toolbar-inhibit)))
+  (proof-toolbar-setup))
+  
 ;;
 ;; GENERIC PROOF TOOLBAR BUTTONS
 ;;
