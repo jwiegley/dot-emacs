@@ -92,7 +92,7 @@ B Clean up proof-assert-until-point behaviour.  Discussion results:
 
     4.  Movement and possible insertion of spaces/newlines for 
     when new commands are added to the buffer needs careful
-    thought!
+    thought! (1h)
 
 A Implement more generic mechanism for large undos (2h tms)
 
@@ -104,6 +104,14 @@ A Implement more generic mechanism for large undos (2h tms)
 
 A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
+
+B New buffer model (4h):
+
+    1. Script buffers
+    2. Response buffer
+    3. (optionally part of response buffer) goals buffer
+    4. (hidden) process buffer
+    5. Minibuffer for additionally sending information to the process 
 
 B Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2 days; da + tms)
@@ -151,14 +159,6 @@ C Improve Linux install via spec file: hack the load line into
   site-start.el.  Could use emacs to determine its location,
   automatically detect both XEmacs and Emacs, etc.  See if
   other Emacs packages do something clever. 
-
-B New buffer model:
-
-    1. Script buffers
-    2. Response buffer
-    3. (optionally part of response buffer) goals buffer
-    4. (hidden) process buffer
-    5. Minibuffer for additionally sending information to the process 
 
 B Split code; particularly proof.el Warning: we need to synchronise
    code before!(1h)
@@ -329,6 +329,9 @@ X pbp code doesn't quite accord with the tech report; in particular it
 * Here are things to be done to Lego mode
 =========================================
 
+A ordinary forget command in LEGO needs to notify Proof General when
+  it has retracted across file boundaries. (1h tms)
+
 C fix Pbp implementation (10h)
 
 B `lego-get-path' assumes that LEGOPATH has been set in the
@@ -339,11 +342,11 @@ B `lego-get-path' assumes that LEGOPATH has been set in the
   be analysed with the help of a LEGO specific extension of
   `proof-shell-process-urgent-message'. (1h tms)
 
-B release new version of the LEGO proof engine (4h tms)
-
 B Equiv, Next,... aren't handled properly, because LEGO does not
   refresh the proof state. Perhaps it would be easiest to get LEGO to
   output more information in proof script mode (2h)
+
+B release new version of the LEGO proof engine (4h tms)
 
 X Mechanism to save object file
 
