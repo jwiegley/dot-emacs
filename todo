@@ -54,6 +54,8 @@ X Solaris bugs: font locking and button enabling.
 
 *** Scheduled improvements for 3.2
 
+**** A Clean up intro for PG-adapting manual.
+
 **** C Fix mode naming for Isabelle 
      (might like isa-proofscript-mode -> isa-mode;
       but this conflicts with entry mechanism for thy/isa mode).
