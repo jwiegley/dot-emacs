@@ -295,7 +295,7 @@ Otherwise the response buffer will accumulate output from the prover."
 If non-nil, debugging messages are displayed in the response giving
 information about what Proof General is doing.
 To avoid erasing the messages shortly after they're printed, 
-you should disable `proof-tidy-response'."
+you should set `proof-tidy-response' to nil."
   :type 'boolean
   :group 'proof-user-options)
 
