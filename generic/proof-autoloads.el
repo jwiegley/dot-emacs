@@ -8,14 +8,16 @@ Configure Proof General for proof-assistant using BODY as a setq body." nil 'mac
 
 ;;;***
 
-;;;### (autoloads (proof-indent-line) "proof-indent" "generic/proof-indent.el")
+;;;### (autoloads (proof-indent-region proof-indent-line) "proof-indent" "generic/proof-indent.el")
 
 (autoload 'proof-indent-line "proof-indent" "\
-Indent current line of proof script" t nil)
+Indent current line of proof script, if indentation enabled." t nil)
+
+(autoload 'proof-indent-region "proof-indent" nil t nil)
 
 ;;;***
 
-;;;### (autoloads (proof-deftoggle proof-menu-define-specific proof-menu-define-main proof-menu-define-keys) "proof-menu" "generic/proof-menu.el")
+;;;### (autoloads (defpacustom proof-menu-define-specific proof-menu-define-main proof-menu-define-keys) "proof-menu" "generic/proof-menu.el")
 
 (autoload 'proof-menu-define-keys "proof-menu" nil nil nil)
 
@@ -23,9 +25,13 @@ Indent current line of proof script" t nil)
 
 (autoload 'proof-menu-define-specific "proof-menu" nil nil nil)
 
-(autoload 'proof-deftoggle "proof-menu" "\
-Define a function VAR-toggle for toggling a boolean customize setting VAR.
-The toggle function uses customize-set-variable to change the variable." nil 'macro)
+(autoload 'defpacustom "proof-menu" "\
+Define a setting NAME for the current proof assitant, default VAL.
+NAME should correspond to some internal setting, flag, etc, for the
+proof assistant.  
+The :type of NAME should be one of 'integer, 'boolean, 'string.
+The customization variable is automatically in group `proof-assistant-setting.
+The function `proof-assistant-format' is used to format VAL." nil 'macro)
 
 ;;;***
 
@@ -69,7 +75,7 @@ because Proof General does not allow for the action list to be extended
 in some cases.   May be called by proof-shell-invisible-command." nil nil)
 
 (autoload 'proof-shell-invisible-command "proof-shell" "\
-Send CMD to the proof process.  Add terminal string if necessary.
+Send CMD to the proof process.  
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
@@ -80,7 +86,16 @@ If WAIT is an integer, wait for that many seconds afterwards." nil nil)
 ;;;### (autoloads (proof-splash-display-screen) "proof-splash" "generic/proof-splash.el")
 
 (autoload 'proof-splash-display-screen "proof-splash" "\
-Save window config and display Proof General splash screen." nil nil)
+Save window config and display Proof General splash screen." t nil)
+
+;;;***
+
+;;;### (autoloads (proof-format) "proof-syntax" "generic/proof-syntax.el")
+
+(autoload 'proof-format "proof-syntax" "\
+Format a string by matching regexps in ALIST against STRING.
+ALIST contains (REGEXP . REPLACEMENT) pairs where REPLACEMENT
+may be a string or sexp evaluated to get a string." nil nil)
 
 ;;;***
 
