@@ -363,7 +363,7 @@ is), which is annoying.
      ext `(
 			  hole ,hole-counter
 			  mouse-face highlight
-			  priority 5		; what should I put here? I want holes to have big priority 
+			  priority 100		; what should I put here? I want holes to have big priority 
 			  face secondary-selection
 			  start-open nil
 			  end-open t
@@ -656,9 +656,11 @@ is), which is annoying.
   )
 
 
+(defun hole-at-event (event) (span-at-event event 'hole))
+
 (defun mouse-destroy-hole (event)
   (interactive "*e")
-  (destroy-hole (span-at-event event))
+  (destroy-hole (hole-at-event event))
   )
 
 
@@ -667,7 +669,7 @@ is), which is annoying.
 (defun mouse-forget-hole (event)
   (interactive "*e")
   (save-excursion
-    (let ((ext (span-at-event event)))
+    (let ((ext (hole-at-event event)))
       (if (eq ext active-hole)
 			 (disable-active-hole))
       (detach-span ext)
@@ -689,7 +691,7 @@ is), which is annoying.
 
 	 (if (hole-region-exists-p)
 		  (set-make-active-hole)
-		(let ((ext (span-at-event event)))
+		(let ((ext (hole-at-event event)))
 		  (if (and ext (is-hole-p ext))
 				(error "Already a hole here")
 			 (set-active-hole (make-hole-at)))
@@ -700,7 +702,7 @@ is), which is annoying.
 
 (defun mouse-set-active-hole (event)
   (interactive "*e")
-  (let ((ext (span-at-event event)))
+  (let ((ext (hole-at-event event)))
     (if (and ext (is-hole-p ext))
 	(set-active-hole ext)
       (error "No hole here"))
@@ -894,7 +896,7 @@ created. return t if num is > 0, nil otherwise."
 	  (count-holes-in-last-expand) empty-hole-regexp)
 	 (if (> (count-holes-in-last-expand) 1) 
 		  (progn (goto-char pos)
-					(message "Hit meta-return to jump to active hole. M-x holes-short-doc to see holes documentation."))
+					(message "Hit M-ret to jump to active hole. M-x holes-short-doc to see holes doc."))
 
 		(if (= (count-holes-in-last-expand) 0) () ; no hole, stay here.
 		  (goto-char pos)
@@ -918,6 +920,8 @@ created. return t if num is > 0, nil otherwise."
 		(goto-char pos)
 		(set-point-next-hole-destroy) ; if only one hole, go to it.
 		)
+	 (if (> c 1) (message "Hit M-ret to jump to active hole. M-x holes-short-doc to see holes doc.")
+		)	 
 	 )
   )
 

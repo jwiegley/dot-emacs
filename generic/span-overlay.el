@@ -328,8 +328,19 @@ Behaviour is still worse than before."
     )
   )
 
-(defsubst span-at-event (event)
-  (car  (overlays-at (posn-point (event-start event))))
+(defun span-find-span (overlay-list &optional prop)
+  "Returns the first overlay of overlay-list having property prop (default 'span), nil if no such overlay belong to the list."
+  (let* ((l overlay-list))
+    (while (and
+				(not (eq l nil))
+				(not (overlay-get (car l) (or prop 'span))))
+      (setq l (cdr l)))
+    (if (eq l nil) nil (car l))
+    )
+  )
+
+(defsubst span-at-event (event &optional prop)
+  (span-find-span (overlays-at (posn-point (event-start event))) prop)
   )
 
 

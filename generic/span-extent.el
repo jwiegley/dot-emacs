@@ -137,8 +137,8 @@ A span is before PT if it covers the character before PT."
   )
 
 ;there are more args to extent-at-event
-(defsubst span-at-event (event)
-  (extent-at-event event)
+(defsubst span-at-event (event &optional prop)
+  (extent-at-event event prop)
   )
 
 (provide 'span-extent)
