@@ -1158,15 +1158,15 @@ This version is used when `proof-script-command-start-regexp' is set."
       (setq startpos (point))
       (while 
 	  (and 
-	   (re-search-forward proof-script-command-start-regexp
+	   (proof-re-search-forward proof-script-command-start-regexp
 			      nil t)   ; search for next command
 	   (setq comstart (match-beginning 0)); save command start
 	   (or (save-excursion
 		 (goto-char comstart)
 		 (or ; continue if inside (or at start of) comment/string
 		  (buffer-syntactic-context)
-		  (looking-at proof-comment-start-regexp)
-		  (looking-at proof-string-start-regexp)))
+		  (proof-looking-at proof-comment-start-regexp)
+		  (proof-looking-at proof-string-start-regexp)))
 	       (progn			    ; or, if found command...
 		 (setq cmdfnd 
 		       (> comstart startpos)); ignore first match
@@ -1215,13 +1215,13 @@ This version is used when `proof-script-command-end-regexp' is set."
 		(while 
 		    (and
 		     (setq start (point))
-		     (re-search-forward commentre cmdend t)
+		     (proof-re-search-forward commentre cmdend t)
 		     (eq (match-beginning 0) start))
 		  ;; Look for the end of the comment 
 		  ;; (FIXME: ignore nested comments here, we should
 		  ;; have a consistent policy!)
 		  (unless
-		      (re-search-forward proof-comment-end-regexp cmdend t)
+		      (proof-re-search-forward proof-comment-end-regexp cmdend t)
 		    (error
 		     "PG error: proof-segment-up-to-cmd-end didn't find comment end."))
 		  (setq alist (cons (list 'comment "" (point)) alist)))
@@ -1240,7 +1240,7 @@ This version is used when `proof-script-command-end-regexp' is set."
       (setq startpos (point))
       (while 
 	  (and 
-	   (re-search-forward proof-script-command-end-regexp
+	   (proof-re-search-forward proof-script-command-end-regexp
 			      nil t) ; search for next command
 	   (or (buffer-syntactic-context)   ; continue if inside comment/string
 	       (progn			    ; or, if found command...
