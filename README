@@ -1,14 +1,17 @@
-Proof General --- Organize your proof with Emacs!
-=================================================
+Proof General --- Organize your proofs!
+=======================================
 
 Proof General is a generic Emacs interface for proof assistants.
 
-Our aim is provide a powerful and configurable Emacs mode which helps
-user-interaction with interactive proof assistants.
+The aim of the Proof General project is to provide a powerful and
+configurable interfaces which help user-interaction with interactive
+proof assistants.  Proof General targets power users rather than
+novices, but we include general user interface niceties, such as
+toolbar and menus, which make use easier for all.
 
 Please help us with this aim!  Configure Proof General for your proof
 assistant, by adding features at the generic level wherever possible.
-Send ideas, comments, patches, code to proofgen@dcs.ed.ac.uk.
+Send ideas, comments, patches, code to feedback@proofgeneral.org
 
 See INSTALL for installation details.
 
@@ -26,17 +29,31 @@ in subdirectories:
     lego/   LEGO
    hol98/   HOL 98
  plastic/   Plastic	[ in development release only ]
- twelf/     Twelf	[ in development release only ]
+   twelf/   Twelf	[ in development release only ]
 
-Check BUGS for problems and issues, in this directory, and
-for specific issues, in each prover subdirectory.
+Check BUGS files for problems and issues, in this directory, and for
+specific issues, in each prover subdirectory.  Please report bugs
+not mentioned in any of these files to bugs@proofgeneral.org
 
-For the latest news and downloads, check the Proof General web page
+For the latest news and downloads, or to join the user or developer
+mailing list for Proof General, visit Proof General on the web 
 at: http://www.proofgeneral.org
 
-
-David Aspinall.
+David Aspinall <da@proofgeneral.org>
 November 2000.
+
+-----
+
+NEWSFLASH: Proof General has been Emacs based so far, but plans are
+afoot to liberate it from the points and parentheses of Emacs Lisp.
+The successor framework, Proof General Kit, proposes that proof assistants
+use a *standard* XML-based protocol for interactive proof, dubbed
+PGIP.  PGIP will allow a middleware layer for many interactive proof
+tools and interface components (including Emacs).  The design of PGIP
+was made possible by the present Emacs-based Proof General framework.  
+For more on Proof General Kit, see http://www.proofgeneral.org/kit.html
+
+
 
 		
 
