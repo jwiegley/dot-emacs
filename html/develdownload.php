@@ -47,9 +47,9 @@ or
 
 <p>
 This version has been tested with XEmacs version 21.4 and
-(minimally) with FSF Emacs 20.7.1. 
-We recommend the use of XEmacs; use under FSF Emacs  
-can no longer be properly supported.
+(minimally) with GNU Emacs 21.1.
+We recommend the use of XEmacs; use under GNU Emacs  
+is not well supported.
 </p>
 <p>
 Check the 
