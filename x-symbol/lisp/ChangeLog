@@ -1,0 +1,360 @@
+2003-03-04  Christoph Wedler  <wedler@users.sourceforge.net>
+
+ * Bug fix, Emacs: would still not work with package
+   crypt/crypt++.
+ * Make |- and |= electric.
+ * Provide unzipped PDF and PS version of manual on web.
+ * Manual, docstring and Makefile updates.
+
+	Report from Felix E. Klee.  Suggestion from Gerwin
+	Klein.
+
+2003-01-18  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.4.5-beta.
+
+ * Bug fix, XEmacs: auto-save files would have length 0.
+   Functions in `write-region-annotate-functions' are
+   called with argument values nil when `do-auto-save'...
+ * Bug fix: using `x-symbol-auto-style-alist' won't work.
+ * Bug fix: M-x insert-file using package format, i.e.,
+   with Emacs-21.4, would decode the whole buffer.
+ * Bug fix, Emacs: changes in Makefile for Emacs.
+ * Make X-Symbol work when run under a character terminal.
+ * Make it possible to disallow X-Symbol for certain
+   buffers, by default those visiting a file with a major
+   mode having a non-nil mode-class property.
+ * Dropped support for XEmacs-20.3.
+ * Dropped XEmacs bug workaround for "Wrong point position
+   provided for function in `after-insert-file-functions'".
+   Might cause warnings with older XEmacs, please report.
+ * New extra decode command for accented letters in LaTeX.
+ * Delete "roman8" as locale alias for "iso-8859-1".
+ * Provide PDF version of manual on web pages.
+
+	Suggestion from Uwe Brauer.
+
+2002-12-08  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.4.4-beta.
+
+ * Bug fixes: conversion would sometimes fail with token
+   languages `bib' and `texi' due to wrong grammar.
+ * Bug fix, XEmacs: enabling X-Symbol mode could fail due
+   to GC ...no elisp function is allowed to use a local
+   variable named `values'... nowhere documented, but true.
+ * Bug fix, Mule, bug was documented: X-Symbol now respects
+   `buffer-file-coding-system'.  With Mule support,
+   `x-symbol-default-coding' is now of minor interest.
+ * Bug fix, Emacs: would not work with package crypt.
+ * Bug fixes: init would sometimes fail with non-latin1
+   default font, with wrong default fonts, if font path
+   could not be set, or on Emacs without warnings.el.
+ * Bug fix: latin-5 char xEA is ecircumflex, not eogonek.
+ * With Mule, X-Symbol uses `buffer-file-coding-system' and
+   `current-language-environment' to determine the default
+   encoding, "locale" is now optional for addition check.
+ * Emacs hint: update lisp/isearch.el from Savannah to make
+   isearch+GRID work.
+ * Remove `sgml-mode' and `xml-mode' as typical major-modes
+   for token language sgml.  Would cause init of X-Symbol.
+ * Bug fixes, Emacs: changes in Makefile for Emacs.
+ * Various minor bug fixes and changes.
+ * Update of rpm spec file.
+ * Assume to have format.el,v 1.39+ if format is used.
+
+	From Masayuki Ataka, Steve Dunham, Ryurick M. Hristev, Stefan
+	Monnier.  Report from Uwe Brauer, Janusz S. Bien, Michael Ebner,
+	Harald Muehlboeck, Eli Tziperman, Marco Zunino.
+
+2002-08-30  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.4.3-beta.
+
+ * Token language `sgml': always encode characters to
+   entity references by default.  Not possible with most
+   Latin-N chars, where we still use character entities.
+   Token classes symbol and noname replace class non-l1.
+ * Token languages `tex'/`bibtex': support some symbols of
+   package "stmaryrd", i.e., add \bigsqcap, use \llbracket,
+   \rrbracket, \llparenthesis, \rrparenthesis instead
+   \lsemantics, \rsemantics, \lcata, \rcata.
+ * Include xml-mode, hm--html-mode and html-helper-mode as
+   typical major-modes for token language sgml.
+ * Change the auto-style, formerly auto-mode, mechanism.
+   Introduce language-specific auto-styles to make the
+   registration of external language easier.
+ * New input method QUAIL, a usual Mule input method.
+ * Slightly changed/extended contexts and keybindings,
+   allow digits in contexts.
+ * Allow to use "Turkish" encoding on XEmacs/NT which is
+   the same as Latin-5.  Since "Central European" is not
+   the same as Latin-2, there is still no support there for
+   iso8859-2, iso8859-3, and xsymb1 characters.
+ * Super-/subscript matching of token languages has
+   changed: languages specify a matcher functions, not
+   extra font-lock keywords anymore.
+ * font-lock keywords are not language specific anymore,
+   matching is independent of whether to use faces or
+   Emacs-21's display properties `raise', `height', and
+   `invisible' with the new font-lock of Emacs-21.4.
+ * Make it possibible to compile language files without
+   package X-Symbol, useful for external languages.
+ * Some language accesses are optional now.
+ * Make it easier to set fonts.
+ * Makefile for Emacs, manual uses variables for references
+   to the Emacs/XEmacs Manual, AucTeX, RefTeX etc.
+
+	From Masayuki Ataka.  Suggestion from Solofo Ramangalahy.
+
+2002-07-08  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.4.2-beta.
+
+ * Bug fix: would mess up encoding of math-mode characters
+   with token language bib, or more generally, of tokens
+   with a non-nil shape in a language using the default
+   encode function.  Fortunately with an error message...
+ * Make it easier to change the font size.
+
+	Report from Peter Møller Neergaard.
+
+2002-06-20  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.4.1-beta.
+
+ * Image support when running on Emacs.
+ * Would signal error with XEmacs-21.1.
+ * X-Symbol's auto-conversion can be based on corrected
+   version of package format, in Emacs-21.4.
+
+	Report from Uwe Brauer.
+
+2002-06-07  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.4-beta.
+
+ * Updated manual.  "X-Symbol Internals" still outdated.
+ * Make X-Symbol really work with WhizzyTeX, see 4.3.3.
+ * Various minor changes.
+
+	Report from Dedier Remy.
+
+2002-05-16  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.3.3-beta.
+
+ * Separate unique decoding from 8bit encoding, it is
+   independent.  Make safer for undefined latin charsets.
+ * Would break WhizzyTeX, i.e., would ignore annotations of
+   previous functions in write-region-annotate-functions.
+ * Would always show the charsym names in menus.
+ * Menu reorganization: "Conversion" submenu, radio options.
+ * Interactive conversion with and without recoding.
+ * Would not decode @{ and @} in texi.
+ * Define the 7 unused character in latin-3 as unused, for
+   recoding.
+
+2002-04-26  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.3.2-alpha.
+
+ * Latin-9 support.  Latin-9 font included in distribution.
+   Cannot be used as default coding on XEmacs before v21.5.
+ * Works with XEmacs-21.4+ on MS-Windows.  Of course, it
+   just supports a limited number of characters and no
+   super- and subscripts there due to missing fonts.
+ * LaTeX buffers inherit the 8bit encoding from `TeX-master'
+   if not disabled via `x-symbol-tex-use-master-coding'.
+ * Safety improvements if not all Latin charsets are
+   supported: unique decoding, modeline additition,...
+ * Changed final bytes of ISO 2022 escape sequence for
+   X-Symbol charsets since Emacs reserves the characters
+   [0-9] for itself.  XEmacs also uses [?].
+ * Info for token: unify classes inputenc and new-inputenc.
+ * Dropped workaround for list-mode bug in XEmacs-20.X.
+
+2002-04-23  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.3.1-alpha.
+
+ * Would not be able to turn on X-Symbol in _region_.tex if
+   created from a buffer where X-Symbol was never turned on.
+ * In XEmacs, would set standard default font according to
+   buffer default font where X-Symbol was first initialized.
+ * In XEmacs, again specify :size for `x-symbol-info-face',
+   would get huge fonts otherwise in some situations.
+ * In XEmacs, allow button3 on modeline to enable X-Symbol
+   before X-Symbol has been initialized.
+ * Encoding characters with an odd number of preceeding
+   escape chars induce an additional space.  E.g., in tex,
+   "\"+`arrowright' is encoded to "\ \to" instead "\\to".
+ * Internal: unify before-context and escape-char handling.
+
+2002-04-17  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.2.3-alpha.
+
+ * Corrected input method TOKEN for TeX, and READ TOKEN.
+ * New commands "Copy Encoded" and "Paste Decoded", in menu.
+ * New value `unique' for `x-symbol-8bits' is now also used
+   for input method token, and automatically set, in menu.
+ * Use 8bit if 8bit chars are in the file originally.
+ * Internal: extra language access for input method TOKEN.
+
+2002-04-15  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.2.2-alpha.
+
+ * New token language "BibTeX macro" (bib), similar to old
+   "TeX macro" (tex).
+ * Changes in token language (tex): deleted \slash, \ldots,
+   \vdots back to math-mode, but with info "gobbles space".
+ * Deleted token language (utex), instead: new value
+   `unique' for `x-symbol-8bits' which is more general.
+ * The interface for defining a token language has changed,
+   it is also much more general, useful for ProofGeneral.
+ * Nuked executables, the lisp conversion for all languages
+   is now 2-5 times faster.
+ * Special coding for preview-latex.  Using X-Symbol now
+   only gives a 10% overhead of preview's parsing time.
+
+	Report from David Kastrup, Jan-Ake Larsson.
+
+2002-03-28  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.2.1-alpha.
+
+ * Token language TeX has changed, special conversion: no
+   exessive use of braces anymore, no excessive
+   normalization, much faster, and aware of {tabbing},
+   {verbatim} and \verb.
+ * Reading and saving old files should work without TeX code
+   change except for \ldots, \vdots, \angle, \slash: they are
+   space-aware.
+ * Removed unwanted braces around accented chars and other
+   text-mode TeX macros via M-x x-symbol-conv-decode-old-tex
+   RET.
+ * Other TeX macro changes: added \texteuro, corrected \^\j,
+   nuked alternatives \lbrace, \rbrace, \Vert.
+
+	Suggestion from David Kastrup, Christophe Raffalli.
+
+	* X-Symbol (sync w/ v3.4.2).
+
+ * Would signal error during encoding when executables are
+   enabled.
+
+2002-03-21  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.1.1-beta (sync w/ v3.4.1).
+
+ * Corrected and better "locale" handling.
+
+	Report from Gerard Zwaan.
+
+2002-03-12  Christoph Wedler  <wedler@users.sourceforge.net>
+
+	* X-Symbol 4.1-beta (sync w/ v3.4).
+
+ * Moved to SourceForge.net.
+ * Bug fix: writing a remote file via ange-ftp would not work.
+ * Automatically deduce default coding via "locale -ck LC_CTYPE".
+
+	Report from Stephen Eglen.
+
+2002-01-09  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0h/beta (sync w/ v3.3i).
+	
+ * Bug fix write-region would always save the whole buffer
+   if X-Symbol is enabled for that buffer.
+
+2001-12-09  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0g/beta (sync w/ v3.3h).
+
+ * isearch+KEYBOARD also work in Emacs, isearch+MENU/GRID
+   still fails.
+ * Super-/subscript commands are also invisible in Emacs on Unix.
+ * Dropped support for Emacs-20.
+ * Make sure to convert just the first part of a multi-part image.
+ * Don't define `locate-data-directory', interference with
+   ps-print on Emacs.
+ * New characters zero1 to nine1 for language "Isabelle Symbol".
+ * Better support for other packages, preview-latex.
+ * RPM spec file in source distribution.
+ * Miscellaneous.
+
+	From Ryurick M. Hristev.  Report from David Kastrup, Marco Zunino.
+
+2001-07-24  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0f/beta (sync w/ v3.3g)
+
+ * Distributed with latin-3 font which also works on
+   Emacs/Windows.
+ * Distributed empty font for super-/subscripts on Emacs.
+ * Binary distribution with generated super- and subscript
+   bdf files for Emacs/Windows.
+ * Show super- and subscripts in TeX's math region also on
+   Emacs.
+ * When saving, ask for coding system less often (Emacs-21.0.104+).
+ * Show correct double separator lines on Windows (Emacs-21.0.104+).
+ * Corrected syntax def for cataleft/cataright as matching parens.
+ * Adopted image converter recognition to newer releases of
+   ImageMagick.
+
+	Report from Uwe Brauer, Ekkehard Koehler.
+
+2001-06-19  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0e/beta (sync w/ v3.3f).
+
+ * Workaround for global-flyspell-mode.
+ * Integration of package "completion".
+ * Warning when using XEmacs-21.0 to XEmacs-21.1.8
+ * Easier installation when using Emacs-21.0 on MS-Windows.
+
+	Report from Fred Labrosse, San Ming Lee, Roland Zumkeller.
+
+2000-11-22  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0d/beta.
+
+ * Make the highlighting in the grid buffer look nicer with Emacs.
+
+2000-10-26  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0c/beta.
+
+ * Token language "TeXinfo command".
+ * Slightly different definition of "valid character".
+ * Minor changes.
+
+	Suggestion from Jakub Narebski.
+
+2000-10-13  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0b/beta (sync w/ v3.3e).
+
+ * In XEmacs, the grid looks the same as with the stable version.
+ * Remove the "local if set" and "default: ..." submenu stuff.
+
+2000-09-14  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0a/beta.
+
+ * Distribution contains the right files.
+
+2000-09-03  Christoph Wedler  <wedler@fmi.uni-passau.de>
+
+	* X-Symbol 4.0/beta (sync w/ v3.3d).
+
+	From Stefan Monnier.
+
+### Local Variables:
+### filladapt-mode: t
+### left-margin: 0
+### fill-column: 59
+### End:
