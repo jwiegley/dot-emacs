@@ -16,5 +16,5 @@ File: dir	Node: Top	This is the top of the INFO tree
 * Menu: 
 
 Theorem proving
-* Proof General: (ProofGeneral).         Organize your proofs with Emacs!
-* Adapting Proof General: (PG-adapting). How to adapt Proof General for new provers
+* Proof General: (ProofGeneral).          Organize your proofs with Emacs!
+* Adapting Proof General: (PG-adapting).  Adapt Proof General to new provers
