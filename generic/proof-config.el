@@ -76,9 +76,11 @@
 We first call `set-default' to set SYM to VALUE.
 Then if there is a function SYM (i.e. with the same name as the
 variable SYM), it is called to take some dynamic action for the new
-setting."
+setting.  This only happens when values *change*: we test whether
+proof-config is fully-loaded yet."
   (set-default sym value)
-  (if (fboundp sym) (funcall sym)))
+  (if (and (featurep 'proof-config) (fboundp sym))
+      (funcall sym)))
 
 
 
@@ -1815,6 +1817,9 @@ Proof General."
     (concat proof-assistant " Proof General!")
     nil
     nil
+    "(C) LFCS, University of Edinburgh, 2000."
+    nil
+    nil
 "    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
      or use the menu command Proof-General -> Submit bug report."
     nil
@@ -1890,12 +1895,18 @@ X-Symbol support is deactivated."
 
 ;; NB: this section is work in progress
 
-(defmacro proof-defass-custom (sym &rest args)
+(defmacro proof-defasscustom (sym &rest args)
   `(defcustom ,(intern (concat (symbol-name
 				proof-assistant-symbol)
 			       (symbol-name sym)))
-     ,@args
-     :group ,(quote proof-assistant-cusgrp)))
+     :group ,(quote proof-assistant-cusgrp)
+     ,@args))
+
+; (proof-defasscustom favourites nil
+;  "
+		    
+
+		    
 
 ;(proof-defass-custom test "Hello"
 ;  "Command"
