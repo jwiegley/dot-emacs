@@ -318,6 +318,7 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-retract-enable-p ()
   (not (proof-locked-region-empty-p)))
 
+;; FIXME: to become proof-retract-buffer
 (defun proof-toolbar-retract ()
   "Retract entire buffer."
   ;; proof-retract-file might be better here!

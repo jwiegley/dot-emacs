@@ -1608,8 +1608,7 @@ before and after sending the command."
 (easy-menu-define proof-response-mode-menu
 		  proof-response-mode-map
 		  "Menu for Proof General response buffer."
-		  (cons proof-general-name
-			(cdr proof-shared-menu)))
+		  (cons proof-general-name proof-shared-menu))
 
 
 (provide 'proof-shell)

@@ -1610,15 +1610,20 @@ No action if BUF is nil."
     ;; UGLY COMPATIBILITY  FIXME: remove this soon
     (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
 	      "--:doubleLine" "----"))
-    (list
-     ["Submit bug report"
-      proof-submit-bug-report
-      :active t])
-    ;; UGLY COMPATIBILITY  FIXME: remove this soon
-    (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
-	      "--:doubleLine" "----"))
     )
   "Proof General menu for various modes.")
+
+(defvar proof-bug-report-menu
+  (append
+   ;; UGLY COMPATIBILITY  FIXME: remove this soon
+   (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
+	     "--:doubleLine" "----"))
+   (list
+    ["Submit bug report"
+     proof-submit-bug-report
+     :active t]))
+  "Proof General menu for submitting bug report (one item plus separator).")
+
 
 (defvar proof-menu  
   (append '(["Active terminator" proof-active-terminator-minor-mode
@@ -1748,13 +1753,25 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (let ((map proof-mode-map))
 (define-key map [(control c) (control e)] 'proof-find-next-terminator)
 (define-key map [(control c) (control a)] 'proof-goto-command-start)
-(define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
+
+;; Sep'99. FIXME: key maps need reorganizing, so do the assert-until style
+;; functions.   I've re-bound C-c C-n and C-c C-u to the toolbar functions
+;; to make the behaviour the same.  People find the "enhanced" behaviour
+;; of the other functions confusing.  Moreover the optional argument
+;; to delete is a bad thing for C-c C-u, since repeating it fast will 
+;; tend to delete!
+(define-key map [(control c) (control n)] 'proof-toolbar-next)
+(define-key map [(control c) (control u)] 'proof-toolbar-undo)
+(define-key map [(control c) (control b)] 'proof-toolbar-use)
+(define-key map [(control c) (control r)] 'proof-toolbar-retract) ;; new binding
+
+;;;; (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
 ;; FIXME : This ought to be set to 'proof-assert-until point
 (define-key map [(control c) (return)]	  'proof-assert-next-command-interactive)
 (define-key map [(control c) (control t)] 'proof-try-command)
 ;; FIXME: The following two functions should be unified.
 (define-key map [(control c) ?u]	  'proof-retract-until-point-interactive)
-(define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
+;;;; (define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
 (define-key map [(control c) ?\']	  'proof-goto-end-of-locked-interactive)
 ;; FIXME da: I don't understand what this function is supposed to do.
 ;; It will copy a proof command from within the locked region
@@ -1762,7 +1779,8 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 ;; do with shell).  Perhaps we could define a
 ;; collection of useful copying functions which do this kind of thing.
 ;; (define-key map [(control button1)]	  'proof-send-span)
-(define-key map [(control c) (control b)] 'proof-process-buffer)
+;;; (define-key map [(control c) (control b)] 'proof-process-buffer)
+
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) ?c]	  'proof-ctxt)
@@ -1843,6 +1861,7 @@ finish setup which depends on specific proof assistant configuration."
 				      "Internals"))
 			     nil)
 			   ;; end UGLY COMPATIBILTY HACK
+			   proof-bug-report-menu
 			   )))
 
   ;; Put the ProofGeneral menu on the menubar
