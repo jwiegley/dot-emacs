@@ -277,27 +277,29 @@ of the queue region."
 (defun proof-shell-kill-function ()
   "Function run when a proof-shell buffer is killed.
 Value for kill-buffer-hook in shell buffer.
-It shuts down the proof process nicely and clears up all locked regions
-and state variables."
+Attempt to shut down the proof process nicely and
+clears up all the locked regions and state variables."
   (let* ((alive    (comint-check-proc (current-buffer)))
-	(proc     (get-buffer-process (current-buffer)))
-	(procname (and proc (process-name proc)))
-	(delay	  10))
-    (message "%s, cleaning up and exiting..." procname)
+	 (proc      (get-buffer-process (current-buffer)))
+	 (bufname   (buffer-name)))
+    (message "%s, cleaning up and exiting..." bufname)
     (sit-for 0)				; redisplay
     (if alive				; process still there
 	(progn
 	  ;; Try to shut it down politely
-	  (if proof-shell-quit-cmd
-	      (comint-send-string proc proof-shell-quit-cmd)
-	    (comint-send-eof))
-	  ;; Wait a while for it to die
 	  ;; Do this before deleting other buffers, etc, so that
 	  ;; any closing down processing works okay.
-	  ;; FIXME: may want to protect this region, however.
-	  (while (and (comint-check-proc (current-buffer)) (> 0 delay))
-	    (sit-for 1)
-	    (decf i))))
+	  (if proof-shell-quit-cmd
+	      (comint-send-string proc
+				  (concat proof-shell-quit-cmd "\n"))
+	    (comint-send-eof))
+	  ;; Wait a while for it to die before killing
+	  ;; it off more rudely.
+	  (set-process-sentinel proc
+				(lambda (p m) (throw 'exited t)))
+	  (catch 'exited
+	    (accept-process-output nil 10)
+	    (kill-process proc))))
     ;; Restart all scripting buffers
     (proof-script-remove-all-spans-and-deactivate)
     ;; Clear state
@@ -309,7 +311,8 @@ and state variables."
 	(kill-buffer proof-goals-buffer))
     (if (buffer-live-p proof-response-buffer)
 	(kill-buffer proof-response-buffer))
-    (message "%s terminated." procname)))
+    (message "%s exited." bufname)))
+
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
@@ -320,6 +323,14 @@ to do the hard work."
       (if (yes-or-no-p (format "Exit %s process? " proof-assistant))
 	  (kill-buffer proof-shell-buffer)
 	(error "No proof shell buffer to kill!"))))
+
+(defun proof-shell-bail-out (process event)
+  "Value for the process sentinel for the proof assistant process.
+If the proof assistant dies, kill the shell buffer,
+ensuring that script buffers are cleaned up neatly."
+  (message "Process %s %s, exiting..." process event)
+  (sit-for 1)				; chance for user to see it
+  (kill-buffer proof-shell-buffer))
 
 (defun proof-shell-restart ()
   "Restart the proof shell by sending the restart command
@@ -1348,32 +1359,35 @@ before and after sending the command."
   "Initialise the specific prover after the child has been configured."
   (save-excursion
     (set-buffer proof-shell-buffer)
-    ;; Flush pending output from startup
-    (accept-process-output (get-buffer-process proof-shell-buffer) 1)
+    (let ((proc (get-buffer-process proof-shell-buffer)))
+      ;; Flush pending output from startup
+      (accept-process-output proc 1)
 
-    ;; If the proof process in invoked on a different machine e.g.,
-    ;; for proof-prog-name="ssh fastmachine proofprocess", one needs
-    ;; to adjust the directory. Perhaps one might even want to issue
-    ;; this command whenever a new scripting buffer is active?
-    (and proof-shell-cd
-	 (proof-shell-insert
-	  (format proof-shell-cd
-		  ;; under Emacs 19.34 default-directory contains "~"
-		  ;; which causes problems with LEGO's internal Cd
-		  ;; command
-		  (expand-file-name default-directory))))
+      ;; If the proof process in invoked on a different machine e.g.,
+      ;; for proof-prog-name="ssh fastmachine proofprocess", one needs
+      ;; to adjust the directory. Perhaps one might even want to issue
+      ;; this command whenever a new scripting buffer is active?
+      (and proof-shell-cd
+	   (proof-shell-insert
+	    (format proof-shell-cd
+		    ;; under Emacs 19.34 default-directory contains "~"
+		    ;; which causes problems with LEGO's internal Cd
+		    ;; command
+		    (expand-file-name default-directory))))
 
-    ;; Flush pending output from cd command
-    (accept-process-output (get-buffer-process proof-shell-buffer) 1)
+      ;; Flush pending output from cd command
+      (accept-process-output proc 1)
 
-    ;; Add the kill buffer function
-    (make-local-hook 'kill-buffer-hook)
-    (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
-
-    ;; Send intitialization command and wait for it to be
-    ;; processed.
-    (if proof-shell-init-cmd
-	(proof-shell-invisible-command proof-shell-init-cmd t))))
+      ;; Add the kill buffer function and process sentinel
+      (make-local-hook 'kill-buffer-hook)
+      (add-hook 'kill-buffer-hook 'proof-shell-kill-function t t)
+      (set-process-sentinel proc 'proof-shell-bail-out)
+			  
+      ;; Send intitialization command and wait for it to be
+      ;; processed.   This also ensures proof-action-list is
+      ;; initialised.
+      (if proof-shell-init-cmd
+	  (proof-shell-invisible-command proof-shell-init-cmd t)))))
 
 (eval-and-compile
 (define-derived-mode proof-universal-keys-only-mode fundamental-mode
