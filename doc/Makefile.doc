@@ -34,7 +34,7 @@ MAINRANGE = =3,=4,3:
 
 TOC = :_1
 
-DVI2PS = dvips
+DVI2PS = dvips -Pcmz
 TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html -expandinfo -number -split_chapter
 # FIXME: choose emacs automatically if xemacs not available
