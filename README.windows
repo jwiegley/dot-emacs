@@ -1,0 +1,6 @@
+
+ProofGeneral now works under Windows with the following restrictions:
+
+- Only tested with PhoX mode.
+- Only tested with XEmacs for win32 version 21.1.9 and 21.4.3 (not tested with XEmacs cygwin or any other version)
+- Toolbar: enablers do not work so the buttons are always active
