@@ -45,6 +45,9 @@
      "I can't see any complete commands to process!" error message, esp
      with strings broken across lines containing parentheses).
 
+     Fixed Emacs-confusion minibuffer contents switching bug.  (Bug 
+     was triggered by using toolbar while minibuffer active).
+
 ** Coq Changes
 
      Compatibility for V7 added.
