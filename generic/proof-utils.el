@@ -542,7 +542,7 @@ Returns non-nil if response buffer was cleared."
      "[ When reporting a bug, please include a small test case for us to repeat it.
  Please also check that it is not already covered in the BUGS files that came with
  the distribution, or the latest versions at 
- http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/BUGS ]")))
+ http://www.proofgeneral.org/ProofGeneral/BUGS ]")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

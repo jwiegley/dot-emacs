@@ -4,9 +4,9 @@ Version:	3.2pre000925
 Release:	1
 Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
-Url:		http://www.lfcs.informatics.ed.ac.uk/proofgen
+Url:		http://www.proofgeneral.org/
 Packager:	David Aspinall <da@dcs.ed.ac.uk>
-Source:		http://www.dcs.ed.ac.uk/proofgen/ProofGeneral-3.2pre000925.tar.gz
+Source:		http://www.proofgeneral.org/proofgen/ProofGeneral-3.2pre000925.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 Patch:		ProofGeneral.patch
 PreReq:		/sbin/install-info

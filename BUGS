@@ -3,7 +3,7 @@
 * Known Bugs and Workarounds for Proof General.
 
 Contact:  mailto:proofgen@dcs.ed.ac.uk
-See also: http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS
+See also: http://www.proofgeneral.org/ProofGeneral/BUGS
 
 Generic bugs are listed here, which may affect all of the supported
 provers.  See lego/BUGS coq/BUGS, etc, for specific bug lists for each

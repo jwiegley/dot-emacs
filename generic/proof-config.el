@@ -2195,7 +2195,7 @@ If this table is empty or needs adjusting, please make changes using
   :group 'proof-general-internals)
 
 (defcustom proof-general-home-page
-  "http://www.lfcs.informatics.ed.ac.uk/proofgen"
+  "http://www.proofgeneral.org"
   "*Web address for Proof General"
   :type 'string
   :group 'proof-general-internals)

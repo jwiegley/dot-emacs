@@ -15,7 +15,7 @@
 @paragraphindent 0
 @c A flag for whether to include the front image in the
 @c DVI file.  You can download the front image from
-@c http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
+@c http://www.proofgeneral.org/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
 @clear haveeps
@@ -28,11 +28,11 @@
 @c FIXME: unfortunately, broken in buggy pdftexinfo.
 @c so removed for now.
 @set URLxsymbol  http://www.fmi.uni-passau.de/~wedler/x-symbol/
-@set URLisamode  http://zermelo.dcs.ed.ac.uk/~isamode
-@set URLpghome   http://zermelo.dcs.ed.ac.uk/home/proofgen
-@set URLpglatestrpm  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm
-@set URLpglatesttar  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz
-@set URLpglatestdev  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz
+@set URLisamode  http://www.proofgeneral.org/~isamode
+@set URLpghome   http://www.proofgeneral.org
+@set URLpglatestrpm  http://www.proofgeneral.org/ProofGeneral-latest.noarch.rpm
+@set URLpglatesttar  http://www.proofgeneral.org/ProofGeneral-latest.tar.gz
+@set URLpglatestdev  http://www.proofgeneral.org/ProofGeneral-devel-latest.tar.gz
 @c
 @c
 
@@ -192,7 +192,7 @@ some history about previous releases, and acknowledgements to those who
 have helped along the way.
 
 Proof General has a home page at
-@uref{http://www.lfcs.informatics.ed.ac.uk/proofgen}.  
+@uref{http://www.proofgeneral.org}.  
 Visit this page for the latest version of this manual,
 other documentation, system downloads, etc.
 
@@ -367,7 +367,7 @@ interact with the LEGO system.
 David Aspinall convinced Thomas Kleymann that programming in
 Emacs Lisp wasn't so difficult after all. In fact, Aspinall had already
 implemented an Emacs interface for Isabelle with bells and whistles,
-called @uref{http://zermelo.dcs.ed.ac.uk/~isamode,Isamode}. Soon
+called @uref{http://www.proofgeneral.org/~isamode,Isamode}. Soon
 after, the package @code{lego-mode} was born. Users were able to develop
 proof scripts in one buffer. Support was provided to automatically send
 parts of the script to the proof process. The last official version with
@@ -3175,7 +3175,7 @@ loader for proper automatic multiple file handling.
 
 Isabelle Proof General includes a mode for editing theory files taken
 from David Aspinall's Isamode interface, see
-@uref{http://zermelo.dcs.ed.ac.uk/~isamode}.  Detailed documentation
+@uref{http://www.proofgeneral.org/~isamode}.  Detailed documentation
 for the theory file mode is included with @code{Isamode}, there are some
 notes on the special functions available and customization settings
 below.
@@ -3500,7 +3500,7 @@ large or heavy committment.
 @appendix Obtaining and Installing
 
 Proof General has its own
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen,home page} hosted at
+@uref{http://www.proofgeneral.org,home page} hosted at
 Edinburgh.  Visit this page for the latest news!
 
 STOP PRESS: the Proof General web pages are temporarily being hosted at
@@ -3521,17 +3521,17 @@ STOP PRESS: the Proof General web pages are temporarily being hosted at
 
 You can obtain Proof General from the URL
 @example
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen}.
+@uref{http://www.proofgeneral.org}.
 @end example
 
 The distribution is available in three forms
 @itemize @bullet
 @item A source tarball, @*
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
+@uref{http://www.proofgeneral.org/ProofGeneral-devel-latest.tar.gz}
 @item A Linux RPM package (for any architecture), @*
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm}
+@uref{http://www.proofgeneral.org/ProofGeneral-latest.noarch.rpm}
 @item A developer's tarball, @*
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
+@uref{http://www.proofgeneral.org/ProofGeneral-devel-latest.tar.gz}
 @end itemize
 
 Both the source tarball and the RPM package include the generic elisp
@@ -3688,7 +3688,7 @@ to find out how to disable support for provers you don't use.
 We mention some of the known problems with Proof General here.  The list
 was written for Proof General 2.0.  It is not a description of all bugs
 and may be out of date.  @* Please consult the file
-@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS,@file{BUGS}}
+@uref{http://www.proofgeneral.org/ProofGeneral/BUGS,@file{BUGS}}
 in the distribution for more detailed and up-to-date information.  @* 
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please

@@ -19,34 +19,24 @@ See doc/ for documentation of Proof General.
 For notes on the supported assistants, see the README files
 in subdirectories:
 
+     af2/   AF2
+     coq/   Coq
      isa/   Isabelle
     isar/   Isabelle/Isar
-     coq/   Coq
     lego/   LEGO
    hol98/   HOL 98
- plastic/   Plastic
+ plastic/   Plastic	[ in development release only ]
+ twelf/     Twelf	[ in development release only ]
 
 Check BUGS for problems and issues, in this directory, and
 for specific issues, in each prover subdirectory.
 
 For the latest news and downloads, check the Proof General web page
-at: http://www.lfcs.informatics.ed.ac.uk/proofgen
+at: http://www.proofgeneral.org
 
 
 David Aspinall.
-March 2000.
-
-----
-
-NEWSFLASH:
-
-For the forseeable future, all Proof General pages are hosted on my
-personal server, zermelo.dcs.ed.ac.uk, so replace "www.dcs" or
-"www.lfcs.informatics" by "zermelo.dcs" in all URLs mentioned in the
-sources and documentation.  (There is an indirection in place via
-www.lfcs.informatics but it is not totally reliable, unfortunately)
-
-
+November 2000.
 
 		
 

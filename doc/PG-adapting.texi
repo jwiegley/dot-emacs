@@ -15,7 +15,7 @@
 @paragraphindent 0
 @c A flag for whether to include the front image in the
 @c DVI file.  You can download the front image from
-@c http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
+@c http://www.proofgeneral.org/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
 @clear haveeps
@@ -29,10 +29,10 @@
 @c so removed for now.
 @set URLxsymbol  http://www.fmi.uni-passau.de/~wedler/x-symbol/
 @set URLisamode  http://zermelo.dcs.ed.ac.uk/~isamode
-@set URLpghome   http://zermelo.dcs.ed.ac.uk/home/proofgen
-@set URLpglatestrpm  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm
-@set URLpglatesttar  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz
-@set URLpglatestdev  http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz
+@set URLpghome   http://www.proofgeneral.org
+@set URLpglatestrpm  http://www.proofgeneral.org/ProofGeneral-latest.noarch.rpm
+@set URLpglatesttar  http://www.proofgeneral.org/ProofGeneral-latest.tar.gz
+@set URLpglatestdev  http://www.proofgeneral.org/ProofGeneral-devel-latest.tar.gz
 @c
 @c
 

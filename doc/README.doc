@@ -20,7 +20,7 @@ If you want a front image on the printed dvi/gs manuals, you need to
 have the ProofGeneral.eps file in this directory.  You can download a
 compressed version from
 
-http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/doc/ProofGeneral.eps.gz
+http://www.proofgeneral.org/ProofGeneral/doc/ProofGeneral.eps.gz
 
 This file is not included with the distribution because it is rather
 large (1.6M).  
