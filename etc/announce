@@ -1,34 +1,79 @@
-To: coq-club@pauillac.inria.fr, isabelle-users@cl.cam.ac.uk, lego-club@dcs.ed.ac.uk
+
+To: coq-club@pauillac.inria.fr,
+    isabelle-users@cl.cam.ac.uk,
+    lego-club@dcs.ed.ac.uk
+
+    gnu.emacs.sources
+    comp.os.linux.announce
+    freshmeat.net
+
+    comp.*.xemacs
+
+        
 Subject: Proof General --- Version 2.0 release
 
+           Announcing  Proof General  Version 2.0
 
-Proof General is a generic Emacs interface for proof assistants. It is
-supplied ready-customised for LEGO, Coq, and Isabelle.  Details are on
-the web at:
+   A Generic Emacs interface for Interactive Proof Assistants
 
-  http://www.dcs.ed.ac.uk/home/proofgen/
+            http://www.dcs.ed.ac.uk/home/proofgen
 
-The interface includes these features:
+		 =========================
 
- . script management: files and regions of files processed by prover
-   have a blue background and are read-only.  Works across multiple
-   files for LEGO and Isabelle.
- . a toolbar for building and replaying proofs
- . syntax highlighting of proof scripts and prover output
- . menu for jumping to theorems in a proof script
- . provision to run proof assistant on a remote host
+Proof General is supplied ready-customised for LEGO, Coq, and
+Isabelle.  It includes these features (amongst others):
 
-and several more besides.  The code is designed to be adaptable to
-other proof assistants, by writing a little bit of Emacs Lisp.
+ . Script management: files and regions of files processed by
+   prover have a blue background and are read-only; the state
+   of the proof assistant is reflected inside the editor.
+   Script management works across multiple files for
+   LEGO and Isabelle.
+   
+ . Simplified communication: the proof assistant is run in
+   an Emacs shell buffer, but by default it is hidden from view
+   and only the most recent messages and proofstate are displayed
+   to the user, simplifying the dialogue.
+   
+ . A toolbar for building and replaying proofs
+ 
+ . Syntax highlighting of proof scripts and prover output
+ 
+ . Menu for jumping to theorems in a proof script, Emacs outlining
+   of proof scripts
+   
+ . Easy provision to run proof assistant on a remote host
 
-This is the first official release of Proof General.  It should be
-stable enough for LEGO, Coq, and Isabelle users to use happily.
+See http://www.dcs.ed.ac.uk/proofgen/ProofGeneral/ProofGeneral.html
+for the user manual which contains full details.
 
-We'd like to encourage users to try it out and let us know what they
-think.  We have put a lot of work into making Proof General robust and
-easy to install.  It runs ideally with XEmacs, but also works with FSF
-Emacs.  We have tested on XEmacs 20.4 and Emacs 20.2,20.3 (but it
-probably works with earlier versions).
+To users of LEGO, Coq, and Isabelle:
+------------------------------------
+This release of Proof General should be stable enough for you to use
+happily.  Please try it and let us know what you think of it!
+
+We have put a lot of work into making Proof General robust and easy to
+install.  Ideally you should use it with XEmacs, but it also works
+with limited features in FSF Emacs.  We have tested on XEmacs 20.4 and
+Emacs 20.2, 20.3.  (It probably works with earlier versions of either
+Emacs but we cannot guarantee this).
+
+To users of other proof assistants:
+-----------------------------------
+Our aim is provide a powerful and configurable Emacs mode which helps
+user-interaction with interactive proof assistants.
+
+Please help us with this aim!  The code of Proof General is designed
+to be adaptable to other proof assistants, by writing a little bit of
+Emacs Lisp (mainly regular expressions).  If you are using or
+designing another proof assistant, please try configuring Proof
+General for it, and let us know how you get on.
+
+To Emacs gurus:
+---------------
+If you are an Emacs guru and want to contribute to the development of
+Proof General, please join in!  There are plenty of exciting avenues
+for improving this tool, for example, to add proof by pointing
+facilities (a basis already exists for LEGO), and a theory browser.
 
 
  -- David Aspinall & Thomas Kleymann
