@@ -1759,11 +1759,17 @@ Calls proof-state-change-hook."
 
 ;;;###autoload
 (defun proof-shell-invisible-command (cmd &optional wait)
-  "Send CMD to the proof process.  
+  "Send CMD to the proof process.  Automatically add proof-terminal-char if nec.
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
 If WAIT is an integer, wait for that many seconds afterwards."
+  (unless (or (null proof-terminal-char)
+	      (string-match (concat
+			     (regexp-quote
+			      (char-to-string proof-terminal-char))
+			     "[ \t]*$") cmd))
+    (setq cmd (concat cmd (char-to-string proof-terminal-char))))
   (if wait (proof-shell-wait))
   (proof-shell-ready-prover)		; start proof assistant; set vars.
   (proof-start-queue nil nil
@@ -1908,6 +1914,7 @@ processing."
   (setq proof-buffer-type 'response)
   (define-key proof-response-mode-map [q] 'bury-buffer)
   (easy-menu-add proof-response-mode-menu proof-response-mode-map)
+  (setq proof-shell-next-error nil)	; all error msgs lost!
   (erase-buffer)))
 
 (easy-menu-define proof-response-mode-menu
@@ -1997,6 +2004,98 @@ Internal variable, setting this will have no effect!")
     (setq special-display-regexps
 	  (delete proof-shell-special-display-regexp 
 		  special-display-regexps)))))
+
+
+;;
+;; Next error function.
+;; Added in 3.2
+;;
+
+(defvar proof-shell-next-error nil
+  "Error counter in response buffer to count for next error message.")
+
+;;;###autoload
+(defun proof-next-error (&optional argp)
+  "Jump to location of next error reported in the response buffer.
+
+A prefix arg specifies how many error messages to move;
+negative means move back to previous error messages.
+Just C-u as a prefix means reparse the error message buffer
+and start at the first error."
+  (interactive "P")
+  (if (and ;; At least one setting must be configured
+       proof-shell-next-error-regexp
+       ;; Response buffer must be live
+       (or
+	(buffer-live-p proof-response-buffer)
+	(error "proof-next-error: no response buffer to parse!")))
+      (let ((wanted-error    (or (and (not (consp argp))
+				      (+ (prefix-numeric-value argp)
+					 (or proof-shell-next-error 0)))
+				 (and (consp arg) 1)
+				 (or proof-shell-next-error 1)))
+	    line column file errpos)
+	(set-buffer proof-response-buffer)
+	(goto-char (point-min))
+	(if (re-search-forward proof-shell-next-error-regexp 
+			       nil t wanted-error)
+	    (progn
+	      (setq errpos (save-excursion
+			     (goto-char (match-beginning 0))
+			     (beginning-of-line)
+			     (point)))
+	      (setq line (match-string 2)) ; may be unset
+	      (if line (setq line (string-to-int line)))
+	      (setq column (match-string 3)) ; may be unset
+	      (if column (setq column (string-to-int column)))
+	      (setq proof-shell-next-error wanted-error)
+	      (if (and
+		   proof-shell-next-error-filename-regexp
+		     ;; Look for the most recently mentioned filename
+		     (re-search-backward
+		      proof-shell-next-error-filename-regexp nil t))
+		    (setq file 
+			  (if (file-exists-p (match-string 2))
+			      (match-string 2)
+			    ;; May need post-processing to extract filename
+			    (if proof-shell-next-error-extract-filename
+				(format 
+				 proof-shell-next-error-extract-filename 
+				 (match-string 2))))))
+		;; Now find the other buffer we need to display
+		(let*
+		    ((errbuf	
+		      (if file
+			  (find-file-noselect file)
+			(or proof-script-buffer 
+			    ;; We could make more guesses here,
+			    ;; e.g. last script buffer active 
+			    ;; (keep a record of it?)
+			    (error 
+			     "proof-next-error: can't guess file for error message"))))
+		     (pop-up-windows t)
+		     (rebufwindow
+		      (or (get-buffer-window proof-response-buffer 'visible)
+			  ;; Pop up a window.
+			  (display-buffer proof-response-buffer))))
+		  ;; Make sure the response buffer stays where it is,
+		  ;; and make sure source buffer is visible
+		  (select-window rebufwindow)
+		  (pop-to-buffer errbuf)
+		  ;; Display the error message in the response buffer
+		  (set-window-point rebufwindow errpos)
+		  (set-window-start rebufwindow errpos)
+		  ;; Find the error location in the error buffer
+		  (set-buffer errbuf)
+		  ;; FIXME: no handling of selective display here
+		  (goto-line line)
+		  (if (and column (> column 1))
+		      (move-to-column (1- column)))))
+	    (setq proof-shell-next-error nil)
+	    (error "proof-next-error: couldn't find next error.")))))
+
+   
+
 
 (provide 'proof-shell)
 ;; proof-shell.el ends here.
