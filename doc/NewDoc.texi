@@ -39,7 +39,9 @@ END-INFO-DIR-ENTRY
 @subtitle Organise your proofs with Emacs!
 @subtitle Proof General @value{version}
 @subtitle @value{last-update}
+@iftex
 @image{ProofGeneral}
+@end iftex
 @author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
 @page
 @vskip 0pt plus 1filll
@@ -199,12 +201,10 @@ Obtaining and Installing Proof General
 @node Introducing Proof General
 @chapter Introducing Proof General
 
-@c maybe not in TeX, just put on title page.
-@c not in info, it can't deal with images.
-@c Maybe in HTML because it doesn't appear in titles?
-
+@c would like the logo on the title page really but
+@c it doesn't seem to work there for html.
 @ifhtml
-@image{ProofGeneral}
+<IMG SRC="ProofGeneral.jpg" ALT="[ Proof General logo ]" >
 @end ifhtml
 
 @dfn{Proof General} is a generic Emacs interface for proof assistants,
@@ -220,6 +220,15 @@ proof script in place rather than line-by-line in a shell using
 cut-and-paste to reassemble the pieces.  Proof General keeps track of
 which proof steps have been processed by the prover, and prevents you
 editing them accidently.  You can undo steps as usual.
+
+Our aim is provide a powerful and configurable Emacs mode which helps
+user-interaction with interactive proof assistants.  Please help us with
+this aim!  Configure Proof General for your proof assistant, by adding
+features at the generic level wherever possible.  See 
+@c Stupid undefined node error her, why?
+@xref{Adding A New Proof Assistant}
+for more details, and send ideas, comments, patches,
+and code to @code{proofgen@@dcs.ed.ac.uk}.
 
 
 @menu
@@ -1878,7 +1887,7 @@ Fixes for some of these may be provided in a future release.
 @menu
 * Granularity of Atomic Command Sequences::  
 * Handling Multiple Files::     
-* Adding A New Proof Assistant::  
+* Adding A New Proof Assistant::
 * Literature::                  
 @end menu
 
