@@ -1137,26 +1137,50 @@ the start if the segment finishes with an unclosed comment.
 If optional NEXT-COMMAND-END is non-nil, we include the command
 which continues past POS, if any."
   (save-excursion
-    (let ((regexp	(or proof-script-command-end-regexp
-			    proof-script-command-start-regexp))
-          (add-segment-for-cmd		; local function: advances "prev"
-	   (lambda ()
-	     (unless (or proof-script-command-end-regexp (eobp))
-	       ;; Find end of previous command
-	       (skip-chars-backward " \t\n"))
-	     (let ((string (buffer-substring prev (point))))
-	       (skip-chars-forward " \t\n")
-	       (setq prev (point))
-	       ;; NB: Command string excludes whitespace, span includes it.
-	       (setq alist (cons (list 'cmd string prev) alist)))))
-	  alist prev cmdfnd)
+    ;; FIXME: this is a bit hairy.  Probably simpler just to have two
+    ;; variants, one for finding starts other for finding ends!
+    ;; And another for dealing with braces, I suppose.
+    (let* ((findingends	(not (null proof-script-command-end-regexp)))
+	   (regexp	(if findingends
+			    proof-script-command-end-regexp
+			  proof-script-command-start-regexp))
+	   (commentre   (regexp-quote proof-comment-start))
+	   (add-segment-for-cmd		; local function: advances "prev"
+	    (lambda ()
+	      (unless (or findingends (eobp))
+		;; Find end of previous command
+		(setq tmp (point))
+		(goto-char comstart)
+		(skip-chars-backward " \t\n"))
+	      (let* ((bufstr (buffer-substring prev (point)))
+		     (type   (if (string-match commentre bufstr)
+				 'comment 'cmd))
+		     (string (if (eq type 'comment) "" bufstr)))
+		(skip-chars-forward " \t\n")
+		(setq prev (point))
+		;; FIXME: does two commands always!
+		(unless findingends
+		  (goto-char tmp))
+		;; NB: Command string excludes whitespace, span includes it.
+		(setq alist (cons (list type string prev) alist)))))
+	   alist prev cmdfnd startpos comstart tmp)
       (goto-char (proof-queue-or-locked-end))
       (setq prev (point))
-      (while (and (re-search-forward regexp nil t)
-		  (or (buffer-syntactic-context) ;; inside comment/string
-		      (progn			 ;; ow found command.
-			(setq cmdfnd t)		 
-			(<= (point) pos))))
+      (skip-chars-forward " \t\n")
+      (setq startpos (point))
+      (while 
+	  (and 
+	   (re-search-forward regexp nil t) ; search for next command
+	   (unless findingends
+	     (setq comstart (match-beginning 0))) ; save command start
+	   (or (buffer-syntactic-context)   ; continue if inside comment/string
+	       (progn			    ; or, if found command...
+		 (setq cmdfnd 
+		       (or findingends	    ; ignore first match for com start
+			   (> comstart startpos)))
+		 (if findingends
+		     (<= (point) pos)
+		   (<= prev pos)))))	    ; two comms after pos if findingstart
 	(if cmdfnd (progn
 		     (funcall add-segment-for-cmd)
 		     (setq cmdfnd nil))))
