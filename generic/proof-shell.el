@@ -232,11 +232,18 @@ Does nothing if proof assistant is already running."
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	(funcall proof-mode-for-shell)
-	(set-buffer proof-response-buffer)
-	(funcall proof-mode-for-response)
-	(set-buffer proof-goals-buffer)
-	(funcall proof-mode-for-pbp))
-
+	;; Check to see that the process is still going.
+	;; Otherwise the sentinel will have killed off the
+	;; other buffers and there's no point initialising
+	;; them.
+	(if (proof-shell-live-buffer)
+	    (progn
+	      (set-buffer proof-response-buffer)
+	      (funcall proof-mode-for-response)
+	      (set-buffer proof-goals-buffer)
+	      (funcall proof-mode-for-pbp))
+	  (switch-to-buffer proof-shell-buffer)
+	  (error "%s process exited!" proc)))
       (message 
        (format "Starting %s process... done." proc)))))
 
@@ -327,11 +334,12 @@ proof-shell-kill-function to do the hard work."
 
 (defun proof-shell-bail-out (process event)
   "Value for the process sentinel for the proof assistant process.
-If the proof assistant dies, kill the shell buffer,
-ensuring that script buffers are cleaned up neatly."
-  (message "Process %s %s, exiting..." process event)
-  (sit-for 1)				; chance for user to see it
-  (kill-buffer proof-shell-buffer))
+If the proof assistant dies, run proof-shell-kill-function to
+cleanup and remove the associated buffers.  The shell buffer is
+left around so the user may discover what killed the process."
+  (message "Process %s %s, shutting down scripting..." process event)
+  (proof-shell-kill-function)
+  (message "Process %s %s, shutting down scripting...done." process event))
 
 (defun proof-shell-restart ()
   "Clear script buffers and send proof-shell-restart-cmd.
@@ -1326,6 +1334,14 @@ before and after sending the command."
   
   ;; easy-menu-add must be in the mode function for XEmacs.
   (easy-menu-add proof-shell-mode-menu proof-shell-mode-map)
+
+  ;; FIXME da: before entering proof assistant specific code,
+  ;; we'd do well to check that process is actually up and
+  ;; running now.  If not, call the process sentinel function
+  ;; to display the buffer, and give an error.
+  ;; (Problem to fix is that process can die before sentinel is set:
+  ;;  it ought to be set just here, perhaps: but setting hook here
+  ;;  had no effect for some odd reason).
   ))
 
 ;; watch difference with proof-shell-menu, proof-shell-mode-menu.
