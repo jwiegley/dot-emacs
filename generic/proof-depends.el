@@ -8,8 +8,7 @@
 ;;
 ;; $Id$
 ;; 
-;; This file is based on Fiona McNeill's MSc project on 
-;; analysing dependencies within proofs.
+;; Based on Fiona McNeill's MSc project on analysing dependencies within proofs.
 ;; Code rewritten by David Aspinall.
 ;; 
 
@@ -185,18 +184,20 @@ If LIST is empty, return a disabled menu item with NAME."
       (let ((span (cadar nmspans)))
 	(set-span-property span 'face 'proof-highlight-dependent-face)
 	(set-span-property span 'mouse-highlight nil)
-	(set-span-property span 'help-echo helpmsg))
+	(set-span-property span 'help-echo helpmsg)
+	(set-span-property span 'balloon-help helpmsg))
       (setq nmspans (cdr nmspans)))))
 
 (defun proof-dep-unhighlight ()
   "Returned all highlighted spans in file to the proof-locked-face highlighting."
   (interactive)
-  ;; FIXME: not quite right!  Will highlight spans in queue as locked too.
+  ;; FIXME: not quite right!  Will highlight spans in queue as locked too,
+  ;; and covers too many spans.
   (save-excursion
     (let ((span (span-at (point-min) 'type)))
       (while span
+	(pg-set-span-helphighlights span 'nohighlight)
 	(set-span-property span 'face 'proof-locked-face)
-	(set-span-property span 'help-echo nil)
 	(setq span (next-span span 'type))))))
 
 
