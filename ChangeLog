@@ -1,3 +1,242 @@
+2002-06-19  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-shell.el:
+	Add proof-shell-last-prompt.
+
+	* doc/PG-adapting.texi:
+	Add doc of proof-shell-last-prompt.
+
+	* doc/ProofGeneral.texi: Fix info
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2002-06-18  David Aspinall  <da@proofgeneral.org>
+
+	* html/develdownload.php:
+	Update Emacs versions
+
+	* doc/ProofGeneral.texi:
+	Add news for PG 3.4
+
+	* doc/PG-adapting.texi:
+	Update magic.  Document nested proof settings.
+
+	* coq/coq.el:
+	Removed lift-global stuff.  coq-find-and-forget: only undo undoable tactics.
+
+	* generic/proof-script.el:
+	Remove lift-global function.
+
+	* generic/proof-config.el, generic/proof-script.el:
+	Remove global testing and lift-global function; rename proof-nested-goals -> proof-nested-goals-history.
+
+	* etc/coq/nested.v:
+	Added some non-undoable tactics
+
+	* etc/coq/nested.v: Added some sections
+
+	* html/news.html, html/oldnews.html:
+	News item for PG 3.4
+
+2002-06-18  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el, coq/coq-syntax.el:
+	Added the backtrack mechanism for sections. Seems to work.
+
+	* coq/coq.el, coq/coq-syntax.el:
+	Added a function to inspect the prompt of Coq, in order to know if we
+	are in proof-mode. Redundant with proof-nesting-depth.
+
+2002-06-18  David Aspinall  <da@proofgeneral.org>
+
+	* coq/coq.el:
+	Attempt at (alledgedly) more robust solution to find-and-forget.
+
+	* etc/coq/nested.v: Fix
+
+	* etc/coq/nested.v:
+	Add more declarations
+
+	* coq/coq.el:
+	Test using proof-nesting-depth before calling Reset
+
+2002-06-14  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el: Minor changes.
+
+	* coq/coq.el:
+	Print and Check guess their argument from the region or the string
+	near the point.
+
+2002-06-13  David Aspinall  <da@proofgeneral.org>
+
+	* coq/coq.el:
+	Disable count-undos function, just use find-and-forget.
+
+	* generic/proof-script.el:
+	A nil setting of proof-kill-goal-command forces use of proof-find-and-forget for all retraction.
+
+	* generic/proof-config.el: Docs
+
+	* generic/proof-shell.el:
+	Experiment with showing real prover output for aborted proofs.
+
+2002-06-12  David Aspinall  <da@proofgeneral.org>
+
+	* coq/coq.el:
+	Revised find-and-forget function, which also works for count-undos.
+
+	* etc/coq/nested.v:
+	More test cases, summary of situation.
+
+	* generic/span-overlay.el:
+	Second variant of next-span, without doubly nested loop
+
+	* generic/span-overlay.el:
+	Improve imp of next-span
+
+	* etc/coq/nested.v: Note of another bug
+
+	* coq/coq.el:
+	Test for find-and-forget using Back always instead of Reset.
+
+	* etc/coq/nested.v:
+	Add test t4 for extra depth of nesting
+
+	* generic/proof-utils.el:
+	Make hack for XEmacs 21.4 also work for later versions
+
+2002-06-12  Pierre Courtieu  <courtieu@lri.fr>
+
+	* CHANGES:
+	Changed the CHANGES file for Coq.
+
+	* coq/coq.el:
+	Nested proofs in Coq are well backtracked! I used the new field
+	'nestedundos created by David. Will change the CHANGE file
+	accordingly.
+
+2002-06-12  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-script.el:
+	Adjust proof-nesting depth, add FIXME notes since not right yet
+
+	* isar/test.el: New files.
+
+	* coq/coq.el:
+	Add proof-nested-undo-regexp setting
+
+	* generic/proof-script.el, generic/proof-config.el:
+	Add nestedundos setting to span, and proof-nested-undo-regexp setting
+
+2002-06-11  David Aspinall  <da@proofgeneral.org>
+
+	* etc/coq/nested.v:
+	Replace with example from Pierre
+
+	* generic/proof-script.el:
+	Only match saves for prover that supports nested proofs (restores old behaviour for Isar).  Isar goal/save regexps dont match up properly.
+
+2002-06-11  Pierre Courtieu  <courtieu@lri.fr>
+
+	* CHANGES: Not important.
+
+	* CHANGES:
+	CHANGE is cleaner in the Coq part! Not important.
+
+	* CHANGES:
+	Added changes in CHANGE about my new customization variables
+	coq-user-backable-command etc.
+
+	* coq/coq.el, coq/coq-syntax.el:
+	Added the coq-user-... elisp customization variables to allow the user
+	to defclare new commands and tactics:  must typically be customized in
+	.emacs.
+
+2002-06-11  David Aspinall  <da@proofgeneral.org>
+
+	* coq/coq.el:
+	Remove proof-nested-goals-p setting
+
+	* generic/proof-script.el:
+	Improved proof-nesting-depth (not finished yet)
+
+2002-06-11  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	Fixed a bug of the new synchro code (coq-find-and-forget) in
+	coq.el. Now do not count Tactics and unsaved goal commands for "Back".
+
+2002-06-11  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-config.el, generic/proof-shell.el, generic/proof-script.el:
+	Add proof-nesting-depth, new implementation of span amalgamation in proof-done-advancing.
+
+	* coq/coq.el:
+	Set nested goals; include Lemma again in def of goal.
+
+	* etc/coq/nested.v: New files.
+
+2002-06-08  David Aspinall  <da@proofgeneral.org>
+
+	* html/download.html:
+	Mention not  supporting  E21
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec:
+	Add install for isartags
+
+	* ChangeLog: Updated.
+
+	* isar/isar.el:
+	Fix bug in string syntax in isar-strip-terminators: did this work correctly before?
+
+	* generic/span.el:
+	Clean up span.el loading; make compat with bbdb.el in FSF
+
+	* generic/proof-shell.el:
+	Clean up span.el loading
+
+	* ChangeLog: Updated.
+
+	* todo: Updates
+
+	* acl2/example.acl2: Remove duplicate
+
+	* etc/ProofGeneral.spec: Add isartags
+
+	* isar/isartags: Program [broken]
+
+	* doc/ProofGeneral.texi: Update magic
+
+	* coq/coqtags, lego/legotags:
+	Default to /usr/bin/perl
+
+	* CHANGES: Note about removing dirs
+
+	* html/projects.html:
+	Remove PGK mention, other obs projects
+
+	* ChangeLog: Updated.
+
+	* generic/proof-script.el:
+	Robustness fixes/bug notes
+
+	* generic/proof-menu.el: Spacing
+
+	* generic/span-extent.el:
+	Tweak liveness test
+
+	* generic/proof-site.el: Alter order
+
+	* generic/proof-config.el:
+	Fix keysym to use FSF syntax
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
 2002-06-08  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec:
