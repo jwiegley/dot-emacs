@@ -9,10 +9,10 @@
 @paragraphindent 0
 @c A flag for whether to include the front image in the
 @c DVI file.  You can download the front image from
-@c http://www.dcs.ed.ac.uk/~proofgen/ProofGeneral.eps.gz
-@c then put it into this directory and 'make dvi'
+@c http://www.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
+@c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
-@set haveeps
+@clear haveeps
 @c
 @iftex
 @afourpaper
@@ -85,8 +85,10 @@ END-INFO-DIR-ENTRY
 @subtitle Organise your proofs with Emacs!
 @subtitle Proof General @value{version}
 @subtitle @value{last-update}
-@ifset haveeps
+
+@c nested ifs fail here completely, WHY?
 @iftex
+@ifset haveeps
 @c @vskip 1cm
 @c The .eps file takes 8.4M!  A pity texi can't seem
 @c to deal with gzipped files? (goes down to 1.7M).
@@ -95,12 +97,9 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@image{ProofGeneralPortrait}
-@c FIXME: for html, just do @c image ProofGeneral, it
-@c gets confused by the braces.
-@c FIXME: doesn't work for PDF image at the moment.
-@end iftex
+@c image{ProofGeneralPortrait}
 @end ifset
+@end iftex
 @author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
 @page
 @vskip 0pt plus 1filll
