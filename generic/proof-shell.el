@@ -240,6 +240,13 @@ to err-or-int."
 ;;  Starting and stopping the proof shell  
 ;;
 
+(defcustom proof-shell-fiddle-frames t 
+  "Non-nil if proof-shell functions should fire-up/delete frames.
+NB: this is a temporary config variable in PG 3.5 and will not be
+present in later versions!"
+  :type 'boolean
+  :group 'proof-shell)
+
 (defun proof-shell-start ()
   "Initialise a shell-like buffer for a proof assistant.
 
@@ -344,14 +351,8 @@ Does nothing if proof assistant is already running."
 	    (setq proof-thms-buffer (get-buffer-create thms)))
 	;; Set the special-display-regexps now we have the buffer names
 	(setq proof-shell-special-display-regexp 
-	      (proof-regexp-alt goals resp trace thms))
-	;; Also, set XEmacs specifiers that have a per-buffer effect
-	(if proof-running-on-XEmacs
-	    (proof-map-buffers
-	     (list proof-goals-buffer proof-response-buffer 
-		   proof-trace-buffer proof-thms-buffer)
-	     (set-specifier has-modeline-p 'nil (current-buffer)))))
-      
+	      (proof-regexp-alt goals resp trace thms)))
+
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	
@@ -370,6 +371,13 @@ Does nothing if proof assistant is already running."
 	;; Q: should this be done every time the process is started?
 	;; A: yes, it does the process initialization, which is a bit
 	;; odd (would expect it to be done here, maybe).
+	;; NB: this calls proof-config-done, which will result in
+	;; recursive call here when sending startup commands to
+	;; the process: should immediately exit because  
+	;; (proof-shell-live-buffer) should succeed.  If bad,
+	;; things happen, it may cause looping!
+	;; FIXME: add flag to indicate "inside proof-shell-start"
+	;; to prevent this.
 	(funcall proof-mode-for-shell)
 
 	;; Check to see that the process is still going.
@@ -388,7 +396,23 @@ Does nothing if proof assistant is already running."
 	      (set-buffer proof-goals-buffer)
 	      (and (fboundp 'toggle-enable-multibyte-characters)
 		   (toggle-enable-multibyte-characters -1))
-	      (funcall proof-mode-for-goals))
+	      (funcall proof-mode-for-goals)
+	      ;; Setting modes initialises local variables which
+	      ;; may affect frame/buffer appearance: so we fire up frames
+	      ;; once this has been done.
+	      (if proof-shell-fiddle-frames
+		  ;; Call multiple-frames-enable in case we need to fire up
+		  ;; new frames (NB: sets specifiers to remove modeline)
+		  (save-selected-window
+		    (save-selected-frame
+		      (proof-multiple-frames-enable)))
+		;; Otherwise just try to remove modeline from PG buffers
+		;; in XEmacs
+		(if proof-running-on-XEmacs
+		    (proof-map-buffers
+		      (list proof-goals-buffer proof-response-buffer 
+			    proof-trace-buffer proof-thms-buffer)
+		      (set-specifier has-modeline-p nil (current-buffer))))))
 	  ;; 
 	  ;; If the process died, switch to the buffer to
 	  ;; display the error messages to the user.
@@ -481,6 +505,13 @@ exited by hand (or exits by itself)."
       (proof-shell-clear-state)
       ;; Run hooks
       (run-hooks 'proof-shell-kill-function-hooks)
+      ;; Remove auxiliary windows if they were being used, to
+      ;; try to stop proliferation of frames (NB: this loses
+      ;; currently, in case user has switched buffer in one of the
+      ;; specially made frames)
+      (if (and proof-multiple-frames-enable
+	       proof-shell-fiddle-frames)
+	  (proof-delete-other-frames))
       ;; Kill buffers associated with shell buffer
       (let ((proof-shell-buffer nil)) ;; fool kill buffer hooks
  	(dolist (buf '(proof-goals-buffer proof-response-buffer 
