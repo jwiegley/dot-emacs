@@ -1,3 +1,9 @@
+#  TODO (da):
+#    - tag the release in the sources
+#    - build docs
+#    - distrib is built by running 'make dist' in
+#      exported source dir
+
 CVSROOT = /home/lego/src
 EXPORTDIR = /home/lego/pub/emacs
 RELEASENAME = emacs-2.0
@@ -15,6 +21,6 @@ release :
 		     gzip -c $(TRELEASENAME) > $(TRELEASENAME).gz;\
 		     cp -p $(RELEASENAME).* $(EXPORTDIR);\
 		     cd ..; cvs release -d elisp
-		     
+ 
 
 
