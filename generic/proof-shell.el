@@ -335,34 +335,39 @@ exited by hand (or exits by itself)."
 	 (proc     (get-buffer-process (current-buffer)))
 	 (bufname  (buffer-name)))
     (message "%s, cleaning up and exiting..." bufname)
-    (let ((inhibit-quit t))		; disable C-g for now
+    (let ((inhibit-quit t)		; disable C-g for now
+	  timeout-id)
       (sit-for 0)				; redisplay
       (if alive				; process still there
-	  (catch 'exited
-	    (set-process-sentinel proc
-				  (lambda (p m) (throw 'exited t)))
-	    ;; Try to shut it down politely
-	    ;; Do this before deleting other buffers, etc, so that
-	    ;; any closing down processing works okay.
-	    (if proof-shell-quit-cmd
-		(comint-send-string proc
-				    (concat proof-shell-quit-cmd "\n"))
-	      (comint-send-eof))
-	    ;; Wait a while for it to die before killing
-	    ;; it off more rudely.  In XEmacs, accept-process-output
-	    ;; or sit-for will run process sentinels if a process
-	    ;; changes state.
-	    ;; In FSF I've no idea how to get the process sentinel
-	    ;; to run outside the top-level loop.
-	    ;; So put an ugly timeout and busy wait here instead
-	    ;; of simply (accept-process-output nil 10).
-	    (add-timeout 10 (lambda (&rest args)
-			      (if (comint-check-proc (current-buffer))
-				(kill-process (get-buffer-process 
-					       (current-buffer))))
-			      (throw 'exited t)) nil)
-	    (while (comint-check-proc (current-buffer))
-	      (sit-for 1))))
+	  (progn
+	    (catch 'exited
+	      (set-process-sentinel proc
+				    (lambda (p m) (throw 'exited t)))
+	      ;; Try to shut it down politely
+	      ;; Do this before deleting other buffers, etc, so that
+	      ;; any closing down processing works okay.
+	      (if proof-shell-quit-cmd
+		  (comint-send-string proc
+				      (concat proof-shell-quit-cmd "\n"))
+		(comint-send-eof))
+	      ;; Wait a while for it to die before killing
+	      ;; it off more rudely.  In XEmacs, accept-process-output
+	      ;; or sit-for will run process sentinels if a process
+	      ;; changes state.
+	      ;; In FSF I've no idea how to get the process sentinel
+	      ;; to run outside the top-level loop.
+	      ;; So put an ugly timeout and busy wait here instead
+	      ;; of simply (accept-process-output nil 10).
+	      (setq timeout-id
+		    (add-timeout 10 (lambda (&rest args)
+				      (if (comint-check-proc (current-buffer))
+					  (kill-process (get-buffer-process 
+							 (current-buffer))))
+				      (throw 'exited t)) nil))
+	      (while (comint-check-proc (current-buffer))
+		(sit-for 1)))
+	    ;; Disable timeout in case it hasn't signalled yet
+	    (disable-timeout timeout-id)))
       ;; For FSF Emacs, proc may be nil if killed already.
       (if proc (set-process-sentinel proc nil))
       ;; Restart all scripting buffers
