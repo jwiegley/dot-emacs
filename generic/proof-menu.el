@@ -16,11 +16,13 @@
 
 ;;;###autoload
 (defun proof-menu-define-keys (map)
-(define-key map [(control c) a] (proof-assistant-keymap))
-(define-key map [(control c) (control a)] 'proof-goto-command-start)
+(define-key map [(control c) (control a)] (proof-assistant-keymap))
+;; FIXME: C-c C-a and C-c C-e are lost.
+;; Consider adding new submap for movement in proof script.
+;; (define-key map [(control c) (control e)] 'proof-goto-command-end)
+; (define-key map [(control c) (control a)] 'proof-goto-command-start)
 (define-key map [(control c) (control b)] 'proof-process-buffer)
 ; C-c C-c is proof-interrupt-process in universal-keys
-(define-key map [(control c) (control e)] 'proof-goto-command-end)
 (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) (control r)] 'proof-retract-buffer)
@@ -279,7 +281,7 @@ suitable for adding to the proof assistant menu."
     (y-or-n-p "Should command be recorded in script? ")
     (read-string "Name of command on menu: ")
     (if (y-or-n-p "Set a keybinding for this command? : ")
-	(read-key-sequence "Type the key to use (I recommend C-c a <key>): " nil t))))
+	(read-key-sequence "Type the key to use (I recommend C-c C-a <key>): " nil t))))
   (let* ((menunames	(split-string (downcase menuname)))
 	 (menuname-sym  (proof-sym (proof-splice-separator "-" menunames)))
 	 (menu-fn	menuname-sym) (i 1))

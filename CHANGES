@@ -18,7 +18,7 @@
 
 *** Proof assistant specific keymap added
 
-  Keybindings for proof assistant now begin with "C-c a".
+  Keybindings for proof assistant now begin with "C-c C-a".
 
 *** Improved behaviour of electric terminator
 
