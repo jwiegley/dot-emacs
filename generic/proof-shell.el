@@ -475,8 +475,8 @@ explicit yank."
 	(mouse-set-point event)
 	;; Get either the proof body or whole goalsave
 	(setq span (or 
-		    (span-at (point) 'proof))
-		    (span-at (point) 'goalsave))
+		    (span-at (point) 'proof)
+		    (span-at (point) 'goalsave)))
 	(if span (copy-region-as-kill
 		  (span-start span) 
 		  (span-end span)))))
