@@ -22,16 +22,21 @@ in some way, please
 </p>
 
 <p>
-You may like to join the
+You can join the
 Proof General
-<a href="mailinglist">mailing list</a>.
+<a href="mailinglist">mailing list</a>
+for announcements of new versions.
 Developers and beta-testers may like to download
 a <a href="develdownload.html">development release</a>
 of Proof General.
-If you use an old version of a proof assistant,
-you may need to download one of the 
+If you use an old version of a proof assistant and/or an
+old Emacs version, you may need to download one of the 
 <a href="oldrel.php">previous releases</a>.
 </p>
+<h2><a name="stable">
+    Proof General Version 3.4, to be released August 2002.
+    </a>
+</h2>
 <p>
 Proof General is distributed under the terms of
 the 
@@ -39,11 +44,6 @@ the
 <br>
 See <a href="#prereq">below</a> for software pre-requisites for running Proof General.
 </p>
-
-<h2><a name="stable">
-    Proof General Version 3.4, to be released August 2002.
-    </a>
-</h2>
 
 <p>
 The next stable version of Proof General will be 3.4, to be released
@@ -136,24 +136,30 @@ of <a href="http://www.xemacs.org">XEmacs</a>
 <a href="http://sunsite.doc.ic.ac.uk/Mirrors/ftp.xemacs.org/pub/xemacs/">
 ftp mirror</a> may help).
 <br>
-<b>or</b> version 20.7 of the much poorer 
-<a href="http://www.gnu.org/software/emacs/">GNU GNU Emacs</a>.
+<b>or</b> version 21.1 of 
+<a href="http://www.gnu.org/software/emacs/">GNU Emacs</a>.
 <br>
 Both Emacsen are available for a variety of platforms, including
-Unix variants and Windows 95/98/NT/2k.
+Unix variants, Windows 95/98/NT/2k, and Mac OS.
 </li>
 <li>
-One or more of the supported proof assistants.  Or write your own
-support for a new assistant.  
+A proof assistant, for example:
+<?php fileshow("ProofGeneral/coq/README","Coq"); ?>;
+<?php fileshow("ProofGeneral/isa/README","Isabelle"); ?>
+&nbsp;or <?php fileshow("ProofGeneral/isa/README","Isabelle/Isar"); ?>;
+<?php fileshow("ProofGeneral/lego/README","LEGO"); ?>;
+<?php fileshow("ProofGeneral/phox/README","PhoX"); ?>.
 <br>
-See the 
-<a href="main">front page</a> for links to supported
-assistants.
+(click on links for version details; see <a href=".">front page</a> for
+other assistants).
+<br>
+Or write your own support for a new assistant!
 </li>
 </ul>
-<p>
+</p>
 
-There are also some <strong>optional</strong> components for using
+<p>
+There is also an <strong>optional</strong> component for using
 Proof General:
 <ul>
 <li>
@@ -162,7 +168,12 @@ For displaying logical and mathematical symbols, the excellent
 package. 
 <br>It's very easy to install.  See <a href="#xsyminstall">here</a> 
 for installation notes.
-<br>X-Symbol presently only works with XEmacs on systems running X.  
+<br>Versions of X-Symbol supported:
+<b>version 3.4 (stable)</b>, and <b>version 4.4 (beta)</b>.
+<br>
+The stable version of X-Symbol only works with XEmacs on systems running X.
+The beta version also works with Emacs 21.1 and later, and has limited
+support for XEmacs on Windows.
 </li>
 <!-- <li> -->
 <!-- For GNU Emacs, a version of <tt>func-menu.el</tt> to get  -->
@@ -177,18 +188,27 @@ for installation notes.
 <!-- somebody could contribute patches to use that  -->
 <!-- instead of <tt>func-menu</tt>). -->
 </ul>
-<p>
-All components mentioned above are distributed under the GPL license.
-</p>
+Compatibility across the multitude of Emacs versions is quite troublesome. 
 <br>
+XEmacs has been better tested with Proof General than GNU Emacs.
 <br>
+Earlier versions of either variant <i>may</i> work with Proof General
+but are not officially supported because we cannot test backward
+compatibility widely. Please <a href="feedback">send us fixes</a>
+rather than bug reports if you discover problems.
+Later versions of both Emacs variants <i>should</i> work with
+Proof General: if you discover problems, please check
+to see if they have been solved in a more recent
+<a href="develdownload">development release</a> before
+reporting.
+
 
 <h3><a name="install">Easy installation of Proof General</a></h3> 
 <p>
 To use Proof General, simply unpack the sources with 
 </p>
  <blockquote>
-   <tt>tar xpzf ProofGeneral-3.3.tar.gz</tt>
+   <tt>tar xpzf ProofGeneral-3.4.tar.gz</tt>
  </blockquote>
 <p>
 (use <tt>gunzip</tt> first in place of <tt>z</tt> if you don't have
@@ -208,33 +228,34 @@ If you use the RPM package, <var>directory</var> is
 If you're using Windows, then download the zip file.
 <br> 
 Use a zip file utility to unpack it somewhere, for example
-<tt>c:\\ProofGeneral</tt>
+<tt>c:\ProofGeneral</tt>
 </p>
 <p>
 Further customization is possible via the Customize menus in
 Emacs.  
 <br>
-See the <?php fileshow("ProofGeneral-3.3/INSTALL","INSTALL")?> 
+See the <?php fileshow("ProofGeneral-3.4/INSTALL","INSTALL")?> 
 file in the distribution for more details.
 </p>
 
 <h3><a name="xsyminstall">Easy installation of X-Symbol</a></h3> 
 
 <p>
-X-Symbol is easy to install and configures itself automatically.
+X-Symbol is easy to install in XEmacs and configures itself automatically.
 </p>
 <p>
 Simply download the binary package file, and do something
 like this to install in your home directory:
 </p>
 <blockquote><tt>
- mkdir -p ~/.xemacs<br>
- cd ~/.xemacs<br>
+ mkdir -p ~/.xemacs/xemacs-packages<br>
+ cd ~/.xemacs/xemacs-packages<br>
  tar xpzf ../x-symbol-pkg.tar.gz<br>
 </tt></blockquote>
 <p>
-NB: if you have version 21.x of XEmacs, you may need to install
-x-symbol inside a subdirectory 
-<tt>~/.xemacs/xemacs-packages</tt> instead of
-<tt>~/.xemacs</tt>.
-
+For GNU Emacs, you must remove the <tt>.elc</tt> files supplied, and
+add some code to your <tt>.emacs</tt>.  See 
+<a href="http://x-symbol.sourceforge.net/news.html">this page</a>
+for details.
+More installation options are given
+in the <a href="http://x-symbol.sourceforge.net/man/x-symbol_2.html">the X-Symbol manual</a>.
