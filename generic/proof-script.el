@@ -1953,6 +1953,8 @@ No action if BUF is nil."
 
 (defvar proof-help-menu
   `("Help"
+    [,(concat proof-assistant " information")
+     (proof-help) t]
     [,(concat proof-assistant " web page")
      (browse-url proof-assistant-home-page) t]
     ["Proof General home page"
