@@ -39,13 +39,11 @@ http://proofgeneral.inf.ed.ac.uk/fileshow.php?file=ProofGeneral-3.5%2FCHANGES
 
 For the latest user manual, see http://proofgeneral.inf.ed.ac.uk/doc
 
-Proof General needs a recent version of Emacs to run with.  
-Proof General 3.5 has been tested with XEmacs 21.1 and 21.4, and 
-GNU Emacs 21.3.  Older versions of either Emacs may work but are not
-guaranteed.
+Proof General needs a recent version of Emacs to run with.  Proof
+General 3.5 has been tested with XEmacs 21.4.14, and GNU Emacs 21.3.1.  
+Other recent versions of either Emacs may work but are not guaranteed.
 
 Installing Proof General is easy.  Why not give it a try?
 
  - David Aspinall.
    April 2004.
-
