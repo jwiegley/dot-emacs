@@ -436,7 +436,7 @@ that it is a message from the proof assistant which triggers this call).
 No action is taken if the file is already registered.
 
 A warning message is issued if the register request came from the
-proof assistant and Emacs is has a modified buffer visiting the file."
+proof assistant and Emacs has a modified buffer visiting the file."
   (let* ((cfile (file-truename file))
 	 (buffer (proof-file-to-buffer cfile)))
     (proof-debug (concat "Registering file " cfile 
@@ -592,22 +592,23 @@ Set proof-script-buffer to nil and turn off the modeline indicator.
 No action if there is no active scripting buffer.  
 
 We make sure that the active scripting buffer either has no locked
-region or everything in it has been processed. This is done by
-prompting the user or by automatically taking the action indicated in
-the user option `proof-auto-action-when-deactivating-scripting.'
+region or a full locked region (everything in it has been processed).
+If this is not already the case, we question the user whether to
+retract or assert, or automatically take the action indicated in the
+user option `proof-auto-action-when-deactivating-scripting.'
 
-If the scripting buffer is (or has become) fully processed, and
-it is associated with a file, it is registered on 
+If the scripting buffer is (or has become) fully processed, and it is
+associated with a file, it is registered on
 `proof-included-files-list'.  Conversely, if it is (or has become)
-empty, make sure that it is *not* registered.  This is to
-make sure that the included files list behaves as we might expect
-with respect to the active scripting buffer, in an attempt to 
-harmonize mixed scripting and file reading in the prover.
+empty, we make sure that it is *not* registered.  This is to be
+certain that the included files list behaves as we might expect with
+respect to the active scripting buffer, in an attempt to harmonize
+mixed scripting and file reading in the prover.
 
-This function either succeeds, fails because the user 
-refused to process or retract a partly finished buffer,
-or gives an error message because retraction or processing failed.
-If this function succeeds, then proof-script-buffer=nil afterwards.
+This function either succeeds, fails because the user refused to
+process or retract a partly finished buffer, or gives an error message
+because retraction or processing failed.  If this function succeeds,
+then proof-script-buffer is nil afterwards.
 
 The optional argument FORCEDACTION overrides the user option
 `proof-auto-action-when-deactivating-scripting' and prevents
@@ -737,7 +738,10 @@ In all other cases, a proof shell busy error is given.
 Finally, the hooks `proof-activate-scripting-hook' are run.  
 This can be a useful place to configure the proof assistant for
 scripting in a particular file, for example, loading the
-correct theory, or whatever."
+correct theory, or whatever.  If the hooks issue commands
+to the proof assistant (via `proof-shell-invisible-command')
+which result in an error, the activation is considered to
+have failed and an error is given."
   (interactive)
   ;; FIXME: the scope of this save-excursion is rather wide.
   ;; Problems without it however: Use button behaves oddly
@@ -1177,12 +1181,15 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 ;; FIXME da: this annoyingly slow even in a buffer only several
 ;; hundred lines long, even when compiled.
+;; One improvement would be to make a list of buffer *positions*
+;; rather than strings, or at least, not by allocating a
+;; string possibly as large as the buffer!!!
 
 ;; FIXME da: using the family of functions buffer-syntactic-context-*
 ;; may be helpful here.
 
 (defun proof-segment-up-to (pos &optional next-command-end)
-  "Create a list of (type,int,string) tuples from end of queue/locked region to POS.
+  "Create a list of (type, int, string) tuples from end of queue/locked region to POS.
 Each tuple denotes the command and the position of its terminator,
 type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
 the start if the segment finishes with an unclosed comment.
@@ -1281,7 +1288,7 @@ the next command end."
 Proof terminator positions SEMIS has the form returned by
 the function proof-segment-up-to.
 Set the callback to CALLBACK-FN or 'proof-done-advancing by default."
-  (let ((ct (proof-unprocessed-begin)) span alist semi)
+  (let ((ct (proof-queue-or-locked-end)) span alist semi)
     (while (not (null semis))
       (setq semi (car semis)
             span (make-span ct (nth 2 semi))
@@ -1728,7 +1735,8 @@ If inside a comment, just process until the start of the comment."
 
 (defun proof-undo-and-delete-last-successful-command ()
   "Undo and delete last successful command at end of locked region.
-Handy for proof by pointing."
+Handy for proof by pointing, in case the last proof-by-pointing
+command took the proof in a direction you don't like."
   (interactive)
   (proof-with-current-buffer-if-exists 
    proof-script-buffer
