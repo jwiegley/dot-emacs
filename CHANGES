@@ -12,3 +12,8 @@ Summary of Changes since Proof General 2.0
 
 * Bug fix for long-lines with funny characters causing
   ^G's in Solaris.
+
+* Bug fix for case-insensitive matching.  Added 
+  proof-case-fold-search configuration variable to
+  allow for proof script languages with case-insensitive 
+  syntax.
