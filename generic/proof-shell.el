@@ -136,8 +136,7 @@ If QUEUEMODE is supplied, set the lock to that value."
 Clear proof-shell-busy, and set proof-shell-error-or-interrupt-seen
 to err-or-int."
   (setq proof-shell-error-or-interrupt-seen err-or-int)
-  (setq proof-shell-busy nil)
-  (setq proof-shell-spill-output-buffer nil))
+  (setq proof-shell-busy nil))
 
 
 
@@ -1554,9 +1553,9 @@ This is a subroutine of proof-shell-filter."
 (defun proof-shell-spill-output-begin (msg)
   "Begin spill output from prover into a fresh response-like buffer."
   (let* ((spill (concat "*" (downcase proof-assistant) "-trace*")))
-    ;; FIXME: maybe this should always be the same buffer, proliferation
-    ;; is maybe confusing.
-    (setq proof-shell-spill-output-buffer (generate-new-buffer spill))
+    (or (buffer-live-p proof-shell-spill-output-buffer)
+        (setq proof-shell-spill-output-buffer
+	      (generate-new-buffer spill)))
     (save-excursion
       (set-buffer proof-shell-spill-output-buffer)
       (funcall proof-mode-for-response)
