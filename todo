@@ -29,7 +29,7 @@ X (Low)		e.g. probably not worth spending time on
 
 *** Scheduled improvements for 3.2
 
-**** A Doc new bits: font lock keywords, silent stuff, filename %e, %r.
+**** A Doc new bits: font lock keywords, filename %e, %r.
 
 **** A Add a new keymap(s) for proof assistants.
   Presently they naughtily bind C-c <letter> which are reserved for
@@ -42,7 +42,7 @@ X (Low)		e.g. probably not worth spending time on
 
 **** A Add efficiency improvement by turning on/off prover output.
   Patch already added to pre-release.
-  Needs adjusting to turn on output in case of error/interrupt.
+  Does it need adjusting to turn on output in case of error/interrupt?
 
 **** C Add improvements to script movement in electric terminator mode.
   Some commented regions in code.  E.g. automatic newline/space after

@@ -18,10 +18,16 @@
 
 *** Added possibility for switching prover's output on/off.
 
+  Already implemented in Coq and Isabelle(/Isar).
+
 
 ** Coq Changes
 
+*** More decoration of Coq output, uses CoqResp mode now
+
 ** LEGO Changes
+
+*** Slight change in output during proof: show final discharge messages
 
 ** Isabelle Changes
 
@@ -29,7 +35,13 @@
 
 ** Isar Changes
 
+** HOL Changes
+
+*** Output decoration improvements.
+
 ** Changes for developers to note
 
 *** No need for match string 1 in proof-shell-proof-completed
+
+*** Changed buffer mode name: pbp-mode -> proof-goals-mode, for uniformity.
 
