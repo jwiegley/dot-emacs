@@ -463,6 +463,7 @@ This is specific to coq-mode."
 (defun coq-mode-config ()
 
   (setq proof-terminal-char ?\.)
+  (setq proof-script-command-end-regexp "[.]\\([ \t\n\r]\\)")
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
   (setq proof-unnamed-theorem-name "Unnamed_thm") ; Coq's default name
