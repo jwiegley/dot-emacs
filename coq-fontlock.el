@@ -1,9 +1,12 @@
 ;; coq-fontlock.el Font lock expressions for Coq
-;; Copyright (C) 1997 LFCS Edinburgh. 
+;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
 ;; Author: Thomas Kleymann and Healfdene Goguen
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.11  1998/06/02 15:33:16  hhg
+;; Minor modifications to comments
+;;
 ;; Revision 1.10  1998/05/15 16:13:23  hhg
 ;; Added CoFixpoint and tactics.
 ;; Changed indentation.
@@ -187,18 +190,15 @@
 "Try"
 ))
 
-;; ----- regular expressions for font-lock
-;; *** To update
+;; ----- regular expressions
 (defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\)"
-  "A regular expression indicating that the Coq process has
-  identified an error.") 
+  "A regular expression indicating that the Coq process has identified
+  an error.")
 
 (defvar coq-id proof-id)
 
-;; *** To check: whether separator is just ,
 (defvar coq-ids (proof-ids coq-id))
 
-;; *** To update: from here down!
 (defun coq-abstr-regexp (paren char)
     (concat paren "\\s *\\(" coq-ids "\\)\\s *" char))
 
