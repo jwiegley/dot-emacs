@@ -73,11 +73,12 @@
   :type 'string
   :group 'phox-config)
 
+(require 'phox-fun)
+(require 'phox-font)
 (require 'phox-extraction)
 (require 'phox-tags)
 (require 'phox-outline)
-(require 'phox-font)
-(require 'phox-fun)
+
 
 ;; ----- PhoX specific menu
 
@@ -135,6 +136,8 @@
    font-lock-keywords              phox-font-lock-keywords 
    )
   (phox-init-syntax-table)
+;; the following is only useful for xemacs
+  (define-key phox-mode-map [(meta ?.)] 'phox-complete-tag)
 )
 
 (defun phox-shell-config ()
@@ -220,7 +223,15 @@
   (setq proof-mode-for-response 'phox-response-mode)
   (setq proof-mode-for-goals	'phox-goals-mode))
 
-(set-variable 'phox-completion-table 
+; completions
+; dans completions.el
+;(setq completion-min-length 6)
+;(setq completion-prefix-min-length 3) les mots de moins de 6 caractères
+; ne sont pas pris en compte.  Les prefixes de moins de 3 caractères ne
+; sont pas non plus pris en compte.
+
+; (set-variable 'phox-completion-table 
+(defpgdefault completion-table
 (append phox-top-keywords phox-proof-keywords)
 )
 

@@ -14,7 +14,9 @@
 ; Sous xemacs il faut gérer la variable tag-table-alist qui n'existe pas
 ; sous gnu emacs.
 
-(require 'etags) 
+
+(require 'etags)
+
 
 (defun phox-tags-add-table(table)
   "add tags table"
@@ -75,13 +77,19 @@
 (defun phox-complete-tag()
 "Complete symbol using tags table. Works with FSF emacs.
  Problems with xemacs."
-;; xemacs build a table for completion, tag-completion-table
-;; this table donnot contains key words that use ".", probably a
-;; problem with syntax table.
-
+;; xemacs build a table for completion, tag-completion-table this table
+;; donnot contains key words that use ".". There is a problem with
+;; syntax-table. In xemacs you need to redefine
+;; add-to-tag-completion-table, in order to add your file-type and
+;; syntax-table. The modification is very simple, there should be an
+;; hook for that.
+;; 
+(interactive)
 (if proof-running-on-XEmacs
-    (complete-tag)
-  (tag-complete-symbol)))
+     (tag-complete-symbol)
+  (complete-tag)
+  )
+)
 
 ;; menu
 

@@ -61,15 +61,16 @@
 )
 
 
-(defun phox-init-syntax-table ()
-  "Set appropriate values for syntax table in current buffer."
+(defun phox-init-syntax-table (&optional TABLE)
+  "Set appropriate values for syntax table in current buffer, 
+or for optional argument TABLE."
 ;; useful for using forward-word
-  (modify-syntax-entry ?_  "w")
-  (modify-syntax-entry ?\. "w")
+  (modify-syntax-entry ?_  "w" TABLE)
+  (modify-syntax-entry ?\. "w" TABLE)
 ;; Configure syntax table for block comments
-  (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4")
+  (modify-syntax-entry ?\* ". 23" TABLE)
+  (modify-syntax-entry ?\( "()1"  TABLE)
+  (modify-syntax-entry ?\) ")(4"  TABLE)
 ;; à compléter éventuellement
 )
 
@@ -349,16 +350,44 @@ ask for a string and possibly a type and send a search command to PhoX for it.
 stype (nothing for any type, 'a as type parameter) :")
 (proof-shell-invisible-command (concat "search \"" string "\" " type)))
 
+;; The followings are proof commands (doc in cmd_proof.tex) :
+
+(defun phox-constraints()
+"Interactive function : 
+ send a constraints command to PhoX.
+
+  Prints the  constraints which should be fulfilled by unification variables,
+  only works in proofs."
+
+
+(interactive)
+(proof-shell-invisible-command  "constraints"))
+
+(defun phox-goals()
+"Interactive function : 
+ send a goals command to PhoX.
+
+  Prints the list of all remaining goals, only works in proofs."
+
+
+(interactive)
+(proof-shell-invisible-command  "goals"))
+
+;; menu
+
 (defvar phox-state-menu
   '("State"
 ["dependencies of a theorem" phox-depend-theorem t]
-["show en extension list" phox-eshow-extlist t]
+["show an extension list" phox-eshow-extlist t]
 ["value of a flag" phox-flag-name t]
 ["list of all paths" phox-path t]
 ["print expression" phox-print-expression  t]
 ["print expression with sorts" phox-print-sort-expression  t]
 ["priority of symbols (all if arg. empty)" phox-priority-symbols-list t]
 ["search for loaded symbols matching string" phox-search-string t]
+["------------------" nil nil]
+["constraints      (proof command)" phox-constraints t]
+["goals               (proof command)" phox-goals t]
 )
 "Phox menu for informations on state of the system."
 )
