@@ -1,3 +1,153 @@
+2001-09-02  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2001-08-31  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/interface, isar/interface:
+	handle relative heap paths gracefully;
+
+	* isar/isar-keywords.el:
+	back to *official* Isabelle99-2 (later Isabelle dists will provide
+	  their own copy of this file);
+
+2001-08-31  David Aspinall  <da@proofgeneral.org>
+
+	* CHANGES: Improved explanation
+
+	* doc/ProofGeneral.texi:
+	Something about dependencies feature
+
+	* CHANGES:
+	Added note about dependency feature.
+
+	* generic/proof-depends.el:
+	(Almost) complete rewrite
+
+	* generic/proof-autoloads.el: Updated
+
+	* generic/proof-script.el:
+	Move theorem dependency code into proof-depends.el.
+
+	Added 'controlspan property to proof body spans: action will be
+	controlled from the control span.  (The 'goalsave is the parent).
+
+	Replace 'highlight face with 'proof-mouse-highlight-face throughout.
+
+	* generic/pg-user.el:
+	Added copy command, call to dependency menu if proof-depends is loaded.
+
+	* isa/depends.ML:
+	Add simulations of more qed commands, also sort and uniquify dependencies.
+
+	* generic/proof-config.el:
+	Add new proof-mouse-highlight-face to use instead of default.  Fix dependency faces.
+
+2001-08-31  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isar/isar-keywords.el:
+	new commands (proof terms, code generator);
+
+2001-08-31  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Remove duplicate entries
+
+	* generic/proof-config.el:
+	Add faces for theorem dependencies.
+
+	* etc/coq/multiple/README: Explanation
+
+	* AUTHORS: Add DvO to list
+
+	* AUTHORS: Add Christophe to list
+
+	* coq/coq.el:
+	Add auto-compile-vos experimental setting for automatic multiple files.
+
+	* BUGS: Remove minibuffer bug
+
+	* isa/thy-mode.el:
+	Fix for names of functions in proof-depends
+
+	* isa/isa.el:
+	Add setting for turning on theorem dependency tracking
+
+	* isa/depends.ML:
+	Update for Isabelle99-2
+
+	* generic/proof-depends.el, generic/proof-script.el:
+	Clean up of proof-depends
+
+	* generic/proof-menu.el:
+	Skip settings which have no PA command in proof-assistant-settings-cmd
+
+	* generic/proof-shell.el:
+	Add proof-shell-kill-function-hooks
+
+2001-08-30  Markus Wenzel  <wenzelm@informatik.tu-muenchen.de>
+
+	* isa/interface, isar/interface:
+	include ISABELLE_HOME_USER/etc/isar-keywords.el or
+	  ISABELLE_HOME/etc/isar-keywords.el if available;
+
+	* isa/README, isar/README, isar/todo:
+	updated;
+
+	* generic/proof-script.el:
+	pg-add-proof-element: removed accidential (?) dynamic scoping on
+	  proofbodyspan;
+	handle proof-script-integral-proofs;
+
+	* generic/proof-config.el:
+	added proof-script-integral-proofs ("Whether the complete text after a
+	  goal confines the actual proof.");
+
+	* isar/isar.el:
+	proof-script-integral-proofs t;
+
+2001-08-30  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* CHANGES: Clarify 6.3.1 for multi file
+
+	* isa/isabelle-system.el:
+	Fix interrupt hook for PolyML 4 in recent Isabelle
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* generic/proof-shell.el:
+	Add reassurance to interrupt warning to make Markus happier.
+
+	* html/download.html:
+	Note about XEmacs 21 and x-symbol
+
+	* isa/isabelle-system.el:
+	Set proof-shell-pre-interrupt-hook for PolyML (not just PolyML 3).
+
+	* CHANGES:
+	More about invisible proofs and multiple files in Coq.  X-symbol compat
+
+	* generic/proof-x-symbol.el:
+	Updates for recent version of X-symbol, which has no file called x-symbol-autoloads.
+
+	* generic/proof-menu.el:
+	Add :eval form for defpacustom to define PA-specific PG settings as well as PA settings.
+
+	* generic/proof.el:
+	Add variable proof-previous-script-buffer
+
+	* generic/proof-script.el:
+	fixes for FSF Emacs for searching for goal span (don't call goal-command-p on empty string).  Fix bug in add-proof-element for disappearing proofs setting.  Add setting of proof-previous-script-buffer when scripting deactivated
+
+	* generic/proof-compat.el:
+	Added implementation of remassq for FSF Emacs
+
+	* generic/pg-user.el:
+	pg-insert-last-output-as-comment strips special annotations from last output before inserting as comment.
+
 2001-08-30  David Aspinall  <da@proofgeneral.org>
 
 	* CHANGES: Clarify 6.3.1 for multi file
