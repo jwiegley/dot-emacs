@@ -24,6 +24,11 @@ A***  BUG: FSF Emacs process handling (check on proof-shell-insert fix),
 
 A***  BUG: FSF Emacs and LEGO term markup: aref out of range.
 
+A ish Fixup LEGO output.
+
+A ish BUG: catch bug on Solaris when process shell killed.
+
+
 =============
 
 
@@ -417,6 +422,9 @@ X pbp code doesn't quite accord with the tech report; in particular it
 
 * Here are things to be done to Lego mode
 =========================================
+
+A* Add setting for proof-shell-restart-cmd (and maybe other new
+   variables).
 
 C In LEGO, apart from Goal...Save pairs, we have
   declaration...discharge pairs. See the section "Granularity of
