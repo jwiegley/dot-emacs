@@ -2042,6 +2042,13 @@ X-Symbol package and support has been provided in Proof General for a
 token language for your proof assistant.
 The X-Symbol package is available from
 @uref{http://x-symbol.sourceforge.net/}.
+To enable X-Symbol, use the menu item:
+@example
+  Proof-General -> Options -> X-Symbol
+@end example
+To enable it automatically every time you use Proof General,
+you need to customize the setting
+@code{@emph{PA}-x-symbol-enable}.
 
 Notice that for proper symbol support, the proof assistant needs to have
 a special @i{token language}, or a special character set, to use
