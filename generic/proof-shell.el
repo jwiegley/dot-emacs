@@ -201,7 +201,10 @@ Does nothing if proof assistant is already running."
   (interactive)
   (unless (proof-shell-live-buffer)
 
-    ;; This should configure the generic variables
+    ;; This should configure the mode-setting variables
+    ;; proof-mode-for-<blah> so we can set the modes below. 
+    ;; <blah>=shell,goals,response.  We also need to set
+    ;; proof-prog-name to start the program!
     (run-hooks 'proof-pre-shell-start-hook)
 
     ;; Clear some state
