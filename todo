@@ -71,16 +71,20 @@ C Internal improvements for marking up proof assistant output.
     characters.  
     Maybe using x-symbol would give another approximation, too, although
     I'm put off that because it's not so standardly a part of XEmacs yet.
+    Or maybe w3's code for HTML mark up could be borrowed.
 
 C Usability enhancement:
    Enable toolbar in other PG buffers.  Should switch to active
    scripting buffer first if it is non current.
-   (In fact, a sensible subset of scripting commands would
-    work from other buffers).
+   In fact, a sensible subset of scripting commands would
+   work from other buffers.
+   This suggestion is based on observation of a user's
+   confusion when the toolbar disappears from other PG buffers.
 
 X Compatibility enhancement:
     - Consider sending comments to proof process after all.  They might
       contain special (e.g. LaTeX) directives or something.
+      Probably only worth considering if/when it becomes a problem.
 
 A Usability enhancement:
    Movement of point after assert/retract commands
@@ -92,33 +96,33 @@ A Usability enhancement:
    Optional argument to delete region should be removed 
    from C-c C-u, pressing quickly in succession can delete
    from buffer
-B
- Usability enhancement:
+
+B Usability enhancement:
    Rationalize next and undo.  Make same as toolbar 
    commands and have different commands for power users
    to assert/retract until point.
+   At the moment this is done by binding to the toolbar
+   commands, we need to remove these from proof-toolbar now.
 
-A Usability enhancement:
+B Usability enhancement:
    Have toolbar button/command to goto a point.
    Proof General itself should work out whether it's a 
    retraction or advancement!
-
-A Usability enhancement:
-   Add toolbar button for interrupting.
 
 B Web pages: improve screenshots section to include a slideshow, or
   at least, a series of pictures of PG in action.  (3 hours)
 
 C Nicety enhancement:
-    Add messages "retracting buffer ... done" "processing ... done".
-    This needs some call backs or setting of variables examined
-    by proof-done-{advancing,retracting}
+   Add messages "retracting buffer ... done" "processing ... done".
+   This needs some call backs or setting of variables examined
+   by proof-done-{advancing,retracting}
 
 D bug: outline mode when proof-strict-read-only is nil ought to
   work, but there may be problems.
 
 D bug: mentioned by Martin H. with Lego: "don't know what I should
-  be doing..." error when it shouldn't happen.
+  be doing..." error when it shouldn't happen.  
+  [this item is useless without a more detailed description]
 
 C Improve Makefile.devel, Makefile, ProofGeneral.spec by abstracting
   ELISP_DIRS somehow.

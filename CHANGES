@@ -1,5 +1,5 @@
 Summary of Changes for Proof General 2.2 from 2.1
--------------------------------------------------
+=================================================
 
 Generic Changes
 ---------------
@@ -23,9 +23,14 @@ Generic Changes
 
 * Menus and keybindings have been reorganized.  
   Now keybindings invoke the same functions as the toolbar.
+  In particular, C-c C-n and C-c C-u are simplified so that
+  they always process or retract exactly one command, rather
+  than one command beyond point.  Moreover, C-c C-u does not 
+  take an optional argument to delete the retracted text
+  (it was too easy for the user to accidently type C-u C-c C-u !)
 
 * Command C-c C-t (proof-try-command) removed in favour of C-c C-v
-  (proof-execute-minibuffer-cmd), which now possibly uses the
+  (proof-execute-minibuffer-cmd), which now uses the
   filter proof-state-preserving-p to check that a command is safe.
 
 * Terminal string now automatically added to command for C-c C-v 
@@ -66,6 +71,11 @@ Only in the developers' release
 
 Internal changes for developers to note
 ---------------------------------------
+
+* Many robustness improvements so that Proof General fails
+  gracefully when certain configuration settings are unset.
+  The aim is to make it easier to adapt to new proof
+  assistants.
 
 * proof-shell-leave-annotations-in-output variable has been added.
   This allows quick and dirty mark up of output from the proof
