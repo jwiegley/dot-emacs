@@ -63,6 +63,6 @@ release :
 		     gzip -c $(TRELEASENAME) > $(TRELEASENAME).gz;\
 		     cp -p $(RELEASENAME).* $(EXPORTDIR);\
 		     cd ..; cvs release -d elisp
- 
+
 
 

@@ -11,6 +11,20 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+B proof-toolbar:  Add support for entering a goal and saving a theorem
+  at the generic level.  These functions should also
+  be accessible from menus.  Fixup movement of point (choice of
+  up and down functions).  Add toolbar to pbp mode too.  
+  (1hr, da)
+
+A Add xbm bitmap images for toolbar.  Probably important to support
+  non-colour displays.  (30mins, da)
+
+C Improve toolbar icons.  Automatically generate reduced and
+  pressed/greyed-out versions from gimp xcf files.  Keep the
+  xcf files under CVS rather than xpm files.
+  (5h or more to design nice ones)
+
 A Remove defunct "isabelle" directory.  All collbarators must
   synchronize and remove their working directories to do this,
   because we need to operate on the repository directly.

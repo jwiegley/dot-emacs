@@ -181,6 +181,7 @@ without giving error messages."
   (and (eq proof-buffer-type 'script)
        (proof-shell-live-buffer)
        (not proof-shell-busy)
+       ;; this last check is wrong for pbp buffer!
        (eq proof-script-buffer (current-buffer))))
 
 (defvar proof-toolbar-up-enable 
