@@ -28,6 +28,9 @@ Plans for upcoming versions
 
 * Isabelle PG: Non-blocking for .thy loading from .ML files.
 
+* Generic adjusting of pretty-printer line width (currently implemented
+  in several instances)
+
 * Queue manipulation improvment: allow to extend or reduce
   during processing, with fewer "Proof Process Busy" messages.  
 
