@@ -371,9 +371,8 @@ dist:
 	@echo "*************************************************"
 	for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done
 	(cd $(DISTBUILDIR); ln -s $(RELEASENAME) $(NAME))
-	$(TAR) -cvf $(DISTBUILDIR)/$(RELEASENAMETAR) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X ignoredfiles
+	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X ignoredfiles
 	rm -f ignoredfiles
-	gzip -9 $(DISTBUILDIR)/$(RELEASENAMETAR)
 	@echo "*************************************************"
 	@echo " Making zip file..."
 	@echo "*************************************************"
@@ -400,8 +399,7 @@ develdist:
 	   mkdir -p $(DISTBUILDIR)/$(DEVELRELEASENAME); \
 	   cp -pr . $(DISTBUILDIR)/$(DEVELRELEASENAME); \
 	fi
-	$(TAR) -cvf $(DISTBUILDIR)/$(DEVELRELEASENAMETAR) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
-	gzip -9 $(DISTBUILDIR)/$(DEVELRELEASENAMETAR)
+	$(TAR) cvzf $(DISTBUILDIR)/$(DEVELRELEASENAMETARGZ) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
 
 
 ############################################################
@@ -432,26 +430,22 @@ release: distclean tag  dist develdist
 ############################################################
 ##
 ## rpm:
-##     Build an RPM package from the recently made distribution 
-##     $(DISTBUILDIR)/$(RELEASENAMETAR).gz, using the spec and
-##     patch file in ./etc
+##     Build an RPM binary package from the recently made distribution 
+##     using the tarball.  (Any user could do this)
 ##
 ##	  
 rpm:	
 #	rm -rf $(RPMTOPDIR)
-	mkdir -p $(RPMTOPDIR) $(RPMTOPDIR)/BUILD $(RPMTOPDIR)/SOURCES $(RPMTOPDIR)/SRPMS $(RPMTOPDIR)/RPMS $(RPMTOPDIR)/RPMS/noarch
-	cp -p etc/ProofGeneral.patch $(RPMTOPDIR)/SOURCES
-	cp -p $(DISTBUILDIR)/$(RELEASENAMETARGZ) $(RPMTOPDIR)/SOURCES
-	$(RPM) -ba etc/ProofGeneral.spec
+	$(RPM) -tb $(RELEASENAMETARGZ)
 
 
 ############################################################
 ##
 ## rpmrelease:
-##     Build and install RPM packages into RELEASEDIR.
+##     Build and install RPM package into RELEASEDIR.
 ##	  
 rpmrelease: rpm
-	cp -pf $(RPMTOPDIR)/SRPMS/* $(RPMTOPDIR)/RPMS/noarch/* $(RELEASEDIR)
+	cp -pf $(RPMTOPDIR)/RPMS/noarch/* $(RELEASEDIR)
 
 ############################################################
 ##
