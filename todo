@@ -7,13 +7,25 @@ $Id$
 
 A (URGENT) to be fixed immediately for next pre-release 
 B (High)   to be fixed before next release (Version 2.1)
-C          would be nice to fix before release of 2.0; but not crucial
+C          would be nice to fix before release of 2.1; but not crucial
 D (Medium) desirable to fix at some point
 X (Low)    probably not worth wasting time on
 
 
 * This is a list of things which need doing in the generic interface
 ====================================================================
+
+===========
+
+RELEASE 2.0 remaining problems:
+
+A***  BUG: FSF Emacs process handling (check on proof-shell-insert fix), 
+      killing buffer problems.
+
+A***  BUG: FSF Emacs and LEGO term markup: aref out of range.
+
+=============
+
 
 A Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
