@@ -173,9 +173,9 @@ Activates extended printing routines required for Proof General.")
     (lego-init-syntax-table)
     (proof-response-config-done)))
   
-(define-derived-mode lego-pbp-mode pbp-mode
+(define-derived-mode lego-goals-mode proof-goals-mode
   "LEGOGoals" "LEGO Proof State"
-  (lego-pbp-mode-config))
+  (lego-goals-mode-config))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -339,7 +339,7 @@ Checks the width in the `proof-goals-buffer'"
   (setq proof-prog-name lego-prog-name
 	proof-mode-for-shell 'lego-shell-mode
 	proof-mode-for-response 'lego-response-mode
-	proof-mode-for-pbp 'lego-pbp-mode))
+	proof-mode-for-goals 'lego-goals-mode))
 
 
 (defun lego-mode-config ()
@@ -483,7 +483,7 @@ We assume that module identifiers coincide with file names."
 
   (proof-shell-config-done))
 
-(defun lego-pbp-mode-config ()
+(defun lego-goals-mode-config ()
   (setq pbp-change-goal "Next %s;"
 	pbp-error-regexp lego-error-regexp)
   (setq font-lock-keywords lego-font-lock-terms)
