@@ -542,7 +542,7 @@ proof-shell-retract-files-regexp."
 (defun isar-pre-shell-start ()
   (setq proof-prog-name		isabelle-isar-prog-name)
   (setq proof-mode-for-shell    'isar-shell-mode)
-  (setq proof-mode-for-pbp	'isar-goals-mode)
+  (setq proof-mode-for-goals	'isar-goals-mode)
   (setq proof-mode-for-response 'isar-response-mode))
 
 
