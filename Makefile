@@ -17,6 +17,7 @@ ELISP_DIRS = generic lego coq isa isar plastic demoisa hol98
 BATCHEMACS=xemacs -batch -q -no-site-file
 
 PWD=$(shell pwd)
+BASH_SCRIPTS = isa/interface isar/interface
 
 # FIXME: would rather set load path in Elisp,
 # but seems tricky to do only during compilation.
@@ -38,7 +39,7 @@ ELC=$(EL:.el=.elc)
 ##	     but can have artefacts because of context between
 ##	     compiles.
 ##
-compile:
+compile: scripts
 	@echo "*************************************************"
 	@echo " Byte compiling..."
 	@echo "*************************************************"
@@ -54,7 +55,20 @@ all:	$(ELC)
 
 ##
 ##
-##	
+##
+
+scripts:
+	@(bash="`which bash`"; \
+	 if [ -z "$$bash" ]; then \
+	   echo "could not find bash!" >&2; \
+	   exit 1; \
+	 fi; \
+	 for i in $(BASH_SCRIPTS); do \
+	   sed "s|^#.*!.*/bin/bash.*$$|#!$$bash|" < $$i > .tmp \
+	   && cat .tmp > $$i; \
+	 done; \
+	 rm -f .tmp)
+
 clean:
 	rm -f $(ELC) *~ 
 	(cd doc; $(MAKE) clean)
