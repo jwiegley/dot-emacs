@@ -109,11 +109,11 @@ TAR=tar
 DEVELMAKE=make -f Makefile.devel
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneral.eps* images/*.xcf images/notes.txt images/gimp images/Makefile Makefile.xemacs plastic/
+NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneral.eps* images/*.xcf images/notes.txt images/gimp images/Makefile plastic/
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
-IGNOREDFILES=doc/ProofGeneral.dvi doc/ProofGeneral.ps.gz doc/ProofGeneral.eps.gz Makefile.devel todo ChangeLog doc/ProofGeneral.pdf doc/ProofGeneral.ps
+IGNOREDFILES=Makefile.devel todo ChangeLog doc/ProofGeneral.dvi doc/ProofGeneral.ps.gz doc/ProofGeneral.pdf doc/ProofGeneral.ps
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -222,7 +222,7 @@ doc:	FORCE
 	(cd doc; $(MAKE) doc)
 
 distdocs: FORCE
-	(cd doc; ln -s ../html/ProofGeneral.eps.gz .; $(MAKE) dist)
+	(cd doc; ln -s ../html/ProofGeneralPortrait.eps.gz .; $(MAKE) dist)
 
 ############################################################
 #
