@@ -52,7 +52,7 @@
 @c And each section with lower levels must have a menu command in
 @c it.  Menu updating with Emacs is a bit better than node updating,
 @c but tends to delete the first section of the file in XEmacs!
-@c (it's better in FSF Emacs at the time of writing).
+@c (it's better in GNU Emacs at the time of writing).
 @c
 @c
 @c reminder about references: 
@@ -137,7 +137,7 @@ preserved on all copies.
 @sp 2
 
 This manual documents Proof General, Version @value{version}, for use
-with XEmacs @value{xemacsversion} and FSF GNU Emacs @value{fsfversion}
+with XEmacs @value{xemacsversion} and GNU Emacs @value{fsfversion}
 or later versions.
 
 Visit Proof General on the web at @code{http://www.proofgeneral.org}
@@ -156,7 +156,7 @@ This file documents configuration mechanisms for version @value{version}
 of @b{Proof General}, a generic Emacs interface for proof assistants.
 
 Proof General @value{version} has been tested with XEmacs
-@value{xemacsversion} and FSF GNU Emacs @value{fsfversion}.  It is
+@value{xemacsversion} and GNU Emacs @value{fsfversion}.  It is
 supplied ready customized for the proof assistants Coq, Lego, 
 Isabelle, and HOL.  
 
@@ -2106,7 +2106,7 @@ will magically restore the commas to the default font for you.
 
 The hack is rather painful and forces immediate fontification of
 files on loading (no lazy, caching locking).  It is unreliable
-under FSF Emacs, to boot.
+under GNU Emacs, to boot.
 
 @var{lego} and Coq enable it by tradition.
 @end defvar
@@ -2422,7 +2422,7 @@ important files, kept in the @file{generic/} subdirectory.
 @cindex overlays
 
 @dfn{Spans} are an abstraction of XEmacs @dfn{extents} used to help
-bridge the gulf between FSF GNU Emacs and XEmacs.  In FSF GNU Emacs, spans are
+bridge the gulf between GNU Emacs and XEmacs.  In GNU Emacs, spans are
 implemented using @dfn{overlays}.
 
 See the files @file{span-extent.el} and @file{span-overlay.el} for the
