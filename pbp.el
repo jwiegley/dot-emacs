@@ -141,7 +141,6 @@
       (pop-to-buffer pbp-goals-buffer)
       (erase-buffer)
       (insert (substring out 0 op))
-      (princ topl)
       (while (setq ip (car topl) 
 		   topl (cdr topl))
 	(pbp-make-top-extent ip (car topl)))
