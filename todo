@@ -28,6 +28,14 @@ A Implement more generic mechanism for large undos (2h)
 B Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min tms)
 
+B Find out why a <tab> that doesn't appear to modify the buffer 
+  sets the modify flag in the mode-line.
+	(for example, with:
+		Inductive X : Set :=
+		    x_i : X.
+	 in Coq).
+  (20min hhg)
+
 B Technical documentation to record expertise and allow users of other
   proof systems to adopt generic package (40h hhg & tms)
 
