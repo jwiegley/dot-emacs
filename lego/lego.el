@@ -338,19 +338,6 @@ Checks the width in the `proof-goals-buffer'"
 	proof-mode-for-response 'lego-response-mode
 	proof-mode-for-pbp 'lego-pbp-mode))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Configuring proof and pbp mode and setting up various utilities  ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun lego-init-syntax-table ()
-  "Set appropriate values for syntax table in current buffer."
-
-  (modify-syntax-entry ?_ "w")
-  (modify-syntax-entry ?\' "_")
-  (modify-syntax-entry ?\| ".")
-  (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4"))
 
 (defun lego-mode-config ()
 

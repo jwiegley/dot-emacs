@@ -309,10 +309,7 @@
   (setq proof-mode-for-pbp 'coq-pbp-mode)
 )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Configuring proof and pbp mode and setting up various utilities  ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+; FIXME: IMHO (tms) this ought to be defined in coq-syntax and not here.
 (defun coq-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."
 

@@ -609,10 +609,7 @@ Resulting output from Isabelle will be parsed by Proof General."
   (setq proof-mode-for-shell    'isa-shell-mode)
   (setq proof-mode-for-pbp	'isa-pbp-mode))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Configuring proof and pbp mode and setting up various utilities  ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+; FIXME: IMHO (tms) this ought to be defined in isa-syntax and not here.
 (defun isa-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."
   (modify-syntax-entry ?\$ ".")

@@ -100,4 +100,14 @@
      (list lego-goal-with-hole-regexp 2 'font-lock-function-name-face)
      (list lego-save-with-hole-regexp 2 'font-lock-function-name-face))))
      
+(defun lego-init-syntax-table ()
+  "Set appropriate values for syntax table in current buffer."
+
+  (modify-syntax-entry ?_ "_")
+  (modify-syntax-entry ?\' "_")
+  (modify-syntax-entry ?\| ".")
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4"))
+
 (provide 'lego-syntax)
