@@ -212,7 +212,7 @@ when parsing the proofstate output")
 ;;  Internal variables used by scripting and pbp                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst proof-mode-name "Proof General")
+(defconst proof-mode-name "Proof-General")
 
 (defvar proof-shell-echo-input t
   "If nil, input to the proof shell will not be echoed")
@@ -2077,10 +2077,6 @@ where `k' is a keybinding (vector) and `f' the designated function.")
 (define-key map [tab] 'proof-indent-line)
 (proof-define-keys map proof-universal-keys))
 
-(easy-menu-define proof-mode-menu  
-		  proof-mode-map
-		  "Menu used in Proof General scripting mode."
-		  (cons proof-mode-name (cdr proof-menu)))
 
 
 ;; the following callback is an irritating hack - there should be some
@@ -2142,11 +2138,18 @@ finish setup which depends on specific proof assistant configuration."
   (if (featurep 'proof-toolbar)
       (proof-toolbar-setup))
 
+  ;; Menu
+  (easy-menu-define proof-mode-menu  
+		    proof-mode-map
+		    "Menu used in Proof General scripting mode."
+		    (cons proof-mode-name (cdr proof-menu)))
+
   ;; For fontlock
-  (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
-  (add-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer nil t)
   ;; FIXME (da): zap commas support is too specific, should be enabled
   ;; by each proof assistant as it likes.
+  (remove-hook 'font-lock-after-fontify-buffer-hook 'proof-zap-commas-buffer t)
+  (add-hook 'font-lock-after-fontify-buffer-hook 
+	    'proof-zap-commas-buffer nil t)
   (remove-hook 'font-lock-mode-hook 'proof-unfontify-separator t)
   (add-hook 'font-lock-mode-hook 'proof-unfontify-separator nil t)
 
