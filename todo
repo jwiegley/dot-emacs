@@ -42,16 +42,18 @@ A Pending work, in progress [da]:
 	. use toolbar functions, but remove from proof-toolbar and reorganize.
 	. update documentation
     - test support for x-symbol
-    - investigate toolbar refresh problems
-	. extra clicks are needed (?)
-    - investigate of excessive processing for large proofs
-        (on my machine, I see about a 30% 70% worse case between Xemacs and smlnj
-         for the time_use_thy in src/HOL/Real/ROOT.ML)
-    - investigate bug fix for vacuous locked regions
     - document proof-mouse-track-insert (new name for proof-send-span,
 re-enabled), proof-toggle-scripting, new configuration options.
     proof-cd
 
+D Investigate possible toolbar refresh problems.
+  Are extra clicks ever needed?  Wait for some comments.
+
+D Improve efficiency for processing for large proofs.
+  Currently worse case is about 75%/25% CPU to Prover/XEmacs when processing
+  long output stretches on zermelo.  (Example: time_use_thy in src/HOL/Real/ROOT.ML)
+  Processing large scripts is likely to be worse, and needs work.
+  
 B After interrupt, queue region is left intact.  Seems odd. 
   Let's remove it.  Also interrupt needs other cleanups:
   position of proof-marker may be wrong.  Even the message
