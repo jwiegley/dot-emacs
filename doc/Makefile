@@ -21,7 +21,8 @@ MAKEINFO = makeinfo
 TEXI2DVI = texi2dvi
 DVI2PS = dvips
 TEXI2PDF = texi2pdf
-TEXI2HTML = texi2html 
+TEXI2HTML = texi2html
+EMACS = xemacs -batch
 
 .SUFFIXES:  .texi .info .dvi .html .pdf .ps
 
@@ -40,8 +41,6 @@ TEXI2HTML = texi2html
 
 .texi.html:	
 	$(TEXI2HTML) $< 
-
-
 
 ## 
 ## doc : build info and dvi files from $(DOCNAME).texi
@@ -75,6 +74,13 @@ clean:
 ##
 distclean:   clean
 	rm -f $(DOCNAME).info* $(DOCNAME).dvi $(DOCNAME).pdf $(DOCNAME)*.html
+
+##
+## magic: update magic comments in NewDoc.texi from docstrings in code.
+##	  (developer use only!)
+##
+magic:
+	$(EMACS) -l docstring-magic.el NewDoc.texi -f daves-docstring-magic -f save-buffer
 
 
 
