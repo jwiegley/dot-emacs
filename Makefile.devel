@@ -17,7 +17,7 @@
 ##    make rpm		  - make RPM packages based on etc/ProofGeneral.spec
 ##
 ##    make release	  - make tag, dist, and install it in RELEASEDIR.
-##    make releaseall	  - make release and rpmrelease.
+##    make releaseall	  - make release, local installation and rpmrelease.
 ##
 ##    make distinstall	  - install distribution build by 'make dist'
 ##			    into DISTINSTALLDIR.
@@ -332,7 +332,7 @@ releaseclean:
 ## releaseall:
 ##     Do everything!
 ##	  
-releaseall: release rpmrelease releaseclean
+releaseall: release rpmrelease distinstall releaseclean 
 
 ############################################################
 ##

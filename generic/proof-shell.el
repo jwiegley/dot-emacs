@@ -206,6 +206,8 @@ Does nothing if proof assistant is already running."
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	(funcall proof-mode-for-shell)
+	(set-buffer proof-response-buffer)
+	(funcall proof-mode-for-response)
 	(set-buffer proof-pbp-buffer)
 	(funcall proof-mode-for-pbp))
 
@@ -338,7 +340,15 @@ Does nothing if proof assistant is already running."
 ;;   processed (assuming they're all successful)
 
 (defvar proof-shell-delayed-output nil
-  "Last interesting output from proof process output and what to do with it.")
+  "Last interesting output from proof process output and what to do with it.
+
+This is a list of tuples of the form (type . string). type is either
+'analyse or 'insert. 
+
+'analyse denotes that string's term structure  ought to be analysed
+         and displayed in the `proof-goals-buffer'
+'insert  denotes that string ought to be displayed in the
+         `proof-response-buffer' ")
 
 (defun proof-shell-analyse-structure (string)
   (save-excursion
@@ -351,7 +361,7 @@ Does nothing if proof assistant is already running."
 	    (progn (aset out op c)
 		   (incf op)))
 	(incf ip))
-      (display-buffer (set-buffer proof-pbp-buffer))
+      (proof-display-and-keep-buffer (set-buffer proof-pbp-buffer))
       (erase-buffer)
       (insert (substring out 0 op))
 
@@ -408,12 +418,10 @@ Does nothing if proof assistant is already running."
     (substring out 0 op)))
 
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
-  "Pretty print output in process buffer in specified region.
-The region begins with the match for START-REGEXP and is delimited by
+  "Displays output from `proof-shell-buffer' in
+  `proof-response-buffer'.
+The region in `proof-shell-buffer begins with the match for START-REGEXP and is delimited by
 END-REGEXP. The match for END-REGEXP is not part of the specified region.
-Removes any annotations in the region.
-Fontifies the region.
-Appends APPEND-FACE to the text property of the region .
 Returns the string (with faces) in the specified region."
   (let (start end string)
     (save-excursion
@@ -424,33 +432,38 @@ Returns the string (with faces) in the specified region."
 				   (length (match-string 0)))))
       (setq string
 	    (proof-shell-strip-annotations (buffer-substring start end)))
-      (delete-region start end)
+      (set-buffer proof-response-buffer)
+      (goto-char (point-max))
+      (newline)
+      (setq start (point-max))
       (insert string)
       (setq end (+ start (length string)))
+      ;; FIXME tms: FSF Emacs 20.2 problems
       ;; This doesn't work with FSF Emacs 20.2's version of Font-lock
       ;; because there are no known keywords in the process buffer
       ;; Never mind. In a forthcoming version, the process buffer will
       ;; not be tampered with. Fontification will take place in a
       ;; separate response buffer.
-      ;; (font-lock-fontify-region start end)
+      (font-lock-fontify-region start end)
       (font-lock-append-text-property start end 'face append-face)
       (buffer-substring start end))))
 
 (defun proof-shell-handle-delayed-output ()
+  "Display delayed output. 
+See the documentation fo `proof-shell-delayed-output' for furter details."
   (let ((ins (car proof-shell-delayed-output))
 	(str (cdr proof-shell-delayed-output)))
-    (display-buffer proof-pbp-buffer)
-    (save-excursion
-      (cond 
-       ((eq ins 'insert)
-	(setq str (proof-shell-strip-annotations str))
-	(set-buffer proof-pbp-buffer)
+    (cond 
+     ((eq ins 'insert)
+      (setq str (proof-shell-strip-annotations str))
+      (save-excursion
+	(set-buffer proof-response-buffer)
 	(erase-buffer)
 	(insert str))
-       ((eq ins 'analyse)
-	(proof-shell-analyse-structure str))
-       (t (set-buffer proof-pbp-buffer)
-	  (insert "\n\nbug???")))))
+      (proof-display-and-keep-buffer proof-response-buffer))
+     ((eq ins 'analyse)
+      (proof-shell-analyse-structure str))
+     (t (assert nil))))
   (run-hooks 'proof-shell-handle-delayed-output-hook)
   (setq proof-shell-delayed-output (cons 'insert "done")))
 
@@ -478,8 +491,8 @@ Returns the string (with faces) in the specified region."
 
 (defun proof-shell-handle-error (cmd string)
   "React on an error message triggered by the prover.
-We display the process buffer, scroll to the end, beep and fontify the
-error message. At the end it calls `proof-shell-handle-error-hook'. "
+The error message is displayed in the `proof-response-buffer'. Then,
+we call `proof-shell-handle-error-hook'. "
     ;; We extract all text between text matching
     ;; `proof-shell-error-regexp' and the following prompt.
     ;; Alternatively one could higlight all output between the
@@ -491,7 +504,7 @@ error message. At the end it calls `proof-shell-handle-error-hook'. "
   (proof-shell-handle-output
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
    'proof-error-face)
-  (save-excursion (display-buffer proof-shell-buffer)
+  (save-excursion (proof-display-and-keep-buffer proof-response-buffer)
 		  (beep)
 
 		  ;; unwind script buffer
@@ -559,10 +572,12 @@ assistant."
 
    ((and proof-shell-abort-goal-regexp
 	 (string-match proof-shell-abort-goal-regexp string))
-    (setq proof-shell-delayed-output (cons 'insert "\n\nAborted"))
+    (proof-clean-buffer proof-pbp-buffer)
+   (setq proof-shell-delayed-output (cons 'insert "\n\nAborted"))
     ())
 	 
    ((string-match proof-shell-proof-completed-regexp string)
+    (proof-clean-buffer proof-pbp-buffer)
     (setq proof-shell-proof-completed t)
     (setq proof-shell-delayed-output
 	  (cons 'insert (concat "\n" (match-string 0 string)))))
@@ -956,8 +971,25 @@ Annotations are characters 128-255."
 		  "Menu used in Proof General shell mode."
 		  (cons proof-mode-name (cdr proof-shell-menu)))
 
+(defun proof-font-lock-minor-mode ()
+  "Start font-lock as a minor mode in the current buffer."
+  (and (fboundp 'font-lock-set-defaults) (font-lock-set-defaults)))
+
+(defun proof-goals-config-done ()
+  "Initialise the goals buffer after the child has been configured."
+  (save-excursion
+    (set-buffer proof-pbp-buffer)
+    (proof-font-lock-minor-mode)))
+
+
+(defun proof-response-config-done ()
+  "Initialise the response buffer after the child has been configured."
+  (save-excursion
+    (set-buffer proof-response-buffer)
+    (proof-font-lock-minor-mode)))
+
 (defun proof-shell-config-done ()
-  "Initialise the specific proover after the child has been configured."
+  "Initialise the specific prover after the child has been configured."
   (save-excursion
     (set-buffer proof-shell-buffer)
     (accept-process-output (get-buffer-process proof-shell-buffer))
@@ -984,16 +1016,24 @@ Annotations are characters 128-255."
 	  ()
 	(error "Failed to initialise proof process")))))
 
+(eval-and-compile
+(define-derived-mode proof-universal-keys-only-mode fundamental-mode
+    proof-mode-name "Universal keymaps only"
+    (suppress-keymap proof-universal-keys-only-mode-map 'all)
+    (proof-define-keys pbp-mode-map proof-universal-keys)))
+
 (eval-and-compile			; to define vars
-(define-derived-mode pbp-mode fundamental-mode 
+(define-derived-mode pbp-mode proof-universal-keys-only-mode
   proof-mode-name "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
-  (suppress-keymap pbp-mode-map 'all)
   ;; (define-key pbp-mode-map [(button2)] 'pbp-button-action)
-  (proof-define-keys pbp-mode-map proof-universal-keys)
   (erase-buffer)))
 
+(eval-and-compile
+(define-derived-mode proof-response-mode proof-universal-keys-only-mode
+  "PGResp" "Responses from Proof Assistant"
+  (setq proof-buffer-type 'response)))
 
 
 

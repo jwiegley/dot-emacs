@@ -1,6 +1,6 @@
-;; lego-fontlock.el Font lock expressions for LEGO
-;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
-;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
+;; lego-syntax.el Syntax of LEGO
+;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Author: Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 ;; Please let us know if you could maintain this package!
 ;;
@@ -63,7 +63,7 @@
   (list
 
    ; lambda binders
-     (list (lego-decl-defn-regexp "[:|]") 1
+     (list (lego-decl-defn-regexp "[:|?]") 1
 	   'proof-declaration-name-face)
 
      ; let binders

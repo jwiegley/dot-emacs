@@ -103,6 +103,18 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
       ;; 
       (insert "\n"))))
 
+(defun proof-display-and-keep-buffer (buffer)
+  "Display BUFFER and mark window as dedicated."
+  (display-buffer buffer)
+  (set-window-dedicated-p (get-buffer-window buffer) 'dedicated))
+
+(defun proof-clean-buffer (buffer)
+  "Erase buffer and hide from display."
+  (save-excursion
+    (set-buffer buffer)
+    (erase-buffer))
+  (delete-windows-on buffer))
+
 ;;;
 ;;; Global variables
 ;;;

@@ -272,10 +272,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 (defun proof-warning (str)
   "Issue the warning STR."
     (proof-response-buffer-display str 'proof-warning-face)
-    (display-buffer proof-response-buffer)
-    (set-window-dedicated-p
-     (get-buffer-window proof-response-buffer) 'dedicated))
-
+    (proof-display-and-keep-buffer proof-response-buffer))
 
 (defun proof-register-possibly-new-processed-file (file)
   "Register a possibly new FILE as having been processed by the prover."

@@ -10,6 +10,8 @@
 ;;
 
 (require 'proof)
+(require 'proof-script)
+(require 'proof-shell)
 (require 'lego-syntax)
 
 ;; FIXME: outline should be autoloaded
@@ -178,9 +180,16 @@
    (easy-menu-change (list proof-mode-name) (car proof-help-menu)
 		     (append (cdr proof-help-menu) lego-help-menu-list)))
 
+(eval-and-compile
+  (define-derived-mode lego-response-mode proof-response-mode
+    "LEGOResp" nil
+    (setq font-lock-keywords lego-font-lock-terms)
+    (proof-response-config-done)))
+  
 (define-derived-mode lego-pbp-mode pbp-mode
-  "pbp" nil
+  "LEGOGoals" "LEGO Proof State"
   (lego-pbp-mode-config))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's lego specific                                      ;;
@@ -354,9 +363,10 @@
 	     )))))
 
 (defun lego-pre-shell-start ()
-  (setq proof-prog-name lego-prog-name)
-  (setq proof-mode-for-shell 'lego-shell-mode)
-  (setq proof-mode-for-pbp 'lego-pbp-mode))
+  (setq proof-prog-name lego-prog-name
+	proof-mode-for-shell 'lego-shell-mode
+	proof-mode-for-response 'lego-response-mode
+	proof-mode-for-pbp 'lego-pbp-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
@@ -365,7 +375,7 @@
 (defun lego-init-syntax-table ()
   "Set appropriate values for syntax table in current buffer."
 
-  (modify-syntax-entry ?_ "_")
+  (modify-syntax-entry ?_ "w")
   (modify-syntax-entry ?\' "_")
   (modify-syntax-entry ?\| ".")
   (modify-syntax-entry ?\* ". 23")
@@ -525,7 +535,9 @@ We assume that module identifiers coincide with file names."
 
 (defun lego-pbp-mode-config ()
   (setq pbp-change-goal "Next %s;"
-	pbp-error-regexp lego-error-regexp
-	))
+	pbp-error-regexp lego-error-regexp)
+  (setq font-lock-keywords lego-font-lock-terms)
+  (proof-goals-config-done))
+  
 
 (provide 'lego)

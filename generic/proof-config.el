@@ -198,6 +198,11 @@ Could come either from proof assistant or Proof General itself."
 ;; functions.  This is why prover-config appears under the
 ;; proof-general-internal group.
 
+(defcustom proof-assistant-home-page "http://www.dcs.ed.ac.uk/home/proofgen/"
+  "Web address of the proof assistant Proof General is using."
+  :type 'string
+  :group 'prover-config)
+
 (defcustom proof-assistant ""
   "Name of the proof assistant Proof General is using.
 This is set automatically by the mode stub defined in proof-site,
@@ -212,29 +217,38 @@ from the name given in proof-assistant-table."
 ;; 2. The major modes used by Proof General.
 ;;
 
-;; FIXME: these symbols could be set automatically to standard values,
+;; FIXME: these functions could be set automatically to standard values,
 ;; i.e. <assistant>-mode, <assistant>-shell-mode, <assistant>-pbp-mode.
 ;; FIXME: mode-for-script is unused at the moment, added just for
 ;; uniformity.  The other two are used when a shell buffer is started.
 
-(defcustom proof-mode-for-shell nil
+(defcustom proof-mode-for-shell 'proof-shell-mode
   "Mode for proof shell buffers.
+Usually customised for specific prover.
 Suggestion: this can be set in proof-pre-shell-start-hook."
-  :type 'symbol
+  :type 'function
   :group 'prover-config)
 
-(defcustom proof-mode-for-pbp nil
+(defcustom proof-mode-for-response 'proof-response-mode
+  "Mode for proof response buffer.
+Usually customised for specific prover.
+Suggestion: this can be set in proof-pre-shell-start-hook."
+  :type 'function
+  :group 'prover-config)
+
+(defcustom proof-mode-for-pbp 'pbp-mode
   "Mode for proof state display buffers.
+Usually customised for specific prover.
 Suggestion: this can be set in proof-pre-shell-start-hook."
-  :type 'symbol
+  :type 'function
   :group 'prover-config)
 
-(defcustom proof-mode-for-script nil
+(defcustom proof-mode-for-script 'ignore
   "Mode for proof script buffers.
 This is used by Proof General to find out which buffers 
 contain proof scripts.
 Suggestion: this can be set in the script mode configuration."
-  :type 'symbol
+  :type 'function
   :group 'prover-config)
 
 

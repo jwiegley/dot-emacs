@@ -59,6 +59,8 @@ C  Remove "FIXME notes" which are just notes I've put in about old
 
 C  Check on all FIXME notes.
 
+C  Toolbar icon for `proof-execute-minibuffer-cmd'
+
 A* Fixup for non-script buffer locking:
 
     proof-locked-end called from wrong buffer when error message
@@ -124,14 +126,6 @@ B Implement more generic mechanism for large undos (4h tms)
 
     LEGO: consider Discharge; perhaps unrol to the beginning of the
           module?
-
-A New buffer model (4h tms):
-
-    1. Script buffers
-    2. Response buffer
-    3. (optionally part of response buffer) goals buffer
-    4. (hidden) process buffer
-    5. Minibuffer for additionally sending information to the process 
 
 A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report (2 days; da + tms)
