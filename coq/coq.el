@@ -198,7 +198,11 @@
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
        (not (proof-string-match "Definition.*:=" str))
-       (not (proof-string-match "Lemma.*:=" str))))
+       ;; da: 3.4 test: do not exclude Lemma: we want goal-command-p to
+       ;; succeed for nested goals too now.
+       ;; (should we also exclude Definition?)
+       ;; (not (proof-string-match "Lemma.*:=" str))))
+       ))
 
 ;; TODO : add the stuff to handle the "Correctness" command 
 
@@ -518,6 +522,7 @@ This is specific to coq-mode."
 	proof-kill-goal-command coq-kill-goal-command)
 
   (setq proof-goal-command-p 'coq-goal-command-p
+	proof-nested-goals-p t ;; da: new for 3.4
 	proof-count-undos-fn 'coq-count-undos
 	proof-find-and-forget-fn 'coq-find-and-forget
         proof-goal-hyp-fn 'coq-goal-hyp
