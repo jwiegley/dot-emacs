@@ -134,11 +134,11 @@ endif
 ELISP=${PREFIX}/${ELISPP}
 DEST_ELISP=${DEST_PREFIX}/${ELISPP}
 
-BINDIR=${PREFIX}/bin
-DESKTOP=${PREFIX}/share
-DOCDIR=${PREFIX}/share/doc/ProofGeneral
-MANDIR=${PREFIX}/share/man/man1
-INFODIR=${PREFIX}/share/info/
+BINDIR=${DEST_PREFIX}/bin
+DESKTOP=${DEST_PREFIX}/share
+DOCDIR=${DEST_PREFIX}/share/doc/ProofGeneral
+MANDIR=${DEST_PREFIX}/share/man/man1
+INFODIR=${DEST_PREFIX}/share/info/
 
 install: install-desktop install-elisp install-bin install-init
 
