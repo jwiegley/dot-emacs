@@ -35,6 +35,7 @@ you run Emacs.
 %setup
 
 %build
+[ -n "${RPM_BUILD_ROOT}" ] && rm -rf ${RPM_BUILD_ROOT}
 
 %install
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
