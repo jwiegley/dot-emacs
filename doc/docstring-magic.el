@@ -10,11 +10,15 @@
 ;;
 (setq load-path
       (append
-       '("../generic/" "../isa/" "../lego/" "../coq/") load-path))
+       '("../generic/" "../isa/" "../lego/" "../coq/" "../isar" "../plastic/") load-path))
 (load "proof-site.el")
 (load "proof-config.el")
 (load "proof.el")
 (load "proof-toolbar.el")
+;; New ones first incase they duplicate variable names
+;; accidently. 
+(load "isar.el")
+(load "plastic.el")
 (load "isa.el")
 (load "thy-mode.el")
 (load "coq.el")
