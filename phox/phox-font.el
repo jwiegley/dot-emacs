@@ -38,12 +38,12 @@
        "from\\|"
        "goals\\|"
        "in\\(tros?\\|stance\\)\\|"
-       "l\\(ocal\\|efts?\\)\\|"
+       "l\\(oc\\(al\\|k\\)\\|efts?\\)\\|"
        "next\\|"
        "r\\(e\\(write\\(_hyp\\)?\\|name\\)\\|mh\\)\\|"
        "slh\\|"
        "trivial\\|" 
-       "u\\(se\\|n\\(do\\|fold\\(_hyp\\)?\\)\\)" 
+       "u\\(se\\|n\\(do\\|fold\\(_hyp\\)?\\|lock\\)\\)" 
        "\\)[ \t.]")
       '(0 'font-lock-type-face t))))
 
