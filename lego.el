@@ -9,6 +9,9 @@
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
 (require 'pbp)
+(require 'easymenu)
+(require 'font-lock)
+(require 'outline)
 
 ; Configuration                                  
 
@@ -25,6 +28,9 @@
   pretty printing")
 
 (defconst lego-pretty-on "Configure PrettyOn;"
+  "Command to enable pretty printing of the LEGO process.")
+
+(defconst lego-annotate-on "Configure AnnotateOn;"
   "Command to enable pretty printing of the LEGO process.")
 
 (defconst lego-pretty-set-width "Configure PrettyWidth %s;"
@@ -101,7 +107,7 @@
 (defvar lego-shell-working-dir ""
   "The working directory of the lego shell")
 
-(defvar lego-shell-prompt-pattern "^\\(Lego> *\\)+"
+(defvar lego-shell-prompt-pattern "^\\(Lego>\\s-*\\)+"
   "*The prompt pattern for the inferion shell running lego.")
 
 (defvar lego-shell-abort-goal-regexp "KillRef: ok, not in proof state"
@@ -464,7 +470,8 @@
   (cond (lego-pretty-p
 	 (setq lego-shell-current-line-width nil)
 	 (accept-process-output (get-process proof-shell-process-name))
-	 (proof-simple-send lego-pretty-on t))))
+	 (proof-simple-send lego-pretty-on t)
+         (proof-simple-send lego-annotate-on t))))
 
 (defun lego-shell-pre-shell-start ()
   (setq proof-shell-prog-name lego-shell-prog-name)
@@ -474,7 +481,7 @@
   (setq proof-shell-mode-is 'lego-shell-mode)
   (setq proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp)
   (setq proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp)
-  (setq proof-shell-change-goal "Next %s")
+  (setq proof-shell-change-goal "Next %s;")
   (setq proof-error-regexp lego-error-regexp)
   (setq pbp-regexp-noise-goals-buffer "Discharge\\.\\. ")
   (setq pbp-assumption-regexp lego-id)
@@ -576,18 +583,14 @@
 		       ("lego"  . lego-tags))
 		     tag-table-alist)))
 
-;; font lock hacks
+  (setq font-lock-keywords lego-font-lock-keywords-1)
 
-  (font-lock-mode)
   (remove-hook 'font-lock-after-fontify-buffer-hook  'lego-zap-commas-buffer t)
   (add-hook 'font-lock-after-fontify-buffer-hook  'lego-zap-commas-buffer nil t)
-
   (remove-hook 'font-lock-mode-hook 'lego-fixup-change t)
   (add-hook 'font-lock-mode-hook 'lego-fixup-change nil t)
 
-  ;; if we don't have the following, zap-commas fails to work.
-
-  (setq font-lock-always-fontify-immediately t)
+  (font-lock-mode)
 
 )
 
@@ -611,8 +614,10 @@
   (easy-menu-add lego-mode-menu lego-mode-map)
 
 ;; font-lock
-  (setq font-lock-keywords lego-font-lock-keywords-1)
-  (font-lock-fontify-buffer)
+
+  ;; if we don't have the following, zap-commas fails to work.
+
+  (setq font-lock-always-fontify-immediately t)
 
 ;; insert standard header and footer in fresh buffers
 
@@ -623,9 +628,6 @@
 	     (format "Module %s;" (lego-module-name buffer-file-name))
 	     ))))
 	       
-
-
-
 
 (defun lego-shell-mode-config ()
 

@@ -326,7 +326,6 @@
 
 (defun proof-start-shell ()
   (run-hooks 'proof-pre-shell-start-hook)
-  (pbp-goals-init)
   (let ((proof-buf (and proof-shell-process-name (proof-shell-buffer))))
     (if (comint-check-proc proof-buf)
         ()
@@ -346,6 +345,7 @@
       
       (proof-spawn-process proof-shell-prog-name 
 			 proof-shell-process-name proof-shell-buffer-name)
+      (pbp-goals-init)
       (run-hooks 'proof-post-shell-start-hook)
       (message 
        (format "Starting %s process... done." proof-shell-process-name)))))

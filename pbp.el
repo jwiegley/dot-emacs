@@ -43,6 +43,9 @@
 (deflocal pbp-annotation-separator "|"
   "A character separting text form annotations.")
 
+(deflocal pbp-wakeup-character "\t"
+  "A character terminating the prompt in annotation mode")
+
 (deflocal pbp-assumption-regexp nil
   "A regular expression matching the name of assumptions.")
 
@@ -86,13 +89,15 @@
   "Unwanted information output from the proof process within
   `pbp-start-goals-string' and `pbp-end-goals-string'.")
 
+(deflocal pbp-keymap (make-keymap 'Pbp-keymap) 
+  "Keymap for pbp mode")
+
 (defun pbp-analyse-structure ()
   (map-extents
       (lambda (ext maparg)
           (when (extent-property ext 'pbp) (delete-extent ext))))
   (beginning-of-buffer)
   (setq pbp-location-stack ())
-  (setq *extent-count* 0)
   (while (re-search-forward pbp-regexp-noise-goals-buffer () t)
     (beginning-of-line)
     (kill-line))
@@ -112,7 +117,6 @@
   (end-of-buffer)
   (pbp-make-top-extent (pbp-location-pop)))
 
-
 (defun pbp-make-top-extent (previous-ampersand)
   (save-excursion
     (beginning-of-line) (backward-char) 
@@ -120,12 +124,12 @@
       (set-extent-property extent 'mouse-face 'highlight)
       (set-extent-property extent 'pbp-top-element 
 			   (pbp-compute-extent-name extent))
-      (set-extent-property extent 'keymap *pbp-keymap*))))
+      (set-extent-property extent 'keymap pbp-keymap))))
 
 (defun pbp-make-extent ()
    (let ((extent (make-extent (or (pbp-location-pop) 1) (point))))
 	 (set-extent-property extent 'mouse-face 'highlight)
-	 (set-extent-property extent 'keymap *pbp-keymap*)
+	 (set-extent-property extent 'keymap pbp-keymap)
          (let ((pos1 (extent-start-position extent))
                (annot()))
                (goto-char pos1)
@@ -151,9 +155,8 @@
 ; Receiving the data from Lego is performed that a filter function
 ; added among the comint-output-filter-functions of the shell-mode.
 
-(deflocal pbp-last-mark)
-(deflocal pbp-next-mark)
-(deflocal pbp-sanitise t)
+(deflocal pbp-last-mark nil "last mark")
+(deflocal pbp-sanitise t "sanitise output?")
 
 (defun pbp-sanitise-region (start end)
   (if pbp-sanitise 
@@ -167,8 +170,12 @@
 	(while (search-forward pbp-annotation-close end t)
 	  (backward-delete-char 1))
 	(goto-char start)
+        (while (search-forward pbp-wakeup-character nil t)
+          (replace-match " " nil t))
+	(goto-char start)
 	(while (search-forward pbp-annotation-field end t)
 	  (backward-delete-char 1))
+        (lego-zap-commas-region start end (- end start))
 	(goto-char start)
 	(while (setq start (search-forward pbp-annotation-open end t)) 
 	  (search-forward pbp-annotation-separator end t)
@@ -181,6 +188,14 @@
       (delete-region (- (point) 2) (point-max)))
   (newline 2)
   (insert-buffer-substring (proof-shell-buffer) start end))
+
+(defun pbp-send-and-remember (string)
+  (save-excursion
+    (proof-simple-send string)
+    (if (and (boundp 'pbp-script-buffer) pbp-script-buffer)
+	(progn (set-buffer pbp-script-buffer)
+	       (end-of-buffer)
+	       (insert-string string)))))
 
 (defun pbp-process-region (pbp-start pbp-end)
   (let (start end)
@@ -218,37 +233,29 @@
       (search-forward pbp-result-end () t)
       (beginning-of-line)
       (setq end (- (point) 1))
-      (proof-simple-send (buffer-substring start end))
-      (if (boundp 'pbp-script-buffer)
-	  (progn (set-buffer pbp-script-buffer)
-		 (end-of-buffer)
-		 (insert-buffer-substring (proof-shell-buffer) start end))))
-     ))))
+      (pbp-send-and-remember (buffer-substring start end)))))))
 
+(defun pbp-filter (string) 
+  (if (string-match pbp-wakeup-character string)
+      (save-excursion
+	(set-buffer (proof-shell-buffer))
+	(let (old-mark)
+	  (while (progn (goto-char pbp-last-mark)
+			(re-search-forward proof-shell-prompt-pattern () t))
+	    (setq old-mark pbp-last-mark)
+	    (setq pbp-last-mark (point-marker))
+	    (goto-char (match-beginning 0))
+	    (pbp-process-region old-mark (point-marker))
+	    (pbp-sanitise-region old-mark pbp-last-mark))))))
 
-;; NEED TO SET LAST_MARK ***BEFORE*** calling process-region 
-
-(defun pbp-filter (string)
-  (save-excursion
-    (set-buffer (proof-shell-buffer))
-    (if (and pbp-last-mark
-	     (equal (marker-buffer pbp-last-mark) (proof-shell-buffer)))
-	() 
-       (goto-char (point-max))
-       (setq pbp-last-mark (point-marker)))
-    (let (old-mark)
-      (while (progn (goto-char pbp-last-mark)
-		    (re-search-forward proof-shell-prompt-pattern () t))
-	(setq old-mark pbp-last-mark)
-	(setq pbp-last-mark (point-marker))
-	(goto-char (match-beginning 0))
-	(pbp-process-region old-mark (point-marker))
-	(pbp-sanitise-region old-mark pbp-last-mark)))))
+; Call after the shell is started
 
 (defun pbp-goals-init ()
   (setq pbp-goals-buffer (get-buffer-create pbp-goals-buffer-name ))
   (erase-buffer pbp-goals-buffer)
   (add-hook 'comint-output-filter-functions 'pbp-filter t)
+  (pbp-sanitise-region (point-min) (point-max))
+  (setq pbp-last-mark (point-max-marker (proof-shell-buffer)))
   (add-hook 'proof-shell-exit-hook
 	    (lambda ()
 	      (remove-hook 'comint-output-filter-functions 'pbp-filter))))
@@ -259,10 +266,7 @@
 ; Attaching this behavior to the mouse is simply done by attaching a keymap
 ; to all the extents.
 
-(deflocal *pbp-keymap* (make-keymap 'Pbp-keymap))
-
-(define-key *pbp-keymap* 'button2
-   'pbp-button-action)
+(define-key pbp-keymap 'button2 'pbp-button-action)
 
 (defun pbp-button-action (event)
    (interactive "e")
@@ -293,12 +297,7 @@
 	       (let ((value (if (eq 'hyp (car top-info))
 		    (format pbp-hyp-command (cdr top-info))
 		  (format proof-shell-change-goal (cdr top-info)))))
-	       (proof-simple-send
-		    value)
-		(if pbp-script-buffer
-		    (progn (set-buffer pbp-script-buffer)
-			   (end-of-buffer)
-			   (insert-string value)))))))))
+               (pbp-send-and-remember value)))))))
 
 
 
@@ -314,7 +313,7 @@
 	 (setq pbp-location-stack (cdr pbp-location-stack))
 	 result)))
 
-(deflocal pbp-location-stack ())
+(deflocal pbp-location-stack () "location stack" )
 
 (provide 'pbp)
 
