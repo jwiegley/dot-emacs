@@ -120,6 +120,18 @@ and replace a sub-expression, e.g.
       (apply #'concat (nreverse matches))))))
 
 
+;; The GNU Emacs implementation of easy-menu-define has a very handy
+;; :visible keyword.  To use that when it's available, we set a
+;; constant to be :visible or :active
+
+(defconst menuvisiblep (if proof-running-on-Emacs21 :visible :active)
+  ":visible (on GNU Emacs) or :active (otherwise). 
+The GNU Emacs implementation of easy-menu-define has a very handy
+:visible keyword.  To use that when it's available, we use this constant.")
+
+ 
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
