@@ -64,7 +64,7 @@
 @set version 3.5.1
 @set xemacsversion 21.4.15
 @set fsfversion 21.3.1
-@set last-update May 2004
+@set last-update June 2004
 @set rcsid $Id$
 
 @ifinfo

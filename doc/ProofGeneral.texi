@@ -72,7 +72,7 @@
 @set version 3.5.1
 @set xemacsversion 21.4.15
 @set fsfversion 21.3.1
-@set last-update May 2004
+@set last-update June 2004
 @set rcsid $Id$
 
 @ifinfo
@@ -1299,7 +1299,8 @@ to terminate proof commands.  LEGO and Isabelle use a semicolon,
 @c TEXI DOCSTRING MAGIC: proof-goto-end-of-locked
 @deffn Command proof-goto-end-of-locked &optional switch
 Jump to the end of the locked region, maybe switching to script buffer.@*
-If interactive or @var{switch} is non-nil, switch to script buffer first.
+If called interactively or @var{switch} is non-nil, switch to script buffer.
+If called interactively, a mark is set at the current location with @samp{@code{push-mark}}
 @end deffn
 
 During the course of a large proof, it may be useful to copy previous
