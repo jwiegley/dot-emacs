@@ -3,7 +3,7 @@
 @c $Id$
 @c
 @c %**start of header
-@setfilename proof.info
+@setfilename ProofGeneral.info
 @settitle Proof General Version 2.0
 @paragraphindent 0
 @c %**end of header
