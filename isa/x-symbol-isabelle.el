@@ -84,6 +84,7 @@ See `x-symbol-header-groups-alist'."
 ;;  Bold, super- and subscripts
 ;;;===========================================================================
 
+;; DA: Apparently bold is no longer supported in X-Symbol 4.5
 ;; \<^bold>, \<^sup>, and \<^sub>.
 
 (defvar x-symbol-isabelle-subscript-matcher
@@ -178,12 +179,6 @@ See `x-symbol-language-access-alist' for details."
 (defvar x-symbol-isabelle-case-insensitive nil)
 (defvar x-symbol-isabelle-token-shape nil)
 (defvar x-symbol-isabelle-input-token-ignore nil)
-
-;; FIXME: next one not needed in X-Symbol 4, kept for back compat.
-(defvar x-symbol-isabelle-exec-specs 
-  '(nil ("\\`\\\\<[A-Za-z][A-Za-z0-9_']*>\\'" .
-	 "\\\\<[A-Za-z][A-Za-z0-9_']*>")))
-
 (defvar x-symbol-isabelle-token-list 'identity)
 
 (defvar x-symbol-isabelle-symbol-table      ; symbols (isabelle font)
@@ -459,7 +454,7 @@ See `x-symbol-language-access-alist' for details."
 (defcustom x-symbol-isabelle-auto-style
   '((proof-ass x-symbol-enable)	 ; MODE-ON: whether to turn on interactively
     nil   ;; x-symbol-coding
-    'null ;; x-symbol-8bits [NEVER want it; null disables search]
+    'null ;; x-symbol-8bits	   [NEVER want it; null disables search]
     nil   ;; x-symbol-unique
     t     ;; x-symbol-subscripts
     nil)  ;; x-symbol-image
