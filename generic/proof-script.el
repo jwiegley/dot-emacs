@@ -990,6 +990,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (let (nam gspan next)
 
 	;; Try to set the name of the theorem from the save
+	(setq cmd (proof-remove-comment cmd))
 	(and proof-save-with-hole-regexp
 	     (proof-string-match proof-save-with-hole-regexp cmd)
 	     (setq nam (match-string 2 cmd)))
@@ -1010,11 +1011,11 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	     "Proof General: script management confused, couldn't find goal span for save.")
 
 	;; If the name isn't set, try to set it from the goal. 
-	(unless nam
-	  (and proof-goal-with-hole-regexp
-	       (proof-string-match proof-goal-with-hole-regexp
-				   (span-property gspan 'cmd))
-	       (setq nam (match-string 2 (span-property gspan 'cmd)))))
+	(let ((cmdstr (proof-remove-comment (span-property gspan 'cmd))))
+	  (unless nam
+	    (and proof-goal-with-hole-regexp
+		 (proof-string-match proof-goal-with-hole-regexp cmdstr)
+		 (setq nam (match-string 2 cmdstr)))))
 
 	;; As a final desparate attempt, set the name to
 	;; proof-unnamed-theorem-name (Coq actually uses a default
@@ -1141,10 +1142,11 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 	  ;; Try to set a name from the goal
 	  ;; (useless for provers like Isabelle)
-	  (and proof-goal-with-hole-regexp
-	       (proof-string-match proof-goal-with-hole-regexp
-				   (span-property gspan 'cmd))
-	       (setq nam (match-string 2 (span-property gspan 'cmd))))
+	  (let ((cmdstr (proof-remove-comment (span-property gspan 'cmd))))
+	    (and proof-goal-with-hole-regexp
+		 (proof-string-match proof-goal-with-hole-regexp cmdstr)
+	       (setq nam (match-string 2 cmdstr))))
+
 	  ;; As a final desparate attempt, set the name to "Unnamed_thm".
 	  (unless nam
 	    (setq nam proof-unnamed-theorem-name))
