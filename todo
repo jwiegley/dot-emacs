@@ -48,7 +48,8 @@ A Pending work, in progress [da]:
     - investigate bug fix for vacuous locked regions
     - document proof-mouse-track-insert (new name for proof-send-span, re-enabled), proof-toggle-scripting, new configuration options.
 
-B Fix colouring of response buffer, may be broken.
+B Fix colouring of response buffer, may be broken.  The idea was
+  that the latest message would always be highlighted, I think.
 
 B Usability enhancement: remove stupid "I don't know what I should be doing"
   errors and replace with something more informative.

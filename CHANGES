@@ -48,6 +48,9 @@ Generic Changes
   scripting on or off in current buffer.  This is a handy way to
   discard or finish off scripting in an unfinished buffer
   triggering the deactivation mechanism mentioned above.
+  Switching on scripting in a buffer may cause the proof
+  assistant to load files it depends on, so it is also handy
+  to see what happens before scripting begins in the buffer.
 
 * Cleaned up example files so all demonstrate same theorem "conj_comms".
   Would be nice to add more theorems to compare scripts/proofs in
