@@ -152,15 +152,17 @@ This function returns a list of lists of the form
 of Isabelle document names and descriptions.  When DOCNAME is
 passed to isa-tool-doc-command, DOCNAME will be viewed."
   (if (isa-set-isatool-command)
-      (mapcar
-       (function (lambda (docdes)
-		   (list
-		    (substring docdes (string-match "\\(\\S-+\\)[ \t]+" docdes)
-			       (match-end 1))
-		    (substring docdes (match-end 0)))))
-       (split-string
-	(isa-shell-command-to-string
-	 (concat isa-isatool-command " doc")) "\n"))))
+      (let ((docs (isa-shell-command-to-string
+		   (concat isa-isatool-command " doc"))))
+	(unless (string-equal docs "")
+	  (mapcar
+	   (function (lambda (docdes)
+		       (list
+			(substring docdes 
+				   (string-match "\\(\\S-+\\)[ \t]+" docdes)
+				   (match-end 1))
+			(substring docdes (match-end 0)))))
+	   (split-string docs "\n"))))))
 
 (defun isa-tool-setup-font ()
   "Setup special font for isabelle, using Isabelle tools."
