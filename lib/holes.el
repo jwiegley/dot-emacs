@@ -493,19 +493,6 @@ Default pos = point and buffer = current."
 ;;)
 
 
-
-
-(defun holes-replace-segment (start end str &optional BUFFER)
-  "Erase chars between START and END, and replace by STR.
-Shift markers.  optionnal argument BUFFER specifies in which buffer."
-  (interactive)
-  (save-excursion
-    (set-buffer (or BUFFER (current-buffer)))
-    (delete-region start end)
-    (goto-char start)
-    (insert-string str)
-    )
-  )
 (defun holes-replace-segment (start end str &optional buffer)
   "Erase chars between START and END, and replace them with STR."
   (with-current-buffer (or buffer (current-buffer))
@@ -514,7 +501,6 @@ Shift markers.  optionnal argument BUFFER specifies in which buffer."
     ;; mixed up together.
     (insert str)
     (delete-region start end)))
-
 
 
 (defun holes-replace (str &optional thehole)
@@ -594,10 +580,10 @@ Sets `holes-active-hole' to the next hole if it exists."
 
 
 ;; mouse stuff, I want to make something close to `mouse-track-insert'
-;; of Xemacs, but with modifier ctrl-meta and ctrl-meta-shift
+;; of XEmacs, but with modifier ctrl-meta and ctrl-meta-shift
 
-;;; Emacs and Xemacs have different ways of dealing with mouse
-;; selection, but `mouse-track'(Xemacs) mouse-drag-region(Emacs)
+;;; Emacs and XEmacs have different ways of dealing with mouse
+;; selection, but `mouse-track'(XEmacs) mouse-drag-region(Emacs)
 ;; have nearly the same meaning for me.  So I define this
 ;; track-mouse-selection.
 
@@ -867,8 +853,8 @@ turn it off."
    (holes-mode
     (add-hook 'skeleton-end-hook 'holes-skeleton-end-hook nil t))
    (t
-    (remove-hook 'skeleton-end-hook 'holes-skeleton-end-hook t))
-  (run-hooks 'holes-mode-hook)))
+    (remove-hook 'skeleton-end-hook 'holes-skeleton-end-hook t)))
+  (run-hooks 'holes-mode-hook))
 
 (or (assq 'holes-mode minor-mode-alist)
     (setq minor-mode-alist
