@@ -222,6 +222,19 @@ C Make completion more generic. For Isabelle and Lego, we can build a
   completion table by querying the process, which is better than
   messing with tags.
 
+X Span convenience functions for special 'type property.
+  Could put these in proof.el or somewhere.
+
+  (defsubst set-span-type-property (span val)
+    "Set type property of SPAN to VAL"
+    (set-span-property span 'type val))
+
+  (defsubst span-type-property (span)
+    "Get type property of SPAN"
+    (span-property span 'type))
+
+  etc.   (1hr)
+
 X Read-only mode of extents sometimes gets in the way: for example,
   if file changes on disk, can't reload it via usual functions.
   Can this be improved?  Always have to retract first, and that
