@@ -1,6 +1,6 @@
 ;; proof-shell.el  Major mode for proof assistant script files.
 ;;
-;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
+;; Copyright (C) 1994 - 1999 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;          Thomas Kleymann and Dilip Sequeira
 ;;
@@ -292,9 +292,12 @@ Does nothing if proof assistant is already running."
 	    proof-response-buffer (get-buffer-create 
 				     (concat "*" proc "-response*")))
 
-      (proof-x-symbol-toggle (if proof-x-symbol-support 1 0))     ;; DvO
-      (and (featurep 'x-symbol)
-	   (proof-x-symbol-mode-all-buffers proof-x-symbol-support-on)) ;; DvO
+      ;; FIXME: this function should be invoked elsewhere: 
+      ;; probably via hook functions.
+;       (proof-x-symbol-toggle (if proof-x-symbol-support 1 0))     ;; DvO
+;       (and (featurep 'x-symbol)
+; 	   (proof-x-symbol-mode-all-buffers proof-x-symbol-support-on)) ;; DvO
+      (proof-x-symbol-mode-all-buffers)
 
       (save-excursion
 	(set-buffer proof-shell-buffer)
@@ -690,8 +693,10 @@ This is a list of tuples of the form (TYPE . STRING). type is either
       (if proof-shell-leave-annotations-in-output
 	  (insert string)
 	(insert (substring out 0 op)))
-
+      
+      ;; Display special characters
       (proof-x-symbol-decode-region (point-min) (point-max))
+
       (proof-display-and-keep-buffer proof-goals-buffer (point-min))
 
       ;; FIXME: 
@@ -1508,8 +1513,12 @@ however, are always processed; hence their name)."
 		     proof-shell-annotated-prompt-regexp nil t)
 		    (progn
 		      (backward-char (- (match-end 0) (match-beginning 0)))
+		      ;; FIXME: decoding x-symbols here is perhaps a bit 
+		      ;;  expensive; but perhaps we could cut and paste
+		      ;;  from here to the goals buffer to
+		      ;;  avoid duplicating effort?
+		      ;; (proof-x-symbol-decode-region startpos (point))
 		      (setq string (buffer-substring startpos (point)))
-		      (proof-x-symbol-decode-region startpos (point))
 		      (goto-char (point-max))	
 		      (proof-shell-filter-process-output string)))))))))
 
@@ -1659,16 +1668,17 @@ before and after sending the command."
   ;; easy-menu-add must be in the mode function for XEmacs.
   (easy-menu-add proof-shell-mode-menu proof-shell-mode-map)
 
+  ;; [ Should already be in proof-goals-buffer, really.]
+
   ;; FIXME da: before entering proof assistant specific code,
   ;; we'd do well to check that process is actually up and
-    ;; Should already be in proof-goals-buffer, really.
   ;; running now.  If not, call the process sentinel function
   ;; to display the buffer, and give an error.
   ;; (Problem to fix is that process can die before sentinel is set:
   ;;  it ought to be set just here, perhaps: but setting hook here
   ;;  had no effect for some odd reason).
 
-  ;; da added this 23/8/99.  LEGO set font-lock-terms in shell,
+  ;; da added this 23/8/99.  LEGO sets font-lock-terms in shell,
   ;; but didn't use it until now.
   (proof-font-lock-minor-mode)
   ))
