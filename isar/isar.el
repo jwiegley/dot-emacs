@@ -276,8 +276,7 @@
    proof-shell-start-char		?\372
    proof-shell-end-char			?\373
    proof-shell-field-char		?\374
-   ;; NEW NEW for multiple files
-   ;; === NEW NEW: multiple file stuff.  move elsewhere later.
+
    proof-shell-process-file 
    (cons
     ;; Theory loader output

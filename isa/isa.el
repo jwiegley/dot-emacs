@@ -231,14 +231,10 @@ and script mode."
     "Proof General, this file is loaded: \"\\(.*\\)\""
     (lambda (str)
       (match-string 1 str)))
-   ;; \\|Not reading \"\\(.*\\)\"
-   ;;    (lambda (str)
-   ;;   (or (match-string 1 str) 
-   ;;	  (match-string 2 str))))
    ;; This is the output returned by a special command to
    ;; query Isabelle for outdated files.
- ;;   proof-shell-clear-included-files-regexp
- ;;   "Proof General, please clear your record of loaded files."
+   ;;   proof-shell-clear-included-files-regexp
+   ;;   "Proof General, please clear your record of loaded files."
    proof-shell-retract-files-regexp
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isa-shell-compute-new-files-list
