@@ -3017,9 +3017,9 @@ To load the Isabelle/Isar instance of Proof General, you can set
 to make sure ordinary Isabelle theory file mode isn't loaded instead.
 Another way of selecting Isar is to put a special modeline comment in,
 like this:
-@code
+@lisp
   (* -*- isar -*- *)
-@end code
+@end lisp
 at the top of your Isar files (or at least, the first file you visit).
 This Emacs feature overrides the default choice of mode based on the
 file extension.  Yet another way to select Isar is to use the Isabelle
