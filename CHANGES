@@ -174,11 +174,8 @@ Internal changes for developers to note
   proof assistants which do not have an explicit save command
   now.   See the documentation of proof-completed-proof-behaviour.
 
-* Renamed some configuration variables for uniformity:
-    proof-ctxt-string -> proof-context-command
-    proof-help-string -> proof-info-command
-    proof-prf-string  -> proof-showproof-command
-    proof-proof-general-home-page -> proof-general-home-page
+* Renamed several configuration variables for uniformity.  
+  Check the ChangeLog for details.
 
 * Speed optimizations for the proof-shell-filter, to attempt
   to give more CPU to a hungry and noisy proof process.
