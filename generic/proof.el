@@ -157,9 +157,9 @@ of the proof (starting from 1).")
 ;;;
 
 (or (fboundp 'warn)
-    (defun warn (str)
+    (defun warn (str &rest args)
       "Issue a warning STR.  Defined by PG for XEmacs compatibility."
-      (message str)
+      (apply 'message str args)
       (sit-for 2)))
 
 ;;;
