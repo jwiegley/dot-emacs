@@ -59,13 +59,15 @@
 			 (cdr xmlparse)))))
 	   
 
-(defun pg-xml-parse-buffer (&optional buffer)
+(defun pg-xml-parse-buffer (&optional buffer nomsg)
   "Parse an XML documment in BUFFER (defaulting to current buffer).
 Return a lisp structure with symbols representing the element 
 names, so that the result of parsing 
    <elt attr=\"blah\">text</elt> 
 is 
   (elt ((attr . \"blah\")) (text))"
+  (unless nomsg
+    (message "Parsing %s..." (buffer-name buffer)))
   (save-excursion
     (if buffer (set-buffer buffer))
     (goto-char (point-min))
@@ -159,6 +161,8 @@ is
 				(min (point-max) (+ 30 (point-max))))))
       ;; Return the parse
       ;; FIXME: 
+      (unless nomsg
+	(message "Parsing %s...done" (buffer-name buffer)))
       (caar xmlparse))))
 
 (defun pg-xml-parse-string (arg)
