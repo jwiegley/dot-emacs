@@ -254,9 +254,17 @@
 		 ; backable.  This negative test bets on the fact that user
 		 ; defined commands are probably backable, which is not sure at
 		 ; all. Betting on the opposite is also wrong.
-		 ((not (proof-string-match 
-			(concat "\\`\\(" coq-not-undoable-not-backable-commands-regexp	"\\)") str))
-		  (setq nbacks (+ nbacks 1)))
+		 ((and 
+			(not (coq-goal-command-p str)) ;; saved goals are catched before this point
+			(not (proof-string-match ;; now we should match all things that deal with Back
+					(concat "\\`\\(" coq-undoable-commands-regexp "\\)")
+				  str))
+			(not (proof-string-match 
+					(concat "\\`\\(" 
+							  coq-not-undoable-not-backable-commands-regexp
+							  "\\)")
+					str)))
+			(setq nbacks (+ nbacks 1)))
 		 )
 
       (setq span (next-span span 'type)))
