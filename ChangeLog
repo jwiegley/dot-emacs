@@ -1,28 +1,3 @@
-2000-09-29  Pierre Courtieu  <courtieu@lri.fr>
-
-	* coq/todo:
-	added some comments in coq/todo
-
-2000-09-29  David Aspinall  <da@proofgeneral.org>
-
-	* coq/coqtags, lego/legotags:
-	Make default path to perl be /usr/bin/perl
-
-2000-09-29  Pierre Courtieu  <courtieu@lri.fr>
-
-	* coq/x-symbol-coq.el:
-	a little change in coq/x-symbol, nothing
-
-	* coq/coq.el:
-	A little work around for the bug of Coq concerning the restart that
-	uses Reset Initial which doesn't reset the Implicit Arguments flag to
-	Off (this is the bug), I added the good command to the coq reset
-	command, this has to be backtracked when V7 will be done (the bug is
-	already corrected in V7).
-
-	* lego/legotags, coq/x-symbol-coq.el, coq/coq.el, coq/coqtags, coq/coq-syntax.el:
-	Added Uncaught exception errors in coq-error-regexp.
-
 2000-09-29  David Aspinall  <da@proofgeneral.org>
 
 	* Makefile, Makefile.devel:
