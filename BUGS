@@ -163,7 +163,8 @@ interface unless you use your own "goal" or "qed" forms.
 * Blocking when processing multiple files, beginning from a .ML file.
 Proof General will block the Emacs process when it is waiting for
 a theory file (and it's ancestors) to be read.  To avoid this,
-assert the theory file rather than the ML file.
+assert the theory file rather than the ML file, or use C-c C-s
+to start scripting before using one of the assertion commands.
 
 * Cut-and-paste from Isabelle output (e.g. goals buffer) is
 problematic.  You will find that this inserts otherwise-invisible
