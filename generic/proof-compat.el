@@ -19,19 +19,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Architecture flags
-;;;
-
-(eval-and-compile
-(defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
-  "Non-nil if Proof General is running on XEmacs.")
-;; rough test for XEmacs on win32, anyone know about FSF on win32?
-(defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
-  "Non-nil if Proof General is running on a win32 system."))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; XEmacs compatibility
 ;;;
 
