@@ -63,20 +63,28 @@ simplifier, when tracing rewriting.
  disabled/enabled when they shouldn't be.  An extra click on the
  toolbar solves this.
 
-** Ordinary undo in the script buffer can edit the "uneditable region"
+** Strict read only disabled by default in FSF Emacs.
+
+  Unfortunately strict read only is incompatible with font lock in
+  FSF Emacs, so it is disabled by default.  Instead, you get a warning message
+  if the locked region is edited.
+
+** In FSFmacs, spurious "Region read only" errors
+
+ Same problem as above, different symptom.
+ When proof-strict-read-only is set and font lock is on, these
+ errors are given which break font lock.   
+ Workaround: turn off proof-strict-read-only, font-lock, or for
+ the best of all possible worlds, switch to XEmacs.
+
+
+** Emacs undo in the script buffer can edit the "uneditable region"
 
   In XEmacs.  This doesn't happen in FSFmacs.  Test case:
   Insert some nonsense text after the locked region.
   Kill the line. Process to the next command.
   Press C-x u, nonsense text appears in locked region.
   Workaround: take care with undo in XEmacs.
-
-** In FSFmacs, spurious "Region read only" errors
-
- When proof-strict-read-only is set and font lock is on, these
- errors are given which break font lock.   
- Workaround: turn off proof-strict-read-only, font-lock, or for
- the best of all possible worlds, switch to XEmacs.
 
 ** As of FSFmacs 20.3, multi-byte character codes are used.  
 
