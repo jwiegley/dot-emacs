@@ -72,12 +72,6 @@
   "Customization of Isabelle syntax for proof mode"
   :group 'isa-settings)
 
-(defcustom isa-keywords-decl
-  '("val" "fun" "datatype" "signature" "structure")
-  "Isabelle keywords for declarations.  Includes ML keywords to fontify ML files."
-  :group 'isa-syntax
-  :type '(repeat string))
-
 (defcustom isa-keywords-defn
   '("bind_thm" "bind_thms")
   "Isabelle keywords for definitions"
@@ -112,11 +106,39 @@
   :group 'isa-syntax
   :type '(repeat string))
 
+(defcustom isa-keywords-sml
+  '("if" "then" "let" "in" "end" "sig" "struct" "else" "use" "open" "of" 
+    "and" "andalso" "orelse"
+    "type" "datatype" "eqtype" "val" "fun" "functor" "signature" "structure")
+    "Standard ML keywords that are nice to have coloured."
+  :group 'isa-syntax
+  :type '(repeat string))
+
+(defcustom isa-keyword-symbols
+  '("=" "=>" "|" ";" "," "(" ")" "-" "." "->" ":" "{" "}" "[" "]" "#")
+    "Symbols that are nice to have in bold."
+  :group 'isa-syntax
+  :type '(repeat string))
+
+(defcustom isa-sml-names-keywords
+  '("fun" "val" "structure" "signature" "functor")
+    "Keywords that then define a name."
+  :group 'isa-syntax
+  :type '(repeat string))
+
+(defcustom isa-sml-typenames-keywords
+  '("type" "eqtype" "datatype")
+    "Keywords that define a type, this is only terminated by a '=' or '\n'."
+  :group 'isa-syntax
+  :type '(repeat string))
+
+
 ;; NB: this means that any adjustments above by customize will
 ;; only have effect in next session.
 (defconst isa-keywords
-  (append isa-keywords-goal isa-keywords-save isa-keywords-decl
-	  isa-keywords-defn isa-keywords-commands)
+  (append isa-keywords-goal isa-keywords-save
+	  isa-keywords-defn isa-keywords-commands 
+          isa-keywords-sml)
   "All keywords in a Isabelle script")
 
 (defconst isa-keywords-proof-commands
@@ -256,10 +278,32 @@
 (defconst isabelle-bound-name-face 'isabelle-bound-name-face)
 (defconst isabelle-var-name-face 'isabelle-var-name-face)
 
+;; special face for key symbols, make them bold
+(defface isa-font-lock-sml-symbol-face
+  '((((class color) (background dark)) (:bold t))
+    (((class color) (background light)) (:bold t))
+    (((class grayscale) (background light)) (:bold t))
+    (((class grayscale) (background dark)) (:bold t))
+    (t (:bold t)))
+  "SML symbol/character highlightling face"
+  :group 'proof-faces)
 
+;; regexp for finding function/variable/struct/sig/functor names
+(defconst isa-sml-function-var-names-regexp 
+  (concat "\\(" (proof-ids-to-regexp isa-sml-names-keywords) "\\)[\ \t]*\\(" isa-id "\\)"))
+
+;; regexp for finding type names, note that types may be compound, 
+;; thus this needs to be separate from function names
+(defconst isa-sml-type-names-regexp 
+  (concat "\\(" (proof-ids-to-regexp isa-sml-typenames-keywords) "\\)\\([^\n=]*\\)[\n=]"))
+
+;; make stuff to be syntax colourd....
 (defvar isa-font-lock-keywords-1
   (list
    (cons (proof-ids-to-regexp isa-keywords) 'font-lock-keyword-face)
+   (cons (regexp-opt isa-keyword-symbols) 'isa-font-lock-sml-symbol-face)
+   (list isa-sml-function-var-names-regexp 2 'font-lock-function-name-face 'append' t)
+   (list isa-sml-type-names-regexp 2 'font-lock-function-name-face 'append' t)
    (cons (proof-ids-to-regexp isa-tacticals) 'proof-tacticals-name-face)
    (list isa-goal-with-hole-regexp 2 'font-lock-function-name-face)
    (list isa-save-with-hole-regexp 2 'font-lock-function-name-face)))

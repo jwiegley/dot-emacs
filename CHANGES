@@ -59,6 +59,8 @@
 ** Isabelle Changes
 
    Isabelle/Isar syntax changes, other tweaks for Isabelle2002.
+ 
+   isa mode: highlighting improvements by Lucas Dixon (lucasd@dai.ed.ac.uk)
 
 
 ** Changes for other provers
