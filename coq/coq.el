@@ -445,6 +445,9 @@
 
   (setq proof-auto-multiple-files t)	; until Coq has real support
 
+  (setq proof-shell-start-silent-cmd "Begin Silent"
+	proof-shell-stop-silent-cmd  "End Silent")
+
   (coq-init-syntax-table)
 
 ;; font-lock

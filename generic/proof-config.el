@@ -1207,6 +1207,25 @@ Proof General about the dependencies rather than using this setting."
   :type 'boolean
   :group 'proof-shell)
 
+(defcustom proof-shell-start-silent-cmd nil
+  "Command to turn prover goals output off when sending many script commands.
+If non-nil, Proof General will automatically issue this command
+to help speed up processing of long proof scripts.  
+See also proof-shell-stop-silent-cmd.
+NOT IMPLEMENTED YET.  Forthcoming in next version."
+  :type '(choice string (const nil))
+  :group 'proof-shell)
+
+(defcustom proof-shell-stop-silent-cmd nil
+  "Command to turn prover output on.
+If non-nil, Proof General will automatically issue this command
+to help speed up processing of long proof scripts.  
+See also proof-shell-start-silent-cmd.
+NOT IMPLEMENTED YET.  Forthcoming in next version."
+  :type '(choice string (const nil))
+  :group 'proof-shell)
+
+
 ;;
 ;; 5b. Regexp variables for matching output from proof process.
 ;;
