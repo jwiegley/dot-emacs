@@ -9,6 +9,17 @@
 
 
 ;; $Log$
+;; Revision 1.26  1997/11/20 16:47:48  hhg
+;; Added proof-global-p to test whether a 'vanilla should be lifted above
+;; active lemmas.
+;; Separated proof-lift-global as separate command to lift global
+;; declarations above active lemmas.
+;; Fixed usual problem that 'cmd is nil for comments in this code.
+;; Made lifting globals start from beginning of file rather than go
+;; backwards.
+;; Fixed bug in pbp code proof-shell-analyse-structure, where stack
+;; wasn't cleared for new goal-hyp's.
+;;
 ;; Revision 1.25  1997/11/17 17:11:21  djs
 ;; Added some magic commands: proof-frob-locked-end, proof-try-command,
 ;; proof-interrupt-process. Added moving nested lemmas above goal for coq.
@@ -148,6 +159,7 @@
 (defvar proof-retract-target-fn nil "Compute how to retract a target segment")
 (defvar proof-goal-hyp-fn nil "Is point at goal or hypothesis")
 (defvar proof-kill-goal-command nil "How to kill a goal.")
+(defvar proof-global-p nil "Is this a global declaration")
 
 (defvar proof-state-preserving-p nil
   "whether a command preserves the proof state")
@@ -463,7 +475,7 @@
 
 (defun proof-shell-analyse-structure (string)
   (save-excursion
-    (let* ((ip 0) (op 0) (ap 0) (l (length string)) 
+    (let* ((ip 0) (op 0) ap (l (length string)) 
 	   (ann (make-string (length string) ?x))
            (stack ()) (topl ()) 
 	   (out (make-string l ?x )) c ext)
@@ -481,7 +493,9 @@
 	(setq c (aref string ip))
 	(cond
 	 ((= c proof-shell-goal-char)
-	  (setq topl (cons op topl)))
+	  (setq topl (cons op topl))
+					; Set ap to 0 for Coq
+	  (setq ap 0))
 	 ((= c proof-shell-start-char)
 					; Subtract from current length for Coq
 ;	  (setq ap (- ap (- (aref string (incf ip)) 128)))
@@ -498,14 +512,15 @@
 	  (set-span-property ext 'proof (car (cdr stack)))
 					; Pop annotation off stack, for Coq
 ;	  (setq ap 0)
-;	  (while (< ap (length (car (cdr stack))))
-;	    (aset ann ap (aref (car (cdr stack) ap)))
+;	  (while (< ap (length (cadr stack)))
+;	    (aset ann ap (aref (cadr stack) ap))
 ;	    (incf ap))
 					; Finish popping annotations
 	  (setq stack (cdr (cdr stack))))
 	 (t (incf op)))
 	(incf ip))
       (setq topl (reverse (cons (point-max) topl)))
+;      (setq coq-current-goal 1)
       (while (setq ip (car topl) 
 		   topl (cdr topl))
 	(pbp-make-top-span ip (car topl))))))
@@ -868,16 +883,38 @@ at the end of locked region (after inserting a newline)."
     (proof-start-queue (proof-locked-end) (point) 
 		       (list (list ext cmd 'proof-done-advancing)))))
 
+;; This code's for nested goals in Coq, and shouldn't affect things in LEGO
+(defun proof-lift-global (glob-ext)
+  (let (start (next (span-at 1 'type)) str (goal-p nil))
+    (while (and next (and (not (eq next glob-ext)) (not goal-p)))
+      (if (and (eq (span-property next 'type) 'vanilla)
+	       (string-match proof-goal-command-regexp 
+			     (span-property next 'cmd)))
+	  (setq goal-p t)
+	(setq next (next-span next 'type))))
+
+    (if (and next (not (eq next glob-ext)))
+	(progn
+	  (proof-unlock-locked)
+	  (setq str (buffer-substring (span-start glob-ext)
+				      (span-end glob-ext)))
+	  (delete-region (span-start glob-ext) (span-end glob-ext))
+	  (goto-char (span-start next))
+	  (setq start (point))
+	  (insert str "\n")
+	  (set-span-endpoints glob-ext start (point))
+	  (set-span-start next (point))
+	  (proof-lock-unlocked)))))
+
 (defun proof-done-advancing (ext)
-  (let ((end (span-end ext)) nam gext next cmd str start)
+  (let ((end (span-end ext)) nam gext next cmd)
     (proof-set-locked-end end)
     (proof-set-queue-start end)
     (setq cmd (span-property ext 'cmd))
     (cond
-     ((or (eq (span-property ext 'type) 'comment)
-	  (not (string-match proof-save-command-regexp cmd)))
+     ((eq (span-property ext 'type) 'comment)
       (set-span-property ext 'highlight 'mouse-face))
-     (t	
+     ((string-match proof-save-command-regexp cmd)
       (if (string-match proof-save-with-hole-regexp cmd)
 	  (setq nam (match-string 2 cmd)))
       (setq gext ext)
@@ -887,35 +924,23 @@ at the end of locked region (after inserting a newline)."
 	(setq next (prev-span gext 'type))
 	(delete-span gext)
 	(setq gext next))
+
       (if (null nam)
-	    (if (string-match proof-goal-with-hole-regexp
-			      (span-property gext 'cmd))
-		(setq nam (match-string 2 cmd))
-	      (error "Oops... can't find Goal name!!!")))
+	  (if (string-match proof-goal-with-hole-regexp
+			    (span-property gext 'cmd))
+	      (setq nam (match-string 2 cmd))
+	    (error "Oops... can't find Goal name!!!")))
 
-;; This code's for nested goals in Coq, and shouldn't affect things in LEGO
-
-      (setq next (prev-span gext 'type))
-      (while (and next 
-		  (not (string-match proof-goal-command-regexp 
-				     (span-property next 'cmd))))
-	(setq next (prev-span next 'type)))
-	
-      (if next (progn
-		 (proof-unlock-locked)
-		 (setq str (buffer-substring (span-start gext) end))
-		 (delete-region (span-start gext) end)
-		 (goto-char (span-start next))
-		 (setq start (point))
-		 (insert str "\n\n")
-		 (setq end (point))
-		 (proof-lock-unlocked))
-	(setq start (span-start gext)))
-
-      (set-span-endpoints gext start end)  
+      (set-span-end gext end)
       (set-span-property gext 'highlight 'mouse-face)
       (set-span-property gext 'type 'goalsave)
-      (set-span-property gext 'name nam)))))
+      (set-span-property gext 'name nam)
+
+      (proof-lift-global gext))
+     (t
+      (set-span-property ext 'highlight 'mouse-face)
+      (if (funcall proof-global-p cmd)
+	  (proof-lift-global ext))))))
   
 ; Create a list of (type,int,string) pairs from the end of the locked
 ; region to pos, denoting the command and the position of its
@@ -1257,7 +1282,7 @@ current command."
   (if proof-shell-init-cmd
        (proof-shell-insert proof-shell-init-cmd))
   (while (null (marker-position proof-marker))
-    (if (accept-process-output (get-buffer-process (current-buffer)) 5)
+    (if (accept-process-output (get-buffer-process (current-buffer)) 15)
 	()
       (error "Failed to initialise proof process"))))
 
