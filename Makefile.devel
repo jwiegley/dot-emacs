@@ -281,7 +281,12 @@ dist:
 	@echo "*************************************************"
 	@echo " Running cvs export .."
 	@echo "*************************************************"
-	(cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(RELEASENAME) $(CVSNAME))
+	if [ -z "$(NOCVS)" ]; then \
+           (cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(RELEASENAME) $(CVSNAME)); \
+	else \
+	   mkdir -p $(DISTBUILDIR)/$(RELEASENAME); \
+	   cp -pr . $(DISTBUILDIR)/$(RELEASENAME); \
+	fi
 	@echo "*************************************************"
 	@echo " Running 'make alldist' for new release .."
 	@echo "*************************************************"
@@ -320,7 +325,12 @@ develdist:
 	@echo " Making developer distribution..."
 	@echo "*************************************************"
 	mkdir -p $(DISTBUILDIR)
-	(cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME))
+	if [ -z "$(NOCVS)" ]; then \
+           (cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME)) \
+	else \
+	   mkdir -p $(DISTBUILDIR)/$(DEVELRELEASENAME); \
+	   cp -pr . $(DISTBUILDIR)/$(DEVELRELEASENAME); \
+	fi
 	$(TAR) -cvhf $(DISTBUILDIR)/$(DEVELRELEASENAMETAR) -C $(DISTBUILDIR) $(DEVELRELEASENAME)
 	gzip -9 $(DISTBUILDIR)/$(DEVELRELEASENAMETAR)
 
@@ -329,13 +339,13 @@ develdist:
 ##
 ## release:
 ##     tag the CVS sources, and make a distribution.
-##     Then install the distribution in RELEASEDIR.
+##     Then install the distribution in RELEASEDIR
 ##     WARNING: RELEASEDIR is not cleaned, but files there
 ##     with same names will be overwritten.
 ##     Moreover, a link ProofGeneral -> ProofGeneral-<version>
 ##     is made.
-##	  
-release: distclean tag dist develdist
+##
+release: distclean tag dist develdist 
 	mkdir -p $(RELEASEDIR)
 	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(NAME); ln -s $(RELEASENAME) $(NAME))

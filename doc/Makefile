@@ -20,8 +20,11 @@ DOCNAME = ProofGeneral
 MAKEINFO = makeinfo
 TEXI2DVI = texi2dvi
 
-DVICONCAT = dviconcat
+# `dviutils' package contains these useful utilities.
+# "make rearrange" will only be called if you have dviselect.
 DVISELECT = dviselect
+DVICONCAT = dviconcat
+
 
 # Assumes actual first two pages belong to titlepage
 TITLERANGE = =1,=2
@@ -45,6 +48,9 @@ TMPFILE=pgt
 
 .texi.dvi:
 	$(TEXI2DVI) $<
+	if `which $(DVISELECT) > /dev/null`; then $(MAKE) rearrange; fi
+
+rearrange:
 	$(DVISELECT) -i $*.dvi -o $*.tmp1 $(TITLERANGE)
 	$(DVISELECT) -i $*.dvi -o $*.tmp2 $(MAINRANGE)
 	$(DVISELECT) -i $*.dvi -o $*.tmp3 $(TOC)
