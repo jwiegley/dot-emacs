@@ -68,49 +68,42 @@ contributed by Lucas Dixon (lucasd@dai.ed.ac.uk)
 
 ** Coq Changes
 
-*** New Feature: There are some configurable variables that allow the
-    user to register his own tactics and commands. commands and
-    Tactics are split into backable (resp. undoable), i.e. which need
-    "Back" (resp. "Undo") to be backtracked and not backable
-    (resp. not undoable). We give an example of existing commands that
-    fit each category.
+*** Bug fixed: Much better synchronization of PG/Coq. Commands like
+    Hint, Require, etc, were not backtracked correctly. Nested proofs
+    and commands nested in proofs are now also well backtracked,
+    provided user defined keywords are introduced in the adequat
+    custom variables, see new feature below.
 
- 	coq-user-non-backable-commands: example: "Print"
+*** New Feature: four Configurable variables allows to register
+    personal new tactics and commands. Commands and Tactics are split
+    into backable (resp. undoable), i.e. which need "Back"
+    (resp. "Undo") to be backtracked and not backable (resp. not
+    undoable).
 
- 	coq-user-backable-commands:     example: "Require"
-
-	 coq-user-undoable-tactics:      example:  "Intro"
-
-	 coq-user-non-undoable-tactics:  example: "Proof"
-
-	This variables are string lists. See their documentations in emacs
-	of this variable (C-h v coq-user...)  for details on how to set
-	them.
-
-	Example:
-	(setq coq-user-backable-commands '("MyHint" "MyRequire"))
+    This allows PG to
+      1) colorize correctly 
+      2) (more important) to correctly backtrack user-defined commands
+		   and tactics.
 
 
-	This allows PG to 
-		1) colorize correctly 
-		2) more important to correctly backtrack user-defined commands,
-		   see the following paragraphs below on this subject.
+   We give an example of existing commands that fit each category.
 
-*** Bug fixed: Better synchronization of PG/Coq. Commands like Hint,
-    Require, etc, were not backtracked correctly. See the following:
+   coq-user-non-backable-commands: example: "Print"
 
-**** Bug: Unknown commands are not well backtracked
-**** Work-around: use the elisp variables cited above.
+   coq-user-backable-commands:     example: "Require"
 
-**** Bug: Commands nested in proofs are still not well backtracked
-     once the proof is saved.
-**** Work around: only let no-effect commands inside proofs (like
-     Print, Check, ...). The best is to use C-c C-v to issue them
-     directly anyway.
+   coq-user-undoable-tactics:      example: "Intro"
 
-**** Bug: proofs nested in proofs are not well backtracked.
-**** Work-around: Don't use this feature (with PG you don't need it
-     anyway!).
+   coq-user-non-undoable-tactics:  example: "Proof"
+
+   This variables are string lists. See their documentations in emacs
+   of this variable (C-h v coq-user...)  for details on how to set
+   them in your .emacs file.
+
+   Example:
+   (setq coq-user-backable-commands '("MyHint" "MyRequire"))
+
+
 
 
 ** Changes for other provers
