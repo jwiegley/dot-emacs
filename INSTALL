@@ -1,8 +1,8 @@
 Instructions for installing Proof General
 =========================================
 
-This file describes what to do to be able to run Proof General.
-Please let us know if you have any problems in trying to install it.
+This file describes what to do to run Proof General.
+Please let us know if you have problems trying to install it.
 
 Unpack this distribution somewhere.  It will create a top-level
 directory containing Proof General, called Proof-General-<something>.
@@ -10,8 +10,8 @@ Put this line in your emacs file:
 
     (load-file "<proofgeneral-home>/generic/proof-site.el")
 
-Where <proofgeneral-home> is replaced by the full path to the
-top-level directory made when you unpacked the distribution.
+Where <proofgeneral-home> is replaced by the full path name for
+Proof-General-<something>.
 
 The command above will set the Emacs load path and add auto-loads for
 the assistants below:
@@ -64,14 +64,14 @@ directory calculations are correct.
 Removing support for unwanted provers
 -------------------------------------
 
-You cannot run more than one instance of Proof General at a time: so
-if you're using Coq, don't edit .ML files!  If there are some
+You cannot run more than one instance of Proof General at a time:
+e.g. if you're using Coq, don't edit .ML files!  If there are some
 assistants supported that you never want to use, you can remove them
-from the variable `proof-assistants` in proof-site.el to solve this
-problem.
+from the variable `proof-assistants` in proof-site.el to prevent an
+error message when you try to edit two different kinds of script file.
 
-The easiest way to do this (and most other customization of Proof
-General) is via the Customize mechanism, see the menu:
+The easiest way to do this (and other customization of Proof General)
+is via the Customize mechanism, see the menu:
 
   Options -> Customize -> Emacs -> External -> Proof General
 
@@ -116,7 +116,7 @@ running LEGO, do the same using legotags in the appropriate directory.
 Notes for LEGO
 ==============
 
-Install legotags in a standard place or add <proof-home>/lego 
+Install legotags in a standard place or add <proofgeneral-home>/lego 
 to your PATH.
 NB: You may need to change the path to perl at the top of the file.
 
