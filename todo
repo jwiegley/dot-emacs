@@ -7,6 +7,9 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 * THINGS TO DO BEFORE 3.5 RELEASE
 
+*** Can we do anything about clash between bundled x-symbol and
+     system-wide version??
+
 *** Fixup HTML on mailing list pages
 
 *** Update CHANGES to mention ccc and pg-shell
