@@ -2005,17 +2005,13 @@ The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise 
 Proof General.
 @end defvar
+
 @c TEXI DOCSTRING MAGIC: proof-splash-contents
 @defvar proof-splash-contents 
 Evaluated to configure splash screen displayed when entering Proof General.@*
 A list of the screen contents.  If an element is a string or an image
 specifier, it is displayed centred on the window on its own line.  
 If it is nil, a new line is inserted.
-@end defvar
-@c TEXI DOCSTRING MAGIC: proof-splash-extensions
-@defvar proof-splash-extensions 
-Prover specific extensions of splash screen.@*
-These are evaluated and appended to @samp{@code{proof-splash-contents}}.
 @end defvar
 
 
