@@ -32,6 +32,12 @@ Default value taken from PROOF_HOME, or use customize to set it."
   :type 'directory
   :group 'proof)
 
+(defcustom proof-image-directory
+  (concat proof-home "images/")
+    "Where proof mode image files are installed. Ends with slash."
+  :type 'directory
+  :group 'proof)
+
 (defcustom proof-assistant
   'isa
   "Choice of proof assitant to run generic mode with.
