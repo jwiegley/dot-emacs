@@ -19,6 +19,12 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.17  1997/10/22 16:43:54  hhg
+;; Updated proof-segment-up-to to take ""'s into account
+;; Hence, << Cd "../x". >> works in Coq, and
+;;        << echo "hello; world"; >> should work in LEGO
+;; But maybe we don't want "Cd"'s at all...
+;;
 ;; Revision 1.16  1997/10/17 15:15:57  djs
 ;; proof-active-terminator inside comment case fixed. Also maybe the
 ;; continuous pbp-buffer update bug.
@@ -607,11 +613,11 @@
 	(incf ip))
       (display-buffer (set-buffer proof-pbp-buffer))
       (erase-buffer)
-      (insert (substring out 0 op))
-      (while (setq ip (car topl) 
-		   topl (cdr topl))
-	(pbp-make-top-extent ip (car topl)))
-      (pbp-make-top-extent ip (point-max)))))
+      (insert (substring out 0 op)))))
+;      (while (setq ip (car topl) 
+;		   topl (cdr topl))
+;	(pbp-make-top-extent ip (car topl)))
+;      (pbp-make-top-extent ip (point-max)))))
 
 (defun proof-shell-strip-annotations (string)
   (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
@@ -980,37 +986,44 @@ at the end of locked region (after inserting a newline)."
   
 ; Create a list of (type,int,string) pairs from the end of the locked
 ; region to pos, denoting the command and the position of its
-; terminator. type is one of comment, or cmd. 'unclosed-comment
-; may be consed onto the start if the segment finishes with an
-; unclosed comment
+; terminator. type is one of comment, or cmd. 'unclosed-comment may be
+; consed onto the start if the segment finishes with an unclosed
+; comment.
+; depth marks number of nested comments. quote-parity is false if
+; we're inside ""'s.  Only one of (depth > 0) and (not quote-parity)
+; should be true at once. -- hhg
 
 (defun proof-segment-up-to (pos)
   (save-excursion
     (let ((str (make-string (- (buffer-size) (proof-end-of-locked) -10) ?x))
-	  (i 0) (depth 0) done alist c)
+	  (i 0) (depth 0) (quote-parity t) done alist c)
      (proof-goto-end-of-locked)
      (while (not done)
        (cond 
 	((and (= (point) pos) (> depth 0))
 	 (setq done t alist (cons 'unclosed-comment alist)))
 	((= (point) (point-max))
+	 (if (not quote-parity)
+	     (message "Warning: unclosed quote"))
 	 (setq done t))
-	((looking-at "\\*)")
+	((and (looking-at "\\*)") quote-parity)
 	 (if (= depth 0) 
 	     (progn (message "Warning: extraneous comment end") (setq done t))
 	   (setq depth (- depth 1)) (forward-char 2)
 	   (if (eq i 0) 
 	       (setq alist (cons (list 'comment "" (point)) alist))
 	     (aset str i ?\ ) (incf i))))
-	((looking-at "(\\*")
+	((and (looking-at "(\\*") quote-parity)
 	 (setq depth (+ depth 1)) (forward-char 2))
 	((> depth 0) (forward-char))
 	(t
 	 (setq c (char-after (point)))
 	 (if (or (> i 0) (not (= (char-syntax c) ?\ )))
 	     (progn (aset str i c) (incf i)))
+	 (if (looking-at "\"")
+	     (setq quote-parity (not quote-parity)))
 	 (forward-char)
-	 (if (= c proof-terminal-char)
+	 (if (and (= c proof-terminal-char) quote-parity)
 	     (progn 
 	       (setq alist 
 		     (cons (list 'cmd (substring str 0 i) (point)) alist))
