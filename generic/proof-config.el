@@ -99,7 +99,7 @@ terminator somewhere nearby.  Electric!"
 
 (defcustom proof-toolbar-enable t
   "*If non-nil, display Proof General toolbar for script buffers.
-NB: the toolbar is only available with XEmacs."
+NB: the toolbar is only available with XEmacs and GNU Emacs>=21."
   :type 'boolean
   :set 'proof-set-value
   :group 'proof-user-options)
