@@ -10,7 +10,7 @@ Please note that we do not support these old releases in any way.
 <h2>Proof General Version 3.2, released 2nd October 2000</h2>
 <p>
 This version of Proof General has been tested
-with XEmacs 21.1 and (briefly with) FSF Emacs 20.7.
+with XEmacs 21.1 and (briefly) with GNU Emacs 20.7.
 It supports Coq version 6.3, LEGO version 1.3.1 and
 Isabelle99-1.
 </p>
@@ -40,7 +40,7 @@ for a summary of changes since version 3.1.
 
 <p>
 This version of Proof General has been tested
-with XEmacs 21.1 and FSF Emacs 20.4.
+with XEmacs 21.1 and GNU Emacs 20.4.
 It supports Coq version 6.3, LEGO version 1.3.1 and
 Isabelle99.
 </p>
@@ -70,7 +70,7 @@ for a summary of changes since version 3.0.
 
 <p>
 This version of Proof General has been tested
-with XEmacs 20.4, XEmacs 21.1.8 and FSF Emacs 20.5.<br>
+with XEmacs 20.4, XEmacs 21.1.8 and GNU Emacs 20.5.<br>
 It supports Coq version 6.3, LEGO version 1.3.1 and Isabelle99.
 </p>
 <ul>
@@ -95,7 +95,7 @@ for a summary of changes since version 2.1.
 
 <p>
 This version of Proof General has been tested
-with XEmacs 20.4, XEmacs 21 and FSF Emacs 20.3.<br>
+with XEmacs 20.4, XEmacs 21 and GNU Emacs 20.3.<br>
 It supports Coq version 6.3, LEGO version 1.3.1 and
 some pre-release versions of Isabelle version 99.
 <ul>
@@ -119,7 +119,7 @@ for a summary of changes since version 2.0.
 
 <p>
 This version of Proof General has been tested
-with XEmacs 20.4 and FSF Emacs 20.2, 20.3.<br>
+with XEmacs 20.4 and GNU Emacs 20.2, 20.3.<br>
 It supports Coq version 6.2, LEGO version 1.3.1, and
 Isabelle version 98-1.<br>
 </p>
