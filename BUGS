@@ -7,8 +7,9 @@ $Id$
 restrictions of protected region
 
 * You can't use more than one proof assistant at a time in the same
-Emacs session.  Workaround: use more than one Emacs session, with
-different settings of the variable proof-assistant.
+Emacs session.  Nasty things happen if proof-assistants enables
+more than one proof assistant and you load files for different
+provers.  Workaround: stick to one prover per Emacs session!!
 
 * There is an obscure bug with processes on Solaris which results in
 buffers full of ^G after certain combinations of input.  Workaround:
