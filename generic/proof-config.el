@@ -1094,7 +1094,9 @@ Proof General."
   '(list
     nil
     nil
-    (proof-splash-display-image "pg-text" t)
+;;; Remove the text for now: XEmacs makes a mess of displaying the
+;;; transparent parts of the gif (at least, on all machines I have seen)
+;;;    (proof-splash-display-image "pg-text" t)
     nil
     (proof-splash-display-image "ProofGeneral")
     nil
