@@ -39,7 +39,8 @@ X (Low)		e.g. probably not worth spending time on
     C-c C-x already seems to be a prefix?
 
 **** A Add efficiency improvement by turning on/off prover output.
-  Patch already tested.
+  Patch already added to pre-release.
+  Needs adjusting to turn on output in case of error/interrupt.
 
 **** C Add improvements to script movement in electric terminator mode.
   Some commented regions in code.  E.g. automatic newline/space after
