@@ -12,7 +12,7 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-B proof-toolbar:  Add support for entering a goal and saving a theorem
+A proof-toolbar:  Add support for entering a goal and saving a theorem
   at the generic level.  These functions should also
   be accessible from menus.  Fixup movement of point (choice of
   up and down functions).  Add toolbar to pbp mode too.  
@@ -25,11 +25,6 @@ X Improve toolbar icons.  Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
   xcf files under CVS rather than xpm files.
   (5h or more to design nice ones)
-
-A Remove defunct "isabelle" directory.  All collbarators must
-  synchronize and remove their working directories to do this,
-  because we need to operate on the repository directly.
-  (da, 5min).
 
 A Documentation for proof-mode and its derived modes.  (5min)
 
@@ -46,7 +41,7 @@ A Clean up proof-assert-until-point behaviour.  At the moment we
   proof-assert-next-command does not advance point. 
   (da, tms/others to assess)
   
-B A less drastic version of proof-restart-script would be useful:
+A A less drastic version of proof-restart-script would be useful:
   one that doesn't involve killing off the proof assistant process
   and restarting that -- it can take ages!  (da, 20mins)
 
@@ -57,8 +52,7 @@ D Code in proof.el assumes all characters with top bit set are special
 A Add a small script "example.l" etc to each of the prover subdirectories,
   for testing/example purposes.  (Perhaps proving the same thing?
   commutativity of conjunction?) 
-  Only needed for Coq now.
-  (10min, tms)
+  Only needed for Coq now.   (10min, hhg)
 
 D Prune dead code.  (1h)
 
@@ -83,11 +77,14 @@ B Fixup sources to follow Elisp conventions better.
   The first line of documentation of functions and
   variables should be a whole sentence.  Subsequent lines should
   *not* be indented.  See output of hyper-apropos and
-  poor formatting of current comments.   (1hr)
+  poor formatting of current comments.   (1hr, tms)
 
 A Update source documentation and manual, in particular document bugs
   and workarounds
-  (4h hhg & tms) 
+  (4h hhg & tms & da) 
+
+D Technical documentation to record expertise and allow users of other
+  proof systems to adopt generic package (40h hhg & tms)
 
 A Implement more generic mechanism for large undos (2h)
 
@@ -107,15 +104,10 @@ A Multiple files are sometimes handled incorrectly, because the
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min tms)
 
-D Technical documentation to record expertise and allow users of other
-  proof systems to adopt generic package (40h hhg & tms)
-
-D Support for x-symbols package 
-
-X XEmacs sessions seem to grow excessively in terms of memory
-  allocation. Perhaps some of the spans aren't removed properly?
-  Setting a limit on the size of the process buffer doesn't seem to
-  help. 
+D Support for x-symbols package.
+  Provers with sophisticated/configurable syntax should tell Emacs
+  about their syntax somehow, rather than trying to duplicate
+  specifications inside Emacs.
 
 A file handling could be more robust; perhaps one should always cd to
   the directory corresponding to the script buffer (currently only
@@ -127,14 +119,14 @@ A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
 
 A Replace "You are not authorised for this information." by a proper
-  documentation (2h)
+  documentation (2h, da)
 
 A Reengineer *-count-undos and *-find-and-forget at generic level
-    (3h)
+  (3h)
 
 D Allow bib-cite style clicking on Load/Import commands to go to file.
 
-X LEGO and Coq modes overwrite each other.
+D support font-lock in goal buffer
 
 X We need to go over to piped communication rather than ptys to fix
   the (Solaris) ^G bug. In this circumstance there's a bug in the
@@ -142,25 +134,17 @@ X We need to go over to piped communication rather than ptys to fix
   tested for future versions. [Currently the problem is documented in
   Email messages sent to lego]
 
-X Outline-mode does not work due to read-only restrictions of
-  protected region
-
-D support font-lock in goal buffer
-
 B Introduce keybinding to save the proof e.g., in LEGO, this should
   insert "Save id" or "$Save id" depending on the name of the theorem. 
+  Do the same thing for Goal, to add as a toolbar function.
+
+B Unify toolbar and menu functions.
 
 D use proof buffer instead of response buffer and leave non-proof
   state output in the process buffer (1h)
 
 D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
-
-D As well as duplicated variables, we also have duplicated modes,
-  which could be removed.  We never use proof-shell-mode, proof-mode,
-  pbp-mode, only the derived instances.
-  Shouldn't the generic interface directly *define* the derived
-  version required?   (1h to fix)
 
 D Fixup implementation of "spans":  Add documentation!
   (30 mins)
@@ -177,16 +161,18 @@ X Comment support is not very generic: we don't support end-of-line
 A Fixing up errors caused by pbp-generated commands; currently, script
   management unwisely assumes that pbp commands cannot fail (2h tms)
 
-A Rename pbp-mode to response-mode (which doesn't support any actual
-  proof-by-pointing) (30min) 
+A Rename pbp-mode to response-mode or goals-mode (which doesn't
+  support any actual proof-by-pointing) (30min) 
 
-A Outsource actual pbp functionality (30min)
-    (separate pbp annotations from other annotations)
+A Outsource actual pbp/goals functionality (30min)
+  (separate pbp annotations from other annotations).
+  Make a file proof-goals.el.
 
 X pbp code doesn't quite accord with the tech report; in particular it
   decodes annotations eagerly. Lazily would be faster, and it's what
   the tech report claims
   --- djs: probably not much faster, actually.
+
 
 * Here are things to be done to Lego mode
 =========================================
@@ -275,7 +261,7 @@ D The proof-locked-span isn't set to read-only, because overlays don't
 * Release
 =========
 
-A remove CVS history in all files  (replace with idents $Id$)
+A remove CVS history in all files  (replace with idents $Id)
 
 A extend Copyright to 1998
 

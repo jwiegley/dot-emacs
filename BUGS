@@ -1,20 +1,30 @@
-
 Known bugs and workarounds.
 ===========================
 
+* Outline-mode does not work in proof script files due to read-only
+restrictions of protected region
+
+* You can't use more than one proof assistant at a time in the same
+Emacs session.  Workaround: use more than one Emacs session, with
+different settings of the variable proof-assistant.
+
+* There is an obscure bug with processes on Solaris which results in
+buffers full of ^G after certain combinations of input.  Workaround:
+get a patch from Sun, or use Linux.
 
 
 
+Development  (move these above once decided not to fix):
+========================================================
 
+XEmacs sessions seem to grow excessively in terms of memory
+allocation. Maybe some of the spans aren't removed properly.
+Setting a limit on the size of the process buffer doesn't seem to
+help. 
 
-Development:
-============
 
 customize:  odd behaviour after setting proof-assistant in
 .emacs file via customize: customize reports "mismatch"
 and "set outside customize".  Second of these probably
 okay.  Why first?
 
-
-da: How to remove a directory from CVS?  I think it needs
-editing in the repository.  'isabelle' is defunct.
