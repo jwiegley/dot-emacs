@@ -17,9 +17,8 @@
 
 <p>
 Please use the form below to send us comments, suggestions,
-or offers to help with Proof Generl development.
-<br>
-Or send email directly to
+or offers to help with Proof General development.
+Or simply send an email directly to
 the <?php mlinktxt($project_feedback, "Proof General maintainer &lt;$project_feedback&gt."); ?>
 </p>
 <p>
@@ -29,7 +28,7 @@ be more helpful to do this from within Emacs, using the
 </p>
 
 <form method=post action="<?php print $PHP_SELF . "?submit"; ?>">
-<table width="300" border="0" cellspacing="2" cellpadding="0">
+<table width="450" border="0" cellspacing="2" cellpadding="0">
 <tr>
   <td width="20%">From:</td>
   <td width="80%"><input type=text name="from" size="40"></td>
@@ -39,16 +38,19 @@ be more helpful to do this from within Emacs, using the
   <td><input type=text name="subject" size="40"></td>
 </tr>
 <tr><td colspan="2">
-<textarea rows="12" cols="60" wrap="physical" name="feedback">
+<textarea rows="15" cols="70" wrap="physical" name="feedback">
 Dear Proof General developers,
-
-
 </textarea>
+(For us to reply, please include a proper email
+ address in the From box).
+</td></tr>
+<tr><td></td><td>
+<p align=right>
+<input type=reset value="Clear">
+<input type=submit value="Send feedback"> 
+</p>
 </td></tr>
 </table>
-<br>
-<input type=submit value="Send feedback"> 
-<input type=reset value="Clear">
 </form>
 
 <?php  
