@@ -32,6 +32,8 @@
       (let* ((pgip  (car pgips))
 	     (elt   (or (car-safe (car pgip))         ; normalise to symbol
 			(car pgip)))
+	     ;; FIXME: this is wrong for self-closing elts, test with
+	     ;; ProofGeneral.process_pgip("<pgip><askpgml/></pgip>"); 
 	     (attr  (cdr-safe (car pgip)))
 	     (attrs (and attr (if (listp (cdr attr)) ; normalise to list
 				  attr (list attr))))
@@ -152,7 +154,7 @@
 ;; message from prover.  But no harm will result if it is --- and that
 ;; might be appropriate if some canonicalisation occurs.
 
-; in progress
+; in progress [FIXME: Isabelle can send this as reply to getpref now]
 ;(defun pg-pgip-prefval (attrs value)
 ;  "Process a <prefval> element, by setting interface's copy of preference."
 ;  (let*
