@@ -247,6 +247,9 @@ present in later versions!"
   :type 'boolean
   :group 'proof-shell)
 
+(deflocal proof-eagerly-raise t
+  "Non-nil if this buffer will be eagerly raised/displayed on startup.")
+
 (defun proof-shell-start ()
   "Initialise a shell-like buffer for a proof assistant.
 
@@ -391,7 +394,9 @@ Does nothing if proof assistant is already running."
 	      (funcall proof-mode-for-response)
 	      ;; Set mode for trace buffer
 	      (proof-with-current-buffer-if-exists proof-trace-buffer
-               (funcall proof-mode-for-response))
+		(funcall proof-mode-for-response)
+		;; don't display the trace buffer eagerly
+		(setq proof-eagerly-raise nil))
 	      ;; Set mode for goals buffer
 	      (set-buffer proof-goals-buffer)
 	      (and (fboundp 'toggle-enable-multibyte-characters)
@@ -407,7 +412,8 @@ Does nothing if proof assistant is already running."
 		    (save-selected-frame
 		      (proof-multiple-frames-enable)))
 		;; Otherwise just try to remove modeline from PG buffers
-		;; in XEmacs
+		;; in XEmacs (FIXME: hope to remove this and just have
+		;; previous case)
 		(if proof-running-on-XEmacs
 		    (proof-map-buffers
 		      (list proof-goals-buffer proof-response-buffer 
