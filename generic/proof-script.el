@@ -615,7 +615,7 @@ NAME does not need to be unique."
 		       (cons span (span-property controlspan 'children)))
     (pg-set-span-helphighlights span 'nohighlight)
     (if proof-disappearing-proofs 
-	(pg-make-element-invisible "proof" name))))
+	(pg-make-element-invisible "proof" proofid))))
 
 (defun pg-span-name (span)
   "Return a user-level name for SPAN."
@@ -1479,7 +1479,8 @@ With ARG, turn on scripting iff ARG is positive."
 		    proof-unnamed-theorem-name))
 
       ;; NB: if extending an already closed region, ought to delete
-      ;; the body and extend that too: this makes multiple nested bodies.[?]
+      ;; the body and extend that too: currently we make multiple nested 
+      ;; bodies, a bit messy.
       ;; (NB: savestart used for nested region: here use saveend)
       (proof-make-goalsave gspan
 			   (+ (span-start gspan) 
