@@ -15,7 +15,7 @@
 ###########################################################################
 
 
-ELISP_DIRS = generic lego coq isa isar plastic
+ELISP_DIRS = generic lego coq isa isar plastic demoisa
 EMACS = xemacs
 
 PWD=$(shell pwd)
