@@ -42,11 +42,10 @@
         (cmt-end-regexp (regexp-quote proof-comment-end))
         (cmt-start-regexp (regexp-quote proof-comment-start))
         (found-header nil) forward-amount
-        (end (point-max)) (cont t) (cmt-level 0) c)
+        (end (point-max)) (cont t) (cmt-level 0))
     (save-excursion
       (goto-char (point-min))
       (while (and cont (< (point) end))
-        (setq c (char-after (point)))
         (setq forward-amount 1)
         (cond
          ;; comments
