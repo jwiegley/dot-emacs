@@ -602,6 +602,27 @@ The name of the defined function is returned."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; Finding executables
+;;
+
+(defun proof-locate-executable (progname &optional returnnopath)
+  ;; XEmacs can search the paths for us.  Probably FSF Emacs is too
+  ;; daft to provide a useful function to do that, and I don't have
+  ;; the time to waste writing one or trying to find one.
+  "Search for PROGNAME on PATH.  Return the full path to PROGNAME, or nil.
+If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
+  (or (and
+       (fboundp 'locate-file)
+       (locate-file progname
+		    (split-path (getenv "PATH")) 
+		    (if proof-running-on-win32 '(".exe"))
+		    1))
+      (and
+       returnnopath
+       progname)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;; Stuff for developing PG, not needed for ordinary users really.
 ;; [Could consider moving this to a new file `proof-devel.el']
 ;;
