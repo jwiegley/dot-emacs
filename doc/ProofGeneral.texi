@@ -1,4 +1,3 @@
-
 \input texinfo   @c -*-texinfo-*-
 @c
 @c $Id$
@@ -8,6 +7,13 @@
 @settitle Proof General
 @setchapternewpage odd
 @paragraphindent 0
+@c A flag for whether to include the front image in the
+@c DVI file.  You can download the front image from
+@c http://www.dcs.ed.ac.uk/~proofgen/ProofGeneral.eps.gz
+@c then put it into this directory and 'make dvi'
+@c will set the flag below automatically.
+@set haveeps
+@c
 @iftex
 @afourpaper
 @end iftex
@@ -79,17 +85,22 @@ END-INFO-DIR-ENTRY
 @subtitle Organise your proofs with Emacs!
 @subtitle Proof General @value{version}
 @subtitle @value{last-update}
+@ifset haveeps
 @iftex
 @c @vskip 1cm
 @c The .eps file takes 8.4M!  A pity texi can't seem
 @c to deal with gzipped files? (goes down to 1.7M).
-@c Instead I'm putting a tiff image (890k) into the dist
-@c and hoping most people can find the tif2ps utility.
+@c But this still seems too much to put into the
+@c PG distribution just for an image on the manual page,
+@c so we take it out for now.
+@c Ideally would like some way of generating eps from
+@c the .jpg file.   
 @image{ProofGeneral}
-@c FIXME: for html, just do @image ProofGeneral, it
+@c FIXME: for html, just do @c image ProofGeneral, it
 @c gets confused by the braces.
 @c FIXME: doesn't work for PDF image at the moment.
 @end iftex
+@end ifset
 @author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
 @page
 @vskip 0pt plus 1filll

@@ -11,7 +11,7 @@
 ##
 ## Use:
 ##	make info,dvi,pdf,html    - build respective docs from texi source.
-##	make doc		  - make all kinds of doc.
+##	make doc		  - make default kinds of doc (dvi, info).
 ##
 ###########################################################################
 
@@ -66,8 +66,18 @@ default: doc
 ProofGeneral.txt:
 	echo > ProofGeneral.txt
 
+# In fact, the flag seems not to work (why?), 
+# so comment out the image line too. 
+# NB! mustn't have another line with '@c image' in it.
 ProofGeneral.eps:
-	gunzip -c ProofGeneral.eps.gz > ProofGeneral.eps
+	if [ -f ProofGeneral.eps.gz ]; then gunzip -c ProofGeneral.eps.gz > ProofGeneral.eps; fi
+	if [ -f ProofGeneral.eps ]; then \
+	  sed 's/@clear haveeps/@set haveeps/g' ProofGeneral.texi > pgt; \
+	  sed 's/@c image{ProofGeneral}/@image{ProofGeneral}/g' pgt > ProofGeneral.texi; \
+	else   \
+	  sed 's/@set haveeps/@clear haveeps/g' ProofGeneral.texi > pgt; \
+	  sed 's/@image{ProofGeneral}/@c image{ProofGeneral}/g' pgt > ProofGeneral.texi; \
+	fi
 
 %.gz : %
 	gzip -f -9 $*
