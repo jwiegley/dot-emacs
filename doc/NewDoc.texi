@@ -685,19 +685,50 @@ response, or shell.
 @kindex C-c C-u
 
 
-@deffn Command proof-assert-next-command
+@c DAVES DOCSTRING MAGIC: proof-assert-next-command
+@deffn Command proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command 
+Process until the end of the next unprocessed command after point.
+If inside a comment, just process until the start of the comment.  
+If you want something different, put it inside @var{unclosed-comment-fun}. 
+If @var{ignore-proof-process-p} is set, no commands will be added to the queue.
+Afterwards, move forward to near the next command afterwards, unless
+@var{dont-move-forward} is non-nil.  If @var{for-new-command} is non-nil,
+a space or newline will be inserted automatically.
 @end deffn
 
-@deffn Command proof-undo-last-successful-command
+@c DAVES DOCSTRING MAGIC: proof-undo-last-successful-command
+@deffn Command proof-undo-last-successful-command &optional no-delete 
+Undo last successful command at end of locked region.
+Unless optional @var{no-delete} is set, the text is also deleted from
+the proof script.
 @end deffn
 
-@deffn Command proof-try-command
+@c DAVES DOCSTRING MAGIC: proof-try-command
+@deffn Command proof-try-command &optional unclosed-comment-fun 
+Process the command at point, but don't add it to the locked region. 
+This will only happen if the command satisfies @code{proof-state-preserving-p}.
+
+Default action if inside a comment is just to go until the start of
+the comment. If you want something different, put it inside
+unclosed-comment-fun.
 @end deffn
 
-@deffn Command proof-retract-until-point
+@c DAVES DOCSTRING MAGIC: proof-retract-until-point
+@deffn Command proof-retract-until-point &optional delete-region 
+Sets up the proof process for retracting until point. In
+@lisp
+   particular, it sets a flag for the filter process to call
+   `proof-done-retracting' after the proof process has actually
+   successfully reset its state. It optionally deletes the region in
+   the proof script corresponding to the proof command sequence. If
+   this function is invoked outside a locked region, the last
+   successfully processed command is undone.
+@end lisp
 @end deffn
 
-@deffn Command proof-process-buffer
+@c DAVES DOCSTRING MAGIC: proof-process-buffer
+@deffn Command proof-process-buffer  
+Process the current buffer and set point at the end of the buffer.
 @end deffn
 
 
@@ -721,29 +752,35 @@ continue development from there.
 @kindex C-c c
 @kindex C-c h
 
-@deffn Command proof-prf
+@c DAVES DOCSTRING MAGIC: proof-prf
+@deffn Command proof-prf  
 List proof state.
 @end deffn
 
-@deffn Command proof-ctxt
+@c DAVES DOCSTRING MAGIC: proof-ctxt
+@deffn Command proof-ctxt  
 List context.
 @end deffn
 
-@deffn Command proof-help
+@c DAVES DOCSTRING MAGIC: proof-help
+@deffn Command proof-help  
 Print help message giving syntax.
 @end deffn
 
-@deffn Command proof-execute-minibuffer-cmd
+@c DAVES DOCSTRING MAGIC: proof-execute-minibuffer-cmd
+@deffn Command proof-execute-minibuffer-cmd  
 Prompt for a command in the minibuffer and send it to proof assistant.
 @end deffn
 
-@deffn Command proof-interrupt-process
+@c DAVES DOCSTRING MAGIC: proof-interrupt-process
+@deffn Command proof-interrupt-process  
 Interrupt the proof assistant.  WARNING! This may confuse Proof General.
 @end deffn
 
-
-
-@c Please explain C-c C-v here.
+@c DAVES DOCSTRING MAGIC: proof-execute-minibuffer-cmd
+@deffn Command proof-execute-minibuffer-cmd  
+Prompt for a command in the minibuffer and send it to proof assistant.
+@end deffn
 
 @c Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working
 @c directly with the proof shell}
@@ -1104,16 +1141,16 @@ for example.  A convenient way to do this is via
 @code{special-display-regexps}.
 
 
-@defopt proof-auto-delete-windows
+@c DAVES DOCSTRING MAGIC: proof-auto-delete-windows
+@defvar proof-auto-delete-windows  
 If non-nil, automatically remove windows when they are cleaned.
 For example, at the end of a proof the goals buffer window will
 be cleared; if this flag is set it will automatically be removed.
-If you use several frames to display the Proof General buffers,
-you may want to set this variable to 'nil' to avoid frames being
-deleted automatically.
-
-The default value is @code{t}.
-@end defopt
+If you want to fix the sizes of your windows you may want to set this
+variable to 'nil' to avoid windows being deleted automatically.
+If you use multiple frames, only the windows in the currently
+selected frame will be affected.
+@end defvar
 
 
 
@@ -1140,32 +1177,35 @@ edit-options} mechanism, or simply by adding @code{setq}'s to your
 @file{.emacs} file.  The first approach is strongly recommended.
 
 
-@defopt proof-prog-name-ask
-If non-@code{nil}, query user which program to run for the inferior process.
-
-The default value is @code{nil}.
+@c DAVES DOCSTRING MAGIC: proof-prog-name-ask
+@defopt proof-prog-name-ask  
+If non-nil, query user which program to run for the inferior process.
 @end defopt
 
-@defopt proof-rsh-command
-A string to use as a prefix to allow a proof assistant to be run on
-a remote host. For example,
+
+@c DAVES DOCSTRING MAGIC: proof-rsh-command
+@defvar proof-rsh-command  
+Shell command prefix to run a command on a remote host.  
+For example,
+
 @lisp
    ssh bigjobs
+
 @end lisp
-Would cause Proof General to issue the command @code{ssh bigjobs
-isabelle} to start Isabelle remotely on our large compute server called
-@code{bigjobs}.
+Would cause Proof General to issue the command 'ssh bigjobs isabelle'
+to start Isabelle remotely on our large compute server called 'bigjobs'.
 
 The protocol used should be configured so that no user interaction
 (passwords, or whatever) is required to get going.
+@end defvar
+The default value of @code{proof-rsh-command} is the empty string @code{""}.
 
-The default value is the empty string @code{""}.
+@c DAVES DOCSTRING MAGIC: proof-toolbar-wanted
+@defopt proof-toolbar-wanted  
+Whether to use toolbar in proof mode.
 @end defopt
 
-@defopt proof-toolbar-wanted
-Whether to use toolbar in proof mode.  Default is @code{t}.
-@end defopt
-
+@c not yet magic: proof-toolbar-follow-mode
 @defopt proof-toolbar-follow-mode
 Choice of how point moves with toolbar commands.
 One of the symbols: @code{locked}, @code{follow}, @code{ignore}. @*
@@ -1178,38 +1218,44 @@ If @code{ignore}, point is never moved after toolbar movement commands.
 The default is @code{locked}.
 @end defopt
 
-@defopt proof-window-dedicated
+
+@c DAVES DOCSTRING MAGIC: proof-window-dedicated
+@defopt proof-window-dedicated  
 Whether response and goals buffers have dedicated windows.
-If non-@code{nil}, windows displaying responses from the prover will not
-be switchable to display other windows.  This helps manage your display,
-but can sometimes be inconvenient, especially for experienced Emacs
-users.
+If t, windows displaying responses from the prover will not
+be switchable to display other windows.  This helps manage
+your display, but can sometimes be inconvenient, especially
+for experienced Emacs users.
 @end defopt
+
 @c FIXME needs to mention that without dedicated windows, buffers may be 
 @c hidden. Refer to the XEmacs manual on customising buffer display.
 
-@defopt proof-strict-read-only
+@c DAVES DOCSTRING MAGIC: proof-strict-read-only
+@defopt proof-strict-read-only  
 Whether Proof General is strict about the read-only region in buffers.
 If non-nil, an error is given when an attempt is made to edit the
 read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!)
 @end defopt
 
-@defopt proof-script-indent
-If non-@code{nil}, enable indentation code for proof scripts.
+
+@c DAVES DOCSTRING MAGIC: proof-script-indent
+@defvar proof-script-indent  
+If non-nil, enable indentation code for proof scripts.
 Currently the indentation code can be rather slow for large scripts,
-and is critical on the setting of regular expressions for 
-particular provers.  Enable it if it works for you.
+and is critical on the setting of regular expressions for particular
+provers.  Enable it if it works for you.
+@end defvar
+The default for @code{proof-script-indent} is @code{nil}.  
 
-The default is @code{nil}.  
+@c DAVES DOCSTRING MAGIC: proof-one-command-per-line
+@defopt proof-one-command-per-line  
+If non-nil, format for newlines after each proof command in a script.
+This option is not fully-functional at the moment.
 @end defopt
+The default for @code{proof-one-command-per-line} is @code{nil}.
 
-@defopt proof-one-command-per-line
-If non-@code{nil}, format for newlines after each proof command in a
-script.  This option is not fully-functional at the moment.
-
-The default is @code{nil}.
-@end defopt
 
 @node Changing faces
 @section Changing faces
@@ -1219,32 +1265,39 @@ alter these through the customize menus, only the particular kind of
 display in use (colour window system, monochrome window system, console,
 @dots{}) will be affected.
 
-@defopt proof-queue-face
+@c DAVES DOCSTRING MAGIC: proof-queue-face
+@deffn Face proof-queue-face  
 Face for commands in proof script waiting to be processed.
-@end defopt
+@end deffn
 
-@defopt proof-locked-face
+@c DAVES DOCSTRING MAGIC: proof-locked-face
+@deffn Face proof-locked-face  
 Face for locked region of proof script (processed commands).
-@end defopt
+@end deffn
 
-@defopt proof-declaration-name-face
+@c DAVES DOCSTRING MAGIC: proof-declaration-name-face
+@deffn Face proof-declaration-name-face  
 Face for declaration names in proof scripts.
 Exactly what uses this face depends on the proof assistant.
-@end defopt
+@end deffn
 
-@defopt proof-tacticals-name-face
+
+@c DAVES DOCSTRING MAGIC: proof-tacticals-name-face
+@deffn Face proof-tacticals-name-face  
 Face for names of tacticals in proof scripts.
 Exactly what uses this face depends on the proof assistant.
-@end defopt
+@end deffn
 
-@defopt proof-error-face
+@c DAVES DOCSTRING MAGIC: proof-error-face
+@deffn Face proof-error-face  
 Face for error messages from proof assistant.
-@end defopt
+@end deffn
 
-@defopt proof-warning-face
+@c DAVES DOCSTRING MAGIC: proof-warning-face
+@deffn Face proof-warning-face  
 Face for warning messages.
 Could come either from proof assistant or Proof General itself.
-@end defopt
+@end deffn
 
 @c Maybe this detail of explanation belongs in the internals,
 @c with just a hint here.
@@ -1256,9 +1309,10 @@ to help Proof General recognize them, and this is an "eager" annotation
 in the sense that it should be processed as soon as it is observed
 by Proof General.
 
-@defopt proof-eager-annotation-face
+@c DAVES DOCSTRING MAGIC: proof-eager-annotation-face
+@deffn Face proof-eager-annotation-face  
 Face for messages from proof assistant.
-@end defopt
+@end deffn
 
 
 @node Tweaking configuration settings
@@ -1284,8 +1338,9 @@ The configuration settings appear in the customization group
 
 One basic example of a setting you may like to tweak is:
 
-@defvar proof-assistant-home-page
-Web address for information on proof assistant.
+@c DAVES DOCSTRING MAGIC: proof-assistant-home-page
+@defvar proof-assistant-home-page  
+Web address for information on proof assistant
 @end defvar
 
 Most of the others are more complicated.  More details of the settings
@@ -1387,15 +1442,17 @@ We refer to chapter @ref{Customizing Proof General} for an introduction
 to the customisation mechanism. In addition to customizations at the
 generic level, for LEGO you can also customize:
 
-@defopt lego-tags
-The directory of the TAGS table for the LEGO library. The default is
-@code{"/usr/lib/lego/lib_Type/"}.
+@c DAVES DOCSTRING MAGIC: lego-tags
+@defopt lego-tags  
+The directory of the TAGS table for the LEGO library
 @end defopt
+The default for @code{lego-tags} is @code{"/usr/lib/lego/lib_Type/"}.
 
-@defopt lego-help-menu-list
-List of menu items, as defined in @code{easy-menu-define} for LEGO
-  specific help.
-@end defopt
+@c DAVES DOCSTRING MAGIC: lego-help-menu-list
+@defvar lego-help-menu-list  
+List of menu items, as defined in `easy-menu-define' for LEGO
+specific help.
+@end defvar
 
 @c We don't worry about the following for now. These are too obscure.
 @c lego-indent
@@ -1507,13 +1564,14 @@ the same base name but extension @file{.thy} swapped for @file{.ML}.
 The same function (and keybinding) switches back to an ML file from the
 theory file.
 
-@deffn Command thy-find-other-file
-Find and switch to the associated ML file (when editing a theory file)
-or theory file (when editing an ML file).  
 
-Usually the current window is split and the new file shown in the other
-window.  With an optional argument (@kbd{C-u} prefix), the other file
-replaces the one in the current window.
+@c DAVES DOCSTRING MAGIC: thy-find-other-file
+@deffn Command thy-find-other-file &optional samewindow 
+Find associated .ML or .thy file.
+Finds and switch to the associated ML file (when editing a theory file)
+or theory file (when editing an ML file).  
+If @var{samewindow} is non-nil (interactively, with an optional argument)
+the other file replaces the one in the current window.
 @end deffn
 
 
@@ -1523,41 +1581,63 @@ replaces the one in the current window.
 Here are some of the user options specific to Isabelle.  You can set
 these with the customization mechanism as usual.
 
-@defopt isabelle-web-page
-A string containing a URL for a web page for Isabelle.
-@end defopt
+@c DAVES DOCSTRING MAGIC: isabelle-web-page
+@defvar isabelle-web-page  
+URL of web page for Isabelle.
+@end defvar
 
 
 @c @unnumberedsubsec Theory file editing customization
 
-@defopt thy-use-sml-mode
-If non-nil, attempt to use sml-mode in ML section of theory files.  
+@c DAVES DOCSTRING MAGIC: thy-use-sml-mode
+@defopt thy-use-sml-mode  
+If non-nil, invoke sml-mode inside "ML" section of theory files.
 This option is left-over from Isamode.  Really, it would be more
 useful if the script editing mode of Proof General itself could be based 
 on sml-mode, but at the moment there is no way to do this.
 @end defopt
 
+@c DAVES DOCSTRING MAGIC: thy-indent-level
+@defvar thy-indent-level  
+Indentation level for Isabelle theory files.  An integer.
+@end defvar
+
 @defopt thy-indent-level
 Indentation level for Isabelle theory files.  An integer.
 @end defopt
 
-@defopt thy-sections
-A list containing names of theory file sections and their templates.
+@c DAVES DOCSTRING MAGIC: thy-sections
+@defvar thy-sections  
+Names of theory file sections and their templates.
 Each item in the list is a pair of a section name and a template.
 A template is either a string to insert or a function. Useful functions are:
-@code{thy-insert-header}, @code{thy-insert-class}, 
-@code{thy-insert-default-sort}, @code{thy-insert-const}, 
-@code{thy-insert-rule}.  The nil template does nothing.
+@lisp
+  thy-insert-header, thy-insert-class, thy-insert-default-sort,
+  thy-insert-const, thy-insert-rule
+@end lisp
+The nil template does nothing.
 You can add extra sections to theory files by extending this variable.
-@end defopt
+@end defvar
 
-@defopt thy-template
+@c DAVES DOCSTRING MAGIC: thy-template
+@defopt thy-template  
 Template for theory files.
 Contains a default selection of sections in a traditional order.
 You can use the following format characters:
-  @code{%t}  -- replaced by theory name
-  @code{%p}  -- replaced by names of parents, separated by @code{+}'s
+@lisp
+  %t --- replaced by theory name
+  %p --- replaced by names of parents, separated by +'s
+@end lisp
 @end defopt
+
+@c ideal for above:
+@c @defopt thy-template
+@c Template for theory files.
+@c Contains a default selection of sections in a traditional order.
+@c You can use the following format characters:
+@c   @code{%t}  -- replaced by theory name
+@c   @code{%p}  -- replaced by names of parents, separated by @code{+}'s
+@c @end defopt
 
 
 
