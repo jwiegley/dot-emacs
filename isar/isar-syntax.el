@@ -30,11 +30,28 @@
   (modify-syntax-entry ?_  "w")
   (modify-syntax-entry ?\' "w")
   (modify-syntax-entry ??  "w")
-  (modify-syntax-entry ?\* ". 23")
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4")
-  (modify-syntax-entry ?\{ "(}1")
-  (modify-syntax-entry ?\} "){4"))
+  (cond
+   (proof-running-on-XEmacs
+    ;; We classify {* sequences *} as comments, although
+    ;; they need to be passed as command args as text.
+    ;; NB: adding a comment sequence b seems to break
+    ;; buffer-syntactic-context, best to use emulated 
+    ;; version.
+    (modify-syntax-entry ?\{ "(}5")
+    (modify-syntax-entry ?\} "){8")
+    (modify-syntax-entry ?\* ". 2367"))
+    ;; previous version confuses the two comment sequences,
+    ;; but works with buffer-syntactic-context.
+    ;;(modify-syntax-entry ?\{ "(}1")
+    ;;(modify-syntax-entry ?\} "){4")
+    ;;(modify-syntax-entry ?\* ". 23"))
+   (proof-running-on-Emacs21
+    (modify-syntax-entry ?\{ "(}1b")
+    (modify-syntax-entry ?\} "){4b")
+    (modify-syntax-entry ?\* ". 23n"))))
+
 
 (defun isar-init-output-syntax-table ()
   "Set appropriate values for syntax table for Isabelle output."
@@ -253,16 +270,17 @@
 
 (defconst isabelle-class-name-face 'isabelle-class-name-face)
 (defconst isabelle-tfree-name-face 'isabelle-tfree-name-face)
-(defconst isabelle-tvar-name-face 'isabelle-tvar-name-face)
-(defconst isabelle-free-name-face 'isabelle-free-name-face)
+(defconst isabelle-tvar-name-face  'isabelle-tvar-name-face)
+(defconst isabelle-free-name-face  'isabelle-free-name-face)
 (defconst isabelle-bound-name-face 'isabelle-bound-name-face)
-(defconst isabelle-var-name-face 'isabelle-var-name-face)
+(defconst isabelle-var-name-face   'isabelle-var-name-face)
 
 (defvar isar-font-lock-keywords-1
   (list
    (cons (isar-ids-to-regexp isar-keywords-minor)          'font-lock-type-face)
    (cons (isar-ids-to-regexp isar-keywords-control)        'proof-error-face)
    (cons (isar-ids-to-regexp isar-keywords-diag)           'proof-tacticals-name-face)
+   ;; FIXME da: font-lock-preprocessor-face does not exist on GNU Emacs.
    (cons (isar-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-preprocessor-face)
    (cons (isar-ids-to-regexp isar-keywords-theory)         'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-enclose)  'font-lock-preprocessor-face)
