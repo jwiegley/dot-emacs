@@ -195,14 +195,14 @@
       )
      ("Notations"
       "COMMAND               ABBREVIATION"
-      ["Infix                           inf<C-BS>" (holes-insert-and-expand "inf") t]     
-      ["Notation (no assoc)             nota<C-BS>" (holes-insert-and-expand "nota") t]     
-      ["Notation (assoc)                notas<C-BS>" (holes-insert-and-expand "notas") t]     
-      ["Notation (no assoc, scope)      notasc<C-BS>" (holes-insert-and-expand "notasc") t]     
-      ["Notation (assoc, scope)         notassc<C-BS>" (holes-insert-and-expand "notassc") t]
-		""
-      ["Notation (simple)               nots<C-BS>" (holes-insert-and-expand "nots") t]     
-      ["Notation (simple,local)         notsl<C-BS>" (holes-insert-and-expand "nots") t]     
+      ["Infix                      inf<C-BS>" (holes-insert-and-expand "inf") t]     
+      ["Notation (no assoc)        nota<C-BS>" (holes-insert-and-expand "nota") t]     
+      ["Notation (assoc)           notas<C-BS>" (holes-insert-and-expand "notas") t] 
+      ["Notation (no assoc, scope) notasc<C-BS>" (holes-insert-and-expand "notasc") t] 
+      ["Notation (assoc, scope)    notassc<C-BS>" (holes-insert-and-expand "notassc") t]
+      ""
+      ["Notation (simple)          nots<C-BS>" (holes-insert-and-expand "nots") t]     
+      ["Notation (simple,local)    notsl<C-BS>" (holes-insert-and-expand "nots") t]     
 
       )
      )

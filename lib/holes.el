@@ -104,10 +104,14 @@ It is useful in combination with abbreviations.  For example in
 \\[holes-set-point-next-hole-destroy] goes from one hole to the
 following and you can fill-in each hole very quickly.
 
-                          KNOWN BUGS
+COMBINING HOLES AND SKELETONS
 
- o Replacing holes with mouse in Emacs works but it seems that one
-more click is needed to really see the replacement
+`holes' minor mode is made to work with minor mode `skeleton' minor
+mode. For the moment only Emacs version of `skeleton' is compatible
+with `holes', not XEmacs's. When you insert a skeleton, each
+interesting position will be replaced by a hole. 
+
+                          KNOWN BUGS
 
  o Don't try to make overlapping holes, it doesn't work. (what would
 it mean anyway?)
@@ -116,8 +120,10 @@ it mean anyway?)
 holes, and undoing on holes cannot make holes re-appear. With XEmacs
 it will, but if you copy paste the active hole, you will get several
 holes highlighted as the active one (whereas only one of them really
-is), which is annoying")
+is), which is annoying.
+")
 
+ 
 ;;; Code:
 
 (cond
@@ -832,7 +838,7 @@ become holes."
 	(t
 	 (goto-char pos)
 	 (message (substitute-command-keys
-		   "Hit \\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))))
+		   "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))))
 
 (defun holes-insert-and-expand (s)
   "Insert S, expand it and replace #s and @{]s by holes."
@@ -869,3 +875,5 @@ turn it off."
 	  (cons '(holes-mode " Holes") minor-mode-alist)))
 
 (provide 'holes)
+
+;;; holes.el ends here
