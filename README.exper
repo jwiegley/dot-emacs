@@ -42,3 +42,10 @@ Current "experimental" features
    well, because no context is available to Proof General, so only
    variables bound at the outer level can have meaningful information
    displayed, via the "term" command.
+
+
+Known problems with experimental features
+=========================================
+
+** Move up/down functions make spoil visibility behaviour.
+   
