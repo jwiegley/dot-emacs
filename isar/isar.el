@@ -5,7 +5,7 @@
 ;; Maintainer:  Isabelle maintainer <isabelle@dcs.ed.ac.uk>
 
 ;;
-;; isar.el,v 2.44 1998/11/10 18:08:50 da Exp
+;; $Id isar.el,v 2.44 1998/11/10 18:08:50 da Exp$
 ;;
 
 
@@ -103,8 +103,7 @@
 	(outl-mouse-minor-mode))
     (outline-minor-mode)))
 
-;;; ---- end-outline
-
+(defvar isar-undo "undo")
 
 
 ;;; NB!  Disadvantage of *not* shadowing variables is that user
@@ -133,7 +132,7 @@
    proof-save-command		"qed"
    proof-ctxt-string		"print_theory"
    proof-help-string		"help"
-   proof-kill-goal-command	"kill"
+   proof-kill-goal-command	"kill_proof"
    ;; command hooks
    proof-goal-command-p		'isar-goal-command-p
    proof-count-undos-fn		'isar-count-undos
@@ -176,11 +175,10 @@
    proof-shell-start-goals-regexp	"\366"
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
-   ;; initial command configures Isabelle/Isar by hacking print functions.
-   proof-shell-init-cmd
-    (concat "use \"" proof-home-directory "isar/ProofGeneral.ML\";")
+   ;; initial command configures Isabelle/Isar by modifying print functions etc.
+   proof-shell-init-cmd                 "ProofGeneral.init true;"
    proof-shell-restart-cmd		"restart;"
-   proof-shell-quit-cmd			"quit;"
+   proof-shell-quit-cmd			"quit();"
    
    proof-shell-eager-annotation-start   "\360\\|\362"
    proof-shell-eager-annotation-end     "\361\\|\363"
@@ -221,56 +219,23 @@
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
    )
-  (add-hook 'proof-activate-scripting-hook 'isar-shell-hack-use-thy)
+  (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting)
   )
 
 
 ;;;
-;;;  use_thy and friends.
-;;;
-;;; Quite tricky to get these right.  By default, Isabelle's
-;;; theory loader glues together theory and ML files whenever
-;;; it can, but that's not what we want here.
-;;;
-;;; So we rely on some hacked versions.
+;;; Theory loader operations
 ;;;
 
-(defcustom isar-usethy-notopml-command "" ;;; FIXME "ProofGeneral.use_thy \"%s\";"
+;; FIXME use_thy_parents
+(defcustom isar-use-thy-only-command "" ; FIXME "use_thy_only \"%s\";"
   "Sent to Isabelle/Isar to process theory for this ML file, and all ancestors."
   :type 'string
   :group 'isabelle-isar-config)
 
-(defun isar-shell-hack-use-thy ()
-  "Possibly issue  use_thy_no_topml command to Isabelle/Isar.
-If the current buffer has an empty locked region, the interface is
-about to send commands from it to Isabelle/Isar.  This function sends
-a command to read any theory file corresponding to the current ML file.
-This is a hook function for proof-activate-scripting-hook."
-  (if (and
-       (proof-locked-region-empty-p)
-       ;; If we switch to this buffer and it *does* have a locked
-       ;; region, we could check that no updates are needed and
-       ;; unlock the whole buffer in case they were.  But that's
-       ;; a bit messy.  Instead we assume that things must be
-       ;; up to date, after all, the user wasn't allowed to edit
-       ;; anything that this file depends on, was she?
-       buffer-file-name
-       (file-exists-p 
-	(concat (file-name-sans-extension buffer-file-name) ".thy")))
-      ;; Send a use_thy command if there is a corresponding .thy file.
-      ;; Let Isabelle do the work of checking whether any work needs
-      ;; doing.  Really this should be force_use_thy, too.
-      ;; Wait after sending, so that queue is cleared for further commands.
-      ;; (there would be no harm in letting the queue be extended
-      ;; if it were allowed for).
-      (progn
-	(proof-shell-invisible-command
-	 (format isar-usethy-notopml-command
-		 (file-name-sans-extension buffer-file-name))
-	 t)
-	;; Leave the messages from the use around.
-	(setq proof-shell-erase-response-flag nil))
-    ))
+(defun isar-activate-scripting ()
+  "Make sure the Isabelle/Isar toplevel is in a sane state."
+  (proof-shell-invisible-command proof-shell-restart-cmd))
 
 (defun isar-shell-compute-new-files-list (str)
   "Compute the new list of files read by the proof assistant.
@@ -353,7 +318,7 @@ proof-included-files-list."
   (interactive (list buffer-file-name))
   (save-some-buffers)
   (proof-shell-invisible-command 
-   (format isar-usethy-notopml-command
+   (format isar-use-thy-only-command
 	   (file-name-sans-extension file))))
 
 (defcustom isar-retract-thy-file-command "" ;; MMW FIXME "ML {| ProofGeneral.retract_thy_file \"%s\"; |};"
@@ -439,7 +404,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 ;; FIXME: think about the next variable.  I've changed sense from
 ;;  LEGO and Coq's treatment.
 (defcustom isar-not-undoable-commands-regexp
-  (proof-ids-to-regexp '("break" "context" "clear_undo" "undo"))
+  (proof-ids-to-regexp '("break" "context" "clear_undo" "end" "theory" "undo"))
   "Regular expression matching commands which are *not* undoable."
   :type 'regexp
   :group 'isabelle-isar-config)
@@ -478,63 +443,24 @@ Resulting output from Isabelle will be parsed by Proof General."
   "Decide whether argument is a goal or not"
   (proof-string-match isar-goal-command-regexp str)) ; this regexp defined in isar-syntax.el
 
-;; Isabelle has no concept of a Linear context, so forgetting back
-;; to the declaration of a particular something makes no real
-;; sense.  Perhaps in the future there will be functions to remove
-;; theorems from theories, but even then all we could do is
-;; forget particular theorems one by one.  So we ought to search
-;; backwards in isar-find-and-forget, rather than forwards as
-;; the old code below does.
+
+(defconst isar-keywords-decl-defn-regexp
+  (proof-ids-to-regexp (append isar-keywords-decl isar-keywords-defn))
+  "Declaration and definition regexp.")
 
 (defun isar-find-and-forget (span)
   "Return a command to be used to forget SPAN."
-  (save-excursion
-    ;; FIXME: bug here: too much gets retracted.
-    ;; See if we are going to part way through a completely processed
-    ;; buffer, in which case it should be removed from 
-    ;; proof-included-files-list along with any other buffers
-    ;; depending on it.  However, even though we send the retraction
-    ;; command to Isabelle we don't want to *completely* unlock
-    ;; the current buffer.  How can this be avoided?
-    (goto-char (point-max))
-    (skip-chars-backward " \t\n") 
-    (if (>= (proof-unprocessed-begin) (point))
-	(format isar-retract-ML-files-children-command 
-		(file-name-sans-extension 
-		 (file-name-nondirectory
-		  (buffer-file-name))))
-      proof-no-command)))
-
-
-;; BEGIN Old code  (taken from Coq.el)
-;(defconst isar-keywords-decl-defn-regexp
-;  (ids-to-regexp (append isar-keywords-decl isar-keywords-defn))
-;  "Declaration and definition regexp.")
-;(defun isar-find-and-forget (span)
-;  (let (str ans)
-;    (while (and span (not ans))
-;      (setq str (span-property span 'cmd))
-;      (cond
-;       ((eq (span-property span 'type) 'comment))       
-
-;       ((eq (span-property span 'type) 'goalsave)
-;	(setq ans (concat isar-forget-id-command
-;			  (span-property span 'name) proof-terminal-string)))
-
-;       ((string-match (concat "\\`\\(" isar-keywords-decl-defn-regexp
-;                              "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)
-;	(setq ans (concat isar-forget-id-command
-;			  (match-string 2 str) proof-terminal-string)))
-;       ;; If it's not a goal but it contains "Definition" then it's a
-;       ;; declaration
-;       ((and (not (isar-goal-command-p str))
-;	     (string-match
-;	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*:") str))
-;	(setq ans (concat isar-forget-id-command
-;			  (match-string 2 str) proof-terminal-string))))
-;      (setq span (next-span span 'type)))
-;      (or ans "COMMENT")))
-; END old code 
+  (let (str ans)
+    (while (and span (not ans))
+      (setq str (span-property span 'cmd))
+      (cond
+       ((eq (span-property span 'type) 'comment))
+       ((eq (span-property span 'type) 'goalsave)
+	(setq ans isar-undo))
+       ((string-match isar-keywords-decl-defn-regexp str)
+	(setq ans isar-undo)))
+      (setq span (next-span span 'type)))
+    (or ans proof-no-command)))
 
 (defvar isar-current-goal 1
   "Last goal that emacs looked at.")
