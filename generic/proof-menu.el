@@ -1,4 +1,4 @@
-;; proof-menu.el  Menu and keymaps for Proof General
+;; proof-menu.el  Menus, keymaps, and misc commands for Proof General
 ;;
 ;; Copyright (C) 2000 LFCS Edinburgh. 
 ;; Authors:  David Aspinall
@@ -7,6 +7,21 @@
 ;;
 ;; $Id$
 ;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Miscellaneous commands
+;;;
+
+(defun proof-display-some-buffers ()
+  "Display the reponse buffer, and maybe also the goals buffer.
+If in three window or multiple frame mode, the goals buffer
+is also displayed."
+  (interactive)
+  (proof-switch-to-buffer proof-response-buffer 'noselect)
+  (if (or proof-dont-switch-windows proof-multiple-frames-enable)
+      (proof-switch-to-buffer proof-goals-buffer 'noselect)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -22,16 +37,19 @@
 ;; (define-key map [(control c) (control e)] 'proof-goto-command-end)
 ;; (define-key map [(control c) (control a)] 'proof-goto-command-start)
 (define-key map [(control c) (control b)] 'proof-process-buffer)
-; C-c C-c is proof-interrupt-process in universal-keys
+;; C-c C-c is proof-interrupt-process in universal-keys
+(define-key map [(control c) (control f)] 'proof-find-theorems)
+(define-key map [(control c) (control h)] 'proof-help)
+(define-key map [(control c) (control l)] 'proof-display-some-buffers)
 (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) (control r)] 'proof-retract-buffer)
 (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
 (define-key map [(control c) (control t)] 'proof-ctxt)
 (define-key map [(control c) (control u)] 'proof-undo-last-successful-command)
+(define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control backspace)] 'proof-undo-and-delete-last-successful-command)
 ; C-c C-v is proof-minibuffer-cmd in universal-keys
-(define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
 (define-key map [(control c) (control return)] 'proof-goto-point)
 (cond ((string-match "XEmacs" emacs-version)
@@ -40,15 +58,13 @@
       (t 
 (define-key map [mouse-3]		  'proof-mouse-goto-point))) ; FSF
 ;; NB: next binding overwrites comint-find-source-code.  
-(define-key map [(control c) (control f)] 'proof-find-theorems)
-(define-key map [(control c) (control h)] 'proof-help)
 ;; FIXME: not implemented yet 
 ;; (define-key map [(meta p)]		  'proof-previous-matching-command)
 ;; (define-key map [(meta n)]		  'proof-next-matching-command)
 ;; Standard binding for completion
 (define-key map [(control return)] 'proof-script-complete)
-;(define-key map [(control c) ?u] 'proof-retract-until-point-interactive)
 ;; Add the universal keys bound in all PG buffers.
+;; C-c ` is next-error in universal-keys
 (proof-define-keys map proof-universal-keys))
 
 
@@ -100,6 +116,16 @@
 	      (proof-menu-define-settings-menu))
 	  '("----")
 	  (list
+	   (vector
+	    (concat "Start " proof-assistant)
+	    'proof-shell-start
+	    ':active '(not (proof-shell-live-buffer)))
+	   (vector
+	    (concat "Exit " proof-assistant)
+	    'proof-shell-exit
+	    ':active '(proof-shell-live-buffer)))
+	  '("----")
+	  (list
 	   (cons "Help"
 		 (append 
 		  `(;; FIXME: should only put these two on the
@@ -126,6 +152,10 @@
 
 (defvar proof-buffer-menu
   '("Buffers"
+    ["Display some"
+     proof-display-some-buffers
+     :active (or (buffer-live-p proof-goals-buffer)
+		 (buffer-live-p proof-response-buffer))]
     ["Active scripting"
      (proof-switch-to-buffer proof-script-buffer)
      :active (buffer-live-p proof-script-buffer)]
@@ -150,7 +180,7 @@
 
 (defvar proof-quick-opts-menu
   `("Options"
-    ["Don't switch windows" proof-dont-switch-windows-toggle
+    ["Three window mode" proof-dont-switch-windows-toggle
      :style toggle
      :selected proof-dont-switch-windows]
     ["Delete empty windows" proof-delete-empty-windows-toggle
@@ -190,21 +220,9 @@
 
 (defvar proof-shared-menu
   (append
-   ;; FIXME: should we move the start and stop items to 
-   ;; the specific menu?  
-   ;; (They only seem specific because they mention the PA).
-    (list
-     (vector
-      (concat "Start " proof-assistant)
-      'proof-shell-start
-      ':active '(not (proof-shell-live-buffer)))
-     (vector
-      (concat "Exit " proof-assistant)
-      'proof-shell-exit
-      ':active '(proof-shell-live-buffer)))
-    (list proof-buffer-menu)
-    (list proof-quick-opts-menu)
-    (list proof-help-menu))
+   (list proof-buffer-menu)
+   (list proof-quick-opts-menu)
+   (list proof-help-menu))
   "Proof General menu for various modes.")
 
 (defvar proof-bug-report-menu
@@ -224,6 +242,8 @@
 	    ["Function menu" function-menu
 	     :active (fboundp 'function-menu)]
 	    ["Complete identifier" complete t]
+	    ["Next error" proof-next-error
+	     :active proof-shell-next-error-regexp]
 	    "----")
           proof-shared-menu)
   "The Proof General generic menu.")
