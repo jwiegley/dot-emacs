@@ -52,7 +52,7 @@ by Thomas Kleymann and Dilip Sequeira
 @b{Coq Proof General} for Coq Version 6.2@*
 by Healfdene Goguen
 @item 
-@b{Isabelle Proof General} for Isabelle@*
+@b{Isabelle Proof General} for Isabelle 98-1@*
 by David Aspinall
 @end itemize
 
