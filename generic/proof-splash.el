@@ -1,6 +1,6 @@
 ;; proof-splash.el -- Splash welcome screen for Proof General
 ;;
-;; Copyright (C) 1998 LFCS Edinburgh. 
+;; Copyright (C) 1998-2001 LFCS Edinburgh. 
 ;; Author: David Aspinall
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
@@ -161,8 +161,11 @@ Borrowed from startup-center-spaces."
       (proof-splash-remove-screen (cdr proof-splash-timeout-conf)))
   ;; Make sure timeout is stopped
   (disable-timeout (car proof-splash-timeout-conf))
-  (if (input-pending-p)
-      (setq unread-command-event (next-command-event)))
+  (if (and (input-pending-p)
+	   (fboundp 'next-command-event)) ; 3.3: this function
+					  ; disappeared from emacs, sigh
+      (setq unread-command-events	
+	    (cons (next-command-event) unread-command-events)))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
 (provide 'proof-splash)
