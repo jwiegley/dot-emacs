@@ -21,6 +21,11 @@ RELEASE 2.0 remaining problems:
 
 A***  Documentation polishing.
 
+A***  MULTIPLE FILES BEHAVIOUR:
+        Problems with inclusion of the script buffer file name
+        in the included files list.  Should it be there or not,
+	if the file is only partly processed?
+
 A***  BUG: FSF Emacs process handling (check on proof-shell-insert fix), 
       killing buffer problems.
 
