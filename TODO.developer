@@ -23,6 +23,9 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 ** Multiple file handling
 ** Automatic adjustment of line width
 
+* Docstring magic fixups
+** Some missing files
+** Isabelle classic remove?
 
 =================================================================
 

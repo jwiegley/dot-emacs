@@ -15,6 +15,11 @@
 (require 'proof-compat)
 (require 'proof-utils)
 
+; need these?
+;(require 'pg-user)
+;(require 'pg-goals)
+;(require 'pg-response)
+
 ;; FIXME: Loading several prover files at once is a bit of a problem
 ;; with new config mechanism.
 ;; Could abstract more code in proof-site.el to avoid duplication here.
