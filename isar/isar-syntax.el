@@ -3,9 +3,9 @@
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk>
-;; Maintainer:  Markus Wenzel <wenzelm@in.tum.de>
+;; Maintainer:  Gerwin Klein <kleing@in.tum.de>
 ;;
-;; $Id$
+;; isar-syntax.el,v 7.3 2003/04/15 16:06:09 da Exp
 ;;
 
 (require 'proof-syntax)
@@ -137,19 +137,43 @@
 
 ;; ----- regular expressions
 
+(defun isar-regexp-simple-alt (l) (mapconcat 'identity l "\\|"))
+
+;; tests
+;; (isar-regexp-simple-alt ())
+;; (isar-regexp-simple-alt '("bla"))
+;; (isar-regexp-simple-alt '("bla" "blub" "blubber"))
+
 ;; tuned version of proof-ids-to-regexp --- admit single non-word char
 ;; as well (e.g. { })
+
+;; GK: this seems buggy, why \<\.\> but not \<{\>?
+;; font lock doesn't care ( \.\|{ is fine ), but PG parser takes
+;; . in long.identfier as command if not \<\.\>
+;; maybe use separate functions?
 
 ;; DA: this goes wrong for { and } in fact, because plain { and } in
 ;; `proof-script-command-start-regexp' also match with {* and *}, which 
 ;; should not be considered as commands (breaks new parser).
 ;; For now, we revert to old parser and old form of this function.
 
-(defun isar-ids-to-regexp (l)
-  "Maps a non-empty list of tokens `l' to a regexp matching any element"
-  (mapconcat
-   (lambda (s) (if (proof-string-match "^\\W$" s) s (concat "\\<" s "\\>")))
-   l "\\|"))
+(defun isar-ids-to-regexp (l) 
+  "Maps a non-empty list of tokens `l' to a regexp matching all elements"
+  (let* ((special (remove-if-not (lambda (s) (string-match "{\\|}" s)) l))
+         (normal (remove-if (lambda (s) (string-match "{\\|}" s)) l))
+         (s-reg (isar-regexp-simple-alt special))
+         (n-reg (concat "\\<\\(?:" (isar-regexp-simple-alt normal) "\\)\\>")))
+    (cond 
+     ((null special) n-reg)
+     ((null normal) s-reg)
+     (t (concat n-reg "\\|" s-reg)))))
+
+;; tests
+; (isar-ids-to-regexp '("bla" "blubber"))
+; (isar-ids-to-regexp '("bla" "\\." "blubber"))
+; (isar-ids-to-regexp '("bla" "\\." "blubber" "{"))
+              
+
 ;;
 ;; Alternative version with attempt to work for new parser (unfinished) 
 ;  (mapconcat
@@ -167,19 +191,19 @@
 ;		   (concat "\\<" s "\\>")))
 ;   l "\\|"))
 
-(defconst isar-long-id-stuff "\\([A-Za-z0-9'_.]+\\)")
+(defconst isar-long-id-stuff "\\(?:[A-Za-z0-9'_.]+\\)")
 
-(defconst isar-id "\\([A-Za-z][A-Za-z0-9'_]*\\)")
-(defconst isar-idx (concat isar-id "\\(\\.[0-9]+\\)?"))
+(defconst isar-id "\\(?:[A-Za-z][A-Za-z0-9'_]*\\)")
+(defconst isar-idx (concat isar-id "\\(?:\\.[0-9]+\\)?"))
 
-(defconst isar-string "\"\\(\\([^\"]\\|\\\\\"\\)*\\)\"")
+(defconst isar-string "\"\\(?:\\(?:[^\"]\\|\\\\\"\\)*\\)\"")
 
 (defconst isar-any-command-regexp
   (isar-ids-to-regexp isar-keywords-major)
   "Regexp matching any Isabelle/Isar command keyword.")
 
 (defconst isar-name-regexp
-  (concat "\\s-*\\(" isar-string "\\|" isar-id "\\)\\s-*")
+  (concat "\\s-*\\(?:" isar-string "\\|" isar-id "\\)\\s-*")
   "Regexp matching Isabelle/Isar names, with contents grouped.")
 
 (defconst isar-tac-regexp
@@ -210,22 +234,8 @@
 ;; antiquotations
 
 (defconst isar-antiq-regexp
-  (concat "\\(@{\\([^\"{}]+\\|" isar-string "\\)\\{0,7\\}}\\)")
+  (concat "@{\\(?:[^\"{}]+\\|" isar-string "\\)*}")
   "Regexp matching Isabelle/Isar antiquoations.")
-
-(defun isar-match-antiq (limit)
-  "Match Isabelle/Isar antiquotations."
-  ;;(save-match-data
-    (or
-     (and (proof-looking-at-syntactic-context)
-	  (proof-looking-at isar-antiq-regexp))
-     (let (done ans)
-       (while (not done)
-	 (if (proof-re-search-forward isar-antiq-regexp limit t)
-	     (and (proof-looking-at-syntactic-context)
-		  (setq done t) (setq ans t))
-	   (setq done t)))
-       ans)));; )
 
 
 ;; ----- Isabelle inner syntax hilite
@@ -305,12 +315,11 @@
    (cons (isar-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-preprocessor-face)
    (cons (isar-ids-to-regexp isar-keywords-theory)         'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-enclose)  'font-lock-preprocessor-face)
-   (cons (isar-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
+   (cons (isar-ids-to-regexp isar-keywords-proof)           'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
-   (cons isar-tac-regexp 'font-lock-reference-face))
-;; da: this function is expensive and buggy, or at least trips bugs in XEmacs/font lock
-  '(isar-match-antiq (0 'font-lock-variable-name-face prepend)))
+   (cons isar-tac-regexp 'font-lock-reference-face)
+   (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))))
 
 (defvar isar-output-font-lock-keywords-1
   (list
@@ -391,15 +400,15 @@
 ;; ----- function-menu
 
 (defconst isar-any-entity-regexp
-  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
-          "\\(" isar-name-regexp "[[:=]\\)?"))
+  (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"
+          "\\(?:" isar-name-regexp "[[:=]\\)?"))
 
 (defconst isar-named-entity-regexp
-  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"
+  (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"
           isar-name-regexp "[[:=]"))
 
 (defconst isar-unnamed-entity-regexp
-  (concat "\\(" (isar-ids-to-regexp isar-keywords-fume) "\\)"))
+  (concat "\\(?:" (isar-ids-to-regexp isar-keywords-fume) "\\)"))
 
 (defconst isar-next-entity-regexps
   (list isar-any-entity-regexp
@@ -424,7 +433,7 @@
 ;; ----- outline mode
 
 (defconst isar-outline-regexp
-  (concat "[ \t]*\\(" (isar-ids-to-regexp isar-keywords-outline) "\\)")
+  (concat "[ \t]*\\(?:" (isar-ids-to-regexp isar-keywords-outline) "\\)")
   "Outline regexp for Isabelle/Isar documents")
 
 (defconst isar-outline-heading-end-regexp "\n")
