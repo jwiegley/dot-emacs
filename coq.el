@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 2.0  1998/08/11 11:39:20  da
+;; Renamed <file>-fontlock to <file>-syntax
+;;
 ;; Revision 1.29  1998/06/10 11:42:06  hhg
 ;; Added coq-init-syntax-table as function to initialize syntax entries
 ;; particular to coq.
@@ -138,7 +141,7 @@
 ;; New structure to share as much as possible between LEGO and Coq.
 ;;
 
-(require 'coq-fontlock)
+(require 'coq-syntax)
 (require 'outline)
 (require 'proof)
 (require 'info)

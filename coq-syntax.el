@@ -1,9 +1,12 @@
-;; coq-fontlock.el Font lock expressions for Coq
+;; coq-syntax.el Font lock expressions for Coq
 ;; Copyright (C) 1997, 1998 LFCS Edinburgh. 
 ;; Author: Thomas Kleymann and Healfdene Goguen
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.2  1998/08/11 11:43:13  da
+;; Renamed <file>-fontlock to <file>-syntax
+;;
 ;; Revision 1.14  1998/06/11 12:20:14  hhg
 ;; Added "Scheme" as definition keyword.
 ;;
@@ -63,7 +66,7 @@
 ;;
 ;;
 
-(require 'proof-fontlock)
+(require 'proof-syntax)
 
 ;; ----- keywords for font-lock.
 
@@ -266,4 +269,4 @@
      (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
      (list coq-save-with-hole-regexp 2 'font-lock-function-name-face))))
 
-(provide 'coq-fontlock)
+(provide 'coq-syntax)

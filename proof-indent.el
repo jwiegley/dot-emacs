@@ -4,8 +4,7 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 (require 'cl)
-(require 'proof-fontlock)
-;; proof-fontlock ought to be renamed to proof-syntax
+(require 'proof-syntax)
 
 (defvar proof-stack-to-indent nil
   "Prover-specific code for indentation.")

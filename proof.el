@@ -16,7 +16,7 @@
 (cond ((fboundp 'make-extent) (require 'span-extent))
       ((fboundp 'make-overlay) (require 'span-overlay))
       (t nil))
-(require 'proof-fontlock)
+(require 'proof-syntax)
 (require 'proof-indent)
 (require 'easymenu)
 
@@ -803,7 +803,8 @@
    ((string-match proof-shell-interrupt-regexp string)
     'interrupt)
 
-   ((string-match proof-shell-abort-goal-regexp string)
+   ((and proof-shell-abort-goal-regexp
+	 (string-match proof-shell-abort-goal-regexp string))
     (setq proof-shell-delayed-output (cons 'insert "\n\nAborted"))
     ())
 	 
@@ -834,7 +835,6 @@
 		  cmd string))
     (funcall (cdr proof-shell-process-output-system-specific)
 	     cmd string))
-
 
    (t (setq proof-shell-delayed-output (cons 'insert string)))))
          

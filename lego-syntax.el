@@ -1,11 +1,12 @@
-;; lego-fontlock.el Font lock expressions for LEGO
+;; lego-syntax.el Font lock expressions for LEGO
 ;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
-;; should perhaps be called lego-syntax instead of lego-fontlock
-
 ;; $Log$
+;; Revision 1.2  1998/08/11 11:43:14  da
+;; Renamed <file>-fontlock to <file>-syntax
+;;
 ;; Revision 1.6  1998/07/27 15:39:53  tms
 ;; Supports official LEGO release 1.3
 ;;
@@ -36,7 +37,7 @@
 ;;
 
 
-(require 'proof-fontlock)
+(require 'proof-syntax)
 
 ;; ----- keywords for font-lock.
 
@@ -123,4 +124,4 @@
      (list lego-goal-with-hole-regexp 2 'font-lock-function-name-face)
      (list lego-save-with-hole-regexp 2 'font-lock-function-name-face))))
      
-(provide 'lego-fontlock)
+(provide 'lego-syntax)

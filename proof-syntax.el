@@ -1,9 +1,12 @@
-;; proof-fontlock.el Generic font lock expressions
+;; proof-syntax.el Generic font lock expressions
 ;; Copyright (C) 1997 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen, Thomas Kleymann and Dilip Sequiera
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.2  1998/08/11 11:43:14  da
+;; Renamed <file>-fontlock to <file>-syntax
+;;
 ;; Revision 1.8  1998/06/10 11:45:12  hhg
 ;; Changed "\\s " to "\\s-" in proof-id as whitespace pattern.
 ;;
@@ -41,6 +44,7 @@
 
 (require 'font-lock)
 
+;;; FIXME: change this to proof-
 (defun ids-to-regexp (l)
   "transforms a non-empty list of identifiers `l' into a regular
   expression matching any of its elements"
@@ -136,4 +140,4 @@
 		   '(proof-zap-commas-region))))
 
 
-(provide 'proof-fontlock)
+(provide 'proof-syntax)
