@@ -12,6 +12,21 @@ theory Parsing = Main:
 text {* Isar theories can have arbitrary literal text,
           so the text must be ignored as well; thus. *}
 
+(* Those pieces of literal text are treated as another kind
+   of comment. What gets slight risky is when they're
+   text {* nested one inside the other. *}.
+   If Emacs confuses the two kinds of sequence, then
+   this can go wrong.
+*)
+
+text {* nesting (* may be the other way around *) *}
+
+(* The main type of comment (* may be nested *)
+   just like in SML. GNU Emacs supports this now, nicely,
+   but XEmacs doesn't, so colouration goes wrong.  
+   If there are any command names inside this comment
+   (e.g. theorem), it breaks the parser in XEmacs. *)
+
 (* Let's do my favourite proof. *)
 
 theorem and_comms: "A & B --> B & A"
