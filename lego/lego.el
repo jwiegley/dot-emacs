@@ -56,7 +56,7 @@
     (lambda (cmd string)
       (setq proof-shell-delayed-output
 	    ;;FIXME: This should be displayed in the minibuffer only
-	    (cons 'insert "Imports done!"))))
+	    (cons 'insert "\n\nImports done!"))))
   "Acknowledge end of processing import declarations.")
 
 (defconst lego-process-config
