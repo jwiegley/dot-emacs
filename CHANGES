@@ -7,3 +7,5 @@ Summary of Changes since Proof General 2.0
   input and output with special fonts.
   Patches for Isabelle provided by David von Oheimb.
   (incomplete)
+
+* Bug fix for Isabelle theory file mode.
