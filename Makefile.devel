@@ -82,7 +82,7 @@ PRERELEASE_PREFIX=3\.3pre
 PRERELEASE_TAG=3.3pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
-DOWNLOADHTML=develdownload.html
+DOWNLOADHTML=develdownload.php
 DOWNLOADINFOHTML=devel.html
 
 # This is used for full releases to control the tag name
