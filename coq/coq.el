@@ -41,8 +41,6 @@
 
 ;; ----- coq specific menu
 
-;; Pierre: I add Print Check and PrintHint
-;; maybe Print and Check should be buttons ?
 (defpgdefault menu-entries
   '(["Print..." coq-Print t]
     ["Check..." coq-Check t]
@@ -389,12 +387,22 @@ This is specific to coq-mode."
 	       "SearchIsos %s.") cmd))))
 
 
+(defun coq-guess-or-ask-for-string (s)
+  (let ((guess
+			(if (region-exists-p) 
+				 (buffer-substring (region-beginning) (region-end))
+				 (symbol-near-point))))
+	 (read-string 
+	  (if guess (concat s " (" guess "):")(concat s ":"))
+	 nil 'proof-minibuffer-history guess))
+  )
+
 (defun coq-Print ()
   "Ask for an ident and print the corresponding term"
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
-    (setq cmd (read-string "Print: " nil 'proof-minibuffer-history))
+    (setq cmd (coq-guess-or-ask-for-string "Print"))
     (proof-shell-invisible-command
      (format "Print %s." cmd))))
 
@@ -403,7 +411,7 @@ This is specific to coq-mode."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
-    (setq cmd (read-string "Check: " nil 'proof-minibuffer-history))
+    (setq cmd (coq-guess-or-ask-for-string "Check"))
     (proof-shell-invisible-command
      (format "Check %s." cmd))))
 
