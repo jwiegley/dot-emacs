@@ -510,6 +510,8 @@ toolbar and Proof General menus will appear.  This walkthrough is
 keyboard based, although you could easily use the toolbar and menu
 functions instead.
 
+
+
 Now turn on active terminator minor mode by typing @kbd{C-c ;} and
 enter:
 @lisp
@@ -649,10 +651,27 @@ waiting to be sent to the proof process.
 
 Proof mode has two fundamental operations which transfer commands
 between these regions: @emph{assertion} and @emph{retraction}.
+
+@cindex Assertion
+@strong{Assertion} causes commands from the editing region to be
+transferred to the queue region and sent one by one to the proof
+process. If the command is accepted, it is transferred to the locked
+region, but if an error occurs it is signalled to the user, and the
+offending command is transferred back to the editing region together
+with any remaining commands in the queue.
+
 Assertion corresponds to processing proof commands, and makes the locked
-region grow.  Retraction corresponds to undoing commands, and makes the
-locked region shrink.  @xref{Script processing commands} explains how to
-do assertion and retraction.
+region grow.
+
+@cindex Retraction
+@strong{Retraction} causes commands to be transferred from the locked
+region to the editing region (again via the queue region) and the
+appropriate 'undo' commands to be sent to the proof process.
+
+Retraction corresponds to undoing commands, and makes the locked region
+shrink.  @xref{Script processing commands} details the commands
+available for doing assertion and retraction.
+
 
 @node Goal-save sequences
 @subsection Goal-save sequences
@@ -661,23 +680,34 @@ do assertion and retraction.
 @cindex goal-save sequences
 
 A proof script contains a sequence of commands used to prove one or more
-theorems.  Proof General assumes that for each proved theorem, a proof
-script contains a sequence of commands delimited by a pair of special
-commands, known as @code{goal} and @code{save}.  So a proof script has a
-series of proofs which look something like this (of course, the exact
-syntax will depend on the proof assistant you use):
+theorems.
+
+As commands in a proof script are transferred to the locked region, they
+are aggregated into segments which constitute the smallest units which
+can be undone. Typically a segment consists of a declaration or
+definition, or all the text from a @dfn{goal} command to the
+corresponding @dfn{save} command, or the individual commands in the
+proof of an unfinished goal.  As the mouse moves over the the region,
+the segment containing the pointer will be highlighted.
+
+Proof General therefore assumes that the proof script has a series of
+proofs which look something like this:
 @lisp
    goal @var{mythm} is @var{G}
    @dots{}
    save theorem @var{mythm}
 @end lisp
-Proof General recognizes the goal-save sequences in proof scripts.  The
-name @var{mythm} can appear in the menu for the proof script
-(@pxref{Support for function menus}) to help quickly find a proof, and
-once a goal-save region has been fully processed by the proof assistant,
-it is treated as atomic when undoing proof steps.  This reflects the
-fact that most proof assistants discard the history of a proof once a it
-is completed or once a new proof is begun.
+interspersed with comments, definitions, and the like.  Of course, the
+exact syntax and terminology will depend on the proof assistant you use.
+
+The name @var{mythm} can appear in the menu for the proof script to help
+quickly find a proof (@pxref{Support for function menus}).
+
+@c Proof General recognizes the goal-save sequences in proof scripts.
+@c once a goal-save region has been fully processed by the proof assistant,
+@c it is treated as atomic when undoing proof steps.  This reflects the
+@c fact that most proof assistants discard the history of a proof once a it
+@c is completed or once a new proof is begun.
 
 
 @node Active scripting buffer
@@ -819,7 +849,14 @@ Must be an active scripting buffer.
 @kindex C-c C-u
 
 Here are the commands for asserting and retracting portions of the proof
-script, together with their default key bindings.
+script, together with their default key bindings.  Note that assertion
+and retraction commands can only be issued when the queue is empty.  You
+will get an error message @code{Proof Process Busy!} if you try to
+assert an retract when the queue is being processed.@footnote{In fact,
+this is an unnecessary restriction imposed by the original design of
+Proof General.  There is nothing to stop future versions of Proof
+General allowing the queue region to be extended or shrunk, whilst the
+prover is processing it.}
 
 @table @kbd
 @item C-c C-n
@@ -832,15 +869,25 @@ script, together with their default key bindings.
 @code{proof-retract-until-point}
 @item C-c b
 @code{proof-process-buffer}
-@item C-c t
-@code{proof-try-command}
+@item C-c @var{terminator-character}
+@code{proof-active-terminator-minor-mode}
 @end table
 
-A useful point of @kbd{C-c C-b} is that with a faulty proof script, for
-example, a script you are adapting to prove a different theorem, Proof
-General will stop exactly where the proof script fails, showing you the
-error message and the last processed command.  So you can continue
-development from there.
+The last command, @code{proof-active-terminator-minor-mode}, is
+triggered using the character which terminates proof commands for your
+proof assistant's script language.  For LEGO and Isabelle, use @kbd{C-c
+;}, for Coq, use @kbd{C-c .}.  This not really a script processing
+command.  Instead, it causes subsequent key presses of @kbd{;} or
+@kbd{.} to automatically send the line you've typed to the proof
+assistant.
+
+Rather than use any other way of reading a proof script, a good reason
+to use @kbd{C-c C-b} (@code{proof-process-buffer}) is that with a faulty
+proof script (e.g., a script you are adapting to prove a different
+theorem), Proof General will stop exactly where the proof script fails,
+showing you the error message and the last processed command.  So you
+can easily continue development from exactly the right place in the
+script.
 
 
 
@@ -888,16 +935,16 @@ command.
 Process the current buffer and set point at the end of the buffer.
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-try-command
-@deffn Command proof-try-command &optional unclosed-comment-fun
-Process the command at point, but don't add it to the locked region. 
-This will only happen if the command satisfies @code{proof-state-preserving-p}.
 
-Default action if inside a comment is just to go until the start of
-the comment. If you want something different, put it inside
-@var{unclosed-comment-fun}.
+@c TEXI DOCSTRING MAGIC: proof-active-terminator-minor-mode
+@deffn Command proof-active-terminator-minor-mode &optional arg
+Toggle Proof General's active terminator minor mode.
+With arg, turn on the Active Terminator minor mode if and only if arg
+is positive.
+
+If active terminator mode is enabled, a terminator will process the
+current command.
 @end deffn
-
 
 
 @node Toolbar commands
@@ -968,6 +1015,8 @@ from a proof script.  Here are the keybindings and functions.
 @code{proof-help}
 @item C-c C-c
 @code{proof-interrupt-process}
+@item C-c t
+@code{proof-try-command}
 @item C-c C-v
 @code{proof-execute-minibuffer-cmd}
 @end table
@@ -989,16 +1038,67 @@ Print help message giving syntax.
 
 @c TEXI DOCSTRING MAGIC: proof-interrupt-process
 @deffn Command proof-interrupt-process 
-Interrupt the proof assistant.  @var{warning}! This may confuse Proof General.
+Interrupt the proof assistant.  Warning! This may confuse Proof General.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-try-command
+@deffn Command proof-try-command &optional unclosed-comment-fun
+Process the command at point, but don't add it to the locked region. 
+
+Supplied to let the user to test the types and values of
+expressions. Checks via the function @code{proof-state-preserving-p} that the
+command won't change the proof state, but this isn't guaranteed to be
+foolproof and may cause Proof General to lose sync with the prover.
+
+Default action if inside a comment is just to go until the start of
+the comment. If you want something different, put it inside
+@var{unclosed-comment-fun}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-execute-minibuffer-cmd
 @deffn Command proof-execute-minibuffer-cmd 
 Prompt for a command in the minibuffer and send it to proof assistant.
+The command isn't added to the locked region.
+
+Warning! No checking whatsoever is done on the command, so this is
+even more dangerous than @code{proof-try-command}.
 @end deffn
+
+As if the last few commands weren't dangerous enough, there's also a
+command which explicitly adjusts the end of the locked region, to be
+used in extreme circumstances only.  @pxref{Working directly with the
+proof shell}.
 
 @c Perhaps, don't explain C-c C-z here. Instead refer to @pxref{Working
 @c directly with the proof shell}
+
+There are a few commands for stopping, starting, and restarting the
+proof assistant process which have menu entries but no key bindings.
+As with any Emacs command, you can invoke these with @kbd{M-x}.
+
+@c TEXI DOCSTRING MAGIC: proof-shell-start
+@deffn Command proof-shell-start 
+Initialise a shell-like buffer for a proof assistant.
+
+Also generates goal and response buffers.
+Does nothing if proof assistant is already running.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-shell-restart
+@deffn Command proof-shell-restart 
+Clear script buffers and send @code{proof-shell-restart-cmd}.
+All locked regions are cleared and the active scripting buffer
+deactivated.  The restart command should re-synchronize
+Proof General with the proof assitant.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-shell-exit
+@deffn Command proof-shell-exit 
+Query the user and exit the proof process.
+
+This simply kills the @code{proof-shell-buffer} relying on the hook function
+@code{proof-shell-kill-function} to do the hard work.
+@end deffn
 
 
 
@@ -2980,8 +3080,9 @@ clears up all the locked regions and state variables.
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
 @deffn Command proof-shell-exit 
 Query the user and exit the proof process.
+
 This simply kills the @code{proof-shell-buffer} relying on the hook function
-to do the hard work.
+@code{proof-shell-kill-function} to do the hard work.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-bail-out
@@ -2993,8 +3094,10 @@ ensuring that script buffers are cleaned up neatly.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
 @deffn Command proof-shell-restart 
-Restart the proof shell by sending the restart command
-and clearing all script buffers.
+Clear script buffers and send @code{proof-shell-restart-cmd}.
+All locked regions are cleared and the active scripting buffer
+deactivated.  The restart command should re-synchronize
+Proof General with the proof assitant.
 @end deffn
 
 @c
