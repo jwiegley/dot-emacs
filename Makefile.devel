@@ -161,7 +161,7 @@ FILES_NONCVS = TAGS
 DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
-ELISP_DIRS=generic lego coq isa isar plastic demoisa hol98
+ELISP_DIRS=generic lego coq isa isar plastic demoisa hol98 af2 twelf
 SUBDIRS=$(ELISP_DIRS) etc doc html images
 
 PWD=$(shell pwd)
@@ -394,7 +394,7 @@ develdist:
 ##     Moreover, a link ProofGeneral -> ProofGeneral-<version>
 ##     is made.
 ##
-release: distclean tag  develdist dist 
+release: distclean tag  dist develdist 
 	mkdir -p $(RELEASEDIR)
 	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); rm -f $(NAME); ln -s $(RELEASENAME) $(NAME))
