@@ -5,8 +5,9 @@ $Id$
 * Priorities
 ============
 A (High)   to be fixed before release (Version 2.0)
-B (Medium) desirable to fix at some point
-C (Low)    probably not worth wasting time on
+B          would be nice to fix before release of 2.0; but not crucial
+D (Medium) desirable to fix at some point
+X (Low)    probably not worth wasting time on
 
 * This is a list of things which need doing in the generic interface
 ====================================================================
@@ -20,7 +21,7 @@ B proof-toolbar:  Add support for entering a goal and saving a theorem
 A Add xbm bitmap images for toolbar.  Probably important to support
   non-colour displays.  (30mins, da)
 
-C Improve toolbar icons.  Automatically generate reduced and
+X Improve toolbar icons.  Automatically generate reduced and
   pressed/greyed-out versions from gimp xcf files.  Keep the
   xcf files under CVS rather than xpm files.
   (5h or more to design nice ones)
@@ -49,7 +50,7 @@ B A less drastic version of proof-restart-script would be useful:
   one that doesn't involve killing off the proof assistant process
   and restarting that -- it can take ages!  (da, 20mins)
 
-B Code in proof.el assumes all characters with top bit set are special
+D Code in proof.el assumes all characters with top bit set are special
   instructions to Emacs.  This is rather arrogant, and precludes proof
   systems which utilize 8-bit character sets!  Needs repair.  (3h)
 
@@ -59,22 +60,22 @@ A Add a small script "example.l" etc to each of the prover subdirectories,
   Only needed for Coq now.
   (10min, tms)
 
-B Prune dead code.  (1h)
+D Prune dead code.  (1h)
 
-B Add support to proof.el for *not* setting variables for
+D Add support to proof.el for *not* setting variables for
   commands which aren't supported by a prover.  For example,
   in Isabelle there is no such thing as killing a goal.
   For the minimum set of variables to cover, see FIXME's in isa.el
   (da, 1.5hrs)						   
 				    
-B Outsource script management features from proof.el to
+D Outsource script management features from proof.el to
   proof-script.el 		(1h)
 
 A Write function proof-retract-file. (30min tms)
   Currently, the command ForgetMark (for LEGO) is hardwired in
   proof-steal-process.
 
-B Improve documentation in proof.el to help porting/understanding 
+D Improve documentation in proof.el to help porting/understanding 
   Also add notes into proof.texinfo.
   (ongoing, da).
 
@@ -103,22 +104,24 @@ A Multiple files are sometimes handled incorrectly, because the
   the built-in `file-truename' to trigger *canonical* file names.
   (1h tms)
 
-B Implement proof-find-previous-terminator and bind it to C-c C-a
+D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min tms)
 
-B Technical documentation to record expertise and allow users of other
+D Technical documentation to record expertise and allow users of other
   proof systems to adopt generic package (40h hhg & tms)
 
-B Support for x-symbols package 
+D Support for x-symbols package 
 
-C XEmacs sessions seem to grow excessively in terms of memory
+X XEmacs sessions seem to grow excessively in terms of memory
   allocation. Perhaps some of the spans aren't removed properly?
   Setting a limit on the size of the process buffer doesn't seem to
   help. 
 
 A file handling could be more robust; perhaps one should always cd to
   the directory corresponding to the script buffer (currently only
-  done for the buffer which starts up the proof system) (30min tms)
+  done for the buffer which starts up the proof system). This could be 
+  achieved with a hook which is not set by default. [Remember to add
+  user documentation] (30min tms)
 
 A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
@@ -129,45 +132,40 @@ A Replace "You are not authorised for this information." by a proper
 A Reengineer *-count-undos and *-find-and-forget at generic level
     (3h)
 
-B Allow bib-cite style clicking on Load/Import commands to go to file.
+D Allow bib-cite style clicking on Load/Import commands to go to file.
 
-C LEGO and Coq modes overwrite each other.
+X LEGO and Coq modes overwrite each other.
 
-C We need to go over to piped communication rather than ptys to fix
+X We need to go over to piped communication rather than ptys to fix
   the (Solaris) ^G bug. In this circumstance there's a bug in the
-  eager annotation code
+  eager annotation code. Document this problem so that it can be
+  tested for future versions. [Currently the problem is documented in
+  Email messages sent to lego]
 
-C Outline-mode does not work due to read-only restrictions of
+X Outline-mode does not work due to read-only restrictions of
   protected region
 
-B Remove LEGO-specific code in proof.el: for example,
-  proof-shell-eager-annotation-end, proof-included-files-list.
-  (added by hhg)
-
-B support font-lock in response buffer
-
-B Response buffer: after an error message has been displayed; ensure
-  that the error message is visible
+D support font-lock in goal buffer
 
 B Introduce keybinding to save the proof e.g., in LEGO, this should
   insert "Save id" or "$Save id" depending on the name of the theorem. 
 
-B use proof buffer instead of response buffer and leave non-proof
+D use proof buffer instead of response buffer and leave non-proof
   state output in the process buffer (1h)
 
-B Remove duplication of variables e.g., proof-prog-name and
-  lego-prog-name . (1h)
+D Remove duplication of variables e.g., proof-prog-name and
+  lego-prog-name for Coq and Lego. (1h)
 
-B As well as duplicated variables, we also have duplicated modes,
+D As well as duplicated variables, we also have duplicated modes,
   which could be removed.  We never use proof-shell-mode, proof-mode,
   pbp-mode, only the derived instances.
   Shouldn't the generic interface directly *define* the derived
   version required?   (1h to fix)
 
-B Fixup implementation of "spans":  Add documentation!
+D Fixup implementation of "spans":  Add documentation!
   (30 mins)
 
-C Comment support is not very generic: we don't support end-of-line
+X Comment support is not very generic: we don't support end-of-line
   terminated comments.  Is there any case where this might be
   worthwhile?  (2h to add it).
 
@@ -185,7 +183,7 @@ A Rename pbp-mode to response-mode (which doesn't support any actual
 A Outsource actual pbp functionality (30min)
     (separate pbp annotations from other annotations)
 
-C pbp code doesn't quite accord with the tech report; in particular it
+X pbp code doesn't quite accord with the tech report; in particular it
   decodes annotations eagerly. Lazily would be faster, and it's what
   the tech report claims
   --- djs: probably not much faster, actually.
@@ -195,7 +193,7 @@ C pbp code doesn't quite accord with the tech report; in particular it
 
 A fix Pbp implementation (10h; tms)
 
-C Mechanism to save object file
+X Mechanism to save object file
 
 B Equiv, Next,... aren't handled properly, because LEGO does not
   refresh the proof state. Perhaps it would be easiest to get LEGO to
@@ -215,12 +213,12 @@ A release new version of the LEGO proof engine (4h tms)
 * Here are things to be done to Coq mode
 ========================================
 
-B set proof-commands-regexp to support indentation for commands
+D set proof-commands-regexp to support indentation for commands
 						    (10min hhg)
 
-B Add Patrick Loiseleur's commands to search for vernac or ml files.
+D Add Patrick Loiseleur's commands to search for vernac or ml files.
 
-C Sections and files are handled incorrectly.
+X Sections and files are handled incorrectly.
 
 A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
   correct command if I undo up to the lower lemma, but the buffer
@@ -229,7 +227,7 @@ A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
   in the buffer as well. (45min hhg)
   [ This seems to have corrected itself... hhg ]
 
-B Proof-by-Pointing (10h hhg)
+D Proof-by-Pointing (10h hhg)
 
 A Add coq-add-tactic with a tactic name, which adds that tactic to the 
   undoable tactics and to the font-lock. (2h hhg)
@@ -249,28 +247,28 @@ A Get basic features working:
 
     abort-goal-regexp
 
-B Write perl scripts to generate TAGS file for ML and thy files.
+D Write perl scripts to generate TAGS file for ML and thy files.
   (6h, I've completely forgotten perl)
 
-B Add useful specific commands for Isabelle.  Many could
+D Add useful specific commands for Isabelle.  Many could
   be added.  Would be better to merge in Isamode's menus.
   (probably a week's work to bring together Isamode and proof.el,
    making some of Isamode generic)
 
-B Add ability to choose logic.  Maybe not necessary: can use default
+D Add ability to choose logic.  Maybe not necessary: can use default
   set in Isabelle settings nowadays, in the premise that most people
   stick to a particular logic?   But then no support for loading
   user-saved databases.
   (ponder this)
 
-C New features ideas:
+X New features ideas:
    1. Manage multiple proofs (markers in possibly different buffers)
 	 
 
 * Emacs19
 =========
 
-B The proof-locked-span isn't set to read-only, because overlays don't 
+D The proof-locked-span isn't set to read-only, because overlays don't 
   have that capability.  This needs to be done with text-regions.
   (2hr hhg)
 
