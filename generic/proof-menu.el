@@ -89,15 +89,11 @@ If in three window or multiple frame mode, display both buffers."
 ;;
 ;; Experimental: span moving functions
 (if proof-experimental-features (progn
-(define-key map [(control meta up)] 'pg-move-region-up)
-(define-key map [(control meta down)] 'pg-move-region-down)))
+      (define-key map [(control meta up)] 'pg-move-region-up)
+      (define-key map [(control meta down)] 'pg-move-region-down)))
 ;; Add the universal keys bound in all PG buffers.
 ;; C-c ` is next-error in universal-keys
 (proof-define-keys map proof-universal-keys))
-
-
-
-
 
 
 
