@@ -648,8 +648,10 @@ Used for Proof General's help menu."
   :group 'prover-config)
 
 (defcustom proof-info-command nil
-  "Command to ask for help or information in the proof assistant."
-  :type 'string
+  "Command to ask for help or information in the proof assistant.
+String or fn.  If a string, the command to use. 
+If a function, it should return the command string to insert."
+  :type '(choice string function)
   :group 'prover-config)
 
 (defcustom proof-showproof-command nil
@@ -674,9 +676,8 @@ If a function, it should return the command string to insert."
   :group 'prover-config)
 
 (defcustom proof-find-theorems-command nil
-  "Command to search for a theorem containing a given constant. String or fn.
-If a string, the format character `%s' will be replaced by the
-constant name.
+  "Command to search for a theorem containing a given term. String or fn.
+If a string, the format character `%s' will be replaced by the term.
 If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
