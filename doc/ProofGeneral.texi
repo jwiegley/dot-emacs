@@ -1359,7 +1359,7 @@ provide various useful facilities.  Sometimes this configuration is at
 the proof assistant specific level, but we suggest that it should be
 made for all proof assistants, as a convention.
 
-The packages currently supported are @code{font-lock} @code{fume-func},
+The packages currently supported are @code{font-lock} @code{func-menu},
 @code{outline-mode} and @code{etags}.
 
 @menu
@@ -1394,22 +1394,30 @@ in your @file{~/.emacs} file.
 @node Support for function menus
 @section Support for function menus
 @vindex proof-goal-with-hole-regexp
+@cindex func-menu
 @cindex fume-func
 
-The Emacs package @code{fume-func} is a handy facility to
-make a menu from the names of entities declared in a buffer.  Proof
-General configures @code{fume-func} so that you can quickly jump to
-particular proofs in a script buffer.  (This is done with the
-configuration variables @code{proof-goal-with-hole-regexp} and
+The Emacs package @code{func-menu} (formerly called @code{fume-func}) is
+a handy facility to make a menu from the names of entities declared in a
+buffer.  Proof General configures @code{func-menu} so that you can
+quickly jump to particular proofs in a script buffer.  (This is done
+with the configuration variables @code{proof-goal-with-hole-regexp} and
 @code{proof-save-with-hole-regexp}.)
 @c , @pxref{Proof script mode} for further details.
 
-If you want to use @code{fume-func}, you may need to enable it for
-yourself.  The package is distributed with XEmacs, but not enabled by
-default.  To enable it you should find the file @file{func-menu.el} and
-follow the instructions there.  At the time of writing, the current
-version of XEmacs is 20.4, supplied with function menu version 2.45,
-which suggests the following code for your @file{.emacs} file:
+If you want to use function menu, you can simply type
+@lisp
+    M-x function-menu
+@end lisp
+to display a menu.  This works for the current version of XEmacs, 21.1.
+
+Although the package is distributed with XEmacs, it is not enabled by
+default every time you visit a buffer.  To enable it by default
+(i.e. avoid typing @code{M-x function-menu}), you should find the file
+@file{func-menu.el} and follow the instructions there.  At the time of
+writing, the current version of XEmacs is 21.1, supplied with function
+menu version 2.63, which suggests the following code for your
+@file{.emacs} file:
 
 @lisp
    (require 'func-menu)
@@ -1420,9 +1428,11 @@ which suggests the following code for your @file{.emacs} file:
    (define-key global-map '(shift button3) 'mouse-function-menu)
    (define-key global-map '(meta  button1) 'fume-mouse-function-goto)
 @end lisp
+(we have found that the extra @code{t} argument to @code{add-hook}
+ may be important although it isn't suggested in @file{func-menu.el}).
 
 If you have another version of Emacs, you should check the
-@file{fume-func.el} file supplied with it.
+@file{func-menu.el} (or @file{fume-func.el}) file supplied with it.
 
 @node Support for outline mode
 @section Support for outline mode
