@@ -821,8 +821,8 @@ then describe the concepts and functions in more detail.
 Here's a short example in LEGO to see how script management is used.
 The file you are asked to type below is included in the distribution as
 @file{lego/example.l}.  If you're not using LEGO, substitute some lines
-from a simple proof for your proof assistant, or consult the example
-file provided with Proof General.
+from a simple proof for your proof assistant, or consult the file
+called something like @file{foo/example.foo} for proof assistant Foo.
 
 This walkthrough is keyboard based, but you could easily use the toolbar
 and menu functions instead.  The best way to learn Emacs key bindings is
