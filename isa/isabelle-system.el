@@ -247,7 +247,7 @@ until Proof General is restarted."
 (defpacustom show-sorts  nil
   "Whether to show sorts in Isabelle."
   :type 'boolean
-  :setting "show_types:=%b;")
+  :setting "show_sorts:=%b;")
 
 (defpacustom show-consts  nil
   "Whether to show types of consts in Isabelle goals."
