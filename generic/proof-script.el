@@ -1231,34 +1231,39 @@ which continues past POS, if any.
 
 This version is used when `proof-script-command-end-regexp' is set."
   (save-excursion
-    (let* ((commentre   (concat "[ \t\n]*" proof-comment-start-regexp))
-	   (add-segment-for-cmd		; local function: advances "prev"
-	    (lambda ()
-	      (let ((cmdend (point)) start)
-		(goto-char prev)
-		;; String may start with comments, let's strip them off
-		(while 
-		    (and
-		     (setq start (point))
-		     (proof-re-search-forward commentre cmdend t)
-		     (eq (match-beginning 0) start))
-		  ;; Look for the end of the comment 
-		  ;; (FIXME: ignore nested comments here, we should
-		  ;; have a consistent policy!)
-		  (unless
-		      (proof-re-search-forward proof-comment-end-regexp cmdend t)
-		    (error
-		     "PG error: proof-segment-up-to-cmd-end didn't find comment end."))
-		  (setq alist (cons (list 'comment "" (point)) alist)))
-		;; There should be something left: a command.
-		(skip-chars-forward " \t\n")
-		(setq alist (cons (list 'cmd 
-					(buffer-substring
-					 (point) cmdend) 
-					cmdend) alist))
-		(setq prev cmdend)
-		(goto-char cmdend))))
-	   alist prev cmdfnd startpos tmp)
+    (let* 
+	((commentre   (concat "[ \t\n]*" proof-comment-start-regexp))
+	 (add-segment-for-cmd		; local function: advances "prev"
+	  (lambda ()
+	    (let ((cmdend (point)) start)
+	      (goto-char prev)
+	      ;; String may start with comments, let's strip them off
+	      (while 
+		  (and
+		   (setq start (point))
+		   (proof-re-search-forward commentre cmdend t)
+		   (or (eq (match-beginning 0) start)
+		       ;; In case a comment inside a command was found, make
+		       ;; sure we're at the start of the cmd before exiting
+		       (progn (goto-char start) nil)))
+		;; Look for the end of the comment 
+		;; (FIXME: ignore nested comments here, we should
+		;; have a consistent policy!)
+		(unless
+		    (proof-re-search-forward 
+		     proof-comment-end-regexp cmdend t)
+		  (error
+		   "PG error: proof-segment-up-to-cmd-end didn't find comment end."))
+		(setq alist (cons (list 'comment "" (point)) alist)))
+	      ;; There should be something left: a command.
+	      (skip-chars-forward " \t\n")
+	      (setq alist (cons (list 'cmd 
+				      (buffer-substring
+				       (point) cmdend) 
+				      cmdend) alist))
+	      (setq prev cmdend)
+	      (goto-char cmdend))))
+	 alist prev cmdfnd startpos tmp)
       (goto-char (proof-queue-or-locked-end))
       (setq prev (point))
       (skip-chars-forward " \t\n")
