@@ -171,7 +171,7 @@ you a reprimand!)."
   :group 'proof-user-options)
 
 
-(defcustom proof-three-window-mode nil
+(defcustom proof-three-window-enable nil
   "*Whether response and goals buffers have dedicated windows.
 If non-nil, Emacs windows displaying messages from the prover will not
 be switchable to display other windows.
@@ -185,11 +185,9 @@ Emacs automatically resizing windows between proof steps.
 
 If you use several frames (the same Emacs in several windows on the
 screen), you can force a frame to stick to showing the goals or
-response buffer.
-
-For single frame use this option may be inconvenient for
-experienced Emacs users."  
+response buffer."  
   :type 'boolean 
+  :set 'proof-set-value
   :group 'proof-user-options)
 
 (defcustom proof-multiple-frames-enable nil
@@ -311,7 +309,9 @@ you should set `proof-tidy-response' to nil."
 
 (defcustom proof-experimental-features 
   ;; Turn on experimental features for pre-releases.
-  (if (string-match "pre" proof-general-version) t)
+  ;; (if (string-match "pre" proof-general-version) t)
+  t  ;; Version 3.5: features classed as experimental have
+     ;; actually been tested for a while, so we enable them.
   "*Whether to enable certain features regarded as experimental.
 Proof General includes a few features designated as \"experimental\".
 Enabling these will usually have no detrimental effects on using PG,
@@ -319,10 +319,7 @@ but the features themselves may be buggy.
 
 We encourage users to set this flag and test the features, but being
 aware that the features may be buggy (problem reports and 
-suggestions for improvements are welcomed).
-
-By default, experimental features are turned on in development
-releases and turned off in stable releases."
+suggestions for improvements are welcomed)."
   :type 'boolean
   :group 'proof-user-options)
 
