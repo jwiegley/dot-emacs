@@ -675,24 +675,20 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 
 *** A Journal paper on design and development of Proof General.
-
 *** A Grant proposal for Proof General Kit.
-
-*** A Make informatics research reports from latest docs.
-
+*** A Informatics research reports from latest docs.
 *** A Small project grant from LFCS for summer student (2003)
 
-*** C PG CDROM: CDROM with PG and other theorem provers
-    Complete read-to-go distributions.  Could make up from
-    TYPES summer school systems to make sure of a consistent
-    set of progs?
+*** C PG CDROM: CDROM with PG and other theorem provers 
+    Complete read-to-go distributions.  Could make up from TYPES 2002 
+    summer school systems to make sure of a consistent set of progs?
 
 *** B Find new people to help advance and develop Proof General.
   Getting more instances is a good way.  Also encouraging feedback.
   Hear stories of bugs by word-of-mouth, they don't get reported often
   enough.
 
-*** A Add more PG projects, publicise them.
+*** A PG projects
 
 *** B PG auxiliary contributions 
 	- span library
@@ -738,3 +734,6 @@ List of things postponed from PG 3.4: need to be merged above
     This needs to be fixed up in count undos, find-and-forget.
 
 *** Generic versions of count undos and find-and-forget generic.
+
+*** Key bindings on proof-universal-keys missing from scripting menu
+    (XEmacs)

@@ -73,11 +73,6 @@ version, and notes about work-in-progress.  </p>
 <td><a href="ProofGeneral">http access to files in development release</a>
 </tr>
 </table>
-<p>
-NB: we no longer distribute the source RPM, since you can build
-both source and  "binary" RPMs direct from the tarball using
-"rpm -ta".
-</p>
 <!-- End Warning. -->
 <p> 
 <b>Emacs versions:</b>
@@ -105,12 +100,9 @@ the <a href="download#install">stable version download</a>.
 
 
 <!-- WARNING!  Line below automatically edited by makefile. -->
-<h2><a name="devel">Complete archive of ProofGeneral-3.4pre020829 for developers</a></h2>
+<h2><a name="devel">CVS snapshot of ProofGeneral-3.4pre020829 for developers</a></h2>
 <!-- End Warning. -->
 
-<p>
-This archive is a snapshot from our CVS repository. 
-</p>
 <ul>
   <li> gzip'ed tar file: 
 <!-- WARNING!  Line below automatically edited by makefile. -->
@@ -119,8 +111,9 @@ This archive is a snapshot from our CVS repository.
   </li>
 </ul>
 <p>
-What's the difference from the user's pre-release above?
-The complete archive also includes:
+This tarball contains all of our development files, including some
+files not present in the released version of Proof General.
+Specifically:
 </p>
 <ul>
   <li> the low-level developer's todo files 
@@ -132,10 +125,8 @@ The complete archive also includes:
  </li>
   <li> developer's Makefile used to generate documentation files 
        and the release itself,</li>
-  <li> test files, </li>
-  <li> image source files, </li>
-  <li> the web pages, </li>
-  <li> working instantiations of Proof General for new provers </li>
+  <li> test files, image source files, the web pages, and sometimes </li>
+  <li> working instantiations of Proof General for new provers. </li>
 </ul>
 <p>
 Most people don't need this.  Note that there are no pre-built
