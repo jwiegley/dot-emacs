@@ -4,6 +4,12 @@
 
 See also ../BUGS for generic bugs.
 
+** With new syntax in Coq 7, comments at end of files cannot be processed.
+
+Leads to annoying retract/process questions when switching buffers.
+Workaround: don't use a comment as the last line of the buffer, for now.
+
+
 ** coqtags doesn't find all declarations. 
 
 It cannot handle lists e.g., with "Parameter x,y:nat" it only tags x
