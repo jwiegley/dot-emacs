@@ -473,7 +473,12 @@ Intended as a hook function for `proof-shell-handle-error-or-interrupt-hook'."
    ((eq proof-shell-error-or-interrupt-seen 'interrupt)
     (proof-with-current-buffer-if-exists 
      proof-script-buffer
-     (pg-jump-to-end-hint)))))
+     ;; Give a hint of how to jump to the end of locked, unless visible.
+     (let ((pos (with-current-buffer proof-script-buffer
+		  (proof-locked-end)))
+	   (win (get-buffer-window proof-script-buffer t)))
+       (unless (and win (pos-visible-in-window-p pos))
+	 (pg-jump-to-end-hint)))))))
     
 
 
@@ -2355,8 +2360,8 @@ command."
     (proof-activate-scripting)
     (let ((span (span-at (point) 'type)))
       ;; If no span at point, retracts the last span in the buffer.
-      (unless span
-	(proof-goto-end-of-locked) 
+      (unless span 
+	(proof-goto-end-of-locked) ; NB: this moves point
 	(backward-char)
 	(setq span (span-at (point) 'type)))
       (proof-retract-target span delete-region))))
