@@ -1,5 +1,37 @@
 2000-10-02  David Aspinall  <da@proofgeneral.org>
 
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el:
+	Set version tag for new release.
+
+	* etc/release-log.txt:
+	Add todays date, 3.2
+
+	* html/doc.html, html/download.html, html/index.html, html/news.html, html/oldnews.html:
+	Updated web pages for 3.2 release
+
+	* todo: Updated, cleaned up
+
+	* coq/coqtags, lego/legotags:
+	Note about alternative path to perl
+
+	* doc/PG-adapting.texi: Updated magic
+
+	* INSTALL: Caveats about using elcs.
+
+	* af2/README: New file
+
+	* bin/proofgeneral:
+	Pass extra args to emacs.
+
+	* doc/Makefile.doc:
+	Attempt to force image build
+
+	* doc/PG-adapting.texi: Subtitle caps
+
+2000-10-02  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, generic/proof-site.el:
 	Set version tag for new release.
 
