@@ -1,5 +1,18 @@
 2003-05-23  David Aspinall  <da@proofgeneral.org>
 
+	* generic/proof-utils.el:
+	Improved version of shrink-to-fit (still problematic)
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* isar/isar-syntax.el:
+	Fix from Gerwin to repair grouping
+
+2003-05-23  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
 	Set version tag for new release.
 
