@@ -143,6 +143,9 @@ alldocs: FORCE
 images:	FORCE
 	(cd images; $(MAKE) images)
 
+
+
+
 ############################################################
 ##
 ## tag:    tag the CVS sources of working directory with RELEASE_TAG,
@@ -294,3 +297,16 @@ releaseclean:
 ##     Do everything!
 ##	  
 releaseall: release rpmrelease releaseclean
+
+
+############################################################
+#
+# dcsinstall:
+#   Install distribution from $(RELEASEDIR) at dcs.ed
+#   Clean out DCSEXPORTDIR first.
+#
+DCSEXPORTDIR=/export/local/shar/elisp/proofgeneral
+dcsinstall:
+	rm -rf $(DCSEXPORTDIR)
+	mkdir -p $(DCSEXPORTDIR)
+	(cd $(DCSEXPORTDIR); tar -xpzf $(RELEASEDIR)$(RELEASENAMETARGZ))
