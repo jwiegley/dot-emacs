@@ -1023,6 +1023,7 @@ the proof script."
       (error "Nothing to undo!"))))
 
 (defun proof-interrupt-process ()
+  "Interrupt the proof assistant.  WARNING! This may confuse Proof General."
   (interactive)
   (if (not (proof-shell-live-buffer))
       (error "Proof Process Not Started!"))
