@@ -22,13 +22,16 @@
   "PGResp" "Responses from Proof Assistant"
   (setq proof-buffer-type 'response)
   (define-key proof-response-mode-map [q] 'bury-buffer)
+  (define-key proof-response-mode-map [c] 'pg-response-clear-displays)
   (make-local-hook 'kill-buffer-hook)
   (add-hook 'kill-buffer-hook 'pg-save-from-death nil t)
   (easy-menu-add proof-response-mode-menu proof-response-mode-map)
   (easy-menu-add proof-assistant-menu proof-response-mode-map)
   (proof-toolbar-setup)
-  (setq pg-response-next-error nil)	; all error msgs lost!
-  (erase-buffer)))
+  (setq pg-response-next-error nil)
+  (erase-buffer)
+  (buffer-disable-undo)
+  (set-buffer-modified-p nil)))
 
 (easy-menu-define proof-response-mode-menu
 		  proof-response-mode-map
@@ -128,7 +131,8 @@ Returns non-nil if response buffer was cleared."
 	  ;; (erase-buffer proof-response-buffer)
 	    (with-current-buffer proof-response-buffer
 	      (setq pg-response-next-error nil)	; all error msgs lost!
-	      (erase-buffer))))
+	      (erase-buffer)
+	      (set-buffer-modified-p nil))))
       (setq pg-response-erase-flag erase-next-time)
       doit)))
 
@@ -168,8 +172,16 @@ Returns non-nil if response buffer was cleared."
       ;; decorated in the minibuffer, unfortunately.
       ;; 3.4: remove this for efficiency.
       ;; (buffer-substring start (point-max))
+      (set-buffer-modified-p nil)
       ))))
 
+
+(defun pg-response-clear-displays ()
+  "Clear PG response and tracing buffers."
+  (interactive)
+  (proof-map-buffers (list proof-response-buffer proof-trace-buffer)
+    (erase-buffer)
+    (set-buffer-modified-p nil)))
 
 
 
@@ -280,7 +292,9 @@ and start at the first error."
       (setq start (point))
       (insert str)
       (unless (bolp) (newline))
-      (proof-fontify-region start (point)))))
+      (proof-fontify-region start (point))
+      (set-buffer-modified-p nil))))
+
 
 
 
