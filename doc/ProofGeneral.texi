@@ -18,7 +18,7 @@
 @c http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
-@set haveeps
+@clear haveeps
 @iftex
 @afourpaper
 @end iftex
@@ -106,7 +106,7 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@image{ProofGeneralPortrait}
+@c image{ProofGeneralPortrait}
 @end ifset
 @end iftex
 @author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
@@ -2345,15 +2345,17 @@ The latter kind of customization call @emph{instantiation},
 @ref{Adapting Proof General to Other Provers}, for how to do this.
 Here we cover the user-level customization for Proof General.
 
-There are two kinds of user-level settings in Proof General: those that
-apply @emph{globally} to all proof assistants, and those that can be
-adjusted for each proof assistant individually.  The first sort have
-names beginning with @code{proof-}.  The second sort have names which
-begin with a symbol corresponding to the proof assistant: for example,
-@code{isa-}, @code{coq-}, etc.  The symbol is the root of the mode name.
-@xref{Quick start guide}, for a table of the supported modes.  To stand
-for an arbitrary proof assistant, we write @code{@emph{PA}-} for these
-names.
+There are two kinds of user-level settings in Proof General: 
+@itemize @bullet
+@item Settings that apply @emph{globally} to all proof assistants.
+@item those that can be adjusted for each proof assistant @emph{individually}.
+@end itemize
+The first sort have names beginning with @code{proof-}.  The second sort
+have names which begin with a symbol corresponding to the proof
+assistant: for example, @code{isa-}, @code{coq-}, etc.  The symbol is
+the root of the mode name.  @xref{Quick start guide}, for a table of the
+supported modes.  To stand for an arbitrary proof assistant, we write
+@code{@emph{PA}-} for these names.
 
 In this chapter we only consider the generic settings: ones which apply
 to all proof assistants (globally or individually).  The support for a
@@ -2364,7 +2366,6 @@ covering each assistant for details of those settings.
 
 @menu
 * Basic options::
-* How to customize::          
 * How to customize::          
 * Display customization::       
 * User options::                
@@ -2394,6 +2395,7 @@ or @code{M-x customize-save-customized}.
 The options on this sub-menu are also available in the complete user
 customization options group for Proof General.  For this you need
 to know a little bit about how to customize in Emacs.
+
 
 @node How to customize
 @section How to customize
