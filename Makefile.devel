@@ -427,7 +427,9 @@ release: distclean tag  dist develdist
 # clean destination a bit.  NB: link RELEASENAME->NAME is copied, 
 # so we remove that too.
 	(cd $(RELEASEDIR); rm $(NAME); rm -rf $(RELEASENAME))
-	cp -pfdr $(DISTBUILDIR)/* $(RELEASEDIR)
+# seem to need R instead of r here now,
+# otherwise cp tries to make hard link instead of symlink?!
+	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMETARGZ) $(LATESTNAME).tar.gz)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAMEZIP) $(LATESTNAME).zip)
 	(cd $(RELEASEDIR); ln -sf $(RELEASENAME)-1.noarch.rpm $(LATESTNAME).noarch.rpm)
