@@ -925,7 +925,7 @@ script everytime scripting begins."
   :type 'string
   :group 'proof-shell)
 
-(defcustom  proof-shell-inform-file-processed-command nil
+(defcustom  proof-shell-inform-file-processed-cmd nil
  "Command to the proof assistant to tell it that a file has been processed.
 The format character %s is replaced by a complete filename for a
 script file which has been fully processed interactively with

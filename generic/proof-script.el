@@ -450,9 +450,9 @@ to co-ordinate with its internal file-management."
       (if buffer
 	  (proof-complete-buffer-atomic buffer))
       ;; Tell the proof assistant, if we should and if we can
-      (if (and informprover proof-shell-inform-file-processed-command)
+      (if (and informprover proof-shell-inform-file-processed-cmd)
 	  (proof-shell-invisible-command 
-	   (format proof-shell-inform-file-processed-command cfile))))))
+	   (format proof-shell-inform-file-processed-cmd cfile))))))
 
 (defun proof-unregister-buffer-file-name ()
   "Remove current buffer's filename from the list of included files.

@@ -156,5 +156,10 @@ Internal changes for developers to note
 * proof-site now does nothing if it has already been loaded.
   Previously it would load again, possibly altering settings.
 
+* Multiple file handling improvements:
+   Added proof-inform-file-processed-cmd setting to 
+   tell the prover about files which are processed completely 
+   inside Proof General.
+
 * Many code cleanups and improvements.
 
