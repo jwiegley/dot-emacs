@@ -1171,6 +1171,30 @@ If none of these apply, display MESSAGE.
 MESSAGE should be a string annotated with 
 `proof-shell-eager-annotation-start', `proof-shell-eager-annotation-end'."
     (cond
+     ;; CASE tracing output: output in the tracing buffer instead
+     ;; of the response buffer
+     ((and proof-shell-trace-output-regexp
+	   (string-match proof-shell-trace-output-regexp message))
+      (proof-trace-buffer-display 
+       (if pg-use-specials-for-fontify
+	   message
+	 (pg-assoc-strip-subterm-markup message)))
+      (unless (and proof-trace-output-slow-catchup
+		   (pg-tracing-tight-loop))
+	(proof-display-and-keep-buffer proof-trace-buffer)
+	;; Force redisplay in case in a fast loop which keeps Emacs
+	;; fully-occupied processing prover output
+	;; FIXME: in case this is expensive, we should be adaptive
+	;; and redisplay only every so often.
+	(and (fboundp 'redisplay-frame)
+	     ;; XEmacs fn 
+	     (redisplay-frame)))
+      ;; If user quits during tracing output, send an interrupt
+      ;; to the prover.  Helps when Emacs is "choking".
+      (if (and quit-flag proof-action-list)
+	  (proof-interrupt-process)))
+
+       
      ;; CASE processing file: the prover is reading a file directly
      ;;
      ;; FIXME da: this interface is quite restrictive: might be
@@ -1321,26 +1345,6 @@ MESSAGE should be a string annotated with
 	       (split-string deps  
 			     proof-shell-theorem-dependency-list-split)))))
 
-     ;; CASE tracing output: output in the tracing buffer instead
-     ;; of the response buffer
-     ((and proof-shell-trace-output-regexp
-	   (string-match proof-shell-trace-output-regexp message))
-      (proof-trace-buffer-display 
-       (if pg-use-specials-for-fontify
-	   message
-	 (pg-assoc-strip-subterm-markup message)))
-      (proof-display-and-keep-buffer proof-trace-buffer)
-      ;; Force redisplay in case in a fast loop which keeps Emacs
-      ;; fully-occupied processing prover output
-      ;; FIXME: in case this is expensive, we should be adaptive
-      ;; and redisplay only every so often.
-      (and (fboundp 'redisplay-frame)
-	   ;; XEmacs fn 
-	   (redisplay-frame))
-      ;; If user quits during tracing output, send an interrupt
-      ;; to the prover.  Helps when Emacs is "choking".
-      (if (and quit-flag proof-action-list)
-	  (proof-interrupt-process)))
 	   
      (t
       ;; We're about to display a message.  Clear the response buffer
@@ -1359,6 +1363,8 @@ MESSAGE should be a string annotated with
 	     message
 	   stripped)
 	 'proof-eager-annotation-face)))))
+
+
 
 (defun proof-shell-process-urgent-messages ()
   "Scan the shell buffer for urgent messages.
@@ -1618,6 +1624,72 @@ by the filter is to send the next command from the queue."
 	(if (proof-shell-exec-loop)
 	    (proof-shell-handle-delayed-output)))))))
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Tracing catch-up: prevent Emacs-consumes-all-CPU-fontifying phenomenon
+;;
+
+;; FIXME: not quite finished:
+;; -- need some way of coming out of tracing slow mode in case
+;;   tracing output has ended
+;; -- need to fontify remaining portion of buffer in case
+;;   tracing output has ended when in slow mode (and refresh
+;;   final display)  
+
+(defvar pg-last-tracing-output-time nil
+  "Time of last tracing output, as recorded by (current-time).")
+
+(defvar pg-tracing-slow-mode nil
+  "Non-nil for slow refresh mode for tracing output.")
+
+(defconst pg-slow-mode-duration 1
+  "Maximum duration of slow mode in seconds.")
+
+(defconst pg-fast-tracing-mode-threshold 50000
+  "Minimum microsecond delay between tracing outputs that triggers slow mode.")
+
+(defun pg-tracing-tight-loop ()
+  "Return non-nil in case it seems like prover is dumping a lot of output.
+This is a performance hack to avoid Emacs consuming CPU when prover is output
+tracing information.
+Only works when system timer has microsecond count available."
+  (let ((tm (current-time)))
+    (if pg-tracing-slow-mode
+	(if (eq (nth 0 pg-last-tracing-output-time) (nth 0 tm))
+	    ;; see if seconds has changed by at least pg-slow-mode-duration
+	    (if (> (- (nth 1 tm) (nth 1 pg-last-tracing-output-time)) 
+		   pg-slow-mode-duration)
+		;; go out of slow mode
+		(progn 
+		(setq pg-tracing-slow-mode nil)
+		(setq pg-last-tracing-output-time tm))
+	      ;; otherwise: stay in slow mode
+	      t)
+	  ;; different seconds-major count: go out of slow mode
+	  (progn 
+	    (setq pg-last-tracing-output-time tm)
+	    (setq pg-tracing-slow-mode nil)))
+      ;; ordinary mode: examine difference since last output
+      (if
+	  (and pg-last-tracing-output-time 
+	       (eq (nth 0 tm) (nth 0 pg-last-tracing-output-time))
+	       (eq (nth 1 tm) (nth 1 pg-last-tracing-output-time))
+	       ;; Same second: examine microsecond
+	       (> (nth 2 tm) 0) ;; some systems always have zero count
+	       ;; 
+	       (< (- (nth 2 tm) (nth 2 pg-last-tracing-output-time)) 
+		  pg-fast-tracing-mode-threshold))
+	  ;; quickly consecutive tracing outputs: go into slow mode
+	  (progn
+	    (setq pg-tracing-slow-mode t)
+	    (message "Fast tracing output: playing slow catch-up")
+	    t)
+	;; not quick enough to trigger slow mode: allow screen update
+	(setq pg-last-tracing-output-time tm)
+	nil))))
+	    
 
 
 

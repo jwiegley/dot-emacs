@@ -307,21 +307,30 @@ and start at the first error."
 ;; x-symbool and font-lock modes.  To fix that, though, we would have
 ;; to fix up the cut-and-paste behaviour somehow.
 
+(defvar proof-trace-last-fontify-pos nil)
+
 ;; An analogue of pg-response-display-with-face 
 (defun proof-trace-buffer-display (str)
-  "Display STR in the trace buffer."
-  (let (start)
-    (with-current-buffer proof-trace-buffer
-      (goto-char (point-max))
-      (newline)				
-      (setq start (point))
-      (insert str)
-      (unless (bolp) (newline))
-      ;; Catch errors here: this is to deal with ugly problem
-      ;; when fontification of large output gives 
-      ;; (error Nesting too deep for parser)
-      (condition-case nil
-	  (proof-fontify-region start (point)))
+  "Output STR in the trace buffer."
+  (with-current-buffer proof-trace-buffer
+    (goto-char (point-max))
+    (newline)
+    (or proof-trace-last-fontify-pos 
+	(setq proof-trace-last-fontify-pos (point)))
+    (insert str)
+    (unless (bolp) (newline))
+    ;; If tracing output is prolific, we try to avoid
+    ;; fontifying every chunk and batch it up instead.
+    (unless pg-tracing-slow-mode
+      (let ((fontifystart (if (> proof-trace-last-fontify-pos (point))
+			      (point-min);; in case buffer cleared
+			    proof-trace-last-fontify-pos)))
+	;; Catch errors here: this is to deal with ugly problem when
+	;; fontification of large output gives error Nesting too deep
+	;; for parser
+	(condition-case nil
+	  (proof-fontify-region fontifystart (point)))
+	(setq proof-trace-last-fontify-pos nil))
       (set-buffer-modified-p nil))))
 
 
