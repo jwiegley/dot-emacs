@@ -892,6 +892,10 @@ retracted using proof-auto-retract-dependencies."
 	      (proof-auto-retract-dependencies cfile informprover)
 	      (setq proof-included-files-list
 		    (delete cfile proof-included-files-list))
+	      ;; If we're not allowed to undo into a processed
+	      ;; file, we had better remove all the history.
+	      (if proof-cannot-reopen-processed-files
+		  (proof-restart-buffers (list (current-buffer))))
 	      ;; Tell the proof assistant, if we should and we can.
 	      ;; This case may be useful if there is a combined
 	      ;; management of multiple files between PG and prover.
@@ -2362,14 +2366,17 @@ command."
   (if (proof-locked-region-empty-p)
       (error "No locked region")
     ;; Make sure we're ready: either not busy, or already advancing/retracting.
+    ;; Also: if this file is completed, we may have to re-open it for
+    ;; scripting again.
     (proof-activate-scripting)
-    (let ((span (span-at (point) 'type)))
-      ;; If no span at point, retracts the last span in the buffer.
-      (unless span
-	(proof-goto-end-of-locked) ; NB: this moves point
-	(backward-char)
-	(setq span (span-at (point) 'type)))
-      (proof-retract-target span delete-region))))
+    (unless (proof-locked-region-empty-p) ;; re-opening may discard history
+      (let ((span (span-at (point) 'type)))
+	;; If no span at point, retracts the last span in the buffer.
+	(unless span
+	  (proof-goto-end-of-locked) ; NB: this moves point
+	  (backward-char)
+	  (setq span (span-at (point) 'type)))
+	(proof-retract-target span delete-region)))))
 
 
 
