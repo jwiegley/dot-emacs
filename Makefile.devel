@@ -11,6 +11,7 @@
 ##    make distclean	  - remove all generated files
 ##
 ##    make ChangeLog	  - make ChangeLog from CVS sources (uses emacs)
+##			     ChangeLog.gz is kept in repo.
 ##    make tag		  - tag the CVS sources with CVS_RELEASENAME
 ##    make untag	  - remove tag CVS_RELEASENAME from the sources 
 ##    make dist           - make a distribution from sources with above tag
@@ -125,7 +126,7 @@ NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel Makefile.xemacs doc
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral/*/todo
+IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo ProofGeneral*/ChangeLog.gz ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral/*/todo
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -149,7 +150,7 @@ DEVELRELEASENAMETAR = $(DEVELRELEASENAME).tar
 DEVELRELEASENAMETARGZ = $(DEVELRELEASENAMETAR).gz
 
 # Files not kept under cvs to clean away.
-FILES_NONCVS = ChangeLog TAGS
+FILES_NONCVS = TAGS
 
 # Where to install a distribution 
 # DISTINSTALLDIR=/usr/local/share/elisp/proofgeneral
@@ -171,6 +172,9 @@ ELC=$(EL:.el=.elc)
 
 .el.elc:
 	$(BYTECOMP) $*.el
+
+%.gz:	%
+	gzip $*
 
 FORCE:
 
@@ -357,7 +361,7 @@ develdist:
 	@echo "*************************************************"
 	mkdir -p $(DISTBUILDIR)
 	if [ -z "$(NOCVS)" ]; then \
-           (make devel.ChangeLog; cvs commit -m"Updated." ChangeLog; cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME)) \
+           (make devel.ChangeLog.gz; cvs commit -m"Updated." ChangeLog.gz; cd $(DISTBUILDIR); cvs export -kv -r "$(CVS_RELEASENAME)" -d $(DEVELRELEASENAME) $(CVSNAME)) \
 	else \
 	   mkdir -p $(DISTBUILDIR)/$(DEVELRELEASENAME); \
 	   cp -pr . $(DISTBUILDIR)/$(DEVELRELEASENAME); \
