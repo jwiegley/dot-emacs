@@ -546,7 +546,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 (defun isa-state-preserving-p (cmd)
   "Non-nil if command preserves the proofstate."
-  (proof-string-match isa-not-undoable-commands-regexp cmd))
+  (not (proof-string-match isa-not-undoable-commands-regexp cmd)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
