@@ -165,7 +165,8 @@ Otherwise make span give a warning message on edits."
 
 (defun proof-init-segmentation ()
   "Initialise the queue and locked spans in a proof script buffer.
-No harm if the spans have already been allocated."
+Allocate spans if need be.  The spans are detached from the
+buffer, so the locked region is made empty by this function.
   ;; Initialise queue span, remove it from buffer.
   (if (not proof-queue-span)
       (setq proof-queue-span (make-span 1 1)))
@@ -377,8 +378,7 @@ Should be called from a proof script buffer."
 ;; FIXME: doesn't need to be called from proof script buffer now
 ;; proof-unprocessed-begin is generalised.
 (defun proof-locked-region-empty-p ()
-  "Non-nil if the locked region is empty.
-Should be called from a proof script buffer."
+  "Non-nil if the locked region is empty."
   (eq (proof-unprocessed-begin) (point-min)))
 
 (defun proof-only-whitespace-to-locked-region-p ()
@@ -451,9 +451,13 @@ buffers."
 	  (setq proof-active-buffer-fake-minor-mode nil)))
 
     ;; Set the active scripting buffer, and initialise the 
-    ;; queue and locked regions.
+    ;; queue and locked regions if necessary.
     (setq proof-script-buffer (current-buffer))
-    (proof-init-segmentation)
+    (if (proof-locked-region-empty-p)
+	;; This removes any locked region that was there, but
+	;; sometimes we switch on scripting in "full" buffers,
+	;; so mustn't do this.
+	(proof-init-segmentation))
 
     ;; Turn on the minor mode, run hooks.
     (setq proof-active-buffer-fake-minor-mode t)
@@ -617,7 +621,7 @@ Assumes script buffer is current"
 
 ; We don't allow commands while the queue has anything in it.  So we
 ; do configuration by concatenating the config command on the front in
-; proof-send
+; proof-shell-insert
 
 ;;         proof-assert-until-point, and various gunk for its       ;;
 ;;         setup and callback                                       ;;
@@ -1055,8 +1059,9 @@ deletes the region corresponding to the proof sequence."
 ;; a file should remove it from the list of included files?
 (defun proof-retract-until-point (&optional delete-region)
   "Set up the proof process for retracting until point.
-In particular, set a flag for the filter process to call `proof-done-retracting'
-after the proof process has actually successfully reset its state.
+In particular, set a flag for the filter process to call 
+`proof-done-retracting' after the proof process has successfully 
+reset its state.
 If DELETE-REGION is non-nil, delete the region in the proof script
 corresponding to the proof command sequence.
 If invoked outside a locked region, undo the last successfully processed
