@@ -159,8 +159,9 @@ no regular or easily discernable structure."
    ;; non-annotation, with val it's: "^\\(val it = () : unit\n\\)?> "
 
    ;; This pattern is just for comint, it matches a range of
-   ;; prompts from a range of MLs.
-   proof-shell-prompt-pattern		"^2?[-=#>]>? *"
+   ;; prompts from a range of MLs, including Isabelle's edited
+   ;; version.
+   proof-shell-prompt-pattern		"^2?[ML-=#>]>? \372?"
 
    ;; for issuing command, not used to track cwd in any way.
    proof-shell-cd-cmd			"cd \"%s\""
@@ -672,8 +673,8 @@ you will be asked to retract the file or process the remainder of it.
   '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face))))
 
 (setq proof-xsym-activate-command
-      "print_mode := !print_mode @ ["xsymbols","symbols"]"
+      "print_mode := (!print_mode union [\"xsymbols\",\"symbols\"])"
       proof-xsym-deactivate-command
-      "print_mode := filter_out (fn x=>prefix(rev (explode "symbols"),rev (explode x))) (!print_mode)")
+      "print_mode := filter_out (fn x=>(rev (explode \"symbols\") prefix rev (explode x))) (!print_mode)")
 
 (provide 'isa)
