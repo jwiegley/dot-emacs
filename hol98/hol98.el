@@ -19,14 +19,12 @@
  proof-terminal-char             ?\;
  proof-comment-start             "(*"
  proof-comment-end               "*)"
- proof-goal-command-regexp       "^g[ `]"
- proof-save-command-regexp       "^val .*top_thm()"
- ;; FIXME: next two just to suppress warnings, not set yet.
- proof-goal-with-hole-regexp "^\0\1$"
- proof-save-with-hol-regexp "^\0\1$"
- ;; proof-goal-with-hole-regexp     "qed_goal \"\\(\\(.*\\)\\)\""
- ;; proof-save-with-hole-regexp     "qed \"\\(\\(.*\\)\\)\""
- proof-non-undoables-regexp      "b()"
+ ;; These are all approximations, of course.
+ proof-goal-command-regexp     "^g[ `]"
+ proof-save-command-regexp     nil ;; "^val .*top_thm()"
+ proof-goal-with-hole-regexp   "val \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*prove"
+ proof-save-with-hole-regexp   "val \\(\\([^ \t=]*\\)\\)[ \t]*=[ \t]*top_thm()"
+ proof-non-undoables-regexp      "b()" ; and others..
  proof-goal-command              "g `%s`;"
  proof-save-command              "val %s = top_thm(); drop();"
  proof-kill-goal-command         "drop();"
@@ -55,9 +53,13 @@
  ;; FIXME: add optional help topic parameter to help command. 
  ;; Have patch ready for PG 3.2, but PG 3.1 is strictly bug fix.
  proof-info-command "help \"hol\""
- proof-shell-proof-completed-regexp   
- "\\(\\(.\\|\n\\)*No subgoals!\n\\)"
- ;; FIXME: next one needs setting.
+ ;; FIXME: Isabelle has introduced a mess here, and we need to fix it.
+ ;; See comments in proof-shell.el and proof-config.el and todo
+ proof-goals-display-qed-message t
+ proof-shell-proof-completed-regexp  
+ "\\(.*Initial goal proved\\(.\\|\n\\)*\\)"
+ ;; FIXME: next one needs setting so that "urgent" messages are displayed
+ ;; eagerly from HOL.
  ;; proof-shell-eager-annotation-start
  proof-find-theorems-command	"DB.match [] (%s);"
 
@@ -133,8 +135,17 @@
  (list
   (cons (proof-ids-to-regexp '("Proof manager status" 
 			       "proof" "Incomplete"
-			       "Initial goal"))
-	'font-lock-keyword-face))
+			       "Initial goal proved."
+			       "Initial goal"
+			       "There are currently no proofs."
+			       "OK.."))
+	'font-lock-keyword-face)
+  (cons (regexp-quote "------------------------------------")
+	'font-lock-comment-face)
+  (cons (proof-ids-to-regexp '(": GoalstackPure.goalstack"
+			       ": GoalstackPure.proofs"
+			       "val it ="))
+	'proof-boring-face))
 
  
  ;; End of easy config.
