@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-# Proof General interface wrapper for Isabelle/classic.
+# Proof General interface wrapper for classic Isabelle.
 
 
 ## diagnostics
@@ -37,7 +37,7 @@ function fail()
 
 ## process command line
 
-PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo $PWD)
+export PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo $PWD)
 
 
 # options
@@ -108,6 +108,6 @@ do
   [ -f "$FILE" ] && ARGS="$ARGS -l $FILE"
 done
 
-export PROOFGENERAL_HOME
+export PROOFGENERAL_ASSISTANTS=isa
 export PROOFGENERAL_LOGIC="$LOGIC"
 exec $PROGNAME $ARGS $FILES

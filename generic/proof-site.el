@@ -35,8 +35,8 @@
 ;; Master table of supported assistants.  May not enable both kinds of
 ;; Isabelle interfaces at the same time!
 (defcustom proof-assistant-table
-  '((isa        "Isabelle"	"\\.ML$\\|\\.thy$")
-   ;(isar       "Isabelle/Isar" "\\.thy$")
+  '((isar       "Isabelle/Isar" "\\.thy$")
+    (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
     (plastic	"Plastic"	"\\.lf$")
