@@ -8,6 +8,7 @@ Url:		http://proofgeneral.inf.ed.ac.uk/
 Packager:	David Aspinall <David.Aspinall@ed.ac.uk>
 Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.6pre040831.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
+BuildRequires:  emacs, xemacs
 PreReq:		/sbin/install-info
 Prefixes:	/usr/share/emacs /usr/bin /usr/share/info
 BuildArchitectures: noarch
