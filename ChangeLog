@@ -1,3 +1,97 @@
+2003-02-16  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isar/isar.el: Documentation.
+
+	* isa/isa.el, isa/isabelle-system.el, isar/isar.el:
+	Add backwards compatibility for old pre-PGIP settings mechanism
+
+	* html/develdownload.php: Updated.
+
+2003-02-15  David Aspinall  <da@proofgeneral.org>
+
+	* isa/isabelle-system.el: Updated.
+
+	* html/develdownload.php:
+	Link to CHANGES for comment on versions.
+
+	* twelf/twelf-old.el:
+	Fixes so that compile works
+
+	* Makefile: Line for Emacs compile
+
+	* todo: Updated.
+
+	* isa/isabelle-system.el:
+	Towards isabelle-refresh-logics
+
+	* phox/phox.el, phox/phox-sym-lock.el, phox/phox-tags.el, coq/coq.el, coq/coq-syntax.el:
+	Fixes so that compile works
+
+2003-02-12  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* phox/phox.el, phox/phox-font.el, phox/phox-fun.el:
+	change for version 0.83 of PhoX
+
+2003-02-12  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	Added the keyword "Local :=" to the coq-goal-command-p function, like
+	Definition.
+
+2003-02-10  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	little modif on the end-cammand regexp.
+
+2003-02-06  Pierre Courtieu  <courtieu@lri.fr>
+
+	* coq/coq.el:
+	little change to proof-script-command-end-regexp, again, to deal with
+	coq-v6.2. In the next version we will remove support for coq < 7.0.
+
+	* coq/coq.el:
+	Slight modification to proof-script-command-end-regexp in coq.el, to
+	allow command at the end of the buffer.
+
+2003-02-05  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* CHANGES: Grumpy note
+
+	* ChangeLog, BUGS:
+	Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* CHANGES: Updated.
+
+	* generic/proof-config.el:
+	Doc generalisation of proof-script-command-end-regexp.
+
+	* generic/proof-script.el:
+	Tweak proof-script-generic-parse-cmdend to allow .. fix for Coq parsing
+
+	* etc/coq/parsingdot.v: New files.
+
+	* coq/coq.el:
+	New setting for parse cmdend regexp.
+
+	* generic/proof-menu.el:
+	Compatibility function for customize-menu-create
+
+	* generic/proof-compat.el:
+	Give up on customize-menu-create on GNU Emacs
+
+2003-02-05  Pierre Courtieu  <courtieu@lri.fr>
+
+	* doc/ProofGeneral.texi:
+	Added a paragraph in the documentation for the variable coq-version-is-V74.
+
 2003-02-05  David Aspinall  <da@proofgeneral.org>
 
 	* CHANGES: Grumpy note
