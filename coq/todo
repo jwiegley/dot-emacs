@@ -5,7 +5,16 @@
 See also ../todo for generic things to do, priority codes.
 
 
-** B Proof-by-Pointing [1 month]
+** C Auto-compile-vos
+   Would be nice to ressurect this: interaction between PG
+   and make system is tricky and tedious.  
+
+
+** D Loss of synchronisation with silent mode 
+   Apocryphal story, no test cases.
+
+
+** B Proof-by-Pointing [1 month+]  (2002)
   da: Yves Bertot told me that his CtCoq proof-by-pointing code
   is in the Coq kernel now, so would be useful for PG.
   We need a Coq hacker to do this.
