@@ -404,6 +404,10 @@
 
   (lego-init-syntax-table)
 
+  ;; da: I've moved these out of proof-config-done in proof-script.el 
+  (setq pbp-goal-command (concat "Pbp %s" proof-terminal-string))
+  (setq pbp-hyp-command (concat "PbpHyp %s" proof-terminal-string))
+
   (proof-config-done)
 
   (define-key (current-local-map) [(control c) ?i] 'lego-intros)

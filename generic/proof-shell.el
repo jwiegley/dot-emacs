@@ -227,14 +227,6 @@ Does nothing if proof assistant is already running."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defvar pbp-goal-command nil
-  "Command informing the prover that `pbp-button-action' has been
-  requested on a goal.")
-
-(defvar pbp-hyp-command nil
-  "Command informing the prover that `pbp-button-action' has been
-  requested on an assumption.")
-
 (defun pbp-button-action (event)
    (interactive "e")
    (mouse-set-point event)

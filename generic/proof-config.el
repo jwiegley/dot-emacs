@@ -527,6 +527,18 @@ mere warning messages with this regexp)."
   :type 'regexp
   :group 'proof-shell)
 
+(defcustom pbp-goal-command nil
+  "Command informing the prover that `pbp-button-action' has been
+  requested on a goal."
+  :type 'regexp
+  :group 'proof-shell)
+
+(defvar pbp-hyp-command nil
+  "Command informing the prover that `pbp-button-action' has been
+  requested on an assumption."
+  :type 'regexp
+  :group 'proof-shell)
+
 (defcustom proof-shell-result-start ""
   "Regexp matching start of an output from the prover after pbp commands.
 In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."

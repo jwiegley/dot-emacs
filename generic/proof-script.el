@@ -1428,10 +1428,6 @@ finish setup which depends on specific proof assistant configuration."
   ;; calculate some strings and regexps for searching
   (setq proof-terminal-string (char-to-string proof-terminal-char))
 
-  ;; FIXME: these are LEGO specific!
-  (setq pbp-goal-command (concat "Pbp %s" proof-terminal-string))
-  (setq pbp-hyp-command (concat "PbpHyp %s" proof-terminal-string))
-
   ;; FIXME da: I'm not sure we ought to add spaces here, but if
   ;; we don't, there would be trouble overloading these settings
   ;; to also use as regexps for finding comments.
