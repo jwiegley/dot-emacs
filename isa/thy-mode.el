@@ -187,6 +187,7 @@ You can use the following format characters:
 			    ["Retract theory" isa-retract-thy-file
 			     :active (proof-locked-region-full-p)
 			     ]
+			    ["Switch to script" thy-find-other-file t]
 			    ["Insert template" thy-insert-template t]
 			    ;; A couple from the toolbar that make sense here
 			    ;; (also in proof-universal-keys)
