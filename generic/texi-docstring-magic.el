@@ -315,7 +315,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
   "Magic string in a texi buffer expanded into @defopt, or @deffn.")
 
 
-
+;;;###autoload
 (defun texi-docstring-magic ()
   "Update all texi docstring magic annotations in buffer."
   (interactive)

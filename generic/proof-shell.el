@@ -107,6 +107,7 @@ See the functions `proof-start-queue' and `proof-exec-loop'.")
 ;; Maybe proof-shell-ready-prover doesn't need to start the shell?
 ;;
 
+;;;###autoload
 (defun proof-shell-ready-prover (&optional queuemode)
   "Make sure the proof assistant is ready for a command.
 If QUEUEMODE is set, succeed if the proof shell is busy but
@@ -117,12 +118,14 @@ No change to current buffer or point."
   (unless (or (not proof-shell-busy) (eq queuemode proof-shell-busy))
     (error "Proof Process Busy!")))
 
+;;;###autoload
 (defun proof-shell-live-buffer ()
   "Return buffer of active proof assistant, or nil if none running."
   (and proof-shell-buffer
        (comint-check-proc proof-shell-buffer)
        (buffer-live-p proof-shell-buffer)))
 
+;;;###autoload
 (defun proof-shell-available-p ()
   "Returns non-nil if there is a proof shell active and available.
 No error messages.  Useful as menu or toolbar enabler."
@@ -1176,7 +1179,8 @@ being processed."
 		  (nconc proof-action-list alist))
 	    ;; Really start things going here
 	    (proof-shell-insert (nth 1 item) (nth 2 item)))))))
-    
+
+;;;###autoload    
 (defun proof-start-queue (start end alist)
   "Begin processing a queue of commands in ALIST.
 If START is non-nil, START and END are buffer positions in the
@@ -1187,6 +1191,7 @@ This function calls `proof-append-alist'."
       (proof-set-queue-endpoints start end))
   (proof-append-alist alist))
 
+;;;###autoload
 (defun proof-extend-queue (end alist)
   "Extend the current queue with commands in ALIST, queue end END.
 To make sense, the commands should correspond to processing actions
@@ -1706,6 +1711,7 @@ XEmacs only."
 ;; proof-shell-invisible-command: used to implement user-level commands.
 ;;
 
+;;;###autoload
 (defun proof-shell-wait (&optional timeout)
   "Busy wait for proof-shell-busy to become nil, or for TIMEOUT seconds.
 Needed between sequences of commands to maintain synchronization,
@@ -1758,6 +1764,7 @@ Calls proof-state-change-hook."
 ; Other (sensible) possibility is to call
 ; proof-shell-handle-error-or-interrupt-hook with span as argument.
 
+;;;###autoload
 (defun proof-shell-invisible-command (cmd &optional wait)
   "Send CMD to the proof process.  Add terminal string if necessary.
 By default, let the command be processed asynchronously.

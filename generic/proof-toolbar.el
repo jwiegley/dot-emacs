@@ -8,7 +8,8 @@
 ;;
 ;; NB: FSF GNU Emacs has no toolbar facility. This file defines
 ;; proof-toolbar-menu which holds the same commands and is put on the
-;; menubar by proof-toolbar-setup (surprisingly).
+;; menubar by proof-toolbar-setup (perhaps surprisingly).
+;; Could consider moving the generic table stuff to proof-menu now.
 ;;
 ;; Toolbar is just for the scripting buffer, currently.
 ;;
@@ -160,7 +161,7 @@ will work for any proof assistant.")
 (deflocal proof-toolbar-itimer nil
   "itimer for updating the toolbar in the current buffer")
 
-;;; ###autoload
+;;;###autoload
 (defun proof-toolbar-setup ()
   "Initialize Proof General toolbar and enable it for the current buffer.
 If proof-mode-use-toolbar is nil, change the current buffer toolbar
