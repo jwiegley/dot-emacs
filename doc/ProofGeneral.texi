@@ -101,7 +101,7 @@ END-INFO-DIR-ENTRY
 @c FIXME: doesn't work for PDF image at the moment.
 @end iftex
 @end ifset
-@author D. Aspinall, H. Goguen, T. Kleymann and D. Sequeira
+@author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
 @page
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
@@ -675,10 +675,10 @@ Moving the mouse pointer over the locked region now reveals that the
 entire proof has been aggregated into a single segment. Suppose we
 decide to call the goal something more sensible. Moving the cursor up
 into the locked region, somewhere between @samp{Goal} and @samp{Save},
-we enter @kbd{C-c u}.  The segment is transferred back into the editing
-region. Now we correct the goal name, move the cursor to the end of the
-buffer, and type @kbd{C-c RET}.  Proof mode queues the commands for
-processing and executes them.
+we enter @kbd{C-c C-RET}.  The segment is transferred back into the
+editing region. Now we correct the goal name, move the cursor to the end
+of the buffer, and type @kbd{C-c C-RET}.  Proof mode queues the commands
+for processing and executes them.
 
 
 
@@ -975,23 +975,22 @@ will indent lines of proof script with the usual Emacs functions,
 particularly @kbd{TAB}, @code{indent-for-tab-command}.
 
 @c FIXME: remove when indentation is fixed.
-Unfortunately, indentation in Proof General @value{version} is
-somewhat slow and buggy.  Therefore with large proof scripts,
-we recommend @code{proof-script-indent} is turned off.
-
+Unfortunately, indentation in Proof General @value{version} is somewhat
+slow.  Therefore with large proof scripts, we recommend
+@code{proof-script-indent} is turned off.
 
 Here are the commands for moving around in a proof script,
 with their default key bindings:
-@kindex C-c C-e
 @kindex C-c C-a
-@kindex C-c '
+@kindex C-c C-e
+@kindex C-c C-.
 @table @kbd
-@item C-c C-e
-@code{proof-find-next-terminator}
 @item C-c C-a
-@code{proof-goto-command-start}.
-@item C-c '
-@code{proof-goto-end-of-locked-interactive}
+@code{proof-goto-command-start}
+@item C-c C-e
+@code{proof-goto-command-end}
+@item C-c C-.
+@code{proof-goto-end-of-locked}
 @end table
 
 @c TEXI DOCSTRING MAGIC: proof-find-next-terminator
@@ -1001,19 +1000,18 @@ Set point after next @samp{@code{proof-terminal-char}}.
 
 @vindex proof-terminal-char
 The variable @code{proof-terminal-char} is a prover-specific character to
-terminate proof commands. LEGO and Isabelle use @samp{;}. Coq employs
+terminate proof commands.  LEGO and Isabelle use @samp{;}. Coq employs
 @samp{.}. 
-
 
 @c TEXI DOCSTRING MAGIC: proof-goto-command-start
 @deffn Command proof-goto-command-start 
-Move point to start of current command.
+Move point to start of current (or final) command of the script.
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-goto-end-of-locked-interactive
-@deffn Command proof-goto-end-of-locked-interactive 
-Switch to @code{proof-script-buffer} and jump to the end of the locked region.@*
-Must be an active scripting buffer.
+@c TEXI DOCSTRING MAGIC: proof-goto-end-of-locked
+@deffn Command proof-goto-end-of-locked &optional switch
+Jump to the end of the locked region, maybe switching to script buffer.@*
+If interactive or @var{switch} is non-nil, switch to script buffer first.
 @end deffn
 
 
@@ -1023,8 +1021,7 @@ Must be an active scripting buffer.
 @kindex C-c C-u
 @kindex C-c C-b
 @kindex C-c C-r
-@kindex C-c RET
-@kindex C-c u
+@kindex C-c C-RET
 
 Here are the commands for asserting and retracting portions of the proof
 script, together with their default key bindings.  Note that assertion
@@ -1038,38 +1035,38 @@ prover is processing it.}
 
 @table @kbd
 @item C-c C-n
-@code{proof-assert-next-command-interactive}
-@item C-c RET
+@c this is a lie: actually bound to "toolbar-next", but that elaborates
+@c to this function.  Ditto the others
 @code{proof-assert-next-command-interactive}
 @item C-c C-u
-@code{proof-undo-last-successful-command-interactive}
-@item C-c u
-@code{proof-retract-until-point-interactive}
-@item C-c b
+@code{proof-undo-last-successful-command}
+@item C-c C-RET
+@code{proof-goto-point}
+@item C-c C-b
 @code{proof-process-buffer}
-@item C-c r
+@item C-c C-r
 @code{proof-retract-buffer}
 @item C-c @var{terminator-character}
-@code{proof-electric-terminator-minor-mode}
+@code{proof-electric-terminator-toggle}
 @end table
 
-The last command, @code{proof-electric-terminator-minor-mode}, is
-triggered using the character which terminates proof commands for your
-proof assistant's script language.  For LEGO and Isabelle, use @kbd{C-c
-;}, for Coq, use @kbd{C-c .}.  This not really a script processing
+The last command, @code{proof-electric-terminator-toggle}, is triggered
+using the character which terminates proof commands for your proof
+assistant's script language.  For LEGO and Isabelle, use @kbd{C-c ;},
+for Coq, use @kbd{C-c .}.  This not really a script processing
 command. Instead, if enabled, it causes subsequent key presses of
 @kbd{;} or @kbd{.} to automatically activate
 @code{proof-assert-next-command-interactive} for convenience.
 
-Rather than use any other way of reading a proof script, a good reason
-to use @kbd{C-c C-b} (@code{proof-process-buffer}) is that with a faulty
-proof script (e.g., a script you are adapting to prove a different
-theorem), Proof General will stop exactly where the proof script fails,
-showing you the error message and the last processed command.  So you
-can easily continue development from exactly the right place in the
-script.
+Rather than use a file command inside the proof assistant to read a
+proof script, a good reason to use @kbd{C-c C-b}
+(@code{proof-process-buffer}) is that with a faulty proof script (e.g.,
+a script you are adapting to prove a different theorem), Proof General
+will stop exactly where the proof script fails, showing you the error
+message and the last processed command.  So you can easily continue
+development from exactly the right place in the script.
 
-
+Here is the full set of script processing commands.
 
 @c TEXI DOCSTRING MAGIC: proof-assert-next-command-interactive
 @deffn Command proof-assert-next-command-interactive 
@@ -1077,21 +1074,20 @@ Process until the end of the next unprocessed command after point.@*
 If inside a comment, just process until the start of the comment.
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-undo-last-successful-command-interactive
-@deffn Command proof-undo-last-successful-command-interactive delete
+@c TEXI DOCSTRING MAGIC: proof-undo-last-successful-command
+@defun proof-undo-last-successful-command &optional no-delete
 Undo last successful command at end of locked region.@*
-If @var{delete} argument is set (called with a prefix argument), 
-the text is also deleted from the proof script.
-@end deffn
+Unless optional @var{no-delete} is set, the text is also deleted from
+the proof script.
+@end defun
 
-@c TEXI DOCSTRING MAGIC: proof-retract-until-point-interactive
-@deffn Command proof-retract-until-point-interactive &optional delete-region
-Tell the proof process to retract until point.@*
-If invoked outside a locked region, undo the last successfully processed
-command.  If called with a prefix argument (@var{delete-region} non-nil), also
-delete the retracted region from the proof-script.
-@end deffn
+@c TEXI DOCSTRING MAGIC: proof-goto-point
 
+@deffn Command proof-goto-point 
+Assert or retract to the command at current position.@*
+Calls @code{proof-assert-until-point} or @code{proof-retract-until-point} as
+appropriate.
+@end deffn
 @c TEXI DOCSTRING MAGIC: proof-process-buffer
 @deffn Command proof-process-buffer 
 Process the current buffer and set point at the end of the buffer.
@@ -1109,84 +1105,30 @@ This function simply uses @code{customize-set-variable} to set the variable.
 It was constructed with the macro @code{proof-customize-toggle}.
 @end deffn
 
+@c TEXI DOCSTRING MAGIC: proof-assert-until-point-interactive
 
-@node Toolbar commands
-@section Toolbar commands
-
-The toolbar provides a selection of functions for asserting
-and retracting portions of the script, and inserting
-"goal" and "save" type commands.
-
-These functions are available only from the toolbar, menu Proof General
--> Scripting, or via @kbd{M-x}.  There are no keybindings for them by
-default.
-
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-goal
-@deffn Command proof-toolbar-goal 
-Write a goal command in the script, prompting for the goal.@*
-Issues a command based on ARG to the assistant, using @code{proof-goal-command}.
-The user is prompted for an argument.
+@deffn Command proof-assert-until-point-interactive 
+Process the region from the end of the locked-region until point.@*
+Default action if inside a comment is just process as far as the start of
+the comment.
 @end deffn
+@c TEXI DOCSTRING MAGIC: proof-retract-until-point-interactive
 
-@c TEXI DOCSTRING MAGIC: proof-toolbar-retract
-@deffn Command proof-toolbar-retract 
-Retract entire buffer.
+
+@deffn Command proof-retract-until-point-interactive &optional delete-region
+Tell the proof process to retract until point.@*
+If invoked outside a locked region, undo the last successfully processed
+command.  If called with a prefix argument (@var{delete-region} non-nil), also
+delete the retracted region from the proof-script.
 @end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-undo
-@deffn Command proof-toolbar-undo 
-Undo last successful in locked region, without deleting it.
-@end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-next
-@deffn Command proof-toolbar-next 
-Assert next command in proof to proof process.@*
-Move point if the end of the locked position is invisible.
-@end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-use
-@deffn Command proof-toolbar-use 
-Process the whole buffer.
-@end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-restart
-@deffn Command proof-toolbar-restart 
-Clear script buffers and send @code{proof-shell-restart-cmd}.@*
-All locked regions are cleared and the active scripting buffer
-deactivated.  
-
-If the proof shell is busy, an interrupt is sent with
-@code{proof-interrupt-process} and we wait until the process is ready.
-
-The restart command should re-synchronize Proof General with the proof
-assistant, without actually exiting and restarting the proof assistant
-process.
-
-It is up to the proof assistant how much context is cleared: for
-example, theories already loaded may be "cached" in some way,
-so that loading them the next time round only performs a re-linking
-operation, not full re-processing.  (One way of caching is via
-object files, used by Lego and Coq).
-@end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-qed
-@deffn Command proof-toolbar-qed 
-Write a save/qed command in the script, prompting for the theorem name.@*
-Issues a command based on ARG to the assistant, using @code{proof-save-command}.
-The user is prompted for an argument.
-@end deffn
-
-
-
 @node Proof assistant commands
 @section Proof assistant commands
 @kindex C-c C-p
-@kindex C-c c
-@kindex C-c h
+@kindex C-c C-h
 @kindex C-c C-c
 @kindex C-c C-v
 @kindex C-c C-f
+@kindex C-c C-t
 
 There are several commands for interacting with the proof assistant away
 from a proof script.  Here are the keybindings and functions.
@@ -1194,9 +1136,9 @@ from a proof script.  Here are the keybindings and functions.
 @table @kbd
 @item C-c C-p
 @code{proof-prf}
-@item C-c c
+@item C-c C-t
 @code{proof-ctxt}
-@item C-c h
+@item C-c C-h
 @code{proof-help}
 @item C-c C-f
 @code{proof-find-theorems}
@@ -1234,7 +1176,15 @@ The user is prompted for an argument.
 
 @c TEXI DOCSTRING MAGIC: proof-interrupt-process
 @deffn Command proof-interrupt-process 
-Interrupt the proof assistant.  Warning! This may confuse Proof General.
+Interrupt the proof assistant.  Warning! This may confuse Proof General.@*
+This sends an interrupt signal to the proof assistant, if Proof General
+thinks it is busy.  
+
+This command is risky because when an interrupt is trapped in the
+proof assistant, we don't know whether the last command succeeeded or
+not.  The assumption is that it didn't, which should be true most of
+the time, and all of the time if the proof assistant has a careful
+handling of interrupt signals.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-execute-minibuffer-cmd
@@ -1242,10 +1192,14 @@ Interrupt the proof assistant.  Warning! This may confuse Proof General.
 Prompt for a command in the minibuffer and send it to proof assistant.@*
 The command isn't added to the locked region.
 
-If @code{proof-state-preserving-p} is configured, it is used as a check
+If @samp{@code{proof-state-preserving-p}} is configured, it is used as a check
 that the command will be safe to execute, in other words, that
 it won't ruin synchronization.  If applied to the command it 
-returns false, then an error message is given.
+returns false, then an error message is given.  
+
+This command risks spoiling synchronization if the test
+@samp{@code{proof-state-preserving-p}} is not configured, or if it is
+only an approximate test.
 @end deffn
 
 As if the last two commands weren't risky enough, there's also a command
@@ -1295,6 +1249,36 @@ Query the user and exit the proof process.
 This simply kills the @code{proof-shell-buffer} relying on the hook function
 @code{proof-shell-kill-function} to do the hard work.
 @end deffn
+
+
+
+@node Toolbar commands
+@section Toolbar commands
+
+The toolbar provides a selection of functions for asserting and
+retracting portions of the script, inserting "goal" and "save" type
+commands, and issuing non-scripting commands to the proof assistant.
+Most of the toolbar commands are available on keys, and have been
+documented above.
+
+A couple of toolbar functions are not available on keys, but are
+available only from the from the menu, or via @kbd{M-x}.  These are
+mentioned next.
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-goal
+@deffn Command proof-toolbar-goal 
+Write a goal command in the script, prompting for the goal.@*
+Issues a command based on ARG to the assistant, using @code{proof-goal-command}.
+The user is prompted for an argument.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-qed
+@deffn Command proof-toolbar-qed 
+Write a save/qed command in the script, prompting for the theorem name.@*
+Issues a command based on ARG to the assistant, using @code{proof-save-command}.
+The user is prompted for an argument.
+@end deffn
+
 
 
 
@@ -1446,31 +1430,40 @@ version of Emacs). You can switch to it using the menu:
 
 @b{Warning:} you can probably cause confusion by typing in the shell
 buffer!  Proof General may lose track of the state of the proof
-assistant.
+assistant.  Output from the assistant is only fully monitored when Proof
+General is in control of the shell.
 
-Proof General watches the output from the proof assistant to guess when
-a file is loaded or when a proof step is taken or undone, but it may not
-be guaranteed when the restricted interface is by-passed.  What happens
+When in control, Proof General watches the output from the proof
+assistant to guess when a file is loaded or when a proof step is taken
+or undone.  What happens when you type in the shell buffer directly
 depends on how complete the communication is between Proof General and
 the prover (which depends on the particular instantiation of Proof
 General).
 
-To resynchronise, you have two options. If you are lucky, it might
-suffice to use the key:
+If synchronization is lost, you have two options to resynchronize. If
+you are lucky, it might suffice to use the key:
 @table @kbd
 @item C-c C-z
-move the end of the locked region backwards to the end of the segment
-containing the point.
+@code{proof-frob-locked-end}
 @end table
+This command is disabled by default, to protect novices using it
+accidently.
 
-Otherwise, you will need to restart script management altogether
-(@pxref{Proof assistant commands}).
+If @code{proof-frob-locked-end} does not work, you will need to restart
+script management altogether (@pxref{Proof assistant commands}).
 
 @c TEXI DOCSTRING MAGIC: proof-frob-locked-end
 @deffn Command proof-frob-locked-end 
-Not documented.
-@end deffn
+Move the end of the locked region backwards to regain synchronization.@*
+Only for use by consenting adults.
 
+This command can be used to repair synchronization in case something
+goes wrong and you want to tell Proof General that the proof assistant
+has processed less of your script than Proof General thinks.
+
+You should only use it to move the locked region to the end of
+a proof command.
+@end deffn
 
 
 @node Support for other Packages
@@ -1498,19 +1491,13 @@ The packages currently supported are @code{font-lock} @code{func-menu},
 @vindex isa-mode-hooks
 @cindex font-lock 
 @cindex colour
-In XEmacs, proof script buffers are coloured (fontified as they say)
-by default. To automatically switch on fontification in FSF GNU Emacs 20.2,
-you need to configure the @code{font-lock} package yourself. This can be
-achieved by modifying the @var{prover}-mode-hooks where @var{prover} is either
-@samp{lego}, @samp{coq} or @samp{isa}. For example, for LEGO you need to
-specify
+In XEmacs, proof script buffers are coloured (fontified as they say) by
+default. To automatically switch on fontification in FSF GNU Emacs 20.4,
+you may need to engage @code{M-x global-font-lock-mode}.
 
-@lisp
- (add-hook 'lego-mode-hooks 'turn-on-font-lock)
-@end lisp
-
-in your @file{~/.emacs} file.
-
+The old mechanism of adding hooks to the mode functions is no longer
+recommended; it should not be needed in latest Emacs versions which have
+more flexible customization.
 
 
 @node Support for function menus
@@ -1880,17 +1867,7 @@ next start Proof General.
 The default value is @code{t}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-auto-retract
-@defopt proof-auto-retract 
-If non-nil, retract automatically when locked region is edited.@*
-With this option active, the locked region will automatically be
-unlocked when the user attempts to edit it.   To make use of this
-option, @code{proof-strict-read-only} should be turned off.
-
-Note: this feature has not been implemented yet, it is only an idea.
-
-The default value is @code{nil}.
-@end defopt
+@c This one removed: proof-auto-retract
 
 @c TEXI DOCSTRING MAGIC: proof-query-file-save-when-activating-scripting
 @defopt proof-query-file-save-when-activating-scripting 
@@ -2581,9 +2558,17 @@ regular expressions matching the start and end of some text), and you
 can begin by setting just a few variables to get the basic features of
 script management working.
 
+For more advanced features you may need (or want) to write some Emacs
+Lisp.  If you're adding new functionality please consider making it
+generic for different proof assistants, if appropriate.  When writing
+your modes, please follow the Emacs Lisp conventions @inforef{Style
+Tips, ,(lispref)}.
+
 The configuration variables are declared in the file
 @file{generic/proof-config.el}.  The documentation below is based on the
 contents of that file.
+
+
 
 @menu
 * Overview of adding a new prover::            
@@ -3003,8 +2988,22 @@ parentheses and commands. It represents these with the characters
 @samp{?(}, @samp{?[} and @samp{@code{proof-terminal-char}}. 
 @end defvar
 
+@c TEXI DOCSTRING MAGIC: proof-font-lock-zap-commas
+@defvar proof-font-lock-zap-commas 
+If non-nil, enable a font-lock hack which unfontifies commas.@*
+If you fontify variables inside lists like [a,b,c] by matching
+on the brackets @samp{[} and '[', you may take objection to the commas 
+being coloured as well.  In that case, enable this hack which
+will magically restore the commas to the default font for you.
+
+The hack is rather painful and forces immediate fontification of
+files on loading (no lazy, caching locking).  It is unreliable
+under FSF Emacs, to boot.
+@end defvar
+
 @xref{Handling multiple files}, for more details about the final
 setting in this group.
+
 @c TEXI DOCSTRING MAGIC: proof-auto-multiple-files
 @defvar proof-auto-multiple-files 
 Whether to use automatic multiple file management.@*
@@ -4354,6 +4353,7 @@ Send @var{cmd} to the proof process.@*
 By default, let the command be processed asynchronously.
 But if optional @var{wait} command is non-nil, wait for processing to finish
 before and after sending the command.
+If @var{wait} is an integer, wait for that many seconds afterwards.
 @end defun
 
 Input is actually inserted into the shell buffer and sent to the process
