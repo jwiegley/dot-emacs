@@ -1,0 +1,167 @@
+<!-- $Revision$ -->
+<HEAD>
+<TITLE><MM-List-Name> Info Page</TITLE>
+<LINK href="http://www.lists.informatics.ed.ac.uk/liststyle.css" 
+rel="stylesheet" type="text/css">
+</HEAD>
+<BODY BGCOLOR="#ffffff" FGCOLOR="#000000">
+<!--#include virtual="http://www.lists.informatics.ed.ac.uk/listhead.html"-->
+
+	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="5">
+<!-- Added style sheet -->
+        <TR>
+          <TD class="head4" COLSPAN="2" WIDTH="100%">
+            <MM-List-Name> Configuration for <MM-Presentable-User> 
+          </TD>
+          </TR>
+
+</TABLE>
+<MM-Form-Start>
+
+<p>
+
+<b><MM-Presentable-User></b>'s subscription status,
+password, and options for the <MM-List-Name> mailing list.
+<MM-Case-Preserved-User>
+
+<MM-Disabled-Notice>
+
+<p>
+
+<!-- Added style sheet -->
+<a name=unsub>
+	<TABLE WIDTH="100%" BORDER="0" CELLSPACING=5" CELLPADDING="5">
+        <TR>
+          <TD class="head2" WIDTH="50%">
+            Unsubscribing from <MM-List-Name>  
+          </TD>
+          <TD class="head2" WIDTH="50%">
+            Your other <MM-Host> subscriptions   
+          </TD>
+          </TR>
+
+	<tr>
+	  <td>
+
+To unsubscribe, enter your password and hit the button.  (If you've
+lost your password, see just below to have it emailed to you.)
+
+<p>
+Password: <MM-Unsub-Pw-Box> &nbsp;
+<MM-Unsubscribe-Button>
+</a>
+	  <td>
+
+Enter your password to visit a list of links to option pages for
+all your subscriptions.
+
+<p>
+Password: <MM-Other-Subscriptions-Pw-Box>  <MM-Other-Subscriptions-Submit><p>
+
+	</TD></TR> </table>
+
+	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="5">
+<!-- Added style sheet -->
+        <TR>
+          <TD class="head2" COLSPAN="2" WIDTH="100%">
+            Your <MM-List-Name> Password
+	  </TD>
+          </TR>
+<tr valign="TOP">
+<td WIDTH="50%">
+<a name=reminder>
+<center>
+<h3>Forgotten Your Password?</h3>
+</center>
+Click this button to have your password emailed to your list delivery
+address. <p>
+<MM-Umbrella-Notice>
+<center>
+<MM-Email-My-Pw>
+</center>
+</td>
+<td WIDTH="50%">
+<a name=changepw>
+<center>
+<h3>Change Your Password</h3>
+      <TABLE BORDER="0" CELLSPACING="2" CELLPADDING="2" WIDTH="70%" COLS=2>
+      <TR>
+	<TD WIDTH="30%" BGCOLOR="#dddddd">Old password:</TD>
+	<TD WIDTH="70%"><MM-Old-Pw-Box></TD>
+      </TR>
+      <TR>
+	<TD BGCOLOR="#dddddd">New password:</TD>
+	<TD><MM-New-Pass-Box></TD>
+      </TR>
+      <TR> 
+	<TD BGCOLOR="#dddddd">Again to confirm:</TD>
+	<TD><MM-Confirm-Pass-Box></TD>
+      </TR>
+</table>
+           <MM-Change-Pass-Button>
+    </TABLE>
+
+<p>
+
+<a name=options>
+	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="5">
+<!-- Added style sheet -->
+        <TR>
+          <TD class="head2" COLSPAN="2" WIDTH="100%">
+            Your <MM-List-Name> Subscription Options
+	  </TD>
+          </TR>
+</table>
+
+<p>
+<i><strong>Current values are checked.</strong></i><p>
+<p>
+<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="3" WIDTH="80%">
+<tr><TD BGCOLOR="#dcdcdc">
+<a name="disable">
+<strong> Disable mail delivery </strong> <br>
+Turn this on if you want mail to not be delivered to you for a little while.<br>
+<mm-delivery-enable-button> Off
+<mm-delivery-disable-button> On <p>
+</a>
+</td></tr>
+<tr><TD BGCOLOR="#dcdcdc">
+<strong> Set Digest Mode</strong> <br>
+If you turn digest mode on, you'll get posts bundled together once a
+day, instead singly when they're sent.  If digest mode is changed from 
+on to off, you will receive one last digest.<br>
+<MM-Undigest-Radio-Button> Off
+<MM-Digest-Radio-Button> On<br>
+</td></tr>
+<tr><TD BGCOLOR="#dcdcdc">
+<strong> Get MIME or Plain Text Digests?</strong> <br>
+If you have any problems with MIME digests, select plain text. <br>
+<MM-Mime-Digests-Button> MIME
+<MM-Plain-Digests-Button> Plain Text <p>
+</td></tr>
+<tr><TD BGCOLOR="#dcdcdc">
+<strong> Receive posts you send to the list? </strong><br>
+<mm-receive-own-mail-button> Yes
+<mm-dont-receive-own-mail-button> No <p>
+</td></tr>
+<tr><TD BGCOLOR="#dcdcdc">
+<strong> Receive acknowledgement mail when you send mail to the list? </strong><br>
+<mm-dont-ack-posts-button> No
+<mm-ack-posts-button> Yes <p>
+</td></tr>
+<tr><TD BGCOLOR="#dcdcdc">
+<strong> Conceal yourself from subscriber list? </strong><br>
+<MM-Public-Subscription-Button> No
+<MM-Hide-Subscription-Button> Yes <p>
+</td></tr>
+<tr><TD BGCOLOR="#dcdcdc">
+Password: <MM-Digest-Pw-Box>  <MM-Digest-Submit><p>
+</td></tr></table>
+</center>
+
+<p>
+<MM-Form-End>
+
+<MM-Mailman-Footer>
+</body>
+</html>
