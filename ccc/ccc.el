@@ -91,7 +91,7 @@
 		 (setq count-ccc (+ 1 count-ccc))))))
       (setq span (next-span span 'type)))
     (cond
-     ((and casl (> count-casl 0)) 
+     ((and casl (> count-ccc 0)) 
       ;; we're undoing to outside "holcasl"
       (format "holcasl_abort(); undo_steps (%s);" count-ccc))
      (casl
