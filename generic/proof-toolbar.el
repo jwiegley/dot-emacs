@@ -289,12 +289,15 @@ changed state."
 ;;
 
 (defun proof-toolbar-goto-enable-p ()
-  t)  ;; we don't want to update the toolbar on every movement of point
-;  (and
-;   (not (equal (point) (proof-locked-end))) ; bug in powtlrp
-;   (or
-;    (< (point) (proof-locked-end))
-;    (not (proof-only-whitespace-to-locked-region-p)))))
+  ;; we don't want to update the toolbar on every movement of point
+  ;; so no test here.
+  ;;  (and
+  ;;   (not (equal (point) (proof-locked-end))) ; bug in powtlrp
+  ;;   (or
+  ;;    (< (point) (proof-locked-end))
+  ;;    (not (save-excursion
+  ;;          (proof-only-whitespace-to-locked-region-p))))))
+  t)  
 
 (defalias 'proof-toolbar-goto 'proof-goto-point)
 
