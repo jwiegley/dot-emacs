@@ -3,6 +3,86 @@ Notes to include in documentation.
 
 ********
 
+Suggestion for outline of improved documentation.
+
+ Terminology:  I suggest "proof mode" should become "proof script
+ mode", aka "the proof script mode of Proof General".  We should
+ be careful here, e.g. present docs speak of buffers in proof
+ mode, etc, but no buffer is directly in that mode, which is
+ confusing to the users, at least!
+ 
+ 1. Introduction
+	1.1  Description
+	1.2  Feature list, xref'd to later chaps.
+	1.2  Supported Proof Assistants, xref'd too.
+	1.3  Support for new instances, xref'd to later chaps.
+	
+ 2. Basics of script management
+	2.1  What a proof script is
+	2.2  Locked region and queue region
+	2.3  Basic key commands
+	2.4  Menu commands
+	2.5  Toolbar commands 
+	2.4  Walkthrough example [maybe in appendix]
+
+ 3. Script management with multiple files
+        3.1  Proof General's view of processed files
+	3.2  Switching between files
+	3.2  Retracting across files
+	3.3  Re-synchronizing with the proof assistant
+
+ 4. Further commands
+	 4.1 try-command
+	 4.2 Electric terminator
+
+ 5. Customizing Proof General
+	5.1  Setting user options, what they are:
+	       proof-splash-inhibit
+	       etc.
+        5.2  Using proof assistant on another machine
+	5.3  Examining configuration settings (xref'd later)
+	
+ 6. LEGO Proof General
+	6.1  LEGO commands
+	6.2  LEGO customizations
+	
+ 7. Coq Proof General
+        7.1  Coq commands
+	7.2  Coq customizations
+
+ 8. Isabelle Proof General
+	8.1  Isabelle commands
+	8.2  Isabelle customizations
+	8.3  Notes about multiple files
+
+ 9. Adapting Proof General to other provers
+	9.1  Files and directories.  Skeleton code.
+	9.2  Settings for proof scripts
+	9.3  Special annotations
+	9.4  Settings for proof shell
+	
+ 10. Internals of Proof General.
+	10.1  Proof script mode:
+		- fontification hacks
+		- spans in locked region
+	10.2  Proof shell mode
+		- proof-action-list
+		- proof-shell-exec-loop
+		- proof-shell-output-filter
+		- eager annotations
+
+ 11. Credits and history
+ 
+ APPENDIX
+
+ A. Obtaining and installing the software
+ B. Known bugs
+ C. Future ideas and plans
+ 
+ 
+
+********
+
 Why is C-c C-b useful?  Could just use the file to read it one go
 (will we have a command to do this other than via the process?).
 BUT it's nice because it stops exactly where a proof fails, so you can
