@@ -839,7 +839,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   (modify-syntax-entry ?\' "w")
   (modify-syntax-entry ?\| ".")
 
-; should baybe be "_" but it makes coq-find-and-forget (in coq.el) bug
+; should maybe be "_" but it makes coq-find-and-forget (in coq.el) bug
   (modify-syntax-entry ?\. ".") 
 
   (condition-case nil
@@ -853,10 +853,10 @@ Idtac (Nop) tactic, put the following line in your .emacs:
 
 (defconst coq-generic-expression
   (mapcar (lambda (kw) 
-				(list (capitalize kw)
-						(concat "\\<" kw "\\>" "\\s-+\\(\\w+\\)\\W" )
-						1))
-			 (append coq-keywords-decl coq-keywords-defn coq-keywords-goal)))
+	    (list (capitalize kw)
+		  (concat "\\<" kw "\\>" "\\s-+\\(\\w+\\)\\W" )
+		  1))
+	  (append coq-keywords-decl coq-keywords-defn coq-keywords-goal)))
 
 
 (provide 'coq-syntax)
