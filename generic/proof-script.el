@@ -814,11 +814,10 @@ an error is signalled here."
   "Deactivate scripting without asking questions or raising errors.
 If the locked region is full, register the file as processed.
 Otherwise retract it.  Errors are ignored"
-  (condition-case nil
-      (proof-deactivate-scripting
-       (proof-with-script-buffer
-	(if (proof-locked-region-full-p) 'process 'retract)))
-    ((error nil))))
+  (ignore-errors
+    (proof-deactivate-scripting
+     (proof-with-script-buffer
+      (if (proof-locked-region-full-p) 'process 'retract)))))
 
 (defun proof-deactivate-scripting (&optional forcedaction)
   "Deactivate scripting for the active scripting buffer.
@@ -1262,6 +1261,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; discarding the proof history.
 	;; Provers without flat history yet nested proofs (i.e. Coq)
 	;; need to keep a record of the undo count for nested goalsaves.
+	;; FIXME: should also remove nested 'idiom spans.
 	(setq lev 1)
 	(setq nestedundos 0)
 	(while (and gspan (> lev 0))
