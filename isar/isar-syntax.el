@@ -294,7 +294,7 @@
     "^proof (state):"
     "^goal (theorem .*):"
     "^prems:"
-    "^using this:"
+    "^\\(using \\)?this:"
     "^goal (show):"
     "^Variables:$"
     "^Constants:$"
