@@ -210,7 +210,7 @@
 
 (defface isabelle-var-name-face
   '((((type x) (class color) (background light))   
-     (:foreground "blue"))
+     (:foreground "darkblue"))
     (((type x) (class color) (background dark))   
      (:foreground "blue3"))
     (t				
@@ -245,8 +245,9 @@
    (cons (concat "\353\\?'" isar-idx "\350") 'isabelle-tvar-name-face)
    (cons (concat "\354" isar-id "\350") 'isabelle-free-name-face)
    (cons (concat "\355" isar-id "\350") 'isabelle-bound-name-face)
-   (cons (concat "\356" isar-idx "\350") 'isabelle-var-name-face)
-   (cons (concat "\357" isar-idx "\350") 'proof-declaration-name-face)
+   (cons (concat "\356\\?" isar-idx "\350") 'isabelle-var-name-face)
+   (cons (concat "\357" isar-id "\350") 'proof-declaration-name-face)
+   (cons (concat "\357\\?" isar-idx "\350") 'proof-declaration-name-face)
    )
   "*Font-lock table for Isabelle terms.")
 
