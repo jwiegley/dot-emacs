@@ -1,6 +1,6 @@
 -*- mode:outline -*-
 
-* Things to do for Isabelle/Isar
+* Things to do for Isabelle/Isar  [maintainers' list]
 
 See also ../todo for generic things to do, priority codes.
 
@@ -36,7 +36,14 @@ See also ../todo for generic things to do, priority codes.
    returns unknown theory context error).  Can we use something
    else?
 
+** B Proof nesting depth calculation not right: see debug messages
+
+** B Isabelle tweaks
+     -- theorem dependencies on spoils ordinary response buffer output
+     (dependency info *after* response display loses)
+
 ** B visualise dependencies: sometimes not applicable.
+     Also, does not work at the moment.
 
 ** C func-menu: 
 	observe proof-syntactic-context (general problem of func-menu setup?);
