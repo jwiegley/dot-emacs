@@ -8,7 +8,7 @@ Here are some proposals for projects connected to Proof General.
 </p>
 <p>
 The projects are designed as fairly self-contained contributions,
-involving code development and possibly a small amount of supporting
+involving code development and possibly a portion of supporting
 research.  They would be ideal projects for interested students
 or researchers.
 </p>
@@ -57,6 +57,91 @@ tactics using the gesture information must be written.
 <a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
 </p>
 </li>
+
+<li><b>Integrating block-structured development and outline mode</b>
+<p>
+Emacs already provides powerful outline facilities (cf. the
+outl-minor-mode setup for the well-known auc-tex package).  
+Similarly, proof systems such as Isabelle/Isar are inherently based on
+block-structured proof texts, with compositional proof checking.
+</p><p>
+But Proof General currently offers a mostly linear model of
+incremental script management.  The aim of this project is to extend that
+model to a hierarchic one: e.g. sub-proofs could be suppressed in the
+presentation, or even temporarily suspended (to achieve top-down
+development).
+</p><p>
+Outline support would be useful for the large scale structure of formal
+developments as well, e.g. support the basic arrangement into logical
+section (cf. Coq), or even just traditional layout-based ones (cf. LaTeX).
+</p>
+<p>
+<b>Skills:</b>
+Some understanding of the workings of Emacs outline mode and Proof
+General script management.  Good portion of Emacs lisp knowledge.
+</p><p>
+<b>Proposer:</b>
+<a href="http://www.in.tum.de/~wenzelm/">Markus Wenzel</a>.
+</p>
+</li>
+
+
+<li><b>Multiplexed Modes for Emacs</b>
+<p>
+Emacs has a mechanism for customizing the editing behaviour of buffers
+based on their <i>major mode</i>.  A buffer can only have one major
+mode, but in literate styles of programming and proving we want to mix
+program text with documentation in a single file.  A way of
+multiplexing major modes is needed, so that different regions of a
+buffer can be edited in different modes.  One approach may be to use
+"views" onto untangled buffers, although it isn't clear how search and
+replace, etc, should behave in this case.  
+</p><p>
+Emacs hackers may already have worked on this problem and solved it
+sufficiently well (does anybody know?), in which case this project
+might degenerate into applying the work for Coq and Isabelle/Isar, as
+a feasibility demonstration.
+</p><p>
+<b>Skills:</b>
+A passion for Emacs and Emacs Lisp.
+</p><p>
+<b>Proposer:</b>
+<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
+</p>
+</li>
+
+<li><b>Script General</b>
+<p>
+Proof General is based around a core system of script management
+for proof scripts.  But the idea of script management is not
+restricted to proof assistants, it makes sense for many interactive
+scripting languages.  It deserves to be better known and used.
+A worthwhile project would be to rewrite the core script management
+features of Proof General so that they could work for arbitrary
+interactive scripting languages, and instantiate to Proof General as
+well as languages such as ML, Haskell, LISP, Scheme, Python, and
+even Emacs Lisp itself!
+</p>
+<p>
+<b>Skills:</b>
+Proficient Emacs Lisp, knowledge of other scripting languages desirable.
+</p><p>
+<b>Proposer:</b>
+<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
+</p>
+</li>
+
+<!-- <li><b> </b> -->
+<!-- <p> -->
+<!-- </p> -->
+<!-- <p> -->
+<!-- <b>Skills:</b> -->
+<!-- </p><p> -->
+<!-- <b>Proposer:</b> -->
+<!-- <a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>. -->
+<!-- </p> -->
+<!-- </li> -->
+
 </ul>
 
 
@@ -71,6 +156,13 @@ Note: the proposer of the project is just that; he or she does not
 guarantee to be available for formal supervision or intensive help
 with the project.  But it may be possible to find somebody else
 to do that.  Contact the project proposer first for more details.
+</p>
+
+<p>
+If you would like to use any of these ideas as a formal project
+proposal for students at your institution, please feel free
+but do <?php hlink("feedback.phtml","let us know","Feedback form")?>
+if some work is planned, to help coordinate effort.
 </p>
 
 <p>
