@@ -2052,8 +2052,10 @@ a proof command."
     (error "You can't use this command while %s is busy!" proof-assistant))
    ((not (eq (current-buffer) proof-script-buffer))
     (error "Must be in the active scripting buffer."))
-   ((> (point) (proof-locked-end))
-    (error "You can only move point backwards."))
+   ;; Sometimes may need to move point forwards, when locked region
+   ;; is editable.
+   ;; ((> (point) (proof-locked-end))
+   ;; (error "You can only move point backwards."))
    ;; FIXME da: should move to a command boundary, really!
    (t (proof-set-locked-end (point))	
       (delete-spans (proof-locked-end) (point-max) 'type))))
@@ -2405,9 +2407,12 @@ comment, and insert or skip to the next semi)."
 	;; In locked region, just insert terminator without further ado
 	(insert proof-terminal-char)
       ;; Otherwise, do other thing.
-      (if (looking-at "\\s-\\|\\'\\|\\w") 
-	  (if (proof-only-whitespace-to-locked-region-p)
-	      (error "There's nothing to do!")))
+      ;; Old idea: only shift terminator wildly if we're looking at
+      ;; whitespace.  Why?
+      ;; (if (looking-at "\\s-\\|\\'\\|\\w") 
+      (if (proof-only-whitespace-to-locked-region-p)
+	  (error "There's nothing to do!"))
+
       (if (not (= (char-after (point)) proof-terminal-char))
 	  (progn 
 	    (forward-char) ;; immediately after command end.
