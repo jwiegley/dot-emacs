@@ -15,12 +15,14 @@ function usage()
   echo "Usage: $PRG [OPTIONS] [FILES ...]"
   echo
   echo "  Options are:"
-  echo "    -l NAME      logic image name (default $ISABELLE_LOGIC)"
+  echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
   echo "    -p NAME      Emacs program name (default xemacs)"
   echo "    -u BOOL      use .emacs file (default false)"
   echo "    -w BOOL      use window system (default true)"
   echo
-  echo "Starts ProofGeneral for Isabelle/Isar with LOGIC images and theory FILES."
+  echo "Starts ProofGeneral for Isabelle/Isar with proof documents FILES"
+  echo "(default Scratch.thy)."
+  echo
   exit 1
 }
 
@@ -33,7 +35,7 @@ function fail()
 
 ## process command line
 
-PG_HOME=$(cd $(dirname "$0"); cd ..; echo $PWD)
+PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo $PWD)
 
 
 # options
@@ -95,7 +97,8 @@ else
 fi
 
 
-ARGS="$ARGS -l $PG_HOME/isar/interface-setup.el -l $PG_HOME/generic/proof-site.el"
+ARGS="$ARGS -l $PROOFGENERAL_HOME/isar/interface-setup.el"
+ARGS="$ARGS -l $PROOFGENERAL_HOME/generic/proof-site.el"
 
 for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
     "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
@@ -103,6 +106,6 @@ do
   [ -f "$FILE" ] && ARGS="$ARGS -l $FILE"
 done
 
-export PROOFGENERAL_HOME="$PG_HOME/"
+export PROOFGENERAL_HOME
 export PROOFGENERAL_LOGIC="$LOGIC"
 exec $PROGNAME $ARGS $FILES
