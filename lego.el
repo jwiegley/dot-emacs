@@ -4,7 +4,7 @@
 ;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <13 Nov 96 tms /home/tms/elisp/lego.el>
+;; Time-stamp: <05 Nov 96 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -25,7 +25,7 @@
   is primarily concerned to make life easier. There it will enable
   pretty printing")
 
-(defconst lego-pretty-on "Configure PrettyOn; Configure AnnotateOn;"
+(defconst lego-pretty-on "Configure PrettyOn;"
   "Command to enable pretty printing of the LEGO process.")
 
 (defconst lego-pretty-set-width "Configure PrettyWidth %s;"
@@ -96,7 +96,7 @@
 (defvar lego-shell-process-name "lego"
   "*The name of the lego-process")
 
-(defvar lego-shell-prog-name "lego"
+(defvar lego-shell-prog-name "~djs/lego/lego/bin/legoML"
   "*Name of program to run as lego.")
 
 (defvar lego-shell-working-dir ""
@@ -109,11 +109,10 @@
 
 (defvar lego-goal-regexp "?[0-9]+  : ")
 
-(defvar lego-outline-regexp
-  (concat "[[*]\\|"
-	  (ids-to-regexp 
-	   '("Discharge" "DischargeKeep" "Freeze" "$?Goal" "Module" "Record" "Inductive"
-     "Unfreeze"))))
+(defvar lego-outline-regexp 
+  (ids-to-regexp 
+   '("*" "Discharge" "Freeze" "Goal" "Module" "[" "Record" "Inductive" 
+     "Unfreeze")))
 
 (defvar lego-outline-heading-end-regexp ";\\|\\*)")
 
@@ -123,10 +122,10 @@
 ;; ----- keywords for font-lock. If you want to hack deeper, you'd better
 ;; ----- be fluent in regexps - it's in the YUK section.
 
-(defvar lego-keywords-goal '("$?Goal"))
+(defvar lego-keywords-goal '("Goal"))
 
 (defvar lego-keywords-save
-  '("$?Save"))
+  '("Save" "SaveFrozen" "SaveUnfrozen"))
 
 (defvar lego-keywords
   (append lego-keywords-goal lego-keywords-save '("andI" "Claim"
@@ -302,9 +301,8 @@
 	   (list (concat "^  \\(" lego-id "\\) = ... :") 1 
 			 'font-lock-function-name-face)
 
-	   (list (concat "^  \\(" lego-id "\\( " lego-id "\\)*\\) [:|] ") 1 
+	   (list (concat "^  \\(" lego-id "\\) : ") 1 
 			 'font-lock-declaration-name-face)
-           ; e.g., decl S1 S2 : prog sort
 
 	   (list (concat "\\<decl\\>  \\(" lego-id "\\) [:|]") 1 
 			 'font-lock-declaration-name-face)
@@ -467,7 +465,7 @@
   (setq compilation-search-path (cons nil (lego-get-path)))
   (add-hook 'proof-safe-send-hook 'lego-adjust-line-width)
   (add-hook 'proof-shell-exit-hook 'lego-shell-zap-line-width)
-  (add-hook 'comint-output-filter-functions 'lego-filter t)
+  (add-hook 'comint-output-filter-functions 'lego-pbp-filter t)
   (lego-goals-init)
   (font-lock-fontify-buffer))
 
@@ -523,7 +521,6 @@
   (modify-syntax-entry ?\* ". 23")
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4")
-  (setq blink-matching-paren-dont-ignore-comments t)
 
   (proof-config-done)
 

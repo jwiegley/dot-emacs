@@ -12,7 +12,9 @@
 ; The annotation is then removed and stored in the extent's properties
 ; and the last bits are cleared.
 
-(defun analyse-structure ()
+(defvar *script-buffer*)
+
+(defun lego-pbp-analyse-structure ()
   (map-extents
       (lambda (ext maparg)
           (when (extent-property ext 'lego-pbp) (delete-extent ext))))
@@ -27,25 +29,25 @@
     (cond ((string= (char-to-string (preceding-char)) "%")
 	   (progn (delete-backward-char 1)(location-push (point))))
           ((string= (char-to-string (preceding-char)) "&")
-           (let ((previous-ampersand (location-pop)))
-             (if previous-ampersand (make-top-extent previous-ampersand))
+           (let ((prev-ampersand (location-pop)))
+             (if prev-ampersand (lego-pbp-make-top-extent prev-ampersand))
 	     (delete-backward-char 1)
 	     (location-push (point))))
-	  (t (make-pbp-extent))))
+	  (t (lego-pbp-make-extent))))
   (end-of-buffer)
-  (make-top-extent (location-pop)))
+  (lego-pbp-make-top-extent (location-pop)))
 
 
-(defun make-top-extent (previous-ampersand)
+(defun lego-pbp-make-top-extent (previous-ampersand)
   (save-excursion
     (beginning-of-line) (backward-char) 
     (let ((extent (make-extent previous-ampersand (point))))
       (set-extent-property extent 'mouse-face 'highlight)
       (set-extent-property extent 'lego-top-element 
-			   (compute-extent-name extent))
+			   (lego-pbp-compute-extent-name extent))
       (set-extent-property extent 'keymap *lego-pbp-keymap*))))
 
-(defun make-pbp-extent ()
+(defun lego-pbp-make-extent ()
    (let ((extent (make-extent (or (location-pop) 1) (point))))
 	 (set-extent-property extent 'mouse-face 'highlight)
 	 (set-extent-property extent 'keymap *lego-pbp-keymap*)
@@ -61,7 +63,7 @@
                         (goto-char (extent-end-position extent))
                         (delete-backward-char 1))))
 
-(defun compute-extent-name (extent)
+(defun lego-pbp-compute-extent-name (extent)
   (save-excursion
     (goto-char (extent-start-position extent))
     ; the search for an hypothesis name is ambiguous: any binder in
@@ -82,67 +84,53 @@
 ; last string that was processed was in the middle of a goal listing,
 ; in this case one must go on reading the rest of the goals.
 
-(defun lego-filter (string)
-     (cond ( *lego-in-goals-output*
-	  (save-excursion 
-	    (set-buffer *lego-goals* )
-	    (end-of-buffer)
-	    (insert-string string *lego-goals*)
-	    (lego-analyse-buffer)))
-         (t (save-excursion 
-	      (set-buffer *lego-tmp-goals*)
-	      (erase-buffer)
-	      (insert-string string)
-	      (end-of-buffer)
-	      (cond ((search-backward "-- Start of Goals --" () t)
+(defun lego-pbp-filter (string)
+  (save-excursion
+    (set-buffer *lego-tmp-goals*)
+    (goto-char (point-max))
+    (insert string)
+    (while (progn (goto-char (point-min))
+		  (re-search-forward proof-shell-prompt-pattern () t))
+      (narrow-to-region (point-min) (point))
+      (lego-pbp-process-region)
+      (delete-region (point-min) (point-max))
+      (widen))))
 
-		     (end-of-line)
-		     (delete-region 1 (point))
-		     (set-buffer *lego-goals*)
-		     (erase-buffer)
-		     (insert-buffer *lego-tmp-goals*)
-		     (lego-analyse-buffer))
-		    ((search-backward "KillRef: ok, not in proof state" () t)
-		     (set-buffer *lego-goals*)
-		     (erase-buffer))
-		    ((search-backward "-- Pbp result --" () t)
-		     (end-of-line)
-		     (delete-region 1 (point))
-		     (search-forward "-- End Pbp result --" () t)
-		     (beginning-of-line)
-		     (delete-region (- (point) 1) (point-max))
-		     (if *script-buffer*
-			 (progn (set-buffer *script-buffer*)
-				(end-of-buffer)
-				(insert-buffer *lego-tmp-goals*)
-				(set-buffer *lego-tmp-goals*)))
-		     (proof-simple-send
-                          (buffer-substring 1 (point-max)))
-		     (erase-buffer)))))))
+(defun lego-pbp-process-region ()
+  (save-excursion 
+    (goto-char (point-min))
+    (cond ((search-forward "KillRef: ok, not in proof state" () t)
+	   (erase-buffer *lego-goals*))
+	  ((search-forward "*** QED ***" () t)
+	   (erase-buffer *lego-goals*)
+	   (insert-string "\n   *** QED ***" *lego-goals*))
+	  ((search-forward "-- Start of Goals --" () t)
+	   (delete-region (point-min) (point))
+	   (search-forward "-- End of Goals --" () t)
+	   (backward-char 18)
+	   (delete-region (point)(point-max))
+	   (set-buffer *lego-goals*)
+	   (erase-buffer)
+	   (insert-buffer-substring *lego-tmp-goals*)
+	   (lego-pbp-analyse-structure))
+	  ((search-forward "-- Pbp result --" () t)
+	   (end-of-line)
+	   (delete-region 1 (point))
+	   (search-forward "-- End Pbp result --" () t)
+	   (beginning-of-line)
+	   (delete-region (- (point) 1) (point-max))
+	   (proof-simple-send (buffer-substring 1 (point-max)))
+	   (if *script-buffer*
+	       (progn (set-buffer *script-buffer*)
+		      (end-of-buffer)
+		      (insert-buffer-substring *lego-tmp-goals*)))))))
 
-
-(defun lego-analyse-buffer ()
-  (beginning-of-buffer)
-  (cond ((search-forward "*** QED ***" () t)
-	 (beginning-of-line)
-	 (delete-region 1 (point))
-	 (end-of-line)
-	 (delete-region (point) (point-max)))
-	((search-forward "-- End of Goals --" () t)
-	 (backward-char 18)
-	 (delete-region (point)(point-max))
-	 (setq *lego-in-goals-output* ())
-	 (analyse-structure))
-        (t (end-of-buffer)
-	   (setq *lego-in-goals-output* t))))
-
-(defvar *lego-in-goals-output* ())
-
-(defvar *script-buffer*)
 
 (defun lego-goals-init ()
   (setq *lego-tmp-goals* (get-buffer-create "*lego-tmp-goals*"))
   (setq *lego-goals* (get-buffer-create "*lego goals*"))
+  (erase-buffer *lego-goals*)
+  (erase-buffer *lego-tmp-goals*)
   (bury-buffer *lego-tmp-goals*))
 
 ; Now, using the extents in a mouse behavior is quite simple:
