@@ -16,8 +16,9 @@
 
 $project_email = "proofgen@dcs.ed.ac.uk";
 $project_list  = "proofgeneral@dcs.ed.ac.uk";
-$project_title = "Proof General"
+$project_title = "Proof General";
 $project_subtitle = "Organize your Proofs!";
+$project_full_title = $project_title . " --- " . $project_subtitle;
 
 // DTD 
 
