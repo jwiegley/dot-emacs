@@ -44,6 +44,10 @@ Zero means outside a proof, 1 means inside a top-level proof, etc.
 This variable is maintained in proof-done-advancing; it is zeroed
 in proof-shell-clear-state.")
 
+(defvar proof-element-counters nil
+  "Table of (name . count) pairs, counting elements in scripting buffer.")
+
+
 ;; Buffer-local variables
 
 (deflocal proof-active-buffer-fake-minor-mode nil
@@ -55,6 +59,30 @@ in proof-shell-clear-state.")
 The `find-alternative-file' function has a nasty habit of setting the
 buffer file name to nil before running kill buffer, which breaks PG's
 kill buffer hook.  This variable is used when buffer-file-name is nil.")
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Counting and naming proof elements
+;;
+
+(defun proof-next-element-count (idiom)
+  "Return count for next element of type IDIOM.
+This uses and updates `proof-element-counters'."
+  (let ((next (1+ (or (cdr-safe (assq idiom proof-element-counters)) 0))))
+    (setq proof-element-counters 
+	  (cons (cons idiom next) 
+		(remassq idiom proof-element-counters)))
+    next))
+
+(defun proof-element-id (idiom number)
+  "Return a string identifier composed from symbol IDIOM and NUMBER."
+  (concat (symbol-name idiom) "-" (int-to-string number)))
+
+(defun proof-next-element-id (idiom)
+  (proof-element-id idiom (proof-next-element-count idiom)))
+
 
 
 
@@ -254,6 +282,7 @@ Also clear list of script portions."
   (set-span-property proof-locked-span 'face 'proof-locked-face)
   (detach-span proof-locked-span)
   (setq proof-last-theorem-dependencies nil)
+  (setq proof-element-counters nil)
   (pg-clear-script-portions))
 
 
@@ -485,7 +514,7 @@ IDIOM, ID, and optional NAME are all strings.
 Identifiers must be unique for a given idiom; the optional NAME
 will be recorded as a textual name used instead of ID for users;
 NAME does not need to be unique."
-  (let* ((idiomsym       (intern idiom))
+  (let* ((idiomsym (intern idiom))
 	 (idsym    (intern id))
 	 (name	   (or name id))
 	 (visname  (pg-visname idiom id))
@@ -518,7 +547,7 @@ NAME does not need to be unique."
     (and idiom id 
 	 (if invisible
 	     (pg-make-element-invisible
-	      (symbol-name idiom) (symbol-name id))
+	      (symbol-name idiom) id)
 	   (pg-make-element-visible
 	      (symbol-name idiom) (symbol-name id))))))
 
@@ -557,40 +586,36 @@ NAME does not need to be unique."
 								(symbol-name arg)))
 		     (lambda (arg) (pg-make-element-visible idiom 
 							    (symbol-name arg))))))
-    (mapcar alterfn elts)))
+    (mapcar alterfn elts))
+  (unless proof-running-on-XEmacs
+    ;; GNU Emacs requires redisplay here to see result
+    ;; (sit-for 0) not enough
+    (redraw-frame (selected-frame))))
 
 (defun pg-show-all-proofs ()
   "Display all completed proofs in the buffer."
   (interactive)
-  (pg-show-all-portions "proof")
-  (unless proof-running-on-XEmacs
-    ;; GNU Emacs requires redisplay here to see result
-    ;; (sit-for 0) not enough
-    (redraw-frame (selected-frame))))
-  
+  (pg-show-all-portions "proof"))
 
 (defun pg-hide-all-proofs ()
   "Hide all completed proofs in the buffer."
   (interactive)
-  (pg-show-all-portions "proof" 'hide)
-  (unless proof-running-on-XEmacs
-    ;; GNU Emacs requires redisplay here to see result
-    ;; (sit-for 0) not enough
-    (redraw-frame (selected-frame))))
+  (pg-show-all-portions "proof" 'hide))
 
 
 (defun pg-add-proof-element (name span controlspan)
   "Add a nested span proof element."
-  ;; FIXME: make unique ID here.
-  (pg-add-element "proof" name span)
-  ;; Make a navigable link between the two spans.
-  (set-span-property span 'controlspan controlspan)
-  (set-span-property controlspan 'children
-    (cons span (span-property controlspan 'children)))
-  ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
-  (pg-set-span-helphighlights span 'nohighlight)
-  (if proof-disappearing-proofs 
-      (pg-make-element-invisible "proof" name)))
+  (let ((proofid   (proof-next-element-id 'proof)))
+    (pg-add-element "proof"  proofid span name)
+    ;; Set id in controlspan
+    (set-span-property controlspan 'id (intern proofid))
+    ;; Make a navigable link between the two spans.
+    (set-span-property span 'controlspan controlspan)
+    (set-span-property controlspan 'children
+		       (cons span (span-property controlspan 'children)))
+    (pg-set-span-helphighlights span 'nohighlight)
+    (if proof-disappearing-proofs 
+	(pg-make-element-invisible "proof" name))))
 
 (defun pg-span-name (span)
   "Return a user-level name for SPAN."
@@ -1209,9 +1234,19 @@ With ARG, turn on scripting iff ARG is positive."
 	(proof-set-queue-start end))
     (setq cmd (span-property span 'cmd))
     (cond
+
      ;; CASE 1: Comments just get highlighted
      ((eq (span-property span 'type) 'comment)
-      (pg-set-span-helphighlights span))
+      (pg-set-span-helphighlights span)
+      ;; Add an element for a new span, which should span
+      ;; the text of the comment.
+      (let ((bodyspan  (make-span 
+			(+ (length comment-start) (span-start span))
+			(- (span-end span) (length comment-end))))
+	    (id        (proof-next-element-id 'comment)))
+	(pg-add-element "comment" id bodyspan)
+	(set-span-property span 'id (intern id))
+	(set-span-property span 'idiom 'comment)))
       
      ;; CASE 2: Save command seen, now we may amalgamate spans.
      ((and proof-save-command-regexp

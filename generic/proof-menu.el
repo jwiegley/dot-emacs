@@ -165,6 +165,15 @@ If in three window or multiple frame mode, display both buffers."
     ["Send Bug Report" proof-submit-bug-report t])
   "Proof General help menu.")
 
+(defvar proof-show-hide-menu
+  '(("Show all"
+     ["Proofs"    (pg-show-all-portions "proof") t]
+     ["Comments"  (pg-show-all-portions "comment") t])
+    ("Hide all"
+     ["Proofs"    (pg-show-all-portions "proof" 'hide) t]
+     ["Comments"  (pg-show-all-portions "comment" 'hide) t]))
+  "Show/hide submenu.")
+
 (defvar proof-buffer-menu
   (cons "Buffers"
 	(append
@@ -193,6 +202,7 @@ If in three window or multiple frame mode, display both buffers."
 	      (proof-switch-to-buffer proof-trace-buffer)
 	      :active (buffer-live-p proof-trace-buffer)])))
   "Proof General buffer menu.")
+
 
 ;; Make the togglers used in options menu below
 
@@ -308,6 +318,7 @@ If in three window or multiple frame mode, display both buffers."
   (cons proof-general-name
 	(append
 	 proof-toolbar-scripting-menu
+	 proof-show-hide-menu
 	 proof-menu
 	 proof-config-menu
 	 (list proof-help-menu)))

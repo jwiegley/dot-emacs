@@ -883,21 +883,22 @@ If NUM is negative, move upwards.  Return new span."
     ;; Find controlling span 
     (while (setq cspan (span-property span 'controlspan))
       (setq span cspan))
-    (let* 
-	((idiom      (span-property span 'idiom))
-	 (idiomnm    (if idiom (symbol-name idiom)))
-	 (portname   (span-property span 'name)))
-      (popup-menu (pg-create-in-span-context-menu span idiomnm portname)))))
+    (let*  
+	((idiom (and span (span-property span 'idiom)))
+	 (id    (and span (span-property span 'id))))
+      (popup-menu (pg-create-in-span-context-menu 
+		   span 
+		   (if idiom (symbol-name idiom))
+		   (if id (symbol-name id)))))))
 
 (defun pg-toggle-visibility ()
   "Toggle visibility of region under point."
   (interactive)
   (let* ((span (span-at (point) 'type))
-	 (idiom      (and span (span-property span 'idiom)))
-	 (idiomnm    (and idiom (symbol-name idiom)))
-	 (portname   (and span (span-property span 'name))))
-    (and portname idiomnm
-	 (pg-toggle-element-visibility idiomnm portname))))
+	 (idiom (and span (span-property span 'idiom)))
+	 (id    (and span (span-property span 'id))))
+    (and  idiom id
+	 (pg-toggle-element-visibility (symbol-name idiom) (symbol-name id)))))
 
 
 (defun pg-create-in-span-context-menu (span idiom name)
@@ -911,7 +912,8 @@ If NUM is negative, move upwards.  Return new span."
    (list (pg-span-name span))
    (list (vector
 	  "Show/hide"   
-	  (if idiom (list 'pg-toggle-element-visibility idiom name) idiom)
+	  (if idiom (list `pg-toggle-element-visibility idiom name) 
+	    idiom)
 	  (not (not idiom))))
    (list (vector
 	  "Copy"	(list 'pg-copy-span-contents span) t))

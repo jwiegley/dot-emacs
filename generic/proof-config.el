@@ -722,8 +722,6 @@ If a function, it should return the command string to insert."
 		proof-find-theorems-command)
     (command    "Issue Command"	      "Issue a non-scripting command" t)
     (interrupt  "Interrupt Prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
-    (show       "Show Proofs"         nil t)
-    (hide       "Hide Proofs"	      nil t)
     (info	nil		      "Show online proof assistant information" t
 		proof-info-command)
     (help	nil		      "Proof General manual" t))
