@@ -66,5 +66,8 @@ of the following tips (gathered from experience).
 
 
 
+** Handy tips
 
+*** Moving to new branch.
 
+   find * -path '*/CVS' -prune -o -path 'CVS' -prune -o -print | xargs cvs commit -m"Updating branch" -f -r 4.0         
