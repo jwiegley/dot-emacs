@@ -2,6 +2,8 @@
 ;; Description:    Proof General instance for Lambda-CLAM
 ;; Author:         James Brotherston <jjb@dai.ed.ac.uk>
 ;; Last modified:  23 October 2001
+;;
+;; $Id$
 
 (require 'proof)            ; load generic parts
 (require 'proof-syntax)     
@@ -28,7 +30,7 @@
 ;;
 
 (defun lclam-config ()
-  "Configure Proof General scripting for Isabelle."
+  "Configure Proof General scripting for Lambda-CLAM."
   (setq 
    proof-terminal-char             ?\.
    proof-comment-start             "/*"
@@ -166,12 +168,14 @@
                            ["Next section" thy-goto-next-section t]
                            ["Prev section" thy-goto-prev-section t]
                            ["Insert template" thy-insert-template t]
-                           ["Include definitions" match-and-assert-defs
-                            :active (proof-locked-region-empty-p)]
+; da: commented out this, function is incomplete
+;                           ["Include definitions" match-and-assert-defs
+;                            :active (proof-locked-region-empty-p)]
                            ["Process theory" process-thy-file
                             :active (proof-locked-region-empty-p)]
-                           ["Retract theory" isa-retract-thy-file
-                            :active (proof-locked-region-full-p)]
+; da: commented out this, there's no retract function provided
+;                           ["Retract theory" isa-retract-thy-file
+;                            :active (proof-locked-region-full-p)]
                            ["Next error" proof-next-error t]
                            ["Switch to script" thy-find-other-file t])))
 
