@@ -46,7 +46,8 @@
 
 (defvar phox-sym-lock-keywords nil
   "Similar to `font-lock-keywords'.")
-(make-variable-buffer-local 'phox-sym-lock-keywords)(put 'phox-sym-lock-keywords 'permanent-local t)
+(make-variable-buffer-local 'phox-sym-lock-keywords)
+(put 'phox-sym-lock-keywords 'permanent-local t)
 
 (defvar phox-sym-lock-enabled nil
   "Phox-Sym-Lock switch.")
@@ -285,7 +286,7 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
     (setq phox-sym-lock-enabled t)
     (if font-lock-mode
 	(progn
-	  (setq font-lock-keywords nil) ; Font-Lock explicit-defaults bug!
+;	  (setq font-lock-keywords nil) ; Font-Lock explicit-defaults bug!
 	  (font-lock-set-defaults t)
 	  (font-lock-fontify-buffer)))
     (message "Phox-Sym-Lock enabled.")))
@@ -298,7 +299,7 @@ OBJ under `phox-sym-lock-adobe-symbol-face'. The face extent will become atomic.
     (setq phox-sym-lock-enabled nil)
     (if font-lock-mode
 	(progn
-	  (setq font-lock-keywords nil) ; Font-Lock explicit-defaults bug!
+;	  (setq font-lock-keywords nil) ; Font-Lock explicit-defaults bug!
 	  (font-lock-set-defaults t)
 	  (font-lock-fontify-buffer)))
     (message "Phox-Sym-Lock disabled.")))

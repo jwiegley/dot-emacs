@@ -12,6 +12,7 @@ PhoX homepage:  http://www.lama.univ-savoie.fr/~RAFFALLI/phox.html
 This mode has support for script management with PhoX, and some
 other features ported from PhoX's own Emacs mode.
 
+Soon compatible with x-symbol, but it does not work yet ...
 
 $Id$
 

@@ -206,8 +206,7 @@
    font-lock-keywords  phox-font-lock-keywords
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
-  (proof-response-config-done)
-  (font-lock-mode))
+  (proof-response-config-done))
 
 (define-derived-mode phox-goals-mode proof-goals-mode
   "PhoX goals" nil
@@ -215,8 +214,7 @@
    font-lock-keywords  phox-font-lock-keywords
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
-  (proof-goals-config-done)
-  (font-lock-mode))
+  (proof-goals-config-done))
 
 ;; The response buffer and goals buffer modes defined above are
 ;; trivial.  In fact, we don't need to define them at all -- they
