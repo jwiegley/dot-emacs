@@ -140,6 +140,8 @@ may assign this function to `after-change-function'."
 ;; Functions for doing something like "format" but with customizable
 ;; control characters.
 ;;
+;; Added for version 3.1 to help quote funny characters in filenames.
+;;
 
 (defun proof-format (alist string)
   "Format a string by matching regexps in ALIST against STRING"
@@ -155,13 +157,23 @@ may assign this function to `after-change-function'."
   string)
 
 (defun proof-format-filename (string filename)
-  "Format STRING by replacing %s or %e by expanded version of FILENAME.
-%e is special form meaning use proof-shell-string-escapes..
+  "Format STRING by replacing %e, %r by escaped version of FILENAME.
 
-We use expand-file-name to avoid problems with dumb
-proof assistants and ~"  
+%e uses the canonicalized expanded version of filename (including
+directory, using default-directory -- see `expand-file-name').
+
+%r uses the unadjusted (possibly relative) version of FILENAME.
+
+%s means the same as %e.
+
+Using %e can avoid problems with dumb proof assistants who don't
+understand ~, for example."  
   (proof-format 
    (list (cons "%s" (proof-format proof-shell-filename-escapes 
+				  (expand-file-name filename)))
+	 (cons "%e" (proof-format proof-shell-filename-escapes 
+				  (expand-file-name filename)))
+	 (cons "%r" (proof-format proof-shell-filename-escapes 
 				  (expand-file-name filename))))
    string))
  
