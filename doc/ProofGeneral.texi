@@ -1316,12 +1316,11 @@ highlighted command under the mouse:
 @end table
 
 @c TEXI DOCSTRING MAGIC: proof-mouse-track-insert
-
-
 @deffn Command proof-mouse-track-insert event
 Copy highlighted command under the mouse to point.  Ignore comments.@*
 If there is no command under the mouse, behaves like @code{mouse-track-insert}.
 @end deffn
+
 Read the documentation in Emacs to find out about the normal behaviour
 of @code{proof-mouse-track-insert}, if you don't already know what it
 does.
@@ -1714,7 +1713,6 @@ replayed (without using PBP), the proof-by-pointing constructions will
 be considered as separate proof commands, as usual.
 
 @c TEXI DOCSTRING MAGIC: pg-goals-button-action
-
 @deffn Command pg-goals-button-action event
 Construct a proof-by-pointing command based on the mouse-click @var{event}.@*
 This function should be bound to a mouse button in the Proof General
@@ -1741,7 +1739,6 @@ subterms from the goals buffer, using the function
 @code{pg-goals-yank-subterm}.
 
 @c TEXI DOCSTRING MAGIC: pg-goals-yank-subterm
-
 @deffn Command pg-goals-yank-subterm event
 Copy the subterm indicated by the mouse-click @var{event}.@*
 This function should be bound to a mouse button in the Proof General
@@ -1755,6 +1752,7 @@ In case the current buffer is the goals buffer itself, the yank
 is not performed.  Then the subterm can be retrieved later by an
 explicit yank.
 @end deffn
+
 @c Proof General expects to parse
 @c term-structure annotations on the output syntax of the prover.
 @c It uses these to construct a message to the prover indicating
@@ -2630,7 +2628,6 @@ buffers or refresh the window layout.  These are on the menu:
 @end lisp
 
 @c TEXI DOCSTRING MAGIC: proof-display-some-buffers
-
 @deffn Command proof-display-some-buffers 
 Display the reponse, trace, goals, or shell buffer, rotating.@*
 A fixed number of repetitions of this command switches back to
