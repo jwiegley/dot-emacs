@@ -579,7 +579,7 @@ the form of the menu entry for the setting.")
 			 ["Reset Settings" (proof-settings-reset) 
 			  (proof-settings-changed-from-defaults-p)]
 			 ["Save Settings" (proof-settings-save)
-			  (proof-settings-changed-from-saved-p)]
+			  (proof-settings-changed-from-saved-p)]))
 	    ents)
 	(while setgs
 	  (setq ents (cons 
