@@ -19,5 +19,4 @@ else
     EMACS=emacs
 fi
 
-$EMACS -l $PGHOME/generic/proof-site.el
-
+$EMACS -l $PGHOME/generic/proof-site.el "$@"
