@@ -99,9 +99,8 @@ Isabelle.
 * Obtaining and Installing Proof General::  
 * Known bugs and workarounds::  
 * Plans and ideas::             
-* Variable Index::              
-* Function Index::              
-* Concept Index::               
+* Keystroke Index::             
+* Index::                       
 @end menu
 
 @detailmenu --- The Detailed Node Listing ---
@@ -225,8 +224,7 @@ Our aim is provide a powerful and configurable Emacs mode which helps
 user-interaction with interactive proof assistants.  Please help us with
 this aim!  Configure Proof General for your proof assistant, by adding
 features at the generic level wherever possible.  See 
-@c Stupid undefined node error her, why?
-@xref{Adding A New Proof Assistant}
+@ref{Adapting Proof General to New Provers}
 for more details, and send ideas, comments, patches,
 and code to @code{proofgen@@dcs.ed.ac.uk}.
 
@@ -1087,6 +1085,73 @@ of @var{proof-assistants-table} for more details.
 @section Handling Multiple Files
 @cindex Multiple Files
 
+Large proof developments are typically spread across multiple files.
+Many provers support such developments by keeping track of dependencies
+and automatically processing scripts. Proof General supports this
+mechanism. The user's point of view is
+explored further in @ref{Advanced Script Management}. Here, we 
+describe the more technical nitty gritty. This is what you need to know
+when you customise another proof assistant to work with Proof General.
+
+The key idea is that we leave it to the specific proof assistant to
+worry about managing multiple files. But whenever the proof assistant
+processes or retracts a file it must clearly say so.
+
+@vindex proof-shell-eager-annotation-start
+@vindex proof-shell-eager-annotation-end
+
+Proof General considers @var{output} delimited by the the two regualar
+expressions @code{proof-shell-eager-annotation-start} and
+@code{proof-shell-eager-annotation-end} as being important. It displays
+the @var{output} in the Response buffer and analyses their contents further.
+Among possibly other important messages characterised by these regular
+expressions, the prover must tell the interface whenver it processes a
+file and retracts across file boundaries. 
+
+
+@vtable @code
+@item proof-included-files-list
+records the file history. Whenever a new file is being processed, Proof
+General adds it to the
+front of the list. When the prover retracts across file boundaries, this
+list is resynchronised. It contains files in canonical truename format.
+@inforef{Truenames,,lispref}. You should not set this variable directly.
+The generic Proof General will modify @code{proof-included-files-list}
+itself. Instead for a specific proof assistant you need to customise
+@code{proof-shell-process-file}. @code{proof-shell-retract-files-regexp} 
+and @code{proof-shell-compute-new-files-list}.
+
+@item proof-shell-process-file is either nil or a tuple of the form
+(@var{regexp}, @var{function}). If @var{regexp} matches a substring of
+@var{str}, then the function @var{function} is invoked with input
+@var{str}. It must return a script file name (with complete path) the
+system is currently processing. In practice, @var{function} is likely to
+inspect the match data. @inforef{Match Data,,lispref}. Care has to be
+taken in case the prover only reports on compiled versions of files it
+is processing. In this case, @var{function} needs to reconstruct the
+corresponding script file name. The new (true) file name is then
+automatically added to the front of @code{proof-included-files-list} by
+the generic code.
+
+@item proof-shell-retract-files-regexp
+is a regular expression. It indicates that the prover has retracted
+across file boundaries. At this stage, Proof General's view of the
+processed files is out of date and needs to be updated with the help of
+the function @code{proof-shell-compute-new-files-list}.
+@end vtable
+
+@ftable @code
+@item proof-shell-compute-new-files-list
+Takes as argument the current output of the prover. It needs to return
+an up to date list of all processed files. Its output is then
+automatically stored in
+@code{proof-included-files-list} by the generic Proof General. In practice, this function is likely
+to inspect the previous (global) variable
+@code{proof-included-files-list} and the match data
+@inforef{Match Data,,lispref} triggered by @code{proof-shell-retract-files-regexp}.
+@end ftable
+
+
 @c
 @c
 @c CHAPTER: Obtaining and Installing Proof General
@@ -1440,16 +1505,12 @@ functions, or customize some of the variables from @file{isa.el} and
 
 
 
-@node Variable Index
-@unnumbered Variable Index
-@printindex vr
+@node Keystroke Index
+@unnumbered Keystroke Index
+@printindex ky
 
-@node Function Index
-@unnumbered Function Index
-@printindex fn
-
-@node Concept Index
-@unnumbered Concept Index
+@node Index
+@unnumbered Index
 @printindex cp
 
 @contents
@@ -1962,80 +2023,6 @@ the ACS is annotated with the actual command to retract the ACS. This is
 computed by applying @var{forget-command} to the first and last command
 of the ACS.
 @end vtable
-
-@node Handling Multiple Files, Adding A New Proof Assistant, Granularity of Atomic Command Sequences, Internals
-@comment  node-name,  next,  previous,  up
-@unnumberedsubsec Handling Multiple Files
-
-@cindex Multiple Files
-
-Large proof developments are typically spread across multiple files.
-Many provers support such developments by keeping track of dependencies
-and automatically processing scripts. Proof General supports this
-mechanism. 
-
-However, the prover must let the Proof General know whenever
-it processes a file directly. Such files are being marked by Proof
-General as having been processed by an atomic action (regardless of
-whether an error occurs or not). The file can then only be edited after
-retracting to the beginning of the file.
-
-When retraction is requested in a buffer which is not the current
-script, Proof General duely retracts in this buffer. It then arranges a
-little conference with the prover to find out which other files have
-also been retracted. With this strategy, Proof General doesn't have a
-hard time to keep track of dependencies.
-
-@vindex proof-shell-eager-annotation-start
-@vindex proof-shell-eager-annotation-end
-
-Proof General considers @var{output} delimited by the the two regualar
-expressions @code{proof-shell-eager-annotation-start} and
-@code{proof-shell-eager-annotation-end} as being important. It displays
-the @var{output} in the Response buffer and analyses their contents further.
-Among possibly other important messages characterised by these regular
-expressions, the prover must tell the interface whenver it processes a
-file and retracts across file boundaries. 
-
-
-@vtable @code
-@item proof-included-files-list
-records the file history. Whenever a new file is being processed, it
-gets added to the
-front of the list. When the prover retracts across file boundaries, this
-list is resynchronised. It contains files in canonical truename format
-@inforef{Truenames,,lispref}. 
-
-@item proof-shell-process-file
-is either nil or a tuple of the
-form (@var{regexp}, @var{function}). If @var{regexp} matches a substring 
-of @var{str},
-then the function @var{function} is invoked with input @var{str}. It must return a script file
-name (with complete path)
-the system is currently processing. In practice, @var{function} is
-likely to inspect the match data. @inforef{Match Data,,lispref}. 
-Care has to be taken in case the prover only reports on compiled
-versions of files it is processing. In this case, @var{function} needs
-to reconstruct the corresponding script file name.
-The 
-new (true) file name is added to the front of @code{proof-included-files-list}.
-
-@item proof-shell-retract-files-regexp
-is a regular expression. It indicates that the prover has retracted
-across file boundaries. At this stage, Proof General's view of the
-processed files is out of date and needs to be updated with the help of
-the function @code{proof-shell-compute-new-files-list}.
-@end vtable
-
-@ftable @code
-@item proof-shell-compute-new-files-list
-Takes as argument the current output of the prover. It needs to return
-an up to date list of all processed files. Its output is stored in
-@code{proof-included-files-list}. In practice, this function is likely
-to inspect the previous (global) variable
-@code{proof-included-files-list} and the match data
-@inforef{Match Data,,lispref} triggered by @code{proof-shell-retract-files-regexp}.
-@end ftable
 
 @node Adding A New Proof Assistant, Literature, Handling Multiple Files, Internals
 @comment  node-name,  next,  previous,  up
