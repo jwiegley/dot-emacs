@@ -51,6 +51,7 @@
 (defvar x-symbol-coq-master-directory 'ignore)
 (defvar x-symbol-coq-image-searchpath '("./"))
 (defvar x-symbol-coq-image-cached-dirs '("images/" "pictures/"))
+(defvar x-symbol-coq-image-file-truename-alist nil)
 (defvar x-symbol-coq-image-keywords nil)
 (defvar x-symbol-coq-font-lock-keywords nil)
 (defvar x-symbol-coq-header-groups-alist nil)
@@ -61,16 +62,21 @@
 (defvar x-symbol-coq-electric-ignore nil)
 (defvar x-symbol-coq-required-fonts nil)
 (defvar x-symbol-coq-case-insensitive nil)
+(defvar x-symbol-coq-extra-menu-items nil)
+(defvar x-symbol-coq-token-grammar nil)
+(defvar x-symbol-coq-input-token-grammar nil)
+(defvar x-symbol-coq-generated-data nil)
+
 
 ;Pierre: let's try this, phi1 will be encoded, but not phia or
 ;philosophy. problem: blaphi will be encoded,
 ; other problem: false1 sholud not be encoded
 
-(defvar x-symbol-coq-token-shape '(?_ "[A-Za-z]+" . "[A-Za-z_]"))
-
-;(defvar x-symbol-coq-token-shape nil)
+;(defvar x-symbol-coq-token-shape '(?_ "[A-Za-z]+" . "[A-Za-z_]"))
+(defvar x-symbol-coq-token-shape nil)
 
 (defvar x-symbol-coq-table x-symbol-coq-symbol-table)
+(defvar x-symbol-coq-user-table nil)
 (defun x-symbol-coq-default-token-list (tokens) tokens)
 (defvar x-symbol-coq-token-list 'x-symbol-coq-default-token-list)
 (defvar x-symbol-coq-input-token-ignore nil)
