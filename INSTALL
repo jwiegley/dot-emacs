@@ -24,14 +24,21 @@ if you're using Coq, don't edit .ML files!  If there are some assistants
 supported that you never want to use, you can remove them from
 the variable `proof-assistants` in proof-site.el to solve this problem.
 
-In XEmacs, you can do this (and most other customization of Proof
-General) via the Customize mechanism, see the menu:
+The easiest way to do this (and most other customization of Proof
+General) is via the Customize mechanism, see the menu:
 
   Options -> Customize -> Emacs -> External -> Proof General
 
-Further customization may be needed depending on the proof assistant
-(for example, the name of the proof assistant binary).  See the
-entries below for more notes.
+or, after loading Proof General, in a proof script buffer
+
+  Proof-General -> Customize
+
+You may need extra customization depending on the proof assistant (for
+example, the name of the proof assistant binary).  See the menu
+
+  Proof-General -> Customize -> <Name of Assistant>
+
+and the notes below for more details.
 
 If you are installing Proof General site-wide, you can put the
 components in separate directories, providing the variables in
