@@ -156,7 +156,10 @@ may assign this function to `after-change-function'."
 
 (defun proof-format-filename (string filename)
   "Format STRING by replacing %s or %e by expanded version of FILENAME.
-%e is special form meaning use proof-shell-string-escapes."
+%e is special form meaning use proof-shell-string-escapes..
+
+We use expand-file-name to avoid problems with dumb
+proof assistants and ~"  
   (proof-format 
    (list (cons "%s" (expand-file-name filename))
 	 (cons "%e" (proof-format proof-shell-string-escapes 
