@@ -4,21 +4,76 @@
 #
 # Uses XEmacs in preference to Emacs
 #
-# You must edit PGHOME to the directory where (the lisp files of)
-# Proof General is installed.
+# PGHOME must be set to the directory where the lisp files of
+# Proof General are installed.
 #
 # $Id$
 #
 
-PGHOME=/usr/share/emacs/ProofGeneral
-#PGHOME=~/ProofGeneral
+# The relative path works for uninstalled package
+PGHOME=..
 
-if [ -z "$EMACS" ]; then
+# Try to find an Emacs executable 
+if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
     if which xemacs > /dev/null; then 
-	EMACS=xemacs
+	EMACS=`which xemacs`
     else 
-	EMACS=emacs
+	EMACS=`which emacs`
     fi
 fi
 
-$EMACS -l $PGHOME/generic/proof-site.el -f proof-splash-display-screen "$@"
+NAME=`basename $0`
+
+HELP="Usage: proofgeneral [OPTION] [FILE]...
+  Launch Emacs Proof General editing the proof script FILE.
+
+  Options:
+    -h, --help        show this help and exit
+    -v, --version     output version information and exit
+
+  Examples:
+    $NAME Example.thy	Load Proof General editing Isar file Example.thy
+    $NAME example.v	Load Proof General editing Coq file Example.v
+
+  Report bugs to <da+pg-bugs@inf.ed.ac.uk>.
+"
+
+VERSIONBLURB='Written by David Aspinall and others (see http://proofgeneral.inf.ed.ac.uk/AUTHORS).
+
+Copyright (C) 1998-2004 LFCS, University of Edinburgh, UK.
+This is free software; see the source for copying conditions.'
+
+   
+while 
+  case $1 in 
+    -h) 
+	echo "$HELP" >&2
+	exit 1;;
+    --help)
+	echo "$HELP" >&2
+	exit 1;;
+    -v) 
+	VERSION=`grep proof-general-version ~/PG/generic/proof-site.el | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
+	echo "$NAME" "($VERSION)" >&2
+	echo "$VERSIONBLURB" >&2
+	exit 1;;
+    --version) 
+	VERSION=`grep proof-general-version ~/PG/generic/proof-site.el | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
+	echo "$NAME" "($VERSION)" >&2
+	echo "$VERSIONBLURB" >&2
+	exit 1;;
+    -*) 
+	echo "$NAME: option $1 not recognized. Use $NAME --help for help." 1>&2
+	exit 1;;
+    *) break;;
+  esac
+do shift; done
+
+
+if [ ! -x "$EMACS" ]; then
+    echo "$NAME: cannot find an Emacs or XEmacs executable.  Set EMACS or your PATH." 1>&2
+    exit 1
+fi
+    
+	
+exec $EMACS -l $PGHOME/generic/proof-site.el -f proof-splash-display-screen "$@"
