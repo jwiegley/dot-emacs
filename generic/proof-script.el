@@ -866,53 +866,6 @@ With ARG, turn on scripting iff ARG is positive."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; messy COMPATIBILITY HACKING for FSFmacs.
-;; 
-;; In case Emacs is not aware of the function read-shell-command,
-;; and read-shell-command-map, we duplicate some code adjusted from
-;; minibuf.el distributed with XEmacs 20.4.
-;;
-;; This code is still required as of FSF Emacs 20.2.
-;;
-;; I think bothering with this just to give completion for
-;; when proof-prog-name-ask=t is a big overkill!   - da.
-;;	
-;; FIXME da: check code current in XEmacs 21.1
-
-(defvar read-shell-command-map
-  (let ((map (make-sparse-keymap 'read-shell-command-map)))
-    (if (not (fboundp 'set-keymap-parents))
-        (if (fboundp 'set-keymap-parent)
-	    ;; FSF Emacs 20.2
-	    (set-keymap-parent map minibuffer-local-map)
-	  ;; Earlier FSF Emacs
-	  (setq map (append minibuffer-local-map map))
-	  ;; XEmacs versions?
-	  (set-keymap-parents map minibuffer-local-map)))
-    (define-key map "\t" 'comint-dynamic-complete)
-    (define-key map "\M-\t" 'comint-dynamic-complete)
-    (define-key map "\M-?" 'comint-dynamic-list-completions)
-    map)
-  "Minibuffer keymap used by shell-command and related commands.")
-
-(or (fboundp 'read-shell-command)
-    (defun read-shell-command (prompt &optional initial-input history)
-      "Just like read-string, but uses read-shell-command-map:
-\\{read-shell-command-map}"
-      (let ((minibuffer-completion-table nil))
-        (read-from-minibuffer prompt initial-input read-shell-command-map
-                              nil (or history
-                              'shell-command-history)))))
-
-
-;;; end messy COMPATIBILITY HACKING
-;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 ;; da: NEW function added 28.10.98.
 ;; This is used by toolbar follow mode (which used to use the function
 ;; above).  [But wouldn't work for proof-shell-handle-error-or-interrupt-hook?].
@@ -1156,20 +1109,72 @@ the ACS is marked in the current buffer. If CMD does not match any,
   (run-hooks 'proof-state-change-hook)))
 
 
+;; NEW parsing function for 3.2
+;;
+;; FIXME da: this version is XEmacs specific, using
+;; bultin buffer-syntactic-context.  Means we don't need to
+;; parse strings and comments ourselves.
+;;
+;; NB: compared with old code,
+;; (1) this never includes comments separately in list,
+;; only commands possibly preceded by previous comment!
+;;
+;; FIXME: this is nice because it will unify next/undo
+;; behaviour.  But it is broken because comments are kept
+;; in command field, but command field is used to guess
+;; correct undo command.  So they *must* be stripped or
+;; parsed separately after all.
+;; 
+
+(defun proof-segment-up-to-new (pos &optional next-command-end)
+  "Parse the script buffer from end of locked to POS.
+Return a list of (type, string, int) tuples.
+
+Each tuple denotes the command and the position of its terminator,
+type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
+the start if the segment finishes with an unclosed comment.
+
+If optional NEXT-COMMAND-END is non-nil, we include the command
+which continues past POS, if any."
+  (save-excursion
+    (let (alist prev cmdfnd
+          (add-segment-for-cmd		; local function: advances "prev"
+	   (lambda ()
+	     (let ((string (buffer-substring prev (point))))
+	       (skip-chars-forward " \t\n")
+	       (setq prev (point))
+	       ;; Command string excludes whitespace, span includes it.
+	       (setq alist (cons (list 'cmd string prev) alist))))))
+      (goto-char (proof-queue-or-locked-end))
+      (setq prev (point))
+      (while (and (re-search-forward 
+		   proof-script-command-end-regexp nil t)
+		  (or (buffer-syntactic-context) ;; inside comment/string
+		      (progn			 ;; ow found command.
+			(setq cmdfnd t)		 
+			(<= (point) pos))))
+	(if cmdfnd (progn
+		     (funcall add-segment-for-cmd)
+		     (setq cmdfnd nil))))
+      ;; End of parse; if we found a command past POS maybe add it.
+      (if (and cmdfnd next-command-end)
+	  (funcall add-segment-for-cmd))
+      ;; Return resulting list
+      alist)))
+
 ;; FIXME da: Below it would probably be faster to use the primitive
 ;; skip-chars-forward rather than scanning character-by-character 
 ;; with a lisp loop over the whole region. Also I'm not convinced that
 ;; Emacs should be better at skipping whitespace and comments than the
 ;; proof process itself!
 
-;; FIXME da: using the family of functions buffer-syntactic-context-*
-;; may be helpful here.
+(defun proof-segment-up-to-old (pos &optional next-command-end)
+  "Create a list of (type, string, int) tuples from end of queue/locked region to POS.
 
-(defun proof-segment-up-to (pos &optional next-command-end)
-  "Create a list of (type, int, string) tuples from end of queue/locked region to POS.
 Each tuple denotes the command and the position of its terminator,
 type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
 the start if the segment finishes with an unclosed comment.
+
 If optional NEXT-COMMAND-END is non-nil, we contine past POS until
 the next command end."
   (save-excursion
@@ -1255,6 +1260,10 @@ the next command end."
 		(t
 		 (setq chs nil))))))))
      alist)))
+
+;; FIXME: testing new version of above function
+;; (defalias 'proof-segment-up-to 'proof-segment-up-to-new)
+(defalias 'proof-segment-up-to 'proof-segment-up-to-old)
 
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
   "Convert a sequence of terminator positions to a set of vanilla extents.
@@ -2125,8 +2134,7 @@ BODY defaults to CMDVAR, a variable."
 		"")
      (interactive)
      (proof-if-setting-configured ,cmdvar
-       (proof-shell-invisible-command
-	(concat ,(or body cmdvar) proof-terminal-string)))))
+       (proof-shell-invisible-command ,(or body cmdvar)))))
 
 (defmacro proof-define-assistant-command-witharg (fn doc cmdvar prompt &rest body)
   "Define command FN to prompt for string CMDVAR to proof assistant.
@@ -2233,6 +2241,8 @@ This is intended as a value for proof-activate-scripting-hook"
 ;;
 ;; Electric terminator mode
 ;;
+;; NB: only relevant for provers with a "terminal char" which
+;; terminates commands in proof scripts.
 
 ;; Register proof-electric-terminator as a minor mode.
 
@@ -2686,6 +2696,13 @@ finish setup which depends on specific proof assistant configuration."
   (proof-menu-define-specific)
   (easy-menu-add proof-assistant-menu proof-mode-map)
 
+  ;; Some settings for the new parsing mechanism
+  ;; FIXME: ongoing
+;  (unless proof-script-command-end-regexp
+;      (progn
+;	(proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
+;	(setq proof-script-command-end-regexp
+;	      (regexp-quote (char-to-string proof-terminal-char)))))
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
