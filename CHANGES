@@ -17,9 +17,35 @@
    in font-lock, and its insiduous self-enabling actions.
    Current status: broken in Emacs 20, working in 21.
 
+*** Support for "tracing" buffers improved and enabled by default.
+
+   (Support is enabled in Isabelle only so far)
+
+   Compared with experimental tracing in PG 3.3, there is now only one
+   tracing buffer, treated somewhat like a response buffer.
+
+   When large volumes of output arrive in Emacs, as typically is the
+   case during tracing (especially tracing looping tactics!), Emacs
+   may hog the CPU and spend all its time in the process filter
+   (especially with X symbol and fontification active).  We call this
+   "choking".
+
+   If Emacs is choking, it may not process user events as swiftly as
+   normal and it can become difficult to interrupt the prover process
+   ordinarily (with the toolbar Stop button or C-c C-c).  As a
+   workaround, PG will watch for keyboard quits when it's displaying
+   trace output, and send the prover an interrupt if it sees a quit
+   has been sent.  So you should be able to interrupt with C-g during
+   choking.
+
+   If the choking effect slows down your prover too much by giving
+   Emacs too much CPU, disabling output fontification by customizing
+   `proof-output-fontify-enable' may help.
+
 ** Isabelle Changes
 
    Isabelle/Isar syntax changes.
+
 
 
 
