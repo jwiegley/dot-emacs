@@ -183,12 +183,14 @@ handling of interrupt signals."
   (let ((cmd (span-at (point) 'type)))
     (if cmd (goto-char (span-end cmd))
 ;      (and (re-search-forward "\\S-" nil t)
-;	   (proof-assert-until-point nil 'ignore-proof-process)))))
+;	   (proof-assert-until-point nil 'ignore-proof-process)) 
       (proof-assert-next-command nil 
 				 'ignore-proof-process
 				 'dontmoveforward))
     (skip-chars-backward " \t\n")
-    (backward-char)))	; should land on terminal char
+    (unless (eq (point) (point-min))
+      ;; should land on terminal char
+      (backward-char))))
 
 
 
@@ -666,11 +668,21 @@ last use time, to discourage saving these into the users database."
       (if pg-insert-output-as-comment-fn
 	  (pg-insert-output-as-comment-fn proof-shell-last-output)
 	;; Otherwise the default behaviour is to use comment-region
-	(let  ((beg (point)))
-	  (insert (proof-shell-strip-special-annotations
-		   proof-shell-last-output))
-	  (comment-region beg (point))))))
-
+	(let  ((beg (point)) end)
+	  ;; proof-shell-strip-special-annotations: should be done
+	  ;; for us in proof-fontify-region
+	  (insert proof-shell-last-output)
+	  ;; 3.4: add fontification. Questionable since comments will
+	  ;; probably be re-highlighted, so colouration, especially
+	  ;; based on removed specials, will be lost.  
+	  ;; X-Symbol conversion is useful, but a surprising nuisance
+	  ;; to achieve, mainly because x-symbol doesn't give us back
+	  ;; a useful pointer to end of region after converting, and
+	  ;; character positions change.
+	  ;; (FIXME: contact x-sym author about this).
+	  ;; proof-fontify-region does this for us, now
+	  (setq end (proof-fontify-region beg (point)))
+	  (comment-region beg end)))))
 
 
 
