@@ -1,3 +1,7 @@
+9.05.00   3.1.5 Release 3-1-5, from Release-3-1-branch
+          Improved proof-find-theorems-command for Isabelle 
+	  (allow multiple constants separated by commas).
+
 28.04.00  3.1.4 Release 3-1-4, from Release-3-1-branch
           Applied patch sent by Mike Squire, fix accident in previous fix.
           (Isabelle theory retraction file paths)
