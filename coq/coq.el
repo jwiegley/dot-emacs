@@ -191,7 +191,7 @@
 
        ((proof-string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
 				    "\\)\\s-*\\(" proof-id 
-				    ;; da: PG 3.2: I added "." here to try
+				    ;; da: PG 3.1: I added "." here to try
 				    ;; to get undo for Section working.
 				    ;; (also changes in coq-syntax)
 				    ;; Coq users will have to tell me if it
