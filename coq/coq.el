@@ -41,7 +41,7 @@
   :type 'string
   :group 'coq)
 
-(defconst coq-interrupt-regexp "Interrupted"
+(defconst coq-interrupt-regexp "User Interrupt."
   "Regexp corresponding to an interrupt")
 
 (defcustom coq-default-undo-limit 100
