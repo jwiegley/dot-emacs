@@ -37,6 +37,21 @@ the current display mode.  This uses a vertical-horizontal split
 scheme for three-pane mode (due to Pierre Courtieu), but three-pane
 mode also works with three-way horizontal split as before.
 
+*** More example proofs included
+
+Some additional example proofs are included with this release (and we
+hope to add more).  The best and most accurate resource is of course
+the distribution of each proof assistant, but including some samples
+in Proof General allows you to see proofs in other systems without
+having to install them all.
+
+The "root2" example proofs of the irrationality of the square root of
+2 were proofs written as a response to a challenge of Freek Wiedijk in
+his comparison of different theorem provers, see
+http://www.cs.kun.nl/~freek/comparison/.  Those proof scripts are
+copyright by their named authors.
+
+
 *** Improved RPM packages
 
 Three packages are provided: ProofGeneral, ProofGeneral-emacs-elc and
@@ -186,6 +201,8 @@ Bound globally to Control-Meta-Mouse-button1.
 
 Presently only configured in Isabelle/Isar, to parse terms (inside
 strings) and theorems (outside).
+
+
 
 
 ** GNU Emacs compatibility, simplified font-lock, handling nested comments
