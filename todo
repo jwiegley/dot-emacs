@@ -51,14 +51,15 @@ A Pending work, in progress [da]:
 	. toolbar appears in wrong buffers
     - investigate of excessive processing for large proofs
     - investigate bug fix for vacuous locked regions
-    - document proof-copy-span (new name for proof-send-span, re-enabled).
+    - document proof-mouse-track-insert (new name for proof-send-span, re-enabled).
 
 A Usability enhancement:
     - Fix asymmetry between "doing" and "undoing": doing will skip comments,
       undoing will not.  e.g. test case: (* tester *) intros; 
 
 A Usability enhancement:
-    - Fix proof-script-command-separator and proof-one-command-per-line flag.
+    - Fix proof-script-command-separator and proof-one-command-per-line flag,
+    document them.
 
 C Compatibility enhancement:
     - Consider sending comments to proof process after all.  They might
