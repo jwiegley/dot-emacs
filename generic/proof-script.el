@@ -955,6 +955,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
   ;;FIXME tms: needs implementation
   nil)
 
+(defvar proof-previous-proof-completed nil
+  "Copy of proof-shell-proof-completed from previous scripting command.")
 
 (defun proof-done-advancing (span)
   "The callback function for assert-until-point."
@@ -963,6 +965,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
   (if (not (span-live-p span))
       ;; FIXME da: Sometimes this function is called with a destroyed
       ;; extent as argument.  When?  Isn't this a bug?
+      ;; (one case would be if the buffer is killed while
+      ;; a proof is completing)
       ;; NB: this patch doesn't work!  Are spans being destroyed
       ;; sometime *during* this code??
       (proof-debug "Proof General idiosyncrasy: proof-done-advancing called with a dead span!")
@@ -973,20 +977,21 @@ the ACS is marked in the current buffer. If CMD does not match any,
     (proof-set-queue-start end)
     (setq cmd (span-property span 'cmd))
     (cond
-     ;; Comments just get highlighted
+     ;; * Comments just get highlighted
      ((eq (span-property span 'type) 'comment)
       (set-span-property span 'mouse-face 'highlight))
      
      ;; "ACS" for future implementation
      ;; ((proof-check-atomic-sequents-lists span cmd end))
 
-     ;; Save command seen, now we'll amalgamate spans.
+     ;; * Save command seen, now we'll amalgamate spans.
      ((and (proof-string-match proof-save-command-regexp cmd)
 	    (funcall proof-really-save-command-p span cmd))
 
       (let (nam gspan next)
 	;; First, clear the proof completed flag
 	(setq proof-shell-proof-completed nil)
+	(setq proof-previous-proof-completed nil)
 
 	;; Try to set the name of the theorem from the save
 	(and proof-save-with-hole-regexp
@@ -1034,10 +1039,17 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	(and proof-lift-global
 	     (funcall proof-lift-global gspan)))))
 
-     ;; Goal command just processed, no nested goals allowed.
+     ;; NEW CASE:
+     ;; Proof completed in *previous* command, no nested goals
+     ;; allowed.  We make a fake goal-save from any previous 
+     ;; goal to the command before the present one.
+
+
+
+     ;; * Goal command just processed, no nested goals allowed.
      ;; We make a fake goal-save from any previous 
      ;; goal to the command before the present one.
-     ;; (This is a hack for Isabelle to allow smooth
+     ;; (This is a hack for Isabelle and LEGO to allow smooth
      ;; undoing in proofs which have no "qed" statements).
      ;; FIXME: abstract common part of this case and case above,
      ;; to improve code by making a useful subroutine.
