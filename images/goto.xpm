@@ -2,7 +2,7 @@
 static char * goto_xpm[] = {
 "32 32 71 1",
 " 	c None",
-".	c #BCBCBC",
+".	c #BCBCBC s backgroundToolBarColor",
 "+	c #B09696",
 "@	c #AA8282",
 "#	c #994747",
