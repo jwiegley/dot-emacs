@@ -262,6 +262,9 @@ C Make completion more generic. For Isabelle and Lego, we can build a
   completion table by querying the process, which is better than
   messing with tags.
 
+X Splash screen: Add fancy text logo to it.  Centre the display
+  prettily.
+
 X Write a Makefile for the distribution.  It can do things like
   install the info file properly.  The work is at the moment done
   in the RPM spec file instead.
@@ -385,9 +388,6 @@ B CRUCIAL: Do something to manage .thy and .ML files coherently.
 B (part of above): Handle proof-retract-file by querying Isabelle
   about the decendants of a file.  Then all the descendents can
   also be unlocked.
-
-X Splash screen: Add fancy text logo to it.  Centre the display
-  prettily.
 
 X Write perl scripts to generate TAGS file for ML and thy files.
   (6h, I've completely forgotten perl), or better:
