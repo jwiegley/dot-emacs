@@ -11,6 +11,7 @@ ML {* reset quick_and_dirty *}
 
 datatype ord = Zero | Succ ord | Limit "nat => ord"
 
+(* testing comment here *)
 
 text {* this one loops forever *}
 
