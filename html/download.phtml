@@ -18,35 +18,46 @@ Proof General
 <p>
 You can download the latest
 stable release, 
-<a href="#stable">ProofGeneral-2.0</a>, or the latest pre-release,
+<a href="#stable">ProofGeneral-2.1</a>, or the latest pre-release,
 <!-- Warning, next line edited by make file -->
 <a href="#prerel">ProofGeneral-2.1pre990820</a>.
 There is also a complete archive 
 of the current pre-release 
 <a href="#devel">for developers</a>.
 </p>
-
+<p>
+If you are using an older version of one of the proof assistants,
+you may wish to check the 
+<a href="#previous">previous releases</a> of Proof General.
+</p>
 <hr>
 
 <h2><a name="stable">
-    Proof General Version 2.0, released 16 December 1998
+    Proof General Version 2.1, coming very soon!
+   <!-- released 23 August 1999 -->
     </a>
 </h2>
 
 <p>
 This version of Proof General has been tested
-with XEmacs 20.4 and FSF Emacs 20.2, 20.3<br>
-It is available in two formats:
+with XEmacs 20.4, XEmacs 21 and FSF Emacs 20.3.<br>
+It supports Coq version 6.3, LEGO version 1.3.1 and
+Isabelle version 99.
+<p>
+Check the <?php fileshow("ProofGeneral-2.1/CHANGES","CHANGES"); ?> file
+for a summary of changes since the last stable version.
+<br>
+Proof General is available in two formats:
 </p>
 <ul>
   <li> gzip'ed tar file: 
-      <?php download_link("ProofGeneral-2.0.tar.gz") ?>
+      <?php download_link("ProofGeneral-2.1.tar.gz") ?>
   </li>
  <li> Linux RPM package:
-      <?php download_link("ProofGeneral-2.0-1.noarch.rpm") ?>
+      <?php download_link("ProofGeneral-2.1-1.noarch.rpm") ?>
      <br>
      The source RPM is 
-      <?php download_link("ProofGeneral-2.0-1.noarch.rpm","here") ?>.
+      <?php download_link("ProofGeneral-2.1-1.noarch.rpm","here") ?>.
  </li>
 </ul>
 <p>
@@ -61,7 +72,7 @@ and documentation.
 To use Proof General, simply unpack the sources with 
 </p>
  <blockquote>
-   <tt>tar -xpzf ProofGeneral-2.0.tar.gz</tt>
+   <tt>tar -xpzf ProofGeneral-2.1.tar.gz</tt>
  </blockquote>
 <p>
 (use <tt>gunzip</tt> in place of -z if you don't have GNU tar),<br>
@@ -105,7 +116,7 @@ Check the
 <!-- End Warning. -->
 for a summary of changes since the last stable version.
 <br>
-Please test with the latest pre-release before reporting any problems
+Please test with the current pre-release before reporting any problems
 in a pre-release.
 </p>
 
@@ -124,6 +135,7 @@ in a pre-release.
 </ul>
 
 <hr>
+
 
 <h2><a name="devel">For Developers</a></h2>
 <p>
@@ -175,3 +187,28 @@ we can make our CVS repository accessible to you.  Please
 </p>
 
 
+<hr>
+<h2><a name="previous">Previous Releases</a></h2>
+
+Please note that we do not support these previous releases in any way.
+
+<h4>Proof General Version 2.0, released 16 December 1998</h4>
+
+<p>
+This version of Proof General has been tested
+with XEmacs 20.4 and FSF Emacs 20.2, 20.3.<br>
+It supports Coq version 6.2, LEGO version 1.3.1, and
+Isabelle version 98-1.<br>
+</p>
+<ul>
+  <li> gzip'ed tar file: 
+      <?php download_link("ProofGeneral-2.0.tar.gz") ?>
+  </li>
+ <li> Linux RPM package:
+      <?php download_link("ProofGeneral-2.0-1.noarch.rpm") ?>
+     <br>
+     The source RPM is 
+      <?php download_link("ProofGeneral-2.0-1.noarch.rpm","here") ?>.
+ </li>
+</ul>
+<p>
