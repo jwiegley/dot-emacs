@@ -4,4 +4,7 @@
     Logic Image: Pure
 *)
 
-C  =  A + B
+theory C  =  A + B
+files "foobar/foo.ML":
+
+end
