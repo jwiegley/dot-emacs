@@ -20,7 +20,7 @@
 
 # Sources
 BUTTONS=goal.xcf next.xcf qed.xcf restart.xcf retract.xcf undo.xcf use.xcf
-WEBPIX=ProofGeneral.xcf text_general.xcf text_proof.xcf
+WEBPIX=isabelle_transparent.xcf ProofGeneral.xcf text_general.xcf text_proof.xcf
 
 # Targets for html directory
 WEBPIX_ONLY=
