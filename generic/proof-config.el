@@ -1425,7 +1425,7 @@ See also `proof-shell-init-cmd'."
 
 (defcustom proof-shell-init-cmd nil
    "The command for initially configuring the proof process.
-This command is sent to the process as soon as syncrhonization is gained
+This command is sent to the process as soon as synchronization is gained
 (when an annotated prompt is first recognized).  It can be used to configure 
 the proof assistant in some way, or print a welcome message
 (since output before the first prompt is discarded).
