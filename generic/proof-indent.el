@@ -11,6 +11,18 @@
 
 (require 'proof)
 
+;;;
+;;; To nuke byte compile warnings
+;;;
+(require 'proof-syntax)			; for proof-commands-regexp.
+(autoload 'proof-goto-end-of-locked "proof-script"
+  "Jump to the end of the locked region.")
+(autoload 'proof-locked-end "proof-script"
+  "Return end of the locked region of the current buffer.")
+;;;
+;;;
+
+
 (defvar proof-stack-to-indent nil
   "Prover-specific code for indentation.")
 
