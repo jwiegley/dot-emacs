@@ -214,6 +214,7 @@ without giving error messages."
 
 (defun proof-toolbar-undo ()
   "Undo last successful in locked region, without deleting it."
+  (interactive)
   (if (proof-toolbar-undo-enable-p)
       (save-excursion
 	(proof-undo-last-successful-command t))))
