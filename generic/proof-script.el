@@ -132,7 +132,10 @@ proof-script-next-entity-regexps, which see."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deflocal proof-locked-span nil
-  "The locked span of the buffer.")
+  "The locked span of the buffer.
+Each script buffer has its own locked span, which may be detached.
+Proof General allows buffers in other modes also to be locked;
+these also have span regions.")
 
 ;; FIXME da: really we only need one queue span rather than one per
 ;; buffer, but I've made it local because the initialisation occurs in
@@ -376,7 +379,7 @@ If non-nil, point is left where it was."
   (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
 
 (defun proof-activate-scripting ()
-  "Activate scripting minor mode for current scripting buffer. 
+  "Activate scripting minor mode for current scripting buffer.
 
 The current buffer is prepared for scripting.  No changes are
 necessary if it is already in Scripting minor mode. Otherwise, it
@@ -440,6 +443,7 @@ the hooks `proof-activate-scripting-hook' are run."
 
     ;; This may be a good time to ask if the user wants to save some
     ;; buffers
+    ;; FIXME: no, move it elsewhere.
     (save-some-buffers))))
 
 
@@ -1110,38 +1114,38 @@ the proof script."
   (goto-char (point-max))
   (proof-assert-until-point))
 
-(defun proof-restart-buffer (buffer)
-  "Remove all extents in BUFFER and maybe reset `proof-script-buffer'.
-No effect if BUFFER is nil or killed.  
-If BUFFER is current scripting buffer, then proof-script-buffer 
-will be reset."
-  (save-excursion
-    (if (buffer-live-p buffer)
-	(with-current-buffer buffer
-	  (if proof-active-buffer-fake-minor-mode
-	      (setq proof-active-buffer-fake-minor-mode nil))
-	  (delete-spans (point-min) (point-max) 'type)
-	  (proof-detach-segments)))
-    (if (eq buffer proof-script-buffer)
-	(setq proof-script-buffer nil))))
+(defun proof-restart-buffers (buffers)
+  "Remove all extents in BUFFERS and maybe reset `proof-script-buffer'.
+No effect on a buffer which is nil or killed.  If one of the buffers
+is the current scripting buffer, then proof-script-buffer 
+will deactivated."
+  (mapcar
+   (lambda (buffer)
+     (save-excursion
+       (if (buffer-live-p buffer)
+	   (with-current-buffer buffer
+	     (if proof-active-buffer-fake-minor-mode
+		 (setq proof-active-buffer-fake-minor-mode nil))
+	     (delete-spans (point-min) (point-max) 'type)
+	     (proof-detach-segments buffer)))
+       (if (eq buffer proof-script-buffer)
+	   (setq proof-script-buffer nil))))
+   buffers))
 
-(defun proof-restart-buffers (bufferlist)
-  "Remove all spans in BUFFERLIST and update `proof-script-buffer'."
-  (mapcar 'proof-restart-buffer bufferlist))
+(defun proof-script-buffers-with-spans ()
+  "Return a list of all buffers with spans.
+This is calculated by finding all the buffers with a non-nil
+value of proof-locked span."
+  (let ((bufs-left (buffer-list)) 
+	bufs-got)
+    (dolist (buf bufs-left bufs-got)
+      (if (with-current-buffer buf proof-locked-span)
+	  (setq bufs-got (cons buf bufs-got))))))
 
-(defun proof-scripting-buffers ()
-  "Return a list of all script buffers, i.e. those in proof-mode-for-script."
-  (proof-buffers-in-mode proof-mode-for-script))
+(defun proof-script-remove-all-spans-and-deactivate ()
+  "Remove all spans from scripting buffers via proof-restart-buffers."
+  (proof-restart-buffers (proof-script-buffers-with-spans)))
 
-(defun proof-restart-all-buffers ()
-  "Remove all spans in from scripting buffers and included files."
-  ;; Do both script buffers and included files list because
-  ;; we allow non-script buffers to be locked also.
-  (proof-restart-buffers
-   (mapcar 'proof-file-to-buffer proof-included-files-list))
-  (proof-restart-bufers
-   (proof-buffers-in-mode proof-mode-for-script)))
-  
 ;; For when things go horribly wrong
 ;; FIXME: this needs to politely stop the process by sending
 ;; an EOF or customizable command.  (maybe timeout waiting for
@@ -1150,34 +1154,24 @@ will be reset."
 ;;  Put a funciton to remove all extents in buffers into
 ;; the kill-buffer-hook for the proof shell.  Then this
 ;; function just stops the shell nicely (see proof-stop-shell).
-(defun proof-restart-script ()
-  "Restart Proof General.
-Kill off the proof assistant process and remove all markings in the
-script buffers."
-  (interactive)
-  (proof-restart-all-buffers)
-  (setq proof-included-files-nil
-	proof-shell-busy nil
-	proof-shell-proof-completed nil)
-  (if (buffer-live-p proof-shell-buffer) 
-      (kill-buffer proof-shell-buffer))
-  (if (buffer-live-p proof-pbp-buffer)
-      (kill-buffer proof-pbp-buffer))
-  (and (buffer-live-p proof-response-buffer)
-       (kill-buffer proof-response-buffer)))
 
-;; For when things go not-quite-so-horribly wrong
-;; FIXME: this may need work, and maybe isn't needed at
-;; all (proof-retract-file when it appears may be enough).
-(defun proof-restart-script-same-process ()
-  (interactive)
-  (save-excursion
-    (if (buffer-live-p proof-script-buffer)
-	(progn
-	  (set-buffer proof-script-buffer)
-	  (setq proof-active-buffer-fake-minor-mode nil)
-	  (delete-spans (point-min) (point-max) 'type)
-	  (proof-detach-segments)))))
+;(defun proof-restart-script ()
+;  "Restart Proof General.
+;Re-initialise the proof assistant by sending the restart command,
+;and clear all locked regions."
+;  (interactive)
+;  (proof-script-remove-all-spans-and-deactivate)
+;  (setq proof-included-files nil
+;	proof-shell-busy nil
+;	proof-shell-proof-completed nil)
+;  (if (buffer-live-p proof-shell-buffer) 
+;      (kill-buffer proof-shell-buffer))
+;  (if (buffer-live-p proof-pbp-buffer)
+;      (kill-buffer proof-pbp-buffer))
+;  (and (buffer-live-p proof-response-buffer)
+;       (kill-buffer proof-response-buffer)))
+
+
 
 ;; A command for making things go horribly wrong - it moves the
 ;; end-of-locked-region marker backwards, so user had better move it
@@ -1344,12 +1338,6 @@ Start up the proof assistant if necessary."
 
 
 
-;;; To be called from menu
-(defun proof-menu-invoke-info ()
-  "Call info on Proof General."
-  (interactive)
-  (info "ProofGeneral"))
-
 ;; A handy utility function used in buffer menu.
 (defun proof-switch-to-buffer (buf &optional noselect)
   "Switch to or display buffer BUF in other window unless already displayed.
@@ -1363,18 +1351,14 @@ No action if BUF is nil."
 	     (display-buffer buf t)
 	   (switch-to-buffer-other-window buf)))))
 
-(defun proof-menu-exit ()
-  "Exit Proof-assistant."
-  (interactive)
-  (proof-restart-script))
-
 (defvar proof-help-menu
   `("Help"
     [,(concat proof-assistant " web page")
      (browse-url proof-assistant-home-page) t]
     ["Proof General home page"
      (browse-url proof-proof-general-home-page) t]
-    ["Proof General Info" proof-menu-invoke-info t]
+    ["Proof General Info"
+     (info "Proof General") t]
     )
   "Proof General help menu.")
 
@@ -1397,11 +1381,17 @@ No action if BUF is nil."
 (defvar proof-shared-menu
   (append
     (list
-     ["Display context" proof-ctxt
+     ["Display context"
+      proof-ctxt
       :active (proof-shell-live-buffer)]
-     ["Display proof state" proof-prf
+     ["Display proof state"
+      proof-prf
       :active (proof-shell-live-buffer)]
-     ["Exit proof assistant" proof-menu-exit
+     ["Restart"
+      proof-shell-restart
+      :active (proof-shell-live-buffer)]
+     ["Exit proof assistant"
+      proof-shell-exit
       :active (proof-shell-live-buffer)])
     (list proof-help-menu)
     (list proof-buffer-menu))

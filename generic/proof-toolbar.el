@@ -355,8 +355,7 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-restart  ()
   (interactive)
   (if (proof-toolbar-restart-enable-p)
-      (if (yes-or-no-p (concat "Restart " proof-assistant " scripting?"))
-	   (proof-restart-script))))
+      (proof-shell-restart)))
 
 ;;
 ;; Goal button

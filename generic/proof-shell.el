@@ -169,9 +169,10 @@ No error messages.  Useful as menu or toolbar enabler."
   (setq proof-shell-busy nil))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  Starting and stopping the proof-system shell                    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;
+;;  Starting and stopping the proof shell  
+;;
 
 (defun proof-start-shell ()
   "Initialise a shell-like buffer for a proof assistant.
@@ -186,6 +187,9 @@ Does nothing if proof assistant is already running."
 	(save-excursion
 	  (setq proof-prog-name (read-shell-command "Run process: "
 						    proof-prog-name))))
+    ;; FIXME da: why do we need this?  We never have more than
+    ;; one proof shell running at a time.  We might as well
+    ;; kill off the old buffer anyway.
     (let ((proc
 	   (concat "Inferior "
 		   (substring proof-prog-name
@@ -212,57 +216,114 @@ Does nothing if proof assistant is already running."
 	      " ")))
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
-      ;; To send any initialisation commands to the inferior process,
-      ;; consult proof-shell-config-done...
-
+      
+      ;; Create the associated buffers and set buffer variables
       (setq proof-shell-buffer (get-buffer (concat "*" proc "*"))
 	    proof-pbp-buffer (get-buffer-create (concat "*" proc "-goals*"))
 	    proof-response-buffer (get-buffer-create (concat "*" proc
 	    "-response*")))
-
       (save-excursion
 	(set-buffer proof-shell-buffer)
+	(make-variable-buffer-local 'kill-buffer-hook)
+	(add-hook 'kill-buffer-hook 'proof-shell-kill-function t)
 	(funcall proof-mode-for-shell)
 	(set-buffer proof-response-buffer)
 	(funcall proof-mode-for-response)
 	(set-buffer proof-pbp-buffer)
 	(funcall proof-mode-for-pbp))
 
-      ;; FIXME: Maybe this belongs outside this function?
-      (or (assq 'proof-active-buffer-fake-minor-mode minor-mode-alist)
-	  (setq minor-mode-alist
-		(append minor-mode-alist
-			(list '(proof-active-buffer-fake-minor-mode 
-				" Scripting")))))
-
       (message 
        (format "Starting %s process... done." proc)))))
-  
 
-;; Should this be the same as proof-restart-script?
-;; Perhaps this is redundant.
-(defun proof-stop-shell ()
-  "Exit the proof process.  Runs proof-shell-exit-hook if non-nil"
+
+;;
+;; Indicator and fake minor mode for active scripting buffer
+;; 
+
+(defcustom proof-shell-active-scripting-indicator
+  (if (string-match "XEmacs" emacs-version)
+      (cons (make-extent nil nil) " Scripting ")
+    "Scripting")
+  "Modeline indicator for active scripting buffer.
+If first component is extent it will automatically follow the colour
+of the queue region."
+  :type 'sexp
+  :group 'proof-general-internals)
+
+(cond
+ ((string-match "XEmacs" emacs-version)
+  (if (extentp (car proof-shell-active-scripting-indicator))
+      (set-extent-properties
+       (car proof-shell-active-scripting-indicator)
+       '(face proof-locked-face)))))
+
+(setq minor-mode-alist
+      (append minor-mode-alist
+	      (list '(proof-active-buffer-fake-minor-mode
+		      proof-shell-active-scripting-indicator))))
+
+
+
+;;
+;;  Shutting down proof shell and associated buffers
+;;
+
+(defun proof-shell-kill-function ()
+  "Function run when a proof-shell buffer is killed.
+Value for kill-buffer-hook in shell buffer.
+It shuts down the proof process nicely and clears up all locked regions
+and state variables."
+  (let ((alive    (comint-check-proc (current-buffer)))
+	(proc     (get-buffer-process (current-buffer)))
+	(procname (and proc (process-name proc))))
+	
+    (if alive				; process still there
+	(progn
+	  (mesage "%s exiting..." procname)
+	  ;; Try to shut it down politely
+	  (if proof-shell-quit-cmd
+	      (comint-send-string proof-shell-quit-cmd)
+	    (comint-send-eof))
+	  ;; Wait a while for it to die
+	  (while (> 1 (process-exit-status proc))
+	    (accept-process-output proc 15))))
+    ;; Restart all scripting buffers
+    (proof-script-remove-all-spans-and-deactivate)
+    ;; Clear state
+    (setq proof-included-files-list nil
+	  proof-shell-busy nil
+	  proof-shell-proof-completed nil)
+    ;; Kill buffers associated with shell buffer
+    (if (buffer-live-p proof-pbp-buffer)
+	(kill-buffer proof-pbp-buffer))
+    (if (buffer-live-p proof-response-buffer)
+	(kill-buffer proof-response-buffer))
+    (message "%s terminated." procname)))
+
+(defun proof-shell-exit ()
+  "Query the user and exit the proof process.
+This simply kills the proof-shell-buffer relying on the hook function
+to do the hard work."
   (interactive)
-  (save-excursion
-    (let ((buffer (proof-shell-live-buffer)) 
-	  proc)
-      (if buffer
-	  (progn
-	    (save-excursion
-	      (set-buffer buffer)
-	      (setq proc (process-name (get-buffer-process)))
-	      (comint-send-eof)
-	      (proof-restart-all-buffers)
-	      (kill-buffer))
-	    (run-hooks 'proof-shell-exit-hook)
+  (if (buffer-live-p proof-shell-buffer)
+      (if (yes-or-no-p (format "Exit %s process? " proof-assistant))
+	  (kill-buffer proof-shell-buffer)
+	(error "No proof shell buffer to kill!"))))
 
-             ;;it is important that the hooks are
-	     ;;run after the buffer has been killed. In the reverse
-	     ;;order e.g., intall-shell-fonts causes problems and it
-	     ;;is impossible to restart the PROOF shell
+(defun proof-shell-restart ()
+  "Restart the proof shell by sending the restart command
+and clearing all script buffers."
+  (interactive)
+  (proof-script-remove-all-spans-and-deactivate)
+  (setq proof-included-files-list nil
+	proof-shell-busy nil
+	proof-shell-proof-completed nil)
+  (if (and (buffer-live-p proof-shell-buffer)
+	   proof-shell-restart-cmd)
+	   (proof-shell-invisible-command
+	    proof-shell-restart-cmd)))
 
-	    (message (format "%s process terminated." proc)))))))
+
 
 
 
@@ -353,12 +414,13 @@ Does nothing if proof assistant is already running."
 (defvar proof-shell-erase-response-flag nil
   "Indicates that the response buffer should be cleared before next message.")
 
-(defun proof-shell-maybe-erase-response (&optional erase-next-time
-						   clean-windows)
+(defun proof-shell-maybe-erase-response
+  (&optional erase-next-time clean-windows force)
   "Erase the response buffer according to proof-shell-erase-response-flag.
 ERASE-NEXT-TIME is the new value for the flag.
-If CLEAN-WINDOWS is set, use proof-clear-buffer to do the erasing."
-  (if proof-shell-erase-response-flag
+If CLEAN-WINDOWS is set, use proof-clear-buffer to do the erasing.
+If FORCE, override proof-shell-erase-response-flag."
+  (if (or proof-shell-erase-response-flag force)
       (if clean-windows
 	  (proof-clean-buffer proof-response-buffer)
 	(erase-buffer proof-response-buffer)))
@@ -939,7 +1001,7 @@ if none of these apply, display."
 	 (string-match proof-shell-clear-response-regexp message)
 	 proof-response-buffer)
     ;; Erase response buffer and possibly its windows.
-    (proof-shell-maybe-erase-response nil t))
+    (proof-shell-maybe-erase-response nil t t))
 
    (t
     ;; We're about to display a message.  Clear the response buffer
@@ -1199,11 +1261,13 @@ Annotations are characters 128-255."
     ;; to adjust the directory. Perhaps one might even want to issue
     ;; this command whenever a new scripting buffer is active?
     (and proof-shell-cd
-	 (proof-shell-insert (format proof-shell-cd
-				     ;; under Emacs 19.34 default-directory contains "~" which causes
-				     ;; problems with LEGO's internal Cd command
-				     (expand-file-name default-directory))))
-
+	 (proof-shell-insert
+	  (format proof-shell-cd
+		  ;; under Emacs 19.34 default-directory contains "~"
+		  ;; which causes problems with LEGO's internal Cd
+		  ;; command
+		  (expand-file-name default-directory))))
+    
     (if proof-shell-init-cmd
 	(proof-shell-insert proof-shell-init-cmd))
 

@@ -186,6 +186,7 @@ frame is the one showing the script buffer.)"
       (delete-windows-on buffer t)))
 
 ;; utility function
+;; FIXME da: maybe not used.  Put into spare parts file.
 (defun proof-buffers-in-mode (mode &optional buflist)
   "Return a list of the buffers in the buffer list in major-mode MODE.
 Restrict to BUFLIST if it's set."

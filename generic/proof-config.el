@@ -616,6 +616,16 @@ group.  This allows different proof assistants to coexist
    :type '(choice string (const nil))
    :group 'proof-shell)
 
+(defcustom proof-shell-restart-cmd ""
+   "A command for re-initialising the proof process."
+   :type '(choice string (const nil))
+   :group 'proof-shell)
+
+(defcustom proof-shell-quit-cmd ""
+  "A command to quit the proof process.  If nil, send EOF instead."
+   :type '(choice string (const nil))
+   :group 'proof-shell)
+
 (defcustom proof-shell-cd nil
   "Command to the proof assistant to change the working directory."
   :type 'string
@@ -812,6 +822,7 @@ previous (global) variable `proof-included-files-list' and the match
 data triggered by `proof-shell-retract-files-regexp'."
   :type '(choice function (const nil))
   :group 'proof-shell)
+
 
 
 
