@@ -1,3 +1,25 @@
+2002-11-11  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, html/develdownload.php, generic/proof-site.el:
+	Set version tag for new release.
+
+	* BUGS: Updated.
+
+	* generic/proof-shell.el:
+	(Failed) Attempt to fix UTF-8 problem for RH8.
+
+	* BUGS: Updated.
+
+2002-11-08  David Aspinall  <da@proofgeneral.org>
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* isa/isa.el, isar/isar.el:
+	Add trigger for <pgip messages
+
 2002-11-08  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
