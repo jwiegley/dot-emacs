@@ -50,7 +50,7 @@
 
 
 @set version 2.1
-@set xemacsversion 20.4
+@set xemacsversion 21.1
 @set fsfversion 20.2
 @set last-update August 1999
 @set rcsid $Id$
@@ -1376,7 +1376,7 @@ The packages currently supported are @code{font-lock} @code{fume-func},
 @vindex isa-mode-hooks
 @cindex font-lock 
 @cindex colour
-In XEmacs 20.4, proof script buffer are coloured (fontified as they say)
+In XEmacs, proof script buffer are coloured (fontified as they say)
 by default. To automatically switch on fontification in FSF GNU Emacs 20.2,
 you need to configure the @code{font-lock} package yourself. This can be
 achieved by modifying the @var{prover}-mode-hooks where @var{prover} is either

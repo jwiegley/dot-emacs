@@ -1,43 +1,30 @@
-Summary of Changes for Proof General 2.1
-----------------------------------------
+Summary of Changes for Proof General 2.2 from 2.1
+-------------------------------------------------
 
-* Supports Coq 6.3.  
+No changes yet.
 
-* Supports Isabelle 99.  Will not work with Isabelle 98.
 
-* Two new provisional instantiations of Proof General, for:
-   ** Isabelle/Isar (new proof language for Isabelle) by 
-      Markus Wenzel <wenzelm@informatik.tu-muenchen.de>
-   ** Plastic (http://www.dur.ac.uk/CARG/plastic.html)
-      by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
 
-* Documentation improvements.   
-  Information added for Coq mode.
 
-* In proof-site.el, the environment variable PROOFGENERAL_ASSISTANTS 
-  is examined for the default value of proof-assistants.  No
-  editing of proof-site.el should be needed now.
+Plan of Major Changes for Proof General 2.2
+-------------------------------------------
 
-* Support for x-symbol package to beautify input and output with 
-  special fonts.
-  Patches for Isabelle provided by David von Oheimb.
-  (work in progress)
 
-* Improvements to Isabelle mode: multiple file handling now
-  more robust and handled by Isabelle primitives.  
-  Support added by Markus Wenzel.
+* Queue manipulation improvment: allow to extend or reduce
+  during processing, with fewer "Proof Process Busy"
+  messages.  
 
-* Improvements to Coq mode: better recognition of
-  Coq syntax, support for proof-shell-restart-cmd.
+* Font-lock based on annotations in proof assistant output.
+  Particularly: colouration for Isabelle variable names.
 
-* Toolbar can now be switched on and off via menu.
-  Several other usability improvements added to menus.
+* x-symbol support integration.
 
-* Bug fixes:
-   - Long-lines with funny characters causing ^G's in Solaris.
-   - Templates in Isabelle theory file mode.
-   - Fix for case-insensitive matching.  Added proof-case-fold-search 
-     configuration variable to allow for proof script languages with 
-     case-insensitive syntax.
-   - Process killing made robust.
-   - Regular expression fixes causing "nil extent" errors.
+* Isabelle PG: Non-blocking for .thy loading from .ML files.
+  (hopefully as happy side effect of queue improvement)
+
+Please send details of any other improvements or bug fixes you would
+like to see, to proofgen@dcs.ed.ac.uk.
+
+
+
+
