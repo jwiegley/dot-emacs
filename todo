@@ -26,8 +26,16 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
    * New line after first sentence of docstrings.
    * Several env variables / LEGO name stuff:: make `STUFF' be literal.
 
-B outline mode when proof-strict-read-only is nil ought to
-  work, but there may be problems.
+A BUGS to investigate:
+  - Is there a catch bug on Solaris when a process shell killed?
+  - There is a bizarre process bug with "\"'s on 254th character.
+    This now seems to be the root cause of the Solaris bug mentioned
+    later, and might be XEmacs rather than Solaris.
+  - Thomas has a bizarre .emacs file which causes Seg Faults with
+    Proof General and FSF Emacs.  Doesn't happen with "emacs -q".
+    Investigate which package/setting he adds is to blame.
+  - outline mode when proof-strict-read-only is nil ought to
+    work, but there may be problems.
 
 B QUESTION: why do we have proof-shell-proof-completed-regexp's
   perhaps objectionable behaviour of forcing the response buffer?
@@ -35,12 +43,6 @@ B QUESTION: why do we have proof-shell-proof-completed-regexp's
   and output as usual?   (The effect would be to allow Isabelle's
   completed proof message to appear in the goals buffer since it's
   marked up as a proof state output)
-
-B Is there a catch bug on Solaris when a process shell killed?
-
-B There is a bizarre process bug with "\"'s on 254th character.
-  This seems to be the root cause of the Solaris bug mentioned
-  later, and might be XEmacs rather than Solaris.
 
 B proof-shell-exit has a time delay of 10 secs built-in, 
   before which the process is killed off.  
