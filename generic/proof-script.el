@@ -852,7 +852,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; FIXME da: maybe this should be prover specific: is
 	;; "Unnamed_thm" actually a Coq identifier?
 	(unless nam
-	  (setq nam "Unnamed_thm"))
+	  (setq nam proof-unnamed-theorem-name))
 
 	;; Now make the new goal-save span
 	(set-span-end gspan end)
@@ -910,7 +910,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	       (setq nam (match-string 2 (span-property gspan 'cmd))))
 	  ;; As a final desparate attempt, set the name to "Unnamed_thm".
 	  (unless nam
-	    (setq nam "Unnamed_thm"))
+	    (setq nam proof-unnamed-theorem-name))
 	  
 	  ;; Now make the new goal-save span
 	  (set-span-end gspan (span-start span))
@@ -1695,6 +1695,8 @@ Typically, a list of syntax of commands available."
 (defun proof-cd-sync ()
   "If proof-shell-cd is set, do proof-cd and wait for prover ready.
 This is intended as a value for proof-activate-scripting-hook"
+  ;; The hook is set in proof-mode before proof-shell-cd may be set,
+  ;; so we explicitly test it here.  
   (if proof-shell-cd 
       (progn
 	(proof-cd)

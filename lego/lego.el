@@ -109,7 +109,7 @@ Activates extended printing routines required for Proof General.")
 (defvar lego-shell-prompt-pattern "^\\(Lego>[ \201]*\\)+"
   "*The prompt pattern for the inferior shell running lego.")
 
-(defvar lego-shell-cd "Cd \"%s\";"
+(defvar lego-shell-cd "Cd \"%s\""
   "*Command of the inferior process to change the directory.") 
 
 (defvar lego-shell-abort-goal-regexp "KillRef: ok, not in proof state"
@@ -216,8 +216,9 @@ Given is the first SPAN which needs to be undone."
        ((eq (span-property span 'type) 'comment))
 
        ((eq (span-property span 'type) 'goalsave)
-	(setq ans (concat lego-forget-id-command
-			  (span-property span 'name) proof-terminal-string)))
+	(unless (eq (span-property span 'name) proof-unnamed-theorem-name)
+	  (setq ans (concat lego-forget-id-command
+			    (span-property span 'name) proof-terminal-string))))
 
        ;; alternative definitions
        ((proof-string-match lego-definiendum-alternative-regexp str)
@@ -243,7 +244,8 @@ Given is the first SPAN which needs to be undone."
        ((proof-string-match "\\`\\s-*Module\\s-+\\(\\S-+\\)\\W" str)
 	(setq ans (concat "ForgetMark " (match-string 1 str) 
 			  proof-terminal-string))))
-      
+      ;; Carry on searching forward for something to forget
+      ;; (The first thing to be forget will forget everything following)
       (setq span (next-span span 'type)))
   (or ans proof-no-command)))
   

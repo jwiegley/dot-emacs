@@ -190,8 +190,12 @@
        ((eq (span-property span 'type) 'comment))       
 
        ((eq (span-property span 'type) 'goalsave)
-	(setq ans (concat coq-forget-id-command
-			  (span-property span 'name) proof-terminal-string)))
+	;; FIXME da 5.10.99: I added in this test for an unnamed
+	;; theorem.  Probably it is harmless (it's a new case for LEGO
+	;; and Isabelle).
+	(unless (eq (span-property span 'name) proof-unnamed-theorem-name)
+	  (setq ans (concat lego-forget-id-command
+			    (span-property span 'name) proof-terminal-string))))
 
        ((proof-string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
                               "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)

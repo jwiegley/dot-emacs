@@ -82,7 +82,7 @@
 ;; Instead of "[^:]+", it may be better to use "lego-id". Furthermore,
 ;; it might be safer to append "\\s-*:".
 (defconst lego-goal-with-hole-regexp
-  (concat "\\(" (proof-ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^:]+\\)")
+  (concat "\\(" (proof-ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^(){},:]+\\)")
   "Regular expression which matches an entry in `lego-keywords-goal'
   and the name of the goal.") 
 

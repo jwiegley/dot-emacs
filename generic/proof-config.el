@@ -1298,6 +1298,12 @@ These are evaluated and appended to `proof-splash-contents'."
   :type 'string
   :group 'proof-general-internals)
 
+(defcustom proof-unnamed-theorem-name
+  "Unnamed_thm"
+  "A name for theorems which are unnamed.  Used internally by Proof General."
+  :type 'string
+  :group 'proof-general-internals)
+
 ;; FIXME: da: could we put these into another keymap shared across the
 ;; various PG modes?
 (defcustom proof-universal-keys

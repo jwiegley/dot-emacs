@@ -7,6 +7,10 @@ Generic Changes
 * New function C-c C-f (proof-find) to invoke some prover-specific
   mechanism to search for theories.  
 
+* Whenever scripting is triggered in a new file, a cd command
+  is sent to the proof assistant to switch to the right directory
+  (in case other files are included).
+
 * [XEmacs only] Toolbar has six new buttons (State, Context, Info, 
   Command, Help, Stop) which invoke commands previously available on 
   keys/menus.   Also a new "Find" button for proof-find.
@@ -73,6 +77,13 @@ Coq Changes
   specific command C-c C-s (coq-Search).
 
 
+LEGO Changes
+------------
+
+* Proofs which have no save command are now closed off automatically
+  when a new goal is begun, mirroring the behaviour of LEGO.
+
+
 Isabelle and Isar Changes
 -------------------------
 
@@ -117,10 +128,16 @@ Internal changes for developers to note
   using special character codes is fragile and needs replacing
   in future versions of Proof General!
 
+* Proofs which are "unfinished", i.e. have no qed or result,
+  are now closed off automatically when a new goal is begun.
+  The new code only applies if proof-nested-goals-allowed is
+  nil (the default).  Setting this variable to t forces 
+  identical behaviour to before.  The default for Coq is t.
+
 * Renamed some configuration variables for uniformity:
     proof-ctxt-string -> proof-context-command
     proof-help-string -> proof-info-command
     proof-prf-string  -> proof-showproof-command
 
-* Code cleanups and improvements.
+* Many code cleanups and improvements.
 
