@@ -11,8 +11,11 @@
 (setq load-path
       (append '("../generic/") load-path))
 (load "proof-site.el")
-(load "proof.el")
-(load "proof-toolbar.el")
+(require 'proof-autoloads)
+(require 'proof-compat)
+(require 'proof-utils)
+
+
 
 ;; FIXME: Loading several prover files at once is a bit of a problem
 ;; with new config mechanism.
@@ -39,13 +42,22 @@
       (load-library elisp-file)
       (setq assistants (cdr assistants)))))
 
+;; Now a fake proof assistant to document the automatically
+;; specific variables
+(proof-ready-for-assistant "PROOF ASSISTANT" 'PA)
+(setq features (delete 'proof-config features))
+(load "proof-config.el")
+
+
 ;; These next few are autoloaded usually
 (load "thy-mode.el")
 (load "proof-menu.el")
-(load "proof-utils.el")
+(load "proof-toolbar.el")
 
 ;; A couple of comint symbols are mentioned in the docs
 (require 'comint)
+;; Also completion
+(require 'completion)
 
 ;; Set some symbols to make markup happen
 (setq sml-mode 'markup-hack)
