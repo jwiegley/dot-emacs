@@ -168,7 +168,7 @@ function fileshow($filename,$text="",$title="") {
  $message=$title;
  if ( $message == "") { $message=$filename; };
  $titlecode = ($title == "" ?  "" : "&title=" . urlencode($title));
- hlink("fileshow.html?file=" . urlencode($filename) . $titlecode,
+ hlink("fileshow.php?file=" . urlencode($filename) . $titlecode,
 	$text, $message);
 }
 
@@ -180,7 +180,7 @@ function htmlshow($filename,$text="",$title="") {
  $message=$title;
  if ( $message == "") { $message=$filename; };
  $urlbits = parse_url($filename);
- hlink("htmlshow.html"
+ hlink("htmlshow.php"
        . "?title=" . urlencode($title) 
        . "&file=" . urlencode($urlbits["path"])
        . ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]),
@@ -279,7 +279,7 @@ function smallpage($filename,$text="",$title="",$message="") {
  if ( $message == "") { $message=$title; };
  if ( $message == "") { $message=$filename; };
  $urlbits = parse_url($filename);
- hlink("smallpage.html"
+ hlink("smallpage.php"
        . "?title=" . urlencode($title) 
        . "&file=" . urlencode($urlbits["path"])
        . ($urlbits["fragment"]=="" ? "" : "#" . $urlbits["fragment"]),
