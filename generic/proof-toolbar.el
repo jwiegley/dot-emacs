@@ -47,6 +47,7 @@
     (goal	"Start a new proof"   "Start a new proof" t)
     (retract	"Retract buffer"      "Retract (undo) whole buffer" t)
     (undo	"Undo step"           "Undo the previous proof command" t)
+    (delete	"Delete step"         nil t)
     (next	"Next step"           "Process the next proof command" t)
     (use	"Use buffer"  	      "Process whole buffer" t)
     (goto	"Goto point"	      "Process or undo to the cursor position" t)
@@ -70,7 +71,8 @@ Format of each entry is (TOKEN MENUNAME TOOLTIP ENABLER-P).
 For each TOKEN, we expect an icon with base filename TOKEN,
 		          a function proof-toolbar-<TOKEN>,
          and (optionally) an enabler proof-toolbar-<TOKEN>-enable-p.
-If MENUNAME is nil, item will not appear on the \"Scripting\" menu.")
+If MENUNAME is nil, item will not appear on the scripting menu.
+If TOOLTIP is nil, item will not appear on the toolbar.")
 
 
 
@@ -135,11 +137,12 @@ and chooses the best one for the display properites.")
 			`(lambda ()
 				   (if (,enabler) 
 				       (call-interactively (quote ,buttonfn)))))))
-    (vector icon actualfn enableritem tooltip)))
+    (if tooltip
+	(list (vector icon actualfn enableritem tooltip)))))
 
 (defvar proof-toolbar-button-list 
   (append
-   (mapcar 'proof-toolbar-make-toolbar-item proof-toolbar-entries)
+   (apply 'append (mapcar 'proof-toolbar-make-toolbar-item proof-toolbar-entries))
    (list [:style 3d]))
   "A toolbar descriptor evaluated in proof-toolbar-setup.
 Specifically, a list of sexps which evaluate to entries in a toolbar
@@ -271,6 +274,20 @@ changed state."
        (> (proof-unprocessed-begin) (point-min))))
 
 (defalias 'proof-toolbar-undo 'proof-undo-last-successful-command)
+
+;;
+;; Delete button  (not actually on toolbar)
+;;
+
+(defun proof-toolbar-delete-enable-p () 
+  (and (not buffer-read-only)
+       (proof-shell-available-p)
+       (> (proof-unprocessed-begin) (point-min))))
+
+(defalias 'proof-toolbar-delete 'proof-undo-and-delete-last-successful-command)
+
+
+
 
 ;;
 ;; Next button
