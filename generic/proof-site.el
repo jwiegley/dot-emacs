@@ -205,24 +205,12 @@ Note: to change proof assistant, you must start a new Emacs session.")
   :group 'proof-general)
 
 
-;; Extend load path for the generic files.
-(let ((proof-lisp-path
-       (concat proof-home-directory "generic/")))
-  (or (member proof-lisp-path load-path)
-      (setq load-path
-	    (cons proof-lisp-path load-path))))
-
-;; During compilation from the Makefile, generic is on the load path.
-;; Add all of the prover directories.
-;; FIXME: this doesn't work quite right.  We want to test
-;; whether we are running during a compilation.  How?
-; (eval-when-compile
-;  (dolist (assistant proof-assistant-table)
-;    (let ((path (concat proof-home-directory
-;			(concat (symbol-name (car assistant)) "/"))))
-;      (or (member path load-path)
-;	  (setq load-path
-;		(cons path load-path))))))
+;; Extend load path for the generic and library files.
+(let ((addpath (lambda (p)
+		 (or (member p load-path)
+		     (setq load-path (cons p load-path))))))
+  (funcall addpath (concat proof-home-directory "generic/"))
+  (funcall addpath (concat proof-home-directory "lib/")))
 
 (defun proof-ready-for-assistant (assistant-name assistantsym)
   "Configure PG for ASSISTANT-NAME, symbol ASSISTANTSYM."
@@ -336,16 +324,19 @@ Note: to change proof assistant, you must start a new Emacs session.")
       (setq assistants (cdr assistants))
       )))
 
-;; WARNING: do not edit below here 
-;; (the next constant is set automatically, also its form is
-;;  relied upon in proof-config.el, for proof-splash-contents)
+;; WARNING: do not edit below here (the next constant is set automatically)
 (defconst proof-general-version "Proof General Version 3.5.1pre040810. Released by da."
  "Version string identifying Proof General release.")
+
+(defconst proof-general-short-version 
+  (progn
+    (string-match "Version \\([^ ]+\\)\\." proof-general-version)
+    (match-string 1 proof-general-version)))
 
 ;; Now define a few autoloads and basic variables.
 
 ;; 1.8.01: add a dummy package-provide command so proof-autoloads
-;; is compatible with FSF Emacs.  Needed for next provide
+;; is compatible with FSF Emacs.  Needed for next require
 ;; (otherwise would be in proof-compat.el).
 (or (fboundp 'package-provide)
     (defun package-provide (name &rest attributes)
@@ -391,26 +382,11 @@ proof-assistant-table."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Architecture flags
-;;;
-
-(eval-and-compile
-(defvar proof-running-on-XEmacs (string-match "XEmacs" emacs-version)
-  "Non-nil if Proof General is running on XEmacs.")
-(defvar proof-running-on-Emacs21 (and (not proof-running-on-XEmacs)
-				      (>= emacs-major-version 21))
-  "Non-nil if Proof General is running on GNU Emacs 21 or later.")
-;; rough test for XEmacs on win32, anyone know about GNU Emacs on win32?
-(defvar proof-running-on-win32 (fboundp 'win32-long-file-name)
-  "Non-nil if Proof General is running on a win32 system."))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
 ;;; Disable any other XEmacs x-symbol packages: we load ours manually
 ;;;
 
 (if (and
-     proof-running-on-XEmacs
+     (string-match "XEmacs" emacs-version) 
      (not (featurep 'x-symbol-hooks)) ;; unless already loaded
      (file-exists-p (concat proof-home-directory ;; or our version removed
 			    "x-symbol/lisp/")))
