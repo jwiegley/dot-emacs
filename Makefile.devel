@@ -99,8 +99,9 @@ DEVELMAKE=make -f Makefile.devel
 # Files not to include the distribution area or tarball 
 NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt images/*.xcf images/notes.txt images/gimp images/Makefile isa/wip.ML html/notes.txt plastic/ isar/ 
 
-# Files not to include in the distribution tarball
-IGNOREDFILES=doc/ProofGeneral.dvi Makefile.devel todo isa/wip.ML
+# Files not to include in the ordinary distribution tarball, but left
+# in the server's copy of the distribution.
+IGNOREDFILES=doc/ProofGeneral.dvi Makefile.devel todo isa/wip.ML ChangeLog
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -117,7 +118,6 @@ RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
 
 DEVELRELEASENAMETAR = $(DEVELRELEASENAME).tar
 DEVELRELEASENAMETARGZ = $(DEVELRELEASENAMETAR).gz
-
 
 # Files not kept under cvs to clean away.
 FILES_NONCVS = ChangeLog TAGS
