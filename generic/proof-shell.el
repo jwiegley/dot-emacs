@@ -143,7 +143,8 @@ For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'.")
 ;;  -da.
 
 (defun proof-shell-ready-prover ()
-  "Make sure the proof assistant is ready for a command"
+  "Make sure the proof assistant is ready for a command.
+No change to current buffer or point."
   (proof-shell-start)
   (if proof-shell-busy (error "Proof Process Busy!")))
 
@@ -276,11 +277,11 @@ Does nothing if proof assistant is already running."
 	;; up our conventions that annotations lie between 128 and
 	;; 256. We only observed the problem with FSF GNU Emacs 20.3 at
 	;; present.
-      (and (fboundp 'toggle-enable-multibyte-characters)
-	   (toggle-enable-multibyte-characters -1))
+	(and (fboundp 'toggle-enable-multibyte-characters)
+	     (toggle-enable-multibyte-characters -1))
 
 
-      (funcall proof-mode-for-shell)
+	(funcall proof-mode-for-shell)
 	;; Check to see that the process is still going.
 	;; Otherwise the sentinel will have killed off the
 	;; other buffers and there's no point initialising
