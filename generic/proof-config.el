@@ -1924,7 +1924,11 @@ Arguments as for `defcustom', which see."
   "Return the value for SYM for the current prover."
   (eval `(proof-ass-sym ,sym)))
 
-(defun proof-setass-default-fn (sym value)
+
+;; FIXME: consider combining this with proof-defasscustom?
+;; In other words, only get a proof-assistant specific instance
+;; if one is defined explicitly somehow?  Probably not.
+(defun proof-defass-default-fn (sym value)
   "Set default for the proof assistant specific variable <PA>-SYM to VALUE.
 This should be used in prover-specific code to alter the default values
 for prover specific settings."
@@ -1941,7 +1945,7 @@ for prover specific settings."
 		   value)))))
 
 (defmacro proof-defass-default (sym value)
-  `(proof-setass-default-fn (quote ,sym) ,value))
+    `(proof-defass-default-fn (quote ,sym) ,value))
    
 
 
