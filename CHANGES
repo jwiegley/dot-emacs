@@ -2,6 +2,13 @@
 
 * Summary of Changes for Proof General 3.4pre from 3.2
 
+** Generic Changes
+
+***  Support added for Emacs 21 
+
+   Toolbar and splash screen supported  
+    [seems good; please tell me of any problems] 
+
 ** Isabelle Changes
 
    Isabelle/Isar syntax changes.
