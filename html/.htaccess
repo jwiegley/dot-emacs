@@ -1,2 +1,5 @@
 RemoveHandler .html
 AddType application/x-httpd-php .html
+# support old address of zermelo.dcs.ed.ac.uk/~proofgen
+Redirect /~proofgen http://proofgeneral.inf.ed.ac.uk/
+Redirect /home/proofgen http://proofgeneral.inf.ed.ac.uk/
