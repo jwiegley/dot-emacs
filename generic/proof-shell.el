@@ -225,7 +225,12 @@ Does nothing if proof assistant is already running."
 		  (concat proof-rsh-command " " proof-prog-name)
 		proof-prog-name)
 	      ;; Split on spaces: FIXME: maybe should be whitespace.
-	      " ")))
+	      " "))
+	    ;; Experimental fix for backslash/long line problem.  
+	    ;; Make start-process (called by make-comint)
+	    ;; use a pipe, not a pty.
+	    (process-connection-type nil)
+	    )
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
       
