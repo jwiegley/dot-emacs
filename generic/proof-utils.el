@@ -383,7 +383,8 @@ Returns non-nil if response buffer was cleared."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Stuff for developing PG, not needed for ordinary users really.
-;; 
+;; [Could consider moving this to a new file `proof-devel.el']
+;;
 
 (put 'proof-if-setting-configured 'lisp-indent-function 1)
 (put 'proof-define-assistant-command 'lisp-indent-function 'defun)
@@ -406,9 +407,12 @@ Returns non-nil if response buffer was cleared."
 	     (t 'font-lock-function-name-face))
        nil t)))
 
-(setq lisp-font-lock-keywords 
-      (append proof-extra-fls
-	      lisp-font-lock-keywords))
+;; This doesn't work for FSF's font lock, developers should use
+;; XEmacs!
+(if (boundp 'lisp-font-lock-keywords)	; compatibility hack
+    (setq lisp-font-lock-keywords 
+	  (append proof-extra-fls
+		  lisp-font-lock-keywords)))
        
 (setq autoload-package-name "proof")
 (setq generated-autoload-file "proof-autoloads.el")
