@@ -10,6 +10,12 @@
 ;;
 ;; NB: Part of Proof General distribution.
 ;;
+;; This file accounts for differences between Isabelle and 
+;; Isabelle/Isar support of X-Symbol tokens, namely:
+;;
+;; Isabelle:       \\<foo>   (inside ML strings)
+;; Isabelle/Isar:  \<foo>
+;;
 
 (defvar x-symbol-isabelle-required-fonts nil)
 
@@ -60,12 +66,19 @@ See `x-symbol-header-groups-alist'."
    :encode-spec '(((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")) .
 		  ((id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]")))
    :decode-spec nil
-   :decode-regexp "\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+"
+   :decode-regexp 
+   (concat
+    (if (eq proof-assistant-symbol 'isa)
+	"\\\\?") ; match an extra backquote in input strings,
+                 ;; but not used in output strings.  
+                 ;; FIXME: is this right??
+   "\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+")
    :token-list #'x-symbol-isabelle-default-token-list))
 
 (defvar x-symbol-isabelle-input-token-grammar
   '("\\(?:\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
-    (id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
+    (id . "[A-Za-z_0-9]") 
+    (op . "[<>!+-*/|&]"))
   "Grammar of input method Token for language `isabelle'.")))
 
 (defun x-symbol-isabelle-default-token-list (tokens)
