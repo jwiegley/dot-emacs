@@ -52,7 +52,6 @@ Gif filename depends on colour depth of display."
    (proof-splash-display-image "ProofGeneral")
    nil
    "Welcome to"
-   nil
    (concat proof-assistant " Proof General!")
    nil)
   "*List defining splash screen displayed when Proof General is started.
