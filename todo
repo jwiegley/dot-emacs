@@ -7,10 +7,14 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 * THINGS TO DO BEFORE 3.5 RELEASE
 
-*** Spam-protect email addresses on web pages
+*** x-symbol warning:
+     Emacs language environment and system locale specify different encoding, I'll assume `iso-8859-1'
+    I have /etc/sysconfig/i18n containing  LANG="en_GB.iso885915"
+    (setq-default buffer-file-coding-system 'iso-8859-15) prevents warning,
+    but should we assume a default format for proof assistants?
+    (NB: normal default seems to be iso-2022-8)
 
-*** Can we do anything about clash between bundled x-symbol and
-     system-wide version??
+*** Spam-protect email addresses on web pages
 
 *** Fixup HTML on mailing list pages
 
