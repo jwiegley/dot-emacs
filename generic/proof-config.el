@@ -391,7 +391,9 @@ Would cause Proof General to issue the command `ssh bigjobs isabelle'
 to start Isabelle remotely on our large compute server called `bigjobs'.
 
 The protocol used should be configured so that no user interaction
-(passwords, or whatever) is required to get going."
+(passwords, or whatever) is required to get going.  For proper
+behaviour with interrupts, the program should also communicate
+signals to the remote host."
   :type 'string
   :group 'proof-user-options)
 
