@@ -66,6 +66,14 @@
 
 ** Changes for developers to note
 
+*** Rearrangement of elisp files and loading mechanism.
+    
+      Autoloads in proof-autoloads.el are generated from
+      ;;;###autoload comments with `make devel.autoloads'
+
+      Several new files, to "modularize" the code a bit more.
+      
+
 *** No need for match string 1 in proof-shell-proof-completed
 
 *** Changed buffer mode name: pbp-mode -> proof-goals-mode, for uniformity.
