@@ -3,7 +3,7 @@ Proof General --- Organize your proofs!
 
 Proof General is a generic Emacs interface for proof assistants.
 
-This is version 3.3 of Proof General.   
+This is version 3.4 of Proof General.   
 (Check the About screen for precise version number).
 
 The aim of the Proof General project is to provide a powerful and
@@ -50,20 +50,7 @@ mailing list for Proof General, visit Proof General on the web
 at: http://www.proofgeneral.org
 
 David Aspinall <da@proofgeneral.org>
-August 2001.
+July 2002.
 
 -----
-
-NEWSFLASH: Proof General has been Emacs based so far, but plans are
-afoot to liberate it from the points and parentheses of Emacs Lisp.
-The successor framework, Proof General Kit, proposes that proof assistants
-use a *standard* XML-based protocol for interactive proof, dubbed
-PGIP.  PGIP will allow a middleware layer for many interactive proof
-tools and interface components (including Emacs).  The design of PGIP
-was made possible by the present Emacs-based Proof General framework.  
-For more on Proof General Kit, see http://www.proofgeneral.org/kit.html
-
-
-
-		
 
