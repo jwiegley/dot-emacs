@@ -84,7 +84,10 @@
 ;; ----- coq specific menu
 
 (defpgdefault menu-entries
-  '(["Print..." coq-Print t]
+  '(["expand abbrev at point" expand-abbrev t]
+    ["list abbrevs" list-abbrevs t]
+    ["3 buffers view" coq-three-b t]
+    ["Print..." coq-Print t]
     ["Check..." coq-Check t]
     ["Hints" coq-PrintHint t]
     ["Intros..." coq-Intros t]
@@ -507,6 +510,35 @@ This is specific to coq-mode."
 (define-key coq-keymap [(control ?p)] 'coq-Print)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [(control ?h)] 'coq-PrintHint)
+(define-key coq-keymap [(control f3)] 'coq-three-b)
+
+; This is arguable, but completion with a three key shortcut is bad, 
+; and the feault meta-/ is bad on some keyboards (especially french ones)
+(define-key global-map [(control backspace)] 'expand-abbrev)
+
+
+
+(defun three-b (b1 b2 b3)
+       "Select three buffers.
+     Put them into three windows, selecting the last one."
+         (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
+         (delete-other-windows)
+         (split-window-horizontally)
+         (switch-to-buffer b1)
+         (other-window 1)
+         (split-window-vertically)
+         (switch-to-buffer b2)
+         (other-window 1)
+         (switch-to-buffer b3)
+	 (other-window 1)
+)
+
+(defun coq-three-b ()
+  (interactive)
+  (three-b (buffer-name (first (buffer-list)))
+	   "*coq-response*" "*coq-goals*")
+)
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -895,6 +927,21 @@ mouse activation."
                `(proof-shell-invisible-command 
                  ,(format "Check %s." thm))))))
   )
+
+
+;load the default coq abbrev file if no coq abbrev file is already read
+;TODO: add the holes and put holes in abbreviations.
+; This needs to add some code in generic/span*.el first, then add holes.el 
+; in the generaic part, and then ok.
+
+(if (and (boundp 'coq-mode-abbrev-table)
+         (not (equal coq-mode-abbrev-table (make-abbrev-table))))
+    (message "An abbrev table exists for coq, no default loaded")
+  (progn
+    (quietly-read-abbrev-file "coq-abbrev.el")
+    (message "coq default abbreviations loaded"))
+  )
+
 
 (provide 'coq)
 
