@@ -130,6 +130,14 @@ theory, see [Reference to Isabelle manual]
 
 **********
 
+Support for font-lock under FSF Emacs 20.2
+
+To automatically switch on fontification, set
+
+ (add-hook 'lego-mode-hooks 'turn-on-font-lock)
+                          ^
+
+
 *****************************************************************
 
 Notes for writing a paper describing Proof General

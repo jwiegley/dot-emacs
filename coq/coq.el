@@ -66,7 +66,7 @@
 ;; ----- outline
 
 (defvar coq-outline-regexp
-  (ids-to-regexp 
+  (proof-ids-to-regexp 
 	   '("Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact"
 	   "Remark" "Record" "Inductive" "Definition")))
 
@@ -78,7 +78,7 @@
 (defconst coq-kill-goal-command "Abort.")
 (defconst coq-forget-id-command "Reset ")
 
-(defconst coq-undoable-commands-regexp (ids-to-regexp coq-tactics))
+(defconst coq-undoable-commands-regexp (proof-ids-to-regexp coq-tactics))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
@@ -135,7 +135,7 @@
       (concat "Undo " (int-to-string ct) proof-terminal-string))))
 
 (defconst coq-keywords-decl-defn-regexp
-  (ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
+  (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
 
 (defun coq-goal-command-p (str)
@@ -351,7 +351,7 @@
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
 	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
 	proof-kill-goal-command coq-kill-goal-command
-	proof-commands-regexp (ids-to-regexp coq-keywords))
+	proof-commands-regexp (proof-ids-to-regexp coq-keywords))
 
   (coq-init-syntax-table)
 

@@ -135,15 +135,15 @@
   "*Regular expression indicating that the proof has been completed.")
 
 (defvar lego-save-command-regexp
-  (concat "^" (ids-to-regexp lego-keywords-save)))
+  (concat "^" (proof-ids-to-regexp lego-keywords-save)))
 (defvar lego-goal-command-regexp
-  (concat "^" (ids-to-regexp lego-keywords-goal)))
+  (concat "^" (proof-ids-to-regexp lego-keywords-goal)))
 
 (defvar lego-kill-goal-command "KillRef;")
 (defvar lego-forget-id-command "Forget ")
 
 (defvar lego-undoable-commands-regexp
-  (ids-to-regexp '("Dnf" "Refine" "Intros" "intros" "Next" "Normal"
+  (proof-ids-to-regexp '("Dnf" "Refine" "Intros" "intros" "Next" "Normal"
   "Qrepl" "Claim" "For" "Repeat" "Succeed" "Fail" "Try" "Assumption"
   "UTac" "Qnify" "qnify" "andE" "andI" "exE" "exI" "orIL" "orIR" "orE" "ImpI"
   "impE" "notI" "notE" "allI" "allE" "Expand" "Induction" "Immed"
@@ -155,7 +155,7 @@
 
 (defvar lego-outline-regexp
   (concat "[[*]\\|"
-	  (ids-to-regexp 
+	  (proof-ids-to-regexp 
 	   '("Discharge" "DischargeKeep" "Freeze" "$?Goal" "Module" "Record" "Inductive"
      "Unfreeze"))))
 
@@ -184,6 +184,7 @@
   (define-derived-mode lego-response-mode proof-response-mode
     "LEGOResp" nil
     (setq font-lock-keywords lego-font-lock-terms)
+    (lego-init-syntax-table)
     (proof-response-config-done)))
   
 (define-derived-mode lego-pbp-mode pbp-mode
@@ -410,7 +411,7 @@
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
 	proof-goal-with-hole-regexp lego-goal-with-hole-regexp
 	proof-kill-goal-command lego-kill-goal-command
-	proof-commands-regexp (ids-to-regexp lego-commands))
+	proof-commands-regexp (proof-ids-to-regexp lego-commands))
 
   (lego-init-syntax-table)
 
@@ -537,6 +538,7 @@ We assume that module identifiers coincide with file names."
   (setq pbp-change-goal "Next %s;"
 	pbp-error-regexp lego-error-regexp)
   (setq font-lock-keywords lego-font-lock-terms)
+  (lego-init-syntax-table)
   (proof-goals-config-done))
   
 

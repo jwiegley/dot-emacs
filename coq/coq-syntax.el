@@ -167,10 +167,10 @@
   (list
 
    ;; lambda binders
-   (list (coq-abstr-regexp "\\[" ":") 1 'proof-declaration-name-face)
+   (list (coq-abstr-regexp "\\[" ":") 1 ''proof-declaration-name-face)
 
    ;; Pi binders
-   (list (coq-abstr-regexp "(" ":") 1 'proof-declaration-name-face)
+   (list (coq-abstr-regexp "(" ":") 1 ''proof-declaration-name-face)
    
    ;; Kinds
    (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s-*\\(("
@@ -181,31 +181,31 @@
 ;; It is understood here as being a goal.  This is important for
 ;; recognizing global identifiers, see coq-global-p.
 (defconst coq-save-command-regexp
-  (concat "^" (ids-to-regexp coq-keywords-save)))
+  (concat "^" (proof-ids-to-regexp coq-keywords-save)))
 (defconst coq-save-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-save)
+  (concat "\\(" (proof-ids-to-regexp coq-keywords-save)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*\."))
 (defconst coq-goal-command-regexp
-  (concat "^" (ids-to-regexp coq-keywords-goal)))
+  (concat "^" (proof-ids-to-regexp coq-keywords-goal)))
 (defconst coq-goal-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-goal)
+  (concat "\\(" (proof-ids-to-regexp coq-keywords-goal)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*:"))
 (defconst coq-decl-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-decl)
+  (concat "\\(" (proof-ids-to-regexp coq-keywords-decl)
 	  "\\)\\s-+\\(" coq-ids "\\)\\s-*:"))
 (defconst coq-defn-with-hole-regexp
-  (concat "\\(" (ids-to-regexp coq-keywords-defn)
+  (concat "\\(" (proof-ids-to-regexp coq-keywords-defn)
 	  "\\)\\s-+\\(" coq-id "\\)\\s-*[:[]"))
 
 (defvar coq-font-lock-keywords-1
    (append
     coq-font-lock-terms
     (list
-     (cons (ids-to-regexp coq-keywords) 'font-lock-keyword-face)
-     (cons (ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
+     (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
+     (cons (proof-ids-to-regexp coq-tacticals) ''proof-tacticals-name-face)
 
      (list coq-goal-with-hole-regexp 2 'font-lock-function-name-face)
-     (list coq-decl-with-hole-regexp 2 'proof-declaration-name-face)
+     (list coq-decl-with-hole-regexp 2 ''proof-declaration-name-face)
      (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
      (list coq-save-with-hole-regexp 2 'font-lock-function-name-face))))
 

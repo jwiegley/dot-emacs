@@ -428,25 +428,11 @@ Returns the string (with faces) in the specified region."
       (set-buffer proof-shell-buffer)
       (goto-char (point-max))
       (setq start (search-backward-regexp start-regexp))
-      (save-excursion (setq end (- (search-forward-regexp end-regexp)
-				   (length (match-string 0)))))
+      (setq end (- (search-forward-regexp end-regexp)
+				   (length (match-string 0))))
       (setq string
-	    (proof-shell-strip-annotations (buffer-substring start end)))
-      (set-buffer proof-response-buffer)
-      (goto-char (point-max))
-      (newline)
-      (setq start (point-max))
-      (insert string)
-      (setq end (+ start (length string)))
-      ;; FIXME tms: FSF Emacs 20.2 problems
-      ;; This doesn't work with FSF Emacs 20.2's version of Font-lock
-      ;; because there are no known keywords in the process buffer
-      ;; Never mind. In a forthcoming version, the process buffer will
-      ;; not be tampered with. Fontification will take place in a
-      ;; separate response buffer.
-      (font-lock-fontify-region start end)
-      (font-lock-append-text-property start end 'face append-face)
-      (buffer-substring start end))))
+	    (proof-shell-strip-annotations (buffer-substring start end))))
+    (proof-response-buffer-display string append-face)))
 
 (defun proof-shell-handle-delayed-output ()
   "Display delayed output. 
@@ -456,11 +442,11 @@ See the documentation fo `proof-shell-delayed-output' for furter details."
     (cond 
      ((eq ins 'insert)
       (setq str (proof-shell-strip-annotations str))
-      (save-excursion
+      (save-current-buffer
 	(set-buffer proof-response-buffer)
 	(erase-buffer)
-	(insert str))
-      (proof-display-and-keep-buffer proof-response-buffer))
+	(insert str)
+	(proof-display-and-keep-buffer proof-response-buffer)))
      ((eq ins 'analyse)
       (proof-shell-analyse-structure str))
      (t (assert nil))))
@@ -491,8 +477,19 @@ See the documentation fo `proof-shell-delayed-output' for furter details."
 
 (defun proof-shell-handle-error (cmd string)
   "React on an error message triggered by the prover.
+We first flush unprocessed goals to the goals buffer.
 The error message is displayed in the `proof-response-buffer'. Then,
 we call `proof-shell-handle-error-hook'. "
+
+  ;; flush goals
+  (or (equal proof-shell-delayed-output (cons 'insert "Done."))
+      (save-current-buffer
+	(set-buffer proof-pbp-buffer)
+	(erase-buffer)
+	(insert (proof-shell-strip-annotations 
+		   (cdr proof-shell-delayed-output)))
+	(proof-display-and-keep-buffer proof-pbp-buffer)))
+
     ;; We extract all text between text matching
     ;; `proof-shell-error-regexp' and the following prompt.
     ;; Alternatively one could higlight all output between the
@@ -504,7 +501,7 @@ we call `proof-shell-handle-error-hook'. "
   (proof-shell-handle-output
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
    'proof-error-face)
-  (save-excursion (proof-display-and-keep-buffer proof-response-buffer)
+  (save-current-buffer (proof-display-and-keep-buffer proof-response-buffer)
 		  (beep)
 
 		  ;; unwind script buffer
@@ -573,7 +570,7 @@ assistant."
    ((and proof-shell-abort-goal-regexp
 	 (string-match proof-shell-abort-goal-regexp string))
     (proof-clean-buffer proof-pbp-buffer)
-   (setq proof-shell-delayed-output (cons 'insert "\n\nAborted"))
+   (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
     ())
 	 
    ((string-match proof-shell-proof-completed-regexp string)
@@ -871,7 +868,7 @@ how far we've got."
 					     (point)))
 	      (goto-char (point-max))	; da: assumed to be after a prompt?
 	      (setq cmd (nth 1 (car proof-action-list)))
-	      (save-excursion
+	      (save-current-buffer
 		;; 
 		(setq res (proof-shell-process-output cmd string))
 		;; da: Added this next line to redisplay, for proof-toolbar
@@ -1020,7 +1017,7 @@ Annotations are characters 128-255."
 (define-derived-mode proof-universal-keys-only-mode fundamental-mode
     proof-mode-name "Universal keymaps only"
     (suppress-keymap proof-universal-keys-only-mode-map 'all)
-    (proof-define-keys pbp-mode-map proof-universal-keys)))
+    (proof-define-keys proof-universal-keys-only-mode-map proof-universal-keys)))
 
 (eval-and-compile			; to define vars
 (define-derived-mode pbp-mode proof-universal-keys-only-mode

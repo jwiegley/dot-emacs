@@ -124,7 +124,10 @@ If ignore, point is never moved after toolbar movement commands."
       :bold t))
     (t				
      (:italic t :bold t)))
-  "*Face for declaration names in proof scripts."
+  "*Face for declaration names in proof scripts.
+
+Don't forget to *double* quote this face for font-lock. FSF Emacs
+20.2's version only supports *expressions* for faces."
   :group 'proof-faces)
 
 (defface proof-tacticals-name-face
@@ -134,7 +137,10 @@ If ignore, point is never moved after toolbar movement commands."
      (:foreground "orchid"))
     (t				
      (bold t)))
-  "*Face for names of tacticals in proof scripts."
+  "*Face for names of tacticals in proof scripts.
+
+Don't forget to *double* quote this face for font-lock. FSF Emacs
+20.2's version only supports *expressions* for faces."
   :group 'proof-faces)
 
 (defface proof-error-face 
@@ -692,7 +698,10 @@ where `k' is a keybinding (vector) and `f' the designated function."
   :type 'sexp
   :group 'proof-general-internals)
 
-
+(defcustom proof-window-dedicated-p t
+  "Flag whether response and goals buffers have dedicated windows."
+  :type 'boolean
+  :group 'proof-general-internals)
 
 ;;; 
 ;;; FIXME: unsorted below here

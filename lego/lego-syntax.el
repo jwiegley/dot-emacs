@@ -64,7 +64,7 @@
 
    ; lambda binders
      (list (lego-decl-defn-regexp "[:|?]") 1
-	   'proof-declaration-name-face)
+	   ''proof-declaration-name-face)
 
      ; let binders
      (list lego-definiendum-alternative-regexp 1 'font-lock-function-name-face)
@@ -72,7 +72,7 @@
 
      ; Pi and Sigma binders
      (list (concat "[{<]\\s *\\(" lego-ids "\\)") 1
-	   'proof-declaration-name-face)
+	   ''proof-declaration-name-face)
    
      ;; Kinds
      (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("
@@ -82,12 +82,12 @@
 ;; Instead of "[^:]+", it may be better to use "lego-id". Furthermore,
 ;; it might be safer to append "\\s-*:".
 (defconst lego-goal-with-hole-regexp
-  (concat "\\(" (ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^:]+\\)")
+  (concat "\\(" (proof-ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^:]+\\)")
   "Regular expression which matches an entry in `lego-keywords-goal'
   and the name of the goal.") 
 
 (defconst lego-save-with-hole-regexp
-  (concat "\\(" (ids-to-regexp lego-keywords-save) "\\)\\s-+\\([^;]+\\)")
+  (concat "\\(" (proof-ids-to-regexp lego-keywords-save) "\\)\\s-+\\([^;]+\\)")
   "Regular expression which matches an entry in
   `lego-keywords-save' and the name of the goal.")
 
@@ -95,8 +95,8 @@
    (append
     lego-font-lock-terms
     (list
-     (cons (ids-to-regexp lego-keywords) 'font-lock-keyword-face)
-     (cons (ids-to-regexp lego-tacticals) 'proof-tacticals-name-face)
+     (cons (proof-ids-to-regexp lego-keywords) 'font-lock-keyword-face)
+     (cons (proof-ids-to-regexp lego-tacticals) ''proof-tacticals-name-face)
      (list lego-goal-with-hole-regexp 2 'font-lock-function-name-face)
      (list lego-save-with-hole-regexp 2 'font-lock-function-name-face))))
      

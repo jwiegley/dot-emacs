@@ -13,6 +13,13 @@
 ;; $Id$
 ;;
 
+(defmacro deflocal (var value &optional docstring)
+  "Define a buffer local variable VAR with default value VALUE."
+ (list 'progn
+   (list 'defvar var 'nil docstring)
+   (list 'make-variable-buffer-local (list 'quote var))
+   (list 'setq-default var value)))
+
 (require 'proof-site)			; site config
 
 (require 'proof-config)			; configuration variables
@@ -54,67 +61,8 @@
 (autoload 'proof-shell-available-p "proof-shell"
   "Returns non-nil if there is a proof shell active and available.")
 
-;;;
-;;; Utilities/macros used in several files  (proof-utils)
-;;;
-
-(defmacro deflocal (var value &optional docstring)
-  "Define a buffer local variable VAR with default value VALUE."
- (list 'progn
-   (list 'defvar var 'nil docstring)
-   (list 'make-variable-buffer-local (list 'quote var))
-   (list 'setq-default var value)))
-
-(defun proof-string-to-list (s separator) 
-  "Return the list of words in S separated by SEPARATOR."
-  (let ((end-of-word-occurence (string-match (concat separator "+") s)))
-    (if (not end-of-word-occurence)
-        (if (string= s "") 
-            nil
-          (list s))
-      (cons (substring s 0 end-of-word-occurence) 
-            (proof-string-to-list 
-             (substring s
-                        (string-match (concat "[^" separator "]")
-                                      s end-of-word-occurence)) separator)))))
-
-(defun proof-define-keys (map kbl)
-  "Adds keybindings KBL in MAP.
-The argument KBL is a list of tuples (k . f) where `k' is a keybinding
-(vector) and `f' the designated function."
-  (mapcar
-   (lambda (kbl)
-     (let ((k (car kbl)) (f (cdr kbl)))
-         (define-key map k f)))
-   kbl))
-
-(defun proof-response-buffer-display (str face)
-  "Display STR with FACE in response buffer."
-  (let ((start))
-    (save-excursion
-      (set-buffer proof-response-buffer)
-      (setq start (goto-char (point-max)))
-      (insert str)
-      ;; FIXME da: recurring bug here???
-      (if (string-match "XEmacs" emacs-version)
-	  (progn
-	    (font-lock-fontify-region start (point-max))
-	    (font-lock-append-text-property start (point-max) 'face face)))
-      ;; 
-      (insert "\n"))))
-
-(defun proof-display-and-keep-buffer (buffer)
-  "Display BUFFER and mark window as dedicated."
-  (display-buffer buffer)
-  (set-window-dedicated-p (get-buffer-window buffer) 'dedicated))
-
-(defun proof-clean-buffer (buffer)
-  "Erase buffer and hide from display."
-  (save-excursion
-    (set-buffer buffer)
-    (erase-buffer))
-  (delete-windows-on buffer))
-
+(autoload 'font-lock-fontify-region "font-lock")
+(autoload 'font-lock-append-text-property "font-lock")
 ;;;
 ;;; Global variables
 ;;;
@@ -161,6 +109,69 @@ The cdr of the list of corresponding file names is a subset of
 
 
 
+
+;;;
+;;; Utilities/macros used in several files  (proof-utils)
+;;;
+
+(defun proof-string-to-list (s separator) 
+  "Return the list of words in S separated by SEPARATOR."
+  (let ((end-of-word-occurence (string-match (concat separator "+") s)))
+    (if (not end-of-word-occurence)
+        (if (string= s "") 
+            nil
+          (list s))
+      (cons (substring s 0 end-of-word-occurence) 
+            (proof-string-to-list 
+             (substring s
+                        (string-match (concat "[^" separator "]")
+                                      s end-of-word-occurence)) separator)))))
+
+(defun proof-define-keys (map kbl)
+  "Adds keybindings KBL in MAP.
+The argument KBL is a list of tuples (k . f) where `k' is a keybinding
+(vector) and `f' the designated function."
+  (mapcar
+   (lambda (kbl)
+     (let ((k (car kbl)) (f (cdr kbl)))
+         (define-key map k f)))
+   kbl))
+
+(defun proof-response-buffer-display (str face)
+  "Display STR with FACE in response buffer and return fontified STR."
+  (let (start end)
+    (save-current-buffer
+      (set-buffer proof-response-buffer)
+      (setq start (goto-char (point-max)))
+      (insert str) (setq end (point))
+      (newline)
+      ;; FIXME tms: Make this work for FSF Emacs 20.2
+      (font-lock-fontify-region start end)
+      (font-lock-append-text-property start end 'face face)
+      (buffer-substring start end))))
+
+
+(defun proof-display-and-keep-buffer (buffer)
+  "Display BUFFER and mark window according to `proof-window-dedicated-p'."
+  (let ((window (get-buffer-window buffer 'visible)))
+    (save-selected-window
+    (display-buffer buffer)
+    (set-window-dedicated-p (get-buffer-window buffer)
+			    proof-window-dedicated-p)
+    (and window
+	 (progn (select-window window)
+		;; tms: I don't understand why the point in
+		;; proof-response-buffer is not at the end anyway.
+		;; Is there a superfluous save-excursion somewhere?
+		(goto-char (point-max))
+		(or (pos-visible-in-window-p) (recenter -1)))))))
+
+(defun proof-clean-buffer (buffer)
+  "Erase buffer and hide from display."
+  (save-excursion
+    (set-buffer buffer)
+    (erase-buffer))
+  (delete-windows-on buffer))
 
 (provide 'proof)
 ;; proof.el ends here

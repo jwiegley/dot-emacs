@@ -382,8 +382,10 @@ C Improve legotags. I cannot handle lists e.g., with
 * Here are things to be done to Coq mode
 ========================================
 
+B Ensure that coq.el byte-compiles cleanly (1h)
+
 D set proof-commands-regexp to support indentation for commands
-						    (10min hhg)
+						    (10min)
 
 D Add Patrick Loiseleur's commands to search for vernac or ml files.
 
@@ -399,7 +401,7 @@ B Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
 D Proof-by-Pointing (10h hhg)
 
 B Add coq-add-tactic with a tactic name, which adds that tactic to the 
-  undoable tactics and to the font-lock. (2h hhg)
+  undoable tactics and to the font-lock. (2h)
 
 C Improve coqtags. I cannot handle lists e.g., with 	
 
@@ -436,11 +438,10 @@ X Manage multiple proofs (markers in possibly different buffers)
 * FSF Emacs
 ===========
 
-B According to the documentation of font-lock for Emacs 20.2, it
-  should suffice to set (add-hook 'lego-mode-hook 'turn-on-font-lock)
-  but this doesn't seem to work. Perhaps define-derived-mode doesn't
-  set up lego-mode correctly? (1h tms)
-
+C `proof-zap-commas-region' does not work for Emacs 20.2 on
+  lego/example.l . On *initially* fontifying the buffer,
+  commas are not zapped. However, when entering text, commata are
+  zapped correctly. (2h)
 
 * Release
 =========

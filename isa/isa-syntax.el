@@ -110,10 +110,10 @@
   (list
    ;; lambda binders
    (list (concat "\%\\s-*\\(" isa-ids "\\)\\.") 1
-	 'proof-declaration-name-face)
+	 ''proof-declaration-name-face)
 
    ;; Pi binders
-   (list (isa-abstr-regexp "(" ":") 1 'proof-declaration-name-face)
+   (list (isa-abstr-regexp "(" ":") 1 ''proof-declaration-name-face)
    
    ;; Kinds
    (cons (concat "\\<Prop\\>\\|\\<Set\\>\\|\\<Type\\s-*\\(("
@@ -121,37 +121,37 @@
   "*Font-lock table for Isa terms.")
 
 (defconst isa-save-command-regexp
-  (concat "^" (ids-to-regexp isa-keywords-save)))
+  (concat "^" (proof-ids-to-regexp isa-keywords-save)))
 (defconst isa-save-with-hole-regexp
-  (concat "\\(" (ids-to-regexp isa-keywords-save)
+  (concat "\\(" (proof-ids-to-regexp isa-keywords-save)
 	  "\\)\\s-+\\(" isa-id "\\)\\s-*\."))
 
 ;; FIXME: where?
 (defcustom isa-goal-command-regexp
-  (concat "^" (ids-to-regexp isa-keywords-goal))
+  (concat "^" (proof-ids-to-regexp isa-keywords-goal))
   "Regular expression used to match a goal."
   :type 'regexp
   :group 'isabelle-config)
 
 (defconst isa-goal-with-hole-regexp
-  (concat "\\(" (ids-to-regexp isa-keywords-goal)
+  (concat "\\(" (proof-ids-to-regexp isa-keywords-goal)
 	  "\\)\\s-+\\(" isa-id "\\)\\s-*:"))
 (defconst isa-decl-with-hole-regexp
-  (concat "\\(" (ids-to-regexp isa-keywords-decl)
+  (concat "\\(" (proof-ids-to-regexp isa-keywords-decl)
 	  "\\)\\s-+\\(" isa-ids "\\)\\s-*:"))
 (defconst isa-defn-with-hole-regexp
-  (concat "\\(" (ids-to-regexp isa-keywords-defn)
+  (concat "\\(" (proof-ids-to-regexp isa-keywords-defn)
 	  "\\)\\s-+\\(" isa-id "\\)\\s-*[:[]"))
 
 (defvar isa-font-lock-keywords-1
    (append
     isa-font-lock-terms
     (list
-     (cons (ids-to-regexp isa-keywords) 'font-lock-keyword-face)
-     (cons (ids-to-regexp isa-tacticals) 'proof-tacticals-name-face)
+     (cons (proof-ids-to-regexp isa-keywords) 'font-lock-keyword-face)
+     (cons (proof-ids-to-regexp isa-tacticals) ''proof-tacticals-name-face)
 
      (list isa-goal-with-hole-regexp 2 'font-lock-function-name-face)
-     (list isa-decl-with-hole-regexp 2 'proof-declaration-name-face)
+     (list isa-decl-with-hole-regexp 2 ''proof-declaration-name-face)
      (list isa-defn-with-hole-regexp 2 'font-lock-function-name-face)
      (list isa-save-with-hole-regexp 2 'font-lock-function-name-face))))
 

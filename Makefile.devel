@@ -101,9 +101,18 @@ DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
 ELISP_DIRS=generic lego coq isa
+
+PWD=$(shell pwd)
+
+BYTECOMP = $(EMACS) -batch -q -no-site-file -eval '(setq load-path (append (list "$(PWD)/generic" "$(PWD)/lego" "$(PWD)/coq" "$(PWD)/isa") load-path))' -f batch-byte-compile
+
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
 
+.SUFFIXES:	.el .elc
+
+.el.elc:
+	$(BYTECOMP) $*.el
 
 FORCE:
 

@@ -11,6 +11,7 @@
 ;;
 
 (require 'proof-script)
+(autoload 'proof-shell-live-buffer "proof-shell")
 
 (defconst proof-toolbar-default-button-list
   '(proof-toolbar-goal-button
