@@ -47,6 +47,13 @@ See the documentation of `easy-menu-define' "
   :type '(repeat sexp)
   :group 'lego)
 
+(defcustom lego-menu-entries
+  '(["intros" lego-intros]
+    ["Intros" lego-Intros]
+    ["Refine" lego-Refine])
+  "Entries for LEGO menu.")
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Configuration of Generic Proof Package ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -276,12 +283,12 @@ Given is the first SPAN which needs to be undone."
   (insert "intros "))
 
 (defun lego-Intros () 
-  "List proof state." 
+  "insert Intros."
   (interactive) 
   (insert "Intros "))
 
 (defun lego-Refine () 
-  "List proof state."  
+  "Insert Refine."  
   (interactive) 
   (insert "Refine "))
 
@@ -349,6 +356,8 @@ Checks the width in the `proof-goals-buffer'"
   (setq proof-comment-end "*)")
 
   (setq proof-assistant-home-page lego-www-home-page)
+  
+  (setq proof-assistant-menu-entries lego-menu-entries)
 
   (setq proof-mode-for-script 'lego-mode)
 
