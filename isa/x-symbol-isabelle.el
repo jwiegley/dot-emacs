@@ -292,8 +292,8 @@ Return nil if `x-symbol-mode' or `x-symbol-subscripts' is nil.  Uses
     (lessapprox "\\<lessapprox>")
     (greaterapprox "\\<greaterapprox>")
     (definedas "\\<triangleq>")
-    (parendblleft "\\<lparr>")
-    (parendblright "\\<rparr>")
+    (cataleft "\\<lparr>")
+    (cataright "\\<rparr>")
     ))
 
 (defvar x-symbol-isabelle-user-table nil)
