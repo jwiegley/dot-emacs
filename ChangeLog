@@ -1,5 +1,26 @@
 2000-12-01  David Aspinall  <da@proofgeneral.org>
 
+	* etc/ProofGeneral.spec:
+	Change info globs to work with mandrake
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* doc/ProofGeneral.texi, doc/PG-adapting.texi:
+	3.2 -> 3.3pre
+
+2000-12-01  Christophe Raffalli  <Christophe.Raffalli@univ-savoie.fr>
+
+	* af2/af2-font.el, af2/af2-fun.el:
+	add rewrite list
+
+	* af2/af2.el, af2/af2-font.el, af2/af2-fun.el:
+	*** empty log message ***
+
+2000-12-01  David Aspinall  <da@proofgeneral.org>
+
 	* etc/ProofGeneral.spec, html/develdownload.html, html/devel.html, generic/proof-site.el:
 	Set version tag for new release.
 
