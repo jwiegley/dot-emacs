@@ -227,6 +227,9 @@ Does nothing if proof assistant is already running."
       (save-excursion
 	(set-buffer proof-shell-buffer)
 	
+	;; PG 3.4: clear output from previous sessions.
+	(erase-buffer)
+
 	;; FIXME: Disable 16 Bit
 	;; We noticed that for LEGO, it otherwise converts annotations
 	;; to characters with (non-ASCII) code around 3000 which screws
@@ -255,6 +258,9 @@ Does nothing if proof assistant is already running."
 	      (and (fboundp 'toggle-enable-multibyte-characters)
 		   (toggle-enable-multibyte-characters -1))
 	      (funcall proof-mode-for-goals))
+	  ;; 
+	  ;; If the process died, switch to the buffer to
+	  ;; display the error messages to the user.
 	  (switch-to-buffer proof-shell-buffer)
 	  (error "%s process exited!" proc)))
       (message "Starting %s process... done." proc))))
@@ -763,8 +769,9 @@ last match in the buffer for END-REGEXP.  The match for END-REGEXP
 is not part of the specified region.  This mechanism means if there
 are multiple matches for START-REGEXP and END-REGEXP, we match the
 largest region containing them all.
-This is a subroutine of proof-shell-handle-error.
-Returns the string (with faces) in the specified region."
+This is a subroutine of proof-shell-handle-error."
+;; 3.4: doesn't return the string any more.
+;; Returns the string (with faces) in the specified region."
   (let (start end string)
     (save-excursion
       (set-buffer proof-shell-buffer)

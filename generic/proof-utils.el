@@ -317,8 +317,7 @@ Fontifies according to the buffer's font lock defaults.
 Uses proof-x-symbol-decode to decode tokens if x-symbol is present.
 
 If proof-shell-leave-annotations-in-output is set, remove characters
-with top bit set after fontifying so they can be used for
-fontification.
+with top bit set after fontifying so they don't spoil cut and paste.
 
 Returns new END value."
   ;; We fontify first because decoding changes char positions.
@@ -392,7 +391,8 @@ Returns new END value."
 ;; FIXME: this function should be combined with
 ;; proof-shell-maybe-erase-response-buffer. 
 (defun proof-response-buffer-display (str &optional face)
-  "Display STR with FACE in response buffer and return fontified STR."
+  "Display STR with FACE in response buffer."
+  ;; 3.4: no longer return fontified STR, it wasn't used.
   (if (string-equal str "\n")	
       str				; quick exit, no display.
   (let (start end)
@@ -414,7 +414,9 @@ Returns new END value."
 	  (font-lock-append-text-property start end 'face face))
       ;; This returns the decorated string, but it doesn't appear 
       ;; decorated in the minibuffer, unfortunately.
-      (buffer-substring start (point-max))))))
+      ;; 3.4: remove this for efficiency.
+      ;; (buffer-substring start (point-max))
+      ))))
 
 (defun proof-display-and-keep-buffer (buffer &optional pos)
   "Display BUFFER and mark window according to `proof-dont-switch-windows'.
