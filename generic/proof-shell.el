@@ -1647,7 +1647,10 @@ before and after sending the command."
   (setq proof-shell-urgent-message-scanner (make-marker))
   (set-marker proof-shell-urgent-message-scanner (point-min))
 
-  (setq proof-re-end-of-cmd (concat "\\s_*" proof-terminal-string "\\s_*\\\'"))
+  (setq proof-re-end-of-cmd 
+	(concat "\\s_*" 
+		(regexp-quote proof-terminal-string)
+		"\\s_*\\\'"))
   (setq proof-re-term-or-comment 
 	(concat proof-terminal-string "\\|" (regexp-quote proof-comment-start)
 		"\\|" (regexp-quote proof-comment-end)))
