@@ -30,18 +30,12 @@
 ;;  Variables used by pbp, all auto-buffer-local                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(deflocal pbp-annotation-open "%"
-  "Opening parenthesis for annotations.")
+(deflocal pbp-annotation-char ?@ "Annotation Mark")
 
-(deflocal pbp-annotation-close "@"
-  "Closing parenthesis for annotations.")
-
-(deflocal pbp-annotation-field "&"
-  "A character marking the beginning of a new fiels e.g., an
-  assumption or a goal.") 
-
-(deflocal pbp-annotation-separator "|"
-  "A character separting text form annotations.")
+(deflocal pbp-goal-char ?g "goal mark")
+(deflocal pbp-start-char ?s "annotation start")
+(deflocal pbp-end-char ?e "annotation end")
+(deflocal pbp-field-char ?x "annotated field end")
 
 (deflocal pbp-wakeup-character "\t"
   "A character terminating the prompt in annotation mode")
@@ -52,10 +46,13 @@
 (deflocal pbp-goal-regexp nil
   "A regular expressin matching the identifier of a goal.")
 
-(deflocal pbp-start-goals-string "-- Start of Goals --"
+(deflocal pbp-annotated-prompt-string "Lego> \t"
+  "Annotated prompt pattern")
+
+(deflocal pbp-start-goals-string "@s Start of Goals @e"
   "String indicating the start of the proof state.")
 
-(deflocal pbp-end-goals-string "-- End of Goals --"
+(deflocal pbp-end-goals-string "@s End of Goals @e"
   "String indicating the end of the proof state.")
 
 (deflocal pbp-goal-command "Pbp %s;"
@@ -66,11 +63,11 @@
   "Command informing the prover that `pbp-buttion-action' has been
   requested on an assumption.")
 
-(deflocal pbp-result-start "-- Pbp result --"
+(deflocal pbp-result-start "@s Pbp result @e"
   "String indicating the start of an output from the prover following
   a `pbp-goal-command' or a `pbp-hyp-command'.")
 
-(deflocal pbp-result-end "-- End Pbp result --"
+(deflocal pbp-result-end "@s End Pbp result @e"
   "String indicating the end of an output from the prover following a
   `pbp-goal-command' or a `pbp-hyp-command'.") 
 
@@ -92,68 +89,63 @@
 (deflocal pbp-keymap (make-keymap 'Pbp-keymap) 
   "Keymap for pbp mode")
 
+(define-key pbp-keymap 'button2 'pbp-button-action)
+
 (deflocal pbp-mode-is nil
   "The actual mode for Proof-by-Pointing.")
 
-(defun pbp-analyse-structure ()
-  (map-extents
-      (lambda (ext maparg)
-          (when (extent-property ext 'pbp) (delete-extent ext))))
-  (beginning-of-buffer)
-  (setq pbp-location-stack ())
-  (while (re-search-forward pbp-regexp-noise-goals-buffer () t)
+(defun pbp-make-top-extent (start end)
+  (let (extent name)
+    (goto-char start)
+    (setq name (cond ((looking-at pbp-goal-regexp)
+		      (cons 'goal (match-string 1)))
+		     ((looking-at pbp-assumption-regexp)
+		      (cons 'hyp (match-string 1)))))
     (beginning-of-line)
-    (kill-line))
-  (beginning-of-buffer)
-  (while (re-search-forward
-	  (concat "["
-		  pbp-annotation-open pbp-annotation-close
-		  pbp-annotation-field "]") () t)
-    (cond ((string= (char-to-string (preceding-char)) pbp-annotation-open)
-	   (progn (delete-backward-char 1)(pbp-location-push (point))))
-          ((string= (char-to-string (preceding-char)) pbp-annotation-field)
-           (let ((prev-ampersand (pbp-location-pop)))
-             (if prev-ampersand (pbp-make-top-extent prev-ampersand))
-	     (delete-backward-char 1)
-	     (pbp-location-push (point))))
-	  (t (pbp-make-extent))))
-  (end-of-buffer)
-  (pbp-make-top-extent (pbp-location-pop)))
+    (setq start (point))
+    (goto-char end)
+    (beginning-of-line)
+    (backward-char)
+    (setq extent (make-extent start (point)))
+    (set-extent-property extent 'mouse-face 'highlight)
+    (set-extent-property extent 'keymap pbp-keymap)
+    (set-extent-property extent 'pbp-top-element name)))
 
-(defun pbp-make-top-extent (previous-ampersand)
+(defun pbp-analyse-structure (string)
   (save-excursion
-    (beginning-of-line) (backward-char) 
-    (let ((extent (make-extent previous-ampersand (point))))
-      (set-extent-property extent 'mouse-face 'highlight)
-      (set-extent-property extent 'pbp-top-element 
-			   (pbp-compute-extent-name extent))
-      (set-extent-property extent 'keymap pbp-keymap))))
-
-(defun pbp-make-extent ()
-   (let ((extent (make-extent (or (pbp-location-pop) 1) (point))))
-	 (set-extent-property extent 'mouse-face 'highlight)
-	 (set-extent-property extent 'keymap pbp-keymap)
-         (let ((pos1 (extent-start-position extent))
-               (annot()))
-               (goto-char pos1)
-               (if (search-forward pbp-annotation-separator () t)
-                   (progn
-                        (setq annot 
-                              (buffer-substring pos1 (- (point) 1)))
-                        (delete-region pos1 (point))
-                        (set-extent-property extent 'pbp annot)))
-                        (goto-char (extent-end-position extent))
-                        (delete-backward-char 1))))
-
-(defun pbp-compute-extent-name (extent)
-  (save-excursion
-    (goto-char (extent-start-position extent))
-    (cond ((looking-at pbp-goal-regexp)
-	   (cons 'goal (match-string 1)))
-	  ((looking-at pbp-assumption-regexp)
-	   (cons 'hyp (match-string 1)))
-	  (t
-	   (bug "top element does not start with a name")))))
+    (let* ((ip 0) (op 0) (l (length string)) (stack ()) (topl ()) ext n
+	   (out (make-string l ?x )) )
+      (while (< ip l)
+	(if (not (char-equal (aref string ip) pbp-annotation-char))
+	    (progn (aset out op (aref string ip))
+		   (setq op (+ 1 op)))
+	  (setq ip (+ 1 ip))
+	  (cond 
+	    ((char-equal (aref string ip) pbp-goal-char)
+	     (setq topl (append topl (list (+ 1 op)) )))
+	    ((char-equal (aref string ip) pbp-start-char)
+	     (setq n (setq ip (+ 1 ip)))
+	     (while (not (char-equal (aref string ip) pbp-annotation-char))
+	       (setq ip (+ 1 ip)))
+	     (setq stack (cons op (cons (substring string n ip) stack)))
+	     (setq ip (+ 1 ip)))
+	    ((char-equal (aref string ip) pbp-field-char)
+	     (setq ext (make-extent (car stack) op out))
+	     (set-extent-property ext 'mouse-face 'highlight)
+	     (set-extent-property ext 'keymap pbp-keymap)
+	     (set-extent-property ext 'pbp (cadr stack))
+	     (set-extent-property ext 'duplicable t)
+	     (setq stack (cddr stack)))))
+	(setq ip (+ 1 ip)))
+      
+      (pop-to-buffer pbp-goals-buffer)
+      (erase-buffer)
+      (insert (substring out 0 op))
+      (princ topl)
+      (while (setq ip (car topl) 
+		   topl (cdr topl))
+	(pbp-make-top-extent ip (car topl)))
+      (pbp-make-top-extent ip (point-max)))))
 
 ; Receiving the data from Lego is performed that a filter function
 ; added among the comint-output-filter-functions of the shell-mode.
@@ -161,39 +153,32 @@
 (deflocal pbp-mark-ext nil "last mark")
 (deflocal pbp-sanitise t "sanitise output?")
 
-(defun pbp-sanitise-region (start end)
+(defun pbp-sanitise-string (string)
   (if pbp-sanitise 
-      (progn
-	(goto-char start)
-	(while (search-forward pbp-start-goals-string end t) 
-	    (backward-delete-char (length pbp-start-goals-string))
-            (delete-char 1))
-        (goto-char start)
-	(while (search-forward pbp-end-goals-string end t) 
-	    (backward-delete-char (length pbp-end-goals-string))
-            (delete-char 1))
-	(goto-char start)
-	(while (search-forward pbp-annotation-close end t)
-	  (backward-delete-char 1))
-	(goto-char start)
-        (while (search-forward pbp-wakeup-character nil t)
-          (replace-match " " nil t))
-	(goto-char start)
-	(while (search-forward pbp-annotation-field end t)
-	  (backward-delete-char 1))
-        (lego-zap-commas-region start end (- end start))
-	(goto-char start)
-	(while (setq start (search-forward pbp-annotation-open end t)) 
-	  (search-forward pbp-annotation-separator end t)
-	  (delete-region (- start 1) (point))))))
+      (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
+	(while (< ip l)
+	  (if (char-equal (aref string ip) pbp-annotation-char)
+	      (if (char-equal (aref string (setq ip (+ 1 ip))) 
+			      pbp-start-char)
+		  (progn
+		    (while (not (char-equal (aref string ip) 
+					    pbp-annotation-char))
+		      (setq ip (+ 1 ip)))
+		    (setq ip (+ 1 ip))))
+	    (aset out op (aref string ip))
+	    (setq op (+ 1 op)))
+	  (setq ip (+ 1 ip)))
+	(substring out 0 op))
+    string))
 
-(defun pbp-display-error (start end)
-  (set-buffer pbp-goals-buffer)
-  (goto-char (point-max))
-  (if (re-search-backward proof-error-regexp nil t) 
-      (delete-region (- (point) 2) (point-max)))
-  (newline 2)
-  (insert-buffer-substring (proof-shell-buffer) start end))
+(defun pbp-display-error (string)
+  (save-excursion
+    (pop-to-buffer pbp-goals-buffer)
+    (goto-char (point-max))
+    (if (re-search-backward proof-error-regexp nil t) 
+	(delete-region (- (point) 2) (point-max)))
+    (newline 2)
+    (insert-string string)))
 
 (defun pbp-send-and-remember (string)
   (save-excursion
@@ -203,57 +188,51 @@
 	       (end-of-buffer)
 	       (insert-string string)))))
 
-(defun pbp-process-region (pbp-start pbp-end)
+(defun pbp-process-string (string)
+  
   (let (start end)
-   (save-excursion 
-    (goto-char pbp-start)
-    (cond 
-     ((re-search-forward proof-shell-abort-goal-regexp pbp-end t)
-      (erase-buffer pbp-goals-buffer))
+    (save-excursion 
+      (cond 
+       ((string-match proof-error-regexp string)
+	(pbp-display-error 
+	 (pbp-sanitise-string (substring string (match-beginning 0)))))
+
+       ((string-match proof-shell-abort-goal-regexp string)
+	(erase-buffer pbp-goals-buffer))
      
-     ((re-search-forward proof-shell-proof-completed-regexp pbp-end t)
-      (erase-buffer pbp-goals-buffer)
-      (insert-string (concat "\n" (match-string 0))
-		     pbp-goals-buffer))
+       ((string-match proof-shell-proof-completed-regexp string)
+	(erase-buffer pbp-goals-buffer)
+	(insert-string (concat "\n" (match-string 0 string)) pbp-goals-buffer))
      
-     ((re-search-forward proof-error-regexp pbp-end t)
-      (setq start (match-beginning 0))
-      (pbp-sanitise-region pbp-start pbp-end)
-      (pbp-display-error start pbp-end))
+       ((string-match pbp-start-goals-string string)
+	(while (progn (setq start (match-end 0))
+		      (string-match pbp-start-goals-string string start)))
+	(string-match pbp-end-goals-string string start)
+	(setq end (match-beginning 0))
+	(pbp-analyse-structure (substring string start end)))
 
-     ((search-forward pbp-start-goals-string pbp-end t)
-      (goto-char pbp-end)
-      (setq start
-	    (+ (length pbp-start-goals-string)
-	       (search-backward pbp-start-goals-string pbp-start t)))
-      (setq end (- (search-forward pbp-end-goals-string pbp-end t)
-		   (length pbp-end-goals-string)))
-      (set-buffer pbp-goals-buffer)
-      (erase-buffer)
-      (pop-to-buffer pbp-goals-buffer)
-      (insert-buffer-substring (proof-shell-buffer) start end)
-      (pbp-analyse-structure))
+       ((string-match pbp-result-start string)
+	(setq start (+ 1 (match-end 0)))
+	(string-match pbp-result-end string)
+	(setq end (- (match-beginning 0) 1))
+	(pbp-send-and-remember (substring string start end)))))))
 
-     ((search-forward pbp-result-start () t)
-      (end-of-line)
-      (setq start (point))
-      (search-forward pbp-result-end () t)
-      (beginning-of-line)
-      (setq end (- (point) 1))
-      (pbp-send-and-remember (buffer-substring start end)))))))
-
-(defun pbp-filter (string) 
-  (if (string-match pbp-wakeup-character string)
+(defun pbp-filter (str) 
+  (if (string-match pbp-wakeup-character str)
       (save-excursion
 	(set-buffer (proof-shell-buffer))
-	(let (mrk)
+	(let (string mrk)
 	  (while (progn (goto-char (extent-start-position pbp-mark-ext))
 			(setq mrk (point-marker))                        
-			(re-search-forward proof-shell-prompt-pattern () t))
+			(search-forward pbp-annotated-prompt-string nil t))
 	    (set-extent-endpoints pbp-mark-ext (point) (point))
-	    (goto-char (match-beginning 0))
-	    (pbp-process-region mrk (point))
-	    (pbp-sanitise-region mrk (extent-start-position pbp-mark-ext)))))))
+	    (backward-char (length pbp-annotated-prompt-string))
+	    (setq string (buffer-substring mrk (point)))
+	    (delete-region mrk (point))
+	    (insert (pbp-sanitise-string string))
+	    (goto-char (extent-start-position pbp-mark-ext))
+	    (backward-delete-char 1)
+	    (pbp-process-string string))))))
 
 ; Call after the shell is started
 
@@ -264,9 +243,8 @@
     (funcall pbp-mode-is)
     (erase-buffer pbp-goals-buffer)
     (add-hook 'comint-output-filter-functions 'pbp-filter t)
-    (pbp-sanitise-region (point-min) (point-max))
-    (setq pbp-mark-ext 
-	  (make-extent (point-max) (point-max) (proof-shell-buffer)))
+    (set-buffer (proof-shell-buffer))
+    (setq pbp-mark-ext (make-extent (point-max) (point-max)))
     (set-extent-property pbp-mark-ext 'detachable nil)
     (set-extent-property pbp-mark-ext 'start-open nil)
     (set-extent-property pbp-mark-ext 'end-open t)
@@ -280,7 +258,6 @@
 ; Attaching this behavior to the mouse is simply done by attaching a keymap
 ; to all the extents.
 
-(define-key pbp-keymap 'button2 'pbp-button-action)
 
 (defun pbp-button-action (event)
    (interactive "e")
@@ -299,33 +276,16 @@
 	       (proof-command
 		(if (eq 'hyp (car top-info))
 		    (format pbp-hyp-command path)
-		  (format pbp-goal-command  path)) t)))
+		  (format pbp-goal-command  path)))))
 
 	     ((extentp top-ext)
 	      (let ((top-info (extent-property top-ext 'pbp-top-element)))
 		(if (eq 'hyp (car top-info))
-		    (proof-command (format pbp-hyp-command (cdr top-info)) t)
+		    (proof-command (format pbp-hyp-command (cdr top-info)))
 		  (pbp-send-and-remember 
 		   (format proof-shell-change-goal (cdr top-info)))))))))
 
 (define-derived-mode pbp-mode fundamental-mode "Pbp" "Proof by Pointing"
   (suppress-keymap pbp-mode-map))
 
-; a little package to manage a stack of locations
-
-(defun pbp-location-push (value)
-   (setq pbp-location-stack (cons value pbp-location-stack)))
-
-(defun pbp-location-pop ()
-   (if pbp-location-stack
-       (let ((result (car pbp-location-stack)))
-	 (setq pbp-location-stack (cdr pbp-location-stack))
-	 result)))
-
-(deflocal pbp-location-stack () "location stack" )
-
 (provide 'pbp)
-
-
-
-

@@ -107,7 +107,7 @@
 (defvar lego-shell-working-dir ""
   "The working directory of the lego shell")
 
-(defvar lego-shell-prompt-pattern "^\\(Lego>\\s-*\\)+"
+(defvar lego-shell-prompt-pattern "^\\(Lego>[ \t]*\\)+"
   "*The prompt pattern for the inferion shell running lego.")
 
 (defvar lego-shell-abort-goal-regexp "KillRef: ok, not in proof state"
