@@ -27,13 +27,13 @@ To: coq-club@pauillac.inria.fr,
       
 
         
-Subject: Proof General --- Version 2.0 release
+Subject: Proof General --- Version 2.1 release
 
-           Announcing  Proof General  Version 2.0
+           Announcing  Proof General  Version 2.1
 
    A Generic Emacs interface for Interactive Proof Assistants
 
-            http://www.dcs.ed.ac.uk/home/proofgen
+            http://zermelo.dcs.ed.ac.uk/home/proofgen
 
 		 =========================
 
@@ -62,9 +62,8 @@ Isabelle.  It includes these features (amongst others):
 
 Script management is the main feature.  
 
-
 The user manual contains full details, and is available on-line at: 
-http://www.dcs.ed.ac.uk/~proofgen/ProofGeneral/doc/ProofGeneral_toc.html
+http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/doc/ProofGeneral_toc.html
 
 
 The rest of this announcement contains notes addressed to different
@@ -74,15 +73,18 @@ Emacs gurus.
 
 To users of LEGO, Coq, and Isabelle:
 ------------------------------------
-This release of Proof General should be stable enough for you to use
-happily.  Please try it and let us know what you think of it!
+This release of Proof General has numerous bug fixes and improvements
+over version 2.0.  It also supports the latest theorem prover
+versions: LEGO 1.3.1, Coq 6.3 and Isabelle 99.
 
-We have put a lot of work into the user documentation for Proof
-General and making it robust and easy to install. Ideally you should
-use it with XEmacs, but it also works with limited features in FSF GNU
-Emacs. We have tested on XEmacs 20.4 and Emacs 20.2, 20.3. (It
-probably works with earlier versions of either Emacs but we cannot
-guarantee this).
+Please try it and let us know what you think of it!
+
+We have put a lot of work into the user documentation for Proof General 
+and making it robust and easy to install. Ideally you should
+use it with XEmacs, but it also works with limited features in 
+FSF GNU Emacs. We have tested on XEmacs 20.4,21.1 and 
+Emacs 20.2, 20.3. (It probably works with earlier versions of 
+either Emacs but we cannot guarantee this).
 
 
 To users of other proof assistants:
@@ -107,7 +109,7 @@ drive them.  Moreover, by implementing your user-interface ideas in
 the Proof General framework, your contributions automatically reach a
 large community of both novice and expert proof assistant users.
 
-An obvious avenue towards further and easier unification would be to
+A desirable avenue towards further and easier unification would be to
 invent a unified proof script (input) language and proof-state
 (output) language for theorem provers. The Proof General experience
 could provide useful insight into such a project. We'd be interested
@@ -127,6 +129,7 @@ in using Proof General's script management for development in Lisp,
 SML, or other languages.
 
 
- -- David Aspinall & Thomas Kleymann
-    (Please contact via  proofgen@dcs.ed.ac.uk)
+ -- David Aspinall <da@dcs.ed.ac.uk>
+    August 1999.
+
 
