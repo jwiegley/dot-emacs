@@ -107,7 +107,7 @@
   (remove-hook 'proof-shell-insert-hook 'coq-shell-init-hook))
 
 (defun coq-set-undo-limit (undos)
-  (proof-invisible-command (format "Set Undo %s." undos)))
+  (proof-shell-invisible-command (format "Set Undo %s." undos)))
 
 (defun coq-count-undos (span)
   (let ((ct 0) str i)
@@ -237,7 +237,8 @@
   (let (cmd)
     (proof-shell-ready-prover) ;; was (proof-check-process-available)
     (setq cmd (read-string "Search Type: " nil 'proof-minibuffer-history))
-    (proof-invisible-command (concat "Search " cmd proof-terminal-string))))
+    (proof-shell-invisible-command
+     (concat "Search " cmd proof-terminal-string))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;

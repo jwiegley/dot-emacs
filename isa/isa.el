@@ -155,11 +155,8 @@ no regular or easily discernable structure."
 ;; We use the top level theory and then force an update, both to fix
 ;; up Isabelle's messy dependency handling and to recache the
 ;; list of loaded files inside emacs.
-(defconst isa-usethy-notopml-command "use_thy_and_update \"%s\";"
+(defconst isa-usethy-notopml-command "use_thy_and_update \"%s\"; list_loaded_files();"
   "Command to send to Isabelle to process theory for this ML file.")
-
-;; Unfortunately, use_thy_no_topml followed by update(); doesn't work
-;; for *theory* files, because update() will report that the ML file
 
 ;; Unfortunately, use_thy_no_topml followed by update(); doesn't work
 ;; for *theory* files, because update() will report that the ML file
@@ -274,16 +271,16 @@ isa-proofscript-mode."
 (defun isa-process-thy-file (file)
   "Process the theory file FILE.  If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
-  (proof-invisible-command 
+  (proof-shell-invisible-command 
    (format isa-usethy-notopml-command
-	   (file-name-sans-extension file)) t))
+	   (file-name-sans-extension file))))
 
 (defun isa-retract-thy-file (file)
   "Retract the theory file FILE. If interactive, use buffer-file-name."
   (interactive (list buffer-file-name))
-  (proof-invisible-command
+  (proof-shell-invisible-command
    (format isa-retract-file-command
-	   (file-name-sans-extension file)) t))
+	   (file-name-sans-extension file))))
 
 
 ;; Next portion taken from isa-load.el

@@ -1088,11 +1088,15 @@ Only for use by consenting adults."
   "History of proof commands read from the minibuffer")
 
 (defun proof-execute-minibuffer-cmd ()
+  "Prompt for a command in the minibuffer and send it to proof assistant."
   (interactive)
   (let (cmd)
-    (proof-shell-ready-prover) ;; was (proof-check-process-available 'relaxed) 
+    ;; FIXME note: removed ready-prover call since it's done by
+    ;; proof-shell-invisible-command anyway.
+    ;; (proof-shell-ready-prover)
+    ;; was (proof-check-process-available 'relaxed) 
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
-    (proof-invisible-command cmd 'relaxed)))
+    (proof-shell-invisible-command cmd)))
 
 
 
@@ -1145,17 +1149,17 @@ Based on position of point."
 (defun proof-ctxt ()
   "List context."
   (interactive) 
-  (proof-invisible-command (concat proof-ctxt-string proof-terminal-string)))
+  (proof-shell-invisible-command (concat proof-ctxt-string proof-terminal-string)))
 
 (defun proof-help ()
   "Print help message giving syntax."
   (interactive)
-  (proof-invisible-command (concat proof-help-string proof-terminal-string)))
+  (proof-shell-invisible-command (concat proof-help-string proof-terminal-string)))
 
 (defun proof-prf ()
   "List proof state."
   (interactive)
-  (proof-invisible-command (concat proof-prf-string proof-terminal-string)))
+  (proof-shell-invisible-command (concat proof-prf-string proof-terminal-string)))
 
 
 

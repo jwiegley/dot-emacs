@@ -79,17 +79,17 @@ an error.")
 ;;
 ;;   was passed into proof-grab by proof-start-queue
 ;;    only call to proof-start-queue with this arg is in
-;;    proof-invisible-command.
-;;   only call of proof-invisible-command with relaxed arg
+;;    proof-shell-invisible-command.
+;;   only call of proof-shell-invisible-command with relaxed arg
 ;;   is in proof-execute-minibuffer-cmd.
 ;;  --- presumably so that command could be executed from any
 ;;  buffer, not just a scripting one?
 ;;
-;;  I think it's wrong for proof-invisible-command to enforce
+;;  I think it's wrong for proof-shell-invisible-command to enforce
 ;;  scripting buffer!
 ;; 
 ;;  This is reflected now by just calling (proof-shell-ready-prover)
-;;  in proof-invisible-command, not proof-check-process-available.
+;;  in proof-shell-invisible-command, not proof-check-process-available.
 ;;
 ;; Hopefully we can get rid of these messy 'relaxed' flags now.
 ;;
@@ -112,10 +112,10 @@ No error messages.  Useful as menu or toolbar enabler."
   (and (proof-shell-live-buffer)
        (not proof-shell-busy)))
 
-(defun proof-grab-lock (&optional relaxed)
+;; FIXME: note: removed optional 'relaxed' arg
+(defun proof-grab-lock ()
   "Grab the proof shell lock."
-  ;; FIXME: this used to observe 'relaxed' flag, now it ignores it!
-  (proof-shell-ready-prover)			;
+  (proof-shell-ready-prover)
   (setq proof-shell-busy t))
 
 (defun proof-release-lock ()
@@ -271,13 +271,13 @@ Does nothing if proof assistant is already running."
       (pop-to-buffer (car proof-script-buffer-list))
       (cond
        (span
-	(proof-invisible-command 
+	(proof-shell-invisible-command 
 	 (format (if (eq 'hyp (car top-info)) pbp-hyp-command 
 		                              pbp-goal-command)
 		 (concat (cdr top-info) (proof-expand-path 
 					 (span-property span 'proof))))))
        ((eq (car top-info) 'hyp)
-	(proof-invisible-command (format pbp-hyp-command (cdr top-info))))
+	(proof-shell-invisible-command (format pbp-hyp-command (cdr top-info))))
        (t
 	 (proof-insert-pbp-command (format pbp-change-goal (cdr top-info))))))
     ))
@@ -652,7 +652,8 @@ assistant."
 
 ; Pass start and end as nil if the cmd isn't in the buffer.
 
-(defun proof-start-queue (start end alist &optional relaxed)
+;; FIXME: note: removed optional 'relaxed' arg
+(defun proof-start-queue (start end alist)
   (if start
       (proof-set-queue-endpoints start end))
   (let (item)
@@ -663,7 +664,7 @@ assistant."
     (setq alist (cdr alist)))
   (if alist
       (progn
-	(proof-grab-lock relaxed) 
+	(proof-grab-lock) 
 	(setq proof-shell-delayed-output (cons 'insert "Done."))
 	(setq proof-action-list alist)
 	(proof-send (nth 1 item))))))
@@ -738,6 +739,7 @@ at the end of locked region (after inserting a newline and indenting)."
 		  (cons (list span cmd 'proof-done-advancing)
 			(cdr proof-action-list)))))))
 
+;; da: this note seems to be false!
 ;; ******** NB **********
 ;;  While we're using pty communication, this code is OK, since all
 ;; eager annotations are one line long, and we get input a line at a
@@ -903,19 +905,19 @@ how far we've got."
       (setq span (prev-span span 'type)))
     span)))
     
-(defun proof-done-invisible (span) ())
-
+(defun proof-shell-done-invisible (span) ())
 
 ;; da: What is the rationale here for making the *command* sent
 ;; invisible, rather than the stuff returned????
 ;; doc string makes no sense of this.
-(defun proof-invisible-command (cmd &optional relaxed)
+;; FIXME: note: removed optional 'relaxed' arg
+(defun proof-shell-invisible-command (cmd)
   "Send cmd to the proof process without responding to the user."
   (proof-shell-ready-prover)
   (if (not (string-match proof-re-end-of-cmd cmd))
       (setq cmd (concat cmd proof-terminal-string)))
   (proof-start-queue nil nil (list (list nil cmd
-  'proof-done-invisible)) relaxed))
+  'proof-shell-done-invisible))))
 
 
 
