@@ -41,7 +41,7 @@
 ##
 ##   No facility to edit html to make a full release in this Makefile.  
 ##   Too much effort for infrequenty used function.  
-##   Must edit download.html and doc.html by hand, then run 
+##   Must edit download.html by hand, then run 
 ##
 ##    make releaseall VERSION=2.0
 ##
@@ -79,7 +79,7 @@ DEVELOPERS=\
 
 # PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
 # line in tag target below, which edits $(DOWNLOADHTML)
-PRERELEASE_PREFIX=3\.4pre
+PRERELEASE_PREFIX=3\.5pre
 PRERELEASE_TAG=3.5pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
