@@ -295,6 +295,11 @@ of the queue region."
 ;;  Shutting down proof shell and associated buffers
 ;;
 
+;; Hooks here are handy for liaising with prover config stuff.
+
+(defvar proof-shell-kill-function-hooks nil
+  "Functions run from proof-shell-kill-function.")
+  
 (defun proof-shell-kill-function ()
   "Function run when a proof-shell buffer is killed.
 Attempt to shut down the proof process nicely and
@@ -356,6 +361,8 @@ exited by hand (or exits by itself)."
       (proof-script-remove-all-spans-and-deactivate)
       ;; Clear state 
       (proof-shell-clear-state)
+      ;; Run hooks
+      (run-hooks 'proof-shell-kill-function-hooks)
       ;; Kill buffers associated with shell buffer
       (if (buffer-live-p proof-goals-buffer)
 	  (progn 
