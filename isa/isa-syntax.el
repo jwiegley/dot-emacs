@@ -93,7 +93,7 @@
   :type '(repeat string))
 
 (defcustom isa-keywords-save
-  '("qed")
+  '("qed" "qed_spec_mp")
   ;; Related commands, but having different types, so PG
   ;; won't bother support them:
   ;; "result" "uresult" "bind_thm" "store_thm"
