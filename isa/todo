@@ -70,11 +70,6 @@ See also ../todo for generic things to do, priority codes.
     ProofGeneral.isa_restart(); 
     /usr/lib/Isabelle_22-Sep-1999/../../share/smlnj/bin/sml: Fatal error -- unexpected fault, signal = 11, code = 0x2af9e01b
 
-** X Add ability to choose logic.  Maybe not necessary: can use default
-  set in Isabelle settings nowadays, in the premise that most people
-  stick to a particular logic?   But then no support for loading
-  user-saved databases.  (ponder this)
-
 ** X Write perl scripts to generate TAGS file for ML and thy files.
   (60h, any volunteers?) (hard);
 
