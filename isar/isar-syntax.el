@@ -278,7 +278,7 @@
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
    (cons isar-tac-regexp 'font-lock-reference-face)
-   '(isar-match-antiq (0 isabelle-antiq-face prepend))))
+   '(isar-match-antiq (0 isabelle-antiq-face append))))
 
 (defvar isar-output-font-lock-keywords-1
   (list
@@ -314,9 +314,9 @@
     "^type constraints:"
     "^default sorts:"
     "^used type variable names:"
-    "^Variables:$"
-    "^Constants:$"
-    "\\s-*[0-9][0-9]?\\. ")
+    "^[Vv]ariables:$"
+    "^[Cc]onstants:$"
+    "^\\s-*[0-9][0-9]?\\. ")
    isar-output-font-lock-keywords-1)
   "*Font-lock table for Isabelle/Isar output.")
 
