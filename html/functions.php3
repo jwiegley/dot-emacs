@@ -14,9 +14,18 @@
 
 // Project configuration
 
-$project_email = "feedback@proofgeneral.org";
-$project_list  = "users@proofgeneral.org";
+// $project_email = "feedback@proofgeneral.org";
+// $project_list  = "users@proofgeneral.org";
+// $project_feedback = "feedback@proofgeneral.org":
+
+// Disable because free parking forwarding is broken
+$proofgenatdcs = "proofgen@dcs.ed.ac.uk";
+$project_email = $proofgenatdcs;
+$project_list  = $proofgenatdcs;
+$project_feedback = $proofgenatdcs;
+
 $project_title = "Proof General";
+
 $project_subtitle = "Organize your Proofs!";
 $project_full_title = $project_title . " --- " . $project_subtitle;
 
@@ -38,6 +47,11 @@ print $dtd_loose;
 function mlink($addr) {
   print "<a href=\"mailto:" . $addr . "\">" . $addr . "</a>";
 }
+
+function mlinktxt($addr,$txt) {
+  print "<a href=\"mailto:" . $addr . "\">" . $txt . "</a>";
+}
+
 
 // FIXME: doesn't seem to work.  Why not?
 function project_email() {
@@ -131,6 +145,7 @@ function small_header_body($title) {
    or use SCRIPT_NAME, and then include footer.html. */
 
 function footer($filemodified=".") {
+  global $project_feedback;
   include('footer.html'); 
   date_modified($filemodified);
   print "</address>\n";
