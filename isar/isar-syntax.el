@@ -10,6 +10,7 @@
 (require 'proof-syntax)
 (require 'isar-keywords)
 
+
 ;; ----- character syntax
 
 (defun isar-init-syntax-table ()
@@ -131,7 +132,7 @@
 (defconst isar-id "\\([A-Za-z][A-Za-z0-9'_]*\\)")
 (defconst isar-idx (concat isar-id "\\(\\.[0-9]+\\)?"))
 
-(defconst isar-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
+(defconst isar-string "\"\\(\\([^\"]\\|\\\\\"\\)*\\)\"")
 
 (defconst isar-any-command-regexp
   (isar-ids-to-regexp isar-keywords-major)
