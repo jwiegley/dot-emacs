@@ -22,6 +22,8 @@ typing:
 
   $  LANG=en_GB xemacs &
 
+Another solution is to set LANG inside a file ~/.i18n, which will
+be read the shell.  This will affect all applications, though.
 [ suggestions for a better workaround inside Emacs would be welcome ]
 
 

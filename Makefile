@@ -33,11 +33,10 @@ BYTECOMP = $(BATCHEMACS) -eval '(setq load-path (append (mapcar (lambda (d) (con
 EL=$(shell for f in $(ELISP_DIRS); do ls $$f/*.el; done)
 ELC=$(EL:.el=.elc)
 
-# These files may work now, but BC is not yet guaranteed in 3.4.
-# [currently broken for prover instances]
-# proof-toolbar.elc proof-menu.elc proof-indent.elc proof-x-symbol.elc
-BROKENELC=proof-menu.elc # easy-menu-define expanded too early.
-# NB: calls to proof-defshortcut also broken, evaluates define-key.
+# Some parts of code were not compile safe, because of macros
+# being expanded too early (e.g. proof-defshortcut, easy-menu-define)
+# This should be fixed for 3.5, although careful testing is required.
+BROKENELC=
 
 .SUFFIXES:	.el .elc
 

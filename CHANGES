@@ -15,6 +15,11 @@
 
 ** Generic changes
 
+*** Options and proof assistant settings improvements
+
+Facility to reset to default values added, and saving
+of (just) proof assistant settings.
+
 *** Display management: added shrink-windows-tofit option
 
 Attempt to shrink output windows to fit their contents in
@@ -25,9 +30,24 @@ case it is less than 1/2 the window height.  In progress.
 Please report any problems/annoyances which may be unexpected.
 NB: Not yet enabled for Isabelle/Isar.
 
-
 *** Tweaks to menus,  colours
 
 Electric terminator menu option more visible. 
 Reduce contrast for mouse highlighting of regions.
+
+*** Support formatted input which contains newlines [for Coq]
+
+A patch from Stefan Monnier, to allow Coq input to have newlines
+remaining, so that input formatting is not broken.  A much better way
+to address this would be to alter the Coq output routines so that they
+do not print multiple identical prompts for continued lines.  
+[this is in testing: please notify me of problems in other provers]
+
+
+** Changes for Isabelle
+
+Beginnings of support PGIP protocol (work in progress with Isabelle
+CVS version).  Presently allows Isabelle to configure Proof General.
+
+CURRENTLY SUPPORT FOR CURRENTLY RELEASED ISABELLE VERSIONS IS BROKEN
 
