@@ -17,11 +17,19 @@
 (require 'proof-easy-config)           
 (require 'proof-syntax)
 
-(proof-easy-config  'pgshell	"PG-Shell"
- proof-prog-name		 "/bin/sh"       ;; or choose your shell
+(proof-easy-config 'pgshell "PG-Shell"
+
+ proof-prog-name		 "/bin/sh"       ;; or choose your program
  proof-terminal-char             ?\;		 ;; better: parse the syntax
  proof-script-comment-start      "\#"
  proof-shell-annotated-prompt-regexp  "^.*[$] $" ;; matches shell prompts
+
+ proof-script-fly-past-comments  t	  ;; nice for single-line comments
+
+ ;; Set syntax table to get font-locking and editing features for comments.
+ ;; see Elisp documentation of `modify-syntax-entry' 
+ proof-script-syntax-table-entries  
+ '(?\# "<" ?\n ">")
 
  ;; next setting is just to prevent warning
  proof-save-command-regexp	proof-no-regexp
