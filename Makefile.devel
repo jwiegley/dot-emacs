@@ -213,7 +213,7 @@ dist:
 release: distclean tag dist
 	mkdir -p $(RELEASEDIR)
 	cp -pfr $(DISTBUILDIR)/* $(RELEASEDIR)
-	(cd $(RELEASEDIR); ln -sf $(RELEASENAME) $(NAME))
+	(cd $(RELEASEDIR); rm -f $(NAME); ln -s $(RELEASENAME) $(NAME))
 	@echo "*************************************************"
 	@echo " Finished installing dist."
 	@echo "*************************************************"
