@@ -74,10 +74,10 @@ transferred to the queue region and sent one by one to the proof
 process. If the command is accepted, it is transferred to the locked
 region, but if an error occurs it is signalled to the user, and the
 offending command is transferred back to the editing region together
-with any remaining commands in the queue.  @strong{Retraction} causes commands to
-be transferred from the locked region to the editing region (again via
-the queue region) and the appropriate 'undo' commands to be sent to the
-proof process.
+with any remaining commands in the queue.  @strong{Retraction} causes
+commands to be transferred from the locked region to the editing region
+(again via the queue region) and the appropriate 'undo' commands to be
+sent to the proof process.
 
 As commands are transferred to the locked region, they are aggregated
 into segments which constitute the smallest units which can be
@@ -115,7 +115,9 @@ retract the last segment in the locked region, and kill the text in it.
 However, you can always recover the killed text using Emacs Undo.}
 
 @item C-c '
-move the point to the end of the locked region
+move the point to the end of the locked region.  If you are in a script
+buffer other than the active scripting buffer, this will also transfer
+you to the active one.
 
 @item C-c C-e
 move the point to the next terminator
