@@ -22,9 +22,15 @@ Current "experimental" features
    (use right-click on highlighted spans), also bound on
    C-M-up/C-M-down.
 
-** Theorem dependencies: displaying and highlighting dependencies
-   Only works for Isabelle/classic at the moment.  You must also
-   select the Isabelle option "Theorem Dependencies".
+** Theorem dependencies: displaying and highlighting dependencies.
+   Dependencies (e.g. lemmas) for a theorem are highlighted in 
+   yellow, places where the theorem is used are highlighted
+   in orange.   This allows easy editing of theories to remove
+   dead lemmas, re-order proofs, etc.
+
+   Only works for Isabelle/classic at the moment (support is
+   required from proof assistant authors: please mention to them).  
+   You must also select the Isabelle option "Theorem Dependencies".
 
 
 
