@@ -160,6 +160,9 @@ no regular or easily discernable structure."
 ;; Unfortunately, use_thy_no_topml followed by update(); doesn't work
 ;; for *theory* files, because update() will report that the ML file
 
+;; Unfortunately, use_thy_no_topml followed by update(); doesn't work
+;; for *theory* files, because update() will report that the ML file
+;; 
 (defconst isa-usethy-command "use_thy \"%s\"; update();"
   "Command to send to Isabelle to process a theory file.")
 
@@ -244,15 +247,17 @@ Files with extension .thy will be in thy-mode, otherwise we choose
 isa-proofscript-mode."
   (interactive)
   (cond
-   ((string-match ".thy" (buffer-file-name))
+   (;; Theory files only if they have the right extension
+    (and (buffer-file-name)
+	 (string-match ".thy" (buffer-file-name)))
     (thy-mode)
-    ;; Has this theory file been loaded by Isabelle?
+    ;; Has this theory file already been loaded by Isabelle?
     ;; Colour it blue if so.  
     (and (member buffer-file-truename proof-included-files-list)
 	 (proof-mark-buffer-atomic (current-buffer)))
     )
    (t 
-    ;; Proof mode does this automatically.
+    ;; Proof mode does that automatically.
     (isa-proofscript-mode))))
 
 (eval-after-load 
