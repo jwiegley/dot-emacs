@@ -55,14 +55,14 @@ Proof General includes these features, amongst others:
 
 Summary of changes since 3.1:
 
-. Support for new provers: AF2 (full) Twelf (in progress) 
+. New provers: AF2 (full support) Twelf, ACL2 (experimental support) 
 . Each proof assistant now has its own menu with specific functions
 . Documentation is now split into user manual and "adapting" manual
 . Improvements in window management
 . New commands, including parsing of error messages 
 . Efficiency improvements
-. Internal improvements: more flexible parsing and easier configuration
 . Several bug fixes 
+. Internal improvements: more flexible parsing and easier configuration
 . For details, see http://www.proofgeneral.org/ProofGeneral-3.2/CHANGES
 
 The user manual contains full details, and is available on-line at: 
