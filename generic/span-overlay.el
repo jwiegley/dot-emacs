@@ -209,6 +209,8 @@ For Emacs, we assume that spans don't overlap."
 
 (defsubst delete-span (span)
   "Delete SPAN."
+  (let ((predelfn (span-property span 'span-delete-action)))
+    (and predelfn (funcall predelfn)))
   (remove-span span)
   (delete-overlay span))
 

@@ -60,6 +60,8 @@
 
 (defsubst delete-span (span)
   "Delete SPAN."
+  (let ((predelfn (span-property span 'span-delete-action)))
+    (and predelfn (funcall predelfn)))
   (delete-extent span))
 
 (defsubst mapcar-spans (fn start end prop &optional val)
@@ -68,7 +70,7 @@
 
 (defsubst delete-spans (start end prop)
   "Delete all spans between START and END with property PROP set."
-  (mapcar-spans 'delete-extent start end prop))
+  (mapcar-spans 'delete-span start end prop))
 
 (defsubst span-at (pt prop)
   "Return the smallest SPAN at point PT with property PROP."
