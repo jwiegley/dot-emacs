@@ -49,7 +49,30 @@ from the name given in proof-internal-assistant-table."
 (if (string-match "XEmacs" emacs-version)
 (progn     
 (require 'annotations)
-(defcustom proof-display-splash t
+(defconst proof-welcome "*Proof General Welcome*"
+  "Name of the Proof General splash buffer.")
+
+(defconst proof-display-splash-image
+  ;; Use jpeg if we can, otherwise assume gif will work.
+  (if (featurep 'jpeg)
+      (cons 'jpeg
+	    (concat proof-internal-images-directory 
+		    "ProofGeneral.jpg"))
+  (cons 'gif
+	(concat proof-internal-images-directory 
+		(concat "ProofGeneral"
+			(or (and
+			     (fboundp 'device-pixel-depth)
+			     (> (device-pixel-depth) 8)
+			     ".gif")
+			    ;; Low colour gif for poor displays
+			    ".8bit.gif")))))
+  "Format and File name of Proof General Image.")
+
+(defcustom proof-display-splash 
+  (valid-instantiator-p
+   (vector (car proof-display-splash-image)
+		 :file (cdr proof-display-splash-image)) 'image)
   "*Display splash screen when Proof General is loaded."
   :type 'boolean
   :group 'proof)
@@ -61,36 +84,34 @@ we wait for the remaining time.  Must be a value less than 40."
   :type 'integer
   :group 'proof-internal)
 
-(defconst proof-welcome "*Proof General Welcome*"
-  "Name of the Proof General splash buffer.")
-
 ;; We take some care to preserve the users window configuration
 ;; underneath the splash screen.  This is just to be polite.
 (defun proof-remove-splash-screen (conf)
   "Make function to remove splash screen and restore window config to conf."
   `(lambda ()
-     (if (get-buffer proof-welcome) ; splash buffer still alive
-	 (if (get-buffer-window (get-buffer proof-welcome))
-	     ;; Restore the window config if it's being displayed
-	     (set-window-configuration ,conf))
-      ;; Destroy splash buffer.
+     (and ;; If splash buffer is still alive 
+      (get-buffer proof-welcome)
+      (if (get-buffer-window (get-buffer proof-welcome))
+	  ;; Restore the window config if splash is being displayed
+	  (set-window-configuration ,conf)
+	t)
+      ;; And destroy splash buffer.
       (kill-buffer proof-welcome))))
 
 (defun proof-display-splash-screen ()
   "Save window config and display Proof General splash screen.
-No effect if proof-display-splash is nil."
+No effect if proof-display-splash-time is zero."
   (interactive)
   (if proof-display-splash
       (let*
 	  ((splashbuf   (get-buffer-create proof-welcome))
 	   (imglyph	(make-glyph
-			 (list (vector 'jpeg ':file
-				       (concat proof-internal-images-directory
-					       "ProofGeneral.jpg")))))
+			 (list (vector (car proof-display-splash-image) ':file
+				       (cdr proof-display-splash-image)))))
 	   ;; Keep win config explicitly instead of pushing/popping because
 	   ;; if the user switches windows by hand in some way, we want
-	   ;; to ignore the saved value.  Unfortunately there currently
-	   ;; seems to be no way to remove the top item of the stack.
+	   ;; to ignore the saved value.  Unfortunately there seems to
+	   ;; be no way currently to remove the top item of the stack.
 	   (removefn    (proof-remove-splash-screen
 			 (current-window-configuration))))
 	(save-excursion
@@ -156,7 +177,7 @@ No effect if proof-display-splash is nil."
 (add-hook 'proof-mode-hook 'proof-wait-for-splash-proof-mode-hook-fn)
 
 ))
-;; End splash screen code
+;;; End splash screen code
 
 
 ;;;
