@@ -259,6 +259,7 @@ tag:
 # Tag proof-site.el and ProofGeneral.spec
 	(cd generic; mv $(VERSIONFILE) $(VERSIONFILE).old; sed -e 's/defconst $(VERSIONVARIABLE) \".*\"/defconst $(VERSIONVARIABLE) \"Proof General Version $(FULLVERSION). Released by da$(DATEMSG).\"/g' $(VERSIONFILE).old > $(VERSIONFILE); rm $(VERSIONFILE).old)
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/Version:.*$$/Version:	$(FULLVERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
+	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/%setup.*$$/%setup -n ProofGeneral-$(VERSION)/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
 # Edit $(DOWNLOADHTML) only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
 	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
