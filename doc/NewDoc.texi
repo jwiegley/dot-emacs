@@ -810,6 +810,8 @@ file supplied with it.
 
 @node Customizing Proof General
 @chapter Customizing Proof General
+@cindex Customization
+
 
 There are two kinds of customization for Proof General: it can be
 customized for a user's preferences using a particular proof assistant,
@@ -821,7 +823,6 @@ particular proof assistant can provide extra customization settings.
 See the chapters covering each assistant for details.
 
 
-
 @menu
 * Easy customization::          
 * Setting the user options::        
@@ -831,6 +832,8 @@ See the chapters covering each assistant for details.
 
 @node Easy customization
 @section Easy customization
+@cindex Using Customize
+@cindex Emacs customization library 
 
 Proof General uses the Emacs customization library extensively to
 provide a friendly interface.
@@ -1065,9 +1068,12 @@ editing the source code.  Please contact us if this proves to be a
 problem for any variable.
 
 
-
+@c
+@c  CHAPTER: LEGO Proof General
+@c 
 @node LEGO Proof General
 @chapter LEGO Proof General
+@cindex LEGO Proof General
 
 LEGO proof script mode is a mode derived from proof script mode for
 editing LEGO scripts. An important convention is that proof script
@@ -1106,6 +1112,7 @@ commands for you. Proving with LEGO has never been easier.
 * LEGO tags::                   
 * LEGO customizations::         
 @end menu
+
 
 @node LEGO specific commands
 @section LEGO specific commands
@@ -1187,15 +1194,62 @@ in your @file{~/.emacs} file.
 @section Coq customizations
 
 
+@c
+@c  CHAPTER: Isabelle Proof General
+@c
 
 @node Isabelle Proof General
 @chapter Isabelle Proof General
+@cindex Isabelle Proof General
+
+Isabelle Proof General includes a mode for editing theory files taken
+from David Aspinall's Isamode interface,
+@uref{http://www.dcs.ed.ac.uk/home/da/Isamode}.  Detailed documentation
+for the theory file mode is included with @code{Isamode}, there are some
+notes on the special functions available and customization setttings
+below.
 
 @menu
+* Theory files::
 * Isabelle specific commands::  
 * Isabelle customizations::     
 @end menu
 
+
+@node Theory files
+@section Theory files
+@cindex Theory files (in Isabelle)
+@cindex ML files (in Isabelle)
+
+Isabelle Proof General attempts to lock theory files as well as ML files
+when they are loaded.  Theory files are always completely locked or
+completely unlocked, because they are processed atomically.
+
+Proof General attempts to load the theory file for a @file{.ML} file
+automatically before you start scripting.  This is tricky because
+Isabelle's theory loader assumes that @file{.ML} files are always read
+together with theory files.  At the moment Proof General uses an altered
+version of @code{use_thy} which doesn't load the top-level ML file in
+this case.  
+
+@c FIXME: should say something about this:
+@c This can cause confusion in the theory loader later,
+@c especially with @code{update()}.  To be safe, try to use just the Proof
+@c General interface, and report any repeatable problems to
+@c @code{isabelle@dcs.ed.ac.uk}.
+
+Compared to Isamode's theory editing mode, some of the functions and key
+bindings for interacting with Isabelle have been removed, and two new
+functions are available.  
+
+The key @kbd{C-c C-b} (@code{isa-process-thy-file}) will cause Isabelle
+to read the theory file being edited.  This causes the file and all its
+children (both theory and ML files) to be read.  Any top-level ML file
+associated with this theory file is also read.
+
+The key @kbd{C-c C-u} (@code{isa-retract-thy-file}) will retract
+(unlock) the theory file being edited.  This unlocks the file and all
+its children (theory and ML files); no changes occur in Isabelle itself.
 
 
 @node Isabelle specific commands
