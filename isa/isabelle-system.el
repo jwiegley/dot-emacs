@@ -13,6 +13,24 @@
 
 (require 'proof)
 
+(defconst isa-running-isar (eq proof-assistant-symbol 'isar))
+
+;; If we're using Isabelle/Isar then the isabelle custom
+;; group won't have been defined yet.
+(if isa-running-isar
+(defgroup isabelle nil
+  "Customization of user options for Isabelle and Isabelle/Isar Proof General"
+  :group 'proof-general))
+
+(defcustom isabelle-web-page
+  "http://www.cl.cam.ac.uk/Research/HVG/Isabelle/"
+  ;; "http://isabelle.in.tum.de"
+  ;; "http://www.dcs.ed.ac.uk/home/isabelle"
+  "URL of web page for Isabelle."
+  :type 'string
+  :group 'isabelle)
+
+
 ;;; ================ Extract Isabelle settings ================
 
 (defcustom isa-isatool-command
@@ -191,40 +209,49 @@ until Proof General is restarted."
 	       '(const :tag "Unset (use default)" nil)))
   :group 'isabelle)
 
-(defvar isa-docs-menu 
+(defconst isabelle-docs-menu 
   (let ((vc '(lambda (docdes)
 	       (vector (car (cdr docdes))
 		       (list 'isa-view-doc (car docdes)) t))))
-    (cons "Docs"
-	  (append
-;   '(["Isamode info"		 (progn (require 'info)
-;					(Info-goto-node "(Isamode)Top")) t])
-	   (mapcar vc (isa-tool-list-docs)))))
+    (cons "Docs" (mapcar vc (isa-tool-list-docs))))
   "Isabelle documentation menu.  Constructed dynamically.")
 
 
 
 ;;; ========== Mirroring Proof General options in Isabelle process ========
 
-;; NB: EXPERIMENTAL: to be generalised to all provers
+;; NB: EXPERIMENTAL: this pattern to be generalised to all provers via
+;; some extra macros
 
-(defcustom isabelle-show-types  nil
+;; Use of defasscustom and proof-ass-sym here gives separate customizable
+;; options for Isabelle and Isabelle/Isar.
+
+(proof-defasscustom show-types  nil
   "Whether to show types in Isabelle."
   :type 'boolean
-  :set 'proof-set-value
-  :group 'isabelle)
+  :set 'proof-set-value)
 
 (defun isabelle-show-types ()
-  (isa-proof-invisible-command-ifposs (isa-set-default-cmd 'isabelle-show-types)))
+  (isa-proof-invisible-command-ifposs 
+   (isabelle-set-default-cmd (proof-ass-sym show-types))))
 
-(defcustom isabelle-show-sorts  nil
+(proof-defasscustom show-sorts  nil
   "Whether to show sorts in Isabelle."
   :type 'boolean
-  :set 'proof-set-value
-  :group 'isabelle)
+  :set 'proof-set-value)
 
 (defun isabelle-show-sorts ()
-  (isa-proof-invisible-command-ifposs (isa-set-default-cmd 'isabelle-show-sorts)))
+  (isa-proof-invisible-command-ifposs 
+   (isabelle-set-default-cmd (proof-ass-sym show-sorts))))
+
+(proof-defasscustom trace-simplifier  nil
+  "Whether to trace simplifier in Isabelle."
+  :type 'boolean
+  :set 'proof-set-value)
+
+(defun isabelle-trace-simplifier ()
+  (isa-proof-invisible-command-ifposs 
+   (isabelle-set-default-cmd (proof-ass-sym trace-simplifier))))
 
 (defun isa-proof-invisible-command-ifposs (cmd)
   ;; Better would be to queue the command, or even interrupt a queue
@@ -238,8 +265,14 @@ until Proof General is restarted."
 	(proof-prf) ; refresh display, should only do if goals active.
 	)))
 
+(defun isar-markup-ml (string)
+  "Return marked up version of STRING for Isar if we seem to be using Isar."
+  ;; FIXME: do we need isar-verbatim here too?
+  (if isa-running-isar (format "ML_setup {* %s *};" string) string))
+
 (defun isa-format-bool (string val)
-  (proof-format (list (cons "%b" (if val "true" "false"))) string))
+  (isar-markup-ml
+   (proof-format (list (cons "%b" (if val "true" "false"))) string)))
 
 (defcustom isa-default-values-list 
   '((isabelle-show-types . (isa-format-bool "show_types:=%b;" isabelle-show-types))
@@ -248,7 +281,7 @@ until Proof General is restarted."
   :type 'sexp
   :group 'isabelle-config)
 
-(defun isa-set-default-cmd (&optional setting)
+(defun isabelle-set-default-cmd (&optional setting)
   "Return a string for setting default values kept in Proof General customizations.
 If SETTING is non-nil, return a string for just that setting. 
 Otherwise return a string for configuring all settings."
@@ -258,6 +291,33 @@ Otherwise return a string for configuring all settings."
 			    (eval (cdr expr))))))
     (apply 'concat (mapcar evalifneeded isa-default-values-list))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Generic Isabelle menu for Isabelle and Isabelle/Isar
+;;
+
+(proof-deftoggle-fn (proof-ass-sym show-sorts))
+(proof-deftoggle-fn (proof-ass-sym show-types))
+(proof-deftoggle-fn (proof-ass-sym trace-simplifier))
+
+(proof-setass-default menu-entries
+  (append
+   `(["Show types" ,(proof-ass-sym show-types-toggle)
+     :style toggle
+     :selected ,(proof-ass-sym show-types)]
+     ["Show sorts"  ,(proof-ass-sym show-sorts-toggle)
+      :style toggle
+      :selected ,(proof-ass-sym show-sorts)]
+     ["Trace simplifier" ,(proof-ass-sym trace-simplifier-toggle)
+      :style toggle
+      :selected ,(proof-ass-sym trace-simplifier)])
+   (if isa-running-isar
+       nil
+     (list "----")
+     (["Switch to theory" thy-find-other-file t]))))
+
+(proof-defass-default help-menu-entries isabelle-docs-menu)
 
 
 (provide 'isabelle-system)
