@@ -1,4 +1,4 @@
-HOL Proof General, for HOL 98.
+HOL Proof General, for HOL98.
 
 Written by David Aspinall.
 
@@ -6,7 +6,7 @@ $Id$
 
 Status:	      not officially supported yet
 Maintainer:   volunteer required
-HOL version:  HOL 98, tested with Taupo 2
+HOL version:  HOL98, tested with Taupo 2
 HOL homepage: http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html
 
 ========================================
