@@ -62,8 +62,8 @@
 
 
 @set version 3.5
-@set xemacsversion 21.4
-@set fsfversion 21.3
+@set xemacsversion 21.4.12
+@set fsfversion 21.3.1
 @set last-update April 2004
 @set rcsid $Id$
 
@@ -1870,7 +1870,7 @@ Two important control messages are recognized by
 @code{proof-shell-retract-files-regexp}, used for synchronizing Proof
 General with a file loading mechanism built into the proof assistant.
 @xref{Handling multiple files}, for more details about how to use the
-final three settings described here.
+final four settings described here.
 
 @vindex proof-included-files-list
 @c TEXI DOCSTRING MAGIC: proof-shell-process-file
@@ -1912,6 +1912,20 @@ previous (global) variable @samp{@code{proof-included-files-list}} and the match
 data triggered by @samp{@code{proof-shell-retract-files-regexp}}.
 @end defvar
 
+
+@c TEXI DOCSTRING MAGIC: proof-cannot-reopen-processed-files
+@defvar proof-cannot-reopen-processed-files 
+Non-nil if the prover allows re-opening of already processed files.
+
+If the user has used Proof General to process a file incrementally,
+then PG will retain the spans recording undo history in the buffer
+corresponding to that file (provided it remains visited in Emacs).
+
+If the prover allows, it will be possible to undo to a position within
+this file.  If the prover does @strong{not} allow this, this variable should
+be set non-nil, so that when a completed file is activated for 
+scripting (to do undo operations), the whole history is discarded.
+@end defvar
 
 
 @node Hooks and other settings
@@ -2193,6 +2207,7 @@ directly, it is managed via the configuration settings).
 @vindex proof-shell-process-file
 @vindex proof-shell-retract-files-regexp
 @vindex proof-shell-compute-new-files-list
+@vindex proof-cannot-reopen-processed-files
 
 There is a range of strategies for managing multiple files.  Ideally,
 file dependencies should be managed by the proof assistant.  Proof
@@ -2232,10 +2247,20 @@ processed, Proof General will tell the proof assistant using
 turned on in a file which is completely processed, Proof General will
 tell the proof assistant to reconsider: the file should not be
 considered completely processed yet.  This uses the setting
-@code{proof-shell-inform-file-retracted-cmd}.  This second case might
-lead to a series of messages from the prover telling Proof General to
-unlock files which depend on the present one, again via
-@code{proof-shell-retract-files-regexp}.
+@code{proof-shell-inform-file-retracted-cmd}.  This second, retracting,
+case might lead to a series of messages from the prover telling Proof
+General to unlock files which depend on the present one, again via
+@code{proof-shell-retract-files-regexp}.  
+
+The special case for retracting is the primary file the user wishes to
+edit: this is automatically removed from
+@code{proof-included-files-list}, but it depends on the proof assistant
+whether or not it is possible to revert to a partially processed version
+of the file (or "undo into" it).  This is the reason for the setting
+@code{proof-cannot-reopen-processed-files}.  If this is non-nil, any
+attempt to undo a fully processed file will unlock the entire file
+(whether or not Proof General itself has history information for the
+file).
 
 What we have described so far is the ideal case, but it may require some
 support from the proof assistant to set up (for example, if file-level
@@ -2272,7 +2297,10 @@ urgent messages from proof process}.  To tell the prover about files
 handled with script management, use
  @code{proof-shell-inform-file-processed-cmd} and
  @code{proof-shell-inform-file-retracted-cmd}.  @xref{Proof shell
- commands}.  Finally, set the flag @code{proof-auto-multiple-files} 
+ commands}.
+If your prover does not allow re-opening of closed
+files, set @code{proof-cannot-reopen-processed-files} to @code{t}.
+  Finally, set the flag @code{proof-auto-multiple-files} 
 for a automatic approximation to multiple file handling.
 @xref{Proof script settings}.
 
