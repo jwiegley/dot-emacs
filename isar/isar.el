@@ -352,6 +352,16 @@ proof-shell-retract-files-regexp."
 ;;; help menu  
 ;;;
 
+(setq find-rewrites-command "find_rewrites \"%s\"")
+
+(proof-define-assistant-command-witharg isar-help-rewrites
+ "Search for rewrite rules matching given term."
+ find-rewrites-command
+ "Find rewrite rules matching"
+ (proof-shell-invisible-command arg))
+
+(define-key (proof-ass keymap) [h R] 'isar-help-rewrites)
+
 ;;; da: how about a `C-c C-a h ?' for listing available keys?
 
 ;;; NB: definvisible must come after derived modes because uses
@@ -394,6 +404,7 @@ proof-shell-retract-files-regexp."
            ["cases"              isar-help-cases          t]
            ["facts"              isar-help-facts          t]
            ["matching rules"     isar-help-intro-rules    t]
+           ["matching rewrites"  isar-help-rewrites       t]
            ["term bindings"      isar-help-binds          t]
 	   "----"
            ["classical rules"    isar-help-claset         t]

@@ -1,7 +1,10 @@
 ### Makefile --- create fonts for package x-symbol
 
+# This version modified by Clemens Ballarin to accommodate 18pt and 24pt
+# x-symb fonts.  23 April 2004
+
 ## Author: Christoph Wedler <wedler@users.sourceforge.net>
-## Version: 4.5
+## Version: 4.4
 ## Keywords: fonts, WYSIWYG, LaTeX, HTML, wp, math
 ## X-URL: http://x-symbol.sourceforge.net/
 
@@ -37,11 +40,13 @@ GENFONTS = ../genfonts
 ORIGFONTS = ../origfonts
 PCFDIR = ../pcf
 
-ORIGBDFS = helvR12.bdf helvR14.bdf
+ORIGBDFS = helvR12.bdf helvR14.bdf helvR18.bdf helvR24.bdf
 BDFS = 2helvR12.bdf 3helvR12.bdf 5etl14.bdf heriR12.bdf \
 	xsymb0_12.bdf xsymb1_12.bdf \
 	2helvR14.bdf 3helvR14.bdf 5etl16.bdf heriR14.bdf \
-	xsymb0_14.bdf xsymb1_14.bdf
+	xsymb0_14.bdf xsymb1_14.bdf \
+	xsymb0_18.bdf xsymb1_18.bdf \
+	xsymb0_24.bdf xsymb1_24.bdf 
 EXTRABDFS = nilxs.bdf
 
 .SUFFIXES:
@@ -79,7 +84,8 @@ echo:
 
 mkdirs:
 	-if [ ! -d $(GENFONTS) ]; then mkdir $(GENFONTS); fi
-	-if [ ! -d $(PCFDIR) ]; then mkdir $(PCFDIR); fi
+	-if [ ! -d $(PCFDIR) ]; then mkdir $(PCFDIR); \
+			       else rm -f $(PCFDIR)/*.pcf ; fi;
 
 gens: $(GENS)
 

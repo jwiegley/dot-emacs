@@ -30,6 +30,7 @@ usage()
   echo "    -P BOOL      actually start Proof General (default true), otherwise"
   echo "                 run plain tty session"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
+  echo "    -f SIZE      set X-Symbol font size (default 14)"
   echo "    -g GEOMETRY  specify Emacs geometry"
   echo "    -k NAME      use specific isar-keywords for named logic"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
@@ -68,11 +69,12 @@ INITFILE="true"
 WINDOWSYSTEM="true"
 XSYMBOL=""
 XSYMBOLSETUP=true
+XSYMBOL_FONTSIZE="12"
 
 getoptions()
 {
   OPTIND=1
-  while getopts "I:P:X:g:k:l:m:p:u:w:x:" OPT
+  while getopts "I:P:X:f:g:k:l:m:p:u:w:x:" OPT
   do
     case "$OPT" in
       I)
@@ -83,6 +85,9 @@ getoptions()
         ;;
       X)
         XSYMBOLSETUP="$OPTARG"
+        ;;
+      f)
+        XSYMBOL_FONTSIZE="$OPTARG"
         ;;
       g)
         GEOMETRY="$OPTARG"
@@ -229,7 +234,7 @@ else
   PROOFGENERAL_XSYMBOL="$XSYMBOL"
   
   export PROOFGENERAL_HOME PROOFGENERAL_ASSISTANTS PROOFGENERAL_LOGIC PROOFGENERAL_XSYMBOL
-  export ISABELLE_OPTIONS
+  export ISABELLE_OPTIONS XSYMBOL_FONTSIZE
   
   eval exec "$PROGNAME" "$ARGS" "$FILES"
 

@@ -19,6 +19,7 @@ proof
  qed
 qed
 
+asd
 
 text {* Proper proof text -- \textit{advanced version}. *}
 

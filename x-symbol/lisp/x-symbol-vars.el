@@ -1619,7 +1619,14 @@ encoding `x-symbol-default-coding' in this case.  If nil, tokens are not
 decoded if they require the missing font.  Values other than nil are
 safe, but latin characters without correct fonts will look strange.")
 
-(defvar x-symbol-font-sizes '(("\\`-etl-" 16 14) ("" 14 12)))
+(defvar x-symbol-font-sizes
+  (let ((env-fontsize (getenv "XSYMBOL_FONTSIZE")))
+    (if (equal env-fontsize "14") '(("" 14 12))
+      (if (equal env-fontsize "18") '(("" 18 14))
+	(if (equal env-fontsize "24") '(("" 24 18))
+	  '(("\\`-etl-" 16 14) ("" 14 12)))))))
+  
+;; (defvar x-symbol-font-sizes '(("\\`-etl-" 16 14) ("" 14 12)))
 ;;  '(14 ("\\`-etl-.+_su[bp]-" . 14) ("\\`-etl-" . 16) ("_su[bp]-" . 12)))
 
 (defvar x-symbol-font-lock-with-extra-props
