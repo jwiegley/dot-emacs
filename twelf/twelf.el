@@ -7,7 +7,7 @@
 ;; $Id$
 ;;
 ;;
-;; TODO before 3.2:
+;; TODO:
 ;;   Info doc menu entry
 ;;   X-Symbol upgrade/test?  Mule XE better?
 ;; 
