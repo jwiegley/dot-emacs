@@ -18,11 +18,6 @@ A. The proof process is waiting for more input, but Proof General
    should type something in the proof shell, or interrupt the process
    with C-c C-c or the Stop button.
 
-   [ In case of Isabelle under Poly/ML, you should start PG 3.1 
-     using the Isabelle script because it adds a hack to send "f" 
-     after an interrupt is sent. With PG 3.2, the hack is added for
-     Poly/ML even if you start Emacs first. ]
-
 -----------------------------------------------------------------
 
 Q. How can I keep the Proof General option settings across sessions?
