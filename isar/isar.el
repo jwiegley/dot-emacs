@@ -368,26 +368,39 @@ proof-shell-retract-files-regexp."
 
 ;; undo theory commands
 (defun isar-find-and-forget (span)
-  "Return a command to be used to forget SPAN."
-  (let (str ans)
-    (while (and span (not ans))
+  "Return commands to be used to forget SPAN."
+  (let (str ans answers)
+    (while span
       (setq str (span-property span 'cmd))
+      (setq ans nil)
       (cond
-       ((eq (span-property span 'type) 'comment))
+       ;; comment or diagnostic command: skip
+       ((or (eq (span-property span 'type) 'comment)
+	    (proof-string-match isar-undo-skip-regexp str)))
+       ;; finished goal: undo
        ((eq (span-property span 'type) 'goalsave)
 	(setq ans isar-undo))
+       ;; open goal: skip and exit
+       ((proof-string-match isar-goal-command-regexp str)
+	(setq span nil))
+       ;; not undoable: fail and exit
        ((proof-string-match isar-undo-fail-regexp str)
-	(setq ans (isar-cannot-undo str)))
-       ((proof-string-match isar-undo-skip-regexp str)
-	(setq ans proof-no-command))
+	(setq answers nil)
+	(setq ans (isar-cannot-undo str))
+	(setq span nil))
+       ;; theory: remove and exit
        ((proof-string-match isar-undo-remove-regexp str)
-	(setq ans (isar-remove (match-string 2 str))))
+	(setq ans (isar-remove (match-string 2 str)))
+	(setq span nil))
+       ;; context switch: kill
        ((proof-string-match isar-undo-kill-regexp str)
 	(setq ans isar-kill))
+       ;; else: undo
        (t
 	(setq ans isar-undo)))
-      (setq span (next-span span 'type)))
-    (or ans proof-no-command)))
+      (if ans (setq answers (cons ans answers)))
+      (if span (setq span (next-span span 'type))))
+    (if (null answers) proof-no-command (apply 'concat answers))))
 
 
 
