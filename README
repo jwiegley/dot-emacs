@@ -10,15 +10,17 @@ Please help us with this aim!  Configure Proof General for your proof
 assistant, by adding features at the generic level wherever possible.
 Send ideas, comments, patches, code to proofgen@dcs.ed.ac.uk.
 
-
 See INSTALL for installation details.
 
 See COPYING for license details.
 
 See doc/ for documentation of Proof General.
 
+For the latest news and downloads, check the Proof General web page
+at: http://www.dcs.ed.ac.uk/home/proofgen
 
-David Aspinall & Thomas Kleymann
-November 1998.
+
+David Aspinall.
+July 1999.
 		
 

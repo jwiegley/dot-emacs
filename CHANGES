@@ -23,6 +23,8 @@ Summary of Changes for Proof General 2.1
 * Improvements to Coq mode: better recognition of
   Coq syntax, support for proof-shell-restart-cmd.
 
+* Toolbar can now be switched on and off via menu.
+
 * Bug fix for templates in Isabelle theory file mode.
 
 * Bug fix for long-lines with funny characters causing

@@ -25,18 +25,6 @@ A Clarify licence situation for Proof General after question from
   currently [22 Jan 1999] being drafted by UNIVED.
   Will wait for this (at least) before releasing 2.1.
 
-B Add a "register" page for registering downloads.  Perhaps filling
-  will be mandatory for users in a non-academic environment.
-  Suggestion: send an email to proofgen@dcs.ed.ac.uk with POST
-  results. Template:
-    http://www.dcs.ed.ac.uk/home/da/Isamode/IsamodeSurvey.html
-  [2 hours]
-
-B Make a mailing list for Proof General users.
-  [2 hours for introductory messages, mentioning on web
-   pages, understanding Majordomo.  Maybe support will
-   make the list itself.]
-
 B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
 
@@ -62,6 +50,10 @@ A BUGS to investigate:
 
 A Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.
+
+B CVS repository issues.
+  Where are obsolete 'fileattr' files generated from/maintained?
+  Should junk these (which appear to say that tms is watching everything).
 
 B QUESTION: why do we have proof-shell-proof-completed-regexp's
   perhaps objectionable behaviour of forcing the response buffer?
@@ -332,6 +324,10 @@ D Display management is much better than it was, but perhaps
 D Fixup display of urgent messages in minibuffer: split at
   newlines so we don't get ^J's in FSF Emacs.
 
+D Make wellclean target remove images in html/images which are
+  generated from the image directory.  Consider putting all the
+  image sources in images/
+
 X Is it possible to let C-c C-c (SIGINT) issue additional process input?
   Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
   rather, to fail gracefully.
@@ -548,11 +544,11 @@ X Sections and files are handled incorrectly.
 * Here are things to be done to Isabelle Mode
 =============================================
 
-A auto-adjust Pretty.setmargin when window is resized
-
 A Multiple files needs careful testing.  There are cases when
   retracting asks for files to be removed which were never loaded.
   This might be harmless, but might be better cleaned up.
+
+B auto-adjust Pretty.setmargin when window is resized
 
 C derive an isa-response-mode from proof-response-mode;
   see lego.el (10min) 
@@ -572,7 +568,8 @@ X Add ability to choose logic.  Maybe not necessary: can use default
   (ponder this)
 
 X Write perl scripts to generate TAGS file for ML and thy files.
-  (6h, I've completely forgotten perl), or better:
+  (6h, I've completely forgotten perl).  Does anyone
+  actually want this?
 
 X Manage multiple proofs (markers in possibly different buffers)
 	 
@@ -587,6 +584,7 @@ C `proof-zap-commas-region' does not work for Emacs 20.2 on
 
 C proof-shell-dont-show-annotations doesn't seem to work.
 
+
 * Bugs in other packages beyond our control
 ===========================================
 
@@ -597,6 +595,8 @@ contain lines with stuff that looks lisp-ish.  e.g. "(asd . ads)"
 * Stable version release checklist
 ==================================
 
+0. Make all files have same CVS branch with cvs commit -f 
+   (only seems to work locally, not via cvs server).
 1. Test multiple file test suite for LEGO, Isabelle.  Coq example.
 2. Check case with FSF Emacs
 3. Check case with compiled code, for XEmacs only.
@@ -607,6 +607,7 @@ contain lines with stuff that looks lisp-ish.  e.g. "(asd . ads)"
      cd doc; make magic
 6. Update Emacs versions in texi, html/ 
 7. Check web page references from other places.
+8. Validate web pages if they're changed much.
 
    
 
