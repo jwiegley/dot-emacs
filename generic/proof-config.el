@@ -500,6 +500,16 @@ Warning messages can come from proof assistant or from Proof General itself."
   "*Face for debugging messages from Proof General."
   :group 'proof-faces)
 
+(defface proof-boring-face
+  '((((type x) (class color) (background light))   
+     (:foreground "Gray65"))
+    (((type x) (class color) (background dark))   
+     (:background "Gray30"))
+    (t				
+     (:italic t)))
+  "*Face for boring text in proof assistant output."
+  :group 'proof-faces)
+
 
 
 
@@ -1613,7 +1623,7 @@ for parsing the is disabled."
   :type 'character
   :group 'proof-goals)
 
-;; FIXME: remove this setting after 3.0, by matching on
+;; FIXME: remove this setting for 3.2, by matching on
 ;; completed-regexp as an extra step, after errors/interrupt,
 ;; but as well as ordinary output.
 (defcustom proof-goals-display-qed-message nil
