@@ -514,8 +514,10 @@ We assume that module identifiers coincide with file names."
 	;;the response, the goal buffer and the script
 	font-lock-keywords lego-font-lock-keywords-1)
 
-  (fset 'proof-retract-command 'lego-retract-command)
-  (fset 'proof-shell-compute-new-files-list
+;; FIXME: da: I've removed this, I think fset is bad and proof-retract-command
+;; doesn't seem to exist.
+;;  (fset 'proof-retract-command 'lego-retract-command)
+  (setq proof-shell-compute-new-files-list 
 	'lego-shell-compute-new-files-list)
 
   (lego-init-syntax-table)
