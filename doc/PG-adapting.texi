@@ -200,15 +200,15 @@ grown more flexible and useful as it has been adapted to more proof
 assistants.  Typically, adding support for a new prover improves support
 for others, both because the code becomes more robust, and because new
 ideas are brought into the generic setting.  You should understand that
-the Proof General framework has been built as a product line
-architecture: generality has been introduced piecemeal in a
+the Proof General framework has been built as a "product line
+architecture": generality has been introduced step-by-step in a
 demand-driven way, rather than at the outset as a grand design.
 (Despite this strategy, the interface has a surprisingly clean
-structure).  This approach means that we fully expect hiccups when
+structure).  The approach means that we fully expect hiccups when
 adding support for new assistants, so the generic core may need
 extension or modification.  To support this we have an open development
-style: if you require changes in the generic support, please contact us,
-or make adjustments yourself and send them to us.
+method: if you require changes in the generic support, please contact us
+(or make adjustments yourself and send them to us).
 
 Proof General has a home page at
 @uref{http://www.lfcs.informatics.ed.ac.uk/proofgen}.  Visit this page

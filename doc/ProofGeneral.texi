@@ -95,7 +95,7 @@ proofs with Emacs!  END-INFO-DIR-ENTRY
 @finalout
 @titlepage
 @title Proof General
-@subtitle Organise your proofs with Emacs!
+@subtitle Organize your proofs with Emacs!
 @subtitle Proof General @value{version}
 @subtitle @value{last-update}
 
@@ -236,9 +236,9 @@ generic code has an improved file structure, and there is support for
 automatic generation of autoload functions.  There is also a new
 mechanism for defining prover-specific customization and instantiation
 settings which fits better with the customize library.  These settings
-are named in the form @code{@i{PA}-setting-name} here; you replace
-@i{PA} by the symbol for the proof assistant you are interested in.
-@xref{Customizing Proof General}, for details.
+are named in the form @code{@i{PA}-setting-name} in the documentation;
+you replace @i{PA} by the symbol for the proof assistant you are
+interested in.  @xref{Customizing Proof General}, for details.
 
 Adapting for new proof assistants continues to be made more flexible,
 and easier in several places.  This has been motivated by adding
@@ -3482,7 +3482,7 @@ proofs, but Proof General does not (yet) offer an easy way to edit these
 kind of proofs.  They will replay simply as a single step proof and you
 will need to convert from the interactive to batch form as usual if you
 wish to obtain batch proofs.  Also note that Proof General does not
-contain an SML parser, so tghere can be problems if you write complex ML
+contain an SML parser, so there can be problems if you write complex ML
 in proof scripts. @xref{ML files}, for the same issue with Isabelle.
 
 HOL Proof General may work with variants of HOL other than HOL98, but is
