@@ -58,10 +58,10 @@
 @c        @ref{node}                without "see". Careful for info.
 
 
-@set version 3.0
+@set version 3.1
 @set xemacsversion 21.1
-@set fsfversion 20.4
-@set last-update November 1999
+@set fsfversion 20.5
+@set last-update March 2000
 @set rcsid $Id$
 
 @ifinfo
@@ -2862,7 +2862,7 @@ which contain proof commands (no ML functions, structures, etc).
 
 If you do use files with Proof General which declare functions,
 structures, etc, you should be okay provided your code doesn't include
-non-top level semi-colons (which will confuse Proof General's simplistic
+non top-level semi-colons (which will confuse Proof General's simplistic
 parser), and provided all value declarations (and other non proof-steps)
 occur outside proofs.  This is because within proofs, Proof General
 considers every ML command to be a proof step which is undoable.
