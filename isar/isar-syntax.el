@@ -126,6 +126,8 @@
    (lambda (s) (if (string-match "^\\W$" s) s (concat "\\<" s "\\>")))
    l "\\|"))
 
+(defconst isar-long-id-stuff "\\([A-Za-z0-9'_.]+\\)")
+
 (defconst isar-id "\\([A-Za-z][A-Za-z0-9'_]*\\)")
 (defconst isar-idx (concat isar-id "\\(\\.[0-9]+\\)?"))
 
@@ -269,7 +271,7 @@
 
 (defvar isar-output-font-lock-keywords-1
   (list
-   (cons (concat "\351" isar-id "\350") 'isabelle-class-name-face)
+   (cons (concat "\351" isar-long-id-stuff "\350") 'isabelle-class-name-face)
    (cons (concat "\352'" isar-id "\350") 'isabelle-tfree-name-face)
    (cons (concat "\353\\?'" isar-idx "\350") 'isabelle-tvar-name-face)
    (cons (concat "\354" isar-id "\350") 'isabelle-free-name-face)
