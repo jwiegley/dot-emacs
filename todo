@@ -7,6 +7,18 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 * THINGS TO DO BEFORE 3.5 RELEASE
 
+*** Strange bug Gerwin reported with restarting Isabelle/logic name.
+    Busy wait triggered, proof-shell-busy stays set.
+
+*** Use of regexps in isar-syntax.el  --- problems with retraction.
+
+*** Automatically processing files before deactivating scripting: warning
+    messages from Isabelle when asking it to remove files that it says
+    are already removed (noticed with auto action set to process).
+
+    Something has broken with multiple-file scripting here: perhaps an
+    Isabelle problem.
+
 *** Emacs Bug Roundup
     --- xemacs support for nested comments
     --- xemacs undo in read-only regions 
