@@ -92,6 +92,7 @@
    ((eq pgip 'usespgml))
    ((or
      (eq pgip 'haspref)
+     (eq pgip 'oldhaspref) ;; FIXME: see note above about oldhaspref
      (eq pgip 'prefval))
     ;; Update preferences view/menu
     (proof-assistant-menu-update))
