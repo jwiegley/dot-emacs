@@ -1,3 +1,4 @@
+(* This is a test of tracing output for Isabelle. *)
 
 theory trace_simp = Main:
 
