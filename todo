@@ -14,19 +14,9 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A* WARNING WARNING WARNING
-
-    Changes pending in proof-script.el, proof-shell.el:
-
-     proof-check-process-available
-
-    will be replaced by *two* functions
- 
-     proof-activate-scripting
-     proof-shell-ready-prover
-
-    Do not edit this function!
-
+A* Fix bugs in proof-shell-output-filter to deal with prompts
+   and urgent messages which are split across comint globbing
+   boundaries.  (Should match strings in buffer instead) 
 
 A* Fixup for non-script buffer locking:
 
