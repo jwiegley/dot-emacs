@@ -518,33 +518,37 @@ This is specific to coq-mode."
   ;; da: Experimental support for multiple files based on discussions
   ;; at TYPES 2000. 
   ;; (Pierre, please fix this as Coq users would like, and for Coq V7 !)
-  (setq proof-shell-inform-file-processed-cmd
+  (setq coq-proof-shell-inform-file-processed-cmd
 	"Reset Initial. Compile Module %m.")
   ;; FIXME da: Coq is rather quiet when reading files with "Load <foo>."
   ;; and sometimes even Require seems quiet?  PG would like some guarantees
   ;; that messages are issued.  Also, the code to guess the complete file
   ;; name is flaky, would be better if Coq displayed full path info for PG.
-  (setq proof-shell-process-file 
+  (setq coq-proof-shell-process-file 
 	;; FIXME da: Coq output Reinterning message should not
 	;; be suppressed by "Begin Silent" for PG, and should be
 	;; marked by eager annotation (special char).
 	;; For Coq 7, we should get rid of 8 bit chars in PG, too.
-	(cons "Reinterning \\([^ ]+\\) \\.\\.\\.done"
+	(cons "Reinterning \\(.+\\)\\.\\.\\.done"
 	      (lambda (str)
-		(let
+		(let*
 		    ((modname (match-string 1 str))
 		     ;; FIXME: next lines will return a directory but maybe
 		     ;; not right one if proof-script-buffer happens to be nil!
-		     (dir     
-		      (or (proof-with-script-buffer default-directory) 
-			  default-directory)))
+		     (buf     (or proof-script-buffer
+				  proof-previous-script-buffer))
+		     (dir     (if (buffer-live-p buf)
+				  (with-current-buffer buf
+				    default-directory)
+				;; This next guess is pretty hopeless.
+				default-directory)))
+		  (message (concat dir modname ".v"))
 		  (concat dir modname ".v")))))
 
-  (setq proof-shell-inform-file-retracted-cmd
-	;; da: This is a HORRIBLE fragile hack: instead of issuing a
+  (setq coq-proof-shell-inform-file-retracted-cmd
+	;; da: This is a HORRIBLE fragile hack!  Instead of issuing a
 	;; command to the prover we have to run a "coqdep" command to
-	;; find out the dependencies and put them into a temporary
-	;; Makefile, then execute a rather horrible make command.
+	;; find out the dependencies.
 	(lambda (fname) 
 	  (let*
 	      ;; Assume buffer is in correct directory, assume current directory
@@ -556,11 +560,12 @@ This is specific to coq-mode."
 	      ;; [In fact, I think this is what should happen when 
 	      ;; Require is undone]
 	      ((depstr 
-(substring (shell-command-to-string
-(concat
-"coqdep *.v | grep " 
-(file-name-nondirectory (file-name-sans-extension fname)) ".v"
-" | awk '{print $1}' | sed 's/.vo:/.v/'")) 0 -1))
+		(substring (shell-command-to-string
+			    (concat
+			     "coqdep *.v | grep " 
+			     (file-name-nondirectory 
+			      (file-name-sans-extension fname)) ".v"
+			      " | awk '{print $1}' | sed 's/.vo:/.v/'")) 0 -1))
 	       (deps (split-string depstr))
                (current-included proof-included-files-list))
 		;; Now hack the proof-included-files-list to remove the
@@ -579,9 +584,7 @@ This is specific to coq-mode."
 			  proof-included-files-list)))
 		;; Return a comment thingy inserted into the shell
 		;; buffer to help debugging.
-		(concat
-		 "Print (* Proof General ran coqdep command for "
-		 fname " , result: " depstr " *)"))))
+		(format "Print (* Proof General ran coqdep command for %s, result: %s.  Removed files: %s *)" fname depstr deps))))
 
 
   ;;Coq V7 changes this 
@@ -698,5 +701,19 @@ This is specific to coq-mode."
   "Whether to just print the first subgoal in Coq."
   :type 'boolean
   :setting ("Focus." . "Unfocus."))
+
+(defpacustom auto-compile-vos nil
+  "Whether to automatically compile vos and track dependencies."
+  :type 'boolean
+  :eval (if coq-auto-compile-vos
+	    (setq proof-shell-inform-file-processed-cmd 
+		  coq-proof-shell-inform-file-processed-cmd
+		  proof-shell-process-file
+		  coq-proof-shell-process-file
+		  proof-shell-inform-file-retracted-cmd
+		  coq-proof-shell-inform-file-retracted-cmd)
+	  (setq proof-shell-inform-file-processed-cmd nil
+		proof-shell-process-file nil
+		proof-shell-inform-file-retracted-cmd nil)))
 
 (provide 'coq)
