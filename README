@@ -3,7 +3,7 @@ Proof General --- Organize your proofs!
 
 Proof General is a generic Emacs interface for proof assistants.
 
-This is version 3.2 of Proof General.   
+This is version 3.3 of Proof General.   
 (Check the About screen for precise version number).
 
 The aim of the Proof General project is to provide a powerful and
@@ -26,7 +26,7 @@ For notes on the supported assistants, see the README files
 in the subdirectories:
 
     acl2/   ACL2
-     phox/   PhoX
+    phox/   PhoX
      coq/   Coq
  demoisa/   Demonstration instance for Isabelle
      isa/   Isabelle
@@ -50,7 +50,7 @@ mailing list for Proof General, visit Proof General on the web
 at: http://www.proofgeneral.org
 
 David Aspinall <da@proofgeneral.org>
-October 2000.
+August 2001.
 
 -----
 
