@@ -105,7 +105,9 @@ no regular or easily discernable structure."
    ;; initial command configures Isabelle by hacking print functions.
    ;; may need to set directory somewhere for this:
    ;; /home/da/devel/lego/elisp/   or  $PROOFGENERIC_HOME ?
-   proof-shell-init-cmd			"use \"isa-print-functions.ML\";"
+   proof-shell-init-cmd			(concat
+					 "use \"" proof-home
+					  "isa/isa-print-functions.ML\";")
    ;; === ANNOTATIONS  === remaining ones broken
    proof-shell-goal-char	        ?\375
    proof-shell-first-special-char	?\360

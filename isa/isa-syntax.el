@@ -45,8 +45,9 @@
   :group 'isa-settings)
 
 (defcustom isa-keywords-decl
-  '("val")
-  "Isabelle keywords for declarations"
+  '("val" "fun" "datatype"
+    "signature" "structure")
+  "Isabelle keywords for declarations.  Includes ML keywords to fontify ML files."
   :group 'isa-syntax
   :type '(repeat string))
 
@@ -83,15 +84,17 @@
 
 ;; See isa-command-table in Isamode/isa-menus.el to get this list.
 ;; BUT: tactics are not commands, so appear inside some expression.
-(defvar isa-tactics
+(defconst isa-tactics
   '("resolve_tac" "assume_tac"))
 
-(defvar isa-keywords
+;; NB: this means that any adjustments above by customize will
+;; only have effect in next session.
+(defconst isa-keywords
   (append isa-keywords-goal isa-keywords-save isa-keywords-decl
 	  isa-keywords-defn isa-keywords-commands isa-tactics)
   "All keywords in a Isabelle script")
 
-(defvar isa-tacticals '("REPEAT" "THEN" "ORELSE" "TRY"))
+(defconst isa-tacticals '("REPEAT" "THEN" "ORELSE" "TRY"))
 
 ;; ----- regular expressions
 
@@ -102,9 +105,9 @@
   :type 'string
   :group 'isa-syntax)
 
-(defvar isa-id proof-id)
+(defconst isa-id proof-id)
 
-(defvar isa-ids (proof-ids isa-id))
+(defconst isa-ids (proof-ids isa-id))
 
 (defun isa-abstr-regexp (paren char)
     (concat paren "\\s-*\\(" isa-ids "\\)\\s-*" char))
