@@ -280,7 +280,6 @@
    (cons (isar-ids-to-regexp isar-keywords-minor)          'font-lock-type-face)
    (cons (isar-ids-to-regexp isar-keywords-control)        'proof-error-face)
    (cons (isar-ids-to-regexp isar-keywords-diag)           'proof-tacticals-name-face)
-   ;; FIXME da: font-lock-preprocessor-face does not exist on GNU Emacs.
    (cons (isar-ids-to-regexp isar-keywords-theory-enclose) 'font-lock-preprocessor-face)
    (cons (isar-ids-to-regexp isar-keywords-theory)         'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-enclose)  'font-lock-preprocessor-face)
