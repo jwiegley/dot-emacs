@@ -236,7 +236,7 @@ when parsing the proofstate output")
   "You are not authorised for this information.")
 
 (defvar proof-shell-buffer nil
-  "You are not authorised for this information.")
+  "The process buffer which communicates with the prover.")
 
 (defvar proof-script-buffer nil
   "You are not authorised for this information.")
@@ -331,10 +331,7 @@ when parsing the proofstate output")
 
   (make-face 'proof-queue-face)
   ;; Whether display has color or not
-  (cond ((and (fboundp 'device-class)
-	      (eq (device-class (frame-device)) 'color))
-	 (set-face-background 'proof-queue-face "mistyrose"))
-	((and (fboundp 'x-display-color-p) (x-display-color-p))
+  (cond ((proof-have-color)
 	 (set-face-background 'proof-queue-face "mistyrose"))
 	(t (progn
 	     (set-face-background 'proof-queue-face "Black")
@@ -352,10 +349,7 @@ when parsing the proofstate output")
 
   (make-face 'proof-locked-face)
   ;; Whether display has color or not
-  (cond ((and (fboundp 'device-class)
-	      (eq (device-class (frame-device)) 'color))
-	 (set-face-background 'proof-locked-face "lavender"))
-	((and (fboundp 'x-display-color-p) (x-display-color-p))
+  (cond ((proof-have-color)
 	 (set-face-background 'proof-locked-face "lavender"))
 	(t (set-face-property 'proof-locked-face 'underline t)))
   (set-span-property proof-locked-span 'face 'proof-locked-face)
@@ -800,20 +794,35 @@ Set to nil if the proof to disable this feature.")
   (setq proof-shell-delayed-output (cons 'insert "done")))
 
 (defun proof-shell-handle-error (cmd string)
+  "React on an error message triggered by the prover. [proof.el]
+We display the process buffer, scroll to the end, beep and fontify the
+error message. At the end it calls `proof-shell-handle-error-hook'. "
   (save-excursion
-    (display-buffer (set-buffer proof-pbp-buffer))
-    (if (not (eq proof-shell-delayed-output (cons 'insert "done")))
-	(progn
-	  (set-buffer proof-pbp-buffer)
-	  (erase-buffer)
-	  (insert (proof-shell-strip-annotations 
-		   (cdr proof-shell-delayed-output)))))
+    (display-buffer (set-buffer proof-shell-buffer))
+
     (goto-char (point-max))
-    (if (re-search-backward pbp-error-regexp nil t) 
-	(delete-region (- (point) 2) (point-max)))
-    (newline 2)
-    (insert-string string)
-    (beep))
+    (let* ((end (search-backward-regexp proof-shell-annotated-prompt-regexp))
+	  (start (search-backward-regexp proof-shell-error-regexp))
+	  (string
+	   (proof-shell-strip-annotations (buffer-substring start end))))
+	  
+
+
+    (beep)
+
+    ;; fontification
+
+    ;; remove annotations (otherwise font-lock expressions do not match)
+    
+    (delete-region start end)
+    (insert string)
+    (setq end (+ start (length string)))
+    (font-lock-fontify-region start end)
+    (font-lock-fillin-text-property start end 'face 'font-lock
+				    'font-lock-error-face)
+    ))
+
+  ;; unwind script buffer
   (set-buffer proof-script-buffer)
   (proof-detach-queue)
   (delete-spans (proof-locked-end) (point-max) 'type)
@@ -1078,14 +1087,6 @@ how far we've got."
 	  (progn
 	    (goto-char (point-min))
 	    (re-search-forward proof-shell-annotated-prompt-regexp)
-	    ;; FIXME: da: why is this next line here?  to delete the 
-	    ;;        possibly several character prompt? why?
-	    ;;        TMS: Its purpose is to remove the wakeup
-	    ;;        character associated with the prompt. This
-	    ;;        should not be necessary anymore, because the wakeup
-	    ;;        character isn't displayed anyway; see
-	    ;;        `proof-dont-show-annotations'. Watch this space!
-	    (backward-delete-char 1)
 	    (set-marker proof-marker (point)))
 	;; We've matched against a second prompt in str now.  Search
 	;; the output buffer for the second prompt after the one previously
@@ -1097,7 +1098,6 @@ how far we've got."
 	  (setq string (buffer-substring (marker-position proof-marker)
 					 (point)))
 	  (goto-char (point-max))	; da: assumed to be after a prompt?
-	  (backward-delete-char 1)	; da: WHY? nasty assumption.
 	  (setq cmd (nth 1 (car proof-action-list)))
 	  (save-excursion
 	    (setq res (proof-shell-process-output cmd string))
@@ -1824,8 +1824,16 @@ current command."
   (setq proof-buffer-type 'shell)
   (setq proof-shell-busy nil)
   (setq proof-shell-delayed-output (cons 'insert "done"))
+
+  ;;; COMINT customisation
   (setq comint-prompt-regexp proof-shell-prompt-pattern)
-  (add-hook 'comint-output-filter-functions 'proof-shell-filter nil t)
+
+  ;; An article by Helen Lowe in UITP'?? suggests that the user should
+  ;; not see all output produced by the proof process. 
+  (remove-hook 'comint-output-filter-functions
+	       'comint-postoutput-scroll-to-bottom 'local)
+
+  (add-hook 'comint-output-filter-functions 'proof-shell-filter nil 'local)
   (setq comint-get-old-input (function (lambda () "")))
   (proof-dont-show-annotations)
   (setq proof-marker (make-marker)))
