@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.49  1998/05/29 13:29:03  tms
+;; fixed a bug in `proof-goto-end-of-locked-if-pos-not-visible-in-window'
+;;
 ;; Revision 1.48  1998/05/29 09:50:01  tms
 ;; o outsourced indentation to proof-indent
 ;; o support indentation of commands
@@ -625,10 +628,7 @@
   (let ((pos (proof-locked-end)))
     (or (pos-visible-in-window-p pos (get-buffer-window
 				      proof-script-buffer t))
-	;; see code of proof-goto-end-of-locked
-	(switch-to-buffer proof-script-buffer)
-	(goto-char pos))))
-
+        (proof-goto-end-of-locked))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Starting and stopping the proof-system shell                    ;;
