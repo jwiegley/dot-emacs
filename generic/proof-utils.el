@@ -681,31 +681,41 @@ If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
   
 (defun proof-remove-comment (str)
   "proof-remove-comment str: return the string str with all comments removed. Nested comments should work."
-  (if str (let 
-	      ((astr "")
-	       (pos 0)
-	       (lpos 0)
-	       (spos -1)
-               (epos -1)
-	       (lvl 0))
-	    (while (or spos epos)
-	      (setq
-	       spos (if (and spos (< spos lpos)) 
-			(string-match proof-comment-start-regexp str lpos) spos)
-	       epos (if (and epos (< epos lpos)) 
-			(string-match proof-comment-end-regexp str lpos) epos))
-	      (if (and spos (or (not epos) (< spos epos)))
-		  (progn
-		    (if (= lvl 0) (setq astr 
-					(concat astr 
-						(substring str pos spos))))
-		    (setq lpos (+ spos 1) lvl (+ lvl 1)))
-		(if (epos) 
-		    (progn
-		      (setq lpos (+ epos 1) lvl (if (> lvl 0) (- lvl 1) 0))
-		      (if (= lvl 0) (setq pos (+ epos 2)))))))
-	    (setq astr (concat astr (substring str pos)))
-	    astr)))
+  (if (and str proof-comment-start-regexp proof-comment-end-regexp) 
+      (let 
+	  ((astr "") ; the result string
+	   (regexp1 (concat "\\(\"\\)\\|\\(" 
+			    proof-comment-start-regexp "\\)\\|\\("
+			   proof-comment-end-regexp "\\)"))
+	   (regexp2 (concat "\\(\"\\)"))
+	   (pos 0)  ; position of the previous match
+	   (mpos 0) ; position of the current match
+	   (lpos 0) ; start of the substring not in a comment and not
+	            ; yet in astr
+	   (lvl 0)  ; number of level of comments
+	   (in-string nil) ; are we in a string
+	   )
+	(while mpos
+	  (setq mpos 
+		(proof-string-match  (if in-string regexp2 regexp1) str pos))
+	  (cond 
+	   ((match-string 1 str)
+	    (setq pos (+ mpos 1) in-string (not in-string)))
+	   ((match-string 2 str)
+	    (progn
+	      (if (= lvl 0) 
+		  (setq astr (concat astr 
+				     (substring str lpos mpos))))
+	      (setq pos (+ mpos 1) lvl (+ lvl 1))))
+	   ((match-string 3 str)		    
+	    (progn
+	      (setq pos (+ mpos 1) lvl (- lvl 1))
+	      (if (< lvl 0) (error "End comment not closing a start comment"))
+	      (if (= lvl 0) 
+		  (setq lpos 
+			(+ mpos (length (match-string 2 str)))))))))
+	(setq astr (concat astr (substring str pos)))
+	astr)))
 
 ;; End of proof-utils.el
 (provide 'proof-utils)
