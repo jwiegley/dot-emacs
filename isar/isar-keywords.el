@@ -102,7 +102,6 @@
     "oracle"
     "parse_ast_translation"
     "parse_translation"
-    "path"
     "primrec"
     "print_ast_translation"
     "print_translation"
@@ -157,6 +156,9 @@
   '("also"
     "let"
     "note"
+    "sect"
+    "subsect"
+    "subsubsect"
     "txt"))
 
 (defconst isar-keywords-proof-asm
