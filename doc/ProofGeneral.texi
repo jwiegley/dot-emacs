@@ -519,7 +519,7 @@ the goal. One needs to mark the proof of the theorem as an ACS.
 @item proof-atomic-sequents-list
 is a list of instructions for setting up ACSs. Each instruction is a
 list of the form @code{(@var{end} @var{start} &optional
-@var{forget-command}}. @var{end} is a regular expression to recognise
+@var{forget-command})}. @var{end} is a regular expression to recognise
 the last command in an ACS. @var{start} is a function. Its input is the
 last command of an ACS. Its output is a regular expression to recognise
 the first command of the ACS. It is evaluated once and the output is
