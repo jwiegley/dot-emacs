@@ -1,3 +1,119 @@
+2002-09-11  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/proof-utils.el:
+	Attempt to improve window shrinking.  Still needs work.
+
+	* etc/coq/unnamed_thm.v: Deleted files.
+
+	* etc/coq/naming.v: New files.
+
+	* isa/Example.thy:
+	Adjust comment about selecting PG/Isar.
+
+	* isar/Example.thy:
+	Remove comment about selecting PG/Isar.
+
+	* isar/isar.el:
+	Shorten mode names.  Comment about parsing prob.
+
+	* isar/isar-syntax.el:
+	Source of parsing problem discovered and explained.
+
+	* html/elispmarkup.php3:
+	Tweak html markup
+
+	* html/main.html:
+	Clarify in development support
+
+	* etc/coq/parsing.v: Add comment at end
+
+	* doc/PG-adapting.texi, doc/ProofGeneral.texi:
+	Update version number, reorg.
+
+	* coq/coq.el:
+	Check on context menu doesn't seem useful.
+
+	* coq/BUGS, CHANGES:
+	Updated.
+
+	* generic/proof-script.el:
+	Redisplay for gnuemacs on visibility changes. Small parser tweak.  Comments.
+
+	* generic/proof-menu.el:
+	Add :visible support.  Minor reorganisation.
+
+	* generic/proof-utils.el:
+	Support for new proof-shrink-windows-tofit option.
+
+	* generic/proof-shell.el:
+	Begin support for thms buffer
+
+	* generic/proof-config.el:
+	Add proof-shrink-windows-tofit option.
+
+	* generic/proof-compat.el:
+	Emulate :visible keyword
+
+	* generic/pg-response.el: Missing paren
+
+	* todo, BUGS, CHANGES:
+	Updated.
+
+2002-09-04  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-config.el:
+	Docstrings, setting for thms buffer
+
+	* generic/pg-response.el:
+	Begin adding code for thms buffer
+
+	* generic/proof.el:
+	Add proof-thms-buffer
+
+	* generic/proof-site.el:
+	only hack proof-info-directory if it exists (doesnt for RPM version)
+
+	* generic/proof-menu.el:
+	generic/proof-menu: move electric terminator, show specific; Help menu items only if prover configured.
+
+	* lclam/README: New files.
+
+	* bin/proofgeneral:
+	don't use -q argument to emacs
+
+2002-08-31  David Aspinall  <da@proofgeneral.org>
+
+	* html/download.html: Fix typo.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/proof-syntax.el, generic/proof-utils.el:
+	Documentation.
+
+	* doc/PG-adapting.texi:
+	Doc new proof-zap-commas
+
+	* doc/Makefile.doc: Add -q to emacs
+
+	* generic/proof-syntax.el, generic/proof-utils.el, lego/lego.el, lego/lego-syntax.el, generic/proof-config.el, generic/proof-script.el, coq/coq.el, coq/coq-syntax.el:
+	Improved implementation of zap-commas font lock behaviour, patch from Stefan Monnier
+
+	* CHANGES: Updated.
+
+	* generic/span-overlay.el:
+	Test inhibit-read-only
+
+	* generic/proof-script.el: Comments
+
+	* generic/proof-config.el:
+	Try to reduce contrast for highlighting face
+
 2002-08-31  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
