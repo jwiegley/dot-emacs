@@ -70,11 +70,24 @@
 ;;        the test with "coqtop -v" can be skipped if the variable 
 ;;        coq-version-is-V7 is already set (usefull for people 
 ;;        dealing with several version of coq)
-(if (boundp 'coq-version-is-V7) () ; if this variable is bound, do nothing 
-  (setq coq-version-is-V7          ; else test with "coqtop -v"
-	(if (string-match "version 7" (shell-command-to-string (concat coq-prog-name " -v"))) 
-	    (progn (message "coq is V7") t)
-	  (progn (message "coq is not V7") nil))))
+;; We also have coq-version-is-V74, to deal with the new module system
+(cond
+ ((boundp 'coq-version-is-V74) (setq coq-version-is-V7 t))
+ ((boundp 'coq-version-is-V7) (setq coq-version-is-V74 nil))
+ (t 
+  (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
+         (x (string-match "version \\([.0-9]*\\)" str))
+         (num (match-string 1 str)))
+    (cond
+     ((string-match num "\\<6.")
+      (message "coq is V6") (setq coq-version-is-V7 nil) (setq coq-version-is-V74 nil))
+     ((or (string-match num "\\<7.0") (string-match num "\\<7.1") 
+          (string-match num "\\<7.2") (string-match num "\\<7.3")) 
+      (message "coq is V7 =< 7.3") 
+      (setq coq-version-is-V7 t) (setq coq-version-is-V74 nil))
+      ;default: 7.3.1 and above ---> 7.4 
+     (t (message "coq is => V7.3.1")
+        (setq coq-version-is-V7 t) (setq coq-version-is-V74 t))))))
 
 ;; Command to reset the Coq Proof Assistant
 ;; Pierre: added Impl... because of a bug of Coq until V6.3
@@ -99,12 +112,13 @@
 (defvar coq-goal-regexp
   "\\(============================\\)\\|\\(subgoal [0-9]+ is:\\)\n")
 
+
 ;; ----- outline
 
 (defvar coq-outline-regexp
   (concat "(\\*\\|" (proof-ids-to-regexp 
 	   '(
-"Tactic" "Axiom" "Parameter" "Parameters" "Variable" "Variables" "Syntax" "Grammar" "Syntactic" "Load" "Require" "Hint" "Hints" "Hypothesis" "Correctness" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact" "Remark" "Record" "Inductive" "Mutual" "Definition" "Fixpoint" "Save" "Qed" "Defined" "End" "Coercion"))))
+"Tactic" "Axiom" "Parameter" "Parameters" "Variable" "Variables" "Syntax" "Grammar" "Syntactic" "Load" "Require" "Import" "Hint" "Hints" "Hypothesis" "Correctness" "Module" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact" "Remark" "Record" "Inductive" "Mutual" "Definition" "Fixpoint" "Save" "Qed" "Defined" "End" "Coercion"))))
 
 (defvar coq-outline-heading-end-regexp "\\*\)\n\\|\\.\n")
 
@@ -131,6 +145,17 @@
   (proof-ids-to-regexp coq-retractable-instruct))
 (defvar coq-non-retractable-instruct-regexp
   (proof-ids-to-regexp coq-non-retractable-instruct))
+
+(defvar coq-keywords-section
+  (cond 
+   (coq-version-is-V74 '("Section" "Module\\-+Type" "Module"))
+   (t '("Section"))))
+
+(defvar coq-section-regexp 
+;  (proof-ids-to-regexp coq-keywords-section)
+  "\\(\\<Section\\>\\|\\<Module\\>\\-+\\<Type\\>\\|\\<Module\\>\\)"
+)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -199,19 +224,20 @@
 ; DA: should be okay, communication is not as asynchronous as you think
 (defun coq-proof-mode-p ()
   "Allows to know if we are currentlly in proof mode. 
-Look at the last line of the *coq* buffer to see if the prompt 
-is the toplevel \"Coq <\". Returns nil if yes. 
-This assumes that no \"Resume\" command has been used."
+Look at the last line of the *coq* buffer to see if the prompt is the
+toplevel \"Coq <\". Returns nil if yes. This assumes that no
+\"Resume\" or \"Suspend\" command has been used."
   (not (string-match "^Coq < " proof-shell-last-prompt)))
 
-
-;; TODO : add the stuff to handle the "Correctness" command 
 
 ;; Pierre: May 29 2002 added a "Back n. " command in order to
 ;; synchronize more accurately.
  
 ;; DA: rewrote to combine behaviour with count-undos, to work with
 ;; nested proofs.
+
+
+
 
 (defun coq-find-and-forget (span)
   (let (str ans (naborts 0) (nbacks 0) (nundos 0))
@@ -222,9 +248,10 @@ This assumes that no \"Resume\" command has been used."
        
        ;; FIXME: combine with coq-keywords-decl-defn-regexp case below?
        ;; [ Maybe not: Section is being treated as a _goal_ command
-       ;;   now, so this test has to appear before the goalsave ]
+       ;;   now, so this test has to appear before the goalsave ]       
        ((proof-string-match 
-         (concat "Section\\s-+\\(" proof-id "\\)\\s-*") str)
+         (concat coq-section-regexp 
+                 "\\s-+\\(" proof-id "\\)\\(\\s-*\\(" proof-id "\\)\\)?") str)
         (unless (eq (span-property span 'type) 'goalsave)
           ;; If we're resetting to beginning of a section from
           ;; inside, need to fix the nesting depth.
@@ -234,8 +261,24 @@ This assumes that no \"Resume\" command has been used."
           ;; we need to set the "master reset" command which
           ;; subsumes the others, but still count the depth.
           (decf proof-nesting-depth))
-        (setq ans (format coq-forget-id-command (match-string 2 str))))
-       
+        (message "debut")
+        (message (concat "0=" (match-string 0 str)))
+        (message (concat "1=" (match-string 1 str)))
+        (message (concat "2=" (match-string 2 str)))
+        (message (concat "3=" (match-string 3 str)))
+        (message (concat "4=" (match-string 4 str)))
+        (message (concat "5=" (match-string 5 str)))
+        (message (concat "6=" (match-string 6 str)))
+        (message (concat "7=" (match-string 7 str)))
+        (message (concat "8=" (match-string 8 str)))
+        (message "fin")
+
+
+        (if (equal (match-string 2 str) "Type") ;Module Type id: take the third word
+            (progn 
+              (setq ans (format coq-forget-id-command (match-string 5 str))))
+          (setq ans (format coq-forget-id-command (match-string 2 str))))
+        )
        ((eq (span-property span 'type) 'goalsave)
         ;; Note da 6.10.99: in Lego and Isabelle, it's trivial to forget an
         ;; unnamed theorem.  Coq really does use the identifier
@@ -251,6 +294,11 @@ This assumes that no \"Resume\" command has been used."
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
        ((coq-goal-command-p str)
+        ;;Todo Hack: if Definition:foo. inside a "Module Type": it is
+        ;;not a proof start!!
+        ;(if (and (proof-string-match "Definition\\-+:[^=]?" str)
+        ;         (inside-module-type))
+        ;  (incf nfalseaborts))
         (incf naborts))
        
        ;; If we are already outside a proof, issue a Reset.

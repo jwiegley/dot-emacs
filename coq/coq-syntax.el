@@ -3,11 +3,19 @@
 ;; Authors: Thomas Kleymann and Healfdene Goguen
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
 
+;; To be added for coq 7.4:
+
+;;"And" -> ???
+
 ;; $Id$
 
 (require 'proof-syntax)
 
 ;; ----- keywords for font-lock.
+
+
+
+
 
 (defvar coq-keywords-decl
   '("Axiom[s]?"
@@ -17,7 +25,10 @@
     "Variable[s]?"
     "Global\\s-+Variable"
     ;;added tactic def here because it needs Reset to be undone correctly
-    "Tactic\\s-+Definition"))
+    "Tactic\\s-+Definition"
+    "Meta\\s-+Definition"
+    "Recursive\\s-+Tactic\\s-+Definition"
+    "Recursive\\s-+Meta\\s-+Definition"))
 
 (defvar coq-keywords-defn
   '("CoFixpoint"
@@ -35,6 +46,8 @@
 
 (defvar coq-keywords-goal
   '("Chapter"
+    "Module\\s-+Type"
+    "Module"
     "Section"
     "Correctness"
     "Definition"
@@ -162,6 +175,7 @@ Print and Check commands, put the following line in your .emacs:
     "Implicit\\s-+Arguments\\s-+Off"
     "Implicit\\s-+Arguments\\s-+On"
     "Implicits"
+    "Import"
     "Infix"
     "Load"
     "Read\\s-+Module"
