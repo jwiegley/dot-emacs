@@ -92,9 +92,9 @@
    (concat "The menu for " proof-assistant)
    (cons proof-assistant
 	 (append
-	  (proof-assistant-menu-entries)
+	  (proof-ass menu-entries)
 	  '("----")
-	  (proof-assistant-favourites)
+	  (proof-ass favourites)
 	  '(["Add favourite" 
 	     (call-interactively 'proof-add-favourite) t])
 	  '("----")
