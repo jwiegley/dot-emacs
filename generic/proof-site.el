@@ -141,7 +141,7 @@ You can select which proof assistants you want by setting this
 variable before `proof-site.el' is loaded, or by setting
 the environment variable `PROOFGENERAL_ASSISTANTS' to the
 symbols you want, for example \"lego isa\".  Or you can
-edit proof-site.el itself.
+edit the file `proof-site.el' itself.
 
 Note: to change proof assistant, you must start a new Emacs session.")
   :type (cons 'set 
