@@ -10,6 +10,7 @@
     "as"
     "binder"
     "con_defs"
+    "concl"
     "congs"
     "distinct"
     "files"
@@ -144,6 +145,7 @@
   '("finally"
     "from"
     "then"
+    "thence"
     "with"))
 
 (defconst isar-keywords-proof-decl
