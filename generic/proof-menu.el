@@ -7,6 +7,8 @@
 ;; $Id$
 ;;
 
+(require 'proof)
+(require 'proof-syntax)
 (require 'proof-toolbar)     ; needed for proof-toolbar-scripting-menu
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -137,37 +139,37 @@ If in three window or multiple frame mode, display two buffers."
 (defun proof-menu-define-specific ()
   (easy-menu-define 
    proof-assistant-menu 
-    proof-mode-map
+   proof-mode-map
     (concat "The menu for " proof-assistant)
     (cons proof-assistant
-	  (append
-	   (proof-ass menu-entries)
-	   '("----")
-	   (or proof-menu-favourites
-	       (proof-menu-define-favourites-menu))
-	   (or proof-menu-settings
-	       (proof-menu-define-settings-menu))
-	   '("----")
-	   (list
-	    (vector
-	     (concat "Start " proof-assistant)
-	     'proof-shell-start
-	     ':active '(not (proof-shell-live-buffer)))
+	   (append
+	    (proof-ass menu-entries)
+	    '("----")
+	    (or proof-menu-favourites
+		(proof-menu-define-favourites-menu))
+	    (or proof-menu-settings
+		(proof-menu-define-settings-menu))
+	    '("----")
+	    (list
+	     (vector
+	      (concat "Start " proof-assistant)
+	      'proof-shell-start
+	      ':active '(not (proof-shell-live-buffer)))
 	    (vector
 	     (concat "Exit " proof-assistant)
 	     'proof-shell-exit
 	     ':active '(proof-shell-live-buffer)))
-	   '("----")
-	   (list
-	    (cons "Help"
-		  (append
-		   `([,(concat proof-assistant " information")
-		      '(proof-help)
-		      ,menuvisiblep proof-info-command]
-		     [,(concat proof-assistant " web page")
-		      '(browse-url proof-assistant-home-page)
-		      ,menuvisiblep proof-assistant-home-page])
-		   (proof-ass help-menu-entries))))))))
+	    '("----")
+	    (list
+	     (cons "Help"
+		   (append
+		    `([,(concat proof-assistant " information")
+		       '(proof-help)
+		       ,menuvisiblep proof-info-command]
+		      [,(concat proof-assistant " web page")
+		       '(browse-url proof-assistant-home-page)
+		       ,menuvisiblep proof-assistant-home-page])
+		    (proof-ass help-menu-entries))))))))
 
 (defun proof-assistant-menu-update ()
   "Update proof assistant menu in scripting buffers."
