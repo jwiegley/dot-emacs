@@ -75,19 +75,18 @@ rearrange:
 
 default: doc
 
+FORCE:
+
 ProofGeneral.txt:
 	echo > ProofGeneral.txt
 
-# In fact, the flag seems not to work (why?), 
-# so comment out the image line too. 
-# NB! mustn't have another line with '@c image' in it.
-ProofGeneralPortrait.eps:
+ProofGeneralPortrait.eps: FORCE
 	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; fi
 	if [ -f ProofGeneralPortrait.eps ]; then \
-	  sed 's/@clear haveeps/@set haveeps/g' ProofGeneral.texi > $(TMPFILE); \
+	  sed 's/@clear haveeps/@set haveeps/g' $(DOCNAME).texi > $(TMPFILE); \
 	  sed 's/@c image{ProofGeneralPortrait}/@image{ProofGeneralPortrait}/g' $(TMPFILE) > ProofGeneral.texi; \
 	else   \
-	  sed 's/@set haveeps/@clear haveeps/g' ProofGeneral.texi > $(TMPFILE); \
+	  sed 's/@set haveeps/@clear haveeps/g' $(DOCNAME).texi > $(TMPFILE); \
 	  sed 's/@image{ProofGeneralPortrait}/@c image{ProofGeneralPortrait}/g' $(TMPFILE) > ProofGeneral.texi; \
 	fi
 	rm -f $(TMPFILE)
