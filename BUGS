@@ -18,9 +18,9 @@ and any other information you think may be relevant.  Workaround:
 switch to using XEmacs.
 
 * Toolbar enablers for XEmacs 21: since these have been switched on,
-it is apparent that the recognition of completed proofs is unreliable.
-Please report cases where the buttons are enabled/disabled at the 
-wrong time.  
+it is apparent that the recognition of completed proofs may be
+unreliable (it wasn't used before).  Please report cases where the
+buttons are enabled/disabled at the wrong time.
 
 * Ordinary undo in the script buffer can edit the "uneditable region"
 in XEmacs.  This doesn't happen in FSFmacs.  Test case:
@@ -39,7 +39,7 @@ the best of all possible worlds, switch to XEmacs.
 breaks some of the code in Proof General, which is turned off in
 case the suspicious looking function
 toggle-enable-multibyte-characters is present.  This could effect
-forthcoming versions of XEmacs.
+forthcoming versions of XEmacs (but hasn't as far as XEmacs 21.1).
 Workaround: use FSFmacs 20.2, or XEmacs 20.4/later.
 
 * Using C-g can leave script management in a mess.  The code
@@ -47,9 +47,11 @@ needs to have some regions protected from Emacs interrupts.
 Workaround: Don't type C-g while script management is processing.  If
 you do, use proof-restart-scripting.
 
-* Outline-mode does not work in proof script files due to read-only
-restrictions of protected region.  Workaround: none, nevermind.
-(If it's hugely needed we could support modified outline commands).
+* Outline-mode does not work in processed proof script files due to
+read-only restrictions of the protected region.  This is an inherent
+problem with outline because it works by modifying the buffer.
+Workaround: none, nevermind.  (If it's hugely needed we could support
+modified outline commands).
 
 * `proof-find-next-terminator' (bound to C-c C-e) doesn't work
 properly.  Neither does 'proof-goto-command-start' (C-c C-a).
@@ -70,41 +72,21 @@ recommended way of working) is to run XEmacs locally and only
 the proof assistant on your fast compute server, by setting 
 proof-rsh-command.
 
-* There is an problem with process communication on Solaris, where
-there is an input line length limitation for terminals in cooked mode,
-perhaps to 256 characters.  Further input elicits a bell character
-(^G).  This ruins Proof General's parsing of the shell buffer.
-Future fix: try setting process-connection-type to nil, which
-instructs XEmacs to use pipes instead of pseudo-terminals for
-subprocess I/O.  (You lose job control of processes you start in shell
-mode, and some commands (notably ls) behave differently when writing
-output to a pipe instead of a tty.  But using a pipe will allow you to
-paste arbitrarily long blocks of text into shell mode.)
-Current workaround:  use another OS, e.g. Linux.
-[1999/08/20: believed to be fixed]
-
-* XEmacs sessions maybe grow excessively in terms of memory
-allocation. Maybe some of the spans aren't removed properly.
-Setting a limit on the size of the process buffer doesn't seem to
-help.  
-[1998/10/06: believed to be fixed]
-
 * When proof-rsh-command is set to "ssh host" and you issue Ctrl-c to
 interrupt, the whole process may be killed instead of interrupted.
 This isn't a bug in Proof General, but the behaviour of ssh.  Try
 using rsh instead, it is said to forward signals to the remote command.
 
-FSF Emacs specific bugs
-=======================
 
-*`proof-zap-commas-region' does not work for Emacs 20.2 on
-  lego/example.l . On *initially* fontifying the buffer,
-  commas are not zapped. However, when entering text, commata are
-  zapped correctly. Workaround: don't stare too much at commata
 
 
 LEGO Proof General Bugs
 =======================
+
+* [FSF specific] `proof-zap-commas-region' does not work for Emacs
+  20.2 on lego/example.l . On *initially* fontifying the buffer,
+  commas are not zapped [unfontified]. However, when entering text,
+  commata are zapped correctly. Workaround: don't stare too much at commata
 
 * If LEGO attempts to write a (object) file in a non-writable
   directory, it forgets the protocol mechanism on how to interact with 
@@ -161,15 +143,16 @@ as you might expect.  This probably has no detrimental impact on the
 interface unless you use your own "goal" or "qed" forms.
 
 * Blocking when processing multiple files, beginning from a .ML file.
-Proof General will block the Emacs process when it is waiting for
-a theory file (and it's ancestors) to be read.  To avoid this,
-assert the theory file rather than the ML file, or use C-c C-s
-to start scripting before using one of the assertion commands.
+Proof General will block the Emacs process when it is waiting for a
+theory file (and it's ancestors) to be read.  To avoid this, assert
+the theory file rather than the ML file, or use C-c C-s to start
+scripting (which triggers reading the theory) before using one of
+the assertion commands.
 
 * Cut-and-paste from Isabelle output (e.g. goals buffer) is
 problematic.  You will find that this inserts otherwise-invisible
 special characters into the script buffer, which are used to do the
 highlighting.  If you really need to do cut-and-paste, customize the
 variable proof-shell-leave-annotations-in-output to nil.
-Unfortunately this will turn off highlighting.
+Unfortunately this will turn off variable colouring.
 

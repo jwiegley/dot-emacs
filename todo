@@ -51,15 +51,39 @@ re-enabled), proof-toggle-scripting, new configuration options.
     - Fix sentinel infinite loop bug
     - noticeable delay when loading ML files for Isabelle (fontification?)
 
-A Isabelle (and perhaps other prover) multiple file problem: 
-  add configuration setting proof-shell-inform-file-processed-command,
-  and send *retract* action when reactivating scripting in a previously
-  full buffer, but don't actually unlock there.  
+B Fixing up PBP: things almost work for lego (apart from getting
+   pbp wrong!) -- there is a bug with (newline-and-indent) though
+   which tries to write into the locked region for some reason.
 
-A Nested error problem:  conceptually, activate scripting should fail
+C IDEAS FOR SIMPLIFIED PROVER INSTANTIATION.
+  We could make extensive use of defvaralias to automatically
+  declare the settings for each proof assistant.  Then the 
+  tedious "shadowing" (or copying) is done automatically.  
+  e.g. 
+
+C Improved configurability of command settings, etc.
+  We should let command settings, etc, be a special type
+  which can be one of three things:
+
+    'string    -- send this as a command to assistant
+    'function  -- call this interactively to return either
+		   'string -- send this as a command
+		    nil -- do nothing (function does work).
+				   
+  This way we cover commands which need prompting for extra
+  args, as well as elisp functions which do whatever's necessary.
+  Then use a generic function "proof-invoke-function" or similar.
+
+C C-x C-v does not seem to run kill buffer hooks properly: at
+  least, what happens is buffer name changes to **lose** and
+  (e.g.) a completely processed file doesn't get added to the
+  included files list.  Auto retraction appears to work.
+
+B Nested error problem:  conceptually, activate scripting should fail
   if the hook function which causes loading of more files (for isabelle)
   fails.  Maybe fix by adding a new piece of state: 
-  "proof-shell-error-flagged".
+  "proof-shell-error-flagged" and testing it before allowing
+  scripting to start.
 
 B Add something to better document two-buffer versus three-buffer
   interaction modes, and the use of proof-window-dedicated to
@@ -728,6 +752,18 @@ D Improve coqtags. It cannot handle lists e.g., with
 
 * Things to do for Isabelle
 ===========================
+
+B Stuff with x-symbols mentioned by DvO:
+
+    I've noticed a problem at least with xemacs 20.3: After
+    Goal "A\\<longrightarrow>a";
+    qed "x";
+    in the error message (unsolved goals), the x-symbol is not printed
+    correctly. This has to do with 
+	  (proof-x-symbol-decode-region start (point))
+    in proof-response-buffer-display. For some reason, this problem does
+    not arise when a tactic fails, e.g.
+    by (subgoal_tac "+nonsense" 1);
 
 B auto-adjust Pretty.setmargin when window is resized
 
