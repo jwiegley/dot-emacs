@@ -240,6 +240,14 @@ Called with one argument: t to save database, nil otherwise."
 
 ;;; ==========  Utility functions ==========
 
+(defcustom isabelle-refresh-logics t
+  "*Whether to refresh the list of logics during an interactive session.
+If non-nil, then `isatool findlogics' will be used to regenerate
+the `isabelle-logics-available' setting.  If this tool does not work
+for you, you should disable this behaviour."
+  :type 'boolean
+  :group 'isabelle)
+
 (defcustom isabelle-logics-available (isa-tool-list-logics)
   "*List of logics available to use with Isabelle.
 If the `isatool' program is available, this is automatically
@@ -284,12 +292,24 @@ until Proof General is restarted."
 			   :selected (list 'equal 'isabelle-chosen-logic l)))
 		 (isa-tool-list-logics)))))
 
+;; Status: remove-menu-item 
 (defun isabelle-logics-menu-refresh ()
   "Refresh isabelle-logics-menu."
   (interactive)
-  (setq isabelle-logics-menu (isabelle-logics-menu-calculate))
-  ;; FIXME: need to do some easy-menu magic here
-  )
+  (if isabelle-refresh-logics
+      (progn
+	(setq isabelle-logics-available (isa-tool-list-logics))
+	(setq isabelle-logics-menu (isabelle-logics-menu-calculate))
+	;;(easy-menu-remove-item proof-assistant-menu
+	;;		       (list (car proof-assistant-menu))
+	;;		       "Logics")
+	(easy-menu-add-item 
+	 proof-assistant-menu 
+	 nil ;; NB: nil doesn't work: buggy or other reason?
+	 ;; Frustrating.  A workaround was found at great effort in
+	 ;; proof-menu.el for the favourites.
+	 isabelle-logics-menu))))
+
 
 (defconst isabelle-logics-menu (isabelle-logics-menu-calculate)
   "Isabelle logics menu.  Calculated when Proof General is loaded.")
