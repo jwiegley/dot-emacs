@@ -15,7 +15,7 @@
 @c The following two commands start the copyright page.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1997 LEGO Team, LFCS Edinburgh
+Copyright @copyright{} 1997, 1998 LEGO Team, LFCS Edinburgh
 @end titlepage
 
 @node    Top, Introduction, (dir), (dir)

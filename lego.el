@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.52  1998/07/27 15:39:56  tms
+;; Supports official LEGO release 1.3
+;;
 ;; Revision 1.51  1998/06/10 11:43:38  hhg
 ;; Added lego-init-syntax-table as function to initialize syntax entries
 ;; particular to LEGO, and call it from lego-shell-mode-config.
@@ -248,7 +251,7 @@
 (defvar lego-undoable-commands-regexp
   (ids-to-regexp '("Dnf" "Refine" "Intros" "intros" "Next" "Normal"
   "Qrepl" "Claim" "For" "Repeat" "Succeed" "Fail" "Try" "Assumption"
-  "UTac" "Qnify" "andE" "andI" "exE" "exI" "orIL" "orIR" "orE" "ImpI"
+  "UTac" "Qnify" "qnify" "andE" "andI" "exE" "exI" "orIL" "orIR" "orE" "ImpI"
   "impE" "notI" "notE" "allI" "allE" "Expand" "Induction" "Immed"
   "Invert")) "Undoable list")
 

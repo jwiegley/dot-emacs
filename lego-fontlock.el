@@ -6,6 +6,9 @@
 ;; should perhaps be called lego-syntax instead of lego-fontlock
 
 ;; $Log$
+;; Revision 1.6  1998/07/27 15:39:53  tms
+;; Supports official LEGO release 1.3
+;;
 ;; Revision 1.5  1998/05/29 09:49:40  tms
 ;; o outsourced indentation to proof-indent
 ;; o support indentation of commands
@@ -49,7 +52,7 @@
 	    "ExportState" "Equiv" "For" "Freeze" "Hnf" "Immed"
 	    "impE" "impI" "Induction" "Inductive" 
 	    "Invert" "Init" "intros" "Intros" "Module" "Next" 
-	    "Normal" "notE" "notI" "orE" "orIL" "orIR" "Qnify"
+	    "Normal" "notE" "notI" "orE" "orIL" "orIR" "qnify" "Qnify"
 	    "Qrepl" "Record" "Refine" "Repeat" "Try" "Unfreeze"))
   "Subset of LEGO keywords and tacticals which are terminated by a \?;")
 
