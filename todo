@@ -14,6 +14,8 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A* Fix display handling problems  (tms, all week)
+
 A* multiple files bug fix:
    It can happen (in Isabelle) that the prover retracts a file
    which asks for another to be retracted which is *not* on
@@ -23,16 +25,22 @@ A* multiple files bug fix:
    from *any* buffer which is matched by the retract_files_regexp,
    not just those in proof-shell-compute-new-files-list.
    (tms, please?  30mins?)
+   --> One case now fixed by allowing current scripting buffer to
+    be retracted.  Are there other cases?  (da to investigate)
+
+A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
+  Technical Report (2 days; da + tms)
 
 A* FIX INDENTATION CODE, EDITING .ML (& other?) FILES IS CHRONICALLY SLOW.
   This is going to hit us hard as soon as the mode gets used in
   earnest.
+  (da, 10mins: disable it!)
   (da, 2hrs: will investigate if fault lies with Isabelle syntax config)
   (8hrs, estimated time to fixup indentation code otherwise.  May be
          best removed altogether, or replaced with elisp code clone)
 
-B ROBUSTness: deal gracefully with possibility that goals buffer is
-  killed during session.
+C ROBUSTness: deal gracefully with possibility that goals buffer is
+  killed during session.   (2h)
 
 B da: goal-hyp: this should be more generic.  At the moment, there are
   generic variables which are only used in the specific code:
@@ -43,23 +51,31 @@ B da: goal-hyp: this should be more generic.  At the moment, there are
 
 B proof-shell-noise-regexp: seems unused at present, but set
   in the specific directories.  Either use it or be rid of it!
+  (tms, apparently is used in LEGO mode but should be generic?)
 
-A byte-compilation: continue fixups for clean byte compile.
-  Need to compile from clean Emacs to see proper warnings.
-  Check that byte compilation (and compiled code!) 
+A Check that byte compilation (and compiled code!) 
   works for both varieties of Emacs. 
-  Fill out Makefile.dist (4hr da)
+  Fill out Makefile.dist (2hr da)
+
+B Make completion more generic. For Isabelle and Lego, we can build a
+  completion table by querying the process, which is better than
+  messing with tags.  
+A* fix any bits I've broken  (da, 1hr)
 
 C support for templates e.g., in LEGO it would be nice if, by default, 
   fresh buffers corrsponding to file foo.l would automatically insert
   "Module foo;" (1h)
 
 C  Remove "FIXME notes" which are just notes I've put in about old
-   code in case something breaks   (da, 30mins).
+   code in case something breaks   (da, 10mins).
 
 C  Check on all FIXME notes.
 
-C  Toolbar icon for `proof-execute-minibuffer-cmd'
+C  Write proof-define-derived-mode which automatically adds a 
+   call back hook somehow.  Propose this to maintainer of derived.el.
+   (1.5hrs)
+
+C  Toolbar icon for `proof-execute-minibuffer-cmd'  (1.5hrs)
 
 A* Fixup for non-script buffer locking:
 
@@ -68,7 +84,7 @@ A* Fixup for non-script buffer locking:
 
     proof-restart-script is now broken (2h da)
 
-B Improve web pages after suggestions in doc/notes.txt
+C Improve web pages after suggestions in doc/notes.txt
   (da, 1.5hrs)
 
 C proof-issue-goal should refuse to work when a proof is in progress.
@@ -127,9 +143,6 @@ B Implement more generic mechanism for large undos (4h tms)
     LEGO: consider Discharge; perhaps unrol to the beginning of the
           module?
 
-A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
-  Technical Report (2 days; da + tms)
-
 C Provide a sensible default frame/buffer layout (4h)
 
 C A less drastic version of proof-restart-script would be useful:
@@ -164,11 +177,6 @@ C Cleanup handling of proof-terminal-string.  At the moment some
   It's not a big deal and would support other provers which
   may use a mixture of terminators, or no terminators at all.
 
-C Investigate and improve indentation/font-locking code.
-  At the moment editing .ML files in Isabelle Proof General is
-  *very* slow.  Moreover the indentation is screwy.  Also
-  seems screwy in LEGO/Coq PG.  (da, 2hr)
-
 C Better support for adding a new prover: give error messages which
   hint at what variable to set (see proof-issue-goal for example).
 
@@ -193,31 +201,12 @@ C Add skeleton instantiation files for a dummy prover "myassistant" to
   the default provers as an impoverished example mode.
   (2h, da will do for Isabelle)
 
-D Code in proof.el assumes all characters with top bit set are special
-  instructions to Emacs.  This is rather arrogant, and precludes proof
-  systems which utilize 8-bit character sets!  Needs repair.  (3h)
-
 D Add support to proof.el for *not* setting variables for
   commands which aren't supported by a prover.  For example,
   in Isabelle there is no such thing as killing a goal.
   For the minimum set of variables to cover, see FIXME's in isa.el
   (da, 1.5hrs)						   
 				    
-D Outsource script management features from proof.el to
-  proof-script.el 		(1h)
-
-C Fixup sources to follow Elisp conventions better.
-  1. The first line of documentation of functions and
-     variables should be a whole sentence.  Subsequent lines should
-     *not* be indented.  See output of hyper-apropos and
-     poor formatting of current comments.   (1hr)
-  2. Replace defvar's by defconst's where appropriate.
-     Introduce new defconsts.
-  3. Check on use of "*" in docstrings.  Should be used for
-     variables which are user-level options, only.
-  4. Upper case in docstrings is reserved for the name
-     of a function's arguments, usually.
-
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
 
@@ -239,9 +228,9 @@ C Unify toolbar and menu functions.
 D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
 
-C Make completion more generic. For Isabelle and Lego, we can build a
-  completion table by querying the process, which is better than
-  messing with tags.
+X Code in proof.el assumes all characters with top bit set are special
+  instructions to Emacs.  This is rather arrogant, and precludes proof
+  systems which utilize 8-bit character sets!  Needs repair.  (3h)
 
 X Span convenience functions for special 'type property.
   Could put these in proof.el or somewhere.
@@ -382,6 +371,8 @@ C Improve legotags. I cannot handle lists e.g., with
 * Here are things to be done to Coq mode
 ========================================
 
+A* Implement multiple file handling.
+
 C derive a coq-response-mode from proof-response-mode; see lego.el (10min)
 
 
@@ -392,19 +383,12 @@ D Add Patrick Loiseleur's commands to search for vernac or ml files.
 
 X Sections and files are handled incorrectly.
 
-B Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
-  correct command if I undo up to the lower lemma, but the buffer
-  undoes to the upper lemma.  I.e., if I start Lemma x, then prove
-  Lemma y, then finish x, and undo lemma x, then lemma y gets undone
-  in the buffer as well. (45min hhg)
-  [ This seems to have corrected itself... hhg ]
-
 D Proof-by-Pointing (10h hhg)
 
-B Add coq-add-tactic with a tactic name, which adds that tactic to the 
+D Add coq-add-tactic with a tactic name, which adds that tactic to the 
   undoable tactics and to the font-lock. (2h)
 
-C Improve coqtags. I cannot handle lists e.g., with 	
+D Improve coqtags. I cannot handle lists e.g., with 	
 
 	Parameter x,y:nat
 
@@ -424,7 +408,7 @@ D Implement completion for Isabelle using tables generated by
 
 D Add useful specific commands for Isabelle.  Many could
   be added.  Would be better to merge in Isamode's menus.
-  (probably a week's work to bring together Isamode and proof.el,
+  (probably a month's work to bring together Isamode and proof.el,
    making some of Isamode generic)
 
 X Add ability to choose logic.  Maybe not necessary: can use default
