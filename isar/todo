@@ -4,6 +4,9 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** C func-menu: observe proof-syntactic-context (general problem of
+func-menu setup?);
+
 ** C undo 'use' command: unlock corresponding ML file;
 
 ** C provide template for empty theory (or even just for Scratch.thy);
