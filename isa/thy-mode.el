@@ -9,7 +9,7 @@
 ;; $Id$
 ;;
 ;; NAMESPACE management: all functions and variables declared
-;; in this file begin with isa-thy-
+;; in this file begin with thy-
 
 (require 'proof-site)
 (require 'proof-syntax)
