@@ -181,10 +181,6 @@ response buffer.
 
 For single frame use this option may be inconvenient for
 experienced Emacs users."  
-  ;; Did say: 
-  ;; Moreover, this option may cause problems with multi-frame 
-  ;; use because of a bug.  
-  ;; but I can't find it as of 3.0pre201099.  
   :type 'boolean 
   :group 'proof-user-options)
 
@@ -197,8 +193,7 @@ the goals and response buffers, by altering the Emacs variable
   :set 'proof-set-value
   :group 'proof-user-options)
 
-(defcustom proof-delete-empty-windows 
-  nil
+(defcustom proof-delete-empty-windows nil
   "*If non-nil, automatically remove windows when they are cleaned.
 For example, at the end of a proof the goals buffer window will
 be cleared; if this flag is set it will automatically be removed.
@@ -206,6 +201,13 @@ If you want to fix the sizes of your windows you may want to set this
 variable to 'nil' to avoid windows being deleted automatically.
 If you use multiple frames, only the windows in the currently
 selected frame will be automatically deleted."
+  :type 'boolean
+  :group 'proof-user-options)
+
+(defcustom proof-shrink-windows-tofit nil
+  "*If non-nil, automatically shrink output windows to fit contents.
+In single-frame mode, this option will reduce the size of the
+goals and response windows to fit their contents."
   :type 'boolean
   :group 'proof-user-options)
 
