@@ -1222,7 +1222,8 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; proof, and add to buffer-local list of elements, maybe
 	;; making invisible.
 	(let ((proofbodyspan
-	       (make-span goalend (if proof-script-integral-proofs saveend savestart))))
+	       (make-span goalend (if proof-script-integral-proofs 
+				      saveend savestart))))
 	  (pg-add-proof-element nam proofbodyspan gspan))
 
 	;; Set the context sensitive menu/keys
