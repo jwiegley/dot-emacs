@@ -338,11 +338,9 @@ exited by hand (or exits by itself)."
 	      ;; First, turn off scripting in any active scripting
 	      ;; buffer.  (This helps support persistent sessions with
 	      ;; Isabelle, for example, by making sure that no file is
-	      ;; partly processed when exiting).  Rather than
-	      ;; questioning the user, we behave as killing a script
-	      ;; buffer: forcibly retract a partly processed file and
-	      ;; always succeed.
-	      (proof-deactivate-scripting 'forceretract)
+	      ;; partly processed when exiting, and registering completed
+	      ;; files).  
+	      (proof-deactivate-scripting-auto)
 	      ;; Second, we try to shut down the proof process
 	      ;; politely.  Do this before deleting other buffers,
 	      ;; etc, so that any closing down processing works okay.

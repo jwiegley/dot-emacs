@@ -810,6 +810,13 @@ an error is signalled here."
 		(and (eq action 'process) (proof-locked-region-full-p))
 		(error "%s of %s failed!" name buf)))))))
 
+(defun proof-deactivate-scripting-auto () 
+  "Deactivate scripting without asking questions.
+If the locked region is full, register the file as processed.
+Otherwise retract it."
+  (proof-deactivate-scripting
+   (proof-with-script-buffer
+    (if (proof-locked-region-full-p) 'process 'retract))))
 
 (defun proof-deactivate-scripting (&optional forcedaction)
   "Deactivate scripting for the active scripting buffer.
@@ -2357,13 +2364,13 @@ to restore them using `after-set-visited-file-name-hooks'."
 (defun proof-script-kill-buffer-fn ()
   "Value of kill-buffer-hook for proof script buffers.
 Clean up before a script buffer is killed.
-If killing the active scripting buffer, run proof-deactivate-scripting.
+If killing the active scripting buffer, run proof-deactivate-scripting-auto.
 Otherwise just do proof-restart-buffers to delete some spans from memory."
   ;; Deactivate scripting in the current buffer if need be, forcing
   ;; automatic retraction if the buffer is not fully processed.
   (unwind-protect
       (if (eq (current-buffer) proof-script-buffer)
-	  (proof-deactivate-scripting 'retract))
+	  (proof-deactivate-scripting-auto))
     (proof-restart-buffers (list (current-buffer)))
     ;; Hide away goals, response, and tracing.  This is a hack because
     ;; otherwise we can lead the user to frustration with the
