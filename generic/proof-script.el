@@ -270,7 +270,7 @@ The position is actually one beyond the last locked character."
 (defun proof-script-end ()
   "Return the character beyond the last non-whitespace character.
 This is the same position proof-locked-end ends up at when asserting
-the script."
+the script.  Works for any kind of buffer."
   (save-excursion
     (goto-char (point-max))
     (skip-chars-backward " \t\n")
@@ -360,8 +360,8 @@ Does nothing if there is no active scripting buffer."
 ;;
 ;; da:cleaned
 
-(defun proof-mark-buffer-atomic (buffer)
-  "Mark BUFFER as having been processed in a single step.
+(defun proof-complete-buffer-atomic (buffer)
+  "Make sure BUFFER is marked as completely processed, completing with a single step.
 
 If buffer already contains a locked region, only the remainder of the
 buffer is closed off atomically.
@@ -370,38 +370,40 @@ This works for buffers which are not in proof scripting mode too,
 to allow other files loaded by proof assistants to be marked read-only." 
   (save-excursion
     (set-buffer buffer)
-    (let ((span (make-span (proof-unprocessed-begin) (point-max)))
-	  cmd)
-      (if (eq proof-buffer-type 'script) 
-	  ;; For a script buffer
-	  (progn
-	   (goto-char (point-min))
-	    (proof-find-next-terminator)
-	    (let ((cmd-list (member-if
-			     (lambda (entry) (equal (car entry) 'cmd))
-			     (proof-segment-up-to (point)))))
-	      ;; Reset queue and locked regions.
-	      (proof-init-segmentation)
-	      (if cmd-list 
-		  (progn
-		    (setq cmd (second (car cmd-list)))
-		    (set-span-property span 'type 'vanilla)
-		    (set-span-property span 'cmd cmd))
-		;; If there was no command in the buffer, atomic span
-		;; becomes a comment. This isn't quite right because
-		;; the first ACS in a buffer could also be a goal-save
-		;; span. We don't worry about this in the current
-		;; implementation. This case should not happen in a
-		;; LEGO module (because we assume that the first
-		;; command is a module declaration). It should have no
-		;; impact in Isabelle either (because there is no real
-		;; retraction).
-		(set-span-property span 'type 'comment))))
-	;; For a non-script buffer
-	(proof-init-segmentation)
-	(set-span-property span 'type 'comment))
-      ;; End of locked region is always end of buffer
-      (proof-set-locked-end (proof-script-end)))))
+    (if (< (proof-unprocessed-begin) (proof-script-end))
+	(let ((span (make-span (proof-unprocessed-begin) 
+			       (proof-script-end)))
+	      cmd)
+	  (if (eq proof-buffer-type 'script) 
+	      ;; For a script buffer
+	      (progn
+		(goto-char (point-min))
+		(proof-find-next-terminator)
+		(let ((cmd-list (member-if
+				 (lambda (entry) (equal (car entry) 'cmd))
+				 (proof-segment-up-to (point)))))
+		  ;; Reset queue and locked regions.
+		  (proof-init-segmentation)
+		  (if cmd-list 
+		      (progn
+			(setq cmd (second (car cmd-list)))
+			(set-span-property span 'type 'vanilla)
+			(set-span-property span 'cmd cmd))
+		    ;; If there was no command in the buffer, atomic span
+		    ;; becomes a comment. This isn't quite right because
+		    ;; the first ACS in a buffer could also be a goal-save
+		    ;; span. We don't worry about this in the current
+		    ;; implementation. This case should not happen in a
+		    ;; LEGO module (because we assume that the first
+		    ;; command is a module declaration). It should have no
+		    ;; impact in Isabelle either (because there is no real
+		    ;; retraction).
+		    (set-span-property span 'type 'comment))))
+	    ;; For a non-script buffer
+	    (proof-init-segmentation)
+	    (set-span-property span 'type 'comment))
+	  ;; End of locked region is always end of buffer
+	  (proof-set-locked-end (proof-script-end))))))
 
 (defun proof-file-truename (filename)
   "Returns the true name of the file FILENAME or nil."
@@ -437,7 +439,7 @@ to allow other files loaded by proof assistants to be marked read-only."
 	  ;; If the file is loaded into a buffer, put an
 	  ;; atomic locked region in it.
 	  (if buffer
-	      (proof-mark-buffer-atomic buffer))))))
+	      (proof-complete-buffer-atomic buffer))))))
 
 (defun proof-unregister-buffer-file-name ()
   "Remove current buffer's filename from the list of included files.
@@ -2055,7 +2057,7 @@ finish setup which depends on specific proof assistant configuration."
   (and buffer-file-truename
        (member (file-truename buffer-file-truename)
 	       proof-included-files-list)
-       (proof-mark-buffer-atomic (current-buffer)))
+       (proof-complete-buffer-atomic (current-buffer)))
 
   ;; calculate some strings and regexps for searching
   (setq proof-terminal-string (char-to-string proof-terminal-char))
