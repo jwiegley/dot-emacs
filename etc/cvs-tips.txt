@@ -105,9 +105,10 @@ This is needed to solve "localssh.dcs" versus "ssh.dcs" problem.
 Moving to a new branch
 ======================
 
-   find * -path '*/CVS' -prune -o -path 'CVS' -prune -o -print | tr '\n' '\0' | xargs -0 cvs commit -m"Updating branch" -f -r 4.0         
+This only works on a clean repository (no spurious files):
+
+   find * -path '*/CVS' -prune -o -path 'CVS' -prune -o -print | tr '\n' '\0' | xargs -0 cvs commit -m"Updating branch" -f -r 4.0
 
 (The tr is needed because of some nasty filenames, e.g. etc/isa/\backslashname)
- 
 
 
