@@ -850,9 +850,10 @@ Must be called when the point is at end of last abbrev expansion."
   (let ((n (holes-count-newlines-in-last-expand)))
     (save-excursion
       (previous-line n)
-      (while (>= n 0)
-	(funcall indent-line-function)
+      (funcall indent-line-function)
+      (while (> n 0)
 	(next-line 1)
+	(funcall indent-line-function)
 	(setq n (- n 1))
 	)
       )
