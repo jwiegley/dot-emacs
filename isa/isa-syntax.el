@@ -56,6 +56,13 @@
   (modify-syntax-entry ?\( "()1")
   (modify-syntax-entry ?\) ")(4"))
 
+(defun isa-init-output-syntax-table ()
+  "Set appropriate values for syntax table for Isabelle output."
+  (isa-init-syntax-table)
+  ;; ignore strings so font-locking works
+  ;; inside them
+  (modify-syntax-entry ?\" " "))
+
 
 ;; ----- syntax for font-lock and other features
 
@@ -79,7 +86,6 @@
 ;; Not recognized as a qed command, and therefore assumed 
 ;; to be an undoable tactic command.
 ;;
-
 
 (defgroup isa-syntax nil
   "Customization of Isabelle syntax for proof mode"
@@ -147,22 +153,7 @@
 (defconst isa-ids (proof-ids isa-id "[ \t]*")
   "Matches a sequence of identifiers separated by whitespace.")
 
-(defconst isar-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
-
-(defun isa-binder-regexp (binder dot)
-    (concat binder "\\s-*\\(" isa-ids "\\)\\s-*" dot))
-
-(defvar isa-font-lock-terms
-  ;(list
-   ;; This font lock regexp is faulty: causes big delay in
-   ;; font locking any buffer with % something in it.
-   ;; In any case, all Isabelle terms are in strings in
-   ;; proof scripts and theory files, unfortunately, so
-   ;; it has no use anyway.
-   ;; lambda binders
-   ; (list (isa-binder-regexp "\%" "\\.") 1 'proof-declaration-name-face))
-  nil
-  "*Font-lock table for Isabelle terms.")
+(defconst isa-string "\"\\(\\([^\\\"]\\|\\\\\"\\)*\\)\"")
 
 (defconst isa-save-command-regexp
   (proof-anchor-regexp (proof-ids-to-regexp isa-keywords-save)))
@@ -195,55 +186,95 @@
 	  "\\)" isa-string-regexp)
   "Regexp matching goal commands in Isabelle which name a theorem")
 
+
+;; ----- Isabelle inner syntax hilite
+
+(defface isabelle-class-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "red"))
+    (((type x) (class color) (background dark))   
+     (:foreground "red3"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-tfree-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "purple"))
+    (((type x) (class color) (background dark))   
+     (:foreground "purple3"))
+    (t
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-tvar-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "purple"))
+    (((type x) (class color) (background dark))   
+     (:foreground "purple3"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-free-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "blue"))
+    (((type x) (class color) (background dark))   
+     (:foreground "blue3"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-bound-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "green4"))
+    (((type x) (class color) (background dark))   
+     (:foreground "green"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defface isabelle-var-name-face
+  '((((type x) (class color) (background light))   
+     (:foreground "blue"))
+    (((type x) (class color) (background dark))   
+     (:foreground "blue3"))
+    (t				
+     (bold t)))
+  "*Face for Isabelle term / type hiliting"
+  :group 'proof-faces)
+
+(defconst isabelle-class-name-face 'isabelle-class-name-face)
+(defconst isabelle-tfree-name-face 'isabelle-tfree-name-face)
+(defconst isabelle-tvar-name-face 'isabelle-tvar-name-face)
+(defconst isabelle-free-name-face 'isabelle-free-name-face)
+(defconst isabelle-bound-name-face 'isabelle-bound-name-face)
+(defconst isabelle-var-name-face 'isabelle-var-name-face)
+
+
 (defvar isa-font-lock-keywords-1
-   (append
-    isa-font-lock-terms
-    (list
-     (cons (proof-ids-to-regexp isa-keywords) 'font-lock-keyword-face)
-     (cons (proof-ids-to-regexp isa-tacticals) 'proof-tacticals-name-face)
-
-     (list isa-goal-with-hole-regexp 2 'font-lock-function-name-face)
-     (list isa-save-with-hole-regexp 2 'font-lock-function-name-face))))
-
-
-;;
-;; Configuration for output from Isabelle process
-;;
-
-(defun isa-init-output-syntax-table ()
-  "Set appropriate values for syntax table for Isabelle output."
-  ;; copied from above
-  (modify-syntax-entry ?\$ ".")
-  (modify-syntax-entry ?\/ ".")
-  (modify-syntax-entry ?\\ ".")
-  (modify-syntax-entry ?+  ".")
-  (modify-syntax-entry ?-  ".")
-  (modify-syntax-entry ?=  ".")
-  (modify-syntax-entry ?%  ".")
-  (modify-syntax-entry ?<  ".")
-  (modify-syntax-entry ?>  ".")
-  (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?.  "w")
-  (modify-syntax-entry ?_  "w")
-  (modify-syntax-entry ?\' "w")
-  (modify-syntax-entry ?\| ".")
-  (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4")
-  ;; ignore strings so font-locking works
-  ;; inside them
-  (modify-syntax-entry ?\" " "))
-
-(defvar isa-output-font-lock-terms
   (list
-   (cons (concat "\351" isa-id "\350") 'proof-declaration-name-face)    ; class
-   (cons (concat "\352'" isa-id "\350") 'proof-tacticals-name-face)     ; tfree
-   (cons (concat "\353\\?'" isa-idx "\350") 'font-lock-type-face)       ; tvar
-   (cons (concat "\354" isa-id "\350") 'font-lock-keyword-face)         ; free
-   (cons (concat "\355" isa-id "\350") 'font-lock-keyword-face)         ; bound
-   (cons (concat "\356" isa-idx "\350") 'font-lock-function-name-face)  ; var
+   (cons (proof-ids-to-regexp isa-keywords) 'font-lock-keyword-face)
+   (cons (proof-ids-to-regexp isa-tacticals) 'proof-tacticals-name-face)
+   (list isa-goal-with-hole-regexp 2 'font-lock-function-name-face)
+   (list isa-save-with-hole-regexp 2 'font-lock-function-name-face)))
+
+(defvar isa-output-font-lock-keywords-1
+  (list
+   (cons (concat "\351" isa-id "\350") 'isabelle-class-name-face)
+   (cons (concat "\352'" isa-id "\350") 'isabelle-tfree-name-face)
+   (cons (concat "\353\\?'" isa-idx "\350") 'isabelle-tvar-name-face)
+   (cons (concat "\354" isa-id "\350") 'isabelle-free-name-face)
+   (cons (concat "\355" isa-id "\350") 'isabelle-bound-name-face)
+   (cons (concat "\356" isa-idx "\350") 'isabelle-var-name-face)
+   (cons (concat "\357" isa-idx "\350") 'proof-declaration-name-face)
    )
-  "*Font-lock table for output from the Isabelle process.")
+  "*Font-lock table for Isabelle terms.")
 
 
 (provide 'isa-syntax)
