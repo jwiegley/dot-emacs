@@ -19,7 +19,7 @@ signature PROOFGENERAL =
 sig
    val kill_goal : unit -> unit
    val help : unit -> unit
-   val show_context : unit -> unit
+   val show_context : unit -> theory
    val repeat_undo : int -> unit
    val clear_response_buffer : unit -> unit
 
@@ -56,7 +56,7 @@ structure ProofGeneral : PROOFGENERAL =
 
     fun kill_goal () = (Goal "PROP no_goal_supplied"; ())
     fun help () = print version;
-    fun show_context () = (the_context(); ())
+    fun show_context () = the_context();
 
     (* Function used by undo operation *)
     
