@@ -1,0 +1,264 @@
+;; isa-system.el Interface with Isabelle system
+;;
+;; Copyright (C) 2000 LFCS Edinburgh, David Aspinall. 
+;;
+;; Author:      David Aspinall <da@dcs.ed.ac.uk>
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
+;;
+;; $Id$
+;;
+;; Most of this code is taken from the final version of Isamode.
+;; --------------------------------------------------------------
+;;
+
+(require 'proof)
+
+;;; ================ Extract Isabelle settings ================
+
+(defcustom isa-isatool-command
+  (or (getenv "ISATOOL") 
+      (let ((possibilities
+	     '("isatool"
+	       "/usr/bin/isatool"
+	       "/usr/local/bin/isatool"
+	       "/usr/lib/Isabelle/bin/isatool"
+	       "/usr/lib/Isabelle99/bin/isatool"
+	       "/usr/share/Isabelle/bin/isatool"
+	       "/usr/share/Isabelle99/bin/isatool")))
+	(while (and possibilities
+		    (not (file-executable-p
+			  (car possibilities))))
+	  (setq possibilities (cdr possibilities)))
+	(car-safe possibilities))
+      "path_to_isatool_is_unknown")
+  "Command to invoke Isabelle tool 'isatool'.
+Use a full path name here if  isatool is not on PATH when Emacs is started."
+  :type 'file
+  :group 'isabelle)
+
+(defun isa-set-isatool-command ()
+  "Make sure isa-isatool-command points to a valid executable.
+If it does not, prompt the user for the proper setting.
+If it appears we're running on win32, allow this to remain unset.
+Returns non-nil if isa-isatool-command is valid."
+  (interactive)
+  (while (unless proof-running-on-win32
+	   (not (file-executable-p isa-isatool-command)))
+    (beep)
+    (setq isa-isatool-command
+	  (read-file-name
+	   "Please type in the full path to the `isatool' program: "
+	   nil nil t)))
+  (if (and proof-running-on-win32
+	   (not (file-executable-p isa-isatool-command)))
+      (warning "Proof General: isatool command not found; ignored because Win32 system detected."))
+  (file-executable-p isa-isatool-command))
+
+(defun isa-shell-command-to-string (command)
+  "Like shell-command-to-string except the last character is stripped."
+  (substring (shell-command-to-string command) 0 -1))
+
+(defun isa-getenv (envvar &optional default)
+  "Extract an environment variable setting using the `isatool' program.
+If the isatool command is not available, try using elisp's getenv
+to extract the value from Emacs' environment.
+If there is no setting for the variable, DEFAULT will be returned"
+  (isa-set-isatool-command)
+  (if (file-executable-p isa-isatool-command)
+      (let ((setting (isa-shell-command-to-string
+		      (concat isa-isatool-command
+			      " getenv -b " envvar))))
+	(if (string-equal setting "")
+	    default
+	  setting))
+    (or (getenv envvar) default)))
+
+;;;
+;;; ======= Interaction with System using Isabelle tools =======
+;;;
+
+(defcustom isabelle-prog-name 
+  (if (fboundp 'win32-long-file-name)	
+      "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\"
+    "isabelle")
+  "*Default name of program to run Isabelle.
+
+The default value except when running under Windows is \"isabelle\".
+
+The default value when running under Windows is:
+
+  C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\
+
+This expects SML/NJ in C:\\sml and Isabelle images in C:\Isabelle.  
+The logic image name is tagged onto the end.  
+
+NB: The Isabelle settings mechanism or the environment variable
+ISABELLE will always override this setting."
+  :type 'file
+  :group 'isabelle)
+
+(defun isa-tool-run-command (logic-name)
+  "Make a command for running Isabelle using Isabelle tools.
+This function is called with the name of the logic as an argument,
+and builds a program name and arguments to run Isabelle."
+  (let*
+      ((default (if proof-running-on-win32
+		    (concat isabelle-prog-name logic-name)
+		  isabelle-prog-name))
+       (commd	(isa-getenv "ISABELLE" default)))
+    (cond
+     (proof-running-on-win32		; Assume no special font there
+      commd)
+     (isa-use-special-font
+      (concat commd "-misabelle_font" "-msymbols" logic-name))
+     (t
+      commd))))
+
+(defun isa-tool-list-logics ()
+  "Generate a list of available object logics."
+  (if (isa-set-isatool-command)
+      (split-string (isa-shell-command-to-string
+		     (concat isa-isatool-command " findlogics")) "[ \t]")))
+
+(defun isa-view-doc (docname)
+  "View Isabelle document DOCNAME, using Isabelle tools."
+  (if (isa-set-isatool-command)
+      (apply 'start-process
+	     "isa-view-doc" nil
+	     (list isa-isatool-command "doc" docname))))
+
+(defun isa-tool-list-docs ()
+  "Generate a list of documentation files available, with descriptions.
+This function returns a list of lists of the form
+ ((DOCNAME DESCRIPTION) ....)
+of Isabelle document names and descriptions.  When DOCNAME is
+passed to isa-tool-doc-command, DOCNAME will be viewed."
+  (if (isa-set-isatool-command)
+      (mapcar
+       (function (lambda (docdes)
+		   (list
+		    (substring docdes (string-match "\\(\\S-+\\)[ \t]+" docdes)
+			       (match-end 1))
+		    (substring docdes (match-end 0)))))
+       (split-string
+	(isa-shell-command-to-string
+	 (concat isa-isatool-command " doc")) "\n"))))
+
+(defun isa-tool-setup-font ()
+  "Setup special font for isabelle, using Isabelle tools."
+  (isa-set-isatool-command)
+  (call-process isa-isatool-command nil nil nil "installfonts"))
+
+(defun isa-default-logic-dir ()
+  "Return a directory containing logic images."
+   (car (split-string (isa-getenv "ISABELLE_PATH") ":")))
+
+(defun isa-default-logic ()
+  "Return the default logic."
+  (or (isa-getenv "ISABELLE_LOGIC") "Pure"))
+
+(defun isa-quit (save)
+  "Quit / save the Isabelle session.
+Called with one argument: t to save database, nil otherwise."
+  (if (not save)
+      (isa-insert-ret "quit();"))
+  (comint-send-eof))
+
+
+;;; ==========  Utility functions ==========
+
+;; FIXME: a way of updating this list, please?
+(defcustom isabelle-logics-available (isa-tool-list-logics)
+  "*List of logics available to use with Isabelle.
+If the `isatool' program is available, this is automatically
+generated."
+  :type (list 'string)
+  :group 'isabelle)
+  
+;; FIXME: type here needs to be dynamic based on isabelle-logics-avalable
+;; Is that possible?
+;; Otherwise it should be updated on re-loading.
+(defcustom isabelle-logic "HOL"
+  "*Choice of logic to use with Isabelle.
+If non-nil, will be added into isabelle-prog-name as default value.
+
+NB: you have saved a new logic image, it may not appear in the choices
+until Proof General is restarted."
+  :type (append
+	 (list 'choice)
+	 (mapcar (lambda (str) (list 'const str)) isabelle-logics-available)
+	 (list '(string :tag "Choose another")
+	       '(const :tag "Unset (use default)" nil)))
+  :group 'isabelle)
+
+(defvar isa-docs-menu 
+  (let ((vc '(lambda (docdes)
+	       (vector (car (cdr docdes))
+		       (list 'isa-view-doc (car docdes)) t))))
+    (cons "Docs"
+	  (append
+;   '(["Isamode info"		 (progn (require 'info)
+;					(Info-goto-node "(Isamode)Top")) t])
+	   (mapcar vc (isa-tool-list-docs)))))
+  "Isabelle documentation menu.  Constructed dynamically.")
+
+
+
+;;; ========== Mirroring Proof General options in Isabelle process ========
+
+;; NB: EXPERIMENTAL: to be generalised to all provers
+
+(defcustom isabelle-show-types  nil
+  "Whether to show types in Isabelle."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'isabelle)
+
+(defun isabelle-show-types ()
+  (isa-proof-invisible-command-ifposs (isa-set-default-cmd 'isabelle-show-types)))
+
+(defcustom isabelle-show-sorts  nil
+  "Whether to show sorts in Isabelle."
+  :type 'boolean
+  :set 'proof-set-value
+  :group 'isabelle)
+
+(defun isabelle-show-sorts ()
+  (isa-proof-invisible-command-ifposs (isa-set-default-cmd 'isabelle-show-sorts)))
+
+(defun isa-proof-invisible-command-ifposs (cmd)
+  ;; Better would be to queue the command, or even interrupt a queue
+  ;; in progress.  Also must send current settings at start
+  ;; of session somehow.  (This might happen automatically if
+  ;; a queue of deffered commands is set, since defcustom calls
+  ;; proof-set-value even to set the default/initial value?)
+  (if (proof-shell-available-p)
+      (progn
+	(proof-shell-invisible-command cmd t)
+	(proof-prf) ; refresh display, should only do if goals active.
+	)))
+
+(defun isa-format-bool (string val)
+  (proof-format (list (cons "%b" (if val "true" "false"))) string))
+
+(defcustom isa-default-values-list 
+  '((isabelle-show-types . (isa-format-bool "show_types:=%b;" isabelle-show-types))
+    (isabelle-show-sorts . (isa-format-bool "show_sorts:=%b;" isabelle-show-sorts)))
+  "A list of default values kept in Proof General which are sent to Isabelle."
+  :type 'sexp
+  :group 'isabelle-config)
+
+(defun isa-set-default-cmd (&optional setting)
+  "Return a string for setting default values kept in Proof General customizations.
+If SETTING is non-nil, return a string for just that setting. 
+Otherwise return a string for configuring all settings."
+  (let
+      ((evalifneeded (lambda (expr)
+			(if (or (not setting) (eq setting (car expr)))
+			    (eval (cdr expr))))))
+    (apply 'concat (mapcar evalifneeded isa-default-values-list))))
+
+
+
+(provide 'isa-system)
+;; End of isa-system.el
