@@ -254,6 +254,7 @@
   
 ;;; Define stuff from favourites
 
+;;;###autoload
 (defmacro proof-defshortcut (fn string &optional key)
   "Define shortcut function FN to insert STRING, optional keydef KEY.
 This is intended for defining proof assistant specific functions.
