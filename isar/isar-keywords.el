@@ -151,7 +151,8 @@
 (defconst isar-keywords-proof-decl
   '("also"
     "let"
-    "note"))
+    "note"
+    "txt"))
 
 (defconst isar-keywords-proof-asm
   '("assume"
