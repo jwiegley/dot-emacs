@@ -101,8 +101,6 @@ C pbp code doesn't quite accord with the tech report; in particular it
 
 A fix Pbp implementation (10h; tms)
 
-A Implement menu at generic level. (30min tms)
-
 A Sometimes e.g., ~tms/lego/imperative/recursion/Prepare_vc.l,
   annotations are recorded in the object file. This needs to be
   changed in the SML code. (initially 2h tms)

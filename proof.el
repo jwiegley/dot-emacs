@@ -7,8 +7,6 @@
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
 
-
-
 (require 'cl)
 (require 'compile)
 (require 'comint)
@@ -45,7 +43,8 @@
 (defvar proof-shell-cd nil
   "*Command of the inferior process to change the directory.") 
 
-(defconst proof-info-dir "/usr/local/share/info")
+(defconst proof-info-dir "/usr/local/share/info"
+  "Directory to search for Info documents on Script Management.")
 
 (defvar proof-universal-keys
   (list (cons '[(control c) (control c)] 'proof-interrupt-process)
@@ -176,6 +175,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Internal variables used by scripting and pbp                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar proof-mode-name "Proof")
 
 (defvar proof-shell-echo-input t
   "If nil, input to the proof shell will not be echoed")
@@ -1549,20 +1550,16 @@ deletes the region corresponding to the proof sequence."
   (interactive)
   (proof-restart-script))
 
-;;; The following was particular to LEGO:
-;;;	    ("Help"
-;;;	     ["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
-;;;	     ["The LEGO library (WWW)"
-;;;	      (w3-fetch lego-library-www-page)  t]
-;;;	     ["The LEGO Proof-assistant (WWW)"
-;;;	      (w3-fetch lego-www-home-page)  t]
-;;;	     ["Help on Emacs LEGO-mode" lego-info-mode  t]
-;;;	     ["Customisation" (w3-fetch lego-www-customisation-page)
-;;;	      t]
-;;;            ))))
+(defvar proof-help-menu
+  '("Help"
+	     ["Proof assistant web page"
+	      (w3-fetch proof-www-home-page) t]
+	     ["Help on Emacs proof-mode" proof-info-mode t]
+	     )
+  "The Help Menu in Script Management.")
 
 (defvar proof-shared-menu
-  (append '(
+  (append-element '(
             ["Display context" proof-ctxt
 	      :active (proof-shell-live-buffer)]
             ["Display proof state" proof-prf
@@ -1571,11 +1568,8 @@ deletes the region corresponding to the proof sequence."
 	      :active (proof-shell-live-buffer)]
 	    "----"
 	    ["Find definition/declaration" find-tag-other-window t]
-	    ("Help"
-	     ["Proof assistant web page"
-	      (w3-fetch proof-www-home-page) t]
-	     ["Help on Emacs proof-mode" proof-info-mode t]
-	     ))))
+	    )
+	  proof-help-menu))
 
 (defvar proof-menu  
   (append '("Commands"
@@ -1651,7 +1645,7 @@ current command."
 
 
 (define-derived-mode proof-mode fundamental-mode 
-  "Proof" "Proof mode - not standalone"
+  proof-mode-name "Proof mode - not standalone"
   ;; define-derived-mode proof-mode initialises proof-mode-map
   (setq proof-buffer-type 'script))
 
@@ -1671,12 +1665,12 @@ current command."
 (easy-menu-define proof-shell-menu
 		  proof-shell-mode-map
 		  "Menu used in the proof assistant shell."
-		  (cons "Proof" (cdr proof-shell-menu)))
+		  (cons proof-mode-name (cdr proof-shell-menu)))
 
 (easy-menu-define proof-mode-menu  
 		  proof-mode-map
 		  "Menu used in proof mode."
-		  (cons "Proof" (cdr proof-menu)))
+		  (cons proof-mode-name (cdr proof-menu)))
 
 ;; the following callback is an irritating hack - there should be some
 ;; elegant mechanism for computing constants after the child has
@@ -1790,7 +1784,7 @@ current command."
       (error "Failed to initialise proof process"))))
 
 (define-derived-mode pbp-mode fundamental-mode 
-  "Proof" "Proof by Pointing"
+  proof-mode-name "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
   (suppress-keymap pbp-mode-map 'all)

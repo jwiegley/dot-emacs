@@ -25,6 +25,12 @@
   "*If non-nil, ask user for permission to save the current buffer before
   processing a module.")
 
+(defvar lego-help-menu-list
+  '(["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
+    ["The LEGO library (WWW)" (w3-fetch lego-library-www-page)  t])
+  "List of menu items, as defined in `easy-menu-define' for LEGO
+  specific help.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Configuration of Generic Proof Package ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -64,22 +70,17 @@
 
 (defvar lego-www-home-page "http://www.dcs.ed.ac.uk/home/lego/")
 
-(defvar lego-www-refcard (concat (w3-remove-file-name lego-www-home-page)
-				 "refcard.dvi.gz"))
-
-;; `lego-www-refcard' ought to be set to
-;; "ftp://ftp.dcs.ed.ac.uk/pub/lego/refcard.dvi.gz", but  
-;;    a) w3 fails to decode the image before invoking xdvi
-;;    b) ftp.dcs.ed.ac.uk is set up in a too non-standard way 
-
+(defvar lego-www-latest-release
+  (concat (w3-remove-file-name lego-www-home-page)
+  "html/release-1.3/")
+  "The WWW address for the latest LEGO release.")
+	  
+(defvar lego-www-refcard (concat lego-www-latest-release
+				 "refcard.ps.gz"))
 
 (defvar lego-library-www-page
-  (concat (w3-remove-file-name lego-www-home-page)
-          "html/library/newlib.html"))
-
-(defvar lego-www-customisation-page
-  (concat (w3-remove-file-name lego-www-home-page)
-          "html/emacs-customisation.html"))
+  (concat lego-www-latest-release "library/library.html")
+  "The HTML documentation of the LEGO library.")
 
 ;; ----- legostat and legogrep, courtesy of Mark Ruys
 
@@ -153,7 +154,9 @@
 
 (define-derived-mode lego-mode proof-mode
    "lego" "Lego Mode"
-   (lego-mode-config))
+   (lego-mode-config)
+   (easy-menu-change (list proof-mode-name) (car proof-help-menu)
+		     (append (cdr proof-help-menu) lego-help-menu-list)))
 
 (define-derived-mode lego-pbp-mode pbp-mode
   "pbp" "Proof-by-pointing support for LEGO"
