@@ -36,12 +36,12 @@ TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html
 EMACS = xemacs -batch
 
-.SUFFIXES:  .texi .info .dvi .html .pdf .ps .eps .tiff
+.SUFFIXES:  .texi .info .dvi .html .pdf .ps .eps .tiff .gz
 
 .texi.info:
 	$(MAKEINFO) $< 
 
-.texi.dvi: 
+.texi.dvi:
 	$(TEXI2DVI) $<
 	$(DVISELECT) -i $*.dvi -o $*.tmp1 $(TITLERANGE)
 	$(DVISELECT) -i $*.dvi -o $*.tmp2 $(MAINRANGE)
@@ -69,6 +69,9 @@ ProofGeneral.txt:
 ProofGeneral.eps:
 	gunzip -c ProofGeneral.eps.gz > ProofGeneral.eps
 
+%.gz : %
+	gzip -f -9 $*
+
 ## 
 ## doc : build info and dvi files from $(DOCNAME).texi
 ##
@@ -77,10 +80,16 @@ doc:	dvi info
 ## 
 ## all : build all documentation targets
 ##
-all:    dvi ps html info 
+all:    dvi ps html info pdf
+
+##
+## dist: build distribution targets
+##
+dist:   html psz
 
 dvi:    ProofGeneral.eps $(DOCNAME).dvi
-ps:	$(DOCNAME).ps
+ps:	dvi $(DOCNAME).ps
+psz:	ps $(DOCNAME).ps.gz
 pdf:    $(DOCNAME).pdf
 html:   $(DOCNAME).html
 info:   ProofGeneral.txt $(DOCNAME).info
