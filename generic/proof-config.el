@@ -1290,6 +1290,10 @@ Proof General."
     nil
     "Welcome to"
     (concat proof-assistant " Proof General!")
+    nil
+    nil
+"    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
+     or use the menu command Proof-General -> Submit bug report."
     nil)
   "Evaluated to configure splash screen displayed when entering Proof General.
 If an element is a string or an image specifier, it is displayed
