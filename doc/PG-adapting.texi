@@ -1820,7 +1820,7 @@ output format.
 
 The goals buffer settings allow configuration of Proof General for proof
 by pointing or similar features.
-See the Proof General documentation page (@uref{http://www.proofgeneral.org/doc})
+See the Proof General @uref{http://www.proofgeneral.org/doc, documentation web page}
 for a link to the technical report ECS-LFCS-97-368 which hints
 at how to use these settings.
 
