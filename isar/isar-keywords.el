@@ -40,6 +40,7 @@
     "consts"
     "context"
     "datatype"
+    "declare"
     "def"
     "defaultsort"
     "defer"
@@ -169,9 +170,10 @@
     "infixl"
     "infixr"
     "inject"
-    "intrs"
+    "intros"
     "is"
     "monos"
+    "of"
     "output"
     "overloaded"
     "where"))
@@ -269,7 +271,6 @@
     "global"
     "hide"
     "inductive"
-    "inductive_cases"
     "judgment"
     "lemmas"
     "local"
@@ -294,6 +295,10 @@
     "typed_print_translation"
     "typedecl"
     "types"))
+
+(defconst isar-keywords-theory-script
+  '("declare"
+    "inductive_cases"))
 
 (defconst isar-keywords-theory-goal
   '("instance"
