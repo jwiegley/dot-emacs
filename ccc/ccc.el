@@ -18,17 +18,17 @@
  proof-terminal-char             ?\;
  proof-script-comment-start      "(*"
  proof-script-comment-end        "*)"
- proof-goal-command-regexp       "^"
+ proof-goal-command-regexp       "ccc \".*\";"
  proof-save-command-regexp       "^qeccc"
  proof-goal-with-hole-regexp     "ccc \"\\(\\(.*\\)\\)\"" 
  proof-save-with-hole-regexp     "qeccc \"\\(\\(.*\\)\\)\""
- proof-non-undoables-regexp      "undo\\|back"
+ proof-non-undoables-regexp      nil ;; "undo\\|back"
  proof-goal-command              "ccc \"%s\";"
  proof-save-command              "qeccc \"%s\";"
  proof-kill-goal-command         "abort ();"
  proof-showproof-command         "prt()"
  proof-undo-n-times-cmd          "undo_steps %s;"
- proof-auto-multiple-files       t
+ proof-auto-multiple-files       nil 
  proof-shell-cd-cmd              "cd \"%s\""
  proof-shell-prompt-pattern      "^\\(CCC\\|^HOL-CASL\\) > "
  proof-shell-interrupt-regexp    "Interrupt"
