@@ -257,29 +257,21 @@ Q. I would like to use the X-Symbol fonts in PG not just at the
    standard size but also for larger sizes since I use PG during
    talks, where I set the font size to 24.
 
-A. Nobody has designed large versions of the X-Symbol fonts but it is
-   possible to scale-up the existing ones, by adding
+A. There are X-Symbol fonts at sizes of 12, 14, 18 and 24.  The standard size
+   is 14, and 12 is used for subscripts.  The font size can be changed by
+   adding
 
-  (setq x-symbol-xsymb1-fonts
-   '(("-xsymb-xsymb1-medium-r-normal-*-*-240-*-*-*-*-xsymb-xsymb1")
-     ("-xsymb-xsymb1_sub-medium-r-normal-*-*-180-*-*-*-*-xsymb-xsymb1")
-     ("-xsymb-xsymb1_sup-medium-r-normal-*-*-180-*-*-*-*-xsymb-xsymb1")))
-
-  (setq x-symbol-xsymb0-fonts
-    '(("-adobe-symbol-medium-r-normal-*-*-240-*-*-*-*-adobe-fontspecific"
-       "-xsymb-xsymb0-medium-r-normal--*-240-75-75-p-85-adobe-fontspecific")
-      ("-xsymb-xsymb0_sub-medium-r-normal--18-180-75-75-p-74-adobe-fontspecific"
-       "-adobe-symbol_sub-medium-r-normal-*-*-180-*-*-*-*-adobe-fontspecific")
-      ("-xsymb-xsymb0_sup-medium-r-normal--18-180-75-75-p-74-adobe-fontspecific"
-       "-adobe-symbol_sup-medium-r-normal-*-*-180-*-*-*-*-adobe-fontspecific")))
+  (setq x-symbol-font-sizes '(("" 24 18)))
 
    to your .emacs, which causes the special fonts to come up in size
-   24; the normal font you can change manually. Of course you can also
-   select smaller sizes. Most of the symbols look reasonable, except
-   that they appear almost bold.
-  
-   For more information about this, see the X-Symbol FAQ, at
-   http://x-symbol.sourceforge.net/man/x-symbol_8.html#SEC100
+   24 and 18 for subscripts; the normal font can be changed manually.  By
+   choosing other sizes, it is also possible to scale the existing fonts.
+   Note that the larger fonts are not perfect.
+
+   If you use Isabelle (both isa or isar) you can specify the X-Symbol font
+   size through the -f option of the start-up-script.  The size is passed to
+   emacs through the environment variable XSYMBOL_FONTSIZE, which can be used
+   to configure the normal font in your .emacs.
 
 -----------------------------------------------------------------
 
@@ -305,7 +297,7 @@ Q. Can I join any mailing lists for Proof General?
 
 A. Of course, email "proofgeneral-request@informatics.ed.ac.uk" 
    with the line "subscribe" in the message body, to join the
-   user's and announcements list.
+   users' and announcements list.
 
    There is also a list for developers, proofgeneral-devel
    Visit http://proofgeneral.inf.ed.ac.uk/mailinglist for more details.
