@@ -16,7 +16,7 @@
   '((""         "script" proof-mode (proof-config-done))
     ("shell"    "shell"  proof-shell-mode (proof-shell-config-done))
     ("response" "resp"   proof-response-mode (proof-response-config-done))
-    ("goals"	"goals"   pbp-mode (proof-goals-config-done)))
+    ("goals"	"goals"  pbp-mode (proof-goals-config-done)))
   "A list of (PREFIXSYM SUFFIXNAME PARENT MODEBODY) for derived modes.")
 
 (defun proof-easy-config-define-derived-modes ()
@@ -30,9 +30,26 @@
 	   (hyphen    (if (string-equal prefixsym "") "" "-"))
 	   (mode      (intern (concat modert hyphen "mode")))
 	   (modename  (concat proof-assistant " " suffixnm))
-	   (varname   (intern (concat "proof-mode-for-" suffixnm))))
+	   (varname   (intern (concat "proof-mode-for-" suffixnm)))
+	   ;; FIXME: declare these variables in proof-config:
+	   ;;	proof-script-font-lock-keywords, etc.
+	   ;;   proof-script-syntax-table-entries, etc.
+	   ;; FIXME: in future versions, use these settings in *-config-done
+	   ;;        to simplify elisp code elsewhere.
+	   (fntlcks   (intern (concat "proof-" suffixnm "-font-lock-keywords")))
+	   (modsyn    (intern (concat "proof-" suffixnm "-syntax-table-entries")))
+	   (fullbody  (append
+		       (if (boundp fntlcks)
+			   (list `(setq font-lock-keywords ,fntlcks)))
+		       (if (boundp modsyn)
+			   (list `(let ((syn ,modsyn))
+				    (while syn
+				      (modify-syntax-entry 
+				       (car syn) (cadr syn))
+				      (setq syn (cddr syn))))))
+		       body)))
       (eval
-       `(define-derived-mode ,mode ,parent ,modename nil ,@body))
+       `(define-derived-mode ,mode ,parent ,modename nil ,@fullbody))
       ;; Set proof-mode-for-script and friends
       ;; NB: top-level, so we don't need proof-pre-shell-start-hook.
       (set varname mode))))
