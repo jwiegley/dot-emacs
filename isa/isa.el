@@ -194,7 +194,7 @@ and script mode."
 
    ;; initial command configures Isabelle by hacking print functions.
    ;; FIXME: temporary hack for almost enabling/disabling printing.
-   proof-shell-init-cmd                 "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := !goals_limit; goals_limit := 0); ProofGeneral.init false;"
+   proof-shell-init-cmd                 "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0); ProofGeneral.init false;"
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
    
