@@ -3,6 +3,12 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.21  1998/05/12 14:51:27  hhg
+;; Added hook `coq-shell-init-hook', for `proof-shell-insert-hook'.
+;; This initializes undo limit and changes directory to that associated
+;; with buffer.
+;; This is because Coq has a command line option to run with emacs mode.
+;;
 ;; Revision 1.20  1998/05/08 17:08:31  hhg
 ;; Made separated indentation more elegant.
 ;; 	Fixed bug with Inductive.
@@ -102,7 +108,7 @@
 (defconst coq-mode-version-string
   "Coq-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
 
-(defvar coq-tags "/usr/local/lib/coq/V6.2/theories/TAGS"
+(defvar coq-tags "/obj/local/coq/V6.2/theories/TAGS"
   "the default TAGS table for the Coq library")
 
 (defconst coq-info-dir "/usr/local/share/info")
@@ -126,7 +132,7 @@
 
 ;; ----- coq-shell configuration options
 
-(defvar coq-prog-name "coqtop -emacs"
+(defvar coq-prog-name "/obj/local/coq/V6.2/bin/sun4/coqtop -image /obj/local/coq/V6.2/bin/sun4/coq.out -emacs"
   "*Name of program to run as Coq.")
 
 (defvar coq-shell-working-dir ""
@@ -230,6 +236,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's coq specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun coq-shell-init-hook ()
+  (insert (format "Set Undo %s." coq-default-undo-limit))
+  (insert (format "Cd \"%s\"." default-directory))
+  (remove-hook 'proof-shell-insert-hook 'coq-shell-init-hook))
 
 (defun coq-set-undo-limit (undos)
   (proof-invisible-command (format "Set Undo %s." undos)))
@@ -487,8 +498,10 @@
    ((and (eq c ?C) (looking-at "CoInductive"))
     (forward-char (length "CoInductive"))
     (cons (list c (- (point) (length "CoInductive"))) stack))
+
    ((and (eq c ?.) (or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C)))
     (cdr stack))
+
    (t stack)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -612,8 +625,11 @@
         proof-shell-start-goals-regexp "[0-9]+ subgoals?"
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
         proof-shell-init-cmd nil
-	proof-shell-analyse-structure 'coq-shell-analyse-structure
-        proof-shell-config nil)
+	proof-shell-analyse-structure 'coq-shell-analyse-structure)
+
+  ;; The following hook is removed once it's called.
+  (add-hook 'proof-shell-insert-hook 'coq-shell-init-hook nil t)
+
   (proof-shell-config-done)
 )
 
