@@ -45,6 +45,7 @@
 	      "/usr/share/Isabelle/bin/isatool"
 	      "/usr/local/bin/isatool"
 	      "/usr/local/Isabelle/bin/isatool"
+	      "/usr/bin/isatool"
 	      "/opt/bin/isatool"
 	      "/opt/Isabelle/bin/isatool")))
 	(while (and possibilities
