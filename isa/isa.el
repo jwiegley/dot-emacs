@@ -65,10 +65,11 @@ no regular or easily discernable structure."
    proof-commands-regexp	(ids-to-regexp isa-keywords)
    ;; proof engine commands (first three for menus, last for undo)
    proof-prf-string		"pr();"
-   proof-ctxt-string		"the_context();"
-   proof-help-string		"print version;"
-   proof-kill-goal-command	"Goal \"PROP no_goal_supplied\";"
-   proof-goal-command-string	"Goal \"%s\";"
+   proof-goal-command		"Goal \"%s\";"
+   proof-save-command		"qed \"%s\";"
+   proof-ctxt-string		"ProofGeneral.show_context();"
+   proof-help-string		"ProofGeneral.help();"
+   proof-kill-goal-command	"ProofGeneral.kill_goal();"
    ;; command hooks
    proof-goal-command-p		'isa-goal-command-p
    proof-count-undos-fn		'isa-count-undos
@@ -83,7 +84,18 @@ no regular or easily discernable structure."
 (defun isa-shell-mode-config-set-variables
   "Configure generic proof shell mode variables for Isabelle."
   (setq
-   proof-shell-prompt-pattern		"^2?[---=#>]>? *\\|^\\*\\* .*" ; for ML
+   proof-shell-prompt-pattern
+   "^\\(val it = () : unit\n\\)?2?[-=#>]>? *"
+   ;"^[-=#>]>? *"
+   ;; This pattern matches a variety of prompts from ML.
+   ;; It doesn't match the tracing output prompt.
+   ;; Probably it isn't general enough for all MLs, please send me
+   ;; problem reports / patches.
+   ;; Alternative version to match vacuous assignments:
+     
+   ;; this doesn't work as intended, probably because the
+   ;; process mungling searches backwards and forwards for
+   ;; regexps.
    proof-shell-cd			"cd \"%s\";"
    ;; this one not set: proof-shell-abort-goal-regexp 
    proof-shell-proof-completed-regexp   "No subgoals!"
@@ -101,9 +113,9 @@ no regular or easily discernable structure."
    ;; /home/da/devel/lego/elisp/   or  $PROOFGENERIC_HOME ?
    proof-shell-init-cmd			(concat
 					 "use \"" proof-home
-					  "isa/isa-print-functions.ML\";")
+					  "isa/ProofGeneral.ML\";")
    proof-shell-eager-annotation-start   "^\\[opening "
-;;   proof-shell-eager-annotation-end     "$"
+  ;;   proof-shell-eager-annotation-end "$"
    proof-shell-eager-annotation-end     "$"
    ;; === ANNOTATIONS  === ones below here are broken
    proof-shell-goal-char	        ?\375
@@ -239,7 +251,7 @@ isa-proofscript-mode."
 
 (defun isa-find-and-forget (span)
   ;; Special return value to indicate nothing needs to be done.
-  "COMMENT")
+  proof-no-command)
   
   
 ;; BEGIN Old code  (taken from Coq.el)
