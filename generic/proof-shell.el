@@ -764,7 +764,7 @@ See the documentation for `proof-shell-delayed-output' for further details."
       ;; FIXME: this can be done away with, probably.
       (unless proof-shell-leave-annotations-in-output
 	(setq str (proof-shell-strip-special-annotations str)))
-      
+
       (proof-shell-maybe-erase-response t nil)
       (proof-response-buffer-display str)
       (proof-display-and-keep-buffer proof-response-buffer))
@@ -928,9 +928,12 @@ the proof assistant."
     (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
     ())
 
-   ;; FIXME: remove proof-goals-display-qed-message setting after 3.0,
-   ;; by matching on completed-regexp as an extra step, after
-   ;; errors/interrupt, but as well as ordinary output.
+   ;; FIXME: remove proof-goals-display-qed-message setting in version 3.2,
+   ;; by matching on completed-regexp as an extra step again when a goal
+   ;; is found, or alternatively in same part as errors/interrupt
+   ;; (but that risks displaying no subgoals message twice in Isabelle!).
+   ;; We can also remove the match-string 1 mess too, modify every
+   ;; instance accordingly.
    ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
     (proof-clean-buffer proof-goals-buffer)
     (setq proof-shell-proof-completed 0) ; counts commands since proof complete.
