@@ -394,6 +394,8 @@ The protocol used should be configured so that no user interaction
      (:background "mistyrose"))
     (((type x) (class color) (background dark))
      (:background "mediumvioletred"))
+    (((type mswindows) (class color) (background light))
+     (:background "mistyrose"))
     (t				
      (:foreground "white" :background "black")))
   "*Face for commands in proof script waiting to be processed."
@@ -404,6 +406,8 @@ The protocol used should be configured so that no user interaction
      (:background "lightsteelblue2"))	; was "lavender"
     (((type x) (class color) (background dark))   
      (:background "navy"))
+    (((type mswindows) (class color) (background light))   
+     (:background "lightsteelblue2"))
     (t				
      (:underline t)))
   "*Face for locked region of proof script (processed commands)."
@@ -415,6 +419,9 @@ The protocol used should be configured so that no user interaction
       :bold t))
     (((type x) (class color) (background dark))   
      (:foreground "orange"
+      :bold t))
+    (((type mswindows) (class color) (background light))   
+     (:foreground "chocolate" 
       :bold t))
     (t				
      (:italic t :bold t)))
@@ -433,6 +440,8 @@ both XEmacs 20.4 and Emacs 20.2's version of font-lock.")
      (:foreground "MediumOrchid3"))
     (((type x) (class color) (background dark))   
      (:foreground "orchid"))
+    (((type mswindows) (class color) (background light))   
+     (:foreground "MediumOrchid3"))
     (t				
      (bold t)))
   "*Face for names of tacticals in proof scripts.
@@ -464,6 +473,9 @@ both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
     (((type x) (class color) (background dark))   
      (:background "brown" 
       :bold t))
+    (((type mswindows) (class color) (background light))   
+     (:background "salmon1"  
+      :bold t))
     (t				
      (:bold t)))
   "*Face for error messages from proof assistant."
@@ -474,6 +486,8 @@ both XEmacs 20.4 and Emacs 20.3's version of font-lock.")
      (:background "lemon chiffon"))
     (((type x) (class color) (background dark))   
      (:background "orange2"))
+    (((type mswindows) (class color) (background light))   
+     (:background "lemon chiffon"))
     (t				
      (:italic t)))
   "*Face for warning messages.
@@ -485,6 +499,8 @@ Warning messages can come from proof assistant or from Proof General itself."
      (:background "lightgoldenrod"))
     (((type x) (class color) (background dark))   
      (:background "darkgoldenrod"))
+    (((type mswindows) (class color) (background light))   
+     (:background "lightgoldenrod"))
     (t				
      (:italic t)))
   "*Face for important messages from proof assistant."
@@ -495,6 +511,8 @@ Warning messages can come from proof assistant or from Proof General itself."
      (:foreground "Gray65"))
     (((type x) (class color) (background dark))   
      (:background "Gray30"))
+    (((type mswindows) (class color) (background light))   
+     (:foreground "Gray65"))
     (t				
      (:italic t)))
   "*Face for debugging messages from Proof General."
@@ -505,6 +523,8 @@ Warning messages can come from proof assistant or from Proof General itself."
      (:foreground "Gray65"))
     (((type x) (class color) (background dark))   
      (:background "Gray30"))
+    (((type mswindows) (class color) (background light))   
+     (:foreground "Gray65"))
     (t				
      (:italic t)))
   "*Face for boring text in proof assistant output."
