@@ -37,6 +37,15 @@
   "Contains the dependencies of the last theorem.  A list of strings.
 Set in proof-shell-process-urgent-message.")
 
+(deflocal proof-script-buffer-file-name nil
+  ;; NB: if buffer-file-name is nil for some other reason, this may break.
+   "A copied value of buffer-file-name to cope with `find-alternative-file'.
+The `find-alternative-file' function has a nasty habit of setting the
+buffer file name to nil before running kill buffer, which breaks PG's
+kill buffer hook.  This variable is used when buffer-file-name is nil.")
+
+  
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -498,11 +507,15 @@ Names must be unique for a given "
 
 
 (defun pg-add-proof-element (name span controlspan)
+  "Add a nested span proof element."
   (pg-add-element "proof" name span)
   (set-span-property span 'name name)
   (set-span-property span 'type 'proof)
   (set-span-property span 'idiom 'proof)
+  ;; Make a navigable link between the two spans.
   (set-span-property span 'controlspan controlspan)
+  (set-span-property controlspan 'children
+    (cons span (span-property controlspan 'children)))
   (set-span-property span 'duplicable t)
   ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
   (pg-set-span-helphighlights span 'nohighlight)
@@ -732,7 +745,9 @@ If proof-auto-multiple-files is non-nil, any buffers on
 proof-included-files-list before this one will be automatically
 retracted using proof-auto-retract-dependencies."
   (if buffer-file-name
-      (let ((cfile (file-truename buffer-file-name)))
+      (let ((cfile (file-truename 
+		    (or buffer-file-name
+			proof-script-buffer-file-name))))
 	(proof-debug (concat "Unregistering file " cfile 
 			       (if (not (member cfile 
 						proof-included-files-list))
@@ -819,7 +834,7 @@ a scripting buffer is killed it is always retracted."
   (if proof-script-buffer
       (with-current-buffer proof-script-buffer
 	;; Examine buffer.
-
+	
 	;; We must ensure that the locked region is either 
 	;; empty or full, to make sense for multiple-file
 	;; scripting.  (A proof assistant won't be able to
@@ -889,9 +904,9 @@ a scripting buffer is killed it is always retracted."
 		  ;; If locked region is full, make sure that this buffer
 		  ;; is registered on the included files list, and
 		  ;; let the prover know it can consider it processed.
-		  (if buffer-file-name
+		  (if (or buffer-file-name proof-script-buffer-file-name)
 		      (proof-register-possibly-new-processed-file 
-		       buffer-file-name
+		       (or buffer-file-name proof-script-buffer-file-name)
 		       'tell-the-prover
 		       forcedaction)))
 	      
@@ -2206,12 +2221,13 @@ This is a subroutine used in proof-shell-handle-{error,interrupt}."
 
   ;; We set hook functions here rather than in proof-config-done so
   ;; that they can be adjusted by prover specific code if need be.
-  (proof-script-set-hooks)
+  (proof-script-set-buffer-hooks)
+
   (make-local-hook 'after-set-visited-file-name-hooks)
-  (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name)
+  (add-hook 'after-set-visited-file-name-hooks 'proof-script-set-visited-file-name))
 
   (make-local-hook 'proof-activate-scripting-hook)
-  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t)))
+  (add-hook 'proof-activate-scripting-hook 'proof-cd-sync nil t))
 
 ;; NB: proof-mode-map declared by define-derived-mode above
 (proof-menu-define-keys proof-mode-map)
@@ -2228,13 +2244,19 @@ assistant of the new name.  This should be done by adding
 additional functions to `after-set-visited-file-name-hooks'.
 
 At the least, we need to set the buffer local hooks again
-with `proof-script-set-hooks' which is what this function does.
-It also gives a warning in case this is the active scripting buffer."
-  (if (eq (current-buffer) proof-script-buffer)
-      (proof-warning "Active scripting buffer changed name; synchronization risked if prover tracks filenames!"))
-  (proof-script-set-hooks))
+with `proof-script-set-buffer-hooks' which is what this function does,
+as well as setting `proof-script-buffer-file-name' (which see).
 
-(defun proof-script-set-hooks ()
+This hook also gives a warning in case this is the active scripting buffer."
+  (setq proof-script-buffer-file-true buffer-file-name)
+  (if (eq (current-buffer) proof-script-buffer)
+      (proof-warning 
+"Active scripting buffer changed name; synchronization risked if prover tracks filenames!"))
+  (proof-script-set-buffer-hooks))
+
+
+
+(defun proof-script-set-buffer-hooks ()
   "Set the hooks for a proof script buffer.
 The hooks set here are cleared by write-file, so we use this function
 to restore them using `after-set-visited-file-name-hooks'."
@@ -2243,7 +2265,7 @@ to restore them using `after-set-visited-file-name-hooks'."
   ;; Reverting buffer is same as killing it as far as PG is concerned
   (make-local-hook 'before-revert-hook)
   (add-hook 'before-revert-hook 'proof-script-kill-buffer-fn t t))
-  
+
 (defun proof-script-kill-buffer-fn ()
   "Value of kill-buffer-hook for proof script buffers.
 Clean up before a script buffer is killed.
@@ -2303,6 +2325,8 @@ font-lock-keywords; maybe turn on X-Symbol minor mode.
 This is used for Isabelle theory files, which share some scripting 
 mode features, but are only ever processed atomically by the proof
 assistant."
+  (setq proof-script-buffer-file-name buffer-file-name)
+
   ;; Has buffer already been processed?
   ;; NB: call to file-truename is needed for FSF Emacs which
   ;; chooses to make buffer-file-truename abbreviate-file-name
