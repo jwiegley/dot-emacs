@@ -8,15 +8,15 @@
 ;;
 ;;
 
-;; FIXME da: need to put syntax table into function
+;; FIXME da: integrate with PG's face mechanism?
+;; (but maybe keep twelf faces to help users)
+;; Also should add immediate fontification.
+
 
 ;; modify the syntax table so _ and ' are word constituents
 ;; otherwise the regexp's for identifiers become very complicated
 ;; FIXME: fn undef'd(set-word ?\_)
 ;; FIXME: fn (set-word ?\')
-
-;; FIXME da: integrate with PG's face mechanism 
-;; (but maybe keep twelf faces to help users)
 
 ;; setting faces here...
 ;; use devices to improve portability?
@@ -110,10 +110,9 @@ regular expressions."
 (defun twelf-font-fontify-buffer ()
   "Fontitifies the current buffer as Twelf code."
   (interactive)
-  (if (not twelf-config-mode)
-      (save-excursion
-	(font-lock-unfontify-region (point-min) (point-max)) ; t optional in XEmacs
-	(twelf-font-fontify-region (point-min) (point-max)))))
+  (save-excursion
+    (font-lock-unfontify-region (point-min) (point-max)) ; t optional in XEmacs
+    (twelf-font-fontify-region (point-min) (point-max))))
 
 (defun twelf-font-unfontify ()
   "Removes fontification from current buffer."
