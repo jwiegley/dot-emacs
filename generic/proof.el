@@ -52,9 +52,8 @@
 (autoload 'proof-shell-mode "proof-shell"
   "Proof General shell mode class for proof assistant processes")
 
-(if (featurep 'toolbar)
-    (autoload 'proof-toolbar-setup "proof-toolbar"
-      "Initialize Proof General and enable it for the current buffer" t))
+(autoload 'proof-toolbar-setup "proof-toolbar"
+  "Initialize Proof General toolbar and enable it for the current buffer" t)
 
 ;;;
 ;;; More autoloads to help define interface between files
@@ -151,7 +150,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 
 
 (defun proof-display-and-keep-buffer (buffer)
-  "Display BUFFER and mark window according to `proof-window-dedicated-p'.
+  "Display BUFFER and mark window according to `proof-window-dedicated'.
 
 Also ensures that point is visible."
   (let (window)
@@ -159,7 +158,7 @@ Also ensures that point is visible."
       (set-buffer buffer)
       (display-buffer buffer)
       (setq window (get-buffer-window buffer 'visible))
-      (set-window-dedicated-p window proof-window-dedicated-p)
+      (set-window-dedicated-p window proof-window-dedicated)
       (and window
 	   (save-selected-window
 	     (select-window window)

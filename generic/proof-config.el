@@ -71,6 +71,14 @@ If ignore, point is never moved after toolbar movement commands."
 	  (const :tag "Never move" ignore))
   :group 'proof-general)
 
+(defcustom proof-window-dedicated t
+  "*Whether response and goals buffers have dedicated windows.
+If t, windows displaying responses from the prover will not
+be switchable to display other windows.  This helps manage
+your display, but can sometimes be inconvenient, especially
+for experienced Emacs users."
+  :type 'boolean
+  :group 'proof-general)
 
 ;;
 ;; Faces.
@@ -700,11 +708,6 @@ Used internally and in menu titles."
 Elements of the list are tuples (k . f) 
 where `k' is a keybinding (vector) and `f' the designated function."
   :type 'sexp
-  :group 'proof-general-internals)
-
-(defcustom proof-window-dedicated-p t
-  "Flag whether response and goals buffers have dedicated windows."
-  :type 'boolean
   :group 'proof-general-internals)
 
 ;;; 
