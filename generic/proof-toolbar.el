@@ -226,6 +226,7 @@ without giving error messages."
 (defun proof-toolbar-next ()
   "Assert next command in proof to proof process.
 Move point if the end of the locked position is invisible."
+  (interactive)
   (save-excursion
     (if (proof-shell-live-buffer)
       (goto-char (proof-locked-end))
@@ -240,6 +241,7 @@ Move point if the end of the locked position is invisible."
 (defun proof-toolbar-retract ()
   "Retract buffer."
   ;; proof-retract-file might be better here!
+  (interactive)
   (if (proof-toolbar-retract-enable-p)
       (save-excursion
 	(goto-char (point-min))
@@ -252,6 +254,7 @@ Move point if the end of the locked position is invisible."
 
 (defun proof-toolbar-use 
   "Process the whole buffer"
+  (interactive)
   (save-excursion
     (proof-process-buffer)))
 
@@ -261,6 +264,7 @@ Move point if the end of the locked position is invisible."
   (eq proof-buffer-type 'script))
 
 (defun proof-toolbar-restart  ()
+  (interactive)
   (if (proof-toolbar-restart-enable-p)
       ((if (yes-or-no-p (concat "Restart " proof-assistant " scripting?"))
 	   (proof-restart-script)))))
@@ -278,6 +282,8 @@ Move point if the end of the locked position is invisible."
        (proof-toolbar-process-available-p)))
 
 (defun proof-toolbar-qed 
+  "Insert a save theorem command into the script buffer, issue it."
+  (interactive)
   (if (proof-toolbar-qed-enable-p)
       (proof-issue-save)))
 ;; 
