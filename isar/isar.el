@@ -116,10 +116,14 @@ See -k option for Isabelle interface script."
    proof-mode-for-script        'isar-mode
    ;; proof script syntax
    proof-terminal-char          ?\;     ; forcibly ends a command
-   proof-script-command-start-regexp (proof-regexp-alt
-                                      isar-any-command-regexp
-                                      (regexp-quote ";"))
+   proof-script-command-start-regexp 
+   (proof-regexp-alt
+    ;; FIXME: this gets { and } wrong: they must _not_ appear as {* *}
+    ;; because that's lexically a kind of comment.
+    isar-any-command-regexp
+    (regexp-quote ";"))
    proof-script-integral-proofs t
+   ;; FIXME: use old parser for now to avoid { } problem
    proof-script-use-old-parser  t
    proof-script-comment-start          isar-comment-start
    proof-script-comment-end            isar-comment-end
@@ -295,22 +299,22 @@ proof-shell-retract-files-regexp."
 ;;
 (eval-and-compile
 (define-derived-mode isar-shell-mode proof-shell-mode
-   "Isabelle/Isar shell" nil
+   "Isar shell" nil
    (isar-shell-mode-config)))
 
 (eval-and-compile
 (define-derived-mode isar-response-mode proof-response-mode
-  "Isabelle/Isar response" nil
+  "response" nil
   (isar-response-mode-config)))
 
 (eval-and-compile                       ; to define vars for byte comp.
 (define-derived-mode isar-goals-mode proof-goals-mode
-  "Isabelle/Isar proofstate" nil
+  "proofstate" nil
   (isar-goals-mode-config)))
 
 (eval-and-compile                       ; to define vars for byte comp.
 (define-derived-mode isar-mode proof-mode
-  "Isabelle/Isar script" nil
+  "Isar script" nil
   (isar-mode-config)))
 
 
