@@ -8,12 +8,12 @@ a patch...)
 
 
 ** X-Symbol probs with Isabelle
-   -- \<tokens> don't immediately get decoded
-   -- latin1 chars get saved in file
-   -- superscripts/subscripts not fully working [menu option] 
+   -- latin1 chars may get saved in file [XE 21.1 only?]
+   -- superscripts/subscripts not fully working [menu option ignored] 
 
-
-
+** X-Symbol probs with Coq, LEGO
+   -- X-Symbol 4.x not supported, don't try it or your Emacs will 
+      explode
 
 -----------------------------------------------------------------
 
