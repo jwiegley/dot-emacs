@@ -1,35 +1,36 @@
-From: David Aspinall <da@dcs.ed.ac.uk>
 To: coq-club@pauillac.inria.fr, isabelle-users@cl.cam.ac.uk, lego-club@dcs.ed.ac.uk
-Subject: Proof General --- pre-release
-Date: Tue, 13 Oct 1998 18:01:23 +0100 (BST)
+Subject: Proof General --- Version 2.0 release
+
 
 Proof General is a generic Emacs interface for proof assistants. It is
-supplied ready-customised for Coq, Isabelle and LEGO.  Details
-are on the web at:
+supplied ready-customised for LEGO, Coq, and Isabelle.  Details are on
+the web at:
 
   http://www.dcs.ed.ac.uk/home/proofgen/
 
-The interface supports script management, a toolbar, fontification,
-tags, function menu, multiple files and remote proof assistants.  
-The code is designed to be adaptable to other proof assistants, by
-writing a little bit of Emacs Lisp.
+The interface includes these features:
 
-Proof General and its instantiations were written by David Aspinall,
-Healfdene Goguen, Thomas Kleymann and Dilip Sequeira with help from
-Yves Bertot and using ideas from Project CROAP.
+ . script management: files and regions of files processed by prover
+   have a blue background and are read-only.  Works across multiple
+   files for LEGO and Isabelle.
+ . a toolbar for building and replaying proofs
+ . syntax highlighting of proof scripts and prover output
+ . menu for jumping to theorems in a proof script
+ . provision to run proof assistant on a remote host
 
-This is the first official pre-release and an ideal opportunity for
-interested users to give us feedback at an early stage. Don't forget
-to tell us which version you are testing. Improvements are being made
-while you read this message...
+and several more besides.  The code is designed to be adaptable to
+other proof assistants, by writing a little bit of Emacs Lisp.
+
+This is the first official release of Proof General.  It should be
+stable enough for LEGO, Coq, and Isabelle users to use happily.
+
+We'd like to encourage users to try it out and let us know what they
+think.  We have put a lot of work into making Proof General robust and
+easy to install.  It runs ideally with XEmacs, but also works with FSF
+Emacs.  We have tested on XEmacs 20.4 and Emacs 20.2,20.3 (but it
+probably works with earlier versions).
+
 
  -- David Aspinall & Thomas Kleymann
     (Please contact via  proofgen@dcs.ed.ac.uk)
 
-*******
-
-P.S. for Isabelle users: this interface provides slightly different
-features to Isamode.  One idea behind script management is that
-interaction is centred on the script rather than the shell buffer.  
-In the future Isamode may be combined with Proof General, or Isamode
-may be extended to offer script management.
