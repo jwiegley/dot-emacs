@@ -156,9 +156,9 @@ in
       (prs_fn := 
 	   (fn s => out ("\240" ^ s ^ "\241"));
        warning_fn :=
-	   (fn s => out ("\242" ^ (prefix_lines "###" s) ^ "\243"));
+	   (fn s => out ("\242" ^ (prefix_lines "### " s) ^ "\243"));
        error_fn :=
-	   (fn s => out ("\244" ^ (prefix_lines "***" s) ^ "\245")))
+	   (fn s => out ("\244" ^ (prefix_lines "*** " s) ^ "\245")))
 end;
 
 (* add specials to ml prompts *)

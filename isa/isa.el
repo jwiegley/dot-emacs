@@ -168,7 +168,7 @@ no regular or easily discernable structure."
    proof-shell-proof-completed-regexp   "No subgoals!"
 
    ;; FIXME: the next two are probably only good for NJ/SML
-   proof-shell-error-regexp		"^.*Error:\\|^\\*\\*\\*"
+   proof-shell-error-regexp		"^.*Error:\\|^\\364\\*\\*\\*"
    proof-shell-interrupt-regexp         "Interrupt"
    
    ;; nothing appropriate for: proof-shell-abort-goal-regexp
