@@ -136,7 +136,7 @@ gives this error message when nesting depth reaches 100.  With
 GNU Emacs, a nesting depth of 40000 or more is possible.
 
 
-** XEmacs font-lock problem in earlier versions of XEmacs 21.4
+** XEmacs font-lock problem in certain versions of XEmacs 21.4
 
 When reloading (with C-x C-f) an already loaded script file that has
 been changed on the file system you see the error:
@@ -146,6 +146,8 @@ been changed on the file system you see the error:
 
 As a result fontification, etc, fails. Workaround: use C-x C-v
 instead.  This problem has gone away since 21.4.12 or so.
+
+Update: this has reappeared in version 21.4.15.
 
 
 ** GNU Emacs menus: options not updated dynamically, positions erratic, etc.
