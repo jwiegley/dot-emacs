@@ -175,8 +175,6 @@ and script mode."
      ;; Normal case: quotation for backslash, quote mark.
      '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
-
-   ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-interrupt-regexp         "Interrupt"
    proof-shell-error-regexp		"^\364\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception-\\( \\|$\\)"
    
@@ -407,7 +405,7 @@ isa-proofscript-mode."
   (save-some-buffers)
   (isa-update-thy-only file nil nil))
 
-(defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%s\";"
+(defcustom isa-retract-thy-file-command "ThyInfo.remove_thy \"%r\";"
   "Sent to Isabelle to forget theory file and descendants.
 Resulting output from Isabelle will be parsed by Proof General."
   :type 'string
@@ -421,9 +419,9 @@ you will be asked to retract the file or process the remainder of it."
   (interactive (list buffer-file-name))
   (proof-deactivate-scripting)
   (proof-shell-invisible-command
-   (format isa-retract-thy-file-command
-	   (file-name-nondirectory 
-	    (file-name-sans-extension file)))))
+   (proof-format-filename isa-retract-thy-file-command
+			  (file-name-nondirectory 
+			   (file-name-sans-extension file)))))
 
 
 ;; Next bits taken from isa-load.el
