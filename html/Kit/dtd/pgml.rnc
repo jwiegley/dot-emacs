@@ -1,0 +1,71 @@
+# 
+# RELAX NG Schema for PGML, the Proof General Markup Language
+# 
+# Authors:  David Aspinall, LFCS, University of Edinburgh       
+#           Christoph Lueth, University of Bremen	
+# Version: pgml.rnc,v 1.5 2003/09/23 23:12:47 da Exp    
+# 
+# Status:  Complete but experimental version.
+# 
+# For additional commentary, see the Proof General Kit white paper, 
+# available from http://www.proofgeneral.org/kit 
+# 
+# Advertised version: 1.0
+# 
+
+pgml_version_attr = attribute version { xsd:NMTOKEN }
+
+pgml =
+  element pgml {
+    pgml_version_attr?,
+    (statedisplay | termdisplay | information | warning | error)*
+  }
+
+termitem      = action | nonactionitem
+nonactionitem = term | pgmltype | atom | sym
+
+pgml_name_attr = attribute name { text }
+
+kind_attr = attribute kind { text }
+systemid_attr = attribute systemid { text }
+
+statedisplay =
+  element statedisplay {
+    pgml_name_attr?, kind_attr?, systemid_attr?,
+     (text | termitem | statepart)*
+  }
+
+pgmltext = (text | termitem)*
+
+information =
+  element information { pgml_name_attr?, kind_attr?, pgmltext }
+
+warning     = element warning     { pgml_name_attr?, kind_attr?, pgmltext }
+error       = element error       { pgml_name_attr?, kind_attr?, pgmltext }
+statepart   = element statepart   { pgml_name_attr?, kind_attr?, pgmltext }
+termdisplay = element termdisplay { pgml_name_attr?, kind_attr?, pgmltext }
+
+pos_attr = attribute pos { text }
+
+term = element term { pos_attr?, kind_attr?, pgmltext }
+
+# maybe combine this with term and add extra attr to term?
+pgmltype = element type { kind_attr?, pgmltext }
+
+action = element action { kind_attr?, (text | nonactionitem)* }
+
+fullname_attr = attribute fullname { text }
+atom = element atom { kind_attr?, fullname_attr?, text }
+
+
+## Symbols
+
+symname_attr = attribute name { text }
+sym	     = element sym { symname_attr }
+
+# configuring PGML
+
+pgmlconfigure = symconfig		# inform symbol support (I/O) for given sym
+asciialt = attribute alt { text }	# understanding of ASCII alt for given sym
+
+symconfig = element symconfig { symname_attr, asciialt? }
