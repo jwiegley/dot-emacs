@@ -1,17 +1,26 @@
 ;; lego.el Major mode for LEGO proof assistants
-;; Copyright (C) 1994, 1995, 1996 LFCS Edinburgh. 
-;; This version by Dilip Sequeira, by rearranging Thomas Schreiber's
-;; code.
-
+;; Copyright (C) 1994, 1995, 1996, 1997 LFCS Edinburgh. 
+;; Author: Thomas Schreiber and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <01 Mar 97 tms /home/tms/elisp/lego.el>
-;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
-;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
-(require 'pbp)
+;; $Log$
+;; Revision 1.23  1997/10/08 10:25:07  hhg
+;; *** empty log message ***
+;;
+;; Revision 1.20.2.7  1997/10/08 08:22:33  hhg
+;; Updated undo, fixed bugs, more modularization
+;;
+;; Revision 1.20.2.6  1997/10/07 13:26:05  hhg
+;; New structure sharing as much as possible between LEGO and Coq.
+;;
+;; Revision 1.20.2.5  1997/07/08 11:52:17  tms
+;; Made dependency on proof explicit
+;;
+
 (require 'easymenu)
-(require 'font-lock)
+(require 'lego-fontlock)
 (require 'outline)
+(require 'proof)
 
 ; Configuration                                  
 
@@ -21,19 +30,10 @@
 (defvar lego-tags "/usr/local/share/lego/lib-alpha/lib_all/TAGS"
   "the default TAGS table for the LEGO library")
 
-(defvar lego-pretty-p t
-  "In the latest version of LEGO, pretty printing using Oppen's
-  algorithm can be switched on, but is disabled. The Emacs interface
-  is primarily concerned to make life easier. There it will enable
-  pretty printing")
-
-(defconst lego-pretty-on "Configure PrettyOn;"
+(defconst lego-process-config "Configure PrettyOn; Configure AnnotateOn;"
   "Command to enable pretty printing of the LEGO process.")
 
-(defconst lego-annotate-on "Configure AnnotateOn;"
-  "Command to enable pretty printing of the LEGO process.")
-
-(defconst lego-pretty-set-width "Configure PrettyWidth %s;"
+(defconst lego-pretty-set-width "Configure PrettyWidth %s; "
   "Command to adjust the linewidth for pretty printing of the LEGO
   process.") 
 
@@ -98,17 +98,14 @@
 
 ;; ----- lego-shell configuration options
 
-(defvar lego-shell-process-name "lego"
-  "*The name of the lego-process")
-
-(defvar lego-shell-prog-name "legoML"
+(defvar lego-prog-name "legoML"
   "*Name of program to run as lego.")
 
 (defvar lego-shell-working-dir ""
   "The working directory of the lego shell")
 
-(defvar lego-shell-prompt-pattern "^\\(Lego>[ \t]*\\)+"
-  "*The prompt pattern for the inferion shell running lego.")
+(defvar lego-shell-prompt-pattern "^\\(Lego>[ \201]*\\)+"
+  "*The prompt pattern for the inferior shell running lego.")
 
 (defvar lego-shell-abort-goal-regexp "KillRef: ok, not in proof state"
   "*Regular expression indicating that the proof of the current goal
@@ -132,40 +129,11 @@
 (defvar lego-shell-outline-regexp lego-goal-regexp)
 (defvar lego-shell-outline-heading-end-regexp lego-goal-regexp)
 
-;; ----- keywords for font-lock. If you want to hack deeper, you'd better
-;; ----- be fluent in regexps - it's in the YUK section.
-
-(defvar lego-keywords-goal '("$?Goal"))
-
-(defvar lego-keywords-save
-  '("$?Save"))
-
-(defvar lego-keywords
-  (append lego-keywords-goal lego-keywords-save
-	  '("allE" "allI" "andE" "andI" "Assumption" "Claim"
-  "Constructors" "Cut" "Discharge" "DischargeKeep"
-    "Double" "echo" "ElimOver" "exE" "exI" "Expand" "ExpAll"
-    "ExportState" "Equiv" "Fields" "Freeze" "From" "Hnf" "Immed"
-    "impE" "impI" "Import" "Induction" "Inductive" "Inversion" "Init"
-    "intros" "Intros" "Module" "Next" "NoReductions" "Normal" "notE"
-    "notI" "orE" "orIL" "orIR" "Parameters" "Qnify" "Qrepl" "Record"
-    "Refine" "Relation" "Theorems" "Unfreeze")))
-
-(defvar lego-shell-keywords 
-  '("Cd" "Ctxt" "Decls" "Forget" "ForgetMark" "Help" "KillRef" "Load"
-    "Make" "Prf" "Pwd" "Help" "KillRef" "Load" "Make" "Prf" "Pwd"
-    "Reload" "Undo"))
-
-(defvar lego-tacticals '("Then" "Else" "Try" "Repeat" "For"))
-
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-derived-mode lego-shell-mode comint-mode
+(define-derived-mode lego-shell-mode proof-shell-mode
    "lego-shell" "Inferior shell mode for lego shell"
    (lego-shell-mode-config))
 
@@ -184,17 +152,13 @@
 (defvar lego-shared-menu
   (append '(
             ["Display context" lego-ctxt
-	      :active (proof-shell-buffer)]
+	      :active (proof-shell-live-buffer)]
             ["Display proof state" lego-prf
-	      :active (proof-shell-buffer)]
-            ["Restart the proof" lego-restart-goal
-	      :active (proof-shell-buffer)]
+	      :active (proof-shell-live-buffer)]
            ["Kill the current refinement proof"
-            lego-killref  :active (proof-shell-buffer)]
-           ["Undo last proof step" lego-undo-1
-             :active (proof-shell-buffer)]
+            lego-killref  :active (proof-shell-live-buffer)]
            ["Exit LEGO" proof-shell-exit
-	     :active (proof-shell-buffer)]
+	     :active (proof-shell-live-buffer)]
            "----"
            ["Find definition/declaration" find-tag-other-window t]
            ("Help"
@@ -208,28 +172,13 @@
 	      t]
             ))))
 
-(defvar lego-process-menu
-  '("Process LEGO code"
-    ["Process buffer"  lego-make-buffer  t]
-    ["Process buffer until point" lego-make-buffer-until-point
-      t]
-    ["Process command" proof-send-command  t]
-    ["Process line"    proof-send-line     t]
-    ["Process region"  proof-send-region   t])
-  "*Interaction between the proof script and the LEGO process.")
-
 (defvar lego-menu  
   (append '("LEGO Commands"
-            ["Start LEGO" lego-shell
-             :active (not (comint-check-proc (and proof-shell-process-name
-						  (proof-shell-buffer))))]
             ["Toggle active ;" proof-active-terminator-minor-mode
 	     :active t
 	     :style toggle
              :selected proof-active-terminator-minor-mode]
             "----")
-          (list lego-process-menu)
-          '("----")
           (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
 		    "--:doubleLine" "----"))
           lego-shared-menu
@@ -249,126 +198,6 @@
 		  "Menu used lego mode."
 		  (cons "LEGO" (cdr lego-menu)))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;  *   *  *    *  *    *    ;;
-;;   * *   *    *  *   *     ;;
-;;    *    *    *  ****      ;;
-;;    *    *    *  *  *      ;;
-;;    *    *    *  *   *     ;;
-;;    *     ****   *    *    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar lego-error-regexp "^\\(Error\\|Lego parser\\)"
-  "A regular expression indicating that the LEGO process has
-  identified an error.") 
-
-(defvar lego-id "\\(\\w\\(\\w\\|\\s_\\)*\\)"
-  "A regular expression for parsing LEGO identifiers.")
-
-(defvar lego-ids (concat lego-id "\\(\\s *,\\s *" lego-id "\\)*")
-  "*For font-lock, we treat \",\" separated identifiers as one identifier
-  and refontify commata using \\{lego-fixup-change}.")
-
-(defun lego-decl-defn-regexp (char)
-    (concat "\\[\\s *\\(" lego-ids
- "\\)\\s *\\(\\[[^]]+\\]\\s *\\)*" char))
-; Examples
-;              ^        ^^^^        ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^
-;              [        sort                                 =
-;              [        sort        [n:nat]                  =
-;              [        sort        [abbrev=...][n:nat]      =
-
-(defvar lego-font-lock-terms
-  (list
-
-   ; lambda binders
-     (list (lego-decl-defn-regexp "[:|]") 1
-	   'font-lock-declaration-name-face)
-
-     ; let binders
-     (list (lego-decl-defn-regexp "=") 1 'font-lock-function-name-face)
-
-     ; Pi and Sigma binders
-     (list (concat "[{<]\\s *\\(" lego-ids "\\)") 1
-	   'font-lock-declaration-name-face t)
-   
-     ;; Kinds
-     (cons (concat "\\<Prop\\>\\|\\<Type\\s *\\(("
-		   lego-id ")\\)?") 'font-lock-type-face))
-  "*Font-lock table for LEGO terms.")
-
-(defvar lego-font-lock-keywords-1
-   (append
-    lego-font-lock-terms
-    (list
-     (cons (ids-to-regexp lego-keywords) 'font-lock-keyword-face)
-     (cons (ids-to-regexp lego-tacticals) 'font-lock-tacticals-name-face)
-
-     (list (concat "\\("
-		   (ids-to-regexp lego-keywords-goal)
-		   "\\)\\s *\\(" lego-id "\\)\\s *:")
-             2 'font-lock-function-name-face)
-
-     (list (concat "\\("
-		   (ids-to-regexp lego-keywords-save)
-		   "\\)\\s *\\(" lego-id "\\)")
-             2 'font-lock-function-name-face))))
-     
-
-(defvar lego-shell-font-lock-keywords-1
-  (append lego-font-lock-keywords-1
-	  (list
-	   (cons (ids-to-regexp lego-shell-keywords) 
-		 'font-lock-keyword-face)
-	   
-	   (list (concat "\\<defn\\>  \\(" lego-id "\\) =") 1
-		 'font-lock-function-name-face)
-	   
-	   (list (concat "^\\(value of\\|type  of\\) \\(" lego-id "\\) =") 2 
-			 'font-lock-function-name-face)
-
-	   (list (concat "^  \\(" lego-id "\\) = ... :") 1 
-			 'font-lock-function-name-face)
-
-	   (list (concat "^  \\(" lego-id "\\) [:|]") 1 
-			 'font-lock-declaration-name-face)
-
-           ; e.g., decl S1 S2 : prog sort
-	   (list (concat "\\<decl\\>  \\(" lego-id
-			 "\\( " lego-id "\\)*\\) [:|] ") 1 
-			 'font-lock-declaration-name-face)
-		 
-	   (list (concat "^value = \\(" lego-id "\\)") 1
-			 'font-lock-declaration-name-face))))
-;;
-;; A big hack to unfontify commas in declarations and definitions. All
-;; that can be said for it is that the previous way of doing this was
-;; even more bogus.
-;;
-
-;; Refontify the whole line, 'cos that's what font-lock-after-change
-;; does.
-
-(defun lego-zap-commas-region (start end length)
-  (save-excursion
-    (let 
-	((start (progn (goto-char start) (beginning-of-line) (point)))
-	 (end (progn (goto-char end) (end-of-line) (point))))
-      (goto-char start)
-      (while (search-forward "," end t)
-	(if (memq (get-char-property (- (point) 1) 'face)
-		'(font-lock-declaration-name-face
-		  font-lock-function-name-face))
-	    (font-lock-remove-face (- (point) 1) (point)))))))
-
-(defun lego-zap-commas-buffer () 
-  (lego-zap-commas-region (point-min) (point-max) 0))
-
-(defun lego-fixup-change ()
-     (make-local-variable 'after-change-functions)
-     (setq after-change-functions
-	   (append (delq 'lego-zap-commas-region after-change-functions)
-		   '(lego-zap-commas-region))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's lego specific                                      ;;
@@ -392,35 +221,20 @@
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun lego-restart-goal ()
-  "Restart the current proof."
-  (interactive)
-  (proof-command "Undo 9999"))          ;hopefully 9999 is large
-                                        ;enough!
-(defun lego-killref ()
-  "Kill the current refinement proof."
-  (interactive)
-  (proof-command "KillRef"))
-
 (defun lego-help ()
   "Print help message giving syntax."
   (interactive)
-  (proof-command "Help"))
-
-(defun lego-undo-1 ()
-  "Undo the last step in a proof."
-  (interactive)
-  (proof-command "Undo 1"))
+  (proof-invisible-command "Help;"))
 
 (defun lego-prf ()
   "List proof state."
   (interactive)
-  (proof-command "Prf"))
+  (proof-invisible-command "Prf;"))
 
 (defun lego-ctxt ()
   "List context."
   (interactive) 
-  (proof-command "Ctxt"))
+  (proof-invisible-command "Ctxt;"))
 
 (defun lego-intros ()
   "intros."
@@ -437,11 +251,6 @@
   (interactive) 
   (insert "Refine "))
 
-(defun lego-shell ()
-  "Start a lego shell"
-  (interactive) 
-  (proof-start-shell))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Lego shell startup and exit hooks                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -451,102 +260,69 @@
   Its value will be updated whenever the corresponding screen gets
   selected.")
 
+;; NEED TO MAKE THE CODE BELOW CONSISTENT WITH THE VARIABLE ABOVE
+;; BEING BUFFER LOCAL TO THE SHELL BUFFER - djs 5/2/97
+
 ;; The line width needs to be adjusted if the LEGO process is
 ;; running and is out of sync with the screen width
 
-(defun lego-adjust-line-width ()
+(defun lego-shell-adjust-line-width ()
   "Uses LEGO's pretty printing facilities to adjust the line width of
   the output."
-  (and (comint-check-proc (and proof-shell-process-name (proof-shell-buffer)))
-       (let ((current-width
-	      (window-width (get-buffer-window proof-shell-buffer-name t))))
-	 (and (not (equal current-width
-			  lego-shell-current-line-width))
-	      (progn 
-		(setq lego-shell-current-line-width current-width)
-		(comint-simple-send lego-shell-process-name
-				    (format lego-pretty-set-width
-					    (- current-width 1))))))))
+  (if (proof-shell-live-buffer)
+      (let ((current-width
+	     (window-width (get-buffer-window proof-buffer-for-shell))))
+	 (if (equal current-width lego-shell-current-line-width)
+	     ""
+	   (setq lego-shell-current-line-width current-width)
+	   (format lego-pretty-set-width (- current-width 1))))
+    ""))
 
-(defun lego-shell-zap-line-width () 	     
-  (setq lego-shell-current-line-width nil))
-
-(defun lego-shell-start-pp ()
-  (cond (lego-pretty-p
-	 (setq lego-shell-current-line-width nil)
-	 (accept-process-output (get-process proof-shell-process-name))
-	 (proof-simple-send lego-pretty-on t)
-         (proof-simple-send lego-annotate-on t))))
-
-(defun lego-shell-pre-shell-start ()
-  (setq proof-shell-prog-name lego-shell-prog-name)
-  (setq proof-shell-process-name lego-shell-process-name)
-  (setq proof-shell-buffer-name (concat "*" lego-shell-process-name "*"))
-  (setq proof-shell-prompt-pattern lego-shell-prompt-pattern)
-  (setq proof-shell-mode-is 'lego-shell-mode)
-  (setq pbp-mode-is 'lego-pbp-mode)
-  (setq proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp)
-  (setq proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp)
-  (setq proof-shell-change-goal "Next %s;")
-  (setq proof-error-regexp lego-error-regexp)
-  (setq pbp-regexp-noise-goals-buffer "Discharge\\.\\. ")
-  (setq pbp-assumption-regexp lego-id)
-  (setq pbp-goal-regexp lego-goal-regexp)
-  (setq pbp-goals-buffer-name "*lego goals*"))
-;; (Note that emacs can't cope with aliases to buffer local variables)
-
-(defun lego-shell-post-shell-start ()
-  (lego-shell-start-pp)
-  (setq compilation-search-path (cons nil (lego-get-path)))
-  (add-hook 'proof-safe-send-hook 'lego-adjust-line-width)
-  (add-hook 'proof-shell-exit-hook 'lego-shell-zap-line-width)
-  (font-lock-fontify-buffer))
-
-
-(add-hook 'proof-pre-shell-start-hook 'lego-shell-pre-shell-start)
-(add-hook 'proof-post-shell-start-hook 'lego-shell-post-shell-start)
-;;;;;;;;;;;;;;;;;;;;;;;
-;;   Make support    ;;
-;;;;;;;;;;;;;;;;;;;;;;;
-
-(defvar lego-tmp-dir nil)
-
-(defun lego-module-name (file)
-  "Extract the name of the module from a file."
-  (substring (file-name-nondirectory file) 0 -2))
-
-(defun lego-make-buffer ()
-  "Save file then execute a Make command on it."
-  (interactive)
-  (and (buffer-modified-p)
-       (or (not lego-save-query)
-           (y-or-n-p (concat "Save file "
-                             (buffer-file-name)
-                             "? ")))
-       (save-buffer))
-  (let ((module-name (lego-module-name buffer-file-name)))
-    (proof-simple-send (concat lego-make-command " " module-name ";") t)))
-
-(defun lego-make-buffer-until-point ()
-  "Save from start of buffer until point, then run a Make"
-  (interactive)
-  (let ((file (concat lego-tmp-dir  "/" 
-		      (lego-module-name buffer-file-name) ".l")))
-    (write-region (point-min) (point) file)
-    (proof-simple-send 
-     (concat lego-make-command " \"" file "\";") t)))
+(defun lego-pre-shell-start ()
+  (setq proof-prog-name lego-prog-name)
+  (setq proof-mode-for-shell 'lego-shell-mode)
+  (setq proof-mode-for-pbp 'lego-pbp-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun lego-common-config ()
+(defvar lego-save-command-regexp
+  (concat "^" (ids-to-regexp lego-keywords-save)))
+(defvar lego-save-with-hole-regexp
+  (concat "\\(" (ids-to-regexp lego-keywords-save) "\\)\\s-+\\([^;]+\\)"))
+(defvar lego-goal-command-regexp
+  (concat "^" (ids-to-regexp lego-keywords-goal)))
+(defvar lego-goal-with-hole-regexp
+  (concat "\\(" (ids-to-regexp lego-keywords-goal) "\\)\\s-+\\([^:]+\\)"))
 
-;; The following things *must* be set before proof-config-done
+(defvar lego-kill-goal-command "KillRef;")
+(defvar lego-forget-id-command "Forget ")
+
+(defvar lego-undoable-commands-regexp
+  (ids-to-regexp '("Refine" "Intros" "intros" "Next" "Qrepl" "Claim"
+		   "For" "Repeat" "Succeed" "Fail" "Try" "Assumption" "UTac"
+		   "Qnify" "AndE" "AndI" "exE" "exI" "orIL" "orIR" "orE"
+		   "ImpI" "impE" "notI" "notE" "allI" "allE" "Expand"
+		   "Induction" "Immed"))
+  "Undoable list")
+
+(defun lego-mode-config ()
 
   (setq proof-terminal-char ?\;)
   (setq proof-comment-start "(*")
   (setq proof-comment-end "*)")
+
+  (setq proof-undo-target-fn 'lego-count-undos)
+  (setq proof-forget-target-fn 'lego-find-and-forget)
+
+  (setq	proof-save-command-regexp lego-save-command-regexp
+	proof-save-with-hole-regexp lego-save-with-hole-regexp
+	proof-goal-command-regexp lego-goal-command-regexp
+	proof-goal-with-hole-regexp lego-goal-with-hole-regexp
+	proof-undoable-commands-regexp lego-undoable-commands-regexp
+	proof-kill-goal-command lego-kill-goal-command
+	proof-forget-id-command lego-forget-id-command)
 
   (modify-syntax-entry ?_ "_")
   (modify-syntax-entry ?\' "_")
@@ -561,14 +337,12 @@
     (if (fboundp 'complete-tag)
 	'complete-tag		; Emacs 19.31 (superior etags)
       'tag-complete-symbol))	;XEmacs 19.13 (inferior etags)
-  (define-key (current-local-map) "\C-c\C-s" 'legogrep)
   (define-key (current-local-map) "\C-c\C-p" 'lego-prf)
+  (define-key (current-local-map) "\C-cc"    'lego-ctxt)
+  (define-key (current-local-map) "\C-ch"    'lego-help)
   (define-key (current-local-map) "\C-ci"    'lego-intros)
   (define-key (current-local-map) "\C-cI"    'lego-Intros)
   (define-key (current-local-map) "\C-cr"    'lego-Refine)
-  (define-key (current-local-map) "\C-c\C-k" 'lego-killref)
-  (define-key (current-local-map) "\C-c\C-u" 'lego-undo-1)
-  (define-key (current-local-map) "\C-c\C-t" 'lego-restart-goal)
 
 ;; outline
   
@@ -591,64 +365,57 @@
 
   (setq font-lock-keywords lego-font-lock-keywords-1)
 
-  (remove-hook 'font-lock-after-fontify-buffer-hook  'lego-zap-commas-buffer t)
-  (add-hook 'font-lock-after-fontify-buffer-hook  'lego-zap-commas-buffer nil t)
-  (remove-hook 'font-lock-mode-hook 'lego-fixup-change t)
-  (add-hook 'font-lock-mode-hook 'lego-fixup-change nil t)
-
-  (font-lock-mode)
-
-)
-
-
-(defun lego-mode-config ()
-
-  (lego-common-config)
-  
 ;; where to find files
 
   (setq compilation-search-path (cons nil (lego-get-path)))
-  (or lego-tmp-dir
-      (make-directory 
-       (setq lego-tmp-dir (make-temp-name "/tmp/lego"))))
 
 ;; keymaps and menus
-  (define-key lego-mode-map [(control c) (control b)] 'lego-make-buffer)
-  (define-key lego-mode-map [(control c) (control h)] 
-    'lego-make-buffer-until-point)
 
   (easy-menu-add lego-mode-menu lego-mode-map)
 
+  (setq blink-matching-paren-dont-ignore-comments t)
 ;; font-lock
 
 ;; if we don't have the following, zap-commas fails to work.
 
   (setq font-lock-always-fontify-immediately t)
 
-;; insert standard header and footer in fresh buffers
+;; hooks and callbacks
 
-  (and (equal (buffer-size) 0)
-       buffer-file-name
-       (or (file-exists-p buffer-file-name)
-	   (insert-before-markers
-	     (format "Module %s;" (lego-module-name buffer-file-name))
-	     ))))
-	       
+  (add-hook 'proof-shell-exit-hook 'lego-zap-line-width nil t)
+  (add-hook 'proof-pre-shell-start-hook 'lego-pre-shell-start nil t))
+
+;; insert standard header and footer in fresh buffers	       
 
 (defun lego-shell-mode-config ()
-
-  (lego-common-config)
-
-  (easy-menu-add lego-shell-menu lego-shell-mode-map)
-
-  (and running-xemacs (define-key lego-shell-mode-map 
-	[button3] 'lego-shell-menu))
-
-  (setq font-lock-keywords lego-shell-font-lock-keywords-1)
+  (setq proof-shell-prompt-pattern lego-shell-prompt-pattern
+        proof-shell-abort-goal-regexp lego-shell-abort-goal-regexp
+        proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
+        proof-shell-error-regexp lego-error-regexp
+        proof-shell-noise-regexp "Discharge\\.\\. "
+        proof-shell-assumption-regexp lego-id
+        proof-shell-goal-regexp lego-goal-regexp
+        proof-shell-first-special-char ?\360
+        proof-shell-wakeup-char ?\371
+        proof-shell-start-char ?\372
+        proof-shell-end-char ?\373
+        proof-shell-field-char ?\374
+        proof-shell-goal-char ?\375
+	proof-shell-eager-annotation-start "\376"
+	proof-shell-eager-annotation-end "\377"
+        proof-shell-annotated-prompt-regexp "Lego> \371"
+        proof-shell-result-start "\372 Pbp result \373"
+        proof-shell-result-end "\372 End Pbp result \373"
+        proof-shell-start-goals-regexp "\372 Start of Goals \373"
+        proof-shell-end-goals-regexp "\372 End of Goals \373"
+        proof-shell-init-cmd lego-process-config
+        proof-shell-config 'lego-shell-adjust-line-width
+        lego-shell-current-line-width nil)
+  (proof-shell-config-done)
 )
 
 (defun lego-pbp-mode-config ()
-  (lego-common-config)
-  (setq font-lock-keywords lego-font-lock-terms))
+  (setq pbp-change-goal "Next %s;")
+  (setq pbp-error-regexp lego-error-regexp))
 
 (provide 'lego)
