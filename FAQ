@@ -145,5 +145,14 @@ A. Of course, email "proofgeneral-request@informatics.ed.ac.uk"
 
 -----------------------------------------------------------------
 
+
+Q. I see spurious ^M characters at the end of lines in the 
+   windows showing output from the prover.  How can I remove
+   them?
+
+A. Customize the value of `proof-shell-strip-crs-from-output'.
+
+-----------------------------------------------------------------
+
 $Id$
 
