@@ -1892,7 +1892,14 @@ its friends configured in the function @code{proof-shell-start}.
 @defvar proof-shell-handle-error-or-interrupt-hook 
 Run after an error or interrupt has been reported in the response buffer.@*
 Hook functions may inspect @samp{@code{proof-shell-error-or-interrupt-seen}} to 
-determine whether the cause was an error or interrupt.
+determine whether the cause was an error or interrupt.  Possible
+values for this hook include:
+@lisp
+ @code{proof-goto-end-of-locked-on-error-if-pos-not-visible-in-window}
+ @code{proof-goto-end-of-locked-if-pos-not-visible-in-window}
+@end lisp
+which move the cursor in the scripting buffer on an error or
+error/interrupt.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-pre-interrupt-hook
