@@ -223,7 +223,8 @@ selected frame will be automatically deleted."
   :group 'proof-user-options)
 
 (defcustom proof-toolbar-use-button-enablers 
-  t
+  (or (not (boundp 'system-configuration))
+      (not (string-match "sun-solaris" system-configuration)))
   "*If non-nil, toolbars buttons may be enabled/disabled automatically.
 Toolbar buttons can be automatically enabled/disabled according to
 the context.  Set this variable to nil if you don't like this feature
@@ -234,7 +235,9 @@ Notes:
 * With this variable nil, buttons do nothing when they would
 otherwise be disabled.
 * If you change this variable it will only be noticed when you 
-next start Proof General."
+next start Proof General.
+* The default value for XEmacs built for solaris is nil, because
+of unreliabilities with enablers there."
   :type 'boolean
   :group 'proof-user-options)
 
