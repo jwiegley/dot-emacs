@@ -196,6 +196,7 @@ and script mode."
 
    ;; Isabelle is learning to talk PGIP...
    proof-shell-match-pgip-cmd		"<pgip"
+   proof-shell-issue-pgip-cmd		'isabelle-process-pgip
 
    ;; Some messages delimited by eager annotations
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."

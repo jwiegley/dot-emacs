@@ -462,5 +462,18 @@ the function `pg-remove-specials' can be used instead)."
 	       (not (string-equal thm proof-unnamed-theorem-name)))))))
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; XML as an SML string: add escapes for quotes
+;;
+
+(defun isabelle-xml-sml-escapes (xmlstring)
+  (replace-regexp-in-string "\"" "\\\"" xmlstring))
+
+(defun isabelle-process-pgip (xmlstring)
+  (format "ProofGeneral.process_pgip(\"%s\");"
+	  (isabelle-xml-sml-escapes xmlstring)))
+
 (provide 'isabelle-system)
 ;; End of isabelle-system.el
