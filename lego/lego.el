@@ -85,6 +85,14 @@
   :type 'string
   :group 'lego-settings)
 
+;; FIXME da: this doesn't belong here, it's only used by lego.
+;; (and it shouldn't be called w3-* !!)
+(defun w3-remove-file-name (address)
+  "Remove the file name in a World Wide Web address"
+  (string-match "://[^/]+/" address)
+  (concat (substring address 0 (match-end 0))
+          (file-name-directory (substring address (match-end 0)))))
+
 (defcustom lego-www-latest-release
   (concat (w3-remove-file-name lego-www-home-page)
   "html/release-1.3/")
@@ -269,8 +277,7 @@
 			  proof-terminal-string))))
       
       (setq span (next-span span 'type)))
-  (or ans
-      "COMMENT")))
+  (or ans proof-no-command)))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Other stuff which is required to customise script management   ;;

@@ -170,7 +170,7 @@
 
       (setq span (next-span span 'type)))
 
-      (or ans "COMMENT")))
+      (or ans proof-no-command)))
 
 (defvar coq-current-goal 1
   "Last goal that emacs looked at.")
