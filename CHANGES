@@ -1,6 +1,7 @@
 -*- outline -*-
 
-[ Changes file for 3.3 below.  NO CHANGES yet in this devel release ]
+[ Temporarily: this devel release is currently a bug fix / tweaked 
+  version of 3.3, which will be wrapped back into a patched 3.3 shortly. ]
 
 * Summary of Changes for Proof General 3.3 from 3.2
 
@@ -122,6 +123,8 @@
     This functionality is enabled with the Coq settings option 
     "Auto Compile Vos".
 
+    Whole goals output is displayed.  (Improvement suggested by
+    Robert Schneck).
 
 ** Isabelle Changes
 
