@@ -81,6 +81,11 @@
           (delete-backward-char 1)))))
 
 
+(defun isar-markup-ml (string)
+  "Return marked up version of ML command STRING for Isar."
+  (format "ML_command {* %s *};" string))
+
+
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
   (setq
@@ -116,14 +121,14 @@
 
    ;; proof engine commands
    proof-showproof-command      "pr"
-   proof-goal-command           "lemma \"%s\";"
+   proof-goal-command           "lemma \"%s\""
    proof-save-command           "qed"
    proof-context-command        "print_context"
    proof-info-command           "welcome"
-   proof-kill-goal-command      "ProofGeneral.kill_proof;"
-   proof-find-theorems-command  "thms_containing %s;"
-   proof-shell-start-silent-cmd "disable_pr;"
-   proof-shell-stop-silent-cmd  "enable_pr;"
+   proof-kill-goal-command      "ProofGeneral.kill_proof"
+   proof-find-theorems-command  "thms_containing %s"
+   proof-shell-start-silent-cmd "disable_pr"
+   proof-shell-stop-silent-cmd  "enable_pr"
    ;; command hooks
    proof-goal-command-p         'isar-goal-command-p
    proof-really-save-command-p  'isar-global-save-command-p
@@ -146,7 +151,7 @@
    proof-shell-prompt-pattern           "^\\w*[>#] "
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd                   "ML_command {* ThyLoad.add_path \"%s\" *}"
+   proof-shell-cd-cmd                   (isar-markup-ml "ThyLoad.add_path \"%s\"")
 
    ;; Escapes for filenames inside ML strings.
    ;; We also make a hack for a bug in Isabelle, by switching from
@@ -183,8 +188,8 @@
                                          "ProofGeneral.init true;")
    proof-assistant-setting-format       'isar-markup-ml
    proof-shell-init-cmd                 (proof-assistant-settings-cmd)
-   proof-shell-restart-cmd              "ProofGeneral.restart;"
-   proof-shell-quit-cmd                 (isabelle-verbatim "quit();")
+   proof-shell-restart-cmd              "ProofGeneral.restart"
+   proof-shell-quit-cmd                 "quit();"
 
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
@@ -215,8 +220,8 @@
    proof-shell-retract-files-regexp
    "Proof General, you can unlock the file \"\\(.*\\)\""
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list
-   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\";"
-   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\";")
+   proof-shell-inform-file-processed-cmd "ProofGeneral.inform_file_processed \"%s\""
+   proof-shell-inform-file-retracted-cmd "ProofGeneral.inform_file_retracted \"%s\"")
   (add-hook 'proof-activate-scripting-hook 'isar-activate-scripting))
 
 
@@ -461,7 +466,7 @@ proof-shell-retract-files-regexp."
   "Insert sync markers - acts on variable STRING by dynamic scoping"
   (if (string-match isabelle-verbatim-regexp string)
       (setq string (match-string 1 string))
-    (unless (string-match ";[ \t]*\'" string)
+    (unless (string-match ";[ \t]*\\'" string)
       (setq string (concat string ";")))
     (setq string (concat
                   "\\<^sync>"
@@ -479,10 +484,6 @@ proof-shell-retract-files-regexp."
                   ;;    string)
                   string
                   "\\<^sync>;"))))
-
-(defun isar-markup-ml (string)
-  "Return marked up version of ML command STRING for Isar."
-  (format "ML_command {* %s *};" string))
 
 (defun isar-mode-config ()
   (isar-mode-config-set-variables)
@@ -527,9 +528,9 @@ proof-shell-retract-files-regexp."
 
 (setq
  proof-xsym-activate-command
- "ML_command {* print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode) *};"
+ (isar-markup-ml "print_mode := ([\"xsymbols\",\"symbols\"] @ ! print_mode)")
  proof-xsym-deactivate-command
- "ML_command {* print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"]) *};")
+ (isar-markup-ml "print_mode := (! print_mode \\\\ [\"xsymbols\",\"symbols\"])"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
