@@ -213,7 +213,7 @@ alldist:	distdocs
 # Make tags file
 #
 tags:	$(EL)
-	etags $(EL) doc/ProofGeneral.texi > TAGS
+	etags $(EL) doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
 
 
 
