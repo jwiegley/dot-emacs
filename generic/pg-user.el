@@ -1102,6 +1102,31 @@ The function `substitute-command-keys' is called on the argument."
 		     identifier)))))))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Imenu and Speedbar (added in PG 3.5)
+;;
+
+(eval-after-load "speedbar"
+  '(and proof-assistant-symbol ;; *should* be set by now
+	(speedbar-add-supported-extension 
+	 (nth 2 (assoc proof-assistant-symbol proof-assistant-table)))))
+
+(defun proof-imenu-enable ()
+  "Add or remove index menu."
+  (if proof-imenu-enable
+      (imenu-add-to-menubar "Index")
+    (if proof-running-on-XEmacs
+	(easy-menu-remove (list "Index" :filter 'imenu-menu-filter))
+      (progn
+	(let ((oldkeymap (keymap-parent (current-local-map))))
+	  (if ;; sanity checks in case someone else set local keymap
+	      (and oldkeymap
+		   (lookup-key (current-local-map) [menu-bar index])
+		   (not 
+		    (lookup-key oldkeymap [menu-bar index])))
+	      (use-local-map oldkeymap)))
+	(remove-hook 'menu-bar-update-hook 'imenu-update-menubar)))))
 
 (provide 'pg-user)
 ;; pg-user.el ends here.
