@@ -76,6 +76,11 @@
 ;;
 ;; ------
 
+(defun texi-docstring-magic-find-face (face)
+  ;; Compatibility between FSF Emacs and XEmacs
+  (or (facep face)
+      (and (fboundp 'find-face) (find-face face))))
+
 (defun texi-docstring-magic-splice-sep (strings sep)
   "Return concatenation of STRINGS spliced together with separator SEP."
   (let (str)
@@ -240,7 +245,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 (defun texi-docstring-magic-texi-for (symbol)
   (cond
    ;; Faces
-   ((find-face symbol)
+   ((texi-docstring-magic-find-face symbol)
     (let*
 	((face	    symbol)
 	 (name      (symbol-name face))
@@ -327,7 +332,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
 		(forward-sexp -1))
 	    (skip-chars-forward "'")
 	    (let ((obj (read (current-buffer))))
-	      (and (symbolp obj) (find-face obj) obj)))
+	      (and (symbolp obj) (texi-docstring-magic-find-face obj) obj)))
 	(set-syntax-table stab)))))
 
 (defun texi-docstring-magic-insert-magic (symbol)
@@ -343,7 +348,7 @@ Markup as @code{stuff} or @lisp stuff @end lisp."
                    obarray '(lambda (sym)
 			      (or (boundp sym)
 				  (fboundp sym)
-				  (find-face sym)))
+				  (texi-docstring-magic-find-face sym)))
 		   t nil 'variable-history))))
      (list (if (equal val "") v (intern val)))))
   (insert "\n" texi-docstring-magic-comment " " (symbol-name symbol)))
