@@ -3,7 +3,12 @@
 
     $Id$
 
-    Just a version of Example.ML using XSymbol
+    Just a version of Example.ML using XSymbol.
+
+    Also subscripts/superscripts/bold:  A\<^sup>1 \\<or> A\<^sub>2 \\<or> A\<^bold>3 
+    [NB: these can't be used in identifiers or otherwise
+     parsed by Isabelle unless declared as part of a theory's 
+     concrete syntax, see docs or examples in HOL/IMP.]
 *)    
 
 Goal "A \\<and> B \\<longrightarrow> B \\<and> A";
