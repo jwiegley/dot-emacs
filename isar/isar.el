@@ -119,7 +119,7 @@
     (nth 1 (car stack)))
    (t (let ((col (save-excursion
 		   (goto-char (nth 1 (car stack)))
-		   (current-column))))
+		   (current-indentation))))
 	(if (and (eq (car (car stack)) ?p)
 		 (save-excursion (move-to-column (current-indentation))
 				 (looking-at isar-indent-enclose-regexp)))
@@ -436,7 +436,9 @@ Resulting output from Isabelle will be parsed by Proof General."
 (defconst isar-kill "kill;")
 
 (defun isar-undos (i)
-  (concat "undos_proof " (int-to-string i) ";"))
+  (if (> i 0)
+      (concat "undos_proof " (int-to-string i) ";")
+    proof-no-command))
 
 (defun isar-cannot-undo (cmd)
   (concat "cannot_undo \"" cmd "\";"))
@@ -447,7 +449,7 @@ Resulting output from Isabelle will be parsed by Proof General."
    (proof-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))))
 
 (defconst isar-undo-skip-regexp
-  (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-diag)))
+  (proof-anchor-regexp (concat ";\\|" (proof-ids-to-regexp isar-keywords-diag))))
 
 (defconst isar-undo-kill-regexp
   (proof-anchor-regexp (proof-ids-to-regexp isar-keywords-theory-begin)))
@@ -490,6 +492,8 @@ Resulting output from Isabelle will be parsed by Proof General."
 	(setq ans isar-undo))
        ((proof-string-match isar-undo-fail-regexp str)
 	(setq ans (isar-cannot-undo str)))
+       ((proof-string-match isar-undo-skip-regexp str)
+	(setq ans proof-no-command))
        ((proof-string-match isar-undo-kill-regexp str)
 	(setq ans isar-kill))
        (t
