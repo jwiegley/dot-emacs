@@ -311,14 +311,17 @@ and start at the first error."
 
 ;; An analogue of pg-response-display-with-face 
 (defun proof-trace-buffer-display (str)
-  "Output STR in the trace buffer."
+  "Output STR in the trace buffer.
+If STR is empty, just ensure that fontification is up to date."
   (with-current-buffer proof-trace-buffer
     (goto-char (point-max))
-    (newline)
+    (unless (string-equal str "")
+      (newline))
     (or proof-trace-last-fontify-pos 
 	(setq proof-trace-last-fontify-pos (point)))
     (insert str)
-    (unless (bolp) (newline))
+    (unless (or (bolp) (string-equal str ""))
+      (newline))
     ;; If tracing output is prolific, we try to avoid
     ;; fontifying every chunk and batch it up instead.
     (unless pg-tracing-slow-mode

@@ -1653,6 +1653,8 @@ by the filter is to send the next command from the queue."
 (defconst pg-fast-tracing-mode-threshold 50000
   "Minimum microsecond delay between tracing outputs that triggers slow mode.")
 
+(defvar pg-tracing-cleanup-timer nil)
+
 (defun pg-tracing-tight-loop ()
   "Return non-nil in case it seems like prover is dumping a lot of output.
 This is a performance hack to avoid Emacs consuming CPU when prover is output
@@ -1666,8 +1668,9 @@ Only works when system timer has microsecond count available."
 		   pg-slow-mode-duration)
 		;; go out of slow mode
 		(progn 
-		(setq pg-tracing-slow-mode nil)
-		(setq pg-last-tracing-output-time tm))
+		  (setq pg-tracing-slow-mode nil)
+		  (setq pg-last-tracing-output-time tm)
+		  (cancel-timer pg-tracing-cleanup-timer))
 	      ;; otherwise: stay in slow mode
 	      t)
 	  ;; different seconds-major count: go out of slow mode
@@ -1684,15 +1687,21 @@ Only works when system timer has microsecond count available."
 	       ;; 
 	       (< (- (nth 2 tm) (nth 2 pg-last-tracing-output-time)) 
 		  pg-fast-tracing-mode-threshold))
-	  ;; quickly consecutive tracing outputs: go into slow mode
+	  ;; quickly consecutive and large tracing outputs: go into slow mode
 	  (progn
 	    (setq pg-tracing-slow-mode t)
 	    (message "Fast tracing output: playing slow catch-up")
+	    (setq pg-tracing-cleanup-timer
+		  (run-with-idle-timer 2 nil 'pg-finish-tracing-display))
 	    t)
 	;; not quick enough to trigger slow mode: allow screen update
 	(setq pg-last-tracing-output-time tm)
 	nil))))
-	    
+
+(defun pg-finish-tracing-display ()
+  "Cancel tracing slow mode and ensure tracing buffer is fontified."
+  (setq pg-tracing-slow-mode nil)
+  (proof-trace-buffer-display ""))
 
 
 
