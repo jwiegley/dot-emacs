@@ -1,7 +1,7 @@
-Summary of Changes since Proof General 2.0
-------------------------------------------
+Summary of Changes for Proof General 2.1
+----------------------------------------
 
-* Documentation improvements
+* Documentation improvements.   Text added for Coq mode.
 
 * Support for x-symbol package to beautify 
   input and output with special fonts.
@@ -17,3 +17,5 @@ Summary of Changes since Proof General 2.0
   proof-case-fold-search configuration variable to
   allow for proof script languages with case-insensitive 
   syntax.
+
+* Other minor bug fixes.
