@@ -1125,8 +1125,10 @@ to customize the way the buffers are displayed (@pxref{Display
 customization}).
 
 The menu @code{Proof General -> Buffers} provides a convenient way to
-display or switch to one of the four buffers: active scripting, goals,
-response, or shell.
+display or switch to a Proof General buffer: the active scripting
+buffer; the goal or response buffer; the tracing buffer; or the shell
+buffer.  Another command on this menu, @code{Clear Responses}, clears
+the response and tracing buffer.
 
 @c When
 @c Proof General sees an error in the shell buffer, it will highlight the
@@ -1358,8 +1360,9 @@ a @i{prefix argument} to adjust their behaviour somehow.
 @kindex C-c C-f
 @kindex C-c C-t
 
-There are several commands for interacting with the proof assistant away
-from a proof script.  Here are the key-bindings and functions.
+There are several commands for interacting with the proof assistant and
+Proof General, which do not involve the proof script.  Here are the
+key-bindings and functions.
 
 @table @kbd
 @item C-c C-l
@@ -1373,6 +1376,8 @@ from a proof script.  Here are the key-bindings and functions.
 @item C-c C-f
 @code{proof-find-theorems}
 @item C-c C-c
+@code{pg-response-clear-displays}
+@item C-c C-w
 @code{proof-interrupt-process}
 @item C-c C-v
 @code{proof-minibuffer-cmd}
@@ -1410,6 +1415,14 @@ Issues a command to the assistant based on @code{proof-info-command}.
 Search for items containing given constants.@*
 Issues a command based on @var{arg} to the assistant, using @code{proof-find-theorems-command}.
 The user is prompted for an argument.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: pg-response-clear-displays
+@deffn Command pg-response-clear-displays 
+Clear Proof General response and tracing buffers.@*
+You can use this command to clear the output from these buffers when
+it becomes overly long.  Particularly useful when @samp{@code{proof-tidy-response}}
+is set to nil, so responses are not cleared automatically.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-interrupt-process
@@ -1454,9 +1467,9 @@ There are a few commands for stopping, starting, and restarting the
 proof assistant process which have menu entries but no key-bindings.
 As with any Emacs command, you can invoke these with @kbd{M-x}.
 
-Here's a tip: if you accidently kill one of the Proof General special
-buffers (goals or response), exiting the proof assistant and restarting
-it will solve the problem.
+
+
+
 
 @c TEXI DOCSTRING MAGIC: proof-shell-start
 @deffn Command proof-shell-start 
