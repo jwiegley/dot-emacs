@@ -74,8 +74,9 @@
 	  proof-menu
 	  (list "----")
 	  (append
-	   (customize-menu-create 'proof-general)
-	   (customize-menu-create 'proof-general-internals "Internals"))
+	   (list (customize-menu-create 'proof-general))
+	   (list (customize-menu-create 'proof-general-internals 
+					"Internals")))
 	  proof-bug-report-menu))))
 
 
@@ -90,7 +91,7 @@
    (cons proof-assistant
 	 (append
 	  proof-assistant-menu-entries
-	  proof-assistant-favourites
+	  (proof-ass favourites)
 	  '("----")
 	  '(["Add favourite" 
 	     (call-interactively 'proof-add-favourite) t])))))

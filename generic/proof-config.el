@@ -1896,21 +1896,23 @@ X-Symbol support is deactivated."
 ;; NB: this section is work in progress
 
 (defmacro proof-defasscustom (sym &rest args)
-  `(defcustom ,(intern (concat (symbol-name
-				proof-assistant-symbol)
+  `(defcustom ,(intern (concat (symbol-name proof-assistant-symbol)
+			       "-"
 			       (symbol-name sym)))
-     :group ,(quote proof-assistant-cusgrp)
-     ,@args))
+     ,@args
+     ;; Would be nicer to put group earlier so it might be
+     ;; overriden in real call, but that means taking apart args.
+     :group ,(quote proof-assistant-cusgrp)))
 
-; (proof-defasscustom favourites nil
-;  "
-		    
+(defmacro proof-ass (sym)
+  "Return the value of SYM for the current prover."
+  (intern (concat (symbol-name proof-assistant-symbol)
+		  "-"
+		  (symbol-name sym))))
 
-		    
 
-;(proof-defass-custom test "Hello"
-;  "Command"
-;  :type 'string)
+(proof-defasscustom favourites nil
+  "Favourites on proof assistant specific menu.")
 		     
 
 
