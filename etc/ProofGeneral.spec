@@ -8,7 +8,6 @@ Url:		http://www.proofgeneral.org/
 Packager:	David Aspinall <da@dcs.ed.ac.uk>
 Source:		http://www.proofgeneral.org/ProofGeneral-3.3pre010501.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
-Patch:		ProofGeneral.patch
 PreReq:		/sbin/install-info
 Prefixes:	/usr/share/emacs /usr/bin /usr/info
 BuildArchitectures: noarch
@@ -29,25 +28,11 @@ to your .emacs file so Proof General is available whenever
 you run Emacs.
 
 %changelog
-* Thu Dec  7 2000 David Aspinall <da@dcs.ed.ac.uk> 
-- Name change af2 -> phox
-
-* Fri Sep 29 2000 David Aspinall <da@dcs.ed.ac.uk> 
-- For 3.2, add more provers (af2, acl2, twelf).  Added proofgeneral script.
-
-* Mon Mar 13 2000 David Aspinall <da@dcs.ed.ac.uk>
-- For 3.1, added hol98 instance.
-
-* Wed Aug 25 1999 David Aspinall <da@dcs.ed.ac.uk>
-- For 2.1 and 2.2pre series: made relocatable, added isar/ to package.
-
-* Thu Sep 24 1998 David Aspinall <da@dcs.ed.ac.uk>
-- First version.
+* Fri May  4 2001 David Aspinall <da@dcs.ed.ac.uk> 
+- Changelog in CVS now; official spec file developed with source.
 
 %prep
 %setup
-%patch -p0
-rm -f */*.orig
 
 %build
 
@@ -67,8 +52,14 @@ gzip ${RPM_BUILD_ROOT}/usr/info/PG-adapting.info ${RPM_BUILD_ROOT}/usr/info/PG-a
 # Remove duff bits
 rm -f doc/dir doc/localdir 
 
-cp -pr phox acl2 twelf coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
+# Put icons and menu entry into suitable place (at least for Mandrake)
+mkdir -p ${RPM_BUILD_ROOT}/usr/share/icons/mini
+cp images/pgmini.xpm ${RPM_BUILD_ROOT}/usr/share/icons/mini
+cp images/pgicon.png ${RPM_BUILD_ROOT}/usr/share/icons
+mkdir -p ${RPM_BUILD_ROOT}/usr/lib/menu
+mv etc/ProofGeneral.menu ${RPM_BUILD_ROOT}/usr/lib/menu/ProofGeneral
 
+cp -pr phox acl2 twelf coq lego isa isar hol98 images generic ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 %clean
 if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
@@ -76,12 +67,12 @@ if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
 fi
 
 %post
-/sbin/install-info /usr/info/ProofGeneral.info.gz /usr/info/dir
-/sbin/install-info /usr/info/PG-adapting.info.gz /usr/info/dir
+/sbin/install-info /usr/info/ProofGeneral.info.* /usr/info/dir
+/sbin/install-info /usr/info/PG-adapting.info.* /usr/info/dir
 
 %preun
-/sbin/install-info --delete /usr/info/ProofGeneral.info.gz /usr/info/dir
-/sbin/install-info --delete /usr/info/PG-adapting.info.gz /usr/info/dir
+/sbin/install-info --delete /usr/info/ProofGeneral.info.* /usr/info/dir
+/sbin/install-info --delete /usr/info/PG-adapting.info.* /usr/info/dir
 
 %files
 %attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/* 
@@ -92,35 +83,27 @@ fi
 %attr(-,root,root) /usr/bin/proofgeneral
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
+%attr(-,root,root) /usr/share/icons/pgicon.png
+%attr(-,root,root) /usr/share/icons/mini/pgmini.xpm
+%attr(-,root,root) /usr/lib/menu/ProofGeneral
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/coq
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/coq/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/coq/*.v
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/lego
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/lego/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/lego/*.l
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isa
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/interface
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*.thy
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*.ML
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isar
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/interface
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/*.thy
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/hol98
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/hol98/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/hol98/*.sml
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/phox
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/phox/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/phox/*.phx
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/acl2
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.acl2
-%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/twelf
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/twelf/*.el
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/twelf/*.elf
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/images/*
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
-%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/generic/*.el
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/coq
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/lego
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isa
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isar
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/hol98
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/phox
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/acl2
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/twelf
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/images/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/generic/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/coq/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/lego/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/isa/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/isar/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/hol98/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/phox/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/acl2/*
+%attr(-,root,root) /usr/share/emacs/ProofGeneral/twelf/*
