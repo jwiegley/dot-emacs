@@ -23,7 +23,7 @@ page about the next stages of development for Proof General.
 <p>
 <h3>Collaborations</h3>
 Collaborations on this work are being sought.  If you are interested in collaborating, or have ideas or suggestions to contribute, please send a note to
-<a href="mailto:eeproof@proofgeneral.org"><tt>eeproof@proofgeneral.org</tt></a>
+<a href="mailto:da+pg-eeproof@inf.ed.ac.uk"><tt>da+pg-eeproof@inf.ed.ac.uk</tt></a>
 </p>
 
 <?php

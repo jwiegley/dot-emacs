@@ -15,9 +15,9 @@
 
 // Project configuration
 
-$project_email = "feedback@proofgeneral.org";
-$project_list  = "users@proofgeneral.org";
-$project_feedback = "feedback@proofgeneral.org";
+$project_email = "da+pg-feedback@inf.ed.ac.uk";
+$project_list  = "da+pg-users@inf.ed.ac.uk";
+$project_feedback = "da+pg-feedback@inf.ed.ac.uk";
 
 // Disable when free parking forwarding is broken
 // $proofgenatdcs = "proofgen@dcs.ed.ac.uk";

@@ -11,7 +11,7 @@ discussions amongst users.
 <p>
 This list is <i>not</i> for those having problems with the
 software: please contact 
-<a href="mailto:support@proofgeneral.org">support@proofgeneral.org</a>
+<a href="mailto:da+pg-support@inf.ed.ac.uk">da+pg-support@inf.ed.ac.uk</a>
 in the first instance.
 </p>
 
@@ -33,7 +33,7 @@ in the message body.
 <h3>Posting</h3>
 <p>
 The canonical mailing list address is 
-<a href="mailto:users@proofgeneral.org"><tt>users@proofgeneral.org</tt></a>.
+<a href="mailto:da+pg-users@inf.ed.ac.uk"><tt>da+pg-users@inf.ed.ac.uk</tt></a>.
 <br>
 This is an alias for
 <tt>proofgeneral@informatics.ed.ac.uk</tt>.
@@ -53,7 +53,7 @@ Archives of the list (since July 2002) are kept
 <p>
 There is a separate mailing list for those interested in the
 development of Proof General.  The canonical address
-for this list is <a href="mailto:devel@proofgeneral.org"><tt>devel@proofgeneral.org</tt></a>.
+for this list is <a href="mailto:da+pg-devel@inf.ed.ac.uk"><tt>da+pg-devel@inf.ed.ac.uk</tt></a>.
 Again, posting is restricted to list members.
 Please visit the <a href="http://lists.informatics.ed.ac.uk/mailman/listinfo/proofgeneral-devel">Mailman web page</a> for subscription details.
 </p>

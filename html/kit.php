@@ -7,7 +7,7 @@
 The Proof General Kit project is in an early experimental stage at
 the moment.  If you are interested in collaborating, or have ideas
 or suggestions to contribute, please send a note to
-<a href="mailto:kit@proofgeneral.org"><tt>kit@proofgeneral.org</tt></a>
+<a href="mailto:da+pg-kit@inf.ed.ac.uk"><tt>da+pg-kit@inf.ed.ac.uk</tt></a>
 </p>
 
 <h3>Planning</h3>
