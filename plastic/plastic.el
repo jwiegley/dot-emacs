@@ -613,10 +613,10 @@ We assume that module identifiers coincide with file names."
 
 (defun plastic-minibuf-cmd (cmd)
     "do minibuffer cmd then undo it, if error-free."
+    (interactive
+     (list (read-string "Command: " nil 'proof-minibuffer-history)))
     (print "hello")
     (plastic-reset-error)
-    (interactive
-       (list (read-string "Command: " nil 'proof-minibuffer-history)))
     (if (and proof-state-preserving-p
            (not (funcall proof-state-preserving-p cmd)))
       (error "Command is not state preserving, I won't execute it!"))
