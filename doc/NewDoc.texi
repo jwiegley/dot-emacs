@@ -1111,6 +1111,18 @@ Yves Bertot.  David Aspinall provided the Proof General name and images.
 An early version of this manual was prepared by Dilip Sequeira.  The
 present version was written by David Aspinall and Thomas Kleymann.
 
+During the development of Proof General, the following people helped
+by providing feedback, testing, or code:
+Pascal Brisset,
+Rod Burstall, 
+Paul Callaghan,
+Martin Hofmann,
+James McKinna, 
+Mark Ruys, 
+Martin Steffen, 
+Perdita Stevens,
+and Markus Wenzel.  Thanks to all of you!
+
 
 @node References
 @unnumberedsec References

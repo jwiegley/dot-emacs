@@ -6,10 +6,6 @@
 ;;
 ;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
-;; Thanks to Rod Burstall, Martin Hofmann,
-;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens
-;;   for helpful comments and code.
-;;
 ;; $Id$
 ;;
 
