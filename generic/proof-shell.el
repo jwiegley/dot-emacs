@@ -1,3 +1,17 @@
+;; FIXME:
+;;
+;; getting rid of mess with delayed output handling, *but*
+;; we still want to keep a record of the last goals output
+;; found when we hit an error message.
+
+;; Maybe we really need proof-shell-delayed-output and
+;; proof-shell-delayed-output-kind?? 
+;; This might mean we could show some context before an
+;; error message, for example.
+
+
+
+
 ;; proof-shell.el  Proof General shell mode.
 ;;
 ;; Copyright (C) 1994-2000 LFCS Edinburgh. 
@@ -158,7 +172,7 @@ Does nothing if proof assistant is already running."
     ;; proof-prog-name to start the program!
     (run-hooks 'proof-pre-shell-start-hook)
 
-    ;; Clear some state
+    ;; Clear some state [ fixme: should clear more? ]
     (setq proof-included-files-list nil)
 
     ;; Added 05/99 by Patrick L.
@@ -375,7 +389,11 @@ exited by hand (or exits by itself)."
 	proof-shell-busy nil
 	proof-shell-proof-completed nil
 	proof-shell-error-or-interrupt-seen nil
-	proof-shell-silent nil))
+	proof-shell-silent nil
+	proof-shell-last-output nil
+	proof-shell-last-output-kind nil
+	proof-shell-delayed-output nil
+	proof-shell-delayed-output-kind nil))
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
@@ -540,30 +558,52 @@ user types by hand."
 
 
 		  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Processing output from the prover
+;; 
 
+;; We keep a record of the last output from the proof system and a
+;; flag indicating its type, as well as a previous ("delayed") to use
+;; when the end of the queue is reached or an error or interrupt
+;; occurs.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   The filter. First some functions that handle those few         ;;
-;;   occasions when the glorious illusion that is script-management ;;
-;;   is temporarily suspended                                       ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; A raw record of the last output from the proof system
+(defvar proof-shell-last-output nil
+  "A record of the last string seen from the proof system.")
 
-;;   Output from the proof process is handled lazily, so that only  
-;;   the output from the last of multiple commands is actually      
-;;   processed (assuming they're all successful)
+;; A flag indicating the type of thing proof-shell-last-output
+(defvar proof-shell-last-output-kind nil
+  "A symbol denoting the type of the last output string from the proof system.
+Specifically:
+
+ 'interrupt   	 An interrupt message
+ 'error	      	 An error message
+ 'abort	      	 A proof abort message
+ 'loopback    	 A command sent from the PA to be inserted into the script
+ 'response    	 A response message
+ 'goals	      	 A goals (proof state) display
+ 'systemspecific } Something specific to a particular system,
+		 }  see `proof-shell-process-output-system-specific'
+
+The output corresponding to this will be in proof-shell-last-output.
+
+See also `proof-shell-proof-completed' for further information about
+the proof process output, when ends of proofs are spotted.
+
+This variable can be used for instance specific functions which want
+to examine proof-shell-last-output.")
 
 (defvar proof-shell-delayed-output nil
-  "Last interesting output from proof process output and what to do with it.
+  "A copy of proof-shell-last-output held back for processing at end of queue.")
 
-This is a list of tuples of the form (TYPE . STRING). type is either
-'analyse or 'insert. 
+(defvar proof-shell-delayed-output-kind nil
+  "A copy of proof-shell-last-output-lind held back for processing at end of queue.")
 
-'analyse denotes that string's term structure  ought to be analysed
-         and displayed in the `proof-goals-buffer'
 
-'insert  denotes that string ought to be displayed in the
-         `proof-response-buffer' ")
-
+;;
+;; Goals buffer processing
+;;
 (defun proof-shell-analyse-structure (string)
   "Analyse the term structure of STRING and display it in proof-goals-buffer.
 This function converts proof-by-pointing markup into mouse-highlighted
@@ -616,9 +656,12 @@ extents."
       (erase-buffer)
 
       ;; Insert the (possibly cleaned up) string.
-      (if proof-shell-leave-annotations-in-output
-	  (insert string)
-	(insert (substring out 0 op)))
+      (let ((dispstring (if proof-shell-leave-annotations-in-output
+			    string
+			  (substring out 0 op))))
+	(insert dispstring)
+	;; Override record of last command output
+	(setq proof-shell-last-output dispstring))
       
       ;; Get fonts and characters right
       (proof-fontify-region (point-min) (point-max))
@@ -709,6 +752,9 @@ If proof-shell-first-special-char is unset, return STRING unchanged."
 	(substring out 0 op))
     string))
 
+;;
+;; Response buffer processing
+;;
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
   "Displays output from `proof-shell-buffer' in `proof-response-buffer'.
 The region in `proof-shell-buffer begins with the first match 
@@ -739,88 +785,47 @@ Returns the string (with faces) in the specified region."
     (proof-shell-maybe-erase-response t nil)
     (proof-response-buffer-display string append-face)))
 
+
+(defun proof-shell-show-as-response (str)
+  "Show STR as a response in the response buffer."
+  (unless proof-shell-leave-annotations-in-output
+    (setq str (proof-shell-strip-special-annotations str)))
+  (proof-shell-maybe-erase-response t nil)
+  (proof-response-buffer-display str)
+  (proof-display-and-keep-buffer proof-response-buffer))
+  
 (defun proof-shell-handle-delayed-output ()
   "Display delayed output.
-This function expects 'proof-shell-delayed-output' to be a cons cell
-of the form ('insert . TXT) or ('analyse . TXT).
-See the documentation for `proof-shell-delayed-output' for further details."
-  (let ((ins (car proof-shell-delayed-output))
-	(str (cdr proof-shell-delayed-output)))
-    (cond 
-     ;; 
-     ;; 1. Text to be inserted in response buffer.
-     ;;
-     ((eq ins 'insert)
-      ;; FIXME da: this next line is nasty, it breaks something?
-      ;;   (unless (string-equal str "done")  
-      ;; Think this was meant as a get out clause from somewhere.
-      ;; Maybe if the output string from the prover is empty?
-      ;; Anyway, we leave it alone now, maybe to see some spurious 
-      ;; "done" displays 
+This function handles the cases of proof-shell-delayed-output-kind which
+are not dealt with eagerly during script processing, namely
+'abort, 'response, 'goals outputs."
+  (cond
+   ;; Response buffer output
+   ((eq proof-shell-delayed-output-kind 'abort)
+    (proof-shell-show-as-response "Aborted."))
+   ((eq proof-shell-delayed-output-kind 'response)
+    (proof-shell-show-as-response proof-shell-delayed-output))
+   ;; Goals buffer output
+   ((eq proof-shell-delayed-output-kind 'goals)
+    (proof-shell-analyse-structure proof-shell-delayed-output))
+   ;; Ignore other cases
+   )
+  (run-hooks 'proof-shell-handle-delayed-output-hook))
 
-      ;; FIXME: this can be done away with, probably.
-      (unless proof-shell-leave-annotations-in-output
-	(setq str (proof-shell-strip-special-annotations str)))
 
-      (proof-shell-maybe-erase-response t nil)
-      (proof-response-buffer-display str)
-      (proof-display-and-keep-buffer proof-response-buffer))
-     ;;
-     ;; 2. Text to be inserted in goals buffer
-     ((eq ins 'analyse)
-      (proof-shell-analyse-structure str))
-     ;;
-     ;; 3. Nothing else should happen
-     (t (assert nil "proof-shell-handle-delayed-output: wrong type!"))))
-  (run-hooks 'proof-shell-handle-delayed-output-hook)
-  (setq proof-shell-delayed-output (cons 'insert "done")))
-
-
-;; Notes on markup in the scripting buffer. (da)
-;;
-;; The locked region is covered by a collection of non-overlaping
-;; spans (our abstraction of extents/overlays).
-;;
-;; For an unfinished proof, there is one extent for each command 
-;; or comment outside a command.   For a finished proof, there
-;; is one extent for the whole proof.
-;;
-;; Each command span has a 'type property, one of:
-;;
-;;     'vanilla      Initialised in proof-semis-to-vanillas, for
-;;     'goalsave 
-;;     'comment      A comment outside a command.
-;;
-;;  All spans except those of type 'comment have a 'cmd property,
-;;  which is set to a string of its command.  This is the
-;;  text in the buffer stripped of leading whitespace and any comments.
-;;
 ;; 
+;; Processing error output
+;;
 
-
-
-;; FIXME da: the magical use of "Done." and "done" as values in
-;; proof-shell-handled-delayed-output is horrendous.  Should
-;; be changed to something more understandable!!
-
-(defun proof-shell-handle-error (cmd string)
+(defun proof-shell-handle-error (cmd)
   "React on an error message triggered by the prover.
 We first flush unprocessed goals to the goals buffer.
 The error message is displayed in the responsebuffer.
 Then we call `proof-shell-error-or-interrupt-action', which see."
-  ;; Why not flush goals also for interrupts?
-  (unless
-      (or
-       ;; da: a first safety check 
-       (not (eq (car proof-shell-delayed-output) 'insert))
-       (equal (cdr proof-shell-delayed-output) "Done.")
-       ;; da: added this, seems little point in printing "done" either?
-       (equal (cdr proof-shell-delayed-output) "done"))
-    ;; Flush goals (from some last successful proof step) to goals
-    ;; buffer
-    (save-excursion
-      (proof-shell-analyse-structure 
-       (cdr proof-shell-delayed-output))))
+  ;; [FIXME: Why not flush goals also for interrupts?]
+  ;; Flush goals or response buffer (from some last successful proof step)
+  (save-excursion
+    (proof-shell-handle-delayed-output))
   ;; Perhaps we should erase the proof-response-buffer?
   (proof-shell-handle-output
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
@@ -905,30 +910,30 @@ Order of testing is: interrupt, abort, error, completion.
 To extend this function, set proof-shell-process-output-system-specific.
 
 The \"aborted\" case is intended for killing off an open proof during
-retraction.  Typically it the error message caused by a
+retraction.  Typically it matches the message caused by a
 proof-kill-goal-command.  It simply inserts the word \"Aborted\" into
 the response buffer.  So it is expected to be the result of a 
 retraction, rather than the indication that one should be made.
 
-This function can return one of 4 things as the symbol: 'error,
-'interrupt, 'loopback, or nil. 'loopback means this was output from
-pbp, and should be inserted into the script buffer and sent back to
-the proof assistant."
+This function sets `proof-shell-last-output' and `proof-shell-last-output-kind',
+which see."
+  ;; Keep a record of the last message from the prover
+  (setq proof-shell-last-output string)
   (or
    ;; First check for error, interrupt, abort, proof completed
    (cond
     ((proof-shell-string-match-safe proof-shell-interrupt-regexp string)
-     'interrupt)
+     (setq proof-shell-last-output-kind 'interrupt))
     
     ((proof-shell-string-match-safe proof-shell-error-regexp string)
-     (cons 'error (proof-shell-strip-special-annotations
-		   (substring string
-			      (match-beginning 0)))))
+     (setq proof-shell-last-output
+	   (proof-shell-strip-special-annotations
+	    (substring string (match-beginning 0))))
+     (setq proof-shell-last-output-kind 'error))
     
     ((proof-shell-string-match-safe proof-shell-abort-goal-regexp string)
      (proof-clean-buffer proof-goals-buffer)
-     (setq proof-shell-delayed-output (cons 'insert "\nAborted\n"))
-     ())
+     (setq proof-shell-last-output-kind 'abort))
     
     ((proof-shell-string-match-safe proof-shell-proof-completed-regexp string)
      ;; In case no goals display
@@ -955,8 +960,8 @@ the proof assistant."
        (setq end (if proof-shell-end-goals-regexp
 		     (string-match proof-shell-end-goals-regexp string start)
 		   (length string)))
-       (setq proof-shell-delayed-output 
-	     (cons 'analyse (substring string start end)))))
+       (setq proof-shell-last-output (substring string start end))
+       (setq proof-shell-last-output-kind 'goals)))
     
     ;; Test for a proof by pointing command hint
     ((proof-shell-string-match-safe proof-shell-result-start string)
@@ -964,18 +969,22 @@ the proof assistant."
        (setq start (+ 1 (match-end 0)))
        (string-match proof-shell-result-end string)
        (setq end (- (match-beginning 0) 1))
-       (cons 'loopback (substring string start end))))
+       ;; Only record the loopback command in the last output message
+       (setq proof-shell-last-output (substring string start end)))
+     (setq proof-shell-last-output-kind 'loopback))
     
     ;; Hook to tailor proof-shell-process-output to a specific proof
     ;; system, in the case that all the above matches fail.
     ((and proof-shell-process-output-system-specific
 	  (funcall (car proof-shell-process-output-system-specific)
 		   cmd string))
+     (setq proof-shell-last-output-kind 'systemspecific)
      (funcall (cdr proof-shell-process-output-system-specific)
 	      cmd string))
 
     ;; Finally, any other output will appear as a response.
-    (t (setq proof-shell-delayed-output (cons 'insert string))))))
+    (t 
+     (setq proof-shell-last-output-kind 'response)))))
 
 
 ;;
@@ -1148,8 +1157,8 @@ being processed."
 		    (nconc proof-action-list alist)))
 	  ;; start processing a new queue
 	  (progn
-	    (proof-grab-lock queuemode) 
-	    (setq proof-shell-delayed-output (cons 'insert "Done."))
+	    (proof-grab-lock queuemode)
+	    (setq proof-shell-last-output-kind nil)
 	    (if (proof-shell-should-be-silent (length alist))
 		;; 
 		(progn
@@ -1664,6 +1673,7 @@ however, are always processed; hence their name)."
 		  (proof-release-lock))))))))
 
 
+
 (defun proof-shell-filter-process-output (string)
   "Subroutine of proof-shell-filter to process output STRING.
 
@@ -1676,29 +1686,35 @@ output.
 
 After processing the current output, the last step undertaken
 by the filter is to send the next command from the queue."
-  (let (cmd res)
-    (setq cmd (nth 1 (car proof-action-list)))
-    (save-excursion		;current-buffer
+  (let 
+      ;; Some functions may care which command invoked them
+      ((cmd  (nth 1 (car proof-action-list))))
+    (save-excursion
       ;; 
-      (setq res (proof-shell-process-output cmd string))
+      (proof-shell-process-output cmd string)
       ;; da: Added this next line to redisplay, for proof-toolbar
       ;; FIXME: should do this for all frames displaying the script
       ;; buffer!
       ;; ODDITY: has strange effect on highlighting, leave it.
       ;; (redisplay-frame (window-buffer  t)
       (cond
-       ((eq (car-safe res) 'error)
-	(proof-shell-handle-error cmd (cdr res)))
-       ((eq res 'interrupt)
+       ((eq proof-shell-last-output-kind 'error)
+	(proof-shell-handle-error cmd))
+       ((eq proof-shell-last-output-kind 'interrupt)
 	(proof-shell-handle-interrupt))
-       ((eq (car-safe res) 'loopback)
-	(proof-shell-insert-loopback-cmd (cdr res))
+       ((eq proof-shell-last-output-kind 'loopback)
+	(proof-shell-insert-loopback-cmd proof-shell-last-output)
 	(proof-shell-exec-loop))
-       ;; Otherwise, it's an 'insert or 'analyse indicator,
-       ;; but we don't act on it unless all the commands
+       ;; Otherwise, it's something that we should delay
+       ;; handling: we don't act on it unless all the commands
        ;; in the queue region have been processed.
-       (t (if (proof-shell-exec-loop)
-	      (proof-shell-handle-delayed-output)))))))
+       ;; (e.g. goals/response message)
+       (t 
+	(setq proof-shell-delayed-output-kind proof-shell-last-output-kind)
+	(setq proof-shell-delayed-output proof-shell-last-output)
+	(if (proof-shell-exec-loop)
+	    (proof-shell-handle-delayed-output)))))))
+
 
 
 (defun proof-shell-dont-show-annotations (&optional buffer)
@@ -1828,12 +1844,7 @@ If WAIT is an integer, wait for that many seconds afterwards."
   (setq proof-buffer-type 'shell)
   
   ;; Clear state
-  (setq proof-shell-busy nil
-	proof-shell-delayed-output (cons 'insert "done")
-	proof-shell-proof-completed nil
-	;; FIXME: these next two probably not necessary
-	proof-shell-error-or-interrupt-seen nil
-	proof-action-list nil)
+  (proof-shell-clear-state)
 
   (make-local-variable 'proof-shell-insert-hook)
 
