@@ -3061,8 +3061,8 @@ The default value is @code{(isa lego coq plastic)}.
 
 The file @file{proof-site.el} also defines a version variable.
 
-@c TEXI DOCSTRING MAGIC: proof-version
-@defvar proof-version 
+@c TEXI DOCSTRING MAGIC: proof-general-version
+@defvar proof-general-version 
 Version string identifying Proof General release.
 @end defvar
 

@@ -232,7 +232,7 @@ Restrict to BUFLIST if it's set."
     (reporter-submit-bug-report
      "proofgen@dcs.ed.ac.uk"
      "Proof General" 
-     (list 'proof-version 'proof-assistant)
+     (list 'proof-general-version 'proof-assistant)
      nil nil
      "[When reporting a bug, please include a small test case for us to repeat it.]")))
 
