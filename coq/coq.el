@@ -686,6 +686,7 @@ Based on idea mentioned in Coq reference manual."
 ;	proof-shell-stop-silent-cmd  "End Silent. ")
 
   (coq-init-syntax-table)
+  (setq comment-quote-nested nil) ;; we can cope with nested comments
 
   ;; font-lock
   (setq font-lock-keywords coq-font-lock-keywords-1)

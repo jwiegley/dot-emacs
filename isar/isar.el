@@ -584,6 +584,7 @@ Checks the width in the `proof-goals-buffer'"
   (isar-mode-config-set-variables)
   (isar-init-syntax-table)
   (setq font-lock-keywords isar-font-lock-keywords-1)
+  (setq comment-quote-nested nil) ;; can cope with nested comments
   (proof-config-done)
   (set (make-local-variable 'outline-regexp) isar-outline-regexp)
   (set (make-local-variable 'outline-heading-end-regexp) isar-outline-heading-end-regexp)

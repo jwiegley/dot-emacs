@@ -567,6 +567,7 @@ you will be asked to retract the file or process the remainder of it."
   (isa-mode-config-set-variables)
   (isa-init-syntax-table)
   (setq font-lock-keywords isa-font-lock-keywords-1)
+  (setq comment-quote-nested nil) ;; we can cope with nested comments
   (proof-config-done)
   ;; outline
   ;; FIXME: do we need to call make-local-variable here?
