@@ -84,6 +84,7 @@ fi
 %attr(-,root,root) /usr/bin/proofgeneral
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
+%attr(-,root,root) /usr/bin/isartags
 %attr(-,root,root) /usr/share/icons/pgicon.png
 %attr(-,root,root) /usr/share/icons/mini/pgmini.xpm
 %attr(-,root,root) /usr/lib/menu/ProofGeneral
