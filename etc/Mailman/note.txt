@@ -1,4 +1,11 @@
-These templates have to be installed in mailman by visiting
+intro-proofgeneral<-devel>.html
+is header set in general options
+http://lists.informatics.ed.ac.uk/mailman/admin/proofgeneral/general
+http://lists.informatics.ed.ac.uk/mailman/admin/proofgeneral-devel/general
+
+-----------------------------------------------------------------
+
+The remaining templates have to be installed in mailman by visiting
 these pages:
 
 http://lists.informatics.ed.ac.uk/mailman/edithtml/proofgeneral/<template>
