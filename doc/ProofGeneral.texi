@@ -2672,7 +2672,7 @@ next start Proof General.
 * The default value for XEmacs built for solaris is nil, because
 of unreliabilities with enablers there.
 
-The default value is @code{nil}.
+The default value is @code{t}.
 @end defopt
 
 @c This one removed: proof-auto-retract
