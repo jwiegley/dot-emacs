@@ -60,11 +60,8 @@ D Add proof-quit-command: some provers may like a quit command to be
   Also reconcile proof-restart-script and proof-stop-shell, see
   comments in code.
 
-D Multiple files (after basic feature added): handle failures in
+D Multiple files: handle failures in
   reading ancestors.
-
-A Add support for putting a locked region in processed files.
-  (tms 4h)
 
 B Clean up proof-assert-until-point behaviour.  Discussion results:
     1.  At the moment we get an odd error if it is run in
@@ -88,10 +85,6 @@ B Clean up proof-assert-until-point behaviour.  Discussion results:
     when new commands are added to the buffer needs careful
     thought!
 
-A Write function proof-retract-file. (30min tms)
-  Currently, the command ForgetMark (for LEGO) is hardwired in
-  proof-steal-process.
-
 A Implement more generic mechanism for large undos (2h tms)
 
     COQ: C-c u inside a Section should reset the whole section, then
@@ -99,13 +92,6 @@ A Implement more generic mechanism for large undos (2h tms)
 
     LEGO: consider Discharge; perhaps unrol to the beginning of the
           module?
-
-A Multiple files are sometimes handled incorrectly, because the
-  function `proof-steal-process' cannot figure out that some files have
-  already been processed. This is most likely caused by the ad-hoc
-  equality test on file names. Instead, one could employ
-  the built-in `file-truename' to trigger *canonical* file names.
-  (1h tms)
 
 A replace (current-buffer) by proof-shell-buffer/proof-script-buffer
   where ever possible (30 min tms)
@@ -347,7 +333,7 @@ B `lego-get-path' assumes that LEGOPATH has been set in the
 
 B release new version of the LEGO proof engine (4h tms)
 
-C Equiv, Next,... aren't handled properly, because LEGO does not
+B Equiv, Next,... aren't handled properly, because LEGO does not
   refresh the proof state. Perhaps it would be easiest to get LEGO to
   output more information in proof script mode (2h)
 

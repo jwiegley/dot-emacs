@@ -340,6 +340,13 @@ The script buffer's comment-end is set to this string plus a space."
   :type 'function
   :group 'proof-script)
 
+(defcustom proof-lift-global nil
+  "This function lifts local lemmas from inside goals out to top level.
+This function takes the local goalsave span as an argument. Set this
+to `nil' of the proof assistant does not support nested goals."
+  :type '(choice nil function)
+  :group 'proof-script)
+
 (defcustom proof-count-undos-fn nil 
   "Compute number of undos in a target segment"
   :type 'function
@@ -726,14 +733,6 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
   (set-span-property proof-queue-span 'end-open t)
   (span-read-only proof-queue-span)
 
-;; old code, pending test of defface above:
-;; (make-face 'proof-queue-face)
-;;  (cond ((proof-have-color)
-;;	 (set-face-background 'proof-queue-face "mistyrose"))
-;;	(t (progn
-;;	     (set-face-background 'proof-queue-face "Black")
-;;	     (set-face-foreground 'proof-queue-face "White"))))
-  
   (set-span-property proof-queue-span 'face 'proof-queue-face)
 
   (detach-span proof-queue-span)
@@ -745,11 +744,6 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
   (set-span-property proof-locked-span 'end-open t)
   (span-read-only proof-locked-span)
 
-;; old code, pending test of defface above:
-;;  (make-face 'proof-locked-face)
-;;  (cond ((proof-have-color)
-;;	 (set-face-background 'proof-locked-face "lavender"))
-;;	(t (set-face-property 'proof-locked-face 'underline t)))
   (set-span-property proof-locked-span 'face 'proof-locked-face)
 
   (detach-span proof-locked-span))
@@ -835,7 +829,10 @@ Only call this from a scripting buffer."
 	       (setq buffer-display-table disp)))))
 
 (defun proof-mark-buffer-atomic (buffer)
-  "Mark BUFFER as having processed in a single step."
+  "Mark BUFFER as having processed in a single step.
+
+If buffer already contains a locked region, only the remainder of the
+buffer is closed off atomically." 
   (save-excursion
     (set-buffer buffer)
     (let ((span (make-span (proof-unprocessed-begin) (point-max)))
@@ -853,16 +850,9 @@ Only call this from a scripting buffer."
       (set-span-property span 'type 'vanilla)
       (set-span-property span 'cmd cmd)
       (proof-set-locked-end (point-max))
-      (setq proof-script-buffer-list
-	    (append proof-script-buffer-list (list buffer))))))
-
-(defun proof-filter-list (p list)
-  "Returns all elements in LIST for which P holds."
-  (let (head tail)
-    (if (null list) list
-      (setq head (car list)
-	    tail (proof-filter-list p (cdr list)))
-      (if (funcall p head) (cons head tail) tail))))
+      (or (member buffer proof-script-buffer-list)
+	  (setq proof-script-buffer-list
+		(append proof-script-buffer-list (list buffer)))))))
 
 (defun proof-file-truename (filename)
   "Returns the true name of the file FILENAME or nil."
@@ -872,13 +862,10 @@ Only call this from a scripting buffer."
   "Register a new FILE as having been processed by the prover."
   (let* ((cfile (file-truename file))
 	 (buffer (proof-file-to-buffer cfile)))
+    (assert (not (member cfile proof-included-files-list))
+	    'showargs "proof-register-new-processed-file")
     (setq proof-included-files-list
-	  (cons cfile
-		;; remove is for redundency. The following assertion
-		;; ought to be true:
-		;; { (equal proof-included-files-list
-		;;   (remove cfile proof-included-files-list) }
-		(remove cfile proof-included-files-list)))
+	  (cons cfile proof-included-files-list))
     (or (equal cfile
 	       (file-truename (buffer-file-name
 			       (car proof-script-buffer-list))))
@@ -986,7 +973,11 @@ Only call this from a scripting buffer."
        proof-shell-buffer))
 
 (defun proof-start-shell ()
-  "Initialise a shell-like buffer for a proof assistant."
+  "Initialise a shell-like buffer for a proof assistant.
+
+Also generates goal and response buffers.
+Initialises current buffer for scripting.
+Does nothing if proof assistant is already running."
   (if (proof-shell-live-buffer)
       ()
     (run-hooks 'proof-pre-shell-start-hook)
@@ -1498,31 +1489,35 @@ assistant."
   (save-excursion (proof-shell-insert string)))
 
 (defun proof-check-process-available (&optional relaxed)
-  "Checks whether the proof process is available.
-Specifically:
-     (1) Is the current buffer a proof script?
-     (2) Is the proof process idle?
-     (3) Is a proof process running?
-It signals an error if at least one of the conditions is not
-fulfilled. If optional arg RELAXED is set, only (2) and (3) are 
-tested.
+  "Adjust internal variables for scripting of current buffer.
 
-The current buffer will become the current scripting buffer provided
-the current scripting buffer has either no locked region or everything 
-in it has been processed."
+Signals an error if current buffer is not a proof script or if the
+proof process is not idle. If RELAXED is set, nothing more is done. No
+changes are necessary if the current buffer is already in Scripting
+minor mode. Otherwise, the current buffer will become the current
+scripting buffer provided the current scripting buffer has either no
+locked region or everything in it has been processed."
   (proof-start-shell)
   (cond
    ((not (or relaxed (eq proof-buffer-type 'script)))
     (error "Must be running in a script buffer"))
    (proof-shell-busy (error "Proof Process Busy!"))
    (relaxed ())			;exit cond
+
+   ;; No buffer is in Scripting minor mode.
+   ;; We assume the setup is done somewhere else
    ((null proof-script-buffer-list) ())
+
+   ;; The current buffer is in Scripting minor mode
    ((equal (current-buffer) (car proof-script-buffer-list)) ())
    (t
     (let ((script-buffer (car proof-script-buffer-list))
 	  (current-buffer (current-buffer)))
       (save-excursion
 	(set-buffer script-buffer)
+
+	;; We only allow switching of the Scripting buffer if the
+	;; locked region is either empty of full for all buffers.
 	(if (member (proof-unprocessed-begin) (list (point-min)
 						     (point-max)))
 
@@ -1530,6 +1525,8 @@ in it has been processed."
 	   (progn
 	     (setq proof-active-buffer-fake-minor-mode nil)
 	     (set-buffer current-buffer)
+
+	     ;; does the current buffer contain locked regions already?
 	     (if (member current-buffer proof-script-buffer-list)
 		 (setq proof-script-buffer-list
 		       (remove current-buffer proof-script-buffer-list))
@@ -1694,7 +1691,7 @@ arrive."
 	  
 		  
 (defun proof-shell-process-urgent-message (message)
-  "Display and analyse urgent MESSAGE."
+  "Display and analyse urgent MESSAGE for asserting or retracting files."
   (proof-message message)
   (proof-response-buffer-display message 'font-lock-eager-annotation-face)
 
@@ -1840,31 +1837,6 @@ how far we've got."
 ;;         setup and callback                                       ;;
 
 
-;; This code is for nested goals in Coq, and shouldn't affect things
-;; in LEGO.
-;; FIXME da: perhaps this belongs in coq.el?
-(defun proof-lift-global (glob-span)
-  "This function lifts local lemmas from inside goals out to top level."
-  (let (start (next (span-at 1 'type)) str (goal-p nil))
-    (while (and next (and (not (eq next glob-span)) (not goal-p)))
-      (if (and (eq (span-property next 'type) 'vanilla)
-	       (funcall proof-goal-command-p (span-property next 'cmd)))
-	  (setq goal-p t)
-	(setq next (next-span next 'type))))
-
-    (if (and next (not (eq next glob-span)))
-	(progn
-	  (proof-unlock-locked)
-	  (setq str (buffer-substring (span-start glob-span)
-				      (span-end glob-span)))
-	  (delete-region (span-start glob-span) (span-end glob-span))
-	  (goto-char (span-start next))
-	  (setq start (point))
-	  (insert str "\n")
-	  (set-span-endpoints glob-span start (point))
-	  (set-span-start next (point))
-	  (proof-lock-unlocked)))))
-
 (defun proof-done-advancing (span)
   "The callback function for assert-until-point."
   (let ((end (span-end span)) nam gspan next cmd)
@@ -1903,12 +1875,14 @@ how far we've got."
       (set-span-property gspan 'type 'goalsave)
       (set-span-property gspan 'name nam)
 
-      (proof-lift-global gspan))
+      (and proof-lift-global
+	   (funcall proof-lift-global gspan)))
      (t
       (set-span-property span 'mouse-face 'highlight)
-      (and proof-global-p
+      (and proof-global-p 
 	   (funcall proof-global-p cmd)
-	   (proof-lift-global span))))))
+	   proof-lift-global
+	   (funcall proof-lift-global span))))))
 
 
 

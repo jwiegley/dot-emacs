@@ -186,6 +186,28 @@
     (cons 'hyp (match-string 1)))
    (t nil)))
 
+(defun coq-lift-global (glob-span)
+  "This function lifts local lemmas from inside goals out to top level."
+  (let (start (next (span-at 1 'type)) str (goal-p nil))
+    (while (and next (and (not (eq next glob-span)) (not goal-p)))
+      (if (and (eq (span-property next 'type) 'vanilla)
+	       (funcall proof-goal-command-p (span-property next 'cmd)))
+	  (setq goal-p t)
+	(setq next (next-span next 'type))))
+
+    (if (and next (not (eq next glob-span)))
+	(progn
+	  (proof-unlock-locked)
+	  (setq str (buffer-substring (span-start glob-span)
+				      (span-end glob-span)))
+	  (delete-region (span-start glob-span) (span-end glob-span))
+	  (goto-char (span-start next))
+	  (setq start (point))
+	  (insert str "\n")
+	  (set-span-endpoints glob-span start (point))
+	  (set-span-start next (point))
+	  (proof-lock-unlocked)))))
+
 (defun coq-state-preserving-p (cmd)
   (not (string-match coq-undoable-commands-regexp cmd)))
 
@@ -386,7 +408,8 @@
         proof-shell-start-goals-regexp "[0-9]+ subgoals?"
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
         proof-shell-init-cmd nil
-	proof-analyse-using-stack t)
+	proof-analyse-using-stack t
+	proof-lift-global coq-lift-global)
 
   ;; The following hook is removed once it's called.
   (add-hook 'proof-shell-insert-hook 'coq-shell-init-hook nil t)
