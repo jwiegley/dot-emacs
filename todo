@@ -22,6 +22,11 @@ B proof-find-next-terminator doesn't work properly:
      move point to "t". Currently, it doesn't do anything. This is a
      bug. 
 
+B Add proof-rsh-command and note in documentation about how to
+  use widely-advertised "remote shell" feature.  (1hr)
+
+D Multiple files (after basic feature added): handle failures in
+  reading ancestors.
 
 A* Fix Non Sequitur nonsense with Isabelle when warnings appear before
   proofstate.  (da, 1hr?)
@@ -376,6 +381,13 @@ B CRUCIAL: Do something to manage .thy and .ML files coherently.
   But what else can we do??
   (Probably answer: Isabelle needs to support non-automatic
   reading of ML file: a function "use_thy_only" ).
+
+B (part of above): Handle proof-retract-file by querying Isabelle
+  about the decendants of a file.  Then all the descendents can
+  also be unlocked.
+
+X Splash screen: Add fancy text logo to it.  Centre the display
+  prettily.
 
 X Write perl scripts to generate TAGS file for ML and thy files.
   (6h, I've completely forgotten perl), or better:
