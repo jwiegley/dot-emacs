@@ -12,13 +12,19 @@
 @end iftex
 @c %**end of header
 
-@c FIXME: screenshots for this info file would be nice!
+@c 
+@c TODO, priority order
+@c   . finish incomplete sections
+@c   . polish mark-up
+@c   . add more index entries
+@c   . screenshots might be nice
+@c   
 
 
 @set version 2.0
 @set xemacsversion 20.4
 @set fsfversion 20.2
-@set last-update October 1998
+@set last-update November 1998
 
 @ifinfo
 @format
@@ -47,6 +53,7 @@ END-INFO-DIR-ENTRY
 @vskip 0pt plus 1filll
 This manual and the program Proof General are
 Copyright @copyright{} 1998 Proof General team, LFCS Edinburgh.
+
 
 @c
 @c COPYING NOTICE
@@ -199,6 +206,8 @@ Obtaining and Installing Proof General
 
 @node Introducing Proof General
 @chapter Introducing Proof General
+@cindex{proof assistant}
+@cindex{Proof General}
 
 @c would like the logo on the title page really but
 @c it doesn't seem to work there for html.
@@ -206,19 +215,20 @@ Obtaining and Installing Proof General
 <IMG SRC="ProofGeneral.jpg" ALT="[ Proof General logo ]" >
 @end ifhtml
 
-@dfn{Proof General} is a generic Emacs interface for proof assistants,
-developed at the LFCS in the University of Edinburgh.
+A @dfn{proof assistant} is a computerized helper for developing
+mathematical proofs.
 
-Proof General works best under XEmacs, but can also be used with FSF GNU
-Emacs.
+@dfn{Proof General} is a generic Emacs interface for proof assistants,
+developed at the LFCS in the University of Edinburgh.  It works best
+under XEmacs, but can also be used with FSF GNU Emacs.
 
 You do not have to be an Emacs militant to use Proof General!  @*
 
 The interface is designed to be very easy to use.  You develop your
-proof script in place rather than line-by-line in a shell using
-cut-and-paste to reassemble the pieces.  Proof General keeps track of
-which proof steps have been processed by the prover, and prevents you
-editing them accidently.  You can undo steps as usual.
+proof script in-place rather than line-by-line and later reassembling
+the pieces.  Proof General keeps track of which proof steps have been
+processed by the prover, and prevents you editing them accidently.  You
+can undo steps as usual.
 
 Our aim is provide a powerful and configurable Emacs mode which helps
 user-interaction with interactive proof assistants.  Please help us with
@@ -261,8 +271,12 @@ see @pxref{Obtaining and Installing Proof General}.
 
 @node Features of Proof General
 @section Features of Proof General
+@cindex{Features}
+@cindex{Why use Proof General?}
 
-Here is an outline of the main features of Proof General.
+Why would you want to use Proof General?
+
+Here is an outline of its main features.
 
 @itemize @bullet
 @item @i{Simplified communication}@*
@@ -315,42 +329,44 @@ Proof General comes ready-customised for these proof assistants:
 @item 
 @b{LEGO Proof General} for LEGO Version 1.3.1@*
 @c written by Thomas Kleymann and Dilip Sequeira.
-
-LEGO Proof General supports all of the generic features of Proof
-General.
-
+@c
+All features of Proof General are supported.  
 See @pxref{LEGO Proof General} for more details.
 
 @item 
 @b{Coq Proof General} for Coq Version 6.2@*
 @c written by Healfdene Goguen.
-
-Coq Proof General supports all of the generic features of Proof General
-except multiple files.
-
+@c
+All of features of Proof General are supported except multiple files.
 See @pxref{Coq Proof General} for more details.
 
 @item 
 @b{Isabelle Proof General} for Isabelle 98-1@*
 @c written by David Aspinall.
-
-Isabelle Proof General supports all of the generic features of
-Proof General, excepting the external tags program.   It handles
-theory files as well as ML (proof script files), and has
-an extensive theory file editing mode taken from Isamode.
-
+All features of Proof General are supported, except for an external tags
+program.  Isabelle Proof General handles theory files as well as ML
+(proof script files), and has an extensive theory file editing mode
+taken from @uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}.
 See @pxref{Isabelle Proof General} for more details.
 @end itemize
-
 Proof General is designed to be generic, so you can adapt it to other
 proof assistants if you know a little bit of Emacs Lisp.
-See @pxref{Adapting Proof General to New Provers} for more details
-of how to do this.
+@itemize @bullet
+@item
+@b{Your Proof General} for your favourite proof assistant@*
+See @pxref{Adapting Proof General to New Provers}
+for more details of how to do this.
+@end itemize
 
 
 
 
 
+
+
+@c
+@c CHAPTER: Basic Script Management
+@c
 @node Basic Script Management, Advanced Script Management, Introducing Proof General, Top
 @chapter Basic Script Management
 
@@ -367,6 +383,7 @@ of how to do this.
 
 @node Proof scripts, The buffer model, Basic Script Management, Basic Script Management
 @section Proof scripts
+@cindex proof script
 
 A @dfn{proof script} is a sequence of commands to a proof assistant used
 to construct a proof.  Proof General is designed to work with
@@ -398,25 +415,34 @@ file, while it is written and edited.
 
 @node Goals and saves,  , Proof scripts, Proof scripts
 @unnumberedsubsec Goals and saves
+@cindex goal
+@cindex save
+@cindex goal-save region
 
 A proof script contains a sequence of commands used to prove one or more
-theorems.  In general we assume that for each proved theorem, a proof
-script contains a goal .. save pair of commands which appear something
-like this:
+theorems.  Proof General assumes that for each proved theorem, a proof
+script contains a sequence of commands delimited by a pair of special
+commands, known as @code{goal} and @code{save}.  So a proof script has a
+series of proofs which look something like this (of course, the exact
+syntax will depend on the proof assistant you use):
 @lisp
-   goal T is G
-   ...
-   save theorem T
+   goal @var{mythm} is @var{G}
+   @dots{}
+   save theorem @var{mythm}
 @end lisp
-Proof General recognizes goal .. save pairs in proof scripts.
-The name T can appear in the definitions menu for the proof
-script (see Support for function menus), and once
-a goal .. save pair is completed it is treated
-as atomic when undoing proof steps (see Undo).  
+Proof General recognizes the goal-save regions in proof scripts.  The
+name @var{mythm} can appear in the menu for the proof script
+@pxref{Support for function menus} to help quickly find a proof, and
+once a goal-save region has been processed by the proof assistant, it is
+treated as atomic when undoing proof steps.
 
 
 @node The buffer model, Regions in a proof script, Proof scripts, Basic Script Management
 @section The buffer model
+@cindex script buffer
+@cindex goals buffer
+@cindex response buffer
+
 
 @c FIXME: fix this in the light of what gets implemented.
 
@@ -450,6 +476,8 @@ assistant, for example warning or informative messages.
 @node Regions in a proof script
 @section Regions in a proof script
 
+
+
 @node Script editing commands
 @section Script editing commands
 
@@ -479,6 +507,9 @@ directly with the proof shell}
 
 
 
+@c
+@c CHAPTER: Advanced Script Management
+@c
 @node Advanced Script Management
 @chapter Advanced Script Management
 @cindex Multiple Files
@@ -706,7 +737,6 @@ See the chapters covering each assistant for details.
 @menu
 * Easy customization::          
 * Setting user options::        
-* Running on another machine::  
 * Tweaking configuration settings::  
 @end menu
 
@@ -722,19 +752,21 @@ via the menu:
 @lisp
    Options -> Customize -> Emacs -> External -> Proof General
 @end lisp
-in XEmacs, or in Emacs
+in XEmacs.  
+
+In FSF Emacs, use the menu:
 @c FIXME
 @lisp
-   Options -> Customize -> Emacs -> External -> Proof General
+   Help -> Customize -> Specific group
 @end lisp
+and type @kbd{proof-general RET}.
 
-Before Proof General is fully loaded, not all customization
-settings will be shown in the menu.  Proof General is fully
-loaded when you visit a script file for the first time.
+The complete set of customization settings will only be availabe after
+Proof General has been fully loaded.  Proof General is fully loaded when
+you visit a script file for the first time.
 
 When visiting a script file, there is a more direct route to the
 settings:
-
 @lisp
    Proof-General -> Customize
 @end lisp
@@ -753,11 +785,23 @@ For more help, see @inforef{Easy Customization, ,xemacs}.
 
 @node Setting user options
 @section Setting user options
+@c Index entries for each option 'concept'
+@cindex{User options}
+@cindex{Strict read-only}
+@cindex{Query program name}
+@cindex{Dedicated windows}
+@cindex{Remote host}
+@cindex{Toolbar follow mode}
+@cindex{Toolbar disabling}
+@cindex{Proof script indentation}
+@cindex{indentation}
+@c @cindex{formatting proof script}
+
 
 Here are the user options for Proof General.  These can be set via the
 customization system, via the old-fashioned @code{M-x edit-options}
 mechanism, or simply by adding @code{setq}'s to your @file{.emacs} file.
-The first approach is the recommended one.
+The first approach is strongly recommended.
 
 Notice that in the customize menus, the variable names may be
 abbreviated by omitting the "@code{proof}-" prefix.  Also, some of the
@@ -769,8 +813,18 @@ and @var{off}) than the low-level lisp values (non-@code{nil},
 If non-@code{nil}, query user which program to run for the inferior process.
 @end defopt
 
-@defopt proof-one-command-per-line
-If non-@code{nil}, format for newlines after each proof command in a script.
+@defopt proof-rsh-command
+A string to use as a prefix to allow a proof assistant to be run on
+a remote host. For example,
+@lisp
+   ssh bigjobs
+@end lisp
+Would cause Proof General to issue the command @code{ssh bigjobs
+isabelle} to start Isabelle remotely on our large compute server called
+@code{bigjobs}.
+
+The protocol used should be configured so that no user interaction
+(passwords, or whatever) is required to get going.
 @end defopt
 
 @defopt proof-toolbar-wanted
@@ -804,8 +858,17 @@ read-only region.  If nil, Proof General is more relaxed (but may give
 you a reprimand!)
 @end defopt
 
-@node Running on another machine
-@section Running on another machine
+@defopt proof-script-indent
+If non-nil, enable indentation code for proof scripts.
+Currently the indentation code can be rather slow for large scripts,
+and is critical on the setting of regular expressions for 
+particular provers.  Enable it if it works for you.
+@end defopt
+
+@defopt proof-one-command-per-line
+If non-@code{nil}, format for newlines after each proof command in a
+script.  This option is not fully-functional at the moment.
+@end defopt
 
 
 @node Tweaking configuration settings
@@ -970,13 +1033,14 @@ in your @file{~/.emacs} file.
 @menu
 * Isabelle specific commands::  
 * Isabelle customizations::     
+* Theory file editing
 @end menu
 
 @node Isabelle specific commands
 @section Isabelle specific commands
 
-@unnumberedsubsec Associated files
-@cindex Associated files
+@unnumberedsubsec Switching to theory files
+@cindex Switching to theory files
 
 In Isabelle proofscript mode, @kbd{C-c C-o} (@code{thy-find-other-file})
 finds and switches to the associated theory file, that is, the file with
@@ -990,11 +1054,13 @@ Find and switch to the associated ML file (when editing a theory file)
 or theory file (when editing an ML file).  
 @end deffn
 
-
+@node
 
 @node Isabelle customizations
 @section Isabelle customizations
 
+@defopt
+@end opt
 
 
 
@@ -1399,7 +1465,7 @@ or, after loading Proof General, in a proof script buffer
 @appendix Known bugs and workarounds
 
 We only mention a few important problems here.  The list is not a
-description of all bugs and maybe out of date.  @*
+description of all bugs and may be out of date.  @*
 Please consult the file
 @uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS,@file{BUGS}}
 in the distribution for more detailed and up-to-date information.  @*
@@ -1418,13 +1484,22 @@ let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
 @unnumberedsubsec Undo in XEmacs
 
-Ordinary undo in script buffer can edit the "uneditable region" in
-XEmacs.  This doesn't happen in FSFmacs.  Test case: Insert some
-nonsense text after the locked region.  Kill the line. Process to the
-next command.  Press @kbd{C-x u}, nonsense text appears in locked
-region.  
+When @code{proof-strict-read-only} is non-nil, ordinary undo in script
+buffer can edit the "uneditable region" in XEmacs.  This doesn't happen
+in FSFmacs.  Test case: Insert some nonsense text after the locked
+region.  Kill the line. Process to the next command.  Press @kbd{C-x u},
+nonsense text appears in locked region.
 
 @strong{Workaround:} be careful with undo.
+
+@unnumberedsubsec Font locking and read-only in FSF Emacs
+
+When @code{proof-strict-read-only} is set and font lock is switched on,
+spurious "Region read only" errors are given which break font lock.
+
+@strong{Workaround:} turn off @code{proof-strict-read-only}, font lock,
+or for the best of all possible worlds, switch to XEmacs.
+
 
 @unnumberedsubsec  Pressing keyboard quit @kbd{C-g}
 
@@ -1476,6 +1551,8 @@ offending proof development.
 @node Bugs specific to Coq Proof General
 @section Bugs specific to Coq Proof General
 
+@unnumberedsubsec Hard-wired tactics
+
 The collection of tactics which Proof General is aware of is hard-wired.
 Thus, user-defined tactics cannot be retracted.
 
@@ -1484,6 +1561,8 @@ Thus, user-defined tactics cannot be retracted.
 
 @node Bugs specific to Isabelle Proof General
 @section Bugs specific to Isabelle Proof General
+
+@unnumberedsubsec Scripting lanugage limitations
 
 Since Isabelle uses ML as a top-level language for writing
 proof-scripts, Proof General may have difficulty understanding scripts
@@ -1504,7 +1583,6 @@ functions, or customize some of the variables from @file{isa.el} and
 
 
 
-
 @node Keystroke Index
 @unnumbered Keystroke Index
 @printindex ky
@@ -1513,12 +1591,16 @@ functions, or customize some of the variables from @file{isa.el} and
 @unnumbered Index
 @printindex cp
 
+@page
 @contents
 @bye
 
 
+@c
 @c OLD TEXI STUFF HERE
-
+@c 
+@c WARNING --- DO NOT EDIT BELOW HERE!!
+@c
 
 
 

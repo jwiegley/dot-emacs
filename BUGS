@@ -13,6 +13,12 @@ in XEmacs.  This doesn't happen in FSFmacs.  Test case:
   Press C-x u, nonsense text appears in locked region.
 Workaround: take care with undo in XEmacs.
 
+* In FSFmacs, when proof-strict-read-only is set and font lock 
+is switched on, spurious "Region read only" errors are given
+which break font lock.   
+Workaround: turn off proof-strict-read-only, font-lock, or for
+the best of all possible worlds, switch to XEmacs.
+
 * Using C-g can leave script management in a mess.  The code
 needs to have some regions protected from Emacs interrupts.
 Workaround: Don't type C-g while script management is processing.  If
