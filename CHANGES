@@ -10,11 +10,28 @@
 
 ** Generic changes
 
-*** Bundling of X-Symbol Mode (4.45 beta)
+*** IN PROGRESS:  pre-compiled .elc files: recompile needed for GNU Emacs
+
+    Proof General can now (almost) be reliably run as compiled code.
+
+    *** Please help me iron out any finaly difficulties by reporting problems.
+	At the moment I know that some key-bindings are lost ***
+  
+    However, compiled Emacs Lisp files sometimes have incompatibilities
+    between versions (and definitely between GNU Emacs and XEmacs).
+    To recompile the sources for a particular Emacs version, try:
+
+      make clean
+      make compile
+     
+    Check the settings in the Makefile for your Emacs version.
+
+*** Bundling of X-Symbol Mode (4.5 beta)
 
     !!THIS IS WORK IN PROGRESS, IT MAY WELL BREAK X-SYMBOL FOR YOU!!
-    To disable use of the bundled version, simply delete or move away
-    the x-symbol subdirectory.
+    To disable use of the bundled version, either delete/move away
+    the x-symbol subdirectory, or load your own local version
+    first [put (require 'x-symbol-hooks) in .emacs]
 
 *** Bundling of MMM Mode (for multiple modes in one buffer)
 
