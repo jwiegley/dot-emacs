@@ -1,0 +1,79 @@
+### -*- perl -*-
+### x-symbol.init --- texi2html init file for X-Symbol
+
+## Author: Christoph Wedler <wedler@users.sourceforge.net>
+## Keywords: fonts, WYSIWYG, LaTeX, HTML, wp, math
+## X-URL: http://x-symbol.sourceforge.net/
+
+# This file is not part of XEmacs.
+
+# This software is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any
+# later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with This software; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+
+
+$T2H_BODYTEXT = 'LANG="' . $T2H_LANG . '"';
+
+$T2H_SPLIT_INDEX = 10000;	# one file for index
+$T2H_WORDS_IN_PAGE = 10;	# always use navigation at bottom
+
+$T2H_EXTRA_HEAD = '<link rel="StyleSheet" href="x-symbol.css">';
+$T2H_SMALL_FONT_SIZE = 'smaller';
+
+$T2H_AFTER_BODY_OPEN = '<table class="head">
+      <tbody>
+        <tr>
+          <th>X-Symbol
+          <td class="alt"><a href="http://x-symbol.sourceforge.net/index.html" title="Overview of package X-Symbol">Overview</a>
+          <td class="alt"><a href="http://x-symbol.sourceforge.net/related.html" title="Programs and packages related to X-Symbol">Related</a>
+          <td class="alt"><a href="http://x-symbol.sourceforge.net/details.html" title="Conversion, input methods, image thumbnails">Details</a>
+          <td class="sel">Manual
+          <td class="alt"><a href="http://x-symbol.sourceforge.net/news.html" title="Newest version number and recent changes">News</a>
+          <td>&raquo;<a href="http://sourceforge.net/projects/x-symbol/" title="Project summary at SourceForge.net">Project</a>
+          <td class="last">&raquo;<a href="http://sourceforge.net/project/showfiles.php?group_id=47367" title="Download package at SourceForge.net">Download</a>
+    </table><div class="main">';
+$T2H_PRE_BODY_CLOSE = '</div>';
+
+$T2H_print_navigation	      = \&T2H_XSYMB_print_navigation;
+$T2H_print_Top_footer         = \&T2H_XSYMB_Top_footer;
+
+sub T2H_XSYMB_print_navigation
+  {
+    my $fh = shift;
+    print $fh "<div class=navigation>";
+    T2H_DEFAULT_print_navigation($fh);
+    print $fh "</div>";
+  }
+
+sub T2H_XSYMB_Top_footer
+  {
+    my $fh = shift;
+    print $fh '<p class=print>
+To <strong>print</strong> out the manual, you might want to download
+<a href="x-symbol.pdf.gz">the PDF version</a> or
+<a href="x-symbol.ps.gz">the Postscript version</a> (both in A4 format,
+zipped)</a>.  Other formats can be produced from the TeXinfo source in
+the distribution of X-Symbol.';
+    T2H_DEFAULT_Top_footer;
+  }
+
+$to_skip{'detailmenu'} = 0;
+%user_sub = (
+	     'detailmenu', 'do_detailmenu'
+	     );
+
+sub do_detailmenu
+  {
+    skip_until('detailmenu');
+  }
