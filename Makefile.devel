@@ -455,11 +455,3 @@ distinstall:
 	(cd $(DISTINSTALLDIR); \
 	 $(TAR) -xpzf $(DISTBUILDIR)/$(RELEASENAMETARGZ); \
 	 mv $(RELEASENAME) $(NAME))
-
-
-############################################################
-#
-# etags
-#
-etags:
-	etags */*.el > TAGS
