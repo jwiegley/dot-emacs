@@ -355,22 +355,24 @@ In 1997, Dilip Sequeira implemented script management in our Emacs
 interface for LEGO following the recipe in
 [BT98] @footnote{Notice the publication date. We really do provide
 cutting-edge technology!}. Inspired by the project CROAP, the
-implementation made some effort to be generic. 
+implementation made some effort to be generic. A working prototype was
+presented at UITP'97.
 
 In October 1997, Healfdene Goguen ported @code{lego-mode} to Coq. Parts
 of the generic code in the @code{lego} package was outsourced (and made
 even more generic) in a new generic package called @code{proof}. Dilip
-Sequeira wrote a manual and we shipped out the package to friends for
-testing. 
+Sequeira provided some LEGO-specific support for handling multiple files
+and wrote a manual. The system was reasonably robust and we shipped out
+the package to friends.
 
 In June 1998, David Aspinall reentered the picture by providing an
 instantiation for Isabelle. Actually, our previous version wasn't quite
 as generic as we had hoped. Whereas LEGO and Coq are similar systems in
 many ways, Isabelle was really a different beast. Fierce reengineering
 and various improvements were provided by David Aspinall and Thomas
-Kleymann to make it easier to instantiate to new proof systems.  The
-major technical improvement was the extension of script management to
-work across multiple files.
+Kleymann to make it easier to instantiate to new proof systems. The
+major technical improvement was a truely generic extension of script
+management to work across multiple files.
 
 It was time to come up with a better name than just @code{proof}
 mode. David Aspinall suggested @emph{Proof General}. He also cooked up
@@ -2136,10 +2138,10 @@ URL of web page for Isabelle.
 
 @c TEXI DOCSTRING MAGIC: thy-use-sml-mode
 @defopt thy-use-sml-mode 
-If non-nil, invoke sml-mode inside "ML" section of theory files.
+If non-nil, invoke @code{sml-mode} inside "ML" section of theory files.
 This option is left-over from Isamode.  Really, it would be more
 useful if the script editing mode of Proof General itself could be based 
-on sml-mode, but at the moment there is no way to do this.
+on @code{sml-mode}, but at the moment there is no way to do this.
 
 The default value is @code{nil}.
 @end defopt
@@ -2172,9 +2174,9 @@ Template for theory files.
 Contains a default selection of sections in a traditional order.
 You can use the following format characters:
 
-%t --- replaced by theory name.
+@samp{%t} --- replaced by theory name.
 
-%p --- replaced by names of parents, separated by @samp{+} characters.
+@samp{%p} --- replaced by names of parents, separated by @samp{+} characters.
 @end defvar
 
 @c ideal for above:
