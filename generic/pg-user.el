@@ -1023,8 +1023,11 @@ If NUM is negative, move upwards.  Return new span."
 (defun pg-response-buffers-hint (&optional nextbuf)
   (pg-hint
    (format
-    "Use \\[proof-prf] to display goals; \\[proof-display-some-buffers] to rotate output %s"
-    (if nextbuf (concat "(next: " nextbuf ")") ""))))
+    "\\[proof-prf] displays goals;%s \\[proof-layout-windows] refreshes"
+    (if (not proof-multiple-frames-enable) ;; and not proof-three-window-enable? 
+	(format " \\[proof-display-some-buffers] rotates output%s;"
+		(if nextbuf (concat " (next:" nextbuf ")") ""))
+      ""))))
 
 (defun pg-jump-to-end-hint ()
   (pg-hint "Use \\[proof-goto-end-of-locked] to jump to end of processed region"))

@@ -171,14 +171,17 @@ This uses a canonical layout."
    ;; Three window mode: use the Pierre-layout by default
    (proof-three-window-enable
     (proof-delete-other-frames)
+    (set-window-dedicated-p (selected-window) nil)
     (proof-display-three-b))
    ;; Two-of-three window mode.  
    ;; Show the response buffer as first in preference order.
    (t
     (proof-delete-other-frames)
+    (set-window-dedicated-p (selected-window) nil)
     (delete-other-windows)
     (if (buffer-live-p proof-response-buffer)
-	(proof-display-and-keep-buffer proof-response-buffer)))))
+	(proof-display-and-keep-buffer proof-response-buffer))))
+  (pg-hint (pg-response-buffers-hint)))
 
 (defun proof-delete-other-frames ()
   "Delete frames showing associated buffers."

@@ -67,9 +67,8 @@ without adjusting window layout."
 	(if (eq selectedbuf proof-response-buffer)
 	    (set-window-point (get-buffer-window proof-response-buffer t)
 			      (point-max)))
-	(unless (or proof-three-window-enable proof-multiple-frames-enable)
-	  ;; The hint only makes sense in two-window mode, really.
-	  (pg-hint (pg-response-buffers-hint (buffer-name nextbuf))))))))
+	(pg-hint (pg-response-buffers-hint (buffer-name nextbuf)))))))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -315,6 +314,7 @@ without adjusting window layout."
       :style toggle
       :selected proof-toolbar-enable]
      ("Display"
+      ["Layout windows" proof-layout-windows]
       ["Use Three Panes" proof-three-window-toggle
        :active (not proof-multiple-frames-enable)
        :style toggle
