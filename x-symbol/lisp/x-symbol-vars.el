@@ -1,6 +1,6 @@
 ;;; x-symbol-vars.el --- customizable variables for package x-symbol
 
-;; Copyright (C) 1995-1999, 2001-2002 Free Software Foundation, Inc.
+;; Copyright (C) 1995-1999, 2001-2003 Free Software Foundation, Inc.
 ;;
 ;; Author: Christoph Wedler <wedler@users.sourceforge.net>
 ;; Maintainer: (Please use `M-x x-symbol-package-bug' to contact the maintainer)
@@ -37,7 +37,7 @@
 (require 'x-symbol-hooks)
 (eval-when-compile (require 'cl))
 
-(defconst x-symbol-version "4.4.5"
+(defconst x-symbol-version "4.5"
   "Current development version of package X-Symbol.
 Check <http://x-symbol.sourceforge.net/> for the newest.")
 
@@ -147,8 +147,19 @@ Check <http://x-symbol.sourceforge.net/> for the newest.")
 	  (sexp :tag "Super/subscripts (eval'd)")
 	  (sexp :tag "Show images (eval'd)")))
 
-(defvar x-symbol-auto-style nil
-  "Variable used to document the auto-style language accesses.
+(defconst x-symbol-name 'stringp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-name' contains the long
+name of the token language LANG.  See `x-symbol-register-language'.")
+
+(defconst x-symbol-modes 'listp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-modes' contains the major
+modes of buffer which will typically use X-Symbol with token language
+LANG.  See `x-symbol-register-language'.")
+
+(defconst x-symbol-auto-style nil
+  "Variable used to document a language access.
 For each token language LANG, `x-symbol-LANG-auto-style' determines how
 to set X-Symbol specific buffer-local variables if these variables do
 not already have a buffer-local value.
@@ -200,6 +211,168 @@ Users might prefer to customize `x-symbol-auto-style-alist' instead.")
 ;;		    (group
 ;;		     :inline t :extra-offset -4
 ;;		     (sexp :tag "Show images (eval'd)"))))))))))))))
+
+;; `x-symbol-modeline-name' is also variable
+
+(defconst x-symbol-required-fonts 'listp
+  "Variable used to document a language access.
+For each token language LANG, optional `x-symbol-LANG-required-fonts'
+contains the features which are required for the tokens of language
+LANG.")
+
+(defconst x-symbol-token-grammar 'x-symbol-make-grammar
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-token-grammar' contains the
+grammar of the language LANG.  The value looks like
+  (x-symbol-make-grammar
+   :token-list    TOKEN-LIST
+   :after-init    AFTER-INIT
+   :case-function CASE-FUNCTION
+   :encode-spec   ENCODE-SPEC
+   :decode-regexp DECODE-REGEXP
+   :decode-spec   DECODE-SPEC
+   :input-regexp  INPUT-REGEXP
+   :input-spec    INPUT-SPEC)
+
+Optional TOKEN-LIST, if non-nil, is a function which converts TOKEN-SPEC
+in `x-symbol-LANG-table' into a list with elements \(TOKEN . SHAPE).
+With value nil, TOKEN-SPEC is must have the form \(TOKEN...) and each
+SHAPE is defined as nil.
+
+Optional AFTER-INIT, if non-nil, is a function which is called at the
+end of the initialization of token language LANG, right before creating
+the language dependent grid and menu.
+
+Optional CASE-FUNCTION is non-nil if the token language is case
+insensitive.  In that case it is a function which normalizes tokens in
+the buffer.  Typically values are nil, `downcase' and `upcase'.
+
+Optional ENCODE-SPEC is used during encoding and is either a function
+FUNC or a cons \(BEFORE . AFTER).  FUNC is called with three arguments,
+the arguments ENCODE-TABLE, FCHAR-TABLE and FCHAR-FB-TABLE of
+`x-symbol-encode-lisp'.  See below for BEFORE and AFTER.
+
+Required DECODE-REGEXP is a regexp matching tokens during decoding.
+
+Optional DECODE-SPEC is used during decoding and is either a function
+FUNC or a cons \(BEFORE . AFTER).  FUNC is called with three arguments,
+DECODE-REGEXP and the arguments DECODE-OBARRAY and UNIQUE of
+`x-symbol-decode-lisp'.  See below for BEFORE and AFTER.
+
+Optional INPUT-REGEXP is a regexp or a list of regexps matching tokens
+for input method Token, see `x-symbol-token-input'.  If it is not
+provided, it is similar to the regexp DECODE-REGEXP, but only matches at
+the end of the buffer or restriction.
+
+Argument INPUT-SPEC is used for input method Token and is either a
+function FUNC or a cons \(BEFORE . AFTER).  FUNC is called with three
+arguments, DECODE-REGEXP and the arguments DECODE-OBARRAY and
+COMMAND-CHAR of `x-symbol-match-token-before'.  See below for BEFORE and
+AFTER.  Each REGEXP in AFTER matches the string containing COMMAND-CHAR,
+usually nil or `last-command-char'.  If INPUT-SPEC is not provided, it
+is set to DECODE-SPEC if this is equal to ENCODE-SPEC and not a
+function.
+
+BEFORE and AFTER define bad contexts of the position before and after
+characters and tokens.  BEFORE is either a character CHAR or a CONTEXT,
+AFTER is a CONTEXT.  During encoding, having a bad context means
+inserting an additional space at the position.  During decoding and
+input method token, having a bad context means no conversion.
+
+CHAR defines a context which consists of an odd number of characters
+CHAR before the position.  CONTEXT is a list with elements of the form
+\(SHAPE . REGEXP).  If the token or token for the current character has
+the shape SHAPE, REGEXP matches the bad context.  In BEFORE, each REGEXP
+matches the character before the position.  In AFTER, each REGEXP
+matches the buffer contents directly following the position, except in
+INPUT-SPEC.")
+
+(defconst x-symbol-generated-data 'null
+  "Variable used to document a generated language access.
+For each token language LANG, `x-symbol-LANG-generated-data' contains
+various generated data for a token language, like the conversion
+tables.")
+
+(defconst x-symbol-table 'consp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-table' defines the tokens
+for the characters with its token classes etc.  Each element in TABLE
+looks like \(CHARSYM CLASSES . TOKEN-SPEC) or nil.\
+
+CHARSYM is the charsym of the character which represents the tokens
+defined via TOKEN-SPEC, see also TOKEN-LIST in language access
+`x-symbol-token-grammar'.  CLASSES are the token classes of the
+character.")
+
+;; `x-symbol-header-groups-alist' is also a variable
+
+(defconst x-symbol-class-alist 'listp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-class-alist' is used for
+the info in the echo area, see `x-symbol-character-info'.  Each element
+looks like \(CLASS . SPEC) where CLASS is a valid token class, see
+`x-symbol-init-language' and SPEC is used according to
+`x-symbol-fancy-string'.  You should define entries for the CLASSes
+`VALID' and `INVALID'.")
+
+(defconst x-symbol-class-face-alist 'listp
+  "Variable used to document an language access.
+For each token language LANG, `x-symbol-LANG-class-face-alist' is used
+for the color scheme in the language dependent grid and token info.
+Each element looks like \(CLASS FACE . FACE-SPECS) where CLASS is a
+valid token class, FACE is used for the character in the grid, and
+FACE-SPECS is used according to `x-symbol-fancy-string'.")
+
+;; `x-symbol-electric-ignore' is also a variable
+
+(defconst x-symbol-extra-menu-items 'listp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-extra-menu-items' define
+extra menu items to be used in the language specific menu.  It contains
+elements of the form \(SUBMENU ITEM...) where SUBMENU is either
+\"Conversion\" or \"Other Commands\", the ITEMs are additional menu
+items at the end of the corresponding submenu.")
+
+(defvar x-symbol-subscript-matcher nil
+  "Internal.  Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-subscript-matcher', if
+non-nil, contains a matcher function for font-lock.  It should return
+nil for no match, `x-symbol-sup-face'/`x-symbol-sub-face' for a
+super-/subscript match.  The `match-date' should have three regexp
+groups: group 1 for the open command, group 2 for the contents, and
+group 3 for the close command.")
+
+(defconst x-symbol-image-keywords 'listp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-image-keywords' contains
+the value \(IMAGE-REGEXP KEYWORD ...).
+
+IMAGE-REGEXP should match all images files and is used to initialize the
+buffer local memory cache, see `x-symbol-image-init-memory-cache'.
+
+Each KEYWORD looks like (REGEXP [FUNCTION] ARG...).  Image insertion
+commands matched by REGEXP are highlighted.  FUNCTION, which defaults to
+`x-symbol-image-default-file-name', is called with ARGs to get the file
+name of the corresponding image file.  If FUNCTION returns nil, the
+command is not highlighted.  See `x-symbol-image-parse-buffer'.")
+
+(defconst x-symbol-master-directory 'functionp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-master-directory' contains
+a function which returns the directory of the master file, see
+`x-symbol-image-parse-buffer'.")
+
+(defconst x-symbol-image-searchpath 'listp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-image-searchpath' contains
+the search path for implicitly relative image file names, i.e., a list
+of relative directories.  See x-symbol-image-use-remote'.")
+
+(defconst x-symbol-image-cached-dirs 'listp
+  "Variable used to document a language access.
+For each token language LANG, `x-symbol-LANG-image-cached-dirs' contains
+a list of directory parts of image file names stored in the memory
+cache.  See `x-symbol-image-use-remote'.")
 
 
 ;;;===========================================================================
@@ -499,7 +672,10 @@ before point.  See also `x-symbol-character-info'."
 ;;;===========================================================================
 
 (defcustom x-symbol-modeline-name "none"
-  "*String naming the pseudo language \"x-symbol charsym\" in the modeline."
+  "*String naming the pseudo language \"x-symbol charsym\" in the modeline.
+
+For each token language LANG, `x-symbol-LANG-modeline-name' contains a
+string naming LANG in the modeline."
   :group 'x-symbol-miscellaneous
   :type 'string)
 
@@ -713,15 +889,17 @@ additional self insert commands, use \"character descriptions\" in
      ["Encode Characters" x-symbol-encode
       :active (and x-symbol-language (not buffer-read-only))]
      ["Encode & Recode" x-symbol-encode-recode
-      :active (and x-symbol-coding
+      :active (and x-symbol-coding x-symbol-language (not buffer-read-only)
 		   (not (eq x-symbol-coding x-symbol-default-coding))
-		   x-symbol-language (not buffer-read-only))]
+		   (eq (x-symbol-buffer-coding) x-symbol-default-coding)
+		   (assq x-symbol-coding x-symbol-fchar-tables))]
      ["Decode Tokens" x-symbol-decode
       :active (and x-symbol-language (not buffer-read-only))]
      ["Recode & Decode" x-symbol-decode-recode
-      :active (and x-symbol-coding
+      :active (and x-symbol-coding x-symbol-language (not buffer-read-only)
 		   (not (eq x-symbol-coding x-symbol-default-coding))
-		   x-symbol-language (not buffer-read-only))]
+		   (eq (x-symbol-buffer-coding) x-symbol-default-coding)
+		   (assq x-symbol-coding x-symbol-fchar-tables))]
      ["Replace Char Aliases" x-symbol-unalias
       :active (not buffer-read-only)])
     ;;
@@ -808,7 +986,11 @@ have nearly the same length.  See also `x-symbol-header-groups-alist'."
 Each element looks like (HEADER GROUP...) where HEADER is a string and
 GROUP is the group of a character as explained in `x-symbol-init-cset'.
 This alist is used for `x-symbol-grid' and the `x-symbol-menu'.
-Token languages might define their own alist."
+Token languages might define their own alist.
+
+For each token language LANG, `x-symbol-LANG-header-groups-alist', if
+non-nil, contains the specification for the language specific grid and
+menu."
 ;; TODO: mention: before init
   :group 'x-symbol-input-init
   :type 'x-symbol-headers)
@@ -913,7 +1095,10 @@ You may also use a function instead of a regexp, see
   "Regexp matching contexts not to be replaced by input method ELECTRIC.
 A language dependent regexp is also checked before a context is
 replaced, see `x-symbol-electric-input' for details.  You may also use a
-function instead of a regexp, see `x-symbol-call-function-or-regexp'."
+function instead of a regexp, see `x-symbol-call-function-or-regexp'.
+
+For each token language LANG, `x-symbol-LANG-electric-ignore', if
+non-nil, defines the language dependent version."
   :group 'x-symbol-input-control
   :type 'x-symbol-function-or-regexp)
 
