@@ -167,7 +167,7 @@ no regular or easily discernable structure."
 
    ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-interrupt-regexp         "Interrupt"
-   proof-shell-error-regexp		"^\364\\*\\*\\*\\|^.*Error:\\|^uncaught exception "
+   proof-shell-error-regexp		"^\364\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
    
    ;; matches names of assumptions
    proof-shell-assumption-regexp	isa-id
