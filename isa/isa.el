@@ -178,13 +178,10 @@ no regular or easily discernable structure."
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
 
-   proof-shell-proof-completed-regexp   (concat 
-					 proof-shell-start-goals-regexp
-					 ;; FIXME: next regexp is horrible,
-					 ;; but seems only reliable way
-					 ;; of matching a string with n/ls.
-					 "[^\0]*"
-					 "No subgoals!")
+   proof-shell-proof-completed-regexp
+   (concat proof-shell-start-goals-regexp
+	   "\\(\\(.\\|\n\\)*\nNo subgoals!\n\\)"
+	   proof-shell-end-goals-regexp)
 
    ;; initial command configures Isabelle by hacking print functions.
    proof-shell-init-cmd                 "ProofGeneral.init false;"
