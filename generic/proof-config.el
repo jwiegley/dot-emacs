@@ -878,9 +878,9 @@ but you can set this variable to something else more precise if necessary."
   :type 'string
   :group 'proof-script)
 
-(defcustom proof-comment-end ""
+(defcustom proof-comment-end "\n"
   "String which ends a comment in the proof assistant command language.
-The script buffer's comment-end is set to this string plus a space.
+The script buffer's comment-end is set to a space plus this string.
 See also `proof-comment-start'.
 
 You should set this variable for reliable working of Proof General,"
