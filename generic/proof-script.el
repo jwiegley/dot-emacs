@@ -1377,6 +1377,9 @@ No action if BUF is nil."
     ["Active scripting"
      (proof-switch-to-buffer (car-safe proof-script-buffer-list))
      :active (car-safe proof-script-buffer-list)]
+    ["Goals"
+     (proof-switch-to-buffer proof-pbp-buffer t)
+     :active proof-pbp-buffer]
     ["Response"
      (proof-switch-to-buffer proof-response-buffer t)
      :active proof-response-buffer]
