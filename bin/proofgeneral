@@ -53,12 +53,12 @@ while
 	echo "$HELP" >&2
 	exit 1;;
     -v) 
-	VERSION=`grep proof-general-version ~/PG/generic/proof-site.el | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
+	VERSION=`grep proof-general-version $PGHOME/generic/proof-site.el | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
 	echo "$NAME" "($VERSION)" >&2
 	echo "$VERSIONBLURB" >&2
 	exit 1;;
     --version) 
-	VERSION=`grep proof-general-version ~/PG/generic/proof-site.el | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
+	VERSION=`grep proof-general-version $PGHOME/generic/proof-site.el | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
 	echo "$NAME" "($VERSION)" >&2
 	echo "$VERSIONBLURB" >&2
 	exit 1;;
