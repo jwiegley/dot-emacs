@@ -96,3 +96,13 @@ to force this behaviour.
 This is needed to solve "localssh.dcs" versus "ssh.dcs" problem.
 
 
+-----------------------------------------------------------------
+
+Moving to a new branch
+======================
+
+   find * -path '*/CVS' -prune -o -path 'CVS' -prune -o -print | xargs cvs commit -m"Updating branch" -f -r 4.0         
+
+ 
+
+
