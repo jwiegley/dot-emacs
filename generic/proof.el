@@ -449,7 +449,7 @@ variables."
 (defcustom proof-shell-prompt-pattern nil 
    "Proof shell's value for comint-prompt-pattern, which see."
    :type 'regexp
-   :group 'proof-sheel)
+   :group 'proof-shell)
 
 ;; FIXME da: replace this with wakeup-regexp or prompt-regexp?
 ;; May not need next variable.
@@ -460,7 +460,8 @@ Set to nil if proof assistant does not support annotated prompts."
   :group 'proof-shell)
 
 (defcustom proof-shell-annotated-prompt-regexp ""
-  "Regexp matching a (possibly annotated) prompt pattern."
+  "Regexp matching a (possibly annotated) prompt pattern.
+Used to "
   :type 'regexp
   :group 'proof-shell)
 
@@ -473,7 +474,7 @@ Set to nil if proof assistant does not support annotated prompts."
   "Regexp matching an error report from the proof assistant.
 We assume that an error message corresponds to a failure
 in the last proof command executed.  (So don't match
-warning messages with this regexp)."
+mere warning messages with this regexp)."
   :type 'regexp
   :group 'proof-shell) 
 
