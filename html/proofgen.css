@@ -1,9 +1,6 @@
 /* Style sheet for the Proof General web pages. 
- *
  * David Aspinall, June 1999.
- *
  * $Id$
- *
  */
 
 body{
@@ -16,7 +13,7 @@ body{
 
 p{
  font-family: Verdana, Arial, LucidaSans, sans-serif;	/* Netscape is picky, */
- color: #FFFFFF					/* so we must set every tag */
+ color: #FFFFFF						/* so we must set every tag */
 }
 
 pre{
@@ -60,17 +57,12 @@ input,select,textarea {
 
 /* Lists */
 
-dl{
+dl,ul,dir,li{
  font-family: Verdana, Arial, LucidaSans, sans-serif;	
  color: #FFFFFF
 }
 dt{ font-style: italic; font-weight: bold }      /* Netscape misses this, */
 .descitem{ font-style: italic; font-weight: bold } /* so duplicate by hand */
-
-ul{
- font-family: Verdana, Arial, LucidaSans, sans-serif;	
- color: #FFFFFF
-}
 
 /* Table Elements */
 table{
@@ -78,12 +70,7 @@ table{
  color: #FFFFFF
 }
 
-td{
- font-family: Verdana, Arial, LucidaSans, sans-serif;	
- color: #FFFFFF
-}
-
-tr{
+td,tr{
  font-family: Verdana, Arial, LucidaSans, sans-serif;	
  color: #FFFFFF
 }
@@ -95,7 +82,7 @@ a:link,a:visited{					/* visited appears same */
  color: #FFD820
 }
 
-/* hover is IE specific? */
+/* hover is IE specific nasty but nice */
 a:active,a:hover{
  font-family: Verdana, Arial, LucidaSans, sans-serif;	
  text-decoration: underline;			/* Underline on mouse over */
