@@ -174,6 +174,13 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
 ;;;  Charsym Info
 ;;;===========================================================================
 
+;; FIXME: next line is a hack in case x-symbol-vars is not
+;; loaded: this is needed because isar forces
+;; a load x-symbol-isabelle even if x-symbol is not available
+;; (argh)
+(unless (fboundp 'x-symbol-set-cache-variable)
+  (defun x-symbol-set-cache-variable (var value) (set var value)))
+
 (defcustom x-symbol-isabelle-class-alist
   '((VALID "Isabelle Symbol" (x-symbol-info-face))
     (INVALID "no Isabelle Symbol" (red x-symbol-info-face)))
