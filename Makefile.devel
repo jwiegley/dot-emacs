@@ -37,6 +37,12 @@
 ##
 ##   Or similar to make the required version.
 ##
+## To customize the tags in case of a re-release with the same official
+## version:
+##
+##    make releaseall VERSION=2.0 CVS_VERSION=2_0_1
+##
+##
 ## $Id$
 ## 
 ###########################################################################
