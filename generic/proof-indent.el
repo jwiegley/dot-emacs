@@ -9,15 +9,6 @@
 (require 'proof)			; loader
 (require 'proof-script)			; indent code is for script editing
 
-;;; FIXME: for compilation might be  nice
-;;;
-;;; To nuke byte compile warnings
-;;;
-;(require 'proof-syntax)			; for proof-indent-commands-regexp.
-;(require 'proof-script)			; for proof-goto-end-of-locked,
-					; proof-locked-end
-
-
 ;; This is quite different from sml-mode, but borrows some bits of
 ;; code.  It's quite a lot less general, but works with nested
 ;; comments.
