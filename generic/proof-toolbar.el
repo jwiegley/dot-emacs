@@ -192,6 +192,8 @@ to the default toolbar."
 	    (setq proof-toolbar (mapcar 'eval proof-toolbar-button-list))
 	    ;; Ensure current buffer will display this toolbar
 	    (set-specifier default-toolbar proof-toolbar (current-buffer))
+	    (if proof-toolbar-use-button-enablers
+	    (progn
 	    ;; Set the callback for updating the enablers
 	    (add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
 	    ;; Also call it whenever text changes in this buffer,
@@ -207,7 +209,9 @@ to the default toolbar."
 				0.5		 ; repeated
 				t		 ; count idle time
 				t		 ; pass argument
-				(current-buffer)))) ;  - current buffer
+				(current-buffer))))) ;  - current buffer
+	    ;; Attempt to refresh to display toolbar
+	    (sit-for 0))
 	;; Disabling toolbar: remove specifier, hooks, timer.
 	(remove-specifier default-toolbar (current-buffer))
 	(remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
