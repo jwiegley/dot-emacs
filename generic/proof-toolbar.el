@@ -231,6 +231,13 @@ changed state."
 	    (not (equal enabler-state proof-toolbar-enablers-last-state))
 	    (progn
 	      (setq proof-toolbar-enablers-last-state enabler-state)
+	      ;; The official way to do this should be 
+	      ;; (set-specifier-dirty-flag default-toolbar)
+	      ;; but it doesn't work, so we do what VM does instead,
+	      ;; removing and re-adding.  
+	      (remove-specifier default-toolbar buf)
+	      (set-specifier default-toolbar proof-toolbar buf)
+	      ;; We set the dirty flag as well just in case it helps...
 	      (set-specifier-dirty-flag default-toolbar)
 	      (setq proof-toolbar-refresh-flag nil))))
     ;; Kill off this itimer if it's owning buffer has died
