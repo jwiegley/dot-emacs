@@ -970,7 +970,7 @@ You must set this (perhaps to a no-op) for script management to work."
 (defcustom proof-undo-n-times-cmd nil
   "Command to undo n steps of the currently open goal.
 String or function.
-If this is set to a string, %s will be replaced by the number of
+If this is set to a string, `%s' will be replaced by the number of
 undo steps to issue. 
 If this is set to a function, it should return the appropriate
 command when called with an integer (the number of undo steps).
@@ -1143,9 +1143,9 @@ need to bump up this value."
 
 (defcustom proof-shell-cd-cmd nil
   "Command to the proof assistant to change the working directory.
-The format character %s is replaced with the directory, and the
+The format character `%s' is replaced with the directory, and the
 proof-terminal-char is added on to the end.
-The format character %e is replaced by the directory, after applying
+The format character `%e' is replaced by the directory, after applying
 escapes specified in `proof-shell-string-escapes', which see.
 
 This setting is used to define the function proof-cd which 
@@ -1161,9 +1161,11 @@ script every time scripting begins."
 
 (defcustom  proof-shell-inform-file-processed-cmd nil
  "Command to the proof assistant to tell it that a file has been processed.
-The format character %s is replaced by a complete filename for a
+The format character `%s' is replaced by a complete filename for a
 script file which has been fully processed interactively with
 Proof General.  
+(Use the format character `%e' instead to applying the escapes 
+specified in `proof-shell-string-escapes').
 
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
@@ -1181,9 +1183,11 @@ proof-shell-process-file, proof-shell-compute-new-files-list."
 
 (defcustom  proof-shell-inform-file-retracted-cmd nil
  "Command to the proof assistant to tell it that a file has been retracted.
-The format character %s is replaced by a complete filename for a
+The format character `%s' is replaced by a complete filename for a
 script file which Proof General wants the prover to consider
 as not completely processed.
+(Use the format character `%e' instead to applying the escapes 
+specified in `proof-shell-string-escapes').
 
 This is used to interface with the proof assistant's internal
 management of multiple files, so the proof assistant is kept aware of
