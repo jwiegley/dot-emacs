@@ -1618,14 +1618,6 @@ Set to nil if proof assistant does not support annotated prompts."
   :type '(choice character (const nil))
   :group 'proof-shell)
 
-(defcustom pg-subterm-first-special-char nil
-  "First special character.
-Codes above this character can have special meaning to Proof General,
-and are stripped from the prover's output strings.
-Leave unset if no special characters are being used."
-  :type '(choice character (const nil))
-  :group 'proof-shell)
-
 (defcustom proof-shell-annotated-prompt-regexp nil
   "Regexp matching a (possibly annotated) prompt pattern.
 
@@ -2128,6 +2120,14 @@ See also proof-{script,resp,goals}-font-lock-keywords."
   :group 'prover-config
   :prefix "pg-goals-")
 
+(defcustom pg-subterm-first-special-char nil
+  "First special character.
+Codes above this character can have special meaning to Proof General,
+and are stripped from the prover's output strings.
+Leave unset if no special characters are being used."
+  :type '(choice character (const nil))
+  :group 'proof-goals)
+
 (defcustom pg-subterm-anns-use-stack nil
   "Choice of syntax tree encoding for terms.
 
@@ -2145,13 +2145,18 @@ For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'."
 (defcustom pbp-goal-command nil
   "Command informing the prover that `pg-goals-button-action' has been
 requested on a goal."
-  :type '(choice nil regexp)
+  :type '(choice nil string)
   :group 'proof-goals)
 
 (defcustom pbp-hyp-command nil
   "Command informing the prover that `pg-goals-button-action' has been
 requested on an assumption."
-  :type '(choice nil regexp)
+  :type '(choice nil string)
+  :group 'proof-goals)
+
+(defcustom pg-subterm-help-cmd nil
+  "Command to display help about a subterm."
+  :type '(choice nil string)
   :group 'proof-goals)
 
 (defcustom pg-goals-error-regexp nil
@@ -2191,6 +2196,12 @@ See doc of `pg-subterm-start-char'."
   :type '(choice character (const nil))
   :group 'proof-goals)
 
+(defcustom pg-subterm-end-char nil
+  "Closing special character for subterm markup.
+See `pg-subterm-start-char'."
+  :type 'character
+  :group 'proof-goals)
+
 (defcustom pg-topterm-char nil
   "Annotation character that indicates the beginning of a \"top\" element.
 A \"top\" element may be a sub-goal to be proved or a named hypothesis,
@@ -2204,11 +2215,7 @@ for parsing the prover output is disabled."
   :type 'character
   :group 'proof-goals)
 
-(defcustom pg-subterm-end-char nil
-  "Closing special character for subterm markup.
-See `pg-subterm-start-char'."
-  :type 'character
-  :group 'proof-goals)
+
 
 (defcustom proof-goals-font-lock-keywords nil
   "Value of font-lock-keywords used to fontify the goals output.
