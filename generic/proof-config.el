@@ -64,11 +64,6 @@
   :type 'boolean
   :group 'proof-general)
 
-(defcustom proof-one-command-per-line nil
-  "*If non-nil, format for newlines after each proof command in a script."
-  :type 'boolean
-  :group 'proof-general)
-
 (and (featurep 'toolbar)
 (defcustom proof-toolbar-wanted t
   "*Whether to use toolbar in proof mode."
@@ -112,10 +107,31 @@ you a reprimand!)"
   ;; confident about it.  (I don't). -da
   "If non-nil, enable indentation code for proof scripts.
 Currently the indentation code can be rather slow for large scripts,
-or may be critical on the setting of regular expressions for 
-particular provers."
+and is critical on the setting of regular expressions for particular
+provers.  Enable it if it works for you."  
+  :type 'boolean 
+  :group 'proof-general)
+
+(defcustom proof-one-command-per-line nil
+  "*If non-nil, format for newlines after each proof command in a script.
+This option is not fully-functional at the moment."
   :type 'boolean
   :group 'proof-general)
+
+(defcustom proof-rsh-command ""
+  "Shell command prefix to run a command on a remote host.  
+For example,
+
+   ssh bigjobs
+
+Would cause Proof General to issue the command 'ssh bigjobs isabelle'
+to start Isabelle remotely on our large compute server called 'bigjobs'.
+
+The protocol used should be configured so that no user interaction
+(passwords, or whatever) is required to get going."
+  :type 'string
+  :group 'proof-general)
+
 
 ;;
 ;; Faces.
@@ -424,25 +440,27 @@ to `nil' of the proof assistant does not support nested goals."
   :type 'function
   :group 'proof-script)
 
-(defcustom proof-atomic-sequence-lists nil
-  "list of instructions for setting up atomic sequences of commands (ACS).
+; Not yet implemented.
+;
+;(defcustom proof-atomic-sequence-lists nil
+;  "list of instructions for setting up atomic sequences of commands (ACS).
 
-Each instruction is
-a list of the form `(END START &optional FORGET-COMMAND)'. END is a
-regular expression to recognise the last command in an ACS. START
-is a function. Its input is the last command of an ACS. Its output
-is a regular exression to recognise the first command of the ACS.
-It is evaluated once and the output is successively matched agains
-previously processed commands until a match occurs (or the
-beginning of the current buffer is reached). The region determined
-by (START,END) is locked as an ACS. Optionally, the ACS is
-annotated with the actual command to retract the ACS. This is
-computed by applying FORGET-COMMAND to the first and last command
-of the ACS."
-  ;; FIXME customize broken on choices with function in them?
-  ;;:type '(repeat (cons regexp function (choice (const nil) function)))
-  :type '(repeat (cons regexp function function))
-  :group 'proof-shell)
+;Each instruction is
+;a list of the form `(END START &optional FORGET-COMMAND)'. END is a
+;regular expression to recognise the last command in an ACS. START
+;is a function. Its input is the last command of an ACS. Its output
+;is a regular exression to recognise the first command of the ACS.
+;It is evaluated once and the output is successively matched agains
+;previously processed commands until a match occurs (or the
+;beginning of the current buffer is reached). The region determined
+;by (START,END) is locked as an ACS. Optionally, the ACS is
+;annotated with the actual command to retract the ACS. This is
+;computed by applying FORGET-COMMAND to the first and last command
+;of the ACS."
+;  ;; FIXME customize broken on choices with function in them?
+;  ;;:type '(repeat (cons regexp function (choice (const nil) function)))
+;  :type '(repeat (cons regexp function function))
+;  :group 'proof-shell)
 
 
 (defconst proof-no-command "COMMENT"

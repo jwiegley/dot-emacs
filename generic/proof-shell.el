@@ -192,7 +192,11 @@ Does nothing if proof assistant is already running."
       (message (format "Starting %s process..." proc))
 
       ;; Starting the inferior process (asynchronous)
-      (let ((prog-name-list (proof-string-to-list proof-prog-name " ")))
+      (let ((prog-name-list (proof-string-to-list 
+			     (concat 
+			      proof-rsh-command
+			      " "
+			      proof-prog-name) " ")))
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
       ;; To send any initialisation commands to the inferior process,

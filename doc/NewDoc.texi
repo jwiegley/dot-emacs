@@ -794,7 +794,9 @@ For more help, see @inforef{Easy Customization, ,xemacs}.
 @cindex{Toolbar follow mode}
 @cindex{Toolbar disabling}
 @cindex{Proof script indentation}
-@cindex{indentation}
+@cindex{Indentation}
+@cindex{Remote shell}
+@cindex{Running proof assistant remotely}
 @c @cindex{formatting proof script}
 
 
@@ -890,19 +892,25 @@ The configuration settings appear in the customization group
     Proof-General -> Internals ->  Prover Config
 @end lisp
 
-Some examples of settings you may like to tweak are:
+One basic example of a setting you may like to tweak is:
 
-proof-assistant-home-page
+@defvar proof-assistant-home-page
+Web address for information on proof assistant.
+@end var
 
-
-More details of the settings are given in @xref{Adapting Proof General
-to New Provers}.
+Most of the others are more complicated.  More details of the settings
+are given in @xref{Adapting Proof General to New Provers}.  To browse
+them, you can look through the customization groups
+@code{prover-config}, @code{proof-script} and @code{proof-shell}.  The
+group @code{proof-script} contains the configuration variables for
+scripting, and the group @code{proof-shell} contains those for
+interacting with the proof assistant.
 
 Unfortunately, although you can use the customization mechanism to set
 and save these variables, saving them may have no effect because the
-default settings are mostly hard-wired into the proof assistant code.
-@c FIXME: this is a problem, code does need fixing.
-At present there is no easy way to get around this.
+default settings are often hard-wired into the proof assistant code.  At
+present there is no easy way to get around this other than by editing
+the source code.  Please contact us if this proves to be a problem.
 
 
 @node LEGO Proof General

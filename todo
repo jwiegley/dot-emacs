@@ -149,9 +149,6 @@ C proof-find-next-terminator doesn't work properly:
      bug. Perhaps just use new implementation of
      proof-assert-until-point (30min)
 
-B Add proof-rsh-command and note in documentation about how to
-  use widely-advertised "remote shell" feature.  (1hr tms)
-
 B Add proof-quit-command: some provers may like a quit command to be
   sent to the shell, not just EOF !  (see proof-stop-shell).
   Also reconcile proof-restart-script and proof-stop-shell, see
