@@ -16,6 +16,8 @@
 (defun proof-ids-to-regexp (l)
   "Maps a non-empty list of tokens `l' to a regexp matching any element"
   (mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
+;; Stefan Monnier suggests:
+;;  (concat "\\<\\(?:" (mapconcat 'identity l "\\|") "\\)\\>"))
 
 (defun proof-anchor-regexp (e)
   "Anchor (\\`) and group the regexp E."
