@@ -371,7 +371,9 @@ proof-shell-retract-files-regexp."
 (proof-definvisible isar-help-theorems "print_theorems" [h t])
 (proof-definvisible isar-help-trans-rules "print_trans_rules" [h T])
 
-;; NB: would be nice to query save first for these next two
+;; NB: would be nice to query save of the buffer first for these 
+;; next two: but only convenient emacs functions offer save for
+;; all buffers.
 (proof-definvisible isar-display-draft
  '(format "display_drafts \"%s\"" buffer-file-name)
  [(control d)])
