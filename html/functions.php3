@@ -45,14 +45,14 @@ function project_email() {
 /* Style sheet element for dt doesnt work in Netscape 4, so hack it here.  
    NB!  This violates HTML 4 DTD.
 */
-
-function dt($string) {
-  print "<dt><div style=\"font-style:italic; font-weight: bold\">";
+function dt($string,$name="") {
+  print "<dt>";
+  if ($name != "") { print "<a name =\"$name\">"; }
+  print "<div style=\"font-style:italic; font-weight: bold\">";
   print $string;
-  print "</div></dt>";
-/* Good version, okay in IE: 
-  print "<dt>" . $string . "</dt>";
-*/
+  print "</div>";
+  if ($name != "") { print "</a>"; }
+  print "</dt>";
 }
 
 /* Automatic footnotes? */
