@@ -54,6 +54,10 @@ A Final stuff for 3.0 release [da]:
 
 ---------------------------------------------
 
+B Proof shell exit function -- could try sending an interrupt first
+  if the process is busy, just to be polite (and avoid the 10 second
+  wait before it gets killed).
+
 B Display functions: does auto-delete-windows work with
   window-dedicated as it should? (I thought it would switch 
   between 2/3 bufs as appropriate?).
