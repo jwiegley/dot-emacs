@@ -59,7 +59,7 @@ again, so return to <a href="download#prereq">the download page</a>.
 		  <?php if ($mailinglist) print "checked"; ?>></td>
  <td width="70%">Please add me to the mailing list.</td>
 </table>
-</br>
+<br>
 <input type=submit value="Send form"> 
 </form>
 <?php  
