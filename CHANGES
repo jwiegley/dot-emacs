@@ -27,6 +27,7 @@ Summary of Changes for Proof General 2.1
   Coq syntax, support for proof-shell-restart-cmd.
 
 * Toolbar can now be switched on and off via menu.
+  Several other usability improvements added to menus.
 
 * Bug fixes:
    - Long-lines with funny characters causing ^G's in Solaris.
