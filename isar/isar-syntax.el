@@ -286,6 +286,22 @@
    )
   "*Font-lock table for Isabelle terms.")
 
+(defvar isar-goals-font-lock-keywords 
+  (append
+   (list 
+    "^theory"
+    "^proof (prove):"
+    "^proof (state):"
+    "^goal (theorem .*):"
+    "^prems:"
+    "^using this:"
+    "^goal (show):"
+    "^Variables:$"
+    "^Constants:$"
+    "\\s-*[0-9][0-9]?\\. ")
+   isar-output-font-lock-keywords-1)
+  "*Font-lock table for Isabelle/Isar output.")
+
 
 ;; ----- variations on undo
 
