@@ -248,6 +248,8 @@ including any whitespace included to delimit matches.")
 (defun texi-docstring-magic-format-default (default)
   "Make a default value string for the value DEFAULT.
 Markup as @code{stuff} or @lisp stuff @end lisp."
+  ;; NB: might be nice to use a 'default-value-description
+  ;; property here, in case the default value is computed.
   (let ((text       (format "%S" default)))
     (concat 
      "\nThe default value is "
