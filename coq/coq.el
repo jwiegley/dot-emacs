@@ -18,14 +18,6 @@
 	  "/usr/local/lib/coq"
       c)))
 
-;;Pierre: we will have both versions V6 and V7 during a while
-;;        the test with "coqtop -v" can be skipped if the variable 
-;;        coq-version-is-V7 is already set (usefull for people 
-;;        dealing with several version of coq)
-(if (boundp 'coq-version-is-V7) () ; if this variable is bound, do nothing 
-  (setq coq-version-is-V7          ; else test with "coqtop -v"
-	(if (string-match "version 7" (shell-command-to-string "coqtop -v")) 
-	    t nil)))
 
 (defcustom coq-tags (concat (coq-library-directory) "/theories/TAGS")
   "the default TAGS table for the Coq library"
@@ -74,6 +66,17 @@
 ;; Command to initialize the Coq Proof Assistant
 (defconst coq-shell-init-cmd 
   (format "Set Undo %s." coq-default-undo-limit))
+
+
+;;Pierre: we will have both versions V6 and V7 during a while
+;;        the test with "coqtop -v" can be skipped if the variable 
+;;        coq-version-is-V7 is already set (usefull for people 
+;;        dealing with several version of coq)
+(if (boundp 'coq-version-is-V7) () ; if this variable is bound, do nothing 
+  (setq coq-version-is-V7          ; else test with "coqtop -v"
+	(if (string-match "version 7" (shell-command-to-string (concat coq-prog-name " -v"))) 
+	    (progn (message "coq is V7") t)
+	  (progn (message "coq is not V7") nil))))
 
 ;; Command to reset the Coq Proof Assistant
 ;; Pierre: added Impl... because of a bug of Coq until V6.3
