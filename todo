@@ -7,8 +7,35 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 * THINGS TO DO BEFORE 3.5 RELEASE
 
+*** Display management improvement (ongoing; it's a nightmare)
+    Glitches to resolve:
+     -- with multiple frame mode, new frames get selected on creation
+        (solution: create them eagerly when mode is activated).
+     -- code to delete frames isn't working
+     -- suggestion to cache window height: could implement this
+	by resize change functions (also doing the pretty-print hack?)
+        which set a symbol property for associated buffer symbol
+     -- longer term improvements: allow window preferences per 
+	associated buffer.  Either separate frame or merged into
+	switching mode.  
+     -- Stuck-withs: XEmacs frames always have minibuffer.
+		     GNU Emacs frames always have modelines.
+
+*** Update documentation.  Include new screenshots also for web pages.
+
+*** Remove papers subdirectory.
+
+*** GNU Emacs bug:
+     -- Behaviour of `proof-shell-exit' is different on command
+     line and from menu.  From menu it *hangs* for some reason,
+     but not when called directly.
+     [ SHOULD BE FIXED NOW ]
+
 *** Strange bug Gerwin reported with restarting Isabelle/logic name.
     Busy wait triggered, proof-shell-busy stays set.
+    REASON: see comment about calling invisible-command in a nested
+    way.  askprefs is called that way.   Leads to blocking.
+     [ SHOULD BE FIXED NOW ]
 
 *** Use of regexps in isar-syntax.el  --- problems with retraction.
 
@@ -43,7 +70,11 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 *** Check multiple file support in Isabelle -- maybe has become buggy
 
-*** Complete clean-up of web page, broken link fixes.
+*** Coq issues that may be problematic:
+     -- Auto-compile-vos (prob impossible to fix)
+     -- Loss of synchronisation with silent mode (?)
+
+*** Finish clean-up of web page, broken link fixes.
 
 
  
@@ -89,8 +120,11 @@ X (Low)		e.g. probably not worth spending time on
 
 *** B Cleanup display during settings processing.
 
-*** B Generic adjusting of pretty-printer line width (currently
-    implemented in several instances)
+*** C Generic adjusting of pretty-printer line width 
+  Make a generic hook (or hook-constructing macro) to adjust
+  pretty printer line widths, a la LEGO.  Maybe find a better
+  place to do this that in the proof-shell-insert-hook (should
+  be triggered by resize events).
 
 *** B document and simplify proof-script-span-context-menu-extensions
 
@@ -154,12 +188,6 @@ X (Low)		e.g. probably not worth spending time on
 *** C Clean up assert-until-point stuff: should have just one
   function, as a subroutine of assert-next-command; and no bizarre
   never-used arguments!
-
-*** C make pretty printer line width altering generic.
-  Make a generic hook (or hook-constructing macro) to adjust
-  pretty printer line widths, a la LEGO.  Maybe find a better
-  place to do this that in the proof-shell-insert-hook (should
-  be triggered by resize events).
 
 *** C Improved configurability of command settings, etc.
   We should let command settings, etc, be a special type
@@ -294,7 +322,7 @@ X (Low)		e.g. probably not worth spending time on
 
 *** D Make code robust against accidental deletion of response/goals
   buffer.  Add functions proof-get-or-create-{response,goals}-buffer.
-  [30 mins]
+  [1hr]
 
 *** D proof-script-next-entity-regexps: 
   "However, it does not parse strings, comments, or parentheses."
@@ -398,7 +426,7 @@ X (Low)		e.g. probably not worth spending time on
 
 *** D support for templates e.g., in LEGO it would be nice if, by default, 
   fresh buffers corrsponding to file foo.l would automatically insert
-  "Module foo;"  Probably by using a generic Emacs package.  [2hr]
+  "Module foo;"  Probably by using a generic Emacs package.  [6hr]
 
 *** D Review and prune "FIXME notes" which are notes about ongoing fixes
   or sometimes things to do.  [6hr]
@@ -739,16 +767,16 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 *** A Journal paper on design and development of Proof General.
 *** A Grant proposal for Proof General Kit.
 *** A Informatics research reports from latest docs.
-*** A Small project grant from LFCS for summer student (2003)
+*** A Small project grant from LFCS for summer student
 
 *** C PG CDROM: CDROM with PG and other theorem provers 
-    Complete read-to-go distributions.  Could make up from TYPES 2002 
-    summer school systems to make sure of a consistent set of progs?
+    Complete read-to-go distributions.  Would anyone find this
+    useful?
 
 *** B Find new people to help advance and develop Proof General.
-  Getting more instances is a good way.  Also encouraging feedback.
-  Hear stories of bugs by word-of-mouth, they don't get reported often
-  enough.
+     Getting more instances is a good way.  Also encouraging feedback.
+     Hear stories of bugs always by word-of-mouth, they don't get
+     reported often enough by email.
 
 *** A PG projects
 

@@ -7,12 +7,12 @@ will usually have no detrimental effects on using standard features of
 PG, but the experimental features themselves may be less robust.
 
 Experimental features can be enabled by customizing the variable
-`proof-experimental-features'.  If you set this to `t', and restart
-Proof General, then the features mentioned below will be enabled.
+`proof-experimental-features'.  If you set this to `nil', and restart
+Proof General, then the features mentioned below will be disabled.
 
-We encourage users to set this flag and test the features, but being
-aware that the features are regarded as incomplete (problem reports
-and suggestions for improvements are welcomed).
+We encourage users to work with this flag set and test the features,
+but being aware that the features are regarded as incomplete (problem
+reports and suggestions for improvements are welcomed).
 
 
 Current "experimental" features
@@ -28,10 +28,10 @@ Current "experimental" features
    in orange.   This allows easy editing of theories to remove
    dead lemmas, re-order proofs, etc.
 
-   This only works for a pre-release version of Isabelle at the moment.
-   (Support is required from other proof assistant authors: please 
-   mention to them).  You must select the Isabelle setting 
-   "Theorem Dependencies".
+   This only works in Isabelle at the moment.  (Support is required
+   from other proof assistant authors: please suggest to them!).  You
+   must select the Isabelle setting "Theorem Dependencies" before
+   starting Isabelle, to enable gathering of data.
 
 ** Active highlighting for variables in Isabelle.
    Moving the mouse over variables in the goal display will display

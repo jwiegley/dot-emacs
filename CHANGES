@@ -10,6 +10,17 @@
 
 ** Generic changes
 
+*** Improved display management
+
+The display handling functions have been overhauled to cope with
+latest API changes and diversions between Emacs versions.  Multiframe
+mode should now work on both Emacs versions, with cut-down frames (no
+toolbars, etc).  There is a new user-level function
+`proof-layout-windows' which displays windows in a default form for
+the current display mode.  This uses a horizontal split scheme for
+three-pane mode (due to Pierre Courtieu), but three-pane mode also
+works with three-way horizontal split as before.
+
 *** Improved RPM packaging 
 
 Three packages are provided: ProofGeneral, ProofGeneral-emacs-elc and
@@ -174,7 +185,7 @@ strings) and theorems (outside).
 ** Changes for Isabelle
 
 Beginnings of support PGIP protocol (work in progress with Isabelle
-2003).  Presently allows Isabelle to configure Proof General prover
+2004).  Presently allows Isabelle to configure Proof General prover
 settings menu.
 
 Backward compatibility may not be maintained: it's simply too much
