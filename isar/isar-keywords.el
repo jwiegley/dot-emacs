@@ -40,6 +40,8 @@
 (defconst isar-keywords-diag
   '("ML"
     "commit"
+    "disable_pr"
+    "enable_pr"
     "help"
     "pr"
     "pretty_setmargin"
