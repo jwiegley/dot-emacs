@@ -1238,8 +1238,9 @@ the proof script."
   (interactive)
   (if (not (proof-shell-live-buffer))
       (error "Proof Process Not Started!"))
-  (if (not (eq (current-buffer) proof-script-buffer))
-      (error "Don't own process!"))
+  ; 1.10.99 da: removed this test, it seems silly.
+  ; (if (not (eq (current-buffer) proof-script-buffer))
+  ;    (error "Don't own process!"))
   (if (not proof-shell-busy)
       (error "Proof Process Not Active!"))
   (save-excursion
