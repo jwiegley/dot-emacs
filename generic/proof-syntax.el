@@ -18,8 +18,13 @@
   (mapconcat (lambda (s) (concat "\\<" s "\\>")) l "\\|"))
 
 (defun proof-anchor-regexp (e)
-  "Anchor (^) and group the regexp E."
-  (concat "^\\(" e "\\)"))
+  "Anchor (\\`) and group the regexp E."
+  (concat "\\`\\(" e "\\)"))
+
+(defconst proof-no-regexp
+  "\\'\\`"
+  "A regular expression that never matches anything")
+  
 
 (defun proof-regexp-alt (&rest args)
   "Return the regexp which matches any of the regexps ARGS."
