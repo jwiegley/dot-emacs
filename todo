@@ -64,6 +64,9 @@ C Make the remaining options in the quick-opts-menu be more
   after changing output hightlighting, make/delete frames,
   etc.
 
+X Why does dired get loaded when PG loads?  (Can we speed 
+  loading by avoiding a particular function?)
+
 B Display buffer clearing: response buffer is cleared
   too often/eagerly, perhaps?  The output find-theorems or
   similar doesn't last beyond a single proof step.
@@ -711,6 +714,12 @@ X pbp code doesn't quite accord with the tech report; in particular it
 B Validate pages.  
       Current failures for HTML 4.0 to do with CGI-style arguments with "&",
       this is a problem with PHP3 really.
+
+C Wanted for links:  something to UITP.
+
+C Broken (old) links:
+    (Applications of a Type Theory based Proof Assistant)
+    http://www.dcs.ed.ac.uk/lfcs/research/logic_and_proof/attbpa.html
 
 C Reduce text size and front page image, for 1024x768 screens.
 
