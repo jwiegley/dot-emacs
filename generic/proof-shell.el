@@ -459,7 +459,7 @@ Proof General with the proof assistant."
   (let ((a 0) (l (length string)) ls)
     (while (< a l) 
       (setq ls (cons (int-to-string 
-		      (aref string a)) 
+		      (char-to-int (aref string a)))
 		     (cons " " ls)))
       (incf a))
     (apply 'concat (nreverse ls))))
@@ -1616,7 +1616,8 @@ before and after sending the command."
   proof-general-name "Proof by Pointing"
   ;; defined-derived-mode pbp-mode initialises pbp-mode-map
   (setq proof-buffer-type 'pbp)
-  ;; (define-key pbp-mode-map [(button2)] 'pbp-button-action)
+  ;; FIXME da: this was disabled, re-enabled for testing only!!
+  (define-key pbp-mode-map [(button2)] 'pbp-button-action)
   ;; FIXME da: add a menu here?
   (erase-buffer)))
 
