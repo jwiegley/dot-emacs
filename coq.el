@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.9  1997/11/12 15:56:15  hhg
+;; Changed pbp-change-goal so that it only "Show"s the goal pointed at.
+;;
 ;; Revision 1.8  1997/11/06 16:55:49  hhg
 ;; Assign new variable proof-goal-hyp-fn to coq-goal-hyp, which advances
 ;; over coq-goal-regexp to pick up goal for pbp
@@ -521,7 +524,7 @@
 )
 
 (defun coq-pbp-mode-config ()
-  (setq pbp-change-goal "Focus %s.")
+  (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp coq-error-regexp))
 
 (provide 'coq)
