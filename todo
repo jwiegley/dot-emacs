@@ -24,6 +24,12 @@ A Clarify licence situation for Proof General after question from
   environment without a special licence agreement? A new licence is
   currently [22 Jan 1999] being drafted by UNIVED
 
+A Fix bug with syntax matching manifested in Isabelle.  We need to
+  set case-fold-search to nil (or to `proof-case-fold-search') in some
+  places.  Also check syntax tables for all instances, and whether
+  word matching is based on whitespace constituents or non-word
+  constituents.
+
 B Add a "register" page for registering downloads.  Perhaps filling
   will be mandatory for users in a non-academic environment.
   Suggestion: send an email to proofgen@dcs.ed.ac.uk with POST
