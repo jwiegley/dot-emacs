@@ -311,8 +311,7 @@ Move point if the end of the locked position is invisible."
 ;;
 
 (defun proof-toolbar-retract-enable-p ()
-  (and (eq (current-buffer) proof-script-buffer)
-       (not (proof-locked-region-empty-p))))
+  (not (proof-locked-region-empty-p)))
 
 (defun proof-toolbar-retract ()
   "Retract entire buffer."
