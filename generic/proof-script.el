@@ -372,11 +372,14 @@ the hooks `proof-activate-scripting-hook' are run."
 	  ;; Turn off Scripting in the old buffer.
 	  (setq proof-active-buffer-fake-minor-mode nil)))
 
-    ;; is this a fresh script mode buffer, with no locked region?
+    ;; does the new scripting buffer already have a locked region?
     (if (member (current-buffer) proof-script-buffer-list)
+	;; If so, it must be moved to the head of the list
 	(setq proof-script-buffer-list
 	      (remove (current-buffer) proof-script-buffer-list))
+      ;; If not, initialise the spans.
       (proof-init-segmentation))
+
     (setq proof-script-buffer-list
 	  (cons (current-buffer) proof-script-buffer-list))
 
