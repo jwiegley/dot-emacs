@@ -156,11 +156,11 @@
    proof-goal-with-hole-regexp  isar-goal-with-hole-regexp
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
    proof-indent-commands-regexp	isar-indent-regexp
-   ;; proof engine commands (first five for menus, last for undo)
+   ;; proof engine commands
    proof-prf-string		"pr"
    proof-goal-command		"lemma \"%s\";"
    proof-save-command		"qed"
-   proof-ctxt-string		"print_theory"
+   proof-ctxt-string		"print_context"
    proof-help-string		"help"
    proof-kill-goal-command	"kill_proof;"
    ;; command hooks
@@ -191,8 +191,8 @@
    proof-shell-cd			"cd \"%s\";"
 
    proof-shell-proof-completed-regexp   "$^"    ; n.a.
+   proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\360Interrupt"
    proof-shell-error-regexp		"^\364\\*\\*\\*"
-   proof-shell-interrupt-regexp         "^Interrupt"
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
    ;; matches names of assumptions
