@@ -486,7 +486,7 @@ the function `pg-remove-specials' can be used instead)."
 ;;
 
 (defun isabelle-xml-sml-escapes (xmlstring)
-  (replace-regexp-in-string "\"" "\\\"" xmlstring))
+  (replace-regexp-in-string "\"" "\\\"" xmlstring t t))
 
 (defun isabelle-process-pgip (xmlstring)
   "Return an Isabelle or Isabelle/Isar command to process PGIP in XMLSTRING."
