@@ -798,7 +798,7 @@ Returns the string (with faces) in the specified region."
       (goto-char (point-max))
       (setq start (search-backward-regexp start-regexp))
       (save-excursion (setq end (- (search-forward-regexp end-regexp)
-				   (length (match-string 0)) 1)))
+				   (length (match-string 0)))))
       (setq string
 	    (proof-shell-strip-annotations (buffer-substring start end)))
       (delete-region start end)
