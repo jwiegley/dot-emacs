@@ -46,7 +46,7 @@
 ;; (define-key map [(meta p)]		  'proof-previous-matching-command)
 ;; (define-key map [(meta n)]		  'proof-next-matching-command)
 ;; Standard binding for completion
-(define-key map [(control return)] 'complete)
+(define-key map [(control return)] 'proof-script-complete)
 ;(define-key map [(control c) ?u] 'proof-retract-until-point-interactive)
 ;; Add the universal keys bound in all PG buffers.
 (proof-define-keys map proof-universal-keys))
