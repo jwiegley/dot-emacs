@@ -1866,7 +1866,7 @@ Mark for goal.
 
 This setting is also used to see if proof-by-pointing features
 are configured.  If it is unset, some of the code 
-for parsing the is disabled.
+for parsing the prover output is disabled.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-field-char
 @defvar proof-shell-field-char 
