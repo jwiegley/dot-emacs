@@ -51,7 +51,9 @@ cvsclean: clean
 
 # Remove all the generated targets and other junk.
 wellclean: clean
-	rm -f *.xpm *.xbm *.jpg *.gif 
+	rm -f *.xpm *.xbm *.jpg *.gif
+
+distclean: clean
 
 clean:
 	rm -f buttons webpix gimp/pluginrc
