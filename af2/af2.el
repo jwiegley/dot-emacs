@@ -107,7 +107,7 @@
   "Configure Proof General scripting for Af2."
   (setq
    proof-terminal-char		?\.	; ends every command
-   proof-script-command-end-regexp "[.]\\([ \t]\\|$\\)"
+   proof-script-command-end-regexp "[.]\\([ \t\n\r]\\)"
    proof-comment-start             "(*"
    proof-comment-end               "*)"
    proof-state-command             "goals."
@@ -117,6 +117,7 @@
       "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)"
       af2-comments-regexp
       af2-ident-regexp)
+   proof-non-undoables-regexp      "\\(constraints\\|flags\\|goals\\"
    proof-goal-with-hole-result     5
    proof-save-with-hole-regexp     (concat 
       "save"
@@ -168,7 +169,10 @@
     (proof-config-done)
     (af2-setup-outline)
     (define-key af2-mode-map [(control j)] 
-      'proof-assert-next-command-interactive)
+      'af2-assert-next-command-interactive)
+    ;; with the previous binding,
+    ;; it is nice to do : xmodmap -e "keysym KP_Enter = Linefeed"
+
     (define-key af2-mode-map [(control c) (meta d)] 
       'af2-delete-symbol-around-point)  
     ;; Configure syntax table for block comments
@@ -183,12 +187,21 @@
 
 (define-derived-mode af2-response-mode proof-response-mode
   "Af2 response" nil
-  (proof-response-config-done))
-
-(define-derived-mode af2-goals-mode pbp-mode
-  "Af2 goals" nil
+  (setq 
+   font-lock-keywords  af2-font-lock-keywords
+   proof-output-fontify-enable     t)
   (af2-sym-lock-start)
-  (proof-goals-config-done))
+  (proof-response-config-done)
+  (font-lock-mode))
+
+(define-derived-mode af2-goals-mode proof-goals-mode
+  "Af2 goals" nil
+  (setq 
+   font-lock-keywords  af2-font-lock-keywords
+   proof-output-fontify-enable     t)
+  (af2-sym-lock-start)
+  (proof-goals-config-done)
+  (font-lock-mode))
 
 ;; The response buffer and goals buffer modes defined above are
 ;; trivial.  In fact, we don't need to define them at all -- they
@@ -209,7 +222,7 @@
   (setq proof-prog-name		af2-prog-name)
   (setq proof-mode-for-shell    'af2-shell-mode)
   (setq proof-mode-for-response 'af2-response-mode)
-  (setq proof-mode-for-pbp	'af2-goals-mode))
+  (setq proof-mode-for-goals	'af2-goals-mode))
 
 (provide 'af2)
 

@@ -26,6 +26,10 @@ send a compile command to af2 for the theorem which name is under the cursor."
 
 (setq
  af2-forget-id-command "del %s.\n"
+ af2-forget-new-elim-command "edel elim %s.\n"
+ af2-forget-new-intro-command "edel intro %s.\n"
+ af2-forget-new-rewrite-command "edel rewrite %s.\n"
+ af2-forget-close-def-command "edel closed %s.\n"
  af2-comments-regexp "[ \n\t\r]*\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*"
  af2-ident-regexp "\\(\\([^ \n\t\r=\\[.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)"
  af2-spaces-regexp "[ \n\t\r]*"
@@ -37,6 +41,19 @@ send a compile command to af2 for the theorem which name is under the cursor."
    "\\(Cst\\|def\\|claim\\|Sort\\)"
    af2-comments-regexp
    af2-ident-regexp)
+ af2-new-elim-regexp (concat
+   "new_elim\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
+   af2-ident-regexp)
+ af2-new-intro-regexp (concat
+   "new_intro\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
+   af2-ident-regexp)
+ af2-new-rewrite-regexp (concat
+   "new_rewrite\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
+   af2-ident-regexp)
+ af2-close-def-regexp (concat
+   "close_def"
+   af2-comments-regexp
+   "\\(\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)[. \n\t\r]")
 )
 
 (defun af2-find-and-forget (span)
@@ -51,6 +68,26 @@ send a compile command to af2 for the theorem which name is under the cursor."
        ((eq (span-property span 'type) 'goalsave)
 	(setq ans (concat (format af2-forget-id-command
 				  (span-property span 'name)) ans)))
+
+       ((proof-string-match af2-new-elim-regexp str)
+	(setq ans 
+	      (concat (format af2-forget-new-elim-command 
+				  (match-string 3 str)) ans)))
+
+       ((proof-string-match af2-new-intro-regexp str)
+	(setq ans 
+	      (concat (format af2-forget-new-intro-command 
+				  (match-string 3 str)) ans)))
+
+       ((proof-string-match af2-new-rewrite-regexp str)
+	(setq ans 
+	      (concat (format af2-forget-new-rewrite-command 
+				  (match-string 3 str)) ans)))
+
+       ((proof-string-match af2-close-def-regexp str)
+	(setq ans 
+	      (concat (format af2-forget-close-def-command 
+				  (match-string 4 str)) ans)))
 
        ((proof-string-match af2-sy-definition-regexp str)
 	(setq ans 
@@ -93,4 +130,26 @@ send a delete command to af2 for the symbol whose name is under the cursor."
     (if (char-equal (char-after (- end 1)) ?.)(setq end (- end 1)))
     (af2-delete-symbol (buffer-substring start end))))
 
+;;
+;; Doing commands
+;;
+
+(defun af2-assert-next-command-interactive ()
+  "Process until the end of the next unprocessed command after point.
+If inside a comment, just process until the start of the comment."
+  (interactive)
+  (message "test")
+  (if (or 
+       (and (= (point) (point-max)) (= (char-before (point)) ?.))
+       (and (not (proof-re-search-forward proof-script-command-end-regexp
+					  (point-max) t))
+	    (proof-re-search-forward "\\.\\'" (point-max) t)))
+       (insert "\n"))
+  (proof-with-script-buffer
+   (proof-maybe-save-point
+    (goto-char (proof-queue-or-locked-end))
+    (proof-assert-next-command))
+   (proof-maybe-follow-locked-end)))
+
 (provide 'af2-fun)
+
