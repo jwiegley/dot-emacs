@@ -74,6 +74,9 @@ D Strange problem when running in tty mode: c-c c-RET seems to be
   impossible to type.  Consider binding C-c RET instead when
   running on a console.
 
+D texi-docstring-magic: first time deffn's, etc, are added, whitespace
+  after magic comment is left.
+
 C Tidy up library-loading and dependencies.  (Probably do
   this at the same time as organizing for the XEmacs
   packaging mechanism)
