@@ -218,11 +218,14 @@ We're also pleased to announce HOL Proof General, a new instance of
 Proof General for HOL98.  This is supplied as a "technology
 demonstration" for HOL users in the hope that somebody from the HOL
 community will volunteer to adopt it and become a maintainer and
-developer.  (Otherwise, work on HOL Proof General will not
-continue).
+developer.  (Otherwise, work on HOL Proof General will not continue).
 
 Apart from that there are a few other small improvements.  Check the
 CHANGES file in the distribution for full details.
+
+The HOL98 support and most of the work on Proof General 3.1 was
+undertaken by David Aspinall while he was visiting ETL, Osaka, Japan,
+supported by the British Council and ETL.
 
 
 @node News for 3.0
