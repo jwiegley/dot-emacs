@@ -1395,6 +1395,8 @@ A fixed number of repetitions of this command switches back to
 the same buffer.
 Also move point to the end of the response buffer if it's selected.
 If in three window or multiple frame mode, display two buffers.
+The idea of this function is to change the window->buffer mapping 
+without adjusting window layout.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-prf
@@ -1999,9 +2001,6 @@ We encourage users to set this flag and test the features, but being
 aware that the features may be buggy (problem reports and 
 suggestions for improvements are welcomed).
 
-By default, experimental features are turned on in development
-releases and turned off in stable releases.
-
 The default value is @code{t}.
 @end defopt
 
@@ -2221,8 +2220,7 @@ List of identifiers to use for completion for this proof assistant.@*
 Completion is activated with C-return.
 
 If this table is empty or needs adjusting, please make changes using
-@samp{@code{customize-variable}} and send suggestions to 
-da+pg-support@@inf.ed.ac.uk
+@samp{@code{customize-variable}} and send suggestions to da+pg-support@@inf.ed.ac.uk
 @end defvar
 
 The completion facility uses a library @file{completion.el} which
@@ -2430,16 +2428,24 @@ or the response buffer (@code{*isabelle-response*}).  Proof General
 switches between these last two automatically.  
 
 Proof General allows several ways to customize this default display
-model.
+model, by splitting the Emacs frames in different ways and maximising
+the amount of information shown, or by using multiple frames.
+The customization options are explained below; they are also available 
+on the menu:
+@lisp
+  Proof-General -> Options -> Display
+@end lisp
+and you can save your preferred default. 
+
 
 If your screen is large enough, you may prefer to display all three of
 the interaction buffers at once.  This is useful, for example, to see
 output from the @code{proof-find-theorems} command at the same time as
-the subgoal list.  Set the user option @code{proof-dont-switch-windows} to
+the subgoal list.  Set the user option @code{proof-three-window-enable} to
 make Proof General keep both the goals and response buffer displayed.
 
-@c TEXI DOCSTRING MAGIC: proof-three-window-mode
-@defopt proof-three-window-mode 
+@c TEXI DOCSTRING MAGIC: proof-three-window-enable
+@defopt proof-three-window-enable 
 Whether response and goals buffers have dedicated windows.@*
 If non-nil, Emacs windows displaying messages from the prover will not
 be switchable to display other windows.
@@ -2454,9 +2460,6 @@ Emacs automatically resizing windows between proof steps.
 If you use several frames (the same Emacs in several windows on the
 screen), you can force a frame to stick to showing the goals or
 response buffer.
-
-For single frame use this option may be inconvenient for
-experienced Emacs users.
 
 The default value is @code{nil}.
 @end defopt
@@ -2485,8 +2488,8 @@ If you are working on a machine with a window system, you can use Emacs
 to manage several @i{frames} on the display, to keep the goals buffer
 displayed in a fixed place on your screen and in a certain font, for
 example.  A convenient way to do this is via the user option
-@c TEXI DOCSTRING MAGIC: proof-multiple-frames-enable
 
+@c TEXI DOCSTRING MAGIC: proof-multiple-frames-enable
 @defopt proof-multiple-frames-enable 
 Whether response and goals buffers have separate frames.@*
 If non-nil, Emacs will make separate frames (screen windows) for
@@ -2499,6 +2502,30 @@ Multiple frames work best when @code{proof-delete-empty-windows} is off
 and @code{proof-three-window-mode} is on.
 
 
+Finally, there are two commands available which help to switch between
+buffers or refresh the window layout.  These are on the menu:
+@lisp
+  Proof-General -> Buffers
+@end lisp
+
+@c TEXI DOCSTRING MAGIC: proof-display-some-buffers
+
+@deffn Command proof-display-some-buffers 
+Display the reponse, trace, goals, or shell buffer, rotating.@*
+A fixed number of repetitions of this command switches back to
+the same buffer.
+Also move point to the end of the response buffer if it's selected.
+If in three window or multiple frame mode, display two buffers.
+The idea of this function is to change the window->buffer mapping 
+without adjusting window layout.
+@end deffn
+@c TEXI DOCSTRING MAGIC: proof-layout-windows
+
+
+@deffn Command proof-layout-windows 
+Refresh the display of windows according to current display mode.@*
+This uses a canonical layout.
+@end deffn
 @node User options
 @section User options
 @c Index entries for each option 'concept'
