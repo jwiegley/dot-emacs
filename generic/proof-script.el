@@ -429,8 +429,6 @@ buffers."
 	  ;; FIXME: ponder alternative of trying to complete rest
 	  ;; of current scripting buffer?  Allowing to switch when
 	  ;; a goal has been completed?
-	  ;; FIXME: this test isn't necessary if the current
-	  ;; buffer was already in proof-script-buffer-list.
 	  (or (proof-locked-region-empty-p)
 	      (proof-locked-region-full-p)
 	      (error 
@@ -1461,6 +1459,7 @@ No action if BUF is nil."
      :active (buffer-live-p proof-shell-buffer)])
   "Proof General buffer menu.")
 
+;; FIXME da: could move this elsewhere.  
 (defvar proof-shared-menu
   (append
     (list
@@ -1480,6 +1479,18 @@ No action if BUF is nil."
       proof-shell-exit
       :active (proof-shell-live-buffer)])
     (list proof-help-menu)
+    ;; Would be nicer to put this at the bottom, but it's
+    ;; a bit tricky then to get it in all menus.
+    ;; UGLY COMPATIBILITY  FIXME: remove this soon
+    (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
+	      "--:doubleLine" "----"))
+    (list
+     ["Submit bug report"
+      proof-submit-bug-report
+      :active t])
+    ;; UGLY COMPATIBILITY  FIXME: remove this soon
+    (list (if (string-match "XEmacs 19.1[2-9]" emacs-version)
+	      "--:doubleLine" "----"))
     (list proof-buffer-menu))
   "Proof General menu for various modes.")
 
