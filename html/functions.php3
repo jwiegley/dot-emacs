@@ -152,7 +152,7 @@ function footer($filemodified=".") {
 
 function click_to_go_back() {
   print "<p>\nClick <a href=\"index.phtml\">here</a> to go back to the ";
-  print $project_title;
+  print $project_title; // FIXME: doesn't work.
   print " front page.</p>\n";
 }
 

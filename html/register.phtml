@@ -33,7 +33,7 @@ provide a case for support for Proof General in the future.
 </p>
 <p>
 If you have already registered you do not need to fill in the form
-again, so return to <?php link_root("download","the download page.") ?>
+again, so return to <?php link_root("download#prereq","the download page.") ?>
 </p>
 <?php endif; ?>
 <h2>Registration Form</h2>
@@ -99,6 +99,9 @@ again, so return to <?php link_root("download","the download page.") ?>
    }
    print "</p>\n<p>";
 
+   print "<p>\nClick ";
+   link_root("download#prereq","here");
+   print " to return to the download page.<br></p>\n";
    click_to_go_back();
   
    footer();

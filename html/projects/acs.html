@@ -1,0 +1,36 @@
+<h2>Implementing Atomic Command Sequences</h2>
+<p>
+In Proof General, the blue region of a script buffer contains the
+initial segment of the proof script which has been processed
+successfully. It consists of atomic sequences of commands
+(ACS). Retraction is supported to the beginning of every ACS. By
+default, every command is an ACS. But the granularity of atomicity
+should be able to be adjusted.
+</p>
+<p>
+This adjustment is essential when arbitrary retraction is not
+supported in the prover. Usually, after a theorem has been proved, one
+may only retract to the start of the goal. One needs to mark the proof
+of the theorem as an ACS. At present, support for these goal-save
+sequences has been hard wired. No other ACS are currently
+supported. We need a generalisation to overcome this deficiency.
+</p>
+<p>
+This improvement should allow support for Coq's <i>Section</i> command,
+LEGO's <i>Discharge</i> and simplified support for Isabelle/Isar,
+by removing some of the prover-specific code.
+</p>
+<p>
+<b>References:</b>
+Proof General manual
+(<?php htmlshow("ProofGeneral/doc/ProofGeneral_17.html#SEC119","this section","Proof General Manual") ?>), and proof assistant manuals.</p>
+<p>
+<b>Skills:</b>
+Good Emacs Lisp, understanding of "granularity" problem
+for proof assistant history mechanisms.</p>
+<p>
+<b>Proposer:</b>
+<a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>
+(based on an original idea by Thomas Kleymann).
+</p>
+
