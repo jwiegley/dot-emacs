@@ -221,10 +221,11 @@ See -k option for Isabelle interface script."
 
    ;; FIXME: next one is needed for backward compatibility.  
    ;; Would be nice to remove this somehow else, it's only used for 
-   ;; Isar.  One way would be to hack the (now obsolete) defpacustom calls.
-   ;; 
+   ;; Isar and pre-PGIP.  One way would be to hack the 
+   ;; (now obsolete) defpacustom calls.
    proof-assistant-setting-format       
    (unless isa-supports-pgip 'isar-markup-ml)
+
    proof-shell-init-cmd                 '(proof-assistant-settings-cmd)
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
@@ -234,7 +235,6 @@ See -k option for Isabelle interface script."
    ;; see isar-pre-shell-start for proof-shell-trace-output-regexp
 
    ;; Isabelle is learning to talk PGIP...
-   ;; FIXME: we need to be backwards compatible here
    proof-shell-match-pgip-cmd		"<pgip"
    proof-shell-issue-pgip-cmd		
 	(if isa-supports-pgip 'isabelle-process-pgip nil)
