@@ -134,7 +134,7 @@ tag:
 	@echo "*************************************************"
 	@echo " Tagging sources... (fails if CVS source dirty)"
 	@echo "*************************************************"
-#	if [ -n "`cvs -n -q update`" ]; then exit 1; fi
+	if [ -n "`cvs -n -q update`" ]; then exit 1; fi
 	(cd generic; mv proof-site.el proof-site.el.old; sed -e 's/proof-general-version \".*\"/proof-general-version \"Proof General, Version $(RELEASE_TAG) released by da,tms. Email lego@dcs.ed.ac.uk.\"/g' proof-site.el.old > proof-site.el; rm proof-site.el.old)
 	cvs commit -m"Set version tag for release." generic/proof-site.el
 	cvs tag "Release-$(CVS_RELEASE_TAG)"
