@@ -37,13 +37,15 @@ B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
    * Update menus in texi
   [6 hours]
 
-B Web pages improvements:
+C Web pages improvements:
    - Restructure so that page titles are different to help
    browsing.  (Move links_arr from header.phtml somewhere new,
    and set $pg_title appropriately before head.phtml is included).
    - Add pdf documentation as soon as DCS upgrades its ancient
    TeX installation, or as soon as making release from elsewhere
    works.  Also need to fix inclusion of image in pdf. 
+
+C Check compilation okay, check on use of eval-and-compile.
 
 A BUGS to investigate:
   - Thomas has a bizarre .emacs file which causes Seg Faults with
