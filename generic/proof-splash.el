@@ -45,45 +45,6 @@ Gif filename depends on colour depth of display."
    (t
     (concat "[ image " name " ]")))))
 
-(defcustom proof-splash-inhibit
-  nil
-  "*Non-nil prevents splash screen display when Proof General is loaded."
-  :type 'boolean
-  :group 'proof-general)
-
-(defcustom proof-splash-extensions nil
-  "*Prover specific extensions of splash screen.
-These are evaluated and appended to proof-splash-contents, which see."
-  :type 'sexp
-  :group 'proof-config)
-  
-  
-(defcustom proof-splash-contents
-  (list
-   nil
-   nil
-   (proof-splash-display-image "text_proof" t)
-   (proof-splash-display-image "text_general" t)
-   nil
-   (proof-splash-display-image "ProofGeneral")
-   nil
-   "Welcome to"
-   (concat proof-assistant " Proof General!")
-   nil)
-  "List defining splash screen displayed when Proof General is started.
-If an element is a string or an image specifier, it is displayed
-centred on the window on its own line.  If it is nil, a new line is
-inserted."
-  :type 'sexp
-  :group 'proof-general-internals)
-
-(defcustom proof-splash-time 1.5
-  "Minimum number of seconds to display splash screen for.
-The splash screen may be displayed for a couple of seconds longer than
-this, depending on how long it takes the machine to initialise proof mode."
-  :type 'number
-  :group 'proof-general-internals)
-
 ;; Would be nice to get rid of this variable, but it's tricky
 ;; to construct a hook function, with a higher order function,
 ;; which can easily remove itself.
@@ -136,7 +97,7 @@ Only do it if proof-splash-display is nil."
 	 (splashbuf (get-buffer-create proof-splash-welcome))
 	 (after-change-functions nil) ; no font-lock, thank you
 	 (splash-contents (append
-			   proof-splash-contents
+			   (eval proof-splash-contents)
 			   (eval proof-splash-extensions)))
 	 s)
       (with-current-buffer splashbuf
