@@ -14,7 +14,7 @@ Summary of Changes for Proof General 2.1
   Patches for Isabelle provided by David von Oheimb.
   (currently incomplete)
 
-* Bug fix for Isabelle theory file mode.
+* Bug fix for templates in Isabelle theory file mode.
 
 * Bug fix for long-lines with funny characters causing
   ^G's in Solaris.
