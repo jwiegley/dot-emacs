@@ -11,7 +11,7 @@
 #
 
 # The relative path works for uninstalled package
-PGHOME=..
+PGHOME=/usr/share/xemacs/site-packages/lisp/ProofGeneral
 
 # Try to find an Emacs executable 
 if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
@@ -25,23 +25,24 @@ fi
 NAME=`basename $0`
 
 HELP="Usage: proofgeneral [OPTION] [FILE]...
-  Launch Emacs Proof General editing the proof script FILE.
+Launches Emacs Proof General, editing the proof script FILE.
 
-  Options:
-    --emacs	        startup Proof General with emacs (GNU Emacs)
-    --xemacs            startup Proof General with xemacs (XEmacs)
-    --emacsbin <EMACS>  startup Proof General with emacs binary <EMACS>
-    -h, --help          show this help and exit
-    -v, --version       output version information and exit
+Options:
+  --emacs	      startup Proof General with emacs (GNU Emacs)
+  --xemacs            startup Proof General with xemacs (XEmacs)
+  --emacsbin <EMACS>  startup Proof General with emacs binary <EMACS>
+  -h, --help          show this help and exit
+  -v, --version       output version information and exit
 
-  Examples:
-    $NAME Example.thy	Load Proof General editing Isar file Example.thy
-    $NAME example.v	Load Proof General editing Coq file Example.v
+Examples:
+  $NAME Example.thy   Load Proof General editing Isar file Example.thy
+  $NAME example.v     Load Proof General editing Coq file Example.v
 
-  Report bugs to <da+pg-bugs@inf.ed.ac.uk>.
-"
+For documentation and latest versions, visit http://proofgeneral.inf.ed.ac.uk.
+Report bugs to <da+pg-bugs@inf.ed.ac.uk>."
+# 
 
-VERSIONBLURB='Written by David Aspinall and others (see http://proofgeneral.inf.ed.ac.uk/AUTHORS).
+VERSIONBLURB='David Aspinall.
 
 Copyright (C) 1998-2004 LFCS, University of Edinburgh, UK.
 This is free software; see the source for copying conditions.'
@@ -50,21 +51,21 @@ This is free software; see the source for copying conditions.'
 while 
   case $1 in 
     -h) 
-	echo "$HELP" >&2
-	exit 1;;
+	echo "$HELP"
+	exit 0;;
     --help)
-	echo "$HELP" >&2
-	exit 1;;
+	echo "$HELP"
+	exit 0;;
     -v) 
 	VERSION=`grep proof-general-version $PGHOME/generic/proof-site.el | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
-	echo "$NAME" "($VERSION)" >&2
-	echo "$VERSIONBLURB" >&2
-	exit 1;;
+	echo "$NAME" "($VERSION)"
+	echo "$VERSIONBLURB"
+	exit 0;;
     --version) 
 	VERSION=`grep proof-general-version $PGHOME/generic/proof-site.el | sed -e 's/.*Version //g' | sed -e 's/\. .*//g'`
-	echo "$NAME" "($VERSION)" >&2
-	echo "$VERSIONBLURB" >&2
-	exit 1;;
+	echo "$NAME" "($VERSION)"
+	echo "$VERSIONBLURB"
+	exit 0;;
     --emacs)
 	EMACS=`which emacs`;;
     --xemacs)
@@ -86,4 +87,4 @@ if [ ! -x "$EMACS" ]; then
 fi
     
 	
-exec $EMACS -l $PGHOME/generic/proof-site.el -f proof-splash-display-screen "$@"
+exec $EMACS -eval "(or (featurep (quote proof-site)) (load \"$PGHOME/generic/proof-site.el\"))" -f proof-splash-display-screen "$@"
