@@ -209,8 +209,8 @@
        ;; da: 3.4 test: do not exclude Lemma: we want goal-command-p to
        ;; succeed for nested goals too now.
        ;; (should we also exclude Definition?)
-       ;; (not (proof-string-match "Lemma.*:=" str))))
-       ))
+       (not (proof-string-match "Lemma.*:=" str))))
+;; ))
 
 ;; TODO : add the stuff to handle the "Correctness" command 
 
@@ -547,7 +547,8 @@ This is specific to coq-mode."
 
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
-	proof-goal-with-hole-regexp coq-goal-with-hole-regexp)
+	proof-goal-with-hole-regexp coq-goal-with-hole-regexp
+	proof-nested-undo-regexp coq-backable-commands-regexp)
   
   (setq	
    proof-indent-close-offset -1
