@@ -20,11 +20,6 @@ To: coq-club@pauillac.inria.fr,
      comp.os.linux.announce
      freshmeat.net
 
-    Bring message about script management in other systems
-    under "Emacs gurus" higher in text for non-theory
-    postings.
-
- 
 tag for comp.lang.ml, comp.lang.functional: 
      
 [Posted here because ML and functional languages generally are
@@ -67,13 +62,13 @@ Proof General includes these features, amongst others:
 
 Summary of changes since 3.0:
 
-. New instantiation for HOL98!  Test release.
+. New instantiation for HOL98!  
 . Minor cosmetic improvements 
 . Bug fixes for Emacs compatibility (FSF, Japanese versions, XEmacs on win32)
 . Fix for infamous Solaris ^G bug
 . Several other bug fixes
 . For full details, see
-  http://www.lfcs.informatics.ed.ac.uk/proofgen/ProofGeneral-3.1/CHANGES
+   http://www.lfcs.ed.ac.uk/proofgen/ProofGeneral-3.1/CHANGES
 
 The user manual contains full details, and is available on-line at: 
 http://www.lfcs.informatics.ed.ac.uk/proofgen/index.phtml?page=doc
@@ -86,5 +81,5 @@ and Emacs 20.2, though).
 Installing Proof General is easy.  Why not give it a try?
 
  - David Aspinall <da@dcs.ed.ac.uk>
-   March 2000.
+   May 2000.
 
