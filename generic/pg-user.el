@@ -683,7 +683,114 @@ last use time, to discourage saving these into the users database."
 	  (insert (proof-shell-strip-special-annotations
 		   proof-shell-last-output))
 	  (comment-region beg (point))))))
-    
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Span manipulation
+;;
+
+(defun pg-copy-span-contents (span)
+  "Copy contents of SPAN to kill ring, sans surrounding whitespace."
+  (copy-region-as-kill 
+   (save-excursion 
+     (goto-char (span-start span))
+     (skip-chars-forward " \t\n")
+     (point))
+   (save-excursion
+     (goto-char (span-end span))
+     (skip-chars-backward " \t\n")
+     (point)))
+  (own-clipboard (car kill-ring)))
+
+;; 3.3: these functions are experimental and slightly buggy.
+;; Could combine using negative num values.
+
+(defun pg-numth-span-higher (span num &optional noerr)
+  (unless (and span (<= (span-end span) (proof-unprocessed-begin)))
+    (unless noerr (error "No processed region under point")))
+  (while (and (> num 0)
+	      (setq prevspan (prev-span span 'type)))
+    (setq num (1- num)))
+  (unless (= num 0)
+    (unless noerr
+      (error "Can't find previous processed region %i." num)))
+  prevspan)
+
+(defun pg-move-span-contents-up (span &optional num)
+  "Move SPAN under point upwards in the buffer, past NUM spans."
+  ;; FIXME: maybe num arg is overkill, should only have 1/
+  (save-excursion
+    (let ((num     (or num 1))
+	  (count   num)
+	  prevspan)
+      ;; Move the control span instead.
+      (set-span-property span 'duplicable 't)
+      (if (and span (span-property span 'controlspan))
+	  (setq span (span-property span 'controlspan)))
+      (setq prevspan (pg-numth-span-higher span num))
+      (set-span-property prevspan 'start-open t)
+      (set-span-property span 'duplicable 't)
+      (let* ((start    (span-start span))
+	     (end      (span-end span))
+	     (contents (buffer-substring start end)))
+	(let ((inhibit-read-only t))
+	  (undo-boundary)
+	  (delete-region start end)
+	  (goto-char (span-start prevspan))
+	  (insert contents)
+	  (undo-boundary))))))
+
+(defun pg-move-region-up (&optional num)
+  "Move the region under point upwards in the buffer, past NUM spans."
+  (interactive "p")
+  (let ((span  (span-at (point) 'type)))
+    (and span (pg-move-span-contents-up span num))))
+
+  
+(defun pg-numth-span-lower (span num &optional noerr)
+  (unless (and span (<= (span-end span) (proof-unprocessed-begin)))
+    (unless noerr (error "No processed region under point")))
+  (while (and (> num 0)
+	      (setq nextspan (next-span span 'type))
+	      (<= (span-end span) (proof-unprocessed-begin)))
+    (setq num (1- num)))
+  (unless (= num 0)
+    (unless noerr
+      (error "Can't find following processed region %i." num)))
+  nextspan)
+
+(defun pg-move-span-contents-down (span &optional num)
+  "Move SPAN downwards in the buffer, past NUM spans."
+  ;; FIXME: maybe num arg is overkill, should only have 1?
+  (save-excursion
+    (let  ((num     (or num 1))
+	  (count   num)
+	  prevspan)
+      ;; Move the control span instead.
+      (set-span-property span 'duplicable 't)
+      (if (and span (span-property span 'controlspan))
+	  (setq span (span-property span 'controlspan)))
+      (setq nextspan (pg-numth-span-lower span num))
+      (set-span-property nextspan 'end-open nil)
+      (set-span-property span 'duplicable 't)
+      (let* ((start    (span-start span))
+	     (end      (span-end span))
+	     (contents (buffer-substring start end)))
+	(let ((inhibit-read-only t))
+	  (undo-boundary)
+	  (delete-region start end)
+	  (goto-char (span-end nextspan))
+	  (insert contents)
+	  (undo-boundary))))))
+      
+(defun pg-move-region-up (&optional num)
+  "Move the region under point upwards in the buffer, past NUM spans."
+  (interactive "p")
+  (let ((span  (span-at (point) 'type)))
+    (and span (pg-move-span-contents-up span num))))
   
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -732,21 +839,18 @@ last use time, to discourage saving these into the users database."
 	  (not (not idiom))))
    (list (vector
 	  "Copy"	(list 'pg-copy-span-contents span) t))
-   (if (featurep 'proof-depends)
+   (if proof-experimental-features
+       (list (vector
+	      "Move up"     (list 'pg-move-span-contents-up span)
+	      (pg-numth-span-higher span 1 'noerr))))
+   (if proof-experimental-features
+       (list (vector
+	      "Move down"   (list 'pg-move-span-contents-down span)
+	      (pg-numth-span-lower span 1 'noerr))))
+   (if (and proof-experimental-features (featurep 'proof-depends))
        (proof-dependency-in-span-context-menu span))))
 
-(defun pg-copy-span-contents (span)
-  "Copy contents of SPAN to kill ring, sans surrounding whitespace."
-  (copy-region-as-kill 
-   (save-excursion 
-     (goto-char (span-start span))
-     (skip-chars-forward " \t\n")
-     (point))
-   (save-excursion
-     (goto-char (span-end span))
-     (skip-chars-backward " \t\n")
-     (point)))
-  (own-clipboard (car kill-ring)))
+
   
 
 
