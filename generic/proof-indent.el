@@ -83,24 +83,27 @@
 
 ;;;###autoload      
 (defun proof-indent-line ()
-  "Indent current line of proof script"
+  "Indent current line of proof script, if indentation enabled."
   (interactive)
-  (if (< (point) (proof-locked-end))
-      (if (< (current-column) (current-indentation))
-	  (skip-chars-forward "\t "))
-    (save-excursion
-      (beginning-of-line)
-      (let* ((state (proof-parse-to-point))
-	     (beg (point))
-	     (indent (cond ((car state) 1)
-			   ((> (nth 1 state) 0) 1)
-			   (t (funcall proof-stack-to-indent (nth 2 state))))))
-	(skip-chars-forward "\t ")
-	(if (not (eq (current-indentation) indent))
-	    (progn (delete-region beg (point))
-		   (indent-to indent)))))
-    (skip-chars-forward "\t ")))
+  (unless (not (proof-ass script-indent))
+    (if (< (point) (proof-locked-end))
+	(if (< (current-column) (current-indentation))
+	    (skip-chars-forward "\t "))
+      (save-excursion
+	(beginning-of-line)
+	(let* ((state (proof-parse-to-point))
+	       (beg (point))
+	       (indent (cond 
+			((car state) 1)
+			((> (nth 1 state) 0) 1)
+			(t (funcall proof-stack-to-indent (nth 2 state))))))
+	  (skip-chars-forward "\t ")
+	  (if (not (eq (current-indentation) indent))
+	      (progn (delete-region beg (point))
+		     (indent-to indent)))))
+      (skip-chars-forward "\t ")))
 
+;;;###autoload      
 (defun proof-indent-region (start end)
   (interactive "r")
   (if (< (point) (proof-locked-end))
