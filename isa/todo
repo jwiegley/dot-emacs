@@ -63,10 +63,8 @@ See also ../todo for generic things to do, priority codes.
   user-saved databases.  (ponder this)
 
 ** X Write perl scripts to generate TAGS file for ML and thy files.
-  (6h, any volunteers?).  
+  (60h, any volunteers?) (hard);
 
 ** X Manage multiple proofs, perhaps by automatically inserting
   push_proof() and pop_proof() commands into the proof script.
-  But would lead to unholy mess for script management!
-
-
+  But would lead to unholy mess for script management! (hard!)
