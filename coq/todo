@@ -28,6 +28,7 @@ See also ../todo for generic things to do, priority codes.
 ** B C-c C-c breaks the coherence with prover state
   (da: can somebody tell me if this is still true? 
    what problem specifically?)
+   Pierre: I never had this problem, it's all I can say
 
 ** B Proof-by-Pointing [2 weeks]
   da: Yves Bertot told me that his CtCoq proof-by-pointing code
@@ -35,8 +36,19 @@ See also ../todo for generic things to do, priority codes.
   We need a Coq hacker to do this.
   Perhaps for new version of Coq.
   da: I have old version of code sent to my by Healf.
+  Pierre: Since the code is to be changed, I suggest that we
+  wait for V7.
 
 ** C Improve X-Symbol support.  Integrate with Coq syntax mechanism somehow?
+  pierre: Yes, the greatest would be to allow users to easily declare
+  new tokens/symbols and add new grammar rules (Coq allows this)
+  including the declared tokens. Indeed when I define the type set,
+  and its element emptyset, and predicate In, I want to be able to say
+  that emptyset and In are new tokens and asociate them with the right
+  symbols. I want to be able of that on the fly (maybe we can use the
+  'File Variables' feature of Emacs). Another thing is that we may ask
+  Coq developers to be unicode compliant or something like that.
+
 
 ** C Retraction in a Section should retract to the beginning of the whole 
   section. See the section "Granularity of
@@ -56,6 +68,9 @@ See also ../todo for generic things to do, priority codes.
 
 ** D Add coq-add-tactic with a tactic name, which adds that tactic to the 
   undoable tactics and to the font-lock. (2h)
+  Pierre: I fixed this I think, by making a non-undoable regexp
+  instead. This solves the problem of tactics that have been defined
+  in another file.
 
 ** D Improve coqtags. It cannot handle lists e.g., with 	
 	Parameter x,y:nat
