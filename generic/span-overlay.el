@@ -64,17 +64,22 @@ elements = S0 S1 S2 .... [tl-seq.el]"
   "Return SPAN's value for property PROPERTY."
   (overlay-get span name))
 
-;; This function is problematical with font-lock turned on.
 (defun span-read-only-hook (overlay after start end &optional len)
-  (error "Region is read-only"))
+  (unless inhibit-read-only
+    (error "Region is read-only")))
 
 (defun span-read-only (span)
   "Set SPAN to be read only."
-  ;; Unfortunately, this function is called on spans which are
-  ;; detached from a buffer, which gives an error here, since
-  ;; text-properties are associated with text in a particular
-  ;; buffer position.  So we use the read only hook instead.
+  ;; This function may be called on spans which are detached from a
+  ;; buffer, which gives an error here, since text-properties are
+  ;; associated with text in a particular buffer position.  So we use
+  ;; our own read only hook.
   ;(add-text-properties (span-start span) (span-end span) '(read-only t)))
+  ;; 30.8.02: tested using overlay-put as below with Emacs 21.2.1, 
+  ;; bit this seems to have no effect when the overlay is added to
+  ;; the buffer.  (Maybe read-only is only a text property, not an 
+  ;; overlay property?).
+  ;; (overlay-put span 'read-only t))
   (set-span-property span 'modification-hooks '(span-read-only-hook))
   (set-span-property span 'insert-in-front-hooks '(span-read-only-hook)))
 
