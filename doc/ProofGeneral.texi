@@ -302,7 +302,7 @@ program.  Why not adapt Proof General to your favourite proof assitant?
 @cindex news
 
 Proof General 2.1 is mainly a bug fix release over 2.0.  There are some
-usability enhancements.  See the CHANGES files for more information.
+usability enhancements.  See the CHANGES file for more information.
 
 Two new instantiations of Proof General are being worked on.
 @emph{Isar}, for the new theory language of Isabelle, and
@@ -475,6 +475,7 @@ commands}, and @ref{Customizing Proof General}.
 
 Proof General comes ready-customised for these proof assistants:
 
+@c FLAG VERSIONS HERE
 @itemize @bullet
 @item 
 @b{LEGO Proof General} for LEGO Version 1.3.1@*
@@ -484,14 +485,14 @@ All features of Proof General are supported.
 For more details @xref{LEGO Proof General}.
 
 @item 
-@b{Coq Proof General} for Coq Version 6.2@*
+@b{Coq Proof General} for Coq Version 6.3@*
 @c written by Healfdene Goguen.
 @c
 All features of Proof General are supported except multiple files.
 For more details @xref{Coq Proof General}.
 
 @item 
-@b{Isabelle Proof General} for Isabelle 98-1@*
+@b{Isabelle Proof General} for Isabelle 99@*
 @c written by David Aspinall.
 All features of Proof General are supported, except for an external tags
 program.  Isabelle Proof General handles theory files as well as ML
@@ -508,6 +509,7 @@ For more details of how to make Proof General work
 with another proof assistant,
 @xref{Adapting Proof General to Other Provers}.
 @end itemize
+
 
 
 @node Prerequisites for this manual
