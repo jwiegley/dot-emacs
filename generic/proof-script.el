@@ -2287,7 +2287,7 @@ This is intended as a value for proof-activate-scripting-hook"
 	     :style toggle
 	     :selected proof-x-symbol-enable]
 	    ["Function menu" function-menu
-	     :active (foundp 'function-menu)]
+	     :active (fboundp 'function-menu)]
 	    "----")
           proof-shared-menu)
   "The menu for the proof assistant.")
