@@ -92,7 +92,7 @@ A span is before PT if it covers the character before PT."
   (extent-at (extent-end-position span) nil prop nil 'after))
 
 (defsubst span-live-p (span)
-    "Return non-nil if SPAN is in a live buffer."
+    "Return non-nil if SPAN is live and in a live buffer."
   (and span
        (extent-live-p span)
        (buffer-live-p (extent-object span))))
