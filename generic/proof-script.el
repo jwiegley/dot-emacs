@@ -337,10 +337,10 @@ If non-nil, point is left where it was."
 If interactive or SWITCH is non-nil, switch to script buffer first."
   (interactive)
   (proof-with-script-buffer
-   (if (and (not (get-window-buffer proof-script-buffer))
+   (if (and (not (get-buffer-window proof-script-buffer))
 	    (or switch (and (interactive-p) proof-script-buffer))
-	    (switch-to-buffer proof-script-buffer)))
-   (goto-char (proof-unprocessed-begin))))
+	    (switch-to-buffer proof-script-buffer))
+       (goto-char (proof-unprocessed-begin)))))
 
 ; NB: think about this because the movement can happen when the user
 ; is typing, not very nice!
@@ -1193,6 +1193,9 @@ the ACS is marked in the current buffer. If CMD does not match any,
   ;; State of scripting may have changed now
   (run-hooks 'proof-state-change-hook)))
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Yet more NEW parsing functions for 3.3
 ;;
@@ -1206,17 +1209,25 @@ Return a list of (type, string, int) tuples (in reverse order).
 Each tuple denotes the command and the position of its final character,
 type is one of 'comment, or 'cmd.
 
-If optional NEXT-COMMAND-END is non-nil, we include the command
-which continues past POS, if any.  (NOT IMPLEMENTED IN THIS VERSION).
+The behaviour around comments is set by
+`proof-script-fly-past-comments', which see.
 
-This version is used when `proof-script-parse-function' is set."
+This version is used when `proof-script-parse-function' is set,
+to the function which parses the script segment by segment."
   (save-excursion
-    (let* ((end	  (1+ pos))
-	   (start (goto-char (proof-queue-or-locked-end)))
-	   (cur   start)
+    (let* ((start (goto-char (proof-queue-or-locked-end)))
+	   (cur   (1- start))
 	   (seg   t)
-	   prevtype realstart segs)
-      (while (and (< cur end) seg)
+	   prevtype realstart cmdseen segs)
+      ;; Keep parsing until:
+      ;;   - we fail to find a segment   (seg = nil)
+      ;;   - we go beyond the stop point (cur >= end)
+      ;;      - unless we're flying past comments, in which case
+      ;;        wait for a command (cmdseen<>nil)
+      (while (and seg 
+		  (or (< cur pos) 
+		      (and proof-script-fly-past-comments
+			   (not cmdseen))))
 	;; Skip whitespace before this element
 	(skip-chars-forward " \t\n")
 	(setq realstart (point))
@@ -1226,6 +1237,7 @@ This version is used when `proof-script-parse-function' is set."
 	   ((eq type 'comment)
 	    (setq seg (list 'comment "" (point))))
 	   ((eq type 'cmd)
+	    (setq cmdseen t)
 	    (setq seg (list 
 		       'cmd 
 		       (buffer-substring realstart (point)) 
@@ -1237,8 +1249,13 @@ This version is used when `proof-script-parse-function' is set."
 	  ;;
 	  (if seg 
 	      (progn
-		;; Add the new segment, coalescing comments
-		(if (and (eq type 'comment)
+		;; Add the new segment, coalescing comments if
+		;; the user likes it that way.  I first made
+		;; coalescing a separate configuration option, but
+		;; it works well used in tandem with the fly-past
+		;; behaviour.
+		(if (and proof-script-fly-past-comments
+			 (eq type 'comment)
 			 (eq prevtype 'comment))
 		    (setq segs (cons seg (cdr segs)))
 		  (setq segs (cons seg segs)))
@@ -1279,26 +1296,48 @@ This version is used when `proof-script-parse-function' is set."
 
 (defun proof-script-generic-parse-cmdstart ()
   "For proof-script-parse-function if proof-script-command-start-regexp is set."
+  ;; This was added for the fine-grained command structure of Isar
+  ;;
+  ;; It's is a lot more involved than the case of just scanning for
+  ;; the command end; we have to find two successive command starts
+  ;; and go backwards from the second.  This coalesces comments
+  ;; following commands with commands themselves, and sends them to
+  ;; the prover (only case where it does).
+  ;;
+  ;; To avoid doing that, we would need to scan also for comments but
+  ;; it would be difficult to distinguish between:
+  ;;   complete command (* that's it *)
+  ;; and
+  ;;   complete (* almost *) command
+  ;;
+  ;; Maybe the second case should be disallowed in command-start regexp case?
+  ;; 
+  ;; Another improvement idea might be to take into account both
+  ;; command starts *and* ends, but let's leave that for another day.
+  ;;
   (if (looking-at proof-comment-start-regexp)
       ;; Find end of comment
       (if (proof-script-generic-parse-find-comment-end) 'comment)
     ;; Handle non-comments: assumed to be commands
-    (if (looking-at proof-command-start-regexp)
+    (if (looking-at proof-script-command-start-regexp)
 	(progn
 	  ;; We've got at least the beginnings of a command, skip past it
 	  (re-search-forward proof-script-command-start-regexp nil t)
 	  (let (foundstart)
 	    ;; Find next command start
-	    (while (and (setq foundstart 
-			      (re-search-forward proof-script-command-start-regexp
-						 nil 'movetolimit))
+	    (while (and (setq 
+			 foundstart 
+			 (and 
+			  (re-search-forward proof-script-command-start-regexp
+					     nil 'movetolimit)
+			  (match-beginning 0)))
 			(buffer-syntactic-context))
 	      ;; inside a string or comment before the next command start
 	      )
 	    (if (not (buffer-syntactic-context))  ; not inside a comment/string
-		(if foundstart		; found a  second command start
+		(if foundstart		             ; found a  second command start
 		    (progn
-		      (goto-char (match-beginning 0)) ; beginning of command start
+		      (goto-char foundstart)          ; beginning of command start
 		      (skip-chars-backward " \t\n")   ; end of previous command
 		      'cmd)
 		  (if (eq (point) (point-max)) ; At the end of the buffer
@@ -1794,7 +1833,7 @@ others)."
 		(not (eq (span-property span 'type) 'goalsave))
 		(or (eq (span-property span 'type) 'comment)
 		    (not (funcall proof-goal-command-p
-				       (span-property span 'cmd)))))
+				  (span-property span 'cmd)))))
       (setq span (prev-span span 'type)))
     span)))
 
@@ -2820,7 +2859,7 @@ assistant."
 
 (defun proof-generic-goal-command-p (str)
   "Is STR a goal?  Decide by matching with proof-goal-command-regexp."
-  (proof-string-match proof-goal-command-regexp str))
+  (proof-string-match-safe proof-goal-command-regexp str))
 
 (defun proof-generic-state-preserving-p (cmd)
   "Is CMD state preserving?  Match on proof-non-undoables-regexp."
@@ -2959,7 +2998,7 @@ finish setup which depends on specific proof assistant configuration."
   ;; Choose parsing mechanism according to different kinds of script syntax.  
   ;; Choice of function depends on configuration setting.
   (unless (fboundp 'proof-segment-up-to)
-    (if (or proof-script-use-new-parsing  
+    (if (or proof-script-use-new-parser
 	    proof-script-sexp-commands)
 	;; 3.3 mechanism here
 	(progn
