@@ -25,6 +25,9 @@ B proof-find-next-terminator doesn't work properly:
 B Add proof-rsh-command and note in documentation about how to
   use widely-advertised "remote shell" feature.  (1hr)
 
+D Add proof-quit-command: some provers may like a quit command to be
+  sent to the shell, not just EOF !  (see proof-stop-shell).
+
 D Multiple files (after basic feature added): handle failures in
   reading ancestors.
 
@@ -218,6 +221,8 @@ C Fixup sources to follow Elisp conventions better.
      Introduce new defconsts.
   3. Check on use of "*" in docstrings.  Should be used for
      variables which are user-level options, only.
+  4. Upper case in docstrings is reserved for the name
+     of a function's arguments, usually.
 
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
