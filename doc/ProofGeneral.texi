@@ -14,16 +14,19 @@
 
 @c 
 @c TODO, priority order
-@c   . finish incomplete sections
 @c   . polish mark-up
 @c   . add more index entries
 @c   . screenshots might be nice (one day)
+@c   . follow conventions:  
+@c         key-binding or key binding ?
 @c   
 
-@c NOTE ON THIS TEXINFO FILE:
+@c
+@c IMPORTANT NOTE ABOUT THIS TEXINFO FILE:
 @c I've tried keep full node lines *out* of this file because Emacs makes a
-@c mess of updating them.  Instead, rely on makeinfo and friends to do
-@c the equivalent job.  For this to work, we must follow each node
+@c mess of updating them and they are a nuisance to do by hand.  
+@c Instead, rely on makeinfo and friends to do the equivalent job.  
+@c For this to work, we must follow each node
 @c immediately with a section command, i.e.:
 @c
 @c  @node node-name
@@ -342,7 +345,7 @@ The proof assistant's shell is normally hidden from the user.
 Communication takes place via two or three buffers.  The @dfn{script
 buffer} holds input, the commands to construct a proof.  The @dfn{goals
 buffer} displays the current list of subgoals to be solved.  The
-@dfn{response buffer} displays other output from the proof assistants.
+@dfn{response buffer} displays other output from the proof assistant.
 This means that the user only sees the output from the most recent proof
 step, rather than a screen full of output from the proof assistant.
 @c Optionally, the goals buffer and script buffer can be identified.
@@ -1343,10 +1346,10 @@ outline mode.
 @section Support for tags
 @cindex tags
 
-A "tags table" is a description of how a multi-file program is broken up
-into files.  It lists the names of the component files and the names and
-positions of the functions (or other named subunits) in each file.
-Grouping the related files makes it possible to search or replace
+An Emacs "tags table" is a description of how a multi-file system is
+broken up into files.  It lists the names of the component files and the
+names and positions of the functions (or other named subunits) in each
+file.  Grouping the related files makes it possible to search or replace
 through all the files with one command.  Recording the function names
 and positions makes possible the @kbd{M-.} command which finds the
 definition of a function by looking up which of the files it is in.
@@ -1364,8 +1367,8 @@ General script buffers, put this code in your @file{.emacs} file:
 (add-hook 'proof-mode-hook
   (lambda () (local-set-key '(meta tab) 'tag-complete-symbol)))
 @end lisp
-(Since this key binding interfers with a default binding that users may
-already have customized, Proof General doesn't do this automatically).
+Since this key binding interfers with a default binding that users may
+already have customized, Proof General doesn't do this automatically.
 
 For more information on how to use tags, @inforef{Tags, ,(xemacs)}.
 
@@ -1379,7 +1382,9 @@ For more information on how to use tags, @inforef{Tags, ,(xemacs)}.
 There are two kinds of customization for Proof General: it can be
 customized for a user's preferences using a particular proof assistant,
 or it can be customized by an Emacs expert to add a new proof assistant.
-Here we cover the user-level customization for Proof General.
+Here we cover the user-level customization for Proof General,
+@xref{Adapting Proof General to New Provers} for how to configure
+for a new proof assisstant.
 
 We only consider settings for Proof General itself.  The support for a
 particular proof assistant can provide extra customization settings.
@@ -1399,12 +1404,11 @@ See the chapters covering each assistant for details.
 @cindex Using Customize
 @cindex Emacs customization library 
 
-Proof General uses the Emacs customization library extensively to
-provide a friendly interface.
+Proof General uses the Emacs customization library to provide a friendly
+interface.
 
-You can access a menu of the customization settings for Proof General
-via the menu:
-
+You can access the customization settings for Proof General via the
+menu:
 @lisp
    Options -> Customize -> Emacs -> External -> Proof General
 @end lisp
@@ -1419,10 +1423,9 @@ and type @kbd{proof-general RET}.
 
 The complete set of customization settings will only be availabe after
 Proof General has been fully loaded.  Proof General is fully loaded when
-you visit a script file for the first time.
-
-When visiting a script file, there is a more direct route to the
-settings:
+you visit a script file for the first time.@footnote{or if you type
+@kbd{M-x load-library RET proof RET}.}  When visiting a script file,
+there is a more direct route to the settings:
 @lisp
    Proof-General -> Customize
 @end lisp
@@ -1436,11 +1439,13 @@ edited it, you can use the special buttons @var{set}, @var{save} and
 effect.  The @var{save} button stores the setting in your @file{.emacs}
 file.
 
-Notice that in the customize menus, variable names mentioned later may
-be abbreviated by omitting the "@code{proof}-" prefix.  Also, some of
-the option settings may have more descriptive names (for example,
-@var{on} and @var{off}) than the low-level lisp values (non-@code{nil},
-@code{nil}) which are mentioned in this chapter.
+Notice that in the customize menus, the variable names mentioned later
+in this chapter may have been abbreviated (without the "@code{proof}-"
+or similar prefixes).  Also, some of the option settings may have more
+descriptive names (for example, @var{on} and @var{off}) than the
+low-level lisp values (non-@code{nil}, @code{nil}) which are mentioned
+in this chapter.  These features make customize much more friendly than
+raw lisp.
 
 For more help, see @inforef{Easy Customization, ,xemacs}.
 
@@ -1458,7 +1463,13 @@ If you are working on a workstation with a window system, you can use
 Emacs to manage several @i{frames} on the display, to keep the goals
 buffer displayed in a fixed place on your screen and in a certain font,
 for example.  A convenient way to do this is via
-@code{special-display-regexps}.
+@code{special-display-regexps}, for example:
+
+@lisp
+(setq special-display-regexps
+        (cons "\\*Inferior.*-\\(goals\\|response\\)\\*"
+         special-display-regexps))
+@end lisp
 
 
 @c TEXI DOCSTRING MAGIC: proof-auto-delete-windows
@@ -1947,7 +1958,7 @@ the other file replaces the one in the current window.
 @section Isabelle customizations
 
 Here are some of the user options specific to Isabelle.  You can set
-these with the customization mechanism as usual.
+these as usual with the customization mechanism.
 
 @c TEXI DOCSTRING MAGIC: isabelle-web-page
 @defvar isabelle-web-page 
@@ -3087,8 +3098,9 @@ This simply kills the @code{proof-shell-buffer} relying on the hook function
 @c TEXI DOCSTRING MAGIC: proof-shell-bail-out
 @defun proof-shell-bail-out process event
 Value for the process sentinel for the proof assistant process.
-If the proof assistant dies, kill the shell buffer,
-ensuring that script buffers are cleaned up neatly.
+If the proof assistant dies, run @code{proof-shell-kill-function} to
+cleanup and remove the associated buffers.  The shell buffer is
+left around so the user may discover what killed the process.
 @end defun
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
@@ -3501,7 +3513,7 @@ let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 @node Bugs at the generic level
 @section Bugs at the generic level
 
-@unnumberedsubsec Undo in XEmacs
+@subsection Undo in XEmacs
 
 When @code{proof-strict-read-only} is non-nil, ordinary undo in script
 buffer can edit the "uneditable region" in XEmacs.  This doesn't happen
@@ -3511,7 +3523,7 @@ nonsense text appears in locked region.
 
 @strong{Workaround:} be careful with undo.
 
-@unnumberedsubsec Font locking and read-only in FSF Emacs
+@subsection Font locking and read-only in FSF Emacs
 
 When @code{proof-strict-read-only} is set and font lock is switched on,
 spurious "Region read only" errors are given which break font lock.
@@ -3520,7 +3532,7 @@ spurious "Region read only" errors are given which break font lock.
 or for the best of all possible worlds, switch to XEmacs.
 
 
-@unnumberedsubsec  Pressing keyboard quit @kbd{C-g}
+@subsection  Pressing keyboard quit @kbd{C-g}
 
 Using @kbd{C-g} can leave script management in a mess.  The code is not
 properly protected from Emacs interrupts.
@@ -3529,15 +3541,15 @@ properly protected from Emacs interrupts.
 processing.  If you do, use @code{proof-restart-scripting} to restart
 the system.
 
-@unnumberedsubsec One prover at a time
+@subsection One prover at a time
 You can't use more than one proof assistant at a time in the same Emacs
 session.  Attempting to load Proof General for a second prover will
 fail, leaving a buffer in fundamental mode instead of the Proof General
 mode for proof scripts.
 
 @strong{Workaround:} stick to one prover per Emacs session, make sure
-that the proof-assistants variables only enables Proof General for the
-provers you need.
+that the @code{proof-assistants} variable only enables Proof General
+for the provers you need.
 
 
 @node Bugs specific to LEGO Proof General
@@ -3566,23 +3578,23 @@ which is discharged.
 
 Getting retracting right is tricky when working on proofs. 
 
-@unnumberedsubsec Definitions in a proof state 
+@subsection Definitions in a proof state 
 A thorny issues are local
 definitions in a proof state. LEGO cannot undo them explicitly.
 
 @strong{Workaround:} retract back to a command before a definition.
 
-@unnumberedsubsec Normalisation in proofs
+@subsection Normalisation in proofs
 Normalisation commands such as @samp{Dnf}, @samp{Hnf} @samp{Normal}
 cannot be undone in a proof state by Proof General.
 
 @strong{Workaround:} retract back to the start of the proof.
 
-@unnumberedsubsec Not saving proofs. 
-After LEGO has issued a @samp{***
-QED ***} you may undo steps in the proof as long as you don't issue a
-@samp{Save} command or start a new proof. The LEGO Proof General assumes
-that all proofs are terminated with a proper @samp{Save} command.
+@subsection Not saving proofs. 
+After LEGO has issued a @samp{*** QED ***} you may undo steps in the
+proof as long as you don't issue a @samp{Save} command or start a new
+proof. LEGO Proof General assumes that all proofs are terminated with a
+proper @samp{Save} command.
 
 @strong{Workaround:} Always issue a @samp{Save} command after completing
 a proof. If you forget one, you should retract to a point before the
@@ -3591,21 +3603,36 @@ offending proof development.
 @node Bugs specific to Coq Proof General
 @section Bugs specific to Coq Proof General
 
-@unnumberedsubsec Hard-wired tactics
+@subsection Hard-wired tactics
 
 The collection of tactics which Proof General is aware of is hard-wired.
 Thus, user-defined tactics cannot be retracted.
 
 @strong{Workaround:} You may need to retract to the start of the proof.
 
-@unnumberedsubsec Sections
+@subsection Sections
 
 The Coq Proof General does not know about Coq's section mechansim.
 
+@c 
+@c Isabelle Bugs
+@c
 @node Bugs specific to Isabelle Proof General
 @section Bugs specific to Isabelle Proof General
 
-@unnumberedsubsec Indentation
+Here are some bugs and problems specific to Isabelle Proof General.
+
+@subsection Clash with @code{sml-mode}
+
+Since Isabelle proof scripts are not differentiated from @file{.ML}
+files, Proof General may compete with @code{sml-mode} (if you use it)
+for controlling these buffers.  To ensure Proof General wins, load it
+last.
+
+@strong{Workaround:} use another extension for real ML files, e.g.
+@code{.sml}, and disable @code{.ML} from entering @code{sml-mode}.
+
+@subsection Indentation
 
 Isabelle Proof General doesn't support Proof General's indentation
 code to indent proof scripts.  In any case, Proof General's
@@ -3613,7 +3640,9 @@ indentation code is somewhat broken.
 
 @strong{Workaround:} indent your script by hand.
 
-@unnumberedsubsec Scripting lanugage limitations
+
+
+@subsection Scripting lanugage limitations
 
 Since Isabelle uses ML as a top-level language for writing
 proof-scripts, Proof General may have difficulty understanding scripts
@@ -3627,7 +3656,7 @@ of the @code{goal} or @code{qed} forms.
 functions, or customize some of the variables from @file{isa.el} and
 @file{isa-syntax.el} appropriately.
 
-@unnumberedsubsec Interaction with theory database
+@subsection Interaction with theory database
 
 Isabelle Proof General has a fragment written in ML which defines a
 modified interface to the theory database.  In particular, some internal
