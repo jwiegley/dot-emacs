@@ -53,15 +53,22 @@
     ;; Odd hack: because ' is a word constituent in text/texinfo
     ;; mode, putting this first enables the recognition of args
     ;; and symbols put inside quotes.
-    ("`\\([^']+\\)'"
+    ("\\(`\\([^']+\\)'\\)"
      t
-     (concat "@samp{" (match-string 1 docstring) "}"))
-    ;; 3. Upper cased words ARG corresponding to arguments become @var{arg}
-    ("\\([A-Z0-9\\-]+\\)\\(\\s-\\|\\s.\\|$\\)"
-     (member (downcase (match-string 1 docstring)) args)
+     (concat "@samp{" (match-string 2 docstring) "}"))
+    ;; 3. Words *emphasized* are made @strong{emphasized}
+    ("\\(\\*\\(\\w+\\)\\*\\)"
+     t
+     (concat "@strong{" (match-string 2 docstring) "}"))
+    ;; 4. Upper cased words ARG corresponding to arguments become @var{arg}
+    ;; In fact, include any word so long as it is more than 3 characters
+    ;; long.
+    ("\\([A-Z0-9\\-]+\\)\\(\)\\|\\s-\\|\\s.\\|$\\)"
+     (or (> (length (match-string 1 docstring)) 3)
+	 (member (downcase (match-string 1 docstring)) args))
      (concat "@var{" (downcase (match-string 1 docstring)) "}"
 	     (match-string 2 docstring)))
-    ;; 4. Words sym which are symbols become @code{sym}.
+    ;; 6. Words sym which are symbols become @code{sym}.
     ;; Must have at least one hyphen to be recognized,
     ;; terminated in whitespace, end of line, or punctuation.
     ;; (Only consider symbols made from word constituents
@@ -71,14 +78,14 @@
 	 (fboundp (intern (match-string 2 docstring))))
      (concat "@code{" (match-string 2 docstring) "}"
 	     (match-string 4 docstring)))
-    ;; 5. Words 'sym which are lisp quoted are
+    ;; 7. Words 'sym which are lisp quoted are
     ;; marked with @code.
     ("\\(\\(\\s-\\|^\\)'\\(\\(\\w\\|\\-\\)+\\)\\)\\(\\s\)\\|\\s-\\|\\s.\\|$\\)"
      t
      (concat (match-string 2 docstring)
 	     "@code{" (match-string 3 docstring) "}"
 	     (match-string 5 docstring)))
-    ;; 6,7. Clean up for @lisp environments left with spurious newlines
+    ;; 8,9. Clean up for @lisp environments left with spurious newlines
     ;; after 1.
     ("\\(\\(^\\s-*$\\)\n@lisp\\)" t "@lisp")
     ("\\(\\(^\\s-*$\\)\n@end lisp\\)" t "@end lisp"))
