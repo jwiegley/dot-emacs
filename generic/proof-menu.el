@@ -268,11 +268,12 @@ If in three window or multiple frame mode, display both buffers."
   "Proof General menu for various modes.")
 
 (defconst proof-config-menu
-  (list 
-   "----"
-   (customize-menu-create 'proof-general)
-   (customize-menu-create 'proof-general-internals 
-			  "Internals"))
+  ;; FIXME: customize-menu-create seems to break in Emacs 21.
+  (unless proof-running-on-Emacs21
+    (list "----"
+	  (customize-menu-create 'proof-general)
+	  (customize-menu-create 'proof-general-internals)))
+   ;;"Internals"))
   "Proof General configuration menu.")
 
 (defvar proof-bug-report-menu
