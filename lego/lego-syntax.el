@@ -35,7 +35,7 @@
 (defconst lego-tacticals '("Then" "Else" "Try" "Repeat" "For"))
 
 ;; ----- regular expressions for font-lock
-(defconst lego-error-regexp "^\\(Error\\|Lego parser\\)"
+(defconst lego-error-regexp "^\\(cannot assume\\|Error\\|Lego parser\\)"
   "A regular expression indicating that the LEGO process has identified an error.") 
 
 (defvar lego-id proof-id)
