@@ -467,20 +467,17 @@ Assumes script buffer is current"
 ;;
 ;; Names of proofs (and other elements) in a script
 ;; 
-;; New in PG 3.3
-;;
 ;; Each kind of part ("idiom") in a proof script has its own name space.
 ;; Visibility within a script is then handled with buffer-invisibility-spec
 ;; controlling appearance of each idiom.
 ;;
-;; TODO:
-;;   -- Use fine-scale and large scale control, after all?
-;;   -- Deleting spans must remove their entries in pg-script-portions !!
-;;   -- Names should be made unique somehow.
 
-;; FIXME: this should be a configuration variable
 (defvar pg-idioms '(proof)
   "Vector of script element kinds PG is aware of for this prover.")
+
+(defvar pg-visibility-specs nil
+  "Cache of visibility spec symbols used by PG.")
+
 
 (deflocal pg-script-portions nil
   "Table of lists of symbols naming script portions which have been processed so far.")
@@ -555,7 +552,8 @@ NAME does not need to be unique."
   (pg-remove-script-element ns idsym)
   ;; We could leave the visibility note, but that may
   ;; be counterintuitive, so lets remove it.
-  (pg-make-element-visible (symbol-name ns) (symbol-name idsym)))
+  (pg-make-element-visible (symbol-name ns) (symbol-name idsym))
+  (pg-redisplay-for-gnuemacs))
 
 (defun pg-make-element-invisible (idiom id)
   "Make element ID of type IDIOM invisible, with ellipsis."
@@ -563,14 +561,24 @@ NAME does not need to be unique."
 	       (cons (pg-visname idiom id) t)))
 
 (defun pg-make-element-visible (idiom id)
+  "Make element ID of type IDIOM visible."
   (setq buffer-invisibility-spec
 	(remassq (pg-visname idiom id) buffer-invisibility-spec)))
 
 (defun pg-toggle-element-visibility (idiom id)
+  "Toggle visibility of script element of type IDIOM, named ID."
   (if (and (listp buffer-invisibility-spec) 
 	   (assq (pg-visname idiom id) buffer-invisibility-spec))
       (pg-make-element-visible idiom id)
-    (pg-make-element-invisible idiom id)))
+    (pg-make-element-invisible idiom id))
+  (pg-redisplay-for-gnuemacs))
+
+(defun pg-redisplay-for-gnuemacs ()
+  "GNU Emacs requires redisplay for changes in buffer-invisibility-spec."
+  (if proof-running-on-Emacs21
+      ;; GNU Emacs requires redisplay here to see result
+      ;; (sit-for 0) not enough
+      (redraw-frame (selected-frame))))
 
 (defun pg-show-all-portions (idiom &optional hide)
   "Show or hide all portions of kind IDIOM"
@@ -587,10 +595,7 @@ NAME does not need to be unique."
 		     (lambda (arg) (pg-make-element-visible idiom 
 							    (symbol-name arg))))))
     (mapcar alterfn elts))
-  (unless proof-running-on-XEmacs
-    ;; GNU Emacs requires redisplay here to see result
-    ;; (sit-for 0) not enough
-    (redraw-frame (selected-frame))))
+  (pg-redisplay-for-gnuemacs))
 
 ;; Next two could be in pg-user.el.  No key-bindings for these.
 (defun pg-show-all-proofs ()
@@ -1615,7 +1620,9 @@ to the function which parses the script segment by segment."
   ;; the command end; we have to find two successive command starts
   ;; and go backwards from the second.  This coalesces comments
   ;; following commands with commands themselves, and sends them to
-  ;; the prover (only case where it does).
+  ;; the prover (only case where it does).  It's needed particularly
+  ;; for Isar's text command (text {* foo *}) so we can define the
+  ;; buffer syntax for text as a comment.
   ;;
   ;; To avoid doing that, we would need to scan also for comments but
   ;; it would be difficult to distinguish between:
@@ -1628,6 +1635,8 @@ to the function which parses the script segment by segment."
   ;; Another improvement idea might be to take into account both
   ;; command starts *and* ends, but let's leave that for another day.
   ;;
+  ;; NB: proof-script-comment-start-regexp doesn't need to be the same
+  ;; as (reqexp-quote comment-start).
   (if (looking-at proof-script-comment-start-regexp)
       ;; Find end of comment
       (if (proof-script-generic-parse-find-comment-end) 'comment)
@@ -1635,7 +1644,8 @@ to the function which parses the script segment by segment."
     (if (looking-at proof-script-command-start-regexp)
 	(progn
 	  ;; We've got at least the beginnings of a command, skip past it
-	  (re-search-forward proof-script-command-start-regexp nil t)
+	  ;(re-search-forward proof-script-command-start-regexp nil t)
+	  (goto-char (match-end 0))
 	  (let (foundstart)
 	    ;; Find next command start
 	    (while (and (setq 
@@ -2684,7 +2694,7 @@ finish setup which depends on specific proof assistant configuration."
 		  (if proof-terminal-char
 		      (regexp-quote (char-to-string proof-terminal-char))
 		    "$")))))
-      ;; Configuration for using new parsing (3.3 and later)
+      ;; Configuration for using new parsing (3.3 and later; default in 3.5)
       (progn
 	(defalias 'proof-segment-up-to 'proof-segment-up-to-parser)
 	(cond
