@@ -41,9 +41,9 @@
 ;; Master table of supported assistants.  
 (defcustom proof-assistant-table
   '(;; For demonstration instance of Proof General,
-    ;; set PROOFGENERAL_ASSISANTS=demoisa. 
+    ;; export PROOFGENERAL_ASSISTANTS=demoisa. 
     ;; To use Isabelle/Isar instead of classic Isabelle,
-    ;; set PROOFGENERAL_ASSISANTS=isar
+    ;; export PROOFGENERAL_ASSISTANTS=isar
     (demoisa    "Isabelle Demo"	"\\.ML$")
     (isar       "Isabelle/Isar" "\\.thy$")
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
