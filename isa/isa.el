@@ -168,10 +168,9 @@ and script mode."
    ;; on Windows.
    proof-shell-filename-escapes		
    (if (fboundp 'win32-long-file-name)	; rough test for XEmacs on win32 
-       ;; Patterns to unixfy names.
-       ;; Jacques Fleuriot's patch in ML does this too: ("^[a-zA-Z]:" . "") 
-       ;; But I'll risk leaving drive names in, not sure how to replace them.
-       '(("\\\\" . "/") ("\"" . "\\\""))
+       ;; Patterns to unixfy names.  Avoids a deliberate bomb in Isabelle which
+       ;; barfs at paths with these characters in them.
+       '(("\\\\" . "/") ("\"" . "\\\"") ("^[a-zA-Z]:" . ""))
      ;; Normal case: quotation for backslash, quote mark.
      '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
