@@ -231,6 +231,8 @@ perlscripts:
 	 done; \
 	 rm -f .tmp)
 
+# FIXME: this next edit is really for install case, shouldn't be made
+# just when user types 'make'
 pgscripts:
 	@(pghome=${DEST_ELISP}; \
 	 for i in $(PG_SCRIPTS); do \
