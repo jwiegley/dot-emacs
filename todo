@@ -28,14 +28,6 @@ A Implement more generic mechanism for large undos (2h)
 B Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min tms)
 
-B Find out why a <tab> that doesn't appear to modify the buffer 
-  sets the modify flag in the mode-line.
-	(for example, with:
-		Inductive X : Set :=
-		    x_i : X.
-	 in Coq).
-  (20min hhg)
-
 B Technical documentation to record expertise and allow users of other
   proof systems to adopt generic package (40h hhg & tms)
 
@@ -107,17 +99,18 @@ A Lifted nested lemmas respond incorrectly to C-c u: Coq gets sent the
   undoes to the upper lemma.  I.e., if I start Lemma x, then prove
   Lemma y, then finish x, and undo lemma x, then lemma y gets undone
   in the buffer as well. (45min hhg)
+  [ This seems to have corrected itself... hhg ]
 
 B Proof-by-Pointing (10h hhg)
 
 * Emacs19
 =========
 
-B Update proof-locked-span so that it detaches the read-only span like 
-  what we do in xemacs code (to avoid not being able to type at the
-  first character in the buffer if you Undo to that point).
-    (1h hhg)
+A proof-lift-global doesn't work correctly.  This seems to relate to
+  the behavior of delete-region and insert with respect to overlays:
+  inserting at the beginning of an overlay in emacs19 may extend 
+  that overlay, whereas in xemacs it doesn't. (2hr hhg)
 
-B Commands that use overlapping spans or that delete spans don't work
-  (for example: finishing a proof by Save; Undo).
-    (5h hhg)
+B The proof-locked-span isn't set to read-only, because overlays don't 
+  have that capability.  This needs to be done with text-regions.
+  (2hr hhg)
