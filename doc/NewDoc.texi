@@ -731,7 +731,8 @@ be switchable to display other windows.  This helps manage your display,
 but can sometimes be inconvenient, especially for experienced Emacs
 users.
 @end defopt
-
+@c FIXME needs to mention that without dedicated windows, buffers may be 
+@c hidden. Refer to the XEmacs manual on customising buffer display.
 
 @node Running on another machine
 @section Running on another machine
