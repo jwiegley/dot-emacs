@@ -503,8 +503,11 @@ This is specific to coq-mode."
   
   (setq proof-auto-multiple-files t)	; until Coq has real support
 
-  (setq proof-shell-start-silent-cmd "Begin Silent."
-	proof-shell-stop-silent-cmd  "End Silent.")
+  ;;Coq V7 changes this 
+  (setq proof-shell-start-silent-cmd (if coq-version-is-V7 "Set Silent."   "Begin Silent.")
+	proof-shell-stop-silent-cmd  (if coq-version-is-V7 "Unset Silent." "End Silent."))
+;  (setq proof-shell-start-silent-cmd "Begin Silent."
+;	proof-shell-stop-silent-cmd  "End Silent.")
 
   (coq-init-syntax-table)
 
