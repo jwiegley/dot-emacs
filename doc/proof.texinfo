@@ -442,7 +442,7 @@ called myass.
 @item Make a directory myass to put the specific customization and associated files in,
   called myass
 @item Edit proof-site.el to add a new case to the 'proof-assistant' variable.
-@end
+@end itemize
 
 
 
