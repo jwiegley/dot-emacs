@@ -133,7 +133,21 @@ and script mode."
    proof-shell-inform-file-processed-cmd 
    "ProofGeneral.inform_file_processed \"%s\";"
    proof-shell-inform-file-retracted-cmd 
-   "ProofGeneral.inform_file_retracted \"%s\";"))
+   "ProofGeneral.inform_file_retracted \"%s\";"
+
+   ;; Parsing error messages.  Bit tricky to allow for
+   ;; multitude of possible error formats Isabelle spits out.
+   ;; Ideally we shouldn't bother parsing errors that appear
+   ;; in the temporary ML files generated while reading
+   ;; theories, but unfortunately the user sometimes needs to 
+   ;; examine them to understand a strange problem...
+   proof-shell-next-error-regexp
+   "\\(error on \\|Error: in '[^']+', \\)line \\([0-9]+\\)\\|The error(s) above occurred"
+   proof-shell-next-error-filename-regexp
+   "\\(Loading theory \"\\|Error: in '\\)\\([^\"']+\\)[\"']"
+   proof-shell-next-error-extract-filename
+   "%s.thy"))
+  
 
 
 (defun isa-shell-mode-config-set-variables ()
@@ -185,7 +199,7 @@ and script mode."
    proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
    proof-shell-init-cmd                 (concat 
 					 (proof-assistant-settings-cmd)
- "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0);")
+ "val pg_saved_gl = ref (!goals_limit); val pg_saved_ts = ref (!trace_simp); fun proofgeneral_enable_pr () = (goals_limit:= !pg_saved_gl; trace_simp:= !pg_saved_ts); fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0; trace_simp:=false);")
    ; FIXME improved version for Isabelle99-1:
    ;proof-shell-init-cmd		 (proof-assistant-settings-cmd)
 
