@@ -167,7 +167,8 @@ install-elisp: install-el install-elc
 # i.e. images, x-symbol.  FIXME: we could put these elsewhere, but
 # then we would need to adjust paths in proof-site.el.
 # FIXME 2: should deal with x-symbol properly and avoid duplication
-# with images
+# with images, and also to avoid including .elc and .el files in
+# x-symbol subdirectory.
 install-el:
 	mkdir -p ${ELISP}
 	for f in ${ELISP_DIRS} ${EXTRA_DIRS}; do mkdir -p ${ELISP}/$$f; done
