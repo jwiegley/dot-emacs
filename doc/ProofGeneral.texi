@@ -1408,9 +1408,9 @@ Retract the current buffer, and maybe move point to the start.
 
 @c TEXI DOCSTRING MAGIC: proof-electric-terminator-toggle
 @deffn Command proof-electric-terminator-toggle arg
-Toggle @code{proof-electric-terminator-enable}. With @var{arg}, turn on iff ARG>0.@*
+Toggle @samp{@code{proof-electric-terminator-enable}}. With @var{arg}, turn on iff ARG>0.@*
 This function simply uses @code{customize-set-variable} to set the variable.
-It was constructed with the macro @code{proof-customize-toggle}.
+It was constructed with @samp{proof-customize-toggle-fn}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-assert-until-point-interactive
@@ -1500,14 +1500,16 @@ handling of interrupt signals.
 Prompt for a command in the minibuffer and send it to proof assistant.@*
 The command isn't added to the locked region.
 
-If @samp{@code{proof-state-preserving-p}} is configured, it is used as a check
-that the command will be safe to execute, in other words, that
-it won't ruin synchronization.  If when applied to the command it 
-returns false, then an error message is given.  
+If @samp{@code{proof-strict-state-preserving}} is set, and @samp{@code{proof-state-preserving-p}} 
+is configured, then the latter is used as a check that the command
+will be safe to execute, in other words, that it won't ruin
+synchronization.  If when applied to the command it returns false,
+then an error message is given.
 
-This command risks spoiling synchronization if the test
-@samp{@code{proof-state-preserving-p}} is not configured, or if it is
-only an approximate test.
+@var{warning}: this command risks spoiling synchronization if the test
+@samp{@code{proof-state-preserving-p}} is not configured, if it is
+only an approximate test, or if @samp{@code{proof-strict-state-preserving}}
+is off (nil).
 @end deffn
 
 As if the last two commands weren't risky enough, there's also a command
@@ -2614,9 +2616,13 @@ The default value is @code{nil}.
 @defopt proof-follow-mode 
 Choice of how point moves with script processing commands.@*
 One of the symbols: @code{'locked}, @code{'follow}, @code{'ignore}.
+
 If @code{'locked}, point sticks to the end of the locked region.
 If @code{'follow}, point moves just when needed to display the locked region end.
-If @code{'ignore}, point is never moved after movement commands.
+If @code{'ignore}, point is never moved after movement commands or on errors.
+
+If you choose @code{'ignore}, you can find the end of the locked using
+@samp{M-x @code{proof-goto-end-of-locked}}.
 
 The default value is @code{locked}.
 @end defopt
@@ -2893,13 +2899,6 @@ The default value is @code{"/usr/lib/lego/lib_Type/"}.
 @c TEXI DOCSTRING MAGIC: lego-www-home-page
 @defvar lego-www-home-page 
 Lego home page URL.
-@end defvar
-
-@c TEXI DOCSTRING MAGIC: lego-help-menu-list
-@defvar lego-help-menu-list 
-List of menu items for @var{lego} specific help.
-
-See the documentation of @samp{@code{easy-menu-define}} 
 @end defvar
 
 @c We don't worry about the following for now. These are too obscure.
@@ -3571,11 +3570,10 @@ The first setting controls the proof-assistant specific menu,
 if any is defined.
 
 @c TEXI DOCSTRING MAGIC: proof-assistant-menu-entries
-@defvar proof-assistant-menu-entries 
-Entries for proof assistant specific menu. @*
-A list of menu items [@var{name} @var{callback} ENABLE].  See the documentation
-of @samp{@code{easy-menu-define}} for more details.
-@end defvar
+@defun proof-assistant-menu-entries &optional newval
+Set or get value of menu-entries for current proof assistant.@*
+If @var{newval} is present, set the variable, otherwise return its current value.
+@end defun
 
 The remaining settings control the standard commands available
 from the generic menu and the toolbar.
@@ -4949,8 +4947,8 @@ appear at the start of the customize group @code{proof-user-options}.
 They should be edited by the user through the customization mechanism,
 and set in the code using @code{customize-set-variable}.
 
-In @code{proof.el} there is a handy macro,
-@code{proof-customize-toggle}, which constructs an interactive function
+In @code{proof-utils.el} there is a handy macro,
+@code{proof-deftoggle}, which constructs an interactive function
 for toggling boolean customize settings.  We can use this to make an
 interactive function @code{proof-@var{foo}-toggle} to put on a menu or
 bind to a key, for example.
@@ -4965,13 +4963,15 @@ Set a customize variable using @code{set-default} and a function.@*
 We first call @samp{@code{set-default}} to set @var{sym} to @var{value}.
 Then if there is a function @var{sym} (i.e. with the same name as the
 variable @var{sym}), it is called to take some dynamic action for the new
-setting.
+setting.  This only happens when values @strong{change}: we test whether
+proof-config is fully-loaded yet.
 @end defun
 
-@c TEXI DOCSTRING MAGIC: proof-customize-toggle
-@deffn Macro proof-customize-toggle 
-Make a function for toggling a boolean customize setting VAR.@*
-The toggle function uses @code{customize-set-variable} to change the variable.
+@c TEXI DOCSTRING MAGIC: proof-deftoggle
+@deffn Macro proof-deftoggle 
+Define a function VAR-toggle for toggling a boolean customize setting VAR.@*
+VAR, @var{othername} are not evaluated.  
+The function is defined with @samp{@code{proof-deftoggle-fn}}, which see.
 @end deffn
 @node Global variables
 @section Global variables
@@ -4997,7 +4997,7 @@ The response buffer.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-goals-buffer
 @defvar proof-goals-buffer 
-The goals buffer (also known as the pbp buffer).
+The goals buffer.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-buffer-type
