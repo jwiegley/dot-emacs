@@ -1,6 +1,6 @@
 ;; proof-script.el  Major mode for proof assistant script files.
 ;;
-;; Copyright (C) 1994-2000 LFCS Edinburgh. 
+;; Copyright (C) 1994-2001 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
 ;;          Thomas Kleymann and Dilip Sequeira
 ;;
@@ -1177,7 +1177,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 
 	;; Set the context sensitive menu/keys
-	(set-extent-property gspan 'keymap span-context-menu-keymap)
+	(set-span-property gspan 'keymap span-context-menu-keymap)
 	
 	;; Add to buffer-local list of elements, maybe making invisible
 	(pg-add-proof-element nam gspan)
