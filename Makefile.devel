@@ -299,7 +299,7 @@ dist:
 	@echo "*************************************************"
 	@echo " Copying doc files .."
 	@echo "*************************************************"
-	(cp -pr $(DISTBUILDIR)/$(RELEASENAME)/doc $(DISTBUILDIR))
+	(cp -pdr $(DISTBUILDIR)/$(RELEASENAME)/doc $(DISTBUILDIR))
 	@echo "*************************************************"
 	@echo " Moving html files .."
 	@echo "*************************************************"
