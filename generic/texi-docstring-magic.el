@@ -1,6 +1,6 @@
 ;; texi-docstring-magic.el -- munge internal docstrings into texi
 ;;
-;; Keywords: texi, docstrings
+;; Keywords: lisp, docs, tex
 ;; Author: David Aspinall <da@dcs.ed.ac.uk>
 ;; Copyright (C) 1998 David Aspinall
 ;; Maintainer:  David Aspinall <da@dcs.ed.ac.uk>
@@ -34,6 +34,8 @@
 ;;
 ;;  This will insert @defopt, @deffn and the like underneath the
 ;;  magic comment strings.
+;;  
+;;  The default value for user options will be printed.
 ;;
 ;;  Symbols are recognized if they are defined for faces, functions,
 ;;  or variables (in that order).
