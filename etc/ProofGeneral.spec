@@ -20,21 +20,26 @@ It is supplied ready-customized for LEGO, Coq, and Isabelle.
 You can adapt Proof General to other proof assistants if you know a
 little bit of Emacs Lisp.
 
-To use Proof General, add the line
+To use Proof General, use the command `proofgeneral', which launches
+XEmacs (or Emacs) for you, or add the line:
 
    (load-file "/usr/share/emacs/ProofGeneral/generic/proof-site.el")
 
-to your .emacs file.
+to your .emacs file so Proof General is available whenever 
+you run Emacs.
 
 %changelog
+* Fri Sep 29 2000 David Aspinall <da@dcs.ed.ac.uk> 
+- For 3.2, add more provers (af2, acl2, twelf).  Added proofgeneral script.
+
 * Mon Mar 13 2000 David Aspinall <da@dcs.ed.ac.uk>
-  For 3.1, added hol98 instance and prover-specific README, BUGS files.
+- For 3.1, added hol98 instance.
 
 * Wed Aug 25 1999 David Aspinall <da@dcs.ed.ac.uk>
-  For 2.1 and 2.2pre series: made relocatable, added isar/ to package.
+- For 2.1 and 2.2pre series: made relocatable, added isar/ to package.
 
 * Thu Sep 24 1998 David Aspinall <da@dcs.ed.ac.uk>
-  First version.
+- First version.
 
 %prep
 %setup
@@ -48,7 +53,7 @@ mkdir -p ${RPM_BUILD_ROOT}/usr/share/emacs/ProofGeneral
 
 # Put binaries in proper place
 mkdir -p ${RPM_BUILD_ROOT}/usr/bin
-mv lego/legotags coq/coqtags ${RPM_BUILD_ROOT}/usr/bin
+mv bin/proofgeneral lego/legotags coq/coqtags ${RPM_BUILD_ROOT}/usr/bin
 
 # Put info file in proper place, compress it.
 mkdir -p ${RPM_BUILD_ROOT}/usr/info
@@ -76,11 +81,12 @@ fi
 /sbin/install-info --delete /usr/info/PG-adapting.info.gz /usr/info/dir
 
 %files
-%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/* {coq,lego,isa,isar,hol98}/README */BUGS
+%attr(-,root,root) %doc AUTHORS BUGS CHANGES COPYING INSTALL README README.devel doc/* 
 %attr(-,root,root) /usr/info/ProofGeneral.info.gz
 %attr(-,root,root) /usr/info/ProofGeneral.info-*.gz
 %attr(-,root,root) /usr/info/PG-adapting.info.gz
 %attr(-,root,root) /usr/info/PG-adapting.info-*.gz
+%attr(-,root,root) /usr/bin/proofgeneral
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
@@ -105,6 +111,12 @@ fi
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/af2
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/af2/*.el
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/af2/*.af2
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/acl2
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.el
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/acl2/*.af2
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/twelf
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/twelf/*.el
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/twelf/*.af2
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/images/*
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
