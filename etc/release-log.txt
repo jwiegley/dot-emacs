@@ -1,8 +1,8 @@
-xx.10.00  3.2.1 Release 3-2-1
-          [pending]
+3.9.01    3.3 Release 3-3 based on branch 6.0
+
+--------------------
 	
-02.10.00  3.2   Release 3-2  based on branch 5.0
-	  First version of 3.2 release.
+02.10.00  3.2 Release 3-2  based on branch 5.0
 
 --------------------
 
