@@ -120,37 +120,37 @@ If in three window or multiple frame mode, display both buffers."
 (defun proof-menu-define-specific ()
   (easy-menu-define 
    proof-assistant-menu 
-   proof-mode-map
-   (concat "The menu for " proof-assistant)
-   (cons proof-assistant
-	 (append
-	  (proof-ass menu-entries)
-	  '("----")
-	  (or proof-menu-favourites
-	      (proof-menu-define-favourites-menu))
-	  (or proof-menu-settings
-	      (proof-menu-define-settings-menu))
-	  '("----")
-	  (list
-	   (vector
-	    (concat "Start " proof-assistant)
-	    'proof-shell-start
-	    ':active '(not (proof-shell-live-buffer)))
-	   (vector
-	    (concat "Exit " proof-assistant)
-	    'proof-shell-exit
-	    ':active '(proof-shell-live-buffer)))
-	  '("----")
-	  (list
-	   (cons "Help"
-		 (append 
-		  `(;; FIXME: should only put these two on the
-		    ;; menu if the settings are non-nil.
-		    [,(concat proof-assistant " information")
-		     (proof-help) t]
-		    [,(concat proof-assistant " web page")
-		     (browse-url proof-assistant-home-page) t])
-		  (proof-ass help-menu-entries))))))))
+    proof-mode-map
+    (concat "The menu for " proof-assistant)
+    (cons proof-assistant
+	  (append
+	   (proof-ass menu-entries)
+	   '("----")
+	   (or proof-menu-favourites
+	       (proof-menu-define-favourites-menu))
+	   (or proof-menu-settings
+	       (proof-menu-define-settings-menu))
+	   '("----")
+	   (list
+	    (vector
+	     (concat "Start " proof-assistant)
+	     'proof-shell-start
+	     ':active '(not (proof-shell-live-buffer)))
+	    (vector
+	     (concat "Exit " proof-assistant)
+	     'proof-shell-exit
+	     ':active '(proof-shell-live-buffer)))
+	   '("----")
+	   (list
+	    (cons "Help"
+		  (append 
+		   `(;; FIXME: should only put these two on the
+		     ;; menu if the settings are non-nil.
+		     [,(concat proof-assistant " information")
+		      (proof-help) t]
+		     [,(concat proof-assistant " web page")
+		      (browse-url proof-assistant-home-page) t])
+		   (proof-ass help-menu-entries))))))))
     
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -376,7 +376,7 @@ KEY is added onto proof-assistant map."
       (eval
        `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
   `(defun ,fn ()
-     (concat "Shortcut command to insert " ,string " into the current buffer.")
+     ,(concat "Shortcut command to insert " string " into the current buffer.")
      (interactive)
      (proof-insert ,string)))
 
@@ -389,8 +389,7 @@ KEY is added onto proof-assistant map."
       (eval
        `(define-key (proof-ass keymap) (quote ,key) (quote ,fn))))
   `(defun ,fn ()
-     ;; FIXME: docstring broken! and above.
-     (concat "Command to send " ,string " to the proof assistant.")
+     ,(concat "Command to send " string " to the proof assistant.")
      (interactive)
      (proof-shell-invisible-command ,string)))
 
