@@ -1,3 +1,4 @@
+
 \def\fontdefs{\psfamily{bsf}{r}{c}{b}{b}{ri}{ri}{ro}{bo}\def\mainmagstep{1200}}
 \input texinfo
 @c
@@ -3001,17 +3002,28 @@ below.
 Note that in ``classic'' Isabelle, @file{.thy} files contain definitions
 and declarations for a theory, while @file{.ML} contain proof scripts.
 So most of Proof General's functions only make sense in @file{.ML}
-files, and there is no toolbar and only a short menu for @file{.thy}
-files.  
+files, and there is no toolbar and short menus for @file{.thy} files.
 
-There is no specific documentation here for the Isabelle/Isar instance
-of Proof General.  With Isabelle/Isar, @file{.thy} files contain proofs
-as well as theory definitions, and so they support the toolbar and usual
-scripting functions of Proof General.  To load the Isabelle/Isar
-instance of Proof General, you can set
-@code{PROOFGENERAL_ASSISTANTS=isar} in the shell before starting Emacs,
+In Isabelle/Isar, on the other hand, @file{.thy} files contain
+definitions for theories as well as proof, so scripting takes place
+there and you will see the usual toolbar and scripting functions of
+Proof General.  There is no specific documentation here for the
+Isabelle/Isar instance of Proof General.
+
+Note that it is @b{not} possible to use both Isabelle and Isabelle/Isar
+modes of Proof General at the same time.
+To load the Isabelle/Isar instance of Proof General, you can set
+ @code{PROOFGENERAL_ASSISTANTS=isar} in the shell before starting Emacs,
 to make sure ordinary Isabelle theory file mode isn't loaded instead.
-
+Another way of selecting Isar is to put a special modeline comment in,
+like this:
+@code
+  (* -*- isar -*- *)
+@end code
+at the top of your Isar files (or at least, the first file you visit).
+This Emacs feature overrides the default choice of mode based on the
+file extension.  Yet another way to select Isar is to use the Isabelle
+scripts to start Emacs.
 
 @menu
 * ML files::
