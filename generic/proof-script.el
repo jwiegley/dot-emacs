@@ -2591,7 +2591,7 @@ a generic implementation of this."
   '(proof-terminal-char
     proof-comment-start
     proof-comment-end
-    proof-goal-command-regexp
+    ; proof-goal-command-regexp	  not needed if proof-goal-command-p is set
     proof-save-command-regexp
     proof-goal-with-hole-regexp		; non-essential?
     proof-save-with-hole-regexp		; non-essential?
