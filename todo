@@ -47,19 +47,39 @@ A Pending work, in progress [da]:
 re-enabled), proof-toggle-scripting, new configuration options.
     proof-cd
     - more 3.0 issues: extending the queue region, being more lax
-    about proof-shell-busy.
+    about proof-shell-busy. 
     - Fix sentinel infinite loop bug
     - noticeable delay when loading ML files for Isabelle (fontification?)
+
+A Markus's bug reminder list:
+  - cut&paste from hilited Isabelle output includes invisible specials;
+  - c-c c-c does not work reliably;
+  - c-c c-a is broken;
+
+A bug in response filtering:
+   The response filtering seems to have changed again.  E.g. 'Info' button in
+   PG/isar (without a theory context) omits most of the result (commands,
+   ...).
+
+A Bugs in x-symbol support: 
+   - visiting multiple files sometimes doesn't display them properly
+     (setq x-symbol-8bits nil) needed?
+   - local variables messages about "isa" being unset
+   - response buffer sometimes not decoded (or 8bit prob again).
 
 B Fixing up PBP: things almost work for lego (apart from getting
    pbp wrong!) -- there is a bug with (newline-and-indent) though
    which tries to write into the locked region for some reason.
 
+C Make a generic hook (or hook-constructing macro) to adjust
+  pretty printer line widths, a la LEGO.  Maybe find a better
+  place to do this that in the proof-shell-insert-hook (should
+  be triggered by resize events).
+
 C IDEAS FOR SIMPLIFIED PROVER INSTANTIATION.
   We could make extensive use of defvaralias to automatically
   declare the settings for each proof assistant.  Then the 
   tedious "shadowing" (or copying) is done automatically.  
-  e.g. 
 
 C Improved configurability of command settings, etc.
   We should let command settings, etc, be a special type
