@@ -26,11 +26,10 @@ those you don't need.
 In case of difficulty, please check the documentation in doc/, the
 notes below, the README file for each prover, and the file BUGS.  
 
-If none of these files help, then contact us via the address below.
+If none of these files help, then contact me via the address below.
 
-   Proof General maintainer <da+pg-support@inf.ed.ac.uk>
-   LFCS,
-   Division Of Informatics,
+   David Aspinall <da+pg-support@inf.ed.ac.uk>
+   LFCS, School Of Informatics,
    University of Edinburgh.
    Edinburgh.
    
@@ -38,7 +37,7 @@ If none of these files help, then contact us via the address below.
 
 
 
-----------------------------------------------------------------------
+
 
 Detailed installation Notes for Proof General
 =============================================
@@ -152,7 +151,6 @@ shell script into perhaps sensible places.  Try with "-n" or examine
 the Makefile carefully before use.
 
   
-
 
 Removing support for unwanted provers
 -------------------------------------
