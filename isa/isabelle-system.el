@@ -193,10 +193,12 @@ Called with one argument: t to save database, nil otherwise."
 ;;; ==========  Utility functions ==========
 
 ;; FIXME: a way of updating this list, please?
+;; FIXME 2: why is this quoted in the customize buffer??
+;; (maybe the right thing, but seems odd)
 (defcustom isabelle-logics-available (isa-tool-list-logics)
   "*List of logics available to use with Isabelle.
 If the `isatool' program is available, this is automatically
-generated."
+generated with the lisp form `(isa-tool-list-logics)'."
   :type (list 'string)
   :group 'isabelle)
   
@@ -233,48 +235,48 @@ until Proof General is restarted."
 ;; Use of defasscustom and proof-ass-sym here gives separate customizable
 ;; options for Isabelle and Isabelle/Isar.
 
-(proof-defasscustom show-types  nil
+(defpgcustom show-types  nil
   "Whether to show types in Isabelle."
   :type 'boolean
   :set 'proof-set-value)
 
-(proof-defassfun show-types ()
+(defpgfun show-types ()
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd 'show-types)))
 
-(proof-defasscustom show-sorts  nil
+(defpgcustom show-sorts  nil
   "Whether to show sorts in Isabelle."
   :type 'boolean
   :set 'proof-set-value)
 
-(proof-defassfun show-sorts ()
+(defpgfun show-sorts ()
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd 'show-sorts)))
 
-(proof-defasscustom show-consts  nil
+(defpgcustom show-consts  nil
   "Whether to show types of consts in Isabelle goals."
   :type 'boolean
   :set 'proof-set-value)
 
-(proof-defassfun show-consts ()
+(defpgfun show-consts ()
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd 'show-consts)))
 
-(proof-defasscustom long-names  nil
+(defpgcustom long-names  nil
   "Whether to show fully qualified names in Isabelle."
   :type 'boolean
   :set 'proof-set-value)
 
-(proof-defassfun long-names ()
+(defpgfun long-names ()
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd 'long-names)))
 
-(proof-defasscustom trace-simplifier  nil
+(defpgcustom trace-simplifier  nil
   "Whether to trace the Simplifier in Isabelle."
   :type 'boolean
   :set 'proof-set-value)
 
-(proof-defassfun trace-simplifier ()
+(defpgfun trace-simplifier ()
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd 'trace-simplifier)))
 
@@ -341,7 +343,7 @@ Otherwise return a string for configuring all settings."
 (proof-deftoggle-fn (proof-ass-sym long-names))
 (proof-deftoggle-fn (proof-ass-sym trace-simplifier))
 
-(proof-defass-default menu-entries
+(defpgdefault menu-entries
   (append
    (if isa-running-isar
        nil
@@ -364,7 +366,7 @@ Otherwise return a string for configuring all settings."
       :style toggle
       :selected ,(proof-ass-sym trace-simplifier)])))
 
-(proof-defass-default help-menu-entries isabelle-docs-menu)
+(defpgdefault help-menu-entries isabelle-docs-menu)
 
 
 (provide 'isabelle-system)

@@ -39,11 +39,11 @@
   :type 'string
   :group 'lego)
 
-(proof-defass-default help-menu-entries
+(defpgdefault help-menu-entries
   '(["LEGO Reference Card" (browse-url lego-www-refcard) t]
     ["LEGO library (WWW)" (browse-url lego-library-www-page)  t]))
 
-(proof-defass-default menu-entries
+(defpgdefault menu-entries
   '(["intros" lego-intros t]
     ["Intros" lego-Intros t]
     ["Refine" lego-Refine t]))

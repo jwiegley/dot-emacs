@@ -49,7 +49,7 @@
 
 ;; ----- coq specific menu
 
-(proof-defass-default menu-entries
+(defpgdefault menu-entries
   '(["Intros" coq-Intros t]
     ["Apply"  coq-Apply t]
     ["Search isos" coq-SearchIsos t]
