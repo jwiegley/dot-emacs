@@ -6,35 +6,36 @@ proofgen@dcs.ed.ac.uk.  Thanks!
 SHORT TERM
 ----------
 * Fix bugs and improve code and documentation
+  Based on user feedback.  
 
 MEDIUM TERM
 -----------
-* Provide a sensible default frame/buffer layout
-
 * Add an example instantiation of Proof General
-  with no prover-specific extensions (probably for Isabelle)
+  using no prover-specific extensions (perhaps for Isabelle)
 
-* Improve process handling 1: disable interrupts and/or catch
-  errors at crucial points in code so that C-g can safely be
-  used during script processing.
+* Improve process handling 1
+  Disable interrupts and/or catch errors at crucial points 
+  in code so that C-g can safely be used during script 
+  processing.  Handle deleted buffers smoothly.
 
 
 LONGER TERM
 -----------
-* Add a browser mode for browsing script files and/or
-  theory data-structures in the prover.
+* Add a browser mode for browsing script files 
+  and/or theory data-structures in the prover.
 
 * Add more per-prover functions: menus for tactics, etc.  
 
-* Improve process handling 2: because Emacs is single-threaded,
-  no process output can be dealt with when we are running some
-  command.  This means that it would be safe to extend the 
-  red region, by putting more commands on the queue.  Also it would
-  be safe to implement a clever undo command which worked on the
+* Improve process handling 2
+  Because Emacs is single-threaded, no process output can be 
+  dealt with when we are running some command.  
+  This means that it would be safe to extend the red region, 
+  by putting more commands on the queue.  Also it would be safe to 
+  implement a clever undo command which worked on the
   red region: if there are commands waiting to be processed, we
-  could remove them from the queue.  If there are no commands waiting,
-  we have to wait until something becomes blue to undo it by sending
-  a command to the process.
+  could remove them from the queue.  If there are no commands 
+  waiting, we have to wait until something becomes blue to 
+  undo it by sending a command to the process.
 
 
   
