@@ -4,9 +4,9 @@ $Id$
 
 * Priorities
 ============
-A* (SUPERSONIC URGENT)  to be fixed yesterday.
-A (URGENT) to be fixed immediately for pre-release 
-B (High)   to be fixed before release (Version 2.0)
+
+A (URGENT) to be fixed immediately for release 
+B (High)   to be fixed before next release (Version 2.1)
 C          would be nice to fix before release of 2.0; but not crucial
 D (Medium) desirable to fix at some point
 X (Low)    probably not worth wasting time on
@@ -14,30 +14,20 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A* FINAL STUFF BEFORE RELEASE (da):
+    Isabelle: reports .ML loaded after doing use-theory.
 
-    1. Display of goals on Isabelle start up: hack it somehow.
-    2. NewDoc.texi polish, becomes ProofGeneral.texi
-    3. Problems:
+A* NewDoc becomes ProofGeneral.texi.  Check nothing left in
+   ProofGeneral.texi.      
 
-      kill-buffer hook
-      Isabelle: reports .ML loaded after doing use-theory.
-
-  Suspected problem with process handling:
-
-    Isabelle outputs a prompt so that PG can recognize stream of
-    urgent messages.      
-
-A Revise ProofGeneral.texi and publish LaTeX version as an LFCS
-  Technical Report (2+2 days; da + tms)
+A Polish ProofGeneral.texi and publish LaTeX version as an LFCS
+  Technical Report.
 
 A Check that byte compilation (and compiled code!) 
   works for both varieties of Emacs. 
 
-
-A* Is it possible to let C-c C-c (SIGINT) issue additional process input?
-   Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
-   rather fail gracefully.
+B Is it possible to let C-c C-c (SIGINT) issue additional process input?
+  Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
+  rather, to fail gracefully.
 
 B Fixup display problems.
    The window dedicated stuff is a real pain and I've
@@ -57,10 +47,11 @@ B Make completion more generic. For Isabelle and Lego, we can build a
 B outline configuration should be generic  (or else documented for
   each prover separately, since not guaranteed to work for all).
 
-B Add proof-quit-command: some provers may like a quit command to be
-  sent to the shell, not just EOF !  (see proof-stop-shell).
-  Also reconcile proof-restart-script and proof-stop-shell, see
-  comments in code. (1h da)
+B Improve behaviour when switching active scripting buffer.
+  Now kill buffer function retracts partially-processed files
+  and removes them from proof-included-files-list, we could
+  allow switching between scripting buffers automatically,
+  (perhaps with an option akin to the old "steal scripting?" idea). 
 
 C da: Suggested improvement to interface for included files:
   Currently have two cases: processing a single file, and
@@ -97,14 +88,6 @@ C Output filtering has some buglets:
 C  proof-goal-command-regexp: add this setting to coq.el.
    Rationalize use of proof-goal-command-p
    (probably can be scrapped now).  
-
-C  Strange behaviour when killing and re-visiting files that
-   haven't been completely processed.  Since they stay on
-   the proof-included-files-list, on re-visiting, they are
-   marked atomic as completely processed!  
-   Possible fix:  if file hasn't been completely processed, 
-   maybe retract (and hence remove from proof-included-files-list),
-   or query the user?
 
 C Improve indentation code and see why it's so slow (at
   least for Isabelle).   Enable it for particular provers if
@@ -168,20 +151,6 @@ C Clean up proof-assert-until-point behaviour.  Discussion results:
     when new commands are added to the buffer needs careful
     thought! (1h)
 
-C A less drastic version of proof-restart-script would be useful:
-  one that doesn't involve killing off the proof assistant process
-  and restarting that -- it can take ages! 
-  
-  We want two different modes of restarting:
-
-     1. Restart all: clear all context and kill proof process.
-     2. Restart some: clear context, do some retraction/kill goals
-        in proof process.
-
-  Add kill buffer hook to script buffer which does restart some
-  in case it's the active buffer.
-  (da, 20mins)
-  
 C Improve proof-goal-command and proof-save-command:
   `proof-goal-command' should be more flexible and support a
   placeholder for the name and the actual goal. In LEGO, we have
@@ -199,9 +168,6 @@ C Cleanup handling of proof-terminal-string.  At the moment some
   adding back the semi-colons or fullstops at the specific level.
   It's not a big deal and would support other provers which
   may use a mixture of terminators, or no terminators at all.
-
-C Better support for adding a new prover: give error messages which
-  hint at what variable to set (see proof-issue-goal for example).
 
 C Functions for next,previous input a la shell mode, but in proof
   script buffer (3h, da).
@@ -235,6 +201,9 @@ C Reengineer *-count-undos and *-find-and-forget at generic level
 
 C Unify toolbar and menu functions. (1h)
 
+D Better support for adding a new prover: give error messages which
+  hint at what variable to set (see proof-issue-goal for example).
+
 D Multiple files: handle failures in reading ancestors.
 
 D Provide a sensible default frame/buffer layout (4h)
@@ -247,8 +216,6 @@ D Implement mouse drag-and-drop support for selecting subterms in the
 D Add support to proof.el for *not* setting variables for
   commands which aren't supported by a prover.  For example,
   in Isabelle there is no such thing as killing a goal.
-  For the minimum set of variables to cover, see FIXME's in isa.el
-  (da, 1.5hrs)						   
 
 D proof-find-next-terminator is too slow when it needs to parse
   a long buffer.   Generally a performance problem with
@@ -257,10 +224,11 @@ D proof-find-next-terminator is too slow when it needs to parse
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
 
-D Allow bib-cite style clicking on Load/Import commands to go to file.
-
 D Remove duplication of variables e.g., proof-prog-name and
   lego-prog-name for Coq and Lego. (1h)
+
+X Allow bib-cite style clicking on Load/Import commands to go
+  to file.
 
 X w3 manages to do toolbar enablers that work.  How?
 
@@ -419,18 +387,19 @@ C Inoking an "Expand" command produces a new proof state. But this is
 
 C fix Pbp implementation (10h)
 
-B release new version of the LEGO proof engine (4h tms)
-
-X Mechanism to save object file
-
 D Improve legotags. It cannot handle lists e.g., with 	
 
     [x,y:nat];
 
   it only tags x but not y. [The same problem exists for coqtags]
 
+X Mechanism to save object file
+
+
 * Here are things to be done to Coq mode
 ========================================
+
+A* Implement multiple file handling.
 
 C Retraction in a Section should retract to the beginning of the whole 
   section. See the section "Granularity of
@@ -438,17 +407,12 @@ C Retraction in a Section should retract to the beginning of the whole
   implementation so that it can also deal with sections.
   [See also the LEGO problem with Discharge] (6h)
 
-A* Implement multiple file handling.
-
 C derive a coq-response-mode from proof-response-mode; see lego.el (10min)
-
 
 D set proof-commands-regexp to support indentation for commands
 						    (10min)
 
 D Add Patrick Loiseleur's commands to search for vernac or ml files.
-
-X Sections and files are handled incorrectly.
 
 D Proof-by-Pointing (10h)
 
@@ -461,14 +425,16 @@ D Improve coqtags. It cannot handle lists e.g., with
 
   it only tags x but not y. [The same problem exists for legotags]
 
+X Sections and files are handled incorrectly.
+
+
 * Here are things to be done to Isabelle Mode
 =============================================
 
-A* Check all regexps are suitable instantiated.
-
 A Fixup multiple file handling with theory loader hacks to Isabelle.
 
-C derive an isa-response-mode from proof-response-mode; see lego.el (10min) 
+C derive an isa-response-mode from proof-response-mode;
+  see lego.el (10min) 
 
 C Obscure process-handling problem which prevents goal appearing
   when Isabelle HOL is started.  Visit example.ML, do "next command".
@@ -503,13 +469,23 @@ C `proof-zap-commas-region' does not work for Emacs 20.2 on
   commas are not zapped. However, when entering text, commata are
   zapped correctly. (2h)
 
-* Release
+* Release 
 =========
 
-A add a new page/section, maybe a make mechanism (but maybe
-  instructions instead) for a stable release.  
+A add links *from* Coq, Lego & Isabelle Web pages (da, tms 10 min)
 
-B add links *from* Coq, Lego & Isabelle Web pages (da, tms 10 min)
 
+* Stable version release checklist
+==================================
+
+1. Multiple file test suite for LEGO, Isabelle.  Coq example.
+2. Check case with FSF Emacs
+3. Check case with compiled code, for XEmacs only.
+   (Wait for error reports for FSF Emacs)
+4. Dates and versions updated in:
+     README, doc/ProofGeneral.texi, html/download.html
+5. ProofGeneral.texi docstring magic is up-to-date:
+     cd doc; make magic
+   
 
 
