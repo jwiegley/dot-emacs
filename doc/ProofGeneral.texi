@@ -1079,8 +1079,15 @@ Process the whole buffer.
 @deffn Command proof-toolbar-restart 
 Clear script buffers and send @code{proof-shell-restart-cmd}.@*
 All locked regions are cleared and the active scripting buffer
-deactivated.  The restart command should re-synchronize
-Proof General with the proof assistant.
+deactivated.  
+
+The restart command should re-synchronize Proof General with the proof
+assistant, without actually exiting and restarting the proof assistant
+process.  
+
+It is up to the proof assistant how much context is cleared: for
+example, theories already loaded may be "cached" in some way,
+so that loading them the next time round does not require re-processing.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-qed
@@ -1201,8 +1208,15 @@ Does nothing if proof assistant is already running.
 @deffn Command proof-shell-restart 
 Clear script buffers and send @code{proof-shell-restart-cmd}.@*
 All locked regions are cleared and the active scripting buffer
-deactivated.  The restart command should re-synchronize
-Proof General with the proof assistant.
+deactivated.  
+
+The restart command should re-synchronize Proof General with the proof
+assistant, without actually exiting and restarting the proof assistant
+process.  
+
+It is up to the proof assistant how much context is cleared: for
+example, theories already loaded may be "cached" in some way,
+so that loading them the next time round does not require re-processing.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-exit
@@ -1741,20 +1755,6 @@ when it used in conjunction with font-lock, so it is disabled by default.
 The default value is @code{strict}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-strict-read-only
-@defopt proof-strict-read-only 
-Whether Proof General is strict about the read-only region in buffers.@*
-If non-nil, an error is given when an attempt is made to edit the
-read-only region.  If nil, Proof General is more relaxed (but may give
-you a reprimand!)
-
-The default value for @code{proof-strict-read-only} depends on which
-version of Emacs you are using.  In FSF Emacs, strict read only is buggy
-when it used in conjunction with font-lock, so it is disabled by default.
-
-The default value is @code{strict}.
-@end defopt
-
 @c TEXI DOCSTRING MAGIC: proof-script-indent
 @defopt proof-script-indent 
 If non-nil, enable indentation code for proof scripts.@*
@@ -1771,6 +1771,16 @@ If non-nil, format for newlines after each proof command in a script.@*
 This option is not fully-functional at the moment.
 
 The default value is @code{nil}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-script-command-separator
+@defopt proof-script-command-separator 
+String separating commands in proof scripts.@*
+For example, if a proof assistant prefers one command per line, then 
+this string should be set to a newline.  Otherwise it should be
+set to a space.
+
+The default value is @code{" "}.
 @end defopt
 
 
@@ -3477,8 +3487,15 @@ left around so the user may discover what killed the process.
 @deffn Command proof-shell-restart 
 Clear script buffers and send @code{proof-shell-restart-cmd}.@*
 All locked regions are cleared and the active scripting buffer
-deactivated.  The restart command should re-synchronize
-Proof General with the proof assistant.
+deactivated.  
+
+The restart command should re-synchronize Proof General with the proof
+assistant, without actually exiting and restarting the proof assistant
+process.  
+
+It is up to the proof assistant how much context is cleared: for
+example, theories already loaded may be "cached" in some way,
+so that loading them the next time round does not require re-processing.
 @end deffn
 
 @c
@@ -3882,11 +3899,11 @@ let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
 @subsection Undo in XEmacs
 
-When @code{proof-strict-read-only} is non-nil, ordinary undo in script
-buffer can edit the "uneditable region" in XEmacs.  This doesn't happen
-in FSF GNU Emacs.  Test case: Insert some nonsense text after the locked
-region.  Kill the line. Process to the next command.  Press @kbd{C-x u},
-nonsense text appears in locked region.
+When @code{proof-strict-read-only} is non-nil, ordinary undo in the
+script buffer can edit the "uneditable region" in XEmacs.  This doesn't
+happen in FSF GNU Emacs.  Test case: Insert some nonsense text after the
+locked region.  Kill the line. Process to the next command.  Press
+@kbd{C-x u}, nonsense text appears in locked region.
 
 @strong{Workaround:} be careful with undo.
 
