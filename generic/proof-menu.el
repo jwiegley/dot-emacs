@@ -288,7 +288,7 @@ without adjusting window layout."
 ;      :style toggle
 ;      :selected proof-output-fontify-enable]
 
-     ["Strict read only" proof-strict-read-only-toggle
+     ["Strict Read Only" proof-strict-read-only-toggle
       :style toggle
       :selected proof-strict-read-only]
 
