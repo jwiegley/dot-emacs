@@ -1445,24 +1445,24 @@ even more dangerous than proof-try-command."
      (error "Proof General not configured for this: set %s" 
 	    ,(symbol-name var))))
 
-(defmacro proof-define-assistant-command (fn cmdvar)
+(defmacro proof-define-assistant-command (fn doc cmdvar)
   "Define command FN to send string CMDVAR to proof assistant."
   `(defun ,fn ()
-     ,(concat "Issue a command to the assistant from " 
+     ,(concat doc "\nIssues a command to the assistant from " 
 	      (symbol-name cmdvar) ".")
      (interactive)
      (proof-if-setting-configured ,cmdvar
        (proof-shell-invisible-command
 	(concat ,cmdvar proof-terminal-string)))))
 
-(defmacro proof-define-assistant-command-witharg (fn cmdvar prompt &rest body)
+(defmacro proof-define-assistant-command-witharg (fn doc cmdvar prompt &rest body)
   "Define command FN to prompt for string CMDVAR to proof assistant.
 CMDVAR is a function or string.  Automatically has history."
   `(progn
      (defvar ,(intern (concat (symbol-name fn) "-history")) nil
        ,(concat "History of arguments for " (symbol-name fn) "."))
      (defun ,fn (arg)
-     ,(concat "Issue a command based on ARG to the assistant, using " 
+     ,(concat doc "\nIssues a command based on ARG to the assistant, using " 
 	      (symbol-name cmdvar) ".\n"
 	      "The user is prompted for an argument.")
       (interactive
@@ -1498,26 +1498,36 @@ Start up the proof assistant if necessary."
 ;; Commands which do not require a prompt and send an invisible command.
 ;;
 
-(proof-define-assistant-command proof-ctxt proof-ctxt-string)
-(proof-define-assistant-command proof-help proof-help-string)
-(proof-define-assistant-command proof-prf  proof-prf-string)
+(proof-define-assistant-command proof-prf  
+  "Show the current proof state."
+  proof-prf-string)
+(proof-define-assistant-command proof-ctxt 
+  "Show the current context."
+  proof-ctxt-string)
+(proof-define-assistant-command proof-help 
+  "Show a help or information message from the proof assistant.
+Typically, a list of syntax of commands available."
+  proof-help-string)
 
 ;;
 ;; Commands which require an argument, and maybe affect the script.
 ;;
 
 (proof-define-assistant-command-witharg proof-find-theorems
+ "Search for items containing a given constant."					
  proof-find-theorems-command
  "Find theorems containing the constant"
  (proof-shell-invisible-command arg))
 
 (proof-define-assistant-command-witharg proof-issue-goal
+ "Write a goal command in the script, prompting for the goal."
  proof-goal-command
  "Goal"
  (let ((proof-one-command-per-line t))   ; Goals always start at a new line
    (proof-issue-new-command arg)))
 
 (proof-define-assistant-command-witharg proof-issue-save 
+ "Write a save/qed command in the script, prompting for the theorem name."
  proof-save-command
  "Save as"
  (let ((proof-one-command-per-line t))   ; Saves always start at a new line
@@ -1570,14 +1580,19 @@ No action if BUF is nil."
   "Proof General buffer menu.")
 
 ;; FIXME da: could move this elsewhere.  
+;; FIXME da: rationalize toolbar menu items with this menu, i.e.
+;; remove common stuff.
 (defvar proof-shared-menu
   (append
     (list
+     ["Display proof state"
+      proof-prf
+      :active (proof-shell-live-buffer)]
      ["Display context"
       proof-ctxt
       :active (proof-shell-live-buffer)]
-     ["Display proof state"
-      proof-prf
+     ["Find theorems"
+      proof-find-theorems
       :active (proof-shell-live-buffer)]
      ["Start proof assistant"
       proof-shell-start
@@ -1751,7 +1766,9 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) ?c]	  'proof-ctxt)
-(define-key map [(control c) ?h]	  'proof-help)
+;; NB: next binding overwrites comint-find-source-code.  Anyone miss it?
+(define-key map [(control c) (control f)] 'proof-find-theorems)
+(define-key map [(control c) ?f]	  'proof-help)
 ;; FIXME: not implemented yet 
 ;; (define-key map [(meta p)]		  'proof-previous-matching-command)
 ;; (define-key map [(meta n)]		  'proof-next-matching-command)
@@ -1915,7 +1932,7 @@ finish setup which depends on specific proof assistant configuration."
 ;; proof-script.el ends here.
 
 ;; 
-;;; Local Variables:
+;;; Lo%al Va%iables:
 ;;; eval: (put 'proof-if-setting-configured 'lisp-indent-function 1)
 ;;; eval: (put 'proof-define-assistant-command 'lisp-indent-function 'defun)
 ;;; eval: (put 'proof-define-assistant-command-wtharg 'lisp-indent-function 'defun)
