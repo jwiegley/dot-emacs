@@ -48,25 +48,31 @@ elements = S0 S1 S2 .... [tl-seq.el]"
     a)))
 
 (defsubst span-start (span)
+  "Return the start position of SPAN."
   (overlay-start span))
 
 (defsubst span-end (span)
+  "Return the end position of SPAN."
   (overlay-end span))
 
 (defun set-span-property (span name value)
+  "Set SPAN's property NAME to VALUE."
   (overlay-put span name value))
 
 (defsubst span-property (span name)
+  "Return SPAN's value for property PROPERTY."
   (overlay-get span name))
 
 (defun span-read-only-hook (overlay after start end &optional len)
   (error "Region is read-only"))
 
 (defun span-read-only (span)
+  "Set SPAN to be read only."
   (set-span-property span 'modification-hooks '(span-read-only-hook))
   (set-span-property span 'insert-in-front-hooks '(span-read-only-hook)))
 
 (defun span-read-write (span)
+  "Set SPAN to be writeable."
   (set-span-property span 'modification-hooks nil)
   (set-span-property span 'insert-in-front-hooks nil))
 
@@ -115,6 +121,7 @@ elements = S0 S1 S2 .... [tl-seq.el]"
       (set-span-property ans 'before span)))))
 
 (defun make-span (start end)
+  "Make a span for the range [START, END) in current buffer."
   (add-span (make-overlay start end)))
 
 (defun remove-span (span)
@@ -167,31 +174,40 @@ elements = S0 S1 S2 .... [tl-seq.el]"
     (foldl f nil (spans-at-region start end))))
 
 (defun span-at (pt prop)
+  "Return the SPAN at point PT with property PROP.
+For XEmacs, span-at gives smallest extent at pos.
+For Emacs, we assume that spans don't overlap."
   (car (spans-at-point-prop pt prop)))
 
 (defsubst detach-span (span)
+  "Remove SPAN from its buffer."
   (remove-span span)
   (delete-overlay span)
   (add-span span))
 
 (defsubst delete-span (span)
+  "Delete SPAN."
   (remove-span span)
   (delete-overlay span))
 
 ;; The next two change ordering of list of spans:
 (defsubst set-span-endpoints (span start end)
+  "Set the endpoints of SPAN to START, END."
   (remove-span span)
   (move-overlay span start end)
   (add-span span))
 
 (defsubst set-span-start (span value)
+  "Set the start point of SPAN to VALUE."
   (set-span-endpoints span value (span-end span)))
 
 ;; This doesn't affect invariant:
 (defsubst set-span-end (span value)
+  "Set the end point of SPAN to VALUE."
   (set-span-endpoints span (span-start span) value))
 
 (defsubst delete-spans (start end prop)
+  "Delete all spans between START and END with property PROP set."
   (mapcar 'delete-span (spans-at-region-prop start end prop)))
 
 (defun map-spans-aux (f l)
@@ -210,6 +226,8 @@ elements = S0 S1 S2 .... [tl-seq.el]"
   (find-span-aux prop-p before-list))
 
 (defun span-at-before (pt prop)
+  "Return the smallest SPAN at before PT with property PROP.
+A span is before PT if it covers the character before PT."
   (let ((prop-pt-p
 	 (cond (prop (lambda (span)
 		       (let ((start (span-start span)))
@@ -221,14 +239,16 @@ elements = S0 S1 S2 .... [tl-seq.el]"
     (find-span prop-pt-p)))
   
 (defun prev-span (span prop)
+  "Return span before SPAN with property PROP."
   (let ((prev-prop-p
 	 (cond (prop (lambda (span) (span-property span prop)))
 	       (t (lambda (span) t)))))
     (find-span-aux prev-prop-p (span-property span 'before))))
 
-;; overlays are [start, end)
-;; If there are two spans overlapping then this won't work.
+; overlays are [start, end)
 (defun next-span (span prop)
+  "Return span after SPAN with property PROP.
+If there are two spans overlapping then this won't work."
   (let ((l (member-if (lambda (span) (span-property span prop))
 		       (overlays-at
 			(next-overlay-change (overlay-start span))))))
