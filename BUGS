@@ -26,14 +26,6 @@ unreliable (it wasn't used before).  Also there is a timing issue,
 so that occasionally the buttons are disabled/enabled when they
 shouldn't be.  An extra click on the toolbar solves this.
 
-* Synchronization during start-up: if you press C-c C-n quickly
-in succession whilst the prover is cranked up, synchronization
-may be spoilt, and you see the message "script management confused"
-later on.  This is a minor bug, most likely to be noticed when it
-takes a while to start the proof assistant (e.g. Isabelle!).
-Workarounds: many!  Type slowly.  Use C-c C-RET.  Start the prover
-first via the menu, or C-c C-s.
-
 * Ordinary undo in the script buffer can edit the "uneditable region"
 in XEmacs.  This doesn't happen in FSFmacs.  Test case:
   Insert some nonsense text after the locked region.
