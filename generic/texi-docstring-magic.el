@@ -1,8 +1,9 @@
-;;; texi-docstring-magic.el -- munge internal docstrings into texi
+;; texi-docstring-magic.el -- munge internal docstrings into texi
 ;;
 ;; Keywords: texi, docstrings
 ;; Author: David Aspinall <da@dcs.ed.ac.uk>
 ;; Copyright (C) 1998 David Aspinall
+;; Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
 ;;
 ;; $Id$
 ;;
@@ -27,8 +28,11 @@
     str))
 
 (defconst texi-docstring-magic-munge-table
-  '(;; Indented lines gathered into @lisp environment.
-    ("^.*\\S-.*$"
+  '(;; 1. Indented lines are gathered into @lisp environment.
+    ;; FIXME: this isn't quite as good as it could be, we
+    ;; get the last empty line included in the environment
+    ;; rather than outside it.
+    ("\\(^.*\\S-.*$\\)"
      t
      (let
 	 ((line (match-string 0 docstring)))
@@ -44,28 +48,50 @@
 	       (setq in-quoted-region nil)
 	       (concat "@end lisp\n" line))
 	   line))))
-    ;; Upper cased words ARG corresponding to arguments become @var{arg}
-    ("\\([A-Z0-9\\-]+\\)\\(\\s-\\|\\.\\|$\\)"
+    ;; 2. Pieces of text `stuff' or surrounded in quotes
+    ;; are marked up with @samp.  NB: Must be backquote
+    ;; followed by forward quote for this to work.
+    ;; Can't use two forward quotes else problems with
+    ;; symbols.
+    ;; Odd hack: because ' is a word constituent in text/texinfo
+    ;; mode, putting this first enables the recognition of args
+    ;; and symbols put inside quotes.
+    ("`\\([^']+\\)'"
+     t
+     (concat "@samp{" (match-string 1 docstring) "}"))
+    ;; 3. Upper cased words ARG corresponding to arguments become @var{arg}
+    ("\\([A-Z0-9\\-]+\\)\\(\\s-\\|\\s.\\|$\\)"
      (member (downcase (match-string 1 docstring)) args)
      (concat "@var{" (downcase (match-string 1 docstring)) "}"
 	     (match-string 2 docstring)))
-    ;; Words sym which are symbols become @code{sym}.
+    ;; 4. Words sym which are symbols become @code{sym}.
     ;; Must have at least one hyphen to be recognized,
     ;; terminated in whitespace, end of line, or punctuation.
     ;; (Only consider symbols made from word constituents
     ;; and hyphens).
-    ("\\(\\w+\\-\\(\\w\\|\\-\\)+\\)\\(\\s-\\|\\s.\\|$\\)"
-      (or (boundp (intern (match-string 1 docstring)))
-	 (fboundp (intern (match-string 1 docstring))))
-     (concat "@code{" (match-string 1 docstring) "}"
-	     (match-string 3 docstring))))
+    ("\\(\\(\\w+\\-\\(\\w\\|\\-\\)+\\)\\)\\(\\s\)\\|\\s-\\|\\s.\\|$\\)"
+     (or (boundp (intern (match-string 2 docstring)))
+	 (fboundp (intern (match-string 2 docstring))))
+     (concat "@code{" (match-string 2 docstring) "}"
+	     (match-string 4 docstring)))
+    ;; 5. Words 'sym which are lisp quoted are
+    ;; marked with @code.
+    ("\\(\\(\\s-\\|^\\)'\\(\\(\\w\\|\\-\\)+\\)\\)\\(\\s\)\\|\\s-\\|\\s.\\|$\\)"
+     t
+     (concat (match-string 2 docstring)
+	     "@code{" (match-string 3 docstring) "}"
+	     (match-string 5 docstring))))
     "Table of regexp matches and replacements used to markup docstrings.
 Format of table is a list of elements of the form
    (regexp predicate replacement-form)
 If regexp matches and predicate holds, then replacement-form is
-evaluated to get the replacement for the match.
+evaluated to get the replacement for the match.  
 predicate and replacement-form can use variables arg,
-and forms such as (match-string 1 docstring)")
+and forms such as (match-string 1 docstring)
+Match string 1 is assumed to determine the 
+length of the matched item, hence where parsing restarts from.
+The replacement must cover the whole match (match string 0),
+including any whitespace included to delimit matches.")
 
 
 (defun texi-docstring-magic-munge-docstring (docstring args)
@@ -81,28 +107,44 @@ and forms such as (match-string 1 docstring)")
 	(while (and
 		(< i (length docstring))
 		(string-match regexp docstring i))
-	  (setq i (match-end 0))
+	  (setq i (match-end 1))
 	  (if (eval predicate)
-	      (let* ((origlength  (- i (match-beginning 0)))
+	      (let* ((origlength  (- (match-end 0) (match-beginning 0)))
 		     (replacement (eval replace))
 		     (newlength   (length replacement)))
 		(setq docstring
 		      (replace-match replacement t t docstring))
-		(setq i (+ i (- newlength origlength) 1)))))
+		(setq i (+ i (- newlength origlength))))))
 	(if in-quoted-region
 	    (setq docstring (concat docstring "\n@end lisp")))))))
 
-(defun texi-docstring-magic-texi (env grp name docstring args &rest extras)
+(defun texi-docstring-magic-texi (env grp name docstring args &optional endtext)
   "Make a texi def environment ENV for entity NAME with DOCSTRING."
   (concat "@def" env (if grp (concat " " grp) "") " " name
 	  " "
 	  (texi-docstring-magic-splice-sep args " ")
-	  " "
-	  (texi-docstring-magic-splice-sep extras " ")
+	  ;; " "
+	  ;; (texi-docstring-magic-splice-sep extras " ")
 	  "\n"
 	  (texi-docstring-magic-munge-docstring docstring args)
 	  "\n"
+	  (or endtext "")
 	  "@end def" env "\n"))
+
+(defun texi-docstring-magic-format-default (default)
+  "Make a default value string for the value DEFAULT.
+Markup as @code{stuff} or @lisp stuff @end lisp."
+  (let ((text       (format "%S" default))
+	(isstringg  (stringp default)))
+    (concat 
+     "\nThe default value is "
+     (if (string-match "\n" text)
+	 ;; Carriage return will break @code, use @lisp
+	 (if (stringp default)
+	     (concat "the string: \n@lisp\n" default "\n@end lisp\n")
+	   (concat "the value: \n@lisp\n" text "\n@end lisp\n"))
+       (concat "@code{" text "}.\n")))))
+ 
 
 (defun texi-docstring-magic-texi-for (symbol)
   (cond
@@ -141,19 +183,17 @@ and forms such as (match-string 1 docstring)")
 	 (docstring (or (documentation-property variable
 						'variable-documentation)
 			"Not documented."))
-	 (useropt   (eq ?* (string-to-char docstring))))
+	 (useropt   (eq ?* (string-to-char docstring)))
+	 (default   (if useropt
+			(texi-docstring-magic-format-default
+			 (default-value symbol)))))
       ;; Chop off user option setting
       (if useropt
 	  (setq docstring (substring docstring 1)))
       (texi-docstring-magic-texi
-       (if useropt "opt" "var")
-       nil name docstring nil)))
+       (if useropt "opt" "var") nil name docstring nil default)))
    (t
     (error "Don't know anything about symbol %s" (symbol-name symbol)))))
-
-(texi-docstring-magic-texi-for 'proof-rsh-command)
-
-
 
 (defconst texi-docstring-magic-comment
   "@c TEXI DOCSTRING MAGIC:"
