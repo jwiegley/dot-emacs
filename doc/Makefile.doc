@@ -38,7 +38,8 @@ DVI2PS = dvips -Pcmz
 TEXI2PDF = texi2pdf
 TEXI2HTML = texi2html -expandinfo -number -split_chapter
 # FIXME: choose emacs automatically if xemacs not available
-EMACS = xemacs -q -no-site-file -batch
+EMACS = xemacs
+EMACSFLAGS = -q -no-site-file -batch
 
 TMPFILE=pgt
 
@@ -155,7 +156,7 @@ distclean:   clean
 $(DOCNAME).texi: ../*/*.el 
 	$(MAKE) magic
 magic:
-	$(EMACS) -l docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
+	$(EMACS) $(EMACSFLAGS) -l docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
 
 
 
