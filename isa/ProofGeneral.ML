@@ -1,13 +1,11 @@
 (* 
-   isa-print-functions.ML
+   ProofGeneral.ML
 
-   Customized version of Isabelle printing for script management
-   mode.
+   Isabelle configuration for Proof General.
 
    $Id$
 
 *)
-
 
 
 val proof_state_special_prefix="\248";
@@ -167,6 +165,15 @@ end
 
 
 
+(* Some top-level commands for Proof General.
+   These could easily be customized to do different things.
+*)
 
+structure ProofGeneral =
+  struct
+    fun kill_goal () = Goal "PROP no_goal_supplied";
+    fun help () = print version;
+    fun show_context () = the_context();
+  end;       
 
-				
+  
