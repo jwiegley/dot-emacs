@@ -54,9 +54,10 @@ inside your Emacs."
 ;  (if proof-x-symbol-support-on
 ;      (setq x-symbol-language 
 
-;;DvO to be removed, replaced by x-symbol-decode-region
 (defun proof-x-symbol-decode-region (start end) 
-(x-symbol-decode-region start end))
+  "Call (x-symbol-decode-region START END), if x-symbol support is enabled."
+  (if proof-x-symbol-support-on
+      (x-symbol-decode-region start end)))
 
 (defun proof-x-symbol-encode-shell-input ()
   "Encode shell input in the variable STRING.
@@ -88,9 +89,6 @@ A value for proof-shell-insert-hook."
 	    (unless (featurep 'mule) (x-symbol-nomule-fontify-cstrings))))));;DvO
  ;; 
  ;;(setq comint-input-sender 'x-symbol-comint-send)
-
-
-
 
 
 (defun proof-x-symbol-mode-all-buffers (enable);;;DvO
@@ -127,15 +125,17 @@ A value for proof-shell-insert-hook."
 ;; major modes that  should invoke minor isa mode
 (defvar x-symbol-isa-modes (cons 'shell-mode (cons 'isasym-mode (append isa-modes proof-general-isabelle-modes))))
 
-(x-symbol-register-language 'isa 'x-symbol-isa x-symbol-isa-modes)
-;; install auto-invocation
-(push (list x-symbol-isa-modes t ''isa) x-symbol-auto-mode-alist)
 
-(put 'isasym-mode 'font-lock-defaults '(isasym-font-lock-keywords))
-(defvar isasym-font-lock-keywords
-  '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face))))
-; end added part ;;DvO
-
+;; FIXME da: this (or something) needs to be put into a function with
+;; a require on x-symbol, so we fail more gracefully.
+(if (fboundp 'x-symbol-register-language)
+    (progn
+      (x-symbol-register-language 'isa 'x-symbol-isa x-symbol-isa-modes)
+      ;; install auto-invocation
+      (push (list x-symbol-isa-modes t ''isa) x-symbol-auto-mode-alist)
+      (put 'isasym-mode 'font-lock-defaults '(isasym-font-lock-keywords))
+      (defvar isasym-font-lock-keywords
+	'(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face))))))
 
 (provide 'proof-x-symbol)
 ;; End of proof-x-symbol.el
