@@ -222,6 +222,23 @@ and script mode."
 ;; action list using the "span" argument which means nothing for
 ;; invisible command usually.
 
+; attempt to trap C-g.  Needs more work so revert to previous
+;(defun isa-update-thy-only (file try wait)
+;  "Tell Isabelle to update current buffer's theory, and all ancestors."
+;  ;; Trap interrupts from C-g during the update
+;  (condition-case err
+;      (proof-shell-invisible-command
+;       (format "ProofGeneral.%supdate_thy_only \"%s\";"
+;	       (if try "try_" "") (file-name-sans-extension file))
+;       wait)
+;    (t (message "Isabelle Proof General: error or interrupt during update theory...")
+;       (if proof-shell-busy
+;	   (proof-interrupt-process))
+;       (sit-for 1)
+;       (proof-deactivate-scripting)
+;       (if (cdr err) ;; quit is just (quit).  
+;	   (error (cdr err))))))
+
 (defun isa-update-thy-only (file try wait)
   "Tell Isabelle to update current buffer's theory, and all ancestors."
   (proof-shell-invisible-command
@@ -569,10 +586,7 @@ you will be asked to retract the file or process the remainder of it.
 ;; The token language "Isabelle Symbols" is in file x-symbol-isa.el
 ;;
 
-(setq proof-xsym-extra-modes
-      '(isasym-mode			; FIXME: necessary?
-	thy-mode			; FIXME: necessary?
-	shell-mode)			; FIXME: necessary?
+(setq proof-xsym-extra-modes '(thy-mode)
       proof-xsym-font-lock-keywords
       '(("\\\\<[A-Za-z][A-Za-z0-9_']*>" (0 font-lock-type-face)))
       proof-xsym-activate-command
