@@ -140,15 +140,6 @@ C Bug in proof-retract-until-point when called twice in succession:
   locked region, or "nothing to retract").  Problems is that
   there is a proof-locked-end, but it's at (point-min). (30min)
 
-C proof-find-next-terminator doesn't work properly:
-
-     first;second;third
-           ^
-     Invoking proof-find-next-terminator in cursor position (^) should 
-     move point to "t". Currently, it doesn't do anything. This is a
-     bug. Perhaps just use new implementation of
-     proof-assert-until-point (30min)
-
 B Add proof-quit-command: some provers may like a quit command to be
   sent to the shell, not just EOF !  (see proof-stop-shell).
   Also reconcile proof-restart-script and proof-stop-shell, see

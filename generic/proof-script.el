@@ -707,9 +707,15 @@ the next command end."
 	     (progn 
 	       (setq alist 
 		     (cons (list 'cmd (substring str 0 i) (point)) alist))
-	       (if (>= (point) pos)
-		   (setq done t)
-		 (setq i 0)))))))
+	       (cond
+		((> (point) pos)
+		 (setq done t))
+		;; FIXME da: This case preserves the old behaviour, but I
+		;; think it's wrong: should just have > case above.
+		((and (not next-command-end) (= (point) pos))
+		 (setq done t))
+		(t
+		 (setq i 0))))))))
      alist)))
 
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
@@ -802,14 +808,14 @@ unclosed-comment-fun. If ignore-proof-process-p is set, no commands
 will be added to the queue and the buffer will not be activated for
 scripting."
   (interactive)
-  (or ignore-proof-process-p 
-      (progn
-	(proof-shell-ready-prover)
-	;; FIXME: check this
-	(proof-activate-scripting)))
+  (unless ignore-proof-process-p 
+    (proof-shell-ready-prover)
+    ;; FIXME: check this
+    (proof-activate-scripting))
   (let ((semis))
     (save-excursion
       ;; Give error if no non-whitespace between point and end of locked region.
+      ;; FIXME da: a nasty mess
       (if (proof-only-whitespace-to-locked-region-p)
 	  (error "I don't know what I should be doing in this buffer!"))
       ;; NB: (point) has now been moved backwards to first non-whitespace char.
@@ -850,9 +856,10 @@ Afterwards, move forward to near the next command afterwards, unless
 DONT-MOVE-FORWARD is non-nil.  If FOR-NEW-COMMAND is non-nil,
 a space or newline will be inserted automatically."
   (interactive)
-  (or ignore-proof-process-p 
-      (proof-shell-ready-prover))
-  (proof-activate-scripting)
+  (unless ignore-proof-process-p
+    (proof-shell-ready-prover)
+    ;; FIXME: check this
+    (proof-activate-scripting))
   (or ignore-proof-process-p
       (if (proof-locked-region-full-p)
 	  (error "Locked region is full, no more commands to do!")))
@@ -1076,8 +1083,9 @@ the proof script."
   (interactive)
   (let ((cmd (span-at (point) 'type)))
     (if cmd (goto-char (span-end cmd))
-      (and (re-search-forward "\\S-" nil t)
-	   (proof-assert-until-point nil 'ignore-proof-process)))))
+;      (and (re-search-forward "\\S-" nil t)
+;	   (proof-assert-until-point nil 'ignore-proof-process)))))
+      (proof-assert-next-command nil 'ignore-proof-process))))
 
 (defun proof-goto-command-start ()
   "Move point to start of current command."
