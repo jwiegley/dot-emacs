@@ -54,6 +54,14 @@ X Solaris bugs: font locking and button enabling.
 
 *** Scheduled improvements for 3.2
 
+**** C Fix mode naming for Isabelle 
+     (might like isa-proofscript-mode -> isa-mode;
+      but this conflicts with entry mechanism for thy/isa mode).
+
+**** A Add Pierre's improvements for X-Symbol config to other provers.
+       Perhaps there should be a default configuration for non-token
+       input languages?
+
 **** A make C-c C-l go to bottom of response buffer while output
        is arriving (set-window-point (point)) or similar.
 
