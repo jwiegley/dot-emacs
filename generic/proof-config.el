@@ -96,6 +96,17 @@ for experienced Emacs users."
   :type 'boolean
   :group 'proof-general)
 
+(defcustom proof-strict-read-only 
+  ;; For FSF Emacs, strict read only is buggy when used in
+  ;; conjunction with font-lock.
+  (string-match "XEmacs" emacs-version)
+  "*Whether Proof General is strict about the read-only region in buffers.
+If non-nil, an error is given when an attempt is made to edit the
+read-only region.  If nil, Proof General is more relaxed (but may give
+you a reprimand!)"
+  :type 'boolean
+  :group 'proof-general)
+
 ;;
 ;; Faces.
 ;; We ought to test that these work sensibly:

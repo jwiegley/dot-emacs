@@ -63,18 +63,34 @@ elements = S0 S1 S2 .... [tl-seq.el]"
   "Return SPAN's value for property PROPERTY."
   (overlay-get span name))
 
+;; This function is problematical with font-lock turned on.
 (defun span-read-only-hook (overlay after start end &optional len)
   (error "Region is read-only"))
 
 (defun span-read-only (span)
   "Set SPAN to be read only."
+  ;; Unfortunately, this function is called on spans which are
+  ;; detached from a buffer, which gives an error her, since
+  ;; text-properties are associated with text in a particular
+  ;; buffer position.
+  ;(add-text-properties (span-start span) (span-end span) '(read-only t)))
   (set-span-property span 'modification-hooks '(span-read-only-hook))
   (set-span-property span 'insert-in-front-hooks '(span-read-only-hook)))
 
 (defun span-read-write (span)
   "Set SPAN to be writeable."
+  ;; See comment above for text properties problem.
   (set-span-property span 'modification-hooks nil)
   (set-span-property span 'insert-in-front-hooks nil))
+
+(defun span-give-warning (&rest args)
+  "Give a warning message."
+  (message "You should not edit here!"))
+
+(defun span-write-warning (span)
+  "Give a warning message when SPAN is changed."
+  (set-span-property span 'modification-hooks '(span-give-warning))
+  (set-span-property span 'modification-hooks '(span-give-warning)))
 
 (defun int-nil-lt (m n)
   (cond

@@ -95,8 +95,26 @@ This function coincides with `append-element' in the package
 ;; proof-init-segmentation, which can happen when a file is visited.
 ;; So nasty things might happen if a locked file is visited whilst
 ;; another buffer has a non-empty queue region being processed.
+
+
 (deflocal proof-queue-span nil
   "The queue span of the buffer.")
+
+;; FIXME da: really the queue region should always be locked strictly.
+
+(defun proof-span-read-only (span)
+  "Make span be read-only, if proof-strict-read-only is non-nil.
+Otherwise make span give a warning message on edits."
+  (if proof-strict-read-only
+      (span-read-only span)
+    (span-write-warning span)))
+
+;; not implemented yet
+;; (defun proof-toggle-strict-read-only ()
+;;  "Toggle proof-strict-read-only, changing current spans."
+;;  (interactive)
+;;   map-spans blah
+;;  )
 
 (defun proof-init-segmentation ()
   "Initialise the spans in a proof script buffer."
@@ -105,7 +123,7 @@ This function coincides with `append-element' in the package
       (setq proof-queue-span (make-span 1 1)))
   (set-span-property proof-queue-span 'start-closed t)
   (set-span-property proof-queue-span 'end-open t)
-  (span-read-only proof-queue-span)
+  (proof-span-read-only proof-queue-span)
   (set-span-property proof-queue-span 'face 'proof-queue-face)
   (detach-span proof-queue-span)
   ;;
@@ -117,13 +135,13 @@ This function coincides with `append-element' in the package
       (setq proof-locked-span (make-span 1 1)))
   (set-span-property proof-locked-span 'start-closed t)
   (set-span-property proof-locked-span 'end-open t)
-  (span-read-only proof-locked-span)
+  (proof-span-read-only proof-locked-span)
   (set-span-property proof-locked-span 'face 'proof-locked-face)
   (detach-span proof-locked-span))
 
 (defsubst proof-lock-unlocked ()
   "Make the locked region read only."
-  (span-read-only proof-locked-span))
+  (proof-span-read-only proof-locked-span))
 
 (defsubst proof-unlock-locked ()
   "Make the locked region read-write."
