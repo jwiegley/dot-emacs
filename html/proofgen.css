@@ -61,8 +61,7 @@ dl,ul,dir,li{
  font-family: Verdana, Arial, sans-serif;	
  color: #FFFFFF
 }
-dt{ font-style: italic; font-weight: bold }      /* Netscape misses this, */
-.descitem{ font-style: italic; font-weight: bold } /* so duplicate by hand */
+dt{ font-style: italic; font-weight: bold }      /* Netscape misses this */
 
 /* Table Elements */
 table{
