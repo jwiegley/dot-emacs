@@ -1408,9 +1408,9 @@ a symbol, set to the callback command which is executed in the proof
 shell filter once `string' has been processed.  The `action' variable
 suggests what class of command is about to be inserted:
   
- 'proof-shell-done-invisible      A non-scripting command
- 'proof-done-advancing		  A \"forward\" scripting command
- 'proof-done-retracting		  A \"backward\" scripting command
+ 'proof-done-invisible	     A non-scripting command
+ 'proof-done-advancing	     A \"forward\" scripting command
+ 'proof-done-retracting	     A \"backward\" scripting command
 
 Caveats: You should be very careful about setting this hook.  Proof
 General relies on a careful synchronization with the process between

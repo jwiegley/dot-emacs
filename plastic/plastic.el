@@ -654,7 +654,7 @@ We assume that module identifiers coincide with file names."
     ;; Interface to proof-shell-insert now requires two args (for the
     ;; sake of plastic!) and shouldn't be called from PG instances 
     (proof-shell-insert (concat plastic-lit-string " &S Undo;")
-			'proof-shell-done-invisible))
+			'proof-done-invisible))
 
 (defun plastic-try-cmd ()
     "undo whatever was tried, if error-free"

@@ -1648,13 +1648,13 @@ in some cases.   May be called by proof-shell-invisible-command."
     (sit-for 0)))
 
 
-(defun proof-shell-done-invisible (span)
+(defun proof-done-invisible (span)
   "Callback for proof-shell-invisible-command.  
 Calls proof-state-change-hook."
   (run-hooks 'proof-state-change-hook))
 
 ; new code to go in after 3.0
-;(defun proof-shell-done-invisible (&optional span)
+;(defun proof-done-invisible (&optional span)
 ;  "Callback for proof-shell-invisible-command.  
 ;Calls proof-state-change-hook."
 ;  (run-hooks 'proof-state-change-hook)
@@ -1669,14 +1669,14 @@ Calls proof-state-change-hook."
 ;  "Construct a value for `proof-shell-handle-error-or-interrupt-hook'.
 ;Give error message ERRORMSG, then remove self from queue."
 ;  `(lambda ()
-;     (proof-shell-done-invisible)
+;     (proof-done-invisible)
 ;     (error ,(eval errormsg))))
 
 ;(defmacro proof-shell-invisible-failure-fn (fn)
 ;  "Construct a value for `proof-shell-handle-error-or-interrupt-hook'.
 ;Call function fn, then remove self from queue."
 ;  `(lambda ()
-;     (proof-shell-done-invisible)
+;     (proof-done-invisible)
 ;     (,(eval fn))))
 ;
 ; extra arg ERRORMSGFN to proof-shell-invisible-command:
@@ -1701,7 +1701,7 @@ If WAIT is an integer, wait for that many seconds afterwards."
   (if (not (string-match proof-re-end-of-cmd cmd))
       (setq cmd (concat cmd proof-terminal-string)))
   (proof-start-queue nil nil
-		     (list (list nil cmd 'proof-shell-done-invisible)))
+		     (list (list nil cmd 'proof-done-invisible)))
   (if wait (proof-shell-wait (if (numberp wait) wait))))
 
 
