@@ -125,7 +125,7 @@
    proof-save-with-hole-result     8
    proof-ignore-for-undo-count      "constraints\\|flag\\|goals\\|print\\(_sort\\)?\\|eshow\\|search\\|priority\\|depend"
    proof-shell-error-regexp        "^\\([^ \n\t\r]* \\)?\\(\\(e\\|E\\)rror\\)\\|\\(\\(f\\|F\\)ailure\\)"
-   proof-non-undoables-regexp      "undo"
+   proof-non-undoables-regexp      "undo\\|abort"
    proof-goal-command              "goal %s."
    proof-save-command              "save %s."
    proof-kill-goal-command         "abort."
