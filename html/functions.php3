@@ -14,8 +14,8 @@
 
 // Project configuration
 
-$project_email = "proofgen@dcs.ed.ac.uk";
-$project_list  = "proofgeneral@dcs.ed.ac.uk";
+$project_email = "feedback@proofgeneral.org";
+$project_list  = "users@proofgeneral.org";
 $project_title = "Proof General";
 $project_subtitle = "Organize your Proofs!";
 $project_full_title = $project_title . " --- " . $project_subtitle;
@@ -31,8 +31,9 @@ print $dtd_loose;
 
 // Validator address
 
-$validator = "http://validator.dcs.ed.ac.uk/";
-// $validator = "http://localhost/validator/";
+// $validator = "http://validator.dcs.ed.ac.uk/";
+// It's a private link which won't work elsewhere, but never mind.
+ $validator = "http://localhost/validator/";
 
 function mlink($addr) {
   print "<a href=\"mailto:" . $addr . "\">" . $addr . "</a>";
@@ -112,13 +113,10 @@ function date_modified($filename) {
    }
 }
 
-/* Nav bar separator */
-$separator  =  ' <img src="images/bullethole.gif" alt="." align=top> ';
-
 /* A link to one of the main pages (must appear in navbar menu) */
 
 function link_root($page,$text) {
-    print  "<a  href=\"index.phtml?page=" . $page . "\">";
+    print  "<a href=\"index.phtml?page=" . $page . "\">";
     print $text;
     print "</a>";
 }
