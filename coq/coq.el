@@ -125,7 +125,7 @@
 
 (eval-and-compile
   (define-derived-mode coq-pbp-mode pbp-mode
-    "pbp" nil
+    "CoqGoals" nil
     (coq-pbp-mode-config)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -524,10 +524,9 @@
 (defun coq-pbp-mode-config ()
   (setq pbp-change-goal "Show %s.")
   (setq pbp-error-regexp coq-error-regexp)
-
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
-  (proof-font-lock-minor-mode))
+  (proof-goals-config-done))
 
 (defun coq-response-config ()
    (coq-init-syntax-table)
