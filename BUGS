@@ -80,6 +80,13 @@ simplifier, when tracing rewriting.
 
 * Problems with particular Emacs versions
 
+** XEmacs 21.1.9 on Win32
+
+Some strange problems reading files with this version of Emacs. Gives
+spurious "end of internal input stream", or silently ignores parts of
+files.  Example is coq/coq.el which reads in fine on Linux.  
+[ Is my suspicioun of XEmacs correct?  Any suggestions? ]
+
 ** If you have problems using Mule versions of FSF Emacs 
 
 Beware setting standard-display-european: Pascal Brisset suggests
