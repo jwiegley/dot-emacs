@@ -1365,103 +1365,6 @@ This version is used when `proof-script-command-end-regexp' is set."
       ;; Return resulting list
       alist)))
 
-;; FIXME da: Below it would probably be faster to use the primitive
-;; skip-chars-forward rather than scanning character-by-character 
-;; with a lisp loop over the whole region. Also I'm not convinced that
-;; Emacs should be better at skipping whitespace and comments than the
-;; proof process itself!
-
-(defun proof-segment-up-to-old (pos &optional next-command-end)
-  "Create a list of (type, string, int) tuples from end of queue/locked region to POS.
-
-Each tuple denotes the command and the position of its terminator,
-type is one of 'comment, or 'cmd. 'unclosed-comment may be consed onto
-the start if the segment finishes with an unclosed comment.
-
-If optional NEXT-COMMAND-END is non-nil, we contine past POS until
-the next command end."
-  (save-excursion
-      ;; depth marks number of nested comments.
-      ;; quote-parity is false if we're inside quotes.
-      ;; Only one of (depth > 0) and (not quote-parity)
-      ;; should be true at once. -- hhg
-    (let* ((start	(proof-queue-or-locked-end))
-	   (chs nil) (depth 0) (quote-parity t) done alist c)
-	  ;; For forthcoming improvements: skip over boring
-	  ;; characters, calculate strings with buffer-substring
-	  ;; rather than character at a time.
-	  ; (interesting-chars
-	  ; (concat (substring proof-comment-start 1 1)
-	  ;	   (substring proof-comment-end 1 1)
-	  ;	   (char-to-string proof-terminal-char)
-	  ;	   "\"")))
-      (goto-char start)
-     (while (not done)
-       (cond
-	;; Case 1. We've reached POS, not allowed to go past it,
-	;; and are inside a comment
-	((and (not next-command-end) (= (point) pos) (> depth 0))
-	 (setq done t alist (cons 'unclosed-comment alist)))
-	;; Case 2. We've reached the end of the buffer while
-	;; scanning inside a comment or string
-	((= (point) (point-max))
-	 (cond
-	  ((not quote-parity)
-	   (message "Warning: unclosed quote"))
-	  ((> depth 0)
-	   (setq done t alist (cons 'unclosed-comment alist))))
-	 (setq done t))
-	;; Case 3. Found a comment end, not inside a string
-	((and (proof-looking-at proof-comment-end-regexp) quote-parity)
-	 (if (= depth 0) 
-	     (progn
-	       (message "Warning: extraneous comment end")
-	       (setq done t))
-	   (setq depth (- depth 1))
-	   (forward-char (length (match-string 0)))
-	   (if (not chs)
-	       (setq alist (cons (list 'comment "" (point)) alist))
-	     (setq chs (cons ?\  chs)))))
-	;; Case 4. Found a comment start, not inside a string
-	((and (proof-looking-at proof-comment-start-regexp) quote-parity)
-	 (setq depth (+ depth 1))
-	 (forward-char (length (match-string 0))))
-	;; Case 5. Inside a comment. 
-	((> depth 0)
-	 (forward-char))
-	;; Case 6. Anything else
-	(t
-	 ;; Skip whitespace before the start of a command, otherwise
-	 ;; other characters in the accumulator string str
-	 (setq c (char-after (point)))
-	 (if (or chs (not (= (char-syntax c) ?\ )))
-	     (setq chs (cons c chs)))
-
-	 ;; Maintain quote-parity
-	 (cond
-	  ((and quote-parity (proof-looking-at proof-string-start-regexp))
-	   (setq quote-parity nil))
-	  ((and (not quote-parity) (proof-looking-at proof-string-end-regexp))
-	   (setq quote-parity t)))
-
-	 (forward-char)
-
-	 ;; Found the end of a command
-	 (if (and (= c proof-terminal-char) quote-parity)
-	     (progn 
-	       (setq alist 
-		     (cons (list 'cmd (concat (reverse chs)) (point)) alist))
-	       (cond
-		((> (point) pos)
-		 (setq done t))
-		;; FIXME da: This case preserves the old behaviour, but I
-		;; think it's wrong: should just have > case above.
-		((and (not next-command-end) (= (point) pos))
-		 (setq done t))
-		(t
-		 (setq chs nil))))))))
-     alist)))
-
 (defun proof-semis-to-vanillas (semis &optional callback-fn)
   "Convert a sequence of terminator positions to a set of vanilla extents.
 Proof terminator positions SEMIS has the form returned by
@@ -2909,16 +2812,13 @@ finish setup which depends on specific proof assistant configuration."
     (cond
      (proof-script-command-start-regexp
       (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdstart))
-     (proof-running-on-XEmacs
-      (defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
+     ((defalias 'proof-segment-up-to 'proof-segment-up-to-cmdend)
       (unless proof-script-command-end-regexp
 	(proof-warn-if-unset "proof-config-done" 'proof-terminal-char)
 	(setq proof-script-command-end-regexp
 	      (if proof-terminal-char
 		  (regexp-quote (char-to-string proof-terminal-char))
-		"$")))) ;  default if nothing set is EOL.
-     (t
-      (defalias 'proof-segment-up-to 'proof-segment-up-to-old))))
+		"$")))))) ;  default if nothing set is EOL.
 
   ;; Make sure func menu is configured.  (NB: Ideal place for this and
   ;; similar stuff would be in something evaluated at top level after
