@@ -245,6 +245,8 @@ See -k option for Isabelle interface script."
    pg-subterm-end-char                  ?\374
    pg-before-subterm-markup-hook	'isabelle-convert-idmarkup-to-subterm
 					;'pg-remove-specials
+   pg-subterm-help-cmd			"term %s" 
+
    proof-shell-process-file
    (cons
     ;; Theory loader output
