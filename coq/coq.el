@@ -588,7 +588,10 @@ This is specific to coq-mode."
    (proof-regexp-alt (proof-ids-to-regexp '("Cases")) "\\s(")
    proof-indent-close-regexp
    (proof-regexp-alt (proof-ids-to-regexp '("end")) "\\s)"))
-  
+
+  ;; span menu 
+  (setq
+   proof-script-span-context-menu-extensions 'coq-create-span-menu)
 
   ;; (setq proof-auto-multiple-files t)	; until Coq has real support
   ;; da: Experimental support for multiple files based on discussions
@@ -791,6 +794,38 @@ This is specific to coq-mode."
 		proof-shell-inform-file-retracted-cmd nil)))
 
 (provide 'coq)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Subterm markup -- it was added to Coq by Healf, but got removed.
+;;                   Let's try faking something by regexp matching.
+
+;; FIXME: not operational yet
+(defun coq-fake-constant-markup ()
+  "Markup constants in Coq goal output by matching on regexps.
+This is a horrible and approximate way of doing subterm markup.
+(Code used to be in Coq, but got lost between versions 5 and 7).
+This is a hook setting for `pg-after-fontify-output-hook' to
+enable identifiers to be highlighted and allow useful 
+mouse activation."
+  (goto-char (point-min))
+  (while (re-search-forward "\(\w+[^\w]\)" nil t)
+    (replace-match "\372\200\373\\1\374" nil t)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Context-senstive in-span menu additions 
+;;
+
+(defun coq-create-span-menu (span idiom name)
+  (if (string-equal idiom "proof")
+      (let ((thm (span-property span 'name)))
+        (list (vector
+               "Print Proof"
+               `(proof-shell-invisible-command 
+                 ,(format "Print Proof %s." thm)))))))
+
 
 
 ;;;   Local Variables: ***
