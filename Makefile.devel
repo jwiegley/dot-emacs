@@ -110,7 +110,7 @@ NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel doc/notes.txt doc/P
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
-IGNOREDFILES=doc/ProofGeneral.dvi doc/ProofGeneral.eps.gz Makefile.devel todo ChangeLog doc/ProofGeneral.pdf doc/ProofGeneral.ps
+IGNOREDFILES=doc/ProofGeneral.dvi doc/ProofGeneral.ps.gz doc/ProofGeneral.eps.gz Makefile.devel todo ChangeLog doc/ProofGeneral.pdf doc/ProofGeneral.ps
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
