@@ -1276,7 +1276,7 @@ See also @samp{@code{proof-shell-init-cmd}}.
 @c TEXI DOCSTRING MAGIC: proof-shell-init-cmd
 @defvar proof-shell-init-cmd 
 The command for initially configuring the proof process.@*
-This command is sent to the process as soon as syncrhonization is gained
+This command is sent to the process as soon as synchronization is gained
 (when an annotated prompt is first recognized).  It can be used to configure 
 the proof assistant in some way, or print a welcome message
 (since output before the first prompt is discarded).
