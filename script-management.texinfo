@@ -354,7 +354,8 @@ print LEGO help text in the response buffer
 
 @end table
 
-In addition, there are some abbreviations for common commands
+In addition, there are some abbreviations for common commands, which
+add text to the buffer:
 
 @table @kbd
 @item C-c i   
@@ -377,12 +378,17 @@ As well as custom popup menus, it has the following commands:
 @item C-c C-p
 display the proof state in the response buffer
 
+@item C-c C-s
+search for items in the library of a given type.  This runs the
+@kbd{Search} command of Coq.
+
 @item C-c c
 display the context in the response buffer
 
 @end table
 
-In addition, there are some abbreviations for common commands:
+In addition, there are some abbreviations for common commands, which
+add text to the buffer:
 
 @table @kbd
 @item C-c I   
