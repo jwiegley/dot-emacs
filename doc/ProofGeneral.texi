@@ -172,69 +172,10 @@ Isabelle.
 @unnumbered Preface
 
 @menu
-* Credits::                     
-* History::                     
 * Latest news::                     
+* History::                     
+* Credits::                     
 @end menu
-
-@node Credits
-@unnumberedsec Credits
-@cindex @code{lego-mode}
-@cindex maintenance
-
-The main developers of Proof General are
-
-@itemize @bullet
-@item @b{David Aspinall},
-@item @b{Healfdene Goguen},
-@item @b{Thomas Kleymann} and
-@item @b{Dilip Sequeira}.
-@end itemize
-
-LEGO Proof General (the successor of @code{lego-mode}) was crafted by
-Thomas Kleymann and Dilip Sequeira. 
-@c
-It is presently maintained by 
-Paul Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. 
-@c
-Coq Proof General was crafted by Healfdene Goguen, with
-later contributions from Patrick Loiseleur.
-It is now maintained by Pierre Courtieu <courtieu@@lri.fr>
-@c
-Isabelle Proof General was crafted and is being maintained by David
-Aspinall @i{<isabelle@@dcs.ed.ac.uk>}.  It has benefited greatly
-from code and suggestions by Markus Wenzel, who crafted and maintains
-Isabelle/Isar Proof General.  David von Oheimb supplied patches
-for x-symbol support.
-
-The generic base for Proof General was developed by Kleymann, Sequeira,
-Goguen and Aspinall (in order of appearance). It follows some of the
-ideas used in Project @uref{http://www.inria.fr/croap/,CROAP}. The
-project to implement a proof mode for LEGO was initiated in 1994 and
-coordinated until October 1998 by Thomas Kleymann. Since October 1998,
-
-Proof
-General project was 
-
-David Aspinall is in charge of
-Proof General.
-
-An early version of this manual was prepared by Dilip.  The present
-version was written by David and Thomas, and Healf supplied some text
-for the section on Coq Proof General.
-
-The project has benefited from funding by EPSRC (Applications of a Type
-Theory Based Proof Assistant) and the EC (Types for Proofs and Programs).
-During the development of Proof General, the following people helped
-by providing feedback, testing, or code:
-Pascal Brisset,
-Rod Burstall, 
-Paul Callaghan,
-Martin Hofmann,
-James McKinna,
-David von Oheimb,
-and Markus Wenzel.  Thanks to all of you!
-
 
 
 @node Latest news
@@ -256,7 +197,9 @@ code. Proofs which are unfinished and not explicitly closed by a
 been streamlined.  The proof shell filter has been optimized to give
 hungry proof assistants a better share of CPU cycles.  Proof General is
 easier to adapt to new provers --- it fails more gracefully (or not at
-all!) when particular configuration variables are unset.
+all!) when particular configuration variables are unset.  
+An example configuration for Isabelle is provided, which uses
+just 25 simple settings.
 
 This manual has been updated accordingly.  It also has a better
 description of how to add support for a new prover.
@@ -355,6 +298,59 @@ program.
 Why not adapt Proof General to your favourite proof assitant?
 
 
+
+@node Credits
+@unnumberedsec Credits
+@cindex @code{lego-mode}
+@cindex maintenance
+
+The main developers of Proof General are
+
+@itemize @bullet
+@item @b{David Aspinall},
+@item @b{Healfdene Goguen},
+@item @b{Thomas Kleymann} and
+@item @b{Dilip Sequeira}.
+@end itemize
+
+LEGO Proof General (the successor of @code{lego-mode}) was crafted by
+Thomas Kleymann and Dilip Sequeira. 
+@c
+It is presently maintained by David Aspinall and
+Paul Callaghan @i{<P.C.Callaghan@@durham.ac.uk>}. 
+@c
+Coq Proof General was crafted by Healfdene Goguen, with
+later contributions from Patrick Loiseleur.
+It is now maintained by Pierre Courtieu @i{<courtieu@@lri.fr>}.
+@c
+Isabelle Proof General was crafted and is being maintained by David
+Aspinall @i{<da@@dcs.ed.ac.uk>}.  It has benefited greatly
+from code and suggestions by Markus Wenzel, who crafted and maintains
+Isabelle/Isar Proof General.  David von Oheimb supplied the
+original patches for X-Symbol support.
+
+The generic base for Proof General was developed by Kleymann, Sequeira,
+Goguen and Aspinall (in order of appearance). It follows some of the
+ideas used in Project @uref{http://www.inria.fr/croap/,CROAP}. The
+project to implement a proof mode for LEGO was initiated in 1994 and
+coordinated until October 1998 by Thomas Kleymann. In October 1998, the
+project became Proof General and has been managed by David Aspinall
+since then.
+
+Some early documentation for LEGO mode was prepared by Dilip Sequeria.
+The present version was written by David Aspinall and Thomas Kleymann.
+and Healfdene Goguen supplied some text for Coq Proof General.  The
+updates and additions for Proof General 3.0 have been made by David
+Aspinall.
+
+The Proof General project has benefited from funding by EPSRC
+(Applications of a Type Theory Based Proof Assistant), the EC (Types for
+Proofs and Programs) and the support of the LFCS.  
+
+During the development of Proof General, the following people helped by
+providing feedback, testing, or code: Pascal Brisset, Rod Burstall, Paul
+Callaghan, Martin Hofmann, James McKinna, David von Oheimb, and Markus
+Wenzel.  Thanks to all of you!
 
 
 
