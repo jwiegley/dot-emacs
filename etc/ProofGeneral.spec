@@ -46,8 +46,8 @@ mv lego/legotags coq/coqtags ${RPM_BUILD_ROOT}/usr/bin
 
 # Put info file in proper place.
 mkdir -p ${RPM_BUILD_ROOT}/usr/info
-mv doc/ProofGeneral.info ${RPM_BUILD_ROOT}/usr/info
-gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info
+mv doc/ProofGeneral.info doc/ProofGeneral.info-* ${RPM_BUILD_ROOT}/usr/info
+gzip ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info ${RPM_BUILD_ROOT}/usr/info/ProofGeneral.info-*
 # Remove duff bits
 rm -f doc/dir doc/localdir doc/ProofGeneral.texi
 
@@ -68,6 +68,7 @@ fi
 %files
 %attr(-,root,root) %doc BUGS INSTALL doc/*
 %attr(-,root,root) /usr/info/ProofGeneral.info.gz
+%attr(-,root,root) /usr/info/ProofGeneral.info-*.gz
 %attr(-,root,root) /usr/bin/coqtags
 %attr(-,root,root) /usr/bin/legotags
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral
