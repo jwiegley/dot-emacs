@@ -1248,6 +1248,15 @@ group.  This allows different proof assistants to coexist
   :type 'string
   :group 'proof-shell)
 
+(defcustom proof-shell-auto-terminate-commands t
+  "Non-nil if Proof General should try to add terminator to every command.
+If non-nil, whenever a command is sent to the prover using
+`proof-shell-invisible-command', Proof General will check to see if it
+ends with proof-terminal-char, and add it if not.
+If proof-terminal-char is nil, this has no effect."
+  :type 'boolean
+  :group 'proof-shell)
+
 (defcustom proof-shell-pre-sync-init-cmd nil
    "The command for configuring the proof process to gain synchronization.
 This command is sent before Proof General's synchronization
@@ -1282,15 +1291,6 @@ See also `proof-shell-pre-sync-init-cmd'."
   "A command to quit the proof process.  If nil, send EOF instead."
    :type '(choice string (const nil))
    :group 'proof-shell)
-
-(defcustom proof-shell-auto-terminate-commands t
-  "Non-nil if Proof General should try to add terminator to every command.
-If non-nil, whenever a command is sent to the prover using
-`proof-shell-invisible-command', Proof General will check to see if it
-ends with proof-terminal-char, and add it if not.
-If proof-terminal-char is nil, this has no effect."
-  :type 'boolean
-  :group 'proof-shell)
 
 ;; FIXME could add option to quiz user before rude kill.
 (defcustom proof-shell-quit-timeout 10
