@@ -27,13 +27,11 @@
   (switch-to-buffer-other-window "*doc holes*")
   (insert "
 
-The highlighted # in your buffer are \"holes\", holes are a powerful
-feature for program editing. the character '#' is inserted to make
-empty holes visible. You can delete them like usual characters. If you
-don't replace \"#\"s by something else (see below), it will be saved
-in the buffer's file as usual '#' characters. To delete a hole, click
-on it with button 3 of your mouse. See the short documentation below
-to learn how to use holes.
+The highlighted characters in your buffer are \"holes\", holes are a
+powerful feature for program editing.  You can delete them like usual
+characters. If you don't replace holes by something else (see below),
+they will be saved in the buffer's file as usual characters. See the
+short documentation below to learn how to use holes.
 
                           HOLES
 
@@ -52,7 +50,7 @@ zero active hole globally.  It is highlighted with a different color.
 TO DEFINE A HOLE, two methods:
 
  o Select a region with keyboard (ctrl-space) or mouse, then hit
-ctrl-meta-h. If the selected region is empty (i.e. if you just
+ctrl-meta-h. If the selected region is empty (i.e. if you just hit
 ctrl+meta+h), then a hole containing '#' is created.
 
  o Select text with mouse while pressing ctrl + meta.  If the selected
@@ -90,7 +88,7 @@ to put at its place. The following hole is automatically made active,
 so you can hit meta-return again.
 
 It is useful in combination with abbreviations. For example in
-coq-mode \"f\" is an abbreviation for Fixpoint # (# : #) {struct #} :
+coq-mode \"fix\" is an abbreviation for Fixpoint # (# : #) {struct #} :
 # := #, where each # is a hole. Then hitting meta-return goes from one
 hole to the following and you can fill-in each hole very quickly.
 
