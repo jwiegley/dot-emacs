@@ -140,12 +140,8 @@ no regular or easily discernable structure."
     ;; Theory loader output and verbose update() output.
     "Reading \"\\(.*\\)\"\\|Not reading \"\\(.*\\)\""
     (lambda (str)
-      (let ((filename (or (match-string 1 str)
-			  (match-string 2 str))))
-	(if (string-match "\\.ML$" filename)
-	    filename)
-	;; Ignore .thy files for now
-	)))
+      (or (match-string 1 str) 
+	  (match-string 2 str))))
    ;; This is the output returned by a special command to
    ;; query Isabelle for outdated files.
    proof-shell-retract-files-regexp
@@ -243,8 +239,13 @@ isa-proofscript-mode."
   (interactive)
   (cond
    ((string-match ".thy" (buffer-file-name))
-    (thy-mode))
+    (thy-mode)
+    ;; Has this theory file been loaded by Isabelle?
+    ;; Colour it blue if so.  
+    (and (member buffer-file-truename proof-included-files-list)
+	 (proof-mark-buffer-atomic (current-buffer))))
    (t 
+    ;; Proof mode does this automatically.
     (isa-proofscript-mode))))
 
 ;; Next portion taken from isa-load.el

@@ -149,6 +149,7 @@ The argument KBL is a list of tuples (k . f) where `k' is a keybinding
 (make-variable-buffer-local 'proof-queue-span)
 
 (defun proof-init-segmentation ()
+  "Initialise the spans in a proof script buffer."
   (setq proof-queue-loose-end nil)
   (if (not proof-queue-span)
       (setq proof-queue-span (make-span 1 1)))
@@ -224,7 +225,8 @@ buffer to END."
   "Return end of locked region in current buffer or (point-min) otherwise."
   (or 
    (and (member (current-buffer) proof-script-buffer-list)
-	proof-locked-span (span-end proof-locked-span))
+	proof-locked-span 
+	(span-end proof-locked-span))
    (point-min)))
 
 (defun proof-locked-end ()
@@ -255,30 +257,42 @@ Only call this from a scripting buffer."
   "Mark BUFFER as having been processed in a single step.
 
 If buffer already contains a locked region, only the remainder of the
-buffer is closed off atomically." 
+buffer is closed off atomically.
+
+This works for buffers which are not in proof scripting mode too,
+to allow other files loaded by proof assistants to be marked read-only." 
   (save-excursion
     (set-buffer buffer)
     (let ((span (make-span (proof-unprocessed-begin) (point-max)))
 	  cmd)
-      ;; compute first command of buffer
-      (goto-char (point-min))
-      (proof-find-next-terminator)
-      (let ((cmd-list (member-if
-		       (lambda (entry) (equal (car entry) 'cmd))
-		       (proof-segment-up-to (point)))))
+      (if (eq proof-buffer-type 'script) 
+	  ;; For a script buffer
+	  (progn
+	    (goto-char (point-min))
+	    (proof-find-next-terminator)
+	    (let ((cmd-list (member-if
+			     (lambda (entry) (equal (car entry) 'cmd))
+			     (proof-segment-up-to (point)))))
+	      ;; FIXME: should -init- be done if spans already exist?
+	      (proof-init-segmentation)
+	      (if cmd-list 
+		  (progn
+		    (setq cmd (second (car cmd-list)))
+		    (set-span-property span 'type 'vanilla)
+		    (set-span-property span 'cmd cmd))
+		;; If there was no command in the buffer, atomic
+		;; span becomes a comment.
+		(set-span-property span 'type 'comment)))
+	    ;; Make sure a new proof script buffer enters the list
+	    ;; of script buffers.
+	    (or (member buffer proof-script-buffer-list)
+		(setq proof-script-buffer-list
+		      (append proof-script-buffer-list (list buffer)))))
+	;; For a non-script buffer
 	(proof-init-segmentation)
-	(if cmd-list 
-	    (progn
-	      (setq cmd (second (car cmd-list)))
-	      (set-span-property span 'type 'vanilla)
-	      (set-span-property span 'cmd cmd))
-	  ;; If there was no command in the buffer, atomic
-	  ;; span becomes a comment.
-	  (set-span-property span 'type 'comment)))
-      (proof-set-locked-end (point-max))
-      (or (member buffer proof-script-buffer-list)
-	  (setq proof-script-buffer-list
-		(append proof-script-buffer-list (list buffer)))))))
+	(set-span-property span 'type 'comment))
+      ;; End of locked region is always end of buffer
+      (proof-set-locked-end (point-max)))))
 
 (defun proof-file-truename (filename)
   "Returns the true name of the file FILENAME or nil."
