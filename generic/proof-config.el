@@ -1366,6 +1366,15 @@ for scripting commands), unless activated-interactively is set."
   :type '(repeat function)
   :group 'proof-script)
 
+(defcustom proof-deactivate-scripting-hook nil
+  "Hook run when a buffer is switched out of scripting mode.
+The current buffer will be the recently scripting buffer.
+
+This hook may be useful for synchronizing with the proof
+assistant, for example, to compile a completed file."
+  :type '(repeat function)
+  :group 'proof-script)
+
 ;;
 ;; Proof script indentation
 ;;
