@@ -61,6 +61,16 @@ A Nested error problem:  conceptually, activate scripting should fail
   fails.  Maybe fix by adding a new piece of state: 
   "proof-shell-error-flagged".
 
+B Add something to better document two-buffer versus three-buffer
+  interaction modes, and the use of proof-window-dedicated to
+  trigger three buffer mode.
+
+D proof-script-next-entity-regexps: 
+  "However, it does not parse strings, comments, or parentheses."
+  Actually we could improve the generic code to ignore
+  headings which buffer-syntactic-context suggests are inside
+  comments or strings.
+
 D Usability for Isabelle QED message.
   Why does the 'no subgoals' proofstate+message appear in the response
   buffer? I'd say it should appear at least in the goals buffer, as this
