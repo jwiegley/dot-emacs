@@ -141,22 +141,45 @@ Note: this feature has not been implemented yet, it is only an idea."
   :type 'boolean
   :group 'proof-general)
 
-(defcustom proof-auto-retract-other-buffers
-  nil
-  "*If non-nil, retract automatically when switching scripting buffer.
-With this option active, when scripting is activated in a new
-buffer with an old one partly processed, the old buffer will be
-retracted automatically.  
+(defcustom proof-query-file-save-when-activating-scripting
+  t
+"*If non-nil, query user to save files when activating scripting.
 
-With this option inactive, the user is questioned instead.
+Often, activating scripting or executing the first scripting command
+of a proof script will cause the proof assistant to load some files
+needed by the current proof script.  If this option is non-nil, the
+user will be prompted to save some unsaved buffers in case any of 
+them corresponds to a file which may be loaded by the proof assistant.
 
-Proof General insists that only one script buffer can be partly 
-processed: all others have to be completely processed or
-completely unprocessed.  This is to make sure that handling of
-multiple files makes sense withing the proof assistant."
+You can turn this option off if the save queries are annoying, but
+be warned that with some proof assistants this may risk processing 
+files which are out of date with respect to the lodead buffers!"
   :type 'boolean
   :group 'proof-general)
 
+(defcustom proof-auto-action-when-deactivating-scripting
+  nil
+  "*If 'retract or 'process, do that when deactivating scripting.
+
+With this option set to 'retract or 'process, when scripting 
+is turned off in a partly processed buffer, the buffer will be 
+retracted or processed automatically.
+
+With this option unset (nil), the user is questioned instead.
+
+Proof General insists that only one script buffer can be partly
+processed: all others have to be completely processed or completely
+unprocessed.  This is to make sure that handling of multiple files
+makes sense within the proof assistant.
+
+NB: A buffer is completely processed when all non-whitespace is
+locked (coloured blue); a buffer is completely unprocessed when there
+is no locked region."
+  :type '(choice
+	  (const :tag "No automatic action; query user" nil)
+	  (const :tag "Automatically retract" retract)
+	  (const :tag "Automatically process" process))
+  :group 'proof-general)
 
 (defcustom proof-script-indent nil
   ;; Particular proof assistants can enable this if they feel
@@ -211,6 +234,20 @@ selected frame will be automatically deleted."
 (defcustom proof-splash-inhibit
   nil
   "*Non-nil prevents splash screen display when Proof General is loaded."
+  :type 'boolean
+  :group 'proof-general)
+
+(defcustom proof-tidy-response
+  nil
+  "*Non-nil indicates that the response buffer should be cleared often.
+The response buffer can be set either to accumulate output, or to
+clear frequently.  
+
+With this variable non-nil, the response buffer is kept tidy by
+clearing it often, typically between successive commands (just like the
+goals buffer).  
+
+Otherwise the response buffer will accumulate output from the prover."
   :type 'boolean
   :group 'proof-general)
 
@@ -493,7 +530,12 @@ If a function, it should return the command string to insert."
   :type '(choice string function)
   :group 'prover-config)
 
-
+(defcustom proof-show-debug-messages t
+  "Whether to display debugging messages in the response buffer.
+If non-nil, debugging messages are displayed in the response giving
+information about what Proof General is doing."
+  :type 'boolean
+  :group 'prover-config)
 
 
 
@@ -938,7 +980,7 @@ The default value is \"\\n\" to match up to the end of the line."
 
 If REGEXP matches output, then the function FUNCTION is invoked on the
 output string chunk. It must return a script file name (with complete
-path) the system is currently processing. In practice, FUNCTION is
+path) the system has successfully processed. In practice, FUNCTION is
 likely to inspect the match data.  If it returns the empty string,
 the file name of the scripting buffer is used instead.  If it
 returns nil, no action is taken.
@@ -952,10 +994,11 @@ name is added to the front of `proof-included-files-list'."
 
 
 ;; FIXME da: why not amalgamate the next two into a single
-;;	     variable as above?
+;;	     variable as above?  Maybe because removing one
+;;	     
 
 (defcustom proof-shell-retract-files-regexp nil
-  "A REGEXP to match that the prover has retracted across file boundaries.
+  "Matches a message that the prover has retracted a file.
 
 At this stage, Proof General's view of the processed files is out of
 date and needs to be updated with the help of the function
