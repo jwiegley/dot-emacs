@@ -152,7 +152,8 @@ No change to current buffer or point."
   (proof-shell-start)
   (unless (or (not proof-shell-busy)
 	      (eq queuemode proof-shell-busy)
-	      (member proof-shell-busy queuemode))
+	      (and (listp queuemode) 
+		   (member proof-shell-busy queuemode)))
     (error "Proof Process Busy!")))
 
 ;;;###autoload
