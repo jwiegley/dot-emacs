@@ -108,26 +108,38 @@
 (defconst isar-indent-open-regexp (proof-ids-to-regexp isar-keywords-indent-open))
 (defconst isar-indent-close-regexp (proof-ids-to-regexp isar-keywords-indent-close))
 (defconst isar-indent-enclose-regexp (proof-ids-to-regexp isar-keywords-indent-enclose))
+(defconst isar-indent-reset-regexp (proof-ids-to-regexp isar-keywords-indent-reset))
 
 (defun isar-stack-to-indent (stack)
   (cond
    ((null stack) 0)
    ((null (car (car stack)))
     (nth 1 (car stack)))
-   (t (let ((col (save-excursion
+   (t (let* ((col (save-excursion
 		   (goto-char (nth 1 (car stack)))
-		   (current-indentation))))
-	(if (and (eq (car (car stack)) ?p)
-		 (save-excursion (move-to-column (current-indentation))
-				 (proof-looking-at isar-indent-enclose-regexp)))
-	    col
-	  (+ isabelle-isar-indent col))))))
+		   (current-indentation)))
+	    (ind-col (+ isabelle-isar-indent col)))
+	(if (eq (car (car stack)) ?p)
+	    (save-excursion
+	      (move-to-column (current-indentation))
+	      (cond
+	       ((proof-looking-at isar-indent-enclose-regexp) col)
+	       ((proof-looking-at isar-indent-reset-regexp) 0)
+	       (t ind-col)))
+	  ind-col)))))
 
 (defun isar-parse-indent (c stack)
   (cond
+   ;; toplevel / other
+   ((proof-looking-at isar-indent-reset-regexp)
+    (cons (list proof-terminal-char (point)) (list (list nil 0))))
+   ((proof-looking-at isar-indent-regexp)
+    (cons (list proof-terminal-char (point)) stack))
+   ;; open / close
    ((proof-looking-at isar-indent-open-regexp)
     (cons (list ?p (point)) stack))
-   ((and (proof-looking-at isar-indent-close-regexp) (eq (car (car stack)) ?p))
+   ((and (proof-looking-at isar-indent-close-regexp)
+	 (eq (car (car stack)) ?p))
     (cdr stack))
    (t stack)))
 
@@ -193,7 +205,7 @@
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-goal-with-hole-regexp
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
-   proof-indent-commands-regexp	isar-indent-regexp
+   proof-indent-commands-regexp	"$^" ;FIXME isar-indent-regexp
    ;; proof engine commands
    proof-showproof-command	"pr"
    proof-goal-command		"lemma \"%s\";"
@@ -442,23 +454,25 @@ proof-shell-retract-files-regexp."
 
 (defun isar-global-save-command-p (span str)
   "Decide whether argument really is a global save command"
-  (let ((ans nil) (lev 0) cmd)
-    (while (and span (not ans))
-      (setq span (prev-span span 'type))
-      (setq cmd (span-property span 'cmd))
-      (cond
-       ;; comment: skip
-       ((eq (span-property span 'type) 'comment))
-       ;; local qed: enter block
-       ((proof-string-match isar-save-command-regexp cmd)
-	(setq lev (+ lev 1)))
-       ;; local goal: leave block, or done
-       ((proof-string-match isar-local-goal-command-regexp cmd)
-	(if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
-       ;; global goal: done
-       ((proof-string-match isar-goal-command-regexp cmd)
-	(setq ans 'yes))))
-    (eq ans 'yes)))
+  (or
+   (string-match isar-global-save-command-regexp str)
+   (let ((ans nil) (lev 0) cmd)
+     (while (and span (not ans))
+       (setq span (prev-span span 'type))
+       (setq cmd (span-property span 'cmd))
+       (cond
+	;; comment: skip
+	((eq (span-property span 'type) 'comment))
+	;; local qed: enter block
+	((proof-string-match isar-save-command-regexp cmd)
+	 (setq lev (+ lev 1)))
+	;; local goal: leave block, or done
+	((proof-string-match isar-local-goal-command-regexp cmd)
+	 (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
+	;; global goal: done
+	((proof-string-match isar-goal-command-regexp cmd)
+	 (setq ans 'yes))))
+     (eq ans 'yes))))
 
 (defvar isar-current-goal 1
   "Last goal that emacs looked at.")
