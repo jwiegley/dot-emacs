@@ -21,7 +21,6 @@
 (require 'proof-syntax)
 (require 'proof-indent)
 (require 'easymenu)
-(require 'tl-list)
 
 (autoload 'w3-fetch "w3" nil t)
 
@@ -240,6 +239,15 @@ when parsing the proofstate output")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; A couple of small utilities                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; append-element in tl-list
+(defun proof-append-element (ls elt)
+  "Append ELT to last of LS if ELT is not nil. [proof.el]
+   This function coincides with `append-element' in the package
+   [tl-list.el.]"
+  (if elt
+      (append ls (list elt))
+    ls))
 
 (defun proof-define-keys (map kbl)
   "Adds keybindings `kbl' in `map'. The argument `kbl' is a list of
@@ -1603,7 +1611,7 @@ deletes the region corresponding to the proof sequence."
   "The Help Menu in Script Management.")
 
 (defvar proof-shared-menu
-  (append-element '(
+  (proof-append-element '(
             ["Display context" proof-ctxt
 	      :active (proof-shell-live-buffer)]
             ["Display proof state" proof-prf
