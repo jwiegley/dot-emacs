@@ -5,6 +5,10 @@
 
 
 ;; $Log$
+;; Revision 1.27  1997/11/06 16:56:26  hhg
+;; Assign new variable proof-goal-hyp-fn to lego-goal-hyp, which is
+;; simply old code for picking up goal or hypothesis for pbp
+;;
 ;; Revision 1.26  1997/10/24 14:51:11  hhg
 ;; New indentation for lego-count-undos (smile)
 ;;
@@ -307,6 +311,14 @@
       "COMMENT")))
   
 
+(defun lego-goal-hyp ()
+  (cond 
+   ((looking-at proof-shell-goal-regexp)
+    (cons 'goal (match-string 1)))
+   ((looking-at proof-shell-assumption-regexp)
+    (cons 'hyp (match-string 1)))
+   (t nil)))
+
 (defun lego-retract-target (target delete-region)
   (let ((end (proof-end-of-locked))
 	(start (span-start target))
@@ -416,6 +428,7 @@
   (setq proof-comment-end "*)")
 
   (setq proof-retract-target-fn 'lego-retract-target)
+  (setq proof-goal-hyp-fn 'lego-goal-hyp)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
