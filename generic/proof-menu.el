@@ -746,8 +746,11 @@ the form of the menu entry for the setting.")
 	(setq newargs (cons (car args) newargs))))
       (setq args (cdr args)))
     (setq newargs (reverse newargs))
-    (unless (or setting evalform)
-      (error "defpacustom: missing :setting or :eval keyword"))
+    ;; PG 3.5 patch 22.4.03: allow empty :setting, :eval,
+    ;; because it's handy to put stuff on settings menu but
+    ;; inspect the settings elsewhere in code.
+    ;; (unless (or setting evalform)
+    ;; (error "defpacustom: missing :setting or :eval keyword"))
     (unless (and type
 		  (or (eq (eval type) 'boolean) 
 		      (eq (eval type) 'integer) 
@@ -775,14 +778,16 @@ the form of the menu entry for the setting.")
 	,@newargs
 	:set 'proof-set-value
 	:group 'proof-assistant-setting))
-    (if evalform
-	(eval
-	 `(defpgfun ,name ()
-	    ,evalform))
+    (cond
+     (evalform
+      (eval
+       `(defpgfun ,name ()
+	  ,evalform)))
+     (setting
       (eval
        `(defpgfun ,name ()
 	  (proof-assistant-invisible-command-ifposs
-	   (proof-assistant-settings-cmd (quote ,name))))))
+	   (proof-assistant-settings-cmd (quote ,name)))))))
     (setq proof-assistant-settings
 	  (cons (list name setting (eval type)) 
 		(remassoc name proof-assistant-settings)))))
@@ -813,7 +818,10 @@ evaluate can be provided instead."
 	;; FIXME: should only do if goals display is active,
 	;; messy otherwise. 
 	;; (we need a new flag for "active goals display").  
-	(if proof-showproof-command 
+	;; PG 3.5 (patch 22.04.04):
+	;; Let's approximate that by looking at proof-nesting-depth.
+	(if (and proof-showproof-command 
+		 (> proof-nesting-depth 0))
 	    (proof-shell-invisible-command proof-showproof-command))
 	;;  Could also repeat last command if non-state destroying.
 	)))
