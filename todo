@@ -23,8 +23,6 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 *** Update documentation.  Include new screenshots also for web pages.
 
-*** Remove papers subdirectory.
-
 *** GNU Emacs bug:
      -- Behaviour of `proof-shell-exit' is different on command
      line and from menu.  From menu it *hangs* for some reason,
