@@ -32,6 +32,11 @@ B Add a "register" page for registering downloads.  Perhaps filling
     http://www.dcs.ed.ac.uk/home/da/Isamode/IsamodeSurvey.html
   [2 hours]
 
+B Make a mailing list for Proof General users.
+  [2 hours for introductory messages, mentioning on web
+   pages, understanding Majordomo.  Maybe support will
+   make the list itself.]
+
 B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
 
