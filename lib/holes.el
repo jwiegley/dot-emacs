@@ -408,6 +408,7 @@ the span."
 	 (rend (or end (holes-region-end-or-nil) (point))))
     (if (eq rstart rend)
 	(progn
+	  (goto-char rstart)
 	  (insert-string holes-empty-hole-string)
 	  (setq rend (point))
 	  )
@@ -932,19 +933,30 @@ Sets the active hole to the last created hole and unsets it if no hole is
   )
 
 
+;;; Works only for Emacs
+(defun holes-skeleton-end-hook ()
+  "Default hook after a skeleton insertin: put holes at each interesting position."
+  (let ((lpos skeleton-positions))
+    (while lpos
+      (holes-set-make-active-hole (car lpos) (car lpos)) ; put a hole here
+      (setq lpos (cdr lpos))
+      )
+  ))
 
 (defun holes-abbrev-complete ()
   "Complete abbrev by putting holes and indenting.
 Moves point at beginning of expanded text.  Put this function as
-  call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
-  become holes."
+call-back for your abbrevs, and just expanded \"#\" and \"@{..}\" will
+become holes."
   (let ((pos last-abbrev-location))
     (holes-indent-last-expand)
     (holes-replace-string-by-holes-backward-move-point
      (holes-count-holes-in-last-expand) holes-empty-hole-regexp)
     (if (> (holes-count-holes-in-last-expand) 1)
 	(progn (goto-char pos)
-	       (message "Hit M-ret to jump to active hole.  C-h holes-doc to see holes doc."))
+	       (message 
+		(substitute-command-keys 
+		 "Hit \\[holes-set-point-next-hole-destroy] to jump to active hole.  C-h holes-doc to see holes doc.")))
 
       (if (= (holes-count-holes-in-last-expand) 0) () ; no hole, stay here.
 	(goto-char pos)
@@ -969,7 +981,10 @@ Moves point at beginning of expanded text.  Put this function as
       (goto-char pos)
       (holes-set-point-next-hole-destroy) ; if only one hole, go to it.
       )
-    (if (> c 1) (message "Hit M-ret to jump to active hole.  C-h holes-doc to see holes doc.")
+    (if (> c 1) 
+	(message 
+	 (substitute-command-keys 
+	  "Hit \\[holes-set-point-next-hole-destroy] to jump to active hole.  C-h holes-doc to see holes doc."))
       )
     )
   )
