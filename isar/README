@@ -6,7 +6,8 @@ $Id$
 
 Status:		   supported
 Maintainer:	   Markus Wenzel
-Isabelle version:  99
+Isabelle version:  99-1
+Isabelle homepage: http://www.cl.cam.ac.uk/Research/HVG/Isabelle/
 Isar homepage:	   http://isabelle.in.tum.de/Isar/
 
 ========================================
@@ -21,5 +22,7 @@ already defined and it's easy to add to your own theories.
 
 There is no support for proof by pointing yet, and no tags program.
 
-The script `interface' and file 'interface-setup.el' are used to start
-Isabelle Proof General via the 'Isabelle' shell command.  
+The script `interface' and file 'interface-setup.el' are used
+internally to start Isabelle Proof General via the 'Isabelle' shell
+command.  This is the default way to invoke Proof General from the
+Isabelle perspective.
