@@ -368,7 +368,7 @@
 
 ;; ----- variations on undo
 
-(defconst isar-undo "ProofGeneral.undo;")  (* no output undo *)
+(defconst isar-undo "ProofGeneral.undo;")  ;; no output undo 
 (defconst isar-kill "kill;")
 
 (defun isar-remove (name)
