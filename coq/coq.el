@@ -197,10 +197,10 @@
 ; and emacs?  
 ; DA: should be okay, communication is not as asynchronous as you think
 (defun coq-proof-mode-p ()
-  "Look at the last line of the *coq* buffer to see if the prompt 
-is the toplevel \"Coq <\". Returns nil if yes. Allows to know if we
-are currentlly in proof mode. This assumes that no \"Resume\" Command
-have been used."
+  "Allows to know if we are currentlly in proof mode. 
+Look at the last line of the *coq* buffer to see if the prompt 
+is the toplevel \"Coq <\". Returns nil if yes. 
+This assumes that no \"Resume\" command has been used."
   (not (string-match "^Coq < " proof-shell-last-prompt)))
 
 
@@ -220,8 +220,19 @@ have been used."
        ((eq (span-property span 'type) 'comment))
        
        ;; FIXME: combine with coq-keywords-decl-defn-regexp case below?
+       ;; [ Maybe not: Section is being treated as a _goal_ command
+       ;;   now, so this test has to appear before the goalsave ]
        ((proof-string-match 
 	 (concat "Section\\s-+\\(" proof-id "\\)\\s-*") str)
+	(unless (eq (span-property span 'type) 'goalsave)
+	  ;; If we're resetting to beginning of a section from
+	  ;; inside, need to fix the nesting depth.
+	  ;; FIXME: this is not good enough: the scanning loop
+	  ;; exits immediately but Reset has implicit Aborts
+	  ;; which are not being counted here.  Really
+	  ;; we need to set the "master reset" command which
+	  ;; subsumes the others, but still count the depth.
+	  (decf proof-nesting-depth))
 	(setq ans (format coq-forget-id-command (match-string 2 str))))
        
        ((eq (span-property span 'type) 'goalsave)
@@ -234,9 +245,7 @@ have been used."
 	;; state.
 	;; (format coq-forget-id-command (span-property span 'name)))
 	(if (span-property span 'nestedundos) 
-	    (setq nbacks (+ 1 nbacks (span-property span 'nestedundos)))
-	  ) 
-	)
+	    (setq nbacks (+ 1 nbacks (span-property span 'nestedundos)))))
        
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
@@ -249,7 +258,7 @@ have been used."
        ;;   Reset found if so: but this is tricky to co-ordinate
        ;;   with the number of Backs, perhaps? ]
        ((and 
-	 (eq proof-nesting-depth 0)
+	 (not (coq-proof-mode-p)) ;; (eq proof-nesting-depth 0)
 	 (proof-string-match 
 	  (concat "\\`\\(" coq-keywords-decl-defn-regexp "\\)\\s-*\\(" 
 		  proof-id 
@@ -260,7 +269,7 @@ have been used."
        ;; FIXME: combine with coq-keywords-decl-defn-regexp case above?
        ;; If it's not a goal but it contains "Definition" then it's a
        ;; declaration  [ da: is this not covered by above case??? ]
-       ((and (eq proof-nesting-depth 0)
+       ((and (not (coq-proof-mode-p)) ;; (eq proof-nesting-depth 0)
 	     (proof-string-match
 	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*") str))
 	(setq ans (format coq-forget-id-command (match-string 2 str))))
