@@ -16,6 +16,7 @@ $Id$
  * Things to do for Coq
  * Things to do for Isabelle
  * FSF Emacs issues
+ * Bugs in other packages beyond our control
  * Stable version release checklist
  * Things to do for Proof General Project
 
@@ -45,13 +46,17 @@ A Pending work, in progress [da]:
     - document proof-mouse-track-insert (new name for proof-send-span,
 re-enabled), proof-toggle-scripting, new configuration options.
     proof-cd
+    - more 3.0 issues: extending the queue region, being more lax
+    about proof-shell-busy.
+    - Fix sentinel infinite loop bug
 
 D Investigate possible toolbar refresh problems.
   Are extra clicks ever needed?  Wait for some comments.
 
 D Improve efficiency for processing for large proofs.
   Currently worse case is about 75%/25% CPU to Prover/XEmacs when processing
-  long output stretches on zermelo.  (Example: time_use_thy in src/HOL/Real/ROOT.ML)
+  long output stretches on zermelo.  
+    (Example: time_use_thy in src/HOL/Real/ROOT.ML)
   Processing large scripts is likely to be worse, and needs work.
   
 B After interrupt, queue region is left intact.  Seems odd. 
@@ -81,7 +86,6 @@ B bug: interrupting Isabelle process sometimes doesn't return, why?
   Not reliably repeatable, but:
     ProofGeneral.isa_restart(); 
     /usr/lib/Isabelle_22-Sep-1999/../../share/smlnj/bin/sml: Fatal error -- unexpected fault, signal = 11, code = 0x2af9e01b
-
 
 C Add new test cases for closure of unfinished proofs in Lego,
   Isabelle.
