@@ -6,6 +6,8 @@
 ;;
 ;; $Id$
 ;;
+;; NB: THIS FILE NOT YET USED: once required by PG,
+;; must be added to main dist by editing Makefile.devel
 
 (require 'pg-xml)
 
