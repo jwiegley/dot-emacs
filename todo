@@ -183,16 +183,6 @@ B Add skeleton instantiation files for a dummy prover "myassistant" to
   the default provers as an impoverished example mode.
   (2h, da will do for Isabelle)
 
-X Make process handling smarter: because Emacs is single-threaded,
-  no process output can be dealt with when we are running some
-  command.  This means that it would be safe to extend the 
-  red region, by putting more commands on the queue.  Also it would
-  be safe to implement a clever undo command which worked on the
-  red region: if there are commands waiting to be processed, we
-  could remove them from the queue.  If there are no commands waiting,
-  we have to wait until something becomes blue to undo it by sending
-  a command to the process.
-
 D Code in proof.el assumes all characters with top bit set are special
   instructions to Emacs.  This is rather arrogant, and precludes proof
   systems which utilize 8-bit character sets!  Needs repair.  (3h)
@@ -227,11 +217,6 @@ C Fixup sources to follow Elisp conventions better.
 D Implement proof-find-previous-terminator and bind it to C-c C-a
   (45min)
 
-X Support for x-symbols package.
-  Provers with sophisticated/configurable syntax should tell Emacs
-  about their syntax somehow, rather than trying to duplicate
-  specifications inside Emacs.
-
 B file handling could be more robust; perhaps one should always cd to
   the directory corresponding to the script buffer (currently only
   done for the buffer which starts up the proof system). This could be 
@@ -245,12 +230,6 @@ D Allow bib-cite style clicking on Load/Import commands to go to file.
 
 D support font-lock in goal buffer
 
-X We need to go over to piped communication rather than ptys to fix
-  the (Solaris) ^G bug. In this circumstance there's a bug in the
-  eager annotation code. Document this problem so that it can be
-  tested for future versions. [Currently the problem is documented in
-  Email messages sent to lego]
-
 C Unify toolbar and menu functions.
 
 D Remove duplication of variables e.g., proof-prog-name and
@@ -259,13 +238,18 @@ D Remove duplication of variables e.g., proof-prog-name and
 D Fixup implementation of "spans":  Add documentation!
   (30 mins)
 
-X Comment support is not very generic: we don't support end-of-line
-  terminated comments.  Is there any case where this might be
-  worthwhile?  (2h to add it).
-
 C Make completion more generic. For Isabelle and Lego, we can build a
   completion table by querying the process, which is better than
   messing with tags.
+
+X Support for x-symbols package.
+  Provers with sophisticated/configurable syntax should tell Emacs
+  about their syntax somehow, rather than trying to duplicate
+  specifications inside Emacs.
+
+X Comment support is not very generic: we don't support end-of-line
+  terminated comments.  Is there any case where this might be
+  worthwhile?  (2h to add it).
 
 X Splash screen: Add fancy text logo to it.  Centre the display
   prettily.
@@ -273,6 +257,16 @@ X Splash screen: Add fancy text logo to it.  Centre the display
 X Write a Makefile for the distribution.  It can do things like
   install the info file properly.  The work is at the moment done
   in the RPM spec file instead.
+
+X Make process handling smarter: because Emacs is single-threaded,
+  no process output can be dealt with when we are running some
+  command.  This means that it would be safe to extend the 
+  red region, by putting more commands on the queue.  Also it would
+  be safe to implement a clever undo command which worked on the
+  red region: if there are commands waiting to be processed, we
+  could remove them from the queue.  If there are no commands waiting,
+  we have to wait until something becomes blue to undo it by sending
+  a command to the process.
 
 X Ideas for efficiency improvements.  Rather than repeatedly
   re-parsing the buffer, we could parse the whole buffer *once*
@@ -283,6 +277,12 @@ X Ideas for efficiency improvements.  Rather than repeatedly
   that's not so nice).
   The function proof-segment-up-to could be made to cache its
   result.
+
+X We need to go over to piped communication rather than ptys to fix
+  the (Solaris) ^G bug. In this circumstance there's a bug in the
+  eager annotation code. Document this problem so that it can be
+  tested for future versions. [Currently the problem is documented in
+  Email messages sent to lego]
 
 
 * Proof-by-Pointing
