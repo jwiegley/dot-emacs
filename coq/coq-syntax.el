@@ -30,6 +30,7 @@
 
 (defvar coq-keywords-goal
   '(
+"Correctness"
 "Definition"
 "Fact"
 "Goal"
@@ -52,10 +53,12 @@
 
 (defvar coq-keywords-commands
   '(
+"Add\\s-+ML\\s-+Path"
 "AddPath"
 "Begin\\s-+Silent"
 "Cd"
 "Check"
+"Chapter"
 "Class"
 "Coercion"
 "DelPath"
@@ -72,7 +75,18 @@
 "Implicit\\s-+Arguments\\s-+Off"
 "Load"
 "Local\\s-+Coercion"
+"Locate\\s-+File"
+"Locate\\s-+Library"
+"Locate"
 "Opaque"
+"Print\\s-+Classes"
+"Print\\s-+Coercions"
+"Print\\s-+Graph"
+"Print\\s-+Grammar"
+"Print\\s-+Hint"
+"Print\\s-+LoadPath"
+"Print\\s-+ML\\s-+Path"
+"Print\\s-+ML\\s-+Modules"
 "Print"
 "Proof"
 "Pwd"
@@ -83,6 +97,9 @@
 "Search"
 "SearchIsos"
 "Section"
+"Show\\s-+Programs"
+"Show\\s-+Proof"
+"Show\\s-+Script"
 "Show"
 "Syntax"
 "Tactic\\s-+Definition"
