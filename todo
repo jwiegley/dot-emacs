@@ -49,6 +49,13 @@ B Manual improvements before techreport publishing (see notes at end also):
   - add screenshots?
   - add more index entries
 
+C Investigate support under Mule.  Suggestion we need to set
+  process-coding-system-alist somehow to prevent coding.
+
+C Investigate fix for looping rewriting in Isabelle.  Continual
+  and frequent messages from the prover lock out the user.
+  Is there any easy way of fixing this?
+  
 D Change the name of "automatic multiple files" to something
   more comprehensible.
 
