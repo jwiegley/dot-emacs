@@ -4,6 +4,12 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.5  1997/10/30 15:58:29  hhg
+;; Updates for coq, including:
+;; 	* pbp-goal-command and pbp-hyp-command use proof-terminal-string
+;; 	* updates to keywords
+;; 	* fix for goal regexp
+;;
 ;; Revision 1.4  1997/10/24 14:51:07  hhg
 ;; Changed order of "Inversion_clear" and "Inversion" so that former is
 ;; fontified first.
@@ -104,8 +110,11 @@
 "EApply"
 "EAuto"
 "Elim"
+"End"
 "Exact"
+"Exists"
 "Generalize"
+"Grammar"
 "Hnf"
 "Induction"
 "Injection"
@@ -116,6 +125,7 @@
 "Inversion"
 "LApply"
 "Linear"
+"Load"
 "Pattern"
 "Program"
 "Prolog"
@@ -124,10 +134,13 @@
 "Reflexivity"
 "Replace"
 "Rewrite"
+"Section"
 "Simplify_eq"
 "Simpl"
 "Specialize"
+"Split"
 "Symmetry"
+"Syntax"
 "Tauto"
 "Transitivity"
 "Trivial"
@@ -149,7 +162,7 @@
 
 ;; ----- regular expressions for font-lock
 ;; *** To update
-(defvar coq-error-regexp "^\\(Error\\|Syntax error\\)"
+(defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\)"
   "A regular expression indicating that the Coq process has
   identified an error.") 
 

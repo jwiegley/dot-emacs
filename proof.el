@@ -19,6 +19,12 @@
 ;;   report
 
 ;; $Log$
+;; Revision 1.19  1997/10/30 15:58:33  hhg
+;; Updates for coq, including:
+;; 	* pbp-goal-command and pbp-hyp-command use proof-terminal-string
+;; 	* updates to keywords
+;; 	* fix for goal regexp
+;;
 ;; Revision 1.18  1997/10/24 14:51:13  hhg
 ;; Updated comment about extent types
 ;;
@@ -484,12 +490,11 @@
 ;;          Proof by pointing                                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst pbp-goal-command "Pbp %s;"
+(defvar pbp-goal-command nil
   "Command informing the prover that `pbp-button-action' has been
   requested on a goal.")
 
-
-(defconst pbp-hyp-command "PbpHyp %s;"
+(defvar pbp-hyp-command nil
   "Command informing the prover that `pbp-button-action' has been
   requested on an assumption.")
 
@@ -1196,6 +1201,9 @@ current command."
 ;; calculate some strings and regexps for searching
 
   (setq proof-terminal-string (char-to-string proof-terminal-char))
+
+  (setq pbp-goal-command (concat "Pbp %s" proof-terminal-string))
+  (setq pbp-hyp-command (concat "PbpHyp %s" proof-terminal-string))
 
   (make-local-variable 'comment-start)
   (setq comment-start (concat proof-comment-start " "))

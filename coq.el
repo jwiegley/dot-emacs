@@ -3,6 +3,12 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.7  1997/10/30 15:58:31  hhg
+;; Updates for coq, including:
+;; 	* pbp-goal-command and pbp-hyp-command use proof-terminal-string
+;; 	* updates to keywords
+;; 	* fix for goal regexp
+;;
 ;; Revision 1.6  1997/10/24 14:51:09  hhg
 ;; Fixed coq-count-undos for comments
 ;;
@@ -481,7 +487,7 @@
 	proof-shell-start-char ?\372 ; not done
         proof-shell-end-char ?\373 ; not done
         proof-shell-field-char ?\374 ; not done
-        proof-shell-goal-char ?\375 ; done but not working
+        proof-shell-goal-char ?\375 ; done
 	proof-shell-eager-annotation-start "\376" ; done
 	proof-shell-eager-annotation-end "\377" ; done
         proof-shell-annotated-prompt-regexp
@@ -489,7 +495,7 @@
 		(char-to-string proof-shell-wakeup-char)) ; done
         proof-shell-result-start "\372 Pbp result \373"
         proof-shell-result-end "\372 End Pbp result \373"
-        proof-shell-start-goals-regexp "[0-9]+ subgoal[s]"
+        proof-shell-start-goals-regexp "[0-9]+ subgoals?"
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
         proof-shell-init-cmd coq-process-config
         proof-shell-config 'coq-shell-adjust-line-width
