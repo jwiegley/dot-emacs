@@ -69,94 +69,6 @@ May enable proof-by-pointing or similar features.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Subterm markup and Proof-by-Pointing functionality
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Fairly specific to the mechanism implemented in LEGO
-;; To make sense of this code, you should read the
-;; relevant LFCS tech report by tms, yb, and djs
-
-(defun pg-goals-yank-subterm (event)
-  "Copy the subterm indicated by the mouse-click EVENT.
-This function should be bound to a mouse button in the Proof General
-goals buffer.
-
-The EVENT is used to find the smallest subterm around a point.  The
-subterm is copied to the kill-ring, and immediately yanked (copied)
-into the current buffer at the current cursor position.
-
-In case the current buffer is the goals buffer itself, the yank
-is not performed.  Then the subterm can be retrieved later by an
-explicit yank."
-  (interactive "e")
-  (let (span)
-    (save-window-excursion
-      (save-excursion
-	(mouse-set-point event)
-	;; Get either the proof body or whole goalsave
-	(setq span (or 
-		    (span-at (point) 'proof)
-		    (span-at (point) 'goalsave)))
-	(if span (copy-region-as-kill
-		  (span-start span) 
-		  (span-end span)))))
-    (if (and span (not (eq proof-buffer-type 'goals)))
-	(yank))))
-
-(defun pg-goals-button-action (event)
-  "Construct a proof-by-pointing command based on the mouse-click EVENT.
-This function should be bound to a mouse button in the Proof General
-goals buffer.
-
-The EVENT is used to find the smallest subterm around a point.  A
-position code for the subterm is sent to the proof assistant, to ask
-it to construct an appropriate proof command.  The command which is
-constructed will be inserted at the end of the locked region in the
-proof script buffer, and immediately sent back to the proof assistant.
-If it succeeds, the locked region will be extended to cover the
-proof-by-pointing command, just as for any proof command the 
-user types by hand."
-   (interactive "e")
-   (mouse-set-point event)
-   (pg-goals-construct-command))
-
-;; Using the spans in a mouse behavior is quite simple: from the
-;; mouse position, find the relevant span, then get its annotation
-;; and produce a piece of text that will be inserted in the right
-;; buffer.  
-
-(defun proof-expand-path (string)
-  (let ((a 0) (l (length string)) ls)
-    (while (< a l) 
-      (setq ls (cons (int-to-string 
-		      (char-to-int (aref string a)))
-		     (cons " " ls)))
-      (incf a))
-    (apply 'concat (nreverse ls))))
-
-(defun pg-goals-construct-command ()
-  (let* ((span (span-at (point) 'goalsave))
-	 (top-span (span-at (point) 'proof-top-element))
-	 top-info)
-    (if (null top-span) ()
-      (setq top-info (span-property top-span 'proof-top-element))
-      (pop-to-buffer proof-script-buffer)
-      (cond
-       (span
-	(proof-shell-invisible-command 
-	 (format (if (eq 'hyp (car top-info)) pbp-hyp-command 
-		                              pbp-goal-command)
-		 (concat (cdr top-info) (proof-expand-path 
-					 (span-property span 'goalsave))))))
-       ((eq (car top-info) 'hyp)
-	(proof-shell-invisible-command
-	 (format pbp-hyp-command (cdr top-info))))
-       (t
-	 (proof-insert-pbp-command
-	  (format pg-goals-change-goal (cdr top-info))))))))
-
-;;
 ;; Goals buffer processing
 ;;
 (defun pg-goals-display (string)
@@ -300,6 +212,8 @@ commands which can be sent to the prover."
 	(setq span (make-span (car stack) cur))
 	(set-span-property span 'mouse-face 'highlight)
 	(set-span-property span 'goalsave (cadr stack));; FIXME: 'goalsave?
+	;; (set-span-property span 'balloon-help helpmsg)
+	(set-span-property span 'help-echo 'pg-goals-get-subterm-help)
 	(if pg-subterm-anns-use-stack
 	    ;; Pop annotation off stack
 	    (progn
@@ -421,6 +335,118 @@ If pg-subterm-first-special-char is unset, return STRING unchanged."
 		    (decf end)))))
 	(forward-char)))
     end))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Commands to prover based on subterm markup (inc PBP).
+;;
+;;
+
+;; Fairly specific to the mechanism implemented in LEGO
+;; To make (more) sense of this code, you should read the
+;; relevant LFCS tech report by tms, yb, and djs
+
+(defun pg-goals-yank-subterm (event)
+  "Copy the subterm indicated by the mouse-click EVENT.
+This function should be bound to a mouse button in the Proof General
+goals buffer.
+
+The EVENT is used to find the smallest subterm around a point.  The
+subterm is copied to the kill-ring, and immediately yanked (copied)
+into the current buffer at the current cursor position.
+
+In case the current buffer is the goals buffer itself, the yank
+is not performed.  Then the subterm can be retrieved later by an
+explicit yank."
+  (interactive "e")
+  (let (span)
+    (save-window-excursion
+      (save-excursion
+	(mouse-set-point event)
+	;; Get either the proof body or whole goalsave
+	(setq span (or 
+		    (span-at (point) 'proof)
+		    (span-at (point) 'goalsave)))
+	(if span (copy-region-as-kill
+		  (span-start span) 
+		  (span-end span)))))
+    (if (and span (not (eq proof-buffer-type 'goals)))
+	(yank))))
+
+(defun pg-goals-button-action (event)
+  "Construct a proof-by-pointing command based on the mouse-click EVENT.
+This function should be bound to a mouse button in the Proof General
+goals buffer.
+
+The EVENT is used to find the smallest subterm around a point.  A
+position code for the subterm is sent to the proof assistant, to ask
+it to construct an appropriate proof command.  The command which is
+constructed will be inserted at the end of the locked region in the
+proof script buffer, and immediately sent back to the proof assistant.
+If it succeeds, the locked region will be extended to cover the
+proof-by-pointing command, just as for any proof command the 
+user types by hand."
+   (interactive "e")
+   (mouse-set-point event)
+   (pg-goals-construct-command))
+
+;; Using the spans in a mouse behavior is quite simple: from the
+;; mouse position, find the relevant span, then get its annotation
+;; and produce a piece of text that will be inserted in the right
+;; buffer.  
+
+(defun proof-expand-path (string)
+  (let ((a 0) (l (length string)) ls)
+    (while (< a l) 
+      (setq ls (cons (int-to-string 
+		      (char-to-int (aref string a)))
+		     (cons " " ls)))
+      (incf a))
+    (apply 'concat (nreverse ls))))
+
+(defun pg-goals-construct-command ()
+  (let* ((span (span-at (point) 'goalsave))
+	 (top-span (span-at (point) 'proof-top-element))
+	 top-info)
+    (if (null top-span) ()
+      (setq top-info (span-property top-span 'proof-top-element))
+      (pop-to-buffer proof-script-buffer)
+      (cond
+       (span
+	(proof-shell-invisible-command 
+	 (format (if (eq 'hyp (car top-info)) pbp-hyp-command 
+		                              pbp-goal-command)
+		 (concat (cdr top-info) (proof-expand-path 
+					 (span-property span 'goalsave))))))
+       ((eq (car top-info) 'hyp)
+	(proof-shell-invisible-command
+	 (format pbp-hyp-command (cdr top-info))))
+       (t
+	 (proof-insert-pbp-command
+	  (format pg-goals-change-goal (cdr top-info))))))))
+
+
+(defun pg-goals-get-subterm-help (spanorwin &optional obj pos)
+  "Return a help string for subterm, called via 'help-echo property."
+  (let ((span  (or obj spanorwin))) ;; GNU Emacs vs XEmacs interface
+    (if (and pg-subterm-help-cmd (span-live-p span))
+	(or (span-property span 'cachedhelp) ;; already got
+	    (progn
+	      (if (proof-shell-available-p)
+		  (let ((result 
+			 (proof-shell-invisible-cmd-get-result 
+			  (format pg-subterm-help-cmd (span-string span))
+			  'ignorerrors)))
+		    ;; FIXME: generalise, and make output readable
+		    ;; (fontify?  does that work for GNU Emacs?
+		    ;;  how can we do it away from a buffer?)
+		    (setq result
+			  (replace-in-string 
+			   result 
+			   (concat "\n\\|" pg-special-char-regexp) ""))		    
+		    (set-span-property span 'cachedhelp result)
+		    result)))))))
+
 
 
 (provide 'pg-goals)
