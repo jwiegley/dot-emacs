@@ -1434,7 +1434,7 @@ Leave unset if no special characters are being used."
   :type '(choice character (const nil))
   :group 'proof-shell)
 
-(defcustom proof-shell-annotated-prompt-regexp ""
+(defcustom proof-shell-annotated-prompt-regexp nil
   "Regexp matching a (possibly annotated) prompt pattern.
 Output is grabbed between pairs of lines matching this regexp.
 To help matching you may be able to annotate the proof assistant
