@@ -11,6 +11,8 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 * PGIP support
 ** Remove need for decorated output around PGIP responses.
 ** Support simplified (flat, non context-sensitive) completion for idtables
+** URL parse: library from w3 is incomplete, also may clash with Emacs
+   version.
 
 * X-Symbol
 ** Unify versions with distributed XEmacs version
