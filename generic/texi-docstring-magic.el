@@ -191,7 +191,21 @@ including any whitespace included to delimit matches.")
 		      (replace-match replacement t t docstring))
 		(setq i (+ i (- newlength origlength))))))
 	(if in-quoted-region
-	    (setq docstring (concat docstring "\n@end lisp")))))))
+	    (setq docstring (concat docstring "\n@end lisp"))))))
+  ;; Force a new line after (what should be) the first sentence,
+  ;; if not already a new paragraph.
+  (let*
+      ((pos      (string-match "\n" docstring))
+       (needscr  (and pos 
+		      (not (string= "\n" 
+				    (substring docstring 
+					       (1+ pos) 
+					       (+ pos 2)))))))
+    (if (and pos needscr)
+	(concat (substring docstring 0 pos)
+		"@*\n" 
+		(substring docstring (1+ pos)))
+      docstring)))
 
 (defun texi-docstring-magic-texi (env grp name docstring args &optional endtext)
   "Make a texi def environment ENV for entity NAME with DOCSTRING."
