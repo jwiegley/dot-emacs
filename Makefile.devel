@@ -63,17 +63,18 @@
 
 # Names and real mail addresses of developers
 # Arguments for rcs2log for ChangeLog target
+# NB: must use TAB as separator in list below.
 
 DEVELOPERS=\
--u "da	    David Aspinall	da@proofgeneral.org" \
--u "markus  Markus Wenzel	support+wenzelm@proofgeneral.org" \
--u "pier    Pierre Courtieu	courtieu@lri.fr" \
--u "crr	    Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
--u "pxc	    Paul Callaghan	P.C.Callaghan@durham.ac.uk" \
--u "patrl   Patrick Loiseleur	support+patrl@proofgeneral.org" \
--u "tms	    Thomas Kleymann	support+tms@proofgeneral.org" \
--u "djs	    Dilip Sequiera	support+djs@proofgeneral.org" \
--u "hhg	    Healfdene Goguen	support+hhg@proofgeneral.org"
+-u "da	David Aspinall	da@proofgeneral.org" \
+-u "markus	Markus Wenzel	support+wenzelm@proofgeneral.org" \
+-u "pier	Pierre Courtieu	courtieu@lri.fr" \
+-u "crr	Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
+-u "pxc	Paul Callaghan	P.C.Callaghan@durham.ac.uk" \
+-u "patrl	Patrick Loiseleur	support+patrl@proofgeneral.org" \
+-u "tms	Thomas Kleymann	support+tms@proofgeneral.org" \
+-u "djs	Dilip Sequiera	support+djs@proofgeneral.org" \
+-u "hhg	Healfdene Goguen	support+hhg@proofgeneral.org"
 
 
 # PRERELEASE_PREFIX is used to match PRERELEASE_TAG in sed
@@ -228,6 +229,9 @@ tags:	$(EL)
 ############################################################
 #
 # Add recent messages to ChangeLog.  CVSROOT must be set correctly.
+#
+# FIXME: this duplicates entries made on the same day: we could do
+# with a way of cleaning the last day from the ChangeLog.
 #
 ChangeLog:	FORCE
 	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
