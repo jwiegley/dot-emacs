@@ -4,7 +4,7 @@
 # Authors:  David Aspinall, LFCS, University of Edinburgh       
 #           Christoph Lueth, University of Bremen       
 #
-# Version: pgip.rnc,v 1.36 2003/09/24 19:31:00 da Exp    
+# Version: pgip.rnc,v 1.37 2003/09/25 09:11:49 da Exp    
 # 
 # Status:  Experimental.                                           
 # For additional commentary, see the Proof General Kit white paper,
@@ -13,7 +13,6 @@
 # Advertised version: 1.0
 #
 
-## [ See rnc-temp-devel-notes.txt for possible changes to below - da ]
 
 
 include "pgml.rnc"                           # include PGML grammar
