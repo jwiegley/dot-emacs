@@ -1,5 +1,41 @@
 2003-03-17  David Aspinall  <da@proofgeneral.org>
 
+	* generic/proof-shell.el:
+	Make colour of active scripting indicator change as documented
+
+	* ChangeLog: Updated.
+
+	* Makefile.devel:
+	TAGS in devel release only
+
+	* TAGS: New files.
+
+	* ChangeLog: Updated.
+
+	* doc/PG-adapting.texi, doc/ProofGeneral.texi:
+	Updated magic
+
+	* generic/proof-splash.el:
+	Bury splash buffer instead of merely switching away from it.
+
+	* CHANGES: Updated.
+
+	* generic/proof-menu.el, generic/proof-script.el, generic/proof-config.el:
+	Allow proof-strict-read-only to be changed dyamically, add to quick opts menu in place of output highlight setting.
+
+	* generic/proof-toolbar.el:
+	Documentation.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/proof-x-symbol.el, generic/proof-script.el:
+	More tweaks so that (proof-ass x-symbol-enable) is pervasive.
+
+2003-03-17  David Aspinall  <da@proofgeneral.org>
+
 	* Makefile.devel:
 	TAGS in devel release only
 
