@@ -31,7 +31,7 @@ and old settings if you want to change back).
 Toolbar, splash screen, and X-Symbol are all supported in GNU Emacs.  
 
 Sorry, this version of PG does not support Emacs 20; backwards
-compatibility is too difficult to maintain.
+compatibility is far too difficult to maintain.
 
 
 *** Support for "tracing" buffers improved and enabled by default.
@@ -39,7 +39,7 @@ compatibility is too difficult to maintain.
 (Tracing is only deployed in Isabelle so far)
 Compared with experimental tracing in PG 3.3, there is now only one
 tracing buffer, treated somewhat like a response buffer.
-For minor issues, see BUGS.
+For minor issues, see isa/BUGS.
 
 
 
