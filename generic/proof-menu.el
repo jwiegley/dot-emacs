@@ -240,6 +240,7 @@ If in three window or multiple frame mode, display two buffers."
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
 (proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
 (proof-deftoggle proof-disappearing-proofs)
+
 (proof-deftoggle-fn (proof-ass-sym x-symbol-enable) 'proof-x-symbol-toggle)
 (proof-deftoggle-fn (proof-ass-sym mmm-enable) 'proof-mmm-toggle)
 
@@ -261,14 +262,14 @@ If in three window or multiple frame mode, display two buffers."
       :active t
       :style toggle
       :selected proof-output-fontify-enable]
-     ["X-Symbol" proof-x-symbol-toggle
+     ["X-Symbol"  (proof-x-symbol-toggle (if x-symbol-mode 0 1))
       :active (proof-x-symbol-support-maybe-available)
       :style toggle
-      :selected (proof-ass x-symbol-enable)]
-     ["Multiple modes" proof-mmm-toggle
+      :selected (and (boundp 'x-symbol-mode) x-symbol-mode)] ;; display minor mode flag
+     ["Multiple modes" (proof-mmm-toggle (if mmm-mode 0 1))
       :active (proof-mmm-support-available)
       :style toggle
-      :selected (proof-ass mmm-enable)]
+      :selected mmm-mode] 
      ["Toolbar" proof-toolbar-toggle
       ;; should really be split into :active & GNU Emacs's :visible
       :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
@@ -329,6 +330,7 @@ If in three window or multiple frame mode, display two buffers."
    'proof-disappearing-proofs 
    'proof-output-fontify-enable
    (proof-ass-sym x-symbol-enable)
+   (proof-ass-sym mmm-enable)
    'proof-toolbar-enable
    ;; Display sub-menu
    'proof-three-window-mode
@@ -340,20 +342,27 @@ If in three window or multiple frame mode, display two buffers."
    'proof-follow-mode))
 
 (defun proof-quick-opts-changed-from-defaults-p ()
-  ;; FIXME: would be nice to add.  Custom support?
+  ;; NB: would be nice to add.  Custom support?
   t)
 
 (defun proof-quick-opts-changed-from-saved-p ()
-  ;; FIXME: would be nice to add.  Custom support?
+  ;; NB: would be nice to add.  Custom support?
   t)
 
+
+;; 
+;; We have menu items for saving options and reseting them.
+;; We could just store the settings automatically (no save),
+;; but then the reset option would have to change to restore
+;; to manufacturer settings (rather then user-stored ones).
+;;
 (defun proof-quick-opts-save ()
   "Save current values of PG Options menu items using custom."
   (interactive)
   (apply 'pg-custom-save-vars (proof-quick-opts-vars)))
 
 (defun proof-quick-opts-reset ()
-  "Reset PG Options menu to default values, using custom."
+  "Reset PG Options menu to default (or user-set) values, using custom."
   (interactive)
   (apply 'pg-custom-reset-vars (proof-quick-opts-vars)))
 

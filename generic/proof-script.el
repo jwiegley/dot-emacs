@@ -13,7 +13,8 @@
 (require 'span)				; abstraction of overlays/extents
 (require 'pg-user)			; user-level commands
 (require 'proof-menu)			; menus for script mode
-
+(require 'proof-x-symbol)		; x-symbol (maybe put on automode list)
+(require 'proof-mmm)			; mmm (ditto)
 
 
 ;; Nuke some byte-compiler warnings 
@@ -2494,15 +2495,8 @@ assistant."
   ;; Fontlock support.
   ;;
   ;; Assume font-lock case folding follows proof-case-fold-search
-  (proof-font-lock-configure-defaults 'autofontify proof-case-fold-search)
+  (proof-font-lock-configure-defaults 'autofontify proof-case-fold-search))
   
-  ;; Maybe turn on x-symbol mode and MMM mode
-  (proof-x-symbol-mode)
-  ;; FIXME: slight bugginess here with MMM mode/font-lock: visiting
-  ;; a fresh file leaves the progress bar up.  Perhaps turning
-  ;; on MMM here is wrong, is should happen automatically?
-  (proof-mmm-enable))
-
 
 
 

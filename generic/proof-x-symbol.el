@@ -38,7 +38,7 @@
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
 
-;;; ###autoload
+;;;###autoload
 (defun proof-x-symbol-support-maybe-available ()
   "A test to see whether x-symbol support may be available."
   (and window-system		    ; Not on a tty
@@ -58,7 +58,9 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 	 (xs-feature     (concat "x-symbol-" xs-lang-name))
 	 (xs-feature-sym (intern xs-feature))
 	 (error-or-warn	 
-	  (lambda (str) (if error (error str) (warn str)))))
+	  (lambda (str) 
+	    (progn
+	      (if error (error str) (warn str))))))
       ;; Check that support is provided.
       (cond
        ;;
@@ -155,18 +157,42 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	  ;; Finished.
 	  (setq proof-x-symbol-initialized t))))))
 
+(defun proof-x-symbol-set-global (enable)
+  "Set global status of X-Symbol mode for PG buffers to be ENABLE."
+  (let ((automode-entry 
+	 `(( ,(proof-ass-sym mode))
+	   t (quote ,(proof-ass x-symbol-language)))))
+    (if enable
+	(add-to-list 'x-symbol-auto-mode-alist
+		   automode-entry)
+      (setq x-symbol-auto-mode-alist
+	    (delete automode-entry x-symbol-auto-mode-alist)))))
+  
 
 ;;;###autoload
 (defun proof-x-symbol-enable ()
-  "Turn on or off support for x-symbol, initializing if necessary.
+  "Turn on or off support for X-Symbol, initializing if necessary.
 Calls proof-x-symbol-toggle-clean-buffers afterwards."
-  (if (and (proof-ass x-symbol-enable) (not proof-x-symbol-initialized))
+  (if (not proof-x-symbol-initialized) ;; Check inited
       (progn
 	(set (proof-ass-sym x-symbol-enable) nil) ; assume failure!
 	(proof-x-symbol-initialize 'giveerrors)
 	(set (proof-ass-sym x-symbol-enable) t)))
-  (proof-x-symbol-mode-all-buffers)
-  (proof-x-symbol-toggle-clean-buffers))
+  ;; 3.5: New behaviour is to just toggle for local buffer and
+  ;; output buffers, and try to persuade X-Symbol to follow
+  ;; our setting for defaults (on file loading) from now on.
+  (proof-x-symbol-set-global (not x-symbol-mode))
+  (x-symbol-mode)
+  (proof-x-symbol-mode-associated-buffers))
+
+;; Old behaviour for proof-x-symbol-enable was to update state in all
+;; buffers --- but this can take ages if there are many buffers!  
+;; We also used to refresh the output, but this doesn't always work.
+;; (proof-x-symbol-mode-all-buffers)
+;; (proof-x-symbol-toggle-clean-buffers))
+
+
+
 
 (defun proof-x-symbol-toggle-clean-buffers ()
   "Clear the response buffer and send proof-showproof-command.
@@ -221,9 +247,8 @@ A value for proof-shell-insert-hook."
 
 
 
-
-(defun proof-x-symbol-mode-all-buffers ()
-  "Activate/deactivate x-symbols in all Proof General buffers.
+(defun proof-x-symbol-mode-associated-buffers ()
+  "Activate/deactivate x-symbols in all Proof General associated buffers.
 A subroutine of proof-x-symbol-enable."
   ;; Response and goals buffer are fontified/decoded 
   ;; manually in the code, configuration only sets
@@ -234,7 +259,13 @@ A subroutine of proof-x-symbol-enable."
    (proof-x-symbol-configure))
   ;; Shell has its own configuration
   (proof-with-current-buffer-if-exists proof-shell-buffer
-   (proof-x-symbol-shell-config))
+   (proof-x-symbol-shell-config)))
+
+
+(defun proof-x-symbol-mode-all-buffers ()
+  "Activate/deactivate x-symbols in all Proof General buffers.
+A subroutine of proof-x-symbol-enable."
+  (proof-x-symbol-mode-associated-buffers)
   ;; Script buffers are in X-Symbol's minor mode, 
   ;; And so are any other buffers kept in the same token language
   (dolist (mode (cons proof-mode-for-script proof-xsym-extra-modes))
@@ -356,7 +387,8 @@ Assumes that the current buffer is the proof shell buffer."
 (if (proof-ass x-symbol-enable) 
     (progn
       (proof-x-symbol-initialize)
-      (unless proof-x-symbol-initialized
+      (if proof-x-symbol-initialized
+	  (proof-x-symbol-set-auto-mode t) ;; turn on in all PG buffers
 	;; If init failed, turn off x-symbol-enable for the session.
 	(customize-set-variable (proof-ass-sym x-symbol-enable) nil))))
 

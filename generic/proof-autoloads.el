@@ -120,9 +120,8 @@ A test to see whether mmm support is available." nil nil)
 
 (autoload 'proof-mmm-enable "proof-mmm" "\
 Turn on or off MMM mode in Proof General script buffers.
-This invokes `mmm-mode' with appropriate setting for current
-buffer, and adjusts 
-on MMM regions for the prover's class." nil nil)
+This invokes `mmm-mode' to toggle the setting for the current
+buffer, and then sets PG's option for the setting accordingly." nil nil)
 
 ;;;***
 
@@ -208,10 +207,13 @@ to the default toolbar." t nil)
 
 ;;;***
 
-;;;### (autoloads (proof-x-symbol-configure proof-x-symbol-shell-config proof-x-symbol-mode proof-x-symbol-decode-region proof-x-symbol-enable) "proof-x-symbol" "generic/proof-x-symbol.el")
+;;;### (autoloads (proof-x-symbol-configure proof-x-symbol-shell-config proof-x-symbol-mode proof-x-symbol-decode-region proof-x-symbol-enable proof-x-symbol-support-maybe-available) "proof-x-symbol" "generic/proof-x-symbol.el")
+
+(autoload 'proof-x-symbol-support-maybe-available "proof-x-symbol" "\
+A test to see whether x-symbol support may be available." nil nil)
 
 (autoload 'proof-x-symbol-enable "proof-x-symbol" "\
-Turn on or off support for x-symbol, initializing if necessary.
+Turn on or off support for X-Symbol, initializing if necessary.
 Calls proof-x-symbol-toggle-clean-buffers afterwards." nil nil)
 
 (autoload 'proof-x-symbol-decode-region "proof-x-symbol" "\
