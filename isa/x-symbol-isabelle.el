@@ -64,7 +64,7 @@ See `x-symbol-header-groups-alist'."
    :token-list #'x-symbol-isabelle-default-token-list))
 
 (defvar x-symbol-isabelle-input-token-grammar
-  '("\\(?:\\\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
+  '("\\(?:\\<[A-Za-z]+>\\|[A-Za-z_][A-Za-z_0-9]+\\|[<>!+-*/|&]+\\)\\'"
     (id . "[A-Za-z_0-9]") (op . "[<>!+-*/|&]"))
   "Grammar of input method Token for language `isabelle'.")))
 
