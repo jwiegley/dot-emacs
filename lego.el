@@ -4,7 +4,7 @@
 ;; code.
 
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
-;; Time-stamp: <05 Nov 96 tms /home/tms/elisp/lego.el>
+;; Time-stamp: <10 Nov 96 tms /home/tms/elisp/lego.el>
 ;; Thanks to David Aspinall, Robert Boyer, Rod Burstall,
 ;;           James McKinna, Mark Ruys, Martin Steffen, Perdita Stevens  
 
@@ -110,7 +110,7 @@
 
 (defvar lego-outline-regexp 
   (ids-to-regexp 
-   '("*" "Discharge" "Freeze" "Goal" "Module" "[" "Record" "Inductive" 
+   '("\\*" "Discharge" "Freeze" "Goal" "Module" "\\[" "Record" "Inductive" 
      "Unfreeze")))
 
 (defvar lego-outline-heading-end-regexp ";\\|\\*)")
