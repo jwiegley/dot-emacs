@@ -106,11 +106,11 @@ and script mode."
    proof-indent-commands-regexp	(proof-ids-to-regexp isa-keywords)
    
    ;; proof engine commands
-   proof-showproof-command	"pr()"
+   proof-showproof-command	"pr();"
    proof-goal-command		"Goal \"%s\";"
    proof-save-command		"qed \"%s\";"
-   proof-context-command	"ProofGeneral.show_context()"
-   proof-info-command		"ProofGeneral.help()"
+   proof-context-command	"ProofGeneral.show_context();"
+   proof-info-command		"ProofGeneral.help();"
    proof-kill-goal-command	"ProofGeneral.kill_goal();"
    proof-find-theorems-command  "ProofGeneral.thms_containing (space_explode \",\" \"%s\");"
    proof-shell-start-silent-cmd "proofgeneral_disable_pr();"
@@ -148,7 +148,7 @@ and script mode."
    proof-shell-prompt-pattern		"^2?[ML-=#>]>? \372?"
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd			"Library.cd \"%s\""
+   proof-shell-cd-cmd			"Library.cd \"%s\";"
 
    ;; Escapes for filenames inside ML strings.
    ;; We also make a hack for Isabelle, by switching from backslashes
@@ -183,10 +183,11 @@ and script mode."
    ;; FIXME: temporary hack for almost enabling/disabling printing.
    ;; Also for setting default values.
    proof-shell-pre-sync-init-cmd	"ProofGeneral.init false;"
-   proof-shell-init-cmd                 (concat (isabelle-set-default-cmd)
+   proof-shell-init-cmd                 (concat 
+					 (proof-assistant-settings-cmd)
  "val pg_saved_gl = ref (!goals_limit); fun proofgeneral_enable_pr () = goals_limit:= !pg_saved_gl; fun proofgeneral_disable_pr() = (pg_saved_gl := (if (!goals_limit)>0 then !goals_limit else !pg_saved_gl); goals_limit := 0);")
    ; FIXME improved version for Isabelle99-1:
-   ;proof-shell-init-cmd                 (isabelle-set-default-cmd)
+   ;proof-shell-init-cmd		 (proof-assistant-settings-cmd)
 
    proof-shell-restart-cmd		"ProofGeneral.isa_restart();"
    proof-shell-quit-cmd			"quit();"
