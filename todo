@@ -71,6 +71,7 @@ X (Low)		e.g. probably not worth spending time on
 **** C More flexible help configuration is needed.  HOL has some nice
   on-line help but no way in PG to help by library.  Perhaps
   a help browser is needed?  At least, optional arg to help command.
+  [patch ready and waiting to go in]
 
 **** D Remove pbp.el, unused file.
 
