@@ -10,11 +10,17 @@
 
 ** Generic changes
 
-*** IN PROGRESS:  pre-compiled .elc files: recompile needed for GNU Emacs
+*** Keyboard hints and other messages displayed in minibuffer
+
+Hints for keyboard usage and reporting on file processing are now
+displayed in the minibuffer.  If you do not like this behaviour,
+customize the `pg-show-hints' variable.
+
+*** pre-compiled .elc files: recompile needed for GNU Emacs
 
 Proof General can now be reliably run as compiled code.
 
->>> Please help remove final difficulties by reporting problems <<<<
+>>> Please help remove any final difficulties by reporting problems <<<<
 
 However, compiled Emacs Lisp files sometimes have incompatibilities
 between versions (and definitely between GNU Emacs and XEmacs).  To
@@ -61,7 +67,14 @@ Instead the menu reflects the current minor mode status; toggling it
 will also update the default "global for PG" behaviour for new script
 buffers.
 
-*** Strict read only added to Proof General -> Options menu
+*** Proof General -> Options menu changes
+
+**** Improvement to options handling
+
+Facility to reset to default values added, and saving
+of (just) proof assistant settings.
+
+**** Strict read only added
 
 Strict read only behaviour for the locked (blue) region
 can now be enabled/disabled without restarting scripting.
@@ -69,24 +82,31 @@ can now be enabled/disabled without restarting scripting.
 but is still available under 
    Advanced -> Customize -> User Options -> ..
 
-*** Follow mode: add "followdown" setting
+**** Deactivate Action added 
+
+This setting controls an automatic action when scripting is
+deactivated in a partially processed buffer.  Ordinarily, PG will
+query whether to retract or completely process the file.
+One of these can be chosen as a default action.
+
+**** Follow mode: add "followdown" setting
 
 In this mode, the point moves with the locked region when it moves
 down in the buffer (processing).  For undo, the point does not move.
 
-*** Options and proof assistant settings improvements
+**** Display management: added shrink-windows-tofit option
 
-Facility to reset to default values added, and saving
-of (just) proof assistant settings.
+This option shrinks and expands the display of prover output,
+within reasonable window sizes, when in 2-window mode.  It avoids
+wasting half the screen with empty space (with the drawback
+of moving the boundary up and down).
 
-*** Display management: added shrink-windows-tofit option
-
-Attempt to shrink output windows to fit their contents in case it is
-less than 1/2 the window height.  In progress; occasional flaws
-(e.g. when output window buffer total window height).  Available
-under PG -> Options -> Display -> Shrink To Fit.
+Available under PG -> Options -> Display -> Shrink To Fit.
 
 *** Add proof-indent-pad-eol setting to prettify locked regions in XEmacs.
+
+This works by adding unnecessary spaces to the end of lines when TAB
+is pressed.
 
 *** Parsing internals changed: minor user visible differences
 

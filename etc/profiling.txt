@@ -1,6 +1,17 @@
 Notes on Profiling Proof General in XEmacs  [da]
 ------------------------------------------------
 
+Usage of Elisp profiler:
+
+   M-x elp-instrument-package RET proof RET
+
+< do something now >
+
+   M-x elp-results
+
+To display results.
+
+
 M-x clear-profiling-info
 Eval: (profile (proof-toolbar-next) (proof-shell-wait))
 M-x profile-results
