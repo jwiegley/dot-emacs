@@ -231,8 +231,9 @@
 (replace-string-by-holes-backward-move-point 1 empty-hole-string)
 )
 
-(setq-default module-kinds-table 
-              '(("Module" 1) ("Module Type" 2) ("Declare Module" 3)))
+(defconst module-kinds-table 
+  '(("Module" 1) ("Module Type" 2) ("Declare Module" 3))
+  "Enumerates the different kinds of modules")
 
 (defun coq-insert-module ()
   (interactive)
