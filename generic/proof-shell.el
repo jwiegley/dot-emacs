@@ -361,9 +361,10 @@ This is a list of tuples of the form (type . string). type is either
 	    (progn (aset out op c)
 		   (incf op)))
 	(incf ip))
-      (proof-display-and-keep-buffer (set-buffer proof-pbp-buffer))
+      (set-buffer proof-pbp-buffer)
       (erase-buffer)
       (insert (substring out 0 op))
+      (proof-display-and-keep-buffer proof-pbp-buffer)
 
       (setq ip 0
 	    op 1)
@@ -442,7 +443,7 @@ See the documentation fo `proof-shell-delayed-output' for furter details."
     (cond 
      ((eq ins 'insert)
       (setq str (proof-shell-strip-annotations str))
-      (save-current-buffer
+      (save-excursion ;current-buffer
 	(set-buffer proof-response-buffer)
 	(erase-buffer)
 	(insert str)
@@ -483,7 +484,7 @@ we call `proof-shell-handle-error-hook'. "
 
   ;; flush goals
   (or (equal proof-shell-delayed-output (cons 'insert "Done."))
-      (save-current-buffer
+      (save-excursion ;current-buffer
 	(set-buffer proof-pbp-buffer)
 	(erase-buffer)
 	(insert (proof-shell-strip-annotations 
@@ -501,7 +502,8 @@ we call `proof-shell-handle-error-hook'. "
   (proof-shell-handle-output
    proof-shell-error-regexp proof-shell-annotated-prompt-regexp
    'proof-error-face)
-  (save-current-buffer (proof-display-and-keep-buffer proof-response-buffer)
+  (save-excursion ;current-buffer
+    (proof-display-and-keep-buffer proof-response-buffer)
 		  (beep)
 
 		  ;; unwind script buffer
@@ -831,61 +833,62 @@ strings between eager-annotation-start and eager-annotation-end."
 We sleep until we get a wakeup-char in the input, then run
 proof-shell-process-output, and set proof-marker to keep track of
 how far we've got."
-  (and proof-shell-eager-annotation-start
-       (proof-shell-process-urgent-messages))
+  (save-excursion
+    (and proof-shell-eager-annotation-start
+	 (proof-shell-process-urgent-messages))
        
-  (if (or
-       ;; Some proof systems can be hacked to have annotated prompts;
-       ;; for these we set proof-shell-wakeup-char to the annotation special.  
-       (and proof-shell-wakeup-char
-	   (string-match (char-to-string proof-shell-wakeup-char) str))
-       ;; Others may rely on a standard top-level (e.g. SML) whose
-       ;; prompt are difficult or impossible to hack.
-       ;; For those we use the annotated prompt regexp.
-       (string-match proof-shell-annotated-prompt-regexp str))
-      (if (null (marker-position proof-marker))
-	  ;; Set marker to first prompt in output buffer, and sleep again.
-	  ;; FIXME da: what happens if we don't get a prompt in the
-	  ;; first output chunk?  This needs fixing in case re-search fails.
-	  (progn
-	    (goto-char (point-min))
-	    (re-search-forward proof-shell-annotated-prompt-regexp)
-	    (set-marker proof-marker (point)))
-	;; We've matched against a second prompt in str now.
-	;; First, the blasphemous situation that the proof-action-list
-	;; is empty so that the process has output something for
-	;; some other reason (perhaps it's just being chatty).  
-	;; We graciously accept the situation nowadays, rather
-	;; than shrieking out bug reports.
-	(if proof-action-list
-	    ;; the output buffer for the second prompt after the one previously
-	    ;; marked.
-	    (let (string res cmd)	
-	      (goto-char (marker-position proof-marker))
-	      (re-search-forward proof-shell-annotated-prompt-regexp nil t)
-	      (backward-char (- (match-end 0) (match-beginning 0)))
-	      (setq string (buffer-substring (marker-position proof-marker)
-					     (point)))
-	      (goto-char (point-max))	; da: assumed to be after a prompt?
-	      (setq cmd (nth 1 (car proof-action-list)))
-	      (save-current-buffer
-		;; 
-		(setq res (proof-shell-process-output cmd string))
-		;; da: Added this next line to redisplay, for proof-toolbar
-		;; FIXME: should do this for all frames displaying the script
-		;; buffer!
-		;; ODDITY: has strange effect on highlighting, leave it.
-		;; (redisplay-frame (window-buffer  t)
-		(cond
-		 ((eq (car-safe res) 'error)
-		  (proof-shell-handle-error cmd (cdr res)))
-		 ((eq res 'interrupt)
-		  (proof-shell-handle-interrupt))
-		 ((eq (car-safe res) 'loopback)
-		  (proof-shell-insert-loopback-cmd (cdr res))
-		  (proof-shell-exec-loop))
-		 (t (if (proof-shell-exec-loop)
-			(proof-shell-handle-delayed-output))))))))))
+    (if (or
+	 ;; Some proof systems can be hacked to have annotated prompts;
+	 ;; for these we set proof-shell-wakeup-char to the annotation special.  
+	 (and proof-shell-wakeup-char
+	      (string-match (char-to-string proof-shell-wakeup-char) str))
+	 ;; Others may rely on a standard top-level (e.g. SML) whose
+	 ;; prompt are difficult or impossible to hack.
+	 ;; For those we use the annotated prompt regexp.
+	 (string-match proof-shell-annotated-prompt-regexp str))
+	(if (null (marker-position proof-marker))
+	    ;; Set marker to first prompt in output buffer, and sleep again.
+	    ;; FIXME da: what happens if we don't get a prompt in the
+	    ;; first output chunk?  This needs fixing in case re-search fails.
+	    (progn
+	      (goto-char (point-min))
+	      (re-search-forward proof-shell-annotated-prompt-regexp)
+	      (set-marker proof-marker (point)))
+	  ;; We've matched against a second prompt in str now.
+	  ;; First, the blasphemous situation that the proof-action-list
+	  ;; is empty so that the process has output something for
+	  ;; some other reason (perhaps it's just being chatty).  
+	  ;; We graciously accept the situation nowadays, rather
+	  ;; than shrieking out bug reports.
+	  (if proof-action-list
+	      ;; the output buffer for the second prompt after the one previously
+	      ;; marked.
+	      (let (string res cmd)	
+		(goto-char (marker-position proof-marker))
+		(re-search-forward proof-shell-annotated-prompt-regexp nil t)
+		(backward-char (- (match-end 0) (match-beginning 0)))
+		(setq string (buffer-substring (marker-position proof-marker)
+					       (point)))
+		(goto-char (point-max))	; da: assumed to be after a prompt?
+		(setq cmd (nth 1 (car proof-action-list)))
+		(save-excursion		;current-buffer
+		  ;; 
+		  (setq res (proof-shell-process-output cmd string))
+		  ;; da: Added this next line to redisplay, for proof-toolbar
+		  ;; FIXME: should do this for all frames displaying the script
+		  ;; buffer!
+		  ;; ODDITY: has strange effect on highlighting, leave it.
+		  ;; (redisplay-frame (window-buffer  t)
+		  (cond
+		   ((eq (car-safe res) 'error)
+		    (proof-shell-handle-error cmd (cdr res)))
+		   ((eq res 'interrupt)
+		    (proof-shell-handle-interrupt))
+		   ((eq (car-safe res) 'loopback)
+		    (proof-shell-insert-loopback-cmd (cdr res))
+		    (proof-shell-exec-loop))
+		   (t (if (proof-shell-exec-loop)
+			  (proof-shell-handle-delayed-output)))))))))))
 
 (defun proof-shell-done-invisible (span) ())
 
