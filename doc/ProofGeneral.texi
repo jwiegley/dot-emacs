@@ -160,7 +160,7 @@ Isabelle.
 * Proof by Pointing::
 * Advanced Script Management::  
 * Support for other Packages::  
-* Hints and tips::
+* Hints and Tips::
 * Customizing Proof General::   
 * LEGO Proof General::          
 * Coq Proof General::           
