@@ -18,6 +18,11 @@
 	  "/usr/local/lib/coq"
       c)))
 
+;;Pierre: we will have both versions V6 and V7 during a while
+(setq coq-version-is-V7
+  (let ((c (substring (shell-command-to-string "coqtop -v") 0 -1 )))
+    (if (string-match "version 7" c) t nil)))
+
 (defcustom coq-tags (concat (coq-library-directory) "/theories/TAGS")
   "the default TAGS table for the Coq library"
   :type 'string
