@@ -34,6 +34,9 @@ X Improve toolbar icons.  Automatically generate reduced and
   xcf files under CVS rather than xpm files.  
   (5h or more to design nice ones)
 
+B Write test schedule for things to try out with a new instantiation
+  of Proof General.
+
 X Add support for putting a locked region in processed files.
 
 X Make process handling smarter: because Emacs is single-threaded,
