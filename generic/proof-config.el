@@ -137,13 +137,13 @@ buffer modes)."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-trace-output-fontify-enable t ;; testing
-  ;; (not (and proof-running-on-XEmacs (>= emacs-major-version 21))) production
-  "*Whether to fontify output from the proof assistant during tracing.
-If non-nil and proof-output-fontify-enable is also non-nil, 
-output from the proof assistant will be highlighted in the trace buffer.
-This is not recommended in XEmacs 21, since the font-lock parser 
-is easily overloaded by large tracing output."
+(defcustom proof-trace-output-slow-catchup t 
+  "*If non-nil, try to redisplay less often during frequent trace output.
+Proof General will try to configure itself to update the display
+of tracing output infrequently when the prover is producing rapid,
+perhaps voluminous, output.  This counteracts the situation that
+otherwise Emacs may consume more CPU than the proof assistant,
+trying to fontify and refresh the display as fast as output appears."
   :type 'boolean
   :group 'proof-user-options)
 
