@@ -569,9 +569,10 @@ you will be asked to retract the file or process the remainder of it."
   (setq blink-matching-paren-dont-ignore-comments t))
 
 
-;; This hook is added on load because proof shells can
+;; These hooks are added on load because proof shells can
 ;; be started from .thy (not in scripting mode) or .ML files.
 (add-hook 'proof-pre-shell-start-hook 'isa-pre-shell-start nil t)
+(add-hook 'proof-shell-insert-hook 'isa-preprocessing)
 
 (defun isa-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle."
@@ -592,6 +593,11 @@ you will be asked to retract the file or process the remainder of it."
   (isa-init-output-syntax-table)
   (setq font-lock-keywords isa-goals-font-lock-keywords)
   (proof-goals-config-done))
+
+(defun isa-preprocessing ()  ;dynamic scoping of `string'
+  "Handle ^VERBATIM marker -- acts on variable STRING by dynamic scoping"
+  (if (string-match isabelle-verbatim-regexp string)
+      (setq string (match-string 1 string))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
