@@ -851,10 +851,6 @@ assistant, for example, to switch to a new theory."
 Used by proof mode to parse proofstate output, and also
 to set outline heading regexp.")
 
-(defvar proof-shell-noise-regexp nil
-  "Unwanted information output from the proof process within
-  `proof-start-goals-regexp' and `proof-end-goals-regexp'.")
-
 (defvar proof-analyse-using-stack nil
   "Are annotations sent by proof assistant local or global")
 

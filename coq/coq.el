@@ -401,7 +401,6 @@
         proof-shell-proof-completed-regexp coq-shell-proof-completed-regexp
         proof-shell-error-regexp coq-error-regexp
 	proof-shell-interrupt-regexp coq-interrupt-regexp
-        proof-shell-noise-regexp ""
         proof-shell-assumption-regexp coq-id
         proof-shell-goal-regexp coq-goal-regexp
         proof-shell-first-special-char ?\360

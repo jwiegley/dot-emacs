@@ -87,9 +87,8 @@ B da: goal-hyp: this should be more generic.  At the moment, there are
   default behaviour for proof-goal-hyp-fn a hook function.
   That will work for Isabelle too.   (15 mins)
 
-B proof-shell-noise-regexp: seems unused at present, but set
-  in the specific directories.  Either use it or be rid of it!
-  (tms, apparently is used in LEGO mode but should be generic?)
+D Add support to filter out unwanted noise from the prover by setting
+  up a regular expression  proof-shell-noise-regexp (1h)
 
 A Check that byte compilation (and compiled code!) 
   works for both varieties of Emacs. 

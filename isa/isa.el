@@ -157,9 +157,6 @@ no regular or easily discernable structure."
    
    ;; nothing appropriate for: proof-shell-abort-goal-regexp
 
-   ;; proof-shell-noise-regexp isn't used anywhere at the moment.
-   proof-shell-noise-regexp	        "val it = () : unit\n"
-
    ;; matches names of assumptions
    proof-shell-assumption-regexp	isa-id
    ;; matches subgoal name

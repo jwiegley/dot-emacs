@@ -454,7 +454,6 @@ We assume that module identifiers coincide with file names."
         proof-shell-proof-completed-regexp lego-shell-proof-completed-regexp
         proof-shell-error-regexp lego-error-regexp
 	proof-shell-interrupt-regexp lego-interrupt-regexp
-        proof-shell-noise-regexp "Discharge\\.\\. "
         proof-shell-assumption-regexp lego-id
         proof-shell-goal-regexp lego-goal-regexp
         proof-shell-first-special-char ?\360
