@@ -48,6 +48,8 @@
 in two places, so that find-next-entity doesn't return the same values
 twice.")
 
+;; FIXME mmw: maybe handle comments/strings by using
+;; proof-looking-at-syntactic-context (XEmacs-only!)
 (defun proof-script-find-next-entity (buffer)
   "Find the next entity for function menu in a proof script.
 A value for fume-find-function-name-method-alist for proof scripts.
@@ -58,7 +60,7 @@ proof-script-next-entity-regexps, which see."
   ;;  could as well use next-entity-regexps directly since this is
   ;;  not really meant to be used as a general function. 
   (let ((anyentity	(car fume-function-name-regexp)))
-    (if (re-search-forward anyentity nil t)
+    (if (proof-re-search-forward anyentity nil t)
 	;; We've found some interesting entity, but have to find out
 	;; which one, and where it begins.  
 	(let ((entity (buffer-substring (match-beginning 0) (match-end 0)))
@@ -68,18 +70,25 @@ proof-script-next-entity-regexps, which see."
 	      disc res)
 	  (while (and (not res) (setq disc (car-safe discriminators)))
 	    (if (proof-string-match (car disc) entity)
-		(let ((name (substring
-			     entity
-			     (match-beginning (nth 1 disc))
-			     (match-end (nth 1 disc)))))
+		(let*
+		    ((items (nth 1 disc))
+		     (items (if (numberp items) (list items) items))
+		     (name ""))
+		  (dolist (item items)
+		    (setq name
+			  (concat name
+				  (substring entity
+					     (match-beginning item)
+					     (match-end item))
+				  " ")))
 		  (cond
 		   ((eq (nth 2 disc) 'backward)
 		    (setq start
-			  (or (re-search-backward (nth 3 disc) nil t)
+			  (or (proof-re-search-backward (nth 3 disc) nil t)
 			      start))
 		    (goto-char p))
 		   ((eq (nth 2 disc) 'forward)
-		    (re-search-forward (nth 3 disc))))
+		    (proof-re-search-forward (nth 3 disc))))
 		  (setq res (cons name start)))
 	      (setq discriminators (cdr discriminators))))
 	  res))))
@@ -299,7 +308,7 @@ If non-nil, point is left where it was."
   ;; (unless (eobp)
   ;; (forward-char))
   ;;   (save-excursion  -- no, side effect is expected!
-  (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
+  (not (proof-re-search-backward "\\S-" (proof-unprocessed-begin) t)))
 
 (defun proof-in-locked-region-p ()
   "Non-nil if point is in locked region.  Assumes proof script buffer current."
@@ -2743,8 +2752,8 @@ a generic implementation of this."
     proof-comment-end
     ; proof-goal-command-regexp	  not needed if proof-goal-command-p is set
     proof-save-command-regexp
-    proof-goal-with-hole-regexp		; non-essential?
-    proof-save-with-hole-regexp		; non-essential?
+;    proof-goal-with-hole-regexp		; non-essential?
+;    proof-save-with-hole-regexp		; non-essential?
     proof-showproof-command		; non-essential?
     proof-goal-command			; non-essential
     proof-save-command			; do
