@@ -1576,10 +1576,11 @@ locked region or everything in it has been processed."
 			;; proof-register-new-processed-file to work
 			;; also for possibly non-new cases.
 			(not
-			 (member buffer-file-truename 
+			 (member (file-truename buffer-file-name) 
 				 proof-included-files-list))
 			(progn
-			  (proof-register-new-processed-file file)
+			  (proof-register-new-processed-file 
+			   buffer-file-name)
 			  ;; Continue 
 			  t)))))
 	    ;; we are changing the scripting buffer
