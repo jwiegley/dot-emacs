@@ -430,6 +430,7 @@
 	proof-help-string "Help"
 	proof-goal-command "Goal %s."
 	proof-save-command "Save %s."
+	proof-find-theorems-command "Search %s."
 	proof-kill-goal-command coq-kill-goal-command)
 
   (setq proof-goal-command-p 'coq-goal-command-p
