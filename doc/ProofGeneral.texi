@@ -305,7 +305,7 @@ later contributions from Patrick Loiseleur.
 It is now maintained by Pierre Courtieu @i{<courtieu@@lri.fr>}.
 @c
 Isabelle Proof General was crafted and is being maintained by David
-Aspinall @i{<da@@dcs.ed.ac.uk>}.  It has benefited greatly from tweaks
+Aspinall @i{<David.Aspinall@@ed.ac.uk>}.  It has benefited greatly from tweaks
 and suggestions by Markus Wenzel
 @i{<wenzelm@@informatik.tu-muenchen.de>}, who crafted and maintains
 Isabelle/Isar Proof General.  Markus also added Proof General support
@@ -412,7 +412,7 @@ Please help us!
 
 Send us comments, suggestsions, or (the best) patches to improve support
 for your chosen proof assistant.  Contact us at
-@code{proofgen@@dcs.ed.ac.uk}.
+@code{support@@proofgeneral.org}.
 
 If your chosen proof assistant isn't supported, read the accompanying
 @i{Adapting Proof General} manual to find out how to configure PG for a
@@ -435,14 +435,18 @@ new prover.
 Proof General may have been installed for you already. If so, when you
 visit a proof script file for your proof assistant, the corresponding
 Proof General mode will be invoked automatically: 
-@multitable @columnfractions .3 .3 .4
+@multitable @columnfractions .35 .3 .35
 @item       @b{Prover}    @tab @b{Extensions} @tab @b{Mode}
 @item       LEGO          @tab @file{.l}      @tab @code{lego-mode}
 @item       Coq           @tab @file{.v}      @tab @code{coq-mode}
-@item       Isabelle      @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
 @item       Isabelle/Isar @tab @file{.thy}    @tab @code{isar-mode}
+@item       Isabelle      @tab @file{.thy},@file{.ML} @tab @code{isa-mode}
 @item       Phox          @tab @file{.phx}    @tab @code{phox-mode}
 @item       HOL98         @tab @file{.sml}    @tab @code{hol98-mode}
+@item       ACL2          @tab @file{.acl2}   @tab @code{acl2-mode}
+@item       Twelf         @tab @file{.elf}    @tab @code{twelf-mode}
+@item       Plastic       @tab @file{.lf}     @tab @code{plastic-mode}
+@item       Lambda-CLAM   @tab @file{.lcm}    @tab @code{lclam-mode}
 @end multitable
 (The exact list of Proof Assistants supported may vary according to the
 version of Proof General and its local configuration).  You can also
@@ -2241,11 +2245,11 @@ this chapter are welcomed!
 @section Adding your own keybindings
 @cindex keybindings
 
-Proof General follows Emacs convention in using @key{C-c} bindings for
-its functions, which is why some keyboard short-cuts are quite
-lengthy.
+Proof General follows Emacs convention for file modes in using @key{C-c}
+prefix key-bindings for its own functions, which is why some of the
+default keyboard short-cuts are quite lengthy.
 
-Some users may prefer to add additional keybindings for shorter
+Some users may prefer to add additional key-bindings for shorter
 sequences.  This can be done interactively with the command
 @code{M-x local-set-key}, or for longevity, by adding 
 code like this to your @file{.emacs} (or @file{.xemacs/init.el}) file:
@@ -2270,12 +2274,12 @@ command (@code{describe-key}) works for menu operations as well; also
 use it to discover the current key-bindings which you're losing by
 declarations such as those above.  By default, @kbd{C-n} is
 @code{next-line} and @kbd{C-b} is @code{backward-char-command}; neither
-are needed if you have working cursor keys.
+are really needed if you have working cursor keys.
 
 If you're using XEmacs and your keyboard has a @i{super} modifier (on my
 PC keyboard it has a Windows symbol and is next to the control key), you
-can freely bind keys on that modifier globally (since none are by using
-lisp like this:
+can freely bind keys on that modifier globally (since none are used
+by default).  Use lisp like this:
 @lisp
 (global-set-key [(super l)] 'x-symbol-INSERT-lambda)
 (global-set-key [(super n)] 'x-symbol-INSERT-notsign)
@@ -3026,9 +3030,7 @@ Using the LEGO Proof General, you never ever need to use administrative
 LEGO commands such as @samp{Forget}, @samp{ForgetMark}, @samp{KillRef},
 @samp{Load}, @samp{Make}, @samp{Reload} and @samp{Undo} again
 @footnote{And please, don't even think of including those in your LEGO
-proof script!}. You can concentrate on your actual proof developments.
-Script management in Proof General will invoke the appropriate commands
-for you. Proving with LEGO has never been easier.
+proof script!}. 
 
 @menu
 * LEGO specific commands::      
@@ -3574,8 +3576,9 @@ You can use the following format characters:
 @cindex Isabelle/Isar
 
 Proof General for Isabelle/Isar manages new-style @file{.thy} files,
-which may contain both definitions and proofs (human readable proof
-texts as well as traditional scripts following the Isar syntax).
+which may contain both definitions and proofs.  Proofs may be human
+readable proof texts as well as traditional tactic scripts adjusted
+to follow the Isar syntax.
 
 The syntax of Isabelle/Isar input is technically simple, enabling Proof
 General to provide reliable control over incremental execution of the
@@ -3708,9 +3711,8 @@ simple way, to cope with small differences in output between the
 systems.  (Please let us know if you modify the HOL98 version for
 another variant of HOL).
 
-Hopefully somebody from the HOL community is willing to adopt HOL Proof
-General and support and improve it.  Please volunteer!  It needn't be a
-large or heavy committment.  
+Perhaps somebody from the HOL community is willing to adopt HOL Proof
+General and support and improve it.  Please volunteer!  
 
 
 
@@ -3762,7 +3764,7 @@ the elisp and documentation, along with our low-level list of things to
 do, sources for the images, some make files used to generate the release
 itself from our CVS repository, and some test files.  Developers
 interested in accessing our CVS repository directly should contact
-@code{proofgen@@dcs.ed.ac.uk}.
+@code{support@@proofgeneral.org}.
 
 @c was Installing Proof General from @file{.tar.gz}
 @node Installing Proof General from tarball
@@ -3909,14 +3911,14 @@ the @file{coq} directory in the Proof General home directory.
 @node Known bugs and workarounds
 @appendix Known bugs and workarounds
 
-This appendix has been removed!
+This appendix has been removed.
 
 Please consult the file
 @uref{http://www.proofgeneral.org/ProofGeneral/BUGS,@file{BUGS}} in the
 distribution for an up-to-date description bugs and other issues.
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
-let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
+let us know by sending a note to @code{support@@proofgeneral.org}.
 
 
 @node References
