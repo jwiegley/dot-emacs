@@ -112,13 +112,18 @@ is), which is annoying.
 
 ")
   (goto-char (point-min))
+  (if (string-match "NU Emacs" (emacs-version))
+		(view-buffer (current-buffer) (function (lambda (b) (bury-buffer))))
+	 (view-mode nil (function (lambda (b) (bury-buffer))))
+	 )
   )
 
 
-;Pierre: should do almost what it does in xemacs
+
 (cond
  ((string-match "NU Emacs" (emacs-version))
   (transient-mark-mode 1)  ; for holes created by a simple click
+;Pierre: should do almost what region-exists-p does in xemacs
   (defmacro hole-region-exists-p nil
 	 "Returns t if the mark is active, nil otherwise."
 	 `(not (eq mark-active nil))
