@@ -5,35 +5,7 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 
 =================================================================
 
-* THINGS TO DO BEFORE/DURING 3.5 RELEASE
-
-*** Spam-protect email addresses on web pages
-
-*** Fixup HTML on mailing list pages
-
-*** Update documentation.  
-      --- MMM support
-      --- Theorem dependencies
-
-*** Isabelle tweaks
-     -- theorem dependencies on spoils ordinary response buffer output
-     (dependency info *after* response display loses)
-    [FIXED OR NOT?]
-
-*** Check multiple file support in Isabelle -- maybe has become buggy
-     -- Test cases seem to work, still
-     -- TODO: test with auto action:
-    Automatically processing files before deactivating scripting: warning
-    messages from Isabelle when asking it to remove files that it says
-    are already removed (noticed with auto action set to process).
-
-*** Finish clean-up of web page, broken link fixes.
-
-*** Check list of things at bottom of this file.
-
-
- 
-* Proof General Infeasibly Long Low-Level List of Things to Do
+* Developers' Infeasibly Long Low-Level List of Things to Do
 
 
 ** 0. Contents
@@ -752,6 +724,9 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 *** A Grant proposal for Proof General Kit.
 *** A Informatics research reports from latest docs.
 *** A Small project grant from LFCS for summer student
+
+*** B "Spam-protect" (ho, ho) email addresses on web pages
+*** B Fixup HTML on mailing list pages (image address)
 
 *** C PG CDROM: CDROM with PG and other theorem provers 
     Complete read-to-go distributions.  Would anyone find this
