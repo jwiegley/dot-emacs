@@ -724,6 +724,8 @@ X pbp code doesn't quite accord with the tech report; in particular it
 * Things to do for Web Pages
 ============================
 
+B Improve screenshot: add several, like the gallery.
+
 B Validate pages.  
       Current failures for HTML 4.0 to do with CGI-style arguments with "&",
       this is a problem with PHP3 really.
@@ -736,17 +738,11 @@ C Broken (old) links:
 
 C Reduce text size and front page image, for 1024x768 screens.
 
-C Add pdf documentation as soon as DCS upgrades its ancient
-  TeX installation, or as soon as making release from elsewhere
-  works.  Also need to fix inclusion of image in pdf. 
-
 D Restructure so that page titles are different to help
   browsing.  (Move links_arr from header.phtml somewhere new,
   and set $pg_title appropriately before head.phtml is included).
 
 C Add etc/announce somewhere.
-
-C Add tool demo document
 
 C Convert to SSI only plus a meta-generation phase?
 
@@ -971,14 +967,5 @@ A Find new people to help advance and develop Proof General.
 A Polish ProofGeneral.texi and publish LaTeX as an LFCS
   Technical Report.  
 
-   * Fix page rearrangement to insert a blank page
-   * Fix typos/other stuff found by Dave.
-   * Improve trivial and uniformative docstrings.
-   * Fixup markup mistakes by editing docstrings.
-   * Update menus in texi
-  [6 hours]
-
 A Write paper on design and development of Proof General.
-
-A Put Proof General demo paper on the web.
 
