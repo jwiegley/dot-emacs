@@ -257,10 +257,11 @@ until Proof General is restarted."
   :type 'boolean
   :setting "trace_simp:=%b;")
 
-(defpacustom global-timing  nil
-  "Whether to enable timing in Isabelle."
-  :type 'boolean
-  :setting "Library.timing:=%b;")
+; FIXME: maybe for Isabelle99-1 ?
+; (defpacustom global-timing  nil
+;  "Whether to enable timing in Isabelle."
+;  :type 'boolean
+;  :setting "Library.timing:=%b;")
 
 (defpacustom print-depth  10
   "Setting for the ML print depth in Isabelle."
@@ -278,6 +279,8 @@ until Proof General is restarted."
     (list ["Switch to theory" thy-find-other-file t])))
 
 (defpgdefault help-menu-entries isabelle-docs-menu)
+
+
 
 
 (provide 'isabelle-system)
