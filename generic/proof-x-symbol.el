@@ -22,10 +22,8 @@
 ;;
 ;; 1. Proof script buffers.
 ;; Font lock and X-Symbol minor modes are engaged as usual.
-;; Rather than using piecemeal enabling of X-Symbol
-;; or putting it onto an auto-mode list, we use
-;; proof-x-symbol-enable to cleanly turn on/off 
-;; X-Symbol in all PG buffers.
+;; We use proof-x-symbol-enable to add/remove PG buffers
+;; to X-Symbol's auto-mode list.
 ;;
 ;; 2. Output buffers (goals, response, tracing)
 ;; Neither font-lock nor X-Symbol mode is engaged.
@@ -132,30 +130,19 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	  (set symmodelinevar symmodelinenm)
 	  (x-symbol-register-language xs-lang xs-feature-sym all-xs-modes)
 	  ;; Put the extra modes on the auto-mode-alist
+	  ;; (temporarily disabled: may be okay to re-add now, if necessary)
 	  ;; (if xs-xtra-modes (push am-entry x-symbol-auto-mode-alist))
-	  ;; Okay, let's be less rash and put it on a hook list.
-	  ;; 12.1.00: Nope, there's a problem here!  
-	  ;; Results in thy-mode invoking 
-	  ;; proof-x-symbol-mode twice, first via hook, then
-	  ;; from proof-config-done-related, which blasts 
-	  ;; font-lock-keywords (whilst font-lock is turned on!)
-          ;; .  Temporarily disable this,
-	  ;; and consider what to do for other extra modes
 	  ;; (isa-latex).
-;	  (dolist (mode proof-xsym-extra-modes)
-;	    (add-hook 
-;	     (intern (concat (symbol-name mode) "-hook"))
-;	     'proof-x-symbol-mode))
-	  ;; Font lock support is optional
 
-	  ;; FIXME: Isabelle wants this for sup/sub scripts
-	  ;; presently loads too early and extends in modedef
-	  ;; setups.  Want to adjust here.
+	  ;; FIXME: Isabelle wants this for sup/sub scripts presently
+	  ;; loads too early and extends in modedef setups.  Want to
+	  ;; adjust here.
 	  (if flks
 	      (put symmode 'font-lock-defaults (list flks)))
 	  ;;
 	  ;; Finished.
 	  (setq proof-x-symbol-initialized t))))))
+
 
 (defun proof-x-symbol-set-global (enable)
   "Set global status of X-Symbol mode for PG buffers to be ENABLE."
