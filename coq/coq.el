@@ -5,12 +5,6 @@
 
 ;; $Id$ 
 
-;TODO Papageno 05/1999:
-;
-;* Correct the C-c C-c bug (typing C-c C-c during the execution of a
-;   tactic breaks the consitency with Coq)
-;* Fix the coq-lift-global code
-
 (require 'proof-script)
 (require 'coq-syntax)
 
@@ -199,7 +193,18 @@
 			  (span-property span 'name) proof-terminal-string)))
 
        ((proof-string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
-                              "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)
+				    "\\)\\s-*\\(" proof-id 
+				    ;; da: PG 3.2: I added "." here to try
+				    ;; to get undo for Section working.
+				    ;; (also changes in coq-syntax)
+				    ;; Coq users will have to tell me if it
+				    ;; works better now or not?
+				    ;; At least I can do C-c C-r in files
+				    ;; with Section in them.  But problem
+				    ;; with closure still present:
+				    ;; Section .. End Section should be
+				    ;; atomic!
+				    "\\)\\s-*[\\[,:.]") str)
 	(setq ans (concat coq-forget-id-command
 			  (match-string 2 str) proof-terminal-string)))
 
@@ -445,8 +450,8 @@
 
   (setq proof-auto-multiple-files t)	; until Coq has real support
 
-  (setq proof-shell-start-silent-cmd "Begin Silent"
-	proof-shell-stop-silent-cmd  "End Silent")
+  (setq proof-shell-start-silent-cmd "Begin Silent."
+	proof-shell-stop-silent-cmd  "End Silent.")
 
   (coq-init-syntax-table)
 
