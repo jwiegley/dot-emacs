@@ -1593,7 +1593,6 @@ Subject: [Bug: 21.4.15] parse-partial-sexp gives stack overflow
 ================================================================
 Dear Bug Team!
 
-
 This bug/issue has been bothering me and (users of my Proof General
 package) for some time.  I have just verified that with the current CVS
 version of XEmacs the same problem is still present.
@@ -1609,11 +1608,15 @@ The symptom I get is "nesting too deep for parser" error messages.
 contained ill-balanced parens; I also use parse-partial-sexp
 elsewhere in the PG code because of problems with buffer-syntactic-context.
 
-I notice some old comments in font-lock.el concerning this issue.
-It might be worth looking at GNU Emacs implementation if these are
-really supposed to be equivalent functions: on GNU Emacs 21.3.1 
-I tested a buffer containing 40000 left parens and parse-partial-sexp
-returned a result without missing a beat...
+I notice some old comments in font-lock.el concerning this issue.  It
+might be worth looking at GNU Emacs implementation if these two are
+really supposed to be equivalent functions: on GNU Emacs 21.3.1 I
+tested a *scratch* buffer containing 40000 left parens and
+parse-partial-sexp returned a result without missing a beat 8-).
+[ NB: I didn't confirm whether the syntax tables being used were
+identical, but both cases were in Lisp Interaction mode ]
+
+ - David Aspinall.
 
 
 ================================================================
