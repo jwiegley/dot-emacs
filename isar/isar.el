@@ -464,19 +464,22 @@ proof-shell-retract-files-regexp."
    (let ((ans nil) (lev 0) cmd)
      (while (and span (not ans))
        (setq span (prev-span span 'type))
-       (setq cmd (span-property span 'cmd))
-       (cond
-	;; comment: skip
-	((eq (span-property span 'type) 'comment))
-	;; local qed: enter block
-	((proof-string-match isar-save-command-regexp cmd)
-	 (setq lev (+ lev 1)))
-	;; local goal: leave block, or done
-	((proof-string-match isar-local-goal-command-regexp cmd)
-	 (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
-	;; global goal: done
-	((proof-string-match isar-goal-command-regexp cmd)
-	 (setq ans 'yes))))
+       ;; FIXME da: bug was here -- there may be no previous span!!
+       (if span				; da: added, don't know if right
+	   (progn			; da: added, don't know if right
+	     (setq cmd (span-property span 'cmd))
+	     (cond
+	      ;; comment: skip
+	      ((eq (span-property span 'type) 'comment))
+	      ;; local qed: enter block
+	      ((proof-string-match isar-save-command-regexp cmd)
+	       (setq lev (+ lev 1)))
+	      ;; local goal: leave block, or done
+	      ((proof-string-match isar-local-goal-command-regexp cmd)
+	       (if (> lev 0) (setq lev (- lev 1)) (setq ans 'no)))
+	      ;; global goal: done
+	      ((proof-string-match isar-goal-command-regexp cmd)
+	       (setq ans 'yes))))))
      (eq ans 'yes))))
 
 (defvar isar-current-goal 1
