@@ -20,4 +20,5 @@ Then users could use both proof languages in the same session.
 ** D Fixup so that typing in shell buffer updates locked buffer status.
 It works in Isabelle/classic, why not here?  (But users shouldn't
 type in shell buffer, anyway).
- 
+
+** D support proof-next-error?
