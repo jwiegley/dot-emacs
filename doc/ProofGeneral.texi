@@ -1936,7 +1936,8 @@ the @code{Search} command of Coq.
 @c could be generic
 
 Coq Proof General provides the program @file{coqtags} to generate tags
-for Coq proof scripts.  
+for Coq proof scripts. Invoking @samp{coqtags *.v} produces a file
+@file{TAGS} for all files @samp{*.v} in the current directory.
 
 See @ref{Support for tags} for further details on tags.
 
