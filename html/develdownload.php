@@ -1,7 +1,9 @@
+<!-- -*- html -*- -->
 <?php  
   require('functions.php3');
   small_header("Proof General Development Release"); 
   ?>
+
 
 <p>
 <a href="#prerel">Below</a> is the latest pre-release of Proof General,
@@ -45,26 +47,22 @@ or
 <!-- WARNING!  Line below automatically edited by makefile. -->
 <h2><a name="prerel">Pre-release: ProofGeneral-3.4pre020608</a></h2>
 
-<p>
-This version has been tested with XEmacs version 21.4 and
-with GNU Emacs 21.1.1.  XEmacs support is better tested.  
-Older releases of Emacs <i>may</i> work, but we recommend the use of 
-these or newer versions because backwards compatibility across 
-different Emacs versions is too difficult to support.  If you cannot
-upgrade your Emacs, consider using an 
-<a href="oldrel.php">older release</a> of Proof General.
-</p>
-<p>
+<p> 
+This version has been tested with XEmacs version 21.4.8 and with GNU
+Emacs 21.2.1.  XEmacs support is better tested.  Older releases of Emacs
+<i>may</i> work, but we recommend the use of these or newer versions
+because backwards compatibility across different Emacs versions is too
+difficult to support.  If you cannot upgrade your Emacs, consider
+using an <a href="oldrel.php">older release</a> of Proof General.
+</p> 
+<p> 
 Check the 
-<!-- WARNING!  Line below automatically edited by makefile. -->
-<?php fileshow("ProofGeneral-3.4pre020608/CHANGES","CHANGES"); ?> file
-<!-- End Warning. -->
-for a summary of changes since the last stable version, and
-notes about work-in-progress.
-</p>
-<table width="80%" cellspacing=8>
-<tr>
-<td width=150>gzip'ed tar file</td>
+<!-- WARNING!  Line below automatically edited by makefile. --> 
+<?php fileshow("ProofGeneral-3.4pre020608/CHANGES","CHANGES"); ?> file 
+<!-- End Warning. --> 
+for a summary of changes since the last stable
+version, and notes about work-in-progress.  </p> 
+<table width="80%" cellspacing=8> <tr> <td width=150>gzip'ed tar file</td>
 <!-- WARNING!  Lines below automatically edited by makefile. -->
 <td><?php download_link("ProofGeneral-3.4pre020608.tar.gz") ?></td>
 </tr>
