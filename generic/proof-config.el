@@ -594,7 +594,8 @@ command line options.  For an example, see coq/coq.el."
 ;;
 
 (defcustom proof-assistant-home-page ""
-  "Web address for information on proof assistant"
+  "Web address for information on proof assistant.
+Used for Proof General's help menu."
   :type 'string
   :group 'prover-config)
 
@@ -666,14 +667,19 @@ You must set this variable in script mode configuration."
   "String which starts a comment in the proof assistant command language.
 The script buffer's comment-start is set to this string plus a space.
 Moreover, comments are ignored during script management, and not
-sent to the proof process."
+sent to the proof process.
+
+You should set this variable for reliable working of Proof General,
+as well as `proof-comment-end'."
   :type 'string
   :group 'proof-script)
 
 (defcustom proof-comment-end ""
   "String which ends a comment in the proof assistant command language.
 The script buffer's comment-end is set to this string plus a space.
-See also `proof-comment-start'."
+See also `proof-comment-start'.
+
+You should set this variable for reliable working of Proof General,"
   :type 'string
   :group 'proof-script)
 
@@ -709,7 +715,7 @@ function-menu configuration in proof-script-find-next-entity."
   :group 'proof-script)
 
 (defcustom proof-goal-command-regexp nil
-  "Matches a goal command."
+  "Matches a goal command in the proof script.   Must be set."
   :type 'regexp
   :group 'proof-script)
 
@@ -719,6 +725,22 @@ Match number 2 should be the name of the goal issued.
 Used for setting names of goal..save regions and for default
 function-menu configuration in proof-script-find-next-entity."
   :type 'regexp
+  :group 'proof-script)
+
+(defcustom proof-non-undoables-regexp nil
+  "Regular expression matching commands which are *not* undoable.
+Used in default functions `proof-generic-state-preserving-p' 
+and `proof-generic-count-undos'.  If you don't use those,
+May be left as nil."
+  :type '(choice nil regexp)
+  :group 'proof-script)
+
+(defcustom proof-ignore-for-undo-count nil
+  "Matcher for script commands to be ignored in undo count.
+May be left as nil, in which case it will be set to
+`proof-non-undoables-regexp'.
+Used in default function `proof-generic-count-undos'."
+  :type '(choice nil regexp function)
   :group 'proof-script)
 
 (defcustom proof-script-next-entity-regexps nil
@@ -764,7 +786,6 @@ proof-goal-command-regexp, and proof-save-with-hole-regexp."
     ;;    (:inline t repeat (choice regexp (const 'backward) etc
   :group 'proof-script)
 
-
 (defcustom proof-script-find-next-entity-fn
   'proof-script-find-next-entity
   "Name of function to find next interesting entity in a script buffer.
@@ -789,9 +810,11 @@ default."
 ;; problem that Coq can have goals which look like definitions, etc.
 ;; Perhaps we can generalise the matching to understand function
 ;; values as well as regexps. 
+;; FIXME: could just as easily give default value of 
+;; proof-std-goal-command-p here, why not?
 
-(defcustom proof-goal-command-p nil 
-  "Is this really a goal command?"
+(defcustom proof-goal-command-p 'proof-generic-goal-command-p
+  "A function to test: is this really a goal command?"
   :type 'function
   :group 'proof-script)
 
@@ -839,10 +862,15 @@ or if you don't want to write a function to do move them around."
   ;; :type '(choice (const :tag "No local lemmas" nil) (function))
   :group 'proof-script)
 
-(defcustom proof-count-undos-fn nil 
-  "Function to compute number of undos in a target segment.
+(defcustom proof-count-undos-fn 'proof-generic-count-undos
+  "Function to calculate a command to issue undos to reach a target span.
+The function takes a span as an argument, and should return a string
+which is the command to undo to the target span.  The target is
+guaranteed to be within the current (open) proof.
 This is an important function for script management.
-Study one of the existing instantiations for examples of how to write it."
+The default setting `proof-generic-count-undos' is based on the
+settings `proof-non-undoables-regexp' and
+`proof-non-undoables-regexp'."
   :type 'function
   :group 'proof-script)
 
@@ -873,7 +901,7 @@ Study one of the existing instantiations for examples of how to write it."
   "String used as a nullary action (send no command to the proof assistant).
 Only relevant for proof-find-and-forget-fn.")
 
-(defcustom proof-find-and-forget-fn nil
+(defcustom proof-find-and-forget-fn 'proof-generic-find-and-forget
   "Function that returns a command to forget back to before its argument span.
 This setting is used to for retraction (undoing) in proof scripts.
 
@@ -883,6 +911,9 @@ of definitions, declarations, or whatever.
 
 The special string proof-no-command means there is nothing to do.
 
+Important: the generic implementation `proof-generic-find-and-forget'
+does nothing, it always returns `proof-no-command'.
+
 This is an important function for script management.
 Study one of the existing instantiations for examples of how to write it."
   :type 'function
@@ -890,16 +921,34 @@ Study one of the existing instantiations for examples of how to write it."
 
 (defcustom proof-goal-hyp-fn nil
   "Function which returns cons cell if point is at a goal/hypothesis.
-First element of cell is a symbol, 'goal' or 'hyp'.  The second
-element is a string: the goal or hypothesis itself.  This is used
-when parsing the proofstate output."
-  :type 'function
+This is used to parse the proofstate output to mark it up for
+proof-by-pointing.  It should return a cons or nil.  First element of
+the cons is a symbol, 'goal' or 'hyp'.  The second element is a
+string: the goal or hypothesis itself.
+
+If you leave this variable unset, no proof-by-pointing markup
+will be attempted."
+  :type '(choice function nil)
   :group 'proof-script)
 
 (defcustom proof-kill-goal-command ""
   "Command to kill the currently open goal.
 You must set this (perhaps to a no-op) for script management to work."
   :type 'string
+  :group 'proof-script)
+
+(defcustom proof-undo-n-times-cmd nil
+  "Command to undo n steps of the currently open goal.
+String or function.
+If this is set to a string, %s will be replaced by the number of
+undo steps to issue. 
+If this is set to a function, it should return the appropriate
+command when called with an integer (the number of undo steps).
+
+This setting is used for the default `proof-generic-count-undos'.
+If you set `proof-count-undos-fn' to something else, there is no
+need to set this variable."
+  :type '(or string function)
   :group 'proof-script)
 
 (defcustom proof-global-p nil
@@ -1036,6 +1085,16 @@ The proof-terminal-char is added on to the end."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
+;; FIXME could add option to quiz user before rude kill.
+(defcustom proof-shell-quit-timeout 10
+  "The number of seconds to wait after sending proof-shell-quit-cmd.
+After this timeout, the proof shell will be killed of more rudely.
+If your proof assistant takes a long time to clean up (for
+example writing persistent databases out or the like), you may
+need to bump this value up."
+   :type '(choice string (const nil))
+   :group 'proof-shell)
+
 (defcustom proof-shell-cd-cmd nil
   "Command to the proof assistant to change the working directory.
 The format character %s is replaced with the directory, and the
@@ -1114,7 +1173,9 @@ Proof General about the dependcies rather than using this setting."
 ;;
 
 (defcustom proof-shell-prompt-pattern nil 
-   "Proof shell's value for comint-prompt-pattern, which see."
+   "Proof shell's value for comint-prompt-pattern, which see.
+This pattern is just for interaction in comint (shell buffer).
+You don't really need to set it."
    :type 'regexp
    :group 'proof-shell)
 
@@ -1129,7 +1190,8 @@ Set to nil if proof assistant does not support annotated prompts."
 (defcustom proof-shell-first-special-char nil
   "First special character.
 Codes above this character can have special meaning to Proof General,
-and are stripped from the prover's output strings."
+and are stripped from the prover's output strings.
+Leave unset if no special characters are being used."
   :type '(choice character (const nil))
   :group 'proof-shell)
 
@@ -1177,7 +1239,7 @@ will be lost.
 The engine matches interrupts before errors, see proof-shell-error-regexp.
 
 It is safe to leave this variable unset (as nil)."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-shell) 
 
 (defcustom proof-shell-proof-completed-regexp nil
@@ -1187,45 +1249,52 @@ Match number 1 should be the response text.
 This is used to enable the QED function (save a proof) and
 to control what output appears in the response buffer at the
 end of a proof."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-clear-response-regexp nil
   "Regexp matching output telling Proof General to clear the response buffer.
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-clear-goals-regexp nil
   "Regexp matching output telling Proof General to clear the goals buffer.
 This feature is useful to give the prover more control over what output
 is shown to the user.  Set to nil to disable."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-shell)
 
-(defcustom proof-shell-start-goals-regexp ""
+(defcustom proof-shell-start-goals-regexp nil
   "Regexp matching the start of the proof state output.
 This is an important setting.  Output between `proof-shell-start-goals-regexp'
 and `proof-shell-end-goals-regexp' will be pasted into the goals buffer
 and possibly analysed further for proof-by-pointing markup."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-shell)
 
-(defcustom proof-shell-end-goals-regexp ""
-  "Regexp matching the end of the proof state output."
-  :type 'regexp
+(defcustom proof-shell-end-goals-regexp nil
+  "Regexp matching the end of the proof state output, or nil.
+If nil, just use the rest of the output following proof-shell-start-goals-regexp."
+  :type '(choice nil regexp)
   :group 'proof-shell)
 
 (defcustom proof-shell-eager-annotation-start nil
   "Eager annotation field start.  A regular expression or nil.
-An eager annotation indicates to Emacs that some following output
-should be displayed immediately and not accumulated for parsing.
+An eager annotation indicates to Proof General that some following output
+should be displayed immediately and not accumulated for parsing later.
+It's nice to recognize warnings or file-reading messages with this
+regexp.  
+
+See also `proof-shell-eager-annotation-start-length',
+`proof-shell-eager-annotation-end'.
+
 Set to nil to disable this feature."
   :type '(choice regexp (const :tag "Disabled" nil))
   :group 'proof-shell)
 
-(defcustom proof-shell-eager-annotation-start-length 1
+(defcustom proof-shell-eager-annotation-start-length 10
   "Maximum length of an eager annotation start. 
 Must be set to the maximum length of the text that may match
 `proof-shell-eager-annotation-start' (at least 1).
@@ -1420,24 +1489,24 @@ toolbar.")
 (defcustom pbp-goal-command nil
   "Command informing the prover that `pbp-button-action' has been
 requested on a goal."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-goals)
 
 (defcustom pbp-hyp-command nil
   "Command informing the prover that `pbp-button-action' has been
 requested on an assumption."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-goals)
 
 (defcustom pbp-error-regexp nil
   "Regexp indicating that the proof process has identified an error."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-goals)
 
-(defcustom proof-shell-result-start ""
+(defcustom proof-shell-result-start nil
   "Regexp matching start of an output from the prover after pbp commands.
 In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
-  :type 'regexp
+  :type '(choice nil regexp)
   :group 'proof-goals)
 
 (defcustom proof-shell-result-end ""
@@ -1461,39 +1530,22 @@ See documentation of proof-shell-start-char."
   :group 'proof-goals)
 
 (defcustom proof-shell-goal-char nil
-  "goal mark"
+  "Mark for goal.
+
+This setting is also used to see if proof-by-pointing features
+are configured.  If it is unset, some of the code 
+for parsing the is disabled."
   :type 'character
   :group 'proof-goals)
 
 (defcustom proof-shell-field-char nil
-  "annotated field end"
+  "Annotated field end"
   :type 'character
   :group 'proof-goals)
 
-(defcustom proof-shell-start-char nil
-  "Starting special for a subterm markup.
-Subsequent characters with values *below* proof-shell-first-special-char
-are assumed to be subterm position indicators.  Subterm markups should
-be finished with proof-shell-end-char."
-  :type '(choice character (const nil))
-  :group 'proof-goals)
-
-(defcustom proof-shell-end-char nil
-  "Finishing special for a subterm markup.
-See documentation of proof-shell-start-char."
-  :type '(choice character (const nil))
-  :group 'proof-goals)
-
-(defcustom proof-shell-goal-char nil
-  "goal mark"
-  :type '(choice character (const nil))
-  :group 'proof-goals)
-
-(defcustom proof-shell-field-char nil
-  "annotated field end"
-  :type '(choice character (const nil))
-  :group 'proof-goals)
-
+;; FIXME: remove this setting after 3.0, by matching on
+;; completed-regexp as an extra step, after errors/interrupt,
+;; but as well as ordinary output.
 (defcustom proof-goals-display-qed-message nil
   "If non-nil, display the proof-completed message in the goals buffer.
 For some proof assistants (e.g. Isabelle) it seems aesthetic to
@@ -1501,7 +1553,10 @@ display the QED message in the goals buffer, even though it doesn't
 contain any goals and shouldn't be marked up for proof-by-pointing.
 
 If this setting is non-nil, QED messages appear in the goals
-buffer.  Otherwise they appear in the response buffer."
+buffer.  Otherwise they appear in the response buffer.
+
+This is a hack specially for Isabelle.  DON'T USE IT.
+It will be removed in a future version of Proof General."
   :type 'boolean
   :group 'proof-goals)
 
