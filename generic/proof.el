@@ -650,7 +650,7 @@ is resynchronised. It contains files in canonical truename format")
 
 (defun proof-message (str)
   "Output STR in minibuffer."
-  (message (concat "[Proof] " str)))
+  (message (concat "[" proof-assistant "] " str)))
 
 ;; append-element in tl-list
 (defun proof-append-element (ls elt)
