@@ -73,6 +73,10 @@ Set in proof-shell-mode.")
 triples, which is a queue of things to do.
 See the functions `proof-start-queue' and `proof-exec-loop'.")
 
+(defvar proof-shell-silent nil
+  "A flag, non-nil if PG thinks the prover is silent."
+  nil)
+
 
 ;;
 ;; Implementing the process lock
@@ -360,12 +364,8 @@ exited by hand (or exits by itself)."
       (if proc (set-process-sentinel proc nil))
       ;; Restart all scripting buffers
       (proof-script-remove-all-spans-and-deactivate)
-      ;; Clear state (some of these not strictly necessary)
-      (setq proof-included-files-list nil
-	    proof-shell-busy nil
-	    proof-shell-proof-completed nil
-	    proof-shell-error-or-interrupt-seen nil
-	    proof-action-list nil)
+      ;; Clear state 
+      (proof-shell-clear-state)
       ;; Kill buffers associated with shell buffer
       (if (buffer-live-p proof-goals-buffer)
 	  (progn 
@@ -376,6 +376,15 @@ exited by hand (or exits by itself)."
 	    (kill-buffer proof-response-buffer)
 	    (setq proof-response-buffer nil)))
       (message "%s exited." bufname))))
+
+(defun proof-shell-clear-state ()
+  "Clear internal state of proof shell."
+  (setq proof-action-list nil
+	proof-included-files-list nil
+	proof-shell-busy nil
+	proof-shell-proof-completed nil
+	proof-shell-error-or-interrupt-seen nil
+	proof-shell-silent-nil)
 
 (defun proof-shell-exit ()
   "Query the user and exit the proof process.
@@ -422,11 +431,7 @@ object files, used by Lego and Coq)."
 	(proof-shell-wait)))
   ;; Now clear all context
   (proof-script-remove-all-spans-and-deactivate)
-  (setq proof-included-files-list nil
-	proof-shell-busy nil
-	proof-action-list nil
-	proof-shell-error-or-interrupt-seen nil
-	proof-shell-proof-completed nil)
+  (proof-shell-clear-state)
   (if (and (buffer-live-p proof-shell-buffer)
 	   proof-shell-restart-cmd)
 	   (proof-shell-invisible-command
