@@ -208,8 +208,8 @@
 
 (defvar proof-bug-report-menu
   (list "----"
-   ["About Proof General" proof-splash-display-screen]
-   ["Submit bug report"   proof-submit-bug-report])
+   ["About Proof General" proof-splash-display-screen t]
+   ["Submit bug report"   proof-submit-bug-report t])
   "Proof General menu for submitting bug report (one item plus separator).")
 
 (defvar proof-menu  
