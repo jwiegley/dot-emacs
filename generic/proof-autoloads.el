@@ -7,6 +7,26 @@
 
 ;;;***
 
+;;;### (autoloads (proof-thy-menu-define-deps proof-depends-process-dependencies) "old-proof-depends" "generic/old-proof-depends.el")
+
+(autoload 'proof-depends-process-dependencies "old-proof-depends" "\
+Process dependencies reported by prover, for NAME in span GSPAN.
+Called from `proof-done-advancing' when a save is processed and
+proof-last-theorem-dependencies is set." nil nil)
+
+(autoload 'proof-thy-menu-define-deps "old-proof-depends" nil nil nil)
+
+;;;***
+
+;;;### (autoloads (proof-depends-process-dependencies) "proof-depends" "generic/proof-depends.el")
+
+(autoload 'proof-depends-process-dependencies "proof-depends" "\
+Process dependencies reported by prover, for NAME in span GSPAN.
+Called from `proof-done-advancing' when a save is processed and
+proof-last-theorem-dependencies is set." nil nil)
+
+;;;***
+
 ;;;### (autoloads (proof-easy-config) "proof-easy-config" "generic/proof-easy-config.el")
 
 (autoload 'proof-easy-config "proof-easy-config" "\
@@ -42,11 +62,13 @@ As for macro `defpacustom' but evaluation arguments." nil nil)
 
 (autoload 'defpacustom "proof-menu" "\
 Define a setting NAME for the current proof assitant, default VAL.
-NAME should correspond to some internal setting, flag, etc, for the
-proof assistant.  
+NAME can correspond to some internal setting, flag, etc, for the
+proof assistant, in which case a :setting and :type value should be provided.
 The :type of NAME should be one of 'integer, 'boolean, 'string.
 The customization variable is automatically in group `proof-assistant-setting.
-The function `proof-assistant-format' is used to format VAL." nil 'macro)
+The function `proof-assistant-format' is used to format VAL.
+If NAME corresponds instead to a PG internal setting, then a form :eval to
+evaluate can be provided instead." nil 'macro)
 
 ;;;***
 
@@ -111,7 +133,10 @@ and start at the first error." t nil)
 ;;;### (autoloads (proof-splash-message proof-splash-display-screen) "proof-splash" "generic/proof-splash.el")
 
 (autoload 'proof-splash-display-screen "proof-splash" "\
-Save window config and display Proof General splash screen." t nil)
+Save window config and display Proof General splash screen.
+If TIMEOUT is non-nil, time out outside this function, definitely
+by end of configuring proof mode. 
+Otherwise, timeout inside this function after 10 seconds or so." t nil)
 
 (autoload 'proof-splash-message "proof-splash" "\
 Make sure the user gets welcomed one way or another." t nil)
