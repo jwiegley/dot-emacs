@@ -85,10 +85,12 @@ fi
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/lego/*.el
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/lego/*.l
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isa
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/interface
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*.el
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*.thy
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isa/*.ML
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/isar
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/interface
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/*.el
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/isar/*.thy
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/hol98
