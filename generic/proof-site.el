@@ -60,15 +60,21 @@ variable proof-home-directory."
 
 
 ;; Directories
+(defun proof-home-directory-fn ()
+  "Used to set proof-home-directory"
+  (let ((s (getenv  "PROOFGENERAL_HOME")))
+    (cond 
+     (s (if (string-match "/$" s) 
+	    s
+	  (concat s "/")))
+     (let ((curdir 
+	    (or
+	     (and load-in-progress (file-name-directory load-file-name))
+	     (file-name-directory (buffer-file-name)))))
+       (file-name-directory (substring curdir 0 -1))))))
 
 (defcustom proof-home-directory
-  ;; FIXME: make sure compiling does not evaluate next expression.
-  (or (getenv "PROOFGENERAL_HOME") 
-      (let ((curdir 
-	     (or
-	      (and load-in-progress (file-name-directory load-file-name))
-	      (file-name-directory (buffer-file-name)))))
-	(file-name-directory (substring curdir 0 -1))))
+  (proof-home-directory-fn)
   "Directory where Proof General is installed. Ends with slash.
 Default value taken from environment variable `PROOFGENERAL_HOME' if set, 
 otherwise based on where the file `proof-site.el' was loaded from.
@@ -84,7 +90,7 @@ You can use customize to set this variable."
 
 (defcustom proof-info-directory
   (concat proof-home-directory "doc/")
-  "Where Proof General Info files are installed."
+  "Where Proof General Info files are installed. Ends with slash."
   :type 'directory
   :group 'proof-general-internals)
 
