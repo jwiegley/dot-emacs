@@ -5,25 +5,18 @@ $Id$
 * Priorities
 ============
 
-A (URGENT) to be fixed immediately for release 
+A (URGENT) to be fixed immediately for next pre-release 
 B (High)   to be fixed before next release (Version 2.1)
 C          would be nice to fix before release of 2.0; but not crucial
 D (Medium) desirable to fix at some point
 X (Low)    probably not worth wasting time on
 
+
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-    Isabelle: reports .ML loaded after doing use-theory.
-
-A* NewDoc becomes ProofGeneral.texi.  Check nothing left in
-   ProofGeneral.texi.      
-
 A Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.
-
-A Check that byte compilation (and compiled code!) 
-  works for both varieties of Emacs. 
 
 B Is it possible to let C-c C-c (SIGINT) issue additional process input?
   Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
@@ -53,6 +46,9 @@ B Improve behaviour when switching active scripting buffer.
   allow switching between scripting buffers automatically,
   (perhaps with an option akin to the old "steal scripting?" idea). 
 
+C Improve handling of process exiting early (see note at
+  end of proof-shell-mode).  (30mins)
+  
 C da: Suggested improvement to interface for included files:
   Currently have two cases: processing a single file, and
   retracting which updates the included file list arbitrarily
@@ -215,7 +211,6 @@ D Perhaps goal..save sequences should be closed also by the appearance
      ..
 
   Will ACS idea handle this?
-  
 
 D Better support for adding a new prover: give error messages which
   hint at what variable to set (see proof-issue-goal for example).
