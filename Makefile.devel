@@ -153,6 +153,10 @@ CVSROOT=$(shell cat CVS/Root)
 # Emacs for batch compiling
 BATCHEMACS=xemacs -batch -q -no-site-file
 
+# Emacs for interactive use in testing
+EMACS=emacs
+EMACSFLAGS=-q -no-site-file
+
 # GNU version of tar, please
 TAR=tar
 # zip utility
@@ -201,7 +205,9 @@ RELEASENAMERPM = $(RELEASENAME)-1.noarch.rpm
 DISTINSTALLDIR=/export/local/share/elisp
 
 # Copied from distributed Makefile
-ELISP_DIRS=acl2 coq demoisa generic hol98 isa isar lclam lego lib mmm phox plastic twelf
+PROVERS=acl2 coq demoisa generic hol98 isa isar lclam lego phox plastic twelf
+OTHER_ELISP=lib mmm
+ELISP_DIRS=$(PROVERS) $(OTHER_ELISP)
 SUBDIRS=$(ELISP_DIRS) etc doc images
 
 PWD=$(shell pwd)
@@ -235,6 +241,16 @@ ETAGS=etags
 tags:	$(EL)
 	$(ETAGS) $(EL) TODO.developer doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
 
+
+############################################################
+#
+# Run tests for a particular prover and particular Emacs
+#
+test.%:	
+	if [ -f "$*/$*-autotest.el" ]; then if $(EMACS) $(EMACSFLAGS) -l generic/proof-site.el $*/$*-autotest.el -f eval-current-buffer; then echo "Autotests run successfully on `date`" > $*/.autotest.txt; else rm -f $*/autotest.txt; exit 1; fi; fi
+
+testall.%: 
+	for prover in ${PROVERS}; do $(MAKE) devel.test.$$prover EMACS=$*; done
 
 
 ############################################################
