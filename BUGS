@@ -144,6 +144,11 @@ to proofgen@dcs.ed.ac.uk.
 Isabelle Proof General Bugs
 ===========================
 
+* set proof_timing is problematic: it will make the goals display
+disappear during proof.  This is because Proof General only displays
+goals output that appears *after* Isabelle messages, but Isabelle
+prints the timing message after the goals are displayed.
+
 * There is a general difficulty with proof scripts containing ML
 structures, functions, etc.  Proof General does not understand full ML
 syntax(!), so it will be confused by structures which contain 
