@@ -416,7 +416,7 @@ Please help us!
 
 Send us comments, suggestsions, or (the best) patches to improve support
 for your chosen proof assistant.  Contact us at
-@code{support@@proofgeneral.org}.
+@code{da+pg-support@@inf.ed.ac.uk}.
 
 If your chosen proof assistant isn't supported, read the accompanying
 @i{Adapting Proof General} manual to find out how to configure PG for a
@@ -2221,7 +2221,8 @@ List of identifiers to use for completion for this proof assistant.@*
 Completion is activated with C-return.
 
 If this table is empty or needs adjusting, please make changes using
-@samp{@code{customize-variable}} and send suggestions to da+pg-support@@inf.ed.ac.uk
+@samp{@code{customize-variable}} and send suggestions to 
+da+pg-support@@inf.ed.ac.uk
 @end defvar
 
 The completion facility uses a library @file{completion.el} which
@@ -3854,7 +3855,7 @@ the elisp and documentation, along with our low-level list of things to
 do, sources for the images, some make files used to generate the release
 itself from our CVS repository, and some test files.  Developers
 interested in accessing our CVS repository directly should contact
-@code{support@@proofgeneral.org}.
+@code{da+pg-support@@inf.ed.ac.uk}.
 
 @c was Installing Proof General from @file{.tar.gz}
 @node Installing Proof General from tarball
@@ -4008,7 +4009,7 @@ Please consult the file
 distribution for an up-to-date description of bugs and other issues.
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
-let us know by sending a note to @code{support@@proofgeneral.org}.
+let us know by sending a note to @code{da+pg-support@@inf.ed.ac.uk}.
 
 
 @node References
