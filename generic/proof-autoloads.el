@@ -1,14 +1,9 @@
 ;;; DO NOT MODIFY THIS FILE
 (if (featurep 'proof-autoloads) (error "Already loaded"))
 
-;;;### (autoloads (pg-browse) "pg-browse" "generic/pg-browse.el")
+;;;### (autoloads nil "_pkg" "generic/_pkg.el")
 
-(autoload 'pg-browse "pg-browse" "\
-Invoke the Proof General OO-Browser.
-This allows browsing through source files for theories in the current proof assistant.
-With an optional non-nil prefix argument ENV-FILE, prompt for Environment file to
-use.  Alternatively, a string value of ENV-FILE is used as the Environment
-file name.  See also the file \"br-help\"." t nil)
+(package-provide 'ProofGeneral :version 3\.3pre010320 :type 'regular)
 
 ;;;***
 
@@ -92,7 +87,9 @@ because Proof General does not allow for the action list to be extended
 in some cases.   May be called by proof-shell-invisible-command." nil nil)
 
 (autoload 'proof-shell-invisible-command "proof-shell" "\
-Send CMD to the proof process.  Automatically add proof-terminal-char if nec.
+Send CMD to the proof process.  
+Automatically add proof-terminal-char if necessary, examining
+proof-shell-no-auto-terminate-commands.
 By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
@@ -114,7 +111,7 @@ and start at the first error." t nil)
 Save window config and display Proof General splash screen." t nil)
 
 (autoload 'proof-splash-message "proof-splash" "\
-Make sure the user gets welcomed one way or another." nil nil)
+Make sure the user gets welcomed one way or another." t nil)
 
 ;;;***
 
@@ -130,7 +127,7 @@ may be a string or sexp evaluated to get a string." nil nil)
 ;;;### (autoloads (proof-toolbar-setup) "proof-toolbar" "generic/proof-toolbar.el")
 
 (autoload 'proof-toolbar-setup "proof-toolbar" "\
-Initialize Proof General toolbar and enable it for the current buffer.
+Initialize Proof General toolbar and enable it for current buffer.
 If proof-mode-use-toolbar is nil, change the current buffer toolbar
 to the default toolbar." t nil)
 
