@@ -477,8 +477,9 @@ Assumes script buffer is current"
   "Vector of script element kinds PG is aware of for this prover.")
 
 (defvar pg-visibility-specs nil
-  "Cache of visibility spec symbols used by PG.")
-
+  "Cache of visibility spec symbols used by PG.
+This is used for cleaning `buffer-invisibility-spec' in 
+`pg-clear-script-portions': it doesn't need to be exactly accurate.")
 
 (deflocal pg-script-portions nil
   "Table of lists of symbols naming script portions which have been processed so far.")
@@ -487,7 +488,19 @@ Assumes script buffer is current"
   "Clear record of script portion names and types from internal list.
 Also clear all visibility specifications."
   (setq pg-script-portions nil)
-  (setq buffer-invisibility-spec nil))
+  (setq buffer-invisibility-spec
+	(if (listp buffer-invisibility-spec)
+	    ;; FIXME: inefficient
+	    (append
+	     (mapcar (lambda (propellips)
+		       (if (memq (car propellips) pg-visibility-specs)
+			   nil (list propellips)))
+		     buffer-invisibility-spec))
+	  ;; NB: if invisibility spec was t, we loose here: we need
+	  ;; it to be a list unfortunately, whereas other code may
+	  ;; want `t'.  That's annoying.  
+	  ;; (FIXME: should tell GNU/X Emacs developers).
+	  nil)))
 
 (defun pg-add-script-element (elt)
   (add-to-list pg-script-portions elt))
@@ -558,8 +571,9 @@ NAME does not need to be unique."
 
 (defun pg-make-element-invisible (idiom id)
   "Make element ID of type IDIOM invisible, with ellipsis."
-  (add-to-list 'buffer-invisibility-spec 
-	       (cons (pg-visname idiom id) t)))
+  (let ((visspec  (cons (pg-visname idiom id) t)))
+    (add-to-list 'buffer-invisibility-spec visspec)
+    (add-to-list 'pg-visibility-specs visspec)))
 
 (defun pg-make-element-visible (idiom id)
   "Make element ID of type IDIOM visible."
@@ -2700,15 +2714,9 @@ finish setup which depends on specific proof assistant configuration."
      ((and img proof-running-on-XEmacs)
       (set-glyph-image invisible-text-glyph img (current-buffer)))))
 
-  ;; To begin with, make everything visible in the buffer
-  ;; (FIXME: this is done via proof-init-segmentation, now,
-  ;; when is that called?)
-  (setq buffer-invisibility-spec nil)
-
   ;; Finally, make sure the user has been welcomed!
   ;; [NB: this doesn't work well, can get zapped by loading messages]
   (proof-splash-message))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
