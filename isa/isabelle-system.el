@@ -182,6 +182,13 @@ Called with one argument: t to save database, nil otherwise."
       (isa-insert-ret "quit();"))
   (comint-send-eof))
 
+;;; Set proof-shell-pre-interrupt-hook for PolyML.
+(if (and
+     (not proof-shell-pre-interrupt-hook)
+     (string-match "^polyml" (isa-getenv "ML_SYSTEM")))
+    (add-hook
+     'proof-shell-pre-interrupt-hook
+     (lambda () (proof-shell-insert "f" nil))))
 
 ;;; ==========  Utility functions ==========
 
