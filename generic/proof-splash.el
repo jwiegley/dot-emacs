@@ -134,10 +134,10 @@ Borrowed from startup-center-spaces."
 	  (if (get-buffer-window splashbuf)
 	      ;; Restore the window config if splash is being displayed
 	      (progn
-		;; Destroy buffer before restoring !
 		(kill-buffer splashbuf)
 		(set-window-configuration conf)
-		(redraw-device nil t))
+		(if (and proof-running-on-XEmacs proof-toolbar-enable)
+		    (redraw-frame nil t)))
 	    (kill-buffer splashbuf))))))
 
 (defvar proof-splash-seen nil
