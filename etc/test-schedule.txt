@@ -5,6 +5,15 @@ $Id$
 
 (in progress)
 
+--------------------
+
+Desirable tests:
+
+* Settings mechanism; PROOFGENERAL_ASSISTANTS vs .emacs and
+  customize-set-variable, interaction with Isabelle startup
+  scripts.
+
+
 
 
 
