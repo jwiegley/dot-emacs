@@ -111,20 +111,20 @@
    proof-comment-start             "(*"
    proof-comment-end               "*)"
    proof-state-command             "goals."
-   proof-goal-command-regexp       "goal\\|prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem"
+   proof-goal-command-regexp       "goal\\|\\(prop\\(osition\\)?\\)\\|\\(lem\\(ma\\)?\\)\\|fact\\|\\(cor\\(ollary\\)?\\)\\|\\(theo\\(rem\\)?\\)"
    proof-save-command-regexp       "save"
    proof-goal-with-hole-regexp     (concat 
-      "\\(prop\\|proposition\\|lem\\|lemma\\|fact\\|cor\\|corollary\\|theo\\|theorem\\)"
-      phox-comments-regexp
+     "\\|\\(prop\\(osition\\)?\\)\\|\\(lem\\(ma\\)?\\)\\|fact\\|\\(cor\\(ollary\\)?\\)\\|\\(theo\\(rem\\)?\\)"
+      phox-strict-comments-regexp
       phox-ident-regexp)
    proof-ignore-for-undo-count      "constraints\\|flags\\|goals\\|print\\|print_sort\\|eshow\\|search\\|priority\\|depend"
    proof-goal-with-hole-result     5
    proof-save-with-hole-regexp     (concat 
-      "save"
-      phox-comments-regexp
+      "save[ \n\t\r]"
+      phox-strict-comments-regexp
       phox-ident-regexp)
    proof-save-with-hole-result     4
-   proof-shell-error-regexp        "^\\([^ \n\t\r]* \\)?\\(e\\|E\\)rror"
+   proof-shell-error-regexp        "^\\([^ \n\t\r]* \\)?\\(\\(e\\|E\\)rror\\)\\|\\(\\(f\\|F\\)ailure\\)"
    proof-non-undoables-regexp      "undo"
    proof-goal-command              "goal %s."
    proof-save-command              "save %s."

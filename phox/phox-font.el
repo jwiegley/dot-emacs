@@ -107,7 +107,7 @@
 ;;                       Sym-lock tables
 ;;--------------------------------------------------------------------------;;
 
-(if proof-running-on-XEmacs (require 'sym-lock))
+(if proof-running-on-XEmacs (require 'phox-sym-lock))
 
 ;; to change this table, xfd -fn '-adobe-symbol-*--12-*' may be
 ;; used to determine the symbol character codes.
@@ -124,7 +124,8 @@
     ("<->" 0 1 171)
     ("-->" 0 1 222)
     ("->" 0 1 174)
-    ("~" 0 1 216))
+    ("~" 0 1 216)
+    ("\\\\" 0 1 108))
   "If non nil: Overrides default Sym-Lock patterns for PhoX.")
 
 (defun phox-sym-lock-start ()

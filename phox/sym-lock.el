@@ -306,4 +306,4 @@ OBJ under `sym-lock-adobe-symbol-face'. The face extent will become atomic."
 
 (add-hook 'font-lock-mode-hook 'sym-lock-font-lock-hook)
 
-(provide 'sym-lock)
+(provide 'phox-sym-lock)
