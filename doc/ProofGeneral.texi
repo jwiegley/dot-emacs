@@ -1690,18 +1690,21 @@ For more help, see @inforef{Easy Customization, ,xemacs}.
 @cindex buffer display customization
 @cindex frames
 @cindex multiple frames
+@cindex three-buffer interaction
 
-If you are working on a workstation with a window system, you can use
-Emacs to manage several @i{frames} on the display, to keep the goals
-buffer displayed in a fixed place on your screen and in a certain font,
-for example.  A convenient way to do this is via
-@code{special-display-regexps}, for example:
+By default, Proof General displays two buffers during scripting, in a
+split window on the display.  One buffer is the script buffer.  The
+other buffer is either the goals buffer (e.g. @code{*isabelle-goals*})
+or the response buffer (@code{*isabelle-response*}).  Proof General
+switches between these last two automatically.
 
-@lisp
-(setq special-display-regexps
-        (cons "\\*Inferior.*-\\(goals\\|response\\)\\*"
-         special-display-regexps))
-@end lisp
+You may prefer to display all three of these buffers at once, if your
+screen is large enough.  This is useful, for example, to see output from
+the @code{proof-find-theorems} command at the same time as the subgoal
+list.  The user option @code{proof-window-dedicated} can be set
+to make Proof General keep both the goals and response buffer
+displayed.
+
 
 
 @c TEXI DOCSTRING MAGIC: proof-auto-delete-windows
@@ -1717,100 +1720,6 @@ selected frame will be automatically deleted.
 The default value is @code{nil}.
 @end defopt
 
-
-
-
-@node User options
-@section User options
-@c Index entries for each option 'concept'
-@cindex User options
-@cindex Strict read-only
-@cindex Query program name
-@cindex Dedicated windows
-@cindex Remote host
-@cindex Toolbar follow mode
-@cindex Toolbar disabling
-@cindex Toolbar button enablers
-@cindex Proof script indentation
-@cindex Indentation
-@cindex Remote shell
-@cindex Running proof assistant remotely
-@c @cindex formatting proof script
-
-Here are the remaining user options for Proof General.  These can be set
-via the customization system, via the old-fashioned @code{M-x
-edit-options} mechanism, or simply by adding @code{setq}'s to your
-@file{.emacs} file.  The first approach is strongly recommended.
-
-
-@c TEXI DOCSTRING MAGIC: proof-prog-name-ask
-@defopt proof-prog-name-ask 
-If non-nil, query user which program to run for the inferior process.
-
-The default value is @code{nil}.
-@end defopt
-
-@c TEXI DOCSTRING MAGIC: proof-prog-name-guess
-@defopt proof-prog-name-guess 
-If non-nil, use @samp{@code{proof-guess-command-line}} to guess @code{proof-prog-name}.@*
-This option is compatible with @code{proof-prog-name-ask}.
-No effect if @code{proof-guess-command-line} is nil.
-
-The default value is @code{nil}.
-@end defopt
-
-
-@c TEXI DOCSTRING MAGIC: proof-rsh-command
-@defopt proof-rsh-command 
-Shell command prefix to run a command on a remote host.  @*
-For example,
-@lisp
-   ssh bigjobs
-@end lisp
-Would cause Proof General to issue the command @samp{ssh bigjobs isabelle}
-to start Isabelle remotely on our large compute server called @samp{bigjobs}.
-
-The protocol used should be configured so that no user interaction
-(passwords, or whatever) is required to get going.
-
-The default value is @code{""}.
-@end defopt
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-enable
-@deffn Command proof-toolbar-enable 
-Initialize Proof General toolbar and enable it for the current buffer.@*
-If proof-mode-use-toolbar is nil, change the current buffer toolbar
-to the default toolbar.
-@end deffn
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-use-button-enablers
-@defopt proof-toolbar-use-button-enablers 
-If non-nil, toolbars buttons may be enabled/disabled automatically.@*
-Toolbar buttons can be automatically enabled/disabled according to
-the context.  Set this variable to nil if you don't like this feature
-or if you find it unreliable.
-
-Notes: 
-* Toolbar enablers are only available with XEmacs 21 and later.
-* With this variable nil, buttons do nothing when they would
-otherwise be disabled.
-* If you change this variable it will only be noticed when you 
-next start Proof General.
-
-The default value is @code{t}.
-@end defopt
-
-
-@c TEXI DOCSTRING MAGIC: proof-toolbar-follow-mode
-@defopt proof-toolbar-follow-mode 
-Choice of how point moves with toolbar commands.@*
-One of the symbols: @code{'locked}, @code{'follow}, @code{'ignore}.
-If @code{'locked}, point sticks to the end of the locked region with toolbar commands.
-If @code{'follow}, point moves just when needed to display the locked region end.
-If @code{'ignore}, point is never moved after toolbar movement commands.
-
-The default value is @code{locked}.
-@end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-window-dedicated
 @defopt proof-window-dedicated 
@@ -1834,8 +1743,92 @@ experienced Emacs users.
 The default value is @code{nil}.
 @end defopt
 
-@c FIXME needs to mention that without dedicated windows, buffers may be 
-@c hidden. Refer to the XEmacs manual on customising buffer display.
+If you are working on a workstation with a window system, you can use
+Emacs to manage several @i{frames} on the display, to keep the goals
+buffer displayed in a fixed place on your screen and in a certain font,
+for example.  A convenient way to do this is via
+@code{special-display-regexps}, for example:
+
+@lisp
+(setq special-display-regexps
+        (cons "\\*isabelle-\\(goals\\|response\\)\\*"
+         special-display-regexps))
+@end lisp
+This setting makes the @code{*isabelle-goals*} and
+@code{*isabelle-response*} buffers automatically create their own
+frames.  The user option @code{proof-auto-delete-windows} may help if
+you make a setting like this.
+
+
+
+
+
+
+
+
+@node User options
+@section User options
+@c Index entries for each option 'concept'
+@cindex User options
+@cindex Strict read-only
+@cindex Query program name
+@cindex Dedicated windows
+@cindex Remote host
+@cindex Toolbar follow mode
+@cindex Toolbar disabling
+@cindex Toolbar button enablers
+@cindex Proof script indentation
+@cindex Indentation
+@cindex Remote shell
+@cindex Running proof assistant remotely
+@c @cindex formatting proof script
+
+Here are the user options for Proof General (except the two display
+options mentioned above).  These can be set via the customization
+system, via the old-fashioned @code{M-x edit-options} mechanism, or
+simply by adding @code{setq}'s to your @file{.emacs} file.  The first
+approach is strongly recommended.
+
+
+@c TEXI DOCSTRING MAGIC: proof-splash-enable
+@defopt proof-splash-enable 
+If non-nil, display a splash screen when Proof General is loaded.
+
+The default value is @code{t}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-electric-terminator-enable
+@defun proof-electric-terminator-enable 
+Make sure the modeline is updated to display new value for electric terminator.
+@end defun
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-enable
+@deffn Command proof-toolbar-enable 
+Initialize Proof General toolbar and enable it for the current buffer.@*
+If proof-mode-use-toolbar is nil, change the current buffer toolbar
+to the default toolbar.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-x-symbol-enable
+@defopt proof-x-symbol-enable 
+Whether to use x-symbol in Proof General buffers.@*
+If you activate this variable, whether or not you get x-symbol support
+depends on if your proof assistant supports it and it is enabled
+inside your Emacs.
+
+The default value is @code{nil}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-output-fontify-enable
+@defopt proof-output-fontify-enable 
+Whether to fontify output from the proof assistant.@*
+If non-nil, output from the proof assistant will be highlighted
+in the goals and response buffers.
+(This is providing @code{font-lock-keywords} have been set for the 
+buffer modes).
+
+The default value is @code{t}.
+@end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-strict-read-only
 @defopt proof-strict-read-only 
@@ -1853,6 +1846,52 @@ version of Emacs you are using.  In FSF Emacs, strict read only is buggy
 when it used in conjunction with font-lock, so it is disabled by default.
 
 The default value is @code{strict}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-use-button-enablers
+@defopt proof-toolbar-use-button-enablers 
+If non-nil, toolbars buttons may be enabled/disabled automatically.@*
+Toolbar buttons can be automatically enabled/disabled according to
+the context.  Set this variable to nil if you don't like this feature
+or if you find it unreliable.
+
+Notes: 
+* Toolbar enablers are only available with XEmacs 21 and later.
+* With this variable nil, buttons do nothing when they would
+otherwise be disabled.
+* If you change this variable it will only be noticed when you 
+next start Proof General.
+
+The default value is @code{t}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-auto-retract
+@defopt proof-auto-retract 
+If non-nil, retract automatically when locked region is edited.@*
+With this option active, the locked region will automatically be
+unlocked when the user attempts to edit it.   To make use of this
+option, @code{proof-strict-read-only} should be turned off.
+
+Note: this feature has not been implemented yet, it is only an idea.
+
+The default value is @code{nil}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-query-file-save-when-activating-scripting
+@defopt proof-query-file-save-when-activating-scripting 
+If non-nil, query user to save files when activating scripting.
+
+Often, activating scripting or executing the first scripting command
+of a proof script will cause the proof assistant to load some files
+needed by the current proof script.  If this option is non-nil, the
+user will be prompted to save some unsaved buffers in case any of 
+them corresponds to a file which may be loaded by the proof assistant.
+
+You can turn this option off if the save queries are annoying, but
+be warned that with some proof assistants this may risk processing 
+files which are out of date with respect to the lodead buffers!
+
+The default value is @code{t}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-script-indent
@@ -1873,39 +1912,60 @@ This option is not fully-functional at the moment.
 The default value is @code{nil}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-script-command-separator
-@defopt proof-script-command-separator 
-String separating commands in proof scripts.@*
-For example, if a proof assistant prefers one command per line, then 
-this string should be set to a newline.  Otherwise it should be
-set to a space.
+@c TEXI DOCSTRING MAGIC: proof-prog-name-ask
+@defopt proof-prog-name-ask 
+If non-nil, query user which program to run for the inferior process.
 
-The default value is @code{" "}.
+The default value is @code{nil}.
 @end defopt
 
+@c TEXI DOCSTRING MAGIC: proof-prog-name-guess
+@defopt proof-prog-name-guess 
+If non-nil, use @samp{@code{proof-guess-command-line}} to guess @code{proof-prog-name}.@*
+This option is compatible with @code{proof-prog-name-ask}.
+No effect if @code{proof-guess-command-line} is nil.
 
-@c TEXI DOCSTRING MAGIC: proof-splash-enable
-@defopt proof-splash-enable 
-If non-nil, display a splash screen when Proof General is loaded.
+The default value is @code{nil}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-tidy-response
+@defopt proof-tidy-response 
+Non-nil indicates that the response buffer should be cleared often.@*
+The response buffer can be set either to accumulate output, or to
+clear frequently.  
+
+With this variable non-nil, the response buffer is kept tidy by
+clearing it often, typically between successive commands (just like the
+goals buffer).  
+
+Otherwise the response buffer will accumulate output from the prover.
 
 The default value is @code{t}.
 @end defopt
 
-@c TEXI DOCSTRING MAGIC: proof-query-file-save-when-activating-scripting
-@defopt proof-query-file-save-when-activating-scripting 
-If non-nil, query user to save files when activating scripting.
-
-Often, activating scripting or executing the first scripting command
-of a proof script will cause the proof assistant to load some files
-needed by the current proof script.  If this option is non-nil, the
-user will be prompted to save some unsaved buffers in case any of 
-them corresponds to a file which may be loaded by the proof assistant.
-
-You can turn this option off if the save queries are annoying, but
-be warned that with some proof assistants this may risk processing 
-files which are out of date with respect to the lodead buffers!
+@c TEXI DOCSTRING MAGIC: proof-show-debug-messages
+@defopt proof-show-debug-messages 
+Whether to display debugging messages in the response buffer.@*
+If non-nil, debugging messages are displayed in the response giving
+information about what Proof General is doing.
+To avoid erasing the messages shortly after they're printed, 
+you should set @samp{@code{proof-tidy-response}} to nil.
 
 The default value is @code{t}.
+@end defopt
+
+
+@c ******* NON-BOOLEANS *******
+
+@c TEXI DOCSTRING MAGIC: proof-toolbar-follow-mode
+@defopt proof-toolbar-follow-mode 
+Choice of how point moves with toolbar commands.@*
+One of the symbols: @code{'locked}, @code{'follow}, @code{'ignore}.
+If @code{'locked}, point sticks to the end of the locked region with toolbar commands.
+If @code{'follow}, point moves just when needed to display the locked region end.
+If @code{'ignore}, point is never moved after toolbar movement commands.
+
+The default value is @code{locked}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-auto-action-when-deactivating-scripting
@@ -1929,6 +1989,33 @@ is no locked region.
 
 The default value is @code{nil}.
 @end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-script-command-separator
+@defopt proof-script-command-separator 
+String separating commands in proof scripts.@*
+For example, if a proof assistant prefers one command per line, then 
+this string should be set to a newline.  Otherwise it should be
+set to a space.
+
+The default value is @code{" "}.
+@end defopt
+
+@c TEXI DOCSTRING MAGIC: proof-rsh-command
+@defopt proof-rsh-command 
+Shell command prefix to run a command on a remote host.  @*
+For example,
+@lisp
+   ssh bigjobs
+@end lisp
+Would cause Proof General to issue the command @samp{ssh bigjobs isabelle}
+to start Isabelle remotely on our large compute server called @samp{bigjobs}.
+
+The protocol used should be configured so that no user interaction
+(passwords, or whatever) is required to get going.
+
+The default value is @code{""}.
+@end defopt
+
 
 
 
@@ -3210,6 +3297,61 @@ Regexp matching end of output from the prover after pbp commands.@*
 In particular, after a @samp{@code{pbp-goal-command}} or a @samp{@code{pbp-hyp-command}}.
 @end defvar
 
+@c TEXI DOCSTRING MAGIC: proof-shell-start-char
+@defvar proof-shell-start-char 
+Starting special for a subterm markup.@*
+Subsequent characters with values @strong{below} @code{proof-shell-first-special-char}
+are assumed to be subterm position indicators.  Subterm markups should
+be finished with @code{proof-shell-end-char}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-end-char
+@defvar proof-shell-end-char 
+Finishing special for a subterm markup.@*
+See documentation of @code{proof-shell-start-char}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-goal-char
+@defvar proof-shell-goal-char 
+goal mark
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-field-char
+@defvar proof-shell-field-char 
+annotated field end
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-start-char
+@defvar proof-shell-start-char 
+Starting special for a subterm markup.@*
+Subsequent characters with values @strong{below} @code{proof-shell-first-special-char}
+are assumed to be subterm position indicators.  Subterm markups should
+be finished with @code{proof-shell-end-char}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-end-char
+@defvar proof-shell-end-char 
+Finishing special for a subterm markup.@*
+See documentation of @code{proof-shell-start-char}.
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-goal-char
+@defvar proof-shell-goal-char 
+goal mark
+@end defvar
+@c TEXI DOCSTRING MAGIC: proof-shell-field-char
+@defvar proof-shell-field-char 
+annotated field end
+@end defvar
+
+
+The final setting just configures where the ``proof completed''
+message appears. 
+@c TEXI DOCSTRING MAGIC: proof-goals-display-qed-message
+@defvar proof-goals-display-qed-message 
+If non-nil, display the proof-completed message in the goals buffer.@*
+For some proof assistants (e.g. Isabelle) it seems aesthetic to
+display the QED message in the goals buffer, even though it doesn't
+contain any goals and shouldn't be marked up for proof-by-pointing.
+
+If this setting is non-nil, QED messages appear in the goals
+buffer.  Otherwise they appear in the response buffer.
+@end defvar
+
 
 
 @node Global constants
@@ -3377,8 +3519,8 @@ for a automatic approximation to multiple file handling.
 
 
 
-@node Configuring X-Symbol::
-@section Configuring X-Symbol::
+@node Configuring X-Symbol
+@section Configuring X-Symbol
 @cindex X-Symbol
 
 The X-Symbol package (by Christoph Wedler) displays characters from a
@@ -3408,8 +3550,16 @@ several variables that Proof General uses to configure X-Symbol with.
 @code{@var{myprover}sym-font-lock-keywords}
 
 @c TEXI DOCSTRING MAGIC: proof-xsym-activate-command
+@defvar proof-xsym-activate-command 
+Not documented.
+@end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-xsym-deactivate-command
+@defvar proof-xsym-deactivate-command 
+Command to deactivate token input/output for X-Symbol.@*
+If non-nil, this command is sent to the proof assistant when 
+X-Symbol support is deactivated.
+@end defvar
 
 We expect tokens to be used uniformly, so that along with each script
 mode buffer, the response buffer, goals buffer, and shell buffer are all
@@ -3418,6 +3568,14 @@ automatically.  If you want additional modes, you can set
 @code{proof-xsym-extra-modes}.
 
 @c TEXI DOCSTRING MAGIC: proof-xsym-extra-modes
+@defvar proof-xsym-extra-modes 
+List of additional mode names to use X-Symbol with Proof General tokens.@*
+These modes will have X-Symbol enabled for the proof assistant token language,
+in addition to the four modes for Proof General (script, shell, response, pbp).
+
+Set this variable if you want additional modes to also display 
+tokens (for example, editing documentation or source code files).
+@end defvar
 
 
 
@@ -4114,8 +4272,10 @@ Marker in proof shell buffer pointing to end of last urgent message.
 @c TEXI DOCSTRING MAGIC: proof-shell-process-urgent-message
 @defun proof-shell-process-urgent-message message
 Analyse urgent @var{message} for various cases.@*
-Included file, retracted file, cleared response buffer, or
-if none of these apply, display.
+Cases are: included file, retracted file, cleared response buffer, or
+if none of these apply, display it.
+@var{message} should be a string annotated with 
+@code{proof-shell-eager-annotation-start}, @code{proof-shell-eager-annotation-end}.
 @end defun
 
 The main processing point which triggers other actions is
