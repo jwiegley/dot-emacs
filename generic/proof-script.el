@@ -1636,7 +1636,8 @@ finish setup which depends on specific proof assistant configuration."
   ;; NB: call to file-truename is needed for FSF Emacs which
   ;; chooses to make buffer-file-truename abbreviate-file-name
   ;; form of file-truename.
-  (and (member (file-truename buffer-file-truename)
+  (and buffer-file-truename
+       (member (file-truename buffer-file-truename)
 	       proof-included-files-list)
        (proof-mark-buffer-atomic (current-buffer)))
 
