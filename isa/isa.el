@@ -131,11 +131,11 @@ and script mode."
    ;; in the temporary ML files generated while reading
    ;; theories, but unfortunately the user sometimes needs to 
    ;; examine them to understand a strange problem...
-   proof-shell-next-error-regexp
+   pg-next-error-regexp
    "\\(error on \\|Error: in '[^']+', \\)line \\([0-9]+\\)\\|The error(s) above occurred"
-   proof-shell-next-error-filename-regexp
+   pg-next-error-filename-regexp
    "\\(Loading theory \"\\|Error: in '\\)\\([^\"']+\\)[\"']"
-   proof-shell-next-error-extract-filename
+   pg-next-error-extract-filename
    "%s.thy"))
 
   
