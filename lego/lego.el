@@ -11,21 +11,34 @@
 ;;; User Configuration ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defgroup lego-settings nil
+  "Customization of Lego specifics for proof mode."
+  :group 'proof)
+
 ;; I believe this is standard for Linux under RedHat -tms
-(defvar lego-tags "/usr/lib/lego/lib_Type/"
-  "*the default TAGS table for the LEGO library")
+(defcustom lego-tags "/usr/lib/lego/lib_Type/"
+  "*the default TAGS table for the LEGO library"
+  :type 'file
+  :group 'lego-settings)
 
-(defvar lego-indent 2 "*Indentation")
+(defcustom lego-indent 2
+  "*Indentation"
+  :type 'number
+  :group 'lego-settings)
 
-(defvar lego-test-all-name "test_all"
+(defcustom lego-test-all-name "test_all"
   "*The name of the LEGO module which inherits all other modules of the
-  library.")
+  library."
+  :type 'string
+  :group 'lego-settings)
 
-(defvar lego-help-menu-list
+(defcustom lego-help-menu-list
   '(["The LEGO Reference Card" (w3-fetch lego-www-refcard) t]
     ["The LEGO library (WWW)" (w3-fetch lego-library-www-page)  t])
   "List of menu items, as defined in `easy-menu-define' for LEGO
-  specific help.")
+  specific help."
+  :type '(repeat sexp)
+  :group 'lego-settings)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Configuration of Generic Proof Package ;;;
@@ -64,19 +77,30 @@
 
 ;; ----- web documentation
 
-(defvar lego-www-home-page "http://www.dcs.ed.ac.uk/home/lego/")
+(defcustom lego-www-home-page "http://www.dcs.ed.ac.uk/home/lego/"
+  "Lego home page URL."
+  :type 'string
+  :group 'lego-settings)
 
-(defvar lego-www-latest-release
+(defcustom lego-www-latest-release
   (concat (w3-remove-file-name lego-www-home-page)
   "html/release-1.3/")
-  "The WWW address for the latest LEGO release.")
+  "The WWW address for the latest LEGO release."
+  :type 'string
+  :group 'lego-settings)
 	  
-(defvar lego-www-refcard (concat lego-www-latest-release
-				 "refcard.ps.gz"))
+(defcustom lego-www-refcard
+  (concat lego-www-latest-release "refcard.ps.gz")
+  "URL for the Lego reference card."
+  :type 'string
+  :group 'lego-settings)
 
-(defvar lego-library-www-page
+(defcustom lego-library-www-page
   (concat lego-www-latest-release "library/library.html")
-  "The HTML documentation of the LEGO library.")
+  "The HTML documentation of the LEGO library."
+  :type 'string
+  :group 'lego-settings)
+
 
 ;; ----- legostat and legogrep, courtesy of Mark Ruys
 

@@ -11,11 +11,19 @@
 
 ; Configuration
 
+(setq tag-always-exact t) ; Tags is unusable with Coq library otherwise:
+
+(defgroup coq-settings nil
+  "Customization of Coq specific settings for proof mode."
+  :group 'proof)
+
 (defvar coq-assistant "Coq"
   "Name of proof assistant")
 
-(defvar coq-tags "/usr/local/lib/coq/theories/TAGS"
-  "the default TAGS table for the Coq library")
+(defcustom coq-tags "/usr/local/lib/coq/theories/TAGS"
+  "the default TAGS table for the Coq library"
+  :type 'string
+  :group 'coq-settings)
 
 (defconst coq-process-config nil
   "Command to configure pretty printing of the Coq process for emacs.")
@@ -23,12 +31,17 @@
 (defconst coq-interrupt-regexp "Interrupted"
   "Regexp corresponding to an interrupt")
 
-(defvar coq-default-undo-limit 100
-  "Maximum number of Undo's possible when doing a proof.")
+(defcustom coq-default-undo-limit 100
+  "Maximum number of Undo's possible when doing a proof."
+  :type 'number
+  :group 'coq-settings)
 
 ;; ----- web documentation
 
-(defvar coq-www-home-page "http://pauillac.inria.fr/coq/")
+(defcustom coq-www-home-page "http://pauillac.inria.fr/coq/"
+  "Coq home page URL."
+  :type 'string
+  :group 'coq-settings)
 
 ;; ----- coq-shell configuration options
 
