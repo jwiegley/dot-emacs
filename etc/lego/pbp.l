@@ -2,12 +2,14 @@
 
 (* All using middle-clicks.
   
-   1. Click on  ->        (Intros A B)
-   2. Click on  -> again  (Intros H; Try Refine H)
-   3. Click on A          (Intros H1; Try Refine H1)
-   4. Click on B          (Intros H2; Try Refine H2)
-   5. Click on A in A/\B  (Refine pair; Try Assumption)
-   6. Click on final B    (Try Assumption)
+   1. Click on  ->          (Pbp 0 3 1: Intros A B)
+   2. Click on left (A/\B)  (Pbp 1 2 1: Intros H; Try Refine H)
+   3. Click on A            (Pbp 4 2 1: Intros H1; Try Refine H1)
+   4. Click on B            (Pbp 5 2 1: Intros H2; Try Refine H2)
+   5. Click on A in A/\B    (Pbp 6 2 1: Refine pair; Try Assumption)
+   6. Click on final B      (Pbp 10:    Try Assumption)
+      OR:
+      Click on assumption B (PbpHyp H2: Try Refine H2)
    QED!!
 *)
 

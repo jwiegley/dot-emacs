@@ -318,7 +318,7 @@ Checks the width in the `proof-goals-buffer'"
 	proof-completed-proof-behaviour 'closeany ; new in 3.0
 	proof-count-undos-fn 'lego-count-undos
 	proof-find-and-forget-fn 'lego-find-and-forget
-        proof-goal-hyp-fn 'lego-goal-hyp
+        pg-topterm-goalhyp-fn 'lego-goal-hyp
 	proof-state-preserving-p 'lego-state-preserving-p)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
@@ -397,12 +397,12 @@ We assume that module identifiers coincide with file names."
         proof-shell-error-regexp lego-error-regexp
 	proof-shell-interrupt-regexp lego-interrupt-regexp
         proof-shell-assumption-regexp lego-id
-        proof-shell-first-special-char ?\360
+        pg-subterm-first-special-char ?\360
         proof-shell-wakeup-char ?\371
-        proof-shell-start-char ?\372
-        proof-shell-end-char ?\373
-        proof-shell-field-char ?\374
-        proof-shell-goal-char ?\375
+        pg-subterm-start-char ?\372
+        pg-subterm-sep-char ?\373
+        pg-subterm-end-char ?\374
+        pg-topterm-char ?\375
 	proof-shell-eager-annotation-start "\376"
 	proof-shell-eager-annotation-start-length 1
 	proof-shell-eager-annotation-end "\377"
@@ -414,7 +414,7 @@ We assume that module identifiers coincide with file names."
 	proof-shell-pre-sync-init-cmd "Configure AnnotateOn;"
         proof-shell-init-cmd lego-process-config
 	proof-shell-restart-cmd lego-process-config
-	proof-analyse-using-stack nil
+	pg-subterm-anns-use-stack nil
 	proof-shell-process-output-system-specific lego-shell-process-output
         lego-shell-current-line-width nil
 
@@ -436,8 +436,8 @@ We assume that module identifiers coincide with file names."
   (proof-shell-config-done))
 
 (defun lego-goals-mode-config ()
-  (setq pbp-change-goal "Next %s;"
-	pbp-error-regexp lego-error-regexp)
+  (setq pg-goals-change-goal "Next %s;"
+	pg-goals-error-regexp lego-error-regexp)
   (setq font-lock-keywords lego-font-lock-terms)
   (lego-init-syntax-table)
   (proof-goals-config-done))

@@ -1,4 +1,4 @@
-;; proof-comapt.el   Operating system and Emacs version compatibility
+;; proof-compat.el   Operating system and Emacs version compatibility
 ;;
 ;; Copyright (C) 2000-2002 LFCS Edinburgh. 
 ;; Author:      David Aspinall <da@dcs.ed.ac.uk> and others

@@ -1082,8 +1082,8 @@ This is only used in the implementation of @samp{@code{proof-generic-find-and-fo
 you only need to set if you use that function (by not customizing
 @samp{@code{proof-find-and-forget-fn}}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-goal-hyp-fn
-@defvar proof-goal-hyp-fn 
+@c TEXI DOCSTRING MAGIC: pg-topterm-goalhyp-fn
+@defvar pg-topterm-goalhyp-fn 
 Function which returns cons cell if point is at a goal/hypothesis.@*
 This is used to parse the proofstate output to mark it up for
 proof-by-pointing.  It should return a cons or nil.  First element of
@@ -1525,8 +1525,8 @@ communication with the prover process.
 A special character which terminates an annotated prompt.@*
 Set to nil if proof assistant does not support annotated prompts.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-first-special-char
-@defvar proof-shell-first-special-char 
+@c TEXI DOCSTRING MAGIC: pg-subterm-first-special-char
+@defvar pg-subterm-first-special-char 
 First special character.@*
 Codes above this character can have special meaning to Proof General,
 and are stripped from the prover's output strings.
@@ -1634,7 +1634,7 @@ A regular expression matching the name of assumptions.
 
 At the moment, this setting is not used in the generic Proof General.
 
-In the future it will be used for a generic implementation for @samp{@code{proof-goal-hyp-fn}},
+In the future it will be used for a generic implementation for @samp{@code{pg-topterm-goalhyp-fn}},
 used to help parse the goals buffer to annotate it for proof by pointing.
 @end defvar
 
@@ -1912,22 +1912,22 @@ at how to use these settings.
 
 @c At the moment these settings are disabled.
 
-@c TEXI DOCSTRING MAGIC: pbp-change-goal
-@defvar pbp-change-goal 
+@c TEXI DOCSTRING MAGIC: pg-goals-change-goal
+@defvar pg-goals-change-goal 
 Command to change to the goal @samp{%s}
 @end defvar
 @c TEXI DOCSTRING MAGIC: pbp-goal-command
 @defvar pbp-goal-command 
-Command informing the prover that @samp{@code{pbp-button-action}} has been@*
+Command informing the prover that @samp{@code{pg-goals-button-action}} has been@*
 requested on a goal.
 @end defvar
 @c TEXI DOCSTRING MAGIC: pbp-hyp-command
 @defvar pbp-hyp-command 
-Command informing the prover that @samp{@code{pbp-button-action}} has been@*
+Command informing the prover that @samp{@code{pg-goals-button-action}} has been@*
 requested on an assumption.
 @end defvar
-@c TEXI DOCSTRING MAGIC: pbp-error-regexp
-@defvar pbp-error-regexp 
+@c TEXI DOCSTRING MAGIC: pg-goals-error-regexp
+@defvar pg-goals-error-regexp 
 Regexp indicating that the proof process has identified an error.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-result-start
@@ -1941,28 +1941,28 @@ Regexp matching end of output from the prover after pbp commands.@*
 In particular, after a @samp{@code{pbp-goal-command}} or a @samp{@code{pbp-hyp-command}}.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-shell-start-char
-@defvar proof-shell-start-char 
+@c TEXI DOCSTRING MAGIC: pg-subterm-start-char
+@defvar pg-subterm-start-char 
 Starting special for a subterm markup.@*
-Subsequent characters with values @strong{below} @code{proof-shell-first-special-char}
+Subsequent characters with values @strong{below} @code{pg-subterm-first-special-char}
 are assumed to be subterm position indicators.  Subterm markups should
-be finished with @code{proof-shell-end-char}.
+be finished with @code{pg-subterm-sep-char}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-end-char
-@defvar proof-shell-end-char 
+@c TEXI DOCSTRING MAGIC: pg-subterm-sep-char
+@defvar pg-subterm-sep-char 
 Finishing special for a subterm markup.@*
-See documentation of @code{proof-shell-start-char}.
+See documentation of @code{pg-subterm-start-char}.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-goal-char
-@defvar proof-shell-goal-char 
+@c TEXI DOCSTRING MAGIC: pg-topterm-char
+@defvar pg-topterm-char 
 Mark for goal.
 
 This setting is also used to see if proof-by-pointing features
 are configured.  If it is unset, some of the code 
 for parsing the prover output is disabled.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-shell-field-char
-@defvar proof-shell-field-char 
+@c TEXI DOCSTRING MAGIC: pg-subterm-end-char
+@defvar pg-subterm-end-char 
 Annotated field end
 @end defvar
 
@@ -2197,8 +2197,8 @@ under GNU Emacs, to boot.
 @var{lego} and Coq enable it by tradition.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-before-fontify-output-hook
-@defvar proof-before-fontify-output-hook 
+@c TEXI DOCSTRING MAGIC: pg-before-fontify-output-hook
+@defvar pg-before-fontify-output-hook 
 This hook is called before fonfitying a region in an output buffer.@*
 This hook is mainly used by @code{phox-sym-lock}.
 @end defvar
@@ -3083,8 +3083,8 @@ triples, which is a queue of things to do.
 See the functions @samp{@code{proof-start-queue}} and @samp{proof-exec-loop}.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-analyse-using-stack
-@defvar proof-analyse-using-stack 
+@c TEXI DOCSTRING MAGIC: pg-subterm-anns-use-stack
+@defvar pg-subterm-anns-use-stack 
 Choice of syntax tree encoding for terms.
 
 If nil, prover is expected to make no optimisations.
@@ -3844,7 +3844,7 @@ Proof General.
 
 ;; The response buffer and goals buffer modes defined above are
 ;; trivial.  In fact, we don't need to define them at all -- they
-;; would simply default to "proof-response-mode" and "pbp-mode".
+;; would simply default to "proof-response-mode" and "pg-goals-mode".
 
 ;; A more sophisticated instantiation might set font-lock-keywords to
 ;; add highlighting, or some of the proof by pointing markup

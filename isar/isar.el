@@ -169,8 +169,6 @@ See -k option for Isabelle interface script."
    proof-really-save-command-p  'isar-global-save-command-p
    proof-count-undos-fn         'isar-count-undos
    proof-find-and-forget-fn     'isar-find-and-forget
-   ;; da: for pbp.
-   ;; proof-goal-hyp-fn         'isar-goal-hyp
    proof-state-preserving-p     'isar-state-preserving-p
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list))
 
@@ -178,7 +176,7 @@ See -k option for Isabelle interface script."
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
-   proof-shell-first-special-char       ?\350
+   pg-subterm-first-special-char        ?\350
 
    proof-shell-wakeup-char              ?\372
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \372"
@@ -213,13 +211,13 @@ See -k option for Isabelle interface script."
    ;; matches names of assumptions
    proof-shell-assumption-regexp        isar-id
    ;; matches subgoal name
-   ;; da: not used at the moment, maybe after 3.0 used for
-   ;; proof-generic-goal-hyp-fn to get pbp-like features.
+   ;; da: not used at the moment, maybe after 4.0 used for
+   ;; proof-generic-goal-hyp-fn to get pg-goals-like features.
    ;; proof-shell-goal-regexp           "\370[ \t]*\\([0-9]+\\)\\."
 
    proof-shell-start-goals-regexp       "\366\n"
    proof-shell-end-goals-regexp         "\367"
-   proof-shell-goal-char                ?\370
+   pg-topterm-char			?\370
 
    proof-assistant-setting-format       'isar-markup-ml
    proof-shell-init-cmd                 (proof-assistant-settings-cmd)
@@ -234,18 +232,19 @@ See -k option for Isabelle interface script."
    proof-shell-clear-response-regexp    "Proof General, please clear the response buffer."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
 
-   ;; Dirty hack to allow font-locking for output based on hidden
-   ;; annotations, see isar-output-font-lock-keywords-1
-   proof-shell-leave-annotations-in-output t
+   ;; Allow font-locking for output based on hidden annotations, see
+   ;; isar-output-font-lock-keywords-1
+   pg-use-specials-for-fontify		t
 
-   ;; === ANNOTATIONS  === ones below here are broken
+   ;; === ANNOTATIONS  === these ones are not implemented in Isabelle
    proof-shell-result-start             "\372 Pbp result \373"
    proof-shell-result-end               "\372 End Pbp result \373"
-   proof-analyse-using-stack            t
-   proof-shell-start-char               ?\372
-   proof-shell-end-char                 ?\373
-   proof-shell-field-char               ?\374
-
+   pg-subterm-anns-use-stack            t
+   pg-subterm-start-char                ?\372
+   pg-subterm-sep-char                  ?\373
+   pg-subterm-end-char                  ?\374
+   pg-before-subterm-markup-hook	'isabelle-convert-idmarkup-to-subterm
+					;'pg-remove-specials
    proof-shell-process-file
    (cons
     ;; Theory loader output
@@ -578,8 +577,8 @@ proof-shell-retract-files-regexp."
 
 (defun isar-goals-mode-config ()
   ;; FIXME: next two broken, of course, as is PBP everywhere except LEGO.
-  (setq pbp-change-goal "Show %s.")
-  (setq pbp-error-regexp proof-shell-error-regexp)
+  (setq pg-goals-change-goal "Show %s.")
+  (setq pg-goals-error-regexp proof-shell-error-regexp)
   (isar-init-output-syntax-table)
   (setq font-lock-keywords  ;FIXME handle x-symbol stuff by generic code!?
 	;; (append 

@@ -105,6 +105,20 @@ If so, return non-nil."
    (proof-looking-at-safe proof-string-start-regexp)))
 
 
+
+;; Replacing matches
+
+(defun proof-replace-string (string to-string)
+  "Non-interactive version of `replace-string', which see."
+  (while (search-forward string nil t)
+    (replace-match to-string nil t)))
+
+(defun proof-replace-regexp (regexp to-string)
+  "Non-interactive version of `replace-regexp', which see."
+  (while (re-search-forward regexp nil t)
+    (replace-match to-string nil nil)))
+
+
 ;; Generic font-lock
 
 (defvar proof-id "\\(\\w\\(\\w\\|\\s_\\)*\\)"

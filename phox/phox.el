@@ -152,12 +152,12 @@
    proof-shell-quit-cmd            "quit."
    proof-shell-restart-cmd         "restart."
    proof-shell-proof-completed-regexp   "^.*^proved"
-   ;; proof-shell-first-special-char ?\371
+   ;; pg-subterm-first-special-char ?\371
    ;; proof-shell-wakeup-char ?\371
-   ;; proof-shell-start-char ?\371
-   ;; proof-shell-end-char ?\372
-   ;; proof-shell-goal-char ?\373
-   ;; proof-shell-field-char ?\374
+   ;; pg-subterm-start-char ?\371
+   ;; pg-subterm-sep-char ?\372
+   ;; pg-topterm-char ?\373
+   ;; pg-subterm-end-char ?\374
    ;; proof-shell-eager-annotation-start "\376"
    ;; proof-shell-eager-annotation-start-length 1
    ;; proof-shell-eager-annotation-end "\377"
@@ -215,12 +215,12 @@
    font-lock-keywords  phox-font-lock-keywords
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
-  (add-hook 'proof-before-fontify-output-hook 'phox-sym-lock-font-lock-hook)
+  (add-hook 'pg-before-fontify-output-hook 'phox-sym-lock-font-lock-hook)
   (proof-goals-config-done))
 
 ;; The response buffer and goals buffer modes defined above are
 ;; trivial.  In fact, we don't need to define them at all -- they
-;; would simply default to "proof-response-mode" and "pbp-mode".
+;; would simply default to "proof-response-mode" and "pg-goals-mode".
 
 ;; A more sophisticated instantiation might set font-lock-keywords to
 ;; add highlighting, or some of the proof by pointing markup

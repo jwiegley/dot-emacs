@@ -33,19 +33,19 @@ May enable proof-by-pointing or similar features.
 (define-key proof-goals-mode-map [q] 'bury-buffer)
 (cond 
 (proof-running-on-XEmacs
-(define-key proof-goals-mode-map [(button2)] 'pbp-button-action)
+(define-key proof-goals-mode-map [(button2)] 'pg-goals-button-action)
 (define-key proof-goals-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
 ;; button 2 is a nuisance on 2 button mice, so we'll do 1 as well.
 ;; Actually we better hadn't, people like to use it for cut and paste.
-;; (define-key proof-goals-mode-map [(button1)] 'pbp-button-action)
+;; (define-key proof-goals-mode-map [(button1)] 'pg-goals-button-action)
 ;; (define-key proof-goals-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
-(define-key proof-goals-mode-map [(button3)] 'pbp-yank-subterm))
+(define-key proof-goals-mode-map [(button3)] 'pg-goals-yank-subterm))
 (t
-(define-key proof-goals-mode-map [mouse-2] 'pbp-button-action)
+(define-key proof-goals-mode-map [mouse-2] 'pg-goals-button-action)
 (define-key proof-goals-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
-;; (define-key proof-goals-mode-map [mouse-1] 'pbp-button-action)
+;; (define-key proof-goals-mode-map [mouse-1] 'pg-goals-button-action)
 ;; (define-key proof-goals-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
-(define-key proof-goals-mode-map [mouse-3] 'pbp-yank-subterm)))
+(define-key proof-goals-mode-map [mouse-3] 'pg-goals-yank-subterm)))
 
 
 ;;
@@ -77,7 +77,7 @@ May enable proof-by-pointing or similar features.
 ;; To make sense of this code, you should read the
 ;; relevant LFCS tech report by tms, yb, and djs
 
-(defun pbp-yank-subterm (event)
+(defun pg-goals-yank-subterm (event)
   "Copy the subterm indicated by the mouse-click EVENT.
 This function should be bound to a mouse button in the Proof General
 goals buffer.
@@ -104,7 +104,7 @@ explicit yank."
     (if (and span (not (eq proof-buffer-type 'goals)))
 	(yank))))
 
-(defun pbp-button-action (event)
+(defun pg-goals-button-action (event)
   "Construct a proof-by-pointing command based on the mouse-click EVENT.
 This function should be bound to a mouse button in the Proof General
 goals buffer.
@@ -119,7 +119,7 @@ proof-by-pointing command, just as for any proof command the
 user types by hand."
    (interactive "e")
    (mouse-set-point event)
-   (pbp-construct-command))
+   (pg-goals-construct-command))
 
 ;; Using the spans in a mouse behavior is quite simple: from the
 ;; mouse position, find the relevant span, then get its annotation
@@ -135,7 +135,7 @@ user types by hand."
       (incf a))
     (apply 'concat (nreverse ls))))
 
-(defun pbp-construct-command ()
+(defun pg-goals-construct-command ()
   (let* ((span (span-at (point) 'goalsave))
 	 (top-span (span-at (point) 'proof-top-element))
 	 top-info)
@@ -154,16 +154,15 @@ user types by hand."
 	 (format pbp-hyp-command (cdr top-info))))
        (t
 	 (proof-insert-pbp-command
-	  (format pbp-change-goal (cdr top-info))))))))
+	  (format pg-goals-change-goal (cdr top-info))))))))
 
 ;;
 ;; Goals buffer processing
 ;;
-;; FIXME: rename next fn proof-display-in-goals or similar
-(defun proof-shell-analyse-structure (string)
-  "Analyse the term structure of STRING and display it in proof-goals-buffer.
-This function converts proof-by-pointing markup into mouse-highlighted
-extents."
+(defun pg-goals-display (string)
+  "Display STRING in the proof-goals-buffer, properly marked up.
+Converts term substructure markup into mouse-highlighted extents,
+and properly fontifies STRING using proof-fontify-region."
   (save-excursion
       ;; Response buffer may be out of date. It may contain (error)
       ;; messages relating to earlier proof states
@@ -184,14 +183,19 @@ extents."
       (set-buffer proof-goals-buffer)
       (erase-buffer)
       (insert string)
-      
-      ;; Do term-structure markup if its enabled
-      (unless (not proof-shell-goal-char) 
-	(proof-shell-analyse-structure1 (point-min) (point-max)))
 
-      ;; Now get fonts and characters right
-      ;; FIXME: this may be broken by markup or aided by it!
-      (proof-fontify-region (point-min) (point-max))
+      (if pg-use-specials-for-fontify
+	  ;; With special chars for fontification, do that first,
+	  ;; but keep specials in case also used for subterm markup.
+	  (proof-fontify-region (point-min) (point-max) 'keepspecials))
+      
+      (run-hooks 'pg-before-subterm-markup-hook)
+      (pg-goals-analyse-structure (point-min) (point-max))
+
+      (unless pg-use-specials-for-fontify
+	;; provers which use ordinary keywords to fontify output must
+	;; do fontification second after subterm specials are removed.
+	(proof-fontify-region (point-min) (point-max)))
 
       ;; Record a cleaned up version of output string
       (setq proof-shell-last-output 
@@ -199,14 +203,60 @@ extents."
 
       (set-buffer-modified-p nil)	; nicety
 
-      ;; Keep point at the start of the buffer.  Might be nicer to
-      ;; keep point at "current" subgoal a la Isamode, but never mind
-      ;; just now.
-      (proof-display-and-keep-buffer proof-goals-buffer (point-min))))
+      ;; Keep point at the start of the buffer.  
+      (proof-display-and-keep-buffer 
+       proof-goals-buffer (point-min))))
 
 
-(defun proof-shell-analyse-structure1 (start end)
-  "Really analyse the structure here."
+(defun pg-goals-analyse-structure (start end)
+  "Analyse the region between START and END for subterm and PBP markup.
+
+For subterms, we can make nested regions in the concrete syntax into
+active mouse-highlighting regions, each of which can be used to
+communicate a selected term back to the prover.  The output text is
+marked up with the annotation scheme:
+
+ 	 [  <annotation>      |       <subterm/concrete> ] 
+
+         ^                    ^                          ^
+	 |                    |                          |
+pg-subterm-start-char  pg-subterm-sep-char  pg-subterm-end-char
+
+The annotation is intended to indicate a node in the abstract syntax
+tree inside the prover, which can be used to pick out the internal
+representation of the term itself.  We assume that the annotation
+takes the form of a sequence of characters:
+
+   <length of shared prefix previous>  <ann1> <ann2> .. <annN>
+
+Where each element <..> is a character which is *less* than
+pg-subterm-first-special-char, but *greater* than 128.  Each 
+character code has 128 subtracted to yield a number.  The first
+character allows a simple optimisation by sharing a prefix of
+the previous (left-to-right) subterm's annotation.  (See the
+variable `pg-subterm-anns-use-stack' for an alternative 
+optimisation.)
+
+For subterm markup without communication back to the prover, the
+annotation is not needed, but the first character must still be given.
+
+For proof-by-pointing (PBP) oriented markup, `pg-topterm-char' and
+`pg-topterm-goalhyp-fn' should be set.  Together these allow
+further active regions to be defined, corresponding to \"top elements\"
+in the proof-state display.  A \"top element\" is currently assumed
+to be either a hypothesis or a subgoal, and is assumed to occupy 
+a line (or at least a line).  The markup is simply
+  
+                 & <goal or hypthesis line in proof state>
+                 ^
+		 |
+   pg-topterm-char
+
+And the function `pg-topterm-goalhyp-fn' is called to do the
+further analysis, to return an indication of the goal/hyp and
+record a name value.  These values are used to construct PBP
+commands which can be sent to the prover."
+  (if pg-subterm-start-char
   (let* 
       ((cur start)
        (len (- end start))
@@ -219,21 +269,22 @@ extents."
       (cond
        ;; Seen goal char: this is the start of a top extent
        ;; (assumption or goal)
-       ((= c proof-shell-goal-char)
+       ((= c pg-topterm-char)
 	(setq topl (cons cur topl))
 	(setq ap 0))
 
-       ;; Seen subterm start char: it's followed by at least 
-       ;; one subterm pointer byte
-       ((= c proof-shell-start-char)
+       ;; Seen subterm start char: it's followed by a char
+       ;; indicating the length of the annotation prefix
+       ;; which can be shared with the previous subterm.
+       ((= c pg-subterm-start-char)
 	(incf cur)
-	(if proof-analyse-using-stack
+	(if pg-subterm-anns-use-stack
 	    (setq ap (- ap (- (char-after cur) 128)))
 	  (setq ap (- (char-after cur) 128)))
 	(incf cur)
 	;; Now search for a matching end-annotation char, recording the 
 	;; annotation found.
-	(while (not (= (setq c (char-after cur)) proof-shell-end-char))
+	(while (not (= (setq c (char-after cur)) pg-subterm-sep-char))
 	  (aset ann ap (- c 128))
 	  (incf ap)
 	  (incf cur))
@@ -241,15 +292,15 @@ extents."
 	(setq stack (cons cur 
 			  (cons (substring ann 0 ap) stack))))
 
-       ;; Seen a field char, which terminates an annotated position
+       ;; Seen a subterm end char, terminating an annotated region
        ;; in the concrete syntax.  We make a highlighting span now.
-       ((and (consp stack) (= c proof-shell-field-char))
+       ((and (consp stack) (= c pg-subterm-end-char))
 	;; (consp stack) added to make the code more robust.
 	;; [ Condition violated with lego/example.l and GNU Emacs 20.3 ]
 	(setq span (make-span (car stack) cur))
 	(set-span-property span 'mouse-face 'highlight)
 	(set-span-property span 'goalsave (cadr stack));; FIXME: 'goalsave?
-	(if proof-analyse-using-stack
+	(if pg-subterm-anns-use-stack
 	    ;; Pop annotation off stack
 	    (progn
 	      (setq ap 0)
@@ -261,59 +312,62 @@ extents."
       ;; On to next char
       (incf cur))
     
-    ;; List of subterm regions (goals) found
+    ;; List of topterm beginning positions (goals/hyps) found
     (setq topl (reverse (cons end topl)))
     
-    ;; If we want Coq pbp: (setq coq-current-goal 1)
-    (if proof-goal-hyp-fn
-	(while (setq ip (car topl) 
+    ;; Proof-by-pointing markup assumes "top" elements which define a
+    ;; context for a marked-up (sub)term: we assume these contexts to
+    ;; be either a subgoal to be solved or a hypothesis.  
+    ;; Top element spans are only made if pg-topterm-goalhyp-fn is set.
+    ;; NB: If we want Coq pbp: (setq coq-current-goal 1) 
+    (if pg-topterm-goalhyp-fn
+	(while (setq ap (car topl) 
 		     topl (cdr topl))
-	  (pbp-make-top-span ip (car topl))))
+	  (pg-goals-make-top-span ap (car topl))))
 
     ;; Finally: strip the specials.  This should
     ;; leave the spans in exactly the right place.
-    (proof-shell-strip-special-annotations-buf start end)))
+    (pg-goals-strip-subterm-markup-buf start end))))
 
 
-(defun pbp-make-top-span (start end)
-  "Make a top span (goal area) for mouse active output."
+(defun pg-goals-make-top-span (start end)
+  "Make a top span (goal/hyp area) for mouse active output."
   (let (span name)
     (goto-char start)
-    ;; We need to skip an annotation here for proof-goal-hyp-fn
-    ;; to work again now we don't strip buffers.  Is it
-    ;; safe to assume that we're called exactly at proof-goal-char?
-    ;; [maybe except for last case?]
+    ;; skip the pg-topterm-char itself
     (forward-char)
-    (setq name (funcall proof-goal-hyp-fn))
-    (beginning-of-line)
+    ;; typname is expected to be a cons-cell of a type (goal/hyp)
+    ;; with a name, retrieved from the text immediately following
+    ;; the topterm-char annotation.
+    (setq typname (funcall pg-topterm-goalhyp-fn))
+    (beginning-of-line) ;; any reason why?
     (setq start (point))
     (goto-char end)
     (beginning-of-line)
     (backward-char)
     (setq span (make-span start (point)))
     (set-span-property span 'mouse-face 'highlight)
-    (set-span-property span 'proof-top-element name)))
+    (set-span-property span 'proof-top-element typname)))
 
 
-(defun proof-shell-strip-special-annotations (string)
-  "Strip special annotations from a string, returning cleaned up string.
-*Special* annotations are characters with codes higher than
-'proof-shell-first-special-char'.
-If proof-shell-first-special-char is unset, return STRING unchanged."
-  (if proof-shell-first-special-char
+(defun pg-goals-strip-subterm-markup (string)
+  "Return STRING with subterm and pbp annotations removed.
+Special annotations are characters with codes higher than
+'pg-subterm-first-special-char'.
+If pg-subterm-first-special-char is unset, return STRING unchanged."
+  (if pg-subterm-first-special-char
       (let* ((ip 0) (op 0) (l (length string)) (out (make-string l ?x )))
 	(while (< ip l)
-	  (if (>= (aref string ip) proof-shell-first-special-char)
-	      (if (char-equal (aref string ip) proof-shell-start-char)
+	  (if (>= (aref string ip) pg-subterm-first-special-char)
+	      (if (char-equal (aref string ip) pg-subterm-start-char)
 		  (progn (incf ip)
+			 ;; da: this relies on annotations being
+			 ;; characters between \200 and first special
+			 ;; char (e.g. \360).  Why not just look for
+			 ;; the sep char??
 			 (while 
-			     ;; FIXME: this relies on annotations 
-			     ;; being characters between 
-			     ;; \200 and \360 (first special char).
-			     ;; Why do we not just look for the 
-			     ;; field char??
 			     (< (aref string ip) 
-				proof-shell-first-special-char)
+				pg-subterm-first-special-char)
 			   (incf ip))))
 	    (aset out op (aref string ip))
 	    (incf op))
@@ -321,25 +375,48 @@ If proof-shell-first-special-char is unset, return STRING unchanged."
 	(substring out 0 op))
     string))
 
-(defun proof-shell-strip-special-annotations-buf (start end)
-  "Strip specials and return new END value."
+(defun pg-goals-strip-subterm-markup-buf (start end)
+  "Remove subterm and pbp annotations from region."
+  ;; FIXME: create these regexps ahead of time.
+  (if pg-subterm-start-char
+      (let ((ann-regexp 
+	     (concat 
+	      (regexp-quote (char-to-string pg-subterm-start-char))
+	      "[^" 
+	      (regexp-quote (char-to-string pg-subterm-sep-char))
+	      "]*"
+	      (regexp-quote (char-to-string pg-subterm-sep-char)))))
+	(save-restriction
+	  (narrow-to-region start end)
+	  (goto-char start)
+	  (proof-replace-regexp ann-regexp "")
+	  (goto-char start)
+	  (proof-replace-string (char-to-string pg-subterm-end-char) "")
+	  (goto-char start)
+	  (if pg-topterm-char
+	      (proof-replace-string (char-to-string pg-topterm-char) ""))))))
+	  
+	 
+
+(defun pg-goals-strip-subterm-markup-buf-old (start end)
+  "Remove subterm and pbp annotations from region."
   (let (c)
     (goto-char start)
     (while (< (point) end)
       ;; FIXME: small OBO here: if char at end is special
       ;; it won't be removed.
       (if (>= (setq c (char-after (point))) 
-	      proof-shell-first-special-char)
+	      pg-subterm-first-special-char)
 	  (progn
 	    (delete-char 1)
 	    (decf end)
-	    (if (char-equal c proof-shell-start-char)
+	    (if (char-equal c pg-subterm-start-char)
 		(progn 
 		  ;; FIXME: could simply replace this by replace
-		  ;; match, matching on field-char??
+		  ;; match, matching on sep-char??
 		  (while (and (< (point) end)
 			      (< (char-after (point))
-				 proof-shell-first-special-char))
+				 pg-subterm-first-special-char))
 		    (delete-char 1)
 		    (decf end)))))
 	(forward-char)))

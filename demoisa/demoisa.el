@@ -135,7 +135,7 @@
 
 ;; The response buffer and goals buffer modes defined above are
 ;; trivial.  In fact, we don't need to define them at all -- they
-;; would simply default to "proof-response-mode" and "pbp-mode".
+;; would simply default to "proof-response-mode" and "pg-goals-mode".
 
 ;; A more sophisticated instantiation might set font-lock-keywords to
 ;; add highlighting, or some of the proof by pointing markup

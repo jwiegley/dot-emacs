@@ -1824,11 +1824,11 @@ The mouse bindings are these:
 
 @table @kbd
 @item button2
-@code{pbp-button-action}
+@code{pg-goals-button-action}
 @item C-button2
 @code{proof-undo-and-delete-last-successful-command}
 @item button3
-@code{pbp-yank-subterm}
+@code{pg-goals-yank-subterm}
 @end table
 
 Where @kbd{button2} indicates the middle mouse button, and @kbd{button3}
@@ -1847,9 +1847,9 @@ single step in the proof script.  However, if the proof is later
 replayed (without using PBP), the proof-by-pointing constructions will
 be considered as separate proof commands, as usual.
 
-@c TEXI DOCSTRING MAGIC: pbp-button-action
+@c TEXI DOCSTRING MAGIC: pg-goals-button-action
 
-@deffn Command pbp-button-action event
+@deffn Command pg-goals-button-action event
 Construct a proof-by-pointing command based on the mouse-click @var{event}.@*
 This function should be bound to a mouse button in the Proof General
 goals buffer.
@@ -1872,11 +1872,11 @@ easily copy subterms from the output to a proof script.
 
 The right-hand mouse button provides this convenient way to copy
 subterms from the goals buffer, using the function
-@code{pbp-yank-subterm}.
+@code{pg-goals-yank-subterm}.
 
-@c TEXI DOCSTRING MAGIC: pbp-yank-subterm
+@c TEXI DOCSTRING MAGIC: pg-goals-yank-subterm
 
-@deffn Command pbp-yank-subterm event
+@deffn Command pg-goals-yank-subterm event
 Copy the subterm indicated by the mouse-click @var{event}.@*
 This function should be bound to a mouse button in the Proof General
 goals buffer.

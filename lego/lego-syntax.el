@@ -82,7 +82,7 @@
      ;; Special hacks!!
      (cons "Discharge.." 'font-lock-keyword-face)
      (cons "\\*\\*\\* QED \\*\\*\\*" 'font-lock-keyword-face))
-  "*Font-lock table for LEGO terms.")
+  "*Font-lock table for LEGO terms (displayed in output buffers).")
 
 ;; Instead of "[^:]+", it may be better to use "lego-id". Furthermore,
 ;; it might be safer to append "\\s-*:".

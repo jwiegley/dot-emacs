@@ -548,23 +548,15 @@ This is a subroutine of proof-shell-handle-error."
       ;; this string can contain X-Symbol characters, which
       ;; is not suitable for processing with proof-fontify-region.
       (setq string
-	    (if proof-shell-leave-annotations-in-output
+	    (if pg-use-specials-for-fontify
 		(buffer-substring start end)
-	      (proof-shell-strip-special-annotations
+	      (pg-goals-strip-subterm-markup
 	       (buffer-substring start end)))))
     ;; Erase if need be, and erase next time round too.
     (proof-shell-maybe-erase-response t nil)
-    (proof-response-buffer-display string append-face)))
+    (pg-response-display-with-face string append-face)))
 
 
-(defun proof-shell-show-as-response (str)
-  "Show STR as a response in the response buffer."
-  (unless proof-shell-leave-annotations-in-output
-    (setq str (proof-shell-strip-special-annotations str)))
-  (proof-shell-maybe-erase-response t nil)
-  (proof-response-buffer-display str)
-  (proof-display-and-keep-buffer proof-response-buffer))
-  
 (defun proof-shell-handle-delayed-output ()
   "Display delayed output.
 This function handles the cases of proof-shell-delayed-output-kind which
@@ -573,13 +565,13 @@ are not dealt with eagerly during script processing, namely
   (cond
    ;; Response buffer output
    ((eq proof-shell-delayed-output-kind 'abort)
-    (proof-shell-show-as-response proof-shell-delayed-output))
+    (pg-response-display proof-shell-delayed-output))
      ;; "Aborted."  why??
    ((eq proof-shell-delayed-output-kind 'response)
-    (proof-shell-show-as-response proof-shell-delayed-output))
+    (pg-response-display proof-shell-delayed-output))
    ;; Goals buffer output
    ((eq proof-shell-delayed-output-kind 'goals)
-    (proof-shell-analyse-structure proof-shell-delayed-output))
+    (pg-goals-display proof-shell-delayed-output))
    ;; Ignore other cases
    )
   (run-hooks 'proof-shell-handle-delayed-output-hook))
@@ -703,7 +695,7 @@ which see."
     ((proof-shell-string-match-safe proof-shell-error-regexp string)
      ;; FIXME: is the next setting correct or even needed?
      (setq proof-shell-last-output
-	   (proof-shell-strip-special-annotations
+	   (pg-goals-strip-subterm-markup
 	    (substring string (match-beginning 0))))
      (setq proof-shell-last-output-kind 'error))
     
@@ -736,10 +728,10 @@ which see."
        ;;  for Coq by Robert Schneck because Coq has specials but
        ;;  doesn't markup goals output specially).
        (unless (and 
-		proof-shell-first-special-char
+		pg-subterm-first-special-char
 		(not (string-equal 
 		      proof-shell-start-goals-regexp
-		      (proof-shell-strip-special-annotations 
+		      (pg-goals-strip-subterm-markup 
 		       proof-shell-start-goals-regexp))))
 	 (setq start (match-beginning 0)))
        (setq end (if proof-shell-end-goals-regexp
@@ -1230,9 +1222,9 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
      ((and proof-shell-trace-output-regexp
 	   (string-match proof-shell-trace-output-regexp message))
       (proof-trace-buffer-display 
-       (if proof-shell-leave-annotations-in-output
+       (if pg-use-specials-for-fontify
 	   message
-	 (proof-shell-strip-special-annotations message)))
+	 (pg-goals-strip-subterm-markup message)))
       (proof-display-and-keep-buffer proof-trace-buffer)
       ;; Force redisplay in case in a fast loop which keeps Emacs
       ;; fully-occupied processing prover output
@@ -1250,15 +1242,15 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
       ;; Don't bother remove the window for the response buffer
       ;; because we're about to put a message in it.
       (proof-shell-maybe-erase-response nil nil)
-      (let ((stripped	(proof-shell-strip-special-annotations message))
+      (let ((stripped	(pg-goals-strip-subterm-markup message))
 	    firstline)
 	;; Display first chunk of output in minibuffer.
 	;; Maybe this should be configurable, it can get noisy.
 	(proof-shell-message 
 	 (substring stripped 0 (or (string-match "\n" stripped)
 				   (min (length stripped) 75))))
-	(proof-response-buffer-display 
-	 (if proof-shell-leave-annotations-in-output
+	(pg-response-display-with-face 
+	 (if pg-use-specials-for-fontify
 	     message
 	   stripped)
 	 'proof-eager-annotation-face)))))

@@ -146,7 +146,7 @@ and script mode."
 (defun isa-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle."
   (setq
-   proof-shell-first-special-char	?\350
+   pg-subterm-first-special-char	?\350
 
    proof-shell-wakeup-char		 ?\372
    proof-shell-annotated-prompt-regexp   "\\(val it = () : unit\n\\)?> \372"
@@ -180,7 +180,7 @@ and script mode."
 
    proof-shell-start-goals-regexp	"\366"
    proof-shell-end-goals-regexp		"\367"
-   proof-shell-goal-char	        ?\370
+   pg-topterm-char	        ?\370
 
    proof-shell-proof-completed-regexp	"^No subgoals!"
 
@@ -210,15 +210,15 @@ and script mode."
    
    ;; Dirty hack to allow font-locking for output based on hidden
    ;; annotations, see isa-output-font-lock-keywords-1
-   proof-shell-leave-annotations-in-output t
+   pg-use-specials-for-fontify t
 
    ;; === ANNOTATIONS  === ones here are broken
    proof-shell-result-start	        "\372 Pbp result \373"
    proof-shell-result-end		"\372 End Pbp result \373"
-   proof-analyse-using-stack		t
-   proof-shell-start-char		?\372
-   proof-shell-end-char			?\373
-   proof-shell-field-char		?\374
+   pg-subterm-anns-use-stack		t
+   pg-subterm-start-char		?\372
+   pg-subterm-sep-char			?\373
+   pg-subterm-end-char		?\374
 
    ;; === MULTIPLE FILE HANDLING ===
    proof-shell-process-file 
@@ -302,7 +302,7 @@ This is a hook function for proof-activate-scripting-hook."
 				 t ; was nil, but falsely leaves Scripting on! 
 			       t))
 	;; Leave the messages from the update around.
-	(setq proof-shell-erase-response-flag nil))))
+	(setq pg-response-erase-flag nil))))
 
 (defun isa-remove-file (name files cmp-base)
   (if (not files) nil
@@ -591,8 +591,8 @@ you will be asked to retract the file or process the remainder of it."
 
 (defun isa-goals-mode-config ()
   ;; FIXME: next two broken, of course, as is PBP everywhere except LEGO.
-  (setq pbp-change-goal "Show %s.")	
-  (setq pbp-error-regexp proof-shell-error-regexp)
+  (setq pg-goals-change-goal "Show %s.")	
+  (setq pg-goals-error-regexp proof-shell-error-regexp)
   (isa-init-output-syntax-table)
   (setq font-lock-keywords isa-goals-font-lock-keywords)
   (proof-goals-config-done))

@@ -372,7 +372,7 @@ Given is the first SPAN which needs to be undone."
   (setq proof-goal-command-p 'plastic-goal-command-p
 	proof-count-undos-fn 'plastic-count-undos
 	proof-find-and-forget-fn 'plastic-find-and-forget
-        proof-goal-hyp-fn 'plastic-goal-hyp
+        pg-topterm-goalhyp-fn 'plastic-goal-hyp
 	proof-state-preserving-p 'plastic-state-preserving-p)
 
   (setq	proof-save-command-regexp plastic-save-command-regexp
@@ -480,13 +480,13 @@ We assume that module identifiers coincide with file names."
         ;; DEAD proof-shell-noise-regexp "Discharge\\.\\. "
         proof-shell-assumption-regexp plastic-id
         proof-shell-goal-regexp plastic-goal-regexp
-        proof-shell-first-special-char ?\360
+        pg-subterm-first-special-char ?\360
         proof-shell-wakeup-char ?\371		;; only for first send? 
 ;;      proof-shell-wakeup-char nil		;; NIL turns off annotations.
-        proof-shell-start-char ?\372
-        proof-shell-end-char ?\373
-        proof-shell-field-char ?\374
-        proof-shell-goal-char ?\375
+        pg-subterm-start-char ?\372
+        pg-subterm-sep-char ?\373
+        pg-subterm-end-char ?\374
+        pg-topterm-char ?\375
         proof-shell-eager-annotation-start "\376"
 	;; FIXME da: if p-s-e-a-s is implemented, you should set
 	;; proof-shell-eager-annotation-start-length=1 to
@@ -501,7 +501,7 @@ We assume that module identifiers coincide with file names."
 
         proof-shell-init-cmd plastic-process-config
 	proof-shell-restart-cmd plastic-process-config
-        proof-analyse-using-stack nil
+        pg-subterm-anns-use-stack nil
         proof-shell-process-output-system-specific plastic-shell-process-output
         plastic-shell-current-line-width nil
 
@@ -522,8 +522,8 @@ We assume that module identifiers coincide with file names."
   )
 
 (defun plastic-goals-mode-config ()
-  (setq pbp-change-goal "Next %s;"
-        pbp-error-regexp plastic-error-regexp)
+  (setq pg-goals-change-goal "Next %s;"
+        pg-goals-error-regexp plastic-error-regexp)
   (setq font-lock-keywords plastic-font-lock-terms)
   (plastic-init-syntax-table)
   (proof-goals-config-done))

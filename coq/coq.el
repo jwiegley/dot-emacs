@@ -566,7 +566,7 @@ This is specific to coq-mode."
 
   (setq proof-goal-command-p 'coq-goal-command-p
 	proof-find-and-forget-fn 'coq-find-and-forget
-        proof-goal-hyp-fn 'coq-goal-hyp
+        pg-topterm-goalhyp-fn 'coq-goal-hyp
 	proof-state-preserving-p 'coq-state-preserving-p)
 
   (setq proof-save-command-regexp coq-save-command-regexp
@@ -710,13 +710,13 @@ This is specific to coq-mode."
    proof-shell-error-regexp coq-error-regexp
    proof-shell-interrupt-regexp coq-interrupt-regexp
    proof-shell-assumption-regexp coq-id
-   proof-shell-first-special-char ?\360
+   pg-subterm-first-special-char ?\360
    proof-shell-wakeup-char ?\371 ; done: prompt
    ;; The next three represent path annotation information
-   proof-shell-start-char ?\372 ; not done
-   proof-shell-end-char ?\373 ; not done
-   proof-shell-field-char ?\374 ; not done
-   proof-shell-goal-char ?\375 ; done
+   pg-subterm-start-char ?\372 ; not done
+   pg-subterm-sep-char ?\373 ; not done
+   pg-subterm-end-char ?\374 ; not done
+   pg-topterm-char ?\375 ; done
    proof-shell-eager-annotation-start "\376\\|\\[Reinterning"
    proof-shell-eager-annotation-start-length 12
    proof-shell-eager-annotation-end "\377\\|done\\]" ; done
@@ -732,7 +732,7 @@ This is specific to coq-mode."
 	                 ; Coq has no global settings?
 			 ; (proof-assistant-settings-cmd))
    proof-shell-restart-cmd coq-shell-restart-cmd
-   proof-analyse-using-stack t)
+   pg-subterm-anns-use-stack t)
   
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
@@ -740,8 +740,8 @@ This is specific to coq-mode."
   (proof-shell-config-done))
 
 (defun coq-goals-mode-config ()
-  (setq pbp-change-goal "Show %s. ")
-  (setq pbp-error-regexp coq-error-regexp)
+  (setq pg-goals-change-goal "Show %s. ")
+  (setq pg-goals-error-regexp coq-error-regexp)
   (coq-init-syntax-table)
   (setq font-lock-keywords coq-font-lock-keywords-1)
   (proof-goals-config-done))

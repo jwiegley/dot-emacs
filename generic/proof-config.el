@@ -513,7 +513,7 @@ Warning messages can come from proof assistant or from Proof General itself."
 
 (defface proof-eager-annotation-face
   (proof-face-specs
-   (:background "lightgoldenrod")
+   (:background "palegoldenrod")
    (:background "darkgoldenrod")
    (:italic t))
   "*Face for important messages from proof assistant."
@@ -1243,7 +1243,7 @@ you only need to set if you use that function (by not customizing
   :type 'string
   :group 'proof-script)
 
-(defcustom proof-goal-hyp-fn nil
+(defcustom pg-topterm-goalhyp-fn nil
   "Function which returns cons cell if point is at a goal/hypothesis.
 This is used to parse the proofstate output to mark it up for
 proof-by-pointing.  It should return a cons or nil.  First element of
@@ -1618,7 +1618,7 @@ Set to nil if proof assistant does not support annotated prompts."
   :type '(choice character (const nil))
   :group 'proof-shell)
 
-(defcustom proof-shell-first-special-char nil
+(defcustom pg-subterm-first-special-char nil
   "First special character.
 Codes above this character can have special meaning to Proof General,
 and are stripped from the prover's output strings.
@@ -1832,7 +1832,7 @@ The default value is \"\\n\" to match up to the end of the line."
 
 At the moment, this setting is not used in the generic Proof General.
 
-In the future it will be used for a generic implementation for `proof-goal-hyp-fn',
+In the future it will be used for a generic implementation for `pg-topterm-goalhyp-fn',
 used to help parse the goals buffer to annotate it for proof by pointing."
   :type '(choice regexp (const :tag "Unset" nil))
   :group 'proof-shell)
@@ -1880,7 +1880,7 @@ data triggered by `proof-shell-retract-files-regexp'."
   :type '(choice function (const nil))
   :group 'proof-shell)
 
-(defcustom proof-shell-leave-annotations-in-output nil
+(defcustom pg-use-specials-for-fontify nil
   "Flag indicating whether to strip annotations from output or not.
 \"annotations\" are special characters with the top bit set.
 If annotations are left in, they are made invisible and can be used
@@ -2100,28 +2100,22 @@ output format."
 
 (defcustom proof-state-change-hook nil
   "This hook is called when state change may have occurred. 
-Specifically, this hook is called after a region has been
-asserted or retracted, or after a command has been sent
-to the prover with proof-shell-invisible-command.
+Specifically, this hook is called after a region has been asserted or
+retracted, or after a command has been sent to the prover with
+proof-shell-invisible-command.
 
-This hook is used within Proof General to refresh the 
-toolbar."
-  :type '(repeat function)
-  :group 'proof-shell)
+This hook is used within Proof General to refresh the toolbar."
 
-(defcustom proof-before-fontify-output-hook nil
-  "This hook is called before fonfitying a region in an output buffer.
-This hook is mainly used by phox-sym-lock."
-  :type '(repeat function)
+  :type '(repeat function) 
   :group 'proof-shell)
 
 (defcustom proof-shell-font-lock-keywords nil
   "Value of font-lock-keywords used to fontify the proof shell.
-This is currently used only by proof-easy-config mechanism,
-to set font-lock-keywords before calling proof-config-done.
+This is currently used only by proof-easy-config mechanism, to set
+`font-lock-keywords' before calling `proof-config-done'.
 See also proof-{script,resp,goals}-font-lock-keywords."
   :type 'sexp
-  :group 'proof-script)
+  :group 'proof-shell)
 
 
 
@@ -2132,9 +2126,9 @@ See also proof-{script,resp,goals}-font-lock-keywords."
 (defgroup proof-goals nil
   "Settings for configuring the goals buffer."
   :group 'prover-config
-  :prefix "pbp-")
+  :prefix "pg-goals-")
 
-(defcustom proof-analyse-using-stack nil
+(defcustom pg-subterm-anns-use-stack nil
   "Choice of syntax tree encoding for terms.
 
 If nil, prover is expected to make no optimisations.
@@ -2143,24 +2137,24 @@ For LEGO 1.3.1 use `nil', for Coq 6.2, use `t'."
   :type 'boolean
   :group 'proof-goals)
 
-(defcustom pbp-change-goal nil
+(defcustom pg-goals-change-goal nil
   "Command to change to the goal `%s'"
   :type 'string
   :group 'proof-goals)
 
 (defcustom pbp-goal-command nil
-  "Command informing the prover that `pbp-button-action' has been
+  "Command informing the prover that `pg-goals-button-action' has been
 requested on a goal."
   :type '(choice nil regexp)
   :group 'proof-goals)
 
 (defcustom pbp-hyp-command nil
-  "Command informing the prover that `pbp-button-action' has been
+  "Command informing the prover that `pg-goals-button-action' has been
 requested on an assumption."
   :type '(choice nil regexp)
   :group 'proof-goals)
 
-(defcustom pbp-error-regexp nil
+(defcustom pg-goals-error-regexp nil
   "Regexp indicating that the proof process has identified an error."
   :type '(choice nil regexp)
   :group 'proof-goals)
@@ -2177,22 +2171,32 @@ In particular, after a `pbp-goal-command' or a `pbp-hyp-command'."
   :type 'regexp
   :group 'proof-goals)
 
-(defcustom proof-shell-start-char nil
-  "Starting special for a subterm markup.
-Subsequent characters with values *below* proof-shell-first-special-char
-are assumed to be subterm position indicators.  Subterm markups should
-be finished with proof-shell-end-char."
+(defcustom pg-subterm-start-char nil
+  "Opening special character for subterm markup.
+Subsequent special characters with values *below* 
+pg-subterm-first-special-char are assumed to be subterm position 
+indicators.  Annotations should be finished with pg-subterm-sep-char; 
+the end of the concrete syntax is indicated by pg-subterm-end-char.
+
+If `pg-subterm-start-char' is nil, subterm markup is disabled.
+
+See doc of `pg-goals-analyse-structure' for more details of
+subterm and proof-by-pointing markup mechanisms.."
   :type '(choice character (const nil))
   :group 'proof-goals)
 
-(defcustom proof-shell-end-char nil
+(defcustom pg-subterm-sep-char nil
   "Finishing special for a subterm markup.
-See documentation of proof-shell-start-char."
+See doc of `pg-subterm-start-char'."
   :type '(choice character (const nil))
   :group 'proof-goals)
 
-(defcustom proof-shell-goal-char nil
-  "Mark for goal.
+(defcustom pg-topterm-char nil
+  "Annotation character that indicates the beginning of a \"top\" element.
+A \"top\" element may be a sub-goal to be proved or a named hypothesis,
+for example.  It is currently assumed (following LEGO/Coq conventions)
+to span a whole line (the region marked in . 
+The function `pg-topterm-goalhyp-fn' examines text following
 
 This setting is also used to see if proof-by-pointing features
 are configured.  If it is unset, some of the code 
@@ -2200,8 +2204,9 @@ for parsing the prover output is disabled."
   :type 'character
   :group 'proof-goals)
 
-(defcustom proof-shell-field-char nil
-  "Annotated field end"
+(defcustom pg-subterm-end-char nil
+  "Closing special character for subterm markup.
+See `pg-subterm-start-char'."
   :type 'character
   :group 'proof-goals)
 
@@ -2229,6 +2234,17 @@ This is currently used only by proof-easy-config mechanism,
 to set font-lock-keywords before calling proof-config-done.
 See also proof-{script,shell,resp}-font-lock-keywords."
   :type 'sexp
+  :group 'proof-goals)
+
+(defcustom pg-before-fontify-output-hook nil
+  "This hook is called before fonfitying a region in an output buffer.
+[This hook is presently only used by phox-sym-lock]."
+  :type '(repeat function)
+  :group 'proof-goals)
+
+(defcustom pg-before-subterm-markup-hook nil
+  "This hook is called before analysiing a region for subterm markup."
+  :type '(repeat function)
   :group 'proof-goals)
 
 

@@ -672,7 +672,7 @@ last use time, to discourage saving these into the users database."
 	  (pg-insert-output-as-comment-fn proof-shell-last-output)
 	;; Otherwise the default behaviour is to use comment-region
 	(let  ((beg (point)) end)
-	  ;; proof-shell-strip-special-annotations: should be done
+	  ;; pg-goals-strip-subterm-markup: should be done
 	  ;; for us in proof-fontify-region
 	  (insert proof-shell-last-output)
 	  ;; 3.4: add fontification. Questionable since comments will

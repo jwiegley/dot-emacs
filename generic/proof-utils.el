@@ -350,40 +350,29 @@ font-lock-mode."
 	  ,proof-font-lock-keywords-case-fold-search))
   (setq font-lock-keywords proof-font-lock-keywords))
 
-(defun proof-fontify-region (start end)
+(defun proof-fontify-region (start end &optional keepspecials)
   "Fontify and decode X-Symbols in region START...END.
 Fontifies according to the buffer's font lock defaults.
 Uses proof-x-symbol-decode to decode tokens if x-symbol is present.
 
-If proof-shell-leave-annotations-in-output is set, remove characters
-with top bit set after fontifying so they don't spoil cut and paste.
+If `pg-use-specials-for-fontify' is set, remove characters
+with top bit set after fontifying so they don't spoil cut and paste,
+unless KEEPSPECIALS is set to override this.
 
 Returns new END value."
   ;; We fontify first because X-sym decoding changes char positions.
   ;; It's okay because x-symbol-decode works even without font lock.
   ;; Possible disadvantage is that font lock patterns can't refer
-  ;; to X-Symbol characters.  Probably they shouldn't!
-
-  ;; 3.5.01: narrowing causes failure in parse-sexp in XEmacs 21.4.
-  ;; I don't think we need it now we use a function to fontify
-  ;; just the region.
-  ;; (narrow-to-region start end)
-
+  ;; to X-Symbol characters.  
   (if proof-output-fontify-enable
       (progn
 	;; Temporarily set font-lock defaults
 	(proof-font-lock-set-font-lock-vars)
-	;; (put major-mode 'font-lock-defaults font-lock-defaults)
-	;; GNU Emacs hack, yuk.
+
+	;; Yukky hacks to immorally interface with font-lock
 	(unless proof-running-on-XEmacs
 	  (font-lock-set-defaults))
 	(let ((font-lock-keywords proof-font-lock-keywords))
-	  ;; FIXME: should set other bits of font lock defaults,
-	  ;; perhaps, such as case fold etc.  What happened to
-	  ;; the careful buffer local font-lock-defaults??
-	  ;; ================================================
-	  ;; 3.5.01: call to font-lock-fontify-region breaks
-	  ;; in xemacs 21.4.  Following hack to fix.
 	  (if (and proof-running-on-XEmacs
 		   (>= emacs-minor-version 4)
 		   (not font-lock-cache-position))
@@ -391,31 +380,42 @@ Returns new END value."
 		(setq font-lock-cache-position (make-marker))
 		(set-marker font-lock-cache-position 0)))
 
-	  ;; ================================================
-	  (run-hooks 'proof-before-fontify-output-hook)
-	  ;; Emacs 21.1: add loudly flag below for font lock
+	  (run-hooks 'pg-before-fontify-output-hook)
 	  (font-lock-default-fontify-region start end nil)
+	  ;; after-fontify hook might do this ugly zap commas thing.
 	  (proof-zap-commas-region start end))))
-  (if proof-shell-leave-annotations-in-output
-      ;; Remove special characters that were used for font lock,
-      ;; so that cut and paste works from here.
+  (if (and pg-use-specials-for-fontify (not keepspecials))
       (progn
-	(goto-char start)
-	(while (< (point) end)
-	  (forward-char)
-	  (unless (< (char-before (point)) 128) ; char-to-int in XEmacs
-	    (delete-char -1)
-	    (setq end (1- end))))))
+	(pg-remove-specials start end)
+	(setq end (point))))
   (prog1
-      ;; Returns new end value
+      ;; Return new end value
       (proof-x-symbol-decode-region start end)
     (proof-font-lock-clear-font-lock-vars)))
-;; old ending:
-;; (prog1 (point-max)
-;; (widen)))
+
+
+(defconst pg-special-char-regexp
+  (let ((c 128) (r "\200"))
+    (while (< c 256) 
+      (setq r (concat r "\\|" (regexp-quote (char-to-string c))))
+      (incf c))
+    r)
+  "Regexp matchin any special character (top bit set).")
+
+
+(defun pg-remove-specials (&optional start end)
+  "Remove special characters (with top bit set) in region.
+Default to whole buffer.  Leave point at END."
+  (save-restriction
+    (if (and start end) 
+	(narrow-to-region start end))
+    (goto-char (or start (point-min)))
+    (proof-replace-regexp pg-special-char-regexp "")
+    (point-max)))
+
+  
 
 ;; FIXME todo: add toggle for fontify region which turns it on/off
-;; (maybe).
 
 (defun proof-fontify-buffer ()
   "Call proof-fontify-region on whole buffer."
@@ -434,48 +434,6 @@ Returns new END value."
   "Give a warning (with TAG) if symbol SYM is unbound or nil."
   (unless (and (boundp sym) (symbol-value sym))
     (warn "Proof General %s: %s is unset."  tag (symbol-name sym))))
-
-;; FIXME: this function should be combined with
-;; proof-shell-maybe-erase-response-buffer. 
-(defun proof-response-buffer-display (str &optional face)
-  "Display STR with FACE in response buffer."
-  ;; 3.4: no longer return fontified STR, it wasn't used.
-  (if (string-equal str "\n")	
-      str				; quick exit, no display.
-  (let (start end)
-    (with-current-buffer proof-response-buffer
-      ;; da: I've moved newline before the string itself, to match
-      ;; the other cases when messages are inserted and to cope
-      ;; with warnings after delayed output (non newline terminated).
-      ; (ugit (format "End is %i" (point-max)))
-      (goto-char (point-max))
-      (newline)				
-      (setq start (point))
-      (insert str)
-      (unless (bolp) (newline))
-      (setq end (proof-fontify-region start (point)))
-      ;; This is one reason why we don't keep the buffer in font-lock
-      ;; minor mode: it destroys this hacky property as soon as it's
-      ;; made!  (Using the minor mode is much more convenient, tho')
-      (if (and face proof-output-fontify-enable)
-	  (font-lock-append-text-property start end 'face face))
-      ;; This returns the decorated string, but it doesn't appear 
-      ;; decorated in the minibuffer, unfortunately.
-      ;; 3.4: remove this for efficiency.
-      ;; (buffer-substring start (point-max))
-      ))))
-
-;; An analogue of proof-response-buffer-display 
-(defun proof-trace-buffer-display (str)
-  "Display STR in the trace buffer."
-  (let (start end)
-    (with-current-buffer proof-trace-buffer
-      (goto-char (point-max))
-      (newline)				
-      (setq start (point))
-      (insert str)
-      (unless (bolp) (newline))
-      (proof-fontify-region start (point)))))
 
 (defun proof-display-and-keep-buffer (buffer &optional pos)
   "Display BUFFER and mark window according to `proof-dont-switch-windows'.
@@ -537,13 +495,13 @@ frame is the one showing the script buffer.)"
 
 (defun proof-message (&rest args)
   "Issue the message ARGS in the response buffer and display it."
-    (proof-response-buffer-display (apply 'concat args))
+    (pg-response-display-with-face (apply 'concat args))
     (proof-display-and-keep-buffer proof-response-buffer))
 
 (defun proof-warning (&rest args)
   "Issue the warning ARGS in the response buffer and display it.
 The warning is coloured with proof-warning-face."
-    (proof-response-buffer-display (apply 'concat args) 'proof-warning-face)
+    (pg-response-display-with-face (apply 'concat args) 'proof-warning-face)
     (proof-display-and-keep-buffer proof-response-buffer))
 
 ;; could be a macro for efficiency in compiled code
@@ -552,7 +510,7 @@ The warning is coloured with proof-warning-face."
 If proof-show-debug-messages is nil, do nothing."
   (if proof-show-debug-messages
       (progn
-	(proof-response-buffer-display (apply 'concat 
+	(pg-response-display-with-face (apply 'concat 
 					      "PG debug: " 
 					      args)
 				       'proof-debug-message-face)
@@ -571,45 +529,6 @@ No action if BUF is nil or killed."
 	 (if noselect
 	     (display-buffer buf t)
 	   (switch-to-buffer-other-window buf)))))
-
-;;
-;; Flag and function to keep response buffer tidy.
-;;
-;; FIXME: rename this now it's moved out of proof-shell.
-;;
-(defvar proof-shell-erase-response-flag nil
-  "Indicates that the response buffer should be cleared before next message.")
-
-(defun proof-shell-maybe-erase-response
-  (&optional erase-next-time clean-windows force)
-  "Erase the response buffer according to proof-shell-erase-response-flag.
-ERASE-NEXT-TIME is the new value for the flag.
-If CLEAN-WINDOWS is set, use proof-clean-buffer to do the erasing.
-If FORCE, override proof-shell-erase-response-flag.
-
-If the user option proof-tidy-response is nil, then
-the buffer is only cleared when FORCE is set.
-
-No effect if there is no response buffer currently.
-Returns non-nil if response buffer was cleared."
-  (when (buffer-live-p proof-response-buffer)
-    (let ((doit (or (and
-		     proof-tidy-response
-		     (not (eq proof-shell-erase-response-flag 'invisible))
-		     proof-shell-erase-response-flag) 
-		    force)))
-      (if doit
-	  (if clean-windows
-	      (proof-clean-buffer proof-response-buffer)
-	  ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
-	  ;; (erase-buffer proof-response-buffer)
-	    (with-current-buffer proof-response-buffer
-	      (setq proof-shell-next-error nil)	; all error msgs lost!
-	      (erase-buffer))))
-      (setq proof-shell-erase-response-flag erase-next-time)
-      doit)))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
