@@ -73,6 +73,15 @@ By default, the cursor jumps to the end of the locked region on an
 error.  Previously it also jumped on an interrupt.  This is configurable
 via `proof-shell-handle-error-or-interrupt-hook', which see.
 
+*** Automatic slow-down on fast tracing display
+
+Proof General will try to configure itself to update the display of
+tracing output infrequently when the prover is producing rapid,
+perhaps voluminous, output.  This counteracts the situation that
+otherwise Emacs may consume more CPU than the proof assistant, trying
+to fontify and refresh the display as fast as output appears.
+See `proof-trace-output-slow-catchup' for setting.
+
 
 *** Proof General -> Options menu changes
 
@@ -124,6 +133,12 @@ NB: Not yet enabled for Isabelle/Isar.
 
 Electric terminator menu option more visible. 
 Reduce contrast for mouse highlighting of regions.
+
+*** Added `proof-shell-identifier-under-mouse-cmd'
+
+Allows PG to conveniently send a command to the prover which passes
+the identifier under the mouse as an argument.  Bound globally to
+Control-Meta-Mouse-button1.
 
 
 ** GNU Emacs compatibility, simplified font-lock, handling nested comments
