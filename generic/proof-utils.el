@@ -658,7 +658,60 @@ If RETURNNOPATH is non-nil, return PROGNAME even if we can't find a full path."
 (setq autoload-package-name "proof")
 (setq generated-autoload-file "proof-autoloads.el")
 	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; A function to search the position of the first occurrence of
+;; a string in another string. Isn't it defined allready ?
+;;
 
+(defun string-search (sstr str &optional ipos)
+  "string-search sstr str &optional pos: returns the position of the first occurrence of the string sstr in str. Return nil if the string is not found. Starts serch at position pos in str if the optional argument is given"
+  (if str 
+      (let 
+	  ((pos (if ipos ipos 0)) (len (length sstr)) (end (- (length str) (length sstr))))
+	(if (not pos) (setq pos 0))
+	(while (and (<= pos end) 
+		    (not (string= sstr (substring str pos (+ pos len))))) 
+	  (setq pos (+ pos 1)))
+	(if (> pos end) nil pos)))) 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; The following function removes comments from a string. Nested 
+;; comments should work. Warning the length of the resulting 
+;; string is reduced, it may be better to replace comments by
+;; white spaces
+  
+(defun proof-remove-comment (str)
+  "proof-remove-comment str: return the string str with all comments removed. Nested comments should work."
+  (if str (let 
+	      ((astr "")
+	       (pos 0)
+	       (lpos 0)
+	       (spos -1)
+               (epos -1)
+	       (lvl 0))
+	    (while (or spos epos)
+	      (setq
+	       spos (if (and spos (< spos lpos)) 
+			(string-search proof-comment-start str lpos) spos)
+	       epos (if (and epos (< epos lpos)) 
+			(string-search proof-comment-end str lpos) epos))
+	      (message (format "pos: %d, spos: %d, epos: %d, astr: %s ///" 
+			       pos (if spos spos -1) (if epos epos -1) astr))
+	      (if (and spos (or (not epos) (< spos epos)))
+		  (progn
+		    (if (= lvl 0) (setq astr 
+					(concat astr 
+						(substring str pos spos))))
+	  (setq lpos (+ spos 1) lvl (+ lvl 1)))
+		(if (and epos (> lvl 0)) 
+		    (progn
+		      (setq lpos (+ epos 1) lvl (- lvl 1))
+		      (if (= lvl 0) (setq pos (+ epos 2)))))))
+	    (setq astr (concat astr (substring str pos)))
+	    (message astr)
+	    astr)))
 
 ;; End of proof-utils.el
 (provide 'proof-utils)
