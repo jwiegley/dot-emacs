@@ -30,6 +30,9 @@ A proof-toolbar:  Fixup movement of point (choice of
   up and down functions).  Add toolbar to pbp mode too.  
   (30mins, da)
 
+A toolbar icons: Fixup for low-colour modes again.  Improve restart
+  icon (30mins, da).
+
 B Better support for adding a new prover: give error messages which
   hint at what variable to set (see proof-issue-goal for example).
 
