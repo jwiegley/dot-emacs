@@ -19,6 +19,7 @@ function usage()
   echo "    -p NAME      Emacs program name (default xemacs)"
   echo "    -u BOOL      use .emacs file (default true)"
   echo "    -w BOOL      use window system (default true)"
+  echo "    -x BOOL      enable x-symbol package"
   echo
   echo "Starts Proof General for Isabelle/classic with proof documents FILES"
   echo "(default Scratch.thy)."
@@ -46,11 +47,12 @@ LOGIC="$ISABELLE_LOGIC"
 PROGNAME="xemacs"
 INITFILE="true"
 WINDOWSYSTEM="true"
+XSYMBOL=""
 
 function getoptions()
 {
   OPTIND=1
-  while getopts "l:p:u:w:" OPT
+  while getopts "l:p:u:w:x:" OPT
   do
     case "$OPT" in
       l)
@@ -64,6 +66,9 @@ function getoptions()
         ;;
       w)
         WINDOWSYSTEM="$OPTARG"
+        ;;
+      x)
+        XSYMBOL="$OPTARG"
         ;;
       \?)
         usage
@@ -110,4 +115,6 @@ done
 
 export PROOFGENERAL_ASSISTANTS=isa
 export PROOFGENERAL_LOGIC="$LOGIC"
+export PROOFGENERAL_XSYMBOL="$XSYMBOL"
+
 exec $PROGNAME $ARGS $FILES
