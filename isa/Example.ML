@@ -12,6 +12,3 @@ Goal "A & B --> B & A";
   by (assume_tac 1);
 qed "and_comms";
 
-Goal "(ALL x. P(x) --> Q) --> ((EX x. P(x)) --> Q)";
-  by (blast_tac (claset()) 1);
-qed "";
