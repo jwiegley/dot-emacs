@@ -36,9 +36,9 @@ X (Low)		probably not worth spending time on
 * Priority Fixes for 3.1
 ========================
 
-** Isabelle regexp overflow problem
+** Isabelle regexp overflow problem on proof-shell-proof-completed-regexp
 ** Solaris ^G problem and FSF Emacs mule/non-mule support
-
+** Recognition of ; only at eol (DvO reported bug)
 
 
 * Things to in the generic interface
