@@ -56,6 +56,7 @@ PRERELEASE_TAG=3.1pre$(shell date "+%y%m%d")
 PREREL_TAG_FILE=prereltag.txt
 
 DOWNLOADHTML=develdownload.phtml
+DOWNLOADINFOHTML=devel.phtml
 
 # This is used for full releases to control the tag name
 # and distribution name.  No editing of html is done
@@ -112,14 +113,14 @@ TAR=tar
 DEVELMAKE=make -f Makefile.devel
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile plastic/
+NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile plastic/ hol98/ 
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf
+IGNOREDFILES=ProofGeneral*/Makefile.devel ProofGeneral*/todo ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral/*/todo
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -247,8 +248,8 @@ images:	FORCE
 ##
 ## tag:    tag the CVS sources of working directory with CVS_RELEASENAME,
 ##	   set version stamp in proof-site.el and ProofGeneral.spec 
-##         to VERSION, and edit $(DOWNLOADHTML) if VERSION matches 
-##	   PRERELEASE_TAG.
+##         to VERSION, and edit $(DOWNLOADHTML) and $(DOWNLOADINFOHTML)
+##         if VERSION matches PRERELEASE_TAG.
 ##
 tag:		
 	@echo "*************************************************"
@@ -263,6 +264,7 @@ tag:
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
 	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
 	  (cd html; mv $(DOWNLOADHTML) $(DOWNLOADHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADHTML).old > $(DOWNLOADHTML); rm $(DOWNLOADHTML).old) \
+	  (cd html; mv $(DOWNLOADINFOHTML) $(DOWNLOADINFOHTML).old; sed -e 's|ProofGeneral-$(PRERELEASE_PREFIX)......|ProofGeneral-$(PRERELEASE_TAG)|g' $(DOWNLOADINFOHTML).old > $(DOWNLOADINFOHTML); rm $(DOWNLOADINFOHTML).old) \
 	fi
 # This hack to SOURCE: name is only needed because we have an obsolete version
 # of rpm installed on standard machines at dcs.ed, and we have to build with
