@@ -28,18 +28,22 @@ B Add a "register" page for registering downloads.  Perhaps filling
   Suggestion: send an email to proofgen@dcs.ed.ac.uk with POST
   results. Template:
     http://www.dcs.ed.ac.uk/home/da/Isamode/IsamodeSurvey.html
+  [2 hours]
 
 B Polish ProofGeneral.texi and publish LaTeX version as an LFCS
   Technical Report.  
 
    * Fix page rearrangement to insert a blank page
-   * Fix typos/other stuff found by Dave
+   * Fix typos/other stuff found by Dave.
+   * Suggestions, typos, contributions by Healf.  
+     (Dave has email)
    * Improve trivial and uniformative docstrings.
    * Fixup markup mistakes by editing docstrings.
    * Fix docstring magic so PROOFGENERAL_HOME is not var'd.
    * New line after first sentence of docstrings.
    * Several env variables / LEGO name stuff:: make `STUFF' be literal.
    * Update menus in texi
+  [6 hours]
 
 A BUGS to investigate:
   - Is there a catch bug on Solaris when a process shell killed?
