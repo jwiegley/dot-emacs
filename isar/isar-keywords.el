@@ -118,13 +118,13 @@
     "setup"
     "syntax"
     "text"
+    "text_raw"
     "theorems"
     "token_translation"
     "translations"
     "typed_print_translation"
     "typedecl"
-    "types"
-    "verbatim"))
+    "types"))
 
 (defconst isar-keywords-theory-goal
   '("instance"
@@ -168,7 +168,7 @@
     "subsect"
     "subsubsect"
     "txt"
-    "verb"))
+    "txt_raw"))
 
 (defconst isar-keywords-proof-asm
   '("assume"
