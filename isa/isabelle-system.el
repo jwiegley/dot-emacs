@@ -251,8 +251,26 @@ until Proof General is restarted."
   (isa-proof-invisible-command-ifposs 
    (isabelle-set-default-cmd 'show-sorts)))
 
+(proof-defasscustom show-consts  nil
+  "Whether to show types of consts in Isabelle goals."
+  :type 'boolean
+  :set 'proof-set-value)
+
+(proof-defassfun show-consts ()
+  (isa-proof-invisible-command-ifposs 
+   (isabelle-set-default-cmd 'show-consts)))
+
+(proof-defasscustom long-names  nil
+  "Whether to show fully qualified names in Isabelle."
+  :type 'boolean
+  :set 'proof-set-value)
+
+(proof-defassfun long-names ()
+  (isa-proof-invisible-command-ifposs 
+   (isabelle-set-default-cmd 'long-names)))
+
 (proof-defasscustom trace-simplifier  nil
-  "Whether to trace simplifier in Isabelle."
+  "Whether to trace the Simplifier in Isabelle."
   :type 'boolean
   :set 'proof-set-value)
 
@@ -278,8 +296,7 @@ until Proof General is restarted."
 
 (defun isar-markup-ml (string)
   "Return marked up version of STRING for Isar if we seem to be using Isar."
-  ;; FIXME: do we need isar-verbatim here too?
-  (if isa-running-isar (format "ML_setup {* %s *};" string) string))
+  (if isa-running-isar (format "ML_command {* %s *}; pr;" string) string))
 
 (defun isa-format-bool (string val)
   (isar-markup-ml
@@ -290,6 +307,10 @@ until Proof General is restarted."
      . (isa-format-bool "show_types:=%b;" (proof-ass show-types)))
     (show-sorts 
      . (isa-format-bool "show_sorts:=%b;" (proof-ass show-sorts)))
+    (show-consts
+     . (isa-format-bool "show_consts:=%b;" (proof-ass show-consts)))
+    (long-names
+     . (isa-format-bool "long_names:=%b;" (proof-ass long-names)))
     (trace-simplifier
      . (isa-format-bool "trace_simp:=%b;" (proof-ass trace-simplifier))))
   "A list of default values kept in Proof General which are sent to Isabelle."
@@ -314,8 +335,10 @@ Otherwise return a string for configuring all settings."
 ;; Generic Isabelle menu for Isabelle and Isabelle/Isar
 ;;
 
-(proof-deftoggle-fn (proof-ass-sym show-sorts))
 (proof-deftoggle-fn (proof-ass-sym show-types))
+(proof-deftoggle-fn (proof-ass-sym show-sorts))
+(proof-deftoggle-fn (proof-ass-sym show-consts))
+(proof-deftoggle-fn (proof-ass-sym long-names))
 (proof-deftoggle-fn (proof-ass-sym trace-simplifier))
 
 (proof-defass-default menu-entries
@@ -331,6 +354,12 @@ Otherwise return a string for configuring all settings."
      ["Show sorts"  ,(proof-ass-sym show-sorts-toggle)
       :style toggle
       :selected ,(proof-ass-sym show-sorts)]
+     ["Show consts"  ,(proof-ass-sym show-consts-toggle)
+      :style toggle
+      :selected ,(proof-ass-sym show-consts)]
+     ["Long names"  ,(proof-ass-sym long-names-toggle)
+      :style toggle
+      :selected ,(proof-ass-sym long-names)]
      ["Trace simplifier" ,(proof-ass-sym trace-simplifier-toggle)
       :style toggle
       :selected ,(proof-ass-sym trace-simplifier)])))
