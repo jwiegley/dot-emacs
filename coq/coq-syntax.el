@@ -16,6 +16,7 @@
 "Hypothesis"
 "Parameter[s]?"
 "Variable[s]?"
+"Global\\s-+Variable"
 ))
 
 (defvar coq-keywords-defn
@@ -74,6 +75,7 @@
 "Hint"
 "Hints"
 "Infix"
+"Initialize"
 "Implicit\\s-+Arguments\\s-+On"
 "Implicit\\s-+Arguments\\s-+Off"
 "Load"
@@ -126,6 +128,7 @@
 "Cut"
 "DHyp"
 "DInd"
+"Decompose"
 "Dependent\\s-+Inversion_clear"
 "Dependent\\s-+Inversion"
 "Destruct"
@@ -149,6 +152,7 @@
 "Left"
 "Linear"
 "Load"
+"Omega"
 "Pattern"
 "Program_all"
 "Program"
@@ -159,6 +163,7 @@
 "Replace"
 "Rewrite"
 "Right"
+"Ring"
 "Simplify_eq"
 "Simpl"
 "Specialize"
@@ -172,7 +177,7 @@
 
 (defvar coq-keywords
   (append coq-keywords-goal coq-keywords-save coq-keywords-decl
-	  coq-keywords-defn coq-keywords-commands coq-tactics)
+	  coq-keywords-defn coq-keywords-commands)
   "All keywords in a Coq script")
 
 (defvar coq-tacticals 
@@ -196,13 +201,13 @@
     "Fix"
     "if"
     "in"
+    "let"
     "of"
     "then"
     "using"
     "with"
     )
   "Reserved keyworkds of Coq")
-
 
 (defvar coq-symbols
   '(
@@ -283,6 +288,7 @@
     coq-font-lock-terms
     (list
      (cons (proof-ids-to-regexp coq-keywords) 'font-lock-keyword-face)
+     (cons (proof-ids-to-regexp coq-tactics) 'proof-tactics-name-face)
      (cons (proof-ids-to-regexp coq-tacticals) 'proof-tacticals-name-face)
      (cons (proof-ids-to-regexp coq-reserved) 'font-lock-type-face)
       
@@ -290,5 +296,25 @@
      (list coq-decl-with-hole-regexp 2 'proof-declaration-name-face)
      (list coq-defn-with-hole-regexp 2 'font-lock-function-name-face)
      (list coq-save-with-hole-regexp 2 'font-lock-function-name-face))))
+
+(defun coq-init-syntax-table ()
+  "Set appropriate values for syntax table in current buffer."
+
+  (modify-syntax-entry ?\$ ".")
+  (modify-syntax-entry ?\/ ".")
+  (modify-syntax-entry ?\\ ".")
+  (modify-syntax-entry ?+  ".")
+  (modify-syntax-entry ?-  ".")
+  (modify-syntax-entry ?=  ".")
+  (modify-syntax-entry ?%  ".")
+  (modify-syntax-entry ?<  ".")
+  (modify-syntax-entry ?>  ".")
+  (modify-syntax-entry ?\& ".")
+  (modify-syntax-entry ?_  "_")
+  (modify-syntax-entry ?\' "_")
+  (modify-syntax-entry ?\| ".")
+  (modify-syntax-entry ?\* ". 23")
+  (modify-syntax-entry ?\( "()1")
+  (modify-syntax-entry ?\) ")(4"))
 
 (provide 'coq-syntax)

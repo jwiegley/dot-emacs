@@ -41,10 +41,6 @@
   :type 'string
   :group 'coq)
 
-(defconst coq-process-config "Reset Initial."
-  "Command to reset to initial state and 
-   configure pretty printing of the Coq process for emacs.")
-
 (defconst coq-interrupt-regexp "Interrupted"
   "Regexp corresponding to an interrupt")
 
@@ -66,6 +62,15 @@
   "*Name of program to run as Coq."
   :type 'string
   :group 'coq)
+
+;; Command to initialize the Coq Proof Assistant
+(defconst coq-shell-init-cmd 
+  (concat (format "Set Undo %s." coq-default-undo-limit)
+	  (format "Cd \"%s\"." default-directory)))
+
+;; Command to reset the Coq Proof Assistant
+(defconst coq-shell-restart-cmd 
+  "Reset Initial.")
 
 (defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
@@ -105,10 +110,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-derived-mode coq-shell-mode proof-shell-mode
-   "coq-shell" 
-   ;; With nil argument for docstring, Emacs makes up a nice one.
-   nil
-   (coq-shell-mode-config))
+   "coq-shell" nil
+
+   (coq-shell-mode-config)
+   (setq font-lock-keywords coq-font-lock-keywords-1)
+   (font-lock-mode))
 
 (define-derived-mode coq-response-mode proof-response-mode
   "CoqResp" nil
@@ -127,12 +133,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Code that's coq specific                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; FIXME da: can't this be done by proof-shell-init-cmd ?
-(defun coq-shell-init-hook ()
-  (insert (format "Set Undo %s." coq-default-undo-limit))
-  (insert (format "Cd \"%s\"." default-directory))
-  (remove-hook 'proof-shell-insert-hook 'coq-shell-init-hook))
 
 (defun coq-set-undo-limit (undos)
   (proof-shell-invisible-command (format "Set Undo %s." undos)))
@@ -300,11 +300,10 @@
 (defun coq-end-Section ()
   "Ends a Coq section."
   (interactive)
-  (let (count) 
+  (let ((count 1)) ; The number of section already "Ended" + 1
     (let ((section 
 	   (save-excursion 
 	     (progn 
-	       (setq count 1) ; The number of section already "Ended" + 1
 	       (while (and (> count 0) 
 			   (search-backward-regexp 
 			    "Chapter\\|Section\\|End" 0 t))
@@ -312,9 +311,9 @@
 		     (setq count (1+ count))
 		   (setq count (1- count))))
 	       (buffer-string
-		(progn (beginning-of-line) (point)) 
+		(progn (beginning-of-line) (forward-word 1) (point)) 
 		(progn (end-of-line) (point)))))))
-      (insert (replace-string "Section" "End" section)))))
+      (insert (concat "End" section)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
@@ -398,27 +397,6 @@
 ;;   Configuring proof and pbp mode and setting up various utilities  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; FIXME: IMHO (tms) this ought to be defined in coq-syntax and not here.
-(defun coq-init-syntax-table ()
-  "Set appropriate values for syntax table in current buffer."
-
-  (modify-syntax-entry ?\$ ".")
-  (modify-syntax-entry ?\/ ".")
-  (modify-syntax-entry ?\\ ".")
-  (modify-syntax-entry ?+  ".")
-  (modify-syntax-entry ?-  ".")
-  (modify-syntax-entry ?=  ".")
-  (modify-syntax-entry ?%  ".")
-  (modify-syntax-entry ?<  ".")
-  (modify-syntax-entry ?>  ".")
-  (modify-syntax-entry ?\& ".")
-  (modify-syntax-entry ?_  "_")
-  (modify-syntax-entry ?\' "_")
-  (modify-syntax-entry ?\| ".")
-  (modify-syntax-entry ?\* ". 23")
-  (modify-syntax-entry ?\( "()1")
-  (modify-syntax-entry ?\) ")(4"))
-
 (defun coq-mode-config ()
 
   (setq proof-terminal-char ?\.)
@@ -458,10 +436,12 @@
 
   (proof-config-done)
 
+;; Coq-specific key mappings
+
   (define-key (current-local-map) [(control c) ?I] 'coq-Intros)
   (define-key (current-local-map) [(control c) ?a] 'coq-Apply)
   (define-key (current-local-map) [(control c) (control s)] 'coq-Search)
-  (define-key (current-local-map) [(control c) ?s] 'coq-Section)
+  (define-key (current-local-map) [(control c) ?s] 'coq-begin-Section)
   (define-key (current-local-map) [(control c) ?e] 'coq-end-Section)
 
 ;; outline
@@ -509,14 +489,11 @@
         proof-shell-result-end "\372 End Pbp result \373"
         proof-shell-start-goals-regexp "[0-9]+ subgoals?"
         proof-shell-end-goals-regexp proof-shell-annotated-prompt-regexp
-        proof-shell-init-cmd coq-process-config
-	proof-shell-restart-cmd coq-process-config
+        proof-shell-init-cmd coq-shell-init-cmd
+	proof-shell-restart-cmd coq-shell-restart-cmd
 	proof-analyse-using-stack t
 ;;	proof-lift-global 'coq-lift-global
 	)
-
-  ;; The following hook is removed once it's called.
-  (add-hook 'proof-shell-insert-hook 'coq-shell-init-hook nil t)
 
   (coq-init-syntax-table)
 
