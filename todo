@@ -12,6 +12,13 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+A Add support for people typing directly into the inferior process.
+  The error messages are going to drive experienced Isabelle users
+  mad otherwise!  Fair enough to hide the buffer from those
+  dumb users "not authorized for this information", but lets not
+  get in the way of experienced users.
+  (da, 1hr: I'm not sure of the best way of doing this)
+
 A proof-toolbar:  Add support for entering a goal and saving a theorem
   at the generic level.  These functions should also
   be accessible from menus.  Fixup movement of point (choice of
@@ -75,10 +82,12 @@ D Improve documentation in proof.el to help porting/understanding
   (ongoing, da).
 
 B Fixup sources to follow Elisp conventions better.
-  The first line of documentation of functions and
-  variables should be a whole sentence.  Subsequent lines should
-  *not* be indented.  See output of hyper-apropos and
-  poor formatting of current comments.   (1hr, tms)
+  1. The first line of documentation of functions and
+     variables should be a whole sentence.  Subsequent lines should
+     *not* be indented.  See output of hyper-apropos and
+     poor formatting of current comments.   (1hr, tms)
+  2. Replace defvar's by defconst's where appropriate.
+     Introduce new defconsts.
 
 A Update source documentation and manual, in particular document bugs
   and workarounds
@@ -241,6 +250,15 @@ A Get basic features working:
     Check these things:
 
     abort-goal-regexp
+
+A CRUCIAL: Do something to manage .thy and .ML files coherently.
+  At the moment loading one into Isabelle will force the
+  processing of the other.  We could ask that users develop
+  proof scripts in another kind of file entirely, or a file
+  with a different name.  But that's an ugly hack.
+  But what else can we do??
+  (Probably answer: Isabelle needs to support non-automatic
+  reading of ML file: a function "use_thy_only" ).
 
 D Write perl scripts to generate TAGS file for ML and thy files.
   (6h, I've completely forgotten perl)
