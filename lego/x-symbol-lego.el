@@ -26,7 +26,7 @@
     (lambda () "lambda" "\\<lambda>")
  ;  (mu     () "mu" "\\<mu>")
  ;  (nu     () "nu" "\\<nu>")
-    (xi     () "xi" "\\<xi>")
+ ;  (xi     () "xi" "\\<xi>")
  ;  (pi     () "pi" "\\<pi>")
     (rho    () "rho" "\\<rho>")
     (sigma  () "sigma" "\\<sigma>")
