@@ -60,9 +60,6 @@ All of these settings are optional."
 				      " defined by `pg-defthymode'.")
 			     ,menu)))))
 
-(defun elan-lgi-mode (&rest args))
-
-	 ))))))
 
 
 ;; Utilities
