@@ -142,7 +142,7 @@ and script mode."
    proof-shell-prompt-pattern		"^2?[ML-=#>]>? \372?"
 
    ;; for issuing command, not used to track cwd in any way.
-   proof-shell-cd-cmd			"Library.cd \"%s\""
+   proof-shell-cd-cmd			"Library.cd \"%e\""
 
    ;; FIXME: the next two are probably only good for NJ/SML
    proof-shell-interrupt-regexp         "Interrupt"
