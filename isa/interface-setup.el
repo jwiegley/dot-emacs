@@ -6,9 +6,8 @@
  'isabelle-prog-name
  (concat (getenv "ISABELLE") " " (getenv "PROOFGENERAL_LOGIC")))
 
-(let ((xsym (getenv "PROOFGENERAL_XSYMBOL")))
-  (cond
-   ((equal xsym "true")
-    (customize-set-variable 'proof-x-symbol-enable t))
-   ((equal xsym "false")
-    (customize-set-variable 'proof-x-symbol-enable nil))))
+(customize-set-variable
+ (if (equal (getenv "PROOFGENERAL_ASSISTANTS") "isa")
+     'isa-x-symbol-enable
+   'isar-x-symbol-enable)
+ (equal (getenv "PROOFGENERAL_XSYMBOL") "true"))
