@@ -19,7 +19,7 @@
 (defvar proof-display-some-buffers-count 0)
 
 (defun proof-display-some-buffers ()
-  "Display the reponse, goals, trace, or shell buffer, rotating.
+  "Display the reponse, trace, goals, or shell buffer, rotating.
 A fixed number of repetitions of this command switches back to
 the same buffer.
 Also move point to the end of the response buffer if it's selected.
@@ -39,9 +39,10 @@ If in three window or multiple frame mode, display two buffers."
     (setq proof-display-some-buffers-count 0)))
   (let* ((assocbufs   (remove-if-not 'buffer-live-p 
 				    (list proof-response-buffer
-					  proof-goals-buffer
 					  proof-thms-buffer
-					  proof-trace-buffer)))
+					  proof-trace-buffer
+					  proof-goals-buffer
+					  )))
 					;proof-shell-buffer
 	 (selectedbuf (nth (mod proof-display-some-buffers-count 
 				(length assocbufs)) assocbufs)))
@@ -57,7 +58,8 @@ If in three window or multiple frame mode, display two buffers."
       (proof-switch-to-buffer selectedbuf 'noselect)))
     (if (eq selectedbuf proof-response-buffer)
 	(set-window-point (get-buffer-window proof-response-buffer)
-			  (point-max)))))
+			  (point-max)))
+    (pg-hint (pg-response-buffers-hint))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
