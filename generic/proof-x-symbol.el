@@ -39,28 +39,38 @@
 (defvar proof-x-symbol-initialized nil
   "Non-nil if x-symbol support has been initialized.")
 
+(defun proof-x-symbol-tokenlang-file ()
+  "Return filename (sans extension) of token language file."
+  (concat "x-symbol-" 
+	  (symbol-name proof-assistant-symbol)))
+
 ;;;###autoload
 (defun proof-x-symbol-support-maybe-available ()
   "A test to see whether x-symbol support may be available."
-  (or (featurep 'x-symbol-hooks)	; already loaded
-      (and window-system		; Not on a tty
-	   (progn
-	     ;; put bundled version on load path
-	     ;; FIXME 21.2.03: bundled versionis 4.45 beta,
-	     ;; doesn't yet work with PG.
-	     ;(setq load-path
-	     ;	   (cons 
-	     ;	    (concat proof-home-directory "x-symbol/lisp/") 
-	     ;	load-path))
-	     ;; *should* always succeed unless bundled version broken
-	     (proof-try-require 'x-symbol-hooks)))))
+  (and
+   (or (featurep 'x-symbol-hooks)
+       (and window-system		; Not on a tty
+	    (progn
+	      ;; put bundled version on load path
+	      ;; FIXME 21.2.03: bundled versionis 4.45 beta,
+	      ;; doesn't yet work with PG.
+	      (setq load-path
+		    (cons 
+		     (concat proof-home-directory "x-symbol/lisp/") 
+		     load-path))
+	      ;; *should* always succeed unless bundled version broken
+	      (proof-try-require 'x-symbol-hooks))))
+   ;; See if there is prover-specific config in x-symbol-<foo>.el
+   (if (locate-library (proof-x-symbol-tokenlang-file)) t)))
 
 
 (defun proof-x-symbol-initialize (&optional error)
   "Initialize x-symbol support for Proof General, if possible.
 If ERROR is non-nil, give error on failure, otherwise a warning."
   (interactive)
-  ; (unless proof-x-symbol-initialized
+  (unless (or proof-x-symbol-initialized ;; already done
+	      ;; or can't be done
+	      (not (proof-x-symbol-support-maybe-available)))
     (let*
 	((xs-lang        (proof-ass x-symbol-language))
 	 (xs-lang-name	 (symbol-name xs-lang))
@@ -89,8 +99,11 @@ The package is available at http://x-symbol.sourceforge.net/"))
        ;; Now check proof assistant has support provided
        ;;
        ;; FIXME: maybe we should let x-symbol load the feature, in
-       ;; case it uses x-symbol stuff inside.  
-       ((not (proof-try-require xs-feature-sym))
+       ;; case it uses x-symbol stuff inside?  
+       ;; NB: however, we're going to assume two files (thanks
+       ;; to Isabelle: the standard x-symbol-<foo>.el, and one
+       ;; named after the language feature).  
+       ((not (proof-try-require (intern (proof-x-symbol-tokenlang-file))))
 	(funcall error-or-warn 
 		 (format
  "Proof General: for x-symbol support, you must provide a library %s.el"
@@ -147,10 +160,10 @@ The package is available at http://x-symbol.sourceforge.net/"))
 	      (put symmode 'font-lock-defaults (list flks)))
 	  ;;
 	  ;; Finished.
-	  (setq proof-x-symbol-initialized t))))))
+	  (setq proof-x-symbol-initialized t)))))))
 
 
-;;!!!!FIXME: x-symbol 4.45 no longer seems to use x-symbol-auto-mode-alist? !!!!
+;;!!!FIXME: x-symbol 4.45 no longer seems to use x-symbol-auto-mode-alist? !!!!
 (defvar x-symbol-auto-mode-alist nil)
 
 (defun proof-x-symbol-set-global (enable)
@@ -179,6 +192,13 @@ in future if we have just activated it for this buffer."
 	(proof-x-symbol-initialize 'giveerrors)
 	(set (proof-ass-sym x-symbol-enable) t)))
   (proof-x-symbol-set-global (not x-symbol-mode))
+  ;; DA: FIXME temp repair for XS 4.45: registration for Isabelle
+  ;; doesn't set language buffer local variable after invoking
+  ;; x-symbol-mode, contrary to docs/previous behaviour.
+  ;; This means that
+  ;; x-symbol-mode must be turned on via this function for the first
+  ;; time.
+  (setq x-symbol-language (proof-ass x-symbol-language))
   (x-symbol-mode)
   (proof-x-symbol-mode-associated-buffers))
 
@@ -364,8 +384,8 @@ Assumes that the current buffer is the proof shell buffer."
 ;;
 (if (proof-ass x-symbol-enable) 
     (progn
-      (proof-x-symbol-initialize)
-      (if proof-x-symbol-initialized
+      (proof-x-symbol-initialize)	;; might as well do it now
+      (if proof-x-symbol-initialized	;; if succeeded,
 	  (proof-x-symbol-set-global t) ;; turn on in all PG buffers
 	;; If init failed, turn off x-symbol-enable for the session.
 	(customize-set-variable (proof-ass-sym x-symbol-enable) nil))))
