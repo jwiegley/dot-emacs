@@ -12,8 +12,8 @@ proof;
   assume "A & B";
   thus "B & A";
   proof;
-    assume B A;
-    thus ?thesis; ..;
+    assume A B;
+    show ?thesis; ..;
   qed;
 qed;
 
