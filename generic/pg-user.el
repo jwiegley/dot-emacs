@@ -742,6 +742,7 @@ last use time, to discourage saving these into the users database."
   (or (span-property span 'controlspan)
       span))
 
+;; Really a drag-and-drop interface for this would be nice.
 (defun pg-move-span-contents (span num)
   "Move SPAN up/downwards in the buffer, past NUM spans.
 If NUM is negative, move upwards.  Return new span."
