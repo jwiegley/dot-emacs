@@ -102,6 +102,9 @@ fi
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/hol98
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/hol98/*.el
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/hol98/*.sml
+%attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/af2
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/af2/*.el
+%attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/af2/*.af2
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/images
 %attr(-,root,root) %dir /usr/share/emacs/ProofGeneral/images/*
 %attr(0755,root,root) %dir /usr/share/emacs/ProofGeneral/generic
