@@ -135,9 +135,15 @@
     (concat binder "\\s-*\\(" isa-ids "\\)\\s-*" dot))
 
 (defvar isa-font-lock-terms
-  (list
+  ;(list
+   ;; This font lock regexp is faulty: causes big delay in
+   ;; font locking any buffer with % something in it.
+   ;; In any case, all Isabelle terms are in strings in
+   ;; proof scripts and theory files, unfortunately, so
+   ;; it has no use anyway.
    ;; lambda binders
-   (list (isa-binder-regexp "\%" "\\.") 1 'proof-declaration-name-face))
+   ; (list (isa-binder-regexp "\%" "\\.") 1 'proof-declaration-name-face))
+  nil
   "*Font-lock table for Isabelle terms.")
 
 (defconst isa-save-command-regexp
