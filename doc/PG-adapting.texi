@@ -176,7 +176,6 @@ Proof General.
 * Demonstration Instantiations::
 * Function Index::              
 * Variable Index::              
-* Keystroke Index::             
 * Concept Index::               
 @end menu
 @end ifinfo
@@ -610,7 +609,26 @@ Here's an example of how to remove a button, from @file{af2.el}:
 
 The variables described in this chapter should be set in the script mode
 before @code{proof-config-done} is called.  These configure the mode for
-the script buffer.
+the script buffer.  The settings here configure the recognition of
+commands in the proof script, and also control some of the behaviour of
+script management.
+
+
+@menu
+* Recognizing commands and comments::
+* Recognizing proofs::
+* Recognizing other elements::
+* Configuring undo behaviour::
+* Nested proofs::
+* Safe (state-preserving) commands::
+* Activate scripting hook::
+* Automatic multiple files::
+* Completions::
+@end menu
+
+
+@node Recognizing commands and comments
+@section Recognizing commands and comments
 
 The first three settings configure the parsing strategy for commands
 in the proof script.  Usually only one of these three needs to be set.
@@ -637,7 +655,12 @@ To configure command recognition properly, you must set at least one
 of these: @samp{@code{proof-script-command-end-regexp}}, 
 @samp{@code{proof-script-command-start-regexp}}, @samp{@code{proof-terminal-char}}.
 @end defvar
-The next four settings configure the comment syntax.
+
+
+The next four settings configure the comment syntax.  Notice that to get
+reliable behaviour of the parsing functions, you may need to modify the
+syntax table for your prover's mode.  Read the Elisp manual for details
+about that.
 
 @c TEXI DOCSTRING MAGIC: proof-comment-start
 @defvar proof-comment-start 
@@ -683,20 +706,23 @@ input syntax, @code{proof-case-fold-search} should be set to @samp{t} instead.
 NB: This setting is not used for matching output from the prover.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-save-command-regexp
-@defvar proof-save-command-regexp 
-Matches a save command.
-@end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-save-with-hole-regexp
-@defvar proof-save-with-hole-regexp 
-Regexp which matches a command to save a named theorem.@*
-Match number 2 should be the name of the theorem saved.
-Used for setting names of goal..save regions and for default
-@code{function-menu} configuration in @code{proof-script-find-next-entity}.
+@node Recognizing proofs
+@section Recognizing proofs
 
-It's safe to leave this setting as nil.
-@end defvar
+Up to three settings each may be supplied for recognizing goal-like and
+save-like commands.  The @code{-with-hole-} settings are used to make a
+record of the name of the theorem proved, and also to build a default
+value for the rather complicated setting
+@code{proof-script-next-entity-regexps}, which activates the @i{function
+menu} feature.  
+
+The @code{-p} subsidiary predicates were added to allow more
+discriminating behaviour for particular proof assistants.  (This is a
+typical example of where the core framework needs some additional
+generalization, to simplify matters, and allow for a smooth handling of
+nested proofs).
+
 
 @c TEXI DOCSTRING MAGIC: proof-goal-command-regexp
 @defvar proof-goal-command-regexp 
@@ -717,21 +743,76 @@ Used for setting names of goal..save regions and for default
 It's safe to leave this setting as nil.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-non-undoables-regexp
-@defvar proof-non-undoables-regexp 
-Regular expression matching commands which are @strong{not} undoable.@*
-Used in default functions @samp{@code{proof-generic-state-preserving-p}} 
-and @samp{@code{proof-generic-count-undos}}.  If you don't use those,
-may be left as nil.
+@c TEXI DOCSTRING MAGIC: proof-goal-command-p
+@defvar proof-goal-command-p 
+A function to test: is this really a goal command?
+
+This is added as a more refined addition to @code{proof-goal-command-regexp},
+to solve the problem that Coq and some other provers can have goals which 
+look like definitions, etc.  (In the future we may generalize 
+@code{proof-goal-command-regexp} instead).
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-ignore-for-undo-count
-@defvar proof-ignore-for-undo-count 
-Matcher for script commands to be ignored in undo count.@*
-May be left as nil, in which case it will be set to
-@samp{@code{proof-non-undoables-regexp}}.
-Used in default function @samp{@code{proof-generic-count-undos}}.
+
+@c TEXI DOCSTRING MAGIC: proof-save-command-regexp
+@defvar proof-save-command-regexp 
+Matches a save command.
 @end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-save-with-hole-regexp
+@defvar proof-save-with-hole-regexp 
+Regexp which matches a command to save a named theorem.@*
+Match number 2 should be the name of the theorem saved.
+Used for setting names of goal..save regions and for default
+@code{function-menu} configuration in @code{proof-script-find-next-entity}.
+
+It's safe to leave this setting as nil.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-completed-proof-behaviour
+@defvar proof-completed-proof-behaviour 
+Indicates how Proof General treats commands beyond the end of a proof.@*
+Normally goal...save regions are "closed", i.e. made atomic for undo.
+But once a proof has been completed, there may be a delay before 
+the "save" command appears --- or it may not appear at all.  Unless
+nested proofs are supported, this can spoil the undo-behaviour in
+script management since once a new goal arrives the old undo history
+may be lost in the prover.  So we allow Proof General to close 
+off the goal..[save] region in more flexible ways.  
+The possibilities are:
+@lisp
+        nil  -  nothing special; close only when a save arrives
+  @code{'closeany}  -  close as soon as the next command arrives, save or not
+ @code{'closegoal}  -  close when the next "goal" command arrives
+    @code{'extend}  -  keep extending the closed region until a save or goal.
+@end lisp
+If your proof assistant allows nested goals, it will be wrong to close
+off the portion of proof so far, so this variable should be set to nil.
+There is no built-in understanding of the undo behaviour of nested
+proofs; instead there is some support for un-nesting nested proofs in
+the @code{proof-lift-global} mechanism.  (Of course, this is risky in case of
+nested contexts!)
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-really-save-command-p
+@defvar proof-really-save-command-p 
+Is this really a save command?
+
+This is a more refined addition to @code{proof-save-command-regexp}.
+It should be a function taking a span and command as argument,
+and can be used to track nested proofs.  (See what is done in
+isar/ for example). In the future, this setting should be
+removed when the generic core is extended to handle nested
+proofs smoothly.
+@end defvar
+
+
+@node Recognizing other elements
+@section Recognizing other elements
+
+To configure the @i{function menu} feature, there are a couple of
+settings.  These can be used to recognize named proofs, and other
+elements in the proof script as well.
 
 @c TEXI DOCSTRING MAGIC: proof-script-next-entity-regexps
 @defvar proof-script-next-entity-regexps 
@@ -792,41 +873,26 @@ of this.  See whether function menu does something sensible by
 default.
 @end defvar
 
-@c TEXI DOCSTRING MAGIC: proof-goal-command-p
-@defvar proof-goal-command-p 
-A function to test: is this really a goal command?
+@node Configuring undo behaviour
+@section Configuring undo behaviour
+
+The settings here are used to configure the way "undo" commands are
+calculated.
+
+@c TEXI DOCSTRING MAGIC: proof-non-undoables-regexp
+@defvar proof-non-undoables-regexp 
+Regular expression matching commands which are @strong{not} undoable.@*
+Used in default functions @samp{@code{proof-generic-state-preserving-p}} 
+and @samp{@code{proof-generic-count-undos}}.  If you don't use those,
+may be left as nil.
 @end defvar
-@c TEXI DOCSTRING MAGIC: proof-completed-proof-behaviour
-@defvar proof-completed-proof-behaviour 
-Indicates how Proof General treats commands beyond the end of a proof.@*
-Normally goal...save regions are "closed", i.e. made atomic for undo.
-But once a proof has been completed, there may be a delay before 
-the "save" command appears --- or it may not appear at all.  Unless
-nested proofs are supported, this can spoil the undo-behaviour in
-script management since once a new goal arrives the old undo history
-may be lost in the prover.  So we allow Proof General to close 
-off the goal..[save] region in more flexible ways.  
-The possibilities are:
-@lisp
-        nil  -  nothing special; close only when a save arrives
-  @code{'closeany}  -  close as soon as the next command arrives, save or not
- @code{'closegoal}  -  close when the next "goal" command arrives
-    @code{'extend}  -  keep extending the closed region until a save or goal.
-@end lisp
-If your proof assistant allows nested goals, it will be wrong to close
-off the portion of proof so far, so this variable should be set to nil.
-There is no built-in understanding of the undo behaviour of nested
-proofs; instead there is some support for un-nesting nested proofs in
-the @code{proof-lift-global} mechanism.  (Of course, this is risky in case of
-nested contexts!)
-@end defvar
- 
-@c TEXI DOCSTRING MAGIC: proof-lift-global
-@defvar proof-lift-global 
-Function which lifts local lemmas from inside goals out to top level.@*
-This function takes the local goalsave span as an argument. Leave this
-set this at @samp{nil} if the proof assistant does not support nested goals,
-or if you don't want to write a function to do move them around.
+
+@c TEXI DOCSTRING MAGIC: proof-ignore-for-undo-count
+@defvar proof-ignore-for-undo-count 
+Matcher for script commands to be ignored in undo count.@*
+May be left as nil, in which case it will be set to
+@samp{@code{proof-non-undoables-regexp}}.
+Used in default function @samp{@code{proof-generic-count-undos}}.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-count-undos-fn
@@ -904,6 +970,13 @@ Command to kill the currently open goal.@*
 You must set this (perhaps to a no-op) for script management to work.
 @end defvar
 
+
+@node Nested proofs
+@section Nested proofs
+
+Proof General doesn't yet have a flexible understanding of
+nested proofs, but can do something with them.
+
 @c TEXI DOCSTRING MAGIC: proof-global-p
 @defvar proof-global-p 
 Whether a command is a global declaration.  Predicate on strings or nil.@*
@@ -913,6 +986,22 @@ proof script.
 
 May be left as nil to disable this function.
 @end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-lift-global
+@defvar proof-lift-global 
+Function which lifts local lemmas from inside goals out to top level.@*
+This function takes the local goalsave span as an argument. Leave this
+set this at @samp{nil} if the proof assistant does not support nested goals,
+or if you don't want to write a function to do move them around.
+@end defvar
+
+
+@node Safe (state-preserving) commands
+@section Safe (state-preserving) commands
+
+A proof command is "safe" if it can be issued away from the proof
+script.  For this to work it should be state-preserving in the proof
+assistant.
 
 @c TEXI DOCSTRING MAGIC: proof-state-preserving-p
 @defvar proof-state-preserving-p 
@@ -928,6 +1017,12 @@ tests by negating the match on @samp{@code{proof-non-undoables-regexp}}.
 @defun proof-generic-state-preserving-p cmd
 Is @var{cmd} state preserving?  Match on @code{proof-non-undoables-regexp}.
 @end defun
+
+
+@node Activate scripting hook
+@section Activate scripting hook
+
+
 @c TEXI DOCSTRING MAGIC: proof-activate-scripting-hook
 @defvar proof-activate-scripting-hook 
 Hook run when a buffer is switched into scripting mode.@*
@@ -947,8 +1042,12 @@ it should wait for them to complete (so the queue is cleared
 for scripting commands), unless activated-interactively is set.
 @end defvar
 
-@xref{Handling multiple files}, for more details about the final
-setting in this group.
+
+@node Automatic multiple files
+@section Automatic multiple files
+
+@xref{Handling multiple files}, for more details about this
+setting.
 
 @c TEXI DOCSTRING MAGIC: proof-auto-multiple-files
 @defvar proof-auto-multiple-files 
@@ -964,6 +1063,45 @@ setting to good effect.  If the proof assistant has more complex
 file dependencies then you should configure it to communicate with
 Proof General about the dependencies rather than using this setting.
 @end defvar
+
+
+@node Completions
+@section Completions
+
+Proof General allows provers to create a @i{completion table} to help
+writing identifiers in proof scripts.  This is documented in the main
+@i{Proof General} user manual but summarized here for 
+(a different kind of) completion.
+
+Completions are filled in according to what has been recently typed,
+from a database of symbols.  The database is automatically saved at the
+end of a session.  Completion is usually a hand-wavy thing, so we don't
+make any attempt to maintain a precise completion table or anything.
+
+The completion table maintained by @file{complete.el} is initialized
+from @code{PA-completion-table} when @file{proof-script.el} is loaded.
+This is done with the function @code{proof-add-completions} which
+you may want to call at other times.
+
+
+@c TEXI DOCSTRING MAGIC: PA-completion-table
+@defvar PA-completion-table 
+List of identifiers to use for completion for this proof assistant.@*
+Completion is activated with C-return.
+
+If this table is empty or needs adjusting, please make changes using
+@samp{@code{customize-variable}} and send suggestions to proofgen@@dcs.ed.ac.uk.
+@end defvar
+
+@c TEXI DOCSTRING MAGIC: proof-add-completions
+@deffn Command proof-add-completions 
+Add completions from <PA>-completion-table to completion database.@*
+Uses @samp{@code{add-completion}} with a negative number of uses and ancient
+last use time, to discourage saving these into the users database.
+@end deffn
+
+
+
 
 
 
