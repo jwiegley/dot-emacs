@@ -5,6 +5,10 @@
 
 
 ;; $Log$
+;; Revision 1.40  1998/05/06 15:29:30  hhg
+;; Added lego-info-dir so that location of script-management.info can be
+;; hard-coded.
+;;
 ;; Revision 1.39  1998/05/05 14:22:48  hhg
 ;; Added lego-goal-command-p to fix Coq's problem with "Definition".
 ;; Removed lego-killref from menu.
@@ -96,6 +100,8 @@
 
 (defvar lego-tags "/home/tms/lib/lib_Type/TAGS"
   "the default TAGS table for the LEGO library")
+
+(defconst lego-info-dir "/usr/local/share/info")
 
 (defconst lego-process-config "Configure PrettyOn; Configure AnnotateOn;"
   "Command to enable pretty printing of the LEGO process.")
@@ -253,7 +259,7 @@
 	      (w3-fetch lego-library-www-page)  t]
 	     ["The LEGO Proof-assistant (WWW)"
 	      (w3-fetch lego-www-home-page)  t]
-	     ["Help on Emacs LEGO-mode" describe-mode  t]
+	     ["Help on Emacs LEGO-mode" lego-info-mode  t]
 	     ["Customisation" (w3-fetch lego-www-customisation-page)
 	      t]
             ))))
@@ -464,6 +470,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun lego-info-mode ()
+  "Info mode on LEGO."
+  (interactive)
+  (info "script-management"))
 
 (defun lego-help ()
   "Print help message giving syntax."
@@ -681,6 +692,9 @@
 
   (setq font-lock-keywords lego-font-lock-keywords-1)
 
+;; Info
+  (if (not (memq lego-info-dir Info-directory-list))
+      (setq Info-directory-list	(cons lego-info-dir Info-directory-list)))
 
 ;; where to find files
 
