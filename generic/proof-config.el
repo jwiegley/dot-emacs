@@ -849,7 +849,15 @@ The current buffer will be the newly active scripting buffer.
 This hook may be useful for synchronizing with the proof
 assistant, for example, to switch to a new theory
 (in case that isn't already done by commands in the proof
-script)."
+script).
+
+When functions in this hook are called, the variable
+`activated-interactively' will be non-nil if 
+proof-activate-scripting was called interactively
+(rather than as a side-effect of some other action).
+If a hook function sends commands to the proof process,
+it should wait for them to complete (so the queue is cleared
+for scripting commands), unless activated-interactively is set."
   :type '(repeat function)
   :group 'proof-script)
 

@@ -267,7 +267,11 @@ This is a hook function for proof-activate-scripting-hook."
 	;; Wait after sending, so that queue is cleared 
 	;; for further commands without giving "proof process
 	;; busy" error.
-	(isa-update-thy-only buffer-file-name t t)
+	(isa-update-thy-only buffer-file-name t 
+			     ;; whether to block or not
+			     (if (and (boundp 'activated-interactively)
+				      activated-interactively)
+				 nil t))
 	;; Leave the messages from the update around.
 	(setq proof-shell-erase-response-flag nil))))
 

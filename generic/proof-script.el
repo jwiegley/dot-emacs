@@ -820,8 +820,13 @@ correct theory, or whatever."
 		(save-some-buffers)
  	      (set-buffer-modified-p modified))))
 
-      ;; Run hooks
-      (run-hooks 'proof-activate-scripting-hook)))))
+      ;; Run hooks with a variable which suggests whether or not 
+      ;; to block.   NB: The hook function may send commands to the
+      ;; process which will re-enter this function, but should exit 
+      ;; immediately because scripting has been turned on now.
+      (let
+	  ((activated-interactively	(interactive-p)))
+	(run-hooks 'proof-activate-scripting-hook))))))
 
 (defun proof-toggle-active-scripting (&optional arg)
   "Toggle active scripting mode in the current buffer.
@@ -834,9 +839,10 @@ With ARG, turn on scripting iff ARG is positive."
 	  (not (eq proof-script-buffer (current-buffer)))
 	(> (prefix-numeric-value arg) 0))
       (progn
-	(if proof-script-buffer (proof-deactivate-scripting))
-	(proof-activate-scripting))
-    (proof-deactivate-scripting)))
+	(if proof-script-buffer 
+	    (call-interactively (proof-deactivate-scripting)))
+	(call-interactively (proof-activate-scripting)))
+    (call-interactively (proof-deactivate-scripting))))
 
 ;; This function isn't such a wise idea: the buffer will often be fully
 ;; locked when writing a script, but we don't want to keep toggling
