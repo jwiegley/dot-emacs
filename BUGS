@@ -44,9 +44,17 @@ restrictions of protected region.  Workaround: none, nevermind.
 properly. Workaround: use other means to navigate in a proof scipt
 buffer. 
 
-* There is an obscure bug with processes on Solaris which results in
-buffers full of ^G after certain combinations of input.  
-Workaround: get a patch from Sun, or use Linux.
+* There is an problem with process communication on Solaris, where
+there is an input line length limitation for terminals in cooked mode,
+perhaps to 256 characters.  Further input elicits a bell character
+(^G).  This ruins Proof General's parsing of the shell buffer.
+Future fix: try setting process-connection-type to nil, which
+instructs XEmacs to use pipes instead of pseudo-terminals for
+subprocess I/O.  (You lose job control of processes you start in shell
+mode, and some commands (notably ls) behave differently when writing
+output to a pipe instead of a tty.  But using a pipe will allow you to
+paste arbitrarily long blocks of text into shell mode.)
+Current workaround:  use another OS, e.g. Linux.
 
 * XEmacs sessions maybe grow excessively in terms of memory
 allocation. Maybe some of the spans aren't removed properly.
