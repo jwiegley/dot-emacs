@@ -1,0 +1,14 @@
+This is a pre-release of an update to version 3.5 of Proof General.
+
+We are working on improving Coq support for the final version 
+advertised verison of PG 3.5, including:
+
+  -- fixes to X-Symbol symbols
+  -- multiple file handling
+  -- automatic adjusting of line width
+
+There are other minor improvements to documentation.
+	
+[da, 24/4/04].
+
+
