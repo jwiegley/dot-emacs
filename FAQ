@@ -103,8 +103,9 @@ Q. XEmacs 21.4 displays a progress bar during fontification which
    sometimes gets stuck or messes up the display.  
    Is this a Proof General bug?  What can I do?
 
-A. This is an XEmacs bug.  What you can do is prevent the use
-   of the ugly widget, for example by adding 
+A. This is an XEmacs bug.  Things are better in morea recent patches 
+   of 21.4, make sure you have the latest version.  You can prevent
+   the use of the ugly widget, for example by adding 
 
      (setq progress-feedback-use-echo-area t)
 
