@@ -364,7 +364,8 @@ isa-proofscript-mode."
  ;; Extend theory mode keymap
  '(let ((map thy-mode-map))
 (define-key map "\C-c\C-b" 'isa-process-thy-file)
-(define-key map "\C-c\C-r" 'isa-retract-thy-file)))
+(define-key map "\C-c\C-r" 'isa-retract-thy-file)
+(proof-define-keys map proof-universal-keys)))
 
 ;; FIXME: could test that the buffer isn't already locked.
 (defun isa-process-thy-file (file)
