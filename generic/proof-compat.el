@@ -42,7 +42,21 @@ with `path-separator'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; FSF compatibility
+;;; GNU Emacs compatibility with XEmacs
+;;;
+
+(if proof-running-on-Emacs21
+    (defun proof-emacs-imagep (img)
+      "See if IMG is an Emacs 21 image descriptor."
+      (and (listp img) (eq (car img) 'image)))
+  ;; Otherwise, constant nil function
+  (defun proof-emacs-imagep (img)
+    "See if IMG is an Emacs 21 image descriptor (returns nil since not E21)."
+    nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; GNU Emacs compatibility
 ;;;
 
 ;; completion not autoloaded in FSF 20.6.1; we must call 
