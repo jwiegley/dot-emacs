@@ -166,8 +166,8 @@ Borrowed from startup-center-spaces."
 
 (defun proof-splash-remove-screen (&optional nothing)
   "Remove splash screen and restore window config."
-  (let
-      ((splashbuf (get-buffer proof-splash-welcome)))
+  (let ((splashbuf (get-buffer proof-splash-welcome)))
+    (proof-splash-unset-frame-titles)
     (if (and 
 	 splashbuf
 	 proof-splash-timeout-conf)
@@ -307,15 +307,21 @@ Otherwise, timeout inside this function after 10 seconds or so."
 	    (cons (next-command-event) unread-command-events)))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
+(defvar proof-splash-old-frame-title-format nil)
+
 (defun proof-splash-set-frame-titles ()
-  (let 
-      ((instance-name (concat
-		       (if (and proof-assistant
-				(not (string-equal proof-assistant "")))
+  (let ((instance-name (concat
+			(if (not (zerop (length proof-assistant)))
 			   (concat proof-assistant " "))
 		       "Proof General")))
+    (setq proof-splash-old-frame-title-format frame-title-format)
     (setq frame-title-format 
 	  (concat instance-name ":   %b"))))
+
+(defun proof-splash-unset-frame-titles ()
+  (when proof-splash-old-frame-title-format
+    (setq frame-title-format proof-splash-old-frame-title-format)
+    (setq proof-splash-old-frame-title-format nil)))
 
 (provide 'proof-splash)
 ;; End of proof-splash.
