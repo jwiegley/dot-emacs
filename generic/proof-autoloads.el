@@ -45,7 +45,7 @@ The function `proof-assistant-format' is used to format VAL." nil 'macro)
 
 ;;;***
 
-;;;### (autoloads (proof-shell-invisible-command proof-shell-wait proof-extend-queue proof-start-queue proof-shell-available-p proof-shell-live-buffer proof-shell-ready-prover) "proof-shell" "generic/proof-shell.el")
+;;;### (autoloads (proof-next-error proof-shell-invisible-command proof-shell-wait proof-extend-queue proof-start-queue proof-shell-available-p proof-shell-live-buffer proof-shell-ready-prover) "proof-shell" "generic/proof-shell.el")
 
 (autoload 'proof-shell-ready-prover "proof-shell" "\
 Make sure the proof assistant is ready for a command.
@@ -86,6 +86,9 @@ By default, let the command be processed asynchronously.
 But if optional WAIT command is non-nil, wait for processing to finish
 before and after sending the command.
 If WAIT is an integer, wait for that many seconds afterwards." nil nil)
+
+(autoload 'proof-next-error "proof-shell" "\
+Parse error messages in the response buffer for filenames and line numbers." t nil)
 
 ;;;***
 
