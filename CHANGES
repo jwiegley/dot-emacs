@@ -171,10 +171,6 @@ strings) and theorems (outside).
 
 *** Some GNU Emacs backwards compatibility removed: use 21.1 or later
 
-*** PROBLEMS REMAINING: Menu problems currently on 21.2, may affect loading.
-    Temp fix: turn on mode manually first in *scratch* buffer, then
-    visit file.
-
 ** Changes for Isabelle
 
 Beginnings of support PGIP protocol (work in progress with Isabelle
