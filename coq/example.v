@@ -10,4 +10,4 @@ Induction H.
 Apply conj.
 Assumption.
 Assumption.
-Save conj_comms.
+Save and_comms.

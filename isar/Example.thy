@@ -1,13 +1,19 @@
+(*
+    Example proof document for Isabelle/Isar Proof General.
+ 
+    $Id$
+*)
+
 
 theory Example = Main:;
 
-lemma and_comms: "A & B --> B & A";
+theorem and_comms: "A & B --> B & A";
 proof;
   assume "A & B";
-  show "B & A";
+  thus "B & A";
   proof;
-    from prems; show B; ..;
-    from prems; show A; ..;
+    assume B A;
+    thus ?thesis; ..;
   qed;
 qed;
 
