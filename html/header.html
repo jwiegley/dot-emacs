@@ -21,7 +21,7 @@
     $urlbits = parse_url($REQUEST_URI);
     $file = ereg_replace("^(.*/)+","",$urlbits["path"]);
     $WANTED = ereg_replace(".html","",$file);
-    print "<table><tr>\n"; 
+    print "<table class=\"menubar\"><tr>\n"; 
     $links_arr  =  array(
           "Home"          =>  "main", 
 	  "Features"	  =>  "features",

@@ -9,24 +9,24 @@ body{
  background-image: 
 	url(images/canvaswallpaper.jpg);
  background-attachment: fixed;				/* background shouldn't scroll */
- color: #FFFFFF						/* text colour is white */
+ color: #FFFFFF;					/* text colour is white */
 }
 
 p{
  font-family: Verdana, Arial, sans-serif;	/* Netscape is picky, */
- color: #FFFFFF						/* so we must set every tag */
+ color: #FFFFFF;			       /* so we must set every tag */
 }
 
 pre{
  font-family: LucidaTypewriter, mono;
- color: #FFFFFF					
+ color: #FFFFFF;
 }
 
 h1{
  font-family: Verdana, Arial, sans-serif;
  color: #FFFFFF;
  font-size: large;
- font-series: bold
+ font-series: bold;
 }
 
 h2{
@@ -35,7 +35,7 @@ h2{
  font-weight: bold;
  color: #FFFFD0;
  padding: 2px 4px 4px 4px;
- background: #7D4D33
+ background: #7D4D33;
 }
 
 h3{
@@ -44,54 +44,62 @@ h3{
  padding: 2px 2px 2px 2px;
  margin-right: 10%;
  background: #6D3D43;
- color: #FFFFD0
+ color: #FFFFD0;
 }
 
 h4{
  font-family: Verdana, Arial, sans-serif;	
  font-size: medium;
- color: #FFD0D0
+ color: #FFD0D0;
 }
 
 h5{
  font-family: Verdana, Arial, sans-serif;	
  font-size: medium;
- color: #E0C0C0
+ color: #E0C0C0;
 }
 
 blockquote,form,input,select{
  font-family: Verdana, Arial, sans-serif;	
- color: #FFFFFF
+ color: #FFFFFF;
 }
 
 address{
  font-family: Verdana, Arial, sans-serif;	
  font-size: small;				/* "smaller" is better on IE */
- color: #FFFFFF					/* but varies randomly in NN */
+ color: #FFFFFF; 			       /* but varies randomly in NN */
 }
 
 input,select,textarea {
  background: #2D1D03;
- color: #FFFFFF
+ color: #FFFFFF;
 }
 
 /* Lists */
 
 dl,ul,dir,li{
  font-family: Verdana, Arial, sans-serif;	
- color: #FFFFFF
+ color: #FFFFFF;
 }
 dt{ font-style: italic; 
     padding: 2px 2px 2px 2px;
     margin-left: 20px;
     margin-right: 20px;
-    background: #6D3D43; }
+    background: #6D3D43; 
+}
 
 /* Table Elements */
 table{
  font-family: Verdana, Arial, sans-serif;	
 /* background: #2D1D03; */
- color: #FFFFFF
+ color: #FFFFFF;
+}
+
+table.menubar{
+ font-family: Verdana, Arial, sans-serif;	
+ font-size: smaller;
+/* background: #2D1D03; */
+ color: #FFFFFF;
 }
 
 td,tr{
@@ -104,14 +112,14 @@ td,tr{
 a:link,a:visited{					/* visited appears same */
  font-family: Verdana, Arial, sans-serif;	
  text-decoration: none;				/* Remove the underline */
- color: #FFD820
+ color: #FFD820;
 }
 
 /* hover is IE specific nasty but nice */
 a:active,a:hover{
  font-family: Verdana, Arial, sans-serif;	
  text-decoration: underline;			/* Underline on mouse over */
- color: #FFF030					/* Brighter colour too */
+ color: #FFF030;				/* Brighter colour too */
 }
 
 
@@ -122,7 +130,7 @@ pre{
 /* Specifics */
 
 p.nb{
- font-size: smaller,
- font-style: italic
+ font-size: smaller;
+ font-style: italic;
 }
 
