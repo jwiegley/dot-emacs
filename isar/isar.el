@@ -87,14 +87,14 @@
 (defvar isar-shell-outline-regexp "\370[ \t]*\\([0-9]+\\)\\.")
 (defvar isar-shell-outline-heading-end-regexp "$")
 
-(defun isar-outline-setup ()
-  (if (and window-system (string-match "XEmacs" emacs-version))
-      (progn
-	(custom-set-variables     ;custom value dictatorship!
-	 '(outline-mac-style t))
-	(outl-mouse-minor-mode))
-    (outline-minor-mode)))
-
+;(defun isar-outline-setup ()
+;  (if (and window-system (string-match "XEmacs" emacs-version))
+;      (progn
+;	(custom-set-variables     ;custom value dictatorship!
+;	 '(outline-mac-style t))
+;	(outl-mouse-minor-mode))
+;    (outline-minor-mode)))
+;
 ; FIXME tmp
 (defun isar-outline-setup () t)
 
@@ -143,7 +143,7 @@
 	(cmt-end-regexp (regexp-quote proof-comment-end))
 	(cmt-start-regexp (regexp-quote proof-comment-start))
 	(found-header nil) forward-amount
-	(end (point-max)) (cont t) (cmt-level 0))
+	(end (point-max)) (cont t) (cmt-level 0) c)
     (save-excursion
       (goto-char (point-min))
       (while (and cont (< (point) end))
