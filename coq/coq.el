@@ -110,12 +110,11 @@
    nil
    (coq-shell-mode-config))
 
-(eval-and-compile
-  (define-derived-mode coq-response-mode proof-response-mode
-    "CoqResp" nil
-    (setq font-lock-keywords coq-font-lock-terms)
-    (coq-init-syntax-table)
-    (proof-response-config-done)))
+(define-derived-mode coq-response-mode proof-response-mode
+  "CoqResp" nil
+  (setq font-lock-keywords coq-font-lock-terms)
+  (coq-init-syntax-table)
+  (proof-response-config-done))
  
 (define-derived-mode coq-mode proof-mode
    "coq" nil
@@ -181,6 +180,8 @@
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
        (not (proof-string-match "Definition.*:=" str))))
+
+;; TODO : add the stuff to handle the "Correctness" command
 
 (defun coq-find-and-forget (span)
   (let (str ans)
@@ -299,20 +300,21 @@
 (defun coq-end-Section ()
   "Ends a Coq section."
   (interactive)
-  (let ((section 
-	 (save-excursion 
-	   (progn 
-	     (setq count 1) ; The number of section already "Ended" + 1
-	     (while (and (> count 0) 
-			 (search-backward-regexp 
-			  "Chapter\\|Section\\|End" 0 t))
-	       (if (char-equal (char-after (point)) ?E)
-		   (setq count (1+ count))
-		 (setq count (1- count))))
-	     (buffer-string
-	      (progn (beginning-of-line) (point)) 
-	      (progn (end-of-line) (point)))))))
-    (insert (replace-string "Section" "End" section))))
+  (let (count) 
+    (let ((section 
+	   (save-excursion 
+	     (progn 
+	       (setq count 1) ; The number of section already "Ended" + 1
+	       (while (and (> count 0) 
+			   (search-backward-regexp 
+			    "Chapter\\|Section\\|End" 0 t))
+		 (if (char-equal (char-after (point)) ?E)
+		     (setq count (1+ count))
+		   (setq count (1- count))))
+	       (buffer-string
+		(progn (beginning-of-line) (point)) 
+		(progn (end-of-line) (point)))))))
+      (insert (replace-string "Section" "End" section)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Indentation                                                    ;;
@@ -367,17 +369,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun coq-guess-command-line (filename)
   "Guess the right command line options to compile FILENAME using `make -n'"
-  (let* ((dir (file-name-directory filename))
-	 (compiled-file (concat (substring 
-				 filename 0 
-				 (string-match ".v$" filename)) ".vo"))
-	 (command (shell-command-to-string 
-		   (concat  "cd " dir ";"
-			    "gmake -n -W " filename " " compiled-file
-			    "| sed s/coqc/coqtop/"))))
-    (concat 
-     (substring command 0 (string-match " [^ ]*$" command))
-     " -emacs")))
+  (let ((dir (file-name-directory filename)))
+    (if (file-exists-p (concat dir "Makefile"))
+	(let* 
+	    ((compiled-file (concat (substring 
+				     filename 0 
+				     (string-match ".v$" filename)) ".vo"))
+	     (command (shell-command-to-string 
+		       (concat  "cd " dir ";"
+				"gmake -n -W " filename " " compiled-file
+				"| sed s/coqc/coqtop/"))))
+	  (concat 
+	   (substring command 0 (string-match " [^ ]*$" command))
+	   " -emacs"))
+      coq-prog-name)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Coq shell startup and exit hooks                               ;;
