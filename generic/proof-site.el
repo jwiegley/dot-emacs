@@ -10,12 +10,6 @@
 ;; different proof assistants in the same session.  Presently, the
 ;; code will only allow one assistant to be chosen for the whole
 ;; session.
-;; One possible hack: changing prover in the proof-assistant setting
-;; below could re-adjust load path and autoloads.
-
-;; 
-(defvar proof-general-version "Proof General, Version 2.0-pre980910 released by da,tms. Email lego@dcs.ed.ac.uk."
-  "Version string for Proof General.")
 
 (or (featurep 'custom)
     ;; Quick hack to support defcustom for Emacs 19
@@ -41,41 +35,51 @@ Default value taken from PROOF_HOME, or use customize to set it."
   :type 'directory
   :group 'proof)
 
-(defcustom proof-assistant
-  'isa
-  "*Choice of proof assitant to run generic mode with.
-A symbol chosen from: 'lego 'coq 'isa
-To change proof assistant, you must start a new Emacs session."
-  :type '(choice (const :tag "Isabelle" isa)
-		 (const :tag "LEGO" lego)
-		 (const :tag "Coq" coq))
+(defcustom proof-assistants
+  '(isa lego coq)
+  "*Choice of proof assitants to use with Proof General.
+A list of symbol chosen from: 'lego 'coq 'isa
+NB: To change proof assistant, you must start a new Emacs session."
+  :type '(set (const :tag "Isabelle" isa)
+	      (const :tag "LEGO" lego)
+	      (const :tag "Coq" coq))
   :group 'proof)
 
 ;; Extend load path
 (setq load-path
-      (cons (concat proof-home "generic/")
-	    (cons (concat proof-home (symbol-name proof-assistant) "/")
-		  load-path)))
+      (cons (concat proof-home "generic/") load-path))
 
 
-;; Add auto-loads to support the prover selected
-(let* ((fileregexp (cond
-		    ((eq proof-assistant 'coq)    "\\.v")
-		    ((eq proof-assistant 'lego)   "\\.l$")
-		    ((eq proof-assistant 'isa)    "\\.ML$")))
-       (assistant   (symbol-name proof-assistant))
-       (proof-mode  (intern (concat assistant "-mode"))))
-      
-  (setq auto-mode-alist 
-	(cons (cons fileregexp proof-mode) auto-mode-alist))
-
-  ;; NB: File name for each prover is the same as its symbol name!
-  (autoload proof-mode assistant
-    (concat
-     "Major mode for editing scripts for proof assistant " assistant ".")
-    t)
-  )
+;; Add auto-loads and load-path elements
+;; to support the proof assistants selected
+(let ((assistants proof-assistants) proof-assistant)
+  (while assistants
+    (let*  ((proof-assistant (car assistants))
+	    (fileregexp (cond ((eq proof-assistant 'coq)    "\\.v")
+			      ((eq proof-assistant 'lego)   "\\.l$")
+			      ((eq proof-assistant 'isa)    "\\.ML$")))
+	    (assistant-name   (symbol-name proof-assistant))
+	    (proof-mode  (intern (concat assistant-name "-mode"))))
+      (setq auto-mode-alist 
+	    (cons (cons fileregexp proof-mode) auto-mode-alist))
+      ;; NB: File name for each prover is the same as its symbol name!
+      (autoload proof-mode assistant-name
+	(concat
+	 "Major mode for editing scripts for proof assistant " assistant-name ".")
+	t)
+      (setq load-path 
+	    (cons
+	     (concat proof-home (symbol-name proof-assistant) "/")
+	     load-path))
+      (setq assistants (cdr assistants))
+      )))
   
+;; WARNING: do not edit below here 
+;; (the next constant is set automatically)
+(defconst proof-general-version
+ "Proof General, Version 2.0-pre980910 released by da,tms. Email lego@dcs.ed.ac.uk."
+ "Version string for Proof General.")
+
 (provide 'proof-site)
 
 
