@@ -105,7 +105,7 @@ and properly fontifies STRING using proof-fontify-region."
     (erase-buffer)
     ;; Only bother processing and displaying, etc, if string is
     ;; non-empty.
-    (unless (string-equals string "")
+    (unless (string-equal string "")
       (insert string)
 
       (if pg-use-specials-for-fontify
