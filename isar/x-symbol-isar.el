@@ -4,6 +4,8 @@
 ;;  token language "Isabelle Symbols" for package x-symbol
 ;;
 ;; NB: this file is copied directly from isa/x-symbol-isa.el
+;;
+;; FIXME da: merge this with x-symbol-isa, making x-symbol-isabelle.
 
 (provide 'x-symbol-isar)
 (defvar x-symbol-isar-required-fonts nil)
