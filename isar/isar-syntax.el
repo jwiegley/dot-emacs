@@ -89,16 +89,8 @@
 	  isar-keywords-proof-script
           isar-keywords-qed-global))
 
-(defconst isar-keywords-outline-1
-  (append isar-keywords-theory-begin
-          isar-keywords-theory-heading
-          isar-keywords-theory-goal
-          isar-keywords-theory-end
-	  isar-keywords-save))
-
-(defconst isar-keywords-outline-2
-  (append ;FIXME isar-keywords-proof-heading
-	  isar-keywords-proof-goal))
+(defconst isar-keywords-outline
+  isar-keywords-theory-heading)
 
 (defconst isar-keywords-fume
   (append isar-keywords-theory-begin
@@ -364,30 +356,11 @@
 
 ;; ----- outline mode
 
-(defconst isar-outline-command-regexp
-  (isar-ids-to-regexp
-   (append isar-keywords-outline-1
-           isar-keywords-outline-2)))
-
 (defconst isar-outline-regexp
-  (concat "[ \t]*\\(" isar-outline-command-regexp "\\)")
+  (concat "[ \t]*\\(" (isar-ids-to-regexp isar-keywords-outline) "\\)")
   "Outline regexp for Isabelle/Isar documents")
 
-(defconst isar-outline-heading-end-regexp  ;    "[\n]"
-  isar-outline-regexp
-;  (concat isar-outline-regexp isar-name-regexp "[[:=]")
-  "Outline heading end regexp for Isabelle/Isar ML files.")
-
-(defun isar-outline-level ()
-  "Return the depth to which a statement is nested in the outline."
-  (save-excursion
-    (looking-at isar-outline-regexp)
-    (let ((str (match-string 1)))
-      (cond
-       ((proof-looking-at-syntactic-context) 1000)
-       ((member str isar-keywords-outline-2)
-	(+ (current-indentation) 1))
-       (t 1)))))  ;FIXME  (length str)
+(defconst isar-outline-heading-end-regexp "\n")
 
 
 (provide 'isar-syntax)
