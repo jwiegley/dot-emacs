@@ -8,6 +8,9 @@ Generic Changes
 Minor bug fix for duplicated short output.
  (set proof-shell-eager-annotation-start-length appropriately)
 
+Bug fix with .thy files and X-Symbol mode: subsequently visited
+ theory files would have X-Symbols broken.  (NB: Fix in progress)
+
 
 Coq Changes
 -----------

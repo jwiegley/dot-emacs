@@ -49,6 +49,15 @@ B Manual improvements before techreport publishing (see notes at end also):
   - add screenshots?
   - add more index entries
 
+C X-Symbol support for theory files: bugs at the moment, because
+  of duplicate calls to proof-x-symbol-mode and mess with
+  font-lock initialization.  Problem with current version:
+  visit a.thy, b.thy then turn on xsym.  Broken in b.thy.
+  Seems okay visiting new buffers after that.
+  Must also check interaction with xsym-isa-latex stuff,
+  may be broken by removal of mode hook settings.
+  (May need to split extra modes into two parts?)
+
 C Investigate support under Mule.  Suggestion we need to set
   process-coding-system-alist somehow to prevent coding.
 
