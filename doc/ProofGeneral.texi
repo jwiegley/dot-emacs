@@ -3278,9 +3278,11 @@ whitespaces". See the Emacs documentation of @code{regexp-quote} for the
 syntax and semantics.  WARNING: you need to restart Emacs to make the
 changes to these variables effective.
 
-In case of losing synchronization, the user can use @kbd{C-c C-z}
+In case of losing synchronization, the user can use @kbd{C-c C-z} to
+move the locked region to the proper position,
 (@code{proof-frob-locked-end}, @pxref{Escaping script management}) or
-@kbd{C-c C-v} to re-issue an erroneously back-tracked tactic.
+@kbd{C-c C-v} to re-issue an erroneously back-tracked tactic without
+recording it in the script.
 
 
 @c
