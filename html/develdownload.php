@@ -37,7 +37,7 @@ Here is the pre-release documentation: the user manual in
 <?php download_link("ProofGeneral-latest/doc/ProofGeneral.ps.gz", "ps") ?> 
 or  
 <?php download_link("ProofGeneral-latest/doc/ProofGeneral.pdf", "pdf") ?>,
-and the new separate "adapting" manual, in
+and the adapting manual, in
 <?php htmlshow("ProofGeneral-latest/doc/PG-adapting_toc.html","HTML","Adapting Proof General manual") ?>,
 <?php download_link("ProofGeneral-latest/doc/PG-adapting.ps.gz", "ps") ?> 
 or  
