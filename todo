@@ -12,6 +12,17 @@ X (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
+B Improve proof-goal-command and proof-save-command:
+  `proof-goal-command' should be more flexible and support a
+  placeholder for the name and the actual goal. In LEGO, we have
+    Goal foo : absurd;
+    ...
+    Save foo;
+  Perhaps functions at the generic level to make suitable
+  values for the hook, e.g.,
+
+     (setq proof-goal-command  (proof-prompt-named-goal "Goal %s :" "%s;"))
+
 A Change mail address to proofgen@dcs.ed.ac.uk everywhere.
 
 B Cleanup handling of proof-terminal-string.  At the moment some
