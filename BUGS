@@ -164,3 +164,16 @@ interface unless you use your own "goal" or "qed" forms.
 Proof General will block the Emacs process when it is waiting for a
 theory file (and it's ancestors) to be read as scripting is turned
 on.  To avoid this, assert the theory file rather than the ML file.
+
+
+Isabelle and Isabelle/Isar Proof General Bugs
+=============================================
+
+* We've heard from one user that there are problems using 
+Proof General with Isabelle compiled under MLWorks for Sun
+Ultra/Solaris2.7.  These may be to do with the piped 
+communication mechnism; perhaps MLWorks doesn't flush the
+output after printing prompts.  If anyone discovers this,
+a possible work-around is to set process-connection-type to
+t instead of nil in proof-shell.el.  Please report to
+proofgen@dcs.ed.ac.uk if you try this!
