@@ -128,10 +128,10 @@
       (while span
 	(setq str (span-property span 'cmd))
 	(cond ((eq (span-property span 'type) 'vanilla)
-	       (if (string-match coq-undoable-commands-regexp str)
+	       (if (proof-string-match coq-undoable-commands-regexp str)
 		   (setq ct (+ 1 ct))))
 	      ((eq (span-property span 'type) 'pbp)
-	       (cond ((string-match coq-undoable-commands-regexp str)
+	       (cond ((proof-string-match coq-undoable-commands-regexp str)
 		      (setq i 0)
 		      (while (< i (length str))
 			(if (= (aref str i) proof-terminal-char)
@@ -149,8 +149,8 @@
 ;; should have proof-goal-regexp instead.
 (defun coq-goal-command-p (str)
   "Decide whether argument is a goal or not"
-  (and (string-match coq-goal-command-regexp str)
-       (not (string-match "Definition.*:=" str))))
+  (and (proof-string-match coq-goal-command-regexp str)
+       (not (proof-string-match "Definition.*:=" str))))
 
 (defun coq-find-and-forget (span)
   (let (str ans)
@@ -164,7 +164,7 @@
 	(setq ans (concat coq-forget-id-command
 			  (span-property span 'name) proof-terminal-string)))
 
-       ((string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
+       ((proof-string-match (concat "\\`\\(" coq-keywords-decl-defn-regexp
                               "\\)\\s-*\\(" proof-id "\\)\\s-*[\\[,:]") str)
 	(setq ans (concat coq-forget-id-command
 			  (match-string 2 str) proof-terminal-string)))
@@ -172,7 +172,7 @@
        ;; If it's not a goal but it contains "Definition" then it's a
        ;; declaration
        ((and (not (coq-goal-command-p str))
-	     (string-match
+	     (proof-string-match
 	      (concat "Definition\\s-+\\(" proof-id "\\)\\s-*:") str))
 	(setq ans (concat coq-forget-id-command
 			  (match-string 2 str) proof-terminal-string))))
@@ -220,13 +220,13 @@
 	  (proof-lock-unlocked)))))
 
 (defun coq-state-preserving-p (cmd)
-  (not (string-match coq-undoable-commands-regexp cmd)))
+  (not (proof-string-match coq-undoable-commands-regexp cmd)))
 
 (defun coq-global-p (cmd)
-  (or (string-match coq-keywords-decl-defn-regexp cmd)
-      (and (string-match
+  (or (proof-string-match coq-keywords-decl-defn-regexp cmd)
+      (and (proof-string-match
 	    (concat "Definition\\s-+\\(" coq-id "\\)\\s-*:") cmd)
-	   (string-match ":=" cmd))))
+	   (proof-string-match ":=" cmd))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to coq                                      ;;
