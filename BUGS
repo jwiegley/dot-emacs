@@ -89,7 +89,6 @@ interrupt, the whole process may be killed instead of interrupted.
 This isn't a bug in Proof General, but the behaviour of ssh.  Try
 using rsh instead, it is said to forward signals to the remote command.
 
-
 FSF Emacs specific bugs
 =======================
 

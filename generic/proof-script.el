@@ -1342,7 +1342,10 @@ even more dangerous than proof-try-command."
     ;; (proof-shell-ready-prover)
     ;; was (proof-check-process-available 'relaxed) 
     (setq cmd (read-string "Command: " nil 'proof-minibuffer-history))
-    (proof-shell-invisible-command cmd)))
+    (proof-shell-invisible-command 
+     (if proof-terminal-string
+	 (concat cmd proof-terminal-string)
+       cmd))))
 
 
 
@@ -1395,17 +1398,20 @@ even more dangerous than proof-try-command."
 (defun proof-ctxt ()
   "List context."
   (interactive) 
-  (proof-shell-invisible-command (concat proof-ctxt-string proof-terminal-string)))
+  (proof-shell-invisible-command 
+   (concat proof-ctxt-string proof-terminal-string)))
 
 (defun proof-help ()
   "Print help message giving syntax."
   (interactive)
-  (proof-shell-invisible-command (concat proof-help-string proof-terminal-string)))
+  (proof-shell-invisible-command 
+   (concat proof-help-string proof-terminal-string)))
 
 (defun proof-prf ()
   "List proof state."
   (interactive)
-  (proof-shell-invisible-command (concat proof-prf-string proof-terminal-string)))
+  (proof-shell-invisible-command
+   (concat proof-prf-string proof-terminal-string)))
 
 
 
