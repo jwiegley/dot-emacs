@@ -503,6 +503,7 @@ Names must be unique for a given "
   (set-span-property span 'type 'proof)
   (set-span-property span 'idiom 'proof)
   (set-span-property span 'controlspan controlspan)
+  (set-span-property span 'duplicable t)
   ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
   (pg-set-span-helphighlights span 'nohighlight)
   (if proof-disappearing-proofs 
