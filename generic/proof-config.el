@@ -44,10 +44,12 @@
 ;;    proof-user-options : User options for Proof General    (1)
 ;;    <Prover name>      : User options for proof assistant
 ;;
-;;  proof-general-internals  :  Internal settings of Proof General (6)
+;;  proof-general-internals  :  Internal settings of Proof General 
 ;;    prover-config	     :  Configuration for proof assistant (2,3)
 ;;      proof-script	     :     settings for proof script mode (4)
 ;;      proof-shell	     :     settings for proof shell mode (5)
+;;      proof-goals	     :     settings for goals buffer (6)
+;;      proof-x-symbol	     :     settings for X-Symbol (8)
 ;;    <Prover name>-config   :  Specific internal settings for a prover
 ;;
 ;; ==================================================
@@ -1618,7 +1620,7 @@ If it is nil, a new line is inserted."
   "Prover specific extensions of splash screen.
 These are evaluated and appended to `proof-splash-contents'."
   :type 'sexp
-  :group 'proof-config)
+  :group 'prover-config)
   
 
 
@@ -1628,7 +1630,7 @@ These are evaluated and appended to `proof-splash-contents'."
 
 (defgroup proof-x-symbol nil
   "Configuration of X-Symbol for Proof General."
-  :group 'proof
+  :group 'prover-config
   :prefix "proof-xsym-")
 
 (defcustom proof-xsym-extra-modes nil
