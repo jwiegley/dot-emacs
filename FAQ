@@ -11,7 +11,7 @@ Please also check the BUGS file.
 Q. Emacs appears to hang when the prover process is started.
 
 A. Perhaps this because of UTF-8 in recent linuxes with glibc 2.2 or later
-   (e.g in Red Hat 8.0/9/Suse 9.1)
+   (e.g in Red Hat 8.0, 9, Fedora Core 1,2, Suse 9.1, ...)
 
    Glibc 2.2 and later may be enabled with UTF8 encoded output in your
    default locale.  Unfortunately Proof General relies on 8-bit
