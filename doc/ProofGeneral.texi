@@ -261,7 +261,7 @@ as generic as we had hoped. Whereas LEGO and Coq are similar systems in
 many ways, Isabelle was really a different beast. Fierce reengineering
 and various improvements were provided by David Aspinall and Thomas
 Kleymann to make it easier to instantiate to new proof systems. The
-major technical improvement was a truely generic extension of script
+major technical improvement was a truly generic extension of script
 management to work across multiple files.
 
 It was time to come up with a better name than just @code{proof}
