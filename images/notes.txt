@@ -27,6 +27,14 @@ blank.xcf -- blank with correct background colour.
 
 Some icons I drew, some I stole from free sources.
 
+"Favicon" ident icon for web page: made from a 16x16 scaled down image of
+the general, making background colour transparent, save as gif then:
+  convert pgminia.gif pgminia.ppm (ImageMagick) 
+  ppmtowinicon pgminia.ppm > favicon.ico
+Seems to work.  
+See http://msdn.microsoft.com/workshop/Author/dhtml/howto/ShortcutIcon.asp
+and http://www.favicon.com
+
 
 
 LOGOS
