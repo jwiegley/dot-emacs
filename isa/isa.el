@@ -285,6 +285,11 @@ proof-shell-retract-files-regexp."
    "Isabelle shell" nil
    (isa-shell-mode-config)))
 
+(eval-and-compile
+(define-derived-mode isa-response-mode proof-response-mode
+  "Isabelle response" nil
+  (isa-response-mode-config)))
+
 (eval-and-compile			; to define vars for byte comp.
 (define-derived-mode isa-pbp-mode pbp-mode
   "Isabelle proofstate" nil
@@ -566,7 +571,8 @@ Resulting output from Isabelle will be parsed by Proof General."
 (defun isa-pre-shell-start ()
   (setq proof-prog-name		isabelle-prog-name)
   (setq proof-mode-for-shell    'isa-shell-mode)
-  (setq proof-mode-for-pbp	'isa-pbp-mode))
+  (setq proof-mode-for-pbp	'isa-pbp-mode)
+  (setq proof-mode-for-response 'isa-response-mode))
 
 (defun isa-mode-config ()
   (isa-mode-config-set-variables)
@@ -594,13 +600,22 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 (defun isa-shell-mode-config ()
   "Configure Proof General proof shell for Isabelle."
-  (isa-init-syntax-table)
+  (isa-init-output-syntax-table)
+  (setq font-lock-keywords isa-output-font-lock-terms)
   (isa-shell-mode-config-set-variables)
   (proof-shell-config-done))
 
-;; FIXME: broken, of course, as is all PBP everywhere.
+(defun isa-response-mode-config ()
+  (setq font-lock-keywords isa-output-font-lock-terms)
+  (isa-init-output-syntax-table)
+  (proof-response-config-done))
+
 (defun isa-pbp-mode-config ()
-  (setq pbp-change-goal "Show %s.")
-  (setq pbp-error-regexp proof-shell-error-regexp))
+  ;; FIXME: next too broken, of course, as is all PBP everywhere.
+  (setq pbp-change-goal "Show %s.")	
+  (setq pbp-error-regexp proof-shell-error-regexp)
+  (isa-init-output-syntax-table)
+  (setq font-lock-keywords isa-output-font-lock-terms)
+  (proof-goals-config-done))
 
 (provide 'isa)
