@@ -146,11 +146,13 @@ to examine proof-shell-last-output.")
 (defun proof-shell-ready-prover (&optional queuemode)
   "Make sure the proof assistant is ready for a command.
 If QUEUEMODE is set, succeed if the proof shell is busy but
-has mode QUEUEMODE.
+has mode QUEUEMODE, which is a symbol or list of symbols.
 Otherwise, if the shell is busy, give an error.
 No change to current buffer or point."
   (proof-shell-start)
-  (unless (or (not proof-shell-busy) (eq queuemode proof-shell-busy))
+  (unless (or (not proof-shell-busy)
+	      (eq queuemode proof-shell-busy)
+	      (member proof-shell-busy queuemode))
     (error "Proof Process Busy!")))
 
 ;;;###autoload
