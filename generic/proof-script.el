@@ -2625,7 +2625,10 @@ finish setup which depends on specific proof assistant configuration."
   ;; and losing extents.  (Attempt to catch this in proof-mode by
   ;; looking for active scripting buffer fails; perhaps because of
   ;; kill buffer function)
-  (put major-mode 'mode-class 'pg-sticky)
+  ;; [NB: could do this at top level at load time]
+  
+  ;; FIXME: temporarily disable this for X-Symbol 4.45
+  ;; (put major-mode 'mode-class 'pg-sticky)
 
   ;; First, define some values if they aren't defined already.
   (unless proof-mode-for-script
