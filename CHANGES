@@ -14,8 +14,8 @@
 
     Proof General can now (almost) be reliably run as compiled code.
 
-    *** Please help me iron out any finaly difficulties by reporting problems.
-	At the moment I know that some key-bindings are lost ***
+    *** Please help me iron out any finaly difficulties 
+        by reporting problems ***
   
     However, compiled Emacs Lisp files sometimes have incompatibilities
     between versions (and definitely between GNU Emacs and XEmacs).
