@@ -40,6 +40,13 @@
      Fixes for FSF Emacs and XEmacs 21.4
      Better support for win32 versions of XEmacs (see README.windows).
 
+*** Bug fixes.
+
+     XEmacs 21.1 has faulty implementation of buffer-syntactic-context,
+     workaround added.  (Symptom was parsing breaking, giving unexpected
+     "I can't see any complete commands to process!" error message, esp
+     with strings broken across lines).
+
 ** Coq Changes
 
      Compatibility for V7 added.
