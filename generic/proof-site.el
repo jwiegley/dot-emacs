@@ -402,13 +402,16 @@ proof-assistant-table."
 ;;; Disable any other XEmacs x-symbol packages: we load ours manually
 ;;;
 
-(if proof-running-on-XEmacs
-(defadvice packages-new-autoloads (after ignore-other-x-symbols activate)
-  (setq ad-return-value 
-	(delete-if (lambda (pkg)
-		     (string-match "x-symbol" pkg))
-		   ad-return-value))))
-
+(if (and
+     proof-running-on-XEmacs
+     (not (featurep 'x-symbol-hooks)) ;; unless already loaded
+     (file-exists-p (concat proof-home-directory ;; or our version removed
+			    "x-symbol/lisp/")))
+    (defadvice packages-new-autoloads (after ignore-other-x-symbols activate)
+      (setq ad-return-value 
+	    (delete-if (lambda (pkg)
+			 (string-match "x-symbol" pkg))
+		       ad-return-value))))
 
 (provide 'proof-site))
 ;; proof-site.el ends here
