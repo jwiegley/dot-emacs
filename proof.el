@@ -9,6 +9,13 @@
 
 
 ;; $Log$
+;; Revision 1.43  1998/05/19 15:30:03  hhg
+;; Changed proof-indent-line code so that it doesn't modify buffer if
+;; nothing is changed.
+;; Changed proof-indent-region code so that the endpoints of the region
+;; being indented change as indentation is done: it was infinite looping
+;; because the end could never be reached.
+;;
 ;; Revision 1.42  1998/05/15 16:23:53  hhg
 ;; Dependencies on versions of emacs have been moved to span-extent.el
 ;; and span-overlay.el.  Definitions of proof-queue-span and
@@ -1521,40 +1528,47 @@ deletes the region corresponding to the proof sequence."
       
 (defun proof-indent-line ()
   (interactive)
-  (save-excursion
-    (beginning-of-line)
-    (if (and (eq proof-script-buffer (current-buffer))
-	     (< (point) (proof-locked-end)))
-	(error "can't indent locked region!"))
-    (let* ((state (proof-parse-to-point))
-	   (beg (point))
-	   (indent (cond ((car state) 1)
-			 ((> (nth 1 state) 0) 1)
-			 (t (funcall proof-stack-to-indent (nth 2 state))))))
-      (skip-chars-forward "\t ")
-      (delete-region beg (point))
-      (indent-to indent)))
-  (if (< (current-column) (current-indentation))
-      (skip-chars-forward "\t ")))
+  (if (and (eq proof-script-buffer (current-buffer))
+	   (< (point) (proof-locked-end)))
+      (if (< (current-column) (current-indentation))
+	  (skip-chars-forward "\t "))
+    (save-excursion
+      (beginning-of-line)
+      (let* ((state (proof-parse-to-point))
+	     (beg (point))
+	     (indent (cond ((car state) 1)
+			   ((> (nth 1 state) 0) 1)
+			   (t (funcall proof-stack-to-indent (nth 2 state))))))
+	(skip-chars-forward "\t ")
+	(if (not (eq (current-indentation) indent))
+	    (progn (delete-region beg (point))
+		   (indent-to indent)))))
+    (skip-chars-forward "\t ")))
 
 (defun proof-indent-region (start end)
   (interactive "r")
+  (if (and (eq proof-script-buffer (current-buffer))
+	   (< (point) (proof-locked-end)))
+      (error "can't indent locked region!"))
   (save-excursion
     (goto-char start)
     (beginning-of-line)
-    (if (and (eq proof-script-buffer (current-buffer))
-	     (< (point) (proof-locked-end)))
-	(error "can't indent locked region!"))
     (let* ((beg (point))
 	   (state (proof-parse-to-point))
 	   indent)
-      (while (<= (point) end)
-	(setq indent (cond ((car state) 1)
-			   ((> (nth 1 state) 0) 1)
-			   (t (funcall proof-stack-to-indent (nth 2 state)))))	
+      ;; End of region changes with new indentation
+      (while (< (point) end)
+	(setq indent
+	      (cond ((car state) 1)
+		    ((> (nth 1 state) 0) 1)
+		    (t (funcall proof-stack-to-indent (nth 2 state)))))
 	(skip-chars-forward "\t ")
-	(delete-region beg (point))
-	(indent-to indent)
+	(let ((diff (- (current-indentation) indent)))
+	  (if (not (eq diff 0))
+	      (progn
+		(delete-region beg (point))
+		(indent-to indent)
+		(setq end (- end diff)))))
 	(end-of-line)
 	(if (< (point) (point-max)) (forward-char))
 	(setq state (proof-parse-to-point beg state)
