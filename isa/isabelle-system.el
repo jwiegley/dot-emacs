@@ -232,13 +232,12 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
       (let ((docs (isa-shell-command-to-string
 		   (concat isa-isatool-command " doc"))))
 	(unless (string-equal docs "")
-	  (mapcar
+	  (mapcan
 	   (function (lambda (docdes)
-		       (if (proof-string-match "\\(\\S-+\\)[ \t]+" docdes)
-			   (list 
-			    (substring docdes (match-beginning 0) (match-end 1))
-			    (substring docdes (match-end 0)))
-			 '("???" "???"))))
+		       (if (proof-string-match "^[ \t]+\\(\\S-+\\)[ \t]+" docdes)
+			   (list (list 
+				  (substring docdes (match-beginning 0) (match-end 1))
+				  (substring docdes (match-end 0)))))))
 	   (split-string docs "\n"))))))
 
 (defun isa-quit (save)
