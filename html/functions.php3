@@ -12,6 +12,13 @@
 //
 
 
+// Project configuration
+
+$project_email = "proofgen@dcs.ed.ac.uk";
+$project_list  = "proofgeneral@dcs.ed.ac.uk";
+$project_title = "Proof General"
+$project_subtitle = "Organize your Proofs!";
+
 // DTD 
 
 $dtd_strict = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n";
@@ -24,19 +31,12 @@ print $dtd_loose;
 $validator = "http://validator.dcs.ed.ac.uk/";
 // $validator = "http://localhost/validator/";
 
-/* Some handy constants */
-
-$pg_email = "proofgen@dcs.ed.ac.uk";
-$pg_list = "proofgeneral@dcs.ed.ac.uk";
-
-$pg_title = "Proof General --- Organize your Proofs!";
-
 function mlink($addr) {
   print "<a href=\"mailto:" . $addr . "\">" . $addr . "</a>";
 }
 
-function pg_email() {
-  mlink("proofgen@dcs.ed.ac.uk");
+function project_email() {
+  mlink($project_email);
 }
 
 
@@ -147,7 +147,9 @@ function footer($filemodified=".") {
 }
 
 function click_to_go_back() {
-  print "<p>\nClick <a href=\"index.phtml\">here</a> to go back to the Proof General front page.</p>\n";
+  print "<p>\nClick <a href=\"index.phtml\">here</a> to go back to the ";
+  print $project_title;
+  print " front page.</p>\n";
 }
 
 /* Link to a marked up file */

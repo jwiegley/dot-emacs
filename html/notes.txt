@@ -30,5 +30,3 @@ Suggestions for improving web pages after Rod reading them:
   - separate feature list
   - explain what a proof script is and what script management buys you
 
-Get Dave a laptop to do demos on!
-
