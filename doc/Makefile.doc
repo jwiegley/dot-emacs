@@ -119,7 +119,7 @@ all:    dvi ps html info pdf
 ##
 ## dist: build distribution targets
 ##
-dist:   info html psz pdf
+dist:   info html pdf
 
 dvi:    ProofGeneralPortrait.eps $(DOCNAME).dvi
 ps:	dvi $(DOCNAME).ps

@@ -22,3 +22,10 @@ default:
 	make -f Makefile.doc DOCNAME=PG-adapting MAKE="make -f Makefile.doc" $@
 	make -f Makefile.doc DOCNAME=ProofGeneral MAKE="make -f Makefile.doc" $@ 
 
+##
+## man page for proofgeneral script
+##
+# man: proofgeneral.1
+#
+#proofgeneral.1: ../bin/proofgeneral
+#	help2man --output=$@  ../bin/proofgeneral
