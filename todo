@@ -292,7 +292,10 @@ X Solaris bugs: font locking and button enabling.
   place to do this that in the proof-shell-insert-hook (should
   be triggered by resize events).
 
-*** B Implement proof-generic-find-and-forget
+*** D Implement proof-generic-find-and-forget
+  <...>-count-undos, to simplify prover-specific code.  
+  Complete reengineering of *-count-undos and 
+  *-find-and-forget at generic level
 
 *** C X-Symbol: is there a function to input in the minibuffer using
   a token language?
@@ -392,11 +395,6 @@ C New modules:
 *** C Usability enhancement:
     - Fix proof-script-command-separator and
     proof-one-command-per-line flag, document them.
-
-*** C Make and test generic versions of <..>-goal-command-p, 
-  <...>-count-undos, to simplify prover-specific code.  
-  Reengineer *-count-undos and *-find-and-forget at generic level
-  [5h]
 
 *** D Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
   info file into a good place.
