@@ -201,16 +201,16 @@ next start Proof General."
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-auto-retract 
-  nil
-  "*If non-nil, retract automatically when locked region is edited.
-With this option active, the locked region will automatically be
-unlocked when the user attempts to edit it.   To make use of this
-option, proof-strict-read-only should be turned off.
+; (defcustom proof-auto-retract 
+;   nil
+;   "*If non-nil, retract automatically when locked region is edited.
+; With this option active, the locked region will automatically be
+; unlocked when the user attempts to edit it.   To make use of this
+; option, proof-strict-read-only should be turned off.
 
-Note: this feature has not been implemented yet, it is only an idea."
-  :type 'boolean
-  :group 'proof-user-options)
+; Note: this feature has not been implemented yet, it is only an idea."
+;   :type 'boolean
+;   :group 'proof-user-options)
 
 (defcustom proof-query-file-save-when-activating-scripting 
   t
@@ -956,6 +956,18 @@ parentheses and commands. It represents these with the characters
   :type 'sexp
   :group 'proof-script)
 
+(defcustom proof-font-lock-zap-commas nil
+  "If non-nil, enable a font-lock hack which unfontifies commas.
+If you fontify variables inside lists like [a,b,c] by matching
+on the brackets `[' and '[', you may take objection to the commas 
+being coloured as well.  In that case, enable this hack which
+will magically restore the commas to the default font for you.
+
+The hack is rather painful and forces immediate fontification of
+files on loading (no lazy, caching locking).  It is unreliable
+under FSF Emacs, to boot."
+  :type 'boolean
+  :group 'proof-script)
 
 
 
@@ -1498,7 +1510,7 @@ buffer.  Otherwise they appear in the response buffer."
 ;; 7. Splash screen settings
 ;;
 
-(defcustom proof-splash-time 1.5
+(defcustom proof-splash-time 2.5
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise 
@@ -1508,7 +1520,6 @@ Proof General."
 
 (defcustom proof-splash-contents
   '(list
-    nil
     nil
 ;;; Remove the text for now: XEmacs makes a mess of displaying the
 ;;; transparent parts of the gif (at least, on all machines I have seen)
@@ -1522,7 +1533,11 @@ Proof General."
     nil
 "    Please send problems and suggestions to proofgen@dcs.ed.ac.uk, 
      or use the menu command Proof-General -> Submit bug report."
-    nil)
+    nil
+    (unless (string-match "XEmacs" emacs-version)
+      "For a better Proof General experience, please use XEmacs")
+    (unless (string-match "XEmacs" emacs-version)
+      "(visit  http://www.xemacs.org)"))
   "Evaluated to configure splash screen displayed when entering Proof General.
 A list of the screen contents.  If an element is a string or an image
 specifier, it is displayed centred on the window on its own line.  
