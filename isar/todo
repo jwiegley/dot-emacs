@@ -4,16 +4,7 @@
 
 See also ../todo for generic things to do, priority codes.
 
-** B switch to ProofGeneral.undo (after Isabelle99-1 is out!);
-
-** C fix '{{' and '}}' keywords (e.g. proper font-lock, indentation);
-unfortunately the present word boundary regexp does not work since { }
-are already part of comment syntax;
-
 ** C undo 'use' command: unlock corresponding ML file;
-
-** C interactive support for diagnostic commands: easy way to run
-thm/prop/term/typ on region in an ad-hoc fashion;
 
 ** C provide template for empty theory (or even just for Scratch.thy);
 
@@ -24,14 +15,10 @@ Isabelle's pretty-printing subsystem);
 nice if current indentation stack would be somehow stored within the
 extend(s) processed last;
 
-** C eliminate explicit ";" terminator; rather refer to regexp (note:
-requires {{ }} to be fixed; ideally, current set of keywords would be
-retrieved from the running process, in order to gain robustness);
-
 ** C tune behaviour of goals/response buffers (e.g. hide empty
 response buffers when using 2 buffer model);
 
+** C eliminate x-symbol-isar.el in favour of shared x-symbol-isabelle.el;
+
 ** D Combine with isa/ to get single Isabelle PG instance, somehow?
-
-Then users could use both proof languages.
-
+Then users could use both proof languages in the same session.
