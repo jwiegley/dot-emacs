@@ -10,6 +10,9 @@ $Id$
 Notes here about development conventions and compatibility
 issues.  Please read if you contribute to Proof General!
 
+Please also join the (very low volume) developers mailing
+list, see http://www.proofgeneral.org/mailinglist
+
 
 ** Project planning
 
@@ -34,6 +37,7 @@ proof assistant then has its own todo file.
 When writing your modes, please follow the Emacs Lisp Conventions
 See the Emacs Lisp reference manual, node Style Tips.
 
+
 ** Testing
 
 Ideally, we would have an automated test suite for Proof General.
@@ -44,10 +48,10 @@ needs some human checks that visible appearances and user-input behave
 as expected.
 
 At the moment, we rely on the tiny example files included for each
-proof system as simple tests that basic scripting works.  Multiple
-file scripting is more complex (involving cooperation with the
-prover).  Some test cases should be provided in etc/<PA> as has been
-done for Lego and Isabelle.
+proof system as simple tests that basic scripting works.  Additional
+test scripts to test parsing complex scripts and tests against
+specific fixed bugs are included in etc/<PA>.  Multiple file scripting
+test cases should also be provided in etc/<PA>.
 
 
 ** Standards for each instance of PG

@@ -24,6 +24,9 @@ See REGISTER for registration information (please register).
 
 See doc/ for documentation of Proof General.
 
+See http://www.proofgeneral.org/mailinglist for the Proof General
+mailing lists.
+
 For notes on the supported assistants, see the README files
 in the subdirectories:
 
@@ -45,8 +48,7 @@ Check BUGS files for problems and issues, in this directory, and for
 specific issues, in each prover subdirectory.  Please report bugs
 not mentioned in any of these files to bugs@proofgeneral.org
 
-For the latest news and downloads, or to join the user or developer
-mailing list for Proof General, visit Proof General on the web 
+For the latest news and downloads, visit Proof General on the web 
 at: http://www.proofgeneral.org
 
 David Aspinall <da@proofgeneral.org>
