@@ -125,7 +125,7 @@
 	  isa-keywords-defn isa-keywords-commands isa-tactics)
   "All keywords in a Isabelle script")
 
-(defconst isa-tacticals '("REPEAT" "THEN" "ORELSE" "TRY"))
+(defconst isa-tacticals '("REPEAT" "THEN" "ORELSE" "TRY" "ALLGOALS"))
 
 
 ;; ----- regular expressions
