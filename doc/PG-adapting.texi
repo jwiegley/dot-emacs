@@ -371,7 +371,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (phox "PhoX" "\\.phx$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (isar "Isabelle/Isar" "\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (phox "PhoX" "\\.phx$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (twelf "Twelf" "\\.elf$") (plastic "Plastic" "\\.lf$"))}.
 @end defopt
 
 
@@ -890,10 +890,6 @@ The possibilities are:
 @end lisp
 If your proof assistant allows nested goals, it will be wrong to close
 off the portion of proof so far, so this variable should be set to nil.
-There is no built-in understanding of the undo behaviour of nested
-proofs; instead there is some support for un-nesting nested proofs in
-the @code{proof-lift-global} mechanism.  (Of course, this is risky in case of
-nested contexts!)
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-really-save-command-p
@@ -1096,8 +1092,17 @@ will be attempted.
 
 @c TEXI DOCSTRING MAGIC: proof-kill-goal-command
 @defvar proof-kill-goal-command 
-Command to kill the currently open goal.@*
-You must set this (perhaps to a no-op) for script management to work.
+Command to kill the currently open goal.
+
+If this is set to nil, PG will expect @code{proof-find-and-forget-fn}
+to do all the work of retracting to an arbitrary point in a file.
+Otherwise, the generic split-phase mechanism will be used:
+@lisp
+  1. If inside an unclosed proof, use proof-count-undos.
+  2. If retracting to before an unclosed proof, use 
+     @code{proof-kill-goal-command}, followed by @code{proof-find-and-forget-fn}
+     if necessary.
+@end lisp
 @end defvar
 
 
@@ -1105,25 +1110,40 @@ You must set this (perhaps to a no-op) for script management to work.
 @node Nested proofs
 @section Nested proofs
 
-Proof General doesn't yet have a flexible understanding of
-nested proofs, but can do something with them.
+Proof General allows configuration for provers which have particular
+notions of nested proofs.  The right thing may happen automatically,
+or you may need to adjust some of the following settings.
 
-@c TEXI DOCSTRING MAGIC: proof-global-p
-@defvar proof-global-p 
-Whether a command is a global declaration.  Predicate on strings or nil.@*
-This is used to handle nested goals allowed by some provers, by
-recognizing global declarations as candidates for rearranging the
-proof script.
+First, you should alter the next setting if the prover retains history
+for nested proofs.
 
-May be left as nil to disable this function.
+@c TEXI DOCSTRING MAGIC: proof-nested-goals-history-p
+@defvar proof-nested-goals-history-p 
+Whether the prover supports recovery of history for nested proofs.@*
+If it does (non-nil), Proof General will retain history inside 
+nested proofs.
+If it does not, Proof General will amalgamate nested proofs into single
+steps within the outer proof.
 @end defvar
+Second, it may happen (i.e. it does for Coq) that the prover has a
+history mechanism which necessitates keeping track of the number of
+nested "undoable" commands, even if the history of the proof itself is
+lost.  
 
-@c TEXI DOCSTRING MAGIC: proof-lift-global
-@defvar proof-lift-global 
-Function which lifts local lemmas from inside goals out to top level.@*
-This function takes the local goalsave span as an argument. Leave this
-set this at @samp{nil} if the proof assistant does not support nested goals,
-or if you don't want to write a function to do move them around.
+@c TEXI DOCSTRING MAGIC: proof-nested-undo-regexp
+@defvar proof-nested-undo-regexp 
+Regexp for commands that must be counted in nested goal-save regions.
+
+Used for provers which allow nested atomic goal-saves, but with some
+nested history that must be undone specially.
+
+At the moment, the behaviour is that a goal-save span has a @code{'nestedundos}
+property which is set to the number of commands within it which match
+this regexp.  The idea is that the prover-specific code can create a
+customized undo command to retract the goal-save region, based on the
+@code{'nestedundos} setting.  Coq uses this to forget declarations, since
+declarations in Coq reside in a separate context with its own (flat)
+history.
 @end defvar
 
 
@@ -1137,7 +1157,7 @@ assistant (with respect to an on-going proof).
 @c TEXI DOCSTRING MAGIC: proof-state-preserving-p
 @defvar proof-state-preserving-p 
 A predicate, non-nil if its argument (a command) preserves the proof state.@*
-If set, used by @code{proof-minibuffer-cmd} to filter out scripting
+This is a safety-test used by @code{proof-minibuffer-cmd} to filter out scripting
 commands which should be entered directly into the script itself.
 
 The default setting for this function, @samp{@code{proof-generic-state-preserving-p}}
@@ -1588,9 +1608,9 @@ When output which matches this regexp is seen, we clear the goals
 buffer in case this is not also marked up as a @samp{goals} type of
 message.
 
-We also enable the QED function (save a proof) and will automatically
+We also enable the QED function (save a proof) and we may automatically
 close off the proof region if another goal appears before a save
-command.
+command, depending on whether the prover supports nested proofs or not.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-start-goals-regexp
 @defvar proof-shell-start-goals-regexp 
@@ -2545,7 +2565,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'phox} @code{'hol98} @code{'acl2} @code{'plastic} @code{'twelf}.
+A list of symbols chosen from: @code{'demoisa} @code{'isa} @code{'isar} @code{'lego} @code{'coq} @code{'phox} @code{'hol98} @code{'acl2} @code{'twelf} @code{'plastic}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.
