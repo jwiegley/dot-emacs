@@ -1,3 +1,18 @@
+Fri Mar 24 15:40:10 GMT 2000 da
+
+ Tested Proof General on win32 (NT4sp6) with Isabelle, Coq and
+ XEmacs 21.1.9.
+
+ Problems:  Isabelle bombs on paths containing chars like \ : $
+            XEmacs barfs on reading some files in PG, why??
+	    e.g. coq/coq.el 
+
+	 Can fix this by reloading coq stuff again.
+
+	 A few probs remain, e.g. toolbar enablers for undo are
+	 flaky.
+	
+
 Wed Mar 22 13:45:34 GMT 2000 da 
 
  Tested file name quoting problem with Coq, Isabelle, LEGO.
@@ -5,6 +20,7 @@ Wed Mar 22 13:45:34 GMT 2000 da
    \ quoting triggers bug in Isabelle (complaint about pathname)
    " quoting not allowed in LEGO, \ quoting not needed.
    Coq works well with either.
+   
 	
 
 --------
