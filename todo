@@ -37,6 +37,14 @@ X (Low)     probably not worth spending time on
 * Things to in the generic interface
 ====================================
 
+A Pending work, in progress [da]:
+    - new toolbar button icons 
+          (fixup eye shadows, mag glass, finger, stop icon)
+    - command and button for searching for a theorem
+       (possibly matching a given constant, or the proof state).
+    - toolbar refresh problems
+    - investigation of excessive processing for large proofs
+
 A Usability enhancement:
    Movement of point after assert/retract commands
         - configure by default for one command/line.
@@ -61,11 +69,7 @@ A Usability enhancement:
 A Usability enhancement:
    Add toolbar button for interrupting.
 
-B New feature:
-   Add command and button for searching for a theorem
-   (possibly matching a given constant, or the proof state).
 
-B Finish design of new icons.  
 
 D bug: outline mode when proof-strict-read-only is nil ought to
   work, but there may be problems.
