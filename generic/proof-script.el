@@ -1174,7 +1174,7 @@ UNCLOSED-COMMENT-FUN."
 (defun proof-undo-last-successful-command-interactive ()
   "Undo last successful command at end of locked region.
 The text is also deleted from the proof script."
-  (interactive "p")
+  (interactive)
   (proof-undo-last-successful-command))
 
 (defun proof-undo-last-successful-command (&optional no-delete)
@@ -1660,10 +1660,12 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) (control e)] 'proof-find-next-terminator)
 (define-key map [(control c) (control a)] 'proof-goto-command-start)
 (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
+;; FIXME : This ought to be set to 'proof-assert-until point
 (define-key map [(control c) (return)]	  'proof-assert-next-command-interactive)
 (define-key map [(control c) (control t)] 'proof-try-command)
-(define-key map [(control c) ?u]	  'proof-retract-until-point-interactive)
-(define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
+;; FIXME: The following two functions should be unified.
+(define-key map [(control c) ?u]	  'proof-undo-last-successful-command-interactive)
+(define-key map [(control c) (control u)] 'proof-retract-until-point-interactive)
 (define-key map [(control c) ?\']	  'proof-goto-end-of-locked-interactive)
 ;; FIXME da: I don't understand what this function is supposed to do.
 ;; It will copy a proof command from within the locked region
