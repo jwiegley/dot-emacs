@@ -81,7 +81,7 @@ ProofGeneral.txt:
 	echo > ProofGeneral.txt
 
 ProofGeneralPortrait.eps: FORCE
-	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; fi
+#	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; fi
 	if [ -f ProofGeneralPortrait.eps ]; then \
 	  sed 's/@clear haveeps/@set haveeps/g' $(DOCNAME).texi > $(TMPFILE); \
 	  sed 's/@c image{ProofGeneralPortrait}/@image{ProofGeneralPortrait}/g' $(TMPFILE) > $(DOCNAME).texi; \
@@ -92,7 +92,7 @@ ProofGeneralPortrait.eps: FORCE
 	rm -f $(TMPFILE)
 
 ProofGeneralPortrait.pdf:
-	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; epstopdf ProofGeneralPortrait.eps; fi
+#	if [ -f ProofGeneralPortrait.eps.gz ]; then gunzip -c ProofGeneralPortrait.eps.gz > ProofGeneralPortrait.eps; epstopdf ProofGeneralPortrait.eps; fi
 	if [ -f ProofGeneralPortrait.pdf ]; then \
 	  sed 's/@clear haveeps/@set haveeps/g' $(DOCNAME).texi > $(TMPFILE); \
 	  sed 's/@c image{ProofGeneralPortrait}/@image{ProofGeneralPortrait}/g' $(TMPFILE) > $(DOCNAME).texi; \
