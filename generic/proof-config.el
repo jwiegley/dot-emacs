@@ -137,6 +137,7 @@ buffer modes)."
   :type 'boolean
   :group 'proof-user-options)
 
+;; FIXME: next one could be integer value for catchup delay
 (defcustom proof-trace-output-slow-catchup t 
   "*If non-nil, try to redisplay less often during frequent trace output.
 Proof General will try to configure itself to update the display
@@ -2001,6 +2002,14 @@ This is typically a command used to print a theorem, constant, or whatever.
 A string with %s replaced by the dependency name."
   :type 'string
   :group 'proof-shell)
+
+(defcustom proof-shell-identifier-under-mouse-cmd nil
+  "Command sent to the prover to query about an identifier under the mouse.
+This is typically a command used to print a theorem, constant, or whatever.
+A string with %s replaced by the identifier."
+  :type 'string
+  :group 'proof-shell)
+
 
 (defcustom proof-shell-trace-output-regexp nil
   "Matches tracing output which should be displayed in trace buffer.

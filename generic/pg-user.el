@@ -990,7 +990,7 @@ If NUM is negative, move upwards.  Return new span."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Message buffer hints
+;; Message buffer hints  (added in PG 3.5)
 ;;
 
 (defun pg-goals-buffers-hint ()
@@ -1025,6 +1025,32 @@ If NUM is negative, move upwards.  Return new span."
   "Display a hint HINTMSG in the minibuffer, if `pg-show-hints' is non-nil.
 The function `substitute-command-keys' is called on the argument."
   (if pg-show-hints (message (substitute-command-keys hintmsg))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Identifier under mouse query  (added in PG 3.5)
+;;
+
+;; FIXME: next setting perhaps a bit obnoxious, but this modifier
+;; combination is currently unused.
+(global-set-key '(control meta button1) 'pg-identifier-under-mouse-query)
+
+(defun pg-identifier-under-mouse-query (event)
+  (interactive "e")
+  (if proof-shell-identifier-under-mouse-cmd
+      (let ((identifier (save-selected-window
+			  (save-selected-frame
+			    (save-excursion
+			      (mouse-set-point event)
+			      (current-word))))))
+	(proof-shell-invisible-command 
+	 (format proof-shell-identifier-under-mouse-cmd
+		 identifier)))))
+				    
+
+
+
 
 (provide 'pg-user)
 ;; pg-user.el ends here.
