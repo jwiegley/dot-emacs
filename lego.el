@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.42  1998/05/08 15:36:41  hhg
+;; Merged indentation code for LEGO and Coq into proof.el.
+;;
 ;; Revision 1.41  1998/05/06 15:54:50  hhg
 ;; Changed lego-undoable-commands-regexp to have "andI" and "andE"
 ;; instead of "AndI" and "AndE".
@@ -514,49 +517,6 @@
 ;;   Lego Indentation                                               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; This is quite different from sml-mode, but borrows some bits of
-;; code.  It's quite a lot less general, but works with nested
-;; comments.
-
-;; parse-to-point:
-;; If from is nil, parsing starts from locked-end. Otherwise state
-;; must contain a valid triple.
-
-(defun lego-parse-to-point (&optional from state)
-  (let ((comment-level 0) (stack (list (list nil 0)))
-	(end (point)) instring c)
-    (save-excursion
-      (if (null from)
-	  (proof-goto-end-of-locked)
-	(goto-char from)
-	(setq instring (car state)
-	      comment-level (nth 1 state)
-	      stack (nth 2 state)))
-      (while (< (point) end)
-	(setq c (char-after (point)))
-	(cond 
-	 (instring 
-	  (if (eq c ?\") (setq instring nil)))
-	 (t (cond
-	     ((eq c ?\()
-	      (if (looking-at "(\\*") (progn 
-					(incf comment-level)
-					(forward-char))
-		(if (>= 0 comment-level) 
-		    (setq stack (cons (list c (point)) stack)))))
-	     ((eq c ?\*)
-	      (if (looking-at "\\*)") (progn
-					(decf comment-level)
-					(forward-char))))
-	     ((> comment-level 0))
-	     ((eq c ?\") (setq instring t))
-	     ((or (eq c ?\{) (eq c ?\[))
-	      (setq stack (cons (list c (point)) stack)))
-	     ((or (eq c ?\)) (eq c ?\}) (eq c ?\]))
-	      (setq stack (cdr stack))))))
-	(forward-char))
-    (list instring comment-level stack))))
-      
 (defun lego-stack-to-indent (stack)
   (cond
    ((null stack) 0)
@@ -565,48 +525,6 @@
    (t (save-excursion
 	(goto-char (nth 1 (car stack)))
 	(1+ (current-column))))))
-
-(defun lego-indent-line ()
-  (interactive)
-  (save-excursion
-    (beginning-of-line)
-    (if (and (eq proof-script-buffer (current-buffer))
-	     (< (point) (proof-locked-end)))
-	(error "can't indent locked region!"))
-    (let* ((state (lego-parse-to-point))
-	   (beg (point))
-	   (indent (cond ((car state) 1)
-			 ((> (nth 1 state) 0) 1)
-			 (t (lego-stack-to-indent (nth 2 state))))))
-      (skip-chars-forward "\t ")
-      (delete-region beg (point))
-      (indent-to indent)))
-  (if (< (current-column) (current-indentation))
-      (skip-chars-forward "\t ")))
-
-(defun lego-indent-region (start end)
-  (interactive "r")
-  (save-excursion
-    (goto-char start)
-    (beginning-of-line)
-    (if (and (eq proof-script-buffer (current-buffer))
-	     (< (point) (proof-locked-end)))
-	(error "can't indent locked region!"))
-    (let* ((beg (point))
-	   (state (lego-parse-to-point))
-	   indent)
-      (while (<= (point) end)
-	(setq indent (cond ((car state) 1)
-			   ((> (nth 1 state) 0) 1)
-			   (t (lego-stack-to-indent (nth 2 state)))))	
-	(skip-chars-forward "\t ")
-	(delete-region beg (point))
-	(indent-to indent)
-	(end-of-line)
-	(if (< (point) (point-max)) (forward-char))
-	(setq state (lego-parse-to-point beg state)
-	      beg (point))))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Lego shell startup and exit hooks                              ;;
@@ -651,7 +569,8 @@
 	proof-retract-target-fn 'lego-retract-target
         proof-goal-hyp-fn 'lego-goal-hyp
 	proof-state-preserving-p 'lego-state-preserving-p
-	proof-global-p 'lego-global-p)
+	proof-global-p 'lego-global-p
+	proof-stack-to-indent 'lego-stack-to-indent)
 
   (setq	proof-save-command-regexp lego-save-command-regexp
 	proof-save-with-hole-regexp lego-save-with-hole-regexp
@@ -673,7 +592,6 @@
   (define-key (current-local-map) [(control c) i] 'lego-intros)
   (define-key (current-local-map) [(control c) I] 'lego-Intros)
   (define-key (current-local-map) [(control c) r] 'lego-Refine)
-  (define-key (current-local-map) [tab]      'lego-indent-line)
 
 ;; outline
   
