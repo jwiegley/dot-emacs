@@ -1,10 +1,39 @@
 -*- outline -*-
 
-* Bugs to be fixed before PG 3.4 is released.
+* Bugs to be fixed before PG 3.5 is released.
 
-The items below are known and will be fixed (I hope!) before 3.4
-is released.  Please don't send email about them (unless you have
-a patch...)
+The items below are known and will be fixed before 3.5 is released.
+Please don't send email about them (unless you can fix them).
+
+
+** Problems with Red Hat 8.0  &  (at least) Coq.  
+
+Issue seems to be a problem with output handling arising in Coq
+itself, perhaps caused by a change in the libraries(?) shipped with
+RH8.0.  Perhaps a 16-bit char problem (output is flushed before 16-bit
+char is sent?).  Example, run "coqtop -emacs" on MDK9.0 machine,
+inside XEmacs (21.4.9) shell window, pressing return:
+
+   [montague]da: coqtop -emacs
+   Welcome to Coq 7.3.1 (Oct 2002)
+
+   Coq < ù
+   Coq < ù
+   Coq < ù
+
+Now do same thing on RH8 (21.4.8):
+
+   [da@fraenkel generic]$ coqtop -emacs
+   Welcome to Coq 7.3.1 (Oct 2002)
+
+   Coq < 
+   ?< 
+   ?< 
+
+Same behaviour is seen in ordinary shell window, in fact.
+
+
+=================================================================
 
 * Known Bugs and Workarounds for Proof General.
 
