@@ -207,7 +207,7 @@ Given is the first SPAN which needs to be undone."
        
        ((eq (span-property span 'type) 'comment))
 
-       ((eq (span-property span 'type) 'goalsave)
+       ((eq (span-property span 'type) 'proof)
 	(unless (eq (span-property span 'name) proof-unnamed-theorem-name)
 	  (setq ans (format lego-forget-id-command (span-property span 'name)))))
        ;; alternative definitions
