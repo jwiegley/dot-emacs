@@ -3,6 +3,7 @@
 ;; Authors: Healfdene Goguen, Thomas Kleymann and Dilip Sequeira
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
+(require 'cl)
 (require 'proof-fontlock)
 ;; proof-fontlock ought to be renamed to proof-syntax
 

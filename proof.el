@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.52  1998/06/03 17:34:04  hhg
+;; Added (require 'cl) for emacs19.
+;;
 ;; Revision 1.51  1998/06/03 16:03:02  hhg
 ;; Added proof-goto-end-of-locked-interactive as old
 ;; proof-goto-end-of-locked, and proof-goto-end-of-locked now doesn't
@@ -254,6 +257,7 @@
 ;; fixed a bug in proof-retract-until-point
 ;;
 
+(require 'cl)
 (require 'compile)
 (require 'comint)
 (require 'etags)
