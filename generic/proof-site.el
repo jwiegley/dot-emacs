@@ -42,7 +42,7 @@
 ;; Isabelle interfaces at the same time!
 (defcustom proof-assistant-table
   '(;; For demonstration instance of Proof General,
-    ;; set PROOFGENERAL_ASSISANTS=demoisa. It really works!
+    ;; set PROOFGENERAL_ASSISANTS=demoisa. 
     ;; To use Isabelle/Isar instead of classic Isabelle,
     ;; set PROOFGENERAL_ASSISANTS=isar
     (demoisa    "Isabelle Demo"	"\\.ML$")
@@ -254,6 +254,9 @@ Note: to change proof assistant, you must start a new Emacs session.")
 		  :prefix ,(concat sname "-"))
 		
 		;; Set the proof-assistant configuration variables
+		;; NB: tempting to use customize-set-variable: wrong!
+		;; Here we treat customize as extended docs for these
+		;; variables.
 		(setq proof-assistant ,assistant-name)
 		(setq proof-assistant-symbol (quote ,assistant))
 		;; Extend the load path, load the real mode and invoke it.
