@@ -705,7 +705,8 @@ last use time, to discourage saving these into the users database."
      (goto-char (span-end span))
      (skip-chars-backward " \t\n")
      (point)))
-  (own-clipboard (car kill-ring)))
+  (if (fboundp 'own-clipboard)		;; XEmacs function
+      (own-clipboard (car kill-ring))))
 
 ;; 3.3: these functions are experimental, in that they haven't
 ;; been rigorously tested.  They don't work well in FSF Emacs.
