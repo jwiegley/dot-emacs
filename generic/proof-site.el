@@ -206,7 +206,8 @@ Note: to change proof assistant, you must start a new Emacs session.")
        (cusgrp	 (intern cusgrp-rt))
        (cus-internals  (intern (concat cusgrp-rt "-config")))
        ;; NB: Dir name for each prover is the same as its symbol name!
-       (elisp-dir    sname))
+       (elisp-dir    sname)
+       (loadpath-elt (concat proof-home-directory elisp-dir "/")))
     (eval `(progn
        ;; Make a customization group for this assistant
        (defgroup ,cusgrp nil
@@ -228,10 +229,9 @@ Note: to change proof assistant, you must start a new Emacs session.")
        (setq proof-assistant-internals-cusgrp (quote ,cus-internals))
        (setq proof-assistant ,assistant-name)
        (setq proof-assistant-symbol (quote ,assistantsym))
-       ;; Extend the load path
-       (setq load-path 
-	     (cons (concat proof-home-directory ,elisp-dir "/")
-		   load-path))))))
+       ;; Extend the load path if necessary
+       (if (not (member ,loadpath-elt load-path))
+	   (setq load-path (cons ,loadpath-elt load-path)))))))
 
 ;; Now add auto-loads and load-path elements to support the 
 ;; proof assistants selected, and define a stub 
