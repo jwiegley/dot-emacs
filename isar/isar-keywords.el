@@ -166,8 +166,8 @@
 (defconst isar-keywords-proof-block
   '("next"
     "proof"
-    "{{"
-    "}}"))
+    "{"
+    "}"))
 
 (defconst isar-keywords-proof-chain
   '("finally"
