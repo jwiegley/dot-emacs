@@ -15,15 +15,15 @@ or suggestions to contribute, please send a note to
 Ideas for the future of Proof General are described in these papers:
 </p>
 <ul>
-<li><a href="http://zermelo.dcs.ed.ac.uk/~da">David Aspinall</a>.
+<li><a href="http://homepages.inf.ed.ac.uk/da">David Aspinall</a>.
     <b><i>Protocols for Interactive e-Proof</i></b>.
     Draft version, see 
-    <a href="http://zermelo.dcs.ed.ac.uk/~da/drafts/#eproof">here</a>.
+    <a href="http://homepages.inf.ed.ac.uk/da/papers/drafts/#eproof">here</a>.
 </li>
-<li><a href="http://www.dcs.ed.ac.uk/home/da">David Aspinall</a>.
+<li><a href="http://homepages.inf.ed.ac.uk/da">David Aspinall</a>.
     <b><i>Proof General Kit (white paper)</i></b>.
     Draft version, see 
-    <a href="http://zermelo.dcs.ed.ac.uk/home/da/drafts/#white">here</a>.
+    <a href="http://homepages.inf.ed.ac.uk/da/papers/drafts/#white">here</a>.
 </li>
 </ul>
 
