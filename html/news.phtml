@@ -10,9 +10,15 @@
 <p>
 Minor patch 3.1.6 released today.  This turns off toolbar enablers if
 you're running XEmacs on Solaris; because of strange Solaris problems,
-buttons are disabled too often there.  (You can easily live without
-this patch by customizing the variable
-<tt>proof-toolbar-use-button-enablers</tt>).
+buttons are disabled too often there.  (You can live without
+this part of the patch by customizing the variable
+<tt>proof-toolbar-use-button-enablers</tt>). 
+The patch also removes 
+the use of an "interval timer" when 
+<tt>proof-toolbar-use-button-enablers</tt> is off, since a user 
+reported being unable to start itimers unless
+running as root (likely an operating system configuration problem).
+Thanks to Markus Wenzel and Pierre Lescanne for reporting problems.
 </p>
 <li><b>9th May 2000</b>
 <p>
