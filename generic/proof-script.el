@@ -722,7 +722,7 @@ If optional NEXT-COMMAND-END is non-nil, we contine past POS until
 the next command end."
   (save-excursion
       ;; depth marks number of nested comments.
-      ;; quote-parity is false if we're inside ""'s.
+      ;; quote-parity is false if we're inside quotes.
       ;; Only one of (depth > 0) and (not quote-parity)
       ;; should be true at once. -- hhg
     (let ((str (make-string (- (buffer-size)
@@ -761,7 +761,7 @@ the next command end."
 	       (message "Warning: extraneous comment end")
 	       (setq done t))
 	   (setq depth (- depth 1))
-	   (forward-char (length proof-comment-end))
+	   (forward-char (length (match-string 0)))
 	   (if (eq i 0) 
 	       (setq alist (cons (list 'comment "" (point)) alist))
 	     (aset str i ?\ )
@@ -769,7 +769,7 @@ the next command end."
 	;; Case 4. Found a comment start, not inside a string
 	((and (looking-at comment-start-regexp) quote-parity)
 	 (setq depth (+ depth 1))
-	 (forward-char (length proof-comment-start)))
+	 (forward-char (length (match-string 0))))
 	;; Case 5. Inside a comment. 
 	((> depth 0)
 	 (forward-char))
@@ -782,10 +782,14 @@ the next command end."
 	     (progn
 	       (aset str i c)
 	       (incf i)))
-	 
-	 (if (looking-at "\"")	; FIXME da: should this be more generic?
-	     (setq quote-parity (not quote-parity)))
-	 
+
+	 ;; Maintain quote-parity
+	 (cond
+	  ((and quote-parity (looking-at proof-string-start-regexp))
+	   (setq quote-parity nil))
+	  ((and (not quote-parity) (looking-at proof-string-end-regexp))
+	   (setq quote-parity t)))
+
 	 (forward-char)
 
 	 ;; Found the end of a command
