@@ -1,6 +1,7 @@
 ;; $State$ $Date$ $Revision$ 
 
 (require 'proof)			; load generic parts
+(require 'proof-config)
 
 ;; Adjust toolbar entries.  (Must be done
 ;; before proof-toolbar is loaded).
@@ -30,11 +31,6 @@
 (defcustom phox-prog-name "phox -pg"
   "*Name of program to run PhoX."
   :type 'file
-  :group 'phox)
-
-(defcustom phox-sym-lock nil
-  "*Whether to use sym-lock or not (should disappear soon)."
-  :type 'boolean
   :group 'phox)
 
 (defcustom phox-x-symbol-enable t
@@ -83,6 +79,7 @@
 (require 'phox-extraction)
 (require 'phox-tags)
 (require 'phox-outline)
+(require 'phox-pbrpm)
 
 ;; default for tags [da: moved here to fix compilation 15/02/03]
 
@@ -99,11 +96,13 @@
     phox-tags-menu
     (cons
      phox-extraction-menu
+	  (cons
+      phox-pbrpm-menu
 ;; not useful ?
 ;    '(["Delete symbol around cursor" phox-delete-symbol-around-point t]
 ;    ["Delete symbol" phox-delete-symbol t])
-      nil)))
-  )
+      nil))))
+)
 
 ;;
 ;; ======== Configuration of generic modes ========
@@ -194,7 +193,6 @@
 (define-derived-mode phox-mode proof-mode
     "PhoX script" nil
     (phox-config)
-    (phox-sym-lock-start)
     (proof-config-done)
     (phox-setup-outline)
     (define-key phox-mode-map [(control j)] 
@@ -216,11 +214,6 @@
   (setq 
    font-lock-keywords (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    proof-output-fontify-enable     t)
-  (phox-sym-lock-start)
-  (if (and (featurep 'phox-sym-lock) phox-sym-lock)
-      (add-hook 'proof-shell-handle-delayed-output-hook 
-		'phox-sym-lock-font-lock-hook)
-    )
   (proof-response-config-done))
 
 (define-derived-mode phox-goals-mode proof-goals-mode
@@ -228,10 +221,6 @@
   (setq 
    font-lock-keywords  (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    proof-output-fontify-enable     t)
-  (phox-sym-lock-start)
-  (if (and (featurep 'phox-sym-lock) phox-sym-lock)
-      (add-hook 'pg-before-fontify-output-hook 
-		'phox-sym-lock-font-lock-hook))
   (proof-goals-config-done))
 
 ;; The response buffer and goals buffer modes defined above are
@@ -270,18 +259,6 @@
 ;;;
 ;;; X-Symbol
 ;;;
-
-(let ((xsymbol (getenv "PROOFGENERAL_XSYMBOL"))
-      (enable-var (if (equal (getenv "PROOFGENERAL_ASSISTANTS") "phox")
-                      'phox-x-symbol-enable)))
-
-  ;; avoid confusing warning message
-  (if (not (boundp 'x-symbol-image-converter))     
-      (customize-set-variable 'x-symbol-image-converter nil))
-  
-  ;; tell Proof General about -x option
-  (if (and xsymbol (not (equal xsymbol "")))
-      (customize-set-variable enable-var (equal xsymbol "true"))))
 
 (defpgdefault x-symbol-language 'phox)
 

@@ -54,44 +54,4 @@
        "\\)[ \t.]")
       '(0 'font-lock-type-face t))))
 
-;;--------------------------------------------------------------------------;;
-;;--------------------------------------------------------------------------;;
-;;                       phox-sym-lock tables
-;;--------------------------------------------------------------------------;;
-
-(if proof-running-on-XEmacs (require 'phox-sym-lock))
-
-;; to change this table, xfd -fn '-adobe-symbol-*--12-*' may be
-;; used to determine the symbol character codes.
-(defconst phox-sym-lock-keywords-table
-  '((">=" 0 1 179)
-    ("<=" 0 1 163)
-    ("!=" 0 1 185)
-    (":<" 0 1 206)
-    ("[^:]\\(:\\)[^:= \n\t\r]" 1 7 206)
-    ("\\\\/" 0 1 36)
-    ("/\\\\" 0 1 34)
-    ("\\<or\\>" 0 3 218) 
-    ("\\<in\\>" 0 3 206) 
-    ("\\<notin\\>" 0 4 207) 
-    ("\\<inter\\>" 0 3 199) 
-    ("\\<union\\>" 0 3 200) 
-    ("\\<minus\\>" 0 3 45) 
-    ("&" 0 1 217) 
-    ("<->" 0 1 171)
-    ("=>" 0 1 222)
-    ("\\<subset\\>" 0 4 204)
-    ("->" 0 1 174)
-    ("~" 0 1 216)
-    ("\\\\" 0 1 108)))
-;  "If non nil: Overrides default Phox-Sym-Lock patterns for PhoX.")
-
-(defun phox-sym-lock-start ()
-	(if (and (featurep 'phox-sym-lock) phox-sym-lock)
-	    (progn
-	      (setq phox-sym-lock-color
-		    (face-foreground 'font-lock-function-name-face))
-	      (if (not phox-sym-lock-keywords)
-		  (phox-sym-lock phox-sym-lock-keywords-table)))))
-
 (provide 'phox-font)

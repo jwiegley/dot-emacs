@@ -21,8 +21,10 @@
 ;; it would be handy to be able to use this file away from PG.  
 ;; FIXME: In future could fix things so just 
 ;; (require 'proof-x-symbol) would be enough here.
-(defvar x-symbol-phox-name "PhoX Symbol")
-(defvar x-symbol-phox-modeline-name "phox")
+(require 'proof-x-symbol) 
+;(defvar x-symbol-phox-name "phox")
+;(defvar x-symbol-phox-modeline-name "phox")
+
 
 (defcustom x-symbol-phox-header-groups-alist nil
    "*If non-nil, used in isasym specific grid/menu.
@@ -31,8 +33,8 @@ See `x-symbol-header-groups-alist'."
   :group 'x-symbol-input-init
   :type 'x-symbol-headers)
 
-(defcustom x-symbol-phox-electric-ignore nil
-;;  "[:'][A-Za-z]\\|<=\\|\\[\\[\\|\\]\\]\\|~="
+(defcustom x-symbol-phox-electric-ignore 
+  "/\\\\\\|\\\\/"
   "*Additional Phox version of `x-symbol-electric-ignore'."
   :group 'x-symbol-phox
   :group 'x-symbol-input-control
@@ -51,10 +53,12 @@ See `x-symbol-header-groups-alist'."
       (x-symbol-make-grammar
        :encode-spec '(((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")) .
                     ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")))
-       :decode-spec nil
+       :decode-spec '(((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")) .
+                    ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")))
        :decode-regexp "\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
        :token-list #'x-symbol-phox-default-token-list
-       :input-spec nil)))
+       :input-spec '(((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")) .
+                    ((id . "[_'a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]"))))))
 
 (defvar x-symbol-phox-input-token-grammar
   '("\\([_'a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
@@ -160,8 +164,9 @@ See `x-symbol-language-access-alist' for details."
 (defun x-symbol-phox-prepare-table (table)
   "Prepar the table."
     (mapcar (lambda (entry)
-              (list (car entry) nil
-		    (cadr entry)))
+	      (progn
+		(list (car entry) nil
+		      (cadr entry))))
             table))
 
 (defvar x-symbol-phox-table
