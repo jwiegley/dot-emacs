@@ -339,7 +339,7 @@ releaseall: release rpmrelease releaseclean
 ## distinstall:
 ##     Do everything for a local release.
 ##	  
-distall: distclean tag dist distclean
+distall: distclean tag dist distinstall distclean
 
 
 
