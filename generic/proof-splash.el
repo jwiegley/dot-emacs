@@ -158,8 +158,13 @@ Borrowed from startup-center-spaces."
 
 ;; We take some care to preserve the users window configuration
 ;; underneath the splash screen.  This is just to be polite.
-;; FIXME: not as polite as it could be: if minibuffer is active,
+;; NB: not as polite as it could be: if minibuffer is active,
 ;; this may deactivate it.
+;; NB2: There is something worse here: pending input 
+;; causes this function to spoil the mode startup, if the splash
+;; buffer is killed before the input has been processed.
+;; Symptom is ProofGeneral mode instead of the native script mode.
+;; 
 (defun proof-splash-remove-screen (conf)
   "Remove splash screen and restore window config to CONF."
   (let
@@ -169,11 +174,15 @@ Borrowed from startup-center-spaces."
 	  (if (and conf (get-buffer-window splashbuf))
 	      ;; Restore the window config if splash is being displayed
 	      (progn
-		(kill-buffer splashbuf)
 		(set-window-configuration conf)
 		(if proof-running-on-XEmacs
-		    (redraw-frame nil t)))
-	    (kill-buffer splashbuf))))))
+		    (redraw-frame nil t))))))))
+
+(defun proof-splash-remove-buffer ()
+  "Remove the splash buffer if it's still present."
+  (let
+      ((splashbuf (get-buffer proof-splash-welcome)))
+    (if splashbuf (kill-buffer splashbuf))))
 
 (defvar proof-splash-seen nil
   "Flag indicating the user has been subjected to a welcome message.")
@@ -235,7 +244,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
 	      (cons
 	       (add-timeout (if timeout proof-splash-time 10)
 			    'proof-splash-remove-screen
-			    winconf)
+			    savedwincnf)
 	       savedwincnf))))
     ;; PROBLEM: when to call proof-splash-display-screen?
     ;; We'd like to call it during loading/initialising.  But it's
@@ -272,15 +281,20 @@ Otherwise, timeout inside this function after 10 seconds or so."
 	(sit-for 0 t)			; XEmacs: wait without redisplay
       ; (sit-for 1 0 t)))		; FSF: NODISP arg seems broken
       (sit-for 0)))
-  (if (get-buffer proof-splash-welcome)
-      (proof-splash-remove-screen (cdr proof-splash-timeout-conf)))
   ;; Make sure timeout is stopped
   (disable-timeout (car proof-splash-timeout-conf))
+  (if (get-buffer proof-splash-welcome)  ;; not removed yet
+      (proof-splash-remove-screen (cdr proof-splash-timeout-conf)))
   (if (and (input-pending-p)
 	   (fboundp 'next-command-event)) ; 3.3: this function
 					  ; disappeared from emacs, sigh
       (setq unread-command-events
 	    (cons (next-command-event) unread-command-events)))
+  ;; FIXME: Removing buffer here causes bug on loading if key is
+  ;; pressed in XEmacs: breaks loading of script buffer mode,
+  ;; presumably because some events are related to splash buffer which
+  ;; has died.  
+  ;; (proof-splash-remove-buffer)
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
 (provide 'proof-splash)
