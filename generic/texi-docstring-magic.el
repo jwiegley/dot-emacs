@@ -64,7 +64,7 @@
     ;; Must have at least one hyphen to be recognized,
     ;; terminated in whitespace, end of line, or punctuation.
     ;; (Only consider symbols made from word constituents
-    ;; and hyphens).
+    ;; and hyphen.
     ("\\(\\(\\w+\\-\\(\\w\\|\\-\\)+\\)\\)\\(\\s\)\\|\\s-\\|\\s.\\|$\\)"
      (or (boundp (intern (match-string 2 docstring)))
 	 (fboundp (intern (match-string 2 docstring))))
@@ -75,7 +75,9 @@
     ;; In fact, include any word so long as it is more than 3 characters
     ;; long.  (Comes after symbols to avoid recognizing the
     ;; lowercased form of an argument as a symbol)
-    ("\\([A-Z0-9\\-]+\\)\\(/\\|-\\|\)\\|}\\|\\s-\\|\\s.\\|$\\)"
+    ;; FIXME: maybe we don't want to downcase stuff already
+    ;; inside @samp
+    ("\\([A-Z0-9\\-_]+\\)\\(/\\|-\\|\)\\|}\\|\\s-\\|\\s.\\|$\\)"
      (or (> (length (match-string 1 docstring)) 3)
 	 (member (downcase (match-string 1 docstring)) args))
      (concat "@var{" (downcase (match-string 1 docstring)) "}"
@@ -86,7 +88,7 @@
     ("\\(\\(\\s-\\|^\\)'\\(\\(\\w\\|\\-\\)+\\)\\)\\(\\s\)\\|\\s-\\|\\s.\\|$\\)"
      t
      (concat (match-string 2 docstring)
-	     "@code{" (match-string 3 docstring) "}"
+	     "@code{'" (match-string 3 docstring) "}"
 	     (match-string 5 docstring)))
     ;; 8,9. Clean up for @lisp environments left with spurious newlines
     ;; after 1.
