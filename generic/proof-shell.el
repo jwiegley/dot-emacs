@@ -1489,27 +1489,10 @@ proof-shell-eager-annotation-start, proof-shell-eager-annotation-end."
 	   ;; XEmacs fn 
 	   (redisplay-frame))
       ;; If user quits during tracing output, send an interrupt
-      ;; to the prover.
+      ;; to the prover.  Helps when Emacs is "choking".
       (if (and quit-flag proof-action-list)
 	  (proof-interrupt-process)))
 	   
-      ;; Similarly, try to determine if there are command events
-      ;; waiting which are being ignored;
-; none of this really works
-;      (setq inhibit-quit nil)
-;      (if (and 
-;	   proof-action-list		 ;; we're processing an action
-;	   unread-command-events	 ;; user input is waiting
-;	   (setq foo unread-command-events)
-;	   (message "seen command waiting")
-;	   (key-press-event-p 
-;	    (car unread-command-events)) ;; it's a key press
-;	   (event-matches-key-specifier-p 
-;	    (car unread-command-events) 'quit-char)) 
-;	  ;; If user tried C-g here, send an interrupt to the
-;	  ;; process
-;	  (proof-interrupt-process)))
-
      (t
       ;; We're about to display a message.  Clear the response buffer
       ;; if necessary, but don't clear it the next time.
