@@ -76,7 +76,8 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 		      (require 'x-symbol) ;; NB: lose any errors!
 		    (t (featurep 'x-symbol)))))
 	(funcall error-or-warn
- "Proof General: x-symbol package must be installed for x-symbol-support!"))
+ "Proof General: x-symbol package must be installed for x-symbol-support!
+The package is available at http://www.fmi.uni-passau.de/~wedler/x-symbol"))
        ((not (eq (console-type) 'x))
 	(funcall error-or-warn 
  "Proof General: x-symbol package only runs under X!"))
@@ -115,7 +116,10 @@ If ERROR is non-nil, give error on failure, otherwise a warning."
 (defun proof-x-symbol-enable ()
   "Turn on or off support for x-symbol, initializing if necessary."
   (if (and proof-x-symbol-enable (not proof-x-symbol-initialized))
-      (proof-x-symbol-initialize 'giveerrors))
+      (progn
+	(setq proof-x-symbol-enable nil) ; assume failure!
+	(proof-x-symbol-initialize 'giveerrors)
+	(setq proof-x-symbol-enable t)))
   (proof-x-symbol-mode-all-buffers))
 
 ;; A toggling function for the menu.
