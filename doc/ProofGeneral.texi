@@ -254,7 +254,7 @@ Proof General now tries to do the right thing if you're deviant enough
 to try them out!
 
 The work on this release was undertaken by David Aspinall between
-May-August 2000, and also includes contributions from Markus Wenzel and
+May-September 2000, and includes contributions from Markus Wenzel and
 Pierre Courtieu.
 
 @node News for 3.1
