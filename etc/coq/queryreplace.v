@@ -1,5 +1,6 @@
 (* STATUS: Solved.  This was caused by the anyway faulty
    proof-zap-commas-region failing to save the match data.
+   See comments in proof-syntax.el about that function.
 *)
 
 (*
@@ -27,11 +28,11 @@ Record t : Type := make {
   null_r : (x:dom)x=(op x null);
   inv_l : (x:dom)null=(op (inv x) x);
   inv_r : (x:dom)null=(op x (inv x));
-  assoc : (x, y,z:dom)(op x (op y z))=(op (op x y) z);
+  assoc : (x,y,z:dom)(op x (op y z))=(op (op x y) z);
   inv_null : null=(inv null);
   inv_inv : (x:dom)x=(inv (inv x));
-  assoc_inv_l : (x, y:dom)y=(op (inv x) (op x y));
-  assoc_inv_r : (x, y:dom)y=(op x (op (inv x) y));
+  assoc_inv_l : (x,y:dom)y=(op (inv x) (op x y));
+  assoc_inv_r : (x,y:dom)y=(op x (op (inv x) y));
   inv_op : (x,y:dom)(op (inv y) (inv x))=(inv (op x y))
  }.
 

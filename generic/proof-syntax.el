@@ -143,10 +143,11 @@ Default is comma separated, or SEPREGEXP if set."
 ;; Refontify the whole line, 'cos that's what font-lock-after-change
 ;; does.
 
-;;FIXME: Under FSF Emacs 20.2, when initially fontifying the buffer,
-;;       commas are not zapped. 
-;; 
-;; FIXME da: this should be more specific!!
+;; FIXME: This is quite broken under GNU Emacs, where the elaborate
+;; font-lock support mechanisms tend to get in the way.  Setting
+;; font-lock-support-mode to nil restores the behaviour after editing,
+;; but initial un-fontification is still broken.
+;; FIXME: this should be removed/made specific!!
 ;;
 (defun proof-zap-commas-region (start end &optional length)
   "Remove the face of all `,' within the region (START,END).
@@ -170,10 +171,7 @@ may assign this function to `after-change-function'."
   (proof-zap-commas-region (point-min) (point-max)))
 
 (defun proof-unfontify-separator ()
-     (make-local-variable 'after-change-functions)
-     (setq after-change-functions
-	   (append (delq 'proof-zap-commas-region after-change-functions)
-		   '(proof-zap-commas-region))))
+  (add-hook 'after-change-functions 'proof-zap-commas-region t t))
 
 ;;
 ;; Functions for doing something like "format" but with customizable
