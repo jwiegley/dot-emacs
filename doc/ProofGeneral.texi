@@ -1974,10 +1974,10 @@ URL of web page for Isabelle.
 
 @c TEXI DOCSTRING MAGIC: thy-use-sml-mode
 @defopt thy-use-sml-mode 
-If non-nil, invoke sml-mode inside "ML" section of theory files.
+If non-nil, invoke @code{sml-mode} inside "ML" section of theory files.
 This option is left-over from Isamode.  Really, it would be more
 useful if the script editing mode of Proof General itself could be based 
-on sml-mode, but at the moment there is no way to do this.
+on @code{sml-mode}, but at the moment there is no way to do this.
 
 The default value is @code{nil}.
 @end defopt
