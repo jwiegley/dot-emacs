@@ -1,4 +1,4 @@
-;; proof-shell.el  Major mode for proof assistant script files.
+;; proof-shell.el  Proof General shell mode.
 ;;
 ;; Copyright (C) 1994-2000 LFCS Edinburgh. 
 ;; Authors: David Aspinall, Yves Bertot, Healfdene Goguen,
