@@ -26,9 +26,9 @@ To contact the developers, click
 
 
 <h2>What systems does Proof General work with?</h2>
-<p>
-Proof General comes ready-customized for these proof assistants:
-</p>
+
+<p>Proof General comes ready-to-go for these proof
+assistants:</p>
 
 <table width="90%">
  <tr>
@@ -102,32 +102,45 @@ Proof General comes ready-customized for these proof assistants:
     </td>
  </tr>
 </table>
-<p>
-There are also <i>experimental</i> instances of Proof General:
+
+<p>There are also <i>experimental</i> or <i>in-development</i> instances
+of Proof General:</p>
+
 <ul>
-<li><b><?php fileshow("ProofGeneral/hol98/README","HOL Proof General"); ?></b>,
-for <a href="http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html">HOL98</a>.
-</li>
-<li><b><?php fileshow("ProofGeneral/twelf/README","Twelf Proof General"); ?></b>,
-for <a href="http://www.twelf.org">Twelf</a>.
-</li>
-<li><b><?php fileshow("ProofGeneral/acl2/README","ACL2 Proof General"); ?></b>,
-for <a href="http://www.cs.utexas.edu/users/moore/acl2">ACL2</a>.
-</li>
+<li><b><?php fileshow("ProofGeneral/hol98/README","HOL Proof
+General"); ?></b>, for <a
+href="http://www.cl.cam.ac.uk/Research/HVG/HOL/HOL.html">HOL98</a>.</li>
+
+<li><b><?php fileshow("ProofGeneral/twelf/README","Twelf Proof
+General"); ?></b>, for <a
+href="http://www.twelf.org">Twelf</a>.</li>
+
+<li><b><?php fileshow("ProofGeneral/acl2/README","ACL2 Proof
+General"); ?></b>, for <a
+href="http://www.cs.utexas.edu/users/moore/acl2">ACL2</a>.</li>
+
+<li><b><?php fileshow("ProofGeneral/plastic/README","Plastic Proof
+General"); ?></b>, for <a
+href="http://www.dur.ac.uk/CARG/plastic.html">Plastic</a> 
+(in development).</li>
+
+
+<li><b><?php fileshow("ProofGeneral/lclam/README","Lambda-Clam Proof
+General"); ?></b>, for <a
+href="http://dream.dai.ed.ac.uk/software/systems/lambda-clam/">Lambda-CLAM</a>
+(in development).</li>
 </ul>
-<p>
-These instances of Proof General are functional, but only show a bare
-fraction of what is possible.  We are
-seeking volunteers to support and improve each of these 
-(please <a href="feedback">send a note to 
-	<tt><?php print $project_feedback; ?></tt></a> if you're interested).
-</p>
-<p>
-Proof General is ready to be customized to new proof assistants.
+
+<p>The instances of Proof General marked "in development" above are
+not considered complete, but are supported by the developers of proof
+systems.  The other instances above are "technology demonstrations" of
+Proof General for other popular provers, but only show a bare fraction
+of what is possible. We are seeking volunteers to support and improve
+each of these (please <a href="feedback">send a note to <tt><?php
+print $project_feedback; ?></tt></a> if you're interested).</p>
+
+<p>Proof General is ready to be customized to new proof assistants.
 It can be <?php fileshow("ProofGeneral/demoisa/demoisa-easy.el",
-"very easy"); ?> to get basic support working.
-Full <a href="doc">documentation on 
-configuration</a> is provided.
-</p>
-
-
+"very easy"); ?> to get basic support working. Full <a
+href="ProofGeneral/doc/PG-adapting.pdf">documentation on
+configuration</a> is provided.</p>
