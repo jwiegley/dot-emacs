@@ -47,11 +47,11 @@ See `x-symbol-header-groups-alist'."
 
 (defvar x-symbol-coq-token-grammar
   (x-symbol-make-grammar
-   :encode-spec '(((id . "['a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")) .
-		  ((id . "['a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")))
+   :encode-spec '(((id . "[a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")) .
+		  ((id . "[a-zA-Z0-9]") (op . "[]><=\\/~&+-*%!{}:-]")))
    :decode-spec nil
    ;; decode-spec seems to go with highlighting encoding??
-   :decode-regexp "\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
+   :decode-regexp "\\([a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)"
    :token-list #'x-symbol-coq-default-token-list))
 
 ;(defvar x-symbol-coq-input-token-grammar

@@ -259,12 +259,13 @@ will be asked if you want to save abbrevs, answer yes.
 
 *** X-symbols are much improved (more symbols, cleaner grammar)
 
-Symbols are encoded only if between spaces or _'s. Sub/superscripts
-are now introduced by '__' and '^^' respectively, and the rest of the
-word is sub/superscripted.  To put spaces inside sub/superscripts, use
-_{...} or ^{...}. Notice that this last syntax is not understood by
-Coq and you will need to defined it with the "Notation" command of
-Coq.
+Much more symbols are supported now (C-= C-= for the symbol table).
+Symbols are encoded only if between spaces, ' or _.  Sub/superscripts
+are now introduced by '__' and '^^' respectively, and then the word is
+sub/superscripted until its end.  To put spaces or symbols inside
+sub/superscripts, use _{...} or ^{...}. Notice that this last syntax
+and the ^^ symbol are not understood by Coq and you will need to
+defined it with the "Notation" command of Coq.
 
 
 ** Additional instances of Proof General

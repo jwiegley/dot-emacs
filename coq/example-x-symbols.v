@@ -17,7 +17,7 @@
 
 
 
-foo_alpha_1_beta_3  (* this should appear like foo_a_1_B_3 where a and B are greek *)
+foo'alpha'1_beta_3  (* this should appear like foo'a'1_B_3 where a and B are greek *)
 delta__1 delta^^1          (* greek delta with a sub 1 and the same with super 1 *)
 x_{a+b} x^{a+b}         (* x with a+b subscripted and then superscripted *)
 philosophi   (* no greek letter should appear on this line *)
