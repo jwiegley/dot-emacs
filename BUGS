@@ -20,8 +20,9 @@ versions, and those which only apply to particular versions.
 It may be difficult or impossible to interrupt it, because Emacs
 doesn't get a chance to process the C-c C-c keypress or "Stop" button
 push (or anything else).  In this situation, you will need to send an
-interrupt to the (e.g.) Isabelle process from another shell.  This
-problem can happen with looping rewrite rules in the Isabelle
+interrupt to the (e.g.) Isabelle process from another shell.  If that 
+doesn't stop things, you can try 'kill -FPE <emacs-pid>'.  
+This problem can happen with looping rewrite rules in the Isabelle
 simplifier, when tracing rewriting.
 
 ** Do not use C-x C-v or C-x C-w on a script file in active scripting mode
@@ -82,14 +83,10 @@ simplifier, when tracing rewriting.
 
 * Problems with particular Emacs versions
 
-** FSF Emacs hangs when undoing first command in script.
- 
-Noticed with Emacs 20.6.1.  Seems to affect all provers.
-Workaround:  use C-c C-RET or C-c C-r instead.
-Nasty workaround: (setq debug-on-quit t), hit "c" on each hang
-to continue.
-[ If FSF Emacs support in PG is important to you, please try
-  to debug this since we don't have resource to do it ourselves. ]
+** Emacs menus: options not updated dynamically, positions erratic, etc.
+
+Also, proof assistant specific menus only appear in scripting buffer.
+These are drawbacks with FSF Emacs menu support.
 
 ** XEmacs 21.1.9 on Win32
 

@@ -3,18 +3,45 @@
 * Summary of Changes for Proof General 3.2 from 3.1
 
 ----- NB: this is a pre-release of PG 3.2.  Bugs likely, please report ------ 
-
 ----- PG 3.2 is scheduled for release at the end of September 2000. -----
 
 ** Generic Changes
 
-*** New indentation code, indentation enabled for all provers now
+*** Keybindings alterations 
 
-  Supplied by Markus Wenzel.
+  Keybindings for proof assistant now begin with "C-c C-a", to make more room.
+
+*** Menu reorganization, including new proof assistant specific menus.  
+
+  Menu layout more consistent and convenient (though larger).
+  Specific menus added automatically for each proof assistant.
+  (Additional content in specific menus added for Coq, LEGO, Isabelle).
+  Menus appear in goals and response buffers too.
+
+*** Toolbar added to response and goals buffer in single frame mode.
+
+  Disappearing toolbar was a source of confusion for novice Emacs users.
+  Also better for proof-by-pointing interactions.
 
 *** Toolbar and menubar removed from small windows in multiple frame mode
 
   More screen real estate for your windows.  (XEmacs only)
+
+*** Favourites: user-defined commands can be added to PA specific menus.
+
+*** Improved behaviour of electric terminator
+
+*** Proof-follow-mode: quick menu option, improved 'ignore behaviour.
+
+  Previously point was always moved when an error occurred.
+  It's nicer to do this manually if you like the 'ignore mode,
+  using M-x proof-goto-end-of-locked  (C-c C-.)
+
+*** Added handy proof-display-some-buffers (C-c C-l)
+ 
+  This displays the response or goals buffer, and toggles between
+  them in two-pane mode.  In three-pane or multiple frame mode,
+  it makes sure both response and goals buffer are visible.
 
 *** Added proof-next-error function, bound to C-c `
 
@@ -27,16 +54,23 @@
 
 *** New more efficient and generalised parsing functions
  
-  Also works around crash bug in xemacs-21.1.7/SuSE.
-  Fix to previous function (used by FSF Emacs) by Markus Wenzel.
-  XEmacs uses new functions which have slightly different 
-  behaviour around comments.  
+  The new functions have slightly different behaviour around comments.
+  Also avoids crash bug with long strings in certain XEmacs versions.
+
+*** New indentation code, indentation enabled for all provers now
+
+  Supplied by Markus Wenzel.
+
+*** Added possibility (internal) for switching prover's output on/off.
+
+  Already implemented in Coq and Isabelle(/Isar).  
+  This improves efficiency by giving more CPU to prover.
 
 *** Makefile has new target "scripts" to adjust paths in bash/perl scripts
 
-*** Bug fix: "next" button enabled more often.  
+*** Solaris/Windows turn off toolbar enablers due to problems.
 
-*** Solaris turns off toolbar enablers due to problems.
+*** Bug fix: "next" button enabled more often.  
 
 *** Bug fix: first line ignored problem fixed for Coq and others.
  
@@ -45,42 +79,12 @@
    before synchronization can be secured.  LEGO needs to wait for
    second prompt before sync, whereas Isabelle managed to sync on first
    prompt.  Coq was best, with sync set before startup, using a command
-   line option.  That is the recommended route for new proof
-   assistants.]
+   line option.  That is the recommended route for new proof assistants.]
 
 *** Bug fix: script management is now more robust against C-x C-v, C-x C-w
 
   Please let me know of any cases where this fails.  
 
-*** Menu reorganization, including new proof assistant specific menus.  
-
-  Specific menus added for Coq, LEGO, Isabelle.
-
-*** Proof assistant specific keymap added
-
-  Keybindings for proof assistant now begin with "C-c C-a".
-
-*** Favourites: user-defined commands can be added to PA-specific menu.
-
-*** Improved behaviour of electric terminator
-
-*** Quick menu option to select proof-follow-mode
-
-*** Point never moves if proof-follow-mode is 'ignore.
-
-  Previously it was always moved when an error occurred.
-  It's nicer to do this manually if you like this mode,
-  using M-x proof-goto-end-of-locked  (C-c C-.)
-
-*** Added possibility (internal) for switching prover's output on/off.
-
-  Already implemented in Coq and Isabelle(/Isar).  
-  This improves efficiency by giving more CPU to prover.
-
-*** Added handy proof-display-some-buffers (C-c C-l)
- 
-  This displays the response buffer (usually), or the goals buffer
-  as well if you are in three window or multiple frame mode.
 
 
 ** Coq Changes

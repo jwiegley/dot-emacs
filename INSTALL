@@ -41,8 +41,8 @@ via the address below.
 
 ----------------------------------------------------------------------
 
-Notes for Proof General
-=======================
+Detailed installation Notes for Proof General
+=============================================
 
 
 RPM package.
@@ -68,6 +68,25 @@ Unpack the Proof General tar or zip file, and rename the folder to
 into .emacs.  You should put .emacs in value of HOME if you set that,
 or else in directory you installled XEmacs in, e.g.  
 c:\Program Files\XEmacs\.emacs
+
+
+Dependency on Other Emacs Packages
+----------------------------------
+
+Proof General relies on several other Emacs packages, which are
+probably already supplied with your version of Emacs.  If not,
+you will need to find them.
+
+ ESSENTIAL:
+  * cl-macs
+  * comint	
+  * custom
+    
+
+ OPTIONAL:
+  * func-menu.el
+  * font-lock.el
+  * X Symbol	  [ XEmacs only; separate download ]
 
 
 

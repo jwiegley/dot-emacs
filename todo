@@ -11,12 +11,13 @@ Use C-c C-n, C-c C-p or menu to navigate.
 
  1. Priorities
  2. Things to do in the generic interface
- 3. FSF Emacs issues
- 4. Things to do for Proof-by-Pointing
- 5. Bugs in other software beyond our control
- 6. Stable version release checklist
- 7. Things to do for Proof General Project
- 8. See <prover>/todo for things to do for each prover.
+ 3. Things to do for the documentation
+ 4. FSF Emacs issues
+ 5. Things to do for Proof-by-Pointing
+ 6. Bugs in other software beyond our control
+ 7. Stable version release checklist
+ 8. Things to do for Proof General Project
+ 9. See <prover>/todo for things to do for each prover.
 
 ** 1. Priorities
 
@@ -34,36 +35,7 @@ C The PG isabelle-completion-table seems to be subject to case-fold, which
 
 B Keybindings for processing theory in thy mode gone??
 
-C Undoing comments with FSF Emacs weirdness.
- Noticed with Emacs 20.6.1.  Seems to affect all provers.
- Workaround:  use C-c C-RET or C-c C-r instead.
- Nasty workaround: (setq debug-on-quit t), hit "c" on each hang
- to continue.
- Seems to get stuck looping in {coq,lego,whetever}-find-and-forget
- but no problem when running with edebug edebug-defun on this function.
- Maybe filter specific glitch to do with spans?
- Bit of a showstopper for FSF emacs.
-
-X Solaris bugs: font locking and button enabling.
-
-  [Markus]: I can only produce this problem on Solaris, where we have
-  both a mule and non-mule version of xemacs-21.1.8.  On my Linux box
-  at home there is no problem present (using xemacs-21.1.7-mule).
-
-  Note that on the Solaris boxes the problem is already exhibited by
-  visiting a new/empty thy file: buttons are off and are not enabled
-  by typing new stuff.
-
-  Moved down the list now, instead we disable button enablers on
-  Solaris.
-
 *** Scheduled improvements for 3.2
-
-**** C sanity checks for proof shell config variables.
-
-**** C Canvas FSF Emacs to include -syntactic-context -locate-file fns from XEmacs.
-
-**** A Clean up intro for PG-adapting manual.
 
 **** C Fix mode naming for Isabelle 
      (might like isa-proofscript-mode -> isa-mode;
@@ -75,19 +47,6 @@ X Solaris bugs: font locking and button enabling.
 
 **** A make C-c C-l go to bottom of response buffer while output
        is arriving (set-window-point (point)) or similar.
-
-**** A Doc new bits: which XEmacs packages does PG use?  (for INSTALL)
-
-**** A Doc new bits: proof-next-error
-
-**** A Doc new bits: font lock keywords, filename %e, %r.
-  Added proof-{script,shell,goals,resp}-font-lock-keywords.
-  Presently used only in proof-easy-config, will put into other
-  mechanism for 3.2
-
-**** A Doc new bits: win32 support
-
-**** A Doc new bits:  settings mechanism via defpacustom 
 
 **** C Settings mechanism could be generalised
 
@@ -154,31 +113,12 @@ X Solaris bugs: font locking and button enabling.
 
 ** 2. Things to in the generic interface
 
-*** X Multiple session architecture (difficult)
-
-  With some major re-engineering, PG could be made to work with multiple
-  provers at once, and multiple instances of the same prover.
-
-  Ideas: - introduce "session" notion
-	 - have list of current sessions in progress,
-	   values of active scripting buffer and other per-session vars
-	   for each one
-         - proof shell filter and other functions must automatically
-           switch context to correct session
-         - force everybody to use proof-easy-config macro, and set
-	   <prover>-var automatically from <proof>-var there,
-	   to get defaults for new sessions.
-
 *** C Is there a way to make colours defined for x work in mswindows too?
 
   defface specs with (type x) seem to work fine with (type mswindows) too.
   Hassle to duplicate, is there an easy way to cover both?
 
-*** C Add support for XEmacs 21 packaging.  Make suitable updates available
-  on web page, and make RPM put things in the right place so no .emacs
-  file may need editing(?).  [2 days]
-
-*** B Improve proof-easy-config mechanism.   
+*** C Improve proof-easy-config mechanism.   
       
   Let it be redoable by initializing some of the variables to 
   default values to begin with(?).  e.g. proof-script-next-entity-regexps.
@@ -190,17 +130,6 @@ X Solaris bugs: font locking and button enabling.
   which have no undo effect --- should be treated like comments
   for undo.  Perhaps would be useful for Isabelle, HOL, at least,
   although it's tricky to see how it would be completely *safe*.
-
-*** B Manual improvements before techreport publishing (see notes at end also):
-  - Mention configuring function menus, outline.
-  - Consider splitting up chapter 9?
-  - document mouse functions, proof-cd, process quit timeout, 
-    X-Symbol, prog-name-guess, new menu functions for display.
-  - general tips on what to do when things go wrong: try
-    interrupt, restart, finally exit proof assistant.
-  - improvements after feedback from users.
-  - add screenshots?
-  - add more index entries
 
 *** C Investigate support under Mule.  Suggestion we need to set
   process-coding-system-alist somehow to prevent coding.
@@ -221,9 +150,6 @@ X Solaris bugs: font locking and button enabling.
 *** D Strange problem when running in tty mode: c-c c-RET seems to be
   impossible to type.  Consider binding C-c RET instead when
   running on a console.
-
-*** D texi-docstring-magic: first time deffn's, etc, are added, whitespace
-  after magic comment is left.
 
 *** C Tidy up library-loading and dependencies.  (Probably do
   this at the same time as organizing for the XEmacs
@@ -249,8 +175,6 @@ X Solaris bugs: font locking and button enabling.
   See attempted patch in 
   etc/patches/fix-attempt-for-eager-cleaning.txt
 
-*** B Fix problems with C-x C-v and C-x C-w 
-
 *** B Make tags support in lego.el and coq.el a bit more generic.
   Use customization option proof-tags-support.
 
@@ -272,23 +196,18 @@ X Solaris bugs: font locking and button enabling.
 *** B proof-shell-restart should clear response buffer (only noticed with
   proof-tidy-response=nil)
 
-*** B Continue program of making adaptation easier.  
-   - Test proof-easy-config mechanism.
-   - Add proof-shell-important-settings and test that they're set.
+*** B Continue programme of making adaptation easier.  
 
-*** B Documentation in pdf format: need to fix inclusion of image 
-  problem.
+*** D See if there is a way of postponing func-menu loading.
 
-*** C See if there is a way of postponing func-menu loading.
-
-*** C Quit timeout enhancement: instead of killing immediately after
+*** D Quit timeout enhancement: instead of killing immediately after
   timeout, could give a message "not responding, kill immediately?"
 
 *** B Doc enhancement: explain conditions for switching buffers and auto
   switching of scripting buffers.  (See doc of 
   proof-auto-action-when-switching-scripting)
 
-*** B make pretty printer line width altering generic.
+*** C make pretty printer line width altering generic.
   Make a generic hook (or hook-constructing macro) to adjust
   pretty printer line widths, a la LEGO.  Maybe find a better
   place to do this that in the proof-shell-insert-hook (should
@@ -305,49 +224,26 @@ X Solaris bugs: font locking and button enabling.
 *** C Investigate possible toolbar refresh problems.
   Sometimes extra clicks *are* needed.  Why?
 
-*** B "Confused" bug: shows up when do lots of C-c C-n as
-  process is starting up, when it takes a long time, esp
-  for Isabelle.  Perhaps in filter, more output arrives
-  before properly initialized?  A bit of a mystery, since code
-  explicitly waits for initialization to complete.
-
 *** B C-x C-v does not seem to run kill buffer hooks properly: at
   least, what happens is buffer name changes to **lose** and
   (e.g.) a completely processed file doesn't get added to the
   included files list.  Auto retraction appears to work.
 
-*** B Now we have proof-shell-error-or-interrupt-seen flag, we maybe don't
-  need proof-shell-handle-error-hook: presently only use is in Plastic
-  to set a similar flag.
-
-*** B Add something to better document two-buffer versus three-buffer
-  interaction modes, and the use of proof-window-dedicated to
-  trigger three buffer mode.
-
-*** B Oops --- here's an alternate and better fix to Isabelle goals
-  problem: just set the proof-shell-proof-completed flag
-  and output as usual?   The effect would be to allow Isabelle's
-  completed proof message to appear in the goals buffer since it's
-  marked up as a proof state output.  This gets rid of the
-  proof-goals-display-qed-message kludge.  See comments in code.
-
 *** C Consider supporting imenu instead, or as well as, func-menu.
 
-*** C Fix the sentinel infinite loop bug which occurs in some cases
+*** D Fix the sentinel infinite loop bug which occurs in some cases
   when proof shell startup fails.  Same message is printed over
   and over.  Infinite in FSF Emacs.  Why?  See note at 
   end of proof-shell.  [2hrs]
   
-C New modules: 
+*** C New modules: 
      proof-shell-{start,end,goal,blah} -> proof-goals-{blah} 
      pbp-{blah} -> proof-goals-{blah}, new proof-goals.el  
      Low-level commands in proof-script.el -> proof-core.el
 
-*** C Package management for X-Emacs.  
-    - Add auto-autoloads
+*** D Package management for X-Emacs.  
+    - arrange into X-Emacs package layout
     - install under ~/.xemacs
-
-*** C Improve relocatability of RPM package.
 
 *** C Improved configurability of command settings, etc.
   We should let command settings, etc, be a special type
@@ -398,9 +294,6 @@ C New modules:
     - Fix proof-script-command-separator and
     proof-one-command-per-line flag, document them.
 
-*** D Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
-  info file into a good place.
-
 *** D Improve Makefile.devel, Makefile, ProofGeneral.spec by abstracting
   ELISP_DIRS somehow.
 
@@ -447,14 +340,10 @@ C New modules:
 *** X Check compilation okay, check on use of eval-and-compile.
 
 *** D BUGLETS:
-  - If Proof General is loaded with M-x load-library, it gets set up
-    for *no* proof assistant!!
-  - Repetition of "load .emacs" on menu bar even when it's been loaded.
   - Response buffer doesn't scroll to display o/p (it does for debug msgs,
     oddly).  This might have been a 1998 design decision.
     Maybe it should be a user option?
-  - are face defconsts still needed now we use defface?
-  - XEmacs pg forces on font-lock!
+  - XEmacs pg forces on font-lock, should it?
 
 *** D SMALL DELTAS:
   - Consider setting proof-mode-for-script automatically?
@@ -462,25 +351,22 @@ C New modules:
   been entered?
   - In case active terminator leads to an error, delete it again?
   (problem synchronizing)
-  - Difference in menubar appearance depending on whether X-Symbol
-  is loaded before Proof General or not.
   - Improvements to script navigation commands.  Would like some
   uniformity with proof-find-next-terminator, and a better
   implementation.  Maybe we have four commands: find command start,
   command end, and move to next command/previous command.
 
-*** X Update logo to include new "???" prover badge  (maybe it should be 
-  "...") from graphics file elsewhere (da)
+*** X Difference in menubar appearance depending on whether X-Symbol
+  is loaded before Proof General or not.
 
-*** X Why don't PG's minor modes appear on XEmacs minor mode menu?
-  (C-right on status bar).  Perhaps they shouldn't anyway, they're
-  not very useful in non-scripting buffers.
+*** X Update logo to include new "???" prover badge  
+  from graphics file elsewhere (da)
 
-*** X Usability enhancement:
-   Enable toolbar in other PG buffers.  Should switch to active
-   scripting buffer first if it is non current.
-   In fact, a sensible subset of scripting commands would
-   work from other buffers.
+*** D Usability enhancement:
+   Enable toolbar in other PG buffers, unless multiple frame 
+   mode is active.
+   Commands should switch to active scripting buffer first 
+   if it is non current.
    This suggestion is based on observation of a user's
    confusion when the toolbar disappears from other PG buffers.
 
@@ -601,25 +487,13 @@ C New modules:
 *** X Functions for next,previous input a la shell mode, but in proof
   script buffer (5h, da).
 
-*** X Write test schedule for things to try out with a new instantiation
-  of Proof General.
-
-*** X automise testing procedures in etc/
+*** C TESTING. 
+    - Add automatic testing mechanism to test user-level functions PG
+    - Test schedule for things to try with a new instantiation
 
 *** C (Isabelle) Messages in minibuffer appear in FSF Emacs with ugly ^J's.
   Generic problem, really: maybe CRs should be stripped, and just first
   line of multiline urgent message displayed in minibuffer.
-
-*** D Perhaps goal..save sequences should be closed also by the appearance
-  of a new goal, even though this may be a "broken" proof.  At the
-  moment, undoing past the new goal causes errors:
-  
-     <goal>
-     ...
-     <new goal>
-     ..
-
-***   Will ACS idea handle this?
 
 *** D Multiple files: handle failures in reading ancestors.
 
@@ -670,18 +544,12 @@ C New modules:
   Poly/ML requires an 'f' at the interrupt handler's prompt to proceed, or
   rather, to fail gracefully.
 
-*** D Make wellclean target remove images in html/images which are
-  generated from the image directory.  Consider putting all the
-  image sources in images/
+*** X Add other image sources to images/ directory.
+      Add target to html/images to remove images generated from 
+      the image directory.  
 
 *** X splash screen: report XEmacs problem of not displaying transparent
   gif properly.
-
-*** X Consider filtering out special annotations from shell buffer
-  rather than merely making them invisible.   Probably NOT:
-  this is a design decision that interaction with the shell
-  should be minimal, so we don't help with fontifying or
-  fixing cut-and-paste.
 
 *** X Allow bib-cite style clicking on Load/Import commands to go
   to file.
@@ -730,13 +598,8 @@ C New modules:
   leaves stuff around.
 
 *** X toolbar icons: Automatically generate reduced and
-  pressed/greyed-out versions from gimp xcf files.  Keep the
-  xcf files under CVS rather than xpm files.  (2h, da)
-
-*** X Remove .gif, .jpg, .xpm, .xbm files from the CVS repository.  Add 
-  .cvsignore's for them instead.  Disadvantage: developers will need
-  to have the Gimp installed to build them via 'make images'
-  (or copy them from the latest download).   (da, 1hr)
+  pressed/greyed-out versions from gimp xcf files. 
+  (1 day's gimp hacking)
 
 *** X Proof General customization: how should it work?
   Presently we have a bunch of variables in proof.el which are
@@ -805,11 +668,92 @@ C New modules:
   But we can sidestep the issue by using prover-silent modes,
   now in 3.2.
   
+*** X Add support for XEmacs 21 packaging.  Make suitable updates available
+  on web page, and make RPM put things in the right place so no .emacs
+  file may need editing(?).  [2 days]
+
+*** X The narrowing issue
+  Code uses (point-min) and (point-max) everywhere.
+  Most primitive functions give error if given arguments outside
+  a restriction.  However, most places these are used in PG we really
+  mean the start or end of the buffer (e.g. when parsing).
+  The only way to fix this seems to be with messy 
+  (save-restriction (widen) ... sequences.
+
+*** X Solaris bugs: font locking and button enabling.
+
+  [Markus]: I can only produce this problem on Solaris, where we have
+  both a mule and non-mule version of xemacs-21.1.8.  On my Linux box
+  at home there is no problem present (using xemacs-21.1.7-mule).
+
+  Note that on the Solaris boxes the problem is already exhibited by
+  visiting a new/empty thy file: buttons are off and are not enabled
+  by typing new stuff.
+
+  Moved down the list now, instead we disable button enablers on
+  Solaris.
+
+*** X Multiple session architecture (difficult)
+
+  With some major re-engineering, PG could be made to work with multiple
+  provers at once, and multiple instances of the same prover.
+
+  Ideas: - introduce "session" notion
+	 - have list of current sessions in progress,
+	   values of active scripting buffer and other per-session vars
+	   for each one
+         - proof shell filter and other functions must automatically
+           switch context to correct session
+         - force everybody to use proof-easy-config macro, and set
+	   <prover>-var automatically from <proof>-var there,
+	   to get defaults for new sessions.
+
+
+
+** 3. Things to do for the documentation
+
+*** A Doc new bits: proof-next-error
+
+*** A Doc new bits: font lock keywords, filename %e, %r.
+  Added proof-{script,shell,goals,resp}-font-lock-keywords.
+  Presently used only in proof-easy-config, will put into other
+  mechanism for 3.2
+
+*** A Doc new bits: win32 support
+
+*** A Doc new bits:  settings mechanism via defpacustom 
+
+*** A Doc new bits: 
+      --- which XEmacs packages does PG use?  (for INSTALL)
+
+*** B Manual improvements before techreport publishing (see notes at end also):
+  - Mention configuring function menus, outline.
+  - Consider splitting up chapter 9?
+  - document mouse functions, proof-cd, process quit timeout, 
+    X-Symbol, prog-name-guess, new menu functions for display.
+  - general tips on what to do when things go wrong: try
+    interrupt, restart, finally exit proof assistant.
+  - improvements after feedback from users.
+  - add screenshots?
+  - add more index entries
+
+*** B Add something to better document two-buffer versus three-buffer
+  interaction modes, and the use of proof-window-dedicated to
+  trigger three buffer mode.
+
+*** C Documentation in pdf format: need to fix inclusion of image 
+  problem.
+
+*** D Fix INFO-DIR-ENTRY in doc/ProofGeneral.texi to put Proof General 
+  info file into a good place.
+
+*** D texi-docstring-magic: first time deffn's, etc, are added, whitespace
+  after magic comment is left.
 
 
 
 
-** 3. FSF Emacs issues
+** 4. FSF Emacs issues
 
 *** B Changed implementation of overlays inside Emacs itself.  We seem to
   need 'priority property of overlays for queue and locked to make 
