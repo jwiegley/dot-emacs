@@ -6,9 +6,7 @@
 ;;
 
 (defvar x-symbol-coq-symbol-table 
-  '((arrowup () "\\+"  "\\<uparrow>")
-    (arrowdown () "\\-"  "\\<downarrow>")
-    (perpendicular  () "False"  "\\<bottom>")
+  '((perpendicular  () "False"  "\\<bottom>")
     (top            () "True"   "\\<top>")
     (notsign       () "~"       "\\<not>")
     (longarrowright () "->"  "\\<longrightarrow>")
