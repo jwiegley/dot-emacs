@@ -21,6 +21,10 @@
 ;;   beginning of the module? 
 
 ;; $Log$
+;; Revision 1.12  1997/10/14 09:29:17  tms
+;; proof-process-active-terminator is now an extension of
+;; proof-assert-until-point (it was broken and looks healthier now)
+;;
 ;; Revision 1.11  1997/10/13 17:09:52  tms
 ;; put script-management branch back on main branch
 ;;
@@ -1003,7 +1007,7 @@ at the end of locked region (after inserting a newline)."
 	(setq semis (cdr semis)))
     (nreverse alist)))
 
-(defun proof-assert-until-point ()
+(defun proof-assert-until-point (&optional unclosed-comment-hook)
   (interactive)
   (let ((pt  (point)) semis crowbar vanillas)
     (setq crowbar (proof-steal-process))
@@ -1012,7 +1016,9 @@ at the end of locked region (after inserting a newline)."
 	  (progn (goto-char pt)
 		 (error "Nothing to do!")))
       (setq semis (proof-segment-up-to (point)))
-      (if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
+      (if (eq 'unclosed-comment (car semis))
+	  (progn (run-hook unclosed-comment-hook)
+		 (setq semis (cdr semis))))
       (if (and (not crowbar) (null semis)) (error "Nothing to do!")))
     (goto-char (caddar semis))
     (setq vanillas (proof-semis-to-vanillas (nreverse semis)))
@@ -1147,30 +1153,20 @@ current command."
     (self-insert-command 1)))
 
 (defun proof-process-active-terminator ()
-  "Insert the terminator in an intelligent way and send the commands
-  between the previous and the new terminator to the proof process."
-  (proof-check-process-available)
+  "Insert the terminator in an intelligent way and assert until the new terminator."
   (let ((mrk (point)) ins semis)
     (if (looking-at "\\s-\\|\\'\\|\\w") 
 	(if (not (re-search-backward "\\S-" (proof-end-of-locked) t))
 	    (error "Nothing to do!")))
     (if (not (= (char-after (point)) proof-terminal-char))
 	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
-    (setq semis (proof-segment-up-to (point)))    
-    (if (null semis) (error "Nothing to do!"))
-    (if (eq 'unclosed-comment (car semis)) 
-	(progn (if ins (backward-delete-char 1))
-	       (goto-char mrk) (insert proof-terminal-string))
-      (goto-char (caddar (last semis)))
-      (proof-start-queue (proof-end-of-locked) (point)
-			 (proof-semis-to-vanillas semis)))))
-
-
+    (proof-assert-until-point
+     (function ()
+	       (if ins (backward-delete-char 1))
+	       (goto-char mrk) (insert proof-terminal-string)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Proof mode configuration                                         ;;
-;; Eventually there will be some more                               ;;
-;; functionality here common to both coq and lego.                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
