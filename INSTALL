@@ -1,0 +1,39 @@
+To install, put the .el files in an appropriate directory and compile
+them using `byte-compile-file' in xemacs:
+	M-x byte-compile-file proof-dependencies-xemacs.el
+	M-x byte-compile-file proof-fontlock.el
+	M-x byte-compile-file proof.el
+	M-x byte-compile-file lego-fontlock.el
+	M-x byte-compile-file coq-fontlock.el
+	M-x byte-compile-file lego.el
+	M-x byte-compile-file coq.el
+	M-x byte-compile-file pbp.el
+
+If you want to use this mode for Coq, you need to make sure you have
+an appropriate version, which is from later than 1 March 1998.
+
+Put the compiled emacs files and the file
+script-management.info in a suitable directory for local emacs files,
+as suggested by your system administrator.
+
+Install coqtags or legotags in a standard place.
+
+If you are running Coq, generate a TAGS file for the library by running
+	coqtags `find . -name \*.v -print`
+in the root directory of the library, $COQTOP/theories.
+
+Finally, you may want to add the following lines to your .emacs file:
+
+;;; LEGO and Coq
+(setq auto-mode-alist
+      (cons '("\\.v" . coq-mode)
+	    (cons '("\\.l$" . lego-mode) auto-mode-alist)))
+
+(autoload 'coq-mode "coq"
+  "Major mode for editing Coq vernacular." t)
+
+(autoload 'lego-mode "lego"
+  "Major mode for editing Lego proof scripts." t)
+
+; Tags is unusable with Coq library otherwise:
+(setq tag-always-exact t)
