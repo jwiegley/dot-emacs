@@ -32,14 +32,15 @@ Summary of interesting changes since 3.4 (August 2002):
 . Improved display management.  
 . RPM packages with freedesktop.org integration and compiled files
 . Keyboard hints and other messages displayed in minibuffer
-. Auxiliary modes bundled: X-Symbol and MMM Mode
 . Improved menus, user options, script colouring and active highlighting
 . For Coq (8.0): "holes" for editing expressions, extra menus, auto compilation
 . For Isabelle (2004): browsing/highlighting theorem dependencies
+. For Isabelle: using LaTeX mode for LaTeX parts of proof documents (via MMM)
 . New instances of PG: Casl Consistency Checker, Shell Script
 . Additional sample proofs (some from http://www.cs.kun.nl/~freek/comparison/)
 . Many other minor improvements and editing features
 . Many changes for compatibility with latest Emacsen (esp. GNU) and provers
+. Auxiliary modes bundled: X-Symbol and MMM (Multiple Major Mode)
 
 For details of changes since 3.4, see
 http://proofgeneral.inf.ed.ac.uk/fileshow.php?file=ProofGeneral-3.6%2FCHANGES
