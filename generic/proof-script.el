@@ -1398,6 +1398,16 @@ a space or newline will be inserted automatically."
 	       (proof-script-new-command-advance)
 	     (proof-script-next-command-advance))))))
 
+;; New 11.09.99.  A better binding for C-c RET.
+(defun proof-goto-point ()
+  "Assert or retract to current position.
+Calls proof-assert-until-point or proof-retract-until-point as
+appropriate."
+  (interactive)
+  (if (< (proof-queue-or-locked-end) (point))
+      (proof-assert-until-point)
+    (proof-retract-until-point)))
+      
 ;;         insert-pbp-command - an advancing command, for use when  ;;
 ;;         PbpHyp or Pbp has executed in LEGO, and returned a       ;;
 ;;         command for us to run                                    ;;
@@ -2166,8 +2176,9 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
 
 ;;;; (define-key map [(control c) (control n)] 'proof-assert-next-command-interactive)
-;; FIXME : This ought to be set to 'proof-assert-until point
-(define-key map [(control c) (return)]	  'proof-assert-next-command-interactive)
+
+(define-key map [(control c) (return)]	  'proof-goto-point)
+
 ;; FIXME: The following two functions should be unified.
 (define-key map [(control c) ?u]	  'proof-retract-until-point-interactive)
 ;;;; (define-key map [(control c) (control u)] 'proof-undo-last-successful-command-interactive)
