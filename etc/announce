@@ -63,9 +63,16 @@ Isabelle.  It includes these features (amongst others):
 
 Script management is the main feature.  
 
+Summary of changes since 2.1:
+
+ . Six new toolbar buttons, enabled depending on context
+ . Reorganized and improved menus 
+ . New function to search for theorems 
+ . Lots more fine-grained improvements, for full details
+   http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/CHANGES
+
 The user manual contains full details, and is available on-line at: 
 http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/doc/ProofGeneral_toc.html
-
 
 The rest of this announcement contains notes addressed to different
 user communities: LEGO, Coq, and Isabelle; users of other proof
