@@ -6,170 +6,33 @@
 ;;
 ;; $Id$
 ;;
-;; XML functions for Proof General
-;;
-;; STATUS: Experimental, used in proof-shell to deal with PGIP
-;; messages from prover.  
-;; 
-;; TODO: Replace this file by a more robust/standard 
-;; Emacs XML library.
-;;
-;; Proof General Kit uses PGIP, an XML-message protocol
-;; for interactive proof.  The simple functions here allow
-;; parsing and writing of XML documents.  Little attempt
-;; is made for efficiency, since PGIP documents are intended
-;; to be small.  No attempt at validation or handling
-;; unicode characters is made.
+;; XML functions for Proof General.
 ;;
 
-;; TODO:
-;; * Fix identifiers
-;; * Fix whitespace handling
-;; * Ignore prologues
+(require 'proof-utils) ;; for pg-internal-warning
 
+(require 'xml) ;; Emmanuel Briot's XML parser, updated by Mark A. Hershberger
+	       ;; (bundled with PG in directory lib/ to try to avoid incompatible versions)
+
+
+
+;; Elisp format of XML trees (see xml.el)
+;;
+;;    xml-list   ::= (node node ...)
+;;    node       ::= (qname attribute-list . child_node_list)
+;;    child_node_list ::= child_node child_node ...
+;;    child_node ::= node | string
+;;    qname      ::= (:namespace-uri . "name") | "name"
+;;    attribute_list ::= ((qname . "value") (qname . "value") ...)
+;;                       | nil
+;;    string     ::= "..."
+;;
+;; NB [da]: without namespace aware parsing, qnames are symbols.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Parsing function: pg-xml-parse-buffer
 ;;
-
-(defconst pg-xml-name  "[a-zA-Z_:][a-zA-Z0-9._:-]*")
-(defconst pg-xml-space "[ \t\n]")
-(defconst pg-xml-ref   (concat "&" pg-xml-name ";"))  ; FIXME: charrefs
-			
-(defconst pg-xml-start-open-elt-regexp 
-  (concat pg-xml-space "*" "<\\(" pg-xml-name "\\)"))
-(defconst pg-xml-end-open-elt-regexp 
-  (concat pg-xml-space "*" "\\(/?\\)>"))
-(defconst pg-xml-close-elt-regexp 
-  (concat pg-xml-space "*" "</\\(" pg-xml-name "\\)>"))
-(defconst pg-xml-attribute-regexp 
-  (concat pg-xml-space "+" "\\(" pg-xml-name "\\)"))
-(defconst pg-xml-attribute-val-regexp 
-  (concat pg-xml-space "*" "=" pg-xml-space "*" 
-	  "\"\\(\\([^<&\"]\\|" pg-xml-ref "\\)*\\)\"")) ; FIXME or 's
-(defconst pg-xml-comment-start-regexp "<!--")
-(defconst pg-xml-comment-end-regexp "-->")
-(defconst pg-xml-anymarkup-regexp "<")
-(defconst pg-xml-special-elts
-  '(xml)
-  "List of special elements which don't require closing.")
-
-(defvar xmlparse nil
-  "Used to store parse result.")
-
-(defun pg-xml-add-text (text)		
-  "If TEXT is non empty, add it to subtree at top of `xmlparse'."
-  (unless (string-equal text "")
-    (setq xmlparse (cons (cons text (car xmlparse))
-			 (cdr xmlparse)))))
-	   
-
-(defun pg-xml-parse-buffer (&optional buffer nomsg)
-  "Parse an XML documment in BUFFER (defaulting to current buffer).
-Return a lisp structure with symbols representing the element 
-names, so that the result of parsing 
-   <elt attr=\"blah\">text</elt> 
-is 
-  (elt ((attr . \"blah\")) (text))"
-  (unless nomsg
-    (message "Parsing %s..." (buffer-name buffer)))
-  (save-excursion
-    (if buffer (set-buffer buffer))
-    (goto-char (point-min))
-    (let ((xmlparse nil)
-	  (pos	    (point))
-	  openelts elt)
-      (unless (looking-at pg-xml-start-open-elt-regexp)
-	(warn "pg-xml-parse-buffer: Junk at start of document: %s"
-	      (buffer-substring 
-	       (point-min)
-	       (min (save-excursion
-		      (re-search-forward pg-xml-anymarkup-regexp nil t)
-		      (match-beginning 0))
-		    (+ 10 (point-min))))))
-      (while (re-search-forward pg-xml-anymarkup-regexp nil t)
-	(goto-char (match-beginning 0))
-	(cond
-	 ;; CASE 1: element opening
-	 ((looking-at pg-xml-start-open-elt-regexp)
-	  (setq elt (intern (match-string 1)))
-	  ;; Add text before here to the parse, if non-empty
-	  ;; FIXME: maybe unless last elt was opening too and 
-	  ;; only white space?
-	  (pg-xml-add-text (buffer-substring pos (match-beginning 0)))
-	  ;; Now look for any attributes
-	  (goto-char (match-end 0))
-	  (let ((attrs nil) attr)
-	    (while (looking-at pg-xml-attribute-regexp)
-	      (setq attr (intern (match-string 1)))
-	      (goto-char (match-end 0))
-	      (if (looking-at pg-xml-attribute-val-regexp)
-		  (progn
-		    (setq attr (cons attr (match-string 1)))
-		    (goto-char (match-end 0))))
-	      (setq attrs (cons attr attrs)))
-	    ;; Retain order in document
-	    (setq attrs (reverse attrs))
-	    ;; Now we ought to be at the end of the element opening
-	    (unless (looking-at pg-xml-end-open-elt-regexp)
-	      (error "pg-xml-parse-buffer: Invalid XML in element opening %s" 
-		     (symbol-name elt)))
-	    ;; Stack the element unless it's self closing
-	    (if (> (length (match-string 1)) 0)
-		;; Add element without nesting
-		(setq xmlparse (cons (cons (cons elt attrs)
-					   (car xmlparse))
-				     (cdr xmlparse)))
-	      ;; Otherwise stack and nest
-	      (setq openelts (cons elt openelts))
-	      (setq xmlparse (cons (list (cons elt attrs)) 
-				   xmlparse))))
-	    (goto-char (match-end 0))
-	    (setq pos (point)))
-
-	 ;; CASE 2: element closing
-	 ((looking-at pg-xml-close-elt-regexp)
-	  (setq elt (intern (match-string 1)))
-	  ;; It better be the top thing on the stack
-	  (unless (eq elt (car-safe openelts))
-	    (error "pg-xml-parse-buffer: Invalid XML at element closing </%s> (expected </%s>)"
-		   (symbol-name elt)
-		   (if openelts
-		       (symbol-name (car openelts))
-		     "no closing element")))
-	  ;; Add text before here to the parse
-	  (pg-xml-add-text (buffer-substring pos (match-beginning 0)))
-	  ;; Unstack the element and close subtree
-	  (setq openelts (cdr openelts))
-	  (setq xmlparse (cons (cons
-				(reverse (car xmlparse))
-				(cadr xmlparse))
-			       (cddr xmlparse)))
-	  (goto-char (match-end 0))
-	  (setq pos (point)))
-	 
-	 ;; CASE 3: comment
-	 ((looking-at pg-xml-comment-start-regexp)
-	  (unless (re-search-forward pg-xml-comment-end-regexp nil t)
-	    (error "pg-xml-parse-buffer: Unclosed comment beginning at line %s"
-		   (1+ (count-lines (point-min) (point))))))))
-	
-      ;; We'd better have nothing on the stack of open elements now.
-      (unless (null openelts)
-	(error "pg-xml-parse-buffer: Unexpected end of document, expected </%s>"
-	       (symbol-name (car openelts))))
-      ;; And we'd better be at the end of the document.
-      (unless (and (looking-at "[ \t\n]*")
-		   (eq (match-end 0) (point-max)))
-	(warn "pg-xml-parse-buffer: Junk at end of document: %s"
-	      (buffer-substring (point)
-				(min (point-max) (+ 30 (point-max))))))
-      ;; Return the parse
-      ;; FIXME: 
-      (unless nomsg
-	(message "Parsing %s...done" (buffer-name buffer)))
-      (caar xmlparse))))
 
 ;;;###autoload
 (defun pg-xml-parse-string (arg)
@@ -183,91 +46,123 @@ is
       (pg-xml-parse-buffer (current-buffer) 'nomessage))))
 
 
+(defun pg-xml-parse-buffer (&optional buffer nomsg)
+  "Parse an XML documment in BUFFER (defaulting to current buffer).
+Parsing according to `xml-parse-file' of xml.el."
+  (unless nomsg
+    (message "Parsing %s..." (buffer-name buffer)))
+  (let ((xml (xml-parse-region (point-min)
+				 (point-max)
+				 (current-buffer)
+				 nil)))
+      (unless nomsg
+	(message "Parsing %s...done" (buffer-name buffer)))
+      xml))
+
+;; Check that the empty parsing bug isn't present
+(if (xml-node-children (car (pg-xml-parse-string "<foo/>")))
+    (pg-internal-warning "An old version of xml.el was loaded!  It is buggy. See Proof General FAQ."))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Producing functions: state-based writing of an XML doc,
-;;			built up in pg-xml-doc
+;; Helper functions for parsing
 ;;
+
+(defun pg-xml-get-attr (attribute node &optional optional defaultval)
+  (let ((val (cdr (assoc attribute (xml-node-attributes node)))))
+    (or val
+	(if optional
+	    defaultval
+	  (pg-pgip-error "pg-xml-get-attr: Didn't find required %s attribute in %s element" 
+		 attribute (xml-node-name node))))))
+
+(defun pg-xml-child-elts (node)
+  "Return list of *element* children of NODE (ignoring strings)."
+  (let ((children (xml-node-children node)))
+    (mapcan (lambda (x) (if (listp x) (list x))) children)))
+
+(defun pg-xml-child-elt (node)
+  "Return unique element child of NODE."
+  (let ((children (pg-xml-child-elts node)))
+    (if (= (length children) 1)
+	(car children)
+      (pg-internal-warning  "pg-xml-child-elt: expected single element child of %s" 
+			    (xml-node-name node)))))
+
+(defun pg-xml-get-child (child node)
+  "Return single element CHILD of node, give error if more than one."
+  (let ((children (xml-get-children node child)))
+    (if (> (length children) 1)
+	 (progn
+	   (pg-internal-warning "pg-xml-get-child: got more than one %s child of %s node, ignoring rest"
+				child (xml-node-name node))
+	   (car children))
+      children)))
+     
+(defun pg-xml-get-text-content (node)
+  "Return the concatenation of all the text children of node NODE."
+  (mapconcat (lambda (x) (if (stringp x) x "")) (xml-node-children node) ""))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Producing functions: constructing an XML tree in xml.el format
+;;			and converting to a string
+
+(defmacro pg-xml-attr (name val) `(cons (quote ,name) ,val))
+
+(defmacro pg-xml-node (name atts children) 
+  `(cons (quote ,name) (cons ,atts ,children)))
 
 (defconst pg-xml-header 
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 
-(defvar pg-xml-doc nil
-  "Current document being written (a reversed list of strings).")
 
-(defvar pg-xml-openelts nil
-  "Stack of openelements")
+(defun pg-xml-string-of (xmls)
+  "Convert the XML trees in XMLS into a string (without additional indentation)."
+  (let ((insertfn    (lambda (&rest args)
+		       (setq strs (cons (reduce 'concat args) strs))))
+	strs)
+    (dolist (xml xmls) 
+      (pg-xml-output-internal xml nil insertfn))
+    (reduce 'concat (reverse strs))))
 
-(defvar pg-xml-indentp nil
-  "Whether to indent written XML documents")
+;; based on xml-debug-print from xml.el
 
-(defun pg-xml-encode-entities (string)
-  (progn
-    ;; rather inefficiently...
-    (setq string (replace-regexp-in-string (regexp-quote "<") "&lt;" string))
-    (setq string (replace-regexp-in-string (regexp-quote ">") "&rt;" string))
-    (setq string (replace-regexp-in-string (regexp-quote "'") "&apos;" string))
-    (setq string (replace-regexp-in-string (regexp-quote "&") "&amp;" string))
-    (setq string (replace-regexp-in-string (regexp-quote "\"") "&quot;" string))
-    string))
+(defun pg-xml-output-internal (xml indent-string outputfn)
+  "Outputs the XML tree using OUTPUTFN, which should accept a list of args.
+Output with indentation INDENT-STRING (or none if nil)."
+  (let ((tree xml)
+	attlist)
+    (funcall outputfn (or indent-string "") "<" (symbol-name (xml-node-name tree)))
+    
+    ;;  output the attribute list
+    (setq attlist (xml-node-attributes tree))
+    (while attlist
+      (funcall outputfn " ")
+      (funcall outputfn (symbol-name (caar attlist)) "=\"" (cdar attlist) "\"")
+      (setq attlist (cdr attlist)))
+    
+    (setq tree (xml-node-children tree))
 
-(defun pg-xml-begin-write (&optional header)
-  "Start writing an XML document.  If HEADER is non-nil, add <?xml ?>"
-  (setq pg-xml-doc (if header (list pg-xml-header))
-	pg-xml-openelts nil))
+    (if tree
+	(progn
+	  (funcall outputfn ">")
+	  ;;  output the children
+	  (dolist (node tree)
+	    (cond
+	     ((listp node)
+	      (if indent-string (funcall outputfn "\n"))
+	      (pg-xml-output-internal node (if indent-string (concat indent-string "  ")) outputfn))
+	     ((stringp node) (funcall outputfn node))
+	     (t
+	      (error "pg-xml-output-internal: Invalid XML tree"))))
+	  
+	  (funcall outputfn (if indent-string (concat "\n" indent-string) "")
+		   "</" (symbol-name (xml-node-name xml)) ">"))
+      (funcall outputfn "/>"))))
 
-(defun pg-xml-indent ()
-  (if pg-xml-indentp
-      (substring "\n                              " 
-		 1 (length pg-xml-openelts))
-    ""))
-
-(defun pg-xml-openelt (element &optional attributes)
-  (setq pg-xml-openelts (cons element pg-xml-openelts))
-  (let (string)
-    (setq string (concat (pg-xml-indent)
-			 "<" (symbol-name element)))
-    (while attributes
-      (if (consp (car attributes))
-	  (setq string (concat 
-			string
-			" " 
-			(symbol-name (caar attributes))
-			"="
-			(cdar attributes)))
-	(setq string (concat string
-			     " " (symbol-name (car attributes)))))
-      (setq attributes (cdr attributes)))
-    (setq pg-xml-doc
-	  (cons (concat string ">") pg-xml-doc))))
-
-(defun pg-xml-closeelt ()
-  (unless pg-xml-openelts
-    (error "pg-xml-closelt: no open elements"))
-  (setq pg-xml-doc 
-	(cons
-	 (concat
-	  (pg-xml-indent)
-	  "</" (symbol-name (car pg-xml-openelts)) ">")
-	 pg-xml-doc))
-  (setq pg-xml-openelts (cdr pg-xml-openelts)))
-
-
-(defun pg-xml-writetext (text)
-  (setq pg-xml-doc (cons (concat (pg-xml-indent) text) pg-xml-doc)))
-
-(defun pg-xml-doc ()
-  (apply 'concat (reverse pg-xml-doc)))
-
-;; Test document:
-;;(progn
-;;  (pg-xml-begin-write t)
-;;  (pg-xml-openelt 'root)
-;;  (pg-xml-openelt 'a '((class . "1B")))
-;;  (pg-xml-writetext "text a")
-;;  (pg-xml-closeelt)
-;;  (pg-xml-closeelt)
-;;  (pg-xml-doc))
 
 (provide 'pg-xml)
 ;; End of `pg-xml.el'
