@@ -26,6 +26,10 @@
 ;; We can improve on that by generating everything on-thy-fly
 ;; in proof-toolbar-setup.
 
+;; FIXME: consider automatically disabling buttons which are
+;; not configured for the prover, e.g. if proof-help-string is
+;; not set, then the Info button should not be show. 
+
 ;; FIXME: In the future, add back the enabler functions.
 ;; As of 20.4, they *almost* work, but it seems difficult
 ;; to get the toolbar to update at the right times.
@@ -186,18 +190,21 @@ to the default toolbar."
 	    (add-hook 'proof-state-change-hook 'proof-toolbar-refresh)
 	    ;; A rather pervasive hook
 	    (add-hook 'after-change-functions 'proof-toolbar-refresh)
-	    ;; And the interval timer for refreshing the toolbar really
+	    ;; And the interval timer for really refreshing the toolbar
 	    (setq proof-toolbar-itimer
 		  (start-itimer "proof toolbar refresh"
 				'proof-toolbar-really-refresh
-				0.1		; seconds of delay
-				0.1		; repeated
-				t)))		; wait this time while idle
+				0.5		 ; seconds of delay
+				0.5		 ; repeated
+				t		 ; count idle time
+				t		 ; pass argument
+				(current-buffer)))) ;  - current buffer
 	;; Disabling toolbar: remove specifier, hooks, timer.
 	(remove-specifier default-toolbar (current-buffer))
 	(remove-hook 'proof-state-change-hook 'proof-toolbar-refresh)
 	(remove-hook 'after-change-functions 'proof-toolbar-refresh)
-	(delete-itimer proof-toolbar-itimer))))
+	(if proof-toolbar-itimer (delete-itimer proof-toolbar-itimer))
+	(setq proof-toolbar-itimer nil))))
 
 (defun proof-toolbar-toggle (&optional force-on)
   "Toggle display of Proof General toolbar."
@@ -205,7 +212,6 @@ to the default toolbar."
   (setq proof-toolbar-inhibit
        (or force-on (not proof-toolbar-inhibit)))
   (proof-toolbar-setup))
-
 
 (deflocal proof-toolbar-refresh-flag nil
   "Flag indicating that the toolbar should be refreshed.")
@@ -215,20 +221,23 @@ to the default toolbar."
   "Set flag to indicate that the toolbar should be refreshed."
   (setq proof-toolbar-refresh-flag t))
 
-(defun proof-toolbar-really-refresh ()
+(defun proof-toolbar-really-refresh (buf)
   "Force refresh of toolbar display to re-evaluate enablers.
 This function needs to be called anytime that enablers may have 
 changed state."
   ;; FIXME: could improve performance here and reduce flickeryness
   ;; by caching result of last evaluation of enablers.  If nothing
   ;; has changed, don't remove and re-add.
-  (if (featurep 'toolbar)		; won't work in FSF Emacs
+  (if ;; Be careful to only add to correct buffer, and if it's live
+      (buffer-live-p buf)
+      ;; I'm not sure if this is "the" official way to do this,
+      ;; but it's what VM does and it works.
       (progn
-	;; I'm not sure if this is "the" official way to do this,
-	;; but it's what VM does and it works.
-	(remove-specifier default-toolbar (current-buffer))
-	(set-specifier default-toolbar proof-toolbar (current-buffer))
-	(setq proof-toolbar-refresh-flag nil))))
+	(remove-specifier default-toolbar buf)
+	(set-specifier default-toolbar proof-toolbar buf)
+	(setq proof-toolbar-refresh-flag nil))
+    ;; Kill off this itimer if it's owning buffer has died
+    (delete-itimer current-itimer)))
 
 ;;
 ;; =================================================================
