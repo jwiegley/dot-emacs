@@ -1872,14 +1872,15 @@ May enable proof-by-pointing or similar features.
     (define-key pbp-mode-map [(button2)] 'pbp-button-action)
     (define-key pbp-mode-map [(control button2)] 'proof-undo-and-delete-last-successful-command)
     ;; button 2 is a nuisance on 2 button mice, so we'll do 1 as well.
-    (define-key pbp-mode-map [(button1)] 'pbp-button-action)
-    (define-key pbp-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
+    ;; Actually we better hadn't, people like to use it for cut and paste.
+    ;; (define-key pbp-mode-map [(button1)] 'pbp-button-action)
+    ;; (define-key pbp-mode-map [(control button1)] 'proof-undo-and-delete-last-successful-command)
     (define-key pbp-mode-map [(button3)] 'pbp-yank-subterm))
    (t
     (define-key pbp-mode-map [mouse-2] 'pbp-button-action)
     (define-key pbp-mode-map [C-mouse-2] 'proof-undo-and-delete-last-successful-command)
-    (define-key pbp-mode-map [mouse-1] 'pbp-button-action)
-    (define-key pbp-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
+    ;; (define-key pbp-mode-map [mouse-1] 'pbp-button-action)
+    ;; (define-key pbp-mode-map [C-mouse-1] 'proof-undo-and-delete-last-successful-command)
    (define-key pbp-mode-map [mouse-3] 'pbp-yank-subterm)))
   (define-key pbp-mode-map [q] 'bury-buffer)
   (easy-menu-add proof-goals-mode-menu pbp-mode-map)
