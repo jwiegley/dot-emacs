@@ -522,12 +522,17 @@ the system is currently processing. @inforef{Match Data,,lispref}
 @comment  node-name,  next,  previous,  up
 @unnumberedsubsubsec Recording File History
 
-@vindex proof-included-files-list
+The variable
 
-The variable @code{proof-included-files-list} records the file history.
-It contains an acyclic graph. The nodes are canonical file names. An
-edge from @samp{n1} to @samp{n2} indicates that @samp{n1} depends on @samp{n2}. The
-variable @code{proof-included-files-list} should not be modified
+@vtable @code
+@item proof-included-files-list
+ records the file history.
+It contains an acyclic graph. The nodes are strings (canonical file names). An
+edge from node @samp{n1} to node @samp{n2} indicates that @samp{n1}
+depends on @samp{n2}. @samp{n1} is the child, @samp{n2} is a parent.
+@end vtable
+
+The variable @code{proof-included-files-list} should not be modified
 directly. Instead use one of the following methods:
 
 @ftable @code
@@ -539,6 +544,9 @@ Adds @var{file} to the history of
 processed files. Its optional argument @var{parents} specifies all
 direct dependencies. It @var{parents} is nil, @var{file} is assumed to
 be top level. 
+
+@item proof-include-files-list-parents
+Returns a list of parents for the argument @var{child}.
 
 @item proof-include-files-list-remove
 Removes @var{file} and all its children from the record.
@@ -580,7 +588,7 @@ to display dependencies for a particular @var{file}.
 The result is analysed with the help of the function
 
 @ftable @code
-@item proof-files-extract-parents
+@item proof-files-query-dependencies-extract-parents
 Returns the list of direct parents for the argument @var{file} by
 analysing the previous output of the prover which triggered @code{proof-files-query-dependencies-response-regexp}
 @end ftable
