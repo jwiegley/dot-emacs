@@ -24,7 +24,7 @@
 (load "coq.el")
 (load "lego.el")
 ;; A couple of comint symbols are mentioned in the docs
-(load "comint.el)
+(load "comint.el")
 
 ;; Set some symbols to make markup happen
 (setq sml-mode 'markup-hack)
