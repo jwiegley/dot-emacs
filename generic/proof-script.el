@@ -1004,7 +1004,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
       (let (nam gspan next)
 
 	;; Try to set the name of the theorem from the save
-	(message cmd)
+	(message "%s" cmd)
 
 	(and proof-save-with-hole-regexp
 	     (proof-string-match proof-save-with-hole-regexp cmd)
@@ -1012,7 +1012,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 		   (if (stringp proof-save-with-hole-result)
 		       (replace-match proof-save-with-hole-result nil nil cmd)
 		     (match-string proof-save-with-hole-result cmd))))
-	(message nam)
+	(message "%s" nam)
 	;; Search backwards for first goal command, 
 	;; deleting spans along the way.
 	(setq gspan span)
@@ -1031,7 +1031,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	;; If the name isn't set, try to set it from the goal. 
 	  (unless nam
 	    (let ((cmdstr (span-property gspan 'cmd)))
-	      (message cmdstr)
+	      (message "%s" cmdstr)
 	      (and proof-goal-with-hole-regexp
 		   (proof-string-match proof-goal-with-hole-regexp cmdstr)
 		   (setq nam 
@@ -1165,7 +1165,7 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	  ;; Try to set a name from the goal
 	  ;; (useless for provers like Isabelle)
 	  (let ((cmdstr (span-property gspan 'cmd)))
-	    (message cmdstr)
+	    (message "%s" cmdstr)
 	    (and proof-goal-with-hole-regexp
 		 (proof-string-match proof-goal-with-hole-regexp cmdstr)
 		 (setq nam 
