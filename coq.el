@@ -3,6 +3,9 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.18  1998/05/06 16:39:10  hhg
+;; Removed default instantiation of undo limit to 100.
+;;
 ;; Revision 1.17  1998/05/06 15:29:11  hhg
 ;; Added coq-info-dir so that script-management.info can be hard-coded.
 ;;
@@ -91,7 +94,7 @@
 (defconst coq-mode-version-string
   "Coq-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
 
-(defvar coq-tags "/obj/local/coq/V6.2/theories/TAGS"
+(defvar coq-tags "/usr/local/lib/coq/V6.2/theories/TAGS"
   "the default TAGS table for the Coq library")
 
 (defconst coq-info-dir "/usr/local/share/info")
@@ -115,7 +118,7 @@
 
 ;; ----- coq-shell configuration options
 
-(defvar coq-prog-name "/obj/local/coq/V6.2/bin/sun4/coqtop -image /obj/local/coq/V6.2/bin/sun4/coq.out -emacs"
+(defvar coq-prog-name "coqtop -emacs"
   "*Name of program to run as Coq.")
 
 (defvar coq-shell-working-dir ""
@@ -124,7 +127,7 @@
 (defvar coq-shell-prompt-pattern (concat "^" proof-id " < ")
   "*The prompt pattern for the inferior shell running coq.")
 
-(defvar coq-shell-cd "Cd \"%s\"."
+(defvar coq-shell-cd nil ; "Cd \"%s\"."
   "*Command of the inferior process to change the directory.") 
 
 (defvar coq-shell-abort-goal-regexp "Current goal aborted"
@@ -680,8 +683,6 @@
 	proof-shell-analyse-structure 'coq-shell-analyse-structure
         proof-shell-config nil)
   (proof-shell-config-done)
-
-  (coq-set-undo-limit coq-default-undo-limit)
 )
 
 (defun coq-pbp-mode-config ()
