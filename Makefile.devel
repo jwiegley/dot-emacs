@@ -67,6 +67,8 @@
 
 DEVELOPERS=\
 -u "da	David Aspinall	da@proofgeneral.org" \
+-u "gkein	Gerwin Klein	gklein@in.tum.de" \
+-u "sberghof	Stefan Berghofer	berghofe@in.tum.de" \
 -u "markus	Markus Wenzel	support+wenzelm@proofgeneral.org" \
 -u "pier	Pierre Courtieu	courtieu@lri.fr" \
 -u "crr	Christophe Raffalli	Christophe.Raffalli@univ-savoie.fr" \
