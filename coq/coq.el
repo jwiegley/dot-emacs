@@ -88,11 +88,11 @@
 ;; ----- outline
 
 (defvar coq-outline-regexp
-  (proof-ids-to-regexp 
-	   '("Correctness" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact"
-	   "Remark" "Record" "Inductive" "Definition")))
+  (concat "(\\*\\|" (proof-ids-to-regexp 
+	   '(
+"Tactic" "Axiom" "Parameter" "Parameters" "Variable" "Variables" "Syntax" "Grammar" "Syntactic" "Load" "Require" "Hint" "Hints" "Correctness" "Section" "Chapter" "Goal" "Lemma" "Theorem" "Fact" "Remark" "Record" "Inductive" "Mutual" "Definition" "Fixpoint"))))
 
-(defvar coq-outline-heading-end-regexp "\.\\|\\*)")
+(defvar coq-outline-heading-end-regexp "\\*\)\n\\|\\.\n")
 
 (defvar coq-shell-outline-regexp coq-goal-regexp)
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
