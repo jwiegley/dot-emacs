@@ -3,15 +3,6 @@
 * Summary of Changes for Proof General 3.2 from 3.1
 
 
-** New instantiations of Proof General!
-
-*** Plastic (http://www.dur.ac.uk/CARG/plastic.html)  (ongoing work)
-  
-   by Paul Callaghan <P.C.Callaghan@durham.ac.uk>.
-   The Plastic system itself is not yet publicly available,
-   so this is only included in the developers tar file.
-
-
 ** Generic Changes
 
 *** Added proof assistant specific menu facility.  
