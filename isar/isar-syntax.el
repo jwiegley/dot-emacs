@@ -46,7 +46,7 @@
   (modify-syntax-entry ?\} "){"))
 
 
-;; ----- syntax for font-lock and other features
+;; ----- keyword groups
 
 (defconst isar-keywords-theory-enclose
   (append isar-keywords-theory-begin
@@ -65,6 +65,8 @@
 
 (defconst isar-keywords-proof-enclose
   (append isar-keywords-proof-block
+	  isar-keywords-proof-open
+	  isar-keywords-proof-close
 	  isar-keywords-qed-block))
 
 (defconst isar-keywords-proof
@@ -90,33 +92,20 @@
 	  isar-keywords-theory-heading
 	  isar-keywords-theory-goal))
 
-(defconst isar-keywords-indent
-  (append isar-keywords-theory-heading
-	  isar-keywords-theory-decl
-	  isar-keywords-proof-block
-	  isar-keywords-proof-decl
-	  isar-keywords-proof-asm
-	  isar-keywords-proof-script))
-
 (defconst isar-keywords-indent-open
   (append isar-keywords-theory-goal
 	  isar-keywords-proof-goal
-	  isar-keywords-proof-asm-goal))
+	  isar-keywords-proof-asm-goal
+	  isar-keywords-proof-open))
 
 (defconst isar-keywords-indent-close
-  (append isar-keywords-save))
+  (append isar-keywords-save
+	  isar-keywords-proof-close))
 
 (defconst isar-keywords-indent-enclose
   (append isar-keywords-proof-block
+	  isar-keywords-proof-close
 	  isar-keywords-qed-block))
-
-(defconst isar-keywords-indent-reset
-  (append isar-keywords-theory-begin
-	  isar-keywords-theory-switch
-	  isar-keywords-theory-end
-	  isar-keywords-theory-heading
-	  isar-keywords-theory-decl
-	  isar-keywords-qed-global))
 
 
 ;; ----- regular expressions
@@ -165,6 +154,13 @@
   (concat "\\(" (isar-ids-to-regexp isar-keywords-theory-goal) "\\)" isar-name-regexp ":")
   "Regexp matching goal commands in Isabelle/Isar which name a theorem")
 
+(defconst isar-comment-start "(*")
+(defconst isar-comment-end "*)")
+(defconst isar-comment-start-regexp (regexp-quote isar-comment-start))
+(defconst isar-comment-end-regexp (regexp-quote isar-comment-end))
+
+(defconst isar-string-start-regexp "\"\\|{\\*")
+(defconst isar-string-end-regexp "\"\\|\\*}")
 
 
 ;; ----- Isabelle inner syntax hilite
@@ -313,7 +309,7 @@
    (isar-ids-to-regexp (append isar-keywords-control isar-keywords-theory-end))))
 
 (defconst isar-undo-skip-regexp
-  (proof-anchor-regexp (concat ";\\|" (isar-ids-to-regexp isar-keywords-diag))))
+  (proof-anchor-regexp (proof-regexp-alt (isar-ids-to-regexp isar-keywords-diag) ";")))
 
 (defconst isar-undo-remove-regexp
   (concat
@@ -326,11 +322,16 @@
 
 ;; ----- indentation
 
-(defconst isar-indent-regexp (isar-ids-to-regexp isar-keywords-indent))
-(defconst isar-indent-open-regexp (isar-ids-to-regexp isar-keywords-indent-open))
-(defconst isar-indent-close-regexp (isar-ids-to-regexp isar-keywords-indent-close))
-(defconst isar-indent-enclose-regexp (isar-ids-to-regexp isar-keywords-indent-enclose))
-(defconst isar-indent-reset-regexp (isar-ids-to-regexp isar-keywords-indent-reset))
+(defconst isar-indent-any-regexp
+  (proof-regexp-alt isar-any-command-regexp "\\s(" "\\s)"))
+(defconst isar-indent-inner-regexp
+  (proof-regexp-alt "[[]()]"))
+(defconst isar-indent-enclose-regexp
+  (proof-regexp-alt (isar-ids-to-regexp isar-keywords-indent-enclose) "\\s)"))
+(defconst isar-indent-open-regexp
+  (proof-regexp-alt (isar-ids-to-regexp isar-keywords-indent-open) "\\s("))
+(defconst isar-indent-close-regexp
+  (proof-regexp-alt (isar-ids-to-regexp isar-keywords-indent-close) "\\s)"))
 
 
 (provide 'isar-syntax)
