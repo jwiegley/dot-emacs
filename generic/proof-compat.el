@@ -176,9 +176,45 @@ and replace a sub-expression, e.g.
 The GNU Emacs implementation of easy-menu-define has a very handy
 :visible keyword.  To use that when it's available, we use this constant.")
 
- 
 
+;; Add get-window-with-predicate from Emacs 21.2.1 to XE 21.4.12
+;; Reason: unidentified function(!) calls this during PG startup
+(or (fboundp 'get-window-with-predicate)
+(defun get-window-with-predicate (predicate &optional minibuf
+					    all-frames default)
+  "Return a window satisfying PREDICATE.
 
+This function cycles through all visible windows using `walk-windows',
+calling PREDICATE on each one.  PREDICATE is called with a window as
+argument.  The first window for which PREDICATE returns a non-nil
+value is returned.  If no window satisfies PREDICATE, DEFAULT is
+returned.
+
+Optional second arg MINIBUF t means count the minibuffer window even
+if not active.  MINIBUF nil or omitted means count the minibuffer iff
+it is active.  MINIBUF neither t nor nil means not to count the
+minibuffer even if it is active.
+
+Several frames may share a single minibuffer; if the minibuffer
+counts, all windows on all frames that share that minibuffer count
+too.  Therefore, if you are using a separate minibuffer frame
+and the minibuffer is active and MINIBUF says it counts,
+`walk-windows' includes the windows in the frame from which you
+entered the minibuffer, as well as the minibuffer window.
+
+ALL-FRAMES is the optional third argument.
+ALL-FRAMES nil or omitted means cycle within the frames as specified above.
+ALL-FRAMES = `visible' means include windows on all visible frames.
+ALL-FRAMES = 0 means include windows on all visible and iconified frames.
+ALL-FRAMES = t means include windows on all frames including invisible frames.
+If ALL-FRAMES is a frame, it means include windows on that frame.
+Anything else means restrict to the selected frame."
+  (catch 'found
+    (walk-windows #'(lambda (window)
+		      (when (funcall predicate window)
+			(throw 'found window)))
+		  minibuf all-frames)
+    default)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
