@@ -244,6 +244,7 @@ Given is the first SPAN which needs to be undone."
     ;;  so that Undo can be implemented via the tmp_cmd route.)
   (let (string (spans 0))
     (while span
+      ;; FIXME da: should probably ignore comments/proverproc here?
       (setq string (span-property span 'cmd))
       (plastic-preprocessing)		;; dynamic scope, on string
 

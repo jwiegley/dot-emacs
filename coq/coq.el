@@ -267,7 +267,8 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
 ;; nested proofs.
 
 
-(defun coq-is-comment-p (span) (eq (span-property span 'type) 'comment))
+(defun coq-is-comment-or-proverprocp (span) 
+  (memq (span-property span 'type) '(comment proverproc)))
 (defun coq-is-goalsave-p (span) (eq (span-property span 'type) 'goalsave))
 (defun coq-is-module-equal-p (str) ;;cannot appear vith coq < 7.4
   (and (proof-string-match "\\`\\(Declare\\s-\\)?\\s-*\\<Module\\>.*:=" str)
@@ -304,7 +305,7 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
     (while (and span (not ans))
       (setq str (span-property span 'cmd))
       (cond
-       ((coq-is-comment-p span)) ; do nothing
+       ((coq-is-comment-or-proverprocp span)) ; do nothing
 
        ;; Module <Type> T ... :=... . inside proof ->  like Definition...:=...  
        ;; (should actually be disallowed in coq)

@@ -423,6 +423,7 @@ proof-shell-retract-files-regexp."
        ;;  str below)
        ;; FIXME: should adjust proof-nesting-depth here.
        ((or (eq (span-property span 'type) 'comment)
+	    (eq (span-property span 'type) 'proverproc)
 	    (eq (span-property span 'type) 'proof); da: needed?
             (proof-string-match isar-undo-skip-regexp str)
             (proof-string-match isar-undo-ignore-regexp str)))
