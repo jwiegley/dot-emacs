@@ -1,0 +1,8 @@
+Notes to include in documentation.
+----------------------------------
+
+
+Why is C-c C-b useful?  Could just use the file to read it one go
+(will we have a command to do this other than via the process?).
+BUT it's nice because it stops exactly where a proof fails, so you can
+continue development from there.
