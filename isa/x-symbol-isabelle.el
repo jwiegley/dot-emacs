@@ -25,8 +25,6 @@
 
 ;; NB da: these next two are also set in proof-x-symbol.el, but
 ;; it would be handy to be able to use this file away from PG.  
-;; FIXME: In future could fix things so just 
-;; (require 'proof-x-symbol) would be enough here.
 (defvar x-symbol-isabelle-name "Isabelle Symbol")
 (defvar x-symbol-isabelle-modeline-name "isa")
 
