@@ -21,36 +21,9 @@ RELEASE 2.0 remaining problems:
 
 A***  Documentation polishing.
 
-A***  MULTIPLE FILES BEHAVIOUR:
-        Problems with inclusion of the script buffer file name
-        in the included files list.  Should it be there or not,
-	if the file is only partly processed?
-
-   Log files for last changes in proof-script:
-
-   Disabled hack for proof-shell-process-file which allowed
-   empty string to stand for filename of current scripting buffer.
-   This added the current script buffer onto the included files
-   list immediately processing it began (if it began with something
-   creating a mark).  However, I removed the check for the current
-   scripting buffer so that that could correctly be marked atomic
-   for Isabelle at other times.  This resulted in current buffer
-   being marked atomic, and errors.
-   Are there still more errors?
-
-      [Possibly yes: is there some processing of lego-path somewhere?
-       If I visit /home/da/example.l then other stuff in another dir
-        the other stuff is not seen]
-    
-   
-   My current viewpoint is that the processed files list only contains
-   files *fully* processed by the prover, and that Proof General should
-   manage the scripting buffer part of this.  So if we process a 
-   succession of files with scripting, they are entered onto the list.
-
-
-A***  BUG: FSF Emacs process handling (check on proof-shell-insert fix), 
-      killing buffer problems.
+         -  New line after first sentence of docstrings.
+         -  Several env variables / LEGO name stuff.
+             Idea: make `STUFF' be literal.
 
 A***  outline mode when proof-strict-read-only is nil, does it really
 work?
@@ -66,7 +39,7 @@ A*** Possible bug [Isabelle/all]:
  at the top of a script buffer, sometimes special commands like
  ProofGeneral.kill_goal(); are inserted without reason
 
-A ish BUG: catch bug on Solaris when process shell killed.
+A*** catch bug on Solaris when process shell killed?
 
 
 =============
@@ -469,9 +442,6 @@ X pbp code doesn't quite accord with the tech report; in particular it
 * Here are things to be done to Lego mode
 =========================================
 
-A* Add setting for proof-shell-restart-cmd (and maybe other new
-   variables).
-
 C In LEGO, apart from Goal...Save pairs, we have
   declaration...discharge pairs. See the section "Granularity of
   Atomic Commands" for a proposal on how to generalise the current
@@ -491,6 +461,10 @@ D Improve legotags. It cannot handle lists e.g., with
     [x,y:nat];
 
   it only tags x but not y. [The same problem exists for coqtags]
+
+X Add support for changing directory when scripting buffer changes
+  (see proof-activate-scripting-hook).  This would alleviate users
+  from some messing with LEGOPATH.  (Possibly contentious).
 
 X Mechanism to save object file
 
