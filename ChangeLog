@@ -1,3 +1,60 @@
+2001-08-03  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+	* html/fileshow.php:
+	Fix link back to fileshow.php
+
+	* html/fileshow.html: Renamed file
+
+	* html/main.html: Fix screenshot link
+
+2001-08-01  David Aspinall  <da@proofgeneral.org>
+
+	* doc/ProofGeneral.texi, doc/PG-adapting.texi:
+	Update last updated, copyright
+
+	* README.windows: Formatting
+
+	* README: Update for 3.3
+
+	* ChangeLog: Updated.
+
+	* html/screenshot.html, html/about.html, html/oldnews.html:
+	Fix links to gallery
+
+	* html/gallery.html: Deleted files.
+
+	* html/gallery: Renamed file
+
+	* html/gallery.html: Moved to .php
+
+	* html/about.html: Fix typo
+
+	* html/gallery.php, html/gallery.html:
+	Renamed file
+
+	* html/news.html: Added news
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/proof-autoloads.el:
+	Regenerate to remove Christophes patch
+
+	* generic/proof-compat.el, generic/proof-site.el:
+	Moved compat hack to proof-site
+
+	* generic/proof-toolbar.el:
+	Revert to removing and re-adding specifiers for toolbar,
+	so that enablers work at least as well as they did before...
+
+	* generic/proof-compat.el:
+	Add a dummy version of package-provide for FSFEmacs.
+
 2001-08-01  David Aspinall  <da@proofgeneral.org>
 
 	* html/screenshot.html, html/about.html, html/oldnews.html:
