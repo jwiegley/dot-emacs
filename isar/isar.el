@@ -22,7 +22,8 @@
 ;;
 (setq load-path (cons (concat proof-home-directory "isa/") load-path))
 (require 'isabelle-system)
-(require 'x-symbol-isabelle) ;; FIXME: ought to be auto-loaded later
+(require 'x-symbol-isabelle) ;; FIXME: ought to be auto-loaded later,
+			     ;; and only if required.
 
 ;;
 ;; Load syntax
