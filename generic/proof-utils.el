@@ -563,7 +563,6 @@ No action if BUF is nil or killed."
 ;;; Utils for making functions to adjust user settings
 ;;;
 
-
 (defun proof-deftoggle-fn (var &optional othername)
   "Define a function <VAR>-toggle for toggling a boolean customize setting VAR.
 Args as for the macro `proof-deftoggle', except will be evaluated."
@@ -624,6 +623,29 @@ It was constructed with `proof-defstringset-fn'.")
 OTHERNAME gives an alternative name than the default <VAR>-stringset.
 The name of the defined function is returned."
   `(proof-defstringset-fn (quote ,var) (quote ,othername)))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Interface to custom lib
+;;;
+
+;; EMACSFIXME: A function that custom ought to provide.
+(defun pg-custom-save-vars (&rest variables)
+  "Save custom vars VARIABLES."
+  (dolist (symbol variables)
+    (let ((value (get symbol 'customized-value)))
+      ;; This code from customize-save-customized adjusts 
+      ;; properties so that custom-save-all will save 
+      ;; the value.
+      (when value
+	(put symbol 'saved-value value)
+	(if (fboundp 'custom-push-theme) ;; XEmacs customize
+	    (custom-push-theme 'theme-value symbol 'user 'set value))
+	(put symbol 'customized-value nil))))
+  (custom-save-all))
+
 
 
 

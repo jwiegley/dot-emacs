@@ -264,27 +264,17 @@ If in three window or multiple frame mode, display both buffers."
 (defun proof-quick-opts-save ()
   "Save current values of PG Options menu items using Custom."
   (interactive)
-  (dolist (symbol (list
-		'proof-disappearing-proofs 
-		'proof-multiple-frames-enable
-		'proof-three-window-mode
-		'proof-delete-empty-windows
-		'proof-multiple-frames-enable
-		'proof-output-fontify-enable
-		'proof-toolbar-enable
-		'proof-script-fly-past-comments
-		(proof-ass-sym x-symbol-enable)
-		'proof-follow-mode))
-    (let ((value (get symbol 'customized-value)))
-      ;; This code from customize-save-customized adjusts 
-      ;; properties so that custom-save-all will save 
-      ;; the value.
-      (when value
-	(put symbol 'saved-value value)
-	(if (fboundp 'custom-push-theme) ;; XEmacs customize
-	    (custom-push-theme 'theme-value symbol 'user 'set value))
-	(put symbol 'customized-value nil))))
-  (custom-save-all))
+  (pg-custom-save-vars
+   'proof-disappearing-proofs 
+   'proof-multiple-frames-enable
+   'proof-three-window-mode
+   'proof-delete-empty-windows
+   'proof-multiple-frames-enable
+   'proof-output-fontify-enable
+   'proof-toolbar-enable
+   'proof-script-fly-past-comments
+   (proof-ass-sym x-symbol-enable)
+   'proof-follow-mode))
 
 (defconst proof-config-menu
   (list "----"
@@ -352,12 +342,13 @@ If in three window or multiple frame mode, display both buffers."
 	  (list 
 	   (cons "Favourites" 
 		 (append ents
+			 ;; (list "----")  doesn't work for adding before
 			 '(["Add Favourite" 
-			    (call-interactively 
-			     'proof-add-favourite) t]
+			    (call-interactively 'proof-add-favourite) t]
 			   ["Delete Favourite" 
-			    (call-interactively 
-			     'proof-del-favourite) t])))))))
+			    (call-interactively 'proof-del-favourite) t]
+			   ["Save Favourites"
+			    (proof-save-favourites) t])))))))
   
 ;;; Define stuff from favourites
 
@@ -418,6 +409,11 @@ suitable for adding to the proof assistant menu."
 (defvar proof-make-favourite-menu-history nil
   "History for proof-make-favourite.")
 
+(defun proof-save-favourites ()
+  "Save favourites in customization settings."
+  (interactive)
+  (pg-custom-save-vars (proof-ass-sym favourites)))
+
 (defun proof-del-favourite (menuname)
   "Delete \"favourite\" command recorded at MENUNAME."
   (interactive
@@ -433,7 +429,7 @@ suitable for adding to the proof assistant menu."
     (unless (equal favs rmfavs)
       (easy-menu-remove-item proof-assistant-menu 
 			     '("Favourites") menuname)
-      (customize-save-variable  (proof-ass-sym favourites) rmfavs))))
+      (customize-set-variable  (proof-ass-sym favourites) rmfavs))))
   
 (defun proof-read-favourite ()
   (let* 
@@ -477,10 +473,10 @@ KEY is the optional key binding."
        (newfavs    (append 
 		    favs 
 		    (list (list command inscript menuname key)))))
-    ;; If def succeeds, add to customize var and save immediately.
-    (customize-save-variable  (proof-ass-sym favourites) newfavs)
+    ;; If def succeeds, add to customize var
+    (customize-set-variable  (proof-ass-sym favourites) newfavs)
     (easy-menu-add-item proof-assistant-menu 
-			'("Favourites") menu-entry "Add favourite")))
+			'("Favourites") menu-entry "Add Favourite")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
