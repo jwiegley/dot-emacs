@@ -698,11 +698,8 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 
 ***  0. Make all files have same CVS branch with cvs commit -f 
 ***  1. Tests: multiple file test suites for LEGO, Isabelle; other egs
-***  2. Check case with GNU Emacs
-***  3. Check case with compiled code, for XEmacs only.
-    (Wait for error reports for GNU Emacs)
-    Even if the code is faulty afterwards, compiling is 
-    worthwhile just because it shows up bugs in unbound variables, etc.
+***  2. Check for compiler warnings running "make", on XEmacs & Emacs
+***  3. Test cases using compiled code on Emacs and XEmacs.
 ***  4. Dates and versions updated.
         Check README, doc/ProofGeneral.texi, html/download.html, others.
 ***  5. ProofGeneral.texi docstring magic is up-to-date: cd doc; make magic
@@ -723,32 +720,19 @@ Output written on ProofGeneral.pdf (2 pages, 54702 bytes).
 *** A Journal paper on design and development of Proof General.
 *** A Grant proposal for Proof General Kit.
 *** A Informatics research reports from latest docs.
+*** A Small project grants for summer students
 *** A Small project grant from LFCS for summer student
 
 *** B "Spam-protect" (ho, ho) email addresses on web pages
 *** B Fixup HTML on mailing list pages (image address)
 
-*** C PG CDROM: CDROM with PG and other theorem provers 
-    Complete read-to-go distributions.  Would anyone find this
-    useful?
-
 *** B Find new people to help advance and develop Proof General.
      Getting more instances is a good way.  Also encouraging feedback.
      Hear stories of bugs always by word-of-mouth, they don't get
      reported often enough by email.
-
-*** A PG projects
-
+*** A PG student projects
 *** B PG auxiliary contributions 
-	- span library
-
-*** A PG research directions:
-	- protocols for interactive proof
-	- configuration management / dependency organization
-	- ideas about proof engineering cf software engineering
-	- research on ways of conducting a formalization, cf
-	  ways of writing a program.  Common idioms that PG could
-	  help with.
+*** C PG CDROM: CDROM with PG and other theorem provers.  Useful?
 
 
 =================================================================
