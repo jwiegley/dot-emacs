@@ -1,0 +1,111 @@
+#!/bin/bash
+#
+# $Id$
+#
+# ProofGeneral interface wrapper for Isabelle/classic.
+
+
+## diagnostics
+
+PRG=$(basename $0)
+
+function usage()
+{
+  echo
+  echo "Usage: $PRG [OPTIONS] [FILES ...]"
+  echo
+  echo "  Options are:"
+  echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
+  echo "    -p NAME      Emacs program name (default xemacs)"
+  echo "    -u BOOL      use .emacs file (default false)"
+  echo "    -w BOOL      use window system (default true)"
+  echo
+  echo "Starts ProofGeneral for Isabelle/classic with proof documents FILES"
+  echo "(default Scratch.thy)."
+  echo
+  exit 1
+}
+
+function fail()
+{
+  echo "$1" >&2
+  exit 2
+}
+
+
+## process command line
+
+PROOFGENERAL_HOME=$(cd $(dirname "$0"); cd ..; echo $PWD)
+
+
+# options
+
+LOGIC="$ISABELLE_LOGIC"
+PROGNAME="xemacs"
+INITFILE="false"
+WINDOWSYSTEM="true"
+
+function getoptions()
+{
+  OPTIND=1
+  while getopts "l:p:u:w:" OPT
+  do
+    case "$OPT" in
+      l)
+        LOGIC="$OPTARG"
+        ;;
+      p)
+        PROGNAME="$OPTARG"
+        ;;
+      u)
+        INITFILE="$OPTARG"
+        ;;
+      w)
+        WINDOWSYSTEM="$OPTARG"
+        ;;
+      \?)
+        usage
+        ;;
+    esac
+  done
+}
+
+getoptions $PROOFGENERAL_OPTIONS
+
+getoptions "$@"
+shift $(($OPTIND - 1))
+
+
+# args
+
+FILES="$@"
+shift $#
+
+[ -z "$FILES" ] && FILES="Scratch.thy"
+
+
+## main
+
+ARGS=""
+
+[ "$INITFILE" = false ] && ARGS="$ARGS -q"
+
+if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
+  ARGS="$ARGS -T Isabelle"
+else
+  ARGS="$ARGS -nw"
+fi
+
+
+ARGS="$ARGS -l $PROOFGENERAL_HOME/isa/interface-setup.el"
+ARGS="$ARGS -l $PROOFGENERAL_HOME/generic/proof-site.el"
+
+for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
+    "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
+do
+  [ -f "$FILE" ] && ARGS="$ARGS -l $FILE"
+done
+
+export PROOFGENERAL_HOME
+export PROOFGENERAL_LOGIC="$LOGIC"
+exec $PROGNAME $ARGS $FILES
