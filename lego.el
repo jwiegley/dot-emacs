@@ -5,6 +5,9 @@
 
 
 ;; $Log$
+;; Revision 1.45  1998/05/15 16:17:41  hhg
+;; Changed variable names [s]ext to span.
+;;
 ;; Revision 1.44  1998/05/12 14:52:50  hhg
 ;; Added hook `proof-shell-insert-hook', which is initalized to
 ;; lego-shell-adjust-line-width.
@@ -332,39 +335,39 @@
 
 ;; needs to handle Normal as well
 ;; it should ignore Normal TReg Normal VReg and (Normal ...)
-(defun lego-count-undos (sext)
+(defun lego-count-undos (span)
   (let ((ct 0) str i)
-    (while sext
-      (setq str (span-property sext 'cmd))
-      (cond ((eq (span-property sext 'type) 'vanilla)
+    (while span
+      (setq str (span-property span 'cmd))
+      (cond ((eq (span-property span 'type) 'vanilla)
 	     (if (or (string-match lego-undoable-commands-regexp str)
 		     (and (string-match "Equiv" str)
 			  (not (string-match "Equiv\\s +[TV]Reg" str))))
 		 (setq ct (+ 1 ct))))
-	    ((eq (span-property sext 'type) 'pbp)
+	    ((eq (span-property span 'type) 'pbp)
 	     (setq i 0)
 	     (while (< i (length str)) 
 	       (if (= (aref str i) proof-terminal-char) (setq ct (+ 1 ct)))
 	       (setq i (+ 1 i)))))
-      (setq sext (next-span sext 'type)))
+      (setq span (next-span span 'type)))
     (concat "Undo " (int-to-string ct) proof-terminal-string)))
 
 ;; Decide whether this is a goal or not
 (defun lego-goal-command-p (str)
   (string-match lego-goal-command-regexp str))
 
-(defun lego-find-and-forget (sext) 
+(defun lego-find-and-forget (span) 
   (let (str ans)
-    (while (and sext (not ans))
-      (setq str (span-property sext 'cmd))
+    (while (and span (not ans))
+      (setq str (span-property span 'cmd))
       
       (cond
        
-       ((eq (span-property sext 'type) 'comment))
+       ((eq (span-property span 'type) 'comment))
 
-       ((eq (span-property sext 'type) 'goalsave)
+       ((eq (span-property span 'type) 'goalsave)
 	(setq ans (concat "Forget " 
-			  (span-property sext 'name) proof-terminal-string)))
+			  (span-property span 'name) proof-terminal-string)))
 
        ((string-match (concat "\\`\\$?" (lego-decl-defn-regexp "[:|=]")) str)
 	(let ((ids (match-string 1 str))) ; returns "a,b"
@@ -385,7 +388,7 @@
 	(setq ans (concat "ForgetMark " (match-string 1 str) 
 			  proof-terminal-string))))
       
-      (setq sext (next-span sext 'type)))
+      (setq span (next-span span 'type)))
   (or ans
       "COMMENT")))
   
@@ -393,25 +396,25 @@
 (defun lego-retract-target (target delete-region)
   (let ((end (proof-locked-end))
 	(start (span-start target))
-	(ext (proof-last-goal-or-goalsave))
+	(span (proof-last-goal-or-goalsave))
 	actions)
     
-    (if (and ext (not (eq (span-property ext 'type) 'goalsave)))
-	(if (< (span-end ext) (span-end target))
+    (if (and span (not (eq (span-property span 'type) 'goalsave)))
+	(if (< (span-end span) (span-end target))
 	    (progn
-	      (setq ext target)
-	      (while (and ext (eq (span-property ext 'type) 'comment))
-		(setq ext (next-span ext 'type)))
+	      (setq span target)
+	      (while (and span (eq (span-property span 'type) 'comment))
+		(setq span (next-span span 'type)))
 	      (setq actions (proof-setup-retract-action
 			     start end 
-			     (if (null ext) "COMMENT" (lego-count-undos ext))
+			     (if (null span) "COMMENT" (lego-count-undos span))
 			     delete-region)
 		    end start))
 	  
-	  (setq actions (proof-setup-retract-action (span-start ext) end
+	  (setq actions (proof-setup-retract-action (span-start span) end
 						    proof-kill-goal-command
 						    delete-region)
-		end (span-start ext))))
+		end (span-start span))))
     
     (if (> end start) 
 	(setq actions
@@ -427,7 +430,7 @@
     (let* ((ip 0) (op 0) ap (l (length string)) 
 	   (ann (make-string (length string) ?x))
            (stack ()) (topl ()) 
-	   (out (make-string l ?x )) c ext)
+	   (out (make-string l ?x )) c span)
       (while (< ip l)	
 	(if (< (setq c (aref string ip)) 128) (progn (aset out op c)
 						     (incf op)))
@@ -453,9 +456,9 @@
 	    (incf ip))
 	  (setq stack (cons op (cons (substring ann 0 ap) stack))))
 	 ((= c proof-shell-field-char)
-	  (setq ext (make-span (car stack) op))
-	  (set-span-property ext 'mouse-face 'highlight)
-	  (set-span-property ext 'proof (car (cdr stack)))
+	  (setq span (make-span (car stack) op))
+	  (set-span-property span 'mouse-face 'highlight)
+	  (set-span-property span 'proof (car (cdr stack)))
 	  (setq stack (cdr (cdr stack))))
 	 (t (incf op)))
 	(incf ip))
