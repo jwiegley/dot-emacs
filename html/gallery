@@ -1,1 +1,2 @@
-<!--#include file="gallery.php"-->
+<?php include('gallery.php3'); ?>
+
