@@ -268,21 +268,21 @@ If in three window or multiple frame mode, display two buffers."
       :selected proof-toolbar-enable]
      ("Display"
       ["Three Window Mode" proof-three-window-mode-toggle
-      :active (not proof-multiple-frames-enable)
-      :style toggle
-      :selected proof-three-window-mode]
-     ["Delete Empty Windows" proof-delete-empty-windows-toggle
-      :active (not proof-multiple-frames-enable)
-      :style toggle
-      :selected proof-delete-empty-windows]
-     ["Shrink to Fit" proof-shrink-windows-tofit-toggle
-      :active (not proof-multiple-frames-enable)
-      :style toggle
-      :selected proof-shrink-windows-tofit]
-     ["Multiple Frames" proof-multiple-frames-toggle
-      :active (display-graphic-p)
-      :style toggle
-      :selected proof-multiple-frames-enable])
+       :active (not proof-multiple-frames-enable)
+       :style toggle
+       :selected proof-three-window-mode]
+      ["Delete Empty Windows" proof-delete-empty-windows-toggle
+       :active (not proof-multiple-frames-enable)
+       :style toggle
+       :selected proof-delete-empty-windows]
+      ["Shrink to Fit" proof-shrink-windows-tofit-toggle
+       :active (not proof-multiple-frames-enable)
+       :style toggle
+       :selected proof-shrink-windows-tofit]
+      ["Multiple Frames" proof-multiple-frames-toggle
+       :active (display-graphic-p)
+       :style toggle
+       :selected proof-multiple-frames-enable])
      ("Follow Mode" 
       ["Follow Locked Region" 
        (customize-set-variable 'proof-follow-mode 'locked)
@@ -304,15 +304,19 @@ If in three window or multiple frame mode, display two buffers."
   "Save current values of PG Options menu items using Custom."
   (interactive)
   (pg-custom-save-vars
+   'proof-electric-terminator-enable
+   'proof-script-fly-past-comments
    'proof-disappearing-proofs 
-   'proof-multiple-frames-enable
+   'proof-output-fontify-enable
+   (proof-ass-sym x-symbol-enable)
+   'proof-toolbar-enable
+   ;; Display sub-menu
    'proof-three-window-mode
    'proof-delete-empty-windows
    'proof-multiple-frames-enable
-   'proof-output-fontify-enable
-   'proof-toolbar-enable
-   'proof-script-fly-past-comments
-   (proof-ass-sym x-symbol-enable)
+   'proof-shrink-windows-tofit
+   'proof-multiple-frames-enable
+   ;; Follow mode sub-menu
    'proof-follow-mode))
 
 (defconst proof-config-menu
