@@ -275,13 +275,16 @@ KEY is the optional key binding
 This function defines a function and returns a menu entry 
 suitable for adding to the proof assistant menu."
   (interactive 
-   (list
-    (read-string (concat "Command to send to " proof-assistant ": ") nil 
-		 proof-make-favourite-cmd-history)
-    (y-or-n-p "Should command be recorded in script? ")
-    (read-string "Name of command on menu: ")
-    (if (y-or-n-p "Set a keybinding for this command? : ")
-	(read-key-sequence "Type the key to use (I recommend C-c C-a <key>): " nil t))))
+   (let* 
+       ((cmd (read-string 
+	      (concat "Command to send to " proof-assistant ": ") nil 
+	      proof-make-favourite-cmd-history))
+	(ins (y-or-n-p "Should command be recorded in script? "))
+	(men (read-string "Name of command on menu: " cmd))
+	(key (if (y-or-n-p "Set a keybinding for this command? : ")
+		 (read-key-sequence 
+		  "Type the key to use (I recommend C-c C-a <key>): " nil t))))
+     (list cmd ins men key)))
   (let* ((menunames	(split-string (downcase menuname)))
 	 (menuname-sym  (proof-sym (proof-splice-separator "-" menunames)))
 	 (menu-fn	menuname-sym) (i 1))
@@ -290,11 +293,11 @@ suitable for adding to the proof assistant menu."
 				    "-" (int-to-string i))))
       (incf i))
     (if inscript
-	`(proof-defshortcut ,menu-fn ,command ,key)
-      `(proof-definvisible ,menu-fn ,command ,key))
+	(eval `(proof-defshortcut ,menu-fn ,command ,key))
+      (eval `(proof-definvisible ,menu-fn ,command ,key)))
     (let ((menu-entry (vector menuname menu-fn t)))
-      (customize-save-variable 'proof-assistant-menu-entries
-			       (append proof-assistant-menu-entries 
+      (customize-save-variable (proof-ass-sym menu-entries)
+			       (append (proof-ass menu-entries)
 				       (list menu-entry)))
       ;; Unfortunately, (easy-menu-add-item proof-assistant-menu nil ..)
       ;; seems buggy, it adds to main menu. But with "Coq" argument 
@@ -304,7 +307,9 @@ suitable for adding to the proof assistant menu."
       (easy-menu-add-item proof-assistant-menu 
 			  '("Favourites")
 			  menu-entry 
-			  "Add favourite"))))
+			  "Add favourite"))
+    (warn 
+     "PG: favourites mechanism is work-in-progress, not fully working yet!")))
 
 
 
