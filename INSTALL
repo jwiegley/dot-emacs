@@ -75,17 +75,19 @@ Dependency on Other Emacs Packages
 
 Proof General relies on several other Emacs packages, which are
 probably already supplied with your version of Emacs.  If not,
-you will need to find them.
+you will need to find them.  Note that XEmacs is now being unbundled,
+so you may need to select packages (or package groups) specially.
+These are the packages that you need to use Proof General:
 
  ESSENTIAL:
   * cl-macs
   * comint	
   * custom
-    
+  * font-lock
 
  OPTIONAL:
-  * func-menu.el
-  * font-lock.el
+  * outline
+  * func-menu
   * X Symbol	  [ XEmacs only; separate download ]
 
 
@@ -146,19 +148,6 @@ and the notes below for more details.
 
 Notice that the customization mechanism is only available in
 Emacs 20.x and XEmacs.
-
-
-XEmacs package requirement (XEmacs 21.1 on)
--------------------------------------------
-
-XEmacs is now being unbundled.  Most likely you have an XEmacs
-with the full gamut of packages anyway.  If not, these are
-the packages that you need to use Proof General:
-
-  xemacs-base
-
-
-
 
 
 
