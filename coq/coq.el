@@ -621,8 +621,8 @@ This is specific to coq-mode."
 				    default-directory)
 				;; This next guess is pretty hopeless.
 				default-directory)))
-		  (message (concat dir modname ".v"))
-		  (concat dir modname ".v")))))
+		  (message "%s%s.v" dir modname)
+		  (format "%s%s.v" dir modname)))))
 
   (setq coq-proof-shell-inform-file-retracted-cmd
 	;; da: This is a HORRIBLE fragile hack!  Instead of issuing a

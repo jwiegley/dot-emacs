@@ -112,7 +112,7 @@
 		   (interactive)
 		   (if (,enabler) 
 		       (call-interactively (quote ,buttonfn))
-		     (message ,(concat "Button \"" menuname "\" disabled")))))
+		     (message "Button \"%s\" disabled" ,menuname))))
 	  buttonfnwe)))
     (if tooltip	;; no tooltip means menu-only item
 	(if proof-running-on-XEmacs
