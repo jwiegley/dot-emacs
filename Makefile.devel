@@ -219,7 +219,7 @@ alldist:	distdocs
 # Make tags file
 #
 tags:	$(EL)
-	etags $(EL) doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
+	etags $(EL) todo doc/ProofGeneral.texi doc/PG-adapting.texi > TAGS
 
 
 
@@ -231,7 +231,7 @@ ChangeLog:	FORCE
 	rcs2log -h "dcs.ed.ac.uk" $(DEVELOPERS) | sed 's|/home/proofgen/src/ProofGeneral/||g' > ChangeLog.prefix
 	mv ChangeLog ChangeLog.old
 	cat ChangeLog.prefix ChangeLog.old > ChangeLog
-	rm ChangeLog.prefix ChangeLog.old
+#	rm ChangeLog.prefix ChangeLog.old
 
 ############################################################
 #
