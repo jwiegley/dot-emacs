@@ -151,7 +151,8 @@ A value for proof-shell-insert-hook."
 
 ;; ### autoload
 (defun proof-x-symbol-mode ()
-  "Turn on or off x-symbol mode in the current buffer."
+  "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-support-on."
+  (interactive)
   (if proof-x-symbol-initialized
       (progn
 	(setq x-symbol-language proof-assistant-symbol)
@@ -188,23 +189,30 @@ A subroutine of proof-x-symbol-toggle"
 
 ;; #### autoload
 (defun proof-x-symbol-shell-config ()
-  "Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil."
+  "Configure the proof shell for x-symbol, if proof-x-symbol-support<>nil.
+Assumes that the current buffer is the proof shell buffer."
   (if proof-x-symbol-initialized
-      (cond
-       (proof-x-symbol-support-on
-	(if (and proof-xsym-activate-command (proof-shell-live-buffer))
-	    (proof-shell-invisible-command proof-xsym-activate-command 'wait))
-	(add-hook 'proof-shell-insert-hook
-		  'proof-x-symbol-encode-shell-input))
-       ((not proof-x-symbol-support-on)
-	(if (and proof-xsym-deactivate-command (proof-shell-live-buffer))
-	    (proof-shell-invisible-command proof-xsym-deactivate-command 'wait))
-	(remove-hook 'proof-shell-insert-hook
-		     'proof-x-symbol-encode-shell-input)
-	(remove-hook 'comint-output-filter-functions
-		     'x-symbol-comint-output-filter)))
-    ;; switch the mode on/off in the buffer
-    (proof-x-symbol-mode)))
+      (progn
+	(cond
+	 (proof-x-symbol-support-on
+	  (if (and proof-xsym-activate-command 
+		   (proof-shell-live-buffer))
+	      (proof-shell-invisible-command 
+	       proof-xsym-activate-command 'wait))
+	  ;; Do the encoding as the first step of input manipulation
+	  (add-hook 'proof-shell-insert-hook
+		    'proof-x-symbol-encode-shell-input))
+	 ((not proof-x-symbol-support-on)
+	  (if (and proof-xsym-deactivate-command 
+		   (proof-shell-live-buffer))
+	      (proof-shell-invisible-command 
+	       proof-xsym-deactivate-command 'wait))
+	  (remove-hook 'proof-shell-insert-hook
+		       'proof-x-symbol-encode-shell-input)
+	  (remove-hook 'comint-output-filter-functions
+		       'x-symbol-comint-output-filter)))
+	;; switch the mode on/off in the buffer
+	(proof-x-symbol-mode))))
 
 
 
