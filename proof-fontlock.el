@@ -4,6 +4,10 @@
 ;; Maintainer: LEGO Team <lego@dcs.ed.ac.uk>
 
 ;; $Log$
+;; Revision 1.6  1998/05/06 15:56:14  hhg
+;; Fixed problem introduced by working on emacs19 in
+;; proof-zap-commas-region.
+;;
 ;; Revision 1.5  1998/05/05 14:25:45  hhg
 ;; Simple white-space changes.
 ;;
@@ -102,7 +106,7 @@
 	(if (memq (get-char-property (- (point) 1) 'face)
 		'(font-lock-declaration-name-face
 		  font-lock-function-name-face))
-;	    (font-lock-remove-face (- (point) 1) (point))
+	    (font-lock-remove-face (- (point) 1) (point))
 	    )))))
 
 (defun proof-zap-commas-buffer () 
