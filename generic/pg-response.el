@@ -126,11 +126,13 @@ Internal variable, setting this will have no effect!")
   (proof-layout-windows))
 
 
-(defun proof-select-three-b (b1 b2 b3)
+(defun proof-select-three-b (b1 b2 b3 &optional nohorizontalsplit)
   "Select three buffers. Put them into three windows, selecting the last one."
   (interactive "bBuffer1:\nbBuffer2:\nbBuffer3:")
   (delete-other-windows)
-  (split-window-horizontally)
+  (if nohorizontalsplit
+      (split-window-vertically)
+    (split-window-horizontally))
   (switch-to-buffer b1)
   (other-window 1)
   (split-window-vertically)
@@ -139,7 +141,7 @@ Internal variable, setting this will have no effect!")
   (switch-to-buffer b3)
   (other-window 1))
 
-(defun proof-display-three-b ()
+(defun proof-display-three-b (&optional nohorizontalsplit)
   "Layout three buffers in a single frame."
   (interactive)
   (proof-select-three-b
@@ -149,7 +151,9 @@ Internal variable, setting this will have no effect!")
    (if (buffer-live-p proof-goals-buffer) 
        proof-goals-buffer (first (buffer-list)))
    (if (buffer-live-p proof-response-buffer) 
-       proof-response-buffer (first (buffer-list)))))
+       proof-response-buffer (first (buffer-list)))
+   nohorizontalsplit))
+   
 
 (defvar pg-frame-configuration nil
   "Variable storing last used frame configuration.")
@@ -159,11 +163,21 @@ Internal variable, setting this will have no effect!")
   "Cache the current frame configuration, between prover restarts."
   (setq pg-frame-configuration (current-frame-configuration)))
 
-(defun proof-layout-windows ()
+(defun proof-layout-windows (&optional nohorizontalsplit)
   "Refresh the display of windows according to current display mode.
-This uses a canonical layout.  
-It obeys the setting of `proof-eagerly-raise' for multiple frame mode."
-  (interactive)
+
+For single frame mode, this uses a canonical layout made by splitting
+Emacs windows vertically in equal proportions.  You can then adjust
+the proportions by dragging the separating bars.  In three pane mode,
+the canonical layout is to split both horizontally and vertically, to
+display the prover responses in two panes on the right-hand side, and
+the proof script in a taller pane on the left.  A prefix argument will
+prevent the horizontal split, and result in three windows spanning the
+full width of the Emacs frame.
+
+For multiple frame mode, this function obeys the setting of
+`proof-eagerly-raise', which see."
+  (interactive "P")
   (cond
    (proof-multiple-frames-enable
     (delete-other-windows) ;; hope we're on the right frame/window
@@ -179,7 +193,7 @@ It obeys the setting of `proof-eagerly-raise' for multiple frame mode."
    (proof-three-window-enable
     (proof-delete-other-frames)
     (set-window-dedicated-p (selected-window) nil)
-    (proof-display-three-b))
+    (proof-display-three-b nohorizontalsplit))
    ;; Two-of-three window mode.  
    ;; Show the response buffer as first in preference order.
    (t
