@@ -47,6 +47,7 @@
     "pretty_setmargin"
     "print_attributes"
     "print_binds"
+    "print_context"
     "print_facts"
     "print_methods"
     "print_syntax"
