@@ -74,10 +74,15 @@ Called from `proof-done-advancing' when a save is processed and
 proof-last-theorem-dependencies is set."
 
   (set-span-property gspan 'dependencies
-		     proof-last-theorem-dependencies)
+		     ;; Ancestors of NAME are in the second component.
+		     ;; FIXME: for now we ignore the first component:
+		     ;; NAME may not be enough [Isar allows proof regions
+		     ;; with multiple names, which are reported in dep'c'y
+		     ;; output].
+		     (cdr proof-last-theorem-dependencies))
 
   (let* ((samefilenames    (proof-depends-names-in-same-file
-			   proof-last-theorem-dependencies))
+			    (cdr proof-last-theorem-dependencies)))
 
 	 ;; Find goalsave spans earlier in this file which this
 	 ;; one depends on; update their list of dependents,
@@ -137,11 +142,52 @@ proof-last-theorem-dependencies is set."
 				    span 'dependents)
    ["Unhighlight all" proof-dep-unhighlight t]
    "-------------"
-   (proof-dep-make-submenu "All Dependencies..." 
-			   (lambda (name) (car name))
-			   'proof-show-dependency 
-			   (mapcar 'list (span-property span 'dependencies)))))
+   (proof-dep-alldeps-menu span)))
 
+(defun proof-dep-alldeps-menu (span)
+  (or (span-property span 'dependencies-menu) ;; cached value
+      (set-span-property span 'dependencies-menu
+			 (proof-dep-make-alldeps-menu 
+			  (span-property span 'dependencies)))))
+
+(defun proof-dep-make-alldeps-menu (deps)
+  (let ((menuname "All Dependencies...")
+	(showdep  'proof-show-dependency))
+    (if deps
+	(let ((nestedtop   (proof-dep-split-deps deps)))
+	  (cons menuname
+		(append
+		 (mapcar (lambda (l) 
+			   (vector l (list showdep l) t))
+			 (cdr nestedtop))
+		 (mapcar (lambda (sm)
+			   (proof-dep-make-submenu (car sm)
+						   'car
+						   'proof-show-dependency
+						   (mapcar 'list (cdr sm))))
+			 (car nestedtop)))))
+      (vector menuname nil nil))))
+
+(defun proof-dep-split-deps (deps)
+  "Split dependencies into named nested lists according to dotted prefixes."
+  ;; NB: could handle deeper nesting here, but just do one level for now.
+  (let (nested toplevel)
+    ;; Add each name into a nested list or toplevel list
+    (mapcar 
+     (lambda (name) 
+	      (let* ((period   (string-match "\\." name))
+		     (ns       (and period (substring name 0 period)))
+		     (subitems (and ns (assoc ns nested))))
+		(cond
+		 ((and ns subitems)
+		  (setcdr subitems (adjoin name (cdr subitems))))
+		 (ns
+		  (setq nested 
+			(cons (cons ns (list name)) nested)))
+		 (t
+		  (setq toplevel (adjoin name  toplevel))))))
+     deps)
+    (cons nested toplevel)))
 
 (defun proof-dep-make-submenu (name namefn appfn list)
   "Make menu items for a submenu NAME, using appfn applied to each elt in LIST.
