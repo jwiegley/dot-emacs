@@ -576,21 +576,23 @@ called myassistant.
 directory, to put the specific customization and associated files in.
 @item Add a file myassistant.el to the new directory.  
 @item Edit proof-site.el to add a new entry to the
-  'proof-internal-assistants-table' variable.  
-Each entry of this table is a list of the form
+  @var{proof-internal-assistants-table} variable.  The new entry should
+look like this:
 
-    (SYMBOL NAME AUTOMODE-REGEXP)
+    (myassistant "My New Assistant" "\\.myasst$")
 
-The NAME is a string, naming the proof assistant.
-The SYMBOL is used to form the name of the mode for the
-assistant, `SYMBOL-mode`, run when files with AUTOMODE-REGEXP
-are visited.  SYMBOL is also used to form the name of the
-directory and elisp file for the mode, which will be
- 
-    <proof-directory-home>/SYMBOL/SYMBOL.el
-
-where `<proof-directory-home>/' is the value of the
-variable proof-directory-home.
+The first item is used to form the name of the internal variables
+for the new mode as well as the directory and file where it loads
+from.  The second is a string, naming the proof assistant.
+The third item is a regular expression to match names of 
+proof script files for this assistant.  See the documentation
+of @var{proof-internal-assistants-table} for more details.
+@item Define the new modes in myassistant.el, by looking at 
+ the files for the currently supported assistants for example.
+ Basically you need to define some modes using @fn{define-derived-mode}
+ and set the configuration variables.  You could begin by setting
+ a minimum number of the variables, then adjust the 
+ settings via the customize menus, under Proof-General -> Internals.
 @end itemize
 
 @node Literature, , Adding A New Proof Assistant, Internals
