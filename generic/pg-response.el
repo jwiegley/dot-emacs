@@ -161,7 +161,10 @@ Returns non-nil if response buffer was cleared."
 	;; the other cases when messages are inserted and to cope
 	;; with warnings after delayed output (non newline terminated).
 	(goto-char (point-max))
-	(newline)				
+	;; insert a newline before the new message unless the
+	;; buffer is empty
+	(unless (eq (point-min) (point-max))
+	  (newline))
 	(setq start (point))
 	(insert str)
 	(unless (bolp) (newline))
