@@ -1,0 +1,10 @@
+Tips for Debugging Proof General   -- David Aspinall, Oct 1999.
+--------------------------------      
+
+Make these settings:
+
+  (setq proof-tidy-response nil)	; response buffer never clears
+  (setq proof-show-debug-messages t)    ; debug messages appear in response buffer
+
+And use the standard elisp package "edebug" to single-step at source
+level, and set breakpoints in code.
