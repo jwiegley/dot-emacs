@@ -62,6 +62,8 @@ X Solaris bugs: font locking and button enabling.
 **** A make C-c C-l go to bottom of response buffer while output
        is arriving (set-window-point (point)) or similar.
 
+**** A Doc new bits: which XEmacs packages does PG use?  (for INSTALL)
+
 **** A Doc new bits: proof-next-error
 
 **** A Doc new bits: font lock keywords, filename %e, %r.

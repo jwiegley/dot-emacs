@@ -129,6 +129,17 @@ Notice that the customization mechanism is only available in
 Emacs 20.x and XEmacs.
 
 
+XEmacs package requirement (XEmacs 21.1 on)
+-------------------------------------------
+
+XEmacs is now being unbundled.  Most likely you have an XEmacs
+with the full gamut of packages anyway.  If not, these are
+the packages that you need to use Proof General:
+
+  xemacs-base
+
+
+
 
 
 
