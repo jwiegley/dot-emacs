@@ -4,6 +4,14 @@
 
 ** Generic Changes
 
+*** Visibility control for completed proofs
+
+     You can make proofs invisible using a context sensitive menu
+     (right button on a completed proof), or as soon as they are
+     completed with the "Options -> Disappearing Proofs" option.
+     Two menu items "Show proofs" and "Hide proofs" apply to
+     all the completed proofs in the buffer.
+
 *** Proof General startup script welcomes user
  
      The "binary" (startup script) bin/proofgeneral now loads
@@ -16,16 +24,6 @@
   
      Can now build RPM packages with "rpm -ta" from tarball source.
      RPM includes menu file and icons (tested under Linux Mandrake).
-
-*** Addition of visibility control for completed proofs
-
-     You can make proofs invisible using a context sensitive menu
-     (right button on a completed proof), or as soon as they are
-     completed with the "Options -> Disappearing Proofs" option.
-     To reveal all proofs again, use the "Make proofs visible"
-     command.
-
-     [ in progress, feedback welcome ]
 
 *** Command to insert last output as comment in proof script.
 
