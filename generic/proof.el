@@ -488,20 +488,23 @@ If FORCE, override proof-shell-erase-response-flag.
 If the user option proof-tidy-response is nil, then
 the buffer is only cleared when FORCE is set.
 
-No effect if there is no response buffer currently."
+No effect if there is no response buffer currently.
+Returns non-nil if response buffer was cleared."
   (when (buffer-live-p proof-response-buffer)
-    (if (or (and
-	     proof-tidy-response
-	     (not (eq proof-shell-erase-response-flag 'invisible))
-	     proof-shell-erase-response-flag) 
-	    force)
-	(if clean-windows
-	    (proof-clean-buffer proof-response-buffer)
+    (let ((doit (or (and
+		     proof-tidy-response
+		     (not (eq proof-shell-erase-response-flag 'invisible))
+		     proof-shell-erase-response-flag) 
+		    force)))
+      (if doit
+	  (if clean-windows
+	      (proof-clean-buffer proof-response-buffer)
 	  ;; NB: useful optional arg to erase buffer is XEmacs specific, 8-(.
 	  ;; (erase-buffer proof-response-buffer)
-	  (with-current-buffer proof-response-buffer
-	    (erase-buffer))))
-    (setq proof-shell-erase-response-flag erase-next-time)))
+	    (with-current-buffer proof-response-buffer
+	      (erase-buffer))))
+      (setq proof-shell-erase-response-flag erase-next-time)
+      doit)))
 
 
 
@@ -521,8 +524,9 @@ No effect if there is no response buffer currently."
      (list 'proof-general-version 'proof-assistant)
      nil nil
      "[ When reporting a bug, please include a small test case for us to repeat it.
- Please also check that it is not already covered in the BUGS file that came with
- the distribution, or http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/BUGS ]")))
+ Please also check that it is not already covered in the BUGS files that came with
+ the distribution, or the latest versions at 
+ http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneral/BUGS ]")))
 
 
 
