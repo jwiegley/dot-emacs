@@ -142,7 +142,7 @@ ZIP=zip
 DEVELMAKE=make -f Makefile.devel
 
 # Files not to include the distribution area or tarball 
-NONDISTFILES=.cvsignore */.cvsignore html etc Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile plastic/
+NONDISTFILES=.cvsignore */.cvsignore html Makefile.devel Makefile.xemacs doc/notes.txt doc/ProofGeneral.dvi doc/PG-adapting.dvi doc/ProofGeneralPortrait.eps* images/*.xcf images/notes.txt images/gimp images/Makefile plastic/ etc/lego etc/coq etc/demoisa etc/isa etc/isar etc/lego etc/patches etc/pgkit etc/*.txt
 
 # Files not to include in the ordinary distribution tarball, but left
 # in the server's copy of the distribution.
