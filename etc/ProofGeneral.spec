@@ -10,7 +10,7 @@ Source:		http://www.dcs.ed.ac.uk/proofgen/ProofGeneral-3.2pre000920.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 Patch:		ProofGeneral.patch
 PreReq:		/sbin/install-info
-Prefix:		/usr
+Prefixes:	/usr/share/emacs /usr/bin /usr/info
 BuildArchitectures: noarch
 
 %description
