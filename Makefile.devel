@@ -45,7 +45,7 @@
 # Release tag.  For pre-releases.  Watch out with
 # substitution in tag target below, which edits
 # html/download.html
-PRERELEASE_TAG=2.0pre$(shell date "+%y%m%d")
+PRERELEASE_TAG=2.1pre$(shell date "+%y%m%d")
 
 
 # This is used for full releases to control the tag name
@@ -225,7 +225,7 @@ tag:
 # Edit download.html only for prereleases.
 # Careful: the sed command below relies on previous value of PRERELEASE_TAG.
 	if [ $(PRERELEASE_TAG) = $(VERSION) ]; then \
-	  (cd html; mv download.html download.html.old; sed -e 's|ProofGeneral-2\.0pre......|ProofGeneral-$(PRERELEASE_TAG)|g' download.html.old > download.html; rm download.html.old) \
+	  (cd html; mv download.html download.html.old; sed -e 's|ProofGeneral-2\.1pre......|ProofGeneral-$(PRERELEASE_TAG)|g' download.html.old > download.html; rm download.html.old) \
 	fi
 # This hack to SOURCE: name is only needed because we have an obsolete version
 # of rpm installed on standard machines at dcs.ed, and we have to build with
