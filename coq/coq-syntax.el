@@ -15,6 +15,9 @@
 "Hypotheses"
 "Hypothesis"
 "Parameter[s]?"
+;; da: 3.2 I added Section here, to try to fix undo for Sections working
+;; better.  
+"Section"				
 "Variable[s]?"
 "Global\\s-+Variable"
 ))
@@ -106,7 +109,8 @@
 "Reset"
 "Search"
 "SearchIsos"
-"Section"
+;; da: testing moving this 
+;; "Section"
 "Show\\s-+Programs"
 "Show\\s-+Proof"
 "Show\\s-+Script"
