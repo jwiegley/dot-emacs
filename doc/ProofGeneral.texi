@@ -1,3 +1,4 @@
+@c TODO: check new doc for hiding; add doc for dependencies, tracing.
 
 \def\fontdefs{\psfamily{bsf}{r}{c}{b}{b}{ri}{ri}{ro}{bo}\def\mainmagstep{1200}}
 \input texinfo
