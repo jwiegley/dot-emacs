@@ -324,6 +324,7 @@ Uses `x-symbol-isabelle-font-lock-scripts-regexp'."
     (hungarumlaut "\\<hungarumlaut>")
     (lozenge "\\<lozenge>")
     (smllozenge "\\<struct>")
+    (dotlessi "\\<index>")
     ))
 
 (defvar x-symbol-isabelle-user-table nil)
