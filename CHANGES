@@ -12,55 +12,62 @@
 
 *** IN PROGRESS:  pre-compiled .elc files: recompile needed for GNU Emacs
 
-    Proof General can now (almost) be reliably run as compiled code.
+Proof General can now (almost) be reliably run as compiled code.
 
-    *** Please help me iron out any final difficulties 
-        by reporting problems ***
-  
-    However, compiled Emacs Lisp files sometimes have incompatibilities
-    between versions (and definitely between GNU Emacs and XEmacs).
-    To recompile the sources for a particular Emacs version, try:
+>>> Please help remove final difficulties by reporting problems <<<<
 
-      make clean
-      make compile
-     
-    Check the settings in the Makefile for your Emacs version.
+However, compiled Emacs Lisp files sometimes have incompatibilities
+between versions (and definitely between GNU Emacs and XEmacs).  To
+recompile the sources for a particular Emacs version, try:
+
+  make clean
+  make compile
+ 
+Check the settings in the Makefile for your Emacs version.
 
 *** Bundling of X-Symbol Mode (4.5 beta)
 
-    !!THIS IS WORK IN PROGRESS, IT MAY WELL BREAK X-SYMBOL FOR YOU!!
-    
-    [ Currenly should be working in Isabelle, not other provers ]
+!!THIS IS WORK IN PROGRESS, IT MAY WELL BREAK X-SYMBOL FOR YOU!!
 
-    To disable use of the bundled version, either delete/move away
-    the x-symbol subdirectory, or load your own local version
-    first [put (require 'x-symbol-hooks) in .emacs, or unpack
-    in your own .xemacs directory].
+[ Currenly should be working in Isabelle, not other provers ]
 
-    From now on, PG is not backward compatible with previous X-Symbol
-    versions.  Either upgrade your installed version, or be careful to
-    load PG first (so that the bundled version of X-Symbol is used).
+To disable use of the bundled version, either delete/move away the
+x-symbol subdirectory, or load your own local version first [put
+(require 'x-symbol-hooks) in .emacs, or unpack in your own .xemacs
+directory].
 
-    Notice that the package version of X-Symbol may load itself first
-    by default during XEmacs startup, so it may be tricky to override.
-    If in doubt, run with "xemacs -no-site-file -q" first.
+From now on, PG is not backward compatible with previous X-Symbol
+versions.  Either upgrade your installed version, or be careful to
+load PG first (so that the bundled version of X-Symbol is used).
+
+Notice that the package version of X-Symbol may load itself first by
+default during XEmacs startup, so it may be tricky to override.  If in
+doubt, run with "xemacs -no-site-file -q" first.
 
 *** Bundling of MMM Mode (for multiple modes in one buffer)
 
-    MMM mode allows submodes to be used in the same file.
-    See http://mmm-mode.sourceforge.net/.
-    At present it is configured for Isar, to allow LaTeX and
-    sml-mode to be used inside Isar scripts.
-    Contributions of configuration for other provers welcomed.
+MMM mode allows submodes to be used in the same file.
+See http://mmm-mode.sourceforge.net/.
+At present it is configured for Isar, to allow LaTeX and sml-mode to
+be used inside Isar scripts.  Contributions of configuration for other
+provers welcomed.
 
 *** X-Symbol (and MMM-mode) minor mode behaviour simplified
  
-    These minor modes like to be responsible for turning themselves
-    on and off.  PG does not anymore try to synchronise the on/off
-    settings in all PG buffers (which could lead to half an hour
-    of fontification!).  Instead the menu reflects the current
-    minor mode status; toggling it will also update the default
-    "global for PG" behaviour for new script buffers.
+These minor modes like to be responsible for turning themselves on and
+off.  PG does not anymore try to synchronise the on/off settings in
+all PG buffers (which could lead to half an hour of fontification!).
+Instead the menu reflects the current minor mode status; toggling it
+will also update the default "global for PG" behaviour for new script
+buffers.
+
+*** Strict read only added to Proof General -> Options menu
+
+Strict read only behaviour for the locked (blue) region
+can now be enabled/disabled without restarting scripting.
+(Output hightlighting option has been removed from this menu,
+but is still available under 
+   Advanced -> Customize -> User Options -> ..
 
 *** Follow mode: add "followdown" setting
 
