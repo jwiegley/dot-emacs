@@ -165,6 +165,10 @@ Aspects of design
 =================
 
 - Generic.  Fits inside Emacs architecture.  (Compare with comint).
+
+- Extensive use of Emacs Customization mechanism to make it easy
+  to set/inspect configuration as well as user-options.
+
 - Script management with multiple files
 
 
