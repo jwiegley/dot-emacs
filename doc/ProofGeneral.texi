@@ -338,23 +338,22 @@ Edinburgh.  Visit this page for more news!
 @end ifhtml
 
 @dfn{Proof General} is a generic Emacs interface for interactive proof
-assistants, developed at the LFCS in the University of Edinburgh.  It
-works best under XEmacs, but can also be used with FSF GNU Emacs.
+assistants,@footnote{A @dfn{proof assistant} is a computerized helper for
+developing mathematical proofs.  For short, we sometimes call it a
+@dfn{prover}, although we always have in mind an interactive system
+rather than a fully automated theorem prover.} developed at the LFCS in
+the University of Edinburgh.  It works best under XEmacs, but can also
+be used with FSF GNU Emacs.
 
-You do not have to be an Emacs militant to use Proof General!  @*
-
-A @dfn{proof assistant} is a computerized helper for developing
-mathematical proofs.  For short, we sometimes call it a @dfn{prover},
-although we always have in mind an interactive system rather than a
-fully automated theorem prover.  Proof General is good for working with
-systems where a sequence of commands, or @dfn{proof script}, is
-developed by the user.
+You do not have to be an Emacs militant to use Proof General!  
 
 The interface is designed to be very easy to use.  You develop your
-proof script in-place rather than line-by-line and later reassembling
-the pieces.  Proof General keeps track of which proof steps have been
-processed by the prover, and prevents you editing them accidently.  You
-can undo steps as usual.
+proof script@footnote{A @dfn{proof script} is a sequence of commands
+ which constructs a proof, usually stored in a file.}
+ in-place rather than line-by-line and later reassembling the pieces.
+Proof General keeps track of which proof steps have been processed by
+the prover, and prevents you editing them accidently.  You can undo
+steps as usual.
 
 The main aim of Proof General is to provide a powerful and configurable
 Emacs mode to help user-interaction with numerous interactive proof
@@ -507,11 +506,13 @@ program.  Isabelle Proof General handles theory files as well as ML
 taken from @uref{http://www.dcs.ed.ac.uk/home/da/Isamode,Isamode}.
 For more details @xref{Isabelle Proof General}.
 @end itemize
-Proof General is designed to be generic, so you can adapt it to other
-proof assistants if you know a little bit of Emacs Lisp.
+
+Proof General is designed to be generic, so if you know a little bit of
+Emacs Lisp, you can make
+
 @itemize @bullet
 @item
-@b{Your Proof General} for your favourite proof assistant@*
+@b{Your Proof General} for your favourite proof assistant.@*
 For more details of how to make Proof General work
 with another proof assistant,
 @xref{Adapting Proof General to Other Provers}.
