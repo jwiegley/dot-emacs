@@ -347,31 +347,35 @@ proof-shell-retract-files-regexp."
 (proof-definvisible isar-help-facts "print_facts" [h f])
 (proof-definvisible isar-help-syntax "print_syntax" [h i])
 (proof-definvisible isar-help-induct-rules "print_induct_rules" [h I])
+(proof-definvisible isar-help-intro-rules "print_intros" [h r])
 (proof-definvisible isar-help-methods "print_methods" [h m])
 (proof-definvisible isar-help-simpset "print_simpset" [h S])
 (proof-definvisible isar-help-binds "print_binds" [h b])
 (proof-definvisible isar-help-theorems "print_theorems" [h t])
 (proof-definvisible isar-help-trans-rules "print_trans_rules" [h T])
 
-(defpgdefault help-menu-entries
+(defpgdefault menu-entries
   (append
-   isabelle-docs-menu
+   (list isabelle-logics-menu)
    (list
     (cons "Show me ..."
           (list
+           ["cases"              isar-help-cases          t]
+           ["facts"              isar-help-facts          t]
+           ["matching rules"     isar-help-intro-rules    t]
+           ["term bindings"      isar-help-binds          t]
+	   "----"
+           ["classical rules"    isar-help-claset         t]
+           ["induct/cases rules" isar-help-induct-rules   t]
+           ["simplifier rules"   isar-help-simpset        t]
+           ["theorems"           isar-help-theorems       t]
+           ["transitivity rules" isar-help-trans-rules    t]
+	   "----"
            ["antiquotations"     isar-help-antiquotations t]
            ["attributes"         isar-help-attributes     t]
-           ["cases"              isar-help-cases          t]
-           ["classical rules"    isar-help-claset         t]
            ["commands"           isar-help-commands       t]
-           ["facts"              isar-help-facts          t]
            ["inner syntax"       isar-help-syntax         t]
-           ["induct/cases rules" isar-help-induct-rules   t]
-           ["methods"            isar-help-methods        t]
-           ["simplifier rules"   isar-help-simpset        t]
-           ["term bindings"      isar-help-binds          t]
-           ["theorems"           isar-help-theorems       t]
-           ["transitivity rules" isar-help-trans-rules    t])))))
+           ["methods"            isar-help-methods        t])))))
 
 ;; undo proof commands
 (defun isar-count-undos (span)
