@@ -73,7 +73,8 @@
 
 (defcustom proof-prog-name-guess nil
   "*If non-nil, use `proof-guess-command-line' to guess proof-prog-name.
-This option is compatible with proof-prog-name-ask."
+This option is compatible with proof-prog-name-ask.
+No effect if proof-guess-command-line is nil."
   :type 'boolean
   :group 'proof-general)
 
@@ -404,9 +405,11 @@ Suggestion: this can be set in the script mode configuration."
   :group 'prover-config)
 
 (defcustom proof-guess-command-line nil
-  "Function that takes a filename as argument, runs `make -n' and 
-  translates the result into an invocation of the proof assistant
-  with the same command line options"
+  "Function to guess command line for proof assistant, given a filename.
+The function could take a filename as argument, run `make -n' to see
+how to compile the file non-interactively, then translate the result 
+into an interactive invocation of the proof assistant with the same 
+command line options.  For an example, see coq/coq.el."
   :type 'function
   :group 'prover-config)
 
