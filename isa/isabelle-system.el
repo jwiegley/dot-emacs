@@ -38,6 +38,7 @@
 (defcustom isa-isatool-command
   (or (getenv "ISATOOL") 
       (proof-locate-executable "isatool")
+      ;; FIXME: use same mechanism as isabelle-program-name below.
       (let ((possibilities
 	     '("/usr/bin/isatool"
 	       "/usr/share/Isabelle/bin/isatool"
@@ -112,11 +113,16 @@ If there is no setting for the variable, DEFAULT will be returned"
 (defcustom isabelle-program-name 
   (if (fboundp 'proof-running-on-win32)	
       "C:\\sml\\bin\\.run\\run.x86-win32.exe @SMLload=C:\\Isabelle\\"
-    (proof-locate-executable "isabelle" t))
+    (proof-locate-executable "isabelle" t
+			     '("/usr/local/Isabelle/bin/"
+			       "/opt/Isabelle/bin/"
+			       "/usr/Isabelle/bin/"
+			       "/usr/share/Isabelle/bin/")))
   "*Default name of program to run Isabelle.
 
 The default value except when running under Windows is \"isabelle\",
-which will get expanded using PATH if possible. 
+which will get expanded using PATH if possible, or in a number
+of standard locations (/usr/local/Isabelle/, /opt/Isabelle, etc). 
 
 The default value when running under Windows is:
 
