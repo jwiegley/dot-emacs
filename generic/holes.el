@@ -27,12 +27,12 @@
   (switch-to-buffer-other-window "*doc holes*")
   (insert "
 
-The highlighted # in your buffer are \"holes\", a powerful feature for
-program editing. the character '#' is inserted to make empty holes
-visible. If you don't replace \"#\"s by something else (see below), it
-will be saved in the buffer's file. Highlighting of holes is made
-without any interaction with the buffer's file. to delete a hole,
-click with button 3 of your mouse. See the short documentation below
+The highlighted # in your buffer are \"holes\", holes are a powerful
+feature for program editing. the character '#' is inserted to make
+empty holes visible. You can delete them like usual characters. If you
+don't replace \"#\"s by something else (see below), it will be saved
+in the buffer's file as usual '#' characters. To delete a hole, click
+on it with button 3 of your mouse. See the short documentation below
 to learn how to use holes.
 
                           HOLES
