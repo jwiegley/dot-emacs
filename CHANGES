@@ -4,20 +4,24 @@ Summary of Changes for Proof General 2.2 from 2.1
 Generic Changes
 ---------------
 
-* New function control-button1 (proof-mouse-track-insert) copies 
+* [XEmacs only]
+  New function control-button1 (proof-mouse-track-insert) copies 
   individual commands (highlighted regions) from an open proof.  
   When a proof is closed, it behaves as mouse-track-insert
-  (default Emacs behaviour of control-button1).  
+  (default XEmacs behaviour of control-button1).  
+  
 
 * New function C-c C-f (proof-find) to invoke some prover-specific
-  mechanism to search for theories.  Also a new toolbar button for it.
+  mechanism to search for theories.  
 
-* Toolbar has five new buttons (State, Context, Info, Command,
-  Help) which invoke commands previously available on keys/menus.
+* [XEmacs only] Toolbar has five new buttons (State, Context, Info, 
+  Command, Help) which invoke commands previously available on keys/menus.
+  Also a new "Find" button for proof-find.
 
-* Toolbar enablers have been added.   
+* [XEmacs only] Toolbar enablers have been added.   
   Buttons are automatically enabled or disabled as appropriate.   
   This requires XEmacs 20.4 or better for reliable working.  
+  
 
 * Menus and keybindings have been reorganized.  
   Now keybindings invoke same functions as toolbar.
