@@ -1077,7 +1077,7 @@ This is a long-range forget: we know that there is no
 open goal at the moment, so forgetting involves unbinding
 declarations, etc, rather than undoing proof steps.
 
-This generic implementation assumes it is enough to find the 
+This generic implementation assumes it is enough to find the
 nearest following span with a @samp{name} property, and retract
 that using @samp{@code{proof-forget-id-command}} with the given name.
 
@@ -1184,7 +1184,7 @@ tests by negating the match on @samp{@code{proof-non-undoables-regexp}}.
 
 @c TEXI DOCSTRING MAGIC: proof-generic-state-preserving-p
 @defun proof-generic-state-preserving-p cmd
-Is @var{cmd} state preserving?  Match on @code{proof-non-undoables-regexp}.
+Is @var{cmd} state preserving?  Match on @samp{@code{proof-non-undoables-regexp}}.
 @end defun
 
 
@@ -1259,7 +1259,7 @@ List of identifiers to use for completion for this proof assistant.@*
 Completion is activated with C-return.
 
 If this table is empty or needs adjusting, please make changes using
-@samp{@code{customize-variable}} and send suggestions to support@@proofgeneral.org
+@samp{@code{customize-variable}} and send suggestions to da+pg-support@@inf.ed.ac.uk
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-add-completions
@@ -1506,6 +1506,8 @@ suggests what class of command is about to be inserted:
  @code{'proof-done-invisible}       A non-scripting command
  @code{'proof-done-advancing}       A "forward" scripting command
  @code{'proof-done-retracting}      A "backward" scripting command
+ @code{'init-cmd}                   Initialization command sent to prover
+ @code{'interactive-input}          Special interactive input direct to prover
 @end lisp
 Caveats: You should be very careful about setting this hook.  Proof
 General relies on a careful synchronization with the process between
@@ -2456,7 +2458,8 @@ buffer.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-invisible-command
 @defun proof-shell-invisible-command cmd &optional wait
-Send @var{cmd} to the proof process.  @*
+Send @var{cmd} to the proof process.@*
+The @var{cmd} is @samp{invisible} in the sense that it is not recorded in buffer.
 @var{cmd} may be a string or a string-yielding function.
 Automatically add @code{proof-terminal-char} if necessary, examining
 proof-shell-no-auto-terminate-commands.
@@ -2907,13 +2910,13 @@ various actions, such as starting up the proof assistant, or altering
 @deffn Command proof-activate-scripting &optional nosaves queuemode
 Ready prover and activate scripting for the current script buffer.
 
-The current buffer is prepared for scripting. No changes are
-necessary if it is already in Scripting minor mode. Otherwise, it
+The current buffer is prepared for scripting.  No changes are
+necessary if it is already in Scripting minor mode.  Otherwise, it
 will become the new active scripting buffer, provided scripting
 can be switched off in the previous active scripting buffer
 with @samp{@code{proof-deactivate-scripting}}.
 
-Activating a new script buffer may be a good time to ask if the 
+Activating a new script buffer may be a good time to ask if the
 user wants to save some buffers; this is done if the user
 option @samp{@code{proof-query-file-save-when-activating-scripting}} is set
 and provided the optional argument @var{nosaves} is non-nil.
@@ -2922,7 +2925,7 @@ The optional argument @var{queuemode} relaxes the test for a
 busy proof shell to allow one which has mode @var{queuemode}.
 In all other cases, a proof shell busy error is given.
 
-Finally, the hooks @samp{@code{proof-activate-scripting-hook}} are run.  
+Finally, the hooks @samp{@code{proof-activate-scripting-hook}} are run.
 This can be a useful place to configure the proof assistant for
 scripting in a particular file, for example, loading the
 correct theory, or whatever.  If the hooks issue commands
@@ -2935,8 +2938,8 @@ have failed and an error is given.
 @deffn Command proof-deactivate-scripting &optional forcedaction
 Deactivate scripting for the active scripting buffer.
 
-Set @code{proof-script-buffer} to nil and turn off the modeline indicator.
-No action if there is no active scripting buffer.  
+Set @samp{@code{proof-script-buffer}} to nil and turn off the modeline indicator.
+No action if there is no active scripting buffer.
 
 We make sure that the active scripting buffer either has no locked
 region or a full locked region (everything in it has been processed).
@@ -2955,12 +2958,12 @@ mixed scripting and file reading in the prover.
 This function either succeeds, fails because the user refused to
 process or retract a partly finished buffer, or gives an error message
 because retraction or processing failed.  If this function succeeds,
-then @code{proof-script-buffer} is nil afterwards.
+then @samp{@code{proof-script-buffer}} is nil afterwards.
 
 The optional argument @var{forcedaction} overrides the user option
 @samp{@code{proof-auto-action-when-deactivating-scripting}} and prevents
 questioning the user.  It is used to make a value for
-the @code{kill-buffer-hook} for scripting buffers, so that when
+the @samp{@code{kill-buffer-hook}} for scripting buffers, so that when
 a scripting buffer is killed it is always retracted.
 @end deffn
 
@@ -2980,7 +2983,7 @@ Parse the script buffer from end of locked to @var{pos}.@*
 Return a list of (type, string, int) tuples.
 
 Each tuple denotes the command and the position of its terminator,
-type is one of @code{'comment}, or @code{'cmd}. @code{'unclosed-comment} may be consed onto
+type is one of @code{'comment}, or @code{'cmd}.  @code{'unclosed-comment} may be consed onto
 the start if the segment finishes with an unclosed comment.
 
 If optional @var{next-command-end} is non-nil, we include the command
@@ -3028,10 +3031,10 @@ hence all the different options when we've done so.
 @defun proof-assert-until-point &optional unclosed-comment-fun ignore-proof-process-p
 Process the region from the end of the locked-region until point.@*
 Default action if inside a comment is just process as far as the start of
-the comment. 
+the comment.
 
 If you want something different, put it inside
-@var{unclosed-comment-fun}. If @var{ignore-proof-process-p} is set, no commands
+@var{unclosed-comment-fun}.  If @var{ignore-proof-process-p} is set, no commands
 will be added to the queue and the buffer will not be activated for
 scripting.
 @end defun
@@ -3041,9 +3044,9 @@ scripting.
 @c TEXI DOCSTRING MAGIC: proof-assert-next-command
 @deffn Command proof-assert-next-command &optional unclosed-comment-fun ignore-proof-process-p dont-move-forward for-new-command
 Process until the end of the next unprocessed command after point.@*
-If inside a comment, just process until the start of the comment.  
+If inside a comment, just process until the start of the comment.
 
-If you want something different, put it inside @var{unclosed-comment-fun}. 
+If you want something different, put it inside @var{unclosed-comment-fun}.
 If @var{ignore-proof-process-p} is set, no commands will be added to the queue.
 Afterwards, move forward to near the next command afterwards, unless
 @var{dont-move-forward} is non-nil.  If @var{for-new-command} is non-nil,
@@ -3056,8 +3059,8 @@ The main command for retracting parts of a script is
 @c TEXI DOCSTRING MAGIC: proof-retract-until-point
 @defun proof-retract-until-point &optional delete-region
 Set up the proof process for retracting until point.@*
-In particular, set a flag for the filter process to call 
-@samp{@code{proof-done-retracting}} after the proof process has successfully 
+In particular, set a flag for the filter process to call
+@samp{@code{proof-done-retracting}} after the proof process has successfully
 reset its state.
 If @var{delete-region} is non-nil, delete the region in the proof script
 corresponding to the proof command sequence.
@@ -3074,7 +3077,7 @@ proof assistant exits, we use the functions
 @defun proof-restart-buffers buffers
 Remove all extents in @var{buffers} and maybe reset @samp{@code{proof-script-buffer}}.@*
 No effect on a buffer which is nil or killed.  If one of the buffers
-is the current scripting buffer, then @code{proof-script-buffer} 
+is the current scripting buffer, then @samp{@code{proof-script-buffer}}
 will deactivated.
 @end defun
 
