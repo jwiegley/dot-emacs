@@ -43,7 +43,7 @@ Gif filename depends on colour depth of display."
   nil
   "*Non-nil prevents splash screen display when Proof General is loaded."
   :type 'boolean
-  :group 'proof)
+  :group 'proof-general)
 
 (defcustom proof-splash-extensions nil
   "*Prover specific extensions of splash screen.

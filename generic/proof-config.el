@@ -32,7 +32,23 @@
 ;; The remaining variables in sections 2-5 must be set for
 ;; each proof assistant.
 ;;
-
+;; Customization groups and structure
+;;
+;;  proof-general	: User options for Proof General    (1)
+;;    <Prover name>     : User options for proof assistant
+;;
+;;  proof-general-internals  :  Internal settings of Proof General (6)
+;;    prover-config	     :  Configuration for proof assistant (2,3)
+;;      proof-script	     :     settings for proof script mode (4)
+;;      proof-shell	     :     settings for proof shell mode (5)
+;;    <Prover name>-config   :  Specific internal settings for a prover
+;;
+;; [Developers note: The customize library is a bit picky over the
+;;  :type property and some correct types don't work properly.
+;;  If the type is ill-formed, editing the whole group will be broken.
+;;  Check after updates, by killing all customize buffers and
+;;  invoking customize-group]
+;;
 
 
 ;;
@@ -216,10 +232,6 @@ Could come either from proof assistant or Proof General itself."
 ;; functions.  This is why prover-config appears under the
 ;; proof-general-internal group.
 
-(defcustom proof-assistant-home-page "http://www.dcs.ed.ac.uk/home/proofgen/"
-  "Web address of the proof assistant Proof General is using."
-  :type 'string
-  :group 'prover-config)
 
 (defcustom proof-assistant ""
   "Name of the proof assistant Proof General is using.
@@ -276,7 +288,7 @@ Suggestion: this can be set in the script mode configuration."
 ;; 3. Configuration for menus, user-level commands, etc.
 ;;
 
-(defcustom proof-asssistant-home-page ""
+(defcustom proof-assistant-home-page ""
   "Web address for information on proof assistant"
   :type 'string
   :group 'prover-config)
@@ -381,7 +393,9 @@ Match number 2 should be the name of the goal issued."
   "This function lifts local lemmas from inside goals out to top level.
 This function takes the local goalsave span as an argument. Set this
 to `nil' of the proof assistant does not support nested goals."
-  :type '(choice nil function)
+  :type 'function
+  ;; FIXME customize broken on choices with function in them?
+  ;; :type '(choice (const :tag "No local lemmas" nil) (function))
   :group 'proof-script)
 
 (defcustom proof-count-undos-fn nil 
@@ -404,7 +418,9 @@ by (START,END) is locked as an ACS. Optionally, the ACS is
 annotated with the actual command to retract the ACS. This is
 computed by applying FORGET-COMMAND to the first and last command
 of the ACS."
-  :type '(repeat (cons regexp function (choice (const nil) function)))
+  ;; FIXME customize broken on choices with function in them?
+  ;;:type '(repeat (cons regexp function (choice (const nil) function)))
+  :type '(repeat (cons regexp function function))
   :group 'proof-shell)
 
 
@@ -589,20 +605,20 @@ should be displayed immediately and not accumulated for parsing.
 Set to nil to disable this feature.
 
 The default value is \"\n\" to match up to the end of the line."
-  :type '(choice regexp nil)
+  :type '(choice regexp (const :tag "Disabled" nil))
   :group 'proof-shell)
 
 (defcustom proof-shell-eager-annotation-end "\n"
   "Eager annotation field end.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
-The default value is \"\n\" to match up to the end of the line."
-  :type '(choice regexp nil)
+The default value is \"\\n\" to match up to the end of the line."
+  :type '(choice regexp (const :tag "Unset" nil))
   :group 'proof-shell)
 
 (defcustom proof-shell-assumption-regexp nil
   "A regular expression matching the name of assumptions."
-  :type '(choice regexp nil)
+  :type '(choice regexp (const :tag "Unset" nil))
   :group 'proof-shell)
 
 
