@@ -3,6 +3,8 @@
 --- This is a development release of Proof General,   ---
 --- some features may be incomplete or buggy.  Please ---
 --- report any problems to da@dcs.ed.ac.uk, thanks.   ---
+--- Check the files BUGS and <prover>/BUGS first.     ---
+
 --- ID: $Id$	      			              ---
 
 * Summary of Changes for Proof General 3.4pre from 3.3
