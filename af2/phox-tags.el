@@ -15,7 +15,7 @@
 
 (require 'etags) 
 
-(defun af2-tags-add-table(table)
+(defun phox-tags-add-table(table)
   "add tags table"
   (interactive "D directory, location of a file named TAGS to add : ")
   (if proof-running-on-XEmacs
@@ -32,7 +32,7 @@
     )
   )
 
-(defun af2-tags-reset-table()
+(defun phox-tags-reset-table()
   "Set tags-table-list to nil."
   (interactive)
 ;  (make-local-variable 'tags-table-list)
@@ -42,28 +42,28 @@
     (setq tags-table-list nil))
   )
 
-(defun af2-tags-add-doc-table()
+(defun phox-tags-add-doc-table()
   "Add tags in text documentation."
   (interactive)
-  (af2-tags-add-table (concat af2-doc-dir "/text/TAGS"))
+  (phox-tags-add-table (concat phox-doc-dir "/text/TAGS"))
   )
 
-(defun af2-tags-add-lib-table()
+(defun phox-tags-add-lib-table()
   "Add tags in libraries."
   (interactive)
-  (af2-tags-add-table (concat af2-lib-dir "TAGS"))
+  (phox-tags-add-table (concat phox-lib-dir "TAGS"))
   )
  
-(defun af2-tags-add-local-table()
-  "Add the tags table created with function af2-create-local-table."
+(defun phox-tags-add-local-table()
+  "Add the tags table created with function phox-create-local-table."
   (interactive)
-  (af2-tags-add-table (concat buffer-file-name "TAGS"))
+  (phox-tags-add-table (concat buffer-file-name "TAGS"))
   )
 
-(defun af2-tags-create-local-table()
+(defun phox-tags-create-local-table()
   "create table on local buffer"
   (interactive)
-  (shell-command (concat af2-etags 
+  (shell-command (concat phox-etags 
 			 " -o " 
 			 (file-name-nondirectory (buffer-file-name))
 			 "TAGS "
@@ -72,6 +72,6 @@
 
 ;; default
 
-(if af2-tags-doc (add-hook 'af2-mode-hook 'af2-tags-add-doc-table))
+(if phox-tags-doc (add-hook 'phox-mode-hook 'phox-tags-add-doc-table))
 
-(provide 'af2-tags)
+(provide 'phox-tags)

@@ -3,7 +3,7 @@
 ;;                       Font lock keywords
 ;;--------------------------------------------------------------------------;;
 
-(defconst af2-font-lock-keywords
+(defconst phox-font-lock-keywords
   (list
 ;commands
    '("(\\*\\([^*]\\|\\*+[^*)]\\)*\\(\\*+)\\|\\**$\\)"
@@ -111,7 +111,7 @@
 
 ;; to change this table, xfd -fn '-adobe-symbol-*--12-*' may be
 ;; used to determine the symbol character codes.
-(defvar af2-sym-lock-keywords
+(defvar phox-sym-lock-keywords
   '((">=" 0 1 179)
     ("<=" 0 1 163)
     ("!=" 0 1 185)
@@ -125,14 +125,14 @@
     ("-->" 0 1 222)
     ("->" 0 1 174)
     ("~" 0 1 216))
-  "If non nil: Overrides default Sym-Lock patterns for Af2.")
+  "If non nil: Overrides default Sym-Lock patterns for PhoX.")
 
-(defun af2-sym-lock-start ()
-	(if (and (featurep 'sym-lock) af2-sym-lock)
+(defun phox-sym-lock-start ()
+	(if (and (featurep 'sym-lock) phox-sym-lock)
 	    (progn
 	      (setq sym-lock-color
 		    (face-foreground 'font-lock-function-name-face))
 	      (if (not sym-lock-keywords)
-		  (sym-lock af2-sym-lock-keywords)))))
+		  (sym-lock phox-sym-lock-keywords)))))
 
-(provide 'af2-font)
+(provide 'phox-font)

@@ -26,7 +26,7 @@ For notes on the supported assistants, see the README files
 in the subdirectories:
 
     acl2/   ACL2
-     af2/   AF2
+     af2/   PhoX
      coq/   Coq
  demoisa/   Demonstration instance for Isabelle
      isa/   Isabelle

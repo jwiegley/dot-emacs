@@ -5,15 +5,15 @@
 ;; note : program extraction is still experimental
 ;;--------------------------------------------------------------------------;;
 
-(defun af2-compile-theorem(name)
+(defun phox-compile-theorem(name)
   "Interactive function : 
-ask for the name of a theorem and send a compile command to af2 for it."
+ask for the name of a theorem and send a compile command to PhoX for it."
   (interactive "stheorem : ")
   (proof-shell-invisible-command (concat "compile " name ".\n")))
 
-(defun af2-compile-theorem-around-point()
+(defun phox-compile-theorem-around-point()
 "Interactive function : 
-send a compile command to af2 for the theorem which name is under the cursor."
+send a compile command to PhoX for the theorem which name is under the cursor."
   (interactive)
   (let (start end)
     (save-excursion
@@ -21,42 +21,42 @@ send a compile command to af2 for the theorem which name is under the cursor."
       (setq start (point))
       (forward-word -1)
       (setq end (point)))
-    (af2-compile-theorem (buffer-substring start end))))
+    (phox-compile-theorem (buffer-substring start end))))
 
 
 (setq
- af2-forget-id-command "del %s.\n"
- af2-forget-new-elim-command "edel elim %s.\n"
- af2-forget-new-intro-command "edel intro %s.\n"
- af2-forget-new-rewrite-command "edel rewrite %s.\n"
- af2-forget-close-def-command "edel closed %s.\n"
- af2-comments-regexp "[ \n\t\r]*\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*"
- af2-ident-regexp "\\(\\([^ \n\t\r=\\[.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)"
- af2-spaces-regexp "[ \n\t\r]*"
- af2-sy-definition-regexp (concat 
+ phox-forget-id-command "del %s.\n"
+ phox-forget-new-elim-command "edel elim %s.\n"
+ phox-forget-new-intro-command "edel intro %s.\n"
+ phox-forget-new-rewrite-command "edel rewrite %s.\n"
+ phox-forget-close-def-command "edel closed %s.\n"
+ phox-comments-regexp "[ \n\t\r]*\\((\\*\\([^*]\\|\\(\\*[^)]\\)\\)*\\*)[ \n\t\r]*\\)*"
+ phox-ident-regexp "\\(\\([^ \n\t\r=\\[.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)"
+ phox-spaces-regexp "[ \n\t\r]*"
+ phox-sy-definition-regexp (concat 
    "\\(Cst\\|def\\)"
-   af2-comments-regexp
+   phox-comments-regexp
    "\\(\\(rInfix\\|lInfix\\|Infix\\|Prefix\\|Postfix\\)[^\"]+\"\\([^\"]+\\)\\)") 
- af2-definition-regexp (concat
+ phox-definition-regexp (concat
    "\\(Cst\\|def\\(_thlist\\)?\\|claim\\|Sort\\)"
-   af2-comments-regexp
-   af2-ident-regexp)
- af2-new-elim-regexp (concat
+   phox-comments-regexp
+   phox-ident-regexp)
+ phox-new-elim-regexp (concat
    "new_elim\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
-   af2-ident-regexp)
- af2-new-intro-regexp (concat
+   phox-ident-regexp)
+ phox-new-intro-regexp (concat
    "new_intro\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
-   af2-ident-regexp)
- af2-new-rewrite-regexp (concat
+   phox-ident-regexp)
+ phox-new-rewrite-regexp (concat
    "new_rewrite\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)*[ \n\t\r)]"
-   af2-ident-regexp)
- af2-close-def-regexp (concat
+   phox-ident-regexp)
+ phox-close-def-regexp (concat
    "close_def"
-   af2-comments-regexp
+   phox-comments-regexp
    "\\(\\([^.]\\|\\(\\.[^ \n\t\r]\\)\\)+\\)[. \n\t\r]")
 )
 
-(defun af2-find-and-forget (span)
+(defun phox-find-and-forget (span)
   (let (str ans tmp (lsp -1))
     (while span 
       (setq str (span-property span 'cmd))
@@ -66,36 +66,36 @@ send a compile command to af2 for the theorem which name is under the cursor."
        ((eq (span-property span 'type) 'comment))       
 
        ((eq (span-property span 'type) 'goalsave)
-	(setq ans (concat (format af2-forget-id-command
+	(setq ans (concat (format phox-forget-id-command
 				  (span-property span 'name)) ans)))
 
-       ((proof-string-match af2-new-elim-regexp str)
+       ((proof-string-match phox-new-elim-regexp str)
 	(setq ans 
-	      (concat (format af2-forget-new-elim-command 
+	      (concat (format phox-forget-new-elim-command 
 				  (match-string 3 str)) ans)))
 
-       ((proof-string-match af2-new-intro-regexp str)
+       ((proof-string-match phox-new-intro-regexp str)
 	(setq ans 
-	      (concat (format af2-forget-new-intro-command 
+	      (concat (format phox-forget-new-intro-command 
 				  (match-string 3 str)) ans)))
 
-       ((proof-string-match af2-new-rewrite-regexp str)
+       ((proof-string-match phox-new-rewrite-regexp str)
 	(setq ans 
-	      (concat (format af2-forget-new-rewrite-command 
+	      (concat (format phox-forget-new-rewrite-command 
 				  (match-string 3 str)) ans)))
 
-       ((proof-string-match af2-close-def-regexp str)
+       ((proof-string-match phox-close-def-regexp str)
 	(setq ans 
-	      (concat (format af2-forget-close-def-command 
+	      (concat (format phox-forget-close-def-command 
 				  (match-string 4 str)) ans)))
 
-       ((proof-string-match af2-sy-definition-regexp str)
+       ((proof-string-match phox-sy-definition-regexp str)
 	(setq ans 
-	      (concat (format af2-forget-id-command 
+	      (concat (format phox-forget-id-command 
 				  (concat "$" (match-string 7 str))) ans)))
 
-       ((proof-string-match af2-definition-regexp str)
-	(setq ans (concat (format af2-forget-id-command 
+       ((proof-string-match phox-definition-regexp str)
+	(setq ans (concat (format phox-forget-id-command 
 				      (match-string 6 str)) ans))))
 
 
@@ -111,15 +111,15 @@ send a compile command to af2 for the theorem which name is under the cursor."
 ;;--------------------------------------------------------------------------;;
 
 
-(defun af2-delete-symbol(symbol)
+(defun phox-delete-symbol(symbol)
   "Interactive function : 
-ask for a symbol and send a delete command to af2 for it."
+ask for a symbol and send a delete command to PhoX for it."
   (interactive "ssymbol : ")
   (proof-shell-invisible-command (concat "del " symbol ".\n")))
 
-(defun af2-delete-symbol-around-point()
+(defun phox-delete-symbol-around-point()
 "Interactive function : 
-send a delete command to af2 for the symbol whose name is under the cursor."
+send a delete command to PhoX for the symbol whose name is under the cursor."
   (interactive)
   (let (start end)
     (save-excursion
@@ -128,13 +128,13 @@ send a delete command to af2 for the symbol whose name is under the cursor."
       (forward-word 1)
       (setq end (point)))
     (if (char-equal (char-after (- end 1)) ?\.)(setq end (- end 1)))
-    (af2-delete-symbol (buffer-substring start end))))
+    (phox-delete-symbol (buffer-substring start end))))
 
 ;;
 ;; Doing commands
 ;;
 
-(defun af2-assert-next-command-interactive ()
+(defun phox-assert-next-command-interactive ()
   "Process until the end of the next unprocessed command after point.
 If inside a comment, just process until the start of the comment."
   (interactive)
@@ -146,5 +146,5 @@ If inside a comment, just process until the start of the comment."
     (proof-assert-next-command))
    (proof-maybe-follow-locked-end)))
 
-(provide 'af2-fun)
+(provide 'phox-fun)
 

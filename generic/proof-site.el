@@ -48,7 +48,7 @@
     (isa        "Isabelle"	"\\.ML$\\|\\.thy$")
     (lego	"LEGO"		"\\.l$")
     (coq	"Coq"		"\\.v$")
-    (af2	"Af2"		"\\.af2$")
+    (phox	"PhoX"		"\\.phx$")
     ;; The following provers are not fully supported, 
     ;; and have only preliminary support written 
     ;; (please volunteer to improve them!)
