@@ -201,7 +201,7 @@ If in three window or multiple frame mode, display both buffers."
 	   '(["Trace"
 	      (proof-switch-to-buffer proof-trace-buffer)
 	      :active (buffer-live-p proof-trace-buffer)])
-	   '(["Clear responses"
+	   '(["Clear Responses"
 	      (pg-response-clear-displays) t])))
   "Proof General buffer menu.")
 
