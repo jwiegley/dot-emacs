@@ -9,6 +9,9 @@
 
 
 ;; $Log$
+;; Revision 1.45  1998/05/22 09:46:58  tms
+;; fixed a bug in proof-frob-locked-end
+;;
 ;; Revision 1.44  1998/05/21 17:34:31  hhg
 ;; Made proof-locked-span and proof-queue-span buffer-local.
 ;; Changed some if's without then-clauses to and's.
@@ -1655,9 +1658,9 @@ deletes the region corresponding to the proof sequence."
    ((not (eq proof-script-buffer (current-buffer)))
     (error "Not in proof buffer"))
    ((> (point) (proof-locked-end))
-    (error "Can only move backwards")
+    (error "Can only move backwards"))
    (t (proof-set-locked-end (point))
-      (delete-spans (proof-locked-end) (point-max) 'type)))))
+      (delete-spans (proof-locked-end) (point-max) 'type))))
 
 (defvar proof-minibuffer-history nil
   "The last command read from the minibuffer")
