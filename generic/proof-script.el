@@ -35,10 +35,12 @@
 ;; More autoloads for proof-shell (added to nuke warnings,
 ;; maybe some should be 'official' exported functions in proof.el)
 ;; This helps see interface between proof-script / proof-shell.
-(eval-when-compile
+(eval-and-compile
   (mapcar (lambda (f) 
 	    (autoload f "proof-shell"))
 	  '(proof-shell-ready-prover
+	    proof-extend-queue
+	    proof-shell-wait
 	    proof-start-queue
 	    proof-shell-live-buffer
 	    proof-shell-invisible-command)))
@@ -457,7 +459,7 @@ proof assistant and Emacs is has a modified buffer visiting the file."
 	   'wait)))))
 
 (defun proof-inform-prover-file-retracted (rfile)
-  (if (and informprover proof-shell-inform-file-retracted-cmd)
+  (if proof-shell-inform-file-retracted-cmd
       (proof-shell-invisible-command
        (format proof-shell-inform-file-retracted-cmd rfile)
        'wait)))
@@ -2284,6 +2286,8 @@ This is intended as a value for proof-activate-scripting-hook"
 	     :active (proof-x-symbol-support-maybe-available)
 	     :style toggle
 	     :selected proof-x-symbol-enable]
+	    ["Function menu" function-menu
+	     :active (foundp 'function-menu)]
 	    "----")
           proof-shared-menu)
   "The menu for the proof assistant.")
