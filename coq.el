@@ -3,6 +3,11 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.20  1998/05/08 17:08:31  hhg
+;; Made separated indentation more elegant.
+;; 	Fixed bug with Inductive.
+;; 	Added CoInductive.
+;;
 ;; Revision 1.19  1998/05/08 15:42:42  hhg
 ;; Merged indentation code for LEGO and Coq into proof.el.
 ;;
@@ -469,6 +474,23 @@
 			      (char-after (point)))) 8 10)))
 	 (t (1+ col)))))))
 
+(defun coq-parse-indent (c stack)
+  (cond
+   ((and (eq c ?c) (looking-at "case"))
+    (cons (list c (point)) stack))
+   ((and (eq c ?e) (looking-at "end") (eq (car (car stack)) ?c))
+    (cdr stack))
+   
+   ((and (eq c ?I) (looking-at "Inductive"))
+    (forward-char (length "Inductive"))
+    (cons (list c (- (point) (length "Inductive"))) stack))
+   ((and (eq c ?C) (looking-at "CoInductive"))
+    (forward-char (length "CoInductive"))
+    (cons (list c (- (point) (length "CoInductive"))) stack))
+   ((and (eq c ?.) (or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C)))
+    (cdr stack))
+   (t stack)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Coq shell startup and exit hooks                               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -494,6 +516,7 @@
         proof-goal-hyp-fn 'coq-goal-hyp
 	proof-state-preserving-p 'coq-state-preserving-p
 	proof-global-p 'coq-global-p
+	proof-parse-indent 'coq-parse-indent
 	proof-stack-to-indent 'coq-stack-to-indent)
 
   (setq proof-save-command-regexp coq-save-command-regexp
