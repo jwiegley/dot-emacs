@@ -198,6 +198,7 @@ fun find_file "" name =
                                          else "";
 
 (*Get absolute pathnames for a new or already loaded theory *)
+(*
 fun get_filenames path name =
   let fun new_filename () =
         let val found = find_file path (name ^ ".thy");
@@ -237,6 +238,9 @@ fun get_filenames path name =
        end
      else new_filename ()
   end;
+Not needed in latest version of Isabelle with my hack.
+*)
+
 
 fun retract_file thy =
   let fun file_msg x = if (x <> "") then
@@ -244,7 +248,7 @@ fun retract_file thy =
 			     ^ (quote x))
 	               else ()
       (* output messages for this theory *)
-      val (thy_file, ml_file) = get_filenames (path_of thy) thy
+      val (thy_file, ml_file) = get_thy_filenames (path_of thy) thy
       val _ = file_msg thy_file
       val _ = file_msg ml_file
       (* now process this theory's children *)
@@ -268,7 +272,7 @@ fun list_loaded_files () =
    val thys_list = Symtab.dest (!loaded_thys)
    fun loading_msg (tname,tinfo) = 
 	let val path = path_of tname
-	    val (thy_file,ml_file) = get_filenames path tname
+	    val (thy_file,ml_file) = get_thy_filenames path tname
 	    fun file_msg x = if (x <> "") then
 			(* Simulate output of theory loader *)
 			writeln ("Reading " ^ (quote x))
