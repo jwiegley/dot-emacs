@@ -108,7 +108,7 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@image{ProofGeneralPortrait}
+@c image{ProofGeneralPortrait}
 @end ifset
 @end iftex
 @author David Aspinall with T. Kleymann
@@ -369,7 +369,7 @@ directory and elisp file for the mode, which will be
 where @samp{PROOF-HOME-DIRECTORY} is the value of the
 variable @code{proof-home-directory}.
 
-The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (af2 "Af2" "\\.af2$") (hol98 "HOL" "\\.sml$") (acl2 "ACL2" "\\.acl2$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$"))}.
+The default value is @code{((demoisa "Isabelle Demo" "\\.ML$") (isar "Isabelle/Isar" "\\.thy$") (isa "Isabelle" "\\.ML$\\|\\.thy$") (lego "LEGO" "\\.l$") (coq "Coq" "\\.v$") (af2 "Af2" "\\.af2$") (hol98 "HOL" "\\.sml$") (plastic "Plastic" "\\.lf$") (twelf "Twelf" "\\.elf$"))}.
 @end defopt
 
 
@@ -828,7 +828,9 @@ for @samp{@code{proof-script-next-entity-regexps}} used for function menus.
 @c TEXI DOCSTRING MAGIC: proof-goal-with-hole-regexp
 @defvar proof-goal-with-hole-regexp 
 Regexp which matches a command used to issue and name a goal.@*
-Match number 2 should be the name of the goal issued.
+The name of the theorem is build from the variable
+@code{proof-goal-with-hole-result} using the same convention as 
+@code{query-replace-regexp}. 
 Used for setting names of goal..save regions and for default
 @code{function-menu} configuration in @code{proof-script-find-next-entity}.
 
@@ -854,7 +856,9 @@ Matches a save command.
 @c TEXI DOCSTRING MAGIC: proof-save-with-hole-regexp
 @defvar proof-save-with-hole-regexp 
 Regexp which matches a command to save a named theorem.@*
-Match number 2 should be the name of the theorem saved.
+The name of the theorem is build from the variable
+@code{proof-save-with-hole-result} using the same convention as 
+@code{query-replace-regexp}. 
 Used for setting names of goal..save regions and for default
 @code{function-menu} configuration in @code{proof-script-find-next-entity}.
 
@@ -2441,7 +2445,7 @@ in the @code{proof-assistants} setting.
 @c TEXI DOCSTRING MAGIC: proof-assistants
 @defopt proof-assistants 
 Choice of proof assistants to use with Proof General.@*
-A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'af2} @code{'hol98} @code{'acl2} @code{'plastic} @code{'twelf}.
+A list of symbols chosen from: @code{'demoisa} @code{'isar} @code{'isa} @code{'lego} @code{'coq} @code{'af2} @code{'hol98} @code{'plastic} @code{'twelf}.
 Each proof assistant defines its own instance of Proof General,
 providing session control, script management, etc.  Proof General
 will be started automatically for the assistants chosen here.

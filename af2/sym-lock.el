@@ -262,6 +262,11 @@ OBJ under `sym-lock-adobe-symbol-face'. The face extent will become atomic."
   "Function called by `font-lock-mode' for initialization purposes."
   (add-hook 'pre-idle-hook 'sym-lock-pre-idle-hook-first)
   (add-hook 'pre-idle-hook 'sym-lock-pre-idle-hook-last t)
+  (add-menu-button '("Options" "Syntax Highlighting")
+		   ["Sym-Lock"
+		    (if sym-lock-enabled (sym-lock-disable) (sym-lock-enable))
+		    :style toggle :selected sym-lock-enabled
+		    :active sym-lock-keywords] "Automatic")  
   (if (and (featurep 'sym-lock) sym-lock-enabled
 	   font-lock-defaults (boundp 'sym-lock-keywords))
       (progn
@@ -293,12 +298,6 @@ OBJ under `sym-lock-adobe-symbol-face'. The face extent will become atomic."
 					font-lock-keywords))))))))
       (setq font-lock-keywords (append sym-lock-keywords
 				       font-lock-keywords))) t)
-
-(add-menu-button '("Options" "Syntax Highlighting")
-		 ["Sym-Lock"
-		  (if sym-lock-enabled (sym-lock-disable) (sym-lock-enable))
-		  :style toggle :selected sym-lock-enabled
-		  :active sym-lock-keywords] "Automatic")
 
 (add-hook 'font-lock-mode-hook 'sym-lock-font-lock-hook)
 
