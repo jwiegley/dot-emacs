@@ -2033,12 +2033,16 @@ processing."
 	    ;; Also ensure that proof-action-list is initialised. 
 	    (setq proof-action-list nil)
 	    ;; Send main intitialization command and wait for it to be
-	    ;; processed.   First, if the prover supports PGIP and
-	    ;; preferences are not configured, we may configure them.
-	    ;; (NB: this assumes that PGIP provers are ready-to-go, without
-	    ;;  needing init-cmd before PGIP processing).  We do
-	    ;; this so that user preferences may be set in proof-shell-init-cmd.
+	    ;; processed.   
+	    
+	    ;; First, if the prover supports PGIP and preferences are
+	    ;; not configured, we may configure them.  (NB: this
+	    ;; assumes that PGIP provers are ready-to-go, without
+	    ;; needing init-cmd before PGIP processing).  We do this
+	    ;; so that user preferences may be then set sensibly in
+	    ;; the proof-shell-init-cmd.
 	    (proof-maybe-askprefs)
+	    
 	    ;; Now send the init cmd proper.
 	    (if proof-shell-init-cmd
 		(proof-shell-invisible-command proof-shell-init-cmd t))
