@@ -1,3 +1,84 @@
+2002-08-31  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/proof-syntax.el, generic/proof-utils.el:
+	Documentation.
+
+	* doc/PG-adapting.texi:
+	Doc new proof-zap-commas
+
+	* doc/Makefile.doc: Add -q to emacs
+
+	* generic/proof-syntax.el, generic/proof-utils.el, lego/lego.el, lego/lego-syntax.el, generic/proof-config.el, generic/proof-script.el, coq/coq.el, coq/coq-syntax.el:
+	Improved implementation of zap-commas font lock behaviour, patch from Stefan Monnier
+
+	* CHANGES: Updated.
+
+	* generic/span-overlay.el:
+	Test inhibit-read-only
+
+	* generic/proof-script.el: Comments
+
+	* generic/proof-config.el:
+	Try to reduce contrast for highlighting face
+
+2002-08-30  David Aspinall  <da@proofgeneral.org>
+
+	* generic/pg-user.el: Updated.
+
+	* generic/pg-user.el:
+	GNU Emacs: avoid using own-clipboard
+
+	* isar/isar.el:
+	Use old parser still for Isar for time being (see note in source)
+
+	* CHANGES: Updated.
+
+	* generic/proof-utils.el: Tidy display
+
+	* generic/proof-shell.el: Updated.
+
+	* generic/pg-response.el: Tidy display
+
+	* generic/proof-config.el:
+	Switch to using new parser by default.  Disable fly-past-comments by default.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
+	Set version tag for new release.
+
+	* etc/coq/parsing.v: New files.
+
+	* CHANGES: Updated.
+
+	* generic/proof-splash.el:
+	Dont restore window config if it seems like a different frame was used.
+
+	* coq/coq-syntax.el: Formatting
+
+	* generic/proof-script.el:
+	Patch from Stefan Monnier for using nested-comment aware parser on GNU Emacs.
+
+	* generic/proof-config.el, BUGS, generic/span-extent.el, generic/span-overlay.el:
+	Strict read works on GNU Emacs 21.2.
+
+2002-08-29  David Aspinall  <da@proofgeneral.org>
+
+	* generic/proof-script.el:
+	Imenu addition, layout fixes, from Stefan Monnier
+
+	* coq/coq-syntax.el:
+	Layout/docstring improvements (based on patch from Stefan Monnier)
+
+	* coq/coq.el:
+	mPatch from Stefan Monnier [buffer-substring].
+
+	* coq/coq-syntax.el:
+	Patch for nested comments from Stefan Monnier.
+
 2002-08-30  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, generic/proof-site.el, html/develdownload.php, html/devel.html:
