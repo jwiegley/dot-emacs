@@ -458,7 +458,8 @@ Proof General with the proof assistant."
 (defun proof-expand-path (string)
   (let ((a 0) (l (length string)) ls)
     (while (< a l) 
-      (setq ls (cons (int-to-string (aref string a)) 
+      (setq ls (cons (int-to-string 
+		      (aref string a)) 
 		     (cons " " ls)))
       (incf a))
     (apply 'concat (nreverse ls))))
@@ -466,15 +467,37 @@ Proof General with the proof assistant."
 ;; FIXME da: this is an oddity.  It copies the span, but does not
 ;; send it, contrary to it's old name ("proof-send-span").   
 ;; Maybe belongs elsewhere.
-(defun proof-copy-span (event)
+;; Now made more general to behave like mouse-track-insert
+;; when not over a span.
+;; FIXME da: improvement would be to allow selection of part
+;; of command by dragging, as in ordinary mouse-track-insert.
+;; Maybe by setting some of the mouse track hooks.
+(defun proof-mouse-track-insert (event)
+  "Copy highlighted command under the mouse to point.  Ignore comments.
+If there is no command under the mouse, behaves like mouse-track-insert."
   (interactive "e")
-  (let* ((span (span-at (mouse-set-point event) 'type))
-	 (str  (if span (span-property span 'cmd))))
-    (cond ((and (eq (current-buffer) proof-script-buffer)
-		(not (null span)))
-	   (proof-goto-end-of-locked)
-	   (cond ((eq (span-property span 'type) 'vanilla)
-		  (insert str)))))))
+  (let ((str
+	 (save-window-excursion
+	   (save-excursion
+	     (let* ((span (span-at (mouse-set-point event) 'type)))
+	       (and
+		span
+		;; Next test might be omitted to allow for non-script
+		;; buffer copying (e.g. from spans in the goals buffer)
+		(eq (current-buffer) proof-script-buffer)
+		;; Test for type=vanilla means that closed goal-save regions
+		;; are not copied.
+		(eq (span-property span 'type) 'vanilla)
+		;; Finally, extracting the 'cmd part prevents copying
+		;; comments, and supresses leading spaces, at least.
+		;; Odd.
+		(span-property span 'cmd)))))))
+    ;; Insert copied command in original window, 
+    ;; buffer, point position.
+    (if str 
+	(insert str proof-script-command-separator)
+      (mouse-track-insert event))))
+
 
 (defun pbp-construct-command ()
   (let* ((span (span-at (point) 'proof))
@@ -821,14 +844,12 @@ Then we call `proof-shell-handle-error-hook'. "
 	     (proof-release-lock))))
 
 (defun proof-goals-pos (span maparg)
-  "Given a span, this function returns the start of it if corresponds
-  to a goal and nil otherwise."
+  "Given a span, return the start of it if corresponds to a goal, nil otherwise."
  (and (eq 'goal (car (span-property span 'proof-top-element)))
 		(span-start span)))
 
 (defun proof-pbp-focus-on-first-goal ()
-  "If the `proof-goals-buffer' contains goals, the first one is brought
-  into view."
+  "If the `proof-goals-buffer' contains goals, bring the first one into view."
   (and (fboundp 'map-extents)
        (let
 	   ((pos (map-extents 'proof-goals-pos proof-goals-buffer
