@@ -905,6 +905,8 @@ and @var{off}) than the low-level lisp values (non-@code{nil},
 
 @defopt proof-prog-name-ask
 If non-@code{nil}, query user which program to run for the inferior process.
+
+The default value is @code{nil}.
 @end defopt
 
 @defopt proof-rsh-command
@@ -919,10 +921,12 @@ isabelle} to start Isabelle remotely on our large compute server called
 
 The protocol used should be configured so that no user interaction
 (passwords, or whatever) is required to get going.
+
+The default value is the empty string @code{""}.
 @end defopt
 
 @defopt proof-toolbar-wanted
-Whether to use toolbar in proof mode.
+Whether to use toolbar in proof mode.  Default is @code{t}.
 @end defopt
 
 @defopt proof-auto-delete-windows
@@ -932,6 +936,8 @@ be cleared; if this flag is set it will automatically be removed.
 If you use several frames to display the Proof General buffers,
 you may want to set this variable to 'nil' to avoid frames being
 deleted automatically.
+
+The default value is @code{t}.
 @end defopt
 
 @defopt proof-toolbar-follow-mode
@@ -942,6 +948,8 @@ toolbar commands. @*
 If @code{follow}, point moves just when needed to display the
 locked region end. @*
 If @code{ignore}, point is never moved after toolbar movement commands.
+
+The default is 
 @end defopt
 
 @defopt proof-window-dedicated
@@ -962,21 +970,26 @@ you a reprimand!)
 @end defopt
 
 @defopt proof-script-indent
-If non-nil, enable indentation code for proof scripts.
+If non-@code{nil}, enable indentation code for proof scripts.
 Currently the indentation code can be rather slow for large scripts,
 and is critical on the setting of regular expressions for 
 particular provers.  Enable it if it works for you.
+
+The default is @code{nil}.  
 @end defopt
 
 @defopt proof-one-command-per-line
 If non-@code{nil}, format for newlines after each proof command in a
 script.  This option is not fully-functional at the moment.
+
+The default is @code{nil}.
 @end defopt
 
 @node Changing faces
 @section Changing faces
 
 The fonts and colours that Proof General uses are configurable.
+
 
 
 @defopt proof-queue-face
@@ -1381,6 +1394,8 @@ of @var{proof-assistants-table} for more details.
 @node Proof shell settings
 @section Proof shell settings
 
+
+
 @menu
 * Special annotations::         
 @end menu
@@ -1445,17 +1460,17 @@ itself. Instead, for a specific proof assistant you need to customise
 @code{proof-shell-process-file}. @code{proof-shell-retract-files-regexp} 
 and @code{proof-shell-compute-new-files-list}.
 
-@item proof-shell-process-file is either nil or a tuple of the form
-(@var{regexp}, @var{function}). If @var{regexp} matches a substring of
-@var{str}, then the function @var{function} is invoked with input
-@var{str}. It must return a script file name (with complete path) the
-system is currently processing. In practice, @var{function} is likely to
-inspect the match data. @inforef{Match Data,,lispref}. Care has to be
-taken in case the prover only reports on compiled versions of files it
-is processing. In this case, @var{function} needs to reconstruct the
-corresponding script file name. The new (true) file name is then
-automatically added to the front of @code{proof-included-files-list} by
-the generic code.
+@item proof-shell-process-file 
+is either nil or a tuple of the form (@var{regexp}, @var{function}). If
+@var{regexp} matches a substring of @var{str}, then the function
+@var{function} is invoked with input @var{str}. It must return a script
+file name (with complete path) the system is currently processing. In
+practice, @var{function} is likely to inspect the match
+data. @inforef{Match Data,,lispref}. Care has to be taken in case the
+prover only reports on compiled versions of files it is processing. In
+this case, @var{function} needs to reconstruct the corresponding script
+file name. The new (true) file name is then automatically added to the
+front of @code{proof-included-files-list} by the generic code.
 
 @item proof-shell-retract-files-regexp
 is a regular expression. It indicates that the prover has retracted
@@ -1524,8 +1539,8 @@ Script management as used in Proof General is described in the paper:
 
 @itemize @bullet
 @item
-Yves Bertot and Laurent Th@'ery. A generic approach to building
-user interfaces for theorem provers. To appear in Journal of
+Yves Bertot and Laurent Th@'ery. @i{A generic approach to building
+user interfaces for theorem provers}. To appear in Journal of
 Symbolic Computation.
 @end itemize
 
@@ -1534,9 +1549,9 @@ as described in the document:
 
 @itemize @bullet
 @item
-Yves Bertot, Thomas Kleymann-Schreiber and Dilip Sequeira. Implementing
+Yves Bertot, Thomas Kleymann-Schreiber and Dilip Sequeira. @i{Implementing
 Proof by Pointing without a
-Structure Editor. LFCS Technical Report ECS-LFCS-97-368. Also published as Rapport de recherche de
+Structure Editor}. LFCS Technical Report ECS-LFCS-97-368. Also published as Rapport de recherche de
 l'INRIA Sophia Antipolis RR-3286 
 @end itemize
 
