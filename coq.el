@@ -3,6 +3,10 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.8  1997/11/06 16:55:49  hhg
+;; Assign new variable proof-goal-hyp-fn to coq-goal-hyp, which advances
+;; over coq-goal-regexp to pick up goal for pbp
+;;
 ;; Revision 1.7  1997/10/30 15:58:31  hhg
 ;; Updates for coq, including:
 ;; 	* pbp-goal-command and pbp-hyp-command use proof-terminal-string
@@ -290,6 +294,18 @@
 
       (or ans "COMMENT")))
 
+(defun coq-goal-hyp ()
+  (cond 
+   ((looking-at "============================\n")
+    (goto-char (match-end 0))
+    (cons 'goal "1"))
+   ((looking-at "subgoal \\([0-9]\\)+ is:\n")
+    (goto-char (match-end 0))
+    (cons 'goal (match-string 1)))
+   ((looking-at proof-shell-assumption-regexp)
+    (cons 'hyp (match-string 1)))
+   (t nil)))
+
 (defun coq-retract-target (target delete-region)
   (let ((end (proof-end-of-locked))
 	(start (span-start target))
@@ -396,6 +412,7 @@
   (setq proof-comment-end "*)")
 
   (setq proof-retract-target-fn 'coq-retract-target)
+  (setq proof-goal-hyp-fn 'coq-goal-hyp)
 
   (setq proof-save-command-regexp coq-save-command-regexp
 	proof-save-with-hole-regexp coq-save-with-hole-regexp
