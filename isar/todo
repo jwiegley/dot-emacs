@@ -4,6 +4,8 @@
 
 See also ../todo for generic things to do, priority codes.
 
+** B visualise dependencies: sometimes not applicable.
+
 ** C func-menu: observe proof-syntactic-context (general problem of
 func-menu setup?);
 
