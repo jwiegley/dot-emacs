@@ -28,8 +28,11 @@ HELP="Usage: proofgeneral [OPTION] [FILE]...
   Launch Emacs Proof General editing the proof script FILE.
 
   Options:
-    -h, --help        show this help and exit
-    -v, --version     output version information and exit
+    --emacs	        startup Proof General with emacs (GNU Emacs)
+    --xemacs            startup Proof General with xemacs (XEmacs)
+    --emacsbin <EMACS>  startup Proof General with emacs binary <EMACS>
+    -h, --help          show this help and exit
+    -v, --version       output version information and exit
 
   Examples:
     $NAME Example.thy	Load Proof General editing Isar file Example.thy
@@ -62,6 +65,13 @@ while
 	echo "$NAME" "($VERSION)" >&2
 	echo "$VERSIONBLURB" >&2
 	exit 1;;
+    --emacs)
+	EMACS=`which emacs`;;
+    --xemacs)
+	EMACS=`which xemacs`;;
+    --emacsbin)
+	EMACS=$2
+	shift;;
     -*) 
 	echo "$NAME: option $1 not recognized. Use $NAME --help for help." 1>&2
 	exit 1;;
