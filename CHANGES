@@ -38,6 +38,7 @@
 *** Compatibility fixes.
 
      Fixes for FSF Emacs and XEmacs 21.4
+     Better support for win32 versions of XEmacs (see README.windows).
 
 ** Coq Changes
 
