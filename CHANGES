@@ -120,4 +120,12 @@
 *** proof-shell-process-output now sets proof-shell-last-output and
     proof-shell-last-output-kind which gives clearer interface internally
     and with rest of code.   See docs.
+
+*** Support for "tracing" buffers added.   
+    This was added for Isabelle's simplifier tracing, when a large
+    amount of output is produced during a proof for debugging.
+    The user would rather see the output as it arrives than wait
+    for a long time. 
+    Experimental stage and not yet enabled for any prover.  
+    See proof-shell-spill-output-regexp.
   
