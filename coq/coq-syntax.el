@@ -85,6 +85,8 @@ version of coq by doing 'coqtop -v'."  )
     (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
 			  (x (string-match "version \\([.0-9]*\\)" str))
 			  (num (match-string 1 str)))
+      ;; da: added this to avoid type error in case coq command fails
+      (if (null num) (setq num ""))
       (cond
        ((string-match num "\\<6.") 
 		  (message v6)
