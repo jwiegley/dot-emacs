@@ -384,26 +384,25 @@ Choice based on first name found by:
   (interactive)
   (and (fboundp 'sml-mode) (sml-mode)))
 
-(defvar isa-ml-file-extension ".ML"
-  "*File name extension to use for ML files.")
+(defcustom isa-ml-file-extension ".ML"
+  "*File name extension to use for ML files."
+  :type 'string
+  :group 'isabelle)
 
 (defun thy-find-other-file ()
   "Find associated .ML or .thy file."
   (interactive)
   (and 
    (buffer-file-name)
-   (let ((fname (buffer-file-name)))
-     (cond ((string-match "\\.thy$" fname)
-	    (find-file-other-window
-	     (concat 
-	      (substring fname 0 -4) 
-	      isa-ml-file-extension)))
-	   ((string-match (concat (regexp-quote isa-ml-file-extension) "$")
-			  fname)
-	    (find-file (concat
-			(substring fname 0 (- (length isa-ml-file-extension)))
-			".thy")))))))
-
+   (let* ((fname     (buffer-file-name))
+	  (thyfile   (string-match "\\.thy$" fname))
+	  (mlfile    (string-match
+		      (concat (regexp-quote isa-ml-file-extension) "$") fname))
+	  (basename  (file-name-sans-extension fname)))
+     (cond (thyfile
+	    (find-file-other-window (concat basename isa-ml-file-extension)))
+	   (mlfile
+	    (find-file-other-window (concat basename ".thy")))))))
   
 
 ;;; "minor" sml-mode inside theory files ==========
