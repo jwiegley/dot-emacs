@@ -292,7 +292,7 @@ until Proof General is restarted."
 			   :selected (list 'equal 'isabelle-chosen-logic l)))
 		 (isa-tool-list-logics)))))
 
-;; Status: remove-menu-item 
+;; Status: remove-menu-item seems broken??
 (defun isabelle-logics-menu-refresh ()
   "Refresh isabelle-logics-menu."
   (interactive)

@@ -32,6 +32,8 @@ X (Low)		e.g. probably not worth spending time on
 
 ** 2. Things to do in the generic interface
 
+*** [ Don't query save before retraction ?? ]
+
 *** A settings configuration for Isabelle: add backwards
     compatibility for older versions of Isabelle.  
     Waiting for Isabelle to provide some easy version
