@@ -138,7 +138,7 @@ DEFAULT gives return value in case image not valid."
   "Holds timeout ID and previous window config for proof splash screen.")
 
 (defun proof-splash-centre-spaces (glyph)
-  "Return number of spaces to insert in order to center given glyph or string.
+  "Return number of spaces to insert in order to center given GLYPH or string.
 Borrowed from startup-center-spaces."
   (let* ((avg-pixwidth     (round (/ (frame-pixel-width) (frame-width))))
 	 (fill-area-width  (* avg-pixwidth (- fill-column left-margin)))
@@ -154,7 +154,7 @@ Borrowed from startup-center-spaces."
 				   "proof-splash-centre-spaces: bad arg")))))
     (+ left-margin
        (round (/ (/ (- fill-area-width glyph-pixwidth) 2) avg-pixwidth)))))
-  
+
 ;; We take some care to preserve the users window configuration
 ;; underneath the splash screen.  This is just to be polite.
 ;; FIXME: not as polite as it could be: if minibuffer is active,
@@ -165,7 +165,7 @@ Borrowed from startup-center-spaces."
       ((splashbuf (get-buffer proof-splash-welcome)))
     (if splashbuf
 	(progn
-	  (if (get-buffer-window splashbuf)
+	  (if (and conf (get-buffer-window splashbuf))
 	      ;; Restore the window config if splash is being displayed
 	      (progn
 		(kill-buffer splashbuf)
@@ -181,18 +181,21 @@ Borrowed from startup-center-spaces."
 (defun proof-splash-display-screen (&optional timeout)
   "Save window config and display Proof General splash screen.
 If TIMEOUT is non-nil, time out outside this function, definitely
-by end of configuring proof mode. 
+by end of configuring proof mode.
 Otherwise, timeout inside this function after 10 seconds or so."
  (interactive "P")
-  (let
+  (let*
       ;; Keep win config explicitly instead of pushing/popping because
       ;; if the user switches windows by hand in some way, we want
       ;; to ignore the saved value.  Unfortunately there seems to
       ;; be no way currently to remove the top item of the stack.
       ((winconf   (current-window-configuration))
+       (curwin	  (get-buffer-window (current-buffer)))
+       (curfrm    (and curwin (window-frame curwin)))
        (splashbuf (get-buffer-create proof-splash-welcome))
        (after-change-functions nil)	; no font-lock, thank-you.
-       (pop-up-frames nil)		; display in the same frame.
+       ;; NB: maybe leave next one in for frame-crazy folk
+       ;;(pop-up-frames nil)		; display in the same frame.
        (splash-contents (append
 			 (eval proof-splash-contents)
 			 (eval proof-splash-startup-msg)))
@@ -219,7 +222,11 @@ Otherwise, timeout inside this function after 10 seconds or so."
 	(setq splash-contents (cdr splash-contents)))
       (goto-char (point-min))
       (set-buffer-modified-p nil)
-	(delete-other-windows (display-buffer splashbuf))
+      (let* ((splashwin     (display-buffer splashbuf))
+	     (splashfm      (window-frame splashwin))
+	     ;; Only save window config if we're on same frame
+	     (savedwincnf   (if (eq curfrm splashfm) winconf)))
+	(delete-other-windows splashwin)
 	(if (fboundp 'redisplay-frame)
 	    (redisplay-frame nil t)	; XEmacs special
 	  (sit-for 0))
@@ -228,7 +235,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
 	       (add-timeout (if timeout proof-splash-time 10)
 			    'proof-splash-remove-screen
 			    winconf)
-	       winconf)))
+	       savedwincnf))))
     ;; PROBLEM: when to call proof-splash-display-screen?
     ;; We'd like to call it during loading/initialising.  But it's
     ;; hard to make the screen persist after loading because of the
@@ -237,7 +244,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
     ;; To approximate the best behaviour, we assume that this file is
     ;; loaded by a call to proof-mode.  We display the screen now and add
     ;; a wait procedure temporarily to proof-mode-hook which prevents
-    ;; redisplay until proof-splash-time has elapsed. 
+    ;; redisplay until proof-splash-time has elapsed.
     (if timeout
 	(add-hook 'proof-mode-hook 'proof-splash-timeout-waiter)
       ;; Otherwise, this was an "about" type of call, so we wait
@@ -271,7 +278,7 @@ Otherwise, timeout inside this function after 10 seconds or so."
   (if (and (input-pending-p)
 	   (fboundp 'next-command-event)) ; 3.3: this function
 					  ; disappeared from emacs, sigh
-      (setq unread-command-events	
+      (setq unread-command-events
 	    (cons (next-command-event) unread-command-events)))
   (remove-hook 'proof-mode-hook 'proof-splash-timeout-waiter))
 
