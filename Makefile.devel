@@ -163,7 +163,7 @@ tag:
 # of rpm installed on standard machines at dcs.ed, and we have to build with
 # that version.
 	(cd etc; mv ProofGeneral.spec ProofGeneral.spec.old; sed -e 's/ProofGeneral-.*.tar.gz/ProofGeneral-$(RELEASE_TAG).tar.gz/g' ProofGeneral.spec.old > ProofGeneral.spec; rm ProofGeneral.spec.old)
-	cvs commit -m"Set version tag for release." generic/proof-site.el html/download.html etc/ProofGeneral.spec
+	cvs commit -m"Set version tag for new release." generic/proof-site.el html/download.html etc/ProofGeneral.spec
 	cvs tag "$(CVS_RELEASENAME)"
 
 ############################################################
