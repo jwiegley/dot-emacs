@@ -97,7 +97,9 @@ distclean:   clean
 ## texi: update magic comments in texi from docstrings in code.
 ##	  (developer use only!)
 ##
-$(DOCNAME).texi: ../*/*.el
+$(DOCNAME).texi: ../*/*.el 
+	$(MAKE) magic
+magic:
 	$(EMACS) -l docstring-magic.el $(DOCNAME).texi -f texi-docstring-magic -f save-buffer
 
 
