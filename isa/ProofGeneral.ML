@@ -20,40 +20,137 @@ sig
    val kill_goal : unit -> unit
    val help : unit -> unit
    val show_context : unit -> unit
-   val retract_ML_file : string -> unit
-   val retract_thy_file : string -> unit
    val repeat_undo : int -> unit
    val clear_response_buffer : unit -> unit
+
+   (* Processing used files *)
+   (* retract_thy_file f:
+        Send messages to Proof General to unlock children of theory file f
+      retract_ML_file f:
+        Send messages to Proof General to unlock children of script file f
+      list_loaded_files ():
+        Messages to Proof General listing all loaded files
+      update ():
+        Run update with messages to re-synchronize loaded files.
+   *)
+   val retract_ML_file : string -> unit
+   val retract_thy_file : string -> unit
    val list_loaded_files : unit -> unit
-   val use_thy_and_update : string -> unit
+   val update : unit -> unit
+   
+   (*  visible only for testing *)
+   val loaded_parents_of : string -> string list
+   val loaded_files : unit -> string list
+   val apply_and_update_files : ('a -> 'b) -> 'a -> unit
+   val use_thy_and_update : string -> unit  (* not used *)
+   val use_thy : string -> unit
    val special_theories : string list ref
+   val retracted_files : string list ref
 end;
 
-structure ProofGeneral =
+structure ProofGeneral : PROOFGENERAL =
   struct
-    (* Some top-level commands for Proof General.
-       These easily could be customized to do different things.
+    (* Some top-level commands for Proof General. *)
+
+    fun kill_goal () = (Goal "PROP no_goal_supplied"; ())
+    fun help () = print version;
+    fun show_context () = (the_context(); ())
+
+    (* Function used by undo operation *)
+    
+    fun repeat_undo 0 = ()
+      | repeat_undo n = (undo(); repeat_undo (n-1));
+
+    (* State *)
+
+    (* Theories which have no .thy or .ML files *)	
+    val special_theories = ref ["ProtoPure", "Pure", "CPure"];
+
+    (* Cache of retracted files: see notes below. *)
+    val retracted_files = ref [] : string list ref;
+
+    (* Messages to Proof General *)
+
+    fun retract_msg x = writeln ("Proof General, you can unlock the file "
+			         ^ (quote x))
+    fun process_msg x = writeln ("Proof General, this file is loaded: "
+			         ^ (quote x))
+    fun msg_unless_empty f x = if (x<>"") then f x else ();
+
+    fun clear_response_buffer () =
+       writeln("Proof General, please clear the response buffer.");
+       
+
+    (*
+      FIXME future function, to help synchronize in event of an error.
+      fun clear_msg x = writeln
+        ("Proof General, please clear your record of loaded files.")
     *)
 
-    fun kill_goal () = Goal "PROP no_goal_supplied";
-    fun help () = print version;
-    fun show_context () = the_context();
-
-    (*  Function used internally by Proof General to track
+    (*  Functions used internally by Proof General to track
         dependencies between theory and ML files. *)
+
+   (* LISTING LOADED FILES
+        Next few functions tell Proof General what files are
+	loaded into Isabelle.
+    *)
+      	
+   (* subroutine: return loaded files for theory named tname *)
+   fun loaded_files_for thys =
+     let fun loaded_for tname =
+     if (tname mem (!special_theories)) then [] else
+	let val path = path_of tname
+	    val (thy_file,ml_file) = get_thy_filenames path tname
+	    fun file_name x = if (x <> "") then [x] else []
+	in (file_name thy_file) @ (file_name ml_file) end
+     in
+        foldl (op @) ([], map loaded_for thys)
+     end 
+
+   (* Return a list of the loaded files in the theory database *)
+   fun loaded_files () = loaded_files_for
+				(map fst (Symtab.dest (!loaded_thys)))
+
+   (* List all the loaded files in the theory database.
+      Clears the list of retracted files.
+   *)
+   fun list_loaded_files () =
+   let
+     val thys_list = Symtab.dest (!loaded_thys)
+     val _ = retracted_files := []
+   in     
+    (writeln "Setting loaded files list...";
+     seq (msg_unless_empty process_msg) (loaded_files());
+     writeln "Done.")
+   end
+
+    (*
+      RETRACTION:
+         We keep some state here to record what files Proof General
+	 thinks have been retracted.
+	 Really this shouldn't be necessary but it gets round
+	 some of the mess of the theory loader.
+	 
+     *)
+
+    (* subroutine: retract a file and give message, if it hasn't
+       been already reported to Proof General. *)
+       
+    fun retract_file_and_give_message filename =
+      if filename="" orelse (filename mem !retracted_files) then ()
+      else (retract_msg filename;
+	    retracted_files := filename :: !retracted_files;
+	    ())
 
     fun retract_file1 not_thy filename =
      let val (path, tname) = split_filename filename
-         fun file_msg x = if (x <> "") then
-			writeln ("Proof General, you can unlock the file "
-			     ^ (quote x))
-	               else ()
          fun show_msgs thy =
            let val (thy_file, ml_file) = get_thy_filenames (path_of thy) thy
             in (if not_thy then ()
-		   else file_msg thy_file; 
-		file_msg ml_file) end
-         fun already_loaded thy =
+		   else retract_file_and_give_message thy_file; 
+		retract_file_and_give_message ml_file) end
+         (* Only considered loaded if both theory and ML times set *)
+	 fun already_loaded thy =
            let val t = get_thyinfo thy
            in if is_none t then false
               else let val {thy_time, ml_time, ...} = the t
@@ -79,52 +176,109 @@ structure ProofGeneral =
    (* retract a theory file and all it's theory/script children *)
 
    val retract_thy_file = retract_file1 false;
-   
 
-   fun repeat_undo 0 = ()
-     | repeat_undo n = (undo(); repeat_undo (n-1));
 
-   fun clear_response_buffer () =
-      writeln("Proof General, please clear the response buffer.");
+   (* USING files.
+        When a file is used by Isabelle, Proof General wants to know
+	all it's ancestor files which are loaded automatically.
+	The theory loader only loads files if they've changed,
+	so we use the cache of retracted files to pretend more
+	have been loaded.
+    *)
 
-   val special_theories = ref ["ProtoPure", "Pure", "CPure"];
-   
-   fun list_loaded_files () =
+   (* Find the loaded parents of a file (including the file itself) *)
+   fun loaded_parents_of filename =
    let
-     val thys_list = Symtab.dest (!loaded_thys)
-     fun loading_msg (tname,tinfo) =
-        if (tname mem (!special_theories)) then () else
-	 let val path = path_of tname
-	     val (thy_file,ml_file) = get_thy_filenames path tname
-	     fun file_msg x = if (x <> "") then
-			(* Simulate output of theory loader *)
-			writeln ("Reading " ^ (quote x))
-	               else ()
-	  in
-	     (file_msg thy_file; file_msg ml_file)
-          end
-   in
-    (writeln "Updating loaded files list...";
-     seq loading_msg thys_list;
-     writeln "Done.")
+      val (path, tname) = split_filename filename
+      fun already_loaded thy =
+      let val t = get_thyinfo thy
+       in if is_none t then false
+          else let val {thy_time, ml_time, ...} = the t
+        in is_some thy_time andalso is_some ml_time end
+      end
+      fun gather_parents parents thys =
+	 let val next_parents = foldl (op union) ([],map parents_of_name thys)
+	     val interesting_parents = filter already_loaded next_parents
+	     val new_parents = interesting_parents \\ parents
+	  in case new_parents of
+	       [] => parents
+	     | _ => gather_parents (parents union new_parents) new_parents
+	  end
+      in      
+       if (already_loaded tname) 
+       then loaded_files_for (gather_parents [tname] [tname])
+       else []
    end;
 
- (* 
-   Possible alternative: parse "children are out of date"
-   message, and unlock those ones (plus descendants).
-   This seems feasible, but use_thy ought to do update
-   anyway, I think. 
-  *)
+   (*  List the parents of a loaded file *)
+   (* not used *)   
+   fun list_parents_with f filename =
+      seq (msg_unless_empty f) (loaded_parents_of filename)
+      
+   (* Function to do a "use" operation.
+       Only consider the parents of a theory, because its
+       children should be unlocked at this point,
+       and not get locked by the use operation.
 
+       We consider the current parents to be the ones in the
+       database less those retracted up to now.
+
+       Using a theory can lock new files which
+       are parents of the theory being used.
+       It cannot unlock files.
+    *)
+           
+     fun use_thy1 use_fn thy =
+     let
+      val parents_before = (loaded_parents_of thy) \\ (!retracted_files)
+      val _ = (use_fn thy) handle ex =>
+			(list_loaded_files(); raise ex)
+      val parents_after = loaded_parents_of thy
+      val parents_added = parents_after \\ parents_before
+      val _ = retracted_files := ((!retracted_files) \\ parents_added)
+     in     
+       (seq process_msg parents_added)
+     end
+
+
+    (* Use a theory file but not it's top-level ML file *)
+    val use_thy = use_thy1 use_thy_no_topml;
+
+
+   (* Function to do an "update" operation.
+       This is like the use operation above except that we
+       consider all of the loaded files, since update can make
+       change anywhere.   It may also load top-level ML
+       files which is a bit of a nuisance.
+    *)
+
+   fun apply_and_update_files update_fn x =
+   let val files_before = loaded_files() \\ !retracted_files
+       val _ = update_fn x
+       val files_after = loaded_files()
+       val files_added = files_after \\ files_before 
+       val files_removed = files_before \\ files_after
+    in
+      (seq retract_msg files_removed;
+       seq process_msg files_added)
+    end
+
+  (* Update and re-list loaded files and deletions.
+      *)
+  val update = apply_and_update_files update;
+
+
+  (* not used *)
   fun use_thy_and_update thy = 
   (use_thy_no_topml thy;
    update();
    list_loaded_files();
-   clear_response_buffer());
+   clear_response_buffer())
 
  end; (* struct ProofGeneral *)
 
- fun remove_mlfile_fromdb thy =
+
+  fun remove_mlfile_fromdb thy =
   let val tinfo =  case Symtab.lookup (!loaded_thys, thy) of
 	Some ({path, children, parents = parents, thy_time, theory,...}) =>
 	{ path = path, children = children, parents = parents, theory=theory,
