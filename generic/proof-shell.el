@@ -26,7 +26,12 @@ Set in proof-shell-mode.")
 
 
 ;;
-;; Implementing the (unfortunately irrelevant) process lock
+;; Implementing the process lock
+;;
+;; da: In fact, there is little need for a lock.  Since Emacs Lisp
+;; code is single-threaded, a loop parsing process output cannot get
+;; pre-empted by the user trying to send more input to the process,
+;; or by the process filter trying to deal with more output.
 ;;
 ;;
 
@@ -115,15 +120,18 @@ No error messages.  Useful as menu or toolbar enabler."
 
 (defun proof-release-lock ()
   "Release the proof shell lock."
-  (if (proof-shell-live-buffer)
-      (progn
-	(if (not proof-shell-busy)
-	    (error "Bug in proof-release-lock: Proof process not busy"))
-	;; da: Removed this now since some commands run from other
-	;; buffers may claim process lock.
-	;; (if (not (member (current-buffer) proof-script-buffer-list))
-	;; (error "Bug in proof-release-lock: Don't own process"))
-	(setq proof-shell-busy nil))))
+  ; da: this test seems somewhat worthless
+  ; (if (proof-shell-live-buffer)
+  ; (progn
+	; da: Removed this so that persistent users are allowed to
+	; type in the process buffer without being hassled.
+	;(if (not proof-shell-busy)
+	;    (error "Bug in proof-release-lock: Proof process not busy"))
+	; da: Removed this now since some commands run from other
+	; buffers may claim process lock.
+	; (if (not (member (current-buffer) proof-script-buffer-list))
+	; (error "Bug in proof-release-lock: Don't own process"))
+  (setq proof-shell-busy nil))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -801,6 +809,10 @@ arrive."
 	 (proof-response-buffer-display message
 					'proof-eager-annotation-face))))
 
+;; FIXME da: unfortunately, the assumption made below is NOT
+;; guaranteed and can lead to problems if
+;; proof-shell-eager-annotation-end is, for example, an
+;; undecorated end-of-line.
 (defun proof-shell-process-urgent-messages (str)
   "Scan the process output for urgent messages.
 Display them immediately in the Response buffer.
@@ -818,6 +830,10 @@ filter. We assume that urgent messages are fully contained in STR."
 	    (proof-shell-strip-annotations (substring str start end)))
 	   (proof-shell-process-urgent-messages (substring str end))))))
 
+;; FIXME da: I suspect this could miss output in the unfortunate
+;; circumstance that a prompt consists of more than one character and
+;; is split between output chunks.  Really the matching should be
+;; based on the buffer contents rather than the string just received.
 (defun proof-shell-filter (str) 
   "Filter for the proof assistant shell-process.
 We sleep until we get a wakeup-char in the input, then run
@@ -831,8 +847,9 @@ how far we've got."
        ;; for these we set proof-shell-wakeup-char to the annotation special.  
        (and proof-shell-wakeup-char
 	   (string-match (char-to-string proof-shell-wakeup-char) str))
-       ;; Others rely on a standard top-level (e.g. SML) whose prompt can't
-       ;; be hacked.  For those we use the annotated prompt regexp.
+       ;; Others may rely on a standard top-level (e.g. SML) whose
+       ;; prompt are difficult or impossible to hack.
+       ;; For those we use the annotated prompt regexp.
        (string-match proof-shell-annotated-prompt-regexp str))
       (if (null (marker-position proof-marker))
 	  ;; Set marker to first prompt in output buffer, and sleep again.
@@ -840,35 +857,40 @@ how far we've got."
 	    (goto-char (point-min))
 	    (re-search-forward proof-shell-annotated-prompt-regexp)
 	    (set-marker proof-marker (point)))
-	;; We've matched against a second prompt in str now.  Search
-	;; the output buffer for the second prompt after the one previously
-	;; marked.
-	(let (string res cmd)	
-	  (goto-char (marker-position proof-marker))
-	  (re-search-forward proof-shell-annotated-prompt-regexp nil t)
-	  (backward-char (- (match-end 0) (match-beginning 0)))
-	  (setq string (buffer-substring (marker-position proof-marker)
-					 (point)))
-	  (goto-char (point-max))	; da: assumed to be after a prompt?
-	  (setq cmd (nth 1 (car proof-action-list)))
-	  (save-excursion
-	    ;; 
-	    (setq res (proof-shell-process-output cmd string))
-	    ;; da: Added this next line to redisplay, for proof-toolbar
-	    ;; FIXME: should do this for all frames displaying the script
-	    ;; buffer!
-	    ;; ODDITY: has strange effect on highlighting, leave it.
-	    ;; (redisplay-frame (window-buffer  t)
-	    (cond
-	     ((eq (car-safe res) 'error)
-	      (proof-shell-handle-error cmd (cdr res)))
-	     ((eq res 'interrupt)
-	      (proof-shell-handle-interrupt))
-	     ((eq (car-safe res) 'loopback)
-	      (proof-shell-insert-loopback-cmd (cdr res))
-	      (proof-shell-exec-loop))
-	     (t (if (proof-shell-exec-loop)
-		    (proof-shell-handle-delayed-output)))))))))
+	;; We've matched against a second prompt in str now.
+	;; First, the blasphemous situation that the proof-action-list
+	;; is empty so that the process has output something for
+	;; some other reason (perhaps it's just chatty).  
+	;; We graciously accept the situation nowadays.
+	(if proof-action-list
+	    ;; the output buffer for the second prompt after the one previously
+	    ;; marked.
+	    (let (string res cmd)	
+	      (goto-char (marker-position proof-marker))
+	      (re-search-forward proof-shell-annotated-prompt-regexp nil t)
+	      (backward-char (- (match-end 0) (match-beginning 0)))
+	      (setq string (buffer-substring (marker-position proof-marker)
+					     (point)))
+	      (goto-char (point-max))	; da: assumed to be after a prompt?
+	      (setq cmd (nth 1 (car proof-action-list)))
+	      (save-excursion
+		;; 
+		(setq res (proof-shell-process-output cmd string))
+		;; da: Added this next line to redisplay, for proof-toolbar
+		;; FIXME: should do this for all frames displaying the script
+		;; buffer!
+		;; ODDITY: has strange effect on highlighting, leave it.
+		;; (redisplay-frame (window-buffer  t)
+		(cond
+		 ((eq (car-safe res) 'error)
+		  (proof-shell-handle-error cmd (cdr res)))
+		 ((eq res 'interrupt)
+		  (proof-shell-handle-interrupt))
+		 ((eq (car-safe res) 'loopback)
+		  (proof-shell-insert-loopback-cmd (cdr res))
+		  (proof-shell-exec-loop))
+		 (t (if (proof-shell-exec-loop)
+			(proof-shell-handle-delayed-output))))))))))
 
 (defun proof-last-goal-or-goalsave ()
   (save-excursion
