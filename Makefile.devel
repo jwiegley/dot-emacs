@@ -130,7 +130,7 @@ RELEASEDIR = /tmp/proofgeneral-www/
 
 # How to make the release "live".  (Could be "true" to do nothing).
 # was: GOLIVE=true
-GOLIVE="scp -pr $RELEASEDIR ssh.inf.ed.ac.uk:/group/project/proofgen/web/releases/"
+GOLIVE=scp -pr $(RELEASEDIR) ssh.inf.ed.ac.uk:/group/projects/proofgen/web/releases/
 
 
 CVSNAME = ProofGeneral
@@ -162,7 +162,7 @@ NONDISTFILES=.cvsignore */.cvsignore Makefile.devel Makefile.xemacs doc/notes.tx
 # NB: these are *patterns* to exclude rather than files!
 # I would rather have files themselves to exclude, but 
 # seems to be no way.
-IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo etc/TESTS
+IGNOREDFILES=ProofGeneral*/TAGS ProofGeneral*/Makefile.devel ProofGeneral*/todo* ProofGeneral*/bugs ProofGeneral*/ChangeLog ProofGeneral*/doc/ProofGeneral.dvi ProofGeneral*/doc/ProofGeneral.ps.gz ProofGeneral*/doc/ProofGeneral.pdf ProofGeneral*/doc/PG-adapting.ps.gz ProofGeneral*/doc/PG-adapting.pdf ProofGeneral/*/todo etc/TESTS *.cvsignore */*.cvsignore
 
 # Temporary directory to to build a distribution in
 DISTBUILDIR = /tmp/ProofGeneralRelease
@@ -476,8 +476,9 @@ rpmrelease: rpm
 ## releaseclean:
 ##     Clean up temporary directories after building dist/release.
 ##
+DISTTEMPFILES
 releaseclean:
-	rm -rf $(DISTBUILDIR) $(RPMTOPDIR)
+	rm -rf $(DISTBUILDIR) $(RPMTOPDIR) $(DISTTEMPFILES)
 
 ############################################################
 ##
