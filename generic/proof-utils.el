@@ -329,8 +329,9 @@ font-lock-mode."
     ;; hopefully in a useless way.  XEmacs has better control
     ;; over which modes not to enable it for (although annoying
     ;; that it's a custom setting)
-    (setq font-lock-mode-disable-list 
-	  (cons major-mode font-lock-mode-disable-list))))
+    (if proof-running-on-XEmacs
+	(setq font-lock-mode-disable-list 
+	      (cons major-mode font-lock-mode-disable-list)))))
 
 (defun proof-font-lock-clear-font-lock-vars ()
   (kill-local-variable 'font-lock-defaults)
