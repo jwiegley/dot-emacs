@@ -7,6 +7,28 @@
 Please note that we do not support these old releases in any way.
 </p>
 
+<h2>Proof General Version 3.3, released  10th September 2001</h2>
+<p>
+This version of Proof General has been tested
+with XEmacs 21.4 and (briefly) with GNU Emacs 20.7
+(it does <b>not</b> support GNU Emacs 21.x).
+It supports Coq version 7.x, LEGO version 1.3.1 and
+Isabelle2002.
+</p>
+
+<ul>
+  <li> gzip'ed tar file: 
+      <?php download_link("ProofGeneral-3.3.tar.gz") ?>,
+      <br>
+      or the same thing in a zip file:
+      <?php download_link("ProofGeneral-3.3.zip") ?>,
+  </li>
+ <li> Linux RPM package:
+      <?php download_link("ProofGeneral-3.2-1.noarch.rpm") ?>
+ </li>
+</ul>
+
+
 <h2>Proof General Version 3.2, released 2nd October 2000</h2>
 <p>
 This version of Proof General has been tested
@@ -25,7 +47,7 @@ Isabelle99-1.
  <li> Linux RPM package:
       <?php download_link("ProofGeneral-3.2-1.noarch.rpm") ?>
      <br>
-     You probably don't need the 
+     Also a
       <?php download_link("ProofGeneral-3.2-1.src.rpm",
 	"source RPM") ?>.
  </li>
