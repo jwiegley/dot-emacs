@@ -40,6 +40,8 @@ B Add proof-rsh-command and note in documentation about how to
 
 D Add proof-quit-command: some provers may like a quit command to be
   sent to the shell, not just EOF !  (see proof-stop-shell).
+  Also reconcile proof-restart-script and proof-stop-shell, see
+  comments in code.
 
 D Multiple files (after basic feature added): handle failures in
   reading ancestors.
