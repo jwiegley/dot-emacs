@@ -1,12 +1,12 @@
 Summary:	Proof General, Emacs interface for Proof Assistants
 Name:		ProofGeneral
-Version:	3.5pre040229
+Version:	3.5pre040301
 Release:	1
 Group:		Applications/Editors/Emacs
 Copyright:	LFCS, University of Edinburgh
 Url:		http://proofgeneral.inf.ed.ac.uk/
 Packager:	David Aspinall <David.Aspinall@ed.ac.uk>
-Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.5pre040229.tar.gz
+Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.5pre040301.tar.gz
 BuildRoot:	/tmp/ProofGeneral-root
 PreReq:		/sbin/install-info
 Prefixes:	/usr/share/emacs /usr/bin /usr/share/info
@@ -71,7 +71,7 @@ make install-elc install-init PREFIX=${RPM_BUILD_ROOT}/usr EMACS=emacs DEST_PREF
 make install-elc install-init PREFIX=${RPM_BUILD_ROOT}/usr  EMACS=xemacs DEST_PREFIX=/usr 
 
 # Finally, install the desktop and .el files into non-Emacs version specific locations
-make install-desktop install-el install-extras install-bin PREFIX=${RPM_BUILD_ROOT}/usr ELISPP=share/ProofGeneral DEST_PREFIX=/usr
+make install-desktop install-el install-bin PREFIX=${RPM_BUILD_ROOT}/usr ELISPP=share/ProofGeneral DEST_PREFIX=/usr
 
 # Install docs too
 make install-doc PREFIX=${RPM_BUILD_ROOT}/usr DEST_PREFIX=/usr
