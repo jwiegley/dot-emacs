@@ -139,11 +139,26 @@
 
 ;; tuned version of proof-ids-to-regexp --- admit single non-word char
 ;; as well (e.g. { })
+;; FIXME FIXME FIXME
+;; DA: this goes wrong for { and } in fact, because plain { and } in
+;; `proof-script-command-start-regexp' also match with {* and *}, which 
+;; should not be considered as commands (breaks new parser).
 
 (defun isar-ids-to-regexp (l)
   "Maps a non-empty list of tokens `l' to a regexp matching any element"
   (mapconcat
-   (lambda (s) (if (proof-string-match "^\\W$" s) s (concat "\\<" s "\\>")))
+   (lambda (s) (if (proof-string-match "^\\W$" s) 
+		   ;; was just s 
+		   (cond 
+		    ;; FIXME: what we really want here is to match { or }
+		    ;; _except_ when followed/preceded by *, but not to
+		    ;; consider * as part of match.  (Exclude punctuation??)
+		    ;; That kind of construct is only allowed for whitespace,
+		    ;; though.
+		    ((string-equal s "{")  "{[^\*]")
+		    ((string-equal s "}")  "[^\*]}") ;; FIXME wrong
+		    (t			   s)) ; what else?
+		   (concat "\\<" s "\\>")))
    l "\\|"))
 
 (defconst isar-long-id-stuff "\\([A-Za-z0-9'_.]+\\)")
