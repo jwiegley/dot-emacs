@@ -19,7 +19,7 @@
 ;;; ======== User settings for Isabelle ========
 ;;;
 
-(defcustom isabelle-prog-name "/usr/lib/Isabelle98/bin/isabelle"
+(defcustom isabelle-prog-name "isabelle"
   "*Name of program to run Isabelle."
   :type 'file
   :group 'isabelle)
