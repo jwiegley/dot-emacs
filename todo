@@ -9,8 +9,8 @@ C (Low)    probably not worth wasting time on
 * This is a list of things which need doing in the generic interface
 ====================================================================
 
-A Structured review of complete system. Is there redundent code?
-  Can some of the LEGO/Coq specific code made generic? Reengineering.
+A Structured review of complete system. Is there redundant code?
+  Can some of the LEGO/Coq specific code made generic? Re-engineering.
     (2h hhg & tms)
 
 A Update source documentation and manual, in particular document bugs
@@ -56,6 +56,10 @@ C We need to go over to piped communication rather than ptys to fix
 
 C Outline-mode does not work due to read-only restrictions of
   protected region
+
+B Remove LEGO-specific code in proof.el: for example,
+  proof-shell-eager-annotation-end, proof-included-files-list.
+  (added by hhg)
 
 * Here are things to be done to Lego mode
 =========================================
@@ -112,5 +116,3 @@ A Add coq-add-tactic with a tactic name, which adds that tactic to the
 B The proof-locked-span isn't set to read-only, because overlays don't 
   have that capability.  This needs to be done with text-regions.
   (2hr hhg)
-
-A Switching buffers doesn't work correctly. (1h hhg)
