@@ -194,6 +194,19 @@ It was constructed with the macro proof-customize-toggle.")
       (if (null arg) (not ,var)
 	(> (prefix-numeric-value arg) 0)))))
 
+;; FIXME: combine this with above, and remove messing calls in
+;; proof-script.
+;; FIXME: rather broken wrt to ARG.
+(defmacro proof-deftoggle (var)
+  "Define a function VAR-toggle to be a toggler for variable VAR.
+See proof-customize-toggle."
+  `(defun ,(intern (concat (symbol-name var) "-toggle")) (arg)
+     (interactive "P")
+     (customize-set-variable 
+      (quote ,var)
+      (if (null arg) (not ,var)
+	(> (prefix-numeric-value arg) 0)))))
+  
 (defun proof-try-require (symbol)
   "Try requiring SYMBOL.  No error if the file for SYMBOL isn't found."
   (condition-case ()
