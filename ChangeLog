@@ -1,3 +1,111 @@
+2002-09-16  David Aspinall  <da@proofgeneral.org>
+
+	* etc/ProofGeneral.spec, html/develdownload.php, html/devel.html, generic/proof-site.el:
+	Set version tag for new release.
+
+2002-09-14  David Aspinall  <da@proofgeneral.org>
+
+	* generic/pg-thymodes.el: New files.
+
+	* demoisa/demoisa.el: Add comment
+
+	* generic/proof-shell.el:
+	Change to proof-shell-ready-prover to allow more flexible queue handling
+
+	* generic/proof-script.el: Comments
+
+2002-09-13  David Aspinall  <da@proofgeneral.org>
+
+	* todo: Updated.
+
+	* generic/proof-shell.el:
+	Comment on display anomaly
+
+	* generic/pg-response.el:
+	set-specifier -> remove-specifier as per XEmacs docs.
+
+2002-09-11  David Aspinall  <da@proofgeneral.org>
+
+	* generic/pg-goals.el: Fix typo.
+
+	* generic/proof-utils.el:
+	Save more space/fix display anomolay by leaving point at end of non-whitespace
+
+	* generic/pg-goals.el:
+	Short-circuit goals display if string empty.
+
+	* generic/pg-response.el:
+	Don't insert blank line at top of response buffer.
+
+	* generic/proof-menu.el:
+	Fix proof-quick-opts-save to match menu
+
+	* CHANGES: Fix typo.
+
+	* ChangeLog: Updated.
+
+	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
+	Set version tag for new release.
+
+	* generic/proof-utils.el:
+	Attempt to improve window shrinking.  Still needs work.
+
+	* etc/coq/unnamed_thm.v: Deleted files.
+
+	* etc/coq/naming.v: New files.
+
+	* isa/Example.thy:
+	Adjust comment about selecting PG/Isar.
+
+	* isar/Example.thy:
+	Remove comment about selecting PG/Isar.
+
+	* isar/isar.el:
+	Shorten mode names.  Comment about parsing prob.
+
+	* isar/isar-syntax.el:
+	Source of parsing problem discovered and explained.
+
+	* html/elispmarkup.php3:
+	Tweak html markup
+
+	* html/main.html:
+	Clarify in development support
+
+	* etc/coq/parsing.v: Add comment at end
+
+	* doc/PG-adapting.texi, doc/ProofGeneral.texi:
+	Update version number, reorg.
+
+	* coq/coq.el:
+	Check on context menu doesn't seem useful.
+
+	* coq/BUGS, CHANGES:
+	Updated.
+
+	* generic/proof-script.el:
+	Redisplay for gnuemacs on visibility changes. Small parser tweak.  Comments.
+
+	* generic/proof-menu.el:
+	Add :visible support.  Minor reorganisation.
+
+	* generic/proof-utils.el:
+	Support for new proof-shrink-windows-tofit option.
+
+	* generic/proof-shell.el:
+	Begin support for thms buffer
+
+	* generic/proof-config.el:
+	Add proof-shrink-windows-tofit option.
+
+	* generic/proof-compat.el:
+	Emulate :visible keyword
+
+	* generic/pg-response.el: Missing paren
+
+	* todo, BUGS, CHANGES:
+	Updated.
+
 2002-09-11  David Aspinall  <da@proofgeneral.org>
 
 	* etc/ProofGeneral.spec, html/devel.html, generic/proof-site.el, html/develdownload.php:
