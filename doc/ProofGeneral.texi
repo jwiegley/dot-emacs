@@ -390,7 +390,7 @@ code has been moved into the Coq kernel lately.  We need a volunteer
 from the Coq community to help to do this.
 
 An important new feature in Proof General 3.0 is support for
-@uref{http://www.fmi.uni-passau.de/~wedler/x-symbol/,X-Symbol}, 
+@uref{http://x-symbol.sourceforge.net/,X-Symbol}, 
 which means that real logical symbols, Greek letters,
 etc can be displayed during proof development, instead of their ASCII
 approximations. This makes Proof General a more serious competitor to
@@ -2259,7 +2259,7 @@ You will be able to enable X-Symbol support if you have installed the
 X-Symbol package and support has been provided in Proof General for a
 token language for your proof assistant.
 The X-Symbol package is available from
-@uref{http://www.fmi.uni-passau.de/~wedler/x-symbol/}.
+@uref{http://x-symbol.sourceforge.net/}.
 
 Notice that for proper symbol support, the proof assistant needs to have
 a special @i{token language}, or a special character set, to use

@@ -29,7 +29,7 @@
 @c Some URLs.
 @c FIXME: unfortunately, broken in buggy pdftexinfo.
 @c so removed for now.
-@set URLxsymbol  http://www.fmi.uni-passau.de/~wedler/x-symbol/
+@set URLxsymbol  http://x-symbol.sourceforge.net/
 @set URLisamode  http://zermelo.dcs.ed.ac.uk/~isamode
 @set URLpghome   http://www.proofgeneral.org
 @set URLpglatestrpm  http://www.proofgeneral.org/ProofGeneral-latest.noarch.rpm
@@ -2168,7 +2168,7 @@ will magically restore the commas to the default font for you.
 
 The hack is rather painful and forces immediate fontification of
 files on loading (no lazy, caching locking).  It is unreliable
-under FSF Emacs, to boot.
+under GNU Emacs, to boot.
 
 @var{lego} and Coq enable it by tradition.
 @end defvar
