@@ -11,7 +11,6 @@
 
 (require 'lego-syntax)
 (require 'outline)
-(setq proof-assistant "LEGO")
 (require 'proof)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
