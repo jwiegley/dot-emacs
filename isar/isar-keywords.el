@@ -172,7 +172,6 @@
   '("finally"
     "from"
     "then"
-    "thence"
     "with"))
 
 (defconst isar-keywords-proof-decl
