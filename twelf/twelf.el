@@ -41,7 +41,7 @@
  proof-prog-name		 "twelf-server"
  proof-assistant-home-page       "http://www.cs.cmu.edu/~twelf/"
 
- proof-script-use-new-parsing	t	;; FIXME: remove for PG 3.3
+ proof-script-use-new-parser t          ;; FIXME: remove for PG 3.3
  proof-terminal-char             ?\.
  proof-comment-start             "%"	;; for inserting comments
  proof-comment-end               ""
@@ -130,7 +130,7 @@
 ; da: this old entry is wrong: it says % always starts a comment
 ;(twelf-set-syntax ?% "< 14")            ; comment begin
 ; This next one is much better, 
-(twelf-set-syntax ?% ". 14")            ; comment begin
+(twelf-set-syntax ?% ". 14")            ; comment begin/second char
 (twelf-set-syntax ?\n ">   ")           ; comment end
 (twelf-set-syntax ?: ".   ")            ; punctuation
 (twelf-set-syntax ?. ".   ")            ; punctuation
@@ -162,7 +162,9 @@
 
 (defun twelf-mode-extra-config ()
   (make-local-hook 'font-lock-after-fontify-buffer-hook)
-  (add-hook 'font-lock-after-fontify-buffer-hook 'twelf-font-fontify-buffer nil 'local))
+  (add-hook 'font-lock-after-fontify-buffer-hook 
+	    'twelf-font-fontify-buffer nil 'local)
+  (font-lock-mode))
 
 (defconst twelf-syntax-menu
   '("Syntax Highlighting"
