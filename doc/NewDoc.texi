@@ -940,7 +940,7 @@ Process the whole buffer
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-restart
 @deffn Command proof-toolbar-restart 
-Not documented.
+Restart scripting via @code{proof-shell-restart}.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-toolbar-qed
@@ -1412,10 +1412,8 @@ The default value is @code{nil}.
 @defopt proof-rsh-command 
 Shell command prefix to run a command on a remote host.  
 For example,
-
 @lisp
    ssh bigjobs
-
 @end lisp
 Would cause Proof General to issue the command @samp{ssh bigjobs isabelle}
 to start Isabelle remotely on our large compute server called @samp{bigjobs}.
@@ -1477,7 +1475,7 @@ Currently the indentation code can be rather slow for large scripts,
 and is critical on the setting of regular expressions for particular
 provers.  Enable it if it works for you.
 
-The default value is @code{t}.
+The default value is @code{nil}.
 @end defopt
 
 @c TEXI DOCSTRING MAGIC: proof-one-command-per-line
@@ -1536,7 +1534,7 @@ Face for error messages from proof assistant.
 @c TEXI DOCSTRING MAGIC: proof-warning-face
 @deffn Face proof-warning-face 
 Face for warning messages.
-Could come either from proof assistant or Proof General itself.
+Warning messages can come from proof assistant or from Proof General itself.
 @end deffn
 
 @c Maybe this detail of explanation belongs in the internals,
@@ -1881,37 +1879,14 @@ You can add extra sections to theory files by extending this variable.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: thy-template
-@defopt thy-template 
+@defvar thy-template 
 Template for theory files.
 Contains a default selection of sections in a traditional order.
 You can use the following format characters:
+
 %t --- replaced by theory name
 %p --- replaced by names of parents, separated by @samp{+} characters
-
-The default value is the string: 
-@lisp
-%t  =  %p +
-
-classes
-
-default
-
-types
-
-arities
-
-consts
-
-translations
-
-rules
-
-end
-
-ML
-
-@end lisp
-@end defopt
+@end defvar
 
 @c ideal for above:
 @c @defopt thy-template
@@ -1997,20 +1972,16 @@ the settings via the customize menus, under Proof-General -> Internals.
 Proof General's table of supported proof assistants.
 Extend this table to add a new proof assistant.
 Each entry is a list of the form
-
 @lisp
     (SYMBOL NAME AUTOMODE-REGEXP)
-
 @end lisp
 The NAME is a string, naming the proof assistant.
 The SYMBOL is used to form the name of the mode for the
 assistant, @samp{SYMBOL-mode}, run when files with AUTOMODE-REGEXP
 are visited.  SYMBOL is also used to form the name of the
 directory and elisp file for the mode, which will be
- 
 @lisp
     <proof-home-directory>/SYMBOL/SYMBOL.el
-
 @end lisp
 where @samp{<proof-home-directory>/} is the value of the
 variable @code{proof-home-directory}.
@@ -2055,17 +2026,13 @@ Suggestion: this can be set in the script mode configuration.
 Web address for information on proof assistant
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-ctxt-string
-@defopt proof-ctxt-string 
+@defvar proof-ctxt-string 
 Command to display the context in proof assistant.
-
-The default value is @code{"Ctxt"}.
-@end defopt
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-help-string
-@defopt proof-help-string 
+@defvar proof-help-string 
 Command to ask for help in proof assistant.
-
-The default value is @code{"Help"}.
-@end defopt
+@end defvar
 @c TEXI DOCSTRING MAGIC: proof-prf-string
 @defvar proof-prf-string 
 Command to display proof state in proof assistant.
@@ -2133,23 +2100,19 @@ func-menu configuration in proof-script-find-next-goalsave.
 @defvar proof-script-next-entity-regexps 
 Regular expressions to control finding definitions in script.
 This is the list of the form
-
 @lisp
    (ANYENTITY-REGEXP
     DISCRIMINATOR-REGEXP  ... DISCRIMINATOR-REGEXP)
-
 @end lisp
 The idea is that ANYENTITY-REGEXP matches any named entity in the
 proof script, on a line where the name appears.  This is assumed to be
 the start or the end of the entity.  The discriminators then test
 which kind of entity has been found, to get its name.  A
 DISCRIMINATOR-REGEXP has one of the forms
-
 @lisp
   (REGEXP MATCHNO) 
   (REGEXP MATCHNO @code{backward} BACKREGEXP) 
   (REGEXP MATCHNO @code{forward} FORWARDREGEXP)
-
 @end lisp
 If REGEXP matches the string captured by ANYENTITY-REGEXP, then
 MATCHNO is the match number for the substring which names the entity.
@@ -2164,8 +2127,9 @@ Otherwise, the start and end of the entity will be the region matched
 by ANYENTITY-REGEXP.
 
 This mechanism allows fairly complex parsing of the buffer, in
-particular, it allows for goal..save regions which are named only at
-the end.  However, it does not parse strings, comments, or parentheses.
+particular, it allows for goal..save regions which are named
+only at the end.  However, it does not parse strings,
+comments, or parentheses.
 
 This variable may not need to be set: a default value which should
 work for goal..saves is calculated from @code{proof-goal-with-hole-regexp},
@@ -2222,12 +2186,12 @@ Prover-specific code for indentation.
 @c TEXI DOCSTRING MAGIC: proof-parse-indent
 @defvar proof-parse-indent 
 Proof-assistant specific function for parsing.
-Invoked in @samp{@code{proof-parse-to-point}}. Must be a
+Invoked in @samp{proof-parse-to-point}. Must be a
 function taking two arguments, a character (the current character)
 and a stack reflecting indentation, and must return a stack. The
 stack is a list of the form (c . p) where @samp{c} is a character
 representing the type of indentation and @samp{p} records the column for
-indentation. The generic @samp{@code{proof-parse-to-point}} function supports
+indentation. The generic @samp{proof-parse-to-point} function supports
 parentheses and commands. It represents these with the characters
 @samp{?(}, @samp{?[} and @samp{@code{proof-terminal-char}}. 
 @end defvar
@@ -2352,6 +2316,7 @@ Set to nil to disable this feature.
 Eager annotation field end.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
+
 The default value is "\n" to match up to the end of the line.
 @end defvar
 @c TEXI DOCSTRING MAGIC: proof-shell-assumption-regexp
@@ -2814,7 +2779,7 @@ another.
 
 @c TEXI DOCSTRING MAGIC: proof-activate-scripting
 @defun proof-activate-scripting 
-Activate scripting minor mode for current scripting buffer.
+Activate scripting for the current script buffer.
 
 The current buffer is prepared for scripting.  No changes are
 necessary if it is already in Scripting minor mode. Otherwise, it
@@ -2954,10 +2919,8 @@ Marker in proof shell buffer pointing to previous command input.
 @c TEXI DOCSTRING MAGIC: proof-action-list
 @defvar proof-action-list 
 A list of
-
 @lisp
   (span,command,action)
-
 @end lisp
 triples, which is a queue of things to do.
 @end defvar
@@ -3066,7 +3029,7 @@ assistant.
 
 @c TEXI DOCSTRING MAGIC: proof-shell-urgent-message-marker
 @defvar proof-shell-urgent-message-marker 
-Marker in proof shell buffer used for parsing urgent messages.
+Marker in proof shell buffer pointing to end of last urgent message.
 @end defvar
 
 @c TEXI DOCSTRING MAGIC: proof-shell-process-urgent-message
@@ -3082,7 +3045,8 @@ The main processing point which triggers other actions is
 @c TEXI DOCSTRING MAGIC: proof-shell-filter
 @defun proof-shell-filter str
 Filter for the proof assistant shell-process.
-We sleep until we get a wakeup-char in the input, then run
+We process urgent messages first.  Then wait until we get a
+@code{proof-shell-wakeup-char} in the input, then run
 @code{proof-shell-process-output}, and set @code{proof-marker} to keep track of
 how far we've got.
 @end defun
