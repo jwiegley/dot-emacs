@@ -46,7 +46,7 @@
 ;; (define-key map [(meta p)]		  'proof-previous-matching-command)
 ;; (define-key map [(meta n)]		  'proof-next-matching-command)
 ;; Standard binding for completion
-(define-key map [(control c) return] 'complete)
+(define-key map [(control return)] 'complete)
 ;(define-key map [(control c) ?u] 'proof-retract-until-point-interactive)
 ;; Add the universal keys bound in all PG buffers.
 (proof-define-keys map proof-universal-keys))
@@ -223,6 +223,7 @@
              :selected proof-electric-terminator-enable]
 	    ["Function menu" function-menu
 	     :active (fboundp 'function-menu)]
+	    ["Complete identifier" complete t]
 	    "----")
           proof-shared-menu)
   "The Proof General generic menu.")
