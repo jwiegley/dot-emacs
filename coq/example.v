@@ -5,6 +5,8 @@
 
     Maintainer:  Proof General maintainer <proofgen@dcs.ed.ac.uk>
     Please let us know if you could maintain this example file!
+
+    (At the moment, we just copy List.v from the Coq distribution)
 *)    
 
 (****************************************************************************)
@@ -12,11 +14,11 @@
 (*                                                                          *)
 (*                                Projet Coq                                *)
 (*                                                                          *)
-(*                     INRIA                        ENS-CNRS                *)
-(*              Rocquencourt                        Lyon                    *)
+(*                     INRIA        LRI-CNRS        ENS-CNRS                *)
+(*              Rocquencourt         Orsay          Lyon                    *)
 (*                                                                          *)
-(*                                 Coq V6.1                                 *)
-(*                               Oct 1st 1996                               *)
+(*                                 Coq V6.3                                 *)
+(*                               July 1st 1999                              *)
 (*                                                                          *)
 (****************************************************************************)
 (*                                  List.v                                  *)
@@ -24,19 +26,10 @@
 
 Require Le.
 
-(* Some programs and results about lists *)
-
-Parameter A:Set.
+Parameter List_Dom:Set.
+Local A := List_Dom.
 
 Inductive list : Set := nil : list | cons : A -> list -> list.
-
-(*
-Fixpoint app [l:list] : list -> list 
-      := [m:list]Case l of
-                (* nil *) m 
-          (* cons a l1 *) [a:A][l1:list](cons a (app l1 m)) end.
-
-*)
 
 Fixpoint app [l:list] : list -> list 
       := [m:list]<list>Cases l of
@@ -50,43 +43,32 @@ Proof.
 	Intro l ; Elim l ; Simpl ; Auto.
         Induction 1; Auto.
 Qed.
-Hints Resolve app_nil_end.
+Hints Resolve app_nil_end : list v62.
 
 Lemma app_ass : (l,m,n : list)(app (app l m) n)=(app l (app m n)).
 Proof. 
-	Intros l m n ; Elim l ; Simpl ; Auto.
-	Induction 1; Auto.
+	Intros l m n ; Elim l ; Simpl ; Auto with list.
+	Induction 1; Auto with list.
 Qed.
-Hints Resolve app_ass.
+Hints Resolve app_ass : list v62.
 
 Lemma ass_app : (l,m,n : list)(app l (app m n))=(app (app l m) n).
 Proof. 
-	Auto.
+	Auto with list.
 Qed.
-Hints Resolve ass_app.
-
-(*
-Definition tail := [l:list]Case l of
-                 (* nil *) nil 
-            (* cons a m *) [a:A][m:list]m end : list->list.
-*)
+Hints Resolve ass_app : list v62.
 
 Definition tail := 
     [l:list] <list>Cases l of  (cons _ m) => m | _ => nil end : list->list.
                    
 
-Lemma nil_cons : (a:A)(m:list)~(nil=(cons a m)).
-Intros;Discriminate.
+Lemma nil_cons : (a:A)(m:list)~nil=(cons a m).
+  Intros; Discriminate.
 Qed.
 
 (****************************************)
 (* Length of lists                      *)
 (****************************************)
-(*
-Fixpoint length [l:list] : nat 
-   := Case l of (* nil *) O
-                (* cons a m *) [a:A][m:list](S (length m)) end.
-*)
 
 Fixpoint length [l:list] : nat 
    := <nat>Cases l of (cons _ m) => (S (length m)) | _ => O end.
@@ -98,38 +80,40 @@ Fixpoint length [l:list] : nat
 Section length_order.
 Definition lel := [l,m:list](le (length l) (length m)).
 
+Hints Unfold lel : list.
+
 Variables a,b:A.
 Variables l,m,n:list.
 
 Lemma lel_refl : (lel l l).
 Proof. 
-	Unfold lel ; Auto.
+	Unfold lel ; Auto with list.
 Qed.
 
 Lemma lel_trans : (lel l m)->(lel m n)->(lel l n).
 Proof. 
 	Unfold lel ; Intros.
-        Apply le_trans with (length m) ; Auto.
+        Apply le_trans with (length m) ; Auto with list.
 Qed.
 
 Lemma lel_cons_cons : (lel l m)->(lel (cons a l) (cons b m)).
 Proof. 
-	Unfold lel ; Simpl ; Auto.
+	Unfold lel ; Simpl ; Auto with list arith.
 Qed.
 
 Lemma lel_cons : (lel l m)->(lel l (cons b m)).
 Proof. 
-	Unfold lel ; Simpl ; Auto.
+	Unfold lel ; Simpl ; Auto with list arith.
 Qed.
 
 Lemma lel_tail : (lel (cons a l) (cons b m)) -> (lel l m).
 Proof. 
-	Unfold lel ; Simpl ; Auto.
+	Unfold lel ; Simpl ; Auto with list arith.
 Qed.
 
 Lemma lel_nil : (l':list)(lel l' nil)->(nil=l').
 Proof. 
-	Intro l' ; Elim l' ; Auto.
+	Intro l' ; Elim l' ; Auto with list arith.
 	Intros a' y H H0.
 	(*  <list>nil=(cons a' y)
 	    ============================
@@ -138,32 +122,34 @@ Proof.
 	      y : list
 	      a' : A
 	      l' : list *)
-	Absurd (le (S (length y)) O); Auto.
+	Absurd (le (S (length y)) O); Auto with list arith.
 Qed.
 End length_order.
 
-Hints Resolve lel_refl lel_cons_cons lel_cons lel_nil lel_nil nil_cons.
+Hints Resolve lel_refl lel_cons_cons lel_cons lel_nil lel_nil nil_cons : list v62.
 
 Fixpoint In  [a:A;l:list] : Prop :=
-      (Case l of (* nil *) False 
-                 (* cons b m *) [b:A][m:list](b=a)\/(In a m) end).
+      Cases l of
+         nil => False 
+      | (cons b m) => (b=a)\/(In a m)
+      end.
 
 Lemma in_eq : (a:A)(l:list)(In a (cons a l)).
 Proof. 
-	Simpl ; Auto.
+	Simpl ; Auto with list.
 Qed.
-Hints Resolve in_eq.
+Hints Resolve in_eq : list v62.
 
 Lemma in_cons : (a,b:A)(l:list)(In b l)->(In b (cons a l)).
 Proof. 
-	Simpl ; Auto.
+	Simpl ; Auto with list.
 Qed.
-Hints Resolve in_cons.
+Hints Resolve in_cons : list v62.
 
 Lemma in_app_or : (l,m:list)(a:A)(In a (app l m))->((In a l)\/(In a m)).
 Proof. 
 	Intros l m a.
-	Elim l ; Simpl ; Auto.
+	Elim l ; Simpl ; Auto with list.
 	Intros a0 y H H0.
 	(*  ((<A>a0=a)\/(In a y))\/(In a m)
 	    ============================
@@ -174,14 +160,14 @@ Proof.
 	      a : A
 	      m : list
 	      l : list *)
-	Elim H0 ; Auto.
+	Elim H0 ; Auto with list.
 	Intro H1.
 	(*  ((<A>a0=a)\/(In a y))\/(In a m)
 	    ============================
 	      H1 : (In a (app y m)) *)
-	Elim (H H1) ; Auto.
+	Elim (H H1) ; Auto with list.
 Qed.
-Immediate in_app_or.
+Hints Immediate in_app_or : list v62.
 
 Lemma in_or_app : (l,m:list)(a:A)((In a l)\/(In a m))->(In a (app l m)).
 Proof. 
@@ -193,7 +179,7 @@ Proof.
 	      a : A
 	      m : list
 	      l : list *)
-	Elim H ; Auto ; Intro H0.
+	Elim H ; Auto with list ; Intro H0.
 	(*  (In a m)
 	    ============================
 	      H0 : False *)
@@ -204,47 +190,47 @@ Proof.
 	      H1 : ((<A>H=a)\/(In a y))\/(In a m)
 	      H0 : ((In a y)\/(In a m))->(In a (app y m))
 	      y : list *)
-	Elim H1 ; Auto 4.
+	Elim H1 ; Auto 4 with list.
 	Intro H2.
 	(*  (<A>H=a)\/(In a (app y m))
 	    ============================
 	      H2 : (<A>H=a)\/(In a y) *)
-	Elim H2 ; Auto.
+	Elim H2 ; Auto with list.
 Qed.
-Hints Resolve in_or_app.
+Hints Resolve in_or_app : list v62.
 
 Definition incl := [l,m:list](a:A)(In a l)->(In a m).
 
-Hints Unfold incl.
+Hints Unfold  incl : list v62.
 
 Lemma incl_refl : (l:list)(incl l l).
 Proof. 
-	Auto.
+	Auto with list.
 Qed.
-Hints Resolve incl_refl.
+Hints Resolve incl_refl : list v62.
 
 Lemma incl_tl : (a:A)(l,m:list)(incl l m)->(incl l (cons a m)).
 Proof. 
-	Auto.
+	Auto with list.
 Qed.
-Immediate incl_tl.
+Hints Immediate incl_tl : list v62.
 
 Lemma incl_tran : (l,m,n:list)(incl l m)->(incl m n)->(incl l n).
 Proof. 
-	Auto.
+	Auto with list.
 Qed.
 
 Lemma incl_appl : (l,m,n:list)(incl l n)->(incl l (app n m)).
 Proof. 
-	Auto.
+	Auto with list.
 Qed.
-Immediate incl_appl.
+Hints Immediate incl_appl : list v62.
 
 Lemma incl_appr : (l,m,n:list)(incl l n)->(incl l (app m n)).
 Proof. 
-	Auto.
+	Auto with list.
 Qed.
-Immediate incl_appr.
+Hints Immediate incl_appr : list v62.
 
 Lemma incl_cons : (a:A)(l,m:list)(In a m)->(incl l m)->(incl (cons a l) m).
 Proof. 
@@ -260,15 +246,15 @@ Proof.
 	      a : A *)
 	Elim H1.
 	(*  1 (<A>a=a0)->(In a0 m) *)
-	Elim H1 ; Auto ; Intro H2.
+	Elim H1 ; Auto with list ; Intro H2.
 	(*  (<A>a=a0)->(In a0 m)
 	    ============================
 	      H2 : <A>a=a0 *)
-	Elim H2 ; Auto. (* solves subgoal *)
+	Elim H2 ; Auto with list. (* solves subgoal *)
 	(*  2 (In a0 l)->(In a0 m) *)
-	Auto.
+	Auto with list.
 Qed.
-Hints Resolve incl_cons.
+Hints Resolve incl_cons : list v62.
 
 Lemma incl_app : (l,m,n:list)(incl l n)->(incl m n)->(incl (app l m) n).
 Proof. 
@@ -282,9 +268,9 @@ Proof.
 	      n : list
 	      m : list
 	      l : list *)
-	Elim (in_app_or l m a) ; Auto.
+	Elim (in_app_or l m a) ; Auto with list.
 Qed.
-Hints Resolve incl_app.
+Hints Resolve incl_app : list v62.
 
 
-(* Id: List.v,v 1.4 1996/10/07 07:50:36 ccornes Exp  *)
+(* Id: List.v,v 1.10 1999/06/29 07:48:48 loiseleu Exp  *)
