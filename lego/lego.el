@@ -25,7 +25,7 @@
 
 ;; I believe this is standard for Linux under RedHat -tms
 (defcustom lego-tags "/usr/lib/lego/lib_Type/"
-  "*the default TAGS table for the LEGO library"
+  "*The directory of the TAGS table for the LEGO library"
   :type 'file
   :group 'lego)
 
@@ -89,7 +89,7 @@
   :group 'lego)
 
 (defcustom lego-www-latest-release
-  "http://www.dcs.ed.ac.uk/home/lego/html/release-1.3/"
+  "http://www.dcs.ed.ac.uk/home/lego/html/release-1.3.1/"
   "The WWW address for the latest LEGO release."
   :type 'string
   :group 'lego)
@@ -106,17 +106,6 @@
   :type 'string
   :group 'lego)
 
-
-;; ----- legostat and legogrep, courtesy of Mark Ruys
-
-(defvar legogrep-command (concat "legogrep -n \"\" " lego-test-all-name)
-  "Last legogrep command used in \\{legogrep}; default for next legogrep.")
-
-(defvar legostat-command "legostat -t")
-
-(defvar legogrep-regexp-alist
-  '(("^\\([^:( \t\n]+\\)[:( \t]+\\([0-9]+\\)[:) \t]" 1 2 nil ("%s.l")))
-  "Regexp used to match legogrep hits.  See `compilation-error-regexp-alist'.")
 
 ;; ----- lego-shell configuration options
 
@@ -296,11 +285,6 @@
 
 (defun lego-state-preserving-p (cmd)
   (not (string-match lego-undoable-commands-regexp cmd)))
-
-(defun lego-retract-command (file)
-  "LEGO command to retract file."
-  (concat "ForgetMark file "
-	  (file-name-sans-extension (file-name-nondirectory file))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Commands specific to lego                                      ;;
@@ -522,14 +506,9 @@ We assume that module identifiers coincide with file names."
 
 	proof-shell-retract-files-regexp
 	"forgot back through Mark \"\\(.*\\)\""
-	;;FIXME: we ought to set up separate font-lock instructions for
-	;;the response, the goal buffer and the script
-	font-lock-keywords lego-font-lock-keywords-1)
+	font-lock-keywords lego-font-lock-keywords-1
 
-;; FIXME: da: I've removed this, I think fset is bad and proof-retract-command
-;; doesn't seem to exist.
-;;  (fset 'proof-retract-command 'lego-retract-command)
-  (setq proof-shell-compute-new-files-list 
+	proof-shell-compute-new-files-list 
 	'lego-shell-compute-new-files-list)
 
   (lego-init-syntax-table)

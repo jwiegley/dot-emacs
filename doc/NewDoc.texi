@@ -637,11 +637,13 @@ Otherwise, you will need to restart script management altogether, @pxref{Toolbar
 
 @menu
 * Support for function menus::  
+* Support for tags::            
 @end menu
 
 @node Support for function menus
 @section Support for function menus
 @vindex proof-goal-with-hole-regexp
+@cindex fume-func
 
 fume-func is a handy package which makes a menu from the function
 declarations in a buffer.  Proof General configures fume-func so that
@@ -669,7 +671,11 @@ the following code for your @file{.emacs} file:
 If you have another version of Emacs, you should check the fume-func.el
 file supplied with it.
 
+@node Support for tags
+@section Support for tags
+@cindex tags
 
+@c FIXME: instructions for setting up etags are needed
 
 
 @node Customizing Proof General
@@ -821,36 +827,106 @@ At present there is no easy way to get around this.
 @node LEGO Proof General
 @chapter LEGO Proof General
 
-LEGO mode is a mode derived from proof script mode for editing LEGO
-scripts. An important convention is that proof script buffers @emph{must}
-start with a module declaration. If the proof script buffer's file name
-is @file{fermat.l}, then it must commence with a declaration
+LEGO proof script mode is a mode derived from proof script mode for
+editing LEGO scripts. An important convention is that proof script
+buffers @emph{must} start with a module declaration. If the proof script
+buffer's file name is @file{fermat.l}, then it must commence with a
+declaration of the form
 
 @lisp
-
+Module fermat;
 @end lisp
 
+If, in the development of the module @samp{fermat}, you require material
+from other module e.g., @samp{lib_nat} and @samp{galois}, you need to
+specify this dependency as part of the module declaration:
 
+@lisp
+Module fermat Import lib_nat galois;
+@end lisp
+
+No need to worry too much about effeciency. When you retract back to a
+module declaration to add a new import item, LEGO does not actually
+retract the previously imported modules. Therefore, reasserting the
+extended module declaration really only processes the newly imported
+modules.
+
+Using the LEGO Proof General, you never ever need to use administrative
+LEGO commands such as @samp{Forget}, @samp{ForgetMark}, @samp{KillRef},
+@samp{Load}, @samp{Make}, @samp{Reload} and @samp{Undo} again
+@footnote{And please, don't even think of including those in your LEGO
+proof script!}. You can concentrate on your actual proof developments.
+Script management in the Proof General will invoke the appropriate
+commands for you. Proving with LEGO has never been easier.
 
 @menu
 * LEGO specific commands::      
+* LEGO tags::                   
 * LEGO customizations::         
 @end menu
 
 @node LEGO specific commands
 @section LEGO specific commands
 
+In addition to the commands provided by the generic Proof General, see
+the previous sections, the LEGO Proof General provides a few extensions.
+In proof scripts, there are some abbreviations for common commands:
+
+@table @kbd
+@item C-c i   
+intros
+@item C-c I   
+Intros
+@item C-c R   
+Refine
+@end table
+
+@node LEGO tags
+@section LEGO tags
+
+The LEGO Proof General provides the program @file{legotags} to generate
+tags for LEGO proof scripts. Invoking @samp{legotags *.l} produces a
+file @file{TAGS} for all LEGO modules in the current directory. The LEGO
+library itself is shipped out with all its modules already being tagged.
+See @ref{Support for tags} for further details.
+
+
 @node LEGO customizations
 @section LEGO customizations
 
-**********
+We refer to chapter @ref{Customizing Proof General} for an introduction
+to the customisation mechanism. In addition to customizations at the
+generic level, for LEGO you can also customize:
 
-Support for font-lock under FSF Emacs 20.2
+@defopt lego-tags
+The directory of the TAGS table for the LEGO library. The default is
+@code{"/usr/lib/lego/lib_Type/"}.
+@end defopt
 
-To automatically switch on fontification, set
+@defopt lego-help-menu-list
+List of menu items, as defined in @code{easy-menu-define} for LEGO
+  specific help.
+@end defopt
 
+@c We don't worry about the following for now. These are too obscure.
+@c lego-indent
+@c lego-test-all-name
+
+@c We also don't document any of the internal variables which have been
+@c set to configure the generic Proof General and which the user should
+@c not tamper with
+
+In Xemacs 20.4, LEGO script buffer are coloured (fontified as they say)
+by default. To automatically switch on fontification in FSF Emacs 20.2,
+you need to set
+@vindex lego-mode-hooks
+@cindex font-lock colour
+
+@lisp
  (add-hook 'lego-mode-hooks 'turn-on-font-lock)
-                          ^
+@end lisp
+
+in your @file{~/.emacs} file.
 
 
 
@@ -1232,6 +1308,14 @@ in the distribution for more detailed and up-to-date information.  @*
 If you discover a problem which isn't mentioned in @file{BUGS}, please
 let us know by sending a note to @code{proofgen@@dcs.ed.ac.uk}.
 
+@menu
+* Bugs at the generic level::   
+* Bugs specific to LEGO Proof General::  
+@end menu
+
+@node Bugs at the generic level
+@section Bugs at the generic level
+
 @unnumberedsubsec Undo in XEmacs
 
 Ordinary undo in script buffer can edit the "uneditable region" in
@@ -1258,6 +1342,33 @@ than one proof assistant and you load script files for different provers
 simultaneously.
 
 @strong{Workaround:} stick to one prover per Emacs session.
+
+@node Bugs specific to LEGO Proof General
+@section Bugs specific to LEGO Proof General
+
+Getting retracting right is tricky when working on proofs. 
+
+@unnumberedsubsec Definitions in a proof state 
+A thorny issues are local
+definitions in a proof state. LEGO cannot undo them explicitly.
+
+@strong{Workaround:} retract back to a command before a definition.
+
+@unnumberedsubsec Normalisation in proofs
+Normalisation commands such as @samp{Dnf}, @samp{Hnf} @samp{Normal}
+cannot be undone in a proof state by the Proof General.
+
+@strong{Workaround:} retract back to the start of the proof.
+
+@unnumberedsubsec Not saving proofs. 
+After LEGO has issued a @samp{***
+QED ***} you may undo steps in the proof as long as you don't issue a
+@samp{Save} command or start a new proof. The LEGO Proof General assumes
+that all proofs are terminated with a proper @samp{Save} command.
+
+@strong{Workaround:} Always issue a @samp{Save} command after completing
+a proof. If you forget one, you should retract to a point before the
+offending proof development.
 
 
 
