@@ -62,7 +62,7 @@ If it is nil, a new line is inserted."
      ;; by shell script rather than find-file.
      '(list
        "To start using Proof General, visit a proof script file"
-       "for your prover, using C-x C-f or the \"File\" menu."))
+       "for your prover, using C-x C-f or the File menu."))
   "Additional form evaluated and put onto splash screen.")
 
 (defconst proof-splash-welcome "*Proof General Welcome*"
