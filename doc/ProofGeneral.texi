@@ -14,10 +14,10 @@
 @paragraphindent 0
 @c A flag for whether to include the front image in the
 @c DVI file.  You can download the front image from
-@c http://www.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
+@c http://zermelo.dcs.ed.ac.uk/~proofgen/ProofGeneralPortrait.eps.gz
 @c then put it into this directory and 'make dvi' (pdf,ps)
 @c will set the flag below automatically.
-@set haveeps
+@clear haveeps
 @c
 @iftex
 @afourpaper
@@ -100,7 +100,7 @@ END-INFO-DIR-ENTRY
 @c so we take it out for now.
 @c Ideally would like some way of generating eps from
 @c the .jpg file.   
-@image{ProofGeneralPortrait}
+@c image{ProofGeneralPortrait}
 @end ifset
 @end iftex
 @author David Aspinall with H. Goguen, T. Kleymann and D. Sequeira
@@ -4005,7 +4005,7 @@ Proof General name used internally and in menu titles.
 @defopt proof-general-home-page 
 Web address for Proof General
 
-The default value is @code{"http://www.dcs.ed.ac.uk/home/proofgen"}.
+The default value is @code{"http://zermelo.dcs.ed.ac.uk/home/proofgen"}.
 @end defopt
 @c TEXI DOCSTRING MAGIC: proof-universal-keys
 @defvar proof-universal-keys 
@@ -5164,12 +5164,12 @@ Reference Manual.  I recommend using the source-level debugger
 @appendix Obtaining and Installing
 
 Proof General has its own
-@uref{http://www.dcs.ed.ac.uk/home/proofgen,home page} hosted at
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen,home page} hosted at
 Edinburgh.  Visit this page for the latest news!
 
-STOP PRESS: the Proof General web pages are temporarily 
-being hosted at @uref{zermelo.dcs.ed.ac.uk}.  Where you see 
-@code{www.dcs} below, replace with @code{zermelo.dcs}.
+STOP PRESS: the Proof General web pages are temporarily being hosted at
+@uref{zermelo.dcs.ed.ac.uk}.  The canonical address used to be
+@uref{www.dcs.ed.ac.uk}, and it may one day revert to this.
 
 @menu
 * Obtaining Proof General::     
@@ -5185,17 +5185,17 @@ being hosted at @uref{zermelo.dcs.ed.ac.uk}.  Where you see
 
 You can obtain Proof General from the URL
 @example
-@uref{http://www.dcs.ed.ac.uk/home/proofgen/download.html}.
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/download.html}.
 @end example
 
 The distribution is available in three forms
 @itemize @bullet
 @item A source tarball, @*
-@uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz}
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.tar.gz}
 @item A Linux RPM package (for any architecture), @*
-@uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm}
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-latest.noarch.rpm}
 @item A developer's tarball, @*
-@uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral-devel-latest.tar.gz}
 @end itemize
 
 Both the source tarball and the RPM package include the generic elisp
@@ -5352,7 +5352,7 @@ support for provers you don't use.
 We mention some of the known problems with Proof General here.  The list
 was written for Proof General 2.0.  It is not a description of all bugs
 and may be out of date.  @* Please consult the file
-@uref{http://www.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS,@file{BUGS}}
+@uref{http://zermelo.dcs.ed.ac.uk/home/proofgen/ProofGeneral/BUGS,@file{BUGS}}
 in the distribution for more detailed and up-to-date information.  @* 
 
 If you discover a problem which isn't mentioned in @file{BUGS}, please
