@@ -74,8 +74,8 @@ for the latest stable version of XEmacs.  We follow XEmacs advice on
 removing obsolete function calls.
 
 Hopefully one day we may have a proper test suite and mechanism to
-test across different versions of Emacs.  For the time being, be
-careful of the following tips (gathered from experience).
+test across different versions of Emacs.  For the time being, follow
+the following tips.
 
 *** Compatibility hacks collected in proof-compat.el
 
