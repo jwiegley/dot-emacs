@@ -260,20 +260,21 @@ Does nothing if proof assistant is already running."
 	(setq proof-shell-buffer nil)
 	(error "Starting process: %s..failed" proof-prog-name))
 
+      ;; FIXME: patch to go in here to clean this up
       ;; Create the associated buffers and set buffer variables
       (let ((goals	(concat "*" proc "-goals*"))
 	    (resp	(concat "*" proc "-response*"))
-	    (trace	(concat "*" proc "-trace*")))
-
+	    (trace	(concat "*" proc "-trace*"))
+	    (thms	(concat "*" proc "-thms*")))
 	(setq proof-goals-buffer    (get-buffer-create goals))
 	(setq proof-response-buffer (get-buffer-create resp))
-	;; Only make a trace buffer if the prover may use it.
 	(if proof-shell-trace-output-regexp
 	    (setq proof-trace-buffer (get-buffer-create trace)))
-
+	(if proof-shell-thms-output-regexp
+	    (setq proof-thms-buffer (get-buffer-create thms)))
 	;; Set the special-display-regexps now we have the buffer names
 	(setq proof-shell-special-display-regexp 
-	      (proof-regexp-alt goals resp trace))
+	      (proof-regexp-alt goals resp trace thms))
 	(proof-multiple-frames-enable))
 
       (save-excursion
