@@ -556,7 +556,8 @@ information about what Proof General is doing."
 
 
 (defcustom proof-terminal-char nil
-  "Character which terminates a command in a script buffer."
+  "Character which terminates a command in a script buffer.
+You must set this variable."
   :type 'character
   :group 'proof-script)
 
@@ -854,22 +855,42 @@ group.  This allows different proof assistants to coexist
   :group 'proof-shell)
 
 (defcustom proof-shell-init-cmd ""
-   "The command for initially configuring the proof process."
+   "The command for initially configuring the proof process.
+This command is sent to the process as soon as it starts up,
+perhaps in order to configure it for Proof General or to
+print a welcome message.
+Note that it is sent before Proof General's synchronization
+mechanism is engaged (in case the command engages it).  It
+is better to configure the proof assistant via command
+line options is possible."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
 (defcustom proof-shell-restart-cmd ""
-   "A command for re-initialising the proof process."
+   "A command for re-initialising the proof process.
+The proof-terminal-char is added on to the end."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
 (defcustom proof-shell-quit-cmd nil
-  "A command to quit the proof process.  If nil, send EOF instead."
+  "A command to quit the proof process.  If nil, send EOF instead.
+The proof-terminal-char is added on to the end."
    :type '(choice string (const nil))
    :group 'proof-shell)
 
 (defcustom proof-shell-cd nil
-  "Command to the proof assistant to change the working directory."
+  "Command to the proof assistant to change the working directory.
+The format character %s is replaced with the directory, and the
+proof-terminal-char is added on to the end.
+
+This is used to define the function proof-cd which 
+changes to the value of (default-directory) for script buffers.
+For files, the value of (default-directory) is simply the
+directory the file resides in.
+
+NB: By default, proof-cd is called from proof-activate-scripting-hook,
+so that the prover switches to the directory of a proof
+script everytime scripting begins."
   :type 'string
   :group 'proof-shell)
 
