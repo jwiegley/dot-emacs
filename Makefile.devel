@@ -39,13 +39,14 @@
 ##    watch out!
 ##   Use 'make releaseclean' if giving up, to remove temp dirs.
 ##
-##   No facility to edit html to make a full release in this makefile.  
+##   No facility to edit html to make a full release in this Makefile.  
 ##   Too much effort for infrequenty used function.  
 ##   Must edit download.html and doc.html by hand, then run 
 ##
 ##    make releaseall VERSION=2.0
 ##
 ##   Or similar to make the required version.
+##
 ##
 ## To customize the tags in case of a re-release with the same official
 ## version:
@@ -377,7 +378,8 @@ dist:
 	@echo " Making compressed tar file..."
 	@echo "*************************************************"
 	for f in $(IGNOREDFILES); do echo $$f >> ignoredfiles; done
-	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
+# Don't link the latest version 
+#	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
 	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X ignoredfiles
 	rm -f ignoredfiles
 	@echo "*************************************************"
@@ -416,17 +418,13 @@ develdist:
 ##     Then install the distribution in RELEASEDIR
 ##     WARNING: RELEASEDIR is not cleaned, but files there
 ##     with same names will be overwritten.
-##     Moreover, a link ProofGeneral -> ProofGeneral-<version>
-##     is made.
 ##
 release: distclean tag  dist develdist 
 	@echo "*************************************************"
 	@echo " Making release (installing tarball distributions)."
 	@echo "*************************************************"
 	mkdir -p $(RELEASEDIR)
-# clean destination a bit.  NB: link RELEASENAME->NAME is copied, 
-# so we remove that too.
-	(cd $(RELEASEDIR); rm $(NAME); rm -rf $(RELEASENAME))
+	(cd $(RELEASEDIR); rm -rf $(RELEASENAME))
 # seem to need R instead of r here now,
 # otherwise cp tries to make hard link instead of symlink?!
 	cp -pfdR $(DISTBUILDIR)/* $(RELEASEDIR)
@@ -486,9 +484,6 @@ fakereleaseall:
 ## releaseall:
 ##     Do everything!
 ##	  
-##  For now, don't do distinstall any more: this only works 
-##   for the DCS Sun machines.
-## 
 releaseall: release rpmrelease  releaseclean golive
 
 ############################################################
@@ -503,9 +498,11 @@ golive:
 ##
 ## releasefinal:
 ##     Do everything for a final release based on a pre-release.
-##     Don't use       
+##     Except editing download file.
 ##
-releasefinal: release rpmrelease distinstall releaseclean 
+releasefinal: release rpmrelease releaseclean 
+# Link the latest version 
+	(cd $(DISTBUILDIR); rm -f $(NAME); ln -sf $(RELEASENAME) $(NAME))
 
 
 ############################################################
