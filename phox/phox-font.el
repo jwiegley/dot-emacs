@@ -3,10 +3,8 @@
 ;;                       Font lock keywords
 ;;--------------------------------------------------------------------------;;
 
-(require 'proof-x-symbol)
-
 (defconst phox-font-lock-keywords
-   (list
+  (list
 ;commands
    '("(\\*\\([^*]\\|\\*+[^*)]\\)*\\(\\*+)\\|\\**$\\)"
     0 'font-lock-comment-face t)

@@ -133,7 +133,7 @@
    proof-find-and-forget-fn        'phox-find-and-forget
    proof-find-theorems-command      "search \"%s\"."
    proof-auto-multiple-files       nil
-   font-lock-keywords              phox-font-lock-keywords 
+   font-lock-keywords              (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    )
   (phox-init-syntax-table)
 ;; the following is only useful for xemacs
@@ -203,7 +203,7 @@
 (define-derived-mode phox-response-mode proof-response-mode
   "PhoX response" nil
   (setq 
-   font-lock-keywords  phox-font-lock-keywords
+   font-lock-keywords (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
   (add-hook 'proof-shell-handle-delayed-output-hook 'phox-sym-lock-font-lock-hook)
@@ -212,14 +212,14 @@
 (define-derived-mode phox-goals-mode proof-goals-mode
   "PhoX goals" nil
   (setq 
-   font-lock-keywords  phox-font-lock-keywords
+   font-lock-keywords  (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    proof-output-fontify-enable     t)
   (phox-sym-lock-start)
   (add-hook 'pg-before-fontify-output-hook 'phox-sym-lock-font-lock-hook)
   (proof-goals-config-done))
 
 ;; The response buffer and goals buffer modes defined above are
-;; trivial.  In fact, we don't need to define them at all -- they
+;; trivial.  In fact, we don't need t²o define them at all -- they
 ;; would simply default to "proof-response-mode" and "pg-goals-mode".
 
 ;; A more sophisticated instantiation might set font-lock-keywords to
@@ -248,8 +248,21 @@
 
 ; (set-variable 'phox-completion-table 
 (defpgdefault completion-table
-(append phox-top-keywords phox-proof-keywords)
+  (append phox-top-keywords phox-proof-keywords)
 )
+
+(eval-after-load "x-symbol-phox"
+ ;; Add x-symbol tokens to phox-completion-table and rebuild
+ ;; internal completion table if completion is already active
+'(progn
+   (defpgdefault completion-table
+     (append (proof-ass completion-table)
+	     (mapcar (lambda (xsym) (nth 2 xsym))
+		     x-symbol-phox-table)))
+   (setq proof-xsym-font-lock-keywords
+	 x-symbol-phox-font-lock-keywords)
+   (if (featurep 'completion)
+       (proof-add-completions))))
 
 (provide 'phox)
 
