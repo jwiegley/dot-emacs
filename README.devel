@@ -11,6 +11,23 @@ Notes here about development conventions and compatibility
 issues.  Please read if you contribute to Proof General!
 
 
+** Project planning
+
+We don't use any rigorous planning mechanisms, but please use and
+maintain the simple "todo" lists.  They can include lists of things to
+do as well as notes about outstanding bugs, etc.  Each item is
+classified with a priority.  What usually happens is that either
+something is fixed quickly, or its priority gradually decreases,
+saving much time not implementing important things!  
+
+Items which are based on bug/problem reports by users are given a
+higher priority by default (unless to fix them would be unreasonably
+difficult).
+
+In the top-level directory, todo holds the list of things to do in the
+generic Elisp basis and for other generic parts of the project.  Each
+proof assistant then has its own todo file.
+
 
 ** Coding Standards
 
