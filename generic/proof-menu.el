@@ -157,20 +157,18 @@ If in three window or multiple frame mode, display two buffers."
 	     (concat "Exit " proof-assistant)
 	     'proof-shell-exit
 	     ':active '(proof-shell-live-buffer)))
-	   '("----")))))
-;	   (list
-;	    (cons "Help"
-;		  (append 
-;		   (if proof-info-command
-;		       (list 
-;			(vector (concat proof-assistant " information")
-;				'(proof-help) t)))
-;		   (if proof-assistant-home-page
-;		       (list 
-;			(vector (concat proof-assistant " web page")
-;				'(browse-url proof-assistant-home-page) t)))
-;		   (proof-ass help-menu-entries))))))))
-    
+	   '("----")
+	   (list
+	    (cons "Help"
+		  (append
+		   `([,(concat proof-assistant " information")
+		      '(proof-help)
+		      ,menuvisiblep proof-info-command]
+		     [,(concat proof-assistant " web page")
+		      '(browse-url proof-assistant-home-page)
+		      ,menuvisiblep proof-assistant-home-page])
+		   (proof-ass help-menu-entries))))))))
+	   
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -230,6 +228,7 @@ If in three window or multiple frame mode, display two buffers."
 (proof-deftoggle proof-three-window-mode)
 (proof-deftoggle proof-script-fly-past-comments)
 (proof-deftoggle proof-delete-empty-windows)
+(proof-deftoggle proof-shrink-windows-tofit)
 (proof-deftoggle proof-multiple-frames-enable proof-multiple-frames-toggle)
 (proof-deftoggle proof-output-fontify-enable proof-output-fontify-toggle)
 (proof-deftoggle proof-disappearing-proofs)
@@ -238,10 +237,37 @@ If in three window or multiple frame mode, display two buffers."
 (defvar proof-quick-opts-menu
   (cons 
    "Options"
-   '(["Disppearing Proofs" proof-disappearing-proofs-toggle 
+   `(["Electric Terminator" proof-electric-terminator-toggle
+     :style toggle
+     :selected proof-electric-terminator-enable]
+     ["Fly Past Comments" proof-script-fly-past-comments-toggle
+      ,menuvisiblep (not proof-script-use-old-parser)
+      :style toggle
+      :selected proof-script-fly-past-comments]
+     ["Disppearing Proofs" proof-disappearing-proofs-toggle 
       :style toggle
       :selected proof-disappearing-proofs]
-     ["Three Window Mode" proof-three-window-mode-toggle
+     ["Output Highlighting" proof-output-fontify-toggle
+      :active t
+      :style toggle
+      :selected proof-output-fontify-enable]
+     ["X-Symbol" proof-x-symbol-toggle
+      :active (proof-x-symbol-support-maybe-available)
+      :style toggle
+      :selected (proof-ass x-symbol-enable)]
+     ["Toolbar" proof-toolbar-toggle
+      ;; should really be split into :active & GNU Emacs's :visible
+      :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
+			 (boundp 'proof-buffer-type)
+			 ;; only allow toggling of toolbar enable in one
+			 ;; buffer to avoid strange effects because we
+			 ;; only keep one flag.  (Strange effects because 
+			 ;; we only turn it off in one buffer at a time)
+			 (eq proof-buffer-type 'script))
+      :style toggle
+      :selected proof-toolbar-enable]
+     ("Display"
+      ["Three Window Mode" proof-three-window-mode-toggle
       :active (not proof-multiple-frames-enable)
       :style toggle
       :selected proof-three-window-mode]
@@ -249,32 +275,14 @@ If in three window or multiple frame mode, display two buffers."
       :active (not proof-multiple-frames-enable)
       :style toggle
       :selected proof-delete-empty-windows]
+     ["Shrink to Fit" proof-shrink-windows-tofit-toggle
+      :active (not proof-multiple-frames-enable)
+      :style toggle
+      :selected proof-shrink-windows-tofit]
      ["Multiple Frames" proof-multiple-frames-toggle
       :active (display-graphic-p)
       :style toggle
-      :selected proof-multiple-frames-enable]
-     ["Output Highlighting" proof-output-fontify-toggle
-      :active t
-      :style toggle
-      :selected proof-output-fontify-enable]
-     ["Toolbar" proof-toolbar-toggle
-      :active (and (or (featurep 'toolbar) (featurep 'tool-bar))
-		   (boundp 'proof-buffer-type)
-		   ;; only allow toggling of toolbar enable in one
-		   ;; buffer to avoid strange effects because we
-		   ;; only keep one flag.  (Strange effects because 
-		   ;; we only turn it off in one buffer at a time)
-		   (eq proof-buffer-type 'script))
-      :style toggle
-      :selected proof-toolbar-enable]
-     ["X-Symbol" proof-x-symbol-toggle
-      :active (proof-x-symbol-support-maybe-available)
-      :style toggle
-      :selected (proof-ass x-symbol-enable)]
-     ["Fly Past Comments" proof-script-fly-past-comments-toggle
-      :active (not proof-script-use-old-parser)
-      :style toggle
-      :selected proof-script-fly-past-comments]
+      :selected proof-multiple-frames-enable])
      ("Follow Mode" 
       ["Follow Locked Region" 
        (customize-set-variable 'proof-follow-mode 'locked)
@@ -317,11 +325,9 @@ If in three window or multiple frame mode, display two buffers."
 (defconst proof-advanced-menu
   (cons "Advanced..."
 	(append
-	 '(["Function Menu" function-menu
-	    :active (fboundp 'function-menu)]
-	   ["Complete Identifier" complete t]
-	   ["Next Error" proof-next-error
-	    :active pg-next-error-regexp])
+	 `(["Function Menu" function-menu
+	    ,menuvisiblep (fboundp 'function-menu)]
+	   ["Complete Identifier" proof-script-complete t])
 	 (list "-----")
 	 proof-show-hide-menu
 	 (list "-----")
@@ -334,9 +340,8 @@ If in three window or multiple frame mode, display two buffers."
 
 
 (defvar proof-menu  
-  '(["Electric Terminator" proof-electric-terminator-toggle
-     :style toggle
-     :selected proof-electric-terminator-enable]
+  '(["Next Error" proof-next-error
+     :active pg-next-error-regexp]
     ["Scripting Active" proof-toggle-active-scripting
      :style toggle
      :selected (eq proof-script-buffer (current-buffer))])
