@@ -3,7 +3,11 @@
 @c
 @c $Id$
 @c
+@c NB: the first line of this file uses a non-standard TeXinfo
+@c hack to print in Serifa fonts.  It has no effect if you don't have
+@c my hacked version of TeXinfo - da.
 @c
+@c 
 @setfilename ProofGeneral.info
 @settitle Proof General
 @setchapternewpage odd
@@ -57,8 +61,8 @@
 
 @ifinfo
 @format
-START-INFO-DIR-ENTRY
-* Proof General: (ProofGeneral). Organize your proofs with Emacs!
+START-INFO-DIR-ENTRY 
+* Proof General: (ProofGeneral). Organize your proofs with Emacs!  
 END-INFO-DIR-ENTRY
 @end format
 @end ifinfo
