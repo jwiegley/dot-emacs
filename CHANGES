@@ -12,10 +12,31 @@
      Two menu items "Show proofs" and "Hide proofs" apply to
      all the completed proofs in the buffer.
 
-     Notes: 
-      1. Proofs of theorems with the same name are not 
-         distinguished, visibility controlled together.
-      2. FSF Emacs implementation is flaky
+     NB: proofs of theorems with the same name are not 
+     distinguished, their visibility is controlled together.
+
+*** Command to insert last output as comment in proof script.
+
+     Sometimes it is useful to paste some of the output from
+     goals or response buffer into the proof script.  A new
+     function `pg-insert-last-output-as-comment' (C-c C-;)
+     inserts the last output and converts it into a comment
+     using `comment-region'.
+
+*** Changes to colours, mouse highlighting, echo help messages
+
+     Now `proof-locked-face' becomes a lighter cyan. This is
+     less obtrusive when editing proofs, but is not so visible
+     for demonstrating PG: if you prefer the old stronger colour, 
+     customize the face to "lightsteelblue2" using
+     M-x customize-face RET proof-locked-face.  
+
+     New face `proof-mouse-highlight-face' (default: darker blue
+     than locked region) is now used for mouse highlighting regions of
+     script. Less ugly than the previous default (green) highlight face.
+
+     Also, for XEmacs, there are now (trivial) help messages in echo
+     area describing the highlighted region under the mouse.
 
 *** Proof General startup script welcomes user
  
@@ -28,16 +49,9 @@
 *** Changes to Proof General RPM packaging mechanism
   
      Can now build RPM packages with "rpm -ta" from tarball source.
-     RPM includes menu file and icons (tested under Linux Mandrake).
+     RPM includes menu file and icons so that Proof General may
+     appear on your window system menus (tested under Linux Mandrake).
      We no longer distribute an SRPM.
-
-*** Command to insert last output as comment in proof script.
-
-     Sometimes it is useful to paste some of the output from
-     goals or response buffer into the proof script.  A new
-     function `pg-insert-last-output-as-comment' (C-c C-;)
-     inserts the last output and converts it into a comment
-     using `comment-region'.
 
 *** Compatibility fixes.
 
