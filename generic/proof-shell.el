@@ -397,6 +397,7 @@ exited by hand (or exits by itself)."
 	proof-included-files-list nil
 	proof-shell-busy nil
 	proof-shell-proof-completed nil
+	proof-nesting-depth 0
 	proof-shell-error-or-interrupt-seen nil
 	proof-shell-silent nil
 	proof-shell-last-output nil

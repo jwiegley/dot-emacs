@@ -27,15 +27,28 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Internal variables used by script mode
+;;  PRIVATE VARIABLES 
+;;
+;;  Local variables used by proof-script-mode
 ;;
 
-(deflocal proof-active-buffer-fake-minor-mode nil
-  "An indication in the modeline that this is the *active* script buffer")
+;; Scripting variables
 
 (defvar proof-last-theorem-dependencies nil
   "Contains the dependencies of the last theorem.  A list of strings.
 Set in proof-shell-process-urgent-message.")
+
+(defvar proof-nesting-depth 0
+  "Current depth of a nested proof.  
+Zero means outside a proof, 1 means inside a top-level proof, etc.
+
+This variable is maintained in proof-done-advancing; it is zeroed
+in proof-shell-clear-state.")
+
+;; Buffer-local variables
+
+(deflocal proof-active-buffer-fake-minor-mode nil
+  "An indication in the modeline that this is the *active* script buffer")
 
 (deflocal proof-script-buffer-file-name nil
   ;; NB: if buffer-file-name is nil for some other reason, this may break.
@@ -44,7 +57,6 @@ The `find-alternative-file' function has a nasty habit of setting the
 buffer file name to nil before running kill buffer, which breaks PG's
 kill buffer hook.  This variable is used when buffer-file-name is nil.")
 
-  
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1191,58 +1203,80 @@ the ACS is marked in the current buffer. If CMD does not match any,
      ((eq (span-property span 'type) 'comment)
       (pg-set-span-helphighlights span))
       
-     ;; CASE 2: Save command seen, now we'll amalgamate spans.
+     ;; CASE 2: Save command seen, now we may amalgamate spans.
      ((and proof-save-command-regexp
 	   (proof-string-match proof-save-command-regexp cmd)
+	   (if proof-nested-goals-p
+	       ;; For now, we only support this nesting behaviour: 
+	       ;; don't amalgamate unless the nesting depth is 1,
+	       ;; i.e. we're in a top-level proof.
+	       ;; This assumes prover keeps history for nested proofs.
+	       ;; (True for Coq, Isabelle/Isar).
+	       (eq proof-nesting-depth 1)
+	     t)
+            ;; FIXME: would like to get rid of proof-really-save-command-p
+	    ;; and use nested goals mechanism instead.
 	    (funcall proof-really-save-command-p span cmd))
 
       (unless (eq proof-shell-proof-completed 1)
 	;; We expect saves to succeed only for recently completed proofs.
 	;; Give a hint to the proof assistant implementor in case something
-	;; odd is going on.
+	;; odd is going on.  (NB: this is normal for nested proofs, though).
 	(proof-debug 
 	 (format
-	  "Proof General note: save command with proof-shell-proof-completed=%s"
-	  proof-shell-proof-completed)))
+	  "PG: save command with proof-shell-proof-completed=%s, proof-nesting-depth=%s"
+	  proof-shell-proof-completed proof-nesting-depth)))
 
       (setq proof-shell-proof-completed nil)
 
-      ;; FIXME: subroutine here:
-      (let ((gspan     span)
+      ;; FIXME: need subroutine here:
+      (let ((gspan     span)		  ; putative goal span
 	    (savestart (span-start span))
-	    (saveend (span-end span))
-	    goalend nam next ncmd)
+	    (saveend   (span-end span))
+	    lev goalend nam next ncmd)
 
 	;; Try to set the name of the theorem from the save
 	;; (message "%s" cmd)   3.4: remove this message.
-
 
 	(and proof-save-with-hole-regexp
 	     (proof-string-match proof-save-with-hole-regexp cmd)
 	     ;; Give a message of a name if one can be determined
 	     (message "%s"
 	      (setq nam 
-		   (if (stringp proof-save-with-hole-result)
-		       (replace-match proof-save-with-hole-result nil nil cmd)
-		     (match-string proof-save-with-hole-result cmd)))))
+		    (if (stringp proof-save-with-hole-result)
+			(replace-match proof-save-with-hole-result nil nil cmd)
+		      (match-string proof-save-with-hole-result cmd)))))
 
-	;; Search backwards for first goal command, 
-	;; deleting spans along the way.
-	(while 
-	    (and gspan
-		 (or (eq (span-property gspan 'type) 'comment)
-		     (and (setq ncmd (span-property gspan 'cmd))
-			  (not (funcall proof-goal-command-p 
-					(setq cmd ncmd))))))
+	;; Search backwards for matching goal command, deleting spans
+	;; along the way: they will be amalgamated into a single
+	;; goal-save region, which corresponds to the prover
+	;; discarding the proof history.
+	(setq lev 1)
+	(while (and gspan (> lev 0))
 	  (setq next (prev-span gspan 'type))
 	  (delete-span gspan)
-	  (setq gspan next))
+	  (setq gspan next)
+	  (if gspan 
+	      (progn
+		(setq cmd (span-property gspan 'cmd))
+		(cond
+		 ;; Ignore comments
+		 ((eq (span-property gspan 'type) 'comment))
+		 ;; Increment depth for a nested save
+		 ((and proof-save-command-regexp
+		       ;; NB: not doing really save command here
+		       (proof-string-match proof-save-command-regexp cmd))
+		  (incf lev))
+		 ;; Decrement depth when a goal is hit
+		 ((funcall proof-goal-command-p cmd)
+		  (decf lev))))))
+
 	(if (not gspan)
 	    ;; No goal span found!  Issue a warning and do nothing more.
 	    (proof-warning
 	     "Proof General: script management confused, couldn't find goal span for save.")
 
-	;; If the name isn't set, try to set it from the goal. 
+	  ;; If the name isn't set, try to set it from the goal. 
 	  (unless nam
 	    (let ((cmdstr (span-property gspan 'cmd)))
 	      (message "%s" cmdstr)
@@ -1253,42 +1287,44 @@ the ACS is marked in the current buffer. If CMD does not match any,
 			     (replace-match proof-goal-with-hole-result nil nil cmdstr)
 			   (match-string proof-goal-with-hole-result cmdstr))))))
 	  
-	;; As a final desparate attempt, set the name to
-	;; proof-unnamed-theorem-name (Coq actually uses a default
-	;; name for unnamed theorems, believe it or not, and issues
-	;; a name-binding error for two unnamed theorems in a row!).
-	(unless nam
-	  (setq nam proof-unnamed-theorem-name))
+	  ;; As a final desparate attempt, set the name to
+	  ;; proof-unnamed-theorem-name (Coq actually uses a default
+	  ;; name for unnamed theorems, believe it or not, and issues
+	  ;; a name-binding error for two unnamed theorems in a row!).
+	  (unless nam
+	    (setq nam proof-unnamed-theorem-name))
 
-	;; FIXME: this needs to be abstracted out into a function
-	;; pg-add-new-proof-span
+	  ;; FIXME: this needs to be abstracted out into a function
+	  ;; pg-add-new-proof-span
 
-	;; Now make the new goal-save span
-	(setq goalend (span-end gspan))
-	(set-span-end gspan end)
-	(set-span-property gspan 'type 'goalsave)
-	(set-span-property gspan 'idiom 'proof);; links to nested proof element
-	(set-span-property gspan 'name nam)
-	(pg-set-span-helphighlights gspan)
+	  ;; Now make the new goal-save span
+	  (setq goalend (span-end gspan))
+	  (set-span-end gspan end)
+	  (set-span-property gspan 'type 'goalsave)
+	  (set-span-property gspan 'idiom 'proof);; links to nested proof element
+	  (set-span-property gspan 'name nam)
+	  (pg-set-span-helphighlights gspan)
 
-	;; Make a nested span which contains the purported body of the
-	;; proof, and add to buffer-local list of elements, maybe
-	;; making invisible.
-	(let ((proofbodyspan
-	       (make-span goalend (if proof-script-integral-proofs 
-				      saveend savestart))))
-	  (pg-add-proof-element nam proofbodyspan gspan))
+	  ;; Make a nested span which contains the purported body of the
+	  ;; proof, and add to buffer-local list of elements, maybe
+	  ;; making invisible.
+	  ;; FIXME: could consider adding nested spans for nested
+	  ;; proofs too?
+	  (let ((proofbodyspan
+		 (make-span goalend (if proof-script-integral-proofs 
+					saveend savestart))))
+	    (pg-add-proof-element nam proofbodyspan gspan))
 
-	;; *** Theorem dependencies ***
-	(if proof-last-theorem-dependencies
-	    (proof-depends-process-dependencies nam gspan))
+	  ;; *** Theorem dependencies ***
+	  (if proof-last-theorem-dependencies
+	      (proof-depends-process-dependencies nam gspan))
 
-	;; In Coq, we have the invariant that if we've done a save and
-	;; there's a top-level declaration then it must be the
-	;; associated goal.  (Notice that because it's a callback it
-	;; must have been approved by the theorem prover.)
-	(and proof-lift-global
-	     (funcall proof-lift-global gspan)))))
+	  ;; In Coq, we have the invariant that if we've done a save and
+	  ;; there's a top-level declaration then it must be the
+	  ;; associated goal.  (Notice that because it's a callback it
+	  ;; must have been approved by the theorem prover.)
+	  (and proof-lift-global
+	       (funcall proof-lift-global gspan)))))
 
      ;; CASE 3: Proof completed one step or more ago, non-save
      ;; command seen, no nested goals allowed.
@@ -1381,9 +1417,16 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
      ;; CASE 4:  Some other kind of command (or a nested goal).
      (t
+      (if (funcall proof-goal-command-p cmd)
+	  (incf proof-nesting-depth))
+
       (if proof-shell-proof-completed
 	  (incf proof-shell-proof-completed))
+      
       (pg-set-span-helphighlights span)
+
+      ;; FIXME 3.4: probably want to remove this global stuff now,
+      ;; has been removed for Coq.
       (and proof-global-p 
 	   (funcall proof-global-p cmd)
 	   proof-lift-global

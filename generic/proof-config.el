@@ -1273,6 +1273,11 @@ need to set this variable."
   :group 'proof-script)
 
 
+(defcustom proof-nested-goals-p nil
+  "Whether the prover supports nested proofs or not.
+Proof General will try to do something sensible if it does."
+  :type 'boolean
+  :group 'proof-script)
 
 (defcustom proof-global-p nil
   "Whether a command is a global declaration.  Predicate on strings or nil.
@@ -1740,9 +1745,9 @@ When output which matches this regexp is seen, we clear the goals
 buffer in case this is not also marked up as a `goals' type of
 message.
 
-We also enable the QED function (save a proof) and will automatically
+We also enable the QED function (save a proof) and we may automatically
 close off the proof region if another goal appears before a save
-command."
+command, depending on whether the prover supports nested proofs or not."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
