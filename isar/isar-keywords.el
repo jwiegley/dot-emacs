@@ -7,7 +7,6 @@
 
 (defconst isar-keywords-minor
   '("and"
-    "as"
     "binder"
     "con_defs"
     "concl"
