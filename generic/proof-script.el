@@ -1777,7 +1777,7 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 ;; to the end of it at the moment (contrary to the old name "send", nothing to
 ;; do with shell).  Perhaps we could define a
 ;; collection of useful copying functions which do this kind of thing.
-(define-key map [(control button1)]	  'proof-copy-span)
+(define-key map [(control button1)]	  'proof-mouse-track-insert)
 ;;; (define-key map [(control c) (control b)] 'proof-process-buffer)
 
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
