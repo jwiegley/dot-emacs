@@ -16,10 +16,7 @@
   :type 'boolean
   :group 'proof-user-options)
 
-(defcustom proof-splash-time 
-  ;; a shorter timeout if we're being loaded via visit-file.
-  ;; FIXME (minor): shouldn't be defcustom since evaluated here
-  (if (featurep 'proof-config) 2 6)
+(defcustom proof-splash-time 2
   "Minimum number of seconds to display splash screen for.
 The splash screen may be displayed for a couple of seconds longer than
 this, depending on how long it takes the machine to initialise 
@@ -131,6 +128,8 @@ Borrowed from startup-center-spaces."
   
 ;; We take some care to preserve the users window configuration
 ;; underneath the splash screen.  This is just to be polite.
+;; FIXME: not as polite as it could be: if minibuffer is active,
+;; this may deactivate it.
 (defun proof-splash-remove-screen (conf)
   "Remove splash screen and restore window config to CONF."
   (let
