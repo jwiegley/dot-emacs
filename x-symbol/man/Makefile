@@ -82,11 +82,12 @@ html:	index.html
 index.html: x-symbol.texi x-symbol.init
 	$(TEXI2HTML) x-symbol.texi
 
-all:	info ps html
+all:	info ps pdf html
 
 clean:
 	rm -f x-symbol x-symbol.aux x-symbol.cp* \
                 x-symbol.dvi x-symbol.fn* x-symbol.ky* \
-                x-symbol.log x-symbol.pg* x-symbol.ps x-symbol.pdf \
+                x-symbol.log x-symbol.pg* x-symbol.ps \
+		x-symbol.texi-exp x-symbol.pdf \
                 x-symbol.toc x-symbol.tp x-symbol.tp \
                 x-symbol.vr* x-symbol.info* x-symbol*.html index.html
