@@ -105,7 +105,8 @@ structure ProofGeneral =
           end
    in
     (writeln "Updating loaded files list...";
-     seq loading_msg thys_list)
+     seq loading_msg thys_list;
+     writeln "Done.")
    end;
 
  (* 

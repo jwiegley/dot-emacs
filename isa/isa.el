@@ -350,6 +350,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 	   (file-name-sans-extension file))))
 
 
+
 ;; Next bits taken from isa-load.el
 ;; isa-load.el,v 3.8 1998/09/01 
 
