@@ -316,7 +316,9 @@
 (defun pg-issue-pgip (pgip &optional block)
   (proof-shell-invisible-command 
    (funcall proof-shell-issue-pgip-cmd 
-	    (format "<pgip>%s</pgip>" pgip)) block))
+	    ;; FIXME: ought to generate sequence numbers and
+	    ;; engine ids here.
+	    (format "<pgip class=\"pa\">%s</pgip>" pgip)) block))
 
 ;;;###autoload
 (defun pg-pgip-askprefs ()
