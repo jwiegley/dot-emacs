@@ -314,11 +314,16 @@ Works on any buffer."
 
 (defun proof-only-whitespace-to-locked-region-p ()
   "Non-nil if only whitespace separates char after point from end of locked region.
-Point should be after the locked region."
-  (save-excursion
-   (unless (eobp)
-     (forward-char))
-   (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))))
+Point should be after the locked region.
+NB: If nil, point is left at first non-whitespace character found.
+If non-nil, point is left where it was."
+  ;; NB: this function doesn't quite do what you'd expect, but fixing it
+  ;; breaks proof-assert-until-point and electric-terminator which
+  ;; rely on the side effect.  So careful!
+  ;; (unless (eobp)
+  ;; (forward-char))
+  ;;   (save-excursion  -- no, side effect is expected!
+  (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
 
 (defun proof-in-locked-region-p ()
   "Non-nil if point is in locked region.  Assumes proof script buffer current."
@@ -1373,8 +1378,9 @@ the comment."
 ;; FIXME: get rid of duplication between proof-assert-next-command and
 ;; proof-assert-until-point.  Get rid of ignore process nonsense.
 
-;; FIXME: get rid of unclosed-comment-fun nonsense, it's never used
-;; anywhere.  We can keep it in a global variable or something.
+;; FIXME: get rid of unclosed-comment-fun nonsense.  It's used
+;; in the electric terminator function, but we should probably
+;; use something else for that!
 
 (defun proof-assert-until-point
   (&optional unclosed-comment-fun ignore-proof-process-p)
@@ -2356,12 +2362,15 @@ Make sure the modeline is updated to display new value for electric terminator."
 (defun proof-process-electric-terminator ()
   "Insert the proof command terminator, and assert up to it."
   (let ((mrk (point)) ins incomment)
-    ;; FIXME da: is the next test needed?
+    ;; NB: now we ensure that point 
     (if (looking-at "\\s-\\|\\'\\|\\w") 
 	(if (proof-only-whitespace-to-locked-region-p)
-	    (error "There's nothing to do!")))
+	      (error "There's nothing to do!")))
     (if (not (= (char-after (point)) proof-terminal-char))
-	(progn (forward-char) (insert proof-terminal-string) (setq ins t)))
+	(progn 
+	  (forward-char) ;; immediately after command end.
+	  (insert proof-terminal-string) 
+	  (setq ins t)))
     (proof-assert-until-point
      (function (lambda ()
 		 (setq incomment t)
