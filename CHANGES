@@ -10,11 +10,20 @@
 
 ** Generic changes
 
+*** Improved RPM packaging 
+
+Three packages are provided: ProofGeneral, ProofGeneral-emacs-elc and
+ProofGeneral-xemacs-elc.  The two elc RPMs contain compiled elisp for
+GNU Emacs and XEmacs respectively.  These RPMs are intended to be
+compatible with the RPMs distributed with Red Hat/Fedora. 
+
+Please try out these packages and report any problems.
+
 *** Desktop integration on freedesktop.org compliant desktops
 
 Provided automatically (and only) with the RPM package.
 
-!!!WORK IN PROGRESS!!!  -- Please send me i18n strings, and report
+WORK IN PROGRESS!!  -- Please send me i18n strings, and report
   any problems on particular desktops 
   (I'm only testing on Fedora Core 1/GNOME).
 
