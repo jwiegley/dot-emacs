@@ -1355,6 +1355,10 @@ the comment."
 ;; inside comments.  Also is unhelpful at the start of commands, and
 ;; in the locked region.  I prefer the new version below.
 
+
+;; FIXME: get rid of duplication between proof-assert-next-command and
+;; proof-assert-until-point.  Get rid of ignore process nonsense.
+
 (defun proof-assert-until-point
   (&optional unclosed-comment-fun ignore-proof-process-p)
   "Process the region from the end of the locked-region until point.
@@ -1442,10 +1446,10 @@ a space or newline will be inserted automatically."
 	  (setq semis (cdr semis)))
       (if (and (not ignore-proof-process-p) (null semis))
 	  (error "I can't see any complete commands to process!"))
-      (goto-char (nth 2 (car semis)))
+      (if (nth 2 (car semis))
+	  (goto-char (nth 2 (car semis))))
       (if (not ignore-proof-process-p)
 	   (let ((vanillas (proof-semis-to-vanillas (nreverse semis))))
-;	     (if crowbar (setq vanillas (cons crowbar vanillas)))
 	     (proof-extend-queue (point) vanillas)))
       ;; This is done after the queuing to be polite: it means the
       ;; spacing policy enforced here is not put into the locked
@@ -1690,18 +1694,63 @@ the proof script."
 ;      (and (re-search-forward "\\S-" nil t)
 ;	   (proof-assert-until-point nil 'ignore-proof-process)))))
       (proof-assert-next-command nil 'ignore-proof-process))))
+;(defun proof-find-next-terminator ()
+;  "Set point to next `proof-terminal-char'."
+;  (interactive)
+;  (let ((cmd (span-at (point) 'type)))
+;    (if cmd (goto-char (span-end cmd))
+;;      (and (re-search-forward "\\S-" nil t)
+;;	   (proof-assert-until-point nil 'ignore-proof-process)))))
+;      (proof-assert-next-command nil 
+;				 'ignore-proof-process
+;				 'dontmoveforward))
+;    (backward-char)))
 
-(defun proof-goto-command-start ()
-  "Move point to start of current command."
+(defun proof-find-previous-terminator ()
+  "Set point after next `proof-terminal-char'."
   (interactive)
   (let ((cmd (span-at (point) 'type)))
-    (if cmd (goto-char (span-start cmd)) ; BUG: only works for unclosed proofs.
-      (let ((semis (proof-segment-up-to (point) t)))
-	(if (eq 'unclosed-comment (car semis)) (setq semis (cdr semis)))
-	(if (and semis (car semis) (car (car semis)))
-	    (progn
-	      (goto-char (nth 2 (car (car semis))))
-	      (skip-chars-forward " \t\n")))))))
+    (if cmd (goto-char (span-end cmd))
+;      (and (re-search-forward "\\S-" nil t)
+;	   (proof-assert-until-point nil 'ignore-proof-process)))))
+      (proof-assert-next-command nil 'ignore-proof-process))))
+
+;; FIXME da: the next function is messy.  Also see notes in 'todo'
+(defun proof-goto-command-start ()
+  "Move point to start of current (or final) command of the script."
+  (interactive)
+  (let* ((cmd (span-at (point) 'type))
+	 (start (if cmd (span-start cmd))))
+    (if start 
+	(progn
+	  ;; BUG: only works for unclosed proofs.
+	  (goto-char start))
+      (let ((semis (nth 1 (proof-segment-up-to (point) t))))
+	(if (eq 'unclosed-comment (car-safe semis)) 
+	    (setq semis (cdr-safe semis)))
+	(if (nth 2 semis) ; fetch end point of previous command
+	      (goto-char (nth 2 semis))
+	  ;; no previous command: just next to end of locked
+	  (goto-char (proof-locked-end)))))
+    ;; Oddities of this function: if we're beyond the last proof
+    ;; command, it jumps back to the last command.  Could alter this
+    ;; by spotting that command end of last of semis is before
+    ;; point.  Also, behaviour with comments is different depending
+    ;; on whether locked or not.
+    (skip-chars-forward " \t\n")))
+
+(defun proof-goto-command-end ()
+  "Set point to next `proof-terminal-char'."
+  (interactive)
+  (let ((cmd (span-at (point) 'type)))
+    (if cmd (goto-char (span-end cmd))
+;      (and (re-search-forward "\\S-" nil t)
+;	   (proof-assert-until-point nil 'ignore-proof-process)))))
+      (proof-assert-next-command nil 
+				 'ignore-proof-process
+				 'dontmoveforward))
+    (skip-chars-backward " \t\n")
+    (backward-char)))	; should land on terminal char
 
 (defun proof-process-buffer ()
   "Process the current buffer and set point at the end of the buffer."
@@ -2228,7 +2277,7 @@ Otherwise just do proof-restart-buffers to delete some spans from memory."
 ;; prover configuration.
 ;;; INDENT HACK: font-lock only recognizes define-key at start of line
 (let ((map proof-mode-map))
-(define-key map [(control c) (control e)] 'proof-find-next-terminator)
+(define-key map [(control c) (control e)] 'proof-goto-command-end)
 (define-key map [(control c) (control a)] 'proof-goto-command-start)
 
 ;; Sep'99. FIXME: key maps need reorganizing, so do the assert-until style
