@@ -43,7 +43,7 @@ Copyright @copyright{} 1997, 1998 Proof General team, LFCS Edinburgh
 @comment node-name, next,          previous, up
 
 @b{Proof General} is a generic Emacs interface for proof assistants. It
-works ideally under XEmacs 20.4, but can also be used with Emacs 19.34.
+works ideally under XEmacs, but can also be used with Emacs 19.
 It is supplied ready-customised for these proof assistants:
 
 @itemize @bullet
