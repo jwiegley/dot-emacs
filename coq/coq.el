@@ -530,7 +530,6 @@ This is specific to coq-mode."
 	proof-kill-goal-command coq-kill-goal-command)
 
   (setq proof-goal-command-p 'coq-goal-command-p
-	proof-nested-goals-p t ;; da: new for 3.4
 	proof-count-undos-fn 'coq-count-undos
 	proof-find-and-forget-fn 'coq-find-and-forget
         proof-goal-hyp-fn 'coq-goal-hyp
