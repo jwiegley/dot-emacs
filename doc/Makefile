@@ -75,9 +75,9 @@ ProofGeneral.eps:
 doc:	dvi info
 
 ## 
-## all : build dvi, ps, html, info
+## all : build all documentation targets
 ##
-all:    dvi ps html info
+all:    dvi ps html info 
 
 dvi:    ProofGeneral.eps $(DOCNAME).dvi
 ps:	$(DOCNAME).ps
@@ -94,9 +94,8 @@ info:   ProofGeneral.txt $(DOCNAME).info
 ##
 clean:
 	rm -f ProofGeneral.txt ProofGeneral.eps
-	rm -f $(DOCNAME).?? $(DOCNAME).fns $(DOCNAME).vrs $(DOCNAME).cps 
-	rm -f $(DOCNAME).aux $(DOCNAME).log $(DOCNAME).toc $(DOCNAME).cp0
-	rm -f $(DOCNAME).kys
+	rm -f $(DOCNAME).{cp,fn,vr,tp,ky,pg} 
+	rm -f $(DOCNAME).{fns,vrs,cps,aux,log,toc,kys,cp0}
 	rm -f *~
 
 ##
