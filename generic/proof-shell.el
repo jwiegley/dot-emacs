@@ -671,17 +671,6 @@ arrive."
       (font-lock-append-text-property start (point-max) 'face face)
       (insert "\n"))))
 
-(defun proof-file-to-buffer (filename)
-  "Converts a FILENAME  into a buffer name"
-  (let* ((buffers (buffer-list))
-	 (pos
-	  (position (file-truename filename)
-		    (mapcar 'proof-file-truename
-			    (mapcar 'buffer-file-name
-				    buffers))
-		    :test 'equal)))
-    (and pos (nth pos buffers))))
-
 (defun proof-files-to-buffers (filenames)
   "Converts a list of FILENAMES into a list of BUFFERS."
   (if (null filenames) nil

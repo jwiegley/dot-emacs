@@ -298,6 +298,17 @@ to allow other files loaded by proof assistants to be marked read-only."
   "Returns the true name of the file FILENAME or nil."
   (and filename (file-exists-p filename) (file-truename filename)))
 
+(defun proof-file-to-buffer (filename)
+  "Converts a FILENAME  into a buffer name"
+  (let* ((buffers (buffer-list))
+	 (pos
+	  (position (file-truename filename)
+		    (mapcar 'proof-file-truename
+			    (mapcar 'buffer-file-name
+				    buffers))
+		    :test 'equal)))
+    (and pos (nth pos buffers))))
+
 (defun proof-register-possibly-new-processed-file (file)
   "Register a possibly new FILE as having been processed by the prover."
   (let* ((cfile (file-truename file))
