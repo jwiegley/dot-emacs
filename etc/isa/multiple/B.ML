@@ -1,4 +1,4 @@
 (* Scripting buffer for theory B *)
 
-val a = ();
-val it = ();
+val b = 0;
+val b1 = 1;
