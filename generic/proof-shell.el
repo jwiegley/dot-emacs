@@ -840,13 +840,13 @@ This function - it can return one of 4 things: 'error, 'interrupt,
 should be inserted into the script buffer and sent back to the proof
 assistant."
   (cond
+   ((string-match proof-shell-interrupt-regexp string)
+    'interrupt)
+
    ((string-match proof-shell-error-regexp string)
     (cons 'error (proof-shell-strip-annotations
 		  (substring string
 			     (match-beginning 0)))))
-
-   ((string-match proof-shell-interrupt-regexp string)
-    'interrupt)
 
    ((and proof-shell-abort-goal-regexp
 	 (string-match proof-shell-abort-goal-regexp string))
