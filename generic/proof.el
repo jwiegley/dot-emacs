@@ -479,7 +479,7 @@ an error.")
 
 (defun proof-goto-end-of-locked ()
   "Jump to the end of the locked region."
-  (goto-char (proof-locked-end)))
+  (goto-char (proof-unprocessed-begin)))
 
 (defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
   "If the end of the locked region is not visible, jump to the end of
@@ -664,11 +664,13 @@ An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
 Set to nil if the proof to disable this feature.")
 
-(defvar proof-shell-eager-annotation-end nil
+(defvar proof-shell-eager-annotation-end "$"
   "Eager annotation field end.  A regular expression or nil.
 An eager annotation indicates to Emacs that some following output
 should be displayed immediately and not accumulated for parsing.
-Set to nil if the proof to disable this feature.")
+Set to nil if the proof to disable this feature.
+
+The default value is \"$\" to match up to the end of the line.")
 
 (defvar proof-shell-assumption-regexp nil
   "A regular expression matching the name of assumptions.")
@@ -785,9 +787,12 @@ Set to nil if the proof to disable this feature.")
 
 (defun proof-shell-handle-output (start-regexp end-regexp append-face)
   "Pretty print output in PROCESS buffer in specified region.
+The region begins with the match for START-REGEXP and is delimited by
+END-REGEXP. The match for END-REGEXP is not part of the specified region.
 Removes any annotations in the region.
+Fontifies the region.
 Appends APPEND-FACE to the text property of the region .
-Returns the string in the specified region."
+Returns the string (with faces) in the specified region."
   (let ((string))
     (save-excursion
       (set-buffer proof-shell-buffer)
@@ -801,8 +806,6 @@ Returns the string in the specified region."
 	(setq end (+ start (length string)))
 	(font-lock-fontify-region start end)
 	(font-lock-append-text-property start end 'face append-face)
-
-	;;FIXME: Why are faces not preserved?
 	(buffer-substring start end)))))
 
 (defun proof-shell-handle-delayed-output ()
@@ -824,7 +827,7 @@ Returns the string in the specified region."
   (setq proof-shell-delayed-output (cons 'insert "done")))
 
 (defun proof-shell-handle-error (cmd string)
-  "React on an error message triggered by the prover. [proof.el]
+  "React on an error message triggered by the prover.
 We display the process buffer, scroll to the end, beep and fontify the
 error message. At the end it calls `proof-shell-handle-error-hook'. "
     ;; We extract all text between text matching
@@ -1324,7 +1327,8 @@ the start if the segment finishes with an unclosed comment.
 If optional NEXT-COMMAND-END is non-nil, we contine past POS until
 the next command end."
   (save-excursion
-    (let ((str (make-string (- (buffer-size) (proof-locked-end) -10) ?x))
+    (let ((str (make-string (- (buffer-size)
+			       (proof-unprocessed-begin) -10) ?x))
 	  (i 0) (depth 0) (quote-parity t) done alist c)
      (proof-goto-end-of-locked)
      (while (not done)
@@ -1425,7 +1429,7 @@ function) to a set of vanilla extents."
 	(crowbar (or ignore-proof-process-p (proof-steal-process)))
 	semis)
     (save-excursion
-      (if (not (re-search-backward "\\S-" (proof-locked-end) t))
+      (if (not (re-search-backward "\\S-" (proof-unprocessed-begin) t))
 	  (progn (goto-char pt)
 		 (error "Nothing to do!")))
       (setq semis (proof-segment-up-to (point))))
@@ -1862,7 +1866,7 @@ current command."
   ;;; COMINT customisation
   (setq comint-prompt-regexp proof-shell-prompt-pattern)
 
-  ;; An article by Helen Lowe in UITP'?? suggests that the user should
+  ;; An article by Helen Lowe in UITP'96 suggests that the user should
   ;; not see all output produced by the proof process. 
   (remove-hook 'comint-output-filter-functions
 	       'comint-postoutput-scroll-to-bottom 'local)
