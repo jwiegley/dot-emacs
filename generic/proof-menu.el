@@ -78,7 +78,8 @@ If in three window or multiple frame mode, display both buffers."
 (define-key map [(control button3)]	  'proof-mouse-goto-point)
 (define-key map [(control button1)]	  'proof-mouse-track-insert)) ; no FSF
       (t 
-(define-key map [mouse-3]		  'proof-mouse-goto-point))) ; FSF
+(define-key map [(control mouse-3)]	  'proof-mouse-goto-point)))
+ ; FSF
 ;; NB: next binding overwrites comint-find-source-code.  
 ;; FIXME: not implemented yet 
 ;; (define-key map [(meta p)]		  'proof-previous-matching-command)
