@@ -864,7 +864,7 @@ Then we call `proof-shell-handle-error-or-interrupt-hook'."
     (setq proof-action-list nil)
     (proof-release-lock err-or-int)
     ;; Make sure that prover is outputting data now.
-
+    ;; FIXME: put something here!
     ;; New: this is called for interrupts too.
     (run-hooks 'proof-shell-handle-error-or-interrupt-hook)))
 
