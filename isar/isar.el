@@ -193,7 +193,6 @@
   (setq
    proof-assistant-home-page	isabelle-web-page
    proof-mode-for-script	'isar-proofscript-mode
-   proof-assistant-menu-entries isabelle-menu-entries
    ;; proof script syntax
    proof-terminal-char		?\;	; ends a proof
    proof-comment-start		"(*"	; comment in a proof
@@ -273,9 +272,17 @@
    proof-shell-start-goals-regexp	"\366\n"
    proof-shell-end-goals-regexp		"\367"
    proof-shell-goal-char	        ?\370
-   ;; initial command configures Isabelle/Isar by modifying print functions etc.
+
+   ;; initial command configures Isabelle/Isar by modifying print
+   ;; functions, restoring settings saved by Proof General, etc.
    proof-shell-init-cmd                 (concat
-					 (isar-verbatim "ProofGeneral.init true;")
+					 (isar-verbatim 
+					  "ProofGeneral.init true;")
+					 ;; FIXME: markus, could you sort this?
+					 ;; Doesn't seem to work, maybe
+					 ;; should be done later?  with verb?
+					 ;; or before PG.init without m/u?
+					 "\n"
 					 (isabelle-set-default-cmd))
    proof-shell-restart-cmd		"ProofGeneral.restart;"
    proof-shell-quit-cmd			(isar-verbatim "quit();")
