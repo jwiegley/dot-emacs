@@ -47,26 +47,31 @@ is set to t, then ProofGeneral guesses the version of coq by doing
 
 
 
+
 ;; only coq-version-is-V74 and coq-version-is-V7 are used later (V6
 ;; corresponds to v7=nil and v74=nil)
-(cond
- (coq-version-is-V74 (setq coq-version-is-V7 t))
- (coq-version-is-V7  (setq coq-version-is-V74 nil))
- (coq-version-is-V6  (setq coq-version-is-V74 nil) (setq coq-version-is-V7 nil))
- (t 
-  (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
-         (x (string-match "version \\([.0-9]*\\)" str))
-         (num (match-string 1 str)))
-    (cond
-     ((string-match num "\\<6.")
-      (message "coq is V6") (setq coq-version-is-V7 nil) (setq coq-version-is-V74 nil))
-     ((or (string-match num "\\<7.0") (string-match num "\\<7.1") 
-          (string-match num "\\<7.2") (string-match num "\\<7.3")) 
-      (message "coq is V7 =< 7.3") 
-      (setq coq-version-is-V7 t) (setq coq-version-is-V74 nil))
-      ;default: 7.3.1 and above ---> 7.4 
-     (t (message "coq is => V7.3.1")
-        (setq coq-version-is-V7 t) (setq coq-version-is-V74 t))))))
+
+(let* ((seedoc " (to force another version, do for example C-h v coq-version-is-V7)")
+		(v74 (concat "proofgeneral is in coq >= 7.4 mode" seedoc))
+		(v7 (concat "proofgeneral is in coq =< 7.3 mode" seedoc))
+		(v6 (concat "proofgeneral is in coq V6 mode" seedoc)))
+  (cond
+	(coq-version-is-V74 (message v74) (setq coq-version-is-V7 t))
+	(coq-version-is-V7  (message v7)  (setq coq-version-is-V74 nil))
+	(coq-version-is-V6  (message v6)  (setq coq-version-is-V74 nil) (setq coq-version-is-V7 nil))
+	(t 
+	 (let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
+			  (x (string-match "version \\([.0-9]*\\)" str))
+			  (num (match-string 1 str)))
+		(cond
+		 ((string-match num "\\<6.") (message msgv6)
+		  (setq coq-version-is-V7 nil) (setq coq-version-is-V74 nil))
+		 ((or (string-match num "\\<7.0") (string-match num "\\<7.1") 
+				(string-match num "\\<7.2") (string-match num "\\<7.3")) 
+		  (message v7) 
+		  (setq coq-version-is-V7 t) (setq coq-version-is-V74 nil))
+													 ;default: 7.3.1 and above ---> 7.4 
+		 (t (message v74) (setq coq-version-is-V7 t) (setq coq-version-is-V74 t)))))))
 
 ;; ----- keywords for font-lock.
 

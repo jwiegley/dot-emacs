@@ -1,4 +1,27 @@
 
+Module Type O1.
+Parameter A:Set.
+Parameter B:Set.
+End O1.
+
+
+Module R:O1.
+Definition A:=nat.
+Definition B:=bool.
+End R.
+
+Module R2: O1 with Definition  A:=nat.
+Definition A:=nat.
+Definition B:=bool.
+End R2.
+
+Module R4.
+Module R3: O1 with Definition  A:=nat :=R2.
+End R4.
+
+
+
+
 Module M.
   Module Type SIG.
     Parameter T:Set.
@@ -15,6 +38,10 @@ Module M.
   Module O:=N.
 End M.
 
+Import M.
+Print t.
+
+
 Definition t:O=O.
 Trivial.
 Save.
@@ -24,13 +51,14 @@ Section toto.
 Print M.
 End toto.
 
-  Module N:=M.
+Module N:=M.
 
-Module R:N.SIG.
- Definition T:Set:=nat.
- Definition x:T:= O.
- Definition foo:nat:=(S O).
-End R.
+
+Module Type typ.
+Parameter T:Set.
+Parameter a:T.
+End typ.
+
 
 
 Module Type N'.

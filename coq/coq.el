@@ -212,12 +212,33 @@
 ;    (la fonction vernac_declare_module dans toplevel/vernacentries)
 
 
+
+(defun coq-count-match (regexp strg)
+  "Count the number of (maximum, non overlapping) matching substring 
+of STRG matching REGEXP. Empty match are counted once."
+  (let ((nbmatch 0) (str strg))
+    (while (and (proof-string-match regexp str) (not (string-equal str "")))
+      (incf nbmatch)
+      (if (= (match-end 0) 0) (setq str (substring str 1))
+        (setq str (substring str (match-end 0)))))
+    nbmatch))
+
+
+
 (defun coq-goal-command-p (str)
   "Decide whether argument is a goal or not"
   (and (proof-string-match coq-goal-command-regexp str)
        (not (proof-string-match "Local.*:=" str))
-       (not (proof-string-match "Definition.*:=" str))
-       (not (proof-string-match "Module.*:=" str))
+       ;do not match Module t:T with Definition... 
+       (not (proof-string-match "\\`Definition.*:=" str))
+       (not (proof-string-match "\\`Module[^:]*:=" str))
+       ; Module ... (with Definition ..:=)* :=  --> module definition
+       ; Module ... (with Definition ..:=)*     --> module start
+       ; We count the number of
+       (not 
+        (and (proof-string-match "\\`Module[^:]*:\\(.*\\):=[^:]*" str)
+             (not (= (coq-count-match "\\<with\\>" str) (coq-count-match ":=" str)))))
+;       (not (proof-string-match module-with str))
        (not (proof-string-match "Declare Module.*:" str)) ;neither : or :=
        (not (proof-string-match "Recursive Definition" str))
        ;; da: 3.4 test: do not exclude Lemma: we want goal-command-p to
@@ -249,7 +270,8 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
 (defun coq-is-comment-p (span) (eq (span-property span 'type) 'comment))
 (defun coq-is-goalsave-p (span) (eq (span-property span 'type) 'goalsave))
 (defun coq-is-module-equal-p (str) ;;cannot appear vith coq < 7.4
-  (proof-string-match "\\`\\(Declare\\s-\\)?\\s-*\\<Module\\>.*:=" str))
+  (and (proof-string-match "\\`\\(Declare\\s-\\)?\\s-*\\<Module\\>.*:=" str)
+       (not (proof-string-match "\\<with\\>" str))))
 (defun coq-is-def-p (str) 
   (proof-string-match (concat "\\`Definition\\s-+\\(" proof-id "\\)\\s-*") str))
 (defun coq-is-decl-defn-p (str)
@@ -274,6 +296,9 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
    (concat "\\`" coq-section-regexp 
            "\\s-+\\(" proof-id "\\)\\(\\s-*\\(" proof-id "\\)\\)?") str)) 
 
+;;(span-at (point) 'type)
+;;(span-property (span-at (point) 'type) 'cmd)
+
 (defun coq-find-and-forget (span)
   (let (str ans (naborts 0) (nbacks 0) (nundos 0))
     (while (and span (not ans))
@@ -290,16 +315,15 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
        ;; [ Maybe not: Section is being treated as a _goal_ command
        ;;   now, so this test has to appear before the goalsave ]
        ((coq-section-or-module-start-p str)
+        (if (equal (match-string 2 str) "Type") ;Module Type id: take the third word
+            (setq ans (format coq-forget-id-command (match-string 5 str)))
+          (setq ans (format coq-forget-id-command (match-string 2 str))))
         ;; If we're resetting to beginning of a section from inside, need to fix the
         ;; nesting depth.  FIXME: this is not good enough: the scanning loop exits
         ;; immediately but Reset has implicit Aborts which are not being counted
         ;; here.  Really we need to set the "master reset" command which subsumes the
         ;; others, but still count the depth.
-        (unless (coq-is-goalsave-p span) (decf proof-nesting-depth))
-
-        (if (equal (match-string 2 str) "Type") ;Module Type id: take the third word
-            (setq ans (format coq-forget-id-command (match-string 5 str)))
-          (setq ans (format coq-forget-id-command (match-string 2 str)))))
+        (unless (coq-is-goalsave-p span) (decf proof-nesting-depth)))
 
        ((coq-is-goalsave-p span)
         ;; da: try using just Back since "Reset" causes loss of proof state.
@@ -620,11 +644,10 @@ This is specific to coq-mode."
    proof-indent-close-regexp
    (proof-regexp-alt (proof-ids-to-regexp '("end")) "\\s)"))
 
-;
-;  ;; span menu 
-;  (setq
-;   proof-script-span-context-menu-extensions 'coq-create-span-menu)
-;
+
+  ;; span menu 
+  (setq proof-script-span-context-menu-extensions 'coq-create-span-menu)
+
 
   ;; (setq proof-auto-multiple-files t)	; until Coq has real support
   ;; da: Experimental support for multiple files based on discussions
@@ -857,14 +880,21 @@ mouse activation."
 (defun coq-create-span-menu (span idiom name)
   (if (string-equal idiom "proof")
       (let ((thm (span-property span 'name)))
-        (list ;(vector
-              ; "Check"
-              ; `(proof-shell-invisible-command 
-              ;   ,(format "Check %s." thm)))
+        (list (vector
+               "Check"
+               `(proof-shell-invisible-command 
+                 ,(format "Check %s." thm)))
               (vector
                "Print Proof"
                `(proof-shell-invisible-command 
-                 ,(format "Print Proof %s." thm)))))))
+                 ,(format "Print Proof %s." thm))))))
+  (if (string-equal idiom "proof")
+      (let ((thm (span-property span 'name)))
+        (list (vector
+               "Check"
+               `(proof-shell-invisible-command 
+                 ,(format "Check %s." thm))))))
+  )
 
 ;;;   Local Variables: ***
 ;;;   tab-width:2 ***
