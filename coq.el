@@ -3,6 +3,11 @@
 ;; Author: Healfdene Goguen and Thomas Kleymann
 
 ;; $Log$
+;; Revision 1.22  1998/05/14 11:52:32  hhg
+;; Changes to indentation code:
+;; 	Changed "case" to "Case".
+;; 	Added "CoInductive".
+;;
 ;; Revision 1.21  1998/05/12 14:51:27  hhg
 ;; Added hook `coq-shell-init-hook', for `proof-shell-insert-hook'.
 ;; This initializes undo limit and changes directory to that associated
@@ -108,7 +113,7 @@
 (defconst coq-mode-version-string
   "Coq-MODE. ALPHA Version 1.11 (June 1996) LEGO Team <lego@dcs.ed.ac.uk>")
 
-(defvar coq-tags "/obj/local/coq/V6.2/theories/TAGS"
+(defvar coq-tags "/usr/local/lib/coq/V6.2/theories/TAGS"
   "the default TAGS table for the Coq library")
 
 (defconst coq-info-dir "/usr/local/share/info")
@@ -132,7 +137,7 @@
 
 ;; ----- coq-shell configuration options
 
-(defvar coq-prog-name "/obj/local/coq/V6.2/bin/sun4/coqtop -image /obj/local/coq/V6.2/bin/sun4/coq.out -emacs"
+(defvar coq-prog-name "coqtop -emacs"
   "*Name of program to run as Coq.")
 
 (defvar coq-shell-working-dir ""
@@ -464,6 +469,8 @@
 ;;   Indentation                                                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; "Case" is represented by 'c' on the stack, and
+;; "CoInductive is represented by 'C'.
 (defun coq-stack-to-indent (stack)
   (cond
    ((null stack) 0)
@@ -479,25 +486,27 @@
 			   ((eq (char-after (point)) ?|) (+ col 3))
 			   ((looking-at "end") col)
 			   (t (+ col 5)))))	  
-	 ((eq (car (car stack)) ?I)
+	 ((or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C))
 	  (+ col (if (eq ?| (save-excursion 
 			      (move-to-column (current-indentation))
-			      (char-after (point)))) 8 10)))
+			      (char-after (point)))) 2 4)))
 	 (t (1+ col)))))))
 
 (defun coq-parse-indent (c stack)
   (cond
-   ((and (eq c ?c) (looking-at "case"))
-    (cons (list c (point)) stack))
+   ((eq c ?C)
+    (cond ((looking-at "Case")
+	   (cons (list ?c (point)) stack))
+	  ((looking-at "CoInductive")
+	   (forward-char (length "CoInductive"))
+	   (cons (list c (- (point) (length "CoInductive"))) stack))
+	  (t stack)))
    ((and (eq c ?e) (looking-at "end") (eq (car (car stack)) ?c))
     (cdr stack))
-   
+
    ((and (eq c ?I) (looking-at "Inductive"))
     (forward-char (length "Inductive"))
     (cons (list c (- (point) (length "Inductive"))) stack))
-   ((and (eq c ?C) (looking-at "CoInductive"))
-    (forward-char (length "CoInductive"))
-    (cons (list c (- (point) (length "CoInductive"))) stack))
 
    ((and (eq c ?.) (or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C)))
     (cdr stack))
