@@ -63,14 +63,21 @@ address{
  color: #FFFFFF; 			       /* but varies randomly in NN */
 }
 
-textarea,select,input {
+select {
  font-family: Verdana, Arial, sans-serif;	
  font-size: 100%;
  background: #2D1D03;
  color: #FFFFFF;
 }
 
-input[type=submit],input[type=Submit] {
+textarea,input {
+ font-family: Verdana, Arial, sans-serif;	
+ font-size: 100%;
+ background: #4D2D23;
+ color: #FFFFFF;
+}
+
+input[type=submit],input[type=reset],input[type=Submit] {
  font-family: Verdana, Arial, sans-serif;
  font-size: 80%;
  padding-top: 0px;
