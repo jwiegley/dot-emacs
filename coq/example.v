@@ -4,12 +4,12 @@
     $Id$
 *)
 
-Goal (A,B:Prop)(and A B) -> (and B A).
+
+Goal (A,B:Prop)(A /\ B) -> (B /\ A).
 Intros A B H.
 Induction H.
 Apply conj.
 Assumption.
 Assumption.
 Save and_comms.
-
 
