@@ -11,5 +11,3 @@ Goal "A & B --> B & A";
   by (assume_tac 1);
   by (assume_tac 1);
 qed "and_comms";
-
-
