@@ -9,7 +9,7 @@
 ;;
 
 
-;; FIXME: this most be done before loading proof-config, shame.
+;; FIXME: this must be done before loading proof-config, shame.
 (setq proof-tags-support nil) ; no isatags prog, yet.
 
 ;; Add Isabelle image onto splash screen
@@ -67,6 +67,7 @@
   :type 'string
   :group 'isabelle-isar)
 
+
 ;;;
 ;;; ======== Configuration of generic modes ========
 ;;;
@@ -74,7 +75,7 @@
 ;; ===== outline mode
 
 (defcustom isar-outline-regexp
-  (proof-ids-to-regexp (append isar-keywords-theory-heading isar-keywords-theory-goal))
+  (proof-ids-to-regexp isar-keywords-outline)
   "Outline regexp for Isabelle/Isar documents"
   :type 'regexp
   :group 'isabelle-isar-config)
@@ -97,6 +98,42 @@
 	(outl-mouse-minor-mode))
     (outline-minor-mode)))
 
+; FIXME tmp
+(defun isar-outline-setup () t)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;   Indentation                                                    ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconst isar-indent-regexp (proof-ids-to-regexp isar-keywords-indent))
+(defconst isar-indent-open-regexp (proof-ids-to-regexp isar-keywords-indent-open))
+(defconst isar-indent-close-regexp (proof-ids-to-regexp isar-keywords-indent-close))
+(defconst isar-indent-enclose-regexp (proof-ids-to-regexp isar-keywords-indent-enclose))
+
+(defun isar-stack-to-indent (stack)
+  (cond
+   ((null stack) 0)
+   ((null (car (car stack)))
+    (nth 1 (car stack)))
+   (t (let ((col (save-excursion
+		   (goto-char (nth 1 (car stack)))
+		   (current-column))))
+	(if (and (eq (car (car stack)) ?p)
+		 (save-excursion (move-to-column (current-indentation))
+				 (looking-at isar-indent-enclose-regexp)))
+	    col
+	  (+ isabelle-isar-indent col))))))
+
+(defun isar-parse-indent (c stack)
+  (cond
+   ((looking-at isar-indent-open-regexp)
+    (cons (list ?p (point)) stack))
+   ((and (looking-at isar-indent-close-regexp) (eq (car (car stack)) ?p))
+    (cdr stack))
+   (t stack)))
+
 
 ;;; NB!  Disadvantage of *not* shadowing variables is that user
 ;;; cannot override them.  It might be nice to override some
@@ -117,8 +154,8 @@
    proof-goal-command-regexp    isar-goal-command-regexp
    proof-goal-with-hole-regexp  isar-goal-with-hole-regexp
    proof-save-with-hole-regexp  isar-save-with-hole-regexp
-   proof-commands-regexp	(proof-ids-to-regexp isar-keywords)
-   ;; proof engine commands (first three for menus, last for undo)
+   proof-commands-regexp	isar-indent-regexp
+   ;; proof engine commands (first five for menus, last for undo)
    proof-prf-string		"pr"
    proof-goal-command		"lemma \"%s\""
    proof-save-command		"qed"
@@ -132,6 +169,7 @@
    proof-find-and-forget-fn	'isar-find-and-forget
    proof-goal-hyp-fn		'isar-goal-hyp
    proof-state-preserving-p	'isar-state-preserving-p
+   proof-script-indent          t
    proof-parse-indent		'isar-parse-indent
    proof-stack-to-indent	'isar-stack-to-indent
    proof-shell-compute-new-files-list 'isar-shell-compute-new-files-list))
@@ -150,12 +188,11 @@
 
    ;; for issuing command, not used to track cwd in any way.
    proof-shell-cd			"cd \"%s\";"
-   proof-shell-proof-completed-regexp   "FIXME No subgoals!"
 
+   proof-shell-proof-completed-regexp   "$^"    ; n.a.
    proof-shell-error-regexp		"^\364\\*\\*\\*"
    proof-shell-interrupt-regexp         "^Interrupt"
-   
-   ;; nothing appropriate for: proof-shell-abort-goal-regexp         ;; MMW FIXME: ??
+   proof-shell-abort-goal-regexp        nil     ; n.a.
 
    ;; matches names of assumptions
    proof-shell-assumption-regexp	isar-id
@@ -257,8 +294,6 @@ proof-included-files-list."
   (interactive)
   (save-some-buffers)
   (proof-shell-insert isar-update-command))
-
-  
 
 
 
@@ -390,7 +425,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Code that's Isabelle specific                                  ;;
+;;   Code that's Isabelle/Isar specific                             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Variations on undo
@@ -401,7 +436,7 @@ Resulting output from Isabelle will be parsed by Proof General."
   (concat "undos " (int-to-string i) proof-terminal-string))
 
 (defun isar-cannot-undo (cmd)
-  (concat "ML {| val _:unit = error \"Cannot undo command '" cmd "'\" |};"))
+  (concat "cannot_undo \"" cmd "\";"))
 
 
 (defcustom isar-cannot-undo-regexp
@@ -504,32 +539,7 @@ Resulting output from Isabelle will be parsed by Proof General."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Indentation                                                    ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; MMW FIXME: take from coq.el?
-;; Sadly this is pretty pointless for Isabelle.
-;; Proof scripts in Isabelle don't really have an easily-observed
-;; block structure  -- a case split can be done by any obscure tactic,
-;; and then solved in a number of steps that bears no relation to the
-;; number of cases!  And the end is certainly not marked in anyway.
-;; 
-(defun isar-stack-to-indent (stack)
-    (cond
-   ((null stack) 0)
-   ((null (car (car stack)))
-    (nth 1 (car stack)))
-   (t (save-excursion
-	(goto-char (nth 1 (car stack)))
-	(+ isabelle-isar-indent (current-column))))))
-
-(defun isar-parse-indent (c stack)
-  "Indentation function for Isabelle.  Does nothing at the moment."
-  stack)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;   Isa shell startup and exit hooks                               ;;
+;;   Isar shell startup and exit hooks                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun isar-pre-shell-start ()
