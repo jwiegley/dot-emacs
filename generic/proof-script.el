@@ -503,6 +503,8 @@ NAME does not need to be unique."
     (set-span-property span 'name name)
     (set-span-property span 'span-delete-action delfn)
     (set-span-property span 'invisible visname)
+    ;; Bad behaviour if span gets copied: unique ID shouldn't be duplicated.
+    (set-span-property span 'duplicable nil)
     ;; Nice behaviour in with isearch: open invisible regions temporarily.
     (set-span-property span 'isearch-open-invisible 
 		       'pg-open-invisible-span)
@@ -585,7 +587,6 @@ NAME does not need to be unique."
   (set-span-property span 'controlspan controlspan)
   (set-span-property controlspan 'children
     (cons span (span-property controlspan 'children)))
-  (set-span-property span 'duplicable t)
   ;; (set-span-property span 'context-menu (pg-proof-element-menu name))
   (pg-set-span-helphighlights span 'nohighlight)
   (if proof-disappearing-proofs 
