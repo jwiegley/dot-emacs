@@ -186,6 +186,17 @@
 	(and cont (forward-char forward-amount)))
       found-header)))
 
+
+(defun isar-strip-terminators ()
+  "Remove explicit Isabelle/Isar command terminators `;' from buffer"
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (search-forward ";" (point-max) t)
+      (if (not (buffer-syntactic-context))
+	  (delete-backward-char 1)))))
+
+
 (defun isar-mode-config-set-variables ()
   "Configure generic proof scripting mode variables for Isabelle/Isar."
   (setq
@@ -272,12 +283,12 @@
 
    ;; initial command configures Isabelle/Isar by modifying print
    ;; functions, restoring settings saved by Proof General, etc.
-   proof-shell-pre-sync-init-cmd	(isar-verbatim 
+   proof-shell-pre-sync-init-cmd	(isabelle-verbatim 
 					 "ProofGeneral.init true;")
    proof-assistant-setting-format	'isar-markup-ml
    proof-shell-init-cmd                 (proof-assistant-settings-cmd)
    proof-shell-restart-cmd		"ProofGeneral.restart;"
-   proof-shell-quit-cmd			(isar-verbatim "quit();")
+   proof-shell-quit-cmd			(isabelle-verbatim "quit();")
 
    proof-shell-eager-annotation-start-length 1
    proof-shell-eager-annotation-start   "\360\\|\362"
@@ -520,7 +531,7 @@ proof-shell-retract-files-regexp."
 
 (defun isar-preprocessing ()  ;dynamic scoping of `string'
   "Insert sync markers - acts on variable STRING by dynamic scoping"
-  (if (string-match isar-verbatim-regexp string)
+  (if (string-match isabelle-verbatim-regexp string)
       (setq string (match-string 1 string))
     (unless (string-match ";[ \t]$" string) ; da: added this 
       (setq string (concat string ";")))    ; da: added this
