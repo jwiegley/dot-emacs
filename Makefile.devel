@@ -174,7 +174,7 @@ ELC=$(EL:.el=.elc)
 	$(BYTECOMP) $*.el
 
 %.gz:	%
-	gzip $*
+	gzip -f $*
 
 FORCE:
 
