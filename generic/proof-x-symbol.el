@@ -149,22 +149,23 @@ A value for proof-shell-insert-hook."
 (defun proof-x-symbol-mode ()
   "Turn on/off x-symbol mode in current buffer, from proof-x-symbol-enable."
   (interactive)
-  (if proof-x-symbol-initialized
-      (progn
-	(setq x-symbol-language proof-assistant-symbol)
-	(if (eq x-symbol-mode 
-		(not proof-x-symbol-enable))
-	    (x-symbol-mode)) ;; DvO: this is a toggle
-	;; Needed ?  Should let users do this in the 
-	;; usual way, if it works.
-	(if (and x-symbol-mode 
-		 (not font-lock-mode));;DvO
-	    (font-lock-mode)
-	  ;; da: Is this supposed to be called only if we don't turn on
-	  ;; font-lock???
-	  (unless (featurep 'mule)
-	    (if (fboundp 'x-symbol-nomule-fontify-cstrings)
-		(x-symbol-nomule-fontify-cstrings)))))));;DvO
+  (save-excursion			; needed or point moves: why?
+    (if proof-x-symbol-initialized
+	(progn
+	  (setq x-symbol-language proof-assistant-symbol)
+	  (if (eq x-symbol-mode 
+		  (not proof-x-symbol-enable))
+	      (x-symbol-mode)) ;; DvO: this is a toggle
+	  ;; Needed ?  Should let users do this in the 
+	  ;; usual way, if it works.
+	  (if (and x-symbol-mode 
+		   (not font-lock-mode));;DvO
+	      (font-lock-mode)
+	    ;; da: Is this supposed to be called only if we don't turn on
+	    ;; font-lock???
+	    (unless (featurep 'mule)
+	      (if (fboundp 'x-symbol-nomule-fontify-cstrings)
+		  (x-symbol-nomule-fontify-cstrings))))))));;DvO
 
 
 (defun proof-x-symbol-mode-all-buffers ()
