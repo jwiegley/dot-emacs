@@ -59,5 +59,10 @@ do not print multiple identical prompts for continued lines.
 Beginnings of support PGIP protocol (work in progress with Isabelle
 CVS version).  Presently allows Isabelle to configure Proof General.
 
-CURRENTLY SUPPORT FOR CURRENTLY RELEASED ISABELLE VERSIONS IS BROKEN
+CURRENTLY SUPPORT FOR CURRENTLY RELEASED ISABELLE VERSIONS IS BROKEN!
 
+Backward compatibility may not be maintained: it's simply too much
+effort.  This means that if you upgrade your Emacs version, which
+forces you to upgrade Proof General because Emacs upgrades usually
+break Proof General (Emacs authors pay little heed to maintaining
+APIs), then you may have to upgrade your Isabelle version as well.
