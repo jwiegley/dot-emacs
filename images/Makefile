@@ -19,7 +19,7 @@
 ###########################################################################
 
 # Sources
-BUTTONS=goal.xcf next.xcf qed.xcf restart.xcf retract.xcf undo.xcf use.xcf
+BUTTONS=goal.xcf next.xcf qed.xcf restart.xcf retract.xcf undo.xcf use.xcf show.xcf context.xcf info.xcf command.xcf
 WEBPIX=isabelle_transparent.xcf ProofGeneral.xcf pg-text.xcf
 
 # Targets for html directory
@@ -41,7 +41,7 @@ default: all
 
 images: all
 
-all: buttons webpix
+all: buttons backgroundize-xpm webpix
 
 dist:   all install distclean
 
@@ -53,6 +53,9 @@ dist:   all install distclean
 backgroundize-xpm: $(BUTTONS)
 	for f in *.xpm; do sed 's/#BCBCBC"/#BCBCBC s backgroundToolBarColor"/g' $$f > $$f.new; mv $$f.new $$f; done
 
+# NB: gimp sometimes fails with this argument, in case it is built
+# without support for one of the image formats, e.g. xbm.
+# (Happens with gimp from Mandrake 6.0, for example)
 buttons: $(BUTTONS)
 	$(GIMP) '(script-fu-proofgeneral-make-all-buttons 1)' '(gimp-quit 0)'
 	$(MAKE) backgroundize-xpm

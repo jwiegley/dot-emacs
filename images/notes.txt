@@ -24,6 +24,9 @@ Text is lucidafax at point size 8.
 
 blank.xcf -- blank with correct background colour.
 
+Some icons I drew, some I stole from free sources.
+
+
 
 LOGOS
 =====
