@@ -68,7 +68,7 @@
 @ifinfo
 @format
 START-INFO-DIR-ENTRY 
-* Adapting PG: (PG-adapting). How to adapt Proof General for new provers
+* Proof General Adapting: (PG-adapting). How to adapt Proof General for new provers
 END-INFO-DIR-ENTRY
 @end format
 @end ifinfo
