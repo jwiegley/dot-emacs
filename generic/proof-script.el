@@ -47,6 +47,7 @@
 ;; FIXME: *variable* proof-shell-proof-completed is declared in proof-shell
 ;; and used here.  Should be moved to proof.el or removed from here.
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Internal variables used by script mode
 ;;
@@ -56,36 +57,15 @@
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Configuration of func-menu ("fume")	
+;; Configuration of function-menu (aka "fume")	
 ;;
 ;; This code is only enabled if the user loads func-menu into Emacs.
 ;;
+;; da:cleaned
 
 (eval-after-load "func-menu"	'(progn	; BEGIN if func-menu
-;; BEGIN OLD
-;; FIXME da: wasn't this supposed to return a cons of a string
-;; and a buffer position?
-;(defun proof-match-find-next-function-name (buffer)
-;  "General next function name in BUFFER finder using match.
-;The regexp is assumed to be a two item list the car of which is the regexp
-;to use, and the cdr of which is the match position of the function
-;name. Moves point after the match.
-
-;The package fume-func provides the function
-;`fume-match-find-next-function-name' with the same specification.
-;However, fume-func's version is incorrect"
-;  ;; DO NOT USE save-excursion; we need to move point!
-;  ;; save-excursion is called at a higher level in the func-menu
-;  ;; package 
-;    (set-buffer buffer)
-;    (let ((r (car fume-function-name-regexp))
-;	  (p (cdr fume-function-name-regexp)))
-;      (and (re-search-forward r nil t)
-;	   (cons (buffer-substring (setq p (match-beginning p)) (point)) p))))
-;; END OLD.
-
-;; This is actually a fairly general function.
 
 (deflocal proof-script-last-entity nil
   "Record of last entity found.   A hack for entities that are named
@@ -136,6 +116,7 @@ proof-script-next-entity-regexps, which see."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Basic code for the locked region and the queue region            ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; da FIXME: clean this section
 
 (deflocal proof-locked-span nil
   "The locked span of the buffer.
@@ -144,8 +125,8 @@ from the buffer.
 Proof General allows buffers in other modes also to be locked;
 these also have a non-nil value for this variable.")
 
-;; FIXME da: really we only need one queue span rather than one per
-;; buffer, but I've made it local because the initialisation occurs in
+;; da: really we only need one queue span rather than one per buffer,
+;; but I've made it local because the initialisation occurs in
 ;; proof-init-segmentation, which can happen when a file is visited.
 ;; So nasty things might happen if a locked file is visited whilst
 ;; another buffer has a non-empty queue region being processed.
@@ -162,7 +143,7 @@ Otherwise make span give a warning message on edits."
       (span-read-only span)
     (span-write-warning span)))
 
-;; not implemented yet
+;; not implemented yet; toggle via restarting scripting
 ;; (defun proof-toggle-strict-read-only ()
 ;;  "Toggle proof-strict-read-only, changing current spans."
 ;;  (interactive)
@@ -172,21 +153,17 @@ Otherwise make span give a warning message on edits."
 (defun proof-init-segmentation ()
   "Initialise the queue and locked spans in a proof script buffer.
 Allocate spans if need be.  The spans are detached from the
-buffer, so the locked region is made empty by this function."
+buffer, so the regions are made empty by this function."
   ;; Initialise queue span, remove it from buffer.
-  (if (not proof-queue-span)
+  (unless proof-queue-span
       (setq proof-queue-span (make-span 1 1)))
   (set-span-property proof-queue-span 'start-closed t)
   (set-span-property proof-queue-span 'end-open t)
   (proof-span-read-only proof-queue-span)
   (set-span-property proof-queue-span 'face 'proof-queue-face)
   (detach-span proof-queue-span)
-  ;;
-  ;; FIXME da: remove this dead code
-  ;; (setq proof-locked-hwm nil)
-  ;;
-  ;; Initialised locked span, remove it from buffer
-  (if (not proof-locked-span)
+  ;; Initialise locked span, remove it from buffer
+  (unless proof-locked-span
       (setq proof-locked-span (make-span 1 1)))
   (set-span-property proof-locked-span 'start-closed t)
   (set-span-property proof-locked-span 'end-open t)
@@ -260,8 +237,6 @@ Otherwise set the locked region to be from (point-min) to END."
     (set-span-end proof-queue-span end)))
 
 
-
-
 ;; FIXME: get rid of this function.  Some places expect this
 ;; to return nil if locked region is empty.	Moreover,
 ;; it confusingly returns the point past the end of the 
@@ -282,6 +257,7 @@ Only call this from a scripting buffer."
 ;;
 ;; Buffer position functions
 ;;
+;; da:cleaned
 
 (defun proof-unprocessed-begin ()
   "Return end of locked region in current buffer or (point-min) otherwise.
@@ -305,13 +281,14 @@ the script."
 This position should be the first writable position in the buffer.
 An appropriate point to move point to (or make sure is displayed)
 when a queue of commands is being processed."
-  (cond (proof-queue-span
-	 (span-end proof-queue-span))
-	(proof-locked-span
-	 (span-end proof-locked-span))
-	(t
-	 (point-min))))
+  (or	
+   ;; span-end returns nil if span is detatched
+   (and proof-queue-span (span-end proof-queue-span))
+   (and proof-locked-span (span-end proof-locked-span))
+   (point-min)))
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Predicates for locked region.  
@@ -319,6 +296,7 @@ when a queue of commands is being processed."
 ;; These work on any buffer, so that non-script buffers can be locked
 ;; (as processed files) too.
 ;;
+;; da:cleaned
 
 (defun proof-locked-region-full-p ()
   "Non-nil if the locked region covers all the buffer's non-whitespace.
@@ -339,13 +317,48 @@ NB: If nil, point is left at first non-whitespace character found.
 If non-nil, point is left where it was."
   (not (re-search-backward "\\S-" (proof-unprocessed-begin) t)))
 
+(defun proof-in-locked-region-p ()
+  "Non-nil if point is in locked region.  Assumes proof script buffer current."
+  (< (point) (proof-unprocessed-begin)))
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Misc movement functions
+;;
+;; da: cleaned
+
+(defun proof-goto-end-of-locked ()
+  "Jump to the end of the locked region."
+  (goto-char (proof-unprocessed-begin)))
+
+(defun proof-goto-end-of-locked-interactive ()
+  "Switch to proof-script-buffer and jump to the end of the locked region.
+Must be an active scripting buffer."
+  (interactive)
+  (switch-to-buffer proof-script-buffer)
+  (goto-char (proof-unprocessed-begin)))
+
+(defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
+  "If the end of the locked region is not visible, jump to the end of it.
+A possible hook function for proof-shell-handle-error-hook.
+Does nothing if there is no active scripting buffer."
+  (interactive)
+  (if proof-script-buffer
+      (let ((pos (with-current-buffer proof-script-buffer
+		   (proof-locked-end)))
+	    (win (get-buffer-window proof-script-buffer t)))
+	(unless (and win (pos-visible-in-window-p pos))
+	  (proof-goto-end-of-locked-interactive)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Multiple file handling
 ;;
+;;
+;; da:cleaned
 
 (defun proof-mark-buffer-atomic (buffer)
   "Mark BUFFER as having been processed in a single step.
@@ -445,6 +458,7 @@ No effect if the current buffer has no file name."
 ;; Activating and Deactivating Scripting
 ;;
 ;; 
+;; da: cleaned
 
 (defun proof-deactivate-scripting (&optional forcedaction)
   "Deactivate scripting for the active scripting buffer.
@@ -542,8 +556,13 @@ a scripting buffer is killed it is always retracted."
 			    (proof-locked-region-full-p)
 			    (error "%s of %s failed!" 
 				   name proof-script-buffer)))
+		    ;; Give an acknowledgement to user's choice
+		    ;; neither to assert or retract.  
 		    (message "Scripting still active in %s" 
 			     proof-script-buffer)
+		    ;; Delay because this can be followed by an error
+		    ;; message in proof-activate-scripting when trying
+		    ;; to switch to another scripting buffer.
 		    (sit-for 1)
 		    nil)))
 
@@ -675,65 +694,28 @@ should not be nullified!"
 		(proof-locked-region-full-p))
 	    (proof-deactivate-scripting)))))
 
-
 ;;
 ;;  End of activating and deactivating scripting section
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Old function:
-;(defun proof-deactivate-scripting ()
-;  "Deactivate scripting, if the current script buffer is active.
-;Set proof-script-buffer to nil and turn off the modeline indicator.
-;If the locked region doesn't cover the entire file, retract it."
-;  (interactive)
-;  (if (eq (current-buffer) proof-script-buffer)
-;      (let ((bname  (buffer-name proof-script-buffer)))
-;	(message "Turning off scripting in %s..." bname)
-;	(if (proof-locked-region-full-p)
-;	;; If the buffer *was* fully processed, 
-;	;; lets add it into the list of processed files.  
-;	    (if buffer-file-name
-;		(proof-register-possibly-new-processed-file 
-;		 buffer-file-name))
-;	  ;; If the buffer is not fully processed, 
-;	  ;; ensure it's removed from the list of included files
-;	  ;; and retract it if the locked region is non-empty.  
-;	  (goto-char (point-min))
-;	  (proof-unregister-buffer-file-name)
-;	  (unless (proof-locked-region-empty-p)
-;	    (condition-case nil
-;		;; If retraction fails (e.g. proof proc busy), 
-;		;; never mind.
-;		(proof-retract-until-point)
-;	      (error nil))))
-;	;; In any case, turn off the fake minor mode
-;	(setq proof-active-buffer-fake-minor-mode nil)
-;	;; Make status of active scripting buffer show up
-;	;; FIXME da:
-;	;; not really necessary when called by kill buffer, at least.
-;	(if (fboundp 'redraw-modeline)
-;	    (redraw-modeline)
-;	  (force-mode-line-update))
-;	;; And now there is no active scripting buffer
-;	(setq proof-script-buffer nil)
-;	(message "Turning off scripting in %s... done." bname))))
-
-
-
 
 
-;;; begin messy COMPATIBILITY HACKING for FSFmacs.
-;;; 
-;;; In case Emacs is not aware of the function read-shell-command,
-;;; and read-shell-command-map, we duplicate some code adjusted from
-;;; minibuf.el distributed with XEmacs 20.4.
-;;;
-;;; This code is still required as of FSF Emacs 20.2.
-;;;
-;;; I think bothering with this just to give completion for
-;;; when proof-prog-name-ask=t is a big overkill!   - da.
-;;;	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; messy COMPATIBILITY HACKING for FSFmacs.
+;; 
+;; In case Emacs is not aware of the function read-shell-command,
+;; and read-shell-command-map, we duplicate some code adjusted from
+;; minibuf.el distributed with XEmacs 20.4.
+;;
+;; This code is still required as of FSF Emacs 20.2.
+;;
+;; I think bothering with this just to give completion for
+;; when proof-prog-name-ask=t is a big overkill!   - da.
+;;	
+;; FIXME da: check code current in XEmacs 21.1
+
 (defvar read-shell-command-map
   (let ((map (make-sparse-keymap 'read-shell-command-map)))
     (if (not (fboundp 'set-keymap-parents))
@@ -761,41 +743,9 @@ should not be nullified!"
 
 
 ;;; end messy COMPATIBILITY HACKING
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;;
-;; Misc movement functions
-;;
-
-;; FIXME da: these next two functions slightly different, why?
-;; (unprocessed-begin vs proof-locked-end)
-(defun proof-goto-end-of-locked-interactive ()
-  "Switch to proof-script-buffer and jump to the end of the locked region.
-Must be an active scripting buffer."
-  (interactive)
-  (switch-to-buffer proof-script-buffer)
-  (goto-char (proof-locked-end)))
-
-(defun proof-goto-end-of-locked ()
-  "Jump to the end of the locked region."
-  (goto-char (proof-unprocessed-begin)))
-
-(defun proof-in-locked-region-p ()
-  "Non-nil if point is in locked region.  Assumes proof script buffer current."
-  (< (point) (proof-locked-end)))
-
-(defun proof-goto-end-of-locked-if-pos-not-visible-in-window ()
-  "If the end of the locked region is not visible, jump to the end of it.
-A possible hook function for proof-shell-handle-error-hook.
-Does nothing if there is no active scripting buffer."
-  (interactive)
-  (if proof-script-buffer
-      (let* ((pos (save-excursion
-		    (set-buffer proof-script-buffer)
-		    (proof-locked-end))))
-	(or (pos-visible-in-window-p pos (get-buffer-window
-					  proof-script-buffer t))
-	    (proof-goto-end-of-locked-interactive)))))
 
 ;; da: NEW function added 28.10.98.
 ;; This is used by toolbar follow mode (which used to use the function
@@ -852,26 +802,36 @@ the ACS is marked in the current buffer. If CMD does not match any,
 
 (defun proof-done-advancing (span)
   "The callback function for assert-until-point."
-  ;; FIXME da: if the buffer dies, this function breaks.
+  ;; FIXME da: if the buffer dies, this function breaks horribly.
   ;; Needs robustifying.
   (let ((end (span-end span)) nam gspan next cmd)
+    ;; State of spans after advancing: 
     (proof-set-locked-end end)
     (proof-set-queue-start end)
     (setq cmd (span-property span 'cmd))
     (cond
+     ;; Comments just get highlighted
      ((eq (span-property span 'type) 'comment)
       (set-span-property span 'mouse-face 'highlight))
-     ((proof-check-atomic-sequents-lists span cmd end))
+     
+     ;; "ACS" for future implementation
+     ;; ((proof-check-atomic-sequents-lists span cmd end))
+
+     ;; Save command seen, now we'll amalgamate spans.
+     ;; FIXME: for provers which don't allow nested goals,
+     ;; we could spot goal commands here and take the same
+     ;; action assuming (as in Isabelle) that new goal
+     ;; command automatically discards earlier state.
      ((and (proof-string-match proof-save-command-regexp cmd)
-	   (funcall proof-really-save-command-p span cmd))
+	    (funcall proof-really-save-command-p span cmd))
       ;; First, clear the proof completed flag
       (setq proof-shell-proof-completed nil)
-      ;; In coq, we have the invariant that if we've done a save and
-      ;; there's a top-level declaration then it must be the
-      ;; associated goal.  (Notice that because it's a callback it
-      ;; must have been approved by the theorem prover.)
-      (if (proof-string-match proof-save-with-hole-regexp cmd)
-	  (setq nam (match-string 2 cmd)))
+      ;; Try to set the name of the theorem from the save
+      (and proof-save-with-hole-regexp
+	   (proof-string-match proof-save-with-hole-regexp cmd)
+	   (setq nam (match-string 2 cmd)))
+      ;; Search backwards for first goal command, 
+      ;; deleting spans along the way.
       (setq gspan span)
       (while (or (eq (span-property gspan 'type) 'comment)
 		 (not (funcall proof-goal-command-p 
@@ -879,24 +839,32 @@ the ACS is marked in the current buffer. If CMD does not match any,
 	(setq next (prev-span gspan 'type))
 	(delete-span gspan)
 	(setq gspan next))
+      ;; If the name isn't set, try to set it from the goal. 
+      (unless nam
+	  (and proof-goal-with-hole-regexp
+	       (proof-string-match proof-goal-with-hole-regexp
+				   (span-property gspan 'cmd))
+	       (setq nam (match-string 2 (span-property gspan 'cmd)))))
+      ;; As a final desparate attempt, set the name to "Unnamed_thm".
+      ;; FIXME da: maybe this should be prover specific: is
+      ;; "Unnamed_thm" actually a Coq identifier?
+      (unless nam
+	(setq nam "Unnamed_thm"))
 
-      (if (null nam)
-	  (if (proof-string-match proof-goal-with-hole-regexp
-			    (span-property gspan 'cmd))
-	      (setq nam (match-string 2 (span-property gspan 'cmd)))
-	    ;; This only works for Coq, but LEGO raises an error if
-	    ;; there's no name.
-	    ;; FIXME da: maybe this should be prover specific: is
-	    ;; "Unnamed_thm" actually a Coq identifier?
-	    (setq nam "Unnamed_thm")))
-
+      ;; Now make the new goal-save span
       (set-span-end gspan end)
       (set-span-property gspan 'mouse-face 'highlight)
       (set-span-property gspan 'type 'goalsave)
       (set-span-property gspan 'name nam)
 
+      ;; In Coq, we have the invariant that if we've done a save and
+      ;; there's a top-level declaration then it must be the
+      ;; associated goal.  (Notice that because it's a callback it
+      ;; must have been approved by the theorem prover.)
       (and proof-lift-global
 	   (funcall proof-lift-global gspan)))
+
+     ;; Otherwise, some other kind of command.
      (t
       (set-span-property span 'mouse-face 'highlight)
       (and proof-global-p 
