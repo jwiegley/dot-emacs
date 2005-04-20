@@ -1,14 +1,29 @@
-;; coq.el Major mode for Coq proof assistant
+;;; coq.el --- Major mode for Coq proof assistant
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
 ;; Author: Healfdene Goguen
 ;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
 
 ;; $Id$ 
 
+
+;;; Commentary:
+;; 
+
+
+;;; History:
+;; 
+
 (require 'proof)
 (require 'holes-load) ; in lib directory
 ;; coq-syntaxe is required below
 ;; ----- coq-shell configuration options
+
+;;; Code:
+;; debugging functions
+(defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
+(defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
+(defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
+;; End debugging
 
 (defcustom coq-prog-name "coqtop -emacs"
   "*Name of program to run as Coq."
@@ -43,13 +58,11 @@ To disable coqc being called (and use only make), set this to nil."
 (defconst coq-shell-restart-cmd "Reset Initial.\n ")
 
 
-;; NB: da: PG 3.5: added \n here to account for blank line
-;; in Coq output.  (FIXME: Is this OK in Coq pre 8.x?)
-;; Better result for shrinking windows, grabbing shell output
-;; Pierre added the state number here, this is new in Coq.
+;; NB: da: PG 3.5: added \n here to account for blank line in Coq output. 
+;; Better result for shrinking windows, grabbing shell output.
+;; Pierre added the infos in the prompt, this is new in Coq v8-1 (to be released last
+;; quarter of 2005).
 
-; patch provisoire envoye a coqdev:
-;(defvar coq-shell-prompt-pattern (concat "^\n?" proof-id " < "  "\\(?:\\*[0-9]+\\)?")
 (defvar coq-shell-prompt-pattern 
   (concat "^\n?" proof-id " < \\(?:[0-9]+ |\\(?:" proof-id "|?\\)*| " 
           "[0-9]+ < \\)?")
@@ -84,12 +97,12 @@ To disable coqc being called (and use only make), set this to nil."
 
 
 (defcustom coq-tags (concat (coq-library-directory) "/theories/TAGS")
-  "the default TAGS table for the Coq library"
+  "The default TAGS table for the Coq library."
   :type 'string
   :group 'coq)
 
 (defconst coq-interrupt-regexp "User Interrupt."
-  "Regexp corresponding to an interrupt")
+  "Regexp corresponding to an interrupt.")
 
 ;; ----- web documentation
 
@@ -137,7 +150,6 @@ To disable coqc being called (and use only make), set this to nil."
       (holes-set-point-next-hole-destroy))
     )
   )
-;  (completing-read "Section name: " )
 
 ;; ----- outline
 
@@ -151,18 +163,16 @@ To disable coqc being called (and use only make), set this to nil."
 (defvar coq-shell-outline-regexp coq-goal-regexp)
 (defvar coq-shell-outline-heading-end-regexp coq-goal-regexp)
 
+
+;; all these are to be remove when coq > 8.0
+
 (defconst coq-kill-goal-command "Abort. ")
 (defconst coq-forget-id-command "Reset %s. ")
-(defconst coq-back-n-command "Back %s. ") ; Pierre: added 
+(defconst coq-back-n-command "Back %s. ")
 
 
-
-(defconst coq-state-changing-tactics-regexp 
-  (proof-ids-to-regexp coq-state-changing-tactics))
 (defconst coq-state-preserving-tactics-regexp 
   (proof-ids-to-regexp coq-state-preserving-tactics))
-(defconst coq-tactics-regexp
-  (proof-ids-to-regexp coq-tactics))
 (defconst coq-state-changing-commands-regexp
   (proof-ids-to-regexp coq-keywords-state-changing-commands))
 (defconst coq-state-preserving-commands-regexp 
@@ -171,8 +181,6 @@ To disable coqc being called (and use only make), set this to nil."
   (proof-ids-to-regexp coq-keywords-commands))
 (defvar coq-retractable-instruct-regexp 
   (proof-ids-to-regexp coq-retractable-instruct))
-(defvar coq-non-retractable-instruct-regexp
-  (proof-ids-to-regexp coq-non-retractable-instruct))
 
 (defvar coq-keywords-section
   '("Section" "Module\\-+Type" "Declare\\s-+Module" "Module"))
@@ -181,6 +189,7 @@ To disable coqc being called (and use only make), set this to nil."
   (concat "\\(" (proof-ids-to-regexp coq-keywords-section) "\\)")
 ;  "\\(\\<Section\\>\\|\\<Module\\>\\-+\\<Type\\>\\|\\<Module\\>\\)"
 )
+;; End of remove when coq > 8.0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   Derived modes - they're here 'cos they define keymaps 'n stuff ;;
@@ -216,23 +225,25 @@ To disable coqc being called (and use only make), set this to nil."
 ;; da: have now combined count-undos and find-and-forget, they're the
 ;; same now we deal with nested proofs and send general sequence
 ;; "Abort. ... Abort. BackTo n. Undo n."
-;;
+;; pc: now we do even better: "Backtrack n m p. " based on infos in 
+;; the prompt.
+
+;; All this is to be removed when coq > 8.0 (until the "End remove" below)
 
 (defconst coq-keywords-decl-defn-regexp
   (proof-ids-to-regexp (append coq-keywords-decl coq-keywords-defn))
   "Declaration and definition regexp.")
 
 (defun coq-proof-mode-p ()
-  "Allows to know if we are currentlly in proof mode. 
+  "Allow to know if we are currentlly in proof mode. 
 Look at the last line of the *coq* buffer to see if the prompt is the
-toplevel \"Coq <\". Returns nil if yes. This assumes that no
+toplevel \"Coq <\".  Returns nil if yes.  This assumes that no
 \"Resume\" or \"Suspend\" command has been used."
   (not (string-match "^Coq < " proof-shell-last-prompt)))
 
 
 ;; DA: rewrote to combine behaviour with count-undos, to work with
 ;; nested proofs.
-
 
 (defun coq-is-comment-or-proverprocp (span) 
   (memq (span-property span 'type) '(comment proverproc)))
@@ -263,9 +274,6 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
   (and (not (coq-command-p str)) 
        (not (coq-state-preserving-tactic-p str)))
   )
-;  (proof-string-match 
-;   (concat "\\(\\`\\|\\`abstract\\s-+\\)\\(" 
-;           coq-state-changing-tactics-regexp "\\)") str))
 
 
 (defun coq-state-changing-command-p (str)
@@ -279,10 +287,12 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
    (concat "\\`" coq-section-regexp 
            "\\s-+\\(" proof-id "\\)\\(\\s-*\\(" proof-id "\\)\\)?") str)) 
 
+;; End of remove when coq > 8.0
+
 
 ;; make this non recursive?
 (defun build-list-id-from-string (s)
-  "Build a list of string from a string of the form \"id1|id2|...|idn\"."
+  "Build a list of string from a string S of the form \"id1|id2|...|idn\"."
   (if (or (not s) (string= s "")) '()
     (let ((x (string-match (concat "\\(" coq-id-shy "\\)\\(?:|\\|\\'\\)\\(.*\\)") s)))
       (if (not x) (error "cannot extract list of ids from string")
@@ -312,45 +322,48 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
 
 
 (defun coq-last-prompt-info-safe ()
-  "Read the last prompt in the coq process buffer and build a list containing the
-state number, the proof stack depth, and the names of all pending proofs (in a list)."
-  (coq-last-prompt-info proof-shell-last-prompt)
-  )
+  "Return a list with all informations from the last prompt.
+The list contains the state number, the proof stack depth, and the names of all
+pending proofs (in a list)."
+
+(coq-last-prompt-info proof-shell-last-prompt) )
 
 ;; The state number we want to put in a span is the prompt number given *just before*
 ;; the command was sent. This variable remembers this number and will be updated when
 ;; used see coq-set-state-number. Initially 1 because Coq initial state has number 1.
 (defvar coq-last-but-one-statenum 1)
+;; same for proof stack depth
 (defvar coq-last-but-one-proofnum 1)
+;;same for pending proofs
 (defvar coq-last-but-one-proofstack '())
 
 (defun coq-get-span-statenum (span)
-  "Returns the state number of the span."
+  "Return the state number of the SPAN."
   (span-property span 'statenum)
   )
 
 (defun coq-get-span-proofnum (span)
-  "Returns the proof number of the span."
+  "Return the proof number of the SPAN."
   (span-property span 'proofnum)
   )
 
 (defun coq-get-span-proofstack (span)
-  "Returns the proof stack (names of pending proofs) of the span."
+  "Return the proof stack (names of pending proofs) of the SPAN."
   (span-property span 'proofstack)
   )
 
 (defun coq-set-span-statenum (span val)
-  "Sets the state number of the span to val."
+  "Set the state number of the SPAN to VAL."
   (set-span-property span 'statenum val)
   )
 
 (defun coq-set-span-proofnum (span val)
-  "Sets the proof number of the span to val."
+  "Set the proof number of the SPAN to VAL."
   (set-span-property span 'proofnum val)
   )
 
 (defun coq-set-span-proofstack (span val)
-  "Sets the proof stack (names of pending proofs) of the span to val."
+  "Set the proof stack (names of pending proofs) of the SPAN to VAL."
   (set-span-property span 'proofstack val)
   )
 
@@ -369,14 +382,11 @@ state number, the proof stack depth, and the names of all pending proofs (in a l
 
 ;;TODO update docstring and comment
 
-(defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
-
 (defun coq-set-state-infos ()
-  "Sets the last locked span's state number to the number found in the *last but one*
-  prompt (variable `coq-last-but-one-statenum'), unless it has already a state
-  number. Also updates `coq-last-but-one-statenum' to the last state number because
-  next time this function will be called, a new prompt will be in
-  `proof-shell-last-prompt'."
+  "Set the last locked span's state number to the number found last time.
+This number is in the *last but one* prompt (variable `coq-last-but-one-statenum').
+If locked span already has a state number, thne do nothing. Also updates
+`coq-last-but-one-statenum' to the last state number for next time."
   (if (and proof-shell-last-prompt proof-script-buffer)
       (let ((sp    (proof-last-locked-span))
             (infos (or (coq-last-prompt-info-safe) '(0 0 nil)))
@@ -404,7 +414,7 @@ state number, the proof stack depth, and the names of all pending proofs (in a l
           '(lambda () (if coq-version-is-V8-1 (coq-set-state-infos))))
 
 (defun count-not-intersection (l notin)
-  "Return the number of elts of l that are not in notin."
+  "Return the number of elts of L that are not in NOTIN."
   
   (let ((l1 l) (l2 notin) (res 0))
     (while l1
@@ -426,15 +436,16 @@ state number, the proof stack depth, and the names of all pending proofs (in a l
 ;;                                          special char
 ;; exemple:
 ;; to go (back) from 12 |lema1|lema2...|leman| xx
-;; to                8 ||lemb1|lemb2...|lembm| 5
-;; we must do "Backtrack 8 naborts 5" 
+;; to                8  |lemb1|lemb2...|lembm| 5
+;; we must do "Backtrack 8 5 naborts" 
 ;; where naborts is the number of lemais that are not lembis
 
-;; Rem: We could deal with suspend and resume with more work (we would need a new coq
-;; command, because it is better to backtrack with *one* command).
+;; Rem: We could deal with suspend and resume with more work. We would need a new coq
+;; command, because it is better to backtrack with *one* command (because
+;; proof-change-hook used above is not exactly called at right times).
 
 (defun  coq-find-and-forget-v81 (span)
-  "backtrack to SPAN."
+  "Backtrack to SPAN.  Using the \"Backtrack n m p\" coq command."
   (let* (str ans (naborts 0) (nundos 0)
             (proofdepth (coq-get-span-proofnum span))
             (proofstack (coq-get-span-proofstack span))
@@ -455,6 +466,7 @@ state number, the proof stack depth, and the names of all pending proofs (in a l
     )
   )
 
+;; to be removed when coq > 8.0
 
 (defun coq-find-and-forget-v80 (span)
   (let (str ans (naborts 0) (nbacks 0) (nundos 0))
@@ -547,8 +559,15 @@ state number, the proof stack depth, and the names of all pending proofs (in a l
 						 ; with "\n")
       ans))))
 
+;; end of remove when coq > 8.0
+
 ;; I don't like this but it make compilation possible
+;; when > 8.0: adapt
 (defun coq-find-and-forget (span)
+  "Go back to SPAN.
+This function calls `coq-find-and-forget-v81' or
+`coq-find-and-forget-v80' depending on the variables `coq-version-is-V8-1' and
+`coq-version-is-V8-0', if none is set, then it default to `coq-find-and-forget-v80'."
  (cond 
   (coq-version-is-V8-1 (coq-find-and-forget-v81 span))
   (coq-version-is-V8-0 (coq-find-and-forget-v80 span))
@@ -557,7 +576,7 @@ state number, the proof stack depth, and the names of all pending proofs (in a l
  )  
 
 (defvar coq-current-goal 1
-  "Last goal that emacs looked at.")
+  "Last goal that Emacs looked at.")
 
 (defun coq-goal-hyp ()
   (cond 
@@ -572,6 +591,7 @@ state number, the proof stack depth, and the names of all pending proofs (in a l
     (cons 'hyp (match-string 1)))
    (t nil)))
 
+;; ??? remove when coq > 8.0 ???
 (defun coq-state-preserving-p (cmd)
   (not (proof-string-match coq-retractable-instruct-regexp cmd)))
 
@@ -580,8 +600,8 @@ state number, the proof stack depth, and the names of all pending proofs (in a l
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun coq-SearchIsos ()
-  "Search a term whose type is isomorphic to given type
-This is specific to coq-mode."
+  "Search a term whose type is isomorphic to given type.
+This is specific to `coq-mode'."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
@@ -600,7 +620,7 @@ This is specific to coq-mode."
   )
 
 (defun coq-Print ()
-  "Ask for an ident and print the corresponding term"
+  "Ask for an ident and print the corresponding term."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
@@ -609,7 +629,7 @@ This is specific to coq-mode."
      (format "Print %s. " cmd))))
 
 (defun coq-Check ()
-  "Ask for a term and print its type"
+  "Ask for a term and print its type."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
@@ -618,7 +638,7 @@ This is specific to coq-mode."
      (format "Check %s. " cmd))))
 
 (defun coq-Show ()
-  "Ask for a number i and show the ith goal"
+  "Ask for a number i and show the ith goal."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
@@ -639,7 +659,7 @@ This is specific to coq-mode."
 
 
 (defun coq-PrintHint ()
-  "Print all hints applicable to the current goal"
+  "Print all hints applicable to the current goal."
   (interactive)
   (proof-shell-invisible-command "Print Hint. "))
 
@@ -663,7 +683,7 @@ This is specific to coq-mode."
       (insert (concat "End" section)))))
 
 (defun coq-Compile ()
-  "compiles current buffer"
+  "Compiles current buffer."
   (interactive)
   (let* ((n (buffer-name))
 	 (l (string-match ".v" n)))
@@ -707,56 +727,13 @@ Based on idea mentioned in Coq reference manual."
 
 ;; FIXME mmw: code disabled; Is the new indentation scheme general
 ;; enough to handle Coq as well?
-
-;;; "Case" is represented by 'c' on the stack, and
-;;; "CoInductive" is represented by 'C'.
-;(defun coq-stack-to-indent (stack)
-;  (cond
-;   ((null stack) 0)
-;   ((null (car (car stack)))
-;    (nth 1 (car stack)))
-;   (t (let ((col (save-excursion
-;		   (goto-char (nth 1 (car stack)))
-;		   (current-column))))
-;	(cond
-;	 ((eq (car (car stack)) ?c)
-;	  (save-excursion (move-to-column (current-indentation))
-;			  (cond 
-;			   ((eq (char-after (point)) ?|) (+ col 3))
-;			   ((proof-looking-at "end") col)
-;			   (t (+ col 5)))))	  
-;	 ((or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C))
-;	  (+ col (if (eq ?| (save-excursion 
-;			      (move-to-column (current-indentation))
-;			      (char-after (point)))) 2 4)))
-;	 (t (1+ col)))))))
-;
-;(defun coq-parse-indent (c stack)
-;  (cond
-;   ((eq c ?C)
-;    (cond ((proof-looking-at "Case")
-;	   (cons (list ?c (point)) stack))
-;	  ((proof-looking-at "CoInductive")
-;	   (forward-char (length "CoInductive"))
-;	   (cons (list c (- (point) (length "CoInductive"))) stack))
-;	  (t stack)))
-;   ((and (eq c ?e) (proof-looking-at "end") (eq (car (car stack)) ?c))
-;    (cdr stack))
-;
-;   ((and (eq c ?I) (proof-looking-at "Inductive"))
-;    (forward-char (length "Inductive"))
-;    (cons (list c (- (point) (length "Inductive"))) stack))
-;
-;   ((and (eq c ?.) (or (eq (car (car stack)) ?I) (eq (car (car stack)) ?C)))
-;    (cdr stack))
-;
-;   (t stack)))
+;; pc: no, this is now in coq-indent
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;    To guess the command line options   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun coq-guess-command-line (filename)
-  "Guess the right command line options to compile FILENAME using `make -n'"
+  "Guess the right command line options to compile FILENAME using `make -n'."
   (let ((dir (file-name-directory filename)))
     (if (file-exists-p (concat dir "Makefile"))
 	(let* 
@@ -1204,11 +1181,9 @@ mouse activation."
 
 (provide 'coq)
 
+;;   Local Variables: ***
+;;   fill-column: 85 ***
+;;   indent-tabs-mode:nil ***
+;;   End: ***
 
-;;;   Local Variables: ***
-;;;   tab-width:2 ***
-;;;   fill-column: 85 ***
-;;;   indent-tabs-mode:nil ***
-;;;   End: ***
-
-
+;;; coq.el ends here
