@@ -51,7 +51,8 @@ To disable coqc being called (and use only make), set this to nil."
 ; patch provisoire envoye a coqdev:
 ;(defvar coq-shell-prompt-pattern (concat "^\n?" proof-id " < "  "\\(?:\\*[0-9]+\\)?")
 (defvar coq-shell-prompt-pattern 
-  (concat "^\n?" proof-id " < "  "\\(?:\\*[0-9]+\\)?")
+  (concat "^\n?" proof-id " < \\(?:[0-9]+ |\\(?:" proof-id "|?\\)*| " 
+          "[0-9]+ < \\)?")
   "*The prompt pattern for the inferior shell running coq.")
 
 ;; FIXME da: this was disabled (set to nil) -- why?
@@ -279,35 +280,78 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
            "\\s-+\\(" proof-id "\\)\\(\\s-*\\(" proof-id "\\)\\)?") str)) 
 
 
-;;New: using the statenumber inside the coq prompte to backtrack more easily
-;;FIXME: make this more robust and faster
-(defun coq-last-statenum (s)
-  "reads the last prompt state number in the coq process buffer. It is supposed that
-  we are already in the coq buffer."
-  (let* ((lastprompt (or s (error "no prompt !!?")))
-         (s (string-match "< \\*\\([0-9]+\\)ù" lastprompt)))
-    (string-to-int (match-string 1 lastprompt))
+;; make this non recursive?
+(defun build-list-id-from-string (s)
+  "Build a list of string from a string of the form \"id1|id2|...|idn\"."
+  (if (or (not s) (string= s "")) '()
+    (let ((x (string-match (concat "\\(" coq-id-shy "\\)\\(?:|\\|\\'\\)\\(.*\\)") s)))
+      (if (not x) (error "cannot extract list of ids from string")
+        (cons (match-string 1 s)
+              (build-list-id-from-string (match-string 2 s))
+              )))
     )
   )
 
-(defun coq-last-statenum-safe ()
-  "See `coq-last-statenum'."
-  (coq-last-statenum proof-shell-last-prompt)
+;;New: using the statenumber inside the coq prompte to backtrack more easily
+;; This function returns
+(defun coq-last-prompt-info (s)
+  "Extract informations from the coq prompt S.  See `coq-last-prompt-info-safe'."
+  (let* ((lastprompt (or s (error "no prompt !!?")))
+         (regex 
+          (concat "\\(" coq-id-shy "\\) < \\([0-9]+\\) |\\(\\(?:" coq-id-shy
+                  "|?\\)*\\)| \\([0-9]+\\) < "))
+         (s (string-match regex lastprompt))
+         (lprf (match-string 3 lastprompt))
+         )
+    (message lprf)
+    (cons (string-to-int (match-string 2 lastprompt))
+          (cons (string-to-int (match-string 4 lastprompt))
+                (cons (build-list-id-from-string lprf) nil)))
+    )
+  )
+
+
+(defun coq-last-prompt-info-safe ()
+  "Read the last prompt in the coq process buffer and build a list containing the
+state number, the proof stack depth, and the names of all pending proofs (in a list)."
+  (coq-last-prompt-info proof-shell-last-prompt)
   )
 
 ;; The state number we want to put in a span is the prompt number given *just before*
 ;; the command was sent. This variable remembers this number and will be updated when
 ;; used see coq-set-state-number. Initially 1 because Coq initial state has number 1.
 (defvar coq-last-but-one-statenum 1)
+(defvar coq-last-but-one-proofnum 1)
+(defvar coq-last-but-one-proofstack '())
 
 (defun coq-get-span-statenum (span)
   "Returns the state number of the span."
   (span-property span 'statenum)
   )
 
+(defun coq-get-span-proofnum (span)
+  "Returns the proof number of the span."
+  (span-property span 'proofnum)
+  )
+
+(defun coq-get-span-proofstack (span)
+  "Returns the proof stack (names of pending proofs) of the span."
+  (span-property span 'proofstack)
+  )
+
 (defun coq-set-span-statenum (span val)
   "Sets the state number of the span to val."
   (set-span-property span 'statenum val)
+  )
+
+(defun coq-set-span-proofnum (span val)
+  "Sets the proof number of the span to val."
+  (set-span-property span 'proofnum val)
+  )
+
+(defun coq-set-span-proofstack (span val)
+  "Sets the proof stack (names of pending proofs) of the span to val."
+  (set-span-property span 'proofstack val)
   )
 
 (defun proof-last-locked-span () 
@@ -323,74 +367,91 @@ toplevel \"Coq <\". Returns nil if yes. This assumes that no
 ;; the last one has been sent by Coq *after* the change. We use
 ;; `coq-last-but-one-statenum' instead and then update it.
 
-(defun coq-set-state-number ()
+;;TODO update docstring and comment
+
+(defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
+
+(defun coq-set-state-infos ()
   "Sets the last locked span's state number to the number found in the *last but one*
   prompt (variable `coq-last-but-one-statenum'), unless it has already a state
   number. Also updates `coq-last-but-one-statenum' to the last state number because
   next time this function will be called, a new prompt will be in
   `proof-shell-last-prompt'."
   (if (and proof-shell-last-prompt proof-script-buffer)
-      (let ((sp (proof-last-locked-span)))
+      (let ((sp    (proof-last-locked-span))
+            (infos (or (coq-last-prompt-info-safe) '(0 0 nil)))
+            )
         (unless (or (not sp) (coq-get-span-statenum sp))
           (coq-set-span-statenum sp coq-last-but-one-statenum))
-        (setq coq-last-but-one-statenum (coq-last-statenum-safe))
+        (setq coq-last-but-one-statenum (car infos))
+        ;; testing proofstack=nil is not good here because nil is the empty list OR
+        ;; the no value, so we test proofnum as it is always set at the same time.
+        ;; This is why this test is done before the next one (which sets proofnum)
+        (unless (or (not sp) (coq-get-span-proofnum sp))
+          (coq-set-span-proofstack sp coq-last-but-one-proofstack))
+        (setq coq-last-but-one-proofstack (car (cdr (cdr infos))))
+        (unless (or (not sp) (coq-get-span-proofnum sp))
+          (coq-set-span-proofnum sp coq-last-but-one-proofnum))
+        (setq coq-last-but-one-proofnum (car (cdr infos)))
         )
     )
   )
 
-;; This hook seems the one we want (if we are in V8.1 mode only):
+;; This hook seems the one we want (if we are in V8.1 mode only).  
+;; WARNING! It is applied once after each command PLUS once before a group of
+;; commands is started
 (add-hook 'proof-state-change-hook 
-          '(lambda () (if coq-version-is-V8-1 (coq-set-state-number))))
+          '(lambda () (if coq-version-is-V8-1 (coq-set-state-infos))))
 
+(defun count-not-intersection (l notin)
+  "Return the number of elts of l that are not in notin."
+  
+  (let ((l1 l) (l2 notin) (res 0))
+    (while l1
+      (if (member (car l1) l2) ()
+        (setq res (+ res 1))) ; else
+      (setq l1 (cdr l1)))
+    res
+    ))
 
-;; Simplified version of backtracking which uses state numbers
-(defun coq-find-and-forget-v81 (span)
-  (let (str ans (naborts 0) (nundos 0) 
-            (span-staten (coq-get-span-statenum span)))
-    ;; go from the top of the backtracked region to the bottom
-    ;; and computes naborts and nundos
-    (while (and span (not ans))
-      (setq str (span-property span 'cmd))
-      (cond
-       ((coq-is-comment-or-proverprocp span)) ; do nothing for comments
-       ;; unsaved goal --> increment naborts 
-       ;; (modules are "goals" but not here (they don't need abort, just backto, even
-       ;;  if unclosed))
-       ((and (not (coq-is-goalsave-p span)) 
-             (coq-goal-command-p str)
-             (not (coq-section-or-module-start-p str))) 
-        (incf naborts))
-       ;; if nabort<>0 then current goal is actually aborted
-       ((and (coq-proof-mode-p) (coq-state-changing-tactic-p str) (= naborts 0))
-        (incf nundos))
-       ;; default case: command or state preserving tactic, do nothing (BackTo will
-       ;; deal with this)
-       (t ())
-       )
-      ;;go to next span
-      (setq span (next-span span 'type))
-      )
-    ;;let's build the backtrack command now:
-    (let (last-staten)
-      (setq last-staten (coq-last-statenum-safe))
-      (setq ans
-            (concat
-             (if (> naborts 0)
-                 ;; ugly, but blame Coq
-                 (let ((aborts "Abort. "))
-                   (while (> (decf naborts) 0) (setq aborts (concat "Abort. " aborts)))
-                   aborts))
-             (if (> nundos 0) 
-                 (concat "Undo " (int-to-string nundos) ". "))
-             (if (and span-staten last-staten (not (= span-staten last-staten))) 
-                 (concat "BackTo " (int-to-string span-staten) ". "))
-             ))
-      (if (string-equal ans "") proof-no-command ; not here because if
-        ;; we backtrack a state preserving command, we must do
-        ;; *nothing*, not even a CR (in v74, no prompt is returned
-        ;; with "\n")
-        ans)
-      )
+;; Simplified version of backtracking which uses state numbers, proof stack depth and
+;; pending proofs put inside the coq (> v8.1) prompt. It uses the new coq command
+;; "Backtrack". The prompt is like this:
+;;      state                        proof stack
+;;      num                           depth
+;;       __                              _
+;; aux < 12 |aux|SmallStepAntiReflexive| 4 < ù
+;; ^^^^^^   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^     ^
+;; usual           pending proofs           usual 
+;;                                          special char
+;; exemple:
+;; to go (back) from 12 |lema1|lema2...|leman| xx
+;; to                8 ||lemb1|lemb2...|lembm| 5
+;; we must do "Backtrack 8 naborts 5" 
+;; where naborts is the number of lemais that are not lembis
+
+;; Rem: We could deal with suspend and resume with more work (we would need a new coq
+;; command, because it is better to backtrack with *one* command).
+
+(defun  coq-find-and-forget-v81 (span)
+  "backtrack to SPAN."
+  (let* (str ans (naborts 0) (nundos 0)
+            (proofdepth (coq-get-span-proofnum span))
+            (proofstack (coq-get-span-proofstack span))
+            (span-staten (coq-get-span-statenum span))
+            (naborts (count-not-intersection coq-last-but-one-proofstack proofstack))
+            )
+    (setq ans
+          (format "Backtrack %s %s %s. " 
+                  (int-to-string span-staten)
+                  (int-to-string proofdepth)
+                  naborts)
+          )
+    (if (string-equal ans "") proof-no-command ; not here because if
+      ;; we backtrack a state preserving command, we must do
+      ;; *nothing*, not even a CR (in v74, no prompt is returned
+      ;; with "\n")
+      ans)
     )
   )
 

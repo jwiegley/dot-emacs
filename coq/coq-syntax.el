@@ -576,6 +576,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   "A regexp indicating that the Coq process has identified an error.")
 
 (defvar coq-id proof-id)
+(defvar coq-id-shy "\\(?:\\w\\(?:\\w\\|\\s_\\)*\\)")
 
 (defvar coq-ids (proof-ids coq-id))
 
