@@ -5,7 +5,7 @@
   (interactive)
   (describe-variable 'holes-doc))
 
-;#s are replaced by holes by holes-abbrev-complete
+;#s and @{..} are replaced by holes by holes-abbrev-complete
 (if (boundp 'holes-abbrev-complete)
 	 ()
   (define-abbrev-table 'coq-mode-abbrev-table
@@ -267,6 +267,7 @@
      ["generalize             g<C-BS>"  (holes-insert-and-expand "g") t]
      ["induction              ind<C-BS>"  (holes-insert-and-expand "ind") t]
      ["injection              inj<C-BS>"  (holes-insert-and-expand "inj") t]
+     ["intro (smart)" coq-intros t]
      ["intro                  i<C-BS>"  (holes-insert-and-expand "i") t]
      ["intros                 is<C-BS>"  (holes-insert-and-expand "is") t]
      ["intuition              intu<C-BS>"  (holes-insert-and-expand "intu") t]
@@ -297,10 +298,11 @@
     ;; FIXME: submenus should be split off here.  Also, these commands
     ;; should only be available when a proof is open.
     ("Show"
-     ["Show ith goal..." coq-Show t]
-     ["Show Tree" coq-show-tree t]
-     ["Show Proof" coq-show-proof t]
-     ["Show Conjectures" coq-show-conjectures t]) ;; maybe not so useful with editing in PG?
+     ["ith goal..." coq-Show t]
+     ["Tree" coq-show-tree t]
+     ["Proof" coq-show-proof t]
+     ["Conjectures" coq-show-conjectures t] ;; maybe not so useful with editing in PG?
+     ["Hints" coq-PrintHint t])
 
     ("Holes" 
      ;; da: I tidied this menu a bit.  I personally think this "trick"
@@ -333,8 +335,10 @@
       :selected (and (boundp 'abbrev-mode) abbrev-mode)])
     ;; With all these submenus you have to wonder if these things belong
     ;; on the main menu.  Are they the most often used?
-    ["Insert intros" coq-intros t]
+    ["Smart intros" coq-intros t]
     ["Print..." coq-Print t]
+    ["Print Implicit..." coq-Print t]
+    ["About..." coq-About t]
     ["Check..." coq-Check t]
     ["Hints" coq-PrintHint t]
     ["Search isos/pattern..." coq-SearchIsos t]

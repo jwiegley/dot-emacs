@@ -605,46 +605,51 @@ This is specific to `coq-mode'."
   (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
-    (setq cmd (read-string "SearchPattern: " nil 'proof-minibuffer-history))
+    (setq cmd (read-string "SearchPattern ex: (?X1 + _ = _ + ?X1) : " "(" 'proof-minibuffer-history))
     (proof-shell-invisible-command (format "SearchPattern %s. " cmd))))
 
 
 (defun coq-guess-or-ask-for-string (s)
   (let ((guess
-			(if (region-exists-p) 
-				 (buffer-substring-no-properties (region-beginning) (region-end))
-				 (symbol-near-point))))
-	 (read-string 
-	  (if guess (concat s " (" guess "):")(concat s ":"))
-	 nil 'proof-minibuffer-history guess))
+         (if (region-exists-p) 
+             (buffer-substring-no-properties (region-beginning) (region-end))
+           (symbol-near-point))))
+    (read-string 
+     (if guess (concat s " (" guess "):")(concat s ":"))
+     nil 'proof-minibuffer-history guess))
   )
 
-(defun coq-Print ()
+(defun coq-ask-do (ask do)
   "Ask for an ident and print the corresponding term."
-  (interactive)
   (let (cmd)
     (proof-shell-ready-prover) 
-    (setq cmd (coq-guess-or-ask-for-string "Print"))
+    (setq cmd (coq-guess-or-ask-for-string "ask"))
     (proof-shell-invisible-command
-     (format "Print %s. " cmd))))
+     (format (concat do " %s. ") cmd)))  
+  ) 
+
+(defun coq-Print () "Ask for an ident and print the corresponding term."
+  (interactive)
+  (coq-ask-do "Print: " "Print"))
+
+(defun coq-About () "Ask for an ident and print information on it."
+  (interactive)
+  (coq-ask-do "About: " "About"))
+
+(defun coq-Print-implicit ()
+  "Ask for an ident and print the corresponding term."
+  (interactive)
+  (coq-ask-do "Print Implicit: " "Print Implicit"))
 
 (defun coq-Check ()
   "Ask for a term and print its type."
   (interactive)
-  (let (cmd)
-    (proof-shell-ready-prover) 
-    (setq cmd (coq-guess-or-ask-for-string "Check"))
-    (proof-shell-invisible-command
-     (format "Check %s. " cmd))))
+  (coq-ask-do "Check: " "Check"))
 
 (defun coq-Show ()
   "Ask for a number i and show the ith goal."
   (interactive)
-  (let (cmd)
-    (proof-shell-ready-prover) 
-    (setq cmd (read-string "Show Goal number: " nil 'proof-minibuffer-history))
-    (proof-shell-invisible-command
-     (format "Show %s. " cmd))))
+  (coq-ask-do "Show goal number: " "Show"))
 
 
 (proof-definvisible coq-PrintHint "Print Hint. ")
@@ -653,9 +658,7 @@ This is specific to `coq-mode'."
 (proof-definvisible coq-show-tree "Show Tree.")
 (proof-definvisible coq-show-proof "Show Proof.")
 (proof-definvisible coq-show-conjectures "Show Conjectures.")
-(proof-definvisible coq-show-intros "Show Intros.")
-;; Coq ref manual says of show intro: "with an appropriate Proof General macro"... can 
-;; we have it to add to PG, please?
+(proof-definvisible coq-show-intros "Show Intros.") ; see coq-intros below
 
 
 (defun coq-PrintHint ()
@@ -712,6 +715,7 @@ Based on idea mentioned in Coq reference manual."
 (define-key coq-keymap [(control ?e)] 'coq-end-Section)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
 (define-key coq-keymap [(control ?p)] 'coq-Print)
+(define-key coq-keymap [(control ?b)] 'coq-About)
 (define-key coq-keymap [(control ?c)] 'coq-Check)
 (define-key coq-keymap [(control ?h)] 'coq-PrintHint)
 ;; da: I've moved this three buffer layout into the main code now,
