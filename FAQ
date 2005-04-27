@@ -275,12 +275,18 @@ A. There are X-Symbol fonts at sizes of 12, 14, 18 and 24.  The standard size
 
 -----------------------------------------------------------------
 
+Q. The "Favourites" feature to insert/send fixed strings is great, 
+   but I'd like to define a command which takes arguments.
 
-Q. I see spurious ^M characters at the end of lines in the 
-   windows showing output from the prover.  How can I remove
-   them?
+A. You can do that in Elisp with a command like this: 
 
-A. Customize the value of `proof-shell-strip-crs-from-output'.
+    (proof-definvisible isar-theorem
+      '(format "thm %s" (read-string "theorem: "))
+       [(control t)])
+
+   (NB: it binds the key C-c C-a C-t).  See the documentation for
+   `proof-definvisible' and `proof-defshortcut`.
+
 
 -----------------------------------------------------------------
 
@@ -292,6 +298,15 @@ A. Your Emacs session has loaded a version of xml.el from somewhere other
    Proof General before other Emacs packages which use xml.el, such as GNUS.
 
 -----------------------------------------------------------------
+
+Q. I see spurious ^M characters at the end of lines in the 
+   windows showing output from the prover.  How can I remove
+   them?
+
+A. Customize the value of `proof-shell-strip-crs-from-output'.
+
+-----------------------------------------------------------------
+
 
 Q. Can I join any mailing lists for Proof General?
 
