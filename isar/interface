@@ -27,10 +27,11 @@ usage()
   echo
   echo "  Options are:"
   echo "    -I BOOL      use Isabelle/Isar instead of classic Isabelle (default $ISAR)"
+  echo "    -L NAME      abbreviates -l NAME -k NAME"
   echo "    -P BOOL      actually start Proof General (default true), otherwise"
   echo "                 run plain tty session"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
-  echo "    -f SIZE      set X-Symbol font size (default 14)"
+  echo "    -f SIZE      set X-Symbol font size (default 12)"
   echo "    -g GEOMETRY  specify Emacs geometry"
   echo "    -k NAME      use specific isar-keywords for named logic"
   echo "    -l NAME      logic image name (default \$ISABELLE_LOGIC=$ISABELLE_LOGIC)"
@@ -74,11 +75,15 @@ XSYMBOL_FONTSIZE="12"
 getoptions()
 {
   OPTIND=1
-  while getopts "I:P:X:f:g:k:l:m:p:u:w:x:" OPT
+  while getopts "I:L:P:X:f:g:k:l:m:p:u:w:x:" OPT
   do
     case "$OPT" in
       I)
         ISAR="$OPTARG"
+        ;;
+      L)
+        KEYWORDS="$OPTARG"
+        LOGIC="$OPTARG"
         ;;
       P)
         START_PG="$OPTARG"
@@ -228,12 +233,11 @@ else
       ;;
   esac
   
-  PROOFGENERAL_HOME="$SUPER"
-  PROOFGENERAL_ASSISTANTS="$KIND"
-  PROOFGENERAL_LOGIC="$LOGIC"
-  PROOFGENERAL_XSYMBOL="$XSYMBOL"
-  
-  export PROOFGENERAL_HOME PROOFGENERAL_ASSISTANTS PROOFGENERAL_LOGIC PROOFGENERAL_XSYMBOL
+  export PROOFGENERAL_HOME="$SUPER"
+  export PROOFGENERAL_ASSISTANTS="$KIND"
+  export PROOFGENERAL_LOGIC="$LOGIC"
+  export PROOFGENERAL_XSYMBOL="$XSYMBOL"
+ 
   export ISABELLE_OPTIONS XSYMBOL_FONTSIZE
   
   eval exec "$PROGNAME" "$ARGS" "$FILES"
