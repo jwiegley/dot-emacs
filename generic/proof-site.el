@@ -129,7 +129,7 @@ You can use customize to set this variable."
 
 ;;    (hol98	"HOL"		"\\.sml$")
     (acl2	"ACL2"		"\\.acl2$")
-    (twelf	"Twelf"		"\\.elf$")
+    ;; (twelf	"Twelf"		"\\.elf$")
     ;; The following provers have experimental support, WIP
     (plastic	"Plastic"	"\\.lf$")
     (lclam      "Lambda-CLAM"   "\\.lcm$")
