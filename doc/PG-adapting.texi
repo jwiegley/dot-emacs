@@ -2595,7 +2595,7 @@ constants but which may be nice to tweak.
 
 The first group appears in the menu
 @lisp
-  ProofGeneral -> Customize -> <PA> 
+  ProofGeneral -> Advanced -> Customize -> <PA> 
 @end lisp
 The second group appears in the menu:
 @lisp
@@ -4030,7 +4030,7 @@ Proof General.
 ;;			   (constants, but may be nice to tweak)
 ;;
 ;; The first group appears in the menu
-;;   ProofGeneral -> Customize -> Isabelledemo 
+;;   ProofGeneral -> Advanced -> Customize -> Isabelledemo 
 ;; The second group appears in the menu:
 ;;   ProofGeneral -> Internals -> Isabelledemo config
 ;;

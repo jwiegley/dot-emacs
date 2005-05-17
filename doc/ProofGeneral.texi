@@ -2161,7 +2161,7 @@ terminology) is controlled by its own customization setting.
 You can display a list of all of them using the customize
 menu: 
 @lisp
-Proof General -> Customize -> Faces -> Proof Faces.
+Proof General -> Advanced -> Customize -> Faces -> Proof Faces.
 @end lisp
 
 
@@ -2491,7 +2491,7 @@ Proof General uses the Emacs customization library to provide a friendly
 interface.  You can access all the customization settings for Proof
 General via the menu:
 @lisp
-   Proof-General -> Customize
+   Proof-General -> Advanced -> Customize
 @end lisp
 
 Using the customize facility is straightforward.  You can select the
@@ -4137,7 +4137,7 @@ If not, you will need to set the appropriate variables.  The easiest way
 to do this (and most other customization of Proof General) is via the
 Customize mechanism, see the menu item:
 @example
-  Proof-General -> Customize -> @var{Name of Assistant} -> Prog Name
+  Proof-General -> Advanced -> Customize -> @var{Name of Assistant} -> Prog Name
 @end example
 The Proof-General menu is available from script buffers after Proof
 General is loaded.  To load it manually, type
