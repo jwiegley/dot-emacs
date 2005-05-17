@@ -6,6 +6,8 @@
 ;;
 ;; $Id$
 
+;; FIXME: NAMESPACE!!!!!!!
+
 ;;
 ;; Spans are our abstraction of extents/overlays.
 ;;

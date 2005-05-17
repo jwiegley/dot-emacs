@@ -102,7 +102,6 @@ A span is before PT if it covers the character before PT."
   
 ;Pierre: new utility functions for "holes" 
 (defsubst make-detached-span ()
-  "Return the buffer owning span."
   (make-extent nil nil)
   )
 
