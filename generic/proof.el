@@ -32,10 +32,10 @@
 ;;; Global variables
 ;;;
 
-(deflocal proof-buffer-type nil 
+(deflocal proof-buffer-type nil
   "Symbol for the type of this buffer: 'script, 'shell, 'goals, or 'response.")
 
-(defvar proof-shell-busy nil 
+(defvar proof-shell-busy nil
   "A lock indicating that the proof shell is processing.
 When this is non-nil, proof-shell-ready-prover will give
 an error.")
@@ -43,7 +43,7 @@ an error.")
 (defvar proof-included-files-list nil 
   "List of files currently included in proof process.
 This list contains files in canonical truename format
-(see `file-truename').
+\(see `file-truename').
 
 Whenever a new file is being processed, it gets added to this list
 via the proof-shell-process-file configuration settings.
@@ -106,11 +106,8 @@ of the proof (starting from 1).")
 ;; has been configured].
 ;; We should assume commands are terminated at the specific level.
 
-(defvar proof-terminal-string nil 
+(defvar proof-terminal-string nil
   "End-of-line string for proof process.")
-
-
-
 
 ;;;
 ;;; Load other Proof General libraries

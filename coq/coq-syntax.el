@@ -28,7 +28,7 @@ ProofGeneral guesses the version of coq by doing 'coqtop -v'." )
 (defvar coq-version-is-V8-1 nil 
   "This variable can be set to t to force ProofGeneral to coq version
 coq-8.1 (use it for coq-8.0cvs after january 2005). To do that, put
-(setq coq-version-is-V8-1 t) in your .emacs and restart emacs. This
+\(setq coq-version-is-V8-1 t) in your .emacs and restart emacs. This
 variable cannot be true simultaneously with coq-version-is-V8-0. If
 none of these 2 variables is set to t, then ProofGeneral guesses the
 version of coq by doing 'coqtop -v'." )
