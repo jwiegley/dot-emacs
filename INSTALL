@@ -46,7 +46,7 @@ Detailed installation Notes for Proof General
 Supported Emacs Versions.
 -------------------------
 
-This release has been tested with XEmacs 21.4.14 and GNU Emacs 21.3.1
+This release has been tested with XEmacs 21.4.17 and GNU Emacs 21.3.1
 (running on i386 Linux).  We recommend using these or later versions.  
 
 If you're not sure of your version of Emacs, inspect the
