@@ -501,7 +501,7 @@ Default to whole buffer.  Leave point at END."
   "Find a window for BUFFER, display it there, return the window.
 NB: may change the selected window."
   ;; IF there *isn't* a visible window showing buffer...
-  (unless (get-buffer-window buffer 'visible)
+  (unless (get-buffer-window buffer 0)
     ;; THEN find somewhere nice to display it
 	  (if (and 
 	     ;; If we're in two-window mode and already displaying a
@@ -532,7 +532,7 @@ NB: may change the selected window."
 	  ;; o/w: call display buffer to configure windows nicely.
 	    (display-buffer buffer)))
   ;; Return the window, hopefully the one we first thought of.
-  (get-buffer-window buffer 'visible))
+  (get-buffer-window buffer 0))
 
 (defun proof-display-and-keep-buffer (buffer &optional pos)
   "Display BUFFER and make window according to display mode.
@@ -545,7 +545,8 @@ Ensure that point is visible in window."
 	(if (window-live-p window) ;; [fails sometimes?]
 	    (progn
 	      ;; Set the size and point position.
-	      (set-window-dedicated-p window proof-three-window-enable)
+	      (if proof-three-window-enable
+		  (set-window-dedicated-p window proof-three-window-enable))
 	      (select-window window)
 	      (if proof-shrink-windows-tofit
 		  (proof-resize-window-tofit)
@@ -556,12 +557,12 @@ Ensure that point is visible in window."
 	      ;; For various reasons, point may get moved around in
 	      ;; response buffer.  Attempt to normalise its position.
 	      (goto-char (or pos (point-max)))
-	      (if pos 
+	      (if pos
 		  (beginning-of-line)
 		(skip-chars-backward "\n\t "))
 	      ;; Ensure point visible.  Again, window may have died
 	      ;; inside shrink to fit, for some reason
-	      (if (window-live-p window) 
+	      (if (window-live-p window)
 		  (unless (pos-visible-in-window-p (point) window)
 		    (recenter -1)))))))))
 
@@ -658,7 +659,7 @@ or if the window is the only window of its frame."
   (or window (setq window (selected-window)))
   ;; some checks before resizing to avoid messing custom display
   ;; [probably somewhat superfluous/extra rare]
-  (if 
+  (if
       (or
        ;; The frame must not be minibuffer-only.
        (eq (frame-parameter (window-frame window) 'minibuffer) 'only)
@@ -676,17 +677,16 @@ or if the window is the only window of its frame."
       ;; OK, we're not going to adjust the height here.  Moreover,
       ;; we'll make sure the height can be changed elsewhere.
       (setq window-size-fixed nil)
-    (save-excursion
-      (set-buffer (window-buffer window))
-      (let* 
+    (with-current-buffer (window-buffer window)
+      (let*
 	  ;; weird test cases:
 	  ;; cur=45, max=23, desired=121, extraline=0
 	  ;; current height
 	  ;;; ((cur-height (window-height window))
 	   ;; Most window is allowed to grow to
-	  ((max-height  
-	    (/ (frame-height (window-frame window)) 
-	       (if proof-three-window-enable 
+	  ((max-height
+	    (/ (frame-height (window-frame window))
+	       (if proof-three-window-enable
 		   ;; we're in three-window-mode with
 		   ;; all horizontal splits, so share the height.
 		   3
@@ -694,17 +694,17 @@ or if the window is the only window of its frame."
 		 2)))
 	   ;; If buffer ends with a newline, ignore it when counting
 	   ;; height unless point is after it.
-	   (extraline 
+	   (extraline
 	    (if (and (not (eobp))
 		     (eq ?\n (char-after (1- (point-max)))))
 		1 0))
 	   (test-pos (- (point-max) extraline))
-	   ;; Direction of resizing based on whether max position is 
+	   ;; Direction of resizing based on whether max position is
 	   ;; currently visible.  [ FIXME: not completely sensible:
 	   ;; may be displaying end fraction of buffer! ]
 	   ;; (shrink (pos-visible-in-window-p test-pos window))
 	   ;; Likely desirable height is given by count-lines
-	   (desired-height 
+	   (desired-height
 	    ;; FIXME: is count-lines too expensive for v.large
 	    ;; buffers?  Probably not an issue for us, but one
 	    ;; wonders at the shrink to fit strategy.
@@ -718,27 +718,28 @@ or if the window is the only window of its frame."
 ;; 	       (> cur-height window-min-height)
 ;; 	       ;; don't shrink if already too big; leave where it is
 ;; 	       (< cur-height max-height))
-;; 	  (with-selected-window 
+;; 	  (with-selected-window
 ;; 	   window
 ;; 	   (shrink-window (- cur-height (max window-min-height desired-height)))))
 ;; 	 (;; expand
 ;; 	  (< cur-height max-height)
 ;; 	  (with-selected-window window
-;; 	   (enlarge-window 
+;; 	   (enlarge-window
 ;; 	    (- (min max-height desired-height) cur-height)))))
 	;; If we're at least the desirable height, it must be that the
 	;; whole buffer can be seen --- so make sure display starts at
 	;; beginning.
 	;; NB: shrinking windows can sometimes delete them
-	;; (although we don't want it to here!), but make this next 
+	;; (although we don't want it to here!), but make this next
 	;; check for robustness.
 	(if (window-live-p window)
 	    (progn
 	      (if (>= (window-height window) desired-height)
 		  (set-window-start window (point-min)))
-	      ;; window-size-fixed is a GNU Emacs buffer local variable 
+	      ;; window-size-fixed is a GNU Emacs buffer local variable
 	      ;; which determines window size of buffer.
-	      (setq window-size-fixed (window-height window))))))))
+	      ;; (setq window-size-fixed (window-height window))
+	      ))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
