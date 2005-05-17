@@ -1,5 +1,7 @@
 ;;; DO NOT MODIFY THIS FILE
 (if (featurep 'proof-autoloads) (error "Already loaded"))
+
+(provide 'proof-autoloads)
 
 ;;;### (autoloads nil "_pkg" "generic/_pkg.el")
 
@@ -252,4 +254,3 @@ Configure the current output buffer (goals/response/trace) for X-Symbol." nil ni
 
 ;;;***
 
-(provide 'proof-autoloads)
