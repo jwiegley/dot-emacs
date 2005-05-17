@@ -1,4 +1,4 @@
-; proof-shell.el  Proof General shell mode.
+;;; proof-shell.el --- Proof General shell mode.
 ;;
 ;; Copyright (C) 1994-2004 LFCS Edinburgh. 
 ;; Authors:   David Aspinall, Yves Bertot, Healfdene Goguen,
@@ -259,7 +259,7 @@ Does nothing if proof assistant is already running."
   (unless (proof-shell-live-buffer)
 
     ;; This should configure the mode-setting variables
-    ;; proof-mode-for-<blah> so we can set the modes below. 
+    ;; proof-mode-for-<blah> so we can set the modes below.
     ;; <blah>=shell,goals,response.  We also need to set
     ;; proof-prog-name to start the program!
     (run-hooks 'proof-pre-shell-start-hook)
@@ -272,14 +272,14 @@ Does nothing if proof assistant is already running."
       ;; FIXME : we check that the buffer corresponds to a file,
       ;; but we do not check that it is in coq- or isa-mode
       (if (and name proof-prog-name-guess proof-guess-command-line)
-	  (setq proof-prog-name 
+	  (setq proof-prog-name
 		(apply proof-guess-command-line (list name)))))
     
     (if proof-prog-name-ask
 	(save-excursion
 	  (setq proof-prog-name (read-shell-command "Run process: "
 						    proof-prog-name))))
-    (let 
+    (let
 	;; PG 3.1: Buffer names are now based simply on proof assistant
 	;; name, not process name which was a bit lowlevel and sometimes
 	;; ugly (coqtop, hol.unquote).
@@ -288,8 +288,8 @@ Does nothing if proof assistant is already running."
       (message "Starting process: %s" proof-prog-name)
 
       ;; Starting the inferior process (asynchronous)
-      (let ((prog-name-list 
-	     (proof-string-to-list 
+      (let ((prog-name-list
+	     (proof-string-to-list
 	      ;; Cut in proof-rsh-command if it's non-nil and
 	      ;; non whitespace.  FIXME: whitespace at start
 	      ;; of this string is nasty.
@@ -300,7 +300,7 @@ Does nothing if proof assistant is already running."
 	      ;; Split on spaces: FIXME: maybe should be whitespace.
 	      " "))
 
-	    (process-connection-type 
+	    (process-connection-type
 	     proof-shell-process-connection-type)
 
 	    ;; PG 3.5: adjust the LANG variable to remove UTF-8
@@ -312,22 +312,30 @@ Does nothing if proof assistant is already running."
 	    (process-environment
 	     (if (not proof-shell-wakeup-char) ;; if specials not used,
 		 process-environment	       ;; leave it alone
-	       (if (getenv "LANG")
-		   (setenv 
-		    "LANG" 
-		    (replace-in-string (getenv "LANG")
-				       "\\.UTF-8" "")))
-	       process-environment)))
+	       (cons
+		(if (getenv "LANG")
+		    (format "LANG=%s"
+			    (replace-in-string (getenv "LANG")
+					       "\\.UTF-8" ""))
+		  "LANG=C")
+		process-environment)))
+
+	    ;; Since we use codes between 128 and 255 as special, we want to
+	    ;; treat the output of the process as binary, except for
+	    ;; end-of-line conversion (hence `raw-text').
+	    ;; It is also the only sensible choice since we make the buffer
+	    ;; unibyte below.
+	    (coding-system-for-read 'raw-text))
 
 	;; An improvement here might be to catch failure of
-	;; make-comint and then kill off the buffer.  Then we 
+	;; make-comint and then kill off the buffer.  Then we
 	;; could add back code above for multiple shells <2> <3>, etc.
 	;; Seems hardly worth it.
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
 
       ;; 3.5 change: buffer names become invisible (start with space).
-      ;; This omits them from XEmacs tabs, and display management 
+      ;; This omits them from XEmacs tabs, and display management
       ;; should be better now, so that they are not easily lost.
       (setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
@@ -342,10 +350,10 @@ Does nothing if proof assistant is already running."
       ;; [[ FIXME: was an old patch to go in here to clean this up]
       ;;
       ;; Create the associated buffers and set buffer variables
-      (let ((goals	(concat " *" proc "-goals*"))
-	    (resp	(concat " *" proc "-response*"))
-	    (trace	(concat " *" proc "-trace*"))
-	    (thms	(concat " *" proc "-thms*")))
+      (let ((goals	(concat "*" proc "-goals*"))
+	    (resp	(concat "*" proc "-response*"))
+	    (trace	(concat "*" proc "-trace*"))
+	    (thms	(concat "*" proc "-thms*")))
 	(setq proof-goals-buffer    (get-buffer-create goals))
 	(setq proof-response-buffer (get-buffer-create resp))
 	(if proof-shell-trace-output-regexp
@@ -353,11 +361,10 @@ Does nothing if proof assistant is already running."
 	(if proof-shell-thms-output-regexp
 	    (setq proof-thms-buffer (get-buffer-create thms)))
 	;; Set the special-display-regexps now we have the buffer names
-	(setq proof-shell-special-display-regexp 
+	(setq proof-shell-special-display-regexp
 	      (proof-regexp-alt goals resp trace thms)))
 
-      (save-excursion
-	(set-buffer proof-shell-buffer)
+      (with-current-buffer proof-shell-buffer
 	
 	;; clear output from previous sessions.
 	(erase-buffer)
@@ -365,18 +372,19 @@ Does nothing if proof assistant is already running."
 	;; Disable multi-byte characters in GNU Emacs.
 	;; We noticed that for LEGO, it otherwise converts annotations
 	;; to characters with (non-ASCII) code around 3000 which screws
-	;; up our conventions that annotations lie between 128 and 256. 
+	;; up our conventions that annotations lie between 128 and 256.
 	;;
-	(and (fboundp 'toggle-enable-multibyte-characters)
-	     (toggle-enable-multibyte-characters -1))
+	;; Better solve this by explicitly encoding/decoding.
+	;; (and (fboundp 'toggle-enable-multibyte-characters)
+	;;      (toggle-enable-multibyte-characters -1))
 	
-	;; Initialise shell mode 
+	;; Initialise shell mode
 	;; Q: should this be done every time the process is started?
 	;; A: yes, it does the process initialization, which is a bit
 	;; odd (would expect it to be done here, maybe).
 	;; NB: this calls proof-config-done, which will result in
 	;; recursive call here when sending startup commands to
-	;; the process: should immediately exit because  
+	;; the process: should immediately exit because
 	;; (proof-shell-live-buffer) should succeed.  If bad,
 	;; things happen, it may cause looping!
 	;; FIXME: add flag to indicate "inside proof-shell-start"
@@ -416,7 +424,7 @@ Does nothing if proof assistant is already running."
 		;; previous case)
 		(if proof-running-on-XEmacs
 		    (proof-map-buffers
-		      (list proof-goals-buffer proof-response-buffer 
+		      (list proof-goals-buffer proof-response-buffer
 			    proof-trace-buffer proof-thms-buffer)
 		      (set-specifier has-modeline-p nil (current-buffer))))))
 	  ;; 
@@ -461,7 +469,7 @@ exited by hand (or exits by itself)."
 	      ;; buffer.  (This helps support persistent sessions with
 	      ;; Isabelle, for example, by making sure that no file is
 	      ;; partly processed when exiting, and registering completed
-	      ;; files).  
+	      ;; files).
 	      (proof-deactivate-scripting-auto)
 	      ;; FIXME: if the shell is busy now, we should wait
 	      ;; for a while (in case deactivate causes processing)
@@ -478,16 +486,16 @@ exited by hand (or exits by itself)."
 	      ;; it off more rudely.  In XEmacs, accept-process-output
 	      ;; or sit-for will run process sentinels if a process
 	      ;; changes state.
-	      ;; In FSF I've no idea how to get the process sentinel
+	      ;; In Emacs I've no idea how to get the process sentinel
 	      ;; to run outside the top-level loop.
 	      ;; So put an ugly timeout and busy wait here instead
 	      ;; of simply (accept-process-output nil 10).
 	      (setq timeout-id
-		    (add-timeout 
+		    (add-timeout
 		     proof-shell-quit-timeout
 		     (lambda (&rest args)
 		       (if (comint-check-proc (current-buffer))
-			   (kill-process (get-buffer-process 
+			   (kill-process (get-buffer-process
 					  (current-buffer))))
 		       (throw 'exited t)) nil))
 	      (while (comint-check-proc (current-buffer))
@@ -501,13 +509,13 @@ exited by hand (or exits by itself)."
 	    ;; problem, but it's done later below anyway?
 	    (set-process-sentinel proc nil)))
       (if (comint-check-proc (current-buffer))
-	  (proof-debug 
+	  (proof-debug
 	   "Error in proof-shell-kill-function: process still lives!"))
-      ;; For FSF Emacs, proc may be nil if killed already.
+      ;; For GNU Emacs, proc may be nil if killed already.
       (if proc (set-process-sentinel proc nil))
       ;; Restart all scripting buffers
       (proof-script-remove-all-spans-and-deactivate)
-      ;; Clear state 
+      ;; Clear state
       (proof-shell-clear-state)
       ;; Run hooks
       (run-hooks 'proof-shell-kill-function-hooks)
@@ -520,11 +528,11 @@ exited by hand (or exits by itself)."
 	  (proof-delete-other-frames))
       ;; Kill buffers associated with shell buffer
       (let ((proof-shell-buffer nil)) ;; fool kill buffer hooks
- 	(dolist (buf '(proof-goals-buffer proof-response-buffer 
+ 	(dolist (buf '(proof-goals-buffer proof-response-buffer
 					  proof-trace-buffer))
- 	  (if (buffer-live-p (eval buf))
- 	      (progn 
- 		(kill-buffer (eval buf))
+ 	  (if (buffer-live-p (symbol-value buf))
+ 	      (progn
+ 		(kill-buffer (symbol-value buf))
  		(set buf nil)))))
       (message "%s exited." bufname))))
 
@@ -624,8 +632,7 @@ If START-REGEXP is nil, begin from the start of the output for
 this command.
 This is a subroutine of `proof-shell-handle-error'."
   (let (start end string)
-    (save-excursion
-      (set-buffer proof-shell-buffer)
+    (with-current-buffer proof-shell-buffer
       (goto-char (point-max))
       (setq end (re-search-backward 
 		 ;;end-regexp was always proof-shell-annotated-prompt-regexp
@@ -944,8 +951,7 @@ Then strip STRING of carriage returns before inserting it and updating
 Do not use this function directly, or output will be lost.  It is only
 used in `proof-append-alist' when we start processing a queue, and in
 `proof-shell-exec-loop', to process the next item."
-  (save-excursion
-    (set-buffer proof-shell-buffer)
+  (with-current-buffer proof-shell-buffer
     (goto-char (point-max))
     
     ;; See docstring for this hook: it allows munging of `string'
@@ -1198,8 +1204,7 @@ The return value is non-nil if the action list is now empty."
 String is inserted at the end of locked region, after a newline 
 and indentation.  Assumes proof-script-buffer is active."
   (unless (string-match "^\\s-*$" cmd)	; FIXME: assumes cmd is single line
-    (save-excursion
-      (set-buffer proof-script-buffer) 
+    (with-current-buffer proof-script-buffer
       (let (span)
 	(proof-goto-end-of-locked)
 	;; Fix 16.11.99.  This attempts to indent current line which can
@@ -1355,8 +1360,7 @@ MESSAGE should be a string annotated with
 	    (setq proof-script-buffer nil)
 	    ;;(setq proof-script-buffer-list 
 	    ;;	(cons scrbuf proof-script-buffer-list))
-	    ;; (save-excursion
-	    ;;  (set-buffer scrbuf)
+	    ;; (with-current-buffer scrbuf
 	    ;;  (proof-init-segmentation)))))
 	    )))
 	))
@@ -2055,8 +2059,7 @@ usual, unless NOERROR is non-nil."
   "Initialise the specific prover after the child has been configured.
 Every derived shell mode should call this function at the end of
 processing."
-  (save-excursion			
-    (set-buffer proof-shell-buffer)
+  (with-current-buffer proof-shell-buffer
 
     ;; Give warnings if some crucial settings haven't been made
     (dolist (sym proof-shell-important-settings)
@@ -2108,4 +2111,4 @@ processing."
 
 
 (provide 'proof-shell)
-;; proof-shell.el ends here.
+;; proof-shell.el ends here
