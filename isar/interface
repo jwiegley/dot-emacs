@@ -229,7 +229,7 @@ else
     /*)
       ;;
     */*)
-      LOGIC="$PWD/$LOGIC"
+      LOGIC="$(pwd -P)/$LOGIC"
       ;;
   esac
   
