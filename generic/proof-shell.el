@@ -334,9 +334,6 @@ Does nothing if proof assistant is already running."
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list))))
 
-      ;; 3.5 change: buffer names become invisible (start with space).
-      ;; This omits them from XEmacs tabs, and display management
-      ;; should be better now, so that they are not easily lost.
       (setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
       (unless (proof-shell-live-buffer)
@@ -347,9 +344,11 @@ Does nothing if proof assistant is already running."
 	(setq proof-shell-buffer nil)
 	(error "Starting process: %s..failed" proof-prog-name))
 
-      ;; [[ FIXME: was an old patch to go in here to clean this up]
-      ;;
       ;; Create the associated buffers and set buffer variables
+      ;; 
+      ;; NB: 3.6 has reverted space in front of names, so buffers
+      ;; are easier for users to find, was causing confusion.
+      ;;
       (let ((goals	(concat "*" proc "-goals*"))
 	    (resp	(concat "*" proc "-response*"))
 	    (trace	(concat "*" proc "-trace*"))
