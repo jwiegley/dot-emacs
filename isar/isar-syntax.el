@@ -17,8 +17,8 @@
 
 (defconst isar-script-syntax-table-entries 
   (append
-       '(?\$ "." ?\/ "."
-	 ;; 10.8.04: changed from ?\\ "w"
+       '(?\$ "."
+	 ?\/ "."
 	 ?\\ "\\"
 	 ?+  "."
 	 ?-  "."
@@ -229,8 +229,8 @@ This list is in the right format for proof-easy-config.")
 Group number 1 matches the identifier possibly with quotes; group number 2
 matches contents of quotes for quoted identifiers.")
 
-(defconst isar-tac-regexp
-  "\\<[A-Za-z][A-Za-z0-9'_]*_tac\\>"
+(defconst isar-improper-regexp
+  "\\(\\<[A-Za-z][A-Za-z0-9'_]*_tac\\>\\|\\<goal[0-9]+\\>\\)"
   "Regexp matching old-style tactic names")
 
 (defconst isar-save-command-regexp
@@ -345,7 +345,7 @@ matches contents of quotes for quoted identifiers.")
    (cons (isar-ids-to-regexp isar-keywords-proof)          'font-lock-keyword-face)
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
-   (cons isar-tac-regexp 'font-lock-reference-face)
+   (cons isar-improper-regexp 'font-lock-reference-face)
    (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))))
 
 (defvar isar-output-font-lock-keywords-1
@@ -382,10 +382,10 @@ matches contents of quotes for quoted identifiers.")
     "^type constraints:"
     "^default sorts:"
     "^used type variable names:"
-    "^[Ff]lex-flex pairs:"
-    "^[Cc]onstants:"
-    "^[Vv]ariables:"
-    "^[Tt]ype variables:"
+    "^flex-flex pairs:"
+    "^constants:"
+    "^variables:"
+    "^type variables:"
     "^\\s-*[0-9][0-9]?\\. ")
    isar-output-font-lock-keywords-1)
   "*Font-lock table for Isabelle/Isar output.")
