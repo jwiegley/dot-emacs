@@ -2625,7 +2625,8 @@ If this table is empty or needs adjusting, please make changes using
      ([(control c) (control u)] . proof-undo-last-successful-command)
      ([(control c) (control p)] . proof-prf)
      ([(control c) (control l)] . proof-layout-windows)
-     ([(control c) (control c)] . proof-interrupt-process)
+     ([(control c) (control x)] . proof-shell-exit)
+     ([(control c) (control s)] . proof-shell-start)
      ([(control c) (control v)] . proof-minibuffer-cmd)
      ([(control c) (control w)] . pg-response-clear-displays)))
 "List of key-bindings made for the script, goals and response buffer. 
