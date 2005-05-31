@@ -1480,12 +1480,16 @@ key-bindings and functions.
 @code{proof-help}
 @item C-c C-f
 @code{proof-find-theorems}
-@item C-c C-c
-@code{pg-response-clear-displays}
 @item C-c C-w
+@code{pg-response-clear-displays}
+@item C-c C-c
 @code{proof-interrupt-process}
 @item C-c C-v
 @code{proof-minibuffer-cmd}
+@item C-c C-s
+@code{proof-shell-start}
+@item C-c C-x
+@code{proof-shell-exit}
 @end table
 
 
@@ -1556,12 +1560,11 @@ As if the last two commands weren't risky enough, there's also a command
 which explicitly adjusts the end of the locked region, to be used in
 extreme circumstances only.  @xref{Escaping script management}.
 
-There are a few commands for stopping, starting, and restarting the
-proof assistant process which have menu entries but no key-bindings.
-As with any Emacs command, you can invoke these with @kbd{M-x}.
 
-
-
+There are a few commands for starting, stopping, and restarting the
+proof assistant process.  The first two have key bindings but restart
+does not.  As with any Emacs command, you can invoke these with
+@kbd{M-x} followed by the command name.
 
 
 @c TEXI DOCSTRING MAGIC: proof-shell-start
@@ -1570,6 +1573,14 @@ Initialise a shell-like buffer for a proof assistant.
 
 Also generates goal and response buffers.
 Does nothing if proof assistant is already running.
+@end deffn
+
+@c TEXI DOCSTRING MAGIC: proof-shell-exit
+@deffn Command proof-shell-exit 
+Query the user and exit the proof process.
+
+This simply kills the @samp{@code{proof-shell-buffer}} relying on the hook function
+@samp{@code{proof-shell-kill-function}} to do the hard work.
 @end deffn
 
 @c TEXI DOCSTRING MAGIC: proof-shell-restart
@@ -1592,13 +1603,6 @@ operation, not full re-processing.  (One way of caching is via
 object files, used by Lego and Coq).
 @end deffn
 
-@c TEXI DOCSTRING MAGIC: proof-shell-exit
-@deffn Command proof-shell-exit 
-Query the user and exit the proof process.
-
-This simply kills the @samp{@code{proof-shell-buffer}} relying on the hook function
-@samp{@code{proof-shell-kill-function}} to do the hard work.
-@end deffn
 
 
 
