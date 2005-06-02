@@ -28,13 +28,18 @@ A. This is caused by UTF-8 support in recent linuxes with glibc 2.2 or later
 
    $  LC_CTYPE=en_GB xemacs &
 
-   The supplied proofgeneral script makes this setting if it sees
-   the string UTF in the current value of LC_CTYPE.
+   (where $ is the shell prompt; this example is for my locale which
+    by default is "en_GB.UTF-8": I see this by typing "locale" at
+    the prompt).
+
+   This is fixed in the development version of Proof General: the
+   supplied proofgeneral script makes an adjustment if it sees
+   the string UTF in the current value of LC_CTYPE and an adjustment
+   is made inside the Emacs environment. 
 
    Alternatively you can set LC_CTYPE inside a file ~/.i18n, which will
    be read the shell.  Put a line such as "LC_CTYPE=en_GB" into this file.
    However, this action will affect all applications.
-   [ suggestions for a better workaround inside Emacs would be welcome ]
 
    NB: a related issue is warnings from x-symbol: "Emacs language 
    environment and system locale specify different encoding, I'll 
