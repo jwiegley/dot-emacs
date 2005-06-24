@@ -369,7 +369,7 @@ matches contents of quotes for quoted identifiers.")
     "^proof (prove):"
     "^proof (state):"
     "^proof (chain):"
-    "^goal .+:"
+    "^goal.*:"
     "^picking this:"
     "^using this:"
     "^this:"
