@@ -41,6 +41,7 @@
 ;  :type 'boolean
 ;  :group 'phox)
 
+
 (defcustom phox-web-page
   "http://www.lama.univ-savoie.fr/~RAFFALLI/phox.html"
   "URL of web page for PhoX."
@@ -185,6 +186,12 @@
 
     (define-key phox-mode-map [(control c) (meta d)] 
       'phox-delete-symbol-on-cursor)  
+    (if phox-x-symbol-enable
+	(progn
+	  (setq x-symbol-language 'phox)
+	  (x-symbol-mode t))) ; just to be sure
+    (font-lock-mode t) ; just to be sure (not always activated on OSX ??
+
 )
 
 (define-derived-mode phox-shell-mode proof-shell-mode

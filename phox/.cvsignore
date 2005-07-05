@@ -10,3 +10,4 @@ config.dos
 *.pho
 *.phi
 *.pht
+*.math.tex
