@@ -46,9 +46,8 @@
 	(setq pg-pbrpm-buffer-menu
 	      (generate-new-buffer (generate-new-buffer-name "*proof-menu*")))
 	(set-buffer pg-pbrpm-buffer-menu)
+; needs to be fixed here, the mode could be some other prover
 	(phox-mode)
-	(x-symbol-mode t) ; just to be sure
-	(font-lock-mode t) ; just to be sure (not activated on OSX ??
 	(make-local-hook 'after-change-functions)
 	(setq after-change-functions (cons 'pg-pbrpm-menu-change-hook after-change-functions)))
     (pg-pbrpm-erase-buffer-menu))
@@ -185,7 +184,9 @@ The prover command is processed via pg-pbrpm-run-command."
 		 (insert-gui-button (make-gui-button 
 				   "Cancel" 
 				   (lambda (n) (pg-pbrpm-erase-buffer-menu) (delete-frame)) nil))
-		 (x-symbol-decode)
+; needs to be fixed for other prover than phox
+		 (if phox-x-symbol-enable
+		     (x-symbol-decode))
 		 (mapc 'span-read-only pg-pbrpm-spans)
 		 (make-dialog-frame '(width 80 height 30)))
 	       (beep)))))
