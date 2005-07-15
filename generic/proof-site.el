@@ -333,6 +333,8 @@ Note: to change proof assistant, you must start a new Emacs session.")
     (string-match "Version \\([^ ]+\\)\\." proof-general-version)
     (match-string 1 proof-general-version)))
 
+(defconst proof-general-version-year "2005")
+
 ;; Now define a few autoloads and basic variables.
 
 ;; 1.8.01: add a dummy package-provide command so proof-autoloads

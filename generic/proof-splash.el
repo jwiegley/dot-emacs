@@ -1,6 +1,6 @@
 ;; proof-splash.el -- Splash welcome screen for Proof General
 ;;
-;; Copyright (C) 1998-2001 LFCS Edinburgh. 
+;; Copyright (C) 1998-2005 LFCS Edinburgh. 
 ;; Author:    David Aspinall
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
@@ -40,7 +40,7 @@ Proof General."
     nil
     (concat "Version " proof-general-short-version ".")
     nil
-    "(C) LFCS, University of Edinburgh, 2004."
+    (concat "(C) LFCS, University of Edinburgh " proof-general-version-year)
     nil
     nil
 "    Please send problems and suggestions to da+pg-support@inf.ed.ac.uk, 
