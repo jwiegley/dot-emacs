@@ -8,6 +8,8 @@
 ;;
 ;;
 
+(require 'proof-compat)			;; for Emacs version flags
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Customization of splash screen (was in proof-config)
 
