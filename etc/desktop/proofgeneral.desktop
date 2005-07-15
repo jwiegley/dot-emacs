@@ -1,12 +1,14 @@
 [Desktop Entry]
+Type=Application
+Version=1.0
+Encoding=UTF-8
 Name=Proof General
 GenericName=Theorem proving environment
 Comment=Organise your proofs!
-Exec=proofgeneral %F
 Icon=proofgeneral.png
+FilePattern=proofgeneral
+TryExec=proofgeneral
+Exec=proofgeneral %F
 Terminal=false
-Type=Application
-Encoding=UTF-8
 Categories=Application;IDE;Development;TextEditor;Math
 StartupWMClass=Emacs
-
