@@ -79,6 +79,8 @@ gzip ${RPM_BUILD_ROOT}/usr/share/info/*
 # Rename READMEs in subdirs to avoid clashes
 for f in */README; do mv $f $f.`dirname $f`; done
 
+# Clean away elc's in main tree to avoid packaging them 
+make distclean
 
 %clean
 if [ "X" != "${RPM_BUILD_ROOT}X" ]; then
