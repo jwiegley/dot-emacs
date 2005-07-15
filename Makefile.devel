@@ -431,7 +431,7 @@ dist:
 	-(cd $(DISTBUILDIR); ls $(IGNOREDFILES) > ignoredfiles; echo ignoredfiles >> ignoredfiles)
 #	link the long name to short name for convenience of user
 	(cd $(DISTBUILDIR); ln -sf $(RELEASENAME) $(NAME))
-	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) -C $(DISTBUILDIR) $(RELEASENAME) $(NAME) -X $(DISTBUILDIR)/ignoredfiles
+	$(TAR) cvzf $(DISTBUILDIR)/$(RELEASENAMETARGZ) --directory $(DISTBUILDIR) --exclude-from $(DISTBUILDIR)/ignoredfiles $(RELEASENAME) $(NAME) 
 	@echo "*************************************************"
 	@echo " Making zip file..."
 	@echo "*************************************************"
