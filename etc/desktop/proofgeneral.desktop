@@ -1,11 +1,12 @@
 [Desktop Entry]
 Name=Proof General
-Comment=Organise Your Proofs!
+GenericName=Theorem proving environment
+Comment=Organise your proofs!
 Exec=proofgeneral %F
 Icon=proofgeneral.png
 Terminal=false
 Type=Application
 Encoding=UTF-8
-Categories=Application;Development;TextEditor;Mathematics
+Categories=Application;IDE;Development;TextEditor;Math
 StartupWMClass=Emacs
 
