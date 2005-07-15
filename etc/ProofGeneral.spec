@@ -2,8 +2,8 @@ Summary:	Proof General, Emacs interface for Proof Assistants
 Name:		ProofGeneral
 Version:	3.6pre050602
 Release:	1
-Group:		Applications/Editors/Emacs
-Copyright:	LFCS, University of Edinburgh
+Group:		Text Editors/Integrated Development Environments (IDE)
+License:	GPL
 Url:		http://proofgeneral.inf.ed.ac.uk/
 Packager:	David Aspinall <David.Aspinall@ed.ac.uk>
 Source:		http://proofgeneral.inf.ed.ac.uk/ProofGeneral-3.6pre050602.tar.gz
@@ -88,10 +88,19 @@ fi
 %post
 /sbin/install-info /usr/share/info/ProofGeneral.info* /usr/share/info/dir
 /sbin/install-info /usr/share/info/PG-adapting.info* /usr/share/info/dir
+if [ -x /usr/bin/gtk-update-icon-cache ]; then
+  gtk-update-icon-cache -q /usr/share/icons/hicolor
+fi
 
 %preun
 /sbin/install-info --delete /usr/share/info/ProofGeneral.info* /usr/share/info/dir
 /sbin/install-info --delete /usr/share/info/PG-adapting.info* /usr/share/info/dir
+
+%postun
+if [ -x /usr/bin/gtk-update-icon-cache ]; then
+  gtk-update-icon-cache -q /usr/share/icons/hicolor
+fi
+
 
 %files
 %defattr(-,root,root)
