@@ -140,6 +140,7 @@ packages that you need to use Proof General:
   * comint	
   * custom
   * font-lock
+  * xml		[ not yet essential but will be soon ]
 
  OPTIONAL:
   * outline
