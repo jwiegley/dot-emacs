@@ -28,7 +28,7 @@ DEST_PREFIX=/usr
 
 PWD=$(shell pwd)
 
-ELISP_DIRS=acl2 coq demoisa generic hol98 isa isar lclam lego lib mmm phox plastic twelf
+ELISP_DIRS=acl2 coq demoisa generic hol98 isa isar lclam lego lib mmm phox plastic twelf x-symbol/lisp
 EXTRA_DIRS = images x-symbol
 
 BATCHEMACS=${EMACS} -batch -q -no-site-file
