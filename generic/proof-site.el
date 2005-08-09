@@ -223,7 +223,7 @@ Note: to change proof assistant, you must start a new Emacs session.")
 	(if (fboundp 'replace-in-string) 
 	    ;; XEmacs
 	    (replace-in-string (downcase assistant-name) "/\\|[ \t]+" "-")
-	  ;; FSF
+	  ;; GNU Emacs
 	  (subst-char-in-string 
 	   ?/ ?\- 
 	   (subst-char-in-string ?\ ?\- (downcase assistant-name)))))
