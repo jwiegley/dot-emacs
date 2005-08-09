@@ -211,8 +211,9 @@ See -k option for Isabelle interface script."
    proof-shell-error-regexp             "\364\\*\\*\\*"
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
-   pg-next-error-regexp	  "\\((line \\([0-9]+\\)[,] of \"[^\"]+\")\\)"
-   pg-next-error-filename-regexp "\\((line [0-9]+[,] of \"\\([^\"]+\\)\")\\)"
+   ;; 
+   pg-next-error-regexp	  "\\((line \\([0-9]+\\) of \"[^\"]+\")\\)"
+   pg-next-error-filename-regexp "\\((line [0-9]+ of \"\\([^\"]+\\)\")\\)"
 
    ;; matches names of assumptions
    proof-shell-assumption-regexp        isar-id
