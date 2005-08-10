@@ -1,15 +1,19 @@
 This is a pre-release of version 3.6 of Proof General.
 
-We are working on improving Coq support of PG 3.5, including:
+There are improvements to Coq support, minor improvements to
+documentation, and some improvements for Isabelle, in particular to
+support additional features in the current CVS version of Isabelle.
 
-  -- fixes to X-Symbol symbols
-  -- multiple file handling
-  -- automatic adjusting of line width
+=============
 
-There are other minor improvements to documentation, and some
-improvements for Isabelle, in particular to support additional features
-in the current CVS version of Isabelle.
+Things to do for 3.6 final:
 
-[da, 4/6/04].
+ -- nuisance fix needed for docstring magic because of pruning of spaces 
+    from empty lines in all docstrings by Stefan Monnier (argh!)
+ -- merge/fix of patch by Claire Quigley
+ -- Coq updates check: symbols, linewidth, file handling
+
+
+[da, 10/8/05].
 
 
