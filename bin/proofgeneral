@@ -20,7 +20,7 @@
 # The default path should work if you are using the Proof General RPM
 # or unpack Proof General in your home directory.
 # NB: no trailing backslash here!
-PGHOMEDEFAULT=$HOME/ProofGeneral
+PGHOMEDEFAULT=/home/da/ProofGeneral
 
 # Try to find a default Emacs executable 
 if [ -z "$EMACS" ] || [ ! -x "$EMACS" ]; then
@@ -55,7 +55,7 @@ Report bugs to <da+pg-bugs@inf.ed.ac.uk>."
 
 VERSIONBLURB='David Aspinall.
 
-Copyright (C) 1998-2004 LFCS, University of Edinburgh, UK.
+Copyright (C) 1998-2005 LFCS, University of Edinburgh, UK.
 This is free software; see the source for copying conditions.'
 
    
