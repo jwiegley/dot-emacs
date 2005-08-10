@@ -89,11 +89,11 @@ without adjusting window layout."
 (define-key map [(control c) (control a)] (proof-ass keymap))
 (define-key map [(control c) (control b)] 'proof-process-buffer)
 ;; C-c C-c is proof-interrupt-process in universal-keys
-(define-key map [(control c) (control f)] 'proof-find-theorems)
+;; C-c C-f is proof-find-theorems in universal-keys
 (define-key map [(control c) (control h)] 'proof-help)
 ;; C-c C-l is proof-layout-windows in universal-keys
 ;; C-c C-n is proof-assert-next-command-interactive in universal-keys
-(define-key map [(control c) (control o)] 'proof-display-some-buffers)
+;; C-c C-o is proof-display-some-buffers in universal-keys
 (define-key map [(control c) (control p)] 'proof-prf)
 (define-key map [(control c) (control r)] 'proof-retract-buffer)
 (define-key map [(control c) (control s)] 'proof-toggle-active-scripting)
@@ -103,7 +103,7 @@ without adjusting window layout."
 (define-key map [(control c) (control z)] 'proof-frob-locked-end)
 (define-key map [(control c) (control backspace)] 'proof-undo-and-delete-last-successful-command)
 ; C-c C-v is proof-minibuffer-cmd in universal-keys
-(define-key map [(control c) (control ?.)] 'proof-goto-end-of-locked)
+; C-c C-. is proof-goto-end-of-locked in universal-keys
 (define-key map [(control c) (control return)] 'proof-goto-point)
 (define-key map [(control c) v] 'pg-toggle-visibility);; FIXME: FSF??
 (cond ((string-match "XEmacs" emacs-version)

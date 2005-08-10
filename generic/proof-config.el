@@ -2620,15 +2620,20 @@ If this table is empty or needs adjusting, please make changes using
    (if proof-running-on-XEmacs 
        '([(control c) \`] . proof-next-error)
      '("`" . proof-next-error))
-   '(([(control c) (control c)] . proof-interrupt-process)
-     ([(control c) (control n)] . proof-assert-next-command-interactive)
-     ([(control c) (control u)] . proof-undo-last-successful-command)
-     ([(control c) (control p)] . proof-prf)
-     ([(control c) (control l)] . proof-layout-windows)
-     ([(control c) (control x)] . proof-shell-exit)
-     ([(control c) (control s)] . proof-shell-start)
-     ([(control c) (control v)] . proof-minibuffer-cmd)
-     ([(control c) (control w)] . pg-response-clear-displays)))
+   '(([(control c) (control c)]  . proof-interrupt-process)
+     ([(control c) (control n)]  . proof-assert-next-command-interactive)
+     ([(control c) (control u)]  . proof-undo-last-successful-command)
+     ([(control c) (control p)]  . proof-prf)
+     ([(control c) (control l)]  . proof-layout-windows)
+     ([(control c) (control x)]  . proof-shell-exit)
+     ([(control c) (control s)]  . proof-shell-start)
+     ([(control c) (control v)]  . proof-minibuffer-cmd)
+     ([(control c) (control w)]  . pg-response-clear-displays)
+     ;; PG 3.6: Some more key bindings moved here from script mode,
+     ;; users suggest they ought to work in other PG buffers too.
+     ([(control c) (control ?.)] . proof-goto-end-of-locked)
+     ([(control c) (control f)]  . proof-find-theorems)
+     ([(control c) (control o)]  . proof-display-some-buffers)))
 "List of key-bindings made for the script, goals and response buffer. 
 Elements of the list are tuples `(k . f)' 
 where `k' is a key-binding (vector) and `f' the designated function."
