@@ -176,10 +176,10 @@ without adjusting window layout."
 	     (cons "Help"
 		   (append
 		    `([,(concat proof-assistant " information")
-		       '(proof-help)
+		        (proof-help)
 		       ,menuvisiblep proof-info-command]
 		      [,(concat proof-assistant " web page")
-		       '(browse-url proof-assistant-home-page)
+		        (browse-url proof-assistant-home-page)
 		       ,menuvisiblep proof-assistant-home-page])
 		    (proof-ass help-menu-entries))))))))
 
