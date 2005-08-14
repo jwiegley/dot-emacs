@@ -285,7 +285,7 @@ Checks the width in the `proof-goals-buffer'"
 		;; Actually, one might sometimes
 		;; want to get the width of the proof-response-buffer
 		;; instead. Never mind. 
-		(window-width (get-buffer-window proof-goals-buffer))))
+		(window-width (get-buffer-window proof-goals-buffer t))))
 	   (if (equal current-width lego-shell-current-line-width) ()
 	     ; else
 	     (setq lego-shell-current-line-width current-width)
