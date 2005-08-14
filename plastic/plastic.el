@@ -325,7 +325,7 @@ Given is the first SPAN which needs to be undone."
                ;; Actually, one might sometimes
                ;; want to get the width of the proof-response-buffer
                ;; instead. Never mind.
-               (window-width (get-buffer-window proof-goals-buffer))))
+               (window-width (get-buffer-window proof-goals-buffer t))))
 
 	   (if (equal current-width plastic-shell-current-line-width) ()
 	     ; else
