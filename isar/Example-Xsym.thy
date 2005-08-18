@@ -4,7 +4,7 @@
       $Id$
 *)
 
-theory Example = Main:
+theory Example imports Main begin
 
 text {* Proper proof text -- \textit{naive version}. *}
 

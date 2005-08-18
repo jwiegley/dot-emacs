@@ -10,7 +10,7 @@
 
 header {* Square roots of primes are irrational (script version) *}
 
-theory Sqrt_Script = Primes + Complex_Main:
+theory Sqrt_Script imports Primes Complex_Main begin
 
 text {*
   \medskip Contrast this linear Isabelle/Isar script with Markus

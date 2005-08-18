@@ -9,7 +9,7 @@ Typical textbook proof example.
 
 header {* Textbook-style reasoning: the Knaster-Tarski Theorem *}
 
-theory KnasterTarski = Main:
+theory KnasterTarski imports Main begin
 
 
 subsection {* Prose version *}

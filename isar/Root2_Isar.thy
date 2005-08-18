@@ -10,7 +10,7 @@
 
 header {*  Square roots of primes are irrational *}
 
-theory Root2_Isar = Primes + Complex_Main:
+theory Root2_Isar imports Primes Complex_Main begin
 
 subsection {* Preliminaries *}
 

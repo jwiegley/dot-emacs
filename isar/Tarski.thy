@@ -7,7 +7,7 @@
 
 header {* The Full Theorem of Tarski *}
 
-theory Tarski = Main + FuncSet:
+theory Tarski imports Main FuncSet begin
 
 text {*
   Minimal version of lattice theory plus the full theorem of Tarski:
