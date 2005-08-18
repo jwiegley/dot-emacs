@@ -372,6 +372,7 @@ matches contents of quotes for quoted identifiers.")
     "^goal.*:"
     "^picking.*:"
     "^using.*:"
+    "^calculation:"
     "^this:"
     "^term bindings:"
     "^facts:"
