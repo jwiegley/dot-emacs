@@ -336,6 +336,11 @@ matches contents of quotes for quoted identifiers.")
 (defconst isabelle-bound-name-face 'isabelle-bound-name-face)
 (defconst isabelle-var-name-face   'isabelle-var-name-face)
 
+(defconst isar-font-lock-local
+  '("\\(\\\\<\\^loc>\\)\\(\\\\+<[A-Za-z]+>\\|.\\)"
+    (1 x-symbol-invisible-face t)
+    (2 proof-declaration-name-face prepend)))
+
 (defvar isar-font-lock-keywords-1
   (list
    (cons (isar-ids-to-regexp isar-keywords-minor)          'font-lock-type-face)
@@ -348,7 +353,8 @@ matches contents of quotes for quoted identifiers.")
    (cons (isar-ids-to-regexp isar-keywords-proof-context)  'proof-declaration-name-face)
    (cons (isar-ids-to-regexp isar-keywords-improper)       'font-lock-reference-face)
    (cons isar-improper-regexp 'font-lock-reference-face)
-   (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))))
+   (cons isar-antiq-regexp '(0 'font-lock-variable-name-face t))
+   isar-font-lock-local))
 
 (defvar isar-output-font-lock-keywords-1
   (list
@@ -361,7 +367,8 @@ matches contents of quotes for quoted identifiers.")
    (cons (concat "\356" isar-idx "\350") 'isabelle-var-name-face)
    (cons (concat "\356\\?" isar-idx "\350") 'isabelle-var-name-face)
    (cons (concat "\357" isar-id "\350") 'proof-declaration-name-face)
-   (cons (concat "\357\\?" isar-idx "\350") 'proof-declaration-name-face))
+   (cons (concat "\357\\?" isar-idx "\350") 'proof-declaration-name-face)
+   isar-font-lock-local)
   "*Font-lock table for Isabelle terms.")
 
 (defvar isar-goals-font-lock-keywords
