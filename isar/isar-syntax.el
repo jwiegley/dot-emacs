@@ -31,6 +31,7 @@
 	 ?_  "w"
 	 ?\' "w"
 	 ??  "w"
+	 ?`  "\""
 	 ?\( "()1"
 	 ?\) ")(4")
    (cond
@@ -78,6 +79,7 @@ This list is in the right format for proof-easy-config.")
   ;; ignore strings so font-locking works
   ;; inside them
   (modify-syntax-entry ?\" " ")
+  (modify-syntax-entry ?`  " ")
   (modify-syntax-entry ?\* ".")
   (modify-syntax-entry ?\( "()")
   (modify-syntax-entry ?\) ")(")
@@ -250,8 +252,8 @@ matches contents of quotes for quoted identifiers.")
 (defconst isar-comment-start-regexp (regexp-quote isar-comment-start))
 (defconst isar-comment-end-regexp (regexp-quote isar-comment-end))
 
-(defconst isar-string-start-regexp "\"\\|{\\*")
-(defconst isar-string-end-regexp "\"\\|\\*}")
+(defconst isar-string-start-regexp "\"\\|`\\|{\\*")
+(defconst isar-string-end-regexp "\"\\|`\\|\\*}")
 
 
 ;; antiquotations
