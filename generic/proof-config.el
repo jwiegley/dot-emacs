@@ -1994,11 +1994,16 @@ data triggered by `proof-shell-retract-files-regexp'."
   :group 'proof-shell)
 
 (defcustom pg-use-specials-for-fontify nil
-  "Flag indicating whether to strip annotations from output or not.
-\"annotations\" are special characters with the top bit set.
-If annotations are left in, they are made invisible and can be used
-to do syntax highlighting with font-lock."
+  "Flag indicating whether to strip annotations from output or not;
+\"annotations\" consist of special characters according to
+`pg-special-char-regexp'. If annotations are left in, they are made
+invisible and can be used to do syntax highlighting with font-lock."
   :type 'boolean
+  :group 'proof-shell)
+
+(defcustom pg-special-char-regexp "[\200-\377]"
+  "Regexp matching any \"special\" character sequence."
+  :type 'string
   :group 'proof-shell)
 
 (defcustom proof-shell-set-elisp-variable-regexp nil
