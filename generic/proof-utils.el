@@ -460,20 +460,18 @@ Returns new END value."
 	  (proof-x-symbol-decode-region start end))
     (proof-font-lock-clear-font-lock-vars)))
 
-
-(defconst pg-special-char-regexp "[\200-\377]" 
-  "Regexp matching any \"special\" character (top bit set).")
-
-
 (defun pg-remove-specials (&optional start end)
-  "Remove special characters (with top bit set) in region.
-Default to whole buffer.  Leave point at END."
+  "Remove special characters in region.  Default to whole buffer.
+Leave point at END."
   (save-restriction
     (if (and start end) 
 	(narrow-to-region start end))
     (goto-char (or start (point-min)))
     (proof-replace-regexp pg-special-char-regexp "")
     (goto-char (point-max))))
+
+(defun pg-remove-specials-in-string (string)
+  (proof-replace-regexp-in-string pg-special-char-regexp "" string))
 
   
 
