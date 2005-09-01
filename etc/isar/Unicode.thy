@@ -37,6 +37,8 @@ datatype alef_bet =
   | Shin    ("ש")
   | Tav     ("ת")
 
+thm alef_bet.induct
+
 
 text {* Interpreting Hebrew letters as numbers. *}
 
@@ -65,6 +67,8 @@ primrec
   "mispar ר = 200"
   "mispar ש = 300"
   "mispar ת = 400"
+
+thm mispar.simps
 
 lemma "mispar ק + mispar ל + mispar ה = 135"
   by simp
