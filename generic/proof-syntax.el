@@ -59,6 +59,18 @@ nil if a region cannot be found."
 ;; value of proof-case-fold-search.  Last arg to string-match is not
 ;; applicable.
 
+(defun proof-search-forward (string &optional bound noerror count)
+  "Like search-forward, but set case-fold-search to proof-case-fold-search."
+  (let
+      ((case-fold-search proof-case-fold-search))
+    (search-forward string bound noerror count)))
+
+(defun proof-replace-regexp-in-string (regexp rep string)
+  "Like replace-regexp-in-string, but set case-fold-search to proof-case-fold-search."
+  (let
+      ((case-fold-search proof-case-fold-search))
+    (replace-regexp-in-string regexp rep string)))
+
 (defun proof-re-search-forward (regexp &optional bound noerror count)
   "Like re-search-forward, but set case-fold-search to proof-case-fold-search."
   (let
@@ -112,12 +124,12 @@ If so, return non-nil."
 
 (defun proof-replace-string (string to-string)
   "Non-interactive version of `replace-string', which see."
-  (while (search-forward string nil t)
+  (while (proof-search-forward string nil t)
     (replace-match to-string nil t)))
 
 (defun proof-replace-regexp (regexp to-string)
   "Non-interactive version of `replace-regexp', which see."
-  (while (re-search-forward regexp nil t)
+  (while (proof-re-search-forward regexp nil t)
     (replace-match to-string nil nil)))
 
 
@@ -145,7 +157,7 @@ Default is comma separated, or SEPREGEXP if set."
 (defun proof-zap-commas (limit)
   "Remove the face of all `,' from point to LIMIT.
 Meant to be used from `font-lock-keywords'."
-  (while (search-forward "," limit t)
+  (while (proof-search-forward "," limit t)
     (if (memq (get-text-property (1- (point)) 'face)
 	      '(proof-declaration-name-face
 		font-lock-variable-name-face
