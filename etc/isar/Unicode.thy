@@ -66,4 +66,7 @@ primrec
   "mispar ש = 300"
   "mispar ת = 400"
 
+lemma "mispar ק + mispar ל + mispar ה = 135"
+  by simp
+
 end
