@@ -1437,7 +1437,8 @@ MESSAGE should be a string annotated with
       ;; Don't bother remove the window for the response buffer
       ;; because we're about to put a message in it.
       (proof-shell-maybe-erase-response nil nil)
-      (let ((stripped	(pg-assoc-strip-subterm-markup message)))
+      (let ((stripped (pg-remove-specials-in-string
+		       (pg-assoc-strip-subterm-markup message))))
 	;; Display first chunk of output in minibuffer.
 	;; Maybe this should be configurable, it can get noisy.
 	(proof-shell-message 
