@@ -165,7 +165,7 @@ See -k option for Isabelle interface script."
    proof-context-command        "print_context"
    proof-info-command           "welcome"
    proof-kill-goal-command      "ProofGeneral.kill_proof"
-   proof-find-theorems-command  "thms_containing %s"
+   proof-find-theorems-command  "find_theorems %s"
    proof-shell-start-silent-cmd "disable_pr"
    proof-shell-stop-silent-cmd  "enable_pr"
    ;; command hooks
