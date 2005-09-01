@@ -13,10 +13,10 @@
 (setq
  proof-xsym-activate-command
  (isar-markup-ml 
-  "print_mode := ([\"xsymbols\", \"symbols\"] @ ! print_mode)")
+  "change print_mode (insert (op =) \"xsymbols\")")
  proof-xsym-deactivate-command
  (isar-markup-ml 
-  "print_mode := (Library.gen_rems (op =) (! print_mode, [\"xsymbols\", \"symbols\"]))"))
+  "change print_mode (remove (op =) \"xsymbols\")"))
 
 
 (provide 'x-symbol-isar)

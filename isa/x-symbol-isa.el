@@ -12,9 +12,9 @@
 
 (setq proof-xsym-extra-modes '(thy-mode)
       proof-xsym-activate-command
-      "print_mode := ([\"xsymbols\", \"symbols\"] @ ! print_mode);"
+      "change print_mode (insert (op =) \"xsymbols\")"
       proof-xsym-deactivate-command
-      "print_mode := (! print_mode \\\\ [\"xsymbols\", \"symbols\"]);")
+      "change print_mode (remove (op =) \"xsymbols\")")
 
 
 
