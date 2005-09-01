@@ -454,8 +454,8 @@ until Proof General is restarted."
 (defpacustom theorem-dependencies nil
   "Whether to track theorem dependencies within Proof General."
   :type 'boolean
-  :setting ("print_mode := ([\"thm_deps\"] @ ! print_mode);" .
-	    "print_mode := (Library.gen_rems (op =) (! print_mode, [\"thm_deps\"]));")))
+  :setting ("change print_mode (insert (op =) \"thm_deps\");" .
+	    "change print_mode (remove (op =) \"thm_deps\");")))
 
 (defpacustom goals-limit  10
   "Setting for maximum number of goals printed in Isabelle."
@@ -529,11 +529,10 @@ the function `pg-remove-specials' can be used instead)."
   ;; cause problems for subterm markup).
   ;; Future version of this should use PGML output in Isabelle2002.
   (goto-char (point-min))
-  (while (re-search-forward 
-	  "\351\\|\352\\|\353\\|\354\\|\355\\|\356\\|\357" nil t)
+  (while (proof-re-search-forward "[\351-\357]" nil t)
     (replace-match "\372\200\373" nil t))
   (goto-char (point-min))
-  (while (re-search-forward "\350" nil t)
+  (while (proof-re-search-forward "\350" nil t)
     (replace-match "\374" nil t)))
 
 
