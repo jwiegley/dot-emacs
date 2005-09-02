@@ -235,7 +235,7 @@ passed to isa-tool-doc-command, DOCNAME will be viewed."
 	   (function (lambda (docdes)
 		       (if (proof-string-match "^[ \t]+\\(\\S-+\\)[ \t]+" docdes)
 			   (list (list 
-				  (substring docdes (match-beginning 0) (match-end 1))
+				  (substring docdes (match-beginning 1) (match-end 1))
 				  (substring docdes (match-end 0)))))))
 	   (split-string docs "\n"))))))
 
