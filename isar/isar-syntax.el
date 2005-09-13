@@ -384,7 +384,7 @@ matches contents of quotes for quoted identifiers.")
 (defvar isar-goals-font-lock-keywords
   (append
    (list
-    "^theory "
+    "^theory:"
     "^proof (prove):"
     "^proof (state):"
     "^proof (chain):"
