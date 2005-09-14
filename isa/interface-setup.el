@@ -33,7 +33,7 @@
 
 (let ((unicode (getenv "PROOFGENERAL_UNICODE")))
   (if (and unicode (not (equal unicode "")))
-      (customize-set-variable enable-var (equal unicode "true"))))
+      (customize-set-variable 'proof-shell-unicode (equal unicode "true"))))
 
 ;;
 ;; Proof General
