@@ -113,7 +113,9 @@ or subscript tag."
 ;; the [\350-\357].\350\\|\^A[A-H].\^AA part is there to enable single
 ;; char sub/super scripts with coloured Isabelle output.
 (defcustom x-symbol-isabelle-single-char-regexp 
-  "[\350-\357].\350\\|\^A[A-H].\^AA\\|[^\\]\\|\\\\\\\\?<[A-Za-z0-9_']+>"
+  (if (eq proof-assistant-symbol 'isar)
+      "\^A[A-H].\^AA\\|[^\\]\\|\\\\<[A-Za-z0-9_']+>"
+    "[\350-\357].\350\\|\^A[A-H].\^AA\\|[^\\]\\|\\\\\\\\?<[A-Za-z0-9_']+>")
   "Return regexp matching \<ident> or c for some char c."
   :group 'x-symbol-isabelle
   :type 'regexp)
