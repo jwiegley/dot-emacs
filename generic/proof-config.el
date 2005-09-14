@@ -1715,10 +1715,6 @@ Normally error messages cause a beep.  Set this to nil to prevent that."
 ;; (defcustom  proof-shell-adjust-line-width-cmd nil
 
 
-
-
-
-
 ;;
 ;; 5b. Regexp variables for matching output from proof process.
 ;;
@@ -2143,9 +2139,17 @@ response buffer."
   :type '(choice nil regexp)
   :group 'proof-shell)
 
+
 ;;
 ;; 5c. hooks and other miscellaneous customizations
 ;;
+
+(defcustom proof-shell-unicode nil
+  "Tell whether communication between Proof General and the prover
+process is 8bit clean, without using any special non-ASCII characters!
+If so, the process coding system will be set to utf-8."
+  :type 'boolean
+  :group 'proof-shell)
 
 (defcustom proof-shell-filename-escapes nil
   "A list of escapes that are applied to %s for filenames.
