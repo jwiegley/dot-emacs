@@ -310,7 +310,7 @@ Does nothing if proof assistant is already running."
 	    ;; it's not enough to alter process-environment to effect
 	    ;; a locale change.  In bash, LANG=x <prog> works though.
 	    (process-environment
-	     (if (not proof-shell-wakeup-char) ;; if specials not used,
+	     (if proof-shell-unicode           ;; if specials not used,
 		 process-environment	       ;; leave it alone
 	       (cons
 		(if (getenv "LANG")
@@ -325,7 +325,8 @@ Does nothing if proof assistant is already running."
 	    ;; end-of-line conversion (hence `raw-text').
 	    ;; It is also the only sensible choice since we make the buffer
 	    ;; unibyte below.
-	    (coding-system-for-read 'raw-text))
+	    (coding-system-for-read (if proof-shell-unicode 'utf-8 'raw-text))
+	    (coding-system-for-write (if proof-shell-unicode 'utf-8 'raw-text)))
 
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we
