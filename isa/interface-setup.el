@@ -10,9 +10,9 @@
 ;; interface-setup.el,v 7.0 2002/08/29 09:14:03 da Exp
 ;;
 
-;;;
-;;; X-Symbol
-;;;
+;;
+;; X-Symbol
+;;
 
 (let ((xsymbol (getenv "PROOFGENERAL_XSYMBOL"))
       (enable-var (if (equal (getenv "PROOFGENERAL_ASSISTANTS") "isa")
@@ -26,6 +26,14 @@
   (if (and xsymbol (not (equal xsymbol "")))
       (customize-set-variable enable-var (equal xsymbol "true"))))
 
+
+;;
+;; Unicode
+;;
+
+(let ((unicode (getenv "PROOFGENERAL_UNICODE")))
+  (if (and unicode (not (equal unicode "")))
+      (customize-set-variable enable-var (equal unicode "true"))))
 
 ;;
 ;; Proof General
