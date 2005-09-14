@@ -152,7 +152,7 @@ ISABELLE will always override this setting."
 		  "isabelle"))		; to be really sure
        (isabelle-opts (getenv "ISABELLE_OPTIONS"))
        (opts (concat
-	      (if isa-running-isar " -PI" "")
+	      (if isa-running-isar " -m PGASCII -PI" "")
 	      (if (and isabelle-opts (not (equal isabelle-opts "")))
 		  (concat " " isabelle-opts) "")))
        (logic (or isabelle-chosen-logic
