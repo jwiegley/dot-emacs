@@ -30,6 +30,7 @@ usage()
   echo "    -L NAME      abbreviates -l NAME -k NAME"
   echo "    -P BOOL      actually start Proof General (default true), otherwise"
   echo "                 run plain tty session"
+  echo "    -U BOOL      enable Unicode (UTF-8) communication (default false)"
   echo "    -X BOOL      configure the X-Symbol package on startup (default true)"
   echo "    -f SIZE      set X-Symbol font size (default 12)"
   echo "    -g GEOMETRY  specify Emacs geometry"
@@ -71,11 +72,12 @@ WINDOWSYSTEM="true"
 XSYMBOL=""
 XSYMBOL_SETUP=true
 XSYMBOL_FONTSIZE="12"
+UNICODE=""
 
 getoptions()
 {
   OPTIND=1
-  while getopts "I:L:P:X:f:g:k:l:m:p:u:w:x:" OPT
+  while getopts "I:L:P:U:X:f:g:k:l:m:p:u:w:x:" OPT
   do
     case "$OPT" in
       I)
@@ -87,6 +89,9 @@ getoptions()
         ;;
       P)
         START_PG="$OPTARG"
+        ;;
+      U)
+        UNICODE="$OPTARG"
         ;;
       X)
         XSYMBOL_SETUP="$OPTARG"
@@ -191,14 +196,14 @@ else
   [ -n "$GEOMETRY" ] && ARGS="$ARGS -geometry '$GEOMETRY'"
 
   [ "$INITFILE" = false ] && ARGS="$ARGS -q"
-  
+
   if [ "$WINDOWSYSTEM" = true -a -n "$DISPLAY" ]; then
     [ -n "$XSYMBOL_INSTALLFONTS" -a "$XSYMBOL_SETUP" = true ] && installfonts
   else
     ARGS="$ARGS -nw"
     XSYMBOL=false
   fi
-  
+
   ARGS="$ARGS -l '$SUPER/isa/interface-setup.el'"
 
   if [ -n "$KEYWORDS" ]; then
@@ -214,13 +219,13 @@ else
   elif [ -f "$ISABELLE_HOME/etc/isar-keywords.el" ]; then
     ARGS="$ARGS -l '$ISABELLE_HOME/etc/isar-keywords.el'"
   fi
-  
+
   for FILE in "$ISABELLE_HOME/etc/proofgeneral-settings.el" \
       "$ISABELLE_HOME_USER/etc/proofgeneral-settings.el"
   do
     [ -f "$FILE" ] && ARGS="$ARGS -l '$FILE'"
   done
-  
+
   case "$LOGIC" in
     /*)
       ;;
@@ -228,14 +233,15 @@ else
       LOGIC="$(pwd -P)/$LOGIC"
       ;;
   esac
-  
+
   export PROOFGENERAL_HOME="$SUPER"
   export PROOFGENERAL_ASSISTANTS="$KIND"
   export PROOFGENERAL_LOGIC="$LOGIC"
   export PROOFGENERAL_XSYMBOL="$XSYMBOL"
- 
+  export PROOFGENERAL_UNICODE="$UNICODE"
+
   export ISABELLE_OPTIONS XSYMBOL_FONTSIZE
-  
+
   eval exec "$PROGNAME" "$ARGS" "$FILES"
 
 fi
