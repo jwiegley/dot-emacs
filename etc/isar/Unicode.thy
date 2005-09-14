@@ -3,8 +3,6 @@
 (*
   Example theory involving unicode characters (utf-8 encoding) -- both
   formal and informal ones.
-
-  (Not fully supported, yet.)
 *)
 
 theory Unicode
