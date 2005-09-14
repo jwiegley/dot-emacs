@@ -182,10 +182,8 @@ See -k option for Isabelle interface script."
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
-   pg-subterm-first-special-char        ?\350
-
-   proof-shell-wakeup-char              ?\372
-   proof-shell-annotated-prompt-regexp  "^\\w*[>#] \372\\|^\\w*[>#] \^AS"
+   proof-shell-wakeup-char              nil
+   proof-shell-annotated-prompt-regexp  "^\\w*[>#] \^AS"
 
    ;; This pattern is just for comint.
    proof-shell-prompt-pattern           "^\\w*[>#] "
@@ -207,8 +205,8 @@ See -k option for Isabelle interface script."
      '(("\\\\" . "\\\\") ("\""   . "\\\"")))
 
    proof-shell-proof-completed-regexp   nil     ; n.a.
-   proof-shell-interrupt-regexp         "\364\\*\\*\\* Interrupt\\|\^AM\\*\\*\\* Interrupt"
-   proof-shell-error-regexp             "\364\\*\\*\\*\\|\^AM\\*\\*\\*"
+   proof-shell-interrupt-regexp         "\^AM\\*\\*\\* Interrupt"
+   proof-shell-error-regexp             "\^AM\\*\\*\\*"
    proof-shell-abort-goal-regexp        nil     ; n.a.
 
    ;; 
@@ -217,14 +215,9 @@ See -k option for Isabelle interface script."
 
    ;; matches names of assumptions
    proof-shell-assumption-regexp        isar-id
-   ;; matches subgoal name
-   ;; da: not used at the moment, maybe after 4.0 used for
-   ;; proof-generic-goal-hyp-fn to get pg-goals-like features.
-   ;; proof-shell-goal-regexp           "\370[ \t]*\\([0-9]+\\)\\."
 
-   proof-shell-start-goals-regexp       "\366\n\\|\^AO\n"
-   proof-shell-end-goals-regexp         "\367\\|\^AP"
-   pg-topterm-char			?\370
+   proof-shell-start-goals-regexp       "\^AO\n"
+   proof-shell-end-goals-regexp         "\^AP"
 
    ;; FIXME: next one is needed for backward compatibility.  
    ;; Would be nice to remove this somehow else, it's only used for 
@@ -237,8 +230,8 @@ See -k option for Isabelle interface script."
    proof-shell-restart-cmd              "ProofGeneral.restart"
 
    proof-shell-eager-annotation-start-length 1
-   proof-shell-eager-annotation-start   "\360\\|\362\\|\^AI\\|\^AK"
-   proof-shell-eager-annotation-end     "\361\\|\363\\|\^AJ\\|\^AL"
+   proof-shell-eager-annotation-start   "\^AI\\|\^AK"
+   proof-shell-eager-annotation-end     "\^AJ\\|\^AL"
    ;; see isar-pre-shell-start for proof-shell-trace-output-regexp
 
    ;; Isabelle is learning to talk PGIP...
@@ -251,7 +244,7 @@ See -k option for Isabelle interface script."
    proof-shell-clear-goals-regexp       "Proof General, please clear the goals buffer."
 
    ;; Theorem dependencies.   NB: next regex anchored at end with eager annot end
-   proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\361\\|\^AJ\\)"
+   proof-shell-theorem-dependency-list-regexp "Proof General, theorem dependencies of \\(.*\\) are \"\\(.*\\)\"\\(\^AJ\\)"
    proof-shell-theorem-dependency-list-split "\" \""
    proof-shell-show-dependency-cmd "thm %s;"
    proof-shell-identifier-under-mouse-cmd 
@@ -262,19 +255,9 @@ See -k option for Isabelle interface script."
    ;; Allow font-locking for output based on hidden annotations, see
    ;; isar-output-font-lock-keywords-1
    pg-use-specials-for-fontify		t
-   pg-special-char-regexp               "[\200-\377]\\|\^A[A-Z]"
+   pg-special-char-regexp               "\^A[A-Z]"
 
-   ;; === ANNOTATIONS  === these ones are not implemented in Isabelle
-   proof-shell-result-start             "\372 Pbp result \373"
-   proof-shell-result-end               "\372 End Pbp result \373"
-   pg-subterm-anns-use-stack            t
-   pg-subterm-start-char                ?\372
-   pg-subterm-sep-char                  ?\373
-   pg-subterm-end-char                  ?\374
    pg-after-fontify-output-hook	        'pg-remove-specials
-; FIXME mak: does not work with PGASCII
-;   (if proof-experimental-features
-;       'isabelle-convert-idmarkup-to-subterm 'pg-remove-specials)
    pg-subterm-help-cmd			"term %s" 
 
    proof-cannot-reopen-processed-files  t
@@ -572,7 +555,7 @@ Checks the width in the `proof-goals-buffer'"
   (setq proof-mode-for-shell    'isar-shell-mode)
   (setq proof-mode-for-goals    'isar-goals-mode)
   (setq proof-mode-for-response 'isar-response-mode)
-  (setq proof-shell-trace-output-regexp "\375\\|\^AV"))
+  (setq proof-shell-trace-output-regexp "\^AV"))
 
 
 ;;
