@@ -4,7 +4,14 @@ See also etc/release-log.txt for minor patches.
 
 * Summary of Changes for Proof General 3.6 from 3.5
 
-*** Large X-Symbol fonts added, courtesy  of Clemens Ballarin
+*** Large X-Symbol fonts added, courtesy of Clemens Ballarin
+
+May use option -f 18 or -f 24 of the Isabelle interface wrapper.
+
+*** UTF-8 support for 8-bit clean provers
+
+See proof-shell-unicode (default nil), or option -U of the Isabelle
+interface wrapper.
 
 *** Improved compatibility with Coq 8
 
