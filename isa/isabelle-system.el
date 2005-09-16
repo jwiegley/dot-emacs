@@ -442,8 +442,7 @@ until Proof General is restarted."
 (defpacustom full-proofs  nil
   "Whether to record full proof objects internally."
   :type 'boolean
-  :setting "Library.error_fn := (fn _ => ()); Library.try (fn () => Context.use_mltext \"ProofGeneral.full_proofs %b;\" false Library.None) ();")
-;FIXME should become "ProofGeneral.full_proofs %b;" next time
+  :setting "ProofGeneral.full_proofs %b;")
 
 (defpacustom global-timing  nil
   "Whether to enable timing in Isabelle."
