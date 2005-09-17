@@ -1,16 +1,18 @@
 (* Example proof by Markus Wenzel; see http://www.cs.kun.nl/~freek/comparison/ 
-   Taken from Isabelle2004 distribution. *)
+   Taken from Isabelle2005 distribution. *)
 
 
 (*  Title:      HOL/Hyperreal/ex/Sqrt.thy
-    ID:         Id: Sqrt.thy,v 1.4 2004/01/12 15:51:47 paulson Exp 
+    ID:         $Id$
     Author:     Markus Wenzel, TU Muenchen
-    License:    GPL (GNU GENERAL PUBLIC LICENSE)
+
 *)
 
 header {*  Square roots of primes are irrational *}
 
-theory Root2_Isar imports Primes Complex_Main begin
+theory Root2_Isar
+imports Primes Complex_Main
+begin
 
 subsection {* Preliminaries *}
 
@@ -76,9 +78,9 @@ text {*
   irrational.
 *}
 
-theorem sqrt_prime_irrational: "p \<in> prime \<Longrightarrow> sqrt (real p) \<notin> \<rat>"
+theorem sqrt_prime_irrational: "prime p \<Longrightarrow> sqrt (real p) \<notin> \<rat>"
 proof
-  assume p_prime: "p \<in> prime"
+  assume p_prime: "prime p"
   then have p: "1 < p" by (simp add: prime_def)
   assume "sqrt (real p) \<in> \<rat>"
   then obtain m n where
@@ -121,9 +123,9 @@ text {*
   structure, it is probably closer to proofs seen in mathematics.
 *}
 
-theorem "p \<in> prime \<Longrightarrow> sqrt (real p) \<notin> \<rat>"
+theorem "prime p \<Longrightarrow> sqrt (real p) \<notin> \<rat>"
 proof
-  assume p_prime: "p \<in> prime"
+  assume p_prime: "prime p"
   then have p: "1 < p" by (simp add: prime_def)
   assume "sqrt (real p) \<in> \<rat>"
   then obtain m n where

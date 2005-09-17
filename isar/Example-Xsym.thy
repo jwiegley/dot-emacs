@@ -4,7 +4,7 @@
       $Id$
 *)
 
-theory Example imports Main begin
+theory "Example-Xsym" imports Main begin
 
 text {* Proper proof text -- \textit{naive version}. *}
 
