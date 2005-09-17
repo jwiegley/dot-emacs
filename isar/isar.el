@@ -182,7 +182,7 @@ See -k option for Isabelle interface script."
 (defun isar-shell-mode-config-set-variables ()
   "Configure generic proof shell mode variables for Isabelle/Isar."
   (setq
-   proof-shell-wakeup-char              nil
+   proof-shell-wakeup-char              ?\^A
    proof-shell-annotated-prompt-regexp  "^\\w*[>#] \^AS"
 
    ;; This pattern is just for comint.
