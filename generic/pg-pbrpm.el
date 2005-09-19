@@ -23,6 +23,7 @@
 
 (defun pg-pbrpm-menu-change-hook (start end len)
   (save-excursion
+    (message "coucou")
     (let ((span (span-at (- start 1) 'editable)))	
       (if (not span) (setq span (span-at start 'editable)))
       (if span
