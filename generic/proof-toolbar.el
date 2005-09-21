@@ -6,14 +6,6 @@
 ;;
 ;; $Id$
 ;;
-;; NB: FSF GNU Emacs has no toolbar facility. This file defines
-;; proof-toolbar-menu which holds the same commands and is put on the
-;; menubar by proof-toolbar-setup (perhaps surprisingly).
-;; Could consider moving the generic table stuff to proof-menu now.
-;;
-;; Toolbar is just for the scripting buffer, currently.
-;;
-;;
 ;; TODO (minor things):
 ;;
 ;; 1. edit-toolbar cannot edit proof toolbar (even in a proof mode)
@@ -148,7 +140,7 @@ to the default toolbar."
 	     (featurep 'xpm)))		; and XPM support
     ;; Check support in Window system
     (memq (if proof-running-on-XEmacs (console-type) window-system)
-	  '(x mswindows gtk)))
+	  '(x mswindows gtk mac)))
 
       ;; Toolbar support is possible.  
       (progn
