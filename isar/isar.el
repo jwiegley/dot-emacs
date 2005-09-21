@@ -381,7 +381,7 @@ proof-shell-retract-files-regexp."
   (append
    (list isabelle-logics-menu)
    (list
-    (cons "Command ..."
+    (cons "Commands"
           (list
            ["refute"             isar-cmd-refute         t]
            ["quickcheck"         isar-cmd-quickcheck     t]
