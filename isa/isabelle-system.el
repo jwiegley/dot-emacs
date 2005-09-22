@@ -82,7 +82,7 @@ with full path."
 	(progn
 	  (setq isatool-not-found t)
 	  (beep)
-	  (warn "Proof General: isatool command not found; some menus will be incomplete and Isabelle may not run correctly."))))
+	  (warn "Proof General: isatool command not found; some menus will be incomplete and Isabelle may not run correctly.  Please check your Isabelle installation."))))
   (file-executable-p isa-isatool-command))
 
 (defun isa-shell-command-to-string (command)

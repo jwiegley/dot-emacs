@@ -2,10 +2,8 @@ This is our brief list of planned things to do to Proof General.
 
 $Id$
 
-See also the Proof General projects page on the web, under the
-development section of the home page.  Also, see the appendix "Plans
-and Ideas" in the manual, and for low-level detail, the file "todo" in
-the developer release.
+See also the Proof General development page on the web.  Also, for
+low-level (possibly obsolete) detail, see the file TODO.developer.
 
 Please send any suggestions, comments, or offers of help to
 da+pg-feedback@inf.ed.ac.uk.  Thanks!
@@ -15,7 +13,7 @@ Plans for upcoming versions
 ---------------------------
 
 * Implement support for PG Kit.  Support PGIP provers fully, with/without 
-  mediator.   (See http://proofgeneral.inf.ed.ac.uk/kit).
+  broker.   (See http://proofgeneral.inf.ed.ac.uk/kit).
 
 * Use CEDET Emacs framework for development tools, to allow more
   powerful parsing of proof scripts and features arising from that.  
@@ -31,7 +29,5 @@ Plans for upcoming versions
   during processing, with fewer "Proof Process Busy" messages.  
 
 * Support more proof assistants.  Add more example proofs.
-
-* Make an XEmacs package
 
 
