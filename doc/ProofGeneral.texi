@@ -3839,8 +3839,12 @@ by white space as usual in Isar.
 
 @node Specific commands for Isabelle/Isar
 @subsection Specific commands for Isabelle/Isar
+@kindex C-c C-a r
+@kindex C-c C-a C-q
+@kindex C-c C-a C-d
 @kindex C-c C-a h A
 @kindex C-c C-a h C
+@kindex C-c C-a h I
 @kindex C-c C-a h S
 @kindex C-c C-a h T
 @kindex C-c C-a h a
@@ -3857,10 +3861,19 @@ help key bindings; these functions are offered within the prover help
 menu as well.
 
 @table @kbd
+@item C-c C-a r
+Invokes @code{refute} on the current subgoal.  Only available in HOL
+and derived logics.
+@item C-c C-a C-q
+Invokes @code{quickcheck} on the current subgoal.
+@item C-c C-a C-d
+Displays a draft document of the current theory.
 @item C-c C-a h A
 Shows available antiquotation commands and options.
 @item C-c C-a h C
 Shows the current Classical Reasoner context.
+@item C-c C-a h I
+Shows the current set of induct/cases rules.
 @item C-c C-a h S
 Shows the current Simplifier context.
 @item C-c C-a h T
