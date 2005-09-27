@@ -280,9 +280,6 @@ Does nothing if proof assistant is already running."
 	  (setq proof-prog-name (read-shell-command "Run process: "
 						    proof-prog-name))))
     (let
-	;; PG 3.1: Buffer names are now based simply on proof assistant
-	;; name, not process name which was a bit lowlevel and sometimes
-	;; ugly (coqtop, hol.unquote).
 	((proc (downcase proof-assistant)))
 
       (message "Starting process: %s" proof-prog-name)
@@ -350,10 +347,10 @@ Does nothing if proof assistant is already running."
       ;; NB: 3.6 has reverted space in front of names, so buffers
       ;; are easier for users to find, was causing confusion.
       ;;
-      (let ((goals	(concat "*" proc "-goals*"))
-	    (resp	(concat "*" proc "-response*"))
-	    (trace	(concat "*" proc "-trace*"))
-	    (thms	(concat "*" proc "-thms*")))
+      (let ((goals	"*goals*")
+	    (resp	"*response*")
+	    (trace	"*trace*")
+	    (thms	"*thms*"))
 	(setq proof-goals-buffer    (get-buffer-create goals))
 	(setq proof-response-buffer (get-buffer-create resp))
 	(if proof-shell-trace-output-regexp
