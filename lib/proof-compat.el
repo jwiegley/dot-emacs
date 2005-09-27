@@ -614,22 +614,14 @@ The corresponding face should be set using `edit-faces' or the
   :group 'font-lock-faces)))
 
 
-;; Handle buggy buffer-syntactic-context workaround in XEmacs 21.1,
-;; and GNU non-implementation.
+;; Handle buggy buffer-syntactic-context workaround in XEmacs,
+;; and GNU Emacs non-implementation.
+;; Latest: block comment is unreliable still in XEmacs 21.5,
+;; doesn't seem worth attempting to use the native function at all.
 
-(cond
- ((not (fboundp 'buffer-syntactic-context))
-  (defalias 'proof-buffer-syntactic-context 
-    'proof-buffer-syntactic-context-emulate))
- ((or
-   (string-match "21\.1 .*XEmacs" emacs-version)
-   (string-match "21\.4 .*XEmacs" emacs-version)) ;; still buggy in 21.4
-  (defalias 'proof-buffer-syntactic-context 
-    'proof-buffer-syntactic-context-emulate))
- (t
-  ;; Rashly assume this version has a good implementation
-  (defalias 'proof-buffer-syntactic-context
-    'buffer-syntactic-context)))
+(defalias 'proof-buffer-syntactic-context 
+	  'proof-buffer-syntactic-context-emulate)
+
    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -653,6 +645,49 @@ The corresponding face should be set using `edit-faces' or the
 	["Your version of Emacs is buggy; update to get this menu" 
 	 '(w3-goto-url "http://www.gnu.org/software/emacs/")
 	 t]))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; Tweak to XEmacs buffer tabs (not really compatibility)
+;;;
+
+;; We remove PG auxiliary buffers from tabs.  
+;; TODO: complain to XEmacs developers about overly generous matching
+;; in this function.  In XEmacs post 21.5 one can set names of buffers
+;; to omit just from tabs list.
+
+(if proof-running-on-XEmacs
+    (progn
+
+(fset 'select-buffers-tab-buffers-by-mode-old 
+      (symbol-function 'select-buffers-tab-buffers-by-mode))
+
+(defun select-buffers-tab-buffers-by-mode (buf1 buf2)
+      (let* ((mode1 (symbol-value-in-buffer 'major-mode buf1)) ;; candidate buf
+	     (mode2 (symbol-value-in-buffer 'major-mode buf2)) ;; displayed buf
+	     (auxes '(proof-goals-mode proof-shell-mode proof-response-mode))
+	     (mode1aux (memq (get mode1 'derived-mode-parent) auxes))
+	     (mode2aux (memq (get mode2 'derived-mode-parent) auxes)))
+	(cond
+	 (mode1aux	mode2aux)
+	 (mode2aux	nil)
+	 (t             (select-buffers-tab-buffers-by-mode-old buf1 buf2)))))
+)) ;; end running-on-XEmacs
+      
+
+; with advice (let's not assume we have it):
+;(defadvice select-buffers-tab-buffers-by-mode (around remove-pg-aux-buffers activate)
+;      "Remove PG auxiliary buffers from tabs, otherwise added by nasty mode name matching"
+;      (let* ((mode1 (symbol-value-in-buffer 'major-mode (ad-get-arg 0))) ;; candidate buf
+;	     (mode2 (symbol-value-in-buffer 'major-mode (ad-get-arg 1))) ;; displayed buf
+;	     (auxes '(proof-goals-mode proof-shell-mode proof-response-mode))
+;	     (mode1aux (memq (get mode1 'derived-mode-parent) auxes))
+;	     (mode2aux (memq (get mode2 'derived-mode-parent) auxes)))
+;	(setq ad-return-value 
+;	      (if mode1aux (if mode2aux t nil)
+;		(if mode2aux nil ad-do-it)))))
+
 
 
 ;; End of proof-compat.el
