@@ -358,6 +358,16 @@ matches contents of quotes for quoted identifiers.")
 
 (defvar isar-output-font-lock-keywords-1
   (list
+   (cons (concat "\351" isar-long-id-stuff "\350") 'isabelle-class-name-face)
+   (cons (concat "\352'" isar-id "\350") 'isabelle-tfree-name-face)
+   (cons (concat "\353'" isar-idx "\350") 'isabelle-tvar-name-face)
+   (cons (concat "\353\\?'" isar-idx "\350") 'isabelle-tvar-name-face)
+   (cons (concat "\354" isar-id "\350") 'isabelle-free-name-face)
+   (cons (concat "\355" isar-id "\350") 'isabelle-bound-name-face)
+   (cons (concat "\356" isar-idx "\350") 'isabelle-var-name-face)
+   (cons (concat "\356\\?" isar-idx "\350") 'isabelle-var-name-face)
+   (cons (concat "\357" isar-id "\350") 'proof-declaration-name-face)
+   (cons (concat "\357\\?" isar-idx "\350") 'proof-declaration-name-face)
    (cons (concat "\^AB" isar-long-id-stuff "\^AA") 'isabelle-class-name-face)
    (cons (concat "\^AC'" isar-id "\^AA") 'isabelle-tfree-name-face)
    (cons (concat "\^AD'" isar-idx "\^AA") 'isabelle-tvar-name-face)
