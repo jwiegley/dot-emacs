@@ -391,7 +391,9 @@ proof-assistant-table."
      (string-match "XEmacs" emacs-version) 
      (not (featurep 'x-symbol-hooks)) ;; unless already loaded
      (file-exists-p (concat proof-home-directory ;; or our version removed
-			    "x-symbol/lisp/")))
+			    "x-symbol/lisp/"))
+     ;; proof-try-require: make robust against missing advice package
+     (condition-case () (require 'advice) (file-error nil) (featurep 'advice)))
     (defadvice packages-new-autoloads (after ignore-other-x-symbols activate)
       (setq ad-return-value 
 	    (delete-if (lambda (pkg)
