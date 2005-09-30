@@ -39,7 +39,7 @@
  proof-assistant-home-page       "http://www.informatik.uni-bremen.de/cofi/tools/ccc"
  proof-shell-annotated-prompt-regexp  "^\\(val it = () : unit\n\\)?\\(CCC\\|^HOL-CASL\\)> " ;; "^\\(val it = () : unit\n\\)?ML>? "
  proof-shell-error-regexp        "\\*\\*\\*\\|^.*Error:\\|^uncaught exception \\|^Exception- "
- proof-shell-init-cmd            ""
+ proof-shell-init-cmd            nil
  proof-shell-proof-completed-regexp "^Consistency proof successfully finished."
  proof-shell-eager-annotation-start "^\\[opening \\|^###\\|^Reading" ;;; ???
 
