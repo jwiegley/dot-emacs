@@ -11,10 +11,12 @@
 
 (require 'proof-utils) ;; for pg-internal-warning
 
-(require 'xml) ;; Emmanuel Briot's XML parser, updated by Mark A. Hershberger
-	       ;; (bundled with PG in directory lib/ to try to avoid incompatible versions)
-
-
+(cond 
+ ;; We want to find a good version of xml.el
+ (proof-running-on-XEmacs
+  (require 'xml-fixed))			;; XEmacs: used PG bundled fixed version
+ (t					;; Otherwise use GNU Emacs distrib version.
+  (require 'xml)))
 
 ;; Elisp format of XML trees (see xml.el)
 ;;
