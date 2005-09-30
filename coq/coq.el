@@ -1063,10 +1063,18 @@ Group number 1 matches the name of the library which is required.")
 ;  :type 'boolean
 ;  :setting ("Focus. " . "Unfocus. "))
 
+
+;; FIXME: to handle "printing all" properly, we should change the state
+;; of the variables that also depend on it.
 (defpacustom print-fully-explicit nil
   "*Print fully explicit terms."
   :type 'boolean
   :setting ("Set Printing All. " . "Unset Printing All. "))
+
+(defpacustom print-implicit nil
+  "*Print implicit arguments in applications."
+  :type 'boolean
+  :setting ("Set Printing Implicit. " . "Unset Printing Implicit. "))
 
 (defpacustom print-coercions nil
   "*Print coercions."
@@ -1076,8 +1084,17 @@ Group number 1 matches the name of the library which is required.")
 (defpacustom print-match-wildcards t
   "*Print underscores for unused variables in matches."
   :type 'boolean
-  :setting ("Set Printing Coercions. " . "Unset Printing Coercions. "))
+  :setting ("Set Printing Wildcard. " . "Unset Printing Wildcard. "))
 
+(defpacustom print-elim-types t
+  "*Print synthesised result type for eliminations."
+  :type 'boolean
+  :setting ("Set Printing Synth. " . "Unset Printing Synth. "))
+
+(defpacustom printing-depth 50
+  "*Depth of pretty printer formatting, beyond which dots are displayed."
+  :type 'integer
+  :setting "Set Printing Depth %i. ")
 
 (defpacustom time-commands nil
   "*Whether to display timing information for each command."
