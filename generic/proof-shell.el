@@ -2096,13 +2096,16 @@ processing."
 	    ;; assumes that PGIP provers are ready-to-go, without
 	    ;; needing init-cmd before PGIP processing).  We do this
 	    ;; so that user preferences may be then set sensibly in
-	    ;; the proof-shell-init-cmd.
+	    ;; the next step.
 	    (proof-maybe-askprefs)
 	    
-	    ;; Now send the init cmd proper.
+	    ;; Now send the initialisation commands.
 	    (unwind-protect
-		(if proof-shell-init-cmd
-		    (proof-shell-invisible-command proof-shell-init-cmd t))
+		(progn
+		  (if proof-shell-init-cmd
+		      (proof-shell-invisible-command proof-shell-init-cmd t))
+		  (if proof-assistant-settings
+		      (proof-shell-invisible-command (proof-assistant-settings-cmd) t)))
 
 	      ;; Configure for x-symbol [even if the init cmd caused some error]
 	      (proof-x-symbol-shell-config)))))))
