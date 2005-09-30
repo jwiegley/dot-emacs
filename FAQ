@@ -295,12 +295,18 @@ A. You can do that in Elisp with a command like this:
 
 -----------------------------------------------------------------
 
-Q. Why do I get a warning "[Proof General]: an old version of xml.el was loaded!"?
+Q. Why do I get a warning "Bad version of xml.el found, ..."?
 
-A. Your Emacs session has loaded a version of xml.el from somewhere other
-   than the PG/lib directory.  It has a bug which *may* affect PG, if
-   empty tags are parsed.  To avoid this warning, try to start 
-   Proof General before other Emacs packages which use xml.el, such as GNUS.
+A. Your Emacs distribution includes a version of xml.el which has 
+   fundamental bugs.   The patched version of xml.el, in lib/xml-fixed.el
+   has been loaded instead.  This works for Proof General because it fixes
+   the basic bugs, but it may cause compatibility issues in other packages
+   (e.g. it is quite different from the latest xml.el with GNU Emacs
+   development versions).
+   
+   This message is probably nothing to worry about unless you are using
+   the same Emacs session for other packages that heavily use xml.el
+   (e.g. GNUS).
 
 -----------------------------------------------------------------
 
