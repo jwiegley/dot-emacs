@@ -503,5 +503,6 @@ The first line indented with INDENT-STRING."
 	    "</" (symbol-name (xml-node-name xml)) ">")))
 
 (provide 'xml)
+(provide 'xml-fixed)
 
 ;;; xml.el ends here
