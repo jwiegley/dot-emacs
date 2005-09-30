@@ -2,8 +2,6 @@
 
 ;;; !!! This version has been modified from the version distributed with
 ;;; XEmacs to fix a bug parsing empty elements, for Proof General.  
-;;; NB: the version distributed with GNU Emacs doesn't have this bug,
-;;; so we ought to use that instead of this one.
 
 ;; Copyright (C) 2000, 2001 Free Software Foundation, Inc.
 
