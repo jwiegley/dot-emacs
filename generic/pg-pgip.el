@@ -53,7 +53,7 @@ The list PGIPS may contain one or more PGIP packets, whose contents are processe
   ;; but they are needed for compatibility with Isabelle 2004 whose
   ;; PGIP messages are incomplete.
   (let* ((name	   (xml-node-name pgip))
-	 (origin   (pg-xml-get-attr 'origin pgip 'optional))
+	 (tag      (pg-xml-get-attr 'tag pgip 'optional))
 	 (id	   (pg-xml-get-attr 'id pgip 'optional))
 	 (class	   (pg-xml-get-attr 'class pgip 'notreallyoptional))
 	 (refseq   (pg-xml-get-attr 'refseq pgip 'optional))
@@ -85,7 +85,7 @@ Return a symbol representing the PGIP command processed, or nil."
     (oldhaspref . proof-assistant-menu-update) ;; FIXME: for Isabelle2004 backward compat
     (menuadd  . proof-assistant-menu-update)
     (menudel  . proof-assistant-menu-update)
-    (idtable  . pg-pgip-update-idtables)    ;; TODO: not yet implemented
+    (idtable  . pg-pgip-update-idtables)       ;; TODO: not yet implemented
     (addid    . pg-pgip-update-idtables)
     (delid    . pg-pgip-update-idtables))
   "Table of functions to call after processing PGIP commands")
@@ -628,7 +628,7 @@ See `pg-pgip-assemble-packet' "
 REFSEQ and REFID are used for the corresponding attributes, if present.
 By default, the class of the message is \"pa\" (destined for prover).
 OTHERCLASS overrides this."
-  (let* ((origin	(pg-xml-attr origin
+  (let* ((tag 	        (pg-xml-attr tag
 				     (concat "EmacsPG/" 
 					     proof-general-short-version  
 					     "/" proof-assistant)))
@@ -637,7 +637,7 @@ OTHERCLASS overrides this."
 	 (seq		(pg-xml-attr seq (int-to-string (incf pg-pgip-seq))))
 	 (refseq        (if refseq (list (pg-xml-attr refseq refseq))))
 	 (refid         (if refid (list (pg-xml-attr refid refid))))
-	 (pgip_attrs	(append (list origin id class seq)
+	 (pgip_attrs	(append (list tag id class seq)
 				refseq refid)))
     (pg-xml-node pgip pgip_attrs body)))
 
