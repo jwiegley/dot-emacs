@@ -186,10 +186,13 @@ without adjusting window layout."
 (defun proof-assistant-menu-update ()
   "Update proof assistant menu in scripting buffers."
   (proof-map-buffers (proof-buffers-in-mode proof-mode-for-script)
-     (proof-menu-define-settings-menu)
-     (proof-menu-define-specific)
-     (easy-menu-remove proof-assistant-menu)
-     (easy-menu-add proof-assistant-menu proof-mode-map)))
+    ;; NB: behaviour of easy-menu-remove here is odd in XEmacs, it
+    ;; considerably changes the mode popup menu.  
+    ;; In GNU Emacs this first instruction does nothing.
+    (easy-menu-remove proof-assistant-menu)
+    (proof-menu-define-settings-menu)
+    (proof-menu-define-specific)
+    (easy-menu-add proof-assistant-menu (proof-ass mode-map))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
