@@ -17,15 +17,20 @@ interface wrapper.
 
 Several fixes.  Also, removed support for Coq 6, 7.
 
-*** Support for forthcoming Isabelle versions
+*** Support for Isabelle2005.  
 
-Menu function to display and print drafts of buffer contents.
-Support latest PGIP version inside Isabelle for settings
-configuration.
+Additional menu functions and PGIP support for settings configuration
+controlled by Isabelle.   
+
+Isabelle2004 should still be functional with this version of Proof
+General.  Support for Isabelle 2003 has been removed.
+
 
 *** Miscellaneous fixes
 
-Patches from Stefan Monnier.
+Including patches from Stefan Monnier.
+
+
 
 
 * Summary of Changes for Proof General 3.5 from 3.4
