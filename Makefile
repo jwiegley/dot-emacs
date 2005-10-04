@@ -33,10 +33,14 @@ EXTRA_DIRS = images x-symbol
 
 BATCHEMACS=${EMACS} -batch -q -no-site-file
 
-BASH_SCRIPTS = isa/interface isar/interface bin/proofgeneral
+# Scripts to edit paths to shells
+BASH_SCRIPTS = isar/interface bin/proofgeneral
 PERL_SCRIPTS = lego/legotags coq/coqtags
-BIN_SCRIPTS = bin/proofgeneral
+# Scripts to edit path to PG
 PG_SCRIPTS = bin/proofgeneral
+
+# Scripts to install to bin directory
+BIN_SCRIPTS = ${BASH_SCRIPTS} ${PERL_SCRIPTS}
 
 # FIXME: would rather set load path in Elisp,
 # but seems tricky to do only during compilation.
