@@ -117,7 +117,16 @@
    (if (and (string= (nth 1 click-infos) "none") region-infos)
        (setq pbrpm-rules-list
          (append pbrpm-rules-list
-		 (phox-pbrpm-menu-from-string 1
+		 (phox-pbrpm-menu-from-string 0
+			 (concat "menu_intro "
+				 (int-to-string (nth 0 click-infos))	
+				 (let ((tmp ""))
+				   (mapc (lambda (region-info)
+					   (setq tmp 
+						 (concat tmp " \"" (nth 2 region-info) "\"")))
+					 region-infos)
+				   tmp)))
+	 (phox-pbrpm-menu-from-string 1
 		       (concat "menu_rewrite "
 			       (int-to-string (nth 0 click-infos)) " "
 			       (let ((tmp ""))
@@ -209,7 +218,6 @@
 					"$"
 					(nth 2 click-infos)
 					". ")))))
-	   (message (nth 2 click-infos))
 	   (if (and (char= (string-to-char (nth 2 click-infos)) ??)
 		    region-infos (not (cdr region-infos)))
 	       (setq pbrpm-rules-list
@@ -223,7 +231,27 @@
 					  (nth 2 click-infos) 
 					  " "
 					  (nth 2 (car region-infos))
-					  ". ")))))))))
+					  ". "))))))
+	   (if (char= (string-to-char (nth 2 click-infos)) ??)
+	       (let  ((r (proof-shell-invisible-cmd-get-result (concat "is_locked "
+							      (nth 2 click-infos)))))
+		 (if (char= (string-to-char r) ?t)
+		     (setq pbrpm-rules-list
+			   (append pbrpm-rules-list
+				   (list (list 0 (phox-lang-unlock (nth 2 click-infos))
+					 (concat 
+					  goal-prefix
+					  "unlock "
+					  (nth 2 click-infos)
+					  ". ")))))
+		     (setq pbrpm-rules-list
+			   (append pbrpm-rules-list
+				   (list (list 0 (phox-lang-lock (nth 2 click-infos))
+					 (concat 
+					  goal-prefix
+					  "lock "
+					  (nth 2 click-infos)
+					  ". ")))))))))))
 
    
    (setq pbrpm-rules-list

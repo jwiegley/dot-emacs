@@ -34,6 +34,16 @@
     (en (concat "Choose " s " = "))
     (fr (concat  "Choisissons " s " = "))))
 
+(defun phox-lang-lock (s)
+  (case phox-lang
+    (en (concat "Lock variable" s "."))
+    (fr (concat  "Vérouille la variable " s "."))))
+
+(defun phox-lang-unlock (s)
+  (case phox-lang
+    (en (concat "Unlock variable" s "."))
+    (fr (concat  "Dévérouille la variable " s "."))))
+
 (defun phox-lang-prove ()
   (case phox-lang 
     (en "Let us prove \\[ \\].")
