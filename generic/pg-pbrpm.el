@@ -13,6 +13,7 @@
 (defvar pg-pbrpm-buffer-menu nil)
 (defvar pg-pbrpm-spans nil)
 (defvar pg-pbrpm-goal-description nil)
+(defvar pg-pbrpm-windows-dialog-bug nil)
 
 (defun pg-pbrpm-erase-buffer-menu ()
   (save-excursion
@@ -23,7 +24,6 @@
 
 (defun pg-pbrpm-menu-change-hook (start end len)
   (save-excursion
-    (message "coucou")
     (let ((span (span-at (- start 1) 'editable)))	
       (if (not span) (setq span (span-at start 'editable)))
       (if span
@@ -259,6 +259,7 @@ The prover command is processed via pg-pbrpm-run-command."
      (if act (setq command (apply act command spans nil)))
      (if allspan (setq command (concat "(* " (span-string allspan) " *)\n" command ".")))
      ; delete buffer (and its span) after applying "act"
+     (pg-pbrpm-erase-regions-list)
      (if pg-pbrpm-use-buffer-menu 
 	 (progn
 	   (pg-pbrpm-erase-buffer-menu)

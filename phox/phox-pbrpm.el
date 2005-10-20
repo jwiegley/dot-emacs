@@ -17,7 +17,7 @@
  pg-pbrpm-start-hyp-regexp "^\\([A-Za-z0-9_.']+\\) := "
  pg-pbrpm-start-hyp-regexp-par-num 1
  pg-pbrpm-start-concl-regexp "^ *|- "
- pg-pbrpm-auto-select-regexp "\\(\\(\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)\\)\\(_+\\(\\(['a-zA-Z0-9]+\\)\\|\\([]><=\\/~&+-*%!{}:-]+\\)\\)\\)*\\)\\|\\(\\?[0-9]+\\)"
+ pg-pbrpm-auto-select-regexp "\\(\\(\\(['a-zA-Z0-9]+\\)\\|\\([][><=/~&+*^%!{}:-]+\\)\\)\\(_+\\(\\(['a-zA-Z0-9]+\\)\\|\\([][><=/~&+*^%!{}:-]+\\)\\)\\)*\\)\\|\\(\\?[0-9]+\\)"
 )
 
 
@@ -78,10 +78,11 @@
 		(setq cmd (concat cmd ";; ")))))
 	  (if (> prev 0) (setq cmd (concat cmd "idt"))))))
   cmd)
-	  
-(defun phox-pbrpm-generate-menu (click-infos region-infos)
-; This FAKE function will be replace by a real 'generate-menu' once the code will be judged stable
+	
+(defun phox-pbrpm-get-region-name (region-info)
+      (if (= (nth 0 region-info) 1) (nth 1 region-info) (nth 2 region-info)))
 
+(defun phox-pbrpm-generate-menu (click-infos region-infos)
 "Use informations to build a list of (name , rule)"
    ;click-infos = (goal-number, "whole"/hyp-name/"none", expression, depth-tree-list)
    ;region-infos = idem if in the goal buffer, (0, "none", expression, nil ) if in another buffer, do not display if no region available.
@@ -132,7 +133,7 @@
 			       (let ((tmp ""))
 				 (mapc (lambda (region-info)
 					 (setq tmp 
-					       (concat tmp " " (nth 1 region-info))))
+					       (concat tmp " " (phox-pbrpm-get-region-name region-info))))
 				       region-infos)
 				 tmp))))))
 
@@ -192,18 +193,23 @@
 			       (let ((tmp ""))
 				 (mapc (lambda (region-info)
 					 (setq tmp 
-					       (concat tmp " " (nth 1 region-info))))
+					       (concat tmp " " (phox-pbrpm-get-region-name region-info))))
 				       region-infos)
 				 tmp))))))
 
-   ; is clicking on a token
-   (if (not (string= (nth 2 click-infos) ""))
+   ; is clicking on a token with no selection
+   (if (and (not region-infos) (not (string= (nth 2 click-infos) "")))
        (let ((r (proof-shell-invisible-cmd-get-result (concat "is_definition "
 							      (int-to-string (nth 0 click-infos))
 							      " \""
 							      (nth 2 click-infos)
+							      "\"")))
+	     (ri (proof-shell-invisible-cmd-get-result (concat "is_definition "
+							      (int-to-string (nth 0 click-infos))
+							      " \""
+							      (concat "$" (nth 2 click-infos))
 							      "\""))))
-	 (if (char= (string-to-char r) ?t)
+	 (if (or (char= (string-to-char r) ?t) (char= (string-to-char ri) ?t))
 	     (setq pbrpm-rules-list
 		   (append pbrpm-rules-list
 			   (list (list 1 (concat 

@@ -129,7 +129,7 @@
     phox-strict-comments-regexp
     phox-ident-regexp)
    proof-save-with-hole-result     8
-   proof-ignore-for-undo-count     "\\`\\(constraints\\|flag\\|goals\\|pri\\(nt\\(_sort\\)?\\|ority\\)\\|eshow\\|search\\|depend\\)"
+   proof-ignore-for-undo-count     "\\`\\(constraints\\|flag\\|goals\\|pri\\(nt\\(_sort\\)?\\|ority\\)\\|eshow\\|search\\|depend\\|menu_\\|is_\\)"
    proof-non-undoables-regexp      "\\`\\(undo\\|abort\\)"
    proof-shell-error-regexp        "^\\([^ \n\t\r]* \\)?\\(\\(e\\|E\\)rror\\)\\|\\(\\(f\\|F\\)ailure\\)"
    proof-goal-command              "goal %s."
