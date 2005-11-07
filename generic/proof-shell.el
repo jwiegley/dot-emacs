@@ -1953,10 +1953,8 @@ string instead.
 Errors are not supressed and will result in a display as 
 usual, unless NOERROR is non-nil."
   (setq proof-shell-no-response-display t)
-  (setq proof-shell-no-error-display t)
   (unwind-protect
       (proof-shell-invisible-command cmd 'waitforit)
-    (setq proof-shell-no-error-display nil)
     (setq proof-shell-no-response-display nil))
   proof-shell-last-output)
 

@@ -137,7 +137,6 @@
 )
 
 (defun find-reg (lim reg)
-  (message "findreg")
   (let ((limit lim))
 	 (if (< limit (point)) ;swap limit and point
 		  (let ((x limit)) (setq limit (point)) (goto-char x)))

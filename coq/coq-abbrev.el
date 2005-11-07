@@ -162,11 +162,11 @@
      ["Inductive3            indv3<C-BS>" (holes-insert-and-expand "indv3") t]
      ["Inductive4            indv4<C-BS>" (holes-insert-and-expand "indv4") t]
      ""
-     ["Section..." coq-insert-section t]
+     ["Section/Module (interactive)..." coq-insert-section-or-module t]
      ""
      ("Modules"
       "COMMAND               ABBREVIATION"
-      ["Module (interactive)... " coq-insert-module t]
+      ["Module (interactive)... " coq-insert-section-or-module t]
       ["Module                mo<C-BS>" (holes-insert-and-expand "mo") t]
       ["Module (<:)           mo2<C-BS>" (holes-insert-and-expand "mo") t]
 ;      ["Module (interactive)  moi<C-BS>" (holes-insert-and-expand "moi") t]
@@ -224,6 +224,7 @@
      ["if then else  if<C-BS>"  (holes-insert-and-expand "if") t]
      ["let in        li<C-BS>"  (holes-insert-and-expand "li") t]
      ""
+     ["match (smart)        "  coq-match t]
      ["match         m<C-BS>"  (holes-insert-and-expand "m") t]
      ["match2        m2<C-BS>"  (holes-insert-and-expand "m2") t]
      ["match3        m3<C-BS>"  (holes-insert-and-expand "m3") t]

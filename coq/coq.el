@@ -116,29 +116,25 @@ To disable coqc being called (and use only make), set this to nil."
 
 (require 'coq-abbrev)
 
-(defun coq-insert-section (s)
-  (interactive  "sSection name: ")
-  (let ((p (point)))
-    (insert "Section " s ".\n#\nEnd " s ".")
-    (holes-replace-string-by-holes-backward p)
-    (goto-char p)
-    (holes-set-point-next-hole-destroy))
-)
-
 (defconst module-kinds-table 
-  '(("Module" 1) ("Module Type" 2) ("Declare Module" 3))
+  '(("Section" 0) ("Module" 1) ("Module Type" 2) ("Declare Module" 3))
   "Enumerates the different kinds of modules.")
 
 (defconst modtype-kinds-table
   '(("" 1) (":" 2) ("<:" 3))
   "Enumerates the different kinds of type information for modules.")
 
-(defun coq-insert-module ()
+(defun coq-insert-section-or-module ()
+  "Insert a module or a section after asking right questions."
   (interactive)
-  (let* ((mods (completing-read "kind of module (tab to see list): " module-kinds-table))
-         (s (read-string  "Module name: "))
-         (typkind (completing-read "kind of type (optional, tab to see list): " modtype-kinds-table))
-         (p (point)))
+  (let* 
+      ((mods (completing-read "kind of module (tab to see list): " module-kinds-table))
+       (s (read-string  "Name: "))
+       (typkind (if (string-equal mods "Section")
+                    "" ;; if not a section
+                  (completing-read "kind of type (optional, tab to see list): " 
+                                   modtype-kinds-table)))
+       (p (point)))
     (if (string-equal typkind "")
         (progn
           (insert mods " " s ".\n#\nEnd " s ".")
@@ -623,7 +619,7 @@ This is specific to `coq-mode'."
   "Ask for an ident and print the corresponding term."
   (let (cmd)
     (proof-shell-ready-prover) 
-    (setq cmd (coq-guess-or-ask-for-string "ask"))
+    (setq cmd (coq-guess-or-ask-for-string ask))
     (proof-shell-invisible-command
      (format (concat do " %s. ") cmd)))  
   ) 
@@ -706,12 +702,29 @@ Based on idea mentioned in Coq reference manual."
         (insert intros)
         (indent-region start (point) nil)))))
 
+(defun coq-match ()
+  "Insert a match expression from a type name by Show Intros.
+Based on idea mentioned in Coq reference manual."
+  (interactive)
+  (proof-shell-ready-prover) 
+  (let* ((cmd))
+    (setq cmd (read-string "Build match for type:"))
+    (let ((match 
+           (proof-shell-invisible-cmd-get-result (concat "Show Match " cmd "."))))
+      ;; if error, it will be displayed in response buffer (see def of 
+      ;; proof-shell-invisible-cmd-get-result), otherwise:
+      (unless (proof-string-match coq-error-regexp match)
+        (let ((start (point)))
+          (insert match)
+          (indent-region start (point) nil))))))
+
+
 (proof-defshortcut coq-Apply         "Apply "   [(control ?a)])
 
 ;(proof-defshortcut coq-begin-Section "Section " [(control ?s)])
 (define-key coq-keymap [(control ?i)] 'coq-intros)
-(define-key coq-keymap [(control ?s)] 'coq-insert-section)
-(define-key coq-keymap [(control ?m)] 'coq-insert-module)
+(define-key coq-keymap [(control ?s)] 'coq-insert-section-or-module)
+(define-key coq-keymap [(control ?m)] 'coq-match)
 (define-key coq-keymap [(control ?e)] 'coq-end-Section)
 (define-key coq-keymap [(control ?o)] 'coq-SearchIsos)
 (define-key coq-keymap [(control ?p)] 'coq-Print)
