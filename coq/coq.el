@@ -704,19 +704,33 @@ Based on idea mentioned in Coq reference manual."
 
 (defun coq-match ()
   "Insert a match expression from a type name by Show Intros.
-Based on idea mentioned in Coq reference manual."
+Based on idea mentioned in Coq reference manual. Also insert holes at insertion
+positions."
   (interactive)
   (proof-shell-ready-prover) 
   (let* ((cmd))
     (setq cmd (read-string "Build match for type:"))
-    (let ((match 
-           (proof-shell-invisible-cmd-get-result (concat "Show Match " cmd "."))))
+    (let* ((thematch 
+           (proof-shell-invisible-cmd-get-result (concat "Show Match " cmd ".")))
+          (match (replace-in-string thematch "=> \n" "=> #\n")))
       ;; if error, it will be displayed in response buffer (see def of 
       ;; proof-shell-invisible-cmd-get-result), otherwise:
       (unless (proof-string-match coq-error-regexp match)
         (let ((start (point)))
           (insert match)
-          (indent-region start (point) nil))))))
+          (indent-region start (point) nil)
+          (let ((n (holes-replace-string-by-holes-backward start)))
+            (case n
+	(0 nil)				; no hole, stay here.
+	(1
+	 (goto-char start)
+	 (holes-set-point-next-hole-destroy)) ; if only one hole, go to it.
+	(t
+	 (goto-char start)
+	 (message 
+          (substitute-command-keys
+           "\\[holes-set-point-next-hole-destroy] to jump to active hole.  \\[holes-short-doc] to see holes doc.")))))
+          )))))
 
 
 (proof-defshortcut coq-Apply         "Apply "   [(control ?a)])
