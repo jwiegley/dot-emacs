@@ -1,7 +1,7 @@
 ;;; coq.el --- Major mode for Coq proof assistant
 ;; Copyright (C) 1994 - 1998 LFCS Edinburgh. 
-;; Author: Healfdene Goguen
-;; Maintainer: Pierre Courtieu <courtieu@lri.fr>
+;; Authors: Healfdene Goguen, Pierre Courtieu
+;; Maintainer: Pierre Courtieu <Pierre.Courtieu@cnam.fr>
 
 ;; $Id$ 
 
