@@ -407,6 +407,7 @@ See `x-symbol-language-access-alist' for details."
     (lessless "\\<lless>")
     (greatergreater "\\<ggreater>")
     (unionplus "\\<uplus>")
+    (backslash3 "\\<setminus>")
     (smile "\\<smile>")
     (reflexsucc "\\<succeq>")
     (dashbar "\\<stileturn>")
