@@ -447,7 +447,7 @@ signals to the remote host."
 		     (list (list (list 'type ty) '(class color)
 				 (list 'background 'dark))
 			   (quote ,bd))))
-     '(x mswindows gtk)))
+     '(x mswindows gtk mac)))
     (list (list t (quote ,ow)))))
 
 (defface proof-queue-face 
