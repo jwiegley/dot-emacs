@@ -589,13 +589,25 @@ Sets `holes-active-hole' to the next hole if it exists."
 
 (eval-and-compile
   (cond
+   ;; XEmacs's mouse-track.
    ((fboundp 'mouse-track)
     (defalias 'holes-track-mouse-selection 'mouse-track)
     (defsubst holes-track-mouse-clicks ()
       "see `mouse-track-click-count'"
       mouse-track-click-count))
+   ;; Emacs-22's mouse-drag-track.
+   ((fboundp 'mouse-drag-track)
+    (defalias 'holes-track-mouse-selection 'mouse-drag-track)
+    (defsubst holes-track-mouse-clicks ()
+      "see `mouse-track-click-count'"
+      (+ mouse-selection-click-count 1)))
+   ;; Emacs<22
    ((fboundp 'mouse-drag-region)
-    (defalias 'holes-track-mouse-selection 'mouse-drag-region)
+    (defun holes-track-mouse-selection (event)
+      ;; Emacs-21's mouse-drag-region has a bug that makes it behave more or
+      ;; less like we want it as long as transient-mark-mode is active.
+      (let ((transient-mark-mode nil))
+        (mouse-drag-region event)))
     (defsubst holes-track-mouse-clicks ()
       "see `mouse-selection-click-count'"
       (+ mouse-selection-click-count 1)))
