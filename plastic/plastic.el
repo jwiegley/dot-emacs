@@ -585,8 +585,8 @@ We assume that module identifiers coincide with file names."
 	   ))
 	(t 
 	 (incf i))))			; else include.
-     (setq string (replace-in-string string "  *" " "))
-     (setq string (replace-in-string string "^ *" ""))
+     (setq string (replace-in-string string "  +" " "))
+     (setq string (replace-in-string string "^ +" ""))
    (if (string-match "^\\s-*$" string)
        (setq string (concat "ECHO comment line" proof-terminal-string))
      string))))
