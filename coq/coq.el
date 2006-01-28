@@ -179,11 +179,11 @@ To disable coqc being called (and use only make), set this to nil."
   (proof-ids-to-regexp coq-retractable-instruct))
 
 (defvar coq-keywords-section
-  '("Section" "Module\\-+Type" "Declare\\s-+Module" "Module"))
+  '("Section" "Module\\s-+Type" "Declare\\s-+Module" "Module"))
 
 (defvar coq-section-regexp 
   (concat "\\(" (proof-ids-to-regexp coq-keywords-section) "\\)")
-;  "\\(\\<Section\\>\\|\\<Module\\>\\-+\\<Type\\>\\|\\<Module\\>\\)"
+;  "\\(\\<Section\\>\\|\\<Module\\>\\s-+\\<Type\\>\\|\\<Module\\>\\)"
 )
 ;; End of remove when coq > 8.0
 
