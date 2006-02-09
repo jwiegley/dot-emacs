@@ -53,21 +53,19 @@ version of coq by doing 'coqtop -v'." )
 	  (coq-version-is-V8 (setq coq-version-is-V8-0 t coq-version-is-V8-1 nil)
 								(message v80))
 	  (t;; otherwise do coqtop -v and see which version we have
-		(let ((str (shell-command-to-string (concat coq-prog-name " -v"))))
-		  ;; this match sets match-string below
-		  (string-match "version \\([.0-9]*\\)" str)
+		(let* ((str (shell-command-to-string (concat coq-prog-name " -v")))
+		       ;; this match sets match-string below
+		       (ver (string-match "version \\([.0-9]*\\)" str)))
 		  (message str)
-		  (let ((num (match-string 1 str)))
-			 ;; da: added this to avoid type error in case coq command fails
-			 (if (null num) (setq num ""))
-			 (cond
-			  ((or (string-match "\\<8.1" num)) 
-				(message v81)
-				(setq coq-version-is-V8-1 t))			
-			  (t ;; temporary, should be 8.1 when it is officially out
-				(message (concat "Falling back to default: " v80))
-				(setq coq-version-is-V8-0 t)
-				))))))))
+		  (let ((num (and ver (match-string 1 str))))
+		    (cond
+		     ((and num (string-match "\\<8.1" num))
+		      (message v81)
+		      (setq coq-version-is-V8-1 t))
+		     (t ;; temporary, should be 8.1 when it is officially out
+		      (message (concat "Falling back to default: " v80))
+		      (setq coq-version-is-V8-0 t)))))))))
+		      
 
 ;; ----- keywords for font-lock.
 
