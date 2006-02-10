@@ -393,6 +393,7 @@ matches contents of quotes for quoted identifiers.")
     "^using.*:"
     "^calculation:"
     "^this:"
+    "^abbreviations:"
     "^term bindings:"
     "^facts:"
     "^cases:"
