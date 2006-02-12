@@ -590,7 +590,7 @@ Checks the width in the `proof-goals-buffer'"
                   ;; (if (proof-string-match "\\.ML$" (buffer-name proof-script-buffer))
                   ;;    (format "ML_command {* %s *};" string)
                   ;;    string)
-                  string
+                  (proof-replace-regexp-in-string "\n" "\\\\<^newline>" string)
                   " \\<^sync>;"))))
 
 (defun isar-mode-config ()
