@@ -25,10 +25,23 @@
 (defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
 ;; End debugging
 
-(defcustom coq-prog-name "coqtop -emacs"
+(defcustom coq-prog-name 
+    "coqtop"
+;; On Windows you might need something like:
+;;  "C:/Program Files/Coq/bin/coqtop.opt.exe"
   "*Name of program to run as Coq."
   :type 'string
   :group 'coq)
+
+;; List of arguments to pass to Coq process.  Should contain -emacs.
+;; -translate will be added automatically to this list if `coq-translate-to-v8'
+;; is set.
+(setq coq-prog-args  '("-emacs"))
+
+;; List of environment settings d to pass to Coq process.
+;; On Windows you might need something like:
+;; (setq coq-prog-env '("HOME=C:\\Program Files\\Coq\\"))
+(setq coq-prog-env nil)
 
 (defcustom coq-compile-file-command "coqc %s"
   "*Command to compile a coq file.
