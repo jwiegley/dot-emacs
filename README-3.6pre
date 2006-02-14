@@ -2,7 +2,9 @@ This is a pre-release of version 3.6 of Proof General.
 
 There are improvements to Coq support, minor improvements to
 documentation, and some improvements for Isabelle, in particular to
-support additional features in the current CVS version of Isabelle.
+support additional features in Isabelle 2005.
+
+Compatibility has been improved for more Emacs versions.
 
 =============
 
