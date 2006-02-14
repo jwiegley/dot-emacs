@@ -447,7 +447,7 @@ signals to the remote host."
 		     (list (list (list 'type ty) '(class color)
 				 (list 'background 'dark))
 			   (quote ,bd))))
-     '(x mswindows gtk)))
+     '(x mswindows gtk mac)))
     (list (list t (quote ,ow)))))
 
 (defface proof-queue-face 
@@ -739,8 +739,9 @@ If a function, it should return the command string to insert."
     (interrupt  "Interrupt Prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
     (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
     (visibility "Toggle Visibility"   nil t)
-    (info	nil		      "Show online proof assistant information" t
-				      proof-info-command)
+; PG 3.6: remove Info item from toolbar; it's not very useful and under PA->Help anyway
+;    (info	nil		      "Show online proof assistant information" t
+;				      proof-info-command)
     (help	nil		      "Proof General manual" t))
 "Example value for proof-toolbar-entries.  Also used to define scripting menu.
 This gives a bare toolbar that works for any prover, providing the
