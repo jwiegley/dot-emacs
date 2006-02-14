@@ -27,8 +27,9 @@
 
 (defcustom coq-prog-name 
     "coqtop"
-;; On Windows you might need something like:
+;; On Windows with latest Coq package you might need something like:
 ;;  "C:/Program Files/Coq/bin/coqtop.opt.exe"
+;; instead of just "coqtop".  See also coq-prog-env below.
   "*Name of program to run as Coq."
   :type 'string
   :group 'coq)
