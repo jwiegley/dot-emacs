@@ -5,7 +5,7 @@
 ;;            Thomas Kleymann and Dilip Sequeira
 ;; License:   GPL (GNU GENERAL PUBLIC LICENSE)
 ;;
-;; $Id$
+;; proof-shell.el,v 8.15 2005/09/30 09:45:36 da Exp
 ;;
 
 (require 'proof-menu)
@@ -285,20 +285,21 @@ Does nothing if proof assistant is already running."
       (message "Starting process: %s" proof-prog-name)
 
       ;; Starting the inferior process (asynchronous)
-      (let ((prog-name-list
-	     (proof-string-to-list
-	      ;; Cut in proof-rsh-command if it's non-nil and
-	      ;; non whitespace.  FIXME: whitespace at start
-	      ;; of this string is nasty.
+      (let* ((prog-name-list1
+	      (if (proof-ass prog-args)
+		 ;; If argument list supplied in <PA>-prog-args, use that.
+		  (cons proof-prog-name (proof-ass prog-args))
+		;; Otherwise, cut prog name on spaces (FIXME: could be whitespace?)
+		(proof-string-to-list proof-prog-name " ")))
+	     (prog-name-list
+		;; Cut in proof-rsh-command if it's non-nil 
 	      (if (and proof-rsh-command
-		       (not (string-match "^[ \t]*$" proof-rsh-command)))
-		  (concat proof-rsh-command " " proof-prog-name)
-		proof-prog-name)
-	      ;; Split on spaces: FIXME: maybe should be whitespace.
-	      " "))
+		       (> (length proof-rsh-command) 0))
+		  (cons proof-rsh-command prog-name-list1)
+		prog-name-list1))
 
-	    (process-connection-type
-	     proof-shell-process-connection-type)
+	     (process-connection-type
+	      proof-shell-process-connection-type)
 
 	    ;; PG 3.5: adjust the LANG variable to remove UTF-8
 	    ;; encoding that may be there.  This fix is targeted at RH
@@ -306,16 +307,19 @@ Does nothing if proof assistant is already running."
 	    ;; default.  FIXME: unfortunately this fix doesn't work;
 	    ;; it's not enough to alter process-environment to effect
 	    ;; a locale change.  In bash, LANG=x <prog> works though.
+	    ;; PG 3.6: allow other adjustments to environments from
+	    ;; <PA>-prog-env
 	    (process-environment
-	     (if proof-shell-unicode           ;; if specials not used,
-		 process-environment	       ;; leave it alone
-	       (cons
-		(if (getenv "LANG")
-		    (format "LANG=%s"
-			    (replace-in-string (getenv "LANG")
-					       "\\.UTF-8" ""))
-		  "LANG=C")
-		process-environment)))
+	     (append (proof-ass prog-env)
+		     (if proof-shell-unicode           ;; if specials not used,
+			 process-environment	       ;; leave it alone
+		       (cons
+			(if (getenv "LANG")
+			    (format "LANG=%s"
+				    (replace-in-string (getenv "LANG")
+						       "\\.UTF-8" ""))
+			  "LANG=C")
+			process-environment))))
 
 	    ;; Since we use codes between 128 and 255 as special, we want to
 	    ;; treat the output of the process as binary, except for

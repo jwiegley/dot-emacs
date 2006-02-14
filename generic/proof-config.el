@@ -6,7 +6,7 @@
 ;;
 ;; Maintainer:  Proof General maintainer <da+pg-feedback@inf.ed.ac.uk>
 ;;
-;; $Id$
+;; proof-config.el,v 8.10 2005/09/14 19:11:42 makarius Exp
 ;;
 ;; This file declares all user options and prover-specific
 ;; configuration variables for Proof General.  The variables
@@ -387,7 +387,7 @@ set to a space."
   :type 'string
   :group 'proof-user-options)
 
-(defcustom proof-rsh-command ""
+(defcustom proof-rsh-command nil
   "*Shell command prefix to run a command on a remote host.  
 For example,
 
@@ -400,7 +400,7 @@ The protocol used should be configured so that no user interaction
 (passwords, or whatever) is required to get going.  For proper
 behaviour with interrupts, the program should also communicate
 signals to the remote host."
-  :type 'string
+  :type '(choice string nil)
   :group 'proof-user-options)
 
 (defcustom proof-disappearing-proofs nil
@@ -447,7 +447,7 @@ signals to the remote host."
 		     (list (list (list 'type ty) '(class color)
 				 (list 'background 'dark))
 			   (quote ,bd))))
-     '(x mswindows gtk mac)))
+     '(x mswindows gtk)))
     (list (list t (quote ,ow)))))
 
 (defface proof-queue-face 
@@ -739,9 +739,8 @@ If a function, it should return the command string to insert."
     (interrupt  "Interrupt Prover"    "Interrupt the proof assistant (warning: may break synchronization)" t)
     (restart	"Restart Scripting"   "Restart scripting (clear all locked regions)" t)
     (visibility "Toggle Visibility"   nil t)
-; PG 3.6: remove Info item from toolbar; it's not very useful and under PA->Help anyway
-;    (info	nil		      "Show online proof assistant information" t
-;				      proof-info-command)
+    (info	nil		      "Show online proof assistant information" t
+				      proof-info-command)
     (help	nil		      "Proof General manual" t))
 "Example value for proof-toolbar-entries.  Also used to define scripting menu.
 This gives a bare toolbar that works for any prover, providing the
@@ -1508,11 +1507,27 @@ See pg-user.el: pg-create-in-span-context-menu for more hints."
 
 (defcustom proof-prog-name nil
   "System command to run the proof assistant in the proof shell.
+May contain arguments separated by spaces, but see also `proof-prog-args'.
 Suggestion: this can be set in proof-pre-shell-start-hook from
 a variable which is in the proof assistant's customization
 group.  This allows different proof assistants to coexist
 \(albeit in separate Emacs sessions)."
   :type 'string
+  :group 'proof-shell)
+
+(defpgcustom prog-args nil
+  "Arguments to be passed to `proof-prog-name' to run the proof assistant.
+If non-nil, will be treated as a list of arguments for `proof-prog-name'.
+Otherwise `proof-prog-name' will be split on spaces to form arguments."
+  :type '(list string)
+  :group 'proof-shell)
+
+(defpgcustom prog-env nil
+  "Modifications to `process-environment' made before running `proof-prog-name'.
+Each element should be a string of the form ENVVARNAME=VALUE.
+They will be added to the environment before launching the prover (but
+not pervasively)"
+  :type '(list string)
   :group 'proof-shell)
 
 (defcustom proof-shell-auto-terminate-commands t
