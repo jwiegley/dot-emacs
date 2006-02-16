@@ -571,7 +571,7 @@ Idtac (Nop) tactic, put the following line in your .emacs:
   "Punctuation Symbols used by Coq.")
 
 ;; ----- regular expressions
-(defvar coq-error-regexp "^\\(Error\\|Discarding\\|Syntax error\\|System Error\\|User Error\\|User error\\|Anomaly\\|Uncaught exception\\|Toplevel input\\)"
+(defvar coq-error-regexp "^\\(Error[:]\\|Discarding pattern\\|Syntax error[:]\\|System Error[:]\\|User Error[:]\\|User error[:]\\|Anomaly[:.]\\|Toplevel input[,]\\)"
   "A regexp indicating that the Coq process has identified an error.")
 
 (defvar coq-id proof-id)
