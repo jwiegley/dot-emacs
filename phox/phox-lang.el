@@ -44,12 +44,12 @@
     (en (concat "Unlock variable" s "."))
     (fr (concat  "Dévérouille la variable " s "."))))
 
-(defun phox-lang-prove ()
+(defun phox-lang-prove (s)
   (case phox-lang 
-    (en "Let us prove \\[ \\].")
-    (fr "Prouvons \\[ \\].")))
+    (en (concat "Let us prove \\[" s "\\]."))
+    (fr (concat "Prouvons \\[" s "\\]."))))
 
-(defun phox-lang-let ()
+(defun phox-lang-let (s)
   (case phox-lang 
-    (en "Let \\[ \\] = \\[ \\].")
-    (fr "Définissons \\[ \\] = \\[ \\].")))
+    (en (concat "Let \\[ \\] = \\[" s "\\]."))
+    (fr (concat "Définissons \\[ \\] = \\[" s "\\]."))))

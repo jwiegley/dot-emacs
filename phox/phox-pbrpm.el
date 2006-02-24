@@ -82,6 +82,10 @@
 (defun phox-pbrpm-get-region-name (region-info)
       (if (= (nth 0 region-info) 1) (nth 1 region-info) (nth 2 region-info)))
 
+(defun  phox-pbrpm-escape-string (str)
+  "add escape char '\'"
+  (concat "\"" (replace-regexp-in-string "\\\\" "\\\\\\\\" str) "\""))
+
 (defun phox-pbrpm-generate-menu (click-infos region-infos)
 "Use informations to build a list of (name , rule)"
    ;click-infos = (goal-number, "whole"/hyp-name/"none", expression, depth-tree-list)
@@ -124,7 +128,7 @@
 				 (let ((tmp ""))
 				   (mapc (lambda (region-info)
 					   (setq tmp 
-						 (concat tmp " \"" (nth 2 region-info) "\"")))
+						 (concat tmp " " (phox-pbrpm-escape-string (nth 2 region-info)))))
 					 region-infos)
 				   tmp)))
 	 (phox-pbrpm-menu-from-string 1
@@ -133,7 +137,7 @@
 			       (let ((tmp ""))
 				 (mapc (lambda (region-info)
 					 (setq tmp 
-					       (concat tmp " " (phox-pbrpm-get-region-name region-info))))
+					       (concat tmp " " (phox-pbrpm-escape-string (phox-pbrpm-get-region-name region-info)))))
 				       region-infos)
 				 tmp))))))
 
@@ -141,15 +145,15 @@
      (if (and
 	  (not (or (string= (nth 1 click-infos) "none")
 		   (string= (nth 1 click-infos) "whole")))
+	  (or (string= "" (nth 2 click-infos)) (not (char= (string-to-char (nth 2 click-infos)) ??)))
 	  (not region-infos))
 	 (let ((r (proof-shell-invisible-cmd-get-result (concat "is_hypothesis "
 								(int-to-string (nth 0 click-infos))
-								" \""
-								(nth 1 click-infos)
-								"\""))))
+								" "
+								(phox-pbrpm-escape-string (nth 1 click-infos))))))
 	   (setq pbrpm-rules-list
 		 (append pbrpm-rules-list
-			 (if (char= (string-to-char r) ?t) 
+			 (if (char= (string-to-char r) ?t)
 			     (list
 			      (list 9 (phox-lang-suppress (nth 1 click-infos))
 				    (concat "[" (int-to-string (nth 0 click-infos)) "] " 
@@ -183,7 +187,7 @@
 			       (let ((tmp ""))
 				 (mapc (lambda (region-info)
 					 (setq tmp 
-					       (concat tmp " \"" (nth 2 region-info) "\"")))
+					       (concat tmp " " (phox-pbrpm-escape-string (nth 2 region-info)))))
 				       region-infos)
 				 tmp)))
 		 (phox-pbrpm-menu-from-string 1
@@ -193,22 +197,35 @@
 			       (let ((tmp ""))
 				 (mapc (lambda (region-info)
 					 (setq tmp 
-					       (concat tmp " " (phox-pbrpm-get-region-name region-info))))
+					       (concat tmp " " (phox-pbrpm-escape-string (phox-pbrpm-get-region-name region-info)))))
 				       region-infos)
 				 tmp))))))
+
+   (if (and (not (string= "" (nth 2 click-infos))) (char= (string-to-char (nth 2 click-infos)) ??)
+	    region-infos (not (cdr region-infos)))
+       (setq pbrpm-rules-list
+	     (append pbrpm-rules-list
+		     (list (list 0 (concat 
+				    (phox-lang-instance (nth 2 click-infos))
+				    (nth 2 (car region-infos)))
+				 (concat 
+				  goal-prefix
+				  "instance "
+				  (nth 2 click-infos) 
+				  " "
+				  (nth 2 (car region-infos))
+				  ". "))))))
 
    ; is clicking on a token with no selection
    (if (and (not region-infos) (not (string= (nth 2 click-infos) "")))
        (let ((r (proof-shell-invisible-cmd-get-result (concat "is_definition "
 							      (int-to-string (nth 0 click-infos))
-							      " \""
-							      (nth 2 click-infos)
-							      "\"")))
+							      " " 
+                                                              (phox-pbrpm-escape-string (nth 2 click-infos)))))
 	     (ri (proof-shell-invisible-cmd-get-result (concat "is_definition "
 							      (int-to-string (nth 0 click-infos))
-							      " \""
-							      (concat "$" (nth 2 click-infos))
-							      "\""))))
+							      " "
+							      (phox-pbrpm-escape-string (concat "$" (nth 2 click-infos)))))))
 	 (if (or (char= (string-to-char r) ?t) (char= (string-to-char ri) ?t))
 	     (setq pbrpm-rules-list
 		   (append pbrpm-rules-list
@@ -219,26 +236,12 @@
 					goal-prefix
 					(if (or (string= (nth 1 click-infos) "none") 
 						(string= (nth 1 click-infos) "whole"))
-					    "unfold " 
-					  (concat "unfold_hyp " (nth 1 click-infos) " "))
+					    "unfold -ortho " 
+					  (concat "unfold_hyp " (nth 1 click-infos) " -ortho "))
 					"$"
 					(nth 2 click-infos)
 					". ")))))
-	   (if (and (char= (string-to-char (nth 2 click-infos)) ??)
-		    region-infos (not (cdr region-infos)))
-	       (setq pbrpm-rules-list
-		     (append pbrpm-rules-list
-			     (list (list 0 (concat 
-					    (phox-lang-instance (nth 2 click-infos))
-					    (nth 2 (car region-infos)))
-					 (concat 
-					  goal-prefix
-					  "instance "
-					  (nth 2 click-infos) 
-					  " "
-					  (nth 2 (car region-infos))
-					  ". "))))))
-	   (if (char= (string-to-char (nth 2 click-infos)) ??)
+	   (if (and (not (string= "" (nth 2 click-infos))) (char= (string-to-char (nth 2 click-infos)) ??))
 	       (let  ((r (proof-shell-invisible-cmd-get-result (concat "is_locked "
 							      (nth 2 click-infos)))))
 		 (if (char= (string-to-char r) ?t)
@@ -259,19 +262,19 @@
 					  (nth 2 click-infos)
 					  ". ")))))))))))
 
-   
-   (setq pbrpm-rules-list
-	 (append pbrpm-rules-list
-		 (list
-		  (list 10 "Trivial ?" (concat goal-prefix "trivial"))
-		  (list 10 (phox-lang-prove) (concat goal-prefix "prove") 
-			(lambda (cmd spans) 
-			  (let ((span (pop spans)))
-			    (concat cmd " " (span-string span)))))
-		  (list 10 (phox-lang-let) (concat goal-prefix "local") 
-			(lambda (cmd spans) 
-			  (let ((span1 (pop spans)) (span2 (pop spans)))
-			    (concat cmd " " (span-string span1) " = "(span-string span2))))))))
+   (let ((arg (if (and region-infos (not (cdr region-infos))) (nth 2 (car region-infos)) " ")))
+     (setq pbrpm-rules-list
+	   (append pbrpm-rules-list
+		   (list
+		    (list 10 "Trivial ?" (concat goal-prefix "trivial"))
+		    (list 10 (phox-lang-prove arg) (concat goal-prefix "prove") 
+			  (lambda (cmd spans) 
+			    (let ((span (pop spans)))
+			      (concat cmd " " (span-string span)))))
+		    (list 10 (phox-lang-let arg) (concat goal-prefix "local") 
+			  (lambda (cmd spans) 
+			    (let ((span1 (pop spans)) (span2 (pop spans)))
+			      (concat cmd " " (span-string span1) " = "(span-string span2)))))))))
 
    pbrpm-rules-list
 ))

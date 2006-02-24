@@ -186,8 +186,10 @@ The prover command is processed via pg-pbrpm-run-command."
 				   "Cancel" 
 				   (lambda (n) (pg-pbrpm-erase-buffer-menu) (delete-frame)) nil))
 ; needs to be fixed for other prover than phox
-		 (if phox-x-symbol-enable
-		     (x-symbol-decode))
+		 (if phox-sym-lock-enabled
+		     (font-lock-fontify-buffer)
+		   (if phox-x-symbol-enable
+		       (x-symbol-decode)))
 		 (mapc 'span-read-only pg-pbrpm-spans)
 		 (make-dialog-frame '(width 80 height 30)))
 	       (beep)))))
@@ -203,7 +205,7 @@ The prover command is processed via pg-pbrpm-run-command."
 		    (delete-backward-char) (delete-backward-char)
 		    (setq end (- end 2))
 		    (setq pos (- pos 2))))
-	  (message "make l span %d %d" start (if pos pos end))
+;	  (message "make l span %d %d" start (if pos pos end))
 	  (let ((span (make-span start (if pos pos end))))
 	    (set-span-property span 'pglock t)
 	    (setq pg-pbrpm-spans (cons span pg-pbrpm-spans)))
@@ -235,10 +237,10 @@ The prover command is processed via pg-pbrpm-run-command."
 		    (setq end (+ (- end (- (match-end 0) (match-beginning 0))) len))
 		    (delete-region (match-beginning 0) (match-end 0))
 		    (insert (span-string span))
-		    (message "span o %d %d"  (match-beginning 0) (+ (match-beginning 0) len))
+;		    (message "span o %d %d"  (match-beginning 0) (+ (match-beginning 0) len))
 		    (setq occurrences (cons (make-span (match-beginning 0) (+ (match-beginning 0) len)) 
 					   occurrences))))
-		(message "make w span %d %d %s %d" pos start (span-string span) goalnum)
+;		(message "make w span %d %d %s %d" pos start (span-string span) goalnum)
 		(setq spans (cons span spans))
 		(setq rank (+ rank 1))
 		(set-span-property span 'editable t)
@@ -405,7 +407,7 @@ The prover command is processed via pg-pbrpm-run-command."
    (if (and start end (not (eq start end))) ; if a region is selected
        (let ((span (make-span start end))
 	     (found nil))
-	 (setq pg-pbrpm-regions-list (mapcar (lambda (oldspan) 
+	 (setq pg-pbrpm-regions-list (reverse (mapcar (lambda (oldspan) 
 		   (let ((oldstart (span-start oldspan))
 			 (oldend (span-end oldspan)))
 		     (if (and (eq (current-buffer) (span-buffer oldspan))
@@ -415,7 +417,7 @@ The prover command is processed via pg-pbrpm-run-command."
 			   (setq found t)
 			   (delete-span oldspan)
 			   span) 
-			 oldspan))) pg-pbrpm-regions-list))
+			 oldspan))) pg-pbrpm-regions-list)))
 	 (if (not found) (setq pg-pbrpm-regions-list (cons span pg-pbrpm-regions-list))) 
 	 (set-span-property span 'face 'pg-pbrpm-multiple-selection-face))))
 

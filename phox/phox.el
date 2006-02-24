@@ -33,13 +33,10 @@
   :type 'file
   :group 'phox)
 
-; da: I commented this out, it should be defined automatically
-; in proof-config.el.  If you want to change the default to t,
-; then perhaps:  (custom-set-default phox-x-symbol-enable t)
-;(defcustom phox-x-symbol-enable t
-;  "*Whether to use x-symbol or not."
-;  :type 'boolean
-;  :group 'phox)
+(defcustom phox-sym-lock-enabled t
+  "*Whether to use x-symbol or not."
+  :type 'boolean
+  :group 'phox)
 
 
 (defcustom phox-web-page
@@ -109,6 +106,10 @@
 
 (defun phox-config ()
   "Configure Proof General scripting for PhoX."
+  (if phox-sym-lock-enabled
+      (progn
+	(phox-sym-lock-start)
+	(setq phox-x-symbol-enable nil)))
   (setq
    proof-terminal-char		?\.	; ends every command
    proof-script-command-end-regexp "[.]\\([ \t\n\r]\\)"
@@ -161,7 +162,7 @@
    proof-shell-quit-cmd            "quit."
    proof-shell-restart-cmd         "restart."
    proof-shell-proof-completed-regexp   "^.*^proved"
-))
+   ))
 
 
 ;;
@@ -185,12 +186,12 @@
     ;; it is nice to do : xmodmap -e "keysym KP_Enter = Linefeed"
 
     (define-key phox-mode-map [(control c) (meta d)] 
-      'phox-delete-symbol-on-cursor)  
-    (if phox-x-symbol-enable
-	(progn
-	  (setq x-symbol-language 'phox)
-	  (x-symbol-mode t))) ; just to be sure
-    (font-lock-mode t) ; just to be sure (not always activated on OSX ??
+      'phox-delete-symbol-on-cursor)
+    ;(if phox-x-symbol-enable    
+;	(progn
+	;  (setq x-symbol-language 'phox)
+	 ; (x-symbol-mode t))) ; just to be sure
+;    (font-lock-mode t) ; just to be sure (not always activated on OSX ??)
 
 )
 
@@ -204,14 +205,25 @@
   (setq 
    font-lock-keywords (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    proof-output-fontify-enable     t)
+  (phox-sym-lock-start)
+  (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled)
+      (add-hook 'proof-shell-handle-delayed-output-hook 
+		'phox-sym-lock-font-lock-hook)
+    )
   (proof-response-config-done))
 
 (define-derived-mode phox-goals-mode proof-goals-mode
   "PhoX goals" nil
   (setq 
-   font-lock-keywords  (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
+   font-lock-keywords (append phox-font-lock-keywords proof-xsym-font-lock-keywords)
    proof-output-fontify-enable     t)
+  (phox-sym-lock-start)
+  (if (and (featurep 'phox-sym-lock) phox-sym-lock-enabled)
+      (add-hook 'pg-before-fontify-output-hook 
+		'phox-sym-lock-font-lock-hook)
+    )
   (proof-goals-config-done))
+
 
 ;; The response buffer and goals buffer modes defined above are
 ;; trivial.  In fact, we don't need t²o define them at all -- they
