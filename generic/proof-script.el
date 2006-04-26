@@ -1333,7 +1333,7 @@ With ARG, turn on scripting iff ARG is positive."
 	     (and (eq proof-completed-proof-behaviour 'closeany)
 		  (> proof-shell-proof-completed 0))
 	     (and (eq proof-completed-proof-behaviour 'closegoal)
-		  (funcall proof-goal-command-p cmd))))
+		  (funcall proof-goal-command-p span))))
 	(proof-done-advancing-autosave span))
 
        ;; CASE 4: A "Require" type of command is seen (Coq).
@@ -1442,7 +1442,7 @@ With ARG, turn on scripting iff ARG is positive."
 		   (proof-string-match proof-save-command-regexp cmd))
 	      (incf lev))
 	     ;; Decrement depth when a goal is hit
-	     ((funcall proof-goal-command-p cmd)
+	     ((funcall proof-goal-command-p gspan)
 	      (decf lev))
 	     ;; Remainder cases: see if command matches something we
 	     ;; should count for a global undo
@@ -1519,7 +1519,7 @@ With ARG, turn on scripting iff ARG is positive."
 	 (gspan    (if swallow span (prev-span span 'type)))
 	 (newend   (if swallow (span-end span) (span-start span)))
 	 (cmd      (span-property span 'cmd))
-	 (newgoal  (funcall proof-goal-command-p cmd))
+	 (newgoal  (funcall proof-goal-command-p span))
 	 nam hitsave dels ncmd)
     ;; Search backwards to see if we can find a previous goal
     ;; before a save or the start of the buffer.
@@ -1533,7 +1533,8 @@ With ARG, turn on scripting iff ARG is positive."
 	  ;;(eq (span-property gspan 'type) 'proverproc) ;; NB: not necess currently
 	  (and
 	   (setq ncmd (span-property gspan 'cmd))
-	   (not (funcall proof-goal-command-p (setq cmd ncmd)))
+	   (setq cmd ncmd) ; pc: is this ok?
+	   (not (funcall proof-goal-command-p gspan))
 	   (not
 	    (and proof-save-command-regexp
 		 (proof-string-match proof-save-command-regexp cmd)
@@ -1575,7 +1576,7 @@ With ARG, turn on scripting iff ARG is positive."
   ;; is that they have no natural surrounding region, so makes
   ;; it difficult to define a region for revealing again.
   ;; [ best solution would be to support clicking on ellipsis]
-  (if (funcall proof-goal-command-p (span-property span 'cmd))
+  (if (funcall proof-goal-command-p span)
 	  (incf proof-nesting-depth))
 
   (if proof-shell-proof-completed
@@ -2280,8 +2281,7 @@ Span deletion property set to flag DELETE-REGION."
 		  (or (eq (span-property span 'type) 'proof)
 		      (eq (span-property span 'type) 'comment)
 		      (eq (span-property span 'type) 'proverproc)
-		      (not (funcall proof-goal-command-p
-				    (span-property span 'cmd)))))
+		      (not (funcall proof-goal-command-p span))))
 	(setq span (prev-span span 'type)))
       span)))
 
@@ -2620,9 +2620,10 @@ assistant."
 ;; allow settings which are string or fn, so we don't need both regexp
 ;; and function hooks, and so that the other hooks can be functions too.
 
-(defun proof-generic-goal-command-p (str)
+(defun proof-generic-goal-command-p (span)
   "Is STR a goal?  Decide by matching with `proof-goal-command-regexp'."
-  (proof-string-match-safe proof-goal-command-regexp str))
+  (proof-string-match-safe proof-goal-command-regexp
+			   (or (span-property span 'cmd) "")))
 
 (defun proof-generic-state-preserving-p (cmd)
   "Is CMD state preserving?  Match on `proof-non-undoables-regexp'."

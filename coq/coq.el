@@ -323,7 +323,6 @@ toplevel \"Coq <\".  Returns nil if yes.  This assumes that no
          (s (string-match regex lastprompt))
          (lprf (match-string 3 lastprompt))
          )
-    (message lprf)
     (cons (string-to-int (match-string 2 lastprompt))
           (cons (string-to-int (match-string 4 lastprompt))
                 (cons (build-list-id-from-string lprf) nil)))
@@ -367,6 +366,16 @@ pending proofs (in a list)."
   (set-span-property span 'statenum val)
   )
 
+(defun coq-get-span-goalcmd (span)
+  "Return the 'goalcmd flag of the SPAN."
+  (span-property span 'goalcmd)
+  )
+
+(defun coq-set-span-goalcmd (span val)
+  "Set the 'goalcmd flag of the SPAN to VAL."
+  (set-span-property span 'goalcmd val)
+  )
+
 (defun coq-set-span-proofnum (span val)
   "Set the proof number of the SPAN to VAL."
   (set-span-property span 'proofnum val)
@@ -398,12 +407,21 @@ This number is in the *last but one* prompt (variable `coq-last-but-one-statenum
 If locked span already has a state number, thne do nothing. Also updates
 `coq-last-but-one-statenum' to the last state number for next time."
   (if (and proof-shell-last-prompt proof-script-buffer)
+      ;; infos = promt infos of the very last prompt
+      ;; sp = last locked span, which we want to fill with prompt infos
       (let ((sp    (proof-last-locked-span))
             (infos (or (coq-last-prompt-info-safe) '(0 0 nil)))
             )
         (unless (or (not sp) (coq-get-span-statenum sp))
           (coq-set-span-statenum sp coq-last-but-one-statenum))
         (setq coq-last-but-one-statenum (car infos))
+        ;; set goalcmd property if this is a goal start 
+        ;; (ie proofstack has changed and not a save cmd)
+        (unless 
+            (or (not sp) (equal (span-property sp 'type) 'goalsave)
+                (<= (length (car (cdr (cdr infos))))
+                    (length coq-last-but-one-proofstack)))
+          (coq-set-span-goalcmd sp t))
         ;; testing proofstack=nil is not good here because nil is the empty list OR
         ;; the no value, so we test proofnum as it is always set at the same time.
         ;; This is why this test is done before the next one (which sets proofnum)

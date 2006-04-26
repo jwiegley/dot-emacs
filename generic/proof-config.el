@@ -1160,8 +1160,11 @@ and that variable for details."
 ;; values as well as regexps. 
 ;; FIXME: could just as easily give default value of 
 ;; proof-std-goal-command-p here, why not?
+;; Pierre: changed this to take the span as argument instead of the string,
+;; This allows coq-mode to use a 'goalcmd attribute computed by looking at
+;; coq messages when each command is sent.
 (defcustom proof-goal-command-p 'proof-generic-goal-command-p
-  "A function to test: is this really a goal command?
+  "A function to test: is this really a goal command span?
 
 This is added as a more refined addition to proof-goal-command-regexp,
 to solve the problem that Coq and some other provers can have goals which 

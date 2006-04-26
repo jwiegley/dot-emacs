@@ -90,6 +90,8 @@ version of coq by doing 'coqtop -v'." )
     "CoInductive"
 	 "Definition" ;; careful: if not followed by :=, then it is a goal cmd
     "Fixpoint"
+    "GenFixpoint" ;; careful: may or not be a proof start
+    "Function"  ;; careful: may or not be a proof start
     "CoInductive"
     "Inductive"
     "Inductive\\s-+Set"
@@ -107,12 +109,14 @@ version of coq by doing 'coqtop -v'." )
 (defvar coq-keywords-goal
   '("Add\\s-+Morphism"
 	 "Chapter"
-	 "Declare\\s-+Module";;only if not followed by:=(see coq-proof-mode-p in coq.el)
+	 "Declare\\s-+Module";;only if not followed by:=(see coq-goal-command-p below)
 	 "Module"
 	 "Module\\s-+Type"
 	 "Section"
 	 "Correctness"
-	 "Definition";; only if not followed by := (see coq-proof-mode-p in coq.el)
+	 "Definition";; only if not followed by := (see coq-goal-command-p below)
+	 "GenFixpoint" ;;if {measure} or {wf} (see coq-goal-command-p below)
+	 "Function" ;;if {measure} or {wf} (see coq-goal-command-p below)
 	 "Fact"
 	 "Goal"
 	 "Lemma"
@@ -126,6 +130,10 @@ version of coq by doing 'coqtop -v'." )
 ;; so it appears more difficult than just a proof-goal-regexp setting.
 ;; Future improvement may simply to be allow a function value for
 ;; proof-goal-regexp.
+
+;; FIXME Pierre: the right way IMHO here would be to set a span
+;; property 'goalcommand when coq prompt says it (if the name of
+;; current proof has changed).
 
 ;; excerpt of Jacek Chrzaszcz, implementer of the module system: sorry
 ;; for the french:
@@ -157,32 +165,71 @@ of STRG matching REGEXP. Empty match are counted once."
         (setq str (substring str (match-end 0)))))
     nbmatch))
 
+; This function is used for amalgamating a proof into a single
+; goal-save region (proof-goal-command-p used in
+; proof-done-advancing-save in generic/proof-script.el). It is the
+; test when looking backward the start of the proof.  It is NOT used
+; elsewhere in the backtrack mechanism of coq > v8.1
+; (coq-find-and-forget in coq.el uses state numbers, proof numbers and
+; lemma names given in the prompt)
 
-
-(defun coq-goal-command-p (str)
-  "Decide whether argument is a goal or not"
+; compatibility with v8.0, will delete it some day
+(defun coq-goal-command-p-v80 (str)
+  "See `coq-goal-command-p'."
   (let* ((match (coq-count-match "\\<match\\>" str))
-		  (with (coq-count-match "\\<with\\>" str))
-		  (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
-		  (affect (coq-count-match ":=" str)))
+	 (with (coq-count-match "\\<with\\>" str))
+	 (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
+	 (affect (coq-count-match ":=" str)))
 		  
-	 (and (proof-string-match coq-goal-command-regexp str)
-			(not									 ; 
-			 (and 
-			  (proof-string-match "\\`\\(Local\\|Definition\\|Lemma\\|Module\\)\\>" str)
-			  (not (= letwith affect))))
-			(not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
-			)
+    (and (proof-string-match coq-goal-command-regexp str)
+	 (not				; 
+	  (and 
+	   (proof-string-match "\\`\\(Local\\|Definition\\|Lemma\\|Module\\)\\>" str)
+	   (not (= letwith affect))))
+	 (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
 	 )
+    )
   )
 
+;We use this function in order to detect [Declare] modules [Type]
+;openings. goal openings are detected by parsing the prompt.
+
+(defun coq-goal-command-str-v81-p (str)
+  "Decide whether STR is a module opening or not. 
+Used by `coq-goal-command-p'"
+  (let* ((match (coq-count-match "\\<match\\>" str))
+	 (with (coq-count-match "\\<with\\>" str))
+	 (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
+	 (affect (coq-count-match ":=" str)))
+    (and (proof-string-match "\\`\\(Module\\)\\>" str)
+	 (= letwith affect))
+	 ))
+
+
+;; TODO: have something in the prompt telling the name of all opened
+;; modules (like for open goals), and use it to set goalcmd --> no more
+;; need to look at "Modules" --> no more need to coq-goal-command-str-v81-p
+(defun coq-goal-command-p-v81 (span)
+  "see `coq-goal-command-p'"
+  (or (span-property span 'goalcmd)
+      ;; module starts are detected here
+      (coq-goal-command-str-v81-p (or (span-property span 'cmd) ""))))
+
+
+(defun coq-goal-command-p (span)
+  "Decide whether argument is a goal or not."
+ (cond 
+  (coq-version-is-V8-1 (coq-goal-command-p-v81 span))
+  (coq-version-is-V8-0 (coq-goal-command-p-v80 span))
+  (t (coq-goal-command-p-v80 span)) ;; this is temporary
+  ))
 
 (defvar coq-keywords-save-strict
   '("Defined"
     "Save"
     "Qed"
     "End"
-	 "Admitted"
+    "Admitted"
 	 ))
 
 (defvar coq-keywords-save
@@ -196,6 +243,7 @@ of STRG matching REGEXP. Empty match are counted once."
 			  (not (proof-string-match "Proof\\s-*\\(\\.\\|\\<with\\>\\)" str)))
 		)
   )
+
 
 (defvar coq-keywords-kill-goal 
   '("Abort"))

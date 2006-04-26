@@ -28,6 +28,10 @@ Module M.
     Parameter T:Set.
     Parameter x:T.
   End SIG.
+  Module Type SIG'.
+    Parameter T:Set.
+    Parameter x:T.
+  End SIG'.
   Lemma toto : O=O.
     Definition t:=nat.
     trivial.
@@ -66,16 +70,13 @@ Module Type N'.
   Module Type M'.
     Declare Module K:N.SIG.
   End M'.
-  Declare Module N''.
+(*   Declare Module N''. *)
     Definition T:=nat.
     Definition x:=O.
-  End N''.
+(*   End N''. *)
   
   Declare Module N':M.SIG. (* no interactive def started *)
-  Declare Module N''':= N'. (* no interactive def started *)
-  Declare Module N''''. (* interactive def started *)
-	 Parameter foo:nat.
-  End N''''.            (* interactive def ended *)
+  Declare Module N''' :M.SIG. (* no interactive def started *)
 End N'.
 
     
@@ -90,7 +91,6 @@ Save.
     
 Lemma bar:O=O.
   Module Type L. (* This should not be allowed by Coq, since the End L. below fails *)
-	 Axiom foo: O=O.
   End L. (* fails --> if we go back to Module Type: unsync *)
   Module I.
 End I.

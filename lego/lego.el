@@ -197,7 +197,8 @@ Given is the first SPAN which needs to be undone."
 
 (defun lego-goal-command-p (str)
   "Decide whether argument is a goal or not"
-  (proof-string-match lego-goal-command-regexp str))
+  (proof-string-match lego-goal-command-regexp
+		      (or (span-property span 'cmd) "")))
 
 (defun lego-find-and-forget (span) 
   (let (str ans)

@@ -233,9 +233,10 @@ Given is the first SPAN which needs to be undone."
       (setq span (next-span span 'type)))
     (concat plastic-lit-string " &S Undo x" (int-to-string ct) proof-terminal-string)))
 
-(defun plastic-goal-command-p (str)
+(defun plastic-goal-command-p (span)
   "Decide whether argument is a goal or not"			;; NEED CHG.
-  (proof-string-match plastic-goal-command-regexp str))
+  (proof-string-match plastic-goal-command-regexp 
+		      (or (span-property span 'cmd) "")))
 
 (defun plastic-find-and-forget (span) 
 	;; count the number of spans to undo.

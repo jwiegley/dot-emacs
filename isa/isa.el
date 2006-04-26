@@ -508,8 +508,7 @@ you will be asked to retract the file or process the remainder of it."
        (ct 0) str i)
     (if (and span (prev-span span 'type)
 	     (not (eq (span-property (prev-span span 'type) 'type) 'comment))
-	     (isa-goal-command-p
-	      (span-property (prev-span span 'type) 'cmd)))
+	     (isa-goal-command-p (prev-span span 'type)))
 	(concat "choplev 0" proof-terminal-string)
       (while span
 	(setq str (span-property span 'cmd))
@@ -531,9 +530,10 @@ you will be asked to retract the file or process the remainder of it."
       (concat "ProofGeneral.repeat_undo " 
 	      (int-to-string ct) proof-terminal-string))))
 
-(defun isa-goal-command-p (str)
+(defun isa-goal-command-p (span)
   "Decide whether argument is a goal or not"
-  (proof-string-match isa-goal-command-regexp str)) ; this regexp defined in isa-syntax.el
+  (proof-string-match isa-goal-command-regexp  ; this regexp defined in isa-syntax.el
+		      (or (span-property span 'cmd) ""))) 
 
 ;; Isabelle has no concept of a Linear context, so forgetting back
 ;; to the declaration of a particular something makes no real

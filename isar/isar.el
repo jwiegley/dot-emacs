@@ -479,9 +479,10 @@ proof-shell-retract-files-regexp."
 
 
 
-(defun isar-goal-command-p (str)
+(defun isar-goal-command-p (span)
   "Decide whether argument is a goal or not"
-  (proof-string-match isar-goal-command-regexp str))
+  (proof-string-match isar-goal-command-regexp 
+		      (or (span-property span 'cmd) "")))
 
 (defun isar-global-save-command-p (span str)
   "Decide whether argument really is a global save command"

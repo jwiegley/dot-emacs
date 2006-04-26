@@ -343,7 +343,9 @@ Does nothing if proof assistant is already running."
 	;; could add back code above for multiple shells <2> <3>, etc.
 	;; Seems hardly worth it.
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
-				     (cdr prog-name-list))))
+				     (cdr prog-name-list)))
+	;(message (append (list proc (car prog-name-list) nil) (cdr prog-name-list)))
+	)
 
       (setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
 
