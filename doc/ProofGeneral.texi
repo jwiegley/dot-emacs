@@ -3134,7 +3134,7 @@ when a file is loaded. Those values are written as a list at the end of
 the file.
 
 For example, in projects involving multiple directories, it is often
-useful to set the variables @code{proof-prog-name} and
+useful to set the variables @code{proof-prog-name}, @code{proof-prog-args} and
 @code{compile-command} for each file. Here is an example for Coq users:
 for the file @file{.../dir/bar/foo.v}, if you want Coq to be started
 with the path @code{.../dir/theories/} added in the libraries path
@@ -3142,27 +3142,32 @@ with the path @code{.../dir/theories/} added in the libraries path
 @lisp
 
 (* 
- Local Variables: 
- coq-prog-name: "coqtop -emacs -I ../theories"
- End:
+*** Local Variables: ***
+*** coq-prog-name: "coqtop" ***
+*** coq-prog-args: ("-emacs" "-I" "../theories") ***
+*** End: ***
 *)
 @end lisp
 
 That way the good command is called when the scripting starts in
-@file{foo.v}. Notice that the command argument @code{"-I ../theories"}
+@file{foo.v}. Notice that the command argument @code{"-I" "../theories"}
 is specific to the file @file{foo.v}, and thus if you set it via the
 configuration tool, you will need to do it each time you load this
 file. On the contrary with this method, Emacs will do this operation
-automatically when loading this file.
+automatically when loading this file. Please notice that all the strings
+above should never contain spaces see documentation of variables
+@code{proof-prog-name} and @code{proof-prog-args}.
 
 Extending the previous example, if the makefile for @file{foo.v} is
 located in directory @file{.../dir/}, you can add the right compile
-command:
+command. And if you want a non standard coq executable to be used, here
+is what you should put in variables:
 
 @lisp
 (* 
  Local Variables: 
- coq-prog-name: "coqtop -emacs -full -I ../theories"
+ coq-prog-name: "../../coqsrc/bin/coqtop" 
+ coq-prog-args: "-emacs" "-I" "../theories"
  compile-command: "make -C .. -k bar/foo.vo" 
  End:
 *)
@@ -3173,6 +3178,7 @@ compile} command. Notice that the lines are commented in order to be
 ignored by the proof assistant. It is possible to use this mechanism for
 any other buffer local variable.  @inforef{File Variables,
 ,xemacs}.
+
 
 
 
