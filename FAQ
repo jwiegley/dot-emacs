@@ -47,6 +47,14 @@ A. This is caused by UTF-8 support in recent linuxes with glibc 2.2 or later
    Notice that the variable `buffer-file-coding-system' may determine
    the format that files are saved in.  
 
+   UPDATE for PG Version 3.6:
+
+   Some provers have a Unicode-safe interaction mode.  You can set
+   `proof-shell-unicode' to try to enable communication with the 
+   prover which does not use non-ASCII 8-bit characters for markup.
+   This is supported in Isabelle > Isabelle 2005.
+  
+
 -----------------------------------------------------------------
 
 Q. Proof General fails to load with an error message on start-up: 
