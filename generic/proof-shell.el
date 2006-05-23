@@ -332,11 +332,11 @@ Does nothing if proof assistant is already running."
 	       ;; da: Unfortunately 'raw-text causes hangs with some Emacs,
 	       ;; since we get something not as raw as it was otherwise;
 	       ;; so leave it as it is, please
-	       coding-system-for-read))
+	       (if (boundp 'coding-system-for-read) coding-system-for-read)))
 	    (coding-system-for-write 
 	     (if proof-shell-unicode 'utf-8 
 	       ;; was: 'raw-text
-	       coding-system-for-write)))
+	       (if (boundp 'coding-system-for-write) coding-system-for-write))))
 
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we
