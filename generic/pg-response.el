@@ -482,7 +482,7 @@ We fontify the output only if we're not too busy to do so."
 (defun proof-trace-buffer-finish ()
   "Complete fontification in tracing buffer now that there's time to do so."
   (let ((fontifystart (proof-trace-fontify-pos)))
-    (if fontifystart ;; may be done already
+    (if (and fontifystart (not quit-flag));; may be done already/user desparately trying to avoid
 	(save-excursion
 	   (set-buffer proof-trace-buffer)
 	   (proof-fontify-region fontifystart (point-max))))))
