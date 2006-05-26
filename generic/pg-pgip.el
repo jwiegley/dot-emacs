@@ -55,7 +55,7 @@ The list PGIPS may contain one or more PGIP packets, whose contents are processe
   (let* ((name	   (xml-node-name pgip))
 	 (tag      (pg-xml-get-attr 'tag pgip 'optional))
 	 (id	   (pg-xml-get-attr 'id pgip 'optional))
-	 (class	   (pg-xml-get-attr 'class pgip 'notreallyoptional))
+	 (class	   (pg-xml-get-attr 'messageclass pgip 'notreallyoptional))
 	 (refseq   (pg-xml-get-attr 'refseq pgip 'optional))
 	 (refid    (pg-xml-get-attr 'refid pgip 'optional))
 	 (seq	   (pg-xml-get-attr 'seq pgip 'notreallyoptional)))
