@@ -20,9 +20,7 @@
 
 ;;; Code:
 ;; debugging functions
-(defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
-(defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
-(defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
+;; (defun proofstack () (coq-get-span-proofstack (span-at (point) 'type)))
 ;; End debugging
 
 (defcustom coq-prog-name 
