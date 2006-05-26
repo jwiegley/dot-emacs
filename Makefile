@@ -15,7 +15,7 @@
 
 # Set this to "emacs" or "xemacs" according to your version of Emacs.
 # NB: this is also used to set default install path names below.
-EMACS=xemacs
+EMACS=$(shell if [ -z "`which xemacs`"]; then echo emacs; else echo xemacs; fi)
 
 # We default to /usr rather than /usr/local because installs of
 # desktop and doc files under /usr/local are unlikely to work with
