@@ -8,6 +8,19 @@ This is an outline file.   Use C-c C-n, C-c C-p or menu to navigate.
 3.6 TODOs
 =========
 
+Things to do for 3.6 final:
+
+ -- nuisance fix needed for docstring magic because of pruning of spaces 
+    from empty lines in all docstrings by Stefan Monnier (argh!)
+ -- merge/fix of patch by Claire Quigley
+ -- Coq updates check: symbols, linewidth, file handling
+ -- Complete generification of adjust-line-width function
+      (currently separately in lego, isar,plastic)
+
+
+=================================================================
+
+
 * PGIP support
 ** Remove need for decorated output around PGIP responses.
 ** Support simplified (flat, non context-sensitive) completion for idtables
