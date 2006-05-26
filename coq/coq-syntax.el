@@ -208,7 +208,7 @@ Used by `coq-goal-command-p'"
 
 ;; TODO: have something in the prompt telling the name of all opened
 ;; modules (like for open goals), and use it to set goalcmd --> no more
-;; need to look at "Modules" --> no more need to coq-goal-command-str-v81-p
+;; need to look at "Modules" --> no more need to coq-goal-command-v80str-v81-p
 (defun coq-goal-command-p-v81 (span)
   "see `coq-goal-command-p'"
   (or (span-property span 'goalcmd)
@@ -220,8 +220,8 @@ Used by `coq-goal-command-p'"
   "Decide whether argument is a goal or not."
  (cond 
   (coq-version-is-V8-1 (coq-goal-command-p-v81 span))
-  (coq-version-is-V8-0 (coq-goal-command-p-v80 span))
-  (t (coq-goal-command-p-v80 span)) ;; this is temporary
+  (coq-version-is-V8-0 (coq-goal-command-p-v80 (span-property span 'cmd)))
+  (t (coq-goal-command-p-v80 (span-property span 'cmd))) ;; this is temporary
   ))
 
 (defvar coq-keywords-save-strict
