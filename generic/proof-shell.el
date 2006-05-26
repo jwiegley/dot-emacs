@@ -319,25 +319,33 @@ Does nothing if proof assistant is already running."
 				    (replace-in-string (getenv "LANG")
 						       "\\.UTF-8" ""))
 			  "LANG=C")
-			process-environment))))
+			(delete
+			 (concat "LANG=" (getenv "LANG"))
+			 process-environment)))))
 
 	    ;; Since we use codes between 128 and 255 as special, we want to
 	    ;; treat the output of the process as binary, except for
 	    ;; end-of-line conversion (hence `raw-text').
 	    ;; It is also the only sensible choice since we make the buffer
 	    ;; unibyte below.
+	    ;; Update: there are problems here with systems where
+	    ;;  i) coding-system-for-read/write is not available (e.g. MacOS XEmacs non-mule)
+	    ;; ii) 'rawtext gives wrong behaviour anyway (e.g. Mac OS GNU Emacs, maybe Windows)
+	    ;;     probably because of line-feed conversion.
 	    (coding-system-for-read
-	     (if proof-shell-unicode 'utf-8 
-	       ;; was: 'raw-text
-	       ;; da: Unfortunately 'raw-text causes hangs with some Emacs,
-	       ;; since we get something not as raw as it was otherwise;
-	       ;; so leave it as it is, please
-	       (if (boundp 'coding-system-for-read) coding-system-for-read)))
-	    (coding-system-for-write 
-	     (if proof-shell-unicode 'utf-8 
-	       ;; was: 'raw-text
-	       (if (boundp 'coding-system-for-write) coding-system-for-write))))
+	     (if proof-shell-unicode 
+		 'utf-8 
+	       (if (string-match "Linux" 
+				 (shell-command-to-string "uname"))
+		   ;; raw-text seems to be useful/needed here.  Overrides
+		   ;; LANG mess above in some circumstances, it seems.
+		   'raw-text
+		 (if (boundp 'coding-system-for-read) 
+		     coding-system-for-read))))
 
+	    (coding-system-for-write  
+	     coding-system-for-read))
+	     
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we
 	;; could add back code above for multiple shells <2> <3>, etc.
