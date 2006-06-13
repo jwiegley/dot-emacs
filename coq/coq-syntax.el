@@ -191,11 +191,14 @@ of STRG matching REGEXP. Empty match are counted once."
     )
   )
 
-;We use this function in order to detect [Declare] modules [Type]
-;openings. goal openings are detected by parsing the prompt.
+; Module and or section openings are detected syntactically. Module
+; *openings* are difficult to detect because there can be Module
+; ...with X := ... . So we need to count :='s to detect real openings.
 
-(defun coq-goal-command-str-v81-p (str)
-  "Decide whether STR is a module opening or not. 
+; TODO: have opened section/chapter in the prompt too, and get rid of
+; syntactical tests everywhere
+(defun coq-module-opening-p (str)
+  "Decide whether STR is a module or section opening or not. 
 Used by `coq-goal-command-p'"
   (let* ((match (coq-count-match "\\<match\\>" str))
 	 (with (coq-count-match "\\<with\\>" str))
@@ -203,17 +206,30 @@ Used by `coq-goal-command-p'"
 	 (affect (coq-count-match ":=" str)))
     (and (proof-string-match "\\`\\(Module\\)\\>" str)
 	 (= letwith affect))
-	 ))
+    ))
+
+(defun coq-section-command-p (str)
+  (proof-string-match "\\`\\(Section\\|Chapter\\)\\>" str))
 
 
-;; TODO: have something in the prompt telling the name of all opened
-;; modules (like for open goals), and use it to set goalcmd --> no more
-;; need to look at "Modules" --> no more need to coq-goal-command-v80str-v81-p
+
+;; This is the function that tests if a SPAN is a goal start. All it
+;; has to do is look at the 'goalcmd attribute of the span.
+;; It also looks if this is not a module start.
+
+;; TODO: have also attributes 'modulecmd and 'sectioncmd. This needs
+;; something in the coq prompt telling the name of all opened modules
+;; (like for open goals), and use it to set goalcmd --> no more need
+;; to look at Modules and section (actually indentation will still
+;; need it)
 (defun coq-goal-command-p-v81 (span)
   "see `coq-goal-command-p'"
   (or (span-property span 'goalcmd)
-      ;; module starts are detected here
-      (coq-goal-command-str-v81-p (or (span-property span 'cmd) ""))))
+      ;; module and section starts are detected here
+      (let ((str (or (span-property span 'cmd) "")))
+	(or (coq-section-command-p str)
+	    (coq-module-opening-p str))
+      )))
 
 
 (defun coq-goal-command-p (span)
