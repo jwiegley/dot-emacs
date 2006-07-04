@@ -138,14 +138,11 @@ detect if they start something or not."
 
 (defun coq-find-command-start-backward ()
   "Move to the start of current command."
-  (message "PRE WHILE")
   (coq-find-command-end-backward)
   (while (and (proof-looking-at-syntactic-context)
 				  (> (point) (point-min)))
-    (message "WHILE")
     (coq-find-command-end-backward))
-  (if (proof-looking-at "\\.\\s-") (progn (forward-char 1)(message "start found"))
-    (message "start not found"))
+  (if (proof-looking-at "\\.\\s-") (forward-char 1))
   (point)
   )
 
@@ -199,17 +196,13 @@ detect if they start something or not."
     (if (= limit (point)) nil)
     ;;swap limit and point if necessary
     (if (< limit (point)) (let ((x limit)) (setq limit (point)) (goto-char x)))
-    (message (concat (int-to-string limit) " , " (int-to-string (point))))
     (let ((pos nil))
       (while 
           (and (not pos)
                (setq pos (proof-string-match reg (buffer-substring (point) limit))))
-        (message (concat "out while: " "POS=" (int-to-string pos) " , POINT=" (int-to-string (point))))
         (forward-char pos)
         (if (proof-looking-at-syntactic-context) (progn (setq pos nil) (forward-char 1)))
-        (message (concat "out while: " "POS=" (int-to-string pos) " , POINT=" (int-to-string (point))))
         )
-;      (goto-char oldpt)
       (and pos (point)))
     )
   )
@@ -228,14 +221,9 @@ detect if they start something or not."
       (back-to-indentation)
       (if (not topnotreached) 0;; returns nil if top of buffer was reached
         ;; if we are at end of a command (dot) find this command
-        (message "prevline start 0")
-        (if (find-reg oldpt coq-end-command-regexp)
-            (progn (message "prevline start 1") (coq-find-real-start) 
-                   (message "prevline start 1.1") 1)
-          (message "prevline start 2")
+        (if (find-reg oldpt coq-end-command-regexp) (progn (coq-find-real-start) 1)
           (if (save-excursion 
                 (and (coq-find-real-start)
-                     (or (message "prevline start 1.1") t)
                      (proof-looking-at-safe "Record")
                      (find-reg oldpt "{"))) 
               4 
