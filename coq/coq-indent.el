@@ -82,6 +82,25 @@
 
 ;;;; End of regexps
 
+(defun coq-indent-goal-command-p (str)
+  "Syntactical detection of a coq goal opening.  Only used in indentation code and in
+v8.0 compatibility mode.  Module, Definition and Function needs a special parsing to
+detect if they start something or not."
+  (let* ((match (coq-count-match "\\<match\\>" str))
+         (with (coq-count-match "\\<with\\>" str))
+         (letwith (+ (coq-count-match "\\<let\\>" str) (- with match)))
+         (affect (coq-count-match ":=" str)))
+		  
+    (and (proof-string-match coq-goal-command-regexp str)
+         (not 
+          (and (proof-string-match "\\`\\(Local\\|Definition\\|Lemma\\|Module\\)\\>" str)
+               (not (= letwith affect))))
+         (not (proof-string-match "\\`Declare\\s-+Module\\(\\w\\|\\s-\\|<\\)*:" str))
+         (not 
+          (and (proof-string-match "\\`\\(Function\\|GenFixpoint\\)\\>" str)
+               (not (proof-string-match "{\\s-*\\(wf\\|measure\\)" str))))
+         )))
+
 
 (defun coq-find-command-start ()
   (proof-re-search-backward "\\.\\s-\\|\\`")
@@ -339,7 +358,7 @@
                   ;  unless followed by a term (catch by coq-save-command-p above
 				  (proof-looking-at-safe "\\<Proof\\>")
 				  (not (coq-save-command-p nil (coq-current-command-string))))
-				 (coq-goal-command-p (coq-current-command-string))))
+				 (coq-indent-goal-command-p (coq-current-command-string))))
 	 proof-indent)
 
 ;	((and (goto-char prevpoint) 
@@ -367,7 +386,10 @@
 ;; inside the accolades of a record.
 
 (defun coq-indent-expr-offset (kind prevcol prevpoint record)
-  "Returns the indentation column of the current line. This function indents a *expression* line (a line inside of a command). Use `coq-indent-command-offset' to indent a line belonging to a command. The fourth argument must be t if inside the {}s of a record, nil otherwise."
+  "Returns the indentation column of the current line.
+This function indents a *expression* line (a line inside of a command).  Use
+`coq-indent-command-offset' to indent a line belonging to a command.  The fourth
+argument must be t if inside the {}s of a record, nil otherwise."
 
   (let ((pt (point)) real-start)
 	 (save-excursion 
@@ -525,7 +547,8 @@
           0 
           (save-excursion
             (back-to-indentation)
-            (coq-indent-calculate)))))
+            (coq-indent-calculate)
+            ))))
       (if (< (current-column) (current-indentation))
           (back-to-indentation))))
   (if proof-indent-pad-eol (proof-indent-pad-eol)))
