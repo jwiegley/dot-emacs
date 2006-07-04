@@ -39,6 +39,8 @@
 ;															"with"
 															"after"))))
 
+(defconst coq-comment-start-regexp "(\\(*\\)+")
+(defconst coq-comment-end-regexp "\\(*\\)+)")
 
 (defconst coq-indent-open-regexp
   (proof-regexp-alt ;(proof-ids-to-regexp coq-keywords-goal) goal-command-p instead
@@ -101,18 +103,54 @@ detect if they start something or not."
                (not (proof-string-match "{\\s-*\\(wf\\|measure\\)" str))))
          )))
 
+;; ". " and "... " are command endings, ".. " is not, same as in
+;; proof-script-command-end-regexp in coq.el
+(defconst coq-end-command-regexp 
+  "\\(?:[^.]\\|\\(?:\\.\\.\\)\\)\\(\\.\\)\\(?:\\s-\\|\\'\\)")
 
-(defun coq-find-command-start ()
-  (proof-re-search-backward "\\.\\s-\\|\\`")
+
+(defun coq-find-command-end-backward ()
+  "Moves to the first end of command found looking up.  The point is put exactly before the last \".\" of the ending token.  If no end command is found, go as far as possible and return nil."
+  (if (string-match coq-end-command-regexp (buffer-substring (point-min) (point)))
+      (progn 
+        (proof-re-search-backward coq-end-command-regexp)
+        (goto-char (match-beginning 1)))
+    (goto-char (point-min))
+    nil))
+
+(defun coq-find-command-end-forward ()
+  "Moves to the first end of command found looking up.  The point is put exactly before the last \".\" of the ending token.  If no end command is found, go as far as possible and return nil."
+  (if (string-match coq-end-command-regexp (buffer-substring (point) (point-max)))
+      (progn
+        (proof-re-search-forward coq-end-command-regexp)
+        (goto-char (match-beginning 1)))
+    (goto-char (point-max))
+    nil))
+
+
+(defun coq-find-command-end (direction)
+  "Moves to the first end of command found looking at direction.  The opint is put exactly before the last \".\" of the ending token.  If no end command is found, go as far as possible and return nil."
+  (if (< direction 0)
+      (coq-find-command-end-backward)
+    (coq-find-command-end-forward)))
+
+
+
+(defun coq-find-command-start-backward ()
+  "Move to the start of current command."
+  (message "PRE WHILE")
+  (coq-find-command-end-backward)
   (while (and (proof-looking-at-syntactic-context)
 				  (> (point) (point-min)))
-    (proof-re-search-backward "\\.\\s-\\|\\`"))
-  (if (proof-looking-at "\\.\\s-") (forward-char 1))
+    (message "WHILE")
+    (coq-find-command-end-backward))
+  (if (proof-looking-at "\\.\\s-") (progn (forward-char 1)(message "start found"))
+    (message "start not found"))
   (point)
   )
 
 (defun coq-find-real-start ()
-  (coq-find-command-start)
+  (coq-find-command-start-backward)
   (proof-re-search-forward "\\w\\|\\s(\\|\\s)\\|\\'")
   (backward-char 1)
   (while (and (proof-looking-at-syntactic-context)
@@ -124,12 +162,12 @@ detect if they start something or not."
   )
 
 (defun coq-find-end ()
-  (proof-re-search-forward "\\.\\s-\\|\\.\\'\\|\\'")
+  (coq-find-command-end-forward)
   (if (= (point) (+ (match-beginning 0) 2)) (backward-char 1))
   (while (and (proof-looking-at-syntactic-context)
 				  (<= (point) (point-max)))
     (proof-re-search-forward "\\*\\s)")
-    (proof-re-search-forward "\\.\\s-\\|\\.\\'\\|\\'")
+    (proof-re-search-forward coq-end-command-regexp)
     (if (= (point) (+ (match-beginning 0) 2)) (backward-char 1)))
   (point)
   )
@@ -137,8 +175,8 @@ detect if they start something or not."
 (defun coq-current-command-string ()
   (save-excursion
     (let ((st (coq-find-real-start)) ; va chercher trop loin?
-          (nd (coq-find-end))) ; idem?
-      (buffer-substring st nd))
+          (nd (coq-find-command-end-forward))) ; idem?
+      (buffer-substring st (+ nd 1)))
     )
   )
 
@@ -156,45 +194,56 @@ detect if they start something or not."
 )
 
 (defun find-reg (lim reg)
-  (let ((limit lim))
-	 (if (< limit (point)) ;swap limit and point
-		  (let ((x limit)) (setq limit (point)) (goto-char x)))
-	 (let ((pos nil))
-		(while 
-			 (and (not pos)
-					(setq pos (proof-string-match reg (buffer-substring (point) limit))))
-		  (forward-char pos)
-		  (if (proof-looking-at-syntactic-context) (setq pos nil)))
-		pos)
-	 )
+  "Return non nil if there is an occurrence of reg between point and lim which is not a comment or a string.  Actually returns the position of the occurrence found.  Point is not moved"
+  (let ((oldpt (point)) (limit lim))
+    (if (= limit (point)) nil)
+    ;;swap limit and point if necessary
+    (if (< limit (point)) (let ((x limit)) (setq limit (point)) (goto-char x)))
+    (message (concat (int-to-string limit) " , " (int-to-string (point))))
+    (let ((pos nil))
+      (while 
+          (and (not pos)
+               (setq pos (proof-string-match reg (buffer-substring (point) limit))))
+        (message (concat "out while: " "POS=" (int-to-string pos) " , POINT=" (int-to-string (point))))
+        (forward-char pos)
+        (if (proof-looking-at-syntactic-context) (progn (setq pos nil) (forward-char 1)))
+        (message (concat "out while: " "POS=" (int-to-string pos) " , POINT=" (int-to-string (point))))
+        )
+;      (goto-char oldpt)
+      (and pos (point)))
+    )
   )
 
 (defun coq-back-to-indentation-prevline ()
   "Moves point back to previous pertinent line for indentation. Move point to the first non white space character. Returns 0 if top of buffer was reached, 3 if inside a comment or string, 4 if inside the {} of a record, 1 if the line found is not in the same command as the point before the function was called, 2 otherwise (point and previous line are in the same command, and not inside the {} of a record)."
-
   (if (proof-looking-at-syntactic-context) 3
-	 (let ((oldpt (point))
-			 (topnotreached (= (forward-line -1) 0))) ; nil if going one line backward
-													 ; is not possible
-		(while (and topnotreached
-						(or (only-spaces-on-line) (proof-looking-at-syntactic-context))
-						t ;(> (line-number (point)) (line-number (point-min)))
-						)
-		  (setq topnotreached (= (forward-line -1) 0)))
-		(back-to-indentation)
-		(if (not topnotreached) 0 ; returns nil if top of buffer was reached
-		  (if (find-reg oldpt "\\.\\s-\\|\\.\\'");; if we are at end of a command (dot) find this command
-				(progn (coq-find-real-start) 1)
-			 (if (save-excursion 
-					 (and (coq-find-real-start)
-							(proof-looking-at-safe "Record")
-							(find-reg oldpt "{"))) 
-				  4 
-				2))
+    (let ((oldpt (point))
+          (topnotreached (= (forward-line -1) 0))) ; nil if going one line backward
+                                        ; is not possible
+      (while (and topnotreached
+                  (or (only-spaces-on-line) (proof-looking-at-syntactic-context))
+                  t;;(> (line-number (point)) (line-number (point-min)))
+                  )
+        (setq topnotreached (= (forward-line -1) 0)))
+      (back-to-indentation)
+      (if (not topnotreached) 0;; returns nil if top of buffer was reached
+        ;; if we are at end of a command (dot) find this command
+        (message "prevline start 0")
+        (if (find-reg oldpt coq-end-command-regexp)
+            (progn (message "prevline start 1") (coq-find-real-start) 
+                   (message "prevline start 1.1") 1)
+          (message "prevline start 2")
+          (if (save-excursion 
+                (and (coq-find-real-start)
+                     (or (message "prevline start 1.1") t)
+                     (proof-looking-at-safe "Record")
+                     (find-reg oldpt "{"))) 
+              4 
+            2))
 		  
-		  )
-		)
-	 )
+        )
+      )
+    )
   )
 
 
@@ -344,12 +393,13 @@ detect if they start something or not."
   "Returns the indentation offset of the current line. This function indents a *command* line (the first line of a command). Use `coq-indent-expr-offset' to indent a line belonging to an expression."
   (cond
 
+	((proof-looking-at-safe "\\<Proof\\>") 0) ; no indentation at "Proof ..."
+
   ; we are at an end command -> one ident left
   ; FIX: we should count the number of closing item on the line
 	((coq-save-command-p nil (coq-current-command-string)) 
 	 (- proof-indent))
 
-	((proof-looking-at-safe "\\<Proof\\>") 0) ; no indentation at "Proof ..."
 
   ; previous command is a goal command -> one indent right
   ; carreful: this line moves the point
@@ -500,6 +550,23 @@ argument must be t if inside the {}s of a record, nil otherwise."
 
 
 
+(defun coq-indent-comment-offset ()
+  (save-excursion
+    (let ((oldpt (point)))
+      (if (/= (forward-line -1) 0) 0 ; we are at beginning of buffer
+        (while (and (only-spaces-on-line) (= (forward-line -1) 0)) ())
+        (if (string-match coq-comment-start-regexp 
+                          (buffer-substring (point) (line-end-position)))
+            (progn (proof-re-search-forward coq-comment-start-regexp) (forward-char 1))
+          (if (proof-looking-at-syntactic-context)
+              (progn (proof-re-search-forward "\\S-")
+                     (goto-char (match-beginning 0)))
+            ;;we are at the first line of a comment
+            (coq-find-command-end-backward)
+            (coq-find-real-start)))
+        (current-column)))))
+
+
 (defun coq-indent-offset ()
   (let (kind prevcol prevpoint)
 	 (save-excursion
@@ -514,11 +581,7 @@ argument must be t if inside the {}s of a record, nil otherwise."
 		(coq-indent-expr-offset kind prevcol prevpoint nil))
 	  ((= kind 4) ; we are at the expression level inside {}s of a record
 		(coq-indent-expr-offset kind prevcol prevpoint t))
-	  ((= kind 3) (+ (current-column) 2))
-	  )
-		
-	 )
-  )
+	  ((= kind 3) (coq-indent-comment-offset)))))
 
 (defun coq-indent-calculate () 
   (coq-indent-offset)
