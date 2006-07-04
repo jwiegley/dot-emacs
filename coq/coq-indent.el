@@ -187,7 +187,7 @@ detect if they start something or not."
   )
 
 (defun only-spaces-on-line ()
-  "t if there is only spaces (or nothing) on the current line after point"
+  "t if there is only spaces (or nothing) on the current line after point.  Moves point to first non space char if present."
   (while (and (char-after) (is-at-a-space-or-tab))
     (forward-char 1))
   (if (or (not (char-after)) (char-equal (char-after) ?\n)) t nil)
@@ -552,16 +552,21 @@ argument must be t if inside the {}s of a record, nil otherwise."
 
 (defun coq-indent-comment-offset ()
   (save-excursion
-    (let ((oldpt (point)))
+    (let ((oldpt (point))
+          ;; atstart is true if the line to indent is a comment start
+          (atstart (proof-looking-at coq-comment-start-regexp)))
       (if (/= (forward-line -1) 0) 0 ; we are at beginning of buffer
+        ;; only-space on a non empty line moves the point to first non space char
         (while (and (only-spaces-on-line) (= (forward-line -1) 0)) ())
-        (if (string-match coq-comment-start-regexp 
-                          (buffer-substring (point) (line-end-position)))
+        (if (and (not atstart)
+                 (string-match coq-comment-start-regexp 
+                               (buffer-substring (point) (line-end-position))))
             (progn (proof-re-search-forward coq-comment-start-regexp) (forward-char 1))
-          (if (proof-looking-at-syntactic-context)
+          (if (and (not atstart) (proof-looking-at-syntactic-context))
               (progn (proof-re-search-forward "\\S-")
                      (goto-char (match-beginning 0)))
             ;;we are at the first line of a comment
+            (goto-char oldpt)
             (coq-find-command-end-backward)
             (coq-find-real-start)))
         (current-column)))))
