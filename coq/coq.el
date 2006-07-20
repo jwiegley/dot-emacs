@@ -530,7 +530,7 @@ If locked span already has a state number, thne do nothing. Also updates
        
        ;; Unsaved goal commands: each time we hit one of these
        ;; we need to issue Abort to drop the proof state.
-       ((coq-goal-command-p str) (incf naborts)) ; FIX: nundos<-0 ?
+       ((coq-goal-command-str-p str) (incf naborts)) ; FIX: nundos<-0 ?
 
        ;; If we are already outside a proof, issue a Reset.  [ improvement would be
        ;; to see if the undoing will take us outside a proof, and use the first Reset

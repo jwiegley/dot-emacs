@@ -174,7 +174,7 @@ of STRG matching REGEXP. Empty match are counted once."
 ; lemma names given in the prompt)
 
 ; compatibility with v8.0, will delete it some day
-(defun coq-goal-command-p-v80 (str)
+(defun coq-goal-command-str-v80-p (str)
   "See `coq-goal-command-p'."
   (let* ((match (coq-count-match "\\<match\\>" str))
 	 (with (coq-count-match "\\<with\\>" str))
@@ -212,6 +212,11 @@ Used by `coq-goal-command-p'"
   (proof-string-match "\\`\\(Section\\|Chapter\\)\\>" str))
 
 
+(defun coq-goal-command-str-v81-p (str)
+  "Decide syntactically whether STR is a goal start or not. Use
+  `coq-goal-command-p-v81' on a span instead if posible."
+  (coq-goal-command-str-v80-p str)
+  )
 
 ;; This is the function that tests if a SPAN is a goal start. All it
 ;; has to do is look at the 'goalcmd attribute of the span.
@@ -231,13 +236,21 @@ Used by `coq-goal-command-p'"
 	    (coq-module-opening-p str))
       )))
 
+(defun coq-goal-command-str-p (str)
+  "Decide whether argument is a goal or not.  Use
+  `coq-goal-command-p' on a span instead if posible."
+ (cond 
+  (coq-version-is-V8-1 (coq-goal-command-str-v81-p str))
+  (coq-version-is-V8-0 (coq-goal-command-str-v80-p str))
+  (t (coq-goal-command-p-str-v80 str)) ;; this is temporary
+  ))
 
 (defun coq-goal-command-p (span)
   "Decide whether argument is a goal or not."
  (cond 
   (coq-version-is-V8-1 (coq-goal-command-p-v81 span))
-  (coq-version-is-V8-0 (coq-goal-command-p-v80 (span-property span 'cmd)))
-  (t (coq-goal-command-p-v80 (span-property span 'cmd))) ;; this is temporary
+  (coq-version-is-V8-0 (coq-goal-command-str-v80-p (span-property span 'cmd)))
+  (t (coq-goal-command-str-v80-p (span-property span 'cmd))) ;; this is temporary
   ))
 
 (defvar coq-keywords-save-strict
