@@ -1,5 +1,6 @@
 
-theory A = Pure:;
+theory A imports Pure 
+begin
 
 consts foo :: 'a;
 consts bar :: 'a;

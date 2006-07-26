@@ -1,4 +1,4 @@
+theory B imports Pure
+begin
 
-theory B = Pure:;
-
-end;
+end

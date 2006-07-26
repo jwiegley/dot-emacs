@@ -1,5 +1,6 @@
 (* -*- isar -*- *)
 
-theory C = A + B:;
+theory C imports A B
+begin
 
-end;
+end
