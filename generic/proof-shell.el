@@ -282,7 +282,8 @@ Does nothing if proof assistant is already running."
     (let
 	((proc (downcase proof-assistant)))
 
-      (message "Starting process: %s" proof-prog-name)
+;pc: not showing the prog-args is confusing, right message is showed below
+;      (message "Starting process: %s" proof-prog-name)
 
       ;; Starting the inferior process (asynchronous)
       (let* ((prog-name-list1
@@ -297,6 +298,8 @@ Does nothing if proof assistant is already running."
 		       (> (length proof-rsh-command) 0))
 		  (cons proof-rsh-command prog-name-list1)
 		prog-name-list1))
+	     (prog-command-line 
+	      (proof-splice-separator " " prog-name-list))
 
 	     (process-connection-type
 	      proof-shell-process-connection-type)
@@ -346,24 +349,25 @@ Does nothing if proof assistant is already running."
 	    (coding-system-for-write  
 	     coding-system-for-read))
 	     
+	(message "Starting process: %s" prog-command-line)
+
 	;; An improvement here might be to catch failure of
 	;; make-comint and then kill off the buffer.  Then we
 	;; could add back code above for multiple shells <2> <3>, etc.
 	;; Seems hardly worth it.
 	(apply 'make-comint  (append (list proc (car prog-name-list) nil)
 				     (cdr prog-name-list)))
-	;(message (append (list proc (car prog-name-list) nil) (cdr prog-name-list)))
+
+	(setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
+
+	(unless (proof-shell-live-buffer)
+	  ;; Give error now if shell buffer isn't live
+	  ;; Solves problem of make-comint succeeding but process
+	  ;; exiting immediately.
+	  ;; Might still be problems here if sentinels are set.
+	  (setq proof-shell-buffer nil)
+	  (error "Starting process: %s..failed" prog-command-line))
 	)
-
-      (setq proof-shell-buffer (get-buffer (concat "*" proc "*")))
-
-      (unless (proof-shell-live-buffer)
-	;; Give error now if shell buffer isn't live
-	;; Solves problem of make-comint succeeding but process
-	;; exiting immediately.
-	;; Might still be problems here if sentinels are set.
-	(setq proof-shell-buffer nil)
-	(error "Starting process: %s..failed" proof-prog-name))
 
       ;; Create the associated buffers and set buffer variables
       ;; 
